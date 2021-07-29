@@ -1,0 +1,14 @@
+<table>
+	<tbody>
+		<tr>
+			<div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
+				<% form.hidden_field :id %>
+				<td align="right"><%= form.object.order.to_s  %></td>
+				<td><%= form.object.drill ? form.object.drill.name : "buscar ejercicio" %></td>
+				<td align="center"><%= form.number_field :duration, in: 5..35, size: 3 %></td>
+				<td><button style="height:32px;width:32px" type="button" data-action="nested-form#remove"><%= image_tag "minus.png" %></button></td>
+				<%= form.hidden_field :_destroy %>
+			</div>
+		</tr>
+	</tbody>
+</table>

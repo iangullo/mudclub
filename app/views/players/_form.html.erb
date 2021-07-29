@@ -1,0 +1,32 @@
+<%= form_for @player, remote: true, authenticity_token: true do |form| %>
+	<table><%= form.fields_for :person do |f| %>
+		<tr>
+			<td rowspan="3" colspan="2" align="center">
+				<%= image_tag(@player.picture, :size => "100x100") %>
+			</td>
+			<td><strong><%= f.label "Nombre" %></td>
+			<td colspan="2"><%= f.text_field :name %></td>
+		</tr><tr>
+			<td><strong><%= f.label "Apellidos" %></td>
+			<td colspan="2"><%= f.text_field :surname %></td>
+		</tr><tr>
+			<td><strong>F. Nacim.:</td>
+			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %></td>
+		</tr><tr>
+			<td colspan="2"><%= form.file_field :avatar, direct_upload: true %></td>
+			<td><strong><%= f.label "Apodo:" %></td>
+			<td><%= f.text_field :nick %></td>
+		</tr><tr>
+			<th align="right"><%= form.label "# " %></td>
+			<td><%= form.number_field :number, min: 0, max: 99, size: 3 %></td>
+			<td><strong><%= f.label "Femenino:" %></td>
+			<td><%= f.check_box :female %></td>
+		</tr><tr>
+			<th align="right"><%= form.label "Activ." %></td>
+			<td><%= form.check_box :active %></td>
+		</tr>
+	</table><% end %>
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

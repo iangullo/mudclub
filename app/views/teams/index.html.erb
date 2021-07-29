@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+<h1>Equipos</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Competición</th>
+      <th>Temporada</th>
+      <th colspan="2"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @teams.each do |team| %>
+      <tr>
+        <td><%= link_to team.to_s, team %></td>
+        <td><%= team.division.name %></td>        
+        <td><%= team.season.name %></td>
+        <td><%= link_to 'Editar', edit_team_path(team) %></td>
+        <td><%= link_to 'Borrar', team, method: :delete, data: { confirm: '¿Borrar #{team.to_s}?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'Crear equipo', new_team_path %>

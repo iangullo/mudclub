@@ -1,0 +1,15 @@
+<div id="slot-breakdown">
+  <tr>
+		<td align="center"><%= t_hour.hour.to_s.rjust(2,"0") + ":" + t_hour.min.to_s.rjust(2,"0") %></td>
+		<% 1.upto(5) do |i| %>
+			<td>
+				<% @training_slots.each do |t_slot| %>
+					<% if t_slot.at_work?(i,t_hour) %>
+						<%= link_to t_slot.team.name, t_slot %>
+					<% end %>
+				<% end %>
+			</td>
+		<% end %>
+  </tr>
+</div>
+

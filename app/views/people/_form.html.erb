@@ -1,0 +1,25 @@
+<%= form_with model: @person, remote: true do |f| %>
+	<table>
+		<tr>
+			<td rowspan="3" colspan="2" align="center">
+				<%= image_tag("person.png", :size => "100x100") %>
+			</td>
+			<td><strong><%= Nombre comp. %></td>
+			<td><%= f.text_field :name %></td>
+		</tr><tr>
+			<td><strong><%= Apellidos %></td>
+			<td><%= f.text_field :surname %></td>
+		</tr><tr>
+			<td><strong><%= F.Nacim. %></td>
+			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %></td>
+		</tr><tr>
+			<td><strong><%= Nombre %></td>
+			<td><%= f.text_field :nick %></td>
+			<td><%= f.label "Fem." %></td>
+			<td><%= f.check_box :female %></td>
+		</tr>
+	</table>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

@@ -1,0 +1,42 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Entrenadores</h1>
+
+<div id="search-coaches">
+	<%= form_with(url: '/coaches', method: 'get', local: true) do %>
+		<%= text_field_tag(:search) %>
+		<%= submit_tag("Buscar") %>
+	<% end %>
+</div>
+
+<div id="coachess-grid">
+	<table>
+		<thead>
+			<tr>
+				<th>Nombre</th>
+				<th>Edad</th>
+				<th style="text-align:center">Activo</th>
+				<th colspan="2"></th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<% @coaches.each do |coach| %>
+				<tr>
+					<td><%= link_to coach.fullname, coach %></td>
+					<td><%= coach.person.age %></td>
+					<td style="text-align:center"><%= coach.active ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
+					<td><%= link_to 'Editar', edit_coach_path(coach) %></td>
+					<td><%= link_to 'Borrar', coach, method: :destroy, data: { confirm: '¿Borrar #{coach.to_s}?' } %></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+<div id="import-export">
+	<table>
+		<tr>
+			<th colspan="2"><%= link_to 'Crear entrenador/a', new_coach_path %>
+		</tr>
+	</table>
+</div>

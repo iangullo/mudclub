@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<%= javascript_pack_tag "application" %>
+	<%= stylesheet_link_tag "application" %>
+	<link rel="stylesheet" href="https://unpkg.com/bulmaswatch/flatly/bulmaswatch.min.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>CB Mairena</title>
+	<nav class="navbar" role="navigation" aria-label="main navigation">
+		<div class="navbar-brand">
+			<a class="navbar-item" href="#"><%= image_tag("clublogo.png") %></a>
+			<a role="button" class="navbar-burger burger"  onclick="document.querySelector('.navbar-menu').classList.toggle('is-active');">
+				<span aria-hidden="true"></span>
+				<span aria-hidden="true"></span>
+				<span aria-hidden="true"></span>
+			</a>
+		</div>
+		<div id="navbarClub" class="navbar-menu">
+			<div class="navbar-start">
+				<a class="navbar-item" href="/">Inicio</a>
+				 <div class="navbar-item has-dropdown is-hoverable">
+					<a class="navbar-link">Entrenamiento</a>
+					<div class="navbar-dropdown">
+						<a class="navbar-item" href="/drills">Ejercicios</a>
+						<a class="navbar-item" href="/training_sessions">Sesiones</a>
+						<a class="navbar-item" href="/training_slots">Horarios</a>
+					</div>
+				</div>
+				 <div class="navbar-item has-dropdown is-hoverable">
+					<a class="navbar-link">Administrar</a>
+					<div class="navbar-dropdown">
+						<a class="navbar-item" href="/teams">Equipos</a>
+						<a class="navbar-item" href="/players">Jugadores</a>
+						<a class="navbar-item" href="/coaches">Entrenadores</a>
+						<a class="navbar-item" href="/users">Usuarios</a>						
+					</div>
+				</div>
+			</div>
+			<div class="navbar-end">
+				<div class="navbar-item">
+					<div class="buttons">
+						<a class="button is-light">Log in</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</nav>
+	<%= csrf_meta_tags %>
+	<%= csp_meta_tag %>
+
+	<%= stylesheet_pack_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+  </head>
+
+  <body>
+	<section clas="section">
+	  <div class="content">
+			<% if notice %>
+				<p class="alert alert-success"><%= notice %></p>
+			<% end %>
+			<% if alert %>
+				<p class="alert alert-danger"><%= alert %></p>
+			<% end %>
+			<%= yield %>
+	  </div>
+	</section>
+  </body>
+</html>

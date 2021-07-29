@@ -1,0 +1,56 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Personas</h1>
+
+<div id="search-people">
+	<%= form_with(url: '/people', method: 'get', local: true) do %>
+		<%= text_field_tag(:search) %>
+		<%= submit_tag("Buscar") %>
+	<% end %>
+</div>
+
+<div id="people-grid">
+	<table>
+		<thead>
+			<tr>
+				<th>Nombre</th>
+				<th>Jugador</h>
+				<th>Entrenador</th>
+				<th colspan="2"></th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<% @people.each do |person| %>
+				<tr>
+					<td><%= link_to person.to_s, person %></td>
+			<td><%= person.player_id >0 ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %>
+			<td><%= person.coach_id >0 ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %>
+			<td><%= link_to 'Editar', edit_person_path(person) %></td>
+					<td><%= link_to 'Borrar', person, method: :delete, data: { confirm: '¿Borrar #{person.to_s}?' } %></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+
+<br>
+
+<div id="import-export">
+	<table>
+		<tr>
+			<th colspan="2"><%= link_to 'Crear persona', new_person_path %>
+		</tr><tr>
+			<th colspan="2"><%= link_to 'Exportar (Excel)', people_path(format: :xlsx) %></th>
+		</tr><tr>
+			<th>Importar</th>
+			<td>
+				<%= form_with url: import_people_path, local: true do |form| %>
+					<%= form.file_field :file %>
+					<%= form.submit %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+</div>
+

@@ -1,0 +1,86 @@
+<%= form_with model: training_session, remote: true, authenticity_token: true, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |form| %>
+<% console %>
+<% if training_session.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(training_session.errors.count, "error") %> Impidieron guardar la sesi&oacute;n:</h2>
+
+      <ul>
+        <% training_session.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+	<table>
+		<tr>
+			<td rowspan="4" colspan="2" align="center">
+				<%= image_tag("drill.png", :size => "100x100") %>
+			</td>
+		</tr><tr>
+			<th align="right">Equipo:</th>
+			<% if form.object.team_id > 0 %>
+				<%= form.hidden_field :team_id, value: form.object.team_id %>
+				<th colspan="2"><%= form.object.team.to_s %></th>
+			<% else %>
+				<th colspan="2"><%= form.collection_select :team_id, Team.real, :id, :to_s %></th>
+			<% end %>
+		</tr><tr>
+			<th align="right">Temp.:</th>
+			<% if form.object.team_id > 0 %>
+				<th colspan="2"><%= form.object.team.season.name %></th>
+			<% else %>
+				<th colspan="2"><%= form.collection_select :season_id, Season.all, :id, :name %></th>
+			<% end %>
+		</tr><tr>
+			<th align="right"><%= form.label "Lugar:" %></th>
+			<td><%= form.collection_select :location_id, Location.practice, :id, :name, {selected: form.object.location_id} %></td>
+		</tr><tr>
+			<th align="right">Fecha:</th>
+			<td><%= form.date_field :date, start: :date, end_year: Time.now.year %></td>
+			<th align="right">Hora:</th>
+			<td colspan="2"><%= form.number_field :hour, in: 16..21, size: 3 %><%= form.number_field :min, in: 0..45, step: 15, size: 3 %></td>
+		</tr><tr>
+			<th align="right">Obj.:</th>
+			<td><%= form.text_field :targets %></td>
+			<td colspan="2"><%= form.number_field :duration, in: 60..120, step: 30, size: 4 %>&nbsp;mins.</td>
+		</tr><tr>
+			<td colspan="4">
+				<% ex_ord  = 1 %>
+				<% ses_dur = 0 %>
+				<table>
+					<thead>
+						<tr>
+							<th align="right">#</th>
+							<th>Ejercicio</th>
+							<th align="left">Min</th>
+							<th align="left">Tot</th>
+							<td><button type="button" data-action="nested-form#add"><strong>+</strong></button></td>
+						</tr>
+					</thead>
+					<tbody>
+						<template data-nested-form-target="template">
+							<%= form.fields_for :exercises, Exercise.new(training_session_id: form.object.id, order: ex_ord, drill_id: 1, duration: 5), child_index: 'NEW_RECORD', wrapper: false  do |exercise_fields| %>
+								<%= render 'exercise_form', form: exercise_fields, locals: {ex_ord: ex_ord}  %>
+								<% ex_ord  += 1 %>
+								<% ses_dur += exercise_fields.object.duration %>
+							<% end %>
+						</template>
+						<%= form.fields_for :exercises, wrapper: false do |exercise_fields| %>
+							<%= render 'exercise_form', form: exercise_fields, locals: {ex_ord: ex_ord} %>
+							<% ex_ord  += 1 %>
+							<% ses_dur += exercise_fields.object.duration %>
+						<% end %>
+						<tr>
+							<td colspan="4"><div data-nested-form-target="target"></div></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</table>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

@@ -1,0 +1,47 @@
+<p id="notice"><%= notice %></p>
+
+<%= form_with model: @training_session, remote: true do |form| %>
+	<div id="team-session-details">
+		<table>
+			<tr>
+				<td rowspan="4" colspan="2" align="center">
+					<%= image_tag("drill.png", :size => "100x100") %>
+				</td>
+			</tr><tr>
+				<td><strong>Equipo:</strong>
+				<td><%= @training_session.team.to_s %></td>
+			</tr><tr>
+				<td><strong>Temp.:</strong>
+				<td><%= @training_session.team.season.name %></td>
+			</tr><tr>
+				<td><strong>Lugar:</strong>
+				<td><%= @training_session.location.name %></td>
+			</tr><tr>
+				<td align="right" rowspan="2"><strong>Obj.:</td>
+				<td rowspan="2"><%= @training_session.targets %></td>
+				<td><strong>Cuando:</strong>
+				<td><%= @training_session.date %>;<%= @training_session.time_string %></td>
+			</tr><tr>
+				<td><strong>Durac.:</strong>
+				<td><%= @training_session.duration %>&nbsp; mins.</td>
+			</tr><tr>
+				<td colspan="4">
+					<table>
+						<tr>
+							<th align="right">#<td><strong>Ejercicio<th align="left">Min<th align="left">Tot</strong>
+						</tr>
+							<% ses_dur = 0 %>
+							<%= form.fields_for :exercises do |exercise| %>
+								<% ses_dur += exercise.duration %>				
+								<%= render 'exercise', locals: {exercise: exercise, ses_dur: ses_dur} %>
+							<% end %>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</div>
+<% end %>
+
+<%= link_to 'Editar', edit_training_session_path(@training_session) %> |
+<%= link_to 'Volver', training_sessions_path %>

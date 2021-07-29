@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Entrenamientos</h1>
+
+<div id="search-sessions">
+	<%= form_with(url: '/training_sessions', method: 'get', local: true) do %>
+		<%= text_field_tag(:search) %>
+		<%= submit_tag("Buscar") %>
+	<% end %>
+</div>
+
+<div id="session-work">
+	<table>
+		<thead>
+			<tr>
+				<th>Fecha</th>
+				<th>Lugar</th>
+				<th>Equipo</th>
+				<th colspan="2"></th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<% @training_sessions.each do |training_session| %>
+				<tr>
+				<td><%= link_to training_session.date, training_session %></td>
+				<td><%= training_session.team.name %></td>
+				<td><%= training_session.location.name %></td>
+				<td><%= link_to 'Edit', edit_training_session_path(training_session) %></td>
+				<td><%= link_to 'Destroy', training_session, method: :delete, data: { confirm: '¿seguro?' } %></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+<br>
+
+<%= link_to 'Crear', new_training_session_path(team_id: @team) %> |
+<%= link_to 'Volver', :back %>
