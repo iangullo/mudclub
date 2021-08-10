@@ -11,7 +11,7 @@
 			<tr>
 				<th>Nombre</th>
 				<th>Tipo</th>
-				<th>Descripción</th>
+				<th>Descripci&oacute;n</th>
 				<th>Fundamentos</th>
 				<th colspan="2"></th>
 			</tr>

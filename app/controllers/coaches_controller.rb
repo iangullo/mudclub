@@ -1,7 +1,7 @@
 class CoachesController < ApplicationController
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_coach, only: [:show, :edit, :update, :destroy]
- 
+
 	# GET /coaches
 	# GET /coaches.json
 	def index
@@ -71,7 +71,7 @@ class CoachesController < ApplicationController
 			format.json { head :no_content }
 		end
 	end
-	
+
 	# build new @coach from raw input given by submittal from "new"
 	# return nil if unsuccessful
 	def rebuild_coach(params)
@@ -79,13 +79,15 @@ class CoachesController < ApplicationController
 		@coach.build_person
 		@coach.active = true
 		p_data= params.fetch(:coach).fetch(:person_attributes)
+		@coach.person[:dni] = p_data[:dni]
+		@coach.person[:nick] = p_data[:nick]
 		@coach.person[:name] = p_data[:name]
-		@coach.person[:surname] = p_data[:surname]		
+		@coach.person[:surname] = p_data[:surname]
 		@coach.person[:coach_id] = 0
 		@coach.person[:player_id] = 0
 		@coach
 	end
-	
+
 	# reload edit/create form if person exists without a coach record
 	def reload_data(format)
 		if @coach.person.coach_id==0
@@ -113,6 +115,6 @@ class CoachesController < ApplicationController
 
 	# Never trust parameters from the scary internet, only allow the white list through.
 	def coach_params
-		params.require(:coach).permit(:id, :active, :avatar, person_attributes: [:id, :nick, :name, :surname, :birthday])
+		params.require(:coach).permit(:id, :active, :avatar, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday])
 	end
 end

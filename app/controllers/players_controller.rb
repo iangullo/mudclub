@@ -6,7 +6,7 @@ class PlayersController < ApplicationController
 	# GET /players.json
 	def index
 		@players = Player.search(params[:search])
-    
+
 		respond_to do |format|
 			format.xlsx {
 				response.headers['Content-Disposition'] = "attachment; filename='players.xlsx'"
@@ -58,7 +58,7 @@ class PlayersController < ApplicationController
 	# PATCH/PUT /players/1.json
 	def update
 		respond_to do |format|
-			
+
 			if @player.update(player_params)
 				format.html { redirect_to @player, notice: 'Jugador actualizado.' }
 				format.json { render :show, status: :ok, location: @player }
@@ -75,7 +75,7 @@ class PlayersController < ApplicationController
 	def import
 		# added to import excel
     Player.import(params[:file])
-    redirect_to player_url		
+    redirect_to player_url
 	end
 
 	# DELETE /players/1
@@ -96,7 +96,7 @@ class PlayersController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def player_params
-			params.require(:player).permit(:id, :number, :active, :avatar, person_attributes: [:id, :nick, :name, :surname, :birthday, :female, :player_id], teams_attributes: [:id, :_destroy])
+			params.require(:player).permit(:id, :number, :active, :avatar, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :player_id], teams_attributes: [:id, :_destroy])
 		end
 
 	# build new @player from raw input given by submittal from "new"
@@ -107,8 +107,10 @@ class PlayersController < ApplicationController
 		@player.active = true
 		@player.number = params.fetch(:player)[:number]
 		p_data= params.fetch(:player).fetch(:person_attributes)
+		@player.person[:dni] = p_data[:dni]
+		@player.person[:nick] = p_data[:nick]
 		@player.person[:name] = p_data[:name]
-		@player.person[:surname] = p_data[:surname]		
+		@player.person[:surname] = p_data[:surname]
 		@player.person[:coach_id] = 0
 		@player.person[:player_id] = 0
 		@player
