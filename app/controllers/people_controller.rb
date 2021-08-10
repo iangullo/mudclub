@@ -6,7 +6,7 @@ class PeopleController < ApplicationController
   # GET /people.json
   def index
     @people = Person.search(params[:search])
-    
+
 		respond_to do |format|
 			format.xlsx {
 				response.headers['Content-Disposition'] = "attachment; filename=people.xlsx"
@@ -65,7 +65,7 @@ class PeopleController < ApplicationController
 	def import
 		# added to import excel
     Person.import(params[:file])
-    redirect_to people_url		
+    redirect_to people_url
 	end
 
   # DELETE /people/1
@@ -86,6 +86,6 @@ class PeopleController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
-      params.require(:person).permit(:nick, :name, :surname, :birthday, :female, :player_id, :coach_id)
+      params.require(:person).permit(:dni, :nick, :name, :surname, :birthday, :female, :player_id, :coach_id)
     end
 end
