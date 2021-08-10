@@ -59,3 +59,5 @@ gem 'image_processing'
 gem 'roo'
 gem 'caxlsx'
 gem 'caxlsx_rails'
+gem 'pundit'
+gem 'wdm', '>= 0.1.0' if Gem.win_platform?
