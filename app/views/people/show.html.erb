@@ -2,20 +2,23 @@
 
 <table>
 	<tr>
-		<td rowspan="3" colspan="2" align="center">
+		<td rowspan="3" align="center">
 			<%= image_tag("person.png", :size => "100x100") %>
 		</td>
-		<td colspan="2"><%= @person.name %></td>
+		<td><%= @person.name %></td>
 	</tr><tr>
-		<td colspan="2"><%= @person.surname %></td>
+		<td><%= @person.surname %></td>
 	</tr><tr>
-		<td colspan="2"><%= @person.birthday %></td>
+		<td><%= @person.birthday %></td>
 	</tr><tr>
-		<td colspan="2" style="text-align:center"><%= @person.nick %></td>
-	</tr><tr>
-		<td colspan="2" style="text-align:center"><%= @person.coach_id>0 ? "Entrenador" : "" %></td>
-	</tr><tr>
-		<td style="text-align:center"><%= @person.player_id>0 ? "Jugador" : "" %></td>
+		<td style="text-align:center"><%= @person.dni %></td>
+		<td>
+			<%= @person.player_id>0 ? "Jugador" : "" %>
+			<% if @person.coach_id>0 %>
+				<%= @person.player_id>0 ? "/" : "" %>
+				Entrenador
+			<% end %>
+		</td>
 	</tr>
 </table>
 

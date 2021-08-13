@@ -5,13 +5,14 @@
 		<td rowspan="3" align="center">
 			<%= image_tag(@player.picture, :size => "100x100") %>
 		</td>
-		<td colspan="2"><%= @player.person.name %></td>
+		<td><%= @player.person.name %></td>
 	</tr><tr>
-		<td colspan="2"><%= @player.person.surname %></td>
+		<td><%= @player.person.surname %></td>
 	</tr><tr>
-		<td colspan="2"><%= @player.person.birthday %></td>
+		<td><%= @player.person.birthday %></td>
 	</tr><tr>
-		<td align="center"># <%= @player.number %> &nbsp;-&nbsp;<%= @player.active ? "Activo" : "Inactivo" %></td>
+		<td align="center"><%= @player.person.dni %></td>
+		<td># <%= @player.number %> &nbsp;-&nbsp;<%= @player.active ? "Activo" : "Inactivo" %></td>
 	</tr>
 </table>
 

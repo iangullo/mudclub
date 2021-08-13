@@ -1,25 +1,26 @@
 <%= form_with model: @coach, remote: true do |form| %>
 	<table><%= form.fields_for :person do |f| %>
 		<tr>
+			<td colspan="4"><strong>Foto&nbsp;</strong><%= form.file_field :avatar, direct_upload: true %></td>
+		</tr><tr>
 			<td rowspan="3" colspan="2" align="center">
 				<%= image_tag("coach.png", :size => "100x100") %>
 			</td>
-			<td><%= f.label :name %></td>
+			<td align="right"><strong>Nombre</strong></td>
 			<td><%= f.text_field :name %></td>
 		</tr><tr>
-			<td><%= f.label :surname %></td>
+			<td align="right"><strong>Apellidos</strong></td>
 			<td><%= f.text_field :surname %></td>
 		</tr><tr>
-			<td><%= f.label :birthday %></td>
+			<td align="right"><strong>F. Nacim.</strong></td>
 			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %>
 		</tr><tr>
-			<td colspan="2"><%= form.file_field :avatar, direct_upload: true %></td>
+			<td align="right"><strong>DNI/NIE</strong></td>
+			<td><%= f.text_field :dni, size: 10 %></td>
+			<td align="right"><strong>Apodo</strong></td>
+			<td><%= f.text_field :nick, size:10 %></td>
 		</tr><tr>
-			<td><%= f.label :nick %></td>
-			<td><%= f.text_field :nick %></td>
-		</tr><tr>
-			<td><%= form.label :active %></td>
-			<td><%= form.check_box :active %></td>
+			<td></td><td><strong>Activo&nbsp;<strong><%= form.check_box :active %></td>
 		</tr>
 	</table><% end %>
   <div class="actions">

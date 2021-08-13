@@ -4,17 +4,20 @@
 			<td rowspan="3" colspan="2" align="center">
 				<%= image_tag("person.png", :size => "100x100") %>
 			</td>
-			<td><strong><%= Nombre comp. %></td>
+			<td><strong>Nombre</strong></td>
 			<td><%= f.text_field :name %></td>
 		</tr><tr>
-			<td><strong><%= Apellidos %></td>
+			<td><strong>Apellidos</strong></td>
 			<td><%= f.text_field :surname %></td>
 		</tr><tr>
-			<td><strong><%= F.Nacim. %></td>
+			<td><strong>F.Nacim.</strong></td>
 			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %></td>
 		</tr><tr>
-			<td><strong><%= Apodo %></td>
-			<td><%= f.text_field :nick %></td>
+			<td><strong>DNI/NIE</strong></td>
+			<td><%= f.text_field :dni, size: 10 %></td>
+			<td><strong>Apodo</td>
+			<td><%= f.text_field :nick, size: 10 %></td>
+		</tr><tr>
 			<td><%= f.label "Fem." %></td>
 			<td><%= f.check_box :female %></td>
 		</tr>
