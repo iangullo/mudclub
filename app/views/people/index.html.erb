@@ -14,7 +14,7 @@
 		<thead>
 			<tr>
 				<th>Nombre</th>
-				<th>Jugador</h>
+				<th>Jugador</th>
 				<th>Entrenador</th>
 				<th colspan="2"></th>
 			</tr>
@@ -24,12 +24,19 @@
 			<% @people.each do |person| %>
 				<tr>
 					<td><%= link_to person.to_s, person %></td>
-			<td><%= person.player_id >0 ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %>
-			<td><%= person.coach_id >0 ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %>
-			<td><%= link_to 'Editar', edit_person_path(person) %></td>
+					<td><%= person.player_id >0 ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
+					<td><%= person.coach_id >0 ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
+					<td><%= link_to 'Editar', edit_person_path(person) %></td>
 					<td><%= link_to 'Borrar', person, method: :delete, data: { confirm: '¿Borrar #{person.to_s}?' } %></td>
 				</tr>
 			<% end %>
+			<div class="modal">
+				<div class="modal-background"></div>
+					<div class="modal-content">
+		    		<!-- Any other Bulma elements you want -->
+		  		</div>
+				<button class="modal-close is-large" aria-label="close"></button>
+			</div>
 		</tbody>
 	</table>
 </div>
@@ -53,4 +60,3 @@
 		</tr>
 	</table>
 </div>
-
