@@ -37,10 +37,10 @@ class Coach < ApplicationRecord
 
 	#Search field matching
 	def self.search(search)
-		if search 
-			Coach.where(person_id: Person.where(["name LIKE ? OR nick like ?","%#{search}%","%#{search}%"]).order(:birthday))
+		if search
+			Coach.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday))
 		else
 			Coach.none
 		end
-	end 
+	end
 end

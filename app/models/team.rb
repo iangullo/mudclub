@@ -12,6 +12,7 @@ class Team < ApplicationRecord
 	accepts_nested_attributes_for :coaches
 	accepts_nested_attributes_for :players
 	accepts_nested_attributes_for :training_sessions
+	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
 	before_save { self.name = self.name.mb_chars.titleize }

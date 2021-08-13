@@ -9,7 +9,7 @@ class Person < ApplicationRecord
 	before_save { self.name = self.name ? self.name.mb_chars.titleize : ""}
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : ""}
 	self.inheritance_column = "not_sti"
-	
+
 	def to_s
 		if self.nick and self.nick.length > 0
 			aux = self.nick.to_s
@@ -18,7 +18,7 @@ class Person < ApplicationRecord
 		end
 		aux += " " + self.surname.to_s
 	end
-	
+
 	# checks if it exists in the collection before adding it
 	# returns: 'id' if it exists in the database already
 	# 		   'nil' if it needs to be created.
@@ -26,7 +26,7 @@ class Person < ApplicationRecord
 		aux = Person.where(name: self.name, surname: self.surname).first
 		aux ? aux.id : nil
 	end
-	
+
 	# calculate age
 	def age
 		if self.birthday
@@ -37,33 +37,36 @@ class Person < ApplicationRecord
 			0
 		end
 	end
-	
+
 	def birthyear
 		self.birthday.year
 	end
-	
+
 	# to import from excel
 	def self.import(file)
 		xlsx = Roo::Excelx.new(file.tempfile)
 		xlsx.each_row_streaming(offset: 1) do |row|
-			p = self.new(name: row[1].value.to_s, surname: row[2].value.to_s)
-			if p.exists?
-				p.reload
-			else
-				p.player_id = 0
-				p.coach_id = 0
+			unless row.empty?
+				p = self.new(name: row[2].value.to_s, surname: row[3].value.to_s)
+				if p.exists?
+					p.reload
+				else
+					p.player_id = 0
+					p.coach_id = 0
+				end
+				p.dni      = row[0].value.to_s
+				p.nick     = row[1].value.to_s
+				p.birthday = row[4].value
+				p.female   =  row[5].value
+				p.save
 			end
-			p.nick = row[0].value.to_s
-			p.birthday = row[3].value
-			p.female =  row[4].value
-			p.save
 		end
 	end
-	
+
 	#Search field matching
 	def self.search(search)
-		if search 
-			Person.where(["name LIKE ? OR nick like ?","%#{search}%","%#{search}%"])
+		if search
+			Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"])
 		else
 			Person.none
 		end

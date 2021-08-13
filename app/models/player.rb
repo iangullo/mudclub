@@ -8,21 +8,21 @@ class Player < ApplicationRecord
 	scope :female, -> { where("female = true") }
 	scope :male, -> { where("female = false") }
 	self.inheritance_column = "not_sti"
-    	
+
 	# Just list person's full name
 	def fullname
 		person ? person.to_s : "Nuevo"
 	end
-	
+
 	# String with number, name & age
 	def num_name_age
 		number.to_s.rjust(7," ") + "-" + self.fullname + " (" + self.person.age.to_s + ")"
 	end
-	
+
 	def female
 		self.person.female
 	end
-	
+
 	# check if associated person exists in database already
 	# reloads person if it does
 	def is_duplicate?
@@ -40,43 +40,47 @@ class Player < ApplicationRecord
 			false
 		end
 	end
-	
+
 	def picture
 		self.avatar.attached? ? self.avatar : "player.png"
 	end
-	
+
 	#Search field matching
 	def self.search(search)
-		if search 
-			Player.where(person_id: Person.where(["name LIKE ? OR nick like ?","%#{search}%","%#{search}%"]).order(:birthday))
+		if search
+			Player.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday))
 		else
 			Player.none
 		end
-	end 
+	end
 
 	# to import from excel
 	def self.import(file)
 		xlsx = Roo::Excelx.new(file.tempfile)
 		xlsx.each_row_streaming(offset: 1) do |row|
-			j = self.new(number: row[0].value.to_s, active: row[6].value)
-			j.build_person
-			j.person.name = row[2].value.to_s
-			j.person.surname = row[3].value.to_s
-			j.active = row[6].value
-			unless j.is_duplicate? # only if not a duplicate
-				j.person.nick = row[1].value.to_s
-				j.person.birthday = row[4].value
-				j.person.female = row[5].value				
-				if j.person.player_id == nil # new person
-					j.person.coach_id = 0
-					j.person.player_id = 0
-				end
-				j.person.save
-				j.person_id = j.person.id
-				j.save
-				if j.person.player_id != j.id
-					j.person.player_id = j.id
-					j.person.save
+			unless row.empty?
+				j = self.new(number: row[0].value.to_s, active: row[7].value)
+				j.build_person
+				j.person.name = row[3].value.to_s
+				j.person.surname = row[4].value.to_s
+				unless j.is_duplicate? # only if not a duplicate
+					if j.person.player_id == nil # new person
+						p = j.person.dup	# Create new object
+						p.coach_id  = 0
+						p.player_id = 0
+						p.save	# Save and link
+						j.person_id = p.id
+					end
+					j.person.dni  		= row[1].value.to_s
+					j.person.nick 		= row[2].value.to_s
+					j.person.birthday = row[5].value
+					j.person.female 	= row[6].value
+					j.active			   	= row[7].value
+					j.save
+					if j.person.player_id != j.id
+						j.person.player_id = j.id
+						j.person.save
+					end
 				end
 			end
 		end

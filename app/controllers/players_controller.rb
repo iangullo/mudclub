@@ -75,7 +75,7 @@ class PlayersController < ApplicationController
 	def import
 		# added to import excel
     Player.import(params[:file])
-    redirect_to player_url
+    redirect_to players_url
 	end
 
 	# DELETE /players/1

@@ -20,28 +20,33 @@
 		</td>
 	</tr><tr>
 		<th><%= form.label "Categoría" %></th>
-		<td><%= form.collection_select :category_id, Category.all, :id, :to_s %></td>
+		<td><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
 	</tr><tr>
 		<th><%= form.label "Competición" %></th>
-		<td><%= form.collection_select :division_id, Division.all, :id, :name %></td>
+		<td><%= form.collection_select :division_id, Division.real, :id, :name %></td>
 	</tr><tr>
 		<th><%= form.label "Nombre" %></th>
 		<td><%= form.text_field :name %></td>
 		<th><%= form.label "Temporada" %></th>
-		<td><%= form.collection_select :season_id, Season.all, :id, :name %></td>
+		<td><%= form.collection_select :season_id, Season.real, :id, :name %></td>
 	</tr><tr>
 		<td colspan="2">
-			<table><tr><th colspan="2">Entrenadores:</th></tr><tr><td></td>
-				<td><div id=”team-coaches”>
-					<%= form.collection_check_boxes :coach_ids, Coach.active, :id, :to_s do |coach| %>
-						<div class="collection-check-box">
-							<%= coach.check_box %>
-							<%= coach.label %>
-						</div>
-					<% end %>
-				</tr></td></div>
+			<table>
+        <tr><th colspan="2">Entrenadores:</th></tr>
+        <tr><td></td>
+  				<td><div id=”team-coaches”>
+  					<%= form.collection_check_boxes :coach_ids, Coach.active, :id, :fullname do |coach| %>
+  						<div class="collection-check-box">
+  							<%= coach.check_box %>
+  							<%= coach.label %>
+  						</div>
+  					<% end %>
+          </div></td>
+  			</tr>
 			</table>
-			</td>
+		</td>
+    <th><%= form.label "Pista:" %></th>
+  	<td><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
 	</tr>
 </table>
   <div class="actions">
