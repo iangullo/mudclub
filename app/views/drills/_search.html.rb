@@ -13,7 +13,6 @@
 				<th>Tipo</th>
 				<th>Descripci&oacute;n</th>
 				<th>Fundamentos</th>
-				<th colspan="2"></th>
 			</tr>
 		</thead>
 
@@ -24,7 +23,6 @@
 					<td><%= drill.kind.name %></td>
 					<td><%= drill.description %></td>
 					<td><%= drill.print_skills %></td>
-					<td><%= link_to 'Editar', edit_drill_path(drill) %></td>
 				</tr>
 			<% end %>
 		</tbody>
