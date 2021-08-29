@@ -21,12 +21,13 @@ class Drill < ApplicationRecord
 	def print_skills
 		print_names(self.skills)
 	end
-	
+
 	def self.search(search)
 		if search
 			Drill.where(kind_id: Kind.where(["name LIKE ? ","%#{search}%"])).or(["name LIKE ? OR description LIKE ? ","%#{search}%","%#{search}%"]).order(:kind)
 		else
-			Drill.all.order(:kind)
+			#Drill.all.order(:kind)
+			Drill.none
 		end
 	end
 

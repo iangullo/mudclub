@@ -11,66 +11,66 @@
 		</div>
 	<% end %>
 
-<table>
-	<tr>
-		<td rowspan="3" colspan="2" align="center">
-			<%= image_tag("team.png", :size => "100x100") %>
-		</td>
-	</tr><tr>
-		<th align="right"><%= form.label "E:" %></th>
-		<td colspan="3"><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
-	</tr><tr>
-		<th align="right"><%= form.label "C:" %></th>
-		<td colspan="3"><%= form.collection_select :division_id, Division.real, :id, :name %></td>
-	</tr><tr>
-		<th align="right"><%= form.label "T:" %></th>
-		<td><%= form.collection_select :season_id, Season.all.order(name: :desc), :id, :name %></td>
-		<th align="right"><%= form.label "P:" %></th>
-		<td colspan="3"><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
-	</tr><tr>
-		<th align="right" colspan="2"><%= form.label "Nombre:" %></th>
-		<td colspan="3"><%= form.text_field :name, size: 12 %></td>
-	</tr><tr>
-		<th align="right" colspan="2" rowspan="<%= @eligible_players.count+1 %>">Jugadores/as:</th>
-		<td align="center"><strong>#</td><td><strong>Nombre</td><td align="center"><strong>Edad</td>
-		<td colspan="4">
-			<div id="player-selection">
-				<%= form.collection_check_boxes :player_ids, @eligible_players, :id, :fullname do |player| %>
-				<tr>
-					<div class="collection-check-box">
-						<td align="center"><%= player.object.number %></td>
-						<td><%= player.object.fullname %></td>
-						<td align="center"><%= player.object.person.age %></td>
-						<td><%= player.check_box %></td>
-					</div>
-				</tr>
-				<% end %>
-			</div>
-		</td>
-	</tr><tr>
-		<th colspan="2" align="right">Entrenadores/as:</th>
-		<td colspan="4">
-			<div id="coach-selection">
-				<%= form.collection_check_boxes :coach_ids, Coach.active, :id, :fullname do |coach| %>
-					<%= coach.object.fullname %>
-					<%= coach.check_box %>
+	<table>
+		<tr>
+			<td rowspan="3" colspan="2" align="center">
+				<%= image_tag("team.png", :size => "100x100") %>
+			</td>
+		</tr><tr>
+			<th align="right"><%= form.label "E:" %></th>
+			<td colspan="3"><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
+		</tr><tr>
+			<th align="right"><%= form.label "C:" %></th>
+			<td colspan="3"><%= form.collection_select :division_id, Division.real, :id, :name %></td>
+		</tr><tr>
+			<th align="right"><%= form.label "T:" %></th>
+			<td><%= form.collection_select :season_id, Season.all.order(name: :desc), :id, :name %></td>
+			<th align="right"><%= form.label "P:" %></th>
+			<td colspan="3"><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
+		</tr><tr>
+			<th align="right" colspan="2"><%= form.label "Nombre:" %></th>
+			<td colspan="3"><%= form.text_field :name, size: 12 %></td>
+		</tr><tr>
+			<th align="right" colspan="2" rowspan="<%= @eligible_players.count+1 %>">Jugadores/as:</th>
+			<td align="center"><strong>#</td><td><strong>Nombre</td><td align="center"><strong>Edad</td>
+			<td colspan="4">
+				<div id="player-selection">
+					<%= form.collection_check_boxes :player_ids, @eligible_players, :id, :to_s do |player| %>
+					<tr>
+						<div class="collection-check-box">
+							<td align="center"><%= player.object.number %></td>
+							<td><%= player.object.to_s %></td>
+							<td align="center"><%= player.object.person.age %></td>
+							<td><%= player.check_box %></td>
+						</div>
+					</tr>
+					<% end %>
+				</div>
+			</td>
+		</tr><tr>
+			<th colspan="2" align="right">Entrenadores/as:</th>
+			<td colspan="4">
+				<div id="coach-selection">
+					<%= form.collection_check_boxes :coach_ids, Coach.active, :id, :to_s do |coach| %>
+						<%= coach.object.to_s %>
+						<%= coach.check_box %>
+						<br>
+					<% end %>
+				</div>
+			</td>
+		</tr><tr>
+			<th colspan="2" align="right">Sesiones:</th>
+			<td colspan="4">
+				<% unless @team.training_slots.empty? %>
+					<strong><%= @team.training_slots.first.court %></strong>
 					<br>
 				<% end %>
-			</div>
-		</td>
-	</tr><tr>
-		<th colspan="2" align="right">Sesiones:</th>
-		<td colspan="4">
-			<% unless @team.training_slots.empty? %>
-				<strong><%= @team.training_slots.first.court %></strong>
-				<br>
-			<% end %>
-			<% @team.training_slots.order(:wday).each do |ts| %>
-				<%= link_to ts.to_s, ts %><br>
-			<% end %>
-		</td>
-</table>
+				<% @team.training_slots.order(:wday).each do |ts| %>
+					<%= link_to ts.to_s, ts %><br>
+				<% end %>
+			</td>
+	</table>
 	<div class="actions">
-		<%= form.submit %>
+		<%= image_submit_tag "save.svg", height: 25, class: "save_button align-middle", alt: "Guardar" %>
 	</div>
 <% end %>

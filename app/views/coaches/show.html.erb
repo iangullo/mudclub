@@ -1,20 +1,18 @@
-<p id="notice"><%= notice %></p>
-
-<table>
-	<tr>
-		<td rowspan="3" align="center">
-			<%= image_tag(@coach.picture, :size => "100x100") %>
-		</td>
-		<td><%= @coach.person.name %></td>
-	</tr><tr>
-		<td><%= @coach.person.surname %></td>
-	</tr><tr>
-		<td><%= @coach.person.birthday %></td>
-	</tr><tr>
-		<td align="center"><%= @coach.person.dni %></td>
-		<td><%= @coach.active ? "Activo" : "Inactivo" %></td>
-	</tr>
-</table>
-
-<%= link_to 'Editar', edit_coach_path(@coach) %> |
-<%= link_to 'Volver', :back %>
+<%= render "shared/modal" do %>
+	<table>
+		<tr>
+			<td rowspan="3" align="center">
+				<%= image_tag(@coach.picture, :size => "100x100") %>
+			</td>
+			<td><%= @coach.person.name %></td>
+		</tr><tr>
+			<td><%= @coach.person.surname %></td>
+		</tr><tr>
+			<td><%= @coach.person.birthday %></td>
+		</tr><tr>
+			<td align="center"><%= @coach.person.nick %></td>
+		</tr><tr>
+			<td align="center"><%= @coach.active ? "Activo" : "Inactivo" %></td>
+		</tr>
+	</table>
+<% end %>

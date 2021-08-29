@@ -1,6 +1,6 @@
 <%= form_with model: training_session, remote: true, authenticity_token: true, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |form| %>
 <% console %>
-<% if training_session.errors.any? %>
+  <% if training_session.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(training_session.errors.count, "error") %> Impidieron guardar la sesi&oacute;n:</h2>
 
@@ -81,6 +81,6 @@
 	</table>
 
   <div class="actions">
-    <%= form.submit %>
-  </div>
+		<%= image_submit_tag "save.svg", height: 25, class: "save_button align-middle", alt: "Guardar" %>
+	</div>
 <% end %>

@@ -6,30 +6,27 @@
 			<td rowspan="3" colspan="2" align="center">
 				<%= image_tag(@player.picture, :size => "100x100") %>
 			</td>
-			<td align="right"><strong>Nombre</strong></td>
-			<td colspan="2"><%= f.text_field :name %></td>
+			<td align="right"><strong>Nom:</strong></td>
+			<td colspan="2"><%= f.text_field :name, size: 10 %></td>
 		</tr><tr>
-			<td align="right"><strong>Apellidos</strong></td>
-			<td colspan="2"><%= f.text_field :surname %></td>
+			<td align="right"><strong>Apel:</strong></td>
+			<td colspan="2"><%= f.text_field :surname, size: 10 %></td>
 		</tr><tr>
-			<td align="right"><strong>F. Nacim.</strong></td>
+			<td align="right"><strong>F.Nac.</strong></td>
 			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %></td>
 		</tr><tr>
-			<td align="right"><strong>DNI/NIE</strong></td>
-			<td><%= f.text_field :dni, size: 10 %></td>
-			<td align="right"><strong>Apodo</strong></td>
-			<td><%= f.text_field :nick, size:10 %></td>
+			<td align="center"><strong>DNI:</strong></td>
+			<td><%= f.text_field :dni, size: 6 %></td>
+			<td align="right"><strong>Apodo:</strong></td>
+			<td><%= f.text_field :nick, size: 6 %></td>
 		</tr><tr>
-			<td align="right"><strong>Femenino</strong></td>
-			<td><%= f.check_box :female %></td>
-			<td align="right">
-				<strong>#&nbsp;</strong>
-				<%= form.number_field :number, min: 0, max: 99, size: 3 %>
-			</td>
-			<td><strong>Activo&nbsp;<strong><%= form.check_box :active %></td>
+			<td align="right"><strong>Fem.</strong><%= f.check_box :female %></td>
+			<td><strong>&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;</strong><%= form.number_field :number, min: 0, max: 99, size: 2 %></td>
+			<td align="right"><strong>Activo:<strong></td>
+			<td><%= form.check_box :active %></td>
 		</tr>
 	</table><% end %>
-  <div class="actions">
-    <%= form.submit %>
+	<div class="actions">
+		<%= image_submit_tag "save.svg", height: 25, class: "save_button align-middle", alt: "Guardar" %>
   </div>
 <% end %>

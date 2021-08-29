@@ -1,48 +1,45 @@
-<p id="notice"><%= notice %></p>
-
-<table>
-	<tr>
-		<td rowspan="3" align="center">
-			<%= image_tag("team.png", :size => "100x100") %>
-		</td>
-		<td colspan="3"><strong><%= @team.to_s %></strong></td>
-	</tr><tr>
-		<td colspan="3"><strong><%= @team.division.name %></strong></td>
-	</tr><tr>
-		<td colspan="3"><strong><%= @team.season.name %></strong></td>
-	</tr><tr>
-		<td align="center" rowspan="<%= @team.players.count+1 %>">
-			<strong>Jugadores/as:</strong>
-		</td>
-		<td align="center"><strong>#<td><strong>Nombre<td align="center"><strong>Edad</td>
-	</tr>
-	<% @team.players.order("number").each do |player| %>
-	<tr>
-		<td align="center"><%= player.number %></td>
-		<td><%= link_to player.fullname, player %></td>
-		<td align="center"><%= player.person.age %></td>
-	</tr>
-	<% end %>
-	<tr>
-		<td align="center"><strong>Entrenadores:</strong></td>
-		<td colspan="3">
-			<% @team.coaches.each do |coach| %>
-				<%= coach.fullname %>
-				<br>
-			<% end %>
-		</td>
-	</tr><tr>
-		<td align="center"><strong>Sesiones:</strong></td>
-		<td colspan="3">
-			<% unless @team.training_slots.empty? %>
-				<strong><%= @team.training_slots.first.court %></strong>
-				<br>
-			<% end %>
-			<% @team.training_slots.order(:wday).each do |ts| %>
-				<%= link_to ts.to_s, ts %><br>
-			<% end %>
-		</td>
-</table>
-
-<%= link_to 'Editar', edit_team_path(@team) %> |
-<%= link_to 'Volver', teams_path %>
+<%= render "shared/modal" do %>
+	<table>
+		<tr>
+			<td rowspan="3" align="center">
+				<%= image_tag("team.png", :size => "100x100") %>
+			</td>
+			<td colspan="3"><strong><%= @team.to_s %></strong></td>
+		</tr><tr>
+			<td colspan="3"><strong><%= @team.division.name %></strong></td>
+		</tr><tr>
+			<td colspan="3"><strong><%= @team.season.name %></strong></td>
+		</tr><tr>
+			<td align="center" rowspan="<%= @team.players.count+1 %>">
+				<strong>Jugadores/as:</strong>
+			</td>
+			<td align="center"><strong>#<td><strong>Nombre<td align="center"><strong>Edad</td>
+		</tr>
+		<% @team.players.order("number").each do |player| %>
+		<tr>
+			<td align="center"><%= player.number %></td>
+			<td><%= link_to player.to_s, player %></td>
+			<td align="center"><%= player.person.age %></td>
+		</tr>
+		<% end %>
+		<tr>
+			<td align="center"><strong>Entrenadores:</strong></td>
+			<td colspan="3">
+				<% @team.coaches.each do |coach| %>
+					<%= coach.to_s %>
+					<br>
+				<% end %>
+			</td>
+		</tr><tr>
+			<td align="center"><strong>Sesiones:</strong></td>
+			<td colspan="3">
+				<% unless @team.training_slots.empty? %>
+					<strong><%= @team.training_slots.first.court %></strong>
+					<br>
+				<% end %>
+				<% @team.training_slots.order(:wday).each do |ts| %>
+					<%= link_to ts.to_s, ts %><br>
+				<% end %>
+			</td>
+	</table>
+<% end %>

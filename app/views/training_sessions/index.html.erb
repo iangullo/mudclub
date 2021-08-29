@@ -1,39 +1,54 @@
-<p id="notice"><%= notice %></p>
+<div id="sessions-index">
+	<div id="sessions-header">
+		<table>
+			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
+				<%= image_tag "drill.png", size: "50x50" %>&nbsp;Ejercicios&nbsp;
+				<div id="search-sessions">
+					<%= form_with(url: '/training_sessions', method: 'get', local: true) do %>
+						<%= text_field_tag(:search) %>
+						<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
+					<% end %>
+				</div>
+			</th>
+		</table>
+	</div>
 
-<h1>Entrenamientos</h1>
-
-<div id="search-sessions">
-	<%= form_with(url: '/training_sessions', method: 'get', local: true) do %>
-		<%= text_field_tag(:search) %>
-		<%= submit_tag("Buscar") %>
-	<% end %>
-</div>
-
-<div id="session-work">
-	<table>
-		<thead>
-			<tr>
-				<th>Fecha</th>
-				<th>Lugar</th>
-				<th>Equipo</th>
-				<th colspan="2"></th>
-			</tr>
-		</thead>
-
-		<tbody>
-			<% @training_sessions.each do |training_session| %>
+	<div id="sessions-grid">
+		<table class="table-auto">
+			<thead>
 				<tr>
-				<td><%= link_to training_session.date, training_session %></td>
-				<td><%= training_session.team.name %></td>
-				<td><%= training_session.location.name %></td>
-				<td><%= link_to 'Edit', edit_training_session_path(training_session) %></td>
-				<td><%= link_to 'Destroy', training_session, method: :delete, data: { confirm: '¿seguro?' } %></td>
+					<th class="bg-indigo-900 text-gray-300 align-center">Fecha</th>
+					<th class="bg-indigo-900 text-gray-300 align-center">Lugar</th>
+					<th class="bg-indigo-900 text-gray-300 align-center">Equipo</th>
+					<th colspan="2">
+						<%= link_to new_training_session_path, data: {"turbo-frame": "modal" } do %>
+							<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
+						<% end %>
+					</th>
 				</tr>
-			<% end %>
-		</tbody>
-	</table>
-</div>
-<br>
+			</thead>
 
-<%= link_to 'Crear', new_training_session_path(team_id: @team) %> |
-<%= link_to 'Volver', :back %>
+			<tbody>
+				<% @training_sessions.each do |training_session| %>
+					<tr>
+					<td><%= link_to training_session.date, training_session, data: {"turbo-frame": "modal" } %></td>
+					<td><%= training_session.team.name %></td>
+					<td><%= training_session.location.name %></td>
+					<td>
+						<%= link_to edit_training_session_path(training_session), data: {"turbo-frame": "modal" } do %>
+							<%= image_tag "edit.svg", size: "25x25" %>
+						<% end %>
+					</td>
+					<td>
+						<%= link_to training_session, method: :destroy, data: { confirm: '¿Borrar #{training_session.to_s}?' } do %>
+							<%= image_tag "delete.svg", size: "25x25" %>
+						<% end %>
+					</td>
+	<!--				<td>< %= link_to 'Destroy', training_session, method: :delete, data: { confirm: '¿seguro?' } %></td>
+		-->
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</div>
+</div>

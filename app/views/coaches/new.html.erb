@@ -1,21 +1,22 @@
-<h1>Nuevo Entrenador</h1>
-
-<%= form_with model: @coach, remote: true do |form| %>
-	<table><%= form.fields_for :person do |f| %>
-		<tr>
-			<td rowspan="3" colspan="2" align="center">
-				<%= image_tag("coach.png", :size => "100x100") %>
-			</td>
-			<td><%= f.label :name %></td>
-			<td><%= f.text_field :name %></td>
-		</tr><tr>
-			<td><%= f.label :surname %></td>
-			<td><%= f.text_field :surname %></td>
-		</tr><tr>
-	</table><% end %>
-	<div class="actions">
-		<%= form.submit "Crear"%>
-	</div>
+<%= render "shared/modal" do %>
+	<h1>Nuevo Entrenador</h1>
+	<%= form_with model: @coach, remote: true do |form| %>
+		<%= form.fields_for :person do |f| %>
+			<table>
+				<tr>
+					<td rowspan="3" align="center">
+						<%= image_tag("coach.png", :size => "100x100") %>
+					</td>
+					<td align="right">Nom:</td>
+					<td><%= f.text_field :name, size: 10 %></td>
+				</tr><tr>
+					<td align="right">Apel:</td>
+					<td><%= f.text_field :surname, size: 10 %></td>
+				</tr><tr>
+			</table>
+		<% end %>
+		<div class="actions">
+			<%= image_submit_tag "save.svg", height: 25, class: "save_button align-middle", alt: "Guardar" %>
+	  </div>
 	<% end %>
-
-<%= link_to 'Volver', coaches_path %>
+<% end %>

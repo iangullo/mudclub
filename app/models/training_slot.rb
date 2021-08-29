@@ -9,11 +9,11 @@ class TrainingSlot < ApplicationRecord
 	def to_s
 		self.weekday + " (" + self.timeslot_string + ")"
 	end
-	
+
 	def court
 		Location.find(self.location_id).name
 	end
-	
+
 	def gmaps_url
 		self.location.gmaps_url
 	end
@@ -21,19 +21,19 @@ class TrainingSlot < ApplicationRecord
 	def weekday(long=false)
 		long ? Date::DAYNAMES[self.wday] : Date::ABBR_DAYNAMES[self.wday]
 	end
-	
+
 	def hour
 		self.start.hour
 	end
-	
+
 	def min
 		self.start.min
 	end
-	
+
 	def hour=(newhour)
 		self.start = self.start.change({ hour: newhour })
 	end
-	
+
 	def min=(newmin)
 		self.start = self.start.change({ min: newmin })
 	end
@@ -41,7 +41,7 @@ class TrainingSlot < ApplicationRecord
 	def ending
 		self.start + self.duration.minutes
 	end
-	
+
 	def at_work?(wday, t_hour)
 		if self.wday == wday
 			if t_hour.hour.between?(self.hour, self.ending.hour)
@@ -55,7 +55,7 @@ class TrainingSlot < ApplicationRecord
 			end
 		end
 	end
-	
+
 	#gives us the next TrainingSlot for this sequence
 	def next_slot
 		ts = TrainingSlot.for_team(self.team_id)
@@ -75,13 +75,13 @@ class TrainingSlot < ApplicationRecord
 
 	#Search for specific court
 	def self.search(search)
-		if search 
+		if search
 			TrainingSlot.where(location_id: Location.practice.where(["name LIKE ?", search])).order(:wday)
 		else
 			TrainingSlot.all
 		end
 	end
-	
+
 	private
 	# starting / ending hours as string
 	def timeslot_string

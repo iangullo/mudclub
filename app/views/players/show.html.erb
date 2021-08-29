@@ -1,20 +1,17 @@
-<p id="notice"><%= notice %></p>
-
-<table>
-	<tr>
-		<td rowspan="3" align="center">
-			<%= image_tag(@player.picture, :size => "100x100") %>
-		</td>
-		<td><%= @player.person.name %></td>
-	</tr><tr>
-		<td><%= @player.person.surname %></td>
-	</tr><tr>
-		<td><%= @player.person.birthday %></td>
-	</tr><tr>
-		<td align="center"><%= @player.person.dni %></td>
-		<td># <%= @player.number %> &nbsp;-&nbsp;<%= @player.active ? "Activo" : "Inactivo" %></td>
-	</tr>
-</table>
-
-<%= link_to 'Editar', edit_player_path(@player) %> |
-<%= link_to 'Volver', :back %>
+<%= render "shared/modal" do %>
+	<table>
+		<tr>
+			<td rowspan="3" align="center">
+				<%= image_tag(@player.picture, :size => "100x100") %>
+			</td>
+			<td><%= @player.person.name %></td>
+		</tr><tr>
+			<td><%= @player.person.surname %></td>
+		</tr><tr>
+			<td><%= @player.person.birthday %></td>
+		</tr><tr>
+			<td align="center"><%= @player.person.dni %></td>
+			<td># <%= @player.number %> &nbsp;-&nbsp;<%= @player.active ? "Activo" : "Inactivo" %></td>
+		</tr>
+	</table>
+<% end %>

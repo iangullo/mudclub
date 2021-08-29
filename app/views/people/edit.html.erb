@@ -1,6 +1,3 @@
-<h1>Editar Persona</h1>
-
-<%= render 'form', person: @person %>
-
-<%= link_to 'Mostrar', @person %> |
-<%= link_to 'Volver', people_path %>
+<%= render "shared/modal" do %>
+  <%= render 'form', person: @person %>
+<% end %>

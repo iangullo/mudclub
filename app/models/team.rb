@@ -15,7 +15,6 @@ class Team < ApplicationRecord
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
-	before_save { self.name = self.name.mb_chars.titleize }
 
 	def to_s
 		if self.name and self.name.length > 0
@@ -40,5 +39,14 @@ class Team < ApplicationRecord
 			end
 		end
 		aux.order(:number)
+	end
+
+	#Search field matching season
+	def self.search(search)
+		if search
+			Team.for_season(search).order(:category_id)
+		else
+			Team.real
+		end
 	end
 end

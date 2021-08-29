@@ -66,7 +66,7 @@ class Person < ApplicationRecord
 	#Search field matching
 	def self.search(search)
 		if search
-			Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"])
+			search.length>0 ? Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]) : Person.all
 		else
 			Person.none
 		end

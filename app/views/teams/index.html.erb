@@ -1,29 +1,53 @@
-<p id="notice"><%= notice %></p>
-<h1>Equipos</h1>
+<div id="teams-index">
+	<div id="teams-header">
+		<table>
+			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
+				<%= image_tag "team.png", size: "50x50" %>Equipos&nbsp;
+				<div id="search-team" class="inline-flex text-gray-700 items-center justify-center p-2 rounded-md">
+					<%= form_with(url: '/teams', method: 'get', local: true) do |f| %>
+						<%= f.collection_select :season_id, Season.all.order(name: :desc), :id, :name %>
+						<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: "Temporada" %>
+					<% end %>
+	      </div>
+			</th>
+		</table>
+	</div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Competición</th>
-      <th>Temporada</th>
-      <th colspan="2"></th>
-    </tr>
-  </thead>
+	<div id="teams-grid">
+		<table class="table-auto">
+	    <thead>
+	      <tr>
+	        <th class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
+	        <th class="bg-indigo-900 text-gray-300 align-center">Temporada</th>
+	        <th colspan="2">
+						<%= link_to new_team_path, data: {"turbo-frame": "modal" } do %>
+							<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
+						<% end %>
+					</th>
+	      </tr>
+	    </thead>
 
-  <tbody>
-    <% @teams.each do |team| %>
-      <tr>
-        <td><%= link_to team.to_s, team %></td>
-        <td><%= team.division.name %></td>        
-        <td><%= team.season.name %></td>
-        <td><%= link_to 'Editar', edit_team_path(team) %></td>
-        <td><%= link_to 'Borrar', team, method: :delete, data: { confirm: '¿Borrar #{team.to_s}?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'Crear equipo', new_team_path %>
+	    <tbody>
+	      <% @teams.each do |team| %>
+	        <tr>
+	          <td><%= link_to team.to_s, team, data: {"turbo-frame": "modal" } %></td>
+	          <td><%= team.season.name %></td>
+	          <td>
+	            <%= link_to edit_team_path(team), data: {"turbo-frame": "modal" } do %>
+	              <%= image_tag "edit.svg", size: "25x25" %>
+	            <% end %>
+	          </td>
+	          <td>
+	            <%= link_to team, method: :destroy, data: { confirm: '¿Borrar #{team.to_s}?' } do %>
+	              <%= image_tag "delete.svg", size: "25x25" %>
+	            <% end %>
+	          </td>
+	  <!--
+	          <td>< %= link_to 'Borrar', team, method: :destroy, data: { confirm: '¿Borrar #{team.to_s}?' } %></td>
+	    -->
+	        </tr>
+	      <% end %>
+	    </tbody>
+	  </table>
+	</div>
+</div>

@@ -18,6 +18,7 @@ class PeopleController < ApplicationController
   # GET /people/1
   # GET /people/1.json
   def show
+  	render layout: false if params[:inline] == 'true'
   end
 
   # GET /people/new

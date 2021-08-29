@@ -1,26 +1,23 @@
-<p id="notice"><%= notice %></p>
-
-<table>
-	<tr>
-		<td rowspan="3" align="center">
-			<%= image_tag("person.png", :size => "100x100") %>
-		</td>
-		<td><%= @person.name %></td>
-	</tr><tr>
-		<td><%= @person.surname %></td>
-	</tr><tr>
-		<td><%= @person.birthday %></td>
-	</tr><tr>
-		<td style="text-align:center"><%= @person.dni %></td>
-		<td>
-			<%= @person.player_id>0 ? "Jugador" : "" %>
-			<% if @person.coach_id>0 %>
-				<%= @person.player_id>0 ? "/" : "" %>
-				Entrenador
-			<% end %>
-		</td>
-	</tr>
-</table>
-
-<%= link_to 'Editar', edit_person_path(@person) %> |
-<%= link_to 'Volver', people_path %>
+<%= render "shared/modal" do %>
+	<table>
+		<tr>
+			<td rowspan="3" align="center">
+				<%= image_tag("person.png", :size => "100x100") %>
+			</td>
+			<td><%= @person.name %></td>
+		</tr><tr>
+			<td><%= @person.surname %></td>
+		</tr><tr>
+			<td><%= @person.birthday %></td>
+		</tr><tr>
+			<td style="text-align:center"><%= @person.dni %></td>
+			<td>
+				<%= @person.player_id>0 ? "Jug." : "" %>
+				<% if @person.coach_id>0 %>
+					<%= @person.player_id>0 ? "/" : "" %>
+					Ent.
+				<% end %>
+			</td>
+		</tr>
+	</table>
+<% end %>

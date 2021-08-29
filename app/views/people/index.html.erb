@@ -1,62 +1,70 @@
-<p id="notice"><%= notice %></p>
-
-<h1>Personas</h1>
-
-<div id="search-people">
-	<%= form_with(url: '/people', method: 'get', local: true) do %>
-		<%= text_field_tag(:search) %>
-		<%= submit_tag("Buscar") %>
-	<% end %>
-</div>
-
-<div id="people-grid">
-	<table>
-		<thead>
+<div id="people-index">
+	<div id="people-header">
+		<table>
 			<tr>
-				<th>Nombre</th>
-				<th>Jugador</th>
-				<th>Entrenador</th>
-				<th colspan="2"></th>
+				<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
+					<%= image_tag "person.png", size: "50x50" %>Personas&nbsp;
+					<div id="search-people" class="text-gray-600">
+						<%= form_with(url: '/people', method: 'get', local: true) do %>
+							<%= text_field_tag(:search) %>
+							<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
+						<% end %>
+					</div>
+				</th>
 			</tr>
-		</thead>
-
-		<tbody>
-			<% @people.each do |person| %>
-				<tr>
-					<td><%= link_to person.to_s, person %></td>
-					<td><%= person.player_id >0 ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
-					<td><%= person.coach_id >0 ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
-					<td><%= link_to 'Editar', edit_person_path(person) %></td>
-					<td><%= link_to 'Borrar', person, method: :delete, data: { confirm: '¿Borrar #{person.to_s}?' } %></td>
-				</tr>
-			<% end %>
-			<div class="modal">
-				<div class="modal-background"></div>
-					<div class="modal-content">
-		    		<!-- Any other Bulma elements you want -->
-		  		</div>
-				<button class="modal-close is-large" aria-label="close"></button>
-			</div>
-		</tbody>
-	</table>
-</div>
-
-<br>
-
-<div id="import-export">
-	<table>
-		<tr>
-			<th colspan="2"><%= link_to 'Crear persona', new_person_path %>
-		</tr><tr>
-			<th colspan="2"><%= link_to 'Exportar (Excel)', people_path(format: :xlsx) %></th>
-		</tr><tr>
-			<th>Importar</th>
-			<td>
-				<%= form_with url: import_people_path, local: true do |form| %>
-					<%= form.file_field :file %>
-					<%= form.submit %>
+		</table>
+	</div>
+	<div id="people-grid">
+		<table class="table-auto">
+			<thead>
+				<th colspan="2" align="left" class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
+				<th colspan="2">
+					<%= link_to new_person_path, data: {"turbo-frame": "modal" } do %>
+						<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
+					<% end %>
+				</th>
+			</thead>
+			<tbody class="divide-y">
+				<% @people.each do |person| %>
+					<tr>
+						<td class="border">
+							<%= link_to person.to_s, person, data: {"turbo-frame": "modal" }, class: "hover:text-blue-700" %>
+						</td>
+						<td align="center" class="border">
+							<%= person.player_id>0 ? "Jug." : "" %>
+							<% if person.coach_id>0 %>
+								<%= person.player_id>0 ? "/" : "" %>
+								Ent.
+							<% end %>
+						</td>
+						<td>
+							<%= link_to edit_person_path(person), data: {"turbo-frame": "modal" } do %>
+								<%= image_tag "edit.svg", size: "25x25" %>
+							<% end %>
+						</td>
+						<td>
+							<%= link_to person, method: :destroy, data: { confirm: '¿Borrar #{person.to_s}?' } do %>
+								<%= image_tag "delete.svg", size: "25x25" %>
+							<% end %>
+						</td>
+					</tr>
 				<% end %>
-			</td>
-		</tr>
-	</table>
+			</tbody>
+		</table>
+	</div>
+	<div id="people-footer" class="bottom-0">
+		<table>
+			<tr>
+				<th colspan="2"><%= link_to 'Exportar (Excel)', people_path(format: :xlsx) %></th>
+			</tr><tr>
+				<th>Importar</th>
+				<td>
+					<%= form_with url: import_people_path, local: true do |form| %>
+						<%= form.file_field :file %>
+						<%= form.submit %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
 </div>

@@ -26,7 +26,7 @@
 			<td><div class="field"><%= form.text_field :material, size: 40 %></div></td>
 		</tr><tr>
 			<td align="right"><strong>Autor:&nbsp;</strong></td>
-			<td><div class="field"><%= form.collection_select :coach_id, Coach.real, :id, :fullname %></div></td>
+			<td><div class="field"><%= form.collection_select :coach_id, Coach.real, :id, :to_s %></div></td>
 			<td align="right"><strong>Tipo:&nbsp;</strong></td>
 			<td><div class="field"><%= form.collection_select :kind_id, Kind.all, :id, :name %></div></td>
 		</tr><tr>
@@ -50,6 +50,6 @@
 	</table>
 
 	<div class="actions">
-		<%= form.submit %>
-	</div>
+		<%= image_submit_tag "save.svg", height: 25, class: "save_button align-middle", alt: "Guardar" %>
+  </div>
 <% end %>

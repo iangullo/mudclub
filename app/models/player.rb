@@ -10,7 +10,7 @@ class Player < ApplicationRecord
 	self.inheritance_column = "not_sti"
 
 	# Just list person's full name
-	def fullname
+	def to_s
 		person ? person.to_s : "Nuevo"
 	end
 
@@ -50,7 +50,7 @@ class Player < ApplicationRecord
 		if search
 			Player.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday))
 		else
-			Player.none
+			Player.real
 		end
 	end
 

@@ -3,27 +3,27 @@
 		<tr>
 			<td colspan="4"><strong>Foto&nbsp;</strong><%= form.file_field :avatar, direct_upload: true %></td>
 		</tr><tr>
-			<td rowspan="3" colspan="2" align="center">
+			<td rowspan="3" align="center">
 				<%= image_tag("coach.png", :size => "100x100") %>
 			</td>
-			<td align="right"><strong>Nombre</strong></td>
-			<td><%= f.text_field :name %></td>
+			<td align="right"><strong>Nom:</strong></td>
+			<td><%= f.text_field :name, size: 10 %></td>
 		</tr><tr>
-			<td align="right"><strong>Apellidos</strong></td>
-			<td><%= f.text_field :surname %></td>
+			<td align="right"><strong>Apel:</strong></td>
+			<td><%= f.text_field :surname, size: 10 %></td>
 		</tr><tr>
-			<td align="right"><strong>F. Nacim.</strong></td>
+			<td align="right"><strong>F.Nac.</strong></td>
 			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %>
 		</tr><tr>
-			<td align="right"><strong>DNI/NIE</strong></td>
-			<td><%= f.text_field :dni, size: 10 %></td>
-			<td align="right"><strong>Apodo</strong></td>
-			<td><%= f.text_field :nick, size:10 %></td>
+			<td align="right"><strong>DNI:</strong><%= f.text_field :dni, size: 6 %></td>
+			<td align="right"><strong>Apodo:</strong></td>
+			<td><%= f.text_field :nick, size: 6 %></td>
 		</tr><tr>
-			<td></td><td><strong>Activo&nbsp;<strong><%= form.check_box :active %></td>
+			<td colspan="2" align="right"><strong>Activo:<strong>
+			<td><%= form.check_box :active %></td>
 		</tr>
 	</table><% end %>
-  <div class="actions">
-    <%= form.submit %>
+	<div class="actions">
+		<%= image_submit_tag "save.svg", height: 25, class: "save_button align-middle", alt: "Guardar" %>
   </div>
 <% end %>
