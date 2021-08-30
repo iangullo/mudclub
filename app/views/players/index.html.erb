@@ -7,7 +7,7 @@
 					<div id="search-people" class="text-gray-600">
 						<%= form_with(url: '/players', method: 'get', local: true) do %>
 							<%= text_field_tag(:search) %>
-							<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
+							<%= image_submit_tag "search.png", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
 						<% end %>
 					</div>
 				</th>
@@ -37,15 +37,15 @@
 						<td align="center"><%= player.number %></td>
 						<td><%= link_to player.to_s, player, data: {"turbo-frame": "modal" } %></td>
 						<td align="center"><%= player.person.age %></td>
-						<td align="center"><%= player.active ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
+						<td align="center"><%= player.active ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
 						<td>
 							<%= link_to edit_player_path(player), data: {"turbo-frame": "modal" } do %>
-								<%= image_tag "edit.svg", size: "25x25" %>
+								<%= image_tag "edit.png", size: "25x25" %>
 							<% end %>
 						</td>
 						<td>
 							<%= link_to player, method: :destroy, data: { confirm: '¿Borrar #{player.to_s}?' } do %>
-								<%= image_tag "delete.svg", size: "25x25" %>
+								<%= image_tag "delete.png", size: "25x25" %>
 							<% end %>
 						</td>
 	<!--					<td>< %= link_to 'Borrar', player, method: :destroy, data: { confirm: '¿Borrar #{player.to_s}?' } %></td>

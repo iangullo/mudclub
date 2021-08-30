@@ -4,11 +4,11 @@
 			<td>
 			</td>
 			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-				<%= image_tag "calendar.svg", size: "50x50" %>&nbsp;Horarios&nbsp;
+				<%= image_tag "calendar.png", size: "50x50" %>&nbsp;Horarios&nbsp;
 				<div id="search-slots" class="inline-flex text-gray-700 items-center justify-center p-2 rounded-md">
 					<%= form_with(url: '/training_slots', method: 'get', local: true) do %>
 						<%= text_field_tag(:search) %>
-						<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
+						<%= image_submit_tag "search.png", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
 					<% end %>
 				</div>
 			</th>
