@@ -2,8 +2,8 @@
 	<div id="sessions-header">
 		<table>
 			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-				<%= image_tag "drill.png", size: "50x50" %>&nbsp;Ejercicios&nbsp;
-				<div id="search-sessions">
+				<%= image_tag "drill.png", size: "50x50" %>&nbsp;Sesiones&nbsp;
+				<div id="search-sessions" class="text-gray-700">
 					<%= form_with(url: '/training_sessions', method: 'get', local: true) do %>
 						<%= text_field_tag(:search) %>
 						<%= image_submit_tag "search.png", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
@@ -14,7 +14,7 @@
 	</div>
 
 	<div id="sessions-grid">
-		<table class="table-auto">
+		<table class="table-auto border-separate">
 			<thead>
 				<tr>
 					<th class="bg-indigo-900 text-gray-300 align-center">Fecha</th>
@@ -31,9 +31,9 @@
 			<tbody>
 				<% @training_sessions.each do |training_session| %>
 					<tr>
-					<td><%= link_to training_session.date, training_session, data: {"turbo-frame": "modal" } %></td>
-					<td><%= training_session.team.name %></td>
-					<td><%= training_session.location.name %></td>
+					<td class="border px-1 py-1 hover:bg-blue-100 hover:text-blue-700"><%= link_to training_session.date, training_session, data: {"turbo-frame": "modal" } %></td>
+					<td class="border px-1 py-1 hover:bg-blue-100 hover:text-blue-700"><%= link_to training_session.location.name, training_session, data: {"turbo-frame": "modal" } %></td>
+					<td class="border px-1 py-1 hover:bg-blue-100 hover:text-blue-700"><%= link_to training_session.team.name, training_session.team, data: {"turbo-frame": "modal" } %></td>
 					<td>
 						<%= link_to edit_training_session_path(training_session), data: {"turbo-frame": "modal" } do %>
 							<%= image_tag "edit.png", size: "25x25" %>

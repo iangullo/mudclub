@@ -1,8 +1,8 @@
 <div id="slot-breakdown">
   <tr>
-		<td align="center" class="border px-8 py-4"><%= t_hour.hour.to_s.rjust(2,"0") + ":" + t_hour.min.to_s.rjust(2,"0") %></td>
+		<td align="center" class="border px-2 py-2"><%= t_hour.hour.to_s.rjust(2,"0") + ":" + t_hour.min.to_s.rjust(2,"0") %></td>
 		<% 1.upto(5) do |i| %>
-			<td class="border px-8 py-4">
+			<td class="border px-3 py-3">
 				<% @training_slots.each do |t_slot| %>
 					<% if t_slot.at_work?(i,t_hour) %>
 						<%= link_to t_slot.team.name, t_slot, data: {"turbo-frame": "modal" } %>
