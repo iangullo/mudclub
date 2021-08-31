@@ -12,11 +12,10 @@
     "autoprefixer": "^10.3.2",
     "postcss": "^8.3.6",
     "stimulus": "^2.0.0",
-    "stimulus-lightbox": "^2.0.0",
     "stimulus-nested-form": "^2.0.0",
     "stimulus-rails-nested-form": "^3.0.0",
     "tailwindcss": "^2.2.7",
-    "tailwindcss-stimulus-components": "^2.2.1",
+    "tailwindcss-stimulus-components": "^2.2.2",
     "trix": "^1.2.0",
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.12"
