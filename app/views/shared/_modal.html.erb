@@ -1,13 +1,11 @@
 <%= turbo_frame_tag "modal" do %>
   <div data-controller="modal"
-    data-modal-allow-background-close="true"
-    class="fixed z-10 inset-0 overflow-y-auto bg-gray-500 bg-opacity-75">
+    data-modal-allow-background-close="true">
 
     <!-- Modal Container -->
     <div data-modal-target="container"
       data-action="click->modal#closeBackground keyup@window->modal#closeWithKeyboard"
-      class="animated fadeIn fixed inset-0 overflow-y-auto flex items-center justify-center"
-      style="z-index: 9999;">
+      class="animated fadeIn fixed z-10 inset-0 overflow-auto bg-gray-500 bg-opacity-75 flex items-center justify-center">
       <!-- Modal Inner Container -->
       <div data-modal-target="body" class="max-h-screen w-full max-w-lg relative">
         <!-- Modal Card -->
@@ -16,9 +14,9 @@
             <%= turbo_frame_tag "modal-body" do %>
               <%= yield %>
             <% end %>
-          </div>
-          <div class="h-10 rounded-full mb-3 mx-3">
-            <%= image_submit_tag "close.png", height: 25, class: "modal-close align-middle", alt: "Cerrar", "data-action": "click->modal#close" %>
+            <div class="rounded-lg mt-3">
+              <%= image_submit_tag "close.png", height: 25, class: "modal-close align-middle", alt: "Cerrar", "data-action": "click->modal#close" %>
+            </div>
           </div>
         </div>
       </div>

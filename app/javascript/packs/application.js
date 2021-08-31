@@ -17,13 +17,11 @@ require("channels")
 import { Turbo, cable } from "@hotwired/turbo-rails"
 import { Application } from "stimulus"
 import { definitionsFromContext } from "stimulus/webpack-helpers"
-import Lightbox from "stimulus-lightbox"
 import NestedForm from "stimulus-rails-nested-form"
 
 const application = Application.start()
 const context = require.context("../controllers", true, /\.js$/)
 application.load(definitionsFromContext(context))
-application.register("lightbox", Lightbox)
 application.register("nested-form", NestedForm)
 
 import { Alert, Dropdown, Modal, Tabs, Popover, Toggle, Slideover } from "tailwindcss-stimulus-components"
