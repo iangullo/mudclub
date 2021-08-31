@@ -18,7 +18,6 @@ class PeopleController < ApplicationController
   # GET /people/1
   # GET /people/1.json
   def show
-  	render layout: false if params[:inline] == 'true'
   end
 
   # GET /people/new
@@ -52,7 +51,7 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        format.html { redirect_to @person, notice: 'Persona actualizada.' }
+        format.html { redirect_to :back, notice: 'Persona actualizada.' }
         format.json { render :show, status: :ok, location: @person }
       else
         format.html { render :edit }

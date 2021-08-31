@@ -2,6 +2,7 @@
 // present in this directory. You're encouraged to place your actual application logic in
 // a relevant structure within app/javascript and only use these pack files to reference
 // that code so it'll be compiled.
+require("@rails/ujs").start()
 require("@rails/activestorage").start()
 require("channels")
 
@@ -25,6 +26,14 @@ application.load(definitionsFromContext(context))
 application.register("lightbox", Lightbox)
 application.register("nested-form", NestedForm)
 
+import { Alert, Dropdown, Modal, Tabs, Popover, Toggle, Slideover } from "tailwindcss-stimulus-components"
+application.register('alert', Alert)
+application.register('dropdown', Dropdown)
+application.register('modal', Modal)
+application.register('tabs', Tabs)
+application.register('popover', Popover)
+application.register('toggle', Toggle)
+application.register('slideover', Slideover)
 import "controllers"
 
 require("trix")

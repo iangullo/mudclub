@@ -1,23 +1,25 @@
 <%= turbo_frame_tag "modal" do %>
-  <div
-    data-controller="modal"
-    data-action="keyup@document->modal#handleKeyup"
-    class="fixed z-10 inset-0 overflow-y-auto"
-    aria-labelledby="modal-title"
-    role="dialog"
-    aria-modal="true"
-  >
-    <div class="flex items-end bg-white justify-center my-20 pt-4 px-4 text-center sm:block sm:p-0">
-      <div
-      data-modal-target="body"
-      class="inline-block align-bottom rounded-lg px-4 py-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w sm:w-full sm:h-full sm:p-2">
-        <%= turbo_frame_tag "modal-body" do %>
-          <%= yield %>
-        <% end %>
-        <div class="h-12 w-12 rounded-full mb-0">
-          <%= image_submit_tag "close.png", height: 25, class: "modal-close align-middle", alt: "Cerrar" %>
-          <!-- button data-action="click->modal#close">(CERRAR)</button>
-            -->
+  <div data-controller="modal"
+    data-modal-allow-background-close="true"
+    class="fixed z-10 inset-0 overflow-y-auto bg-gray-500 bg-opacity-75">
+
+    <!-- Modal Container -->
+    <div data-modal-target="container"
+      data-action="click->modal#closeBackground keyup@window->modal#closeWithKeyboard"
+      class="animated fadeIn fixed inset-0 overflow-y-auto flex items-center justify-center"
+      style="z-index: 9999;">
+      <!-- Modal Inner Container -->
+      <div data-modal-target="body" class="max-h-screen w-full max-w-lg relative">
+        <!-- Modal Card -->
+        <div class="m-1 bg-white rounded-lg shadow">
+          <div class="p-3">
+            <%= turbo_frame_tag "modal-body" do %>
+              <%= yield %>
+            <% end %>
+          </div>
+          <div class="h-10 rounded-full mb-3 mx-3">
+            <%= image_submit_tag "close.png", height: 25, class: "modal-close align-middle", alt: "Cerrar", "data-action": "click->modal#close" %>
+          </div>
         </div>
       </div>
     </div>
