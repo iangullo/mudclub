@@ -31,7 +31,7 @@
 			<tbody>
 				<% @coaches.each do |coach| %>
 					<tr>
-						<td><%= link_to coach.to_s, coach, data: {"turbo-frame": "modal" } %></td>
+						<td><%= link_to coach.to_s, coach, data: {"turbo-frame": "modal" }, class: "hover:text-blue-700" %></td>
 						<td><%= coach.person.age %></td>
 						<td style="text-align:center"><%= coach.active ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
 						<td>

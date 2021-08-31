@@ -1,4 +1,3 @@
-<h1>Nuevo Jugador</h1>
 <%= render "shared/modal" do %>
 	<%= form_for @player, remote: true do |form| %>
 		<%= form.fields_for :person do |f| %>
@@ -15,7 +14,7 @@
 				</tr><tr>
 			</table>
 		<% end %>
-		<div class="actions">
+		<div class="actions rounded-lg mt-3">
 			<%= image_submit_tag "save.png", height: 25, class: "save_button align-middle", alt: "Guardar" %>
 	  </div>
 	<% end %>

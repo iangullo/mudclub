@@ -35,7 +35,7 @@
 				<% @players.each do |player| %>
 					<tr>
 						<td align="center"><%= player.number %></td>
-						<td><%= link_to player.to_s, player, data: {"turbo-frame": "modal" } %></td>
+						<td><%= link_to player.to_s, player, data: {"turbo-frame": "modal" }, class: "hover:text-blue-700" %></td>
 						<td align="center"><%= player.person.age %></td>
 						<td align="center"><%= player.active ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
 						<td>
@@ -60,9 +60,15 @@
 	<div id="import-export">
 		<table>
 			<tr>
-				<th colspan="2"><%= link_to 'Exportar (Excel)', players_path(format: :xlsx) %></th>
+				<td>
+					<div class="rounded-lg border-4 border-green-800 hover:bg-green-200 mb-3">
+						<%= link_to players_path(format: :xlsx) do %>
+							<%= image_tag "export.png", width: 125 %>
+						<% end %>
+					</div>
+				</td>
 			</tr><tr>
-				<th>Importar</th>
+				<td><%= image_tag "import.png", width: 125 %></td>
 				<td>
 					<%= form_with url: import_players_path, local: true do |form| %>
 						<%= form.file_field :file %>

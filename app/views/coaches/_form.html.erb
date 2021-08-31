@@ -1,29 +1,43 @@
 <%= form_with model: @coach, remote: true do |form| %>
-	<table><%= form.fields_for :person do |f| %>
-		<tr>
-			<td colspan="4"><strong>Foto&nbsp;</strong><%= form.file_field :avatar, direct_upload: true %></td>
-		</tr><tr>
-			<td rowspan="3" align="center">
-				<%= image_tag("coach.png", :size => "100x100") %>
-			</td>
-			<td align="right"><strong>Nom:</strong></td>
-			<td><%= f.text_field :name, size: 10 %></td>
-		</tr><tr>
-			<td align="right"><strong>Apel:</strong></td>
-			<td><%= f.text_field :surname, size: 10 %></td>
-		</tr><tr>
-			<td align="right"><strong>F.Nac.</strong></td>
-			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %>
-		</tr><tr>
-			<td align="right"><strong>DNI:</strong><%= f.text_field :dni, size: 6 %></td>
-			<td align="right"><strong>Apodo:</strong></td>
-			<td><%= f.text_field :nick, size: 6 %></td>
-		</tr><tr>
-			<td colspan="2" align="right"><strong>Activo:<strong>
-			<td><%= form.check_box :active %></td>
-		</tr>
-	</table><% end %>
-	<div class="actions">
+	<% if @coach.errors.any? %>
+		<div class="p-4 border border-red-600" data-extended-modal-target="errors">
+			<h2>
+				No se pudo guardar el entrenador
+			</h2>
+			<ul>
+				<% @coach.errors.full_messages.each do |message| %>
+					<li><%= message %></li>
+				<% end %>
+			</ul>
+		</div>
+	<% end %>
+	<table>
+		<%= form.fields_for :person do |f| %>
+			<tr>
+				<td colspan="4"><strong>Foto&nbsp;</strong><%= form.file_field :avatar, direct_upload: true %></td>
+			</tr><tr>
+				<td rowspan="3" align="center">
+					<%= image_tag("coach.png", :size => "100x100") %>
+				</td>
+				<td align="right"><strong>Nom:</strong></td>
+				<td><%= f.text_field :name, size: 12 %></td>
+			</tr><tr>
+				<td align="right"><strong>Apel:</strong></td>
+				<td><%= f.text_field :surname, size: 16 %></td>
+			</tr><tr>
+				<td align="right"><strong>F.Nac.</strong></td>
+				<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %>
+			</tr><tr>
+				<td align="right"><strong>DNI:</strong><%= f.text_field :dni, size: 8 %></td>
+				<td align="right"><strong>Apodo:</strong></td>
+				<td><%= f.text_field :nick, size: 8 %></td>
+			</tr><tr>
+				<td colspan="2" align="right"><strong>Activo:<strong>
+				<td><%= form.check_box :active %></td>
+			</tr>
+		<% end %>
+	</table>
+	<div class="actions rounded-lg mt-3">
 		<%= image_submit_tag "save.png", height: 25, class: "save_button align-middle", alt: "Guardar" %>
   </div>
 <% end %>
