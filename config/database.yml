@@ -46,6 +46,7 @@ test:
 production:
   adapter: mysql2
   encoding: utf8mb4
+  database: bclub_production
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: bclub
   password: Ch00Choo
