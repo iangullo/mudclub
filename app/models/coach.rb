@@ -15,7 +15,11 @@ class Coach < ApplicationRecord
 
 	def s_name
 		if person
-			 person.nick ? person.nick : person.name
+			if person.nick
+				person.nick.length >  0 ? person.nick : person.name
+			else
+				person.name
+			end
 		else
 			"Nuevo"
 		end

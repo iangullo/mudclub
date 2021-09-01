@@ -14,7 +14,7 @@
 	</div>
 
 	<div id="drills-grid">
-		<table class="table-auto">
+		<table class="table-auto border-separate">
 			<thead>
 				<tr>
 					<th class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
@@ -32,12 +32,12 @@
 			<tbody>
 				<% @drills.each do |drill| %>
 					<tr>
-						<td><%= link_to drill.name, drill, data: {"turbo-frame": "modal" } %></td>
-						<td><%= drill.kind.name %></td>
-						<td><%= drill.description %></td>
-						<td><%= drill.print_skills %></td>
+						<td class="border px-2 py-2"><%= link_to drill.name, drill, data: {"turbo-frame": "modal" } %></td>
+						<td class="border px-2 py-2"><%= drill.kind.name %></td>
+						<td class="border px-2 py-2"><%= drill.description %></td>
+						<td class="border px-2 py-2"><%= drill.print_skills %></td>
 						<td>
-							<%= link_to drill, method: :destroy, data: { confirm: '¿Borrar #{drill.to_s}?' } do %>
+							<%= link_to drill, method: :delete, data: { confirm: "¿Borrar '#{drill.name}'" } do %>
 								<%= image_tag "delete.png", size: "25x25" %>
 							<% end %>
 						</td>

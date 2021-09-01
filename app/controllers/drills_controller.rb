@@ -23,10 +23,11 @@ class DrillsController < ApplicationController
 	# POST /drills or /drills.json
 	def create
 		respond_to do |format|
+			@drill = Drill.new
 			rebuild_drill(params)	# rebuild drill
 			if @drill.save
-				format.html { redirect_to @drill, notice: "Ejercicio creado." }
-				format.json { render :show, status: :created, location: @drill }
+				format.html { redirect_to drills_url, notice: "Ejercicio creado." }
+				format.json { render :index, status: :created, location: @drill }
 			else
 				format.html { render :new, status: :unprocessable_entity }
 				format.json { render json: @drill.errors, status: :unprocessable_entity }
@@ -39,8 +40,8 @@ class DrillsController < ApplicationController
 		respond_to do |format|
 			rebuild_drill(params)	# rebuild drill
 			if @drill.save
-				format.html { redirect_to @drill, notice: "Ejercicio actualizado." }
-				format.json { render :show, status: :ok, location: @drill }
+				format.html { redirect_to drills_url, notice: "Ejercicio actualizado." }
+				format.json { render :index, status: :ok, location: @drill }
 			else
 				format.html { render :edit, status: :unprocessable_entity }
 				format.json { render json: @drill.errors, status: :unprocessable_entity }
@@ -56,14 +57,14 @@ class DrillsController < ApplicationController
 				format.json { head :no_content }
 			end
 		end
-	
+
 	def autocompletable_skills
 		aux = ""
 		Skill.all.each { |s|
 			aux += '<li class="list-group-item" role="option" data-autocomplete-value="#{s.id}">Blackbird</li>\n'
 		}
 		aux
-	end	
+	end
 
 	def explanation
 		render partial: 'drills/explanation', locals: { drill: @drill }
@@ -80,7 +81,7 @@ class DrillsController < ApplicationController
 		@drill.coach_id    = p_data[:coach_id]
 		@drill.kind_id     = p_data[:kind_id]
 		@drill.explanation = p_data[:explanation]
-		check_skills(p_data[:skills_attributes])
+		check_skills(p_data[:skills_attributes]) if p_data[:skills_attributes]
 		@drill
 	end
 
