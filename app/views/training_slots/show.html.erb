@@ -11,6 +11,11 @@
 			<td><strong><%= @training_slot.to_s %></td>
 		</tr><tr>
 			<td align="center"><strong><%= @training_slot.team.name %></td>
+			<td align="right">
+				<%= link_to edit_training_slot_path(@training_slot), class:"rounded", data: {"turbo-frame": "modal" } do %>
+			    <%= image_tag "edit.png", size: "25x25", alt: "Editar" %>
+			  <% end %>
+			<td>
 		<tr>
 	</table>
 <% end %>
