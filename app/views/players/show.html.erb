@@ -12,6 +12,11 @@
 		</tr><tr>
 			<td align="center"><%= @player.person.dni %></td>
 			<td># <%= @player.number %> &nbsp;-&nbsp;<%= @player.active ? "Activo" : "Inactivo" %></td>
+			<td align="right">
+				<%= link_to edit_player_path(@player), data: {"turbo-frame": "modal" } do %>
+					<%= image_tag "edit.png", size: "25x25" %>
+				<% end %>
+			</td>
 		</tr>
 	</table>
 <% end %>

@@ -17,16 +17,16 @@
 				<%= image_tag("drill.png", :size => "100x100") %>
 			</td>
 			<td align="right"><strong>Nombre:&nbsp;</strong></td>
-			<td><div class="field"><%= form.text_field :name %></div></td>
+			<td><div class="field"><%= form.text_field :name, size: 20, rows: 2 %></div></td>
 		</tr><tr>
-			<td align="right"><strong>Descripci&oacute;n:&nbsp;</strong></td>
-			<td><div class="field"><%= form.text_field :description, size: 40 %></div></td>
+			<td align="right"><strong>Desc.:&nbsp;</strong></td>
+			<td><div class="field"><%= form.text_area :description, cols: 40, rows: 1 %></div></td>
 		</tr><tr>
 			<td align="right"><strong>Material:&nbsp;</strong></td>
-			<td><div class="field"><%= form.text_field :material, size: 40 %></div></td>
+			<td><div class="field"><%= form.text_area :material, cols: 40, rows: 1 %></div></td>
 		</tr><tr>
 			<td align="right"><strong>Autor:&nbsp;</strong></td>
-			<td><div class="field"><%= form.collection_select :coach_id, Coach.real, :id, :to_s %></div></td>
+			<td><div class="field"><%= form.collection_select :coach_id, Coach.real, :id, :s_name %></div></td>
 			<td align="right"><strong>Tipo:&nbsp;</strong></td>
 			<td><div class="field"><%= form.collection_select :kind_id, Kind.all, :id, :name %></div></td>
 		</tr><tr>
@@ -34,7 +34,7 @@
 			<td colspan="3"><div class="field"><%= form.rich_text_area :explanation %></div></td>
 		</tr><tr>
 			<td align="right"><strong>Fundamentos:<strong></td>
-			<td><table>
+			<td>
 				<template data-nested-form-target="template">
 					<%= form.fields_for :skills, Drill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
 						<%= render 'skill_form', form: skill_fields %>
@@ -44,8 +44,8 @@
 					<%= render 'skill_form', form: skill_fields %>
 				<% end %>
 				<div data-nested-form-target="target"></div>
-				<button type="button" data-action="nested-form#add">A&ntilde;adir</button>
-			</table></td>
+				<button type="button" data-action="nested-form#add"><%= image_tag "plus.png", size: "20x20" %></button>
+			</td>
 		</tr>
 	</table>
 

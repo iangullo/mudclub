@@ -13,6 +13,14 @@ class Coach < ApplicationRecord
 		person ? person.to_s : "Nuevo"
 	end
 
+	def s_name
+		if person
+			 person.nick ? person.nick : person.name
+		else
+			"Nuevo"
+		end
+	end
+
 	# check if associated person exists in database already
 	# reloads person if it does
 	def is_duplicate?

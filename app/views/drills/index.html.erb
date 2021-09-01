@@ -21,7 +21,7 @@
 					<th class="bg-indigo-900 text-gray-300 align-center">Tipo</th>
 					<th class="bg-indigo-900 text-gray-300 align-center">Descripción</th>
 					<th class="bg-indigo-900 text-gray-300 align-center">Fundamentos</th>
-					<th colspan="2">
+					<th>
 						<%= link_to new_drill_path, data: {"turbo-frame": "modal" } do %>
 							<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
 						<% end %>
@@ -36,11 +36,6 @@
 						<td><%= drill.kind.name %></td>
 						<td><%= drill.description %></td>
 						<td><%= drill.print_skills %></td>
-						<td>
-							<%= link_to edit_drill_path(drill), data: {"turbo-frame": "modal" } do %>
-								<%= image_tag "edit.png", size: "25x25" %>
-							<% end %>
-						</td>
 						<td>
 							<%= link_to drill, method: :destroy, data: { confirm: '¿Borrar #{drill.to_s}?' } do %>
 								<%= image_tag "delete.png", size: "25x25" %>

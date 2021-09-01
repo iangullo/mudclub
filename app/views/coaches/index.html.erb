@@ -20,7 +20,7 @@
 					<th class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
 					<th class="bg-indigo-900 text-gray-300 align-center">Edad</th>
 					<th align="center" class="bg-indigo-900 text-gray-300 align-center">Act.</th>
-					<th colspan="2">
+					<th>
 						<%= link_to new_coach_path, data: {"turbo-frame": "modal" } do %>
 							<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
 						<% end %>
@@ -34,11 +34,6 @@
 						<td><%= link_to coach.to_s, coach, data: {"turbo-frame": "modal" }, class: "hover:text-blue-700" %></td>
 						<td><%= coach.person.age %></td>
 						<td style="text-align:center"><%= coach.active ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
-						<td>
-							<%= link_to edit_coach_path(coach), data: {"turbo-frame": "modal" } do %>
-								<%= image_tag "edit.png", size: "25x25" %>
-							<% end %>
-						</td>
 						<td>
 							<%= link_to coach, method: :destroy, data: { confirm: '¿Borrar #{coach.to_s}?' } do %>
 								<%= image_tag "delete.png", size: "25x25" %>

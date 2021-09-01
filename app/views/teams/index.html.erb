@@ -33,11 +33,6 @@
 	          <td><%= link_to team.to_s, team, data: {"turbo-frame": "modal" } %></td>
 	          <td><%= team.season.name %></td>
 	          <td>
-	            <%= link_to edit_team_path(team), data: {"turbo-frame": "modal" } do %>
-	              <%= image_tag "edit.png", size: "25x25" %>
-	            <% end %>
-	          </td>
-	          <td>
 	            <%= link_to team, method: :destroy, data: { confirm: '¿Borrar #{team.to_s}?' } do %>
 	              <%= image_tag "delete.png", size: "25x25" %>
 	            <% end %>

@@ -14,7 +14,7 @@
 			<td><%= @drill.material %></td>
 		</tr><tr>
 			<td align="right"><strong>Autor:&nbsp;</strong></td>
-			<td><%= @drill.coach.to_s %></td>
+			<td><%= @drill.coach.s_name %></td>
 			<td align="right"><strong>Tipo:&nbsp;</strong></td>
 			<td><%= @drill.kind.name %></td>
 		</tr><tr>
@@ -23,6 +23,11 @@
 		</tr><tr>
 			<td align="right"><strong>Fundamentos:&nbsp;</strong></td>
 			<td colspan="3"><%= @drill.print_skills %></td>
+			<td align="right">
+				<%= link_to edit_drill_path(@drill), data: {"turbo-frame": "modal" } do %>
+					<%= image_tag "edit.png", size: "25x25" %>
+				<% end %>
+			</td>
 		</tr>
 	</table>
 <% end %>

@@ -18,7 +18,7 @@
 		<table class="table-auto">
 			<thead>
 				<th colspan="2" align="left" class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
-				<th colspan="2">
+				<th>
 					<%= link_to new_person_path, data: {"turbo-frame": "modal" } do %>
 						<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
 					<% end %>
@@ -35,11 +35,6 @@
 							<% if person.coach_id>0 %>
 								<%= person.player_id>0 ? "/" : "" %>
 								Ent.
-							<% end %>
-						</td>
-						<td>
-							<%= link_to edit_person_path(person), data: {"turbo-frame": "modal" } do %>
-								<%= image_tag "edit.png", size: "25x25" %>
 							<% end %>
 						</td>
 						<td>
