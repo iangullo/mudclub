@@ -28,8 +28,8 @@ class TrainingSlotsController < ApplicationController
     respond_to do |format|
 			rebuild_training_slot(params)	# rebuild training_slot
       if @training_slot.save
-        format.html { redirect_to @training_slot, notice: "Training slot was successfully created." }
-        format.json { render :show, status: :created, location: @training_slot }
+        format.html { redirect_to training_slots_url, notice: "Horario creado." }
+        format.json { render :index, status: :created, location: @training_slot }
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @training_slot.errors, status: :unprocessable_entity }
@@ -42,8 +42,8 @@ class TrainingSlotsController < ApplicationController
     respond_to do |format|
 			rebuild_training_slot(params)
       if @training_slot.update(training_slot_params)
-        format.html { redirect_to @training_slot, notice: "Training slot was successfully updated." }
-        format.json { render :show, status: :ok, location: @training_slot }
+      format.html { redirect_to training_slots_url, notice: "Horario actualizado." }
+        format.json { render :index, status: :ok, location: @training_slot }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @training_slot.errors, status: :unprocessable_entity }
