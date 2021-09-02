@@ -23,6 +23,7 @@ class TrainingSessionsController < ApplicationController
 	# POST /training_sessions or /training_sessions.json
 	def create
 		respond_to do |format|
+			@training_session = TrainingSession.new
 			rebuild_session(params)	# rebuild session
 			if @training_session.save
 				format.html { redirect_to @training_session, notice: "Sesión de entrenamiento creada." }
@@ -94,7 +95,7 @@ class TrainingSessionsController < ApplicationController
 			@training_session.duration = p[:duration]
 			check_exercises(p[:exercises_attributes]) if p[:exercises_attributes]
 		end
-	
+
 		# checks exercises parameter received and manage adding/removing
 		# from the training_session
 		def check_exercises(e_array)
