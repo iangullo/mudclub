@@ -11,16 +11,14 @@ else
 end
 
 group :development, :test do
-  gem 'sqlite3'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
 end
 
-group :production do
-  # Use mysql as the database for Active Record
-  gem 'mysql2', '~> 0.5'
-end
-# Use mysql as the database for Active Record
+# database interfaces (sqlite for development)
+gem 'sqlite3'
+gem 'mysql2', '~> 0.5'
+
 # Use Puma as the app server
 gem 'puma', '~> 5.0'
 # Use SCSS for stylesheets
