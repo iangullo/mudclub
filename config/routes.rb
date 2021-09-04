@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
-  devise_for :users
-  root to: "home#index"
+  root to: "teams#index"
   resources :training_sessions
   resources :teams
   resources :drills
