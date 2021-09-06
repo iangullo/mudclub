@@ -1,4 +1,9 @@
 {
+  "name": "bClub",
+  "version": "0.0.1",
+  "license": "GPL-2.0",
+  "private": true,
+
   "dependencies": {
     "@hotwired/turbo-rails": "^7.0.0-rc.3",
     "@rails/actioncable": "^6.1.4-1",
