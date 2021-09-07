@@ -57,11 +57,13 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-gem "turbo-rails", "~> 0.7.11"
-gem "stimulus-rails", "~> 0.4.2"
+gem "turbo-rails"
+gem "stimulus-rails"
 gem 'image_processing'
 gem 'roo'
 gem 'caxlsx'
 gem 'caxlsx_rails'
 gem 'wdm', '>= 0.1.0' if Gem.win_platform?
-gem "tailwindcss-rails", "~> 0.4.3"
+gem "tailwindcss-rails"
+
+gem "listen", "~> 3.7"
