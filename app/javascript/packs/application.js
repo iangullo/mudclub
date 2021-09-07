@@ -3,15 +3,16 @@
 // a relevant structure within app/javascript and only use these pack files to reference
 // that code so it'll be compiled.
 
-import Rails from "@rails/ujs"
+//import Rails from "@rails/ujs"
 import { Turbo } from "@hotwired/turbo"
-import * as ActiveStorage from "@rails/activestorage"
+//import * as ActiveStorage from "@rails/activestorage"
+import "@hotwired/stimulus"
+import "@hotwired/turbo-rails"
 import "channels"
 import 'controllers'
 
-Rails.start()
-// Turbo.start()
-ActiveStorage.start()
+//Rails.start()
+//ActiveStorage.start()
 
-require("trix")
-require("@rails/actiontext")
+//require("trix")
+//require("@rails/actiontext")
