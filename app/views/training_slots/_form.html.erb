@@ -16,10 +16,10 @@
   			<%= image_tag("team.png", :size => "100x100") %>
   		</td>
   		<td align="right"><strong><%= form.label "Temporada" %></td>
-  		<td colspan="3"><%= form.collection_select :season_id, Season.all, :id, :name %></td>
+  		<td colspan="3"><%= form.collection_select :season_id, Season.real.order(name: :desc), :id, :name %></td>
   	</tr><tr>
   		<td align="right"><strong><%= form.label "Pista" %></td>
-  		<td colspan="3"><%= form.collection_select :location_id, Location.practice, :id, :name %></td>
+  		<td colspan="3"><%= form.collection_select :location_id, Location.practice.order(name: :asc), :id, :name %></td>
   	</tr><tr>
   		<td align="right"><strong><%= form.label "Día" %></td>
   		<td colspan="3"><%= form.select :wday, @weekdays %></td>

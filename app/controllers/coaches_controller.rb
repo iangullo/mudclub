@@ -38,8 +38,8 @@ class CoachesController < ApplicationController
 					if @coach.person.coach_id != @coach.id
 						@coach.person.coach_id = @coach.id
 					end
-					format.html { render :edit, notice: 'Entrenador creado.' }
-					format.json { render :edit, status: :created, location: @coach }
+					format.html { redirect_to coaches_url, notice: 'Entrenador creado.' }
+					format.json { render :index, status: :created, location: coaches_url }
 				else
 					format.html { render :new }
 					format.json { render json: @coach.errors, status: :unprocessable_entity }

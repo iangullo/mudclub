@@ -30,8 +30,8 @@ class TeamsController < ApplicationController
 
     respond_to do |format|
       if @team.save
-        format.html { redirect_to @team, notice: 'Equipo creado.' }
-        format.json { render :show, status: :created, location: @team }
+        format.html { redirect_to teams_url, notice: 'Equipo creado.' }
+        format.json { render :index, status: :created, location: teams_url }
       else
         format.html { render :new }
         format.json { render json: @team.errors, status: :unprocessable_entity }

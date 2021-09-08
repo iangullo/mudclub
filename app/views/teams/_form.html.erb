@@ -24,7 +24,7 @@
 			<td colspan="3"><%= form.collection_select :division_id, Division.real, :id, :name %></td>
 		</tr><tr>
 			<th align="right"><%= form.label "T:" %></th>
-			<td><%= form.collection_select :season_id, Season.all.order(name: :desc), :id, :name %></td>
+			<td><%= form.collection_select :season_id, Season.real.order(name: :desc), :id, :name %></td>
 			<th align="right"><%= form.label "P:" %></th>
 			<td colspan="3"><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
 		</tr><tr>
@@ -38,9 +38,9 @@
 					<%= form.collection_check_boxes :player_ids, @eligible_players, :id, :to_s do |player| %>
 					<tr>
 						<div class="collection-check-box">
-							<td align="center"><%= player.object.number %></td>
-							<td><%= player.object.to_s %></td>
-							<td align="center"><%= player.object.person.age %></td>
+							<td align="center" class="border px-1 py-1"><%= player.object.number %></td>
+							<td class="border px-1 py-1"><%= player.object.to_s %></td>
+							<td align="center class="border px-1 py-1""><%= player.object.person.age %></td>
 							<td><%= player.check_box %></td>
 						</div>
 					</tr>

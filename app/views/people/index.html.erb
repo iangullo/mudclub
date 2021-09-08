@@ -30,7 +30,7 @@
 						<td class="border">
 							<%= link_to person.to_s, person, data: {"turbo-frame": "modal" }, class: "hover:text-blue-700" %>
 						</td>
-						<td align="center" class="border">
+						<td align="center" class="border px py">
 							<%= person.player_id>0 ? "Jug." : "" %>
 							<% if person.coach_id>0 %>
 								<%= person.player_id>0 ? "/" : "" %>
