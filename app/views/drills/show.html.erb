@@ -1,33 +1,29 @@
-<%= render "shared/modal" do %>
-	<table>
-		<tr>
-			<td rowspan="3" colspan="2" align="center">
-				<%= image_tag("drill.png", :size => "100x100") %>
-			</td>
-			<td align="right"><strong>Nombre:&nbsp;</strong></td>
-			<td><%= @drill.name %></td>
-		</tr><tr>
-			<td align="right"><strong>Descripci&oacute;n:&nbsp;</strong></td>
-			<td><%= @drill.description %></td>
-		</tr><tr>
-			<td align="right"><strong>Material:&nbsp;</strong></td>
-			<td><%= @drill.material %></td>
-		</tr><tr>
-			<td align="right"><strong>Autor:&nbsp;</strong></td>
-			<td><%= @drill.coach.s_name %></td>
-			<td align="right"><strong>Tipo:&nbsp;</strong></td>
-			<td><%= @drill.kind.name %></td>
-		</tr><tr>
-			<td align="right"><strong>Explicaci&oacute;n:</strong></td>
-			<td colspan="3"><%= @drill.explanation %></td>
-		</tr><tr>
-			<td align="right"><strong>Fundamentos:&nbsp;</strong></td>
-			<td colspan="2"><%= @drill.print_skills %></td>
-			<td align="right">
-				<%= link_to edit_drill_path(@drill), data: {"turbo-frame": "modal" } do %>
-					<%= image_tag "edit.png", size: "25x25" %>
-				<% end %>
-			</td>
-		</tr>
-	</table>
-<% end %>
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @drill.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @drill.description %>
+</p>
+
+<p>
+  <strong>Material:</strong>
+  <%= @drill.material %>
+</p>
+
+<p>
+  <strong>Coach:</strong>
+  <%= @drill.coach_id %>
+</p>
+
+<p>
+  <strong>Kind:</strong>
+  <%= @drill.kind_id %>
+</p>
+
+<%= link_to 'Edit', edit_drill_path(@drill) %> |
+<%= link_to 'Back', drills_path %>

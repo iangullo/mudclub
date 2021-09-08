@@ -1,44 +1,37 @@
-<div id="training-slots-index">
-	<div id="training-slots-header">
-		<table>
-			<td>
-			</td>
-			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-				<%= image_tag "calendar.png", size: "50x50" %>&nbsp;Horarios&nbsp;
-				<div id="search-slots" class="inline-flex text-gray-700 items-center justify-center p-2 rounded-md">
-					<%= form_with(url: '/training_slots', method: 'get', local: true) do %>
-						<%= text_field_tag(:search) %>
-						<%= image_submit_tag "search.png", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
-					<% end %>
-				</div>
-			</th>
-		</table>
-	</div>
+<p id="notice"><%= notice %></p>
 
-	<div id="training-slots-grid">
-		<table class="table-auto border-separate">
-		  <thead>
-				<tr>
-				  <th align="center">
-						<%= link_to new_training_slot_path, data: {"turbo-frame": "modal" } do %>
-							<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
-						<% end %>
-					</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Lun</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Mar</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Mi&eacute;r</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Jue</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Vie</th>
-				</tr>
-		  </thead>
-		  <tbody>
-				<% t_hour = Time.new(2000,1,1,16,00) %>
-				<% while t_hour.hour < 22 do %>
-					<%= render 'week_view' , t_hour: t_hour%>
-					<% t_hour = t_hour + 30.minutes %>
-				<% end %>
-		  </tbody>
-		</table>
-	</div>
-	<br>
-</div>
+<h1>Training Slots</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Season</th>
+      <th>Location</th>
+      <th>Wday</th>
+      <th>Start</th>
+      <th>Duration</th>
+      <th>Team</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @training_slots.each do |training_slot| %>
+      <tr>
+        <td><%= training_slot.season_id %></td>
+        <td><%= training_slot.location_id %></td>
+        <td><%= training_slot.wday %></td>
+        <td><%= training_slot.start %></td>
+        <td><%= training_slot.duration %></td>
+        <td><%= training_slot.team_id %></td>
+        <td><%= link_to 'Show', training_slot %></td>
+        <td><%= link_to 'Edit', edit_training_slot_path(training_slot) %></td>
+        <td><%= link_to 'Destroy', training_slot, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Training Slot', new_training_slot_path %>

@@ -1,55 +1,42 @@
-<%= form_with model: drill, remote: true, authenticity_token: true, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |form| %>
-	<% if drill.errors.any? %>
-		<div id="error_explanation">
-			<h2><%= pluralize(drill.errors.count, "error") %> prohibited this drill from being saved:</h2>
+<%= form_with(model: drill) do |form| %>
+  <% if drill.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(drill.errors.count, "error") %> prohibited this drill from being saved:</h2>
 
-			<ul>
-				<% drill.errors.full_messages.each do |message| %>
-					<li><%= message %></li>
-				<% end %>
-			</ul>
-		</div>
-	<% end %>
+      <ul>
+        <% drill.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 
-	<table>
-		<tr>
-			<td rowspan="3" colspan="2" align="center">
-				<%= image_tag("drill.png", :size => "100x100") %>
-			</td>
-			<td align="right"><strong>Nombre:&nbsp;</strong></td>
-			<td><div class="field"><%= form.text_field :name, size: 20, rows: 2 %></div></td>
-		</tr><tr>
-			<td align="right"><strong>Desc.:&nbsp;</strong></td>
-			<td><div class="field"><%= form.text_area :description, cols: 40, rows: 1 %></div></td>
-		</tr><tr>
-			<td align="right"><strong>Material:&nbsp;</strong></td>
-			<td><div class="field"><%= form.text_area :material, cols: 40, rows: 1 %></div></td>
-		</tr><tr>
-			<td align="right"><strong>Autor:&nbsp;</strong></td>
-			<td><div class="field"><%= form.collection_select :coach_id, Coach.real, :id, :s_name %></div></td>
-			<td align="right"><strong>Tipo:&nbsp;</strong></td>
-			<td><div class="field"><%= form.collection_select :kind_id, Kind.all, :id, :name %></div></td>
-		</tr><tr>
-			<td align="right"><strong>Explicaci&oacute;n:</strong></td>
-			<td colspan="3"><div class="field"><%= form.rich_text_area :explanation %></div></td>
-		</tr><tr>
-			<td align="right"><strong>Fundamentos:<strong></td>
-			<td>
-				<template data-nested-form-target="template">
-					<%= form.fields_for :skills, Drill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
-						<%= render 'skill_form', form: skill_fields %>
-					<% end %>
-				</template>
-				<%= form.fields_for :skills do |skill_fields| %>
-					<%= render 'skill_form', form: skill_fields %>
-				<% end %>
-				<div data-nested-form-target="target"></div>
-				<button type="button" data-action="nested-form#add"><%= image_tag "plus.png", size: "20x20" %></button>
-			</td>
-		</tr>
-	</table>
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
 
-	<div class="actions mt-3">
-		<%= image_submit_tag "save.png", height: 25, class: "save_button align-middle rounded-lg hover:bg-green-200", alt: "Guardar" %>
+  <div class="field">
+    <%= form.label :description %>
+    <%= form.text_field :description %>
+  </div>
+
+  <div class="field">
+    <%= form.label :material %>
+    <%= form.text_field :material %>
+  </div>
+
+  <div class="field">
+    <%= form.label :coach_id %>
+    <%= form.text_field :coach_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :kind_id %>
+    <%= form.text_field :kind_id %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
   </div>
 <% end %>

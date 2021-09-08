@@ -1,23 +1,21 @@
 {
   "name": "bClub",
-  "version": "0.0.1",
-  "license": "GPL-2.0",
   "private": true,
   "dependencies": {
-    "@hotwired/turbo": "^7.0.0-rc.3",
-    "@rails/actioncable": "^6.1.4-1",
+    "@hotwired/turbo-rails": "^7.0.0-rc.3",
+    "@rails/actioncable": "^6.0.0",
     "@rails/actiontext": "6.1.4-1",
-    "@rails/activestorage": "^6.1.4-1",
+    "@rails/activestorage": "^6.0.0",
     "@rails/ujs": "^6.0.0",
     "@rails/webpacker": "5.4.2",
-    "autoprefixer": "^10.3.4",
-    "postcss": "^8.3.6",
     "stimulus": "^2.0.0",
     "trix": "1.2.0",
-    "webpack": "^4.46.0",
-    "webpack-cli": "^3.3.12"
+    "turbolinks": "^5.2.0",
+    "webpack": "4.46.0",
+    "webpack-cli": "3.3.12"
   },
+  "version": "0.1.0",
   "devDependencies": {
-    "webpack-dev-server": "^4.1.0"
+    "webpack-dev-server": "^4.1.1"
   }
 }

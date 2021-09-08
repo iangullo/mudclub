@@ -1,3 +1,5 @@
-<%= render "shared/modal" do %>
-  <%= render 'form', training_slot: @training_slot %>
-<% end %>
+<h1>New Training Slot</h1>
+
+<%= render 'form', training_slot: @training_slot %>
+
+<%= link_to 'Back', training_slots_path %>

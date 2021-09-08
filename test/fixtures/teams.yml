@@ -2,12 +2,12 @@
 
 one:
   name: MyString
+  season: one
   category: one
   division: one
-  season: one
 
 two:
   name: MyString
+  season: two
   category: two
   division: two
-  season: two

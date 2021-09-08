@@ -1,21 +1,34 @@
-<%= render "shared/modal" do %>
-	<table>
-		<tr>
-			<td rowspan="3" align="center">
-				<%= image_tag("team.png", :size => "100x100") %>
-			</td>
-			<td><strong><%= @training_slot.season.name %></td>
-		</tr><tr>
-			<td><strong><%= @training_slot.court %></td>
-		</tr><tr>
-			<td><strong><%= @training_slot.to_s %></td>
-		</tr><tr>
-			<td align="center"><strong><%= @training_slot.team.name %></td>
-			<td align="right">
-				<%= link_to edit_training_slot_path(@training_slot), class:"rounded", data: {"turbo-frame": "modal" } do %>
-			    <%= image_tag "edit.png", size: "25x25", alt: "Editar" %>
-			  <% end %>
-			<td>
-		<tr>
-	</table>
-<% end %>
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Season:</strong>
+  <%= @training_slot.season_id %>
+</p>
+
+<p>
+  <strong>Location:</strong>
+  <%= @training_slot.location_id %>
+</p>
+
+<p>
+  <strong>Wday:</strong>
+  <%= @training_slot.wday %>
+</p>
+
+<p>
+  <strong>Start:</strong>
+  <%= @training_slot.start %>
+</p>
+
+<p>
+  <strong>Duration:</strong>
+  <%= @training_slot.duration %>
+</p>
+
+<p>
+  <strong>Team:</strong>
+  <%= @training_slot.team_id %>
+</p>
+
+<%= link_to 'Edit', edit_training_slot_path(@training_slot) %> |
+<%= link_to 'Back', training_slots_path %>

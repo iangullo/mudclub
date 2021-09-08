@@ -1,3 +1,6 @@
-<%= render "shared/modal" do %>
-  <%= render 'form', coach: @coach %>
-<% end %>
+<h1>Editing Coach</h1>
+
+<%= render 'form', coach: @coach %>
+
+<%= link_to 'Show', @coach %> |
+<%= link_to 'Back', coaches_path %>

@@ -1,21 +1,5 @@
-<%= render "shared/modal" do %>
-	<%= form_for @player, remote: true do |form| %>
-		<%= form.fields_for :person do |f| %>
-			<table>
-				<tr>
-					<td rowspan="3" align="center">
-						<%= image_tag("player.png", :size => "100x100") %>
-					</td>
-					<td align="right">Nom:</td>
-					<td><%= f.text_field :name, size: 10 %></td>
-				</tr><tr>
-					<td align="right">Apel:</td>
-					<td><%= f.text_field :surname, size: 10 %></td>
-				</tr><tr>
-			</table>
-		<% end %>
-		<div class="actions rounded-lg mt-3">
-			<%= image_submit_tag "save.png", height: 25, class: "save_button align-middle", alt: "Guardar" %>
-	  </div>
-	<% end %>
-<% end %>
+<h1>New Player</h1>
+
+<%= render 'form', player: @player %>
+
+<%= link_to 'Back', players_path %>

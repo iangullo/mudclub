@@ -1,38 +1,42 @@
-<%= form_with model: @person, remote: true do |f| %>
-	<% if @person.errors.any? %>
-	  <div class="p-4 border border-red-600" data-extended-modal-target="errors">
-	    <h2>
-	      No se pudo guardar la persona
-	    </h2>
-	    <ul>
-	      <% @comment.errors.full_messages.each do |message| %>
-	        <li><%= message %></li>
-	      <% end %>
-	    </ul>
-	  </div>
-	<% end %>
-	<table>
-		<tr>
-			<td rowspan="3" align="center">
-				<%= image_tag("person.png", :size => "100x100") %>
-			</td>
-			<td align="right"><strong>Nom:</strong></td>
-			<td><%= f.text_field :name, size: 12 %></td>
-		</tr><tr>
-			<td align="right"><strong>Apel:</strong></td>
-			<td><%= f.text_field :surname, size: 16 %></td>
-		</tr><tr>
-			<td align="right"><strong>F.Nac.</strong></td>
-			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %></td>
-		</tr><tr>
-			<td><strong>DNI:</strong>&nbsp;<%= f.text_field :dni, size: 8 %></td>
-			<td align="right"><strong>Apodo</td>
-			<td><%= f.text_field :nick, size: 8 %></td>
-		</tr><tr>
-			<td><strong><%= f.label "Fem:" %></strong>&nbsp;<%= f.check_box :female %></td>
-		</tr>
-	</table>
-  <div class="actions mt-3">
-		<%= image_submit_tag "save.png", height: 25, class: "save_button align-middle rounded-lg hover:bg-green-200", alt: "Guardar" %>
+<%= form_with(model: person) do |form| %>
+  <% if person.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(person.errors.count, "error") %> prohibited this person from being saved:</h2>
+
+      <ul>
+        <% person.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :dni %>
+    <%= form.text_field :dni %>
+  </div>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :surname %>
+    <%= form.text_field :surname %>
+  </div>
+
+  <div class="field">
+    <%= form.label :birthday %>
+    <%= form.date_select :birthday %>
+  </div>
+
+  <div class="field">
+    <%= form.label :female %>
+    <%= form.check_box :female %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
   </div>
 <% end %>

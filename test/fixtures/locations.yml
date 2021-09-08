@@ -2,8 +2,10 @@
 
 one:
   name: MyString
-  gmaps_url: MyString
+  gmaps: 
+  practice_court: false
 
 two:
   name: MyString
-  gmaps_url: MyString
+  gmaps: 
+  practice_court: false

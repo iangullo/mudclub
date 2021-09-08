@@ -17,7 +17,7 @@ class TrainingSlotsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create training_slot" do
     assert_difference('TrainingSlot.count') do
-      post training_slots_url, params: { training_slot: { duration: @training_slot.duration, location_id: @training_slot.location_id, season_id: @training_slot.season_id, start: @training_slot.start, wday: @training_slot.wday } }
+      post training_slots_url, params: { training_slot: { duration: @training_slot.duration, location_id: @training_slot.location_id, season_id: @training_slot.season_id, start: @training_slot.start, team_id: @training_slot.team_id, wday: @training_slot.wday } }
     end
 
     assert_redirected_to training_slot_url(TrainingSlot.last)
@@ -34,7 +34,7 @@ class TrainingSlotsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update training_slot" do
-    patch training_slot_url(@training_slot), params: { training_slot: { duration: @training_slot.duration, location_id: @training_slot.location_id, season_id: @training_slot.season_id, start: @training_slot.start, wday: @training_slot.wday } }
+    patch training_slot_url(@training_slot), params: { training_slot: { duration: @training_slot.duration, location_id: @training_slot.location_id, season_id: @training_slot.season_id, start: @training_slot.start, team_id: @training_slot.team_id, wday: @training_slot.wday } }
     assert_redirected_to training_slot_url(@training_slot)
   end
 

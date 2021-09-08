@@ -1,71 +1,35 @@
-<div id="people-index">
-	<div id="people-header">
-		<table>
-			<tr>
-				<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-					<%= image_tag "person.png", size: "50x50" %>Personas&nbsp;
-					<div id="search-people" class="text-gray-600">
-						<%= form_with(url: '/people', method: 'get', local: true) do %>
-							<%= text_field_tag(:search) %>
-							<%= image_submit_tag "search.png", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
-						<% end %>
-					</div>
-				</th>
-			</tr>
-		</table>
-	</div>
-	<div id="people-grid">
-		<table class="table-auto">
-			<thead>
-				<th colspan="2" align="left" class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
-				<th>
-					<%= link_to new_person_path, data: {"turbo-frame": "modal" } do %>
-						<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
-					<% end %>
-				</th>
-			</thead>
-			<tbody class="divide-y">
-				<% @people.each do |person| %>
-					<tr>
-						<td class="border">
-							<%= link_to person.to_s, person, data: {"turbo-frame": "modal" }, class: "hover:text-blue-700" %>
-						</td>
-						<td align="center" class="border">
-							<%= person.player_id>0 ? "Jug." : "" %>
-							<% if person.coach_id>0 %>
-								<%= person.player_id>0 ? "/" : "" %>
-								Ent.
-							<% end %>
-						</td>
-						<td>
-							<%= link_to person, method: :destroy, data: { confirm: '¿Borrar #{person.to_s}?' } do %>
-								<%= image_tag "delete.png", size: "25x25" %>
-							<% end %>
-						</td>
-					</tr>
-				<% end %>
-			</tbody>
-		</table>
-	</div>
-	<div id="people-footer" class="bottom-0">
-		<table>
-			<tr>
-				<td>
-					<div class="rounded-lg border-4 border-green-800 hover:bg-green-200 mb-3">
-						<%= link_to people_path(format: :xlsx) do %>
-							<%= image_tag "export.png", width: 125 %>
-						<% end %>
-					</div>
-				</td>
-			</tr><tr>
-				<td><%= image_tag "import.png", width: 125 %></td>
-				<td>
-					<%= form_with url: import_people_path, local: true do |form| %>
-						<%= form.file_field :file %>
-						<%= form.submit %>
-					<% end %>
-				</td>
-			</tr>
-		</table>
-	</div>
-</div>
+<p id="notice"><%= notice %></p>
+
+<h1>People</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Dni</th>
+      <th>Name</th>
+      <th>Surname</th>
+      <th>Birthday</th>
+      <th>Female</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @people.each do |person| %>
+      <tr>
+        <td><%= person.dni %></td>
+        <td><%= person.name %></td>
+        <td><%= person.surname %></td>
+        <td><%= person.birthday %></td>
+        <td><%= person.female %></td>
+        <td><%= link_to 'Show', person %></td>
+        <td><%= link_to 'Edit', edit_person_path(person) %></td>
+        <td><%= link_to 'Destroy', person, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Person', new_person_path %>

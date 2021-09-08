@@ -1,28 +1,29 @@
-<%= render "shared/modal" do %>
-	<table>
-		<tr>
-			<td rowspan="3" align="center">
-				<%= image_tag("person.png", :size => "100x100") %>
-			</td>
-			<td><%= @person.name %></td>
-		</tr><tr>
-			<td><%= @person.surname %></td>
-		</tr><tr>
-			<td><%= @person.birthday %></td>
-		</tr><tr>
-			<td style="text-align:center"><%= @person.dni %></td>
-			<td>
-				<%= @person.player_id>0 ? "Jug." : "" %>
-				<% if @person.coach_id>0 %>
-					<%= @person.player_id>0 ? "/" : "" %>
-					Ent.
-				<% end %>
-			</td>
-			<td align="right">
-				<%= link_to edit_person_path(@person), data: {"turbo-frame": "modal" } do %>
-					<%= image_tag "edit.png", size: "25x25" %>
-				<% end %>
-			</td>
-		</tr>
-	</table>
-<% end %>
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Dni:</strong>
+  <%= @person.dni %>
+</p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @person.name %>
+</p>
+
+<p>
+  <strong>Surname:</strong>
+  <%= @person.surname %>
+</p>
+
+<p>
+  <strong>Birthday:</strong>
+  <%= @person.birthday %>
+</p>
+
+<p>
+  <strong>Female:</strong>
+  <%= @person.female %>
+</p>
+
+<%= link_to 'Edit', edit_person_path(@person) %> |
+<%= link_to 'Back', people_path %>

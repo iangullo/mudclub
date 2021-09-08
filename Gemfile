@@ -1,19 +1,12 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
+ruby '3.0.2'
+
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
-if Gem.win_platform?
-  ruby '3.0.2'
-  gem 'rails', '~> 6.1.4', '>= 6.1.4.1'
-else
-  ruby '3.0.0'
-  gem 'rails', '~> 6.1.4', '>= 6.1.4.1'
-  gem 'mysql2'  # production database
-end
-
-# Use sqlite3 as the database for Active Record in development/testing
+gem 'rails', '~> 6.1.4', '>= 6.1.4.1'
+# Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.4'
-
 # Use Puma as the app server
 gem 'puma', '~> 5.0'
 # Use SCSS for stylesheets
@@ -21,6 +14,7 @@ gem 'sass-rails', '>= 6'
 # Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
 gem 'webpacker', '~> 5.0'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
+gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.7'
 # Use Redis adapter to run Action Cable in production
@@ -29,7 +23,7 @@ gem 'jbuilder', '~> 2.7'
 # gem 'bcrypt', '~> 3.1.7'
 
 # Use Active Storage variant
-gem 'image_processing', '~> 1.2'
+# gem 'image_processing', '~> 1.2'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
@@ -57,10 +51,7 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-gem "listen", "~> 3.7"
-gem 'roo'
-gem 'caxlsx'
-gem 'caxlsx_rails'
-gem 'wdm', '>= 0.1.0' if Gem.win_platform?
 
 gem "stimulus-rails", "~> 0.4.2"
+
+gem "turbo-rails", "~> 0.7.11"

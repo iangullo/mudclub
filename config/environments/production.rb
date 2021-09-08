@@ -25,7 +25,7 @@ Rails.application.configure do
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
   # Compress CSS using a preprocessor.
-  config.assets.css_compressor = :purger
+  # config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
   config.assets.compile = false
@@ -60,17 +60,13 @@ Rails.application.configure do
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
   # config.active_job.queue_adapter     = :resque
-  # config.active_job.queue_name_prefix = "bclub_production"
+  # config.active_job.queue_name_prefix = "bClub_production"
 
   config.action_mailer.perform_caching = false
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
-
-  # FOR DEVISE:
-  # In production, :host should be set to the actual host of your application.
-  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

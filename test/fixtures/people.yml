@@ -1,15 +1,15 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  nick: MyString
+  dni: MyString
   name: MyString
   surname: MyString
-  birthday: 2021-07-23
+  birthday: 2021-09-08
   female: false
 
 two:
-  nick: MyString
+  dni: MyString
   name: MyString
   surname: MyString
-  birthday: 2021-07-23
+  birthday: 2021-09-08
   female: false

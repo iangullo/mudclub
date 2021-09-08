@@ -15,9 +15,9 @@ class PeopleTest < ApplicationSystemTestCase
     click_on "New Person"
 
     fill_in "Birthday", with: @person.birthday
+    fill_in "Dni", with: @person.dni
     check "Female" if @person.female
     fill_in "Name", with: @person.name
-    fill_in "Nick", with: @person.nick
     fill_in "Surname", with: @person.surname
     click_on "Create Person"
 
@@ -30,9 +30,9 @@ class PeopleTest < ApplicationSystemTestCase
     click_on "Edit", match: :first
 
     fill_in "Birthday", with: @person.birthday
+    fill_in "Dni", with: @person.dni
     check "Female" if @person.female
     fill_in "Name", with: @person.name
-    fill_in "Nick", with: @person.nick
     fill_in "Surname", with: @person.surname
     click_on "Update Person"
 

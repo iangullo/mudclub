@@ -1,3 +1,6 @@
-<%= render "shared/modal" do %>
-  <%= render 'form', team: @team %>
-<% end %>
+<h1>Editing Team</h1>
+
+<%= render 'form', team: @team %>
+
+<%= link_to 'Show', @team %> |
+<%= link_to 'Back', teams_path %>

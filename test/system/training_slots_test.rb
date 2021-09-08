@@ -18,6 +18,7 @@ class TrainingSlotsTest < ApplicationSystemTestCase
     fill_in "Location", with: @training_slot.location_id
     fill_in "Season", with: @training_slot.season_id
     fill_in "Start", with: @training_slot.start
+    fill_in "Team", with: @training_slot.team_id
     fill_in "Wday", with: @training_slot.wday
     click_on "Create Training slot"
 
@@ -33,6 +34,7 @@ class TrainingSlotsTest < ApplicationSystemTestCase
     fill_in "Location", with: @training_slot.location_id
     fill_in "Season", with: @training_slot.season_id
     fill_in "Start", with: @training_slot.start
+    fill_in "Team", with: @training_slot.team_id
     fill_in "Wday", with: @training_slot.wday
     click_on "Update Training slot"
 

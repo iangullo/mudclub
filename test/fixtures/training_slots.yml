@@ -4,12 +4,14 @@ one:
   season: one
   location: one
   wday: 1
-  start: 2021-07-23 15:57:02
+  start: 2021-09-08 08:32:24
   duration: 1
+  team: one
 
 two:
   season: two
   location: two
   wday: 1
-  start: 2021-07-23 15:57:02
+  start: 2021-09-08 08:32:24
   duration: 1
+  team: two
