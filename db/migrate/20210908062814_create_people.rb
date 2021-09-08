@@ -2,6 +2,7 @@ class CreatePeople < ActiveRecord::Migration[6.1]
   def change
     create_table :people do |t|
       t.string :dni
+      t.string :nick
       t.string :name
       t.string :surname
       t.date :birthday
@@ -9,6 +10,6 @@ class CreatePeople < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Person.create(id: 0, dni: 0, name: "Nueva", surname: "Persona", birthday: "2021-09-01", female: true)
+    Person.create(id: 0, dni: 0, nick: "", name: "Nueva", surname: "Persona", birthday: "2021-09-01", female: true)
   end
 end
