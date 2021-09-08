@@ -10,7 +10,6 @@
     "@rails/webpacker": "5.4.2",
     "stimulus": "^2.0.0",
     "trix": "1.2.0",
-    "turbolinks": "^5.2.0",
     "webpack": "4.46.0",
     "webpack-cli": "3.3.12"
   },
