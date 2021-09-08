@@ -30,6 +30,7 @@ gem 'bootsnap', '>= 1.4.4', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'wdm', '>= 0.1.0' if Gem.win_platform?
 end
 
 group :development do
@@ -54,3 +55,8 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem "stimulus-rails", "~> 0.4.2"
 
 gem "turbo-rails", "~> 0.7.11"
+
+# Added to import/export XLS files
+gem 'roo'
+gem 'caxlsx'
+gem 'caxlsx_rails'

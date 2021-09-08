@@ -1,16 +1,115 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>BClub</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
+  	<%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
+  	<%= stylesheet_pack_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
     <%= javascript_pack_tag 'application', 'data-turbo-track': 'reload' %>
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<title>CB Mairena</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="text-xs xl:text-lg lg-text-base md:text-sm">
+    <div class="flex flex-col w-full min-h-screen justify-between">
+	    <!-- Navbar goes here -->
+      <nav class="sticky top-0 z-50 w-full bg-blue-900 text-gray-300 h-15">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div class="relative flex items-center justify-between h-16">
+            <!-- Mobile menu, show/hide based on menu state. -->
+            <div class="absolute inset-y-0 left-0 flex items-center sm:hidden" data-controller="dropdown">
+              <!-- Mobile menu button-->
+              <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="0" class="inline-block select-none">
+                <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                  <span class="sr-only">Menu</span>
+                  <!-- Icon when menu is closed. -->
+                  <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  <!-- Icon when menu is open. -->
+                  <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <div data-dropdown-target="menu" class="absolute hidden">
+                  <div class="bg-blue-700 shadow rounded border overflow-hidden">
+                    <%= link_to 'Jugadores', players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-300 bg-blue-700 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                    <%= link_to 'Equipos',  teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-300 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                    <%= link_to 'Horarios',  training_slots_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-300 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                    <%= link_to 'Ejercicios',  drills_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-300 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                    <% #= link_to 'Sesiones',  training_sessions_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-300 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Regular menu for large screens, show/hide based on menu state. -->
+            <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
+              <div class="flex-shrink-0 flex items-center">
+                <img class="block lg:hidden h-8 w-auto" src="/assets/clublogo.png" alt="CB Mairena">
+                <img class="hidden lg:block h-8 w-auto" src="/assets/clublogo-name.png" alt="CB Mairena">
+              </div>
+              <!-- Navigation tabs -->
+              <div class="hidden sm:block sm:ml-6">
+                <div class="flex space-x-4">
+                  <ul class="list-reset flex">
+                    <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
+                      <%= link_to 'Jugadores', players_path %>
+                    </li>
+                    <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
+                      <%= link_to 'Equipos', teams_path %>
+                    </li>
+                    <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
+                      <%= link_to 'Horarios', training_slots_path %>
+                    </li>
+  <!--                  <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
+                      <% #= link_to 'Sesiones', training_sessions_path %>
+                    </li>
+  -->                  <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
+                      <%= link_to 'Ejercicios', drills_path %>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+              <!-- Profile dropdown -->
+              <div class="relative" data-controller="dropdown">
+                <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="3" class="inline-block select-none">
+                  <div class="flex-shrink-0 flex items-center">
+                    <% # if current_user %>
+                      <% #= image_tag avatar_url_for(current_user), class: "rounded-full h-8 w-8 align-middle" %>
+                    <% #else %>
+                      <%= image_tag "user.png", class: "rounded-full h-8 w-8 align-middle" %>
+                    <% #end %>
+                  </div>
+                </div>
+                <div data-dropdown-target="menu" class="absolute right-0 mt-2 hidden">
+                  <div class="bg-white shadow rounded border overflow-hidden">
+                      <!-- %= link_to 'Perfil',  edit_person_path, data: {action: "click->dropdown#toggle" }, class: 'no-underline block pl-8 py-3 text-gray-900 bg-white hover:bg-gray-300 whitespace-nowrap' %>
+                      <!-- %= link_to 'Password', password_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block px-8 py-3 text-gray-900 bg-white hover:bg-gray-300 whitespace-nowrap' %>
+                      <!-- %= link_to 'Sign Out', destroy_user_session_path, method: :delete, data: {action: "click->dropdown#toggle"}, class: 'no-underline block px-8 py-3 border-t text-gray-900 bg-white hover:bg-gray-300 whitespace-nowrap' %>
+                      -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <!-- App content goes here -->
+    	<main class="mb-auto h-15 w-full h-auto p-15">
+    	  <div class="content">
+    			<% if notice %>
+    				<p class="alert alert-success"><%= notice %></p>
+    			<% end %>
+    			<% if alert %>
+    				<p class="alert alert-danger"><%= alert %></p>
+    			<% end %>
+          <%= turbo_frame_tag "modal" %>
+    			<%= yield %>
+    	  </div>
+    	</main>
+    </div>
   </body>
 </html>

@@ -1,6 +1,3 @@
-<h1>Editing Drill</h1>
-
-<%= render 'form', drill: @drill %>
-
-<%= link_to 'Show', @drill %> |
-<%= link_to 'Back', drills_path %>
+<%= render "shared/modal" do %>
+  <%= render 'form', drill: @drill %>
+<% end %>

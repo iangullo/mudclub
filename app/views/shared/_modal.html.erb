@@ -1,0 +1,25 @@
+<%= turbo_frame_tag "modal" do %>
+  <div data-controller="extended-modal"
+    data-modal-allow-background-close="true">
+
+    <!-- Modal Container -->
+    <div data-extended-modal-target="container"
+      data-action="click->extended-modal#closeBackground turbo:submit-end->extended-modal#handleSuccess"
+      class="animated fadeIn fixed z-10 inset-0 overflow-auto bg-gray-500 bg-opacity-75 flex items-center justify-center">
+      <!-- Modal Inner Container -->
+      <div data-extended-modal-target="body" class="flex relative mb-auto inset-y-16 object-cover overflow-auto shadow">
+        <!-- Modal Card -->
+        <div class="m-1 bg-white rounded-lg shadow">
+          <div class="p-3">
+            <%= turbo_frame_tag "modal-body" do %>
+              <%= yield %>
+            <% end %>
+            <div class="mt-3">
+              <%= image_submit_tag "close.png", height: 25, class: "extended-modal-close align-middle rounded-lg hover:bg-red-200", alt: "Cerrar", "data-action": "click->extended-modal#close" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

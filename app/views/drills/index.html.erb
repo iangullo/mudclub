@@ -1,35 +1,51 @@
-<p id="notice"><%= notice %></p>
+<div id="drills-index">
+	<div id="drills-header">
+		<table>
+			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
+				<%= image_tag "drill.png", size: "50x50" %>Ejercicios&nbsp;
+				<div id="search-drills">
+					<%= form_with(url: '/drills', method: 'get', local: true) do %>
+						<%= text_field_tag(:search) %>
+						<%= image_submit_tag "search.png", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
+					<% end %>
+				</div>
+			</th>
+		</table>
+	</div>
 
-<h1>Drills</h1>
+	<div id="drills-grid">
+		<table class="table-auto border-separate">
+			<thead>
+				<tr>
+					<th class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
+					<th class="bg-indigo-900 text-gray-300 align-center">Tipo</th>
+					<th class="bg-indigo-900 text-gray-300 align-center">Descripción</th>
+					<th class="bg-indigo-900 text-gray-300 align-center">Fundamentos</th>
+					<th>
+						<%= link_to new_drill_path, data: {"turbo-frame": "modal" } do %>
+							<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
+						<% end %>
+					</th>
+				</tr>
+			</thead>
 
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-      <th>Material</th>
-      <th>Coach</th>
-      <th>Kind</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @drills.each do |drill| %>
-      <tr>
-        <td><%= drill.name %></td>
-        <td><%= drill.description %></td>
-        <td><%= drill.material %></td>
-        <td><%= drill.coach_id %></td>
-        <td><%= drill.kind_id %></td>
-        <td><%= link_to 'Show', drill %></td>
-        <td><%= link_to 'Edit', edit_drill_path(drill) %></td>
-        <td><%= link_to 'Destroy', drill, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Drill', new_drill_path %>
+			<tbody>
+				<% @drills.each do |drill| %>
+					<tr>
+						<td class="border px-2 py-2"><%= link_to drill.name, drill, data: {"turbo-frame": "modal" } %></td>
+						<td class="border px-2 py-2"><%= drill.kind.name %></td>
+						<td class="border px-2 py-2"><%= drill.description %></td>
+						<td class="border px-2 py-2"><%= drill.print_skills %></td>
+						<td>
+							<%= link_to drill, method: :delete, data: { confirm: "¿Borrar '#{drill.name}'" } do %>
+								<%= image_tag "delete.png", size: "25x25" %>
+							<% end %>
+						</td>
+	<!--					<td>< %= link_to 'Borrar', drill, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+		-->
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</div>
+</div>

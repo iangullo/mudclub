@@ -1,14 +1,23 @@
-<p id="notice"><%= notice %></p>
-
-<p>
-  <strong>Active:</strong>
-  <%= @coach.active %>
-</p>
-
-<p>
-  <strong>Person:</strong>
-  <%= @coach.person_id %>
-</p>
-
-<%= link_to 'Edit', edit_coach_path(@coach) %> |
-<%= link_to 'Back', coaches_path %>
+<%= render "shared/modal" do %>
+	<table>
+		<tr>
+			<td rowspan="3" align="center">
+				<%= image_tag(@coach.picture, :size => "100x100") %>
+			</td>
+			<td><%= @coach.person.name %></td>
+		</tr><tr>
+			<td><%= @coach.person.surname %></td>
+		</tr><tr>
+			<td><%= @coach.person.birthday %></td>
+		</tr><tr>
+			<td align="center"><%= @coach.person.nick %></td>
+		</tr><tr>
+			<td align="center"><%= @coach.active ? "Activo" : "Inactivo" %></td>
+			<td align="right">
+				<%= link_to edit_coach_path(@coach), data: {"turbo-frame": "modal" } do %>
+					<%= image_tag "edit.png", size: "25x25" %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+<% end %>

@@ -1,31 +1,76 @@
-<p id="notice"><%= notice %></p>
+<div id="player-index">
+	<div id="player-header">
+		<table>
+			<tr>
+				<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
+					<%= image_tag "player.png", size: "50x50" %>&nbsp;Jugadores&nbsp;
+					<div id="search-people" class="text-gray-600">
+						<%= form_with(url: '/players', method: 'get', local: true) do %>
+							<%= text_field_tag(:search) %>
+							<%= image_submit_tag "search.png", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
+						<% end %>
+					</div>
+				</th>
+			</tr>
+		</table>
+	</div>
 
-<h1>Players</h1>
+	<div id="players-grid">
+		<table class="table-auto">
+			<thead>
+				<tr>
+					<th class="bg-indigo-900 text-gray-300 align-center">N&uacute;m.</th>
+					<th class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
+					<th align="center" class="bg-indigo-900 text-gray-300 align-center">Edad</th>
+					<th align="center" class="bg-indigo-900 text-gray-300 align-center">Activ.</th>
+					<th align="center">
+						<%= link_to new_player_path, data: {"turbo-frame": "modal" } do %>
+							<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
+						<% end %>
+					</th>
+				</tr>
+			</thead>
 
-<table>
-  <thead>
-    <tr>
-      <th>Number</th>
-      <th>Active</th>
-      <th>Person</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
+			<tbody>
+				<% @players.each do |player| %>
+					<tr>
+						<td align="center"><%= player.number %></td>
+						<td><%= link_to player.to_s, player, data: {"turbo-frame": "modal" }, class: "hover:text-blue-700" %></td>
+						<td align="center"><%= player.person.age %></td>
+						<td align="center"><%= player.active ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
+						<td>
+							<%= link_to player, method: :destroy, data: { confirm: '¿Borrar #{player.to_s}?' } do %>
+								<%= image_tag "delete.png", size: "25x25" %>
+							<% end %>
+						</td>
+	<!--					<td>< %= link_to 'Borrar', player, method: :destroy, data: { confirm: '¿Borrar #{player.to_s}?' } %></td>
+		-->
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</div>
+	<br>
 
-  <tbody>
-    <% @players.each do |player| %>
-      <tr>
-        <td><%= player.number %></td>
-        <td><%= player.active %></td>
-        <td><%= player.person_id %></td>
-        <td><%= link_to 'Show', player %></td>
-        <td><%= link_to 'Edit', edit_player_path(player) %></td>
-        <td><%= link_to 'Destroy', player, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Player', new_player_path %>
+	<div id="import-export">
+		<table>
+			<tr>
+				<td>
+					<div class="rounded-lg border-4 border-green-800 hover:bg-green-200 mb-3">
+						<%= link_to players_path(format: :xlsx) do %>
+							<%= image_tag "export.png", width: 125 %>
+						<% end %>
+					</div>
+				</td>
+			</tr><tr>
+				<td><%= image_tag "import.png", width: 125 %></td>
+				<td>
+					<%= form_with url: import_players_path, local: true do |form| %>
+						<%= form.file_field :file %>
+						<%= form.submit %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

@@ -10,38 +10,29 @@
       </ul>
     </div>
   <% end %>
+  <table>
+  	<tr>
+  		<td rowspan="3" align="center">
+  			<%= image_tag("team.png", :size => "100x100") %>
+  		</td>
+  		<td align="right"><strong><%= form.label "Temporada" %></td>
+  		<td colspan="3"><%= form.collection_select :season_id, Season.all, :id, :name %></td>
+  	</tr><tr>
+  		<td align="right"><strong><%= form.label "Pista" %></td>
+  		<td colspan="3"><%= form.collection_select :location_id, Location.practice, :id, :name %></td>
+  	</tr><tr>
+  		<td align="right"><strong><%= form.label "Día" %></td>
+  		<td colspan="3"><%= form.select :wday, @weekdays %></td>
+  	</tr><tr>
+  		<td><%= form.collection_select :team_id, Team.for_season(form.object.season_id), :id, :to_s %></td>
+  		<td align="right"><strong>Hora:</td>
+  		<td><%= form.number_field :hour, in: 16..21, size: 3 %><%= form.number_field :min, in: 0..45, step: 15, size: 3 %></td>
+  		<td><strong>Duración:</td>
+  		<td><%= form.number_field :duration, in: 60..120, step: 30, size: 4 %></td>
+  	<tr>
+  </table>
 
-  <div class="field">
-    <%= form.label :season_id %>
-    <%= form.text_field :season_id %>
-  </div>
-
-  <div class="field">
-    <%= form.label :location_id %>
-    <%= form.text_field :location_id %>
-  </div>
-
-  <div class="field">
-    <%= form.label :wday %>
-    <%= form.number_field :wday %>
-  </div>
-
-  <div class="field">
-    <%= form.label :start %>
-    <%= form.time_select :start %>
-  </div>
-
-  <div class="field">
-    <%= form.label :duration %>
-    <%= form.number_field :duration %>
-  </div>
-
-  <div class="field">
-    <%= form.label :team_id %>
-    <%= form.text_field :team_id %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
+  <div class="actions mt-3">
+    <%= image_submit_tag "save.png", height: 25, class: "save_button align-middle rounded-lg hover:bg-green-200", alt: "Guardar" %>
   </div>
 <% end %>

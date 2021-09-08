@@ -15,3 +15,8 @@
  */
  //= require actiontext
  @import "./actiontext.scss";
+
+// TailwindCSS extensions
+@import "tailwindcss/base";
+@import "tailwindcss/utilities";
+@import "tailwindcss/components";

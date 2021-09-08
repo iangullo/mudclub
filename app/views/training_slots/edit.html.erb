@@ -1,6 +1,3 @@
-<h1>Editing Training Slot</h1>
-
-<%= render 'form', training_slot: @training_slot %>
-
-<%= link_to 'Show', @training_slot %> |
-<%= link_to 'Back', training_slots_path %>
+<%= render "shared/modal" do %>
+  <%= render 'form', training_slot: @training_slot %>
+<% end %>
