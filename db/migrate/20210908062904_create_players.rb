@@ -7,6 +7,6 @@ class CreatePlayers < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Player.create(id: 0, number: 0, active: true, person_id: 0)
+    Player.create(id: 0, number: 0, active: false, person_id: 0)
   end
 end
