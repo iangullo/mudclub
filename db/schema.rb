@@ -106,6 +106,7 @@ ActiveRecord::Schema.define(version: 2021_09_08_063224) do
 
   create_table "people", force: :cascade do |t|
     t.string "dni"
+    t.string "nick"
     t.string "name"
     t.string "surname"
     t.date "birthday"
