@@ -48,7 +48,7 @@
 				</div>
 			</td>
 		</tr><tr>
-			<th colspan="2" align="right">Entrenadores/as:</th>
+			<th colspan="2" align="right" class="align-top">Entrenadores/as:</th>
 			<td colspan="4">
 				<div id="coach-selection">
 					<%= form.collection_check_boxes :coach_ids, Coach.active, :id, :to_s do |coach| %>
@@ -59,7 +59,7 @@
 				</div>
 			</td>
 		</tr><tr>
-			<th colspan="2" align="right">Sesiones:</th>
+			<th colspan="2" align="right" class="align-top">Sesiones:</th>
 			<td colspan="4">
 				<% unless @team.training_slots.empty? %>
 					<strong><%= @team.training_slots.first.court %></strong>
