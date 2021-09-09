@@ -7,16 +7,14 @@
 					<td rowspan="3" align="center">
 						<%= image_tag("coach.png", :size => "100x100") %>
 					</td>
-					<td align="right">Nom:</td>
-					<td><%= f.text_field :name, size: 10 %></td>
+					<td align="right">Nom.</td>
+					<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
-					<td align="right">Apel:</td>
-					<td><%= f.text_field :surname, size: 10 %></td>
+					<td align="right">Apel.</td>
+					<td><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
 			</table>
 		<% end %>
-		<div class="actions">
-			<%= image_submit_tag "save.png", height: 25, class: "save_button align-middle", alt: "Guardar" %>
-	  </div>
+		<%= render "shared/save" %>
 	<% end %>
 <% end %>

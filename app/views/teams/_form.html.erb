@@ -17,19 +17,19 @@
 				<%= image_tag("team.png", :size => "100x100") %>
 			</td>
 		</tr><tr>
-			<th align="right"><%= form.label "E:" %></th>
+			<th align="right"><%= form.label "Categ." %></th>
 			<td colspan="3"><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
 		</tr><tr>
-			<th align="right"><%= form.label "C:" %></th>
+			<th align="right"><%= form.label "Comp." %></th>
 			<td colspan="3"><%= form.collection_select :division_id, Division.real, :id, :name %></td>
 		</tr><tr>
-			<th align="right"><%= form.label "T:" %></th>
+			<th align="right"><%= form.label "Temp." %></th>
 			<td><%= form.collection_select :season_id, Season.real.order(name: :desc), :id, :name %></td>
-			<th align="right"><%= form.label "P:" %></th>
+			<th align="right"><%= form.label "P.Local:" %></th>
 			<td colspan="3"><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
 		</tr><tr>
-			<th align="right" colspan="2"><%= form.label "Nombre:" %></th>
-			<td colspan="3"><%= form.text_field :name, size: 12 %></td>
+			<th align="right" colspan="2"><%= form.label "Nombre" %></th>
+			<td colspan="3"><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<th align="right" class="align-top" colspan="2" rowspan="<%= @eligible_players.count+1 %>">Jugadores/as:</th>
 			<td align="center"><strong>#</td><td><strong>Nombre</td><td align="center"><strong>Edad</td>
@@ -38,10 +38,10 @@
 					<%= form.collection_check_boxes :player_ids, @eligible_players, :id, :to_s do |player| %>
 					<tr>
 						<div class="collection-check-box">
-							<td align="center" class="border px-1 py-1"><%= player.object.number %></td>
-							<td class="border px-1 py-1"><%= player.object.to_s %></td>
-							<td align="center class="border px-1 py-1""><%= player.object.person.age %></td>
-							<td><%= player.check_box %></td>
+							<td align="center" class="rounded border"><%= player.object.number %></td>
+							<td class="rounded border"><%= player.object.to_s %></td>
+							<td align="center" class="rounded border"><%= player.object.person.age %></td>
+							<td class="rounded border"><%= player.check_box %></td>
 						</div>
 					</tr>
 					<% end %>
@@ -70,7 +70,5 @@
 				<% end %>
 			</td>
 	</table>
-	<div class="actions mt-3">
-		<%= image_submit_tag "save.png", height: 25, class: "save_button align-middle rounded-lg hover:bg-green-200", alt: "Guardar" %>
-	</div>
+	<%= render "shared/save" %>
 <% end %>

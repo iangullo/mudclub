@@ -25,7 +25,7 @@
     		<td><%= form.collection_select :division_id, Division.real, :id, :name %></td>
     	</tr><tr>
     		<th><%= form.label "Nombre" %></th>
-    		<td><%= form.text_field :name %></td>
+    		<td><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
     		<th><%= form.label "Temporada" %></th>
     		<td><%= form.collection_select :season_id, Season.real, :id, :name %></td>
     	</tr><tr>
@@ -44,12 +44,10 @@
       			</tr>
     			</table>
     		</td>
-        <th><%= form.label "Pista:" %></th>
-      	<td><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
+        <th class="align-top text-right"><%= form.label "Pista:" %></th>
+      	<td class="align-top"><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
     	</tr>
     </table>
-    <div class="actions">
-  		<%= image_submit_tag "save.png", height: 25, class: "save_button align-middle", alt: "Guardar" %>
-    </div>
+    <%= render "shared/save" %>
   <% end %>
 <% end %>

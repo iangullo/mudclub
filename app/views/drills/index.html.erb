@@ -3,7 +3,7 @@
 		<table>
 			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
 				<%= image_tag "drill.png", size: "50x50" %>Ejercicios&nbsp;
-				<div id="search-drills">
+				<div id="search-drills" class="inline-flex text-gray-700 rounded border shadow-inner">
 					<%= form_with(url: '/drills', method: 'get', local: true) do %>
 						<%= text_field_tag(:search) %>
 						<%= image_submit_tag "search.png", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>

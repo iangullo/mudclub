@@ -14,30 +14,28 @@
 	<table>
 		<%= form.fields_for :person do |f| %>
 			<tr>
-				<td colspan="4"><strong>Foto&nbsp;</strong><%= form.file_field :avatar, direct_upload: true %></td>
+				<td colspan="4">Foto&nbsp;<%= form.file_field :avatar, direct_upload: true %></td>
 			</tr><tr>
 				<td rowspan="3" align="center">
 					<%= image_tag("coach.png", :size => "100x100") %>
 				</td>
-				<td align="right"><strong>Nom:</strong></td>
-				<td><%= f.text_field :name, size: 12 %></td>
+				<th align="right">Nom.</th>
+				<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<td align="right"><strong>Apel:</strong></td>
-				<td><%= f.text_field :surname, size: 16 %></td>
+				<th align="right">Apel.</th>
+				<td><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<td align="right"><strong>F.Nac.</strong></td>
-				<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %>
+				<th align="right">F.Nac.</th>
+				<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %>
 			</tr><tr>
-				<td align="right"><strong>DNI:</strong><%= f.text_field :dni, size: 8 %></td>
-				<td align="right"><strong>Apodo:</strong></td>
+				<td><strong>DNI&nbsp;</strong><%= f.text_field :dni, size: 7, class: "rounded border shadow-inner" %></td>
+				<th align="right">Apodo</th>
 				<td><%= f.text_field :nick, size: 8 %></td>
 			</tr><tr>
-				<td colspan="2" align="right"><strong>Activo:<strong>
+				<td colspan="2" align="right">Activo:
 				<td><%= form.check_box :active %></td>
 			</tr>
 		<% end %>
 	</table>
-	<div class="actions mt-3">
-		<%= image_submit_tag "save.png", height: 25, class: "save_button align-middle rounded-lg hover:bg-green-200", alt: "Guardar" %>
-  </div>
+	<%= render "shared/save" %>
 <% end %>

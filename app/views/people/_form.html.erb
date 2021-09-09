@@ -16,23 +16,21 @@
 			<td rowspan="3" align="center">
 				<%= image_tag("person.png", :size => "100x100") %>
 			</td>
-			<td align="right"><strong>Nom:</strong></td>
-			<td><%= f.text_field :name, size: 12 %></td>
+			<th align="right">Nom.</th>
+			<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td align="right"><strong>Apel:</strong></td>
-			<td><%= f.text_field :surname, size: 16 %></td>
+			<th align="right">Apel.</th>
+			<td><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td align="right"><strong>F.Nac.</strong></td>
-			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %></td>
+			<th align="right">F.Nac.</th>
+			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td><strong>DNI:</strong>&nbsp;<%= f.text_field :dni, size: 8 %></td>
-			<td align="right"><strong>Apodo</td>
-			<td><%= f.text_field :nick, size: 8 %></td>
+			<td><strong>DNI&nbsp;</strong><%= f.text_field :dni, size: 7, class: "rounded border shadow-inner" %></td>
+			<th align="right">Apodo</th>
+			<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td><strong><%= f.label "Fem:" %></strong>&nbsp;<%= f.check_box :female %></td>
+			<td><strong><%= f.label "Fem:" %>&nbsp;</strong><%= f.check_box :female %></td>
 		</tr>
 	</table>
-  <div class="actions mt-3">
-		<%= image_submit_tag "save.png", height: 25, class: "save_button align-middle rounded-lg hover:bg-green-200", alt: "Guardar" %>
-  </div>
+	<%= render "shared/save" %>
 <% end %>
