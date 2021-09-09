@@ -34,7 +34,7 @@
 				<td><%= f.text_field :nick, size: 8 %></td>
 			</tr><tr>
 				<td align="right"><strong>Fem.&nbsp;</strong><%= f.check_box :female %></td>
-				<td><strong>N&uacute;m.&nbsp;</strong><%= form.number_field :number, min: 0, max: 99, size: 2 %></td>
+				<td><strong>N&uacute;m.&nbsp;</strong><%= form.number_field :number, min: 0, max: 99, size: 2, class: "rounded border shadow-inner" %></td>
 				<th align="right">Activo</th>
 				<td><%= form.check_box :active %></td>
 			</tr>

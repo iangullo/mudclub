@@ -40,7 +40,7 @@ class PlayersController < ApplicationController
 				format.json { render :show,  :created, location: @player }
 			else
 				if @player.save
-					if @player.person.player != @player.id
+					if @player.person.player_id != @player.id
 						@player.person.player_id = @player.id
 						@player.person.save
 					end
