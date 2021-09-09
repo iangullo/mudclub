@@ -37,8 +37,8 @@ class PeopleController < ApplicationController
 		# added to import excel
     respond_to do |format|
       if @person.save
-        format.html { redirect_to @person, notice: 'Persona creada.' }
-        format.json { render :show, status: :created, location: @person }
+        format.html { redirect_to people_url, notice: 'Persona creada.' }
+        format.json { render :index, status: :created, location: people_url }
       else
         format.html { render :new }
         format.json { render json: @person.errors, status: :unprocessable_entity }
@@ -51,8 +51,8 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        format.html { redirect_to @person, notice: 'Persona actualizada.' }
-        format.json { render :show, status: :ok, location: @person }
+        format.html { redirect_to people_url, notice: 'Persona #{@person.to_s} actualizada.' }
+				format.json { render :index, status: :created, location: people_url }
       else
         format.html { render :edit }
         format.json { render json: @person.errors, status: :unprocessable_entity }

@@ -44,8 +44,8 @@ class PlayersController < ApplicationController
 						@player.person.player_id = @player.id
 						@player.person.save
 					end
-					format.html { render :edit, notice: 'Jugador creado.' }
-					format.json { render :edit, status: :created, location: @player }
+					format.html { redirect_to players_url, notice: 'Jugador creado.' }
+					format.json { render :index, status: :created, location: players_url }
 				else
 					format.html { render :new }
 					format.json { render json: @player.errors, status: :unprocessable_entity }
@@ -60,8 +60,8 @@ class PlayersController < ApplicationController
 		respond_to do |format|
 
 			if @player.update(player_params)
-				format.html { redirect_to @player, notice: 'Jugador actualizado.' }
-				format.json { render :show, status: :ok, location: @player }
+				format.html { redirect_to players_url, notice: 'Jugador actualizado.' }
+				format.json { render :index, status: :ok, location: players_url }
 			else
 				format.html { render :edit }
 				format.json { render json: @player.errors, status: :unprocessable_entity }

@@ -30,10 +30,10 @@
 			<th align="right">Tipo</th>
 			<td><div class="field"><%= form.collection_select :kind_id, Kind.all, :id, :name %></div></td>
 		</tr><tr>
-			<th align="right">Explicaci&oacute;n</th>
+			<th align="right">Explicaci&oacute;n:</th>
 			<td colspan="3"><div class="field rounded border shadow-inner"><%= form.rich_text_area :explanation %></div></td>
 		</tr><tr>
-			<th align="right">Fundamentos:</th>
+			<th align="right" class="align-top">Fundamentos:</th>
 			<td>
 				<template data-nested-form-target="template">
 					<%= form.fields_for :skills, Drill.new, child_index: 'NEW_RECORD' do |skill_fields| %>

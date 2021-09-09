@@ -29,8 +29,8 @@ class CoachesController < ApplicationController
 		respond_to do |format|
 			@coach = rebuild_coach(params)	# rebuild coach
 			if @coach.is_duplicate? then
-				format.html { redirect_to @coach, notice: 'Ya existía este entrenador.'}
-				format.json { render :show,  :created, location: @coach }
+				format.html { redirect_to coaches_url, notice: 'Ya existía este entrenador.'}
+				format.json { render :index,  :created, location: coaches_url }
 			else
 				@coach.person.save
 				@coach.person_id = @coach.person.id
@@ -53,8 +53,8 @@ class CoachesController < ApplicationController
 	def update
 		respond_to do |format|
 			if @coach.update(coach_params)
-				format.html { redirect_to @coach, notice: 'Entrenador actualizado.' }
-				format.json { render :show, status: :ok, location: @coach }
+				format.html { redirect_to coaches_url, notice: 'Entrenador actualizado.' }
+				format.json { render :index, status: :ok, location: coaches_url }
 			else
 				format.html { render :edit }
 				format.json { render json: @coach.errors, status: :unprocessable_entity }
@@ -99,8 +99,8 @@ class CoachesController < ApplicationController
 	# save a coach - ensuring duplicates not existing
 	def	save_data(format)
 		if @coach.save
-			format.html { redirect_to @coach, notice: 'Entrenador Creado.' }
-			format.json { render :show, status: :created, location: @coach }
+			format.html { redirect_to coaches_url, notice: 'Entrenador creado.' }
+			format.json { render :index, status: :created, location: coaches_url }
 		else
 			format.html { render :new }
 			format.json { render json: @coach.errors, status: :unprocessable_entity }

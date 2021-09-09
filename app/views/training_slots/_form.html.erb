@@ -26,9 +26,9 @@
   	</tr><tr>
   		<td><%= form.collection_select :team_id, Team.for_season(form.object.season_id), :id, :to_s %></td>
   		<th align="right">Hora</th>
-  		<td><%= form.number_field :hour, in: 16..21, size: 3 %><%= form.number_field :min, in: 0..45, step: 15, size: 3 %></td>
+  		<td><%= form.number_field :hour, in: 16..21, size: 3 %><%= form.number_field :min, in: 0..45, step: 15, size: 3, class: "rounded border shadow-inner" %></td>
   		<th>Duración</th>
-  		<td><%= form.number_field :duration, in: 60..120, step: 30, size: 4 %></td>
+  		<td><%= form.number_field :duration, in: 60..120, step: 30, size: 4, class: "rounded border shadow-inner" %></td>
   	<tr>
   </table>
   <%= render "shared/save" %>
