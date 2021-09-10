@@ -6,6 +6,6 @@ class CreateCoaches < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Coach.create(id: 0, active: false, person_id: 0)
+#    Coach.create(id: 0, active: false, person_id: 0)
   end
 end
