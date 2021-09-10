@@ -17,13 +17,13 @@
 				<%= image_tag("drill.png", :size => "100x100") %>
 			</td>
 			<th align="right">Nombre</th>
-			<td><div class="field rounded border shadow-inner"><%= form.text_field :name, size: 20, rows: 2 %></div></td>
+			<td><%= form.text_field :name, size: 20, rows: 2, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<th align="right">Descripci&oacute;n</th>
-			<td><div class="field rounded border shadow-inner"><%= form.text_area :description, cols: 40, rows: 1 %></div></td>
+			<td><%= form.text_area :description, cols: 40, rows: 1, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<th align="right">Material</th>
-			<td><div class="field rounded border shadow-inner"><%= form.text_area :material, cols: 40, rows: 1 %></div></td>
+			<td><%= form.text_area :material, cols: 40, rows: 1, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<th align="right">Autor</th>
 			<td><div class="field"><%= form.collection_select :coach_id, Coach.real, :id, :s_name %></div></td>
@@ -31,7 +31,7 @@
 			<td><div class="field"><%= form.collection_select :kind_id, Kind.all, :id, :name %></div></td>
 		</tr><tr>
 			<th align="right">Explicaci&oacute;n:</th>
-			<td colspan="3"><div class="field rounded border shadow-inner"><%= form.rich_text_area :explanation %></div></td>
+			<td colspan="3"><%= form.rich_text_area :explanation, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<th align="right" class="align-top">Fundamentos:</th>
 			<td>
