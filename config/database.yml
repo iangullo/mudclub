@@ -25,13 +25,13 @@ default: &default
 development:
   <<: *default
   password: Ch00Choo
-  database: bclub-rails_development
+  database: bclub_development
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
   # When left blank, postgres will use the default role. This is
   # the same name as the operating system user running Rails.
-  #username: bclub-rails
+  #username: bclub
 
   # The password associated with the postgres role (username).
   #password:
@@ -46,7 +46,7 @@ development:
   #port: 5432
 
   # Schema search path. The server defaults to $user,public
-  #schema_search_path: bclub-rails,sharedapp,public
+  #schema_search_path: bclub,sharedapp,public
 
   # Minimum log levels, in increasing order:
   #   debug5, debug4, debug3, debug2, debug1,
