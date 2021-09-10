@@ -16,6 +16,7 @@
 #
 default: &default
   adapter: postgresql
+  username: bclub-rails
   encoding: unicode
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
@@ -23,6 +24,7 @@ default: &default
 
 development:
   <<: *default
+  password: Ch00Choo
   database: bclub-rails_development
 
   # The specified database role being used to connect to postgres.
@@ -58,6 +60,7 @@ development:
 test:
   <<: *default
   database: bclub-rails_test
+  password: Ch00Choo
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -82,5 +85,4 @@ test:
 production:
   <<: *default
   database: bclub-rails_production
-  username: bclub-rails
   password: <%= ENV['bclub-rails_DATABASE_PASSWORD'] %>
