@@ -23,13 +23,13 @@ default: &default
 
 development:
   <<: *default
-  database: cbmairena_development
+  database: bclub-rails_development
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
   # When left blank, postgres will use the default role. This is
   # the same name as the operating system user running Rails.
-  #username: cbmairena
+  #username: bclub-rails
 
   # The password associated with the postgres role (username).
   #password:
@@ -44,7 +44,7 @@ development:
   #port: 5432
 
   # Schema search path. The server defaults to $user,public
-  #schema_search_path: cbmairena,sharedapp,public
+  #schema_search_path: bclub-rails,sharedapp,public
 
   # Minimum log levels, in increasing order:
   #   debug5, debug4, debug3, debug2, debug1,
@@ -57,7 +57,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: cbmairena_test
+  database: bclub-rails_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -81,6 +81,6 @@ test:
 #
 production:
   <<: *default
-  database: cbmairena_production
-  username: cbmairena
-  password: <%= ENV['cbmairena_DATABASE_PASSWORD'] %>
+  database: bclub-rails_production
+  username: bclub-rails
+  password: <%= ENV['bclub-rails_DATABASE_PASSWORD'] %>
