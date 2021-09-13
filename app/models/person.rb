@@ -54,10 +54,10 @@ class Person < ApplicationRecord
 					p.player_id = 0
 					p.coach_id = 0
 				end
-				p.dni      = row[0].value.to_s
-				p.nick     = row[1].value.to_s
-				p.birthday = row[4].value
-				p.female   =  row[5].value
+				p.dni      = row[0] ? row[0].value.to_s : "S.DNI/NIE"
+				p.nick     = row[1] ? row[1].value.to_s : ""
+				p.birthday = row[4] ? row[4] : Date.today.to_s
+				p.female   = row[5] ? row[5].value : false
 				p.save
 			end
 		end

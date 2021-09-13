@@ -62,7 +62,7 @@
 				<td>
 					<%= form_with url: import_people_path, local: true do |form| %>
 						<%= form.file_field :file %>
-						<%= form.submit %>
+						<%= render "shared/save" %>
 					<% end %>
 				</td>
 			</tr>
