@@ -86,6 +86,6 @@ class PeopleController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
-      params.require(:person).permit(:dni, :nick, :name, :surname, :birthday, :female, :player_id, :coach_id)
+      params.require(:person).permit(:id, :dni, :nick, :name, :surname, :birthday, :female, :player_id, :coach_id)
     end
 end
