@@ -73,11 +73,11 @@ class Player < ApplicationRecord
 						p.save	# Save and link
 						j.person_id = p.id
 					end
-					j.person.dni      = ApplicationHelper.read_field(row[1], j.person.dni, "S.DNI/NIE")
-					j.person.nick     = ApplicationHelper.read_field(row[2], j.person.nick, "")
-					j.person.birthday = ApplicationHelper.read_field(row[5], j.person.birthday, Date.today.to_s)
-					j.person.female   = ApplicationHelper.read_field(row[6], j.person.female, false)
-					j.active			   	= ApplicationHelper.read_field(row[7], j.active, false)
+					j.person.dni      = j.read_field(row[1], j.person.dni, "S.DNI/NIE")
+					j.person.nick     = j.read_field(row[2], j.person.nick, "")
+					j.person.birthday = j.read_field(row[5], j.person.birthday, Date.today.to_s)
+					j.person.female   = j.read_field(row[6], j.person.female, false)
+					j.active			   	= j.read_field(row[7], j.active, false)
 					j.save
 					if j.person.player_id != j.id
 						j.person.player_id = j.id
