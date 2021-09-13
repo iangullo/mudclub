@@ -56,10 +56,10 @@ class Person < ApplicationRecord
 					p.player_id = 0
 					p.coach_id = 0
 				end
-				p.dni      = read_field(row[0], j.person.dni, "S.DNI/NIE")
-				p.nick     = read_field(row[1], j.person.nick, "")
-				p.birthday = read_field(row[4], j.person.birthday, Date.today.to_s)
-				p.female   = read_field(row[5], j.person.female, false)
+				p.dni      = read_field(row[0], p.dni, "S.DNI/NIE")
+				p.nick     = read_field(row[1], p.nick, "")
+				p.birthday = read_field(row[4], p.birthday, Date.today.to_s)
+				p.female   = read_field(row[5], p.female, false)
 				p.save
 			end
 		end
