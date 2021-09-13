@@ -18,20 +18,20 @@
     			<%= image_tag("team.png", :size => "100x100") %>
     		</td>
     	</tr><tr>
-    		<th><%= form.label "Categoría" %></th>
+    		<td><strong><%= form.label "Categoría" %></strong></td>
     		<td><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
     	</tr><tr>
-    		<th><%= form.label "Competición" %></th>
+    		<td><strong><%= form.label "Competición" %></strong></td>
     		<td><%= form.collection_select :division_id, Division.real, :id, :name %></td>
     	</tr><tr>
-    		<th><%= form.label "Nombre" %></th>
+    		<td><strong><%= form.label "Nombre" %></strong></td>
     		<td><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
-    		<th><%= form.label "Temporada" %></th>
+    		<td><strong><%= form.label "Temporada" %></strong></td>
     		<td><%= form.collection_select :season_id, Season.real, :id, :name %></td>
     	</tr><tr>
     		<td colspan="2">
     			<table>
-            <tr><th colspan="2">Entrenadores:</th></tr>
+            <tr><td colspan="2"><<strong>Entrenadores:</strong></td></tr>
             <tr><td></td>
       				<td><div id=”team-coaches”>
       					<%= form.collection_check_boxes :coach_ids, Coach.active, :id, :to_s do |coach| %>
@@ -44,7 +44,7 @@
       			</tr>
     			</table>
     		</td>
-        <th class="align-top text-right"><%= form.label "Pista:" %></th>
+        <td class="align-top text-right"><strong><%= form.label "Pista:" %></strong></td>
       	<td class="align-top"><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
     	</tr>
     </table>

@@ -13,13 +13,14 @@
  *= require_tree .
  *= require_self
  */
- //= require actiontext
- @import "./actiontext.scss";
- /*! purgecss start ignore */
- @import "trix/dist/trix";
- /*! purgecss end ignore */
 
 // TailwindCSS extensions
 @import "tailwindcss/base";
 @import "tailwindcss/utilities";
 @import "tailwindcss/components";
+
+//= require actiontext
+@import "./actiontext.scss";
+/*! purgecss start ignore */
+@import "trix/dist/trix";
+/*! purgecss end ignore */

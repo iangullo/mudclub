@@ -20,18 +20,18 @@
 					<%= image_tag(@player.picture, :size => "100x100") %>
 				</td>
 				<th align="right">Nom.</th>
-				<td colspan="2"><%= f.text_field :name, size: 12 %></td>
+				<td colspan="2"><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
 				<th align="right">Apel.</th>
-				<td colspan="2"><%= f.text_field :surname, size: 16 %></td>
+				<td colspan="2"><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
 				<th align="right">F.Nac.</th>
 				<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %></td>
 			</tr><tr>
-				<th align="center">DNI</th>
-				<td><%= f.text_field :dni, size: 8 %></td>
+				<th align="center">DNI/NIE</th>
+				<td><%= f.text_field :dni, size: 8, class: "rounded border shadow-inner" %></td>
 				<th align="right">Apodo</th>
-				<td><%= f.text_field :nick, size: 8 %></td>
+				<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
 				<td align="right"><strong>Fem.&nbsp;</strong><%= f.check_box :female %></td>
 				<td><strong>N&uacute;m.&nbsp;</strong><%= form.number_field :number, min: 0, max: 99, size: 2, class: "rounded border shadow-inner" %></td>

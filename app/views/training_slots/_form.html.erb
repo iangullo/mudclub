@@ -15,19 +15,19 @@
   		<td rowspan="3" align="center">
   			<%= image_tag("team.png", :size => "100x100") %>
   		</td>
-  		<th align="right"><%= form.label "Temporada" %></th>
+  		<td align="right"><strong><%= form.label "Temporada" %></strong></td>
   		<td colspan="3"><%= form.collection_select :season_id, Season.real.order(name: :desc), :id, :name %></td>
   	</tr><tr>
-  		<th align="right"><%= form.label "Pista" %></th>
+  		<td align="right"><strong><%= form.label "Pista" %></strong></td>
   		<td colspan="3"><%= form.collection_select :location_id, Location.practice.order(name: :asc), :id, :name %></td>
   	</tr><tr>
-  		<th align="right"><%= form.label "Día" %></th>
+  		<td align="right"><strong><%= form.label "Día" %></strong></td>
   		<td colspan="3"><%= form.select :wday, @weekdays %></td>
   	</tr><tr>
   		<td><%= form.collection_select :team_id, Team.for_season(form.object.season_id), :id, :to_s %></td>
-  		<th align="right">Hora</th>
+  		<td align="right"><strong>Hora</strong></td>
   		<td><%= form.number_field :hour, in: 16..21, size: 3 %><%= form.number_field :min, in: 0..45, step: 15, size: 3, class: "rounded border shadow-inner" %></td>
-  		<th>Duración</th>
+  		<td><strong>Duración</strong></td>
   		<td><%= form.number_field :duration, in: 60..120, step: 30, size: 4, class: "rounded border shadow-inner" %></td>
   	<tr>
   </table>

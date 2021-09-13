@@ -12,10 +12,10 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
   </head>
 
-  <body class="text-sm xl:text-lg lg-text-base md:text-sm ">
+  <body class="text-base xl:text-lg sm:text-sm, xs:text-sm">
     <div class="flex flex-col w-full min-h-screen justify-between">
 	    <!-- Navbar goes here -->
-      <nav class="sticky top-0 z-50 w-full bg-blue-900 text-gray-200 h-15">
+      <nav class="sticky top-0 z-50 w-full h-15 bg-blue-900 text-gray-300">
         <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
           <div class="relative flex items-center justify-between h-16">
             <!-- Mobile menu, show/hide based on menu state. -->
@@ -34,11 +34,11 @@
                   </svg>
                 </button>
                 <div data-dropdown-target="menu" class="absolute hidden">
-                  <div class="bg-blue-700 shadow rounded border overflow-hidden">
-                    <%= link_to 'Jugadores', players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  bg-blue-700 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
-                    <%= link_to 'Equipos',  teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
-                    <%= link_to 'Horarios',  training_slots_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
-                    <%= link_to 'Ejercicios',  drills_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                  <div class="bg-blue-900 shadow rounded border overflow-hidden">
+                    <%= link_to 'Jugadores', players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                    <%= link_to 'Equipos',  teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                    <%= link_to 'Horarios',  training_slots_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                    <%= link_to 'Ejercicios',  drills_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                     <% #= link_to 'Sesiones',  training_sessions_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
                   </div>
                 </div>
@@ -53,21 +53,21 @@
               <!-- Navigation tabs -->
               <div class="hidden sm:block sm:ml-6">
                 <div class="flex space-x-4">
-                  <ul class="list-reset flex">
-                    <li class=" hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
-                      <%= link_to 'Jugadores', players_path %>
+                  <ul class="list-reset flex text-base text-gray-300">
+                    <li>
+                      <%= link_to 'Jugadores', players_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
                     </li>
-                    <li class=" hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
-                      <%= link_to 'Equipos', teams_path %>
+                    <li>
+                      <%= link_to 'Equipos', teams_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
                     </li>
-                    <li class=" hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
-                      <%= link_to 'Horarios', training_slots_path %>
+                    <li>
+                      <%= link_to 'Horarios', training_slots_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
                     </li>
-  <!--                  <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
-                      <% #= link_to 'Sesiones', training_sessions_path %>
+  <!--                  <li>
+                      <% #= link_to 'Sesiones', training_sessions_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
                     </li>
-  -->                  <li class=" hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
-                      <%= link_to 'Ejercicios', drills_path %>
+  -->                  <li>
+                      <%= link_to 'Ejercicios', drills_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
                     </li>
                   </ul>
                 </div>
@@ -87,10 +87,6 @@
                 </div>
                 <div data-dropdown-target="menu" class="absolute right-0 mt-2 hidden">
                   <div class="bg-white shadow rounded border overflow-hidden">
-                      <!-- %= link_to 'Perfil',  edit_person_path, data: {action: "click->dropdown#toggle" }, class: 'no-underline block pl-8 py-3 text-gray-900 bg-white hover:bg-gray-300 whitespace-nowrap' %>
-                      <!-- %= link_to 'Password', password_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block px-8 py-3 text-gray-900 bg-white hover:bg-gray-300 whitespace-nowrap' %>
-                      <!-- %= link_to 'Sign Out', destroy_user_session_path, method: :delete, data: {action: "click->dropdown#toggle"}, class: 'no-underline block px-8 py-3 border-t text-gray-900 bg-white hover:bg-gray-300 whitespace-nowrap' %>
-                      -->
                   </div>
                 </div>
               </div>
