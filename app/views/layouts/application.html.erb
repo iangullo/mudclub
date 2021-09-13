@@ -22,7 +22,7 @@
             <div class="absolute inset-y-0 left-0 flex items-center sm:hidden" data-controller="dropdown">
               <!-- Mobile menu button-->
               <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="0" class="inline-block select-none">
-                <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-200 hover:text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
+                <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-100 hover:text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
                   <span class="sr-only">Menu</span>
                   <!-- Icon when menu is closed. -->
                   <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -35,11 +35,11 @@
                 </button>
                 <div data-dropdown-target="menu" class="absolute hidden">
                   <div class="bg-blue-700 shadow rounded border overflow-hidden">
-                    <%= link_to 'Jugadores', players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-200 bg-blue-700 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
-                    <%= link_to 'Equipos',  teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-200 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
-                    <%= link_to 'Horarios',  training_slots_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-200 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
-                    <%= link_to 'Ejercicios',  drills_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-200 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
-                    <% #= link_to 'Sesiones',  training_sessions_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-300 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                    <%= link_to 'Jugadores', players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-100 bg-blue-700 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                    <%= link_to 'Equipos',  teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-100 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                    <%= link_to 'Horarios',  training_slots_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-100 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                    <%= link_to 'Ejercicios',  drills_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-100 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                    <% #= link_to 'Sesiones',  training_sessions_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 text-gray-100 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
                   </div>
                 </div>
               </div>
@@ -54,19 +54,19 @@
               <div class="hidden sm:block sm:ml-6">
                 <div class="flex space-x-4">
                   <ul class="list-reset flex">
-                    <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
+                    <li class="text-gray-100 hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
                       <%= link_to 'Jugadores', players_path %>
                     </li>
-                    <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
+                    <li class="text-gray-100 hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
                       <%= link_to 'Equipos', teams_path %>
                     </li>
-                    <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
+                    <li class="text-gray-100 hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
                       <%= link_to 'Horarios', training_slots_path %>
                     </li>
   <!--                  <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
                       <% #= link_to 'Sesiones', training_sessions_path %>
                     </li>
-  -->                  <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
+  -->                  <li class="text-gray-100 hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-2 rounded-md text-sm font-semibold">
                       <%= link_to 'Ejercicios', drills_path %>
                     </li>
                   </ul>
