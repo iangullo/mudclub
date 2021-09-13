@@ -24,6 +24,7 @@ default: &default
 
 development:
   <<: *default
+  host: red
   password: Ch00Choo
   database: bclub_development
 
@@ -58,6 +59,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
+  host: red
   database: bclub_test
   password: Ch00Choo
 
