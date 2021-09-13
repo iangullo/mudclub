@@ -12,6 +12,9 @@
 
 ActiveRecord::Schema.define(version: 2021_09_08_130941) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -25,8 +28,8 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.integer "record_id", null: false
-    t.integer "blob_id", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -45,7 +48,7 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
-    t.integer "blob_id", null: false
+    t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
@@ -61,15 +64,15 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
 
   create_table "coaches", force: :cascade do |t|
     t.boolean "active"
-    t.integer "person_id", default: 0, null: false
+    t.bigint "person_id", default: 0, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["person_id"], name: "index_coaches_on_person_id"
   end
 
   create_table "coaches_teams", id: false, force: :cascade do |t|
-    t.integer "team_id", null: false
-    t.integer "coach_id", null: false
+    t.bigint "team_id", null: false
+    t.bigint "coach_id", null: false
   end
 
   create_table "divisions", force: :cascade do |t|
@@ -82,8 +85,8 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
     t.string "name"
     t.string "description"
     t.string "material"
-    t.integer "coach_id", default: 0, null: false
-    t.integer "kind_id", default: 0, null: false
+    t.bigint "coach_id", default: 0, null: false
+    t.bigint "kind_id", default: 0, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["coach_id"], name: "index_drills_on_coach_id"
@@ -91,8 +94,8 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
   end
 
   create_table "drills_skills", id: false, force: :cascade do |t|
-    t.integer "drill_id", null: false
-    t.integer "skill_id", null: false
+    t.bigint "drill_id", null: false
+    t.bigint "skill_id", null: false
   end
 
   create_table "kinds", force: :cascade do |t|
@@ -118,8 +121,8 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
     t.boolean "female"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "player_id", default: 0, null: false
-    t.integer "coach_id", default: 0, null: false
+    t.bigint "player_id", default: 0, null: false
+    t.bigint "coach_id", default: 0, null: false
     t.index ["coach_id"], name: "index_people_on_coach_id"
     t.index ["player_id"], name: "index_people_on_player_id"
   end
@@ -127,15 +130,15 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
   create_table "players", force: :cascade do |t|
     t.integer "number"
     t.boolean "active"
-    t.integer "person_id", default: 0, null: false
+    t.bigint "person_id", default: 0, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["person_id"], name: "index_players_on_person_id"
   end
 
   create_table "players_teams", id: false, force: :cascade do |t|
-    t.integer "team_id", null: false
-    t.integer "player_id", null: false
+    t.bigint "team_id", null: false
+    t.bigint "player_id", null: false
   end
 
   create_table "seasons", force: :cascade do |t|
@@ -152,12 +155,12 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
 
   create_table "teams", force: :cascade do |t|
     t.string "name"
-    t.integer "season_id", default: 0, null: false
-    t.integer "category_id", default: 0, null: false
-    t.integer "division_id", default: 0, null: false
+    t.bigint "season_id", default: 0, null: false
+    t.bigint "category_id", default: 0, null: false
+    t.bigint "division_id", default: 0, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "homecourt_id", default: 0
+    t.bigint "homecourt_id", default: 0
     t.index ["category_id"], name: "index_teams_on_category_id"
     t.index ["division_id"], name: "index_teams_on_division_id"
     t.index ["homecourt_id"], name: "index_teams_on_homecourt_id"
@@ -165,12 +168,12 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
   end
 
   create_table "training_slots", force: :cascade do |t|
-    t.integer "season_id", default: 0, null: false
-    t.integer "location_id", default: 0, null: false
+    t.bigint "season_id", default: 0, null: false
+    t.bigint "location_id", default: 0, null: false
     t.integer "wday"
     t.time "start"
     t.integer "duration"
-    t.integer "team_id", default: 0, null: false
+    t.bigint "team_id", default: 0, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["location_id"], name: "index_training_slots_on_location_id"
