@@ -45,7 +45,7 @@ class Person < ApplicationRecord
 	# to import from excel
 	def self.import(file)
 		xlsx = Roo::Excelx.new(file.tempfile)
-		xlsx.each_row_streaming(offset: 1) do |row|
+		xlsx.each_row_streaming(offset: 1, pad_cells: true) do |row|
 			unless row.empty?
 				p = self.new(name: row[2].value.to_s, surname: row[3].value.to_s)
 				if p.exists?
