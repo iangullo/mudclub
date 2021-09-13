@@ -26,7 +26,7 @@ development:
   host: red
   username: bclub
   password: Ch00Choo
-  database: cbmairena_development
+  database: bclub_development
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -62,7 +62,7 @@ test:
   host: red
   username: bclub
   password: Ch00Choo
-  database: cbmairena_test
+  database: bclub_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -86,6 +86,6 @@ test:
 #
 production:
   <<: *default
-  database: cbmairena_production
   username: cbmairena
   password: <%= ENV['bclub_DATABASE_PASSWORD'] %>
+  database: cbmairena_production
