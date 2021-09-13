@@ -73,11 +73,11 @@ class Player < ApplicationRecord
 						p.save	# Save and link
 						j.person_id = p.id
 					end
-					j.person.dni      = self.read_field(row[1], j.person.dni, "S.DNI/NIE")
-					j.person.nick     = self.read_field(row[2], j.person.nick, "")
-					j.person.birthday = self.read_field(row[5], j.person.birthday, Date.today.to_s)
-					j.person.female   = self.read_field(row[6], j.person.female, false)
-					j.active			   	= self.read_field(row[7], j.active, false)
+					j.person.dni      = ApplicationHelper.read_field(row[1], j.person.dni, "S.DNI/NIE")
+					j.person.nick     = ApplicationHelper.read_field(row[2], j.person.nick, "")
+					j.person.birthday = ApplicationHelper.read_field(row[5], j.person.birthday, Date.today.to_s)
+					j.person.female   = ApplicationHelper.read_field(row[6], j.person.female, false)
+					j.active			   	= ApplicationHelper.read_field(row[7], j.active, false)
 					j.save
 					if j.person.player_id != j.id
 						j.person.player_id = j.id
@@ -85,17 +85,6 @@ class Player < ApplicationRecord
 					end
 				end
 			end
-		end
-	end
-
-	private
-
-	# read new field value, keep old value if empty & possible
-	def read_field(dat_value, old_value, def_value)
-		if dat_value	# we read & assign
-			read_field = datum.value.to_s
-		else	# assign default if no old value exists
-			read_field = "def_value" unless old_value
 		end
 	end
 end
