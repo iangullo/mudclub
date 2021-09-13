@@ -56,10 +56,10 @@ class Person < ApplicationRecord
 					p.player_id = 0
 					p.coach_id = 0
 				end
-				p.dni      = row[0] ? row[0].value.to_s : "S.DNI/NIE"
-				p.nick     = row[1] ? row[1].value.to_s : ""
-				p.birthday = row[4] ? row[4].value.to_s : Date.today.to_s
-				p.female   = row[5] ? row[5].value.to_s : false
+				p.dni      = read_field(row[0], j.person.dni, "S.DNI/NIE")
+				p.nick     = read_field(row[1], j.person.nick, "")
+				p.birthday = read_field(row[4], j.person.birthday, Date.today.to_s)
+				p.female   = read_field(row[5], j.person.female, false)
 				p.save
 			end
 		end
@@ -71,6 +71,17 @@ class Person < ApplicationRecord
 			search.length>0 ? Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]) : Person.all
 		else
 			Person.none
+		end
+	end
+
+	private
+
+	# read new field value, keep old value if empty & possible
+	def read_field(dat_value, old_value, def_value)
+		if dat_value	# we read & assign
+			read_field = datum.value.to_s
+		else	# assign default if no old value exists
+			read_field = "def_value" unless old_value
 		end
 	end
 end
