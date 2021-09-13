@@ -57,8 +57,10 @@ class Player < ApplicationRecord
 	# to import from excel
 	def self.import(file)
 		xlsx = Roo::Excelx.new(file.tempfile)
-		xlsx.each_row_streaming(offset: 1) do |row|
-			unless row.empty?
+		xlsx.each_row_streaming(offset: 1, pad_cells: true) do |row|
+			if row.empty?	# stop parsing if row is empty
+				return
+			else
 				j = self.new(number: row[0].value.to_s, active: row[7].value)
 				j.build_person
 				j.person.name = row[3].value.to_s
@@ -71,11 +73,11 @@ class Player < ApplicationRecord
 						p.save	# Save and link
 						j.person_id = p.id
 					end
-					j.person.dni  		= row[1].value.to_s
-					j.person.nick 		= row[2].value.to_s
-					j.person.birthday = row[5].value
-					j.person.female 	= row[6].value
-					j.active			   	= row[7].value
+					j.person.dni      = row[1] ? row[1].value.to_s : "S.DNI/NIE"
+					j.person.nick     = row[2] ? row[2].value.to_s : ""
+					j.person.birthday = row[5] ? row[5].value.to_s : Date.today.to_s
+					j.person.female   = row[6] ? row[6].value.to_s : false
+					j.active			   	= row[7] ? row[7].value.to_s : false
 					j.save
 					if j.person.player_id != j.id
 						j.person.player_id = j.id
