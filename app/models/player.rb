@@ -50,7 +50,7 @@ class Player < ApplicationRecord
 		if search
 			Player.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday))
 		else
-			Player.real
+			Player.where(person_id: Person.real.order(:birthday))
 		end
 	end
 
