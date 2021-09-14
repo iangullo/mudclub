@@ -30,7 +30,7 @@
 			<td align="right"><strong>Tipo</strong></td>
 			<td><div class="field"><%= form.collection_select :kind_id, Kind.all, :id, :name %></div></td>
 		</tr><tr>
-			<td align="right"><strong>Explicaci&oacute;n:</strong></td>
+			<td align="right" class="align-top"><strong>Explicaci&oacute;n:</strong></td>
 			<td colspan="3"><%= form.rich_text_area :explanation, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<td align="right" class="align-top"><strong>Fundamentos:</strong></td>
