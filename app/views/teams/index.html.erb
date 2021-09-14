@@ -6,7 +6,7 @@
 				<div id="search-team" class="inline-flex text-gray-700 rounded border shadow-inner">
 					<%= form_with(url: '/teams', method: 'get', local: true) do |f| %>
 						<%= f.collection_select :season_id, Season.real.order(name: :desc), :id, :name %>
-						<%= image_submit_tag "search.png", width: 25, height: 25, class: "search_button align-middle", alt: "Temporada" %>
+						<%= image_submit_tag "search.png", height: 25, class: "search_button align-middle", alt: "Temporada" %>
 					<% end %>
 	      </div>
 			</th>
