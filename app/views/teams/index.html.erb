@@ -5,7 +5,7 @@
 				<%= image_tag "team.png", size: "50x50" %>Equipos&nbsp;
 				<div id="search-team" class="inline-flex text-gray-700 rounded border shadow-inner">
 					<%= form_with(url: '/teams', method: 'get', local: true) do |f| %>
-						<%= f.collection_select :season_id, Season.real.order(name: :desc), :id, :name %>
+						<%= f.collection_select :season_id, Season.all.order(name: :desc), :id, :name, {selected: params[:season_id] ? params[:season_id].to_i : 0} %>
 						<%= image_submit_tag "search.png", height: 25, class: "search_button align-middle", alt: "Temporada" %>
 					<% end %>
 	      </div>
@@ -37,9 +37,6 @@
 	              <%= image_tag "delete.png", size: "25x25" %>
 	            <% end %>
 	          </td>
-	  <!--
-	          <td>< %= link_to 'Borrar', team, method: :destroy, data: { confirm: '¿Borrar #{team.to_s}?' } %></td>
-	    -->
 	        </tr>
 	      <% end %>
 	    </tbody>

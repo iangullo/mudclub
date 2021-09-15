@@ -3,7 +3,7 @@ class TrainingSlotsController < ApplicationController
 
   # GET /training_slots or /training_slots.json
   def index
-    @training_slots = TrainingSlot.search(params[:search])
+    @training_slots = TrainingSlot.search(params[:location_id])
   end
 
   # GET /training_slots/1 or /training_slots/1.json

@@ -17,9 +17,9 @@
 		</tr>
 		<% @team.players.order("number").each do |player| %>
 		<tr>
-			<td align="center"><%= player.number %></td>
-			<td><%= link_to player.to_s, player %></td>
-			<td align="center"><%= player.person.age %></td>
+			<td align="center" class="rounded border"><%= player.number %></td>
+			<td class="rounded border"><%= link_to player.to_s, player %></td>
+			<td align="center" class="rounded border"><%= player.person.age %></td>
 		</tr>
 		<% end %>
 		<tr>

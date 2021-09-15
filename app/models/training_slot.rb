@@ -76,7 +76,8 @@ class TrainingSlot < ApplicationRecord
 	#Search for specific court
 	def self.search(search)
 		if search
-			TrainingSlot.where(location_id: Location.practice.where(["name LIKE ?", search])).order(:wday)
+			l_id = search.to_i
+			l_id > 0 ? TrainingSlot.for_location(l_id).order(:wday) : TrainingSlot.all
 		else
 			TrainingSlot.all
 		end

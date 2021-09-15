@@ -13,11 +13,22 @@
 			<td align="center"><%= @coach.person.nick %></td>
 		</tr><tr>
 			<td align="center"><%= @coach.active ? "Activo" : "Inactivo" %></td>
-			<td align="right">
+			<td align="right" class="align-top">
 				<%= link_to edit_coach_path(@coach), data: {"turbo-frame": "modal" } do %>
 					<%= image_tag "edit.png", size: "25x25" %>
 				<% end %>
 			</td>
 		</tr>
+		<% unless @coach.teams.empty? %>
+			<tr>
+				<td align="center" class="align-top"><strong>Equipos:</<strong></td>
+				<td>
+					<% @coach.teams.each do |t| %>
+						<%= link_to t.to_s, t %>
+						<br>
+					<% end %>
+				</td>
+			</tr>
+		<% end %>
 	</table>
 <% end %>

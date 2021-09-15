@@ -48,9 +48,9 @@ class Player < ApplicationRecord
 	#Search field matching
 	def self.search(search)
 		if search
-			Player.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday))
+			search.length>0 ? Player.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday)) : Player.real
 		else
-			Player.where(person_id: Person.real.order(:birthday))
+			Player.none
 		end
 	end
 

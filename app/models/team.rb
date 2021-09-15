@@ -44,7 +44,8 @@ class Team < ApplicationRecord
 	#Search field matching season
 	def self.search(search)
 		if search
-			Team.for_season(search).order(:category_id)
+			s_id = search.to_i
+			s_id > 0 ? Team.for_season(s_id).order(:category_id) : Team.real
 		else
 			Team.real
 		end

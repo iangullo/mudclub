@@ -5,7 +5,7 @@ class TeamsController < ApplicationController
   # GET /teams
   # GET /teams.json
   def index
-		@teams = Team.search(params[:search])
+		@teams = Team.search(params[:season_id])
   end
 
   # GET /teams/1
