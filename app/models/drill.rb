@@ -1,22 +1,11 @@
 class Drill < ApplicationRecord
 	belongs_to :coach
 	belongs_to :kind
-#	accepts_nested_attributes_for :kind
 	has_and_belongs_to_many :skills
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
 	has_rich_text :explanation
-	has_one_attached :video
-#	has_many_attached :images
-#	attr_accessor :new_images
 	before_save { self.name = self.name.mb_chars.titleize }
 	self.inheritance_column = "not_sti"
-
-#	def attach_images
-#		return if new_images.blank?
-#
-#		images.attach(new_images)
-#		self.new_images = []
-#	end
 
 	def print_skills
 		print_names(self.skills)
