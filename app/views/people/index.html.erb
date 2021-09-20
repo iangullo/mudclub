@@ -20,7 +20,7 @@
 				<th colspan="2" align="left" class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
 				<th>
 					<%= link_to new_person_path, data: {"turbo-frame": "modal" } do %>
-						<%= image_tag "plus.png", size: "25x25", alt: "Crear", class: "hover:bg-green-200" %>
+						<%= render "shared/plus" %>
 					<% end %>
 				</th>
 			</thead>
@@ -39,7 +39,7 @@
 						</td>
 						<td>
 							<%= link_to person, method: :destroy, data: { confirm: "¿Borrar '#{person.to_s}'?" } do %>
-								<%= image_tag "delete.png", size: "25x25", class: "hover:bg-red-200" %>
+								<%= render "shared/delete" %>
 							<% end %>
 						</td>
 					</tr>

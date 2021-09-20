@@ -21,7 +21,7 @@
 				<tr>
 				  <th align="center">
 						<%= link_to new_training_slot_path, data: {"turbo-frame": "modal" } do %>
-							<%= image_tag "plus.png", size: "25x25", alt: "Crear", class: "hover:bg-green-200" %>
+							<%= render "shared/plus" %>
 						<% end %>
 					</th>
 				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Lun</th>

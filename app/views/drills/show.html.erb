@@ -25,7 +25,7 @@
 			<td colspan="2"><%= @drill.print_skills %></td>
 			<td align="right">
 				<%= link_to edit_drill_path(@drill), data: {"turbo-frame": "modal" } do %>
-					<%= image_tag "edit.png", size: "25x25" %>
+					<%= render "shared/edit" %>
 				<% end %>
 			</td>
 		</tr>

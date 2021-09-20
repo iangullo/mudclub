@@ -22,7 +22,7 @@
 					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px">Act.</th>
 					<th>
 						<%= link_to new_coach_path, data: {"turbo-frame": "modal" } do %>
-							<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
+							<%= render "shared/plus" %>
 						<% end %>
 					</th>
 				</tr>
@@ -36,7 +36,7 @@
 						<td align="center" class="border px py"><%= coach.active ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
 						<td>
 							<%= link_to coach, method: :destroy, data: { confirm: "¿Borrar '#{coach.to_s}'?" } do %>
-								<%= image_tag "delete.png", size: "25x25", class: "hover:bg-red-200" %>
+								<%= render "shared/delete" %>
 							<% end %>
 						</td>
 					</tr>

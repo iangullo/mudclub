@@ -23,7 +23,7 @@
 					<th class="bg-indigo-900 text-gray-300 align-center">Fundamentos</th>
 					<th>
 						<%= link_to new_drill_path, data: {"turbo-frame": "modal" } do %>
-							<%= image_tag "plus.png", size: "25x25", alt: "Crear", class: "hover:bg-green-200" %>
+							<%= render "shared/plus" %>
 						<% end %>
 					</th>
 				</tr>
@@ -38,11 +38,9 @@
 						<td class="border px py"><%= drill.print_skills %></td>
 						<td>
 							<%= link_to drill, method: :delete, data: { confirm: "¿Borrar '#{drill.name}'" } do %>
-								<%= image_tag "delete.png", size: "25x25", class: "hover:bg-red-200" %>
+								<%= render "shared/delete" %>
 							<% end %>
 						</td>
-	<!--					<td>< %= link_to 'Borrar', drill, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-		-->
 					</tr>
 				<% end %>
 			</tbody>
