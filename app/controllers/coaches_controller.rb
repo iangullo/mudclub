@@ -65,6 +65,7 @@ class CoachesController < ApplicationController
  	# DELETE /coaches/1
 	# DELETE /coaches/1.json
 	def destroy
+		unlink_person
 		@coach.destroy
 		respond_to do |format|
 			format.html { redirect_to coaches_url, notice: 'Entrenador borrado.' }
@@ -116,5 +117,10 @@ class CoachesController < ApplicationController
 	# Never trust parameters from the scary internet, only allow the white list through.
 	def coach_params
 		params.require(:coach).permit(:id, :active, :avatar, :teams, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday])
+	end
+
+	# De-couple from associated person
+	def unlink_person
+		@coach.person.player_id=0 if @coach.person.player_id == @coach.id
 	end
 end

@@ -71,7 +71,8 @@ class PeopleController < ApplicationController
   # DELETE /people/1
   # DELETE /people/1.json
   def destroy
-    @person.destroy
+		erase_links
+		@person.destroy
     respond_to do |format|
       format.html { redirect_to people_url, notice: 'Persona borrada.' }
       format.json { head :no_content }
@@ -84,18 +85,20 @@ class PeopleController < ApplicationController
       @person = Person.find(params[:id])
     end
 
-		# ensure consistency of the database links
-		def cleanup_person
-			if @person.coach_id > 0	# prepare to delete assocaited coach
+		# Delete associated players/coaches
+		def erase_links
+			if @person.coach_id > 0	# delete associated coach
 				c = @person.coach
 				c.person_id = 0
-				@person.coach.id = 0
+				c.save
+				@person.coach_id = 0
 				c.destroy
 			end
-			if @person.player_id > 0	# prepare to delete assocaited player
+			if @person.player_id > 0	# delete associated player
 				p = @person.player
 				p.person_id = 0
-				@person.coach.id = 0
+				p.save
+				@person.player_id = 0
 				p.destroy
 			end
 		end

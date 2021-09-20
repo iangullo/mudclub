@@ -81,6 +81,7 @@ class PlayersController < ApplicationController
 	# DELETE /players/1
 	# DELETE /players/1.json
 	def destroy
+		unlink_person
 		@player.destroy
 		respond_to do |format|
 			format.html { redirect_to players_url, notice: 'Jugador borrado.' }
@@ -114,5 +115,10 @@ class PlayersController < ApplicationController
 		@player.person[:coach_id] = 0
 		@player.person[:player_id] = 0
 		@player
+	end
+
+	# De-couple from associated person
+	def unlink_person
+		@player.person.player_id=0 if @player.person.player_id == @player.id
 	end
 end
