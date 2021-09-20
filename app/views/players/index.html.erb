@@ -25,7 +25,7 @@
 					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Activ.</th>
 					<th align="center">
 						<%= link_to new_player_path, data: {"turbo-frame": "modal" } do %>
-							<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
+							<%= image_tag "plus.png", size: "25x25", alt: "Crear", class: "hover:bg-green-200" %>
 						<% end %>
 					</th>
 				</tr>
@@ -35,16 +35,14 @@
 				<% @players.each do |player| %>
 					<tr>
 						<td align="center" class="border px py"><%= player.number %></td>
-						<td class="border px py"><%= link_to player.to_s, player, data: {"turbo-frame": "modal" } %></td>
+						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to player.to_s, player, data: {"turbo-frame": "modal" } %></td>
 						<td align="center" class="border px py"><%= player.person.age %></td>
 						<td align="center" class="border px py"><%= player.active ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
 						<td>
 							<%= link_to player, method: :destroy, data: { confirm: "¿Borrar '#{player.to_s}'?" } do %>
-								<%= image_tag "delete.png", size: "25x25" %>
+								<%= image_tag "delete.png", size: "25x25", class: "hover:bg-red-200" %>
 							<% end %>
 						</td>
-	<!--					<td>< %= link_to 'Borrar', player, method: :destroy, data: { confirm: '¿Borrar #{player.to_s}?' } %></td>
-		-->
 					</tr>
 				<% end %>
 			</tbody>

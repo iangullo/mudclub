@@ -5,7 +5,7 @@
 			<td class="border px py">
 				<% @training_slots.each do |t_slot| %>
 					<% if t_slot.at_work?(i,t_hour) %>
-						<%= link_to t_slot.team.name, t_slot, data: {"turbo-frame": "modal" }, class: "hover:text-blue-700" %>
+						<%= link_to t_slot.team.name, t_slot, data: {"turbo-frame": "modal" }, class: "hover:text-white hover:bg-blue-700" %>
             <br>
 					<% end %>
 				<% end %>

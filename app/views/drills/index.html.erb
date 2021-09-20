@@ -23,7 +23,7 @@
 					<th class="bg-indigo-900 text-gray-300 align-center">Fundamentos</th>
 					<th>
 						<%= link_to new_drill_path, data: {"turbo-frame": "modal" } do %>
-							<%= image_tag "plus.png", size: "25x25", alt: "Crear" %>
+							<%= image_tag "plus.png", size: "25x25", alt: "Crear", class: "hover:bg-green-200" %>
 						<% end %>
 					</th>
 				</tr>
@@ -32,13 +32,13 @@
 			<tbody>
 				<% @drills.each do |drill| %>
 					<tr>
-						<td class="border px-2 py-2"><%= link_to drill.name, drill, data: {"turbo-frame": "modal" } %></td>
-						<td class="border px-2 py-2"><%= drill.kind.name %></td>
-						<td class="border px-2 py-2"><%= drill.description %></td>
-						<td class="border px-2 py-2"><%= drill.print_skills %></td>
+						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to drill.name, drill, data: {"turbo-frame": "modal" } %></td>
+						<td class="border px py"><%= drill.kind.name %></td>
+						<td class="border px py"><%= drill.description %></td>
+						<td class="border px py"><%= drill.print_skills %></td>
 						<td>
 							<%= link_to drill, method: :delete, data: { confirm: "¿Borrar '#{drill.name}'" } do %>
-								<%= image_tag "delete.png", size: "25x25" %>
+								<%= image_tag "delete.png", size: "25x25", class: "hover:bg-red-200" %>
 							<% end %>
 						</td>
 	<!--					<td>< %= link_to 'Borrar', drill, method: :delete, data: { confirm: 'Are you sure?' } %></td>
