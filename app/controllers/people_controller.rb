@@ -84,6 +84,22 @@ class PeopleController < ApplicationController
       @person = Person.find(params[:id])
     end
 
+		# ensure consistency of the database links
+		def cleanup_person
+			if @person.coach_id > 0	# prepare to delete assocaited coach
+				c = @person.coach
+				c.person_id = 0
+				@person.coach.id = 0
+				c.destroy
+			end
+			if @person.player_id > 0	# prepare to delete assocaited player
+				p = @person.player
+				p.person_id = 0
+				@person.coach.id = 0
+				p.destroy
+			end
+		end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
       params.require(:person).permit(:id, :dni, :nick, :name, :surname, :birthday, :female, :player_id, :coach_id)
