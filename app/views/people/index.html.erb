@@ -58,10 +58,12 @@
 					</div>
 				</td>
 			</tr><tr>
-				<td><%= image_tag "import.png", width: 125, class: "align-top" %></td>
 				<td>
 					<%= form_with url: import_people_path, local: true do |form| %>
-						<%= form.file_field :file %>
+						<label>
+							<input name="Importar Personas" id="file" type="file">
+							<%= image_tag "import.png", width: 125, class: "align-top" %>
+						</label>
 						<%= render "shared/save" %>
 					<% end %>
 				</td>
