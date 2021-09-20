@@ -71,7 +71,7 @@ class Player < ApplicationRecord
 						p.coach_id  = 0
 						p.player_id = 0
 						p.save	# Save and link
-						j.person_id = p.id
+						j.person = p
 					end
 					j.person.dni      = j.read_field(row[1], j.person.dni, "S.DNI/NIE")
 					j.person.nick     = j.read_field(row[2], j.person.nick, "")
