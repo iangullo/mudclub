@@ -1,5 +1,9 @@
 <div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
-	<%= form.text_field :name, placeholder: 'Fundamento', class: 'form-control', size: 10, class: "rounded border shadow-inner" %>
-	<button style="height:32px;width:32px" type="button" class="center" data-action="nested-form#remove"><%= render "shared/remove" %></button>
+	<div>
+		<%= form.text_field :name, placeholder: 'Fundamento', class: 'form-control', size: 10, class: "rounded border shadow-inner" %>
+		<button type="button" class="object-left-bottom" data-action="nested-form#remove">
+			<%= render "shared/remove" %>
+		</button>
+	</div>
 	<%= form.hidden_field :_destroy %>
 </div>
