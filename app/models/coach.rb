@@ -46,9 +46,9 @@ class Coach < ApplicationRecord
 	#Search field matching
 	def self.search(search)
 		if search
-			search.length>0 ? Coach.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday)) : Coach.none
+      search.length>0 ? Coach.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday)) : Coach.where(person_id: Person.real.order(:birthday))
 		else
-      Coach.where(person_id: Person.real.order(:birthday))
+      Coach.none
 		end
 	end
 end
