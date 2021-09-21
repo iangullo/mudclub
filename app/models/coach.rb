@@ -28,11 +28,7 @@ class Coach < ApplicationRecord
 	# check if associated person exists in database already
 	# reloads person if it does
 	def is_duplicate?
-		p_id = self.person.exists? # check if it exists in database
-		if p_id # found person
-			self.person.id = p_id
-			self.person_id = p_id
-			self.person.reload	# reload data
+		if self.person.exists? # check if it exists in database
 			if self.person.coach_id > 0 # coach already exists
 				true
 			else	# found but mapped to dummy placeholder person
@@ -50,9 +46,9 @@ class Coach < ApplicationRecord
 	#Search field matching
 	def self.search(search)
 		if search
-			Coach.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday))
+			search.length>0 ? Coach.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday)) : Coach.none
 		else
-			Coach.where(person_id: Person.real.order(:birthday))
+			Coach.real
 		end
 	end
 end

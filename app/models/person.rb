@@ -20,11 +20,16 @@ class Person < ApplicationRecord
 	end
 
 	# checks if it exists in the collection before adding it
-	# returns: 'id' if it exists in the database already
-	# 		   'nil' if it needs to be created.
+	# returns: reloads self if it exists in the database already
+	# 	   'nil' if it needs to be created.
 	def exists?
-		aux = Person.where(name: self.name, surname: self.surname).first
-		aux ? aux.id : nil
+		p = Person.where(name: self.name, surname: self.surname).first
+		if p
+			self.id = p.id
+			self.reload
+		else
+			nil
+		end
 	end
 
 	# calculate age
@@ -50,9 +55,7 @@ class Person < ApplicationRecord
 				return
 			else
 				p = self.new(name: row[2].value.to_s, surname: row[3].value.to_s)
-				if p.exists?
-					p.reload
-				else
+				unless p.exists?
 					p.player_id = 0
 					p.coach_id = 0
 				end

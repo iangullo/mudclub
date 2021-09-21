@@ -71,6 +71,7 @@ class PeopleController < ApplicationController
   # DELETE /people/1
   # DELETE /people/1.json
   def destroy
+byebug
 		erase_links
 		@person.destroy
     respond_to do |format|
@@ -92,6 +93,7 @@ class PeopleController < ApplicationController
 				c.person_id = 0
 				c.save
 				@person.coach_id = 0
+				@person.save
 				c.destroy
 			end
 			if @person.player_id > 0	# delete associated player
@@ -99,6 +101,7 @@ class PeopleController < ApplicationController
 				p.person_id = 0
 				p.save
 				@person.player_id = 0
+				@person.save
 				p.destroy
 			end
 		end

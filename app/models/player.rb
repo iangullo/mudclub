@@ -26,11 +26,7 @@ class Player < ApplicationRecord
 	# check if associated person exists in database already
 	# reloads person if it does
 	def is_duplicate?
-		p_id = self.person.exists? # check if it exists in database
-		if p_id # found person
-			self.person_id = p_id
-			self.person.id = p_id
-			self.person.reload	# reload data
+		if self.person.exists? # check if it exists in database
 			if self.person.player_id > 0 # player already exists
 				true
 			else	# found but mapped to dummy placeholder person
@@ -50,7 +46,7 @@ class Player < ApplicationRecord
 		if search
 			search.length>0 ? Player.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday)) : Player.real
 		else
-			Player.none
+			Player.real
 		end
 	end
 
@@ -67,22 +63,20 @@ class Player < ApplicationRecord
 				j.person.surname = row[4].value.to_s
 				unless j.is_duplicate? # only if not a duplicate
 					if j.person.player_id == nil # new person
-						p = j.person.dup	# Create new object
-						p.coach_id  = 0
-						p.player_id = 0
-						p.save	# Save and link
-						j.person = p
+						j.person.coach_id  = 0
+						j.person.player_id = 0
+						j.person.save	# Save and link
 					end
-					j.person.dni      = j.read_field(row[1], j.person.dni, "S.DNI/NIE")
-					j.person.nick     = j.read_field(row[2], j.person.nick, "")
-					j.person.birthday = j.read_field(row[5], j.person.birthday, Date.today.to_s)
-					j.person.female   = j.read_field(row[6], j.person.female, false)
-					j.active			   	= j.read_field(row[7], j.active, false)
-					j.save
-					if j.person.player_id != j.id
-						j.person.player_id = j.id
-						j.person.save
-					end
+				end
+				j.person.dni      = j.read_field(row[1], j.person.dni, "S.DNI/NIE")
+				j.person.nick     = j.read_field(row[2], j.person.nick, "")
+				j.person.birthday = j.read_field(row[5], j.person.birthday, Date.today.to_s)
+				j.person.female   = j.read_field(row[6], j.person.female, false)
+				j.active	  = j.read_field(row[7], j.active, false)
+				j.save
+				if j.person.player_id != j.id
+					j.person.player_id = j.id
+					j.person.save
 				end
 			end
 		end

@@ -38,7 +38,7 @@
 							<% end %>
 						</td>
 						<td>
-							<%= link_to person, method: :destroy, data: { confirm: "¿Borrar '#{person.to_s}'?" } do %>
+							<%= link_to person, method: :delete, data: { confirm: "¿Borrar '#{person.to_s}'?" } do %>
 								<%= render "shared/delete" %>
 							<% end %>
 						</td>
