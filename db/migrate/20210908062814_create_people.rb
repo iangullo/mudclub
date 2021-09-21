@@ -10,6 +10,6 @@ class CreatePeople < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Person.create(id: 0, dni: '0', nick: 'New', name: 'Nueva', surname: 'Persona', birthday: Date.today, female: true)
+    Person.create(id: 0, name: 'Nueva', surname: 'Persona', birthday: '2021-09-01', female: true)
   end
 end
