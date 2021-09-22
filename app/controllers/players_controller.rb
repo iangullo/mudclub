@@ -39,6 +39,8 @@ class PlayersController < ApplicationController
 				format.html { redirect_to @player, notice: 'Ya existía este jugador.'}
 				format.json { render :show,  :created, location: @player }
 			else
+				@player.person.save
+				@player.person_id = @player.person.id
 				if @player.save
 					if @player.person.player_id != @player.id
 						@player.person.player_id = @player.id
