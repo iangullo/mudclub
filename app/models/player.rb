@@ -73,9 +73,9 @@ class Player < ApplicationRecord
 				j.person.female   = j.read_field(row[5], j.person.female, false)
 				j.active	  = j.read_field(row[6], j.active, false)
 				j.save
-				if j.person.player_id != j.id
-					j.person.player_id = j.id
-					j.person.save
+				if j.person_id != j.person.id
+					j.person_id = j.person.id
+					j.save
 				end
 			end
 		end

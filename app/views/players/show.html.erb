@@ -10,7 +10,6 @@
 		</tr><tr>
 			<td><%= @player.person.birthday %></td>
 		</tr><tr>
-			<td align="center"><%= @player.person.dni %></td>
 			<td># <%= @player.number %>&nbsp;-&nbsp;<%= @player.active ? "Activo" : "Inactivo" %></td>
 			<td align="right">
 				<%= link_to edit_player_path(@player), data: {"turbo-frame": "modal" } do %>

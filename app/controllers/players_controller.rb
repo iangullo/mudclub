@@ -9,7 +9,7 @@ class PlayersController < ApplicationController
 
 		respond_to do |format|
 			format.xlsx {
-				response.headers['Content-Disposition'] = "attachment; filename='players.xlsx'"
+				response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
 			}
 			format.html { render :index }
 		end
