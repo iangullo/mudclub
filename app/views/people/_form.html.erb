@@ -25,11 +25,9 @@
 			<td align="right"><strong>F.Nac.</strong></td>
 			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td><strong>DNI&nbsp;</strong><%= f.text_field :dni, size: 7, class: "rounded border shadow-inner" %></td>
+			<td><strong><%= f.label "Fem:" %>&nbsp;</strong><%= f.check_box :female %></td>
 			<td align="right"><strong>Apodo</strong></td>
 			<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td><strong><%= f.label "Fem:" %>&nbsp;</strong><%= f.check_box :female %></td>
 		</tr>
 	</table>
 	<%= render "shared/save" %>

@@ -19,23 +19,21 @@
 				<td rowspan="3" colspan="2" align="center">
 					<%= image_tag(@player.picture, :size => "100x100") %>
 				</td>
-				<th align="right">Nom.</th>
+				<td align="right"><strong>Nom.</strong></td>
 				<td colspan="2"><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<th align="right">Apel.</th>
+				<td align="right"><strong>Apel.</strong></td>
 				<td colspan="2"><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<th align="right">F.Nac.</th>
+				<td align="right"><strong>F.Nac.</strong></td>
 				<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year %></td>
 			</tr><tr>
-				<th align="center">DNI/NIE</th>
-				<td><%= f.text_field :dni, size: 8, class: "rounded border shadow-inner" %></td>
-				<th align="right">Apodo</th>
+				<td align="right"><strong>Fem.</strong><%= f.check_box :female %></td>
+				<td><strong>N&uacute;m.</strong><%= form.number_field :number, min: 0, max: 99, size: 2, class: "rounded border shadow-inner" %></td>
+				<td align="right"><strong>Apodo</strong></td>
 				<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<td align="right"><strong>Fem.&nbsp;</strong><%= f.check_box :female %></td>
-				<td><strong>N&uacute;m.&nbsp;</strong><%= form.number_field :number, min: 0, max: 99, size: 2, class: "rounded border shadow-inner" %></td>
-				<th align="right">Activo</th>
+				<td align="right"><strong>Activo</strong></td>
 				<td><%= form.check_box :active %></td>
 			</tr>
 		<% end %>
