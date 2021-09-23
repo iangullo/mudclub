@@ -4,7 +4,7 @@
 			<td>
 			</td>
 			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-				<%= image_tag "calendar.png", size: "50x50" %>&nbsp;Horarios&nbsp;
+				<%= image_tag "calendar.svg", size: "50x50" %>&nbsp;Horarios&nbsp;
 				<div id="search-slots" class="inline-flex text-gray-700 rounded border">
 					<%= form_with(url: '/training_slots', method: 'get', local: true) do |f| %>
 						<%= f.collection_select :location_id, Location.order(name: :desc), :id, :name, {selected: params[:location_id] ? params[:location_id].to_i : 0} %>
