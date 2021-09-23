@@ -53,12 +53,12 @@
 				<td>
 					<div class="rounded-lg border-4 border-green-800 hover:bg-green-200 mb-3">
 						<%= link_to people_path(format: :xlsx) do %>
-							<%= image_tag "export.png", width: 125 %>
+							<%= image_tag "export.svg", width: 125 %>
 						<% end %>
 					</div>
 				</td>
 			</tr><tr>
-				<td><%= image_tag "import.png", width: 125, class: "align-top" %></td>
+				<td><%= image_tag "import.svg", width: 125, class: "align-top" %></td>
 				<td>
 					<%= form_with url: import_people_path, local: true do |form| %>
 						<%= form.file_field :file %>
