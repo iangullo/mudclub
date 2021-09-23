@@ -8,7 +8,7 @@
 				<div id="search-slots" class="inline-flex text-gray-700 rounded border">
 					<%= form_with(url: '/training_slots', method: 'get', local: true) do |f| %>
 						<%= f.collection_select :location_id, Location.order(name: :desc), :id, :name, {selected: params[:location_id] ? params[:location_id].to_i : 0} %>
-						<%= image_submit_tag "search.png", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
+						<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
 					<% end %>
 				</div>
 			</th>
