@@ -3,7 +3,11 @@ Rails.application.routes.draw do
   resources :teams
   resources :drills
   resources :training_slots
-  resources :coaches
+  resources :coaches do
+    collection do
+      post :import
+    end
+  end
   resources :people do
     collection do
       post :import
