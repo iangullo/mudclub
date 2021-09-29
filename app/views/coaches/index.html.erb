@@ -6,7 +6,7 @@
 				<div id="search-people" class="inline-flex rounded border">
 					<%= form_with(url: '/coaches', method: 'get', local: true) do %>
 						<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
-						<%= image_submit_tag "search.png", height: 25, class: "search_button align-middle", alt: "Buscar" %>
+						<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
 					<% end %>
 				</div>
 			</th>
@@ -33,7 +33,7 @@
 					<tr>
 						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to coach.to_s, coach, data: {"turbo-frame": "modal" } %></td>
 						<td align="center" class="border px py"><%= coach.person.age %></td>
-						<td align="center" class="border px py"><%= coach.active ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
+						<td align="center" class="border px py"><%= coach.active ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
 						<td>
 							<%= link_to coach, method: :delete, data: { confirm: "¿Borrar '#{coach.to_s}'?" } do %>
 								<%= render "shared/delete" %>

@@ -7,7 +7,7 @@
 					<div id="search-people" class="inline-flex rounded border">
 						<%= form_with(url: '/players', method: 'get', local: true) do %>
 							<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
-							<%= image_submit_tag "search.png", height: 25, class: "search_button align-middle", alt: "Buscar" %>
+							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
 						<% end %>
 					</div>
 				</th>
@@ -37,7 +37,7 @@
 						<td align="center" class="border px py"><%= player.number %></td>
 						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to player.to_s, player, data: {"turbo-frame": "modal" } %></td>
 						<td align="center" class="border px py"><%= player.person.age %></td>
-						<td align="center" class="border px py"><%= player.active ? image_tag("Yes.png", :size => "30x25") : image_tag("No.png", :size => "30x25") %></td>
+						<td align="center" class="border px py"><%= player.active ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
 						<td>
 							<%= link_to player, method: :delete, data: { confirm: "¿Borrar '#{player.to_s}'?" } do %>
 								<%= render "shared/delete" %>
@@ -56,12 +56,12 @@
 				<td>
 					<div class="rounded-lg border-4 border-green-800 hover:bg-green-200 mb-3">
 						<%= link_to players_path(format: :xlsx) do %>
-							<%= image_tag "export.png", width: 125 %>
+							<%= image_tag "export.svg", width: 125 %>
 						<% end %>
 					</div>
 				</td>
 			</tr><tr>
-				<td><%= image_tag "import.png", width: 125, class: "align-top" %></td>
+				<td><%= image_tag "import.svg", width: 125, class: "align-top" %></td>
 				<td>
 					<%= form_with url: import_players_path, local: true do |form| %>
 						<%= form.file_field :file %>

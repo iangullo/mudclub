@@ -7,7 +7,7 @@
 					<div id="search-people" class="inline-flex rounded border">
 						<%= form_with(url: '/people', method: 'get', local: true) do %>
 							<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
-							<%= image_submit_tag "search.png", height: 25, class: "search_button align-middle", alt: "Buscar" %>
+							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
 						<% end %>
 					</div>
 				</th>
@@ -53,12 +53,12 @@
 				<td>
 					<div class="rounded-lg border-4 border-green-800 hover:bg-green-200 mb-3">
 						<%= link_to people_path(format: :xlsx) do %>
-							<%= image_tag "export.png", width: 125 %>
+							<%= image_tag "export.svg", width: 125 %>
 						<% end %>
 					</div>
 				</td>
 			</tr><tr>
-				<td><%= image_tag "import.png", width: 125, class: "align-top" %></td>
+				<td><%= image_tag "import.svg", width: 125, class: "align-top" %></td>
 				<td>
 					<%= form_with url: import_people_path, local: true do |form| %>
 						<%= form.file_field :file %>
