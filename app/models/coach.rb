@@ -51,4 +51,37 @@ class Coach < ApplicationRecord
       Coach.none
 		end
 	end
+
+	# to import from excel
+	def self.import(file)
+		xlsx = Roo::Excelx.new(file.tempfile)
+		xlsx.each_row_streaming(offset: 1, pad_cells: true) do |row|
+			if row.empty?	# stop parsing if row is empty
+				return
+			else
+				j = self.new(active: row[7].value)
+				j.build_person
+				j.person.name = row[2].value.to_s
+				j.person.surname = row[3].value.to_s
+				unless j.is_duplicate? # only if not a duplicate
+					if j.person.coach_id == nil # new person
+						j.person.coach_id  = 0
+						j.person.player_id = 0
+						j.person.save	# Save and link
+					end
+				end
+				j.person.dni      = j.read_field(row[0], j.person.dni, "S.DNI/NIE")
+				j.person.nick     = j.read_field(row[1], j.person.nick, "")
+				j.person.birthday = j.read_field(row[4], j.person.birthday, Date.today.to_s)
+				j.person.email		= j.read_field(row[5], j.person.email, "")
+				j.person.phone		= j.read_field(Phonelib.parse(row[6]).international.to_s, j.person.phone, "")
+				j.active	  			= j.read_field(row[7], j.active, false)
+				j.save
+				if j.person_id != j.person.id
+					j.person_id = j.person.id
+					j.save
+				end
+			end
+		end
+	end
 end

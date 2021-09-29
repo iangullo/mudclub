@@ -55,7 +55,7 @@
 			<tr>
 				<td>
 					<div class="rounded-lg border-4 border-green-800 hover:bg-green-200 mb-3">
-						<%= link_to players_path(format: :xlsx) do %>
+						<%= link_to coaches_path(format: :xlsx) do %>
 							<%= image_tag "export.svg", width: 125 %>
 						<% end %>
 					</div>
@@ -63,7 +63,7 @@
 			</tr><tr>
 				<td><%= image_tag "import.svg", width: 125, class: "align-top" %></td>
 				<td>
-					<%= form_with url: import_players_path, local: true do |form| %>
+					<%= form_with url: import_coaches_path, local: true do |form| %>
 						<%= form.file_field :file %>
 						<%= render "shared/save" %>
 					<% end %>

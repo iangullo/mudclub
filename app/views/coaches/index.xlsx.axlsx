@@ -1,0 +1,10 @@
+wb = xlsx_package.workbook
+
+wb.add_worksheet(name: "Coach") do |sheet|
+  # Create the header row
+  sheet.add_row ["DNI/NIE", "Apodo", "Nombre", "Apellidos", "F. Nacimiento", "e-mail", "Teléfono", "¿Activo?"]
+  # Create entries for each item
+  Coach.real.each do |coach|
+    sheet.add_row [coach.person.dni, coach.person.nick, coach.person.name, coach.person.surname, coach.person.birthday, coach.person.female, coach.person.email, coach.person.phone, coach.active]
+  end
+end

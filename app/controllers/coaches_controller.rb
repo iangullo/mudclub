@@ -6,6 +6,13 @@ class CoachesController < ApplicationController
 	# GET /coaches.json
 	def index
 		@coaches = Coach.search(params[:search])
+
+		respond_to do |format|
+			format.xlsx {
+				response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
+			}
+			format.html { render :index }
+		end
 	end
 
 	# GET /coaches/1
@@ -60,6 +67,14 @@ class CoachesController < ApplicationController
 				format.json { render json: @coach.errors, status: :unprocessable_entity }
 			end
 		end
+	end
+
+	# GET /coaches/import
+  # GET /coaches/import.json
+	def import
+		# added to import excel
+    Coach.import(params[:file])
+    redirect_to coaches_url
 	end
 
  	# DELETE /coaches/1
