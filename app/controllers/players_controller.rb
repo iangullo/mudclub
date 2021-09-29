@@ -116,7 +116,7 @@ class PlayersController < ApplicationController
 		@player.person[:surname] = p_data[:surname]
 		@player.person[:female] = p_data[:female]
 		@player.person[:email] = p_data[:email]
-		@player.person[:phone] = p_data[:phone]
+		@player.person[:phone] = Phonelib.parse(p_data[:phone]).international.to_s
 		@player.person[:coach_id] = 0
 		@player.person[:player_id] = 0
 		@player

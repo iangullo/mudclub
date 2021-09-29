@@ -73,7 +73,7 @@ class Player < ApplicationRecord
 				j.person.birthday = j.read_field(row[5], j.person.birthday, Date.today.to_s)
 				j.person.female   = j.read_field(row[6], j.person.female, false)
 				j.person.email		= j.read_field(row[7], j.person.email, "")
-				j.person.phone		= j.read_field(row[8], j.person.phone, "")
+				j.person.phone		= j.read_field(Phonelib.parse(row[8]).international.to_s, j.person.phone, "")
 				j.active	  			= j.read_field(row[9], j.active, false)
 				j.save
 				if j.person_id != j.person.id

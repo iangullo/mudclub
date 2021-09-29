@@ -64,7 +64,7 @@ class Person < ApplicationRecord
 				p.birthday = p.read_field(row[4], p.birthday, Date.today.to_s)
 				p.female   = p.read_field(row[5], p.female, false)
 				p.email		 = p.read_field(row[6], p.email, "")
-				p.phone		 = p.read_field(Phonelib.international(row[7]), p.phone, "")				
+				p.phone		 = p.read_field(Phonelib.parse(row[7]).international.to_s, p.phone, "")				
 				p.save
 			end
 		end
