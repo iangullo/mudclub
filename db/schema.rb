@@ -113,16 +113,18 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
   end
 
   create_table "people", force: :cascade do |t|
+    t.string "dni"
     t.string "nick"
     t.string "name"
     t.string "surname"
     t.date "birthday"
     t.boolean "female"
+    t.string "email"
+    t.string "phone"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "player_id", default: 0, null: false
     t.bigint "coach_id", default: 0, null: false
-    t.string "dni"
     t.index ["coach_id"], name: "index_people_on_coach_id"
     t.index ["player_id"], name: "index_people_on_player_id"
   end
