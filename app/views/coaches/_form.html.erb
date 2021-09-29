@@ -28,12 +28,12 @@
 				<td align="right"><strong>F.Nac.</strong></td>
 				<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %>
 			</tr><tr>
-				<td align="right">
-					<strong>Activo&nbsp;</strong>
-					<%= form.check_box :active %>
-				</td>
+				<td><strong>DNI&nbsp;</strong><%= f.text_field :dni, size: 7, class: "rounded border shadow-inner" %></td>
 				<td align="right"><strong>Apodo</strong></td>
 				<td><%= f.text_field :nick, size: 8 %></td>
+			</tr><tr>
+				<td colspan="2" align="right"><strong>Activo</strong></td>
+				<td><%= form.check_box :active %></td>
 			</tr>
 		<% end %>
 	</table>

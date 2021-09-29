@@ -10,7 +10,8 @@
 		</tr><tr>
 			<td><%= @person.birthday %></td>
 		</tr><tr>
-			<td>
+			<td style="text-align:center"><%= @person.dni %></td>
+			<td>				
 				<%= @person.player_id>0 ? "Jug." : "" %>
 				<% if @person.coach_id>0 %>
 					<%= @person.player_id>0 ? "/" : "" %>

@@ -80,9 +80,13 @@ class CoachesController < ApplicationController
 		@coach.build_person
 		@coach.active = true
 		p_data= params.fetch(:coach).fetch(:person_attributes)
+		@coach.person[:dni] = p_data[:dni]
 		@coach.person[:nick] = p_data[:nick]
 		@coach.person[:name] = p_data[:name]
 		@coach.person[:surname] = p_data[:surname]
+		@coach.person[:female] = p_data[:female]
+		@coach.person[:email] = p_data[:email]
+		@coach.person[:phone] = p_data[:phone]
 		@coach.person[:coach_id] = 0
 		@coach.person[:player_id] = 0
 		@coach
@@ -115,7 +119,7 @@ class CoachesController < ApplicationController
 
 	# Never trust parameters from the scary internet, only allow the white list through.
 	def coach_params
-		params.require(:coach).permit(:id, :active, :avatar, :teams, person_attributes: [:id, :nick, :name, :surname, :birthday])
+		params.require(:coach).permit(:id, :active, :avatar, :teams, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :email, :phone])
 	end
 
 	# De-couple from associated person

@@ -99,7 +99,7 @@ class PlayersController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def player_params
-			params.require(:player).permit(:id, :number, :active, :avatar, person_attributes: [:id, :nick, :name, :surname, :birthday, :female, :player_id], teams_attributes: [:id, :_destroy])
+			params.require(:player).permit(:id, :number, :active, :avatar, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :player_id], teams_attributes: [:id, :_destroy])
 		end
 
 	# build new @player from raw input given by submittal from "new"
@@ -110,9 +110,13 @@ class PlayersController < ApplicationController
 		@player.active = true
 		@player.number = params.fetch(:player)[:number]
 		p_data= params.fetch(:player).fetch(:person_attributes)
+		@player.person[:dni] = p_data[:dni]
 		@player.person[:nick] = p_data[:nick]
 		@player.person[:name] = p_data[:name]
 		@player.person[:surname] = p_data[:surname]
+		@player.person[:female] = p_data[:female]
+		@player.person[:email] = p_data[:email]
+		@player.person[:phone] = p_data[:phone]
 		@player.person[:coach_id] = 0
 		@player.person[:player_id] = 0
 		@player

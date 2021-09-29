@@ -54,14 +54,17 @@ class Person < ApplicationRecord
 			if row.empty?	# stop parsing if row is empty
 				return
 			else
-				p = self.new(name: row[1].value.to_s, surname: row[2].value.to_s)
+				p = self.new(name: row[2].value.to_s, surname: row[3].value.to_s)
 				unless p.exists?
 					p.player_id = 0
 					p.coach_id = 0
 				end
-				p.nick     = p.read_field(row[0], p.nick, "")
-				p.birthday = p.read_field(row[3], p.birthday, Date.today.to_s)
-				p.female   = p.read_field(row[4], p.female, false)
+				p.dni      = p.read_field(row[0], p.dni, "S.DNI/NIE")
+				p.nick     = p.read_field(row[1], p.nick, "")
+				p.birthday = p.read_field(row[4], p.birthday, Date.today.to_s)
+				p.female   = p.read_field(row[5], p.female, false)
+				p.email		 = p.read_field(row[6], p.email, "")
+				p.phone		 = p.read_field(Phonelib.international(row[7]), p.phone, "")				
 				p.save
 			end
 		end

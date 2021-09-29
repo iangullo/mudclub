@@ -60,3 +60,6 @@ gem "turbo-rails", "~> 0.7.11"
 gem 'roo'
 gem 'caxlsx'
 gem 'caxlsx_rails'
+
+# Added to manage phone numbers
+gem 'phonelib'
