@@ -57,7 +57,7 @@ class Player < ApplicationRecord
 			if row.empty?	# stop parsing if row is empty
 				return
 			else
-				j = self.new(number: row[0].value.to_s, active: row[9].value)
+				j = self.new(number: row[1].value.to_s, active: row[9].value)
 				j.build_person
 				j.person.name = row[3].value.to_s
 				j.person.surname = row[4].value.to_s
@@ -68,7 +68,7 @@ class Player < ApplicationRecord
 						j.person.save	# Save and link
 					end
 				end
-				j.person.dni      = j.read_field(row[1], j.person.dni, "S.DNI/NIE")
+				j.person.dni      = j.read_field(row[0], j.person.dni, "S.DNI/NIE")
 				j.person.nick     = j.read_field(row[2], j.person.nick, "")
 				j.person.birthday = j.read_field(row[5], j.person.birthday, Date.today.to_s)
 				j.person.female   = j.read_field(row[6], j.person.female, false)
