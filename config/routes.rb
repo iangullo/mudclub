@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  root to: "teams#index"
+  devise_for :users
+  get 'home/index'
+  root to: "home#index"
   resources :teams
   resources :drills
   resources :training_slots

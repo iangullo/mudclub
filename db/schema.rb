@@ -10,10 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_08_130941) do
+ActiveRecord::Schema.define(version: 2021_10_07_141917) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "unaccent"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
@@ -125,8 +126,10 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "player_id", default: 0, null: false
     t.bigint "coach_id", default: 0, null: false
+    t.bigint "user_id", default: 0, null: false
     t.index ["coach_id"], name: "index_people_on_coach_id"
     t.index ["player_id"], name: "index_people_on_player_id"
+    t.index ["user_id"], name: "index_people_on_user_id"
   end
 
   create_table "players", force: :cascade do |t|
@@ -183,6 +186,20 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
     t.index ["team_id"], name: "index_training_slots_on_team_id"
   end
 
+  create_table "users", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.bigint "person_id", default: 0, null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["person_id"], name: "index_users_on_person_id"
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "coaches", "people"
@@ -190,6 +207,7 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
   add_foreign_key "drills", "kinds"
   add_foreign_key "people", "coaches"
   add_foreign_key "people", "players"
+  add_foreign_key "people", "users"
   add_foreign_key "players", "people"
   add_foreign_key "teams", "categories"
   add_foreign_key "teams", "divisions"
@@ -198,4 +216,5 @@ ActiveRecord::Schema.define(version: 2021_09_08_130941) do
   add_foreign_key "training_slots", "locations"
   add_foreign_key "training_slots", "seasons"
   add_foreign_key "training_slots", "teams"
+  add_foreign_key "users", "people"
 end

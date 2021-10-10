@@ -1,0 +1,43 @@
+<h2>Editar <%= resource_name.to_s.humanize %></h2>
+
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+  <%= render "devise/shared/error_messages", resource: resource %>
+
+  <div class="field">
+    <%= f.label :email %><br />
+    <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "rounded border shadow-inner" %>
+  </div>
+
+  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+    <div>Esperando confirmación de: <%= resource.unconfirmed_email %></div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :password %> <i>(dejar en blanco si no quiere cambiarla)</i><br />
+    <%= f.password_field :password, autocomplete: "contraseña-nueva", class: "rounded border shadow-inner" %>
+    <% if @minimum_password_length %>
+      <br />
+      <em>al menos <%= @minimum_password_length %> caracteres</em>
+    <% end %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password_confirmation %><br />
+    <%= f.password_field :password_confirmation, autocomplete: "nueva-contraseña", class: "rounded border shadow-inner" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :current_password %> <i>(Contraseña actual para confirmar cambios)</i><br />
+    <%= f.password_field :current_password, autocomplete: "contraseña-actual", class: "rounded border shadow-inner" %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "Actualizar", class: "rounded text-white bg-blue-900 hover:bg-blue-700" %>
+  </div>
+<% end %>
+
+<h3>Cancelar</h3>
+
+<p>¿Aburrido? <%= button_to "Cancelar cuenta", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete %></p>
+
+<%= link_to "Volver", :back %>

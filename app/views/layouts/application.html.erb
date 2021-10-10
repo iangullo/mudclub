@@ -90,7 +90,12 @@
                   </div>
                 </div>
                 <div data-dropdown-target="menu" class="absolute right-0 mt-2 hidden">
-                  <div class="bg-white shadow rounded border overflow-hidden">
+                  <div class="bg-blue-900 shadow rounded border overflow-hidden">
+                    <% if user_signed_in? %>
+                      <%= link_to 'Salir', destroy_user_session_path,  method: :delete, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                    <% else %>
+                      <%= link_to 'Entrar', new_user_session_path, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                    <% end %>
                   </div>
                 </div>
               </div>

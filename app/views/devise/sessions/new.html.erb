@@ -1,0 +1,34 @@
+<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+  <table>
+    <tr>
+      <td rowspan="3" align="center">
+        <%= image_tag("user.svg", :size => "50x50") %>
+      </td>
+    </tr><tr>
+      <td colspan="2" align="center" class="bg-blue-900 text-gray-300"><strong>Abrir Sesi&oacute;n</strong></td>
+    </tr><tr>
+      <div class="field">
+        <td align="right"><strong><%= f.label :email %></strong></td>
+        <td><%= f.email_field :email, autofocus: true, autocomplete: "email", class: "rounded border shadow-inner" %></td>
+      </div>
+    </tr><tr>
+      <div class="field">
+        <td colspan="2" align="right"><strong><%= f.label :password %></strong></td>
+        <td><%= f.password_field :password, autocomplete: "current-password", class: "rounded border shadow-inner" %></td>
+      </div>
+    </tr>
+    <% if devise_mapping.rememberable? %>
+      <tr>
+        <div class="field">
+          <td colspan="2" align="right"><strong><%= f.label :remember_me %></strong></td>
+          <td><%= f.check_box :remember_me %></td>
+        </div>
+      </tr>
+    <% end %>
+  </table>
+
+  <div class="actions">
+    <%= f.submit "Entrar", class: "rounded text-white bg-blue-900 hover:bg-blue-700" %>
+  </div>
+  <%= render "devise/shared/links" %>
+<% end %>

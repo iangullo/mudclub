@@ -1,0 +1,26 @@
+<div id="home-index">
+  <table>
+    <% if current_user.present? %>
+      <tr>
+        <td rowspan="2" align="center">
+          <%= image_tag(current_user.picture, :size => "50x50") %>
+        </td>
+        <td><strong><%= current_user.name %></strong></td>
+      </tr><tr>
+        <td><%= current_user.email %></td>
+      </tr><tr>
+        <td align="right">
+  				<%= link_to "devise/registrations/edit" do %>
+  					<%= render "shared/edit" %>
+  				<% end %>
+  			</td>
+      </tr>
+    <% else %>
+      <tr>
+        <td align="center">
+          <%= image_tag("clublogo-name.png") %>
+        </td>
+      <tr>
+    <% end %>
+  </table>
+</div>

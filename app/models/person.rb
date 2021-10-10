@@ -1,8 +1,10 @@
 class Person < ApplicationRecord
 	belongs_to :coach
 	belongs_to :player
+	belongs_to :user
 	accepts_nested_attributes_for :player
 	accepts_nested_attributes_for :coach
+	accepts_nested_attributes_for :user
 	validates :name, :surname, presence: true
 	scope :real, -> { where("id>0") }
 	before_save { self.nick = self.nick ? self.nick.mb_chars.titleize : ""}
