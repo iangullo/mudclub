@@ -51,7 +51,7 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        format.html { redirect_to people_url, notice: 'Persona #{@person.to_s} actualizada.' }
+        format.html { redirect_to people_url, notice: "Persona actualizada." }
 				format.json { render :index, status: :created, location: people_url }
       else
         format.html { render :edit }

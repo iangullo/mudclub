@@ -20,7 +20,7 @@
 			<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<td align="right"><strong>Apel.</strong></td>
-			<td><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
+			<td><%= f.text_field :surname, size: 18, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<td align="right"><strong>F.Nac.</strong></td>
 			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
@@ -30,6 +30,11 @@
 			<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<td><strong><%= f.label "Fem:" %>&nbsp;</strong><%= f.check_box :female %></td>
+			<td align="right"><strong>e-mail</strong></td>
+			<td><%= f.text_field :email, size: 18, class: "rounded border shadow-inner" %></td>
+		</tr><tr>
+			<td colspan="2" align="right"><strong>Tel.</strong></td>
+			<td><%= f.text_field :phone, size: 10, class: "rounded border shadow-inner" %></td>
 		</tr>
 	</table>
 	<%= render "shared/save" %>

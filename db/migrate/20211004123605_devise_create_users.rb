@@ -43,5 +43,9 @@ class DeviseCreateUsers < ActiveRecord::Migration[6.1]
     add_index :users, :reset_password_token, unique: true
     # add_index :users, :confirmation_token,   unique: true
     # add_index :users, :unlock_token,         unique: true
-    ActiveRecord::Base.connection.execute("INSERT INTO users (id, email, person_id, created_at, updated_at) values (0,'admin@cbmairena.mooo.com',0,'2021-09-13 08:12','2021-09-13 08:12')")  end
+
+    # additional data to link well in bclub database
+    # fake user_id (0)
+    ActiveRecord::Base.connection.execute("INSERT INTO users (id, email, person_id, created_at, updated_at) values (0,'admin@cbmairena.mooo.com',0,'2021-09-13 08:12','2021-09-13 08:12')")
+  end
 end

@@ -82,16 +82,19 @@
               <div class="relative" data-controller="dropdown">
                 <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="3" class="inline-block select-none">
                   <div class="flex-shrink-0 flex items-center">
-                    <% #if current_user %>
-                      <% #= image_tag avatar_url_for(current_user), class: "rounded-full h-8 w-8 align-middle" %>
-                    <% #else %>
-                      <%= image_tag "user.svg", class: "rounded-full h-8 w-8 align-middle" %>
-                    <% #end %>
+                    <%if current_user.present? %>
+                      <%= image_tag current_user.picture, class: "rounded-full h-8 w-8 align-middle" %>
+                    <% else %>
+                      <%= link_to new_user_session_path do %>
+                        <%= image_tag("login.svg", class: "login_button rounded hover:bg-blue-700 max-h-8 min-h-6", alt: "Entrar") %>
+                      <% end %>
+                    <% end %>
                   </div>
                 </div>
                 <div data-dropdown-target="menu" class="absolute right-0 mt-2 hidden">
                   <div class="bg-blue-900 shadow rounded border overflow-hidden">
                     <% if user_signed_in? %>
+                      <%= link_to 'Perfil', '/home/index', class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                       <%= link_to 'Salir', destroy_user_session_path,  method: :delete, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                     <% else %>
                       <%= link_to 'Entrar', new_user_session_path, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>

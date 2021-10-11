@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   has_one :person
   has_one_attached :avatar
+  scope :real, -> { where("id>0") }
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -24,5 +25,16 @@ class User < ApplicationRecord
 
   def is_coach?
     self.person.coach_id > 0
+  end
+
+  # get teams assocaited to this user
+  def teams
+    if self.is_coach?
+      Team.joins(:coaches).where(coaches: { id: [self.person.coach_id] })
+    elsif self.is_player?
+      Team.joins(:players).where(players: { id: [self.person.player_id] })
+    else
+      nil
+    end
   end
 end
