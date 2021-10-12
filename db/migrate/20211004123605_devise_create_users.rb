@@ -9,7 +9,7 @@ class DeviseCreateUsers < ActiveRecord::Migration[6.1]
 
       # associated person
       t.references :person, null: false, foreign_key: true, default: 0
-      t.boolean :admin, default: false
+      t.integer :role, default: 0
 
       ## Recoverable
       t.string   :reset_password_token
