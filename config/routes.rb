@@ -1,10 +1,8 @@
 Rails.application.routes.draw do
-  devise_for :users
-  scope "/admin" do
-    resources :users
-  end
-  get 'home/index'
   root to: "home#index"
+  get 'home/index'
+  devise_for :users
+  resources :users
   resources :teams
   resources :drills
   resources :training_slots

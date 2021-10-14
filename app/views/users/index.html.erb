@@ -34,7 +34,7 @@
 			<tbody>
 				<% @users.each do |user| %>
 					<tr>
-						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to user.to_s, user, data: {"turbo-frame": "modal" } %></td>
+						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to user.s_name, user, data: {"turbo-frame": "modal" } %></td>
 						<td align="center" class="border px py"><%= user.is_player? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
 						<td align="center" class="border px py"><%= user.is_coach? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
 						<td align="center" class="border px py"><%= user.admin? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
@@ -46,31 +46,6 @@
 					</tr>
 				<% end %>
 			</tbody>
-		</table>
-	</div>
-	<br>
-
-	<div id="import-export">
-		<table>
-			<tr>
-<!-- COMMENTING OUT EXPORT TILL WE HAVE RBAC
-				<td>
-					<div class="rounded-lg border-4 border-green-800 hover:bg-green-200 mb-3">
-						< %= link_to users_path(format: :xlsx) do %>
-							< %= image_tag "export.svg", class: "align-top max-h-7 min-h-5" %>
-						< % end %>
-					</div>
-				</td>
-			</tr><tr>
--->
-				<td><%= image_tag "import.svg", class: "align-top max-h-7 min-h-5" %></td>
-				<td>
-					<%= form_with url: import_users_path, local: true do |form| %>
-						<%= form.file_field :file %>
-						<%= render "shared/save" %>
-					<% end %>
-				</td>
-			</tr>
 		</table>
 	</div>
 </div>

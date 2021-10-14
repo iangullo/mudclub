@@ -1,7 +1,8 @@
+
 class UsersController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
-      @users = User.search(params[:search])
+      @users = User.real # User.search(params[:search])
     else
       redirect_to "/"
     end
@@ -21,7 +22,7 @@ class UsersController < ApplicationController
       respond_to do |format|
   			@user = rebuild_user(params)	# rebuild user
   			if @user.is_duplicate? then
-  				format.html { redirect_to @user, notice: 'Ya existía este jugador.'}
+  				format.html { redirect_to @user, notice: 'Ya existía este usuario.'}
   				format.json { render :show,  :created, location: @user }
   			else
   				@user.person.save
@@ -31,7 +32,7 @@ class UsersController < ApplicationController
   						@user.person.user_id = @user.id
   						@user.person.save
   					end
-  					format.html { redirect_to users_url, notice: 'Jugador creado.' }
+  					format.html { redirect_to users_url, notice: 'Usuario creado.' }
   					format.json { render :index, status: :created, location: users_url }
   				else
   					format.html { render :new }
@@ -45,13 +46,18 @@ class UsersController < ApplicationController
   end
 
   def show
-    unless current_user.present? and current_user.admin?
+    if current_user.present? and current_user.admin?
+      @user = User.find(params[:id])
+    else
       redirect_to "/"
     end
   end
 
   def edit
-    unless current_user.present? and current_user.admin?
+    if current_user.present? and current_user.admin?
+      @roles = user_roles
+      @user = User.find(params[:id])
+    else
       redirect_to "/"
     end
   end
@@ -63,8 +69,9 @@ class UsersController < ApplicationController
           params[:user].delete(:password)
           params[:user].delete(:password_confirmation)
         end
+        @user = rebuild_user(params)	# rebuild user
   			if @user.update(user_params)
-  				format.html { redirect_to users_url, notice: 'Jugador actualizado.' }
+  				format.html { redirect_to users_url, notice: 'Usario actualizado.' }
   				format.json { render :index, status: :ok, location: users_url }
   			else
   				format.html { render :edit }
@@ -81,7 +88,7 @@ class UsersController < ApplicationController
       unlink_person
   		@user.destroy
   		respond_to do |format|
-  			format.html { redirect_to users_url, notice: 'Jugador borrado.' }
+  			format.html { redirect_to users_url, notice: 'Usuario borrado.' }
   			format.json { head :no_content }
   		end
     else
@@ -97,7 +104,7 @@ class UsersController < ApplicationController
 
 	# Never trust parameters from the scary internet, only allow the white list through.
 	def user_params
-		params.require(:user).permit(:id, :number, :active, :avatar, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :user_id], teams_attributes: [:id, :_destroy])
+		params.require(:user).permit(:id, :email, :role, :password, :password_confirmation, :avatar, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :user_id], teams_attributes: [:id, :_destroy])
 	end
 
 	# build new @user from raw input given by submittal from "new"
@@ -105,16 +112,17 @@ class UsersController < ApplicationController
 	def rebuild_user(params)
 		@user = User.new(user_params)
 		@user.build_person
-		@user.active = true
-		@user.number = params.fetch(:user)[:number]
+		@user.role = params.fetch(:user)[:role]
 		p_data= params.fetch(:user).fetch(:person_attributes)
 		@user.person[:dni] = p_data[:dni]
 		@user.person[:nick] = p_data[:nick]
 		@user.person[:name] = p_data[:name]
 		@user.person[:surname] = p_data[:surname]
 		@user.person[:female] = p_data[:female]
+    @user.email = p_data[:email]
 		@user.person[:email] = p_data[:email]
 		@user.person[:phone] = Phonelib.parse(p_data[:phone]).international.to_s
+    @user.person[:player_id] = 0
 		@user.person[:coach_id] = 0
 		@user.person[:user_id] = 0
 		@user
@@ -129,4 +137,12 @@ class UsersController < ApplicationController
 			@user.person_id = 0    # map to empty person
     end
 	end
+
+  def user_roles
+    roles = Array.new
+    roles << {name: "Usuario", id: 0}
+    roles << {name: "Jugador", id: 1}
+    roles << {name: "Entrenador", id: 2}
+    roles << {name: "Admin.", id: 3}
+  end
 end

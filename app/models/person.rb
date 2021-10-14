@@ -25,7 +25,7 @@ class Person < ApplicationRecord
 	# returns: reloads self if it exists in the database already
 	# 	   'nil' if it needs to be created.
 	def exists?
-		p = Person.where(name: self.name, surname: self.surname).first
+		p = Person.where(dni: self.dni).or(Person.where(name: self.name, surname: self.surname)).first
 		if p
 			self.id = p.id
 			self.reload

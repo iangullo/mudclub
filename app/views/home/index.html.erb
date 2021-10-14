@@ -5,7 +5,7 @@
         <td align="center">
           <%= image_tag(current_user.picture, :size => "50x50") %>
         </td>
-        <td><strong><%= current_user.name %></strong></td>
+        <td><strong><%= current_user.s_name %></strong></td>
         <td align="right">
           <%= link_to edit_person_path(current_user.person), data: {"turbo-frame": "modal" } do %>
   					<%= render "shared/edit" %>

@@ -1,11 +1,11 @@
-<%= form_with model: @coach, remote: true do |form| %>
-	<% if @coach.errors.any? %>
+<%= form_for @user, remote: true, authenticity_token: true do |form| %>
+	<% if @user.errors.any? %>
 		<div class="p-4 border border-red-600" data-extended-modal-target="errors">
 			<h2>
-				No se pudo guardar el entrenador
+				No se pudo guardar el usuario
 			</h2>
 			<ul>
-				<% @coach.errors.full_messages.each do |message| %>
+				<% @user.errors.full_messages.each do |message| %>
 					<li><%= message %></li>
 				<% end %>
 			</ul>
@@ -17,13 +17,13 @@
 				<td colspan="4"><strong>Foto:</strong><%= form.file_field :avatar, direct_upload: true %></td>
 			</tr><tr>
 				<td rowspan="3" align="center">
-					<%= image_tag("coach.png", :size => "100x100") %>
+					<%= image_tag(@user.picture, :size => "100x100") %>
 				</td>
-				<td align="right"><strong>Nom:</strong></td>
-				<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
+				<td align="right"><strong>Nom.</strong></td>
+				<td colspan="2"><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<td align="right"><strong>Apel:</strong></td>
-				<td><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
+				<td align="right"><strong>Apel.</strong></td>
+				<td colspan="2"><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
 				<td align="right"><strong><%= image_tag "calendar.svg", size: "25x25", alt: "Nac:"  %></strong></td>
 				<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %>
@@ -32,7 +32,7 @@
 				<td align="right"><strong><%= image_tag "user.svg", size: "25x25", alt: "Nick:"  %></strong></td>
 				<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<td align="right"><strong>Activo</strong><%= form.check_box :active %></td>
+				<td><strong>Papel:</strong><%= form.select :role, User.roles.keys.map {|role| [role.titleize,role]}, {selected: @user.role} %></td>
 				<td align="right"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
 				<td><%= f.text_field :email, size: 22, class: "rounded border shadow-inner" %></td>
 			</tr><tr>

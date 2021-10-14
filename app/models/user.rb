@@ -4,24 +4,43 @@ class User < ApplicationRecord
   scope :real, -> { where("id>0") }
   enum role: [:user, :player, :coach, :admin]
   after_initialize :set_default_role, :if => :new_record?
+  accepts_nested_attributes_for :person, update_only: true
   self.inheritance_column = "not_sti"
+
+  # Include default devise modules. Others available are:
+  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  devise :database_authenticatable, :recoverable, :rememberable, :validatable
 
 	# Just list person's full name
 	def to_s
 		person ? person.to_s : "Nuevo"
 	end
 
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :recoverable, :rememberable, :validatable
+  #short name for form viewing
+	def s_name
+		if self.person
+			if self.person.nick
+				self.person.nick.length >  0 ? self.person.nick : self.person.name
+			else
+				self.person.name
+			end
+		else
+			"Nuevo"
+		end
+	end
 
-  def name
-    if self.person.nick and self.person.nick.length > 0
-      self.person.nick
-    else
-      self.person.name
-    end
-  end
+  # checks if it exists in the collection before adding it
+	# returns: reloads self if it exists in the database already
+	# 	   'nil' if it needs to be created.
+	def exists?
+		p = User.where(email: self.email).first
+		if p
+			self.id = p.id
+			self.reload
+		else
+			nil
+		end
+	end
 
 	# check if associated person exists in database already
 	# reloads person if it does
@@ -45,9 +64,9 @@ class User < ApplicationRecord
   #Search field matching
 	def self.search(search)
 		if search
-      search.length>0 ? User.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday)) : User.where(person_id: Person.real.order(:birthday))
+      search.length>0 ? User.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"])) : User.where(person_id: Person.real)
 		else
-      User.none
+      User.real
 		end
 	end
 

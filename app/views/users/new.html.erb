@@ -1,0 +1,30 @@
+<% if current_user.admin? %>
+	<%= render "shared/modal" do %>
+		<%= form_for @user, remote: true do |form| %>
+			<%= form.fields_for :person do |f| %>
+				<table>
+					<tr>
+			      <td colspan="4" align="center" class="text-blue-900"><strong>Crear usuario</strong></td>
+			    </tr><tr>
+			      <td rowspan="4" align="center" class="align-center">
+			        <%= image_tag("user.svg", :size => "50x50") %>
+			      </td>
+			    </tr><tr>
+			      <td align="right"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
+			      <td colspan="2"><%= f.email_field :email, autofocus: true, autocomplete: "email", class: "rounded border shadow-inner" %></td>
+			    </tr><tr>
+			      <td align="right"><%= image_tag "key.svg", size: "25x25", alt: "Clave"  %></td>
+			      <td colspan="2"><%= f.password_field :password, autocomplete: "current-password", class: "rounded border shadow-inner" %></td>
+					</tr><tr>
+			      <td align="right"><%= image_tag "key.svg", size: "25x25", alt: "Confirmar clave"  %></td>
+			      <td colspan="2"><%= f.password_field :password_confirmation, autocomplete: "current-password", class: "rounded border shadow-inner" %></td>
+					</tr><tr>
+						<td colspan="2"></td>
+						<td class="text-sm">(*) confirmar clave</td>
+			    </tr>
+				</table>
+			<% end %>
+			<%= render "shared/save" %>
+		<% end %>
+	<% end %>
+<% end %>

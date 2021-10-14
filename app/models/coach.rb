@@ -13,6 +13,7 @@ class Coach < ApplicationRecord
 		self.person ? self.person.to_s : "Nuevo"
 	end
 
+	#short name for form viewing
 	def s_name
 		if self.person
 			if self.person.nick
