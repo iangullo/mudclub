@@ -1,34 +1,31 @@
 <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
   <table>
     <tr>
-      <td rowspan="3" align="center">
+      <td colspan="4">&nbsp;</td>
+    </tr><tr>
+      <td colspan="4" align="center" class="text-blue-900"><strong>Abrir Sesi&oacute;n</strong></td>
+    </tr><tr>
+      <td rowspan="3" align="center" class="align-center">
         <%= image_tag("user.svg", :size => "50x50") %>
       </td>
     </tr><tr>
-      <td colspan="2" align="center" class="text-blue-900"><strong>Abrir Sesi&oacute;n</strong></td>
+      <td align="right"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
+      <td colspan="2"><%= f.email_field :email, autofocus: true, autocomplete: "email", class: "rounded border shadow-inner" %></td>
     </tr><tr>
-      <div class="field">
-        <td align="right"><strong><%= f.label :email %></strong></td>
-        <td><%= f.email_field :email, autofocus: true, autocomplete: "email", class: "rounded border shadow-inner" %></td>
-      </div>
+      <td align="right"><%= image_tag "key.svg", size: "25x25", alt: "Clave"  %></td>
+      <td colspan="2"><%= f.password_field :password, autocomplete: "current-password", class: "rounded border shadow-inner" %></td>
     </tr><tr>
-      <div class="field">
-        <td colspan="2" align="right"><strong><%= f.label :password %></strong></td>
-        <td><%= f.password_field :password, autocomplete: "current-password", class: "rounded border shadow-inner" %></td>
-      </div>
+      <td colspan="2"></td>
+      <td>
+        <% if devise_mapping.rememberable? %>
+          <strong>Recordar&nbsp;</strong><%= f.check_box :remember_me %>
+        <% end %>
+      </td>
+      <td align="right"><%= f.submit "Entrar", class: "rounded text-white bg-blue-900 hover:bg-blue-700" %>
+    </tr><tr>
+      <td colspan="2"></td>
+      <td><%= render "devise/shared/links" %></td>
     </tr>
-    <% if devise_mapping.rememberable? %>
-      <tr>
-        <div class="field">
-          <td colspan="2" align="right"><strong><%= f.label :remember_me %></strong></td>
-          <td><%= f.check_box :remember_me %></td>
-        </div>
-      </tr>
-    <% end %>
   </table>
 
-  <div class="actions">
-    <%= f.submit "Entrar", class: "rounded text-white bg-blue-900 hover:bg-blue-700" %>
-  </div>
-  <%= render "devise/shared/links" %>
 <% end %>
