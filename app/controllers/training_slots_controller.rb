@@ -3,17 +3,28 @@ class TrainingSlotsController < ApplicationController
 
   # GET /training_slots or /training_slots.json
   def index
-    @training_slots = TrainingSlot.search(params[:location_id])
+    if current_user.present?
+      @training_slots = TrainingSlot.search(params[:location_id])
+    else
+      redirect_to "/"
+    end
   end
 
   # GET /training_slots/1 or /training_slots/1.json
   def show
+    unless current_user.present?
+      redirect_to "/"
+    end
   end
 
   # GET /training_slots/new
   def new
-    @training_slot = TrainingSlot.new(season_id: 1, location_id: 1, wday: 1, start: Time.new(2000,1,1,16,00), duration: 90, team_id: 0)
-		@weekdays = weekdays
+    if current_user.present? and current_user.admin?
+      @training_slot = TrainingSlot.new(season_id: 1, location_id: 1, wday: 1, start: Time.new(2000,1,1,16,00), duration: 90, team_id: 0)
+  		@weekdays = weekdays
+    else
+      redirect_to(current_user.present? ? training_slots_url : "/")
+    end
   end
 
   # GET /training_slots/1/edit
@@ -23,40 +34,52 @@ class TrainingSlotsController < ApplicationController
 
   # POST /training_slots or /training_slots.json
   def create
-    @training_slot = TrainingSlot.new(season_id: 1, location_id: 1, wday: 1, start: Time.new(2000,1,1,16,00), duration: 90, team_id: 0)
+    if current_user.present? and current_user.admin?
+      @training_slot = TrainingSlot.new(season_id: 1, location_id: 1, wday: 1, start: Time.new(2000,1,1,16,00), duration: 90, team_id: 0)
 
-    respond_to do |format|
-			rebuild_training_slot(params)	# rebuild training_slot
-      if @training_slot.save
-        format.html { redirect_to training_slots_url, notice: "Horario creado." }
-        format.json { render :index, status: :created, location: @training_slot }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @training_slot.errors, status: :unprocessable_entity }
+      respond_to do |format|
+  			rebuild_training_slot(params)	# rebuild training_slot
+        if @training_slot.save
+          format.html { redirect_to training_slots_url, notice: "Horario creado." }
+          format.json { render :index, status: :created, location: @training_slot }
+        else
+          format.html { render :new, status: :unprocessable_entity }
+          format.json { render json: @training_slot.errors, status: :unprocessable_entity }
+        end
       end
+    else
+      redirect_to(current_user.present? ? training_slots_url : "/")
     end
   end
 
   # PATCH/PUT /training_slots/1 or /training_slots/1.json
   def update
-    respond_to do |format|
-			rebuild_training_slot(params)
-      if @training_slot.update(training_slot_params)
-      format.html { redirect_to training_slots_url, notice: "Horario actualizado." }
-        format.json { render :index, status: :ok, location: @training_slot }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @training_slot.errors, status: :unprocessable_entity }
+    if current_user.present? and current_user.admin?
+      respond_to do |format|
+  			rebuild_training_slot(params)
+        if @training_slot.update(training_slot_params)
+        format.html { redirect_to training_slots_url, notice: "Horario actualizado." }
+          format.json { render :index, status: :ok, location: @training_slot }
+        else
+          format.html { render :edit, status: :unprocessable_entity }
+          format.json { render json: @training_slot.errors, status: :unprocessable_entity }
+        end
       end
+    else
+      redirect_to(current_user.present? ? training_slots_url : "/")
     end
   end
 
   # DELETE /training_slots/1 or /training_slots/1.json
   def destroy
-    @training_slot.destroy
-    respond_to do |format|
-      format.html { redirect_to training_slots_url, notice: "Training slot was successfully destroyed." }
-      format.json { head :no_content }
+    if current_user.present? and current_user.admin?
+      @training_slot.destroy
+      respond_to do |format|
+        format.html { redirect_to training_slots_url, notice: "Training slot was successfully destroyed." }
+        format.json { head :no_content }
+      end
+    else
+      redirect_to(current_user.present? ? training_slots_url : "/")
     end
   end
 

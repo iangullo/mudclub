@@ -36,11 +36,13 @@
 						<td class="border px py"><%= drill.kind.name %></td>
 						<td class="border px py"><%= drill.description %></td>
 						<td class="border px py"><%= drill.print_skills %></td>
+						<% if current_user.admin? %>
 						<td>
 							<%= link_to drill, method: :delete, data: { confirm: "¿Borrar '#{drill.name}'" } do %>
 								<%= render "shared/delete" %>
 							<% end %>
 						</td>
+						<% end %>
 					</tr>
 				<% end %>
 			</tbody>

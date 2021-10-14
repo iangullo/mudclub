@@ -42,8 +42,10 @@
 				<% end %>
 			</td>
 			<td>
-				<%= link_to edit_team_path(@team), data: {"turbo-frame": "modal" } do %>
-					<%= render "shared/edit" %>
+				<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
+					<%= link_to edit_team_path(@team), data: {"turbo-frame": "modal" } do %>
+						<%= render "shared/edit" %>
+					<% end %>
 				<% end %>
 			</td>
 		</tr>

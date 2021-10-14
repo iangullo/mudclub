@@ -63,7 +63,7 @@ class User < ApplicationRecord
     self.role ||= :user
   end
 
-  # get teams assocaited to this user
+  # get teams associated to this user
   def teams
     if self.is_coach?
       Team.joins(:coaches).where(coaches: { id: [self.person.coach_id] })

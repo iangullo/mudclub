@@ -5,88 +5,117 @@ class PlayersController < ApplicationController
 	# GET /players
 	# GET /players.json
 	def index
-		@players = Player.search(params[:search])
-
-		respond_to do |format|
-			format.xlsx {
-				response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
-			}
-			format.html { render :index }
+		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+			@players = Player.search(params[:search])
+			respond_to do |format|
+				format.xlsx {
+					response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
+				}
+				format.html { render :index }
+			end
+		else
+			redirect_to "/"
 		end
 	end
 
 	# GET /players/1
 	# GET /players/1.json
 	def show
+		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
+		else
+			redirect_to "/"
+		end
 	end
 
 	# GET /players/new
 	def new
-		@player = Player.new
-		@player.build_person
+		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+			@player = Player.new
+			@player.build_person
+		else
+			redirect_to "/"
+		end
 	end
 
 	# GET /players/1/edit
 	def edit
+		unless current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
+			redirect_to "/"
+		end
 	end
 
 	# POST /players
 	# POST /players.json
 	def create
-		respond_to do |format|
-			@player = rebuild_player(params)	# rebuild player
-			if @player.is_duplicate? then
-				format.html { redirect_to @player, notice: 'Ya existía este jugador.'}
-				format.json { render :show,  :created, location: @player }
-			else
-				@player.person.save
-				@player.person_id = @player.person.id
-				if @player.save
-					if @player.person.player_id != @player.id
-						@player.person.player_id = @player.id
-						@player.person.save
-					end
-					format.html { redirect_to players_url, notice: 'Jugador creado.' }
-					format.json { render :index, status: :created, location: players_url }
+		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+			respond_to do |format|
+				@player = rebuild_player(params)	# rebuild player
+				if @player.is_duplicate? then
+					format.html { redirect_to @player, notice: 'Ya existía este jugador.'}
+					format.json { render :show,  :created, location: @player }
 				else
-					format.html { render :new }
-					format.json { render json: @player.errors, status: :unprocessable_entity }
+					@player.person.save
+					@player.person_id = @player.person.id
+					if @player.save
+						if @player.person.player_id != @player.id
+							@player.person.player_id = @player.id
+							@player.person.save
+						end
+						format.html { redirect_to players_url, notice: 'Jugador creado.' }
+						format.json { render :index, status: :created, location: players_url }
+					else
+						format.html { render :new }
+						format.json { render json: @player.errors, status: :unprocessable_entity }
+					end
 				end
 			end
+		else
+			redirect_to "/"
 		end
 	end
 
 	# PATCH/PUT /players/1
 	# PATCH/PUT /players/1.json
 	def update
-		respond_to do |format|
-
-			if @player.update(player_params)
-				format.html { redirect_to players_url, notice: 'Jugador actualizado.' }
-				format.json { render :index, status: :ok, location: players_url }
-			else
-				format.html { render :edit }
-				format.json { render json: @player.errors, status: :unprocessable_entity }
+		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
+			respond_to do |format|
+				if @player.update(player_params)
+					format.html { redirect_to players_url, notice: 'Jugador actualizado.' }
+					format.json { render :index, status: :ok, location: players_url }
+				else
+					format.html { render :edit }
+					format.json { render json: @player.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to "/"
 		end
 	end
 
   # GET /players/import
   # GET /players/import.json
 	def import
-		# added to import excel
-    Player.import(params[:file])
-    redirect_to players_url
+		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+			# added to import excel
+	    Player.import(params[:file])
+	    redirect_to players_url
+		else
+			redirect_to "/"
+		end
 	end
 
 	# DELETE /players/1
 	# DELETE /players/1.json
 	def destroy
-		unlink_person
-		@player.destroy
-		respond_to do |format|
-			format.html { redirect_to players_url, notice: 'Jugador borrado.' }
-			format.json { head :no_content }
+		if current_user.present? and current_user.admin?
+			unlink_person
+			@player.destroy
+			respond_to do |format|
+				format.html { redirect_to players_url, notice: 'Jugador borrado.' }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to "/"
 		end
 	end
 

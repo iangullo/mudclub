@@ -50,4 +50,12 @@ class Team < ApplicationRecord
 			Team.real
 		end
 	end
+
+	def has_coach(c_id)
+		self.coaches.find_index { |c| c[:id]==c_id }
+	end
+
+	def has_player(p_id)
+		self.players.find_index { |p| p[:id]==p_id }
+	end
 end

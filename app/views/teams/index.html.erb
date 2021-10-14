@@ -20,8 +20,10 @@
 	        <th class="bg-indigo-900 text-gray-300 align-center border px py ">Nombre</th>
 	        <th class="bg-indigo-900 text-gray-300 align-center border px py">Temporada</th>
 	        <th colspan="2">
-						<%= link_to new_team_path, data: {"turbo-frame": "modal" } do %>
-							<%= render "shared/add" %>
+						<% if current_user.admin? %>
+							<%= link_to new_team_path, data: {"turbo-frame": "modal" } do %>
+								<%= render "shared/add" %>
+							<% end %>
 						<% end %>
 					</th>
 	      </tr>
@@ -32,11 +34,13 @@
 	        <tr>
 	          <td class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team, data: {"turbo-frame": "modal" } %></td>
 	          <td align="center" class="border px py"><%= team.season.name %></td>
+						<% if current_user.admin? %>
 	          <td>
 	            <%= link_to team, method: :delete, data: { confirm: "¿Borrar '#{team.to_s}'?" } do %>
 	              <%= render "shared/delete" %>
 	            <% end %>
 	          </td>
+						<% end %>
 	        </tr>
 	      <% end %>
 	    </tbody>

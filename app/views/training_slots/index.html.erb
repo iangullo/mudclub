@@ -20,8 +20,10 @@
 		  <thead>
 				<tr>
 				  <th align="center">
-						<%= link_to new_training_slot_path, data: {"turbo-frame": "modal" } do %>
-							<%= render "shared/add" %>
+						<% if current_user.admin? %>
+							<%= link_to new_training_slot_path, data: {"turbo-frame": "modal" } do %>
+								<%= render "shared/add" %>
+							<% end %>
 						<% end %>
 					</th>
 				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Lun</th>
