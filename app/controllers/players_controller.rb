@@ -123,11 +123,11 @@ class PlayersController < ApplicationController
 
 	# De-couple from associated person
 	def unlink_person
-                if @player.person.player_id == @player.id
-                        p = @player.person
-                        p.player=Player.find(0)   # map to empty coach
-                        p.save
-                        @player.person_id = 0    # map to empty person
-                end
+		if @player.person.player_id == @player.id
+			p = @player.person
+			p.player=Player.find(0)   # map to empty player
+			p.save
+			@player.person_id = 0    # map to empty person
+    end
 	end
 end

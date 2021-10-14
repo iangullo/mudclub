@@ -4,6 +4,12 @@ class User < ApplicationRecord
   scope :real, -> { where("id>0") }
   enum role: [:user, :player, :coach, :admin]
   after_initialize :set_default_role, :if => :new_record?
+  self.inheritance_column = "not_sti"
+
+	# Just list person's full name
+	def to_s
+		person ? person.to_s : "Nuevo"
+	end
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -17,8 +23,32 @@ class User < ApplicationRecord
     end
   end
 
+	# check if associated person exists in database already
+	# reloads person if it does
+	def is_duplicate?
+		if self.person.exists? # check if it exists in database
+			if self.person.user_id > 0 # user already exists
+				true
+			else	# found but mapped to dummy placeholder user
+				false
+			end
+		else	# not found
+			false
+		end
+	end
+
   def picture
 		self.avatar.attached? ? self.avatar : "user.svg"
+	end
+
+
+  #Search field matching
+	def self.search(search)
+		if search
+      search.length>0 ? User.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]).order(:birthday)) : User.where(person_id: Person.real.order(:birthday))
+		else
+      User.none
+		end
 	end
 
   def is_player?

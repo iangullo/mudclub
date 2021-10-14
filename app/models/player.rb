@@ -11,7 +11,7 @@ class Player < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		person ? person.to_s : "Nuevo"
+		self.person ? self.person.to_s : "Nuevo"
 	end
 
 	# String with number, name & age

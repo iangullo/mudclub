@@ -1,0 +1,76 @@
+<div id="user-index">
+	<div id="user-header">
+		<table>
+			<tr>
+				<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
+					<%= image_tag "user.svg", size: "50x50" %>&nbsp;Usuarios&nbsp;
+					<div id="search-people" class="inline-flex rounded border">
+						<%= form_with(url: '/users', method: 'get', local: true) do %>
+							<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
+							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
+						<% end %>
+					</div>
+				</th>
+			</tr>
+		</table>
+	</div>
+
+	<div id="users-grid">
+		<table class="table-auto">
+			<thead>
+				<tr>
+					<th class="bg-indigo-900 text-gray-300 align-center border px py">Nombre</th>
+					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Jug.</th>
+					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Ent.</th>
+					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Adm.</th>
+					<th align="center">
+						<%= link_to new_user_path, data: {"turbo-frame": "modal" } do %>
+							<%= render "shared/add" %>
+						<% end %>
+					</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				<% @users.each do |user| %>
+					<tr>
+						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to user.to_s, user, data: {"turbo-frame": "modal" } %></td>
+						<td align="center" class="border px py"><%= user.is_player? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
+						<td align="center" class="border px py"><%= user.is_coach? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
+						<td align="center" class="border px py"><%= user.admin? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
+						<td>
+							<%= link_to user, method: :delete, data: { confirm: "¿Borrar '#{user.to_s}'?" } do %>
+								<%= render "shared/delete" %>
+							<% end %>
+						</td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</div>
+	<br>
+
+	<div id="import-export">
+		<table>
+			<tr>
+<!-- COMMENTING OUT EXPORT TILL WE HAVE RBAC
+				<td>
+					<div class="rounded-lg border-4 border-green-800 hover:bg-green-200 mb-3">
+						< %= link_to users_path(format: :xlsx) do %>
+							< %= image_tag "export.svg", class: "align-top max-h-7 min-h-5" %>
+						< % end %>
+					</div>
+				</td>
+			</tr><tr>
+-->
+				<td><%= image_tag "import.svg", class: "align-top max-h-7 min-h-5" %></td>
+				<td>
+					<%= form_with url: import_users_path, local: true do |form| %>
+						<%= form.file_field :file %>
+						<%= render "shared/save" %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

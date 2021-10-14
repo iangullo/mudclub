@@ -35,12 +35,16 @@
                 </button>
                 <div data-dropdown-target="menu" class="absolute hidden">
                   <div class="bg-blue-900 shadow rounded border overflow-hidden">
-                    <%= link_to 'Jugadores', players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                    <%= link_to 'Entrenadores', coaches_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                    <%= link_to 'Equipos',  teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                    <%= link_to 'Horarios',  training_slots_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                    <%= link_to 'Ejercicios',  drills_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                    <% #= link_to 'Sesiones',  training_sessions_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                    <% if user_signed_in? %>
+                      <%= link_to 'Horarios',  training_slots_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                      <% if current_user.admin? or current_user.is_coach? %>
+                        <%= link_to 'Jugadores', players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                        <%= link_to 'Entrenadores', coaches_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                        <%= link_to 'Equipos',  teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                        <%= link_to 'Ejercicios',  drills_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                        <% #= link_to 'Sesiones',  training_sessions_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
+                      <% end %>
+                    <% end %>
                   </div>
                 </div>
               </div>
@@ -54,26 +58,30 @@
               <!-- Navigation tabs -->
               <div class="hidden sm:block sm:ml-6">
                 <div class="flex space-x-4">
-                  <ul class="list-reset flex text-base text-gray-300">
-                    <li>
-                      <%= link_to 'Jugadores', players_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
-                    </li>
-                    <li>
-                      <%= link_to 'Entrenadores', coaches_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
-                    </li>
-                    <li>
-                      <%= link_to 'Equipos', teams_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
-                    </li>
-                    <li>
-                      <%= link_to 'Horarios', training_slots_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
-                    </li>
-  <!--                  <li>
-                      <% #= link_to 'Sesiones', training_sessions_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
-                    </li>
-  -->                  <li>
-                      <%= link_to 'Ejercicios', drills_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
-                    </li>
-                  </ul>
+                  <% if user_signed_in? %>
+                    <ul class="list-reset flex text-base text-gray-300">
+                      <% if current_user.admin? or current_user.is_coach? %>
+                        <li>
+                          <%= link_to 'Jugadores', players_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
+                        </li>
+                        <li>
+                          <%= link_to 'Entrenadores', coaches_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
+                        </li>
+                        <li>
+                          <%= link_to 'Equipos', teams_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
+                        </li>
+<!--                    <li>
+                          < %= link_to 'Sesiones', training_sessions_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
+                        </li>
+    -->                  <li>
+                          <%= link_to 'Ejercicios', drills_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
+                        </li>
+                      <% end %>
+                      <li>
+                        <%= link_to 'Horarios', training_slots_path, class: "hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold" %>
+                      </li>
+                    </ul>
+                  <% end %>
                 </div>
               </div>
             </div>
