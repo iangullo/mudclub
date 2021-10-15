@@ -14,22 +14,27 @@
 	<table>
 		<tr>
 			<td rowspan="3" align="center">
-				<%= image_tag("person.png", :size => "100x100") %>
+				<%= image_tag("person.svg", size: "100x100", class: "rounded-full") %>
 			</td>
-			<td align="right"><strong>Nom.</strong></td>
+			<td align="right"><strong>Nom:</strong></td>
 			<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td align="right"><strong>Apel.</strong></td>
-			<td><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
+			<td align="right"><strong>Apel:</strong></td>
+			<td><%= f.text_field :surname, size: 18, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td align="right"><strong>F.Nac.</strong></td>
+			<td align="right"><strong><%= image_tag "calendar.svg", size: "25x25", alt: "Nac:"  %></strong></td>
 			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td><strong>DNI&nbsp;</strong><%= f.text_field :dni, size: 7, class: "rounded border shadow-inner" %></td>
-			<td align="right"><strong>Apodo</strong></td>
+			<td><strong>DNI:&nbsp;</strong><%= f.text_field :dni, size: 7, class: "rounded border shadow-inner" %></td>
+			<td align="right"><strong><%= image_tag "user.svg", size: "25x25", alt: "Nick:"  %></strong></td>
 			<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<td><strong><%= f.label "Fem:" %>&nbsp;</strong><%= f.check_box :female %></td>
+			<td align="right"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
+			<td><%= f.text_field :email, size: 22, class: "rounded border shadow-inner" %></td>
+		</tr><tr>
+			<td colspan="2" align="right"><strong><%= image_tag "phone.svg", size: "25x25", alt: "Tel:"  %></strong></td>
+			<td><%= f.text_field :phone, size: 12, class: "rounded border shadow-inner" %></td>
 		</tr>
 	</table>
 	<%= render "shared/save" %>

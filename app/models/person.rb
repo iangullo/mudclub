@@ -1,8 +1,10 @@
 class Person < ApplicationRecord
 	belongs_to :coach
 	belongs_to :player
+	belongs_to :user
 	accepts_nested_attributes_for :player
 	accepts_nested_attributes_for :coach
+	accepts_nested_attributes_for :user
 	validates :name, :surname, presence: true
 	scope :real, -> { where("id>0") }
 	before_save { self.nick = self.nick ? self.nick.mb_chars.titleize : ""}
@@ -23,9 +25,9 @@ class Person < ApplicationRecord
 	# returns: reloads self if it exists in the database already
 	# 	   'nil' if it needs to be created.
 	def exists?
-		p = Person.where(name: self.name, surname: self.surname).first
-		if p
-			self.id = p.id
+		p = Person.where(dni: self.dni).or(Person.where(email: self.email)).or(Person.where(name: self.name, surname: self.surname))
+		if p.try(:size)==1
+			self.id = p.first.id
 			self.reload
 		else
 			nil

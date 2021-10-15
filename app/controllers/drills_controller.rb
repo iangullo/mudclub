@@ -4,59 +4,89 @@ class DrillsController < ApplicationController
 
 	# GET /drills or /drills.json
 	def index
-		@drills = Drill.all
+		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+			@drills = Drill.all
+		else
+			redirect_to "/"
+		end
 	end
 
 	# GET /drills/1 or /drills/1.json
 	def show
+		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
+			redirect_to "/"
+		end
 	end
 
 	# GET /drills/new
 	def new
-		@drill = Drill.new
+		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+			@drill = Drill.new
+		else
+			redirect_to "/"
+		end
 	end
 
 	# GET /drills/1/edit
 	def edit
+		unless current_user.present? and (@drill.coach_id == current_user.coach_id)
+			redirect_to drills_url
+		end
 	end
 
 	# POST /drills or /drills.json
 	def create
-		respond_to do |format|
-			@drill = Drill.new
-			rebuild_drill(params)	# rebuild drill
-			if @drill.save
-				format.html { redirect_to drills_url, notice: "Ejercicio creado." }
-				format.json { render :index, status: :created, location: @drill }
-			else
-				format.html { render :new, status: :unprocessable_entity }
-				format.json { render json: @drill.errors, status: :unprocessable_entity }
+		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+			respond_to do |format|
+				@drill = Drill.new
+				rebuild_drill(params)	# rebuild drill
+				if @drill.save
+					format.html { redirect_to drills_url, notice: "Ejercicio creado." }
+					format.json { render :index, status: :created, location: @drill }
+				else
+					format.html { render :new, status: :unprocessable_entity }
+					format.json { render json: @drill.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to "/"
 		end
 	end
 
 	# PATCH/PUT /drills/1 or /drills/1.json
 	def update
-		respond_to do |format|
-			rebuild_drill(params)	# rebuild drill
-			if @drill.save
-				format.html { redirect_to drills_url, notice: "Ejercicio actualizado." }
-				format.json { render :index, status: :ok, location: @drill }
-			else
-				format.html { render :edit, status: :unprocessable_entity }
-				format.json { render json: @drill.errors, status: :unprocessable_entity }
+		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+			respond_to do |format|
+				rebuild_drill(params)	# rebuild drill
+				if @drill.coach_id == current_user.person.coach_id # author can modify
+					if @drill.save
+						format.html { redirect_to drills_url, notice: "Ejercicio actualizado." }
+						format.json { render :index, status: :ok, location: @drill }
+					else
+						format.html { render :edit, status: :unprocessable_entity }
+						format.json { render json: @drill.errors, status: :unprocessable_entity }
+					end
+				else
+					redirect_to drills_url, flash: "Solo el autor puede editar"
+				end
 			end
+		else
+			redirect_to "/"
 		end
 	end
 
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
-		@drill.destroy
+		if current_user.present? and current_user.admin?
+			@drill.destroy
 			respond_to do |format|
 				format.html { redirect_to drills_url, notice: "Ejercicio Borrado." }
 				format.json { head :no_content }
 			end
+		else
+			redirect_to "/"
 		end
+	end
 
 	def autocompletable_skills
 		aux = ""
@@ -108,7 +138,7 @@ class DrillsController < ApplicationController
 
 	# Use callbacks to share common setup or constraints between actions.
 	def set_drill
-		@drill = Drill.find(params[:id])
+		@drill = Drill.find(params[:id]) unless @drill.try(:id)==params[:id]
 	end
 
 	# Only allow a list of trusted parameters through.

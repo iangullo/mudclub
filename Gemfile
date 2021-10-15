@@ -63,3 +63,6 @@ gem 'caxlsx_rails'
 
 # Added to manage phone numbers
 gem 'phonelib'
+
+# Added Devise for user authentication
+gem 'devise'

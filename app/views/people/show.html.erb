@@ -2,7 +2,7 @@
 	<table>
 		<tr>
 			<td rowspan="3" align="center">
-				<%= image_tag("person.png", :size => "100x100") %>
+				<%= image_tag("person.svg", :size => "100x100") %>
 			</td>
 			<td><%= @person.name %></td>
 		</tr><tr>
@@ -11,7 +11,7 @@
 			<td><%= @person.birthday %></td>
 		</tr><tr>
 			<td style="text-align:center"><%= @person.dni %></td>
-			<td>				
+			<td>
 				<%= @person.player_id>0 ? "Jug." : "" %>
 				<% if @person.coach_id>0 %>
 					<%= @person.player_id>0 ? "/" : "" %>
@@ -19,8 +19,10 @@
 				<% end %>
 			</td>
 			<td align="right">
-				<%= link_to edit_person_path(@person), data: {"turbo-frame": "modal" } do %>
-					<%= render "shared/edit" %>
+				<% if current_user.admin? or current_user.person_id==@person.id %>
+					<%= link_to edit_person_path(@person), data: {"turbo-frame": "modal" } do %>
+						<%= render "shared/edit" %>
+					<% end %>
 				<% end %>
 			</td>
 		</tr>

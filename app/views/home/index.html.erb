@@ -1,0 +1,38 @@
+<% if current_user.present? %>
+  <div id="home-logged-in">
+    <table>
+      <tr>
+        <td align="center">
+          <%= image_tag(current_user.picture, :size => "50x50", class: "rounded-full") %>
+        </td>
+        <td><strong><%= current_user.s_name %></strong></td>
+        <td align="right">
+          <%= link_to "/users/" + current_user.id.to_s + "/edit", data: {"turbo-frame": "modal" } do %>
+  					<%= render "shared/edit" %>
+  				<% end %>
+        </td>
+      </tr>
+    <% if @teams %>
+      <tr>
+        <td colspan="3" align="center" class="border px py text-white bg-blue-900"><strong>Equipos</strong></td>
+        <% @teams.each do |team| %>
+          </tr><tr>
+            <td colspan="3" class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team, data: {"turbo-frame": "modal" } %></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </div>
+<% else %>
+  <div id="home-logged-out" class="align-middle">
+    <table>
+      <tr>
+        <td align="center"><%= image_tag("user.svg", :size => "30x30") %>Cerrado</td>
+        <td align="left">
+          <%= link_to new_user_session_path do %>
+            <%= image_tag("login.svg", class: "login_button rounded bg-blue-900 hover:bg-blue-700 max-h-8 min-h-6", alt: "Entrar") %>
+          <% end %>
+        </td>
+      </tr>
+    </table>
+  </div>
+<% end %>

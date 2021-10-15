@@ -1,0 +1,34 @@
+<%= render "shared/modal" do %>
+	<table>
+		<tr>
+			<td rowspan="3" align="center">
+				<%= image_tag(@user.picture, :size => "100x100", class: "rounded-full") %>
+			</td>
+			<td><%= @user.person.name %></td>
+		</tr><tr>
+			<td><%= @user.person.surname %></td>
+		</tr><tr>
+			<td><%= @user.email %></td>
+		</tr><tr>
+			<td></td>
+			<td>
+				<% if @user.role==:admin %>
+					<%= image_tag "key.svg", size: "40x40", alt: "Admin."  %>
+				<% end %>
+				<% if @user.is_coach? %>
+					<%= image_tag "coach.png", size: "40x40", alt: "Ent."  %>
+				<% end %>
+				<% if @user.is_player? %>
+					<%= image_tag "player.png", size: "40x10", alt: "Jug."  %>
+				<% end %>
+			</td>
+			<td align="right">
+				<% if current_user.admin? %>
+					<%= link_to "/users/" + @user.id.to_s + "/edit", data: {"turbo-frame": "modal" } do %>
+						<%= render "shared/edit" %>
+					<% end %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+<% end %>

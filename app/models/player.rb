@@ -11,7 +11,7 @@ class Player < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		person ? person.to_s : "Nuevo"
+		self.person ? self.person.to_s : "Nuevo"
 	end
 
 	# String with number, name & age
@@ -38,7 +38,7 @@ class Player < ApplicationRecord
 	end
 
 	def picture
-		self.avatar.attached? ? self.avatar : "player.png"
+		self.avatar.attached? ? self.avatar : "player.svg"
 	end
 
 	#Search field matching

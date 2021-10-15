@@ -10,15 +10,16 @@ class Coach < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		person ? person.to_s : "Nuevo"
+		self.person ? self.person.to_s : "Nuevo"
 	end
 
+	#short name for form viewing
 	def s_name
-		if person
-			if person.nick
-				person.nick.length >  0 ? person.nick : person.name
+		if self.person
+			if self.person.nick
+				self.person.nick.length >  0 ? self.person.nick : self.person.name
 			else
-				person.name
+				self.person.name
 			end
 		else
 			"Nuevo"
@@ -40,7 +41,7 @@ class Coach < ApplicationRecord
 	end
 
 	def picture
-		self.avatar.attached? ? self.avatar : "coach.png"
+		self.avatar.attached? ? self.avatar : "coach.svg"
 	end
 
 	#Search field matching

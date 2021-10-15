@@ -2,7 +2,7 @@
 	<table>
 		<tr>
 			<td rowspan="3" align="center">
-				<%= image_tag(@coach.picture, :size => "100x100") %>
+				<%= image_tag(@coach.picture, :size => "100x100", class: "rounded-full") %>
 			</td>
 			<td><%= @coach.person.name %></td>
 		</tr><tr>
@@ -13,11 +13,13 @@
 			<td align="center"><%= @coach.person.nick %></td>
 		</tr><tr>
 			<td align="center"><%= @coach.active ? "Activo" : "Inactivo" %></td>
+			<% if current_user.admin? or current_user.person.coach_id==@coach.id %>
 			<td align="right" class="align-top">
 				<%= link_to edit_coach_path(@coach), data: {"turbo-frame": "modal" } do %>
 					<%= render "shared/edit" %>
 				<% end %>
 			</td>
+			<% end %>
 		</tr>
 		<% unless @coach.teams.empty? %>
 			<tr>

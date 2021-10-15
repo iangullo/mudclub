@@ -5,86 +5,115 @@ class CoachesController < ApplicationController
 	# GET /coaches
 	# GET /coaches.json
 	def index
-		@coaches = Coach.search(params[:search])
-
-		respond_to do |format|
-			format.xlsx {
-				response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
-			}
-			format.html { render :index }
+		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+			@coaches = Coach.search(params[:search])
+			respond_to do |format|
+				format.xlsx {
+					response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
+				}
+				format.html { render :index }
+			end
+		else
+			redirect_to "/"
 		end
 	end
 
 	# GET /coaches/1
 	# GET /coaches/1.json
 	def show
+		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
+			redirect_to "/"
+		end
 	end
 
 	# GET /coaches/new
 	def new
-		@coach=Coach.new
-		@coach.build_person
+		if current_user.present? and current_user.admin?
+			@coach=Coach.new
+			@coach.build_person
+		else
+			redirect_to "/"
+		end
 	end
 
 	# GET /coaches/1/edit
 	def edit
+		unless current_user.present? and (current_user.admin? or current_user.person.coach_id==@coach.id)
+			redirect_to "/"
+		end
 	end
 
 	# POST /coaches
 	# POST /coaches.json
 	def create
-		respond_to do |format|
-			@coach = rebuild_coach(params)	# rebuild coach
-			if @coach.is_duplicate? then
-				format.html { redirect_to coaches_url, notice: 'Ya existía este entrenador.'}
-				format.json { render :index,  :created, location: coaches_url }
-			else
-				@coach.person.save
-				@coach.person_id = @coach.person.id
-				if @coach.save # coach saved to database
-					if @coach.person.coach_id != @coach.id
-						@coach.person.coach_id = @coach.id
-					end
-					format.html { redirect_to coaches_url, notice: 'Entrenador creado.' }
-					format.json { render :index, status: :created, location: coaches_url }
+		if current_user.present? and current_user.admin?
+			respond_to do |format|
+				@coach = rebuild_coach(params)	# rebuild coach
+				if @coach.is_duplicate? then
+					format.html { redirect_to coaches_url, notice: 'Ya existía este entrenador.'}
+					format.json { render :index,  :created, location: coaches_url }
 				else
-					format.html { render :new }
-					format.json { render json: @coach.errors, status: :unprocessable_entity }
+					@coach.person.save
+					@coach.person_id = @coach.person.id
+					if @coach.save # coach saved to database
+						if @coach.person.coach_id != @coach.id
+							@coach.person.coach_id = @coach.id
+						end
+						format.html { redirect_to coaches_url, notice: 'Entrenador creado.' }
+						format.json { render :index, status: :created, location: coaches_url }
+					else
+						format.html { render :new }
+						format.json { render json: @coach.errors, status: :unprocessable_entity }
+					end
 				end
 			end
+		else
+			redirect_to "/"
 		end
 	end
 
 	# PATCH/PUT /coaches/1
 	# PATCH/PUT /coaches/1.json
 	def update
-		respond_to do |format|
-			if @coach.update(coach_params)
-				format.html { redirect_to coaches_url, notice: 'Entrenador actualizado.' }
-				format.json { render :index, status: :ok, location: coaches_url }
-			else
-				format.html { render :edit }
-				format.json { render json: @coach.errors, status: :unprocessable_entity }
+		if current_user.present? and (current_user.admin? or current_user.coach_id==@coach.id)
+			respond_to do |format|
+				if @coach.update(coach_params)
+					format.html { redirect_to coaches_url, notice: 'Entrenador actualizado.' }
+					format.json { render :index, status: :ok, location: coaches_url }
+				else
+					format.html { render :edit }
+					format.json { render json: @coach.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to "/"
 		end
 	end
 
 	# GET /coaches/import
   # GET /coaches/import.json
 	def import
-		# added to import excel
-    Coach.import(params[:file])
-    redirect_to coaches_url
+		if current_user.present? and current_user.admin?
+			# added to import excel
+	    Coach.import(params[:file])
+	    redirect_to coaches_url
+		else
+			redirect_to "/"
+		end
 	end
 
  	# DELETE /coaches/1
 	# DELETE /coaches/1.json
 	def destroy
-		unlink_person
-		@coach.destroy
-		respond_to do |format|
-			format.html { redirect_to coaches_url, notice: 'Entrenador borrado.' }
-			format.json { head :no_content }
+		if current_user.present? and current_user.admin?
+			unlink_person
+			@coach.destroy
+			respond_to do |format|
+				format.html { redirect_to coaches_url, notice: 'Entrenador borrado.' }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to "/"
 		end
 	end
 
@@ -129,7 +158,7 @@ class CoachesController < ApplicationController
 	private
 	# Use callbacks to share common setup or constraints between actions.
 	def set_coach
-		@coach = Coach.find(params[:id])
+		@coach = Coach.find(params[:id]) unless @coach.try(:id)==params[:id]
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.
@@ -139,7 +168,7 @@ class CoachesController < ApplicationController
 
 	# De-couple from associated person
 	def unlink_person
-		if @coach.person.coach_id == @coach.id
+		if @coach.person.try(:coach_id) == @coach.id
 			p = @coach.person
 			p.coach=Coach.find(0)	# map to empty coach
 			p.save
