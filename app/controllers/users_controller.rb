@@ -4,7 +4,7 @@ class UsersController < ApplicationController
 
   def index
     if current_user.present? and current_user.admin?
-      @users = User.real # User.search(params[:search])
+      @users = User.search(params[:search])
     else
       redirect_to "/"
     end
