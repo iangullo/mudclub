@@ -88,7 +88,6 @@ class TeamsController < ApplicationController
   # DELETE /teams/1.json
   def destroy
 		if current_user.present? and current_user.admin?
-			set_team(params)
 	    @team.destroy
 	    respond_to do |format|
 	      format.html { redirect_to teams_url, notice: 'Equipo borrado.' }
@@ -101,7 +100,7 @@ class TeamsController < ApplicationController
 
   private
 	# Use callbacks to share common setup or constraints between actions.
-	def set_team(params)
+	def set_team
 		@team = Team.find(params[:id]) unless @team.try(:id)==params[:id]
 	end
 
