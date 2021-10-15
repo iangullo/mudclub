@@ -5,7 +5,7 @@ class DrillsController < ApplicationController
 	# GET /drills or /drills.json
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@drills = Drill.all
+			@drills = Drill.all.order(:kind_id)
 		else
 			redirect_to "/"
 		end
