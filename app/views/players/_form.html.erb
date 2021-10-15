@@ -17,7 +17,7 @@
 				<td colspan="4"><strong>Foto:</strong><%= form.file_field :avatar, direct_upload: true %></td>
 			</tr><tr>
 				<td rowspan="3" colspan="2" align="center">
-					<%= image_tag(@player.picture, :size => "100x100") %>
+					<%= image_tag(@player.picture, size: "100x100", class: "rounded-full") %>
 				</td>
 				<td align="right"><strong>Nom:</strong></td>
 				<td colspan="2"><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>

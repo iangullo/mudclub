@@ -2,7 +2,7 @@
 	<div id="coaches-header">
 		<table>
 			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-				<%= image_tag "coach.png", size: "50x50" %>Entrenadores&nbsp;
+				<%= image_tag "coach.png", size: "50x50", class: "rounded-full" %>Entrenadores&nbsp;
 				<div id="search-people" class="inline-flex rounded border">
 					<%= form_with(url: '/coaches', method: 'get', local: true) do %>
 						<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>

@@ -2,7 +2,7 @@
 	<table>
 		<tr>
 			<td rowspan="3" align="center">
-				<%= image_tag(@user.picture, :size => "100x100") %>
+				<%= image_tag(@user.picture, :size => "100x100", class: "rounded-full") %>
 			</td>
 			<td><%= @user.person.name %></td>
 		</tr><tr>

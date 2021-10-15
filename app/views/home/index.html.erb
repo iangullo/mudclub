@@ -3,11 +3,11 @@
     <table>
       <tr>
         <td align="center">
-          <%= image_tag(current_user.picture, :size => "50x50") %>
+          <%= image_tag(current_user.picture, :size => "50x50", class: "rounded-full") %>
         </td>
         <td><strong><%= current_user.s_name %></strong></td>
         <td align="right">
-          <%= link_to edit_person_path(current_user.person), data: {"turbo-frame": "modal" } do %>
+          <%= link_to "/users/" + current_user.id.to_s + "/edit", data: {"turbo-frame": "modal" } do %>
   					<%= render "shared/edit" %>
   				<% end %>
         </td>
