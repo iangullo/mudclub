@@ -41,7 +41,7 @@ class Coach < ApplicationRecord
 	end
 
 	def picture
-		self.avatar.attached? ? self.avatar : "coach.png"
+		self.avatar.attached? ? self.avatar : "coach.svg"
 	end
 
 	#Search field matching

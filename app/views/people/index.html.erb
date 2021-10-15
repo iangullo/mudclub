@@ -3,7 +3,7 @@
 		<table>
 			<tr>
 				<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-					<%= image_tag "person.png", size: "50x50", class: "rounded-full" %>Personas&nbsp;
+					<%= image_tag "person.svg", size: "50x50", class: "rounded-full" %>Personas&nbsp;
 					<div id="search-people" class="inline-flex rounded border">
 						<%= form_with(url: '/people', method: 'get', local: true) do %>
 							<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
