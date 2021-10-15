@@ -158,7 +158,7 @@ class CoachesController < ApplicationController
 	private
 	# Use callbacks to share common setup or constraints between actions.
 	def set_coach
-		@coach = Coach.find(params[:id])
+		@coach = Coach.find(params[:id]) unless @coach.try(:id)==params[:id]
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.
@@ -168,7 +168,7 @@ class CoachesController < ApplicationController
 
 	# De-couple from associated person
 	def unlink_person
-		if @coach.person.coach_id == @coach.id
+		if @coach.person.try(:coach_id) == @coach.id
 			p = @coach.person
 			p.coach=Coach.find(0)	# map to empty coach
 			p.save

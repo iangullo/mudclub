@@ -1,5 +1,7 @@
 class TrainingSlotsController < ApplicationController
-  before_action :set_training_slot, only: %i[ show edit update destroy ]
+  skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
+  before_action :set_training_slot, only: [:show, :edit, :update, :destroy]
+
 
   # GET /training_slots or /training_slots.json
   def index
@@ -73,6 +75,7 @@ class TrainingSlotsController < ApplicationController
   # DELETE /training_slots/1 or /training_slots/1.json
   def destroy
     if current_user.present? and current_user.admin?
+      set_training_slot(params)
       @training_slot.destroy
       respond_to do |format|
         format.html { redirect_to training_slots_url, notice: "Training slot was successfully destroyed." }
@@ -104,8 +107,8 @@ class TrainingSlotsController < ApplicationController
 		end
 
     # Use callbacks to share common setup or constraints between actions.
-    def set_training_slot
-      @training_slot = TrainingSlot.find(params[:id])
+    def set_training_slot(params)
+      @training_slot = TrainingSlot.find(params[:id]) unless @training_slot.try(:id)==params[:id]
     end
 
     # Only allow a list of trusted parameters through.

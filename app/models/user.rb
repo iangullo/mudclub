@@ -71,11 +71,11 @@ class User < ApplicationRecord
 	end
 
   def is_player?
-    self.person.player_id > 0
+    self.person.try(:player_id).to_i > 0
   end
 
   def is_coach?
-    self.person.coach_id > 0
+    self.person.try(:coach_id).to_i > 0
   end
 
   def set_default_role

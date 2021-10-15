@@ -34,7 +34,7 @@
 			</tr><tr>
 				<td><strong>Papel:</strong><%= form.select :role, User.roles.keys.map {|role| [role.titleize,role]}, {selected: @user.role} %></td>
 				<td align="right"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
-				<td><%= f.text_field :email, size: 22, class: "rounded border shadow-inner" %></td>
+				<td><%= form.text_field :email, size: 22, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
 				<td colspan="2" align="right"><strong><%= image_tag "phone.svg", size: "25x25", alt: "Tel:"  %></strong></td>
 				<td><%= f.text_field :phone, size: 12, class: "rounded border shadow-inner" %></td>

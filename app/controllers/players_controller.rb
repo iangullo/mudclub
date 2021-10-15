@@ -122,7 +122,7 @@ class PlayersController < ApplicationController
 	private
 	# Use callbacks to share common setup or constraints between actions.
 	def set_player
-		@player = Player.find(params[:id])
+		@player = Player.find(params[:id]) unless @player.try(:id)==params[:id]
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.
@@ -152,7 +152,7 @@ class PlayersController < ApplicationController
 
 	# De-couple from associated person
 	def unlink_person
-		if @player.person.player_id == @player.id
+		if @player.person.try(:player_id) == @player.id
 			p = @player.person
 			p.player=Player.find(0)   # map to empty player
 			p.save

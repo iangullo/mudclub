@@ -1,5 +1,7 @@
-
 class UsersController < ApplicationController
+  skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
+	before_action :set_user, only: [:show, :edit, :update, :destroy]
+
   def index
     if current_user.present? and current_user.admin?
       @users = User.real # User.search(params[:search])
@@ -20,7 +22,7 @@ class UsersController < ApplicationController
   def create
     if current_user.present? and current_user.admin?
       respond_to do |format|
-  			@user = rebuild_user(params)	# rebuild user
+  			@user = build_new_user(params)	# build user
   			if @user.is_duplicate? then
   				format.html { redirect_to @user, notice: 'Ya existía este usuario.'}
   				format.json { render :show,  :created, location: @user }
@@ -69,9 +71,9 @@ class UsersController < ApplicationController
           params[:user].delete(:password)
           params[:user].delete(:password_confirmation)
         end
-        @user = rebuild_user(params)	# rebuild user
+        rebuild_user(params)	# rebuild user
   			if @user.update(user_params)
-  				format.html { redirect_to users_url, notice: 'Usario actualizado.' }
+  				format.html { redirect_to users_url, notice: 'Usuario actualizado.' }
   				format.json { render :index, status: :ok, location: users_url }
   			else
   				format.html { render :edit }
@@ -99,38 +101,45 @@ class UsersController < ApplicationController
   private
 	# Use callbacks to share common setup or constraints between actions.
 	def set_user
-		@user = User.find(params[:id])
+		@user = User.find(params[:id]) unless @user.try(:id)==params[:id]
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.
 	def user_params
-		params.require(:user).permit(:id, :email, :role, :password, :password_confirmation, :avatar, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :user_id], teams_attributes: [:id, :_destroy])
+		params.require(:user).permit(:id, :email, :role, :password, :password_confirmation, :avatar, :person_id, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :user_id])
 	end
 
-	# build new @user from raw input given by submittal from "new"
+	# re-build existing @user from raw input given by submittal from "new"
 	# return nil if unsuccessful
 	def rebuild_user(params)
-		@user = User.new(user_params)
-		@user.build_person
-		@user.role = params.fetch(:user)[:role]
+    @user.email = params.fetch(:user)[:email]
 		p_data= params.fetch(:user).fetch(:person_attributes)
+    @user.person_id > 0 ? @user.person.reload : @user.build_person
 		@user.person[:dni] = p_data[:dni]
 		@user.person[:nick] = p_data[:nick]
 		@user.person[:name] = p_data[:name]
 		@user.person[:surname] = p_data[:surname]
 		@user.person[:female] = p_data[:female]
-    @user.email = p_data[:email]
-		@user.person[:email] = p_data[:email]
+		@user.person[:email] = @user.email
 		@user.person[:phone] = Phonelib.parse(p_data[:phone]).international.to_s
-    @user.person[:player_id] = 0
-		@user.person[:coach_id] = 0
-		@user.person[:user_id] = 0
-		@user
 	end
+
+  # build & prepare a person for a new user
+  def build_new_user(params)
+    @user = User.new(user_params)
+    @user.email = params.fetch(:user)[:email]
+    @user.password = params.fetch(:user)[:password]
+    @user.password_confirmation = params.fetch(:user)[:password_confirmation]
+    @user.build_person
+    @user.person.email = @user.email
+    @user.person.name = @user.email.split("@").first
+    @user.person.surname = @user.email.split("@").last
+    @user
+  end
 
 	# De-couple from associated person
 	def unlink_person
-		if @user.person.user_id == @user.id
+		if @user.person.try(:user_id)==@user.id
 			p = @user.person
 			p.user=User.find(0)   # map to empty user
 			p.save

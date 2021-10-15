@@ -109,33 +109,46 @@ class PeopleController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_person
-      @person = Person.find(params[:id])
-    end
-
 		# Delete associated players/coaches
 		def erase_links
-			if @person.coach_id > 0	# delete associated coach
-				c = @person.coach
-				c.person_id = 0
-				c.save
-				@person.coach_id = 0
-				@person.save
-				c.destroy
-			end
-			if @person.player_id > 0	# delete associated player
-				p = @person.player
-				p.person_id = 0
-				p.save
-				@person.player_id = 0
-				@person.save
-				p.destroy
-			end
+			erase_coach if @person.coach_id > 0	# delete associated coach
+			erase_player if @person.player_id > 0	# delete associated player
+			erase_user if @person.user_id > 0	# unlink associated user
+		end
+
+		def erase_coach
+			c = @person.coach
+			c.person_id = 0
+			c.save
+			@person.coach_id = 0
+			@person.save
+			c.destroy
+		end
+
+		def erase_player
+			p = @person.player
+			p.person_id = 0
+			p.save
+			@person.player_id = 0
+			@person.save
+			p.destroy
+		end
+
+		def erase_user
+			u = @person.user
+			u.person_id = 0
+			u.save
+			@person.user_id = 0
+			@person.save
+			u.destroy
 		end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
 			params.require(:person).permit(:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :player_id, :coach_id, :user_id)
     end
+
+		def set_person
+			 @person = Person.find(params[:id]) unless @person.try(:id)==params[:id]
+		end
 end
