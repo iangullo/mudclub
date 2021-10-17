@@ -33,9 +33,9 @@ class User < ApplicationRecord
 	# returns: reloads self if it exists in the database already
 	# 	   'nil' if it needs to be created.
 	def exists?
-		p = User.where(email: self.email).first
-		if p
-			self.id = p.id
+		p = User.where(email: self.email)
+		if p.try(:size)==1
+			self.id = p.first.id
 			self.reload
 		else
 			nil

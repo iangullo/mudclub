@@ -5,6 +5,6 @@ class CreateSeasons < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Season.create(id: 0, name: "Ninguna")
+    Season.create(id: 0, name: "None")
   end
 end

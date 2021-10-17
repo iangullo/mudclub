@@ -5,6 +5,6 @@ class CreateDivisions < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Division.create(id: 0, name: "Ninguna")
+    Division.create(id: 0, name: "None")
   end
 end

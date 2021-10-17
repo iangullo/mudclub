@@ -8,6 +8,6 @@ class CreateCategories < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Category.create(id: 0, name: "Ninguna", sex: "Mixto", min_years: 5, max_years: 99)
+    Category.create(id: 0, name: "None", sex: "Mixed", min_years: 5, max_years: 99)
   end
 end

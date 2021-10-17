@@ -9,6 +9,6 @@ class CreateTeams < ActiveRecord::Migration[6.1]
       t.timestamps
     end
     add_reference :teams, :homecourt, foreign_key: { to_table: :locations }, default: 0
-    Team.create(id: 0, name: "Sin Equipo")
+    Team.create(id: 0, name: "No Team")
  end
 end
