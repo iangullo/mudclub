@@ -13,7 +13,7 @@ class Drill < ApplicationRecord
 
 	def self.search(search)
 		if search
-			Drill.where(kind_id: Kind.where(["name LIKE ? ","%#{search}%"])).or(["name LIKE ? OR description LIKE ? ","%#{search}%","%#{search}%"]).order(:kind)
+			Drill.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{search}%","%#{search}%")
 		else
 			#Drill.all.order(:kind)
 			Drill.none
