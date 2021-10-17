@@ -71,7 +71,7 @@ Team.create(name: "U-18 Fem.", season_id: 1, category_id: 3, division_id: 3, hom
 Team.create(name: "U-18 Masc.", season_id: 1, category_id: 4, division_id: 3, homecourt_id: 1)
 Team.create(name: "U-16 Fem.", season_id: 1, category_id: 5, division_id: 3, homecourt_id: 1)
 Team.create(name: "U-16 Masc.", season_id: 1, category_id: 6, division_id: 3, homecourt_id: 1)
-Team.create(name: "U-14 Fem.", season_id: 1, category_id: 7, division_id: 2, homecourt_id: 11)
+Team.create(name: "U-14 Fem.", season_id: 1, category_id: 7, division_id: 2, homecourt_id: 1)
 Team.create(name: "U-14 Masc.", season_id: 1, category_id: 8, division_id: 3, homecourt_id: 1)
 Team.create(name: "U-12 Fem.", season_id: 1, category_id: 9, division_id: 2, homecourt_id: 1)
 Team.create(name: "U-12 Masc.", season_id: 1, category_id: 10, division_id: 3, homecourt_id: 1)
