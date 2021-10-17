@@ -5,7 +5,7 @@ class AddUserToPerson < ActiveRecord::Migration[6.1]
 
     # additional data to link well in bclub database
     # fake user_id (0)
-    User.create(email: 'admin@bclub.org', role: :admin, password: 'bclub-admin', password_confirmation: 'bclub-admin', person_id: 1)
-    User.last.person=Person.find_by(email: 'admin@bclub.org')
+#    User.create(email: 'admin@bclub.org', role: :admin, password: 'bclub-admin', password_confirmation: 'bclub-admin', person_id: 1)
+#    User.last.person=Person.find_by(email: 'admin@bclub.org')
   end
 end
