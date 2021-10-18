@@ -11,6 +11,11 @@
   					<%= render "shared/edit" %>
   				<% end %>
         </td>
+        <td>
+          <%= link_to edit_user_registration_path, data: {"turbo-frame": "modal" } do %>
+  					<%= image_tag("key.svg", size: "25x25", alt: "Cambiar clave", class: "rounded hover:bg-yellow-200") %>
+  				<% end %>
+        </td>
       </tr>
     <% if @teams %>
       <tr>
