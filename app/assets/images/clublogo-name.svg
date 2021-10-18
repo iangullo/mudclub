@@ -8,12 +8,12 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="114.69388mm"
-   height="20mm"
-   viewBox="0 0 114.69388 20"
+   width="231.12704mm"
+   height="33.866665mm"
+   viewBox="0 0 231.12705 33.866665"
    version="1.1"
    id="svg8"
-   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="clublogo-name.svg"
    inkscape:export-filename="C:\Users\SESA219410\Source\rails\bclub\app\assets\images\clublogo-name.png"
    inkscape:export-xdpi="90"
@@ -27,16 +27,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.3927008"
-     inkscape:cx="83.589204"
-     inkscape:cy="4.6567122"
+     inkscape:zoom="1.0981752"
+     inkscape:cx="231.06946"
+     inkscape:cy="305.73708"
      inkscape:document-units="mm"
-     inkscape:current-layer="g1573"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1016"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:document-rotation="0" />
   <metadata
@@ -55,34 +55,35 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-13.909526,-15.138089)">
+     transform="translate(-13.909514,-1.2714367)">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.71836662px;line-height:1.25;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#fe9e14;fill-opacity:1;stroke:none;stroke-width:0.34829929"
-       x="37.101364"
-       y="30.844213"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:35.38721085px;line-height:1.25;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#fe9e14;fill-opacity:1;stroke:none;stroke-width:0.73723352"
+       x="51.357246"
+       y="30.51605"
        id="text4531"><tspan
          sodipodi:role="line"
          id="tspan4529"
-         x="37.101364"
-         y="30.844213"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.71836662px;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#fe9e14;fill-opacity:1;stroke-width:0.34829929">CB Mairena</tspan></text>
+         x="51.357246"
+         y="30.51605"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:35.38721085px;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#fe9e14;fill-opacity:1;stroke-width:0.73723352">CB Mairena</tspan></text>
     <g
        id="g1573"
        transform="matrix(0.18897637,0,0,0.18897637,19.689964,8.4973107)">
       <circle
-         r="49.458633"
-         cy="88.057457"
-         cx="22.328516"
+         cy="51.368637"
+         cx="59.017338"
          id="path826"
-         style="fill:none;fill-opacity:1;stroke:#fe9e14;stroke-width:6.91620862;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="fill:none;fill-opacity:1;stroke:#fe9e14;stroke-width:11.7114315;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         r="83.74984" />
       <g
-         id="g879">
+         id="g879"
+         transform="matrix(1.6933311,0,0,1.6933311,21.207766,-97.741798)">
         <circle
            cy="88.056396"
            cx="22.327457"
            id="path826-3"
-           style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:6.43235;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:6.43235016;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            r="45.999401" />
         <image
            width="90.487503"

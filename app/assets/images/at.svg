@@ -28,7 +28,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="6.640625"
-     inkscape:cx="46.37858"
+     inkscape:cx="21.907992"
      inkscape:cy="25.429714"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -51,7 +51,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -90,14 +90,14 @@
        sodipodi:nodetypes="caaaaaaaac" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:82.95696259px;line-height:1.25;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000080;fill-opacity:1;stroke:none;stroke-width:1.72827005"
-       x="-4.4556961"
-       y="49.377747"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:80.36455536px;line-height:1.25;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000080;fill-opacity:1;stroke:none;stroke-width:1.67426157"
+       x="-3.3164556"
+       y="48.834381"
        id="text4531"><tspan
          sodipodi:role="line"
          id="tspan4529"
-         x="-4.4556961"
-         y="49.377747"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:82.95696259px;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000080;fill-opacity:1;stroke-width:1.72827005">@</tspan></text>
+         x="-3.3164556"
+         y="48.834381"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:80.36455536px;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000080;fill-opacity:1;stroke-width:1.67426157">@</tspan></text>
   </g>
 </svg>
