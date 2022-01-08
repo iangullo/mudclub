@@ -29,7 +29,7 @@ class DrillsController < ApplicationController
 
 	# GET /drills/1/edit
 	def edit
-		unless current_user.present? and (@drill.coach_id == current_user.coach_id)
+		unless current_user.present? and (@drill.coach_id == current_user.person.coach_id)
 			redirect_to drills_url
 		end
 	end
