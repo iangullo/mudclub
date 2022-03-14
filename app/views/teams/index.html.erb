@@ -2,7 +2,7 @@
 	<div id="teams-header">
 		<table>
 			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-				<%= image_tag "team.png", size: "50x50" %>Equipos&nbsp;
+				<%= image_tag "team.svg", size: "50x50" %>Equipos&nbsp;
 				<div id="search-team" class="inline-flex text-gray-700 rounded border shadow-inner">
 					<%= form_with(url: '/teams', method: 'get', local: true) do |f| %>
 						<%= f.collection_select :season_id, Season.all.order(name: :desc), :id, :name, {selected: params[:season_id] ? params[:season_id].to_i : 0} %>
