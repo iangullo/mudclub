@@ -106,6 +106,6 @@ class TeamsController < ApplicationController
 
 	# Never trust parameters from the scary internet, only allow the white list through.
 	def team_params
-		params.require(:team).permit(:id, :name, :category_id, :division_id, :season_id, :homecourt_id, :coaches, :players, coaches_attributes: [:id], coach_ids: [], player_ids: [], players_attributes: [:id])
+		params.require(:team).permit(:id, :name, :category_id, :division_id, :season_id, :homecourt_id, :coaches, :players, coaches_attributes: [:id], coach_ids: [], player_ids: [], players_attributes: [:id], targets: [], team_targets: [])
 	end
 end

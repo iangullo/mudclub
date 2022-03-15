@@ -5,13 +5,13 @@ class Team < ApplicationRecord
 	has_and_belongs_to_many :players
 	has_and_belongs_to_many :coaches
 	has_many :training_slots
-	has_many :training_sessions
+	has_many :team_targets
+  has_many :targets, through: :team_targets
 #	accepts_nested_attributes_for :category
 #	accepts_nested_attributes_for :division
 #	accepts_nested_attributes_for :season
 	accepts_nested_attributes_for :coaches
 	accepts_nested_attributes_for :players
-	accepts_nested_attributes_for :training_sessions
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
@@ -57,5 +57,50 @@ class Team < ApplicationRecord
 
 	def has_player(p_id)
 		self.players.find_index { |p| p[:id]==p_id }
+	end
+
+	def general_def(month=0)
+    search_targets(month, 0, 2)
+  end
+
+  def general_off(month=0)
+    search_targets(month, 0, 1)
+  end
+
+  def individual_def(month=0)
+    search_targets(month, 1, 2)
+  end
+
+  def individual_off(month=0)
+    search_targets(month, 1, 1)
+  end
+
+  def collective_def(month=0)
+    search_targets(month, 2, 2)
+  end
+
+  def collective_off(month=0)
+    search_targets(month, 2, 1)
+  end
+
+private
+	# search team_targets based on target attributes
+	def search_targets(month=0, aspect=nil, focus=nil)
+		#puts "Plan.search(team: " + ", month: " + month.to_s + ", aspect: " + aspect.to_s + ", focus: " + focus.to_s + ")"
+		tgt = self.team_targets.monthly(month)
+		res = Array.new
+		tgt.each { |p|
+			puts p.to_s
+			if aspect and focus
+				res.push p if ((p.target.aspect_before_type_cast == aspect) and (p.target.focus_before_type_cast == focus))
+			elsif aspect
+				res.push p if (p.target.aspect_before_type_cast == aspect)
+			elsif focus
+				res.push p if (p.target.focus_before_type_cast == focus)
+			else
+				res.push p
+			end
+		}
+		res
 	end
 end
