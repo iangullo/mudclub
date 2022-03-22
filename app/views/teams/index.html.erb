@@ -17,7 +17,7 @@
 		<table class="table-auto">
 	    <thead>
 	      <tr>
-	        <th class="bg-indigo-900 text-gray-300 align-center border px py ">Nombre</th>
+	        <th class="bg-indigo-900 text-gray-300 align-center border px py">Nombre</th>
 	        <th class="bg-indigo-900 text-gray-300 align-center border px py">Temporada</th>
 	        <th colspan="2">
 						<% if current_user.admin? %>
@@ -32,7 +32,7 @@
 	    <tbody>
 	      <% @teams.each do |team| %>
 	        <tr>
-	          <td class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team, data: {"turbo-frame": "modal" } %></td>
+	          <td class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team %></td>
 	          <td align="center" class="border px py"><%= team.season.name %></td>
 						<% if current_user.admin? %>
 	          <td>
