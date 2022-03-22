@@ -7,6 +7,9 @@ Rails.application.routes.draw do
     put 'users' => 'devise/registrations#update', :as => 'user_registration'
   end
   resources :users
+  resources :seasons do
+    resources :locations
+  end
   resources :teams
   resources :drills
   resources :training_slots

@@ -1,0 +1,61 @@
+<% if current_user.admin? %>
+  <div id="seasons-index">
+	 <div id="seasons-header">
+  		<table>
+        <tr>
+          <th rowspan="2" class="items-center justify-center">
+    				<%= image_tag "calendar.svg", size: "50x50" %>
+          </th>
+  				<th align="left" class="text-yellow-600">Temporada</th>
+        </tr><tr>
+          <th>
+    				<div id="search-season" class="inline-flex text-gray-700 rounded border shadow-inner">
+    					<%= form_with(url: '/seasons', method: 'get', local: true) do |f| %>
+    						<%= f.collection_select :search, Season.all.order(name: :desc), :id, :name, {selected: params[:search] ? params[:search].to_i : Season.last.id} %>
+    						<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Temporada" %>
+    					<% end %>
+    	      </div>
+    			</th>
+          <th>
+            <%= link_to new_season_path, data: {"turbo-frame": "modal" } do %>
+              <%= render "shared/add" %>
+            <% end %>
+          </th>
+        </tr><td><br></td><tr>
+          <td align="center">
+            <%= link_to season_locations_path(@season), data: {"turbo-frame": "modal" } do %>
+              <%= image_tag "location.svg", size: "50x50" %>Pistas
+            <% end %>
+          </td>
+          <td align="center"><%= image_tag "training.svg", size: "50x50" %>Horarios</td>
+        </tr><tr>
+          <td align="center">
+            <%= link_to teams_path + "?season_id=" + @season.id.to_s do %>
+          	 <%= image_tag "team.svg", size: "50x50" %>Equipos
+            <% end %>
+          </td>
+          <td align="center"><%= image_tag "calendar.svg", size: "50x50" %>Calendario</td>
+        </tr>
+      </table>
+    </div>
+    <br>
+    <div id="season-events">
+  		<table class="table-auto">
+        <thead>
+          <th class="bg-indigo-900 text-gray-300 align-center border px py">Fecha</th>
+          <th class="bg-indigo-900 text-gray-300 align-center border px py">Hora</th>
+          <th class="bg-indigo-900 text-gray-300 align-center border px py">Local</th>
+          <th class="bg-indigo-900 text-gray-300 align-center border px py">Visitante</th>
+        </thead>
+  	    <tbody>
+        </tbody>
+      </table>
+    </div>
+    <br>
+    <div align="right">
+      <%= link_to edit_season_path(@season), data: {"turbo-frame": "modal" } do %>
+        <%= render "shared/edit" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
