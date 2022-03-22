@@ -1,6 +1,6 @@
 class Target < ApplicationRecord
   has_many :team_targets
-  has_many :targets, through: :team_targets
+  has_many :teams, through: :team_targets
 
   enum aspect: {
     general: 0,

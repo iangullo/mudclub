@@ -28,7 +28,7 @@
 				<td align="right"><strong><%= image_tag "calendar.svg", size: "25x25", alt: "Nac:"  %></strong></td>
 				<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %>
 			</tr><tr>
-				<td><strong>DNI:&nbsp;</strong><%= f.text_field :dni, size: 7, class: "rounded border shadow-inner" %></td>
+				<td><strong>DNI:&nbsp;</strong><%= f.text_field :dni, size: 8, class: "rounded border shadow-inner" %></td>
 				<td align="right"><strong><%= image_tag "user.svg", size: "25x25", alt: "Nick:"  %></strong></td>
 				<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 			</tr><tr>

@@ -1,0 +1,36 @@
+<%= render "shared/modal" do %>
+  <table>
+    <tr>
+      <th rowspan="2">
+        <%= image_tag("location.svg", :size => "50x50") %>
+      </th><th align="left" class="rounded-md text-yellow-600">
+        Location
+      </th>
+    </tr><tr>
+      <th align="left" ><strong><%= @season.name %></strong></th>
+    </tr><tr>
+  </table>
+  <div id="SeasonLocations">
+    <%= form_with model: @season, remote: true do |form| %>
+    <table>
+      <tr>
+        <th class="bg-indigo-900 text-gray-300">Nombre</th>
+        <th class="bg-indigo-900 text-gray-300">Tipo</th>
+        <th class="bg-indigo-900 text-gray-300">Mapa</th>
+        <th></th>
+      </tr><tr>
+        <template data-nested-form-target="template">
+          <%= form.fields_for :locations, SeasonLocation.new(season_id: @season.id), child_index: 'NEW_LOCATION' do |location_fields| %>
+            <%= render 'location_row', form: location_fields %>
+          <% end %>
+        </template>
+        <%= form.fields_for :locations do |location_fields| %>
+          <%= render 'location_row', form: location_fields %>
+        <% end %>
+        <div data-nested-form-target="target"></div>
+        <button type="button" data-action="nested-form#add"><%= render "shared/add" %></button>
+      </tr>
+    </table>
+    <% end %>
+  </div>
+<% end %>
