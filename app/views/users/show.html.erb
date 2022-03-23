@@ -4,7 +4,7 @@
 			<td rowspan="2" align="center">
 				<%= image_tag(@user.picture, :size => "100x100", class: "rounded-full") %>
 			</td>
-			<td><%= @user.s_name %></td>
+			<th align="left" class="align-top rounded-md text-yellow-600"><%= @user.s_name %></th>
 			<td align="right">
 				<%= link_to "/users/" + @user.id.to_s + "/edit", data: {"turbo-frame": "modal" } do %>
 					<%= render "shared/edit" %>

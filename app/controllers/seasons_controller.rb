@@ -16,6 +16,7 @@ class SeasonsController < ApplicationController
   def edit
     if current_user.present? and current_user.admin?
 			@season = Season.new(name: "NUEVA") unless @season
+      @eligible_locations = @season.eligible_locations
 		else
 			redirect_to "/"
 		end
@@ -35,11 +36,12 @@ class SeasonsController < ApplicationController
   def create
     if current_user.present? and current_user.admin?
     	@season = Season.new(season_params)
+      @eligible_locations = @season.eligible_locations
 
 			# added to import excel
 	    respond_to do |format|
 	      if @season.save
-	        format.html { redirect_to seasons_url, notice: 'Temporada creada.' }
+	        format.html { redirect_to :index, notice: 'Temporada creada.' }
 	        format.json { render :index, status: :created, location: seasons_url }
 	      else
 	        format.html { render :new }
@@ -56,8 +58,9 @@ class SeasonsController < ApplicationController
   def update
 		if current_user.present? and current_user.admin?
     	respond_to do |format|
+        check_locations
       	if @season.update(season_params)
-	        format.html { redirect_to seasons_url, notice: "Temporada actualizada." }
+	        format.html { redirect_to :index, notice: "Temporada actualizada." }
 					format.json { render :index, status: :created, location: seasons_url }
 	      else
 	        format.html { render :edit }
@@ -76,7 +79,7 @@ class SeasonsController < ApplicationController
 			erase_links
 			@season.destroy
 	    respond_to do |format|
-	      format.html { redirect_to seasons_url, notice: 'Temporada borrada.' }
+	      format.html { redirect_to :index, notice: 'Temporada borrada.' }
 	      format.json { head :no_content }
 	    end
 		else
@@ -87,10 +90,23 @@ class SeasonsController < ApplicationController
 private
   # Never trust parameters from the scary internet, only allow the white list through.
   def season_params
-    params.require(:season).permit(:id, :name, :start, :end, locations: [], season_locations: [])
+    params.require(:season).permit(:id, :name, :start, :end, locations_attributes: [:id, :_destroy], locations: [], season_locations: [])
   end
 
   def set_season
      @season = Season.find(params[:id]) unless @season.try(:id)==params[:id]
+  end
+
+  def check_locations
+    if params[:season][:locations_attributes]
+      params[:season][:locations_attributes].each { |loc|
+        if loc[1][:_destroy] == "true"
+          @season.locations.delete(loc[1][:id].to_i)
+        else
+          l = @season.locations.find { |l| l[:id] == loc[1][:id].to_i }
+          @season.locations << Location.find(loc[1][:id].to_i) unless l
+        end
+      }
+    end
   end
 end

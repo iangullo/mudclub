@@ -1,4 +1,4 @@
-<%= form_with model: season, data: data, remote: true do |form| %>
+<%= form_with model: season, remote: true, authenticity_token: true, data: { label: label, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |form| %>
 	<% if season.errors.any? %>
 		<div id="error_explanation">
 			<h2><%= pluralize(season.errors.count, "error") %> impiden guardar esta temporada:</h2>
@@ -16,7 +16,7 @@
 			<th rowspan="2" class="align-top">
 				<%= image_tag("calendar.svg", :size => "50x50") %>
 			</th><th colspan="2" align="left" class="rounded-md text-yellow-600">
-				<%= data %>
+				<%= label %>
 			</th>
 		</tr><tr>
 			<td><%= form.text_field :name, size: 8, class: "rounded border shadow-inner" %></td>
@@ -26,6 +26,42 @@
 		</tr><tr>
 			<td align="right"><strong>Final</strong></td>
 			<td><%= form.date_field :end, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
+		</tr>
+	</table>
+	<table>
+		<tr>
+			<td align="center"><%= image_tag("location.svg", size: "30x30") %></td>
+			<th>Pistas de Entrenamiento</th>
+		</tr><tr>
+			<td colspan="2">
+				<div id="LocationsList">
+					<table>
+						<tr class="bg-indigo-900 text-gray-300">
+							<th class="border px py">Nombre</th>
+							<th class="border px py">Tipo</th>
+							<th class="border px py">Ubic.</th>
+						</tr>
+						<div data-nested-form-target="target">
+							<%= form.fields_for :locations do |loc| %>
+								<%= render 'shared/location_row', form: loc %>
+							<% end %>
+						</div>
+						<tr>
+							<td></td><td></td><td></td><td>
+								<button type="button" data-action="nested-form#add"><%= render "shared/add" %></button>
+							</td>
+						</tr><tr>
+							<div>
+							<template data-nested-form-target="template">
+								<%= form.fields_for :locations, Location.new, child_index: 'NEW_RECORD' do |loc| %>
+									<%= render 'shared/location_row', form: loc %>
+								<% end %>
+							</template>
+							</div>
+						</tr>
+					</table>
+				</div>
+			</td>
 		</tr>
 	</table>
 	<%= render "shared/save" %>
