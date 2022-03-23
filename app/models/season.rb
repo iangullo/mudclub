@@ -14,9 +14,14 @@ class Season < ApplicationRecord
 	#Search field matching
 	def self.search(search)
 		if search
-			search.length>0 ? Season.where(["id = ?","#{search}"]).first : Season.last
+			search.to_s.length>0 ? Season.where(["id = ?","#{search.to_s}"]).first : Season.last
 		else
 			Season.last
 		end
 	end
+
+	# elgible locations to train / play
+	def eligible_locations
+    @locations = Location.real - self.locations
+  end
 end

@@ -1,0 +1,28 @@
+<%= render "shared/modal" do %>
+	<table>
+		<tr>
+      <th rowspan="2">
+        <%= image_tag("location.svg", :size => "50x50") %>
+      </th>
+      <th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
+				<%= @location.name %>
+			</th>
+		</tr><tr>
+			<td align="center"><%= image_tag "gmaps.svg", size: "25x25", alt: "GPS"  %></td>
+      <td><%= @location.gmaps_url %></td>
+    </tr><tr>
+      <td></td>
+      <td align="center">
+				<%= image_tag(@location.practice_court ? "training.svg" : "team.svg", size: "25x25") %>
+      </td>
+		</tr><tr>
+			<td colspan="3" align="right">
+				<% if current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id %>
+					<%= link_to edit_location_path(@location), data: {"turbo-frame": "modal" } do %>
+						<%= render "shared/edit" %>
+					<% end %>
+				<% end %>
+			</td>
+  	</tr>
+	</table>
+<% end %>

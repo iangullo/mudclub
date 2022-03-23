@@ -1,9 +1,0 @@
-<div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
-	<div>
-		<%= form.text_field Location.find(), placeholder: 'Fundamento', class: 'form-control', class: "rounded border shadow-inner" %>
-		<button type="button" class="object-left-bottom" data-action="nested-form#remove">
-			<%= render "shared/remove" %>
-		</button>
-	</div>
-	<%= form.hidden_field :_destroy %>
-</div>

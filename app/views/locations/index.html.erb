@@ -1,36 +1,48 @@
 <%= render "shared/modal" do %>
-  <table>
-    <tr>
-      <th rowspan="2">
-        <%= image_tag("location.svg", :size => "50x50") %>
-      </th><th align="left" class="rounded-md text-yellow-600">
-        Location
-      </th>
-    </tr><tr>
-      <th align="left" ><strong><%= @season.name %></strong></th>
-    </tr><tr>
-  </table>
-  <div id="SeasonLocations">
-    <%= form_with model: @season, remote: true do |form| %>
+  <div id="LocationsHeader">
     <table>
       <tr>
-        <th class="bg-indigo-900 text-gray-300">Nombre</th>
-        <th class="bg-indigo-900 text-gray-300">Tipo</th>
-        <th class="bg-indigo-900 text-gray-300">Mapa</th>
-        <th></th>
+        <th rowspan="2">
+          <%= image_tag("location.svg", :size => "50x50") %>
+        </th><th align="left" class="align-top rounded-md text-yellow-600">
+          Ubicaciones
+        </th>
       </tr><tr>
-        <template data-nested-form-target="template">
-          <%= form.fields_for :locations, SeasonLocation.new(season_id: @season.id), child_index: 'NEW_LOCATION' do |location_fields| %>
-            <%= render 'location_row', form: location_fields %>
-          <% end %>
-        </template>
-        <%= form.fields_for :locations do |location_fields| %>
-          <%= render 'location_row', form: location_fields %>
-        <% end %>
-        <div data-nested-form-target="target"></div>
-        <button type="button" data-action="nested-form#add"><%= render "shared/add" %></button>
+        <th align="left"><%= @season ? @season.name : " " %><th>
       </tr>
     </table>
-    <% end %>
+  </div>
+  <div id="LocationsList">
+    <table>
+      <tr class="bg-indigo-900 text-gray-300">
+  			<th class="border px py">Nombre</th>
+  			<th class="border px py">Tipo</th>
+  			<th class="border px py">Ubic.</th>
+      </tr>
+        <% if @season %>
+          <%= form_with model: season, remote: true, authenticity_token: true, data: { label: label, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |form| %>
+          <% end %>
+        <% else %>
+          <% @locations.each do |loc| %>
+          <tr>
+            <td class="rounded border px py">
+              <%= loc.name %>
+            </td>
+            <td align="center" class="rounded border px py">
+              <%= image_tag(loc.practice_court ? "training.svg" : "team.svg", size: "20x20") %>
+            </td><td align="center" class="rounded border px py">
+              <%= loc.gmaps_url ? image_tag("gmaps.svg", size: "20x20") : "" %>
+            </td>
+            <% if current_user.admin? %>
+              <td>
+                <%= link_to loc, method: :delete, data: { confirm: "¿Borrar '#{loc.name}'?" } do %>
+                  <%= render "shared/delete" %>
+                <% end %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      <% end %>
+    </table>
   </div>
 <% end %>
