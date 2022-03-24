@@ -19,15 +19,15 @@
   			<th class="border px py">Tipo</th>
   			<th class="border px py">Ubic.</th>
       </tr>
-        <% if @season %>
-          <%= form_with model: season, remote: true, authenticity_token: true, data: { label: label, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |form| %>
-          <% end %>
-        <% else %>
-          <% @locations.each do |loc| %>
+      <% if @season %>
+        <%= form_with model: @season, remote: true, authenticity_token: true, data: { label: label, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |form| %>
+        <% end %>
+      <% else %>
+        <% @locations.each do |loc| %>
           <tr>
-            <td class="rounded border px py">
-              <%= loc.name %>
-            </td>
+            <td class="border px py hover:text-white hover:bg-blue-700">
+							<%= link_to loc.name, loc %>
+						</td>
             <td align="center" class="rounded border px py">
               <%= image_tag(loc.practice_court ? "training.svg" : "team.svg", size: "20x20") %>
             </td><td align="center" class="rounded border px py">
@@ -42,6 +42,14 @@
             <% end %>
           </tr>
         <% end %>
+        <tr>
+          <td colspan="3"></td>
+          <td>
+            <%= link_to new_location_path do %>
+  						<%= render "shared/add" %>
+  					<% end %>
+          </td>
+        </tr>
       <% end %>
     </table>
   </div>

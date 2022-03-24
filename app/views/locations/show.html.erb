@@ -17,8 +17,8 @@
       </td>
 		</tr><tr>
 			<td colspan="3" align="right">
-				<% if current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id %>
-					<%= link_to edit_location_path(@location), data: {"turbo-frame": "modal" } do %>
+				<% if current_user.admin? or current_user.is_coach?  %>
+					<%= link_to edit_location_path(@location) do %>
 						<%= render "shared/edit" %>
 					<% end %>
 				<% end %>
