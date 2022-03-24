@@ -35,10 +35,14 @@
             <% end %>
           </td>
           <td align="center"><%= image_tag "calendar.svg", size: "50x50" %>Calendario</td>
+          <td align="right">
+            <%= link_to edit_season_path(@season), data: {"turbo-frame": "modal" } do %>
+              <%= render "shared/edit" %>
+            <% end %>
+          </td>
         </tr>
       </table>
     </div>
-    <br>
     <div id="season-events">
   		<table class="table-auto">
         <thead>
@@ -50,12 +54,6 @@
   	    <tbody>
         </tbody>
       </table>
-    </div>
-    <br>
-    <div align="right">
-      <%= link_to edit_season_path(@season), data: {"turbo-frame": "modal" } do %>
-        <%= render "shared/edit" %>
-      <% end %>
     </div>
   </div>
 <% end %>
