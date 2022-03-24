@@ -8,8 +8,9 @@
 				<%= @location.name %>
 			</th>
 		</tr><tr>
-			<td align="center"><%= image_tag "gmaps.svg", size: "25x25", alt: "GPS"  %></td>
-      <td><%= @location.gmaps_url %></td>
+			<td align="center">
+				<%= image_tag("gmaps.svg", size: "25x25") %>
+      <td><%= link_to @location.gmaps_url, @location.gmaps_url, target: ':blank' %></td>
     </tr><tr>
       <td></td>
       <td align="center">
