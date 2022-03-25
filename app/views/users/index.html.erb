@@ -1,14 +1,14 @@
-<div id="user-index">
-	<div id="user-header">
+<div id="users-index">
+	<div id="users-header">
 		<table>
 			<tr>
 				<th rowspan="2" class="items-center justify-center">
 					<%= image_tag "user.svg", size: "50x50", class: "rounded-full" %>
 				</th>
-				<th align="left" class="text-yellow-600">Usuarios</th>
+				<th align="left" class="align-top text-yellow-600">Usuarios</th>
 			</tr><tr>
 				<th>
-					<div id="search-people" class="inline-flex rounded border">
+					<div id="users-search" class="inline-flex rounded border">
 						<%= form_with(url: '/users', method: 'get', local: true) do %>
 							<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
 							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
@@ -17,7 +17,6 @@
 				</th>
 		</table>
 	</div>
-	<br>
 	<div id="users-grid">
 		<table class="table-auto">
 			<thead>

@@ -109,7 +109,7 @@ private
       @locations = @season.locations.order(:name)
       @eligible_locations = @season.eligible_locations
     else
-      @locations = Location.real.order(:name)
+      @locations = Location.search(params[:search]).order(:name)
     end
     if params[:id]
       @location = Location.find(params[:id]) unless @location.try(:id)==params[:id]

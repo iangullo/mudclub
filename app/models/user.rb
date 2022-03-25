@@ -60,7 +60,6 @@ class User < ApplicationRecord
 		self.avatar.attached? ? self.avatar : "user.svg"
 	end
 
-
   #Search field matching
 	def self.search(search)
 		if search
