@@ -1,9 +1,13 @@
-<div id="player-index">
-	<div id="player-header">
+<div id="players-index">
+	<div id="players-header">
 		<table>
 			<tr>
-				<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-					<%= image_tag "player.svg", size: "50x50", class: "rounded-full" %>&nbsp;Jugadores&nbsp;
+				<th rowspan="2">
+					<%= image_tag "player.svg", size: "50x50" %>
+				</th>
+				<th align="left" class="align-top text-yellow-600">Jugadores/as</th>
+			</tr><tr>
+				<th align="left">
 					<div id="search-people" class="inline-flex rounded border">
 						<%= form_with(url: '/players', method: 'get', local: true) do %>
 							<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
@@ -14,7 +18,6 @@
 			</tr>
 		</table>
 	</div>
-
 	<div id="players-grid">
 		<table class="table-auto">
 			<thead>
@@ -23,7 +26,7 @@
 					<th class="bg-indigo-900 text-gray-300 align-center border px py">Nombre</th>
 					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Edad</th>
 					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Activ.</th>
-					<% if current_user.is_coach? %>
+					<% if current_user.admin? or current_user.is_coach? %>
 						<th align="center">
 							<%= link_to new_player_path, data: {"turbo-frame": "modal" } do %>
 								<%= render "shared/add" %>
@@ -32,7 +35,6 @@
 					<% end %>
 				</tr>
 			</thead>
-
 			<tbody>
 				<% @players.each do |player| %>
 					<tr>
@@ -53,9 +55,8 @@
 		</table>
 	</div>
 	<br>
-
-	<% if current_user.admin? %>
-		<div id="import-export">
+	<div id="import-export">
+		<% if current_user.admin? %>
 			<table>
 				<tr>
 					<td>
@@ -66,7 +67,7 @@
 						</div>
 					</td>
 				</tr><tr>
-					<td><%= image_tag "import.svg", class: "align-top max-h-7 min-h-5" %></td>
+					<td><%= image_tag "import.svg", class: "inline align-top max-h-7 min-h-5" %></td>
 					<td>
 						<%= form_with url: import_players_path, local: true do |form| %>
 							<%= form.file_field :file %>
@@ -75,6 +76,6 @@
 					</td>
 				</tr>
 			</table>
-		</div>
-	<% end %>
+			<% end %>
+	</div>
 </div>

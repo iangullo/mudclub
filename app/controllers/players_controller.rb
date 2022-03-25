@@ -6,7 +6,7 @@ class PlayersController < ApplicationController
 	# GET /players.json
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@players = Player.search(params[:search])
+			@players = get_players
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
@@ -95,7 +95,7 @@ class PlayersController < ApplicationController
   # GET /players/import
   # GET /players/import.json
 	def import
-		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Player.import(params[:file])
 	    redirect_to players_url
@@ -123,6 +123,21 @@ class PlayersController < ApplicationController
 	# Use callbacks to share common setup or constraints between actions.
 	def set_player
 		@player = Player.find(params[:id]) unless @player.try(:id)==params[:id]
+	end
+
+	# get player list depending on the search parameter & user role
+	def get_players
+		if (params[:search] != nil) & (params[:search].length > 0)
+			@players = Player.search(params[:search])
+		else
+			if current_user.admin?
+				Player.real
+			elsif current_user.is_coach
+				Player.active
+			else
+				Player.none
+			end
+		end
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.
