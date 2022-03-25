@@ -1,29 +1,40 @@
 <%= render "shared/modal" do %>
-	<table>
-		<tr>
-      <th rowspan="2">
-        <%= image_tag("location.svg", :size => "50x50") %>
-      </th>
-      <th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
-				<%= @location.name %>
-			</th>
-		</tr><tr>
-			<td align="center">
-				<%= image_tag("gmaps.svg", size: "25x25") %>
-      <td><%= link_to @location.gmaps_url, @location.gmaps_url, target: ':blank' %></td>
-    </tr><tr>
-      <td></td>
-      <td align="center">
-				<%= image_tag(@location.practice_court ? "training.svg" : "team.svg", size: "25x25") %>
-      </td>
-		</tr><tr>
-			<td colspan="3" align="right">
-				<% if current_user.admin? or current_user.is_coach?  %>
-					<%= link_to edit_location_path(@location) do %>
-						<%= render "shared/edit" %>
-					<% end %>
-				<% end %>
-			</td>
-  	</tr>
-	</table>
+	<div id="locations-show">
+		<table>
+			<div id="locations-show-header">
+				<tr>
+		      <th rowspan="2">
+		        <%= image_tag("location.svg", :size => "50x50") %>
+		      </th>
+		      <th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
+						<%= @location.name %>
+					</th>
+				</tr>
+			</div>
+			<div id="locations-show-data">
+				<tr>
+					<td align="center">
+						<%= image_tag("gmaps.svg", size: "25x25") %>
+		      <td>
+						<% if @location.gmaps_url %>
+							<%= link_to "(ver ubicación)", @location.gmaps_url, target: ':blank' %>
+						<% end %>
+					</td>
+		    </tr><tr>
+		      <td></td>
+		      <td align="center">
+						<%= image_tag(@location.practice_court ? "training.svg" : "team.svg", size: "25x25") %>
+		      </td>
+				</tr><tr>
+					<td colspan="3" align="right">
+						<% if current_user.admin? or current_user.is_coach?  %>
+							<%= link_to edit_location_path(@location) do %>
+								<%= render "shared/edit" %>
+							<% end %>
+						<% end %>
+					</td>
+		  	</tr>
+			</div>
+		</table>
+	</div>
 <% end %>

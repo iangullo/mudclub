@@ -1,6 +1,6 @@
 <% if current_user.admin? %>
   <div id="seasons-index">
-	 <div id="seasons-header">
+	  <div id="seasons-header">
   		<table>
         <tr>
           <th rowspan="2" class="items-center justify-center">
@@ -21,13 +21,21 @@
               <%= render "shared/add" %>
             <% end %>
           </th>
-        </tr><td><br></td><tr>
+        </tr>
+      </table>
+    </div>
+    <div id="season-links">
+      <table>
+        <tr>
           <td align="center">
             <%= link_to season_locations_path(@season), data: {"turbo-frame": "modal" } do %>
               <%= image_tag "location.svg", size: "50x50" %>Pistas
             <% end %>
           </td>
-          <td align="center"><%= image_tag "timetable.svg", size: "50x50" %>Horarios</td>
+          <td align="center">
+            <%= link_to season_training_slots_path(@season), data: {"turbo-frame": "modal" } do %>
+              <%= image_tag "timetable.svg", size: "50x50" %>Horarios</td>
+            <% end %>
         </tr><tr>
           <td align="center">
             <%= link_to teams_path + "?season_id=" + @season.id.to_s do %>
@@ -43,7 +51,7 @@
         </tr>
       </table>
     </div>
-    <div id="season-events">
+    <div id="season-events-grid">
   		<table class="table-auto">
         <thead>
           <th class="bg-indigo-900 text-gray-300 align-center border px py">Fecha</th>

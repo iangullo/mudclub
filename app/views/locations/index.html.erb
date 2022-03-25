@@ -1,63 +1,61 @@
 <%= render "shared/modal" do %>
-  <div id="LocationsHeader">
-    <table>
-      <tr>
-        <th rowspan="2">
-          <%= image_tag("location.svg", :size => "50x50") %>
-        </th><th align="left" class="align-top rounded-md text-yellow-600">
-          Ubicaciones
-        </th>
-      </tr><tr>
-        <th align="left"><%= @season ? @season.name : " " %><th>
-      </tr>
-    </table>
-  </div>
-  <div id="LocationsList">
-    <table>
-      <tr class="bg-indigo-900 text-gray-300">
-  			<th class="border px py">Nombre</th>
-  			<th class="border px py">Tipo</th>
-  			<th class="border px py">Ubic.</th>
-      </tr>
-      <% @locations.each do |loc| %>
+  <div id="locations-index">
+    <div id="locations-header">
+      <table>
         <tr>
-          <td class="border px py hover:text-white hover:bg-blue-700">
-						<%= link_to loc.name, loc %>
-					</td>
-          <td align="center" class="rounded border px py">
-            <%= image_tag(loc.practice_court ? "training.svg" : "team.svg", size: "20x20") %>
-          </td><td align="center" class="rounded border px py">
-            <% if loc.gmaps_url %>
-              <%= link_to loc.gmaps_url, target: '_blank' do %>
-                <%= image_tag("gmaps.svg", size: "25x25") %>
+          <th rowspan="2">
+            <%= image_tag("location.svg", :size => "50x50") %>
+          </th><th align="left" class="align-top rounded-md text-yellow-600">
+            Ubicaciones
+          </th>
+        </tr><tr>
+          <th align="left"><%= @season ? @season.name : " " %><th>
+        </tr>
+      </table>
+    </div>
+    <div id="locations-grid">
+      <table>
+        <thead>
+          <tr class="bg-indigo-900 text-gray-300">
+      			<th class="border px py">Nombre</th>
+      			<th class="border px py">Tipo</th>
+      			<th class="border px py">Ubic.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @locations.each do |loc| %>
+            <tr>
+              <td class="border px py hover:text-white hover:bg-blue-700">
+    						<%= link_to loc.name, loc %>
+    					</td>
+              <td align="center" class="rounded border px py">
+                <%= image_tag(loc.practice_court ? "training.svg" : "team.svg", size: "20x20") %>
+              </td><td align="center" class="rounded border px py">
+                <% if loc.gmaps_url %>
+                  <%= link_to loc.gmaps_url, target: '_blank' do %>
+                    <%= image_tag("gmaps.svg", size: "25x25") %>
+                  <% end %>
+                <% end %>
+              </td>
+              <% if not @season and current_user.admin? %>
+                <td>
+                  <%= link_to loc, method: :delete, data: { confirm: "¿Borrar '#{loc.name}'?" } do %>
+                    <%= render "shared/delete" %>
+                  <% end %>
+                </td>
               <% end %>
-            <% end %>
-          </td>
-          <% if not @season and current_user.admin? %>
-            <td>
-              <%= link_to loc, method: :delete, data: { confirm: "¿Borrar '#{loc.name}'?" } do %>
-                <%= render "shared/delete" %>
+            </tr>
+          <% end %>
+          <tr>
+            <td colspan="2"></td>
+            <td align=<%=(@season ? """center""" : """right"" colspan=""2""") %>>
+              <%= link_to new_location_path do %>
+                <%= render "shared/add" %>
               <% end %>
             </td>
-          <% end %>
-        </tr>
-      <% end %>
-      <tr>
-        <td colspan="2"></td>
-        <% if @season %>
-          <td align="center">
-            <%= link_to new_location_path do %>
-              <%= render "shared/add" %>
-            <% end %>
-          </td>
-        <% else %>
-          <td colspan="2" align="right">
-            <%= link_to new_location_path do %>
-  						<%= render "shared/add" %>
-  					<% end %>
-          </td>
-        <% end %>
-      </tr>
-  </table>
-</div>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 <% end %>

@@ -5,7 +5,6 @@ class LocationsController < ApplicationController
   # GET /locations
   # GET /locations.json
   def index
-    set_locations unless @locations
     if current_user.present? and (current_user.admin? or current_user.is_coach)
 		else
 			redirect_to "/"

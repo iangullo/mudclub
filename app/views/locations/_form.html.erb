@@ -1,24 +1,31 @@
 <%= form_for location, remote: true, data: { label: label } do |form| %>
-	<table>
-		<tr>
-      <th rowspan="2">
-        <%= image_tag("location.svg", :size => "50x50") %>
-      </th>
-      <th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
-        <%= label %>
-      </th>
-		</tr><tr>
-			<td align="center"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
-			<td><%= form.text_field :name, autofocus: true, autocomplete: "Nombre", class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-      <td></td>
-			<td align="center"><%= image_tag "gmaps.svg", size: "25x25", alt: "GPS"  %></td>
-      <td><%= form.text_field :gmaps_url, autocomplete: "Enlace Google Maps", class: "rounded border shadow-inner" %></td>
-    </tr><tr>
-      <td></td>
-      <td align="center"><%= image_tag "training.svg", size: "25x25", alt: "P.Entrenamiento"  %>
-        <td align="left" class="inline-flex">Pista de Entrenamiento&nbsp;<%= form.check_box :practice_court %></td>
-  	</tr>
-	</table>
-	<%= render "shared/save" %>
+	<div id="locations-form">
+		<table>
+			<div id="locations-form-header">
+				<tr>
+		      <th rowspan="2">
+		        <%= image_tag("location.svg", :size => "50x50") %>
+		      </th>
+		      <th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
+		        <%= label %>
+		      </th>
+				</tr>
+			</div>
+			<div id="locations-form-data">
+				<tr>
+					<td align="center"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
+					<td><%= form.text_field :name, autofocus: true, autocomplete: "Nombre", class: "rounded border shadow-inner" %></td>
+				</tr><tr>
+		      <td></td>
+					<td align="center"><%= image_tag "gmaps.svg", size: "25x25", alt: "GPS"  %></td>
+		      <td><%= form.text_field :gmaps_url, autocomplete: "Enlace Google Maps", class: "rounded border shadow-inner" %></td>
+		    </tr><tr>
+		      <td></td>
+		      <td align="center"><%= image_tag "training.svg", size: "25x25", alt: "P.Entrenamiento"  %>
+		        <td align="left" class="inline-flex">Pista de Entrenamiento&nbsp;<%= form.check_box :practice_court %></td>
+		  	</tr>
+			</div>
+		</table>
+		<%= render "shared/save" %>
+	</div>
 <% end %>
