@@ -2,10 +2,10 @@
   <div id="home-logged-in">
     <table>
       <tr>
-        <td align="center">
+        <th align="center">
           <%= image_tag(current_user.picture, :size => "50x50", class: "rounded-full") %>
-        </td>
-        <td><strong><%= current_user.s_name %></strong></td>
+        </th>
+        <th align="left" class="text-yellow-600"><%= current_user.s_name %></th>
         <td align="right">
           <%= link_to "/users/" + current_user.id.to_s + "/edit", data: {"turbo-frame": "modal" } do %>
   					<%= render "shared/edit" %>
@@ -22,7 +22,7 @@
         <td colspan="3" align="center" class="border px py text-white bg-blue-900"><strong>Equipos</strong></td>
         <% @teams.each do |team| %>
           </tr><tr>
-            <td colspan="3" class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team, data: {"turbo-frame": "modal" } %></td>
+            <td colspan="3" class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team %></td>
         <% end %>
       </tr>
     <% end %>
