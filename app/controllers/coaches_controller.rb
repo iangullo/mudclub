@@ -6,7 +6,7 @@ class CoachesController < ApplicationController
 	# GET /coaches.json
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@coaches = Coach.search(params[:search])
+			@coaches = get_coaches
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
@@ -159,6 +159,21 @@ class CoachesController < ApplicationController
 	# Use callbacks to share common setup or constraints between actions.
 	def set_coach
 		@coach = Coach.find(params[:id]) unless @coach.try(:id)==params[:id]
+	end
+
+	# get coach list depending on the search parameter & user role
+	def get_coaches
+		if (params[:search] != nil) and (params[:search].length > 0)
+			@players = Coach.search(params[:search])
+		else
+			if current_user.admin?
+				Coach.real
+			elsif current_user.is_coach
+				Coach.active
+			else
+				Coach.none
+			end
+		end
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.

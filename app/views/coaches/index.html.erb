@@ -1,18 +1,23 @@
 <div id="coaches-index">
 	<div id="coaches-header">
 		<table>
-			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-				<%= image_tag "coach.svg", size: "50x50", class: "rounded-full" %>Entrenadores&nbsp;
-				<div id="search-people" class="inline-flex rounded border">
-					<%= form_with(url: '/coaches', method: 'get', local: true) do %>
-						<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
-						<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
-					<% end %>
-				</div>
-			</th>
+			<tr>
+				<th rowspan="2">
+					<%= image_tag "coach.svg", size: "50x50" %>
+				</th>
+				<th align="left" class="align-top text-yellow-600">Entrenadores/as</th>
+			</tr><tr>
+				<th align="left">
+					<div id="search-coaches" class="inline-flex rounded border">
+						<%= form_with(url: '/coaches', method: 'get', local: true) do %>
+							<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
+							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
+						<% end %>
+					</div>
+				</th>
+			</tr>
 		</table>
 	</div>
-
 	<div id="coaches-grid">
 		<table class="table-auto">
 			<thead>
@@ -20,35 +25,34 @@
 					<th class="bg-indigo-900 text-gray-300 align-center border px">Nombre</th>
 					<th class="bg-indigo-900 text-gray-300 align-center border px">Edad</th>
 					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px">Act.</th>
-					<th>
-						<% if current_user.admin? %>
+					<% if current_user.admin? %>
+						<th>
 							<%= link_to new_coach_path, data: {"turbo-frame": "modal" } do %>
 								<%= render "shared/add" %>
 							<% end %>
-						<% end %>
-					</th>
+						</th>
+					<% end %>
 				</tr>
 			</thead>
-
 			<tbody>
 				<% @coaches.each do |coach| %>
 					<tr>
 						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to coach.to_s, coach, data: {"turbo-frame": "modal" } %></td>
 						<td align="center" class="border px py"><%= coach.person.age %></td>
 						<td align="center" class="border px py"><%= coach.active ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
-						<td>
-							<% if current_user.admin? %>
+						<% if current_user.admin? %>
+							<td>
 								<%= link_to coach, method: :delete, data: { confirm: "¿Borrar '#{coach.to_s}'?" } do %>
 									<%= render "shared/delete" %>
 								<% end %>
-							<% end %>
-						</td>
+							</td>
+						<% end %>
 					</tr>
 				<% end %>
 			</tbody>
 		</table>
 	</div>
-
+	<br>
 	<% if current_user.admin? %>
 		<div id="import-export">
 			<table>
