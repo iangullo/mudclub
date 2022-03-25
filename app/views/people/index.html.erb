@@ -2,8 +2,12 @@
 	<div id="people-header">
 		<table>
 			<tr>
-				<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-					<%= image_tag "person.svg", size: "50x50", class: "rounded-full" %>Personas&nbsp;
+				<th rowspan="2">
+					<%= image_tag "person.svg", size: "50x50"%>
+				</th>
+				<th align="left" class="align-top text-yellow-600">Personas</th>
+			</tr><tr>
+				<th align="left">
 					<div id="search-people" class="inline-flex rounded border">
 						<%= form_with(url: '/people', method: 'get', local: true) do %>
 							<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
@@ -17,38 +21,38 @@
 	<div id="people-grid">
 		<table class="table-auto">
 			<thead>
-				<th colspan="2" align="left" class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
-				<th>
-					<%= link_to new_person_path, data: {"turbo-frame": "modal" } do %>
-						<%= render "shared/add" %>
-					<% end %>
-				</th>
+				<tr>
+					<th class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
+					<% if current_user.admin? %>
+						<th>
+						<%= link_to new_person_path, data: {"turbo-frame": "modal" } do %>
+							<%= render "shared/add" %>
+						<% end %>
+					</th>
+				<% end %>
+			</tr>
 			</thead>
-			<tbody class="divide-y">
+			<tbody>
 				<% @people.each do |person| %>
 					<tr>
 						<td class="border px py hover:text-white hover:bg-blue-700">
 							<%= link_to person.to_s, person, data: {"turbo-frame": "modal" } %>
 						</td>
-						<td align="center" class="border px py">
-							<%= person.player_id>0 ? "Jug." : "" %>
-							<% if person.coach_id>0 %>
-								<%= person.player_id>0 ? "/" : "" %>
-								Ent.
-							<% end %>
-						</td>
-						<td>
-							<%= link_to person, method: :delete, data: { confirm: "¿Borrar '#{person.to_s}'?" } do %>
-								<%= render "shared/delete" %>
-							<% end %>
-						</td>
+						<% if current_user.admin? %>
+							<td>
+								<%= link_to person, method: :delete, data: { confirm: "¿Borrar '#{person.to_s}'?" } do %>
+									<%= render "shared/delete" %>
+								<% end %>
+							</td>
+						<% end %>
 					</tr>
 				<% end %>
 			</tbody>
 		</table>
 	</div>
+	<br>
 	<% if current_user.admin? %>
-		<div id="people-footer" class="bottom-0">
+		<div id="import-export">
 			<table>
 				<tr>
 					<td>
