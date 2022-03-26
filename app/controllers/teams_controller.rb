@@ -126,7 +126,7 @@ class TeamsController < ApplicationController
 	# Use callbacks to share common setup or constraints between actions.
 	def set_team
 		@teams = Team.search(params[:season_id])
-		@team = Team.find(params[:id]) # unless @team.try(:id)==params[:id]
+		@team = Team.find(params[:id]) if params[:id]
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.
