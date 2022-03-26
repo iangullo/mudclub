@@ -1,24 +1,32 @@
 <div id="teams-index">
 	<div id="teams-header">
 		<table>
-			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-				<%= image_tag "team.svg", size: "50x50" %>Equipos&nbsp;
-				<div id="search-team" class="inline-flex text-gray-700 rounded border shadow-inner">
-					<%= form_with(url: '/teams', method: 'get', local: true) do |f| %>
-						<%= f.collection_select :season_id, Season.all.order(name: :desc), :id, :name, {selected: params[:season_id] ? params[:season_id].to_i : 0} %>
-						<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Temporada" %>
-					<% end %>
-	      </div>
-			</th>
-		</table>
+      <tr>
+        <th rowspan="2">
+          <%= image_tag("team.svg", size: "50x50") %>
+        </th>
+				<th align="left" class="align-top text-yellow-600">Equipos</th>
+      </tr><tr>
+				<th>
+					<div id="search-team" class="inline-flex text-gray-700 rounded border shadow-inner">
+						<%= form_with(url: '/teams', method: 'get', local: true) do |f| %>
+							<%= f.collection_select :season_id, Season.all.order(name: :desc), :id, :name, {selected: params[:season_id] ? params[:season_id].to_i : 1} %>
+							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Temporada" %>
+						<% end %>
+		      </div>
+				</th>
+      </tr>
+    </table>
 	</div>
-
 	<div id="teams-grid">
 		<table class="table-auto">
 	    <thead>
 	      <tr>
 	        <th class="bg-indigo-900 text-gray-300 align-center border px py">Nombre</th>
-	        <th class="bg-indigo-900 text-gray-300 align-center border px py">Temporada</th>
+					<% unless params[:season_id] %>
+						<th class="bg-indigo-900 text-gray-300 align-center border px py">Temporada</th>
+					<% end %>
+					<th class="bg-indigo-900 text-gray-300 align-center border px py">Liga</th>
 	        <th colspan="2">
 						<% if current_user.admin? %>
 							<%= link_to new_team_path, data: {"turbo-frame": "modal" } do %>
@@ -28,18 +36,20 @@
 					</th>
 	      </tr>
 	    </thead>
-
 	    <tbody>
 	      <% @teams.each do |team| %>
 	        <tr>
 	          <td class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team %></td>
-	          <td align="center" class="border px py"><%= team.season.name %></td>
+	          <% unless params[:season_id] %>
+							<td align="center" class="border px py"><%= team.season.name %></td>
+						<% end %>
+							<td align="center" class="border px py"><%= team.division.name %></td>
 						<% if current_user.admin? %>
-	          <td>
-	            <%= link_to team, method: :delete, data: { confirm: "¿Borrar '#{team.to_s}'?" } do %>
-	              <%= render "shared/delete" %>
-	            <% end %>
-	          </td>
+		          <td>
+		            <%= link_to team, method: :delete, data: { confirm: "¿Borrar '#{team.to_s}'?" } do %>
+		              <%= render "shared/delete" %>
+		            <% end %>
+		          </td>
 						<% end %>
 	        </tr>
 	      <% end %>

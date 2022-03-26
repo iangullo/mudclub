@@ -1,74 +1,34 @@
 <%= form_with model: team, remote: true do |form| %>
-	<% if team.errors.any? %>
-		<div id="error_explanation">
-			<h2><%= pluralize(team.errors.count, "error") %> impiden guardar este equipo:</h2>
-
-			<ul>
-				<% team.errors.full_messages.each do |message| %>
-					<li><%= message %></li>
-				<% end %>
-			</ul>
-		</div>
-	<% end %>
-
-	<table>
-		<tr>
-			<td rowspan="3" colspan="2" align="center">
-				<%= image_tag("team.svg", :size => "100x100") %>
-			</td>
-		</tr><tr>
-			<td><strong><%= form.label "Categ." %></strong></td>
-			<td colspan="3"><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
-		</tr><tr>
-			<td><strong><%= form.label "Comp." %></strong></td>
-			<td colspan="3"><%= form.collection_select :division_id, Division.real, :id, :name %></td>
-		</tr><tr>
-			<td><strong><%= form.label "Temp." %></strong></td>
-			<td><%= form.collection_select :season_id, Season.real.order(name: :desc), :id, :name %></td>
-			<td><strong><%= form.label "P.Local:" %></strong></td>
-			<td colspan="3"><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
-		</tr><tr>
-			<td align="right" colspan="2"><strong><%= form.label "Nombre" %></strong></td>
-			<td colspan="3"><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td align="right" class="align-top" colspan="2" rowspan="<%= @eligible_players.count+1 %>"><strong>Jugadores/as:</strong></td>
-			<td align="center"><strong>#</td><td><strong>Nombre</td><td align="center"><strong>Edad</td>
-			<td colspan="4">
-				<div id="player-selection">
-					<%= form.collection_check_boxes :player_ids, @eligible_players, :id, :to_s do |player| %>
-					<tr>
-						<div class="collection-check-box">
-							<td align="center" class="rounded border"><%= player.object.number %></td>
-							<td class="rounded border"><%= player.object.to_s %></td>
-							<td align="center" class="rounded border"><%= player.object.person.age %></td>
-							<td class="rounded border"><%= player.check_box %></td>
-						</div>
-					</tr>
+	<div id="team-form">
+		<table>
+			<div id="team-form-header">
+				<tr>
+					<th rowspan="3" class="items-center justify-center">
+						<%= image_tag("team.svg", size: "50x50") %>
+					</th>
+				</tr><tr>
+					<td align="left" class="align-top"><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
+				</tr><tr>
+					<% if current_user.admin? %>
+						<td><%= form.collection_select :season_id, Season.real.order(name: :desc), :id, :name %></td>
+					<% else %>
+						<th align="left"><%= form.object.season.name %></th>
 					<% end %>
-				</div>
-			</td>
-		</tr><tr>
-			<td colspan="2" align="right" class="align-top"><strong>Entrenadores/as:</strong></td>
-			<td colspan="4">
-				<div id="coach-selection">
-					<%= form.collection_check_boxes :coach_ids, Coach.active, :id, :to_s do |coach| %>
-						<%= coach.object.to_s %>
-						<%= coach.check_box %>
-						<br>
-					<% end %>
-				</div>
-			</td>
-		</tr><tr>
-			<td colspan="2" align="right" class="align-top"><strong>Sesiones:</strong></td>
-			<td colspan="4">
-				<% unless @team.training_slots.empty? %>
-					<strong><%= @team.training_slots.first.court %></strong>
-					<br>
-				<% end %>
-				<% @team.training_slots.order(:wday).each do |ts| %>
-					<%= ts.to_s %><br>
-				<% end %>
-			</td>
-	</table>
-	<%= render "shared/save" %>
+				</tr>
+			</div>
+			<div id="team-form-data">
+				<tr>
+					<td align="right"><strong><%= form.label "Cat:" %></strong></td>
+					<td><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
+				</tr><tr>
+					<td align="right"><strong><%= form.label "Comp:" %></strong></td>
+					<td><%= form.collection_select :division_id, Division.real, :id, :name %></td>
+				</tr><tr>
+					<td align="right"><strong><%= form.label "Local:" %></strong></td>
+					<td><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
+				</tr>
+			</div>
+		</table>
+		<%= render "shared/save" %>
+	</div>
 <% end %>
