@@ -6,6 +6,7 @@ class TrainingSlotsController < ApplicationController
   # GET /training_slots or /training_slots.json
   def index
     if current_user.present?
+      @season = Season.find(params[:season_id]) if params[:season_id]
       @training_slots = TrainingSlot.search(params[:location_id], params[:team_id])
     else
       redirect_to "/"
@@ -22,7 +23,8 @@ class TrainingSlotsController < ApplicationController
   # GET /training_slots/new
   def new
     if current_user.present? and current_user.admin?
-      @training_slot = TrainingSlot.new(season_id: 1, location_id: 1, wday: 1, start: Time.new(2000,1,1,16,00), duration: 90, team_id: 0)
+      @season = Season.find(params[:season_id]) if params[:season_id]
+      @training_slot = TrainingSlot.new(season_id: @season ? @season.id : 1, location_id: 1, wday: 1, start: Time.new(2000,1,1,16,00), duration: 90, team_id: 0)
   		@weekdays = weekdays
     else
       redirect_to(current_user.present? ? training_slots_url : "/")
@@ -32,13 +34,12 @@ class TrainingSlotsController < ApplicationController
   # GET /training_slots/1/edit
   def edit
 		@weekdays = weekdays
+    @season = Season.find(@training_slot.season_id)
   end
 
   # POST /training_slots or /training_slots.json
   def create
     if current_user.present? and current_user.admin?
-      @training_slot = TrainingSlot.new(season_id: 1, location_id: 1, wday: 1, start: Time.new(2000,1,1,16,00), duration: 90, team_id: 0)
-
       respond_to do |format|
   			rebuild_training_slot(params)	# rebuild training_slot
         if @training_slot.save
@@ -95,8 +96,10 @@ class TrainingSlotsController < ApplicationController
 		# build new @training_slot from raw input given by submittal from "new"
 		# return nil if unsuccessful
 		def rebuild_training_slot(params)
+      @training_slot = TrainingSlot.new(start: Time.new(2021,8,30,16,00))
 			p_data = params.fetch(:training_slot)
-			@training_slot.season_id   = p_data[:season_id]
+      t = Team.find(p_data[:team_id].to_i).season_id
+			@training_slot.season_id   = t ? t : 0
 			@training_slot.location_id = p_data[:location_id]
 			@training_slot.wday        = p_data[:wday]
 			@training_slot.team_id     = p_data[:team_id]
@@ -107,7 +110,7 @@ class TrainingSlotsController < ApplicationController
 		end
 
     # Use callbacks to share common setup or constraints between actions.
-    def set_training_slot(params)
+    def set_training_slot
       @training_slot = TrainingSlot.find(params[:id]) unless @training_slot.try(:id)==params[:id]
     end
 

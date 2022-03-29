@@ -41,11 +41,12 @@ class TrainingSlot < ApplicationRecord
 		self.start + self.duration.minutes
 	end
 
-	def at_work?(wday, t_hour)
+	# return if timetable row should be kept busy with this slot
+		def at_work?(wday, t_hour)
 		if self.wday == wday
 			if t_hour.hour.between?(self.hour, self.ending.hour)
 				if t_hour.hour == self.hour
-					return ((t_hour.min >= self.min) and ((self.ending.hour > self.hour) or (t_hour.min < self.ending.min)))
+					return ((t_hour.min >= (self.start + 15.minutes).min) and ((self.ending.hour > self.hour) or (t_hour.min < self.ending.min)))
 				elsif t_hour.hour == self.ending.hour
 					return (t_hour.min < self.ending.min)
 				else
@@ -57,9 +58,10 @@ class TrainingSlot < ApplicationRecord
 
 	# number of timetable  rows required
 	def timerows(wday, t_hour)
-		if self.start_time.wday == wday
-			if (t_hour.hour == self.hour && t_hour.min == self.min) or (t_hour.hour == self.hour && t_hour.min==29 && self.min==30)
-        return (self.end_time - self.start_time).to_i/1800
+		if self.wday == wday
+			if (t_hour.hour == self.hour && t_hour.min == 15) or (t_hour.hour == self.hour && t_hour.min==45)
+				srows = (self.duration - 15)/15.to_i
+				return srows
 			end
 		end
 	end
@@ -90,7 +92,7 @@ class TrainingSlot < ApplicationRecord
 				if t_id # and we have a team id
 					t_id > 0 ? TrainingSlot.for_location(l_id).for_team(t_id).order(:wday) : TrainingSlot.none
 				else	# only location searched
-					TrainingSlot.for_location(l_id).order(:wday) : TrainingSlot.none
+					TrainingSlot.for_location(l_id).order(:wday)
 				end
 			else	# placeholder location
 				if t_id # and we have a team id
@@ -102,7 +104,7 @@ class TrainingSlot < ApplicationRecord
 		elsif t_id	# only slots for a Team
 			t_id > 0 ? TrainingSlot.for_team(t_id).order(:wday) : TrainingSlot.none
 		else
-			TrainingSlot.none
+			TrainingSlot.for_location(Location.practice.first.id)
 		end
 	end
 
