@@ -1,17 +1,26 @@
+<%= render "shared/modal" do %>
 <div id="training-slots-index">
 	<div id="training-slots-header">
-		<table>
-			<td>
-			</td>
-			<th class="inline-flex items-center justify-center p-2 rounded-md text-yellow-600">
-				<%= image_tag "calendar.svg", size: "50x50" %>&nbsp;Horarios&nbsp;
-				<div id="search-slots" class="inline-flex text-gray-700 rounded border">
-					<%= form_with(url: '/training_slots', method: 'get', local: true) do |f| %>
-						<%= f.collection_select :location_id, Location.order(name: :desc), :id, :name, {selected: params[:location_id] ? params[:location_id].to_i : 0} %>
-						<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
-					<% end %>
-				</div>
-			</th>
+    <table>
+      <tr>
+        <th rowspan="2">
+          <%= image_tag("timetable.svg", size: "50x50") %>
+        </th><th align="left" class="align-top rounded-md text-yellow-600">
+          Horarios
+        </th>
+      </tr><tr>
+        <th align="left"><%= @season ? @season.name : " " %><th>
+      </tr><tr>
+				<td></td>
+				<td>
+					<div id="search-slots" class="inline-flex text-gray-700 rounded border">
+						<%= form_with(url: '/training_slots', method: 'get', local: true) do |f| %>
+							<%= f.collection_select :location_id, Location.order(name: :desc), :id, :name, {selected: params[:location_id] ? params[:location_id].to_i : 0} %>
+							<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
+						<% end %>
+					</div>
+				</td>
+			</tr>
 		</table>
 	</div>
 
@@ -44,3 +53,4 @@
 	</div>
 	<br>
 </div>
+<% end %>

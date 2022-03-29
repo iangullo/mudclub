@@ -2,7 +2,6 @@ class TrainingSlot < ApplicationRecord
 	belongs_to :season
 	belongs_to :team
 	has_one :location
-	has_many :training_sessions
 	scope :for_team, -> (t_id) { where("team_id = ?", t_id) }
 	scope :for_location, -> (l_id) { where("location_id = ?", l_id) }
 
