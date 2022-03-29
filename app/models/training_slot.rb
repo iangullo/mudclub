@@ -55,6 +55,15 @@ class TrainingSlot < ApplicationRecord
 		end
 	end
 
+	# number of timetable  rows required
+	def timerows(wday, t_hour)
+		if self.start_time.wday == wday
+			if (t_hour.hour == self.hour && t_hour.min == self.min) or (t_hour.hour == self.hour && t_hour.min==29 && self.min==30)
+        return (self.end_time - self.start_time).to_i/1800
+			end
+		end
+	end
+
 	#gives us the next TrainingSlot for this sequence
 	def next_slot
 		ts = TrainingSlot.for_team(self.team_id)
@@ -73,12 +82,27 @@ class TrainingSlot < ApplicationRecord
 	end
 
 	#Search for specific court
-	def self.search(search)
-		if search
-			l_id = search.to_i
-			l_id > 0 ? TrainingSlot.for_location(l_id).order(:wday) : TrainingSlot.all
+	def self.search(s_loc, s_team)
+		l_id = s_loc ? s_loc.to_i : nil	# store id of location & team being searched
+		t_id = s_team ? s_team.to_i : nil
+		if l_id	# we have a location (normal case)
+			if l_id > 0 # Real location provided
+				if t_id # and we have a team id
+					t_id > 0 ? TrainingSlot.for_location(l_id).for_team(t_id).order(:wday) : TrainingSlot.none
+				else	# only location searched
+					TrainingSlot.for_location(l_id).order(:wday) : TrainingSlot.none
+				end
+			else	# placeholder location
+				if t_id # and we have a team id
+					t_id > 0 ? TrainingSlot.for_team(t_id).order(:wday) : TrainingSlot.none
+				else
+					TrainingSlot.none
+				end
+			end
+		elsif t_id	# only slots for a Team
+			t_id > 0 ? TrainingSlot.for_team(t_id).order(:wday) : TrainingSlot.none
 		else
-			TrainingSlot.all
+			TrainingSlot.none
 		end
 	end
 

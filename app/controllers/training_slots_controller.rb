@@ -6,7 +6,7 @@ class TrainingSlotsController < ApplicationController
   # GET /training_slots or /training_slots.json
   def index
     if current_user.present?
-      @training_slots = TrainingSlot.search(params[:location_id])
+      @training_slots = TrainingSlot.search(params[:location_id], params[:team_id])
     else
       redirect_to "/"
     end

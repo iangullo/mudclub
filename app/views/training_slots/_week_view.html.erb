@@ -1,15 +1,20 @@
 <div id="slot-breakdown">
   <tr>
-		<td align="center" class="border px py"><%= t_hour.hour.to_s.rjust(2,"0") + ":" + t_hour.min.to_s.rjust(2,"0") %></td>
+    <td align="center" class="border px py"><%= t_hour.min==0 ? t_hour.hour.to_s.rjust(2,"0") + ":" + t_hour.min.to_s.rjust(2,"0") : "" %></td>
 		<% 1.upto(5) do |i| %>
-			<td class="border px py">
-				<% @training_slots.each do |t_slot| %>
-					<% if t_slot.at_work?(i,t_hour) %>
-						<%= link_to t_slot.team.name, t_slot, data: {"turbo-frame": "modal" }, class: "hover:text-white hover:bg-blue-700" %>
-            <br>
-					<% end %>
-				<% end %>
-			</td>
-		<% end %>
+      <% empty_slot = true %>
+      <% @training_slots.each do |t_slot| %>
+        <% if t_slot.at_work?(i,t_hour) %>
+        <td rowspan=<%= t_slot.timerows(i,t_hour).to_s %> class="rounded-md border px py">
+          <%= link_to t_slot.to_s, t_slot, data: {"turbo-frame": "modal" }, class: "hover:text-white hover:bg-blue-700" %>
+        </td>
+        <% empty_slot = false %>
+      <% elsif t_slot.at_work?(i,t_hour) %>
+        <% empty_slot = false %>
+      <% end %>
+    <% end %>
+    <% if empty_slot %>
+      <td class="border px py"></td>
+    <% end %>
   </tr>
 </div>
