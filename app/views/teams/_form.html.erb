@@ -1,30 +1,33 @@
-<%= form_with model: team, remote: true do |form| %>
+<%= form_with model: team, remote: true, authenticity_token: true, data: { label: label } do |form| %>
 	<div id="team-form">
 		<table>
 			<div id="team-form-header">
 				<tr>
-					<th rowspan="3" class="items-center justify-center">
+					<th rowspan="2" class="align-top">
 						<%= image_tag("team.svg", size: "50x50") %>
+					</th><th colspan="5" align="left" class="rounded-md text-yellow-600">
+						<%= label %>
 					</th>
 				</tr><tr>
-					<td align="left" class="align-top"><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
-				</tr><tr>
 					<% if current_user.admin? %>
-						<td><%= form.collection_select :season_id, Season.real.order(name: :desc), :id, :name %></td>
+						<td align="left"><%= form.collection_select :season_id, Season.real.order(name: :desc), :id, :name, selected: params[:season_id] ? location_id : Season.last.id %></td>
 					<% else %>
 						<th align="left"><%= form.object.season.name %></th>
 					<% end %>
-				</tr>
+      	</tr>
 			</div>
 			<div id="team-form-data">
 				<tr>
-					<td align="right"><strong><%= form.label "Cat:" %></strong></td>
+					<th align="right">Nom:</th>
+					<td align="left" class="align-top"><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
+				</tr><tr>
+					<th align="right"><%= form.label "Cat:" %></th>
 					<td><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
 				</tr><tr>
-					<td align="right"><strong><%= form.label "Comp:" %></strong></td>
+					<th align="right"><%= form.label "Comp:" %></th>
 					<td><%= form.collection_select :division_id, Division.real, :id, :name %></td>
 				</tr><tr>
-					<td align="right"><strong><%= form.label "Local:" %></strong></td>
+					<th align="right"><%= form.label "Local:" %></th>
 					<td><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
 				</tr>
 			</div>
