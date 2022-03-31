@@ -41,7 +41,7 @@ class SeasonsController < ApplicationController
 			# added to import excel
 	    respond_to do |format|
 	      if @season.save
-	        format.html { redirect_to seasons_path(@season), notice: 'Temporada creada.', action: :index }
+	        format.html { redirect_to seasons_path(@season), action: :index }
 	        format.json { render :index, status: :created, location: seasons_url }
 	      else
 	        format.html { render :new }
@@ -60,7 +60,7 @@ class SeasonsController < ApplicationController
     	respond_to do |format|
         check_locations
       	if @season.update(season_params)
-	        format.html { redirect_to seasons_path(@season), notice: "Temporada actualizada.", action: :index }
+	        format.html { redirect_to seasons_path(@season), action: :index }
 					format.json { render :index, status: :created, location: seasons_url }
 	      else
 	        format.html { render :edit }
@@ -79,7 +79,7 @@ class SeasonsController < ApplicationController
 			erase_links
 			@season.destroy
 	    respond_to do |format|
-	      format.html { redirect_to seasons_path, notice: 'Temporada borrada.', action: :index }
+	      format.html { redirect_to seasons_path, action: :index }
 	      format.json { head :no_content }
 	    end
 		else
@@ -103,9 +103,7 @@ private
         if loc[1][:_destroy] == "1"
           @season.locations.delete(loc[1][:id].to_i)
         else
-          unless @season.season_locations.where(location_id: loc[1][:id].to_i).first
-            @season.locations << Location.find(loc[1][:id].to_i)
-          end
+          @season.locations |= [Location.find(loc[1][:id].to_i)]
         end
       }
     end

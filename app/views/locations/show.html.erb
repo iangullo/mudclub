@@ -13,11 +13,15 @@
 			</div>
 			<div id="locations-show-data">
 				<tr>
-					<td align="center">
+					<td align="left">
 						<%= image_tag("gmaps.svg", size: "25x25") %>
 		      <td>
 						<% if @location.gmaps_url %>
-							<%= link_to "(ver ubicación)", @location.gmaps_url, target: ':blank' %>
+							<% if @location.gmaps_url.length > 0 %>
+								<%= link_to("(ver ubicación)", @location.gmaps_url, target: ':blank')  %>
+							<% else %>
+								<%= "(sin ubicación)" %>
+							<% end %>
 						<% end %>
 					</td>
 		    </tr><tr>

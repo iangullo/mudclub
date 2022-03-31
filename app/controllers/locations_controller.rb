@@ -45,10 +45,17 @@ class LocationsController < ApplicationController
 	    respond_to do |format|
 	      @location = rebuild_location
         if @location.id!=nil
-           format.html { redirect_to locations_path, notice: 'Ya existía esta ubicación.', action: :index }
-           format.json { render :show, :created, location: @location }
+          if @season
+            @season.locations |= [@location]
+            format.html { redirect_to season_locations_path, action: :index }
+            format.json { render :show, :created, location: @location }
+          else
+            format.html { redirect_to locations_path(@location), action: :index }
+            format.json { render :show, :created, location: @location }
+          end
         else
           if @location.save
+            @season.locations |= [@location] if @season
             format.html { redirect_to locations_path, notice: 'Pista añadida.' }
 	          format.json { render :index, status: :created, location: locations_url }
           else
@@ -69,7 +76,7 @@ class LocationsController < ApplicationController
       respond_to do |format|
         @location = rebuild_location
         if @location.id!=nil and @location.update(location_params)
-          @session.locations << @location if @session
+          @session.locations |= [@location] if @session
   	      format.html { redirect_to locations_path, notice: "Pista actualizadas.", action: :index }
   				format.json { render :index, status: :created, location: locations_path }
         else
@@ -118,12 +125,16 @@ private
 
   # rebuild @location from params[:location]
   def rebuild_location
+byebug
+    loc = params[:id] ? Location.find(params[:id]) : Location.new
     if params[:location]
-      loc                = Location.new
       loc.name           = params[:location][:name]
       loc.exists? # reload from database
       loc.gmaps_url      = params[:location][:gmaps_url]
       loc.practice_court = (params[:location][:practice_court] == "1")
+      if params[:location][:season_id]
+        @season = Season.find(params[:location][:season_id])  if params[:location][:season_id].length > 0
+      end
       loc
     else
       nil

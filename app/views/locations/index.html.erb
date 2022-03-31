@@ -58,10 +58,17 @@
           <% end %>
           <tr>
             <td colspan="2"></td>
-            <td align=<%=(@season ? """center""" : """right"" colspan=""2""") %>>
-              <%= link_to new_location_path do %>
-                <%= render "shared/add" %>
-              <% end %>
+            <% if @season %>
+              <td align="center">
+                <%= link_to season_locations_path(@season) + "/new" do %>
+                  <%= render "shared/add" %>
+                <% end %>
+            <% else %>
+              <td align="right" colspan="2">
+                <%= link_to new_location_path do %>
+                  <%= render "shared/add" %>
+                <% end %>
+            <% end %>
             </td>
           </tr>
         </tbody>
