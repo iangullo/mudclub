@@ -1,5 +1,5 @@
 class Season < ApplicationRecord
-	has_many :training_slots
+	has_many :slots
 	has_many :teams
 	has_many :season_locations
   has_many :locations, through: :season_locations
@@ -8,7 +8,7 @@ class Season < ApplicationRecord
 	self.inheritance_column = "not_sti"
 
 	def start_year
-		self.name[0..3].to_i
+		self.start.year.to_i
 	end
 
 	#Search field matching

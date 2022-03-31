@@ -1,7 +1,7 @@
-<%= form_with model: training_slot, remote: true, authenticity_token: true, data: { label: label } do |form| %>
-  <div id="training_slots-form">
+<%= form_with model: slot, remote: true, authenticity_token: true, data: { label: label } do |form| %>
+  <div id="slots-form">
     <table>
-      <div id="training_slots-form-header">
+      <div id="slots-form-header">
       	<tr>
           <th rowspan="2" class="align-top">
             <%= image_tag("timetable.svg", size: "50x50") %>
@@ -12,20 +12,20 @@
           <th colspan="5" align="left"><%= @season ? @season.name : " " %><th>
         </tr>
       </div>
-      <div id="training_slots-form-data">
+      <div id="slots-form-data">
         <tr>
           <td align="right"><%= image_tag("team.svg", size: "25x25") %></td>
-      		<td colspan="5"><%= form.collection_select :team_id, Team.for_season(form.object.season_id), :id, :to_s, selected: training_slot.team_id %></td>
+      		<td colspan="5"><%= form.collection_select :team_id, Team.for_season(form.object.season_id), :id, :to_s, selected: slot.team_id %></td>
       	</tr><tr>
           <td align="right"><%= image_tag("location.svg", size: "25x25") %></td>
       		<td colspan="5"><%= form.collection_select :location_id, Location.practice.order(name: :asc), :id, :name, selected: params[:location_id] ? location_id : Location.practice.first.id %></td>
       	</tr><tr>
           <td align="right"><%= image_tag("calendar.svg", size: "25x25") %></td>
       		<td><%= form.select :wday, @weekdays %></td>
-          <td><%= form.number_field :hour, value: training_slot.hour, in: 16..21, size: 3 %><%= form.number_field :min, value: training_slot.min, in: 0..45, step: 15, size: 3, class: "rounded border shadow-inner" %></td>
+          <td><%= form.number_field :hour, value: slot.hour, in: 16..21, size: 3 %><%= form.number_field :min, value: slot.min, in: 0..45, step: 15, size: 3, class: "rounded border shadow-inner" %></td>
         </tr><tr>
           <td align="right"><%= image_tag("clock.svg", size: "25x25") %></td>
-      		<td><%= form.number_field :duration, value: training_slot.duration, in: 60..120, step: 30, size: 4, class: "rounded border shadow-inner" %>mins.</td>
+      		<td><%= form.number_field :duration, value: slot.duration, in: 60..120, step: 30, size: 4, class: "rounded border shadow-inner" %>mins.</td>
       	</tr>
       </div>
     </table>

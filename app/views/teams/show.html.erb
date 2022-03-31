@@ -70,11 +70,11 @@
 		<tr>
 			<td class="inline-flex items-center align-top"><%= image_tag("calendar.svg", :size => "36x36") %></td>
 			<td colspan="2">
-				<% unless @team.training_slots.empty? %>
-					<strong><%= @team.training_slots.first.court %></strong>
+				<% unless @team.slots.empty? %>
+					<strong><%= @team.slots.first.court %></strong>
 					<br>
 				<% end %>
-				<% @team.training_slots.order(:wday).each do |ts| %>
+				<% @team.slots.order(:wday).each do |ts| %>
 					<%= link_to ts.to_s, ts %><br>
 				<% end %>
 			</td>

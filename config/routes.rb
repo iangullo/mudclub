@@ -10,14 +10,14 @@ Rails.application.routes.draw do
   resources :users
   resources :seasons do
     resources :locations
-    resources :training_slots
+    resources :slots
   end
   resources :teams do
     get 'edit_roster', on: :member
     get 'edit_coaches', on: :member
   end
   resources :drills
-  resources :training_slots
+  resources :slots
   resources :coaches do
     collection do
       post :import

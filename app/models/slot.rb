@@ -1,7 +1,8 @@
-class TrainingSlot < ApplicationRecord
+class Slot < ApplicationRecord
 	belongs_to :season
 	belongs_to :team
 	has_one :location
+	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
 	scope :for_team, -> (t_id) { where("team_id = ?", t_id) }
 	scope :for_location, -> (l_id) { where("location_id = ?", l_id) }
 
@@ -46,7 +47,7 @@ class TrainingSlot < ApplicationRecord
 		if self.wday == wday
 			if t_hour.hour.between?(self.hour, self.ending.hour)
 				if t_hour.hour == self.hour
-					return ((t_hour.min >= (self.start + 15.minutes).min) and ((self.ending.hour > self.hour) or (t_hour.min < self.ending.min)))
+					return ((t_hour.min >= self.start.min) and ((self.ending.hour > self.hour) or (t_hour.min < self.ending.min)))
 				elsif t_hour.hour == self.ending.hour
 					return (t_hour.min < self.ending.min)
 				else
@@ -59,16 +60,16 @@ class TrainingSlot < ApplicationRecord
 	# number of timetable  rows required
 	def timerows(wday, t_hour)
 		if self.wday == wday
-			if (t_hour.hour == self.hour && t_hour.min == 15) or (t_hour.hour == self.hour && t_hour.min==45)
-				srows = (self.duration - 15)/15.to_i
+			if (t_hour.hour == self.hour && t_hour.min == self.min)
+				srows = self.duration/30.to_i
 				return srows
 			end
 		end
 	end
 
-	#gives us the next TrainingSlot for this sequence
+	#gives us the next Slot for this sequence
 	def next_slot
-		ts = TrainingSlot.for_team(self.team_id)
+		ts = Slot.for_team(self.team_id)
 		i  = (self.wday == 5) ? 1 : self.wday + 1
 		ns = ts.find_by(wday: i)
 		until ns do	# loop to find next
@@ -78,33 +79,33 @@ class TrainingSlot < ApplicationRecord
 		ns
 	end
 
-	#gives us the next TrainingSlot for this sequence
+	#gives us the next Slot for this sequence
 	def next_date
 		Date.today.next_occurring(Date::DAYNAMES[self.wday].downcase.to_sym)
 	end
 
 	#Search for specific court
-	def self.search(s_loc, s_team)
+	def self.search(s_id, s_loc=nil, s_team=nil)
 		l_id = s_loc ? s_loc.to_i : nil	# store id of location & team being searched
 		t_id = s_team ? s_team.to_i : nil
 		if l_id	# we have a location (normal case)
 			if l_id > 0 # Real location provided
 				if t_id # and we have a team id
-					t_id > 0 ? TrainingSlot.for_location(l_id).for_team(t_id).order(:wday) : TrainingSlot.none
+					t_id > 0 ? Slot.for_season(s_id).for_location(l_id).for_team(t_id).order(:wday) : Slot.none
 				else	# only location searched
-					TrainingSlot.for_location(l_id).order(:wday)
+					Slot.for_season(s_id).for_location(l_id).order(:wday)
 				end
 			else	# placeholder location
 				if t_id # and we have a team id
-					t_id > 0 ? TrainingSlot.for_team(t_id).order(:wday) : TrainingSlot.none
+					t_id > 0 ? Slot.for_season(s_id).for_team(t_id).order(:wday) : Slot.none
 				else
-					TrainingSlot.none
+					Slot.none
 				end
 			end
 		elsif t_id	# only slots for a Team
-			t_id > 0 ? TrainingSlot.for_team(t_id).order(:wday) : TrainingSlot.none
+			t_id > 0 ? Slot.for_season(s_id).for_team(t_id).order(:wday) : Slot.none
 		else
-			TrainingSlot.for_location(Location.practice.first.id)
+			Slot.for_season(s_id).for_location(Location.practice.first.id)
 		end
 	end
 

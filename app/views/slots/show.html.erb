@@ -1,7 +1,7 @@
 <%= render "shared/modal" do %>
-	<div id="training_slots-show">
+	<div id="slots-show">
 		<table>
-			<div id="training_slots-show-header">
+			<div id="slots-show-header">
 				<tr>
 					<th rowspan="2">
 						<%= image_tag("timetable.svg", size: "50x50") %>
@@ -10,27 +10,27 @@
 						Horario
 					</th>
 				</tr><tr>
-					<th colspan="2" align="left" ><%= @training_slot.season.name %></th>
+					<th colspan="2" align="left" ><%= @slot.season.name %></th>
 				</tr>
 			</div>
-			<div id="training_slots-show-data">
+			<div id="slots-show-data">
 	      <tr>
 	        <td align="right"><%= image_tag("team.svg", size: "25x25") %></td>
-					<td align="center"><%= @training_slot.team.name %></td>
+					<td align="center"><%= @slot.team.name %></td>
 	    	</tr><tr>
 	        <td align="right"><%= image_tag("location.svg", size: "25x25") %></td>
-					<td><%= @training_slot.court %></td>
+					<td><%= @slot.court %></td>
 	    	</tr><tr>
 	        <td align="right"><%= image_tag("calendar.svg", size: "25x25") %></td>
-					<td><%= @training_slot.to_s %></td>
+					<td><%= @slot.to_s %></td>
 	      </tr><tr>
 	        <td align="right"><%= image_tag("clock.svg", size: "25x25") %></td>
-					<td><%= @training_slot.duration %> mins.</td>
+					<td><%= @slot.duration %> mins.</td>
 	      </tr>
 	    </div>
 			<tr>
 				<td colspan="3" align="right">
-					<%= link_to edit_training_slot_path(@training_slot), class:"rounded" do %>
+					<%= link_to edit_slot_path(@slot), class:"rounded" do %>
 				    <%= render "shared/edit" %>
 				  <% end %>
 				<td>
