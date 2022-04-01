@@ -26,7 +26,7 @@ class Team < ApplicationRecord
 
 	# Get a list of players that are valid to play in this team
 	def eligible_players
-		s_year = self.season.name[0..3].to_i
+		s_year = self.season.start_year
 		aux = Player.active.joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
 		if aux
 			case self.category.sex

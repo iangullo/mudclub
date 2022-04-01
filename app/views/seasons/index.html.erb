@@ -32,9 +32,16 @@
           <% end %>
         </td>
         <td align="center">
-          <%= link_to season_slots_path(@season, location_id: @season.locations.first.id ) do %>
-            <%= image_tag "timetable.svg", size: "50x50" %>Horarios</td>
+          <% if @season.locations.empty? %>
+            <%= link_to season_slots_path(@season) do %>
+              <%= image_tag "timetable.svg", size: "50x50" %>Horarios
+            <% end %>
+          <% else %>
+            <%= link_to season_slots_path(@season, location_id: @season.locations.first.id ) do %>
+              <%= image_tag "timetable.svg", size: "50x50" %>Horarios
+            <% end %>
           <% end %>
+        </td>
       </tr><tr>
         <td align="center">
           <%= link_to teams_path + "?season_id=" + @season.id.to_s do %>

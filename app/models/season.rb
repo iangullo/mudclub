@@ -8,7 +8,7 @@ class Season < ApplicationRecord
 	self.inheritance_column = "not_sti"
 
 	def start_year
-		self.start.year.to_i
+		self.start_date.year.to_i
 	end
 
 	#Search field matching

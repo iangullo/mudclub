@@ -30,4 +30,12 @@ class Location < ApplicationRecord
 			Location.real
 		end
 	end
+
+	# Ensure we remove dependencies of location before deleting.
+  def scrub
+		self.seasons.clear
+		self.slots.each { |s|
+			s.delete
+		}
+  end
 end

@@ -6,7 +6,7 @@ class SlotsController < ApplicationController
   # GET /slots or /slots.json
   def index
     if current_user.present?
-      @season = Season.find(params[:season_id])
+      @season = Season.search(params[:season_id])
       @slots  = Slot.search(params)
     else
       redirect_to "/"
