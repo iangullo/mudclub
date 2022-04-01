@@ -27,12 +27,12 @@
     <table>
       <tr>
         <td align="center">
-          <%= link_to season_locations_path(@season), data: {"turbo-frame": "modal" } do %>
+          <%= link_to season_locations_path(@season) do %>
             <%= image_tag "location.svg", size: "50x50" %>Pistas
           <% end %>
         </td>
         <td align="center">
-          <%= link_to season_slots_path(@season), data: {"turbo-frame": "modal" } do %>
+          <%= link_to season_slots_path(@season, location_id: @season.locations.first.id ) do %>
             <%= image_tag "timetable.svg", size: "50x50" %>Horarios</td>
           <% end %>
       </tr><tr>

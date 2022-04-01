@@ -43,11 +43,11 @@ class LocationsController < ApplicationController
   def create
     if current_user.present? and (current_user.admin? or current_user.is_coach)
 	    respond_to do |format|
-	      @location = rebuild_location
-        if @location.id!=nil
+	      rebuild_location # rebuild @location
+        if @location.id!=nil  # @location is already stored in database
           if @season
             @season.locations |= [@location]
-            format.html { redirect_to season_locations_path, action: :index }
+            format.html { redirect_to season_locations_path(@season), action: :index }
             format.json { render :show, :created, location: @location }
           else
             format.html { redirect_to locations_path(@location), action: :index }
@@ -56,7 +56,7 @@ class LocationsController < ApplicationController
         else
           if @location.save
             @season.locations |= [@location] if @season
-            format.html { redirect_to locations_path, notice: 'Pista añadida.' }
+            format.html { redirect_to locations_path }
 	          format.json { render :index, status: :created, location: locations_url }
           else
             format.html { render :new }
@@ -69,19 +69,23 @@ class LocationsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /locations/1
-  # PATCH/PUT /locations/1.json
+  # PATCH/PUT /locations/1 or /locations/1.json
   def update
 		if current_user.present? and (current_user.admin? or current_user.is_coach)
       respond_to do |format|
-        @location = rebuild_location
-        if @location.id!=nil and @location.update(location_params)
-          @session.locations |= [@location] if @session
-  	      format.html { redirect_to locations_path, notice: "Pista actualizadas.", action: :index }
-  				format.json { render :index, status: :created, location: locations_path }
+        rebuild_location
+        if @location.id!=nil  # we have location to save
+          if @location.update(location_params)  # try to save
+            @season.locations |= [@location] if @season
+            format.html { redirect_to @season ? season_locations_path(@season) : locations_path, action: :index }
+    				format.json { render :index, status: :created, location: locations_path }
+          else
+            format.html { render edit_location_path(@location) }
+            format.json { render json: @location.errors, status: :unprocessable_entity }
+          end
         else
-          format.html { redirect_to edit_location_path(@location) }
-          format.json { render json: @location.errors, status: :unprocessable_entity }
+          format.html { redirect_to @season ? season_locations_path(@season) : locations_path, action: :index }
+          format.json { render :index, status: :unprocessable_entity, location: locations_path }
         end
       end
     else
@@ -93,9 +97,10 @@ class LocationsController < ApplicationController
   # DELETE /locations/1.json
   def destroy
 		if current_user.present? and current_user.admin?
-			@location.delete
+      @location.scrub
+      @location.delete
 	    respond_to do |format|
-	      format.html { redirect_to locations_path, notice: 'Pista elminada.' }
+	      format.html { render @season ? season_locations_path(@season) : locations_path, action: :index }
 	      format.json { head :no_content }
 	    end
 		else
@@ -125,19 +130,17 @@ private
 
   # rebuild @location from params[:location]
   def rebuild_location
-byebug
-    loc = params[:id] ? Location.find(params[:id]) : Location.new
-    if params[:location]
-      loc.name           = params[:location][:name]
+    loc    = params[:id] ? Location.find(params[:id]) : Location.new
+    l_data = params[:location]
+    if l_data
+      loc.name           = l_data[:name]
       loc.exists? # reload from database
-      loc.gmaps_url      = params[:location][:gmaps_url]
-      loc.practice_court = (params[:location][:practice_court] == "1")
-      if params[:location][:season_id]
-        @season = Season.find(params[:location][:season_id])  if params[:location][:season_id].length > 0
-      end
-      loc
+      loc.gmaps_url      = l_data[:gmaps_url] if l_data[:gmaps_url].length > 0
+      loc.practice_court = (l_data[:practice_court] == "1")
+      @season   = Season.find(l_data[:season_id]) if l_data[:season_id]
     else
-      nil
+      loc = nil
     end
+    @location = loc
   end
 end

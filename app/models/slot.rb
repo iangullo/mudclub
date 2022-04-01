@@ -1,10 +1,11 @@
 class Slot < ApplicationRecord
 	belongs_to :season
 	belongs_to :team
-	has_one :location
+	belongs_to :location
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
 	scope :for_team, -> (t_id) { where("team_id = ?", t_id) }
 	scope :for_location, -> (l_id) { where("location_id = ?", l_id) }
+	self.inheritance_column = "not_sti"
 
 	def to_s
 		self.weekday + " (" + self.timeslot_string + ")"
@@ -84,28 +85,38 @@ class Slot < ApplicationRecord
 		Date.today.next_occurring(Date::DAYNAMES[self.wday].downcase.to_sym)
 	end
 
-	#Search for specific court
-	def self.search(s_id, s_loc=nil, s_team=nil)
-		l_id = s_loc ? s_loc.to_i : nil	# store id of location & team being searched
-		t_id = s_team ? s_team.to_i : nil
-		if l_id	# we have a location (normal case)
-			if l_id > 0 # Real location provided
-				if t_id # and we have a team id
-					t_id > 0 ? Slot.for_season(s_id).for_location(l_id).for_team(t_id).order(:wday) : Slot.none
-				else	# only location searched
-					Slot.for_season(s_id).for_location(l_id).order(:wday)
-				end
-			else	# placeholder location
-				if t_id # and we have a team id
-					t_id > 0 ? Slot.for_season(s_id).for_team(t_id).order(:wday) : Slot.none
-				else
-					Slot.none
-				end
+	# Ensure we remove dependencies of location before deleting.
+  def scrub
+		self.seasons.clear
+  end
+
+	# Search for a list of SLots
+	# s_data is an array with either season_id+location_id or team_id
+	def self.search(s_data)
+		if s_data[:season_id]
+			 if s_data[:location_id]
+				 Slot.where(season_id: s_data[:season_id].to_i, location_id: s_data[:location_id].to_i)
+			 else
+				 Slot.where(season_id: s_data[:season_id].to_i)
+			 end
+		elsif s_data[:team_id]
+			if s_data[:location_id]
+				Slot.where(team_id: s_data[:team_id].to_i, location_id: s_data[:location_id].to_i)
+			else
+				Slot.where(team_id: s_data[:team_id].to_i)
 			end
-		elsif t_id	# only slots for a Team
-			t_id > 0 ? Slot.for_season(s_id).for_team(t_id).order(:wday) : Slot.none
 		else
-			Slot.for_season(s_id).for_location(Location.practice.first.id)
+			Slot.none
+		end
+	end
+
+	# Find a slot matching slot form data
+	def self.fetch(s_data)
+		unless s_data.empty?
+			t = Time.new(2021,8,30,s_data[:hour].to_i+1,s_data[:min].to_i)
+			Slot.where(wday: s_data[:wday].to_i, start: t, team_id: s_data[:team_id].to_i).or(Slot.where(wday: s_data[:wday].to_i, start: t, location_id: s_data[:location_id].to_i)).first
+		else
+			nil
 		end
 	end
 

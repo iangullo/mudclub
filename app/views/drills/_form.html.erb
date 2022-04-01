@@ -1,4 +1,4 @@
-<%= form_with model: drill, remote: true, authenticity_token: true, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |form| %>
+<%= form_with model: drill, remote: true, authenticity_token: true, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper', "turbo-frame" => "_top" } do |form| %>
 	<% if drill.errors.any? %>
 		<div id="error_explanation">
 			<h2><%= pluralize(drill.errors.count, "error") %> prohibited this drill from being saved:</h2>

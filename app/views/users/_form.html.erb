@@ -1,4 +1,4 @@
-<%= form_for @user, remote: true, authenticity_token: true do |form| %>
+<%= form_for @user, remote: true, authenticity_token: true. data: { "turbo-frame" => "_top" } do |form| %>
 	<% if @user.errors.any? %>
 		<div class="p-4 border border-red-600" data-extended-modal-target="errors">
 			<h2>

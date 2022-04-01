@@ -6,8 +6,8 @@ class SlotsController < ApplicationController
   # GET /slots or /slots.json
   def index
     if current_user.present?
-      @season = Season.find(params[:season_id]) if params[:season_id]
-      @slots  = Slot.search(params[:season_id], params[:location_id], params[:team_id])
+      @season = Season.find(params[:season_id])
+      @slots  = Slot.search(params)
     else
       redirect_to "/"
     end
@@ -41,9 +41,9 @@ class SlotsController < ApplicationController
   def create
     if current_user.present? and current_user.admin?
       respond_to do |format|
-  			rebuild_slot(params)	# rebuild slot
-        if @slot.save
-          format.html { redirect_to slots_url }
+  			rebuild_slot	# rebuild @slot
+        if @slot.save # try to store
+          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, action: :index }
           format.json { render :index, status: :created, location: @slot }
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -59,12 +59,12 @@ class SlotsController < ApplicationController
   def update
     if current_user.present? and current_user.admin?
       respond_to do |format|
-  			rebuild_slot(params)
+  			rebuild_slot
         if @slot.update(slot_params)
-        format.html { redirect_to slots_url }
+          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, action: :index  }
           format.json { render :index, status: :ok, location: @slot }
         else
-          format.html { render :edit, status: :unprocessable_entity }
+          format.html { redirect_to edit_slot_path(@slot) }
           format.json { render json: @slot.errors, status: :unprocessable_entity }
         end
       end
@@ -79,7 +79,7 @@ class SlotsController < ApplicationController
       set_slot(params)
       @slot.destroy
       respond_to do |format|
-        format.html { redirect_to slots_url }
+        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, action: :index }
         format.json { head :no_content }
       end
     else
@@ -93,20 +93,21 @@ class SlotsController < ApplicationController
 	end
 
   private
-		# build new @slot from raw input given by submittal from "new"
-		# return nil if unsuccessful
-		def rebuild_slot(params)
-      @slot  = Slot.new(start: Time.new(2021,8,30,17,00))
-			p_data = params.fetch(:slot)
-      t = Team.find(p_data[:team_id].to_i).season_id
-			@slot.season_id   = t ? t : 0
-			@slot.location_id = p_data[:location_id]
-			@slot.wday        = p_data[:wday]
-			@slot.team_id     = p_data[:team_id]
-			@slot.hour        = p_data[:hour]
-			@slot.min         = p_data[:min]
-			@slot.duration    = p_data[:duration]
-			@slot
+		# build new @slot from raw input given by submittal from "new" or "edit"
+		# always returns a @slot
+		def rebuild_slot
+      s_data = params.fetch(:slot)
+      tslot  = params[:id] ? Slot.find(params[:id]) : Slot.fetch(s_data)
+      tslot  = Slot.new(start: Time.new(2021,8,30,17,00)) unless tslot
+      tslot.wday        = s_data[:wday]
+      tslot.hour        = s_data[:hour]
+      tslot.min         = s_data[:min]
+      tslot.duration    = s_data[:duration]
+      tslot.location_id = s_data[:location_id]
+      tslot.team_id     = s_data[:team_id]
+      tslot.season_id   = tslot.team.season_id.to_i
+      @season = Season.find(s_data[:season_id]) if s_data[:season_id]
+			@slot   = tslot
 		end
 
     # Use callbacks to share common setup or constraints between actions.
