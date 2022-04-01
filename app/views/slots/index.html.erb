@@ -15,7 +15,11 @@
 					<div id="search-slots" class="inline-flex text-gray-700 rounded border">
 						<%= form_with(url: '/slots', method: 'get', local: true) do |f| %>
 							<% if @season %>
-								<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, {selected: params[:location_id] ? params[:location_id].to_i : @slots.first.id} %>
+								<% if @slots %>
+									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, { selected: (params[:location_id] ? params[:location_id].to_i : (@slots.empty? ? (@season.locations.empty? ? 1 : @season.locations.first.location_id) : @slots.first.location_id)) } %>
+								<% else %>
+									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, { selected: (params[:location_id] ? params[:location_id].to_i : @season.locations.first.location_id) } %>
+								<% end %>
 								<%= f.hidden_field :season_id, value: @season.id %>
 							<% else %>
 								<%= f.collection_select :location_id, Location.practice.order(:name), :id, :name, {selected: params[:location_id] ? params[:location_id].to_i : Location.practice.first.id} %>
