@@ -18,7 +18,7 @@
       		<td colspan="5"><%= form.collection_select :team_id, @season ? Team.for_season(@season.id) : Team.real, :id, :to_s, selected: params[:team_id] ? params[:team_id] : slot.team_id %></td>
       	</tr><tr>
           <td align="right"><%= image_tag("location.svg", size: "25x25") %></td>
-      		<td colspan="5"><%= form.collection_select :location_id, @season ? @season.locations.practice.order(name: :asc) : Location.practice, :id, :name, selected: params[:location_id] ? params[:location_id] : Location.practice.first.id %></td>
+      		<td colspan="5"><%= form.collection_select :location_id, @season ? @season.locations.practice.order(name: :asc) : Location.practice, :id, :name, selected: params[:location_id] ? params[:location_id] : slot.location_id %></td>
       	</tr><tr>
           <td align="right"><%= image_tag("calendar.svg", size: "25x25") %></td>
       		<td><%= form.select :wday, @weekdays %></td>
