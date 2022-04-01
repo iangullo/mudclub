@@ -74,7 +74,7 @@ class TeamsController < ApplicationController
 
 	    respond_to do |format|
 	      if @team.save
-	        format.html { redirect_to teams_path, notice: 'Equipo creado.', action: :index }
+	        format.html { redirect_to teams_path }
 	        format.json { render :index, status: :created, location: teams_path }
 	      else
 	        format.html { render :new }
@@ -93,7 +93,7 @@ class TeamsController < ApplicationController
 			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
 		    respond_to do |format|
 		      if @team.update(team_params)
-						format.html { redirect_to @team, action: :show }
+						format.html { redirect_to @team }
 		        format.json { render :show, status: :created, location: teams_path(@team) }
 		      else
 		        format.html { render :edit }
@@ -114,7 +114,7 @@ class TeamsController < ApplicationController
 		if current_user.present? and current_user.admin?
 	    @team.destroy
 	    respond_to do |format|
-	      format.html { redirect_to teams_path, notice: 'Equipo borrado.' }
+	      format.html { redirect_to teams_path }
 	      format.json { head :no_content }
 	    end
 		else

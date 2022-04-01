@@ -50,7 +50,7 @@ class CoachesController < ApplicationController
 			respond_to do |format|
 				@coach = rebuild_coach(params)	# rebuild coach
 				if @coach.is_duplicate? then
-					format.html { redirect_to coaches_url, notice: 'Ya existía este entrenador.'}
+					format.html { redirect_to coaches_url }
 					format.json { render :index,  :created, location: coaches_url }
 				else
 					@coach.person.save
@@ -59,7 +59,7 @@ class CoachesController < ApplicationController
 						if @coach.person.coach_id != @coach.id
 							@coach.person.coach_id = @coach.id
 						end
-						format.html { redirect_to coaches_url, notice: 'Entrenador creado.' }
+						format.html { redirect_to coaches_url }
 						format.json { render :index, status: :created, location: coaches_url }
 					else
 						format.html { render :new }

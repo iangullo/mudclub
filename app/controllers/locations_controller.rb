@@ -47,10 +47,10 @@ class LocationsController < ApplicationController
         if @location.id!=nil  # @location is already stored in database
           if @season
             @season.locations |= [@location]
-            format.html { redirect_to season_locations_path(@season), action: :index }
+            format.html { redirect_to season_locations_path(@season) }
             format.json { render :show, :created, location: @location }
           else
-            format.html { redirect_to locations_path(@location), action: :index }
+            format.html { redirect_to locations_path(@location) }
             format.json { render :show, :created, location: @location }
           end
         else
@@ -77,14 +77,14 @@ class LocationsController < ApplicationController
         if @location.id!=nil  # we have location to save
           if @location.update(location_params)  # try to save
             @season.locations |= [@location] if @season
-            format.html { redirect_to @season ? season_locations_path(@season) : locations_path, action: :index }
+            format.html { redirect_to @season ? season_locations_path(@season) : locations_path }
     				format.json { render :index, status: :created, location: locations_path }
           else
-            format.html { render edit_location_path(@location) }
+            format.html { redirect_to edit_location_path(@location) }
             format.json { render json: @location.errors, status: :unprocessable_entity }
           end
         else
-          format.html { redirect_to @season ? season_locations_path(@season) : locations_path, action: :index }
+          format.html { redirect_to @season ? season_locations_path(@season) : locations_path }
           format.json { render :index, status: :unprocessable_entity, location: locations_path }
         end
       end
@@ -100,7 +100,7 @@ class LocationsController < ApplicationController
       @location.scrub
       @location.delete
 	    respond_to do |format|
-	      format.html { render @season ? season_locations_path(@season) : locations_path, action: :index }
+	      format.html { redirect_to @season ? season_locations_path(@season) : locations_path }
 	      format.json { head :no_content }
 	    end
 		else

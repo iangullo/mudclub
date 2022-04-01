@@ -41,10 +41,10 @@ class DrillsController < ApplicationController
 				@drill = Drill.new
 				rebuild_drill(params)	# rebuild drill
 				if @drill.save
-					format.html { redirect_to drills_url, notice: "Ejercicio creado." }
+					format.html { redirect_to drills_url }
 					format.json { render :index, status: :created, location: @drill }
 				else
-					format.html { render :new, status: :unprocessable_entity }
+					format.html { redirect_to :new, status: :unprocessable_entity }
 					format.json { render json: @drill.errors, status: :unprocessable_entity }
 				end
 			end

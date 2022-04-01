@@ -24,7 +24,7 @@ class UsersController < ApplicationController
       respond_to do |format|
   			@user = build_new_user(params)	# build user
   			if @user.is_duplicate? then
-  				format.html { redirect_to @user, notice: 'Ya existía este usuario.'}
+  				format.html { redirect_to @user }
   				format.json { render :show,  :created, location: @user }
   			else
   				@user.person.save
@@ -34,7 +34,7 @@ class UsersController < ApplicationController
   						@user.person.user_id = @user.id
   						@user.person.save
   					end
-  					format.html { redirect_to users_url, notice: 'Usuario creado.' }
+  					format.html { redirect_to users_url }
   					format.json { render :index, status: :created, location: users_url }
   				else
   					format.html { render :new }
@@ -73,7 +73,7 @@ class UsersController < ApplicationController
         end
         rebuild_user(params)	# rebuild user
   			if @user.update(user_params)
-  				format.html { redirect_to users_url, notice: 'Usuario actualizado.' }
+  				format.html { redirect_to users_url }
   				format.json { render :index, status: :ok, location: users_url }
   			else
   				format.html { render :edit }
@@ -90,7 +90,7 @@ class UsersController < ApplicationController
       unlink_person
   		@user.destroy
   		respond_to do |format|
-  			format.html { redirect_to users_url, notice: 'Usuario borrado.' }
+  			format.html { redirect_to users_url }
   			format.json { head :no_content }
   		end
     else
