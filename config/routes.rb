@@ -17,7 +17,6 @@ Rails.application.routes.draw do
     get 'edit_coaches', on: :member
   end
   resources :drills
-  resources :slots
   resources :coaches do
     collection do
       post :import
