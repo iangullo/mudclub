@@ -5,7 +5,7 @@ class LocationsController < ApplicationController
   # GET /locations
   # GET /locations.json
   def index
-    if current_user.present? and (current_user.admin? or current_user.is_coach)
+    if current_user.present? and (current_user.admin? or current_user.is_coach?)
 		else
 			redirect_to "/"
 		end
@@ -14,7 +14,7 @@ class LocationsController < ApplicationController
   # GET /locations/1
   # GET /locations/1.json
   def show
-    if current_user.present? and (current_user.admin? or current_user.is_coach)
+    if current_user.present? and (current_user.admin? or current_user.is_coach?)
     else
 			redirect_to "/"
     end
@@ -22,7 +22,7 @@ class LocationsController < ApplicationController
 
   # GET /locations/1/edit
   def edit
-    if current_user.present? and (current_user.admin? or current_user.is_coach)
+    if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@location = Location.new(name: "NUEVA") unless @location
 		else
 			redirect_to "/"
@@ -31,7 +31,7 @@ class LocationsController < ApplicationController
 
   # GET /locations/new
   def new
-    if current_user.present? and (current_user.admin? or current_user.is_coach)
+    if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @location = Location.new(name: "NUEVA") unless @location
     else
 			redirect_to "/"
@@ -41,7 +41,7 @@ class LocationsController < ApplicationController
   # POST /locations
   # POST /locations.json
   def create
-    if current_user.present? and (current_user.admin? or current_user.is_coach)
+    if current_user.present? and (current_user.admin? or current_user.is_coach?)
 	    respond_to do |format|
 	      rebuild_location # rebuild @location
         if @location.id!=nil  # @location is already stored in database
@@ -71,7 +71,7 @@ class LocationsController < ApplicationController
 
   # PATCH/PUT /locations/1 or /locations/1.json
   def update
-		if current_user.present? and (current_user.admin? or current_user.is_coach)
+		if current_user.present? and (current_user.admin? or current_user.is_coach?)
       respond_to do |format|
         rebuild_location
         if @location.id!=nil  # we have location to save

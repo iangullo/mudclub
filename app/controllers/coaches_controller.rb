@@ -168,7 +168,7 @@ class CoachesController < ApplicationController
 		else
 			if current_user.admin?
 				Coach.real
-			elsif current_user.is_coach
+			elsif current_user.is_coach?
 				Coach.active
 			else
 				Coach.none
