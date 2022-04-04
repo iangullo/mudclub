@@ -113,26 +113,28 @@ class UsersController < ApplicationController
 	# return nil if unsuccessful
 	def rebuild_user(params)
     @user.email = params.fetch(:user)[:email]
-		p_data= params.fetch(:user).fetch(:person_attributes)
+    @user.role  = params.fetch(:user)[:role]
+		p_data      = params.fetch(:user).fetch(:person_attributes)
     @user.person_id > 0 ? @user.person.reload : @user.build_person
-		@user.person[:dni] = p_data[:dni]
-		@user.person[:nick] = p_data[:nick]
-		@user.person[:name] = p_data[:name]
+		@user.person[:dni]     = p_data[:dni]
+		@user.person[:nick]    = p_data[:nick]
+		@user.person[:name]    = p_data[:name]
 		@user.person[:surname] = p_data[:surname]
-		@user.person[:female] = p_data[:female]
-		@user.person[:email] = @user.email
-		@user.person[:phone] = Phonelib.parse(p_data[:phone]).international.to_s
+		@user.person[:female]  = p_data[:female]
+		@user.person[:email]   = @user.email
+		@user.person[:phone]   = Phonelib.parse(p_data[:phone]).international.to_s
 	end
 
   # build & prepare a person for a new user
   def build_new_user(params)
-    @user = User.new(user_params)
-    @user.email = params.fetch(:user)[:email]
-    @user.password = params.fetch(:user)[:password]
+    @user                       = User.new(user_params)
+    @user.email                 = params.fetch(:user)[:email]
+    @user.role                  = params.fetch(:user)[:role]
+    @user.password              = params.fetch(:user)[:password]
     @user.password_confirmation = params.fetch(:user)[:password_confirmation]
     @user.build_person
-    @user.person.email = @user.email
-    @user.person.name = @user.email.split("@").first
+    @user.person.email   = @user.email
+    @user.person.name    = @user.email.split("@").first
     @user.person.surname = @user.email.split("@").last
     @user
   end

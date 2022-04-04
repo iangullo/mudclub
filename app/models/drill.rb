@@ -15,8 +15,7 @@ class Drill < ApplicationRecord
 		if search
 			Drill.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{search}%","%#{search}%")
 		else
-			#Drill.all.order(:kind)
-			Drill.none
+			Drill.all.order(:kind)
 		end
 	end
 
