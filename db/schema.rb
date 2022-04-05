@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_22_090842) do
+ActiveRecord::Schema.define(version: 2022_03_31_090840) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -162,8 +162,8 @@ ActiveRecord::Schema.define(version: 2022_03_22_090842) do
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.date "start"
-    t.date "end"
+    t.date "start_date"
+    t.date "end_date"
   end
 
   create_table "skills", force: :cascade do |t|
@@ -171,6 +171,20 @@ ActiveRecord::Schema.define(version: 2022_03_22_090842) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["name"], name: "index_skills_on_name"
+  end
+
+  create_table "slots", id: :bigint, default: -> { "nextval('training_slots_id_seq'::regclass)" }, force: :cascade do |t|
+    t.bigint "season_id", default: 0, null: false
+    t.bigint "location_id", default: 0, null: false
+    t.integer "wday"
+    t.time "start"
+    t.integer "duration"
+    t.bigint "team_id", default: 0, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["location_id"], name: "index_training_slots_on_location_id"
+    t.index ["season_id"], name: "index_training_slots_on_season_id"
+    t.index ["team_id"], name: "index_training_slots_on_team_id"
   end
 
   create_table "targets", force: :cascade do |t|
@@ -207,20 +221,6 @@ ActiveRecord::Schema.define(version: 2022_03_22_090842) do
     t.index ["season_id"], name: "index_teams_on_season_id"
   end
 
-  create_table "training_slots", force: :cascade do |t|
-    t.bigint "season_id", default: 0, null: false
-    t.bigint "location_id", default: 0, null: false
-    t.integer "wday"
-    t.time "start"
-    t.integer "duration"
-    t.bigint "team_id", default: 0, null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["location_id"], name: "index_training_slots_on_location_id"
-    t.index ["season_id"], name: "index_training_slots_on_season_id"
-    t.index ["team_id"], name: "index_training_slots_on_team_id"
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -247,14 +247,14 @@ ActiveRecord::Schema.define(version: 2022_03_22_090842) do
   add_foreign_key "players", "people"
   add_foreign_key "season_locations", "locations"
   add_foreign_key "season_locations", "seasons"
+  add_foreign_key "slots", "locations"
+  add_foreign_key "slots", "seasons"
+  add_foreign_key "slots", "teams"
   add_foreign_key "team_targets", "targets"
   add_foreign_key "team_targets", "teams"
   add_foreign_key "teams", "categories"
   add_foreign_key "teams", "divisions"
   add_foreign_key "teams", "locations", column: "homecourt_id"
   add_foreign_key "teams", "seasons"
-  add_foreign_key "training_slots", "locations"
-  add_foreign_key "training_slots", "seasons"
-  add_foreign_key "training_slots", "teams"
   add_foreign_key "users", "people"
 end

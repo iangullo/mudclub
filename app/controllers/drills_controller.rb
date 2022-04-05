@@ -44,7 +44,7 @@ class DrillsController < ApplicationController
 					format.html { redirect_to drills_url }
 					format.json { render :index, status: :created, location: @drill }
 				else
-					format.html { redirect_to :new, status: :unprocessable_entity }
+					format.html { render :new }
 					format.json { render json: @drill.errors, status: :unprocessable_entity }
 				end
 			end
