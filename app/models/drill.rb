@@ -7,16 +7,19 @@ class Drill < ApplicationRecord
 	before_save { self.name = self.name.mb_chars.titleize }
 	self.inheritance_column = "not_sti"
 
-	def print_skills
-		print_names(self.skills)
+	# filter by name/description
+	def self.search(search)
+		s_n = search ? (search.length>0 ? search : nil) : nil
+		if s_n # matched something
+			res = Drill.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{s_n}%","%#{s_n}%")
+		else
+			res = Drill.all.order(:kind_id)
+		end
+		return res
 	end
 
-	def self.search(search)
-		if search
-			Drill.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{search}%","%#{search}%")
-		else
-			Drill.all.order(:kind)
-		end
+	def print_skills
+		print_names(self.skills)
 	end
 
 #	def print_kinds
@@ -33,5 +36,4 @@ class Drill < ApplicationRecord
 		}
 		aux
 	end
-
 end
