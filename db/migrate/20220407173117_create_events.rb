@@ -1,7 +1,7 @@
 class CreateEvents < ActiveRecord::Migration[6.1]
   def change
     create_table :events do |t|
-      t.date :start_date
+      t.datetime :start
       t.integer :duration
       t.integer :kind
       t.references :team, null: false, foreign_key: true
