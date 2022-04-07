@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  start_date: 2022-04-07
+  duration: 1
+  kind: 1
+  team: one
+  location: one
+
+two:
+  start_date: 2022-04-07
+  duration: 1
+  kind: 1
+  team: two
+  location: two

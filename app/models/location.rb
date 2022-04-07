@@ -3,6 +3,7 @@ class Location < ApplicationRecord
 	scope :home, -> { where("practice_court = false") }
 	scope :real, -> { where("id > 0") }
 	has_many :slots
+	has_many :events
 	has_many :season_locations
   has_many :seasons, through: :season_locations
 	accepts_nested_attributes_for :seasons

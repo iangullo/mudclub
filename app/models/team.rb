@@ -5,6 +5,7 @@ class Team < ApplicationRecord
 	has_and_belongs_to_many :players
 	has_and_belongs_to_many :coaches
 	has_many :slots
+	has_many :events
 	has_many :team_targets
   has_many :targets, through: :team_targets
 #	accepts_nested_attributes_for :category

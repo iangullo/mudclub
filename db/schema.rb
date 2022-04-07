@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_31_090840) do
+ActiveRecord::Schema.define(version: 2022_04_07_171608) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -97,6 +97,18 @@ ActiveRecord::Schema.define(version: 2022_03_31_090840) do
   create_table "drills_skills", id: false, force: :cascade do |t|
     t.bigint "drill_id", null: false
     t.bigint "skill_id", null: false
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.date "start_date"
+    t.integer "duration"
+    t.integer "kind"
+    t.bigint "team_id", null: false
+    t.bigint "location_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["location_id"], name: "index_events_on_location_id"
+    t.index ["team_id"], name: "index_events_on_team_id"
   end
 
   create_table "kinds", force: :cascade do |t|
@@ -241,6 +253,8 @@ ActiveRecord::Schema.define(version: 2022_03_31_090840) do
   add_foreign_key "coaches", "people"
   add_foreign_key "drills", "coaches"
   add_foreign_key "drills", "kinds"
+  add_foreign_key "events", "locations"
+  add_foreign_key "events", "teams"
   add_foreign_key "people", "coaches"
   add_foreign_key "people", "players"
   add_foreign_key "people", "users"
