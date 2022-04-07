@@ -1,53 +1,83 @@
-<%= render "shared/modal" do %>
-	<table>
-		<tr>
-			<td rowspan="3" align="center">
-				<%= image_tag("team.png", :size => "100x100") %>
-			</td>
-			<td colspan="3"><strong><%= @team.to_s %></strong></td>
-		</tr><tr>
-			<td colspan="3"><strong><%= @team.division.name %></strong></td>
-		</tr><tr>
-			<td colspan="3"><strong><%= @team.season.name %></strong></td>
-		</tr><tr>
-			<td align="center" rowspan="<%= @team.players.count+1 %>">
-				<strong>Jugadores/as:</strong>
-			</td>
-			<td align="center"><strong>#<td><strong>Nombre<td align="center"><strong>Edad</td>
-		</tr>
-		<% @team.players.order("number").each do |player| %>
-		<tr>
-			<td align="center" class="rounded border"><%= player.number %></td>
-			<td class="rounded border"><%= link_to player.to_s, player, class:"hover:bg-blue-700 hover:text-white" %></td>
-			<td align="center" class="rounded border"><%= player.person.age %></td>
-		</tr>
-		<% end %>
-		<tr>
-			<td align="center"><strong>Entrenadores:</strong></td>
-			<td colspan="3">
-				<% @team.coaches.each do |coach| %>
-					<%= coach.to_s %>
-					<br>
-				<% end %>
-			</td>
-		</tr><tr>
-			<td align="center"><strong>Sesiones:</strong></td>
-			<td colspan="2">
-				<% unless @team.training_slots.empty? %>
-					<strong><%= @team.training_slots.first.court %></strong>
-					<br>
-				<% end %>
-				<% @team.training_slots.order(:wday).each do |ts| %>
-					<%= link_to ts.to_s, ts %><br>
-				<% end %>
-			</td>
-			<td>
+<div id="team-show">
+	<div id="team-header">
+		<table>
+			<tr>
+				<th rowspan="2" class="items-center justify-center">
+					<%= image_tag("team.svg", size: "50x50") %>
+				</th>
+				<th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
+					<%= @team.to_s %>
+				</th>
 				<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
-					<%= link_to edit_team_path(@team), data: {"turbo-frame": "modal" } do %>
+					<td rowspan="2">
+						<%= link_to edit_team_path(@team), data: {"turbo-frame": "modal" } do %>
+							<%= render "shared/edit" %>
+						<% end %>
+					</td>
+				<% end %>
+			</tr><tr>
+				<th align="left"><%= @team.season.name %></th>
+				<td><%= "(" + @team.division.name + ")" %></td>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<div id="team-members-grid">
+		<table>
+			<tr>
+				<th><%= image_tag("player.svg", :size => "30x30") %></th>
+				<th align="left"><%= "Plantilla" %></th>
+				<th align="center">
+					<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
+						<%= link_to edit_roster_team_url, data: {"turbo-frame": "modal" } do %>
+							<%= render "shared/edit" %>
+						<% end %>
+					<% end %>
+				</th>
+			</tr><tr>
+				<th class="bg-indigo-900 text-gray-300 border px py" align="center">#</th>
+				<th class="bg-indigo-900 text-gray-300 border px py" align="left">Nombre</th>
+				<th class="bg-indigo-900 text-gray-300 border px py" align="center">Edad</th>
+			</tr>
+			<% @team.players.order("number").each do |player| %>
+				<tr>
+					<td align="center" class="rounded border"><%= player.number %></td>
+					<td class="rounded border"><%= link_to player.to_s, player, class:"hover:bg-blue-700 hover:text-white", data: {"turbo-frame": "modal" } %></td>
+					<td align="center" class="rounded border"><%= player.person.age %></td>
+				</tr>
+			<% end %>
+			<tr><td>&nbsp;</td></tr>
+		<tr>
+			<td class="align-top"><%= image_tag("coach.svg", :size => "30x30") %></td>
+			<th align="left">Entrenadores/as</th>
+			<th align="center" rowspan="2">
+				<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
+					<%= link_to edit_coaches_team_url, data: {"turbo-frame": "modal" } do %>
 						<%= render "shared/edit" %>
 					<% end %>
+				<% end %>
+			</th>
+		</tr><tr>
+			<td></<td>
+			<td>
+				<% @team.coaches.each do |coach| %>
+					<%= link_to coach.to_s, coach, class:"hover:bg-blue-700 hover:text-white", data: {"turbo-frame": "modal" } %>
+					<br>
+				<% end %>
+			</td>
+		</tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr>
+			<td class="inline-flex items-center align-top"><%= image_tag("calendar.svg", :size => "36x36") %></td>
+			<td colspan="2">
+				<% unless @team.slots.empty? %>
+					<strong><%= @team.slots.first.court %></strong>
+					<br>
+				<% end %>
+				<% @team.slots.order(:wday).each do |ts| %>
+					<%= link_to ts.to_s, ts %><br>
 				<% end %>
 			</td>
 		</tr>
 	</table>
-<% end %>
+</div>

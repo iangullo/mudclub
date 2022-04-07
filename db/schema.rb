@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_07_141917) do
+ActiveRecord::Schema.define(version: 2022_04_07_173117) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -99,10 +99,23 @@ ActiveRecord::Schema.define(version: 2021_10_07_141917) do
     t.bigint "skill_id", null: false
   end
 
+  create_table "events", force: :cascade do |t|
+    t.datetime "start"
+    t.integer "duration"
+    t.integer "kind"
+    t.bigint "team_id", null: false
+    t.bigint "location_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["location_id"], name: "index_events_on_location_id"
+    t.index ["team_id"], name: "index_events_on_team_id"
+  end
+
   create_table "kinds", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_kinds_on_name"
   end
 
   create_table "locations", force: :cascade do |t|
@@ -128,7 +141,9 @@ ActiveRecord::Schema.define(version: 2021_10_07_141917) do
     t.bigint "coach_id", default: 0, null: false
     t.bigint "user_id", default: 0, null: false
     t.index ["coach_id"], name: "index_people_on_coach_id"
+    t.index ["name"], name: "index_people_on_name"
     t.index ["player_id"], name: "index_people_on_player_id"
+    t.index ["surname"], name: "index_people_on_surname"
     t.index ["user_id"], name: "index_people_on_user_id"
   end
 
@@ -146,16 +161,62 @@ ActiveRecord::Schema.define(version: 2021_10_07_141917) do
     t.bigint "player_id", null: false
   end
 
+  create_table "season_locations", force: :cascade do |t|
+    t.bigint "season_id", null: false
+    t.bigint "location_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["location_id"], name: "index_season_locations_on_location_id"
+    t.index ["season_id"], name: "index_season_locations_on_season_id"
+  end
+
   create_table "seasons", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.date "start_date"
+    t.date "end_date"
   end
 
   create_table "skills", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_skills_on_name"
+  end
+
+  create_table "slots", id: :bigint, default: -> { "nextval('training_slots_id_seq'::regclass)" }, force: :cascade do |t|
+    t.bigint "season_id", default: 0, null: false
+    t.bigint "location_id", default: 0, null: false
+    t.integer "wday"
+    t.time "start"
+    t.integer "duration"
+    t.bigint "team_id", default: 0, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["location_id"], name: "index_training_slots_on_location_id"
+    t.index ["season_id"], name: "index_training_slots_on_season_id"
+    t.index ["team_id"], name: "index_training_slots_on_team_id"
+  end
+
+  create_table "targets", force: :cascade do |t|
+    t.integer "focus"
+    t.integer "aspect"
+    t.string "concept"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["concept"], name: "index_targets_on_concept"
+  end
+
+  create_table "team_targets", force: :cascade do |t|
+    t.bigint "team_id", null: false
+    t.bigint "target_id", null: false
+    t.integer "priority"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "month"
+    t.index ["target_id"], name: "index_team_targets_on_target_id"
+    t.index ["team_id"], name: "index_team_targets_on_team_id"
   end
 
   create_table "teams", force: :cascade do |t|
@@ -172,25 +233,11 @@ ActiveRecord::Schema.define(version: 2021_10_07_141917) do
     t.index ["season_id"], name: "index_teams_on_season_id"
   end
 
-  create_table "training_slots", force: :cascade do |t|
-    t.bigint "season_id", default: 0, null: false
-    t.bigint "location_id", default: 0, null: false
-    t.integer "wday"
-    t.time "start"
-    t.integer "duration"
-    t.bigint "team_id", default: 0, null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["location_id"], name: "index_training_slots_on_location_id"
-    t.index ["season_id"], name: "index_training_slots_on_season_id"
-    t.index ["team_id"], name: "index_training_slots_on_team_id"
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.bigint "person_id", default: 0, null: false
-    t.boolean "admin", default: false
+    t.integer "role", default: 0
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
@@ -206,16 +253,22 @@ ActiveRecord::Schema.define(version: 2021_10_07_141917) do
   add_foreign_key "coaches", "people"
   add_foreign_key "drills", "coaches"
   add_foreign_key "drills", "kinds"
+  add_foreign_key "events", "locations"
+  add_foreign_key "events", "teams"
   add_foreign_key "people", "coaches"
   add_foreign_key "people", "players"
   add_foreign_key "people", "users"
   add_foreign_key "players", "people"
+  add_foreign_key "season_locations", "locations"
+  add_foreign_key "season_locations", "seasons"
+  add_foreign_key "slots", "locations"
+  add_foreign_key "slots", "seasons"
+  add_foreign_key "slots", "teams"
+  add_foreign_key "team_targets", "targets"
+  add_foreign_key "team_targets", "teams"
   add_foreign_key "teams", "categories"
   add_foreign_key "teams", "divisions"
   add_foreign_key "teams", "locations", column: "homecourt_id"
   add_foreign_key "teams", "seasons"
-  add_foreign_key "training_slots", "locations"
-  add_foreign_key "training_slots", "seasons"
-  add_foreign_key "training_slots", "teams"
   add_foreign_key "users", "people"
 end

@@ -1,52 +1,62 @@
-<%= form_with model: drill, remote: true, authenticity_token: true, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |form| %>
-	<% if drill.errors.any? %>
-		<div id="error_explanation">
-			<h2><%= pluralize(drill.errors.count, "error") %> prohibited this drill from being saved:</h2>
-
-			<ul>
-				<% drill.errors.full_messages.each do |message| %>
-					<li><%= message %></li>
-				<% end %>
-			</ul>
-		</div>
-	<% end %>
-
-	<table>
-		<tr>
-			<td rowspan="3" colspan="2" align="center">
-				<%= image_tag("drill.png", :size => "100x100") %>
-			</td>
-			<td align="right"><strong>Nombre</strong></td>
-			<td><%= form.text_field :name, size: 20, rows: 2, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td align="right"><strong>Descripci&oacute;n</strong></td>
-			<td><%= form.text_area :description, cols: 40, rows: 1, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td align="right"><strong>Material</strong></td>
-			<td><%= form.text_area :material, cols: 40, rows: 1, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td align="right"><strong>Autor</strong></td>
-			<td><div class="field"><%= form.collection_select :coach_id, Coach.real, :id, :s_name, {selected: current_user.person.coach_id} %></div></td>
-			<td align="right"><strong>Tipo</strong></td>
-			<td><div class="field"><%= form.collection_select :kind_id, Kind.all, :id, :name %></div></td>
-		</tr><tr>
-			<td align="right" class="align-top"><strong>Explicaci&oacute;n:</strong></td>
-			<td colspan="3"><%= form.rich_text_area :explanation, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td align="right" class="align-top"><strong>Fundamentos:</strong></td>
-			<td>
-				<template data-nested-form-target="template">
-					<%= form.fields_for :skills, Drill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
-						<%= render 'skill_form', form: skill_fields %>
-					<% end %>
-				</template>
-				<%= form.fields_for :skills do |skill_fields| %>
-					<%= render 'skill_form', form: skill_fields %>
-				<% end %>
-				<div data-nested-form-target="target"></div>
-				<button type="button" data-action="nested-form#add"><%= render "shared/add" %></button>
-			</td>
-		</tr>
-	</table>
+<%= form_with model: drill, remote: true, authenticity_token: true, data: { label: label, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper', "turbo-frame" => "_top" } do |form| %>
+	<div id="drills-form">
+		<table>
+			<div id="locations-form-header">
+				<tr>
+		      <th rowspan="2" align="center">
+		        <%= image_tag("drill.svg", size: "50x50") %>
+		      </th>
+		      <th colspan="3" align="left" class="align-top rounded-md text-yellow-600">
+		        <%= label %>
+		      </th>
+				</tr><tr>
+					<td align="left">
+						<%= form.text_field :name, size: 20, rows: 2, class: "rounded border shadow-inner" %>
+					</td>
+					<th align="left">Tipo:</th>
+					<td>
+						<div class="field"><%= form.collection_select :kind_id, Kind.all, :id, :name %></div>
+					</td>
+				</tr>
+			</div>
+			<div id="drills-form-data">
+				<tr>
+					<!-- <th align="right" class="align-top">Objetivos:</th>
+					<td colspan="3">< %= form.text_area :description, cols: 40, rows: 2, class: "rounded border shadow-inner" %></td>-->
+				</tr><tr>
+					<th align="right" class="align-top">Material:</th>
+					<td colspan="3"><%= form.text_field :material, size: 40, class: "rounded border shadow-inner" %></td>
+				</tr><tr>
+					<th align="right" class="align-top">Descrip.:</th>
+					<td colspan="3"><%= form.text_area :description, cols: 40, rows: 2, class: "rounded border shadow-inner" %></td>
+				</tr><tr>
+					<th colspan="3" align="left" class="align-top">Explicación:</th>
+					<!-- <td align="right" class="inline-flex rounded-md hover:bg-yellow-300">
+						<small>Playbook</small>
+						< %= image_tag("playbook.png", size: "25x25") %>
+					</td>-->
+				</tr><tr>
+					<td colspan="4"><%= form.rich_text_area :explanation, class: "rounded border shadow-inner" %></td>
+				</tr><tr>
+					<th align="right" class="align-top">Fundam.:</th>
+					<td colspan="3">
+						<template data-nested-form-target="template">
+							<%= form.fields_for :skills, Drill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
+								<%= render 'skill_form', form: skill_fields %>
+							<% end %>
+						</template>
+						<%= form.fields_for :skills do |skill_fields| %>
+							<%= render 'skill_form', form: skill_fields %>
+						<% end %>
+						<div data-nested-form-target="target"></div>
+						<button type="button" data-action="nested-form#add"><%= render "shared/add" %></button>
+					</td>
+				</tr><tr>
+					<th align="right">Autor:</th>
+					<td colspan="3"><div class="field"><%= form.collection_select :coach_id, Coach.real, :id, :s_name, {selected: current_user.person.coach_id} %></div></td>
+				</tr>
+			</div>
+		</table>
+	</div>
 	<%= render "shared/save" %>
 <% end %>

@@ -1,39 +1,30 @@
-<%= form_with model: @person, remote: true do |f| %>
-	<% if @person.errors.any? %>
-	  <div class="p-4 border border-red-600" data-extended-modal-target="errors">
-	    <h2>
-	      No se pudo guardar la persona
-	    </h2>
-	    <ul>
-	      <% @comment.errors.full_messages.each do |message| %>
-	        <li><%= message %></li>
-	      <% end %>
-	    </ul>
-	  </div>
-	<% end %>
+<%= form_with model: @person, label: label, remote: true, data: { "turbo-frame" => "_top" } do |f| %>
 	<table>
 		<tr>
-			<td rowspan="3" align="center">
+			<td rowspan="4" colspan="2" align="center">
 				<%= image_tag("person.svg", size: "100x100", class: "rounded-full") %>
 			</td>
-			<td align="right"><strong>Nom:</strong></td>
+			<th colspan="2" align="left" class="align-top text-yellow-600"><%= label %></th>
+		</tr><tr>
+			<td align="left"><strong>Nom:</strong></td>
 			<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td align="right"><strong>Apel:</strong></td>
+			<td align="left"><strong>Apel:</strong></td>
 			<td><%= f.text_field :surname, size: 18, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td align="right"><strong><%= image_tag "calendar.svg", size: "25x25", alt: "Nac:"  %></strong></td>
+			<td align="center"><strong><%= image_tag "calendar.svg", size: "25x25", alt: "Nac:"  %></strong></td>
 			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td><strong>DNI:&nbsp;</strong><%= f.text_field :dni, size: 7, class: "rounded border shadow-inner" %></td>
-			<td align="right"><strong><%= image_tag "user.svg", size: "25x25", alt: "Nick:"  %></strong></td>
+			<td colspan="2"><strong>DNI:&nbsp;</strong><%= f.text_field :dni, size: 8, class: "rounded border shadow-inner" %></td>
+			<td align="center"><strong><%= image_tag "user.svg", size: "25x25", alt: "Nick:"  %></strong></td>
 			<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td><strong><%= f.label "Fem:" %>&nbsp;</strong><%= f.check_box :female %></td>
-			<td align="right"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
+			<td colspan="2"><strong><%= f.label "Fem:" %>&nbsp;</strong><%= f.check_box :female %></td>
+			<td align="center"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
 			<td><%= f.text_field :email, size: 22, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td colspan="2" align="right"><strong><%= image_tag "phone.svg", size: "25x25", alt: "Tel:"  %></strong></td>
+			<td colspan="2"></td>
+			<td align="center"><strong><%= image_tag "phone.svg", size: "25x25", alt: "Tel:"  %></strong></td>
 			<td><%= f.text_field :phone, size: 12, class: "rounded border shadow-inner" %></td>
 		</tr>
 	</table>

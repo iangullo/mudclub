@@ -6,10 +6,17 @@ Rails.application.routes.draw do
     get 'users/edit' => 'devise/registrations#edit', :as => 'edit_user_registration'
     put 'users' => 'devise/registrations#update', :as => 'user_registration'
   end
+  resources :locations
   resources :users
-  resources :teams
+  resources :seasons do
+    resources :locations
+    resources :slots
+  end
+  resources :teams do
+    get 'edit_roster', on: :member
+    get 'edit_coaches', on: :member
+  end
   resources :drills
-  resources :training_slots
   resources :coaches do
     collection do
       post :import

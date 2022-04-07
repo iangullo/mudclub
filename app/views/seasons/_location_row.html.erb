@@ -1,0 +1,11 @@
+<div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
+  <% if form.object.new_record? %>
+    <%= form.collection_select :id, @eligible_locations, :id, :name %>
+  <% else %>
+		<%= form.object.name %>
+  <% end %>
+	<button type="button" class="object-left-bottom" data-action="nested-form#remove">
+  	<%= render "shared/remove" %>
+ 	</button>
+	<%= form.hidden_field :_destroy %>
+</div>

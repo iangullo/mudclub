@@ -1,34 +1,43 @@
 <%= render "shared/modal" do %>
-	<table>
-		<tr>
-			<td rowspan="3" align="center">
-				<%= image_tag(@user.picture, :size => "100x100", class: "rounded-full") %>
-			</td>
-			<td><%= @user.person.name %></td>
-		</tr><tr>
-			<td><%= @user.person.surname %></td>
-		</tr><tr>
-			<td><%= @user.email %></td>
-		</tr><tr>
-			<td></td>
-			<td>
-				<% if @user.admin? %>
-					<%= image_tag "key.svg", size: "40x40", alt: "Admin."  %>
-				<% end %>
-				<% if @user.is_coach? %>
-					<%= image_tag "coach.svg", size: "40x40", alt: "Ent."  %>
-				<% end %>
-				<% if @user.is_player? %>
-					<%= image_tag "player.svg", size: "40x10", alt: "Jug."  %>
-				<% end %>
-			</td>
-			<td align="right">
-				<% if current_user.admin? %>
-					<%= link_to "/users/" + @user.id.to_s + "/edit", data: {"turbo-frame": "modal" } do %>
-						<%= render "shared/edit" %>
+	<div id="user-show">
+		<table>
+			<div id="user-show-header">
+				<tr>
+					<td rowspan="2" align="center">
+						<%= image_tag(@user.picture, :size => "100x100", class: "rounded-full") %>
+					</td>
+					<th align="left" class="align-top rounded-md text-yellow-600"><%= @user.s_name %></th>
+					<td align="right">
+						<%= link_to "/users/" + @user.id.to_s + "/edit", data: {"turbo-frame": "modal" } do %>
+							<%= render "shared/edit" %>
+						<% end %>
+					</td>
+				</tr>
+			</div>
+			<div id="user-show-data">
+				<tr>
+					<td class="inline-flex">
+						<% if @user.admin? %>
+							<%= image_tag "key.svg", size: "36x36", alt: "Admin."  %>
+						<% end %>
+						<% if @user.is_coach? %>
+							<%= image_tag "coach.svg", size: "36x36", alt: "Ent."  %>
+						<% end %>
+						<% if @user.is_player? %>
+							<%= image_tag "player.svg", size: "36x36", alt: "Jug."  %>
+						<% end %>
+					</td>
+				</tr>
+				<% if @user.teams %>
+					<tr>
+						<td colspan="3" align="center" class="border px py text-white bg-blue-900"><strong>Equipos</strong></td>
+					</tr>
+					<% @user.teams.each do |team| %>
+						<tr>
+							<td colspan="3" class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team %></td>
+						</tr>
 					<% end %>
 				<% end %>
-			</td>
-		</tr>
+			</div>
 	</table>
 <% end %>

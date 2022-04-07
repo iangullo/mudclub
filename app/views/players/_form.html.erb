@@ -1,44 +1,34 @@
-<%= form_for @player, remote: true, authenticity_token: true do |form| %>
-	<% if @player.errors.any? %>
-		<div class="p-4 border border-red-600" data-extended-modal-target="errors">
-			<h2>
-				No se pudo guardar el jugador
-			</h2>
-			<ul>
-				<% @player.errors.full_messages.each do |message| %>
-					<li><%= message %></li>
-				<% end %>
-			</ul>
-		</div>
-	<% end %>
+<%= form_for @player, remote: true, authenticity_token: true, data: { "turbo-frame" => "_top" } do |form| %>
 	<table>
 		<%= form.fields_for :person do |f| %>
 			<tr>
-				<td colspan="4"><strong>Foto:</strong><%= form.file_field :avatar, direct_upload: true %></td>
-			</tr><tr>
-				<td rowspan="3" colspan="2" align="center">
+				<td rowspan="4" colspan="2" align="center">
 					<%= image_tag(@player.picture, size: "100x100", class: "rounded-full") %>
 				</td>
-				<td align="right"><strong>Nom:</strong></td>
+				<th align="left" colspan="2" class="align-top text-yellow-600">Editar Jugador/a</th>
+			</tr><tr>
+				<td align="left"><strong>Nom:</strong></td>
 				<td colspan="2"><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<td align="right"><strong>Apel:</strong></td>
+				<td align="left"><strong>Apel:</strong></td>
 				<td colspan="2"><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<td align="right"><strong><%= image_tag "calendar.svg", size: "25x25", alt: "Nac:"  %></strong></td>
+				<td align="center"><strong><%= image_tag "calendar.svg", size: "25x25", alt: "Nac:"  %></strong></td>
 				<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %>
 			</tr><tr>
-				<td colspan="2"><strong>DNI:&nbsp;</strong><%= f.text_field :dni, size: 7, class: "rounded border shadow-inner" %></td>
-				<td align="right"><strong><%= image_tag "user.svg", size: "25x25", alt: "Nick:"  %></strong></td>
+				<td colspan="4"><strong>Foto:</strong><%= form.file_field :avatar, direct_upload: true %></td>
+			</tr><tr>
+				<td colspan="2"><strong>DNI:&nbsp;</strong><%= f.text_field :dni, size: 8, class: "rounded border shadow-inner" %></td>
+				<td align="center"><strong><%= image_tag "user.svg", size: "25x25", alt: "Nick:"  %></strong></td>
 				<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
 				<td><strong>Fem.</strong><%= f.check_box :female %></td>
 				<td><strong>#:</strong><%= form.number_field :number, min: 0, max: 99, size: 2, class: "rounded border shadow-inner" %></td>
-				<td align="right"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
+				<td align="center"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
 				<td><%= f.text_field :email, size: 22, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<td colspan="2" align="right"><strong>Activo</strong><%= form.check_box :active %></td>
-				<td align="right"><strong><%= image_tag "phone.svg", size: "25x25", alt: "Tel:"  %></strong></td>
+				<td colspan="2" align="left"><strong>Activo</strong><%= form.check_box :active %></td>
+				<td align="center"><strong><%= image_tag "phone.svg", size: "25x25", alt: "Tel:"  %></strong></td>
 				<td><%= f.text_field :phone, size: 12, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
 			</tr>

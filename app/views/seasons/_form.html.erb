@@ -1,0 +1,56 @@
+<%= form_with model: season, remote: true, authenticity_token: true, data: { label: label, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper', "turbo-frame" => "_top" } do |form| %>
+	<div id="seasons-form">
+		<table>
+			<div id="seasons-form-header">
+				<tr>
+					<th rowspan="2" class="align-top">
+						<%= image_tag("calendar.svg", size: "50x50") %>
+					</th><th colspan="2" align="left" class="rounded-md text-yellow-600">
+						<%= label %>
+					</th>
+				</tr>
+			</div>
+			<div id="seasons-form-data">
+				<tr>
+					<td><%= form.text_field :name, size: 8, class: "rounded border shadow-inner" %></td>
+				</tr><tr>
+					<td align="right"><strong>Inicio</strong></td>
+					<td><%= form.date_field :start_date, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
+				</tr><tr>
+					<td align="right"><strong>Final</strong></td>
+					<td><%= form.date_field :end_date, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
+				</tr>
+				<% if @eligble_locations %>
+					<tr>
+						<td align="center"><%= image_tag("location.svg", size: "30x30") %></td>
+						<th align="left">Pistas asociadas</th>
+					</tr><tr>
+						<td></td>
+						<td>
+							<table>
+								<template data-nested-form-target="template">
+									<%= form.fields_for :locations, Location.new, child_index: 'NEW_RECORD' do |loc| %>
+										<%= render 'location_row', form: loc %>
+									<% end %>
+								</template>
+								<%= form.fields_for :locations do |loc| %>
+									<tr>
+									<%= render 'location_row', form: loc %>
+									</tr>
+								<% end %>
+								<tr>
+									<div data-nested-form-target="target"></div>
+								</tr><tr>
+									<td>
+										<button type="button" data-action="nested-form#add"><%= render "shared/add" %></button>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				<% end %>
+			</div>
+		</table>
+	<%= render "shared/save" %>
+	</div>
+<% end %>

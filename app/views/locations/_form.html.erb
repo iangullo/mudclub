@@ -1,0 +1,29 @@
+<%= form_for location, remote: true, data: { label: label, season: season, "turbo-frame" => "_top" } do |form| %>
+	<div id="locations-form">
+		<table>
+			<div id="locations-form-header">
+				<tr>
+		      <th rowspan="2">
+		        <%= image_tag("location.svg", size: "50x50") %>
+		      </th>
+		      <th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
+		        <%= label %>
+		      </th>
+				</tr>
+			</div>
+			<div id="locations-form-data">
+				<tr>
+					<td align="left" colspan="2"><%= form.text_field :name, autofocus: true, autocomplete: "Nombre", class: "rounded border shadow-inner" %></td>
+				</tr><tr>
+					<td align="right"><%= image_tag "gmaps.svg", size: "25x25", alt: "GPS"  %></td>
+		      <td><%= form.text_field :gmaps_url, autocomplete: "Enlace Google Maps", class: "rounded border shadow-inner" %></td>
+		    </tr><tr>
+		      <td align="right"><%= image_tag "training.svg", size: "25x25", alt: "P.Entrenamiento"  %>
+		        <td align="left" class="inline-flex">Pista de Entrenamiento&nbsp;<%= form.check_box :practice_court %></td>
+		  	</tr>
+			</div>
+		</table>
+		<%= form.hidden_field(:season_id, value: season.id) if season %>
+		<%= render "shared/save" %>
+	</div>
+<% end %>

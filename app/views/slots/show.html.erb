@@ -1,0 +1,40 @@
+<%= render "shared/modal" do %>
+	<div id="slots-show">
+		<table>
+			<div id="slots-show-header">
+				<tr>
+					<th rowspan="2">
+						<%= image_tag("timetable.svg", size: "50x50") %>
+					</th>
+					<th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
+						Horario
+					</th>
+				</tr><tr>
+					<th colspan="2" align="left" ><%= @slot.season.name %></th>
+				</tr>
+			</div>
+			<div id="slots-show-data">
+	      <tr>
+	        <td align="right"><%= image_tag("team.svg", size: "25x25") %></td>
+					<td align="center"><%= @slot.team.name %></td>
+	    	</tr><tr>
+	        <td align="right"><%= image_tag("location.svg", size: "25x25") %></td>
+					<td><%= @slot.court %></td>
+	    	</tr><tr>
+	        <td align="right"><%= image_tag("calendar.svg", size: "25x25") %></td>
+					<td><%= @slot.to_s %></td>
+	      </tr><tr>
+	        <td align="right"><%= image_tag("clock.svg", size: "25x25") %></td>
+					<td><%= @slot.duration %> mins.</td>
+	      </tr>
+	    </div>
+			<tr>
+				<td colspan="3" align="right">
+					<%= link_to edit_slot_path(@slot), class:"rounded" do %>
+				    <%= render "shared/edit" %>
+				  <% end %>
+				<td>
+			<tr>
+		</table>
+	</div>
+<% end %>

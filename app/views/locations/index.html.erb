@@ -1,0 +1,76 @@
+<div id="locations-index">
+  <div id="locations-header">
+    <table>
+      <tr>
+        <th rowspan="2">
+          <%= image_tag("location.svg", size: "50x50") %>
+        </th>
+        <th align="left" class="align-top text-yellow-600">Ubicaciones</th>
+      </tr><tr>
+        <th align="left">
+          <% if @season %>
+            <%= @season.name %>
+          <% else %>
+  					<div id="locations-search" class="inline-flex rounded border">
+  						<%= form_with(url: '/locations', method: 'get', local: true) do %>
+  							<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
+  							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
+  						<% end %>
+  					</div>
+          <% end %>
+        <th>
+      </tr>
+    </table>
+  </div>
+  <div id="locations-grid">
+    <table class="table-auto">
+      <thead>
+        <tr class="bg-indigo-900 text-gray-300">
+    			<th class="border px py">Nombre</th>
+    			<th class="border px py">Tipo</th>
+    			<th class="border px py">Ubic.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @locations.each do |loc| %>
+          <tr>
+            <td class="border px py hover:text-white hover:bg-blue-700">
+  						<%= link_to loc.name, loc, data: {"turbo-frame": "modal" } %>
+  					</td>
+            <td align="center" class="rounded border px py">
+              <%= image_tag(loc.practice_court ? "training.svg" : "team.svg", size: "20x20") %>
+            </td><td align="center" class="rounded border px py">
+              <% if loc.gmaps_url %>
+                <%= link_to loc.gmaps_url, target: '_blank' do %>
+                  <%= image_tag("gmaps.svg", size: "25x25") %>
+                <% end %>
+              <% end %>
+            </td>
+            <% if not @season and current_user.admin? %>
+              <td>
+                <%= link_to loc, method: :delete, data: { confirm: "¿Borrar '#{loc.name}'?" } do %>
+                  <%= render "shared/delete" %>
+                <% end %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+        <tr>
+          <td colspan="2"></td>
+          <% if @season %>
+            <td align="center">
+              <%= link_to season_locations_path(@season) + "/new", data: {"turbo-frame": "modal" } do %>
+                <%= render "shared/add" %>
+              <% end %>
+          <% else %>
+            <td align="right" colspan="2">
+              <%= link_to new_location_path, data: {"turbo-frame": "modal" } do %>
+                <%= render "shared/add" %>
+              <% end %>
+          <% end %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

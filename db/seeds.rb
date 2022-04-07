@@ -5,7 +5,7 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
-Season.create(name: "2021-22")
+Season.create(name: "2021-22", start_date: "2021-09-01", end_date: "2022-06-30")
 Location.create(name: "Marina Alabau", gmaps_url: "https://goo.gl/maps/GCHt21pgWYSbWZsw8", practice_court: false)
 Location.create(name: "Marina Alabau-P.1", gmaps_url: "https://goo.gl/maps/GCHt21pgWYSbWZsw8", practice_court: true)
 Location.create(name: "Marina Alabau-P.2", gmaps_url: "https://goo.gl/maps/GCHt21pgWYSbWZsw8", practice_court: true)

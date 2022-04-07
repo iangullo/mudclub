@@ -24,7 +24,7 @@ class UsersController < ApplicationController
       respond_to do |format|
   			@user = build_new_user(params)	# build user
   			if @user.is_duplicate? then
-  				format.html { redirect_to @user, notice: 'Ya existía este usuario.'}
+  				format.html { redirect_to @user }
   				format.json { render :show,  :created, location: @user }
   			else
   				@user.person.save
@@ -34,7 +34,7 @@ class UsersController < ApplicationController
   						@user.person.user_id = @user.id
   						@user.person.save
   					end
-  					format.html { redirect_to users_url, notice: 'Usuario creado.' }
+  					format.html { redirect_to users_url }
   					format.json { render :index, status: :created, location: users_url }
   				else
   					format.html { render :new }
@@ -73,7 +73,7 @@ class UsersController < ApplicationController
         end
         rebuild_user(params)	# rebuild user
   			if @user.update(user_params)
-  				format.html { redirect_to users_url, notice: 'Usuario actualizado.' }
+  				format.html { redirect_to users_url }
   				format.json { render :index, status: :ok, location: users_url }
   			else
   				format.html { render :edit }
@@ -90,7 +90,7 @@ class UsersController < ApplicationController
       unlink_person
   		@user.destroy
   		respond_to do |format|
-  			format.html { redirect_to users_url, notice: 'Usuario borrado.' }
+  			format.html { redirect_to users_url }
   			format.json { head :no_content }
   		end
     else
@@ -113,26 +113,28 @@ class UsersController < ApplicationController
 	# return nil if unsuccessful
 	def rebuild_user(params)
     @user.email = params.fetch(:user)[:email]
-		p_data= params.fetch(:user).fetch(:person_attributes)
+    @user.role  = params.fetch(:user)[:role]
+		p_data      = params.fetch(:user).fetch(:person_attributes)
     @user.person_id > 0 ? @user.person.reload : @user.build_person
-		@user.person[:dni] = p_data[:dni]
-		@user.person[:nick] = p_data[:nick]
-		@user.person[:name] = p_data[:name]
+		@user.person[:dni]     = p_data[:dni]
+		@user.person[:nick]    = p_data[:nick]
+		@user.person[:name]    = p_data[:name]
 		@user.person[:surname] = p_data[:surname]
-		@user.person[:female] = p_data[:female]
-		@user.person[:email] = @user.email
-		@user.person[:phone] = Phonelib.parse(p_data[:phone]).international.to_s
+		@user.person[:female]  = p_data[:female]
+		@user.person[:email]   = @user.email
+		@user.person[:phone]   = Phonelib.parse(p_data[:phone]).international.to_s
 	end
 
   # build & prepare a person for a new user
   def build_new_user(params)
-    @user = User.new(user_params)
-    @user.email = params.fetch(:user)[:email]
-    @user.password = params.fetch(:user)[:password]
+    @user                       = User.new(user_params)
+    @user.email                 = params.fetch(:user)[:email]
+    @user.role                  = params.fetch(:user)[:role]
+    @user.password              = params.fetch(:user)[:password]
     @user.password_confirmation = params.fetch(:user)[:password_confirmation]
     @user.build_person
-    @user.person.email = @user.email
-    @user.person.name = @user.email.split("@").first
+    @user.person.email   = @user.email
+    @user.person.name    = @user.email.split("@").first
     @user.person.surname = @user.email.split("@").last
     @user
   end

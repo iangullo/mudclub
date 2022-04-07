@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  team: one
+  target: one
+  priority: 1
+
+two:
+  team: two
+  target: two
+  priority: 1

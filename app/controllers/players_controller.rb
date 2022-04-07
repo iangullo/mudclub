@@ -6,7 +6,7 @@ class PlayersController < ApplicationController
 	# GET /players.json
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@players = Player.search(params[:search])
+			@players = get_players
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
@@ -51,7 +51,7 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = rebuild_player(params)	# rebuild player
 				if @player.is_duplicate? then
-					format.html { redirect_to @player, notice: 'Ya existía este jugador.'}
+					format.html { redirect_to @player }
 					format.json { render :show,  :created, location: @player }
 				else
 					@player.person.save
@@ -61,7 +61,7 @@ class PlayersController < ApplicationController
 							@player.person.player_id = @player.id
 							@player.person.save
 						end
-						format.html { redirect_to players_url, notice: 'Jugador creado.' }
+						format.html { redirect_to players_url }
 						format.json { render :index, status: :created, location: players_url }
 					else
 						format.html { render :new }
@@ -80,7 +80,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
 			respond_to do |format|
 				if @player.update(player_params)
-					format.html { redirect_to players_url, notice: 'Jugador actualizado.' }
+					format.html { redirect_to players_url }
 					format.json { render :index, status: :ok, location: players_url }
 				else
 					format.html { render :edit }
@@ -95,7 +95,7 @@ class PlayersController < ApplicationController
   # GET /players/import
   # GET /players/import.json
 	def import
-		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Player.import(params[:file])
 	    redirect_to players_url
@@ -111,7 +111,7 @@ class PlayersController < ApplicationController
 			unlink_person
 			@player.destroy
 			respond_to do |format|
-				format.html { redirect_to players_url, notice: 'Jugador borrado.' }
+				format.html { redirect_to players_url }
 				format.json { head :no_content }
 			end
 		else
@@ -123,6 +123,21 @@ class PlayersController < ApplicationController
 	# Use callbacks to share common setup or constraints between actions.
 	def set_player
 		@player = Player.find(params[:id]) unless @player.try(:id)==params[:id]
+	end
+
+	# get player list depending on the search parameter & user role
+	def get_players
+		if (params[:search] != nil) and (params[:search].length > 0)
+			@players = Player.search(params[:search])
+		else
+			if current_user.admin?
+				Player.real
+			elsif current_user.is_coach?
+				Player.active
+			else
+				Player.none
+			end
+		end
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.
