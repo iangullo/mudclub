@@ -1,5 +1,5 @@
 <%= render "shared/modal" do %>
-	<%= form_with model: @team, remote: true do |form| %>
+	<%= form_with model: @team, data: { "turbo-frame" => "_top" } do |form| %>
 		<div id="edit-roster-form">
 			<table>
 				<tr>

@@ -1,6 +1,6 @@
 <% if current_user.admin? %>
 	<%= render "shared/modal" do %>
-		<%= form_for @user, remote: true do |form| %>
+		<%= form_for @user do |form| %>
 			<table>
 				<tr>
 					<td colspan="4" align="center" class="text-blue-900"><strong>Crear usuario</strong></td>
