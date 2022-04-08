@@ -1,5 +1,5 @@
 <%= render "shared/modal" do %>
-	<%= form_for @player, remote: true do |form| %>
+	<%= form_for @player do |form| %>
 		<%= form.fields_for :person do |f| %>
 			<table>
 				<tr>

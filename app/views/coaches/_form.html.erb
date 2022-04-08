@@ -1,4 +1,4 @@
-<%= form_for @coach, remote: true, authenticity_token: true, data:{ "turbo-frame" => "_top" } do |form| %>
+<%= form_for @coach, authenticity_token: true, data:{ "turbo-frame" => "_top" } do |form| %>
 	<table>
 		<%= form.fields_for :person do |f| %>
 			<tr>
