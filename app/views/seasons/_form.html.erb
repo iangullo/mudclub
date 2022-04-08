@@ -1,4 +1,4 @@
-<%= form_with model: season, remote: true, authenticity_token: true, data: { label: label, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper', "turbo-frame" => "_top" } do |form| %>
+<%= form_with model: season, authenticity_token: true, data: { label: label, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper', "turbo-frame" => "_top" } do |form| %>
 	<div id="seasons-form">
 		<table>
 			<div id="seasons-form-header">
