@@ -113,6 +113,7 @@ class DrillsController < ApplicationController
 		@drill.coach_id    = p_data[:coach_id]
 		@drill.kind_id     = p_data[:kind_id]
 		@drill.explanation = p_data[:explanation]
+		@drill.playbook    = p_data[:playbook]
 		check_skills(p_data[:skills_attributes]) if p_data[:skills_attributes]
 		check_targets(p_data[:drill_targets_attributes]) if p_data[:drill_targets_attributes]
 		@drill
@@ -213,6 +214,6 @@ class DrillsController < ApplicationController
 
 	# Only allow a list of trusted parameters through.
 	def drill_params
-		params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :kind_id, target_ids: [], skill_ids: [], skills_attributes: [:id, :name, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy], targets_attributes: [:id, :concept])
+		params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, target_ids: [], skill_ids: [], skills_attributes: [:id, :name, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy], targets_attributes: [:id, :concept])
 	end
 end
