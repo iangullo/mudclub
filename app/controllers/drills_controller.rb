@@ -79,6 +79,7 @@ class DrillsController < ApplicationController
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
 		if current_user.present? and current_user.admin?
+			@drill.drill_targets.each { |d_t| dt.delete }
 			@drill.destroy
 			respond_to do |format|
 				format.html { redirect_to drills_url }
@@ -112,7 +113,9 @@ class DrillsController < ApplicationController
 		@drill.coach_id    = p_data[:coach_id]
 		@drill.kind_id     = p_data[:kind_id]
 		@drill.explanation = p_data[:explanation]
+		@drill.playbook    = p_data[:playbook]
 		check_skills(p_data[:skills_attributes]) if p_data[:skills_attributes]
+		check_targets(p_data[:drill_targets_attributes]) if p_data[:drill_targets_attributes]
 		@drill
 	end
 
@@ -133,6 +136,23 @@ class DrillsController < ApplicationController
 					sk = Skill.create(name: s[:name]) unless sk
 					@drill.skills << sk	# add to collection
 				end
+			end
+		}
+	end
+
+	# checks targets_attributes parameter received and manage adding/removing
+	# from the target collection - remove duplicates from list
+	def check_targets(t_array)
+		a_targets = Array.new	# array to include only non-duplicates
+		t_array.each { |t| # first pass
+			a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
+		}
+		a_targets.each { |t| # second pass - manage associations
+			if t[:_destroy] == "1"	# remove drill_target
+				@drill.targets.delete(t[:id])
+			else
+				dt = DrillTarget.fetch(t)
+				@drill.drill_targets ? @drill.drill_targets << dt : @drill.drill_targets |= dt
 			end
 		}
 	end
@@ -194,6 +214,6 @@ class DrillsController < ApplicationController
 
 	# Only allow a list of trusted parameters through.
 	def drill_params
-		params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :kind_id, skill_ids: [], skills_attributes: [:id, :name, :_destroy])
+		params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, target_ids: [], skill_ids: [], skills_attributes: [:id, :name, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy], targets_attributes: [:id, :concept])
 	end
 end

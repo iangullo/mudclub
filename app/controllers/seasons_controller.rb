@@ -103,7 +103,8 @@ private
         if loc[1][:_destroy] == "1"
           @season.locations.delete(loc[1][:id].to_i)
         else
-          @season.locations |= [Location.find(loc[1][:id].to_i)]
+          l = Location.find(loc[1][:id].to_i)
+          @season.locations ? @season.locations << l : @season.locations |= l
         end
       }
     end

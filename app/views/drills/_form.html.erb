@@ -1,4 +1,4 @@
-<%= form_with model: drill, authenticity_token: true, data: { label: label, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper', "turbo-frame" => "_top" } do |form| %>
+<%= form_with model: drill, authenticity_token: true, data: { label: label, "turbo-frame" => "_top" } do |form| %>
 	<div id="drills-form">
 		<table>
 			<div id="locations-form-header">
@@ -21,8 +21,24 @@
 			</div>
 			<div id="drills-form-data">
 				<tr>
-					<!-- <th align="right" class="align-top">Objetivos:</th>
-					<td colspan="3">< %= form.text_area :description, cols: 40, rows: 2, class: "rounded border shadow-inner" %></td>-->
+					<th align="right" class="align-top">Objetivos:</th>
+					<td colspan="3">
+						<div id="drill-targets" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
+							<% n_p = @drill.drill_targets ? @drill.drill_targets.count+1 : 1 %>
+							<template data-nested-form-target="template">
+								<%= form.fields_for :drill_targets, DrillTarget.new(priority: n_p), child_index: 'NEW_RECORD' do |drill_target_fields| %>
+									<% drill_target_fields.object.build_target %>
+									<%= render 'target_form', form: drill_target_fields %>
+									<% n_p = n_p + 1 %>
+								<% end %>
+							</template>
+							<%= form.fields_for :drill_targets do |drill_target_fields| %>
+								<%= render 'target_form', form: drill_target_fields %>
+							<% end %>
+							<div data-nested-form-target="target"></div>
+							<button type="button" data-action="nested-form#add"><%= render "shared/add" %></button>
+						</div>
+					</td>
 				</tr><tr>
 					<th align="right" class="align-top">Material:</th>
 					<td colspan="3"><%= form.text_field :material, size: 40, class: "rounded border shadow-inner" %></td>
@@ -31,25 +47,28 @@
 					<td colspan="3"><%= form.text_area :description, cols: 40, rows: 2, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
 					<th colspan="3" align="left" class="align-top">Explicación:</th>
-					<!-- <td align="right" class="inline-flex rounded-md hover:bg-yellow-300">
-						<small>Playbook</small>
-						< %= image_tag("playbook.png", size: "25x25") %>
-					</td>-->
+					<td align="right" class="inline-flex rounded-md hover:bg-yellow-300">
+						<small><%= form.label "Playbook" %></small>
+						<%= image_tag("playbook.png", size: "25x25") %>
+						<%= form.file_field :playbook %>
+					</td>
 				</tr><tr>
 					<td colspan="4"><%= form.rich_text_area :explanation, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
 					<th align="right" class="align-top">Fundam.:</th>
 					<td colspan="3">
-						<template data-nested-form-target="template">
-							<%= form.fields_for :skills, Drill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
+						<div id="drill-skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
+							<template data-nested-form-target="template">
+								<%= form.fields_for :skills, Skill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
+									<%= render 'skill_form', form: skill_fields %>
+								<% end %>
+							</template>
+							<%= form.fields_for :skills do |skill_fields| %>
 								<%= render 'skill_form', form: skill_fields %>
 							<% end %>
-						</template>
-						<%= form.fields_for :skills do |skill_fields| %>
-							<%= render 'skill_form', form: skill_fields %>
-						<% end %>
-						<div data-nested-form-target="target"></div>
-						<button type="button" data-action="nested-form#add"><%= render "shared/add" %></button>
+							<div data-nested-form-target="target"></div>
+							<button type="button" data-action="nested-form#add"><%= render "shared/add" %></button>
+						</div>
 					</td>
 				</tr><tr>
 					<th align="right">Autor:</th>

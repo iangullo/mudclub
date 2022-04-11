@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  priority: 1
+  target: one
+  drill: one
+
+two:
+  priority: 1
+  target: two
+  drill: two

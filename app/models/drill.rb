@@ -3,8 +3,12 @@ class Drill < ApplicationRecord
 	belongs_to :kind
 	has_and_belongs_to_many :skills
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
+	has_many :drill_targets
+  has_many :targets, through: :drill_targets
+	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
+	accepts_nested_attributes_for :drill_targets, reject_if: :all_blank, allow_destroy: true
+	has_one_attached :playbook
 	has_rich_text :explanation
-	before_save { self.name = self.name.mb_chars.titleize }
 	self.inheritance_column = "not_sti"
 
 	# filter by name/description
@@ -20,6 +24,15 @@ class Drill < ApplicationRecord
 
 	def print_skills
 		print_names(self.skills)
+	end
+
+	# print strings for associated targets
+	def print_targets
+		cad = nil
+		self.drill_targets.each { |tgt|
+			cad = cad ?  cad + "\n" + tgt.to_s  : tgt.to_s
+		}
+		cad
 	end
 
 #	def print_kinds

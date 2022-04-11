@@ -1,0 +1,17 @@
+<% if form.object %>
+	<div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
+		<div class="inline-flex">
+			<%= form.number_field :priority, value: form.object.priority, class: 'form-control', size: 1, class: "rounded border shadow-inner" %>
+			<%= form.fields_for :target do |f| %>
+				<% form.object.build_target if form.object.new_record? %>
+				<%= f.select :aspect, options_for_select(Target.aspects, f.object.aspect ? f.object.aspect_before_type_cast : 0) %>
+				<%= f.select :focus, options_for_select(Target.kinds, f.object.focus ? f.object.focus_before_type_cast : 0) %>
+				<%= f.text_field :concept, placeholder: '<objetivo>', class: 'form-control', size: 20, class: "rounded border shadow-inner" %>
+			<% end %>
+			<button type="button" class="object-left-bottom" data-action="nested-form#remove">
+				<%= render "shared/remove" %>
+			</button>
+		</div>
+		<%= form.hidden_field :_destroy %>
+	</div>
+<% end %>
