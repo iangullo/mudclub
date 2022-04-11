@@ -24,8 +24,7 @@
 				<tr>
 					<th class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
 					<th class="bg-indigo-900 text-gray-300 align-center">Tipo</th>
-					<th class="bg-indigo-900 text-gray-300 align-center">Descripción</th>
-					<th class="bg-indigo-900 text-gray-300 align-center">Fundamentos</th>
+					<th class="bg-indigo-900 text-gray-300 align-center">Objetivos</th>
 					<th>
 						<%= link_to new_drill_path, data: {"turbo-frame": "modal" } do %>
 							<%= render "shared/add" %>
@@ -39,8 +38,12 @@
 					<tr>
 						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to drill.name, drill, data: {"turbo-frame": "modal" } %></td>
 						<td class="border px py"><%= drill.kind.name %></td>
-						<td class="border px py"><%= drill.description %></td>
-						<td class="border px py"><%= drill.print_skills %></td>
+						<td class="border px py">
+							<% drill.drill_targets.each do |d_t| %>
+								<%= d_t.to_s %>
+								<br>
+							<% end %>
+						</td>
 						<% if current_user.admin? %>
 						<td>
 							<%= link_to drill, method: :delete, data: { confirm: "¿Borrar '#{drill.name}'" } do %>

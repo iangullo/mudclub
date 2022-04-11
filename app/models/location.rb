@@ -26,7 +26,7 @@ class Location < ApplicationRecord
 	#Search field matching
 	def self.search(search)
 		if search
-			search.length>0 ? Location.where("name LIKE ?","%#{search}%") : Location.real
+			search.length>0 ? Location.where("unaccent(name) ILIKE unaccent(?)","%#{search}%") : Location.real
 		else
 			Location.real
 		end

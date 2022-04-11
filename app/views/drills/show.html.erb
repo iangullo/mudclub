@@ -1,36 +1,45 @@
 <%= render "shared/modal" do %>
-<div id="drills-show">
-	<table>
-		<div id="drills-show-header">
-			<tr>
-				<th rowspan="2" align="center" class="align-top">
-					<%= image_tag("drill.svg", size: "50x50") %>
-				</th>
-				<td colspan="3" align="left">
-					<strong class="text-yellow-600"><%= @drill.name %></strong>
-					<%= " (" + @drill.kind.name + ")" %>
-				</td>
-			</tr><tr>
-				<td colspan="3" align="left">
-					<!-- <strong>Objetivos:&nbsp;</strong>< %= @drill.description %>-->
-				</td>
-		</tr>
-		</div>
-		<div id="drills-show-content">
+	<div id="drills-show">
+		<table>
+			<div id="drills-show-header">
+				<tr>
+					<th rowspan="2" align="center" class="align-top">
+						<%= image_tag("drill.svg", size: "50x50") %>
+					</th>
+					<td colspan="3" align="left">
+						<strong class="text-yellow-600"><%= @drill.name %></strong>
+						<%= " (" + @drill.kind.name + ")" %>
+					</td>
+				</tr><tr>
+					<th align="left" class="align-top">
+						Objetivos
+					</th><td colspan="2" align="left">
+						<% @drill.drill_targets.each do |d_t| %>
+							<%= d_t.to_s %>
+							<br>
+						<% end %>
+					</td>
+			</tr>
+		<table>
+	</div>
+	<div id="drills-show-content">
+		<table>
 			<tr>
 				<th align="right">Material:</th>
 				<td colspan="3" align="left"><%= @drill.material %></td>
 			</tr><tr>
-				<th align="right" class="align-top">Descrip.:</th>
+				<th align="right" class="align-top">Descripci&oacute;n:</th>
 				<td colspan="3" align="left"><%= @drill.description %></td>
 			</tr><tr>
 				<th colspan="3" align="left" class="align-top">
 					Explicaci&oacute;n:
 				</th>
-				<!-- <td align="right" class="inline-flex rounded-md hover:bg-yellow-300">
+				<% if @drill.playbook.attached? %>
+				<td align="right" class="inline-flex rounded-md hover:bg-yellow-300">
 					<small>Playbook</small>
-					< %= image_tag("playbook.png", size: "25x25") %>
-				</td>-->
+					<%= image_tag("playbook.png", size: "25x25") %>
+				</td>
+				<% end %>
 			</tr><tr>
 				<td colspan="4" class="rounded-md border"><%= @drill.explanation %></td>
 			</tr><tr>
