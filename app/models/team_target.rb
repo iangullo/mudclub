@@ -2,6 +2,7 @@ class TeamTarget < ApplicationRecord
   belongs_to :team
   belongs_to :target
   scope :global, -> { where("month=0") }
+  scope :plan, -> { where("month>0") }
   scope :monthly, -> (month) { where("month = ?", month) }
 
   def to_s

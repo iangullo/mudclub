@@ -10,7 +10,7 @@
 				</th>
 				<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
 					<td rowspan="2">
-						<%= link_to edit_team_path(@team), data: {"turbo-frame": "modal" } do %>
+						<%= link_to edit_team_path(@team), data: { "turbo-frame": "modal" } do %>
 							<%= render "shared/edit" %>
 						<% end %>
 					</td>
@@ -29,7 +29,7 @@
 				<th align="left"><%= "Plantilla" %></th>
 				<th align="center">
 					<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
-						<%= link_to edit_roster_team_url, data: {"turbo-frame": "modal" } do %>
+						<%= link_to edit_roster_team_url, data: { "turbo-frame": "modal" } do %>
 							<%= render "shared/edit" %>
 						<% end %>
 					<% end %>

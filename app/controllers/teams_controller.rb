@@ -1,6 +1,6 @@
 class TeamsController < ApplicationController
 	skip_before_action :verify_authenticity_token, :only => [:create, :edit, :new, :update, :check_reload]
-	before_action :set_team, only: [:index, :show, :show, :edit, :edit_roster, :edit_coaches, :new, :update, :destroy]
+	before_action :set_team, only: [:index, :show, :edit, :edit_roster, :edit_coaches, :new, :update, :destroy]
 
   # GET /teams
   # GET /teams.json
@@ -131,6 +131,6 @@ class TeamsController < ApplicationController
 
 	# Never trust parameters from the scary internet, only allow the white list through.
 	def team_params
-		params.require(:team).permit(:id, :name, :category_id, :division_id, :season_id, :homecourt_id, :coaches, :players, coaches_attributes: [:id], coach_ids: [], player_ids: [], players_attributes: [:id], targets: [], team_targets: [])
+		params.require(:team).permit(:id, :name, :category_id, :division_id, :season_id, :homecourt_id, :coaches, :players, coaches_attributes: [:id], coach_ids: [], player_ids: [], players_attributes: [:id], targets: [], team_targets: [], team_targets_attributes:[], targets_attributes: [])
 	end
 end

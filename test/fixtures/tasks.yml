@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  event: one
+  order: 1
+  drill: one
+  duration: 1
+
+two:
+  event: two
+  order: 1
+  drill: two
+  duration: 1

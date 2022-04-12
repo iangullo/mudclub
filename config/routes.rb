@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   resources :teams do
     get 'edit_roster', on: :member
     get 'edit_coaches', on: :member
+    get 'events', on: :member
   end
   resources :drills
   resources :coaches do
