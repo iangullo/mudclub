@@ -42,7 +42,7 @@
             </td><td align="center" class="rounded border px py">
               <% if loc.gmaps_url %>
                 <%= link_to loc.gmaps_url, target: '_blank' do %>
-                  <%= image_tag("gmaps.svg", size: "25x25") %>
+                  <%= image_tag("gmaps.svg", size: "25x25", class: "rounded-md hover:bg-blue-100") %>
                 <% end %>
               <% end %>
             </td>
