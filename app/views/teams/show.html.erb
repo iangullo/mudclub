@@ -8,6 +8,11 @@
 				<th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
 					<%= @team.to_s %>
 				</th>
+				<td rowspan="2" class="align-center rounded-d hover:bg-blue-100">
+					<%= link_to coaching_team_path(@team) do %>
+						<%= image_tag("training.svg", :size => "30x30") %>
+					<% end %>
+				</td>
 				<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
 					<td rowspan="2">
 						<%= link_to edit_team_path(@team), data: { "turbo-frame": "modal" } do %>
