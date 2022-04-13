@@ -38,8 +38,8 @@ class Target < ApplicationRecord
 		if concept
 			if concept.length > 0
         res = Target.where("unaccent(concept) ILIKE unaccent(?)","%#{concept}%")
-        res.where(focus: focus.to_i) if focus
-        res.where(aspect: aspect.to_i) if focus
+        res = focus ? res.where(focus: focus.length==1 ? focus.to_i : focus.to_sym) : res
+        res = aspect ? res.where(aspect: aspect.length==1 ? aspect.to_i : aspect.to_sym) : res
       end
       res = res.first
 		end

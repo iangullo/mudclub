@@ -24,4 +24,16 @@ class Season < ApplicationRecord
 	def eligible_locations
     @locations = Location.real - self.locations
   end
+
+	# returns an orderd array of months
+	# for this season
+	def months
+		d = self.start_date
+		r = Array.new
+		while d < self.end_date
+			r << { i: d.month, name: d.strftime("%^b") }
+			d = d + 1.month
+		end
+		r
+	end
 end

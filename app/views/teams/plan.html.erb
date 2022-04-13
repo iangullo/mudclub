@@ -1,0 +1,60 @@
+<%= render "shared/modal" do %>
+	<div id="show-plan-header">
+		<table>
+			<tr>
+				<th rowspan="2" class="items-center justify-center">
+					<%= image_tag("teamplan.svg", size: "50x50") %>
+				</th>
+				<th align="left" class="align-top rounded-md text-yellow-600">
+					<%= @team.to_s %>
+				</th>
+			</tr><tr>
+				<th align="left"><%= @team.season.name %></th>
+			</tr><tr>
+				<td></td><th align="left">Planificación</th>
+			</tr>
+		</table>
+	</div>
+	<div id="show-plan-data">
+		<table>
+			<thead>
+				<tr>
+					<th class="bg-indigo-900 text-gray-300 border px py" align="center">Mes</th>
+					<th class="bg-indigo-900 text-gray-300 border px py" align="center"></th>
+					<th class="bg-indigo-900 text-gray-300 border px py" align="center">Defensa</th>
+					<th class="bg-indigo-900 text-gray-300 border px py" align="center">Ataque</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% @targets.each do |tgt| %>
+					<tr><!-- #display individual targets -->
+						<th rowspan="2" class="bg-indigo-900 text-gray-300 border px py align-center" align="center">
+							<%= tgt[:month] %>
+						</th>
+						<td class="bg-indigo-900 text-gray-300 border px py align-center">Ind.</td>
+						<td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_d_ind] %>
+						</td><td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_o_ind] %>
+						</td>
+					</tr>
+					<tr><!-- #display collective targets -->
+						<td class="bg-indigo-900 text-gray-300 border px py align-center">Col.</td>
+						<td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_d_col] %>
+						</td><td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_o_col] %>
+						</td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</div>
+	<div align="right">
+		<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
+			<%= link_to edit_plan_team_path, data: { "turbo-frame": "modal" } do %>
+				<%= render "shared/edit" %>
+			<% end %>
+		<% end %>
+	</div>
+<% end %>

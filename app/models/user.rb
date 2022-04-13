@@ -77,6 +77,14 @@ class User < ApplicationRecord
     (self.person.try(:coach_id).to_i > 0) or self.coach?
   end
 
+  def coach
+    (self.person.try(:coach_id).to_i > 0) ? self.person.coach : nil
+  end
+
+  def player
+    (self.person.try(:player_id).to_i > 0) ? self.person.player : nil
+  end
+
   def set_default_role
     self.role ||= :user
   end

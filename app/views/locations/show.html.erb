@@ -18,7 +18,7 @@
 		      <td>
 						<% if @location.gmaps_url %>
 							<% if @location.gmaps_url.length > 0 %>
-								<%= link_to("(ver ubicación)", @location.gmaps_url, target: ':blank')  %>
+								<%= link_to("(ver ubicación)", @location.gmaps_url, target: ':blank', class:"rounded-md hover:bg-blue-100") %>
 							<% else %>
 								<%= "(sin ubicación)" %>
 							<% end %>

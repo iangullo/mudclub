@@ -1,0 +1,62 @@
+<div id="coaching-show">
+  <div id="coaching-header">
+    <table>
+      <tr>
+        <th rowspan="2">
+          <%= image_tag("training.svg", size: "50x50") %>
+        </th>
+			  <th colspan="3" align="left" class="align-top text-yellow-600"><%= @team.to_s %></th>
+      </tr><tr>
+        <th colspan="3" align="left" class="align-top"><%= @team ? "(" + @team.season.name + ")": "" %></th>
+      </tr><tr>
+        <td align="center" class="rounded-md hover:bg-blue-100">
+          <%= link_to targets_team_path, data: { "turbo-frame": "modal" } do %>
+            <%= image_tag("target.svg", size: "50x50") %><small>Objetivos</small>
+          <% end %>
+        </td>
+        <th align="left" class="align-center">Entrenamiento&nbsp;</th>
+        <td align="center" class="rounded-md hover:bg-blue-100">
+          <%= link_to plan_team_path, data: { "turbo-frame": "modal" } do %>
+            <%= image_tag("teamplan.svg", size: "50x50") %><small>Plan</small>
+          <% end %>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div id="coaching-grid">
+    <table>
+      <thead>
+        <tr>
+          <th align="right"><%= image_tag("calendar.svg", size: "30x30") %></th>
+          <th class="bg-indigo-900 text-gray-300 align-center border px py">Fecha</th>
+          <th class="bg-indigo-900 text-gray-300 align-center border px py">Hora</th>
+          <th class="bg-indigo-900 text-gray-300 align-center border px py">Descripci&oacute;n</th>
+          <th align="left">
+            <% if current_user.admin? %>
+              <%= link_to events_team_path, data: {"turbo-frame": "modal" } do %>
+                <%= render "shared/add" %>
+              <% end %>
+            <% end %>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @team.events do |event| %>
+          <tr>
+            <td></td>
+            <td class="border px py"><%= event.date_string %></td>
+            <td class="border px py"><%= event.time_string %></td>
+            <td class="border px py hover:text-white hover:bg-blue-700"><%= link_to event.to_s, event %></td>
+    				<% if current_user.admin? %>
+              <td>
+                <%= link_to team, method: :delete, data: { confirm: "¿Borrar '#{team.to_s}'?" } do %>
+                  <%= render "shared/delete" %>
+                <% end %>
+              </td>
+    				<% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

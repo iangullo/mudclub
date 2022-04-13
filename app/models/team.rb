@@ -13,6 +13,9 @@ class Team < ApplicationRecord
 #	accepts_nested_attributes_for :season
 	accepts_nested_attributes_for :coaches
 	accepts_nested_attributes_for :players
+	accepts_nested_attributes_for :events
+	accepts_nested_attributes_for :targets
+	accepts_nested_attributes_for :team_targets
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }

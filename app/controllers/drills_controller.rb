@@ -58,7 +58,7 @@ class DrillsController < ApplicationController
 	def update
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			respond_to do |format|
-				rebuild_drill(params)	# rebuild drill
+				rebuild_drill	# rebuild drill
 				if @drill.coach_id == current_user.person.coach_id # author can modify
 					if @drill.save
 						format.html { redirect_to drills_url }
