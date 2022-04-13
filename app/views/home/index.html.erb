@@ -23,6 +23,13 @@
         <% @teams.each do |team| %>
           </tr><tr>
             <td colspan="3" class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team %></td>
+            <% if current_user.is_coach? %>
+            <td class="align-center rounded-d hover:bg-blue-100">
+    					<%= link_to coaching_team_path(team) do %>
+    						<%= image_tag("training.svg", :size => "30x30") %>
+    					<% end %>
+    				</td>
+            <% end %>
         <% end %>
       </tr>
     <% end %>
