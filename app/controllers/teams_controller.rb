@@ -101,7 +101,7 @@ class TeamsController < ApplicationController
   def targets
 		if current_user.present? and current_user.is_coach?
 			redirect_to "/" unless @team
-			breakdown_targets
+			global_targets(true)	# get & breakdown global targets
 		else
 			redirect_to "/"
 		end
@@ -111,7 +111,7 @@ class TeamsController < ApplicationController
   def edit_targets
 		if current_user.present? and current_user.is_coach?
 			redirect_to "/" unless @team
-			breakdown_targets
+			global_targets(false)	# get global targets
 		else
 			redirect_to "/"
 		end
@@ -120,17 +120,18 @@ class TeamsController < ApplicationController
 	# GET /teams/1/edit_targets
   def plan
 		if current_user.present? and current_user.is_coach?
-			breakdown_targets(true)
 			redirect_to :home unless @team
+			plan_targets
 		else
 			redirect_to "/"
 		end
   end
 
 	# GET /teams/1/edit_plan
-  def edit_targets
+  def edit_plan
 		if current_user.present? and current_user.is_coach?
 			redirect_to "/" unless @team
+			plan_targets
 		else
 			redirect_to "/"
 		end
@@ -144,9 +145,9 @@ class TeamsController < ApplicationController
 		    respond_to do |format|
 					rebuild_team
 		      if @team.save
-						if params[:team][:team_targets_attributes]
+						if params[:team][:team_targets_attributes] or params[:team][:team_events_attributes]
 							format.html { redirect_to coaching_team_path(@team) }
-			        format.json { render :coaching, status: :created, location: teams_path(@team) }
+			        format.json { render :coaching, status: :created, location: coaching_team_path(@team) }
 						else
 							format.html { redirect_to @team }
 			        format.json { render :show, status: :created, location: teams_path(@team) }
@@ -189,14 +190,30 @@ class TeamsController < ApplicationController
 		end
 	end
 
-	def breakdown_targets(plan=nil)
-    targets = plan ? @team.team_targets.plan : @team.team_targets.global
-    @t_d_gen = filter(targets, 0, 2)
-    @t_d_ind = filter(targets, 1, 2)
-    @t_d_col = filter(targets, 2, 2)
-    @t_o_gen = filter(targets, 0, 1)
-    @t_o_ind = filter(targets, 1, 1)
-    @t_o_col = filter(targets, 2, 1)
+	# retrieve targets for the team
+	def global_targets(breakdown=false)
+    targets = @team.team_targets.global
+		if breakdown
+	    @t_d_gen = filter(targets, 0, 2)
+	    @t_d_ind = filter(targets, 1, 2)
+	    @t_d_col = filter(targets, 2, 2)
+	    @t_o_gen = filter(targets, 0, 1)
+	    @t_o_ind = filter(targets, 1, 1)
+	    @t_o_col = filter(targets, 2, 1)
+		end
+  end
+
+	# retrieve monthly targets for the team
+	def plan_targets
+		@targets = Array.new
+		@team.season.months.each { |m|
+			tgt     = @team.team_targets.monthly(m[:i])
+			t_d_ind = filter(tgt, 1, 2)
+			t_o_ind = filter(tgt, 1, 1)
+			t_d_col = filter(tgt, 2, 2)
+			t_o_col = filter(tgt, 2, 1)
+			@targets << {i: m[:i], month: m[:name], t_d_ind: t_d_ind, t_o_ind: t_o_ind, t_d_col: t_d_col, t_o_col: t_o_col}
+		}
   end
 
   # filters a set of TeamTargets by aspect & focus of the associated targets

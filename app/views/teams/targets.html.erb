@@ -20,33 +20,35 @@
 			<tr>
 				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center">Defensa</th>
 			</tr><tr>
-				<td colspan="2" class="border px py">
+				<td colspan="2" class="border px py align-top">
 					<%= render "print_targets", targets: @t_d_gen %>
 				</td>
 			</tr><tr>
 				<th class="bg-indigo-900 text-gray-300 border px py" align="left">Tec. Individual</th>
 				<th class="bg-indigo-900 text-gray-300 border px py" align="center">T&aacute;c. Colectiva</th>
 			</tr><tr>
-				<td class="border px py">
+				<td class="border px py align-top">
 					<%= render "print_targets", targets: @t_d_ind %>
 				</td>
-				<td class="border px py">
+				<td class="border px py align-top">
 					<%= render "print_targets", targets: @t_d_col %>
 				</td>
 			</tr><tr>
+				<th colspan="2" class="border px py" align="center"><br></th>
+			</tr><tr>
 				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center">Ataque</th>
 			</tr><tr>
-				<td colspan="2" class="border px py">
+				<td colspan="2" class="border px py align-top">
 					<%= render "print_targets", targets: @t_o_gen %>
 				</td>
 			</tr><tr>
 				<th class="bg-indigo-900 text-gray-300 border px py" align="left">Tec. Individual</th>
 				<th class="bg-indigo-900 text-gray-300 border px py" align="center">T&aacute;c. Colectiva</th>
 			</tr><tr>
-				<td class="border px py">
+				<td class="border px py align-top">
 					<%= render "print_targets", targets: @t_o_ind %>
 				</td>
-				<td class="border px py">
+				<td class="border px py align-top">
 					<%= render "print_targets", targets: @t_o_col %>
 				</td>
 			</tr>

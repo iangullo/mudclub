@@ -2,14 +2,14 @@
   <template data-nested-form-target="template">
     <%= form.fields_for :team_targets, TeamTarget.new, child_index: 'NEW_RECORD' do |team_target_fields| %>
       <% team_target_fields.object.build_target %>
-      <% team_target_fields.object.month = 0 %>
+      <% team_target_fields.object.month = month %>
       <% team_target_fields.object.target.aspect = aspect %>
       <% team_target_fields.object.target.focus  = focus %>
       <%= render 'target_row', form: team_target_fields %>
     <% end %>
   </template>
   <%= form.fields_for :team_targets do |team_target_fields| %>
-    <% if team_target_fields.object.target.aspect_before_type_cast == aspect and team_target_fields.object.target.focus_before_type_cast == focus %>
+    <% if team_target_fields.object.month == month and team_target_fields.object.target.aspect_before_type_cast == aspect and team_target_fields.object.target.focus_before_type_cast == focus %>
       <%= render 'target_row', form: team_target_fields %>
     <% end %>
   <% end %>
