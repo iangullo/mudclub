@@ -29,6 +29,7 @@ class Season < ApplicationRecord
 	# for this season
 	def months
 		d = self.start_date
+byebug
 		r = Array.new
 		while d < self.end_date
 			r << { i: d.month, name: d.strftime("%^b") }
