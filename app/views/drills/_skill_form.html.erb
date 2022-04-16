@@ -1,6 +1,6 @@
 <div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
 	<div>
-		<%= form.text_field :name, placeholder: 'Fundamento', class: 'form-control', size: 10, class: "rounded border shadow-inner" %>
+		<%= form.text_field :name, placeholder: 'Fundamento', class: 'form-control rounded border shadow-inner', size: 10 %>
 		<button type="button" class="object-left-bottom" data-action="nested-form#remove">
 			<%= render "shared/remove" %>
 		</button>

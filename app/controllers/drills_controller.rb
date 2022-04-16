@@ -30,7 +30,7 @@ class DrillsController < ApplicationController
 
 	# GET /drills/1/edit
 	def edit
-		unless current_user.present? and (@drill.coach_id == current_user.person.coach_id)
+		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			redirect_to drills_url
 		end
 	end
@@ -40,7 +40,7 @@ class DrillsController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			respond_to do |format|
 				@drill = Drill.new
-				rebuild_drill(params)	# rebuild drill
+				rebuild_drill	# rebuild drill
 				if @drill.save
 					format.html { redirect_to drills_url }
 					format.json { render :index, status: :created, location: @drill }
@@ -105,7 +105,7 @@ class DrillsController < ApplicationController
 	private
 	# build new @drill from raw input given by submittal from "new"
 	# return nil if unsuccessful
-	def rebuild_drill(params)
+	def rebuild_drill
 		p_data = params.fetch(:drill)
 		@drill.name        = p_data[:name]
 		@drill.description = p_data[:description]

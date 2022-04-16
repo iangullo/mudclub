@@ -49,11 +49,13 @@
 			</tr><tr>
 				<th align="right">Autor:</th>
 				<td colspan="2" align="left"><%= @drill.coach.s_name %></td>
-				<td align="right">
-					<%= link_to edit_drill_path(@drill), data: {"turbo-frame": "modal" } do %>
-						<%= render "shared/edit" %>
-					<% end %>
-				</td>
+				<% if current_user.admin? or (@drill.coach_id==current_user.person.coach_id) %>
+					<td align="right">
+						<%= link_to edit_drill_path(@drill), data: {"turbo-frame": "modal" } do %>
+							<%= render "shared/edit" %>
+						<% end %>
+					</td>
+				<% end %>
 			</tr>
 		</table>
 	</div>
