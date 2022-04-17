@@ -10,11 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_07_173117) do
+ActiveRecord::Schema.define(version: 2022_04_17_104642) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "unaccent"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
@@ -82,6 +81,16 @@ ActiveRecord::Schema.define(version: 2022_04_07_173117) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "drill_targets", force: :cascade do |t|
+    t.integer "priority"
+    t.bigint "target_id", null: false
+    t.bigint "drill_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["drill_id"], name: "index_drill_targets_on_drill_id"
+    t.index ["target_id"], name: "index_drill_targets_on_target_id"
+  end
+
   create_table "drills", force: :cascade do |t|
     t.string "name"
     t.string "description"
@@ -99,14 +108,25 @@ ActiveRecord::Schema.define(version: 2022_04_07_173117) do
     t.bigint "skill_id", null: false
   end
 
+  create_table "event_targets", force: :cascade do |t|
+    t.integer "priority"
+    t.bigint "event_id", null: false
+    t.bigint "target_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["event_id"], name: "index_event_targets_on_event_id"
+    t.index ["target_id"], name: "index_event_targets_on_target_id"
+  end
+
   create_table "events", force: :cascade do |t|
-    t.datetime "start"
-    t.integer "duration"
+    t.datetime "start_time"
     t.integer "kind"
     t.bigint "team_id", null: false
     t.bigint "location_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.datetime "end_time"
+    t.string "name"
     t.index ["location_id"], name: "index_events_on_location_id"
     t.index ["team_id"], name: "index_events_on_team_id"
   end
@@ -185,18 +205,18 @@ ActiveRecord::Schema.define(version: 2022_04_07_173117) do
     t.index ["name"], name: "index_skills_on_name"
   end
 
-  create_table "slots", id: :bigint, default: -> { "nextval('training_slots_id_seq'::regclass)" }, force: :cascade do |t|
-    t.bigint "season_id", default: 0, null: false
-    t.bigint "location_id", default: 0, null: false
+  create_table "slots", force: :cascade do |t|
     t.integer "wday"
     t.time "start"
     t.integer "duration"
+    t.bigint "season_id", default: 0, null: false
     t.bigint "team_id", default: 0, null: false
+    t.bigint "location_id", default: 0, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["location_id"], name: "index_training_slots_on_location_id"
-    t.index ["season_id"], name: "index_training_slots_on_season_id"
-    t.index ["team_id"], name: "index_training_slots_on_team_id"
+    t.index ["location_id"], name: "index_slots_on_location_id"
+    t.index ["season_id"], name: "index_slots_on_season_id"
+    t.index ["team_id"], name: "index_slots_on_team_id"
   end
 
   create_table "targets", force: :cascade do |t|
@@ -206,6 +226,17 @@ ActiveRecord::Schema.define(version: 2022_04_07_173117) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["concept"], name: "index_targets_on_concept"
+  end
+
+  create_table "tasks", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.integer "order"
+    t.bigint "drill_id", null: false
+    t.integer "duration"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["drill_id"], name: "index_tasks_on_drill_id"
+    t.index ["event_id"], name: "index_tasks_on_event_id"
   end
 
   create_table "team_targets", force: :cascade do |t|
@@ -251,8 +282,12 @@ ActiveRecord::Schema.define(version: 2022_04_07_173117) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "coaches", "people"
+  add_foreign_key "drill_targets", "drills"
+  add_foreign_key "drill_targets", "targets"
   add_foreign_key "drills", "coaches"
   add_foreign_key "drills", "kinds"
+  add_foreign_key "event_targets", "events"
+  add_foreign_key "event_targets", "targets"
   add_foreign_key "events", "locations"
   add_foreign_key "events", "teams"
   add_foreign_key "people", "coaches"
@@ -264,6 +299,8 @@ ActiveRecord::Schema.define(version: 2022_04_07_173117) do
   add_foreign_key "slots", "locations"
   add_foreign_key "slots", "seasons"
   add_foreign_key "slots", "teams"
+  add_foreign_key "tasks", "drills"
+  add_foreign_key "tasks", "events"
   add_foreign_key "team_targets", "targets"
   add_foreign_key "team_targets", "teams"
   add_foreign_key "teams", "categories"
