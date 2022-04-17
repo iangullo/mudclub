@@ -87,6 +87,18 @@ class Team < ApplicationRecord
     search_targets(month, 2, 1)
   end
 
+	# return next free training_slot
+	# after the last existing one in the calendar
+	def next_slot(last=nil)
+		d   = last ? last.start_time.to_date : Date.today	# last planned slot date
+		res = nil
+		self.slots.each { |slot|
+			s   = slot.next_date(d)
+			res = res ? (s < res.next_date(d) ? slot : res) : slot
+		}
+		return res
+	end
+
 private
 	# search team_targets based on target attributes
 	def search_targets(month=0, aspect=nil, focus=nil)

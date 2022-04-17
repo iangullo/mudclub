@@ -4,8 +4,7 @@ class EventsController < ApplicationController
   # GET /events or /events.json
   def index
     if current_user.present?
-      @season = Season.search(params[:season_id])
-      @event  = Event.search(params)
+      @events = Event.search(params)
     else
       redirect_to "/"
     end
@@ -20,11 +19,8 @@ class EventsController < ApplicationController
 
   # GET /events/new
   def new
-    @event = Event.new
     if current_user.present? and (current_user.admin? or @team.has_coach(current_user.person.coach_id))
-      @season = Season.find(params[:season_id]) if params[:season_id]
-      @team   = Team.find(params[:team_id]) if params[:team_id]
-      @event  = Event.prepare(@season, @team)
+      @event  = Event.prepare(event_params)
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -41,7 +37,7 @@ class EventsController < ApplicationController
   # POST /events or /events.json
   def create
     if current_user.present? and (current_user.admin? or @team.has_coach(current_user.person.coach_id))
-      @event = Event.new(event_params)
+      @event = Event.prepare(event_params)
 
       respond_to do |format|
         if @event.save
@@ -61,6 +57,7 @@ class EventsController < ApplicationController
   def update
     if current_user.present? and (current_user.admin? or @team.has_coach(current_user.person.coach_id))
       respond_to do |format|
+        rebuild_event
         if @event.update(event_params)
           format.html { redirect_to @event }
           format.json { render :show, status: :ok, location: @event }
@@ -77,6 +74,7 @@ class EventsController < ApplicationController
   # DELETE /events/1 or /events/1.json
   def destroy
     if current_user.present? and (current_user.admin? or @team.has_coach(current_user.person.coach_id))
+      erase_links
       @event.destroy
       respond_to do |format|
         format.html { redirect_to events_url }
@@ -96,5 +94,6 @@ class EventsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def event_params
       params.fetch(:event, {})
+      params.require(:event).permit(:id, :name, :kind, :start_time, :end_time, :team_id, :location_id)
     end
 end

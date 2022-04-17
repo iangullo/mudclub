@@ -1,4 +1,38 @@
-<p id="notice"><%= notice %></p>
-
-<%= link_to 'Edit', edit_event_path(@event) %> |
-<%= link_to 'Back', events_path %>
+<%= render "shared/modal" do %>
+	<div id="event-show">
+		<table>
+			<div id="event-show-header">
+        <tr>
+		      <th rowspan="2">
+		        <%= image_tag("team.svg", size: "50x50") %>
+		      </th>
+		      <th align="left" class="align-top rounded-md text-yellow-600">
+						<%= @event.team_id > 0 ? @event.team.season.to_s : "Evento general" %>
+					</th>
+          <th align="right" class="inline-flex"><%= image_tag("calendar.svg", size: "25x25") %><%= @event.date_string %></th>
+        </tr><tr>
+          <th align="left" colspan="2"><%= @event.team_id > 0 ? "(" + @event.team.season.to_s + ")" : "" %></th>
+          <th align="right" class="inline-flex"><%= image_tag("clock.svg", size: "25x25") %><%= @event.time_string %></th>
+        </tr>
+			</div>
+    </table>
+    <div id="event-show-data">
+      <table>
+        <% if @event.train? %>
+          <%= render "view_session" %>
+        <% else %>
+          <%= render "view_match" %>
+        <% end %>
+        <tr>
+  				<td colspan="4" align="right">
+  					<% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
+  						<%= link_to edit_event_path(@event) do %>
+  							<%= render "shared/edit" %>
+  						<% end %>
+  					<% end %>
+  				</td>
+  	  	</tr>
+      </table>
+    </div>
+	</div>
+<% end %>

@@ -1,25 +1,44 @@
-<p id="notice"><%= notice %></p>
-
-<h1>Events</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @events.each do |event| %>
+<div id="events-index">
+	<div id="events-header">
+    <table>
       <tr>
-        <td><%= link_to 'Show', event %></td>
-        <td><%= link_to 'Edit', edit_event_path(event) %></td>
-        <td><%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Event', new_event_path %>
+        <th rowspan="2">
+          <%= image_tag("calendar.svg", size: "50x50") %>
+        </th><th align="left" class="align-top rounded-md text-yellow-600">
+          Calendario
+        </th>
+      </tr><tr>
+        <th align="left"><%= @team ? @team.name : " " %><th>
+			</tr>
+		</table>
+	</div>
+	<div id="events-grid">
+		<table class="table-auto">
+		  <thead>
+				<tr>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Fecha</th>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Hora</th>
+				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Equipo</th>
+				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Descripción</th>
+					<th align="center">
+						<% if current_user.admin? %>
+							<%= link_to new_event_path(team_id: params[:team_id], season_id: params[:season_id]), data: {"turbo-frame": "modal" } do %>
+								<%= render "shared/add" %>
+							<% end %>
+						<% end %>
+					</th>
+				</tr>
+		  </thead>
+		  <tbody>
+        <% @events.each do |event| %>
+					<tr class="align-top border px py hover:text-white hover:bg-blue-700">
+						<td align="center"><%= link_to events_path(event), event.date_string, data: {"turbo-frame": "modal" } %></td>
+						<td align="center"><%= link_to events_path(event), event.time_string, data: {"turbo-frame": "modal" } %></td>
+						<td align="left"><%= link_to events_path(event), @team.id > 0 ? @team.to_s : "Todos", data: {"turbo-frame": "modal" } %></td>
+						<td align="left"><%= link_to events_path(event), event.name, data: {"turbo-frame": "modal" } %></td>
+					</tr>
+        <% end %>
+		  </tbody>
+		</table>
+	</div>
+</div>

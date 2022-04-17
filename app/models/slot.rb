@@ -69,20 +69,8 @@ class Slot < ApplicationRecord
 	end
 
 	#gives us the next Slot for this sequence
-	def next_slot
-		ts = Slot.for_team(self.team_id)
-		i  = (self.wday == 5) ? 1 : self.wday + 1
-		ns = ts.find_by(wday: i)
-		until ns do	# loop to find next
-			i = (i == 5) ? 1 : i + 1
-			ns = ts.find_by(wday: i)
-		end
-		ns
-	end
-
-	#gives us the next Slot for this sequence
-	def next_date
-		Date.today.next_occurring(Date::DAYNAMES[self.wday].downcase.to_sym)
+	def next_date(from_date=Date.today)
+		from_date.next_occurring(Date::DAYNAMES[self.wday].downcase.to_sym)
 	end
 
 	# Ensure we remove dependencies of location before deleting.

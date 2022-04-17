@@ -1,6 +1,9 @@
-<h1>Editing Event</h1>
-
-<%= render 'form', event: @event %>
-
-<%= link_to 'Show', @event %> |
-<%= link_to 'Back', events_path %>
+<%= render "shared/modal" do %>
+  <% if @event.train? %>
+    <%= render 'edit_session', event: @event, label: "Editar Sesión" %>
+  <% elsif @event.match? %>
+    <%= render 'edit_match', event: @event, label: "Editar Partido" %>
+  <% else %>
+    <%= render 'edit_rest', event: @event, label: "Editar Descanso" %>
+  <% end %>
+<% end %>
