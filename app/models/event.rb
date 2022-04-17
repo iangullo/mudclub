@@ -17,41 +17,41 @@ class Event < ApplicationRecord
   }
 
   def start_date
-    self.start.to_date
+    self.start_time.to_date
   end
 
   def hour
-		self.start.hour
+		self.start_time.hour
 	end
 
 	def min
-		self.start.min
+		self.start_time.min
 	end
 
 	def hour=(newhour)
-		self.start = self.start.change({ hour: newhour })
+		self.start_time = self.start_time.change({ hour: newhour })
 	end
 
 	def min=(newmin)
-		self.start = self.start.change({ min: newmin })
+		self.start_time = self.start_time.change({ min: newmin })
 	end
 
-	def ending
-		self.start + self.duration.minutes
+	def duration
+		(self.end_time - self.start_time).minutes
+	end
+
+  def duration=(newduration)
+		self.end_time = self.start_time + newduration.minutes
 	end
 
   def date_string
-    cad = self.start.year.to_s
+    cad = self.start_time.year.to_s
     cad = cad + "/" + two_dig(self.month)
     cad = cad + "/" + two_dig(self.day)
   end
 
   def time_string
     two_dig(self.hour) + ":" + two_dig(self.min)
-  end
-
-  def description
-    
   end
 
   private
