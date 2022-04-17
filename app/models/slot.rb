@@ -44,7 +44,7 @@ class Slot < ApplicationRecord
 	end
 
 	# return if timetable row should be kept busy with this slot
-		def at_work?(wday, t_hour)
+	def at_work?(wday, t_hour)
 		if self.wday == wday
 			if t_hour.hour.between?(self.hour, self.ending.hour)
 				if t_hour.hour == self.hour

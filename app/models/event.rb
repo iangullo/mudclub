@@ -9,6 +9,7 @@ class Event < ApplicationRecord
   accepts_nested_attributes_for :tasks, reject_if: :all_blank, allow_destroy: true
   scope :trainings, -> { where("kind = 1") }
   scope :matches, -> { where("kind = 2") }
+  self.inheritance_column = "not_sti"
 
   enum kind: {
     holiday: 0,
@@ -53,6 +54,36 @@ class Event < ApplicationRecord
   def time_string
     two_dig(self.hour) + ":" + two_dig(self.min)
   end
+
+  # Search for a list of Events
+	# s_data is an array with either season_id+kind+name or team_id+kind+name
+	def self.search(s_data)
+    if s_data[:team_id]  # filter for the team received
+      if s_data[:kind]    # and kind
+        if s_data[:name]  # and name
+          res = Event.where("unaccent(name) ILIKE unaccent(?) and kind = (?) and team_id= (?)","%#{s_data[:name]}%",s_data[:kind],s_data[:team_id]).order(:start_time)
+        else  # only team & kind
+          res = Event.where("kind = (?) and team_id= (?)",s_data[:kind],s_data[:team_id]).order(:start_time)
+        end
+      elsif s_data[:name] # team & name only
+        res = Event.where("unaccent(name) ILIKE unaccent(?) and team_id= (?)","%#{s_data[:name]}%",s_data[:team_id]).order(:start_time)
+      else  # only team_id
+        res = Event.where(team_id: s_data[:team_id].to_i).order(:start_time)
+      end
+		else
+			Event.none
+		end
+	end
+
+	# Find a slot matching slot form data
+	def self.next(s_data)
+		unless s_data.empty?
+			t = Time.new(2021,8,30,s_data[:hour].to_i+1,s_data[:min].to_i)
+			Slot.where(wday: s_data[:wday].to_i, start: t, team_id: s_data[:team_id].to_i).or(Slot.where(wday: s_data[:wday].to_i, start: t, location_id: s_data[:location_id].to_i)).first
+		else
+			nil
+		end
+	end
 
   private
   # starting / ending hours as string
