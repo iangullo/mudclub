@@ -56,7 +56,7 @@ class DrillsController < ApplicationController
 
 	# PATCH/PUT /drills/1 or /drills/1.json
 	def update
-		if current_user.present? and (current_user.admin? or current_user.is_coach?)
+		if current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			respond_to do |format|
 				rebuild_drill	# rebuild drill
 				if @drill.coach_id == current_user.person.coach_id # author can modify

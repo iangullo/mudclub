@@ -120,7 +120,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1/edit_targets
   def plan
 		if current_user.present? and current_user.is_coach?
-			redirect_to :home unless @team
+			redirect_to "/" unless @team
 			plan_targets
 		else
 			redirect_to "/"
@@ -129,7 +129,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_plan
   def edit_plan
-		if current_user.present? and current_user.is_coach?
+		if current_user.present? or @team.has_coach(current_user.person.coach_id)
 			redirect_to "/" unless @team
 			plan_targets
 		else
@@ -233,6 +233,8 @@ class TeamsController < ApplicationController
 		@team.division_id  = p_data[:division_id].to_i if p_data[:division_id]
 		@team.homecourt_id = p_data[:homecourt_id].to_i if p_data[:homecourt_id]
 		check_targets(p_data[:team_targets_attributes]) if p_data[:team_targets_attributes]
+		check_players(p_data[:player_ids]) if p_data[:player_ids]
+		check_coaches(p_data[:coach_ids]) if p_data[:coach_ids]
 	end
 
 	# ensure we get the right targets
@@ -250,6 +252,33 @@ class TeamsController < ApplicationController
 				@team.team_targets ? @team.team_targets << tt : @team.team_targets |= tt
 			end
 		}
+	end
+
+
+	# ensure we get the right players
+	def check_players(p_array)
+		# first pass
+		a_targets = Array.new	# array to include all targets
+		p_array.each { |t| a_targets << Player.find(t.to_i) unless t.to_i==0 }
+
+		# second pass - manage associations
+		a_targets.each { |t| @team.players << t unless @team.has_player(t.id)	}
+
+		# cleanup roster
+		@team.players.each { |p| @team.players.delete(p) unless a_targets.include?(p) }
+	end
+
+	# ensure we get the right players
+	def check_coaches(c_array)
+		# first pass
+		a_targets = Array.new	# array to include all targets
+		c_array.each { |t| a_targets << Coach.find(t.to_i) unless t.to_i==0 }
+
+		# second pass - manage associations
+		a_targets.each { |t| @team.coaches << t unless @team.has_coach(t.id) }
+
+		# cleanup roster
+		@team.coaches.each { |c| @team.coaches.delete(c) unless a_targets.include?(c) }
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.

@@ -32,7 +32,7 @@
           <th class="bg-indigo-900 text-gray-300 align-center border px py">Hora</th>
           <th class="bg-indigo-900 text-gray-300 align-center border px py">Descripci&oacute;n</th>
           <th align="left">
-            <% if current_user.admin? %>
+            <% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
               <%= link_to events_team_path, data: {"turbo-frame": "modal" } do %>
                 <%= render "shared/add" %>
               <% end %>
