@@ -11,6 +11,10 @@ class Season < ApplicationRecord
 		self.start_date.year.to_i
 	end
 
+	def end_year
+		self.end_date.year.to_i
+	end
+
 	#Search field matching
 	def self.search(search)
 		if search
