@@ -70,6 +70,7 @@ class Slot < ApplicationRecord
 
 	#gives us the next Slot for this sequence
 	def next_date(from_date=Date.today)
+		from_date = from_date - 1.day
 		from_date.next_occurring(Date::DAYNAMES[self.wday].downcase.to_sym)
 	end
 
