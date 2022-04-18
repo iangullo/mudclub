@@ -33,9 +33,9 @@ class Target < ApplicationRecord
   end
 
   #Search target matching. returns either nil or a Target
-	def self.search(concept, focus=nil, aspect=nil)
-    res = nil
-		if concept
+	def self.search(id, concept, focus=nil, aspect=nil)
+    res = id ? Target.find(id.to_i) : nil
+		if res==nil and concept
 			if concept.length > 0
         res = Target.where("unaccent(concept) ILIKE unaccent(?)","%#{concept}%")
         res = focus ? res.where(focus: focus.length==1 ? focus.to_i : focus.to_sym) : res
