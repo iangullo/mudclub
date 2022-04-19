@@ -146,13 +146,8 @@ class TeamsController < ApplicationController
 		    respond_to do |format|
 					rebuild_team
 		      if @team.save
-						if params[:team][:team_targets_attributes] or params[:team][:team_events_attributes]
-							format.html { redirect_to coaching_team_path(@team) }
-			        format.json { render :coaching, status: :created, location: coaching_team_path(@team) }
-						else
-							format.html { redirect_to @team }
-			        format.json { render :show, status: :created, location: teams_path(@team) }
-						end
+						format.html { redirect_to @team }
+		        format.json { render :show, status: :created, location: teams_path(@team) }
 		      else
 		        format.html { render :edit }
 		        format.json { render json: @team.errors, status: :unprocessable_entity }
@@ -170,6 +165,7 @@ class TeamsController < ApplicationController
   # DELETE /teams/1.json
   def destroy
 		if current_user.present? and current_user.admin?
+			erase_links
 	    @team.destroy
 	    respond_to do |format|
 	      format.html { redirect_to teams_path }
@@ -255,7 +251,6 @@ class TeamsController < ApplicationController
 		}
 	end
 
-
 	# ensure we get the right players
 	def check_players(p_array)
 		# first pass
@@ -280,6 +275,17 @@ class TeamsController < ApplicationController
 
 		# cleanup roster
 		@team.coaches.each { |c| @team.coaches.delete(c) unless a_targets.include?(c) }
+	end
+
+	# remove dependent records prior to deleting
+	def erase_links
+		@team.slots.each { |slot| slot.delete }	# training slots
+		@team.targets.each { |tgt| tgt.delete }	# team targets & coaching plan
+		@team.events.each { |event|							# associated events
+			event.tasks.each { |task| task.delete }
+			event.match.delete if event.match
+			event.delete
+		}
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.

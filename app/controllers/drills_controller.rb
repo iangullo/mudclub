@@ -149,7 +149,7 @@ class DrillsController < ApplicationController
 		}
 		a_targets.each { |t| # second pass - manage associations
 			if t[:_destroy] == "1"	# remove drill_target
-				@drill.targets.delete(t[:id].to_i)
+				@drill.targets.delete(t[:target_attributes][:id])
 			else
 				dt = DrillTarget.fetch(t)
 				@drill.drill_targets ? @drill.drill_targets << dt : @drill.drill_targets |= dt
