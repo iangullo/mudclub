@@ -59,12 +59,7 @@
       </thead>
 	    <tbody>
         <% @events.each do |event| %>
-					<tr class="align-top border px py hover:text-white hover:bg-blue-700">
-						<td align="center"><%= link_to event.date_string, event_path(event), data: {"turbo-frame": "modal" } %></td>
-						<td align="center"><%= link_to event.time_string, event_path(event), data: {"turbo-frame": "modal" } %></td>
-						<td align="left"><%= link_to event.team_id > 0 ? event.team.to_s : "Todos", event_path(event), data: {"turbo-frame": "modal" } %></td>
-						<td align="left"><%= link_to event.name, event_path(event), data: {"turbo-frame": "modal" } %></td>
-					</tr>
+          <%= render "events/event_row", event: event %>
         <% end %>
       </tbody>
     </table>
