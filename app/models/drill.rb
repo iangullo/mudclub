@@ -13,9 +13,8 @@ class Drill < ApplicationRecord
 
 	# filter by name/description
 	def self.search(search)
-		s_n = search ? (search.length>0 ? search : nil) : nil
-		if s_n # matched something
-			res = Drill.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{s_n}%","%#{s_n}%")
+		if search.class == String and search.length > 0
+			res = Drill.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{search}%","%#{search}%").order(:kind_id)
 		else
 			res = Drill.all.order(:kind_id)
 		end
@@ -33,6 +32,10 @@ class Drill < ApplicationRecord
 			cad = cad ?  cad + "\n" + tgt.to_s  : tgt.to_s
 		}
 		cad
+	end
+
+	def nice_string
+		self.kind.name + " | " + self.name + " | " + self.targets.first.concept
 	end
 
 #	def print_kinds
