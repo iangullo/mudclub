@@ -7,6 +7,7 @@ class SeasonsController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
 			@season = Season.search(params[:search])
+      @events = Event.for_season(@season).matches
 		else
 			redirect_to "/"
 		end

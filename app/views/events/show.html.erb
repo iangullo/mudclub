@@ -1,0 +1,12 @@
+<div id="event-show">
+	<%= render "event_header" %>
+  <div id="event-show-data">
+    <table>
+      <% if @event.train? %>
+        <%= render "view_session" %>
+			<% elsif @event.match? %>
+        <%= render "view_match" %>
+      <% end %>
+    </table>
+  </div>
+</div>

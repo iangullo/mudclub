@@ -1,0 +1,32 @@
+<%= render "shared/modal" do %>
+  <div id="team-roster">
+    <%= render "team_header" %>
+    <div id="team-roster-grid">
+      <table>
+        <tr>
+          <td align="right"><%= image_tag("player.svg", size: "30x30") %></td>
+          <th align="left">Plantilla</th>
+          <% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
+            <td align="center">
+              <%= link_to edit_roster_team_path do %>
+              <%= render "shared/edit" %>
+              <% end %>
+            </td>
+          <% end %>
+        </tr>
+        <tr class="bg-indigo-900 text-gray-300">
+          <th align="center" class="rounded border">#</th>
+          <th align="left" class="rounded border">Nombre</th>
+          <th align="center" class="rounded border">Edad</th>
+        </tr>
+        <% @team.players.order("number").each do |player| %>
+          <tr class="hover:bg-blue-700 hover:text-white">
+            <td align="center" class="rounded border"><%= link_to player.number, player, data: {"turbo-frame": "modal" } %></td>
+            <td class="rounded border"><%= link_to player.to_s, player, data: {"turbo-frame": "modal" } %></td>
+            <td align="center" class="rounded border"><%= link_to player.person.age, player, data: {"turbo-frame": "modal" } %></td>
+          </tr>
+        <% end %>
+      </table>
+    </div>
+  </div>
+<% end %>

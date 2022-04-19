@@ -1,0 +1,11 @@
+<tr class="align-top">
+	<td align="right" class="border px py">
+		<%= form.number_field :order, value: form.object.order, size: 1 , class: "text-right form-control rounded border shadow-inner"%>
+	</td>
+	<td colspan="2" align="left" class="border px py">
+		<%= form.collection_select :drill_id, @drills, :id, :nice_string, selected: form.object.drill_id, class: "form-control rounded border shadow-inner"%>
+	</td>
+	<td align="right" class="border px py">
+		<%= form.number_field :duration, value: form.object.duration, size: 1 , class: "text-right form-control rounded border shadow-inner"%>
+	</td>
+</tr>

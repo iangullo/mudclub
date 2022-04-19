@@ -129,7 +129,7 @@ class DrillsController < ApplicationController
 		}
 		a_skills.each { |s| # second pass - manage associations
 			if s[:_destroy] == "1"
-				@drill.skills.delete(s[:id])
+				@drill.skills.delete(s[:id].to_i)
 			else
 				unless s.key?("id")	# if no id included, we check
 					sk = Skill.find_by(name: s[:name])
@@ -149,7 +149,7 @@ class DrillsController < ApplicationController
 		}
 		a_targets.each { |t| # second pass - manage associations
 			if t[:_destroy] == "1"	# remove drill_target
-				@drill.targets.delete(t[:id])
+				@drill.targets.delete(t[:target_attributes][:id])
 			else
 				dt = DrillTarget.fetch(t)
 				@drill.drill_targets ? @drill.drill_targets << dt : @drill.drill_targets |= dt

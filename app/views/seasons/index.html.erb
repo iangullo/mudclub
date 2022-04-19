@@ -51,13 +51,16 @@
   </div>
   <div id="season-events-grid">
 		<table class="table-auto">
-      <thead>
-        <th class="bg-indigo-900 text-gray-300 align-center border px py">Fecha</th>
-        <th class="bg-indigo-900 text-gray-300 align-center border px py">Hora</th>
-        <th class="bg-indigo-900 text-gray-300 align-center border px py">Local</th>
-        <th class="bg-indigo-900 text-gray-300 align-center border px py">Visitante</th>
+      <thead class="bg-indigo-900 text-gray-300 align-center border px py">
+        <th align="center">Fecha</th>
+        <th align="center">Hora</th>
+        <th align="leff">Equipo</th>
+        <th align="left">Descripción</th>
       </thead>
 	    <tbody>
+        <% @events.each do |event| %>
+          <%= render "events/event_row", event: event %>
+        <% end %>
       </tbody>
     </table>
   </div>

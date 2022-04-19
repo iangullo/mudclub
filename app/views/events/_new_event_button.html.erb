@@ -1,0 +1,20 @@
+<!-- Add event menu, show/hide based on menu state. -->
+<th align="center">
+  <div data-controller="dropdown">
+    <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="0" class="inline-block select-none">
+      <button type="button" aria-controls="mobile-menu" aria-expanded="false">
+        <span class="sr-only">Menu</span>
+        <%= render "shared/add" %>
+      </button>
+      <div data-dropdown-target="menu" class="absolute hidden">
+        <div class="text-left text-blue-900 bg-gray-100 shadow rounded border overflow-hidden no-underline">
+          <%= link_to 'Sesión', new_event_path(event: {kind: :train, team_id:  @team ? @team.id : 0, season_id: @season ? @season.id : 0}), data: {action: "click->dropdown#toggle", "turbo-frame": "modal" }, class: 'hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block' %>
+          <!--
+            < %= link_to 'Partido', new_event_path(event: {kind: :match, team_id:  @team ? @team.id : 0, season_id: @season ? @season.id : 0}), data: {action: "click->dropdown#toggle", "turbo-frame": "modal" }, class: 'hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block' %>
+          -->
+          <%= link_to 'Descanso', new_event_path(event: {kind: :holiday, team_id: @team ? @team.id : 0, season_id: @season ? @season.id : 0}), data: {action: "click->dropdown#toggle", "turbo-frame": "modal" }, class: 'hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</th>

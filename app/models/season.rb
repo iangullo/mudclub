@@ -11,6 +11,10 @@ class Season < ApplicationRecord
 		self.start_date.year.to_i
 	end
 
+	def end_year
+		self.end_date.year.to_i
+	end
+
 	#Search field matching
 	def self.search(search)
 		if search
@@ -18,6 +22,20 @@ class Season < ApplicationRecord
 		else
 			Season.last
 		end
+	end
+
+	#Search field matching
+	def self.search_date(s_date)
+		res = nil
+		if s_date
+			sd = s_date.to_date	# ensure type conversion
+			if sd
+				Season.real.each { |season|
+					return season if sd.between?(season.start_date, season.end_date)
+				}
+			end
+		end
+		return res
 	end
 
 	# elgible locations to train / play

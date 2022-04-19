@@ -7,7 +7,6 @@ class Location < ApplicationRecord
 	has_many :season_locations
   has_many :seasons, through: :season_locations
 	accepts_nested_attributes_for :seasons
-	before_save { self.name = self.name ? self.name.mb_chars.titleize : ""}
 	self.inheritance_column = "not_sti"
 
 	# checks if it exists in the collection before adding it

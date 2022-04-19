@@ -33,8 +33,12 @@ class SlotsController < ApplicationController
 
   # GET /slots/1/edit
   def edit
-		@weekdays = weekdays
-    @season   = Season.find(@slot.season_id)
+    if current_user.present? and current_user.admin?
+  		@weekdays = weekdays
+      @season   = Season.find(@slot.season_id)
+    else
+      redirect_to(current_user.present? ? slots_url : "/")
+    end
   end
 
   # POST /slots or /slots.json
