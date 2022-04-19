@@ -1,6 +1,6 @@
 class TeamsController < ApplicationController
 	skip_before_action :verify_authenticity_token, :only => [:create, :edit, :new, :update, :check_reload]
-	before_action :set_team, only: [:index, :show, :edit, :edit_roster, :edit_coaches, :coaching, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]
+	before_action :set_team, only: [:index, :show, :roster, :slots, :edit, :edit_roster, :edit_coaches, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]
 
   # GET /teams
   # GET /teams.json
@@ -21,6 +21,28 @@ class TeamsController < ApplicationController
 		end
   end
 
+	# GET /teams/1/roster
+  def roster
+		if current_user.present?
+			unless current_user.admin? or @team.has_coach(current_user.person.coach_id)
+				redirect_to @team
+			end
+		else
+			redirect_to "/"
+		end
+  end
+
+	# GET /teams/1/roster
+  def slots
+		if current_user.present?
+			unless current_user.admin? or @team.has_coach(current_user.person.coach_id)
+				redirect_to @team
+			end
+		else
+			redirect_to "/"
+		end
+  end
+
   # GET /teams/new
   def new
 		if current_user.present? and current_user.admin?
@@ -34,7 +56,8 @@ class TeamsController < ApplicationController
   def edit
 		if current_user.present?
 			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
-			else
+				@eligible_coaches = Coach.active
+		else
 				redirect_to @team
 			end
 		else
@@ -47,19 +70,6 @@ class TeamsController < ApplicationController
 		if current_user.present?
 			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
     		@eligible_players = @team.eligible_players
-			else
-				redirect_to @team
-			end
-		else
-			redirect_to "/"
-		end
-  end
-
-	# GET /teams/1/edit_coaches
-  def edit_coaches
-		if current_user.present?
-			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
-    		@eligible_coaches = Coach.active
 			else
 				redirect_to @team
 			end
@@ -85,15 +95,6 @@ class TeamsController < ApplicationController
 	    end
 		else
 			redirect_to(current_user.is_coach? ? teams_path : "/")
-		end
-  end
-
-	# GET /teams/coaching or /teams/1/coaching
-  def coaching
-		if current_user.present? and current_user.is_coach?
-			redirect_to "/" unless @team
-		else
-			redirect_to "/"
 		end
   end
 

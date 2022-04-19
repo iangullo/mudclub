@@ -1,0 +1,24 @@
+<%= render "shared/modal" do %>
+  <div id="team-slots">
+    <%= render "team_header" %>
+    <div id="team-slots-grid">
+      <table>
+        <tr>
+          <td><%= image_tag("timetable.svg", size: "30x30") %></td>
+          <th align="left">Horarios</th>
+        </tr><tr>
+          <td></td>
+          <td>
+  					<% unless @team.slots.empty? %>
+  						<%= @team.slots.first.court %>
+  						<br>
+  					<% end %>
+  					<% @team.slots.order(:wday).each do |ts| %>
+  						<%= link_to ts.to_s, ts %><br>
+  					<% end %>
+  				</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+<% end %>

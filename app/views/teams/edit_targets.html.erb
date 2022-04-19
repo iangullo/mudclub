@@ -1,74 +1,59 @@
 <%= render "shared/modal" do %>
 	<%= form_with model: @team, data: { "turbo-frame" => "_top" } do |form| %>
 		<div id="edit-targets">
-			<div id="edit-targets-header">
-				<table>
-					<tr>
-						<th rowspan="2" class="items-center justify-center">
-							<%= image_tag("target.svg", size: "50x50") %>
-						</th>
-						<th align="left" class="align-top rounded-md text-yellow-600">
-							<%= @team.to_s %>
-						</th>
-					</tr><tr>
-						<th align="left"><%= @team.season.name %></th>
-					</tr><tr>
-						<td></td><th align="left">Editar Objetivos</th>
-					</tr>
-				</table>
-			</div>
-			<div id="edit-targets-data">
-				<table>
-					<tr>
-						<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center">Defensa</th>
-					</tr><tr>
-						<td colspan="2" class="border px py align-top">
-							<div id="defense-general">
-								<%= render "targets_form", form: form, month: 0, aspect: 0, focus: 2 %>
-							</div>
-						</td>
-					</tr><tr>
-						<th class="bg-indigo-900 text-gray-300 border px py" align="left">Tec. Individual</th>
-						<th class="bg-indigo-900 text-gray-300 border px py" align="center">T&aacute;c. Colectiva</th>
-					</tr><tr>
-						<td class="border px py align-top">
-							<div id="defense-individual">
-								<%= render "targets_form", form: form, month: 0, aspect: 1, focus: 2 %>
-							</div>
-						</td>
-						<td class="border px py align-top">
-							<div id="defense-collective">
-								<%= render "targets_form", form: form, month: 0, aspect: 2, focus: 2 %>
-							</div>
-						</td>
-					</tr><tr>
-						<th colspan="2" class="border px py" align="center"><br></th>
-					</tr><tr>
-						<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center">Ataque</th>
-					</tr><tr>
-						<td colspan="2" class="border px py align-top">
-							<div id="offense-general">
-								<%= render "targets_form", form: form, month: 0, aspect: 0, focus: 1 %>
-							</div>
-						</td>
-					</tr><tr>
-						<th class="bg-indigo-900 text-gray-300 border px py" align="left">Tec. Individual</th>
-						<th class="bg-indigo-900 text-gray-300 border px py" align="center">T&aacute;c. Colectiva</th>
-					</tr><tr>
-						<td class="border px py align-top">
-							<div id="offense-individual">
-								<%= render "targets_form", form: form, month: 0, aspect: 1, focus: 1 %>
-							</div>
-						</td>
-						<td class="border px py align-top">
-							<div id="offense-collective">
-								<%= render "targets_form", form: form, month: 0, aspect: 2, focus: 1 %>
-							</div>
-						</td>
-					</tr>
-				</table>
-			</div>
-			<%= render "shared/save" %>
+			<%= render "team_header" %>
+			<table>
+				<tr>
+					<th colspan="2" align="left" class="inline-flex"><%= image_tag("target.svg", size: "30x30") %> Editar Objetivos</th>
+				</tr><tr>
+					<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center">Defensa</th>
+				</tr><tr>
+					<td colspan="2" class="border px py align-top">
+						<div id="defense-general">
+							<%= render "targets_form", form: form, month: 0, aspect: 0, focus: 2 %>
+						</div>
+					</td>
+				</tr><tr class="bg-indigo-900 text-gray-300">
+					<th class="border px py" align="left">Tec. Individual</th>
+					<th class="border px py" align="center">T&aacute;c. Colectiva</th>
+				</tr><tr>
+					<td class="border px py align-top">
+						<div id="defense-individual">
+							<%= render "targets_form", form: form, month: 0, aspect: 1, focus: 2 %>
+						</div>
+					</td>
+					<td class="border px py align-top">
+						<div id="defense-collective">
+							<%= render "targets_form", form: form, month: 0, aspect: 2, focus: 2 %>
+						</div>
+					</td>
+				</tr><tr>
+					<th colspan="2" class="border px py" align="center"><br></th>
+				</tr><tr>
+					<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center">Ataque</th>
+				</tr><tr>
+					<td colspan="2" class="border px py align-top">
+						<div id="offense-general">
+							<%= render "targets_form", form: form, month: 0, aspect: 0, focus: 1 %>
+						</div>
+					</td>
+				</tr><tr class="bg-indigo-900 text-gray-300">
+					<th class="border px py" align="left">Tec. Individual</th>
+					<th class="border px py" align="center">T&aacute;c. Colectiva</th>
+				</tr><tr>
+					<td class="border px py align-top">
+						<div id="offense-individual">
+							<%= render "targets_form", form: form, month: 0, aspect: 1, focus: 1 %>
+						</div>
+					</td>
+					<td class="border px py align-top">
+						<div id="offense-collective">
+							<%= render "targets_form", form: form, month: 0, aspect: 2, focus: 1 %>
+						</div>
+					</td>
+				</tr>
+			</table>
 		</div>
+		<%= render "shared/save" %>
 	<% end %>
 <% end %>

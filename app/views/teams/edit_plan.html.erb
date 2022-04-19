@@ -1,66 +1,48 @@
 <%= render "shared/modal" do %>
 	<%= form_with model: @team, data: { "turbo-frame" => "_top" } do |form| %>
 		<div id="edit-plan">
-			<div id="edit-plan-header">
-				<table>
-					<tr>
-						<th rowspan="2" class="items-center justify-center">
-							<%= image_tag("teamplan.svg", size: "50x50") %>
+			<%= render "team_header" %>
+			<table>
+				<tr>
+					<td align="center"><%= image_tag("teamplan.svg", size: "30x30") %></td>
+					<th colspan="3" align="left">Editar Planificación</th>
+				</tr><tr class="bg-indigo-900 text-gray-300">
+					<th class="border px py" align="center">Mes</th>
+					<th class="border px py" align="center"></th>
+					<th class="border px py" align="center">Defensa</th>
+					<th class="border px py" align="center">Ataque</th>
+				</tr>
+				<% @targets.each do |tgt| %>
+					<tr><!-- #edit individual targets -->
+						<th rowspan="2" class="bg-indigo-900 text-gray-300 border px py align-center" align="center">
+							<%= tgt[:month] %>
 						</th>
-						<th align="left" class="align-top rounded-md text-yellow-600">
-							<%= @team.to_s %>
-						</th>
-					</tr><tr>
-						<th align="left"><%= @team.season.name %></th>
-					</tr><tr>
-						<td></td><th align="left">Editar Planificación</th>
+						<td class="bg-indigo-900 text-gray-300 border px py align-center">Ind.</td>
+						<td class="border px py align-top">
+							<div id="defense-individual">
+								<%= render "targets_form", form: form, month: tgt[:i].to_i, aspect: 1, focus: 2 %>
+							</div>
+						</td><td class="border px py align-top">
+							<div id="offense-individual">
+								<%= render "targets_form", form: form, month: tgt[:i].to_i, aspect: 1, focus: 1 %>
+							</div>
+						</td>
 					</tr>
-				</table>
-			</div>
-			<div id="edit-plan-data">
-				<table>
-					<thead>
-						<tr>
-							<th class="bg-indigo-900 text-gray-300 border px py" align="center">Mes</th>
-							<th class="bg-indigo-900 text-gray-300 border px py" align="center"></th>
-							<th class="bg-indigo-900 text-gray-300 border px py" align="center">Defensa</th>
-							<th class="bg-indigo-900 text-gray-300 border px py" align="center">Ataque</th>
-						</tr>
-					</thead>
-					<tbody>
-						<% @targets.each do |tgt| %>
-							<tr><!-- #edit individual targets -->
-								<th rowspan="2" class="bg-indigo-900 text-gray-300 border px py align-center" align="center">
-									<%= tgt[:month] %>
-								</th>
-								<td class="bg-indigo-900 text-gray-300 border px py align-center">Ind.</td>
-								<td class="border px py align-top">
-									<div id="defense-individual">
-										<%= render "targets_form", form: form, month: tgt[:i].to_i, aspect: 1, focus: 2 %>
-									</div>
-								</td><td class="border px py align-top">
-									<div id="offense-individual">
-										<%= render "targets_form", form: form, month: tgt[:i].to_i, aspect: 1, focus: 1 %>
-									</div>
-								</td>
-							</tr>
-							<tr><!-- #edit collective targets -->
-								<td class="bg-indigo-900 text-gray-300 border px py align-center">Col.</td>
-								<td class="border px py">
-									<div id="defense-collective align-top">
-										<%= render "targets_form", form: form, month: tgt[:i].to_i, aspect: 2, focus: 2 %>
-									</div>
-								</td><td class="border px py align-top">
-									<div id="offense-collective">
-										<%= render "targets_form", form: form, month: tgt[:i].to_i, aspect: 2, focus: 1 %>
-									</div>
-								</td>
-							</tr>
-						<% end %>
-					</tbody>
-				</table>
-			</div>
-			<%= render "shared/save" %>
+					<tr><!-- #edit collective targets -->
+						<td class="bg-indigo-900 text-gray-300 border px py align-center">Col.</td>
+						<td class="border px py">
+							<div id="defense-collective align-top">
+								<%= render "targets_form", form: form, month: tgt[:i].to_i, aspect: 2, focus: 2 %>
+							</div>
+						</td><td class="border px py align-top">
+							<div id="offense-collective">
+								<%= render "targets_form", form: form, month: tgt[:i].to_i, aspect: 2, focus: 1 %>
+							</div>
+						</td>
+					</tr>
+				<% end %>
+			</table>
 		</div>
+		<%= render "shared/save" %>
 	<% end %>
 <% end %>

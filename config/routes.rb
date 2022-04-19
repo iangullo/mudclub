@@ -9,20 +9,24 @@ Rails.application.routes.draw do
   resources :users
   resources :slots
   resources :locations
-  resources :events
+  resources :events do
+    get 'add_task', on: :member
+    get 'show_task', on: :member
+    get 'edit_task', on: :member
+  end
   resources :seasons do
     resources :locations
     resources :slots
     resources :events
   end
   resources :teams do
+    get 'roster', on: :member
     get 'edit_roster', on: :member
-    get 'edit_coaches', on: :member
-    get 'coaching', on: :member
     get 'targets', on: :member
     get 'edit_targets', on: :member
     get 'plan', on: :member
     get 'edit_plan', on: :member
+    get 'slots', on: :member
     resources :events
   end
   resources :drills

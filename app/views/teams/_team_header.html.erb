@@ -1,0 +1,14 @@
+<div id="team-header">
+  <table>
+    <tr>
+      <th rowspan="2" class="items-center justify-center">
+        <%= image_tag("team.svg", size: "50x50") %>
+      </th>
+      <th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
+        <%= @team.to_s %>
+      </th>
+    </tr><tr>
+      <th align="left"><%= @team.season.name %></th>
+    </tr>
+  </table>
+</div>
