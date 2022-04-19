@@ -3,6 +3,6 @@ class Task < ApplicationRecord
   has_one :drill
 
   def to_s
-    self.drill.name
+    self.drill ? self.drill.name : "<NUEVO>"
   end
 end
