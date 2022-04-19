@@ -18,13 +18,13 @@ class EventTarget < ApplicationRecord
   def self.fetch(f_object)
     res = f_object[:id] ? EventTarget.find(f_object[:id]) : EventTarget.new
     t   = f_object[:target_attributes]
-    tgt = Target.search(t[:concept], t[:focus], t[:aspect])
+    tgt = Target.search(t[:id], t[:concept], t[:focus], t[:aspect])
     tgt = Target.new unless tgt # ensure we have a target
     tgt.concept  = t[:concept]      # accept concept edition
-    tgt.focus    = t[:focus].to_i   # accept focus edition
-    tgt.aspect   = t[:aspect].to_i  # accept aspect edition
+    tgt.focus    = t[:focus].length==1 ? t[:focus].to_i : t[:focus].to_sym
+    tgt.aspect   = t[:aspect].length==1 ? t[:aspect].to_i : t[:aspect].to_sym
     res.target   = tgt
-    res.priority = f_object[:priority]
+    res.priority = f_object[:priority].to_i
     return res
   end
 end

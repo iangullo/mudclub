@@ -1,17 +1,43 @@
-<%= form_with(model: event) do |form| %>
-  <% if event.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(event.errors.count, "error") %> prohibited this event from being saved:</h2>
-
-      <ul>
-        <% event.errors.each do |error| %>
-          <li><%= error.full_message %></li>
+<%= form_with model: event, authenticity_token: true, data: { label: label, "turbo-frame" => "_top" } do |form| %>
+  <div id="edit-event-header">
+    <table>
+      <tr>
+        <th rowspan="2">
+          <%= image_tag("team.svg", size: "50x50") %>
+        </th>
+        <th align="left" class="align-top rounded-md text-yellow-600">
+          <%= event.team_id > 0 ? event.team.to_s : label %>
+        </th>
+        <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
+        <th align="right" class="inline-flex">
+          <%= image_tag("calendar.svg", size: "25x25") %>
+          <%= form.date_field :start_time, value: event.start_date, start_year: @season.start_year, end_year: @season.end_year, class: "rounded border shadow-inner" %>
+        </th>
+      </tr><tr>
+        <% if event.team_id > 0 %>
+          <th align="left"><%= event.team.season.name %></th>
+          <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
+          <th align="right" class="inline-flex">
+            <%= image_tag("clock.svg", size: "25x25") %>
+            <%= form.number_field :hour, value: event.hour, in: 10..22, size: 2, class: "rounded border shadow-inner" %>
+            :
+            <%= form.number_field :min, value: event.min, in: 0..45, step: 15, size: 2, class: "rounded border shadow-inner" %>
+            <%= form.hidden_field :name %>
+          </th>
+        <% elsif event.kind.to_sym == :holiday%>
+          <td align="left" colspan="3"><%= form.text_field :name, size: 20, class: "rounded border shadow-inner" %></td>
         <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="actions">
-    <%= form.submit %>
+      </tr>
+    </table>
   </div>
+  <div id="edit-event-data">
+    <% if event.train? %>
+      <%= render 'edit_session', form: form, label: label %>
+    <% elsif event.match? %>
+      <%= render 'edit_match', form: form, label: label %>
+    <% end %>
+  </div>
+  <%= form.hidden_field :team_id %>
+  <%= form.hidden_field :kind %>
+  <%= render "shared/save" %>
 <% end %>

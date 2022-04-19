@@ -1,37 +1,55 @@
 <tr>
-  <th colspan="3" align="left">Entrenamiento</th>
+  <td align="center"><%= image_tag("training.svg", size: "30x30") %></td>
+  <th colspan="2" align="left" class="text-indigo-900"><%= "Sesión" %></th>
+  <td align="center">
+    <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
+      <%= link_to edit_event_path, data: {"turbo-frame": "modal" } do %>
+        <%= render "shared/edit" %>
+      <% end %>
+    <% end %>
+  </td>
 </tr><tr>
   <th rowspan="2" align="right" class="align-center text-indigo-900">Obj.</th>
-  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Defensa</th>
+  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Def.</th>
   <td align="left" class="align-top border px py">
-    <% event.def_targets.each do |d_t| %>
+    <% @event.def_targets.each do |d_t| %>
       <%= d_t.to_s %>
       <br>
     <% end %>
   </td>
   <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Dur.</th>
 </tr><tr>
-  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Defensa</th>
+  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Ofe.</th>
   <td align="left" class="align-top border px py">
-    <% event.off_targets.each do |o_t| %>
+    <% @event.off_targets.each do |o_t| %>
       <%= o_t.to_s %>
       <br>
     <% end %>
   </td>
-  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">
-    <%= event.duration.to_s + " \'" %>
+  <th align="center" class="text-indigo-900 align-right border px py">
+    <%= @event.duration.to_s + "\'" %>
   </th>
 </tr><tr>
   <td colspan="4"><br></td>
 </tr><tr>
   <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">#</th>
-  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Tarea</th>
+  <th colspan="2" align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Tarea</th>
   <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Min.</th>
 </tr>
-<% event.tasks.each do |task| %>
-<tr>
-  <td align="right" class="align-top border px py"><%= task.order.to_s %></td>
-  <td align="left" class="align-top border px py"><%= task.to_s %></td>
-  <td align="right" class="align-top border px py"><%= task.duration.to_s + " \'" %></td>
-</tr>
+<% @event.tasks.order(:order).each do |task| %>
+  <tr class="align-top hover:text-white hover:bg-blue-700 border px py">
+    <td align="center"><%= link_to task.order.to_s, show_task_event_path(task_id: task.id), data: { "turbo-frame": "modal" } %></td>
+    <td colspan="2" align="left"><%= link_to task.to_s, show_task_event_path(task_id: task.id), data: { "turbo-frame": "modal" } %></td>
+    <td align="right"><%= link_to task.duration.to_s + "\'", show_task_event_path(task_id: task.id), data: { "turbo-frame": "modal" } %></td>
+  </tr>
 <% end %>
+<tr>
+  <td colspan="3"></td>
+  <td align="center">
+    <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
+      <%= link_to add_task_event_path, data: {"turbo-frame": "modal" } do %>
+        <%= render "shared/add" %>
+      <% end %>
+    <% end %>
+  </td>
+</tr>

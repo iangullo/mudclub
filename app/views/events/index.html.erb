@@ -8,7 +8,7 @@
           Calendario
         </th>
       </tr><tr>
-        <th align="left"><%= @team ? @team.name : " " %><th>
+        <th align="left"><%= @team ? @team.name : (@season ? @season.name : " ") %><th>
 			</tr>
 		</table>
 	</div>
@@ -20,24 +20,15 @@
 				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Hora</th>
 				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Equipo</th>
 				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Descripción</th>
-					<th align="center">
-						<% if current_user.admin? %>
-							<%= link_to new_event_path(team_id: params[:team_id], season_id: params[:season_id]), data: {"turbo-frame": "modal" } do %>
-								<%= render "shared/add" %>
-							<% end %>
-						<% end %>
-					</th>
+					<% if current_user.admin? %>
+						<%= render "new_event_button" %>
+					<% end %>
 				</tr>
 		  </thead>
 		  <tbody>
         <% @events.each do |event| %>
-					<tr class="align-top border px py hover:text-white hover:bg-blue-700">
-						<td align="center"><%= link_to events_path(event), event.date_string, data: {"turbo-frame": "modal" } %></td>
-						<td align="center"><%= link_to events_path(event), event.time_string, data: {"turbo-frame": "modal" } %></td>
-						<td align="left"><%= link_to events_path(event), @team.id > 0 ? @team.to_s : "Todos", data: {"turbo-frame": "modal" } %></td>
-						<td align="left"><%= link_to events_path(event), event.name, data: {"turbo-frame": "modal" } %></td>
-					</tr>
-        <% end %>
+					<%= render "event_row", event: event, short: false %>
+				<% end %>
 		  </tbody>
 		</table>
 	</div>

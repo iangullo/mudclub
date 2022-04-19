@@ -1,7 +1,3 @@
-<% if @event.train? %>
-  <%= render 'edit_session', event: @event, label: "Crear Sesión" %>
-<% elsif @event.match? %>
-  <%= render 'edit_match', event: @event, label: "Crear Partido" %>
-<% else %>
-  <%= render 'edit_rest', event: @event, label: "Crear Descanso" %>
+<%= render "shared/modal" do %>
+  <%= render 'form', event: @event, label: @event.form_label %>
 <% end %>

@@ -1,0 +1,22 @@
+<div id="event-show-header">
+  <table>
+    <tr>
+      <th rowspan="2">
+        <%= image_tag("team.svg", size: "50x50") %>
+      </th>
+      <th align="left" class="align-top rounded-md text-yellow-600">
+        <%= @event.team_id > 0 ? @event.team.to_s : "General" %>
+      </th>
+      <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
+      <th align="right" class="inline-flex"><%= image_tag("calendar.svg", size: "25x25") %>&nbsp;<%= @event.date_string %></th>
+    </tr><tr>
+      <% if @event.holiday? %>
+        <th><%= @event.name %></th>
+      <% else %>
+        <th align="left"><%= @event.team_id > 0 ? @event.team.season.name : "" %></th>
+        <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
+        <th align="right" class="inline-flex"><%= image_tag("clock.svg", size: "25x25") %>&nbsp;<%= @event.time_string %></th>
+      <% end %>
+    </tr>
+  </table>
+</div>
