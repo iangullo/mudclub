@@ -14,7 +14,6 @@
           <%= form.date_field :start_time, value: event.start_date, start_year: @season.start_year, end_year: @season.end_year, class: "rounded border shadow-inner" %>
         </th>
       </tr><tr>
-<% byebug %>
         <% if event.team_id > 0 and event.kind_before_type_cast != :holiday %>
           <th align="left"><%= event.team.season.name %></th>
           <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>

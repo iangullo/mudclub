@@ -95,7 +95,7 @@ class Slot < ApplicationRecord
 				Slot.where(team_id: s_data[:team_id].to_i)
 			end
 		else
-			Slot.none
+			Slot.all
 		end
 	end
 
