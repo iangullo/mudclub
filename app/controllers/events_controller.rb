@@ -13,17 +13,18 @@ class EventsController < ApplicationController
 
   # GET /events/1 or /events/1.json
   def show
-    unless current_user.present?
+    unless current_user.present? and (current_user.admin? or current_user.is_coach?)
       redirect_to "/"
     end
   end
 
   # GET /events/1 or /events/1.json
   def details
-    unless current_user.present?
+    unless current_user.present? and (current_user.admin? or current_user.is_coach?)
       redirect_to "/"
     end
   end
+
   # GET /events/new
   def new
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
@@ -108,7 +109,7 @@ class EventsController < ApplicationController
 
   # GET /events/1/show_task
   def show_task
-    if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
+    if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @task = Task.find(params[:task_id])
     else
       redirect_to(current_user.present? ? events_url : "/")

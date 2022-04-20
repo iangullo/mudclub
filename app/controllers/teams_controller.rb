@@ -14,7 +14,7 @@ class TeamsController < ApplicationController
   # GET /teams/1
   # GET /teams/1.json
   def show
-		unless current_user.present? and (current_user.admin? or current_user.is_coach? or @team.has_coach(current_user.person.coach_id) or @team.has_player(current_user.person.player_id))
+		unless current_user.present? and (current_user.admin? or current_user.is_coach? or @team.has_player(current_user.person.player_id))
 			redirect_to "/"
 		else
 			redirect_to coaching_team_path(@team) if params[:id]=="coaching" and @team
@@ -24,7 +24,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1/roster
   def roster
 		if current_user.present?
-			unless current_user.admin? or @team.has_coach(current_user.person.coach_id)
+			unless current_user.admin? or current_user.is_coach? or @team.has_player(current_user.person.player_id)
 				redirect_to @team
 			end
 		else
@@ -32,10 +32,10 @@ class TeamsController < ApplicationController
 		end
   end
 
-	# GET /teams/1/roster
+	# GET /teams/1/slots
   def slots
 		if current_user.present?
-			unless current_user.admin? or @team.has_coach(current_user.person.coach_id)
+			unless current_user.admin? or current_user.is_coach?
 				redirect_to @team
 			end
 		else
@@ -108,9 +108,9 @@ class TeamsController < ApplicationController
 		end
   end
 
-	# GET /teams/1/targets
+	# GET /teams/1/edit_targets
   def edit_targets
-		if current_user.present? and current_user.is_coach?
+		if current_user.present? and @team.has_coach(current_user.person.coach_id)
 			redirect_to "/" unless @team
 			global_targets(false)	# get global targets
 		else
@@ -130,7 +130,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_plan
   def edit_plan
-		if current_user.present? or @team.has_coach(current_user.person.coach_id)
+		if current_user.present? and @team.has_coach(current_user.person.coach_id)
 			redirect_to "/" unless @team
 			plan_targets
 		else
@@ -154,7 +154,7 @@ class TeamsController < ApplicationController
 		      end
 		    end
 			else
-				redirect_to(current_user.is_coach? ? teams_path : "/")
+				redirect_to(current_user.is_coach? ? @team : "/")
 			end
 		else
 			redirect_to "/"

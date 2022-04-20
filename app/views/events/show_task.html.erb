@@ -26,11 +26,11 @@
 			<tr>
 				<th align="left"><%= "Explicación" %></th>
 			</tr><tr>
-				<th>
+				<td>
 					<div class="rounded-md border px py">
 						<%= @task.drill.explanation %>
 					</div>
-				</th>
+				</td>
 			</tr><tr>
 			  <td align="right">
 			    <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
