@@ -70,11 +70,11 @@ class User < ApplicationRecord
 	end
 
   def is_player?
-    (self.person.try(:player_id).to_i > 0) or self.player?
+    (self.person.try(:player_id).to_i > 0 and self.person.player.active) or self.player?
   end
 
   def is_coach?
-    (self.person.try(:coach_id).to_i > 0) or self.coach?
+    (self.person.try(:coach_id).to_i > 0 and self.person.coach.active) or self.coach?
   end
 
   def coach
