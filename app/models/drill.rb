@@ -35,9 +35,9 @@ class Drill < ApplicationRecord
 	end
 
 	def nice_string
-		cad = self.kind ? self.kind.name + " | " : ""
-		cad = cad + self.name ? self.name : "<NEW DRILL>"
-		cad = cad + (" | " + self.targets.first.concept) if self.targets.first
+		cad = self.kind_id ? (self.kind.name + " | ") : ""
+		cad = cad + (self.name ? self.name : "<NEW DRILL>")
+		cad
 	end
 
 #	def print_kinds
