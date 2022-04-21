@@ -1,0 +1,11 @@
+<div class="inline-flex mt-5">
+  <div class="ml-3">
+    <%= link_to return_link do %>
+      <%= image_submit_tag "close.svg", class: "extended-modal-close align-middle rounded-lg hover:bg-red-200 max-h-7 min-h-5", alt: "Cerrar", "data-action": "click->extended-modal#close" %>
+    <% end %>
+  </div>
+  <div class="w-32"></div>
+  <div class="mr-3">
+    <%= image_submit_tag "save.svg", class: "save_button align-middle rounded-lg hover:bg-green-200 max-h-7 min-h-5", alt: "Guardar", data: { confirm: "¿Guardar cambios?" } %>
+  </div>
+</div>

@@ -7,10 +7,10 @@
   <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Min.</th>
 </tr>
 <% @event.tasks.order(:order).each do |task| %>
-  <tr class="align-top hover:text-white hover:bg-blue-700 border px py">
-    <td align="center"><%= link_to task.order.to_s, show_task_event_path(task_id: task.id), data: { "turbo-frame": "modal" } %></td>
-    <td colspan="2" align="left"><%= link_to task.to_s, show_task_event_path(task_id: task.id), data: { "turbo-frame": "modal" } %></td>
-    <td align="right"><%= link_to task.duration.to_s + "\'", show_task_event_path(task_id: task.id), data: { "turbo-frame": "modal" } %></td>
+  <tr class="align-top hover:text-white hover:bg-blue-700">
+    <td align="center" class="border px py"><%= link_to task.order.to_s, show_task_event_path(task_id: task.id), data: {turbo_frame: "modal"} %></td>
+    <td align="left" class="border px py" colspan="2"><%= link_to task.to_s, show_task_event_path(task_id: task.id), data: {turbo_frame: "modal"} %></td>
+    <td align="right" class="border px py"><%= link_to task.duration.to_s + "\'", show_task_event_path(task_id: task.id), data: {turbo_frame: "modal"} %></td>
   </tr>
 <% end %>
 <tr>

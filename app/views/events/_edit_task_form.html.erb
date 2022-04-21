@@ -8,7 +8,7 @@
 			</tr><tr>
 				<div id="search-drills" class="inline-flex rounded border items start">
 					<td colspan="3">
-						<%= form_with(url: add_task_event_path, value: params[:search], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
+						<%= form_with(url: edit_task_event_path, value: params[:search], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
 							<%= text_field_tag :search, "", size: 16, class: "text-gray-700 rounded border shadow-inner" %>
 							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
 						<% end %>
