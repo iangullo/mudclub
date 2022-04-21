@@ -44,6 +44,11 @@
   </tr>
 <% end %>
 <tr>
+  <td colspan="2"></td>
+  <th align="right">Total:</th>
+  <th align="right"><%= @event.work_duration %></th>
+</tr>
+<tr>
   <td colspan="3"></td>
   <td align="center">
     <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
