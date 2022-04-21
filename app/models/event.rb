@@ -92,7 +92,7 @@ class Event < ApplicationRecord
   def work_duration
     res = 0
     self.tasks.each { |tsk| res = res + tsk.duration }
-    res
+    res.to_s + "\'"
   end
 
   def date_string
