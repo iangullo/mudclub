@@ -34,12 +34,12 @@
 			</thead>
 			<tbody>
 				<% @people.each do |person| %>
-					<tr>
-						<td class="border px py hover:text-white hover:bg-blue-700">
+					<tr class="hover:text-white hover:bg-blue-700">
+						<td class="border px py">
 							<%= link_to person.to_s, person, data: {"turbo-frame": "modal" } %>
 						</td>
 						<% if current_user.admin? %>
-							<td>
+							<td class="hover:bg-white">
 								<%= link_to person, method: :delete, data: { confirm: "¿Borrar '#{person.to_s}'?" } do %>
 									<%= render "shared/delete" %>
 								<% end %>

@@ -14,7 +14,7 @@
 			<td># <%= @player.number %>&nbsp;-&nbsp;<%= @player.active ? "Activo" : "Inactivo" %></td>
 			<td align="right">
 				<% if current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id %>
-					<%= link_to edit_player_path(@player), data: {"turbo-frame": "modal" } do %>
+					<%= link_to edit_player_path(@player) do %>
 						<%= render "shared/edit" %>
 					<% end %>
 				<% end %>

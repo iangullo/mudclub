@@ -38,14 +38,14 @@
 	    </thead>
 	    <tbody>
 	      <% @teams.each do |team| %>
-	        <tr>
-	          <td class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team %></td>
+	        <tr class="hover:text-white hover:bg-blue-700">
+	          <td align="left" class="border px py"><%= link_to team.to_s, team %></td>
 	          <% unless params[:season_id] %>
-							<td align="center" class="border px py"><%= team.season.name %></td>
+							<td align="center" class="border px py"><%= link_to team.season.name, team %></td>
 						<% end %>
-							<td align="center" class="border px py"><%= team.division.name %></td>
+							<td align="center" class="border px py"><%= link_to team.division.name, team %></td>
 						<% if current_user.admin? %>
-		          <td>
+		          <td class="hover:bg-white">
 		            <%= link_to team, method: :delete, data: { confirm: "¿Borrar '#{team.to_s}'?" } do %>
 		              <%= render "shared/delete" %>
 		            <% end %>
