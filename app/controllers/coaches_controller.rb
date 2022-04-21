@@ -78,7 +78,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.coach_id==@coach.id)
 			respond_to do |format|
 				if @coach.update(coach_params)
-					format.html { redirect_to coaches_url, notice: 'Entrenador actualizado.' }
+					format.html { redirect_to coaches_url }
 					format.json { render :index, status: :ok, location: coaches_url }
 				else
 					format.html { render :edit }
@@ -109,7 +109,7 @@ class CoachesController < ApplicationController
 			unlink_person
 			@coach.destroy
 			respond_to do |format|
-				format.html { redirect_to coaches_url, notice: 'Entrenador borrado.' }
+				format.html { redirect_to coaches_url }
 				format.json { head :no_content }
 			end
 		else
@@ -139,7 +139,7 @@ class CoachesController < ApplicationController
 	# reload edit/create form if person exists without a coach record
 	def reload_data(format)
 		if @coach.person.coach_id==0
-			format.html { render :new, notice: 'Datos del entrenador leídos.' }
+			format.html { render :new }
 			format.json { render :new, status: :ok }
 		end
 	end
@@ -147,7 +147,7 @@ class CoachesController < ApplicationController
 	# save a coach - ensuring duplicates not existing
 	def	save_data(format)
 		if @coach.save
-			format.html { redirect_to coaches_url, notice: 'Entrenador creado.' }
+			format.html { redirect_to coaches_url }
 			format.json { render :index, status: :created, location: coaches_url }
 		else
 			format.html { render :new }
@@ -166,9 +166,7 @@ class CoachesController < ApplicationController
 		if (params[:search] != nil) and (params[:search].length > 0)
 			@players = Coach.search(params[:search])
 		else
-			if current_user.admin?
-				Coach.real
-			elsif current_user.is_coach?
+			if current_user.admin? or current_user.is_coach?
 				Coach.active
 			else
 				Coach.none
