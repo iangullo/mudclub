@@ -1,0 +1,38 @@
+<div id="session-header">
+  <tr>
+    <br>
+  </tr><tr>
+    <td colspan="2" align="right"><%= image_tag("training.svg", size: "30x30") %></td>
+    <th align="left" class="text-indigo-900"><%= label %></th>
+    <% if label=="Sesión" and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) %>
+      <td align="center">
+        <%= link_to edit_event_path do %>
+          <%= render "shared/edit" %>
+        <% end %>
+      </td>
+    </tr><tr>
+      <th rowspan="2" align="right" class="align-center text-indigo-900">Obj.</th>
+      <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Def.</th>
+      <td align="left" class="align-top border px py">
+        <% @event.def_targets.each do |d_t| %>
+        <%= d_t.to_s %>
+        <br>
+        <% end %>
+      </td>
+      <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Dur.</th>
+    </tr><tr>
+      <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Ofe.</th>
+      <td align="left" class="align-top border px py">
+        <% @event.off_targets.each do |o_t| %>
+        <%= o_t.to_s %>
+        <br>
+        <% end %>
+      </td>
+      <th align="center" class="text-indigo-900 align-right border px py">
+        <%= @event.duration.to_s + "\'" %>
+      </th>
+    </tr>
+  <% else %>
+    </tr>
+  <% end %>
+</div>

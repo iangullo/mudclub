@@ -76,10 +76,10 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           if @task  # we just updated a task
-            format.html { redirect_to @event }
-            format.json { render :show, status: :ok, location: @event }
+            format.html { redirect_to edit_event_path(@event) }
+            format.json { render :edit, status: :ok, location: @event }
           else
-            format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url }
+            format.html { redirect_to @event }
             format.json { render :show, status: :ok, location: @event }
           end
         else
@@ -140,12 +140,13 @@ class EventsController < ApplicationController
     def rebuild_event(event_params)
       @event = Event.new unless @event
       @event.start_time = event_params[:start_time] if event_params[:start_time]
-      @event.hour       = event_params[:hour] if event_params[:hour]
-      @event.min        = event_params[:min] if event_params[:min]
+      @event.hour       = event_params[:hour].to_i if event_params[:hour]
+      @event.min        = event_params[:min].to_i if event_params[:min]
       @event.duration   = event_params[:duration].to_i if event_params[:duration]
       @event.name       = event_params[:name] if event_params[:name]
       check_targets(event_params[:event_targets_attributes]) if event_params[:event_targets_attributes]
-      check_tasks(event_params) if event_params[:task] or event_params[:tasks_attributes]
+      check_tasks(event_params[:tasks_attributes]) if event_params[:tasks_attributes]
+      check_new_task(event_params[:task]) if event_params[:task]
     end
 
     # checks targets_attributes parameter received and manage adding/removing
@@ -153,35 +154,43 @@ class EventsController < ApplicationController
     def check_targets(t_array)
       a_targets = Array.new	# array to include only non-duplicates
       t_array.each { |t| # first pass
-        a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
+        if t[1][:_destroy]  # we ust include to remove it
+          a_targets << t[1]
+        else
+          a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
+        end
       }
       a_targets.each { |t| # second pass - manage associations
         if t[:_destroy] == "1"	# remove drill_target
           @event.targets.delete(t[:target_attributes][:id].to_i)
-        else
+        elsif t[:target_attributes]
           dt = EventTarget.fetch(t)
           @event.event_targets ? @event.event_targets << dt : @event.event_targets |= dt
         end
       }
     end
 
-    # ensure task is correctly added to event
-    def check_tasks(p_array)
-      t = p_array[:task]
-      a = p_array[:tasks_attributes]
-      @task = Task.new(event_id: @event.id) unless @task
-      if t  # we are adding a single task
-        @task.order    = t[:order].to_i if t[:order]
-        @task.drill_id = t[:drill_id].to_i if t[:drill_id]
-        @task.duration = t[:duration].to_i if t[:duration]
-        @task.save
-      end
-      if a  # we have edited the existing tasks
-        a.each { |t_dat|
-          tsk = Task.fetch(t_dat[1])
-          tsk.event_id = @event.id
+    # checks tasks_attributes parameter received and manage adding/removing
+    # from the task collection - ALLOWING DUPLICATES.
+    def check_tasks(t_array)
+      t_array.each { |t| # manage associations
+        if t[1][:_destroy] == "1"	# delete task
+          Task.find(t[1][:id].to_i).delete
+        else
+          tsk = Task.fetch(t[1])
           tsk.save
-        }
+        end
+      }
+    end
+
+    # ensure a new task is correctly added to event
+    def check_new_task(t_dat)
+      if t_dat  # we are adding a single task
+        @task          = Task.new(event_id: @event.id) unless @task
+        @task.order    = t_dat[:order].to_i if t_dat[:order]
+        @task.drill_id = t_dat[:drill_id].to_i if t_dat[:drill_id]
+        @task.duration = t_dat[:duration].to_i if t_dat[:duration]
+        @task.save
       end
     end
 
@@ -243,6 +252,6 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.require(:event).permit(:id, :name, :kind, :start_time, :end_time, :hour, :min, :duration, :team_id, :drill_id, :location_id, :season_id, target_attributes: [:id, :focus, :aspect, :concept], event_targets_attributes: [:id, :priority, :_destroy], task: [:id, :order, :drill_id, :duration], tasks_attributes: [:id, :order, :drill_id, :duration] )
+      params.require(:event).permit(:id, :name, :kind, :start_time, :end_time, :hour, :min, :duration, :team_id, :drill_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration], tasks_attributes: [:id, :order, :drill_id, :duration, :_destroy] )
     end
 end
