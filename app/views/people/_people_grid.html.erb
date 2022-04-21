@@ -1,0 +1,21 @@
+<div id="people-grid">
+  <table class="table-auto">
+    <thead>
+      <tr>
+        <th class="bg-indigo-900 text-gray-300 align-center">Nombre</th>
+        <% if current_user.admin? %>
+          <th>
+          <%= link_to new_person_path, data: {"turbo-frame": "modal" } do %>
+            <%= render "shared/add" %>
+          <% end %>
+        </th>
+      <% end %>
+    </tr>
+    </thead>
+    <tbody>
+      <% @people.each do |person| %>
+        <%= render "person_row", person: person %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
