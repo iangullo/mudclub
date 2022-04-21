@@ -130,13 +130,7 @@ class PlayersController < ApplicationController
 		if (params[:search] != nil) and (params[:search].length > 0)
 			@players = Player.search(params[:search])
 		else
-			if current_user.admin?
-				Player.real
-			elsif current_user.is_coach?
-				Player.active
-			else
-				Player.none
-			end
+			Player.none
 		end
 	end
 
