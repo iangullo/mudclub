@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :categories
+  resources :divisions
   root to: "home#index"
   get 'home/index'
   devise_for :users, :skip => [:registrations]

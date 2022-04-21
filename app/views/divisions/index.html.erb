@@ -1,0 +1,23 @@
+<div id="division-index">
+  <%= render "divisions_header", label: "Competiciones" %>
+  <table>
+    <tr>
+  		<th class="bg-indigo-900 text-gray-300 align-center border px py">Nombre</th>
+  		<th>
+  			<%= link_to new_division_path do %>
+  				<%= render "shared/add" %>
+  			<% end %>
+  		</th>
+  	</tr>
+    <% @divisions.each do |division| %>
+      <tr class="hover:text-white hover:bg-blue-700">
+        <td class="border px py"><%= link_to division.name, edit_division_path(division), data: { turbo_frame: "modal"} %></td>
+        <td class="hover:bg-white">
+          <%= link_to division, method: :delete, data: { confirm: "¿Borrar '#{division.name}'?" } do %>
+            <%= render "shared/delete" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+</div>
