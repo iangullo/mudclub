@@ -1,9 +1,9 @@
 <% if form.object %>
 	<div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
 		<div class="inline-flex">
-			<%= form.number_field :order, value: form.object.order, size: 1 , class: "text-right form-control rounded border shadow-inner"%>
+			<%= form.number_field :order, value: form.object.order, size: 2 , class: "text-right form-control rounded border shadow-inner"%>
 			<%= form.collection_select :drill_id, @drills, :id, :nice_string, selected: form.object.drill_id, class: "form-control rounded border shadow-inner"%>
-			<%= form.number_field :duration, value: form.object.duration, size: 1 , class: "text-right form-control rounded border shadow-inner"%>
+			<%= form.number_field :duration, value: form.object.duration, size: 2 , class: "text-right form-control rounded border shadow-inner"%>
 			<button type="button" class="object-left-bottom" data-action="nested-form#remove">
 				<%= render "shared/remove" %>
 			</button>

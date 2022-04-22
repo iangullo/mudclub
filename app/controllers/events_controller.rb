@@ -29,13 +29,17 @@ class EventsController < ApplicationController
   def new
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @event  = Event.prepare(event_params)
-      if @event and (@event.holiday? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id)))
-        @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+      if @event
+        if @event.holiday? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id))
+          @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+        else
+          redirect_to(current_user.admin? ? "/slots" : @event.team)
+        end
       else
-        redirect_to(current_user.admin? ? "/slots" : @event.team)
+        redirect_to(current_user.admin? ? "/slots" : "/")
       end
     else
-      redirect_to(current_user.present? ? events_url : "/")
+      redirect_to "/"
     end
   end
 
@@ -79,6 +83,7 @@ class EventsController < ApplicationController
             format.html { redirect_to edit_event_path(@event) }
             format.json { render :edit, status: :ok, location: @event }
           else
+            @event.tasks.reload
             format.html { redirect_to @event }
             format.json { render :show, status: :ok, location: @event }
           end

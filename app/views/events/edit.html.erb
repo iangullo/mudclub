@@ -3,5 +3,5 @@
     <%= render 'form', event: @event, label: @event.form_label %>
   <% end %>
 <% else %>
-  <%= render 'form', event: @event, label: @event.form_label %>
+  <%= render 'form', event: @event, season: @season, label: @event.form_label %>
 <% end %>

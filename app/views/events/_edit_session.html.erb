@@ -1,5 +1,5 @@
 <table>
-  <%= render "session_header", label: "Editar sesión" %>
+  <%= render "session_header", label: label %>
   <tr>
     <th rowspan="2" align="right" class="align-center text-indigo-900">Obj.</th>
     <%= render "targets_form", form: form, event_targets: @event.def_targets, aspect: 0, focus: 2, label: "Def." %>
@@ -11,20 +11,23 @@
     </th>
   </tr><tr>
     <td colspan="4"><br></td>
-  </tr><tr>
-    <th colspan="4" align="left" class="text-indigo-900 align-center">Tareas</th>
-  </tr><tr>
-    <td></td>
-    <%= render "tasks_form", form: form, tasks: @event.tasks %>
-    <tr>
-      <td colspan="2" align="right">
-        <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
-          <%= link_to add_task_event_path, data: {turbo_frame: "modal"} do %>
-            <%= render "shared/add" %>
-          <% end %>
-        <% end %>
-      </td>
-      <th align="right">Total:</th>
-      <th align="right"><%= @event.work_duration %></th>
   </tr>
+  <% if @event.id # only allow editing tasks if we're not creating it from scratch %>
+    <tr>
+      <th colspan="4" align="left" class="text-indigo-900 align-center">Tareas</th>
+    </tr><tr>
+      <td></td>
+      <%= render "tasks_form", form: form, tasks: @event.tasks %>
+      <tr>
+        <td colspan="2" align="center">
+          <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
+            <%= link_to add_task_event_path, data: {turbo_frame: "modal"} do %>
+              <%= render "shared/add" %>
+            <% end %>
+          <% end %>
+        </td>
+        <th align="right">Total:</th>
+        <th align="right"><%= @event.work_duration %></th>
+    </tr>
+  <% end %>
 </table>
