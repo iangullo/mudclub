@@ -26,7 +26,7 @@
 					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Ent.</th>
 					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Adm.</th>
 					<th align="center">
-						<%= link_to new_user_path, data: {"turbo-frame": "modal" } do %>
+						<%= link_to new_user_path, data: {turbo_frame: "modal" } do %>
 							<%= render "shared/add" %>
 						<% end %>
 					</th>
@@ -36,12 +36,12 @@
 			<tbody>
 				<% @users.each do |user| %>
 					<tr>
-						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to user.s_name, user, data: {"turbo-frame": "modal" } %></td>
+						<td class="border px py hover:text-white hover:bg-blue-700"><%= link_to user.s_name, user, data: {turbo_frame: "modal" } %></td>
 						<td align="center" class="border px py"><%= user.is_player? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
 						<td align="center" class="border px py"><%= user.is_coach? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
 						<td align="center" class="border px py"><%= user.admin? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
 						<td>
-							<%= link_to user, method: :delete, data: { confirm: "¿Borrar '#{user.to_s}'?" } do %>
+							<%= link_to user, method: :delete, data: {confirm: "¿Borrar '#{user.to_s}'?"} do %>
 								<%= render "shared/delete" %>
 							<% end %>
 						</td>

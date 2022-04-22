@@ -8,7 +8,7 @@
 			</tr><tr>
 				<div id="search-drills" class="inline-flex rounded border items start">
 					<td colspan="3">
-						<%= form_with(url: add_task_event_path, value: params[:search], method: 'get', local: true, data: { "turbo-frame" => "_top" }) do |f| %>
+						<%= form_with(url: add_task_event_path, value: params[:search], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
 							<%= text_field_tag :search, "", size: 16, class: "text-gray-700 rounded border shadow-inner" %>
 							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
 						<% end %>
@@ -16,7 +16,7 @@
 				</div>
 			</tr>
 		</table>
-		<%= form_with model: @event, authenticity_token: true, data: { "turbo-frame" => "_top" } do |form| %>
+		<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top" } do |form| %>
 			<table>
 				<tr class="bg-indigo-900 text-gray-300 align-center border px py">
 					<td class="border px py">#</td>
@@ -34,7 +34,7 @@
 					<% end %>
 				</tr>
 			</table>
-			<%= render "shared/save" %>
+			<%= render "shared/save_cancel", save: true %>
 		<% end %>
 	</div>
 <% end %>

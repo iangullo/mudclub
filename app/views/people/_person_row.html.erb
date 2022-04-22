@@ -1,0 +1,12 @@
+<tr class="hover:text-white hover:bg-blue-700">
+  <td class="border px py">
+    <%= link_to person.to_s, person, data: {turbo_frame: "modal"} %>
+  </td>
+  <% if current_user.admin? %>
+    <td class="hover:bg-white">
+      <%= link_to person, method: :delete, data: {confirm: "¿Borrar '#{person.to_s}'?"} do %>
+        <%= render "shared/delete" %>
+      <% end %>
+    </td>
+  <% end %>
+</tr>

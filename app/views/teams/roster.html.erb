@@ -1,4 +1,4 @@
-<%= render "shared/modal" do %>
+<%= render "shared/modal", simple: true do %>
   <div id="team-roster">
     <%= render "team_header" %>
     <div id="team-roster-grid">
@@ -8,7 +8,7 @@
           <th align="left">Plantilla</th>
           <% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
             <td align="center">
-              <%= link_to edit_roster_team_path do %>
+              <%= link_to edit_roster_team_path, data: {turbo_frame: "modal"} do %>
               <%= render "shared/edit" %>
               <% end %>
             </td>
@@ -21,9 +21,9 @@
         </tr>
         <% @team.players.order("number").each do |player| %>
           <tr class="hover:bg-blue-700 hover:text-white">
-            <td align="center" class="rounded border"><%= link_to player.number, player, data: {"turbo-frame": "modal" } %></td>
-            <td class="rounded border"><%= link_to player.to_s, player, data: {"turbo-frame": "modal" } %></td>
-            <td align="center" class="rounded border"><%= link_to player.person.age, player, data: {"turbo-frame": "modal" } %></td>
+            <td align="center" class="rounded border"><%= link_to player.number, player, data: {turbo_frame: "modal"} %></td>
+            <td class="rounded border"><%= link_to player.to_s, player, data: {turbo_frame: "modal"} %></td>
+            <td align="center" class="rounded border"><%= link_to player.person.age, player, data: {turbo_frame: "modal"} %></td>
           </tr>
         <% end %>
       </table>

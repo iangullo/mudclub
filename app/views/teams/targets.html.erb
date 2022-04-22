@@ -1,4 +1,4 @@
-<%= render "shared/modal" do %>
+<%= render "shared/modal", simple: true do %>
 	<%= render "team_header" %>
 	<div id="show-targets-data">
 		<table>
@@ -6,7 +6,7 @@
 				<th align="left" class="inline-flex"><%= image_tag("target.svg", size: "30x30") %>Objetivos</th>
 				<td align="right">
 					<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
-						<%= link_to edit_targets_team_path, data: { "turbo-frame": "modal" } do %>
+						<%= link_to edit_targets_team_path, data: {turbo_frame: "modal"} do %>
 							<%= render "shared/edit" %>
 						<% end %>
 					<% end %>

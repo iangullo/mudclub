@@ -1,0 +1,24 @@
+<div id="players-grid">
+  <table class="table-auto">
+    <thead>
+      <tr>
+        <th class="bg-indigo-900 text-gray-300 align-center border px py">N&uacute;m.</th>
+        <th class="bg-indigo-900 text-gray-300 align-center border px py">Nombre</th>
+        <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Edad</th>
+        <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Activ.</th>
+        <% if current_user.admin? or current_user.is_coach? %>
+          <th align="center">
+            <%= link_to new_player_path, data: {turbo_frame: "modal"} do %>
+              <%= render "shared/add" %>
+            <% end %>
+          </th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @players.each do |player| %>
+        <%= render "player_row", player: player %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

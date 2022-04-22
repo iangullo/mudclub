@@ -1,3 +1,7 @@
-<%= render "shared/modal" do %>
-  <%= render 'form', event: @event, label: @event.form_label %>
+<% if @event.holiday? %>
+  <%= render "shared/modal" do %>
+    <%= render 'form', event: @event, label: @event.form_label %>
+  <% end %>
+<% else %>
+  <%= render 'form', event: @event, season: @season, label: @event.form_label %>
 <% end %>

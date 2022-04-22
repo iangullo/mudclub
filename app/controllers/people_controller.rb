@@ -100,7 +100,7 @@ class PeopleController < ApplicationController
 			erase_links
 			@person.destroy
 	    respond_to do |format|
-	      format.html { redirect_to people_url, notice: 'Persona borrada.' }
+	      format.html { redirect_to people_url }
 	      format.json { head :no_content }
 	    end
 		else

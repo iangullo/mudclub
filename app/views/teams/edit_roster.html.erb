@@ -1,5 +1,5 @@
 <%= render "shared/modal" do %>
-	<%= form_with model: @team, data: { "turbo-frame" => "_top" } do |form| %>
+	<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
 		<%= render "team_header" %>
 		<div id="edit-roster-form-data">
 			<table>
@@ -24,7 +24,7 @@
 					<% end %>
 				</div>
 			</table>
-			<%= render "shared/save" %>
+			<%= render "shared/save_cancel", save: true %>
 		</div>
 	<% end %>
 <% end %>

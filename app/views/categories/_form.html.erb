@@ -1,0 +1,26 @@
+<%= form_with model: category, authenticity_token: true, data: { label: label, turbo_frame: "_top" } do |form| %>
+  <%= render "category_header", label: label %>
+  <table>
+    <tr>
+      <th>Nom:</th>
+      <td colspan="3" align="left">
+        <%= form.text_field :name, size: 20, rows: 2, class: "rounded border shadow-inner" %>
+      </td>
+    </tr><tr>
+      <th>Sex:</th>
+      <td colspan="3" align="left">
+        <%= form.select :sex, ["Fem.","Masc.","Mixto"], class: "rounded border shadow-inner" %>
+      </td>
+    </tr><tr>
+      <th>Min:</th>
+      <td align="left">
+        <%= form.number_field :min_years, size: 2, class: "rounded border shadow-inner" %>
+      </td>
+      <th>Max:</th>
+      <td align="left">
+        <%= form.number_field :max_years, size: 2, class: "rounded border shadow-inner" %>
+      </td>
+    </tr>
+  </table>
+  <%= render "shared/save_cancel", save: true %>
+<% end %>

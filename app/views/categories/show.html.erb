@@ -1,0 +1,25 @@
+<%= render "shared/modal", simple: true do %>
+  <%= render "category_header", label: "Categoría" %>
+  <table>
+    <tr>
+      <th>Nom:</th>
+      <td colspan="3" align="left">
+        <%= @category.name %>
+      </td>
+    </tr><tr>
+      <th>Sex:</th>
+      <td align="left">
+        <%= @category.sex %>
+      </td>
+    </tr><tr>
+      <th>Min:</th>
+      <td align="left">
+        <%= @category.min_years %>
+      </td>
+      <th>Max:</th>
+      <td align="left">
+        <%= @category.max_years %>
+      </td>
+    </tr>
+  </table>
+<% end %>

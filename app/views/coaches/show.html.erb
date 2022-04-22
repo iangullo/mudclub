@@ -1,21 +1,24 @@
-<%= render "shared/modal" do %>
+<%= render "shared/modal", simple: true do %>
 	<table>
 		<tr>
 			<td rowspan="3" align="center">
 				<%= image_tag(@coach.picture, size: "100x100", class: "rounded-full") %>
 			</td>
+			<th align="left" class="align-top text-yellow-600">
+				<%= "Entrenador/a" %>
+			</th>
+		</tr><tr>
 			<td><%= @coach.person.name %></td>
 		</tr><tr>
 			<td><%= @coach.person.surname %></td>
 		</tr><tr>
-			<td><%= @coach.person.birthday %></td>
-		</tr><tr>
 			<td align="center"><%= @coach.person.nick %></td>
+			<td><%= @coach.person.birthday %></td>
 		</tr><tr>
 			<td align="center"><%= @coach.active ? "Activo" : "Inactivo" %></td>
 			<% if current_user.admin? or current_user.person.coach_id==@coach.id %>
 			<td align="right" class="align-top">
-				<%= link_to edit_coach_path(@coach), data: {"turbo-frame": "modal" } do %>
+				<%= link_to edit_coach_path(@coach), data: {turbo_frame: "modal"} do %>
 					<%= render "shared/edit" %>
 				<% end %>
 			</td>

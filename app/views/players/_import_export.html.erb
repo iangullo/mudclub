@@ -1,0 +1,21 @@
+<div id="import-export">
+  <table>
+    <tr>
+      <td>
+        <div class="rounded-lg border-4 border-green-800 hover:bg-green-200 mb-3">
+          <%= link_to players_path(format: :xlsx) do %>
+            <%= image_tag "export.svg", class: "align-top max-h-7 min-h-5" %>
+          <% end %>
+        </div>
+      </td>
+    </tr><tr>
+      <td><%= image_tag "import.svg", class: "align-top max-h-7 min-h-5" %></td>
+      <td>
+        <%= form_with url: import_players_path, local: true do |form| %>
+          <%= form.file_field :file %>
+          <%= render "shared/save" %>
+        <% end %>
+      </td>
+    </tr>
+  </table>
+</div>

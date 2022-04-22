@@ -1,0 +1,12 @@
+<%= form_with model: division, authenticity_token: true, data: { label: label, turbo_frame: "_top" } do |form| %>
+<%= render "divisions_header", label: label %>
+  <table>
+    <tr>
+      <th>Nombre:</th>
+      <td align="left">
+        <%= form.text_field :name, size: 20, rows: 2, class: "rounded border shadow-inner" %>
+      </td>
+    </tr>
+  </table>
+  <%= render "shared/save_cancel", save: true %>
+<% end %>

@@ -89,6 +89,12 @@ class Event < ApplicationRecord
 		self.end_time = self.start_time + newduration.minutes
 	end
 
+  def work_duration
+    res = 0
+    self.tasks.each { |tsk| res = res + tsk.duration }
+    res.to_s + "\'"
+  end
+
   def date_string
     cad = self.start_time.year.to_s
     cad = cad + "/" + two_dig(self.start_date.month)
