@@ -47,7 +47,7 @@ class SlotsController < ApplicationController
       respond_to do |format|
   			rebuild_slot	# rebuild @slot
         if @slot.save # try to store
-          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, action: :index }
+          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: "Horario '#{@slot.to_s}' creado." }
           format.json { render :index, status: :created, location: @slot }
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -65,7 +65,7 @@ class SlotsController < ApplicationController
       respond_to do |format|
   			rebuild_slot
         if @slot.update(slot_params)
-          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, action: :index  }
+          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: "Horario '#{@slot.to_s}' guardado." }
           format.json { render :index, status: :ok, location: @slot }
         else
           format.html { redirect_to edit_slot_path(@slot) }
@@ -80,10 +80,11 @@ class SlotsController < ApplicationController
   # DELETE /slots/1 or /slots/1.json
   def destroy
     if current_user.present? and current_user.admin?
+      s_name = @slot.to_s
       set_slot(params)
       @slot.destroy
       respond_to do |format|
-        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, action: :index }
+        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: "Horario '#{s_name}' borrado." }
         format.json { head :no_content }
       end
     else

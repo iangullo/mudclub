@@ -24,7 +24,7 @@ class UsersController < ApplicationController
       respond_to do |format|
   			@user = build_new_user(params)	# build user
   			if @user.is_duplicate? then
-  				format.html { redirect_to @user }
+  				format.html { redirect_to @user, notice: "Usuario '#{@user.s_name}' ya existía." }
   				format.json { render :show,  :created, location: @user }
   			else
   				@user.person.save
@@ -34,10 +34,10 @@ class UsersController < ApplicationController
   						@user.person.user_id = @user.id
   						@user.person.save
   					end
-  					format.html { redirect_to users_url }
+  					format.html { redirect_to users_url, notice: "Usuario '#{@user.s_name}' creado." }
   					format.json { render :index, status: :created, location: users_url }
   				else
-  					format.html { render :new }
+  					format.html { render :new, alert: "Error creando usuario: #{@user.errors}." }
   					format.json { render json: @user.errors, status: :unprocessable_entity }
   				end
   			end
@@ -73,7 +73,7 @@ class UsersController < ApplicationController
         end
         rebuild_user(params)	# rebuild user
   			if @user.update(user_params)
-  				format.html { redirect_to users_url }
+  				format.html { redirect_to users_url, notice: "Usuario '#{@user.s_name}' guardado." }
   				format.json { render :index, status: :ok, location: users_url }
   			else
   				format.html { render :edit }
@@ -87,10 +87,11 @@ class UsersController < ApplicationController
 
   def destroy
     if current_user.present? and current_user.admin?
+      uname = @user.s_name
       unlink_person
   		@user.destroy
   		respond_to do |format|
-  			format.html { redirect_to users_url }
+  			format.html { redirect_to users_url, notice: "Usuario '#{@user.s_name}' borrado." }
   			format.json { head :no_content }
   		end
     else

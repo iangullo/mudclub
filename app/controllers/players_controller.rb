@@ -51,7 +51,7 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = rebuild_player(params)	# rebuild player
 				if @player.is_duplicate? then
-					format.html { redirect_to @player }
+					format.html { redirect_to @player, notice: "Jug. '#{@player.to_s}' ya existía." }
 					format.json { render :show,  :created, location: @player }
 				else
 					@player.person.save
@@ -61,7 +61,7 @@ class PlayersController < ApplicationController
 							@player.person.player_id = @player.id
 							@player.person.save
 						end
-						format.html { redirect_to players_url }
+						format.html { redirect_to players_url, notice: "Jug. '#{@player.to_s}' creado." }
 						format.json { render :index, status: :created, location: players_url }
 					else
 						format.html { render :new }
@@ -80,7 +80,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
 			respond_to do |format|
 				if @player.update(player_params)
-					format.html { redirect_to players_url }
+					format.html { redirect_to players_url, notice: "Jug. '#{@player.to_s}' guardado." }
 					format.json { render :index, status: :ok, location: players_url }
 				else
 					format.html { render :edit }
@@ -98,7 +98,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Player.import(params[:file])
-	    redirect_to players_url
+	    format.html { redirect_to players_url, notice: "Jug. importados de '#{params[:file]}'." }
 		else
 			redirect_to "/"
 		end
@@ -108,10 +108,11 @@ class PlayersController < ApplicationController
 	# DELETE /players/1.json
 	def destroy
 		if current_user.present? and current_user.admin?
+			p_name = @player.to_s
 			unlink_person
 			@player.destroy
 			respond_to do |format|
-				format.html { redirect_to players_url }
+				format.html { redirect_to players_url, notice: "Jug. '#{p_name}' borrado." }
 				format.json { head :no_content }
 			end
 		else

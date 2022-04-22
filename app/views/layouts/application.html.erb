@@ -136,12 +136,7 @@
       <!-- App content goes here -->
     	<main class="mb-auto h-15 w-full h-auto p-15">
     	  <div class="content flex items-center justify-center">
-    			<% if notice %>
-    				<p class="alert alert-success"><%= notice %></p>
-    			<% end %>
-    			<% if alert %>
-    				<p class="alert alert-danger"><%= alert %></p>
-    			<% end %>
+    			<%= render "shared/flash" if notice %>
           <%= turbo_frame_tag "modal" %>
     			<%= yield %>
     	  </div>

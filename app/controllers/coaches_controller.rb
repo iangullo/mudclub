@@ -50,7 +50,7 @@ class CoachesController < ApplicationController
 			respond_to do |format|
 				@coach = rebuild_coach(params)	# rebuild coach
 				if @coach.is_duplicate? then
-					format.html { redirect_to coaches_url }
+					format.html { redirect_to coaches_url, notice: "Entrenador '#{@coach.s_name}' ya existía." }
 					format.json { render :index,  :created, location: coaches_url }
 				else
 					@coach.person.save
@@ -59,7 +59,7 @@ class CoachesController < ApplicationController
 						if @coach.person.coach_id != @coach.id
 							@coach.person.coach_id = @coach.id
 						end
-						format.html { redirect_to coaches_url }
+						format.html { redirect_to coaches_url, notice: "Entrenador '#{@coach.s_name}' creado." }
 						format.json { render :index, status: :created, location: coaches_url }
 					else
 						format.html { render :new }
@@ -78,7 +78,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.coach_id==@coach.id)
 			respond_to do |format|
 				if @coach.update(coach_params)
-					format.html { redirect_to coaches_url }
+					format.html { redirect_to coaches_url, notice: "Entrenador '#{@coach.s_name}' guardado." }
 					format.json { render :index, status: :ok, location: coaches_url }
 				else
 					format.html { render :edit }
@@ -96,7 +96,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Coach.import(params[:file])
-	    redirect_to coaches_url
+	    format.html { redirect_to coaches_url, notice: "Entrenadores importados desde '#{params[:file]}'."}
 		else
 			redirect_to "/"
 		end
@@ -106,10 +106,11 @@ class CoachesController < ApplicationController
 	# DELETE /coaches/1.json
 	def destroy
 		if current_user.present? and current_user.admin?
+			c_name = @coach.s_name
 			unlink_person
 			@coach.destroy
 			respond_to do |format|
-				format.html { redirect_to coaches_url }
+				format.html { redirect_to coaches_url, notice: "Entrenador '#{c_name}' borrado." }
 				format.json { head :no_content }
 			end
 		else
@@ -147,7 +148,7 @@ class CoachesController < ApplicationController
 	# save a coach - ensuring duplicates not existing
 	def	save_data(format)
 		if @coach.save
-			format.html { redirect_to coaches_url }
+			format.html { redirect_to coaches_url, notice: "Entrenador '#{@coach.s_name}' guardado." }
 			format.json { render :index, status: :created, location: coaches_url }
 		else
 			format.html { render :new }

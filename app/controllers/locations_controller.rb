@@ -48,16 +48,16 @@ class LocationsController < ApplicationController
         if @location.id!=nil  # @location is already stored in database
           if @season
             @season.locations |= [@location]
-            format.html { redirect_to @season ? season_locations_path(@season) : locations_url }
-	          format.json { render :index, status: :created, location: locations_url }
+            format.html { redirect_to season_locations_path(@season), notice: "Ubicación '#{@location.name}' añadida a #{@season.name}." }
+	          format.json { render :index, status: :created, location: season_locations_path(@season) }
           else
-            format.html { render @location }
+            format.html { render @location, notice: "Ubicación '#{@location.name}' ya existía." }
             format.json { render :show, :created, location: locations_url(@location) }
           end
         else
           if @location.save
             @season.locations |= [@location] if @season
-            format.html { redirect_to @season ? season_locations_path(@season) : locations_url }
+            format.html { redirect_to @season ? season_locations_path(@season) : locations_url, notice: "Ubicación '#{@location.name}' creada." }
 	          format.json { render :index, status: :created, location: locations_url }
           else
             format.html { render :new }
@@ -78,7 +78,7 @@ class LocationsController < ApplicationController
         if @location.id!=nil  # we have location to save
           if @location.update(location_params)  # try to save
             @season.locations |= [@location] if @season
-            format.html { redirect_to @season ? seasons_path(@season) : locations_path }
+            format.html { redirect_to @season ? seasons_path(@season) : locations_path, notice: "Ubicación '#{@location.name}' guardada." }
     				format.json { render :index, status: :created, location: locations_path }
           else
             format.html { redirect_to edit_location_path(@location) }
@@ -98,14 +98,19 @@ class LocationsController < ApplicationController
   # DELETE /locations/1.json
   def destroy
 		if current_user.present? and current_user.admin?
-      if @season
-        @season.locations.delete(@location)
-        @locations = @season.locations
-      else
-        @location.scrub
-        @location.delete
-      end
       respond_to do |format|
+        l_name = @location.name
+        if @season
+          @season.locations.delete(@location)
+          @locations = @season.locations
+          format.html { redirect_to season_locations_path(@season), notice: "Ubicación '#{l_name}' eliminada de #{@season.name}." }
+          format.json { render :index, status: :created, location: season_locations_path(@season) }
+        else
+          @location.scrub
+          @location.delete
+          format.html { render @location, notice: "Ubicación '#{l_name}' borrada." }
+          format.json { render :show, :created, location: locations_url(@location) }
+        end
       end
     else
       redirect_to "/"

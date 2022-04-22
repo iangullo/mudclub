@@ -42,7 +42,7 @@ class DrillsController < ApplicationController
 				@drill = Drill.new
 				rebuild_drill	# rebuild drill
 				if @drill.save
-					format.html { redirect_to drills_url }
+					format.html { redirect_to drills_url, notice: "Ejercicio '#{@drill.name}' creado." }
 					format.json { render :index, status: :created, location: @drill }
 				else
 					format.html { render :new }
@@ -61,7 +61,7 @@ class DrillsController < ApplicationController
 				rebuild_drill	# rebuild drill
 				if @drill.coach_id == current_user.person.coach_id # author can modify
 					if @drill.save
-						format.html { redirect_to drills_url }
+						format.html { redirect_to drills_url, notice: "Ejercicio '#{@drill.name}' guardado." }
 						format.json { render :index, status: :ok, location: @drill }
 					else
 						format.html { render :edit, status: :unprocessable_entity }
@@ -79,10 +79,11 @@ class DrillsController < ApplicationController
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
 		if current_user.present? and current_user.admin?
+			d_name = @drill.name
 			@drill.drill_targets.each { |d_t| dt.delete }
 			@drill.destroy
 			respond_to do |format|
-				format.html { redirect_to drills_url }
+				format.html { redirect_to drills_url, notice: "Ejercicio '#{d_name}' borrado." }
 				format.json { head :no_content }
 			end
 		else
