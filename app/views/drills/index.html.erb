@@ -26,7 +26,7 @@
 					<th class="bg-indigo-900 text-gray-300 align-center border px py">Tipo</th>
 					<th class="bg-indigo-900 text-gray-300 align-center border px py">Objetivos</th>
 					<th>
-						<%= link_to new_drill_path, data: {"turbo-frame": "modal"} do %>
+						<%= link_to new_drill_path, data: {turbo_frame: "modal"} do %>
 							<%= render "shared/add" %>
 						<% end %>
 					</th>
@@ -36,17 +36,17 @@
 			<tbody>
 				<% @drills.each do |drill| %>
 					<tr class="hover:text-white hover:bg-blue-700">
-						<td class="border px py"><%= link_to drill.name, drill, data: {"turbo-frame": "modal"} %></td>
-						<td class="border px py"><%= link_to drill.kind.name, drill, data: {"turbo-frame": "modal"} %></td>
+						<td class="border px py"><%= link_to drill.name, drill, data: {turbo_frame: "modal"} %></td>
+						<td class="border px py"><%= link_to drill.kind.name, drill, data: {turbo_frame: "modal"} %></td>
 						<td class="border px py">
 							<% drill.drill_targets.each do |d_t| %>
-								<%= link_to d_t.to_s, drill, data: {"turbo-frame": "modal" } %>
+								<%= link_to d_t.to_s, drill, data: {turbo_frame: "modal"} %>
 								<br>
 							<% end %>
 						</td>
 						<% if current_user.admin? %>
 							<td class="hover:bg-white">
-								<%= link_to drill, method: :delete, data: { confirm: "¿Borrar '#{drill.name}'" } do %>
+								<%= link_to drill, method: :delete, data: {confirm: "¿Borrar '#{drill.name}'"} do %>
 									<%= render "shared/delete" %>
 								<% end %>
 							</td>

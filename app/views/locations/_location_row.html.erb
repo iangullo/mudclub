@@ -1,6 +1,6 @@
 <tr class="hover:text-white hover:bg-blue-700">
   <td class="border px py">
-    <%= link_to loc.name, edit_location_path(loc), data: { turbo_frame: 'modal' } %>
+    <%= link_to loc.name, edit_location_path(loc), data: { turbo_frame: "modal" } %>
   </td>
   <td align="center" class="border px py">
     <%= image_tag(loc.practice_court ? "training.svg" : "team.svg", size: "20x20") %>
@@ -13,7 +13,7 @@
   </td>
   <% if current_user.admin? %>
     <td class="hover:bg-white">
-      <%= link_to loc, method: :delete, data: { confirm: "¿Borrar '#{loc.name}'?" } do %>
+      <%= link_to loc, method: :delete, data: {confirm: "¿Borrar '#{loc.name}'?"} do %>
         <%= render "shared/delete" %>
       <% end %>
     </td>

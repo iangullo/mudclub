@@ -1,4 +1,4 @@
-<%= render "shared/modal" do %>
+<%= render "shared/modal", simple: true do %>
 	<table>
 		<tr>
 			<td rowspan="3" align="center">
@@ -18,7 +18,7 @@
 			<td align="center"><%= @coach.active ? "Activo" : "Inactivo" %></td>
 			<% if current_user.admin? or current_user.person.coach_id==@coach.id %>
 			<td align="right" class="align-top">
-				<%= link_to edit_coach_path(@coach), data: {"turbo-frame": "modal" } do %>
+				<%= link_to edit_coach_path(@coach), data: {turbo_frame: "modal"} do %>
 					<%= render "shared/edit" %>
 				<% end %>
 			</td>

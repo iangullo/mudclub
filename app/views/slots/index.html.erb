@@ -16,9 +16,9 @@
 						<%= form_with(url: '/slots', method: 'get', local: true) do |f| %>
 							<% if @season %>
 								<% if @slots %>
-									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, { selected: (params[:location_id] ? params[:location_id].to_i : (@slots.empty? ? (@season.locations.empty? ? 1 : @season.locations.first.location_id) : @slots.first.location_id)) } %>
+									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, {selected: (params[:location_id] ? params[:location_id].to_i : (@slots.empty? ? (@season.locations.empty? ? 1 : @season.locations.first.location_id) : @slots.first.location_id))} %>
 								<% else %>
-									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, { selected: (params[:location_id] ? params[:location_id].to_i : @season.locations.first.location_id) } %>
+									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, {selected: (params[:location_id] ? params[:location_id].to_i : @season.locations.first.location_id)} %>
 								<% end %>
 								<%= f.hidden_field :season_id, value: @season.id %>
 							<% else %>
@@ -38,7 +38,7 @@
 				<tr>
 				  <th align="center">
 						<% if current_user.admin? and not (@season.teams.empty?) %>
-							<%= link_to new_slot_path(location_id: params[:location_id], season_id: params[:season_id]), data: {"turbo-frame": "modal" } do %>
+							<%= link_to new_slot_path(location_id: params[:location_id], season_id: params[:season_id]), data: {turbo_frame: "modal"} do %>
 								<%= render "shared/add" %>
 							<% end %>
 						<% end %>

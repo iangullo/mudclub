@@ -15,7 +15,7 @@
   					<% end %>
   	      </div>
         </th><th>
-          <%= link_to new_season_path, data: {"turbo-frame": "modal" } do %>
+          <%= link_to new_season_path, data: {turbo_frame: "modal"} do %>
             <%= render "shared/add" %>
           <% end %>
         </th>
@@ -42,7 +42,7 @@
           <% end %>
         </td>
         <td colspan="2" align="right" class="align-center">
-          <%= link_to edit_season_path(@season), data: {"turbo-frame": "modal" } do %>
+          <%= link_to edit_season_path(@season), data: {turbo_frame: "modal"} do %>
             <%= render "shared/edit" %>
           <% end %>
         </td>

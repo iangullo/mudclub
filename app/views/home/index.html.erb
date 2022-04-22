@@ -7,12 +7,12 @@
         </th>
         <th align="left" class="text-yellow-600"><%= current_user.s_name %></th>
         <td align="right">
-          <%= link_to "/users/" + current_user.id.to_s + "/edit", data: {"turbo-frame": "modal" } do %>
+          <%= link_to "/users/" + current_user.id.to_s + "/edit", data: {turbo_frame: "modal"} do %>
   					<%= render "shared/edit" %>
   				<% end %>
         </td>
         <td>
-          <%= link_to edit_user_registration_path, data: {"turbo-frame": "modal" } do %>
+          <%= link_to edit_user_registration_path, data: {turbo_frame: "modal"} do %>
   					<%= image_tag("key.svg", size: "25x25", alt: "Cambiar clave", class: "rounded hover:bg-yellow-200") %>
   				<% end %>
         </td>

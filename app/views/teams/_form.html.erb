@@ -1,4 +1,4 @@
-<%= form_with model: team, authenticity_token: true, data: { label: label, "turbo-frame" => "_top" } do |form| %>
+<%= form_with model: team, authenticity_token: true, data: { label: label, turbo_frame: "_top" } do |form| %>
 	<div id="team-form">
 		<table>
 			<div id="team-form-header">
@@ -49,6 +49,6 @@
 				</tr>
 			</div>
 		</table>
-		<%= render "shared/save" %>
+		<%= render "shared/save_cancel", save: true %>
 	</div>
 <% end %>

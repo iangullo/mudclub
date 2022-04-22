@@ -7,7 +7,7 @@
 				<td align="right" class="align-top"><%= image_tag("coach.svg", :size => "30x30") %></td>
 				<td align="left" colspan="3">
 					<% @team.coaches.each do |coach| %>
-						<%= link_to coach.to_s, coach, class:"hover:bg-blue-700 hover:text-white", data: {"turbo-frame": "modal" } %>
+						<%= link_to coach.to_s, coach, class:"hover:bg-blue-700 hover:text-white", data: {turbo_frame: "modal" } %>
 						<br>
 					<% end %>
 				</td>
@@ -15,28 +15,28 @@
 				<td>&nbsp;</td>
 			</tr><tr>
 				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to roster_team_path, data: { "turbo-frame": "modal" } do %>
+					<%= link_to roster_team_path, data: {turbo_frame: "modal"} do %>
 						<%= image_tag "player.svg", size: "50x50" %><small>Plantilla</small>
 					<% end %>
 				</td>
 				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to targets_team_path, data: { "turbo-frame": "modal" } do %>
+					<%= link_to targets_team_path, data: {turbo_frame: "modal"} do %>
 						<%= image_tag("target.svg", size: "50x50") %><small>Objetivos</small>
 					<% end %>
 				</td>
 				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to plan_team_path, data: { "turbo-frame": "modal" } do %>
+					<%= link_to plan_team_path, data: {turbo_frame: "modal"} do %>
 						<%= image_tag("teamplan.svg", size: "50x50") %><small>Plan</small>
 					<% end %>
 				</td>
 				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to slots_team_path, data: { "turbo-frame": "modal" } do %>
+					<%= link_to slots_team_path, data: {turbo_frame: "modal"} do %>
 						<%= image_tag("timetable.svg", size: "50x50") %><small>Horarios</small>
 					<% end %>
 				</td>
 				<td align="center">
 					<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
-						<%= link_to edit_team_path, data: {"turbo-frame": "modal" } do %>
+						<%= link_to edit_team_path, data: {turbo_frame: "modal"} do %>
 							<%= render "shared/edit" %>
 						<% end %>
 					<% end %>

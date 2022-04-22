@@ -15,12 +15,12 @@
         <td colspan="2"></td>
         <% if @season %>
           <td align="center">
-            <%= link_to season_locations_path(@season) + "/new", data: { turbo_frame: 'modal' } do %>
+            <%= link_to season_locations_path(@season) + "/new", data: {turbo_frame: "modal"} do %>
               <%= render "shared/add" %>
             <% end %>
         <% else %>
           <td align="right" colspan="2">
-            <%= link_to new_location_path, data: { turbo_frame: 'modal' } do %>
+            <%= link_to new_location_path, data: {turbo_frame: "modal"} do %>
               <%= render "shared/add" %>
             <% end %>
         <% end %>

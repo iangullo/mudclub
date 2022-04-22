@@ -19,7 +19,7 @@
     <tr>
       <td colspan="2" align="right">
         <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
-          <%= link_to add_task_event_path, data: {"turbo-frame": "modal" } do %>
+          <%= link_to add_task_event_path, data: {turbo_frame: "modal"} do %>
             <%= render "shared/add" %>
           <% end %>
         <% end %>

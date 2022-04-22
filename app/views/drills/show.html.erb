@@ -1,4 +1,4 @@
-<%= render "shared/modal" do %>
+<%= render "shared/modal", simple: true do %>
 	<div id="drills-show">
 		<table>
 			<div id="drills-show-header">
@@ -51,7 +51,7 @@
 				<td colspan="2" align="left"><%= @drill.coach.s_name %></td>
 				<% if current_user.admin? or (@drill.coach_id==current_user.person.coach_id) %>
 					<td align="right">
-						<%= link_to edit_drill_path(@drill), data: {"turbo-frame": "modal" } do %>
+						<%= link_to edit_drill_path(@drill), data: {turbo_frame: "modal"} do %>
 							<%= render "shared/edit" %>
 						<% end %>
 					</td>

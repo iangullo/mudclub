@@ -8,7 +8,7 @@
         <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Activ.</th>
         <% if current_user.admin? or current_user.is_coach? %>
           <th align="center">
-            <%= link_to new_player_path, data: {"turbo-frame": "modal" } do %>
+            <%= link_to new_player_path, data: {turbo_frame: "modal"} do %>
               <%= render "shared/add" %>
             <% end %>
           </th>
