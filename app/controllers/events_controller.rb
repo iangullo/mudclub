@@ -61,7 +61,7 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           link_holidays
-          format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url }
+          format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: "Evento '#{@event.to_s}' creado." }
           format.json { render :show, status: :created, location: events_path}
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -80,11 +80,11 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           if @task  # we just updated a task
-            format.html { redirect_to edit_event_path(@event) }
+            format.html { redirect_to edit_event_path(@event), notice: "Tarea '#{@task.name}' añadida." }
             format.json { render :edit, status: :ok, location: @event }
           else
             @event.tasks.reload
-            format.html { redirect_to @event }
+            format.html { redirect_to @event, notice: "Evento '#{@event.to_s}' guardado." }
             format.json { render :show, status: :ok, location: @event }
           end
         else
@@ -101,10 +101,11 @@ class EventsController < ApplicationController
   def destroy
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
       erase_links
+      e_name = @event.to_s
       team = @event.team
       @event.destroy
       respond_to do |format|
-        format.html { redirect_to team.id > 0 ? team_path(team) : events_url }
+        format.html { redirect_to team.id > 0 ? team_path(team) : events_url, notice: "Evento '#{@event.to_s}' borrado." }
         format.json { head :no_content }
       end
     else

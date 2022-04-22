@@ -86,7 +86,7 @@ class TeamsController < ApplicationController
 
 	    respond_to do |format|
 	      if @team.save
-	        format.html { redirect_to teams_path }
+	        format.html { redirect_to teams_path, notice: "Equipo '#{@team.to_s}' creado." }
 	        format.json { render :index, status: :created, location: teams_path }
 	      else
 	        format.html { render :new }
@@ -146,7 +146,7 @@ class TeamsController < ApplicationController
 		    respond_to do |format|
 					rebuild_team
 		      if @team.save
-						format.html { redirect_to @team }
+						format.html { redirect_to @team, notice: "Equipo '#{@team.to_s}' actualizado." }
 		        format.json { render :show, status: :created, location: teams_path(@team) }
 		      else
 		        format.html { render :edit }
@@ -165,10 +165,11 @@ class TeamsController < ApplicationController
   # DELETE /teams/1.json
   def destroy
 		if current_user.present? and current_user.admin?
+			t_name = @team.to_s
 			erase_links
 	    @team.destroy
 	    respond_to do |format|
-	      format.html { redirect_to teams_path }
+	      format.html { redirect_to teams_path, notice: "Equipo '#{t_name}' borrado." }
 	      format.json { head :no_content }
 	    end
 		else

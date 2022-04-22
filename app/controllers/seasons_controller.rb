@@ -42,7 +42,7 @@ class SeasonsController < ApplicationController
 			# added to import excel
 	    respond_to do |format|
 	      if @season.save
-	        format.html { redirect_to seasons_path(@season) }
+	        format.html { redirect_to seasons_path(@season), notice: "Temp. '#{@season.name}' creada." }
 	        format.json { render :index, status: :created, location: seasons_url }
 	      else
 	        format.html { render :new }
@@ -62,7 +62,7 @@ class SeasonsController < ApplicationController
         check_locations
       	if @season.update(season_params)
 	        format.html { redirect_to seasons_path(@season) }
-					format.json { render :index, status: :created, location: seasons_url }
+					format.json { render :index, status: :created, location: seasons_url, notice: "Temp. '#{@season.name}' guardada." }
 	      else
 	        format.html { render :edit }
 	        format.json { render json: @season.errors, status: :unprocessable_entity }
@@ -77,10 +77,11 @@ class SeasonsController < ApplicationController
   # DELETE /seasons/1.json
   def destroy
 		if current_user.present? and current_user.admin?
+      s_name = @season.name
 			erase_links
 			@season.destroy
 	    respond_to do |format|
-	      format.html { redirect_to seasons_path }
+	      format.html { redirect_to seasons_path, notice: "Temp. '#{s_name}' borrada." }
 	      format.json { head :no_content }
 	    end
 		else

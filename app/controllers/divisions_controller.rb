@@ -36,7 +36,7 @@ class DivisionsController < ApplicationController
 
       respond_to do |format|
         if @division.save
-          format.html { redirect_to divisions_url }
+          format.html { redirect_to divisions_url, notice: "Competición '#{@division.name}' creada." }
           format.json { render :index, status: :created, location: divisions_url }
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -53,7 +53,7 @@ class DivisionsController < ApplicationController
     if current_user.present? and current_user.admin?
       respond_to do |format|
         if @division.update(division_params)
-          format.html { redirect_to divisions_url }
+          format.html { redirect_to divisions_url, notice: "Competicion '#{@division.name}' guardada." }
           format.json { render :index, status: :created, location: divisions_url }
         else
           format.html { render :edit, status: :unprocessable_entity }
@@ -68,10 +68,11 @@ class DivisionsController < ApplicationController
   # DELETE /divisions/1 or /divisions/1.json
   def destroy
     if current_user.present? and current_user.admin?
+      d_name = @division.name
       prune_teams
       @division.destroy
       respond_to do |format|
-        format.html { redirect_to divisions_url }
+        format.html { redirect_to divisions_url, notice: "Competición '#{d_name}' borrada." }
         format.json { head :no_content }
       end
     else

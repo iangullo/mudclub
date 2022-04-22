@@ -34,7 +34,7 @@
 			</tr><tr>
 			  <td align="right">
 			    <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
-			      <%= link_to edit_task_event_path(task_id: @task.id) do %>
+			      <%= link_to edit_task_event_path(task_id: @task.id), data: {turbo_frame: "modal"} do %>
 			        <%= render "shared/edit" %>
 			      <% end %>
 			    <% end %>
