@@ -14,8 +14,17 @@
 					<% end %>
 				</td>
 			</tr><tr>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center">Mes</th>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center"></th>
+				<div id="search-month" class="inline-flex rounded border items start">
+					<td></td>
+					<td colspan="3">
+						<%= form_with(url: plan_team_path, value: params[:month], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
+							<%= f.select :month, options_for_select(@months, params[:month] ? params[:month].to_i : Date.today.month) %>
+							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
+						<% end %>
+					</td>
+				</div>
+			</tr><tr>
+				<th></th>
 				<th class="bg-indigo-900 text-gray-300 border px py" align="center">Defensa</th>
 				<th class="bg-indigo-900 text-gray-300 border px py" align="center">Ataque</th>
 			</tr>
@@ -23,9 +32,6 @@
 		<tbody>
 			<% @targets.each do |tgt| %>
 				<tr><!-- #display individual targets -->
-					<th rowspan="2" class="bg-indigo-900 text-gray-300 border px py align-center" align="center">
-						<%= tgt[:month] %>
-					</th>
 					<td class="bg-indigo-900 text-gray-300 border px py align-center">Ind.</td>
 					<td class="border px py align-top">
 						<%= render "print_targets", targets: tgt[:t_d_ind] %>

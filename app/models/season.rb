@@ -43,13 +43,17 @@ class Season < ApplicationRecord
     @locations = Location.real - self.locations
   end
 
-	# returns an orderd array of months
+	# returns an ordered array of months
 	# for this season
-	def months
+	def months(long)
 		d = self.start_date
 		r = Array.new
 		while d < self.end_date
-			r << { i: d.month, name: d.strftime("%^b") }
+			if long
+				r << [d.strftime("%B"), d.month]
+			else
+				r << { i: d.month, name: (long ? d.strftime("%B") : d.strftime("%^b")) }
+			end
 			d = d + 1.month
 		end
 		r
