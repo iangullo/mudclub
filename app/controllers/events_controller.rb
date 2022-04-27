@@ -80,7 +80,7 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           if @task  # we just updated a task
-            format.html { redirect_to edit_event_path(@event), notice: "Tarea '#{@task.name}' añadida." }
+            format.html { redirect_to edit_event_path(@event), notice: "Tarea '#{@task.to_s}' añadida." }
             format.json { render :edit, status: :ok, location: @event }
           else
             @event.tasks.reload
