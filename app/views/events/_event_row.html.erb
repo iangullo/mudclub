@@ -3,7 +3,7 @@
     <td align="center" class="border px py"><%= link_to event.date_string, event %></td>
     <td align="center" class="border px py"><%= link_to event.time_string, event %></td>
     <% unless short %>
-      <td align="left" class="border px py"><%= link_to event.team_id > 0 ? event.team.to_s : "Todos" %></td>
+      <td align="left" class="border px py"><%= link_to event.team_id > 0 ? event.team.to_s : t(:l_all) %></td>
     <% end %>
     <td align="left" class="border px py"><%= link_to event.to_s, event %></td>
     <% if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id)) %>

@@ -16,10 +16,10 @@
 		<table class="table-auto">
 		  <thead>
 				<tr>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Fecha</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Hora</th>
-				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Equipo</th>
-				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Descripción</th>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:h_date) %></th>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:h_time) %></th>
+				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:l_team_show) %></th>
+				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:h_desc) %></th>
 					<% if current_user.admin? %>
 						<%= render "new_event_button" %>
 					<% end %>

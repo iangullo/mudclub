@@ -1,5 +1,5 @@
 <div id="people-index">
-	<%= render "people_header", label: "Personas" %>
+	<%= render "people_header", label: t(:l_per_index) %>
 	<%= render "people_grid" %>
 	<% if current_user.admin? %>
 		<%= render "import_export" %>

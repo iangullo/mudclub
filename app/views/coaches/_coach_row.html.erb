@@ -4,7 +4,7 @@
   <td align="center" class="border px py"><%= coach.active ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
   <% if current_user.admin? %>
     <td class="hover:bg-white">
-      <%= link_to coach, method: :delete, data: {confirm: "¿Borrar '#{coach.to_s}'?"} do %>
+      <%= link_to coach, method: :delete, data: {confirm: t(:q_del) + "'#{coach.to_s}'?"} do %>
         <%= render "shared/delete" %>
       <% end %>
     </td>

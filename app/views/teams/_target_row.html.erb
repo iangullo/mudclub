@@ -4,7 +4,7 @@
 			<%= form.number_field :priority, value: form.object.priority, class: 'form-control', size: 1, class: "rounded border shadow-inner" %>
 			<%= form.fields_for :target do |f| %>
 				<% form.object.build_target if form.object.new_record? %>
-				<%= f.text_field :concept, placeholder: '<objetivo>', class: 'form-control', size: 20, class: "rounded border shadow-inner" %>
+				<%= f.text_field :concept, placeholder: t(:d_target), class: 'form-control', size: 20, class: "rounded border shadow-inner" %>
 				<%= f.hidden_field :focus %>
 				<%= f.hidden_field :aspect %>
 			<% end %>

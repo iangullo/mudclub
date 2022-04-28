@@ -5,7 +5,7 @@
         <th rowspan="2">
           <%= image_tag("timetable.svg", size: "50x50") %>
         </th><th align="left" class="align-top rounded-md text-yellow-600">
-          Horarios
+          <% t(:l_slot_index) %>
         </th>
       </tr><tr>
         <th align="left"><%= @season ? @season.name : " " %><th>
@@ -25,7 +25,7 @@
 								<%= f.collection_select :location_id, Location.practice.order(:name), :id, :name, {selected: params[:location_id] ? params[:location_id].to_i : Location.practice.first.id} %>
 								<%= f.hidden_field :season_id, value: nil %>
 							<% end %>
-							<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: "Buscar" %>
+							<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: t(:l_search) %>
 						<% end %>
 					</div>
 				</td>
@@ -43,11 +43,11 @@
 							<% end %>
 						<% end %>
 					</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Lun</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Mar</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Mi&eacute;</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Jue</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center">Vie</th>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_1) %></th>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_2) %></th>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_3) %></th>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_4) %></th>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_5) %></th>
 				</tr>
 		  </thead>
 		  <tbody>

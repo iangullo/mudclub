@@ -6,25 +6,25 @@
 			</td>
 			<th colspan="2" align="left" class="align-top text-yellow-600"><%= label %></th>
 		</tr><tr>
-			<td align="left"><strong>Nom:</strong></td>
+			<td align="left"><strong><%= t(:l_name) %></strong></td>
 			<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td align="left"><strong>Apel:</strong></td>
+			<td align="left"><strong><%= t(:l_surname) %></strong></td>
 			<td><%= f.text_field :surname, size: 18, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td align="center"><strong><%= image_tag "calendar.svg", size: "25x25", alt: "Nac:"  %></strong></td>
+			<td align="center"><strong><%= image_tag "calendar.svg", size: "25x25", alt: t(:l_bday)  %></strong></td>
 			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<td colspan="2"><strong>DNI:&nbsp;</strong><%= f.text_field :dni, size: 8, class: "rounded border shadow-inner" %></td>
-			<td align="center"><strong><%= image_tag "user.svg", size: "25x25", alt: "Nick:"  %></strong></td>
+			<td align="center"><strong><%= image_tag "user.svg", size: "25x25", alt: t(:l_nick)  %></strong></td>
 			<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
-			<td colspan="2"><strong><%= f.label "Fem:" %>&nbsp;</strong><%= f.check_box :female %></td>
-			<td align="center"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
+			<td colspan="2"><strong><%= f.label t(:l_fem) %>&nbsp;</strong><%= f.check_box :female %></td>
+			<td align="center"><%= image_tag "at.svg", size: "25x25", alt: t(:l_email) %></td>
 			<td><%= f.text_field :email, size: 22, class: "rounded border shadow-inner" %></td>
 		</tr><tr>
 			<td colspan="2"></td>
-			<td align="center"><strong><%= image_tag "phone.svg", size: "25x25", alt: "Tel:"  %></strong></td>
+			<td align="center"><strong><%= image_tag "phone.svg", size: "25x25", alt: t(:l_tel) %></strong></td>
 			<td><%= f.text_field :phone, size: 12, class: "rounded border shadow-inner" %></td>
 		</tr>
 	</table>

@@ -10,7 +10,7 @@
         <div id="search-players" class="inline-flex rounded border">
           <%= form_with(url: '/players', method: 'get', local: true) do %>
             <%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
-            <%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
+            <%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:l_search) %>
           <% end %>
         </div>
       </th>

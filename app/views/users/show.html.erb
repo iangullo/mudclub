@@ -30,7 +30,7 @@
 				</tr>
 				<% if @user.teams %>
 					<tr>
-						<td colspan="3" align="center" class="border px py text-white bg-blue-900"><strong>Equipos</strong></td>
+						<th colspan="3" align="center" class="border px py text-white bg-blue-900"><%= t(:l_team_index) %></th>
 					</tr>
 					<% @user.teams.each do |team| %>
 						<tr>

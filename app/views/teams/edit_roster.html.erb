@@ -5,11 +5,11 @@
 			<table>
 				<tr>
 					<td align="right"><%= image_tag("player.svg", size: "30x30") %></td>
-					<th colspan="3" align="left"><%= "Editar Plantilla" %></th>
+					<th colspan="3" align="left"><%= t(:l_roster_edit) %></th>
 				</tr><tr class="bg-indigo-900 text-gray-300">
-					<th class="border px py" align="center">#</th>
-					<th class="border px py" align="left">Nombre</th>
-					<th class="border px py" align="center">Edad</th>
+					<th class="border px py" align="center"><%= t(:a_num) %></th>
+					<th class="border px py" align="left"><%= t(:h_name) %></th>
+					<th class="border px py" align="center"><%= t(:h_age) %></th>
 				</tr>
 				<div id="player-selection">
 					<%= form.collection_check_boxes :player_ids, @eligible_players, :id, :to_s do |player| %>

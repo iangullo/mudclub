@@ -5,7 +5,7 @@
 				<%= image_tag(@coach.picture, size: "100x100", class: "rounded-full") %>
 			</td>
 			<th align="left" class="align-top text-yellow-600">
-				<%= "Entrenador/a" %>
+				<%= t(:l_coach_show) %>
 			</th>
 		</tr><tr>
 			<td><%= @coach.person.name %></td>
@@ -15,7 +15,7 @@
 			<td align="center"><%= @coach.person.nick %></td>
 			<td><%= @coach.person.birthday %></td>
 		</tr><tr>
-			<td align="center"><%= @coach.active ? "Activo" : "Inactivo" %></td>
+			<td align="center"><%= t(@coach.active ? :h_active : :h_inactive) %></td>
 			<% if current_user.admin? or current_user.person.coach_id==@coach.id %>
 			<td align="right" class="align-top">
 				<%= link_to edit_coach_path(@coach), data: {turbo_frame: "modal"} do %>
@@ -26,7 +26,7 @@
 		</tr>
 		<% unless @coach.teams.empty? %>
 			<tr>
-				<td align="center" class="align-top"><strong>Equipos:</<strong></td>
+				<td align="center" class="align-top"><strong><%= t(:l_team_index) %></strong></td>
 				<td>
 					<% @coach.teams.each do |t| %>
 						<%= link_to t.to_s, t %>

@@ -5,7 +5,7 @@
   <td align="center" class="border px py"><%= player.active ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
   <% if current_user.admin? %>
     <td>
-      <%= link_to player, method: :delete, data: {confirm: "¿Borrar '#{player.to_s}'?"} do %>
+      <%= link_to player, method: :delete, data: {confirm: t(:q_del) + "'#{player.to_s}'?"} do %>
         <%= render "shared/delete" %>
       <% end %>
     </td>

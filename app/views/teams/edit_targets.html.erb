@@ -4,9 +4,9 @@
 			<%= render "team_header" %>
 			<table>
 				<tr>
-					<th colspan="2" align="left" class="inline-flex"><%= image_tag("target.svg", size: "30x30") %> Editar Objetivos</th>
+					<th colspan="2" align="left" class="inline-flex"><%= image_tag("target.svg", size: "30x30") %><%= t(:l_targ_edit)%></th>
 				</tr><tr>
-					<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center">Defensa</th>
+					<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
 				</tr><tr>
 					<td colspan="2" class="border px py align-top">
 						<div id="defense-general">
@@ -14,8 +14,8 @@
 						</div>
 					</td>
 				</tr><tr class="bg-indigo-900 text-gray-300">
-					<th class="border px py" align="left">Tec. Individual</th>
-					<th class="border px py" align="center">T&aacute;c. Colectiva</th>
+					<th class="border px py" align="left"><%= t(:l_tec) %></th>
+					<th class="border px py" align="center"><%= t(:l_tac) %></th>
 				</tr><tr>
 					<td class="border px py align-top">
 						<div id="defense-individual">
@@ -30,7 +30,7 @@
 				</tr><tr>
 					<th colspan="2" class="border px py" align="center"><br></th>
 				</tr><tr>
-					<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center">Ataque</th>
+					<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
 				</tr><tr>
 					<td colspan="2" class="border px py align-top">
 						<div id="offense-general">
@@ -38,8 +38,8 @@
 						</div>
 					</td>
 				</tr><tr class="bg-indigo-900 text-gray-300">
-					<th class="border px py" align="left">Tec. Individual</th>
-					<th class="border px py" align="center">T&aacute;c. Colectiva</th>
+					<th class="border px py" align="left"><%= t(:l_tec) %></th>
+					<th class="border px py" align="center"><%= t(:l_tac) %></th>
 				</tr><tr>
 					<td class="border px py align-top">
 						<div id="offense-individual">

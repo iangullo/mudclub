@@ -18,19 +18,19 @@
 			</div>
 			<div id="team-form-data">
 				<tr>
-					<th align="right">Nom:</th>
+					<td align="right"><strong><%= t(:l_name) %></td>
 					<td align="left" class="align-top"><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
-					<th align="right"><%= form.label "Cat:" %></th>
+					<td align="right"><strong><%= form.label t(:l_cat) %></strong></td>
 					<td><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
 				</tr><tr>
-					<th align="right"><%= form.label "Comp:" %></th>
+					<td align="right"><strong><%= form.label t(:l_div) %></strong></td>
 					<td><%= form.collection_select :division_id, Division.real, :id, :name %></td>
 				</tr><tr>
-					<th align="right"><%= form.label "Local:" %></th>
+					<td align="right"><strong><%= form.label t(:l_home) %></strong></td>
 					<td><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
 				</tr><tr>
-					<th align="right" class="align-top"><%= form.label "Ent:" %></th>
+					<th align="right" class="align-top"><%= form.label t(:l_coach) %></th>
 					<td>
 						<div id="coach-selection">
 							<table>
