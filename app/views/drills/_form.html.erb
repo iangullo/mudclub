@@ -1,25 +1,8 @@
 <%= form_with model: drill, authenticity_token: true, data: { label: label, turbo_frame: "_top" } do |form| %>
 	<div id="drills-form">
-		<table>
-			<div id="locations-form-header">
-				<tr>
-		      <th rowspan="2" align="center">
-		        <%= image_tag("drill.svg", size: "50x50") %>
-		      </th>
-		      <th colspan="3" align="left" class="align-top rounded-md text-yellow-600">
-		        <%= label %>
-		      </th>
-				</tr><tr>
-					<td align="left">
-						<%= form.text_field :name, size: 20, rows: 2, class: "rounded border shadow-inner" %>
-					</td>
-					<th align="left"><%= t(:l_kind) %></th>
-					<td>
-						<div class="field"><%= form.collection_select :kind_id, Kind.all, :id, :name %></div>
-					</td>
-				</tr>
-			</div>
-			<div id="drills-form-data">
+		<%= render "drills_header", label: label, form: form %>
+		<div id="drills-form-data">
+			<table>
 				<tr>
 					<th align="right" class="align-top"><%= t(:l_targ) %></th>
 					<td colspan="3">

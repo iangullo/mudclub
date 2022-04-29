@@ -1,27 +1,6 @@
 <%= render "shared/modal", simple: true do %>
 	<div id="drills-show">
-		<table>
-			<div id="drills-show-header">
-				<tr>
-					<th rowspan="2" align="center" class="align-top">
-						<%= image_tag("drill.svg", size: "50x50") %>
-					</th>
-					<td colspan="3" align="left">
-						<strong class="text-yellow-600"><%= @drill.name %></strong>
-						<%= " (" + @drill.kind.name + ")" %>
-					</td>
-				</tr><tr>
-					<th align="left" class="align-top">
-						<%= t(:h_targ) %>
-					</th><td colspan="2" align="left">
-						<% @drill.drill_targets.each do |d_t| %>
-							<%= d_t.to_s %>
-							<br>
-						<% end %>
-					</td>
-			</tr>
-		<table>
-	</div>
+	<%= render "drills_header", label: t(:l_drill_show) %>
 	<div id="drills-show-content">
 		<table>
 			<tr>
