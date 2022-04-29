@@ -50,7 +50,7 @@
 			<tr>
 				<th colspan="2" align="left" class="align-center"><div class="inline-flex"><%= image_tag("calendar.svg", size: "30x30") %><%= t(:l_cal) %></div></th>
 				<th align="right">
-					<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
+					<% if @team.has_coach(current_user.person.coach_id) %>
 						<%= render "events/new_event_button" %>
 					<% end %>
 				</th>
