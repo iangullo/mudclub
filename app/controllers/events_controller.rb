@@ -61,7 +61,7 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           link_holidays
-          format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: "Evento '#{@event.to_s}' creado." }
+          format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: event_create_notice }
           format.json { render :show, status: :created, location: events_path}
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -80,11 +80,11 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           if @task  # we just updated a task
-            format.html { redirect_to edit_event_path(@event), notice: "Tarea '#{@task.to_s}' añadida." }
+            format.html { redirect_to edit_event_path(@event), notice: t(:task_created) + "'#{@task.to_s}'" }
             format.json { render :edit, status: :ok, location: @event }
           else
             @event.tasks.reload
-            format.html { redirect_to @event, notice: "Evento '#{@event.to_s}' guardado." }
+            format.html { redirect_to @event, notice: event_update_notice }
             format.json { render :show, status: :ok, location: @event }
           end
         else
@@ -105,7 +105,7 @@ class EventsController < ApplicationController
       team = @event.team
       @event.destroy
       respond_to do |format|
-        format.html { redirect_to team.id > 0 ? team_path(team) : events_url, notice: "Evento '#{@event.to_s}' borrado." }
+        format.html { redirect_to team.id > 0 ? team_path(team) : events_url, notice: event_delete_notice }
         format.json { head :no_content }
       end
     else
@@ -249,6 +249,42 @@ class EventsController < ApplicationController
     # purge assocaited tasks
     def purge_match
       @event.match.delete
+    end
+
+    # return adequate notice depending on @event kind
+    def event_create_notice
+      case @event.kind.to_sym
+      when :holiday
+        t(:holiday_created) + "#{@event.to_s}"
+      when :train
+        t(:train_created) + "#{@event.date_string}"
+      when :match
+        t(:match_created) + "#{@event.to_s}"
+      end
+    end
+
+    # return adequate notice depending on @event kind
+    def event_update_notice
+      case @event.kind.to_sym
+      when :holiday
+        t(:holiday_updated) + "#{@event.to_s}"
+      when :train
+        t(:train_updated) + "#{@event.date_string}"
+      when :match
+        t(:match_updated) + "#{@event.to_s(true)}"
+      end
+    end
+
+    # return adequate notice depending on @event kind
+    def event_delete_notice
+      case @event.kind.to_sym
+      when :holiday
+        t(:holiday_deleted) + "#{@event.to_s}"
+      when :train
+        t(:train_deleted) + "#{@event.date_string}"
+      when :match
+        t(:match_deleted) + "#{@event.to_s(true)}"
+      end
     end
 
     # Use callbacks to share common setup or constraints between actions.

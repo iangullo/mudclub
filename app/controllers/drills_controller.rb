@@ -42,7 +42,7 @@ class DrillsController < ApplicationController
 				@drill = Drill.new
 				rebuild_drill	# rebuild drill
 				if @drill.save
-					format.html { redirect_to drills_url, notice: "Ejercicio '#{@drill.name}' creado." }
+					format.html { redirect_to drills_url, notice: t(:drill_created) + "'#{@drill.name}'" }
 					format.json { render :index, status: :created, location: @drill }
 				else
 					format.html { render :new }
@@ -61,7 +61,7 @@ class DrillsController < ApplicationController
 				rebuild_drill	# rebuild drill
 				if @drill.coach_id == current_user.person.coach_id # author can modify
 					if @drill.save
-						format.html { redirect_to drills_url, notice: "Ejercicio '#{@drill.name}' guardado." }
+						format.html { redirect_to drills_url, notice: t(:drill_updated) + "'#{@drill.name}'" }
 						format.json { render :index, status: :ok, location: @drill }
 					else
 						format.html { render :edit, status: :unprocessable_entity }
@@ -83,7 +83,7 @@ class DrillsController < ApplicationController
 			@drill.drill_targets.each { |d_t| dt.delete }
 			@drill.destroy
 			respond_to do |format|
-				format.html { redirect_to drills_url, notice: "Ejercicio '#{d_name}' borrado." }
+				format.html { redirect_to drills_url, notice: t(:drill_deleted) + "'#{d_name}'" }
 				format.json { head :no_content }
 			end
 		else
@@ -125,7 +125,7 @@ class DrillsController < ApplicationController
 	def check_skills(s_array)
 		a_skills = Array.new	# array to include only non-duplicates
 		s_array.each { |s| # first pass
-			s[1][:name] = s[1][:name].mb_chars.titleize
+			#s[1][:name] = s[1][:name].mb_chars.titleize
 			a_skills << s[1] unless a_skills.detect { |a| a[:name] == s[1][:name] }
 		}
 		a_skills.each { |s| # second pass - manage associations

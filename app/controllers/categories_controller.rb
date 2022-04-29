@@ -36,7 +36,7 @@ class CategoriesController < ApplicationController
 
       respond_to do |format|
         if @category.save
-          format.html { redirect_to categories_url, notice: "Categoría '#{@category.name}' creada" }
+          format.html { redirect_to categories_url, notice: t(:cat_created) + "'#{@category.name}'" }
           format.json { render :index, status: :created, location: categories_url }
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -53,7 +53,7 @@ class CategoriesController < ApplicationController
     if current_user.present? and current_user.admin?
       respond_to do |format|
         if @category.update(category_params)
-          format.html { redirect_to categories_url, notice: "Categoría '#{@category.name}' guardada" }
+          format.html { redirect_to categories_url, notice: t(:cat_updated) + "'#{@category.name}'" }
           format.json { render :index, status: :ok, location: categories_url }
         else
           format.html { render :edit, status: :unprocessable_entity }
@@ -72,7 +72,7 @@ class CategoriesController < ApplicationController
       prune_teams
       @category.destroy
       respond_to do |format|
-        format.html { redirect_to categories_url, notice: "Categoría '#{c_name}' borrada" }
+        format.html { redirect_to categories_url, notice: t(:cat_deleted) + "'#{c_name}'" }
         format.json { head :no_content }
       end
     else

@@ -5,7 +5,7 @@
         <%= image_tag("team.svg", size: "50x50") %>
       </th>
       <th align="left" class="align-top rounded-md text-yellow-600">
-        <%= @event.team_id > 0 ? @event.team.to_s : "General" %>
+        <%= @event.team_id > 0 ? @event.team.to_s : t(:h_general)%>
       </th>
       <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
       <th align="right" class="inline-flex"><%= image_tag("calendar.svg", size: "25x25") %>&nbsp;<%= @event.date_string %></th>

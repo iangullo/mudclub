@@ -4,7 +4,7 @@
   </tr><tr>
     <td colspan="2" align="right"><%= image_tag("training.svg", size: "30x30") %></td>
     <th align="left" class="text-indigo-900"><%= label %></th>
-    <% if label=="Sesión" and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) %>
+    <% if label==t(:l_train) and @event.team.has_coach(current_user.person.coach_id) %>
       <td align="center">
         <%= link_to edit_event_path do %>
           <%= render "shared/edit" %>

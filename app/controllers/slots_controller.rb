@@ -47,7 +47,7 @@ class SlotsController < ApplicationController
       respond_to do |format|
   			rebuild_slot	# rebuild @slot
         if @slot.save # try to store
-          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: "Horario '#{@slot.to_s}' creado." }
+          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: t(:slot_created) + "'#{@slot.to_s}'" }
           format.json { render :index, status: :created, location: @slot }
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -65,7 +65,7 @@ class SlotsController < ApplicationController
       respond_to do |format|
   			rebuild_slot
         if @slot.update(slot_params)
-          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: "Horario '#{@slot.to_s}' guardado." }
+          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: t(:slot_updated) + "'#{@slot.to_s}'" }
           format.json { render :index, status: :ok, location: @slot }
         else
           format.html { redirect_to edit_slot_path(@slot) }
@@ -84,7 +84,7 @@ class SlotsController < ApplicationController
       set_slot(params)
       @slot.destroy
       respond_to do |format|
-        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: "Horario '#{s_name}' borrado." }
+        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: t(:slot_deleted) + "'#{s_name}'" }
         format.json { head :no_content }
       end
     else
@@ -94,7 +94,7 @@ class SlotsController < ApplicationController
 
 	# returns an array with weekday names and their id
 	def weekdays
-		[["Lunes", 1], ["Martes", 2], ["Miércoles", 3], ["Jueves", 4], ["Viernes", 5]]
+		[[t(:l_wday_1), 1], [t(:l_wday_2), 2], [t(:l_wday_3), 3], [t(:l_wday_4), 4], [t(:l_wday_5), 5]]
 	end
 
   private

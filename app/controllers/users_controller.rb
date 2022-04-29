@@ -24,7 +24,7 @@ class UsersController < ApplicationController
       respond_to do |format|
   			@user = build_new_user(params)	# build user
   			if @user.is_duplicate? then
-  				format.html { redirect_to @user, notice: "Usuario '#{@user.s_name}' ya existía." }
+  				format.html { redirect_to @user, notice: t(:user_duplicate) + "'#{@user.s_name}'" }
   				format.json { render :show,  :created, location: @user }
   			else
   				@user.person.save
@@ -34,10 +34,10 @@ class UsersController < ApplicationController
   						@user.person.user_id = @user.id
   						@user.person.save
   					end
-  					format.html { redirect_to users_url, notice: "Usuario '#{@user.s_name}' creado." }
+  					format.html { redirect_to users_url, notice: t(:user_created) + "'#{@user.s_name}'" }
   					format.json { render :index, status: :created, location: users_url }
   				else
-  					format.html { render :new, alert: "Error creando usuario: #{@user.errors}." }
+  					format.html { render :new, notice: "#{@user.errors}" }
   					format.json { render json: @user.errors, status: :unprocessable_entity }
   				end
   			end
@@ -73,7 +73,7 @@ class UsersController < ApplicationController
         end
         rebuild_user(params)	# rebuild user
   			if @user.update(user_params)
-  				format.html { redirect_to users_url, notice: "Usuario '#{@user.s_name}' guardado." }
+  				format.html { redirect_to users_url, notice: t(:user_updated) + "'#{@user.s_name}'" }
   				format.json { render :index, status: :ok, location: users_url }
   			else
   				format.html { render :edit }
@@ -91,7 +91,7 @@ class UsersController < ApplicationController
       unlink_person
   		@user.destroy
   		respond_to do |format|
-  			format.html { redirect_to users_url, notice: "Usuario '#{@user.s_name}' borrado." }
+  			format.html { redirect_to users_url, notice: t(:user_deleted) + "'#{@user.s_name}'" }
   			format.json { head :no_content }
   		end
     else
@@ -152,9 +152,9 @@ class UsersController < ApplicationController
 
   def user_roles
     roles = Array.new
-    roles << {name: "Usuario", id: 0}
-    roles << {name: "Jugador", id: 1}
-    roles << {name: "Entrenador", id: 2}
-    roles << {name: "Admin.", id: 3}
+    roles << {name: t(:l_user_show), id: 0}
+    roles << {name: t(:a_player), id: 1}
+    roles << {name: t(:a_coach), id: 2}
+    roles << {name: t(:a_admin), id: 3}
   end
 end
