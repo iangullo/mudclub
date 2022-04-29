@@ -11,12 +11,12 @@
    id="Layer_1"
    x="0px"
    y="0px"
-   viewBox="0 0 1558.3783 496"
+   viewBox="0 0 128 128"
    xml:space="preserve"
    sodipodi:docname="close.svg"
-   width="1558.3783"
-   height="496"
-   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"><metadata
+   width="128"
+   height="128"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"><metadata
    id="metadata49"><rdf:RDF><cc:Work
        rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
          rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title /></cc:Work></rdf:RDF></metadata><defs
@@ -30,14 +30,14 @@
    inkscape:pageopacity="0"
    inkscape:pageshadow="2"
    inkscape:window-width="1920"
-   inkscape:window-height="1016"
+   inkscape:window-height="1017"
    id="namedview45"
    showgrid="false"
-   inkscape:zoom="0.1954835"
-   inkscape:cx="568.02665"
-   inkscape:cy="656.18131"
-   inkscape:window-x="0"
-   inkscape:window-y="27"
+   inkscape:zoom="1.1058217"
+   inkscape:cx="258.50007"
+   inkscape:cy="247.02776"
+   inkscape:window-x="-8"
+   inkscape:window-y="-8"
    inkscape:window-maximized="1"
    inkscape:current-layer="Layer_1"
    inkscape:document-rotation="0" />
@@ -45,7 +45,8 @@
 
 
 <g
-   id="g65"><path
+   id="g65"
+   transform="scale(0.25806452)"><path
      id="path2"
      d="M 496,320.8 C 496,417.6 417.6,496 320.8,496 H 175.2 C 78.4,496 0,417.6 0,320.8 V 175.2 C 0,78.4 78.4,0 175.2,0 H 320.8 C 417.6,0 496,78.4 496,175.2 Z"
      style="fill:#ce0909"
@@ -71,60 +72,65 @@
      style="fill:#ffffff"
      inkscape:connector-curvature="0" /></g>
 <g
-   id="g14">
+   id="g14"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g16">
+   id="g16"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g18">
+   id="g18"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g20">
+   id="g20"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g22">
+   id="g22"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g24">
+   id="g24"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g26">
+   id="g26"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g28">
+   id="g28"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g30">
+   id="g30"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g32">
+   id="g32"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g34">
+   id="g34"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g36">
+   id="g36"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g38">
+   id="g38"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g40">
+   id="g40"
+   transform="translate(0,-368)">
 </g>
 <g
-   id="g42">
+   id="g42"
+   transform="translate(0,-368)">
 </g>
-<text
-   xml:space="preserve"
-   style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:359.348px;line-height:1.25;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#aa0000;fill-opacity:1;stroke:none;stroke-width:7.48636"
-   x="532.62915"
-   y="369.68201"
-   id="text4531"><tspan
-     sodipodi:role="line"
-     id="tspan4529"
-     x="532.62915"
-     y="369.68201"
-     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:359.348px;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#aa0000;fill-opacity:1;stroke-width:7.48636">Cerrar</tspan></text>
+
 
 </svg>

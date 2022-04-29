@@ -11,11 +11,11 @@
    id="Layer_1"
    x="0px"
    y="0px"
-   viewBox="0 0 1953.5501 496"
+   viewBox="0 0 128 128"
    xml:space="preserve"
    sodipodi:docname="export.svg"
-   width="1953.55"
-   height="496"
+   width="128"
+   height="128"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    inkscape:export-filename="/home/users/argos/Documentos/Code/bclub/app/assets/images/export.png"
    inkscape:export-xdpi="90"
@@ -32,17 +32,17 @@
    guidetolerance="10"
    inkscape:pageopacity="0"
    inkscape:pageshadow="2"
-   inkscape:window-width="1600"
-   inkscape:window-height="877"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
    id="namedview45"
    showgrid="false"
-   inkscape:zoom="0.4670255"
-   inkscape:cx="1196.078"
-   inkscape:cy="248"
-   inkscape:window-x="1912"
-   inkscape:window-y="44"
+   inkscape:zoom="0.41503906"
+   inkscape:cx="760.61556"
+   inkscape:cy="376.81487"
+   inkscape:window-x="-8"
+   inkscape:window-y="-8"
    inkscape:window-maximized="1"
-   inkscape:current-layer="Layer_1"
+   inkscape:current-layer="g977"
    inkscape:document-rotation="0" />
 
 
@@ -50,82 +50,73 @@
 
 <g
    id="g14"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g16"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g18"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g20"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g22"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g24"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g26"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g28"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g30"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g32"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g34"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g36"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g38"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g40"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
 <g
    id="g42"
-   transform="translate(-3.0000007)">
+   transform="translate(-1460.55,-368)">
 </g>
-<text
-   xml:space="preserve"
-   style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:453.33334351px;line-height:1.25;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#217821;fill-opacity:1;stroke:none;stroke-width:9.47546005"
-   x="-19.321051"
-   y="383.0686"
-   id="text4531"><tspan
-     sodipodi:role="line"
-     id="tspan4529"
-     x="-19.321051"
-     y="383.0686"
-     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:454.82199097px;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#217821;fill-opacity:1;stroke-width:9.47546005">Export</tspan></text>
+
 
 
 
 <g
    id="g977"
-   transform="translate(1457.55)"><g
-     id="g65"><path
+   transform="translate(0,-368)"><g
+     id="g65"
+     transform="matrix(0.25806452,0,0,0.25806452,0,368)"><path
        id="path2"
        d="M 496,320.8 C 496,417.6 417.6,496 320.8,496 H 175.2 C 78.4,496 0,417.6 0,320.8 V 175.2 C 0,78.4 78.4,0 175.2,0 H 320.8 C 417.6,0 496,78.4 496,175.2 Z"
        style="fill:#87de87"
@@ -143,7 +134,7 @@
 	
 </g></g><g
      id="g931"
-     transform="translate(14.999997)"><text
+     transform="matrix(0.25806452,0,0,0.25806452,3.870967,368)"><text
    xml:space="preserve"
    style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:505.06600952px;line-height:1.25;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#217821;fill-opacity:1;stroke:none;stroke-width:10.52219963"
    x="101.7263"
@@ -154,6 +145,7 @@
      x="101.7263"
      y="435.25998"
      style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:505.06600952px;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#217821;fill-opacity:1;stroke-width:10.52219963">X</tspan></text>
+
 
 <text
    xml:space="preserve"
@@ -167,30 +159,31 @@
      y="420.25998"
      style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:505.06600952px;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:10.52219963;stroke-opacity:1">X</tspan></text>
 
+
 </g><g
      id="g925"
-     transform="matrix(1.1155417,0,0,1.1155417,240.58711,-43.47064)"
-     style="stroke-width:32;stroke-miterlimit:4;stroke-dasharray:none"><path
-       style="fill:none;stroke:#217821;stroke-width:32;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M -177.25778,270.89629 H -61.348016 L -102.02545,230.21937"
+     transform="matrix(0.28788173,0,0,0.28788173,57.114731,356.78177)"
+     style="stroke:#217821;stroke-width:41.68378448;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"><path
+       style="fill:none;stroke:#217821;stroke-width:41.68378448;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M -177.25778,270.89629 H -26.61107 L -67.288504,230.21937"
        id="path919"
        sodipodi:nodetypes="ccc"
        inkscape:connector-curvature="0" /><path
-       style="fill:none;stroke:#217821;stroke-width:32;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M -61.348016,270.89629 -102.025,310.27255"
+       style="fill:none;stroke:#217821;stroke-width:41.68378448;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -26.611295,270.89728 -40.676984,39.37626"
        id="path921"
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0" /></g><g
      id="g925-3"
-     transform="matrix(1.1155417,0,0,1.1155417,240.58695,-53.470807)"
-     style="stroke:#ffffff;stroke-width:31.99970055;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"><path
-       style="fill:none;stroke:#ffffff;stroke-width:31.99970055;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M -177.25778,270.89629 H -61.348016 L -102.02545,230.21937"
+     transform="matrix(1.1155417,0,0,1.1155417,237.20094,-53.470807)"
+     style="stroke:#217821;stroke-width:31.99970055;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"><path
+       style="fill:none;stroke:#ffffff;stroke-width:10.75710572;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -205.75589,435.35619 h 38.87661 l -10.4974,-10.49727"
        id="path919-5"
        sodipodi:nodetypes="ccc"
        inkscape:connector-curvature="0" /><path
-       style="fill:none;stroke:#ffffff;stroke-width:31.99970055;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M -61.348016,270.89629 -102.025,310.27255"
+       style="fill:none;stroke:#ffffff;stroke-width:10.75710572;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -166.87934,435.35617 -10.49729,10.16161"
        id="path921-6"
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0" /></g></g></svg>
