@@ -5,11 +5,11 @@
     <% if close_return %>
       <%= link_to close_return do %>
         <%= image_tag "close.svg", class: "extended-modal-close max-h-7 min-h-5", "data-action": "click->extended-modal#close" %>
-        <%= t(:l_close) %>
+        <%= t(:m_close) %>
       <% end %>
     <% else %>
       <%= image_submit_tag "close.svg", class: "extended-modal-close max-h-7 min-h-5", "data-action": "click->extended-modal#close" %>
-      <%= t(:l_close) %>
+      <%= t(:m_close) %>
     <% end %>
   </div>
   <% if save %>

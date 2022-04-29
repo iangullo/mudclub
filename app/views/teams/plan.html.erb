@@ -19,7 +19,7 @@
 					<td colspan="3">
 						<%= form_with(url: plan_team_path, value: params[:month], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
 							<%= f.select :month, options_for_select(@months, params[:month] ? params[:month].to_i : Date.today.month) %>
-							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:l_search) %>
+							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
 						<% end %>
 					</td>
 				</div>
