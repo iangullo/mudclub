@@ -86,7 +86,7 @@ class TeamsController < ApplicationController
 
 	    respond_to do |format|
 	      if @team.save
-	        format.html { redirect_to teams_path, notice: "Equipo '#{@team.to_s}' creado." }
+	        format.html { redirect_to teams_path, notice: t(:team_created) + "'#{@team.to_s}'" }
 	        format.json { render :index, status: :created, location: teams_path }
 	      else
 	        format.html { render :new }
@@ -122,7 +122,7 @@ class TeamsController < ApplicationController
   def plan
 		if current_user.present? and current_user.is_coach?
 			redirect_to "/" unless @team
-			plan_targets
+			plan_targets(params[:month] ? params[:month].to_i : Date.today.month)
 		else
 			redirect_to "/"
 		end
@@ -132,7 +132,7 @@ class TeamsController < ApplicationController
   def edit_plan
 		if current_user.present? and @team.has_coach(current_user.person.coach_id)
 			redirect_to "/" unless @team
-			plan_targets
+			plan_targets(nil)
 		else
 			redirect_to "/"
 		end
@@ -146,7 +146,7 @@ class TeamsController < ApplicationController
 		    respond_to do |format|
 					rebuild_team
 		      if @team.save
-						format.html { redirect_to @team, notice: "Equipo '#{@team.to_s}' actualizado." }
+						format.html { redirect_to @team, notice: t(:team_updated) + "'#{@team.to_s}'" }
 		        format.json { render :show, status: :created, location: teams_path(@team) }
 		      else
 		        format.html { render :edit }
@@ -169,7 +169,7 @@ class TeamsController < ApplicationController
 			erase_links
 	    @team.destroy
 	    respond_to do |format|
-	      format.html { redirect_to teams_path, notice: "Equipo '#{t_name}' borrado." }
+	      format.html { redirect_to teams_path, notice: t(:team_deleted) + "'#{t_name}'" }
 	      format.json { head :no_content }
 	    end
 		else
@@ -202,17 +202,35 @@ class TeamsController < ApplicationController
   end
 
 	# retrieve monthly targets for the team
-	def plan_targets
+	def plan_targets(month)
+		@months = @team.season.months(true)
 		@targets = Array.new
-		@team.season.months.each { |m|
-			tgt     = @team.team_targets.monthly(m[:i])
-			t_d_ind = filter(tgt, 1, 2)
-			t_o_ind = filter(tgt, 1, 1)
-			t_d_col = filter(tgt, 2, 2)
-			t_o_col = filter(tgt, 2, 1)
-			@targets << {i: m[:i], month: m[:name], t_d_ind: t_d_ind, t_o_ind: t_o_ind, t_d_col: t_d_col, t_o_col: t_o_col}
-		}
+		if month	# we are searching in a specific month
+			@targets << fetch_targets(month)
+		else
+			@months.each { |m| @targets << fetch_targets(m)	}
+		end
   end
+
+	# get team targets for a specific month
+	def fetch_targets(month)
+		case month
+		when Integer
+			tgt = @team.team_targets.monthly(month)
+			m   = {i: month, name: Date::ABBR_MONTHNAMES[month]}
+		when Array
+			tgt = @team.team_targets.monthly(month[1])
+			m   = {i: month[1], name: Date::ABBR_MONTHNAMES[month[1]]}
+		else
+			tgt = @team.team_targets.monthly(month[:i])
+			m   = {i: month[:i], name: month[:name]}
+		end
+		t_d_ind = filter(tgt, 1, 2)
+		t_o_ind = filter(tgt, 1, 1)
+		t_d_col = filter(tgt, 2, 2)
+		t_o_col = filter(tgt, 2, 1)
+		{i: m[:i], month: m[:name], t_d_ind: t_d_ind, t_o_ind: t_o_ind, t_d_col: t_d_col, t_o_col: t_o_col}
+	end
 
   # filters a set of TeamTargets by aspect & focus of the associated targets
   def filter(tgts,aspect,focus)

@@ -3,21 +3,21 @@
 		<%= form_for @user, authenticity_token: true, data: { turbo_frame: "_top" } do |form| %>
 			<table>
 				<tr>
-					<td colspan="4" align="center" class="text-blue-900"><strong>Crear usuario</strong></td>
+					<td></td><th colspan="3" align="left" class="text-yellow-600"><%= t(:l_user_new) %></th>
 				</tr><tr>
 					<td rowspan="4" align="center" class="align-center"><%= image_tag("user.svg", size: "50x50", class: "rounded-full") %></td>
 				</tr><tr>
-					<td align="right"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
-					<td colspan="2"><%= form.email_field :email, autofocus: true, autocomplete: "email", class: "rounded border shadow-inner" %></td>
+					<td align="right"><strong><%= image_tag "at.svg", size: "25x25", alt: t(:l_email) %></strong></td>
+					<td colspan="2"><%= form.email_field :email, autofocus: true, autocomplete: t(:l_email), class: "rounded border shadow-inner" %></td>
 				</tr><tr>
-					<td align="right"><%= image_tag "key.svg", size: "25x25", alt: "Clave"  %></td>
+					<td align="right"><strong><%= image_tag "key.svg", size: "25x25", alt: t(:l_pass) %></strong></td>
 					<td colspan="2"><%= form.password_field :password, autocomplete: "current-password", class: "rounded border shadow-inner" %></td>
 				</tr><tr>
-					<td align="right"><%= image_tag "key.svg", size: "25x25", alt: "Confirmar clave"  %></td>
+					<td align="right"><strong><%= image_tag "key.svg", size: "25x25", alt: t(:l_pass_conf) %></strong></td>
 					<td colspan="2"><%= form.password_field :password_confirmation, autocomplete: "current-password", class: "rounded border shadow-inner" %></td>
 				</tr><tr>
 					<td colspan="2"></td>
-					<td class="text-sm">(*) confirmar clave</td>
+					<td class="text-sm"><%= t(:i_pass_conf) %></td>
 	    	</tr>
 			</table>
 			<%= render "shared/save_cancel", save: true %>

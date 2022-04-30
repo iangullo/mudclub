@@ -1,27 +1,10 @@
 <%= form_with model: drill, authenticity_token: true, data: { label: label, turbo_frame: "_top" } do |form| %>
 	<div id="drills-form">
-		<table>
-			<div id="locations-form-header">
+		<%= render "drills_header", label: label, form: form %>
+		<div id="drills-form-data">
+			<table>
 				<tr>
-		      <th rowspan="2" align="center">
-		        <%= image_tag("drill.svg", size: "50x50") %>
-		      </th>
-		      <th colspan="3" align="left" class="align-top rounded-md text-yellow-600">
-		        <%= label %>
-		      </th>
-				</tr><tr>
-					<td align="left">
-						<%= form.text_field :name, size: 20, rows: 2, class: "rounded border shadow-inner" %>
-					</td>
-					<th align="left">Tipo:</th>
-					<td>
-						<div class="field"><%= form.collection_select :kind_id, Kind.all, :id, :name %></div>
-					</td>
-				</tr>
-			</div>
-			<div id="drills-form-data">
-				<tr>
-					<th align="right" class="align-top">Objetivos:</th>
+					<th align="right" class="align-top"><%= t(:l_targ) %></th>
 					<td colspan="3">
 						<div id="drill-targets" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
 							<% n_p = @drill.drill_targets ? @drill.drill_targets.count+1 : 1 %>
@@ -40,13 +23,13 @@
 						</div>
 					</td>
 				</tr><tr>
-					<th align="right" class="align-top">Material:</th>
+					<th align="right" class="align-top"><%= t(:l_mat) %></th>
 					<td colspan="3"><%= form.text_field :material, size: 40, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
-					<th align="right" class="align-top">Descrip.:</th>
+					<th align="right" class="align-top"><%= t(:l_desc) %></th>
 					<td colspan="3"><%= form.text_area :description, cols: 40, rows: 2, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
-					<th colspan="3" align="left" class="align-top">Explicación:</th>
+					<th colspan="3" align="left" class="align-top"><%= t(:l_expl) %></th>
 					<td align="right" class="inline-flex rounded-md hover:bg-yellow-300">
 						<small><%= form.label "Playbook" %></small>
 						<%= image_tag("playbook.png", size: "25x25") %>
@@ -55,7 +38,7 @@
 				</tr><tr>
 					<td colspan="4"><%= form.rich_text_area :explanation, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
-					<th align="right" class="align-top">Fundam.:</th>
+					<th align="right" class="align-top"><%= t(:l_skill) %></th>
 					<td colspan="3">
 						<div id="drill-skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
 							<template data-nested-form-target="template">
@@ -71,7 +54,7 @@
 						</div>
 					</td>
 				</tr><tr>
-					<th align="right">Autor:</th>
+					<th align="right"><%= t(:l_auth) %></th>
 					<td colspan="3"><div class="field"><%= form.collection_select :coach_id, Coach.real, :id, :s_name, {selected: current_user.person.coach_id} %></div></td>
 				</tr>
 			</div>

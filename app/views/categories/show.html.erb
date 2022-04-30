@@ -1,22 +1,22 @@
 <%= render "shared/modal", simple: true do %>
-  <%= render "category_header", label: "Categoría" %>
+  <%= render "category_header", label: t(:l_cat_show) %>
   <table>
     <tr>
-      <th>Nom:</th>
+      <th><%= t(:l_name) %></th>
       <td colspan="3" align="left">
         <%= @category.name %>
       </td>
     </tr><tr>
-      <th>Sex:</th>
+      <th><%= t(:l_sex) %></th>
       <td align="left">
         <%= @category.sex %>
       </td>
     </tr><tr>
-      <th>Min:</th>
+      <th><%= t(:l_min) %></th>
       <td align="left">
         <%= @category.min_years %>
       </td>
-      <th>Max:</th>
+      <th><%= t(:l_max) %></th>
       <td align="left">
         <%= @category.max_years %>
       </td>

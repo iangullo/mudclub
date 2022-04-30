@@ -1,18 +1,10 @@
 <div id="locations-grid">
   <table class="table-auto">
     <thead>
-      <tr class="bg-indigo-900 text-gray-300">
-        <th class="border px py">Nombre</th>
-        <th class="border px py">Tipo</th>
-        <th class="border px py">Ubic.</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @locations.each do |loc| %>
-        <%= render "location_row", loc: loc %>
-      <% end %>
       <tr>
-        <td colspan="2"></td>
+        <th class="bg-indigo-900 text-gray-300 border px py"><%= t(:h_name) %></th>
+        <th class="bg-indigo-900 text-gray-300 border px py"><%= t(:h_kind) %></th>
+        <th class="bg-indigo-900 text-gray-300 border px py"><%= t(:a_loc) %></th>
         <% if @season %>
           <td align="center">
             <%= link_to season_locations_path(@season) + "/new", data: {turbo_frame: "modal"} do %>
@@ -26,6 +18,11 @@
         <% end %>
         </td>
       </tr>
+    </thead>
+    <tbody>
+      <% @locations.each do |loc| %>
+        <%= render "location_row", loc: loc %>
+      <% end %>
     </tbody>
   </table>
 </div>

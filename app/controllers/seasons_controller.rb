@@ -42,7 +42,7 @@ class SeasonsController < ApplicationController
 			# added to import excel
 	    respond_to do |format|
 	      if @season.save
-	        format.html { redirect_to seasons_path(@season), notice: "Temp. '#{@season.name}' creada." }
+	        format.html { redirect_to seasons_path(@season), notice: t(:sea_created) + "'#{@season.name}'" }
 	        format.json { render :index, status: :created, location: seasons_url }
 	      else
 	        format.html { render :new }
@@ -62,7 +62,7 @@ class SeasonsController < ApplicationController
         check_locations
       	if @season.update(season_params)
 	        format.html { redirect_to seasons_path(@season) }
-					format.json { render :index, status: :created, location: seasons_url, notice: "Temp. '#{@season.name}' guardada." }
+					format.json { render :index, status: :created, location: seasons_url, notice: t(:sea_updated) + "'#{@season.name}'" }
 	      else
 	        format.html { render :edit }
 	        format.json { render json: @season.errors, status: :unprocessable_entity }
@@ -81,7 +81,7 @@ class SeasonsController < ApplicationController
 			erase_links
 			@season.destroy
 	    respond_to do |format|
-	      format.html { redirect_to seasons_path, notice: "Temp. '#{s_name}' borrada." }
+	      format.html { redirect_to seasons_path, notice: t(:sea_deleted) + "'#{s_name}'" }
 	      format.json { head :no_content }
 	    end
 		else

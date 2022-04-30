@@ -16,10 +16,10 @@
 					<td align="left" colspan="2"><%= form.text_field :name, autofocus: true, autocomplete: "Nombre", class: "rounded border shadow-inner" %></td>
 				</tr><tr>
 					<td align="right"><%= image_tag "gmaps.svg", size: "25x25", alt: "GPS"  %></td>
-		      <td><%= form.text_field :gmaps_url, autocomplete: "Enlace Google Maps", class: "rounded border shadow-inner" %></td>
+		      <td><%= form.text_field :gmaps_url, autocomplete: t(:l_loc_gmaps), class: "rounded border shadow-inner" %></td>
 		    </tr><tr>
-		      <td align="right"><%= image_tag "training.svg", size: "25x25", alt: "P.Entrenamiento"  %>
-		        <td align="left" class="inline-flex">Pista de Entrenamiento&nbsp;<%= form.check_box :practice_court %></td>
+		      <td align="right"><%= image_tag "training.svg", size: "25x25", alt: t(:a_loc_train)  %>
+		        <td align="left" class="inline-flex"><%= t(:l_loc_train) %><%= form.check_box :practice_court %></td>
 		  	</tr>
 			</div>
 		</table>

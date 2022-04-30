@@ -2,17 +2,24 @@
   <% close_return = local_assigns.fetch(:close_return, nil) %>
   <% save = local_assigns.fetch(:save, nil) %>
   <div class="float-left">
-    <% if close_return %>
-      <%= link_to close_return do %>
-        <%= image_submit_tag "close.svg", class: "extended-modal-close align-middle rounded-lg hover:bg-red-200 max-h-7 min-h-5", alt: "Cerrar", "data-action": "click->extended-modal#close" %>
+    <button class="extended-modal-close inline-flex rounded-lg font-bold text-red-700 hover:bg-red-200 align-middle" data-action="click->extended-modal#close">
+      <% if close_return %>
+        <%= link_to close_return, class: "inline-flex" do %>
+          <%= image_tag "close.svg", class: "max-h-7 min-h-5" %>
+          <%= t(:m_close) %>
+        <% end %>
+      <% else %>
+        <%= image_tag "close.svg", class: "max-h-7 min-h-5"%>
+        <%= t(:m_close) %>
       <% end %>
-    <% else %>
-      <%= image_submit_tag "close.svg", class: "extended-modal-close align-middle rounded-lg hover:bg-red-200 max-h-7 min-h-5", alt: "Cerrar", "data-action": "click->extended-modal#close" %>
-    <% end %>
+    </button>
   </div>
   <% if save %>
     <div class="float-right">
-      <%= image_submit_tag "save.svg", class: "save_button align-middle rounded-lg hover:bg-green-200 max-h-7 min-h-5", alt: "Guardar", data: {confirm: "¿Guardar cambios?"} %>
+      <button class="save-button inline-flex rounded-lg font-bold text-green-700 hover:bg-green-200 align-middle" data-confirm="<%= t(:q_save_chng) %>">
+        <%= t(:m_save) %>
+        <%= image_tag "save.svg", class: "save_button max-h-7 min-h-5" %>
+      </button>
     </div>
   <% end %>
 </div>

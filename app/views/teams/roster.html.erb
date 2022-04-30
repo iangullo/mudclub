@@ -15,9 +15,9 @@
           <% end %>
         </tr>
         <tr class="bg-indigo-900 text-gray-300">
-          <th align="center" class="rounded border">#</th>
-          <th align="left" class="rounded border">Nombre</th>
-          <th align="center" class="rounded border">Edad</th>
+          <th align="center" class="rounded border"><%= t(:a_num) %></th>
+          <th align="left" class="rounded border"><%= t(:h_name) %></th>
+          <th align="center" class="rounded border"><%= t(:h_age) %></th>
         </tr>
         <% @team.players.order("number").each do |player| %>
           <tr class="hover:bg-blue-700 hover:text-white">

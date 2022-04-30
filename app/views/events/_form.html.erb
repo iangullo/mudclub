@@ -39,5 +39,5 @@
   </div>
   <%= form.hidden_field :team_id %>
   <%= form.hidden_field :kind %>
-  <%= render "shared/save_cancel", return_link: (event.train? ? event : events_path), save: true %>
+  <%= render "shared/save_cancel", close_return: (event.persisted? ? event_path : events_path), save: true %>
 <% end %>

@@ -1,11 +1,11 @@
 <table>
   <%= render "session_header", label: label %>
   <tr>
-    <th rowspan="2" align="right" class="align-center text-indigo-900">Obj.</th>
-    <%= render "targets_form", form: form, event_targets: @event.def_targets, aspect: 0, focus: 2, label: "Def." %>
-    <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Dur.</th>
+    <th rowspan="2" align="right" class="align-center text-indigo-900"><%= t(:a_targ) %></th>
+    <%= render "targets_form", form: form, event_targets: @event.def_targets, aspect: 0, focus: 2, label: t(:a_def) %>
+    <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_dur) %></th>
   </tr><tr>
-    <%= render "targets_form", form: form, event_targets: @event.off_targets, aspect: 0, focus: 1, label: "Ofe." %>
+    <%= render "targets_form", form: form, event_targets: @event.off_targets, aspect: 0, focus: 1, label: t(:a_off) %>
     <th align="center" class="border px py">
       <%= form.number_field :duration, value: @event.duration, size: 2 , class: "text-right form-control rounded border shadow-inner"%>
     </th>
@@ -14,7 +14,7 @@
   </tr>
   <% if @event.id # only allow editing tasks if we're not creating it from scratch %>
     <tr>
-      <th colspan="4" align="left" class="text-indigo-900 align-center">Tareas</th>
+      <th colspan="4" align="left" class="text-indigo-900 align-center"><%= t(:l_task_index) %></th>
     </tr><tr>
       <td></td>
       <%= render "tasks_form", form: form, tasks: @event.tasks %>

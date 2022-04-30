@@ -14,16 +14,16 @@
 				<tr>
 					<td><%= form.text_field :name, size: 8, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
-					<td align="right"><strong>Inicio</strong></td>
+					<td align="right"><strong><%= t(:h_start) %></strong></td>
 					<td><%= form.date_field :start_date, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
-					<td align="right"><strong>Final</strong></td>
+					<td align="right"><strong><%= t(:h_end) %></strong></td>
 					<td><%= form.date_field :end_date, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
 				</tr>
 				<% if @eligble_locations %>
 					<tr>
 						<td align="center"><%= image_tag("location.svg", size: "30x30") %></td>
-						<th align="left">Pistas asociadas</th>
+						<th align="left"><%= t(:l_sea_locs) %></th>
 					</tr><tr>
 						<td></td>
 						<td>

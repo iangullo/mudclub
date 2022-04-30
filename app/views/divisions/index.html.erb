@@ -1,8 +1,8 @@
 <div id="division-index">
-  <%= render "divisions_header", label: "Competiciones" %>
+  <%= render "divisions_header", label: t(:l_div_index) %>
   <table>
     <tr>
-  		<th class="bg-indigo-900 text-gray-300 align-center border px py">Nombre</th>
+  		<th class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:h_name) %></th>
   		<th>
   			<%= link_to new_division_path do %>
   				<%= render "shared/add" %>
@@ -13,7 +13,7 @@
       <tr class="hover:text-white hover:bg-blue-700">
         <td class="border px py"><%= link_to division.name, edit_division_path(division), data: { turbo_frame: "modal"} %></td>
         <td class="hover:bg-white">
-          <%= link_to division, method: :delete, data: { confirm: "¿Borrar '#{division.name}'?" } do %>
+          <%= link_to division, method: :delete, data: { confirm: t(:q_del) + "'#{division.name}'?" } do %>
             <%= render "shared/delete" %>
           <% end %>
         </td>

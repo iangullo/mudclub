@@ -5,13 +5,13 @@
 				<th rowspan="2" class="items-center justify-center">
 					<%= image_tag "user.svg", size: "50x50", class: "rounded-full" %>
 				</th>
-				<th align="left" class="align-top text-yellow-600">Usuarios</th>
+				<th align="left" class="align-top text-yellow-600"><%= t(:l_user_index) %></th>
 			</tr><tr>
 				<th>
 					<div id="users-search" class="inline-flex rounded border">
 						<%= form_with(url: '/users', method: 'get', local: true) do %>
 							<%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
-							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
+							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
 						<% end %>
 					</div>
 				</th>
@@ -21,10 +21,10 @@
 		<table class="table-auto">
 			<thead>
 				<tr>
-					<th class="bg-indigo-900 text-gray-300 align-center border px py">Nombre</th>
-					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Jug.</th>
-					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Ent.</th>
-					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Adm.</th>
+					<th class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:h_name) %></th>
+					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_player) %></th>
+					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_coach) %></th>
+					<th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_admin) %></th>
 					<th align="center">
 						<%= link_to new_user_path, data: {turbo_frame: "modal" } do %>
 							<%= render "shared/add" %>
@@ -41,7 +41,7 @@
 						<td align="center" class="border px py"><%= user.is_coach? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
 						<td align="center" class="border px py"><%= user.admin? ? image_tag("Yes.svg", :size => "30x25") : image_tag("No.svg", :size => "30x25") %></td>
 						<td>
-							<%= link_to user, method: :delete, data: {confirm: "¿Borrar '#{user.to_s}'?"} do %>
+							<%= link_to user, method: :delete, data: {confirm: t(:q_del) + "'#{user.to_s}'?"} do %>
 								<%= render "shared/delete" %>
 							<% end %>
 						</td>

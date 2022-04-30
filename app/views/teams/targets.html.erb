@@ -3,7 +3,7 @@
 	<div id="show-targets-data">
 		<table>
 			<tr>
-				<th align="left" class="inline-flex"><%= image_tag("target.svg", size: "30x30") %>Objetivos</th>
+				<th align="left" class="inline-flex"><%= image_tag("target.svg", size: "30x30") %><%= t(:h_targ) %></th>
 				<td align="right">
 					<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
 						<%= link_to edit_targets_team_path, data: {turbo_frame: "modal"} do %>
@@ -12,14 +12,14 @@
 					<% end %>
 				</td>
 			</tr><tr>
-				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center">Defensa</th>
+				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
 			</tr><tr>
 				<td colspan="2" class="border px py align-top">
 					<%= render "print_targets", targets: @t_d_gen %>
 				</td>
 			</tr><tr>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="left">Tec. Individual</th>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center">T&aacute;c. Colectiva</th>
+				<th class="bg-indigo-900 text-gray-300 border px py" align="left"><%= t(:l_tec) %></th>
+				<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_tac) %></th>
 			</tr><tr>
 				<td class="border px py align-top">
 					<%= render "print_targets", targets: @t_d_ind %>
@@ -30,14 +30,14 @@
 			</tr><tr>
 				<th colspan="2" class="border px py" align="center"><br></th>
 			</tr><tr>
-				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center">Ataque</th>
+				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
 			</tr><tr>
 				<td colspan="2" class="border px py align-top">
 					<%= render "print_targets", targets: @t_o_gen %>
 				</td>
 			</tr><tr>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="left">Tec. Individual</th>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center">T&aacute;c. Colectiva</th>
+				<th class="bg-indigo-900 text-gray-300 border px py" align="left"><%= t(:l_tec) %></th>
+				<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_tac) %></th>
 			</tr><tr>
 				<td class="border px py align-top">
 					<%= render "print_targets", targets: @t_o_ind %>

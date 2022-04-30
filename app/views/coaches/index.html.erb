@@ -1,7 +1,7 @@
 <div id="coaches-index">
-	<%= render "coaches_header", label: "Entrenadores" %>
+	<%= render "coaches_header", label: t(:l_coach_index) %>
 	<%= render "coaches_grid" %>
 	<% if current_user.admin? %>
-		<%= render "import_export" %>
+		<%= render "shared/import_export", import_path: import_coaches_path, export_path: coaches_path(format: :xlsx) %>
 	<% end %>
 </div>

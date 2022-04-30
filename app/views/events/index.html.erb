@@ -5,7 +5,7 @@
         <th rowspan="2">
           <%= image_tag("calendar.svg", size: "50x50") %>
         </th><th align="left" class="align-top rounded-md text-yellow-600">
-          Calendario
+          <%= t(:l_cal)%>
         </th>
       </tr><tr>
         <th align="left"><%= @team ? @team.name : (@season ? @season.name : " ") %><th>
@@ -16,10 +16,10 @@
 		<table class="table-auto">
 		  <thead>
 				<tr>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Fecha</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Hora</th>
-				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Equipo</th>
-				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Descripción</th>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:h_date) %></th>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:h_time) %></th>
+				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:l_team_show) %></th>
+				  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:h_desc) %></th>
 					<% if current_user.admin? %>
 						<%= render "new_event_button" %>
 					<% end %>

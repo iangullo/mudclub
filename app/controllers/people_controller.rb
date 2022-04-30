@@ -51,7 +51,7 @@ class PeopleController < ApplicationController
 			# added to import excel
 	    respond_to do |format|
 	      if @person.save
-	        format.html { redirect_to people_url, notice: "Persona '#{@person.to_s}' creada." }
+	        format.html { redirect_to people_url, notice: t(:per_created) + "'#{@person.to_s}'" }
 	        format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :new }
@@ -69,7 +69,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
     	respond_to do |format|
       	if @person.update(person_params)
-	        format.html { redirect_to people_url, notice: "Persona '#{@person.to_s}' guardada." }
+	        format.html { redirect_to people_url, notice: t(:per_updated) + "'#{@person.to_s}'" }
 					format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :edit }
@@ -87,7 +87,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
     	Person.import(params[:file])
-			format.html { redirect_to people_url, notice: "Personas importadas desde '#{params[:file]}'."}
+			format.html { redirect_to people_url, notice: t(:per_import) + "'#{params[:file]}'"}
 		else
 			redirect_to "/"
 		end
@@ -100,7 +100,7 @@ class PeopleController < ApplicationController
 			erase_links
 			@person.destroy
 	    respond_to do |format|
-				format.html { redirect_to people_url, notice: "Persona '#{@person.to_s}' borrada." }
+				format.html { redirect_to people_url, notice: t(:per_deleted) + "'#{@person.to_s}'" }
 	      format.json { head :no_content }
 	    end
 		else

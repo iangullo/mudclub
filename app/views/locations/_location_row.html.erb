@@ -13,7 +13,7 @@
   </td>
   <% if current_user.admin? %>
     <td class="hover:bg-white">
-      <%= link_to loc, method: :delete, data: {confirm: "¿Borrar '#{loc.name}'?"} do %>
+      <%= link_to loc, method: :delete, data: {confirm: t(:q_del) + "'#{loc.name}'?"} do %>
         <%= render "shared/delete" %>
       <% end %>
     </td>

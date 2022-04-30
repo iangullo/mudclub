@@ -5,7 +5,7 @@
 		<thead>
 			<tr>
 				<td align="right"><%= image_tag("teamplan.svg", size: "30x30") %></td>
-				<th colspan="2" align="left">Planificaci&oacute;n</th>
+				<th colspan="2" align="left"><%= t(:l_plan_show) %></th>
 				<td align="right">
 					<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
 						<%= link_to edit_plan_team_path, data: {turbo_frame: "modal"} do %>
@@ -14,19 +14,25 @@
 					<% end %>
 				</td>
 			</tr><tr>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center">Mes</th>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center"></th>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center">Defensa</th>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center">Ataque</th>
+				<div id="search-month" class="inline-flex rounded border items start">
+					<td></td>
+					<td colspan="3">
+						<%= form_with(url: plan_team_path, value: params[:month], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
+							<%= f.select :month, options_for_select(@months, params[:month] ? params[:month].to_i : Date.today.month) %>
+							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
+						<% end %>
+					</td>
+				</div>
+			</tr><tr>
+				<th></th>
+				<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
+				<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
 			</tr>
 		</thead>
 		<tbody>
 			<% @targets.each do |tgt| %>
 				<tr><!-- #display individual targets -->
-					<th rowspan="2" class="bg-indigo-900 text-gray-300 border px py align-center" align="center">
-						<%= tgt[:month] %>
-					</th>
-					<td class="bg-indigo-900 text-gray-300 border px py align-center">Ind.</td>
+					<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tec) %></td>
 					<td class="border px py align-top">
 						<%= render "print_targets", targets: tgt[:t_d_ind] %>
 					</td><td class="border px py align-top">
@@ -34,7 +40,7 @@
 					</td>
 				</tr>
 				<tr><!-- #display collective targets -->
-					<td class="bg-indigo-900 text-gray-300 border px py align-center">Col.</td>
+					<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tac) %></td>
 					<td class="border px py align-top">
 						<%= render "print_targets", targets: tgt[:t_d_col] %>
 					</td><td class="border px py align-top">

@@ -1,8 +1,8 @@
 <div id="players-index">
-	<%= render "players_header", label: "Jugadores/as" %>
+	<%= render "players_header", label: t(:l_player_index) %>
 	<%= render "players_grid" %>
 	<br>
 	<% if current_user.admin? %>
-		<%= render "import_export" %>
+		<%= render "shared/import_export", import_path: import_players_path, export_path: players_path(format: :xlsx) %>
 	<% end %>
 </div>

@@ -1,10 +1,10 @@
-<%= render "session_header", label: "Sesión" %>
+<%= render "session_header", label: t(:l_train) %>
 <tr>
   <td colspan="4"><br></td>
 </tr><tr>
-  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">#</th>
-  <th colspan="2" align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Tarea</th>
-  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Min.</th>
+  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_num) %></th>
+  <th colspan="2" align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:l_task_show) %></th>
+  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_min) %></th>
 </tr>
 <% @event.tasks.order(:order).each do |task| %>
   <tr class="align-top hover:text-white hover:bg-blue-700">

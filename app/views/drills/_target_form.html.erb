@@ -6,7 +6,7 @@
 				<% form.object.build_target if form.object.new_record? %>
 				<%= f.select :aspect, options_for_select(Target.aspects, f.object.aspect ? f.object.aspect_before_type_cast : 0) %>
 				<%= f.select :focus, options_for_select(Target.kinds, f.object.focus ? f.object.focus_before_type_cast : 0) %>
-				<%= f.text_field :concept, placeholder: '<objetivo>', class: 'form-control rounded border shadow-inner', size: 20 %>
+				<%= f.text_field :concept, placeholder: t(:d_target), class: 'form-control rounded border shadow-inner', size: 20 %>
 			<% end %>
 			<button type="button" class="object-left-bottom" data-action="nested-form#remove">
 				<%= render "shared/remove" %>

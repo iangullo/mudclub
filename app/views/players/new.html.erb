@@ -6,12 +6,12 @@
 					<td rowspan="3" align="center">
 						<%= image_tag("player.svg", size: "50x50", class: "rounded-full") %>
 					</td>
-					<th align="left" colspan="2" class="align-top text-yellow-600">Crear Jugador/a</th>
+					<th align="left" colspan="2" class="align-top text-yellow-600"><%= t(:l_player_new) %></th>
 				</tr><tr>
-					<td align="left"><strong>Nom:</strong></td>
+					<th align="left"><%= t(:l_name) %></th>
 					<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
 				</tr><tr>
-					<td align="left"><strong>Apel:</strong></td>
+					<th align="left"><%= t(:l_surname) %></th>
 					<td><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
 				</tr>
 			</table>

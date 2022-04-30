@@ -9,14 +9,66 @@ class Drill < ApplicationRecord
 	accepts_nested_attributes_for :drill_targets, reject_if: :all_blank, allow_destroy: true
 	has_one_attached :playbook
 	has_rich_text :explanation
+	scope :real, -> { where("id>0") }
 	self.inheritance_column = "not_sti"
 
-	# filter by name/description
-	def self.search(search)
-		if search.class == String and search.length > 0
-			res = Drill.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{search}%","%#{search}%").order(:kind_id)
+	# search all drills for specific subsets
+	def self.search(search=nil)
+		if search and search.length > 0
+			res = self.search_name(search)
+			res = self.search_kind(res, search)
+			res = self.search_skill(res, search)
+			res = self.search_target(res, search)
 		else
-			res = Drill.all.order(:kind_id)
+			res = Drill.real
+		end
+		res.order(:kind_id)
+	end
+
+	# filter by name/description
+	def self.search_name(res=Drill.all, search)
+		s_n = search.scan(/\s*(\w\w+)\s?(\w=\w+)*.*/)
+		if s_n # matched something
+			unless s_n.empty?
+				s_n = s_n.first.first
+				res = res.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{s_n}%","%#{s_n}%")
+			end
+		end
+		return res
+	end
+
+	# filter drills by kind
+	def self.search_kind(res=Drill.all, search)
+		s_k = search.scan(/k=(\w+)/)
+		if s_k # matched something
+			unless s_k.empty?
+				s_k = s_k.first.first
+				res = res.where(kind_id: Kind.search(s_k))
+			end
+		end
+		return res
+	end
+
+	# filter for fundamentals
+	def self.search_skill(res=Drill.all, search)
+		s_s = search.scan(/s=(\w+)/)
+		if s_s # matched something
+			unless s_s.empty?
+				s_n = s_s.first.first
+				res = res.joins(:skills).where(skills: Skill.search(s_s))
+			end
+		end
+		return res
+	end
+
+	# filter for fundamentals
+	def self.search_target(res=Drill.all, search)
+		s_t = search.scan(/t=(\w+)/)
+		if s_t # matched something
+			unless s_t.empty?
+				s_t = s_t.first.first
+				res = res.joins(:targets).where(targets: Target.search(nil, s_t))
+			end
 		end
 		return res
 	end

@@ -11,7 +11,7 @@
 			<td><%= @player.person.birthday %></td>
 		</tr><tr>
 			<td align="center"><%= @player.person.dni %></td>
-			<td># <%= @player.number %>&nbsp;-&nbsp;<%= @player.active ? "Activo" : "Inactivo" %></td>
+			<td><%= t(:a_num) %><%= @player.number %>&nbsp;-&nbsp;<%= t(@player.active ? :h_active : :h_inactive) %></td>
 			<td align="right">
 				<% if current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id %>
 					<%= link_to edit_player_path(@player), data: {turbo_frame: "modal"} do %>
