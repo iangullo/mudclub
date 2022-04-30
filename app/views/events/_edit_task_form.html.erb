@@ -8,7 +8,8 @@
 			<div id="search-drills" class="inline-flex rounded border items start">
 				<td colspan="3">
 					<%= form_with(url: search_in, value: params[:search], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
-						<%= text_field_tag :search, "", size: 16, class: "text-gray-700 rounded border shadow-inner" %>
+						<%= text_field_tag :search, params[:search], size: 16, class: "text-gray-700 rounded border shadow-inner" %>
+						<%= f.hidden_field :task_id, value: @task.id %>
 						<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
 					<% end %>
 				</td>
