@@ -51,7 +51,7 @@ class Drill < ApplicationRecord
 
 	# filter for fundamentals
 	def self.search_skill(res=Drill.all, search)
-		s_s = search.scan(/f=(\w+)/)
+		s_s = search.scan(/s=(\w+)/)
 		if s_s # matched something
 			unless s_s.empty?
 				s_n = s_s.first.first
