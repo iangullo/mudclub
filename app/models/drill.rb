@@ -22,7 +22,7 @@ class Drill < ApplicationRecord
 		else
 			res = Drill.real
 		end
-		res
+		res.order(:kind_id)
 	end
 
 	# filter by name/description
