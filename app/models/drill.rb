@@ -15,10 +15,10 @@ class Drill < ApplicationRecord
 	# search all drills for specific subsets
 	def self.search(search=nil)
 		if search and search.length > 0
-			res = self.search_name(search)
-			res = self.search_kind(res, search)
+			res = self.search_kind(search)
 			res = self.search_skill(res, search)
 			res = self.search_target(res, search)
+			res = self.search_name(res, search)
 		else
 			res = Drill.real
 		end
@@ -27,7 +27,7 @@ class Drill < ApplicationRecord
 
 	# filter by name/description
 	def self.search_name(res=Drill.all, search)
-		s_n = search.scan(/\s*(\w\w+)\s?(\w=\w+)*.*/)
+		s_n = search.scan(/\s*(\w\w+)\s+\w=\w+.*/)
 		if s_n # matched something
 			unless s_n.empty?
 				s_n = s_n.first.first
@@ -54,7 +54,7 @@ class Drill < ApplicationRecord
 		s_s = search.scan(/s=(\w+)/)
 		if s_s # matched something
 			unless s_s.empty?
-				s_n = s_s.first.first
+				s_s = s_s.first.first
 				res = res.joins(:skills).where(skills: Skill.search(s_s))
 			end
 		end
