@@ -50,22 +50,22 @@ class Drill < ApplicationRecord
 
 	# filter by name/description
 	def self.search_name(res=Drill.all, s_n)
-		res = res.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{s_n}%","%#{s_n}%")
+		res = res.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{s_n}%","%#{s_n}%").distinct
 	end
 
 	# filter drills by kind
 	def self.search_kind(res=Drill.all, s_k)
-		res = res.where(kind_id: Kind.search(s_k))
+		res = res.where(kind_id: Kind.search(s_k)).distinct
 	end
 
 	# filter for fundamentals
 	def self.search_skill(res=Drill.all, s_s)
-		res = res.joins(:skills).where(skills: Skill.search(s_s))
+		res = res.joins(:skills).where(skills: Skill.search(s_s)).distinct
 	end
 
 	# filter for fundamentals
 	def self.search_target(res=Drill.all, s_t)
-		res = res.joins(:targets).where(targets: Target.search(nil, s_t))
+		res = res.joins(:targets).where(targets: Target.search(nil, s_t)).distinct
 	end
 
 	def print_skills
