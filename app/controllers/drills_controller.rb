@@ -133,8 +133,8 @@ class DrillsController < ApplicationController
 				@drill.skills.delete(s[:id].to_i)
 			else
 				unless s.key?("id")	# if no id included, we check
-					sk = Skill.find_by(name: s[:name])
-					sk = Skill.create(name: s[:name]) unless sk
+					sk = Skill.find_by(concept: s[:concept])
+					sk = Skill.create(concept: s[:concept]) unless sk
 					@drill.skills << sk	# add to collection
 				end
 			end
@@ -165,6 +165,6 @@ class DrillsController < ApplicationController
 
 	# Only allow a list of trusted parameters through.
 	def drill_params
-		params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, target_ids: [], skill_ids: [], skills_attributes: [:id, :name, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy], targets_attributes: [:id, :concept])
+		params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, target_ids: [], skill_ids: [], skills_attributes: [:id, :concept, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy], targets_attributes: [:id, :concept])
 	end
 end

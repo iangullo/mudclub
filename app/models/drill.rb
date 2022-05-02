@@ -15,10 +15,32 @@ class Drill < ApplicationRecord
 	# search all drills for specific subsets
 	def self.search(search=nil)
 		if search and search.length > 0
-			res = self.search_kind(search)
-			res = self.search_skill(res, search)
-			res = self.search_target(res, search)
-			res = self.search_name(res, search)
+			s_type = "name"
+			res = Drill.all
+			search.scan(/\s*\w+\s*/).each { |s|	# scan the search string  for tokens
+				case s
+				when "k"	# next string ought to be a kind
+					s_type = "kind"
+				when "s"	# next string ought to be a skill
+					s_type = "skill"
+				when "t"	# next string ought to be a target
+					s_type = "target"
+				else	# a sub search string
+					case s_type	# apply the right token
+					when "kind"
+						res = self.search_kind(res, search)
+						s_type = "name"
+					when "skill"
+						res = self.search_kind(res, search)
+						s_type = "name"
+					when "target"
+						res = self.search_kind(res, search)
+						s_type = "name"
+					when "name"
+						res = self.search_name(res, search)
+					end
+				end
+			}
 		else
 			res = Drill.real
 		end
@@ -101,7 +123,7 @@ class Drill < ApplicationRecord
 		i = 0
 		aux = ""
 		obj_array.each { |obj|
-			aux = (i == 0) ? obj.name : aux + "; " + obj.name
+			aux = (i == 0) ? obj.concept : aux + "; " + obj.concept
 			i = i +1
 		}
 		aux
