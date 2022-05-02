@@ -80,7 +80,7 @@ class DrillsController < ApplicationController
 	def destroy
 		if current_user.present? and current_user.admin?
 			d_name = @drill.name
-			@drill.drill_targets.each { |d_t| dt.delete }
+			@drill.drill_targets.each { |d_t| d_t.delete }
 			@drill.destroy
 			respond_to do |format|
 				format.html { redirect_to drills_url, notice: t(:drill_deleted) + "'#{d_name}'" }
