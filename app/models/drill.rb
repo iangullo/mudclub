@@ -15,10 +15,33 @@ class Drill < ApplicationRecord
 	# search all drills for specific subsets
 	def self.search(search=nil)
 		if search and search.length > 0
-			res = self.search_name(search)
-			res = self.search_kind(res, search)
-			res = self.search_skill(res, search)
-			res = self.search_target(res, search)
+			s_type = "name"
+			res    = Drill.all
+			search.scan(/\s*\w+\s*/).each { |cad|	# scan the search string  for tokens
+				case cad
+				when "k"	# next string ought to be a kind
+					s_type = "kind"
+				when "s"	# next string ought to be a skill
+					s_type = "skill"
+				when "t"	# next string ought to be a target
+					s_type = "target"
+				else	# a sub search string
+					cad = cad.rstrip
+					case s_type	# apply the right token
+					when "kind"
+						res = self.search_kind(res, cad)
+						s_type = "name"
+					when "skill"
+						res = self.search_skill(res, cad)
+						s_type = "name"
+					when "target"
+						res = self.search_target(res, cad)
+						s_type = "name"
+					when "name"
+						res = self.search_name(res, cad)
+					end
+				end
+			}
 		else
 			res = Drill.real
 		end
@@ -26,51 +49,23 @@ class Drill < ApplicationRecord
 	end
 
 	# filter by name/description
-	def self.search_name(res=Drill.all, search)
-		s_n = search.scan(/\s*(\w\w+)\s?(\w=\w+)*.*/)
-		if s_n # matched something
-			unless s_n.empty?
-				s_n = s_n.first.first
-				res = res.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{s_n}%","%#{s_n}%")
-			end
-		end
-		return res
+	def self.search_name(res=Drill.all, s_n)
+		res = res.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{s_n}%","%#{s_n}%").distinct
 	end
 
 	# filter drills by kind
-	def self.search_kind(res=Drill.all, search)
-		s_k = search.scan(/k=(\w+)/)
-		if s_k # matched something
-			unless s_k.empty?
-				s_k = s_k.first.first
-				res = res.where(kind_id: Kind.search(s_k))
-			end
-		end
-		return res
+	def self.search_kind(res=Drill.all, s_k)
+		res = res.where(kind_id: Kind.search(s_k)).distinct
 	end
 
 	# filter for fundamentals
-	def self.search_skill(res=Drill.all, search)
-		s_s = search.scan(/s=(\w+)/)
-		if s_s # matched something
-			unless s_s.empty?
-				s_n = s_s.first.first
-				res = res.joins(:skills).where(skills: Skill.search(s_s))
-			end
-		end
-		return res
+	def self.search_skill(res=Drill.all, s_s)
+		res = res.joins(:skills).where(skills: Skill.search(s_s)).distinct
 	end
 
 	# filter for fundamentals
-	def self.search_target(res=Drill.all, search)
-		s_t = search.scan(/t=(\w+)/)
-		if s_t # matched something
-			unless s_t.empty?
-				s_t = s_t.first.first
-				res = res.joins(:targets).where(targets: Target.search(nil, s_t))
-			end
-		end
-		return res
+	def self.search_target(res=Drill.all, s_t)
+		res = res.joins(:targets).where(targets: Target.search(nil, s_t)).distinct
 	end
 
 	def print_skills
@@ -101,7 +96,7 @@ class Drill < ApplicationRecord
 		i = 0
 		aux = ""
 		obj_array.each { |obj|
-			aux = (i == 0) ? obj.name : aux + "; " + obj.name
+			aux = (i == 0) ? obj.concept : aux + "; " + obj.concept
 			i = i +1
 		}
 		aux
