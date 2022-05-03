@@ -10,7 +10,7 @@ class Coach < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		self.person ? self.person.to_s : "Nuevo"
+		self.person ? self.person.to_s : t(:l_coach_show)
 	end
 
 	#short name for form viewing
@@ -75,7 +75,7 @@ class Coach < ApplicationRecord
 						c.person.save	# Save and link
 					end
 				end
-				c.person.dni      = c.read_field(row[0], c.person.dni, "S.DNI/NIE")
+				c.person.dni      = c.read_field(row[0], c.person.dni, t(:h_id))
 				c.person.nick     = c.read_field(row[1], c.person.nick, "")
 				c.person.birthday = c.read_field(row[4], c.person.birthday, Date.today.to_s)
 				c.person.email		= c.read_field(row[5], c.person.email, "")
