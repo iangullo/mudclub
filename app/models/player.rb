@@ -13,7 +13,7 @@ class Player < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		self.person ? self.person.to_s : t(:l_per_show)
+		self.person ? self.person.to_s : I18n.t(:l_per_show)
 	end
 
 	# String with number, name & age
@@ -74,7 +74,7 @@ class Player < ApplicationRecord
 						j.person.save	# Save and link
 					end
 				end
-				j.person.dni      = j.read_field(row[0], j.person.dni, t(:h_id))
+				j.person.dni      = j.read_field(row[0], j.person.dni, I18n.t(:h_id))
 				j.person.nick     = j.read_field(row[2], j.person.nick, "")
 				j.person.birthday = j.read_field(row[5], j.person.birthday, Date.today.to_s)
 				j.person.female   = j.read_field(row[6], j.person.female, false)

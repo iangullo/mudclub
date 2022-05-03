@@ -13,7 +13,7 @@ class User < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		person ? person.to_s : t(:l_user_show)
+		person ? person.to_s : I18n.t(:l_user_show)
 	end
 
   #short name for form viewing
@@ -25,7 +25,7 @@ class User < ApplicationRecord
 				self.person.name
 			end
 		else
-			t(:l_user_show)
+			I18n.t(:l_user_show)
 		end
 	end
 

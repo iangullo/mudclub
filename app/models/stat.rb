@@ -3,6 +3,7 @@ class Stat < ApplicationRecord
   belongs_to :player  # id==0 => team stat; id==-1 => rival stat
   scope :for_team, -> { where("player_id==0") }
   scope :for_rival, -> { where("player_id==-1") }
+  scope :for_players, -> { where("player_id>0") }
   self.inheritance_column = "not_sti"
 
   enum concept: {

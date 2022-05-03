@@ -50,14 +50,14 @@ class Event < ApplicationRecord
   end
 
   def form_label
-    cad = self.id ? "Editar " : "Crear "
+    cad = self.id ? I18n.t(:m_edit) : I18n.t(:m_create)
     case self.kind.to_sym  # depending on event kind
     when :holiday
-      cad = cad + "Descanso"
+      cad = cad + I18n.t(:l_rest)
     when :train
-      cad = cad + "Sesión"
+      cad = cad + I18n.t(:l_train)
     when :match
-      cad = cad + "Partido"
+      cad = cad + I18n.t(:l_match)
     else
       cad = cad + "(¿?)"
     end
@@ -155,7 +155,7 @@ class Event < ApplicationRecord
     res  = Event.new(team_id: team.id, kind: s_data[:kind].to_sym)
     case res.kind.to_sym  # depending on event kind
     when :holiday
-      res.name        = "Descanso"
+      res.name        = I18n.t(:l_rest)
       res.start_time  = Date.current
       res.duration    = 1440
       res.location_id = 0
@@ -163,16 +163,16 @@ class Event < ApplicationRecord
       last            = team.events.trainings.last
       slot            = team.next_slot(last)
       return nil unless slot
-      res.name        = "Sesión"
+      res.name        = I18n.t(:l_train)
       res.start_time  = (slot.next_date + slot.hour.hours + slot.min.minutes).to_datetime
       res.duration    = slot.duration
       res.location_id = slot.location_id
     when :match
       last            = team.events.matches.last
       starting        = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
-      res.name        = "<Rival>"
+      res.name        = I18n.t(:d_match)
       res.start_time  = starting
-      res.duration    = slot.duration
+      res.duration    = 120
       res.location_id = team.homecourt_id
     else
       res = nil

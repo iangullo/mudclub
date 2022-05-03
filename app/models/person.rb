@@ -61,7 +61,7 @@ class Person < ApplicationRecord
 					p.player_id = 0
 					p.coach_id = 0
 				end
-				p.dni      = p.read_field(row[0], p.dni, t(:h_id))
+				p.dni      = p.read_field(row[0], p.dni, I18n.t(:h_id))
 				p.nick     = p.read_field(row[1], p.nick, "")
 				p.birthday = p.read_field(row[4], p.birthday, Date.today.to_s)
 				p.female   = p.read_field(row[5], p.female, false)
