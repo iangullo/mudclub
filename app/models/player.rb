@@ -2,7 +2,9 @@ class Player < ApplicationRecord
 	has_and_belongs_to_many :teams
 	has_one :person
 	has_one_attached :avatar
+	has_many :stats
 	accepts_nested_attributes_for :person, update_only: true
+	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
 	scope :real, -> { where("id>0") }
 	scope :active, -> { where("active = true") }
 	scope :female, -> { where("female = true") }
@@ -11,7 +13,7 @@ class Player < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		self.person ? self.person.to_s : "Nuevo"
+		self.person ? self.person.to_s : t(:l_per_show)
 	end
 
 	# String with number, name & age
@@ -72,7 +74,7 @@ class Player < ApplicationRecord
 						j.person.save	# Save and link
 					end
 				end
-				j.person.dni      = j.read_field(row[0], j.person.dni, "S.DNI/NIE")
+				j.person.dni      = j.read_field(row[0], j.person.dni, t(:h_id))
 				j.person.nick     = j.read_field(row[2], j.person.nick, "")
 				j.person.birthday = j.read_field(row[5], j.person.birthday, Date.today.to_s)
 				j.person.female   = j.read_field(row[6], j.person.female, false)

@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  event: one
+  player: one
+  concept: 1
+  value: 1
+
+two:
+  event: two
+  player: two
+  concept: 1
+  value: 1

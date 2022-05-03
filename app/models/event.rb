@@ -4,9 +4,11 @@ class Event < ApplicationRecord
   has_many :event_targets
   has_many :targets, through: :event_targets
   has_many :tasks
+  has_many :stats
   accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :tasks, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
   scope :upcoming, -> { where("start_time > ?", Time.now) }
   scope :for_season, -> (season) { where("start_time > ? and end_time < ?", season.start_date, season.end_date) }
   scope :normal, -> { where("kind > 0") }
