@@ -1,0 +1,17 @@
+<div class="flow-root mt-3">
+  <% close_return = local_assigns.fetch(:close_return, nil) %>
+  <% save = local_assigns.fetch(:save, nil) %>
+  <% edit = local_assigns.fetch(:edit, nil) %>
+  <div class="float-left">
+    <%= render "shared/close", close_return: close_return %>
+  </div>
+  <div class="float-right">
+    <% if save %>
+      <%= render "shared/save" %>
+    <% elsif edit %>
+      <%= link_to edit do %>
+        <%= render "shared/edit", long: true %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

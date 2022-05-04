@@ -1,1 +1,5 @@
-<%= image_tag "edit.svg", size: "25x25", class: "rounded hover:bg-yellow-200" %>
+<% long = local_assigns.fetch(:long, nil) %>
+<div class="edit_button inline-flex align-middle rounded-lg font-bold text-yellow-700 hover:bg-yellow-200">
+  <%= t(:m_edit) if long %>
+  <%= image_tag "edit.svg", class: "max-h-7 min-h-5" %>
+</div>
