@@ -22,7 +22,7 @@
 				<td align="center"><strong><%= image_tag "user.svg", size: "25x25", alt: t(:l_nick) %></strong></td>
 				<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
-				<td colspan="2" align="center"><strong>Activo</strong><%= form.check_box :active %></td>
+				<td colspan="2" align="center"><strong><%= t(:h_active) %></strong><%= form.check_box :active %></td>
 				<td align="center"><%= image_tag "at.svg", size: "25x25", alt: t(:l_email) %></td>
 				<td><%= f.text_field :email, size: 22, class: "rounded border shadow-inner" %></td>
 			</tr><tr>
@@ -32,5 +32,5 @@
 			</tr>
 		<% end %>
 	</table>
-	<%= render "shared/save_cancel", save: true %>
+	<%= render "shared/modal_bottom", save: true %>
 <% end %>

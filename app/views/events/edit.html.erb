@@ -1,7 +1,7 @@
-<% if @event.holiday? %>
+<% unless @event.train? %>
   <%= render "shared/modal" do %>
-    <%= render 'form', event: @event, label: @event.form_label %>
+    <%= render 'form', event: @event, title: @event.title %>
   <% end %>
 <% else %>
-  <%= render 'form', event: @event, season: @season, label: @event.form_label %>
+  <%= render 'form', event: @event, title:  @event.team.to_s %>
 <% end %>

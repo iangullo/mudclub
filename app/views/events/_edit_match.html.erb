@@ -1,0 +1,11 @@
+<table>
+  <tr>
+    <th colspan="2"></th>
+    <td><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
+  </tr><tr>
+    <th colspan="2" align="right"><%= t(:l_home) %></th>
+    <td><%= form.check_box :home %></td>
+  </tr>
+  <% if @event.id # only allow editing stats if we're not creating it from scratch %>
+  <% end %>
+</table>

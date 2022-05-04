@@ -1,18 +1,11 @@
-<%= render "shared/modal", simple: true do %>
+<%= render "shared/modal", simple: true, edit: (current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil do %>
   <div id="team-roster">
     <%= render "team_header" %>
     <div id="team-roster-grid">
       <table>
         <tr>
           <td align="right"><%= image_tag("player.svg", size: "30x30") %></td>
-          <th align="left">Plantilla</th>
-          <% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
-            <td align="center">
-              <%= link_to edit_roster_team_path, data: {turbo_frame: "modal"} do %>
-              <%= render "shared/edit" %>
-              <% end %>
-            </td>
-          <% end %>
+          <th align="left"><%= t(:l_roster_show) %></th>
         </tr>
         <tr class="bg-indigo-900 text-gray-300">
           <th align="center" class="rounded border"><%= t(:a_num) %></th>

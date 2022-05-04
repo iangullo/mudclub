@@ -1,6 +1,6 @@
-<%= form_with model: drill, authenticity_token: true, data: { label: label, turbo_frame: "_top" } do |form| %>
+<%= form_with model: drill, authenticity_token: true, data: { title: title, turbo_frame: "_top" } do |form| %>
 	<div id="drills-form">
-		<%= render "drills_header", label: label, form: form %>
+		<%= render "drills_header", title: title, form: form %>
 		<div id="drills-form-data">
 			<table>
 				<tr>
@@ -60,5 +60,5 @@
 			</div>
 		</table>
 	</div>
-	<%= render "shared/save_cancel", save: true %>
+	<%= render "shared/modal_bottom", save: true %>
 <% end %>

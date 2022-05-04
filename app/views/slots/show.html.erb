@@ -1,4 +1,4 @@
-<%= render "shared/modal", simple: true do %>
+<%= render "shared/modal", simple: true, edit: current_user.admin? ? edit_slot_path(@slot) : nil do %>
 	<div id="slots-show">
 		<table>
 			<div id="slots-show-header">
@@ -28,13 +28,6 @@
 					<td><%= @slot.duration %><%= t(:l_mins) %></td>
 	      </tr>
 	    </div>
-			<tr>
-				<td colspan="3" align="right">
-					<%= link_to edit_slot_path(@slot), class:"rounded" do %>
-				    <%= render "shared/edit" %>
-				  <% end %>
-				<td>
-			<tr>
 		</table>
 	</div>
 <% end %>

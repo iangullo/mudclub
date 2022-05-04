@@ -2,10 +2,10 @@
   <table>
     <tr>
       <th rowspan="2">
-        <%= image_tag("team.svg", size: "50x50") %>
+        <%= image_tag(@event.pic, size: "50x50") %>
       </th>
       <th align="left" class="align-top rounded-md text-yellow-600">
-        <%= @event.team_id > 0 ? @event.team.to_s : t(:h_general)%>
+        <%= title %>
       </th>
       <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
       <th align="right" class="inline-flex"><%= image_tag("calendar.svg", size: "25x25") %>&nbsp;<%= @event.date_string %></th>
@@ -13,7 +13,18 @@
       <% if @event.holiday? %>
         <th><%= @event.name %></th>
       <% else %>
-        <th align="left"><%= @event.team_id > 0 ? @event.team.season.name : "" %></th>
+        <th align="left">
+          <% if @event.match? and @event.location.gmaps_url %>
+            <button>
+              <%= link_to @event.location.gmaps_url, target: '_blank', class: "inline-flex rounded-lg font-bold hover:bg-blue-100" do %>
+                <%= image_tag("gmaps.svg", size: "25x25") %>
+                <small><%= @event.location.name %></small>
+              <% end %>
+            </button>
+          <% else %>
+            <%= t(:l_train) %>
+          <% end %>
+        </th>
         <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
         <th align="right" class="inline-flex"><%= image_tag("clock.svg", size: "25x25") %>&nbsp;<%= @event.time_string %></th>
       <% end %>

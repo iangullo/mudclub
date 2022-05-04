@@ -1,10 +1,10 @@
-<%= form_with model: @person, label: label, data: { turbo_frame: "_top" } do |f| %>
+<%= form_with model: @person, title: title, data: { turbo_frame: "_top" } do |f| %>
 	<table>
 		<tr>
 			<td rowspan="4" colspan="2" align="center">
 				<%= image_tag("person.svg", size: "100x100", class: "rounded-full") %>
 			</td>
-			<th colspan="2" align="left" class="align-top text-yellow-600"><%= label %></th>
+			<th colspan="2" align="left" class="align-top text-yellow-600"><%= title %></th>
 		</tr><tr>
 			<td align="left"><strong><%= t(:l_name) %></strong></td>
 			<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
@@ -28,5 +28,5 @@
 			<td><%= f.text_field :phone, size: 12, class: "rounded border shadow-inner" %></td>
 		</tr>
 	</table>
-	<%= render "shared/save_cancel", save: true %>
+	<%= render "shared/modal_bottom", save: true %>
 <% end %>

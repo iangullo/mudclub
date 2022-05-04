@@ -1,5 +1,5 @@
-<%= form_with model: division, authenticity_token: true, data: { label: label, turbo_frame: "_top" } do |form| %>
-<%= render "divisions_header", label: label %>
+<%= form_with model: division, authenticity_token: true, data: {title: title, turbo_frame: "_top"} do |form| %>
+<%= render "divisions_header", title: title %>
   <table>
     <tr>
       <th><%= t(:l_name) %></th>
@@ -8,5 +8,5 @@
       </td>
     </tr>
   </table>
-  <%= render "shared/save_cancel", save: true %>
+  <%= render "shared/modal_bottom", save: true %>
 <% end %>
