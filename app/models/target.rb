@@ -29,7 +29,7 @@ class Target < ApplicationRecord
     res = Array.new
     res << [I18n.t(:l_fit), 0]
     res << [I18n.t(:l_off), 1]
-    res << [I18n.t(:l_def), ,2]
+    res << [I18n.t(:l_def), 2]
   end
 
   #Search target matching. returns either nil or a Target

@@ -47,6 +47,7 @@ class TeamsController < ApplicationController
   def new
 		if current_user.present? and current_user.admin?
     	@team = Team.new
+			@eligible_coaches = Coach.active
 		else
 			redirect_to(current_user.is_coach? ? teams_path : "/")
 		end

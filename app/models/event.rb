@@ -30,12 +30,27 @@ class Event < ApplicationRecord
       res = res + " (" + self.date_string+ ")" if long
     when :match
       res = long ? self.team.name + " " : ""
-      res = res + (self.home? ? " vs " : " @ ") + self.name
+      res = res + (self.home? ? "vs " : "@ ") + self.name
       res = res + " (" + self.date_string + ")" if long
     when :holiday
       res=self.name
     else
       res = ""
+    end
+    res
+  end
+
+  # return name of assocatied icon
+  def pic
+    case self.kind.to_sym
+    when :train
+      res = "training.svg"
+    when :match
+      res = "match.svg"
+    when :holiday
+      res = "rest.svg"
+    else
+      res = "team.svg"
     end
     res
   end
@@ -49,8 +64,8 @@ class Event < ApplicationRecord
     return true
   end
 
-  def form_label
-    cad = self.id ? I18n.t(:m_edit) : I18n.t(:m_create)
+  def title
+    cad = self.id ? I18n.t(:m_edit) + " " : I18n.t(:m_create) + " "
     case self.kind.to_sym  # depending on event kind
     when :holiday
       cad = cad + I18n.t(:l_rest)

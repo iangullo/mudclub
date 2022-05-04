@@ -52,7 +52,7 @@ es:
   m_import: "Importar"
   m_export: "Exportar"
   m_create: "Crear "
-  m_edit: "Editar "
+  m_edit: "Editar"
   h_general: "General"
   q_del: "¿Borrar "
   q_save: "¿Guardar "
