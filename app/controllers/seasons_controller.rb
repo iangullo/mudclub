@@ -7,7 +7,7 @@ class SeasonsController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
 			@season = Season.search(params[:search])
-      @events = Event.for_season(@season).non_training
+      @events = Event.upcoming.for_season(@season).non_training
 		else
 			redirect_to "/"
 		end

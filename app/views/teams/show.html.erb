@@ -59,7 +59,7 @@
 				<th class="border px py"><%= t(:h_time) %></th>
 				<th class="border px py"><%= t(:h_desc) %></th>
 			</tr>
-			<% @team.events.normal.each do |event| %>
+			<% @team.events.normal.order(:start_time).each do |event| %>
 				<%= render "events/event_row", event: event, short: true %>
 			<% end %>
 		</table>
