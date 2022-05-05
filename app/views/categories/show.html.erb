@@ -1,5 +1,5 @@
-<%= render "shared/modal", simple: true do %>
-  <%= render "category_header", label: t(:l_cat_show) %>
+<%= render "shared/modal", simple: true, edit: current_user.admin? ? edit_category_path(@category) : nil do %>
+  <%= render "category_header", title: t(:l_cat_show) %>
   <table>
     <tr>
       <th><%= t(:l_name) %></th>

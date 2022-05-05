@@ -1,6 +1,6 @@
-<%= render "shared/modal", simple: true do %>
+<%= render "shared/modal", simple: true, edit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil do %>
 	<div id="drills-show">
-	<%= render "drills_header", label: t(:l_drill_show) %>
+	<%= render "drills_header", title: t(:l_drill_show) %>
 	<div id="drills-show-content">
 		<table>
 			<tr>
@@ -28,13 +28,6 @@
 			</tr><tr>
 				<th align="right"><%= t(:l_auth) %></th>
 				<td colspan="2" align="left"><%= @drill.coach.s_name %></td>
-				<% if current_user.admin? or (@drill.coach_id==current_user.person.coach_id) %>
-					<td align="right">
-						<%= link_to edit_drill_path(@drill), data: {turbo_frame: "modal"} do %>
-							<%= render "shared/edit" %>
-						<% end %>
-					</td>
-				<% end %>
 			</tr>
 		</table>
 	</div>

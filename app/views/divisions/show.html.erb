@@ -1,5 +1,5 @@
-<%= render "shared/modal", simple: true do %>
-  <%= render "divisions_header", label: t(:l_div_show) %>
+<%= render "shared/modal", simple: true, edit: current_user.admin? ? edit_division_path(@division) : nil do %>
+  <%= render "divisions_header", title: t(:l_div_show) %>
     <table>
       <tr>
         <th><%= @division.name %></th>

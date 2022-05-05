@@ -1,12 +1,12 @@
-<%= form_with model: event, authenticity_token: true, data: { label: label, turbo_frame: "_top" } do |form| %>
+<%= form_with model: event, authenticity_token: true, data: { title: title, turbo_frame: "_top" } do |form| %>
   <div id="edit-event-header">
     <table>
       <tr>
         <th rowspan="2">
-          <%= image_tag("team.svg", size: "50x50") %>
+          <%= image_tag(@event.pic, size: "50x50") %>
         </th>
         <th align="left" class="align-top rounded-md text-yellow-600">
-          <%= event.team_id > 0 ? event.team.to_s : label %>
+          <%= title %>
         </th>
         <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
         <th align="right" class="inline-flex">
@@ -14,8 +14,19 @@
           <%= form.date_field :start_time, value: event.start_date, start_year: @season.start_year, end_year: @season.end_year, class: "rounded border shadow-inner" %>
         </th>
       </tr><tr>
-        <% if event.team_id > 0 and event.kind_before_type_cast != :holiday %>
-          <th align="left"><%= event.team.season.name %></th>
+        <% if event.holiday? %>
+          <td align="left" colspan="3"><%= form.text_field :name, size: 20, class: "rounded border shadow-inner" %></td>
+        <% else %>
+          <th align="left">
+            <% if event.train? %>
+              <%= @event.title %>
+            <% else %>
+              <div class="inline-flex">
+                <%= image_tag "location.svg", size: "25x25", alt: t(:l_loc_show) %>
+                <%= form.collection_select :location_id, Location.home, :id, :name, selected: @event.team.homecourt_id %>
+              </div>
+            <% end %>
+          </th>
           <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
           <th align="right" class="inline-flex">
             <%= image_tag("clock.svg", size: "25x25") %>
@@ -24,20 +35,20 @@
             <%= form.number_field :min, value: event.min, in: 0..45, step: 15, size: 2, class: "rounded border shadow-inner" %>
             <%= form.hidden_field :name %>
           </th>
-        <% elsif event.kind.to_sym == :holiday%>
-          <td align="left" colspan="3"><%= form.text_field :name, size: 20, class: "rounded border shadow-inner" %></td>
         <% end %>
       </tr>
     </table>
   </div>
+  <br>
   <div id="edit-event-data">
     <% if event.train? %>
-      <%= render 'edit_session', form: form, label: label %>
+      <%= render 'edit_session', form: form, title: title %>
     <% elsif event.match? %>
-      <%= render 'edit_match', form: form, label: label %>
+      <%= render 'edit_match', form: form, title: title %>
     <% end %>
   </div>
+  <%= form.hidden_field :season_id, value: @season.id %>
   <%= form.hidden_field :team_id %>
   <%= form.hidden_field :kind %>
-  <%= render "shared/save_cancel", close_return: (event.persisted? ? event_path : events_path), save: true %>
+  <%= render "shared/modal_bottom", close_return: (event.persisted? ? event_path : events_path), save: true %>
 <% end %>

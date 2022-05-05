@@ -1,0 +1,8 @@
+<% score = @event.score %>
+<tr>
+  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= score[:home][:team] %></th>
+  <th ailgn="right" class="border px py"><%= score[:home][:points] %></th>
+</tr><tr>
+  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= score[:away][:team] %></th>
+  <th align="right" class="border px py"><%= score[:away][:points] %></th>
+</tr>

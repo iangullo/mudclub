@@ -1,1 +1,2 @@
-<%= image_tag "delete.svg", size: "25x25", class: "rounded hover:bg-red-200" %>
+<% max_h = local_assigns.fetch(:max_h, "max-h-6") %>
+<%= image_tag "delete.svg", class: "rounded-lg hover:bg-red-200 #{max_h} min-h-4" %>

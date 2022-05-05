@@ -1,4 +1,4 @@
-<%= form_with model: slot, authenticity_token: true, data: { label: label, season: season, turbo_frame: "_top" } do |form| %>
+<%= form_with model: slot, authenticity_token: true, data: { title: title, season: season, turbo_frame: "_top" } do |form| %>
   <div id="slots-form">
     <table>
       <div id="slots-form-header">
@@ -6,7 +6,7 @@
           <th rowspan="2" class="align-top">
             <%= image_tag("timetable.svg", size: "50x50") %>
           </th><th colspan="5" align="left" class="rounded-md text-yellow-600">
-            <%= label %>
+            <%= title %>
           </th>
         </tr><tr>
           <th colspan="5" align="left"><%= @season ? @season.name : " " %><th>
@@ -30,6 +30,6 @@
       </div>
     </table>
     <%= form.hidden_field(:season_id, value: season.id) if season %>
-    <%= render "shared/save_cancel", save: true %>
+    <%= render "shared/modal_bottom", save: true %>
   </div>
 <% end %>

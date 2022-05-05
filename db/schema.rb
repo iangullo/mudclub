@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_05_02_062103) do
+ActiveRecord::Schema.define(version: 2022_05_03_062023) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -221,6 +221,17 @@ ActiveRecord::Schema.define(version: 2022_05_02_062103) do
     t.index ["team_id"], name: "index_slots_on_team_id"
   end
 
+  create_table "stats", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "player_id", null: false
+    t.integer "concept"
+    t.integer "value"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["event_id"], name: "index_stats_on_event_id"
+    t.index ["player_id"], name: "index_stats_on_player_id"
+  end
+
   create_table "targets", force: :cascade do |t|
     t.integer "focus"
     t.integer "aspect"
@@ -301,6 +312,8 @@ ActiveRecord::Schema.define(version: 2022_05_02_062103) do
   add_foreign_key "slots", "locations"
   add_foreign_key "slots", "seasons"
   add_foreign_key "slots", "teams"
+  add_foreign_key "stats", "events"
+  add_foreign_key "stats", "players"
   add_foreign_key "tasks", "drills"
   add_foreign_key "tasks", "events"
   add_foreign_key "team_targets", "targets"

@@ -1,12 +1,23 @@
-<div id="event-show">
-	<%= render "event_header" %>
-  <div id="event-show-data">
-    <table>
-      <% if @event.train? %>
-        <%= render "view_session" %>
-			<% elsif @event.match? %>
-        <%= render "view_match" %>
-      <% end %>
-    </table>
-  </div>
-</div>
+<% if @event.train? %>
+	<div id="event-show">
+		<%= render "event_header", title: @event.team.to_s %>
+		<div id="event-show-data">
+			<table>
+				<%= render "view_session" %>
+			</table>
+		</div>
+	</div>
+<% else %>
+	<%= render "shared/modal", simple: true, edit: (current_user.admin? or @event.team.has_coach(current_user.coach_id)) ? edit_event_path(season_id: params[:season_id]) : nil do %>
+		<div id="event-show">
+			<%= render "event_header", title: @event.match? ? t(:l_match) : t(:l_rest) %>
+			<% if @event.match? %>
+				<div id="event-show-data">
+					<table>
+		        <%= render "view_match" %>
+					</table>
+				</div>
+			<% end %>
+		</div>
+	<% end %>
+<% end %>

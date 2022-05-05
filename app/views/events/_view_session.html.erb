@@ -1,5 +1,25 @@
-<%= render "session_header", label: t(:l_train) %>
 <tr>
+  <th rowspan="2" align="right" class="align-center text-indigo-900"><%= t(:a_targ) %></th>
+  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_def) %></th>
+  <td align="left" class="align-top border px py">
+    <% @event.def_targets.each do |d_t| %>
+    <%= d_t.to_s %>
+    <br>
+    <% end %>
+  </td><td rowspan="2" align="center" class="align-middle">
+    <%= link_to edit_event_path do %>
+      <%= render "shared/edit" %>
+    <% end %>
+  </td>
+</tr><tr>
+  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_off) %></th>
+  <td align="left" class="align-top border px py">
+    <% @event.off_targets.each do |o_t| %>
+    <%= o_t.to_s %>
+    <br>
+    <% end %>
+  </td>
+</tr><tr>
   <td colspan="4"><br></td>
 </tr><tr>
   <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_num) %></th>

@@ -2,7 +2,7 @@
 	<table>
 		<%= form.fields_for :person do |f| %>
 			<tr>
-				<td></td><th colspan="3" align="left" class="text-yellow-600"><%= t(:l_user_edit) %></th>
+				<td></td><th colspan="3" align="left" class="text-yellow-600"><%= title %></th>
 			</tr><tr>
 			<td colspan="4"><strong><%= t(:l_pic) %></strong><%= form.file_field :avatar, direct_upload: true %></td>
 			</tr><tr>
@@ -31,5 +31,5 @@
 			</tr>
 		<% end %>
 	</table>
-	<%= render "shared/save_cancel", save: true %>
+	<%= render "shared/modal_bottom", save: true %>
 <% end %>

@@ -31,7 +31,11 @@ class EventsController < ApplicationController
       @event  = Event.prepare(event_params)
       if @event
         if @event.holiday? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id))
-          @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+          if params[:season_id]
+            @season = Season.find(event_params[:season_id])
+          else
+            @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+          end
         else
           redirect_to(current_user.admin? ? "/slots" : @event.team)
         end
@@ -46,7 +50,11 @@ class EventsController < ApplicationController
   # GET /events/1/edit
   def edit
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+      if params[:season_id]
+        @season = Season.find(params[:season_id])
+      else
+        @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+      end
       @drills = @event.drill_list
     else
       redirect_to(current_user.present? ? events_url : "/")
@@ -82,10 +90,15 @@ class EventsController < ApplicationController
           if @task  # we just updated a task
             format.html { redirect_to edit_event_path(@event), notice: t(:task_created) + "'#{@task.to_s}'" }
             format.json { render :edit, status: :ok, location: @event }
-          else
+          elsif params[:event][:season_id].to_i > 0 # season event
+            format.html { redirect_to season_path(params[:event][:season_id]), notice: event_update_notice }
+            format.json { render :show, status: :ok, location: @event }
+          elsif params[:event][:p_for]==nil
             @event.tasks.reload
             format.html { redirect_to @event, notice: event_update_notice }
             format.json { render :show, status: :ok, location: @event }
+          else # updating match
+            format.html { redirect_to team_path(@event.team_id), notice: t(:match_updated) + "'#{@event.to_s}'" }
           end
         else
           format.html { render :edit, status: :unprocessable_entity }
@@ -150,6 +163,10 @@ class EventsController < ApplicationController
       @event.min        = event_params[:min].to_i if event_params[:min]
       @event.duration   = event_params[:duration].to_i if event_params[:duration]
       @event.name       = event_params[:name] if event_params[:name]
+      @event.p_for      = event_params[:p_for].to_i if event_params[:p_for]
+      @event.p_opp      = event_params[:p_opp].to_i if event_params[:p_opp]
+      @event.location_id= event_params[:location_id].to_i if event_params[:location_id]
+      @event.home       = event_params[:home] if event_params[:home]
       check_targets(event_params[:event_targets_attributes]) if event_params[:event_targets_attributes]
       check_tasks(event_params[:tasks_attributes]) if event_params[:tasks_attributes]
       check_new_task(event_params[:task]) if event_params[:task]
@@ -294,6 +311,6 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.require(:event).permit(:id, :name, :kind, :start_time, :end_time, :hour, :min, :duration, :team_id, :drill_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration], tasks_attributes: [:id, :order, :drill_id, :duration, :_destroy] )
+      params.require(:event).permit(:id, :name, :kind, :home, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :drill_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration], tasks_attributes: [:id, :order, :drill_id, :duration, :_destroy] )
     end
 end

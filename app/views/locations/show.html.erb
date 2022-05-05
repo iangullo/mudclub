@@ -1,4 +1,4 @@
-<%= render "shared/modal", simple: true do %>
+<%= render "shared/modal", simple: true, edit: (current_user.admin? or current_user.is_coach?) ? edit_location_path(@location) : nil do %>
 	<div id="locations-show">
 		<table>
 			<div id="locations-show-header">
@@ -29,15 +29,7 @@
 		      <td align="center">
 						<%= image_tag(@location.practice_court ? "training.svg" : "team.svg", size: "25x25") %>
 		      </td>
-				</tr><tr>
-					<td colspan="3" align="right">
-						<% if current_user.admin? or current_user.is_coach?  %>
-							<%= link_to edit_location_path(@location) do %>
-								<%= render "shared/edit" %>
-							<% end %>
-						<% end %>
-					</td>
-		  	</tr>
+				</tr>
 			</div>
 		</table>
 	</div>

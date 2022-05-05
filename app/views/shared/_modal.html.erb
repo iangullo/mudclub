@@ -1,5 +1,6 @@
 <%= turbo_frame_tag "modal" do %>
-<% simple = local_assigns.fetch(:simple, nil) %>
+  <% simple = local_assigns.fetch(:simple, nil) %>
+  <% edit   = local_assigns.fetch(:edit, nil) %>
   <div data-controller="extended-modal"
     data-modal-allow-background-close="true">
 
@@ -16,7 +17,7 @@
               <%= yield %>
             <% end %>
             <% if simple %>
-              <%= render "shared/save_cancel", close_return: nil, save: nil %>
+              <%= render "shared/modal_bottom", close_return: nil, save: nil, edit: edit %>
             <% end %>
           </div>
         </div>

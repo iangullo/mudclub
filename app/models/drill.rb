@@ -83,7 +83,7 @@ class Drill < ApplicationRecord
 
 	def nice_string
 		cad = self.kind_id ? (self.kind.name + " | ") : ""
-		cad = cad + (self.name ? self.name : "<NEW DRILL>")
+		cad = cad + (self.name ? self.name : I18n.t(:d_drill))
 		cad
 	end
 

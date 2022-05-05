@@ -1,4 +1,4 @@
-<%= render "shared/modal", simple: true do %>
+<%= render "shared/modal", simple: true, edit: (current_user.admin? or current_user.person_id==@person.id) ? edit_person_path(@person) : nil do %>
 	<table>
 		<tr>
 			<td rowspan="3" align="center">
@@ -14,13 +14,6 @@
 			<td class="inline-flex">
 				<%= image_tag("player.svg", size: "30x30") if @person.player_id > 0 %>
 				<%= image_tag("coach.svg", size: "30x30") if @person.coach_id > 0 %>
-			</td>
-			<td align="right">
-				<% if current_user.admin? or current_user.person_id==@person.id %>
-					<%= link_to edit_person_path(@person), data: {turbo_frame: "modal"} do %>
-						<%= render "shared/edit" %>
-					<% end %>
-				<% end %>
 			</td>
 		</tr>
 	</table>

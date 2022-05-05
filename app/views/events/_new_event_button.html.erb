@@ -9,9 +9,7 @@
       <div data-dropdown-target="menu" class="absolute hidden">
         <div class="text-left text-blue-900 bg-gray-100 shadow rounded border overflow-hidden no-underline">
           <%= link_to t(:l_train), new_event_path(event: {kind: :train, team_id:  @team ? @team.id : 0, season_id: @season ? @season.id : 0}), data: {action: "click->dropdown#toggle", "turbo-frame": "modal" }, class: 'hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block' %>
-          <!--
-            < %= link_to t(:l_match), new_event_path(event: {kind: :match, team_id:  @team ? @team.id : 0, season_id: @season ? @season.id : 0}), data: {action: "click->dropdown#toggle", "turbo-frame": "modal" }, class: 'hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block' %>
-          -->
+          <%= link_to t(:l_match), new_event_path(event: {kind: :match, team_id:  @team ? @team.id : 0, season_id: @season ? @season.id : 0}), data: {action: "click->dropdown#toggle", "turbo-frame": "modal" }, class: 'hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block' %>
           <%= link_to t(:l_rest), new_event_path(event: {kind: :holiday, team_id: @team ? @team.id : 0, season_id: @season ? @season.id : 0}), data: {action: "click->dropdown#toggle", "turbo-frame": "modal" }, class: 'hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block' %>
         </div>
       </div>

@@ -4,7 +4,7 @@ class Task < ApplicationRecord
   self.inheritance_column = "not_sti"
 
   def to_s
-    self.drill ? self.drill.nice_string : "<NUEVO>"
+    self.drill ? self.drill.nice_string : I18n.t(:d_drill)
   end
 
   # Takes the input received from add_task (f_object)

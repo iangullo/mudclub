@@ -1,54 +1,49 @@
-<%= render "shared/modal", simple: true do %>
-<%= render "team_header" %>
-<div id="show-plan-data">
-	<table>
-		<thead>
+<%= render "shared/modal", simple: true, edit: @team.has_coach(current_user.person.coach_id) ? edit_plan_team_path : nil do %>
+	<div id="team-plan">
+		<%= render "team_header" %>
+		<table>
 			<tr>
 				<td align="right"><%= image_tag("teamplan.svg", size: "30x30") %></td>
 				<th colspan="2" align="left"><%= t(:l_plan_show) %></th>
-				<td align="right">
-					<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
-						<%= link_to edit_plan_team_path, data: {turbo_frame: "modal"} do %>
-							<%= render "shared/edit" %>
-						<% end %>
-					<% end %>
-				</td>
-			</tr><tr>
-				<div id="search-month" class="inline-flex rounded border items start">
+			</tr>
+		</table>
+		<div id="team-plan-data">
+			<table>
+				<tr>
 					<td></td>
 					<td colspan="3">
-						<%= form_with(url: plan_team_path, value: params[:month], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
-							<%= f.select :month, options_for_select(@months, params[:month] ? params[:month].to_i : Date.today.month) %>
-							<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
-						<% end %>
+						<div id="search-month" class="inline-flex rounded border">
+							<%= form_with(url: plan_team_path, value: params[:month], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
+								<%= f.select :month, options_for_select(@months, params[:month] ? params[:month].to_i : Date.today.month) %>
+								<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
+							<% end %>
+						</div>
 					</td>
-				</div>
-			</tr><tr>
-				<th></th>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
-			</tr>
-		</thead>
-		<tbody>
-			<% @targets.each do |tgt| %>
-				<tr><!-- #display individual targets -->
-					<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tec) %></td>
-					<td class="border px py align-top">
-						<%= render "print_targets", targets: tgt[:t_d_ind] %>
-					</td><td class="border px py align-top">
-						<%= render "print_targets", targets: tgt[:t_o_ind] %>
-					</td>
+				</tr><tr>
+					<th></th>
+					<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
+					<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
 				</tr>
-				<tr><!-- #display collective targets -->
-					<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tac) %></td>
-					<td class="border px py align-top">
-						<%= render "print_targets", targets: tgt[:t_d_col] %>
-					</td><td class="border px py align-top">
-						<%= render "print_targets", targets: tgt[:t_o_col] %>
-					</td>
-				</tr>
-			<% end %>
-		</tbody>
-	</table>
-</div>
+				<% @targets.each do |tgt| %>
+					<tr><!-- #display individual targets -->
+						<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tec) %></td>
+						<td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_d_ind] %>
+						</td><td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_o_ind] %>
+						</td>
+					</tr>
+					<tr><!-- #display collective targets -->
+						<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tac) %></td>
+						<td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_d_col] %>
+						</td><td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_o_col] %>
+						</td>
+					</tr>
+				<% end %>
+
+			</table>
+		</div>
+	</div>
 <% end %>

@@ -4,15 +4,18 @@ class Event < ApplicationRecord
   has_many :event_targets
   has_many :targets, through: :event_targets
   has_many :tasks
+  has_many :stats
   accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :tasks, reject_if: :all_blank, allow_destroy: true
-  scope :upcoming, -> { where("start_time > ?", Time.now) }
-  scope :for_season, -> (season) { where("start_time > ? and end_time < ?", season.start_date, season.end_date) }
-  scope :normal, -> { where("kind > 0") }
-  scope :holidays, -> { where("kind = 0") }
-  scope :trainings, -> { where("kind = 1") }
-  scope :matches, -> { where("kind = 2") }
+  accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
+  scope :upcoming, -> { where("start_time > ?", Time.now).order(:start_time) }
+  scope :for_season, -> (season) { where("start_time > ? and end_time < ?", season.start_date, season.end_date).order(:start_time) }
+  scope :normal, -> { where("kind > 0").order(:start_time) }
+  scope :holidays, -> { where("kind = 0").order(:start_time) }
+  scope :trainings, -> { where("kind = 1").order(:start_time) }
+  scope :matches, -> { where("kind = 2").order(:start_time) }
+  scope :non_training, -> { where("kind != 1").order(:start_time) }
   self.inheritance_column = "not_sti"
 
   enum kind: {
@@ -28,12 +31,27 @@ class Event < ApplicationRecord
       res = res + " (" + self.date_string+ ")" if long
     when :match
       res = long ? self.team.name + " " : ""
-      res = res + (self.home? ? " vs " : " @ ") + self.name
+      res = res + (self.home? ? "vs " : "@ ") + self.name
       res = res + " (" + self.date_string + ")" if long
     when :holiday
       res=self.name
     else
       res = ""
+    end
+    res
+  end
+
+  # return name of assocatied icon
+  def pic
+    case self.kind.to_sym
+    when :train
+      res = "training.svg"
+    when :match
+      res = "match.svg"
+    when :holiday
+      res = "rest.svg"
+    else
+      res = "team.svg"
     end
     res
   end
@@ -47,15 +65,15 @@ class Event < ApplicationRecord
     return true
   end
 
-  def form_label
-    cad = self.id ? "Editar " : "Crear "
+  def title
+    cad = self.id ? I18n.t(:m_edit) + " " : I18n.t(:m_create) + " "
     case self.kind.to_sym  # depending on event kind
     when :holiday
-      cad = cad + "Descanso"
+      cad = cad + I18n.t(:l_rest)
     when :train
-      cad = cad + "Sesión"
+      cad = cad + I18n.t(:l_train)
     when :match
-      cad = cad + "Partido"
+      cad = cad + I18n.t(:l_match)
     else
       cad = cad + "(¿?)"
     end
@@ -153,7 +171,7 @@ class Event < ApplicationRecord
     res  = Event.new(team_id: team.id, kind: s_data[:kind].to_sym)
     case res.kind.to_sym  # depending on event kind
     when :holiday
-      res.name        = "Descanso"
+      res.name        = I18n.t(:l_rest)
       res.start_time  = Date.current
       res.duration    = 1440
       res.location_id = 0
@@ -161,16 +179,16 @@ class Event < ApplicationRecord
       last            = team.events.trainings.last
       slot            = team.next_slot(last)
       return nil unless slot
-      res.name        = "Sesión"
+      res.name        = I18n.t(:l_train)
       res.start_time  = (slot.next_date + slot.hour.hours + slot.min.minutes).to_datetime
       res.duration    = slot.duration
       res.location_id = slot.location_id
     when :match
       last            = team.events.matches.last
       starting        = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
-      res.name        = "<Rival>"
+      res.name        = I18n.t(:d_match)
       res.start_time  = starting
-      res.duration    = slot.duration
+      res.duration    = 120
       res.location_id = team.homecourt_id
     else
       res = nil
@@ -194,9 +212,50 @@ class Event < ApplicationRecord
 		end
 	end
 
+  # Scores accessor modes:
+  #   0:  our team first
+  #   1:  home team first
+  #   2:  away team first
+  def score(mode=1)
+    p_for = self.stats.where(concept: :pts, player_id: 0).first # our team's points
+    p_for = p_for ? p_for.value : 0
+    p_opp = self.stats.where(concept: :pts, player_id: -1).first  # opponent points
+    p_opp = p_opp ? p_opp.value : 0
+    our_s = {team: self.team.to_s, points: p_for}
+    opp_s = {team: self.name, points: p_opp}
+
+    if mode==0 or (mode==1 and self.home?) or (mode==2 and self.home==false)
+      {home: our_s, away: opp_s}
+    else
+      {home: opp_s, away: our_s}
+    end
+  end
+
+  # wrapper to write points in favour of a match
+  def p_for=(newval)
+    p_f       = fetch_stat(0, :pts)
+    p_f.value = newval
+    p_f.save
+  end
+
+  # wrapper to write points against of a match
+  def p_opp=(newval)
+    p_o       = fetch_stat(-1, :pts)
+    p_o.value = newval
+    p_o.save
+  end
+
+  # fetch or create a stat for a specific concept and player of an event
+  def fetch_stat(player_id, concept)
+    aux = self.stats.where(player_id: player_id, concept: concept).first
+    unless aux
+      aux = Stat.new(event_id: self.id, player_id: player_id, concept: concept, value: 0)
+    end
+    aux
+  end
+
   private
   # starting / ending hours as string
-
   def two_dig(num)
     num.to_s.rjust(2,'0')
   end

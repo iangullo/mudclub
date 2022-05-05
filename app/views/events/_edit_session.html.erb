@@ -1,5 +1,4 @@
 <table>
-  <%= render "session_header", label: label %>
   <tr>
     <th rowspan="2" align="right" class="align-center text-indigo-900"><%= t(:a_targ) %></th>
     <%= render "targets_form", form: form, event_targets: @event.def_targets, aspect: 0, focus: 2, label: t(:a_def) %>
@@ -19,15 +18,16 @@
       <td></td>
       <%= render "tasks_form", form: form, tasks: @event.tasks %>
       <tr>
-        <td colspan="2" align="center">
+        <td></td>
+        <td colspan="2" align="left">
           <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
-            <%= link_to add_task_event_path, data: {turbo_frame: "modal"} do %>
+            <%= link_to add_task_event_path, class: "inline-flex align-middle rounded-lg text-green-700 hover:bg-green-200", data: {turbo_frame: "modal"} do %>
               <%= render "shared/add" %>
+              <%= t(:l_task_add) %>
             <% end %>
           <% end %>
         </td>
-        <th align="right">Total:</th>
-        <th align="right"><%= @event.work_duration %></th>
+        <th align="left"><%= t(:a_total) + " " + @event.work_duration %></th>
     </tr>
   <% end %>
 </table>
