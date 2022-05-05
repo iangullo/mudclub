@@ -1,7 +1,8 @@
+<% score = @event.score %>
 <tr>
-  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= @event.home? ? @event.team.to_s : @event.name %></th>
-  <td class="border px py"></td>
+  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= score[:home][:team] %></th>
+  <th ailgn="right" class="border px py"><%= score[:home][:points] %></th>
 </tr><tr>
-  <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py"><%= @event.home? ? @event.name : @event.team.to_s %></th>
-  <td class="border px py"></td>
+  <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= score[:away][:team] %></th>
+  <th align="right" class="border px py"><%= score[:away][:points] %></th>
 </tr>

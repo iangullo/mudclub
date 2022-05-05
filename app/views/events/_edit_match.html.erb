@@ -1,10 +1,20 @@
+<% score = @event.score(0) %>
 <table>
   <tr>
-    <th colspan="2"></th>
-    <td><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
+    <th align="center"><%= t(:h_home) %></th>
+    <th align="center" class="bg-indigo-900 text-gray-300 border px py"><%= t(:l_team_show) %></th>
   </tr><tr>
-    <th colspan="2" align="right"><%= t(:l_home) %></th>
-    <td><%= form.check_box :home %></td>
+    <td align="center"><%= form.radio_button :home, true, checked: @event.home %></td>
+    <th align="left" class="align-center"><%= @event.team.to_s %></th>
+    <th ailgn="right" class="border px py">
+      <%= form.number_field :p_for, value: score[:home][:points], in: 0..200, size: 2, class: "text-right rounded border shadow-inner" %>
+    </th>
+  </tr><tr>
+    <td align="center"><%= form.radio_button :home, false %></td>
+    <td><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
+    <th ailgn="right" class="border px py">
+      <%= form.number_field :p_opp, value: score[:away][:points], in: 0..200, size: 2, class: "text-right rounded border shadow-inner" %>
+    </th>
   </tr>
   <% if @event.id # only allow editing stats if we're not creating it from scratch %>
   <% end %>

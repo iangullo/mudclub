@@ -211,9 +211,50 @@ class Event < ApplicationRecord
 		end
 	end
 
+  # Scores accessor modes:
+  #   0:  our team first
+  #   1:  home team first
+  #   2:  away team first
+  def score(mode=1)
+    p_for = self.stats.where(concept: :pts, player_id: 0).first # our team's points
+    p_for = p_for ? p_for.value : 0
+    p_opp = self.stats.where(concept: :pts, player_id: -1).first  # opponent points
+    p_opp = p_opp ? p_opp.value : 0
+    our_s = {team: self.team.to_s, points: p_for}
+    opp_s = {team: self.name, points: p_opp}
+
+    if mode==0 or (mode==1 and self.home?) or (mode==2 and self.home==false)
+      {home: our_s, away: opp_s}
+    else
+      {home: opp_s, away: our_s}
+    end
+  end
+
+  # wrapper to write points in favour of a match
+  def p_for=(newval)
+    p_f       = fetch_stat(0, :pts)
+    p_f.value = newval
+    p_f.save
+  end
+
+  # wrapper to write points against of a match
+  def p_opp=(newval)
+    p_o       = fetch_stat(-1, :pts)
+    p_o.value = newval
+    p_o.save
+  end
+
+  # fetch or create a stat for a specific concept and player of an event
+  def fetch_stat(player_id, concept)
+    aux = self.stats.where(player_id: player_id, concept: concept).first
+    unless aux
+      aux = Stat.new(event_id: self.id, player_id: player_id, concept: concept, value: 0)
+    end
+    aux
+  end
+
   private
   # starting / ending hours as string
-
   def two_dig(num)
     num.to_s.rjust(2,'0')
   end
