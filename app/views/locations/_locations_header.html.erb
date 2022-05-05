@@ -6,18 +6,11 @@
       </th>
       <th align="left" class="align-top text-yellow-600"><%= title %></th>
     </tr><tr>
-      <th align="left">
-        <% if @season %>
-          <%= @season.name %>
-        <% else %>
-          <div id="locations-search" class="inline-flex rounded border">
-            <%= form_with(url: '/locations', method: 'get', local: true) do %>
-              <%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: 16, class: "text-gray-700 rounded border shadow-inner" %>
-              <%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: "Buscar" %>
-            <% end %>
-          </div>
-        <% end %>
-      <th>
+      <% if @season %>
+        <th align="left"><%= @season.name %><th>
+      <% else %>
+        <%= render "shared/text_search", search_in: locations_path %>
+      <% end %>
     </tr>
   </table>
 </div>

@@ -4,15 +4,7 @@
 			<td rowspan="2" align="center"><%= image_tag("drill.svg", size: "50x50") %></td>
 			<th colspan="2" align="left" class="text-indigo-900"><%= title %></th>
 		</tr><tr>
-			<td colspan="2">
-				<div id="search-drills" class="inline-flex rounded border">
-					<%= form_with(url: search_in, value: params[:search], method: 'get') do |f| %>
-						<%= text_field_tag :search, params[:search], size: 16, class: "text-gray-700 rounded border shadow-inner" %>
-						<%= f.hidden_field :task_id, value: @task.id %>
-						<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
-					<% end %>
-				</div>
-			</td>
+			<%= render "shared/text_search", search_in: search_in, colspan: 2, task_id: @task.id %>
 		</tr>
 	</table>
 	<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top" } do |form| %>
