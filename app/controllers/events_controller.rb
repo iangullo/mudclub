@@ -31,7 +31,11 @@ class EventsController < ApplicationController
       @event  = Event.prepare(event_params)
       if @event
         if @event.holiday? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id))
-          @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+          if event_params[:season_id]
+            @season = Season.find(event_params[:season_id])
+          else
+            @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+          end
         else
           redirect_to(current_user.admin? ? "/slots" : @event.team)
         end
@@ -78,6 +82,7 @@ class EventsController < ApplicationController
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
       respond_to do |format|
         rebuild_event(event_params)
+byebug
         if @event.save
           if @task  # we just updated a task
             format.html { redirect_to edit_event_path(@event), notice: t(:task_created) + "'#{@task.to_s}'" }

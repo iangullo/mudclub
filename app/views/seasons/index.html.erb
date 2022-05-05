@@ -1,3 +1,4 @@
+<% console %>
 <div id="seasons-index">
   <div id="seasons-header">
 		<table>
@@ -51,11 +52,16 @@
   </div>
   <div id="season-events-grid">
 		<table class="table-auto">
-      <thead class="bg-indigo-900 text-gray-300 align-center border px py">
-        <th align="center">Fecha</th>
-        <th align="center">Hora</th>
-        <th align="leff">Equipo</th>
-        <th align="left">Rival</th>
+      <thead>
+        <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Fecha</th>
+        <th align="center" class="bg-indigo-900 text-gray-300 align-center border px py">Hora</th>
+        <th align="leff" class="bg-indigo-900 text-gray-300 align-center border px py">Equipo</th>
+        <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py">Rival</th>
+        <td>
+          <%= link_to new_event_path(event: {kind: :holiday, team_id: 0, season_id: @season.id}), data: {turbo_frame: "modal"} do %>
+            <%= render "shared/add" %>
+          <% end %>
+        </td>
       </thead>
 	    <tbody>
         <% @events.each do |event| %>

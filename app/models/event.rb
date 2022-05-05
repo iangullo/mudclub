@@ -15,6 +15,7 @@ class Event < ApplicationRecord
   scope :holidays, -> { where("kind = 0") }
   scope :trainings, -> { where("kind = 1") }
   scope :matches, -> { where("kind = 2") }
+  scope :non_training, -> { where("kind != 1") }
   self.inheritance_column = "not_sti"
 
   enum kind: {

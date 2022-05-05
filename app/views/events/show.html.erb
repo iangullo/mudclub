@@ -10,12 +10,14 @@
 <% else %>
 	<%= render "shared/modal", simple: true, edit: (current_user.admin? or @event.team.has_coach(current_user.coach_id)) ? edit_event_path : nil do %>
 		<div id="event-show">
-			<%= render "event_header", title: t(:l_match) %>
-			<div id="event-show-data">
-				<table>
-	        <%= render "view_match" %>
-				</table>
-			</div>
+			<%= render "event_header", title: @event.match? ? t(:l_match) : t(:l_rest) %>
+			<% if @event.match? %>
+				<div id="event-show-data">
+					<table>
+		        <%= render "view_match" %>
+					</table>
+				</div>
+			<% end %>
 		</div>
 	<% end %>
 <% end %>
