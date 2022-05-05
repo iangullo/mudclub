@@ -31,7 +31,7 @@ class EventsController < ApplicationController
       @event  = Event.prepare(event_params)
       if @event
         if @event.holiday? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id))
-          if event_params[:season_id]
+          if params[:season_id]
             @season = Season.find(event_params[:season_id])
           else
             @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
@@ -50,7 +50,11 @@ class EventsController < ApplicationController
   # GET /events/1/edit
   def edit
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+      if params[:season_id]
+        @season = Season.find(params[:season_id])
+      else
+        @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+      end
       @drills = @event.drill_list
     else
       redirect_to(current_user.present? ? events_url : "/")
@@ -82,16 +86,18 @@ class EventsController < ApplicationController
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
       respond_to do |format|
         rebuild_event(event_params)
-byebug
         if @event.save
           if @task  # we just updated a task
             format.html { redirect_to edit_event_path(@event), notice: t(:task_created) + "'#{@task.to_s}'" }
             format.json { render :edit, status: :ok, location: @event }
+          elsif params[:event][:season_id].to_i > 0 # season event
+            format.html { redirect_to season_path(params[:event][:season_id]), notice: event_update_notice }
+            format.json { render :show, status: :ok, location: @event }
           elsif params[:event][:p_for]==nil
             @event.tasks.reload
             format.html { redirect_to @event, notice: event_update_notice }
             format.json { render :show, status: :ok, location: @event }
-          else
+          else # updating match
             format.html { redirect_to team_path(@event.team_id), notice: t(:match_updated) + "'#{@event.to_s}'" }
           end
         else

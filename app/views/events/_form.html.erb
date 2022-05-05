@@ -47,6 +47,7 @@
       <%= render 'edit_match', form: form, title: title %>
     <% end %>
   </div>
+  <%= form.hidden_field :season_id, value: @season.id %>
   <%= form.hidden_field :team_id %>
   <%= form.hidden_field :kind %>
   <%= render "shared/modal_bottom", close_return: (event.persisted? ? event_path : events_path), save: true %>

@@ -9,13 +9,13 @@ class Event < ApplicationRecord
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :tasks, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
-  scope :upcoming, -> { where("start_time > ?", Time.now) }
-  scope :for_season, -> (season) { where("start_time > ? and end_time < ?", season.start_date, season.end_date) }
-  scope :normal, -> { where("kind > 0") }
-  scope :holidays, -> { where("kind = 0") }
-  scope :trainings, -> { where("kind = 1") }
-  scope :matches, -> { where("kind = 2") }
-  scope :non_training, -> { where("kind != 1") }
+  scope :upcoming, -> { where("start_time > ?", Time.now).order(:start_time) }
+  scope :for_season, -> (season) { where("start_time > ? and end_time < ?", season.start_date, season.end_date).order(:start_time) }
+  scope :normal, -> { where("kind > 0").order(:start_time) }
+  scope :holidays, -> { where("kind = 0").order(:start_time) }
+  scope :trainings, -> { where("kind = 1").order(:start_time) }
+  scope :matches, -> { where("kind = 2").order(:start_time) }
+  scope :non_training, -> { where("kind != 1").order(:start_time) }
   self.inheritance_column = "not_sti"
 
   enum kind: {

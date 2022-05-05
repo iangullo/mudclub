@@ -1,4 +1,3 @@
-<% console %>
 <div id="seasons-index">
   <div id="seasons-header">
 		<table>
@@ -65,7 +64,7 @@
       </thead>
 	    <tbody>
         <% @events.each do |event| %>
-          <%= render "events/event_row", event: event %>
+          <%= render "events/event_row", event: event, season_id: @season.id %>
         <% end %>
       </tbody>
     </table>
