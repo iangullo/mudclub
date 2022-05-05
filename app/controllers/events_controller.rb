@@ -154,6 +154,7 @@ class EventsController < ApplicationController
       @event.name       = event_params[:name] if event_params[:name]
       @event.p_for      = event_params[:p_for].to_i if event_params[:p_for]
       @event.p_opp      = event_params[:p_opp].to_i if event_params[:p_opp]
+      @event.location_id= event_params[:location_id].to_i if event_params[:location_id]
       @event.home       = event_params[:home] if event_params[:home]
       check_targets(event_params[:event_targets_attributes]) if event_params[:event_targets_attributes]
       check_tasks(event_params[:tasks_attributes]) if event_params[:tasks_attributes]
