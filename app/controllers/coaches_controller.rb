@@ -7,6 +7,8 @@ class CoachesController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@coaches = get_coaches
+			@header = header_top(I18n.t(:l_coach_index))
+			@header << [{kind: "text-search", url: coaches_path}]
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
@@ -24,13 +26,19 @@ class CoachesController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/"
 		end
+		@header = header_top(I18n.t(:l_coach_show), 4, nil, "100x100", "rounded-full")
+		@header << [{kind: "label", value: @coach.person.nick}]
+		@header << [{kind: "label", value: @coach.person.surname}]
+		@header << [{kind: "text", value: @coach.person.birthday}]
+		@header << [{kind: "label", value: (I18n.t(@coach.active ? :h_active : :h_inactive)), align: "center"}]
 	end
 
 	# GET /coaches/new
 	def new
 		if current_user.present? and current_user.admin?
-			@coach=Coach.new
+			@coach = Coach.new
 			@coach.build_person
+			@header = form_header(I18n.t(:l_coach_edit), 3, 2)
 		else
 			redirect_to "/"
 		end
@@ -40,6 +48,16 @@ class CoachesController < ApplicationController
 	def edit
 		unless current_user.present? and (current_user.admin? or current_user.person.coach_id==@coach.id)
 			redirect_to "/"
+		else
+			@header       = form_header(I18n.t(:l_coach_edit), 4, 3)
+			@coach_fields = [
+				[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @coach.active, cols: 4}],
+				[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar, cols: 3}]
+			]
+			@person_fields = [
+				[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @coach.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "text-box", key: :email, size: 22, value: @coach.person.email}],
+				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @coach.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @coach.person.phone}]
+			]
 		end
 	end
 
@@ -157,6 +175,24 @@ class CoachesController < ApplicationController
 	end
 
 	private
+
+	# return icon and top of HeaderComponent
+	def header_top(title, rows=2, cols=nil, size=nil, _class=nil)
+		[[{kind: "header-icon", value: "coach.svg", rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
+	end
+
+	# return HeaderComponent @header for forms
+	def form_header(title, rows=3, cols=2)
+		res = header_top(title, rows, cols, "100x100", "rounded-full")
+		f_cols = cols>2 ? cols - 1 : nil
+		res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @coach.person.name, cols: f_cols}]
+		res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @coach.person.surname, cols: f_cols}]
+		if f_cols	# i's an edit form
+			res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @coach.person.birthday, cols: f_cols}]
+		end
+		res
+	end
+
 	# Use callbacks to share common setup or constraints between actions.
 	def set_coach
 		@coach = Coach.find(params[:id]) unless @coach.try(:id)==params[:id]

@@ -1,6 +1,6 @@
 <%= form_with model: drill, authenticity_token: true, data: { title: title, turbo_frame: "_top" } do |form| %>
+	<%= render HeaderComponent.new(header: @header, form: form) %>
 	<div id="drills-form">
-		<%= render "drills_header", title: title, form: form %>
 		<div id="drills-form-data">
 			<table>
 				<tr>

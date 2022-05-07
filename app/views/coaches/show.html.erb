@@ -1,23 +1,7 @@
 <%= render "shared/modal", simple: true, edit: (current_user.admin? or current_user.person.coach_id==@coach.id) ? edit_coach_path(@coach) : nil do %>
-	<table>
-		<tr>
-			<td rowspan="3" align="center">
-				<%= image_tag(@coach.picture, size: "100x100", class: "rounded-full") %>
-			</td>
-			<th align="left" class="align-top text-yellow-600">
-				<%= t(:l_coach_show) %>
-			</th>
-		</tr><tr>
-			<td><%= @coach.person.name %></td>
-		</tr><tr>
-			<td><%= @coach.person.surname %></td>
-		</tr><tr>
-			<td align="center"><%= @coach.person.nick %></td>
-			<td><%= @coach.person.birthday %></td>
-		</tr><tr>
-			<td align="center"><%= t(@coach.active ? :h_active : :h_inactive) %></td>
-		</tr>
-		<% unless @coach.teams.empty? %>
+	<%= render HeaderComponent.new(header: @header) %>
+	<% unless @coach.teams.empty? %>
+		<table>
 			<tr>
 				<td align="center" class="align-top"><strong><%= t(:l_team_index) %></strong></td>
 				<td>
@@ -27,6 +11,6 @@
 					<% end %>
 				</td>
 			</tr>
-		<% end %>
-	</table>
+		</table>
+	<% end %>
 <% end %>

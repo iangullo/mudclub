@@ -7,6 +7,8 @@ class DrillsController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			# Simple search by name/description for now
 			@drills = Drill.search(params[:search])
+			@header = header_top(I18n.t(:l_drill_index))
+	    @header << [{kind: "text-search", url: drills_path}]
 		else
 			redirect_to "/"
 		end
@@ -17,12 +19,15 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/"
 		end
+		@header = header_top(I18n.t(:l_drill_show), 3)
+		@header << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
 	end
 
 	# GET /drills/new
 	def new
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@drill = Drill.new
+			@drill  = Drill.new
+			@header = form_header(I18n.t(:l_drill_new))
 		else
 			redirect_to "/"
 		end
@@ -33,6 +38,7 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			redirect_to drills_url
 		end
+		@header = form_header(I18n.t(:l_drill_edit))
 	end
 
 	# POST /drills or /drills.json
@@ -156,6 +162,32 @@ class DrillsController < ApplicationController
 				@drill.drill_targets ? @drill.drill_targets << dt : @drill.drill_targets |= dt
 			end
 		}
+	end
+
+	# return icon and top of HeaderComponent
+	def header_top(title, rows=nil, cols=nil)
+		[[{kind: "header-icon", value: "drill.svg"}, {kind: "title", value: title, cols: cols}]]
+	end
+
+	# return HeaderComponent @header for forms
+	def form_header(title)
+		res = header_top(title, nil, 4)
+		res << [{kind: "text-box", value: @drill.name}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_kind)}, {kind: "collecion-select", key: :kind_id, collection: Kind.all}]
+		res
+	end
+
+	# return FormComponent @fields for edit/new
+	def form_fields
+		return [
+			# DO WE INCLUDE NESTED FORM TYPE??? HOW?
+			# NESTED FORM for Targets...
+			[{kind: "label", value: I18n.t(:l_mat), align: "right"}, {kind: "text-box", key: :material, size: 40, value: @drill.material, cols: 3}],
+			[{kind: "label", value: I18n.t(:l_desc), align: "right"}, {kind: "text-area", key: :description, size: 40, lines: 2, value: @drill.material, cols: 3}],
+			[{kind: "label", value: I18n.t(:l_expl), align: "left", cols: 3}, {kind: "select-file", align: "right", icon: "playbook.png", label: "Playbook", key: :playbook}],
+			[{kind: "rich-text-area", key: :explanation, align: "left", cols: 4}],
+			# NESTED FORM for Skills...
+			[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "collection-select", key: :coach_id, collection: Coach.active}]
+	]
 	end
 
 	# Use callbacks to share common setup or constraints between actions.

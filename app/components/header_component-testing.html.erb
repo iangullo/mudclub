@@ -1,0 +1,10 @@
+<% # form = local_assigns.fetch(:form, nil) %>
+<table>
+  <% @header.each do |row| %>
+    <tr>
+      <% row.each do |item| %>
+        <%= item %>
+      <% end %>
+    </tr>
+  <% end %>
+</table>

@@ -1,5 +1,5 @@
 <div id="coaches-index">
-	<%= render "coaches_header", title: t(:l_coach_index) %>
+	<%= render HeaderComponent.new(header: @header) %>
 	<%= render "coaches_grid" %>
 	<% if current_user.admin? %>
 		<%= render "shared/import_export", import_path: import_coaches_path, export_path: coaches_path(format: :xlsx) %>

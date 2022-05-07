@@ -1,34 +1,44 @@
 <%= render "shared/modal", simple: true, edit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil do %>
 	<div id="drills-show">
-	<%= render "drills_header", title: t(:l_drill_show) %>
-	<div id="drills-show-content">
-		<table>
-			<tr>
-				<th align="right"><%= t(:l_mat) %></th>
-				<td colspan="3" align="left"><%= @drill.material %></td>
-			</tr><tr>
-				<th align="right" class="align-top"><%= t(:l_desc) %></th>
-				<td colspan="3" align="left"><%= @drill.description %></td>
-			</tr><tr>
-				<th colspan="3" align="left" class="align-top">
-					<%= t(:l_expl) %>
-				</th>
-				<% if @drill.playbook.attached? %>
-				<td align="right" class="inline-flex rounded-md hover:bg-yellow-300">
-					<%= link_to rails_blob_path(@drill.playbook, disposition: "attachment") do %>
-						<%= image_tag("playbook.png", size: "25x25") %>
+		<%= render HeaderComponent.new(header: @header) %>
+		<div id="drills-show-content">
+			<table>
+				<tr>
+					<td align="right" class="font-semibold align-top">
+						<%= t(:l_targ) %>
+					</td><td align="left">
+						<% @drill.drill_targets.each do |d_t| %>
+							<%= d_t.to_s %>
+							<br>
+						<% end %>
+					</td>
+				</tr><tr>
+					<td align="right" class="font-semibold "><%= t(:l_mat) %></td>
+					<td colspan="3" align="left"><%= @drill.material %></td>
+				</tr><tr>
+					<td align="right" class="font-semibold align-top"><%= t(:l_desc) %></td>
+					<td colspan="3" align="left"><%= @drill.description %></td>
+				</tr><tr>
+					<td colspan="3" align="left" class="font-semibold align-top">
+						<%= t(:l_expl) %>
+					</td>
+					<% if @drill.playbook.attached? %>
+					<td align="right" class="inline-flex rounded-md hover:bg-yellow-300">
+						<%= link_to rails_blob_path(@drill.playbook, disposition: "attachment") do %>
+							<%= image_tag("playbook.png", size: "25x25") %>
+						<% end %>
+					</td>
 					<% end %>
-				</td>
-				<% end %>
-			</tr><tr>
-				<td colspan="4" class="rounded-md border"><%= @drill.explanation %></td>
-			</tr><tr>
-				<th align="right" class="align-top"><%= t(:l_skill) %></th>
-				<td colspan="3"><%= @drill.print_skills %></td>
-			</tr><tr>
-				<th align="right"><%= t(:l_auth) %></th>
-				<td colspan="2" align="left"><%= @drill.coach.s_name %></td>
-			</tr>
-		</table>
+				</tr><tr>
+					<td colspan="4" class="rounded-md border"><%= @drill.explanation %></td>
+				</tr><tr>
+					<td align="right" class="font-semibold align-top"><%= t(:l_skill) %></td>
+					<td colspan="3"><%= @drill.print_skills %></td>
+				</tr><tr>
+					<td align="right" class="font-semibold"><%= t(:l_auth) %></td>
+					<td colspan="2" align="left"><%= @drill.coach.s_name %></td>
+				</tr>
+			</table>
+		</div>
 	</div>
 <% end %>

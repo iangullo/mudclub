@@ -1,25 +1,3 @@
 <%= render "shared/modal", simple: true, edit: current_user.admin? ? edit_category_path(@category) : nil do %>
-  <%= render "category_header", title: t(:l_cat_show) %>
-  <table>
-    <tr>
-      <th><%= t(:l_name) %></th>
-      <td colspan="3" align="left">
-        <%= @category.name %>
-      </td>
-    </tr><tr>
-      <th><%= t(:l_sex) %></th>
-      <td align="left">
-        <%= @category.sex %>
-      </td>
-    </tr><tr>
-      <th><%= t(:l_min) %></th>
-      <td align="left">
-        <%= @category.min_years %>
-      </td>
-      <th><%= t(:l_max) %></th>
-      <td align="left">
-        <%= @category.max_years %>
-      </td>
-    </tr>
-  </table>
+  <%= render HeaderComponent.new(header: @header) %>
 <% end %>

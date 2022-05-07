@@ -1,36 +1,8 @@
 <%= form_for @coach, authenticity_token: true, data:{ turbo_frame: "_top" } do |form| %>
-	<table>
-		<%= form.fields_for :person do |f| %>
-			<tr>
-				<td rowspan="4" colspan="2" align="center">
-					<%= image_tag(@coach.picture, size: "100x100", class: "rounded-full") %>
-				</td>
-				<th align="left" colspan="2" class="align-top text-yellow-600"><%= t(:l_coach_edit) %></th>
-			</tr><tr>
-				<td align="left"><strong><%= t(:l_name) %></strong></td>
-				<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
-			</tr><tr>
-				<td align="left"><strong><%= t(:l_surname) %></strong></td>
-				<td><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
-			</tr><tr>
-				<td align="center"><strong><%= image_tag "calendar.svg", size: "25x25", alt: t(:l_bday) %></strong></td>
-				<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %>
-			</tr><tr>
-				<td colspan="4"><strong>Foto:</strong><%= form.file_field :avatar, direct_upload: true %></td>
-			</tr><tr>
-				<td colspan="2"><strong>DNI:&nbsp;</strong><%= f.text_field :dni, size: 8, class: "rounded border shadow-inner" %></td>
-				<td align="center"><strong><%= image_tag "user.svg", size: "25x25", alt: t(:l_nick) %></strong></td>
-				<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
-			</tr><tr>
-				<td colspan="2" align="center"><strong><%= t(:h_active) %></strong><%= form.check_box :active %></td>
-				<td align="center"><%= image_tag "at.svg", size: "25x25", alt: t(:l_email) %></td>
-				<td><%= f.text_field :email, size: 22, class: "rounded border shadow-inner" %></td>
-			</tr><tr>
-				<td colspan="2"></td>
-				<td align="center"><strong><%= image_tag "phone.svg", size: "25x25", alt: t(:l_tel) %></strong></td>
-				<td><%= f.text_field :phone, size: 12, class: "rounded border shadow-inner" %></td>
-			</tr>
-		<% end %>
-	</table>
+	<%= form.fields_for :person do |f| %>
+		<%= render HeaderComponent.new(header: @header, form: f) %>
+		<%= render FormComponent.new(form: form, fields: @coach_fields ) %>
+		<%= render FormComponent.new(form: form, fields: @person_fields ) %>
+	<% end %>
 	<%= render "shared/modal_bottom", save: true %>
 <% end %>
