@@ -30,7 +30,7 @@ class UsersController < ApplicationController
       @user = User.new
   		@user.build_person
       @header = header_top(I18n.t(:l_user_new), nil, 5, 2)
-      @header << [{kind: "icon", value: "at.svg"}, {kind: "text-box", key: :email, size: 22, value: I18n.t(:h_email)}]
+      @header << [{kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: I18n.t(:h_email)}]
       @header << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t(:l_pass)}]
       @header << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t(:l_pass_conf)}]
       @header << [{kind: "text", value: I18n.t(:i_pass_conf), cols: 2}]
@@ -49,7 +49,7 @@ class UsersController < ApplicationController
         [{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]
       ]
       @person_fields = [
-        [{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "text-box", key: :email, size: 22, value: @user.person.email}],
+        [{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
 				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
     ]
     else

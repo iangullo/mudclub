@@ -15,6 +15,8 @@
           <%= image_tag(item[:icon], size: "25x25") %>&nbsp;<%= item[:value] %>
         <% when "text-search" %>
           <%= render "shared/text_search", search_in: item[:url], value: params[:search] %>
+        <% when "email-box" %>
+          <%= @form.email_field item[:key], autocomplete: item[:value], class: "rounded border shadow-inner" %>
         <% when "password-box" %>
           <%= @form.password_field item[:key], autocomplete: item[:auto], class: "rounded border shadow-inner" %>
         <% when "text-box" %>

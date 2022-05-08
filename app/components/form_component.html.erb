@@ -19,6 +19,8 @@
           <%= @form.text_area item[:key], value: item[:value], cols: item[:size] ? item[:size]: 16, rows: item[:lines] ? item[:lines] : 1, class: "rounded border shadow-inner" %>
         <% when "rich-text-area" %>
           <%= @form.rich_text_area item[:key], class: "rounded border shadow-inner" %>
+        <% when "email-box" %>
+          <%= @form.email_field item[:key], autocomplete: item[:value], size: 25, class: "rounded border shadow-inner" %>
         <% when "icon-text-box" %>
           <%= image_tag(item[:icon], size: "25x25") %>&nbsp;<%= @form.text_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 16, rows: item[:rows] ? item[:rows] : 1, class: "rounded border shadow-inner" %>
         <% when "number-box" %>

@@ -55,7 +55,7 @@ class CoachesController < ApplicationController
 				[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar, cols: 3}]
 			]
 			@person_fields = [
-				[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @coach.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "text-box", key: :email, size: 22, value: @coach.person.email}],
+				[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @coach.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @coach.person.email}],
 				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @coach.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @coach.person.phone}]
 			]
 		end
