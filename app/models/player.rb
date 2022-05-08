@@ -40,7 +40,7 @@ class Player < ApplicationRecord
 	end
 
 	def picture
-		self.avatar.attached? ? self.avatar : "player.svg"
+		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "player.svg"
 	end
 
 	#Search field matching

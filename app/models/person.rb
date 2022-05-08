@@ -2,6 +2,7 @@ class Person < ApplicationRecord
 	belongs_to :coach
 	belongs_to :player
 	belongs_to :user
+	has_one_attached :avatar
 	accepts_nested_attributes_for :player
 	accepts_nested_attributes_for :coach
 	accepts_nested_attributes_for :user
@@ -70,6 +71,10 @@ class Person < ApplicationRecord
 				p.save
 			end
 		end
+	end
+
+	def picture
+		self.avatar.attached? ? self.avatar : "person.svg"
 	end
 
 	#Search field matching
