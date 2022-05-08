@@ -15,6 +15,8 @@
           <%= image_tag(item[:icon], size: "25x25") %>&nbsp;<%= item[:value] %>
         <% when "text-search" %>
           <%= render "shared/text_search", search_in: item[:url], value: params[:search] %>
+        <% when "password-box" %>
+          <%= @form.password_field item[:key], autocomplete: item[:auto], class: "rounded border shadow-inner" %>
         <% when "text-box" %>
           <%= @form.text_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 16, rows: item[:rows] ? item[:rows] : 1, class: "rounded border shadow-inner" %>
         <% when "icon-text-box" %>
@@ -26,7 +28,7 @@
         <% when "date-box" %>
           <%= @form.date_field :birthday, value: item[:value], start_year: item[:s_year], end_year: item[:e_year], class: "rounded border shadow-inner" %>
         <% when "select-box" %>
-    			<%= @form.select item[:key], item[:options], class: "rounded border shadow-inner" %>
+    			<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: "rounded border shadow-inner" %>
         <% when "collecion-select" %>
     			<%= @form.collection_select item[:key], item[:collection], :id, :name, class: "rounded border shadow-inner" %>
         <% when "select-search" %>

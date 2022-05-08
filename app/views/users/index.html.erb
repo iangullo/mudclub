@@ -1,16 +1,5 @@
 <div id="users-index">
-	<div id="users-header">
-		<table>
-			<tr>
-				<th rowspan="2" class="items-center justify-center">
-					<%= image_tag "user.svg", size: "50x50", class: "rounded-full" %>
-				</th>
-				<th align="left" class="align-top text-yellow-600"><%= t(:l_user_index) %></th>
-			</tr><tr>
-				<%= render "shared/text_search", search_in: users_path %>
-			</tr>
-		</table>
-	</div>
+	<%= render HeaderComponent.new(header: @header) %>
 	<div id="users-grid">
 		<table class="table-auto">
 			<thead>

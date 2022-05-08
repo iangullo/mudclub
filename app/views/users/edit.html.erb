@@ -1,3 +1,10 @@
 <%= render "shared/modal" do %>
-  <%= render 'form', uobj: @uobj, title: t(:l_user_edit) %>
+  <%= form_for @user, authenticity_token: true, data: { turbo_frame: "_top" } do |form| %>
+  	<%= form.fields_for :person do |f| %>
+      <%= render HeaderComponent.new(header: @header, form: f) %>
+      <%= render FormComponent.new(form: form, fields: @user_fields ) %>
+  		<%= render FormComponent.new(form: f, fields: @person_fields ) %>
+  	<% end %>
+  	<%= render "shared/modal_bottom", save: true %>
+  <% end %>
 <% end %>

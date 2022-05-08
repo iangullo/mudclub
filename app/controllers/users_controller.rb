@@ -5,6 +5,21 @@ class UsersController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
       @users = User.search(params[:search])
+      @header = header_top(I18n.t(:l_user_index))
+      @header << [{kind: "text-search", url: users_path}]
+    else
+      redirect_to "/"
+    end
+  end
+
+  def show
+    if current_user.present? and current_user.admin?
+      @user = User.find(params[:id])
+      @header = header_top(@user.s_name)
+      @header << []
+      @header.last << {kind: "icon", value: "player.svg"} if @user.is_player?
+      @header.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
+      @header.last << {kind: "icon", value: "key.svg"} if @user.admin?
     else
       redirect_to "/"
     end
@@ -14,6 +29,29 @@ class UsersController < ApplicationController
     if current_user.present? and current_user.admin?
       @user = User.new
   		@user.build_person
+      @header = header_top(I18n.t(:l_user_new), nil, 5, 2)
+      @header << [{kind: "icon", value: "at.svg"}, {kind: "text-box", key: :email, size: 22, value: I18n.t(:h_email)}]
+      @header << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t(:l_pass)}]
+      @header << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t(:l_pass_conf)}]
+      @header << [{kind: "text", value: I18n.t(:i_pass_conf), cols: 2}]
+    else
+      redirect_to "/"
+    end
+  end
+
+  def edit
+    if current_user.present? and current_user.admin?
+      @roles = user_roles
+      @user = User.find(params[:id])
+      @header = form_header(I18n.t(:l_user_edit))
+      @user_fields = [
+        [{kind: "label", value: I18n.t(:l_role)}, {kind: "select-box", key: :role, options: User.roles.keys.map {|role| [role.titleize,role]}, value: @user.role}],
+        [{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]
+      ]
+      @person_fields = [
+        [{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "text-box", key: :email, size: 22, value: @user.person.email}],
+				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
+    ]
     else
       redirect_to "/"
     end
@@ -42,23 +80,6 @@ class UsersController < ApplicationController
   				end
   			end
   		end
-    else
-      redirect_to "/"
-    end
-  end
-
-  def show
-    if current_user.present? and current_user.admin?
-      @user = User.find(params[:id])
-    else
-      redirect_to "/"
-    end
-  end
-
-  def edit
-    if current_user.present? and current_user.admin?
-      @roles = user_roles
-      @user = User.find(params[:id])
     else
       redirect_to "/"
     end
@@ -100,22 +121,14 @@ class UsersController < ApplicationController
   end
 
   private
-	# Use callbacks to share common setup or constraints between actions.
-	def set_user
-		@user = User.find(params[:id]) unless @user.try(:id)==params[:id]
-	end
 
-	# Never trust parameters from the scary internet, only allow the white list through.
-	def user_params
-		params.require(:user).permit(:id, :email, :role, :password, :password_confirmation, :avatar, :person_id, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :user_id])
-	end
-
-	# re-build existing @user from raw input given by submittal from "new"
+  # re-build existing @user from raw input given by submittal from "new"
 	# return nil if unsuccessful
 	def rebuild_user(params)
-    @user.email = params.fetch(:user)[:email]
-    @user.role  = params.fetch(:user)[:role]
-		p_data      = params.fetch(:user).fetch(:person_attributes)
+    u_data = user_params
+    p_data = u_data[:person_attributes]
+    @user.email = u_data[:email] ? u_data[:email] : p_data[:email]
+    @user.role  = u_data[:role]
     @user.person_id > 0 ? @user.person.reload : @user.build_person
 		@user.person[:dni]     = p_data[:dni]
 		@user.person[:nick]    = p_data[:nick]
@@ -157,4 +170,29 @@ class UsersController < ApplicationController
     roles << {name: t(:a_coach), id: 2}
     roles << {name: t(:a_admin), id: 3}
   end
+
+	# return icon and top of HeaderComponent
+	def header_top(title, icon=nil, rows=2, cols=nil, size=nil, _class=nil)
+		[[{kind: "header-icon", value: icon ? icon : "user.svg", rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
+	end
+
+	# return HeaderComponent @header for forms
+	def form_header(title, rows=4, cols=2)
+    res = header_top(title, @user.picture, rows, cols, "100x100", "rounded-full")
+  	res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @user.person.name}]
+    res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @user.person.surname}]
+		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}]
+		res
+	end
+
+
+  # Use callbacks to share common setup or constraints between actions.
+	def set_user
+		@user = User.find(params[:id]) unless @user.try(:id)==params[:id]
+	end
+
+	# Never trust parameters from the scary internet, only allow the white list through.
+	def user_params
+		params.require(:user).permit(:id, :email, :role, :password, :password_confirmation, :avatar, :person_id, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :user_id])
+	end
 end
