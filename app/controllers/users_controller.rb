@@ -5,8 +5,8 @@ class UsersController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
       @users = User.search(params[:search])
-      @header = header_top(I18n.t(:l_user_index))
-      @header << [{kind: "text-search", url: users_path}]
+      @fields = header_fields(I18n.t(:l_user_index))
+      @fields << [{kind: "text-search", url: users_path}]
     else
       redirect_to "/"
     end
@@ -15,11 +15,11 @@ class UsersController < ApplicationController
   def show
     if current_user.present? and current_user.admin?
       @user = User.find(params[:id])
-      @header = header_top(@user.s_name)
-      @header << []
-      @header.last << {kind: "icon", value: "player.svg"} if @user.is_player?
-      @header.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
-      @header.last << {kind: "icon", value: "key.svg"} if @user.admin?
+      @fields = header_fields(@user.s_name)
+      @fields << []
+      @fields.last << {kind: "icon", value: "player.svg"} if @user.is_player?
+      @fields.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
+      @fields.last << {kind: "icon", value: "key.svg"} if @user.admin?
     else
       redirect_to "/"
     end
@@ -29,11 +29,11 @@ class UsersController < ApplicationController
     if current_user.present? and current_user.admin?
       @user = User.new
   		@user.build_person
-      @header = header_top(I18n.t(:l_user_new), nil, 5, 2)
-      @header << [{kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: I18n.t(:h_email)}]
-      @header << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t(:l_pass)}]
-      @header << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t(:l_pass_conf)}]
-      @header << [{kind: "text", value: I18n.t(:i_pass_conf), cols: 2}]
+      @fields = header_fields(I18n.t(:l_user_new), rows: 4, cols: 2)
+      @fields << [{kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: I18n.t(:h_email)}]
+      @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t(:l_pass)}]
+      @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t(:l_pass_conf)}]
+      @fields << [{kind: "gap"}, {kind: "text", value: I18n.t(:i_pass_conf), cols: 2}]
     else
       redirect_to "/"
     end
@@ -43,7 +43,7 @@ class UsersController < ApplicationController
     if current_user.present? and current_user.admin?
       @roles = user_roles
       @user = User.find(params[:id])
-      @header = form_header(I18n.t(:l_user_edit))
+      @header_fields = form_fields(I18n.t(:l_user_edit))
       @user_fields = [
         [{kind: "label", value: I18n.t(:l_role)}, {kind: "select-box", key: :role, options: User.roles.keys.map {|role| [role.titleize,role]}, value: @user.role}],
         [{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]
@@ -122,77 +122,76 @@ class UsersController < ApplicationController
 
   private
 
-  # re-build existing @user from raw input given by submittal from "new"
-	# return nil if unsuccessful
-	def rebuild_user(params)
-    u_data = user_params
-    p_data = u_data[:person_attributes]
-    @user.email = u_data[:email] ? u_data[:email] : p_data[:email]
-    @user.role  = u_data[:role]
-    @user.person_id > 0 ? @user.person.reload : @user.build_person
-		@user.person[:dni]     = p_data[:dni]
-		@user.person[:nick]    = p_data[:nick]
-		@user.person[:name]    = p_data[:name]
-		@user.person[:surname] = p_data[:surname]
-		@user.person[:female]  = p_data[:female]
-		@user.person[:email]   = @user.email
-		@user.person[:phone]   = Phonelib.parse(p_data[:phone]).international.to_s
-	end
+    # return icon and top of HeaderComponent
+  	def header_fields(title, icon: "user.svg", rows: 2, cols: nil, size: nil, _class: nil)
+  		[[{kind: "header-icon", value: icon, rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
+  	end
 
-  # build & prepare a person for a new user
-  def build_new_user(params)
-    @user                       = User.new(user_params)
-    @user.email                 = params.fetch(:user)[:email]
-    @user.role                  = params.fetch(:user)[:role]
-    @user.password              = params.fetch(:user)[:password]
-    @user.password_confirmation = params.fetch(:user)[:password_confirmation]
-    @user.build_person
-    @user.person.email   = @user.email
-    @user.person.name    = @user.email.split("@").first
-    @user.person.surname = @user.email.split("@").last
-    @user
-  end
+  	# return HeaderComponent @fields for forms
+  	def form_fields(title, rows: 4, cols: 2)
+      res = header_fields(title, icon: @user.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
+    	res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @user.person.name}]
+      res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @user.person.surname}]
+  		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}]
+  		res
+  	end
 
-	# De-couple from associated person
-	def unlink_person
-		if @user.person.try(:user_id)==@user.id
-			p = @user.person
-			p.user=User.find(0)   # map to empty user
-			p.save
-			@user.person_id = 0    # map to empty person
+    # re-build existing @user from raw input given by submittal from "new"
+  	# return nil if unsuccessful
+  	def rebuild_user(params)
+      u_data = user_params
+      p_data = u_data[:person_attributes]
+      @user.email = u_data[:email] ? u_data[:email] : p_data[:email]
+      @user.role  = u_data[:role]
+      @user.person_id > 0 ? @user.person.reload : @user.build_person
+  		@user.person[:dni]     = p_data[:dni]
+  		@user.person[:nick]    = p_data[:nick]
+  		@user.person[:name]    = p_data[:name]
+  		@user.person[:surname] = p_data[:surname]
+  		@user.person[:female]  = p_data[:female]
+  		@user.person[:email]   = @user.email
+  		@user.person[:phone]   = Phonelib.parse(p_data[:phone]).international.to_s
+  	end
+
+    # build & prepare a person for a new user
+    def build_new_user(params)
+      @user                       = User.new(user_params)
+      @user.email                 = params.fetch(:user)[:email]
+      @user.role                  = params.fetch(:user)[:role]
+      @user.password              = params.fetch(:user)[:password]
+      @user.password_confirmation = params.fetch(:user)[:password_confirmation]
+      @user.build_person
+      @user.person.email   = @user.email
+      @user.person.name    = @user.email.split("@").first
+      @user.person.surname = @user.email.split("@").last
+      @user
     end
-	end
 
-  def user_roles
-    roles = Array.new
-    roles << {name: t(:l_user_show), id: 0}
-    roles << {name: t(:a_player), id: 1}
-    roles << {name: t(:a_coach), id: 2}
-    roles << {name: t(:a_admin), id: 3}
-  end
+  	# De-couple from associated person
+  	def unlink_person
+  		if @user.person.try(:user_id)==@user.id
+  			p = @user.person
+  			p.user=User.find(0)   # map to empty user
+  			p.save
+  			@user.person_id = 0    # map to empty person
+      end
+  	end
 
-	# return icon and top of HeaderComponent
-	def header_top(title, icon=nil, rows=2, cols=nil, size=nil, _class=nil)
-		[[{kind: "header-icon", value: icon ? icon : "user.svg", rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
-	end
+    def user_roles
+      roles = Array.new
+      roles << {name: t(:l_user_show), id: 0}
+      roles << {name: t(:a_player), id: 1}
+      roles << {name: t(:a_coach), id: 2}
+      roles << {name: t(:a_admin), id: 3}
+    end
 
-	# return HeaderComponent @header for forms
-	def form_header(title, rows=4, cols=2)
-    res = header_top(title, @user.picture, rows, cols, "100x100", "rounded-full")
-  	res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @user.person.name}]
-    res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @user.person.surname}]
-		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}]
-		res
-	end
+    # Use callbacks to share common setup or constraints between actions.
+  	def set_user
+  		@user = User.find(params[:id]) unless @user.try(:id)==params[:id]
+  	end
 
-
-  # Use callbacks to share common setup or constraints between actions.
-	def set_user
-		@user = User.find(params[:id]) unless @user.try(:id)==params[:id]
-	end
-
-	# Never trust parameters from the scary internet, only allow the white list through.
-	def user_params
-		params.require(:user).permit(:id, :email, :role, :password, :password_confirmation, :avatar, :person_id, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :user_id])
-	end
+  	# Never trust parameters from the scary internet, only allow the white list through.
+  	def user_params
+  		params.require(:user).permit(:id, :email, :role, :password, :password_confirmation, :avatar, :person_id, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :user_id])
+  	end
 end

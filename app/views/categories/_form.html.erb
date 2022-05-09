@@ -1,4 +1,4 @@
 <%= form_with model: category, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
-  <%= render HeaderComponent.new(header: @header, form: form) %>
+  <%= render FieldsComponent.new(fields: @fields, form: form) %>
   <%= render "shared/modal_bottom", save: true %>
 <% end %>

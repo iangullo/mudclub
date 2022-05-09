@@ -7,6 +7,8 @@ class LocationsController < ApplicationController
   def index
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @season = Season.find(params[:season_id]) if params[:season_id]
+      @header_fields = header_fields(I18n.t(:l_loc_index))
+      @header_fields << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", url: locations_path}]
 		else
 			redirect_to "/"
 		end
@@ -16,6 +18,9 @@ class LocationsController < ApplicationController
   # GET /locations/1.json
   def show
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
+      @fields = header_fields(@location.name)
+      @fields << [(@location.gmaps_url and @location.gmaps_url.length > 0) ? {kind: "location", url: @location.gmaps_url, name: I18n.t(:l_loc_see)} : {kind: "text", value: I18n.t(:l_loc_none)}]
+      @fields << [{kind: "icon", value: @location.practice_court ? "training.svg" : "team.svg"}]
     else
 			redirect_to "/"
     end
@@ -25,6 +30,7 @@ class LocationsController < ApplicationController
   def edit
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@location = Location.new(name: t(:d_loc)) unless @location
+      @fields   = form_fields(I18n.t(:l_loc_edit))
 		else
 			redirect_to "/"
 		end
@@ -34,6 +40,7 @@ class LocationsController < ApplicationController
   def new
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @location = Location.new(name: t(:d_loc)) unless @location
+      @fields   = form_fields(I18n.t(:l_loc_new))
     else
 			redirect_to "/"
 		end
@@ -118,23 +125,19 @@ class LocationsController < ApplicationController
   end
 
 private
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def location_params
-    params.require(:location).permit(:id, :name, :gmaps_url, :practice_court, seasons: [], season_locations: [] , seasons_attributes: [:id, :_destroy])
+
+  # return icon and top of FieldsComponent
+  def header_fields(title)
+    [[{kind: "header-icon", value: "location.svg"}, {kind: "title", value: title}]]
   end
 
-  # ensure internal variables are well defined
-  def set_locations
-    if params[:season_id]
-      @season = Season.find(params[:season_id]) unless @season.try(:id)==params[:season_id]
-      @locations = @season.locations.order(:name)
-      @eligible_locations = @season.eligible_locations
-    else
-      @locations = Location.search(params[:search]).order(:name)
-    end
-    if params[:id]
-      @location = Location.find(params[:id]) unless @location.try(:id)==params[:id]
-    end
+  # return FieldsComponent @header for forms
+  def form_fields(title)
+    res = header_fields(title)
+    res << [{kind: "text-box", value: @location.name, size: 20}]
+    res << [{kind: "icon", value: "gmaps.svg"}, {kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, size: 20}]
+    res << [{kind: "icon", value: "training.svg"}, {kind: "label-checkbox", key: :practice_court, label: I18n.t(:l_loc_train)}]
+    res
   end
 
   # rebuild @location from params[:location]
@@ -151,5 +154,24 @@ private
       loc = nil
     end
     @location = loc
+  end
+
+  # ensure internal variables are well defined
+  def set_locations
+    if params[:season_id]
+      @season = Season.find(params[:season_id]) unless @season.try(:id)==params[:season_id]
+      @locations = @season.locations.order(:name)
+      @eligible_locations = @season.eligible_locations
+    else
+      @locations = Location.search(params[:search]).order(:name)
+    end
+    if params[:id]
+      @location = Location.find(params[:id]) unless @location.try(:id)==params[:id]
+    end
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def location_params
+    params.require(:location).permit(:id, :name, :gmaps_url, :practice_court, seasons: [], season_locations: [] , seasons_attributes: [:id, :_destroy])
   end
 end

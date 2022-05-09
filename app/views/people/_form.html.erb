@@ -1,32 +1,5 @@
 <%= form_with model: @person, title: title, data: { turbo_frame: "_top" } do |f| %>
-	<table>
-		<tr>
-			<td rowspan="4" colspan="2" align="center">
-				<%= image_tag("person.svg", size: "100x100", class: "rounded-full") %>
-			</td>
-			<th colspan="2" align="left" class="align-top text-yellow-600"><%= title %></th>
-		</tr><tr>
-			<td align="left"><strong><%= t(:l_name) %></strong></td>
-			<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td align="left"><strong><%= t(:l_surname) %></strong></td>
-			<td><%= f.text_field :surname, size: 18, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td align="center"><strong><%= image_tag "calendar.svg", size: "25x25", alt: t(:l_bday)  %></strong></td>
-			<td><%= f.date_field :birthday, start_year: 1950, end_year: Time.now.year, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td colspan="2"><strong>DNI:&nbsp;</strong><%= f.text_field :dni, size: 8, class: "rounded border shadow-inner" %></td>
-			<td align="center"><strong><%= image_tag "user.svg", size: "25x25", alt: t(:l_nick)  %></strong></td>
-			<td><%= f.text_field :nick, size: 8, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td colspan="2"><strong><%= f.label t(:l_fem) %>&nbsp;</strong><%= f.check_box :female %></td>
-			<td align="center"><%= image_tag "at.svg", size: "25x25", alt: t(:l_email) %></td>
-			<td><%= f.text_field :email, size: 22, class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td colspan="2"></td>
-			<td align="center"><strong><%= image_tag "phone.svg", size: "25x25", alt: t(:l_tel) %></strong></td>
-			<td><%= f.text_field :phone, size: 12, class: "rounded border shadow-inner" %></td>
-		</tr>
-	</table>
+	<%= render FieldsComponent.new(fields: @header_fields, form: f) %>
+	<%= render FieldsComponent.new(fields: @person_fields, form: f) %>
 	<%= render "shared/modal_bottom", save: true %>
 <% end %>

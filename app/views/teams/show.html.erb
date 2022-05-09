@@ -1,7 +1,7 @@
 <div id="team-show">
-	<%= render "team_header" %>
-	<div id="team-links">
-		<br>
+	<%= render FieldsComponent.new(fields: @header_fields) %>
+	<br>
+	<div id="team-coaches">
 		<table>
 			<tr>
 				<td align="right" class="align-top"><%= image_tag("coach.svg", :size => "30x30") %></td>
@@ -11,39 +11,11 @@
 						<br>
 					<% end %>
 				</td>
-			</tr><tr>
-				<td>&nbsp;</td>
-			</tr><tr>
-				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to roster_team_path, data: {turbo_frame: "modal"} do %>
-						<%= image_tag "player.svg", size: "50x50" %><small><%= t(:l_roster_show) %></small>
-					<% end %>
-				</td>
-				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to targets_team_path, data: {turbo_frame: "modal"} do %>
-						<%= image_tag("target.svg", size: "50x50") %><small><%= t(:h_targ) %></small>
-					<% end %>
-				</td>
-				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to plan_team_path, data: {turbo_frame: "modal"} do %>
-						<%= image_tag("teamplan.svg", size: "50x50") %><small><%= t(:a_plan) %></small>
-					<% end %>
-				</td>
-				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to slots_team_path, data: {turbo_frame: "modal"} do %>
-						<%= image_tag("timetable.svg", size: "50x50") %><small><%= t(:l_slot_index) %></small>
-					<% end %>
-				</td>
-				<td align="center">
-					<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
-						<%= link_to edit_team_path, data: {turbo_frame: "modal"} do %>
-							<%= render "shared/edit" %>
-						<% end %>
-					<% end %>
-				</td>
 			</tr>
 		</table>
 	</div>
+	<br>
+	<%= render FieldsComponent.new(fields: @link_fields) %>
 	<br>
 	<div id="team-events">
 		<table>

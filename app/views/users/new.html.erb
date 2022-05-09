@@ -1,7 +1,7 @@
 <% if current_user.admin? %>
 	<%= render "shared/modal" do %>
 		<%= form_for @user, authenticity_token: true, data: { turbo_frame: "_top" } do |form| %>
-			<%= render HeaderComponent.new(header: @header, form: form) %>
+			<%= render FieldsComponent.new(fields: @fields, form: form) %>
 			<%= render "shared/modal_bottom", save: true %>
 		<% end %>
 	<% end %>

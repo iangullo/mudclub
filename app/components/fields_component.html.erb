@@ -1,0 +1,95 @@
+<table>
+  <% @fields.each do |row| %>
+    <tr>
+      <% row.each do |item| %>
+        <td
+          <% if item[:cols] %>colspan="<%= item[:cols] %>"<% end %>
+          <% if item[:rows] %>rowspan="<%= item[:rows] %>"<% end %>
+          <% if item[:class] %>class="<%= item[:class] %>"<% end %>
+          <% if item[:align] %>align="<%= item[:align] %>"<% end %>
+        >
+        <% case item[:kind] %>
+        <% when "icon" %>
+          <%= image_tag item[:value], size: item[:size], class: item[:class] %>
+        <% when "header-icon", "icon" %>
+          <%= image_tag item[:value], size: item[:size], class: item[:class] %>
+        <% when "icon-label" %>
+          <%= image_tag(item[:icon], size: item[:size], class: item[:class]) %>&nbsp;<small><%= item[:value] %><small>
+        <% when "label-checkbox" %>
+          <%= item[:label] %>&nbsp;<%= @form.check_box item[:key] %>
+        <% when "text-box" %>
+          <%= @form.text_field item[:key], value: item[:value], size: item[:size], rows: item[:rows], class: item[:i_class] %>
+        <% when "email-box" %>
+          <%= @form.email_field item[:key], autocomplete: item[:value], size: 25, class: item[:i_class] %>
+        <% when "password-box" %>
+          <%= @form.password_field item[:key], autocomplete: item[:auto], class: item[:i_class] %>
+        <% when "text-area" %>
+          <%= @form.text_area item[:key], value: item[:value], cols: item[:size], rows: item[:lines], class: item[:i_class] %>
+        <% when "rich-text-area" %>
+          <%= @form.rich_text_area item[:key], item[:class] %>
+        <% when "number-box" %>
+          <%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, class: item[:i_class] %>
+        <% when "date-box" %>
+          <%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: Time.now.year, class: item[:i_class] %>
+        <% when "select-box" %>
+    			<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: item[:i_class] %>
+        <% when "select-collection" %>
+    			<%= @form.collection_select item[:key], item[:collection], :id, :name, class: item[:i_class] %>
+        <% when "search-text" %>
+          <div id="text-search-box" class=<%= item[:i_class] %>>
+            <%= form_with(url: item[:url], method: 'get', local: true) do |f| %>
+              <%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: item[:size], class: item[:i_class] %>
+              <%= f.hidden_field :task_id, value: item[:task_id] if item[:task_id] %>
+              <%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
+            <% end %>
+          </div>
+        <% when "search-select" %>
+    			<div id="search-select" class=<%= item[:i_class] %>>
+    				<%= form_with(url: item[:url], method: 'get', local: true) do |f| %>
+    					<%= f.collection_select item[:key], item[:collection], :id, :name, {selected: params[item[:key].to_sym] ? params[item[:key].to_sym] : item[:value]} %>
+    					<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
+    				<% end %>
+          </div>
+        <% when "select-file" %>
+          <%= image_tag(item[:icon], size: "25x25") if item[:icon] %>
+            <% if item[:label] %>
+              <small class="font-semibold">&nbsp;<%= item[:label] %></small>
+            <% end %>
+          <%= @form.file_field item[:key], direct_upload: true %>
+        <% when "location" %>
+          <button class="<%=item[:i_class]%>">
+            <%= link_to item[:url], target: '_blank', class: "inline-flex align-middle" do %>
+              <%= image_tag("gmaps.svg", size: "25x25") %>
+              <small><%= item[:name] %></small>
+            <% end %>
+          </button>
+        <% when "link-button" %>
+          <div class="<%= item[:i_class] %>">
+          <% if item[:modal] %>
+            <%= link_to item[:url], data: {turbo_frame: "modal"} do %>
+              <%= image_tag(item[:icon], size: item[:size]) if item[:icon] %>
+              <%= item[:label] if item[:label] %>
+            <% end %>
+          <% else %>
+            <%= link_to item[:url] do %>
+              <%= image_tag(item[:icon], size: item[:size]) if item[:icon] %>
+              <%= item[:label] if item[:label] %>
+            <% end %>
+          <% end %>
+          </div>
+        <% when "modal-add" %>
+          <%= link_to item[:url], data: {turbo_frame: "modal"} do %>
+            <%= render "shared/add" %>
+          <% end %>
+        <% when "gap" %>
+          <% item[:size].times do %>
+            &nbsp;
+          <% end %>
+        <% else %>
+          <%= item[:value] %>
+        <% end %>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>

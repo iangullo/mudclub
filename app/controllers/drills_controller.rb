@@ -7,8 +7,8 @@ class DrillsController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			# Simple search by name/description for now
 			@drills = Drill.search(params[:search])
-			@header = header_top(I18n.t(:l_drill_index))
-	    @header << [{kind: "text-search", url: drills_path}]
+			@fields = header_fields(I18n.t(:l_drill_index))
+	    @fields << [{kind: "text-search", url: drills_path}]
 		else
 			redirect_to "/"
 		end
@@ -19,15 +19,15 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/"
 		end
-		@header = header_top(I18n.t(:l_drill_show), 3)
-		@header << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
+		@fields = header_fields(I18n.t(:l_drill_show), rows: 3)
+		@fields << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
 	end
 
 	# GET /drills/new
 	def new
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@drill  = Drill.new
-			@header = form_header(I18n.t(:l_drill_new))
+			@fields = form_fields(I18n.t(:l_drill_new))
 		else
 			redirect_to "/"
 		end
@@ -38,7 +38,7 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			redirect_to drills_url
 		end
-		@header = form_header(I18n.t(:l_drill_edit))
+		@fields = form_fields(I18n.t(:l_drill_edit))
 	end
 
 	# POST /drills or /drills.json
@@ -164,15 +164,15 @@ class DrillsController < ApplicationController
 		}
 	end
 
-	# return icon and top of HeaderComponent
-	def header_top(title, rows=nil, cols=nil)
+	# return icon and top of FieldsComponent
+	def header_fields(title, rows: nil, cols: nil)
 		[[{kind: "header-icon", value: "drill.svg"}, {kind: "title", value: title, cols: cols}]]
 	end
 
-	# return HeaderComponent @header for forms
-	def form_header(title)
-		res = header_top(title, nil, 4)
-		res << [{kind: "text-box", value: @drill.name}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_kind)}, {kind: "collecion-select", key: :kind_id, collection: Kind.all}]
+	# return FieldsComponent @fields for forms
+	def form_fields(title)
+		res = header_fields(title, cols: 4)
+		res << [{kind: "text-box", value: @drill.name}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_kind)}, {kind: "select-collecion", key: :kind_id, collection: Kind.all}]
 		res
 	end
 
@@ -186,7 +186,7 @@ class DrillsController < ApplicationController
 			[{kind: "label", value: I18n.t(:l_expl), align: "left", cols: 3}, {kind: "select-file", align: "right", icon: "playbook.png", label: "Playbook", key: :playbook}],
 			[{kind: "rich-text-area", key: :explanation, align: "left", cols: 4}],
 			# NESTED FORM for Skills...
-			[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "collection-select", key: :coach_id, collection: Coach.active}]
+			[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, collection: Coach.active}]
 	]
 	end
 

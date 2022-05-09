@@ -1,54 +1,6 @@
 <div id="seasons-index">
-  <div id="seasons-header">
-		<table>
-      <tr>
-        <th rowspan="2">
-  				<%= image_tag "calendar.svg", size: "50x50" %>
-        </th>
-        <th colspan="4" align="left" class="align-top text-yellow-600"><%= t(:l_sea_show) %></th>
-      </tr><tr>
-        <th colspan="3">
-  				<div id="search-season" class="inline-flex text-gray-700 rounded border shadow-inner">
-  					<%= form_with(url: '/seasons', method: 'get', local: true) do |f| %>
-  						<%= f.collection_select :search, Season.all.order(name: :desc), :id, :name, {selected: params[:search] ? params[:search].to_i : Season.last.id} %>
-  						<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
-  					<% end %>
-  	      </div>
-        </th><th>
-          <%= link_to new_season_path, data: {turbo_frame: "modal"} do %>
-            <%= render "shared/add" %>
-          <% end %>
-        </th>
-      </tr><tr>
-        <td align="center" class="rounded-md hover:bg-blue-100">
-          <%= link_to season_locations_path(@season) do %>
-            <%= image_tag "location.svg", size: "50x50" %><small><%= t(:l_courts) %></small>
-          <% end %>
-        </td>
-        <td align="center" class="rounded-md hover:bg-blue-100">
-          <%= link_to teams_path + "?season_id=" + @season.id.to_s do %>
-        	 <%= image_tag "team.svg", size: "50x50" %><small><%= t(:l_team_index) %></small>
-          <% end %>
-        </td>
-        <td align="center" class="rounded-md hover:bg-blue-100">
-          <% if @season.locations.empty? %>
-            <%= link_to season_slots_path(@season) do %>
-              <%= image_tag "timetable.svg", size: "50x50" %><small><%= t(:l_slot_index) %></small>
-            <% end %>
-          <% else %>
-            <%= link_to season_slots_path(@season, location_id: @season.locations.first.id ) do %>
-              <%= image_tag "timetable.svg", size: "50x50" %><small<%= t(:l_slot_index) %></small>
-            <% end %>
-          <% end %>
-        </td>
-        <td colspan="2" align="right" class="align-center">
-          <%= link_to edit_season_path(@season), data: {turbo_frame: "modal"} do %>
-            <%= render "shared/edit" %>
-          <% end %>
-        </td>
-      </tr>
-    </table>
-  </div>
+  <%= render FieldsComponent.new(fields: @header_fields) %>
+  <%= render FieldsComponent.new(fields: @link_fields) %>
   <div id="season-events-grid">
 		<table class="table-auto">
       <thead>

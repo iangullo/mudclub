@@ -1,7 +1,7 @@
 <%= render "shared/modal" do %>
+	<%= render FieldsComponent.new(fields: @header_fields) %>
 	<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
 		<div id="edit-targets">
-			<%= render "team_header" %>
 			<table>
 				<tr>
 					<th colspan="2" align="left" class="inline-flex"><%= image_tag("target.svg", size: "30x30") %><%= t(:l_targ_edit)%></th>

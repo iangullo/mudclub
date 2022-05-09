@@ -1,5 +1,5 @@
 <%= render "shared/modal", simple: true, edit: (current_user.admin? or current_user.person.coach_id==@coach.id) ? edit_coach_path(@coach) : nil do %>
-	<%= render HeaderComponent.new(header: @header) %>
+	<%= render FieldsComponent.new(fields: @fields) %>
 	<% unless @coach.teams.empty? %>
 		<table>
 			<tr>

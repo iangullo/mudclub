@@ -13,7 +13,12 @@ class Player < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		self.person ? self.person.to_s : I18n.t(:l_per_show)
+		self.person ? self.person.to_s : I18n.t(:l_player_show)
+	end
+
+	#short name for form viewing
+	def s_name
+		self.person ? self.person.s_name : I18n.t(:l_player_show)
 	end
 
 	# String with number, name & age

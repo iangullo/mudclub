@@ -5,7 +5,7 @@ class CategoriesController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
       @categories = Category.real
-      @header     = header_top(I18n.t(:l_cat_index))
+      @fields     = header_fields(I18n.t(:l_cat_index))
     else
 			redirect_to "/"
 		end
@@ -14,16 +14,16 @@ class CategoriesController < ApplicationController
   # GET /categories/1 or /categories/1.json
   def show
     redirect_to "/" unless current_user.present? and current_user.admin?
-    @header = header_top(I18n.t(:l_cat_index), 3, 5)
-    @header << [{kind: "subtitle", value: @category.name, cols: 2}, {kind: "subtitle", value: @category.sex, cols: 3}]
-    @header << [{kind: "label", value: I18n.t(:l_min)}, {kind: "string", value: @category.min_years}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_max)}, {kind: "string", value: @category.max_years}]
+    @fields = header_fields(I18n.t(:l_cat_index), cols: 5, rows: 5)
+    @fields << [{kind: "subtitle", value: @category.name, cols: 3}, {kind: "subtitle", value: @category.sex, cols: 2}]
+    @fields << [{kind: "label", value: I18n.t(:l_min)}, {kind: "string", value: @category.min_years}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_max)}, {kind: "string", value: @category.max_years}]
   end
 
   # GET /categories/new
   def new
     if current_user.present? and current_user.admin?
       @category = Category.new
-      @header   = form_header(I18n.t(:l_cat_new))
+      @fields  = form_fields(I18n.t(:l_cat_new))
     else
       redirect_to "/"
     end
@@ -32,7 +32,7 @@ class CategoriesController < ApplicationController
   # GET /categories/1/edit
   def edit
     redirect_to "/" unless current_user.present? and current_user.admin?
-    @header = form_header(I18n.t(:l_cat_edit))
+    @fields = form_fields(I18n.t(:l_cat_edit))
   end
 
   # POST /categories or /categories.json
@@ -87,25 +87,26 @@ class CategoriesController < ApplicationController
   end
 
   private
+
+  	# return icon and top of FieldsComponent
+  	def header_fields(title, rows: 2, cols: nil)
+  		[[{kind: "header-icon", value: "category.svg", rows: rows}, {kind: "title", value: title, cols: cols}]]
+  	end
+
+    # return FieldsComponent @header for forms
+    def form_fields(title)
+      res = header_fields(title, rows: 3, cols: 5)
+      res << [{kind: "text-box", value: @category.name, size: 10, cols: 3}, {kind: "select-box", key: :sex, options: [I18n.t(:a_fem), I18n.t(:a_male), I18n.t(:a_mixed)], value: @category.sex, cols: 2}]
+      res << [{kind: "label", value: I18n.t(:l_min)}, {kind: "number-box", key: :min_years}, {kind: "gap", size: 5}, {kind: "label", value: I18n.t(:l_max)}, {kind: "number-box", key: :max_years}]
+      res
+    end
+
     # prune teams from a category to be deleted
     def prune_teams
       @category.teams.each { |t|
         t.category=Category.find(0)  # de-allocate teams
         t.save
       }
-    end
-
-  	# return icon and top of HeaderComponent
-  	def header_top(title, rows=2, cols=nil)
-  		[[{kind: "header-icon", value: "category.svg", rows: rows}, {kind: "title", value: title, cols: cols}]]
-  	end
-
-    # return HeaderComponent @header for forms
-    def form_header(title)
-      res = header_top(title, 3, 3)
-      res << [{kind: "text-box", value: @category.name, size: 10, cols: 3}, {kind: "select-box", key: :sex, options: [I18n.t(:a_fem), I18n.t(:a_male), I18n.t(:a_mixed)], value: @category.sex, cols: 2}]
-      res << [{kind: "label", value: I18n.t(:l_min)}, {kind: "number-box", key: :min_years}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_max)}, {kind: "number-box", key: :max_years}]
-      res
     end
 
     # Use callbacks to share common setup or constraints between actions.

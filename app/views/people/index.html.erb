@@ -1,5 +1,5 @@
 <div id="people-index">
-	<%= render "people_header", title: t(:l_per_index) %>
+	<%= render FieldsComponent.new(fields: @fields) %>
 	<%= render "people_grid" %>
 	<% if current_user.admin? %>
 	<%= render "shared/import_export", import_path: import_people_path, export_path: people_path(format: :xlsx) %>

@@ -13,13 +13,20 @@ class Person < ApplicationRecord
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : ""}
 	self.inheritance_column = "not_sti"
 
-	def to_s
+	def to_s(long=true)
 		if self.nick and self.nick.length > 0
 			aux = self.nick.to_s
 		else
 			aux = self.name.to_s
 		end
-		aux += " " + self.surname.to_s
+		aux += " " + self.surname.to_s if long
+		aux
+	end
+
+	#short name for form viewing
+	def s_name
+		res = self.to_s(false)
+		res.length > 0 ? res : I18n.t(:l_per_show)
 	end
 
 	# checks if it exists in the collection before adding it

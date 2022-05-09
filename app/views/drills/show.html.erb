@@ -1,6 +1,6 @@
 <%= render "shared/modal", simple: true, edit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil do %>
 	<div id="drills-show">
-		<%= render HeaderComponent.new(header: @header) %>
+		<%= render FieldsComponent.new(fields: @fields) %>
 		<div id="drills-show-content">
 			<table>
 				<tr>

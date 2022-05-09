@@ -1,6 +1,6 @@
 <%= render "shared/modal" do %>
+	<%= render FieldsComponent.new(fields: @header_fields) %>
 	<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
-		<%= render "team_header" %>
 		<div id="edit-roster-form-data">
 			<table>
 				<tr>

@@ -5,7 +5,7 @@ class DivisionsController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
       @divisions = Division.real
-      @header    = [[{kind: "header-icon", value: "division.svg"}, {kind: "title", value: I18n.t(:l_div_index)}]]
+      @fields    = header_fields(I18n.t(:l_div_index))
     else
       redirect_to "/"
     end
@@ -14,15 +14,15 @@ class DivisionsController < ApplicationController
   # GET /divisions/1 or /divisions/1.json
   def show
     redirect_to "/" unless current_user.present? and current_user.admin?
-    @header = header_top(I18n.t(:l_div_show))
-    @header << [{kind: "subtitle", value: @division.name}]
-end
+    @fields = header_fields(I18n.t(:l_div_show))
+    @fields << [{kind: "subtitle", value: @division.name}]
+  end
 
   # GET /divisions/new
   def new
     if current_user.present? and current_user.admin?
       @division = Division.new
-      @header   = form_header(I18n.t(:l_div_new))
+      @fields   = form_fields(I18n.t(:l_div_new))
     else
       redirect_to "/"
     end
@@ -31,7 +31,7 @@ end
   # GET /divisions/1/edit
   def edit
     redirect_to "/" unless current_user.present? and current_user.admin?
-    @header   = form_header(I18n.t(:l_div_edit))
+    @fields   = form_fields(I18n.t(:l_div_edit))
   end
 
   # POST /divisions or /divisions.json
@@ -86,24 +86,24 @@ end
   end
 
   private
+  	# return icon and top of FieldsComponent
+  	def header_fields(title, cols: nil)
+  		[[{kind: "header-icon", value: "division.svg"}, {kind: "title", value: title, cols: cols}]]
+  	end
+
+    # return FieldsComponent @fields for forms
+    def form_fields(title)
+      res = header_fields(title, cols: 3)
+      res << [{kind: "text-box", value: @division.name, cols: 3}]
+      res
+    end
+
     # prune teams from a category to be deleted
     def prune_teams
       @division.teams.each { |t|
         t.category=Division.find(0)  # de-allocate teams
         t.save
       }
-    end
-
-  	# return icon and top of HeaderComponent
-  	def header_top(title, cols=nil)
-  		[[{kind: "header-icon", value: "division.svg"}, {kind: "title", value: title, cols: cols}]]
-  	end
-
-    # return HeaderComponent @header for forms
-    def form_header(title)
-      res = header_top(title, 3)
-      res << [{kind: "text-box", value: @division.name, cols: 3}]
-      res
     end
 
     # Use callbacks to share common setup or constraints between actions.

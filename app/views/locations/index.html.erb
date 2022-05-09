@@ -1,4 +1,4 @@
 <div id="locations-index">
-  <%= render "locations_header", title: t(:l_loc_index) %>
+  <%= render FieldsComponent.new(fields: @header_fields) %>
   <%= render "locations_grid" %>
 </div>

@@ -1,6 +1,6 @@
 <%= render "shared/modal", simple: true do %>
   <div id="team-slots">
-    <%= render "team_header" %>
+    <%= render FieldsComponent.new(fields: @header_fields) %>
     <div id="team-slots-grid">
       <table>
         <tr>

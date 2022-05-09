@@ -1,7 +1,7 @@
 <%= render "shared/modal" do %>
 	<%= form_with model: @coach do |form| %>
 		<%= form.fields_for :person do |f| %>
-			<%= render HeaderComponent.new(header: @header, form: f) %>
+			<%= render FieldsComponent.new(fields: @fields, form: f) %>
 		<% end %>
 	<% end %>
 	<%= render "shared/modal_bottom", save: true %>

@@ -17,22 +17,22 @@
 # => "number-box": :key (field name), :value (number_field)
 # => "icon-number-box": :icon (name of icon file) + number-box attributes
 # => "text-search": :url (search_in), :value
-class HeaderComponent < ApplicationComponent
-  def initialize(header:, form: nil)
-    @header = parse(header)
+class FieldsComponent < ApplicationComponent
+  def initialize(fields:, form: nil)
+    @fields = parse(fields)
     @form   = form
   end
 
   private
-  def parse(header)
+  def parse(fields)
     res = Array.new
-    header.each do |row|
+    fields.each do |row|
       res << [] # new row n header
       row.each do |item|
         case item[:kind]
         when "icon"
           item[:align] = "right" unless item[:align]
-          item[:class] = "align-middle"
+          item[:class] = "align-middle" unless item[:class]
           item[:size]  = "25x25" unless item[:size]
         when "header-icon"
           item[:align] = "center"
@@ -45,14 +45,45 @@ class HeaderComponent < ApplicationComponent
         when "subtitle"
           item[:align] = "left"
           item[:class] = "align-top font-bold"
-        when "label"
+        when "label", "label-checkbox"
           item[:align] = "left" unless item[:align]
-          item[:class] = "font-semibold"
-        when "icon-value"
-          item[:align] = "right" unless item[:align]
-          item[:class] = "inline-flex"
+          item[:class] = "inline-flex align-top font-semibold"
+        when "location"
+          item[:align] = "left" unless item[:align]
+          item[:class] = "inline-flex align-top font-semibold"
+          item[:i_class] = "rounded-md hover:bg-blue-100"
+        when "string"
+          item[:align] = "left" unless item[:align]
+          item[:class] = "align-top"
+        when "text-box", "text-area"
+          item[:align] = "left" unless item[:align]
+          item[:size]  = 16 unless item[:size]
+          item[:lines]  = 1 unless item[:lines]
+          item[:i_class] = "rounded border shadow-inner"
+        when "icon-label"
+          item[:align] = "left" unless item[:align]
+          item[:size]  = "16" unless item[:size]
+          item[:class] = "align-top inline-flex"
+        when "search-text", "search-select", "search-collection"
+          item[:align] = "left" unless item[:align]
+          item[:class] = "inline-flex rounded border"
+          item[:size]  = 16 unless item[:size]
+          item[:i_class] = "rounded border shadow-inner"
+        when "link-button"
+          item[:align]   = "center"
+          item[:size]    = "50x50" unless item[:size]
+          if item[:modal]
+            item[:i_class] = "rounded-md hover:bg-yellow-200"
+          else
+            item[:i_class] = "rounded-md hover:bg-blue-100"
+          end
+        when "location"
+          item[:i_class] = "rounded hover:bg-blue-100"
+        when "gap"
+          item[:size]  = 4 unless item[:size]
         else
           item[:align] = "left" unless item[:align]
+          item[:i_class] = "rounded border shadow-inner" unless item[:kind]=="gap"
         end
         res.last << item
       end

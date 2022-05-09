@@ -1,6 +1,6 @@
 <%= render "shared/modal", simple: true, edit: @team.has_coach(current_user.person.coach_id) ? edit_plan_team_path : nil do %>
 	<div id="team-plan">
-		<%= render "team_header" %>
+		<%= render FieldsComponent.new(fields: @header_fields) %>
 		<table>
 			<tr>
 				<td align="right"><%= image_tag("teamplan.svg", size: "30x30") %></td>
