@@ -7,8 +7,22 @@ class TeamsController < ApplicationController
   def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.is_player?)
 			@header_fields = header_fields(I18n.t(:l_team_index), search: true)
+			if current_user.admin?
+				@new_button = {kind: "add", url: new_team_path, modal: true}
+			end
 		else
 			redirect_to "/"
+		end
+  end
+
+  # GET /teams/new
+  def new
+		if current_user.present? and current_user.admin?
+    	@team = Team.new
+			@eligible_coaches = Coach.active
+			@form_fields      = form_fields(I18n.t(:l_team_new))
+		else
+			redirect_to(current_user.is_coach? ? teams_path : "/")
 		end
   end
 
@@ -20,14 +34,14 @@ class TeamsController < ApplicationController
 		else
 			redirect_to coaching_team_path(@team) if params[:id]=="coaching" and @team
 			@header_fields = header_fields(@team.to_s)
-			@link_fields = [[ # buttons to coaching links
-				{kind: "link-button", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), modal: true},
-				{kind: "link-button", icon: "target.svg", url: targets_team_path(@team), label: I18n.t(:h_targ), modal: true},
-        {kind: "link-button", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t(:a_plan), modal: true},
-				{kind: "link-button", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t(:l_slot_index), modal: true}
-			]]
+			@link_fields = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), align: "center", modal: true}]]
+			if (current_user.admin? or current_user.is_coach?)
+				@link_fields.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t(:h_targ), align: "center", modal: true}
+        @link_fields.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t(:a_plan), align: "center", modal: true}
+			end
+			@link_fields.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t(:l_slot_index), align: "center", modal: true}
 			if (current_user.admin? or @team.has_coach(current_user.person.coach_id))
-	      @link_fields.last << {kind: "link-button", icon: "edit.svg", url: edit_team_path(@team), size: "30x30", modal: true}
+	      @link_fields.last << {kind: "edit", url: edit_team_path(@team), size: "30x30", modal: true}
 			end
 		end
   end
@@ -39,6 +53,22 @@ class TeamsController < ApplicationController
 				redirect_to @team
 			end
 			@header_fields = header_fields(@team.to_s)
+			@header_fields << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_roster_show)}]
+		else
+			redirect_to "/"
+		end
+  end
+
+	# GET /teams/1/edit_roster
+  def edit_roster
+		if current_user.present?
+			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
+    		@eligible_players = @team.eligible_players
+				@header_fields    = header_fields(@team.to_s)
+				@header_fields << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_roster_edit)}]
+			else
+				redirect_to @team
+			end
 		else
 			redirect_to "/"
 		end
@@ -51,18 +81,58 @@ class TeamsController < ApplicationController
 				redirect_to @team
 			end
 			@header_fields = header_fields(@team.to_s)
+			@header_fields << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_slot_index)}]
+	else
+			redirect_to "/"
+		end
+  end
+
+	# GET /teams/1/targets
+  def targets
+		if current_user.admin? or current_user.is_coach?
+			redirect_to "/" unless @team
+			global_targets(true)	# get & breakdown global targets
+			@header_fields = header_fields(@team.to_s)
+			@header_fields << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t(:h_targ)}]
 		else
 			redirect_to "/"
 		end
   end
 
-  # GET /teams/new
-  def new
-		if current_user.present? and current_user.admin?
-    	@team = Team.new
-			@eligible_coaches = Coach.active
+	# GET /teams/1/edit_targets
+  def edit_targets
+		if current_user.present? and @team.has_coach(current_user.person.coach_id)
+			redirect_to "/" unless @team
+			global_targets(false)	# get global targets
+			@header_fields = header_fields(@team.to_s)
+			@header_fields << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_targ_edit)}]
 		else
-			redirect_to(current_user.is_coach? ? teams_path : "/")
+			redirect_to "/"
+		end
+  end
+
+	# GET /teams/1/edit_targets
+  def plan
+		if current_user.admin? or current_user.is_coach?
+			redirect_to "/" unless @team
+			plan_targets(params[:month] ? params[:month].to_i : Date.today.month)
+			@header_fields = header_fields(@team.to_s)
+			@header_fields << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_plan_show)}]
+			@header_fields << [{kind: "gap"}, {kind: "search-select", align: "center", key: :month, url: plan_team_path(@team), options: @months, value: params[:month]}]
+		else
+			redirect_to "/"
+		end
+  end
+
+	# GET /teams/1/edit_plan
+  def edit_plan
+		if current_user.present? and @team.has_coach(current_user.person.coach_id)
+			redirect_to "/" unless @team
+			plan_targets(nil)
+			@header_fields = header_fields(@team.to_s)
+			@header_fields << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_plan_edit)}]
+		else
+			redirect_to "/"
 		end
   end
 
@@ -71,21 +141,7 @@ class TeamsController < ApplicationController
 		if current_user.present?
 			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
 				@eligible_coaches = Coach.active
-				@header_fields    = header_fields(I18n.t(:l_team_edit), search: current_user.admin?)
-			else
-				redirect_to @team
-			end
-		else
-			redirect_to "/"
-		end
-  end
-
-	# GET /teams/1/edit_roster
-  def edit_roster
-		if current_user.present?
-			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
-    		@eligible_players = @team.eligible_players
-				@header_fields    = header_fields(@team.to_s)
+				@form_fields      = form_fields(I18n.t(:l_team_edit))
 			else
 				redirect_to @team
 			end
@@ -111,50 +167,6 @@ class TeamsController < ApplicationController
 	    end
 		else
 			redirect_to(current_user.is_coach? ? teams_path : "/")
-		end
-  end
-
-	# GET /teams/1/targets
-  def targets
-		if current_user.present? and current_user.is_coach?
-			redirect_to "/" unless @team
-			global_targets(true)	# get & breakdown global targets
-			@header_fields = header_fields(@team.to_s)
-		else
-			redirect_to "/"
-		end
-  end
-
-	# GET /teams/1/edit_targets
-  def edit_targets
-		if current_user.present? and @team.has_coach(current_user.person.coach_id)
-			redirect_to "/" unless @team
-			global_targets(false)	# get global targets
-			@header_fields = header_fields(@team.to_s)
-		else
-			redirect_to "/"
-		end
-  end
-
-	# GET /teams/1/edit_targets
-  def plan
-		if current_user.present? and current_user.is_coach?
-			redirect_to "/" unless @team
-			plan_targets(params[:month] ? params[:month].to_i : Date.today.month)
-			@header_fields = header_fields(@team.to_s)
-		else
-			redirect_to "/"
-		end
-  end
-
-	# GET /teams/1/edit_plan
-  def edit_plan
-		if current_user.present? and @team.has_coach(current_user.person.coach_id)
-			redirect_to "/" unless @team
-			plan_targets(nil)
-			@header_fields = header_fields(@team.to_s)
-		else
-			redirect_to "/"
 		end
   end
 
@@ -203,7 +215,7 @@ class TeamsController < ApplicationController
   	def header_fields(title, cols: nil, search: nil)
   		res = [[{kind: "header-icon", value: "team.svg"}, {kind: "title", value: title, cols: cols}]]
 			if search
-				res << [{kind: "search-select", key: :season_id, collection: Season.all.order(name: :desc), value: @team ? @team.season_id : Season.last.id}]
+				res << [{kind: "search-collection", key: :season_id, collection: Season.all.order(name: :desc), value: @team ? @team.season_id : Season.last.id}]
 			else
 				res << [{kind: "label", value: @team.season.name}]
 			end
@@ -212,10 +224,11 @@ class TeamsController < ApplicationController
 
 	  # return HeaderComponent @fields for forms
 	  def form_fields(title, cols: nil)
-	     res = header_fields(title, cols: cols)
-	   	res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @user.person.name}]
-	     res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @user.person.surname}]
-	  	res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}]
+			res = header_fields(title, cols: cols)
+			res << [{kind: "label", align: "right", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @team.name}]
+	    res << [{kind: "icon", value: "category.svg"}, {kind: "select-collection", key: :category_id, collection: Category.real, value: @team.category_id}]
+			res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, collection: Division.real, value: @team.division_id}]
+			res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :homecourt_id, collection: Location.home, value: @team.homecourt_id}]
 	  	res
 		end
 

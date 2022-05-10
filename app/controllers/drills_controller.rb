@@ -6,9 +6,9 @@ class DrillsController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			# Simple search by name/description for now
-			@drills = Drill.search(params[:search])
-			@fields = header_fields(I18n.t(:l_drill_index))
-	    @fields << [{kind: "text-search", url: drills_path}]
+			@drills        = Drill.search(params[:search])
+			@header_fields = header_fields(I18n.t(:l_drill_index))
+	    @header_fields << [{kind: "text-search", url: drills_path}]
 		else
 			redirect_to "/"
 		end
@@ -19,15 +19,16 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/"
 		end
-		@fields = header_fields(I18n.t(:l_drill_show), rows: 3)
-		@fields << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
+		@header_fields = header_fields(I18n.t(:l_drill_show), rows: 3)
+		@header_fields << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
 	end
 
 	# GET /drills/new
 	def new
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@drill  = Drill.new
-			@fields = form_fields(I18n.t(:l_drill_new))
+			@drill         = Drill.new
+			@header_fields = header_fields(I18n.t(:l_drill_new))
+			@form_fields   = form_fields
 		else
 			redirect_to "/"
 		end
@@ -38,7 +39,8 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			redirect_to drills_url
 		end
-		@fields = form_fields(I18n.t(:l_drill_edit))
+		@header_fields = header_fields(I18n.t(:l_drill_edit))
+		@form_fields   = form_fields
 	end
 
 	# POST /drills or /drills.json
@@ -165,15 +167,8 @@ class DrillsController < ApplicationController
 	end
 
 	# return icon and top of FieldsComponent
-	def header_fields(title, rows: nil, cols: nil)
+	def header_fields(title, cols: nil)
 		[[{kind: "header-icon", value: "drill.svg"}, {kind: "title", value: title, cols: cols}]]
-	end
-
-	# return FieldsComponent @fields for forms
-	def form_fields(title)
-		res = header_fields(title, cols: 4)
-		res << [{kind: "text-box", value: @drill.name}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_kind)}, {kind: "select-collecion", key: :kind_id, collection: Kind.all}]
-		res
 	end
 
 	# return FormComponent @fields for edit/new

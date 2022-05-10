@@ -10,11 +10,7 @@
 					<% end %>
 					<th class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:l_div_show) %></th>
 	        <th colspan="2">
-						<% if current_user.admin? %>
-							<%= link_to new_team_path, data: {turbo_frame: "modal"} do %>
-								<%= render "shared/add" %>
-							<% end %>
-						<% end %>
+						<%= render ButtonComponent.new(button: @new_button) if @new_button %>
 					</th>
 	      </tr>
 	    </thead>
@@ -28,9 +24,7 @@
 							<td align="center" class="border px py"><%= link_to team.division.name, team %></td>
 						<% if current_user.admin? %>
 		          <td class="hover:bg-white">
-		            <%= link_to team, method: :delete, data: {confirm: t(:q_del) + "'#{team.to_s}'?"} do %>
-		              <%= render "shared/delete" %>
-		            <% end %>
+								<%= render ButtonComponent.new(button: {kind: "delete", url: teams_path(@team)}) %>
 		          </td>
 						<% end %>
 	        </tr>

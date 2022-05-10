@@ -15,7 +15,7 @@ class CategoriesController < ApplicationController
   def show
     redirect_to "/" unless current_user.present? and current_user.admin?
     @fields = header_fields(I18n.t(:l_cat_index), cols: 5, rows: 5)
-    @fields << [{kind: "subtitle", value: @category.name, cols: 3}, {kind: "subtitle", value: @category.sex, cols: 2}]
+    @fields << [{kind: "subtitle", value: @category.age_group, cols: 3}, {kind: "subtitle", value: @category.sex, cols: 2}]
     @fields << [{kind: "label", value: I18n.t(:l_min)}, {kind: "string", value: @category.min_years}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_max)}, {kind: "string", value: @category.max_years}]
   end
 
@@ -96,7 +96,7 @@ class CategoriesController < ApplicationController
     # return FieldsComponent @header for forms
     def form_fields(title)
       res = header_fields(title, rows: 3, cols: 5)
-      res << [{kind: "text-box", value: @category.name, size: 10, cols: 3}, {kind: "select-box", key: :sex, options: [I18n.t(:a_fem), I18n.t(:a_male), I18n.t(:a_mixed)], value: @category.sex, cols: 2}]
+      res << [{kind: "text-box", value: @category.age_group, size: 10, cols: 3}, {kind: "select-box", key: :sex, options: [I18n.t(:a_fem), I18n.t(:a_male), I18n.t(:a_mixed)], value: @category.sex, cols: 2}]
       res << [{kind: "label", value: I18n.t(:l_min)}, {kind: "number-box", key: :min_years}, {kind: "gap", size: 5}, {kind: "label", value: I18n.t(:l_max)}, {kind: "number-box", key: :max_years}]
       res
     end
@@ -116,6 +116,6 @@ class CategoriesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def category_params
-      params.require(:category).permit(:name, :sex, :min_years, :max_years)
+      params.require(:category).permit(:age_group, :sex, :min_years, :max_years)
     end
 end

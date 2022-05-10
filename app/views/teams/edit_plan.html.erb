@@ -3,10 +3,7 @@
 	<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
 		<div id="edit-plan">
 			<table>
-				<tr>
-					<td align="center"><%= image_tag("teamplan.svg", size: "30x30") %></td>
-					<th colspan="3" align="left"><%= t(:l_plan_edit) %></th>
-				</tr><tr class="bg-indigo-900 text-gray-300">
+				<tr class="bg-indigo-900 text-gray-300">
 					<th class="border px py" align="center"><%= t(:l_month) %></th>
 					<th class="border px py" align="center"></th>
 					<th class="border px py" align="center"><%= t(:l_def) %></th>

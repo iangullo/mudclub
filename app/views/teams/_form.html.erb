@@ -1,20 +1,8 @@
-<%= render FieldsComponent.new(fields: @header_fields) %>
 <%= form_with model: team, authenticity_token: true, data: { title: title, turbo_frame: "_top" } do |form| %>
+	<%= render FieldsComponent.new(fields: @form_fields, form: form) %>
 	<div id="team-form-data">
 		<table>
 			<tr>
-				<th align="right"><%= t(:l_name) %></th>
-				<td align="left" class="align-top"><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
-			</tr><tr>
-				<th align="right"><%= image_tag "category.svg", size: "25x25", alt: t(:l_cat) %></th>
-				<td><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
-			</tr><tr>
-				<th align="right"><%= image_tag "division.svg", size: "25x25", alt: t(:l_div) %></th>
-				<td><%= form.collection_select :division_id, Division.real, :id, :name %></td>
-			</tr><tr>
-				<th align="right"><%= image_tag "location.svg", size: "25x25", alt: t(:l_home) %></th>
-				<td><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
-			</tr><tr>
 				<th align="right" class="align-top"><%= image_tag "coach.svg", size: "25x25", alt: t(:l_coach) %></th>
 				<td>
 					<div id="coach-selection">

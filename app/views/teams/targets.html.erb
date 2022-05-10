@@ -1,10 +1,8 @@
 <%= render "shared/modal", simple: true, edit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil do %>
-	<%= render "team_header" %>
+	<%= render FieldsComponent.new(fields: @header_fields) %>
 	<div id="show-targets-data">
 		<table>
 			<tr>
-				<th align="left" class="inline-flex"><%= image_tag("target.svg", size: "30x30") %><%= t(:h_targ) %></th>
-			</tr><tr>
 				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
 			</tr><tr>
 				<td colspan="2" class="border px py align-top">
