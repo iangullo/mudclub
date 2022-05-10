@@ -1,26 +1,38 @@
 # frozen_string_literal: true
 
-# Arguments received:
-# => icon: identifier of related icon taking 2 rows
-# => content: array of 1..3 rows containing hashes :kind, :value, etc.
-# valid content item kinds:
+# ViewComponent to render rows of fields as table cells in a view
+# managing different kinds of content for each field:
 # => "icon": :value (name of icon file in assets)
 # => "header-icon": :value (name of icon file in assets)
-# => "title": :value (bold text of title)
-# => "icon-value": :icon (name of icon file), :value (added text)
+# => "title": :value (bold text of title in orange colour)
+# => "subtitle": :value (bold text of title)
 # => "label": :value (semibold text string)
-# => "select-box": :collection, :value (form, select)
-# => "date-box": :value (date_field)
 # => "string": :value (regular text string)
-# => "text-box": :key (field name), :value (text_field)
-# => "icon-text-box": :icon (name of icon file) + text-box attributes
-# => "number-box": :key (field name), :value (number_field)
-# => "icon-number-box": :icon (name of icon file) + number-box attributes
-# => "text-search": :url (search_in), :value
+# => "icon-label": :icon (name of icon file), :value (added text)
+# => "label-checkbox": :key (attribute of checkbox), :value (added text)
+# => "text-box": :key (field name), :value (text_field), :size (box size)
+# => "email-box": :key (field name), :value (email_field), :size (box size)
+# => "password-box": :key (field name), :value (password_field)
+# => "text-area": :key (field name), :value (text_field), :size (box size), lines: number of lines
+# => "rich-text-area": :key (field name)
+# => "number-box": :key (field name), :value (number_field), size:
+# => "date-box": :key (field name), :value (date_field), :s_year (start_year)
+# => "select-box": :key (field name), :options (array of valid options), :value (form, select)
+# => "select-collection": :key (field name), :collection, :value (form, select)
+# => "search-text": :url (search_in), :value
+# => "search-select": :key (search field), :url (search_in), :collection, :value
+# => "location": :icon (optional), :url (gmaps_url), :name (name to display)
+# => "link_button": :icon (optional), :url (link_to_url), :label (label to display), modal: (pass modal frame?)
+# => "modal-add": :url (link_to_url)
+# => "gap": :size (count of &nbsp; to separate content)
 class FieldsComponent < ApplicationComponent
   def initialize(fields:, form: nil)
     @fields = parse(fields)
     @form   = form
+  end
+
+  def render?
+    @fields.present?
   end
 
   private
@@ -89,13 +101,5 @@ class FieldsComponent < ApplicationComponent
       end
     end
     res
-  end
-
-  def tag_mod(item)
-    cad = ""
-    cad = (cad + " rowspan=\"#{item[:rows].to_s}\"") if item[:rows]
-    cad = (cad + " colspan=\"#{item[:cols].to_s}\"") if item[:cols]
-    cad = (cad + " align=\"#{item[:align]}\"") if item[:align]
-    cad = (cad + " class=\"#{item[:class]}\"") if item[:class]
   end
 end
