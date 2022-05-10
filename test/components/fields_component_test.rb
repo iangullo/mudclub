@@ -2,11 +2,11 @@
 
 require "test_helper"
 
-class ViewHeaderComponentTest < ViewComponent::TestCase
+class FieldsComponentTest < ViewComponent::TestCase
   def test_component_renders_something_useful
     # assert_equal(
     #   %(<span>Hello, components!</span>),
-    #   render_inline(ViewHeaderComponent.new(message: "Hello, components!")).css("span").to_html
+    #   render_inline(FormComponent.new(message: "Hello, components!")).css("span").to_html
     # )
   end
 end
