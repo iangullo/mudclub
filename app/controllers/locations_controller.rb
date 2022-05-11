@@ -164,7 +164,7 @@ private
       else
         row[:items] << {kind: "normal", value: ""}
       end
-      row[:items] << {kind: "delete", url: loc, name: loc.name} if current_user.admin?
+      row[:items] << {kind: "delete", url: location_path(loc), name: loc.name} if current_user.admin?
       res << row
     }
     res

@@ -152,7 +152,7 @@ class DrillsController < ApplicationController
 	      row[:items] << {kind: "normal", value: drill.name}
 	      row[:items] << {kind: "normal", value: drill.kind.name, align: "center"}
 	      row[:items] << {kind: "lines", value: drill.print_targets}
-	      row[:items] << {kind: "delete", url: drill, name: drill.name} if current_user.admin?
+	      row[:items] << {kind: "delete", url: row[:url], name: drill.name} if current_user.admin?
 	      res << row
 	    }
 	    res

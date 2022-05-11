@@ -15,7 +15,7 @@ class Event < ApplicationRecord
   scope :holidays, -> { where("kind = 0").order(:start_time) }
   scope :trainings, -> { where("kind = 1").order(:start_time) }
   scope :matches, -> { where("kind = 2").order(:start_time) }
-  scope :non_training, -> { where("kind != 1").order(:start_time) }
+  scope :non_training, -> { where("kind=1 or (kind=0 and team_id=0)").order(:start_time) }
   self.inheritance_column = "not_sti"
 
   enum kind: {

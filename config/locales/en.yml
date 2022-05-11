@@ -194,6 +194,7 @@ en:
   l_train: "Session"
   l_match: "Match"
   d_match: "<Opponent>"
+  h_opponent: "Opponent"
   loc_duplicate: "Duplicate Location: "
   loc_created: "Created location: "
   loc_updated: "Updated location: "

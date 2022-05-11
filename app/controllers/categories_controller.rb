@@ -124,7 +124,7 @@ class CategoriesController < ApplicationController
         row[:items] << {kind: "normal", value: cat.sex}
         row[:items] << {kind: "normal", value: cat.min_years, align: "right"}
         row[:items] << {kind: "normal", value: cat.max_years, align: "right"}
-        row[:items] << {kind: "delete", url: cat, name: cat.name} if current_user.admin?
+        row[:items] << {kind: "delete", url: category_path(cat), name: cat.name} if current_user.admin?
         res << row
       }
       res

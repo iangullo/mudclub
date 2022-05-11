@@ -114,7 +114,7 @@ class DivisionsController < ApplicationController
       @divisions.each { |div|
         row = {url: edit_division_path(div), modal: true, items: []}
         row[:items] << {kind: "normal", value: div.name}
-        row[:items] << {kind: "delete", url: div, name: div.name} if current_user.admin?
+        row[:items] << {kind: "delete", url: division_path(div), name: div.name} if current_user.admin?
         res << row
       }
       res

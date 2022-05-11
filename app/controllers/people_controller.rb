@@ -153,7 +153,7 @@ class PeopleController < ApplicationController
       @people.each { |person|
         row = {url: person_path(person), modal: true, items: []}
         row[:items] << {kind: "normal", value: person.to_s}
-        row[:items] << {kind: "delete", url: person, name: person.to_s} if current_user.admin?
+        row[:items] << {kind: "delete", url: row[:url], name: person.to_s} if current_user.admin?
         res << row
       }
       res

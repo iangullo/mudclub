@@ -194,6 +194,7 @@ es:
   l_train: "Sesión"
   l_match: "Partido"
   d_match: "<Rival>"
+  h_opponent: "Rival"
   loc_duplicate: "Ubicación duplicada: "
   loc_created: "Ubicación creada: "
   loc_updated: "Ubicación guardada: "

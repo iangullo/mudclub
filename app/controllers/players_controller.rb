@@ -176,7 +176,7 @@ class PlayersController < ApplicationController
         row[:items] << {kind: "normal", value: player.to_s}
         row[:items] << {kind: "normal", value: player.person.age, align: "center"}
         row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
-        row[:items] << {kind: "delete", url: player, name: player.to_s} if current_user.admin? or current_user.is_coach?
+        row[:items] << {kind: "delete", url: row[:url], name: player.to_s} if current_user.admin? or current_user.is_coach?
         res << row
       }
       res

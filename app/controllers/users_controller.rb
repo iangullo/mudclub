@@ -153,12 +153,12 @@ class UsersController < ApplicationController
 	  def grid_rows
 	    res = Array.new
 	    @users.each { |user|
-	      row = {url: user, modal: true, items: []}
+	      row = {url: user_path(user), modal: true, items: []}
 	      row[:items] << {kind: "normal", value: user.s_name}
         row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
         row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}
         row[:items] << {kind: "icon", value: user.admin? ? "Yes.svg" : "No.svg", align: "center"}
-	      row[:items] << {kind: "delete", url: user, name: user.s_name} if current_user.admin?
+	      row[:items] << {kind: "delete", url: row[:url], name: user.s_name} if current_user.admin?
 	      res << row
 	    }
 	    res
