@@ -41,7 +41,7 @@ class TeamsController < ApplicationController
 			end
 			@link_fields.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t(:l_slot_index), align: "center", modal: true}
 			if (current_user.admin? or @team.has_coach(current_user.person.coach_id))
-	      @link_fields.last << {kind: "edit", url: edit_team_path(@team), size: "30x30", modal: true}
+	      @link_fields.last << {kind: "edit", url: edit_team_path, size: "30x30", modal: true}
 			end
 		end
   end

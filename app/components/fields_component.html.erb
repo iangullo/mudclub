@@ -14,7 +14,7 @@
         <% when "header-icon", "icon" %>
           <%= image_tag item[:value], size: item[:size], class: item[:class] %>
         <% when "icon-label" %>
-          <%= image_tag(item[:icon], size: item[:size], class: item[:class]) %>&nbsp;<small><%= item[:value] %><small>
+          <%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:value] %>
         <% when "label-checkbox" %>
           <%= item[:label] %>&nbsp;<%= @form.check_box item[:key] %>
         <% when "text-box" %>
@@ -63,15 +63,8 @@
               <small class="font-semibold">&nbsp;<%= item[:label] %></small>
             <% end %>
           <%= @form.file_field item[:key], direct_upload: true %>
-        <% when "location" %>
-          <button class="<%=item[:i_class]%>">
-            <%= link_to item[:url], target: '_blank', class: "inline-flex align-middle" do %>
-              <%= image_tag("gmaps.svg", size: "25x25") %>
-              <small><%= item[:name] %></small>
-            <% end %>
-          </button>
-        <% when "add", "add-nested", "edit", "jump" %>
-          <%= render ButtonComponent.new(button: {kind: item[:kind], icon: item[:icon], url: item[:url], label: item[:label], modal: item[:modal], size: item[:size]}) %>
+        <% when "add", "add-nested", "edit", "jump", "location" %>
+          <%= render ButtonComponent.new(button: item) %>
         <% when "gap" %>
           <% item[:size].times do %>
             &nbsp;

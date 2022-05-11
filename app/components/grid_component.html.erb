@@ -1,1 +1,49 @@
-<div>Add Grid template here</div>
+<table class="table-auto">
+  <thead class="bg-indigo-900 text-gray-300">
+    <tr>
+      <% @g_head.each do |item| %>
+        <th
+          <% if item[:cols] %>colspan="<%= item[:cols] %>"<% end %>
+          <% if item[:rows] %>rowspan="<%= item[:rows] %>"<% end %>
+          <% if item[:class] %>class="<%= item[:class] %>"<% end %>
+          <% if item[:align] %>align="<%= item[:align] %>"<% end %>
+        >
+          <% case item[:kind] %>
+          <% when "normal", "inverse", "gap" %>
+            <%= item[:value] %>
+          <% else %>
+            <%= render ButtonComponent.new(button: {kind: item[:kind], icon: item[:icon], size: item[:size], url: item[:url], label: item[:label], modal: item[:modal]}) %>
+          <% end %>
+        </th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% @g_rows.each do |g_row| %>
+      <tr class="hover:text-white hover:bg-blue-700">
+        <% g_row[:items].each do |item| %>
+          <td
+            <% if item[:class] %>class="<%= item[:class] %>"<% end %>
+            <% if item[:align] %>align="<%= item[:align] %>"<% end %>
+          >
+            <% case item[:kind] %>
+            <% when "normal" %>
+              <%= link_to item[:value], g_row[:url], data: (g_row[:modal] ? {turbo_frame: "modal"} : nil) %>
+            <% when "lines" %>
+              <% item[:value].each do |cad| %>
+                <%= link_to cad, g_row[:url], data: (g_row[:modal] ? {turbo_frame: "modal"} : nil) %>
+                <br>
+              <% end %>
+            <% when "icon" %>
+              <%= link_to g_row[:url], data: (g_row[:modal] ? {turbo_frame: "modal"} : nil) do %>
+                <%= image_tag item[:value], size: "25x25" %>
+              <% end %>
+            <% else %>
+              <%= render ButtonComponent.new(button: item) %>
+            <% end %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

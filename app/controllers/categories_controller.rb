@@ -6,6 +6,8 @@ class CategoriesController < ApplicationController
     if current_user.present? and current_user.admin?
       @categories = Category.real
       @fields     = header_fields(I18n.t(:l_cat_index))
+      @g_head     = grid_header
+      @g_rows     = grid_rows
     else
 			redirect_to "/"
 		end
@@ -98,6 +100,33 @@ class CategoriesController < ApplicationController
       res = header_fields(title, rows: 3, cols: 5)
       res << [{kind: "text-box", value: @category.age_group, size: 10, cols: 3}, {kind: "select-box", key: :sex, options: [I18n.t(:a_fem), I18n.t(:a_male), I18n.t(:a_mixed)], value: @category.sex, cols: 2}]
       res << [{kind: "label", value: I18n.t(:l_min)}, {kind: "number-box", key: :min_years}, {kind: "gap", size: 5}, {kind: "label", value: I18n.t(:l_max)}, {kind: "number-box", key: :max_years}]
+      res
+    end
+
+    # return header for @categories GridComponent
+    def grid_header
+      res = [
+        {kind: "normal", value: I18n.t(:h_name)},
+        {kind: "normal", value: I18n.t(:h_sex)},
+        {kind: "normal", value: I18n.t(:a_min)},
+        {kind: "normal", value: I18n.t(:a_max)}
+      ]
+      res <<  {kind: "add", url: new_category_path, modal: true} if current_user.admin?
+      res
+    end
+
+    # return content rows for @categories GridComponent
+    def grid_rows
+      res = Array.new
+      @categories.each { |cat|
+        row = {url: edit_category_path(cat), modal: true, items: []}
+        row[:items] << {kind: "normal", value: cat.age_group}
+        row[:items] << {kind: "normal", value: cat.sex}
+        row[:items] << {kind: "normal", value: cat.min_years, align: "right"}
+        row[:items] << {kind: "normal", value: cat.max_years, align: "right"}
+        row[:items] << {kind: "delete", url: cat, name: cat.name} if current_user.admin?
+        res << row
+      }
       res
     end
 

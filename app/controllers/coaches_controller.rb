@@ -7,8 +7,10 @@ class CoachesController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@coaches = get_coaches
-			@fields = header_fields(I18n.t(:l_coach_index))
+			@fields  = header_fields(I18n.t(:l_coach_index))
 			@fields << [{kind: "search-text", url: coaches_path}]
+			@g_head  = grid_header
+      @g_rows  = grid_rows
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
@@ -154,6 +156,30 @@ class CoachesController < ApplicationController
 			end
 			res
 		end
+
+		# return header for @categories GridComponent
+    def grid_header
+      res = [
+        {kind: "normal", value: I18n.t(:h_name)},
+        {kind: "normal", value: I18n.t(:h_age)},
+        {kind: "normal", value: I18n.t(:a_active)}
+      ]
+			res << {kind: "add", url: new_coach_path, modal: true} if current_user.admin?
+    end
+
+    # return content rows for @categories GridComponent
+    def grid_rows
+      res = Array.new
+      @coaches.each { |coach|
+        row = {url: coach_path(coach), modal: true, items: []}
+        row[:items] << {kind: "normal", value: coach.to_s}
+        row[:items] << {kind: "normal", value: coach.person.age, align: "center"}
+        row[:items] << {kind: "icon", value: coach.active? ? "Yes.svg" : "No.svg", align: "center"}
+        row[:items] << {kind: "delete", url: coach, name: coach.to_s} if current_user.admin?
+        res << row
+      }
+      res
+    end
 
 		# build new @coach from raw input given by submittal from "new"
 		# return nil if unsuccessful

@@ -1,5 +1,5 @@
 <%= render "shared/modal", simple: true, edit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_task_event_path(task_id: @task.id) : nil do %>
-	<%= render "event_header", title: @event.team.to_s %>
+	<%= render FieldsComponent.new(fields: @header_fields) %>
 	<div id="show_task-data">
 		<table>
 			<tr>

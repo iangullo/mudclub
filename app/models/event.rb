@@ -65,13 +65,13 @@ class Event < ApplicationRecord
     return true
   end
 
-  def title
-    cad = self.id ? I18n.t(:m_edit) + " " : I18n.t(:m_create) + " "
-    case self.kind.to_sym  # depending on event kind
+  def title(show: nil)
+    cad = show ? "" : (self.id ? I18n.t(:m_edit) + " " : I18n.t(:m_create) + " ")
+    case self.kind.to_sym
     when :holiday
       cad = cad + I18n.t(:l_rest)
     when :train
-      cad = cad + I18n.t(:l_train)
+      cad = show ? self.team.to_s : cad + I18n.t(:l_train)
     when :match
       cad = cad + I18n.t(:l_match)
     else

@@ -74,23 +74,13 @@ class FieldsComponent < ApplicationComponent
           item[:i_class] = "rounded border shadow-inner"
         when "icon-label"
           item[:align] = "left" unless item[:align]
-          item[:size]  = "16" unless item[:size]
+          item[:size]  = "25x25" unless item[:size]
           item[:class] = "align-top inline-flex"
         when "search-text", "search-select", "search-collection"
           item[:align] = "left" unless item[:align]
           item[:class] = "inline-flex rounded border"
           item[:size]  = 16 unless item[:size]
           item[:i_class] = "rounded border shadow-inner"
-        when "link-button"
-          item[:align]   = "center"
-          item[:size]    = "50x50" unless item[:size]
-          if item[:modal]
-            item[:i_class] = "rounded-md hover:bg-yellow-200"
-          else
-            item[:i_class] = "rounded-md hover:bg-blue-100"
-          end
-        when "location"
-          item[:i_class] = "rounded hover:bg-blue-100"
         when "gap"
           item[:size]  = 4 unless item[:size]
         else

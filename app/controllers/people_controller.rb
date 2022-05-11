@@ -9,6 +9,8 @@ class PeopleController < ApplicationController
 			@people = Person.search(params[:search])
 			@fields = header_fields(I18n.t(:l_per_index))
 			@fields << [{kind: "search-text", url: people_path}]
+			@g_head = grid_header
+      @g_rows = grid_rows
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=people.xlsx"
@@ -136,6 +138,26 @@ class PeopleController < ApplicationController
 			res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @person.birthday}]
 			res
 		end
+
+		# return header for @categories GridComponent
+    def grid_header
+      res = [
+        {kind: "normal", value: I18n.t(:h_name)},
+      ]
+			res << {kind: "add", url: new_person_path, modal: true} if current_user.admin?
+    end
+
+    # return content rows for @categories GridComponent
+    def grid_rows
+      res = Array.new
+      @people.each { |person|
+        row = {url: person_path(person), modal: true, items: []}
+        row[:items] << {kind: "normal", value: person.to_s}
+        row[:items] << {kind: "delete", url: person, name: person.to_s} if current_user.admin?
+        res << row
+      }
+      res
+    end
 
 		def person_fields
 			res = [

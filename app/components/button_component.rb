@@ -26,9 +26,9 @@ class ButtonComponent < ApplicationComponent
   # determine class of item depending on kind
   def parse(button)
     @button = button
-    set_icon(@button)
-    set_iclass(@button)
-    set_bclass(@button)
+    set_icon
+    set_iclass
+    set_bclass
     case @button[:kind]
     when "add", "add-nested", "export", "import", "save"
       @button[:d_class] = "rounded-lg inline-flex hover:bg-green-200 text-green-700 font-bold"
@@ -37,66 +37,69 @@ class ButtonComponent < ApplicationComponent
     when "close", "delete", "remove"
       @button[:d_class] = "rounded-lg inline-flex hover:bg-red-200 text-red-700 font-bold"
     when "jump"
-      @button[:d_class] = "rounded-lg hover:bg-blue-100 align-center"
+      @button[:d_class] = "rounded-lg hover:bg-blue-100 text-sm"
     when "location"
-      @button[:d_class] = "rounded-lg inline-flex hover:bg-blue-100"
+      @button[:tab]     = true
+      @button[:d_class] = "rounded-lg hover:bg-blue-100 inline-flex"
+      @button[:d_class] = @button[:d_class] + " align-center text-sm" if @button[:icon]
     end
+    @button[:align] = "center" unless @button[:align]
     @button
   end
 
   # determine class of item depending on kind
-  def set_icon(button)
-    case button[:kind]
+  def set_icon
+    case @button[:kind]
     when "add", "add-nested"
-      button[:icon]    = "add.svg"
+      @button[:icon]    = "add.svg"
     when "close"
-      button[:icon]    = "close.svg"
+      @button[:icon]    = "close.svg"
     when "delete"
-      button[:icon]    = "delete.svg"
-      button[:confirm] = I18n.t(:q_del) + "'#{button[:name]}'"
+      @button[:icon]    = "delete.svg"
+      @button[:confirm] = I18n.t(:q_del) + " \'#{@button[:name]}\'?"
     when "edit"
-      button[:icon]    = "edit.svg"
+      @button[:icon]    = "edit.svg"
     when "export"
-      button[:icon]    = "export.svg"
+      @button[:icon]    = "export.svg"
     when "import"
-      button[:icon]    = "import.svg"
-      button[:confirm] = I18n.t(:q_import)
+      @button[:icon]    = "import.svg"
+      @button[:confirm] = I18n.t(:q_import)
     when "jump"
-      button[:size]    = "50x50"
+      @button[:size]    = "50x50"
     when "remove"
-      button[:icon]    = "remove.svg"
+      @button[:icon]    = "remove.svg"
     when "save"
-      button[:icon]    = "save.svg"
-      button[:confirm] = I18n.t(:q_save_chng)
+      @button[:icon]    = "save.svg"
+      @button[:confirm] = I18n.t(:q_save_chng)
     end
   end
 
-  # set the button class depending on button type
-  def set_bclass(button)
-    case button[:kind]
+  # set the @button class depending on button type
+  def set_bclass
+    case @button[:kind]
     when "add-nested"
-      button[:action]  = "nested-form#add"
+      @button[:action]  = "nested-form#add"
     when "remove"
-      button[:action]  = "nested-form#remove"
+      @button[:action]  = "nested-form#remove"
     when "import", "save"
-      button[:b_class] = "save-button inline-flex"
+      @button[:b_class] = "save-button inline-flex"
     when "close"
-      button[:b_class] = "close-button inline-flex"
-      button[:action]  = "click->extended-modal#close"
+      @button[:b_class] = "close-button inline-flex"
+      @button[:action]  = "click->extended-modal#close"
     else
-      button[:b_class] = "#{@button[:kind]}-button"
+      @button[:b_class] = "#{@button[:kind]}-button"
     end
   end
 
   # set the i_class for the button div
-  def set_iclass(button)
-    case button[:kind]
+  def set_iclass
+    case @button[:kind]
     when "add-nested", "remove"
-      button[:i_class] = "max-h-5 min-h-4"
+      @button[:i_class] = "max-h-5 min-h-4 align-center"
     when "add", "delete", "location"
-      button[:i_class] = "max-h-6 min-h-4"
+      @button[:i_class] = "max-h-6 min-h-4 align-center"
     when  "cancel", "save", "export", "import"
-      button[:i_class] = "max-h-7 min-h-5"
+      @button[:i_class] = "max-h-7 min-h-5 align-center"
     end
   end
 end

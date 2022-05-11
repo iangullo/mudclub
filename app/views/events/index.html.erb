@@ -1,17 +1,5 @@
 <div id="events-index">
-	<div id="events-header">
-    <table>
-      <tr>
-        <th rowspan="2">
-          <%= image_tag("calendar.svg", size: "50x50") %>
-        </th><th align="left" class="align-top rounded-md text-yellow-600">
-          <%= t(:l_cal)%>
-        </th>
-      </tr><tr>
-        <th align="left"><%= @team ? @team.name : (@season ? @season.name : " ") %><th>
-			</tr>
-		</table>
-	</div>
+	<%= render FieldsComponent.new(fields: @header_fields) %>
 	<div id="events-grid">
 		<table class="table-auto">
 		  <thead>

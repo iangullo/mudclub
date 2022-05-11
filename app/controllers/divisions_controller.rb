@@ -6,6 +6,8 @@ class DivisionsController < ApplicationController
     if current_user.present? and current_user.admin?
       @divisions = Division.real
       @fields    = header_fields(I18n.t(:l_div_index))
+      @g_head    = grid_header
+      @g_rows    = grid_rows
     else
       redirect_to "/"
     end
@@ -95,6 +97,26 @@ class DivisionsController < ApplicationController
     def form_fields(title)
       res = header_fields(title, cols: 3)
       res << [{kind: "text-box", value: @division.name, cols: 3}]
+      res
+    end
+
+		# return header for @categories GridComponent
+    def grid_header
+      res = [
+        {kind: "normal", value: I18n.t(:h_name)},
+      ]
+			res << {kind: "add", url: new_division_path, modal: true} if current_user.admin?
+    end
+
+    # return content rows for @categories GridComponent
+    def grid_rows
+      res = Array.new
+      @divisions.each { |div|
+        row = {url: edit_division_path(div), modal: true, items: []}
+        row[:items] << {kind: "normal", value: div.name}
+        row[:items] << {kind: "delete", url: div, name: div.name} if current_user.admin?
+        res << row
+      }
       res
     end
 

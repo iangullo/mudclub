@@ -115,6 +115,7 @@ en:
   l_email: "e-mail:"
   a_min: "Min."
   l_min: "Min:"
+  a_max: "Max."
   l_max: "Max:"
   h_age: "Age"
   l_age: "Age:"
