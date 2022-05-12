@@ -6,8 +6,7 @@ class DivisionsController < ApplicationController
     if current_user.present? and current_user.admin?
       @divisions = Division.real
       @fields    = header_fields(I18n.t(:l_div_index))
-      @g_head    = grid_header
-      @g_rows    = grid_rows
+      @grid      = division_grid
     else
       redirect_to "/"
     end
@@ -100,24 +99,19 @@ class DivisionsController < ApplicationController
       res
     end
 
-		# return header for @categories GridComponent
-    def grid_header
-      res = [
-        {kind: "normal", value: I18n.t(:h_name)},
-      ]
-			res << {kind: "add", url: new_division_path, modal: true} if current_user.admin?
-    end
+		# return grid for @divisions GridComponent
+    def division_grid
+      head = [{kind: "normal", value: I18n.t(:h_name)}]
+			head << {kind: "add", url: new_division_path, turbo: "modal"} if current_user.admin?
 
-    # return content rows for @categories GridComponent
-    def grid_rows
-      res = Array.new
+      rows = Array.new
       @divisions.each { |div|
-        row = {url: edit_division_path(div), modal: true, items: []}
+        row = {url: edit_division_path(div), turbo: "modal", items: []}
         row[:items] << {kind: "normal", value: div.name}
         row[:items] << {kind: "delete", url: division_path(div), name: div.name} if current_user.admin?
-        res << row
+        rows << row
       }
-      res
+      {header: head, rows: rows}
     end
 
     # prune teams from a category to be deleted

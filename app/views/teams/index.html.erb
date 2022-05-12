@@ -1,4 +1,4 @@
 <div id="teams-index">
 	<%= render FieldsComponent.new(fields: @header) %>
-	<%= render GridComponent.new(g_head: @g_head, g_rows: @g_rows) %>
+	<%= render GridComponent.new(g_head: @grid[:header], g_rows: @grid[:rows]) %>
 </div>

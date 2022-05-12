@@ -9,8 +9,7 @@ class PeopleController < ApplicationController
 			@people = Person.search(params[:search])
 			@fields = header_fields(I18n.t(:l_per_index))
 			@fields << [{kind: "search-text", url: people_path}]
-			@g_head = grid_header
-      @g_rows = grid_rows
+			@grid   = person_grid
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=people.xlsx"
@@ -139,24 +138,19 @@ class PeopleController < ApplicationController
 			res
 		end
 
-		# return header for @categories GridComponent
-    def grid_header
-      res = [
-        {kind: "normal", value: I18n.t(:h_name)},
-      ]
-			res << {kind: "add", url: new_person_path, modal: true} if current_user.admin?
-    end
+		# return header for @people GridComponent
+    def person_grid
+      head = [{kind: "normal", value: I18n.t(:h_name)}]
+			head << {kind: "add", url: new_person_path, turbo: "modal"} if current_user.admin?
 
-    # return content rows for @categories GridComponent
-    def grid_rows
-      res = Array.new
+      rows = Array.new
       @people.each { |person|
-        row = {url: person_path(person), modal: true, items: []}
+        row = {url: person_path(person), turbo: "modal", items: []}
         row[:items] << {kind: "normal", value: person.to_s}
         row[:items] << {kind: "delete", url: row[:url], name: person.to_s} if current_user.admin?
-        res << row
+        rows << row
       }
-      res
+			{header: head, rows: rows}
     end
 
 		def person_fields

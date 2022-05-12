@@ -9,8 +9,7 @@ class LocationsController < ApplicationController
       @season = Season.find(params[:season_id]) if params[:season_id]
       @header_fields = header_fields(I18n.t(:l_loc_index))
       @header_fields << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", url: locations_path}]
-      @g_head = grid_header
-      @g_rows = grid_rows
+      @grid = location_grid
 	else
 			redirect_to "/"
 		end
@@ -142,21 +141,18 @@ private
     res
   end
 
-  # return header for @categories GridComponent
-  def grid_header
-    res = [
+  # return grid for @locations GridComponent
+  def location_grid
+    head = [
       {kind: "normal", value: I18n.t(:h_name)},
       {kind: "normal", value: I18n.t(:h_kind), align: "center"},
       {kind: "normal", value: I18n.t(:a_loc)}
     ]
-    res << {kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, modal: true} if current_user.admin? or current_user.is_coach?
-  end
+    head << {kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
 
-  # return content rows for @categories GridComponent
-  def grid_rows
-    res = Array.new
+    rows = Array.new
     @locations.each { |loc|
-      row = {url: edit_location_path(loc), modal: true, items: []}
+      row = {url: edit_location_path(loc), turbo: "modal", items: []}
       row[:items] << {kind: "normal", value: loc.name}
       row[:items] << {kind: "icon", value: loc.practice_court ? "training.svg" : "team.svg", align: "center"}
       if loc.gmaps_url
@@ -165,9 +161,9 @@ private
         row[:items] << {kind: "normal", value: ""}
       end
       row[:items] << {kind: "delete", url: location_path(loc), name: loc.name} if current_user.admin?
-      res << row
+      rows << row
     }
-    res
+    {header: head, rows: rows}
   end
 
   # rebuild @location from params[:location]

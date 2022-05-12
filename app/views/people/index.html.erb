@@ -1,6 +1,6 @@
 <div id="people-index">
 	<%= render FieldsComponent.new(fields: @fields) %>
-	<%= render GridComponent.new(g_head: @g_head, g_rows: @g_rows) %>
+	<%= render GridComponent.new(g_head: @grid[:header], g_rows: @grid[:rows]) %>
 	<% if current_user.admin? %>
 		<br>
 		<%= render "shared/import_export", import_path: import_people_path, export_path: people_path(format: :xlsx) %>

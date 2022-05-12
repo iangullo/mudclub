@@ -7,8 +7,7 @@ class UsersController < ApplicationController
       @users  = User.search(params[:search])
       @header = header_fields(I18n.t(:l_user_index))
       @header << [{kind: "text-search", url: users_path}]
-      @g_head = grid_header
-      @g_rows = grid_rows
+      @grid = user_grid
     else
       redirect_to "/"
     end
@@ -138,30 +137,27 @@ class UsersController < ApplicationController
   		res
   	end
 
-    # return header for @categories GridComponent
-	  def grid_header
-	    res = [
+    # return grid for @users GridComponent
+	  def user_grid
+	    head = [
 	      {kind: "normal", value: I18n.t(:h_name)},
 	      {kind: "normal", value: I18n.t(:a_player), align: "center"},
         {kind: "normal", value: I18n.t(:a_coach), align: "center"},
         {kind: "normal", value: I18n.t(:a_admin), align: "center"}
 	    ]
-			res << {kind: "add", url: new_user_path, modal: true} if current_user.admin? or current_user.is_coach?
-	  end
+			head << {kind: "add", url: new_user_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
 
-	  # return content rows for @categories GridComponent
-	  def grid_rows
-	    res = Array.new
+	    rows = Array.new
 	    @users.each { |user|
-	      row = {url: user_path(user), modal: true, items: []}
+	      row = {url: user_path(user), turbo: "modal", items: []}
 	      row[:items] << {kind: "normal", value: user.s_name}
         row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
         row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}
         row[:items] << {kind: "icon", value: user.admin? ? "Yes.svg" : "No.svg", align: "center"}
 	      row[:items] << {kind: "delete", url: row[:url], name: user.s_name} if current_user.admin?
-	      res << row
+	      rows << row
 	    }
-	    res
+      {header: head, rows: rows}
 	  end
 
     # re-build existing @user from raw input given by submittal from "new"

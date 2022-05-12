@@ -30,14 +30,14 @@
           >
             <% case item[:kind] %>
             <% when "normal" %>
-              <%= link_to item[:value], g_row[:url], data: (g_row[:modal] ? {turbo_frame: "modal"} : nil) %>
+              <%= link_to item[:value], g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
             <% when "lines" %>
               <% item[:value].each do |cad| %>
-                <%= link_to cad, g_row[:url], data: (g_row[:modal] ? {turbo_frame: "modal"} : nil) %>
+                <%= link_to cad, g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
                 <br>
               <% end %>
             <% when "icon" %>
-              <%= link_to g_row[:url], data: (g_row[:modal] ? {turbo_frame: "modal"} : nil) do %>
+              <%= link_to g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) do %>
                 <%= image_tag item[:value], size: "25x25" %>
               <% end %>
             <% else %>

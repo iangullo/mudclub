@@ -7,8 +7,7 @@ class TeamsController < ApplicationController
   def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.is_player?)
 			@header = header_fields(I18n.t(:l_team_index), search: true)
-			@g_head = grid_header
-      @g_rows = grid_rows
+			@grid  = team_grid
 		else
 			redirect_to "/"
 		end
@@ -34,21 +33,7 @@ class TeamsController < ApplicationController
 			redirect_to coaching_team_path(@team) if params[:id]=="coaching" and @team
 			@header = header_fields(@team.to_s)
 			@links  = team_links
-			@g_head = [
-				{kind: "normal", value: I18n.t(:h_date)},
-				{kind: "normal", value: I18n.t(:h_time)},
-				{kind: "normal", value: I18n.t(:h_desc)},
-				{kind: "dropdown", button: new_event_button}
-			]
-      @g_rows = []
-			@team.events.normal.order(:start_time).each { |event|
-				row = {url:  event_path(event), modal: not(event.train?), items: []}
-        row[:items] << {kind: "normal", value: event.date_string, align: "center"}
-        row[:items] << {kind: "normal", value: event.time_string, align: "center"}
-        row[:items] << {kind: "normal", value: event.to_s}
-        row[:items] << {kind: "delete", url: row[:url], name: event.to_s(true)} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
-        @g_rows << row
-			}
+			@grid   = event_grid(events: @team.events.normal.order(:start_time), obj: @team)
 		end
   end
 
@@ -60,7 +45,7 @@ class TeamsController < ApplicationController
 			end
 			@header = header_fields(@team.to_s)
 			@header << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_roster_show)}]
-			@grid   =  players_grid(players: @team.players.order(:number), view: "roster")
+			@grid   =  players_grid(players: @team.players.order(:number), obj: @team)
 		else
 			redirect_to "/"
 		end
@@ -239,50 +224,38 @@ class TeamsController < ApplicationController
 	  	res
 		end
 
-		# return header for @categories GridComponent
-    def grid_header
-      res = [{kind: "normal", value: I18n.t(:h_name)}]
-			res << {kind: "normal", value: I18n.t(:l_sea_show)} unless params[:season_id]
-      res << {kind: "normal", value: I18n.t(:l_div_show)}
-			res << {kind: "add", url: new_team_path, modal: true} if current_user.admin?
-    end
+		# return grid for @teams GridComponent
+    def team_grid
+      head = [{kind: "normal", value: I18n.t(:h_name)}]
+			head << {kind: "normal", value: I18n.t(:l_sea_show)} unless params[:season_id]
+      head << {kind: "normal", value: I18n.t(:l_div_show)}
+			head << {kind: "add", url: new_team_path, turbo: "modal"} if current_user.admin?
 
-    # return content rows for @categories GridComponent
-    def grid_rows
-      res = Array.new
+      rows = Array.new
       @teams.each { |team|
         row = {url: team_path(team), items: []}
         row[:items] << {kind: "normal", value: team.to_s}
         row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless params[:season_id]
         row[:items] << {kind: "normal", value: team.division.name, align: "center"}
         row[:items] << {kind: "delete", url: row[:url], name: team.to_s} if current_user.admin?
-        res << row
+        rows << row
       }
-      res
+			{header: head, rows: rows}
     end
 
 		# return jump links for a team
 		def team_links
-			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), align: "center", modal: true}]]
+			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), align: "center", turbo: "modal"}]]
 			if (current_user.admin? or current_user.is_coach?)
-				res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t(:h_targ), align: "center", modal: true}
-        res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t(:a_plan), align: "center", modal: true}
+				res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t(:h_targ), align: "center", turbo: "modal"}
+        res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t(:a_plan), align: "center", turbo: "modal"}
 			end
-			res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t(:l_slot_index), align: "center", modal: true}
+			res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t(:l_slot_index), align: "center", turbo: "modal"}
 			if (current_user.admin? or @team.has_coach(current_user.person.coach_id))
-	      res.last << {kind: "edit", url: edit_team_path, size: "30x30", modal: true}
+	      res.last << {kind: "edit", url: edit_team_path, size: "30x30", turbo: "modal"}
 			end
 			res
 		end
-
-	  # dropdown button definition to create a new Event
-	  def new_event_button
-	    res = {kind: "add", name: I18n.t(:m_create), options: []}
-	    res[:options] << {label: I18n.t(:l_train), url: new_event_path(event: {kind: :train, team_id: @team.id})}
-	    res[:options] << {label: I18n.t(:l_match), url: new_event_path(event: {kind: :match, team_id: @team.id})}
-	    res[:options] << {label: I18n.t(:l_rest), url: new_event_path(event: {kind: :rest, team_id: @team.id})}
-	    return res
-	  end
 
 		# retrieve targets for the team
 		def global_targets(breakdown=false)

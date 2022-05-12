@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # Create buttons to be used in views
 # button is hash with following fields:
-# (kind: , max_h: 6, icon: nil, label: nil, url: nil, modal: nil)
+# (kind: , max_h: 6, icon: nil, label: nil, url: nil, turbo: nil)
 # kinds of button:
 # => "add": new item button
 # => "add-nested": new nested-item

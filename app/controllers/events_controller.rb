@@ -5,8 +5,9 @@ class EventsController < ApplicationController
   def index
     if current_user.present?
       @events = Event.search(params)
-      @season = Season.last if @events.empty?
-      @header_fields = general_header(I18n.t(:l_cal))
+      @season = @events.empty? ? Season.last : @events.first.team.season
+      @header = general_header(I18n.t(:l_cal))
+      @grid   = event_grid(events: @events, obj: @season)
     else
       redirect_to "/"
     end
@@ -168,7 +169,7 @@ class EventsController < ApplicationController
     # return icon and top of HeaderComponent
     def general_header(title)
       return [
-        [{kind: "header-icon", value: "calendar.svg"}, {kind: "title", value: title, cols: cols}],
+        [{kind: "header-icon", value: "calendar.svg"}, {kind: "title", value: title}],
         [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : ""}]
       ]
     end

@@ -6,8 +6,7 @@ class CategoriesController < ApplicationController
     if current_user.present? and current_user.admin?
       @categories = Category.real
       @fields     = header_fields(I18n.t(:l_cat_index))
-      @g_head     = grid_header
-      @g_rows     = grid_rows
+      @grid       = category_grid
     else
 			redirect_to "/"
 		end
@@ -104,30 +103,26 @@ class CategoriesController < ApplicationController
     end
 
     # return header for @categories GridComponent
-    def grid_header
-      res = [
+    def category_grid
+      head = [
         {kind: "normal", value: I18n.t(:h_name)},
         {kind: "normal", value: I18n.t(:h_sex)},
         {kind: "normal", value: I18n.t(:a_min)},
         {kind: "normal", value: I18n.t(:a_max)}
       ]
-      res <<  {kind: "add", url: new_category_path, modal: true} if current_user.admin?
-      res
-    end
+      head <<  {kind: "add", url: new_category_path, turbo: "modal"} if current_user.admin?
 
-    # return content rows for @categories GridComponent
-    def grid_rows
-      res = Array.new
+      rows = Array.new
       @categories.each { |cat|
-        row = {url: edit_category_path(cat), modal: true, items: []}
+        row = {url: edit_category_path(cat), turbo: "modal", items: []}
         row[:items] << {kind: "normal", value: cat.age_group}
         row[:items] << {kind: "normal", value: cat.sex}
         row[:items] << {kind: "normal", value: cat.min_years, align: "right"}
         row[:items] << {kind: "normal", value: cat.max_years, align: "right"}
         row[:items] << {kind: "delete", url: category_path(cat), name: cat.name} if current_user.admin?
-        res << row
+        rows << row
       }
-      res
+      {header: head, rows: rows}
     end
 
     # prune teams from a category to be deleted

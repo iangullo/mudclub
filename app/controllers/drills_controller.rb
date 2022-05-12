@@ -9,8 +9,7 @@ class DrillsController < ApplicationController
 			@drills        = Drill.search(params[:search])
 			@header_fields = header_fields(I18n.t(:l_drill_index))
 	    @header_fields << [{kind: "text-search", url: drills_path}]
-			@g_head = grid_header
-      @g_rows = grid_rows
+			@grid = drill_grid
 		else
 			redirect_to "/"
 		end
@@ -134,28 +133,25 @@ class DrillsController < ApplicationController
 		]
 		end
 
-		# return header for @categories GridComponent
-	  def grid_header
-	    res = [
-	      {kind: "normal", value: I18n.t(:h_name)},
+		# return grid for @drills GridComponent
+	  def drill_grid
+	    head = [
+				{kind: "normal", value: I18n.t(:h_name)},
 	      {kind: "normal", value: I18n.t(:h_kind), align: "center"},
 	      {kind: "normal", value: I18n.t(:h_targ)}
 	    ]
-			res << {kind: "add", url: new_drill_path, modal: true} if current_user.admin? or current_user.is_coach?
-	  end
+			head << {kind: "add", url: new_drill_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
 
-	  # return content rows for @categories GridComponent
-	  def grid_rows
-	    res = Array.new
+	    rows = Array.new
 	    @drills.each { |drill|
-	      row = {url: drill_path(drill), modal: true, items: []}
+	      row = {url: drill_path(drill), turbo: "modal", items: []}
 	      row[:items] << {kind: "normal", value: drill.name}
 	      row[:items] << {kind: "normal", value: drill.kind.name, align: "center"}
 	      row[:items] << {kind: "lines", value: drill.print_targets}
 	      row[:items] << {kind: "delete", url: row[:url], name: drill.name} if current_user.admin?
-	      res << row
+	      rows << row
 	    }
-	    res
+			{header: head, rows: rows}
 	  end
 
 		# build new @drill from raw input given by submittal from "new"

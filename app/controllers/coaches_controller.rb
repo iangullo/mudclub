@@ -9,8 +9,7 @@ class CoachesController < ApplicationController
 			@coaches = get_coaches
 			@fields  = header_fields(I18n.t(:l_coach_index))
 			@fields << [{kind: "search-text", url: coaches_path}]
-			@g_head  = grid_header
-      @g_rows  = grid_rows
+			@grid    = coach_grid
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
@@ -157,28 +156,25 @@ class CoachesController < ApplicationController
 			res
 		end
 
-		# return header for @categories GridComponent
-    def grid_header
-      res = [
+		# return grid for @coaches GridComponent
+    def coach_grid
+      head = [
         {kind: "normal", value: I18n.t(:h_name)},
         {kind: "normal", value: I18n.t(:h_age)},
         {kind: "normal", value: I18n.t(:a_active)}
       ]
-			res << {kind: "add", url: new_coach_path, modal: true} if current_user.admin?
-    end
+			head << {kind: "add", url: new_coach_path, turbo: "modal"} if current_user.admin?
 
-    # return content rows for @categories GridComponent
-    def grid_rows
-      res = Array.new
+      rows = Array.new
       @coaches.each { |coach|
-        row = {url: coach_path(coach), modal: true, items: []}
+        row = {url: coach_path(coach), turbo: "modal", items: []}
         row[:items] << {kind: "normal", value: coach.to_s}
         row[:items] << {kind: "normal", value: coach.person.age, align: "center"}
         row[:items] << {kind: "icon", value: coach.active? ? "Yes.svg" : "No.svg", align: "center"}
         row[:items] << {kind: "delete", url: row[:url], name: coach.to_s} if current_user.admin?
-        res << row
+        rows << row
       }
-      res
+			{header: head, rows: rows}
     end
 
 		# build new @coach from raw input given by submittal from "new"

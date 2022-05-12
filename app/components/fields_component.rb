@@ -22,7 +22,7 @@
 # => "search-text": :url (search_in), :value
 # => "search-select": :key (search field), :url (search_in), :collection, :value
 # => "location": :icon (optional), :url (gmaps_url), :name (name to display)
-# => "link_button": :icon (optional), :url (link_to_url), :label (label to display), modal: (pass modal frame?)
+# => "link_button": :icon (optional), :url (link_to_url), :label (label to display), turbo: (pass turbo frame?)
 # => "modal-add": :url (link_to_url)
 # => "gap": :size (count of &nbsp; to separate content)
 class FieldsComponent < ApplicationComponent

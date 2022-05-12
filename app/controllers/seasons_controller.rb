@@ -14,10 +14,9 @@ class SeasonsController < ApplicationController
         {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t(:l_courts), align: "center"},
         {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t(:l_team_index), align: "center"},
         {kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? season_slots_path(@season) : season_slots_path(@season, location_id: @season.locations.first.id), label: I18n.t(:l_slot_index), align: "center"},
-        {kind: "edit", url: edit_season_path(@season), size: "30x30", modal: true}
+        {kind: "edit", url: edit_season_path(@season), size: "30x30", turbo: "modal"}
       ]]
-      @g_head = grid_header
-      @g_rows = grid_rows
+      @grid   = event_grid(events: @events, obj: @season)
 		else
 			redirect_to "/"
 		end
@@ -116,32 +115,6 @@ class SeasonsController < ApplicationController
       res << [{kind: "label", align: "right", value: I18n.t(:h_end)}, {kind: "date-box", key: :end_date, s_year: 2020, value: @season.end_date}]
   		res
   	end
-
-    # return header for @categories GridComponent
-    def grid_header
-      res = [
-        {kind: "normal", value: I18n.t(:h_date), align: "center"},
-        {kind: "normal", value: I18n.t(:h_time), align: "center"},
-        {kind: "normal", value: I18n.t(:l_team_show), align: "center"},
-        {kind: "normal", value: I18n.t(:h_opponent), align: "center"}
-      ]
-      res << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: @season.id}), modal: true} if current_user.admin? or current_user.is_coach?
-    end
-
-    # return content rows for @categories GridComponent
-    def grid_rows
-      res = Array.new
-      @events.each { |event|
-        row = {url:  event_path(event, season_id: @season ? @season.id : nil), modal: true, items: []}
-        row[:items] << {kind: "normal", value: event.date_string, align: "center"}
-        row[:items] << {kind: "normal", value: event.time_string, align: "center"}
-        row[:items] << {kind: "normal", value: event.team_id > 0 ? event.team.to_s : t(:l_all)}
-        row[:items] << {kind: "normal", value: event.to_s(true)}
-        row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
-        res << row
-      }
-      res
-    end
 
     def check_locations
       if params[:season][:locations_attributes]
