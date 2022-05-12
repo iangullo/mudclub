@@ -7,9 +7,9 @@ class PlayersController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@players = get_players
-			@fields = header_fields(I18n.t(:l_player_index))
+			@fields  = header_fields(I18n.t(:l_player_index))
 			@fields << [{kind: "search-text", url: players_path}]
-			@grid   =  player_grid(players: @players)
+			@grid    =  player_grid(players: @players)
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"

@@ -1,5 +1,5 @@
 <%= form_with model: drill, authenticity_token: true, data: {turbo_frame: "_top" } do |form| %>
-	<%= render FieldsComponent.new(fields: @header_fields) %>
+	<%= render FieldsComponent.new(fields: @header) %>
 	<div id="drills-form">
 		<div id="drills-form-data">
 			<table>

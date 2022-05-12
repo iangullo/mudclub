@@ -7,8 +7,8 @@ class DrillsController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			# Simple search by name/description for now
 			@drills        = Drill.search(params[:search])
-			@header_fields = header_fields(I18n.t(:l_drill_index))
-	    @header_fields << [{kind: "text-search", url: drills_path}]
+			@header = header_fields(I18n.t(:l_drill_index))
+	    @header << [{kind: "search-text", url: drills_path}]
 			@grid = drill_grid
 		else
 			redirect_to "/"
@@ -20,16 +20,16 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/"
 		end
-		@header_fields = header_fields(I18n.t(:l_drill_show), rows: 3)
-		@header_fields << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
+		@header = header_fields(I18n.t(:l_drill_show), rows: 3)
+		@header << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
 	end
 
 	# GET /drills/new
 	def new
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@drill         = Drill.new
-			@header_fields = header_fields(I18n.t(:l_drill_new))
-			@form_fields   = form_fields
+			@drill       = Drill.new
+			@header      = header_fields(I18n.t(:l_drill_new))
+			@form_fields = form_fields
 		else
 			redirect_to "/"
 		end
@@ -40,8 +40,8 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			redirect_to drills_url
 		end
-		@header_fields = header_fields(I18n.t(:l_drill_edit))
-		@form_fields   = form_fields
+		@header      = header_fields(I18n.t(:l_drill_edit))
+		@form_fields = form_fields
 	end
 
 	# POST /drills or /drills.json

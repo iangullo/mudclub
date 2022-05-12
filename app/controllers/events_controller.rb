@@ -18,7 +18,7 @@ class EventsController < ApplicationController
     unless current_user.present? and (current_user.admin? or current_user.is_coach?)
       redirect_to "/"
     end
-    @header_fields = event_header(@event.title(show: true))
+    @header = event_header(@event.title(show: true))
   end
 
   # GET /events/1 or /events/1.json
@@ -26,7 +26,7 @@ class EventsController < ApplicationController
     unless current_user.present? and (current_user.admin? or current_user.is_coach?)
       redirect_to "/"
     end
-    @header_fields = event_header(@event.team.to_s)
+    @header = event_header(@event.team.to_s)
   end
 
   # GET /events/new
@@ -40,7 +40,7 @@ class EventsController < ApplicationController
           else
             @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
           end
-          @header_fields = event_header(@event.title)
+          @header = event_header(@event.title)
         else
           redirect_to(current_user.admin? ? "/slots" : @event.team)
         end
@@ -60,8 +60,8 @@ class EventsController < ApplicationController
       else
         @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
       end
-      @drills        = @event.drill_list
-      @header_fields = event_header(@event.title)
+      @drills = @event.drill_list
+      @header = event_header(@event.title)
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -135,8 +135,8 @@ class EventsController < ApplicationController
   # GET /events/1/show_task
   def show_task
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
-      @task = Task.find(params[:task_id])
-      @header_fields = event_header(@event.title(show: true))
+      @task   = Task.find(params[:task_id])
+      @header = event_header(@event.title(show: true))
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -145,9 +145,9 @@ class EventsController < ApplicationController
   # GET /events/1/add_task
   def add_task
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      @task          = Task.new(event: @event, order: @event.tasks.count + 1)
-      @drills        = Drill.search(params[:search])
-      @header_fields = task_header(I18n.t(:l_task_add), add_task_event_path(@event))
+      @task   = Task.new(event: @event, order: @event.tasks.count + 1)
+      @drills = Drill.search(params[:search])
+      @header = task_header(I18n.t(:l_task_add), add_task_event_path(@event))
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -156,9 +156,9 @@ class EventsController < ApplicationController
   # GET /events/1/edit_task
   def edit_task
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      @task = Task.find(params[:task_id])
+      @task   = Task.find(params[:task_id])
       @drills = Drill.search(params[:search])
-      @header_fields = task_header(I18n.t(:l_task_edit), edit_task_event_path(@event))
+      @header = task_header(I18n.t(:l_task_edit), edit_task_event_path(@event))
     else
       redirect_to(current_user.present? ? events_url : "/")
     end

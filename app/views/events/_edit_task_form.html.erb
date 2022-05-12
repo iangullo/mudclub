@@ -1,12 +1,5 @@
 <div id="edit-task-form">
-	<table>
-		<tr>
-			<td rowspan="2" align="center"><%= image_tag("drill.svg", size: "50x50") %></td>
-			<th colspan="2" align="left" class="text-indigo-900"><%= title %></th>
-		</tr><tr>
-			<%= render "shared/text_search", search_in: search_in, colspan: 2, task_id: @task.id %>
-		</tr>
-	</table>
+	<%= render FieldsComponent.new(fields: @header) %>
 	<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top" } do |form| %>
 		<table>
 			<tr class="bg-indigo-900 text-gray-300 align-center border px py">

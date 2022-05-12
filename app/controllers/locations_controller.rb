@@ -7,8 +7,8 @@ class LocationsController < ApplicationController
   def index
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @season = Season.find(params[:season_id]) if params[:season_id]
-      @header_fields = header_fields(I18n.t(:l_loc_index))
-      @header_fields << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", url: locations_path}]
+      @header = header_fields(I18n.t(:l_loc_index))
+      @header << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", url: locations_path}]
       @grid = location_grid
 	else
 			redirect_to "/"
