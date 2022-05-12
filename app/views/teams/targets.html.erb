@@ -1,5 +1,5 @@
 <%= render "shared/modal", simple: true, edit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil do %>
-	<%= render FieldsComponent.new(fields: @header_fields) %>
+	<%= render FieldsComponent.new(fields: @header) %>
 	<div id="show-targets-data">
 		<table>
 			<tr>

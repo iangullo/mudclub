@@ -8,6 +8,7 @@ class SlotsController < ApplicationController
     if current_user.present?
       @season = Season.search(params[:season_id])
       @slots  = Slot.search(params)
+      @header = header_fields(I18n.t(:l_slot_index))
     else
       redirect_to "/"
     end
@@ -98,6 +99,27 @@ class SlotsController < ApplicationController
 	end
 
   private
+
+    # return icon and top of FieldsComponent
+    def header_fields(title)
+      return [
+        [{kind: "header-icon", value: "timetable.svg"}, {kind: "title", value: title}],
+        [{kind: "subtitle", value: @season ? @season.name : ""}]
+      ]
+    end
+
+    # return FieldsComponent @fields for forms
+    def form_fields(title, rows: 3, cols: 2)
+      res = header_fields(title, icon: @player.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
+      f_cols = cols>2 ? cols - 1 : nil
+      res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @player.person.name, cols: f_cols}]
+      res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}]
+      if f_cols	# i's an edit form
+        res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}]
+      end
+      res
+    end
+
 		# build new @slot from raw input given by submittal from "new" or "edit"
 		# always returns a @slot
 		def rebuild_slot

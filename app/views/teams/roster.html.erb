@@ -1,6 +1,6 @@
 <%= render "shared/modal", simple: true, edit: (current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil do %>
   <div id="team-roster">
-    <%= render FieldsComponent.new(fields: @header_fields) %>
+    <%= render FieldsComponent.new(fields: @header) %>
     <div id="team-roster-grid">
       <table>
         <tr class="bg-indigo-900 text-gray-300">

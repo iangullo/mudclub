@@ -1,7 +1,7 @@
 <%= render "shared/modal" do %>
-	<%= render FieldsComponent.new(fields: @header_fields) %>
-	<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
-		<div id="edit-targets">
+	<%= render FieldsComponent.new(fields: @header) %>
+	<div id="edit-targets">
+		<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
 			<table>
 				<tr>
 					<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
@@ -51,7 +51,7 @@
 					</td>
 				</tr>
 			</table>
-		</div>
-		<%= render "shared/modal_bottom", save: true %>
-	<% end %>
+			<%= render "shared/modal_bottom", save: true %>
+		<% end %>
+	</div>
 <% end %>

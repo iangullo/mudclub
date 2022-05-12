@@ -33,7 +33,7 @@ class EventsController < ApplicationController
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @event  = Event.prepare(event_params)
       if @event
-        if @event.holiday? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id))
+        if @event.rest? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id))
           if params[:season_id]
             @season = Season.find(event_params[:season_id])
           else
@@ -177,7 +177,7 @@ class EventsController < ApplicationController
     def event_header(title, cols: nil)
       res   = [[{kind: "header-icon", value: @event.pic, rows: 2}, {kind: "title", value: title}, {kind: "gap"}, {kind: "icon-label", icon: "calendar.svg", value: @event.date_string}]]
       case @event.kind.to_sym
-      when :holiday
+      when :rest
         res << [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : "", cols: 3}]
         res << [{kind: "label", value: @event.name, cols: 3, align: "center"}]
       when :match
@@ -273,7 +273,7 @@ class EventsController < ApplicationController
 
     def link_holidays
       if @event
-        if @event.holiday? and @event.team_id==0  # general holiday
+        if @event.rest? and @event.team_id==0  # general holiday
           season = Season.search_date(@event.start_date)
           if season # we have a season for this event
             season.teams.real.each { |team| # copy event to all teams
@@ -291,7 +291,7 @@ class EventsController < ApplicationController
     def erase_links
       if @event
         case @event.kind.to_sym
-        when :holiday
+        when :rest
           purge_holiday if @event.team_id==0  # clean off copies
         when :train
           purge_train
@@ -325,7 +325,7 @@ class EventsController < ApplicationController
     # return adequate notice depending on @event kind
     def event_create_notice
       case @event.kind.to_sym
-      when :holiday
+      when :rest
         t(:holiday_created) + "#{@event.to_s}"
       when :train
         t(:train_created) + "#{@event.date_string}"
@@ -337,7 +337,7 @@ class EventsController < ApplicationController
     # return adequate notice depending on @event kind
     def event_update_notice
       case @event.kind.to_sym
-      when :holiday
+      when :rest
         t(:holiday_updated) + "#{@event.to_s}"
       when :train
         t(:train_updated) + "#{@event.date_string}"
@@ -349,7 +349,7 @@ class EventsController < ApplicationController
     # return adequate notice depending on @event kind
     def event_delete_notice
       case @event.kind.to_sym
-      when :holiday
+      when :rest
         t(:holiday_deleted) + "#{@event.to_s}"
       when :train
         t(:train_deleted) + "#{@event.date_string}"

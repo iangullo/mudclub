@@ -79,6 +79,7 @@ class ButtonComponent < ApplicationComponent
     case @button[:kind]
     when "add-nested"
       @button[:action]  = "nested-form#add"
+      @button[:action]  = "nested-form#add"
     when "remove"
       @button[:action]  = "nested-form#remove"
     when "import", "save"
@@ -94,10 +95,10 @@ class ButtonComponent < ApplicationComponent
   # set the i_class for the button div
   def set_iclass
     case @button[:kind]
-    when "add-nested", "remove"
-      @button[:i_class] = "max-h-5 min-h-4 align-center"
     when "add", "delete", "location"
       @button[:i_class] = "max-h-6 min-h-4 align-center"
+    when "add-nested", "remove"
+      @button[:i_class] = "max-h-5 min-h-4 align-center"
     when  "cancel", "save", "export", "import"
       @button[:i_class] = "max-h-7 min-h-5 align-center"
     end

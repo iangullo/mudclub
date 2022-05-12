@@ -11,8 +11,10 @@
           <% case item[:kind] %>
           <% when "normal", "inverse", "gap" %>
             <%= item[:value] %>
+          <% when "dropdown" %>
+            <%= render DropdownComponent.new(button: item[:button]) %>
           <% else %>
-            <%= render ButtonComponent.new(button: {kind: item[:kind], icon: item[:icon], size: item[:size], url: item[:url], label: item[:label], modal: item[:modal]}) %>
+            <%= render ButtonComponent.new(button: item) %>
           <% end %>
         </th>
       <% end %>

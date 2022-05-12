@@ -1,5 +1,5 @@
 <div id="team-show">
-	<%= render FieldsComponent.new(fields: @header_fields) %>
+	<%= render FieldsComponent.new(fields: @header) %>
 	<br>
 	<div id="team-coaches">
 		<table>
@@ -15,25 +15,8 @@
 		</table>
 	</div>
 	<br>
-	<%= render FieldsComponent.new(fields: @link_fields) %>
+	<%= render FieldsComponent.new(fields: @links) %>
 	<br>
-	<div id="team-events">
-		<table>
-			<tr>
-				<th colspan="2" align="left" class="align-center"><div class="inline-flex"><%= image_tag("calendar.svg", size: "30x30") %><%= t(:l_cal) %></div></th>
-				<th align="right">
-					<% if @team.has_coach(current_user.person.coach_id) %>
-						<%= render "events/new_event_button" %>
-					<% end %>
-				</th>
-			</tr><tr class="bg-indigo-900 text-gray-300 align-center">
-				<th class="border px py"><%= t(:h_date) %></th>
-				<th class="border px py"><%= t(:h_time) %></th>
-				<th class="border px py"><%= t(:h_desc) %></th>
-			</tr>
-			<% @team.events.normal.order(:start_time).each do |event| %>
-				<%= render "events/event_row", event: event, short: true %>
-			<% end %>
-		</table>
-	</div>
+	<div class="font-semibold inline-flex"><%= image_tag("calendar.svg", size: "30x30") %><%= t(:l_cal) %></div>
+	<%= render GridComponent.new(g_head: @g_head, g_rows: @g_rows) %>
 </div>

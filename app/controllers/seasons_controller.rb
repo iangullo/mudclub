@@ -6,14 +6,14 @@ class SeasonsController < ApplicationController
   # GET /seasons.json
   def index
     if current_user.present? and current_user.admin?
-			@season        = Season.search(params[:search])
-      @events        = Event.upcoming.for_season(@season).non_training
-      @header_fields = header_fields(I18n.t(:l_sea_show), cols: 2)
-      @header_fields << [{kind: "search-collection", key: :search, url: seasons_path, collection: Season.real.order(name: :desc)}, {kind: "modal-add", url: new_season_path}]
-      @link_fields = [[ # season links
-        {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t(:l_courts)},
-        {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t(:l_team_index)},
-        {kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? season_slots_path(@season) : season_slots_path(@season, location_id: @season.locations.first.id), label: I18n.t(:l_slot_index)},
+			@season = Season.search(params[:search])
+      @events = Event.upcoming.for_season(@season).non_training
+      @header = header_fields(I18n.t(:l_sea_show), cols: 2)
+      @header << [{kind: "search-collection", key: :search, url: seasons_path, collection: Season.real.order(name: :desc)}, {kind: "modal-add", url: new_season_path}]
+      @links  = [[ # season links
+        {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t(:l_courts), align: "center"},
+        {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t(:l_team_index), align: "center"},
+        {kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? season_slots_path(@season) : season_slots_path(@season, location_id: @season.locations.first.id), label: I18n.t(:l_slot_index), align: "center"},
         {kind: "edit", url: edit_season_path(@season), size: "30x30", modal: true}
       ]]
       @g_head = grid_header
@@ -116,6 +116,7 @@ class SeasonsController < ApplicationController
       res << [{kind: "label", align: "right", value: I18n.t(:h_end)}, {kind: "date-box", key: :end_date, s_year: 2020, value: @season.end_date}]
   		res
   	end
+
     # return header for @categories GridComponent
     def grid_header
       res = [
@@ -124,7 +125,7 @@ class SeasonsController < ApplicationController
         {kind: "normal", value: I18n.t(:l_team_show), align: "center"},
         {kind: "normal", value: I18n.t(:h_opponent), align: "center"}
       ]
-      res << {kind: "add", url: new_event_path(event: {kind: :holiday, team_id: 0, season_id: @season.id}), modal: true} if current_user.admin? or current_user.is_coach?
+      res << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: @season.id}), modal: true} if current_user.admin? or current_user.is_coach?
     end
 
     # return content rows for @categories GridComponent

@@ -1,6 +1,6 @@
 <%= render "shared/modal", simple: true, edit: edit_user_path do %>
 	<div id="user-show">
-		<%= render FieldsComponent.new(fields: @fields) %>
+		<%= render FieldsComponent.new(fields: @header) %>
 		<table>
 			<div id="user-show-data">
 				<% if @user.teams %>

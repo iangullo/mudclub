@@ -23,7 +23,7 @@ class GridComponent < ApplicationComponent
           item[:class] = "font-semibold bg-white text-indigo-900 border px py"
         when "gap"
           item[:value] = "&nbsp;"
-        when "add", "add-event"
+        when "add", "add-event", "dropdown"
           item[:class] = "bg-white"
         end
         item[:align] = "left" unless item[:align]
@@ -40,7 +40,7 @@ class GridComponent < ApplicationComponent
           case item[:kind]
           when "normal", "lines", "icon", "location"
             item[:class] = "border px py"
-          when "add", "add-event", "delete"
+          when "add", "add-event", "delete", "dropdown"
             item[:class] = "bg-white"
           end
           item[:align] = "left" unless item[:align]

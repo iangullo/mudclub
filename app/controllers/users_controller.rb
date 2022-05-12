@@ -4,9 +4,9 @@ class UsersController < ApplicationController
 
   def index
     if current_user.present? and current_user.admin?
-      @users = User.search(params[:search])
-      @fields = header_fields(I18n.t(:l_user_index))
-      @fields << [{kind: "text-search", url: users_path}]
+      @users  = User.search(params[:search])
+      @header = header_fields(I18n.t(:l_user_index))
+      @header << [{kind: "text-search", url: users_path}]
       @g_head = grid_header
       @g_rows = grid_rows
     else
@@ -16,12 +16,12 @@ class UsersController < ApplicationController
 
   def show
     if current_user.present? and current_user.admin?
-      @user = User.find(params[:id])
-      @fields = header_fields(@user.s_name)
-      @fields << []
-      @fields.last << {kind: "icon", value: "player.svg"} if @user.is_player?
-      @fields.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
-      @fields.last << {kind: "icon", value: "key.svg"} if @user.admin?
+      @user   = User.find(params[:id])
+      @header = header_fields(@user.s_name)
+      @header << []
+      @header.last << {kind: "icon", value: "player.svg"} if @user.is_player?
+      @header.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
+      @header.last << {kind: "icon", value: "key.svg"} if @user.admin?
     else
       redirect_to "/"
     end
@@ -43,9 +43,9 @@ class UsersController < ApplicationController
 
   def edit
     if current_user.present? and current_user.admin?
-      @roles = user_roles
-      @user = User.find(params[:id])
-      @header_fields = form_fields(I18n.t(:l_user_edit))
+      @roles  = user_roles
+      @user   = User.find(params[:id])
+      @header = form_fields(I18n.t(:l_user_edit))
       @user_fields = [
         [{kind: "label", value: I18n.t(:l_role)}, {kind: "select-box", key: :role, options: User.roles.keys.map {|role| [role.titleize,role]}, value: @user.role}],
         [{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]
