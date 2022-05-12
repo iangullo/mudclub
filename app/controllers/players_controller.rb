@@ -9,8 +9,7 @@ class PlayersController < ApplicationController
 			@players = get_players
 			@fields = header_fields(I18n.t(:l_player_index))
 			@fields << [{kind: "search-text", url: players_path}]
-			@g_head = grid_header
-      @g_rows = grid_rows
+			@grid   =  players_grid(players: @players, view: "index")
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
@@ -155,32 +154,6 @@ class PlayersController < ApplicationController
 			end
 			res
 		end
-
-		# return header for @categories GridComponent
-    def grid_header
-      res = [
-				{kind: "normal", value: I18n.t(:a_num), align: "center"},
-        {kind: "normal", value: I18n.t(:h_name)},
-        {kind: "normal", value: I18n.t(:h_age), align: "center"},
-        {kind: "normal", value: I18n.t(:a_active), align: "center"}
-      ]
-			res << {kind: "add", url: new_player_path, modal: true} if current_user.admin? or current_user.is_coach?
-    end
-
-    # return content rows for @categories GridComponent
-    def grid_rows
-      res = Array.new
-      @players.each { |player|
-        row = {url: player_path(player), modal: true, items: []}
-				row[:items] << {kind: "normal", value: player.number, align: "center"}
-        row[:items] << {kind: "normal", value: player.to_s}
-        row[:items] << {kind: "normal", value: player.person.age, align: "center"}
-        row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
-        row[:items] << {kind: "delete", url: row[:url], name: player.to_s} if current_user.admin? or current_user.is_coach?
-        res << row
-      }
-      res
-    end
 
 		# build new @player from raw input given by submittal from "new"
 		# return nil if unsuccessful
