@@ -45,7 +45,7 @@ class TeamsController < ApplicationController
 			end
 			@header = header_fields(@team.to_s)
 			@header << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_roster_show)}]
-			@grid   =  players_grid(players: @team.players.order(:number), obj: @team)
+			@grid   =  player_grid(players: @team.players.order(:number), obj: @team)
 		else
 			redirect_to "/"
 		end
