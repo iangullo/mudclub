@@ -83,6 +83,13 @@ class FieldsComponent < ApplicationComponent
           item[:i_class] = "rounded border shadow-inner"
         when "gap"
           item[:size]  = 4 unless item[:size]
+        when "side-cell"
+          item[:align] = "right"
+          item[:class] = "align-center font-semibold text-indigo-900"
+        when "top-cell"
+          item[:class] = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
+        when "lines"
+          item[:class] = "align-top border px py"
         else
           item[:align] = "left" unless item[:align]
           item[:i_class] = "rounded border shadow-inner" unless item[:kind]=="gap"
