@@ -69,6 +69,8 @@
             <%= line.to_s %>
             <br>
           <% end %>
+        <% when "grid" %>
+          <%= render GridComponent.new(g_head: item[:value][:header], g_rows: item[:value][:rows]) %>
         <% when "nested-form" %>
         <% else %>
           <%= item[:value] %>

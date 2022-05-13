@@ -1,11 +1,7 @@
 <% if @event.train? %>
-	<%= render FieldsComponent.new(fields: @header) %>
-	<%= render "view_session" %>
+	<%= render FieldsComponent.new(fields: @fields) %>
 <% else %>
 	<%= render "shared/modal", simple: true, edit: (current_user.admin? or @event.team.has_coach(current_user.coach_id)) ? edit_event_path(season_id: params[:season_id]) : nil do %>
-		<%= render FieldsComponent.new(fields: @header) %>
-		<% if @event.match? %>
-      <%= render "view_match" %>
-		<% end %>
+		<%= render FieldsComponent.new(fields: @fields) %>
 	<% end %>
 <% end %>

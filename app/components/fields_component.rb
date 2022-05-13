@@ -59,7 +59,7 @@ class FieldsComponent < ApplicationComponent
           item[:class] = "align-top font-bold"
         when "label", "label-checkbox"
           item[:align] = "left" unless item[:align]
-          item[:class] = "inline-flex align-top font-semibold"
+          item[:class] = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
         when "location"
           item[:align] = "left" unless item[:align]
           item[:class] = "inline-flex align-top font-semibold"

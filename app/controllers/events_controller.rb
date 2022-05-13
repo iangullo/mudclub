@@ -18,7 +18,19 @@ class EventsController < ApplicationController
     unless current_user.present? and (current_user.admin? or current_user.is_coach?)
       redirect_to "/"
     end
-    @header = event_header(@event.title(show: true))
+    @fields = @event.train? ? show_training_header(@event.title(show: true)) : event_header(@event.title(show: true))
+    if @event.match?
+      @fields << [
+        {kind: "gap"},
+        {kind: "top-cell", value: @event.score[:home][:team], cols: 2},
+        {kind: "label", value: @event.score[:home][:points], class: "border px py"}
+      ]
+      @fields << [
+        {kind: "gap"},
+        {kind: "top-cell", value: @event.score[:away][:team], cols: 2},
+        {kind: "label", value: @event.score[:away][:points], class: "border px py"}
+      ]
+    end
   end
 
   # GET /events/1 or /events/1.json
@@ -62,6 +74,7 @@ class EventsController < ApplicationController
       end
       @drills = @event.drill_list
       @header = event_header(@event.title)
+      @header  = event_header(@event.title(show: true))
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -169,17 +182,17 @@ class EventsController < ApplicationController
     # return icon and top of HeaderComponent
     def general_header(title)
       return [
-        [{kind: "header-icon", value: "calendar.svg"}, {kind: "title", value: title}],
+        [{kind: "header-icon", value: "calendar.svg", rows: 2}, {kind: "title", value: title}],
         [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : ""}]
       ]
     end
 
     # return icon and top of HeaderComponent
     def event_header(title, cols: nil)
-      res   = [[{kind: "header-icon", value: @event.pic, rows: 2}, {kind: "title", value: title}, {kind: "gap"}, {kind: "icon-label", icon: "calendar.svg", value: @event.date_string}]]
+      res   = [[{kind: "header-icon", value: @event.pic, rows: 2}, {kind: "title", value: title, cols: cols}, {kind: "gap"}, {kind: "icon-label", icon: "calendar.svg", value: @event.date_string}]]
       case @event.kind.to_sym
       when :rest
-        res << [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : "", cols: 3}]
+        res << [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : "", cols: 3}] if @team or @season
         res << [{kind: "label", value: @event.name, cols: 3, align: "center"}]
       when :match
         if @event.location.gmaps_url
@@ -189,18 +202,20 @@ class EventsController < ApplicationController
         end
         res.last << {kind: "icon-label", icon: "clock.svg", value: @event.time_string}
       when :train
-        res << [{kind: "subtitle", value: I18n.t(:l_train)}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: @event.time_string}]
+        res << [{kind: "subtitle", value: I18n.t(:l_train), cols: cols}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: @event.time_string}]
       end
       res
     end
 
     # return HeaderComponent @fields for forms
-    def event_form_fields(title, cols: nil)
-      res = header_fields(title, cols: cols)
-      res << [{kind: "label", align: "right", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @team.name}]
-      res << [{kind: "icon", value: "category.svg"}, {kind: "select-collection", key: :category_id, collection: Category.real, value: @team.category_id}]
-      res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, collection: Division.real, value: @team.division_id}]
-      res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :homecourt_id, collection: Location.home, value: @team.homecourt_id}]
+    def show_training_header(title)
+      res = event_header(title, cols: 3)
+      res << [{kind: "side-cell", value: I18n.t(:a_targ), rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 4}]
+      res << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 4}]
+      res << [{kind: "gap", size: 2}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}]
+      res << [{kind: "side-cell", align: "left", value: I18n.t(:l_task_index), cols: 2}]
+      res << [{kind: "gap", size: 2}, {kind: "grid", cols: 5, value: task_grid(@event)}]
+      res << [{kind: "edit", cols: 6, align: "right", label: I18n.t(:m_edit), url: edit_event_path(@event)}]
       res
     end
 
@@ -209,6 +224,27 @@ class EventsController < ApplicationController
       res   = [[{kind: "header-icon", value: "drill.svg", rows: 2}, {kind: "title", value: title}]]
       res << [{kind: "search-text", url: search_in}]
       res
+    end
+
+    # return icon and top of HeaderComponent
+    def task_grid(event)
+      head   = [
+        {kind: "normal", align: "center", value: I18n.t(:a_num)},
+        {kind: "normal", value: I18n.t(:l_task_show)},
+        {kind: "normal", align: "center", value: I18n.t(:a_min)}
+      ]
+      rows = Array.new
+      event.tasks.order(:order).each { |task|
+        row = {url: show_task_event_path(task_id: task.id), turbo: "modal", items: []}
+        row[:items] << {kind: "normal", value: task.order.to_s, align: "center"}
+        row[:items] << {kind: "normal", value: task.to_s}
+        row[:items] << {kind: "normal", value: task.duration.to_s + "\'", align: "center"}
+        rows << row
+      }
+      rows << {name: "bottom", items: []}
+      rows.last[:items] << {kind: "bottom", align: "right", value: I18n.t(:l_total), cols: 2}
+      rows.last[:items] << {kind: "bottom", value: event.work_duration}
+      {header: head, rows: rows}
     end
 
     def rebuild_event(event_params)
