@@ -8,16 +8,16 @@
   >
     <% if @button[:tab] %>
       <%= link_to @button[:url], target: "_blank", class: @button[:d_class] do %>
-        <%= image_tag(@button[:icon], size: @button[:size] ? @button[:size] : "30x30", class: @button[:i_class]) if @button[:icon] %>
+        <%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
         <%= @button[:label] if @button[:label] %>
       <% end %>
     <% elsif @button[:url] %>
       <%= link_to @button[:url], data: @button[:turbo] ? {turbo_frame: @button[:turbo]} : nil, class: @button[:d_class] do %>
         <% if @button[:kind]=="edit" %>
           <%= @button[:label] if @button[:label] %>
-          <%= image_tag(@button[:icon], size: @button[:size] ? @button[:size] : "30x30") if @button[:icon] %>
+          <%= image_tag(@button[:icon], size: @button[:size]) if @button[:icon] %>
         <% else %>
-          <%= image_tag(@button[:icon], size: @button[:size] ? @button[:size] : "30x30") if @button[:icon] %>
+          <%= image_tag(@button[:icon], size: @button[:size]) if @button[:icon] %>
           <%= @button[:label] if @button[:label] %>
         <% end %>
       <% end %>

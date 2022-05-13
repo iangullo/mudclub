@@ -72,6 +72,7 @@ class ButtonComponent < ApplicationComponent
       @button[:icon]    = "save.svg"
       @button[:confirm] = I18n.t(:q_save_chng)
     end
+    @button[:size] = "25x25" unless @button[:size]
   end
 
   # set the @button class depending on button type

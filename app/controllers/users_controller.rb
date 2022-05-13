@@ -6,7 +6,7 @@ class UsersController < ApplicationController
     if current_user.present? and current_user.admin?
       @users  = User.search(params[:search])
       @header = header_fields(I18n.t(:l_user_index))
-      @header << [{kind: "text-search", url: users_path}]
+      @header << [{kind: "search-text", url: users_path}]
       @grid = user_grid
     else
       redirect_to "/"
