@@ -31,16 +31,16 @@ class ButtonComponent < ApplicationComponent
     set_bclass
     case @button[:kind]
     when "add", "add-nested", "export", "import", "save"
-      @button[:d_class] = "rounded-lg inline-flex hover:bg-green-200 text-green-700 font-bold"
+      @button[:d_class] = "rounded-lg inline-flex hover:bg-green-200 text-green-700 font-bold align-middle"
     when "edit"
-      @button[:d_class] = "rounded-lg inline-flex hover:bg-yellow-200 text-yellow-700 font-bold"
+      @button[:d_class] = "rounded-lg inline-flex hover:bg-yellow-200 text-yellow-700 font-bold align-middle"
     when "close", "delete", "remove"
-      @button[:d_class] = "rounded-lg inline-flex hover:bg-red-200 text-red-700 font-bold"
+      @button[:d_class] = "rounded-lg inline-flex hover:bg-red-200 text-red-700 font-bold align-middle"
     when "jump"
-      @button[:d_class] = "rounded-lg hover:bg-blue-100 text-sm"
+      @button[:d_class] = "rounded-lg hover:bg-blue-100 text-sm align-middle"
     when "location"
       @button[:tab]     = true
-      @button[:d_class] = "rounded-lg hover:bg-blue-100 inline-flex"
+      @button[:d_class] = "rounded-lg hover:bg-blue-100 inline-flex align-middle"
       @button[:d_class] = @button[:d_class] + " align-center text-sm" if @button[:icon]
     end
     @button[:align] = "center" unless @button[:align]

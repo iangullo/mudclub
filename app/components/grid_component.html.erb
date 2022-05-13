@@ -2,21 +2,15 @@
   <thead class="bg-indigo-900 text-gray-300">
     <tr>
       <% @g_head.each do |item| %>
-        <th
-          <% if item[:cols] %>colspan="<%= item[:cols] %>"<% end %>
-          <% if item[:rows] %>rowspan="<%= item[:rows] %>"<% end %>
-          <% if item[:class] %>class="<%= item[:class] %>"<% end %>
-          <% if item[:align] %>align="<%= item[:align] %>"<% end %>
-        >
-          <% case item[:kind] %>
-          <% when "normal", "inverse", "gap" %>
-            <%= item[:value] %>
-          <% when "dropdown" %>
-            <%= render DropdownComponent.new(button: item[:button]) %>
-          <% else %>
-            <%= render ButtonComponent.new(button: item) %>
-          <% end %>
-        </th>
+        <%=item[:cell]%>
+        <% case item[:kind] %>
+        <% when "normal", "inverse", "gap" %>
+          <%= item[:value] %>
+        <% when "dropdown" %>
+          <%= render DropdownComponent.new(button: item[:button]) %>
+        <% else %>
+          <%= render ButtonComponent.new(button: item) %>
+        <% end %>
       <% end %>
     </tr>
   </thead>
@@ -24,26 +18,22 @@
     <% @g_rows.each do |g_row| %>
       <tr class="hover:text-white hover:bg-blue-700">
         <% g_row[:items].each do |item| %>
-          <td
-            <% if item[:class] %>class="<%= item[:class] %>"<% end %>
-            <% if item[:align] %>align="<%= item[:align] %>"<% end %>
-          >
-            <% case item[:kind] %>
-            <% when "normal" %>
-              <%= link_to item[:value], g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
-            <% when "lines" %>
-              <% item[:value].each do |cad| %>
-                <%= link_to cad, g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
-                <br>
-              <% end %>
-            <% when "icon" %>
-              <%= link_to g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) do %>
-                <%= image_tag item[:value], size: "25x25" %>
-              <% end %>
-            <% else %>
-              <%= render ButtonComponent.new(button: item) %>
+          <%=item[:cell]%>
+          <% case item[:kind] %>
+          <% when "normal" %>
+            <%= link_to item[:value], g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
+          <% when "lines" %>
+            <% item[:value].each do |cad| %>
+              <%= link_to cad, g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
+              <br>
             <% end %>
-          </td>
+          <% when "icon" %>
+            <%= link_to g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) do %>
+              <%= image_tag item[:value], size: "25x25" %>
+            <% end %>
+          <% else %>
+            <%= render ButtonComponent.new(button: item) %>
+          <% end %>
         <% end %>
       </tr>
     <% end %>

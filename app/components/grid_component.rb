@@ -27,6 +27,7 @@ class GridComponent < ApplicationComponent
           item[:class] = "bg-white"
         end
         item[:align] = "left" unless item[:align]
+        item[:cell]  = tablecell_tag(item, :th)
         res << item
       }
       res
@@ -44,6 +45,7 @@ class GridComponent < ApplicationComponent
             item[:class] = "bg-white"
           end
           item[:align] = "left" unless item[:align]
+          item[:cell]  = tablecell_tag(item)
         }
       }
       g_rows

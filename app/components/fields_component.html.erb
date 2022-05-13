@@ -2,12 +2,7 @@
   <% @fields.each do |row| %>
     <tr>
       <% row.each do |item| %>
-        <td
-          <% if item[:cols] %>colspan="<%=item[:cols] %>"<% end %>
-          <% if item[:rows] %>rowspan="<%=item[:rows] %>"<% end %>
-          <% if item[:class] %>class="<%=item[:class] %>"<% end %>
-          <% if item[:align] %>align="<%=item[:align] %>"<% end %>
-        >
+        <%=item[:cell]%>
         <% case item[:kind] %>
         <% when "icon" %>
           <%= image_tag item[:value], size: item[:size], class: item[:class] %>
@@ -73,7 +68,6 @@
         <% else %>
           <%= item[:value] %>
         <% end %>
-        </td>
       <% end %>
     </tr>
   <% end %>

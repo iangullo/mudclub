@@ -87,6 +87,7 @@ class FieldsComponent < ApplicationComponent
           item[:align] = "left" unless item[:align]
           item[:i_class] = "rounded border shadow-inner" unless item[:kind]=="gap"
         end
+        item[:cell] = tablecell_tag(item)
         res.last << item
       end
     end
