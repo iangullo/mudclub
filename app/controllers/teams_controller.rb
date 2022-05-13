@@ -16,7 +16,7 @@ class TeamsController < ApplicationController
   # GET /teams/new
   def new
 		if current_user.present? and current_user.admin?
-    	@team = Team.new
+    	@team = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
 			@eligible_coaches = Coach.active
 			@form_fields      = form_fields(I18n.t(:l_team_new))
 		else
@@ -371,7 +371,7 @@ class TeamsController < ApplicationController
 			@team.targets.each { |tgt| tgt.delete }	# team targets & coaching plan
 			@team.events.each { |event|							# associated events
 				event.tasks.each { |task| task.delete }
-				event.match.delete if event.match
+				#event.match.delete if event.match
 				event.delete
 			}
 		end

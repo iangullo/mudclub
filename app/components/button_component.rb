@@ -56,6 +56,7 @@ class ButtonComponent < ApplicationComponent
       @button[:icon]    = "close.svg"
     when "delete"
       @button[:icon]    = "delete.svg"
+      @button[:method]  = "delete"
       @button[:confirm] = I18n.t(:q_del) + " \'#{@button[:name]}\'?"
     when "edit"
       @button[:icon]    = "edit.svg"
