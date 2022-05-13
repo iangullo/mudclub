@@ -43,6 +43,9 @@ class GridComponent < ApplicationComponent
             item[:class] = "border px py"
           when "add", "add-event", "delete", "dropdown"
             item[:class] = "bg-white"
+          when "bottom"
+            item[:align] = "center" unless item[:align]
+            item[:class] = "text-indigo-900 font-semibold"
           end
           item[:align] = "left" unless item[:align]
           item[:cell]  = tablecell_tag(item)
