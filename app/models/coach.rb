@@ -13,6 +13,10 @@ class Coach < ApplicationRecord
 		self.person ? self.person.to_s : I18n.t(:l_coach_show)
 	end
 
+	def name
+		self. s_name
+	end
+
 	#short name for form viewing
 	def s_name
 		self.person ? self.person.s_name : I18n.t(:l_coach_show)

@@ -21,7 +21,9 @@
         <% when "text-area" %>
           <%= @form.text_area item[:key], value: item[:value], cols: item[:size], rows: item[:lines], class: item[:i_class] %>
         <% when "rich-text-area" %>
-          <%= @form.rich_text_area item[:key], item[:class] %>
+          <div id="trix-editor">
+            <%= @form.rich_text_area item[:key], class: item[:class] %>
+          </div>
         <% when "number-box" %>
           <%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, class: item[:i_class] %>
         <% when "date-box" %>
