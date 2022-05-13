@@ -1,0 +1,48 @@
+<table class="table-auto">
+  <thead class="bg-indigo-900 text-gray-300">
+    <tr>
+      <% @g_head.each do |item| %>
+        <%=item[:cell]%>
+        <% case item[:kind] %>
+        <% when "normal", "inverse", "gap" %>
+          <%= item[:value] %>
+        <% when "lines" %>
+          <% item[:value].each do |line|%>
+            <%= line.to_s %>
+            <br>
+          <% end %>
+        <% when "dropdown" %>
+          <%= render DropdownComponent.new(button: item[:button]) %>
+        <% else %>
+          <%= render ButtonComponent.new(button: item) %>
+        <% end %>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% @g_rows.each do |g_row| %>
+      <tr<% unless g_row[:name]=="bottom"%> class="hover:text-white hover:bg-blue-700"<% end %>>
+        <% g_row[:items].each do |item| %>
+          <%=item[:cell]%>
+          <% case item[:kind] %>
+          <% when "normal" %>
+            <%= link_to item[:value], g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
+          <% when "lines" %>
+            <% item[:value].each do |cad| %>
+              <%= link_to cad, g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
+              <br>
+            <% end %>
+          <% when "icon" %>
+            <%= link_to g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) do %>
+              <%= image_tag item[:value], size: "25x25" %>
+            <% end %>
+          <% when "bottom" %>
+            <%=item[:value]%>
+          <% else %>
+            <%= render ButtonComponent.new(button: item) %>
+          <% end %>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

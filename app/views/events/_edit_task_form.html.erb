@@ -1,20 +1,5 @@
 <div id="edit-task-form">
-	<table>
-		<tr>
-			<td rowspan="2" align="center"><%= image_tag("drill.svg", size: "50x50") %></td>
-			<th colspan="2" align="left" class="text-indigo-900"><%= title %></th>
-		</tr><tr>
-			<td colspan="2">
-				<div id="search-drills" class="inline-flex rounded border">
-					<%= form_with(url: search_in, value: params[:search], method: 'get') do |f| %>
-						<%= text_field_tag :search, params[:search], size: 16, class: "text-gray-700 rounded border shadow-inner" %>
-						<%= f.hidden_field :task_id, value: @task.id %>
-						<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
-					<% end %>
-				</div>
-			</td>
-		</tr>
-	</table>
+	<%= render FieldsComponent.new(fields: @header) %>
 	<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top" } do |form| %>
 		<table>
 			<tr class="bg-indigo-900 text-gray-300 align-center border px py">

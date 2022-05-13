@@ -1,7 +1,7 @@
 <div id="team-show">
-	<%= render "team_header" %>
-	<div id="team-links">
-		<br>
+	<%= render FieldsComponent.new(fields: @header) %>
+	<br>
+	<div id="team-coaches">
 		<table>
 			<tr>
 				<td align="right" class="align-top"><%= image_tag("coach.svg", :size => "30x30") %></td>
@@ -11,57 +11,12 @@
 						<br>
 					<% end %>
 				</td>
-			</tr><tr>
-				<td>&nbsp;</td>
-			</tr><tr>
-				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to roster_team_path, data: {turbo_frame: "modal"} do %>
-						<%= image_tag "player.svg", size: "50x50" %><small><%= t(:l_roster_show) %></small>
-					<% end %>
-				</td>
-				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to targets_team_path, data: {turbo_frame: "modal"} do %>
-						<%= image_tag("target.svg", size: "50x50") %><small><%= t(:h_targ) %></small>
-					<% end %>
-				</td>
-				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to plan_team_path, data: {turbo_frame: "modal"} do %>
-						<%= image_tag("teamplan.svg", size: "50x50") %><small><%= t(:a_plan) %></small>
-					<% end %>
-				</td>
-				<td align="center" class="rounded-md hover:bg-blue-100">
-					<%= link_to slots_team_path, data: {turbo_frame: "modal"} do %>
-						<%= image_tag("timetable.svg", size: "50x50") %><small><%= t(:l_slot_index) %></small>
-					<% end %>
-				</td>
-				<td align="center">
-					<% if current_user.admin? or @team.has_coach(current_user.person.coach_id) %>
-						<%= link_to edit_team_path, data: {turbo_frame: "modal"} do %>
-							<%= render "shared/edit" %>
-						<% end %>
-					<% end %>
-				</td>
 			</tr>
 		</table>
 	</div>
 	<br>
-	<div id="team-events">
-		<table>
-			<tr>
-				<th colspan="2" align="left" class="align-center"><div class="inline-flex"><%= image_tag("calendar.svg", size: "30x30") %><%= t(:l_cal) %></div></th>
-				<th align="right">
-					<% if @team.has_coach(current_user.person.coach_id) %>
-						<%= render "events/new_event_button" %>
-					<% end %>
-				</th>
-			</tr><tr class="bg-indigo-900 text-gray-300 align-center">
-				<th class="border px py"><%= t(:h_date) %></th>
-				<th class="border px py"><%= t(:h_time) %></th>
-				<th class="border px py"><%= t(:h_desc) %></th>
-			</tr>
-			<% @team.events.normal.order(:start_time).each do |event| %>
-				<%= render "events/event_row", event: event, short: true %>
-			<% end %>
-		</table>
-	</div>
+	<%= render FieldsComponent.new(fields: @links) %>
+	<br>
+	<div class="font-semibold inline-flex"><%= image_tag("calendar.svg", size: "30x30") %><%= t(:l_cal) %></div>
+	<%= render GridComponent.new(g_head: @grid[:header], g_rows: @grid[:rows]) %>
 </div>

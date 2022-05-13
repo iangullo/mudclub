@@ -1,25 +1,9 @@
 <%= render "shared/modal", simple: true, edit: @team.has_coach(current_user.person.coach_id) ? edit_plan_team_path : nil do %>
 	<div id="team-plan">
-		<%= render "team_header" %>
-		<table>
-			<tr>
-				<td align="right"><%= image_tag("teamplan.svg", size: "30x30") %></td>
-				<th colspan="2" align="left"><%= t(:l_plan_show) %></th>
-			</tr>
-		</table>
+		<%= render FieldsComponent.new(fields: @header) %>
 		<div id="team-plan-data">
 			<table>
 				<tr>
-					<td></td>
-					<td colspan="3">
-						<div id="search-month" class="inline-flex rounded border">
-							<%= form_with(url: plan_team_path, value: params[:month], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
-								<%= f.select :month, options_for_select(@months, params[:month] ? params[:month].to_i : Date.today.month) %>
-								<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
-							<% end %>
-						</div>
-					</td>
-				</tr><tr>
 					<th></th>
 					<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
 					<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>

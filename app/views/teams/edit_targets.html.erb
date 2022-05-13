@@ -1,11 +1,9 @@
 <%= render "shared/modal" do %>
-	<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
-		<div id="edit-targets">
-			<%= render "team_header" %>
+	<%= render FieldsComponent.new(fields: @header) %>
+	<div id="edit-targets">
+		<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
 			<table>
 				<tr>
-					<th colspan="2" align="left" class="inline-flex"><%= image_tag("target.svg", size: "30x30") %><%= t(:l_targ_edit)%></th>
-				</tr><tr>
 					<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
 				</tr><tr>
 					<td colspan="2" class="border px py align-top">
@@ -53,7 +51,7 @@
 					</td>
 				</tr>
 			</table>
-		</div>
-		<%= render "shared/modal_bottom", save: true %>
-	<% end %>
+			<%= render "shared/modal_bottom", save: true %>
+		<% end %>
+	</div>
 <% end %>

@@ -1,12 +1,4 @@
-<%= form_with model: division, authenticity_token: true, data: {title: title, turbo_frame: "_top"} do |form| %>
-<%= render "divisions_header", title: title %>
-  <table>
-    <tr>
-      <th><%= t(:l_name) %></th>
-      <td align="left">
-        <%= form.text_field :name, size: 20, rows: 2, class: "rounded border shadow-inner" %>
-      </td>
-    </tr>
-  </table>
+<%= form_with model: division, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+  <%= render FieldsComponent.new(fields: @fields, form: form) %>
   <%= render "shared/modal_bottom", save: true %>
 <% end %>

@@ -7,6 +7,9 @@ class PeopleController < ApplicationController
   def index
 		if current_user.present? and current_user.admin?
 			@people = Person.search(params[:search])
+			@fields = header_fields(I18n.t(:l_per_index))
+			@fields << [{kind: "search-text", url: people_path}]
+			@grid   = person_grid
 			respond_to do |format|
 				format.xlsx {
 					response.headers['Content-Disposition'] = "attachment; filename=people.xlsx"
@@ -24,12 +27,21 @@ class PeopleController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
 			redirect_to "/"
 		end
+		@fields = header_fields(I18n.t(:l_per_show), icon: @person.picture, size: "100x100", rows: 4, _class: "rounded-full")
+		@fields << [{kind: "label", value: @person.s_name}]
+		@fields << [{kind: "label", value: @person.surname}]
+		@fields << [{kind: "string", value: @person.birthday}]
+		@fields << [{kind: "string", value: @person.dni, align: "center"}]
+		@fields.last << {kind: "icon", value: "player.svg"} if @person.player_id > 0
+		@fields.last << {kind: "icon", value: "coach.svg"} if @person.coach_id > 0
   end
 
   # GET /people/new
   def new
 		if current_user.present? and current_user.admin?
 			@person = Person.new(coach_id: 0, player_id: 0)
+			@header_fields = form_fields(I18n.t(:l_per_new))
+			@person_fields = person_fields
 		else
 			redirect_to "/"
 		end
@@ -40,6 +52,8 @@ class PeopleController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
 			redirect_to "/"
 		end
+		@header_fields = form_fields(I18n.t(:l_per_edit))
+		@person_fields = person_fields
   end
 
   # POST /people
@@ -51,7 +65,7 @@ class PeopleController < ApplicationController
 			# added to import excel
 	    respond_to do |format|
 	      if @person.save
-	        format.html { redirect_to people_url, notice: t(:per_created) + "'#{@person.to_s}'" }
+	        format.html { redirect_to people_url(search: @person.name), notice: t(:per_created) + "'#{@person.to_s}'" }
 	        format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :new }
@@ -69,7 +83,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
     	respond_to do |format|
       	if @person.update(person_params)
-	        format.html { redirect_to people_url, notice: t(:per_updated) + "'#{@person.to_s}'" }
+	        format.html { redirect_to people_url(search: @person.name), notice: t(:per_updated) + "'#{@person.to_s}'" }
 					format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :edit }
@@ -109,6 +123,45 @@ class PeopleController < ApplicationController
   end
 
   private
+
+		# return icon and top of FieldsComponent
+		def header_fields(title, icon: "person.svg", rows: 2, cols: 2, size: nil, _class: nil)
+			[[{kind: "header-icon", value: icon, rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
+		end
+
+		# return FieldsComponent @fields for forms
+		def form_fields(title)
+			res = header_fields(title, icon: @person.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
+			res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @person.name}]
+			res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @person.surname}]
+			res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @person.birthday}]
+			res
+		end
+
+		# return header for @people GridComponent
+    def person_grid
+      head = [{kind: "normal", value: I18n.t(:h_name)}]
+			head << {kind: "add", url: new_person_path, turbo: "modal"} if current_user.admin?
+
+      rows = Array.new
+      @people.each { |person|
+        row = {url: person_path(person), turbo: "modal", items: []}
+        row[:items] << {kind: "normal", value: person.to_s}
+        row[:items] << {kind: "delete", url: row[:url], name: person.to_s} if current_user.admin?
+        rows << row
+      }
+			{header: head, rows: rows}
+    end
+
+		def person_fields
+			res = [
+				[{kind: "label-checkbox", label: I18n.t(:l_fem), key: :female, value: @person.female, cols: 4}],
+				[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar, cols: 4}],
+				[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @person.email}],
+				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @person.phone}]
+			]
+		end
+
 		# Delete associated players/coaches
 		def erase_links
 			erase_coach if @person.coach_id > 0	# delete associated coach
@@ -143,12 +196,12 @@ class PeopleController < ApplicationController
 			u.destroy
 		end
 
+		def set_person
+			 @person = Person.find(params[:id]) unless @person.try(:id)==params[:id]
+		end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
 			params.require(:person).permit(:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :player_id, :coach_id, :user_id)
     end
-
-		def set_person
-			 @person = Person.find(params[:id]) unless @person.try(:id)==params[:id]
-		end
 end

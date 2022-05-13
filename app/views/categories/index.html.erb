@@ -1,29 +1,4 @@
 <div id="category-index">
-  <%= render "category_header", title: t(:l_cat_index) %>
-  <table>
-    <tr>
-			<th class="bg-indigo-900 text-gray-300 align-center border px py">Nombre</th>
-      <th class="bg-indigo-900 text-gray-300 align-center border px py">Sexo</th>
-      <th class="bg-indigo-900 text-gray-300 align-center border px py">Min.</th>
-      <th class="bg-indigo-900 text-gray-300 align-center border px py">Máx.</th>
-			<th>
-				<%= link_to new_category_path, data: { turbo_frame: "modal"} do %>
-					<%= render "shared/add" %>
-				<% end %>
-			</th>
-		</tr>
-    <% @categories.each do |category| %>
-      <tr class="hover:text-white hover:bg-blue-700">
-        <td class="border px py"><%= link_to category.name, edit_category_path(category), data: {turbo_frame: "modal"} %></td>
-        <td class="border px py"><%= link_to category.sex, edit_category_path(category), data: {turbo_frame: "modal"} %></td>
-        <td align="right" class="border px py"><%= link_to category.min_years, edit_category_path(category), data: {turbo_frame: "modal"} %></td>
-        <td align="right" class="border px py"><%= link_to category.max_years, edit_category_path(category), data: {turbo_frame: "modal"} %></td>
-        <td class="hover:bg-white">
-          <%= link_to category, method: :delete, data: {confirm: "¿Borrar '#{category.name}'?"} do %>
-            <%= render "shared/delete" %>
-          <% end %>
-        </td>
-      </tr>
-    <% end %>
-  </table>
+  <%= render FieldsComponent.new(fields: @fields) %>
+  <%= render GridComponent.new(g_head: @grid[:header], g_rows: @grid[:rows]) %>
 </div>

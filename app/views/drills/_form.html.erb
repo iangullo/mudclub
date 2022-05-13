@@ -1,6 +1,6 @@
-<%= form_with model: drill, authenticity_token: true, data: { title: title, turbo_frame: "_top" } do |form| %>
+<%= form_with model: drill, authenticity_token: true, data: {turbo_frame: "_top" } do |form| %>
+	<%= render FieldsComponent.new(fields: @header) %>
 	<div id="drills-form">
-		<%= render "drills_header", title: title, form: form %>
 		<div id="drills-form-data">
 			<table>
 				<tr>
@@ -22,22 +22,11 @@
 							<button type="button" data-action="nested-form#add"><%= render "shared/add", max_h: "max-h-5" %></button>
 						</div>
 					</td>
-				</tr><tr>
-					<th align="right" class="align-top"><%= t(:l_mat) %></th>
-					<td colspan="3"><%= form.text_field :material, size: 40, class: "rounded border shadow-inner" %></td>
-				</tr><tr>
-					<th align="right" class="align-top"><%= t(:l_desc) %></th>
-					<td colspan="3"><%= form.text_area :description, cols: 40, rows: 2, class: "rounded border shadow-inner" %></td>
-				</tr><tr>
-					<th colspan="3" align="left" class="align-top"><%= t(:l_expl) %></th>
-					<td align="right" class="inline-flex rounded-md hover:bg-yellow-300">
-						<small><%= form.label "Playbook" %></small>
-						<%= image_tag("playbook.png", size: "25x25") %>
-						<%= form.file_field :playbook %>
-					</td>
-				</tr><tr>
-					<td colspan="4"><%= form.rich_text_area :explanation, class: "rounded border shadow-inner" %></td>
-				</tr><tr>
+				</tr>
+			</table>
+			<%= render FieldsComponent.new(fields: @form_fields, form: form) %>
+			<table>
+				<tr>
 					<th align="right" class="align-top"><%= t(:l_skill) %></th>
 					<td colspan="3">
 						<div id="drill-skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
@@ -53,12 +42,9 @@
 							<button type="button" data-action="nested-form#add"><%= render "shared/add", max_h: "max-h-5" %></button>
 						</div>
 					</td>
-				</tr><tr>
-					<th align="right"><%= t(:l_auth) %></th>
-					<td colspan="3"><div class="field"><%= form.collection_select :coach_id, Coach.real, :id, :s_name, {selected: current_user.person.coach_id} %></div></td>
 				</tr>
-			</div>
-		</table>
+			</table>
+		</div>
 	</div>
 	<%= render "shared/modal_bottom", save: true %>
 <% end %>

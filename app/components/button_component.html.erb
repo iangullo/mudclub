@@ -1,0 +1,28 @@
+<button class="<%=@button[:b_class]%>"<% if @button[:confirm] %> data-confirm="<%=@button[:confirm]%>"<% end %><% if @button[:action] %> data-action="<%=@button[:action]%>"<% end %>>
+  <div class="<%=@button[:d_class]%>" align="<%=@button[:align]%>">
+    <% if @button[:tab] %>
+      <%= link_to @button[:url], target: "_blank", class: @button[:d_class] do %>
+        <%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
+        <%= @button[:label] if @button[:label] %>
+      <% end %>
+    <% elsif @button[:url] %>
+      <%= link_to @button[:url], method: @button[:method], "data-confirm": @button[:confirm], data: @button[:turbo] ? {turbo_frame: @button[:turbo]} : nil, class: @button[:d_class] do %>
+        <% if @button[:kind]=="edit" %>
+        <% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
+          <%= image_tag(@button[:icon], size: @button[:size]) if @button[:icon] %>
+        <% else %>
+          <%= image_tag(@button[:icon], size: @button[:size]) if @button[:icon] %>
+          <% if @button[:label] %>&nbsp<%=@button[:label]%><% end %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <% if @button[:kind]=="save" %>
+        <% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
+        <%= image_tag(@button[:icon], class: @button[:i_class]) if @button[:icon] %>
+      <% else %>
+        <%= image_tag(@button[:icon], class: @button[:i_class]) if @button[:icon] %>
+        <% if @button[:label] %>&nbsp<%=@button[:label]%><% end %>
+      <% end %>
+    <% end %>
+  </div>
+</button>

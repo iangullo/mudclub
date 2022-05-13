@@ -1,54 +1,26 @@
 <%= form_with model: team, authenticity_token: true, data: { title: title, turbo_frame: "_top" } do |form| %>
-	<div id="team-form">
+	<%= render FieldsComponent.new(fields: @form_fields, form: form) %>
+	<div id="team-form-data">
 		<table>
-			<div id="team-form-header">
-				<tr>
-					<th rowspan="2" class="align-top">
-						<%= image_tag("team.svg", size: "50x50") %>
-					</th><th colspan="5" align="left" class="rounded-md text-yellow-600">
-						<%= title %>
-					</th>
-				</tr><tr>
-					<% if current_user.admin? %>
-						<td align="left"><%= form.collection_select :season_id, Season.real.order(name: :desc), :id, :name, selected: params[:season_id] ? location_id : Season.last.id %></td>
-					<% else %>
-						<th align="left"><%= form.object.season.name %></th>
-					<% end %>
-      	</tr>
-			</div>
-			<div id="team-form-data">
-				<tr>
-					<th align="right"><%= t(:l_name) %></th>
-					<td align="left" class="align-top"><%= form.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
-				</tr><tr>
-					<th align="right"><%= image_tag "category.svg", size: "25x25", alt: t(:l_cat) %></th>
-					<td><%= form.collection_select :category_id, Category.real, :id, :to_s %></td>
-				</tr><tr>
-					<th align="right"><%= image_tag "division.svg", size: "25x25", alt: t(:l_div) %></th>
-					<td><%= form.collection_select :division_id, Division.real, :id, :name %></td>
-				</tr><tr>
-					<th align="right"><%= image_tag "location.svg", size: "25x25", alt: t(:l_home) %></th>
-					<td><%= form.collection_select :homecourt_id, Location.home, :id, :name %></td>
-				</tr><tr>
-					<th align="right" class="align-top"><%= image_tag "coach.svg", size: "25x25", alt: t(:l_coach) %></th>
-					<td>
-						<div id="coach-selection">
-							<table>
-								<%= form.collection_check_boxes :coach_ids, @eligible_coaches, :id, :to_s do |coach| %>
-								<tr>
-									<td></td>
-									<div class="collection-check-box">
-										<td class="rounded border"><%= coach.object.to_s %></td>
-										<td class="rounded border"><%= coach.check_box %></td>
-									</div>
-								</tr>
-								<% end %>
-							</table>
-						</div>
-					</td>
-				</tr>
-			</div>
+			<tr>
+				<th align="right" class="align-top"><%= image_tag "coach.svg", size: "25x25", alt: t(:l_coach) %></th>
+				<td>
+					<div id="coach-selection">
+						<table>
+							<%= form.collection_check_boxes :coach_ids, @eligible_coaches, :id, :to_s do |coach| %>
+							<tr>
+								<td></td>
+								<div class="collection-check-box">
+									<td class="rounded border"><%= coach.object.to_s %></td>
+									<td class="rounded border"><%= coach.check_box %></td>
+								</div>
+							</tr>
+							<% end %>
+						</table>
+					</div>
+				</td>
+			</tr>
 		</table>
-		<%= render "shared/modal_bottom", save: true %>
 	</div>
+	<%= render "shared/modal_bottom", save: true %>
 <% end %>

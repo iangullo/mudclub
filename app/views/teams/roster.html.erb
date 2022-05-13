@@ -1,25 +1,5 @@
 <%= render "shared/modal", simple: true, edit: (current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil do %>
   <div id="team-roster">
-    <%= render "team_header" %>
-    <div id="team-roster-grid">
-      <table>
-        <tr>
-          <td align="right"><%= image_tag("player.svg", size: "30x30") %></td>
-          <th align="left"><%= t(:l_roster_show) %></th>
-        </tr>
-        <tr class="bg-indigo-900 text-gray-300">
-          <th align="center" class="rounded border"><%= t(:a_num) %></th>
-          <th align="left" class="rounded border"><%= t(:h_name) %></th>
-          <th align="center" class="rounded border"><%= t(:h_age) %></th>
-        </tr>
-        <% @team.players.order("number").each do |player| %>
-          <tr class="hover:bg-blue-700 hover:text-white">
-            <td align="center" class="rounded border"><%= link_to player.number, player, data: {turbo_frame: "modal"} %></td>
-            <td class="rounded border"><%= link_to player.to_s, player, data: {turbo_frame: "modal"} %></td>
-            <td align="center" class="rounded border"><%= link_to player.person.age, player, data: {turbo_frame: "modal"} %></td>
-          </tr>
-        <% end %>
-      </table>
-    </div>
-  </div>
+    <%= render FieldsComponent.new(fields: @header) %>
+    <%= render GridComponent.new(g_head: @grid[:header], g_rows: @grid[:rows]) %>
 <% end %>

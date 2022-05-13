@@ -1,20 +1,3 @@
 <%= render "shared/modal", simple: true, edit: (current_user.admin? or current_user.person_id==@person.id) ? edit_person_path(@person) : nil do %>
-	<table>
-		<tr>
-			<td rowspan="3" align="center">
-				<%= image_tag("person.svg", size: "100x100") %>
-			</td>
-			<td><%= @person.name %></td>
-		</tr><tr>
-			<td><%= @person.surname %></td>
-		</tr><tr>
-			<td><%= @person.birthday %></td>
-		</tr><tr>
-			<td style="text-align:center"><%= @person.dni %></td>
-			<td class="inline-flex">
-				<%= image_tag("player.svg", size: "30x30") if @person.player_id > 0 %>
-				<%= image_tag("coach.svg", size: "30x30") if @person.coach_id > 0 %>
-			</td>
-		</tr>
-	</table>
+	<%= render FieldsComponent.new(fields: @fields) %>
 <% end %>

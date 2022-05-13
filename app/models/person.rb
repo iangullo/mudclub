@@ -2,6 +2,7 @@ class Person < ApplicationRecord
 	belongs_to :coach
 	belongs_to :player
 	belongs_to :user
+	has_one_attached :avatar
 	accepts_nested_attributes_for :player
 	accepts_nested_attributes_for :coach
 	accepts_nested_attributes_for :user
@@ -12,13 +13,20 @@ class Person < ApplicationRecord
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : ""}
 	self.inheritance_column = "not_sti"
 
-	def to_s
+	def to_s(long=true)
 		if self.nick and self.nick.length > 0
 			aux = self.nick.to_s
 		else
 			aux = self.name.to_s
 		end
-		aux += " " + self.surname.to_s
+		aux += " " + self.surname.to_s if long
+		aux
+	end
+
+	#short name for form viewing
+	def s_name
+		res = self.to_s(false)
+		res.length > 0 ? res : I18n.t(:l_per_show)
 	end
 
 	# checks if it exists in the collection before adding it
@@ -70,6 +78,10 @@ class Person < ApplicationRecord
 				p.save
 			end
 		end
+	end
+
+	def picture
+		self.avatar.attached? ? self.avatar : "person.svg"
 	end
 
 	#Search field matching

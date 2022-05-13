@@ -1,21 +1,8 @@
 <%= render "shared/modal" do %>
 	<%= form_with model: @coach do |form| %>
 		<%= form.fields_for :person do |f| %>
-			<table>
-				<tr>
-					<th rowspan="3" align="center">
-						<%= image_tag("coach.svg", size: "50x50", class: "rounded-full") %>
-					</th>
-					<th align="left" colspan="2" class="align-top text-yellow-600"><%= t(:l_coach_new) %></th>
-				</tr><tr>
-					<td align="left"><strong><%= t(:l_name) %></strong></td>
-					<td><%= f.text_field :name, size: 12, class: "rounded border shadow-inner" %></td>
-				</tr><tr>
-					<td align="left"><strong><%= t(:l_surname) %></strong></td>
-					<td><%= f.text_field :surname, size: 16, class: "rounded border shadow-inner" %></td>
-				</tr>
-			</table>
+			<%= render FieldsComponent.new(fields: @fields, form: f) %>
 		<% end %>
-		<%= render "shared/modal_bottom", save: true %>
 	<% end %>
+	<%= render "shared/modal_bottom", save: true %>
 <% end %>

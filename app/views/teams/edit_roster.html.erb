@@ -1,12 +1,9 @@
 <%= render "shared/modal" do %>
+	<%= render FieldsComponent.new(fields: @header) %>
 	<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
-		<%= render "team_header" %>
 		<div id="edit-roster-form-data">
 			<table>
-				<tr>
-					<td align="right"><%= image_tag("player.svg", size: "30x30") %></td>
-					<th colspan="3" align="left"><%= t(:l_roster_edit) %></th>
-				</tr><tr class="bg-indigo-900 text-gray-300">
+				<tr class="bg-indigo-900 text-gray-300">
 					<th class="border px py" align="center"><%= t(:a_num) %></th>
 					<th class="border px py" align="left"><%= t(:h_name) %></th>
 					<th class="border px py" align="center"><%= t(:h_age) %></th>

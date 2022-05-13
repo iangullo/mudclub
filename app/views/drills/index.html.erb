@@ -1,4 +1,4 @@
 <div id="drills-index">
-	<%= render "drills_header", title: t(:l_drill_index) %>
-	<%= render "drills_grid" %>
+	<%= render FieldsComponent.new(fields: @header) %>
+	<%= render GridComponent.new(g_head: @grid[:header], g_rows: @grid[:rows]) %>
 </div>

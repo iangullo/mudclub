@@ -1,17 +1,3 @@
 <%= render "shared/modal", simple: true, edit: (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id) ? edit_player_path(@player) : nil do %>
-	<table>
-		<tr>
-			<td rowspan="3" align="center">
-				<%= image_tag(@player.picture, size: "100x100", class: "rounded-full") %>
-			</td>
-			<td><%= @player.person.name %></td>
-		</tr><tr>
-			<td><%= @player.person.surname %></td>
-		</tr><tr>
-			<td><%= @player.person.birthday %></td>
-		</tr><tr>
-			<td align="center"><%= @player.person.dni %></td>
-			<td><%= t(:a_num) %><%= @player.number %>&nbsp;-&nbsp;<%= t(@player.active ? :h_active : :h_inactive) %></td>
-		</tr>
-	</table>
+	<%= render FieldsComponent.new(fields: @fields) %>
 <% end %>

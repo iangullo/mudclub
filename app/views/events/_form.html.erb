@@ -14,7 +14,7 @@
           <%= form.date_field :start_time, value: event.start_date, start_year: @season.start_year, end_year: @season.end_year, class: "rounded border shadow-inner" %>
         </th>
       </tr><tr>
-        <% if event.holiday? %>
+        <% if event.rest? %>
           <td align="left" colspan="3"><%= form.text_field :name, size: 20, class: "rounded border shadow-inner" %></td>
         <% else %>
           <th align="left">

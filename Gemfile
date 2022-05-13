@@ -67,3 +67,5 @@ gem 'phonelib'
 
 # Added Devise for user authentication
 gem 'devise'
+
+gem "view_component", "~> 2.53"

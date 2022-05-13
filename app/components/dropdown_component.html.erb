@@ -1,0 +1,19 @@
+<div data-controller="dropdown">
+  <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="0" class="inline-block select-none">
+    <button type="button" aria-controls="mobile-menu" aria-expanded="false" class="<%=@button[:i_class]%>">
+      <span class="sr-only"><%=@button[:name]%></span>
+      <%= image_tag(@button[:icon], size: @button[:size] ? @button[:size] : "25x25") if @button[:icon] %>
+      <%= @button[:label] if @button[:label] %>
+    </button>
+    <div data-dropdown-target="menu" class="absolute hidden">
+      <div class="<%=@button[:d_class]%>">
+        <% @button[:options].each do |option| %>
+          <%= link_to option[:url], data: {action: "click->dropdown#toggle", turbo_frame: "modal"}, class: @button[:o_class] do %>
+            <%= image_tag(option[:icon], size: option[:size] ? option[:size] : "25x25") if option[:icon] %>
+            <%= option[:label] if option[:label] %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

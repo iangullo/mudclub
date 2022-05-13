@@ -72,11 +72,11 @@ class Drill < ApplicationRecord
 		print_names(self.skills)
 	end
 
-	# print strings for associated targets
+	# Array of print strings for associated targets
 	def print_targets
-		cad = nil
+		cad = []
 		self.drill_targets.each { |tgt|
-			cad = cad ?  cad + "\n" + tgt.to_s  : tgt.to_s
+			cad << tgt.to_s
 		}
 		cad
 	end

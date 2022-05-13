@@ -1,28 +1,8 @@
 <%= render "shared/modal", simple: true, edit: edit_user_path do %>
 	<div id="user-show">
+		<%= render FieldsComponent.new(fields: @header) %>
 		<table>
-			<div id="user-show-header">
-				<tr>
-					<td rowspan="2" align="center">
-						<%= image_tag(@user.picture, :size => "100x100", class: "rounded-full") %>
-					</td>
-					<th align="left" class="align-top rounded-md text-yellow-600"><%= @user.s_name %></th>
-				</tr>
-			</div>
 			<div id="user-show-data">
-				<tr>
-					<td class="inline-flex">
-						<% if @user.admin? %>
-							<%= image_tag "key.svg", size: "36x36", alt: "Admin."  %>
-						<% end %>
-						<% if @user.is_coach? %>
-							<%= image_tag "coach.svg", size: "36x36", alt: "Ent."  %>
-						<% end %>
-						<% if @user.is_player? %>
-							<%= image_tag "player.svg", size: "36x36", alt: "Jug."  %>
-						<% end %>
-					</td>
-				</tr>
 				<% if @user.teams %>
 					<tr>
 						<th colspan="3" align="center" class="border px py text-white bg-blue-900"><%= t(:l_team_index) %></th>

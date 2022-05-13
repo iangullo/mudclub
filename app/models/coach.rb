@@ -15,15 +15,7 @@ class Coach < ApplicationRecord
 
 	#short name for form viewing
 	def s_name
-		if self.person
-			if self.person.nick
-				self.person.nick.length >  0 ? self.person.nick : self.person.name
-			else
-				self.person.name
-			end
-		else
-			I18n.t(:l_coach_show)
-		end
+		self.person ? self.person.s_name : I18n.t(:l_coach_show)
 	end
 
 	# check if associated person exists in database already
@@ -41,7 +33,7 @@ class Coach < ApplicationRecord
 	end
 
 	def picture
-		self.avatar.attached? ? self.avatar : "coach.svg"
+		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "coach.svg"
 	end
 
 	#Search field matching
