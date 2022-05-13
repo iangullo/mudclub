@@ -65,7 +65,7 @@ class PeopleController < ApplicationController
 			# added to import excel
 	    respond_to do |format|
 	      if @person.save
-	        format.html { redirect_to people_url, notice: t(:per_created) + "'#{@person.to_s}'" }
+	        format.html { redirect_to people_url(search: @person.name), notice: t(:per_created) + "'#{@person.to_s}'" }
 	        format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :new }
@@ -83,7 +83,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
     	respond_to do |format|
       	if @person.update(person_params)
-	        format.html { redirect_to people_url, notice: t(:per_updated) + "'#{@person.to_s}'" }
+	        format.html { redirect_to people_url(search: @person.name), notice: t(:per_updated) + "'#{@person.to_s}'" }
 					format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :edit }

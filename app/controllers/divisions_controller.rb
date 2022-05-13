@@ -95,7 +95,7 @@ class DivisionsController < ApplicationController
     # return FieldsComponent @fields for forms
     def form_fields(title)
       res = header_fields(title, cols: 3)
-      res << [{kind: "text-box", value: @division.name, cols: 3}]
+      res << [{kind: "text-box", key: :name, value: @division.name, cols: 3}]
       res
     end
 

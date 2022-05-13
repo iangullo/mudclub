@@ -77,7 +77,7 @@ class PlayersController < ApplicationController
 							@player.person.player_id = @player.id
 							@player.person.save
 						end
-						format.html { redirect_to players_url, notice: t(:player_created) + "'#{@player.to_s}'" }
+						format.html { redirect_to players_url(search: @player.name), notice: t(:player_created) + "'#{@player.to_s}'" }
 						format.json { render :index, status: :created, location: players_url }
 					else
 						format.html { render :new }
@@ -96,7 +96,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
 			respond_to do |format|
 				if @player.update(player_params)
-					format.html { redirect_to players_url, notice: t(:player_updated) + "'#{@player.to_s}'" }
+					format.html { redirect_to players_url(search: @player.name), notice: t(:player_updated) + "'#{@player.to_s}'" }
 					format.json { render :index, status: :ok, location: players_url }
 				else
 					format.html { render :edit }

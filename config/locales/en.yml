@@ -51,7 +51,7 @@ en:
   m_logout: "Log-out"
   m_import: "Import"
   m_export: "Export"
-  m_create: "Create "
+  m_create: "Create"
   m_edit: "Edit"
   h_general: "General"
   q_del: "Delete "

@@ -9,7 +9,7 @@ class SeasonsController < ApplicationController
 			@season = Season.search(params[:search])
       @events = Event.upcoming.for_season(@season).non_training
       @header = header_fields(I18n.t(:l_sea_show), cols: 2)
-      @header << [{kind: "search-collection", key: :search, url: seasons_path, collection: Season.real.order(name: :desc)}, {kind: "modal-add", url: new_season_path}]
+      @header << [{kind: "search-collection", key: :search, url: seasons_path, collection: Season.real.order(name: :desc)}, {kind: "add", url: new_season_path, label: I18n.t(:m_create), turbo: "modal"}]
       @links  = [[ # season links
         {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t(:l_courts), align: "center"},
         {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t(:l_team_index), align: "center"},
