@@ -64,6 +64,11 @@
           <% item[:size].times do %>
             &nbsp;
           <% end %>
+        <% when "lines" %>
+          <% item[:value].each do |line|%>
+            <%= line.to_s %>
+            <br>
+          <% end %>
         <% when "nested-form" %>
         <% else %>
           <%= item[:value] %>
