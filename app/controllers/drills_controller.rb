@@ -50,7 +50,7 @@ end
 			redirect_to drills_url
 		end
 		@header = header_fields(I18n.t(:l_drill_edit))
-		@header << [{kind: "text-box", key: :name, value: @drill.name}]
+		@header << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, collection: Kind.all, value: @drill.kind.name, align: "center"}]
 		@form_fields = form_fields
 	end
 
@@ -60,7 +60,6 @@ end
 			respond_to do |format|
 				@drill = Drill.new
 				rebuild_drill	# rebuild drill
-byebug
 				if @drill.save
 					format.html { redirect_to drills_url, notice: t(:drill_created) + "'#{@drill.name}'" }
 					format.json { render :index, status: :created, location: @drill }
@@ -80,10 +79,7 @@ byebug
 			respond_to do |format|
 				rebuild_drill	# rebuild drill
 				if @drill.coach_id == current_user.person.coach_id # author can modify
-					if @drill.persisted?
-						format.html { redirect_to drills_url }
-						format.json { render :index, status: :ok, location: @drill }
-				 	elsif @drill.save
+				 	if @drill.save
 						format.html { redirect_to drills_url, notice: t(:drill_updated) + "'#{@drill.name}'" }
 						format.json { render :index, status: :ok, location: @drill }
 					else
@@ -140,7 +136,7 @@ byebug
 				# NESTED FORM for Targets...
 				[{kind: "label", value: I18n.t(:l_mat), align: "right"}, {kind: "text-box", key: :material, size: 40, value: @drill.material}],
 				[{kind: "label", value: I18n.t(:l_desc), align: "right"}, {kind: "text-area", key: :description, size: 40, lines: 2, value: @drill.description}],
-#				[{kind: "select-file", icon: "playbook.png", label: "Playbook", key: :playbook, cols: 2}],
+				[{kind: "select-file", icon: "playbook.png", label: "Playbook", key: :playbook, cols: 2}],
 				[{kind: "rich-text-area", key: :explanation, align: "left", cols: 2}],
 				# NESTED FORM for Skills...
 				[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, collection: Coach.active}]
