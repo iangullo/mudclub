@@ -52,7 +52,7 @@ class EventsController < ApplicationController
           else
             @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
           end
-          @header = event_header(@event.title, edit: true)
+          @header = event_header(@event.title, edit: true, cols: @event.match? ? 2 : nil)
         else
           redirect_to(current_user.admin? ? "/slots" : @event.team)
         end
@@ -73,9 +73,7 @@ class EventsController < ApplicationController
         @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
       end
       @drills = @event.drill_list
-      @header = event_header(@event.title(show: true), edit: true)
-    else
-      redirect_to(current_user.present? ? events_url : "/")
+      @header = event_header(@event.title(show: true), edit: true, cols: @event.match? ? 2 : nil)
     end
   end
 
@@ -111,7 +109,7 @@ class EventsController < ApplicationController
           elsif params[:event][:season_id].to_i > 0 # season event
             format.html { redirect_to season_path(params[:event][:season_id]), notice: event_update_notice }
             format.json { render :show, status: :ok, location: @event }
-          elsif params[:event][:p_for]==nil
+          elsif params[:event][:p_for]==nil # a training session
             @event.tasks.reload
             format.html { redirect_to @event, notice: event_update_notice }
             format.json { render :show, status: :ok, location: @event }
@@ -187,13 +185,12 @@ class EventsController < ApplicationController
     end
 
     # return icon and top of HeaderComponent
-    def event_header(title, edit: nil)
+    def event_header(title, edit: nil, cols: nil)
       rows = @event.rest? ? 3 : nil
-      cols = (@event.match? and edit) ? 2 : nil
       res  = [[{kind: "header-icon", value: @event.pic, rows: rows}, {kind: "title", value: title, cols: cols}, {kind: "gap"}]]
       case @event.kind.to_sym
       when :rest
-        res << [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : ""}] if @team or @season
+        res << [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : "", cols: cols}] if @team or @season
         res << [edit ? {kind: "text-box", key: :name, value: @event.name} : {kind: "label", value: @event.name}]
       when :match
         if edit
@@ -206,7 +203,7 @@ class EventsController < ApplicationController
           end
         end
       when :train
-        res << [{kind: "subtitle", value: I18n.t(:l_train)}, {kind: "gap"}]
+        res << [{kind: "subtitle", value: I18n.t(:l_train), cols: cols}, {kind: "gap"}]
       end
       if edit # top right corner of header
         res.first << {kind: "icon", value: "calendar.svg"}
@@ -214,6 +211,7 @@ class EventsController < ApplicationController
         unless @event.rest? # add start_time inputs
           res.last << {kind: "icon", value: "clock.svg"}
           res.last << {kind: "time-box", key: :hour, hour: @event.hour, min: @event.min}
+          res = res + match_fields if @event.match?
         end
       else
         res.first << {kind: "icon-label", icon: "calendar.svg", value: @event.date_string}
@@ -222,13 +220,14 @@ class EventsController < ApplicationController
       res
     end
 
-    # return HeaderComponent @fields for forms
+    # return HeaderComponent @fields for show_training
     def show_training_header(title)
-      res = event_header(title)
+      res = event_header(title, cols: 3)
       res << [{kind: "side-cell", value: I18n.t(:a_targ), rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 4}]
       res << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 4}]
       res << [{kind: "gap", size: 2}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}]
-      res << [{kind: "side-cell", align: "left", value: I18n.t(:l_task_index), cols: 2}]
+#      res << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
+      res << [{kind: "gap", size: 2}, {kind: "side-cell", align: "left", value: I18n.t(:l_task_index), cols: 2}, {kind: "gap", size: 2}, cols: 3]
       res << [{kind: "gap", size: 2}, {kind: "grid", cols: 5, value: task_grid(@event)}]
       res << [{kind: "edit", cols: 6, align: "right", label: I18n.t(:m_edit), url: edit_event_path(@event)}]
       res
@@ -238,6 +237,15 @@ class EventsController < ApplicationController
     def task_header(title, search_in, cols: nil)
       res   = [[{kind: "header-icon", value: "drill.svg", rows: 2}, {kind: "title", value: title}]]
       res << [{kind: "search-text", url: search_in}]
+      res
+    end
+
+    # return FieldsComponent for match form
+    def match_fields
+      score = @event.score(0)
+      res = [[{kind: "gap", cols: 6}]]
+      res << [{kind: "side-cell", value: I18n.t(:h_home), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: @event.team.to_s, cols: 2}, {kind: "number-box", key: :p_for, value: score[:home][:points]}]
+      res << [{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center",}, {kind: "text-box", key: :name, value: @event.name, cols: 2}, {kind: "number-box", key: :p_opp, value: score[:away][:points]}]
       res
     end
 
@@ -417,6 +425,6 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.require(:event).permit(:id, :name, :kind, :home, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :drill_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration], tasks_attributes: [:id, :order, :drill_id, :duration, :_destroy] )
+      params.require(:event).permit(:id, :name, :kind, :home, :start_date, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :drill_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration], tasks_attributes: [:id, :order, :drill_id, :duration, :_destroy] )
     end
 end

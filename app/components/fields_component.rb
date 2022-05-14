@@ -79,7 +79,7 @@ class FieldsComponent < ApplicationComponent
         when "gap"
           item[:size]  = 4 unless item[:size]
         when "side-cell"
-          item[:align] = "right"
+          item[:align] = "right" unless item[:align]
           item[:class] = "align-center font-semibold text-indigo-900"
         when "top-cell"
           item[:class] = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
