@@ -52,7 +52,7 @@ class EventsController < ApplicationController
           else
             @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
           end
-          @header = event_header(@event.title)
+          @header = event_header(@event.title, edit: true)
         else
           redirect_to(current_user.admin? ? "/slots" : @event.team)
         end
@@ -73,8 +73,7 @@ class EventsController < ApplicationController
         @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
       end
       @drills = @event.drill_list
-      @header = event_header(@event.title)
-      @header  = event_header(@event.title(show: true))
+      @header = event_header(@event.title(show: true), edit: true)
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -188,28 +187,44 @@ class EventsController < ApplicationController
     end
 
     # return icon and top of HeaderComponent
-    def event_header(title, cols: nil)
-      res   = [[{kind: "header-icon", value: @event.pic, rows: 2}, {kind: "title", value: title, cols: cols}, {kind: "gap"}, {kind: "icon-label", icon: "calendar.svg", value: @event.date_string}]]
+    def event_header(title, edit: nil)
+      rows = @event.rest? ? 3 : nil
+      cols = (@event.match? and edit) ? 2 : nil
+      res  = [[{kind: "header-icon", value: @event.pic, rows: rows}, {kind: "title", value: title, cols: cols}, {kind: "gap"}]]
       case @event.kind.to_sym
       when :rest
-        res << [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : "", cols: 3}] if @team or @season
-        res << [{kind: "label", value: @event.name, cols: 3, align: "center"}]
+        res << [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : ""}] if @team or @season
+        res << [edit ? {kind: "text-box", key: :name, value: @event.name} : {kind: "label", value: @event.name}]
       when :match
-        if @event.location.gmaps_url
-          res << [{kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}, {kind: "gap"}]
+        if edit
+          res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, collection: Location.home, value: @event.location_id}, {kind: "gap"}]
         else
-          res << [{kind: "gap", cols: 2}]
+          if @event.location.gmaps_url
+            res << [{kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}, {kind: "gap"}]
+          else
+            res << [{kind: "gap", cols: 2}]
+          end
         end
-        res.last << {kind: "icon-label", icon: "clock.svg", value: @event.time_string}
       when :train
-        res << [{kind: "subtitle", value: I18n.t(:l_train), cols: cols}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: @event.time_string}]
+        res << [{kind: "subtitle", value: I18n.t(:l_train)}, {kind: "gap"}]
+      end
+      if edit # top right corner of header
+        res.first << {kind: "icon", value: "calendar.svg"}
+        res.first << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
+        unless @event.rest? # add start_time inputs
+          res.last << {kind: "icon", value: "clock.svg"}
+          res.last << {kind: "time-box", key: :hour, hour: @event.hour, min: @event.min}
+        end
+      else
+        res.first << {kind: "icon-label", icon: "calendar.svg", value: @event.date_string}
+        res.last << {kind: "icon-label", icon: "clock.svg", value: @event.time_string} unless @event.rest?
       end
       res
     end
 
     # return HeaderComponent @fields for forms
     def show_training_header(title)
-      res = event_header(title, cols: 3)
+      res = event_header(title)
       res << [{kind: "side-cell", value: I18n.t(:a_targ), rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 4}]
       res << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 4}]
       res << [{kind: "gap", size: 2}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}]
