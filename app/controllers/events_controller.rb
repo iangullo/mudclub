@@ -207,7 +207,7 @@ class EventsController < ApplicationController
       end
       if edit # top right corner of header
         res.first << {kind: "icon", value: "calendar.svg"}
-        res.first << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
+        res.first << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
         unless @event.rest? # add start_time inputs
           res.last << {kind: "icon", value: "clock.svg"}
           res.last << {kind: "time-box", key: :hour, hour: @event.hour, min: @event.min}

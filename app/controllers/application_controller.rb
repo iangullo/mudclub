@@ -14,7 +14,7 @@ class ApplicationController < ActionController::Base
     head = [{kind: "normal", value: I18n.t(:a_num), align: "center"}, {kind: "normal", value: I18n.t(:h_name)}, {kind: "normal", value: I18n.t(:h_age), align: "center"}]
     if p_index
       head << {kind: "normal", value: I18n.t(:a_active), align: "center"}
-      head << {kind: "add", url: new_player_path, modal: true} if current_user.admin? or current_user.is_coach?
+      head << {kind: "add", url: new_player_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
     end
     rows = Array.new
     players.each { | player|
@@ -38,7 +38,7 @@ class ApplicationController < ActionController::Base
     head << {kind: "normal", value: I18n.t(:l_team_show)} if for_season
     head << {kind: "normal", value: I18n.t(:h_desc)}
     if for_season and current_user.admin? # new season event
-      head << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), modal: true}
+      head << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), turbo: "modal"}
     elsif obj.has_coach(current_user.person.coach_id) # new team event
       head << {kind: "dropdown", button: new_event_button(obj.id)}
     end
