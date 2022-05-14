@@ -52,20 +52,15 @@ class FieldsComponent < ApplicationComponent
           item[:size]  = "50x50" unless item[:size]
           item[:rows]  = 2 unless item[:rows]
         when "title"
-          item[:align] = "left"
           item[:class] = "align-top font-bold text-yellow-600"
         when "subtitle"
-          item[:align] = "left"
           item[:class] = "align-top font-bold"
         when "label", "label-checkbox"
-          item[:align] = "left" unless item[:align]
           item[:class] = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
         when "location"
-          item[:align] = "left" unless item[:align]
           item[:class] = "inline-flex align-top font-semibold"
           item[:i_class] = "rounded-md hover:bg-blue-100"
         when "string"
-          item[:align] = "left" unless item[:align]
           item[:class] = "align-top"
         when "text-box", "text-area"
           item[:align] = "left" unless item[:align]
@@ -73,11 +68,9 @@ class FieldsComponent < ApplicationComponent
           item[:lines]  = 1 unless item[:lines]
           item[:i_class] = "rounded border shadow-inner"
         when "icon-label"
-          item[:align] = "left" unless item[:align]
           item[:size]  = "25x25" unless item[:size]
           item[:class] = "align-top inline-flex"
         when "search-text", "search-select", "search-collection"
-          item[:align] = "left" unless item[:align]
           item[:class] = "inline-flex rounded border"
           item[:size]  = 16 unless item[:size]
           item[:i_class] = "rounded border shadow-inner"
@@ -89,12 +82,12 @@ class FieldsComponent < ApplicationComponent
         when "top-cell"
           item[:class] = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
         when "lines"
-          item[:class] = "align-top border px py"
+          item[:class] = "align-top border px py" unless item[:class]
         else
-          item[:align] = "left" unless item[:align]
           item[:i_class] = "rounded border shadow-inner" unless item[:kind]=="gap"
         end
-        item[:cell] = tablecell_tag(item)
+        item[:align] = "left" unless item[:align]
+        item[:cell]  = tablecell_tag(item)
         res.last << item
       end
     end

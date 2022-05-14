@@ -20,15 +20,24 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/"
 		end
-		@header = header_fields(I18n.t(:l_drill_show), rows: 3)
+		@header  = header_fields(I18n.t(:l_drill_show))
 		@header << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
-	end
+		@intro = [[{kind: "label", value: I18n.t(:l_targ)}, {kind: "lines", class: "align-top", value: @drill.drill_targets}]]
+		@intro << [{kind: "label", value: I18n.t(:l_mat)}, {kind: "string", value: @drill.material}]
+		@intro << [{kind: "label", value: I18n.t(:l_desc)}, {kind: "string", value: @drill.description}]
+		@explain = [[{kind: "label", value: I18n.t(:l_expl), cols: 2}]]
+		@explain.last << {kind: "link-button", align: "right", class: "inline-flex rounded-md hover:bg-yellow-300", url: rails_blob_path(@drill.playbook, disposition: "attachment"), icon: "playbook", label: "Playbook"} if @drill.playbook.attached?
+		@explain << [{kind: "string", value: @drill.explanation, cols: 2}]
+		@tail = [[{kind: "label", value: I18n.t(:l_skill)}, {kind: "string", value: @drill.print_skills}]]
+		@tail << [{kind: "label", value: I18n.t(:l_auth)}, {kind: "string", value: @drill.coach.s_name}]
+end
 
 	# GET /drills/new
 	def new
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@drill       = Drill.new
 			@header      = header_fields(I18n.t(:l_drill_new))
+			@header << [{kind: "text-box", key: :name, value: @drill.name}]
 			@form_fields = form_fields
 		else
 			redirect_to "/"
@@ -40,7 +49,8 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			redirect_to drills_url
 		end
-		@header      = header_fields(I18n.t(:l_drill_edit))
+		@header = header_fields(I18n.t(:l_drill_edit))
+		@header << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, collection: Kind.all, value: @drill.kind.name, align: "center"}]
 		@form_fields = form_fields
 	end
 
@@ -69,7 +79,7 @@ class DrillsController < ApplicationController
 			respond_to do |format|
 				rebuild_drill	# rebuild drill
 				if @drill.coach_id == current_user.person.coach_id # author can modify
-					if @drill.save
+				 	if @drill.save
 						format.html { redirect_to drills_url, notice: t(:drill_updated) + "'#{@drill.name}'" }
 						format.json { render :index, status: :ok, location: @drill }
 					else
@@ -115,7 +125,7 @@ class DrillsController < ApplicationController
 	private
 
 		# return icon and top of FieldsComponent
-		def header_fields(title, cols: nil)
+		def header_fields(title, rows: nil, cols: nil)
 			[[{kind: "header-icon", value: "drill.svg"}, {kind: "title", value: title, cols: cols}]]
 		end
 
@@ -124,10 +134,10 @@ class DrillsController < ApplicationController
 			return [
 				# DO WE INCLUDE NESTED FORM TYPE??? HOW?
 				# NESTED FORM for Targets...
-				[{kind: "label", value: I18n.t(:l_mat), align: "right"}, {kind: "text-box", key: :material, size: 40, value: @drill.material, cols: 3}],
-				[{kind: "label", value: I18n.t(:l_desc), align: "right"}, {kind: "text-area", key: :description, size: 40, lines: 2, value: @drill.material, cols: 3}],
-				[{kind: "label", value: I18n.t(:l_expl), align: "left", cols: 3}, {kind: "select-file", align: "right", icon: "playbook.png", label: "Playbook", key: :playbook}],
-				[{kind: "rich-text-area", key: :explanation, align: "left", cols: 4}],
+				[{kind: "label", value: I18n.t(:l_mat), align: "right"}, {kind: "text-box", key: :material, size: 40, value: @drill.material}],
+				[{kind: "label", value: I18n.t(:l_desc), align: "right"}, {kind: "text-area", key: :description, size: 40, lines: 2, value: @drill.description}],
+				[{kind: "select-file", icon: "playbook.png", label: "Playbook", key: :playbook, cols: 2}],
+				[{kind: "rich-text-area", key: :explanation, align: "left", cols: 2}],
 				# NESTED FORM for Skills...
 				[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, collection: Coach.active}]
 		]
