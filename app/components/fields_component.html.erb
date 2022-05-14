@@ -12,6 +12,8 @@
           <%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:value] %>
         <% when "label-checkbox" %>
           <%= item[:label] %>&nbsp;<%= @form.check_box item[:key] %>
+          <% when "radio-button" %>
+            <%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
         <% when "text-box" %>
           <%= @form.text_field item[:key], value: item[:value], size: item[:size], rows: item[:rows], class: item[:i_class] %>
         <% when "email-box" %>

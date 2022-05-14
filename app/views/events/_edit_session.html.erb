@@ -13,7 +13,8 @@
   </tr>
   <% if @event.id # only allow editing tasks if we're not creating it from scratch %>
     <tr>
-      <th colspan="4" align="left" class="text-indigo-900 align-center"><%= t(:l_task_index) %></th>
+      <td></td>
+      <th colspan="3" align="left" class="text-indigo-900 align-center"><%= t(:l_task_index) %></th>
     </tr><tr>
       <td></td>
       <%= render "tasks_form", form: form, tasks: @event.tasks.order(:order) %>
