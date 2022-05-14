@@ -1,44 +1,5 @@
 <%= form_with model: event, authenticity_token: true, data: { title: title, turbo_frame: "_top" } do |form| %>
-  <div id="edit-event-header">
-    <table>
-      <tr>
-        <th rowspan="2">
-          <%= image_tag(@event.pic, size: "50x50") %>
-        </th>
-        <th align="left" class="align-top rounded-md text-yellow-600">
-          <%= title %>
-        </th>
-        <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
-        <th align="right" class="inline-flex">
-          <%= image_tag("calendar.svg", size: "25x25") %>
-          <%= form.date_field :start_time, value: event.start_date, start_year: @season.start_year, end_year: @season.end_year, class: "rounded border shadow-inner" %>
-        </th>
-      </tr><tr>
-        <% if event.rest? %>
-          <td align="left" colspan="3"><%= form.text_field :name, size: 20, class: "rounded border shadow-inner" %></td>
-        <% else %>
-          <th align="left">
-            <% if event.train? %>
-              <%= @event.title %>
-            <% else %>
-              <div class="inline-flex">
-                <%= image_tag "location.svg", size: "25x25", alt: t(:l_loc_show) %>
-                <%= form.collection_select :location_id, Location.home, :id, :name, selected: @event.team.homecourt_id %>
-              </div>
-            <% end %>
-          </th>
-          <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
-          <th align="right" class="inline-flex">
-            <%= image_tag("clock.svg", size: "25x25") %>
-            <%= form.number_field :hour, value: event.hour, in: 10..22, size: 2, class: "rounded border shadow-inner" %>
-            :
-            <%= form.number_field :min, value: event.min, in: 0..45, step: 15, size: 2, class: "rounded border shadow-inner" %>
-            <%= form.hidden_field :name %>
-          </th>
-        <% end %>
-      </tr>
-    </table>
-  </div>
+  <%= render FieldsComponent.new(fields: @header, form: form) %>
   <br>
   <div id="edit-event-data">
     <% if event.train? %>

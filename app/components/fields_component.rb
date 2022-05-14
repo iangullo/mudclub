@@ -17,6 +17,7 @@
 # => "rich-text-area": :key (field name)
 # => "number-box": :key (field name), :value (number_field), size:
 # => "date-box": :key (field name), :value (date_field), :s_year (start_year)
+# => "time-box": :hour & :min (field names)
 # => "select-box": :key (field name), :options (array of valid options), :value (form, select)
 # => "select-collection": :key (field name), :collection, :value (form, select)
 # => "search-text": :url (search_in), :value
@@ -24,6 +25,7 @@
 # => "location": :icon (optional), :url (gmaps_url), :name (name to display)
 # => "link_button": :icon (optional), :url (link_to_url), :label (label to display), turbo: (pass turbo frame?)
 # => "modal-add": :url (link_to_url)
+# => "hidden": :a hidden link for the form
 # => "gap": :size (count of &nbsp; to separate content)
 class FieldsComponent < ApplicationComponent
   def initialize(fields:, form: nil)
