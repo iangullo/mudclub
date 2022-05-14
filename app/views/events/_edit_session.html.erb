@@ -16,7 +16,7 @@
       <th colspan="4" align="left" class="text-indigo-900 align-center"><%= t(:l_task_index) %></th>
     </tr><tr>
       <td></td>
-      <%= render "tasks_form", form: form, tasks: @event.tasks %>
+      <%= render "tasks_form", form: form, tasks: @event.tasks.order(:order) %>
       <tr>
         <td></td>
         <td colspan="2" align="left">
