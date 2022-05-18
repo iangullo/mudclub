@@ -6,10 +6,10 @@ class DrillsController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			# Simple search by name/description for now
-			@drills        = Drill.search(params[:search])
-			@title = title_fields(I18n.t(:l_drill_index))
+			@drills = Drill.search(params[:search])
+			@title  = title_fields(I18n.t(:l_drill_index))
 	    @title << [{kind: "search-text", url: drills_path}]
-			@grid = drill_grid
+			@grid   = drill_grid
 		else
 			redirect_to "/"
 		end
@@ -21,13 +21,12 @@ class DrillsController < ApplicationController
 			redirect_to "/"
 		end
 		@title  = title_fields(I18n.t(:l_drill_show))
-		@title << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
-		@intro = [[{kind: "label", value: I18n.t(:l_targ)}, {kind: "lines", class: "align-top", value: @drill.drill_targets}]]
+		@title.last << {kind: "link", align: "right", icon: "playbook.png", size: "20x20", url: rails_blob_path(@drill.playbook, disposition: "attachment"), label: "Playbook"} if @drill.playbook.attached?
+		@title << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")", cols: 2}]
+		@intro  = [[{kind: "label", value: I18n.t(:l_targ)}, {kind: "lines", class: "align-top", value: @drill.drill_targets}]]
 		@intro << [{kind: "label", value: I18n.t(:l_mat)}, {kind: "string", value: @drill.material}]
 		@intro << [{kind: "label", value: I18n.t(:l_desc)}, {kind: "string", value: @drill.description}]
-		@explain = [[{kind: "label", value: I18n.t(:l_expl), cols: 2}]]
-		@explain.last << {kind: "link-button", align: "right", class: "inline-flex rounded-md hover:bg-yellow-300", url: rails_blob_path(@drill.playbook, disposition: "attachment"), icon: "playbook", label: "Playbook"} if @drill.playbook.attached?
-		@explain << [{kind: "string", value: @drill.explanation, cols: 2}]
+		@explain = [[{kind: "string", value: @drill.explanation}]]
 		@tail = [[{kind: "label", value: I18n.t(:l_skill)}, {kind: "string", value: @drill.print_skills}]]
 		@tail << [{kind: "label", value: I18n.t(:l_auth)}, {kind: "string", value: @drill.coach.s_name}]
 end
@@ -35,9 +34,8 @@ end
 	# GET /drills/new
 	def new
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@drill       = Drill.new
-			@title      = title_fields(I18n.t(:l_drill_new))
-			@title << [{kind: "text-box", key: :name, value: @drill.name}]
+			@drill = Drill.new
+			@title = title_fields(I18n.t(:l_drill_new))
 			@form_fields = form_fields
 		else
 			redirect_to "/"
@@ -50,7 +48,6 @@ end
 			redirect_to drills_url
 		end
 		@title = title_fields(I18n.t(:l_drill_edit))
-		@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, collection: Kind.all, value: @drill.kind.name, align: "center"}]
 		@form_fields = form_fields
 	end
 
@@ -131,12 +128,13 @@ end
 
 		# return FormComponent @fields for edit/new
 		def form_fields
+			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, collection: Kind.all, value: @drill.kind.name, align: "center"}]
+			@playbook = [[{kind: "select-file", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename.to_s}]]
 			return [
 				# DO WE INCLUDE NESTED FORM TYPE??? HOW?
 				# NESTED FORM for Targets...
 				[{kind: "label", value: I18n.t(:l_mat), align: "right"}, {kind: "text-box", key: :material, size: 40, value: @drill.material}],
 				[{kind: "label", value: I18n.t(:l_desc), align: "right"}, {kind: "text-area", key: :description, size: 40, lines: 2, value: @drill.description}],
-				[{kind: "select-file", icon: "playbook.png", label: "Playbook", key: :playbook, cols: 2}],
 				[{kind: "rich-text-area", key: :explanation, align: "left", cols: 2}],
 				# NESTED FORM for Skills...
 				[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, collection: Coach.active}]

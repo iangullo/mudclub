@@ -27,7 +27,7 @@ default: &default
 development:
   # PostgreSQL for normal development
   <<: *default
-  host: localhost
+#  host: localhost
   database: bclub_development
   # SQLITE on windows PC
   #adapter: sqlite3

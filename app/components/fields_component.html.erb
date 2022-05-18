@@ -62,12 +62,14 @@
     				<% end %>
           </div>
         <% when "select-file" %>
-          <%= image_tag(item[:icon], size: "25x25") if item[:icon] %>
+          <div id="select-file" class="<%=item[:class]%>">
+            <%= image_tag(item[:icon], size: item[:size]) if item[:icon] %>
             <% if item[:label] %>
-              <small class="font-semibold">&nbsp;<%= item[:label] %></small>
+              <small class="font-medium">&nbsp;<%= item[:label] %></small>
             <% end %>
-          <%= @form.file_field item[:key], direct_upload: true %>
-        <% when "add", "add-nested", "edit", "jump", "location" %>
+            <%= @form.file_field item[:key], hide_label: true, label: item[:value], direct_upload: true %>
+          </div>
+        <% when "add", "add-nested", "edit", "jump", "link", "location" %>
           <%= render ButtonComponent.new(button: item) %>
         <% when "gap" %>
           <% item[:size].times do %>
