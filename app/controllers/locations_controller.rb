@@ -7,8 +7,8 @@ class LocationsController < ApplicationController
   def index
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @season = Season.find(params[:season_id]) if params[:season_id]
-      @header = header_fields(I18n.t(:l_loc_index))
-      @header << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", url: locations_path}]
+      @title  = title_fields(I18n.t(:l_loc_index))
+      @title << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", url: locations_path}]
       @grid = location_grid
 	else
 			redirect_to "/"
@@ -19,7 +19,7 @@ class LocationsController < ApplicationController
   # GET /locations/1.json
   def show
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
-      @fields = header_fields(@location.name)
+      @fields = title_fields(@location.name)
       @fields << [(@location.gmaps_url and @location.gmaps_url.length > 0) ? {kind: "location", url: @location.gmaps_url, name: I18n.t(:l_loc_see)} : {kind: "text", value: I18n.t(:l_loc_none)}]
       @fields << [{kind: "icon", value: @location.practice_court ? "training.svg" : "team.svg"}]
     else
@@ -128,13 +128,13 @@ class LocationsController < ApplicationController
 private
 
   # return icon and top of FieldsComponent
-  def header_fields(title)
+  def title_fields(title)
     [[{kind: "header-icon", value: "location.svg"}, {kind: "title", value: title}]]
   end
 
-  # return FieldsComponent @header for forms
+  # return FieldsComponent @title for forms
   def form_fields(title)
-    res = header_fields(title)
+    res = title_fields(title)
     res << [{kind: "text-box", value: @location.name, size: 20}]
     res << [{kind: "icon", value: "gmaps.svg"}, {kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, size: 20}]
     res << [{kind: "icon", value: "training.svg"}, {kind: "label-checkbox", key: :practice_court, label: I18n.t(:l_loc_train)}]
@@ -143,12 +143,12 @@ private
 
   # return grid for @locations GridComponent
   def location_grid
-    head = [
+    title = [
       {kind: "normal", value: I18n.t(:h_name)},
       {kind: "normal", value: I18n.t(:h_kind), align: "center"},
       {kind: "normal", value: I18n.t(:a_loc)}
     ]
-    head << {kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
+    title << {kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
 
     rows = Array.new
     @locations.each { |loc|
@@ -163,7 +163,7 @@ private
       row[:items] << {kind: "delete", url: location_path(loc), name: loc.name} if current_user.admin?
       rows << row
     }
-    {header: head, rows: rows}
+    {title: title, rows: rows}
   end
 
   # rebuild @location from params[:location]

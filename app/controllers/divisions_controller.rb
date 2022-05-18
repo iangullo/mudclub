@@ -5,7 +5,7 @@ class DivisionsController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
       @divisions = Division.real
-      @fields    = header_fields(I18n.t(:l_div_index))
+      @fields    = title_fields(I18n.t(:l_div_index))
       @grid      = division_grid
     else
       redirect_to "/"
@@ -15,7 +15,7 @@ class DivisionsController < ApplicationController
   # GET /divisions/1 or /divisions/1.json
   def show
     redirect_to "/" unless current_user.present? and current_user.admin?
-    @fields = header_fields(I18n.t(:l_div_show))
+    @fields = title_fields(I18n.t(:l_div_show))
     @fields << [{kind: "subtitle", value: @division.name}]
   end
 
@@ -88,21 +88,21 @@ class DivisionsController < ApplicationController
 
   private
   	# return icon and top of FieldsComponent
-  	def header_fields(title, cols: nil)
+  	def title_fields(title, cols: nil)
   		[[{kind: "header-icon", value: "division.svg"}, {kind: "title", value: title, cols: cols}]]
   	end
 
     # return FieldsComponent @fields for forms
     def form_fields(title)
-      res = header_fields(title, cols: 3)
+      res = title_fields(title, cols: 3)
       res << [{kind: "text-box", key: :name, value: @division.name, cols: 3}]
       res
     end
 
 		# return grid for @divisions GridComponent
     def division_grid
-      head = [{kind: "normal", value: I18n.t(:h_name)}]
-			head << {kind: "add", url: new_division_path, turbo: "modal"} if current_user.admin?
+      title = [{kind: "normal", value: I18n.t(:h_name)}]
+			title << {kind: "add", url: new_division_path, turbo: "modal"} if current_user.admin?
 
       rows = Array.new
       @divisions.each { |div|
@@ -111,7 +111,7 @@ class DivisionsController < ApplicationController
         row[:items] << {kind: "delete", url: division_path(div), name: div.name} if current_user.admin?
         rows << row
       }
-      {header: head, rows: rows}
+      {title: title, rows: rows}
     end
 
     # prune teams from a category to be deleted

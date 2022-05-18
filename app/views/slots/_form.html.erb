@@ -1,35 +1,4 @@
-<%= form_with model: slot, authenticity_token: true, data: { title: title, season: season, turbo_frame: "_top" } do |form| %>
-  <div id="slots-form">
-    <table>
-      <div id="slots-form-header">
-      	<tr>
-          <th rowspan="2" class="align-top">
-            <%= image_tag("timetable.svg", size: "50x50") %>
-          </th><th colspan="5" align="left" class="rounded-md text-yellow-600">
-            <%= title %>
-          </th>
-        </tr><tr>
-          <th colspan="5" align="left"><%= @season ? @season.name : " " %><th>
-        </tr>
-      </div>
-      <div id="slots-form-data">
-        <tr>
-          <td align="right"><%= image_tag("team.svg", size: "25x25") %></td>
-      		<td colspan="5"><%= form.collection_select :team_id, @season ? Team.for_season(@season.id) : Team.real, :id, :to_s, selected: params[:team_id] ? params[:team_id] : slot.team_id %></td>
-      	</tr><tr>
-          <td align="right"><%= image_tag("location.svg", size: "25x25") %></td>
-      		<td colspan="5"><%= form.collection_select :location_id, @season ? @season.locations.practice.order(name: :asc) : Location.practice, :id, :name, selected: params[:location_id] ? params[:location_id] : slot.location_id %></td>
-      	</tr><tr>
-          <td align="right"><%= image_tag("calendar.svg", size: "25x25") %></td>
-      		<td><%= form.select :wday, @weekdays %></td>
-          <td><%= form.number_field :hour, value: slot.hour, in: 16..21, size: 3 %><%= form.number_field :min, value: slot.min, in: 0..45, step: 15, size: 3, class: "rounded border shadow-inner" %></td>
-        </tr><tr>
-          <td align="right"><%= image_tag("clock.svg", size: "25x25") %></td>
-      		<td><%= form.number_field :duration, value: slot.duration, in: 60..120, step: 30, size: 4, class: "rounded border shadow-inner" %><%= t(:l_mins) %></td>
-      	</tr>
-      </div>
-    </table>
-    <%= form.hidden_field(:season_id, value: season.id) if season %>
-    <%= render "shared/modal_bottom", save: true %>
-  </div>
+<%= form_with model: slot, authenticity_token: true, data: { turbo_frame: "_top" } do |form| %>
+  <%= render FieldsComponent.new(fields: @fields, form: form) %>
+  <%= render "shared/modal_bottom", save: true %>
 <% end %>

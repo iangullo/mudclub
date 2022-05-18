@@ -4,10 +4,10 @@ class UsersController < ApplicationController
 
   def index
     if current_user.present? and current_user.admin?
-      @users  = User.search(params[:search])
-      @header = header_fields(I18n.t(:l_user_index))
-      @header << [{kind: "search-text", url: users_path}]
-      @grid = user_grid
+      @users = User.search(params[:search])
+      @title = title_fields(I18n.t(:l_user_index))
+      @title << [{kind: "search-text", url: users_path}]
+      @grid  = user_grid
     else
       redirect_to "/"
     end
@@ -15,12 +15,12 @@ class UsersController < ApplicationController
 
   def show
     if current_user.present? and current_user.admin?
-      @user   = User.find(params[:id])
-      @header = header_fields(@user.s_name)
-      @header << []
-      @header.last << {kind: "icon", value: "player.svg"} if @user.is_player?
-      @header.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
-      @header.last << {kind: "icon", value: "key.svg"} if @user.admin?
+      @user  = User.find(params[:id])
+      @title = title_fields(@user.s_name)
+      @title << []
+      @title.last << {kind: "icon", value: "player.svg"} if @user.is_player?
+      @title.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
+      @title.last << {kind: "icon", value: "key.svg"} if @user.admin?
     else
       redirect_to "/"
     end
@@ -30,7 +30,7 @@ class UsersController < ApplicationController
     if current_user.present? and current_user.admin?
       @user = User.new
   		@user.build_person
-      @fields = header_fields(I18n.t(:l_user_new), rows: 4, cols: 2)
+      @fields = title_fields(I18n.t(:l_user_new), rows: 4, cols: 2)
       @fields << [{kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: I18n.t(:h_email)}]
       @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t(:l_pass)}]
       @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t(:l_pass_conf)}]
@@ -42,9 +42,9 @@ class UsersController < ApplicationController
 
   def edit
     if current_user.present? and current_user.admin?
-      @roles  = user_roles
-      @user   = User.find(params[:id])
-      @header = form_fields(I18n.t(:l_user_edit))
+      @roles = user_roles
+      @user  = User.find(params[:id])
+      @title = form_fields(I18n.t(:l_user_edit))
       @user_fields = [
         [{kind: "label", value: I18n.t(:l_role)}, {kind: "select-box", key: :role, options: User.roles.keys.map {|role| [role.titleize,role]}, value: @user.role}],
         [{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]
@@ -124,13 +124,13 @@ class UsersController < ApplicationController
   private
 
     # return icon and top of HeaderComponent
-  	def header_fields(title, icon: "user.svg", rows: 2, cols: nil, size: nil, _class: nil)
+  	def title_fields(title, icon: "user.svg", rows: 2, cols: nil, size: nil, _class: nil)
   		[[{kind: "header-icon", value: icon, rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
   	end
 
   	# return HeaderComponent @fields for forms
   	def form_fields(title, rows: 4, cols: 2)
-      res = header_fields(title, icon: @user.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
+      res = title_fields(title, icon: @user.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
     	res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @user.person.name}]
       res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @user.person.surname}]
   		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}]
@@ -139,13 +139,13 @@ class UsersController < ApplicationController
 
     # return grid for @users GridComponent
 	  def user_grid
-	    head = [
+	    title = [
 	      {kind: "normal", value: I18n.t(:h_name)},
 	      {kind: "normal", value: I18n.t(:a_player), align: "center"},
         {kind: "normal", value: I18n.t(:a_coach), align: "center"},
         {kind: "normal", value: I18n.t(:a_admin), align: "center"}
 	    ]
-			head << {kind: "add", url: new_user_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
+			title << {kind: "add", url: new_user_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
 
 	    rows = Array.new
 	    @users.each { |user|
@@ -157,7 +157,7 @@ class UsersController < ApplicationController
 	      row[:items] << {kind: "delete", url: row[:url], name: user.s_name} if current_user.admin?
 	      rows << row
 	    }
-      {header: head, rows: rows}
+      {title: title, rows: rows}
 	  end
 
     # re-build existing @user from raw input given by submittal from "new"

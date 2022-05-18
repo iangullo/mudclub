@@ -28,6 +28,7 @@
           </div>
         <% when "number-box" %>
           <%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, class: item[:i_class] %>
+          <%= item[:units].to_s %>
         <% when "date-box" %>
           <%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
         <% when "time-box" %>
@@ -81,7 +82,7 @@
           <%= render GridComponent.new(g_head: item[:value][:header], g_rows: item[:value][:rows]) %>
         <% when "nested-form" %>
         <% when "hidden" # hidden form field %>
-          <%= @form.hidden_field item[:value] %>
+          <%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>
         <% else %>
           <%= item[:value] %>
         <% end %>

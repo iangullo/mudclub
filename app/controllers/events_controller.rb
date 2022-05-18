@@ -6,7 +6,7 @@ class EventsController < ApplicationController
     if current_user.present?
       @events = Event.search(params)
       @season = @events.empty? ? Season.last : @events.first.team.season
-      @header = general_header(I18n.t(:l_cal))
+      @title  = general_title(I18n.t(:l_cal))
       @grid   = event_grid(events: @events, obj: @season)
     else
       redirect_to "/"
@@ -18,7 +18,7 @@ class EventsController < ApplicationController
     unless current_user.present? and (current_user.admin? or current_user.is_coach?)
       redirect_to "/"
     end
-    @fields = @event.train? ? show_training_header(@event.title(show: true)) : event_header(@event.title(show: true))
+    @fields = @event.train? ? show_training_title(@event.title(show: true)) : event_title(@event.title(show: true))
     if @event.match?
       @fields << [
         {kind: "gap"},
@@ -38,7 +38,7 @@ class EventsController < ApplicationController
     unless current_user.present? and (current_user.admin? or current_user.is_coach?)
       redirect_to "/"
     end
-    @header = event_header(@event.team.to_s)
+    @title = event_title(@event.team.to_s)
   end
 
   # GET /events/new
@@ -52,7 +52,7 @@ class EventsController < ApplicationController
           else
             @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
           end
-          @header = event_header(@event.title, form: true, cols: @event.match? ? 2 : nil)
+          @title = event_title(@event.title, form: true, cols: @event.match? ? 2 : nil)
         else
           redirect_to(current_user.admin? ? "/slots" : @event.team)
         end
@@ -73,7 +73,7 @@ class EventsController < ApplicationController
         @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
       end
       @drills = @event.drill_list if @event.train?
-      @header = event_header(@event.title(show: true), form: true, cols: @event.match? ? 2 : nil)
+      @title  = event_title(@event.title(show: true), form: true, cols: @event.match? ? 2 : nil)
     end
   end
 
@@ -131,7 +131,7 @@ class EventsController < ApplicationController
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
       erase_links
       e_name = @event.to_s
-      team = @event.team
+      team   = @event.team
       @event.destroy
       respond_to do |format|
         format.html { redirect_to team.id > 0 ? team_path(team) : events_url, notice: event_delete_notice }
@@ -145,8 +145,8 @@ class EventsController < ApplicationController
   # GET /events/1/show_task
   def show_task
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
-      @task   = Task.find(params[:task_id])
-      @header = event_header(@event.title(show: true))
+      @task  = Task.find(params[:task_id])
+      @title = event_title(@event.title(show: true))
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -157,7 +157,7 @@ class EventsController < ApplicationController
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
       @task   = Task.new(event: @event, order: @event.tasks.count + 1)
       @drills = Drill.search(params[:search])
-      @header = task_header(I18n.t(:l_task_add), add_task_event_path(@event))
+      @title  = task_title(I18n.t(:l_task_add), add_task_event_path(@event))
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -168,7 +168,7 @@ class EventsController < ApplicationController
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
       @task   = Task.find(params[:task_id])
       @drills = Drill.search(params[:search])
-      @header = task_header(I18n.t(:l_task_edit), edit_task_event_path(@event))
+      @title  = task_title(I18n.t(:l_task_edit), edit_task_event_path(@event))
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -177,7 +177,7 @@ class EventsController < ApplicationController
   private
 
     # return icon and top of HeaderComponent
-    def general_header(title)
+    def general_title(title)
       return [
         [{kind: "header-icon", value: "calendar.svg", rows: 2}, {kind: "title", value: title}],
         [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : ""}]
@@ -185,7 +185,7 @@ class EventsController < ApplicationController
     end
 
     # return icon and top of HeaderComponent
-    def event_header(title, form: nil, cols: nil)
+    def event_title(title, form: nil, cols: nil)
       rows = @event.rest? ? 3 : nil
       res  = [[{kind: "header-icon", value: @event.pic, rows: rows}, {kind: "title", value: title, cols: cols}, {kind: "gap"}]]
       case @event.kind.to_sym
@@ -205,7 +205,7 @@ class EventsController < ApplicationController
       when :train
         res << [{kind: "subtitle", value: I18n.t(:l_train), cols: cols}, {kind: "gap"}]
       end
-      if form # top right corner of header
+      if form # top right corner of title
         res.first << {kind: "icon", value: "calendar.svg"}
         res.first << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
         unless @event.rest? # add start_time inputs
@@ -221,8 +221,8 @@ class EventsController < ApplicationController
     end
 
     # return HeaderComponent @fields for show_training
-    def show_training_header(title)
-      res = event_header(title, cols: 3)
+    def show_training_title(title)
+      res = event_title(title, cols: 3)
       res << [{kind: "side-cell", value: I18n.t(:a_targ), rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 4}]
       res << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 4}]
       res << [{kind: "gap", size: 2}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}]
@@ -234,7 +234,7 @@ class EventsController < ApplicationController
     end
 
     # return icon and top of HeaderComponent
-    def task_header(title, search_in, cols: nil)
+    def task_title(title, search_in, cols: nil)
       res   = [[{kind: "header-icon", value: "drill.svg", rows: 2}, {kind: "title", value: title}]]
       res << [{kind: "search-text", url: search_in}]
       res
@@ -251,7 +251,7 @@ class EventsController < ApplicationController
 
     # return icon and top of HeaderComponent
     def task_grid(event)
-      head   = [
+      title   = [
         {kind: "normal", align: "center", value: I18n.t(:a_num)},
         {kind: "normal", value: I18n.t(:l_task_show)},
         {kind: "normal", align: "center", value: I18n.t(:a_min)}
@@ -267,7 +267,7 @@ class EventsController < ApplicationController
       rows << {name: "bottom", items: []}
       rows.last[:items] << {kind: "bottom", align: "right", value: I18n.t(:l_total), cols: 2}
       rows.last[:items] << {kind: "bottom", value: event.work_duration}
-      {header: head, rows: rows}
+      {title: title, rows: rows}
     end
 
     def rebuild_event(event_params)

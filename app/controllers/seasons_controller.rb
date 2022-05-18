@@ -8,8 +8,8 @@ class SeasonsController < ApplicationController
     if current_user.present? and current_user.admin?
 			@season = Season.search(params[:search])
       @events = Event.upcoming.for_season(@season).non_training
-      @header = header_fields(I18n.t(:l_sea_show), cols: 2)
-      @header << [{kind: "search-collection", key: :search, url: seasons_path, collection: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t(:m_create), turbo: "modal"}]
+      @title  = title_fields(I18n.t(:l_sea_show), cols: 2)
+      @title << [{kind: "search-collection", key: :search, url: seasons_path, collection: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t(:m_create), turbo: "modal"}]
       @links  = [[ # season links
         {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t(:l_courts), align: "center"},
         {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t(:l_team_index), align: "center"},
@@ -103,13 +103,13 @@ class SeasonsController < ApplicationController
   private
 
     # return icon and top of HeaderComponent
-  	def header_fields(title, cols: nil)
+  	def title_fields(title, cols: nil)
   	  [[{kind: "header-icon", value: "calendar.svg"}, {kind: "title", value: title, cols: cols}]]
   	end
 
   	# return HeaderComponent @fields for forms
   	def form_fields(title, cols: nil)
-      res = header_fields(title, cols: cols)
+      res = title_fields(title, cols: cols)
     	res << [{kind: "subtitle", value: @season.name}]
       res << [{kind: "label", align: "right", value: I18n.t(:h_start)}, {kind: "date-box", key: :start_date, s_year: 2020, value: @season.start_date}]
       res << [{kind: "label", align: "right", value: I18n.t(:h_end)}, {kind: "date-box", key: :end_date, s_year: 2020, value: @season.end_date}]

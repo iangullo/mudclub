@@ -3,12 +3,9 @@
 	<% unless @coach.teams.empty? %>
 		<table>
 			<tr>
-				<td align="center" class="align-top"><strong><%= t(:l_team_index) %></strong></td>
+				<td align="center" class="align-top font-semibold"><%= t(:l_team_index) %></td>
 				<td>
-					<% @coach.teams.each do |t| %>
-						<%= link_to t.to_s, t %>
-						<br>
-					<% end %>
+					<%= render GridComponent.new(grid: @grid) %>
 				</td>
 			</tr>
 		</table>

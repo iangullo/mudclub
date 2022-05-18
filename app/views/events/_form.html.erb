@@ -1,5 +1,5 @@
 <%= form_with model: event, authenticity_token: true, data: { title: title, turbo_frame: "_top" } do |form| %>
-  <%= render FieldsComponent.new(fields: @header, form: form) %>
+  <%= render FieldsComponent.new(fields: @title, form: form) %>
   <br>
   <div id="edit-event-data">
     <% if event.train? %>

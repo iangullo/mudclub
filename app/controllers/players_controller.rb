@@ -7,8 +7,8 @@ class PlayersController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@players = get_players
-			@fields  = header_fields(I18n.t(:l_player_index))
-			@fields << [{kind: "search-text", url: players_path}]
+			@title   = title_fields(I18n.t(:l_player_index))
+			@title << [{kind: "search-text", url: players_path}]
 			@grid    =  player_grid(players: @players)
 			respond_to do |format|
 				format.xlsx {
@@ -25,7 +25,7 @@ class PlayersController < ApplicationController
 	# GET /players/1.json
 	def show
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
-			@fields = header_fields(I18n.t(:l_player_show), rows: 4, size: "100x100", _class: "rounded-full")
+			@fields = title_fields(I18n.t(:l_player_show), rows: 4, size: "100x100", _class: "rounded-full")
 			@fields << [{kind: "label", value: @player.s_name}]
 			@fields << [{kind: "label", value: @player.person.surname}]
 			@fields << [{kind: "string", value: @player.person.birthday}]
@@ -51,10 +51,10 @@ class PlayersController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
 			redirect_to "/"
 		end
-		@header_fields = form_fields(I18n.t(:l_player_new), rows: 3, cols: 2)
+		@title_fields    = form_fields(I18n.t(:l_player_new), rows: 3, cols: 2)
 		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @player.active}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_num)}, {kind: "number-box", key: :number, value: @player.number}]]
 		@player_fields_2 = [[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar, cols: 5}]]
-		@person_fields = [
+		@person_fields   = [
 			[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
 			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @player.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @player.person.phone}]
 		]
@@ -139,13 +139,13 @@ class PlayersController < ApplicationController
 	private
 
 		# return icon and top of FieldsComponent
-		def header_fields(title, icon: "player.svg", rows: 2, cols: nil, size: nil, _class: nil)
+		def title_fields(title, icon: "player.svg", rows: 2, cols: nil, size: nil, _class: nil)
 			[[{kind: "header-icon", value: icon, rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
 		end
 
 		# return FieldsComponent @fields for forms
 		def form_fields(title, rows: 3, cols: 2)
-			res = header_fields(title, icon: @player.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
+			res = title_fields(title, icon: @player.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
 			f_cols = cols>2 ? cols - 1 : nil
 			res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @player.person.name, cols: f_cols}]
 			res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}]

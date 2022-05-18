@@ -1,5 +1,5 @@
 <%= render "shared/modal" do %>
-	<%= render FieldsComponent.new(fields: @header) %>
+	<%= render FieldsComponent.new(fields: @title) %>
 	<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
 		<div id="edit-plan">
 			<table>
