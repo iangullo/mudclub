@@ -25,9 +25,8 @@ class DrillsController < ApplicationController
 		@intro = [[{kind: "label", value: I18n.t(:l_targ)}, {kind: "lines", class: "align-top", value: @drill.drill_targets}]]
 		@intro << [{kind: "label", value: I18n.t(:l_mat)}, {kind: "string", value: @drill.material}]
 		@intro << [{kind: "label", value: I18n.t(:l_desc)}, {kind: "string", value: @drill.description}]
-		@explain = [[{kind: "label", value: I18n.t(:l_expl), cols: 2}]]
-		@explain.last << {kind: "link-button", align: "right", class: "inline-flex rounded-md hover:bg-yellow-300", url: rails_blob_path(@drill.playbook, disposition: "attachment"), icon: "playbook", label: "Playbook"} if @drill.playbook.attached?
-		@explain << [{kind: "string", value: @drill.explanation, cols: 2}]
+		@explain = [[@drill.playbook.attached? ? {kind: "link-button", align: "right", class: "inline-flex rounded-md hover:bg-yellow-300", url: rails_blob_path(@drill.playbook, disposition: "attachment"), icon: "playbook", label: "Playbook"} : {kind: "gap"}]]
+		@explain << [{kind: "string", value: @drill.explanation}]
 		@tail = [[{kind: "label", value: I18n.t(:l_skill)}, {kind: "string", value: @drill.print_skills}]]
 		@tail << [{kind: "label", value: I18n.t(:l_auth)}, {kind: "string", value: @drill.coach.s_name}]
 end
