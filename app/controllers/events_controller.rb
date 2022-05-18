@@ -272,7 +272,7 @@ class EventsController < ApplicationController
 
     def rebuild_event(event_params)
       @event = Event.new unless @event
-      @event.start_time = event_params[:start_time] if event_params[:start_time]
+      @event.start_time = event_params[:start_date] if event_params[:start_date]
       @event.hour       = event_params[:hour].to_i if event_params[:hour]
       @event.min        = event_params[:min].to_i if event_params[:min]
       @event.duration   = event_params[:duration].to_i if event_params[:duration]
