@@ -20,11 +20,12 @@
 # => "time-box": :hour & :min (field names)
 # => "select-box": :key (field name), :options (array of valid options), :value (form, select)
 # => "select-collection": :key (field name), :collection, :value (form, select)
+# => "select-file": :key (field name), :icon, :label, :value (form, select)
 # => "search-text": :url (search_in), :value
 # => "search-select": :key (search field), :url (search_in), :collection, :value
 # => "location": :icon (optional), :url (gmaps_url), :name (name to display)
-# => "link_button": :icon (optional), :url (link_to_url), :label (label to display), turbo: (pass turbo frame?)
-# => "modal-add": :url (link_to_url)
+# => "link": :icon (optional), :url (link_to_url), :label (label to display), turbo: (pass turbo frame?)
+# => "jump": :icon (optional), :url (link_to_url in the site), :label (label to display), turbo: (pass turbo frame?)
 # => "hidden": :a hidden link for the form
 # => "gap": :size (count of &nbsp; to separate content)
 class FieldsComponent < ApplicationComponent
@@ -59,6 +60,9 @@ class FieldsComponent < ApplicationComponent
           item[:class] = "align-top font-bold"
         when "label", "label-checkbox"
           item[:class] = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
+        when "link", "select-file"
+          item[:class] = item[:class] ? item[:class] : " inline-flex align-middle text-sm"
+          item[:size]  = "20x20" unless item[:size]
         when "location"
           item[:class] = "inline-flex align-top font-semibold"
           item[:i_class] = "rounded-md hover:bg-blue-100"

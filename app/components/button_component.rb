@@ -38,6 +38,8 @@ class ButtonComponent < ApplicationComponent
       @button[:d_class] = "rounded-lg inline-flex hover:bg-red-200 text-red-700 font-bold align-middle"
     when "jump"
       @button[:d_class] = "rounded-lg hover:bg-blue-100 text-sm align-middle"
+    when "link"
+      @button[:d_class] = "rounded-lg inline-flex hover:bg-yellow-200 text-sm align-middle"
     when "location"
       @button[:tab]     = true
       @button[:d_class] = "rounded-lg hover:bg-blue-100 inline-flex align-middle"
@@ -97,7 +99,7 @@ class ButtonComponent < ApplicationComponent
   # set the i_class for the button div
   def set_iclass
     case @button[:kind]
-    when "add", "delete", "location"
+    when "add", "delete", "location", "link"
       @button[:i_class] = "max-h-6 min-h-4 align-center"
     when "add-nested", "remove"
       @button[:i_class] = "max-h-5 min-h-4 align-center"
