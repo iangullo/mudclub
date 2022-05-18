@@ -1,7 +1,7 @@
 <table class="table-auto">
   <thead class="bg-indigo-900 text-gray-300">
     <tr>
-      <% @g_head.each do |item| %>
+      <% @title.each do |item| %>
         <%=item[:cell]%>
         <% case item[:kind] %>
         <% when "normal", "inverse", "gap" %>
@@ -20,7 +20,7 @@
     </tr>
   </thead>
   <tbody>
-    <% @g_rows.each do |g_row| %>
+    <% @rows.each do |g_row| %>
       <tr<% unless g_row[:name]=="bottom"%> class="hover:text-white hover:bg-blue-700"<% end %>>
         <% g_row[:items].each do |item| %>
           <%=item[:cell]%>

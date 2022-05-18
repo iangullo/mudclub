@@ -1,21 +1,22 @@
 # frozen_string_literal: true
 
 class GridComponent < ApplicationComponent
-  # head items:
+  # grid has two components:
+  # title items:
   # => kind: :normal | :inverse | :gap | :button
   # => value: associated text
   # => class: optional (unrequired?)
   # row items: have links in them (per row)
-  def initialize(g_head:, g_rows: nil)
-    @g_head = parse_head(g_head)
-    @g_rows = parse_rows(g_rows)
+  def initialize(grid:)
+    @title = parse_title(grid[:title])
+    @rows  = parse_rows(grid[:rows])
   end
 
   private
     # parse header definition to set correct objects
-    def parse_head(g_head)
+    def parse_title(title)
       res = Array.new
-      g_head.each { |item|
+      title.each { |item|
         case item[:kind]
         when "normal"
           item[:class] = "font-semibold border px py"
@@ -35,8 +36,8 @@ class GridComponent < ApplicationComponent
 
     # parse row definitions to set correct objects
     # each row links to a url - buttons to specific url
-    def parse_rows(g_rows)
-      g_rows.each { |row|
+    def parse_rows(rows)
+      rows.each { |row|
         row[:items].each { |item|
           case item[:kind]
           when "normal", "lines", "icon", "location"
@@ -51,6 +52,6 @@ class GridComponent < ApplicationComponent
           item[:cell]  = tablecell_tag(item)
         }
       }
-      g_rows
+      rows
     end
 end

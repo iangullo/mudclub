@@ -1,5 +1,5 @@
 <div id="team-show">
-	<%= render FieldsComponent.new(fields: @header) %>
+	<%= render FieldsComponent.new(fields: @title) %>
 	<br>
 	<div id="team-coaches">
 		<table>
@@ -18,5 +18,5 @@
 	<%= render FieldsComponent.new(fields: @links) %>
 	<br>
 	<div class="font-semibold inline-flex"><%= image_tag("calendar.svg", size: "30x30") %><%= t(:l_cal) %></div>
-	<%= render GridComponent.new(g_head: @grid[:header], g_rows: @grid[:rows]) %>
+	<%= render GridComponent.new(grid: @grid) %>
 </div>

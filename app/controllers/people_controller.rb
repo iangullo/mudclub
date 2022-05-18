@@ -7,8 +7,8 @@ class PeopleController < ApplicationController
   def index
 		if current_user.present? and current_user.admin?
 			@people = Person.search(params[:search])
-			@fields = header_fields(I18n.t(:l_per_index))
-			@fields << [{kind: "search-text", url: people_path}]
+			@title  = title_fields(I18n.t(:l_per_index))
+			@title << [{kind: "search-text", url: people_path}]
 			@grid   = person_grid
 			respond_to do |format|
 				format.xlsx {
@@ -27,7 +27,7 @@ class PeopleController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
 			redirect_to "/"
 		end
-		@fields = header_fields(I18n.t(:l_per_show), icon: @person.picture, size: "100x100", rows: 4, _class: "rounded-full")
+		@fields = title_fields(I18n.t(:l_per_show), icon: @person.picture, size: "100x100", rows: 4, _class: "rounded-full")
 		@fields << [{kind: "label", value: @person.s_name}]
 		@fields << [{kind: "label", value: @person.surname}]
 		@fields << [{kind: "string", value: @person.birthday}]
@@ -39,8 +39,8 @@ class PeopleController < ApplicationController
   # GET /people/new
   def new
 		if current_user.present? and current_user.admin?
-			@person = Person.new(coach_id: 0, player_id: 0)
-			@header_fields = form_fields(I18n.t(:l_per_new))
+			@person        = Person.new(coach_id: 0, player_id: 0)
+			@title_fields  = form_fields(I18n.t(:l_per_new))
 			@person_fields = person_fields
 		else
 			redirect_to "/"
@@ -52,7 +52,7 @@ class PeopleController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
 			redirect_to "/"
 		end
-		@header_fields = form_fields(I18n.t(:l_per_edit))
+		@title_fields  = form_fields(I18n.t(:l_per_edit))
 		@person_fields = person_fields
   end
 
@@ -125,23 +125,23 @@ class PeopleController < ApplicationController
   private
 
 		# return icon and top of FieldsComponent
-		def header_fields(title, icon: "person.svg", rows: 2, cols: 2, size: nil, _class: nil)
+		def title_fields(title, icon: "person.svg", rows: 2, cols: 2, size: nil, _class: nil)
 			[[{kind: "header-icon", value: icon, rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
 		end
 
 		# return FieldsComponent @fields for forms
 		def form_fields(title)
-			res = header_fields(title, icon: @person.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
+			res = title_fields(title, icon: @person.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
 			res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @person.name}]
 			res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @person.surname}]
 			res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @person.birthday}]
 			res
 		end
 
-		# return header for @people GridComponent
+		# return title for @people GridComponent
     def person_grid
-      head = [{kind: "normal", value: I18n.t(:h_name)}]
-			head << {kind: "add", url: new_person_path, turbo: "modal"} if current_user.admin?
+      title = [{kind: "normal", value: I18n.t(:h_name)}]
+			title << {kind: "add", url: new_person_path, turbo: "modal"} if current_user.admin?
 
       rows = Array.new
       @people.each { |person|
@@ -150,7 +150,7 @@ class PeopleController < ApplicationController
         row[:items] << {kind: "delete", url: row[:url], name: person.to_s} if current_user.admin?
         rows << row
       }
-			{header: head, rows: rows}
+			{title: title, rows: rows}
     end
 
 		def person_fields

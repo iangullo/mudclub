@@ -7,8 +7,8 @@ class DrillsController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			# Simple search by name/description for now
 			@drills        = Drill.search(params[:search])
-			@header = header_fields(I18n.t(:l_drill_index))
-	    @header << [{kind: "search-text", url: drills_path}]
+			@title = title_fields(I18n.t(:l_drill_index))
+	    @title << [{kind: "search-text", url: drills_path}]
 			@grid = drill_grid
 		else
 			redirect_to "/"
@@ -20,8 +20,8 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/"
 		end
-		@header  = header_fields(I18n.t(:l_drill_show))
-		@header << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
+		@title  = title_fields(I18n.t(:l_drill_show))
+		@title << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")"}]
 		@intro = [[{kind: "label", value: I18n.t(:l_targ)}, {kind: "lines", class: "align-top", value: @drill.drill_targets}]]
 		@intro << [{kind: "label", value: I18n.t(:l_mat)}, {kind: "string", value: @drill.material}]
 		@intro << [{kind: "label", value: I18n.t(:l_desc)}, {kind: "string", value: @drill.description}]
@@ -36,8 +36,8 @@ end
 	def new
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@drill       = Drill.new
-			@header      = header_fields(I18n.t(:l_drill_new))
-			@header << [{kind: "text-box", key: :name, value: @drill.name}]
+			@title      = title_fields(I18n.t(:l_drill_new))
+			@title << [{kind: "text-box", key: :name, value: @drill.name}]
 			@form_fields = form_fields
 		else
 			redirect_to "/"
@@ -49,8 +49,8 @@ end
 		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			redirect_to drills_url
 		end
-		@header = header_fields(I18n.t(:l_drill_edit))
-		@header << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, collection: Kind.all, value: @drill.kind.name, align: "center"}]
+		@title = title_fields(I18n.t(:l_drill_edit))
+		@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, collection: Kind.all, value: @drill.kind.name, align: "center"}]
 		@form_fields = form_fields
 	end
 
@@ -125,7 +125,7 @@ end
 	private
 
 		# return icon and top of FieldsComponent
-		def header_fields(title, rows: nil, cols: nil)
+		def title_fields(title, rows: nil, cols: nil)
 			[[{kind: "header-icon", value: "drill.svg"}, {kind: "title", value: title, cols: cols}]]
 		end
 
@@ -145,12 +145,12 @@ end
 
 		# return grid for @drills GridComponent
 	  def drill_grid
-	    head = [
+	    title = [
 				{kind: "normal", value: I18n.t(:h_name)},
 	      {kind: "normal", value: I18n.t(:h_kind), align: "center"},
 	      {kind: "normal", value: I18n.t(:h_targ)}
 	    ]
-			head << {kind: "add", url: new_drill_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
+			title << {kind: "add", url: new_drill_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
 
 	    rows = Array.new
 	    @drills.each { |drill|
@@ -161,7 +161,7 @@ end
 	      row[:items] << {kind: "delete", url: row[:url], name: drill.name} if current_user.admin?
 	      rows << row
 	    }
-			{header: head, rows: rows}
+			{title: title, rows: rows}
 	  end
 
 		# build new @drill from raw input given by submittal from "new"

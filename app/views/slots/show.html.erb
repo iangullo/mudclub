@@ -1,18 +1,7 @@
 <%= render "shared/modal", simple: true, edit: current_user.admin? ? edit_slot_path(@slot) : nil do %>
+	<%= render FieldsComponent.new(fields: @title) %>
 	<div id="slots-show">
 		<table>
-			<div id="slots-show-header">
-				<tr>
-					<th rowspan="2">
-						<%= image_tag("timetable.svg", size: "50x50") %>
-					</th>
-					<th colspan="2" align="left" class="align-top rounded-md text-yellow-600">
-						<%= t(:l_slot_show) %>
-					</th>
-				</tr><tr>
-					<th colspan="2" align="left" ><%= @slot.season.name %></th>
-				</tr>
-			</div>
 			<div id="slots-show-data">
 	      <tr>
 	        <td align="right"><%= image_tag("team.svg", size: "25x25") %></td>

@@ -1,5 +1,5 @@
 <div id="seasons-index">
-  <%= render FieldsComponent.new(fields: @header) %>
+  <%= render FieldsComponent.new(fields: @title) %>
   <%= render FieldsComponent.new(fields: @links) %>
-  <%= render GridComponent.new(g_head: @grid[:header], g_rows: @grid[:rows]) %>
+  <%= render GridComponent.new(grid: @grid) %>
 </div>

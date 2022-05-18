@@ -6,7 +6,7 @@
         <%= render 'task_row', form: task_fields %>
       <% end %>
     </template>
-    <%= form.fields_for :tasks do |task_fields| %>
+    <%= form.fields_for :tasks, form.object.tasks.order(:order) do |task_fields| %>
       <%= render 'task_row', form: task_fields %>
     <% end %>
   </div>

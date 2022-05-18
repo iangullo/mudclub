@@ -101,7 +101,7 @@ class ButtonComponent < ApplicationComponent
       @button[:i_class] = "max-h-6 min-h-4 align-center"
     when "add-nested", "remove"
       @button[:i_class] = "max-h-5 min-h-4 align-center"
-    when  "cancel", "save", "export", "import"
+    when  "close", "cancel", "save", "export", "import"
       @button[:i_class] = "max-h-7 min-h-5 align-center"
     end
   end

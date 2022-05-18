@@ -11,10 +11,10 @@ class ApplicationController < ActionController::Base
   # => Team: for team roster views
   def player_grid(players:, obj: nil)
     p_index = (obj == nil)
-    head = [{kind: "normal", value: I18n.t(:a_num), align: "center"}, {kind: "normal", value: I18n.t(:h_name)}, {kind: "normal", value: I18n.t(:h_age), align: "center"}]
+    title = [{kind: "normal", value: I18n.t(:a_num), align: "center"}, {kind: "normal", value: I18n.t(:h_name)}, {kind: "normal", value: I18n.t(:h_age), align: "center"}]
     if p_index
-      head << {kind: "normal", value: I18n.t(:a_active), align: "center"}
-      head << {kind: "add", url: new_player_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
+      title << {kind: "normal", value: I18n.t(:a_active), align: "center"}
+      title << {kind: "add", url: new_player_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
     end
     rows = Array.new
     players.each { | player|
@@ -28,19 +28,19 @@ class ApplicationController < ActionController::Base
       end
       rows << row
     }
-    return {header: head, rows: rows}
+    return {title: title, rows: rows}
   end
 
   # grid for events. obj is the parent oject (season/team)
   def event_grid(events:, obj:)
     for_season = (obj.class==Season)
-    head = [{kind: "normal", value: I18n.t(:h_date), align: "center"}, {kind: "normal", value: I18n.t(:h_time), align: "center"}]
-    head << {kind: "normal", value: I18n.t(:l_team_show)} if for_season
-    head << {kind: "normal", value: I18n.t(:h_desc)}
+    title = [{kind: "normal", value: I18n.t(:h_date), align: "center"}, {kind: "normal", value: I18n.t(:h_time), align: "center"}]
+    title << {kind: "normal", value: I18n.t(:l_team_show)} if for_season
+    title << {kind: "normal", value: I18n.t(:h_desc)}
     if for_season and current_user.admin? # new season event
-      head << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), turbo: "modal"}
+      title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), turbo: "modal"}
     elsif obj.has_coach(current_user.person.coach_id) # new team event
-      head << {kind: "dropdown", button: new_event_button(obj.id)}
+      title << {kind: "dropdown", button: new_event_button(obj.id)}
     end
     rows = Array.new
     events.each { |event|
@@ -52,7 +52,7 @@ class ApplicationController < ActionController::Base
       row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
       rows << row
     }
-    return {header: head, rows: rows}
+    return {title: title, rows: rows}
   end
 
   # dropdown button definition to create a new Event

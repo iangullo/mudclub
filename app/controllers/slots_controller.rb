@@ -8,7 +8,7 @@ class SlotsController < ApplicationController
     if current_user.present?
       @season = Season.search(params[:season_id])
       @slots  = Slot.search(params)
-      @header = header_fields(I18n.t(:l_slot_index))
+      @title  = title_fields(I18n.t(:l_slot_index))
     else
       redirect_to "/"
     end
@@ -19,14 +19,17 @@ class SlotsController < ApplicationController
     unless current_user.present?
       redirect_to "/"
     end
+    @season = Season.find(params[:season_id]) if params[:season_id]
+    @title  = title_fields(I18n.t(:l_slot_index))
   end
 
   # GET /slots/new
   def new
     if current_user.present? and current_user.admin?
-      @season = Season.find(params[:season_id]) if params[:season_id]
-      @slot   = Slot.new(season_id: @season ? @season.id : 1, location_id: 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
-  		@weekdays = weekdays
+      @weekdays = weekdays
+      @season   = Season.find(params[:season_id]) if params[:season_id]
+      @slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
+      @fields   = form_fields(I18n.t(:l_slot_new))
     else
       redirect_to(current_user.present? ? slots_url : "/")
     end
@@ -37,6 +40,7 @@ class SlotsController < ApplicationController
     if current_user.present? and current_user.admin?
   		@weekdays = weekdays
       @season   = Season.find(@slot.season_id)
+      @fields   = form_fields(I18n.t(:l_slot_edit))
     else
       redirect_to(current_user.present? ? slots_url : "/")
     end
@@ -101,7 +105,7 @@ class SlotsController < ApplicationController
   private
 
     # return icon and top of FieldsComponent
-    def header_fields(title)
+    def title_fields(title)
       return [
         [{kind: "header-icon", value: "timetable.svg"}, {kind: "title", value: title}],
         [{kind: "subtitle", value: @season ? @season.name : ""}]
@@ -109,14 +113,13 @@ class SlotsController < ApplicationController
     end
 
     # return FieldsComponent @fields for forms
-    def form_fields(title, rows: 3, cols: 2)
-      res = header_fields(title, icon: @player.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
-      f_cols = cols>2 ? cols - 1 : nil
-      res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @player.person.name, cols: f_cols}]
-      res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}]
-      if f_cols	# i's an edit form
-        res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}]
-      end
+    def form_fields(title)
+      res = title_fields(title)
+      res << [{kind: "icon", value: "team.svg"}, {kind: "select-collection", key: :team_id, collection: @season ? Team.for_season(@season.id) : Team.real, value: @slot.team_id, cols: 2}]
+      res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, collection: @season ? @season.locations.practice.order(name: :asc) : Location.practice, value: @slot.location_id, cols: 2}]
+      res << [{kind: "icon", value: "calendar.svg"}, {kind: "select-box", key: :wday, options: @weekdays}, {kind: "time-box", hour: @slot.hour, min: @slot.min}]
+      res << [{kind: "icon", value: "clock.svg"}, {kind: "number-box", key: :duration, value: @slot.duration, units: I18n.t(:l_mins)}]
+      res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
       res
     end
 

@@ -1,5 +1,5 @@
 <div id="edit-task-form">
-	<%= render FieldsComponent.new(fields: @header) %>
+	<%= render FieldsComponent.new(fields: @title) %>
 	<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top" } do |form| %>
 		<table>
 			<tr class="bg-indigo-900 text-gray-300 align-center border px py">

@@ -7,7 +7,7 @@ class CoachesController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@coaches = get_coaches
-			@fields  = header_fields(I18n.t(:l_coach_index))
+			@fields  = title_fields(I18n.t(:l_coach_index))
 			@fields << [{kind: "search-text", url: coaches_path}]
 			@grid    = coach_grid
 			respond_to do |format|
@@ -27,11 +27,12 @@ class CoachesController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/"
 		end
-		@fields = header_fields(I18n.t(:l_coach_show), rows: 4, size: "100x100", _class: "rounded-full")
+		@fields = title_fields(I18n.t(:l_coach_show), rows: 4, size: "100x100", _class: "rounded-full")
 		@fields << [{kind: "label", value: @coach.s_name}]
 		@fields << [{kind: "label", value: @coach.person.surname}]
 		@fields << [{kind: "string", value: @coach.person.birthday}]
 		@fields << [{kind: "label", value: (I18n.t(@coach.active ? :h_active : :h_inactive)), align: "center"}]
+		@grid   = coach_teams_grid
 	end
 
 	# GET /coaches/new
@@ -50,7 +51,7 @@ class CoachesController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.person.coach_id==@coach.id)
 			redirect_to "/"
 		else
-			@header_fields = form_fields(I18n.t(:l_coach_edit), rows: 4, cols: 3)
+			@title_fields = form_fields(I18n.t(:l_coach_edit), rows: 4, cols: 3)
 			@coach_fields  = [
 				[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @coach.active, cols: 4}],
 				[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar, cols: 3}]
@@ -140,13 +141,13 @@ class CoachesController < ApplicationController
 	private
 
 		# return icon and top of FieldsComponent
-		def header_fields(title, icon: "coach.svg", rows: 2, cols: nil, size: nil, _class: nil)
+		def title_fields(title, icon: "coach.svg", rows: 2, cols: nil, size: nil, _class: nil)
 			[[{kind: "header-icon", value: icon, rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
 		end
 
 		# return FieldsComponent @fields for forms
 		def form_fields(title, rows: 3, cols: 2)
-			res = header_fields(title, icon: @coach.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
+			res = title_fields(title, icon: @coach.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
 			f_cols = cols>2 ? cols - 1 : nil
 			res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @coach.person.name, cols: f_cols}]
 			res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @coach.person.surname, cols: f_cols}]
@@ -158,12 +159,12 @@ class CoachesController < ApplicationController
 
 		# return grid for @coaches GridComponent
     def coach_grid
-      head = [
+      title = [
         {kind: "normal", value: I18n.t(:h_name)},
         {kind: "normal", value: I18n.t(:h_age)},
         {kind: "normal", value: I18n.t(:a_active)}
       ]
-			head << {kind: "add", url: new_coach_path, turbo: "modal"} if current_user.admin?
+			title << {kind: "add", url: new_coach_path, turbo: "modal"} if current_user.admin?
 
       rows = Array.new
       @coaches.each { |coach|
@@ -174,7 +175,20 @@ class CoachesController < ApplicationController
         row[:items] << {kind: "delete", url: row[:url], name: coach.to_s} if current_user.admin?
         rows << row
       }
-			{header: head, rows: rows}
+			{title: title, rows: rows}
+    end
+
+		# return grid for @coaches GridComponent
+    def coach_teams_grid
+      title = []	# Empty title row
+
+      rows = Array.new
+      @coach.teams.each { |team|
+        row = {url: team_path(team), items: []}
+        row[:items] << {kind: "normal", value: team.to_s}
+        rows << row
+      }
+			{title: title, rows: rows}
     end
 
 		# build new @coach from raw input given by submittal from "new"
