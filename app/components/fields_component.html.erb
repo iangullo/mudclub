@@ -79,7 +79,7 @@
             <br>
           <% end %>
         <% when "grid" %>
-          <%= render GridComponent.new(g_head: item[:value][:header], g_rows: item[:value][:rows]) %>
+          <%= render GridComponent.new(grid: item[:value]) %>
         <% when "nested-form" %>
         <% when "hidden" # hidden form field %>
           <%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>

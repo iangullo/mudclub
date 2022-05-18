@@ -18,7 +18,7 @@ class EventsController < ApplicationController
     unless current_user.present? and (current_user.admin? or current_user.is_coach?)
       redirect_to "/"
     end
-    @fields = @event.train? ? show_training_title(@event.title(show: true)) : event_title(@event.title(show: true))
+    @fields = @event.train? ? show_training_fields(@event.title(show: true)) : event_title(@event.title(show: true))
     if @event.match?
       @fields << [
         {kind: "gap"},
@@ -220,8 +220,8 @@ class EventsController < ApplicationController
       res
     end
 
-    # return HeaderComponent @fields for show_training
-    def show_training_title(title)
+    # return FieldsComponent @fields for show_training
+    def show_training_fields(title)
       res = event_title(title, cols: 3)
       res << [{kind: "side-cell", value: I18n.t(:a_targ), rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 4}]
       res << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 4}]
