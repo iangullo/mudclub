@@ -1,0 +1,8 @@
+<div class="flow-root mt-3">
+  <div class="float-left">
+    <%= render ButtonComponent.new(button: @close) %>
+  </div>
+  <div class="float-right">
+    <%= render ButtonComponent.new(button: @submit) if @submit %>
+  </div>
+</div>
