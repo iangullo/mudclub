@@ -1,8 +1,9 @@
-<%= render "shared/modal", simple: true, edit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil do %>
+<%= render ModalComponent.new do %>
 	<div id="drills-show">
 		<%= render FieldsComponent.new(fields: @title) %>
 		<%= render FieldsComponent.new(fields: @intro) %>
 		<%= render FieldsComponent.new(fields: @explain) %>
 		<%= render FieldsComponent.new(fields: @tail) %>
+		<%= render SubmitComponent.new(submit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil) %>
 	</div>
 <% end %>

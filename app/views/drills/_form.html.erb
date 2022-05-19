@@ -1,53 +1,55 @@
-<%= form_with model: drill, authenticity_token: true, data: {turbo_frame: "_top" } do |form| %>
-	<%= render FieldsComponent.new(fields: @title, form: form) %>
-	<%= render FieldsComponent.new(fields: @playbook, form: form) %>
-	<div id="drills-form">
-		<div id="drills-form-data">
-			<table>
-				<tr>
-					<th align="right" class="align-top"><%= t(:l_targ) %></th>
-					<td colspan="3">
-						<div id="drill-targets" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
-							<% n_p = @drill.drill_targets ? @drill.drill_targets.count+1 : 1 %>
-							<template data-nested-form-target="template">
-								<%= form.fields_for :drill_targets, DrillTarget.new(priority: n_p), child_index: 'NEW_RECORD' do |drill_target_fields| %>
-									<% drill_target_fields.object.build_target %>
+<%= render ModalComponent.new do %>
+	<%= form_with model: drill, authenticity_token: true, data: {turbo_frame: "_top" } do |form| %>
+		<%= render FieldsComponent.new(fields: @title, form: form) %>
+		<%= render FieldsComponent.new(fields: @playbook, form: form) %>
+		<div id="drills-form">
+			<div id="drills-form-data">
+				<table>
+					<tr>
+						<th align="right" class="align-top"><%= t(:l_targ) %></th>
+						<td colspan="3">
+							<div id="drill-targets" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
+								<% n_p = @drill.drill_targets ? @drill.drill_targets.count+1 : 1 %>
+								<template data-nested-form-target="template">
+									<%= form.fields_for :drill_targets, DrillTarget.new(priority: n_p), child_index: 'NEW_RECORD' do |drill_target_fields| %>
+										<% drill_target_fields.object.build_target %>
+										<%= render 'target_form', form: drill_target_fields %>
+										<% n_p = n_p + 1 %>
+									<% end %>
+								</template>
+								<%= form.fields_for :drill_targets do |drill_target_fields| %>
 									<%= render 'target_form', form: drill_target_fields %>
-									<% n_p = n_p + 1 %>
 								<% end %>
-							</template>
-							<%= form.fields_for :drill_targets do |drill_target_fields| %>
-								<%= render 'target_form', form: drill_target_fields %>
-							<% end %>
-							<div data-nested-form-target="target"></div>
-							<button type="button" data-action="nested-form#add"><%= render "shared/add", max_h: "max-h-5" %></button>
-						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
-		<div>
-			<%= render FieldsComponent.new(fields: @form_fields, form: form) %>
-			<table>
-				<tr>
-					<th align="right" class="align-top"><%= t(:l_skill) %></th>
-					<td colspan="3">
-						<div id="drill-skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
-							<template data-nested-form-target="template">
-								<%= form.fields_for :skills, Skill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
+								<div data-nested-form-target="target"></div>
+								<button type="button" data-action="nested-form#add"><%= render "shared/add", max_h: "max-h-5" %></button>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div>
+				<%= render FieldsComponent.new(fields: @form_fields, form: form) %>
+				<table>
+					<tr>
+						<th align="right" class="align-top"><%= t(:l_skill) %></th>
+						<td colspan="3">
+							<div id="drill-skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
+								<template data-nested-form-target="template">
+									<%= form.fields_for :skills, Skill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
+										<%= render 'skill_form', form: skill_fields %>
+									<% end %>
+								</template>
+								<%= form.fields_for :skills do |skill_fields| %>
 									<%= render 'skill_form', form: skill_fields %>
 								<% end %>
-							</template>
-							<%= form.fields_for :skills do |skill_fields| %>
-								<%= render 'skill_form', form: skill_fields %>
-							<% end %>
-							<div data-nested-form-target="target"></div>
-							<button type="button" data-action="nested-form#add"><%= render "shared/add", max_h: "max-h-5" %></button>
-						</div>
-					</td>
-				</tr>
-			</table>
+								<div data-nested-form-target="target"></div>
+								<button type="button" data-action="nested-form#add"><%= render "shared/add", max_h: "max-h-5" %></button>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
 		</div>
-	</div>
-	<%= render "shared/modal_bottom", save: true %>
+		<%= render SubmitComponent.new(submit: "save") %>
+	<% end %>
 <% end %>

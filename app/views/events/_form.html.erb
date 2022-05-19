@@ -6,8 +6,6 @@
       <%= render 'edit_session', form: form, title: title %>
     <% end %>
   </div>
-  <%= form.hidden_field :season_id, value: @season.id if @event.team.id==0 %>
-  <%= form.hidden_field :team_id %>
-  <%= form.hidden_field :kind %>
-  <%= render "shared/modal_bottom", close_return: (event.persisted? ? event_path : events_path), save: true %>
+  <% #= render "shared/modal_bottom", close_return: (event.persisted? ? event_path : events_path), save: true %>
+  <%= render SubmitComponent.new(submit: "save") %>
 <% end %>

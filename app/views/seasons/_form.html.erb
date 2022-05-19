@@ -1,4 +1,6 @@
-<%= form_with model: season, authenticity_token: true, data: { title: title, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper', turbo_frame: "_top" } do |form| %>
-	<%= render FieldsComponent.new(fields: @fields, form: form) %>
-	<%= render "shared/modal_bottom", save: true %>
+<%= render ModalComponent.new do %>
+	<%= form_with model: season, authenticity_token: true, data: { title: title, controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper', turbo_frame: "_top" } do |form| %>
+		<%= render FieldsComponent.new(fields: @fields, form: form) %>
+		<%= render SubmitComponent.new(submit: "save") %>
+	<% end %>
 <% end %>

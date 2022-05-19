@@ -1,3 +1,4 @@
-<%= render "shared/modal", simple: true, edit: current_user.admin? ? edit_division_path(@division) : nil do %>
+<%= render ModalComponent.new do %>
   <%= render FieldsComponent.new(fields: @fields) %>
+  <%= render SubmitComponent.new(submit: current_user.admin? ? edit_division_path(@division) : nil) %>
 <% end %>

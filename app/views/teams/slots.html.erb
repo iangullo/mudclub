@@ -1,21 +1,19 @@
-<%= render "shared/modal", simple: true do %>
-  <div id="team-slots">
-    <%= render FieldsComponent.new(fields: @title) %>
-    <div id="team-slots-grid">
-      <table>
-        <tr>
-          <td></td>
-          <td>
-  					<% unless @team.slots.empty? %>
-  						<%= @team.slots.first.court %>
-  						<br>
-  					<% end %>
-  					<% @team.slots.order(:wday).each do |ts| %>
-  						<%= link_to ts.to_s, ts %><br>
-  					<% end %>
-  				</td>
-        </tr>
-      </table>
-    </div>
+<%= render ModalComponent.new(title: @title) do %>
+  <%= render FieldsComponent.new(fields: @title) %>
+  <div id="team-slots-grid">
+    <table>
+      <tr>
+        <td></td>
+        <td>
+					<% unless @team.slots.empty? %>
+						<%= @team.slots.first.court %>
+						<br>
+					<% end %>
+					<% @team.slots.order(:wday).each do |ts| %>
+						<%= link_to ts.to_s, ts %><br>
+					<% end %>
+				</td>
+      </tr>
+    </table>
   </div>
 <% end %>

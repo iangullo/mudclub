@@ -135,9 +135,10 @@ private
   # return FieldsComponent @title for forms
   def form_fields(title)
     res = title_fields(title)
-    res << [{kind: "text-box", value: @location.name, size: 20}]
+    res << [{kind: "text-box", key: :name, value: @location.name, size: 20}]
     res << [{kind: "icon", value: "gmaps.svg"}, {kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, size: 20}]
     res << [{kind: "icon", value: "training.svg"}, {kind: "label-checkbox", key: :practice_court, label: I18n.t(:l_loc_train)}]
+    res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
     res
   end
 
@@ -169,7 +170,7 @@ private
   # rebuild @location from params[:location]
   def rebuild_location
     loc    = params[:id] ? Location.find(params[:id]) : Location.new
-    l_data = params[:location]
+    l_data = location_params
     if l_data
       loc.name           = l_data[:name]
       loc.exists? # reload from database

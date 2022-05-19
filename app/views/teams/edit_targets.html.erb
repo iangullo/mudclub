@@ -1,4 +1,4 @@
-<%= render "shared/modal" do %>
+<%= render ModalComponent.new do %>
 	<%= render FieldsComponent.new(fields: @title) %>
 	<div id="edit-targets">
 		<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
@@ -51,7 +51,7 @@
 					</td>
 				</tr>
 			</table>
-			<%= render "shared/modal_bottom", save: true %>
+			<%= render SubmitComponent.new(submit: "save") %>
 		<% end %>
 	</div>
 <% end %>

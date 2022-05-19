@@ -1,8 +1,6 @@
-<%= render "shared/modal" do %>
-	<%= form_with model: @coach do |form| %>
-		<%= form.fields_for :person do |f| %>
-			<%= render FieldsComponent.new(fields: @fields, form: f) %>
-		<% end %>
-	<% end %>
-	<%= render "shared/modal_bottom", save: true %>
+<%= render ModalComponent.new do %>
+  <%= form_for @coach, authenticity_token: true, data:{ turbo_frame: "_top" } do |form| %>
+    <%= render FieldsComponent.new(fields: @fields, form: form) %>
+    <%= render SubmitComponent.new(submit: "save") %>
+  <% end %>
 <% end %>
