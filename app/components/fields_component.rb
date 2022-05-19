@@ -47,11 +47,11 @@ class FieldsComponent < ApplicationComponent
         case item[:kind]
         when "icon"
           item[:align] = "right" unless item[:align]
-          item[:class] = "align-center"
+          item[:class] = item[:class] ? item[:class] + " align-middle" : "align-middle"
           item[:size]  = "25x25" unless item[:size]
         when "header-icon"
           item[:align] = "center"
-          item[:class] = "align-top"
+          item[:class] = item[:class] ? item[:class] + " align-top" : "align-top"
           item[:size]  = "50x50" unless item[:size]
           item[:rows]  = 2 unless item[:rows]
         when "title"
