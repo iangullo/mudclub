@@ -6,7 +6,7 @@
         <%= @button[:label] if @button[:label] %>
       <% end %>
     <% elsif @button[:url] %>
-      <%= link_to @button[:url], method: @button[:method], "data-confirm": @button[:confirm], data: @button[:turbo] ? {turbo_frame: @button[:turbo]} : nil, class: @button[:d_class] do %>
+      <%= link_to @button[:url], method: @button[:method], "data-confirm": @button[:confirm], data: @button[:turbo] ? {turbo_frame: @button[:turbo]} : nil, "data-turbo-action": @button[:replace] ? "replace" : nil, class: @button[:d_class] do %>
         <% if @button[:kind]=="edit" %>
         <% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
           <%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>

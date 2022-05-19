@@ -45,7 +45,8 @@ class ButtonComponent < ApplicationComponent
       @button[:d_class] = "rounded-lg hover:bg-blue-100 inline-flex align-middle"
       @button[:d_class] = @button[:d_class] + " align-middle text-sm" if @button[:icon]
     end
-    @button[:align] = "center" unless @button[:align]
+    @button[:align]   = "center" unless @button[:align]
+    @button[:replace] = true if @button[:kind]=="edit" or @button[:kind]=="close"
     @button
   end
 
