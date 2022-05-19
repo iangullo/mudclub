@@ -27,7 +27,7 @@ class CoachesController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/"
 		end
-		@fields = title_fields(I18n.t(:l_coach_show), rows: 4, size: "100x100", _class: "rounded-full")
+		@fields = title_fields(I18n.t(:l_coach_show), icon: @coach.picture, rows: 4, size: "100x100", _class: "rounded-full")
 		@fields << [{kind: "label", value: @coach.s_name}]
 		@fields << [{kind: "label", value: @coach.person.surname}]
 		@fields << [{kind: "string", value: @coach.person.birthday}]
