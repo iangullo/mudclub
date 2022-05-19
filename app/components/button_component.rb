@@ -43,7 +43,7 @@ class ButtonComponent < ApplicationComponent
     when "location"
       @button[:tab]     = true
       @button[:d_class] = "rounded-lg hover:bg-blue-100 inline-flex align-middle"
-      @button[:d_class] = @button[:d_class] + " align-center text-sm" if @button[:icon]
+      @button[:d_class] = @button[:d_class] + " align-middle text-sm" if @button[:icon]
     end
     @button[:align] = "center" unless @button[:align]
     @button
@@ -83,28 +83,25 @@ class ButtonComponent < ApplicationComponent
     case @button[:kind]
     when "add-nested"
       @button[:action]  = "nested-form#add"
-      @button[:action]  = "nested-form#add"
     when "remove"
       @button[:action]  = "nested-form#remove"
     when "import", "save"
       @button[:b_class] = "save-button inline-flex"
     when "close"
-      @button[:b_class] = "close-button inline-flex"
       @button[:action]  = "click->extended-modal#close"
-    else
-      @button[:b_class] = "#{@button[:kind]}-button"
     end
+    @button[:b_class] = "#{@button[:kind]}-button inline-flex" unless @button[:b_class]
   end
 
   # set the i_class for the button div
   def set_iclass
     case @button[:kind]
     when "add", "delete", "location", "link"
-      @button[:i_class] = "max-h-6 min-h-4 align-center"
+      @button[:i_class] = "max-h-6 min-h-4 align-middle"
     when "add-nested", "remove"
-      @button[:i_class] = "max-h-5 min-h-4 align-center"
-    when  "close", "cancel", "save", "export", "import"
-      @button[:i_class] = "max-h-7 min-h-5 align-center"
+      @button[:i_class] = "max-h-5 min-h-4 align-middle"
+    when  "close", "cancel", "save", "export", "import", "edit"
+      @button[:i_class] = "max-h-7 min-h-5 align-middle"
     end
   end
 end
