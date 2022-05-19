@@ -42,17 +42,15 @@ class UsersController < ApplicationController
 
   def edit
     if current_user.present? and current_user.admin?
-      @roles = user_roles
-      @user  = User.find(params[:id])
-      @title = form_fields(I18n.t(:l_user_edit))
-      @user_fields = [
-        [{kind: "label", value: I18n.t(:l_role)}, {kind: "select-box", key: :role, options: User.roles.keys.map {|role| [role.titleize,role]}, value: @user.role}],
-        [{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]
-      ]
+      @roles  = user_roles
+      @user   = User.find(params[:id])
+      @title  = form_fields(I18n.t(:l_user_edit))
+      @role   = [[{kind: "label", value: I18n.t(:l_role)}, {kind: "select-box", align: "center", key: :role, options: User.roles.keys.map {|role| [role.titleize,role]}, value: @user.role}]]
+      @avatar = [[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]]
       @person_fields = [
         [{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
 				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
-    ]
+      ]
     else
       redirect_to "/"
     end

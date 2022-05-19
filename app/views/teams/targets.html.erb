@@ -1,4 +1,4 @@
-<%= render "shared/modal", simple: true, edit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil do %>
+<%= render ModalComponent.new do %>
 	<%= render FieldsComponent.new(fields: @title) %>
 	<div id="show-targets-data">
 		<table>
@@ -39,4 +39,5 @@
 			</tr>
 		</table>
 	</div>
+	<%= render SubmitComponent.new(submit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil) %>
 <% end %>

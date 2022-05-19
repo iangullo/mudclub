@@ -1,6 +1,6 @@
-<%= render "shared/modal", simple: true, edit: edit_user_path do %>
+<%= render ModalComponent.new do %>
 	<div id="user-show">
-		<%= render FieldsComponent.new(fields: @header) %>
+		<%= render FieldsComponent.new(fields: @title) %>
 		<table>
 			<div id="user-show-data">
 				<% if @user.teams %>
@@ -14,5 +14,7 @@
 					<% end %>
 				<% end %>
 			</div>
-	</table>
+		</table>
+		<%= render SubmitComponent.new(submit: edit_user_path(@user)) %>
+	</div>
 <% end %>

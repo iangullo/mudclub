@@ -3,7 +3,7 @@
     <tr>
       <td colspan="4">&nbsp;</td>
     </tr><tr>
-      <td colspan="4" align="center" class="text-blue-900"><strong>Abrir Sesi&oacute;n</strong></td>
+      <td colspan="4" align="center" class="text-blue-900"><strong><%= t(:m_login) %></strong></td>
     </tr><tr>
       <td rowspan="3" align="center" class="align-center">
         <%= image_tag("user.svg", :size => "50x50") %>
@@ -21,7 +21,7 @@
           <strong>Recordar&nbsp;</strong><%= f.check_box :remember_me %>
         <% end %>
       </td>
-      <td align="right"><%= f.submit "Entrar", class: "rounded text-white bg-blue-900 hover:bg-blue-700" %>
+      <td align="right"><%= f.submit t(:m_login), class: "rounded text-white bg-blue-900 hover:bg-blue-700" %>
     </tr><tr>
       <td colspan="2"></td>
       <td><%= render "devise/shared/links" %></td>

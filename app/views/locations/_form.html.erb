@@ -1,5 +1,6 @@
-<%= form_for location, data: { title: title, season: season, turbo_frame: "_top" } do |form| %>
-	<%= render FieldsComponent.new(fields: @fields, form: form) %>
-	<%= form.hidden_field(:season_id, value: season.id) if season %>
-	<%= render "shared/modal_bottom", save: true %>
+<%= render ModalComponent.new do %>
+	<%= form_with model: location, authenticity_token: true, data: { turbo_frame: "_top" } do |form| %>
+		<%= render FieldsComponent.new(fields: @fields, form: form) %>
+		<%= render SubmitComponent.new(submit: "save") %>
+	<% end %>
 <% end %>

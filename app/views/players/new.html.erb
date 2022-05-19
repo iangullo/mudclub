@@ -1,8 +1,8 @@
-<%= render "shared/modal" do %>
+<%= render ModalComponent.new do %>
 	<%= form_for @player do |form| %>
 		<%= form.fields_for :person do |f| %>
 			<%= render FieldsComponent.new(fields: @fields, form: f) %>
 		<% end %>
-		<%= render "shared/modal_bottom", save: true %>
+		<%= render SubmitComponent.new(submit: "save") %>
 	<% end %>
 <% end %>

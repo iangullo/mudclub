@@ -1,5 +1,5 @@
 <% unless @event.train? %>
-  <%= render "shared/modal" do %>
+  <%= render ModalComponent.new do %>
     <%= render 'form', event: @event, title: @event.title %>
   <% end %>
 <% else %>

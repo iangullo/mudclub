@@ -1,10 +1,11 @@
-<%= render "shared/modal" do %>
+<%= render ModalComponent.new do %>
   <%= form_for @user, authenticity_token: true, data: { turbo_frame: "_top" } do |form| %>
   	<%= form.fields_for :person do |f| %>
-      <%= render FieldsComponent.new(fields: @header, form: f) %>
-      <%= render FieldsComponent.new(fields: @user_fields, form: form) %>
+      <%= render FieldsComponent.new(fields: @title, form: f) %>
+      <%= render FieldsComponent.new(fields: @role, form: form) %>
+      <%= render FieldsComponent.new(fields: @avatar, form: form) %>
       <%= render FieldsComponent.new(fields: @person_fields, form: f) %>
   	<% end %>
-  	<%= render "shared/modal_bottom", save: true %>
+    <%= render SubmitComponent.new(submit: "save") %>
   <% end %>
 <% end %>

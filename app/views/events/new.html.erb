@@ -1,3 +1,3 @@
-<%= render "shared/modal" do %>
+<%= render ModalComponent.new do %>
   <%= render 'form', event: @event, season: @season, title:  @event.train? ? @event.team.to_s : @event.title %>
 <% end %>

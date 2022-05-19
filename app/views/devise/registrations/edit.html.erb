@@ -1,4 +1,4 @@
-<%= render "shared/modal" do %>
+<%= render ModalComponent.new do %>
   <%= form_for(resource, as: resource_name, url: user_registration_path, html: { method: :put }) do |f| %>
     <%= render "devise/shared/error_messages", resource: resource %>
     <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
@@ -40,9 +40,8 @@
         <td colspan="3">
           <%= f.password_field :current_password, autocomplete: "contraseña-actual", class: "rounded border shadow-inner" %>
         </td>
-      </tr><tr>
-        <td colspan="3"><%= render "shared/save" %></td>
       </tr>
     </table>
+    <%= render SubmitComponent.new(submit: "save") %>
   <% end %>
 <% end %>

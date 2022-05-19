@@ -1,4 +1,4 @@
-<%= render "shared/modal", simple: true, edit: current_user.admin? ? edit_slot_path(@slot) : nil do %>
+<%= render ModalComponent.new do %>
 	<%= render FieldsComponent.new(fields: @title) %>
 	<div id="slots-show">
 		<table>
@@ -19,4 +19,5 @@
 	    </div>
 		</table>
 	</div>
+	<%= render SubmitComponent(submit: current_user.admin? ? edit_slot_path(@slot) : nil) %>
 <% end %>

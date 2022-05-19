@@ -1,4 +1,4 @@
-<%= render "shared/modal", simple: true, edit: @team.has_coach(current_user.person.coach_id) ? edit_plan_team_path : nil do %>
+<%= render ModalComponent.new do %>
 	<div id="team-plan">
 		<%= render FieldsComponent.new(fields: @title) %>
 		<div id="team-plan-data">
@@ -26,8 +26,8 @@
 						</td>
 					</tr>
 				<% end %>
-
 			</table>
 		</div>
+		<%= render SubmitComponent.new(submit: @team.has_coach(current_user.person.coach_id) ? edit_plan_team_path : nil) %>
 	</div>
 <% end %>

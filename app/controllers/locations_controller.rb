@@ -138,6 +138,7 @@ private
     res << [{kind: "text-box", value: @location.name, size: 20}]
     res << [{kind: "icon", value: "gmaps.svg"}, {kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, size: 20}]
     res << [{kind: "icon", value: "training.svg"}, {kind: "label-checkbox", key: :practice_court, label: I18n.t(:l_loc_train)}]
+    res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
     res
   end
 

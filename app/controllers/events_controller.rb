@@ -213,6 +213,9 @@ class EventsController < ApplicationController
           res.last << {kind: "time-box", key: :hour, hour: @event.hour, min: @event.min}
           res = res + match_fields if @event.match?
         end
+        res.last << {kind: "hidden", key: :season_id, value: @season.id} if @event.team.id==0
+        res.last << {kind: "hidden", key: :team_id, value: @event.team_id}
+        res.last << {kind: "hidden", key: :kind, value: @event.kind}
       else
         res.first << {kind: "icon-label", icon: "calendar.svg", value: @event.date_string}
         res.last << {kind: "icon-label", icon: "clock.svg", value: @event.time_string} unless @event.rest?
