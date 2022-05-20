@@ -46,7 +46,7 @@ class ButtonComponent < ApplicationComponent
       @button[:d_class] = @button[:d_class] + " align-middle text-sm" if @button[:icon]
     end
     @button[:align]   = "center" unless @button[:align]
-    @button[:replace] = true if @button[:kind]=="edit" or @button[:kind]=="close"
+    @button[:replace] = true if @button[:kind] =~ /^(edit|close|save)$/
     @button
   end
 
