@@ -37,7 +37,8 @@ class ButtonComponent < ApplicationComponent
     when "close", "delete", "remove"
       @button[:d_class] = "rounded-lg inline-flex hover:bg-red-200 text-red-700 font-bold align-middle"
     when "jump"
-      @button[:d_class] = "rounded-lg hover:bg-blue-100 text-sm align-middle"
+      d_class           = "rounded-lg hover:bg-blue-100 align-middle"
+      @button[:d_class] = @button[:d_class] ? @button[:d_class] + " #{d_class}" : d_class + " text-sm align-middle"
     when "link"
       @button[:d_class] = "rounded-lg inline-flex hover:bg-yellow-200 text-sm align-middle"
     when "location"
@@ -69,7 +70,7 @@ class ButtonComponent < ApplicationComponent
       @button[:icon]    = "import.svg"
       @button[:confirm] = I18n.t(:q_import)
     when "jump"
-      @button[:size]    = "50x50"
+      @button[:size]    = "50x50" unless @button[:size]
     when "remove"
       @button[:icon]    = "remove.svg"
     when "save"

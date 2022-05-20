@@ -33,7 +33,7 @@ class TeamsController < ApplicationController
 			redirect_to coaching_team_path(@team) if params[:id]=="coaching" and @team
 			@title = title_fields(@team.to_s)
 			@links = team_links
-			@grid  = event_grid(events: @team.events.normal.order(:start_time), obj: @team)
+			@grid  = event_grid(events: @team.events.upcoming.order(:start_time), obj: @team)
 		end
   end
 
@@ -254,6 +254,8 @@ class TeamsController < ApplicationController
 			if (current_user.admin? or @team.has_coach(current_user.person.coach_id))
 	      res.last << {kind: "edit", url: edit_team_path, size: "30x30", turbo: "modal"}
 			end
+			res << [{kind: "gap"}]
+			res << [{kind: "jump", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", d_class: "inline-flex font-semibold", url: events_path(team_id: @team.id), turbo: "modal", cols: 5}]
 			res
 		end
 
