@@ -25,7 +25,7 @@ class PlayersController < ApplicationController
 	# GET /players/1.json
 	def show
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
-			@fields = title_fields(I18n.t(:l_player_show), rows: 4, size: "100x100", _class: "rounded-full")
+			@fields = title_fields(I18n.t(:l_player_show), icon: @player.picture, rows: 4, size: "100x100", _class: "rounded-full")
 			@fields << [{kind: "label", value: @player.s_name}]
 			@fields << [{kind: "label", value: @player.person.surname}]
 			@fields << [{kind: "string", value: @player.person.birthday}]

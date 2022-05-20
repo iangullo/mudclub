@@ -16,7 +16,7 @@ class UsersController < ApplicationController
   def show
     if current_user.present? and current_user.admin?
       @user  = User.find(params[:id])
-      @title = title_fields(@user.s_name)
+      @title = title_fields(@user.s_name, icon: @user.picture, _class: "rounded-full")
       @title << []
       @title.last << {kind: "icon", value: "player.svg"} if @user.is_player?
       @title.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
