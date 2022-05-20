@@ -10,13 +10,17 @@ class SeasonsController < ApplicationController
       @events = Event.upcoming.for_season(@season).non_training
       @title  = title_fields(I18n.t(:l_sea_show), cols: 2)
       @title << [{kind: "search-collection", key: :search, url: seasons_path, collection: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t(:m_create), turbo: "modal"}]
-      @links  = [[ # season links
-        {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t(:l_courts), align: "center"},
-        {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t(:l_team_index), align: "center"},
-        {kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? season_slots_path(@season) : season_slots_path(@season, location_id: @season.locations.first.id), label: I18n.t(:l_slot_index), align: "center"},
-        {kind: "edit", url: edit_season_path(@season), size: "30x30", turbo: "modal"}
-      ]]
-      @grid   = event_grid(events: @events, obj: @season)
+      @links  = [
+        [ # season links
+          {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t(:l_courts), align: "center"},
+          {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t(:l_team_index), align: "center"},
+          {kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? season_slots_path(@season) : season_slots_path(@season, location_id: @season.locations.first.id), label: I18n.t(:l_slot_index), align: "center"},
+          {kind: "edit", url: edit_season_path(@season), size: "30x30", turbo: "modal"}
+        ],
+        [{kind: "gap"}],
+        [{kind: "jump", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", d_class: "inline-flex font-semibold", url: events_path(season_id: @season.id), turbo: "modal", cols: 4}]
+      ]
+      @grid = event_grid(events: @events, obj: @season)
 		else
 			redirect_to "/"
 		end

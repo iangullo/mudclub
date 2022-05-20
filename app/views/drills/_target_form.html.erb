@@ -8,9 +8,7 @@
 				<%= f.select :focus, options_for_select(Target.kinds, f.object.focus ? f.object.focus_before_type_cast : 0) %>
 				<%= f.text_field :concept, placeholder: t(:d_target), class: 'form-control rounded border shadow-inner', size: 20 %>
 			<% end %>
-			<button type="button" class="object-left-bottom" data-action="nested-form#remove">
-				<%= render "shared/remove" %>
-			</button>
+			<%= render ButtonComponent.new(button: {kind: "remove"}) %>
 		</div>
 		<%= form.hidden_field :_destroy %>
 	</div>
