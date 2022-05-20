@@ -15,7 +15,7 @@ class Event < ApplicationRecord
   scope :holidays, -> { where("kind = 0").order(:start_time) }
   scope :trainings, -> { where("kind = 1").order(:start_time) }
   scope :matches, -> { where("kind = 2").order(:start_time) }
-  scope :non_training, -> { where("kind=1 or (kind=0 and team_id=0)").order(:start_time) }
+  scope :non_training, -> { where("kind=2 or (kind=0 and team_id=0)").order(:start_time) }
   self.inheritance_column = "not_sti"
 
   enum kind: {
@@ -49,7 +49,7 @@ class Event < ApplicationRecord
     t_id = s_data[:team_id] ? s_data[:team_id].to_i : nil
     kind = s_data[:kind] ? s_data[:kind].to_sym : nil
     if s_id
-      res = Event.for_season(Season.find(s_id)).order(:start_time)
+      res = Event.for_season(Season.find(s_id)).non_training.order(:start_time)
     elsif t_id  # filter for the team received
       if kind   # and kind
         if s_data[:name]  # and name
