@@ -30,9 +30,7 @@
 				<tr>
 				  <th align="center">
 						<% if current_user.admin? and not (@season.teams.empty?) %>
-							<%= link_to new_slot_path(location_id: params[:location_id], season_id: params[:season_id]), data: {turbo_frame: "modal"} do %>
-								<%= render "shared/add" %>
-							<% end %>
+							<%= render ButtonComponent.new(button: {kind: "add", url: new_slot_path(location_id: params[:location_id], season_id: params[:season_id]), turbo: "modal"}) %>
 						<% end %>
 					</th>
 				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_1) %></th>
