@@ -21,7 +21,7 @@
 									<%= render 'target_form', form: drill_target_fields %>
 								<% end %>
 								<div data-nested-form-target="target"></div>
-								<button type="button" data-action="nested-form#add"><%= render "shared/add", max_h: "max-h-5" %></button>
+								<%= render ButtonComponent.new(button: {kind: "add-nested"}) %>
 							</div>
 						</td>
 					</tr>
@@ -43,7 +43,7 @@
 									<%= render 'skill_form', form: skill_fields %>
 								<% end %>
 								<div data-nested-form-target="target"></div>
-								<button type="button" data-action="nested-form#add"><%= render "shared/add", max_h: "max-h-5" %></button>
+								<%= render ButtonComponent.new(button: {kind: "add-nested"}) %>
 							</div>
 						</td>
 					</tr>

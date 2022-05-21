@@ -6,6 +6,5 @@
       <%= render 'edit_session', form: form, title: title %>
     <% end %>
   </div>
-  <% #= render "shared/modal_bottom", close_return: (event.persisted? ? event_path : events_path), save: true %>
   <%= render SubmitComponent.new(submit: "save", close_return: close_return) %>
 <% end %>

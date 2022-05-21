@@ -22,10 +22,7 @@
         <td></td>
         <td colspan="2" align="left">
           <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
-            <%= link_to add_task_event_path, class: "inline-flex align-middle rounded-lg text-green-700 hover:bg-green-200", data: {turbo_frame: "modal"} do %>
-              <%= render "shared/add" %>
-              <%= t(:l_task_add) %>
-            <% end %>
+            <%= render ButtonComponent.new(button: {kind: "add", label: t(:l_task_add), url: add_task_event_path, turbo: "modal"}) %>
           <% end %>
         </td>
         <th align="left"><%= t(:a_total) + " " + @event.work_duration %></th>
