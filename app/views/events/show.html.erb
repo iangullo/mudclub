@@ -1,8 +1,29 @@
-<% if @event.train? %>
-	<%= render FieldsComponent.new(fields: @fields) %>
-<% else %>
-	<%= render ModalComponent.new do %>
-		<%= render FieldsComponent.new(fields: @fields) %>
-		<%= render SubmitComponent.new(submit:  (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_event_path(season_id: params[:season_id]) : nil) %>
+<%= render ModalComponent.new do %>
+	<%= render FieldsComponent.new(fields: @title) %>
+	<% if @event.train? %>
+	<div class="flex flex-row">
+		<div data-controller="tabs" data-tabs-active-tab="-mb-px border-l border-t border-r rounded-t">
+			<ul class="list-reset flex border-b text-indigo-900">
+		    <li class="-mb-px mr-1" data-tabs-target="tab" data-action="click->tabs#change">
+		      <a class="bg-white inline-block py-2 px-4 hover:bg-blue-700 hover:text-white font-semibold no-underline" href="#"><%=t(:l_task_index)%></a>
+		    </li>
+					<% @event.tasks.order(:order).each do |task| %>
+				    <li class="mr-1" data-tabs-target="tab" data-action="click->tabs#change">
+				      <a class="bg-white inline-block py-2 px-4 hover:bg-blue-700 hover:text-white font-semibold no-underline" href="#">#<%=task.order%></a>
+				    </li>
+				<% end %>
+		  </ul>
+
+			<div class="hidden py-4 px-4 border-l border-b border-r" data-tabs-target="panel">
+				<%= render FieldsComponent.new(fields: @fields) %>
+			</div>
+			<% @event.tasks.order(:order).each do |task| %>
+				<div class="hidden py-4 px-4 border-l border-b border-r" data-tabs-target="panel">
+					<a class="bg-white inline-block py-2 px-4 no-underline"><%= render FieldsComponent.new(fields: @task_fields[task.order-1])%></a>
+				</div>
+		<% end %>
+		</div>
+	</div>
 	<% end %>
+	<%= render SubmitComponent.new(submit:  (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_event_path(season_id: params[:season_id]) : nil) %>
 <% end %>
