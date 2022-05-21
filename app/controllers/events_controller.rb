@@ -233,7 +233,7 @@ class EventsController < ApplicationController
 #      res << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
       res << [{kind: "gap", size: 2}, {kind: "side-cell", align: "left", value: I18n.t(:l_task_index), cols: 2}, {kind: "gap", size: 2}, cols: 3]
       res << [{kind: "gap", size: 2}, {kind: "grid", cols: 5, value: task_grid(@event)}]
-#      res << [{kind: "edit", cols: 6, align: "right", label: I18n.t(:m_edit), url: edit_event_path(@event)}]
+      res << [{kind: "edit", cols: 6, align: "right", label: I18n.t(:m_edit), url: edit_event_path(@event)}]
       res
     end
 
