@@ -273,7 +273,7 @@ class EventsController < ApplicationController
       ]
       rows = Array.new
       event.tasks.order(:order).each { |task|
-        row = {url: show_task_event_path(task_id: task.id), items: []}
+        row = {url: show_task_event_path(task_id: task.id), turbo: "modal", items: []}
         row[:items] << {kind: "normal", value: task.order.to_s, align: "center"}
         row[:items] << {kind: "normal", value: task.to_s}
         row[:items] << {kind: "normal", value: task.duration.to_s + "\'", align: "center"}
