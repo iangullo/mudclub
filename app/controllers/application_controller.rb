@@ -44,7 +44,7 @@ class ApplicationController < ActionController::Base
     end
     rows = Array.new
     events.each { |event|
-      row = {url:  event_path(event, season_id: for_season ? obj.id : nil), turbo: "modal", items: []}
+      row = {url:  event_path(event, season_id: for_season ? obj.id : nil), turbo: event.train? ? event.id : "modal", items: []}
       row[:items] << {kind: "normal", value: event.date_string, align: "center"}
       row[:items] << {kind: "normal", value: event.time_string, align: "center"}
       row[:items] << {kind: "normal", value: event.team_id > 0 ? event.team.to_s : t(:l_all)} if for_season

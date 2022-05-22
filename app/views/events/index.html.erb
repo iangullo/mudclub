@@ -1,6 +1,4 @@
-<%= render ModalComponent.new(simple: true) do %>
-	<div id="events-index">
-		<%= render FieldsComponent.new(fields: @title) %>
-		<%= render GridComponent.new(grid: @grid) %>
-	</div>
-<% end %>
+<div id="events-index">
+	<%= render FieldsComponent.new(fields: @title) %>
+	<%= render GridComponent.new(grid: @grid) %>
+</div>
