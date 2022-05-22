@@ -7,6 +7,10 @@ class Task < ApplicationRecord
     self.drill ? self.drill.nice_string : I18n.t(:d_drill)
   end
 
+  def s_dur
+    self.duration.to_s + "\'"
+  end
+
   # Takes the input received from add_task (f_object)
   # and either reads or creates a matching drill_target
   def self.fetch(f_object)

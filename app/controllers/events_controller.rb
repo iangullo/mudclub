@@ -7,7 +7,7 @@ class EventsController < ApplicationController
       @events = Event.search(params)
       @team   = Team.find(params[:team_id]) if params[:team_id]
       @season = @events.empty? ? Season.last : @events.first.team.season
-      @title  = general_title(I18n.t(:l_cal))
+      @title  = general_title
       @grid   = event_grid(events: @events, obj: @team ? @team : @season)
     else
       redirect_to "/"
@@ -188,10 +188,12 @@ class EventsController < ApplicationController
   private
 
     # return icon and top of HeaderComponent
-    def general_title(title)
+    def general_title
+      title    = @team ? (@team.name + " (#{@team.season.name})") : @season ? @season.name : I18n.t(:l_cal)
+      subtitle = (title == I18n.t(:l_cal)) ? I18n.t(:l_all) : I18n.t(:l_cal)
       return [
         [{kind: "header-icon", value: "calendar.svg", rows: 2}, {kind: "title", value: title}],
-        [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : ""}]
+        [{kind: "subtitle", value: subtitle}]
       ]
     end
 
