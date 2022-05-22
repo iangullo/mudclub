@@ -1,38 +1,4 @@
 <%= render ModalComponent.new do %>
-	<%= render FieldsComponent.new(fields: @title) %>
-	<div id="show_task-data">
-		<table>
-			<tr>
-			  <td align="center"><%= image_tag("drill.svg", size: "30x30") %></td>
-			  <th colspan="2" align="left" class="text-indigo-900"><%= t(:l_task_show) %></th>
-			</tr>
-		</table>
-		<table>
-			<tr>
-				<td></td>
-				<th class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_num) %></th>
-				<th class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:l_drill_show) %></th>
-				<th class="bg-indigo-900 text-gray-300 align-center border px py"><%= t(:a_dur) %></th>
-				<td></td>
-			</tr><tr>
-				<th><%= "" %></th>
-				<td align="center" class="border px py"><%= @task.order %></td>
-				<td align="left" class="border px py"><%= @task.drill.name %></td>
-				<td align="right" class="border px py"><%= @task.duration.to_s + "\'" %></td>
-				<th><%= "" %></th>
-			</tr>
-		</table>
-		<table>
-			<tr>
-				<th align="left"><%= t(:l_expl) %></th>
-			</tr><tr>
-				<td>
-					<div class="rounded-md border px py">
-						<%= @task.drill.explanation %>
-					</div>
-				</td>
-			</tr>
-		</table>
-	</div>
+	<%= render FieldsComponent.new(fields: @fields) %>
 	<%= render SubmitComponent.new(submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_task_event_path(task_id: @task.id) : nil) %>
 <% end %>

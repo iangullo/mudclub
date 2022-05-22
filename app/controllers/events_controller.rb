@@ -19,18 +19,28 @@ class EventsController < ApplicationController
     unless current_user.present? and (current_user.admin? or current_user.is_coach?)
       redirect_to "/"
     end
-    @fields = @event.train? ? show_training_fields(@event.title(show: true)) : event_title(@event.title(show: true))
+    @title  = event_title(@event.title(show: true), cols: @event.train? ? 3 : nil)
     if @event.match?
-      @fields << [
+      @fields = [[
         {kind: "gap"},
         {kind: "top-cell", value: @event.score[:home][:team], cols: 2},
         {kind: "label", value: @event.score[:home][:points], class: "border px py"}
-      ]
+      ]]
       @fields << [
         {kind: "gap"},
         {kind: "top-cell", value: @event.score[:away][:team], cols: 2},
         {kind: "label", value: @event.score[:away][:points], class: "border px py"}
       ]
+    elsif @event.train?
+      @title << [{kind: "side-cell", value: I18n.t(:a_targ), rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 4}]
+      @title << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 4}]
+      @title << [{kind: "gap", size: 2}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}]
+      #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
+      @fields = show_training_fields(@event.title(show: true))
+      @task_fields = []
+      @event.tasks.order(:order).each { |task|
+        @task_fields << task_fields(task)
+      }
     end
   end
 
@@ -146,8 +156,8 @@ class EventsController < ApplicationController
   # GET /events/1/show_task
   def show_task
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
-      @task  = Task.find(params[:task_id])
-      @title = event_title(@event.title(show: true))
+      @task   = Task.find(params[:task_id])
+      @fields = task_fields(@task)
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -226,15 +236,8 @@ class EventsController < ApplicationController
 
     # return FieldsComponent @fields for show_training
     def show_training_fields(title)
-      res = event_title(title, cols: 3)
-      res << [{kind: "side-cell", value: I18n.t(:a_targ), rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 4}]
-      res << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 4}]
-      res << [{kind: "gap", size: 2}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}]
-#      res << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
-      res << [{kind: "gap", size: 2}, {kind: "side-cell", align: "left", value: I18n.t(:l_task_index), cols: 2}, {kind: "gap", size: 2}, cols: 3]
-      res << [{kind: "gap", size: 2}, {kind: "grid", cols: 5, value: task_grid(@event)}]
-#      res << [{kind: "edit", cols: 6, align: "right", label: I18n.t(:m_edit), url: edit_event_path(@event)}]
-      res
+      res = [[{kind: "gap", size: 1}, {kind: "grid", value: task_grid(@event), cols: 2}]]
+#      res << [{kind: "gap", size: 1}, {kind: "gap", size: 1}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(@event)}]
     end
 
     # return icon and top of HeaderComponent
@@ -242,6 +245,14 @@ class EventsController < ApplicationController
       res   = [[{kind: "header-icon", value: "drill.svg", rows: 2}, {kind: "title", value: title}]]
       res << [{kind: "search-text", url: search_in}]
       res
+    end
+
+    # fields to show in task views
+    def task_fields(task)
+      res   = [
+        [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}],
+        [{kind: "cell", value: task.drill.explanation, cols: 4}]
+      ]
     end
 
     # return FieldsComponent for match form
@@ -262,7 +273,7 @@ class EventsController < ApplicationController
       ]
       rows = Array.new
       event.tasks.order(:order).each { |task|
-        row = {url: show_task_event_path(task_id: task.id), turbo: "modal", items: []}
+        row = {url: show_task_event_path(task_id: task.id), items: []}
         row[:items] << {kind: "normal", value: task.order.to_s, align: "center"}
         row[:items] << {kind: "normal", value: task.to_s}
         row[:items] << {kind: "normal", value: task.duration.to_s + "\'", align: "center"}
