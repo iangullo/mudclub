@@ -36,20 +36,25 @@
                 <div data-dropdown-target="menu" class="absolute hidden">
                   <div class="bg-blue-900 shadow rounded border overflow-hidden">
                     <% if user_signed_in? %>
-                      <%= link_to t(:l_team_index), teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                      <% if current_user.admin? %>
+                        <%= link_to t(:l_sea_index), seasons_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                      <% end %>
+                      <% current_user.teams.each do |team| %>
+                        <%= link_to team.name, team_path(team), data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                      <% end %>
                       <% if current_user.is_coach? %>
                         <%= link_to t(:l_drill_index), drills_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                       <% end %>
                       <% if current_user.is_coach? or current_user.admin?%>
                         <%= link_to t(:l_player_index), players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                        <%= link_to t(:l_loc_index), locations_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                         <%  if current_user.admin? %>
                           <%= link_to t(:l_coach_index), coaches_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                          <%= link_to t(:l_user_index), users_url, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                          <%= link_to t(:l_loc_index), locations_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                          <%= link_to t(:l_user_index), users_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                           <%= link_to t(:l_cat_index), categories_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                           <%= link_to t(:l_div_index), divisions_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                          <%= link_to t(:l_sea_index), seasons_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-900 hover:text-white whitespace-nowrap' %>
                         <% end %>
+                        <%= link_to t(:l_team_index), teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                       <% end %>
                     <% end %>
                   </div>
@@ -65,14 +70,21 @@
               <!-- Navigation tabs -->
               <div class="hidden sm:block sm:ml-6">
                 <div class="flex space-x-4">
-                  <% if user_signed_in? %>
-                    <ul class="list-reset flex text-base text-gray-300">
-                      <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold">
-                        <%= link_to t(:l_team_index), teams_url %>
-                      </li>
+                  <ul class="list-reset flex text-base text-gray-300">
+                    <% if user_signed_in? %>
+                      <% if current_user.admin? %>
+                        <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold">
+                          <%= link_to t(:l_sea_index), seasons_path %>
+                        </li>
+                      <% end %>
+                      <% current_user.teams.each do |team| %>
+                        <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold">
+                          <%= link_to team.name, team_path(team) %>
+                        </li>
+                      <% end %>
                       <% if current_user.is_coach? %>
                         <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold">
-                          <%= link_to t(:l_drill_index), drills_path, data: {action: "click->dropdown#toggle"} %>
+                          <%= link_to t(:l_drill_index), drills_path %>
                         </li>
                       <% end %>
                       <% if current_user.admin? or current_user.is_coach? %>
@@ -87,14 +99,14 @@
                           <div data-dropdown-target="menu" class="absolute hidden">
                             <div class="bg-blue-900 shadow rounded border overflow-hidden">
                               <%= link_to t(:l_player_index), players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                              <%= link_to t(:l_loc_index), locations_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                               <% if current_user.admin?%>
                                 <%= link_to t(:l_coach_index), coaches_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                                <%= link_to t(:l_user_index), users_url, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                                <%= link_to t(:l_loc_index), locations_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
+                                <%= link_to t(:l_user_index), users_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                                 <%= link_to t(:l_cat_index), categories_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                                 <%= link_to t(:l_div_index), divisions_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                                <%= link_to t(:l_sea_index), seasons_url, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                               <% end %>
+                              <%= link_to t(:l_team_index), teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
                             </div>
                           </div>
                         </div>
