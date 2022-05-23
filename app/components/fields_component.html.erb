@@ -41,15 +41,15 @@
     			<%= @form.collection_select item[:key], item[:collection], :id, :name, class: item[:i_class] %>
         <% when "search-text" %>
           <div id="text-search-box" class="<%=item[:i_class]%>">
-            <%= form_with(url: item[:url], method: :get, data: {controller: "search-text", search_text_target: "f", turbo_frame: "search-results"} ) do |f| %>
-              <%=f.text_field :search, placeholder: (params[:search] ? params[:search] : t(:m_search)), autocomplete: "on", data: {action: "input->search-form#search"}%>
+            <%= form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
+              <%=fsearch.text_field item[:key], placeholder: t(:m_search), value: item[:value], size: item[:size], autocomplete: "off", data: {action: "input->search-form#search"}%>
+              <%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t(:m_search) %>
             <% end %>
           </div>
-          <%= image_tag "search.svg", size: "25x25", class: "align-middle", alt: t(:m_search) %>
         <% when "search-select" %>
           <div id="select-search-box" class="<%=item[:i_class]%>"">
-            <%= form_with(url: item[:url], value: item[:value], method: 'get', data: {turbo_frame: "_top"}) do |f| %>
-              <%= f.select item[:key], options_for_select(item[:options], params[item[:key].to_sym] ? params[item[:key].to_sym].to_i : item[:value]) %>
+            <%= form_with(url: item[:url], value: item[:value], method: 'get', data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
+              <%= fsearch.select item[:key], options_for_select(item[:options], session.dig(item[:key].to_sym) ? session.dig(item[:key].to_sym).to_i : item[:value]), { include_blank: t(:l_all) }, data: {action: "change->search-form#search"} %>
               <%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
             <% end %>
           </div>

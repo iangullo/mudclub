@@ -5,7 +5,12 @@
         <%=item[:cell]%>
         <% case item[:kind] %>
         <% when "normal", "inverse", "gap" %>
-          <%= item[:value] %>
+          <%=sort_indicator if item[:sort]%>
+          <% if item[:order_by] %>
+            <%=build_order_link(column: item[:order_by], label: item[:value])%>
+          <% else %>
+            <%=item[:value]%>
+          <% end %>
         <% when "lines" %>
           <% item[:value].each do |line|%>
             <%= line.to_s %>

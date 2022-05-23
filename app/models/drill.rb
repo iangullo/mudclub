@@ -10,7 +10,16 @@ class Drill < ApplicationRecord
 	has_one_attached :playbook
 	has_rich_text :explanation
 	scope :real, -> { where("id>0") }
+	scope :by_name, -> (name) { where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{name}%","%#{name}%").distinct }
+	scope :by_kind, -> (kind_id) { (kind_id and kind_id.to_i>0) ? where(kind_id: kind_id.to_i) : where("kind_id>0") }
 	self.inheritance_column = "not_sti"
+  FILTER_PARAMS = %i[name kind_id column direction].freeze
+
+	def self.filter(filters)
+		Drill.by_name(filters['name'])
+		.by_kind(filters['kind_id'])
+		.order("#{filters['column']} #{filters['direction']}")
+	end
 
 	# search all drills for specific subsets
 	def self.search(search=nil)

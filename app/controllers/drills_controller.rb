@@ -1,4 +1,5 @@
 class DrillsController < ApplicationController
+  include Filterable
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :edit, :update, :check_reload]
 	before_action :set_drill, only: %i[ show edit update destroy ]
 
@@ -6,10 +7,13 @@ class DrillsController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			# Simple search by name/description for now
-			@drills = Drill.search(params[:search])
 			@title  = title_fields(I18n.t(:l_drill_index))
-	    @title << [{kind: "search-text", url: drills_path}]
-			@grid   = drill_grid
+	    @title << [
+				{kind: "search-text", key: :name, value: session.dig('drill_filters', 'name'), url: drills_path},
+				{kind: "search-select", key: :kind_id, options: Kind.real.pluck(:name, :id), url: drills_path}
+			]
+			@drills = filter!(Drill)
+			@grid   = GridComponent.new(grid: drill_grid)
 		else
 			redirect_to "/"
 		end
@@ -29,7 +33,7 @@ class DrillsController < ApplicationController
 		@explain = [[{kind: "string", value: @drill.explanation}]]
 		@tail = [[{kind: "label", value: I18n.t(:l_skill)}, {kind: "string", value: @drill.print_skills}]]
 		@tail << [{kind: "label", value: I18n.t(:l_auth)}, {kind: "string", value: @drill.coach.s_name}]
-end
+	end
 
 	# GET /drills/new
 	def new
@@ -143,14 +147,20 @@ end
 
 		# return grid for @drills GridComponent
 	  def drill_grid
+			track = {s_url: drills_path, s_filter: "drill_filters"}
 	    title = [
-				{kind: "normal", value: I18n.t(:h_name)},
-	      {kind: "normal", value: I18n.t(:h_kind), align: "center"},
+				{kind: "normal", value: I18n.t(:h_name), sort: (session.dig('drill_filters', 'name') == "name"), order_by: "name"},
+	      {kind: "normal", value: I18n.t(:h_kind), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
 	      {kind: "normal", value: I18n.t(:h_targ)}
 	    ]
 			title << {kind: "add", url: new_drill_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
 
-	    rows = Array.new
+			{track: track, title: title, rows: drill_rows}
+	  end
+
+		# get the grid rows for @drills
+		def drill_rows
+			rows = Array.new
 	    @drills.each { |drill|
 	      row = {url: drill_path(drill), turbo: "modal", items: []}
 	      row[:items] << {kind: "normal", value: drill.name}
@@ -159,8 +169,8 @@ end
 	      row[:items] << {kind: "delete", url: row[:url], name: drill.name} if current_user.admin?
 	      rows << row
 	    }
-			{title: title, rows: rows}
-	  end
+			rows
+		end
 
 		# build new @drill from raw input given by submittal from "new"
 		# return nil if unsuccessful

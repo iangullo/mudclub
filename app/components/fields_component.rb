@@ -68,18 +68,15 @@ class FieldsComponent < ApplicationComponent
           item[:i_class] = "rounded-md hover:bg-blue-100"
         when "string"
           item[:class] = "align-top"
-        when "text-box", "text-area"
+        when "text-box", "text-area", "search-text", "search-select", "search-collection"
           item[:align] = "left" unless item[:align]
           item[:size]  = 16 unless item[:size]
           item[:lines]  = 1 unless item[:lines]
           item[:i_class] = "rounded border shadow-inner"
+          item[:class] = "inline-flex rounded border" if item[:kind] =~ /^(search-.+)$/
         when "icon-label"
           item[:size]  = "25x25" unless item[:size]
           item[:class] = "align-top inline-flex"
-        when "search-text", "search-select", "search-collection"
-          item[:class] = "inline-flex rounded border"
-          item[:size]  = 16 unless item[:size]
-          item[:i_class] = "rounded border shadow-inner"
         when "gap"
           item[:size]  = 4 unless item[:size]
         when "side-cell"

@@ -10,6 +10,22 @@ class GridComponent < ApplicationComponent
   def initialize(grid:)
     @title = parse_title(grid[:title])
     @rows  = parse_rows(grid[:rows])
+    if grid[:track]
+      @s_url  = grid[:track][:s_url]
+      @s_filt = grid[:track][:s_filter]
+    end
+  end
+
+  def update(rows:)
+    @rows  = parse_rows(rows)
+  end
+
+  def build_order_link(column:, label:)
+    if column == session.dig(@s_filt, 'column')
+      link_to(label, drills_path(column: column, direction: next_direction))
+    else
+      link_to(label, drills_path(column: column, direction: 'asc'))
+    end
   end
 
   private
@@ -53,5 +69,13 @@ class GridComponent < ApplicationComponent
         }
       }
       rows
+    end
+
+    def next_direction
+      session[@s_filt]['direction'] == 'asc' ? 'desc' : 'asc'
+    end
+
+    def sort_indicator
+      tag.span(class: "sort sort-#{session[@s_filt]['direction']}")
     end
 end
