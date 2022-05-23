@@ -22,9 +22,10 @@ class GridComponent < ApplicationComponent
 
   def build_order_link(column:, label:)
     if column == session.dig(@s_filt, 'column')
-      link_to(label, drills_path(column: column, direction: next_direction))
+      link_to(label, @s_url + "?column=#{column}&direction=#{next_direction}")
+      #link_to(label, drills_path(column: column, direction: next_direction))
     else
-      link_to(label, drills_path(column: column, direction: 'asc'))
+      link_to(label, @s_url + "?column=#{column}&direction=asc")
     end
   end
 
