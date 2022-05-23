@@ -26,7 +26,7 @@
           <%=item[:cell]%>
           <% case item[:kind] %>
           <% when "normal" %>
-            <%= link_to item[:value], g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
+            <%= link_to item[:value].to_s, g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
           <% when "lines" %>
             <% item[:value].each do |cad| %>
               <%= link_to cad, g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>

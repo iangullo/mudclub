@@ -18,6 +18,7 @@ class Task < ApplicationRecord
     res.order    = f_object[:order].to_i
     res.drill_id = f_object[:drill_id].to_i
     res.duration = f_object[:duration].to_i
+    res.remarks  = f_object[:remarks]
     return res
   end
 end

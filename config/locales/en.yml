@@ -287,3 +287,4 @@ en:
   l_pass: "Password"
   l_pass_conf: "Confirm Password"
   i_pass_conf: "(*) confirmar password"
+  h_remarks: "Remarks"
