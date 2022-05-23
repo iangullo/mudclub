@@ -53,6 +53,8 @@ en:
   m_export: "Export"
   m_create: "Create"
   m_edit: "Edit"
+  m_filter: "Filter"
+  m_clear: "Clear"
   h_general: "General"
   q_del: "Delete "
   q_save: "Save "

@@ -40,13 +40,12 @@
         <% when "select-collection" %>
     			<%= @form.collection_select item[:key], item[:collection], :id, :name, class: item[:i_class] %>
         <% when "search-text" %>
-          <div id="text-search-box" class=<%= item[:i_class] %>>
-            <%= form_with(url: item[:url], method: 'get', local: true) do |f| %>
-              <%= text_field_tag :search, (params[:search] ? params[:search] : ""), size: item[:size], class: item[:i_class] %>
-              <%= f.hidden_field :task_id, value: item[:task_id] if item[:task_id] %>
-              <%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
+          <div id="text-search-box" class="<%=item[:i_class]%>">
+            <%= form_with(url: item[:url], method: :get, data: {controller: "search-text", search_text_target: "f", turbo_frame: "search-results"} ) do |f| %>
+              <%=f.text_field :search, placeholder: (params[:search] ? params[:search] : t(:m_search)), autocomplete: "on", data: {action: "input->search-form#search"}%>
             <% end %>
           </div>
+          <%= image_tag "search.svg", size: "25x25", class: "align-middle", alt: t(:m_search) %>
         <% when "search-select" %>
           <div id="select-search-box" class="<%=item[:i_class]%>"">
             <%= form_with(url: item[:url], value: item[:value], method: 'get', data: {turbo_frame: "_top"}) do |f| %>

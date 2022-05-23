@@ -53,6 +53,8 @@ es:
   m_export: "Exportar"
   m_create: "Crear"
   m_edit: "Editar"
+  m_filter: "Filtrar"
+  m_clear: "Anular"
   h_general: "General"
   q_del: "¿Borrar "
   q_save: "¿Guardar "
