@@ -1,7 +1,7 @@
 // https://www.colby.so/posts/filtering-tables-with-rails-and-hotwire
 //
 // app/javascript/controllers/search_form_controller.js
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "stimulus"
 
 export default class extends Controller {
   static targets = [ "fsearch" ]
