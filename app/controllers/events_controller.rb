@@ -191,16 +191,16 @@ class EventsController < ApplicationController
     def general_title
       title    = @team ? (@team.name + " (#{@team.season.name})") : @season ? @season.name : I18n.t(:l_cal)
       subtitle = (title == I18n.t(:l_cal)) ? I18n.t(:l_all) : I18n.t(:l_cal)
-      return [
-        [{kind: "header-icon", value: "calendar.svg", rows: 2}, {kind: "title", value: title}],
-        [{kind: "subtitle", value: subtitle}]
-      ]
+      res      = title_start(icon: "calendar.svg", title: title)
+      res << [{kind: "subtitle", value: subtitle}]
+      res
     end
 
     # return icon and top of HeaderComponent
     def event_title(title, form: nil, cols: nil)
       rows = @event.rest? ? 3 : nil
-      res  = [[{kind: "header-icon", value: @event.pic, rows: rows}, {kind: "title", value: title, cols: cols}, {kind: "gap"}]]
+      res  = title_start(icon: @event.pic, title: title, rows: rows, cols: cols)
+      res.last << {kind: "gap"}
       case @event.kind.to_sym
       when :rest
         res << [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : "", cols: cols}] if @team or @season
@@ -243,8 +243,8 @@ class EventsController < ApplicationController
     end
 
     # return icon and top of HeaderComponent
-    def task_title(title, search_in, cols: nil)
-      res   = [[{kind: "header-icon", value: "drill.svg", rows: 2}, {kind: "title", value: title}]]
+    def task_title(title, search_in)
+      res = title_start(icon: "drill.svg", title: title)
       res << [{kind: "search-text", url: search_in}]
       res
     end

@@ -111,14 +111,6 @@ class DrillsController < ApplicationController
 		end
 	end
 
-	def autocompletable_skills
-		aux = ""
-		Skill.all.each { |s|
-			aux += '<li class="list-group-item" role="option" data-autocomplete-value="#{s.id}">Blackbird</li>\n'
-		}
-		aux
-	end
-
 	def explanation
 		render partial: 'drills/explanation', locals: { drill: @drill }
 	end
@@ -127,7 +119,7 @@ class DrillsController < ApplicationController
 
 		# return icon and top of FieldsComponent
 		def title_fields(title, rows: nil, cols: nil)
-			[[{kind: "header-icon", value: "drill.svg"}, {kind: "title", value: title, cols: cols}]]
+			title_start(icon: "drill.svg", title: title, rows: rows, cols: cols)
 		end
 
 		# return FormComponent @fields for edit/new

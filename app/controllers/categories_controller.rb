@@ -91,7 +91,7 @@ class CategoriesController < ApplicationController
 
   	# return icon and top of FieldsComponent
   	def title_fields(title, rows: 2, cols: nil)
-  		[[{kind: "header-icon", value: "category.svg", rows: rows}, {kind: "title", value: title, cols: cols}]]
+      title_start(icon: "category.svg", title: title, rows: rows, cols: cols)
   	end
 
     # return FieldsComponent @title for forms

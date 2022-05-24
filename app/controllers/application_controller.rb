@@ -63,4 +63,11 @@ class ApplicationController < ActionController::Base
     res[:options] << {label: I18n.t(:l_rest), url: new_event_path(event: {kind: :rest, team_id: team_id})}
     return res
   end
+
+  def title_start(icon:, title:, size: nil, rows: nil, cols: nil, _class: nil)
+    [[
+      {kind: "header-icon", value: icon, size: size, rows: rows, class: _class},
+      {kind: "title", value: title, cols: cols}
+    ]]
+  end
 end

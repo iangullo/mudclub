@@ -205,7 +205,7 @@ class TeamsController < ApplicationController
 
     # return icon and top of HeaderComponent
   	def title_fields(title, cols: nil, search: nil)
-  		res = [[{kind: "header-icon", value: "team.svg"}, {kind: "title", value: title, cols: cols}]]
+			res = title_start(icon: "team.svg", title: title, cols: cols)
 			if search
 				res << [{kind: "search-collection", key: :season_id, collection: Season.all.order(start_date: :desc), value: @team ? @team.season_id : Season.last.id}]
 			else

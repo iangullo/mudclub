@@ -142,7 +142,7 @@ class CoachesController < ApplicationController
 
 		# return icon and top of FieldsComponent
 		def title_fields(title, icon: "coach.svg", rows: 2, cols: nil, size: nil, _class: nil)
-			[[{kind: "header-icon", value: icon, rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
+			title_start(icon: icon, title: title, rows: rows, size: size, cols: cols, _class: _class)
 		end
 
 		# return FieldsComponent @fields for forms

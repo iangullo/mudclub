@@ -123,7 +123,7 @@ class UsersController < ApplicationController
 
     # return icon and top of HeaderComponent
   	def title_fields(title, icon: "user.svg", rows: 2, cols: nil, size: nil, _class: nil)
-  		[[{kind: "header-icon", value: icon, rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
+      title_start(icon: icon, title: title, rows: rows, cols: cols, size: size, _class: _class)
   	end
 
   	# return HeaderComponent @fields for forms

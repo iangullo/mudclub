@@ -126,7 +126,7 @@ class PeopleController < ApplicationController
 
 		# return icon and top of FieldsComponent
 		def title_fields(title, icon: "person.svg", rows: 2, cols: 2, size: nil, _class: nil)
-			[[{kind: "header-icon", value: icon, rows: rows, size: size, class: _class}, {kind: "title", value: title, cols: cols}]]
+			title_start(icon: icon, title: title, rows: rows, cols: cols, size: size, _class: _class)
 		end
 
 		# return FieldsComponent @fields for forms

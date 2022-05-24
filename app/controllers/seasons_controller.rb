@@ -108,7 +108,7 @@ class SeasonsController < ApplicationController
 
     # return icon and top of HeaderComponent
   	def title_fields(title, cols: nil)
-  	  [[{kind: "header-icon", value: "calendar.svg"}, {kind: "title", value: title, cols: cols}]]
+      title_start(icon: "calendar.svg", title: title, cols: cols)
   	end
 
   	# return HeaderComponent @fields for forms

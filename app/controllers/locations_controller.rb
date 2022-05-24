@@ -129,7 +129,7 @@ private
 
   # return icon and top of FieldsComponent
   def title_fields(title)
-    [[{kind: "header-icon", value: "location.svg"}, {kind: "title", value: title}]]
+    res = title_start(icon: "location.svg", title: title)
   end
 
   # return FieldsComponent @title for forms

@@ -89,7 +89,7 @@ class DivisionsController < ApplicationController
   private
   	# return icon and top of FieldsComponent
   	def title_fields(title, cols: nil)
-  		[[{kind: "header-icon", value: "division.svg"}, {kind: "title", value: title, cols: cols}]]
+      title_start(icon: "division.svg", title: title, cols: cols)
   	end
 
     # return FieldsComponent @fields for forms

@@ -106,10 +106,9 @@ class SlotsController < ApplicationController
 
     # return icon and top of FieldsComponent
     def title_fields(title)
-      return [
-        [{kind: "header-icon", value: "timetable.svg"}, {kind: "title", value: title}],
-        [{kind: "subtitle", value: @season ? @season.name : ""}]
-      ]
+      res = title_start(icon: "timetable.svg", title: title)
+      res << [{kind: "subtitle", value: @season ? @season.name : ""}]
+      res
     end
 
     # return FieldsComponent @fields for forms
