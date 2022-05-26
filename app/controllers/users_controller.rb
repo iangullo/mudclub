@@ -165,7 +165,7 @@ class UsersController < ApplicationController
       p_data = u_data[:person_attributes]
       @user.email = u_data[:email] ? u_data[:email] : p_data[:email]
       @user.role  = u_data[:role]
-      @user.person_id > 0 ? @user.person.reload : @user.build_person
+      @user.person_id > 0 ? (@user.person = Person.find(@user.person_id)) : @user.build_person
   		@user.person[:dni]     = p_data[:dni]
   		@user.person[:nick]    = p_data[:nick]
   		@user.person[:name]    = p_data[:name]
