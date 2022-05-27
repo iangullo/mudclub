@@ -1,5 +1,5 @@
 class ApplicationRecord < ActiveRecord::Base
-  self.abstract_class = true
+  primary_abstract_class
 
   # read new field value, keep old value if empty & possible
 	def read_field(dat_value, old_value, def_value)

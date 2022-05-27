@@ -7,8 +7,8 @@ class CoachesController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@coaches = get_coaches
-			@fields  = title_fields(I18n.t(:l_coach_index))
-			@fields << [{kind: "search-text", url: coaches_path}]
+			@title  = title_fields(I18n.t(:l_coach_index))
+			@title << [{kind: "search-text", key: :search, value: session.dig('coach_filters', 'search'), url: coaches_path}]
 			@grid    = coach_grid
 			respond_to do |format|
 				format.xlsx {

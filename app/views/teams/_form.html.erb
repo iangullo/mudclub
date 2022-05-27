@@ -1,5 +1,5 @@
 <%= render ModalComponent.new do %>
-	<%= form_with model: team, authenticity_token: true, data: { title: title, turbo_frame: "_top" } do |form| %>
+	<%= form_with model: team, authenticity_token: true, data: {title: title, turbo_frame: "_top"} do |form| %>
 		<%= render FieldsComponent.new(fields: @form_fields, form: form) %>
 		<div id="team-form-data">
 			<table>

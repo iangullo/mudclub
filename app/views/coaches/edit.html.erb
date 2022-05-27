@@ -1,5 +1,5 @@
 <%= render ModalComponent.new do %>
-  <%= form_for @coach, authenticity_token: true, data:{ turbo_frame: "_top" } do |form| %>
+  <%= form_for @coach, authenticity_token: true, data:{turbo_frame: "_top"} do |form| %>
   	<%= form.fields_for :person do |f| %>
   		<%= render FieldsComponent.new(fields: @title_fields, form: f) %>
   		<%= render FieldsComponent.new(fields: @coach_fields, form: form) %>

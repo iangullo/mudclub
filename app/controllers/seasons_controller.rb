@@ -18,7 +18,7 @@ class SeasonsController < ApplicationController
           {kind: "edit", url: edit_season_path(@season), size: "30x30", turbo: "modal"}
         ],
         [{kind: "gap"}],
-        [{kind: "jump", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", d_class: "inline-flex font-semibold", url: events_path(season_id: @season.id), cols: 4}]
+        [{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(season_id: @season.id), cols: 4}]
       ]
       @grid = event_grid(events: @events, obj: @season)
 		else

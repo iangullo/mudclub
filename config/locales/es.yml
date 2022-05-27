@@ -41,6 +41,7 @@
 
 es:
   l_all: "Todos"
+  l_none: "Ninguna"
   l_closed: "Cerrado"
   m_close: "Cerrar"
   m_save: "Guardar"

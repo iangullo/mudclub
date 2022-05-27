@@ -70,4 +70,8 @@ class ApplicationController < ActionController::Base
       {kind: "title", value: title, cols: cols}
     ]]
   end
+
+  def form_file_field(label:, key:, cols: nil)
+    [[{kind: "label", value: label}, {kind: "select-file", key:, cols:}]]
+  end
 end

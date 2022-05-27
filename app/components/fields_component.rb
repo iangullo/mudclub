@@ -61,7 +61,7 @@ class FieldsComponent < ApplicationComponent
         when "label", "label-checkbox"
           item[:class] = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
         when "link", "select-file"
-          item[:class] = item[:class] ? item[:class] : " inline-flex align-middle text-sm"
+          item[:class] = item[:class] ? item[:class] : " inline-flex align-middle p-0 text-sm"
           item[:size]  = "20x20" unless item[:size]
         when "location"
           item[:class] = "inline-flex align-top font-semibold"
@@ -72,7 +72,7 @@ class FieldsComponent < ApplicationComponent
           item[:align] = "left" unless item[:align]
           item[:size]  = 16 unless item[:size]
           item[:lines]  = 1 unless item[:lines]
-          item[:i_class] = "rounded border shadow-inner"
+          item[:i_class] = "rounded p-0 border shadow-inner"
           item[:class] = "inline-flex rounded border" if item[:kind] =~ /^(search-.+)$/
         when "icon-label"
           item[:size]  = "25x25" unless item[:size]
@@ -85,9 +85,9 @@ class FieldsComponent < ApplicationComponent
         when "top-cell"
           item[:class] = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
         when "lines"
-          item[:class] = "align-top border px py" unless item[:class]
+          item[:class] = "align-top p-0 border px py" unless item[:class]
         else
-          item[:i_class] = "rounded border shadow-inner" unless item[:kind]=="gap"
+          item[:i_class] = "rounded p-0 border shadow-inner" unless item[:kind]=="gap"
         end
         item[:align] = "left" unless item[:align]
         item[:cell]  = tablecell_tag(item)

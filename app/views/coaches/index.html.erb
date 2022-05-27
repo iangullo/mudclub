@@ -1,5 +1,5 @@
 <div id="coaches-index">
-	<%= render FieldsComponent.new(fields: @fields) %>
+	<%= render FieldsComponent.new(fields: @title) %>
 	<%= render GridComponent.new(grid: @grid) %>
 	<% if current_user.admin? %>
 		<br>

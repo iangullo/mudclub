@@ -1,21 +1,23 @@
-<button class="<%=@button[:b_class]%>"<% if @button[:confirm] %> data-confirm="<%=@button[:confirm]%>"<% end %><% if @button[:action] %> data-action="<%=@button[:action]%>"<% end %>>
-  <div class="<%=@button[:d_class]%>" align="<%=@button[:align]%>">
+<div class="<%=@button[:d_class]%>" align="<%=@button[:align]%>">
+  <% if @button[:url] %>
     <% if @button[:tab] %>
-      <%= link_to @button[:url], target: "_blank", class: @button[:d_class] do %>
+      <%= link_to @button[:url], target: "_blank", class: @button[:b_class] do %>
         <%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
         <%= @button[:label] if @button[:label] %>
       <% end %>
-    <% elsif @button[:url] %>
-      <%= link_to @button[:url], method: @button[:method], "data-confirm": @button[:confirm], data: @button[:turbo] ? {turbo_frame: @button[:turbo]} : nil, "data-turbo-action": @button[:replace] ? "replace" : nil, class: @button[:d_class] do %>
+    <% else %>
+      <%= link_to @button[:url], data: @button[:data] ? @button[:data] : nil, "data-turbo-action": @button[:replace] ? "replace" : nil, class: @button[:b_class] do %>
         <% if @button[:kind]=="edit" %>
-        <% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
+          <% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
           <%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
         <% else %>
           <%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
           <% if @button[:label] %>&nbsp<%=@button[:label]%><% end %>
         <% end %>
       <% end %>
-    <% else %>
+    <% end %>
+  <% else %>
+    <%= button_tag class: @button[:b_class], data: @button[:data] ? @button[:data] : nil, "data-confirm": @button[:confirm] do %>
       <% if @button[:kind]=="save" %>
         <% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
         <%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
@@ -24,5 +26,5 @@
         <% if @button[:label] %>&nbsp<%=@button[:label]%><% end %>
       <% end %>
     <% end %>
-  </div>
-</button>
+  <% end %>
+</div>

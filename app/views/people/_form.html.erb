@@ -1,6 +1,7 @@
 <%= render ModalComponent.new do %>
-	<%= form_with model: @person, title: title, data: { turbo_frame: "_top" } do |f| %>
+	<%= form_with model: @person, data: {turbo_frame: "_top"} do |f| %>
 		<%= render FieldsComponent.new(fields: @title_fields, form: f) %>
+		<%= render FieldsComponent.new(fields: @picture_field, form: f) %>
 		<%= render FieldsComponent.new(fields: @person_fields, form: f) %>
 		<%= render SubmitComponent.new(submit: "save") %>
 	<% end %>

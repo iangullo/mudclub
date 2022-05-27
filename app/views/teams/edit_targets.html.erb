@@ -1,7 +1,7 @@
 <%= render ModalComponent.new do %>
 	<%= render FieldsComponent.new(fields: @title) %>
 	<div id="edit-targets">
-		<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
+		<%= form_with model: @team, data: {turbo_frame: "_top"} do |form| %>
 			<table>
 				<tr>
 					<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>

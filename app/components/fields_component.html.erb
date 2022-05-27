@@ -11,7 +11,7 @@
         <% when "icon-label" %>
           <%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:value] %>
         <% when "label-checkbox" %>
-          <%= item[:label] %>&nbsp;<%= @form.check_box item[:key] %>
+          <div class="align-middle"><%= item[:label] %>&nbsp;<%= @form.check_box item[:key] %></div>
           <% when "radio-button" %>
             <%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
         <% when "text-box" %>
@@ -42,7 +42,7 @@
         <% when "search-text" %>
           <div id="text-search-box" class="<%=item[:i_class]%>">
             <%= form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
-              <%=fsearch.text_field item[:key], placeholder: t(:m_search), value: item[:value], size: item[:size], autocomplete: "off", data: {action: "input->search-form#search"}%>
+            <%=fsearch.text_field item[:key], placeholder: t(:m_search), value: item[:value], size: item[:size], autocomplete: "off",class: item[:i_class], data: {action: "input->search-form#search"}%>
               <%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t(:m_search) %>
             <% end %>
           </div>

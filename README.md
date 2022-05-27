@@ -2,15 +2,14 @@ Little pet project to create a Web-based application to manage a basketball club
 
 DEPENDENCIES
 ==
-* Ruby v3 / Rails 6.1
+* Ruby v3 / Rails 7
 * PostgreSQL with unaccent extension.
 * Local storage of attachments & files.
 
 TODO
 ==
 * Add slider to task view to switch between tasks of a session in the modal.
-* Manage :match events (hidden today)- CRUD & associated statistics.
-* Flash notifications - elegant overlayed messages.
+* Manage statistics associated to events
 * Export/import from Excel of drills & training sessions (matches in future).
 * TLS certificate for additional security.
 * Create installer for simple deployment in any linux server.

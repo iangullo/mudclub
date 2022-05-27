@@ -8,7 +8,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and current_user.admin?
 			@people = Person.search(params[:search])
 			@title  = title_fields(I18n.t(:l_per_index))
-			@title << [{kind: "search-text", url: people_path}]
+			@title << [{kind: "search-text", key: :search, value: session.dig('person_filters', 'search'), url: people_path}]
 			@grid   = person_grid
 			respond_to do |format|
 				format.xlsx {
@@ -41,6 +41,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and current_user.admin?
 			@person        = Person.new(coach_id: 0, player_id: 0)
 			@title_fields  = form_fields(I18n.t(:l_per_new))
+			@picture_field = form_file_field(label: I18n.t(:l_pic), key: :avatar, cols: 2)
 			@person_fields = person_fields
 		else
 			redirect_to "/"
@@ -53,6 +54,7 @@ class PeopleController < ApplicationController
 			redirect_to "/"
 		end
 		@title_fields  = form_fields(I18n.t(:l_per_edit))
+		@picture_field = form_file_field(label: I18n.t(:l_pic), key: :avatar, cols: 2)
 		@person_fields = person_fields
   end
 
@@ -135,6 +137,7 @@ class PeopleController < ApplicationController
 			res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @person.name}]
 			res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @person.surname}]
 			res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @person.birthday}]
+			res << [{kind: "label-checkbox", label: I18n.t(:l_fem), key: :female, value: @person.female, align: "center"}]
 			res
 		end
 
@@ -155,8 +158,6 @@ class PeopleController < ApplicationController
 
 		def person_fields
 			res = [
-				[{kind: "label-checkbox", label: I18n.t(:l_fem), key: :female, value: @person.female, cols: 4}],
-				[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar, cols: 4}],
 				[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @person.email}],
 				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @person.phone}]
 			]

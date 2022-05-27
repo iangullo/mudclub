@@ -6,7 +6,7 @@ class UsersController < ApplicationController
     if current_user.present? and current_user.admin?
       @users = User.search(params[:search])
       @title = title_fields(I18n.t(:l_user_index))
-      @title << [{kind: "search-text", url: users_path}]
+      @title << [{kind: "search-text", key: :search, value: session.dig('user_filters', 'search'), url: users_path}]
       @grid  = user_grid
     else
       redirect_to "/"
@@ -165,7 +165,7 @@ class UsersController < ApplicationController
       p_data = u_data[:person_attributes]
       @user.email = u_data[:email] ? u_data[:email] : p_data[:email]
       @user.role  = u_data[:role]
-      @user.person_id > 0 ? (@user.person = Person.find(@user.person_id)) : @user.build_person
+      @user.person_id > 0 ? @user.person=Person.find(@user.person_id) : @user.build_person
   		@user.person[:dni]     = p_data[:dni]
   		@user.person[:nick]    = p_data[:nick]
   		@user.person[:name]    = p_data[:name]

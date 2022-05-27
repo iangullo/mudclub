@@ -1,154 +1,22 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>MudClub</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
-  	<%= csp_meta_tag %>
-
-  	<%= stylesheet_pack_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
-    <%= javascript_pack_tag 'application', 'data-turbo-track': 'reload' %>
-    <%= stylesheet_link_tag "application" %>
-  	<meta name="viewport" content="width=device-width, initial-scale=1">
-  	<title>CB Mairena</title>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
   </head>
 
   <body class="text-base xl:text-lg sm:text-sm, xs:text-sm">
     <div class="flex flex-col w-full min-h-screen justify-between">
-	    <!-- Navbar goes here -->
-      <nav class="sticky top-0 z-50 w-full h-15 bg-blue-900 text-gray-300">
-        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-          <div class="relative flex items-center justify-between h-16">
-            <!-- Mobile menu, show/hide based on menu state. -->
-            <div class="absolute inset-y-0 left-0 flex items-center sm:hidden" data-controller="dropdown">
-              <!-- Mobile menu button-->
-              <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="0" class="inline-block select-none">
-                <button type="button" class="inline-flex items-center justify-center p-2 rounded-md hover:text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
-                  <span class="sr-only">Menu</span>
-                  <!-- Icon when menu is closed. -->
-                  <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                  <!-- Icon when menu is open. -->
-                  <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-                <div data-dropdown-target="menu" class="absolute hidden">
-                  <div class="bg-blue-900 shadow rounded border overflow-hidden">
-                    <% if user_signed_in? %>
-                      <% if current_user.admin? %>
-                        <%= link_to t(:l_sea_index), seasons_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                      <% end %>
-                      <% if current_user.teams %>
-                        <% current_user.teams.each do |team| %>
-                          <%= link_to team.name, team_path(team), data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                        <% end %>
-                      <% end %>
-                      <% if current_user.is_coach? %>
-                        <%= link_to t(:l_drill_index), drills_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                      <% end %>
-                      <% if current_user.is_coach? or current_user.admin?%>
-                        <%= link_to t(:l_player_index), players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                        <%= link_to t(:l_loc_index), locations_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                        <%  if current_user.admin? %>
-                          <%= link_to t(:l_coach_index), coaches_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                          <%= link_to t(:l_user_index), users_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                          <%= link_to t(:l_cat_index), categories_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                          <%= link_to t(:l_div_index), divisions_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                        <% end %>
-                        <%= link_to t(:l_team_index), teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                      <% end %>
-                    <% end %>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- Regular menu for large screens, show/hide based on menu state. -->
-            <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
-              <div class="flex-shrink-0 flex items-center">
-                <%= image_tag "clublogo.svg", alt: "CB Mairena", class: "block lg:hidden h-8 w-auto" %>
-                <%= image_tag "clublogo-name.svg", alt: "CB Mairena", class: "hidden lg:block h-8 w-auto" %>
-              </div>
-              <!-- Navigation tabs -->
-              <div class="hidden sm:block sm:ml-6">
-                <div class="flex space-x-4">
-                  <ul class="list-reset flex text-base text-gray-300">
-                    <% if user_signed_in? %>
-                      <% if current_user.admin? %>
-                        <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold">
-                          <%= link_to t(:l_sea_index), seasons_path %>
-                        </li>
-                      <% end %>
-                      <% if current_user.teams %>
-                        <% current_user.teams.each do |team| %>
-                          <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold">
-                            <%= link_to team.name, team_path(team) %>
-                          </li>
-                        <% end %>
-                      <% end %>
-                      <% if current_user.is_coach? %>
-                        <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold">
-                          <%= link_to t(:l_drill_index), drills_path %>
-                        </li>
-                      <% end %>
-                      <% if current_user.admin? or current_user.is_coach? %>
-                        <div class="relative" data-controller="dropdown">
-                          <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="3" class="inline-block select-none">
-                            <div class="flex-shrink-0 flex items-center">
-                              <li class="hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold">
-                                <%= t(:m_admin) %>
-                              </li>
-                            </div>
-                          </div>
-                          <div data-dropdown-target="menu" class="absolute hidden">
-                            <div class="bg-blue-900 shadow rounded border overflow-hidden">
-                              <%= link_to t(:l_player_index), players_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                              <%= link_to t(:l_loc_index), locations_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                              <% if current_user.admin?%>
-                                <%= link_to t(:l_coach_index), coaches_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                                <%= link_to t(:l_user_index), users_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                                <%= link_to t(:l_cat_index), categories_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                                <%= link_to t(:l_div_index), divisions_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                              <% end %>
-                              <%= link_to t(:l_team_index), teams_path, data: {action: "click->dropdown#toggle"}, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                            </div>
-                          </div>
-                        </div>
-                      <% end %>
-                    </ul>
-                  <% end %>
-                </div>
-              </div>
-            </div>
-            <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              <!-- Profile dropdown -->
-              <div class="relative" data-controller="dropdown">
-                <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="3" class="inline-block select-none">
-                  <div class="flex-shrink-0 flex items-center">
-                    <%if current_user.present? %>
-                      <%= image_tag current_user.picture, class: "rounded-full h-8 w-8 align-middle" %>
-                    <% else %>
-                      <%= link_to new_user_session_path do %>
-                        <%= image_tag("login.svg", class: "login_button rounded hover:bg-blue-700 max-h-8 min-h-6", alt: t(:m_login)) %>
-                      <% end %>
-                    <% end %>
-                  </div>
-                </div>
-                <div data-dropdown-target="menu" class="absolute right-0 mt-2 hidden">
-                  <div class="bg-blue-900 shadow rounded border overflow-hidden">
-                    <% if user_signed_in? %>
-                      <%= link_to t(:m_profile), '/home/index', class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                      <%= link_to t(:m_logout), destroy_user_session_path,  method: :delete, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                    <% else %>
-                      <%= link_to t(:m_login), new_user_session_path, class: 'no-underline block pl-3 pr-3 py-3  hover:bg-blue-700 hover:text-white whitespace-nowrap' %>
-                    <% end %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <% @topbar = TopbarComponent.new(user: user_signed_in? ? current_user : nil) %>
+      <% @topbar.session_paths(login: new_user_session_path, logout: destroy_user_session_path)%>
+      <!-- App NavBar goes here -->
+      <%= render @topbar %>
       <!-- App content goes here -->
     	<main class="mb-auto h-15 w-full h-auto p-15">
     	  <div class="content flex items-center justify-center">

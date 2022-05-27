@@ -1,6 +1,6 @@
 <%= render ModalComponent.new do %>
 	<%= render FieldsComponent.new(fields: @title) %>
-	<%= form_with model: @team, data: { turbo_frame: "_top" } do |form| %>
+	<%= form_with model: @team, data: {turbo_frame: "_top"} do |form| %>
 		<div id="edit-roster-form-data">
 			<table>
 				<tr class="bg-indigo-900 text-gray-300">

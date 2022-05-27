@@ -29,25 +29,26 @@ class ButtonComponent < ApplicationComponent
     set_icon
     set_iclass
     set_bclass
+    set_data
+    b_colour = set_colour
+    @button[:d_class] = "inline-flex align-middle" unless @button[:d_class]
     case @button[:kind]
-    when "add", "add-nested", "export", "import", "save"
-      @button[:d_class] = "rounded-lg inline-flex hover:bg-green-200 text-green-700 font-bold align-middle"
-    when "edit"
-      @button[:d_class] = "rounded-lg inline-flex hover:bg-yellow-200 text-yellow-700 font-bold align-middle"
-    when "close", "delete", "remove"
-      @button[:d_class] = "rounded-lg inline-flex hover:bg-red-200 text-red-700 font-bold align-middle"
     when "jump"
-      d_class           = "rounded-lg hover:bg-blue-100 align-middle"
-      @button[:d_class] = @button[:d_class] ? @button[:d_class] + " #{d_class}" : d_class + " text-sm align-middle"
-    when "link"
-      @button[:d_class] = "rounded-lg inline-flex hover:bg-yellow-200 text-sm align-middle"
+      @button[:d_class] = @button[:d_class] + " m-1 text-sm"
     when "location"
       @button[:tab]     = true
-      @button[:d_class] = "rounded-lg hover:bg-blue-100 inline-flex align-middle"
-      @button[:d_class] = @button[:d_class] + " align-middle text-sm" if @button[:icon]
+      @button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
+    when "save", "edit", "menu", "login"
+      b_colour = b_colour + " shadow font-bold"
+      @button[:d_class] = @button[:d_class] + " shadow"
+    when "close"
+      @button[:d_class] = @button[:d_class] + " shadow"
+    else
+      @button[:d_class] = @button[:d_class] + " font-semibold"
     end
     @button[:align]   = "center" unless @button[:align]
-    @button[:replace] = true if @button[:kind] =~ /^(edit|close|save)$/
+    @button[:replace] = true if @button[:kind] =~ /^(close|save)$/
+    @button[:d_class] = @button[:d_class] + (b_colour ?  b_colour : "")
     @button
   end
 
@@ -60,7 +61,6 @@ class ButtonComponent < ApplicationComponent
       @button[:icon]    = "close.svg"
     when "delete"
       @button[:icon]    = "delete.svg"
-      @button[:method]  = "delete"
       @button[:confirm] = I18n.t(:q_del) + " \'#{@button[:name]}\'?"
     when "edit"
       @button[:icon]    = "edit.svg"
@@ -82,17 +82,21 @@ class ButtonComponent < ApplicationComponent
 
   # set the @button class depending on button type
   def set_bclass
+    b_start        = @button[:b_class] ? "#{@button[:kind]}-btn " + @button[:b_class] : "#{@button[:kind]}-btn"
+    @button[:name] = @button[:kind]
     case @button[:kind]
-    when "add-nested"
-      @button[:action]  = "nested-form#add"
     when "remove"
-      @button[:action]  = "nested-form#remove"
-    when "import", "save"
-      @button[:b_class] = "save-button inline-flex"
+      @button[:action] = "nested-form#remove"
+    when "add", "add-nested"
+      @button[:action] = "nested-form#add" if @button[:kind]=="add-nested"
     when "close"
-      @button[:action]  = "click->extended-modal#close"
+      @button[:action] = "click->extended-modal#close"
+      b_start = b_start + " font-bold"
+    when "save", "import", "export", "menu", "login"
+      b_start = b_start + " font-bold"
     end
-    @button[:b_class] = "#{@button[:kind]}-button inline-flex" unless @button[:b_class]
+    @button[:type]    = "submit" if @button[:kind] =~ /^(save|import)$/
+    @button[:b_class] = b_start + ( @button[:kind]!= "jump" ? " m-1 inline-flex align-middle" : "")
   end
 
   # set the i_class for the button div
@@ -105,5 +109,42 @@ class ButtonComponent < ApplicationComponent
     when  "close", "cancel", "save", "export", "import", "edit"
       @button[:i_class] = "max-h-7 min-h-5 align-middle"
     end
+  end
+
+  # set button higlight (if needed)
+  def set_colour
+    res = " rounded-lg "
+    case @button[:kind]
+    when "delete", "remove", "close"
+      colour = "red"
+    when "edit", "attach"
+      colour = "yellow"
+    when "save", "import", "export", "add", "add-nested"
+      colour = "green"
+    when "jump", "link"
+      light = "blue-100"
+    when "menu"
+      wait  = "blue-900"
+      light = "blue-700"
+      text  = "gray-300"
+      high  = "white"
+    end
+    if colour
+      res = res + "hover:bg-#{colour}-200 text-#{colour}-700"
+    elsif wait
+      res = res + "bg-#{wait}-100 text-#{text} hover:bg-#{light} hover: text-#{high}"
+    else
+      res = res + "hover:bg-#{light}"
+    end
+    res
+  end
+
+  # set the turbo data frame if required
+  def set_data
+    res = @button[:turbo] ? {turbo_frame: @button[:turbo]} : {}
+    res[:turbo_confirm] = @button[:confirm] if @button[:confirm]
+    res[:turbo_method]  = "delete".to_sym if @button[:kind]=="delete"
+    res[:action]        = @button[:action] if @button[:action]
+    @button[:data] = res unless res.empty?
   end
 end
