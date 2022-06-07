@@ -34,7 +34,10 @@ class TopbarComponent < ApplicationComponent
     res = []
     res << {label: I18n.t(:l_sea_index), url: '/seasons', class: cls} if user.admin?
     if user.teams
-      user.teams.each {|team| res << {label: team.name, url: '/teams/'+ team.id.to_s, class: cls}}
+      slast = Season.latest
+      if slast
+        user.teams.each { |team| res << {label: team.name, url: '/teams/'+ team.id.to_s, class: cls} if team.season==slast}
+      end
     end
     res << {label: I18n.t(:l_drill_index), url: '/drills', class: cls} if user.is_coach?
     res
