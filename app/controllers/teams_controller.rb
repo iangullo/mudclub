@@ -1,6 +1,6 @@
 class TeamsController < ApplicationController
 	skip_before_action :verify_authenticity_token, :only => [:create, :edit, :new, :update, :check_reload]
-	before_action :set_team, only: [:index, :show, :roster, :slots, :edit, :edit_roster, :edit_coaches, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]
+	before_action :set_team, only: [:index, :show, :roster, :slots, :edit, :edit_roster, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]
 
   # GET /teams
   # GET /teams.json
@@ -255,7 +255,7 @@ class TeamsController < ApplicationController
 	      res.last << {kind: "edit", url: edit_team_path, size: "30x30", turbo: "modal"}
 			end
 			res << [{kind: "gap"}]
-			res << [{kind: "jump", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", d_class: "inline-flex font-semibold", url: events_path(team_id: @team.id), cols: 5}]
+			res << [{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(team_id: @team.id), cols: 5}]
 			res
 		end
 
