@@ -11,7 +11,7 @@
         <% when "icon-label" %>
           <%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:value] %>
         <% when "label-checkbox" %>
-          <div class="align-middle"><%= item[:label] %>&nbsp;<%= @form.check_box item[:key] %></div>
+          <div class="align-middle"><%= item[:label] %>&nbsp;<%= @form.check_box item[:key], class: "w-4 h-4 text-blue-700 bg-gray-50 rounded border-gray-200" %></div>
           <% when "radio-button" %>
             <%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
         <% when "text-box" %>

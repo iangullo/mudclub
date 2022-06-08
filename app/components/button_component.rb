@@ -126,13 +126,13 @@ class ButtonComponent < ApplicationComponent
     when "menu"
       wait  = "blue-900"
       light = "blue-700"
-      text  = "gray-300"
+      text  = "gray-200"
       high  = "white"
     end
     if colour
       res = res + "hover:bg-#{colour}-200 text-#{colour}-700"
     elsif wait
-      res = res + "bg-#{wait}-100 text-#{text} hover:bg-#{light} hover: text-#{high}"
+      res = res + "bg-#{wait} text-#{text} hover:bg-#{light} hover: text-#{high}"
     else
       res = res + "hover:bg-#{light}"
     end

@@ -1,3 +1,5 @@
 {
-  "dependencies": {}
+  "dependencies": {
+    "flowbite": "^1.4.7"
+  }
 }
