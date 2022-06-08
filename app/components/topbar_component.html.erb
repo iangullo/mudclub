@@ -90,7 +90,7 @@
             <div class="bg-blue-900 shadow rounded border overflow-hidden">
               <% if @user %>
                 <%= link_to @profile[:home][:label], @profile[:home][:url], class: @profile[:home][:class] %>
-                <%= link_to @profile[:logout][:label], @profile[:logout][:url], class: @profile[:home][:class] %>
+                <%= link_to @profile[:logout][:label], @profile[:logout][:url], class: @profile[:home][:class], data: {turbo_method: :delete} %>
               <% else %>
                 <%= link_to @profile[:login][:label], @profile[:login][:url], class: @profile[:home][:class] %>
               <% end %>

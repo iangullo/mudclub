@@ -1,0 +1,65 @@
+# Additional translations at https://github.com/heartcombo/devise/wiki/I18n
+
+en:
+  devise:
+    confirmations:
+      confirmed: "Tu email ha sido confirmado."
+      send_instructions: "Recibirás un email para confirmar el registro en unos minutos."
+      send_paranoid_instructions: "Si tu cuenta existe en nuestra base de datos, recibirás un email para confirmar el registro en unos minutos."
+    failure:
+      already_authenticated: "Sesión abierta."
+      inactive: "Cuenta sin activar aún."
+      invalid: "%{authentication_keys} o contraseña inválida."
+      locked: "Cuenta bloqueada."
+      last_attempt: "Tienes un intento más antes que se bloquee la cuenta."
+      not_found_in_database: "Invalid %{authentication_keys} or password."
+      timeout: "La sesión ha expirado. Inicia sesión de nuevo para continuar."
+      unauthenticated: "Debes iniciar sesión para continuar."
+      unconfirmed: "Debes confirmar tu correo para continuar."
+    mailer:
+      confirmation_instructions:
+        subject: "Instrucciones para confirmar la cuenta"
+      reset_password_instructions:
+        subject: "Instrucciones para reiniciar la contraseña"
+      unlock_instructions:
+        subject: "Instrucciones para desbloquear"
+      email_changed:
+        subject: "Cambio de e-mail"
+      password_change:
+        subject: "Cambio de contraseña"
+    omniauth_callbacks:
+      failure: "No se pudo autenticar desde %{kind} porque \"%{reason}\"."
+      success: "Cuenta autorizada desde %{kind}."
+    passwords:
+      no_token: "Acceso a esta página limitado a email de reinicio de contraseña. Si es el caso, por favor comprueba la URL completa."
+      send_instructions: "Recibirás un email con instrucciones para reiniciar tu contraseña en unos minutos."
+      send_paranoid_instructions: "Si tu cuenta existe en nuestra base de datos, recibirás un email con un enlace para recuperar tu contraseña en unos minutos."
+      updated: "Contraseña modificada con éxito. Sesión abierta."
+      updated_not_active: "Contraseña modificada con éxito."
+    registrations:
+      destroyed: "¡Hasta luego! Tu cuenta ha sido cancelada."
+      signed_up: "¡Hola! Te has registrado correctamente."
+      signed_up_but_inactive: "Te has registrado correctamente. Sin embargo la sesión no puede abrirse hasta que la cuenta sea activada."
+      signed_up_but_locked: "Te has registrado correctamente. Sin embargo la sesión no puede abrirse porque la cuenta está bloqueada."
+      signed_up_but_unconfirmed: "Un email de confirmación ha sido enviado a tu cuenta. Por favor abre el enlace de confirmación para activar tu cuenta."
+      update_needs_confirmation: "Cuenta actualizada. Necesitas verificar tu email. Comprueba tu correo y abre el enlace para confirmar tu nueva dirección de correo."
+      updated: "Cuenta actualizada."
+      updated_but_not_signed_in: "Cuenta actualizada. Al modificar la contraseña, debes abrir sesión de nuevo."
+    sessions:
+      signed_in: "Sesión abierta."
+      signed_out: "Sesión cerrada."
+      already_signed_out: "Sesión cerrada."
+    unlocks:
+      send_instructions: "Recibirás un email con instrucciones para desbloquear tu cuenta en unos minutos."
+      send_paranoid_instructions: "Si tu cuenta existe, recibirás un email con instrucciones para reiniciar tu contraseña en unos minutos."
+      unlocked: "Cuenta desbloqueada. Por favor abre una sesión para continuar."
+  errors:
+    messages:
+      already_confirmed: "cuenta ya confirmada. Prueba a abrir una sesión"
+      confirmation_period_expired: "necesita confirmación en %{period}, por favor solicita una nueva confirmación"
+      expired: "expirada, por favor solicita una nueva confirmación"
+      not_found: "no encontrada"
+      not_locked: "no estaba bloqueada"
+      not_saved:
+        one: "1 error impidió guardar ésta %{resource}:"
+        other: "%{count} errores impidieron guardar ésta %{resource}:"

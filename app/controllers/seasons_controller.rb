@@ -16,9 +16,7 @@ class SeasonsController < ApplicationController
           {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t(:l_team_index), align: "center"},
           {kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? season_slots_path(@season) : season_slots_path(@season, location_id: @season.locations.first.id), label: I18n.t(:l_slot_index), align: "center"},
           {kind: "edit", url: edit_season_path(@season), size: "30x30", turbo: "modal"}
-        ],
-        [{kind: "gap"}],
-        [{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(season_id: @season.id), cols: 4}]
+        ]
       ]
       @grid = event_grid(events: @events, obj: @season)
 		else

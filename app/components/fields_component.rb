@@ -87,7 +87,7 @@ class FieldsComponent < ApplicationComponent
         when "lines"
           item[:class] = "align-top p-0 border px py" unless item[:class]
         else
-          item[:i_class] = "rounded p-0 border shadow-inner" unless item[:kind]=="gap"
+          item[:i_class] = "rounded p-0" unless item[:kind]=="gap"
         end
         item[:align] = "left" unless item[:align]
         item[:cell]  = tablecell_tag(item)

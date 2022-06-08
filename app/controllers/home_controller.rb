@@ -10,7 +10,7 @@ class HomeController < ApplicationController
     def title_fields
       res = title_start(icon: current_user.picture, title: current_user.s_name, _class: "rounded-full")
       res.last << {kind: "edit", url: "/users/" + current_user.id.to_s + "/edit", turbo: "modal"}
-      res.last << {kind: "link", icon: "key.svg", size: "30x30", class: "align-middle", url: edit_user_registration_path, turbo: "modal"}
+      res.last << {kind: "jump", icon: "key.svg", size: "30x30", url: edit_user_registration_path, turbo: "modal"}
       res
     end
 

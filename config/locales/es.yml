@@ -28,7 +28,7 @@
 #
 # To learn more, please read the Rails Internationalization guide
 # available at https://guides.rubyonrails.org/i18n.html.
-# bClub conventions:
+# MudClub conventions:
 # (*) controller messages:
 #     + object-actionresult
 # (*) Strings in views:
@@ -287,7 +287,9 @@ es:
   l_user_new: "Crear Usuario"
   l_user_show: "Usuario"
   a_admin: "Adm."
-  l_pass: "Clave"
-  l_pass_conf: "Confirmar Clave"
-  i_pass_conf: "(*) confirmar clave"
+  l_pass: "Contraseña"
+  m_pass_change: "Cambiar Contraseña"
+  l_pass_conf: "Confirmar contraseña"
+  i_pass_conf: "(*) confirmar contraseña"
+  i_pass_new: "Nueva contraseña"
   h_remarks: "Comentarios"

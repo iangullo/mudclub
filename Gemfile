@@ -82,6 +82,7 @@ gem 'phonelib'
 
 # Added Devise for user authentication
 gem 'devise'
+gem 'devise-i18n'
 
 gem "view_component"
 

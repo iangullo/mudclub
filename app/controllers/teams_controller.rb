@@ -255,7 +255,6 @@ class TeamsController < ApplicationController
 	      res.last << {kind: "edit", url: edit_team_path, size: "30x30", turbo: "modal"}
 			end
 			res << [{kind: "gap"}]
-			res << [{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(team_id: @team.id), cols: 5}]
 			res
 		end
 

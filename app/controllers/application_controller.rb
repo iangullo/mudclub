@@ -31,17 +31,12 @@ class ApplicationController < ActionController::Base
     return {title: title, rows: rows}
   end
 
-  # grid for events. obj is the parent oject (season/team)
+  # A Field Component with top link + grid for events. obj is the parent oject (season/team)
   def event_grid(events:, obj:)
     for_season = (obj.class==Season)
     title = [{kind: "normal", value: I18n.t(:h_date), align: "center"}, {kind: "normal", value: I18n.t(:h_time), align: "center"}]
     title << {kind: "normal", value: I18n.t(:l_team_show)} if for_season
     title << {kind: "normal", value: I18n.t(:h_desc)}
-    if for_season and current_user.admin? # new season event
-      title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), turbo: "modal"}
-    elsif obj.has_coach(current_user.person.coach_id) # new team event
-      title << {kind: "dropdown", button: new_event_button(obj.id)}
-    end
     rows = Array.new
     events.each { |event|
       row = {url:  event_path(event, season_id: for_season ? obj.id : nil), turbo: event.train? ? event.id : "modal", items: []}
@@ -52,7 +47,15 @@ class ApplicationController < ActionController::Base
       row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
       rows << row
     }
-    return {title: title, rows: rows}
+    if for_season
+      title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), turbo: "modal"} if current_user.admin? # new season event
+      fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(season_id: @season.id), cols: 4}]]
+    else
+      title << {kind: "dropdown", button: new_event_button(obj.id)} if obj.has_coach(current_user.person.coach_id) # new team event
+      fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(team_id: @team.id), cols: 5}]]
+    end
+    fields << [{kind: "grid", value: {title: title, rows: rows}}]
+    return fields
   end
 
   # dropdown button definition to create a new Event

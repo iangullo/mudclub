@@ -41,9 +41,8 @@ class UsersController < ApplicationController
   end
 
   def edit
-    if current_user.present? and current_user.admin?
+    if current_user.present? and (current_user.admin? or current_user == @user)
       @roles  = user_roles
-      @user   = User.find(params[:id])
       @title  = form_fields(I18n.t(:l_user_edit))
       @role   = [[{kind: "label", value: I18n.t(:l_role)}, {kind: "select-box", align: "center", key: :role, options: User.roles.keys.map {|role| [role.titleize,role]}, value: @user.role}]]
       @avatar = [[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]]
@@ -85,7 +84,7 @@ class UsersController < ApplicationController
   end
 
   def update
-    if current_user.present? and current_user.admin?
+    if current_user.present? and (current_user.admin? or current_user == @user)
       respond_to do |format|
         if params[:user][:password].blank?
           params[:user].delete(:password)
