@@ -11,9 +11,12 @@
         <% when "icon-label" %>
           <%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:value] %>
         <% when "label-checkbox" %>
-          <div class="align-middle"><%= item[:label] %>&nbsp;<%= @form.check_box item[:key], class: "w-4 h-4 text-blue-700 bg-gray-50 rounded border-gray-200" %></div>
-          <% when "radio-button" %>
-            <%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
+          <div class="align-middle">
+            <%= @form.check_box item[:key], class: item[:i_class] %>
+            <label class="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300"/><%= item[:label] %>
+          </div>
+        <% when "radio-button" %>
+          <%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
         <% when "text-box" %>
           <%= @form.text_field item[:key], value: item[:value], size: item[:size], rows: item[:rows], class: item[:i_class] %>
         <% when "email-box" %>
@@ -38,7 +41,16 @@
         <% when "select-box" %>
     			<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: item[:i_class] %>
         <% when "select-collection" %>
-    			<%= @form.collection_select item[:key], item[:collection], :id, :name, class: item[:i_class] %>
+         <select class="<%=item[:i_class]%>" name="<%=@form.object.class.to_s + "[#{item[:key]}]"%>" id="<%=item[:key]%>">
+           <% item[:options].each do |opt| %>
+            <option value=<%=opt[:id]%>><%=opt[:name] ? opt[:name] : opt.name%></option>
+           <% end %>
+         </select>
+        <% when "select-checkboxes" %>
+          <%= @form.collection_check_boxes item[:key], item[:collection], :id, :to_s do |obj| %>
+            <%= obj.check_box({class: "rounded bg-gray-200 text-blue-700"}) %>
+            <label class="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300"/><%=obj.object.to_s%>
+          <% end %>
         <% when "search-text" %>
           <div id="text-search-box" class="<%=item[:i_class]%>">
             <%= form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>

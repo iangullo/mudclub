@@ -20,6 +20,11 @@ class User < ApplicationRecord
 		person ? person.to_s : I18n.t(:l_user_show)
 	end
 
+  def role_list
+    res = []
+    User.roles.each {|role| res << {id: role[1], name: role[0]}}
+  end
+
   #short name for form viewing
 	def s_name
 		if self.person

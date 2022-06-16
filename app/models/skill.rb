@@ -3,4 +3,7 @@ class Skill < ApplicationRecord
 	scope :real, -> { where("id>0") }
 	scope :search, -> (s_s) { where("unaccent(concept) ILIKE unaccent(?)","%#{s_s}%") }
 
+	def to_s
+		self.concept
+	end
 end

@@ -15,7 +15,7 @@
 								<td align="center" class="rounded border"><%= player.object.number %></td>
 								<td class="rounded border"><%= player.object.to_s %></td>
 								<td align="center" class="rounded border"><%= player.object.person.age %></td>
-								<td class="rounded border"><%= player.check_box %></td>
+								<td class="rounded border"><%= player.check_box({class: "rounded bg-gray-200 text-blue-700"}) %></td>
 							</div>
 						</tr>
 					<% end %>

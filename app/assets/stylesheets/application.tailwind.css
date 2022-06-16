@@ -11,4 +11,17 @@
 }
 
 */
+
+.field {
+  @apply .border, .rounded, .shadow-inner, bg-gray-50, .py-0, .px-1 .text-grey-darkest;
+}
+
+.field-label {
+  @apply .border .py-1 .px-3 .text-grey-darkest .mb-2;
+}
+
+.select {
+  @apply .border, .rounded, .shadow-inner, bg-gray-50, .py-0, .px-1 .text-grey-darkest;
+}
+
 @import 'actiontext.css';

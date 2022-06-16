@@ -72,7 +72,7 @@ class FieldsComponent < ApplicationComponent
           item[:align] = "left" unless item[:align]
           item[:size]  = 16 unless item[:size]
           item[:lines]  = 1 unless item[:lines]
-          item[:i_class] = "rounded p-0 shadow-inner border-gray-200 bg-gray-50 text-md focus:ring-blue-700 focus:border-blue-700"
+          item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 text-sm focus:ring-blue-700 focus:border-blue-700"
           item[:class] = "inline-flex rounded border" if item[:kind] =~ /^(search-.+)$/
         when "icon-label"
           item[:size]  = "25x25" unless item[:size]
@@ -85,9 +85,9 @@ class FieldsComponent < ApplicationComponent
         when "top-cell"
           item[:class] = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
         when "lines"
-          item[:class] = "align-top p-0 border px py" unless item[:class]
+          item[:class] = "align-top py-0 px-1 border px py" unless item[:class]
         when /^(select-.+|.+-box)$/
-          item[:i_class] = "rounded p-0 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
+          item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
         else
           item[:i_class] = "rounded p-0" unless item[:kind]=="gap"
         end

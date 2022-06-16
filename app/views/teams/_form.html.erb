@@ -1,28 +1,6 @@
 <%= render ModalComponent.new do %>
 	<%= form_with model: team, authenticity_token: true, data: {title: title, turbo_frame: "_top"} do |form| %>
 		<%= render FieldsComponent.new(fields: @form_fields, form: form) %>
-		<div id="team-form-data">
-			<table>
-				<tr>
-					<th align="right" class="align-top"><%= image_tag "coach.svg", size: "25x25", alt: t(:l_coach) %></th>
-					<td>
-						<div id="coach-selection">
-							<table>
-								<%= form.collection_check_boxes :coach_ids, @eligible_coaches, :id, :to_s do |coach| %>
-								<tr>
-									<td></td>
-									<div class="collection-check-box">
-										<td class="rounded border"><%= coach.object.to_s %></td>
-										<td class="rounded border"><%= coach.check_box %></td>
-									</div>
-								</tr>
-								<% end %>
-							</table>
-						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
 		<%= render SubmitComponent.new(submit: "save") %>
 	<% end %>
 <% end %>

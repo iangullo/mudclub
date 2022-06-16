@@ -15,6 +15,12 @@ module.exports = {
     './node_modules/flowbite/**/*.js'
   ],
   theme: {
+    colors: {
+      'blue': '#1A56DB',
+      'orange': '#ff7849',
+      'green': '#046C4E',
+      'indigo': '#362F78',
+    },
     extend: {
       fontFamily: {
         sans: ['font-sans'],

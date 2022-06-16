@@ -9,6 +9,10 @@ class Location < ApplicationRecord
 	accepts_nested_attributes_for :seasons
 	self.inheritance_column = "not_sti"
 
+	def to_s
+		self.name
+	end
+
 	# checks if it exists in the collection before adding it
 	# returns: reloads self if it exists in the database already
 	# 	   'nil' if it needs to be created.

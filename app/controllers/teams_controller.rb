@@ -218,9 +218,11 @@ class TeamsController < ApplicationController
 	  def form_fields(title, cols: nil)
 			res = title_fields(title, cols: cols)
 			res << [{kind: "label", align: "right", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @team.name}]
-	    res << [{kind: "icon", value: "category.svg"}, {kind: "select-collection", key: :category_id, collection: Category.real, value: @team.category_id}]
-			res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, collection: Division.real, value: @team.division_id}]
-			res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :homecourt_id, collection: Location.home, value: @team.homecourt_id}]
+	    res << [{kind: "icon", value: "category.svg"}, {kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}]
+			res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}]
+			res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :homecourt_id, options: Location.home, value: @team.homecourt_id}]
+			res << [{kind: "icon", value: "coach.svg"}, {kind: "label", value:I18n.t(:l_coach_index), class: "align-center"}]
+			res << [{kind: "gap"}, {kind: "select-checkboxes", key: :coach_ids, collection: @eligible_coaches}]
 	  	res
 		end
 

@@ -2,6 +2,10 @@ class Category < ApplicationRecord
 	has_many :teams
 	scope :real, -> { where("id>0").order(min_years: :desc) }
 
+	def to_s
+		self.name
+	end
+
 	def name
 		self.age_group.to_s + " " + self.sex.to_s
 	end
