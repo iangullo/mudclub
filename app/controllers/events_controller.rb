@@ -37,10 +37,7 @@ class EventsController < ApplicationController
        @title << [{kind: "gap", size: 2}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}]
        #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
        @fields = show_training_fields
-       @task_fields = []
-       @event.tasks.order(:order).each { |task|
-         @task_fields << task_fields(task)
-       }
+       @fields << [{kind: "gap", cols: 2}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(season_id: params[:season_id])}] if @event.team.has_coach(current_user.person.coach_id)
     end
   end
 
@@ -207,7 +204,7 @@ class EventsController < ApplicationController
         res << [form ? {kind: "text-box", key: :name, value: @event.name} : {kind: "label", value: @event.name}]
       when :match
         if form
-          res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, collection: Location.home, value: @event.location_id}, {kind: "gap"}]
+          res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id}, {kind: "gap"}]
         else
           if @event.location.gmaps_url
             res << [{kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}, {kind: "gap"}]
@@ -238,7 +235,7 @@ class EventsController < ApplicationController
 
     # return FieldsComponent @fields for show_training
     def show_training_fields
-      res = [[{kind: "gap", size: 1}, {kind: "grid", value: task_grid(@event), cols: 2}]]
+      res = [[{kind: "gap", size: 1}, {kind: "accordion", title: I18n.t(:l_task_index), tail: I18n.t(:l_total) + " " + @event.work_duration, objects: task_accordion(@event), cols: 2}]]
       # res << [{kind: "gap", size: 1}, {kind: "gap", size: 1}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(@event)}]
     end
 
@@ -266,25 +263,18 @@ class EventsController < ApplicationController
       res
     end
 
-    # return icon and top of HeaderComponent
-    def task_grid(event)
-      title   = [
-        {kind: "normal", align: "center", value: I18n.t(:a_num)},
-        {kind: "normal", value: I18n.t(:l_task_show)},
-        {kind: "normal", align: "center", value: I18n.t(:a_min)}
-      ]
-      rows = Array.new
+    # return accordion for event tasks
+    def task_accordion(event)
+      tasks = Array.new
       event.tasks.order(:order).each { |task|
-        row = {url: show_task_event_path(task_id: task.id), turbo: "modal", items: []}
-        row[:items] << {kind: "normal", value: task.order.to_s, align: "center"}
-        row[:items] << {kind: "normal", value: task.to_s}
-        row[:items] << {kind: "normal", value: task.s_dur, align: "center"}
-        rows << row
+        item = {}
+        item[:url]     = show_task_event_path(task_id: task.id)
+        item[:turbo]   = "modal"
+        item[:head]    = task.headstring
+        item[:content] = task.drill.explanation.empty? ? task.drill.description : task.drill.explanation
+        tasks << item
       }
-      rows << {name: "bottom", items: []}
-      rows.last[:items] << {kind: "bottom", align: "right", value: I18n.t(:l_total), cols: 2}
-      rows.last[:items] << {kind: "bottom", value: event.work_duration}
-      {title: title, rows: rows}
+      tasks
     end
 
     def rebuild_event(event_params)

@@ -2,11 +2,7 @@ const colors = require('tailwindcss/colors')
 //const defaultTheme = require('tailwindcss/defaultTheme')
 
 module.exports = {
-  purge: [
-    './src/**/*.html',
-    './src/**/*.js',
-  ],
-  darkMode: false, // or 'media' or 'class'
+  darkMode: 'media', // or 'media' or 'class'
   content: [
     './app/helpers/**/*.rb',
     './app/javascript/**/*.js',
@@ -29,11 +25,8 @@ module.exports = {
       }
     },
   },
-  variants: {
-    extend: {},
-  },
   plugins: [
-    require('flowbite/plugin'),
+//    require('flowbite/plugin'),
     require('@tailwindcss/forms'),
     require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/typography'),

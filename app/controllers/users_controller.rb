@@ -42,9 +42,12 @@ class UsersController < ApplicationController
 
   def edit
     if current_user.present? and (current_user.admin? or current_user == @user)
-      @roles  = user_roles
       @title  = form_fields(I18n.t(:l_user_edit))
-      @role   = [[{kind: "label", value: I18n.t(:l_role)}, {kind: "select-box", align: "center", key: :role, options: User.roles.keys.map {|role| [role.titleize,role]}, value: @user.role}]]
+      if current_user.admin?
+        @role = [[{kind: "label", value: I18n.t(:l_role)}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
+      else
+        @role = [[{kind: "label", align: "center", value: I18n.t(@user.role.to_sym)}]]
+      end
       @avatar = [[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]]
       @person_fields = [
         [{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
@@ -164,7 +167,12 @@ class UsersController < ApplicationController
       p_data = u_data[:person_attributes]
       @user.email = u_data[:email] ? u_data[:email] : p_data[:email]
       @user.role  = u_data[:role]
-      @user.person_id > 0 ? @user.person=Person.find(@user.person_id) : @user.build_person
+#binding.break
+      if @user.person_id==0 # not bound to a person yet?
+        p_data[:id].to_i > 0 ? @user.person=Person.find(p_data[:id].to_i) : @user.build_person
+      else #person is linked, get it
+        @user.person.reload
+      end
   		@user.person[:dni]     = p_data[:dni]
   		@user.person[:nick]    = p_data[:nick]
   		@user.person[:name]    = p_data[:name]
@@ -197,14 +205,6 @@ class UsersController < ApplicationController
   			@user.person_id = 0    # map to empty person
       end
   	end
-
-    def user_roles
-      roles = Array.new
-      roles << {name: t(:l_user_show), id: 0}
-      roles << {name: t(:a_player), id: 1}
-      roles << {name: t(:a_coach), id: 2}
-      roles << {name: t(:a_admin), id: 3}
-    end
 
     # Use callbacks to share common setup or constraints between actions.
   	def set_user

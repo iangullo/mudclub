@@ -10,9 +10,9 @@
 				</tr><tr>
 					<%= form.fields_for @task do |f| %>
 					<div id="drill-selection">
-						<td align="right"><%= f.number_field :order, value: @task.order, size: 2 , class: "text-right form-control rounded border shadow-inner"%></td>
-						<td align="left"><%= f.collection_select :drill_id, @drills, :id, :nice_string, selected: @task.drill_id, class: "form-control rounded border shadow-inner"%></td>
-						<td align="right"><%= f.number_field :duration, value: @task.duration, size: 2 , class: "text-right form-control rounded border shadow-inner"%></td>
+						<td align="right"><%= f.number_field :order, value: @task.order, size: 2 , class: "text-right form-control rounded border shadow-inner bg-gray-50 p-0"%></td>
+						<td align="left"><%= f.collection_select :drill_id, @drills, :id, :nice_string, selected: @task.drill_id, class: "form-control rounded border shadow-inner bg-gray-50 p-0"%></td>
+						<td align="right"><%= f.number_field :duration, value: @task.duration, size: 2 , class: "text-right form-control rounded border shadow-inner bg-gray-50 p-0"%></td>
 						<%= f.hidden_field :id %>
 						<%= f.hidden_field :order %>
 					</div>

@@ -41,6 +41,9 @@ class Event < ApplicationRecord
     res
   end
 
+  def s_dur
+    self.duration.to_s + "\'"
+  end
 
   # Search for a list of Events
 	# s_data is an array with either season_id+kind+name or team_id+kind+name
@@ -77,13 +80,18 @@ class Event < ApplicationRecord
       res.duration    = 1440
       res.location_id = 0
     when :train
+      res.name        = I18n.t(:l_train)
       last            = team.events.trainings.last
       slot            = team.next_slot(last)
-      return nil unless slot
-      res.name        = I18n.t(:l_train)
-      res.start_time  = (slot.next_date + slot.hour.hours + slot.min.minutes).to_datetime
-      res.duration    = slot.duration
-      res.location_id = slot.location_id
+      if slot
+        res.start_time  = (slot.next_date + slot.hour.hours + slot.min.minutes).to_datetime
+        res.duration    = slot.duration
+        res.location_id = slot.location_id
+      else
+        res.start_time  = (Date.current + 16.hours + 0.minutes).to_datetime
+        res.duration    = 60
+        res.location_id = 0
+      end
     when :match
       last            = team.events.matches.last
       starting        = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
@@ -187,7 +195,9 @@ class Event < ApplicationRecord
   end
 
   def time_string
-    two_dig(self.hour) + ":" + two_dig(self.min)
+    cad = two_dig(self.hour) + ":" + two_dig(self.min)
+    cad = cad + " - " + two_dig(self.end_time.hour) + ":" + two_dig(self.end_time.min) if self.train?
+    cad
   end
 
   # return list of defensive targets

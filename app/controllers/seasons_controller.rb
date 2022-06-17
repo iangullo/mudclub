@@ -9,7 +9,7 @@ class SeasonsController < ApplicationController
 			@season = Season.search(params[:search])
       @events = Event.upcoming.for_season(@season).non_training
       @title  = title_fields(I18n.t(:l_sea_show), cols: 2)
-      @title << [{kind: "search-collection", key: :search, url: seasons_path, collection: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t(:m_create), turbo: "modal"}]
+      @title << [{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t(:m_create), turbo: "modal"}]
       @links  = [
         [ # season links
           {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t(:l_courts), align: "center"},

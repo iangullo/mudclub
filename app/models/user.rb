@@ -20,9 +20,8 @@ class User < ApplicationRecord
 		person ? person.to_s : I18n.t(:l_user_show)
 	end
 
-  def role_list
-    res = []
-    User.roles.each {|role| res << {id: role[1], name: role[0]}}
+  def self.role_list
+    User.roles.keys.map {|role| [I18n.t(role.to_sym),role]}
   end
 
   #short name for form viewing

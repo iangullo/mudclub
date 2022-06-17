@@ -293,3 +293,7 @@ en:
   i_pass_conf: "(*) confirm password"
   i_pass_new: "New password"
   h_remarks: "Remarks"
+  user: "User"
+  player: "Player"
+  coach: "Coach"
+  admin: "Admin"

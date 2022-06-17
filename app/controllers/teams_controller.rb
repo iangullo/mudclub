@@ -207,7 +207,7 @@ class TeamsController < ApplicationController
   	def title_fields(title, cols: nil, search: nil)
 			res = title_start(icon: "team.svg", title: title, cols: cols)
 			if search
-				res << [{kind: "search-collection", key: :season_id, collection: Season.all.order(start_date: :desc), value: @team ? @team.season_id : Season.last.id}]
+				res << [{kind: "search-collection", key: :season_id, options: Season.all.order(start_date: :desc), value: @team ? @team.season_id : Season.last.id}]
 			else
 				res << [{kind: "label", value: @team.season.name}]
 			end
@@ -222,14 +222,14 @@ class TeamsController < ApplicationController
 			res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}]
 			res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :homecourt_id, options: Location.home, value: @team.homecourt_id}]
 			res << [{kind: "icon", value: "coach.svg"}, {kind: "label", value:I18n.t(:l_coach_index), class: "align-center"}]
-			res << [{kind: "gap"}, {kind: "select-checkboxes", key: :coach_ids, collection: @eligible_coaches}]
+			res << [{kind: "gap"}, {kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}]
 	  	res
 		end
 
 		# return grid for @teams GridComponent
     def team_grid
       title = [{kind: "normal", value: I18n.t(:h_name)}]
-			title << {kind: "normal", value: I18n.t(:l_sea_show)} unless params[:season_id]
+			title << {kind: "normal", value: I18n.t(:l_sea_show)} unless (params[:season_id] and params[:season_id].to_i>0)
       title << {kind: "normal", value: I18n.t(:l_div_show)}
 			title << {kind: "add", url: new_team_path, turbo: "modal"} if current_user.admin?
 
@@ -237,7 +237,7 @@ class TeamsController < ApplicationController
       @teams.each { |team|
         row = {url: team_path(team), items: []}
         row[:items] << {kind: "normal", value: team.to_s}
-        row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless params[:season_id]
+        row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless (params[:season_id] and params[:season_id].to_i>0)
         row[:items] << {kind: "normal", value: team.division.name, align: "center"}
         row[:items] << {kind: "delete", url: row[:url], name: team.to_s} if current_user.admin?
         rows << row

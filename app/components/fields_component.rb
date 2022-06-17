@@ -88,6 +88,16 @@ class FieldsComponent < ApplicationComponent
           item[:class] = "align-top py-0 px-1 border px py" unless item[:class]
         when /^(select-.+|.+-box)$/
           item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
+        when "accordion"
+          item[:h_class] = "font-semibold text-left text-indigo-900"
+          item[:t_class] = "font-semibold text-right text-indigo-900"
+          item[:i_class] = "flex justify-between items-center p-1 w-full text-gray-700 bg-gray-50 font-medium text-left rounded-md hover:bg-indigo-100 focus:text-gray-200 focus:bg-indigo-900"
+          i = 1
+          item[:objects].each { |obj|
+            obj[:head_id] = "accordion-collapse-heading-" + i.to_s
+            obj[:body_id] = "accordion-collapse-body-" + i.to_s
+            i = i +1
+          }
         else
           item[:i_class] = "rounded p-0" unless item[:kind]=="gap"
         end

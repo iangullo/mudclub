@@ -11,6 +11,10 @@ class Task < ApplicationRecord
     self.duration.to_s + "\'"
   end
 
+  def headstring
+    "#{self.order.to_s.rjust(2, "0")} - #{self.to_s} (#{self.s_dur})"
+  end
+
   # Takes the input received from add_task (f_object)
   # and either reads or creates a matching drill_target
   def self.fetch(f_object)

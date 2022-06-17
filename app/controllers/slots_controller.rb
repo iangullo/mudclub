@@ -114,8 +114,8 @@ class SlotsController < ApplicationController
     # return FieldsComponent @fields for forms
     def form_fields(title)
       res = title_fields(title)
-      res << [{kind: "icon", value: "team.svg"}, {kind: "select-collection", key: :team_id, collection: @season ? Team.for_season(@season.id) : Team.real, value: @slot.team_id, cols: 2}]
-      res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, collection: @season ? @season.locations.practice.order(name: :asc) : Location.practice, value: @slot.location_id, cols: 2}]
+      res << [{kind: "icon", value: "team.svg"}, {kind: "select-collection", key: :team_id, options: @season ? Team.for_season(@season.id) : Team.real, value: @slot.team_id, cols: 2}]
+      res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, options: @season ? @season.locations.practice.order(name: :asc) : Location.practice, value: @slot.location_id, cols: 2}]
       res << [{kind: "icon", value: "calendar.svg"}, {kind: "select-box", key: :wday, options: @weekdays}, {kind: "time-box", hour: @slot.hour, min: @slot.min}]
       res << [{kind: "icon", value: "clock.svg"}, {kind: "number-box", key: :duration, value: @slot.duration, units: I18n.t(:l_mins)}]
       res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season

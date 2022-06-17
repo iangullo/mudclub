@@ -124,7 +124,7 @@ class DrillsController < ApplicationController
 
 		# return FormComponent @fields for edit/new
 		def form_fields
-			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, collection: Kind.all, value: @drill.kind.name, align: "center"}]
+			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: @drill.kind_id, align: "center"}]
 			@playbook = [[{kind: "select-file", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename.to_s}]]
 			return [
 				# DO WE INCLUDE NESTED FORM TYPE??? HOW?
@@ -133,7 +133,7 @@ class DrillsController < ApplicationController
 				[{kind: "label", value: I18n.t(:l_desc), align: "right"}, {kind: "text-area", key: :description, size: 40, lines: 2, value: @drill.description}],
 				[{kind: "rich-text-area", key: :explanation, align: "left", cols: 2}],
 				# NESTED FORM for Skills...
-				[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, collection: Coach.active}]
+				[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.active}]
 		]
 		end
 
@@ -168,6 +168,7 @@ class DrillsController < ApplicationController
 		# return nil if unsuccessful
 		def rebuild_drill
 			p_data = params.fetch(:drill)
+binding.break
 			@drill.name        = p_data[:name]
 			@drill.description = p_data[:description]
 			@drill.material    = p_data[:material]

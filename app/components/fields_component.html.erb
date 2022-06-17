@@ -41,13 +41,13 @@
         <% when "select-box" %>
     			<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: item[:i_class] %>
         <% when "select-collection" %>
-         <select class="<%=item[:i_class]%>" name="<%=@form.object.class.to_s + "[#{item[:key]}]"%>" id="<%=item[:key]%>">
+         <select class="<%=item[:i_class]%>" name="<%=@form.object.class.to_s.downcase + "[#{item[:key]}]"%>" id="<%=item[:key]%>">
            <% item[:options].each do |opt| %>
-            <option value=<%=opt[:id]%>><%=opt[:name] ? opt[:name] : opt.name%></option>
+            <option value="<%=opt[:id]%>"<% if (opt[:id] ? opt[:id] : opt.id) == item[:value]%> selected="selected"<% end %>><%=opt[:name] ? opt[:name] : opt.name%></option>
            <% end %>
          </select>
         <% when "select-checkboxes" %>
-          <%= @form.collection_check_boxes item[:key], item[:collection], :id, :to_s do |obj| %>
+          <%= @form.collection_check_boxes item[:key], item[:options], :id, :to_s do |obj| %>
             <%= obj.check_box({class: "rounded bg-gray-200 text-blue-700"}) %>
             <label class="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300"/><%=obj.object.to_s%>
           <% end %>
@@ -61,14 +61,14 @@
         <% when "search-select" %>
           <div id="select-search-box" class="<%=item[:i_class]%>"">
             <%= form_with(url: item[:url], value: item[:value], method: 'get', data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
-              <%= fsearch.select item[:key], options_for_select(item[:options], session.dig(item[:key].to_sym) ? session.dig(item[:key].to_sym).to_i : item[:value]), { include_blank: t(:l_all) }, data: {action: "change->search-form#search"} %>
+              <%= fsearch.select item[:key], options_for_select(item[:options], session.dig(item[:key].to_sym) ? session.dig(item[:key].to_sym).to_i : item[:value]), {include_blank: t(:l_all)}, data: {action: "change->search-form#search"} %>
               <%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
             <% end %>
           </div>
         <% when "search-collection" %>
     			<div id="collection-search-box" class="<%=item[:i_class]%>">
     				<%= form_with(url: item[:url], method: 'get', local: true, data: {turbo_frame: "_top"}) do |f| %>
-    					<%= f.collection_select item[:key], item[:collection], :id, :name, {selected: params[item[:key].to_sym] ? params[item[:key].to_sym] : item[:value]} %>
+    					<%= f.collection_select item[:key], item[:options], :id, :name, {selected: params[item[:key].to_sym] ? params[item[:key].to_sym] : item[:value]}, {class: item[:i_class]} %>
     					<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
     				<% end %>
           </div>
@@ -93,6 +93,24 @@
           <% end %>
         <% when "grid" %>
           <%= render GridComponent.new(grid: item[:value]) %>
+        <% when "accordion" %>
+          <div id="accordion-collapse" data-accordion="collapse">
+            <h2 class="<%=item[:h_class]%>"><%=item[:title]%></h2>
+            <% item[:objects].each do |obj| %>
+              <h2 id="<%=obj[:head_id]%>">
+                <button type="button" class="<%=item[:i_class]%>" data-accordion-target="#<%=obj[:body_id]%>" aria-expanded="false" aria-controls="<%=obj[:body_id]%>">
+                  <span><%=obj[:head]%></span>
+                  <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+              </h2>
+              <div id="<%=obj[:body_id]%>" class="hidden" aria-labelledby="<%=obj[:head_id]%>">
+                <div class="py px-2 rounded-lg shadow-inner">
+                  <%=obj[:content]%>
+                </div>
+              </div>
+            <% end %>
+            <div class="<%=item[:t_class]%>"><%= item[:tail] if item[:tail] %></div>
+          </div>
         <% when "nested-form" %>
         <% when "hidden" # hidden form field %>
           <%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>
