@@ -116,7 +116,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Coach.import(params[:file])
-	    format.html { redirect_to coaches_url, notice: t(:coach_import) + "'#{params[:file]}'"}
+	    format.html { redirect_to coaches_url, notice: t(:coach_import) + "'#{params[:file].original_filename}'"}
 		else
 			redirect_to "/"
 		end

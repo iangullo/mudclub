@@ -64,7 +64,6 @@ class PeopleController < ApplicationController
 		if current_user.present? and current_user.admin?
     	@person = Person.new(person_params)
 
-			# added to import excel
 	    respond_to do |format|
 	      if @person.save
 	        format.html { redirect_to people_url(search: @person.name), notice: t(:per_created) + "'#{@person.to_s}'" }
@@ -103,7 +102,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
     	Person.import(params[:file])
-			format.html { redirect_to people_url, notice: t(:per_import) + "'#{params[:file]}'"}
+			format.html { redirect_to people_url, notice: t(:per_import) + "'#{params[:file].original_filename}'"}
 		else
 			redirect_to "/"
 		end

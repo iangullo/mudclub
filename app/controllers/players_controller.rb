@@ -114,7 +114,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Player.import(params[:file])
-	    format.html { redirect_to players_url, notice: t(:player_import) + "'#{params[:file]}'" }
+	    format.html { redirect_to players_url, notice: t(:player_import) + "'#{params[:file].original_filename}'" }
 		else
 			redirect_to "/"
 		end

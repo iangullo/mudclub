@@ -59,7 +59,8 @@ class FieldsComponent < ApplicationComponent
         when "subtitle"
           item[:class] = "align-top font-bold"
         when "label", "label-checkbox"
-          item[:class] = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
+          item[:class]   = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
+          item[:i_class] = "rounded bg-gray-200 text-blue-700"
         when "link", "select-file"
           item[:class] = item[:class] ? item[:class] : " inline-flex align-middle p-0 text-sm"
           item[:size]  = "20x20" unless item[:size]
