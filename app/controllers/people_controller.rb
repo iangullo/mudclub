@@ -6,9 +6,9 @@ class PeopleController < ApplicationController
   # GET /people.json
   def index
 		if current_user.present? and current_user.admin?
-			@people = Person.search(params[:search])
+			@people = get_people
 			@title  = title_fields(I18n.t(:l_per_index))
-			@title << [{kind: "search-text", key: :search, value: session.dig('person_filters', 'search'), url: people_path}]
+			@title << [{kind: "search-text", key: :search, value: params[:search], url: people_path}]
 			@grid   = person_grid
 			respond_to do |format|
 				format.xlsx {
@@ -66,7 +66,7 @@ class PeopleController < ApplicationController
 
 	    respond_to do |format|
 	      if @person.save
-	        format.html { redirect_to people_url(search: @person.name), notice: t(:per_created) + "'#{@person.to_s}'" }
+	        format.html { redirect_to people_url(search: @person.name), notice: "#{I18n.t(:per_created)} '#{@person.to_s}'" }
 	        format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :new }
@@ -84,7 +84,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
     	respond_to do |format|
       	if @person.update(person_params)
-	        format.html { redirect_to people_url(search: @person.name), notice: t(:per_updated) + "'#{@person.to_s}'" }
+	        format.html { redirect_to people_url(search: @person.name), notice: "#{I18n.t(:per_updated)} '#{@person.to_s}'" }
 					format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :edit }
@@ -102,7 +102,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
     	Person.import(params[:file])
-			format.html { redirect_to people_url, notice: t(:per_import) + "'#{params[:file].original_filename}'"}
+			format.html { redirect_to people_url, notice: "#{I18n.t(:per_import)} '#{params[:file].original_filename}'"}
 		else
 			redirect_to "/"
 		end
@@ -115,7 +115,7 @@ class PeopleController < ApplicationController
 			erase_links
 			@person.destroy
 	    respond_to do |format|
-				format.html { redirect_to people_url, notice: t(:per_deleted) + "'#{@person.to_s}'" }
+				format.html { redirect_to people_url, notice: "#{I18n.t(:per_deleted)} '#{@person.to_s}'" }
 	      format.json { head :no_content }
 	    end
 		else
@@ -198,6 +198,15 @@ class PeopleController < ApplicationController
 
 		def set_person
 			 @person = Person.find(params[:id]) unless @person.try(:id)==params[:id]
+		end
+
+		# get player list depending on the search parameter & user role
+		def get_people
+			if (params[:search] != nil) and (params[:search].length > 0)
+				Person.search(params[:search])
+			else
+				Person.none
+			end
 		end
 
     # Never trust parameters from the scary internet, only allow the white list through.

@@ -87,7 +87,7 @@ class Person < ApplicationRecord
 	#Search field matching
 	def self.search(search)
 		if search
-			search.length>0 ? Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?))","%#{search}%","%#{search}%"]) : Person.none
+			search.length>0 ? Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]) : Person.none
 		else
 			Person.none
 		end

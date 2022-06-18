@@ -8,7 +8,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@coaches = get_coaches
 			@title  = title_fields(I18n.t(:l_coach_index))
-			@title << [{kind: "search-text", key: :search, value: session.dig('coach_filters', 'search'), url: coaches_path}]
+			@title << [{kind: "search-text", key: :search, value: params[:search], url: coaches_path}]
 			@grid    = coach_grid
 			respond_to do |format|
 				format.xlsx {
@@ -70,7 +70,7 @@ class CoachesController < ApplicationController
 			respond_to do |format|
 				@coach = rebuild_coach(params)	# rebuild coach
 				if @coach.is_duplicate? then
-					format.html { redirect_to coaches_url, notice: t(:coach_duplicate) + "'#{@coach.s_name}'" }
+					format.html { redirect_to coaches_url, notice: "#{I18n.t(:coach_duplicate)} '#{@coach.s_name}'" }
 					format.json { render :index,  :created, location: coaches_url }
 				else
 					@coach.person.save
@@ -79,7 +79,7 @@ class CoachesController < ApplicationController
 						if @coach.person.coach_id != @coach.id
 							@coach.person.coach_id = @coach.id
 						end
-						format.html { redirect_to coaches_url, notice: t(:coach_created) + "'#{@coach.s_name}'" }
+						format.html { redirect_to coaches_url, notice: "#{I18n.t(:coach_created)} '#{@coach.s_name}'" }
 						format.json { render :index, status: :created, location: coaches_url }
 					else
 						format.html { render :new }
@@ -98,7 +98,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.coach_id==@coach.id)
 			respond_to do |format|
 				if @coach.update(coach_params)
-					format.html { redirect_to coaches_url, notice: t(:coach_updated) + "'#{@coach.s_name}'" }
+					format.html { redirect_to coaches_url, notice: "#{I18n.t(:coach_updated)} '#{@coach.s_name}'" }
 					format.json { render :index, status: :ok, location: coaches_url }
 				else
 					format.html { render :edit }
@@ -116,7 +116,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Coach.import(params[:file])
-	    format.html { redirect_to coaches_url, notice: t(:coach_import) + "'#{params[:file].original_filename}'"}
+	    format.html { redirect_to coaches_url, notice: "#{I18n.t(:coach_import)} '#{params[:file].original_filename}'"}
 		else
 			redirect_to "/"
 		end
@@ -130,7 +130,7 @@ class CoachesController < ApplicationController
 			unlink_person
 			@coach.destroy
 			respond_to do |format|
-				format.html { redirect_to coaches_url, notice: t(:coach_deleted) + "'#{c_name}'" }
+				format.html { redirect_to coaches_url, notice: "#{I18n.t(:coach_deleted)} '#{c_name}'" }
 				format.json { head :no_content }
 			end
 		else
@@ -215,17 +215,6 @@ class CoachesController < ApplicationController
 			if @coach.person.coach_id==0
 				format.html { render :new }
 				format.json { render :new, status: :ok }
-			end
-		end
-
-		# save a coach - ensuring duplicates not existing
-		def	save_data(format)
-			if @coach.save
-				format.html { redirect_to coaches_url, notice: "Entrenador '#{@coach.s_name}' guardado." }
-				format.json { render :index, status: :created, location: coaches_url }
-			else
-				format.html { render :new }
-				format.json { render json: @coach.errors, status: :unprocessable_entity }
 			end
 		end
 

@@ -112,7 +112,7 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           if @task  # we just updated a task
-            format.html { redirect_to edit_event_path(@event), notice: t(:task_created) + "'#{@task.to_s}'" }
+            format.html { redirect_to edit_event_path(@event), notice: "#{I18n.t(:task_created)} '#{@task.to_s}'" }
             format.json { render :edit, status: :ok, location: @event }
           elsif params[:event][:season_id].to_i > 0 # season event
             format.html { redirect_to season_path(params[:event][:season_id]), notice: event_update_notice }
@@ -122,7 +122,7 @@ class EventsController < ApplicationController
             format.html { redirect_to @event, notice: event_update_notice }
             format.json { render :show, status: :ok, location: @event }
           else # updating match
-            format.html { redirect_to team_path(@event.team_id), notice: t(:match_updated) + "'#{@event.to_s}'" }
+            format.html { redirect_to team_path(@event.team_id), notice: "#{I18n.t(:match_updated)} '#{@event.to_s}'" }
           end
         else
           format.html { render :edit, status: :unprocessable_entity }
