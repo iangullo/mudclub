@@ -47,13 +47,12 @@
            <% end %>
          </select>
         <% when "select-checkboxes" %>
-          <%= @form.collection_check_boxes item[:key], item[:options], :id, :to_s do |obj| %>
-            <%= obj.check_box({class: "rounded bg-gray-200 text-blue-700"}) %>
-            <label class="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300"/><%=obj.object.to_s%>
+          <% @form.collection_check_boxes item[:key], item[:options], :id, :to_s do |obj| %>
+            <%=obj.check_box({class: "rounded bg-gray-200 text-blue-700"})%> <%=obj.object.to_s%><br>
           <% end %>
         <% when "search-text" %>
           <div id="text-search-box" class="<%=item[:i_class]%>">
-            <%= form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
+            <% form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
             <%=fsearch.text_field item[:key], placeholder: t(:m_search), value: item[:value], size: item[:size], autocomplete: "off",class: item[:i_class], data: {action: "input->search-form#search"}%>
               <%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t(:m_search) %>
             <% end %>

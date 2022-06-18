@@ -185,8 +185,8 @@ class UsersController < ApplicationController
     # build & prepare a person for a new user
     def build_new_user(params)
       @user                       = User.new(user_params)
+      @user.set_default_role
       @user.email                 = params.fetch(:user)[:email]
-      @user.role                  = params.fetch(:user)[:role]
       @user.password              = params.fetch(:user)[:password]
       @user.password_confirmation = params.fetch(:user)[:password_confirmation]
       @user.build_person

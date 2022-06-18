@@ -18,7 +18,7 @@
       <td colspan="2"></td>
       <td>
         <% if devise_mapping.rememberable? %>
-          <strong>Recordar&nbsp;</strong><%= f.check_box :remember_me %>
+          <strong>Recordar&nbsp;</strong><%= f.check_box :remember_me,{class: "rounded bg-gray-200 text-blue-700"} %>
         <% end %>
       </td>
       <td align="right"><%= f.submit t(:m_login), class: "rounded text-white bg-blue-900 hover:bg-blue-700" %>
