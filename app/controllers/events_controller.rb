@@ -166,6 +166,7 @@ class EventsController < ApplicationController
       @task   = Task.new(event: @event, order: @event.tasks.count + 1)
       @drills = Drill.search(params[:search])
       @title  = task_title(I18n.t(:l_task_add), add_task_event_path(@event))
+      @fields = task_form_fields
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -177,6 +178,7 @@ class EventsController < ApplicationController
       @task   = Task.find(params[:task_id])
       @drills = Drill.search(params[:search])
       @title  = task_title(I18n.t(:l_task_edit), edit_task_event_path(@event))
+      @fields = task_form_fields
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -239,18 +241,37 @@ class EventsController < ApplicationController
       # res << [{kind: "gap", size: 1}, {kind: "gap", size: 1}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(@event)}]
     end
 
-    # return icon and top of HeaderComponent
+    # return icon and top of HeaderComponent for Tasks
     def task_title(title, search_in)
       res = title_start(icon: "drill.svg", title: title)
-      res << [{kind: "search-text", url: search_in}]
+      res << [{kind: "search-text", value: params[:search], url: search_in}]
       res
     end
 
     # fields to show in task views
     def task_fields(task)
-      res   = [
+      res = [
         [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}],
         [{kind: "cell", value: task.drill.explanation, cols: 4}]
+      ]
+    end
+
+    def task_form_fields
+      res = [
+        [
+          {kind: "top-cell", value: I18n.t(:a_num)},
+          {kind: "top-cell", value: I18n.t(:l_drill_show)},
+          {kind: "top-cell", value: I18n.t(:a_dur)}
+        ],
+        [
+          {kind: "number-box", key: :order, value: @task.order, size: 2},
+          {kind: "select-collection", key: :drill_id, options: @drills, value: @task.drill_id},
+          {kind: "number-box", key: :duration, value: @task.duration, size: 3}
+        ],
+        [
+          {kind: "hidden", key: :id, value: @task.id},
+          {kind: "hidden", key: :order, value: @task.order}
+        ]
       ]
     end
 

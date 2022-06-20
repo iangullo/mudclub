@@ -1,7 +1,7 @@
 <% if form.object %>
 	<div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
 		<div class="inline-flex">
-			<%= form.number_field :priority, value: form.object.priority, size: 1, class: "form-control rounded border shadow-inner bg-gray-50 shadow-inner p-0" %>
+			<%= form.number_field :priority, value: form.object.priority, size: 1, class: "text-right form-control rounded border shadow-inner bg-gray-50 shadow-inner p-0" %>
 			<%= form.fields_for :target do |f| %>
 				<% form.object.build_target if form.object.new_record? %>
 				<%= f.text_field :concept, placeholder: t(:d_target), size: 20, class: "form-control rounded border shadow-inner bg-gray-50 shadow-inner p-0" %>

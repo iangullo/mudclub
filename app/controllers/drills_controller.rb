@@ -9,8 +9,10 @@ class DrillsController < ApplicationController
 			# Simple search by name/description for now
 			@title  = title_fields(I18n.t(:l_drill_index))
 	    @title << [
-				{kind: "search-text", key: :name, value: session.dig('drill_filters', 'name'), url: drills_path},
-				{kind: "search-select", key: :kind_id, options: Kind.real.pluck(:name, :id), url: drills_path}
+				{kind: "search-combo", url: drills_path, fields: [
+          {kind: "search-text", key: :name, value: session.dig('drill_filters', 'name')},
+          {kind: "search-select", key: :kind_id, value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)}
+        ]}
 			]
 			@drills = filter!(Drill)
 			@grid   = GridComponent.new(grid: drill_grid)
@@ -168,7 +170,7 @@ class DrillsController < ApplicationController
 		# return nil if unsuccessful
 		def rebuild_drill
 			p_data = params.fetch(:drill)
-binding.break
+#binding.break
 			@drill.name        = p_data[:name]
 			@drill.description = p_data[:description]
 			@drill.material    = p_data[:material]

@@ -1,5 +1,4 @@
 <%= render ModalComponent.new do %>
-<% console %>
 	<%= form_with model: drill, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
 		<%= render FieldsComponent.new(fields: @title, form: form) %>
 		<%= render FieldsComponent.new(fields: @playbook, form: form) %>

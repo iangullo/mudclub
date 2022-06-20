@@ -1,6 +1,8 @@
 <div id="coaches-index">
 	<%= render FieldsComponent.new(fields: @title) %>
-	<%= render GridComponent.new(grid: @grid) %>
+	<%= turbo_frame_tag "search-results" do %>
+		<%= render GridComponent.new(grid: @grid) %>
+	<% end %>
 	<% if current_user.admin? %>
 		<br>
 		<%= render "shared/import_export", import_path: import_coaches_path, export_path: coaches_path(format: :xlsx) %>

@@ -8,7 +8,7 @@ class LocationsController < ApplicationController
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @season = Season.find(params[:season_id]) if params[:season_id]
       @title  = title_fields(I18n.t(:l_loc_index))
-      @title << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", url: locations_path}]
+      @title << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", key: :search, value: params[:search], url: locations_path}]
       @grid = location_grid
 	else
 			redirect_to "/"
