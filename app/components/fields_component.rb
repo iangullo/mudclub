@@ -22,7 +22,9 @@
 # => "select-collection": :key (field name), :collection, :value (form, select)
 # => "select-file": :key (field name), :icon, :label, :value (form, select)
 # => "search-text": :url (search_in), :value
-# => "search-select": :key (search field), :url (search_in), :collection, :value
+# => "search-select": :key (search field), :url (search_in), :options, :value
+# => "search-collection": :key (search field), :url (search_in), :options, :value
+# => "search-combo": :key (search field), :url (search_in), :options
 # => "location": :icon (optional), :url (gmaps_url), :name (name to display)
 # => "link": :icon (optional), :url (link_to_url), :label (label to display), turbo: (pass turbo frame?)
 # => "jump": :icon (optional), :url (link_to_url in the site), :label (label to display), turbo: (pass turbo frame?)
@@ -70,11 +72,13 @@ class FieldsComponent < ApplicationComponent
         when "string"
           item[:class] = "align-top"
         when /^(search-.+)$/
-          item[:align] = "left" unless item[:align]
-          item[:size]  = 16 unless item[:size]
-          item[:lines]  = 1 unless item[:lines]
+          item[:align]   = "left" unless item[:align]
+          item[:size]    = 16 unless item[:size]
+          item[:lines]   = 1 unless item[:lines]
           item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 text-sm focus:ring-blue-700 focus:border-blue-700"
-          item[:class] = "inline-flex rounded border" if item[:kind] =~ /^(search-.+)$/
+          item[:class]   = "inline-flex rounded border"
+          item[:fields]  = [{kind: item[:kind], key: item[:key].to_sym, options: item[:options], value: item[:value]}] unless item[:kind] == "search-combo"
+          item[:kind]    = "search-combo"
         when "icon-label"
           item[:size]  = "25x25" unless item[:size]
           item[:class] = "align-top inline-flex"
@@ -89,6 +93,7 @@ class FieldsComponent < ApplicationComponent
           item[:class] = "align-top py-0 px-1 border px py" unless item[:class]
         when /^(select-.+|.+-box)$/
           item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
+          item[:i_class] = item[:i_class] + " text-right" if item[:kind]=="number-box"
         when "accordion"
           item[:h_class] = "font-semibold text-left text-indigo-900"
           item[:t_class] = "font-semibold text-right text-indigo-900"

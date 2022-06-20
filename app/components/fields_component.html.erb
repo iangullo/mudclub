@@ -50,26 +50,21 @@
           <% @form.collection_check_boxes item[:key], item[:options], :id, :to_s do |obj| %>
             <%=obj.check_box({class: "rounded bg-gray-200 text-blue-700"})%> <%=obj.object.to_s%><br>
           <% end %>
-        <% when "search-text" %>
-          <div id="text-search-box" class="<%=item[:i_class]%>">
-            <% form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
-            <%=fsearch.text_field item[:key], placeholder: t(:m_search), value: item[:value], size: item[:size], autocomplete: "off",class: item[:i_class], data: {action: "input->search-form#search"}%>
+        <% when "search-combo" %>
+          <div id="combo-search-box" class="<%=item[:i_class]%>">
+            <%= form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
+              <% item[:fields].each do |opt| %>
+                <% case opt[:kind]%>
+                <% when "search-text" %>
+                  <%=fsearch.text_field opt[:key], placeholder: t(:m_search), value: opt[:value], size: opt[:size], class: item[:i_class], data: {action: "input->search-form#search"}%>
+                <% when "search-select" %>
+                  <%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t(:l_all)}, {class: item[:i_class]}%>
+                <% when "search-collection" %>
+                  <%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym] ? params[opt[:key].to_sym] : opt[:value]}, {class: item[:i_class]}%>
+                <% end %>
+              <% end %>
               <%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t(:m_search) %>
             <% end %>
-          </div>
-        <% when "search-select" %>
-          <div id="select-search-box" class="<%=item[:i_class]%>"">
-            <%= form_with(url: item[:url], value: item[:value], method: 'get', data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
-              <%= fsearch.select item[:key], options_for_select(item[:options], session.dig(item[:key].to_sym) ? session.dig(item[:key].to_sym).to_i : item[:value]), {include_blank: t(:l_all)}, data: {action: "change->search-form#search"} %>
-              <%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
-            <% end %>
-          </div>
-        <% when "search-collection" %>
-    			<div id="collection-search-box" class="<%=item[:i_class]%>">
-    				<%= form_with(url: item[:url], method: 'get', local: true, data: {turbo_frame: "_top"}) do |f| %>
-    					<%= f.collection_select item[:key], item[:options], :id, :name, {selected: params[item[:key].to_sym] ? params[item[:key].to_sym] : item[:value]}, {class: item[:i_class]} %>
-    					<%= image_submit_tag "search.svg", height: 25, class: "search_button align-middle", alt: t(:m_search) %>
-    				<% end %>
           </div>
         <% when "select-file" %>
           <div id="select-file" class="<%=item[:class]%>">
