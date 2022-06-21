@@ -31,14 +31,14 @@
           <%=item[:cell]%>
           <% case item[:kind] %>
           <% when "normal" %>
-            <%= link_to item[:value].to_s, g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
+            <%= link_to item[:value].to_s, g_row[:url], data: ({turbo_frame: g_row[:turbo] ? g_row[:turbo] : "_top"}) %>
           <% when "lines" %>
             <% item[:value].each do |cad| %>
-              <%= link_to cad, g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) %>
+              <%= link_to cad, g_row[:url], data: ({turbo_frame: g_row[:turbo] ? g_row[:turbo] : "_top"}) %>
               <br>
             <% end %>
           <% when "icon" %>
-            <%= link_to g_row[:url], data: (g_row[:turbo] ? {turbo_frame: g_row[:turbo]} : nil) do %>
+            <%= link_to g_row[:url], data: ({turbo_frame: g_row[:turbo] ? g_row[:turbo] : "_top"}) do %>
               <%= image_tag item[:value], size: "25x25" %>
             <% end %>
           <% when "bottom" %>
