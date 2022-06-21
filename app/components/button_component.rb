@@ -60,6 +60,7 @@ class ButtonComponent < ApplicationComponent
     when "close"
       @button[:icon]    = "close.svg"
     when "delete"
+      @button[:turbo]   = "_top"
       @button[:icon]    = "delete.svg"
       @button[:confirm] = I18n.t(:q_del) + " \'#{@button[:name]}\'?"
     when "edit"
