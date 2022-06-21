@@ -1,35 +1,33 @@
-<%= render ModalComponent.new do %>
-	<div id="team-plan">
-		<%= render FieldsComponent.new(fields: @title) %>
-		<%= turbo_frame_tag "search-results" do %>
-			<div id="team-plan-data">
-				<table>
-					<tr>
-						<th></th>
-						<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
-						<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
+<div id="team-plan">
+	<%= render FieldsComponent.new(fields: @title) %>
+	<%= turbo_frame_tag "search-results" do %>
+		<div id="team-plan-data">
+			<table>
+				<tr>
+					<th></th>
+					<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
+					<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
+				</tr>
+				<% @targets.each do |tgt| %>
+					<tr><!-- #display individual targets -->
+						<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tec) %></td>
+						<td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_d_ind] %>
+						</td><td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_o_ind] %>
+						</td>
 					</tr>
-					<% @targets.each do |tgt| %>
-						<tr><!-- #display individual targets -->
-							<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tec) %></td>
-							<td class="border px py align-top">
-								<%= render "print_targets", targets: tgt[:t_d_ind] %>
-							</td><td class="border px py align-top">
-								<%= render "print_targets", targets: tgt[:t_o_ind] %>
-							</td>
-						</tr>
-						<tr><!-- #display collective targets -->
-							<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tac) %></td>
-							<td class="border px py align-top">
-								<%= render "print_targets", targets: tgt[:t_d_col] %>
-							</td><td class="border px py align-top">
-								<%= render "print_targets", targets: tgt[:t_o_col] %>
-							</td>
-						</tr>
-					<% end %>
-				</table>
-			</div>
-		<% end %>
-		<%= render SubmitComponent.new(submit: @team.has_coach(current_user.person.coach_id) ? edit_plan_team_path : nil) %>
-	</div>
-<% end %>
+					<tr><!-- #display collective targets -->
+						<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tac) %></td>
+						<td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_d_col] %>
+						</td><td class="border px py align-top">
+							<%= render "print_targets", targets: tgt[:t_o_col] %>
+						</td>
+					</tr>
+				<% end %>
+			</table>
+		</div>
+	<% end %>
+	<%= render SubmitComponent.new(close: nil, submit: @edit) if @edit %>
+</div>

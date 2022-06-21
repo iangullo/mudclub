@@ -1,43 +1,41 @@
-<%= render ModalComponent.new do %>
+<div id="show-targets-data">
 	<%= render FieldsComponent.new(fields: @title) %>
-	<div id="show-targets-data">
-		<table>
-			<tr>
-				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
-			</tr><tr>
-				<td colspan="2" class="border px py align-top">
-					<%= render "print_targets", targets: @t_d_gen %>
-				</td>
-			</tr><tr>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="left"><%= t(:l_tec) %></th>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_tac) %></th>
-			</tr><tr>
-				<td class="border px py align-top">
-					<%= render "print_targets", targets: @t_d_ind %>
-				</td>
-				<td class="border px py align-top">
-					<%= render "print_targets", targets: @t_d_col %>
-				</td>
-			</tr><tr>
-				<th colspan="2" class="border px py" align="center"><br></th>
-			</tr><tr>
-				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
-			</tr><tr>
-				<td colspan="2" class="border px py align-top">
-					<%= render "print_targets", targets: @t_o_gen %>
-				</td>
-			</tr><tr>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="left"><%= t(:l_tec) %></th>
-				<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_tac) %></th>
-			</tr><tr>
-				<td class="border px py align-top">
-					<%= render "print_targets", targets: @t_o_ind %>
-				</td>
-				<td class="border px py align-top">
-					<%= render "print_targets", targets: @t_o_col %>
-				</td>
-			</tr>
-		</table>
-	</div>
-	<%= render SubmitComponent.new(submit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil) %>
-<% end %>
+	<table>
+		<tr>
+			<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
+		</tr><tr>
+			<td colspan="2" class="border px py align-top">
+				<%= render "print_targets", targets: @t_d_gen %>
+			</td>
+		</tr><tr>
+			<th class="bg-indigo-900 text-gray-300 border px py" align="left"><%= t(:l_tec) %></th>
+			<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_tac) %></th>
+		</tr><tr>
+			<td class="border px py align-top">
+				<%= render "print_targets", targets: @t_d_ind %>
+			</td>
+			<td class="border px py align-top">
+				<%= render "print_targets", targets: @t_d_col %>
+			</td>
+		</tr><tr>
+			<th colspan="2" class="border px py" align="center"><br></th>
+		</tr><tr>
+			<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
+		</tr><tr>
+			<td colspan="2" class="border px py align-top">
+				<%= render "print_targets", targets: @t_o_gen %>
+			</td>
+		</tr><tr>
+			<th class="bg-indigo-900 text-gray-300 border px py" align="left"><%= t(:l_tec) %></th>
+			<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_tac) %></th>
+		</tr><tr>
+			<td class="border px py align-top">
+				<%= render "print_targets", targets: @t_o_ind %>
+			</td>
+			<td class="border px py align-top">
+				<%= render "print_targets", targets: @t_o_col %>
+			</td>
+		</tr>
+	</table>
+	<%= render SubmitComponent.new(close: nil, submit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil) %>
+</div>

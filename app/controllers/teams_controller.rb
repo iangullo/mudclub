@@ -112,6 +112,7 @@ class TeamsController < ApplicationController
 			@title = title_fields(@team.to_s)
 			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_plan_show)}]
 			@title << [{kind: "gap"}, {kind: "search-select", align: "center", key: :month, url: plan_team_path(@team), options: @months, value: params[:month] ? params[:month] : Date.today.month}]
+			@edit = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
 		else
 			redirect_to "/"
 		end
@@ -122,7 +123,7 @@ class TeamsController < ApplicationController
 		if current_user.present? and @team.has_coach(current_user.person.coach_id)
 			redirect_to "/" unless @team
 			plan_targets(nil)
-			@title = title_fields(@team.to_s)
+			@title  = title_fields(@team.to_s)
 			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_plan_edit)}]
 		else
 			redirect_to "/"
@@ -205,10 +206,12 @@ class TeamsController < ApplicationController
   private
 
     # return icon and top of HeaderComponent
-  	def title_fields(title, cols: nil, search: nil)
+  	def title_fields(title, cols: nil, search: nil, edit: nil)
 			res = title_start(icon: "team.svg", title: title, cols: cols)
 			if search
-				res << [{kind: "search-collection", key: :season_id, options: Season.all.order(start_date: :desc), value: @team ? @team.season_id : Season.last.id}]
+				res << [{kind: "search-collection", key: :season_id, options: Season.all.order(start_date: :desc), value: @team ? @team.season_id : params[:season_id] ? params[:season_id] : nil}]
+			elsif edit and current_user.admin?
+				res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
 			else
 				res << [{kind: "label", value: @team.season.name}]
 			end
@@ -217,7 +220,7 @@ class TeamsController < ApplicationController
 
 	  # return HeaderComponent @fields for forms
 	  def form_fields(title, cols: nil)
-			res = title_fields(title, cols: cols)
+			res = title_fields(title, cols: cols, edit: true)
 			res << [{kind: "label", align: "right", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @team.name}]
 	    res << [{kind: "icon", value: "category.svg"}, {kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}]
 			res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}]
@@ -248,12 +251,12 @@ class TeamsController < ApplicationController
 
 		# return jump links for a team
 		def team_links
-			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), align: "center", turbo: "modal"}]]
+			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), turbo: "modal", align: "center"}]]
 			if (current_user.admin? or current_user.is_coach?)
-				res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t(:h_targ), align: "center", turbo: "modal"}
-        res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t(:a_plan), align: "center", turbo: "modal"}
+				res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t(:h_targ), align: "center"}
+        res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t(:a_plan), align: "center"}
 			end
-			res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t(:l_slot_index), align: "center", turbo: "modal"}
+			res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t(:l_slot_index), turbo: "modal", align: "center"}
 			if (current_user.admin? or @team.has_coach(current_user.person.coach_id))
 	      res.last << {kind: "edit", url: edit_team_path, size: "30x30", turbo: "modal"}
 			end

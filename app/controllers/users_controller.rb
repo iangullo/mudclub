@@ -167,7 +167,6 @@ class UsersController < ApplicationController
       p_data = u_data[:person_attributes]
       @user.email = u_data[:email] ? u_data[:email] : p_data[:email]
       @user.role  = u_data[:role]
-#binding.break
       if @user.person_id==0 # not bound to a person yet?
         p_data[:id].to_i > 0 ? @user.person=Person.find(p_data[:id].to_i) : @user.build_person
       else #person is linked, get it
