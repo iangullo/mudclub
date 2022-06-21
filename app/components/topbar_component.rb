@@ -2,6 +2,9 @@
 
 class TopbarComponent < ApplicationComponent
   def initialize(user:)
+    clubperson = Person.find(0)
+    @clublogo  = clubperson.avatar.attached? ? clubperson.avatar : "clublogo.svg"
+    @clubname  = clubperson.name
     @user      = user
     @profile   = profile_menu(user)
     if user
