@@ -8,7 +8,6 @@ class Person < ApplicationRecord
 	accepts_nested_attributes_for :user
 	validates :name, :surname, presence: true
 	scope :real, -> { where("id>0") }
-	before_save { self.nick = self.nick ? self.nick.mb_chars.titleize : ""}
 	before_save { self.name = self.name ? self.name.mb_chars.titleize : ""}
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : ""}
 	self.inheritance_column = "not_sti"
@@ -82,6 +81,10 @@ class Person < ApplicationRecord
 
 	def picture
 		self.avatar.attached? ? self.avatar : "person.svg"
+	end
+
+	def logo
+		self.avatar.attached? ? self.avatar : "clublogo.svg"
 	end
 
 	#Search field matching

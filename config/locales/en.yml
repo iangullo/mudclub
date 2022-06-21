@@ -56,6 +56,7 @@ en:
   m_edit: "Edit"
   m_filter: "Filter"
   m_clear: "Clear"
+  m_saved: "saved."
   h_general: "General"
   q_del: "Delete "
   q_save: "Save "

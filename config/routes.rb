@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   resources :divisions
   root to: "home#index"
   get 'home/index'
+  get 'home/edit'
   devise_for :users, :skip => [:registrations]
   as :user do
     get 'users/edit' => 'devise/registrations#edit', :as => 'edit_user_registration'

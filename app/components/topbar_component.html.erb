@@ -21,11 +21,11 @@
             <div class="bg-blue-900 shadow rounded border overflow-hidden">
               <% if @user %>
                 <% @menu_tabs.each do |tab| %>
-                  <%= link_to tab[:label], tab[:url], class: tab[:class] , data: {action: "click->dropdown#toggle"} %>
+                  <%= link_to tab[:label], tab[:url], class: @lnkcls , data: {action: "click->dropdown#toggle"} %>
                 <% end %>
                 <% if @admin_tab %>
                   <% @admin_tab[:items].each do |tab| %>
-                    <%= link_to tab[:label], tab[:url], class: tab[:class] , data: {action: "click->dropdown#toggle"} %>
+                    <%= link_to tab[:label], tab[:url], class: @lnkcls, data: {action: "click->dropdown#toggle", turbo_frame: tab[:turbo]} %>
                   <% end %>
                 <% end %>
               <% end %>
@@ -37,8 +37,8 @@
       <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
         <div class="flex-shrink-0 flex items-center">
           <%= link_to "/", class: "inline-flex align-center" do %>
-            <%= image_tag @clublogo, alt: @clubname, class: "block lg:hidden h-8 w-auto" %>
-            <%= image_tag @clublogo, class: "hidden lg:block h-8 w-auto" %>&nbsp;<label class="font-bold text-xl text-yellow-500"><%=@clubname%></label>
+            <%= image_tag @clublogo, class: "block lg:hidden h-8 w-auto" %>
+            <%= image_tag @clublogo, class: "hidden lg:block h-8 w-auto" %>&nbsp;<label class="font-bold text-2xl text-yellow-500"><%=@clubname%></label>
           <% end %>
         </div>
         <!-- Navigation tabs -->
@@ -47,7 +47,7 @@
             <ul class="list-reset flex text-base text-gray-300">
               <% if @user %>
                 <% @menu_tabs.each do |tab| %>
-                  <li class="<%=tab[:class]%>">
+                  <li class="<%=@tabcls%>">
                     <%= link_to tab[:label], tab[:url] %>
                   </li>
                 <% end %>
@@ -55,7 +55,7 @@
                   <div class="relative" data-controller="dropdown">
                     <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="3" class="inline-block select-none">
                       <div class="flex-shrink-0 flex items-center">
-                        <li class="<%=@admin_tab[:class]%>">
+                        <li class="<%=@tabcls%>">
                           <%= @admin_tab[:label] %>
                         </li>
                       </div>
@@ -63,7 +63,7 @@
                     <div data-dropdown-target="menu" class="absolute hidden">
                       <div class="bg-blue-900 shadow rounded border overflow-hidden">
                         <% @admin_tab[:items].each do |item| %>
-                          <%= link_to item[:label], item[:url], data: {action: "click->dropdown#toggle"}, class: item[:class] %>
+                          <%= link_to item[:label], item[:url], data: {action: "click->dropdown#toggle", turbo_frame: item[:turbo]}, class: @lnkcls %>
                         <% end %>
                       </div>
                     </div>
@@ -74,8 +74,8 @@
           </div>
         </div>
       </div>
+      <!-- Profile dropdown -->
       <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-        <!-- Profile dropdown -->
         <div class="relative" data-controller="dropdown">
           <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="3" class="inline-block select-none">
             <div class="flex-shrink-0 flex items-center">
@@ -91,10 +91,10 @@
           <div data-dropdown-target="menu" class="absolute right-0 mt-2 hidden">
             <div class="bg-blue-900 shadow rounded border overflow-hidden">
               <% if @user %>
-                <%= link_to @profile[:home][:label], @profile[:home][:url], class: @profile[:home][:class] %>
-                <%= link_to @profile[:logout][:label], @profile[:logout][:url], class: @profile[:home][:class], data: {turbo_method: :delete} %>
+                <%= link_to @profile[:profile][:label], @profile[:profile][:url], class: @lnkcls, data: {turbo_frame: "modal"} %>
+                <%= link_to @profile[:logout][:label], @profile[:logout][:url], class: @lnkcls, data: {turbo_method: :delete} %>
               <% else %>
-                <%= link_to @profile[:login][:label], @profile[:login][:url], class: @profile[:home][:class] %>
+                <%= link_to @profile[:login][:label], @profile[:login][:url], class: @lnkcls %>
               <% end %>
             </div>
           </div>

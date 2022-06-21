@@ -3,10 +3,12 @@
 class TopbarComponent < ApplicationComponent
   def initialize(user:)
     clubperson = Person.find(0)
-    @clublogo  = clubperson.avatar.attached? ? clubperson.avatar : "clublogo.svg"
-    @clubname  = clubperson.name
+    @clublogo  = clubperson.logo
+    @clubname  = clubperson.nick
     @user      = user
     @profile   = profile_menu(user)
+    @tabcls = 'hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold'
+    @lnkcls = 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap'
     if user
       @menu_tabs = menu_tabs(user)
       @admin_tab = admin_tab(user) if user.admin? or user.is_coach?
@@ -23,7 +25,7 @@ class TopbarComponent < ApplicationComponent
   #right hand profile menu
   def profile_menu(user)
     res = {
-      home: menu_link(label: I18n.t(:m_profile), url: '/home/index'),
+      profile: menu_link(label: I18n.t(:m_profile), url: user, turbo: "modal"),
       login: menu_link(label: I18n.t(:m_login)),
       logout: menu_link(label: I18n.t(:m_logout)),
       closed: menu_button(icon: "login.svg", class: 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'),
@@ -33,32 +35,30 @@ class TopbarComponent < ApplicationComponent
   end
 
   def menu_tabs(user)
-    cls = 'hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold'
     res = []
-    res << {label: I18n.t(:l_sea_index), url: '/seasons', class: cls} if user.admin?
+    res << {label: I18n.t(:l_sea_index), url: '/seasons'} if user.admin?
     if user.teams
       slast = Season.latest
       if slast
-        user.teams.each { |team| res << {label: team.name, url: '/teams/'+ team.id.to_s, class: cls} if team.season==slast}
+        user.teams.each { |team| res << {label: team.name, url: '/teams/'+ team.id.to_s} if team.season==slast}
       end
     end
-    res << {label: I18n.t(:l_drill_index), url: '/drills', class: cls} if user.is_coach?
+    res << {label: I18n.t(:l_drill_index), url: '/drills'} if user.is_coach?
     res
   end
 
   def admin_tab(user)
-    clb = 'hover:bg-blue-700 hover:text-white whitespace-nowrap shadow rounded px-3 py-3 rounded-md font-semibold'
-    cli = 'hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block pl-3 pr-3 py-3'
-    res = {label: I18n.t(:m_admin), items:[], class: clb}
-    res[:items] << {label: I18n.t(:l_team_index), url: '/teams', class: cli}
-    res[:items] << {label: I18n.t(:l_player_index), url: '/players', class: cli}
+    res = {label: I18n.t(:m_admin), items:[], class: @tabcls}
+    res[:items] << {label: I18n.t(:l_team_index), url: '/teams'}
+    res[:items] << {label: I18n.t(:l_player_index), url: '/players'}
     if user.admin?
-      res[:items] << {label: I18n.t(:l_coach_index), url: '/coaches', class: cli}
-      res[:items] << {label: I18n.t(:l_user_index), url: '/users', class: cli}
-      res[:items] << {label: I18n.t(:l_cat_index), url: '/categories', class: cli}
-      res[:items] << {label: I18n.t(:l_div_index), url: '/divisions', class: cli}
+      res[:items] << {label: I18n.t(:l_coach_index), url: '/coaches'}
+      res[:items] << {label: I18n.t(:l_user_index), url: '/users'}
+      res[:items] << {label: I18n.t(:l_cat_index), url: '/categories'}
+      res[:items] << {label: I18n.t(:l_div_index), url: '/divisions'}
+      res[:items] << {label: @clubname, url: '/home/edit', turbo: "modal"}
     end
-    res[:items] << {label: I18n.t(:l_loc_index), url: '/locations', class: cli}
+    res[:items] << {label: I18n.t(:l_loc_index), url: '/locations'}
     res
   end
 
@@ -70,7 +70,7 @@ class TopbarComponent < ApplicationComponent
   def dropdown_button
   end
 
-  def menu_link(label:, url: nil)
-    {label:, url:, class: 'no-underline block pl-3 pr-3 py-3 hover:bg-blue-700 hover:text-white whitespace-nowrap'}
+  def menu_link(label:, url: nil, turbo: nil)
+    {label:, url:, class: @lnkcls, turbo: turbo}
   end
 end

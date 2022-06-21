@@ -84,8 +84,13 @@ class PeopleController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
     	respond_to do |format|
       	if @person.update(person_params)
-	        format.html { redirect_to people_url(search: @person.name), notice: "#{I18n.t(:per_updated)} '#{@person.to_s}'" }
-					format.json { render :index, status: :created, location: people_url }
+					if @person.id=0 # just edited the club identity
+						format.html { redirect_to "/", notice: "'#{@person.nick}' #{I18n.t(:m_saved)}" }
+						format.json { render "/", status: :created, location: home_url }
+					else
+		        format.html { redirect_to people_url(search: @person.name), notice: "#{I18n.t(:per_updated)} '#{@person.to_s}'" }
+						format.json { render :index, status: :created, location: people_url }
+					end
 	      else
 	        format.html { render :edit }
 	        format.json { render json: @person.errors, status: :unprocessable_entity }
@@ -211,6 +216,6 @@ class PeopleController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def person_params
-			params.require(:person).permit(:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :player_id, :coach_id, :user_id)
+			params.require(:person).permit(:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :player_id, :coach_id, :user_id, :avatar)
     end
 end
