@@ -12,7 +12,7 @@ class HomeController < ApplicationController
       @club  = Person.find(0)
       @fields = [
         [{kind: "header-icon", value: @club.logo}, {kind: "title", value: I18n.t(:m_edit), cols: 2}],
-        [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @club.nick}]
+        [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :nick, value: @club.nick}]
       ]
       @f_logo = [[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]]
     else
