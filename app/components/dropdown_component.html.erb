@@ -3,7 +3,11 @@
     <button type="button" aria-controls="mobile-menu" aria-expanded="false" class="<%=@button[:i_class]%>">
       <span class="sr-only"><%=@button[:name]%></span>
       <%= image_tag(@button[:icon], size: @button[:size] ? @button[:size] : "25x25") if @button[:icon] %>
-      <%= @button[:label] if @button[:label] %>
+      <% if @button[:label] %>
+        <div class="inline-flex items-center">
+          <%=@button[:label]%> <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+      <% end %>
     </button>
     <div data-dropdown-target="menu" class="absolute hidden">
       <div class="<%=@button[:d_class]%>">

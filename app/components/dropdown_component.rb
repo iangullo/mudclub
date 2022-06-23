@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Dropdown buttons are specific for muli-add and menu buttons - have an :options array with :url,:icon:label
 class DropdownComponent < ApplicationComponent
   def initialize(button:)
     @button = parse(button)
@@ -42,7 +43,7 @@ class DropdownComponent < ApplicationComponent
     when "add"
       @button[:i_class] = "max-h-6 min-h-4 align-center rounded-lg hover:bg-green-200"
     when "menu"
-      @button[:i_class] = "bg-blue-900 shadow rounded border overflow-hidden"
+      @button[:i_class] = @button[:class] ? @button[:class] : "bg-blue-900 shadow rounded border overflow-hidden"
     end
   end
 end

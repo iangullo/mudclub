@@ -85,6 +85,8 @@
             <%= line.to_s %>
             <br>
           <% end %>
+        <% when "dropdown" %>
+          <%= render DropdownComponent.new(button: item[:button]) %>
         <% when "grid" %>
           <%= render GridComponent.new(grid: item[:value]) %>
         <% when "accordion" %>

@@ -24,7 +24,7 @@
                   <%= link_to tab[:label], tab[:url], class: @lnkcls , data: {action: "click->dropdown#toggle"} %>
                 <% end %>
                 <% if @admin_tab %>
-                  <% @admin_tab[:items].each do |tab| %>
+                  <% @admin_tab[:options].each do |tab| %>
                     <%= link_to tab[:label], tab[:url], class: @lnkcls, data: {action: "click->dropdown#toggle", turbo_frame: tab[:turbo]} %>
                   <% end %>
                 <% end %>
@@ -51,24 +51,7 @@
                     <%= link_to tab[:label], tab[:url] %>
                   </li>
                 <% end %>
-                <% if @admin_tab %>
-                  <div class="relative" data-controller="dropdown">
-                    <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="3" class="inline-block select-none">
-                      <div class="flex-shrink-0 flex items-center">
-                        <li class="<%=@tabcls%>">
-                          <%= @admin_tab[:label] %>
-                        </li>
-                      </div>
-                    </div>
-                    <div data-dropdown-target="menu" class="absolute hidden">
-                      <div class="bg-blue-900 shadow rounded border overflow-hidden">
-                        <% @admin_tab[:items].each do |item| %>
-                          <%= link_to item[:label], item[:url], data: {action: "click->dropdown#toggle", turbo_frame: item[:turbo]}, class: @lnkcls %>
-                        <% end %>
-                      </div>
-                    </div>
-                  </div>
-                <% end %>
+                <%= render DropdownComponent.new(button: @admin_tab) if @admin_tab %>
               </ul>
             <% end %>
           </div>

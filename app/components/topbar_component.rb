@@ -48,17 +48,17 @@ class TopbarComponent < ApplicationComponent
   end
 
   def admin_tab(user)
-    res = {label: I18n.t(:m_admin), items:[], class: @tabcls}
-    res[:items] << {label: I18n.t(:l_team_index), url: '/teams'}
-    res[:items] << {label: I18n.t(:l_player_index), url: '/players'}
+    res = {kind: "menu", label: I18n.t(:m_admin), options:[], class: @tabcls}
+    res[:options] << {label: I18n.t(:l_team_index), url: '/teams'}
+    res[:options] << {label: I18n.t(:l_player_index), url: '/players'}
     if user.admin?
-      res[:items] << {label: I18n.t(:l_coach_index), url: '/coaches'}
-      res[:items] << {label: I18n.t(:l_user_index), url: '/users'}
-      res[:items] << {label: I18n.t(:l_cat_index), url: '/categories'}
-      res[:items] << {label: I18n.t(:l_div_index), url: '/divisions'}
-      res[:items] << {label: @clubname, url: '/home/edit', turbo: "modal"}
+      res[:options] << {label: I18n.t(:l_coach_index), url: '/coaches'}
+      res[:options] << {label: I18n.t(:l_user_index), url: '/users'}
+      res[:options] << {label: I18n.t(:l_cat_index), url: '/categories'}
+      res[:options] << {label: I18n.t(:l_div_index), url: '/divisions'}
+      res[:options] << {label: @clubname, url: '/home/edit', turbo: "modal"}
     end
-    res[:items] << {label: I18n.t(:l_loc_index), url: '/locations'}
+    res[:options] << {label: I18n.t(:l_loc_index), url: '/locations'}
     res
   end
 

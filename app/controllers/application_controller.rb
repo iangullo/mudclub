@@ -51,7 +51,7 @@ class ApplicationController < ActionController::Base
       title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), turbo: "modal"} if current_user.admin? # new season event
       fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(season_id: @season.id), cols: 4}]]
     else
-      title << {kind: "dropdown", button: new_event_button(obj.id)} if obj.has_coach(current_user.person.coach_id) # new team event
+      title << new_event_button(obj.id) if obj.has_coach(current_user.person.coach_id) # new team event
       fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(team_id: @team.id), cols: 5}]]
     end
     fields << [{kind: "grid", value: {title: title, rows: rows}}]
@@ -60,11 +60,11 @@ class ApplicationController < ActionController::Base
 
   # dropdown button definition to create a new Event
   def new_event_button(team_id)
-    res = {kind: "add", name: I18n.t(:m_create), options: []}
-    res[:options] << {label: I18n.t(:l_train), url: new_event_path(event: {kind: :train, team_id: team_id})}
-    res[:options] << {label: I18n.t(:l_match), url: new_event_path(event: {kind: :match, team_id: team_id})}
-    res[:options] << {label: I18n.t(:l_rest), url: new_event_path(event: {kind: :rest, team_id: team_id})}
-    return res
+    button = {kind: "add", name: I18n.t(:m_create), options: []}
+    button[:options] << {label: I18n.t(:l_train), url: new_event_path(event: {kind: :train, team_id: team_id})}
+    button[:options] << {label: I18n.t(:l_match), url: new_event_path(event: {kind: :match, team_id: team_id})}
+    button[:options] << {label: I18n.t(:l_rest), url: new_event_path(event: {kind: :rest, team_id: team_id})}
+    return {kind: "dropdown", button: button}
   end
 
   def title_start(icon:, title:, size: nil, rows: nil, cols: nil, _class: nil)
