@@ -3,38 +3,12 @@
   <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
     <div class="relative flex items-center justify-between h-16">
       <!-- Mobile menu, show/hide based on menu state. -->
-      <div class="absolute inset-y-0 left-0 flex items-center sm:hidden" data-controller="dropdown">
-        <!-- Mobile menu button-->
-        <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="0" class="inline-block select-none">
-          <button type="button" class="inline-flex items-center justify-center p-2 rounded-md hover:text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
-            <span class="sr-only">Menu</span>
-            <!-- Icon when menu is closed. -->
-            <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            <!-- Icon when menu is open. -->
-            <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <div data-dropdown-target="menu" class="absolute hidden">
-            <div class="bg-blue-900 shadow rounded border overflow-hidden">
-              <% if @user %>
-                <% @menu_tabs.each do |tab| %>
-                  <%= link_to tab[:label], tab[:url], class: @lnkcls , data: {action: "click->dropdown#toggle"} %>
-                <% end %>
-                <% if @admin_tab %>
-                  <% @admin_tab[:options].each do |tab| %>
-                    <%= link_to tab[:label], tab[:url], class: @lnkcls, data: {action: "click->dropdown#toggle", turbo_frame: tab[:turbo]} %>
-                  <% end %>
-                <% end %>
-              <% end %>
-            </div>
-          </div>
-        </div>
+      <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+        <%= render DropdownComponent.new(button: @ham_menu) if @ham_menu %>
       </div>
       <!-- Regular menu for large screens, show/hide based on menu state. -->
       <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
+        <!-- Link to homepage -->
         <div class="flex-shrink-0 flex items-center">
           <%= link_to "/", class: "inline-flex align-center" do %>
             <%= image_tag @clublogo, class: "block lg:hidden h-8 w-auto" %>
@@ -45,42 +19,29 @@
         <div class="hidden sm:block sm:ml-6">
           <div class="flex space-x-4">
             <ul class="list-reset flex text-base text-gray-300">
-              <% if @user %>
-                <% @menu_tabs.each do |tab| %>
-                  <li class="<%=@tabcls%>">
-                    <%= link_to tab[:label], tab[:url] %>
-                  </li>
-                <% end %>
-                <%= render DropdownComponent.new(button: @admin_tab) if @admin_tab %>
-              </ul>
+            <% if @user %>
+              <% @menu_tabs.each do |tab| %>
+              <li class="<%=@tabcls%>">
+                <%= link_to tab[:label], tab[:url] %>
+              </li>
+              <% end %>
+              <%= render DropdownComponent.new(button: @admin_tab) if @admin_tab %>
             <% end %>
+            </ul>
           </div>
         </div>
       </div>
       <!-- Profile dropdown -->
       <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-        <div class="relative" data-controller="dropdown">
-          <div data-action="click->dropdown#toggle click@window->dropdown#hide" role="button" data-dropdown-target="button" tabindex="3" class="inline-block select-none">
-            <div class="flex-shrink-0 flex items-center">
-              <%if @user %>
-                <%= image_tag(@profile[:open][:icon], class: @profile[:open][:class]) %>
-              <% else %>
-                <%= link_to @profile[:login][:url] do %>
-                  <%= image_tag(@profile[:closed][:icon], class: @profile[:closed][:class]) %>
-                <% end %>
-              <% end %>
-            </div>
-          </div>
-          <div data-dropdown-target="menu" class="absolute right-0 mt-2 hidden">
-            <div class="bg-blue-900 shadow rounded border overflow-hidden">
-              <% if @user %>
-                <%= link_to @profile[:profile][:label], @profile[:profile][:url], class: @lnkcls, data: {turbo_frame: "modal"} %>
-                <%= link_to @profile[:logout][:label], @profile[:logout][:url], class: @lnkcls, data: {turbo_method: :delete} %>
-              <% else %>
-                <%= link_to @profile[:login][:label], @profile[:login][:url], class: @lnkcls %>
-              <% end %>
-            </div>
-          </div>
+        <div class="relative">
+        <% if @user %>
+            <%= render DropdownComponent.new(button: @prof_tab) %>
+          <% else %>
+            <%= link_to @prof_tab[:url] do %>
+              <%= image_tag(@prof_tab[:icon], size: @prof_tab[:size] ? @prof_tab[:size] : "25x25") if @prof_tab[:icon] %>
+              <%= @prof_tab[:label] if @prof_tab[:label] %>
+            <% end %>
+          <% end %>
         </div>
       </div>
     </div>

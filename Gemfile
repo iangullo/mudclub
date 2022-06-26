@@ -72,6 +72,10 @@ group :test do
   gem "webdrivers"
 end
 
+#component & styling
+gem "view_component"
+gem "tailwindcss-rails", "~> 2.0"
+
 # Added to import/export XLS files
 gem 'roo'
 gem 'caxlsx'
@@ -83,7 +87,3 @@ gem 'phonelib'
 # Added Devise for user authentication
 gem 'devise'
 gem 'devise-i18n'
-
-gem "view_component"
-
-gem "tailwindcss-rails", "~> 2.0"
