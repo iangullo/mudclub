@@ -5,7 +5,7 @@
 import { application } from "./application"
 
 import TurboModalController from "./turbo_modal_controller.js"
-application.register("extended-modal", TurboModalController)
+application.register("turbo-modal", TurboModalController)
 
 import SearchFormController from "./search_form_controller.js"
 application.register("search-form", SearchFormController)
