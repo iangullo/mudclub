@@ -72,6 +72,7 @@ class ButtonComponent < ApplicationComponent
       @button[:confirm] = I18n.t(:q_import)
     when "jump"
       @button[:size]    = "50x50" unless @button[:size]
+      @button[:turbo]   = "_top"
     when "remove"
       @button[:icon]    = "remove.svg"
     when "save"
