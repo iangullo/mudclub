@@ -72,7 +72,7 @@ class TopbarComponent < ApplicationComponent
   end
 
   def set_hamburger_menu
-    res = {kind: "menu", name: "hamburger", ham: true, options:[], class: "absolute inset-y-0 left-0 flex items-center sm:hidden inline-block select-none"}
+    res = {kind: "menu", name: "hamburger", ham: true, options:[], class: @tabcls}
     @menu_tabs.each { |m_opt| res[:options] << m_opt }
     @admin_tab[:options].each { |m_adm| res[:options] << m_adm }
     res

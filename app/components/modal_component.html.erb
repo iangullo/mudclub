@@ -1,11 +1,10 @@
 <%= turbo_frame_tag "modal" do %>
-  <div data-controller="extended-modal"
-    data-modal-allow-background-close="true">
-
+  <%= tag.div data: { controller: "turbo-modal",
+                    turbo_modal_target: "modal",
+                    action: "turbo:submit-end->turbo-modal#submitEnd keyup@window->turbo-modal#closeWithKeyboard click@window->turbo-modal#closeBackground" },
+                    class: "animated fadeIn fixed z-10 inset-0 mt-1 overflow-auto bg-gray-500 bg-opacity-75 flex items-center justify-center" do %>
     <!-- Modal Container -->
-    <div data-extended-modal-target="container"
-      data-action="turbo:submit-end->extended-modal#handleSuccess click->modal#closeBackground keyup@window->modal#closeWithKeyboard"
-      class="animated fadeIn fixed z-10 inset-0 mt-1 overflow-auto bg-gray-500 bg-opacity-75 flex items-center justify-center">
+    <div class="animated fadeIn fixed z-10 inset-0 mt-1 overflow-auto bg-gray-500 bg-opacity-75 flex items-center justify-center">
       <!-- Modal Inner Container -->
       <div data-extended-modal-target="body" class="flex rounded-lg relative mb-auto inset-y-16 object-cover overflow-auto shadow">
         <!-- Modal Card -->
@@ -25,5 +24,5 @@
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 <% end %>

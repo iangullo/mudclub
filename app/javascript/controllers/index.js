@@ -4,8 +4,8 @@
 
 import { application } from "./application"
 
-import ExtendedModalController from "./extended_modal_controller.js"
-application.register("extended-modal", ExtendedModalController)
+import TurboModalController from "./turbo_modal_controller.js"
+application.register("extended-modal", TurboModalController)
 
 import SearchFormController from "./search_form_controller.js"
 application.register("search-form", SearchFormController)

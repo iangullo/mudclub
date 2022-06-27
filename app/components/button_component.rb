@@ -91,7 +91,7 @@ class ButtonComponent < ApplicationComponent
     when "add", "add-nested"
       @button[:action] = "nested-form#add" if @button[:kind]=="add-nested"
     when "close"
-      @button[:action] = "click->extended-modal#close"
+      @button[:action] = "turbo-modal#hideModal"
       b_start = b_start + " font-bold"
     when "save", "import", "export", "menu", "login"
       b_start = b_start + " font-bold"
@@ -146,6 +146,6 @@ class ButtonComponent < ApplicationComponent
     res[:turbo_confirm] = @button[:confirm] if @button[:confirm]
     res[:turbo_method]  = "delete".to_sym if @button[:kind]=="delete"
     res[:action]        = @button[:action] if @button[:action]
-    @button[:data] = res unless res.empty?
+    @button[:data]      = res unless res.empty?
   end
 end
