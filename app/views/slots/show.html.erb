@@ -19,5 +19,5 @@
 	    </div>
 		</table>
 	</div>
-	<%= render SubmitComponent(submit: current_user.admin? ? edit_slot_path(@slot) : nil) %>
+	<%= render SubmitComponent.new(submit: current_user.admin? ? edit_slot_path(@slot) : nil) %>
 <% end %>

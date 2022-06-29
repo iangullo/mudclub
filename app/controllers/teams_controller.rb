@@ -209,7 +209,7 @@ class TeamsController < ApplicationController
   	def title_fields(title, cols: nil, search: nil, edit: nil)
 			res = title_start(icon: "team.svg", title: title, cols: cols)
 			if search
-				res << [{kind: "search-collection", key: :season_id, options: Season.all.order(start_date: :desc), value: @team ? @team.season_id : params[:season_id] ? params[:season_id] : nil}]
+				res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: @team ? @team.season_id : session.dig('team_filters', 'season_id')}]
 			elsif edit and current_user.admin?
 				res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
 			else
@@ -385,7 +385,7 @@ class TeamsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_team
-			@teams = Team.search(params[:season_id])
+			@teams = Team.search(params[:season_id] ? params[:season_id] : session.dig('team_filters', 'season_id'))
 			if params[:id]=="coaching"
 				@team = current_user.coach.teams.first
 			else

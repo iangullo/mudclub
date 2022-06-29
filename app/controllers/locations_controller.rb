@@ -199,6 +199,6 @@ private
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def location_params
-    params.require(:location).permit(:id, :name, :gmaps_url, :practice_court, seasons: [], season_locations: [] , seasons_attributes: [:id, :_destroy])
+    params.require(:location).permit(:id, :name, :gmaps_url, :practice_court, :season_id, seasons: [], season_locations: [] , seasons_attributes: [:id, :_destroy])
   end
 end
