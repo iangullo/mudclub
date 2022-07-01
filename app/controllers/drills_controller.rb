@@ -64,7 +64,7 @@ class DrillsController < ApplicationController
 				@drill = Drill.new
 				rebuild_drill	# rebuild drill
 				if @drill.save
-					format.html { redirect_to drills_url, notice: "#{I18n.t(:drill_created)} '#{@drill.name}'" }
+					format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_created)} '#{@drill.name}'"}}
 					format.json { render :index, status: :created, location: @drill }
 				else
 					format.html { render :new }
@@ -83,7 +83,7 @@ class DrillsController < ApplicationController
 				rebuild_drill	# rebuild drill
 				if @drill.coach_id == current_user.person.coach_id # author can modify
 				 	if @drill.save
-						format.html { redirect_to drills_url, notice: "#{I18n.t(:drill_updated)} '#{@drill.name}'" }
+						format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_updated)} '#{@drill.name}'"}}
 						format.json { render :index, status: :ok, location: @drill }
 					else
 						format.html { render :edit, status: :unprocessable_entity }
@@ -105,7 +105,7 @@ class DrillsController < ApplicationController
 			@drill.drill_targets.each { |d_t| d_t.delete }
 			@drill.destroy
 			respond_to do |format|
-				format.html { redirect_to drills_url, notice: "#{I18n.t(:drill_deleted)} '#{d_name}'" }
+				format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_deleted)} '#{d_name}'"}}
 				format.json { head :no_content }
 			end
 		else

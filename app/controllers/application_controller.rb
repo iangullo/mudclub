@@ -77,4 +77,9 @@ class ApplicationController < ActionController::Base
   def form_file_field(label:, key:, cols: nil)
     [[{kind: "label", value: label}, {kind: "select-file", key:, cols:}]]
   end
+
+  # standardised message wrapper
+  def flash_message(message, kind: "info")
+    res = {message: message, kind: kind}
+  end
 end

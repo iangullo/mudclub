@@ -66,7 +66,7 @@ class PeopleController < ApplicationController
 
 	    respond_to do |format|
 	      if @person.save
-	        format.html { redirect_to people_url(search: @person.name), notice: "#{I18n.t(:per_created)} '#{@person.to_s}'" }
+	        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t(:per_created)} '#{@person.to_s}'"}}
 	        format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :new }
@@ -85,10 +85,10 @@ class PeopleController < ApplicationController
     	respond_to do |format|
       	if @person.update(person_params)
 					if @person.id=0 # just edited the club identity
-						format.html { redirect_to "/", notice: "'#{@person.nick}' #{I18n.t(:m_saved)}" }
+						format.html { redirect_to "/", notice: {kind: "success", message: "'#{@person.nick}' #{I18n.t(:m_saved)}"}}
 						format.json { render "/", status: :created, location: home_url }
 					else
-		        format.html { redirect_to people_url(search: @person.name), notice: "#{I18n.t(:per_updated)} '#{@person.to_s}'" }
+		        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t(:per_updated)} '#{@person.to_s}'"}}
 						format.json { render :index, status: :created, location: people_url }
 					end
 	      else
@@ -107,7 +107,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
     	Person.import(params[:file])
-			format.html { redirect_to people_url, notice: "#{I18n.t(:per_import)} '#{params[:file].original_filename}'"}
+			format.html { redirect_to people_url, notice: {kind: "success", message: "#{I18n.t(:per_import)} '#{params[:file].original_filename}'"}}
 		else
 			redirect_to "/"
 		end
@@ -120,7 +120,7 @@ class PeopleController < ApplicationController
 			erase_links
 			@person.destroy
 	    respond_to do |format|
-				format.html { redirect_to people_url, notice: "#{I18n.t(:per_deleted)} '#{@person.to_s}'" }
+				format.html { redirect_to people_url, notice: {kind: "success", message: "#{I18n.t(:per_deleted)} '#{@person.to_s}'"}}
 	      format.json { head :no_content }
 	    end
 		else

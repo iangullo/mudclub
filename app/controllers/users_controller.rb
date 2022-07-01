@@ -63,7 +63,7 @@ class UsersController < ApplicationController
       respond_to do |format|
   			@user = build_new_user(params)	# build user
   			if @user.is_duplicate? then
-  				format.html { redirect_to @user, notice: "#{I18n.t(:user_duplicate)} '#{@user.s_name}'" }
+  				format.html { redirect_to @user, notice: {kind: "info", message: "#{I18n.t(:user_duplicate)} '#{@user.s_name}'"}}
   				format.json { render :show,  :created, location: @user }
   			else
   				@user.person.save
@@ -73,10 +73,10 @@ class UsersController < ApplicationController
   						@user.person.user_id = @user.id
   						@user.person.save
   					end
-  					format.html { redirect_to users_url, notice: "#{I18n.t(:user_created)} '#{@user.s_name}'" }
+  					format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_created)} '#{@user.s_name}'"}}
   					format.json { render :index, status: :created, location: users_url }
   				else
-  					format.html { render :new, notice: "#{@user.errors}" }
+  					format.html { render :new, notice: {kind: "error", message: "#{@user.errors}"}}
   					format.json { render json: @user.errors, status: :unprocessable_entity }
   				end
   			end
@@ -95,7 +95,7 @@ class UsersController < ApplicationController
         end
         rebuild_user(params)	# rebuild user
   			if @user.update(user_params)
-  				format.html { redirect_to users_url, notice: "#{I18n.t(:user_updated)} '#{@user.s_name}'" }
+  				format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_updated)} '#{@user.s_name}'"}}
   				format.json { render :index, status: :ok, location: users_url }
   			else
   				format.html { render :edit }
@@ -113,7 +113,7 @@ class UsersController < ApplicationController
       unlink_person
   		@user.destroy
   		respond_to do |format|
-  			format.html { redirect_to users_url, notice: "#{I18n.t(:user_deleted)} '#{@user.s_name}'" }
+  			format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_deleted)} '#{@user.s_name}'"}}
   			format.json { head :no_content }
   		end
     else

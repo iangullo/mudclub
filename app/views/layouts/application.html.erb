@@ -20,7 +20,7 @@
       <!-- App content goes here -->
     	<main class="mb-auto h-15 w-full h-auto p-15">
     	  <div class="content flex items-center justify-center">
-    			<%= render "shared/flash" if notice %>
+    			<%= render FlashComponent.new(notice: notice) if notice %>
           <%= turbo_frame_tag "modal" %>
     			<%= yield %>
     	  </div>

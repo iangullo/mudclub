@@ -152,7 +152,7 @@ class TeamsController < ApplicationController
 
 	    respond_to do |format|
 	      if @team.save
-	        format.html { redirect_to teams_path, notice: "#{I18n.t(:team_created)} '#{@team.to_s}'" }
+	        format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t(:team_created)} '#{@team.to_s}'"}}
 	        format.json { render :index, status: :created, location: teams_path }
 	      else
 	        format.html { render :new }
@@ -172,7 +172,7 @@ class TeamsController < ApplicationController
 		    respond_to do |format|
 					rebuild_team
 		      if @team.save
-						format.html { redirect_to @team, notice: "#{I18n.t(:team_updated)} '#{@team.to_s}'" }
+						format.html { redirect_to @team, notice: {kind: "success", message: "#{I18n.t(:team_updated)} '#{@team.to_s}'"}}
 		        format.json { render :show, status: :created, location: teams_path(@team) }
 		      else
 		        format.html { render :edit }
@@ -195,7 +195,7 @@ class TeamsController < ApplicationController
 			erase_links
 	    @team.destroy
 	    respond_to do |format|
-	      format.html { redirect_to teams_path, notice: "#{I18n.t(:team_deleted)} '#{t_name}'" }
+	      format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t(:team_deleted)} '#{t_name}'"}}
 	      format.json { head :no_content }
 	    end
 		else

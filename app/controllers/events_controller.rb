@@ -93,7 +93,7 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           link_holidays
-          format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: event_create_notice }
+          format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: {kind: "success", message: event_create_notice}}
           format.json { render :show, status: :created, location: events_path}
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -112,17 +112,17 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           if @task  # we just updated a task
-            format.html { redirect_to edit_event_path(@event), notice: "#{I18n.t(:task_created)} '#{@task.to_s}'" }
+            format.html { redirect_to edit_event_path(@event), notice: {kind: "success", message: "#{I18n.t(:task_created)} '#{@task.to_s}'"}}
             format.json { render :edit, status: :ok, location: @event }
           elsif params[:event][:season_id].to_i > 0 # season event
-            format.html { redirect_to season_path(params[:event][:season_id]), notice: event_update_notice }
+            format.html { redirect_to season_path(params[:event][:season_id]), notice: {kind: "success", message: event_update_notice}}
             format.json { render :show, status: :ok, location: @event }
           elsif params[:event][:p_for]==nil # a training session
             @event.tasks.reload
-            format.html { redirect_to @event, notice: event_update_notice }
+            format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
             format.json { render :show, status: :ok, location: @event }
           else # updating match
-            format.html { redirect_to team_path(@event.team_id), notice: "#{I18n.t(:match_updated)} '#{@event.to_s}'" }
+            format.html { redirect_to team_path(@event.team_id), notice: {kind: "success", message: "#{I18n.t(:match_updated)} '#{@event.to_s}'"}}
           end
         else
           format.html { render :edit, status: :unprocessable_entity }
@@ -142,7 +142,7 @@ class EventsController < ApplicationController
       team   = @event.team
       @event.destroy
       respond_to do |format|
-        format.html { redirect_to team.id > 0 ? team_path(team) : events_url, notice: event_delete_notice }
+        format.html { redirect_to team.id > 0 ? team_path(team) : events_url, notice: {kind: "success", message: event_delete_notice}}
         format.json { head :no_content }
       end
     else
