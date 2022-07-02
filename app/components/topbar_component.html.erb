@@ -10,7 +10,7 @@
       <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
         <!-- Link to homepage -->
         <div class="flex-shrink-0 flex items-center">
-          <%= link_to "/", class: "inline-flex align-center" do %>
+          <%= link_to "/", class: "inline-flex align-center", data: {turbo_frame: "_top"} do %>
             <%= image_tag @clublogo, class: "block lg:hidden h-8 w-auto" %>
             <%= image_tag @clublogo, class: "hidden lg:block h-8 w-auto" %>&nbsp;<label class="font-bold text-2xl text-yellow-500"><%=@clubname%></label>
           <% end %>
@@ -22,7 +22,7 @@
             <% if @user %>
               <% @menu_tabs.each do |tab| %>
               <li class="<%=@tabcls%>">
-                <%= link_to tab[:label], tab[:url] %>
+                <%= link_to tab[:label], tab[:url], data: {turbo_frame: "_top"} %>
               </li>
               <% end %>
               <%= render DropdownComponent.new(button: @admin_tab) if @admin_tab %>
@@ -37,7 +37,7 @@
         <% if @user %>
             <%= render DropdownComponent.new(button: @prof_tab) %>
           <% else %>
-            <%= link_to @prof_tab[:url] do %>
+            <%= link_to @prof_tab[:url], data: {turbo_frame: "_top"} do %>
               <%= image_tag(@prof_tab[:icon], size: @prof_tab[:size] ? @prof_tab[:size] : "25x25") if @prof_tab[:icon] %>
               <%= @prof_tab[:label] if @prof_tab[:label] %>
             <% end %>

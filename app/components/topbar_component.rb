@@ -47,16 +47,16 @@ class TopbarComponent < ApplicationComponent
 
   def admin_tab(user)
     res = {kind: "menu", name: "admin", label: I18n.t(:m_admin), options:[], class: @tabcls}
-    res[:options] << {label: I18n.t(:l_team_index), url: '/teams'}
-    res[:options] << {label: I18n.t(:l_player_index), url: '/players'}
+    res[:options] << {label: I18n.t(:l_team_index), url: '/teams', data: {turbo_frame: "_top"}}
+    res[:options] << {label: I18n.t(:l_player_index), url: '/players', data: {turbo_frame: "_top"}}
     if user.admin?
-      res[:options] << {label: I18n.t(:l_coach_index), url: '/coaches'}
-      res[:options] << {label: I18n.t(:l_user_index), url: '/users'}
-      res[:options] << {label: I18n.t(:l_cat_index), url: '/categories'}
-      res[:options] << {label: I18n.t(:l_div_index), url: '/divisions'}
+      res[:options] << {label: I18n.t(:l_coach_index), url: '/coaches', data: {turbo_frame: "_top"}}
+      res[:options] << {label: I18n.t(:l_user_index), url: '/users', data: {turbo_frame: "_top"}}
+      res[:options] << {label: I18n.t(:l_cat_index), url: '/categories', data: {turbo_frame: "_top"}}
+      res[:options] << {label: I18n.t(:l_div_index), url: '/divisions', data: {turbo_frame: "_top"}}
       res[:options] << {label: @clubname, url: '/home/edit', data: {turbo_frame: "modal"}}
     end
-    res[:options] << {label: I18n.t(:l_loc_index), url: '/locations'}
+    res[:options] << {label: I18n.t(:l_loc_index), url: '/locations', data: {turbo_frame: "_top"}}
     res
   end
 
@@ -64,9 +64,9 @@ class TopbarComponent < ApplicationComponent
     if user
       res = {kind: "menu", name: "profile", icon: user.picture, options:[], class: @profcls}
       res[:options] << {label: @profile[:profile][:label], url: @profile[:profile][:url], class: @lnkcls, data: {turbo_frame: "modal"}}
-      res[:options] << {label: @profile[:logout][:label], url: @profile[:logout][:url], class: @lnkcls, data: {turbo_method: :delete}}
+      res[:options] << {label: @profile[:logout][:label], url: @profile[:logout][:url], class: @lnkcls}
     else
-      res = {icon: @profile[:closed][:icon], name: "profile", url: @profile[:login][:url], class: @profile[:closed][:class]}
+      res = {icon: @profile[:closed][:icon], name: "profile", url: @profile[:login][:url], class: @profile[:closed][:class], data: {turbo_frame: "_top"}}
     end
     res
   end
