@@ -78,7 +78,7 @@ class DivisionsController < ApplicationController
       prune_teams
       @division.destroy
       respond_to do |format|
-        format.html { redirect_to divisions_url, notice: {kind: "success", message: "#{I18n.t(:div_deleted)} '#{d_name}'"}
+        format.html { redirect_to divisions_url, notice: {kind: "success", message: "#{I18n.t(:div_deleted)} '#{d_name}'"}}
         format.json { head :no_content }
       end
     else

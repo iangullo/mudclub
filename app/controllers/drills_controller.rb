@@ -1,7 +1,6 @@
 class DrillsController < ApplicationController
   include Filterable
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :edit, :update, :check_reload]
-	before_action :set_drill, only: %i[ show edit update destroy ]
 
 	# GET /drills or /drills.json
 	def index
@@ -43,7 +42,7 @@ class DrillsController < ApplicationController
 			@drill = Drill.new
 			@title = title_fields(I18n.t(:l_drill_new))
 			@form_fields = form_fields
-		else
+    else
 			redirect_to "/"
 		end
 	end
@@ -53,9 +52,15 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			redirect_to drills_url
 		end
-		@title = title_fields(I18n.t(:l_drill_edit))
+		@title       = title_fields(I18n.t(:l_drill_edit))
 		@form_fields = form_fields
 	end
+
+  # POST drills/1/add_skill
+  def add_skill
+    @drill.skills << Skill.new
+    render :new
+  end
 
 	# POST /drills or /drills.json
 	def create

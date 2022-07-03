@@ -9,3 +9,7 @@ application.register("turbo-modal", TurboModalController)
 
 import SearchFormController from "./search_form_controller.js"
 application.register("search-form", SearchFormController)
+
+import NestedForm from 'stimulus-rails-nested-form'
+application.register('nested-form', NestedForm)
+export { application }
