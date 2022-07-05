@@ -8,5 +8,4 @@ pin "trix"
 pin "@rails/actiontext", to: "actiontext.js"
 
 # lib
-pin "flowbite", to: "https://ga.jspm.io/npm:flowbite@1.4.7/dist/flowbite.js", preload: true
-#pin "flowbite", to: "./node_modules/flowbite/dist/flowbite.js"
+pin "flowbite" # @1.4.7
