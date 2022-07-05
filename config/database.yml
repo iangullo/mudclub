@@ -5,7 +5,7 @@
 #   gem "sqlite3"
 #
 default: &default
-  host: 192.168.2.7
+  host: localhost
   adapter: postgresql
   username: mudclub
   password: EtClausi

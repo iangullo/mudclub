@@ -74,7 +74,7 @@ class TopbarComponent < ApplicationComponent
   def set_hamburger_menu
     res = {kind: "menu", name: "hamburger", ham: true, options:[], class: @tabcls}
     @menu_tabs.each { |m_opt| res[:options] << m_opt }
-    @admin_tab[:options].each { |m_adm| res[:options] << m_adm }
+    @admin_tab[:options].each { |m_adm| res[:options] << m_adm } if @admin_tab
     res
   end
 
