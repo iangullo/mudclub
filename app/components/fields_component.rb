@@ -64,10 +64,11 @@ class FieldsComponent < ApplicationComponent
           item[:class]   = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
           item[:i_class] = "rounded bg-gray-200 text-blue-700"
         when "link", "select-file"
-          item[:class] = item[:class] ? item[:class] : " inline-flex align-middle p-0 text-sm"
-          item[:size]  = "20x20" unless item[:size]
+          item[:class]   = item[:class] ? item[:class] : " inline-flex align-middle p-0 text-sm"
+          item[:size]    = "20x20" unless item[:size]
+          item[:i_class] = "rounded text-sm m-0 text-gray-500 py-0 px-0" if item[:kind]=="select-file"
         when "location"
-          item[:class] = "inline-flex align-top font-semibold"
+          item[:class]   = "inline-flex align-top font-semibold"
           item[:i_class] = "rounded-md hover:bg-blue-100"
         when "string"
           item[:class] = "align-top"
@@ -91,7 +92,7 @@ class FieldsComponent < ApplicationComponent
           item[:class] = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
         when "lines"
           item[:class] = "align-top py-0 px-1 border px py" unless item[:class]
-        when /^(select-.+|.+-box)$/
+        when /^(select-.+|.+-box|.+-area)$/
           item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
           item[:i_class] = item[:i_class] + " text-right" if item[:kind]=="number-box"
         when "accordion"

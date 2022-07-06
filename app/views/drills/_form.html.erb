@@ -6,7 +6,7 @@
 			<div id="drills-form-data">
 				<table>
 					<tr>
-						<th align="right" class="align-top"><%= t(:l_targ) %></th>
+						<td align="right" class="align-top font-semibold"><%= t(:l_targ) %></td>
 						<td colspan="3">
 							<div id="drill-targets" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
 								<% n_p = @drill.drill_targets ? @drill.drill_targets.count+1 : 1 %>
@@ -31,7 +31,7 @@
 				<%= render FieldsComponent.new(fields: @form_fields, form: form) %>
 				<table>
 					<tr>
-						<th align="right" class="align-top"><%= t(:l_skill) %></th>
+						<td align="right" class="align-top font-semibold"><%= t(:l_skill) %></td>
 						<td colspan="3">
 							<div id="drill-skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
 								<template data-nested-form-target="template">

@@ -27,7 +27,7 @@
           <%= @form.text_area item[:key], value: item[:value], cols: item[:size], rows: item[:lines], class: item[:i_class] %>
         <% when "rich-text-area" %>
           <div id="trix-editor">
-            <%= @form.rich_text_area item[:key], class: item[:class] %>
+            <%= @form.rich_text_area item[:key], class: item[:i_class] %>
           </div>
         <% when "number-box" %>
           <%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, class: item[:i_class] %>
@@ -72,7 +72,7 @@
             <% if item[:label] %>
               <small class="font-medium">&nbsp;<%= item[:label] %></small>
             <% end %>
-            <%= @form.file_field item[:key], hide_label: true, label: item[:value], direct_upload: true %>
+            <%= @form.file_field item[:key], hide_label: true, label: item[:value], direct_upload: true, class: item[:i_class] %>
           </div>
         <% when "add", "add-nested", "edit", "jump", "link", "location" %>
           <%= render ButtonComponent.new(button: item) %>

@@ -136,8 +136,8 @@ class DrillsController < ApplicationController
 			return [
 				# DO WE INCLUDE NESTED FORM TYPE??? HOW?
 				# NESTED FORM for Targets...
-				[{kind: "label", value: I18n.t(:l_mat), align: "right"}, {kind: "text-box", key: :material, size: 40, value: @drill.material}],
-				[{kind: "label", value: I18n.t(:l_desc), align: "right"}, {kind: "text-area", key: :description, size: 40, lines: 2, value: @drill.description}],
+				[{kind: "label", value: I18n.t(:l_mat), align: "right"}, {kind: "text-box", key: :material, size: 36, value: @drill.material}],
+				[{kind: "label", value: I18n.t(:l_desc), align: "right"}, {kind: "text-area", key: :description, size: 30, lines: 2, value: @drill.description}],
 				[{kind: "rich-text-area", key: :explanation, align: "left", cols: 2}],
 				# NESTED FORM for Skills...
 				[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.active}]
