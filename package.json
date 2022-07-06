@@ -2,5 +2,8 @@
   "dependencies": {
     "flowbite": "^1.4.7",
     "patch-package": "^6.4.7"
+  },
+  "scripts": {
+    "postinstall": "patch-package"
   }
 }
