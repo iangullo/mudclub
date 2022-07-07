@@ -186,6 +186,7 @@ class UsersController < ApplicationController
       @user                       = User.new(user_params)
       @user.set_default_role
       @user.email                 = params.fetch(:user)[:email]
+      @user.person_id             = nil
       @user.password              = params.fetch(:user)[:password]
       @user.password_confirmation = params.fetch(:user)[:password_confirmation]
       @user.build_person
