@@ -1,5 +1,6 @@
 class DrillsController < ApplicationController
   include Filterable
+	before_action :set_drill, only: [:show, :edit, :add_skill, :update, :destroy]
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :edit, :update, :check_reload]
 
 	# GET /drills or /drills.json
@@ -152,7 +153,7 @@ class DrillsController < ApplicationController
 	      {kind: "normal", value: I18n.t(:h_kind), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
 	      {kind: "normal", value: I18n.t(:h_targ)}
 	    ]
-			title << {kind: "add", url: new_drill_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
+			title << {kind: "add", url: new_drill_path} if current_user.admin? or current_user.is_coach?
 
 			{track: track, title: title, rows: drill_rows}
 	  end
@@ -161,7 +162,7 @@ class DrillsController < ApplicationController
 		def drill_rows
 			rows = Array.new
 			@drills.each { |drill|
-	      row = {url: drill_path(drill), turbo: "modal", items: []}
+	      row = {url: drill_path(drill), items: []}
 	      row[:items] << {kind: "normal", value: drill.name}
 	      row[:items] << {kind: "normal", value: drill.kind.name, align: "center"}
 	      row[:items] << {kind: "lines", value: drill.print_targets}

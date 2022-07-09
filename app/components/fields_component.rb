@@ -94,7 +94,11 @@ class FieldsComponent < ApplicationComponent
           item[:class] = "align-top py-0 px-1 border px py" unless item[:class]
         when /^(select-.+|.+-box|.+-area)$/
           item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
-          item[:i_class] = item[:i_class] + " text-right" if item[:kind]=="number-box"
+          if item[:kind]=="number-box"
+            item[:i_class] = item[:i_class] + " text-right"
+            item[:min]     = 0 unless item[:min]
+            item[:max]     = 99 unless item[:max]
+            item[:step]    = 1 unless item[:step]
         when "accordion"
           item[:h_class] = "font-semibold text-left text-indigo-900"
           item[:t_class] = "font-semibold text-right text-indigo-900"

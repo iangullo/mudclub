@@ -30,7 +30,7 @@
             <%= @form.rich_text_area item[:key], class: item[:i_class] %>
           </div>
         <% when "number-box" %>
-          <%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, class: item[:i_class] %>
+          <%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, min: item[:min], max: item[:max], step: item[:step], class: item[:i_class] %>
           <%= item[:units].to_s %>
         <% when "date-box" %>
           <%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>

@@ -264,9 +264,9 @@ class EventsController < ApplicationController
           {kind: "top-cell", value: I18n.t(:a_dur)}
         ],
         [
-          {kind: "number-box", key: :order, value: @task.order, size: 2},
+          {kind: "number-box", key: :order, max: 30, value: @task.order, size: 2},
           {kind: "select-collection", key: :drill_id, options: @drills, value: @task.drill_id},
-          {kind: "number-box", key: :duration, value: @task.duration, size: 3}
+          {kind: "number-box", key: :duration, max: 90, value: @task.duration, size: 3}
         ],
         [
           {kind: "hidden", key: :id, value: @task.id},
@@ -279,8 +279,8 @@ class EventsController < ApplicationController
     def match_fields
       score = @event.score(0)
       res = [[{kind: "gap", cols: 6}]]
-      res << [{kind: "side-cell", value: I18n.t(:h_home), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: @event.team.to_s, cols: 2}, {kind: "number-box", key: :p_for, value: score[:home][:points]}]
-      res << [{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center",}, {kind: "text-box", key: :name, value: @event.name, cols: 2}, {kind: "number-box", key: :p_opp, value: score[:away][:points]}]
+      res << [{kind: "side-cell", value: I18n.t(:h_home), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: @event.team.to_s, cols: 2}, {kind: "number-box", key: :p_for, min: 0, max: 200, value: score[:home][:points]}]
+      res << [{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center",}, {kind: "text-box", key: :name, value: @event.name, cols: 2}, {kind: "number-box", key: :p_opp, min: 0, max: 200, value: score[:away][:points]}]
       res
     end
 

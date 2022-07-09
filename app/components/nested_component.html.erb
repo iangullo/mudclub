@@ -1,5 +1,5 @@
 <!-- https://api.rubyonrails.org/classes/ActionView/Helpers/FormBuilder.html#method-i-fields_for -->
-<turbo-frame id="< %=@form.field_id(@key)%>" class="contents">
+<turbo-frame id="<%=@form.field_id(@key)%>" class="contents">
   <%= @form.fields_for @key.to_sym do |ff| %>
     <div class="inline-flex">
       <%= render FieldsComponent.new(form: ff, fields: @fields) %>
