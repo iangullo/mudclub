@@ -99,6 +99,7 @@ class FieldsComponent < ApplicationComponent
             item[:min]     = 0 unless item[:min]
             item[:max]     = 99 unless item[:max]
             item[:step]    = 1 unless item[:step]
+          end
         when "accordion"
           item[:h_class] = "font-semibold text-left text-indigo-900"
           item[:t_class] = "font-semibold text-right text-indigo-900"
