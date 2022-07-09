@@ -1,4 +1,5 @@
 class CoachesController < ApplicationController
+  include Filterable
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_coach, only: [:show, :edit, :update, :destroy]
 
@@ -8,7 +9,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@coaches = get_coaches
 			@title  = title_fields(I18n.t(:l_coach_index))
-			@title << [{kind: "search-text", key: :search, value: params[:search], url: coaches_path}]
+			@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
 			@grid    = coach_grid
 			respond_to do |format|
 				format.xlsx {
@@ -194,18 +195,22 @@ class CoachesController < ApplicationController
 		# build new @coach from raw input given by submittal from "new"
 		# return nil if unsuccessful
 		def rebuild_coach(params)
+			p_data = params.fetch(:coach).fetch(:person_attributes)
 			@coach = Coach.new
-			@coach.build_person
 			@coach.active = true
-			p_data= params.fetch(:coach).fetch(:person_attributes)
-			@coach.person[:dni] = p_data[:dni]
-			@coach.person[:nick] = p_data[:nick]
-			@coach.person[:name] = p_data[:name]
-			@coach.person[:surname] = p_data[:surname]
-			@coach.person[:female] = p_data[:female]
-			@coach.person[:email] = p_data[:email]
-			@coach.person[:phone] = Phonelib.parse(p_data[:phone]).international.to_s
-			@coach.person[:coach_id] = 0
+			if @coach.person_id==0 # not bound to a person yet?
+				p_data[:id].to_i > 0 ? @coach.person=Person.find(p_data[:id].to_i) : @coach.build_person
+			else #person is linked, get it
+				@coach.person.reload
+      end
+			@coach.person[:dni]       = p_data[:dni]
+			@coach.person[:nick]      = p_data[:nick]
+			@coach.person[:name]      = p_data[:name]
+			@coach.person[:surname]   = p_data[:surname]
+			@coach.person[:female]    = p_data[:female]
+			@coach.person[:email]     = p_data[:email]
+			@coach.person[:phone]     = Phonelib.parse(p_data[:phone]).international.to_s
+			@coach.person[:coach_id]  = 0
 			@coach.person[:player_id] = 0
 			@coach
 		end

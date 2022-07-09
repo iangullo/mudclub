@@ -1,4 +1,5 @@
 class PeopleController < ApplicationController
+  include Filterable
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
   before_action :set_person, only: [:show, :edit, :update, :destroy]
 
@@ -8,7 +9,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and current_user.admin?
 			@people = get_people
 			@title  = title_fields(I18n.t(:l_per_index))
-			@title << [{kind: "search-text", key: :search, value: params[:search], url: people_path}]
+			@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('people_filters','search'), url: people_path}]
 			@grid   = person_grid
 			respond_to do |format|
 				format.xlsx {

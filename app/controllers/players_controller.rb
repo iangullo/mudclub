@@ -1,4 +1,5 @@
 class PlayersController < ApplicationController
+  include Filterable
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_player, only: [:show, :edit, :update, :destroy]
 
@@ -8,7 +9,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@players = get_players
 			@title   = title_fields(I18n.t(:l_player_index))
-			@title << [{kind: "search-text", key: :search, value: params[:search], url: players_path}]
+			@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path}]
 			@grid    =  player_grid(players: @players)
 			respond_to do |format|
 				format.xlsx {
@@ -52,7 +53,7 @@ class PlayersController < ApplicationController
 			redirect_to "/"
 		end
 		@title_fields    = form_fields(I18n.t(:l_player_new), rows: 3, cols: 2)
-		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @player.active}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_num)}, {kind: "number-box", key: :number, value: @player.number}]]
+		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @player.active}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_num)}, {kind: "number-box", key: :number, min: 0, max: 99, value: @player.number}]]
 		@player_fields_2 = [[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar, cols: 5}]]
 		@person_fields   = [
 			[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
@@ -67,8 +68,8 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = rebuild_player(params)	# rebuild player
 				if @player.is_duplicate? then
-					format.html { redirect_to @player, notice: {kind: "info", message: "#{I18n.t(:player_duplicate)} '#{@player.to_s}'"}}
-					format.json { render :show,  :created, location: @player }
+					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "info", message: "#{I18n.t(:player_duplicate)} '#{@player.to_s}'"}}
+					format.json { render :index, :player_duplicate, location: players_path(search: @player.person.to_s(true)) }
 				else
 					@player.person.save
 					@player.person_id = @player.person.id
@@ -77,8 +78,8 @@ class PlayersController < ApplicationController
 							@player.person.player_id = @player.id
 							@player.person.save
 						end
-						format.html { redirect_to players_url(search: @player.person.name), notice: {kind: "success", message: "#{I18n.t(:player_created)} '#{@player.to_s}'"}}
-						format.json { render :index, status: :created, location: players_url }
+						format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t(:player_created)} '#{@player.to_s}'"}}
+						format.json { render :index, status: :created, location: players_path(search: @player.person.to_s(true)) }
 					else
 						format.html { render :new }
 						format.json { render json: @player.errors, status: :unprocessable_entity }
@@ -96,8 +97,8 @@ class PlayersController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
 			respond_to do |format|
 				if @player.update(player_params)
-					format.html { redirect_to players_url(search: @player.person.name), notice: {kind: "success", message: "#{I18n.t(:player_updated)} '#{@player.to_s}'"}}
-					format.json { render :index, status: :ok, location: players_url }
+					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t(:player_updated)} '#{@player.to_s}'"}}
+					format.json { render :index, status: :ok, location: players_path(search: @player.person.to_s(true)) }
 				else
 					format.html { render :edit }
 					format.json { render json: @player.errors, status: :unprocessable_entity }
@@ -114,7 +115,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Player.import(params[:file])
-	    format.html { redirect_to players_url, notice: {kind: "success", message: "#{I18n.t(:player_import)} '#{params[:file].original_filename}'"}}
+	    format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t(:player_import)} '#{params[:file].original_filename}'"}}
 		else
 			redirect_to "/"
 		end
@@ -128,7 +129,7 @@ class PlayersController < ApplicationController
 			unlink_person
 			@player.destroy
 			respond_to do |format|
-				format.html { redirect_to players_url, notice: {kind: "success", message: "#{I18n.t(:player_deleted)} '#{p_name}'"}}
+				format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t(:player_deleted)} '#{p_name}'"}}
 				format.json { head :no_content }
 			end
 		else
@@ -158,11 +159,16 @@ class PlayersController < ApplicationController
 		# build new @player from raw input given by submittal from "new"
 		# return nil if unsuccessful
 		def rebuild_player(params)
+			p_data  = params.fetch(:player).fetch(:person_attributes)
 			@player = Player.new(player_params)
 			@player.build_person
-			@player.active = true
-			@player.number = params.fetch(:player)[:number]
-			p_data= params.fetch(:player).fetch(:person_attributes)
+			@player.active   = true
+			@player.number   = params.fetch(:player)[:number]
+      if @player.person_id==0 # not bound to a person yet?
+        p_data[:id].to_i > 0 ? @player.person=Person.find(p_data[:id].to_i) : @player.build_person
+      else #person is linked, get it
+        @user.person.reload
+      end
 			@player.person[:dni] = p_data[:dni]
 			@player.person[:nick] = p_data[:nick]
 			@player.person[:name] = p_data[:name]

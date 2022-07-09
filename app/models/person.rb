@@ -32,7 +32,13 @@ class Person < ApplicationRecord
 	# returns: reloads self if it exists in the database already
 	# 	   'nil' if it needs to be created.
 	def exists?
-		p = Person.where(dni: self.dni).or(Person.where(email: self.email)).or(Person.where(name: self.name, surname: self.surname))
+		if self.dni # not null, let's search by that unique field
+			p = Person.where(dni: self.dni)
+		elsif self.email	# another unique field is email
+			p = Person.where(email: self.email)
+		else	# we search by name/surname since no unique fields are there
+			p = Person.where(name: self.name, surname: self.surname)
+		end
 		if p.try(:size)==1
 			self.id = p.first.id
 			self.reload

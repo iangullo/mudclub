@@ -1,12 +1,13 @@
 class UsersController < ApplicationController
+  include Filterable
   skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_user, only: [:show, :edit, :update, :destroy]
 
   def index
     if current_user.present? and current_user.admin?
-      @users = User.search(params[:search])
+      @users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
       @title = title_fields(I18n.t(:l_user_index))
-      @title << [{kind: "search-text", key: :search, value: session.dig('user_filters', 'search'), url: users_path}]
+      @title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
       @grid  = user_grid
     else
       redirect_to "/"
@@ -34,7 +35,7 @@ class UsersController < ApplicationController
       @fields << [{kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: I18n.t(:h_email)}]
       @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t(:l_pass)}]
       @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t(:l_pass_conf)}]
-      @fields << [{kind: "gap"}, {kind: "text", value: I18n.t(:i_pass_conf), cols: 2}]
+      @fields << [{kind: "gap"}, {kind: "text", value: I18n.t(:i_pass_conf), cols: 2, class: "text-xs"}]
     else
       redirect_to "/"
     end
@@ -183,13 +184,14 @@ class UsersController < ApplicationController
 
     # build & prepare a person for a new user
     def build_new_user(params)
-      @user                       = User.new(user_params)
+      @user = User.new(user_params)
       @user.set_default_role
       @user.email                 = params.fetch(:user)[:email]
       @user.person_id             = nil
       @user.password              = params.fetch(:user)[:password]
       @user.password_confirmation = params.fetch(:user)[:password_confirmation]
       @user.build_person
+      @user.person.user_id = 0
       @user.person.email   = @user.email
       @user.person.name    = @user.email.split("@").first
       @user.person.surname = @user.email.split("@").last
