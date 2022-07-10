@@ -1,6 +1,6 @@
 class DrillsController < ApplicationController
   include Filterable
-	before_action :set_drill, only: [:show, :edit, :add_skill, :update, :destroy]
+	before_action :set_drill, only: [:show, :edit, :update, :destroy]
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :edit, :update, :check_reload]
 
 	# GET /drills or /drills.json
@@ -56,12 +56,6 @@ class DrillsController < ApplicationController
 		@title       = title_fields(I18n.t(:l_drill_edit))
 		@form_fields = form_fields
 	end
-
-  # POST drills/1/add_skill
-  def add_skill
-    @drill.skills << Skill.new
-    render :new
-  end
 
 	# POST /drills or /drills.json
 	def create
@@ -134,7 +128,8 @@ class DrillsController < ApplicationController
 		def form_fields
 			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: @drill.kind_id, align: "center"}]
 			@playbook = [[{kind: "select-file", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename.to_s}]]
-			return [
+			@skill_row= [[{kind: "text-box", key: :concept, placeholder: I18n.t(:d_skill), size: 10}]]
+				return [
 				# DO WE INCLUDE NESTED FORM TYPE??? HOW?
 				# NESTED FORM for Targets...
 				[{kind: "label", value: I18n.t(:l_mat), align: "right"}, {kind: "text-box", key: :material, size: 33, value: @drill.material}],
@@ -153,7 +148,7 @@ class DrillsController < ApplicationController
 	      {kind: "normal", value: I18n.t(:h_kind), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
 	      {kind: "normal", value: I18n.t(:h_targ)}
 	    ]
-			title << {kind: "add", url: new_drill_path} if current_user.admin? or current_user.is_coach?
+			title << {kind: "add", url: new_drill_path, turbo: "_top"} if current_user.admin? or current_user.is_coach?
 
 			{track: track, title: title, rows: drill_rows}
 	  end

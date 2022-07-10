@@ -32,22 +32,11 @@
 				<tr>
 					<td align="right" class="align-top font-semibold"><%= t(:l_skill) %></td>
 					<td colspan="3">
-						<div id="drill-skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
-							<template data-nested-form-target="template">
-								<%= form.fields_for :skills, Skill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
-									<%= render 'skill_form', form: skill_fields %>
-								<% end %>
-							</template>
-							<%= form.fields_for :skills do |skill_fields| %>
-								<%= render 'skill_form', form: skill_fields %>
-								<% end %>
-							<div data-nested-form-target="target"></div>
-							<%= render ButtonComponent.new(button: {kind: "add-nested"}) %>
-						</div>
+						<% render NestedComponent.new(model: "drill", key: "skills", form: form, child: Skill, row: "skill_form")%>
 					</td>
 				</tr>
 			</table>
 		</div>
 	</div>
-	<%= render SubmitComponent.new(close_return: drill_path(@drill),submit: "save") %>
+	<%= render SubmitComponent.new(close_return: :back,submit: "save") %>
 <% end %>
