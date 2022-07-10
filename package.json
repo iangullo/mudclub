@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "flowbite": "^1.4.7",
-    "patch-package": "^6.4.7"
+    "patch-package": "^6.4.7",
+    "stimulus-rails-nested-form": "^4.0.0"
   },
   "scripts": {
     "postinstall": "patch-package"
