@@ -55,7 +55,7 @@ class CoachesController < ApplicationController
 			@title_fields = form_fields(I18n.t(:l_coach_edit), rows: 4, cols: 3)
 			@coach_fields  = [
 				[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @coach.active, cols: 4}],
-				[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar, cols: 3}]
+				[{kind: "upload", key: :avatar, label: I18n.t(:l_pic), cols: 3}]
 			]
 			@person_fields = [
 				[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @coach.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @coach.person.email}],

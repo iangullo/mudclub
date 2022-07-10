@@ -54,7 +54,7 @@ class PlayersController < ApplicationController
 		end
 		@title_fields    = form_fields(I18n.t(:l_player_new), rows: 3, cols: 2)
 		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @player.active}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_num)}, {kind: "number-box", key: :number, min: 0, max: 99, value: @player.number}]]
-		@player_fields_2 = [[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar, cols: 5}]]
+		@player_fields_2 = [{kind: "upload", key: :avatar, label: I18n.t(:l_pic), cols: 5}]
 		@person_fields   = [
 			[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
 			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @player.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @player.person.phone}]

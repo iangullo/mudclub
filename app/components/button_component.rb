@@ -98,7 +98,7 @@ class ButtonComponent < ApplicationComponent
       b_start = b_start + " font-bold"
     end
     @button[:type]    = "submit" if @button[:kind] =~ /^(save|import)$/
-    @button[:b_class] = b_start + ( @button[:kind]!= "jump" ? " m-1 inline-flex align-middle" : "")
+    @button[:b_class] = b_start + (@button[:kind]!= "jump" ? " m-1 inline-flex align-middle" : "")
   end
 
   # set the i_class for the button div

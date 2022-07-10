@@ -66,13 +66,13 @@
               <%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t(:m_search) %>
             <% end %>
           </div>
-        <% when "select-file" %>
-          <div id="select-file" class="<%=item[:class]%>">
-            <%= image_tag(item[:icon], size: item[:size]) if item[:icon] %>
-            <% if item[:label] %>
-              <small class="font-medium">&nbsp;<%= item[:label] %></small>
-            <% end %>
-            <%= @form.file_field item[:key], hide_label: true, label: item[:value], direct_upload: true, class: item[:i_class] %>
+        <% when "upload" %>
+          <div id="upload-file" class="<%=item[:class]%>">
+            <%= @form.file_field item[:key], id: "upload-btn", direct_upload: true, class: "hidden" %>
+            <label for="upload-btn" class="<%=item[:i_class]%>">
+              <%= image_tag(item[:icon], size: "25x25") if item[:icon] %>&nbsp;<%=item[:label]%>
+            </label>
+            <span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t(:no_file) %></span>
           </div>
         <% when "add", "add-nested", "edit", "jump", "link", "location" %>
           <%= render ButtonComponent.new(button: item) %>

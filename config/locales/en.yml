@@ -298,3 +298,4 @@ en:
   player: "Player"
   coach: "Coach"
   admin: "Admin"
+  no_file: "Load file..."

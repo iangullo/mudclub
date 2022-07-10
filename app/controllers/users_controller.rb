@@ -49,7 +49,7 @@ class UsersController < ApplicationController
       else
         @role = [[{kind: "label", align: "center", value: I18n.t(@user.role.to_sym)}]]
       end
-      @avatar = [[{kind: "label", value: I18n.t(:l_pic)}, {kind: "select-file", key: :avatar}]]
+      @avatar = [[{kind: "upload", key: :avatar, label: I18n.t(:l_pic)}]]
       @person_fields = [
         [{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
 				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]

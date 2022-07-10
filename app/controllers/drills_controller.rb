@@ -127,7 +127,7 @@ class DrillsController < ApplicationController
 		# return FormComponent @fields for edit/new
 		def form_fields
 			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: @drill.kind_id, align: "center"}]
-			@playbook = [[{kind: "select-file", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename.to_s}]]
+			@playbook = [[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename.to_s}]]
 			@skill_row= [[{kind: "text-box", key: :concept, placeholder: I18n.t(:d_skill), size: 10}]]
 				return [
 				# DO WE INCLUDE NESTED FORM TYPE??? HOW?

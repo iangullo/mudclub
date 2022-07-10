@@ -63,10 +63,9 @@ class FieldsComponent < ApplicationComponent
         when "label", "label-checkbox"
           item[:class]   = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
           item[:i_class] = "rounded bg-gray-200 text-blue-700"
-        when "link", "select-file"
+        when "link"
           item[:class]   = item[:class] ? item[:class] : " inline-flex align-middle p-0 text-sm"
           item[:size]    = "20x20" unless item[:size]
-          item[:i_class] = "rounded text-sm m-0 text-gray-500 py-0 px-0" if item[:kind]=="select-file"
         when "location"
           item[:class]   = "inline-flex align-top font-semibold"
           item[:i_class] = "rounded-md hover:bg-blue-100"
@@ -91,7 +90,10 @@ class FieldsComponent < ApplicationComponent
         when "top-cell"
           item[:class] = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
         when "lines"
-          item[:class] = "align-top py-0 px-1 border px py" unless item[:class]
+          item[:class] = "align-top border px py" unless item[:class]
+        when "upload"
+          item[:class] = "align-middle px py" unless item[:class]
+          item[:i_class] = "rounded-lg inline-flex mb-1 px-1 border-2 border-gray-500 bg-gray-300 hover:bg-gray-500 hover:text-gray-200 text-sm font-semibold max-h-6 max-w-6 align-center"
         when /^(select-.+|.+-box|.+-area)$/
           item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
           if item[:kind]=="number-box"
