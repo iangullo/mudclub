@@ -8,7 +8,6 @@ DEPENDENCIES
 
 TODO
 ==
-* Add slider to task view to switch between tasks of a session in the modal.
 * Manage statistics associated to events
 * Export/import from Excel of drills & training sessions (matches in future).
 * TLS certificate for additional security.
