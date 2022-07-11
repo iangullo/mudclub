@@ -38,7 +38,7 @@
             <%= render DropdownComponent.new(button: @prof_tab) %>
           <% else %>
             <%= link_to @prof_tab[:url], data: {turbo_frame: "_top"} do %>
-              <%= image_tag(@prof_tab[:icon], size: @prof_tab[:size] ? @prof_tab[:size] : "25x25", class: "rounded-full") if @prof_tab[:icon] %>
+              <%= image_tag(@prof_tab[:icon], size: @prof_tab[:size] ? @prof_tab[:size] : "25x25", class: @prof_tab[:i_class]) if @prof_tab[:icon] %>
               <%= @prof_tab[:label] if @prof_tab[:label] %>
             <% end %>
           <% end %>
