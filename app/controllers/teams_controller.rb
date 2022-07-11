@@ -10,7 +10,7 @@ class TeamsController < ApplicationController
 			@title = title_fields(I18n.t(:l_team_index), search: true)
 			@grid  = team_grid
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -21,7 +21,7 @@ class TeamsController < ApplicationController
 			@eligible_coaches = Coach.active
 			@form_fields      = form_fields(I18n.t(:l_team_new))
 		else
-			redirect_to(current_user.is_coach? ? teams_path : "/")
+			redirect_to(current_user.is_coach? ? teams_path : "/", data: {turbo_action: "replace"})
 		end
   end
 
@@ -29,7 +29,7 @@ class TeamsController < ApplicationController
   # GET /teams/1.json
   def show
 		unless current_user.present? and (current_user.admin? or current_user.is_coach? or @team.has_player(current_user.person.player_id))
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		else
 			redirect_to coaching_team_path(@team) if params[:id]=="coaching" and @team
 			@title = title_fields(@team.to_s)
@@ -48,7 +48,7 @@ class TeamsController < ApplicationController
 			@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_roster_show)}]
 			@grid  = player_grid(players: @team.players.order(:number), obj: @team)
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -60,10 +60,10 @@ class TeamsController < ApplicationController
 				@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_roster_edit)}]
 				@eligible_players = @team.eligible_players
 			else
-				redirect_to @team
+				redirect_to @team, data: {turbo_action: "replace"}
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -76,7 +76,7 @@ class TeamsController < ApplicationController
 			@title = title_fields(@team.to_s)
 			@title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_slot_index)}]
 	else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -88,19 +88,19 @@ class TeamsController < ApplicationController
 			@title = title_fields(@team.to_s)
 			@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t(:h_targ)}]
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
 	# GET /teams/1/edit_targets
   def edit_targets
 		if current_user.present? and @team.has_coach(current_user.person.coach_id)
-			redirect_to "/" unless @team
+			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			global_targets(false)	# get global targets
 			@title = title_fields(@team.to_s)
 			@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_targ_edit)}]
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -108,25 +108,24 @@ class TeamsController < ApplicationController
   def plan
 		if current_user.admin? or current_user.is_coach?
 			redirect_to "/" unless @team
-			plan_targets(params[:month] ? params[:month].to_i : Date.today.month)
+			plan_targets
 			@title = title_fields(@team.to_s)
 			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_plan_show)}]
-			@title << [{kind: "gap"}, {kind: "search-select", align: "center", key: :month, url: plan_team_path(@team), options: @months, value: params[:month] ? params[:month] : Date.today.month}]
 			@edit = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
 	# GET /teams/1/edit_plan
   def edit_plan
 		if current_user.present? and @team.has_coach(current_user.person.coach_id)
-			redirect_to "/" unless @team
-			plan_targets(nil)
+			redirect_to("/", data: {turbo_action: "replace"}) unless @team
+			plan_targets
 			@title  = title_fields(@team.to_s)
 			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_plan_edit)}]
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -140,7 +139,7 @@ class TeamsController < ApplicationController
 				redirect_to @team
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -152,7 +151,7 @@ class TeamsController < ApplicationController
 
 	    respond_to do |format|
 	      if @team.save
-	        format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t(:team_created)} '#{@team.to_s}'"}}
+	        format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t(:team_created)} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
 	        format.json { render :index, status: :created, location: teams_path }
 	      else
 	        format.html { render :new }
@@ -160,7 +159,7 @@ class TeamsController < ApplicationController
 	      end
 	    end
 		else
-			redirect_to(current_user.is_coach? ? teams_path : "/")
+			redirect_to(current_user.is_coach? ? teams_path : "/", data: {turbo_action: "replace"})
 		end
   end
 
@@ -170,20 +169,28 @@ class TeamsController < ApplicationController
 		if current_user.present?
 			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
 		    respond_to do |format|
-					rebuild_team
-		      if @team.save
-						format.html { redirect_to @team, notice: {kind: "success", message: "#{I18n.t(:team_updated)} '#{@team.to_s}'"}}
-		        format.json { render :show, status: :created, location: teams_path(@team) }
-		      else
-		        format.html { render :edit }
+					if params[:team]
+						retlnk = params[:team][:retlnk]
+						rebuild_team
+		      	if @team.save
+							format.html { redirect_to retlnk, notice: {kind: "success", message: "#{I18n.t(:team_updated)} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
+							format.json { redirect_to retlnk, status: :created, location: retlnk }
+						else
+							@eligible_coaches = Coach.active
+							@form_fields      = form_fields(I18n.t(:l_team_edit))
+							format.html { render :edit, data:{"turbo-frame": "replace"}, notice: {kind: "error", message: "#{I18n.t(:i_no_data)} (#{@team.to_s})"} }
+							format.json { render json: @team.errors, status: :unprocessable_entity }
+						end
+					else	# no data to save...
+		        format.html { redirect_to @team, data:{"turbo-frame": "replace"}, notice: {kind: "info", message: "#{I18n.t(:i_no_data)} (#{@team.to_s})"}, data: {turbo_action: "replace"} }
 		        format.json { render json: @team.errors, status: :unprocessable_entity }
 		      end
 		    end
 			else
-				redirect_to(current_user.is_coach? ? @team : "/")
+				redirect_to(current_user.is_coach? ? @team : "/", data: {turbo_action: "replace"})
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -195,11 +202,11 @@ class TeamsController < ApplicationController
 			erase_links
 	    @team.destroy
 	    respond_to do |format|
-	      format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t(:team_deleted)} '#{t_name}'"}}
+	      format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t(:team_deleted)} '#{t_name}'"}, data: {turbo_action: "replace"} }
 	      format.json { head :no_content }
 	    end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -278,14 +285,10 @@ class TeamsController < ApplicationController
 	  end
 
 		# retrieve monthly targets for the team
-		def plan_targets(month)
+		def plan_targets
 			@months = @team.season.months(true)
 			@targets = Array.new
-			if month	# we are searching in a specific month
-				@targets << fetch_targets(month)
-			else
-				@months.each { |m| @targets << fetch_targets(m)	}
-			end
+			@months.each { |m| @targets << fetch_targets(m)	}
 	  end
 
 		# get team targets for a specific month

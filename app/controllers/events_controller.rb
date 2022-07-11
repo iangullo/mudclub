@@ -10,14 +10,14 @@ class EventsController < ApplicationController
       @title  = general_title
       @grid   = event_grid(events: @events, obj: @team ? @team : @season)
     else
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
   # GET /events/1 or /events/1.json
   def show
     unless current_user.present? and (current_user.admin? or current_user.is_coach?)
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
     @title  = event_title(@event.title(show: true), cols: @event.train? ? 3 : nil)
     if @event.match?
@@ -44,7 +44,7 @@ class EventsController < ApplicationController
   # GET /events/1 or /events/1.json
   def details
     unless current_user.present? and (current_user.admin? or current_user.is_coach?)
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
     @title = event_title(@event.team.to_s)
   end
@@ -65,10 +65,10 @@ class EventsController < ApplicationController
           redirect_to(current_user.admin? ? "/slots" : @event.team)
         end
       else
-        redirect_to(current_user.admin? ? "/slots" : "/")
+        redirect_to(current_user.admin? ? "/slots" : "/", data: {turbo_action: "replace"})
       end
     else
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
@@ -93,7 +93,7 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           link_holidays
-          format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: {kind: "success", message: event_create_notice}}
+          format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: {kind: "success", message: event_create_notice}, data: {turbo_action: "replace"} }
           format.json { render :show, status: :created, location: events_path}
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -101,7 +101,7 @@ class EventsController < ApplicationController
         end
       end
     else
-      redirect_to(current_user.present? ? events_url : "/")
+      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"})
     end
   end
 
@@ -112,17 +112,17 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           if @task  # we just updated a task
-            format.html { redirect_to edit_event_path(@event), notice: {kind: "success", message: "#{I18n.t(:task_created)} '#{@task.to_s}'"}}
+            format.html { redirect_to edit_event_path(@event), notice: {kind: "success", message: "#{I18n.t(:task_created)} '#{@task.to_s}'"}, data: {turbo_action: "replace"} }
             format.json { render :edit, status: :ok, location: @event }
           elsif params[:event][:season_id].to_i > 0 # season event
-            format.html { redirect_to season_path(params[:event][:season_id]), notice: {kind: "success", message: event_update_notice}}
+            format.html { redirect_to season_path(params[:event][:season_id]), notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"} }
             format.json { render :show, status: :ok, location: @event }
           elsif params[:event][:p_for]==nil # a training session
             @event.tasks.reload
             format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
             format.json { render :show, status: :ok, location: @event }
           else # updating match
-            format.html { redirect_to team_path(@event.team_id), notice: {kind: "success", message: "#{I18n.t(:match_updated)} '#{@event.to_s}'"}}
+            format.html { redirect_to team_path(@event.team_id), notice: {kind: "success", message: "#{I18n.t(:match_updated)} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
           end
         else
           format.html { render :edit, status: :unprocessable_entity }
@@ -130,7 +130,7 @@ class EventsController < ApplicationController
         end
       end
     else
-      redirect_to(current_user.present? ? events_url : "/")
+      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"}, data: {turbo_action: "replace"})
     end
   end
 
@@ -142,11 +142,11 @@ class EventsController < ApplicationController
       team   = @event.team
       @event.destroy
       respond_to do |format|
-        format.html { redirect_to team.id > 0 ? team_path(team) : events_url, notice: {kind: "success", message: event_delete_notice}}
+        format.html { redirect_to team.id > 0 ? team_path(team) : events_url, notice: {kind: "success", message: event_delete_notice}, data: {turbo_action: "replace"} }
         format.json { head :no_content }
       end
     else
-      redirect_to(current_user.present? ? events_url : "/")
+      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"})
     end
   end
 
@@ -156,7 +156,7 @@ class EventsController < ApplicationController
       @task   = Task.find(params[:task_id])
       @fields = task_fields(@task)
     else
-      redirect_to(current_user.present? ? events_url : "/")
+      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"})
     end
   end
 

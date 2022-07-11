@@ -10,14 +10,14 @@ class SlotsController < ApplicationController
       @slots  = Slot.search(params)
       @title  = title_fields(I18n.t(:l_slot_index))
     else
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
   # GET /slots/1 or /slots/1.json
   def show
     unless current_user.present?
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
     @season = Season.find(params[:season_id]) if params[:season_id]
     @title  = title_fields(I18n.t(:l_slot_index))
@@ -31,7 +31,7 @@ class SlotsController < ApplicationController
       @slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
       @fields   = form_fields(I18n.t(:l_slot_new))
     else
-      redirect_to(current_user.present? ? slots_url : "/")
+      redirect_to(current_user.present? ? slots_url : "/", data: {turbo_action: "replace"})
     end
   end
 
@@ -42,7 +42,7 @@ class SlotsController < ApplicationController
       @season   = Season.find(@slot.season_id)
       @fields   = form_fields(I18n.t(:l_slot_edit))
     else
-      redirect_to(current_user.present? ? slots_url : "/")
+      redirect_to(current_user.present? ? slots_url : "/", data: {turbo_action: "replace"})
     end
   end
 
@@ -52,7 +52,7 @@ class SlotsController < ApplicationController
       respond_to do |format|
   			rebuild_slot	# rebuild @slot
         if @slot.save # try to store
-          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t(:slot_created)} '#{@sot.to_s}'"}}
+          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t(:slot_created)} '#{@sot.to_s}'"}, data: {turbo_action: "replace"} }
           format.json { render :index, status: :created, location: @slot }
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -60,7 +60,7 @@ class SlotsController < ApplicationController
         end
       end
     else
-      redirect_to(current_user.present? ? slots_url : "/")
+      redirect_to(current_user.present? ? slots_url : "/", data: {turbo_action: "replace"})
     end
   end
 
@@ -70,7 +70,7 @@ class SlotsController < ApplicationController
       respond_to do |format|
   			rebuild_slot
         if @slot.update(slot_params)
-          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t(:slot_updated)} '#{@slot.to_s}'"}}
+          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t(:slot_updated)} '#{@slot.to_s}'"}, data: {turbo_action: "replace"} }
           format.json { render :index, status: :ok, location: @slot }
         else
           format.html { redirect_to edit_slot_path(@slot) }
@@ -78,7 +78,7 @@ class SlotsController < ApplicationController
         end
       end
     else
-      redirect_to(current_user.present? ? slots_url : "/")
+      redirect_to(current_user.present? ? slots_url : "/", data: {turbo_action: "replace"})
     end
   end
 
@@ -89,7 +89,7 @@ class SlotsController < ApplicationController
       set_slot(params)
       @slot.destroy
       respond_to do |format|
-        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t(:slot_deleted)} '#{s_name}'"}}
+        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t(:slot_deleted)} '#{s_name}'"}, data: {turbo_action: "replace"} }
         format.json { head :no_content }
       end
     else

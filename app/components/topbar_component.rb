@@ -23,9 +23,9 @@ class TopbarComponent < ApplicationComponent
   def set_profile(user:, login:, logout:)
     lcls = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
     res  = {
-      profile: menu_link(label: I18n.t(:m_profile), url: user, data: {turbo_frame: "modal"}),
+      profile: menu_link(label: I18n.t(:m_profile), url: user, kind: "modal"),
       login: menu_link(label: I18n.t(:m_login), url: login),
-      logout: menu_link(label: I18n.t(:m_logout), url: logout, data: {turbo_method: :delete}),
+      logout: menu_link(label: I18n.t(:m_logout), url: logout, kind: "delete"),
       closed: {icon: "login.svg", url: login, class: lcls}
     }
     res[:open] = {icon: user.picture, url: login, class: lcls} if user
@@ -34,39 +34,41 @@ class TopbarComponent < ApplicationComponent
 
   def menu_tabs(user)
     res = []
-    res << {label: I18n.t(:l_sea_index), url: '/seasons'} if user.admin?
+    res << menu_link(label: I18n.t(:l_sea_index), url: '/seasons') if user.admin?
     if user.teams
       slast = Season.latest
       if slast
-        user.teams.each { |team| res << {label: team.name, url: '/teams/'+ team.id.to_s} if team.season==slast}
+        user.teams.each { |team| res << menu_link(label: team.name, url: '/teams/'+ team.id.to_s) if team.season==slast}
       end
     end
-    res << {label: I18n.t(:l_drill_index), url: '/drills'} if user.is_coach?
+    res << menu_link(label: I18n.t(:l_drill_index), url: '/drills') if user.is_coach?
     res
   end
 
   def admin_tab(user)
     res = {kind: "menu", name: "admin", label: I18n.t(:m_admin), options:[], class: @tabcls}
-    res[:options] << {label: I18n.t(:l_team_index), url: '/teams', data: {turbo_frame: "_top"}}
-    res[:options] << {label: I18n.t(:l_player_index), url: '/players', data: {turbo_frame: "_top"}}
+    res[:options] << menu_link(label: I18n.t(:l_team_index), url: '/teams')
+    res[:options] << menu_link(label: I18n.t(:l_player_index), url: '/players')
     if user.admin?
-      res[:options] << {label: I18n.t(:l_coach_index), url: '/coaches', data: {turbo_frame: "_top"}}
-      res[:options] << {label: I18n.t(:l_user_index), url: '/users', data: {turbo_frame: "_top"}}
-      res[:options] << {label: I18n.t(:l_cat_index), url: '/categories', data: {turbo_frame: "_top"}}
-      res[:options] << {label: I18n.t(:l_div_index), url: '/divisions', data: {turbo_frame: "_top"}}
-      res[:options] << {label: @clubname, url: '/home/edit', data: {turbo_frame: "modal"}}
+      res[:options] << menu_link(label: I18n.t(:l_coach_index), url: '/coaches')
+      res[:options] << menu_link(label: I18n.t(:l_user_index), url: '/users')
+      res[:options] << menu_link(label: I18n.t(:l_cat_index), url: '/categories')
+      res[:options] << menu_link(label: I18n.t(:l_div_index), url: '/divisions')
+      res[:options] << menu_link(label: @clubname, url: '/home/edit', kind: "modal")
     end
-    res[:options] << {label: I18n.t(:l_loc_index), url: '/locations', data: {turbo_frame: "_top"}}
+    res[:options] << menu_link(label: I18n.t(:l_loc_index), url: '/locations')
     res
   end
 
   def prof_tab(user)
     if user
       res = {kind: "menu", name: "profile", icon: user.picture, options:[], class: @profcls, i_class: "rounded-full", size: "30x30"}
-      res[:options] << {label: @profile[:profile][:label], url: @profile[:profile][:url], class: @lnkcls, data: {turbo_frame: "modal"}}
-      res[:options] << {label: @profile[:logout][:label], url: @profile[:logout][:url], class: @lnkcls}
+      res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url])
+      res[:options] << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url])
     else
-      res = {icon: @profile[:closed][:icon], name: "profile", url: @profile[:login][:url], class: @profile[:closed][:class], data: {turbo_frame: "_top"}}
+      res        = menu_link(label: nil, url: @profile[:login][:url], class: @profile[:closed][:class])
+      res[:icon] = @profile[:closed][:icon]
+      res[:name] = "profile"
     end
     res
   end
@@ -78,7 +80,15 @@ class TopbarComponent < ApplicationComponent
     res
   end
 
-  def menu_link(label:, url: nil, data: nil)
-    {label: label, url: url, class: @lnkcls, data: data}
+  def menu_link(label:, url:, class: @lnkcls, kind: "normal")
+    case kind
+    when "normal"
+      l_data = {turbo_frame: "_top", turbo_action: "replace"}
+    when "modal"
+      l_data = {turbo_frame: "modal"}
+    when "delete"
+      l_data = {turbo_method: :delete}
+    end
+    {label:, url:, class:, data: l_data }
   end
 end

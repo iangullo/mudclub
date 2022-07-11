@@ -50,6 +50,7 @@
 				</td>
 			</tr>
 		</table>
+		<%= form.hidden_field :retlnk, value: targets_team_path(@team) %>
 		<%= render SubmitComponent.new(close_return: :back, submit: "save") %>
 	<% end %>
 </div>

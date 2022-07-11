@@ -72,7 +72,7 @@
             <label for="upload-btn" class="<%=item[:i_class]%>">
               <%= image_tag(item[:icon], size: "25x25") if item[:icon] %>&nbsp;<%=item[:label]%>
             </label>
-            <span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t(:no_file) %></span>
+            <span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t(:i_no_file) %></span>
           </div>
         <% when "add", "add-nested", "edit", "jump", "link", "location" %>
           <%= render ButtonComponent.new(button: item) %>

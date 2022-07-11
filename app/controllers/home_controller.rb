@@ -14,9 +14,9 @@ class HomeController < ApplicationController
         [{kind: "header-icon", value: @club.logo}, {kind: "title", value: I18n.t(:m_edit), cols: 2}],
         [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :nick, value: @club.nick}]
       ]
-      @f_logo = [[{kind: "upload", key: :avatar, label: I18n.t(:l_pic)}]]
+      @f_logo = [[{kind: "upload", key: :avatar, label: I18n.t(:l_pic), value: @club.avatar.filename}]]
     else
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 

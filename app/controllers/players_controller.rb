@@ -18,7 +18,7 @@ class PlayersController < ApplicationController
 				format.html { render :index }
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -32,7 +32,7 @@ class PlayersController < ApplicationController
 			@fields << [{kind: "string", value: @player.person.birthday}]
 			@fields << [{kind: "label", value: I18n.t(@player.active ? :h_active : :h_inactive), align: "center"}, {kind: "string", value: (I18n.t(:a_num) + @player.number.to_s)}]
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -43,18 +43,18 @@ class PlayersController < ApplicationController
 			@player.build_person
 			@fields = form_fields(I18n.t(:l_player_new), rows: 3, cols: 2)
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# GET /players/1/edit
 	def edit
 		unless current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 		@title_fields    = form_fields(I18n.t(:l_player_new), rows: 3, cols: 2)
 		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @player.active}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_num)}, {kind: "number-box", key: :number, min: 0, max: 99, value: @player.number}]]
-		@player_fields_2 = [{kind: "upload", key: :avatar, label: I18n.t(:l_pic), cols: 5}]
+		@player_fields_2 = [{kind: "upload", key: :avatar, label: I18n.t(:l_pic), value: @player.avatar.filename, cols: 5}]
 		@person_fields   = [
 			[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
 			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @player.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @player.person.phone}]
@@ -68,7 +68,7 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = rebuild_player(params)	# rebuild player
 				if @player.is_duplicate? then
-					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "info", message: "#{I18n.t(:player_duplicate)} '#{@player.to_s}'"}}
+					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "info", message: "#{I18n.t(:player_duplicate)} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
 					format.json { render :index, :player_duplicate, location: players_path(search: @player.person.to_s(true)) }
 				else
 					@player.person.save
@@ -78,7 +78,7 @@ class PlayersController < ApplicationController
 							@player.person.player_id = @player.id
 							@player.person.save
 						end
-						format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t(:player_created)} '#{@player.to_s}'"}}
+						format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t(:player_created)} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: players_path(search: @player.person.to_s(true)) }
 					else
 						format.html { render :new }
@@ -87,7 +87,7 @@ class PlayersController < ApplicationController
 				end
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -97,7 +97,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
 			respond_to do |format|
 				if @player.update(player_params)
-					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t(:player_updated)} '#{@player.to_s}'"}}
+					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t(:player_updated)} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: players_path(search: @player.person.to_s(true)) }
 				else
 					format.html { render :edit }
@@ -105,7 +105,7 @@ class PlayersController < ApplicationController
 				end
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -115,9 +115,9 @@ class PlayersController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Player.import(params[:file])
-	    format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t(:player_import)} '#{params[:file].original_filename}'"}}
+	    format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t(:player_import)} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -129,11 +129,11 @@ class PlayersController < ApplicationController
 			unlink_person
 			@player.destroy
 			respond_to do |format|
-				format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t(:player_deleted)} '#{p_name}'"}}
+				format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t(:player_deleted)} '#{p_name}'"}, data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 

@@ -17,14 +17,14 @@ class DrillsController < ApplicationController
 			@drills = filter!(Drill)
 			@grid   = GridComponent.new(grid: drill_grid)
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# GET /drills/1 or /drills/1.json
 	def show
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 		@title  = title_fields(I18n.t(:l_drill_show))
 		@title.last << {kind: "link", align: "right", icon: "playbook.png", size: "20x20", url: rails_blob_path(@drill.playbook, disposition: "attachment"), label: "Playbook"} if @drill.playbook.attached?
@@ -44,14 +44,14 @@ class DrillsController < ApplicationController
 			@title = title_fields(I18n.t(:l_drill_new))
 			@form_fields = form_fields
     else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# GET /drills/1/edit
 	def edit
 		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
-			redirect_to drills_url
+			redirect_to drills_url, data: {turbo_action: "replace"}
 		end
 		@title       = title_fields(I18n.t(:l_drill_edit))
 		@form_fields = form_fields
@@ -64,7 +64,7 @@ class DrillsController < ApplicationController
 				@drill = Drill.new
 				rebuild_drill	# rebuild drill
 				if @drill.save
-					format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_created)} '#{@drill.name}'"}}
+					format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_created)} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: @drill }
 				else
 					format.html { render :new }
@@ -72,7 +72,7 @@ class DrillsController < ApplicationController
 				end
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -83,18 +83,18 @@ class DrillsController < ApplicationController
 				rebuild_drill	# rebuild drill
 				if @drill.coach_id == current_user.person.coach_id or current_user.admin? # author can modify
 				 	if @drill.save
-						format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_updated)} '#{@drill.name}'"}}
-						format.json { render :index, status: :ok, location: @drill }
+						format.html { redirect_to drill_path, notice: {kind: "success", message: "#{I18n.t(:drill_updated)} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
+						format.json { render :show, status: :ok, location: @drill }
 					else
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @drill.errors, status: :unprocessable_entity }
 					end
 				else
-					redirect_to drills_url
+					redirect_to drills_url, data: {turbo_action: "replace"}
 				end
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -105,11 +105,11 @@ class DrillsController < ApplicationController
 			@drill.drill_targets.each { |d_t| d_t.delete }
 			@drill.destroy
 			respond_to do |format|
-				format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_deleted)} '#{d_name}'"}}
+				format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_deleted)} '#{d_name}'"}, data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -127,7 +127,7 @@ class DrillsController < ApplicationController
 		# return FormComponent @fields for edit/new
 		def form_fields
 			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: @drill.kind_id, align: "center"}]
-			@playbook  = [[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename.to_s}]]
+			@playbook  = [[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename}]]
 			@explain   = [[{kind: "rich-text-area", key: :explanation, align: "left", cols: 3}]]
 			@author    = [[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real}]]
 			return [
@@ -170,7 +170,6 @@ class DrillsController < ApplicationController
 		# return nil if unsuccessful
 		def rebuild_drill
 			p_data = params.fetch(:drill)
-#binding.break
 			@drill.name        = p_data[:name]
 			@drill.description = p_data[:description]
 			@drill.material    = p_data[:material]
@@ -189,7 +188,7 @@ class DrillsController < ApplicationController
 			a_skills = Array.new	# array to include only non-duplicates
 			s_array.each { |s| # first pass
 				#s[1][:name] = s[1][:name].mb_chars.titleize
-				a_skills << s[1] unless a_skills.detect { |a| a[:name] == s[1][:name] }
+				a_skills << s[1] #unless a_skills.detect { |a| a[:name] == s[1][:name] }
 			}
 			a_skills.each { |s| # second pass - manage associations
 				if s[:_destroy] == "1"

@@ -18,7 +18,7 @@ class PeopleController < ApplicationController
 				format.html { render :index }
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -26,7 +26,7 @@ class PeopleController < ApplicationController
   # GET /people/1.json
   def show
 		unless current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 		@fields = title_fields(I18n.t(:l_per_show), icon: @person.picture, size: "100x100", rows: 4, _class: "rounded-full")
 		@fields << [{kind: "label", value: @person.s_name}]
@@ -45,14 +45,14 @@ class PeopleController < ApplicationController
 			@picture_field = form_file_field(label: I18n.t(:l_pic), key: :avatar, cols: 2)
 			@person_fields = person_fields
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
   # GET /people/1/edit
   def edit
 		unless current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 		@title_fields  = form_fields(I18n.t(:l_per_edit))
 		@picture_field = form_file_field(label: I18n.t(:l_pic), key: :avatar, cols: 2)
@@ -67,7 +67,7 @@ class PeopleController < ApplicationController
 
 	    respond_to do |format|
 	      if @person.save
-	        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t(:per_created)} '#{@person.to_s}'"}}
+	        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t(:per_created)} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
 	        format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :new }
@@ -75,7 +75,7 @@ class PeopleController < ApplicationController
 	      end
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
@@ -86,10 +86,10 @@ class PeopleController < ApplicationController
     	respond_to do |format|
       	if @person.update(person_params)
 					if @person.id=0 # just edited the club identity
-						format.html { redirect_to "/", notice: {kind: "success", message: "'#{@person.nick}' #{I18n.t(:m_saved)}"}}
+						format.html { redirect_to "/", notice: {kind: "success", message: "'#{@person.nick}' #{I18n.t(:m_saved)}"}, data: {turbo_action: "replace"} }
 						format.json { render "/", status: :created, location: home_url }
 					else
-		        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t(:per_updated)} '#{@person.to_s}'"}}
+		        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t(:per_updated)} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: people_url }
 					end
 	      else
@@ -108,7 +108,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
     	Person.import(params[:file])
-			format.html { redirect_to people_url, notice: {kind: "success", message: "#{I18n.t(:per_import)} '#{params[:file].original_filename}'"}}
+			format.html { redirect_to people_url, notice: {kind: "success", message: "#{I18n.t(:per_import)} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
 		else
 			redirect_to "/"
 		end
@@ -121,7 +121,7 @@ class PeopleController < ApplicationController
 			erase_links
 			@person.destroy
 	    respond_to do |format|
-				format.html { redirect_to people_url, notice: {kind: "success", message: "#{I18n.t(:per_deleted)} '#{@person.to_s}'"}}
+				format.html { redirect_to people_url, notice: {kind: "success", message: "#{I18n.t(:per_deleted)} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
 	      format.json { head :no_content }
 	    end
 		else

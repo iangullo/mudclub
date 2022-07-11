@@ -74,8 +74,8 @@ class ApplicationController < ActionController::Base
     ]]
   end
 
-  def form_file_field(label:, key:, cols: nil)
-    [[{kind: "upload", label: label, key:, cols:}]]
+  def form_file_field(label:, key:, value:, cols: nil)
+    [[{kind: "upload", label:, key:, value:, cols:}]]
   end
 
   # standardised message wrapper

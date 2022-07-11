@@ -21,11 +21,12 @@ class TeamTarget < ApplicationRecord
   def self.fetch(f_object)
     res = f_object[:id] ? TeamTarget.find(f_object[:id]) : TeamTarget.new
     t   = f_object[:target_attributes]
-    tgt = Target.search(t[:concept], t[:focus], t[:aspect])
+    tgt = Target.search(t[:target_id], t[:concept], t[:focus], t[:aspect])
     tgt = Target.new unless tgt # ensure we have a target
     tgt.concept  = t[:concept]        # accept concept edition
     tgt.focus    = t[:focus].length==1 ? t[:focus].to_i : t[:focus].to_sym  # accept focus edition
     tgt.aspect   = t[:aspect].length==1 ? t[:aspect].to_i : t[:aspect].to_sym  # accept aspect edition
+    tgt.save unless tgt.persisted?
     res.target   = tgt
     res.priority = f_object[:priority]
     res.month    = f_object[:month]

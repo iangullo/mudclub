@@ -1,33 +1,49 @@
 <div id="team-plan">
 	<%= render FieldsComponent.new(fields: @title) %>
-	<%= turbo_frame_tag "search-results" do %>
-		<div id="team-plan-data">
-			<table>
-				<tr>
-					<th></th>
-					<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
-					<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
-				</tr>
-				<% @targets.each do |tgt| %>
-					<tr><!-- #display individual targets -->
-						<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tec) %></td>
-						<td class="border px py align-top">
-							<%= render "print_targets", targets: tgt[:t_d_ind] %>
-						</td><td class="border px py align-top">
-							<%= render "print_targets", targets: tgt[:t_o_ind] %>
-						</td>
-					</tr>
-					<tr><!-- #display collective targets -->
-						<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tac) %></td>
-						<td class="border px py align-top">
-							<%= render "print_targets", targets: tgt[:t_d_col] %>
-						</td><td class="border px py align-top">
-							<%= render "print_targets", targets: tgt[:t_o_col] %>
-						</td>
-					</tr>
-				<% end %>
-			</table>
-		</div>
-	<% end %>
+	<div id="accordion-collapse" data-accordion="collapse">
+		<% @targets.each do |tgt| %>
+			<h2 id="<%="#{tgt[:month]}-targets-head"%>">
+				<button type="button" class="flex justify-between items-center p-1 w-full text-gray-700 bg-gray-50 font-medium text-left rounded-md hover:bg-indigo-100 focus:text-gray-200 focus:bg-indigo-900" data-accordion-target="<%="##{tgt[:month]}-targets-body"%>" aria-expanded="false" aria-controls="<%="#{tgt[:month]}-targets-body"%>">
+					<span><%=tgt[:month]%></span>
+					<svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+				</button>
+			</h2>
+			<div id="<%="#{tgt[:month]}-targets-body"%>" class=<%=tgt[:month]==Date.today.month ? "open": "hidden"%> aria-labelledby="<%="#{tgt[:month]}-targets-head"%>">
+				<div class="py px-2 rounded-lg shadow-inner">
+					<table>
+						<tr class="text-indigo-900 font semi-bold">
+							<th></th>
+							<th class="border px py" align="center"><%= t(:l_def) %></th>
+							<th class="border px py" align="center"><%= t(:l_off) %></th>
+						</tr>
+						<tr><!-- #edit individual targets -->
+							<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tec) %></td>
+							<td class="border px py align-top">
+								<div id="defense-individual">
+									<%= render "print_targets", targets: tgt[:t_d_ind] %>
+								</div>
+								</td><td class="border px py align-top">
+								<div id="offense-individual">
+									<%= render "print_targets", targets: tgt[:t_o_ind] %>
+								</div>
+							</td>
+						</tr>
+						<tr><!-- #edit collective targets -->
+							<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tac) %></td>
+							<td class="border px py">
+								<div id="defense-collective align-top">
+									<%= render "print_targets", targets: tgt[:t_d_col] %>
+								</div>
+							</td><td class="border px py align-top">
+								<div id="offense-collective">
+									<%= render "print_targets", targets: tgt[:t_o_col] %>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		<% end %>
+	</div>
 	<%= render SubmitComponent.new(close: nil, submit: @edit) if @edit %>
 </div>

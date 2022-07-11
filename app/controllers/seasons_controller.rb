@@ -20,7 +20,7 @@ class SeasonsController < ApplicationController
       ]
       @grid = event_grid(events: @events, obj: @season)
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -31,7 +31,7 @@ class SeasonsController < ApplicationController
       @eligible_locations = @season.eligible_locations
       @fields = form_fields(I18n.t(:l_sea_edit))
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -41,7 +41,7 @@ class SeasonsController < ApplicationController
       @season = Season.new(start_date: Date.today, end_date: Date.today)
       @fields = form_fields(I18n.t(:l_sea_new))
     else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 
@@ -55,7 +55,7 @@ class SeasonsController < ApplicationController
 			# added to import excel
 	    respond_to do |format|
 	      if @season.save
-	        format.html { redirect_to seasons_path(@season), notice: {kind: "success", message: "#{I18n.t(:sea_created)} '#{@season.name}'"}}
+	        format.html { redirect_to seasons_path(@season), notice: {kind: "success", message: "#{I18n.t(:sea_created)} '#{@season.name}'"}, data: {turbo_action: "replace"} }
 	        format.json { render :index, status: :created, location: seasons_url }
 	      else
 	        format.html { render :new }
@@ -63,7 +63,7 @@ class SeasonsController < ApplicationController
 	      end
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
@@ -74,7 +74,7 @@ class SeasonsController < ApplicationController
     	respond_to do |format|
         check_locations
       	if @season.update(season_params)
-	        format.html { redirect_to seasons_path(@season), notice: {kind: "success", message: "#{I18n.t(:sea_updated)} '#{@season.name}'"}}
+	        format.html { redirect_to seasons_path(@season), notice: {kind: "success", message: "#{I18n.t(:sea_updated)} '#{@season.name}'"}, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: seasons_url}
 	      else
 	        format.html { render :edit }
@@ -82,7 +82,7 @@ class SeasonsController < ApplicationController
 	      end
 			end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
@@ -94,11 +94,11 @@ class SeasonsController < ApplicationController
 			erase_links
 			@season.destroy
 	    respond_to do |format|
-	      format.html { redirect_to seasons_path, notice: {kind: "success", message: "#{I18n.t(:sea_deleted)} '#{s_name}'"}}
+	      format.html { redirect_to seasons_path, notice: {kind: "success", message: "#{I18n.t(:sea_deleted)} '#{s_name}'"}, data: {turbo_action: "replace"} }
 	      format.json { head :no_content }
 	    end
 		else
-			redirect_to "/"
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
   end
 

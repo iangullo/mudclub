@@ -43,7 +43,7 @@ class CategoriesController < ApplicationController
 
       respond_to do |format|
         if @category.save
-          format.html { redirect_to categories_url, notice: flash_message("#{I18n.t(:cat_created)} '#{@category.name}'", kind: "success") }
+          format.html { redirect_to categories_url, notice: flash_message("#{I18n.t(:cat_created)} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
           format.json { render :index, status: :created, location: categories_url }
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -60,7 +60,7 @@ class CategoriesController < ApplicationController
     if current_user.present? and current_user.admin?
       respond_to do |format|
         if @category.update(category_params)
-          format.html { redirect_to categories_url, notice: flash_message("#{I18n.t(:cat_updated)} '#{@category.name}'", kind: "success") }
+          format.html { redirect_to categories_url, notice: flash_message("#{I18n.t(:cat_updated)} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
           format.json { render :index, status: :ok, location: categories_url }
         else
           format.html { render :edit, status: :unprocessable_entity }
@@ -79,7 +79,7 @@ class CategoriesController < ApplicationController
       prune_teams
       @category.destroy
       respond_to do |format|
-        format.html { redirect_to categories_url, notice: {kind: "success", message: "#{I18n.t(:cat_deleted)} '#{c_name}'"} }
+        format.html { redirect_to categories_url, notice: {kind: "success", message: "#{I18n.t(:cat_deleted)} '#{c_name}'"}, data: {turbo_action: "replace"} }
         format.json { head :no_content }
       end
     else

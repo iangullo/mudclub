@@ -21,6 +21,7 @@
 					<% end %>
 				</div>
 			</table>
+			<%= form.hidden_field :retlnk, value: teams_path(@team) %>
 			<%= render SubmitComponent.new(submit: "save") %>
 		</div>
 	<% end %>

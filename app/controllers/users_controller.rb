@@ -10,7 +10,7 @@ class UsersController < ApplicationController
       @title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
       @grid  = user_grid
     else
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
@@ -23,7 +23,7 @@ class UsersController < ApplicationController
       @title.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
       @title.last << {kind: "icon", value: "key.svg"} if @user.admin?
     else
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
@@ -37,7 +37,7 @@ class UsersController < ApplicationController
       @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t(:l_pass_conf)}]
       @fields << [{kind: "gap"}, {kind: "text", value: I18n.t(:i_pass_conf), cols: 2, class: "text-xs"}]
     else
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
@@ -49,13 +49,13 @@ class UsersController < ApplicationController
       else
         @role = [[{kind: "label", align: "center", value: I18n.t(@user.role.to_sym)}]]
       end
-      @avatar = [[{kind: "upload", key: :avatar, label: I18n.t(:l_pic)}]]
+      @avatar = [[{kind: "upload", key: :avatar, label: I18n.t(:l_pic), value: @user.avatar.filename}]]
       @person_fields = [
         [{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
 				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
       ]
     else
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
@@ -64,7 +64,7 @@ class UsersController < ApplicationController
       respond_to do |format|
   			@user = build_new_user(params)	# build user
   			if @user.is_duplicate? then
-  				format.html { redirect_to @user, notice: {kind: "info", message: "#{I18n.t(:user_duplicate)} '#{@user.s_name}'"}}
+  				format.html { redirect_to @user, notice: {kind: "info", message: "#{I18n.t(:user_duplicate)} '#{@user.s_name}'"}, data: {turbo_action: "replace"}}
   				format.json { render :show,  :created, location: @user }
   			else
   				@user.person.save
@@ -74,7 +74,7 @@ class UsersController < ApplicationController
   						@user.person.user_id = @user.id
   						@user.person.save
   					end
-  					format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_created)} '#{@user.s_name}'"}}
+  					format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_created)} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
   					format.json { render :index, status: :created, location: users_url }
   				else
   					format.html { render :new, notice: {kind: "error", message: "#{@user.errors}"}}
@@ -83,7 +83,7 @@ class UsersController < ApplicationController
   			end
   		end
     else
-      redirect_to "/"
+      redirect_to "/", data: {turbo_action: "replace"}
     end
   end
 
@@ -96,7 +96,7 @@ class UsersController < ApplicationController
         end
         rebuild_user(params)	# rebuild user
   			if @user.update(user_params)
-  				format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_updated)} '#{@user.s_name}'"}}
+  				format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_updated)} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
   				format.json { render :index, status: :ok, location: users_url }
   			else
   				format.html { render :edit }
@@ -114,7 +114,7 @@ class UsersController < ApplicationController
       unlink_person
   		@user.destroy
   		respond_to do |format|
-  			format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_deleted)} '#{@user.s_name}'"}}
+  			format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_deleted)} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
   			format.json { head :no_content }
   		end
     else
