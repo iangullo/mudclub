@@ -62,7 +62,7 @@ class TopbarComponent < ApplicationComponent
 
   def prof_tab(user)
     if user
-      res = {kind: "menu", name: "profile", icon: user.picture, options:[], class: @profcls, i_class: "rounded-full"}
+      res = {kind: "menu", name: "profile", icon: user.picture, options:[], class: @profcls, i_class: "rounded-full", size: "30x30"}
       res[:options] << {label: @profile[:profile][:label], url: @profile[:profile][:url], class: @lnkcls, data: {turbo_frame: "modal"}}
       res[:options] << {label: @profile[:logout][:label], url: @profile[:logout][:url], class: @lnkcls}
     else

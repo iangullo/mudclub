@@ -1,9 +1,10 @@
 <% if form.object %>
+	<% f_cls = "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0" %>
 	<div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
 		<div class="inline-flex">
-			<%= form.number_field :order, value: form.object.order, min: 1, max:30, step:1 , class: "text-right rounded p-0 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"%>
-			<%= form.collection_select :drill_id, @drills, :id, :nice_string, {selected: form.object.drill_id}, {class: "rounded p-0 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"}%>
-			<%= form.number_field :duration, value: form.object.duration, size: 2 , class: "text-right rounded p-0 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"%>
+			<%= form.number_field :order, value: form.object.order, min: 1, max:50 , class: f_cls + " px-0 text-right"%>
+			<%= form.collection_select :drill_id, @drills, :id, :nice_string, {selected: form.object.drill_id}, {class: f_cls + "px-0"}%>
+			<%= form.number_field :duration, value: form.object.duration, min: 1, max: 90, class: f_cls + " px-0 text-right"%>
 			<%= render ButtonComponent.new(button: {kind: "remove"}) %>
 		</div>
 		<%= form.hidden_field :_destroy %>

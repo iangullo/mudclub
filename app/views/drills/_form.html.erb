@@ -2,7 +2,7 @@
 	<%= render FieldsComponent.new(fields: @title, form: form) %>
 	<%= render FieldsComponent.new(fields: @playbook, form: form) %>
 	<div id="drills-form">
-		<div id="drills-form-data">
+		<div id="drills-targets-data">
 			<table>
 				<tr>
 						<td align="right" class="align-top font-semibold"><%= t(:l_targ) %></td>
@@ -26,14 +26,30 @@
 					</tr>
 			</table>
 		</div>
-		<div>
+		<div if="drill-fields">
 			<%= render FieldsComponent.new(fields: @form_fields, form: form) %>
+			<%= render FieldsComponent.new(fields: @explain, form: form) %>
+		</div>
+		<div id="skills-data">
 			<table>
 				<tr>
 					<td align="right" class="align-top font-semibold"><%= t(:l_skill) %></td>
-					<td colspan="3">
-						<% render NestedComponent.new(model: "drill", key: "skills", form: form, child: Skill, row: "skill_form")%>
+					<td>
+						<div id="skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
+							<template data-nested-form-target="template">
+								<%= form.fields_for :skills, Skill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
+									<%= render 'skill_form', form: skill_fields %>
+								<% end %>
+							</template>
+							<%= form.fields_for :skills do |skill_fields| %>
+									<%= render 'skill_form', form: skill_fields %>
+							<% end %>
+							<div data-nested-form-target="target"></div>
+							<%= render ButtonComponent.new(button: {kind: "add-nested"}) %>
+						</div>
 					</td>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td class="align-top"><%= render FieldsComponent.new(fields: @author, form: form) %></td>
 				</tr>
 			</table>
 		</div>

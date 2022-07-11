@@ -81,7 +81,7 @@ class DrillsController < ApplicationController
 		if current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			respond_to do |format|
 				rebuild_drill	# rebuild drill
-				if @drill.coach_id == current_user.person.coach_id # author can modify
+				if @drill.coach_id == current_user.person.coach_id or current_user.admin? # author can modify
 				 	if @drill.save
 						format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_updated)} '#{@drill.name}'"}}
 						format.json { render :index, status: :ok, location: @drill }
@@ -127,17 +127,16 @@ class DrillsController < ApplicationController
 		# return FormComponent @fields for edit/new
 		def form_fields
 			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: @drill.kind_id, align: "center"}]
-			@playbook = [[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename.to_s}]]
-			@skill_row= [[{kind: "text-box", key: :concept, placeholder: I18n.t(:d_skill), size: 10}]]
-				return [
+			@playbook  = [[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename.to_s}]]
+			@explain   = [[{kind: "rich-text-area", key: :explanation, align: "left", cols: 3}]]
+			@author    = [[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real}]]
+			return [
 				# DO WE INCLUDE NESTED FORM TYPE??? HOW?
 				# NESTED FORM for Targets...
 				[{kind: "label", value: I18n.t(:l_mat), align: "right"}, {kind: "text-box", key: :material, size: 33, value: @drill.material}],
 				[{kind: "label", value: I18n.t(:l_desc), align: "right"}, {kind: "text-area", key: :description, size: 30, lines: 2, value: @drill.description}],
-				[{kind: "rich-text-area", key: :explanation, align: "left", cols: 2}],
 				# NESTED FORM for Skills...
-				[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.active}]
-		]
+			]
 		end
 
 		# return grid for @drills GridComponent
