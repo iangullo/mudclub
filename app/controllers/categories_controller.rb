@@ -79,7 +79,7 @@ class CategoriesController < ApplicationController
       prune_teams
       @category.destroy
       respond_to do |format|
-        format.html { redirect_to categories_url, notice: {kind: "success", message: "#{I18n.t(:cat_deleted)} '#{c_name}'"}, data: {turbo_action: "replace"} }
+        format.html { redirect_to categories_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:cat_deleted)} '#{c_name}'"}, data: {turbo_action: "replace"} }
         format.json { head :no_content }
       end
     else

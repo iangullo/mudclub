@@ -114,7 +114,7 @@ class UsersController < ApplicationController
       unlink_person
   		@user.destroy
   		respond_to do |format|
-  			format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_deleted)} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
+  			format.html { redirect_to users_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:user_deleted)} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
   			format.json { head :no_content }
   		end
     else

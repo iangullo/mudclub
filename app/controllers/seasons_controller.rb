@@ -94,7 +94,7 @@ class SeasonsController < ApplicationController
 			erase_links
 			@season.destroy
 	    respond_to do |format|
-	      format.html { redirect_to seasons_path, notice: {kind: "success", message: "#{I18n.t(:sea_deleted)} '#{s_name}'"}, data: {turbo_action: "replace"} }
+	      format.html { redirect_to seasons_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:sea_deleted)} '#{s_name}'"}, data: {turbo_action: "replace"} }
 	      format.json { head :no_content }
 	    end
 		else

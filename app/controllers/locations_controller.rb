@@ -111,12 +111,12 @@ class LocationsController < ApplicationController
         if @season
           @season.locations.delete(@location)
           @locations = @season.locations
-          format.html { redirect_to season_locations_path(@season), notice: {kind: "success", message: "#{I18n.t(:loc_deleted)} #{@season.name} => '#{l_name}'"}, data: {turbo_action: "replace"} }
+          format.html { redirect_to season_locations_path(@season), status: :see_other, notice: {kind: "success", message: "#{I18n.t(:loc_deleted)} #{@season.name} => '#{l_name}'"}, data: {turbo_action: "replace"} }
           format.json { render :index, status: :created, location: season_locations_path(@season) }
         else
           @location.scrub
           @location.delete
-          format.html { render @location, notice: {kind: "success", message: "#{I18n.t(:loc_created)} '#{l_name}'"}}
+          format.html { render @location, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:loc_created)} '#{l_name}'"}}
           format.json { render :show, :created, location: locations_url(@location) }
         end
       end

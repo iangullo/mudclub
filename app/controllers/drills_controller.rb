@@ -83,7 +83,7 @@ class DrillsController < ApplicationController
 				rebuild_drill	# rebuild drill
 				if @drill.coach_id == current_user.person.coach_id or current_user.admin? # author can modify
 				 	if @drill.save
-						format.html { redirect_to drill_path, notice: {kind: "success", message: "#{I18n.t(:drill_updated)} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
+						format.html { redirect_to drill_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:drill_updated)} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: @drill }
 					else
 						format.html { render :edit, status: :unprocessable_entity }

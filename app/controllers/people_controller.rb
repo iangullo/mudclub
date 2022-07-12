@@ -121,7 +121,7 @@ class PeopleController < ApplicationController
 			erase_links
 			@person.destroy
 	    respond_to do |format|
-				format.html { redirect_to people_url, notice: {kind: "success", message: "#{I18n.t(:per_deleted)} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to people_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:per_deleted)} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
 	      format.json { head :no_content }
 	    end
 		else

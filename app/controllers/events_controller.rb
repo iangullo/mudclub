@@ -135,7 +135,9 @@ class EventsController < ApplicationController
       team   = @event.team
       @event.destroy
       respond_to do |format|
-        format.html { redirect_to team.id > 0 ? team_path(team) : events_url, notice: {kind: "success", message: event_delete_notice}, data: {turbo_action: "replace"} }
+        next_url = team.id > 0 ? team_path : events_url
+        next_act = team.id > 0 ? :show : :index
+        format.html { redirect_to next_url, action: next_act.to_sym, status: :see_other, notice: {kind: "success", message: event_delete_notice}, data: {turbo_action: "replace"} }
         format.json { head :no_content }
       end
     else
@@ -179,7 +181,7 @@ class EventsController < ApplicationController
 
   private
 
-    # return icon and top of HeaderComponent
+    # return icon and top of FieldsComponent
     def general_title
       title    = @team ? (@team.name + " (#{@team.season.name})") : @season ? @season.name : I18n.t(:l_cal)
       subtitle = (title == I18n.t(:l_cal)) ? I18n.t(:l_all) : I18n.t(:l_cal)
@@ -188,7 +190,7 @@ class EventsController < ApplicationController
       res
     end
 
-    # return icon and top of HeaderComponent
+    # return icon and top of FieldsComponent
     def event_title(title, form: nil, cols: nil)
       rows = @event.rest? ? 3 : nil
       res  = title_start(icon: @event.pic, title: title, rows: rows, cols: cols)
@@ -237,7 +239,7 @@ class EventsController < ApplicationController
     # return icon and top of HeaderComponent for Tasks
     def task_title(title, search_in)
       res = title_start(icon: "drill.svg", title: title)
-      res << [{kind: "search-text", value: params[:search], url: search_in}]
+      res << [{kind: "search-text", key: :search, value: params[:search], url: search_in}]
       res
     end
 
@@ -257,9 +259,9 @@ class EventsController < ApplicationController
           {kind: "top-cell", value: I18n.t(:a_dur)}
         ],
         [
-          {kind: "number-box", key: :order, max: 30, value: @task.order, size: 2},
+          {kind: "number-box", key: :order, min: 1, max: 30, value: @task.order},
           {kind: "select-collection", key: :drill_id, options: @drills, value: @task.drill_id},
-          {kind: "number-box", key: :duration, max: 90, value: @task.duration, size: 3}
+          {kind: "number-box", key: :duration, min: 1, max: 90, value: @task.duration}
         ],
         [
           {kind: "hidden", key: :id, value: @task.id},
@@ -412,6 +414,7 @@ class EventsController < ApplicationController
     # purge associated tasks
     def purge_train
       @event.tasks.each { |t| t.delete }
+      @event.event_targets.each { |t| t.delete }
     end
 
     # purge assocaited tasks

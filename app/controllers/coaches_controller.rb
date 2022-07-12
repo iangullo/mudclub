@@ -131,7 +131,7 @@ class CoachesController < ApplicationController
 			unlink_person
 			@coach.destroy
 			respond_to do |format|
-				format.html { redirect_to coaches_url, notice: {kind: "success", message: "#{I18n.t(:coach_deleted)} '#{c_name}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to coaches_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:coach_deleted)} '#{c_name}'"}, data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

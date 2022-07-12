@@ -61,9 +61,9 @@ class ApplicationController < ActionController::Base
   # dropdown button definition to create a new Event
   def new_event_button(team_id)
     button = {kind: "add", name: "add-event", options: []}
-    button[:options] << {label: I18n.t(:l_train), url: new_event_path(event: {kind: :train, team_id: team_id})}
-    button[:options] << {label: I18n.t(:l_match), url: new_event_path(event: {kind: :match, team_id: team_id})}
-    button[:options] << {label: I18n.t(:l_rest), url: new_event_path(event: {kind: :rest, team_id: team_id})}
+    button[:options] << {label: I18n.t(:l_train), url: new_event_path(event: {kind: :train, team_id: team_id}), data: {turbo_frame: :modal}}
+    button[:options] << {label: I18n.t(:l_match), url: new_event_path(event: {kind: :match, team_id: team_id}), data: {turbo_frame: :modal}}
+    button[:options] << {label: I18n.t(:l_rest), url: new_event_path(event: {kind: :rest, team_id: team_id}), data: {turbo_frame: :modal}}
     return {kind: "dropdown", button: button}
   end
 

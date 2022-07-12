@@ -6,7 +6,7 @@
   </tr><tr>
     <%= render "targets_form", form: form, event_targets: @event.off_targets, aspect: 0, focus: 1, label: t(:a_off) %>
     <th align="center" class="border px py">
-      <%= form.number_field :duration, value: @event.duration, min: 60, max: 120, size: 2, step: 15, class: "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"%>
+      <%= form.number_field :duration, value: @event.duration, min: 60, max: 120, size: 2, step: 15, class: "rounded py-0 px-1 shadow-inner text-right border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"%>
     </th>
   </tr><tr>
     <td colspan="4"><br></td>

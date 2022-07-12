@@ -89,7 +89,7 @@ class SlotsController < ApplicationController
       set_slot(params)
       @slot.destroy
       respond_to do |format|
-        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t(:slot_deleted)} '#{s_name}'"}, data: {turbo_action: "replace"} }
+        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:slot_deleted)} '#{s_name}'"}, data: {turbo_action: "replace"} }
         format.json { head :no_content }
       end
     else

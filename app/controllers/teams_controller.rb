@@ -202,7 +202,7 @@ class TeamsController < ApplicationController
 			erase_links
 	    @team.destroy
 	    respond_to do |format|
-	      format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t(:team_deleted)} '#{t_name}'"}, data: {turbo_action: "replace"} }
+	      format.html { redirect_to teams_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:team_deleted)} '#{t_name}'"}, data: {turbo_action: "replace"} }
 	      format.json { head :no_content }
 	    end
 		else

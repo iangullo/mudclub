@@ -129,7 +129,7 @@ class PlayersController < ApplicationController
 			unlink_person
 			@player.destroy
 			respond_to do |format|
-				format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t(:player_deleted)} '#{p_name}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to players_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:player_deleted)} '#{p_name}'"}, data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

@@ -96,7 +96,7 @@ class FieldsComponent < ApplicationComponent
           item[:i_class] = "rounded-lg inline-flex mb-1 px-1 border-2 border-gray-500 bg-gray-300 hover:bg-gray-500 hover:text-gray-200 text-sm font-semibold max-h-6 max-w-6 align-center"
         when /^(select-.+|.+-box|.+-area)$/
           item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
-          if item[:kind]=="number-box"
+          if item[:kind]=="number-box" or item[:kind]=="time-box"
             item[:i_class] = item[:i_class] + " text-right"
             item[:min]     = 0 unless item[:min]
             item[:max]     = 99 unless item[:max]
@@ -105,7 +105,7 @@ class FieldsComponent < ApplicationComponent
         when "accordion"
           item[:h_class] = "font-semibold text-left text-indigo-900"
           item[:t_class] = "font-semibold text-right text-indigo-900"
-          item[:i_class] = "flex justify-between items-center p-1 w-full text-left text-gray-700 rounded-md bg-indigo-100 hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200"
+          item[:i_class] = "flex justify-between items-center p-1 w-full bg-gray-100 text-left text-gray-700 rounded-md hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200"
           i = 1
           item[:objects].each { |obj|
             obj[:head_id] = "accordion-collapse-heading-" + i.to_s
