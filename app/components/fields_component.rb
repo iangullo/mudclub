@@ -105,7 +105,7 @@ class FieldsComponent < ApplicationComponent
         when "accordion"
           item[:h_class] = "font-semibold text-left text-indigo-900"
           item[:t_class] = "font-semibold text-right text-indigo-900"
-          item[:i_class] = "flex justify-between items-center p-1 w-full text-left text-gray-700 rounded-md bg-indigo-100 hover:bg-indigo-700 hover:text-gray-200 focus:bg-indigo-900 focus:text-gray-200"
+          item[:i_class] = "flex justify-between items-center p-1 w-full text-left text-gray-700 rounded-md bg-indigo-100 hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200"
           i = 1
           item[:objects].each { |obj|
             obj[:head_id] = "accordion-collapse-heading-" + i.to_s
