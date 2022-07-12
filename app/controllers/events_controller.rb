@@ -38,15 +38,8 @@ class EventsController < ApplicationController
        #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
        @fields = show_training_fields
        @fields << [{kind: "gap", cols: 2}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(season_id: params[:season_id])}] if @event.team.has_coach(current_user.person.coach_id)
+       @work_t = workload_profile(@event)
     end
-  end
-
-  # GET /events/1 or /events/1.json
-  def details
-    unless current_user.present? and (current_user.admin? or current_user.is_coach?)
-      redirect_to "/", data: {turbo_action: "replace"}
-    end
-    @title = event_title(@event.team.to_s)
   end
 
   # GET /events/new
@@ -286,7 +279,7 @@ class EventsController < ApplicationController
 
     # return accordion for event tasks
     def task_accordion(event)
-      tasks = Array.new
+      tasks   = Array.new
       event.tasks.order(:order).each { |task|
         item = {}
         item[:url]     = show_task_event_path(task_id: task.id)
@@ -296,6 +289,22 @@ class EventsController < ApplicationController
         tasks << item
       }
       tasks
+    end
+
+    # profile of event workload (task types)
+    # returns a hash with time used split by kinds & skills
+    def workload_profile(event)
+      kinds  = Hash.new
+      skills = Hash.new 
+      event.tasks.each { |task| # kind
+        k_name = task.drill.kind.name
+        kinds[k_name] = kinds[k_name] ? kinds[k_name] + task.duration : task.duration
+        task.drill.skills.each {|skill|
+          s_name = skill.concept
+          skills[s_name] = skills[s_name] ? skills[s_name] + task.duration : task.duration
+        }
+      }
+      {kinds: kinds, skills: skills}
     end
 
     def rebuild_event(event_params)
