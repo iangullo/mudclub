@@ -83,7 +83,7 @@ class TopbarComponent < ApplicationComponent
   def menu_link(label:, url:, class: @lnkcls, kind: "normal")
     case kind
     when "normal"
-      l_data = {turbo_frame: "_top", turbo_action: "replace"}
+      l_data = {turbo_action: "replace"}
     when "modal"
       l_data = {turbo_frame: "modal"}
     when "delete"
