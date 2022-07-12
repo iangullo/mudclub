@@ -113,10 +113,6 @@ class DrillsController < ApplicationController
 		end
 	end
 
-	def explanation
-		render partial: 'drills/explanation', locals: { drill: @drill }
-	end
-
 	private
 
 		# return icon and top of FieldsComponent
@@ -129,7 +125,7 @@ class DrillsController < ApplicationController
 			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: @drill.kind_id, align: "center"}]
 			@playbook  = [[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename}]]
 			@explain   = [[{kind: "rich-text-area", key: :explanation, align: "left", cols: 3}]]
-			@author    = [[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real}]]
+			@author    = [[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real, value: @drill.coach_id ? @drill.coach_id : 1}]]
 			return [
 				# DO WE INCLUDE NESTED FORM TYPE??? HOW?
 				# NESTED FORM for Targets...
