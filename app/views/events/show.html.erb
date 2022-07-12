@@ -1,6 +1,15 @@
 <% if @event.train? %>
 	<table>
 		<tr><td><%= render FieldsComponent.new(fields: @title) %></td></tr>
+		<!--
+		<tr>
+			<td>
+				< %= pie_chart(@work_t[:kinds], title: t(:h_kind)) % >
+			</td></td>
+				< %= pie_chart(@work_t[:skills], title: t(:l_skill)) % >
+			</td>
+		</tr>
+		-->
 		<tr><td><%= render FieldsComponent.new(fields: @fields) %></td></tr>
 	</table>
 <% else %>
