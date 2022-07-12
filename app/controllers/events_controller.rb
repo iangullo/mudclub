@@ -364,7 +364,7 @@ class EventsController < ApplicationController
       if t_dat  # we are adding a single task
         @task          = Task.new(event_id: @event.id) unless @task
         @task.order    = t_dat[:order].to_i if t_dat[:order]
-        @task.drill_id = t_dat[:drill_id].to_i if t_dat[:drill_id]
+        @task.drill_id = params[:task][:drill_id].to_i if params[:task][:drill_id]
         @task.duration = t_dat[:duration].to_i if t_dat[:duration]
         @task.save
       end
