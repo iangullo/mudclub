@@ -14,7 +14,6 @@ Rails.application.routes.draw do
   resources :locations
   resources :events do
     get 'add_task', on: :member
-    get 'show_task', on: :member
     get 'edit_task', on: :member
   end
   resources :seasons do
