@@ -246,15 +246,24 @@ class EventsController < ApplicationController
     end
 
     # fields to show in task views
-    def task_fields(task)
-      res = [
-        [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}],
-        [{kind: "cell", value: task.drill.explanation, cols: 4}]
-      ]
+    def task_fields(task, title: true)
+      res = []
+      res << [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}] if title
+      res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
+      if task.remarks
+        res << [{kind: "label", value: I18n.t(:h_remarks)}]
+        res << [{kind: "cell", value: task.remarks, size: 28}]
+      end
+      res << [{kind: "gap", cols: 2}, {kind: "edit", align: "right", url: edit_task_event_path(task_id: task.id)}] if @event.team.has_coach(current_user.person.coach_id)
+      res
     end
 
     # fields for task edit/add views
     def task_form_fields
+      @remarks=[
+        [{kind: "label", value: I18n.t(:h_remarks)}],
+        [{kind: "text-area", key: :remarks, value: @task.remarks, size: 28}],
+      ]
       res = [
         [
           {kind: "top-cell", value: I18n.t(:a_num)},
@@ -290,7 +299,7 @@ class EventsController < ApplicationController
         item[:url]     = show_task_event_path(task_id: task.id)
         item[:turbo]   = "modal"
         item[:head]    = task.headstring
-        item[:content] = task.drill.explanation.empty? ? task.drill.description : task.drill.explanation
+        item[:content] = FieldsComponent.new(fields: task_fields(task, title: nil))
         tasks << item
       }
       tasks
@@ -324,8 +333,11 @@ class EventsController < ApplicationController
       @event.location_id= event_params[:location_id].to_i if event_params[:location_id]
       @event.home       = event_params[:home] if event_params[:home]
       check_targets(event_params[:event_targets_attributes]) if event_params[:event_targets_attributes]
-      check_tasks(event_params[:tasks_attributes]) if event_params[:tasks_attributes]
-      check_new_task(event_params[:task]) if event_params[:task]
+      if event_params[:tasks_attributes]
+        check_tasks(event_params[:tasks_attributes]) 
+      elsif event_params[:task]
+        check_new_task(event_params[:task])
+      end
     end
 
     # checks targets_attributes parameter received and manage adding/removing
@@ -468,6 +480,6 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.require(:event).permit(:id, :name, :kind, :home, :start_date, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :drill_id, :skill_id, :kind_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration, :remarks], tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy] )
+      params.require(:event).permit(:id, :name, :kind, :home, :start_date, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :task_id, :drill_id, :skill_id, :kind_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration, :remarks], tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy] )
     end
 end

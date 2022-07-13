@@ -6,8 +6,9 @@
 			<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
 				<%= form.fields_for @task do |f| %>
 					<%= render FieldsComponent.new(fields: @fields, form: f) %>
+					<%= render FieldsComponent.new(fields: @remarks, form: f) %>
 				<% end %>
-				<%= render SubmitComponent.new(submit: "save", c_label: t(:m_cancel), close_return: :back, turbo: "_top") %>
+				<%= render SubmitComponent.new(submit: "save", modal: false, close_return: :back, turbo: "_top") %>
 			<% end %>
 		<% end %>
 	</div>

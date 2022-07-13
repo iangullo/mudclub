@@ -6,5 +6,5 @@
       <%= render 'edit_session', form: form, title: title %>
     <% end %>
   </div>
-  <%= render SubmitComponent.new(submit: "save", c_label: t(:m_cancel), close_return: close_return) %>
+  <%= render SubmitComponent.new(submit: "save", modal: !(event.train?), close_return: close_return) %>
 <% end %>

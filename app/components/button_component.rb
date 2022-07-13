@@ -5,7 +5,8 @@
 # kinds of button:
 # => "add": new item button
 # => "add-nested": new nested-item
-# => "close": form close
+# => "cancel": non-modal form cancel
+# => "close": modal close
 # => "delete": delete item
 # => "edit": edit link_to
 # => "export": export data to excel
@@ -38,16 +39,14 @@ class ButtonComponent < ApplicationComponent
     when "location"
       @button[:tab]     = true
       @button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-    when "save", "edit", "menu", "login"
+    when "save", "edit", "menu", "login", "cancel", "close"
       b_colour = b_colour + " shadow font-bold"
-      @button[:d_class] = @button[:d_class] + " shadow"
-    when "close"
       @button[:d_class] = @button[:d_class] + " shadow"
     else
       @button[:d_class] = @button[:d_class] + " font-semibold"
     end
     @button[:align]   = "center" unless @button[:align]
-    @button[:replace] = true if @button[:kind] =~ /^(close|save)$/
+    @button[:replace] = true if @button[:kind] =~ /^(cancel|close|save)$/
     @button[:d_class] = @button[:d_class] + (b_colour ?  b_colour : "")
     @button
   end
@@ -57,6 +56,9 @@ class ButtonComponent < ApplicationComponent
     case @button[:kind]
     when "add", "add-nested"
       @button[:icon]    = "add.svg"
+    when "cancel"
+      @button[:icon]    = "close.svg"
+      @button[:turbo]   = "_top"
     when "close"
       @button[:icon]    = "close.svg"
     when "delete"
@@ -94,7 +96,7 @@ class ButtonComponent < ApplicationComponent
     when "close"
       @button[:action] = "turbo-modal#hideModal"
       b_start = b_start + " font-bold"
-    when "save", "import", "export", "menu", "login"
+    when "cancel", "save", "import", "export", "menu", "login"
       b_start = b_start + " font-bold"
     end
     @button[:type]    = "submit" if @button[:kind] =~ /^(save|import)$/
@@ -117,7 +119,7 @@ class ButtonComponent < ApplicationComponent
   def set_colour
     res = " rounded-lg "
     case @button[:kind]
-    when "delete", "remove", "close"
+    when "delete", "remove", "close", "cancel"
       colour = "red"
     when "edit", "attach"
       colour = "yellow"

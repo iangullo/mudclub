@@ -20,7 +20,7 @@
       <%= render "tasks_form", form: form, tasks: @event.tasks.order(:order) %>
       <tr>
         <td></td>
-        <td colspan="2" align="left">
+        <td colspan="3" align="left">
           <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
             <%= render ButtonComponent.new(button: {kind: "add", label: t(:l_task_add), url: add_task_event_path}) %>
           <% end %>
