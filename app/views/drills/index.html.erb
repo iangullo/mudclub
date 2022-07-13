@@ -1,5 +1,6 @@
 <div id="drills-index">
 	<%= render FieldsComponent.new(fields: @title) %>
+	<%= render FieldsComponent.new(fields: @search) %>
 	<%= turbo_frame_tag "search-results" do %>
 		<%= render @grid %>
 	<% end %>

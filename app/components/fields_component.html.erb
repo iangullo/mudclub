@@ -51,19 +51,26 @@
             <%=obj.check_box({class: "rounded bg-gray-200 text-blue-700"})%> <%=obj.object.to_s%><br>
           <% end %>
         <% when "search-combo" %>
-          <div id="combo-search-box" class="<%=item[:i_class]%>">
+          <div id="combo-search-box">
             <%= form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
-              <% item[:fields].each do |opt| %>
-                <% case opt[:kind]%>
-                <% when "search-text" %>
-                  <%=fsearch.text_field opt[:key], placeholder: t(:m_search), value: opt[:value], size: opt[:size], class: item[:i_class], data: {action: "input->search-form#search"}%>
-                <% when "search-select" %>
-                  <%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t(:l_all)}, {class: item[:i_class]}%>
-                <% when "search-collection" %>
-                  <%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym] ? params[opt[:key].to_sym] : opt[:value]}, {class: item[:i_class]}%>
-                <% end %>
-              <% end %>
-              <%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t(:m_search) %>
+              <table>
+                <tr class="inline-flex">
+                  <% item[:fields].each do |opt| %>
+                  <td class="relative">
+                    <% if opt[:label] %><label for="<%=opt[:key]%>" class="<%=item[:l_class]%>"><%=opt[:label]%></label><% end %>
+                    <% case opt[:kind]%>
+                    <% when "search-text" %>
+                      <%=fsearch.text_field opt[:key], placeholder: t(:m_search), value: opt[:value], size: opt[:size], class: item[:i_class], data: {action: "input->search-form#search"}%>
+                    <% when "search-select" %>
+                      <%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t(:l_all)}, {class: item[:i_class]}%>
+                    <% when "search-collection" %>
+                      <%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym] ? params[opt[:key].to_sym] : opt[:value]}, {class: item[:i_class]}%>
+                    <% end %>
+                  </td>
+                  <% end %>
+                  <td><%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t(:m_search) %></td>
+                </tr>
+              </table>
             <% end %>
           </div>
         <% when "upload" %>

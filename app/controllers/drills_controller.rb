@@ -8,12 +8,8 @@ class DrillsController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			# Simple search by name/description for now
 			@title  = title_fields(I18n.t(:l_drill_index))
-	    @title << [
-				{kind: "search-combo", url: drills_path, fields: [
-          {kind: "search-text", key: :name, value: session.dig('drill_filters', 'name')},
-          {kind: "search-select", key: :kind_id, value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)}
-        ]}
-			]
+			@title << [{kind: "subtitle", value: I18n.t()}]
+      @search = drill_search_bar(drills_path)
 			@drills = filter!(Drill)
 			@grid   = GridComponent.new(grid: drill_grid)
 		else
@@ -223,6 +219,6 @@ class DrillsController < ApplicationController
 
 		# Only allow a list of trusted parameters through.
 		def drill_params
-			params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, target_ids: [], skill_ids: [], skills_attributes: [:id, :concept, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy], targets_attributes: [:id, :concept])
+			params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, :skill_id, skills: [], target_ids: [], skill_ids: [], skills_attributes: [:id, :concept, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy], targets_attributes: [:id, :concept])
 		end
 end

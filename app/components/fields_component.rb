@@ -75,8 +75,9 @@ class FieldsComponent < ApplicationComponent
           item[:align]   = "left" unless item[:align]
           item[:size]    = 16 unless item[:size]
           item[:lines]   = 1 unless item[:lines]
-          item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 text-sm focus:ring-blue-700 focus:border-blue-700"
-          item[:class]   = "inline-flex rounded border"
+          item[:class]   = "inline-flex rounded-md border-2 border-gray-300"
+          item[:i_class] = "block px-1 py-0 mt-3 w-full text-sm text-gray-900 bg-gray-50 shadow-inner rounded border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-700 peer"
+          item[:l_class] = "absolute text-md font-semibold text-gray-700 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-transparent px-0 peer-focus:px-0 peer-focus:text-blue-700 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-0"
           item[:fields]  = [{kind: item[:kind], key: item[:key].to_sym, options: item[:options], value: item[:value]}] unless item[:kind] == "search-combo"
           item[:kind]    = "search-combo"
         when "icon-label"

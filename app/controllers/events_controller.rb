@@ -1,4 +1,5 @@
 class EventsController < ApplicationController
+  include Filterable
   before_action :set_event, only: %i[ show edit add_task show_task edit_task update destroy ]
 
   # GET /events or /events.json
@@ -145,22 +146,14 @@ class EventsController < ApplicationController
     end
   end
 
-  # GET /events/1/show_task
-  def show_task
-    if current_user.present? and (current_user.admin? or current_user.is_coach?)
-      @task   = Task.find(params[:task_id])
-      @fields = task_fields(@task)
-    else
-      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"})
-    end
-  end
-
   # GET /events/1/add_task
   def add_task
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      @task   = Task.new(event: @event, order: @event.tasks.count + 1)
-      @drills = Drill.search(params[:search])
-      @title  = task_title(I18n.t(:l_task_add), add_task_event_path(@event))
+      @task   = Task.new(event: @event, order: @event.tasks.count + 1, duration: 5)
+      #@drills = Drill.search(params[:search])
+      @drills = filter!(Drill)
+      @title  = task_title(I18n.t(:l_task_add))
+      @search = drill_search_bar(add_task_event_path(@event))
       @fields = task_form_fields
     else
       redirect_to(current_user.present? ? events_url : "/")
@@ -171,8 +164,9 @@ class EventsController < ApplicationController
   def edit_task
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
       @task   = Task.find(params[:task_id])
-      @drills = Drill.search(params[:search])
-      @title  = task_title(I18n.t(:l_task_edit), edit_task_event_path(@event))
+      @drills = filter!(Drill)
+      @title  = task_title(I18n.t(:l_task_edit))
+      @search = drill_search_bar(edit_task_event_path(@event))
       @fields = task_form_fields
     else
       redirect_to(current_user.present? ? events_url : "/")
@@ -191,7 +185,7 @@ class EventsController < ApplicationController
     end
 
     # return icon and top of FieldsComponent
-    def event_title(title, form: nil, cols: nil)
+    def event_title(title, subtitle: nil, form: nil, cols: nil)
       rows = @event.rest? ? 3 : nil
       res  = title_start(icon: @event.pic, title: title, rows: rows, cols: cols)
       res.last << {kind: "gap"}
@@ -210,7 +204,7 @@ class EventsController < ApplicationController
           end
         end
       when :train
-        res << [{kind: "subtitle", value: I18n.t(:l_train), cols: cols}, {kind: "gap"}]
+        res << [{kind: "subtitle", value: subtitle ? subtitle : I18n.t(:l_train), cols: cols}, {kind: "gap"}]
       end
       if form # top right corner of title
         res.first << {kind: "icon", value: "calendar.svg"}
@@ -236,19 +230,9 @@ class EventsController < ApplicationController
       # res << [{kind: "gap", size: 1}, {kind: "gap", size: 1}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(@event)}]
     end
 
-    # return icon and top of HeaderComponent for Tasks
-    def task_title(title, search_in)
-      res = title_start(icon: "drill.svg", title: title)
-      res << [{kind: "search-text", key: :search, value: params[:search], url: search_in}]
-      res
-    end
-
-    # fields to show in task views
-    def task_fields(task)
-      res = [
-        [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}],
-        [{kind: "cell", value: task.drill.explanation, cols: 4}]
-      ]
+    # return icon and top of FieldsComponent for Tasks
+    def task_title(title)
+      res = event_title(@event.title(show: true), subtitle: title, cols: 3)
     end
 
     def task_form_fields
@@ -259,7 +243,7 @@ class EventsController < ApplicationController
           {kind: "top-cell", value: I18n.t(:a_dur)}
         ],
         [
-          {kind: "number-box", key: :order, min: 1, max: 30, value: @task.order},
+          {kind: "side-cell", value: @task.order},
           {kind: "select-collection", key: :drill_id, options: @drills, value: @task.drill_id},
           {kind: "number-box", key: :duration, min: 1, max: 90, value: @task.duration}
         ],
@@ -465,6 +449,6 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.require(:event).permit(:id, :name, :kind, :home, :start_date, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :drill_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration, :remarks], tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy] )
+      params.require(:event).permit(:id, :name, :kind, :home, :start_date, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :drill_id, :skill_id, :kind_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration, :remarks], tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy] )
     end
 end

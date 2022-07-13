@@ -12,12 +12,14 @@ class Drill < ApplicationRecord
 	scope :real, -> { where("id>0") }
 	scope :by_name, -> (name) { where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{name}%","%#{name}%").distinct }
 	scope :by_kind, -> (kind_id) { (kind_id and kind_id.to_i>0) ? where(kind_id: kind_id.to_i) : where("kind_id>0") }
+	scope :by_skill, -> (skill_id) { (skill_id and skill_id.to_i>0) ? joins(:skills).where(skills: {id: skill_id.to_i}) : all	}
 	self.inheritance_column = "not_sti"
-  FILTER_PARAMS = %i[name kind_id column direction].freeze
+  FILTER_PARAMS = %i[name kind_id skill_id column direction].freeze
 
 	def self.filter(filters)
 		Drill.by_name(filters['name'])
 		.by_kind(filters['kind_id'])
+		.by_skill(filters['skill_id'])
 		.order("#{filters['column']} #{filters['direction']}")
 	end
 
@@ -72,7 +74,7 @@ class Drill < ApplicationRecord
 		res = res.joins(:skills).where(skills: Skill.search(s_s)).distinct
 	end
 
-	# filter for fundamentals
+	# filter for targets
 	def self.search_target(res=Drill.all, s_t)
 		res = res.joins(:targets).where(targets: Target.search(nil, s_t)).distinct
 	end
