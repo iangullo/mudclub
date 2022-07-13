@@ -7,7 +7,7 @@
 				<%= form.fields_for @task do |f| %>
 					<%= render FieldsComponent.new(fields: @fields, form: f) %>
 				<% end %>
-				<%= render SubmitComponent.new(submit: "save") %>
+				<%= render SubmitComponent.new(submit: "save", c_label: t(:m_cancel), close_return: :back, turbo: "_top") %>
 			<% end %>
 		<% end %>
 	</div>

@@ -146,6 +146,16 @@ class EventsController < ApplicationController
     end
   end
 
+  # GET /events/1/show_task
+  def show_task
+    if current_user.present? and (current_user.admin? or current_user.is_coach?)
+      @task   = Task.find(params[:task_id])
+      @fields = task_fields(@task)
+    else
+      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"})
+    end
+  end
+
   # GET /events/1/add_task
   def add_task
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
@@ -235,6 +245,15 @@ class EventsController < ApplicationController
       res = event_title(@event.title(show: true), subtitle: title, cols: 3)
     end
 
+    # fields to show in task views
+    def task_fields(task)
+      res = [
+        [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}],
+        [{kind: "cell", value: task.drill.explanation, cols: 4}]
+      ]
+    end
+
+    # fields for task edit/add views
     def task_form_fields
       res = [
         [
