@@ -247,7 +247,7 @@ class EventsController < ApplicationController
       res << [{kind: "icon", value: "pie.svg"},
         {kind: "text", value: I18n.t(:l_workload), class: "font-semibold text-left text-indigo-900"},
         {kind: "link", label: I18n.t(:h_kind), url: load_chart_event_path(name: "kind"), turbo: "modal", align: "center"},
-        {kind: "link", label: I18n.t(:h_target), url: load_chart_event_path(name: "target"), turbo: "modal", align: "center"},
+#        {kind: "link", label: I18n.t(:h_target), url: load_chart_event_path(name: "target"), turbo: "modal", align: "center"},
         {kind: "link", label: I18n.t(:h_skill), url: load_chart_event_path(name: "skill"), turbo: "modal", align: "center"}
       ]
       res
