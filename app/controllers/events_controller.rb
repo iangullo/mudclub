@@ -325,7 +325,6 @@ class EventsController < ApplicationController
       title = I18n.t(:l_workload) + " " + I18n.t("h_" + name)
       data  = {}
       @event.tasks.each { |task| # kind
-        binding.break
         case name
         when "kind"
           k_name = task.drill.kind.name
@@ -336,6 +335,7 @@ class EventsController < ApplicationController
             data[s_name] = data[s_name] ? data[s_name] + task.duration : task.duration
           }
 #        when "target"
+#           binding.break
 #           task.drill.targets.each {|target|
 #            t_name = target.concept
 #            data[t_name] = data[t_name] ? data[t_name] + task.duration : task.duration if target.priority==1
