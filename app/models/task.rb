@@ -1,6 +1,7 @@
 class Task < ApplicationRecord
   belongs_to :event
   belongs_to :drill
+	has_rich_text :remarks
   self.inheritance_column = "not_sti"
 
   def to_s

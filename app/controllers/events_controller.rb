@@ -106,12 +106,12 @@ class EventsController < ApplicationController
         rebuild_event(event_params)
         if @event.save
           if @task  # we just updated a task
-            format.html { redirect_to edit_event_path(@event), notice: {kind: "success", message: "#{I18n.t(:task_created)} '#{@task.to_s}'"}, data: {turbo_action: "replace"} }
+            format.html { redirect_to event_params[:task][:retlnk], notice: {kind: "success", message: "#{I18n.t(:task_updated)} '#{@task.to_s}'"} }
             format.json { render :edit, status: :ok, location: @event }
-          elsif params[:event][:season_id].to_i > 0 # season event
+          elsif event_params[:season_id].to_i > 0 # season event
             format.html { redirect_to season_path(params[:event][:season_id]), notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"} }
             format.json { render :show, status: :ok, location: @event }
-          elsif params[:event][:p_for]==nil # a training session
+          elsif event_params[:tasks_attributes] # a training session
             @event.tasks.reload
             format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
             format.json { render :show, status: :ok, location: @event }
@@ -163,6 +163,7 @@ class EventsController < ApplicationController
       #@drills = Drill.search(params[:search])
       @drills = filter!(Drill)
       @title  = task_title(I18n.t(:l_task_add))
+      @retlnk = edit_event_path(@event)
       @search = drill_search_bar(add_task_event_path(@event))
       @fields = task_form_fields
     else
@@ -176,6 +177,7 @@ class EventsController < ApplicationController
       @task   = Task.find(params[:task_id])
       @drills = filter!(Drill)
       @title  = task_title(I18n.t(:l_task_edit))
+      @retlnk = event_path(@event)
       @search = drill_search_bar(edit_task_event_path(@event))
       @fields = task_form_fields
     else
@@ -250,7 +252,7 @@ class EventsController < ApplicationController
       res = []
       res << [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}] if title
       res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
-      if task.remarks
+      if task.remarks?
         res << [{kind: "label", value: I18n.t(:h_remarks)}]
         res << [{kind: "cell", value: task.remarks, size: 28}]
       end
@@ -262,7 +264,7 @@ class EventsController < ApplicationController
     def task_form_fields
       @remarks=[
         [{kind: "label", value: I18n.t(:h_remarks)}],
-        [{kind: "text-area", key: :remarks, value: @task.remarks, size: 28}],
+        [{kind: "rich-text-area", key: :remarks, value: @task.remarks, size: 28}],
       ]
       res = [
         [
@@ -277,7 +279,8 @@ class EventsController < ApplicationController
         ],
         [
           {kind: "hidden", key: :id, value: @task.id},
-          {kind: "hidden", key: :order, value: @task.order}
+          {kind: "hidden", key: :order, value: @task.order},
+          {kind: "hidden", key: :retlnk, value: @retlnk}
         ]
       ]
     end
@@ -333,10 +336,10 @@ class EventsController < ApplicationController
       @event.location_id= event_params[:location_id].to_i if event_params[:location_id]
       @event.home       = event_params[:home] if event_params[:home]
       check_targets(event_params[:event_targets_attributes]) if event_params[:event_targets_attributes]
-      if event_params[:tasks_attributes]
+      if event_params[:tasks_attributes]  # updated tasks in session edit form
         check_tasks(event_params[:tasks_attributes]) 
-      elsif event_params[:task]
-        check_new_task(event_params[:task])
+      elsif event_params[:task] # updated task from edit_task_form (add or edit)
+        check_task(event_params[:task])
       end
     end
 
@@ -374,13 +377,14 @@ class EventsController < ApplicationController
       }
     end
 
-    # ensure a new task is correctly added to event
-    def check_new_task(t_dat)
+    # ensure a task is correctly added to event
+    def check_task(t_dat)
       if t_dat  # we are adding a single task
-        @task          = Task.new(event_id: @event.id) unless @task
+        @task          = (t_dat[:id] and t_dat[:id]!="") ? Task.find(t_dat[:id]) : Task.new(event_id: @event.id)
         @task.order    = t_dat[:order].to_i if t_dat[:order]
-        @task.drill_id = params[:task][:drill_id].to_i if params[:task][:drill_id]
+        @task.drill_id = params[:task][:drill_id].to_i if params[:task][:drill_id] #t_dat[:drill_id].to_i if t_dat[:drill_id]
         @task.duration = t_dat[:duration].to_i if t_dat[:duration]
+        @task.remarks  = t_dat[:remarks] if t_dat[:remarks]
         @task.save
       end
     end
@@ -480,6 +484,6 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.require(:event).permit(:id, :name, :kind, :home, :start_date, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :task_id, :drill_id, :skill_id, :kind_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration, :remarks], tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy] )
+      params.require(:event).permit(:id, :name, :kind, :home, :start_date, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :task_id, :drill_id, :skill_id, :kind_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration, :remarks, :retlnk], tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy] )
     end
 end
