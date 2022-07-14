@@ -88,3 +88,5 @@ gem 'phonelib'
 # Added Devise for user authentication
 gem 'devise'
 gem 'devise-i18n'
+
+gem "chartkick", "~> 4.2"

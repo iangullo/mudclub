@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="Layer_1"
+   data-name="Layer 1"
+   viewBox="0 0 128 128"
+   version="1.1"
+   sodipodi:docname="pie.svg"
+   width="128"
+   height="128"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)">
+  <circle
+     style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2.09808;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path868"
+     cx="64"
+     cy="64"
+     r="64" />
+  <g
+     id="g1021"
+     transform="matrix(1.6038946,0,0,1.6038946,-87.482759,-75.277835)">
+    <path
+       style="fill:#d45500;fill-opacity:1;stroke:#d45500;stroke-width:1.24696;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 114.20261,52.891669 c 0.15596,-0.310193 3.27677,1.544999 4.63889,2.706781 4.02945,3.436803 7.45543,7.683198 10.07188,12.287789 0.85758,1.509228 1.7702,4.897486 1.7702,4.897486 l -30.722382,9.416309 z"
+       id="path946"
+       sodipodi:nodetypes="caaccc" />
+    <g
+       id="g1032"
+       transform="matrix(0.23519527,0.87430942,-0.8777607,0.2342705,148.60029,-16.338798)">
+      <path
+         style="fill:#008080;fill-opacity:1;stroke:#008080;stroke-width:0.440802;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 62.245636,105.73097 c -0.329619,0.10906 -4.218109,-7.586907 -4.670747,-11.732938 -1.234194,-11.304861 0.212804,-17.155647 3.653153,-24.292619 1.71168,-3.550865 5.036211,-7.595409 5.036211,-7.595409 28.182574,24.72727 0,0 28.182574,24.72727 z"
+         id="path946-5"
+         sodipodi:nodetypes="cssccc" />
+      <path
+         style="fill:#000080;fill-opacity:1;stroke:#000080;stroke-width:0.440802;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 130.56403,98.552858 c 0.0569,0.171984 -4.60555,10.351832 -10.85675,15.850922 -5.8494,5.14563 -13.38512,9.29205 -21.147848,9.95011 -9.074203,0.76924 -16.286928,-0.57023 -26.325852,-7.3038 -7.117617,-4.77411 -9.987944,-11.31912 -9.987944,-11.31912 L 94.446827,86.837274 Z"
+         id="path946-5-6"
+         sodipodi:nodetypes="csasccc" />
+      <path
+         style="fill:#ffcc00;fill-opacity:1;stroke:#ffcc00;stroke-width:0.440802;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 94.446829,49.428332 c 0.145169,-0.108354 10.573521,0.187353 18.297721,4.714429 6.72126,3.939262 12.94188,10.574428 16.02043,17.730931 3.95179,10.412285 3.38559,15.640114 1.79905,26.679166 L 94.446827,86.837274 Z"
+         id="path946-5-6-2"
+         sodipodi:nodetypes="cscccc" />
+    </g>
+  </g>
+  <metadata
+     id="metadata11">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>timetable</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs9" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1016"
+     id="namedview7"
+     showgrid="false"
+     showguides="true"
+     inkscape:zoom="4"
+     inkscape:cx="43.156837"
+     inkscape:cy="76.028935"
+     inkscape:window-x="0"
+     inkscape:window-y="36"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Layer_1"
+     inkscape:guide-bbox="true"
+     inkscape:document-rotation="0" />
+  <title
+     id="title2">timetable</title>
+</svg>

@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
   include Filterable
-  before_action :set_event, only: %i[ show edit add_task show_task edit_task update destroy ]
+  before_action :set_event, only: %i[ show edit add_task show_task edit_task load_chart update destroy ]
 
   # GET /events or /events.json
   def index
@@ -33,13 +33,12 @@ class EventsController < ApplicationController
         {kind: "label", value: @event.score[:away][:points], class: "border px py"}
       ]
     elsif @event.train?
-       @title << [{kind: "side-cell", value: I18n.t(:a_targ), rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 4}]
-       @title << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 4}]
-       @title << [{kind: "gap", size: 2}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}]
-       #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
-       @fields = show_training_fields
-       @fields << [{kind: "gap", cols: 2}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(season_id: params[:season_id])}] if @event.team.has_coach(current_user.person.coach_id)
-       @work_t = workload_profile(@event)
+      @title << [{kind: "side-cell", value: I18n.t(:a_targ), rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 4}]
+      @title << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 4}]
+      @title << [{kind: "gap", size: 2}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}]
+      #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
+      @fields = show_training_fields
+      @fields << [{kind: "gap", cols: 3}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(season_id: params[:season_id])}] if @event.team.has_coach(current_user.person.coach_id)
     end
   end
 
@@ -185,6 +184,12 @@ class EventsController < ApplicationController
     end
   end
 
+  # GET /events/1/load_chart
+  def load_chart
+    @header = event_title(@event.title(show: true), cols: @event.train? ? 3 : nil)
+    @chart  = workload_profile(params[:name])
+  end
+
   private
 
     # return icon and top of FieldsComponent
@@ -238,8 +243,14 @@ class EventsController < ApplicationController
 
     # return FieldsComponent @fields for show_training
     def show_training_fields
-      res = [[{kind: "gap", size: 1}, {kind: "accordion", title: I18n.t(:l_task_index), tail: I18n.t(:l_total) + " " + @event.work_duration, objects: task_accordion(@event), cols: 2}]]
-      # res << [{kind: "gap", size: 1}, {kind: "gap", size: 1}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(@event)}]
+      res = [[{kind: "gap", size: 1}, {kind: "accordion", title: I18n.t(:l_task_index), tail: I18n.t(:l_total) + " " + @event.work_duration, objects: task_accordion(@event), cols: 4}]]
+      res << [{kind: "icon", value: "pie.svg"},
+        {kind: "text", value: I18n.t(:l_workload), class: "font-semibold text-left text-indigo-900"},
+        {kind: "link", label: I18n.t(:h_kind), url: load_chart_event_path(name: "kind"), turbo: "modal", align: "center"},
+        {kind: "link", label: I18n.t(:h_target), url: load_chart_event_path(name: "target"), turbo: "modal", align: "center"},
+        {kind: "link", label: I18n.t(:h_skill), url: load_chart_event_path(name: "skill"), turbo: "modal", align: "center"}
+      ]
+      res
     end
 
     # return icon and top of FieldsComponent for Tasks
@@ -310,18 +321,28 @@ class EventsController < ApplicationController
 
     # profile of event workload (task types)
     # returns a hash with time used split by kinds & skills
-    def workload_profile(event)
-      kinds  = Hash.new
-      skills = Hash.new 
-      event.tasks.each { |task| # kind
-        k_name = task.drill.kind.name
-        kinds[k_name] = kinds[k_name] ? kinds[k_name] + task.duration : task.duration
-        task.drill.skills.each {|skill|
-          s_name = skill.concept
-          skills[s_name] = skills[s_name] ? skills[s_name] + task.duration : task.duration
-        }
+    def workload_profile(name)
+      title = I18n.t(:l_workload) + " " + I18n.t("h_" + name)
+      data  = {}
+      @event.tasks.each { |task| # kind
+        binding.break
+        case name
+        when "kind"
+          k_name = task.drill.kind.name
+          data[k_name] = data[k_name] ? data[k_name] + task.duration : task.duration
+        when "skill"
+          task.drill.skills.each {|skill|
+            s_name = skill.concept
+            data[s_name] = data[s_name] ? data[s_name] + task.duration : task.duration
+          }
+#        when "target"
+#           task.drill.targets.each {|target|
+#            t_name = target.concept
+#            data[t_name] = data[t_name] ? data[t_name] + task.duration : task.duration if target.priority==1
+#          }
+        end
       }
-      {kinds: kinds, skills: skills}
+      {title: title, data: data}
     end
 
     def rebuild_event(event_params)

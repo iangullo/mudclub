@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   resources :slots
   resources :locations
   resources :events do
+    get 'load_chart', on: :member
     get 'show_task', on: :member
     get 'add_task', on: :member
     get 'edit_task', on: :member
