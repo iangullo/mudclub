@@ -30,7 +30,8 @@ class PlayersController < ApplicationController
 			@fields << [{kind: "label", value: @player.s_name}]
 			@fields << [{kind: "label", value: @player.person.surname}]
 			@fields << [{kind: "string", value: @player.person.birthday}]
-			@fields << [{kind: "label", value: I18n.t(@player.active ? :h_active : :h_inactive), align: "center"}, {kind: "string", value: (I18n.t(:a_num) + @player.number.to_s)}]
+			@fields << [{kind: "label", value: I18n.t(@player.female ? :a_fem : :a_male), align: "center"}, {kind: "string", value: (I18n.t(:a_num) + @player.number.to_s)}]
+			@fields << [{kind: "label", value: I18n.t(@player.active ? :h_active : :h_inactive), align: "center"}]
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -52,9 +53,9 @@ class PlayersController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
-		@title_fields    = form_fields(I18n.t(:l_player_new), rows: 3, cols: 2)
-		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @player.active}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_num)}, {kind: "number-box", key: :number, min: 0, max: 99, value: @player.number}]]
-		@player_fields_2 = [{kind: "upload", key: :avatar, label: I18n.t(:l_pic), value: @player.avatar.filename, cols: 5}]
+		@title_fields    = form_fields(I18n.t(:l_player_new), rows: 3, cols: 3)
+		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @player.active}, {kind: "gap", size: 8}, {kind: "label", value: I18n.t(:l_num)}, {kind: "number-box", key: :number, min: 0, max: 99, value: @player.number}]]
+		@player_fields_2 = [[{kind: "upload", key: :avatar, label: I18n.t(:l_pic), value: @player.avatar.filename, cols: 5}]]
 		@person_fields   = [
 			[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
 			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @player.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @player.person.phone}]
@@ -98,7 +99,7 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				if @player.update(player_params)
 					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t(:player_updated)} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :ok, location: players_path(search: @player.person.to_s(true)) }
+					format.json { render :index, status: :ok, location: players_path(search: @player.person.name) }
 				else
 					format.html { render :edit }
 					format.json { render json: @player.errors, status: :unprocessable_entity }
@@ -148,10 +149,10 @@ class PlayersController < ApplicationController
 		def form_fields(title, rows: 3, cols: 2)
 			res = title_fields(title, icon: @player.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
 			f_cols = cols>2 ? cols - 1 : nil
-			res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @player.person.name, cols: f_cols}]
+			res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, label: I18n.t(:h_name), value: @player.person.name, cols: f_cols}]
 			res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}]
 			if f_cols	# i's an edit form
-				res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}]
+				res << [{kind: "label-checkbox", label: I18n.t(:a_fem), key: :female, value: @player.person.female}, {kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}]
 			end
 			res
 		end
