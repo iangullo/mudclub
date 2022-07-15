@@ -51,6 +51,7 @@ es:
   m_profile: "Perfil"
   m_login: "Entrar"
   m_logout: "Salir"
+  m_return: "Volver"
   m_import: "Importar"
   m_export: "Exportar"
   m_create: "Crear"

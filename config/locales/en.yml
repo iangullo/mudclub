@@ -51,6 +51,7 @@ en:
   m_profile: "Profile"
   m_login: "Log-in"
   m_logout: "Log-out"
+  m_return: "Return"
   m_import: "Import"
   m_export: "Export"
   m_create: "Create"

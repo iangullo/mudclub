@@ -38,7 +38,6 @@ class EventsController < ApplicationController
       @title << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}]
       #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
       @fields = show_training_fields
-      @fields << [{kind: "gap", size: 1, cols: 4}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(season_id: params[:season_id])}] if @event.team.has_coach(current_user.person.coach_id)
     end
   end
 

@@ -7,7 +7,7 @@
   <%=image_tag(@button[:icon], size: @button[:size] ? @button[:size] : "25x25", class: @button[:i_class])%>
   <% end %>
   <% if @button[:label] %>
-  <div class="inline-flex items-center">
+  <div class="inline-flex items-center ml-1">
     <%=@button[:label]%> <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
   </div>
   <% end %>
@@ -17,7 +17,7 @@
     <% @button[:options].each do |option| %>
     <li class="<%=@button[:o_class]%>">
       <%= link_to option[:url], data: option[:data] do %>
-        <%= image_tag(option[:icon], size: option[:size] ? option[:size] : "25x25") if option[:icon] %> <%= option[:label] if option[:label] %>
+        <%= image_tag(option[:icon], size: option[:size] ? option[:size] : "25x25") if option[:icon] %><%= option[:label] if option[:label] %>
       <% end %>
     </li>
     <% end %>

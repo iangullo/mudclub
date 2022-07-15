@@ -2,6 +2,7 @@
 	<table>
 		<tr><td><%= render FieldsComponent.new(fields: @title) %></td></tr>
 		<tr><td><%= render FieldsComponent.new(fields: @fields) %></td></tr>
+		<tr><td><%= render SubmitComponent.new(close: "back", close_return: :back, submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_event_path(season_id: params[:season_id]) : nil) %></td></tr>
 	</table>
 <% else %>
 	<%= render ModalComponent.new do %>

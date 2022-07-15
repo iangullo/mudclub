@@ -8,7 +8,7 @@
 					<%= render FieldsComponent.new(fields: @fields, form: f) %>
 					<%= render FieldsComponent.new(fields: @remarks, form: f) %>
 				<% end %>
-				<%= render SubmitComponent.new(submit: "save", modal: false, close_return: :back, turbo: "_top") %>
+				<%= render SubmitComponent.new(submit: "cancel", close_return: :back) %>
 			<% end %>
 		<% end %>
 	</div>

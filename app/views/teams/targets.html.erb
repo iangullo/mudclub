@@ -37,5 +37,5 @@
 			</td>
 		</tr>
 	</table>
-	<%= render SubmitComponent.new(close: nil, submit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil) %>
+	<%= render SubmitComponent.new(close: "back", close_return: :back, submit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil) %>
 </div>

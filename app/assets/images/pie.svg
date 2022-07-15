@@ -15,15 +15,9 @@
    width="128"
    height="128"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)">
-  <circle
-     style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2.09808;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     id="path868"
-     cx="64"
-     cy="64"
-     r="64" />
   <g
      id="g1021"
-     transform="matrix(1.6038946,0,0,1.6038946,-87.482759,-75.277835)">
+     transform="matrix(1.7989721,0,0,1.7989721,-108.21771,-90.965367)">
     <path
        style="fill:#d45500;fill-opacity:1;stroke:#d45500;stroke-width:1.24696;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 114.20261,52.891669 c 0.15596,-0.310193 3.27677,1.544999 4.63889,2.706781 4.02945,3.436803 7.45543,7.683198 10.07188,12.287789 0.85758,1.509228 1.7702,4.897486 1.7702,4.897486 l -30.722382,9.416309 z"
@@ -79,7 +73,7 @@
      showguides="true"
      inkscape:zoom="4"
      inkscape:cx="43.156837"
-     inkscape:cy="76.028935"
+     inkscape:cy="56.028935"
      inkscape:window-x="0"
      inkscape:window-y="36"
      inkscape:window-maximized="1"
