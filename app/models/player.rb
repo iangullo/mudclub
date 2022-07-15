@@ -3,12 +3,13 @@ class Player < ApplicationRecord
 	has_one :person
 	has_one_attached :avatar
 	has_many :stats
+	has_many :attendances
 	accepts_nested_attributes_for :person, update_only: true
 	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
 	scope :real, -> { where("id>0") }
 	scope :active, -> { where("active = true") }
-	scope :female, -> { where("female = true") }
-	scope :male, -> { where("female = false") }
+	scope :female, -> { joins(:person).where("female = true") }
+	scope :male, -> { joins(:person).where("female = false") }
 	self.inheritance_column = "not_sti"
 
 	# Just list person's full name

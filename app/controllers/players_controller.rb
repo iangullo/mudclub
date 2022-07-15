@@ -53,7 +53,7 @@ class PlayersController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
-		@title_fields    = form_fields(I18n.t(:l_player_new), rows: 3, cols: 3)
+		@title_fields    = form_fields(I18n.t(:l_player_edit), rows: 3, cols: 3)
 		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @player.active}, {kind: "gap", size: 8}, {kind: "label", value: I18n.t(:l_num)}, {kind: "number-box", key: :number, min: 0, max: 99, value: @player.number}]]
 		@player_fields_2 = [[{kind: "upload", key: :avatar, label: I18n.t(:l_pic), value: @player.avatar.filename, cols: 5}]]
 		@person_fields   = [
@@ -174,7 +174,7 @@ class PlayersController < ApplicationController
 			@player.person[:nick] = p_data[:nick]
 			@player.person[:name] = p_data[:name]
 			@player.person[:surname] = p_data[:surname]
-			@player.person[:female] = p_data[:female]
+			@player.person[:female] = p_data[:female] ? p_data[:female] : false
 			@player.person[:email] = p_data[:email]
 			@player.person[:phone] = Phonelib.parse(p_data[:phone]).international.to_s
 			@player.person[:coach_id] = 0
