@@ -39,14 +39,14 @@ class ButtonComponent < ApplicationComponent
     when "location"
       @button[:tab]     = true
       @button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-    when "save", "edit", "menu", "login", "cancel", "close"
+    when "save", "edit", "menu", "login", "cancel", "close", "back"
       b_colour = b_colour + " shadow font-bold"
       @button[:d_class] = @button[:d_class] + " shadow"
     else
       @button[:d_class] = @button[:d_class] + " font-semibold"
     end
     @button[:align]   = "center" unless @button[:align]
-    @button[:replace] = true if @button[:kind] =~ /^(cancel|close|save)$/
+    @button[:replace] = true if @button[:kind] =~ /^(cancel|close|save|back)$/
     @button[:d_class] = @button[:d_class] + (b_colour ?  b_colour : "")
     @button
   end
@@ -56,6 +56,9 @@ class ButtonComponent < ApplicationComponent
     case @button[:kind]
     when "add", "add-nested"
       @button[:icon]    = "add.svg"
+    when "back"
+      @button[:icon]    = "back.svg"
+      @button[:turbo]   = "_top"
     when "cancel"
       @button[:icon]    = "close.svg"
       @button[:turbo]   = "_top"
@@ -96,7 +99,7 @@ class ButtonComponent < ApplicationComponent
     when "close"
       @button[:action] = "turbo-modal#hideModal"
       b_start = b_start + " font-bold"
-    when "cancel", "save", "import", "export", "menu", "login"
+    when "cancel", "save", "import", "export", "menu", "login", "back"
       b_start = b_start + " font-bold"
     end
     @button[:type]    = "submit" if @button[:kind] =~ /^(save|import)$/
@@ -110,14 +113,14 @@ class ButtonComponent < ApplicationComponent
       @button[:i_class] = "max-h-6 min-h-4 align-middle"
     when "add-nested", "remove"
       @button[:i_class] = "max-h-5 min-h-4 align-middle"
-    when  "close", "cancel", "save", "export", "import", "edit"
+    when  "close", "cancel", "save", "export", "import", "edit", "back"
       @button[:i_class] = "max-h-7 min-h-5 align-middle"
     end
   end
 
   # set button higlight (if needed)
   def set_colour
-    res = " rounded-lg "
+    res = " rounded-md "
     case @button[:kind]
     when "delete", "remove", "close", "cancel"
       colour = "red"
@@ -132,11 +135,21 @@ class ButtonComponent < ApplicationComponent
       light = "blue-700"
       text  = "gray-200"
       high  = "white"
+    when "back"
+      wait  = "gray-200"
+      light = "gray-500"
+      text  = "gray-700"
+      high  = "gray-100"
+    when "general"
+      wait  = "gray-100"
+      light = "gray-300"
+      text  = "gray-500"
+      high  = "gray-100"
     end
     if colour
       res = res + "hover:bg-#{colour}-200 text-#{colour}-700"
     elsif wait
-      res = res + "bg-#{wait} text-#{text} hover:bg-#{light} hover: text-#{high}"
+      res = res + "bg-#{wait} text-#{text} hover:bg-#{light} hover:text-#{high} focus:bg-#{light} focus:text-#{high} focus:ring-2 focus:border-#{light}"
     else
       res = res + "hover:bg-#{light}"
     end

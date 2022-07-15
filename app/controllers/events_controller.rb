@@ -33,12 +33,12 @@ class EventsController < ApplicationController
         {kind: "label", value: @event.score[:away][:points], class: "border px py"}
       ]
     elsif @event.train?
-      @title << [{kind: "side-cell", value: I18n.t(:a_targ), rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 4}]
-      @title << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 4}]
-      @title << [{kind: "gap", size: 2}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "gap"}]
+      @title << [{kind: "gap", size: 2}, {kind: "text", value: I18n.t(:h_targ), class: "text-indigo-900 font-semibold align-bottom"}, {kind: "gap", cols: 3}, workload_button(@event, align: "right")]
+      @title << [{kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 5}]
+      @title << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}]
       #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
       @fields = show_training_fields
-      @fields << [{kind: "gap", cols: 3}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(season_id: params[:season_id])}] if @event.team.has_coach(current_user.person.coach_id)
+      @fields << [{kind: "gap", size: 1, cols: 4}, {kind: "edit", align: "right", label: I18n.t(:m_edit), url: edit_event_path(season_id: params[:season_id])}] if @event.team.has_coach(current_user.person.coach_id)
     end
   end
 
@@ -243,14 +243,7 @@ class EventsController < ApplicationController
 
     # return FieldsComponent @fields for show_training
     def show_training_fields
-      res = [[{kind: "gap", size: 1}, {kind: "accordion", title: I18n.t(:l_task_index), tail: I18n.t(:l_total) + " " + @event.work_duration, objects: task_accordion(@event), cols: 4}]]
-      res << [{kind: "icon", value: "pie.svg"},
-        {kind: "text", value: I18n.t(:l_workload), class: "font-semibold text-left text-indigo-900"},
-        {kind: "link", label: I18n.t(:h_kind), url: load_chart_event_path(name: "kind"), turbo: "modal", align: "center"},
-#        {kind: "link", label: I18n.t(:h_target), url: load_chart_event_path(name: "target"), turbo: "modal", align: "center"},
-        {kind: "link", label: I18n.t(:h_skill), url: load_chart_event_path(name: "skill"), turbo: "modal", align: "center"}
-      ]
-      res
+      res = [[{kind: "gap", size: 2}, {kind: "accordion", title: I18n.t(:l_task_index), tail: I18n.t(:l_total) + " " + @event.work_duration, objects: task_accordion(@event), cols: 4}]]
     end
 
     # return icon and top of FieldsComponent for Tasks
@@ -317,6 +310,19 @@ class EventsController < ApplicationController
         tasks << item
       }
       tasks
+    end
+
+    # return the dropdown element to access workload charts
+    def workload_button(event, cols: 2, align: "center")
+      res = { kind: "dropdown", align:, cols:,
+        button: {kind: "link", icon: "pie.svg", label: I18n.t(:h_workload), name: "show-chart",
+          options: [
+            {label: I18n.t(:h_kind), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
+            #{label: I18n.t(:h_target), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal}},
+            {label: I18n.t(:h_skill), url: load_chart_event_path(name: "skill"), data: {turbo_frame: :modal}}    
+          ]
+        }
+      }
     end
 
     # profile of event workload (task types)

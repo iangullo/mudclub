@@ -94,7 +94,7 @@ class FieldsComponent < ApplicationComponent
           item[:class] = "align-top border px py" unless item[:class]
         when "upload"
           item[:class] = "align-middle px py" unless item[:class]
-          item[:i_class] = "rounded-lg inline-flex mb-1 px-1 border-2 border-gray-500 bg-gray-300 hover:bg-gray-500 hover:text-gray-200 text-sm font-semibold max-h-6 max-w-6 align-center"
+          item[:i_class] = "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center"
         when /^(select-.+|.+-box|.+-area)$/
           item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
           if item[:kind]=="number-box" or item[:kind]=="time-box"
