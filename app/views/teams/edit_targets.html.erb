@@ -51,6 +51,6 @@
 			</tr>
 		</table>
 		<%= form.hidden_field :retlnk, value: targets_team_path(@team) %>
-		<%= render SubmitComponent.new(close: "cancel", close_return: :back, modal: false, submit: "save") %>
+		<%= render SubmitComponent.new(close: "cancel", close_return: :back, submit: "save") %>
 	<% end %>
 </div>
