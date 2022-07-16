@@ -40,6 +40,7 @@ class DropdownComponent < ApplicationComponent
       @button[:b_class] = "max-h-6 min-h-4 align-center rounded-md hover:bg-green-200 focus:bg-green-200 focus:ring-2 focus:ring-green-500"
     when "link"
       @button[:b_class] = @button[:class] ? @button[:class] : "inline-flex align-center rounded-md shadow bg-gray-100 hover:bg-gray-300 focus:ring-gray-300 focus:ring-2 focus:border-gray-300 font-semibold whitespace-nowrap px-1 py-1 m-1"
+      @button[:b_class] = @button[:b_class] + " text-sm" if @button[:icon]
     when "menu"
       @button[:b_class] = @button[:class] ? @button[:class] : "hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap shadow rounded ml-2 px-2 py-2 rounded-md font-semibold"
     end

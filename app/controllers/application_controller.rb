@@ -49,14 +49,33 @@ class ApplicationController < ActionController::Base
     }
     if for_season
       title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), turbo: "modal"} if current_user.admin? # new season event
-      fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(season_id: @season.id), cols: 4}]]
+      fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(season_id: @season.id), cols: 4, class: "align-middle text-indigo-900"}]]
     else
       title << new_event_button(obj.id) if obj.has_coach(current_user.person.coach_id) # new team event
-      fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(team_id: @team.id), cols: 5}]]
+      fields = [[
+        {kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(team_id: @team.id), class: "align-middle text-indigo-900"},
+        {kind: "link", icon: "attendance.svg", label: I18n.t(:l_attendance), size: "30x30", url: attendance_team_path, align: "right", class: "align-middle text-indigo-900"},
+        {kind: "gap"}
+      ]]
     end
-    fields << [{kind: "grid", value: {title: title, rows: rows}}]
+    fields << [{kind: "grid", value: {title: title, rows: rows}, cols: 3}]
     return fields
   end
+
+  # A Field Component with top link + grid for player attendance. obj is the parent oject (season/team)
+  def attendance_grid(players:, obj: nil)
+    p_index = (obj == nil)
+    title = [{kind: "normal", value: I18n.t(:a_num), align: "center"}, {kind: "normal", value: I18n.t(:h_name)}, {kind: "normal", value: I18n.t(:h_age), align: "center"}]
+    rows = Array.new
+    players.each { | player|
+      row = {url: player_path(player), turbo: "modal", items: []}
+      row[:items] << {kind: "normal", value: player.number, align: "center"}
+      row[:items] << {kind: "normal", value: player.to_s}
+      row[:items] << {kind: "normal", value: player.person.age, align: "center"}
+      rows << row
+    }
+    return {title: title, rows: rows}
+ end
 
   # dropdown button definition to create a new Event
   def new_event_button(team_id)

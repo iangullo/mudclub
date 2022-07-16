@@ -33,7 +33,7 @@ class EventsController < ApplicationController
         {kind: "label", value: @event.score[:away][:points], class: "border px py"}
       ]
     elsif @event.train?
-      @title << [{kind: "action", label: "Asistencia", url: attendance_event_path, turbo: "modal", cols: 2}, {kind: "gap"}, {kind: "gap"}, workload_button(@event, align: "right")]
+      @title << [workload_button(@event, align: "right"), {kind: "gap"}, {kind: "gap", cols: 2}, {kind: "link", icon: "attendance.svg", label: I18n.t(:l_attendance), url: attendance_event_path, turbo: "modal", align: "right"}]
       @title << [{kind: "side-cell", value: I18n.t(:a_targ),rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 5}]
       @title << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}]
       #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
@@ -327,7 +327,7 @@ class EventsController < ApplicationController
     # return the dropdowFistron element to access workload charts
     def workload_button(event, cols: 2, align: "center")
       res = { kind: "dropdown", align:, cols:,
-        button: {kind: "link", icon: "pie.svg", label: I18n.t(:h_workload), name: "show-chart",
+        button: {kind: "link", icon: "pie.svg", size: "20x20", label: I18n.t(:h_workload), name: "show-chart",
           options: [
             {label: I18n.t(:h_kind), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
             #{label: I18n.t(:h_target), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal}},

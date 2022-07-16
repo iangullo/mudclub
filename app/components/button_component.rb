@@ -42,7 +42,7 @@ class ButtonComponent < ApplicationComponent
     when "save", "edit", "menu", "login", "cancel", "close", "back", "action"
       b_colour = b_colour + " shadow font-bold"
       @button[:d_class] = @button[:d_class] + " shadow"
-    else
+  else
       @button[:d_class] = @button[:d_class] + " font-semibold"
     end
     @button[:align]   = "center" unless @button[:align]
@@ -104,7 +104,7 @@ class ButtonComponent < ApplicationComponent
       b_start = b_start + " font-bold"
     end
     @button[:type]    = "submit" if @button[:kind] =~ /^(save|import)$/
-    @button[:b_class] = b_start + (@button[:kind]!= "jump" ? " m-1 inline-flex align-middle" : "")
+    @button[:b_class] = b_start + (@button[:kind]!= "jump" ? " m-1 inline-flex align-middle" : "") unless @button[:b_class]
   end
 
   # set the i_class for the button div
@@ -114,7 +114,7 @@ class ButtonComponent < ApplicationComponent
       @button[:i_class] = "max-h-6 min-h-4 align-middle"
     when "add-nested", "remove"
       @button[:i_class] = "max-h-5 min-h-4 align-middle"
-    when  "close", "cancel", "save", "export", "import", "edit", "back", "action"
+    when  "close", "cancel", "save", "export", "import", "edit", "back"
       @button[:i_class] = "max-h-7 min-h-5 align-middle"
     end
   end

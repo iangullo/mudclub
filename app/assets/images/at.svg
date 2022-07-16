@@ -33,9 +33,9 @@
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1016"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:window-height="1052"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:document-rotation="0">
     <inkscape:grid
@@ -80,15 +80,15 @@
        xml:space="preserve" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:157.199px;line-height:1.25;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000080;fill-opacity:1;stroke:none;stroke-width:3.27497"
-       x="-2.4800577"
-       y="97.054604"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:146.859px;line-height:1.25;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000080;fill-opacity:1;stroke:none;stroke-width:3.05956"
+       x="-9.6806469"
+       y="103.26023"
        id="text4531"
-       transform="scale(1.0061619,0.99387588)"><tspan
+       transform="scale(1.0061619,0.99387584)"><tspan
          sodipodi:role="line"
          id="tspan4529"
-         x="-2.4800577"
-         y="97.054604"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:157.199px;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000080;fill-opacity:1;stroke-width:3.27497">@</tspan></text>
+         x="-9.6806469"
+         y="103.26023"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:146.859px;font-family:Constantia;-inkscape-font-specification:'Constantia, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000080;fill-opacity:1;stroke-width:3.05956">@</tspan></text>
   </g>
 </svg>
