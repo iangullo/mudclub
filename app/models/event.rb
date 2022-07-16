@@ -5,6 +5,7 @@ class Event < ApplicationRecord
   has_many :targets, through: :event_targets
   has_many :tasks
   has_many :stats
+	has_and_belongs_to_many :players
   accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :tasks, reject_if: :all_blank, allow_destroy: true
@@ -266,6 +267,10 @@ class Event < ApplicationRecord
     end
     aux
   end
+
+  def has_player(p_id)
+		self.players.find_index { |p| p[:id]==p_id }
+	end
 
   private
   # starting / ending hours as string

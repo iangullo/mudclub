@@ -1,9 +1,9 @@
 class Player < ApplicationRecord
-	has_and_belongs_to_many :teams
 	has_one :person
 	has_one_attached :avatar
 	has_many :stats
-	has_many :attendances
+	has_and_belongs_to_many :teams
+	has_and_belongs_to_many :events
 	accepts_nested_attributes_for :person, update_only: true
 	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
 	scope :real, -> { where("id>0") }
@@ -24,7 +24,7 @@ class Player < ApplicationRecord
 
 	# String with number, name & age
 	def num_name_age
-		number.to_s.rjust(7," ") + "-" + self.fullname + " (" + self.person.age.to_s + ")"
+		number.to_s.rjust(7," ") + "-" + self.to_s + " (" + self.person.age.to_s + ")"
 	end
 
 	def female
@@ -91,6 +91,10 @@ class Player < ApplicationRecord
 				j.clean_bind	# ensure person is bound
 			end
 		end
+	end
+
+	def present?(event_id)
+		self.events.include?(event_id)
 	end
 
 	#ensures a person is well bound to the coach

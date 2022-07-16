@@ -81,7 +81,7 @@
             </label>
             <span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t(:i_no_file) %></span>
           </div>
-        <% when "add", "add-nested", "back", "edit", "jump", "link", "location" %>
+        <% when "add", "add-nested", "back", "edit", "jump", "link", "location", "action" %>
           <%= render ButtonComponent.new(button: item) %>
         <% when "gap" %>
           <% item[:size].times do %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_07_14_072204) do
+ActiveRecord::Schema[7.0].define(version: 2022_07_16_070432) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -130,6 +130,13 @@ ActiveRecord::Schema[7.0].define(version: 2022_07_14_072204) do
     t.boolean "home", default: true
     t.index ["location_id"], name: "index_events_on_location_id"
     t.index ["team_id"], name: "index_events_on_team_id"
+  end
+
+  create_table "events_players", id: false, force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "player_id", null: false
+    t.index ["event_id"], name: "index_events_players_on_event_id"
+    t.index ["player_id"], name: "index_events_players_on_player_id"
   end
 
   create_table "kinds", force: :cascade do |t|

@@ -292,6 +292,7 @@ es:
   l_user_new: "Crear Usuario"
   l_user_show: "Usuario"
   a_admin: "Adm."
+  l_attendance: "Asistencia"
   l_pass: "Contraseña"
   m_pass_change: "Cambiar Contraseña"
   l_pass_conf: "Confirmar contraseña"

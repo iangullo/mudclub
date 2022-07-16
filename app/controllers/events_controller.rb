@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
   include Filterable
-  before_action :set_event, only: %i[ show edit add_task show_task edit_task load_chart update destroy ]
+  before_action :set_event, only: %i[ show edit add_task show_task edit_task load_chart attendance update destroy ]
 
   # GET /events or /events.json
   def index
@@ -33,8 +33,8 @@ class EventsController < ApplicationController
         {kind: "label", value: @event.score[:away][:points], class: "border px py"}
       ]
     elsif @event.train?
-      @title << [{kind: "gap", size: 2}, {kind: "text", value: I18n.t(:h_targ), class: "text-indigo-900 font-semibold align-bottom"}, {kind: "gap", cols: 3}, workload_button(@event, align: "right")]
-      @title << [{kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 5}]
+      @title << [{kind: "action", label: "Asistencia", url: attendance_event_path, turbo: "modal", cols: 2}, {kind: "gap"}, {kind: "gap"}, workload_button(@event, align: "right")]
+      @title << [{kind: "side-cell", value: I18n.t(:a_targ),rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 5}]
       @title << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}]
       #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
       @fields = show_training_fields
@@ -101,24 +101,30 @@ class EventsController < ApplicationController
   def update
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
       respond_to do |format|
-        rebuild_event(event_params)
-        if @event.save
-          if @task  # we just updated a task
-            format.html { redirect_to event_params[:task][:retlnk], notice: {kind: "success", message: "#{I18n.t(:task_updated)} '#{@task.to_s}'"} }
-            format.json { render :edit, status: :ok, location: @event }
-          elsif event_params[:season_id].to_i > 0 # season event
-            format.html { redirect_to season_path(params[:event][:season_id]), notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"} }
-            format.json { render :show, status: :ok, location: @event }
-          elsif event_params[:tasks_attributes] # a training session
-            @event.tasks.reload
-            format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
-            format.json { render :show, status: :ok, location: @event }
-          else # updating match
-            format.html { redirect_to team_path(@event.team_id), notice: {kind: "success", message: "#{I18n.t(:match_updated)} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
-          end
+        if event_params[:player_ids]  # we are updating attendance
+          check_attendance(event_params[:player_ids])
+          format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
+          format.json { render :show, status: :ok, location: @event }
         else
-          format.html { render :edit, status: :unprocessable_entity }
-          format.json { render json: @event.errors, status: :unprocessable_entity }
+          rebuild_event(event_params)
+          if @event.save
+            if @task  # we just updated a task
+              format.html { redirect_to event_params[:task][:retlnk], notice: {kind: "success", message: "#{I18n.t(:task_updated)} '#{@task.to_s}'"} }
+              format.json { render :edit, status: :ok, location: @event }
+            elsif event_params[:season_id].to_i > 0 # season event
+              format.html { redirect_to season_path(params[:event][:season_id]), notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"} }
+              format.json { render :show, status: :ok, location: @event }
+            elsif event_params[:tasks_attributes] # a training session
+              @event.tasks.reload
+              format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
+              format.json { render :show, status: :ok, location: @event }
+            else # updating match
+              format.html { redirect_to team_path(@event.team_id), notice: {kind: "success", message: "#{I18n.t(:match_updated)} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
+            end
+          else
+            format.html { render :edit, status: :unprocessable_entity }
+            format.json { render json: @event.errors, status: :unprocessable_entity }
+          end
         end
       end
     else
@@ -187,6 +193,13 @@ class EventsController < ApplicationController
   def load_chart
     @header = event_title(@event.title(show: true), cols: @event.train? ? 3 : nil)
     @chart  = workload_profile(params[:name])
+  end
+
+  # GET /events/1/attendance
+  def attendance
+    @title   = event_title(@event.title(show: true), cols: @event.match? ? 2 : nil)
+    @title << [{kind: "gap"}, {kind: "side-cell", value: I18n.t(:l_attendance)}]
+    @players = @event.team.players
   end
 
   private
@@ -311,7 +324,7 @@ class EventsController < ApplicationController
       tasks
     end
 
-    # return the dropdown element to access workload charts
+    # return the dropdowFistron element to access workload charts
     def workload_button(event, cols: 2, align: "center")
       res = { kind: "dropdown", align:, cols:,
         button: {kind: "link", icon: "pie.svg", label: I18n.t(:h_workload), name: "show-chart",
@@ -368,6 +381,19 @@ class EventsController < ApplicationController
         check_task(event_params[:task])
       end
     end
+
+ 		# check attendance
+		def check_attendance(p_array)
+			# first pass
+			attendees = Array.new	# array to include all player_ids
+			p_array.each {|p| attendees <<  Player.find(p.to_i) unless (p=="" or p.to_i==0)}
+
+			# second pass - manage associations
+			attendees.each {|p| @event.players << p unless @event.has_player(p.id)}
+
+			# cleanup removed attendances
+			@event.players.each {|p| @event.players.delete(p) unless attendees.include?(p)}
+		end
 
     # checks targets_attributes parameter received and manage adding/removing
     # from the target collection - remove duplicates from list
@@ -510,6 +536,6 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.require(:event).permit(:id, :name, :kind, :home, :start_date, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :task_id, :drill_id, :skill_id, :kind_id, :location_id, :season_id, event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration, :remarks, :retlnk], tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy] )
+      params.require(:event).permit(:id, :name, :kind, :home, :start_date, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :task_id, :drill_id, :skill_id, :kind_id, :location_id, :season_id, player_ids: [], event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration, :remarks, :retlnk], tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy] )
     end
 end

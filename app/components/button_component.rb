@@ -39,7 +39,7 @@ class ButtonComponent < ApplicationComponent
     when "location"
       @button[:tab]     = true
       @button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-    when "save", "edit", "menu", "login", "cancel", "close", "back"
+    when "save", "edit", "menu", "login", "cancel", "close", "back", "action"
       b_colour = b_colour + " shadow font-bold"
       @button[:d_class] = @button[:d_class] + " shadow"
     else
@@ -114,7 +114,7 @@ class ButtonComponent < ApplicationComponent
       @button[:i_class] = "max-h-6 min-h-4 align-middle"
     when "add-nested", "remove"
       @button[:i_class] = "max-h-5 min-h-4 align-middle"
-    when  "close", "cancel", "save", "export", "import", "edit", "back"
+    when  "close", "cancel", "save", "export", "import", "edit", "back", "action"
       @button[:i_class] = "max-h-7 min-h-5 align-middle"
     end
   end
@@ -131,18 +131,18 @@ class ButtonComponent < ApplicationComponent
       colour = "green"
     when "jump", "link"
       light = "blue-100"
+    when "back"
+      colour = "gray"
     when "menu"
       wait  = "blue-900"
       light = "blue-700"
       text  = "gray-200"
       high  = "white"
-    when "back"
-      colour = "gray"
-    when "general"
+    when "action"
       wait  = "gray-100"
       light = "gray-300"
-      text  = "gray-500"
-      high  = "gray-100"
+      text  = "gray-700"
+      high  = "gray-700"
     end
     if colour
       res = res + "hover:bg-#{colour}-200 text-#{colour}-700"
