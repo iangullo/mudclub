@@ -99,6 +99,36 @@ class Team < ApplicationRecord
 		return res
 	end
 
+	# get attendance data for player over the period specified by "during"
+	# returns a a total & serialised numbers for attendace: matches [%] & trainings [%]
+	def attendance
+		t_players  = self.players.count
+		if t_players > 0
+			m_count    = self.events.matches.this_season.count
+			s_count    = self.events.trainings.this_season.count
+			a_matches  = {avg: 0, daily: {}}
+			a_sessions = {avg: 0, daily: {}}
+			a_total    = {avg: 0, daily: {}}
+			self.events.normal.this_season.each { |event|
+				e_att = event.players.count	# how many came?
+				a_total[:daily][event.start_date] = (100*e_att/t_players).to_i # add another to the series
+				if event.match?
+					a_matches[:daily][event.start_date] = e_att/t_players # add to matches
+					a_matches[:avg] = a_matches[:avg] + e_att
+				elsif event.train?
+					a_sessions[:daily][event.start_date] =  e_att/t_players # add to sessions
+					a_sessions[:avg] = a_sessions[:avg] + e_att
+				end
+			}
+			a_total[:avg]    = (m_count+s_count)>0 ? (100*(a_matches[:avg] + a_sessions[:avg])/(t_players * (m_count + s_count))).to_i : nil
+			a_matches[:avg]  = m_count>0 ? (100*a_matches[:avg] / (t_players * m_count)).to_i : nil
+			a_sessions[:avg] = s_count > 0 ? (100*a_sessions[:avg] / (t_players * s_count)).to_i : nil
+			{avg: a_total, matches: a_matches, sessions: a_sessions}
+		else
+			nil	# NO PLAYERS IN THE TEAM --> NO ATTENDANCE DATA TO SHOW
+		end
+	end
+
 private
 	# search team_targets based on target attributes
 	def search_targets(month=0, aspect=nil, focus=nil)

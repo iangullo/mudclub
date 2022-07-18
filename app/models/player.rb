@@ -31,6 +31,36 @@ class Player < ApplicationRecord
 		self.person.female
 	end
 
+	# get attendance data for player over the period specified by "during"
+	# returns 2 numbers (so far): matches [%] & trainings [%]
+	def attendance(team:, during: "season")
+		t_matches  = 0
+		t_sessions = 0
+		a_matches  = 0
+		a_sessions = 0
+		case during
+		when "season"
+			events = team.events.normal.this_season
+		when "month"
+			events = team.events.normal.this_month
+		when "week"
+			events = team.events.normal.this_week
+		end
+		events.each { |event|
+			if event.match?
+				t_matches = t_matches + 1
+				a_matches = a_matches + 1 if event.players.include?(self)
+			elsif event.train?
+				t_sessions = t_sessions + 1
+				a_sessions = a_sessions + 1 if event.players.include?(self)
+			end
+		}
+		att_train = t_sessions>0 ? (a_sessions*100/t_sessions).to_i : nil
+		att_match = t_matches>0 ? (a_matches*100/t_matches).to_i : nil
+		att_avg   = (t_matches + t_sessions)>0 ? (100*(a_matches + a_sessions)/(t_matches + t_sessions)).to_i : nil
+		{avg: att_avg, matches: att_match, sessions: att_train}
+	end
+
 	# check if associated person exists in database already
 	# reloads person if it does
 	def is_duplicate?

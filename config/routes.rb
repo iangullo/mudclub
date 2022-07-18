@@ -32,6 +32,7 @@ Rails.application.routes.draw do
     get 'plan', on: :member
     get 'edit_plan', on: :member
     get 'slots', on: :member
+    get 'attendance', on: :member
     resources :events
   end
   resources :drills

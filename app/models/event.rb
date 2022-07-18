@@ -10,6 +10,9 @@ class Event < ApplicationRecord
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :tasks, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
+  scope :this_week, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_week, Time.now).order(:start_time) }
+  scope :this_month, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_month, Time.now).order(:start_time) }
+  scope :this_season, -> { where("end_time < ?", Time.now).order(:start_time) }
   scope :upcoming, -> { where("start_time > ?", Time.now).order(:start_time) }
   scope :for_season, -> (season) { where("start_time > ? and end_time < ?", season.start_date, season.end_date).order(:start_time) }
   scope :normal, -> { where("kind > 0").order(:start_time) }

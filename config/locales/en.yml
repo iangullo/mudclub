@@ -83,15 +83,15 @@ en:
   a_total: "T:"
   h_kind: "Kind"
   l_kind: "Tipo:"
-  l_cal: "Calendar"
-  h_date: "Date"
-  l_date: "Date:"
-  l_month: "Month"
-  h_time: "Hour"
-  l_time: "Hour:"
-  l_mins: "mins."
-  h_start: "Start"
-  h_end: "End"
+  l_cal: "Calendar" # refactor
+  h_date: "Date" # refactor
+  l_date: "Date:" # refactor
+  l_month: "Month" # refactor
+  h_time: "Hour" # refactor
+  l_time: "Hour:" # refactor
+  l_mins: "mins." # refactor
+  h_start: "Start" # refactor
+  h_end: "End" # refactor
   h_surname: "Surname"
   a_surname: "Surn."
   l_surname: "Surn:"
@@ -179,18 +179,18 @@ en:
   l_drill_new: "Create Drill"
   l_drill_show: "Drill"
   d_drill: "<New Drill>"
-  train_created: "Created session: "
-  train_updated: "Updated session: "
-  train_deleted: "Deleted session: "
-  match_created: "Created match: "
-  match_updated: "Updated match: "
-  match_deleted: "Deleted match: "
+  train_created: "Created session: " # refactor
+  train_updated: "Updated session: " # refactor
+  train_deleted: "Deleted session: " # refactor
+  match_created: "Created match: " # refactor
+  match_updated: "Updated match: " # refactor
+  match_deleted: "Deleted match: " # refactor
   holiday_created: "Created holiday: "
   holiday_updated: "Updated holiday: "
   holiday_deleted: "Deleted holiday: "
-  l_train_index: "Sessions"
-  l_train_edit: "Edit Session"
-  l_train_new: "Create Session"
+  l_train_index: "Sessions" # refactor
+  l_train_edit: "Edit Session" # refactor
+  l_train_new: "Create Session" # refactor
   task_created: "Created task: "
   task_updated: "Updated task: "
   task_deleted: "Deleted task: "
@@ -199,10 +199,10 @@ en:
   l_task_add: "Add Task"
   l_task_show: "Task"
   l_rest: "Holiday"
-  l_train: "Session"
-  l_match: "Match"
-  d_match: "<Opponent>"
-  h_opponent: "Opponent"
+  l_train: "Session" # refactor
+  l_match: "Match" # Refactored
+  d_match: "<Opponent>" # refactored
+  h_opponent: "Opponent" # refactored
   loc_duplicate: "Duplicate Location: "
   loc_created: "Created location: "
   loc_updated: "Updated location: "
@@ -307,3 +307,46 @@ en:
   i_no_data: "No data to save"
   h_workload: "Workload"
   l_workload: "Workload by"
+  calendar:
+    label: "Calendar"
+    date: "Date"
+    month: "Month"
+    time: "Time"
+    mins: "mins."
+    start: "Start"
+    end: "End"
+    attendance: "Attendance"
+    month_names: [January, February, March, April, May, June, July, August, September, October, November, December]
+    abbr_month_names: [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+    day_names: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
+    abbr_day_names: [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+  match:
+    created: "Created match: "
+    updated: "Updated match: "
+    deleted: "Deleted match: "
+    single: "Match"
+    many: "Matches"
+    home: "Local"
+    rival: "Opponent"
+    default_rival: "<Opponent>"
+  team:
+    created: "Created team: "
+    updated: "Updated team: "
+    deleted: "Deleted team: "
+    many: "Teams"
+    edit: "Edit Team"
+    new: "Create Team"
+    single: "Team"
+  train:
+    created: "Created session: "
+    updated: "Updated session: "
+    deleted: "Deleted session: "
+    single: "Session"
+    many: "Training sessions"
+    edit: "Edit session"
+    new: "Create session"
+  stat:
+    average: "Average"
+    average_abbr: "Avg."
+    total: "Total"
+    total_abbr: "Tot."

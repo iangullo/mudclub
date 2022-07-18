@@ -1,7 +1,9 @@
 <%= render ModalComponent.new do %>
   <div id="team-roster">
+  <% console %>
     <%= render FieldsComponent.new(fields: @title) %>
     <%= render GridComponent.new(grid: @grid) %>
+    <%= line_chart @att_data, suffix: "%", legend: false %>
     <%= render SubmitComponent.new(submit:(current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil) %>
   </div>
 <% end %>

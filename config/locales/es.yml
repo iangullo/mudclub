@@ -83,14 +83,14 @@ es:
   a_total: "T:"
   h_kind: "Tipo"
   l_kind: "Tipo:"
-  l_cal: "Calendario"
-  h_date: "Fecha"
-  l_date: "Fecha:"
-  l_month: "Mes"
-  h_time: "Hora"
-  l_time: "Hora:"
-  l_mins: "mins."
-  h_start: "Inicio"
+  l_cal: "Calendario" # refactor
+  h_date: "Fecha" # refactor
+  l_date: "Fecha:" # refactor
+  l_month: "Mes" # refactor
+  h_time: "Hora" # refactor
+  l_time: "Hora:" # refactor
+  l_mins: "mins." # refactor
+  h_start: "Inicio" # refactor
   h_end: "Final"
   h_surname: "Apellidos"
   a_surname: "Apel."
@@ -179,18 +179,18 @@ es:
   l_drill_new: "Crear Ejercicio"
   l_drill_show: "Ejercicio"
   d_drill: "<Nuevo Ejercicio>"
-  train_created: "Sesión creada: "
-  train_updated: "Sesión guardada: "
-  train_deleted: "Sesión borrada: "
-  match_created: "Partido creado: "
-  match_updated: "Partido guardado: "
-  match_deleted: "Partido borrado: "
+  train_created: "Sesión creada: " #refactored
+  train_updated: "Sesión guardada: " #refactored
+  train_deleted: "Sesión borrada: " #refactored
+  match_created:  # refacftored
+  match_updated: "Partido guardado: " # refacftored
+  match_deleted: "Partido borrado: " # refacftored
   holiday_created: "Descanso creado: "
   holiday_updated: "Descanso guardado: "
   holiday_deleted: "Descanso borrado: "
-  l_train_index: "Sesiones"
-  l_train_edit: "Editar Sesión"
-  l_train_new: "Crear Sesión"
+  l_train_index: "Sesiones" #refactored
+  l_train_edit: "Editar Sesión" #refactored
+  l_train_new: "Crear Sesión" # refactored
   task_created: "Tarea creada: "
   task_updated: "Tarea guardada: "
   task_deleted: "Tarea borrada: "
@@ -199,10 +199,10 @@ es:
   l_task_add: "Añadir Tarea"
   l_task_show: "Tarea"
   l_rest: "Descanso"
-  l_train: "Sesión"
-  l_match: "Partido"
-  d_match: "<Rival>"
-  h_opponent: "Rival"
+  l_train: "Sesión" # refactored
+  l_match: "Partido" # refacftored
+  d_match: "<Rival>" # refacftored
+  h_opponent: "Rival" # refacftored
   loc_duplicate: "Ubicación duplicada: "
   loc_created: "Ubicación creada: "
   loc_updated: "Ubicación guardada: "
@@ -257,15 +257,15 @@ es:
   l_slot_edit: "Editar Horario"
   l_slot_new: "Crear Horario"
   l_slot_show: "Horario"
-  team_created: "Equipo creado: "
-  team_updated: "Equipo guardado: "
-  team_deleted: "Equipo borrado: "
-  l_team_index: "Equipos"
-  l_team_edit: "Editar Equipo"
-  l_team_new: "Crear Equipo"
-  l_team_show: "Equipo"
-  h_home: "Local"
-  l_home: "Local:"
+  team_created: "Equipo creado: " # refactor
+  team_updated: "Equipo guardado: " #refactor
+  team_deleted: "Equipo borrado: " # refactor
+  l_team_index: "Equipos" # refactor
+  l_team_edit: "Editar Equipo" # refactor
+  l_team_new: "Crear Equipo" # refactor
+  l_team_show: "Equipo" #refactor
+  h_home: "Local" # refactor
+  l_home: "Local:" #refactor
   l_plan_edit: "Editar Planificación"
   l_plan_new: "Crear Planificación"
   l_plan_show: "Planificación"
@@ -307,3 +307,47 @@ es:
   i_no_data: "Sin datos que guardar"
   h_workload: "Carga"
   l_workload: "Carga por"
+  calendar:
+    label: "Calendario"
+    date: "Fecha"
+    month: "Mes"
+    year: "Año"
+    time: "Hora"
+    mins: "mins."
+    start: "Inicio"
+    end: "Fin"
+    attendance: "Assistencia"
+    month_names: [Todos, Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre]
+    abbr_month_names: [Todos, Ene, Feb, Mar, Abr, May, Jun, Jul, Ago, Sep, Oct, Nov, Dic]
+    day_names: [Todos, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
+    abbr_day_names: [Todos, Lun, Mar, Mié, Jue, Vie, Sáb, Dom]
+  team:
+    created: "Equipo creado: "
+    updated: "Equipo guardado: "
+    deleted: "Equipo borrado: "
+    many: "Equipos"
+    edit: "Editar Equipo"
+    new: "Crear Equipo"
+    single: "Equipo"
+  train:
+    created: "Sesión creada: "
+    updated: "Sesión guardada: "
+    deleted: "Sesión borrada: "
+    single: "Sesión"
+    many: "Sesiones"
+    edit: "Editar Sesión"
+    new: "Crear Sesión"
+  match:
+    created: "Partido creado: "
+    updated: "Partido guardado: "
+    deleted: "Partido borrado: "
+    single: "Partido"
+    many: "Partidos"
+    home: "Local"
+    rival: "Rival"
+    default_rival: "<rival>"
+  stat:
+    average: "Media"
+    average_abbr: "Med."
+    total: "Total"
+    total_abbr: "Tot."

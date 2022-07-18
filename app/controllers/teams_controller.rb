@@ -1,7 +1,7 @@
 class TeamsController < ApplicationController
 	include Filterable
 	skip_before_action :verify_authenticity_token, :only => [:create, :edit, :new, :update, :check_reload]
-	before_action :set_team, only: [:index, :show, :roster, :slots, :edit, :edit_roster, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]
+	before_action :set_team, only: [:index, :show, :roster, :slots, :edit, :edit_roster, :attendance, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]
 
   # GET /teams
   # GET /teams.json
@@ -124,6 +124,20 @@ class TeamsController < ApplicationController
 			plan_targets
 			@title  = title_fields(@team.to_s)
 			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_plan_edit)}]
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+  end
+
+	# GET /teams/1/attendance
+  def attendance
+		if current_user.present?
+			unless current_user.admin? or current_user.is_coach? or @team.has_player(current_user.person.player_id)
+				redirect_to @team
+			end
+			@title = title_fields(@team.to_s)
+			@title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_attendance)}]
+			@grid  = attendance_grid
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -258,7 +272,7 @@ class TeamsController < ApplicationController
 
 		# return jump links for a team
 		def team_links
-			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), align: "center"}]]
+			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), turbo: "modal", align: "center"}]]
 			if (current_user.admin? or current_user.is_coach?)
 				res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t(:h_targ), align: "center"}
         res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t(:a_plan), align: "center"}
@@ -385,6 +399,26 @@ class TeamsController < ApplicationController
 				event.delete
 			}
 		end
+
+  # A Field Component with grid for team attendance. obj is the parent oject (player/team)
+  def attendance_grid
+		title = [{kind: "normal", value: I18n.t(:a_num), align: "center"}, {kind: "normal", value: I18n.t(:h_name)}, {kind: "normal", value: I18n.t("stat.total"), align: "center"}, {kind: "normal", value: I18n.t("train.many"), align: "center"}, {kind: "normal", value: I18n.t("match.many"), align: "center"}]
+    rows = Array.new
+    @team.players.order(:number).each { |player|
+			p_att = player.attendance(team: @team)
+      row   = {items: []}
+      row[:items] << {kind: "normal", value: player.number, align: "center"}
+      row[:items] << {kind: "normal", value: player.to_s}
+      row[:items] << {kind: "percentage", value: p_att[:avg], align: "right"}
+      row[:items] << {kind: "percentage", value: p_att[:sessions], align: "right"}
+      row[:items] << {kind: "percentage", value: p_att[:matches], align: "right"}
+      rows << row
+    }
+    t_att     = @team.attendance
+		@att_data = t_att[:avg][:daily]
+		rows << {items: [{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")}, {kind: "percentage", value: t_att[:avg][:avg], align: "right"}, {kind: "percentage", value: t_att[:sessions][:avg], align: "right"}, {kind: "percentage", value: t_att[:matches][:avg], align: "right"}]}
+    return {title: title, rows: rows}
+ end
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_team
