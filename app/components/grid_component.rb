@@ -67,6 +67,24 @@ class GridComponent < ApplicationComponent
           when "bottom"
             item[:align] = "center" unless item[:align]
             item[:class] = "text-indigo-900 font-semibold"
+          when "percentage"
+            item[:align] = "center" unless item[:align]
+            item[:class] = "font-semibold border px py "
+            if item[:value] # not nil
+              case item[:value]
+              when 0..25
+                item[:class] = item[:class] + "text-red-900"
+              when 26..50
+                item[:class] = item[:class] + "text-yellow-700"
+              when 51..75
+                item[:class] = item[:class] + "text-gray-700"
+              when 76..100
+                item[:class] = item[:class] + "text-green-900"
+              end
+              item[:value] = number_to_percentage(item[:value], precision: 0)
+            else
+              item[:value] = ""
+            end
           end
           item[:align] = "left" unless item[:align]
           item[:cell]  = tablecell_tag(item)

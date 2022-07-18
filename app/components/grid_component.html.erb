@@ -41,7 +41,7 @@
             <%= link_to g_row[:url], data: ({turbo_frame: g_row[:turbo] ? g_row[:turbo] : "_top"}) do %>
               <%= image_tag item[:value], size: "25x25" %>
             <% end %>
-          <% when "bottom" %>
+          <% when "bottom", "percentage" %>
             <%=item[:value]%>
           <% else %>
             <%= render ButtonComponent.new(button: item) %>
