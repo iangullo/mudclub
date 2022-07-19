@@ -46,7 +46,6 @@ class ButtonComponent < ApplicationComponent
       @button[:d_class] = @button[:d_class] + " font-semibold"
     end
     @button[:align]   = "center" unless @button[:align]
-    @button[:replace] = true if @button[:kind] =~ /^(cancel|close|save|back)$/
     @button[:d_class] = @button[:d_class] + (b_colour ?  b_colour : "")
     @button
   end
@@ -104,6 +103,7 @@ class ButtonComponent < ApplicationComponent
       b_start = b_start + " font-bold"
     end
     @button[:type]    = "submit" if @button[:kind] =~ /^(save|import)$/
+    @button[:replace] = true if @button[:kind] =~ /^(cancel|close|save|back)$/
     @button[:b_class] = b_start + (@button[:kind]!= "jump" ? " m-1 inline-flex align-middle" : "") unless @button[:b_class]
   end
 

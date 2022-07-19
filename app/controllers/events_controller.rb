@@ -103,7 +103,7 @@ class EventsController < ApplicationController
       respond_to do |format|
         if event_params[:player_ids]  # we are updating attendance
           check_attendance(event_params[:player_ids])
-          format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
+          format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"}}
           format.json { render :show, status: :ok, location: @event }
         else
           rebuild_event(event_params)
@@ -486,11 +486,13 @@ class EventsController < ApplicationController
     def purge_train
       @event.tasks.each { |t| t.delete }
       @event.event_targets.each { |t| t.delete }
+      @event.players.each { |t| t.delete }
     end
 
     # purge assocaited tasks
     def purge_match
       @event.match.delete
+      @event.players.each { |t| t.delete }
     end
 
     # return adequate notice depending on @event kind

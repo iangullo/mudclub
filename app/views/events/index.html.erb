@@ -1,4 +1,5 @@
 <div id="events-index">
 	<%= render FieldsComponent.new(fields: @title) %>
 	<%= render GridComponent.new(grid: @grid.last.last[:value]) %>
+	<%= render SubmitComponent.new(close: "back", close_return: @team ? team_path(@team) : events_path(season_id: @season_id)) %>
 </div>
