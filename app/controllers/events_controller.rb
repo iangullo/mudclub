@@ -329,9 +329,9 @@ class EventsController < ApplicationController
       res = { kind: "dropdown", align:, cols:,
         button: {kind: "link", icon: "pie.svg", size: "20x20", label: I18n.t(:h_workload), name: "show-chart",
           options: [
-            {label: I18n.t(:h_kind), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal, turbo_action: "replace"}},
-            #{label: I18n.t(:h_target), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal, turbo_action: "replace"}},
-            {label: I18n.t(:h_skill), url: load_chart_event_path(name: "skill"), data: {turbo_frame: :modal, turbo_action: "replace"}}    
+            {label: I18n.t(:h_kind), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
+            #{label: I18n.t(:h_target), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal}},
+            {label: I18n.t(:h_skill), url: load_chart_event_path(name: "skill"), data: {turbo_frame: :modal}}    
           ]
         }
       }
