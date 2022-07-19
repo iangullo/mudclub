@@ -139,7 +139,7 @@ class DrillsController < ApplicationController
 	      {kind: "normal", value: I18n.t(:h_kind), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
 	      {kind: "normal", value: I18n.t(:h_targ)}
 	    ]
-			title << {kind: "add", url: new_drill_path, turbo: "_top"} if current_user.admin? or current_user.is_coach?
+			title << {kind: "add", url: new_drill_path, frame: "_top"} if current_user.admin? or current_user.is_coach?
 
 			{track: track, title: title, rows: drill_rows}
 	  end

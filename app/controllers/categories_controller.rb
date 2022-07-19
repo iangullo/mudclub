@@ -110,11 +110,11 @@ class CategoriesController < ApplicationController
         {kind: "normal", value: I18n.t(:a_min)},
         {kind: "normal", value: I18n.t(:a_max)}
       ]
-      title <<  {kind: "add", url: new_category_path, turbo: "modal"} if current_user.admin?
+      title <<  {kind: "add", url: new_category_path, frame: "modal"} if current_user.admin?
 
       rows = Array.new
       @categories.each { |cat|
-        row = {url: edit_category_path(cat), turbo: "modal", items: []}
+        row = {url: edit_category_path(cat), frame: "modal", items: []}
         row[:items] << {kind: "normal", value: cat.age_group}
         row[:items] << {kind: "normal", value: cat.sex}
         row[:items] << {kind: "normal", value: cat.min_years, align: "right"}

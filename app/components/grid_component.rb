@@ -86,6 +86,7 @@ class GridComponent < ApplicationComponent
               item[:value] = ""
             end
           end
+          item[:data]  = item[:frame]=="modal" ? {turbo_frame: "modal"} : {turbo_frame: "_top"}
           item[:align] = "left" unless item[:align]
           item[:cell]  = tablecell_tag(item)
         }

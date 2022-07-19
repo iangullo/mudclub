@@ -3,6 +3,6 @@
     <%= form.fields_for :person do |f| %>
       <%= render FieldsComponent.new(fields: @fields, form: f) %>
     <% end %>
-    <%= render SubmitComponent.new(submit: "save") %>
+    <%= render SubmitComponent.new(close: "cancel", submit: "save") %>
   <% end %>
 <% end %>

@@ -6,6 +6,6 @@
       <%= render FieldsComponent.new(fields: @avatar, form: form) %>
       <%= render FieldsComponent.new(fields: @person_fields, form: f) %>
   	<% end %>
-    <%= render SubmitComponent.new(submit: "save") %>
+    <%= render SubmitComponent.new(close: "cancel", submit: "save") %>
   <% end %>
 <% end %>

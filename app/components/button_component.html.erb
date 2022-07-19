@@ -6,7 +6,7 @@
         <%= @button[:label] if @button[:label] %>
       <% end %>
     <% else %>
-      <%= link_to @button[:url], data: @button[:data] ? @button[:data] : nil, "data-turbo-action": @button[:replace] ? "replace" : nil, class: @button[:b_class] do %>
+      <%= link_to @button[:url], data: @button[:data], class: @button[:b_class] do %>
         <% if @button[:kind]=="edit" %>
           <% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
           <%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>

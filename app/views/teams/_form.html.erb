@@ -2,6 +2,6 @@
 	<%= form_with model: team, authenticity_token: true, data: {title: title, turbo_frame: "_top"} do |form| %>
 		<%= render FieldsComponent.new(fields: @form_fields, form: form) %>
 		<%= form.hidden_field :retlnk, value: retlnk %>
-		<%= render SubmitComponent.new(submit: "save") %>
+		<%= render SubmitComponent.new(close: "cancel", submit: "save") %>
 	<% end %>
 <% end %>

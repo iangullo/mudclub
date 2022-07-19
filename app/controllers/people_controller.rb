@@ -149,11 +149,11 @@ class PeopleController < ApplicationController
 		# return title for @people GridComponent
     def person_grid
       title = [{kind: "normal", value: I18n.t(:h_name)}]
-			title << {kind: "add", url: new_person_path, turbo: "modal"} if current_user.admin?
+			title << {kind: "add", url: new_person_path, frame: "modal"} if current_user.admin?
 
       rows = Array.new
       @people.each { |person|
-        row = {url: person_path(person), turbo: "modal", items: []}
+        row = {url: person_path(person), frame: "modal", items: []}
         row[:items] << {kind: "normal", value: person.to_s}
         row[:items] << {kind: "delete", url: row[:url], name: person.to_s} if current_user.admin?
         rows << row

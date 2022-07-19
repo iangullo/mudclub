@@ -149,11 +149,11 @@ private
       {kind: "normal", value: I18n.t(:h_kind), align: "center"},
       {kind: "normal", value: I18n.t(:a_loc)}
     ]
-    title << {kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
+    title << {kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
 
     rows = Array.new
     @locations.each { |loc|
-      row = {url: edit_location_path(loc), turbo: "modal", items: []}
+      row = {url: edit_location_path(loc), frame: "modal", items: []}
       row[:items] << {kind: "normal", value: loc.name}
       row[:items] << {kind: "icon", value: loc.practice_court ? "training.svg" : "team.svg", align: "center"}
       if loc.gmaps_url

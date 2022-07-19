@@ -14,11 +14,11 @@ class ApplicationController < ActionController::Base
     title = [{kind: "normal", value: I18n.t(:a_num), align: "center"}, {kind: "normal", value: I18n.t(:h_name)}, {kind: "normal", value: I18n.t(:h_age), align: "center"}]
     if p_index
       title << {kind: "normal", value: I18n.t(:a_active), align: "center"}
-      title << {kind: "add", url: new_player_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
+      title << {kind: "add", url: new_player_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
     end
     rows = Array.new
     players.each { | player|
-      row = {url: player_path(player), turbo: "modal", items: []}
+      row = {url: player_path(player), frame: "modal", items: []}
       row[:items] << {kind: "normal", value: player.number, align: "center"}
       row[:items] << {kind: "normal", value: player.to_s}
       row[:items] << {kind: "normal", value: player.person.age, align: "center"}
@@ -39,7 +39,7 @@ class ApplicationController < ActionController::Base
     title << {kind: "normal", value: I18n.t(:h_desc)}
     rows = Array.new
     events.each { |event|
-      row = {url:  event_path(event, season_id: for_season ? obj.id : nil), turbo: event.train? ? "_top" : "modal", items: []}
+      row = {url:  event_path(event, season_id: for_season ? obj.id : nil), frame: event.train? ? "_top" : "modal", items: []}
       row[:items] << {kind: "normal", value: event.date_string, align: "center"}
       row[:items] << {kind: "normal", value: event.time_string, align: "center"}
       row[:items] << {kind: "normal", value: event.team_id > 0 ? event.team.to_s : t(:l_all)} if for_season
@@ -48,13 +48,13 @@ class ApplicationController < ActionController::Base
       rows << row
     }
     if for_season
-      title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), turbo: "modal"} if current_user.admin? # new season event
+      title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"} if current_user.admin? # new season event
       fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(season_id: @season.id), cols: 4, class: "align-middle text-indigo-900"}]]
     else
       title << new_event_button(obj.id) if obj.has_coach(current_user.person.coach_id) # new team event
       fields = [[
         {kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(team_id: obj.id), class: "align-middle text-indigo-900"},
-        {kind: "link", icon: "attendance.svg", label: I18n.t(:l_attendance), size: "30x30", url: attendance_team_path(obj), align: "right", class: "align-middle text-indigo-900"},
+        {kind: "link", icon: "attendance.svg", label: I18n.t(:l_attendance), size: "30x30", url: attendance_team_path(obj), align: "right", frame: "modal", class: "align-middle text-indigo-900"},
         {kind: "gap"}
       ]]
     end

@@ -256,7 +256,7 @@ class TeamsController < ApplicationController
       title = [{kind: "normal", value: I18n.t(:h_name)}]
 			title << {kind: "normal", value: I18n.t(:l_sea_show)} unless (params[:season_id] and params[:season_id].to_i>0)
       title << {kind: "normal", value: I18n.t(:l_div_show)}
-			title << {kind: "add", url: new_team_path, turbo: "modal"} if current_user.admin?
+			title << {kind: "add", url: new_team_path, frame: "modal"} if current_user.admin?
 
       rows = Array.new
       @teams.each { |team|
@@ -272,14 +272,14 @@ class TeamsController < ApplicationController
 
 		# return jump links for a team
 		def team_links
-			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), turbo: "modal", align: "center"}]]
+			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), frame: "modal", align: "center"}]]
 			if (current_user.admin? or current_user.is_coach?)
 				res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t(:h_targ), align: "center"}
         res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t(:a_plan), align: "center"}
 			end
-			res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t(:l_slot_index), turbo: "modal", align: "center"}
+			res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t(:l_slot_index), frame: "modal", align: "center"}
 			if (current_user.admin? or @team.has_coach(current_user.person.coach_id))
-	      res.last << {kind: "edit", url: edit_team_path, size: "30x30", turbo: "modal"}
+	      res.last << {kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}
 			end
 			res << [{kind: "gap"}]
 			res

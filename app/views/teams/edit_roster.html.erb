@@ -22,7 +22,7 @@
 				</div>
 			</table>
 			<%= form.hidden_field :retlnk, value: team_path %>
-			<%= render SubmitComponent.new(submit: "save") %>
+			<%= render SubmitComponent.new(close: "cancel", submit: "save") %>
 		</div>
 	<% end %>
 <% end %>

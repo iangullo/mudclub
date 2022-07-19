@@ -146,11 +146,11 @@ class UsersController < ApplicationController
         {kind: "normal", value: I18n.t(:a_coach), align: "center"},
         {kind: "normal", value: I18n.t(:a_admin), align: "center"}
 	    ]
-			title << {kind: "add", url: new_user_path, turbo: "modal"} if current_user.admin? or current_user.is_coach?
+			title << {kind: "add", url: new_user_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
 
 	    rows = Array.new
 	    @users.each { |user|
-	      row = {url: user_path(user), turbo: "modal", items: []}
+	      row = {url: user_path(user), frame: "modal", items: []}
 	      row[:items] << {kind: "normal", value: user.s_name}
         row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
         row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}

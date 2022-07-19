@@ -7,7 +7,7 @@
 				<td align="right" class="align-top"><%= image_tag("coach.svg", :size => "30x30") %></td>
 				<td align="left" colspan="3">
 					<% @team.coaches.each do |coach| %>
-						<%= link_to coach.to_s, coach, class:"hover:bg-blue-700 hover:text-white", data: {turbo_frame: "modal" } %>
+						<%= link_to coach.to_s, coach, class:"hover:bg-blue-700 hover:text-white", data: {turbo_frame: "modal"} %>
 						<br>
 					<% end %>
 				</td>

@@ -165,11 +165,11 @@ class CoachesController < ApplicationController
         {kind: "normal", value: I18n.t(:h_age)},
         {kind: "normal", value: I18n.t(:a_active)}
       ]
-			title << {kind: "add", url: new_coach_path, turbo: "modal"} if current_user.admin?
+			title << {kind: "add", url: new_coach_path, frame: "modal"} if current_user.admin?
 
       rows = Array.new
       @coaches.each { |coach|
-        row = {url: coach_path(coach), turbo: "modal", items: []}
+        row = {url: coach_path(coach), frame: "modal", items: []}
         row[:items] << {kind: "normal", value: coach.to_s}
         row[:items] << {kind: "normal", value: coach.person.age, align: "center"}
         row[:items] << {kind: "icon", value: coach.active? ? "Yes.svg" : "No.svg", align: "center"}

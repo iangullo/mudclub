@@ -26,8 +26,8 @@
 # => "search-collection": :key (search field), :url (search_in), :options, :value
 # => "search-combo": :key (search field), :url (search_in), :options
 # => "location": :icon (optional), :url (gmaps_url), :name (name to display)
-# => "link": :icon (optional), :url (link_to_url), :label (label to display), turbo: (pass turbo frame?)
-# => "jump": :icon (optional), :url (link_to_url in the site), :label (label to display), turbo: (pass turbo frame?)
+# => "link": :icon (optional), :url (link_to_url), :label (label to display), frame:, replace: (pass turbo data?)
+# => "jump": :icon (optional), :url (link_to_url in the site), :label (label to display), frame:, replace: (pass turbo data?)
 # => "hidden": :a hidden link for the form
 # => "gap": :size (count of &nbsp; to separate content)
 class FieldsComponent < ApplicationComponent

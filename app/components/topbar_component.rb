@@ -85,7 +85,7 @@ class TopbarComponent < ApplicationComponent
     when "normal"
       l_data = {turbo_action: "replace"}
     when "modal"
-      l_data = {turbo_frame: "modal"}
+      l_data = {turbo_frame: "modal", turbo_action: "replace"}
     when "delete"
       l_data = {turbo_method: :delete}
     end
