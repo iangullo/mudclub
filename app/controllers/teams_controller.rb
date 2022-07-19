@@ -418,7 +418,7 @@ class TeamsController < ApplicationController
 		@att_data = t_att[:avg][:daily]
 		rows << {items: [{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")}, {kind: "percentage", value: t_att[:avg][:avg], align: "right"}, {kind: "percentage", value: t_att[:sessions][:avg], align: "right"}, {kind: "percentage", value: t_att[:matches][:avg], align: "right"}]}
     return {title: title, rows: rows}
- end
+	end
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_team

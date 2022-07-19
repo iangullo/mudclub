@@ -54,7 +54,7 @@ class ApplicationController < ActionController::Base
       title << new_event_button(obj.id) if obj.has_coach(current_user.person.coach_id) # new team event
       fields = [[
         {kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(team_id: @team.id), class: "align-middle text-indigo-900"},
-        {kind: "link", icon: "attendance.svg", label: I18n.t(:l_attendance), size: "30x30", url: attendance_team_path(obj), align: "right", class: "align-middle text-indigo-900"},
+        {kind: "link", icon: "attendance.svg", label: I18n.t(:l_attendance), size: "30x30", url: attendance_team_path, align: "right", class: "align-middle text-indigo-900"},
         {kind: "gap"}
       ]]
     end
