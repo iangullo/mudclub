@@ -58,6 +58,7 @@ class GridComponent < ApplicationComponent
     # each row links to a url - buttons to specific url
     def parse_rows(rows)
       rows.each { |row|
+        row[:data] = row[:frame]=="modal" ? {turbo_frame: "modal"} : {turbo_frame: "_top"}
         row[:items].each { |item|
           case item[:kind]
           when "normal", "lines", "icon", "location"
@@ -86,7 +87,6 @@ class GridComponent < ApplicationComponent
               item[:value] = ""
             end
           end
-          item[:data]  = item[:frame]=="modal" ? {turbo_frame: "modal"} : {turbo_frame: "_top"}
           item[:align] = "left" unless item[:align]
           item[:cell]  = tablecell_tag(item)
         }
