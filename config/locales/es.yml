@@ -162,6 +162,7 @@ es:
     pic: "Foto"
   password:
     single: "Contraseña"
+    blank_abort: "(dejar en blanco si no quiere cambiarla)"
     change: "Cambiar Contraseña"
     confirm: "Confirmar contraseña"
     confirm_label: "(*) confirmar contraseña"

@@ -45,7 +45,7 @@ class UsersController < ApplicationController
     if current_user.present? and (current_user.admin? or current_user == @user)
       @title  = form_fields(I18n.t("user.edit"))
       if current_user.admin?
-        @role = [[{kind: "label", value: I18n.t("user.role")}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
+        @role = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
       else
         @role = [[{kind: "label", align: "center", value: I18n.t(@user.role.to_sym)}]]
       end

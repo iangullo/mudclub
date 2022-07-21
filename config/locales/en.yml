@@ -162,6 +162,7 @@ en:
     pic: "Pic:"
   password:
     single: "Password"
+    blank_abort: "(leave blank to avoid changing it)"
     change: "Change password"
     confirm: "Confirm Password"
     confirm_label: "(*) confirm password"
