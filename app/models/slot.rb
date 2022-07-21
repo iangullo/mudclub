@@ -20,7 +20,7 @@ class Slot < ApplicationRecord
 	end
 
 	def weekday(long=false)
-		long ? Date::DAYNAMES[self.wday] : Date::ABBR_DAYNAMES[self.wday]
+		long ? I18n.t("calendar.daynames")[self.wday] : I18n.t("calendar.daynames_a")[self.wday]
 	end
 
 	def hour

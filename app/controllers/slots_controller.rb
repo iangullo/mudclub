@@ -87,7 +87,6 @@ class SlotsController < ApplicationController
   def destroy
     if current_user.present? and current_user.admin?
       s_name = @slot.to_s
-      set_slot(params)
       @slot.destroy
       respond_to do |format|
         format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("slot.deleted")} '#{s_name}'"}, data: {turbo_action: "replace"} }
