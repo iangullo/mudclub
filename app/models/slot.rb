@@ -72,21 +72,22 @@ class Slot < ApplicationRecord
 
 	# CALCULATE HOW MANY cols we need to reserve for this slot
 	# i.e. avoid overlapping teams in same location/time
-	def timecols(daycols)
+	def timecols(daycols, w_slots: nil)
 		o_count = 0	# overlaps
 		t_time  = self.start
 		w_slots = Slot.real.for_season(self.season_id)
 			.for_location(self.location_id)
-			.where(wday: self.wday)
-			.where("id!=?", self.id)
+			.where(wday: self.wday) unless w_slots
 		unless w_slots.empty? # no other slots?
 			while t_time < self.ending do	# check for overlaps
 				overlaps = 0
 				w_slots.each { |slot|	# check each potential slot
-					overlaps = overlaps + 1 if slot.at_work?(wday,t_time)
-					t_time  = t_time + 15.minutes # scan more?
+					unless slot.id==self.id
+						overlaps = overlaps + 1 if slot.at_work?(wday,t_time)
+					end
 				}
 				o_count = overlaps if overlaps > o_count
+				t_time  = t_time + 15.minutes # scan more?
 			end
 		end
 		res = daycols - o_count

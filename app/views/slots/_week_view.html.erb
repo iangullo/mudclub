@@ -11,7 +11,7 @@
       <% empty_slot = true %>
       <% @slots.each do |t_slot| %>
         <% srows = t_slot.timerows(i,t_hour) %>
-        <% scols = t_slot.timecols(@d_cols[i]) %>
+        <% scols = t_slot.timecols(@d_cols[i], w_slots: @slots) %>
         <% if srows %>
           <td align="center" class="bg-blue-300 rounded-md border px py hover:text-white hover:bg-blue-700" rowspan=<%=srows.to_s%> colspan=<%=scols.to_s%>>
             <%= link_to t_slot.team.to_s, slot_path(t_slot, season_id: @season.id), class: "hover:text-white hover:bg-blue-700", data: {turbo_frame: "modal"} %>

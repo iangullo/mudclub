@@ -34,8 +34,8 @@
 						<% end %>
 					</th>
 					<% 1.upto(5) do |i| %>
-		        <% scols = @d_cols[i]%>
-					  <th align="center" class="bg-indigo-900 text-gray-300 align-center" colspan="<%=scols.to_s%>"><%= t("calendar.daynames_a")[i] %></th>
+		        <% dcols = @d_cols[i]%>
+					  <th align="center" class="bg-indigo-900 text-gray-300 align-center" colspan=<%=dcols.to_s%>><%= t("calendar.daynames_a")[i] %></th>
 					<% end %>
 				</tr>
 		  </thead>
