@@ -1,6 +1,6 @@
 <%= render ModalComponent.new do %>
   <%= form_with model: division, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
     <%= render FieldsComponent.new(fields: fields, form: form) %>
-    <%= render SubmitComponent.new(close: "cancel", submit: "save") %>
+    <%= render SubmitComponent.new(submit: "save") %>
   <% end %>
 <% end %>

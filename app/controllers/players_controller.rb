@@ -8,7 +8,7 @@ class PlayersController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@players = get_players
-			@title   = title_fields(I18n.t(:l_player_index))
+			@title   = title_fields(I18n.t("player.many"))
 			@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path}]
 			@grid    =  player_grid(players: @players)
 			respond_to do |format|
@@ -26,12 +26,12 @@ class PlayersController < ApplicationController
 	# GET /players/1.json
 	def show
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
-			@fields = title_fields(I18n.t(:l_player_show), icon: @player.picture, rows: 4, size: "100x100", _class: "rounded-full")
+			@fields = title_fields(I18n.t("player.single"), icon: @player.picture, rows: 4, size: "100x100", _class: "rounded-full")
 			@fields << [{kind: "label", value: @player.s_name}]
 			@fields << [{kind: "label", value: @player.person.surname}]
 			@fields << [{kind: "string", value: @player.person.birthday}]
-			@fields << [{kind: "label", value: I18n.t(@player.female ? :a_fem : :a_male), align: "center"}, {kind: "string", value: (I18n.t(:a_num) + @player.number.to_s)}]
-			@fields << [{kind: "label", value: I18n.t(@player.active ? :h_active : :h_inactive), align: "center"}]
+			@fields << [{kind: "label", value: I18n.t(@player.female ? "sex.fem_a" : "sex.male_a"), align: "center"}, {kind: "string", value: (I18n.t("player.number") + @player.number.to_s)}]
+			@fields << [{kind: "label", value: I18n.t(@player.active ? "status.active" : "status.inactive"), align: "center"}]
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -42,7 +42,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@player = Player.new
 			@player.build_person
-			@fields = form_fields(I18n.t(:l_player_new), rows: 3, cols: 2)
+			@fields = form_fields(I18n.t("player.single"), rows: 3, cols: 2)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -53,11 +53,11 @@ class PlayersController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
-		@title_fields    = form_fields(I18n.t(:l_player_edit), rows: 3, cols: 3)
-		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @player.active}, {kind: "gap", size: 8}, {kind: "label", value: I18n.t(:l_num)}, {kind: "number-box", key: :number, min: 0, max: 99, value: @player.number}]]
-		@player_fields_2 = [[{kind: "upload", key: :avatar, label: I18n.t(:l_pic), value: @player.avatar.filename, cols: 5}]]
+		@title_fields    = form_fields(I18n.t("player.edit"), rows: 3, cols: 3)
+		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active}, {kind: "gap", size: 8}, {kind: "label", value: I18n.t("player.number")}, {kind: "number-box", key: :number, min: 0, max: 99, value: @player.number}]]
+		@player_fields_2 = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @player.avatar.filename, cols: 5}]]
 		@person_fields   = [
-			[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
+			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
 			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @player.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @player.person.phone}]
 		]
 	end
@@ -69,8 +69,8 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = rebuild_player(params)	# rebuild player
 				if @player.is_duplicate? then
-					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "info", message: "#{I18n.t(:player_duplicate)} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
-					format.json { render :index, :player_duplicate, location: players_path(search: @player.person.to_s(true)) }
+					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "info", message: "#{I18n.t("player.duplicate")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :duplicate, location: players_path(search: @player.person.to_s(true)) }
 				else
 					@player.person.save
 					@player.person_id = @player.person.id
@@ -79,7 +79,7 @@ class PlayersController < ApplicationController
 							@player.person.player_id = @player.id
 							@player.person.save
 						end
-						format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t(:player_created)} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+						format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t("player.created")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: players_path(search: @player.person.to_s(true)) }
 					else
 						format.html { render :new }
@@ -98,7 +98,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
 			respond_to do |format|
 				if @player.update(player_params)
-					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t(:player_updated)} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t("player.updated")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: players_path(search: @player.person.name) }
 				else
 					format.html { render :edit }
@@ -116,7 +116,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Player.import(params[:file])
-	    format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t(:player_import)} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
+	    format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t("player.import")} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -130,7 +130,7 @@ class PlayersController < ApplicationController
 			unlink_person
 			@player.destroy
 			respond_to do |format|
-				format.html { redirect_to players_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:player_deleted)} '#{p_name}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to players_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("player.deleted")} '#{p_name}'"}, data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
@@ -149,10 +149,10 @@ class PlayersController < ApplicationController
 		def form_fields(title, rows: 3, cols: 2)
 			res = title_fields(title, icon: @player.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
 			f_cols = cols>2 ? cols - 1 : nil
-			res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, label: I18n.t(:h_name), value: @player.person.name, cols: f_cols}]
-			res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}]
+			res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, label: I18n.t("person.name"), value: @player.person.name, cols: f_cols}]
+			res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}]
 			if f_cols	# i's an edit form
-				res << [{kind: "label-checkbox", label: I18n.t(:a_fem), key: :female, value: @player.person.female}, {kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}]
+				res << [{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @player.person.female}, {kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}]
 			end
 			res
 		end

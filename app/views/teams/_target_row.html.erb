@@ -5,7 +5,7 @@
 			<%= form.number_field :priority, value: form.object.priority, min: 1, max: 5, class: f_cls + " px-0 text-right" %>
 			<%= form.fields_for :target do |f| %>
 				<% form.object.build_target if form.object.new_record? %>
-				<%= f.text_field :concept, placeholder: t(:d_target), size: 20, class: f_cls +" px-1" %>
+				<%= f.text_field :concept, placeholder: t("target.default"), size: 20, class: f_cls +" px-1" %>
 				<%= f.hidden_field :focus %>
 				<%= f.hidden_field :aspect %>
 			<% end %>

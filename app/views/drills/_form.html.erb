@@ -5,7 +5,7 @@
 		<div id="drills-targets-data">
 			<table>
 				<tr>
-						<td align="right" class="align-top font-semibold"><%= t(:l_targ) %></td>
+						<td align="right" class="align-top font-semibold"><%= t("target.many") %></td>
 						<td colspan="3">
 							<div id="drill-targets" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
 								<% n_p = @drill.drill_targets ? @drill.drill_targets.count+1 : 1 %>
@@ -33,7 +33,7 @@
 		<div id="skills-data">
 			<table>
 				<tr>
-					<td align="right" class="align-top font-semibold"><%= t(:l_skill) %></td>
+					<td align="right" class="align-top font-semibold"><%=t("skill.abbr")%></td>
 					<td>
 						<div id="skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
 							<template data-nested-form-target="template">

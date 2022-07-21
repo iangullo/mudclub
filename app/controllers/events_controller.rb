@@ -33,9 +33,9 @@ class EventsController < ApplicationController
         {kind: "label", value: @event.score[:away][:points], class: "border px py"}
       ]
     elsif @event.train?
-      @title << [workload_button(@event, align: "right"), {kind: "gap"}, {kind: "gap", cols: 2}, {kind: "link", icon: "attendance.svg", label: I18n.t(:l_attendance), url: attendance_event_path, frame: "modal", align: "right"}]
-      @title << [{kind: "side-cell", value: I18n.t(:a_targ),rows: 2}, {kind: "top-cell", value: I18n.t(:a_def)}, {kind: "lines", value: @event.def_targets, cols: 5}]
-      @title << [{kind: "top-cell", value: I18n.t(:a_off)}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}]
+      @title << [workload_button(@event, align: "right"), {kind: "gap"}, {kind: "gap", cols: 2}, {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "right"}]
+      @title << [{kind: "side-cell", value: I18n.t("target.abbr"),rows: 2}, {kind: "top-cell", value: I18n.t("target.focus.def_a")}, {kind: "lines", value: @event.def_targets, cols: 5}]
+      @title << [{kind: "top-cell", value: I18n.t("target.focus.ofe_a")}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}]
       #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
       @fields = show_training_fields
     end
@@ -109,7 +109,7 @@ class EventsController < ApplicationController
           rebuild_event(event_params)
           if @event.save
             if @task  # we just updated a task
-              format.html { redirect_to event_params[:task][:retlnk], notice: {kind: "success", message: "#{I18n.t(:task_updated)} '#{@task.to_s}'"} }
+              format.html { redirect_to event_params[:task][:retlnk], notice: {kind: "success", message: "#{I18n.t("task.updated")} '#{@task.to_s}'"} }
               format.json { render :edit, status: :ok, location: @event }
             elsif event_params[:season_id].to_i > 0 # season event
               format.html { redirect_to season_path(params[:event][:season_id]), notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"} }
@@ -119,7 +119,7 @@ class EventsController < ApplicationController
               format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
               format.json { render :show, status: :ok, location: @event }
             else # updating match
-              format.html { redirect_to team_path(@event.team_id), notice: {kind: "success", message: "#{I18n.t(:match_updated)} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
+              format.html { redirect_to team_path(@event.team_id), notice: {kind: "success", message: "#{I18n.t("match.updated")} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
             end
           else
             format.html { render :edit, status: :unprocessable_entity }
@@ -166,7 +166,7 @@ class EventsController < ApplicationController
       @task   = Task.new(event: @event, order: @event.tasks.count + 1, duration: 5)
       #@drills = Drill.search(params[:search])
       @drills = filter!(Drill)
-      @title  = task_title(I18n.t(:l_task_add))
+      @title  = task_title(I18n.t("task.add"))
       @retlnk = edit_event_path(@event)
       @search = drill_search_bar(add_task_event_path(@event))
       @fields = task_form_fields
@@ -180,7 +180,7 @@ class EventsController < ApplicationController
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
       @task   = Task.find(params[:task_id])
       @drills = filter!(Drill)
-      @title  = task_title(I18n.t(:l_task_edit))
+      @title  = task_title(I18n.t("task.edit"))
       @retlnk = event_path(@event)
       @search = drill_search_bar(edit_task_event_path(@event))
       @fields = task_form_fields
@@ -198,7 +198,7 @@ class EventsController < ApplicationController
   # GET /events/1/attendance
   def attendance
     @title   = event_title(@event.title(show: true), cols: @event.match? ? 2 : nil)
-    @title << [{kind: "gap"}, {kind: "side-cell", value: I18n.t(:l_attendance)}]
+    @title << [{kind: "gap"}, {kind: "side-cell", value: I18n.t("calendar.attendance")}]
     @players = @event.team.players
   end
 
@@ -206,8 +206,8 @@ class EventsController < ApplicationController
 
     # return icon and top of FieldsComponent
     def general_title
-      title    = @team ? (@team.name + " (#{@team.season.name})") : @season ? @season.name : I18n.t(:l_cal)
-      subtitle = (title == I18n.t(:l_cal)) ? I18n.t(:l_all) : I18n.t(:l_cal)
+      title    = @team ? (@team.name + " (#{@team.season.name})") : @season ? @season.name : I18n.t("calendar.label")
+      subtitle = (title == I18n.t("calendar.label")) ? I18n.t("scope.all") : I18n.t("calendar.label")
       res      = title_start(icon: "calendar.svg", title: title)
       res << [{kind: "subtitle", value: subtitle}]
       res
@@ -233,7 +233,7 @@ class EventsController < ApplicationController
           end
         end
       when :train
-        res << [{kind: "subtitle", value: subtitle ? subtitle : I18n.t(:l_train), cols: cols}, {kind: "gap"}]
+        res << [{kind: "subtitle", value: subtitle ? subtitle : I18n.t("train.single"), cols: cols}, {kind: "gap"}]
       end
       if form # top right corner of title
         res.first << {kind: "icon", value: "calendar.svg"}
@@ -255,7 +255,7 @@ class EventsController < ApplicationController
 
     # return FieldsComponent @fields for show_training
     def show_training_fields
-      res = [[{kind: "gap", size: 2}, {kind: "accordion", title: I18n.t(:l_task_index), tail: I18n.t(:l_total) + " " + @event.work_duration, objects: task_accordion(@event), cols: 4}]]
+      res = [[{kind: "gap", size: 2}, {kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + @event.work_duration, objects: task_accordion(@event), cols: 4}]]
     end
 
     # return icon and top of FieldsComponent for Tasks
@@ -269,7 +269,7 @@ class EventsController < ApplicationController
       res << [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}] if title
       res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
       if task.remarks?
-        res << [{kind: "label", value: I18n.t(:h_remarks)}]
+        res << [{kind: "label", value: I18n.t("trask.remarks")}]
         res << [{kind: "cell", value: task.remarks, size: 28}]
       end
       res << [{kind: "gap", cols: 2}, {kind: "edit", align: "right", url: edit_task_event_path(task_id: task.id)}] if @event.team.has_coach(current_user.person.coach_id)
@@ -279,14 +279,14 @@ class EventsController < ApplicationController
     # fields for task edit/add views
     def task_form_fields
       @remarks=[
-        [{kind: "label", value: I18n.t(:h_remarks)}],
+        [{kind: "label", value: I18n.t("trask.remarks")}],
         [{kind: "rich-text-area", key: :remarks, value: @task.remarks, size: 28}],
       ]
       res = [
         [
-          {kind: "top-cell", value: I18n.t(:a_num)},
-          {kind: "top-cell", value: I18n.t(:l_drill_show)},
-          {kind: "top-cell", value: I18n.t(:a_dur)}
+          {kind: "top-cell", value: I18n.t("task.number")},
+          {kind: "top-cell", value: I18n.t("drill.single")},
+          {kind: "top-cell", value: I18n.t("task.duration")}
         ],
         [
           {kind: "side-cell", value: @task.order},
@@ -305,7 +305,7 @@ class EventsController < ApplicationController
     def match_fields
       score = @event.score(0)
       res = [[{kind: "gap", cols: 6}]]
-      res << [{kind: "side-cell", value: I18n.t(:h_home), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: @event.team.to_s, cols: 2}, {kind: "number-box", key: :p_for, min: 0, max: 200, value: score[:home][:points]}]
+      res << [{kind: "side-cell", value: I18n.t("home_a"), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: @event.team.to_s, cols: 2}, {kind: "number-box", key: :p_for, min: 0, max: 200, value: score[:home][:points]}]
       res << [{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center",}, {kind: "text-box", key: :name, value: @event.name, cols: 2}, {kind: "number-box", key: :p_opp, min: 0, max: 200, value: score[:away][:points]}]
       res
     end
@@ -327,11 +327,11 @@ class EventsController < ApplicationController
     # return the dropdowFistron element to access workload charts
     def workload_button(event, cols: 2, align: "center")
       res = { kind: "dropdown", align:, cols:,
-        button: {kind: "link", icon: "pie.svg", size: "20x20", label: I18n.t(:h_workload), name: "show-chart",
+        button: {kind: "link", icon: "pie.svg", size: "20x20", label: I18n.t("train.workload"), name: "show-chart",
           options: [
-            {label: I18n.t(:h_kind), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
-            #{label: I18n.t(:h_target), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal}},
-            {label: I18n.t(:h_skill), url: load_chart_event_path(name: "skill"), data: {turbo_frame: :modal}}    
+            {label: I18n.t("kind.single"), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
+            #{label: I18n.t("target.many"), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal}},
+            {label: I18n.t("drill.skill"), url: load_chart_event_path(name: "skill"), data: {turbo_frame: :modal}}    
           ]
         }
       }
@@ -340,7 +340,7 @@ class EventsController < ApplicationController
     # profile of event workload (task types)
     # returns a hash with time used split by kinds & skills
     def workload_profile(name)
-      title = I18n.t(:l_workload) + " " + I18n.t("h_" + name)
+      title = I18n.t("train.workload_by") + " " + I18n.t("#{name}.single")
       data  = {}
       @event.tasks.each { |task| # kind
         case name
@@ -499,11 +499,11 @@ class EventsController < ApplicationController
     def event_create_notice
       case @event.kind.to_sym
       when :rest
-        t(:holiday_created) + "#{@event.to_s}"
+        t("holiday.created") + "#{@event.to_s}"
       when :train
-        t(:train_created) + "#{@event.date_string}"
+        t("train.created") + "#{@event.date_string}"
       when :match
-        t(:match_created) + "#{@event.to_s}"
+        t("match.created") + "#{@event.to_s}"
       end
     end
 
@@ -511,11 +511,11 @@ class EventsController < ApplicationController
     def event_update_notice
       case @event.kind.to_sym
       when :rest
-        t(:holiday_updated) + "#{@event.to_s}"
+        t("holiday.updated") + "#{@event.to_s}"
       when :train
-        t(:train_updated) + "#{@event.date_string}"
+        t("train.updated") + "#{@event.date_string}"
       when :match
-        t(:match_updated) + "#{@event.to_s(true)}"
+        t("match.updated") + "#{@event.to_s(true)}"
       end
     end
 
@@ -523,11 +523,11 @@ class EventsController < ApplicationController
     def event_delete_notice
       case @event.kind.to_sym
       when :rest
-        t(:holiday_deleted) + "#{@event.to_s}"
+        t("holiday.deleted") + "#{@event.to_s}"
       when :train
-        t(:train_deleted) + "#{@event.date_string}"
+        t("train.deleted") + "#{@event.date_string}"
       when :match
-        t(:match_deleted) + "#{@event.to_s(true)}"
+        t("match.deleted") + "#{@event.to_s(true)}"
       end
     end
 

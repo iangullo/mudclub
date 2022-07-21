@@ -8,7 +8,7 @@ class CoachesController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@coaches = get_coaches
-			@title  = title_fields(I18n.t(:l_coach_index))
+			@title  = title_fields(I18n.t("coach.many"))
 			@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
 			@grid    = coach_grid
 			respond_to do |format|
@@ -28,11 +28,11 @@ class CoachesController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/"
 		end
-		@fields = title_fields(I18n.t(:l_coach_show), icon: @coach.picture, rows: 4, size: "100x100", _class: "rounded-full")
+		@fields = title_fields(I18n.t("coach.single"), icon: @coach.picture, rows: 4, size: "100x100", _class: "rounded-full")
 		@fields << [{kind: "label", value: @coach.s_name}]
 		@fields << [{kind: "label", value: @coach.person.surname}]
 		@fields << [{kind: "string", value: @coach.person.birthday}]
-		@fields << [{kind: "label", value: (I18n.t(@coach.active ? :h_active : :h_inactive)), align: "center"}]
+		@fields << [{kind: "label", value: (I18n.t(@coach.active ? "status.active" : "status.inactive")), align: "center"}]
 		@grid   = coach_teams_grid
 	end
 
@@ -41,7 +41,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and current_user.admin?
 			@coach = Coach.new
 			@coach.build_person
-			@fields = form_fields(I18n.t(:l_coach_new), rows: 3, cols: 2)
+			@fields = form_fields(I18n.t("coach.new"), rows: 3, cols: 2)
 		else
 			redirect_to "/"
 		end
@@ -52,13 +52,13 @@ class CoachesController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.person.coach_id==@coach.id)
 			redirect_to "/"
 		else
-			@title_fields = form_fields(I18n.t(:l_coach_edit), rows: 4, cols: 3)
+			@title_fields = form_fields(I18n.t("coach.edit"), rows: 4, cols: 3)
 			@coach_fields  = [
-				[{kind: "label-checkbox", label: I18n.t(:h_active), key: :active, value: @coach.active, cols: 4}],
-				[{kind: "upload", key: :avatar, label: I18n.t(:l_pic), value: @coach.avatar.filename, cols: 3}]
+				[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active, cols: 4}],
+				[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @coach.avatar.filename, cols: 3}]
 			]
 			@person_fields = [
-				[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @coach.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @coach.person.email}],
+				[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @coach.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @coach.person.email}],
 				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @coach.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @coach.person.phone}]
 			]
 		end
@@ -71,7 +71,7 @@ class CoachesController < ApplicationController
 			respond_to do |format|
 				@coach = rebuild_coach(params)	# rebuild coach
 				if @coach.is_duplicate? then
-					format.html { redirect_to coaches_url, notice: {kind: "info", message: "#{I18n.t(:coach_duplicate)} '#{@coach.s_name}'"}, data: {turbo_action: "replace"}}
+					format.html { redirect_to coaches_url, notice: {kind: "info", message: "#{I18n.t(coach.duplicate)} '#{@coach.s_name}'"}, data: {turbo_action: "replace"}}
 					format.json { render :index,  :created, location: coaches_url }
 				else
 					@coach.person.save
@@ -80,7 +80,7 @@ class CoachesController < ApplicationController
 						if @coach.person.coach_id != @coach.id
 							@coach.person.coach_id = @coach.id
 						end
-						format.html { redirect_to coaches_url, notice: {kind: "success", message: "#{I18n.t(:coach_created)} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
+						format.html { redirect_to coaches_url, notice: {kind: "success", message: "#{I18n.t("coach.created")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: coaches_url }
 					else
 						format.html { render :new }
@@ -99,7 +99,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.coach_id==@coach.id)
 			respond_to do |format|
 				if @coach.update(coach_params)
-					format.html { redirect_to coaches_url, notice: {kind: "success", message: "#{I18n.t(:coach_updated)} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
+					format.html { redirect_to coaches_url, notice: {kind: "success", message: "#{I18n.t("coach.updated")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: coaches_url }
 				else
 					format.html { render :edit }
@@ -117,7 +117,7 @@ class CoachesController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
 	    Coach.import(params[:file])
-	    format.html { redirect_to coaches_url, notice: {kind: "success", message: "#{I18n.t(:coach_import)} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
+	    format.html { redirect_to coaches_url, notice: {kind: "success", message: "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
 		else
 			redirect_to "/"
 		end
@@ -131,7 +131,7 @@ class CoachesController < ApplicationController
 			unlink_person
 			@coach.destroy
 			respond_to do |format|
-				format.html { redirect_to coaches_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:coach_deleted)} '#{c_name}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to coaches_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("coach.deleted")} '#{c_name}'"}, data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
@@ -150,8 +150,8 @@ class CoachesController < ApplicationController
 		def form_fields(title, rows: 3, cols: 2)
 			res = title_fields(title, icon: @coach.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
 			f_cols = cols>2 ? cols - 1 : nil
-			res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @coach.person.name, cols: f_cols}]
-			res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @coach.person.surname, cols: f_cols}]
+			res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @coach.person.name, cols: f_cols}]
+			res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @coach.person.surname, cols: f_cols}]
 			if f_cols	# i's an edit form
 				res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @coach.person.birthday, cols: f_cols}]
 			end
@@ -161,9 +161,9 @@ class CoachesController < ApplicationController
 		# return grid for @coaches GridComponent
     def coach_grid
       title = [
-        {kind: "normal", value: I18n.t(:h_name)},
-        {kind: "normal", value: I18n.t(:h_age)},
-        {kind: "normal", value: I18n.t(:a_active)}
+        {kind: "normal", value: I18n.t("person.name")},
+        {kind: "normal", value: I18n.t("person.age")},
+        {kind: "normal", value: I18n.t("status.active_a")}
       ]
 			title << {kind: "add", url: new_coach_path, frame: "modal"} if current_user.admin?
 

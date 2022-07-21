@@ -8,7 +8,7 @@ class PeopleController < ApplicationController
   def index
 		if current_user.present? and current_user.admin?
 			@people = get_people
-			@title  = title_fields(I18n.t(:l_per_index))
+			@title  = title_fields(I18n.t("person.many"))
 			@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('people_filters','search'), url: people_path}]
 			@grid   = person_grid
 			respond_to do |format|
@@ -28,7 +28,7 @@ class PeopleController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
-		@fields = title_fields(I18n.t(:l_per_show), icon: @person.picture, size: "100x100", rows: 4, _class: "rounded-full")
+		@fields = title_fields(I18n.t("person.single"), icon: @person.picture, size: "100x100", rows: 4, _class: "rounded-full")
 		@fields << [{kind: "label", value: @person.s_name}]
 		@fields << [{kind: "label", value: @person.surname}]
 		@fields << [{kind: "string", value: @person.birthday}]
@@ -41,8 +41,8 @@ class PeopleController < ApplicationController
   def new
 		if current_user.present? and current_user.admin?
 			@person        = Person.new(coach_id: 0, player_id: 0)
-			@title_fields  = form_fields(I18n.t(:l_per_new))
-			@picture_field = form_file_field(label: I18n.t(:l_pic), key: :avatar, cols: 2)
+			@title_fields  = form_fields(I18n.t("person.new"))
+			@picture_field = form_file_field(label: I18n.t("person.pic"), key: :avatar, cols: 2)
 			@person_fields = person_fields
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -54,8 +54,8 @@ class PeopleController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.person_id==@person.id)
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
-		@title_fields  = form_fields(I18n.t(:l_per_edit))
-		@picture_field = form_file_field(label: I18n.t(:l_pic), key: :avatar, cols: 2)
+		@title_fields  = form_fields(I18n.t("person.edit"))
+		@picture_field = form_file_field(label: I18n.t("person.pic"), key: :avatar, cols: 2)
 		@person_fields = person_fields
   end
 
@@ -67,7 +67,7 @@ class PeopleController < ApplicationController
 
 	    respond_to do |format|
 	      if @person.save
-	        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t(:per_created)} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
+	        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t("person.created")} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
 	        format.json { render :index, status: :created, location: people_url }
 	      else
 	        format.html { render :new }
@@ -86,10 +86,10 @@ class PeopleController < ApplicationController
     	respond_to do |format|
       	if @person.update(person_params)
 					if @person.id=0 # just edited the club identity
-						format.html { redirect_to "/", notice: {kind: "success", message: "'#{@person.nick}' #{I18n.t(:m_saved)}"}, data: {turbo_action: "replace"} }
+						format.html { redirect_to "/", notice: {kind: "success", message: "'#{@person.nick}' #{I18n.t("status.saved")}"}, data: {turbo_action: "replace"} }
 						format.json { render "/", status: :created, location: home_url }
 					else
-		        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t(:per_updated)} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
+		        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t("person.updated")} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: people_url }
 					end
 	      else
@@ -108,7 +108,7 @@ class PeopleController < ApplicationController
 		if current_user.present? and current_user.admin?
 			# added to import excel
     	Person.import(params[:file])
-			format.html { redirect_to people_url, notice: {kind: "success", message: "#{I18n.t(:per_import)} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
+			format.html { redirect_to people_url, notice: {kind: "success", message: "#{I18n.t("person.import")} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
 		else
 			redirect_to "/"
 		end
@@ -121,7 +121,7 @@ class PeopleController < ApplicationController
 			erase_links
 			@person.destroy
 	    respond_to do |format|
-				format.html { redirect_to people_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:per_deleted)} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to people_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("person.deleted")} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
 	      format.json { head :no_content }
 	    end
 		else
@@ -139,16 +139,16 @@ class PeopleController < ApplicationController
 		# return FieldsComponent @fields for forms
 		def form_fields(title)
 			res = title_fields(title, icon: @person.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
-			res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @person.name}]
-			res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @person.surname}]
+			res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @person.name}]
+			res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @person.surname}]
 			res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @person.birthday}]
-			res << [{kind: "label-checkbox", label: I18n.t(:l_fem), key: :female, value: @person.female, align: "center"}]
+			res << [{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @person.female, align: "center"}]
 			res
 		end
 
 		# return title for @people GridComponent
     def person_grid
-      title = [{kind: "normal", value: I18n.t(:h_name)}]
+      title = [{kind: "normal", value: I18n.t("person.name")}]
 			title << {kind: "add", url: new_person_path, frame: "modal"} if current_user.admin?
 
       rows = Array.new
@@ -163,7 +163,7 @@ class PeopleController < ApplicationController
 
 		def person_fields
 			res = [
-				[{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @person.email}],
+				[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @person.email}],
 				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @person.phone}]
 			]
 		end

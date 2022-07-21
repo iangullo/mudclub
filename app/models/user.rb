@@ -17,11 +17,11 @@ class User < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		person ? person.to_s : I18n.t(:l_user_show)
+		person ? person.to_s : I18n.t("user.single")
 	end
 
   def self.role_list
-    User.roles.keys.map {|role| [I18n.t(role.to_sym),role]}
+    User.roles.keys.map {|role| [I18n.t("role.#{role}"),role]}
   end
 
   #short name for form viewing
@@ -33,7 +33,7 @@ class User < ApplicationRecord
 				self.person.name
 			end
 		else
-			I18n.t(:l_user_show)
+			I18n.t("user.single")
 		end
 	end
 

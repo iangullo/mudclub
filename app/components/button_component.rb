@@ -58,7 +58,7 @@ class ButtonComponent < ApplicationComponent
     when "back"
       @button[:icon]    = "back.svg"
       @button[:turbo]   = "_top"
-      @button[:label]   = I18n.t(:m_return) unless @button[:label]
+      @button[:label]   = I18n.t("action_return") unless @button[:label]
     when "cancel"
       @button[:icon]    = "close.svg"
       @button[:turbo]   = "_top"
@@ -67,14 +67,14 @@ class ButtonComponent < ApplicationComponent
     when "delete"
       @button[:turbo]   = "_top"
       @button[:icon]    = "delete.svg"
-      @button[:confirm] = I18n.t(:q_del) + " \'#{@button[:name]}\'?"
+      @button[:confirm] = I18n.t("question.delete") + " \'#{@button[:name]}\'?"
     when "edit"
       @button[:icon]    = "edit.svg"
     when "export"
       @button[:icon]    = "export.svg"
     when "import"
       @button[:icon]    = "import.svg"
-      @button[:confirm] = I18n.t(:q_import)
+      @button[:confirm] = I18n.t("question.import")
     when "jump"
       @button[:size]    = "50x50" unless @button[:size]
       @button[:turbo]   = "_top" unless @button[:turbo]
@@ -82,7 +82,7 @@ class ButtonComponent < ApplicationComponent
       @button[:icon]    = "remove.svg"
     when "save"
       @button[:icon]    = "save.svg"
-      @button[:confirm] = I18n.t(:q_save_chng)
+      @button[:confirm] = I18n.t("question.save_chng")
     end
     @button[:size] = "25x25" unless @button[:size]
   end

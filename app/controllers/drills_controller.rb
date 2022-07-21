@@ -7,8 +7,8 @@ class DrillsController < ApplicationController
 	def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			# Simple search by name/description for now
-			@title  = title_fields(I18n.t(:l_drill_index))
-			@title << [{kind: "subtitle", value: I18n.t()}]
+			@title  = title_fields(I18n.t("drill.many"))
+#			@title << [{kind: "subtitle", value: I18n.t("catalog")}]
       @search = drill_search_bar(drills_path)
 			@drills = filter!(Drill)
 			@grid   = GridComponent.new(grid: drill_grid)
@@ -22,22 +22,22 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
-		@title  = title_fields(I18n.t(:l_drill_show))
+		@title  = title_fields(I18n.t("drill.single"))
 		@title.last << {kind: "link", align: "right", icon: "playbook.png", size: "20x20", url: rails_blob_path(@drill.playbook, disposition: "attachment"), label: "Playbook"} if @drill.playbook.attached?
 		@title << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")", cols: 2}]
-		@intro  = [[{kind: "label", value: I18n.t(:l_targ)}, {kind: "lines", class: "align-top", value: @drill.drill_targets}]]
-		@intro << [{kind: "label", value: I18n.t(:l_mat)}, {kind: "string", value: @drill.material}]
-		@intro << [{kind: "label", value: I18n.t(:l_desc)}, {kind: "string", value: @drill.description}]
+		@intro  = [[{kind: "label", value: I18n.t("target.many")}, {kind: "lines", class: "align-top", value: @drill.drill_targets}]]
+		@intro << [{kind: "label", value: I18n.t("drill.material")}, {kind: "string", value: @drill.material}]
+		@intro << [{kind: "label", value: I18n.t("drill.desc_a")}, {kind: "string", value: @drill.description}]
 		@explain = [[{kind: "string", value: @drill.explanation}]]
-		@tail = [[{kind: "label", value: I18n.t(:l_skill)}, {kind: "string", value: @drill.print_skills}]]
-		@tail << [{kind: "label", value: I18n.t(:l_auth)}, {kind: "string", value: @drill.coach.s_name}]
+		@tail = [[{kind: "label", value: I18n.t("skill.abbr")}, {kind: "string", value: @drill.print_skills}]]
+		@tail << [{kind: "label", value: I18n.t("drill.author")}, {kind: "string", value: @drill.coach.s_name}]
 	end
 
 	# GET /drills/new
 	def new
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@drill = Drill.new
-			@title = title_fields(I18n.t(:l_drill_new))
+			@title = title_fields(I18n.t("drill.new"))
 			@form_fields = form_fields
     else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -49,7 +49,7 @@ class DrillsController < ApplicationController
 		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
 			redirect_to drills_url, data: {turbo_action: "replace"}
 		end
-		@title       = title_fields(I18n.t(:l_drill_edit))
+		@title       = title_fields(I18n.t("drill.edit"))
 		@form_fields = form_fields
 	end
 
@@ -60,7 +60,7 @@ class DrillsController < ApplicationController
 				@drill = Drill.new
 				rebuild_drill	# rebuild drill
 				if @drill.save
-					format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_created)} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
+					format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t("drill.created")} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: @drill }
 				else
 					format.html { render :new }
@@ -79,7 +79,7 @@ class DrillsController < ApplicationController
 				rebuild_drill	# rebuild drill
 				if @drill.coach_id == current_user.person.coach_id or current_user.admin? # author can modify
 				 	if @drill.save
-						format.html { redirect_to drill_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:drill_updated)} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
+						format.html { redirect_to drill_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("drill.updated")} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: @drill }
 					else
 						format.html { render :edit, status: :unprocessable_entity }
@@ -101,7 +101,7 @@ class DrillsController < ApplicationController
 			@drill.drill_targets.each { |d_t| d_t.delete }
 			@drill.destroy
 			respond_to do |format|
-				format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t(:drill_deleted)} '#{d_name}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t("drill.deleted")} '#{d_name}'"}, data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
@@ -121,12 +121,12 @@ class DrillsController < ApplicationController
 			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: @drill.kind_id, align: "center"}]
 			@playbook  = [[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename}]]
 			@explain   = [[{kind: "rich-text-area", key: :explanation, align: "left", cols: 3}]]
-			@author    = [[{kind: "label", value: I18n.t(:l_auth), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real, value: @drill.coach_id ? @drill.coach_id : 1}]]
+			@author    = [[{kind: "label", value: I18n.t("drill.author"), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real, value: @drill.coach_id ? @drill.coach_id : 1}]]
 			return [
 				# DO WE INCLUDE NESTED FORM TYPE??? HOW?
 				# NESTED FORM for Targets...
-				[{kind: "label", value: I18n.t(:l_mat), align: "right"}, {kind: "text-box", key: :material, size: 33, value: @drill.material}],
-				[{kind: "label", value: I18n.t(:l_desc), align: "right"}, {kind: "text-area", key: :description, size: 30, lines: 2, value: @drill.description}],
+				[{kind: "label", value: I18n.t("drill.material"), align: "right"}, {kind: "text-box", key: :material, size: 33, value: @drill.material}],
+				[{kind: "label", value: I18n.t("drill.desc_a"), align: "right"}, {kind: "text-area", key: :description, size: 30, lines: 2, value: @drill.description}],
 				# NESTED FORM for Skills...
 			]
 		end
@@ -135,9 +135,9 @@ class DrillsController < ApplicationController
 	  def drill_grid
 			track = {s_url: drills_path, s_filter: "drill_filters"}
 	    title = [
-				{kind: "normal", value: I18n.t(:h_name), sort: (session.dig('drill_filters', 'name') == "name"), order_by: "name"},
-	      {kind: "normal", value: I18n.t(:h_kind), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
-	      {kind: "normal", value: I18n.t(:h_targ)}
+				{kind: "normal", value: I18n.t("drill.name"), sort: (session.dig('drill_filters', 'name') == "name"), order_by: "name"},
+	      {kind: "normal", value: I18n.t("kind.single"), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
+	      {kind: "normal", value: I18n.t("target.many")}
 	    ]
 			title << {kind: "add", url: new_drill_path, frame: "_top"} if current_user.admin? or current_user.is_coach?
 

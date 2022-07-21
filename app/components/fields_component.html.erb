@@ -60,15 +60,15 @@
                     <% if opt[:label] %><label for="<%=opt[:key]%>" class="<%=item[:l_class]%>"><%=opt[:label]%></label><% end %>
                     <% case opt[:kind]%>
                     <% when "search-text" %>
-                      <%=fsearch.text_field opt[:key], placeholder: t(:m_search), value: opt[:value], size: opt[:size], class: item[:i_class], data: {action: "input->search-form#search"}%>
+                      <%=fsearch.text_field opt[:key], placeholder: t("action.search"), value: opt[:value], size: opt[:size], class: item[:i_class], data: {action: "input->search-form#search"}%>
                     <% when "search-select" %>
-                      <%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t(:l_all)}, {class: item[:i_class]}%>
+                      <%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t("scope.all")}, {class: item[:i_class]}%>
                     <% when "search-collection" %>
                       <%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym] ? params[opt[:key].to_sym] : opt[:value]}, {class: item[:i_class]}%>
                     <% end %>
                   </td>
                   <% end %>
-                  <td><%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t(:m_search) %></td>
+                  <td><%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t("action.search") %></td>
                 </tr>
               </table>
             <% end %>
@@ -79,7 +79,7 @@
             <label for="upload-btn" class="<%=item[:i_class]%>">
               <%= image_tag(item[:icon], size: "25x25") if item[:icon] %>&nbsp;<%=item[:label]%>
             </label>
-            <span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t(:i_no_file) %></span>
+            <span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t("status.no_file") %></span>
           </div>
         <% when "add", "add-nested", "back", "edit", "jump", "link", "location", "action" %>
           <%= render ButtonComponent.new(button: item) %>

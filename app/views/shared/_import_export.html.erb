@@ -4,8 +4,8 @@
     <%= form_with url: import_path, local: true do |form| %>
       <%= form.file_field :file %>
       <br>
-      <button class="save-button inline-flex rounded-lg font-bold text-green-700 hover:bg-green-200 align-middle" data-confirm="<%= t(:q_import) %>">
-        <%= t(:m_import) %>
+      <button class="save-button inline-flex rounded-lg font-bold text-green-700 hover:bg-green-200 align-middle" data-confirm="<%= t("question.import") %>">
+        <%= t("action.import") %>
         <%= image_tag "import.svg", class: "max-h-7 min-h-5" %>
       </button>
     <% end %>

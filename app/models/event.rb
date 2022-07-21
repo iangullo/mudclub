@@ -79,12 +79,12 @@ class Event < ApplicationRecord
     res  = Event.new(team_id: team.id, kind: s_data[:kind].to_sym)
     case res.kind.to_sym  # depending on event kind
     when :rest
-      res.name        = I18n.t(:l_rest)
+      res.name        = I18n.t("rest.single")
       res.start_time  = Date.current
       res.duration    = 1440
       res.location_id = 0
     when :train
-      res.name        = I18n.t(:l_train)
+      res.name        = I18n.t("train.single")
       last            = team.events.trainings.last
       slot            = team.next_slot(last)
       if slot
@@ -99,7 +99,7 @@ class Event < ApplicationRecord
     when :match
       last            = team.events.matches.last
       starting        = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
-      res.name        = I18n.t(:d_match)
+      res.name        = I18n.t("match.default_rival")
       res.start_time  = starting
       res.duration    = 120
       res.location_id = team.homecourt_id
@@ -144,14 +144,14 @@ class Event < ApplicationRecord
   end
 
   def title(show: nil)
-    cad = show ? "" : (self.id ? I18n.t(:m_edit) + " " : I18n.t(:m_create) + " ")
+    cad = show ? "" : (self.id ? I18n.t("action.edit") + " " : I18n.t("action.create") + " ")
     case self.kind.to_sym
     when :rest
-      cad = cad + I18n.t(:l_rest)
+      cad = cad + I18n.t("rest.single")
     when :train
-      cad = show ? self.team.to_s : cad + I18n.t(:l_train)
+      cad = show ? self.team.to_s : cad + I18n.t("train.single")
     when :match
-      cad = cad + I18n.t(:l_match)
+      cad = cad + I18n.t("match.single")
     else
       cad = cad + "(¿?)"
     end

@@ -7,7 +7,7 @@ class LocationsController < ApplicationController
   def index
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @season = Season.find(params[:season_id]) if params[:season_id]
-      @title  = title_fields(I18n.t(:l_loc_index))
+      @title  = title_fields(I18n.t("location.many"))
       @title << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", key: :search, value: params[:search], url: locations_path}]
       @grid = location_grid
 	else
@@ -20,7 +20,7 @@ class LocationsController < ApplicationController
   def show
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
       @fields = title_fields(@location.name)
-      @fields << [(@location.gmaps_url and @location.gmaps_url.length > 0) ? {kind: "location", url: @location.gmaps_url, name: I18n.t(:l_loc_see)} : {kind: "text", value: I18n.t(:l_loc_none)}]
+      @fields << [(@location.gmaps_url and @location.gmaps_url.length > 0) ? {kind: "location", url: @location.gmaps_url, name: I18n.t("location.see")} : {kind: "text", value: I18n.t("location.none")}]
       @fields << [{kind: "icon", value: @location.practice_court ? "training.svg" : "team.svg"}]
     else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -30,8 +30,8 @@ class LocationsController < ApplicationController
   # GET /locations/1/edit
   def edit
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@location = Location.new(name: t(:d_loc)) unless @location
-      @fields   = form_fields(I18n.t(:l_loc_edit))
+			@location = Location.new(name: I18n.t("location.default")) unless @location
+      @fields   = form_fields(I18n.t("location.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -40,8 +40,8 @@ class LocationsController < ApplicationController
   # GET /locations/new
   def new
     if current_user.present? and (current_user.admin? or current_user.is_coach?)
-      @location = Location.new(name: t(:d_loc)) unless @location
-      @fields   = form_fields(I18n.t(:l_loc_new))
+      @location = Location.new(name: t("location.default")) unless @location
+      @fields   = form_fields(I18n.t("location.new"))
     else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -56,7 +56,7 @@ class LocationsController < ApplicationController
         if @location.id!=nil  # @location is already stored in database
           if @season
             @season.locations |= [@location]
-            format.html { redirect_to season_locations_path(@season), notice: {kind: "info", message: "#{I18n.t(:loc_created)} #{@season.name} => '#{@location.name}'"}, data: {turbo_action: "replace"} }
+            format.html { redirect_to season_locations_path(@season), notice: {kind: "info", message: "#{I18n.t("location.created")} #{@season.name} => '#{@location.name}'"}, data: {turbo_action: "replace"} }
 	          format.json { render :index, status: :created, location: season_locations_path(@season) }
           else
             format.html { render @location, notice: {kind: "info", message: t(:loc_created) + "'#{@location.name}'"}}
@@ -65,7 +65,7 @@ class LocationsController < ApplicationController
         else
           if @location.save
             @season.locations |= [@location] if @season
-            format.html { redirect_to @season ? season_locations_path(@season) : locations_url, notice: {kind: "success", message: "#{I18n.t(:loc_created)} '#{@location.name}'"}, data: {turbo_action: "replace"} }
+            format.html { redirect_to @season ? season_locations_path(@season) : locations_url, notice: {kind: "success", message: "#{I18n.t("location.created")} '#{@location.name}'"}, data: {turbo_action: "replace"} }
 	          format.json { render :index, status: :created, location: locations_url }
           else
             format.html { render :new }
@@ -86,7 +86,7 @@ class LocationsController < ApplicationController
         if @location.id!=nil  # we have location to save
           if @location.update(location_params)  # try to save
             @season.locations |= [@location] if @season
-            format.html { redirect_to @season ? seasons_path(@season) : locations_path, notice: {kind: "success", message: "#{I18n.t(:loc_updated)} '#{@location.name}'"}, data: {turbo_action: "replace"} }
+            format.html { redirect_to @season ? seasons_path(@season) : locations_path, notice: {kind: "success", message: "#{I18n.t("location.updated")} '#{@location.name}'"}, data: {turbo_action: "replace"} }
     				format.json { render :index, status: :created, location: locations_path }
           else
             format.html { redirect_to edit_location_path(@location), data: {turbo_action: "replace"} }
@@ -111,12 +111,12 @@ class LocationsController < ApplicationController
         if @season
           @season.locations.delete(@location)
           @locations = @season.locations
-          format.html { redirect_to season_locations_path(@season), status: :see_other, notice: {kind: "success", message: "#{I18n.t(:loc_deleted)} #{@season.name} => '#{l_name}'"}, data: {turbo_action: "replace"} }
+          format.html { redirect_to season_locations_path(@season), status: :see_other, notice: {kind: "success", message: "#{I18n.t("location.deleted")} #{@season.name} => '#{l_name}'"}, data: {turbo_action: "replace"} }
           format.json { render :index, status: :created, location: season_locations_path(@season) }
         else
           @location.scrub
           @location.delete
-          format.html { render @location, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:loc_created)} '#{l_name}'"}}
+          format.html { redirect_to locations_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("location.deleted")} '#{l_name}'"}}
           format.json { render :show, :created, location: locations_url(@location) }
         end
       end
@@ -137,7 +137,7 @@ private
     res = title_fields(title)
     res << [{kind: "text-box", key: :name, value: @location.name, size: 20}]
     res << [{kind: "icon", value: "gmaps.svg"}, {kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, size: 20}]
-    res << [{kind: "icon", value: "training.svg"}, {kind: "label-checkbox", key: :practice_court, label: I18n.t(:l_loc_train)}]
+    res << [{kind: "icon", value: "training.svg"}, {kind: "label-checkbox", key: :practice_court, label: I18n.t("location.deleted")}]
     res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
     res
   end
@@ -145,9 +145,9 @@ private
   # return grid for @locations GridComponent
   def location_grid
     title = [
-      {kind: "normal", value: I18n.t(:h_name)},
-      {kind: "normal", value: I18n.t(:h_kind), align: "center"},
-      {kind: "normal", value: I18n.t(:a_loc)}
+      {kind: "normal", value: I18n.t("location.name")},
+      {kind: "normal", value: I18n.t("kind.single"), align: "center"},
+      {kind: "normal", value: I18n.t("location.abbr")}
     ]
     title << {kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
 

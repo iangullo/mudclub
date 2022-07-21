@@ -19,17 +19,17 @@ class Target < ApplicationRecord
 
   def self.aspects
     res = Array.new
-    res << [I18n.t(:h_general), 0]
-    res << [I18n.t(:l_tec), 1]
-    res << [I18n.t(:l_tac), 2]
-#    res << ["Estrategia",3]
+    res << [I18n.t("target.aspect.gen"), 0]
+    res << [I18n.t("target.aspect.ind"), 1]
+    res << [I18n.t("target.aspect.col"), 2]
+#    res << [I18n.t("target.aspect.str"),3]
   end
 
   def self.kinds
     res = Array.new
-    res << [I18n.t(:l_fit), 0]
-    res << [I18n.t(:l_off), 1]
-    res << [I18n.t(:l_def), 2]
+    res << [I18n.t("target.focus.fit"), 0]
+    res << [I18n.t("target.focus.ofe"), 1]
+    res << [I18n.t("target.focus.def"), 2]
   end
 
   #Search target matching. returns either nil or a Target

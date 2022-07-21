@@ -7,10 +7,10 @@
   <div id="home-logged-out" class="align-middle">
     <table>
       <tr>
-        <td align="center"><%= image_tag("user.svg", :size => "30x30") %><%= t(:l_closed) %></td>
+        <td align="center"><%= image_tag("user.svg", :size => "30x30") %><%= t("status.closed") %></td>
         <td align="left">
           <%= link_to new_user_session_path, data: {turbo_frame: "_top"} do %>
-            <%= image_tag("login.svg", class: "login_button rounded bg-blue-900 hover:bg-blue-700 max-h-8 min-h-6", alt: t(:m_login)) %>
+            <%= image_tag("login.svg", class: "login_button rounded bg-blue-900 hover:bg-blue-700 max-h-8 min-h-6", alt: t("action.login")) %>
           <% end %>
         </td>
       </tr>

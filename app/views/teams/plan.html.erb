@@ -13,11 +13,11 @@
 					<table>
 						<tr class="text-indigo-900 font semi-bold">
 							<th></th>
-							<th class="border px py" align="center"><%= t(:l_def) %></th>
-							<th class="border px py" align="center"><%= t(:l_off) %></th>
+							<th class="border px py" align="center"><%= t("target.focus.def") %></th>
+							<th class="border px py" align="center"><%= t("target.focus.ofe") %></th>
 						</tr>
 						<tr><!-- #edit individual targets -->
-							<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tec) %></td>
+							<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t("target.aspect.ind_a") %></td>
 							<td class="border px py align-top">
 								<div id="defense-individual">
 									<%= render "print_targets", targets: tgt[:t_d_ind] %>
@@ -29,7 +29,7 @@
 							</td>
 						</tr>
 						<tr><!-- #edit collective targets -->
-							<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t(:a_tac) %></td>
+							<td class="bg-indigo-900 text-gray-300 border px py align-center"><%= t("target.aspect.col_a") %></td>
 							<td class="border px py">
 								<div id="defense-collective align-top">
 									<%= render "print_targets", targets: tgt[:t_d_col] %>

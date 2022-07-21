@@ -7,7 +7,7 @@
 				<% form.object.build_target if form.object.new_record? %>
    			<%= f.select :aspect, Target.aspects, {selected: f.object.aspect ? f.object.aspect_before_type_cast : 0}, class: f_cls + " px-1" %>
    			<%= f.select :focus, Target.kinds, {selected: f.object.focus ? f.object.focus_before_type_cast : 0}, class: f_cls + " px-1" %>
-				<%= f.text_field :concept, placeholder: t(:d_target), class: f_cls + " px-1", size: 20 %>
+				<%= f.text_field :concept, placeholder: t("target.default"), class: f_cls + " px-1", size: 20 %>
 			<% end %>
 			<%= render ButtonComponent.new(button: {kind: "remove"}) %>
 		</div>

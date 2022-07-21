@@ -6,7 +6,7 @@ class UsersController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
       @users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
-      @title = title_fields(I18n.t(:l_user_index))
+      @title = title_fields(I18n.t("user.many"))
       @title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
       @grid  = user_grid
     else
@@ -31,11 +31,11 @@ class UsersController < ApplicationController
     if current_user.present? and current_user.admin?
       @user = User.new
   		@user.build_person
-      @fields = title_fields(I18n.t(:l_user_new), rows: 4, cols: 2)
-      @fields << [{kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: I18n.t(:h_email)}]
-      @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t(:l_pass)}]
-      @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t(:l_pass_conf)}]
-      @fields << [{kind: "gap"}, {kind: "text", value: I18n.t(:i_pass_conf), cols: 2, class: "text-xs"}]
+      @fields = title_fields(I18n.t("user.new"), rows: 4, cols: 2)
+      @fields << [{kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: I18n.t("person.email")}]
+      @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t("password.single")}]
+      @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t("password.confirm")}]
+      @fields << [{kind: "gap"}, {kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}]
     else
       redirect_to "/", data: {turbo_action: "replace"}
     end
@@ -43,15 +43,15 @@ class UsersController < ApplicationController
 
   def edit
     if current_user.present? and (current_user.admin? or current_user == @user)
-      @title  = form_fields(I18n.t(:l_user_edit))
+      @title  = form_fields(I18n.t("user.edit"))
       if current_user.admin?
-        @role = [[{kind: "label", value: I18n.t(:l_role)}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
+        @role = [[{kind: "label", value: I18n.t("user.role")}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
       else
         @role = [[{kind: "label", align: "center", value: I18n.t(@user.role.to_sym)}]]
       end
-      @avatar = [[{kind: "upload", key: :avatar, label: I18n.t(:l_pic), value: @user.avatar.filename}]]
+      @avatar = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
       @person_fields = [
-        [{kind: "label", value: I18n.t(:l_id), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
+        [{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
 				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
       ]
     else
@@ -64,7 +64,7 @@ class UsersController < ApplicationController
       respond_to do |format|
   			@user = build_new_user(params)	# build user
   			if @user.is_duplicate? then
-  				format.html { redirect_to @user, notice: {kind: "info", message: "#{I18n.t(:user_duplicate)} '#{@user.s_name}'"}, data: {turbo_action: "replace"}}
+  				format.html { redirect_to @user, notice: {kind: "info", message: "#{I18n.t("user.duplicate")} '#{@user.s_name}'"}, data: {turbo_action: "replace"}}
   				format.json { render :show,  :created, location: @user }
   			else
   				@user.person.save
@@ -74,7 +74,7 @@ class UsersController < ApplicationController
   						@user.person.user_id = @user.id
   						@user.person.save
   					end
-  					format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_created)} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
+  					format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t("user.created")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
   					format.json { render :index, status: :created, location: users_url }
   				else
   					format.html { render :new, notice: {kind: "error", message: "#{@user.errors}"}}
@@ -96,7 +96,7 @@ class UsersController < ApplicationController
         end
         rebuild_user(params)	# rebuild user
   			if @user.update(user_params)
-  				format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t(:user_updated)} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
+  				format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t("user.updated")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
   				format.json { render :index, status: :ok, location: users_url }
   			else
   				format.html { render :edit }
@@ -114,7 +114,7 @@ class UsersController < ApplicationController
       unlink_person
   		@user.destroy
   		respond_to do |format|
-  			format.html { redirect_to users_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:user_deleted)} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
+  			format.html { redirect_to users_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("user.deleted")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
   			format.json { head :no_content }
   		end
     else
@@ -132,8 +132,8 @@ class UsersController < ApplicationController
   	# return HeaderComponent @fields for forms
   	def form_fields(title, rows: 4, cols: 2)
       res = title_fields(title, icon: @user.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
-    	res << [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @user.person.name}]
-      res << [{kind: "label", value: I18n.t(:l_surname)}, {kind: "text-box", key: :surname, value: @user.person.surname}]
+    	res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @user.person.name}]
+      res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @user.person.surname}]
   		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}]
   		res
   	end
@@ -141,10 +141,10 @@ class UsersController < ApplicationController
     # return grid for @users GridComponent
 	  def user_grid
 	    title = [
-	      {kind: "normal", value: I18n.t(:h_name)},
-	      {kind: "normal", value: I18n.t(:a_player), align: "center"},
-        {kind: "normal", value: I18n.t(:a_coach), align: "center"},
-        {kind: "normal", value: I18n.t(:a_admin), align: "center"}
+	      {kind: "normal", value: I18n.t("person.name")},
+	      {kind: "normal", value: I18n.t("player.abbr"), align: "center"},
+        {kind: "normal", value: I18n.t("coach.abbr"), align: "center"},
+        {kind: "normal", value: I18n.t("admin.abbr"), align: "center"}
 	    ]
 			title << {kind: "add", url: new_user_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
 

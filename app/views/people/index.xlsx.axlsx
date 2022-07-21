@@ -2,7 +2,7 @@ wb = xlsx_package.workbook
 
 wb.add_worksheet(name: "People") do |sheet|
   # Create the header row
-  sheet.add_row [t(:h_id), t(:h_nick), t(:h_name), t(:h_surname), t(:h_bday), t(:q_fem), t(:h_email), t(:h_tel)]
+  sheet.add_row [t("person.pid"), t("person.nick"), t("person.name"), t("person.surname"), t("person.bday"), t("question.female"), t("person.email"), t("person.phone")]
   # Create entries for each item
   Person.real.each do |person|
     sheet.add_row [person.dni, person.nick, person.name, person.surname, person.birthday, person.female, person.email, person.phone]

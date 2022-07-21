@@ -5,7 +5,7 @@ class DivisionsController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
       @divisions = Division.real
-      @fields    = title_fields(I18n.t(:l_div_index))
+      @fields    = title_fields(I18n.t("division.many"))
       @grid      = division_grid
     else
       redirect_to "/"
@@ -15,7 +15,7 @@ class DivisionsController < ApplicationController
   # GET /divisions/1 or /divisions/1.json
   def show
     redirect_to "/" unless current_user.present? and current_user.admin?
-    @fields = title_fields(I18n.t(:l_div_show))
+    @fields = title_fields(I18n.t("division.single"))
     @fields << [{kind: "subtitle", value: @division.name}]
   end
 
@@ -23,7 +23,7 @@ class DivisionsController < ApplicationController
   def new
     if current_user.present? and current_user.admin?
       @division = Division.new
-      @fields   = form_fields(I18n.t(:l_div_new))
+      @fields   = form_fields(I18n.t("division.new"))
     else
       redirect_to "/"
     end
@@ -32,7 +32,7 @@ class DivisionsController < ApplicationController
   # GET /divisions/1/edit
   def edit
     redirect_to "/" unless current_user.present? and current_user.admin?
-    @fields   = form_fields(I18n.t(:l_div_edit))
+    @fields   = form_fields(I18n.t("division.edit"))
   end
 
   # POST /divisions or /divisions.json
@@ -42,7 +42,7 @@ class DivisionsController < ApplicationController
 
       respond_to do |format|
         if @division.save
-          format.html { redirect_to divisions_url, notice: {kind: "success", message: "#{I18n.t(:div_created)} '#{@division.name}'"}, data: {turbo_action: "replace"} }
+          format.html { redirect_to divisions_url, notice: {kind: "success", message: "#{I18n.t("division.created")} '#{@division.name}'"}, data: {turbo_action: "replace"} }
           format.json { render :index, status: :created, location: divisions_url }
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -59,7 +59,7 @@ class DivisionsController < ApplicationController
     if current_user.present? and current_user.admin?
       respond_to do |format|
         if @division.update(division_params)
-          format.html { redirect_to divisions_url, notice: {kind: "success", message: "#{I18n.t(:div_updated)} '#{@division.name}'"}, data: {turbo_action: "replace"} }
+          format.html { redirect_to divisions_url, notice: {kind: "success", message: "#{I18n.t("division.updated")} '#{@division.name}'"}, data: {turbo_action: "replace"} }
           format.json { render :index, status: :created, location: divisions_url }
         else
           format.html { render :edit, status: :unprocessable_entity }
@@ -78,7 +78,7 @@ class DivisionsController < ApplicationController
       prune_teams
       @division.destroy
       respond_to do |format|
-        format.html { redirect_to divisions_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:div_deleted)} '#{d_name}'"}, data: {turbo_action: "replace"} }
+        format.html { redirect_to divisions_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("division.deleted")} '#{d_name}'"}, data: {turbo_action: "replace"} }
         format.json { head :no_content }
       end
     else
@@ -101,7 +101,7 @@ class DivisionsController < ApplicationController
 
 		# return grid for @divisions GridComponent
     def division_grid
-      title = [{kind: "normal", value: I18n.t(:h_name)}]
+      title = [{kind: "normal", value: I18n.t("division.name")}]
 			title << {kind: "add", url: new_division_path, frame: "modal"} if current_user.admin?
 
       rows = Array.new

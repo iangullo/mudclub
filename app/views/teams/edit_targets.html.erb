@@ -3,7 +3,7 @@
 	<%= form_with model: @team, data: {turbo_frame: "_top"} do |form| %>
 		<table>
 			<tr>
-				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_def) %></th>
+				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t("target.focus.def") %></th>
 			</tr><tr>
 				<td colspan="2" class="border px py align-top">
 					<div id="defense-general">
@@ -11,8 +11,8 @@
 					</div>
 				</td>
 			</tr><tr class="bg-indigo-900 text-gray-300">
-				<th class="border px py" align="left"><%= t(:h_tec) %></th>
-				<th class="border px py" align="center"><%= t(:h_tac) %></th>
+				<th class="border px py" align="left"><%= t("target.aspect.ind_l") %></th>
+				<th class="border px py" align="center"><%= t("target.aspect.col_l") %></th>
 			</tr><tr>
 				<td class="border px py align-top">
 					<div id="defense-individual">
@@ -27,7 +27,7 @@
 			</tr><tr>
 				<th colspan="2" class="border px py" align="center"><br></th>
 			</tr><tr>
-				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t(:l_off) %></th>
+				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t("target.focus.ofe") %></th>
 			</tr><tr>
 				<td colspan="2" class="border px py align-top">
 					<div id="offense-general">
@@ -35,8 +35,8 @@
 					</div>
 				</td>
 			</tr><tr class="bg-indigo-900 text-gray-300">
-				<th class="border px py" align="left"><%= t(:h_tec) %></th>
-				<th class="border px py" align="center"><%= t(:h_tac) %></th>
+				<th class="border px py" align="left"><%= t("target.aspect.ind_l") %></th>
+				<th class="border px py" align="center"><%= t("target.aspect.col_l") %></th>
 			</tr><tr>
 				<td class="border px py align-top">
 					<div id="offense-individual">

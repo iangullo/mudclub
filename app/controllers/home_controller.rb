@@ -11,10 +11,10 @@ class HomeController < ApplicationController
     if current_user.present? and current_user.admin?
       @club  = Person.find(0)
       @fields = [
-        [{kind: "header-icon", value: @club.logo}, {kind: "title", value: I18n.t(:m_edit), cols: 2}],
-        [{kind: "label", value: I18n.t(:l_name)}, {kind: "text-box", key: :nick, value: @club.nick}]
+        [{kind: "header-icon", value: @club.logo}, {kind: "title", value: I18n.t("action.edit"), cols: 2}],
+        [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :nick, value: @club.nick}]
       ]
-      @f_logo = [[{kind: "upload", key: :avatar, label: I18n.t(:l_pic), value: @club.avatar.filename}]]
+      @f_logo = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @club.avatar.filename}]]
     else
       redirect_to "/", data: {turbo_action: "replace"}
     end
@@ -29,7 +29,7 @@ class HomeController < ApplicationController
 
     def team_grid
       if current_user.teams
-        title = [{kind: "normal", align: "center", value: I18n.t(:l_team_index)}, {kind: "normal", align: "center", value: I18n.t(:l_sea_show)}]
+        title = [{kind: "normal", align: "center", value: I18n.t("team.many")}, {kind: "normal", align: "center", value: I18n.t("season.single")}]
 
         rows = Array.new
         current_user.teams.each { |team|

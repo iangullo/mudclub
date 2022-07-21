@@ -11,9 +11,9 @@ class ApplicationController < ActionController::Base
   # => Team: for team roster views
   def player_grid(players:, obj: nil)
     p_index = (obj == nil)
-    title = [{kind: "normal", value: I18n.t(:a_num), align: "center"}, {kind: "normal", value: I18n.t(:h_name)}, {kind: "normal", value: I18n.t(:h_age), align: "center"}]
+    title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("person.age"), align: "center"}]
     if p_index
-      title << {kind: "normal", value: I18n.t(:a_active), align: "center"}
+      title << {kind: "normal", value: I18n.t("status.active_a"), align: "center"}
       title << {kind: "add", url: new_player_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
     end
     rows = Array.new
@@ -34,27 +34,27 @@ class ApplicationController < ActionController::Base
   # A Field Component with top link + grid for events. obj is the parent oject (season/team)
   def event_grid(events:, obj: nil)
     for_season = (obj.class==Season)
-    title = [{kind: "normal", value: I18n.t(:h_date), align: "center"}, {kind: "normal", value: I18n.t(:h_time), align: "center"}]
-    title << {kind: "normal", value: I18n.t(:l_team_show)} if for_season
-    title << {kind: "normal", value: I18n.t(:h_desc)}
+    title = [{kind: "normal", value: I18n.t("calendar.date"), align: "center"}, {kind: "normal", value: I18n.t("calendar.time"), align: "center"}]
+    title << {kind: "normal", value: I18n.t("team.single")} if for_season
+    title << {kind: "normal", value: I18n.t("drill.desc")}
     rows = Array.new
     events.each { |event|
       row = {url:  event_path(event, season_id: for_season ? obj.id : nil), frame: event.train? ? "_top" : "modal", items: []}
       row[:items] << {kind: "normal", value: event.date_string, align: "center"}
       row[:items] << {kind: "normal", value: event.time_string, align: "center"}
-      row[:items] << {kind: "normal", value: event.team_id > 0 ? event.team.to_s : t(:l_all)} if for_season
+      row[:items] << {kind: "normal", value: event.team_id > 0 ? event.team.to_s : t("scope.all")} if for_season
       row[:items] << {kind: "normal", value: event.to_s}
       row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
       rows << row
     }
     if for_season
       title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"} if current_user.admin? # new season event
-      fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(season_id: @season.id), cols: 4, class: "align-middle text-indigo-900"}]]
+      fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(season_id: @season.id), cols: 4, class: "align-middle text-indigo-900"}]]
     else
       title << new_event_button(obj.id) if obj.has_coach(current_user.person.coach_id) # new team event
       fields = [[
-        {kind: "link", icon: "calendar.svg", label: I18n.t(:l_cal), size: "30x30", url: events_path(team_id: obj.id), class: "align-middle text-indigo-900"},
-        {kind: "link", icon: "attendance.svg", label: I18n.t(:l_attendance), size: "30x30", url: attendance_team_path(obj), align: "right", frame: "modal", class: "align-middle text-indigo-900"},
+        {kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(team_id: obj.id), class: "align-middle text-indigo-900"},
+        {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), size: "30x30", url: attendance_team_path(obj), align: "right", frame: "modal", class: "align-middle text-indigo-900"},
         {kind: "gap"}
       ]]
     end
@@ -65,9 +65,9 @@ class ApplicationController < ActionController::Base
   # dropdown button definition to create a new Event
   def new_event_button(team_id)
     button = {kind: "add", name: "add-event", options: []}
-    button[:options] << {label: I18n.t(:l_train), url: new_event_path(event: {kind: :train, team_id: team_id}), data: {turbo_frame: :modal}}
-    button[:options] << {label: I18n.t(:l_match), url: new_event_path(event: {kind: :match, team_id: team_id}), data: {turbo_frame: :modal}}
-    button[:options] << {label: I18n.t(:l_rest), url: new_event_path(event: {kind: :rest, team_id: team_id}), data: {turbo_frame: :modal}}
+    button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: team_id}), data: {turbo_frame: :modal}}
+    button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: team_id}), data: {turbo_frame: :modal}}
+    button[:options] << {label: I18n.t("rest.single"), url: new_event_path(event: {kind: :rest, team_id: team_id}), data: {turbo_frame: :modal}}
     return {kind: "dropdown", button: button}
   end
 
@@ -86,9 +86,9 @@ class ApplicationController < ActionController::Base
     res = [[
       {kind: "search-combo", url: search_in,
         fields: [
-          {kind: "search-text", key: :name, label: I18n.t(:l_name), value: session.dig('drill_filters', 'name'), size: 10},
-          {kind: "search-select", key: :skill_id, label: I18n.t(:l_skill), value: session.dig('drill_filters', 'skill_id'), options: Skill.real.pluck(:concept, :id)},
-          {kind: "search-select", key: :kind_id, label: I18n.t(:l_kind), value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)}
+          {kind: "search-text", key: :name, label: I18n.t("person.name_a"), value: session.dig('drill_filters', 'name'), size: 10},
+          {kind: "search-select", key: :skill_id, label: I18n.t("skill.single"), value: session.dig('drill_filters', 'skill_id'), options: Skill.real.pluck(:concept, :id)},
+          {kind: "search-select", key: :kind_id, label: "#{I18n.t("kind.single")}:", value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)}
         ]
       }
     ]]

@@ -17,7 +17,7 @@
 								<%= f.collection_select :location_id, Location.practice.order(:name), :id, :name, {selected: params[:location_id] ? params[:location_id].to_i : Location.practice.first.id} %>
 								<%= f.hidden_field :season_id, value: nil %>
 							<% end %>
-							<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: t(:m_search) %>
+							<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: t("action.search") %>
 						<% end %>
 					</div>
 				</td>
@@ -33,11 +33,9 @@
 							<%= render ButtonComponent.new(button: {kind: "add", url: new_slot_path(location_id: params[:location_id], season_id: params[:season_id]), frame: "modal"}) %>
 						<% end %>
 					</th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_1) %></th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_2) %></th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_3) %></th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_4) %></th>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t(:a_wday_5) %></th>
+					<% 1.upto(5) do |i| %>
+				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t("calendar.daynames_a")[i] %></th>
+					<% end %>
 				</tr>
 		  </thead>
 		  <tbody>

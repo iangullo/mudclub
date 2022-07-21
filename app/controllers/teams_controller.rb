@@ -7,7 +7,7 @@ class TeamsController < ApplicationController
   # GET /teams.json
   def index
 		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.is_player?)
-			@title = title_fields(I18n.t(:l_team_index), search: true)
+			@title = title_fields(I18n.t("team.many"), search: true)
 			@grid  = team_grid
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -19,7 +19,7 @@ class TeamsController < ApplicationController
 		if current_user.present? and current_user.admin?
     	@team = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
 			@eligible_coaches = Coach.active
-			@form_fields      = form_fields(I18n.t(:l_team_new))
+			@form_fields      = form_fields(I18n.t("team.new"))
 		else
 			redirect_to(current_user.is_coach? ? teams_path : "/", data: {turbo_action: "replace"})
 		end
@@ -45,7 +45,7 @@ class TeamsController < ApplicationController
 				redirect_to @team
 			end
 			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_roster_show)}]
+			@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
 			@grid  = player_grid(players: @team.players.order(:number), obj: @team)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -57,7 +57,7 @@ class TeamsController < ApplicationController
 		if current_user.present?
 			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
 				@title = title_fields(@team.to_s)
-				@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_roster_edit)}]
+				@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
 				@eligible_players = @team.eligible_players
 			else
 				redirect_to @team, data: {turbo_action: "replace"}
@@ -74,7 +74,7 @@ class TeamsController < ApplicationController
 				redirect_to @team
 			end
 			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_slot_index)}]
+			@title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
 	else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -86,7 +86,7 @@ class TeamsController < ApplicationController
 			redirect_to "/" unless @team
 			global_targets(true)	# get & breakdown global targets
 			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t(:h_targ)}]
+			@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -98,7 +98,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			global_targets(false)	# get global targets
 			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_targ_edit)}]
+			@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -110,7 +110,7 @@ class TeamsController < ApplicationController
 			redirect_to "/" unless @team
 			plan_targets
 			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_plan_show)}]
+			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
 			@edit = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -123,7 +123,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			plan_targets
 			@title  = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_plan_edit)}]
+			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -136,7 +136,7 @@ class TeamsController < ApplicationController
 				redirect_to @team
 			end
 			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t(:l_attendance)}]
+			@title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
 			@grid  = attendance_grid
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -148,7 +148,7 @@ class TeamsController < ApplicationController
 		if current_user.present?
 			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
 				@eligible_coaches = Coach.active
-				@form_fields      = form_fields(I18n.t(:l_team_edit))
+				@form_fields      = form_fields(I18n.t("team.edit"))
 			else
 				redirect_to @team
 			end
@@ -165,7 +165,7 @@ class TeamsController < ApplicationController
 
 	    respond_to do |format|
 	      if @team.save
-	        format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t(:team_created)} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
+	        format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t("team.created")} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
 	        format.json { render :index, status: :created, location: teams_path }
 	      else
 	        format.html { render :new }
@@ -187,16 +187,16 @@ class TeamsController < ApplicationController
 						retlnk = params[:team][:retlnk]
 						rebuild_team
 		      	if @team.save
-							format.html { redirect_to retlnk, notice: {kind: "success", message: "#{I18n.t(:team_updated)} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
+							format.html { redirect_to retlnk, notice: {kind: "success", message: "#{I18n.t("team.updated")} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
 							format.json { redirect_to retlnk, status: :created, location: retlnk }
 						else
 							@eligible_coaches = Coach.active
-							@form_fields      = form_fields(I18n.t(:l_team_edit))
-							format.html { render :edit, data:{"turbo-frame": "replace"}, notice: {kind: "error", message: "#{I18n.t(:i_no_data)} (#{@team.to_s})"} }
+							@form_fields      = form_fields(I18n.t("team.edit"))
+							format.html { render :edit, data:{"turbo-frame": "replace"}, notice: {kind: "error", message: "#{I18n.t("status.no_data")} (#{@team.to_s})"} }
 							format.json { render json: @team.errors, status: :unprocessable_entity }
 						end
 					else	# no data to save...
-		        format.html { redirect_to @team, data:{"turbo-frame": "replace"}, notice: {kind: "info", message: "#{I18n.t(:i_no_data)} (#{@team.to_s})"}, data: {turbo_action: "replace"} }
+		        format.html { redirect_to @team, data:{"turbo-frame": "replace"}, notice: {kind: "info", message: "#{I18n.t("status.no_data")} (#{@team.to_s})"}, data: {turbo_action: "replace"} }
 		        format.json { render json: @team.errors, status: :unprocessable_entity }
 		      end
 		    end
@@ -216,7 +216,7 @@ class TeamsController < ApplicationController
 			erase_links
 	    @team.destroy
 	    respond_to do |format|
-	      format.html { redirect_to teams_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:team_deleted)} '#{t_name}'"}, data: {turbo_action: "replace"} }
+	      format.html { redirect_to teams_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("team.deleted")} '#{t_name}'"}, data: {turbo_action: "replace"} }
 	      format.json { head :no_content }
 	    end
 		else
@@ -242,20 +242,20 @@ class TeamsController < ApplicationController
 	  # return HeaderComponent @fields for forms
 	  def form_fields(title, cols: nil)
 			res = title_fields(title, cols: cols, edit: true)
-			res << [{kind: "label", align: "right", value: I18n.t(:l_name)}, {kind: "text-box", key: :name, value: @team.name}]
+			res << [{kind: "label", align: "right", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @team.name}]
 	    res << [{kind: "icon", value: "category.svg"}, {kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}]
 			res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}]
 			res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :homecourt_id, options: Location.home, value: @team.homecourt_id}]
-			res << [{kind: "icon", value: "coach.svg"}, {kind: "label", value:I18n.t(:l_coach_index), class: "align-center"}]
+			res << [{kind: "icon", value: "coach.svg"}, {kind: "label", value:I18n.t("coach.many"), class: "align-center"}]
 			res << [{kind: "gap"}, {kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}]
 	  	res
 		end
 
 		# return grid for @teams GridComponent
     def team_grid
-      title = [{kind: "normal", value: I18n.t(:h_name)}]
-			title << {kind: "normal", value: I18n.t(:l_sea_show)} unless (params[:season_id] and params[:season_id].to_i>0)
-      title << {kind: "normal", value: I18n.t(:l_div_show)}
+      title = [{kind: "normal", value: I18n.t("team.name")}]
+			title << {kind: "normal", value: I18n.t("season.single")} unless (params[:season_id] and params[:season_id].to_i>0)
+      title << {kind: "normal", value: I18n.t("division.single")}
 			title << {kind: "add", url: new_team_path, frame: "modal"} if current_user.admin?
 
       rows = Array.new
@@ -272,12 +272,12 @@ class TeamsController < ApplicationController
 
 		# return jump links for a team
 		def team_links
-			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t(:l_roster_show), frame: "modal", align: "center"}]]
+			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster"), frame: "modal", align: "center"}]]
 			if (current_user.admin? or current_user.is_coach?)
-				res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t(:h_targ), align: "center"}
-        res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t(:a_plan), align: "center"}
+				res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t("target.many"), align: "center"}
+        res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr"), align: "center"}
 			end
-			res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t(:l_slot_index), frame: "modal", align: "center"}
+			res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal", align: "center"}
 			if (current_user.admin? or @team.has_coach(current_user.person.coach_id))
 	      res.last << {kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}
 			end
@@ -310,10 +310,10 @@ class TeamsController < ApplicationController
 			case month
 			when Integer
 				tgt = @team.team_targets.monthly(month)
-				m   = {i: month, name: Date::ABBR_MONTHNAMES[month]}
+				m   = {i: month, name: I18n.t("calendar.monthnames_a")[month]}
 			when Array
 				tgt = @team.team_targets.monthly(month[1])
-				m   = {i: month[1], name: Date::ABBR_MONTHNAMES[month[1]]}
+				m   = {i: month[1], name: I18n.t("calendar.monthnames_a")[month[1]]}
 			else
 				tgt = @team.team_targets.monthly(month[:i])
 				m   = {i: month[:i], name: month[:name]}
@@ -402,7 +402,7 @@ class TeamsController < ApplicationController
 
   # A Field Component with grid for team attendance. obj is the parent oject (player/team)
   def attendance_grid
-		title = [{kind: "normal", value: I18n.t(:a_num), align: "center"}, {kind: "normal", value: I18n.t(:h_name)}, {kind: "normal", value: I18n.t("stat.total"), align: "center"}, {kind: "normal", value: I18n.t("train.many"), align: "center"}, {kind: "normal", value: I18n.t("match.many"), align: "center"}]
+		title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("stat.total"), align: "center"}, {kind: "normal", value: I18n.t("train.many"), align: "center"}, {kind: "normal", value: I18n.t("match.many"), align: "center"}]
     rows = Array.new
     @team.players.order(:number).each { |player|
 			p_att = player.attendance(team: @team)

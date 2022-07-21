@@ -5,7 +5,7 @@ class Task < ApplicationRecord
   self.inheritance_column = "not_sti"
 
   def to_s
-    self.drill ? self.drill.nice_string : I18n.t(:d_drill)
+    self.drill ? self.drill.nice_string : I18n.t("drill.default")
   end
 
   def s_dur

@@ -4,9 +4,9 @@
 		<div id="edit-roster-form-data">
 			<table>
 				<tr class="bg-indigo-900 text-gray-300">
-					<th class="border px py" align="center"><%= t(:a_num) %></th>
-					<th class="border px py" align="left"><%= t(:h_name) %></th>
-					<th class="border px py" align="center"><%= t(:h_age) %></th>
+					<th class="border px py" align="center"><%= t("player.number") %></th>
+					<th class="border px py" align="left"><%= t("person.name") %></th>
+					<th class="border px py" align="center"><%= t("person.age") %></th>
 				</tr>
 				<div id="player-selection">
 					<%= form.collection_check_boxes :player_ids, @eligible_players, :id, :to_s do |player| %>
@@ -22,7 +22,7 @@
 				</div>
 			</table>
 			<%= form.hidden_field :retlnk, value: team_path %>
-			<%= render SubmitComponent.new(close: "cancel", submit: "save") %>
+			<%= render SubmitComponent.new(submit: "save") %>
 		</div>
 	<% end %>
 <% end %>

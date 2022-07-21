@@ -5,7 +5,7 @@ class CategoriesController < ApplicationController
   def index
     if current_user.present? and current_user.admin?
       @categories = Category.real
-      @fields     = title_fields(I18n.t(:l_cat_index))
+      @fields     = title_fields(I18n.t("category.many"))
       @grid       = category_grid
     else
 			redirect_to "/"
@@ -15,16 +15,16 @@ class CategoriesController < ApplicationController
   # GET /categories/1 or /categories/1.json
   def show
     redirect_to "/" unless current_user.present? and current_user.admin?
-    @fields = title_fields(I18n.t(:l_cat_index), cols: 5, rows: 5)
+    @fields = title_fields(I18n.t("category.many"), cols: 5, rows: 5)
     @fields << [{kind: "subtitle", value: @category.age_group, cols: 3}, {kind: "subtitle", value: @category.sex, cols: 2}]
-    @fields << [{kind: "label", value: I18n.t(:l_min)}, {kind: "string", value: @category.min_years}, {kind: "gap"}, {kind: "label", value: I18n.t(:l_max)}, {kind: "string", value: @category.max_years}]
+    @fields << [{kind: "label", value: I18n.t("stat.min")}, {kind: "string", value: @category.min_years}, {kind: "gap"}, {kind: "label", value: I18n.t("stat.max")}, {kind: "string", value: @category.max_years}]
   end
 
   # GET /categories/new
   def new
     if current_user.present? and current_user.admin?
       @category = Category.new
-      @fields  = form_fields(I18n.t(:l_cat_new))
+      @fields  = form_fields(I18n.t("category.new"))
     else
       redirect_to "/"
     end
@@ -33,7 +33,7 @@ class CategoriesController < ApplicationController
   # GET /categories/1/edit
   def edit
     redirect_to "/" unless current_user.present? and current_user.admin?
-    @fields = form_fields(I18n.t(:l_cat_edit))
+    @fields = form_fields(I18n.t("category.edit"))
   end
 
   # POST /categories or /categories.json
@@ -43,7 +43,7 @@ class CategoriesController < ApplicationController
 
       respond_to do |format|
         if @category.save
-          format.html { redirect_to categories_url, notice: flash_message("#{I18n.t(:cat_created)} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
+          format.html { redirect_to categories_url, notice: flash_message("#{I18n.t("category.created")} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
           format.json { render :index, status: :created, location: categories_url }
         else
           format.html { render :new, status: :unprocessable_entity }
@@ -60,7 +60,7 @@ class CategoriesController < ApplicationController
     if current_user.present? and current_user.admin?
       respond_to do |format|
         if @category.update(category_params)
-          format.html { redirect_to categories_url, notice: flash_message("#{I18n.t(:cat_updated)} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
+          format.html { redirect_to categories_url, notice: flash_message("#{I18n.t("category.updated")} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
           format.json { render :index, status: :ok, location: categories_url }
         else
           format.html { render :edit, status: :unprocessable_entity }
@@ -79,7 +79,7 @@ class CategoriesController < ApplicationController
       prune_teams
       @category.destroy
       respond_to do |format|
-        format.html { redirect_to categories_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:cat_deleted)} '#{c_name}'"}, data: {turbo_action: "replace"} }
+        format.html { redirect_to categories_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("category.deleted")} '#{c_name}'"}, data: {turbo_action: "replace"} }
         format.json { head :no_content }
       end
     else
@@ -97,18 +97,18 @@ class CategoriesController < ApplicationController
     # return FieldsComponent @title for forms
     def form_fields(title)
       res = title_fields(title, rows: 3, cols: 5)
-      res << [{kind: "text-box", key: :age_group, value: @category.age_group, size: 10, cols: 3}, {kind: "select-box", key: :sex, options: [I18n.t(:a_fem), I18n.t(:a_male), I18n.t(:a_mixed)], value: @category.sex, cols: 2}]
-      res << [{kind: "label", value: I18n.t(:l_min)}, {kind: "number-box", key: :min_years, min: 5, value: @category.min_years}, {kind: "gap", size: 5}, {kind: "label", value: I18n.t(:l_max)}, {kind: "number-box", key: :max_years, min: 6, value: @category.max_years}]
+      res << [{kind: "text-box", key: :age_group, value: @category.age_group, size: 10, cols: 3}, {kind: "select-box", key: :sex, options: [I18n.t("sex.fem_a"), I18n.t("sex.male_a"), I18n.t("sex.mixed_a")], value: @category.sex, cols: 2}]
+      res << [{kind: "label", value: I18n.t("stat.min")}, {kind: "number-box", key: :min_years, min: 5, value: @category.min_years}, {kind: "gap", size: 5}, {kind: "label", value: I18n.t("stat.max")}, {kind: "number-box", key: :max_years, min: 6, value: @category.max_years}]
       res
     end
 
     # return header for @categories GridComponent
     def category_grid
       title = [
-        {kind: "normal", value: I18n.t(:h_name)},
-        {kind: "normal", value: I18n.t(:h_sex)},
-        {kind: "normal", value: I18n.t(:a_min)},
-        {kind: "normal", value: I18n.t(:a_max)}
+        {kind: "normal", value: I18n.t("category.name")},
+        {kind: "normal", value: I18n.t("sex.label")},
+        {kind: "normal", value: I18n.t("stat.min")},
+        {kind: "normal", value: I18n.t("stat.max")}
       ]
       title <<  {kind: "add", url: new_category_path, frame: "modal"} if current_user.admin?
 

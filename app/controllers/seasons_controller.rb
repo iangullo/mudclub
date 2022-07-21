@@ -8,13 +8,13 @@ class SeasonsController < ApplicationController
     if current_user.present? and current_user.admin?
 			@season = Season.search(params[:search])
       @events = Event.upcoming.for_season(@season).non_training
-      @title  = title_fields(I18n.t(:l_sea_show), cols: 2)
-      @title << [{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t(:m_create), frame: "modal"}]
+      @title  = title_fields(I18n.t("season.single"), cols: 2)
+      @title << [{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t("action.create"), frame: "modal"}]
       @links  = [
         [ # season links
-          {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t(:l_courts), align: "center"},
-          {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t(:l_team_index), align: "center"},
-          {kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? season_slots_path(@season) : season_slots_path(@season, location_id: @season.locations.first.id), label: I18n.t(:l_slot_index), align: "center"},
+          {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t("location.many"), align: "center"},
+          {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t("team.many"), align: "center"},
+          {kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? season_slots_path(@season) : season_slots_path(@season, location_id: @season.locations.first.id), label: I18n.t("slot.many"), align: "center"},
           {kind: "edit", url: edit_season_path(@season), size: "30x30", frame: "modal"}
         ]
       ]
@@ -29,7 +29,7 @@ class SeasonsController < ApplicationController
     if current_user.present? and current_user.admin?
 			@season = Season.new(start_date: Date.today, end_date: Date.today) unless @season
       @eligible_locations = @season.eligible_locations
-      @fields = form_fields(I18n.t(:l_sea_edit))
+      @fields = form_fields(I18n.t("season.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -39,7 +39,7 @@ class SeasonsController < ApplicationController
   def new
     if current_user.present? and current_user.admin?
       @season = Season.new(start_date: Date.today, end_date: Date.today)
-      @fields = form_fields(I18n.t(:l_sea_new))
+      @fields = form_fields(I18n.t("season.new"))
     else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -55,7 +55,7 @@ class SeasonsController < ApplicationController
 			# added to import excel
 	    respond_to do |format|
 	      if @season.save
-	        format.html { redirect_to seasons_path(@season), notice: {kind: "success", message: "#{I18n.t(:sea_created)} '#{@season.name}'"}, data: {turbo_action: "replace"} }
+	        format.html { redirect_to seasons_path(@season), notice: {kind: "success", message: "#{I18n.t("season.created")} '#{@season.name}'"}, data: {turbo_action: "replace"} }
 	        format.json { render :index, status: :created, location: seasons_url }
 	      else
 	        format.html { render :new }
@@ -74,7 +74,7 @@ class SeasonsController < ApplicationController
     	respond_to do |format|
         check_locations
       	if @season.update(season_params)
-	        format.html { redirect_to seasons_path(@season), notice: {kind: "success", message: "#{I18n.t(:sea_updated)} '#{@season.name}'"}, data: {turbo_action: "replace"} }
+	        format.html { redirect_to seasons_path(@season), notice: {kind: "success", message: "#{I18n.t("season.updated")} '#{@season.name}'"}, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: seasons_url}
 	      else
 	        format.html { render :edit }
@@ -94,7 +94,7 @@ class SeasonsController < ApplicationController
 			erase_links
 			@season.destroy
 	    respond_to do |format|
-	      format.html { redirect_to seasons_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t(:sea_deleted)} '#{s_name}'"}, data: {turbo_action: "replace"} }
+	      format.html { redirect_to seasons_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("season.deleted")} '#{s_name}'"}, data: {turbo_action: "replace"} }
 	      format.json { head :no_content }
 	    end
 		else
@@ -113,8 +113,8 @@ class SeasonsController < ApplicationController
   	def form_fields(title, cols: nil)
       res = title_fields(title, cols: cols)
     	res << [{kind: "subtitle", value: @season.name}]
-      res << [{kind: "label", align: "right", value: I18n.t(:h_start)}, {kind: "date-box", key: :start_date, s_year: 2020, value: @season.start_date}]
-      res << [{kind: "label", align: "right", value: I18n.t(:h_end)}, {kind: "date-box", key: :end_date, s_year: 2020, value: @season.end_date}]
+      res << [{kind: "label", align: "right", value: I18n.t("calendar.start")}, {kind: "date-box", key: :start_date, s_year: 2020, value: @season.start_date}]
+      res << [{kind: "label", align: "right", value: I18n.t("calendar.end")}, {kind: "date-box", key: :end_date, s_year: 2020, value: @season.end_date}]
   		res
   	end
 
