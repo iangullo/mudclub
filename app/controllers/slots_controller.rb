@@ -6,9 +6,10 @@ class SlotsController < ApplicationController
   # GET /slots or /slots.json
   def index
     if current_user.present?
-      @season = Season.search(params[:season_id])
-      @slots  = Slot.search(params)
-      @title  = title_fields(I18n.t("slot.many"))
+      @season   = Season.search(params[:season_id])
+      @location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
+      @slots    = Slot.search({season_id: @season.id, location_id: @location.id})
+      @title    = title_fields(I18n.t("slot.many"))
     else
       redirect_to "/", data: {turbo_action: "replace"}
     end

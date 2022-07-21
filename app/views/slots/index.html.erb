@@ -8,9 +8,9 @@
 						<%= form_with(url: '/slots', method: 'get', local: true) do |f| %>
 							<% if @season %>
 								<% if @slots %>
-									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, {selected: (params[:location_id] ? params[:location_id].to_i : (@slots.empty? ? (@season.locations.empty? ? 1 : @season.locations.first.location_id) : @slots.first.location_id))} %>
+									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, {selected: (@location ? @location.id : (@slots.empty? ? (@season.locations.empty? ? 1 : @season.locations.first.location_id) : @slots.first.location_id))} %>
 								<% else %>
-									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, {selected: (params[:location_id] ? params[:location_id].to_i : @season.locations.first.location_id)} %>
+									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, {selected: @location.id} %>
 								<% end %>
 								<%= f.hidden_field :season_id, value: @season.id %>
 							<% else %>
@@ -30,11 +30,12 @@
 				<tr>
 				  <th align="center">
 						<% if current_user.admin? and not (@season.teams.empty?) %>
-							<%= render ButtonComponent.new(button: {kind: "add", url: new_slot_path(location_id: params[:location_id], season_id: params[:season_id]), frame: "modal"}) %>
+							<%= render ButtonComponent.new(button: {kind: "add", url: new_slot_path(location_id: @location.id, season_id: @season.id), frame: "modal"}) %>
 						<% end %>
 					</th>
 					<% 1.upto(5) do |i| %>
-				  <th align="center" class="bg-indigo-900 text-gray-300 align-center"><%= t("calendar.daynames_a")[i] %></th>
+		        <% scols = Slot.timecols(@season.id, @location.id, i)%>
+					  <th align="center" class="bg-indigo-900 text-gray-300 align-center" colspan="<%=scols.to_s%>"><%= t("calendar.daynames_a")[i] %></th>
 					<% end %>
 				</tr>
 		  </thead>
@@ -42,7 +43,7 @@
 				<% t_hour = Time.new(2021,8,30,16,00) %>
 				<% while t_hour.hour < 22 do %>
 					<%= render 'week_view' , t_hour: t_hour%>
-					<%  t_hour = t_hour + 30.minutes %>
+					<%  t_hour = t_hour + 15.minutes %>
 				<% end %>
 				<tr><td class="align-top text-sm">22:00</td></tr>
 		  </tbody>

@@ -59,10 +59,11 @@ class Slot < ApplicationRecord
 	end
 
 	# number of timetable  rows required
+	# each row represents 15 minutes
 	def timerows(wday, t_hour)
 		if self.wday == wday
 			if (t_hour.hour == self.hour && t_hour.min == self.min)
-				srows = self.duration/30.to_i
+				srows = self.duration/15.to_i
 				return srows
 			end
 		end
@@ -107,6 +108,25 @@ class Slot < ApplicationRecord
 		else
 			nil
 		end
+	end
+
+	# CALCULATE HOW MANY cols we need to reserve for this day
+	# i.e. overlapping teams in same location/time
+	def self.timecols(sea_id, loc_id, wday)
+		res    = 1
+		s_time = Time.new(2021,9,1,16,0)
+		e_time = Time.new(2021,9,1,22,30)
+		t_time = s_time
+		w_slots = self.for_season(sea_id).for_location(loc_id).where(wday: wday)
+		while t_time < e_time do	# check the full day
+			s_count = 0
+			w_slots.each { |slot|
+				s_count = s_count+1 if slot.at_work?(wday,t_time)
+			}
+			res     = s_count if s_count > res
+			t_time  = t_time + 15.minutes
+		end
+		res
 	end
 
 	private
