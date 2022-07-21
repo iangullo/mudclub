@@ -14,7 +14,7 @@ class SeasonsController < ApplicationController
         [ # season links
           {kind: "jump", icon: "location.svg", url: season_locations_path(@season), label: I18n.t("location.many"), align: "center"},
           {kind: "jump", icon: "team.svg", url: teams_path + "?season_id=" + @season.id.to_s, label: I18n.t("team.many"), align: "center"},
-          {kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? season_slots_path(@season) : season_slots_path(@season, location_id: @season.locations.first.id), label: I18n.t("slot.many"), align: "center"},
+          {kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? slots_path(season_id: @season.id) : slots_path(season_id: @season.id, location_id: @season.locations.practice.first.id), label: I18n.t("slot.many"), align: "center"},
           {kind: "edit", url: edit_season_path(@season), size: "30x30", frame: "modal"}
         ]
       ]

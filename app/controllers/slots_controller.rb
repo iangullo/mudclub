@@ -9,7 +9,9 @@ class SlotsController < ApplicationController
       @season   = Season.search(params[:season_id])
       @location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
       @slots    = Slot.search({season_id: @season.id, location_id: @location.id})
+      @d_cols   = [1]
       @title    = title_fields(I18n.t("slot.many"))
+      1.upto(5) {|i| @d_cols << day_cols(@season.id, @location.id, i)}
     else
       redirect_to "/", data: {turbo_action: "replace"}
     end
@@ -140,6 +142,25 @@ class SlotsController < ApplicationController
       @season = Season.find(s_data[:season_id]) if s_data[:season_id]
 			@slot   = tslot
 		end
+
+    # CALCULATE HOW MANY cols we need to reserve for this day
+    # i.e. overlapping teams in same location/time
+    def day_cols(sea_id, loc_id, wday)
+      res    = 1
+      s_time = Time.new(2021,9,1,16,0)
+      e_time = Time.new(2021,9,1,22,30)
+      t_time = s_time
+      w_slots = Slot.for_season(sea_id).for_location(loc_id).where(wday: wday)
+      while t_time < e_time do	# check the full day
+        s_count = 0
+        w_slots.each { |slot|
+          s_count = s_count+1 if slot.at_work?(wday,t_time)
+        }
+        res     = s_count if s_count > res
+        t_time  = t_time + 15.minutes
+      end
+      res
+    end
 
     # Use callbacks to share common setup or constraints between actions.
     def set_slot

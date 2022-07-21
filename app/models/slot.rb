@@ -2,6 +2,7 @@ class Slot < ApplicationRecord
 	belongs_to :season
 	belongs_to :team
 	belongs_to :location
+	scope :real, -> { where("id>0") }
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
 	scope :for_team, -> (t_id) { where("team_id = ?", t_id) }
 	scope :for_location, -> (l_id) { where("location_id = ?", l_id) }
@@ -69,6 +70,28 @@ class Slot < ApplicationRecord
 		end
 	end
 
+	# CALCULATE HOW MANY cols we need to reserve for this slot
+	# i.e. avoid overlapping teams in same location/time
+	def timecols(daycols)
+		o_count = 0	# overlaps
+		t_time  = self.start
+		w_slots = Slot.real.for_season(self.season_id)
+			.for_location(self.location_id)
+			.where(wday: self.wday)
+			.where("id!=?", self.id)
+		unless w_slots.empty? # no other slots?
+			while t_time < self.ending do	# check for overlaps
+				overlaps = 0
+				w_slots.each { |slot|	# check each potential slot
+					overlaps = overlaps + 1 if slot.at_work?(wday,t_time)
+					t_time  = t_time + 15.minutes # scan more?
+				}
+				o_count = overlaps if overlaps > o_count
+			end
+		end
+		res = daycols - o_count
+	end
+
 	#gives us the next Slot for this sequence
 	def next_date(from_date=Date.today)
 		from_date = from_date - 1.day
@@ -108,25 +131,6 @@ class Slot < ApplicationRecord
 		else
 			nil
 		end
-	end
-
-	# CALCULATE HOW MANY cols we need to reserve for this day
-	# i.e. overlapping teams in same location/time
-	def self.timecols(sea_id, loc_id, wday)
-		res    = 1
-		s_time = Time.new(2021,9,1,16,0)
-		e_time = Time.new(2021,9,1,22,30)
-		t_time = s_time
-		w_slots = self.for_season(sea_id).for_location(loc_id).where(wday: wday)
-		while t_time < e_time do	# check the full day
-			s_count = 0
-			w_slots.each { |slot|
-				s_count = s_count+1 if slot.at_work?(wday,t_time)
-			}
-			res     = s_count if s_count > res
-			t_time  = t_time + 15.minutes
-		end
-		res
 	end
 
 	private
