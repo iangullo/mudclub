@@ -50,9 +50,9 @@
 							<%= link_to chunk[:slot].team.to_s, slot_path(chunk[:slot], season_id: @season.id), class: "hover:text-white hover:bg-blue-700", data: {turbo_frame: "modal"} %>
 						</td>
 						<% elsif chunk[:gap] %>
-						<td rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>></td>
+						<td  class="text-xs" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>></td>
 						<% else %>
-						<td></td>
+						<td class="text-xs">&nbsp;</td>
 						<% end %>
 					<% end %>
 				</tr>

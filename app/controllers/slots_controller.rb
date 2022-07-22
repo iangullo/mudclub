@@ -9,7 +9,7 @@ class SlotsController < ApplicationController
       @season    = Season.search(params[:season_id])
       @location  = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
       @title     = title_fields(I18n.t("slot.many"))
-      @timetable = week_view if @season and @location
+     week_view if @season and @location
     else
       redirect_to "/", data: {turbo_action: "replace"}
     end
@@ -163,10 +163,10 @@ class SlotsController < ApplicationController
           }
           if train  # a training slot start in this slice
             slice[:chunks] << train 
+            slice[:chunks] << gap if gap  # insert gap if required
           else  # is it empty?
-            gap = create_gap(slice[:time], d_col[:cols], d_slots) unless train
+            slice[:chunks] << {rows: 1, cols: 1}
           end
-          slice[:chunks] << gap if gap  # insert gap if required
         }
         @d_cols << d_col
       }
@@ -221,16 +221,33 @@ class SlotsController < ApplicationController
       overlap = false # no overlap detected yet
       t_time  = s_time
       s_end   = t_slot ? t_slot.ending : s_time + 1.minute
+      t_slots = t_slot ? d_slots.excluding(t_slot) : d_slots
       if t_slot # if a t_slot given starts at this time
-        d_slots.each { |tmp| # seek overlaps
+        t_slots.each { |tmp| # seek overlaps
           if tmp.at_work?(tmp.wday, s_time)
-            overlap=true unless tmp.id = t_slot.id
+            overlap=true 
             break
           end
         }
       end
-      # we will need a gap
-      gap = overlap ? nil : {gap: true, rows: 1, cols: d_cols-t_cols}
+      unless overlap  # we will need a gap
+        gap = {gap: true, rows: 0, cols: d_cols-t_cols}
+        while t_time < s_end  # check gap size
+          t_slots.each { |tmp| # seek overlaps
+            if tmp.at_work?(tmp.wday, t_time)
+              overlap=true
+              break
+            end
+          }
+          unless overlap
+            gap[:rows] = gap[:rows] +1 # need to create a new gap
+          else
+            break
+          end
+          t_time = t_time + 15.minutes
+        end
+      end
+      gap
     end
 
     # Use callbacks to share common setup or constraints between actions.

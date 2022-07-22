@@ -77,7 +77,7 @@ class Slot < ApplicationRecord
 		t_time  = self.start
 		w_slots = Slot.real.for_season(self.season_id)
 			.for_location(self.location_id)
-			.where(wday: self.wday) unless w_slots
+			.where(wday: self.wday).order(:start) unless w_slots
 		unless w_slots.empty? # no other slots?
 			while t_time < self.ending do	# check for overlaps
 				overlaps = 0
@@ -109,18 +109,18 @@ class Slot < ApplicationRecord
 	def self.search(s_data)
 		if s_data[:season_id]
 			 if s_data[:location_id]
-				 Slot.where(season_id: s_data[:season_id].to_i, location_id: s_data[:location_id].to_i)
+				 Slot.real.where(season_id: s_data[:season_id].to_i, location_id: s_data[:location_id].to_i).order(:start)
 			 else
-				 Slot.where(season_id: s_data[:season_id].to_i)
+				 Slot.real.where(season_id: s_data[:season_id].to_i).order(:start)
 			 end
 		elsif s_data[:team_id]
 			if s_data[:location_id]
-				Slot.where(team_id: s_data[:team_id].to_i, location_id: s_data[:location_id].to_i)
+				Slot.real.where(team_id: s_data[:team_id].to_i, location_id: s_data[:location_id].to_i).order(:start)
 			else
-				Slot.where(team_id: s_data[:team_id].to_i)
+				Slot.real.where(team_id: s_data[:team_id].to_i).order(:start)
 			end
 		else
-			Slot.all
+			Slot.real.order(:start)
 		end
 	end
 
