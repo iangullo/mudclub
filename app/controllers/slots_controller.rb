@@ -6,12 +6,10 @@ class SlotsController < ApplicationController
   # GET /slots or /slots.json
   def index
     if current_user.present?
-      @season   = Season.search(params[:season_id])
-      @location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
-      @slots    = Slot.search({season_id: @season.id, location_id: @location.id})
-      @d_cols   = [1]
-      @title    = title_fields(I18n.t("slot.many"))
-      1.upto(5) {|i| @d_cols << day_cols(@season.id, @location.id, i)}
+      @season    = Season.search(params[:season_id])
+      @location  = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
+      @title     = title_fields(I18n.t("slot.many"))
+      @timetable = week_view if @season and @location
     else
       redirect_to "/", data: {turbo_action: "replace"}
     end
@@ -143,23 +141,96 @@ class SlotsController < ApplicationController
 			@slot   = tslot
 		end
 
+    # create the timetable view grid
+    # requires that @location & @season defined
+    def week_view
+      @w_slots = Slot.search({season_id: @season.id, location_id: @location.id})
+      @slices  = create_slices # each slice is a hash {time:, label:, chunks:} Chunks are <td>
+      @d_cols  = [1]  # day columns
+      1.upto(5) { |i| # fill in data for each day
+        d_col   = {name: I18n.t("calendar.daynames_a")[i], cols: day_cols(@season.id, @location.id, i)}
+        d_slots = wday_slots(@w_slots, i) # check only daily slots
+        @slices.each { |slice| # create slice chunks for this day
+          train   = nil # placeholder chunks
+          gap     = nil
+          time_slots(d_slots, slice[:time]).each { |t_slot| # slots starting on this slice
+            t_cols = t_slot.timecols(d_col[:cols], w_slots: d_slots)
+            t_rows = t_slot.timerows(i, slice[:time])
+            train  = {slot: t_slot, rows: t_rows, cols: t_cols}
+            if t_cols < d_col[:cols]  # prepare "gap" if needed
+              gap = create_gap(slice[:time], d_col[:cols], d_slots, t_slot, t_cols)
+            end
+          }
+          if train  # a training slot start in this slice
+            slice[:chunks] << train 
+          else  # is it empty?
+            gap = create_gap(slice[:time], d_col[:cols], d_slots) unless train
+          end
+          slice[:chunks] << gap if gap  # insert gap if required
+        }
+        @d_cols << d_col
+      }
+    end
+
     # CALCULATE HOW MANY cols we need to reserve for this day
     # i.e. overlapping teams in same location/time
     def day_cols(sea_id, loc_id, wday)
-      res    = 1
-      s_time = Time.new(2021,9,1,16,0)
-      e_time = Time.new(2021,9,1,22,30)
-      t_time = s_time
-      w_slots = Slot.for_season(sea_id).for_location(loc_id).where(wday: wday)
+      res     = 1
+      s_time  = Time.new(2021,9,1,16,0)
+      e_time  = Time.new(2021,9,1,22,30)
+      t_time  = s_time
+      d_slots = wday_slots(@w_slots, wday)
       while t_time < e_time do	# check the full day
         s_count = 0
-        w_slots.each { |slot|
-          s_count = s_count+1 if slot.at_work?(wday,t_time)
+        d_slots.each { |slot|
+          s_count = s_count+1 if slot.at_work?(wday, t_time)
         }
         res     = s_count if s_count > res
         t_time  = t_time + 15.minutes
       end
       res
+    end
+
+    # filter activerecord dataset by wday and return array
+    def wday_slots(slots, wday)
+      slots.select {|slot| slot.wday==wday}
+    end
+
+    # filter activerecord dataset by wday and return array
+    def time_slots(slots, start_time)
+      slots.select {|slot| slot.start==start_time}
+    end
+
+    # Create fresh time_table slices for each timetable row
+    def create_slices
+      slices  = []
+      t_start = Time.utc(2000,1,1,16,00)
+      t_end   = Time.utc(2000,1,1,22,30)
+      t_hour  = t_start # reset clock
+      while t_hour < t_end  # cicle the full day
+        slices << {time: t_hour, label: t_hour.min==0 ? (t_hour.hour.to_s.rjust(2,"0") + ":00") : nil, chunks: []}
+        t_hour = t_hour + 15.minutes  # 15 min intervals
+      end
+      slices
+    end
+
+    # Create associated gap if needed
+    # if t_slot is passed, it needs to be starting at s_time
+    def create_gap(s_time, d_cols, d_slots, t_slot=nil, t_cols=0)
+      gap     =  nil  # no gap yet
+      overlap = false # no overlap detected yet
+      t_time  = s_time
+      s_end   = t_slot ? t_slot.ending : s_time + 1.minute
+      if t_slot # if a t_slot given starts at this time
+        d_slots.each { |tmp| # seek overlaps
+          if tmp.at_work?(tmp.wday, s_time)
+            overlap=true unless tmp.id = t_slot.id
+            break
+          end
+        }
+      end
+      # we will need a gap
+      gap = overlap ? nil : {gap: true, rows: 1, cols: d_cols-t_cols}
     end
 
     # Use callbacks to share common setup or constraints between actions.
