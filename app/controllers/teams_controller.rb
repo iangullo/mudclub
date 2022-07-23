@@ -34,7 +34,7 @@ class TeamsController < ApplicationController
 			redirect_to coaching_team_path(@team) if params[:id]=="coaching" and @team
 			@title = title_fields(@team.to_s)
 			@links = team_links
-			@grid  = event_grid(events: @team.events.upcoming.order(:start_time), obj: @team)
+			@grid  = event_grid(events: @team.events.upcoming.order(:start_time), obj: @team, retlnk: team_path(@team))
 		end
   end
 

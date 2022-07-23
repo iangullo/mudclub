@@ -9,7 +9,7 @@ class EventsController < ApplicationController
       @team   = Team.find(params[:team_id]) if params[:team_id]
       @season = @events.empty? ? Season.last : @events.first.team.season
       @title  = general_title
-      @grid   = event_grid(events: @events, obj: @team ? @team : @season)
+      @grid   = event_grid(events: @events, obj: @team ? @team : @season, retlnk: @team ? team_path(@team) : season_path(@season))
     else
       redirect_to "/", data: {turbo_action: "replace"}
     end

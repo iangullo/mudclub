@@ -18,7 +18,7 @@ class SeasonsController < ApplicationController
           {kind: "edit", url: edit_season_path(@season), size: "30x30", frame: "modal"}
         ]
       ]
-      @grid = event_grid(events: @events, obj: @season)
+      @grid = event_grid(events: @events, obj: @season, retlnk: seasons_path)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

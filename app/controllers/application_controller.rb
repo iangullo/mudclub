@@ -32,14 +32,15 @@ class ApplicationController < ActionController::Base
   end
 
   # A Field Component with top link + grid for events. obj is the parent oject (season/team)
-  def event_grid(events:, obj: nil)
+  def event_grid(events:, obj: nil, retlnk: nil)
     for_season = (obj.class==Season)
-    title = [{kind: "normal", value: I18n.t("calendar.date"), align: "center"}, {kind: "normal", value: I18n.t("calendar.time"), align: "center"}]
+    go_back = retlnk ? retlnk : (for_season ? season_events_path(obj) : team_events_path(obj))
+    title   = [{kind: "normal", value: I18n.t("calendar.date"), align: "center"}, {kind: "normal", value: I18n.t("calendar.time"), align: "center"}]
     title << {kind: "normal", value: I18n.t("team.single")} if for_season
     title << {kind: "normal", value: I18n.t("drill.desc")}
-    rows = Array.new
+    rows   = Array.new
     events.each { |event|
-      row = {url:  event_path(event, season_id: for_season ? obj.id : nil), frame: event.train? ? "_top" : "modal", items: []}
+      row = {url:  event_path(event, season_id: for_season ? obj.id : nil, retlnk: go_back), frame: event.train? ? "_top" : "modal", items: []}
       row[:items] << {kind: "normal", value: event.date_string, align: "center"}
       row[:items] << {kind: "normal", value: event.time_string, align: "center"}
       row[:items] << {kind: "normal", value: event.team_id > 0 ? event.team.to_s : t("scope.all")} if for_season
