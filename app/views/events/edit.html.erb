@@ -1,7 +1,1 @@
-<% unless @event.train? %>
-  <%= render ModalComponent.new do %>
-    <%= render 'form', event: @event, title: @event.title, close_return: nil %>
-  <% end %>
-<% else %>
-  <%= render 'form', event: @event, title:  @event.team.to_s, close_return: event_path(@event) %>
-<% end %>
+<%= render 'form', event: @event, title:  @event.train? @event.title : @event.team.to_s, close_return: event_path(@event) %>

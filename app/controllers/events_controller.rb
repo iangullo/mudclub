@@ -25,7 +25,8 @@ class EventsController < ApplicationController
       @fields = [[
         {kind: "gap"},
         {kind: "top-cell", value: @event.score[:home][:team], cols: 2},
-        {kind: "label", value: @event.score[:home][:points], class: "border px py"}
+        {kind: "label", value: @event.score[:home][:points], class: "border px py"},
+        {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "right"}
       ]]
       @fields << [
         {kind: "gap"},
@@ -305,8 +306,8 @@ class EventsController < ApplicationController
     def match_fields
       score = @event.score(0)
       res = [[{kind: "gap", cols: 6}]]
-      res << [{kind: "side-cell", value: I18n.t("home_a"), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: @event.team.to_s, cols: 2}, {kind: "number-box", key: :p_for, min: 0, max: 200, value: score[:home][:points]}]
-      res << [{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center",}, {kind: "text-box", key: :name, value: @event.name, cols: 2}, {kind: "number-box", key: :p_opp, min: 0, max: 200, value: score[:away][:points]}]
+      res << [{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: @event.team.to_s, cols: 2}, {kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}]
+      res << [{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center",}, {kind: "text-box", key: :name, value: @event.name, cols: 2}, {kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}]
       res
     end
 
@@ -331,7 +332,7 @@ class EventsController < ApplicationController
           options: [
             {label: I18n.t("kind.single"), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
             #{label: I18n.t("target.many"), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal}},
-            {label: I18n.t("skill.single"), url: load_chart_event_path(name: "skill"), data: {turbo_frame: :modal}}    
+            {label: I18n.t("skill.single"), url: load_chart_event_path(name: "skill"), data: {turbo_frame: :modal}}
           ]
         }
       }
@@ -376,7 +377,7 @@ class EventsController < ApplicationController
       @event.home       = event_params[:home] if event_params[:home]
       check_targets(event_params[:event_targets_attributes]) if event_params[:event_targets_attributes]
       if event_params[:tasks_attributes]  # updated tasks in session edit form
-        check_tasks(event_params[:tasks_attributes]) 
+        check_tasks(event_params[:tasks_attributes])
       elsif event_params[:task] # updated task from edit_task_form (add or edit)
         check_task(event_params[:task])
       end
