@@ -35,9 +35,9 @@
         <% when "date-box" %>
           <%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
         <% when "time-box" %>
-          <%= @form.number_field :hour, value: item[:hour], in: 10..22, size: item[:size] ? item[:size]: 2, class: item[:i_class] %>
+          <%= @form.number_field :hour, value: item[:hour], in: 10..22, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
           <strong>:</strong>
-          <%= @form.number_field :min, value: item[:min], in: 0..45, step: 15, size: item[:size] ? item[:size]: 2, class: item[:i_class] %>
+          <%= @form.number_field :min, value: item[:min], in: 0..45, step: 15, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
         <% when "select-box" %>
     			<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: item[:i_class] %>
         <% when "select-collection" %>

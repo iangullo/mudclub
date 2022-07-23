@@ -291,7 +291,7 @@ class EventsController < ApplicationController
         [
           {kind: "side-cell", value: @task.order},
           {kind: "select-collection", key: :drill_id, options: @drills, value: @task.drill_id},
-          {kind: "number-box", key: :duration, min: 1, max: 90, value: @task.duration}
+          {kind: "number-box", key: :duration, min: 1, max: 90, size: 3, value: @task.duration}
         ],
         [
           {kind: "hidden", key: :id, value: @task.id},
@@ -331,7 +331,7 @@ class EventsController < ApplicationController
           options: [
             {label: I18n.t("kind.single"), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
             #{label: I18n.t("target.many"), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal}},
-            {label: I18n.t("drill.skill"), url: load_chart_event_path(name: "skill"), data: {turbo_frame: :modal}}    
+            {label: I18n.t("skill.single"), url: load_chart_event_path(name: "skill"), data: {turbo_frame: :modal}}    
           ]
         }
       }

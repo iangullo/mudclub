@@ -98,7 +98,7 @@ class CategoriesController < ApplicationController
     def form_fields(title)
       res = title_fields(title, rows: 3, cols: 5)
       res << [{kind: "text-box", key: :age_group, value: @category.age_group, size: 10, cols: 3}, {kind: "select-box", key: :sex, options: [I18n.t("sex.fem_a"), I18n.t("sex.male_a"), I18n.t("sex.mixed_a")], value: @category.sex, cols: 2}]
-      res << [{kind: "label", value: I18n.t("stat.min")}, {kind: "number-box", key: :min_years, min: 5, value: @category.min_years}, {kind: "gap", size: 5}, {kind: "label", value: I18n.t("stat.max")}, {kind: "number-box", key: :max_years, min: 6, value: @category.max_years}]
+      res << [{kind: "label", value: I18n.t("stat.min")}, {kind: "number-box", key: :min_years, min: 5, size: 3, value: @category.min_years}, {kind: "gap", size: 5}, {kind: "label", value: I18n.t("stat.max")}, {kind: "number-box", key: :max_years, min: 6, size: 3, value: @category.max_years}]
       res
     end
 
