@@ -113,10 +113,10 @@ class Team < ApplicationRecord
 				e_att = event.players.count	# how many came?
 				a_total[:data][event.start_date] = (100*e_att/t_players).to_i # add another to the series
 				if event.match?
-					a_matches[:data][event.start_date] = e_att/t_players # add to matches
+					a_matches[:data][event.start_date] = (100*e_att/t_players).to_i # add to matches
 					a_matches[:avg] = a_matches[:avg] + e_att
 				elsif event.train?
-					a_sessions[:data][event.start_date] =  e_att/t_players # add to sessions
+					a_sessions[:data][event.start_date] =  (100*e_att/t_players).to_i # add to sessions
 					a_sessions[:avg] = a_sessions[:avg] + e_att
 				end
 			}
