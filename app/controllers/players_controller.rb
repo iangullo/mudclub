@@ -9,7 +9,7 @@ class PlayersController < ApplicationController
 		if current_user.present? and (current_user.admin? or current_user.is_coach?)
 			@players = get_players
 			@title   = title_fields(I18n.t("player.many"))
-			@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path}]
+			@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
 			@grid    =  player_grid(players: @players)
 			respond_to do |format|
 				format.xlsx {

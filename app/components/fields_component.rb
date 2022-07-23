@@ -76,9 +76,10 @@ class FieldsComponent < ApplicationComponent
           item[:size]    = 16 unless item[:size]
           item[:lines]   = 1 unless item[:lines]
           item[:class]   = "inline-flex rounded-md border-2 border-gray-300"
-          item[:i_class] = "block px-1 py-0 mt-3 w-full text-sm text-gray-900 bg-gray-50 shadow-inner rounded border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-700 peer"
+          item[:i_class] = "block px-1 py-0 w-full text-gray-900 bg-gray-50 shadow-inner rounded border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-700 peer"
+          item[:i_class] = item[:i_class] + (item[:label] ? " mt-3 text-sm" : " align-middle")
           item[:l_class] = "absolute text-md font-semibold text-gray-700 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-transparent px-0 peer-focus:px-0 peer-focus:text-blue-700 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-0"
-          item[:fields]  = [{kind: item[:kind], key: item[:key].to_sym, options: item[:options], value: item[:value]}] unless item[:kind] == "search-combo"
+          item[:fields]  = [{kind: item[:kind], key: item[:key].to_sym, label: item[:label], options: item[:options], value: item[:value]}] unless item[:kind] == "search-combo"
           item[:kind]    = "search-combo"
         when "icon-label"
           item[:size]  = "25x25" unless item[:size]

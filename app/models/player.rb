@@ -11,6 +11,7 @@ class Player < ApplicationRecord
 	scope :female, -> { joins(:person).where("female = true") }
 	scope :male, -> { joins(:person).where("female = false") }
 	self.inheritance_column = "not_sti"
+  FILTER_PARAMS = %i[search].freeze
 
 	# Just list person's full name
 	def to_s
@@ -77,6 +78,10 @@ class Player < ApplicationRecord
 
 	def picture
 		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "player.svg"
+	end
+
+	def self.filter(filters)
+		self.search(filters[:search]).order(:name)
 	end
 
 	#Search field matching
