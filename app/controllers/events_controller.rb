@@ -25,8 +25,8 @@ class EventsController < ApplicationController
       @fields = [[
         {kind: "gap"},
         {kind: "top-cell", value: @event.score[:home][:team], cols: 2},
-        {kind: "label", value: @event.score[:home][:points], class: "border px py"},
-        {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "right"}
+        {kind: "label", value: @event.score[:home][:points], class: "border px py"}#,
+#        {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "right"}
       ]]
       @fields << [
         {kind: "gap"},

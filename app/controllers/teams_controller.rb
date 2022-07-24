@@ -415,7 +415,7 @@ class TeamsController < ApplicationController
       rows << row
     }
 		t_att     = @team.attendance
-		@att_data = [t_att[:sessions], t_att[:matches]]
+		@att_data = [t_att[:sessions]]
 		rows << {items: [{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")}, {kind: "percentage", value: t_att[:total][:avg], align: "right"}, {kind: "percentage", value: t_att[:sessions][:avg], align: "right"}, {kind: "percentage", value: t_att[:matches][:avg], align: "right"}]}
     return {title: title, rows: rows}
 	end
