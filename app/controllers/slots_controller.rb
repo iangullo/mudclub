@@ -119,7 +119,7 @@ class SlotsController < ApplicationController
       res << [{kind: "icon", value: "team.svg"}, {kind: "select-collection", key: :team_id, options: @season ? Team.for_season(@season.id) : Team.real, value: @slot.team_id, cols: 2}]
       res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, options: @season ? @season.locations.practice.order(name: :asc) : Location.practice, value: @slot.location_id, cols: 2}]
       res << [{kind: "icon", value: "calendar.svg"}, {kind: "select-box", key: :wday, options: @weekdays}, {kind: "time-box", hour: @slot.hour, min: @slot.min}]
-      res << [{kind: "icon", value: "clock.svg"}, {kind: "number-box", key: :duration, min:60, max: 120, step: 15, value: @slot.duration, units: I18n.t("calendar.mins")}]
+      res << [{kind: "icon", value: "clock.svg"}, {kind: "number-box", key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins")}]
       res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
       res
     end
@@ -147,28 +147,28 @@ class SlotsController < ApplicationController
       @w_slots = Slot.search({season_id: @season.id, location_id: @location.id})
       @slices  = create_slices # each slice is a hash {time:, label:, chunks:} Chunks are <td>
       @d_cols  = [1]  # day columns
-      1.upto(5) { |i| # fill in data for each day
-        d_col   = {name: I18n.t("calendar.daynames_a")[i], cols: day_cols(@season.id, @location.id, i)}
-        d_slots = wday_slots(@w_slots, i) # check only daily slots
-        @slices.each { |slice| # create slice chunks for this day
+      1.upto(5) {|i| @d_cols << {name: I18n.t("calendar.daynames_a")[i], cols: day_cols(@season.id, @location.id, i)}}
+      @slices.each { |slice| # create slice chunks for this day
+        1.upto(5) { |i|
           train   = nil # placeholder chunks
           gap     = nil
-          time_slots(d_slots, slice[:time]).each { |t_slot| # slots starting on this slice
-            t_cols = t_slot.timecols(d_col[:cols], w_slots: d_slots)
+          d_slots = wday_slots(@w_slots, i) # check only daily slots
+          s_slots = time_slots(d_slots, slice[:time]) # slots starting now
+          s_slots.each { |t_slot| # slots starting on this slice
+            t_cols = t_slot.timecols(@d_cols[i][:cols], w_slots: d_slots)
             t_rows = t_slot.timerows(i, slice[:time])
             train  = {slot: t_slot, rows: t_rows, cols: t_cols}
-            if t_cols < d_col[:cols]  # prepare "gap" if needed
-              gap = create_gap(slice[:time], d_col[:cols], d_slots, t_slot, t_cols)
+            if t_cols < @d_cols[i][:cols]  # prepare "gap" if needed
+              gap = create_gap(slice[:time], @d_cols[i][:cols], d_slots, t_slot, t_cols)
             end
           }
           if train  # a training slot start in this slice
             slice[:chunks] << train 
-            slice[:chunks] << gap if gap  # insert gap if required
           else  # is it empty?
-            slice[:chunks] << {rows: 1, cols: 1}
+            gap = {gap: true, rows: 1, cols: @d_cols[i][:cols]} if free_slice(slice, i, d_slots)
           end
+          slice[:chunks] << gap if gap  # insert gap if required
         }
-        @d_cols << d_col
       }
     end
 
@@ -191,14 +191,27 @@ class SlotsController < ApplicationController
       res
     end
 
-    # filter activerecord dataset by wday and return array
+    # filter slots dataset by wday
     def wday_slots(slots, wday)
       slots.select {|slot| slot.wday==wday}
     end
 
-    # filter activerecord dataset by wday and return array
+    # filter activerecord slots bn start_time
     def time_slots(slots, start_time)
       slots.select {|slot| slot.start==start_time}
+    end
+
+    # returns whether a slice is "free"
+    # eg. no active slot in its place
+    def free_slice(slice, wday, slots)
+      res = true
+      slots.each { |slot|
+        if slot.at_work?(wday, slice[:time])
+          res = false
+          break
+        end
+      }
+      res
     end
 
     # Create fresh time_table slices for each timetable row

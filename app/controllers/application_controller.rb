@@ -88,8 +88,8 @@ class ApplicationController < ActionController::Base
       {kind: "search-combo", url: search_in,
         fields: [
           {kind: "search-text", key: :name, label: I18n.t("person.name_a"), value: session.dig('drill_filters', 'name'), size: 10},
-          {kind: "search-select", key: :skill_id, label: I18n.t("skill.single"), value: session.dig('drill_filters', 'skill_id'), options: Skill.real.pluck(:concept, :id)},
-          {kind: "search-select", key: :kind_id, label: "#{I18n.t("kind.single")}:", value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)}
+          {kind: "search-select", key: :kind_id, label: "#{I18n.t("kind.single")}:", value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)},
+          {kind: "search-select", key: :skill_id, label: I18n.t("skill.single"), value: session.dig('drill_filters', 'skill_id'), options: Skill.real.pluck(:concept, :id)}
         ]
       }
     ]]

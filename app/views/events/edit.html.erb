@@ -1,1 +1,1 @@
-<%= render 'form', event: @event, title:  @event.train? @event.title : @event.team.to_s, close_return: event_path(@event) %>
+<%= render 'form', event: @event, title:  @event.train? ? @event.title : @event.team.to_s, close_return: event_path(@event) %>
