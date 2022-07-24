@@ -129,7 +129,7 @@ class EventsController < ApplicationController
         end
       end
     else
-      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"}, data: {turbo_action: "replace"})
+      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"})
     end
   end
 

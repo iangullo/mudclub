@@ -196,7 +196,7 @@ class TeamsController < ApplicationController
 							format.json { render json: @team.errors, status: :unprocessable_entity }
 						end
 					else	# no data to save...
-		        format.html { redirect_to @team, data:{"turbo-frame": "replace"}, notice: {kind: "info", message: "#{I18n.t("status.no_data")} (#{@team.to_s})"}, data: {turbo_action: "replace"} }
+		        format.html { redirect_to @team, notice: {kind: "info", message: "#{I18n.t("status.no_data")} (#{@team.to_s})"}, data: {turbo_action: "replace"} }
 		        format.json { render json: @team.errors, status: :unprocessable_entity }
 		      end
 		    end
