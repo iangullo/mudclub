@@ -1,29 +1,5 @@
 <div id="slots-index">
 	<%= render FieldsComponent.new(fields: @title) %>
-	<div id="slots-search">
-    <table>
-      <tr>
-				<td>
-					<div id="search-slots" class="inline-flex text-gray-700 rounded border">
-						<%= form_with(url: '/slots', method: 'get', local: true) do |f| %>
-							<% if @season %>
-								<% if @slots %>
-									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, {selected: (@location ? @location.id : (@slots.empty? ? (@season.locations.empty? ? 1 : @season.locations.first.location_id) : @slots.first.location_id))} %>
-								<% else %>
-									<%= f.collection_select :location_id, @season.locations.practice.order(:name), :id, :name, {selected: @location.id} %>
-								<% end %>
-								<%= f.hidden_field :season_id, value: @season.id %>
-							<% else %>
-								<%= f.collection_select :location_id, Location.practice.order(:name), :id, :name, {selected: params[:location_id] ? params[:location_id].to_i : Location.practice.first.id} %>
-								<%= f.hidden_field :season_id, value: nil %>
-							<% end %>
-							<%= image_submit_tag "search.svg", width: 25, height: 25, class: "search_button align-middle", alt: t("action.search") %>
-						<% end %>
-					</div>
-				</td>
-			</tr>
-		</table>
-	</div>
 	<div id="slots-grid">
 		<table class="table-auto border-separate">
 		  <thead>

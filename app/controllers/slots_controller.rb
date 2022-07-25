@@ -110,6 +110,7 @@ class SlotsController < ApplicationController
     def title_fields(title)
       res = title_start(icon: "timetable.svg", title: title)
       res << [{kind: "subtitle", value: @season ? @season.name : ""}]
+      res << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
       res
     end
 
