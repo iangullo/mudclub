@@ -6,10 +6,11 @@ class SlotsController < ApplicationController
   # GET /slots or /slots.json
   def index
     if current_user.present?
-      @season    = Season.search(params[:season_id])
-      @location  = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
-      @title     = title_fields(I18n.t("slot.many"))
-     week_view if @season and @location
+      @season   = Season.search(params[:season_id])
+      @location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
+      @title    = title_fields(I18n.t("slot.many"))
+      @title << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
+      week_view if @season and @location
     else
       redirect_to "/", data: {turbo_action: "replace"}
     end
@@ -110,7 +111,6 @@ class SlotsController < ApplicationController
     def title_fields(title)
       res = title_start(icon: "timetable.svg", title: title)
       res << [{kind: "subtitle", value: @season ? @season.name : ""}]
-      res << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
       res
     end
 
@@ -119,7 +119,7 @@ class SlotsController < ApplicationController
       res = title_fields(title)
       res << [{kind: "icon", value: "team.svg"}, {kind: "select-collection", key: :team_id, options: @season ? Team.for_season(@season.id) : Team.real, value: @slot.team_id, cols: 2}]
       res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, options: @season ? @season.locations.practice.order(name: :asc) : Location.practice, value: @slot.location_id, cols: 2}]
-      res << [{kind: "icon", value: "calendar.svg"}, {kind: "select-box", key: :wday, options: @weekdays}, {kind: "time-box", hour: @slot.hour, min: @slot.min}]
+      res << [{kind: "icon", value: "calendar.svg"}, {kind: "select-box", key: :wday, value: :wday, options: @weekdays}, {kind: "time-box", hour: @slot.hour, min: @slot.min}]
       res << [{kind: "icon", value: "clock.svg"}, {kind: "number-box", key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins")}]
       res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
       res
@@ -152,22 +152,25 @@ class SlotsController < ApplicationController
         @d_cols << {name: I18n.t("calendar.daynames_a")[i], cols: day_cols(@season.id, @location.id, i)}
         d_slots = Slot.by_wday(i, @w_slots) # check only daily slots
         @slices.each { |slice| # create slice chunks for this day
-          train = nil # placeholder chunks
-          gap   = nil
+          train   = nil # placeholder chunks
+          gap     = nil
           s_slots = Slot.at_time(slice[:time], d_slots) # slots working on this slice
-          gap = {rows: 1, cols: @d_cols[i][:cols]} if s_slots.empty?
-          puts s_slots.count
-          s_slots.each { |t_slot| # slots working on this slice
-            t_cols = t_slot.timecols(@d_cols[i][:cols], w_slots: d_slots)
-            t_rows = t_slot.timerows(i, slice[:time])
-            if t_slot.start==slice[:time] # slot starts in this slice
-              train = {slot: t_slot, rows: t_rows, cols: t_cols}
-              gap = create_gap(slice[:time], @d_cols[i][:cols], s_slots, t_slot, t_cols)
-            elsif t_slot.at_work?(i, slice[:time]) # slot running on this space
-              gap = create_gap(slice[:time], @d_cols[i][:cols], s_slots, t_slot, t_cols)
-            end
-            slice[:chunks] << train if train  # a training slot start in this slice
-          }
+          unless s_slots.empty?
+            puts s_slots.count
+            s_slots.each { |t_slot| # slots working on this slice
+              t_cols = t_slot.timecols(@d_cols[i][:cols], w_slots: d_slots)
+              t_rows = t_slot.timerows(i, slice[:time])
+              if t_slot.start==slice[:time] # slot starts in this slice
+                slice[:chunks] << {slot: t_slot, rows: t_rows, cols: t_cols}
+                gap = create_gap(slice[:time], @d_cols[i][:cols], s_slots, t_slot, t_cols)
+              elsif t_slot.at_work?(i, slice[:time]) # slot running on this space
+                gap = create_gap(slice[:time], @d_cols[i][:cols], s_slots, t_slot, t_cols)
+              end
+            }
+          else
+            gap = {rows: 1, cols: @d_cols[i][:cols]}
+          end
+          #gap[:wday] = @d_cols[i][:name] if gap
           slice[:chunks] << gap if gap  # insert gap if required
         }
       }
