@@ -194,12 +194,15 @@ es:
     save_chng: "¿Guardar Cambios?"
   rest:
     single: "Descanso"
-  role: # NOT USED???
+  role:
     admin: "Administrador"
     admin_a: "Adm."
     coach: "Entrenador"
+    coach_a: "Ent."
     player: "Jugador"
+    player_a: "Jug."
     user: "Usuario"
+    user_a: "Us."
   scope:
     all: "Todos"
     none: "Ninguna"

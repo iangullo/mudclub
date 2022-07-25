@@ -142,9 +142,9 @@ class UsersController < ApplicationController
 	  def user_grid
 	    title = [
 	      {kind: "normal", value: I18n.t("person.name")},
-	      {kind: "normal", value: I18n.t("player.abbr"), align: "center"},
-        {kind: "normal", value: I18n.t("coach.abbr"), align: "center"},
-        {kind: "normal", value: I18n.t("admin.abbr"), align: "center"}
+	      {kind: "normal", value: I18n.t("role.player_a"), align: "center"},
+        {kind: "normal", value: I18n.t("role.coach_a"), align: "center"},
+        {kind: "normal", value: I18n.t("role.admin_a"), align: "center"}
 	    ]
 			title << {kind: "add", url: new_user_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
 
