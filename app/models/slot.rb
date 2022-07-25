@@ -134,6 +134,16 @@ class Slot < ApplicationRecord
 		end
 	end
 
+	# filter slots by weekday
+	def self.by_wday(wday, slots=Slot.real)
+		slots.select {|slot| slot.wday==wday}
+	end
+
+  # filter slots that start at or end after start_time
+	def self.at_time(start_time, slots=Slot.real)
+		res = slots.select {|slot| slot.at_work?(slot.wday,start_time)}
+	end
+
 	private
 	# starting / ending hours as string
 	def timeslot_string

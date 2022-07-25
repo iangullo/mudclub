@@ -46,13 +46,13 @@
 					</td>
 					<% slice[:chunks].each do |chunk| %>
 						<% if chunk[:slot] %>
-						<td align="center" class="bg-blue-300 rounded-md border px py hover:text-white hover:bg-blue-700" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>>
+						<td align="center" class="bg-blue-300 rounded-lg border px py hover:text-white hover:bg-blue-700" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>>
 							<%= link_to chunk[:slot].team.to_s, slot_path(chunk[:slot], season_id: @season.id), class: "hover:text-white hover:bg-blue-700", data: {turbo_frame: "modal"} %>
 						</td>
 						<% elsif chunk[:gap] %>
-						<td  class="text-xs" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>></td>
+						<td class="text-xs" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>>&nbsp;</td>
 						<% else %>
-						<td class="text-xs">&nbsp;</td>
+						<td class="text-xs" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>>&nbsp;</td>
 						<% end %>
 					<% end %>
 				</tr>
