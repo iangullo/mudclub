@@ -65,6 +65,8 @@
                       <%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t("scope.all")}, {class: item[:i_class]}%>
                     <% when "search-collection" %>
                       <%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym] ? params[opt[:key].to_sym] : opt[:value]}, {class: item[:i_class]}%>
+                    <% when "hidden" %>
+                      <%= fsearch.hidden_field(opt[:key].to_sym, value: opt[:value]) %>
                     <% end %>
                   </td>
                   <% end %>

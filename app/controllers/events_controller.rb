@@ -183,7 +183,7 @@ class EventsController < ApplicationController
       @drills = filter!(Drill)
       @title  = task_title(I18n.t("task.edit"))
       @retlnk = event_path(@event)
-      @search = drill_search_bar(edit_task_event_path(@event))
+      @search = drill_search_bar(edit_task_event_path(@event), task_id: @task.id)
       @fields = task_form_fields
     else
       redirect_to(current_user.present? ? events_url : "/")

@@ -83,16 +83,14 @@ class ApplicationController < ActionController::Base
     [[{kind: "upload", label:, key:, value:, cols:}]]
   end
 
-  def drill_search_bar(search_in)
-    res = [[
-      {kind: "search-combo", url: search_in,
-        fields: [
-          {kind: "search-text", key: :name, label: I18n.t("person.name_a"), value: session.dig('drill_filters', 'name'), size: 10},
-          {kind: "search-select", key: :kind_id, label: "#{I18n.t("kind.single")}:", value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)},
-          {kind: "search-select", key: :skill_id, label: I18n.t("skill.single"), value: session.dig('drill_filters', 'skill_id'), options: Skill.real.pluck(:concept, :id)}
-        ]
-      }
-    ]]
+  def drill_search_bar(search_in, task_id: nil)
+    fields = [
+      {kind: "search-text", key: :name, label: I18n.t("person.name_a"), value: session.dig('drill_filters', 'name'), size: 10},
+      {kind: "search-select", key: :kind_id, label: "#{I18n.t("kind.single")}:", value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)},
+      {kind: "search-select", key: :skill_id, label: I18n.t("skill.single"), value: session.dig('drill_filters', 'skill_id'), options: Skill.real.pluck(:concept, :id)}
+    ]
+    fields << {kind: "hidden", key: :task_id, value: task_id} if task_id
+    res = [[{kind: "search-combo", url: search_in, fields: fields}]]
   end
 
   # standardised message wrapper
