@@ -270,7 +270,7 @@ class EventsController < ApplicationController
       res << [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}] if title
       res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
       if task.remarks?
-        res << [{kind: "label", value: I18n.t("trask.remarks")}]
+        res << [{kind: "label", value: I18n.t("task.remarks")}]
         res << [{kind: "cell", value: task.remarks, size: 28}]
       end
       res << [{kind: "gap", cols: 2}, {kind: "edit", align: "right", url: edit_task_event_path(task_id: task.id)}] if @event.team.has_coach(current_user.person.coach_id)
@@ -280,7 +280,7 @@ class EventsController < ApplicationController
     # fields for task edit/add views
     def task_form_fields
       @remarks=[
-        [{kind: "label", value: I18n.t("trask.remarks")}],
+        [{kind: "label", value: I18n.t("task.remarks")}],
         [{kind: "rich-text-area", key: :remarks, value: @task.remarks, size: 28}],
       ]
       res = [
