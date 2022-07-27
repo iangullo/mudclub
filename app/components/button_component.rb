@@ -156,7 +156,7 @@ class ButtonComponent < ApplicationComponent
 
   # set the turbo data frame if required
   def set_data
-    res = {}
+    res = @button[:data] ? @button[:data] : {}
     res[:turbo_frame]   = @button[:frame] ? @button[:frame] : "_top"
     res[:turbo_action]  = "replace" if @button[:replace]
     res[:turbo_confirm] = @button[:confirm] if @button[:confirm]
