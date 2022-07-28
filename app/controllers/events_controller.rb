@@ -164,13 +164,11 @@ class EventsController < ApplicationController
   # GET /events/1/add_task
   def add_task
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      @task   = Task.new(event: @event, order: @event.tasks.count + 1, duration: 5)
-      @drill  = event_params[:task][:drill_id] ? Drill.find(event_params[:task][:drill_id]) : nil
-      @drills = get_drills
+      get_task(load_drills: true) # get the right @task/@drill
       @title  = task_title(I18n.t("task.add"))
       @retlnk = edit_event_path(@event)
       @search = drill_search_bar(add_task_event_path(@event))
-      @fields = task_form_fields
+      @fields = task_form_fields(add_task_event_path(@event))
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -179,14 +177,11 @@ class EventsController < ApplicationController
   # GET /events/1/edit_task
   def edit_task
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      t_param = params[:event] ? event_params[:task] : {}
-      @task   = Task.find(params[:task_id] ? params[:task_id] : t_param[:task_id])
-      @drill  = t_param[:drill_id] ? Drill.find(t_param[:drill_id]) : @task.drill
-      @drills = get_drills
+      get_task(load_drills: true) # get the right @task/@drill
       @title  = task_title(I18n.t("task.edit"))
       @retlnk = event_path(@event)
       @search = drill_search_bar(edit_task_event_path(@event), task_id: @task.id)
-      @fields = task_form_fields
+      @fields = task_form_fields(edit_task_event_path(@event))
     else
       redirect_to(current_user.present? ? events_url : "/")
     end
@@ -203,21 +198,6 @@ class EventsController < ApplicationController
     @title   = event_title(@event.title(show: true), cols: @event.match? ? 2 : nil)
     @title << [{kind: "gap"}, {kind: "side-cell", value: I18n.t("calendar.attendance")}]
     @players = @event.team.players
-  end
-
-  # GET /events/1/task_drill
-  def task_drill
-    if current_user.present? and (current_user.admin? or @current_user.is_coach?)
-      t_param = params[:task] ? params[:task][:drill_id].split("|") : []
-      @task   = Task.find(params[:task_id] ? params[:task_id] : t_param[1])
-      @drill  = t_param[0] ? Drill.find(t_param[0]) : @task.drill
-      respond_to do |format|
-        format.html {redirect_to edit_task_event_path(event:{task: {task_id: t_param[1], drill_id: t_param[0]}})}
-        format.turbo_stream
-      end
-    else
-      redirect_to(current_user.present? ? events_url : "/")
-    end
   end
 
   private
@@ -295,7 +275,7 @@ class EventsController < ApplicationController
     end
 
     # fields for task edit/add views
-    def task_form_fields(view_url=task_drill_event_path(task_id: @task.id))
+    def task_form_fields(view_url=nil)
       if @drill
         @description = [[
           {kind: "string", value: @drill.explanation.empty? ? @drill.description : @drill.explanation}
@@ -455,10 +435,11 @@ class EventsController < ApplicationController
 
     # ensure a task is correctly added to event
     def check_task(t_dat)
+      binding.break
       if t_dat  # we are adding a single task
-        @task          = (t_dat[:id] and t_dat[:id]!="") ? Task.find(t_dat[:id]) : Task.new(event_id: @event.id)
+        @task          = (t_dat[:task_id] and t_dat[:task_id]!="") ? Task.find(t_dat[:task_id]) : Task.new(event_id: @event.id)
         @task.order    = t_dat[:order].to_i if t_dat[:order]
-        @task.drill_id = t_dat[:drill_id].to_i if t_dat[:drill_id]
+        @task.drill_id = t_dat[:drill_id] ? t_dat[:drill_id].to_i : params[:task][:drill_id].split("|")[0].to_i
         @task.duration = t_dat[:duration].to_i if t_dat[:duration]
         @task.remarks  = t_dat[:remarks] if t_dat[:remarks]
         @task.save
@@ -555,13 +536,26 @@ class EventsController < ApplicationController
       end
     end
 
-    def get_drills
-      filter!(Drill).pluck(:name, :id)
+    # determine task/drill objects from params received
+    def get_task(load_drills: nil)
+      if params[:event]
+        t_param = event_params[:task]
+      elsif params[:task] # comes from a dynamic refresh
+        tmp     = params[:task][:drill_id].split("|")
+        t_param = {drill_id: tmp[0], task_id: tmp[1]}
+      else
+        t_param = params
+      end
+      @task   = t_param[:task_id] ? Task.find(t_param[:task_id]) : Task.new(event: @event, order: @event.tasks.count + 1, duration: 5)
+      if load_drills
+        @drills = filter!(Drill).pluck(:name, :id)
+        @drill  = t_param[:drill_id] ? Drill.find(t_param[:drill_id]) : (@task.drill ? @task.drill : load_drills ? Drill.find(@drills.first[1]) : nil)
+      end
     end
 
     # Use callbacks to share common setup or constraints between actions.
     def set_event
-      @event = Event.find(params[:id])
+      @event  = Event.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
