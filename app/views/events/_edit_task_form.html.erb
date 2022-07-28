@@ -1,15 +1,16 @@
-<%#= render ModalComponent.new do %>
-	<div id="edit-task-form">
-		<%= render FieldsComponent.new(fields: @title) %>
-		<%= render FieldsComponent.new(fields: @search) %>
-		<%= turbo_frame_tag "search-results" do %>
-			<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
-				<%= form.fields_for @task do |f| %>
-					<%= render FieldsComponent.new(fields: @fields, form: f) %>
-					<%= render FieldsComponent.new(fields: @remarks, form: f) %>
-				<% end %>
-				<%= render SubmitComponent.new(submit: "save", close_return: :back) %>
+<div id="edit-task-form">
+	<%= render FieldsComponent.new(fields: @title) %>
+	<%= render FieldsComponent.new(fields: @search) %>
+	<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+		<%= form.fields_for @task do |f| %>
+			<%= turbo_frame_tag "search-results" do %>
+				<%= render FieldsComponent.new(fields: @fields, form: f) %>
 			<% end %>
+			<turbo-frame id="<%=f.field_id(:drill_id, :turbo_frame)%>" class="contents">
+				<%= render "drill_description" if @drill %>
+			</turbo-frame>
+			<%= render FieldsComponent.new(fields: @remarks, form: f) %>
 		<% end %>
-	</div>
-<%# end %>
+		<%= render SubmitComponent.new(submit: "save", close_return: :back) %>
+	<% end %>
+</div>

@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
   include Filterable
-  before_action :set_event, only: %i[ show edit add_task show_task edit_task load_chart attendance update destroy ]
+  before_action :set_event, only: %i[ show edit add_task show_task edit_task task_drill load_chart attendance update destroy ]
 
   # GET /events or /events.json
   def index
@@ -165,8 +165,8 @@ class EventsController < ApplicationController
   def add_task
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
       @task   = Task.new(event: @event, order: @event.tasks.count + 1, duration: 5)
-      #@drills = Drill.search(params[:search])
-      @drills = filter!(Drill)
+      @drill  = event_params[:task][:drill_id] ? Drill.find(event_params[:task][:drill_id]) : nil
+      @drills = get_drills
       @title  = task_title(I18n.t("task.add"))
       @retlnk = edit_event_path(@event)
       @search = drill_search_bar(add_task_event_path(@event))
@@ -179,8 +179,10 @@ class EventsController < ApplicationController
   # GET /events/1/edit_task
   def edit_task
     if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      @task   = Task.find(params[:task_id])
-      @drills = filter!(Drill)
+      t_param = params[:event] ? event_params[:task] : {}
+      @task   = Task.find(params[:task_id] ? params[:task_id] : t_param[:task_id])
+      @drill  = t_param[:drill_id] ? Drill.find(t_param[:drill_id]) : @task.drill
+      @drills = get_drills
       @title  = task_title(I18n.t("task.edit"))
       @retlnk = event_path(@event)
       @search = drill_search_bar(edit_task_event_path(@event), task_id: @task.id)
@@ -201,6 +203,21 @@ class EventsController < ApplicationController
     @title   = event_title(@event.title(show: true), cols: @event.match? ? 2 : nil)
     @title << [{kind: "gap"}, {kind: "side-cell", value: I18n.t("calendar.attendance")}]
     @players = @event.team.players
+  end
+
+  # GET /events/1/task_drill
+  def task_drill
+    if current_user.present? and (current_user.admin? or @current_user.is_coach?)
+      t_param = params[:task] ? params[:task][:drill_id].split("|") : []
+      @task   = Task.find(params[:task_id] ? params[:task_id] : t_param[1])
+      @drill  = t_param[0] ? Drill.find(t_param[0]) : @task.drill
+      respond_to do |format|
+        format.html {redirect_to edit_task_event_path(event:{task: {task_id: t_param[1], drill_id: t_param[0]}})}
+        format.turbo_stream
+      end
+    else
+      redirect_to(current_user.present? ? events_url : "/")
+    end
   end
 
   private
@@ -278,7 +295,14 @@ class EventsController < ApplicationController
     end
 
     # fields for task edit/add views
-    def task_form_fields
+    def task_form_fields(view_url=task_drill_event_path(task_id: @task.id))
+      if @drill
+        @description = [[
+          {kind: "string", value: @drill.explanation.empty? ? @drill.description : @drill.explanation}
+        ]]
+      else
+        @description = nil
+      end
       @remarks=[
         [{kind: "label", value: I18n.t("task.remarks")}],
         [{kind: "rich-text-area", key: :remarks, value: @task.remarks, size: 28}],
@@ -291,11 +315,11 @@ class EventsController < ApplicationController
         ],
         [
           {kind: "side-cell", value: @task.order},
-          {kind: "select-collection", key: :drill_id, options: @drills, value: @task.drill_id},
+          {kind: "select-load", key: :drill_id, url: view_url, options: @drills, value: @drill.id, hidden: @task.id},
           {kind: "number-box", key: :duration, min: 1, max: 90, size: 3, value: @task.duration}
         ],
         [
-          {kind: "hidden", key: :id, value: @task.id},
+          {kind: "hidden", key: :task_id, value: @task.id},
           {kind: "hidden", key: :order, value: @task.order},
           {kind: "hidden", key: :retlnk, value: @retlnk}
         ]
@@ -354,7 +378,6 @@ class EventsController < ApplicationController
             data[s_name] = data[s_name] ? data[s_name] + task.duration : task.duration
           }
 #        when "target"
-#           binding.break
 #           task.drill.targets.each {|target|
 #            t_name = target.concept
 #            data[t_name] = data[t_name] ? data[t_name] + task.duration : task.duration if target.priority==1
@@ -435,7 +458,7 @@ class EventsController < ApplicationController
       if t_dat  # we are adding a single task
         @task          = (t_dat[:id] and t_dat[:id]!="") ? Task.find(t_dat[:id]) : Task.new(event_id: @event.id)
         @task.order    = t_dat[:order].to_i if t_dat[:order]
-        @task.drill_id = params[:task][:drill_id].to_i if params[:task][:drill_id] #t_dat[:drill_id].to_i if t_dat[:drill_id]
+        @task.drill_id = t_dat[:drill_id].to_i if t_dat[:drill_id]
         @task.duration = t_dat[:duration].to_i if t_dat[:duration]
         @task.remarks  = t_dat[:remarks] if t_dat[:remarks]
         @task.save
@@ -532,6 +555,10 @@ class EventsController < ApplicationController
       end
     end
 
+    def get_drills
+      filter!(Drill).pluck(:name, :id)
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_event
       @event = Event.find(params[:id])
@@ -539,6 +566,30 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.require(:event).permit(:id, :name, :kind, :home, :start_date, :start_time, :end_time, :hour, :min, :duration, :team_id, :p_for, :p_opp, :task_id, :drill_id, :skill_id, :kind_id, :location_id, :season_id, player_ids: [], event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]], task: [:id, :order, :drill_id, :duration, :remarks, :retlnk], tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy] )
+      params.require(:event).permit(
+          :id,
+          :name,
+          :kind,
+          :home,
+          :start_date,
+          :start_time,
+          :end_time,
+          :hour,
+          :min,
+          :duration,
+          :team_id,
+          :p_for,
+          :p_opp,
+          :task_id,
+          :drill_id,
+          :skill_id,
+          :kind_id,
+          :location_id,
+          :season_id,
+          player_ids: [],
+          event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]],
+          task: [:id, :task_id, :order, :drill_id, :duration, :remarks, :retlnk],
+          tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy]
+        )
     end
 end
