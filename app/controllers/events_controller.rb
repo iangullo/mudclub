@@ -435,7 +435,6 @@ class EventsController < ApplicationController
 
     # ensure a task is correctly added to event
     def check_task(t_dat)
-      binding.break
       if t_dat  # we are adding a single task
         @task          = (t_dat[:task_id] and t_dat[:task_id]!="") ? Task.find(t_dat[:task_id]) : Task.new(event_id: @event.id)
         @task.order    = t_dat[:order].to_i if t_dat[:order]
