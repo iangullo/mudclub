@@ -1,4 +1,4 @@
 <%= render ModalComponent.new do %>
 	<%= render FieldsComponent.new(fields: @fields) %>
-	<%= render SubmitComponent.new(submit: (current_user.admin? or current_user.person_id==@person.id) ? edit_person_path(@person) : nil) %>
+	<%= render SubmitComponent.new(submit: (current_user.admin? or current_user.person_id==@person.id) ? edit_person_path(@person) : nil, frame: "modal") %>
 <% end %>

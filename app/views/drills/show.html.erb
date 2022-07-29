@@ -3,5 +3,5 @@
 	<%= render FieldsComponent.new(fields: @intro) %>
 	<%= render FieldsComponent.new(fields: @explain) %>
 	<%= render FieldsComponent.new(fields: @tail) %>
-	<%= render SubmitComponent.new(close: "back", close_return: :back, submit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil) %>
+	<%= render SubmitComponent.new(close: "back", close_return: drills_path, submit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil) %>
 </div>

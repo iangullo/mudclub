@@ -1,11 +1,9 @@
-<% if current_user.present? and current_user.admin? %>
-  <%= render ModalComponent.new do %>
-    <%= form_for @club, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
-      <div id="home-logged-in">
-        <%= render FieldsComponent.new(form: form, fields: @fields) %>
-        <%= render FieldsComponent.new(form: form, fields: @f_logo) %>
-        <%= render SubmitComponent.new(submit: "save") %>
-      </div>
-    <% end %>
+<%= render ModalComponent.new do %>
+  <%= form_for @club, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+    <div id="home-logged-in">
+      <%= render FieldsComponent.new(form: form, fields: @fields) %>
+      <%= render FieldsComponent.new(form: form, fields: @f_logo) %>
+      <%= render SubmitComponent.new(submit: "save") %>
+    </div>
   <% end %>
 <% end %>

@@ -3,6 +3,6 @@
     <%= render FieldsComponent.new(fields: @title) %>
     <%= line_chart @att_data, legend: false %>
     <%= render GridComponent.new(grid: @grid) %>
-    <%= render SubmitComponent.new(submit:(current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil) %>
+    <%= render SubmitComponent.new(submit: nil) %>
   </div>
 <% end %>
