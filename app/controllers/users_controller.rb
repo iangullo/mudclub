@@ -15,7 +15,7 @@ class UsersController < ApplicationController
   end
 
   def show
-    if current_user.present? and current_user.admin?
+    if current_user.present? and (current_user.admin? or current_user.id==params[:id].to_i)
       @user  = User.find(params[:id])
       @title = title_fields(@user.s_name, icon: @user.picture, _class: "rounded-full")
       @title << []

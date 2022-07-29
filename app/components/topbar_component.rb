@@ -63,7 +63,7 @@ class TopbarComponent < ApplicationComponent
   def prof_tab(user)
     if user
       res = {kind: "menu", name: "profile", icon: user.picture, options:[], class: @profcls, i_class: "rounded-full", size: "30x30"}
-      res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url])
+      res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], kind: "modal")
       res[:options] << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url])
     else
       res        = menu_link(label: nil, url: @profile[:login][:url], class: @profile[:closed][:class])
@@ -85,7 +85,7 @@ class TopbarComponent < ApplicationComponent
     when "normal"
       l_data = {turbo_action: "replace"}
     when "modal"
-      l_data = {turbo_frame: "modal", turbo_action: "replace"}
+      l_data = {turbo_frame: "modal"}
     when "delete"
       l_data = {turbo_method: :delete}
     end
