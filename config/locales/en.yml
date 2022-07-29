@@ -193,6 +193,9 @@ en:
     save: "Save "
     save_chng: "¿Save Changes?"
   rest:
+    created: "Holiday created: "
+    updated: "Holiday updated: "
+    deleted: "Holiday deleted: "
     single: "Holiday"
   role: # NOT USED???
     admin: "Admin"

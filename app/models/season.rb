@@ -30,7 +30,7 @@ class Season < ApplicationRecord
 	#Search field matching
 	def self.search(search)
 		if search
-			search.to_s.length>0 ? Season.where(["id = ?","#{search.to_s}"]).first : Season.last
+			search.to_s.length>0 ? Season.where(["id = ?","#{search.to_s}"]).first : Season.real.last
 		else
 			Season.last
 		end

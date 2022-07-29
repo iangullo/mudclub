@@ -1,4 +1,4 @@
-<% if @event.train? %>
+<% unless @event.rest? %>
 	<table>
 		<tr><td><%= render FieldsComponent.new(fields: @title) %></td></tr>
 		<tr><td><%= render FieldsComponent.new(fields: @fields) %></td></tr>

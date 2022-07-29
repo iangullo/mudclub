@@ -66,13 +66,13 @@ class ApplicationController < ActionController::Base
   # A Field Component with top link + grid for events. obj is the parent oject (season/team)
   def event_grid(events:, obj: nil, retlnk: nil)
     for_season = (obj.class==Season)
-    go_back = retlnk ? retlnk : (for_season ? season_events_path(obj) : team_events_path(obj))
-    title   = [{kind: "normal", value: I18n.t("calendar.date"), align: "center"}, {kind: "normal", value: I18n.t("calendar.time"), align: "center"}]
+    go_back    = retlnk ? retlnk : (for_season ? season_events_path(obj) : team_events_path(obj))
+    title = [{kind: "normal", value: I18n.t("calendar.date"), align: "center"}, {kind: "normal", value: I18n.t("calendar.time"), align: "center"}]
     title << {kind: "normal", value: I18n.t("team.single")} if for_season
     title << {kind: "normal", value: I18n.t("drill.desc")}
-    rows   = Array.new
+    rows  = Array.new
     events.each { |event|
-      row = {url:  event_path(event, season_id: for_season ? obj.id : nil, retlnk: go_back), frame: event.train? ? "_top" : "modal", items: []}
+      row = {url:  event_path(event, season_id: for_season ? obj.id : nil, retlnk: go_back), frame: event.rest? ? "modal": "_top", items: []}
       row[:items] << {kind: "normal", value: event.date_string, align: "center"}
       row[:items] << {kind: "normal", value: event.time_string, align: "center"}
       row[:items] << {kind: "normal", value: event.team_id > 0 ? event.team.to_s : t("scope.all")} if for_season
@@ -87,8 +87,8 @@ class ApplicationController < ActionController::Base
       title << new_event_button(obj.id) if obj.has_coach(current_user.person.coach_id) # new team event
       fields = [[
         {kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(team_id: obj.id), class: "align-middle text-indigo-900"},
-        {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), size: "30x30", url: attendance_team_path(obj), align: "right", frame: "modal", class: "align-middle text-indigo-900"},
-        {kind: "gap"}
+        {kind: "gap"},
+        {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(obj), align: "right", frame: "modal", class: "align-middle text-indigo-900"}
       ]]
     end
     fields << [{kind: "grid", value: {title: title, rows: rows}, cols: 3}]

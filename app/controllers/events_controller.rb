@@ -9,7 +9,13 @@ class EventsController < ApplicationController
     @team   = Team.find(params[:team_id]) if params[:team_id]
     @season = @events.empty? ? Season.last : @events.first.team.season
     @title  = general_title
-    @grid   = event_grid(events: @events, obj: @team ? @team : @season, retlnk: @team ? team_path(@team) : season_path(@season))
+    if @team
+      @grid = event_grid(events: @events, obj: @team, retlnk: team_events_path(@team))
+    elsif @season
+      @grid = event_grid(events: @events, obj: @season, retlnk: season_events_path(@season))
+    else
+      @grid = nil
+    end
   end
 
   # GET /events/1 or /events/1.json
@@ -17,11 +23,11 @@ class EventsController < ApplicationController
 		check_access(roles: [:admin, :coach])
     @title  = event_title(@event.title(show: true), cols: @event.train? ? 3 : nil)
     if @event.match?
+      @title << [{kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "right"}]
       @fields = [[
         {kind: "gap"},
         {kind: "top-cell", value: @event.score[:home][:team], cols: 2},
-        {kind: "label", value: @event.score[:home][:points], class: "border px py"}#,
-#        {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "right"}
+        {kind: "label", value: @event.score[:home][:points], class: "border px py"},
       ]]
       @fields << [
         {kind: "gap"},
@@ -478,7 +484,7 @@ class EventsController < ApplicationController
     def event_create_notice
       case @event.kind.to_sym
       when :rest
-        t("holiday.created") + "#{@event.to_s}"
+        t("rest.created") + "#{@event.to_s}"
       when :train
         t("train.created") + "#{@event.date_string}"
       when :match
@@ -490,7 +496,7 @@ class EventsController < ApplicationController
     def event_update_notice
       case @event.kind.to_sym
       when :rest
-        t("holiday.updated") + "#{@event.to_s}"
+        t("rest.updated") + "#{@event.to_s}"
       when :train
         t("train.updated") + "#{@event.date_string}"
       when :match
@@ -502,7 +508,7 @@ class EventsController < ApplicationController
     def event_delete_notice
       case @event.kind.to_sym
       when :rest
-        t("holiday.deleted") + "#{@event.to_s}"
+        t("rest.deleted") + "#{@event.to_s}"
       when :train
         t("train.deleted") + "#{@event.date_string}"
       when :match

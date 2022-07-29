@@ -7,9 +7,9 @@
       <% end %>
     <% else %>
       <%= link_to @button[:url], data: @button[:data], class: @button[:b_class] do %>
-        <% if @button[:kind]=="edit" %>
+        <% if @button[:flip] %>
           <% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
-          <%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
+          <%= image_tag(@button[:icon], size: @button[:size]) if @button[:icon] %>
         <% else %>
           <%= image_tag(@button[:icon], size: @button[:size]) if @button[:icon] %>
           <% if @button[:label] %>&nbsp<%=@button[:label]%><% end %>

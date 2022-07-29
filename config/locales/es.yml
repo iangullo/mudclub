@@ -193,6 +193,9 @@ es:
     save: "¿Guardar "
     save_chng: "¿Guardar Cambios?"
   rest:
+    created: "Descanso creado: "
+    updated: "Descanso guardado: "
+    deleted: "Descanso borrado: "
     single: "Descanso"
   role:
     admin: "Administrador"

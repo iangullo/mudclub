@@ -70,6 +70,7 @@ class ButtonComponent < ApplicationComponent
       @button[:confirm] = I18n.t("question.delete") + " \'#{@button[:name]}\'?"
     when "edit"
       @button[:icon]    = "edit.svg"
+      @button[:flip]    = true
     when "export"
       @button[:icon]    = "export.svg"
     when "import"
