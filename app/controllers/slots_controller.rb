@@ -5,107 +5,87 @@ class SlotsController < ApplicationController
 
   # GET /slots or /slots.json
   def index
-    if current_user.present?
-      @season   = Season.search(params[:season_id])
-      @location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
-      @title    = title_fields(I18n.t("slot.many"))
-      @title << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
-      week_view if @season and @location
-    else
-      redirect_to "/", data: {turbo_action: "replace"}
-    end
+    check_access(roles: [:user])
+    @season   = Season.search(params[:season_id])
+    @location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
+    @title    = title_fields(I18n.t("slot.many"))
+    @title << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
+    week_view if @season and @location
   end
 
   # GET /slots/1 or /slots/1.json
   def show
-    unless current_user.present?
-      redirect_to "/", data: {turbo_action: "replace"}
-    end
+		check_access(roles: [:user])
     @season = Season.find(params[:season_id]) if params[:season_id]
     @title  = title_fields(I18n.t("slot.many"))
   end
 
   # GET /slots/new
   def new
-    if current_user.present? and current_user.admin?
-      @weekdays = weekdays
-      @season   = Season.find(params[:season_id]) if params[:season_id]
-      @slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
-      @fields   = form_fields(I18n.t("slot.new"))
-    else
-      redirect_to(current_user.present? ? slots_url : "/", data: {turbo_action: "replace"})
-    end
+		check_access(roles: [:admin], returl: slots_url)
+    @weekdays = weekdays
+    @season   = Season.find(params[:season_id]) if params[:season_id]
+    @slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
+    @fields   = form_fields(I18n.t("slot.new"))
   end
 
   # GET /slots/1/edit
   def edit
-    if current_user.present? and current_user.admin?
-  		@weekdays = weekdays
-      @season   = Season.find(@slot.season_id)
-      @fields   = form_fields(I18n.t("slot.edit"))
-    else
-      redirect_to(current_user.present? ? slots_url : "/", data: {turbo_action: "replace"})
-    end
+		check_access(roles: [:admin], returl: slots_url)
+ 		@weekdays = weekdays
+    @season   = Season.find(@slot.season_id)
+    @fields   = form_fields(I18n.t("slot.edit"))
   end
 
   # POST /slots or /slots.json
   def create
-    if current_user.present? and current_user.admin?
-      respond_to do |format|
-  			rebuild_slot	# rebuild @slot
-        if @slot.save # try to store
-          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t("slot.created")} '#{@sot.to_s}'"}, data: {turbo_action: "replace"} }
-          format.json { render :index, status: :created, location: @slot }
-        else
-          format.html { render :new, status: :unprocessable_entity }
-          format.json { render json: @slot.errors, status: :unprocessable_entity }
-        end
+		check_access(roles: [:admin], returl: slots_url)
+    respond_to do |format|
+			rebuild_slot	# rebuild @slot
+      if @slot.save # try to store
+        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t("slot.created")} '#{@sot.to_s}'"}, data: {turbo_action: "replace"} }
+        format.json { render :index, status: :created, location: @slot }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: @slot.errors, status: :unprocessable_entity }
       end
-    else
-      redirect_to(current_user.present? ? slots_url : "/", data: {turbo_action: "replace"})
     end
   end
 
   # PATCH/PUT /slots/1 or /slots/1.json
   def update
-    if current_user.present? and current_user.admin?
-      respond_to do |format|
-  			rebuild_slot
-        if @slot.update(slot_params)
-          format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t("slot.updated")} '#{@slot.to_s}'"}, data: {turbo_action: "replace"} }
-          format.json { render :index, status: :ok, location: @slot }
-        else
-          format.html { redirect_to edit_slot_path(@slot) }
-          format.json { render json: @slot.errors, status: :unprocessable_entity }
-        end
+		check_access(roles: [:admin], returl: slots_url)
+    respond_to do |format|
+			rebuild_slot
+      if @slot.update(slot_params)
+        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t("slot.updated")} '#{@slot.to_s}'"}, data: {turbo_action: "replace"} }
+        format.json { render :index, status: :ok, location: @slot }
+      else
+        format.html { redirect_to edit_slot_path(@slot) }
+        format.json { render json: @slot.errors, status: :unprocessable_entity }
       end
-    else
-      redirect_to(current_user.present? ? slots_url : "/", data: {turbo_action: "replace"})
     end
   end
 
   # DELETE /slots/1 or /slots/1.json
   def destroy
-    if current_user.present? and current_user.admin?
-      s_name = @slot.to_s
-      @slot.destroy
-      respond_to do |format|
-        format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("slot.deleted")} '#{s_name}'"}, data: {turbo_action: "replace"} }
-        format.json { head :no_content }
-      end
-    else
-      redirect_to(current_user.present? ? slots_url : "/")
+		check_access(roles: [:admin], returl: slots_url)
+    s_name = @slot.to_s
+    @slot.destroy
+    respond_to do |format|
+      format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("slot.deleted")} '#{s_name}'"}, data: {turbo_action: "replace"} }
+      format.json { head :no_content }
     end
   end
 
-	# returns an array with weekday names and their id
-	def weekdays
-    res =[]
-    1.upto(5) {|i| res << [I18n.t("calendar.daynames")[i], i]}
-    res
-	end
-
   private
+
+    # returns an array with weekday names and their id
+    def weekdays
+      res =[]
+      1.upto(5) {|i| res << [I18n.t("calendar.daynames")[i], i]}
+      res
+    end
 
     # return icon and top of FieldsComponent
     def title_fields(title)

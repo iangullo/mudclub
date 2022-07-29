@@ -6,53 +6,42 @@ class PlayersController < ApplicationController
 	# GET /players
 	# GET /players.json
 	def index
-		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@players = get_players
-			@title   = title_fields(I18n.t("player.many"))
-			@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
-			@grid    =  player_grid(players: @players)
-			respond_to do |format|
-				format.xlsx {
-					response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
-				}
-				format.html { render :index }
-			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
+		check_access(roles: [:admin, :coach])
+		@players = get_players
+		@title   = title_fields(I18n.t("player.many"))
+		@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
+		@grid    =  player_grid(players: @players)
+		respond_to do |format|
+			format.xlsx {
+				response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
+			}
+			format.html { render :index }
 		end
 	end
 
 	# GET /players/1
 	# GET /players/1.json
 	def show
-		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
-			@fields = title_fields(I18n.t("player.single"), icon: @player.picture, rows: 4, size: "100x100", _class: "rounded-full")
-			@fields << [{kind: "label", value: @player.s_name}]
-			@fields << [{kind: "label", value: @player.person.surname}]
-			@fields << [{kind: "string", value: @player.person.birthday}]
-			@fields << [{kind: "label", value: I18n.t(@player.female ? "sex.fem_a" : "sex.male_a"), align: "center"}, {kind: "string", value: (I18n.t("player.number") + @player.number.to_s)}]
-			@fields << [{kind: "label", value: I18n.t(@player.active ? "status.active" : "status.inactive"), align: "center"}]
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach], obj: @player)
+		@fields = title_fields(I18n.t("player.single"), icon: @player.picture, rows: 4, size: "100x100", _class: "rounded-full")
+		@fields << [{kind: "label", value: @player.s_name}]
+		@fields << [{kind: "label", value: @player.person.surname}]
+		@fields << [{kind: "string", value: @player.person.birthday}]
+		@fields << [{kind: "label", value: I18n.t(@player.female ? "sex.fem_a" : "sex.male_a"), align: "center"}, {kind: "string", value: (I18n.t("player.number") + @player.number.to_s)}]
+		@fields << [{kind: "label", value: I18n.t(@player.active ? "status.active" : "status.inactive"), align: "center"}]
 	end
 
 	# GET /players/new
 	def new
-		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@player = Player.new
-			@player.build_person
-			@fields = form_fields(I18n.t("player.single"), rows: 3, cols: 2)
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach])
+		@player = Player.new
+		@player.build_person
+		@fields = form_fields(I18n.t("player.single"), rows: 3, cols: 2)
 	end
 
 	# GET /players/1/edit
 	def edit
-		unless current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach], obj: @player)
 		@title_fields    = form_fields(I18n.t("player.edit"), rows: 3, cols: 3)
 		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active}, {kind: "gap", size: 8}, {kind: "label", value: I18n.t("player.number")}, {kind: "number-box", key: :number, min: 0, max: 99, value: @player.number}]]
 		@player_fields_2 = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @player.avatar.filename, cols: 5}]]
@@ -65,76 +54,63 @@ class PlayersController < ApplicationController
 	# POST /players
 	# POST /players.json
 	def create
-		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			respond_to do |format|
-				@player = rebuild_player(params)	# rebuild player
-				if @player.is_duplicate? then
-					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "info", message: "#{I18n.t("player.duplicate")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :duplicate, location: players_path(search: @player.person.to_s(true)) }
-				else
-					@player.person.save
-					@player.person_id = @player.person.id
-					if @player.save
-						if @player.person.player_id != @player.id
-							@player.person.player_id = @player.id
-							@player.person.save
-						end
-						format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t("player.created")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: players_path(search: @player.person.to_s(true)) }
-					else
-						format.html { render :new }
-						format.json { render json: @player.errors, status: :unprocessable_entity }
+		check_access(roles: [:admin, :coach])
+		respond_to do |format|
+			@player = rebuild_player(params)	# rebuild player
+			if @player.is_duplicate? then
+				format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "info", message: "#{I18n.t("player.duplicate")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+				format.json { render :index, status: :duplicate, location: players_path(search: @player.person.to_s(true)) }
+			else
+				@player.person.save
+				@player.person_id = @player.person.id
+				if @player.save
+					if @player.person.player_id != @player.id
+						@player.person.player_id = @player.id
+						@player.person.save
 					end
+					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t("player.created")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: players_path(search: @player.person.to_s(true)) }
+				else
+					format.html { render :new }
+					format.json { render json: @player.errors, status: :unprocessable_entity }
 				end
 			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# PATCH/PUT /players/1
 	# PATCH/PUT /players/1.json
 	def update
-		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id)
-			respond_to do |format|
-				if @player.update(player_params)
-					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t("player.updated")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :ok, location: players_path(search: @player.person.name) }
-				else
-					format.html { render :edit }
-					format.json { render json: @player.errors, status: :unprocessable_entity }
-				end
+		check_access(roles: [:admin, :coach], obj: @player)
+		respond_to do |format|
+			if @player.update(player_params)
+				format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t("player.updated")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+				format.json { render :index, status: :ok, location: players_path(search: @player.person.name) }
+			else
+				format.html { render :edit }
+				format.json { render json: @player.errors, status: :unprocessable_entity }
 			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
   # GET /players/import
   # GET /players/import.json
 	def import
-		if current_user.present? and current_user.admin?
-			# added to import excel
-	    Player.import(params[:file])
-	    format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t("player.import")} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+    check_access(roles: [:admin])
+	  Player.import(params[:file])	# added to import excel
+	  format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t("player.import")} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
 	end
 
 	# DELETE /players/1
 	# DELETE /players/1.json
 	def destroy
-		if current_user.present? and current_user.admin?
-			p_name = @player.to_s
-			unlink_person
-			@player.destroy
-			respond_to do |format|
-				format.html { redirect_to players_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("player.deleted")} '#{p_name}'"}, data: {turbo_action: "replace"} }
-				format.json { head :no_content }
-			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
+    check_access(roles: [:admin])
+		p_name = @player.to_s
+		unlink_person
+		@player.destroy
+		respond_to do |format|
+			format.html { redirect_to players_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("player.deleted")} '#{p_name}'"}, data: {turbo_action: "replace"} }
+			format.json { head :no_content }
 		end
 	end
 

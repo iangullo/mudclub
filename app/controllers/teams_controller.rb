@@ -6,54 +6,39 @@ class TeamsController < ApplicationController
   # GET /teams
   # GET /teams.json
   def index
-		if current_user.present? and (current_user.admin? or current_user.is_coach? or current_user.is_player?)
-			@title = title_fields(I18n.t("team.many"), search: true)
-			@grid  = team_grid
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach])
+		@title = title_fields(I18n.t("team.many"), search: true)
+		@grid  = team_grid
   end
 
   # GET /teams/new
   def new
-		if current_user.present? and current_user.admin?
-    	@team = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
-			@eligible_coaches = Coach.active
-			@form_fields      = form_fields(I18n.t("team.new"))
-		else
-			redirect_to(current_user.is_coach? ? teams_path : "/", data: {turbo_action: "replace"})
-		end
+		check_access(roles: [:admin], returl: teams_path)
+   	@team = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
+		@eligible_coaches = Coach.active
+		@form_fields      = form_fields(I18n.t("team.new"))
   end
 
   # GET /teams/1
   # GET /teams/1.json
   def show
-		unless current_user.present? and (current_user.admin? or current_user.is_coach? or @team.has_player(current_user.person.player_id))
-			redirect_to "/", data: {turbo_action: "replace"}
-		else
-			redirect_to coaching_team_path(@team) if params[:id]=="coaching" and @team
-			@title = title_fields(@team.to_s)
-			@links = team_links
-			@grid  = event_grid(events: @team.events.upcoming.order(:start_time), obj: @team, retlnk: team_path(@team))
-		end
+		check_access(roles: [:admin, :coach], obj: @team, returl: @team)
+		@title = title_fields(@team.to_s)
+		@links = team_links
+		@grid  = event_grid(events: @team.events.upcoming.order(:start_time), obj: @team, retlnk: team_path(@team))
   end
 
 	# GET /teams/1/roster
   def roster
-		if current_user.present?
-			unless current_user.admin? or current_user.is_coach? or @team.has_player(current_user.person.player_id)
-				redirect_to @team
-			end
-			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
-			@grid  = player_grid(players: @team.players.order(:number), obj: @team)
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach], returl: @team)
+		@title = title_fields(@team.to_s)
+		@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
+		@grid  = player_grid(players: @team.players.order(:number), obj: @team)
   end
 
 	# GET /teams/1/edit_roster
   def edit_roster
+		check_access(roles: [:admin], obj: @team, returl: @team)
 		if current_user.present?
 			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
 				@title = title_fields(@team.to_s)
@@ -69,160 +54,115 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/slots
   def slots
-		if current_user.present?
-			unless current_user.admin? or current_user.is_coach?
-				redirect_to @team
-			end
-			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
-	else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach], returl: @team)
+		@title = title_fields(@team.to_s)
+		@title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
   end
 
 	# GET /teams/1/targets
   def targets
-		if current_user.admin? or current_user.is_coach?
-			redirect_to "/" unless @team
-			global_targets(true)	# get & breakdown global targets
-			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach], returl: @team)
+		redirect_to "/" unless @team
+		global_targets(true)	# get & breakdown global targets
+		@title = title_fields(@team.to_s)
+		@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
   end
 
 	# GET /teams/1/edit_targets
   def edit_targets
-		if current_user.present? and @team.has_coach(current_user.person.coach_id)
-			redirect_to("/", data: {turbo_action: "replace"}) unless @team
-			global_targets(false)	# get global targets
-			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin], obj: @team, returl: @team)
+		redirect_to("/", data: {turbo_action: "replace"}) unless @team
+		global_targets(false)	# get global targets
+		@title = title_fields(@team.to_s)
+		@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
   end
 
 	# GET /teams/1/edit_targets
   def plan
-		if current_user.admin? or current_user.is_coach?
-			redirect_to "/" unless @team
-			plan_targets
-			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
-			@edit = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach], returl: @team)
+		redirect_to "/" unless @team
+		plan_targets
+		@title = title_fields(@team.to_s)
+		@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
+		@edit = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
   end
 
 	# GET /teams/1/edit_plan
   def edit_plan
-		if current_user.present? and @team.has_coach(current_user.person.coach_id)
-			redirect_to("/", data: {turbo_action: "replace"}) unless @team
-			plan_targets
-			@title  = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin], obj: @team, returl: @team)
+		redirect_to("/", data: {turbo_action: "replace"}) unless @team
+		plan_targets
+		@title  = title_fields(@team.to_s)
+		@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
   end
 
 	# GET /teams/1/attendance
   def attendance
-		if current_user.present?
-			unless current_user.admin? or current_user.is_coach? or @team.has_player(current_user.person.player_id)
-				redirect_to @team
-			end
-			@title = title_fields(@team.to_s)
-			@title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
-			@grid  = attendance_grid
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach], returl: @team)
+		@title = title_fields(@team.to_s)
+		@title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
+		@grid  = attendance_grid
   end
 
   # GET /teams/1/edit
   def edit
-		if current_user.present?
-			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
-				@eligible_coaches = Coach.active
-				@form_fields      = form_fields(I18n.t("team.edit"))
-			else
-				redirect_to @team
-			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin], obj: @team, returl: @team)
+		@eligible_coaches = Coach.active
+		@form_fields      = form_fields(I18n.t("team.edit"))
   end
 
   # POST /teams
   # POST /teams.json
   def create
-		if current_user.present? and current_user.admin?
-		  @team = Team.new(team_params)
-
-	    respond_to do |format|
-	      if @team.save
-	        format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t("team.created")} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
-	        format.json { render :index, status: :created, location: teams_path }
-	      else
-	        format.html { render :new }
-	        format.json { render json: @team.errors, status: :unprocessable_entity }
-	      end
-	    end
-		else
-			redirect_to(current_user.is_coach? ? teams_path : "/", data: {turbo_action: "replace"})
+		check_access(roles: [:admin], returl: teams_path)
+		@team = Team.new(team_params)
+    respond_to do |format|
+			if @team.save
+				format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t("team.created")} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
+				format.json { render :index, status: :created, location: teams_path }
+			else
+				format.html { render :new }
+				format.json { render json: @team.errors, status: :unprocessable_entity }
+			end
 		end
   end
 
   # PATCH/PUT /teams/1
   # PATCH/PUT /teams/1.json
   def update
-		if current_user.present?
-			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
-		    respond_to do |format|
-					if params[:team]
-						retlnk = params[:team][:retlnk]
-						rebuild_team
-		      	if @team.save
-							format.html { redirect_to retlnk, notice: {kind: "success", message: "#{I18n.t("team.updated")} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
-							format.json { redirect_to retlnk, status: :created, location: retlnk }
-						else
-							@eligible_coaches = Coach.active
-							@form_fields      = form_fields(I18n.t("team.edit"))
-							format.html { render :edit, data:{"turbo-frame": "replace"}, notice: {kind: "error", message: "#{I18n.t("status.no_data")} (#{@team.to_s})"} }
-							format.json { render json: @team.errors, status: :unprocessable_entity }
-						end
-					else	# no data to save...
-		        format.html { redirect_to @team, notice: {kind: "info", message: "#{I18n.t("status.no_data")} (#{@team.to_s})"}, data: {turbo_action: "replace"} }
-		        format.json { render json: @team.errors, status: :unprocessable_entity }
-		      end
-		    end
-			else
-				redirect_to(current_user.is_coach? ? @team : "/", data: {turbo_action: "replace"})
+		check_access(roles: [:admin], obj: @team, returl: @team)
+	  respond_to do |format|
+			if params[:team]
+				retlnk = params[:team][:retlnk]
+				rebuild_team
+		    	if @team.save
+					format.html { redirect_to retlnk, notice: {kind: "success", message: "#{I18n.t("team.updated")} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
+					format.json { redirect_to retlnk, status: :created, location: retlnk }
+				else
+					@eligible_coaches = Coach.active
+					@form_fields      = form_fields(I18n.t("team.edit"))
+					format.html { render :edit, data:{"turbo-frame": "replace"}, notice: {kind: "error", message: "#{I18n.t("status.no_data")} (#{@team.to_s})"} }
+					format.json { render json: @team.errors, status: :unprocessable_entity }
+				end
+			else	# no data to save...
+				format.html { redirect_to @team, notice: {kind: "info", message: "#{I18n.t("status.no_data")} (#{@team.to_s})"}, data: {turbo_action: "replace"} }
+				format.json { render json: @team.errors, status: :unprocessable_entity }
 			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
 		end
-  end
+	end
 
   # DELETE /teams/1
   # DELETE /teams/1.json
   def destroy
-		if current_user.present? and current_user.admin?
-			t_name = @team.to_s
-			erase_links
-	    @team.destroy
-	    respond_to do |format|
-	      format.html { redirect_to teams_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("team.deleted")} '#{t_name}'"}, data: {turbo_action: "replace"} }
-	      format.json { head :no_content }
-	    end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
+		check_access(roles: [:admin], returl: teams_path)
+		t_name = @team.to_s
+		erase_links
+		@team.destroy
+		respond_to do |format|
+			format.html { redirect_to teams_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("team.deleted")} '#{t_name}'"}, data: {turbo_action: "replace"} }
+			format.json { head :no_content }
 		end
-  end
+	end
 
   private
 
@@ -402,22 +342,25 @@ class TeamsController < ApplicationController
 
   # A Field Component with grid for team attendance. obj is the parent oject (player/team)
   def attendance_grid
-		title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("stat.total"), align: "center"}, {kind: "normal", value: I18n.t("train.many"), align: "center"}, {kind: "normal", value: I18n.t("match.many"), align: "center"}]
-    rows = Array.new
-    @team.players.order(:number).each { |player|
-			p_att = player.attendance(team: @team)
-      row   = {items: []}
-      row[:items] << {kind: "normal", value: player.number, align: "center"}
-      row[:items] << {kind: "normal", value: player.to_s}
-      row[:items] << {kind: "percentage", value: p_att[:avg], align: "right"}
-      row[:items] << {kind: "percentage", value: p_att[:sessions], align: "right"}
-      row[:items] << {kind: "percentage", value: p_att[:matches], align: "right"}
-      rows << row
-    }
-		t_att     = @team.attendance
-		@att_data = [t_att[:sessions]]
-		rows << {items: [{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")}, {kind: "percentage", value: t_att[:total][:avg], align: "right"}, {kind: "percentage", value: t_att[:sessions][:avg], align: "right"}, {kind: "percentage", value: t_att[:matches][:avg], align: "right"}]}
-    return {title: title, rows: rows}
+		t_att = @team.attendance
+		if t_att # we have attendance data
+			title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("stat.total"), align: "center"}, {kind: "normal", value: I18n.t("train.many"), align: "center"}, {kind: "normal", value: I18n.t("match.many"), align: "center"}]
+			rows  = Array.new
+			@team.players.order(:number).each { |player|
+				p_att = player.attendance(team: @team)
+				row   = {items: []}
+				row[:items] << {kind: "normal", value: player.number, align: "center"}
+				row[:items] << {kind: "normal", value: player.to_s}
+				row[:items] << {kind: "percentage", value: p_att[:avg], align: "right"}
+				row[:items] << {kind: "percentage", value: p_att[:sessions], align: "right"}
+				row[:items] << {kind: "percentage", value: p_att[:matches], align: "right"}
+				rows << row
+			}
+			@att_data = [t_att[:sessions]]
+			rows << {items: [{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")}, {kind: "percentage", value: t_att[:total][:avg], align: "right"}, {kind: "percentage", value: t_att[:sessions][:avg], align: "right"}, {kind: "percentage", value: t_att[:matches][:avg], align: "right"}]}
+			return {title: title, rows: rows}
+		end
+		return nil
 	end
 
 		# Use callbacks to share common setup or constraints between actions.

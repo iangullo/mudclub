@@ -3,18 +3,15 @@ class CategoriesController < ApplicationController
 
   # GET /categories or /categories.json
   def index
-    if current_user.present? and current_user.admin?
-      @categories = Category.real
-      @fields     = title_fields(I18n.t("category.many"))
-      @grid       = category_grid
-    else
-			redirect_to "/"
-		end
+    check_access(roles: [:admin])
+    @categories = Category.real
+    @fields     = title_fields(I18n.t("category.many"))
+    @grid       = category_grid
   end
 
   # GET /categories/1 or /categories/1.json
   def show
-    redirect_to "/" unless current_user.present? and current_user.admin?
+    check_access(roles: [:admin])
     @fields = title_fields(I18n.t("category.many"), cols: 5, rows: 5)
     @fields << [{kind: "subtitle", value: @category.age_group, cols: 3}, {kind: "subtitle", value: @category.sex, cols: 2}]
     @fields << [{kind: "label", value: I18n.t("stat.min")}, {kind: "string", value: @category.min_years}, {kind: "gap"}, {kind: "label", value: I18n.t("stat.max")}, {kind: "string", value: @category.max_years}]
@@ -22,68 +19,55 @@ class CategoriesController < ApplicationController
 
   # GET /categories/new
   def new
-    if current_user.present? and current_user.admin?
-      @category = Category.new
-      @fields  = form_fields(I18n.t("category.new"))
-    else
-      redirect_to "/"
-    end
+    check_access(roles: [:admin])
+    @category = Category.new
+    @fields  = form_fields(I18n.t("category.new"))
   end
 
   # GET /categories/1/edit
   def edit
-    redirect_to "/" unless current_user.present? and current_user.admin?
+    check_access(roles: [:admin])
     @fields = form_fields(I18n.t("category.edit"))
   end
 
   # POST /categories or /categories.json
   def create
-    if current_user.present? and current_user.admin?
-      @category = Category.new(category_params)
-
-      respond_to do |format|
-        if @category.save
-          format.html { redirect_to categories_url, notice: flash_message("#{I18n.t("category.created")} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
-          format.json { render :index, status: :created, location: categories_url }
-        else
-          format.html { render :new, status: :unprocessable_entity }
-          format.json { render json: @category.errors, status: :unprocessable_entity }
-        end
+    check_access(roles: [:admin])
+    @category = Category.new(category_params)
+    respond_to do |format|
+      if @category.save
+        format.html { redirect_to categories_url, notice: flash_message("#{I18n.t("category.created")} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
+        format.json { render :index, status: :created, location: categories_url }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: @category.errors, status: :unprocessable_entity }
       end
-    else
-      redirect_to "/"
     end
   end
 
   # PATCH/PUT /categories/1 or /categories/1.json
   def update
-    if current_user.present? and current_user.admin?
-      respond_to do |format|
-        if @category.update(category_params)
-          format.html { redirect_to categories_url, notice: flash_message("#{I18n.t("category.updated")} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
-          format.json { render :index, status: :ok, location: categories_url }
-        else
-          format.html { render :edit, status: :unprocessable_entity }
-          format.json { render json: @category.errors, status: :unprocessable_entity }
-        end
+    check_access(roles: [:admin])
+    respond_to do |format|
+      if @category.update(category_params)
+        format.html { redirect_to categories_url, notice: flash_message("#{I18n.t("category.updated")} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
+        format.json { render :index, status: :ok, location: categories_url }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @category.errors, status: :unprocessable_entity }
       end
-    else
-      redirect_to "/"
     end
   end
 
   # DELETE /categories/1 or /categories/1.json
   def destroy
-    if current_user.present? and current_user.admin?
-      c_name = @category.name
-      prune_teams
-      @category.destroy
-      respond_to do |format|
-        format.html { redirect_to categories_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("category.deleted")} '#{c_name}'"}, data: {turbo_action: "replace"} }
-        format.json { head :no_content }
-      end
-    else
-      redirect_to "/"
+    check_access(roles: [:admin])
+    c_name = @category.name
+    prune_teams
+    @category.destroy
+    respond_to do |format|
+      format.html { redirect_to categories_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("category.deleted")} '#{c_name}'"}, data: {turbo_action: "replace"} }
+      format.json { head :no_content }
     end
   end
 

@@ -8,16 +8,13 @@ class HomeController < ApplicationController
   end
 
   def edit
-    if current_user.present? and current_user.admin?
-      @club  = Person.find(0)
-      @fields = [
-        [{kind: "header-icon", value: @club.logo}, {kind: "title", value: I18n.t("action.edit"), cols: 2}],
-        [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :nick, value: @club.nick}]
-      ]
-      @f_logo = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @club.avatar.filename}]]
-    else
-      redirect_to "/", data: {turbo_action: "replace"}
-    end
+    check_access(roles: [:admin])
+    @club  = Person.find(0)
+    @fields = [
+      [{kind: "header-icon", value: @club.logo}, {kind: "title", value: I18n.t("action.edit"), cols: 2}],
+      [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :nick, value: @club.nick}]
+    ]
+    @f_logo = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @club.avatar.filename}]]
   end
 
   private

@@ -4,122 +4,101 @@ class UsersController < ApplicationController
 	before_action :set_user, only: [:show, :edit, :update, :destroy]
 
   def index
-    if current_user.present? and current_user.admin?
-      @users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
-      @title = title_fields(I18n.t("user.many"))
-      @title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
-      @grid  = user_grid
-    else
-      redirect_to "/", data: {turbo_action: "replace"}
-    end
+    check_access(roles: [:admin])
+    @users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
+    @title = title_fields(I18n.t("user.many"))
+    @title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
+    @grid  = user_grid
   end
 
   def show
-    if current_user.present? and (current_user.admin? or current_user.id==params[:id].to_i)
-      @user  = User.find(params[:id])
-      @title = title_fields(@user.s_name, icon: @user.picture, _class: "rounded-full")
-      @title << []
-      @title.last << {kind: "icon", value: "player.svg"} if @user.is_player?
-      @title.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
-      @title.last << {kind: "icon", value: "key.svg"} if @user.admin?
-    else
-      redirect_to "/", data: {turbo_action: "replace"}
-    end
+    check_access(roles: [:admin], obj: @user)
+    @user  = User.find(params[:id])
+    @title = title_fields(@user.s_name, icon: @user.picture, _class: "rounded-full")
+    @title << []
+    @title.last << {kind: "icon", value: "player.svg"} if @user.is_player?
+    @title.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
+    @title.last << {kind: "icon", value: "key.svg"} if @user.admin?
   end
 
   def new
-    if current_user.present? and current_user.admin?
-      @user = User.new
-  		@user.build_person
-      @fields = title_fields(I18n.t("user.new"), rows: 4, cols: 2)
-      @fields << [{kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: I18n.t("person.email")}]
-      @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t("password.single")}]
-      @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t("password.confirm")}]
-      @fields << [{kind: "gap"}, {kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}]
-    else
-      redirect_to "/", data: {turbo_action: "replace"}
-    end
+		check_access(roles: [:admin])
+    @user = User.new
+  	@user.build_person
+    @fields = title_fields(I18n.t("user.new"), rows: 4, cols: 2)
+    @fields << [{kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: I18n.t("person.email")}]
+    @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t("password.single")}]
+    @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t("password.confirm")}]
+    @fields << [{kind: "gap"}, {kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}]
   end
 
   def edit
-    if current_user.present? and (current_user.admin? or current_user == @user)
-      @title  = form_fields(I18n.t("user.edit"))
-      if current_user.admin?
-        @role = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
-      else
-        @role = [[{kind: "label", align: "center", value: I18n.t(@user.role.to_sym)}]]
-      end
-      @avatar = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
-      @person_fields = [
-        [{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
-				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
-      ]
+    check_access(roles: [:admin], obj: @user)
+    @title  = form_fields(I18n.t("user.edit"))
+    if current_user.admin?
+      @role = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
     else
-      redirect_to "/", data: {turbo_action: "replace"}
+      @role = [[{kind: "label", align: "center", value: I18n.t(@user.role.to_sym)}]]
     end
+    @avatar = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
+    @person_fields = [
+      [{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
+		  [{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
+    ]
   end
 
   def create
-    if current_user.present? and current_user.admin?
-      respond_to do |format|
-  			@user = build_new_user(params)	# build user
-  			if @user.is_duplicate? then
-  				format.html { redirect_to @user, notice: {kind: "info", message: "#{I18n.t("user.duplicate")} '#{@user.s_name}'"}, data: {turbo_action: "replace"}}
-  				format.json { render :show,  :created, location: @user }
-  			else
-  				@user.person.save
-  				@user.person_id = @user.person.id
-  				if @user.save
-  					if @user.person.user_id != @user.id
-  						@user.person.user_id = @user.id
-  						@user.person.save
-  					end
-  					format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t("user.created")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
-  					format.json { render :index, status: :created, location: users_url }
-  				else
-  					format.html { render :new, notice: {kind: "error", message: "#{@user.errors}"}}
-  					format.json { render json: @user.errors, status: :unprocessable_entity }
-  				end
-  			end
-  		end
-    else
-      redirect_to "/", data: {turbo_action: "replace"}
-    end
+		check_access(roles: [:admin])
+    respond_to do |format|
+ 			@user = build_new_user(params)	# build user
+ 			if @user.is_duplicate? then
+				format.html { redirect_to @user, notice: {kind: "info", message: "#{I18n.t("user.duplicate")} '#{@user.s_name}'"}, data: {turbo_action: "replace"}}
+ 				format.json { render :show,  :created, location: @user }
+ 			else
+ 				@user.person.save
+ 				@user.person_id = @user.person.id
+ 				if @user.save
+ 					if @user.person.user_id != @user.id
+ 						@user.person.user_id = @user.id
+ 						@user.person.save
+ 					end
+ 					format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t("user.created")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
+ 					format.json { render :index, status: :created, location: users_url }
+ 				else
+ 					format.html { render :new, notice: {kind: "error", message: "#{@user.errors}"}}
+ 					format.json { render json: @user.errors, status: :unprocessable_entity }
+ 				end
+ 			end
+ 		end
   end
 
   def update
-    if current_user.present? and (current_user.admin? or current_user == @user)
-      respond_to do |format|
-        if params[:user][:password].blank?
-          params[:user].delete(:password)
-          params[:user].delete(:password_confirmation)
-        end
-        rebuild_user(params)	# rebuild user
-  			if @user.update(user_params)
-  				format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t("user.updated")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
-  				format.json { render :index, status: :ok, location: users_url }
-  			else
-  				format.html { render :edit }
-  				format.json { render json: @user.errors, status: :unprocessable_entity }
-  			end
+		check_access(roles: [:admin], obj: @user)
+    respond_to do |format|
+      if params[:user][:password].blank?
+        params[:user].delete(:password)
+        params[:user].delete(:password_confirmation)
+      end
+      rebuild_user(params)	# rebuild user
+  	  if @user.update(user_params)
+  			format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t("user.updated")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
+  			format.json { render :index, status: :ok, location: users_url }
+  		else
+  			format.html { render :edit }
+  			format.json { render json: @user.errors, status: :unprocessable_entity }
   		end
-    else
-      redirect_to "/"
-    end
+  	end
   end
 
   def destroy
-    if current_user.present? and current_user.admin?
-      uname = @user.s_name
-      unlink_person
-  		@user.destroy
-  		respond_to do |format|
-  			format.html { redirect_to users_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("user.deleted")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
-  			format.json { head :no_content }
-  		end
-    else
-      redirect_to "/"
-    end
+		check_access(roles: [:admin])
+    uname = @user.s_name
+    unlink_person
+		@user.destroy
+ 		respond_to do |format|
+ 			format.html { redirect_to users_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("user.deleted")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
+ 			format.json { head :no_content }
+ 		end
   end
 
   private

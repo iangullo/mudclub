@@ -5,23 +5,18 @@ class DrillsController < ApplicationController
 
 	# GET /drills or /drills.json
 	def index
-		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			# Simple search by name/description for now
-			@title  = title_fields(I18n.t("drill.many"))
+		check_access(roles: [:admin, :coach])
+		# Simple search by name/description for now
+		@title  = title_fields(I18n.t("drill.many"))
 #			@title << [{kind: "subtitle", value: I18n.t("catalog")}]
-      @search = drill_search_bar(drills_path)
-			@drills = filter!(Drill)
-			@grid   = GridComponent.new(grid: drill_grid)
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+    @search = drill_search_bar(drills_path)
+		@drills = filter!(Drill)
+		@grid   = GridComponent.new(grid: drill_grid)
 	end
 
 	# GET /drills/1 or /drills/1.json
 	def show
-		unless current_user.present? and (current_user.admin? or current_user.is_coach?)
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach])
 		@title  = title_fields(I18n.t("drill.single"))
 		@title.last << {kind: "link", align: "right", icon: "playbook.png", size: "20x20", url: rails_blob_path(@drill.playbook, disposition: "attachment"), label: "Playbook"} if @drill.playbook.attached?
 		@title << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")", cols: 2}]
@@ -35,77 +30,59 @@ class DrillsController < ApplicationController
 
 	# GET /drills/new
 	def new
-		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			@drill = Drill.new
-			@title = title_fields(I18n.t("drill.new"))
-			@form_fields = form_fields
-    else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin, :coach])
+		@drill = Drill.new
+		@title = title_fields(I18n.t("drill.new"))
+		@form_fields = form_fields
 	end
 
 	# GET /drills/1/edit
 	def edit
-		unless current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
-			redirect_to drills_url, data: {turbo_action: "replace"}
-		end
+		check_access(roles: [:admin], obj: @drill, returl: drills_url)
 		@title       = title_fields(I18n.t("drill.edit"))
 		@form_fields = form_fields
 	end
 
 	# POST /drills or /drills.json
 	def create
-		if current_user.present? and (current_user.admin? or current_user.is_coach?)
-			respond_to do |format|
-				@drill = Drill.new
-				rebuild_drill	# rebuild drill
-				if @drill.save
-					format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t("drill.created")} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: @drill }
-				else
-					format.html { render :new }
-					format.json { render json: @drill.errors, status: :unprocessable_entity }
-				end
+		check_access(roles: [:admin, :coach])
+		respond_to do |format|
+			@drill = Drill.new
+			rebuild_drill	# rebuild drill
+			if @drill.save
+				format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t("drill.created")} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
+				format.json { render :index, status: :created, location: @drill }
+			else
+				format.html { render :new }
+				format.json { render json: @drill.errors, status: :unprocessable_entity }
 			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# PATCH/PUT /drills/1 or /drills/1.json
 	def update
-		if current_user.present? and (current_user.admin? or (@drill.coach_id == current_user.person.coach_id))
-			respond_to do |format|
-				rebuild_drill	# rebuild drill
-				if @drill.coach_id == current_user.person.coach_id or current_user.admin? # author can modify
-				 	if @drill.save
-						format.html { redirect_to drill_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("drill.updated")} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
-						format.json { render :show, status: :ok, location: @drill }
-					else
-						format.html { render :edit, status: :unprocessable_entity }
-						format.json { render json: @drill.errors, status: :unprocessable_entity }
-					end
-				else
-					redirect_to drills_url, data: {turbo_action: "replace"}
-				end
+		check_access(roles: [:admin], obj: @drill, returl: drills_url)
+		respond_to do |format|
+			rebuild_drill	# rebuild drill
+		 	if @drill.save
+				format.html { redirect_to drill_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("drill.updated")} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
+				format.json { render :show, status: :ok, location: @drill }
+			else
+				format.html { render :edit, status: :unprocessable_entity }
+				format.json { render json: @drill.errors, status: :unprocessable_entity }
 			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
-		if current_user.present? and current_user.admin?
-			d_name = @drill.name
-			@drill.drill_targets.each { |d_t| d_t.delete }
-			@drill.destroy
-			respond_to do |format|
-				format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t("drill.deleted")} '#{d_name}'"}, data: {turbo_action: "replace"} }
-				format.json { head :no_content }
-			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
+		check_access(roles: [:admin])
+		d_name = @drill.name
+		@drill.drill_targets.each { |d_t| d_t.delete }
+		@drill.destroy
+		respond_to do |format|
+			format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t("drill.deleted")} '#{d_name}'"}, data: {turbo_action: "replace"} }
+			format.json { head :no_content }
 		end
 	end
 

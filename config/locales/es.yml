@@ -249,6 +249,7 @@ es:
     active: "Activo"
     active_a: "Act."
     closed: "Cerrado"
+    empty: "Sin datos que mostrar"
     inactive: "Inactivo"
     no_data: "Sin datos que guardar"
     no_file: "Cargar archivo..."

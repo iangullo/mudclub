@@ -4,22 +4,17 @@ class EventsController < ApplicationController
 
   # GET /events or /events.json
   def index
-    if current_user.present?
-      @events = Event.search(params)
-      @team   = Team.find(params[:team_id]) if params[:team_id]
-      @season = @events.empty? ? Season.last : @events.first.team.season
-      @title  = general_title
-      @grid   = event_grid(events: @events, obj: @team ? @team : @season, retlnk: @team ? team_path(@team) : season_path(@season))
-    else
-      redirect_to "/", data: {turbo_action: "replace"}
-    end
+    check_access(roles: [:user])
+    @events = Event.search(params)
+    @team   = Team.find(params[:team_id]) if params[:team_id]
+    @season = @events.empty? ? Season.last : @events.first.team.season
+    @title  = general_title
+    @grid   = event_grid(events: @events, obj: @team ? @team : @season, retlnk: @team ? team_path(@team) : season_path(@season))
   end
 
   # GET /events/1 or /events/1.json
   def show
-    unless current_user.present? and (current_user.admin? or current_user.is_coach?)
-      redirect_to "/", data: {turbo_action: "replace"}
-    end
+		check_access(roles: [:admin, :coach])
     @title  = event_title(@event.title(show: true), cols: @event.train? ? 3 : nil)
     if @event.match?
       @fields = [[
@@ -44,157 +39,137 @@ class EventsController < ApplicationController
 
   # GET /events/new
   def new
-    if current_user.present? and (current_user.admin? or current_user.is_coach?)
-      @event  = Event.prepare(event_params)
-      if @event
-        if @event.rest? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id))
-          if params[:season_id]
-            @season = Season.find(event_params[:season_id])
-          else
-            @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
-          end
-          @title = event_title(@event.title, form: true, cols: @event.match? ? 2 : nil)
+		check_access(roles: [:admin, :coach])
+    @event  = Event.prepare(event_params)
+    if @event
+      if @event.rest? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id))
+        if params[:season_id]
+          @season = Season.find(event_params[:season_id])
         else
-          redirect_to(current_user.admin? ? "/slots" : @event.team)
+          @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
         end
+        @title = event_title(@event.title, form: true, cols: @event.match? ? 2 : nil)
       else
-        redirect_to(current_user.admin? ? "/slots" : "/", data: {turbo_action: "replace"})
+        redirect_to(current_user.admin? ? "/slots" : @event.team)
       end
     else
-      redirect_to "/", data: {turbo_action: "replace"}
+      redirect_to(current_user.admin? ? "/slots" : "/", data: {turbo_action: "replace"})
     end
   end
 
   # GET /events/1/edit
   def edit
-    if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      if params[:season_id]
-        @season = Season.find(params[:season_id])
-      else
-        @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
-      end
-      @drills = @event.drill_list if @event.train?
-      @title  = event_title(@event.title(show: true), form: true, cols: @event.match? ? 2 : nil)
+    check_access(roles: [:admin], obj: @event)
+    if params[:season_id]
+      @season = Season.find(params[:season_id])
+    else
+      @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
     end
+    @drills = @event.drill_list if @event.train?
+    @title  = event_title(@event.title(show: true), form: true, cols: @event.match? ? 2 : nil)
   end
 
   # POST /events or /events.json
   def create
     @event = Event.prepare(event_params)
-    if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      respond_to do |format|
-        rebuild_event(event_params)
-        if @event.save
-          link_holidays
-          format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: {kind: "success", message: event_create_notice}, data: {turbo_action: "replace"} }
-          format.json { render :show, status: :created, location: events_path}
-        else
-          format.html { render :new, status: :unprocessable_entity }
-          format.json { render json: @event.errors, status: :unprocessable_entity }
-        end
+    check_access(roles: [:admin], obj: @event, returl: events_url)
+    respond_to do |format|
+      rebuild_event(event_params)
+      if @event.save
+        link_holidays
+        format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: {kind: "success", message: event_create_notice}, data: {turbo_action: "replace"} }
+        format.json { render :show, status: :created, location: events_path}
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: @event.errors, status: :unprocessable_entity }
       end
-    else
-      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"})
     end
   end
 
   # PATCH/PUT /events/1 or /events/1.json
   def update
-    if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      respond_to do |format|
-        if event_params[:player_ids]  # we are updating attendance
-          check_attendance(event_params[:player_ids])
-          format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"}}
-          format.json { render :show, status: :ok, location: @event }
-        else
-          rebuild_event(event_params)
-          if @event.save
-            if @task  # we just updated a task
-              format.html { redirect_to event_params[:task][:retlnk], notice: {kind: "success", message: "#{I18n.t("task.updated")} '#{@task.to_s}'"} }
-              format.json { render :edit, status: :ok, location: @event }
-            elsif event_params[:season_id].to_i > 0 # season event
-              format.html { redirect_to season_path(params[:event][:season_id]), notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"} }
-              format.json { render :show, status: :ok, location: @event }
-            elsif event_params[:tasks_attributes] # a training session
-              @event.tasks.reload
-              format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
-              format.json { render :show, status: :ok, location: @event }
-            else # updating match
-              format.html { redirect_to team_path(@event.team_id), notice: {kind: "success", message: "#{I18n.t("match.updated")} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
-            end
-          else
-            format.html { render :edit, status: :unprocessable_entity }
-            format.json { render json: @event.errors, status: :unprocessable_entity }
+    check_access(roles: [:admin], obj: @event, returl: events_url)
+    respond_to do |format|
+      if event_params[:player_ids]  # we are updating attendance
+        check_attendance(event_params[:player_ids])
+        format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"}}
+        format.json { render :show, status: :ok, location: @event }
+      else
+        rebuild_event(event_params)
+        if @event.save
+          if @task  # we just updated a task
+            format.html { redirect_to event_params[:task][:retlnk], notice: {kind: "success", message: "#{I18n.t("task.updated")} '#{@task.to_s}'"} }
+            format.json { render :edit, status: :ok, location: @event }
+          elsif event_params[:season_id].to_i > 0 # season event
+            format.html { redirect_to season_path(params[:event][:season_id]), notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"} }
+            format.json { render :show, status: :ok, location: @event }
+          elsif event_params[:tasks_attributes] # a training session
+            @event.tasks.reload
+            format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
+            format.json { render :show, status: :ok, location: @event }
+          else # updating match
+            format.html { redirect_to team_path(@event.team_id), notice: {kind: "success", message: "#{I18n.t("match.updated")} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
           end
+        else
+          format.html { render :edit, status: :unprocessable_entity }
+          format.json { render json: @event.errors, status: :unprocessable_entity }
         end
       end
-    else
-      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"})
     end
   end
 
   # DELETE /events/1 or /events/1.json
   def destroy
-    if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      erase_links
-      e_name = @event.to_s
-      team   = @event.team
-      @event.destroy
-      respond_to do |format|
-        next_url = team.id > 0 ? team_path : events_url
-        next_act = team.id > 0 ? :show : :index
-        format.html { redirect_to next_url, action: next_act.to_sym, status: :see_other, notice: {kind: "success", message: event_delete_notice}, data: {turbo_action: "replace"} }
-        format.json { head :no_content }
-      end
-    else
-      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"})
+    check_access(roles: [:admin], obj: @event, returl: events_url)
+    erase_links
+    e_name = @event.to_s
+    team   = @event.team
+    @event.destroy
+    respond_to do |format|
+      next_url = team.id > 0 ? team_path : events_url
+      next_act = team.id > 0 ? :show : :index
+      format.html { redirect_to next_url, action: next_act.to_sym, status: :see_other, notice: {kind: "success", message: event_delete_notice}, data: {turbo_action: "replace"} }
+      format.json { head :no_content }
     end
   end
 
   # GET /events/1/show_task
   def show_task
-    if current_user.present? and (current_user.admin? or current_user.is_coach?)
-      @task   = Task.find(params[:task_id])
-      @fields = task_fields(@task)
-    else
-      redirect_to(current_user.present? ? events_url : "/", data: {turbo_action: "replace"})
-    end
+    check_access(roles: [:admin, :coach], returl: events_url)
+    @task   = Task.find(params[:task_id])
+    @fields = task_fields(@task)
   end
 
   # GET /events/1/add_task
   def add_task
-    if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      get_task(load_drills: true) # get the right @task/@drill
-      @title  = task_title(I18n.t("task.add"))
-      @retlnk = edit_event_path(@event)
-      @search = drill_search_bar(add_task_event_path(@event))
-      @fields = task_form_fields(add_task_event_path(@event))
-    else
-      redirect_to(current_user.present? ? events_url : "/")
-    end
+    check_access(roles: [:admin], obj: @event, returl: events_url)
+    get_task(load_drills: true) # get the right @task/@drill
+    @title  = task_title(I18n.t("task.add"))
+    @retlnk = edit_event_path(@event)
+    @search = drill_search_bar(add_task_event_path(@event))
+    @fields = task_form_fields(add_task_event_path(@event))
   end
 
   # GET /events/1/edit_task
   def edit_task
-    if current_user.present? and (current_user.admin? or @event.team.has_coach(current_user.person.coach_id))
-      get_task(load_drills: true) # get the right @task/@drill
-      @title  = task_title(I18n.t("task.edit"))
-      @retlnk = event_path(@event)
-      @search = drill_search_bar(edit_task_event_path(@event), task_id: @task.id)
-      @fields = task_form_fields(edit_task_event_path(@event))
-    else
-      redirect_to(current_user.present? ? events_url : "/")
-    end
+    check_access(roles: [:admin], obj: @event, returl: events_url)
+    get_task(load_drills: true) # get the right @task/@drill
+    @title  = task_title(I18n.t("task.edit"))
+    @retlnk = event_path(@event)
+    @search = drill_search_bar(edit_task_event_path(@event), task_id: @task.id)
+    @fields = task_form_fields(edit_task_event_path(@event))
   end
 
   # GET /events/1/load_chart
   def load_chart
+    check_access(roles: [:admin, :coach])
     @header = event_title(@event.title(show: true), cols: @event.train? ? 3 : nil)
     @chart  = workload_profile(params[:name])
   end
 
   # GET /events/1/attendance
   def attendance
+    check_access(roles: [:admin, :coach])
     @title   = event_title(@event.title(show: true), cols: @event.match? ? 2 : nil)
     @title << [{kind: "gap"}, {kind: "side-cell", value: I18n.t("calendar.attendance")}]
     @players = @event.team.players

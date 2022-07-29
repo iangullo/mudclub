@@ -249,6 +249,7 @@ en:
     active: "Active"
     active_a: "Act."
     closed: "Closed"
+    empty: "No data to show"
     inactive: "Inactive"
     no_data: "No data to save"
     no_file: "Load file..."
