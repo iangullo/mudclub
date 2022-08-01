@@ -186,6 +186,7 @@ class TeamsController < ApplicationController
 	    res << [{kind: "icon", value: "category.svg"}, {kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}]
 			res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}]
 			res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :homecourt_id, options: Location.home, value: @team.homecourt_id}]
+			res << [{kind: "icon", value: "time.svg"}, {kind: "select-box", key: :rules, options: @team.time_rules, value: @team.rules ? @team.rules_before_type_cast : @team.def_rules }]
 			res << [{kind: "icon", value: "coach.svg"}, {kind: "label", value:I18n.t("coach.many"), class: "align-center"}]
 			res << [{kind: "gap"}, {kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}]
 	  	res
@@ -281,6 +282,7 @@ class TeamsController < ApplicationController
 			@team.category_id  = p_data[:category_id].to_i if p_data[:category_id]
 			@team.division_id  = p_data[:division_id].to_i if p_data[:division_id]
 			@team.homecourt_id = p_data[:homecourt_id].to_i if p_data[:homecourt_id]
+			@team.rules        = p_data[:rules].to_i if p_data[:rules]
 			check_targets(p_data[:team_targets_attributes]) if p_data[:team_targets_attributes]
 			check_players(p_data[:player_ids]) if p_data[:player_ids]
 			check_coaches(p_data[:coach_ids]) if p_data[:coach_ids]
@@ -340,28 +342,28 @@ class TeamsController < ApplicationController
 			}
 		end
 
-  # A Field Component with grid for team attendance. obj is the parent oject (player/team)
-  def attendance_grid
-		t_att = @team.attendance
-		if t_att # we have attendance data
-			title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("stat.total"), align: "center"}, {kind: "normal", value: I18n.t("train.many"), align: "center"}, {kind: "normal", value: I18n.t("match.many"), align: "center"}]
-			rows  = Array.new
-			@team.players.order(:number).each { |player|
-				p_att = player.attendance(team: @team)
-				row   = {items: []}
-				row[:items] << {kind: "normal", value: player.number, align: "center"}
-				row[:items] << {kind: "normal", value: player.to_s}
-				row[:items] << {kind: "percentage", value: p_att[:avg], align: "right"}
-				row[:items] << {kind: "percentage", value: p_att[:sessions], align: "right"}
-				row[:items] << {kind: "percentage", value: p_att[:matches], align: "right"}
-				rows << row
-			}
-			@att_data = [t_att[:sessions]]
-			rows << {items: [{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")}, {kind: "percentage", value: t_att[:total][:avg], align: "right"}, {kind: "percentage", value: t_att[:sessions][:avg], align: "right"}, {kind: "percentage", value: t_att[:matches][:avg], align: "right"}]}
-			return {title: title, rows: rows}
+		# A Field Component with grid for team attendance. obj is the parent oject (player/team)
+		def attendance_grid
+			t_att = @team.attendance
+			if t_att # we have attendance data
+				title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("stat.total"), align: "center"}, {kind: "normal", value: I18n.t("train.many"), align: "center"}, {kind: "normal", value: I18n.t("match.many"), align: "center"}]
+				rows  = Array.new
+				@team.players.order(:number).each { |player|
+					p_att = player.attendance(team: @team)
+					row   = {items: []}
+					row[:items] << {kind: "normal", value: player.number, align: "center"}
+					row[:items] << {kind: "normal", value: player.to_s}
+					row[:items] << {kind: "percentage", value: p_att[:avg], align: "right"}
+					row[:items] << {kind: "percentage", value: p_att[:sessions], align: "right"}
+					row[:items] << {kind: "percentage", value: p_att[:matches], align: "right"}
+					rows << row
+				}
+				@att_data = [t_att[:sessions]]
+				rows << {items: [{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")}, {kind: "percentage", value: t_att[:total][:avg], align: "right"}, {kind: "percentage", value: t_att[:sessions][:avg], align: "right"}, {kind: "percentage", value: t_att[:matches][:avg], align: "right"}]}
+				return {title: title, rows: rows}
+			end
+			return nil
 		end
-		return nil
-	end
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_team
@@ -375,6 +377,6 @@ class TeamsController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def team_params
-			params.require(:team).permit(:id, :name, :category_id, :division_id, :season_id, :homecourt_id, :coaches, :players, :targets, :team_targets, coaches_attributes: [:id], coach_ids: [], player_ids: [], players_attributes: [:id], targets_attributes: [], team_targets_attributes: [])
+			params.require(:team).permit(:id, :name, :category_id, :division_id, :season_id, :homecourt_id, :rules, :coaches, :players, :targets, :team_targets, coaches_attributes: [:id], coach_ids: [], player_ids: [], players_attributes: [:id], targets_attributes: [], team_targets_attributes: [])
 		end
 end
