@@ -43,7 +43,7 @@ class PlayersController < ApplicationController
 	def edit
 		check_access(roles: [:admin, :coach], obj: @player)
 		@title_fields    = form_fields(I18n.t("player.edit"), rows: 3, cols: 3)
-		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active}, {kind: "gap", size: 8}, {kind: "label", value: I18n.t("player.number")}, {kind: "number-box", key: :number, min: 0, max: 99, value: @player.number}]]
+		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active}, {kind: "gap", size: 8}, {kind: "label", value: I18n.t("player.number")}, {kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number}]]
 		@player_fields_2 = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @player.avatar.filename, cols: 5}]]
 		@person_fields   = [
 			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
@@ -58,8 +58,8 @@ class PlayersController < ApplicationController
 		respond_to do |format|
 			@player = rebuild_player(params)	# rebuild player
 			if @player.is_duplicate? then
-				format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "info", message: "#{I18n.t("player.duplicate")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
-				format.json { render :index, status: :duplicate, location: players_path(search: @player.person.to_s(true)) }
+				format.html { redirect_to players_path(search: @player.s_name), notice: {kind: "info", message: "#{I18n.t("player.duplicate")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+				format.json { render :index, status: :duplicate, location: players_path(search: @player.s_name) }
 			else
 				@player.person.save
 				@player.person_id = @player.person.id
@@ -68,8 +68,8 @@ class PlayersController < ApplicationController
 						@player.person.player_id = @player.id
 						@player.person.save
 					end
-					format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t("player.created")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: players_path(search: @player.person.to_s(true)) }
+					format.html { redirect_to players_path(search: @player.s_name), notice: {kind: "success", message: "#{I18n.t("player.created")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: players_path(search: @player.s_name) }
 				else
 					format.html { render :new }
 					format.json { render json: @player.errors, status: :unprocessable_entity }
@@ -84,8 +84,8 @@ class PlayersController < ApplicationController
 		check_access(roles: [:admin, :coach], obj: @player)
 		respond_to do |format|
 			if @player.update(player_params)
-				format.html { redirect_to players_path(search: @player.person.to_s(true)), notice: {kind: "success", message: "#{I18n.t("player.updated")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
-				format.json { render :index, status: :ok, location: players_path(search: @player.person.name) }
+				format.html { redirect_to players_path(search: @player.s_name), notice: {kind: "success", message: "#{I18n.t("player.updated")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+				format.json { render :index, status: :ok, location: players_path(search: @player.s_name) }
 			else
 				format.html { render :edit }
 				format.json { render json: @player.errors, status: :unprocessable_entity }

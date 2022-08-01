@@ -60,8 +60,8 @@ class CoachesController < ApplicationController
 		respond_to do |format|
 			@coach = rebuild_coach(params)	# rebuild coach
 			if @coach.is_duplicate? then
-				format.html { redirect_to coaches_url, notice: {kind: "info", message: "#{I18n.t(coach.duplicate)} '#{@coach.s_name}'"}, data: {turbo_action: "replace"}}
-				format.json { render :index,  :created, location: coaches_url }
+				format.html { redirect_to coaches_path(search: @coach.s_name), notice: {kind: "info", message: "#{I18n.t(coach.duplicate)} '#{@coach.s_name}'"}, data: {turbo_action: "replace"}}
+				format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
 			else
 				@coach.person.save
 				@coach.person_id = @coach.person.id
@@ -69,8 +69,8 @@ class CoachesController < ApplicationController
 					if @coach.person.coach_id != @coach.id
 						@coach.person.coach_id = @coach.id
 					end
-					format.html { redirect_to coaches_url, notice: {kind: "success", message: "#{I18n.t("coach.created")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: coaches_url }
+					format.html { redirect_to coaches_path(search: @coach.s_name), notice: {kind: "success", message: "#{I18n.t("coach.created")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: coaches_path(search: @coach.s_name) }
 				else
 					format.html { render :new }
 					format.json { render json: @coach.errors, status: :unprocessable_entity }
@@ -85,8 +85,8 @@ class CoachesController < ApplicationController
 		check_access(roles: [:admin], obj: @coach)
 		respond_to do |format|
 			if @coach.update(coach_params)
-				format.html { redirect_to coaches_url, notice: {kind: "success", message: "#{I18n.t("coach.updated")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
-				format.json { render :index, status: :ok, location: coaches_url }
+				format.html { redirect_to coaches_path(search: @coach.s_name), notice: {kind: "success", message: "#{I18n.t("coach.updated")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
+				format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
 			else
 				format.html { render :edit }
 				format.json { render json: @coach.errors, status: :unprocessable_entity }
@@ -99,7 +99,7 @@ class CoachesController < ApplicationController
 	def import
     check_access(roles: [:admin])
 	  Coach.import(params[:file])	# added to import excel
-	  format.html { redirect_to coaches_url, notice: {kind: "success", message: "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
+	  format.html { redirect_to coaches_path, notice: {kind: "success", message: "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
 	end
 
  	# DELETE /coaches/1
@@ -110,7 +110,7 @@ class CoachesController < ApplicationController
 		unlink_person
 		@coach.destroy
 		respond_to do |format|
-			format.html { redirect_to coaches_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("coach.deleted")} '#{c_name}'"}, data: {turbo_action: "replace"} }
+			format.html { redirect_to coaches_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("coach.deleted")} '#{c_name}'"}, data: {turbo_action: "replace"} }
 			format.json { head :no_content }
 		end
 	end
