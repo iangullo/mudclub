@@ -7,9 +7,10 @@ class GridComponent < ApplicationComponent
   # => value: associated text
   # => class: optional (unrequired?)
   # row items: have links in them (per row)
-  def initialize(grid:)
+  def initialize(grid:, form: nil)
     @title = parse_title(grid[:title])
     @rows  = parse_rows(grid[:rows])
+    @form  = form
     if grid[:track]
       @s_url  = grid[:track][:s_url]
       @s_filt = grid[:track][:s_filter]
@@ -86,6 +87,9 @@ class GridComponent < ApplicationComponent
             else
               item[:value] = ""
             end
+          when /^(checkbox-.+)$/
+            item[:class] = "border px py"
+            item[:align] = "center"
           end
           item[:align] = "left" unless item[:align]
           item[:cell]  = tablecell_tag(item)

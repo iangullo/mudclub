@@ -106,7 +106,7 @@
         <% when "dropdown" %>
           <%= render DropdownComponent.new(button: item[:button]) %>
         <% when "grid" %>
-          <%= render GridComponent.new(grid: item[:value]) %>
+          <%= render GridComponent.new(grid: item[:value], form: @form) %>
         <% when "accordion" %>
           <div id="accordion-collapse" data-accordion="collapse">
             <h2 class="<%=item[:h_class]%>"><%=item[:title]%></h2>
