@@ -19,6 +19,11 @@ class Team < ApplicationRecord
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
+  enum rules: {
+    fiba: 0,
+    q4: 1,
+    q6: 2
+  }
 
 	def to_s
 		if self.name and self.name.length > 0
@@ -127,6 +132,11 @@ class Team < ApplicationRecord
 		else
 			nil	# NO PLAYERS IN THE TEAM --> NO ATTENDANCE DATA TO SHOW
 		end
+	end
+
+	# return time rules that apply to this team
+	def periods
+		self.rules ? self.rules : self.category.def_rules
 	end
 
 private

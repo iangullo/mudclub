@@ -186,7 +186,7 @@ class TeamsController < ApplicationController
 	    res << [{kind: "icon", value: "category.svg"}, {kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}]
 			res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}]
 			res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :homecourt_id, options: Location.home, value: @team.homecourt_id}]
-			res << [{kind: "icon", value: "time.svg"}, {kind: "select-box", key: :rules, options: @team.time_rules, value: @team.rules ? @team.rules_before_type_cast : @team.def_rules }]
+			res << [{kind: "icon", value: "time.svg"}, {kind: "select-box", key: :rules, options: Category.time_rules, value: @team.periods }]
 			res << [{kind: "icon", value: "coach.svg"}, {kind: "label", value:I18n.t("coach.many"), class: "align-center"}]
 			res << [{kind: "gap"}, {kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}]
 	  	res
@@ -282,7 +282,7 @@ class TeamsController < ApplicationController
 			@team.category_id  = p_data[:category_id].to_i if p_data[:category_id]
 			@team.division_id  = p_data[:division_id].to_i if p_data[:division_id]
 			@team.homecourt_id = p_data[:homecourt_id].to_i if p_data[:homecourt_id]
-			@team.rules        = p_data[:rules].to_i if p_data[:rules]
+			@team.rules        = Team.rules[p_data[:rules]].to_i if p_data[:rules]
 			check_targets(p_data[:team_targets_attributes]) if p_data[:team_targets_attributes]
 			check_players(p_data[:player_ids]) if p_data[:player_ids]
 			check_coaches(p_data[:coach_ids]) if p_data[:coach_ids]
