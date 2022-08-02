@@ -47,15 +47,6 @@ es:
     save: "Guardar"
     search: "Buscar"
     return: "Volver"
-  category:
-    created: "Categoría creada: "
-    updated: "Categoría guardada: "
-    deleted: "Categoría borrada: "
-    many: "Categorías"
-    edit: "Editar Categoría"
-    new: "Crear Categoría"
-    single: "Categoría"
-    name: "Nombre"
   calendar:
     label: "Calendario"
     date: "Fecha"
@@ -70,6 +61,18 @@ es:
     monthnames_a: [Todos, Ene, Feb, Mar, Abr, May, Jun, Jul, Ago, Sep, Oct, Nov, Dic]
     daynames: [Todos, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
     daynames_a: [Todos, Lun, Mar, Mié, Jue, Vie, Sáb, Dom]
+  category:
+    created: "Categoría creada: "
+    updated: "Categoría guardada: "
+    deleted: "Categoría borrada: "
+    many: "Categorías"
+    edit: "Editar Categoría"
+    new: "Crear Categoría"
+    single: "Categoría"
+    name: "Nombre"
+    q4: "Pasarela"
+    q6: "Minibasket"
+    fiba: "FIBA"
   coach:
     duplicate: "Ent. duplicado: "
     created: "Ent. creado: "
@@ -135,6 +138,7 @@ es:
     home: "Local"
     rival: "Rival"
     default_rival: "<rival>"
+    roster: "Convocatoria"
   person:
     duplicate: "Persona duplicada: "
     created: "Persona creada: "
@@ -241,6 +245,7 @@ es:
     new: "Crear Horario"
     single: "Horario"
   stat:
+    many: "Estadísticas"
     average: "Media"
     average_a: "Med."
     total: "Total"

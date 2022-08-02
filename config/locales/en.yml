@@ -47,15 +47,6 @@ en:
     save: "Save"
     search: "Search"
     return: "Return"
-  category:
-    created: "Created category: "
-    updated: "Updated category: "
-    deleted: "Deleted category: "
-    many: "Categories"
-    edit: "Edit Category"
-    new: "Create Category"
-    single: "Category"
-    name: "Name"
   calendar:
     label: "Calendar"
     date: "Date"
@@ -70,6 +61,18 @@ en:
     monthnames_a: [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
     daynames: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
     daynames_a: [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+  category:
+    created: "Created category: "
+    updated: "Updated category: "
+    deleted: "Deleted category: "
+    many: "Categories"
+    edit: "Edit Category"
+    new: "Create Category"
+    single: "Category"
+    name: "Name"
+    q4: "1-in-3(+1)"
+    q6: "Minibasket"
+    fiba: "FIBA"
   coach:
     duplicate: "Duplicate coach: "
     created: "Created coach: "
@@ -135,6 +138,7 @@ en:
     home: "Local"
     rival: "Opponent"
     default_rival: "<Opponent>"
+    roster: "Active players"
   person:
     duplicate: "Duplicate person: "
     created: "Created person: "
@@ -241,6 +245,7 @@ en:
     new: "Create Timeslot"
     single: "Timeslot"
   stat:
+    many: "Stats"
     average: "Average"
     average_a: "Avg."
     total: "Total"
