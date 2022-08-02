@@ -9,18 +9,17 @@
       <%= form.number_field :duration, value: @event.duration, min: 60, max: 120, size: 3, step: 15, class: "rounded py-0 px-1 shadow-inner text-right border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"%>
     </th>
   </tr><tr>
-    <td colspan="4"><br></td>
+    <td colspan="4" class="text-xs"><br></td>
   </tr>
+</table>
+<table>
   <% if @event.id # only allow editing tasks if we're not creating it from scratch %>
     <tr>
-      <td></td>
-      <th colspan="3" align="left" class="text-indigo-900 align-center"><%= t("task.many") %></th>
+      <th colspan="2" align="left" class="text-indigo-900 align-center"><%= t("task.many") %></th>
     </tr><tr>
-      <td></td>
       <%= render "tasks_form", form: form, tasks: @event.tasks.order(:order) %>
       <tr>
-        <td></td>
-        <td colspan="3" align="left">
+        <td align="left">
           <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
             <%= render ButtonComponent.new(button: {kind: "add", label: t("task.add"), url: add_task_event_path}) %>
           <% end %>

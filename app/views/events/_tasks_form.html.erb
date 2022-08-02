@@ -1,4 +1,4 @@
-<td colspan="4" align="left" class="align-top">
+<td colspan="2" align="left" class="align-top">
   <div id="tasks_form" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
     <template data-nested-form-task="template">
       <%= form.fields_for :tasks, Task.new, child_index: 'NEW_RECORD' do |task_fields| %>

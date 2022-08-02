@@ -21,24 +21,10 @@ class EventsController < ApplicationController
   # GET /events/1 or /events/1.json
   def show
 		check_access(roles: [:admin, :coach])
-    @title  = event_title(@event.title(show: true), cols: @event.train? ? 3 : nil)
+    @title = event_title(@event.title(show: true), cols: @event.train? ? 3 : nil)
     if @event.match?
-      @title << [{kind: "gap"}, {kind: "gap"}, {kind: "gap"}, {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "right"}]
-      @fields = [[
-        {kind: "gap"},
-        {kind: "top-cell", value: @event.score[:home][:team], cols: 2},
-        {kind: "label", value: @event.score[:home][:points], class: "border px py"},
-      ]]
-      @fields << [
-        {kind: "gap"},
-        {kind: "top-cell", value: @event.score[:away][:team], cols: 2},
-        {kind: "label", value: @event.score[:away][:points], class: "border px py"}
-      ]
+      @fields = show_match_fields
     elsif @event.train?
-      @title << [workload_button(@event, align: "right"), {kind: "gap"}, {kind: "gap", cols: 2}, {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "right"}]
-      @title << [{kind: "side-cell", value: I18n.t("target.abbr"),rows: 2}, {kind: "top-cell", value: I18n.t("target.focus.def_a")}, {kind: "lines", value: @event.def_targets, cols: 5}]
-      @title << [{kind: "top-cell", value: I18n.t("target.focus.ofe_a")}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}]
-      #@title << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
       @fields = show_training_fields
     end
   end
@@ -54,7 +40,8 @@ class EventsController < ApplicationController
         else
           @season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
         end
-        @title = event_title(@event.title, form: true, cols: @event.match? ? 2 : nil)
+        @title  = event_title(@event.title, form: true, cols: @event.match? ? 2 : nil)
+        @fields = [[{kind: "gap"}, {kind: "label", value: I18n.t("match.rival")}, {kind: "text-box", key: :name, value: I18n.t("match.default_rival")} ]] if @event.match?
       else
         redirect_to(current_user.admin? ? "/slots" : @event.team)
       end
@@ -73,6 +60,7 @@ class EventsController < ApplicationController
     end
     @drills = @event.drill_list if @event.train?
     @title  = event_title(@event.title(show: true), form: true, cols: @event.match? ? 2 : nil)
+    @fields = match_form_fields if @event.match?
   end
 
   # POST /events or /events.json
@@ -176,9 +164,13 @@ class EventsController < ApplicationController
   # GET /events/1/attendance
   def attendance
     check_access(roles: [:admin, :coach])
-    @title   = event_title(@event.title(show: true), cols: @event.match? ? 2 : nil)
-    @title << [{kind: "gap"}, {kind: "side-cell", value: I18n.t("calendar.attendance")}]
-    @players = @event.team.players
+    @title = title_start(icon: "attendance.svg", title: @event.team.name)
+    @title[0] << {kind: "gap"}
+    @title << [{kind: "subtitle", value: @event.to_s}, {kind: "gap"}]
+    top_right_title(@title, nil)
+    @title << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
+    @fields = [[{kind: "gap", size: 2}, {kind: "side-cell", value: I18n.t(@event.match? ? "match.roster" : "calendar.attendance"), align: "left"}]]
+    @fields << [{kind: "gap", size: 2}, {kind: "select-checkboxes", key: :player_ids, options: @event.team.players}]
   end
 
   private
@@ -194,52 +186,115 @@ class EventsController < ApplicationController
 
     # return icon and top of FieldsComponent
     def event_title(title, subtitle: nil, form: nil, cols: nil)
-      rows = @event.rest? ? 3 : nil
-      res  = title_start(icon: @event.pic, title: title, rows: rows, cols: cols)
+      res = title_start(icon: @event.pic, title: title, rows: @event.rest? ? 3 : nil, cols: cols)
       res.last << {kind: "gap"}
       case @event.kind.to_sym
-      when :rest
-        res << [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : "", cols: cols}] if @team or @season
-        res << [form ? {kind: "text-box", key: :name, value: @event.name} : {kind: "label", value: @event.name}]
-      when :match
-        if form
-          res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id}, {kind: "gap"}]
-        else
-          if @event.location.gmaps_url
-            res << [{kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}, {kind: "gap"}]
-          else
-            res << [{kind: "gap", cols: 2}]
-          end
-        end
-      when :train
-        res << [{kind: "subtitle", value: subtitle ? subtitle : I18n.t("train.single"), cols: cols}, {kind: "gap"}]
+      when :rest then rest_title(res, cols)
+      when :match then match_title(res, cols, form)
+      when :train then train_title(res, cols, form, subtitle)
       end
-      if form # top right corner of title
-        res.first << {kind: "icon", value: "calendar.svg"}
-        res.first << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
-        unless @event.rest? # add start_time inputs
-          res.last << {kind: "icon", value: "clock.svg"}
-          res.last << {kind: "time-box", key: :hour, hour: @event.hour, min: @event.min}
-          res = res + match_fields if @event.match?
-        end
-        res.last << {kind: "hidden", key: :season_id, value: @season.id} if @event.team.id==0
-        res.last << {kind: "hidden", key: :team_id, value: @event.team_id}
-        res.last << {kind: "hidden", key: :kind, value: @event.kind}
-      else
-        res.first << {kind: "icon-label", icon: "calendar.svg", value: @event.date_string}
-        res.last << {kind: "icon-label", icon: "clock.svg", value: @event.time_string} unless @event.rest?
-      end
+      top_right_title(res, form)
+      #res << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
+      res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}] unless @event.match? and form==nil
       res
     end
 
-    # return FieldsComponent @fields for show_training
-    def show_training_fields
-      res = [[{kind: "gap", size: 2}, {kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + @event.work_duration, objects: task_accordion(@event), cols: 4}]]
+    # complete event title for matches
+    def match_title(res, cols, form)
+      if form
+        res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id}, {kind: "gap"}]
+        res << [{kind: "gap", size: 1, cols: 4}, {kind: "icon", value: "attendance.svg"}, {kind: "link", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left"}] if @event.id
+        #res << [{kind: "gap", size: 1, cols: 4}, {kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}]
+      else
+        if @event.location.gmaps_url
+          res << [{kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}, {kind: "gap"}]
+        else
+          res << [{kind: "gap", cols: 2}]
+        end
+        res << [{kind: "gap", size: 1, cols: 3}, {kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}]
+      end
+    end
+
+    # complete event_title for rest events
+    def rest_title(res, cols)
+      res << [{kind: "subtitle", value: @team ? @team.name : @season ? @season.name : "", cols: cols}] if @team or @season
+      res << [form ? {kind: "text-box", key: :name, value: @event.name} : {kind: "label", value: @event.name}]
+    end
+
+    # complete event_title for train events
+    def train_title(res, cols, form, subtitle)
+      res << [{kind: "subtitle", value: subtitle ? subtitle : I18n.t("train.single"), cols: cols}, {kind: "gap"}]
+      if form
+        res << [workload_button(@event, align: "left", cols: 3)] if @event.id
+      else
+        res << [workload_button(@event, align: "left", cols: 4), {kind: "gap", size: 1}, {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}]
+        res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
+        res << [{kind: "side-cell", value: I18n.t("target.abbr"),rows: 2}, {kind: "top-cell", value: I18n.t("target.focus.def_a")}, {kind: "lines", value: @event.def_targets, cols: 5}]
+        res << [{kind: "top-cell", value: I18n.t("target.focus.ofe_a")}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}]      end
     end
 
     # return icon and top of FieldsComponent for Tasks
     def task_title(title)
       res = event_title(@event.title(show: true), subtitle: title, cols: 3)
+    end
+
+    # complete event title with top-right corner elements
+    def top_right_title(res, form)
+      if form # top right corner of title
+        res[0] << {kind: "icon", value: "calendar.svg"}
+        res[0] << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
+        unless @event.rest? # add start_time inputs
+          res[1] << {kind: "icon", value: "clock.svg"}
+          res[1] << {kind: "time-box", key: :hour, hour: @event.hour, min: @event.min}
+        end
+        res.last << {kind: "hidden", key: :season_id, value: @season.id} if @event.team.id==0
+        res.last << {kind: "hidden", key: :team_id, value: @event.team_id}
+        res.last << {kind: "hidden", key: :kind, value: @event.kind}
+      else
+        res[0] << {kind: "icon-label", icon: "calendar.svg", value: @event.date_string}
+        res[1] << {kind: "icon-label", icon: "clock.svg", value: @event.time_string} unless @event.rest?
+      end
+    end
+
+    # return FieldsComponent @fields for show_training
+    def show_training_fields
+      res = [[{kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + @event.work_duration, objects: task_accordion(@event)}]]
+    end
+
+    def show_match_fields
+      res = [[
+        {kind: "gap", size: 2},
+        {kind: "top-cell", value: @event.score[:home][:team]},
+        {kind: "label", value: @event.score[:home][:points], class: "border px py"},
+        {kind: "gap"}
+        ]]
+      res << [
+        {kind: "gap", size: 2},
+        {kind: "top-cell", value: @event.score[:away][:team]},
+        {kind: "label", value: @event.score[:away][:points], class: "border px py"},
+        {kind: "gap"}
+      ]
+      res << [{kind: "gap", size: 1, cols: 4, class: "text-xs"}]
+      res << [{kind: "gap", size: 2}, {kind: "side-cell", value: I18n.t("player.many"), align: "left", cols: 3}]
+      res << [{kind: "gap", size: 2}, {kind: "grid", value: period_grid(@event.periods), cols: 3}]
+      res
+    end
+
+    # return FieldsComponent for match form
+    def match_form_fields
+      score   = @event.score(0)
+      periods = @event.periods
+      res     = [[{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: @event.team.to_s}, {kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}]]
+      res << [{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center"}, {kind: "text-box", key: :name, value: @event.name}, {kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}]
+      res << [{kind: "gap", size: 1, class: "text-xs"}]
+      res << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: 3}]
+      if periods
+        grid = period_grid(periods, edit: true)
+      else
+        grid = player_grid(players: @event.players.order(:number), obj: @event.team)
+      end
+        res << [{kind: "gap", size:2}, {kind: "grid", value: grid, cols: 4}]
+      res
     end
 
     # fields to show in task views
@@ -285,15 +340,6 @@ class EventsController < ApplicationController
           {kind: "hidden", key: :retlnk, value: @retlnk}
         ]
       ]
-    end
-
-    # return FieldsComponent for match form
-    def match_fields
-      score = @event.score(0)
-      res = [[{kind: "gap", cols: 6}]]
-      res << [{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: @event.team.to_s, cols: 2}, {kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}]
-      res << [{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center",}, {kind: "text-box", key: :name, value: @event.name, cols: 2}, {kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}]
-      res
     end
 
     # return accordion for event tasks
@@ -349,21 +395,23 @@ class EventsController < ApplicationController
     end
 
     def rebuild_event(event_params)
-      @event = Event.new unless @event
-      @event.start_time = event_params[:start_date] if event_params[:start_date]
-      @event.hour       = event_params[:hour].to_i if event_params[:hour]
-      @event.min        = event_params[:min].to_i if event_params[:min]
-      @event.duration   = event_params[:duration].to_i if event_params[:duration]
-      @event.name       = event_params[:name] if event_params[:name]
-      @event.p_for      = event_params[:p_for].to_i if event_params[:p_for]
-      @event.p_opp      = event_params[:p_opp].to_i if event_params[:p_opp]
-      @event.location_id= event_params[:location_id].to_i if event_params[:location_id]
-      @event.home       = event_params[:home] if event_params[:home]
-      check_targets(event_params[:event_targets_attributes]) if event_params[:event_targets_attributes]
-      if event_params[:tasks_attributes]  # updated tasks in session edit form
-        check_tasks(event_params[:tasks_attributes])
-      elsif event_params[:task] # updated task from edit_task_form (add or edit)
-        check_task(event_params[:task])
+      @event   = Event.new unless @event
+      e_params = event_params
+      @event.start_time = e_params[:start_date] if e_params[:start_date]
+      @event.hour       = e_params[:hour].to_i if e_params[:hour]
+      @event.min        = e_params[:min].to_i if e_params[:min]
+      @event.duration   = e_params[:duration].to_i if e_params[:duration]
+      @event.name       = e_params[:name] if e_params[:name]
+      @event.p_for      = e_params[:p_for].to_i if e_params[:p_for]
+      @event.p_opp      = e_params[:p_opp].to_i if e_params[:p_opp]
+      @event.location_id= e_params[:location_id].to_i if e_params[:location_id]
+      @event.home       = e_params[:home] if e_params[:home]
+      check_stats(params[:stats]) if params[:stats]
+      check_targets(e_params[:event_targets_attributes]) if e_params[:event_targets_attributes]
+      if e_params[:tasks_attributes]  # updated tasks in session edit form
+        check_tasks(e_params[:tasks_attributes])
+      elsif e_params[:task] # updated task from edit_task_form (add or edit)
+        check_task(e_params[:task])
       end
     end
 
@@ -379,6 +427,32 @@ class EventsController < ApplicationController
 			# cleanup removed attendances
 			@event.players.each {|p| @event.players.delete(p) unless attendees.include?(p)}
 		end
+
+    # grid to plan playing time dependiong on time rules
+    def period_grid(periods, edit: nil)
+      head = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}]
+      rows    = []
+      e_stats = @event.stats
+      1.upto(periods[:total]) {|i| head << {kind: "normal", value: "Q#{i.to_s}"}} if periods
+      @event.players.order(:number).each{|player|
+        p_stats = Stat.by_player(player.id, e_stats)
+        row = {url: player_path(player), frame: "modal", items: []}
+        row[:items] << {kind: "normal", value: player.number, align: "center"}
+        row[:items] << {kind: "normal", value: player.to_s}
+        if periods
+          1.upto(periods[:total]) { |q|
+            q_stat = Stat.by_q(q, p_stats).first
+            if edit
+              row[:items] << {kind: "checkbox-q", key: :stats, player_id: player.id, q: "q#{q}", value: q_stat ? q_stat[:value] : 0, align: "center"}
+            else
+              row[:items] << (q_stat and q_stat[:value]==1 ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
+            end
+          }
+        end
+        rows << row
+      }
+      {title: head, rows: rows}
+    end
 
     # checks targets_attributes parameter received and manage adding/removing
     # from the target collection - remove duplicates from list
@@ -424,6 +498,20 @@ class EventsController < ApplicationController
         @task.remarks  = t_dat[:remarks] if t_dat[:remarks]
         @task.save
       end
+    end
+
+    # check stats added to event
+    def check_stats(s_params)
+      e_stats = @event.stats
+      s_params.each {|s_param|
+        s_arg = s_param[0].split("_")
+        stat = Stat.fetch(event_id: @event.id, player_id: s_arg[0].to_i, concept: s_arg[1], stats: e_stats)
+        if stat # just update the value
+          stat[:value] = s_param[1].to_i
+        else  # create a new stat
+          e_stats << Stat.new(event_id: @event.id, player_id: s_arg[0].to_i, concept: s_arg[1], value: s_param[1].to_i)
+        end
+      }
     end
 
     def link_holidays
@@ -561,6 +649,7 @@ class EventsController < ApplicationController
           :location_id,
           :season_id,
           player_ids: [],
+          stats: [],
           event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]],
           task: [:id, :task_id, :order, :drill_id, :duration, :remarks, :retlnk],
           tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy]

@@ -1,27 +1,7 @@
 <%= render ModalComponent.new do %>
-	<%= render FieldsComponent.new(fields: @title) %>
 	<%= form_for @event, data: {turbo_frame: "_top"} do |form| %>
-		<div id="attendance-form-data">
-			<table class="grid place-items-center">
-				<tr class="bg-indigo-900 text-gray-300">
-					<th class="border px py" align="center"><%= t("player.number") %></th>
-					<th class="border px py" align="left"><%= t("person.name") %></th>
-					<th class="border px py" align="center"><%= t("person.age") %></th>
-				</tr>
-				<div id="attending-players">
-					<%= form.collection_check_boxes :player_ids, @event.team.players, :id, :to_s do |player| %>
-						<tr>
-							<div class="collection-check-box">
-								<td align="center" class="rounded border"><%= player.object.number %></td>
-								<td class="rounded border"><%= player.object.to_s %></td>
-								<td align="center" class="rounded border"><%= player.object.person.age %></td>
-								<td class="rounded border"><%= player.check_box({class: "rounded bg-gray-200 text-blue-700"}) %></td>
-							</div>
-						</tr>
-					<% end %>
-				</div>
-			</table>
-			<%= render SubmitComponent.new(submit: "save") %>
-		</div>
+		<%= render FieldsComponent.new(fields: @title) %>
+		<%= render FieldsComponent.new(fields: @fields, form: form) %>
+		<%= render SubmitComponent.new(submit: "save") %>
 	<% end %>
 <% end %>
