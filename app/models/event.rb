@@ -275,6 +275,22 @@ class Event < ApplicationRecord
 		self.players.find_index { |p| p[:id]==p_id }
 	end
 
+  # return contraints on event periods (if any)
+  # nil if none
+  def periods
+    if self.match?
+      case self.team.rules.to_sym  # ready to create period rule edition
+      when :q4 then return {total: 4, max: 2, min: 3}
+      when :q6 then return {total: 6, max: 3, min: 2}
+      else
+        return nil
+      end
+    else
+      return nil
+    end
+  end
+
+
   private
   # starting / ending hours as string
   def two_dig(num)

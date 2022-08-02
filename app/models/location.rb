@@ -1,6 +1,6 @@
 class Location < ApplicationRecord
 	scope :practice, -> { where("practice_court = true") }
-	scope :home, -> { where("practice_court = false") }
+	scope :home, -> { where("id > 0 and practice_court = false") }
 	scope :real, -> { where("id > 0") }
 	has_many :slots
 	has_many :events
