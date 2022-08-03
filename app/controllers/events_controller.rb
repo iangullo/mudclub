@@ -445,7 +445,7 @@ class EventsController < ApplicationController
             if edit
               row[:items] << {kind: "checkbox-q", key: :stats, player_id: player.id, q: "q#{q}", value: q_stat ? q_stat[:value] : 0, align: "center"}
             else
-              row[:items] << (q_stat and q_stat[:value]==1 ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
+              row[:items] << ((q_stat and q_stat[:value]==1) ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
             end
           }
         end
