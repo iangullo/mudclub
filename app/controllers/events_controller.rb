@@ -102,7 +102,7 @@ class EventsController < ApplicationController
             format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
             format.json { render :show, status: :ok, location: @event }
           else # updating match
-            format.html { redirect_to team_path(@event.team_id), notice: {kind: "success", message: "#{I18n.t("match.updated")} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
+            format.html { redirect_to @event, notice: {kind: "success", message: "#{I18n.t("match.updated")} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
           end
         else
           format.html { render :edit, status: :unprocessable_entity }
