@@ -102,6 +102,44 @@ class Drill < ApplicationRecord
 #		print_names(self.kinds)
 #	end
 
+	# checks skills array received and manages adding/removing
+	# from the drill collection - remove duplicates from list
+	def check_skills(s_array)
+		a_skills = Array.new	# array to include only non-duplicates
+		s_array.each { |s| # first pass
+			#s[1][:name] = s[1][:name].mb_chars.titleize
+			a_skills << s[1] #unless a_skills.detect { |a| a[:name] == s[1][:name] }
+		}
+		a_skills.each { |s| # second pass - manage associations
+			if s[:_destroy] == "1"
+				self.skills.delete(s[:id].to_i)
+			else
+				unless s.key?("id")	# if no id included, we check
+					sk = Skill.find_by(concept: s[:concept])
+					sk = Skill.create(concept: s[:concept]) unless sk
+					self.skills << sk	# add to collection
+				end
+			end
+		}
+	end
+
+	# checks targets_attributes array received and manages adding/removing
+	# from the target collection - remove duplicates from list
+	def check_targets(t_array)
+		a_targets = Array.new	# array to include only non-duplicates
+		t_array.each { |t| # first pass
+			a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
+		}
+		a_targets.each { |t| # second pass - manage associations
+			if t[:_destroy] == "1"	# remove drill_target
+				self.targets.delete(t[:target_attributes][:id])
+			else
+				dt = DrillTarget.fetch(t)
+				self.drill_targets ? self.drill_targets << dt : self.drill_targets |= dt
+			end
+		}
+	end
+
 	private
 	def print_names(obj_array)
 		i = 0

@@ -146,47 +146,9 @@ class DrillsController < ApplicationController
 			@drill.kind_id     = p_data[:kind_id]
 			@drill.explanation = p_data[:explanation]
 			@drill.playbook    = p_data[:playbook]
-			check_skills(p_data[:skills_attributes]) if p_data[:skills_attributes]
-			check_targets(p_data[:drill_targets_attributes]) if p_data[:drill_targets_attributes]
+			@drill.check_skills(p_data[:skills_attributes]) if p_data[:skills_attributes]
+			@drill.check_targets(p_data[:drill_targets_attributes]) if p_data[:drill_targets_attributes]
 			@drill
-		end
-
-		# checks skills parameter received and manage adding/removing
-		# from the drill collection - remove duplicates from list
-		def check_skills(s_array)
-			a_skills = Array.new	# array to include only non-duplicates
-			s_array.each { |s| # first pass
-				#s[1][:name] = s[1][:name].mb_chars.titleize
-				a_skills << s[1] #unless a_skills.detect { |a| a[:name] == s[1][:name] }
-			}
-			a_skills.each { |s| # second pass - manage associations
-				if s[:_destroy] == "1"
-					@drill.skills.delete(s[:id].to_i)
-				else
-					unless s.key?("id")	# if no id included, we check
-						sk = Skill.find_by(concept: s[:concept])
-						sk = Skill.create(concept: s[:concept]) unless sk
-						@drill.skills << sk	# add to collection
-					end
-				end
-			}
-		end
-
-		# checks targets_attributes parameter received and manage adding/removing
-		# from the target collection - remove duplicates from list
-		def check_targets(t_array)
-			a_targets = Array.new	# array to include only non-duplicates
-			t_array.each { |t| # first pass
-				a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
-			}
-			a_targets.each { |t| # second pass - manage associations
-				if t[:_destroy] == "1"	# remove drill_target
-					@drill.targets.delete(t[:target_attributes][:id])
-				else
-					dt = DrillTarget.fetch(t)
-					@drill.drill_targets ? @drill.drill_targets << dt : @drill.drill_targets |= dt
-				end
-			}
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
