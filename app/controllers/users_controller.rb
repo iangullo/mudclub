@@ -38,7 +38,7 @@ class UsersController < ApplicationController
     if current_user.admin?
       @role = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
     else
-      @role = [[{kind: "label", align: "center", value: I18n.t(@user.role.to_sym)}]]
+      @role = [[{kind: "label", align: "center", value: I18n.t(@user.role)}]]
     end
     @avatar = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
     @person_fields = [
