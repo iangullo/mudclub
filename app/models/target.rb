@@ -41,7 +41,7 @@ class Target < ApplicationRecord
         res = focus ? res.where(focus: focus.length==1 ? focus.to_i : focus.to_sym) : res
         res = aspect ? res.where(aspect: aspect.length==1 ? aspect.to_i : aspect.to_sym) : res
       end
-      res = res.first
+      res = res ? res.first : nil
 		end
     return res
 	end
