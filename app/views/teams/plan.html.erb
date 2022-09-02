@@ -45,5 +45,5 @@
 			</div>
 		<% end %>
 	</div>
-	<%= render SubmitComponent.new(close: "back", close_return: :back, submit: @edit) %>
+	<%= render SubmitComponent.new(close: "back", close_return: team_path(@team), submit: @edit) %>
 </div>
