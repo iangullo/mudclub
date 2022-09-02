@@ -331,7 +331,7 @@ class EventsController < ApplicationController
         ],
         [
           {kind: "side-cell", value: @task.order},
-          {kind: "select-load", key: :drill_id, url: view_url, options: @drills, value: @drill.id, hidden: @task.id},
+          {kind: "select-load", key: :drill_id, url: view_url, options: @drills, value: @drill ? @drill.id : nil, hidden: @task.id},
           {kind: "number-box", key: :duration, min: 1, max: 90, size: 3, value: @task.duration}
         ],
         [
@@ -617,7 +617,7 @@ class EventsController < ApplicationController
       @task   = t_param[:task_id] ? Task.find(t_param[:task_id]) : Task.new(event: @event, order: @event.tasks.count + 1, duration: 5)
       if load_drills
         @drills = filter!(Drill).pluck(:name, :id)
-        @drill  = t_param[:drill_id] ? Drill.find(t_param[:drill_id]) : (@task.drill ? @task.drill : load_drills ? Drill.find(@drills.first[1]) : nil)
+        @drill  = t_param[:drill_id] ? Drill.find(t_param[:drill_id]) : (@task.drill ? @task.drill : @drills.size>0 ? Drill.find(@drills.first[1]) : nil)
       end
     end
 

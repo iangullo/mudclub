@@ -1,5 +1,7 @@
-<% if @drill %>
-	<div id="drill_description">
-		<%= @drill.explanation.empty? ? @drill.description : @drill.explanation %>
-	</div>
-<% end %>
+<div id="drill_description">
+	<% if @drill %>
+	<%= @drill.explanation.empty? ? @drill.description : @drill.explanation %>
+	<% else %>
+	<%= t("drill.none") %>
+	<% end %>
+</div>

@@ -110,6 +110,7 @@ en:
     desc_a: "Descrip."
     expl: "Explanation"
     author: "Author"
+    none: "No task selected"
   kind:
     single: "Tipo"
   location:
@@ -265,6 +266,7 @@ en:
   target:
     single: "Target"
     many: "Targets"
+    edit: "Edit Targets"
     abbr: "Tgt."
     default: "<target>"
     aspect:

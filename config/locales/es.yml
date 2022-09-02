@@ -110,6 +110,7 @@ es:
     desc_a: "Descrip."
     expl: "Explicación"
     author: "Autor"
+    none: "Sin tarea seleccionada"
   kind:
     single: "Tipo"
   location:
@@ -265,6 +266,7 @@ es:
   target:
     single: "Objetivo"
     many: "Objetivos"
+    edit: "Editar Objetivos"
     abbr: "Obj."
     default: "<objetivo>"
     aspect:

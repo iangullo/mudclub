@@ -7,9 +7,9 @@
 				<%= render FieldsComponent.new(fields: @fields, form: f) %>
 			<% end %>
 			<turbo-frame id="<%=f.field_id(:drill_id, :turbo_frame)%>" class="contents">
-				<%= render "drill_description" if @drill %>
+				<%= render "drill_description" %>
 			</turbo-frame>
-			<%= render FieldsComponent.new(fields: @remarks, form: f) %>
+			<%= render FieldsComponent.new(fields: @remarks, form: f) if @drill %>
 		<% end %>
 		<%= render SubmitComponent.new(submit: "save", close_return: :back) %>
 	<% end %>
