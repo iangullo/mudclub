@@ -83,8 +83,9 @@ class PlayersController < ApplicationController
 	def update
 		check_access(roles: [:admin, :coach], obj: @player)
 		respond_to do |format|
-			if @player.update(player_params)
-				format.html { redirect_to players_path(search: @player.s_name), notice: {kind: "success", message: "#{I18n.t("player.updated")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+			@player.rebuild(player_params)
+			if @player.save
+				format.html { redirect_to player_params[:retlnk], notice: {kind: "success", message: "#{I18n.t("player.updated")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
 				format.json { render :index, status: :ok, location: players_path(search: @player.s_name) }
 			else
 				format.html { render :edit }
@@ -184,6 +185,6 @@ class PlayersController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def player_params
-			params.require(:player).permit(:id, :number, :active, :avatar, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :player_id], teams_attributes: [:id, :_destroy])
+			params.require(:player).permit(:id, :number, :active, :avatar, :retlnk, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :player_id], teams_attributes: [:id, :_destroy])
 		end
 end

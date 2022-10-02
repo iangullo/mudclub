@@ -132,7 +132,7 @@ class Player < ApplicationRecord
 		self.events.include?(event_id)
 	end
 
-	#ensures a person is well bound to the coach
+	#ensures a person is well bound to the player
 	def clean_bind
 		if self.person_id != self.person.id
 			self.person_id = self.person.id
