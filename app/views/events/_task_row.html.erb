@@ -7,6 +7,7 @@
 			<%= form.number_field :duration, value: form.object.duration, min: 1, max: 90, size: 3, class: f_cls + " px-0 text-right"%>
 			<%= render ButtonComponent.new(button: {kind: "remove"}) %>
 		</div>
+		<%= form.hidden_field :remarks %>
 		<%= form.hidden_field :_destroy %>
 	</div>
 <% end %>
