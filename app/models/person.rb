@@ -32,19 +32,42 @@ class Person < ApplicationRecord
 	# returns: reloads self if it exists in the database already
 	# 	   'nil' if it needs to be created.
 	def exists?
-		if self.dni # not null, let's search by that unique field
-			p = Person.where(dni: self.dni)
-		elsif self.email	# another unique field is email
-			p = Person.where(email: self.email)
+		if self.dni and self.dni!="" # not null, let's search by that unique field
+			p_aux = Person.where(dni: self.dni)
+		elsif self.email and self.email!=""	# another unique field is email
+			p_aux = Person.where(email: self.email)
 		else	# we search by name/surname since no unique fields are there
-			p = Person.where(name: self.name, surname: self.surname)
+			p_aux = Person.where(name: self.name, surname: self.surname)
 		end
-		if p.try(:size)==1
-			self.id = p.first.id
+		if p_aux.try(:size)==1
+			self.id = p_aux.first.id
 			self.reload
 		else
 			nil
 		end
+	end
+
+	# rebuild Person data from raw input (as hash) given by a form submittal
+	# avoids creating duplicates
+	def rebuild(p_data)
+		p_aux         = Person.new # check for duplicates
+		p_aux.dni     = p_data[:dni] if p_data[:dni]
+		p_aux.email   = p_data[:email] if p_data[:email]
+		p_aux.name    = p_data[:name] if p_data[:name]
+		p_aux.surname = p_data[:surname] if p_data[:surname]
+		if p_aux.exists?	# re-assign if exists
+			self.id=p_aux.id
+			self.reload
+		end
+		self.dni       = p_data[:dni] if p_data[:dni]
+		self.email     = p_data[:email] if p_data[:email]
+		self.name      = p_data[:name] if p_data[:name]
+		self.surname   = p_data[:surname] if p_data[:surname]	
+		self.nick      = p_data[:nick] if p_data[:nick]
+		self.female    = p_data[:female]
+		self.phone     = Phonelib.parse(p_data[:phone]).international.to_s  if p_data[:phone]
+		self.coach_id  = 0 unless self.coach_id.to_i > 0
+		self.player_id = 0 unless self.player_id.to_i > 0
 	end
 
 	# calculate age

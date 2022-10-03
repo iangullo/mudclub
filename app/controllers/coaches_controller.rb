@@ -34,23 +34,15 @@ class CoachesController < ApplicationController
 	# GET /coaches/new
 	def new
     check_access(roles: [:admin])
-		@coach = Coach.new
+		@coach = Coach.new(active: true)
 		@coach.build_person
-		@fields = form_fields(I18n.t("coach.new"), rows: 3, cols: 2)
+		@title_fields = form_fields(I18n.t("coach.new"), rows: 4, cols: 3)
 	end
 
 	# GET /coaches/1/edit
 	def edit
 		check_access(roles: [:admin, :coach], obj: @coach)
 		@title_fields = form_fields(I18n.t("coach.edit"), rows: 4, cols: 3)
-		@coach_fields  = [
-			[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active, cols: 4}],
-			[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @coach.avatar.filename, cols: 3}]
-		]
-		@person_fields = [
-			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @coach.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @coach.person.email}],
-			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @coach.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @coach.person.phone}]
-		]
 	end
 
 	# POST /coaches
@@ -58,13 +50,12 @@ class CoachesController < ApplicationController
 	def create
     check_access(roles: [:admin])
 		respond_to do |format|
-			@coach = rebuild_coach(params)	# rebuild coach
+			@coach = Coach.new
+			@coach.rebuild(coach_params)	# rebuild coach
 			if @coach.is_duplicate? then
-				format.html { redirect_to coaches_path(search: @coach.s_name), notice: {kind: "info", message: "#{I18n.t(coach.duplicate)} '#{@coach.s_name}'"}, data: {turbo_action: "replace"}}
+				format.html { redirect_to coaches_path(search: @coach.s_name), notice: {kind: "info", message: "#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"}}
 				format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
 			else
-				@coach.person.save
-				@coach.person_id = @coach.person.id
 				if @coach.save # coach saved to database
 					if @coach.person.coach_id != @coach.id
 						@coach.person.coach_id = @coach.id
@@ -84,7 +75,8 @@ class CoachesController < ApplicationController
 	def update
 		check_access(roles: [:admin], obj: @coach)
 		respond_to do |format|
-			if @coach.update(coach_params)
+			@coach.rebuild(coach_params)
+			if @coach.save
 				format.html { redirect_to coaches_path(search: @coach.s_name), notice: {kind: "success", message: "#{I18n.t("coach.updated")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
 				format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
 			else
@@ -128,9 +120,15 @@ class CoachesController < ApplicationController
 			f_cols = cols>2 ? cols - 1 : nil
 			res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @coach.person.name, cols: f_cols}]
 			res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @coach.person.surname, cols: f_cols}]
-			if f_cols	# i's an edit form
-				res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @coach.person.birthday, cols: f_cols}]
-			end
+			res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @coach.person.birthday, cols: f_cols}]
+			@coach_fields  = [
+				[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active, cols: 4}],
+				[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @coach.avatar.filename, cols: 3}]
+			]
+			@person_fields = [
+				[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @coach.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @coach.person.email}],
+				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @coach.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @coach.person.phone}]
+			]
 			res
 		end
 
@@ -167,29 +165,6 @@ class CoachesController < ApplicationController
       }
 			{title: title, rows: rows}
     end
-
-		# build new @coach from raw input given by submittal from "new"
-		# return nil if unsuccessful
-		def rebuild_coach(params)
-			p_data = params.fetch(:coach).fetch(:person_attributes)
-			@coach = Coach.new
-			@coach.active = true
-			if @coach.person_id==0 # not bound to a person yet?
-				p_data[:id].to_i > 0 ? @coach.person=Person.find(p_data[:id].to_i) : @coach.build_person
-			else #person is linked, get it
-				@coach.person.reload
-      end
-			@coach.person[:dni]       = p_data[:dni]
-			@coach.person[:nick]      = p_data[:nick]
-			@coach.person[:name]      = p_data[:name]
-			@coach.person[:surname]   = p_data[:surname]
-			@coach.person[:female]    = p_data[:female]
-			@coach.person[:email]     = p_data[:email]
-			@coach.person[:phone]     = Phonelib.parse(p_data[:phone]).international.to_s
-			@coach.person[:coach_id]  = 0
-			@coach.person[:player_id] = 0
-			@coach
-		end
 
 		# reload edit/create form if person exists without a coach record
 		def reload_data(format)
@@ -229,6 +204,6 @@ class CoachesController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def coach_params
-			params.require(:coach).permit(:id, :active, :avatar, :teams, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :email, :phone])
+			params.require(:coach).permit(:id, :active, :avatar, :retlnk, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :email, :phone])
 		end
 end

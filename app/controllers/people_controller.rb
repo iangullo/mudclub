@@ -37,7 +37,7 @@ class PeopleController < ApplicationController
     check_access(roles: [:admin])
 		@person        = Person.new(coach_id: 0, player_id: 0)
 		@title_fields  = form_fields(I18n.t("person.new"))
-		@picture_field = form_file_field(label: I18n.t("person.pic"), key: :avatar, cols: 2)
+		@picture_field = form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @person.picture, cols: 2)
 		@person_fields = person_fields
   end
 
@@ -45,7 +45,7 @@ class PeopleController < ApplicationController
   def edit
     check_access(roles: [:admin], obj: @person)
 		@title_fields  = form_fields(I18n.t("person.edit"))
-		@picture_field = form_file_field(label: I18n.t("person.pic"), key: :avatar, cols: 2)
+		@picture_field = form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @person.picture, cols: 2)
 		@person_fields = person_fields
   end
 
@@ -53,9 +53,13 @@ class PeopleController < ApplicationController
   # POST /people.json
   def create
     check_access(roles: [:admin])
-   	@person = Person.new(person_params)
+   	@person = Person.new
     respond_to do |format|
-      if @person.save
+			@person.rebuild(person_params)	# take care of duplicates
+      if @person.persisted?	# it was a duplicate
+        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t("person.duplicate")} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
+        format.json { render :index, status: :duplicate, location: people_url }
+			elsif @person.save
         format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t("person.created")} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
         format.json { render :index, status: :created, location: people_url }
       else
