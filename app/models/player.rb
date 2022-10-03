@@ -143,4 +143,20 @@ class Player < ApplicationRecord
 			self.person.save
 		end
 	end
+
+	# rebuild Coach data from raw input hash given by a form subnmittal
+	# avoids duplicate person binding
+	def rebuild(j_data)
+		p_data = j_data[:person_attributes]
+		if self.person_id==0 # not bound to a person yet?
+			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
+		else # person is linked, get it
+			self.person.reload
+		end
+		self.person.rebuild(p_data) # rebuild from passed data
+		self.person.player_id  = self.id if self.id
+		self.person_id = self.person.id if self.person.id
+		self.number    = j_data[:number]
+		self.active    = j_data[:active]
+	end
 end

@@ -34,21 +34,15 @@ class PlayersController < ApplicationController
 	# GET /players/new
 	def new
 		check_access(roles: [:admin, :coach])
-		@player = Player.new
+		@player = Player.new(active: true)
 		@player.build_person
-		@fields = form_fields(I18n.t("player.single"), rows: 3, cols: 2)
+		@title_fields = form_fields(I18n.t("player.single"), rows: 3, cols: 2)
 	end
 
 	# GET /players/1/edit
 	def edit
 		check_access(roles: [:admin, :coach], obj: @player)
 		@title_fields    = form_fields(I18n.t("player.edit"), rows: 3, cols: 3)
-		@player_fields_1 = [[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active}, {kind: "gap", size: 8}, {kind: "label", value: I18n.t("player.number")}, {kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number}]]
-		@player_fields_2 = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @player.avatar.filename, cols: 5}]]
-		@person_fields   = [
-			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
-			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @player.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @player.person.phone}]
-		]
 	end
 
 	# POST /players
@@ -56,13 +50,12 @@ class PlayersController < ApplicationController
 	def create
 		check_access(roles: [:admin, :coach])
 		respond_to do |format|
-			@player = rebuild_player(params)	# rebuild player
+			@player = Player.new
+			@player.rebuild(player_params)	# rebuild player
 			if @player.is_duplicate? then
 				format.html { redirect_to players_path(search: @player.s_name), notice: {kind: "info", message: "#{I18n.t("player.duplicate")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
 				format.json { render :index, status: :duplicate, location: players_path(search: @player.s_name) }
 			else
-				@player.person.save
-				@player.person_id = @player.person.id
 				if @player.save
 					if @player.person.player_id != @player.id
 						@player.person.player_id = @player.id
@@ -128,35 +121,19 @@ class PlayersController < ApplicationController
 			f_cols = cols>2 ? cols - 1 : nil
 			res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, label: I18n.t("person.name"), value: @player.person.name, cols: f_cols}]
 			res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}]
-			if f_cols	# i's an edit form
-				res << [{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @player.person.female}, {kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}]
-			end
+			res << [{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @player.person.female}, {kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}]
+			@player_fields_1 = [[
+				{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
+				{kind: "gap", size: 8}, {kind: "label", value: I18n.t("player.number")},
+				{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
+				{kind: "hidden", key: :retlnk, value: params[:retlnk]}
+			]]
+			@player_fields_2 = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @player.avatar.filename, cols: 5}]]
+			@person_fields   = [
+				[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
+				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @player.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @player.person.phone}]
+			]
 			res
-		end
-
-		# build new @player from raw input given by submittal from "new"
-		# return nil if unsuccessful
-		def rebuild_player(params)
-			p_data  = params.fetch(:player).fetch(:person_attributes)
-			@player = Player.new(player_params)
-			@player.build_person
-			@player.active   = true
-			@player.number   = params.fetch(:player)[:number]
-      if @player.person_id==0 # not bound to a person yet?
-        p_data[:id].to_i > 0 ? @player.person=Person.find(p_data[:id].to_i) : @player.build_person
-      else #person is linked, get it
-        @user.person.reload
-      end
-			@player.person[:dni] = p_data[:dni]
-			@player.person[:nick] = p_data[:nick]
-			@player.person[:name] = p_data[:name]
-			@player.person[:surname] = p_data[:surname]
-			@player.person[:female] = p_data[:female] ? p_data[:female] : false
-			@player.person[:email] = p_data[:email]
-			@player.person[:phone] = Phonelib.parse(p_data[:phone]).international.to_s
-			@player.person[:coach_id] = 0
-			@player.person[:player_id] = 0
-			@player
 		end
 
 		# De-couple from associated person
@@ -185,6 +162,6 @@ class PlayersController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def player_params
-			params.require(:player).permit(:id, :number, :active, :avatar, :retlnk, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :player_id], teams_attributes: [:id, :_destroy])
+			params.require(:player).permit(:id, :number, :active, :avatar, :retlnk, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone], teams_attributes: [:id, :_destroy])
 		end
 end

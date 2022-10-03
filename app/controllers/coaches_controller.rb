@@ -59,6 +59,7 @@ class CoachesController < ApplicationController
 				if @coach.save # coach saved to database
 					if @coach.person.coach_id != @coach.id
 						@coach.person.coach_id = @coach.id
+						@coach.person.save
 					end
 					format.html { redirect_to coaches_path(search: @coach.s_name), notice: {kind: "success", message: "#{I18n.t("coach.created")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: coaches_path(search: @coach.s_name) }
