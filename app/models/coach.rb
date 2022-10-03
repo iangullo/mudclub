@@ -95,7 +95,7 @@ class Coach < ApplicationRecord
 		end
 	end
 
-	# rebuild Coach data from raw input hash given by a form subnmittal
+	# rebuild Coach data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(c_data)
 		p_data = c_data[:person_attributes]
