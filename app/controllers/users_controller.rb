@@ -25,32 +25,19 @@ class UsersController < ApplicationController
 		check_access(roles: [:admin])
     @user = User.new
   	@user.build_person
-    @fields = title_fields(I18n.t("user.new"), rows: 4, cols: 2)
-    @fields << [{kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: I18n.t("person.email")}]
-    @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t("password.single")}]
-    @fields << [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t("password.confirm")}]
-    @fields << [{kind: "gap"}, {kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}]
+    @title  = form_fields(I18n.t("user.new"))
   end
 
   def edit
     check_access(roles: [:admin], obj: @user)
     @title  = form_fields(I18n.t("user.edit"))
-    if current_user.admin?
-      @role = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
-    else
-      @role = [[{kind: "label", align: "center", value: I18n.t(@user.role)}]]
-    end
-    @avatar = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
-    @person_fields = [
-      [{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
-		  [{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
-    ]
   end
 
   def create
 		check_access(roles: [:admin])
     respond_to do |format|
- 			@user = build_new_user(params)	# build user
+ 			@user = User.new
+      @user.rebuild(user_params)	# build user
  			if @user.is_duplicate? then
 				format.html { redirect_to @user, notice: {kind: "info", message: "#{I18n.t("user.duplicate")} '#{@user.s_name}'"}, data: {turbo_action: "replace"}}
  				format.json { render :show,  :created, location: @user }
@@ -79,8 +66,8 @@ class UsersController < ApplicationController
         params[:user].delete(:password)
         params[:user].delete(:password_confirmation)
       end
-      rebuild_user(params)	# rebuild user
-  	  if @user.update(user_params)
+      @user.rebuild(user_params)	# rebuild user
+  	  if @user.save
   			format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t("user.updated")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
   			format.json { render :index, status: :ok, location: users_url }
   		else
@@ -114,7 +101,22 @@ class UsersController < ApplicationController
     	res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @user.person.name}]
       res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @user.person.surname}]
   		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}]
-  		res
+      if current_user.admin?
+        @role = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
+      else
+        @role = [[{kind: "label", align: "center", value: I18n.t(@user.role)}]]
+      end
+      @avatar = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
+      @person_fields = [
+        [{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
+        [{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
+      ]
+      @pass_fields = [
+        [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t("password.single")}],
+        [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t("password.confirm")}],
+        [{kind: "gap"}, {kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}]    
+      ]
+      res
   	end
 
     # return grid for @users GridComponent
@@ -139,43 +141,6 @@ class UsersController < ApplicationController
 	    }
       {title: title, rows: rows}
 	  end
-
-    # re-build existing @user from raw input given by submittal from "new"
-  	# return nil if unsuccessful
-  	def rebuild_user(params)
-      u_data = user_params
-      p_data = u_data[:person_attributes]
-      @user.email = u_data[:email] ? u_data[:email] : p_data[:email]
-      @user.role  = u_data[:role]
-      if @user.person_id==0 # not bound to a person yet?
-        p_data[:id].to_i > 0 ? @user.person=Person.find(p_data[:id].to_i) : @user.build_person
-      else #person is linked, get it
-        @user.person.reload
-      end
-  		@user.person[:dni]     = p_data[:dni]
-  		@user.person[:nick]    = p_data[:nick]
-  		@user.person[:name]    = p_data[:name]
-  		@user.person[:surname] = p_data[:surname]
-  		@user.person[:female]  = p_data[:female]
-  		@user.person[:email]   = @user.email
-  		@user.person[:phone]   = Phonelib.parse(p_data[:phone]).international.to_s
-  	end
-
-    # build & prepare a person for a new user
-    def build_new_user(params)
-      @user = User.new(user_params)
-      @user.set_default_role
-      @user.email                 = params.fetch(:user)[:email]
-      @user.person_id             = nil
-      @user.password              = params.fetch(:user)[:password]
-      @user.password_confirmation = params.fetch(:user)[:password_confirmation]
-      @user.build_person
-      @user.person.user_id = 0
-      @user.person.email   = @user.email
-      @user.person.name    = @user.email.split("@").first
-      @user.person.surname = @user.email.split("@").last
-      @user
-    end
 
   	# De-couple from associated person
   	def unlink_person

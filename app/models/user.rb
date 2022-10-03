@@ -97,6 +97,30 @@ class User < ApplicationRecord
     self.role ||= :user
   end
 
+	# rebuild User data from raw input hash given by a form submittal
+	# avoids duplicate person binding
+	def rebuild(u_data)
+		p_data        = u_data[:person_attributes]
+    self.email    = u_data[:email] ? u_data[:email] : p_data[:email]
+    self.role     = u_data[:role] ? u_data[:role] : :user
+    self.password = u_data[:password] if u_data[:password]
+    self.password_confirmation = u_data[:password_confirmation] if u_data[:password_confirmation]
+    if self.person_id==0 # not bound to a person yet?
+			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
+		else # person is linked, get it
+			self.person.reload
+		end
+		self.person.rebuild(p_data) # rebuild from passed data
+		self.person.user_id = self.id if self.id
+		self.person_id = self.person.id if self.person.id
+    if self.player? and self.person.player_id.to_i==0 # Bound to a player?
+      self.person.player = Player.new(active: true, number: 0, person_id: self.person_id)
+    end
+    if self.coach? and self.person.coach_id.to_i==0 # need to create a Coach?
+      self.person.coach = Coach.new(active: true, person_id: self.person_id)
+    end
+	end
+
   # get teams associated to this user
   def teams
     if self.is_coach?
