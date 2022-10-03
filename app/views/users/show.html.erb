@@ -8,10 +8,10 @@
 						<th colspan="3" align="center" class="border px py text-white bg-blue-900"><%= t("team.many") %></th>
 						<th colspan="1" align="center" class="border px py text-white bg-blue-900"><%= t("season.single") %></th>
 					</tr>
-					<% @user.teams.each do |team| %>
+					<% @user.teams.each.order(:season) do |team| %>
 						<tr>
-							<td colspan="3" class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team %></td>
-							<td colspan="1" class="border px py hover:text-white hover:bg-blue-700" align="center"><%= link_to team.season.name, team %></td>
+							<td colspan="3" class="border px py hover:text-white hover:bg-blue-700"><%= link_to team.to_s, team, data: {turbo_frame: "_top", turbo_action: "replace"} %></td>
+							<td colspan="1" class="border px py hover:text-white hover:bg-blue-700" align="center"><%= link_to team.season.name, team, data: {turbo_frame: "_top", turbo_action: "replace"} %></td>
 						</tr>
 					<% end %>
 				<% end %>
