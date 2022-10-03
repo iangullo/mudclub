@@ -48,7 +48,7 @@ class DrillsController < ApplicationController
 		check_access(roles: [:admin, :coach])
 		respond_to do |format|
 			@drill = Drill.new
-			rebuild_drill	# rebuild drill
+			@drill.rebuild(drill_params)	# rebuild drill
 			if @drill.save
 				format.html { redirect_to drills_url, notice: {kind: "success", message: "#{I18n.t("drill.created")} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
 				format.json { render :index, status: :created, location: @drill }
@@ -63,7 +63,7 @@ class DrillsController < ApplicationController
 	def update
 		check_access(roles: [:admin], obj: @drill, returl: drills_url)
 		respond_to do |format|
-			rebuild_drill	# rebuild drill
+			@drill.rebuild(drill_params)	# rebuild drill
 		 	if @drill.save
 				format.html { redirect_to drill_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("drill.updated")} '#{@drill.name}'"}, data: {turbo_action: "replace"} }
 				format.json { render :show, status: :ok, location: @drill }
@@ -98,7 +98,7 @@ class DrillsController < ApplicationController
 			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: @drill.kind_id, align: "center"}]
 			@playbook  = [[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename}]]
 			@explain   = [[{kind: "rich-text-area", key: :explanation, align: "left", cols: 3}]]
-			@author    = [[{kind: "label", value: I18n.t("drill.author"), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real, value: @drill.coach_id ? @drill.coach_id : 1}]]
+			@author    = [[{kind: "label", value: I18n.t("drill.author"), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real, value: (@drill.coach_id.to_i>0) ? @drill.coach_id : (current_user.is_coach? ? current_user.coach.id : 1) }]]
 			return [
 				# DO WE INCLUDE NESTED FORM TYPE??? HOW?
 				# NESTED FORM for Targets...
@@ -135,22 +135,6 @@ class DrillsController < ApplicationController
 			rows
 		end
 
-		# build new @drill from raw input given by submittal from "new"
-		# return nil if unsuccessful
-		def rebuild_drill
-			p_data = params.fetch(:drill)
-			@drill.name        = p_data[:name]
-			@drill.description = p_data[:description]
-			@drill.material    = p_data[:material]
-			@drill.coach_id    = p_data[:coach_id]
-			@drill.kind_id     = p_data[:kind_id]
-			@drill.explanation = p_data[:explanation]
-			@drill.playbook    = p_data[:playbook]
-			@drill.check_skills(p_data[:skills_attributes]) if p_data[:skills_attributes]
-			@drill.check_targets(p_data[:drill_targets_attributes]) if p_data[:drill_targets_attributes]
-			@drill
-		end
-
 		# Use callbacks to share common setup or constraints between actions.
 		def set_drill
 			@drill = Drill.find(params[:id]) unless @drill.try(:id)==params[:id]
@@ -158,6 +142,6 @@ class DrillsController < ApplicationController
 
 		# Only allow a list of trusted parameters through.
 		def drill_params
-			params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, :skill_id, skills: [], target_ids: [], skill_ids: [], skills_attributes: [:id, :concept, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy], targets_attributes: [:id, :concept])
+			params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, :skill_id, skills: [], target_ids: [], skill_ids: [], skills_attributes: [:id, :concept, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy, target_attributes: [:id, :aspect, :focus, :concept]])
 		end
 end
