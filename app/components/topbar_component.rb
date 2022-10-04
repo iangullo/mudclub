@@ -10,6 +10,7 @@ class TopbarComponent < ApplicationComponent
     @tabcls    = 'hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap shadow rounded ml-2 px-2 py-2 rounded-md font-semibold'
     @lnkcls    = 'no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap'
     @profcls   = 'align-middle rounded-full min-h-8 min-w-8 align-middle hover:bg-blue-700 hover:ring-4 hover:ring-blue-200 focus:ring-4 focus:ring-blue-200'
+    @logincls  = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
     if user
       @menu_tabs = menu_tabs(user)
       @admin_tab = admin_tab(user) if user.admin? or user.is_coach?
@@ -21,14 +22,13 @@ class TopbarComponent < ApplicationComponent
   private
   #right hand profile menu
   def set_profile(user:, login:, logout:)
-    lcls = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
     res  = {
       profile: menu_link(label: I18n.t("user.profile"), url: user, kind: "modal"),
       login: menu_link(label: I18n.t("action.login"), url: login),
       logout: menu_link(label: I18n.t("action.logout"), url: logout, kind: "delete"),
-      closed: {icon: "login.svg", url: login, class: lcls}
+      closed: {icon: "login.svg", url: login, class: @logincls}
     }
-    res[:open] = {icon: user.picture, url: login, class: lcls} if user
+    res[:open] = {icon: user.picture, url: login, class: @logincls} if user
     res
   end
 
@@ -66,9 +66,10 @@ class TopbarComponent < ApplicationComponent
       res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], kind: "modal", class: @profcls)
       res[:options] << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url], class: @profcls)
     else
-      res        = menu_link(label: nil, url: @profile[:login][:url], class: @profile[:closed][:class], class: @profcls)
-      res[:icon] = @profile[:closed][:icon]
-      res[:name] = "profile"
+      res           = menu_link(label: nil, url: @profile[:login][:url], class: @profile[:closed][:class], class: @profcls)
+      res[:icon]    = @profile[:closed][:icon]
+      res[:name]    = "profile"
+      res[:i_class] = @logincls
     end
     res
   end
