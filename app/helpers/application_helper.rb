@@ -12,4 +12,12 @@ module ApplicationHelper
 
     doc.to_html.html_safe
   end
+
+  # generic title start FieldsComponent for views
+  def title_start(icon:, title:, size: nil, rows: nil, cols: nil, _class: nil)
+    [[
+      {kind: "header-icon", value: icon, size: size, rows: rows, class: _class},
+      {kind: "title", value: title, cols: cols}
+    ]]
+  end
 end
