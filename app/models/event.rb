@@ -28,6 +28,7 @@ class Event < ApplicationRecord
     match: 2
   }
 
+  # string view of object
   def to_s(long=nil)
     case self.kind.to_sym
     when :train
@@ -45,79 +46,10 @@ class Event < ApplicationRecord
     res
   end
 
+  # string with duration and minutes indication (')
   def s_dur
     self.duration.to_s + "\'"
   end
-
-  # Search for a list of Events
-	# s_data is an array with either season_id+kind+name or team_id+kind+name
-	def self.search(s_data)
-    s_id = s_data[:season_id] ? s_data[:season_id].to_i : nil
-    t_id = s_data[:team_id] ? s_data[:team_id].to_i : nil
-    kind = s_data[:kind] ? s_data[:kind].to_sym : nil
-    if s_id
-      res = Event.for_season(Season.find(s_id)).non_training.order(:start_time)
-    elsif t_id  # filter for the team received
-      if kind   # and kind
-        if s_data[:name]  # and name
-          res = Event.where("unaccent(name) ILIKE unaccent(?) and kind = (?) and team_id= (?)","%#{s_data[:name]}%",kind,t_id).order(:start_time)
-        else  # only team & kind
-          res = Event.where("kind = (?) and team_id= (?)",kind,t_id).order(:start_time)
-        end
-      elsif s_data[:name] # team & name only
-        res = Event.where("unaccent(name) ILIKE unaccent(?) and team_id= (?)","%#{s_data[:name]}%",t_id).order(:start_time)
-      else  # only team_id
-        res = Event.where(team_id: t_id).order(:start_time)
-      end
-		else
-			res = Event.upcoming.order(:start_time)
-		end
-	end
-
-  def self.prepare(s_data)
-    team = Team.find(s_data[:team_id] ? s_data[:team_id].to_i : 0)
-    res  = Event.new(team_id: team.id, kind: s_data[:kind].to_sym)
-    case res.kind.to_sym  # depending on event kind
-    when :rest
-      res.name        = I18n.t("rest.single")
-      res.start_time  = Date.current
-      res.duration    = 1440
-      res.location_id = 0
-    when :train
-      res.name        = I18n.t("train.single")
-      last            = team.events.trainings.last
-      slot            = team.next_slot(last)
-      if slot
-        res.start_time  = (slot.next_date + slot.hour.hours + slot.min.minutes).to_datetime
-        res.duration    = slot.duration
-        res.location_id = slot.location_id
-      else
-        res.start_time  = (Date.current + 16.hours + 0.minutes).to_datetime
-        res.duration    = 60
-        res.location_id = 0
-      end
-    when :match
-      last            = team.events.matches.last
-      starting        = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
-      res.name        = I18n.t("match.default_rival")
-      res.start_time  = starting
-      res.duration    = 120
-      res.location_id = team.homecourt_id
-    else
-      res = nil
-    end
-    return res
-  end
-
-	# Find a slot matching slot form data
-	def self.next(s_data)
-		unless s_data.empty?
-			t = Time.new(2021,8,30,s_data[:hour].to_i+1,s_data[:min].to_i)
-			Slot.where(wday: s_data[:wday].to_i, start: t, team_id: s_data[:team_id].to_i).or(Slot.where(wday: s_data[:wday].to_i, start: t, location_id: s_data[:location_id].to_i)).first
-		else
-			nil
-		end
-	end
 
   # return name of assocatied icon
   def pic
@@ -143,6 +75,7 @@ class Event < ApplicationRecord
     return true
   end
 
+  # return event title depending on kind & data
   def title(show: nil)
     cad = show ? "" : (self.id ? I18n.t("action.edit") + " " : I18n.t("action.create") + " ")
     case self.kind.to_sym
@@ -158,6 +91,7 @@ class Event < ApplicationRecord
     cad
   end
 
+  # wrappers to read/update event values
   def start_date
     self.start_time.to_date
   end
@@ -199,7 +133,7 @@ class Event < ApplicationRecord
   end
 
   def time_string
-    self.timeslot_string(t_begin: self.start_time, t_end: (self.train? ? self.end_time : nil))
+    timeslot_string(t_begin: self.start_time, t_end: (self.train? ? self.end_time : nil))
   end
 
   # return list of defensive targets
@@ -269,6 +203,7 @@ class Event < ApplicationRecord
     aux
   end
 
+  # check if player is in this event
   def has_player(p_id)
 		self.players.find_index { |p| p[:id]==p_id }
 	end
@@ -287,4 +222,75 @@ class Event < ApplicationRecord
       return nil
     end
   end
+
+  # Search for a list of Events
+	# s_data is an array with either season_id+kind+name or team_id+kind+name
+	def self.search(s_data)
+    s_id = s_data[:season_id] ? s_data[:season_id].to_i : nil
+    t_id = s_data[:team_id] ? s_data[:team_id].to_i : nil
+    kind = s_data[:kind] ? s_data[:kind].to_sym : nil
+    if s_id
+      res = Event.for_season(Season.find(s_id)).non_training.order(:start_time)
+    elsif t_id  # filter for the team received
+      if kind   # and kind
+        if s_data[:name]  # and name
+          res = Event.where("unaccent(name) ILIKE unaccent(?) and kind = (?) and team_id= (?)","%#{s_data[:name]}%",kind,t_id).order(:start_time)
+        else  # only team & kind
+          res = Event.where("kind = (?) and team_id= (?)",kind,t_id).order(:start_time)
+        end
+      elsif s_data[:name] # team & name only
+        res = Event.where("unaccent(name) ILIKE unaccent(?) and team_id= (?)","%#{s_data[:name]}%",t_id).order(:start_time)
+      else  # only team_id
+        res = Event.where(team_id: t_id).order(:start_time)
+      end
+		else
+			res = Event.upcoming.order(:start_time)
+		end
+	end
+
+  # prepare a new Event using data provided
+  def self.prepare(s_data)
+    team = Team.find(s_data[:team_id] ? s_data[:team_id].to_i : 0)
+    res  = Event.new(team_id: team.id, kind: s_data[:kind].to_sym)
+    case res.kind.to_sym  # depending on event kind
+    when :rest
+      res.name        = I18n.t("rest.single")
+      res.start_time  = Date.current
+      res.duration    = 1440
+      res.location_id = 0
+    when :train
+      res.name        = I18n.t("train.single")
+      last            = team.events.trainings.last
+      slot            = team.next_slot(last)
+      if slot
+        res.start_time  = (slot.next_date + slot.hour.hours + slot.min.minutes).to_datetime
+        res.duration    = slot.duration
+        res.location_id = slot.location_id
+      else
+        res.start_time  = (Date.current + 16.hours + 0.minutes).to_datetime
+        res.duration    = 60
+        res.location_id = 0
+      end
+    when :match
+      last            = team.events.matches.last
+      starting        = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
+      res.name        = I18n.t("match.default_rival")
+      res.start_time  = starting
+      res.duration    = 120
+      res.location_id = team.homecourt_id
+    else
+      res = nil
+    end
+    return res
+  end
+
+	# Find a slot matching slot form data
+	def self.next(s_data)
+		unless s_data.empty?
+			t = Time.new(2021,8,30,s_data[:hour].to_i+1,s_data[:min].to_i)
+			Slot.where(wday: s_data[:wday].to_i, start: t, team_id: s_data[:team_id].to_i).or(Slot.where(wday: s_data[:wday].to_i, start: t, location_id: s_data[:location_id].to_i)).first
+		else
+			nil
+		end
+	end
 end
