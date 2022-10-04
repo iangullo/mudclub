@@ -223,6 +223,22 @@ class Event < ApplicationRecord
     end
   end
 
+  # rebuild Event using raw hash from a form submittal
+  def rebuild(e_data, s_data=nil)
+    self.start_time = e_data[:start_date] if e_data[:start_date]
+    self.hour       = e_data[:hour].to_i if e_data[:hour]
+    self.min        = e_data[:min].to_i if e_data[:min]
+    self.duration   = e_data[:duration].to_i if e_data[:duration]
+    self.name       = e_data[:name] if e_data[:name]
+    self.p_for      = e_data[:p_for].to_i if e_data[:p_for]
+    self.p_opp      = e_data[:p_opp].to_i if e_data[:p_opp]
+    self.location_id= e_data[:location_id].to_i if e_data[:location_id]
+    self.home       = e_data[:home] if e_data[:home]
+    check_stats(s_data) if s_data # manage stats if provided
+    check_targets(e_data[:event_targets_attributes]) if e_data[:event_targets_attributes]
+    check_tasks(e_data[:tasks_attributes]) if e_data[:tasks_attributes]
+  end
+
   # Search for a list of Events
 	# s_data is an array with either season_id+kind+name or team_id+kind+name
 	def self.search(s_data)
@@ -293,4 +309,53 @@ class Event < ApplicationRecord
 			nil
 		end
 	end
+
+  private
+    # check stats added to event
+    def check_stats(s_data)
+      e_stats = self.stats
+      s_params.each {|s_param|
+        s_arg = s_param[0].split("_")
+        stat = Stat.fetch(event_id: self.id, player_id: s_arg[0].to_i, concept: s_arg[1], stats: e_stats)
+        if stat # just update the value
+          stat[:value] = s_param[1].to_i
+        else  # create a new stat
+          e_stats << Stat.new(event_id: self.id, player_id: s_arg[0].to_i, concept: s_arg[1], value: s_param[1].to_i)
+        end
+      }
+    end
+
+    # checks targets_attributes parameter received and manage adding/removing
+    # from the target collection - remove duplicates from list
+    def check_targets(t_array)
+      a_targets = Array.new	# array to include only non-duplicates
+      t_array.each { |t| # first pass
+        if t[1][:_destroy]  # we ust include to remove it
+          a_targets << t[1]
+        else
+          a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
+        end
+      }
+      a_targets.each { |t| # second pass - manage associations
+        if t[:_destroy] == "1"	# remove drill_target
+          self.targets.delete(t[:target_attributes][:id].to_i)
+        elsif t[:target_attributes]
+          dt = EventTarget.fetch(t)
+          self.event_targets ? self.event_targets << dt : self.event_targets |= dt
+        end
+      }
+    end
+
+    # checks tasks_attributes parameter received and manage adding/removing
+    # from the task collection - ALLOWING DUPLICATES.
+    def check_tasks(t_array)
+      t_array.each { |t| # manage associations
+        if t[1][:_destroy] == "1"	# delete task
+          Task.find(t[1][:id].to_i).delete
+        else
+          tsk = Task.fetch(t[1])
+          tsk.save
+        end
+      }
+    end
 end

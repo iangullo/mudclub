@@ -68,7 +68,7 @@ class EventsController < ApplicationController
     @event = Event.prepare(event_params)
     check_access(roles: [:admin], obj: @event, returl: events_url)
     respond_to do |format|
-      rebuild_event(event_params)
+      @event.rebuild(event_params)
       if @event.save
         link_holidays
         format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: {kind: "success", message: event_create_notice}, data: {turbo_action: "replace"} }
@@ -84,30 +84,30 @@ class EventsController < ApplicationController
   def update
     check_access(roles: [:admin], obj: @event, returl: events_url)
     respond_to do |format|
-      if event_params[:player_ids]  # we are updating attendance
-        check_attendance(event_params[:player_ids])
+      e_data = event_params
+      @event.rebuild(e_data)
+      if e_data[:player_ids]  # we are updating attendance
+        check_attendance(e_data[:player_ids])
         format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"}}
         format.json { render :show, status: :ok, location: @event }
-      else
-        rebuild_event(event_params)
-        if @event.save
-          if @task  # we just updated a task
-            format.html { redirect_to event_params[:task][:retlnk], notice: {kind: "success", message: "#{I18n.t("task.updated")} '#{@task.to_s}'"} }
-            format.json { render :edit, status: :ok, location: @event }
-          elsif event_params[:season_id].to_i > 0 # season event
-            format.html { redirect_to season_path(params[:event][:season_id]), notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"} }
-            format.json { render :show, status: :ok, location: @event }
-          elsif event_params[:tasks_attributes] # a training session
-            @event.tasks.reload
-            format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
-            format.json { render :show, status: :ok, location: @event }
-          else # updating match
-            format.html { redirect_to @event, notice: {kind: "success", message: "#{I18n.t("match.updated")} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
-          end
-        else
-          format.html { render :edit, status: :unprocessable_entity }
-          format.json { render json: @event.errors, status: :unprocessable_entity }
+      elsif e_data[:task]
+        check_task(e_data[:task]) # updated task from edit_task_form (add or edit)
+        format.html { redirect_to e_data[:task][:retlnk], notice: {kind: "success", message: "#{I18n.t("task.updated")} '#{@task.to_s}'"} }
+        format.json { render :edit, status: :ok, location: @event }
+      elsif @event.save
+        if e_data[:season_id].to_i > 0 # season event
+          format.html { redirect_to season_path(e_data[:season_id]), notice: {kind: "success", message: event_update_notice}, data: {turbo_action: "replace"} }
+          format.json { render :show, status: :ok, location: @event }
+        elsif e_data[:tasks_attributes] # a training session
+          @event.tasks.reload
+          format.html { redirect_to @event, notice: {kind: "success", message: event_update_notice}}
+          format.json { render :show, status: :ok, location: @event }
+        else # updating match
+          format.html { redirect_to @event, notice: {kind: "success", message: "#{I18n.t("match.updated")} '#{@event.to_s}'"}, data: {turbo_action: "replace"} }
         end
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @event.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -394,27 +394,6 @@ class EventsController < ApplicationController
       {title: title, data: data}
     end
 
-    def rebuild_event(event_params)
-      @event   = Event.new unless @event
-      e_params = event_params
-      @event.start_time = e_params[:start_date] if e_params[:start_date]
-      @event.hour       = e_params[:hour].to_i if e_params[:hour]
-      @event.min        = e_params[:min].to_i if e_params[:min]
-      @event.duration   = e_params[:duration].to_i if e_params[:duration]
-      @event.name       = e_params[:name] if e_params[:name]
-      @event.p_for      = e_params[:p_for].to_i if e_params[:p_for]
-      @event.p_opp      = e_params[:p_opp].to_i if e_params[:p_opp]
-      @event.location_id= e_params[:location_id].to_i if e_params[:location_id]
-      @event.home       = e_params[:home] if e_params[:home]
-      check_stats(params[:stats]) if params[:stats]
-      check_targets(e_params[:event_targets_attributes]) if e_params[:event_targets_attributes]
-      if e_params[:tasks_attributes]  # updated tasks in session edit form
-        check_tasks(e_params[:tasks_attributes])
-      elsif e_params[:task] # updated task from edit_task_form (add or edit)
-        check_task(e_params[:task])
-      end
-    end
-
  		# check attendance
 		def check_attendance(p_array)
 			# first pass
@@ -427,6 +406,18 @@ class EventsController < ApplicationController
 			# cleanup removed attendances
 			@event.players.each {|p| @event.players.delete(p) unless attendees.include?(p)}
 		end
+
+    # ensure a task is correctly added to event
+    def check_task(t_dat)
+      if t_dat  # we are adding a single task
+        @task          = (t_dat[:task_id] and t_dat[:task_id]!="") ? Task.find(t_dat[:task_id]) : Task.new(event_id: @event.id)
+        @task.order    = t_dat[:order].to_i if t_dat[:order]
+        @task.drill_id = t_dat[:drill_id] ? t_dat[:drill_id].to_i : params[:task][:drill_id].split("|")[0].to_i
+        @task.duration = t_dat[:duration].to_i if t_dat[:duration]
+        @task.remarks  = t_dat[:remarks] if t_dat[:remarks]
+        @task.save
+      end
+    end
 
     # grid to plan playing time dependiong on time rules
     def period_grid(periods, edit: nil)
@@ -452,66 +443,6 @@ class EventsController < ApplicationController
         rows << row
       }
       {title: head, rows: rows}
-    end
-
-    # checks targets_attributes parameter received and manage adding/removing
-    # from the target collection - remove duplicates from list
-    def check_targets(t_array)
-      a_targets = Array.new	# array to include only non-duplicates
-      t_array.each { |t| # first pass
-        if t[1][:_destroy]  # we ust include to remove it
-          a_targets << t[1]
-        else
-          a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
-        end
-      }
-      a_targets.each { |t| # second pass - manage associations
-        if t[:_destroy] == "1"	# remove drill_target
-          @event.targets.delete(t[:target_attributes][:id].to_i)
-        elsif t[:target_attributes]
-          dt = EventTarget.fetch(t)
-          @event.event_targets ? @event.event_targets << dt : @event.event_targets |= dt
-        end
-      }
-    end
-
-    # checks tasks_attributes parameter received and manage adding/removing
-    # from the task collection - ALLOWING DUPLICATES.
-    def check_tasks(t_array)
-      t_array.each { |t| # manage associations
-        if t[1][:_destroy] == "1"	# delete task
-          Task.find(t[1][:id].to_i).delete
-        else
-          tsk = Task.fetch(t[1])
-          tsk.save
-        end
-      }
-    end
-
-    # ensure a task is correctly added to event
-    def check_task(t_dat)
-      if t_dat  # we are adding a single task
-        @task          = (t_dat[:task_id] and t_dat[:task_id]!="") ? Task.find(t_dat[:task_id]) : Task.new(event_id: @event.id)
-        @task.order    = t_dat[:order].to_i if t_dat[:order]
-        @task.drill_id = t_dat[:drill_id] ? t_dat[:drill_id].to_i : params[:task][:drill_id].split("|")[0].to_i
-        @task.duration = t_dat[:duration].to_i if t_dat[:duration]
-        @task.remarks  = t_dat[:remarks] if t_dat[:remarks]
-        @task.save
-      end
-    end
-
-    # check stats added to event
-    def check_stats(s_params)
-      e_stats = @event.stats
-      s_params.each {|s_param|
-        s_arg = s_param[0].split("_")
-        stat = Stat.fetch(event_id: @event.id, player_id: s_arg[0].to_i, concept: s_arg[1], stats: e_stats)
-        if stat # just update the value
-          stat[:value] = s_param[1].to_i
-        else  # create a new stat
-          e_stats << Stat.new(event_id: @event.id, player_id: s_arg[0].to_i, concept: s_arg[1], value: s_param[1].to_i)
-        end
-      }
     end
 
     def link_holidays
