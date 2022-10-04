@@ -40,7 +40,8 @@ class LocationsController < ApplicationController
   def create
     check_access(roles: [:admin, :coach])
     respond_to do |format|
-    rebuild_location # rebuild @location
+      @location = Location.new
+      @location.rebuild(location_params) # rebuild @location
       if @location.id!=nil  # @location is already stored in database
         if @season
           @season.locations |= [@location]
@@ -67,7 +68,7 @@ class LocationsController < ApplicationController
   def update
     check_access(roles: [:admin, :coach])
     respond_to do |format|
-      rebuild_location
+      @location.rebuild(location_params)
       if @location.id!=nil  # we have location to save
         if @location.update(location_params)  # try to save
           @season.locations |= [@location] if @season
@@ -116,7 +117,7 @@ private
     res = title_fields(title)
     res << [{kind: "text-box", key: :name, value: @location.name, size: 20}]
     res << [{kind: "icon", value: "gmaps.svg"}, {kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, size: 20}]
-    res << [{kind: "icon", value: "training.svg"}, {kind: "label-checkbox", key: :practice_court, label: I18n.t("location.deleted")}]
+    res << [{kind: "icon", value: "training.svg"}, {kind: "label-checkbox", key: :practice_court, label: I18n.t("location.train")}]
     res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
     res
   end
@@ -146,22 +147,6 @@ private
     {title: title, rows: rows}
   end
 
-  # rebuild @location from params[:location]
-  def rebuild_location
-    loc    = params[:id] ? Location.find(params[:id]) : Location.new
-    l_data = location_params
-    if l_data
-      loc.name           = l_data[:name]
-      loc.exists? # reload from database
-      loc.gmaps_url      = l_data[:gmaps_url] if l_data[:gmaps_url].length > 0
-      loc.practice_court = (l_data[:practice_court] == "1")
-      @season   = Season.find(l_data[:season_id]) if l_data[:season_id]
-    else
-      loc = nil
-    end
-    @location = loc
-  end
-
   # ensure internal variables are well defined
   def set_locations
     if params[:season_id]
@@ -170,6 +155,7 @@ private
       @eligible_locations = @season.eligible_locations
     else
       @locations = Location.search(params[:search]).order(:name)
+      @season    = Season.find(params[:location][:season_id]) if params[:location].try(:season_id)
     end
     if params[:id]
       @location = Location.find(params[:id]) unless @location.try(:id)==params[:id]

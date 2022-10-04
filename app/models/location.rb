@@ -42,4 +42,12 @@ class Location < ApplicationRecord
 			s.delete
 		}
   end
+
+  # rebuild @location from raw hash returned by a form
+  def rebuild(l_data)
+    self.name           = l_data[:name]
+    self.exists? # reload from database
+    self.gmaps_url      = l_data[:gmaps_url] if l_data[:gmaps_url].length > 0
+    self.practice_court = (l_data[:practice_court] == "1")
+  end
 end
