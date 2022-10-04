@@ -9,4 +9,16 @@ class ApplicationRecord < ActiveRecord::Base
       read_field = def_value unless old_value
     end
   end
+
+  # return a 2 digit string for a number
+  def two_dig(num)
+		num.to_s.rjust(2,'0')
+	end
+
+  	# starting / ending hours as string
+	def timeslot_string(t_begin:, t_end: nil)
+		cad = two_dig(t_begin.hour) + ":" + two_dig(t_begin.min)
+    cad = cad + "-" + two_dig(t_end.hour) + ":" + two_dig(t_end.min) if t_end
+    cad
+	end
 end

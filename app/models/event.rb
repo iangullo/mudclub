@@ -199,9 +199,7 @@ class Event < ApplicationRecord
   end
 
   def time_string
-    cad = two_dig(self.hour) + ":" + two_dig(self.min)
-    cad = cad + " - " + two_dig(self.end_time.hour) + ":" + two_dig(self.end_time.min) if self.train?
-    cad
+    self.timeslot_string(t_begin: self.start_time, t_end: (self.train? ? self.end_time : nil))
   end
 
   # return list of defensive targets
@@ -288,12 +286,5 @@ class Event < ApplicationRecord
     else
       return nil
     end
-  end
-
-
-  private
-  # starting / ending hours as string
-  def two_dig(num)
-    num.to_s.rjust(2,'0')
   end
 end

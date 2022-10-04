@@ -9,7 +9,7 @@ class TopbarComponent < ApplicationComponent
     @profile   = set_profile(user:, login:, logout:)
     @tabcls    = 'hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap shadow rounded ml-2 px-2 py-2 rounded-md font-semibold'
     @lnkcls    = 'no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap'
-    @profcls   = 'align-middle rounded-full min-h-8 min-w-8 align-middle hover:ring-4 hover:ring-blue-200 focus:ring-4 focus:ring-blue-200'
+    @profcls   = 'align-middle rounded-full min-h-8 min-w-8 align-middle hover:bg-blue-700 hover:ring-4 hover:ring-blue-200 focus:ring-4 focus:ring-blue-200'
     if user
       @menu_tabs = menu_tabs(user)
       @admin_tab = admin_tab(user) if user.admin? or user.is_coach?
@@ -63,10 +63,10 @@ class TopbarComponent < ApplicationComponent
   def prof_tab(user)
     if user
       res = {kind: "menu", name: "profile", icon: user.picture, options:[], class: @profcls, i_class: "rounded-full", size: "30x30"}
-      res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], kind: "modal")
-      res[:options] << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url])
+      res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], kind: "modal", class: @profcls)
+      res[:options] << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url], class: @profcls)
     else
-      res        = menu_link(label: nil, url: @profile[:login][:url], class: @profile[:closed][:class])
+      res        = menu_link(label: nil, url: @profile[:login][:url], class: @profile[:closed][:class], class: @profcls)
       res[:icon] = @profile[:closed][:icon]
       res[:name] = "profile"
     end

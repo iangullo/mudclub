@@ -9,7 +9,7 @@ class Slot < ApplicationRecord
 	self.inheritance_column = "not_sti"
 
 	def to_s
-		self.weekday + " (" + self.timeslot_string + ")"
+		self.weekday + " (" + self.timeslot_string(t_begin: self.start, t_end: self.ending) + ")"
 	end
 
 	def court
@@ -142,16 +142,5 @@ class Slot < ApplicationRecord
   # filter slots that start at or end after start_time
 	def self.at_time(start_time, slots=Slot.real)
 		res = slots.select {|slot| slot.at_work?(slot.wday,start_time)}
-	end
-
-	private
-	# starting / ending hours as string
-	def timeslot_string
-		e = self.ending
-		two_dig(self.hour) + ":" + two_dig(self.min) + "-" + two_dig(e.hour) + ":" + two_dig(e.min)
-	end
-
-	def two_dig(num)
-		num.to_s.rjust(2,'0')
 	end
 end
