@@ -143,4 +143,16 @@ class Slot < ApplicationRecord
 	def self.at_time(start_time, slots=Slot.real)
 		res = slots.select {|slot| slot.at_work?(slot.wday,start_time)}
 	end
+
+	# build new @slot from raw input given by submittal from "new" or "edit"
+	# always returns a @slot
+	def rebuild(s_data)
+    self.wday        = s_data[:wday] if s_data[:wday]
+    self.hour        = s_data[:hour] if s_data[:hour]
+    self.min         = s_data[:min] if s_data[:min]
+    self.duration    = s_data[:duration] if s_data[:duration]
+    self.location_id = s_data[:location_id] if s_data[:location_id]
+    self.team_id     = s_data[:team_id] if s_data[:team_id]
+    self.season_id   = self.team.season_id.to_i
+	end
 end

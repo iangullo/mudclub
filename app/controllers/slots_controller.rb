@@ -1,6 +1,6 @@
 class SlotsController < ApplicationController
   skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
-  before_action :set_slot, only: [:show, :edit, :update, :destroy]
+  before_action :set_slot, only: [:show, :edit, :create, :update, :destroy]
 
 
   # GET /slots or /slots.json
@@ -41,7 +41,7 @@ class SlotsController < ApplicationController
   def create
 		check_access(roles: [:admin], returl: slots_url)
     respond_to do |format|
-			rebuild_slot	# rebuild @slot
+      @slot.rebuild(slot_params) # rebuild @slot
       if @slot.save # try to store
         format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t("slot.created")} '#{@sot.to_s}'"}, data: {turbo_action: "replace"} }
         format.json { render :index, status: :created, location: @slot }
@@ -56,8 +56,8 @@ class SlotsController < ApplicationController
   def update
 		check_access(roles: [:admin], returl: slots_url)
     respond_to do |format|
-			rebuild_slot
-      if @slot.update(slot_params)
+      @slot.rebuild(slot_params) # rebuild @slot
+      if @slot.save
         format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: {kind: "success", message: "#{I18n.t("slot.updated")} '#{@slot.to_s}'"}, data: {turbo_action: "replace"} }
         format.json { render :index, status: :ok, location: @slot }
       else
@@ -99,28 +99,11 @@ class SlotsController < ApplicationController
       res = title_fields(title)
       res << [{kind: "icon", value: "team.svg"}, {kind: "select-collection", key: :team_id, options: @season ? Team.for_season(@season.id) : Team.real, value: @slot.team_id, cols: 2}]
       res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, options: @season ? @season.locations.practice.order(name: :asc) : Location.practice, value: @slot.location_id, cols: 2}]
-      res << [{kind: "icon", value: "calendar.svg"}, {kind: "select-box", key: :wday, value: :wday, options: @weekdays}, {kind: "time-box", hour: @slot.hour, min: @slot.min}]
+      res << [{kind: "icon", value: "calendar.svg"}, {kind: "select-box", key: :wday, value: @slot.wday, options: @weekdays}, {kind: "time-box", hour: @slot.hour, min: @slot.min}]
       res << [{kind: "icon", value: "clock.svg"}, {kind: "number-box", key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins")}]
       res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
       res
     end
-
-		# build new @slot from raw input given by submittal from "new" or "edit"
-		# always returns a @slot
-		def rebuild_slot
-      s_data = params.fetch(:slot)
-      tslot  = params[:id] ? Slot.find(params[:id]) : Slot.fetch(s_data)
-      tslot  = Slot.new(start: Time.new(2021,8,30,17,00)) unless tslot
-      tslot.wday        = s_data[:wday]
-      tslot.hour        = s_data[:hour]
-      tslot.min         = s_data[:min]
-      tslot.duration    = s_data[:duration]
-      tslot.location_id = s_data[:location_id]
-      tslot.team_id     = s_data[:team_id]
-      tslot.season_id   = tslot.team.season_id.to_i
-      @season = Season.find(s_data[:season_id]) if s_data[:season_id]
-			@slot   = tslot
-		end
 
     # create the timetable view grid
     # requires that @location & @season defined
@@ -204,7 +187,9 @@ class SlotsController < ApplicationController
 
     # Use callbacks to share common setup or constraints between actions.
     def set_slot
-      @slot = Slot.find(params[:id]) unless @slot.try(:id)==params[:id]
+      @season = Season.find(params[:slot][:season_id]) if params[:slot].try(:season_id)
+      @slot   = Slot.find(params[:id]) unless @slot.try(:id)==params[:id]
+      @slot   = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
     end
 
     # Only allow a list of trusted parameters through.

@@ -134,7 +134,7 @@ class TeamsController < ApplicationController
 	  respond_to do |format|
 			if params[:team]
 				retlnk = params[:team][:retlnk]
-				rebuild_team
+				@team.rebuild(params[:team])
 		    	if @team.save
 					format.html { redirect_to retlnk, notice: {kind: "success", message: "#{I18n.t("team.updated")} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
 					format.json { redirect_to retlnk, status: :created, location: retlnk }
@@ -274,62 +274,6 @@ class TeamsController < ApplicationController
 	    }
 	    return res
 	  end
-
-		def rebuild_team
-			p_data = params.fetch(:team)
-			@team.name         = p_data[:name] if p_data[:name]
-			@team.season_id    = p_data[:season_id].to_i if p_data[:season_id]
-			@team.category_id  = p_data[:category_id].to_i if p_data[:category_id]
-			@team.division_id  = p_data[:division_id].to_i if p_data[:division_id]
-			@team.homecourt_id = p_data[:homecourt_id].to_i if p_data[:homecourt_id]
-			@team.rules        = Team.rules[p_data[:rules]].to_i if p_data[:rules]
-			check_targets(p_data[:team_targets_attributes]) if p_data[:team_targets_attributes]
-			check_players(p_data[:player_ids]) if p_data[:player_ids]
-			check_coaches(p_data[:coach_ids]) if p_data[:coach_ids]
-		end
-
-		# ensure we get the right targets
-		def check_targets(t_array)
-			a_targets = Array.new	# array to include all targets
-			t_array.each { |t| # first pass
-				a_targets << t[1] # unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
-			}
-			a_targets.each { |t| # second pass - manage associations
-				if t[:_destroy] == "1"	# remove team_target
-					TeamTarget.find(t[:id].to_i).delete
-				else	# ensure creation of team_targets
-					tt = TeamTarget.fetch(t)
-					tt.save unless tt.persisted?
-					@team.team_targets ? @team.team_targets << tt : @team.team_targets |= tt
-				end
-			}
-		end
-
-		# ensure we get the right players
-		def check_players(p_array)
-			# first pass
-			a_targets = Array.new	# array to include all targets
-			p_array.each { |t| a_targets << Player.find(t.to_i) unless t.to_i==0 }
-
-			# second pass - manage associations
-			a_targets.each { |t| @team.players << t unless @team.has_player(t.id)	}
-
-			# cleanup roster
-			@team.players.each { |p| @team.players.delete(p) unless a_targets.include?(p) }
-		end
-
-		# ensure we get the right players
-		def check_coaches(c_array)
-			# first pass
-			a_targets = Array.new	# array to include all targets
-			c_array.each { |t| a_targets << Coach.find(t.to_i) unless t.to_i==0 }
-
-			# second pass - manage associations
-			a_targets.each { |t| @team.coaches << t unless @team.has_coach(t.id) }
-
-			# cleanup roster
-			@team.coaches.each { |c| @team.coaches.delete(c) unless a_targets.include?(c) }
-		end
 
 		# remove dependent records prior to deleting
 		def erase_links
