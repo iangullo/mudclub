@@ -45,13 +45,15 @@ module EventsHelper
     title << {kind: "normal", value: I18n.t("drill.desc")}
     rows  = Array.new
     events.each { |event|
-      row = {url:  event_path(event, season_id: for_season ? obj.id : nil, retlnk: go_back), frame: event.rest? ? "modal": "_top", items: []}
-      row[:items] << {kind: "normal", value: event.date_string, align: "center"}
-      row[:items] << {kind: "normal", value: event.time_string, align: "center"}
-      row[:items] << {kind: "normal", value: event.team_id > 0 ? event.team.to_s : t("scope.all")} if for_season
-      row[:items] << {kind: "normal", value: event.to_s}
-      row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
-      rows << row
+      unless for_season and event.rest? and event.team_id>0 # show only general holidays in season events view
+        row = {url:  event_path(event, season_id: for_season ? obj.id : nil, retlnk: go_back), frame: event.rest? ? "modal": "_top", items: []}
+        row[:items] << {kind: "normal", value: event.date_string, align: "center"}
+        row[:items] << {kind: "normal", value: event.time_string, align: "center"}
+        row[:items] << {kind: "normal", value: event.team_id > 0 ? event.team.to_s : t("scope.all")} if for_season
+        row[:items] << {kind: "normal", value: event.to_s}
+        row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
+        rows << row
+      end
     }
     if for_season
       title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"} if current_user.admin? # new season event
