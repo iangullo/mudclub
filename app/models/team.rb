@@ -47,7 +47,7 @@ class Team < ApplicationRecord
 					aux
 			end
 		end
-		aux.order(:number)
+		aux
 	end
 
 	#Search field matching season
