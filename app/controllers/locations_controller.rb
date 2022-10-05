@@ -38,7 +38,6 @@ class LocationsController < ApplicationController
   def create
     check_access(roles: [:admin, :coach])
     respond_to do |format|
-      binding.break
       @season   = Season.find(params[:location][:season_id]) if params[:location][:season_id]
       @location = Location.new
       @location.rebuild(location_params) # rebuild @location
