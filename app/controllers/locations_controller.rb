@@ -44,7 +44,7 @@ class LocationsController < ApplicationController
       if @location.id!=nil  # @location is already stored in database
         if @season
           @season.locations |= [@location]
-          format.html { redirect_to season_locations_path(@season), notice: {kind: "info", message: "#{I18n.t("location.created")} #{@season.name} => '#{@location.name}'"}, data: {turbo_action: "replace"} }
+          format.html { redirect_to season_locations_path(@season), notice: helpers.flash_message("#{I18n.t("location.created")} #{@season.name} => '#{@location.name}'"), data: {turbo_action: "replace"} }
 	        format.json { render :index, status: :created, location: season_locations_path(@season) }
         else
           format.html { render @location, notice: {kind: "info", message: t(:loc_created) + "'#{@location.name}'"}}
@@ -53,7 +53,7 @@ class LocationsController < ApplicationController
       else
         if @location.save
           @season.locations |= [@location] if @season
-          format.html { redirect_to @season ? season_locations_path(@season) : locations_url, notice: {kind: "success", message: "#{I18n.t("location.created")} '#{@location.name}'"}, data: {turbo_action: "replace"} }
+          format.html { redirect_to @season ? season_locations_path(@season) : locations_url, notice: helpers.flash_message("#{I18n.t("location.created")} '#{@location.name}'", "success"), data: {turbo_action: "replace"} }
 	        format.json { render :index, status: :created, location: locations_url }
         else
           format.html { render :new }
@@ -71,7 +71,7 @@ class LocationsController < ApplicationController
       if @location.id!=nil  # we have location to save
         if @location.update(location_params)  # try to save
           @season.locations |= [@location] if @season
-          format.html { redirect_to @season ? seasons_path(@season) : locations_path, notice: {kind: "success", message: "#{I18n.t("location.updated")} '#{@location.name}'"}, data: {turbo_action: "replace"} }
+          format.html { redirect_to @season ? seasons_path(@season) : locations_path, notice: helpers.flash_message("#{I18n.t("location.updated")} '#{@location.name}'", "success"), data: {turbo_action: "replace"} }
   				format.json { render :index, status: :created, location: locations_path }
         else
           format.html { redirect_to edit_location_path(@location), data: {turbo_action: "replace"} }
@@ -93,12 +93,12 @@ class LocationsController < ApplicationController
       if @season
         @season.locations.delete(@location)
         @locations = @season.locations
-        format.html { redirect_to season_locations_path(@season), status: :see_other, notice: {kind: "success", message: "#{I18n.t("location.deleted")} #{@season.name} => '#{l_name}'"}, data: {turbo_action: "replace"} }
+        format.html { redirect_to season_locations_path(@season), status: :see_other, notice: helpers.flash_message("#{I18n.t("location.deleted")} #{@season.name} => '#{l_name}'"), data: {turbo_action: "replace"} }
         format.json { render :index, status: :created, location: season_locations_path(@season) }
       else
         @location.scrub
         @location.delete
-        format.html { redirect_to locations_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("location.deleted")} '#{l_name}'"}}
+        format.html { redirect_to locations_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("location.deleted")} '#{l_name}'") }
         format.json { render :show, :created, location: locations_url(@location) }
       end
     end

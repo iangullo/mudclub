@@ -118,7 +118,7 @@ class TeamsController < ApplicationController
 		@team = Team.new(team_params)
     respond_to do |format|
 			if @team.save
-				format.html { redirect_to teams_path, notice: {kind: "success", message: "#{I18n.t("team.created")} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to teams_path, notice: helpers.flash_message("#{I18n.t("team.created")} '#{@team.to_s}'","success"), data: {turbo_action: "replace"} }
 				format.json { render :index, status: :created, location: teams_path }
 			else
 				format.html { render :new }
@@ -136,16 +136,16 @@ class TeamsController < ApplicationController
 				retlnk = params[:team][:retlnk]
 				@team.rebuild(params[:team])
 		    	if @team.save
-					format.html { redirect_to retlnk, notice: {kind: "success", message: "#{I18n.t("team.updated")} '#{@team.to_s}'"}, data: {turbo_action: "replace"} }
+					format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("team.updated")} '#{@team.to_s}'","success"), data: {turbo_action: "replace"} }
 					format.json { redirect_to retlnk, status: :created, location: retlnk }
 				else
 					@eligible_coaches = Coach.active
 					@form_fields      = form_fields(I18n.t("team.edit"))
-					format.html { render :edit, data:{"turbo-frame": "replace"}, notice: {kind: "error", message: "#{I18n.t("status.no_data")} (#{@team.to_s})"} }
+					format.html { render :edit, data:{"turbo-frame": "replace"}, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})","error") }
 					format.json { render json: @team.errors, status: :unprocessable_entity }
 				end
 			else	# no data to save...
-				format.html { redirect_to @team, notice: {kind: "info", message: "#{I18n.t("status.no_data")} (#{@team.to_s})"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to @team, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})"), data: {turbo_action: "replace"} }
 				format.json { render json: @team.errors, status: :unprocessable_entity }
 			end
 		end

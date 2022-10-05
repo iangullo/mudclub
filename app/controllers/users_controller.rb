@@ -36,7 +36,7 @@ class UsersController < ApplicationController
  			@user = User.new
       @user.rebuild(user_params)	# build user
  			if @user.is_duplicate? then
-				format.html { redirect_to @user, notice: {kind: "info", message: "#{I18n.t("user.duplicate")} '#{@user.s_name}'"}, data: {turbo_action: "replace"}}
+				format.html { redirect_to @user, notice: helpers.flash_message("#{I18n.t("user.duplicate")} '#{@user.s_name}'"), data: {turbo_action: "replace"}}
  				format.json { render :show,  :created, location: @user }
  			else
  				@user.person.save
@@ -46,10 +46,10 @@ class UsersController < ApplicationController
  						@user.person.user_id = @user.id
  						@user.person.save
  					end
- 					format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t("user.created")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
+ 					format.html { redirect_to users_url, notice: helpers.flash_message("#{I18n.t("user.created")} '#{@user.s_name}'","success"), data: {turbo_action: "replace"} }
  					format.json { render :index, status: :created, location: users_url }
  				else
- 					format.html { render :new, notice: {kind: "error", message: "#{@user.errors}"}}
+ 					format.html { render :new, notice: helpers.flash_message("#{@user.errors}","error") }
  					format.json { render json: @user.errors, status: :unprocessable_entity }
  				end
  			end
@@ -65,7 +65,7 @@ class UsersController < ApplicationController
       end
       @user.rebuild(user_params)	# rebuild user
   	  if @user.save
-  			format.html { redirect_to users_url, notice: {kind: "success", message: "#{I18n.t("user.updated")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
+  			format.html { redirect_to users_url, notice: helpers.flash_message("#{I18n.t("user.updated")} '#{@user.s_name}'","success"), data: {turbo_action: "replace"} }
   			format.json { render :index, status: :ok, location: users_url }
   		else
   			format.html { render :edit }
@@ -80,7 +80,7 @@ class UsersController < ApplicationController
     unlink_person
 		@user.destroy
  		respond_to do |format|
- 			format.html { redirect_to users_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("user.deleted")} '#{@user.s_name}'"}, data: {turbo_action: "replace"} }
+ 			format.html { redirect_to users_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("user.deleted")} '#{@user.s_name}'"), data: {turbo_action: "replace"} }
  			format.json { head :no_content }
  		end
   end

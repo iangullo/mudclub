@@ -37,7 +37,7 @@ class SeasonsController < ApplicationController
     @eligible_locations = @season.eligible_locations
 		respond_to do |format|
 	    if @season.save
-	      format.html { redirect_to seasons_path(@season), notice: {kind: "success", message: "#{I18n.t("season.created")} '#{@season.name}'"}, data: {turbo_action: "replace"} }
+	      format.html { redirect_to seasons_path(@season), notice: helpers.flash_message("#{I18n.t("season.created")} '#{@season.name}'","success"), data: {turbo_action: "replace"} }
 	      format.json { render :index, status: :created, location: seasons_url }
 	    else
 	      format.html { render :new }
@@ -53,7 +53,7 @@ class SeasonsController < ApplicationController
     respond_to do |format|
       check_locations
     	if @season.update(season_params)
-	      format.html { redirect_to seasons_path(@season), notice: {kind: "success", message: "#{I18n.t("season.updated")} '#{@season.name}'"}, data: {turbo_action: "replace"} }
+	      format.html { redirect_to seasons_path(@season), notice: helpers.flash_message("#{I18n.t("season.updated")} '#{@season.name}'","success"), data: {turbo_action: "replace"} }
 		  	format.json { render :index, status: :created, location: seasons_url}
 	    else
 	      format.html { render :edit }
@@ -70,7 +70,7 @@ class SeasonsController < ApplicationController
 		erase_links
 		@season.destroy
     respond_to do |format|
-      format.html { redirect_to seasons_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("season.deleted")} '#{s_name}'"}, data: {turbo_action: "replace"} }
+      format.html { redirect_to seasons_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("season.deleted")} '#{s_name}'"), data: {turbo_action: "replace"} }
       format.json { head :no_content }
     end
   end

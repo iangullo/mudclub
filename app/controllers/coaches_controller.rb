@@ -49,7 +49,7 @@ class CoachesController < ApplicationController
 			@coach = Coach.new
 			@coach.rebuild(coach_params)	# rebuild coach
 			if @coach.is_duplicate? then
-				format.html { redirect_to coaches_path(search: @coach.s_name), notice: {kind: "info", message: "#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"}}
+				format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
 				format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
 			else
 				if @coach.save # coach saved to database
@@ -57,7 +57,7 @@ class CoachesController < ApplicationController
 						@coach.person.coach_id = @coach.id
 						@coach.person.save
 					end
-					format.html { redirect_to coaches_path(search: @coach.s_name), notice: {kind: "success", message: "#{I18n.t("coach.created")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
+					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.created")} '#{@coach.s_name}'", "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: coaches_path(search: @coach.s_name) }
 				else
 					format.html { render :new }
@@ -74,7 +74,7 @@ class CoachesController < ApplicationController
 		respond_to do |format|
 			@coach.rebuild(coach_params)
 			if @coach.save
-				format.html { redirect_to coaches_path(search: @coach.s_name), notice: {kind: "success", message: "#{I18n.t("coach.updated")} '#{@coach.s_name}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.updated")} '#{@coach.s_name}'", "success"), data: {turbo_action: "replace"} }
 				format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
 			else
 				format.html { render :edit }
@@ -88,7 +88,7 @@ class CoachesController < ApplicationController
 	def import
     check_access(roles: [:admin])
 	  Coach.import(params[:file])	# added to import excel
-	  format.html { redirect_to coaches_path, notice: {kind: "success", message: "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
+	  format.html { redirect_to coaches_path, notice: helpers.flash_message("#{I18n.t("coach.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
 	end
 
  	# DELETE /coaches/1
@@ -99,7 +99,7 @@ class CoachesController < ApplicationController
 		unlink_person
 		@coach.destroy
 		respond_to do |format|
-			format.html { redirect_to coaches_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("coach.deleted")} '#{c_name}'"}, data: {turbo_action: "replace"} }
+			format.html { redirect_to coaches_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("coach.deleted")} '#{c_name}'"), data: {turbo_action: "replace"} }
 			format.json { head :no_content }
 		end
 	end

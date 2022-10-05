@@ -6,7 +6,7 @@ module PeopleHelper
   
   # FieldComponent fields to show a person
   def person_show_fields(person:)
-		res = person_title(title: I18n.t("person.single"), icon: person.picture, size: "100x100", rows: 4, _class: "rounded-full")
+		res = person_title_fields(title: I18n.t("person.single"), icon: person.picture, size: "100x100", rows: 4, _class: "rounded-full")
 		res << [{kind: "label", value: person.s_name}]
 		res << [{kind: "label", value: person.surname}]
 		res << [{kind: "string", value: person.birthday}]
@@ -18,7 +18,7 @@ module PeopleHelper
 
   # return FieldsComponent @fields for forms
   def person_form_title(title:, person:)
-    res = person_title(title:, icon: person.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
+    res = person_title_fields(title:, icon: person.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
     res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: person.name}]
     res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: person.surname}]
     res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person.birthday}]

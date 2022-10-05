@@ -1,1 +1,7 @@
-<%= render 'form', event: @event, title:  @event.train? ? @event.title : @event.team.to_s, close_return: event_path(@event) %>
+<% if @event.rest? %>
+  <%= render ModalComponent.new do %>
+    <%= render 'form', event: @event, title: @event.title, close_return: @event.team_id==0 ? seasons_path(season_id: @season.id) : team_path(@event.team)  %>
+  <% end %>
+<% else %>
+  <%= render 'form', event: @event, title:  @event.train? ? @event.title : @event.team.to_s, close_return: event_path(@event) %>
+<% end %>

@@ -48,7 +48,7 @@ class PlayersController < ApplicationController
 			@player = Player.new
 			@player.rebuild(player_params)	# rebuild player
 			if @player.is_duplicate? then
-				format.html { redirect_to players_path(search: @player.s_name), notice: {kind: "info", message: "#{I18n.t("player.duplicate")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
 				format.json { render :index, status: :duplicate, location: players_path(search: @player.s_name) }
 			else
 				if @player.save
@@ -56,7 +56,7 @@ class PlayersController < ApplicationController
 						@player.person.player_id = @player.id
 						@player.person.save
 					end
-					format.html { redirect_to players_path(search: @player.s_name), notice: {kind: "success", message: "#{I18n.t("player.created")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+					format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message("#{I18n.t("player.created")} '#{@player.to_s}'", "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: players_path(search: @player.s_name) }
 				else
 					format.html { render :new }
@@ -73,7 +73,7 @@ class PlayersController < ApplicationController
 		respond_to do |format|
 			@player.rebuild(player_params)
 			if @player.save
-				format.html { redirect_to player_params[:retlnk], notice: {kind: "success", message: "#{I18n.t("player.updated")} '#{@player.to_s}'"}, data: {turbo_action: "replace"} }
+				format.html { redirect_to player_params[:retlnk], notice: helpers.flash_message("#{I18n.t("player.updated")} '#{@player.to_s}'", "success"), data: {turbo_action: "replace"} }
 				format.json { render :index, status: :ok, location: players_path(search: @player.s_name) }
 			else
 				format.html { render :edit }
@@ -87,7 +87,7 @@ class PlayersController < ApplicationController
 	def import
     check_access(roles: [:admin])
 	  Player.import(params[:file])	# added to import excel
-	  format.html { redirect_to players_path, notice: {kind: "success", message: "#{I18n.t("player.import")} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
+	  format.html { redirect_to players_path, notice: helpers.flash_message("#{I18n.t("player.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
 	end
 
 	# DELETE /players/1
@@ -98,7 +98,7 @@ class PlayersController < ApplicationController
 		unlink_person
 		@player.destroy
 		respond_to do |format|
-			format.html { redirect_to players_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("player.deleted")} '#{p_name}'"}, data: {turbo_action: "replace"} }
+			format.html { redirect_to players_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("player.deleted")} '#{p_name}'"), data: {turbo_action: "replace"} }
 			format.json { head :no_content }
 		end
 	end

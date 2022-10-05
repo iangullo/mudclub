@@ -8,7 +8,7 @@ class PeopleController < ApplicationController
   def index
     check_access(roles: [:admin])
 		@people = get_people
-		@title  = helpers.person_title(I18n.t("person.many"))
+		@title  = helpers.person_title_fields(title: I18n.t("person.many"))
 		@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('people_filters','search'), url: people_path}]
 		@grid   = helpers.person_grid(people: @people)
 		respond_to do |format|
@@ -47,10 +47,10 @@ class PeopleController < ApplicationController
     respond_to do |format|
 			@person.rebuild(person_params)	# take care of duplicates
       if @person.persisted?	# it was a duplicate
-        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t("person.duplicate")} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
+        format.html { redirect_to people_url(search: @person.name), notice: helpers.flash_message("#{I18n.t("person.duplicate")} '#{@person.to_s}'", "success"), data: {turbo_action: "replace"} }
         format.json { render :index, status: :duplicate, location: people_url }
 			elsif @person.save
-        format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t("person.created")} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
+        format.html { redirect_to people_url(search: @person.name), notice: helpers.flash_message("#{I18n.t("person.created")} '#{@person.to_s}'", "success"), data: {turbo_action: "replace"} }
         format.json { render :index, status: :created, location: people_url }
       else
         format.html { render :new }
@@ -66,10 +66,10 @@ class PeopleController < ApplicationController
 		respond_to do |format|
 			if @person.update(person_params)
 				if @person.id=0 # just edited the club identity
-					format.html { redirect_to "/", notice: {kind: "success", message: "'#{@person.nick}' #{I18n.t("status.saved")}"}, data: {turbo_action: "replace"} }
+					format.html { redirect_to "/", notice: helpers.flash_message("'#{@person.nick}' #{I18n.t("status.saved")}", "success"), data: {turbo_action: "replace"} }
 					format.json { render "/", status: :created, location: home_url }
 				else
-					format.html { redirect_to people_url(search: @person.name), notice: {kind: "success", message: "#{I18n.t("person.updated")} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
+					format.html { redirect_to people_url(search: @person.name), notice: helpers.flash_message("#{I18n.t("person.updated")} '#{@person.to_s}'", "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: people_url }
 				end
 			else
@@ -84,7 +84,7 @@ class PeopleController < ApplicationController
 	def import
     check_access(roles: [:admin])
    	Person.import(params[:file]) # added to import excel
-		format.html { redirect_to people_url, notice: {kind: "success", message: "#{I18n.t("person.import")} '#{params[:file].original_filename}'"}, data: {turbo_action: "replace"} }
+		format.html { redirect_to people_url, notice: helpers.flash_message("#{I18n.t("person.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
 	end
 
   # DELETE /people/1
@@ -94,7 +94,7 @@ class PeopleController < ApplicationController
 		erase_links
 		@person.destroy
     respond_to do |format|
-			format.html { redirect_to people_url, status: :see_other, notice: {kind: "success", message: "#{I18n.t("person.deleted")} '#{@person.to_s}'"}, data: {turbo_action: "replace"} }
+			format.html { redirect_to people_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("person.deleted")} '#{@person.to_s}'"), data: {turbo_action: "replace"} }
       format.json { head :no_content }
     end
   end

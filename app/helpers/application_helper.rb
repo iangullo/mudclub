@@ -27,7 +27,7 @@ module ApplicationHelper
   end
 
   # standardised message wrapper
-  def flash_message(message, kind: "info")
+  def flash_message(message, kind="info")
     res = {message: message, kind: kind}
   end
 end
