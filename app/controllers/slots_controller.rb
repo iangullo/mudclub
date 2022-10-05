@@ -8,7 +8,7 @@ class SlotsController < ApplicationController
     check_access(roles: [:user])
     @season   = Season.search(params[:season_id])
     @location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
-    @title    = title_fields(I18n.t("slot.many"))
+    @title    = helpers.slot_title_fields(title: I18n.t("slot.many"), season: @season)
     @title << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
     week_view if @season and @location
   end
@@ -17,24 +17,22 @@ class SlotsController < ApplicationController
   def show
 		check_access(roles: [:user])
     @season = Season.find(params[:season_id]) if params[:season_id]
-    @title  = title_fields(I18n.t("slot.many"))
+    @title  = helpers.slot_title_fields(title: I18n.t("slot.many"), season: @season)
   end
 
   # GET /slots/new
   def new
 		check_access(roles: [:admin], returl: slots_url)
-    @weekdays = weekdays
     @season   = Season.find(params[:season_id]) if params[:season_id]
-    @slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
-    @fields   = form_fields(I18n.t("slot.new"))
+    @slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: params[:location_id] ? params[:location_id] : 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
+    @fields   = helpers.slot_form_fields(title: I18n.t("slot.new"), slot: @slot, season: @season)
   end
 
   # GET /slots/1/edit
   def edit
 		check_access(roles: [:admin], returl: slots_url)
- 		@weekdays = weekdays
     @season   = Season.find(@slot.season_id)
-    @fields   = form_fields(I18n.t("slot.edit"))
+    @fields   = helpers.slot_form_fields(title: I18n.t("slot.edit"), slot: @slot, season: @season)
   end
 
   # POST /slots or /slots.json
@@ -79,32 +77,6 @@ class SlotsController < ApplicationController
   end
 
   private
-
-    # returns an array with weekday names and their id
-    def weekdays
-      res =[]
-      1.upto(5) {|i| res << [I18n.t("calendar.daynames")[i], i]}
-      res
-    end
-
-    # return icon and top of FieldsComponent
-    def title_fields(title)
-      res = title_start(icon: "timetable.svg", title: title)
-      res << [{kind: "subtitle", value: @season ? @season.name : ""}]
-      res
-    end
-
-    # return FieldsComponent @fields for forms
-    def form_fields(title)
-      res = title_fields(title)
-      res << [{kind: "icon", value: "team.svg"}, {kind: "select-collection", key: :team_id, options: @season ? Team.for_season(@season.id) : Team.real, value: @slot.team_id, cols: 2}]
-      res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, options: @season ? @season.locations.practice.order(name: :asc) : Location.practice, value: @slot.location_id, cols: 2}]
-      res << [{kind: "icon", value: "calendar.svg"}, {kind: "select-box", key: :wday, value: @slot.wday, options: @weekdays}, {kind: "time-box", hour: @slot.hour, min: @slot.min}]
-      res << [{kind: "icon", value: "clock.svg"}, {kind: "number-box", key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins")}]
-      res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
-      res
-    end
-
     # create the timetable view grid
     # requires that @location & @season defined
     def week_view

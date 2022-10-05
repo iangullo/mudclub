@@ -5,29 +5,27 @@ class CategoriesController < ApplicationController
   def index
     check_access(roles: [:admin])
     @categories = Category.real
-    @fields     = helpers.title_fields(I18n.t("category.many"))
-    @grid       = helpers.category_grid
+    @fields     = helpers.category_title_fields(title: I18n.t("category.many"))
+    @grid       = helpers.category_grid(categories: @categories)
   end
 
   # GET /categories/1 or /categories/1.json
   def show
     check_access(roles: [:admin])
-    @fields = helpers.title_fields(I18n.t("category.many"), cols: 5, rows: 5)
-    @fields << [{kind: "subtitle", value: @category.age_group, cols: 3}, {kind: "subtitle", value: @category.sex, cols: 2}]
-    @fields << [{kind: "label", value: I18n.t("stat.min")}, {kind: "string", value: @category.min_years}, {kind: "gap"}, {kind: "label", value: I18n.t("stat.max")}, {kind: "string", value: @category.max_years}]
+    @fields = helpers.category_show_fields(category: @category)
   end
 
   # GET /categories/new
   def new
     check_access(roles: [:admin])
     @category = Category.new
-    @fields  = helpers.form_fields(I18n.t("category.new"))
+    @fields  = helpers.category_form_fields(title: I18n.t("category.new"), category: @category)
   end
 
   # GET /categories/1/edit
   def edit
     check_access(roles: [:admin])
-    @fields = helpers.form_fields(I18n.t("category.edit"))
+    @fields  = helpers.category_form_fields(title: I18n.t("category.edit"), category: @category)
   end
 
   # POST /categories or /categories.json
@@ -36,7 +34,7 @@ class CategoriesController < ApplicationController
     @category = Category.new(category_params)
     respond_to do |format|
       if @category.save
-        format.html { redirect_to categories_url, notice: flash_message("#{I18n.t("category.created")} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
+        format.html { redirect_to categories_url, notice: helpers.flash_message("#{I18n.t("category.created")} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
         format.json { render :index, status: :created, location: categories_url }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -50,7 +48,7 @@ class CategoriesController < ApplicationController
     check_access(roles: [:admin])
     respond_to do |format|
       if @category.update(category_params)
-        format.html { redirect_to categories_url, notice: flash_message("#{I18n.t("category.updated")} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
+        format.html { redirect_to categories_url, notice: helpers.flash_message("#{I18n.t("category.updated")} '#{@category.name}'", kind: "success"), data: {turbo_action: "replace"} }
         format.json { render :index, status: :ok, location: categories_url }
       else
         format.html { render :edit, status: :unprocessable_entity }

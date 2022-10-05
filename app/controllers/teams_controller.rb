@@ -7,8 +7,8 @@ class TeamsController < ApplicationController
   # GET /teams.json
   def index
 		check_access(roles: [:admin, :coach])
-		@title = title_fields(I18n.t("team.many"), search: true)
-		@grid  = team_grid
+		@title = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
+		@grid  = helpers.team_grid(teams: @teams, season: not(@season), add_teams: current_user.admin?)
   end
 
   # GET /teams/new
@@ -16,24 +16,24 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin], returl: teams_path)
    	@team = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
 		@eligible_coaches = Coach.active
-		@form_fields      = form_fields(I18n.t("team.new"))
+		@form_fields      = helpers.team_form_fields(title: I18n.t("team.new"), team: @team, eligible_coaches: @eligible_coaches)
   end
 
   # GET /teams/1
   # GET /teams/1.json
   def show
 		check_access(roles: [:admin, :coach], obj: @team, returl: @team)
-		@title = title_fields(@team.to_s)
-		@links = team_links
-		@grid  = event_grid(events: @team.events.upcoming.order(:start_time), obj: @team, retlnk: team_path(@team))
+		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
+		@links = helpers.team_links(team: @team)
+		@grid  = helpers.event_grid(events: @team.events.upcoming.order(:start_time), obj: @team, retlnk: team_path(@team))
   end
 
 	# GET /teams/1/roster
   def roster
 		check_access(roles: [:admin, :coach], returl: @team)
-		@title = title_fields(@team.to_s)
+		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 		@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
-		@grid  = player_grid(players: @team.players.order(:number), obj: @team)
+		@grid  = helpers.player_grid(players: @team.players.order(:number), obj: @team)
   end
 
 	# GET /teams/1/edit_roster
@@ -41,7 +41,7 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin], obj: @team, returl: @team)
 		if current_user.present?
 			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
-				@title = title_fields(@team.to_s)
+				@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 				@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
 				@eligible_players = @team.eligible_players
 			else
@@ -55,7 +55,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1/slots
   def slots
 		check_access(roles: [:admin, :coach], returl: @team)
-		@title = title_fields(@team.to_s)
+		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 		@title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
   end
 
@@ -64,7 +64,7 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin, :coach], returl: @team)
 		redirect_to "/" unless @team
 		global_targets(true)	# get & breakdown global targets
-		@title = title_fields(@team.to_s)
+		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 		@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
   end
 
@@ -73,7 +73,7 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin], obj: @team, returl: @team)
 		redirect_to("/", data: {turbo_action: "replace"}) unless @team
 		global_targets(false)	# get global targets
-		@title = title_fields(@team.to_s)
+		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 		@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
   end
 
@@ -82,7 +82,7 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin, :coach], returl: @team)
 		redirect_to "/" unless @team
 		plan_targets
-		@title = title_fields(@team.to_s)
+		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 		@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
 		@edit = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
   end
@@ -92,14 +92,14 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin], obj: @team, returl: @team)
 		redirect_to("/", data: {turbo_action: "replace"}) unless @team
 		plan_targets
-		@title  = title_fields(@team.to_s)
+		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 		@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
   end
 
 	# GET /teams/1/attendance
   def attendance
 		check_access(roles: [:admin, :coach], returl: @team)
-		@title = title_fields(@team.to_s)
+		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 		@title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
 		@grid  = attendance_grid
   end
@@ -108,7 +108,7 @@ class TeamsController < ApplicationController
   def edit
 		check_access(roles: [:admin], obj: @team, returl: @team)
 		@eligible_coaches = Coach.active
-		@form_fields      = form_fields(I18n.t("team.edit"))
+		@form_fields      = helpers.team_form_fields(title: I18n.t("team.edit"), team: @team, eligible_coaches: @eligible_coaches)
   end
 
   # POST /teams
@@ -165,67 +165,6 @@ class TeamsController < ApplicationController
 	end
 
   private
-
-    # return icon and top of HeaderComponent
-  	def title_fields(title, cols: nil, search: nil, edit: nil)
-			res = title_start(icon: "team.svg", title: title, cols: cols)
-			if search
-				res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: @team ? @team.season_id : session.dig('team_filters', 'season_id')}]
-			elsif edit and current_user.admin?
-				res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
-			else
-				res << [{kind: "label", value: @team.season.name}]
-			end
-			res
-  	end
-
-	  # return HeaderComponent @fields for forms
-	  def form_fields(title, cols: nil)
-			res = title_fields(title, cols: cols, edit: true)
-			res << [{kind: "label", align: "right", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @team.name}]
-	    res << [{kind: "icon", value: "category.svg"}, {kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}]
-			res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}]
-			res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :homecourt_id, options: Location.home, value: @team.homecourt_id}]
-			res << [{kind: "icon", value: "time.svg"}, {kind: "select-box", key: :rules, options: Category.time_rules, value: @team.periods }]
-			res << [{kind: "icon", value: "coach.svg"}, {kind: "label", value:I18n.t("coach.many"), class: "align-center"}]
-			res << [{kind: "gap"}, {kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}]
-	  	res
-		end
-
-		# return grid for @teams GridComponent
-    def team_grid
-      title = [{kind: "normal", value: I18n.t("team.name")}]
-			title << {kind: "normal", value: I18n.t("season.single")} unless (params[:season_id] and params[:season_id].to_i>0)
-      title << {kind: "normal", value: I18n.t("division.single")}
-			title << {kind: "add", url: new_team_path, frame: "modal"} if current_user.admin?
-
-      rows = Array.new
-      @teams.each { |team|
-        row = {url: team_path(team), items: []}
-        row[:items] << {kind: "normal", value: team.to_s}
-        row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless (params[:season_id] and params[:season_id].to_i>0)
-        row[:items] << {kind: "normal", value: team.division.name, align: "center"}
-        row[:items] << {kind: "delete", url: row[:url], name: team.to_s} if current_user.admin?
-        rows << row
-      }
-			{title: title, rows: rows}
-    end
-
-		# return jump links for a team
-		def team_links
-			res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster"), frame: "modal", align: "center"}]]
-			if (current_user.admin? or current_user.is_coach?)
-				res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t("target.many"), align: "center"}
-        res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr"), align: "center"}
-			end
-			res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal", align: "center"}
-			if (current_user.admin? or @team.has_coach(current_user.person.coach_id))
-	      res.last << {kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}
-			end
-			res << [{kind: "gap"}]
-			res
-		end
-
 		# retrieve targets for the team
 		def global_targets(breakdown=false)
 	    targets = @team.team_targets.global

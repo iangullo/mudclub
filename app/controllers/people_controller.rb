@@ -8,9 +8,9 @@ class PeopleController < ApplicationController
   def index
     check_access(roles: [:admin])
 		@people = get_people
-		@title  = title_fields(I18n.t("person.many"))
+		@title  = helpers.person_title(I18n.t("person.many"))
 		@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('people_filters','search'), url: people_path}]
-		@grid   = person_grid
+		@grid   = helpers.person_grid(people: @people)
 		respond_to do |format|
 			format.xlsx {
 				response.headers['Content-Disposition'] = "attachment; filename=people.xlsx"
@@ -23,30 +23,20 @@ class PeopleController < ApplicationController
   # GET /people/1.json
   def show
     check_access(roles: [:admin], obj: @person)
-		@fields = title_fields(I18n.t("person.single"), icon: @person.picture, size: "100x100", rows: 4, _class: "rounded-full")
-		@fields << [{kind: "label", value: @person.s_name}]
-		@fields << [{kind: "label", value: @person.surname}]
-		@fields << [{kind: "string", value: @person.birthday}]
-		@fields << [{kind: "string", value: @person.dni, align: "center"}]
-		@fields.last << {kind: "icon", value: "player.svg"} if @person.player_id > 0
-		@fields.last << {kind: "icon", value: "coach.svg"} if @person.coach_id > 0
+		@fields = helpers.person_show_fields(person: @person)
   end
 
   # GET /people/new
   def new
     check_access(roles: [:admin])
-		@person        = Person.new(coach_id: 0, player_id: 0)
-		@title_fields  = form_fields(I18n.t("person.new"))
-		@picture_field = form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @person.picture, cols: 2)
-		@person_fields = person_fields
+		@person = Person.new(coach_id: 0, player_id: 0)
+		prepare_form(title: I18n.t("person.new"))
   end
 
   # GET /people/1/edit
   def edit
     check_access(roles: [:admin], obj: @person)
-		@title_fields  = form_fields(I18n.t("person.edit"))
-		@picture_field = form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @person.picture, cols: 2)
-		@person_fields = person_fields
+		prepare_form(title: I18n.t("person.edit"))
   end
 
   # POST /people
@@ -110,44 +100,13 @@ class PeopleController < ApplicationController
   end
 
   private
-
-		# return icon and top of FieldsComponent
-		def title_fields(title, icon: "person.svg", rows: 2, cols: 2, size: nil, _class: nil)
-			title_start(icon: icon, title: title, rows: rows, cols: cols, size: size, _class: _class)
+		# prepare form FieldComponents
+		def prepare_form(title:)
+			@title_fields  = helpers.person_form_title(title:, person: @person)
+			@picture_field = helpers.form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @person.picture, cols: 2)
+			@person_fields = helpers.person_form_fields(person: @person)
 		end
-
-		# return FieldsComponent @fields for forms
-		def form_fields(title)
-			res = title_fields(title, icon: @person.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
-			res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @person.name}]
-			res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @person.surname}]
-			res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @person.birthday}]
-			res << [{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @person.female, align: "center"}]
-			res
-		end
-
-		# return title for @people GridComponent
-    def person_grid
-      title = [{kind: "normal", value: I18n.t("person.name")}]
-			title << {kind: "add", url: new_person_path, frame: "modal"} if current_user.admin?
-
-      rows = Array.new
-      @people.each { |person|
-        row = {url: person_path(person), frame: "modal", items: []}
-        row[:items] << {kind: "normal", value: person.to_s}
-        row[:items] << {kind: "delete", url: row[:url], name: person.to_s} if current_user.admin?
-        rows << row
-      }
-			{title: title, rows: rows}
-    end
-
-		def person_fields
-			res = [
-				[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @person.email}],
-				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @person.phone}]
-			]
-		end
-
+		
 		# Delete associated players/coaches
 		def erase_links
 			erase_coach if @person.coach_id > 0	# delete associated coach

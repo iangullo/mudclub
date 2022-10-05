@@ -7,32 +7,30 @@ class LocationsController < ApplicationController
   def index
     check_access(roles: [:admin, :coach])
     @season = Season.find(params[:season_id]) if params[:season_id]
-    @title  = title_fields(I18n.t("location.many"))
+    @title  = helpers.location_title_fields(title: I18n.t("location.many"))
     @title << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", key: :search, value: params[:search], url: locations_path}]
-    @grid = location_grid
+    @grid = helpers.location_grid(locations: @locations, season: @season)
   end
 
   # GET /locations/1
   # GET /locations/1.json
   def show
     check_access(roles: [:user])
-    @fields = title_fields(@location.name)
-    @fields << [(@location.gmaps_url and @location.gmaps_url.length > 0) ? {kind: "location", url: @location.gmaps_url, name: I18n.t("location.see")} : {kind: "text", value: I18n.t("location.none")}]
-    @fields << [{kind: "icon", value: @location.practice_court ? "training.svg" : "team.svg"}]
+    @fields = helpers.location_show_fields(location: @location)
   end
 
   # GET /locations/1/edit
   def edit
     check_access(roles: [:admin, :coach])
   	@location = Location.new(name: I18n.t("location.default")) unless @location
-    @fields   = form_fields(I18n.t("location.edit"))
+    @fields   = helpers.location_form_fields(title: I18n.t("location.edit"), location: @location, season: @season)
   end
 
   # GET /locations/new
   def new
     check_access(roles: [:admin, :coach])
     @location = Location.new(name: t("location.default")) unless @location
-    @fields   = form_fields(I18n.t("location.new"))
+    @fields   = helpers.location_form_fields(title: I18n.t("location.new"), location: @location, season: @season)
   end
 
   # POST /locations
@@ -40,6 +38,8 @@ class LocationsController < ApplicationController
   def create
     check_access(roles: [:admin, :coach])
     respond_to do |format|
+      binding.break
+      @season   = Season.find(params[:location][:season_id]) if params[:location][:season_id]
       @location = Location.new
       @location.rebuild(location_params) # rebuild @location
       if @location.id!=nil  # @location is already stored in database
@@ -106,47 +106,6 @@ class LocationsController < ApplicationController
   end
 
 private
-
-  # return icon and top of FieldsComponent
-  def title_fields(title)
-    res = title_start(icon: "location.svg", title: title)
-  end
-
-  # return FieldsComponent @title for forms
-  def form_fields(title)
-    res = title_fields(title)
-    res << [{kind: "text-box", key: :name, value: @location.name, size: 20}]
-    res << [{kind: "icon", value: "gmaps.svg"}, {kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, size: 20}]
-    res << [{kind: "icon", value: "training.svg"}, {kind: "label-checkbox", key: :practice_court, label: I18n.t("location.train")}]
-    res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
-    res
-  end
-
-  # return grid for @locations GridComponent
-  def location_grid
-    title = [
-      {kind: "normal", value: I18n.t("location.name")},
-      {kind: "normal", value: I18n.t("kind.single"), align: "center"},
-      {kind: "normal", value: I18n.t("location.abbr")}
-    ]
-    title << {kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
-
-    rows = Array.new
-    @locations.each { |loc|
-      row = {url: edit_location_path(loc), frame: "modal", items: []}
-      row[:items] << {kind: "normal", value: loc.name}
-      row[:items] << {kind: "icon", value: loc.practice_court ? "training.svg" : "team.svg", align: "center"}
-      if loc.gmaps_url
-        row[:items] << {kind: "location", icon: "gmaps.svg", align: "center", url: loc.gmaps_url}
-      else
-        row[:items] << {kind: "normal", value: ""}
-      end
-      row[:items] << {kind: "delete", url: location_path(loc), name: loc.name} if current_user.admin?
-      rows << row
-    }
-    {title: title, rows: rows}
-  end
-
   # ensure internal variables are well defined
   def set_locations
     if params[:season_id]
@@ -155,7 +114,7 @@ private
       @eligible_locations = @season.eligible_locations
     else
       @locations = Location.search(params[:search]).order(:name)
-      @season    = Season.find(params[:location][:season_id]) if params[:location].try(:season_id)
+      @season    = (params[:location][:season_id] ? Season.find(params[:location][:season_id]) : nil) if params[:location]
     end
     if params[:id]
       @location = Location.find(params[:id]) unless @location.try(:id)==params[:id]

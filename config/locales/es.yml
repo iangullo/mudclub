@@ -221,6 +221,7 @@ es:
     many: "Temporadas"
     edit: "Editar Temporada"
     new: "Crear Temporada"
+    abbr: "Temp."
     single: "Temporada"
     locations: "Pistas Asociadas"
   sex:

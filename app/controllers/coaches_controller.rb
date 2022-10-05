@@ -8,9 +8,9 @@ class CoachesController < ApplicationController
 	def index
     check_access(roles: [:admin, :coach])
 		@coaches = get_coaches
-		@title  = title_fields(I18n.t("coach.many"))
+		@title  = helpers.coach_title(title: I18n.t("coach.many"))
 		@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
-		@grid    = coach_grid
+		@grid    = helpers.coach_grid(coaches: @coaches)
 		respond_to do |format|
 			format.xlsx {
 				response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
@@ -23,12 +23,8 @@ class CoachesController < ApplicationController
 	# GET /coaches/1.json
 	def show
     check_access(roles: [:admin, :coach])
-		@fields = title_fields(I18n.t("coach.single"), icon: @coach.picture, rows: 4, size: "100x100", _class: "rounded-full")
-		@fields << [{kind: "label", value: @coach.s_name}]
-		@fields << [{kind: "label", value: @coach.person.surname}]
-		@fields << [{kind: "string", value: @coach.person.birthday}]
-		@fields << [{kind: "label", value: (I18n.t(@coach.active ? "status.active" : "status.inactive")), align: "center"}]
-		@grid   = coach_teams_grid
+		@fields = helpers.coach_show_fields(coach: @coach)
+		@grid   = helpers.team_grid(teams: @coach.teams.order(:season_id))
 	end
 
 	# GET /coaches/new
@@ -36,13 +32,13 @@ class CoachesController < ApplicationController
     check_access(roles: [:admin])
 		@coach = Coach.new(active: true)
 		@coach.build_person
-		@title_fields = form_fields(I18n.t("coach.new"), rows: 4, cols: 3)
+		prepare_form(title: I18n.t("coach.new"))
 	end
 
 	# GET /coaches/1/edit
 	def edit
 		check_access(roles: [:admin, :coach], obj: @coach)
-		@title_fields = form_fields(I18n.t("coach.edit"), rows: 4, cols: 3)
+		prepare_form(title: I18n.t("coach.edit"))
 	end
 
 	# POST /coaches
@@ -109,64 +105,6 @@ class CoachesController < ApplicationController
 	end
 
 	private
-
-		# return icon and top of FieldsComponent
-		def title_fields(title, icon: "coach.svg", rows: 2, cols: nil, size: nil, _class: nil)
-			title_start(icon: icon, title: title, rows: rows, size: size, cols: cols, _class: _class)
-		end
-
-		# return FieldsComponent @fields for forms
-		def form_fields(title, rows: 3, cols: 2)
-			res = title_fields(title, icon: @coach.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
-			f_cols = cols>2 ? cols - 1 : nil
-			res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @coach.person.name, cols: f_cols}]
-			res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @coach.person.surname, cols: f_cols}]
-			res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @coach.person.birthday, cols: f_cols}]
-			@coach_fields  = [
-				[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active, cols: 4}],
-				[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @coach.avatar.filename, cols: 3}]
-			]
-			@person_fields = [
-				[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @coach.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @coach.person.email}],
-				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @coach.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @coach.person.phone}]
-			]
-			res
-		end
-
-		# return grid for @coaches GridComponent
-    def coach_grid
-      title = [
-        {kind: "normal", value: I18n.t("person.name")},
-        {kind: "normal", value: I18n.t("person.age")},
-        {kind: "normal", value: I18n.t("status.active_a")}
-      ]
-			title << {kind: "add", url: new_coach_path, frame: "modal"} if current_user.admin?
-
-      rows = Array.new
-      @coaches.each { |coach|
-        row = {url: coach_path(coach), frame: "modal", items: []}
-        row[:items] << {kind: "normal", value: coach.to_s}
-        row[:items] << {kind: "normal", value: coach.person.age, align: "center"}
-        row[:items] << {kind: "icon", value: coach.active? ? "Yes.svg" : "No.svg", align: "center"}
-        row[:items] << {kind: "delete", url: row[:url], name: coach.to_s} if current_user.admin?
-        rows << row
-      }
-			{title: title, rows: rows}
-    end
-
-		# return grid for @coaches GridComponent
-    def coach_teams_grid
-      title = []	# Empty title row
-
-      rows = Array.new
-      @coach.teams.each { |team|
-        row = {url: team_path(team), items: []}
-        row[:items] << {kind: "normal", value: team.to_s}
-        rows << row
-      }
-			{title: title, rows: rows}
-    end
-
 		# reload edit/create form if person exists without a coach record
 		def reload_data(format)
 			if @coach.person.coach_id==0
@@ -201,6 +139,13 @@ class CoachesController < ApplicationController
 					Coach.none
 				end
 			end
+		end
+
+		# prepare form FieldComponents
+		def prepare_form(title:)
+			@title_fields = helpers.coach_form_title(title:, coach: @coach, rows: 4, cols: 3)
+			@coach_fields = helpers.coach_form_fields(coach: @coach)
+			@person_fields = helpers.coach_person_fields(person: @coach.person)
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

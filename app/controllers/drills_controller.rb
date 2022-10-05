@@ -7,40 +7,33 @@ class DrillsController < ApplicationController
 	def index
 		check_access(roles: [:admin, :coach])
 		# Simple search by name/description for now
-		@title  = title_fields(I18n.t("drill.many"))
-#			@title << [{kind: "subtitle", value: I18n.t("catalog")}]
-    @search = drill_search_bar(drills_path)
+		@title  = helpers.drill_title_fields(title: I18n.t("drill.many"))
+		#@title << [{kind: "subtitle", value: I18n.t("catalog")}]
+    @search = helpers.drill_search_bar(search_in: drills_path)
 		@drills = filter!(Drill)
-		@grid   = GridComponent.new(grid: drill_grid)
+		@grid   = GridComponent.new(grid: helpers.drill_grid(@drills))
 	end
 
 	# GET /drills/1 or /drills/1.json
 	def show
 		check_access(roles: [:admin, :coach])
-		@title  = title_fields(I18n.t("drill.single"))
-		@title.last << {kind: "link", align: "right", icon: "playbook.png", size: "20x20", url: rails_blob_path(@drill.playbook, disposition: "attachment"), label: "Playbook"} if @drill.playbook.attached?
-		@title << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")", cols: 2}]
-		@intro  = [[{kind: "label", value: I18n.t("target.many")}, {kind: "lines", class: "align-top", value: @drill.drill_targets}]]
-		@intro << [{kind: "label", value: I18n.t("drill.material")}, {kind: "string", value: @drill.material}]
-		@intro << [{kind: "label", value: I18n.t("drill.desc_a")}, {kind: "string", value: @drill.description}]
+		@title   = helpers.drill_show_title(title: I18n.t("drill.single"), drill: @drill)
+		@intro   = helpers.drill_show_intro(drill: @drill)
 		@explain = [[{kind: "string", value: @drill.explanation}]]
-		@tail = [[{kind: "label", value: I18n.t("skill.abbr")}, {kind: "string", value: @drill.print_skills}]]
-		@tail << [{kind: "label", value: I18n.t("drill.author")}, {kind: "string", value: @drill.coach.s_name}]
+		@tail    = helpers.drill_show_tail(drill: @drill)
 	end
 
 	# GET /drills/new
 	def new
 		check_access(roles: [:admin, :coach])
 		@drill = Drill.new
-		@title = title_fields(I18n.t("drill.new"))
-		@form_fields = form_fields
+		prepare_form(title: I18n.t("drill.new"))
 	end
 
 	# GET /drills/1/edit
 	def edit
 		check_access(roles: [:admin], obj: @drill, returl: drills_url)
-		@title       = title_fields(I18n.t("drill.edit"))
-		@form_fields = form_fields
+		prepare_form(title: I18n.t("drill.edit"))
 	end
 
 	# POST /drills or /drills.json
@@ -87,54 +80,15 @@ class DrillsController < ApplicationController
 	end
 
 	private
-
-		# return icon and top of FieldsComponent
-		def title_fields(title, rows: nil, cols: nil)
-			title_start(icon: "drill.svg", title: title, rows: rows, cols: cols)
+		# prepare a drill form calling helpers to get the right FieldComponents
+		def prepare_form(title:)
+			@title    = helpers.drill_form_title(title:, drill: @drill)
+			@playbook = helpers.drill_form_playbook(playbook: @drill.playbook)
+			@formdata = helpers.drill_form_data(drill: @drill)
+			@explain  = helpers.drill_form_explain
+			@author   = helpers.drill_form_author(drill: @drill)
 		end
-
-		# return FormComponent @fields for edit/new
-		def form_fields
-			@title << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: @drill.kind_id, align: "center"}]
-			@playbook  = [[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: @drill.playbook.filename}]]
-			@explain   = [[{kind: "rich-text-area", key: :explanation, align: "left", cols: 3}]]
-			@author    = [[{kind: "label", value: I18n.t("drill.author"), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real, value: (@drill.coach_id.to_i>0) ? @drill.coach_id : (current_user.is_coach? ? current_user.coach.id : 1) }]]
-			return [
-				# DO WE INCLUDE NESTED FORM TYPE??? HOW?
-				# NESTED FORM for Targets...
-				[{kind: "label", value: I18n.t("drill.material"), align: "right"}, {kind: "text-box", key: :material, size: 33, value: @drill.material}],
-				[{kind: "label", value: I18n.t("drill.desc_a"), align: "right"}, {kind: "text-area", key: :description, size: 30, lines: 2, value: @drill.description}],
-				# NESTED FORM for Skills...
-			]
-		end
-
-		# return grid for @drills GridComponent
-	  def drill_grid
-			track = {s_url: drills_path, s_filter: "drill_filters"}
-	    title = [
-				{kind: "normal", value: I18n.t("drill.name"), sort: (session.dig('drill_filters', 'name') == "name"), order_by: "name"},
-	      {kind: "normal", value: I18n.t("kind.single"), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
-	      {kind: "normal", value: I18n.t("target.many")}
-	    ]
-			title << {kind: "add", url: new_drill_path, frame: "_top"} if current_user.admin? or current_user.is_coach?
-
-			{track: track, title: title, rows: drill_rows}
-	  end
-
-		# get the grid rows for @drills
-		def drill_rows
-			rows = Array.new
-			@drills.each { |drill|
-	      row = {url: drill_path(drill), items: []}
-	      row[:items] << {kind: "normal", value: drill.name}
-	      row[:items] << {kind: "normal", value: drill.kind.name, align: "center"}
-	      row[:items] << {kind: "lines", value: drill.print_targets}
-	      row[:items] << {kind: "delete", url: row[:url], name: drill.name} if current_user.admin?
-	      rows << row
-	    }
-			rows
-		end
-
+		
 		# Use callbacks to share common setup or constraints between actions.
 		def set_drill
 			@drill = Drill.find(params[:id]) unless @drill.try(:id)==params[:id]

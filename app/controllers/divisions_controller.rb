@@ -5,14 +5,14 @@ class DivisionsController < ApplicationController
   def index
 		check_access(roles: [:admin])
     @divisions = Division.real
-    @fields    = title_fields(I18n.t("division.many"))
-    @grid      = division_grid
+    @fields    = helpers.division_title_fields(title: I18n.t("division.many"))
+    @grid      = helpers.division_grid(divisions: @divisions)
   end
 
   # GET /divisions/1 or /divisions/1.json
   def show
 		check_access(roles: [:admin])
-    @fields = title_fields(I18n.t("division.single"))
+    @fields = helpers.division_title_fields(title: I18n.t("division.single"))
     @fields << [{kind: "subtitle", value: @division.name}]
   end
 
@@ -20,13 +20,13 @@ class DivisionsController < ApplicationController
   def new
 		check_access(roles: [:admin])
     @division = Division.new
-    @fields   = form_fields(I18n.t("division.new"))
+    @fields   = helpers.division_form_fields(title: I18n.t("division.new"), division: @division)
   end
 
   # GET /divisions/1/edit
   def edit
 		check_access(roles: [:admin])
-    @fields   = form_fields(I18n.t("division.edit"))
+    @fields   = helpers.division_form_fields(title: I18n.t("division.edit"), division: @division)
   end
 
   # POST /divisions or /divisions.json
@@ -71,33 +71,6 @@ class DivisionsController < ApplicationController
   end
 
   private
-  	# return icon and top of FieldsComponent
-  	def title_fields(title, cols: nil)
-      title_start(icon: "division.svg", title: title, cols: cols)
-  	end
-
-    # return FieldsComponent @fields for forms
-    def form_fields(title)
-      res = title_fields(title, cols: 3)
-      res << [{kind: "text-box", key: :name, value: @division.name, cols: 3}]
-      res
-    end
-
-		# return grid for @divisions GridComponent
-    def division_grid
-      title = [{kind: "normal", value: I18n.t("division.name")}]
-			title << {kind: "add", url: new_division_path, frame: "modal"} if current_user.admin?
-
-      rows = Array.new
-      @divisions.each { |div|
-        row = {url: edit_division_path(div), frame: "modal", items: []}
-        row[:items] << {kind: "normal", value: div.name}
-        row[:items] << {kind: "delete", url: division_path(div), name: div.name} if current_user.admin?
-        rows << row
-      }
-      {title: title, rows: rows}
-    end
-
     # prune teams from a category to be deleted
     def prune_teams
       @division.teams.each { |t|

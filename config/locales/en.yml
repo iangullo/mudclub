@@ -221,6 +221,7 @@ en:
     many: "Seasons"
     edit: "Edit Season"
     new: "Create Season"
+    abbr: "Seas."
     single: "Season"
     locations: "Season Courts"
   sex:

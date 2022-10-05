@@ -6,31 +6,28 @@ class UsersController < ApplicationController
   def index
     check_access(roles: [:admin])
     @users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
-    @title = title_fields(I18n.t("user.many"))
+    @title = helpers.user_title_fields(I18n.t("user.many"))
     @title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
-    @grid  = user_grid
+    @grid  = helpers.user_grid(users: @users)
   end
 
   def show
     check_access(roles: [:admin], obj: @user)
     @user  = User.find(params[:id])
-    @title = title_fields(@user.s_name, icon: @user.picture, _class: "rounded-full")
-    @title << []
-    @title.last << {kind: "icon", value: "player.svg"} if @user.is_player?
-    @title.last << {kind: "icon", value: "coach.svg"} if @user.is_coach?
-    @title.last << {kind: "icon", value: "key.svg"} if @user.admin?
+    @title = helpers.user_show_fields(user: @user)
+		@grid  = helpers.team_grid(teams: @user.teams.order(:season_id))
   end
 
   def new
 		check_access(roles: [:admin])
     @user = User.new
   	@user.build_person
-    @title  = form_fields(I18n.t("user.new"))
+    prepare_form(I18n.t("user.new"))
   end
 
   def edit
     check_access(roles: [:admin], obj: @user)
-    @title  = form_fields(I18n.t("user.edit"))
+    prepare_form(I18n.t("user.edit"))
   end
 
   def create
@@ -62,7 +59,7 @@ class UsersController < ApplicationController
   def update
 		check_access(roles: [:admin], obj: @user)
     respond_to do |format|
-      if params[:user][:password].blank?
+      if params[:user][:password].blank? or params[:user][:password_confirmation].blank?
         params[:user].delete(:password)
         params[:user].delete(:password_confirmation)
       end
@@ -89,60 +86,16 @@ class UsersController < ApplicationController
   end
 
   private
+		# Prepare user form
+		def prepare_form(title)
+			@title         = helpers.user_form_title(title:, user: @user)
+			@role          = helpers.user_form_role(user: @user)
+			@avatar        = helpers.user_form_avatar(user: @user)
+			@person_fields = helpers.user_form_person(user: @user)
+			@pass_fields   = helpers.user_form_pass(user: @user)
+		end
 
-    # return icon and top of HeaderComponent
-  	def title_fields(title, icon: "user.svg", rows: 2, cols: nil, size: nil, _class: nil)
-      title_start(icon: icon, title: title, rows: rows, cols: cols, size: size, _class: _class)
-  	end
-
-  	# return HeaderComponent @fields for forms
-  	def form_fields(title, rows: 4, cols: 2)
-      res = title_fields(title, icon: @user.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
-    	res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @user.person.name}]
-      res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @user.person.surname}]
-  		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}]
-      if current_user.admin?
-        @role = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]]
-      else
-        @role = [[{kind: "label", align: "center", value: I18n.t(@user.role)}]]
-      end
-      @avatar = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
-      @person_fields = [
-        [{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
-        [{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
-      ]
-      @pass_fields = [
-        [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t("password.single")}],
-        [{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t("password.confirm")}],
-        [{kind: "gap"}, {kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}]    
-      ]
-      res
-  	end
-
-    # return grid for @users GridComponent
-	  def user_grid
-	    title = [
-	      {kind: "normal", value: I18n.t("person.name")},
-	      {kind: "normal", value: I18n.t("role.player_a"), align: "center"},
-        {kind: "normal", value: I18n.t("role.coach_a"), align: "center"},
-        {kind: "normal", value: I18n.t("role.admin_a"), align: "center"}
-	    ]
-			title << {kind: "add", url: new_user_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
-
-	    rows = Array.new
-	    @users.each { |user|
-	      row = {url: user_path(user), frame: "modal", items: []}
-	      row[:items] << {kind: "normal", value: user.s_name}
-        row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
-        row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}
-        row[:items] << {kind: "icon", value: user.admin? ? "Yes.svg" : "No.svg", align: "center"}
-	      row[:items] << {kind: "delete", url: row[:url], name: user.s_name} if current_user.admin? and user.id!=current_user.id
-	      rows << row
-	    }
-      {title: title, rows: rows}
-	  end
-
-  	# De-couple from associated person
+		# De-couple from associated person
   	def unlink_person
   		if @user.person.try(:user_id)==@user.id
   			p = @user.person

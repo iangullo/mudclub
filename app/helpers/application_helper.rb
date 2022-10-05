@@ -20,4 +20,14 @@ module ApplicationHelper
       {kind: "title", value: title, cols: cols}
     ]]
   end
+
+  # file upload button
+  def form_file_field(label:, key:, value:, cols: nil)
+    [[{kind: "upload", label:, key:, value:, cols:}]]
+  end
+
+  # standardised message wrapper
+  def flash_message(message, kind: "info")
+    res = {message: message, kind: kind}
+  end
 end

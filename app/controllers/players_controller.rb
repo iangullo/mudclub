@@ -8,9 +8,9 @@ class PlayersController < ApplicationController
 	def index
 		check_access(roles: [:admin, :coach])
 		@players = get_players
-		@title   = title_fields(I18n.t("player.many"))
+		@title   = helpers.player_title_fields(title: I18n.t("player.many"))
 		@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
-		@grid    = player_grid(players: @players)
+		@grid    = helpers.player_grid(players: @players)
 		respond_to do |format|
 			format.xlsx {
 				response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
@@ -23,12 +23,7 @@ class PlayersController < ApplicationController
 	# GET /players/1.json
 	def show
 		check_access(roles: [:admin, :coach], obj: @player)
-		@fields = title_fields(I18n.t("player.single"), icon: @player.picture, rows: 4, size: "100x100", _class: "rounded-full")
-		@fields << [{kind: "label", value: @player.s_name}]
-		@fields << [{kind: "label", value: @player.person.surname}]
-		@fields << [{kind: "string", value: @player.person.birthday}]
-		@fields << [{kind: "label", value: I18n.t(@player.female ? "sex.fem_a" : "sex.male_a"), align: "center"}, {kind: "string", value: (I18n.t("player.number") + @player.number.to_s)}]
-		@fields << [{kind: "label", value: I18n.t(@player.active ? "status.active" : "status.inactive"), align: "center"}]
+		@fields = helpers.player_show_fields(player: @player)
 	end
 
 	# GET /players/new
@@ -36,13 +31,13 @@ class PlayersController < ApplicationController
 		check_access(roles: [:admin, :coach])
 		@player = Player.new(active: true)
 		@player.build_person
-		@title_fields = form_fields(I18n.t("player.single"), rows: 3, cols: 2)
+		prepare_form(title: I18n.t("player.new"))
 	end
 
 	# GET /players/1/edit
 	def edit
 		check_access(roles: [:admin, :coach], obj: @player)
-		@title_fields    = form_fields(I18n.t("player.edit"), rows: 3, cols: 3)
+		prepare_form(title: I18n.t("player.edit"))
 	end
 
 	# POST /players
@@ -109,31 +104,12 @@ class PlayersController < ApplicationController
 	end
 
 	private
-
-		# return icon and top of FieldsComponent
-		def title_fields(title, icon: "player.svg", rows: 2, cols: nil, size: nil, _class: nil)
-			title_start(icon: icon, title: title, rows: rows, cols: cols, size: size, _class: _class)
-		end
-
-		# return FieldsComponent @fields for forms
-		def form_fields(title, rows: 3, cols: 2)
-			res = title_fields(title, icon: @player.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
-			f_cols = cols>2 ? cols - 1 : nil
-			res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, label: I18n.t("person.name"), value: @player.person.name, cols: f_cols}]
-			res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}]
-			res << [{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @player.person.female}, {kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}]
-			@player_fields_1 = [[
-				{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
-				{kind: "gap", size: 8}, {kind: "label", value: I18n.t("player.number")},
-				{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
-				{kind: "hidden", key: :retlnk, value: params[:retlnk]}
-			]]
-			@player_fields_2 = [[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @player.avatar.filename, cols: 5}]]
-			@person_fields   = [
-				[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @player.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @player.person.email}],
-				[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @player.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @player.person.phone}]
-			]
-			res
+		# Prepare a player form
+		def prepare_form(title:)
+			@title_fields    = helpers.player_form_title(title:, player: @player)
+			@player_fields_1 = helpers.player_form_fields_1(player: @player, retlnk: params[:retlnk])
+			@player_fields_2 = helpers.player_form_fields_2(avatar: @player.avatar)
+			@person_fields   = helpers.player_form_person(person: @player.person)
 		end
 
 		# De-couple from associated person
