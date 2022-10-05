@@ -27,7 +27,7 @@ module EventsHelper
     res = title_start(icon: "attendance.svg", title: event.team.name)
     res[0] << {kind: "gap"}
     res << [{kind: "subtitle", value: event.to_s}, {kind: "gap"}]
-    event_top_right_fields(event: event, res: res, form:)
+    event_top_right_fields(event:, res:)
     res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
   end
 
@@ -279,7 +279,7 @@ module EventsHelper
     end
 
   # complete event title with top-right corner elements
-  def event_top_right_fields(event:, res:, form:)
+  def event_top_right_fields(event:, res:, form: nil)
     if form # top right corner of title
       res[0] << {kind: "icon", value: "calendar.svg"}
       res[0] << {kind: "date-box", key: :start_date, s_year: event.team_id > 0 ? event.team.season.start_date : event.start_date, e_year: event.team_id > 0 ? event.team.season.end_year : nil, value: event.start_date}
