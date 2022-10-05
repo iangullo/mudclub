@@ -8,13 +8,13 @@ module EventsHelper
   end
   
   # return icon and top of FieldsComponent
-  def event_title_fields(event:, subtitle: nil, form: nil, cols: nil)
+  def event_title_fields(event:, subtitle: nil, form: nil, cols: nil, chart: nil)
     res = title_start(icon: event.pic, title: event.title(show: true), rows: event.rest? ? 3 : nil, cols:)
     res.last << {kind: "gap"}
     case event.kind.to_sym
     when :rest then rest_title(event:, res:, cols:, form:)
     when :match then match_title(event:, res:, cols:, form:)
-    when :train then train_title(event:, res:, cols:, form:, subtitle:)
+    when :train then train_title(event:, res:, cols:, form:, subtitle:, chart:)
     end
     event_top_right_fields(event:, res:, form:)
     #res << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
@@ -113,11 +113,11 @@ module EventsHelper
   
   # return FieldsComponent @fields for show_training
   def training_show_fields(event:)
-    res = [[{kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + event.work_duration, objects: task_accordion(event)}]]
+    res = [[{kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + event.work_duration, objects: task_accordion(event:)}]]
   end
 
   # fields to show in task views
-  def task_show_fields(task, title: true)
+  def task_show_fields(task:, team:, title: true)
     res = []
     res << [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}] if title
     res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
@@ -125,7 +125,7 @@ module EventsHelper
       res << [{kind: "label", value: I18n.t("task.remarks")}]
       res << [{kind: "cell", value: task.remarks, size: 28}]
     end
-    res << [{kind: "gap", cols: 2}, {kind: "edit", align: "right", url: edit_task_event_path(task_id: task.id)}] if @event.team.has_coach(current_user.person.coach_id)
+    res << [{kind: "gap", cols: 2}, {kind: "edit", align: "right", url: edit_task_event_path(task_id: task.id)}] if team.has_coach(current_user.person.coach_id)
     res
   end
   
@@ -151,10 +151,10 @@ module EventsHelper
   end
   
   # fields for task edit/add views
-  def task_form_description
-    if @drill
+  def task_form_description(drill:)
+    if drill
       [[
-        {kind: "string", value: @drill.explanation.empty? ? @drill.description : @drill.explanation}
+        {kind: "string", value: drill.explanation.empty? ? drill.description : drill.explanation}
       ]]
     else
       nil
@@ -162,7 +162,7 @@ module EventsHelper
   end
 
   # fields to edit task remarks
-  def task_form_remarks
+  def task_form_remarks(task:)
     [
       [{kind: "label", value: I18n.t("task.remarks")}],
       [{kind: "rich-text-area", key: :remarks, value: @task.remarks, size: 28}],
@@ -170,14 +170,14 @@ module EventsHelper
   end
   
   # return accordion for event tasks
-  def task_accordion(event)
+  def task_accordion(event:)
     tasks   = Array.new
     event.tasks.order(:order).each { |task|
       item = {}
       item[:url]     = show_task_event_path(task_id: task.id)
       item[:turbo]   = "modal"
       item[:head]    = task.headstring
-      item[:content] = FieldsComponent.new(fields: task_show_fields(task, title: nil))
+      item[:content] = FieldsComponent.new(fields: task_show_fields(task:, team: event.team, title: nil))
       tasks << item
     }
     tasks
@@ -185,7 +185,7 @@ module EventsHelper
   
   # profile of event workload (task types)
   # returns a hash with time used split by kinds & skills
-  def event_workload(name)
+  def event_workload(name:)
     title = I18n.t("train.workload_by") + " " + I18n.t("#{name}.single")
     data  = {}
     @event.tasks.each { |task| # kind
@@ -266,15 +266,17 @@ module EventsHelper
     end
     
     # complete event_title for train events
-    def train_title(event:, res:, cols:, form:, subtitle:)
+    def train_title(event:, res:, cols:, form:, subtitle:, chart: nil)
       res << [{kind: "subtitle", value: subtitle ? subtitle : I18n.t("train.single"), cols:}, {kind: "gap"}]
-      if form
-        res << [workload_button(event, align: "left", cols: 3)] if @event.id
-      else
-        res << [workload_button(event, align: "left", cols: 4), {kind: "gap", size: 1}, {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}]
-        res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
-        res << [{kind: "side-cell", value: I18n.t("target.abbr"),rows: 2}, {kind: "top-cell", value: I18n.t("target.focus.def_a")}, {kind: "lines", value: event.def_targets, cols: 5}]
-        res << [{kind: "top-cell", value: I18n.t("target.focus.ofe_a")}, {kind: "lines", class: "align-top border px py", value: event.off_targets, cols: 5}]
+      unless chart
+        if form
+          res << [workload_button(event, align: "left", cols: 3)] if @event.id
+        else
+          res << [workload_button(event, align: "left", cols: 4), {kind: "gap", size: 1}, {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}]
+          res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
+          res << [{kind: "side-cell", value: I18n.t("target.abbr"),rows: 2}, {kind: "top-cell", value: I18n.t("target.focus.def_a")}, {kind: "lines", value: event.def_targets, cols: 5}]
+          res << [{kind: "top-cell", value: I18n.t("target.focus.ofe_a")}, {kind: "lines", class: "align-top border px py", value: event.off_targets, cols: 5}]
+        end
       end
     end
 

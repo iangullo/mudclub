@@ -131,7 +131,7 @@ class EventsController < ApplicationController
   def show_task
     check_access(roles: [:admin, :coach], returl: events_url)
     @task   = Task.find(params[:task_id])
-    @fields = helpers.task_show_fields(@task)
+    @fields = helpers.task_show_fields(task: @task, team: @event.team)
   end
 
   # GET /events/1/add_task
@@ -149,8 +149,8 @@ class EventsController < ApplicationController
   # GET /events/1/load_chart
   def load_chart
     check_access(roles: [:admin, :coach])
-    @header = helpers.event_title_fields(event: @event, cols: @event.train? ? 3 : nil)
-    @chart  = helpers.event_workload(params[:name])
+    @header = helpers.event_title_fields(event: @event, cols: @event.train? ? 3 : nil, chart: true)
+    @chart  = helpers.event_workload(name: params[:name])
   end
 
   # GET /events/1/attendance
@@ -246,8 +246,8 @@ class EventsController < ApplicationController
       @title       = helpers.event_task_title(event: @event, subtitle: subtitle)
       @search      = helpers.drill_search_bar(search_in: search_in, task_id: task_id ? @task.id : nil)
       @fields      = helpers.task_form_fields(search_in: search_in, retlnk: retlnk)
-      @description = helpers.task_form_description
-      @remarks     = helpers.task_form_remarks
+      @description = helpers.task_form_description(drill: @drill)
+      @remarks     = helpers.task_form_remarks(task: task_id ? @task : nil)
     end
 
     # determine task/drill objects from params received
