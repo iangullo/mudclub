@@ -2,6 +2,6 @@
 	<%= render FieldsComponent.new(fields: @title) %>
 	<%= render FieldsComponent.new(fields: @search) %>
 	<%= turbo_frame_tag "search-results" do %>
-		<%= render @grid %>
+		<%= render GridComponent.new(grid: @grid) %>
 	<% end %>
 </div>
