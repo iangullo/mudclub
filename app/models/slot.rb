@@ -100,9 +100,9 @@ class Slot < ApplicationRecord
 	end
 
 	# Ensure we remove dependencies of location before deleting.
-  def scrub
+	def scrub
 		self.seasons.clear
-  end
+	end
 
 	# Search for a list of SLots
 	# s_data is an array with either season_id+location_id or team_id
@@ -139,7 +139,7 @@ class Slot < ApplicationRecord
 		slots.select {|slot| slot.wday==wday}
 	end
 
-  # filter slots that start at or end after start_time
+	# filter slots that start at or end after start_time
 	def self.at_time(start_time, slots=Slot.real)
 		res = slots.select {|slot| slot.at_work?(slot.wday,start_time)}
 	end
@@ -147,12 +147,12 @@ class Slot < ApplicationRecord
 	# build new @slot from raw input given by submittal from "new" or "edit"
 	# always returns a @slot
 	def rebuild(s_data)
-    self.wday        = s_data[:wday] if s_data[:wday]
-    self.hour        = s_data[:hour] if s_data[:hour]
-    self.min         = s_data[:min] if s_data[:min]
-    self.duration    = s_data[:duration] if s_data[:duration]
-    self.location_id = s_data[:location_id] if s_data[:location_id]
-    self.team_id     = s_data[:team_id] if s_data[:team_id]
-    self.season_id   = self.team.season_id.to_i
+		self.wday        = s_data[:wday] if s_data[:wday]
+		self.hour        = s_data[:hour] if s_data[:hour]
+		self.min         = s_data[:min] if s_data[:min]
+		self.duration    = s_data[:duration] if s_data[:duration]
+		self.location_id = s_data[:location_id] if s_data[:location_id]
+		self.team_id     = s_data[:team_id] if s_data[:team_id]
+		self.season_id   = self.team.season_id.to_i
 	end
 end

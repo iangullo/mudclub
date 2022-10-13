@@ -1,58 +1,58 @@
 <%= form_with model: drill, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
-	<%= render FieldsComponent.new(fields: @title, form: form) %>
-	<%= render FieldsComponent.new(fields: @playbook, form: form) %>
-	<div id="drills-form">
-		<div id="drills-targets-data">
-			<table>
-				<tr>
-						<td align="right" class="align-top font-semibold"><%= t("target.many") %></td>
-						<td colspan="3">
-							<div id="drill-targets" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
-								<% n_p = @drill.drill_targets ? @drill.drill_targets.count+1 : 1 %>
-								<template data-nested-form-target="template">
-									<%= form.fields_for :drill_targets, DrillTarget.new(priority: n_p), child_index: 'NEW_RECORD' do |drill_target_fields| %>
-										<% drill_target_fields.object.build_target %>
-										<%= render 'target_form', form: drill_target_fields %>
-										<% n_p = n_p + 1 %>
-									<% end %>
-								</template>
-								<%= form.fields_for :drill_targets do |drill_target_fields| %>
-									<%= render 'target_form', form: drill_target_fields %>
-								<% end %>
-								<div data-nested-form-target="target"></div>
-								<%= render ButtonComponent.new(button: {kind: "add-nested"}) %>
-							</div>
-						</td>
-					</tr>
-			</table>
-		</div>
-		<div if="drill-fields">
-			<%= render FieldsComponent.new(fields: @formdata, form: form) %>
-			<%= render FieldsComponent.new(fields: @explain, form: form) %>
-		</div>
-		<div id="skills-data">
-			<table>
-				<tr>
-					<td align="right" class="align-top font-semibold"><%=t("skill.abbr")%></td>
-					<td>
-						<div id="skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
-							<template data-nested-form-target="template">
-								<%= form.fields_for :skills, Skill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
-									<%= render 'skill_form', form: skill_fields %>
-								<% end %>
-							</template>
-							<%= form.fields_for :skills do |skill_fields| %>
-									<%= render 'skill_form', form: skill_fields %>
-							<% end %>
-							<div data-nested-form-target="target"></div>
-							<%= render ButtonComponent.new(button: {kind: "add-nested"}) %>
-						</div>
-					</td>
-					<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-					<td class="align-top"><%= render FieldsComponent.new(fields: @author, form: form) %></td>
-				</tr>
-			</table>
-		</div>
-	</div>
-	<%= render SubmitComponent.new(close: "cancel", close_return: :back, submit: "save") %>
+  <%= render FieldsComponent.new(fields: @title, form: form) %>
+  <%= render FieldsComponent.new(fields: @playbook, form: form) %>
+  <div id="drills-form">
+    <div id="drills-targets-data">
+      <table>
+        <tr>
+            <td align="right" class="align-top font-semibold"><%= t("target.many") %></td>
+            <td colspan="3">
+              <div id="drill-targets" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
+                <% n_p = @drill.drill_targets ? @drill.drill_targets.count+1 : 1 %>
+                <template data-nested-form-target="template">
+                  <%= form.fields_for :drill_targets, DrillTarget.new(priority: n_p), child_index: 'NEW_RECORD' do |drill_target_fields| %>
+                    <% drill_target_fields.object.build_target %>
+                    <%= render 'target_form', form: drill_target_fields %>
+                    <% n_p = n_p + 1 %>
+                  <% end %>
+                </template>
+                <%= form.fields_for :drill_targets do |drill_target_fields| %>
+                  <%= render 'target_form', form: drill_target_fields %>
+                <% end %>
+                <div data-nested-form-target="target"></div>
+                <%= render ButtonComponent.new(button: {kind: "add-nested"}) %>
+              </div>
+            </td>
+          </tr>
+      </table>
+    </div>
+    <div if="drill-fields">
+      <%= render FieldsComponent.new(fields: @formdata, form: form) %>
+      <%= render FieldsComponent.new(fields: @explain, form: form) %>
+    </div>
+    <div id="skills-data">
+      <table>
+        <tr>
+          <td align="right" class="align-top font-semibold"><%=t("skill.abbr")%></td>
+          <td>
+            <div id="skills" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
+              <template data-nested-form-target="template">
+                <%= form.fields_for :skills, Skill.new, child_index: 'NEW_RECORD' do |skill_fields| %>
+                  <%= render 'skill_form', form: skill_fields %>
+                <% end %>
+              </template>
+              <%= form.fields_for :skills do |skill_fields| %>
+                  <%= render 'skill_form', form: skill_fields %>
+              <% end %>
+              <div data-nested-form-target="target"></div>
+              <%= render ButtonComponent.new(button: {kind: "add-nested"}) %>
+            </div>
+          </td>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          <td class="align-top"><%= render FieldsComponent.new(fields: @author, form: form) %></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <%= render SubmitComponent.new(close: "cancel", close_return: :back, submit: "save") %>
 <% end %>

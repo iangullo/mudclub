@@ -4,7 +4,7 @@ class Drill < ApplicationRecord
 	has_and_belongs_to_many :skills
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
 	has_many :drill_targets
-  has_many :targets, through: :drill_targets
+	has_many :targets, through: :drill_targets
 	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :drill_targets, reject_if: :all_blank, allow_destroy: true
 	has_one_attached :playbook
@@ -14,7 +14,7 @@ class Drill < ApplicationRecord
 	scope :by_kind, -> (kind_id) { (kind_id and kind_id.to_i>0) ? where(kind_id: kind_id.to_i) : where("kind_id>0") }
 	scope :by_skill, -> (skill_id) { (skill_id and skill_id.to_i>0) ? joins(:skills).where(skills: {id: skill_id.to_i}) : all	}
 	self.inheritance_column = "not_sti"
-  FILTER_PARAMS = %i[name kind_id skill_id column direction].freeze
+	FILTER_PARAMS = %i[name kind_id skill_id column direction].freeze
 
 	def self.filter(filters)
 		Drill.by_name(filters['name'])

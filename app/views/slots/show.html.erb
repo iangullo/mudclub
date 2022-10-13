@@ -3,23 +3,23 @@
 	<div id="slots-show">
 		<table>
 			<div id="slots-show-data">
-	      <tr>
-	        <td align="right"><%= image_tag("team.svg", size: "25x25") %></td>
+				<tr>
+					<td align="right"><%= image_tag("team.svg", size: "25x25") %></td>
 					<td align="center" colspan="2"><%= @slot.team.name %></td>
-	    	</tr><tr>
-	        <td align="right"><%= image_tag("location.svg", size: "25x25") %></td>
+				</tr><tr>
+					<td align="right"><%= image_tag("location.svg", size: "25x25") %></td>
 					<td colspan="2"><%= @slot.court %></td>
-	    	</tr><tr>
-	        <td align="right"><%= image_tag("calendar.svg", size: "25x25") %></td>
+				</tr><tr>
+					<td align="right"><%= image_tag("calendar.svg", size: "25x25") %></td>
 					<td colspan="2"><%= @slot.to_s %></td>
-	      </tr><tr>
-	        <td align="right"><%= image_tag("clock.svg", size: "25x25") %></td>
+				</tr><tr>
+					<td align="right"><%= image_tag("clock.svg", size: "25x25") %></td>
 					<td><%= @slot.duration %>&nbsp;<strong>'</strong></td>
 					<% if current_user.admin?%>
 					<td><%= render ButtonComponent.new(button: {kind: "delete", url: slot_path(@slot), name: @slot.to_s})%></td>
 					<% end %>
-	      </tr>
-	    </div>
+				</tr>
+			</div>
 		</table>
 	</div>
 	<%= render SubmitComponent.new(submit: current_user.admin? ? edit_slot_path(@slot) : nil, frame: current_user.admin? ? "modal" : nil) %>

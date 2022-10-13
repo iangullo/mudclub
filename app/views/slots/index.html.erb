@@ -2,19 +2,19 @@
 	<%= render FieldsComponent.new(fields: @title) %>
 	<div id="slots-grid">
 		<table class="table-auto border-separate">
-		  <thead>
+			<thead>
 				<tr>
-				  <th align="center">
+					<th align="center">
 						<% if current_user.admin? and not (@season.teams.empty?) %>
 							<%= render ButtonComponent.new(button: {kind: "add", url: new_slot_path(location_id: @location.id, season_id: @season.id), frame: "modal"}) %>
 						<% end %>
 					</th>
 					<% 1.upto(5) do |i| %>
-					  <th align="center" class="bg-indigo-900 text-gray-300 align-center" colspan=<%=@d_cols[i][:cols].to_s%>><%= @d_cols[i][:name] %></th>
+						<th align="center" class="bg-indigo-900 text-gray-300 align-center" colspan=<%=@d_cols[i][:cols].to_s%>><%= @d_cols[i][:name] %></th>
 					<% end %>
 				</tr>
-		  </thead>
-		  <tbody>
+			</thead>
+			<tbody>
 				<% @slices.each do |slice| %>
 				<tr>
 					<td align="center" class="align-top text-sm">
@@ -35,7 +35,7 @@
 					<% end %>
 				</tr>
 				<% end %>
-		  </tbody>
+			</tbody>
 		</table>
 	</div>
 </div>

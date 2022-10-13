@@ -1,141 +1,141 @@
 <table>
-  <% @fields.each do |row| %>
-    <tr>
-      <% row.each do |item| %>
-        <%=item[:cell]%>
-        <% case item[:kind] %>
-        <% when "icon" %>
-          <%= image_tag item[:value], size: item[:size], class: item[:class] %>
-        <% when "header-icon", "icon" %>
-          <%= image_tag item[:value], size: item[:size], class: item[:class] %>
-        <% when "icon-label" %>
-          <%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:value] %>
-        <% when "label-checkbox" %>
-          <div class="align-middle">
-            <%= @form.check_box item[:key], class: item[:i_class] %>
-            <label class="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300"/><%= item[:label] %>
-          </div>
-        <% when "radio-button" %>
-          <%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
-        <% when "text-box" %>
-          <%= @form.text_field item[:key], value: item[:value], size: item[:size], rows: item[:rows], class: item[:i_class] %>
-        <% when "email-box" %>
-          <%= @form.email_field item[:key], autocomplete: item[:value], size: 25, class: item[:i_class] %>
-        <% when "password-box" %>
-          <%= @form.password_field item[:key], autocomplete: item[:auto], class: item[:i_class] %>
-        <% when "text-area" %>
-          <%= @form.text_area item[:key], value: item[:value], cols: item[:size], rows: item[:lines], class: item[:i_class] %>
-        <% when "rich-text-area" %>
-          <div id="trix-editor">
-            <%= @form.rich_text_area item[:key], class: item[:i_class] %>
-          </div>
-        <% when "number-box" %>
-          <%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, min: item[:min], max: item[:max], step: item[:step], class: item[:i_class] %>
-          <%= item[:units].to_s %>
-        <% when "date-box" %>
-          <%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
-        <% when "time-box" %>
-          <%= @form.number_field :hour, value: item[:hour], in: 10..22, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
-          <strong>:</strong>
-          <%= @form.number_field :min, value: item[:min], in: 0..45, step: 15, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
-        <% when "select-box" %>
-    			<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: item[:i_class] %>
-        <% when "select-collection" %>
-          <select class="<%=item[:i_class]%>" name="<%=@form.object.class.to_s.downcase + "[#{item[:key]}]"%>" id="<%=item[:key]%>">
-            <% item[:options].each do |opt| %>
-              <option value="<%=opt[:id]%>"<% if (opt[:id] ? opt[:id] : opt.id) == item[:value]%> selected="selected"<% end %>><%=opt[:name] ? opt[:name] : opt.name%></option>
-            <% end %>
-          </select>
-        <% when "select-load" %>
-          <fieldset class="contents" data-controller="search-params select-load">
-            <select class="<%=item[:i_class]%>" name="<%=@form.object.class.to_s.downcase + "[#{item[:key]}]"%>" id="<%=item[:key]%>" data-action="change->search-params#encode change->select-load#click" autocomplete="off">
-              <% item[:options].each do |opt| %>
-                <option value=<%="#{opt[1]}" + (item[:hidden] ? "|#{item[:hidden]}" : "")%><% if opt[1]==item[:value]%> selected="selected"<% end %>><%=opt[0]%></option>
-              <% end %>
-            </select>
-            <a href="<%=item[:url]%>" hidden data-search-params-target="anchor" data-select-load-target="click" data-turbo-frame="<%=@form.field_id(item[:key], :turbo_frame)%>">GetDrill</a>
-          </fieldset>
-        <% when "select-checkboxes" %>
-          <% @form.collection_check_boxes item[:key], item[:options], :id, :to_s do |obj| %>
-            <%=obj.check_box({class: "rounded bg-gray-200 text-blue-700"})%> <%=obj.object.to_s%><br>
-          <% end %>
-        <% when "search-combo" %>
-          <div id="combo-search-box">
-            <%= form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
-              <table>
-                <tr class="inline-flex">
-                  <% item[:fields].each do |opt| %>
-                  <td class="relative">
-                    <% if opt[:label] %><label for="<%=opt[:key]%>" class="<%=item[:l_class]%>"><%=opt[:label]%></label><% end %>
-                    <% case opt[:kind]%>
-                    <% when "search-text" %>
-                      <%=fsearch.text_field opt[:key], placeholder: t("action.search"), value: opt[:value], size: opt[:size], class: item[:i_class], data: {action: "input->search-form#search"}%>
-                    <% when "search-select" %>
-                      <%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t("scope.all")}, {class: item[:i_class]}%>
-                    <% when "search-collection" %>
-                      <%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym] ? params[opt[:key].to_sym] : opt[:value]}, {class: item[:i_class]}%>
-                    <% when "hidden" %>
-                      <%= fsearch.hidden_field(opt[:key].to_sym, value: opt[:value]) %>
-                    <% end %>
-                  </td>
-                  <% end %>
-                  <td><%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t("action.search") %></td>
-                </tr>
-              </table>
-            <% end %>
-          </div>
-        <% when "upload" %>
-          <div id="upload-file" class="<%=item[:class]%>">
-            <%= @form.file_field item[:key], id: "upload-btn", direct_upload: true, class: "hidden" %>
-            <label for="upload-btn" class="<%=item[:i_class]%>">
-              <%= image_tag(item[:icon], size: "25x25") if item[:icon] %>&nbsp;<%=item[:label]%>
-            </label>
-            <span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t("status.no_file") %></span>
-          </div>
-        <% when "add", "add-nested", "back", "edit", "jump", "link", "location", "action" %>
-          <%= render ButtonComponent.new(button: item) %>
-        <% when "gap" %>
-          <% item[:size].times do %>
-            &nbsp;
-          <% end %>
-        <% when "lines" %>
-          <% item[:value].each do |line|%>
-            <%= line.to_s %>
-            <br>
-          <% end %>
-        <% when "dropdown" %>
-          <%= render DropdownComponent.new(button: item[:button]) %>
-        <% when "grid" %>
-          <%= render GridComponent.new(grid: item[:value], form: @form) %>
-        <% when "accordion" %>
-          <div id="accordion-collapse" data-accordion="collapse">
-            <h2 class="<%=item[:h_class]%>"><%=item[:title]%></h2>
-            <% item[:objects].each do |obj| %>
-              <h2 id="<%=obj[:head_id]%>">
-                <button type="button" class="<%=item[:i_class]%>" data-accordion-target="#<%=obj[:body_id]%>" aria-expanded="false" aria-controls="<%=obj[:body_id]%>">
-                  <span><%=obj[:head]%></span>
-                  <svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                </button>
-              </h2>
-              <div id="<%=obj[:body_id]%>" class="hidden" aria-labelledby="<%=obj[:head_id]%>">
-                <div class="py px-2 rounded-lg border-2 border-indigo-900">
-                  <% if obj[:content].class==FieldsComponent %>
-                    <%=render obj[:content]%>
-                  <% else %>
-                    <%=obj[:content]%>
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
-            <div class="<%=item[:t_class]%>"><%= item[:tail] if item[:tail] %></div>
-          </div>
-        <% when "nested-form" %>
-        <% when "hidden" # hidden form field %>
-          <%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>
-        <% else %>
-          <%= item[:value] %>
-        <% end %>
-      <% end %>
-    </tr>
-  <% end %>
+	<% @fields.each do |row| %>
+		<tr>
+			<% row.each do |item| %>
+				<%=item[:cell]%>
+				<% case item[:kind] %>
+				<% when "icon" %>
+					<%= image_tag item[:value], size: item[:size], class: item[:class] %>
+				<% when "header-icon", "icon" %>
+					<%= image_tag item[:value], size: item[:size], class: item[:class] %>
+				<% when "icon-label" %>
+					<%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:value] %>
+				<% when "label-checkbox" %>
+					<div class="align-middle">
+						<%= @form.check_box item[:key], class: item[:i_class] %>
+						<label class="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300"/><%= item[:label] %>
+					</div>
+				<% when "radio-button" %>
+					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
+				<% when "text-box" %>
+					<%= @form.text_field item[:key], value: item[:value], size: item[:size], rows: item[:rows], class: item[:i_class] %>
+				<% when "email-box" %>
+					<%= @form.email_field item[:key], autocomplete: item[:value], size: 25, class: item[:i_class] %>
+				<% when "password-box" %>
+					<%= @form.password_field item[:key], autocomplete: item[:auto], class: item[:i_class] %>
+				<% when "text-area" %>
+					<%= @form.text_area item[:key], value: item[:value], cols: item[:size], rows: item[:lines], class: item[:i_class] %>
+				<% when "rich-text-area" %>
+					<div id="trix-editor">
+						<%= @form.rich_text_area item[:key], class: item[:i_class] %>
+					</div>
+				<% when "number-box" %>
+					<%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, min: item[:min], max: item[:max], step: item[:step], class: item[:i_class] %>
+					<%= item[:units].to_s %>
+				<% when "date-box" %>
+					<%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
+				<% when "time-box" %>
+					<%= @form.number_field :hour, value: item[:hour], in: 10..22, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
+					<strong>:</strong>
+					<%= @form.number_field :min, value: item[:min], in: 0..45, step: 15, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
+				<% when "select-box" %>
+					<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: item[:i_class] %>
+				<% when "select-collection" %>
+					<select class="<%=item[:i_class]%>" name="<%=@form.object.class.to_s.downcase + "[#{item[:key]}]"%>" id="<%=item[:key]%>">
+						<% item[:options].each do |opt| %>
+							<option value="<%=opt[:id]%>"<% if (opt[:id] ? opt[:id] : opt.id) == item[:value]%> selected="selected"<% end %>><%=opt[:name] ? opt[:name] : opt.name%></option>
+						<% end %>
+					</select>
+				<% when "select-load" %>
+					<fieldset class="contents" data-controller="search-params select-load">
+						<select class="<%=item[:i_class]%>" name="<%=@form.object.class.to_s.downcase + "[#{item[:key]}]"%>" id="<%=item[:key]%>" data-action="change->search-params#encode change->select-load#click" autocomplete="off">
+							<% item[:options].each do |opt| %>
+								<option value=<%="#{opt[1]}" + (item[:hidden] ? "|#{item[:hidden]}" : "")%><% if opt[1]==item[:value]%> selected="selected"<% end %>><%=opt[0]%></option>
+							<% end %>
+						</select>
+						<a href="<%=item[:url]%>" hidden data-search-params-target="anchor" data-select-load-target="click" data-turbo-frame="<%=@form.field_id(item[:key], :turbo_frame)%>">GetDrill</a>
+					</fieldset>
+				<% when "select-checkboxes" %>
+					<% @form.collection_check_boxes item[:key], item[:options], :id, :to_s do |obj| %>
+						<%=obj.check_box({class: "rounded bg-gray-200 text-blue-700"})%> <%=obj.object.to_s%><br>
+					<% end %>
+				<% when "search-combo" %>
+					<div id="combo-search-box">
+						<%= form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
+							<table>
+								<tr class="inline-flex">
+									<% item[:fields].each do |opt| %>
+									<td class="relative">
+										<% if opt[:label] %><label for="<%=opt[:key]%>" class="<%=item[:l_class]%>"><%=opt[:label]%></label><% end %>
+										<% case opt[:kind]%>
+										<% when "search-text" %>
+											<%=fsearch.text_field opt[:key], placeholder: t("action.search"), value: opt[:value], size: opt[:size], class: item[:i_class], data: {action: "input->search-form#search"}%>
+										<% when "search-select" %>
+											<%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t("scope.all")}, {class: item[:i_class]}%>
+										<% when "search-collection" %>
+											<%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym] ? params[opt[:key].to_sym] : opt[:value]}, {class: item[:i_class]}%>
+										<% when "hidden" %>
+											<%= fsearch.hidden_field(opt[:key].to_sym, value: opt[:value]) %>
+										<% end %>
+									</td>
+									<% end %>
+									<td><%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t("action.search") %></td>
+								</tr>
+							</table>
+						<% end %>
+					</div>
+				<% when "upload" %>
+					<div id="upload-file" class="<%=item[:class]%>">
+						<%= @form.file_field item[:key], id: "upload-btn", direct_upload: true, class: "hidden" %>
+						<label for="upload-btn" class="<%=item[:i_class]%>">
+							<%= image_tag(item[:icon], size: "25x25") if item[:icon] %>&nbsp;<%=item[:label]%>
+						</label>
+						<span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t("status.no_file") %></span>
+					</div>
+				<% when "add", "add-nested", "back", "edit", "jump", "link", "location", "action" %>
+					<%= render ButtonComponent.new(button: item) %>
+				<% when "gap" %>
+					<% item[:size].times do %>
+						&nbsp;
+					<% end %>
+				<% when "lines" %>
+					<% item[:value].each do |line|%>
+						<%= line.to_s %>
+						<br>
+					<% end %>
+				<% when "dropdown" %>
+					<%= render DropdownComponent.new(button: item[:button]) %>
+				<% when "grid" %>
+					<%= render GridComponent.new(grid: item[:value], form: @form) %>
+				<% when "accordion" %>
+					<div id="accordion-collapse" data-accordion="collapse">
+						<h2 class="<%=item[:h_class]%>"><%=item[:title]%></h2>
+						<% item[:objects].each do |obj| %>
+							<h2 id="<%=obj[:head_id]%>">
+								<button type="button" class="<%=item[:i_class]%>" data-accordion-target="#<%=obj[:body_id]%>" aria-expanded="false" aria-controls="<%=obj[:body_id]%>">
+									<span><%=obj[:head]%></span>
+									<svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+								</button>
+							</h2>
+							<div id="<%=obj[:body_id]%>" class="hidden" aria-labelledby="<%=obj[:head_id]%>">
+								<div class="py px-2 rounded-lg border-2 border-indigo-900">
+									<% if obj[:content].class==FieldsComponent %>
+										<%=render obj[:content]%>
+									<% else %>
+										<%=obj[:content]%>
+									<% end %>
+								</div>
+							</div>
+						<% end %>
+						<div class="<%=item[:t_class]%>"><%= item[:tail] if item[:tail] %></div>
+					</div>
+				<% when "nested-form" %>
+				<% when "hidden" # hidden form field %>
+					<%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>
+				<% else %>
+					<%= item[:value] %>
+				<% end %>
+			<% end %>
+		</tr>
+	<% end %>
 </table>

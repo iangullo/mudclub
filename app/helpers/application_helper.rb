@@ -1,33 +1,33 @@
 module ApplicationHelper
-  def create_topbar
-    TopbarComponent.new(user: user_signed_in? ? current_user : nil)
-  end
+	def create_topbar
+		TopbarComponent.new(user: user_signed_in? ? current_user : nil)
+	end
 
-  def svgicon(icon_name, options={})
-    file = File.read(Rails.root.join('app', 'assets', 'images', "#{icon_name}.svg"))
-    doc = Nokogiri::HTML::DocumentFragment.parse file
-    svg = doc.at_css 'svg'
+	def svgicon(icon_name, options={})
+		file = File.read(Rails.root.join('app', 'assets', 'images', "#{icon_name}.svg"))
+		doc = Nokogiri::HTML::DocumentFragment.parse file
+		svg = doc.at_css 'svg'
 
-    options.each {|attr, value| svg[attr.to_s] = value}
+		options.each {|attr, value| svg[attr.to_s] = value}
 
-    doc.to_html.html_safe
-  end
+		doc.to_html.html_safe
+	end
 
-  # generic title start FieldsComponent for views
-  def title_start(icon:, title:, size: nil, rows: nil, cols: nil, _class: nil)
-    [[
-      {kind: "header-icon", value: icon, size: size, rows: rows, class: _class},
-      {kind: "title", value: title, cols: cols}
-    ]]
-  end
+	# generic title start FieldsComponent for views
+	def title_start(icon:, title:, size: nil, rows: nil, cols: nil, _class: nil)
+		[[
+			{kind: "header-icon", value: icon, size: size, rows: rows, class: _class},
+			{kind: "title", value: title, cols: cols}
+		]]
+	end
 
-  # file upload button
-  def form_file_field(label:, key:, value:, cols: nil)
-    [[{kind: "upload", label:, key:, value:, cols:}]]
-  end
+	# file upload button
+	def form_file_field(label:, key:, value:, cols: nil)
+		[[{kind: "upload", label:, key:, value:, cols:}]]
+	end
 
-  # standardised message wrapper
-  def flash_message(message, kind="info")
-    res = {message: message, kind: kind}
-  end
+	# standardised message wrapper
+	def flash_message(message, kind="info")
+		res = {message: message, kind: kind}
+	end
 end

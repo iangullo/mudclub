@@ -1,47 +1,47 @@
 <%= render ModalComponent.new do %>
-  <%= form_for(resource, as: resource_name, url: user_registration_path, html: { method: :put }) do |f| %>
-    <%= render "devise/shared/error_messages", resource: resource %>
-    <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-      <div>Esperando confirmación de: <%= resource.unconfirmed_email %></div>
-    <% end %>
-    <table>
-      <tr>
-        <td align="center" class="align-center">
-          <%= image_tag(current_user.picture, :size => "50x50", class: "rounded-full") %>
-        </td>
-        <td colspan="2" align="center" class="text-blue-900"><strong>Cambiar Contrase&ntilde;a</strong></td>
-      </tr><tr>
-        <td align="center" class="align-top"><strong><%= current_user.s_name %></strong></td>
-        <td></td>
-        <td><i>(dejar en blanco si no quiere cambiarla)</i></td>
-      </tr><tr>
-        <td></td>
-        <td class="align-top"><%= image_tag "key.svg", size: "25x25", alt: "Nueva clave"  %></td>
-        <td>
-          <%= f.password_field :password, autofocus: true, autocomplete: "contraseña-nueva", class: "rounded border shadow-inner" %>
-          <% if @minimum_password_length %>
-            <br />
-            <em>al menos <%= @minimum_password_length %> caracteres</em>
-          <% end %>
-        </td>
-      </tr><tr>
-        <td colspan="2"></td>
-        <td><i>(*) confirmar nueva contraseña</i></td>
-      </tr><tr>
-        <td></td>
-        <td><%= image_tag "key.svg", size: "25x25", alt: "Confirmar"  %></td>
-        <td colspan="2"><%= f.password_field :password_confirmation, autocomplete: "nueva-contraseña", class: "rounded border shadow-inner" %></td>
-      </tr><tr>
-        <td colspan="2"></td>
-        <td><i>(Confirmar contraseña actual)</i></td>
-      </tr><tr>
-        <td></td>
-        <td><%= image_tag "key.svg", size: "25x25", alt: "Confirmar"  %></td>
-        <td colspan="3">
-          <%= f.password_field :current_password, autocomplete: "contraseña-actual", class: "rounded border shadow-inner" %>
-        </td>
-      </tr>
-    </table>
-    <%= render SubmitComponent.new(submit: "save") %>
-  <% end %>
+	<%= form_for(resource, as: resource_name, url: user_registration_path, html: { method: :put }) do |f| %>
+		<%= render "devise/shared/error_messages", resource: resource %>
+		<% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+			<div>Esperando confirmación de: <%= resource.unconfirmed_email %></div>
+		<% end %>
+		<table>
+			<tr>
+				<td align="center" class="align-center">
+					<%= image_tag(current_user.picture, :size => "50x50", class: "rounded-full") %>
+				</td>
+				<td colspan="2" align="center" class="text-blue-900"><strong>Cambiar Contrase&ntilde;a</strong></td>
+			</tr><tr>
+				<td align="center" class="align-top"><strong><%= current_user.s_name %></strong></td>
+				<td></td>
+				<td><i>(dejar en blanco si no quiere cambiarla)</i></td>
+			</tr><tr>
+				<td></td>
+				<td class="align-top"><%= image_tag "key.svg", size: "25x25", alt: "Nueva clave"  %></td>
+				<td>
+					<%= f.password_field :password, autofocus: true, autocomplete: "contraseña-nueva", class: "rounded border shadow-inner" %>
+					<% if @minimum_password_length %>
+						<br />
+						<em>al menos <%= @minimum_password_length %> caracteres</em>
+					<% end %>
+				</td>
+			</tr><tr>
+				<td colspan="2"></td>
+				<td><i>(*) confirmar nueva contraseña</i></td>
+			</tr><tr>
+				<td></td>
+				<td><%= image_tag "key.svg", size: "25x25", alt: "Confirmar"  %></td>
+				<td colspan="2"><%= f.password_field :password_confirmation, autocomplete: "nueva-contraseña", class: "rounded border shadow-inner" %></td>
+			</tr><tr>
+				<td colspan="2"></td>
+				<td><i>(Confirmar contraseña actual)</i></td>
+			</tr><tr>
+				<td></td>
+				<td><%= image_tag "key.svg", size: "25x25", alt: "Confirmar"  %></td>
+				<td colspan="3">
+					<%= f.password_field :current_password, autocomplete: "contraseña-actual", class: "rounded border shadow-inner" %>
+				</td>
+			</tr>
+		</table>
+		<%= render SubmitComponent.new(submit: "save") %>
+	<% end %>
 <% end %>

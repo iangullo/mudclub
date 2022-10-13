@@ -2,7 +2,7 @@ class Season < ApplicationRecord
 	has_many :slots
 	has_many :teams
 	has_many :season_locations
-  has_many :locations, through: :season_locations
+	has_many :locations, through: :season_locations
 	accepts_nested_attributes_for :locations
 	scope :real, -> { where("id>0") }
 	self.inheritance_column = "not_sti"
@@ -52,8 +52,8 @@ class Season < ApplicationRecord
 
 	# elgible locations to train / play
 	def eligible_locations
-    @locations = Location.real - self.locations
-  end
+		@locations = Location.real - self.locations
+	end
 
 	# returns an ordered array of months
 	# for this season

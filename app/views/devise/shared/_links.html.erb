@@ -1,6 +1,6 @@
 <%- if controller_name != 'sessions' %>
-  <%= link_to t("action.login"), new_session_path(resource_name), class: 'hover:text-blue-900' %><br />
+	<%= link_to t("action.login"), new_session_path(resource_name), class: 'hover:text-blue-900' %><br />
 <% end %>
 <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
-  <%= link_to "¿Contraseña Olvidada?", new_password_path(resource_name), class: 'hover:text-blue-900'  %><br />
+	<%= link_to "¿Contraseña Olvidada?", new_password_path(resource_name), class: 'hover:text-blue-900'  %><br />
 <% end %>

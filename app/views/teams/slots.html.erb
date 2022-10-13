@@ -1,10 +1,10 @@
 <%= render ModalComponent.new(simple: true) do %>
-  <%= render FieldsComponent.new(fields: @title) %>
-  <div id="team-slots-grid">
-    <table>
-      <tr>
-        <td></td>
-        <td>
+	<%= render FieldsComponent.new(fields: @title) %>
+	<div id="team-slots-grid">
+		<table>
+			<tr>
+				<td></td>
+				<td>
 					<% unless @team.slots.empty? %>
 						<%= @team.slots.first.court %>
 						<br>
@@ -13,7 +13,7 @@
 						<%= link_to ts.to_s, ts %><br>
 					<% end %>
 				</td>
-      </tr>
-    </table>
-  </div>
+			</tr>
+		</table>
+	</div>
 <% end %>

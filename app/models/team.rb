@@ -7,7 +7,7 @@ class Team < ApplicationRecord
 	has_many :slots
 	has_many :events
 	has_many :team_targets
-  has_many :targets, through: :team_targets
+	has_many :targets, through: :team_targets
 #	accepts_nested_attributes_for :category
 #	accepts_nested_attributes_for :division
 #	accepts_nested_attributes_for :season
@@ -19,11 +19,11 @@ class Team < ApplicationRecord
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
-  enum rules: {
-    fiba: 0,
-    q4: 1,
-    q6: 2
-  }
+	enum rules: {
+		fiba: 0,
+		q4: 1,
+		q6: 2
+	}
 
 	def to_s
 		if self.name and self.name.length > 0
@@ -69,28 +69,28 @@ class Team < ApplicationRecord
 	end
 
 	def general_def(month=0)
-    search_targets(month, 0, 2)
-  end
+		search_targets(month, 0, 2)
+	end
 
-  def general_off(month=0)
-    search_targets(month, 0, 1)
-  end
+	def general_off(month=0)
+		search_targets(month, 0, 1)
+	end
 
-  def individual_def(month=0)
-    search_targets(month, 1, 2)
-  end
+	def individual_def(month=0)
+		search_targets(month, 1, 2)
+	end
 
-  def individual_off(month=0)
-    search_targets(month, 1, 1)
-  end
+	def individual_off(month=0)
+		search_targets(month, 1, 1)
+	end
 
-  def collective_def(month=0)
-    search_targets(month, 2, 2)
-  end
+	def collective_def(month=0)
+		search_targets(month, 2, 2)
+	end
 
-  def collective_off(month=0)
-    search_targets(month, 2, 1)
-  end
+	def collective_off(month=0)
+		search_targets(month, 2, 1)
+	end
 
 	# return next free training_slot
 	# after the last existing one in the calendar

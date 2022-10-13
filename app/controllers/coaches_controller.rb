@@ -1,12 +1,12 @@
 class CoachesController < ApplicationController
-  include Filterable
+	include Filterable
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_coach, only: [:show, :edit, :update, :destroy]
 
 	# GET /coaches
 	# GET /coaches.json
 	def index
-    check_access(roles: [:admin, :coach])
+		check_access(roles: [:admin, :coach])
 		@coaches = get_coaches
 		@title  = helpers.coach_title(title: I18n.t("coach.many"))
 		@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
@@ -22,14 +22,14 @@ class CoachesController < ApplicationController
 	# GET /coaches/1
 	# GET /coaches/1.json
 	def show
-    check_access(roles: [:admin, :coach])
+		check_access(roles: [:admin, :coach])
 		@fields = helpers.coach_show_fields(coach: @coach)
 		@grid   = helpers.team_grid(teams: @coach.teams.order(:season_id))
 	end
 
 	# GET /coaches/new
 	def new
-    check_access(roles: [:admin])
+		check_access(roles: [:admin])
 		@coach = Coach.new(active: true)
 		@coach.build_person
 		prepare_form(title: I18n.t("coach.new"))
@@ -44,7 +44,7 @@ class CoachesController < ApplicationController
 	# POST /coaches
 	# POST /coaches.json
 	def create
-    check_access(roles: [:admin])
+		check_access(roles: [:admin])
 		respond_to do |format|
 			@coach = Coach.new
 			@coach.rebuild(coach_params)	# rebuild coach
@@ -84,17 +84,17 @@ class CoachesController < ApplicationController
 	end
 
 	# GET /coaches/import
-  # GET /coaches/import.json
+	# GET /coaches/import.json
 	def import
-    check_access(roles: [:admin])
-	  Coach.import(params[:file])	# added to import excel
-	  format.html { redirect_to coaches_path, notice: helpers.flash_message("#{I18n.t("coach.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
+		check_access(roles: [:admin])
+		Coach.import(params[:file])	# added to import excel
+		format.html { redirect_to coaches_path, notice: helpers.flash_message("#{I18n.t("coach.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
 	end
 
  	# DELETE /coaches/1
 	# DELETE /coaches/1.json
 	def destroy
-    check_access(roles: [:admin])
+		check_access(roles: [:admin])
 		c_name = @coach.s_name
 		unlink_person
 		@coach.destroy

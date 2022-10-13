@@ -1,7 +1,7 @@
 <%= render ModalComponent.new do %>
-  <div id="team-roster">
-    <%= render FieldsComponent.new(fields: @title) %>
-    <%= render GridComponent.new(grid: @grid) %>
-    <%= render SubmitComponent.new(submit:(current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil, frame: "modal") %>
-  </div>
+	<div id="team-roster">
+		<%= render FieldsComponent.new(fields: @title) %>
+		<%= render GridComponent.new(grid: @grid) %>
+		<%= render SubmitComponent.new(submit:(current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil, frame: "modal") %>
+	</div>
 <% end %>

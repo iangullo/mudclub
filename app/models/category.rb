@@ -1,11 +1,11 @@
 class Category < ApplicationRecord
 	has_many :teams
 	scope :real, -> { where("id>0").order(min_years: :desc) }
-  enum rules: {
-    fiba: 0,
-    q4: 1,
-    q6: 2
-  }
+	enum rules: {
+		fiba: 0,
+		q4: 1,
+		q6: 2
+	}
 
 	def to_s
 		self.name

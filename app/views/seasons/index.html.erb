@@ -1,7 +1,7 @@
 <div id="seasons-index">
-  <%= render FieldsComponent.new(fields: @title) %>
-  <%= turbo_frame_tag "search-results" do %>
-    <%= render FieldsComponent.new(fields: @links) %>
-    <%= render FieldsComponent.new(fields: @grid) %>
-  <% end %>
+	<%= render FieldsComponent.new(fields: @title) %>
+	<%= turbo_frame_tag "search-results" do %>
+		<%= render FieldsComponent.new(fields: @links) %>
+		<%= render FieldsComponent.new(fields: @grid) %>
+	<% end %>
 </div>

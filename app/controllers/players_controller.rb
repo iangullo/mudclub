@@ -1,5 +1,5 @@
 class PlayersController < ApplicationController
-  include Filterable
+	include Filterable
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_player, only: [:show, :edit, :update, :destroy]
 
@@ -82,18 +82,18 @@ class PlayersController < ApplicationController
 		end
 	end
 
-  # GET /players/import
-  # GET /players/import.json
+	# GET /players/import
+	# GET /players/import.json
 	def import
-    check_access(roles: [:admin])
-	  Player.import(params[:file])	# added to import excel
-	  format.html { redirect_to players_path, notice: helpers.flash_message("#{I18n.t("player.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
+		check_access(roles: [:admin])
+		Player.import(params[:file])	# added to import excel
+		format.html { redirect_to players_path, notice: helpers.flash_message("#{I18n.t("player.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
 	end
 
 	# DELETE /players/1
 	# DELETE /players/1.json
 	def destroy
-    check_access(roles: [:admin])
+		check_access(roles: [:admin])
 		p_name = @player.to_s
 		unlink_person
 		@player.destroy
@@ -119,7 +119,7 @@ class PlayersController < ApplicationController
 				p.player=Player.find(0)   # map to empty player
 				p.save
 				@player.person_id = 0    # map to empty person
-	    end
+			end
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

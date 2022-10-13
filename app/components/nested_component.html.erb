@@ -1,9 +1,9 @@
 <div id="<%=@model%>-<%=@key%>" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
 	<template data-nested-form-target="template">
 		<%= @form.fields_for @key.to_sym, @child.new, child_index: 'NEW_RECORD' do |ff| %>
-      <div class="nested-form-wrapper" data-new-record="<%= ff.object.new_record? %>">
-  			<%= render @row, form: ff %>
-      </div>
+			<div class="nested-form-wrapper" data-new-record="<%= ff.object.new_record? %>">
+				<%= render @row, form: ff %>
+			</div>
 		<% end %>
 	</template>
 	<%= @form.fields_for @key.to_sym do |ff| %>

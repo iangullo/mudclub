@@ -1,5 +1,5 @@
 class DrillsController < ApplicationController
-  include Filterable
+	include Filterable
 	before_action :set_drill, only: [:show, :edit, :update, :destroy]
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :edit, :update, :check_reload]
 
@@ -9,7 +9,7 @@ class DrillsController < ApplicationController
 		# Simple search by name/description for now
 		@title  = helpers.drill_title_fields(title: I18n.t("drill.many"))
 		#@title << [{kind: "subtitle", value: I18n.t("catalog")}]
-    @search = helpers.drill_search_bar(search_in: drills_path)
+		@search = helpers.drill_search_bar(search_in: drills_path)
 		@drills = filter!(Drill)
 		@grid   = helpers.drill_grid(drills: @drills)
 	end
@@ -88,7 +88,7 @@ class DrillsController < ApplicationController
 			@explain  = helpers.drill_form_explain
 			@author   = helpers.drill_form_author(drill: @drill)
 		end
-		
+
 		# Use callbacks to share common setup or constraints between actions.
 		def set_drill
 			@drill = Drill.find(params[:id]) unless @drill.try(:id)==params[:id]

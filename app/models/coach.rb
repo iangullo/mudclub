@@ -43,13 +43,13 @@ class Coach < ApplicationRecord
 	#Search field matching
 	def self.search(search)
 		if search
-      if search.length>0
+			if search.length>0
 				Coach.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
 			else
 				Coach.none
 			end
 		else
-      Coach.none
+			Coach.none
 		end
 	end
 

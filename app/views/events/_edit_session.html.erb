@@ -1,31 +1,31 @@
 <table>
-  <tr>
-    <th rowspan="2" align="right" class="align-center text-indigo-900"><%= t("target.abbr") %></th>
-    <%= render "targets_form", form: form, event_targets: @event.def_targets, aspect: 0, focus: 2, label: t("target.focus.def_a") %>
-    <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t("train.duration") %></th>
-  </tr><tr>
-    <%= render "targets_form", form: form, event_targets: @event.off_targets, aspect: 0, focus: 1, label: t("target.focus.ofe_a") %>
-    <th align="center" class="border px py">
-      <%= form.number_field :duration, value: @event.duration, min: 60, max: 120, size: 3, step: 15, class: "rounded py-0 px-1 shadow-inner text-right border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"%>
-    </th>
-  </tr><tr>
-    <td colspan="4" class="text-xs"><br></td>
-  </tr>
+	<tr>
+		<th rowspan="2" align="right" class="align-center text-indigo-900"><%= t("target.abbr") %></th>
+		<%= render "targets_form", form: form, event_targets: @event.def_targets, aspect: 0, focus: 2, label: t("target.focus.def_a") %>
+		<th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t("train.duration") %></th>
+	</tr><tr>
+		<%= render "targets_form", form: form, event_targets: @event.off_targets, aspect: 0, focus: 1, label: t("target.focus.ofe_a") %>
+		<th align="center" class="border px py">
+			<%= form.number_field :duration, value: @event.duration, min: 60, max: 120, size: 3, step: 15, class: "rounded py-0 px-1 shadow-inner text-right border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"%>
+		</th>
+	</tr><tr>
+		<td colspan="4" class="text-xs"><br></td>
+	</tr>
 </table>
 <table>
-  <% if @event.id # only allow editing tasks if we're not creating it from scratch %>
-    <tr>
-      <th colspan="2" align="left" class="text-indigo-900 align-center"><%= t("task.many") %></th>
-    </tr><tr>
-      <%= render "tasks_form", form: form, tasks: @event.tasks.order(:order) %>
-      <tr>
-        <td align="left">
-          <% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
-            <%= render ButtonComponent.new(button: {kind: "add", label: t("task.add"), url: add_task_event_path}) %>
-          <% end %>
-        </td>
-        <th align="left"><%= t("stat.total_a") + " " + @event.work_duration %></th>
-    </tr>
-  <% end %>
-  <%= form.hidden_field :name %>
+	<% if @event.id # only allow editing tasks if we're not creating it from scratch %>
+		<tr>
+			<th colspan="2" align="left" class="text-indigo-900 align-center"><%= t("task.many") %></th>
+		</tr><tr>
+			<%= render "tasks_form", form: form, tasks: @event.tasks.order(:order) %>
+			<tr>
+				<td align="left">
+					<% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
+						<%= render ButtonComponent.new(button: {kind: "add", label: t("task.add"), url: add_task_event_path}) %>
+					<% end %>
+				</td>
+				<th align="left"><%= t("stat.total_a") + " " + @event.work_duration %></th>
+		</tr>
+	<% end %>
+	<%= form.hidden_field :name %>
 </table>

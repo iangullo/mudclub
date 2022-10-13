@@ -11,7 +11,7 @@ class Player < ApplicationRecord
 	scope :female, -> { joins(:person).where("female = true") }
 	scope :male, -> { joins(:person).where("female = false") }
 	self.inheritance_column = "not_sti"
-  FILTER_PARAMS = %i[search].freeze
+	FILTER_PARAMS = %i[search].freeze
 
 	# Just list person's full name
 	def to_s
@@ -87,7 +87,7 @@ class Player < ApplicationRecord
 	#Search field matching
 	def self.search(search)
 		if search
-      if search.length > 0
+			if search.length > 0
 				Player.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
 			else
 				Player.none

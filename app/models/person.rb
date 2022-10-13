@@ -62,7 +62,7 @@ class Person < ApplicationRecord
 		self.dni       = p_data[:dni] if p_data[:dni]
 		self.email     = p_data[:email] if p_data[:email]
 		self.name      = p_data[:name] if p_data[:name]
-		self.surname   = p_data[:surname] if p_data[:surname]	
+		self.surname   = p_data[:surname] if p_data[:surname]
 		self.birthday  = p_data[:birthday] if p_data[:birthday]
 		self.nick      = p_data[:nick] if p_data[:nick]
 		self.female    = p_data[:female]

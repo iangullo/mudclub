@@ -1,12 +1,12 @@
 <%= render ModalComponent.new do %>
-  <div id="team-roster">
-    <%= render FieldsComponent.new(fields: @title) %>
-    <% if @grid # there's data to show %>
-      <%= line_chart @att_data, legend: false %>
-      <%= render GridComponent.new(grid: @grid) %>
-    <% else %>
-      <div class="font-semibold items-center text-center text-gray-500 text-sm mt-6"><%=t("status.empty")%></div>
-    <% end %>
-    <%= render SubmitComponent.new(submit: nil) %>
-  </div>
+	<div id="team-roster">
+		<%= render FieldsComponent.new(fields: @title) %>
+		<% if @grid # there's data to show %>
+			<%= line_chart @att_data, legend: false %>
+			<%= render GridComponent.new(grid: @grid) %>
+		<% else %>
+			<div class="font-semibold items-center text-center text-gray-500 text-sm mt-6"><%=t("status.empty")%></div>
+		<% end %>
+		<%= render SubmitComponent.new(submit: nil) %>
+	</div>
 <% end %>

@@ -5,7 +5,7 @@ class Location < ApplicationRecord
 	has_many :slots
 	has_many :events
 	has_many :season_locations
-  has_many :seasons, through: :season_locations
+	has_many :seasons, through: :season_locations
 	accepts_nested_attributes_for :seasons
 	self.inheritance_column = "not_sti"
 
@@ -36,18 +36,18 @@ class Location < ApplicationRecord
 	end
 
 	# Ensure we remove dependencies of location before deleting.
-  def scrub
+	def scrub
 		self.seasons.clear
 		self.slots.each { |s|
 			s.delete
 		}
-  end
+	end
 
-  # rebuild @location from raw hash returned by a form
-  def rebuild(l_data)
-    self.name           = l_data[:name]
-    self.exists? # reload from database
-    self.gmaps_url      = l_data[:gmaps_url] if l_data[:gmaps_url].length > 0
-    self.practice_court = (l_data[:practice_court] == "1")
-  end
+	# rebuild @location from raw hash returned by a form
+	def rebuild(l_data)
+		self.name           = l_data[:name]
+		self.exists? # reload from database
+		self.gmaps_url      = l_data[:gmaps_url] if l_data[:gmaps_url].length > 0
+		self.practice_court = (l_data[:practice_court] == "1")
+	end
 end
