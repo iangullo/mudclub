@@ -244,7 +244,7 @@ class EventsController < ApplicationController
 		def prepare_task_form(subtitle:, retlnk:, search_in:, task_id: nil)
 			get_task(load_drills: true) # get the right @task/@drill
 			@title       = helpers.event_task_title(event: @event, subtitle: subtitle)
-			@search      = helpers.drill_search_bar(search_in: search_in, task_id: task_id ? @task.id : nil)
+			@search      = helpers.drill_search_bar(search_in: search_in, task_id: task_id ? @task.id : nil, scratch: true)
 			@fields      = helpers.task_form_fields(search_in: search_in, retlnk: retlnk)
 			@description = helpers.task_form_description(drill: @drill)
 			@remarks     = helpers.task_form_remarks(task: task_id ? @task : nil)
