@@ -233,7 +233,7 @@ class TeamsController < ApplicationController
 				rows  = Array.new
 				@team.players.order(:number).each { |player|
 					p_att = player.attendance(team: @team)
-					row   = {items: []}
+					row   = {url: player_path(player, retlnk: team_path(@team), team_id: @team.id), frame: "modal", items: []}
 					row[:items] << {kind: "normal", value: player.number, align: "center"}
 					row[:items] << {kind: "normal", value: player.to_s}
 					row[:items] << {kind: "percentage", value: p_att[:avg], align: "right"}

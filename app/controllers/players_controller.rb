@@ -23,7 +23,7 @@ class PlayersController < ApplicationController
 	# GET /players/1.json
 	def show
 		check_access(roles: [:admin, :coach], obj: @player)
-		@fields = helpers.player_show_fields(player: @player)
+		@fields = helpers.player_show_fields(player: @player, team: params[:team_id] ? Team.find(params[:team_id]) : nil)
 	end
 
 	# GET /players/new

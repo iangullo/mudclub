@@ -31,13 +31,24 @@ module PlayersHelper
 	end
 
 	# FieldsComponent fields to show for a player
-	def player_show_fields(player:)
+	def player_show_fields(player:, team: nil)
 		res = player_title_fields(title: I18n.t("player.single"), icon: player.picture, rows: 4, size: "100x100", _class: "rounded-full")
 		res << [{kind: "label", value: player.s_name}]
 		res << [{kind: "label", value: player.person.surname}]
 		res << [{kind: "string", value: player.person.birthday}]
-		res << [{kind: "label", value: I18n.t(player.female ? "sex.fem_a" : "sex.male_a"), align: "center"}, {kind: "string", value: (I18n.t("player.number") + player.number.to_s)}]
-		res << [{kind: "label", value: I18n.t(player.active ? "status.active" : "status.inactive"), align: "center"}]
+		if team
+			res << [{kind: "label", value: I18n.t("calendar.attendance"), cols: 2}]
+			res << [{kind: "icon-label", icon: "attendance.svg", value: team.to_s, cols: 2}]
+			att = player.attendance(team: team)[:sessions]
+			res << [{kind: "label", value: I18n.t("season.abbr"), align: "right"}, {kind: "text", value: att.to_s + "%"}]
+			att = player.attendance(team: team, during: "month")[:sessions]
+			res << [{kind: "label", value: I18n.t("calendar.month"), align: "right"}, {kind: "text", value: att.to_s + "%"}]
+			att = player.attendance(team: team, during: "week")[:sessions]
+			res << [{kind: "label", value: I18n.t("calendar.week"), align: "right"}, {kind: "text", value: att.to_s + "%"}]
+		else
+			res << [{kind: "label", value: I18n.t(player.female ? "sex.fem_a" : "sex.male_a"), align: "center"}, {kind: "string", value: (I18n.t("player.number") + player.number.to_s)}]
+			res << [{kind: "label", value: I18n.t(player.active ? "status.active" : "status.inactive"), align: "center"}]
+		end
 		res
 	end
 

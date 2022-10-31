@@ -50,6 +50,7 @@ en:
   calendar:
     label: "Calendar"
     date: "Date"
+    week: "Week"
     month: "Month"
     year: "Year"
     time: "Time"
