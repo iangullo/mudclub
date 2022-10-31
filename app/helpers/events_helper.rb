@@ -280,23 +280,23 @@ module EventsHelper
 			end
 		end
 
-	# complete event title with top-right corner elements
-	def event_top_right_fields(event:, res:, form: nil)
-		if form # top right corner of title
-			res[0] << {kind: "icon", value: "calendar.svg"}
-			res[0] << {kind: "date-box", key: :start_date, s_year: event.team_id > 0 ? event.team.season.start_date : event.start_date, e_year: event.team_id > 0 ? event.team.season.end_year : nil, value: event.start_date}
-			unless event.rest? # add start_time inputs
-				res[1] << {kind: "icon", value: "clock.svg"}
-				res[1] << {kind: "time-box", key: :hour, hour: event.hour, min: event.min}
+		# complete event title with top-right corner elements
+		def event_top_right_fields(event:, res:, form: nil)
+			if form # top right corner of title
+				res[0] << {kind: "icon", value: "calendar.svg"}
+				res[0] << {kind: "date-box", key: :start_date, s_year: event.team_id > 0 ? event.team.season.start_date : event.start_date, e_year: event.team_id > 0 ? event.team.season.end_year : nil, value: event.start_date}
+				unless event.rest? # add start_time inputs
+					res[1] << {kind: "icon", value: "clock.svg"}
+					res[1] << {kind: "time-box", key: :hour, hour: event.hour, min: event.min}
+				end
+				res.last << {kind: "hidden", key: :season_id, value: @season.id} if event.team.id==0
+				res.last << {kind: "hidden", key: :team_id, value: event.team_id}
+				res.last << {kind: "hidden", key: :kind, value: event.kind}
+			else
+				res[0] << {kind: "icon-label", icon: "calendar.svg", value: event.date_string}
+				res[1] << {kind: "icon-label", icon: "clock.svg", value: event.time_string} unless event.rest?
 			end
-			res.last << {kind: "hidden", key: :season_id, value: @season.id} if event.team.id==0
-			res.last << {kind: "hidden", key: :team_id, value: event.team_id}
-			res.last << {kind: "hidden", key: :kind, value: event.kind}
-		else
-			res[0] << {kind: "icon-label", icon: "calendar.svg", value: event.date_string}
-			res[1] << {kind: "icon-label", icon: "clock.svg", value: event.time_string} unless event.rest?
 		end
-	end
 
 		# grid to plan playing time dependiong on time rules
 		def period_grid(event:, periods:, edit: nil)
