@@ -8,7 +8,7 @@
 # => "subtitle": :value (bold text of title)
 # => "label": :value (semibold text string)
 # => "string": :value (regular text string)
-# => "icon-label": :icon (name of icon file), :value (added text)
+# => "icon-label": :icon (name of icon file), :label (added text)
 # => "label-checkbox": :key (attribute of checkbox), :value (added text)
 # => "text-box": :key (field name), :value (text_field), :size (box size)
 # => "email-box": :key (field name), :value (email_field), :size (box size)

@@ -38,7 +38,7 @@ module PlayersHelper
 		res << [{kind: "string", value: player.person.birthday}]
 		if team
 			res << [{kind: "label", value: I18n.t("calendar.attendance"), cols: 2}]
-			res << [{kind: "icon-label", icon: "attendance.svg", value: team.to_s, cols: 2}]
+			res << [{kind: "icon-label", icon: "attendance.svg", label: team.to_s, cols: 2}]
 			att = player.attendance(team: team)[:sessions]
 			res << [{kind: "label", value: I18n.t("season.abbr"), align: "right"}, {kind: "text", value: att.to_s + "%"}]
 			att = player.attendance(team: team, during: "month")[:sessions]

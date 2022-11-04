@@ -9,7 +9,7 @@
 				<% when "header-icon", "icon" %>
 					<%= image_tag item[:value], size: item[:size], class: item[:class] %>
 				<% when "icon-label" %>
-					<%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:value] %>
+					<%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:label] %>
 				<% when "label-checkbox" %>
 					<div class="align-middle">
 						<%= @form.check_box item[:key], class: item[:i_class] %>

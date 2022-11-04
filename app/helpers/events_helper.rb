@@ -119,7 +119,7 @@ module EventsHelper
 	# fields to show in task views
 	def task_show_fields(task:, team:, title: true)
 		res = []
-		res << [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", value: task.s_dur}] if title
+		res << [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", label: task.s_dur}] if title
 		res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
 		if task.remarks?
 			res << [{kind: "label", value: I18n.t("task.remarks")}]
@@ -293,8 +293,8 @@ module EventsHelper
 				res.last << {kind: "hidden", key: :team_id, value: event.team_id}
 				res.last << {kind: "hidden", key: :kind, value: event.kind}
 			else
-				res[0] << {kind: "icon-label", icon: "calendar.svg", value: event.date_string}
-				res[1] << {kind: "icon-label", icon: "clock.svg", value: event.time_string} unless event.rest?
+				res[0] << {kind: "icon-label", icon: "calendar.svg", label: event.date_string}
+				res[1] << {kind: "icon-label", icon: "clock.svg", label: event.time_string} unless event.rest?
 			end
 		end
 
