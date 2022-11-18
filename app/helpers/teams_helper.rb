@@ -61,4 +61,29 @@ module TeamsHelper
 		res << [{kind: "gap"}]
 		res
 	end
+
+	# A Field Component with grid for team attendance. obj is the parent oject (player/team)
+	def team_attendance_grid(team:)
+		t_att = team.attendance
+		if t_att # we have attendance data
+			title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("calendar.week"), align: "center"}, {kind: "normal", value: I18n.t("calendar.month"), align: "center"}, {kind: "normal", value: I18n.t("season.abbr"), align: "center"}, {kind: "normal", value: I18n.t("match.many")}]
+			rows  = Array.new
+			m_tot = []
+			team.players.order(:number).each { |player|
+				p_att = player.attendance(team: @team)
+				row   = {url: player_path(player, retlnk: team_path(team), team_id: team.id), frame: "modal", items: []}
+				row[:items] << {kind: "normal", value: player.number, align: "center"}
+				row[:items] << {kind: "normal", value: player.to_s}
+				row[:items] << {kind: "percentage", value: p_att[:last7], align: "right"}
+				row[:items] << {kind: "percentage", value: p_att[:last30], align: "right"}
+				row[:items] << {kind: "percentage", value: p_att[:avg], align: "right"}
+				row[:items] << {kind: "normal", value: p_att[:matches], align: "center"}
+				m_tot << p_att[:matches]
+				rows << row
+			}
+			rows << {items: [{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")}, {kind: "percentage", value: t_att[:sessions][:week], align: "right"}, {kind: "percentage", value: t_att[:sessions][:month], align: "right"}, {kind: "percentage", value: t_att[:sessions][:avg], align: "right"}, {kind: "normal", value: m_tot.sum/m_tot.size, align: "center"}]}
+			return {title: title, rows: rows, chart: t_att[:sessions]}
+		end
+		return nil
+	end
 end

@@ -109,27 +109,36 @@ class Team < ApplicationRecord
 	def attendance
 		t_players  = self.players.count
 		if t_players > 0
-			m_count    = self.events.matches.this_season.count
-			s_count    = self.events.trainings.this_season.count
-			a_matches  = {name: I18n.t("match.many"), avg: 0, data: {}}
-			a_sessions = {name: I18n.t("train.many"), avg: 0, data: {}}
-			a_total    = {name: I18n.t("stat.total"), avg: 0, data: {}}
+			l_week = {tot: 0, att: 0}
+			l_month = {tot: 0, att: 0}
+			l_season = {tot: 0, att: 0}
+#			matches  = {tot: 0, att: 0}
+			sessions = {name: I18n.t("player.many"), avg: 0, data: {}}
+			d_last7  = Date.today - 7
+			d_last30 = Date.today - 30
 			self.events.normal.this_season.each { |event|
 				e_att = event.players.count	# how many came?
-				a_total[:data][event.start_date] = (100*e_att/t_players).to_i # add another to the series
 				if event.match?
-					a_matches[:data][event.start_date] = (100*e_att/t_players).to_i # add to matches
-					a_matches[:avg] = a_matches[:avg] + e_att
+#					matches[:tot]= matches[:tot] + [t_players, 12].min
+#					matches[:att]= matches[:att] + e_att
 				elsif event.train?
-					a_sessions[:data][event.start_date] =  (100*e_att/t_players).to_i # add to sessions
-					a_sessions[:avg] = a_sessions[:avg] + e_att
+					l_week[:tot] = l_week[:tot] + t_players if event.start_date > d_last7
+					l_month[:tot] = l_month[:tot] + t_players if event.start_date > d_last30
+					l_season[:tot] = l_season[:tot] + t_players
+					sessions[:data][event.start_date] = e_att.to_i # add to sessions
+					l_week[:att] = l_week[:att] + e_att if event.start_date > d_last7
+					l_month[:att] = l_month[:att] + e_att if event.start_date > d_last30
+					l_season[:att] = l_season[:att] + e_att
+					sessions[:avg] = sessions[:avg] + e_att
 				end
 			}
-			a_total[:avg]    = (m_count+s_count)>0 ? (100*(a_matches[:avg] + a_sessions[:avg])/(t_players * (m_count + s_count))).to_i : nil
-			a_matches[:avg]  = m_count>0 ? (100*a_matches[:avg] / (t_players * m_count)).to_i : nil
-			a_sessions[:avg] = s_count > 0 ? (100*a_sessions[:avg] / (t_players * s_count)).to_i : nil
-			{total: a_total, matches: a_matches, sessions: a_sessions}
-		else
+#			matches[:avg]  = matches[:tot]>0 ? (100*matches[:att]/matches[:tot]).to_i : nil
+			sessions[:week] = l_week[:tot]>0 ? (100*l_week[:att]/l_week[:tot]).to_i : nil
+			sessions[:month] = l_month[:tot]>0 ? (100*l_month[:att]/l_month[:tot]).to_i : nil
+			sessions[:avg] = l_season[:tot]>0 ? (100*l_season[:att]/l_season[:tot]).to_i : nil
+#			{matches: matches, sessions: sessions}
+			{sessions: sessions}
+else
 			nil	# NO PLAYERS IN THE TEAM --> NO ATTENDANCE DATA TO SHOW
 		end
 	end

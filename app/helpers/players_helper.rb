@@ -37,14 +37,13 @@ module PlayersHelper
 		res << [{kind: "label", value: player.person.surname}]
 		res << [{kind: "string", value: player.person.birthday}]
 		if team
-			res << [{kind: "label", value: I18n.t("calendar.attendance"), cols: 2}]
-			res << [{kind: "icon-label", icon: "attendance.svg", label: team.to_s, cols: 2}]
-			att = player.attendance(team: team)[:sessions]
-			res << [{kind: "label", value: I18n.t("season.abbr"), align: "right"}, {kind: "text", value: att.to_s + "%"}]
-			att = player.attendance(team: team, during: "month")[:sessions]
-			res << [{kind: "label", value: I18n.t("calendar.month"), align: "right"}, {kind: "text", value: att.to_s + "%"}]
-			att = player.attendance(team: team, during: "week")[:sessions]
-			res << [{kind: "label", value: I18n.t("calendar.week"), align: "right"}, {kind: "text", value: att.to_s + "%"}]
+			att = player.attendance(team: team)
+			res << [{kind: "icon", value: "team.svg", size: "25x25"}, {kind: "text", value: team.to_s}]
+			res << [{kind: "label", value: I18n.t("match.many"), align: "right"}, {kind: "text", value: att[:matches]}]
+			res << [{kind: "icon-label", icon: "attendance.svg", label:  I18n.t("calendar.attendance"), cols: 3}]
+			res << [{kind: "label", value: I18n.t("calendar.week"), align: "right"}, {kind: "text", value: att[:last7].to_s + "%"}] if att[:last7]
+			res << [{kind: "label", value: I18n.t("calendar.month"), align: "right"}, {kind: "text", value: att[:last30].to_s + "%"}] if att[:last30]
+			res << [{kind: "label", value: I18n.t("season.abbr"), align: "right"}, {kind: "text", value: att[:avg].to_s + "%"}] if att[:avg]
 		else
 			res << [{kind: "label", value: I18n.t(player.female ? "sex.fem_a" : "sex.male_a"), align: "center"}, {kind: "string", value: (I18n.t("player.number") + player.number.to_s)}]
 			res << [{kind: "label", value: I18n.t(player.active ? "status.active" : "status.inactive"), align: "center"}]

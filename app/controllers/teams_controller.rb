@@ -101,7 +101,8 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin, :coach], returl: @team)
 		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 		@title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
-		@grid  = attendance_grid
+		@grid  = helpers.team_attendance_grid(team: @team)
+		@att_data = [@grid[:chart]]
 	end
 
 	# GET /teams/1/edit
@@ -223,29 +224,6 @@ class TeamsController < ApplicationController
 				#event.match.delete if event.match
 				event.delete
 			}
-		end
-
-		# A Field Component with grid for team attendance. obj is the parent oject (player/team)
-		def attendance_grid
-			t_att = @team.attendance
-			if t_att # we have attendance data
-				title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("stat.total"), align: "center"}, {kind: "normal", value: I18n.t("train.many"), align: "center"}, {kind: "normal", value: I18n.t("match.many"), align: "center"}]
-				rows  = Array.new
-				@team.players.order(:number).each { |player|
-					p_att = player.attendance(team: @team)
-					row   = {url: player_path(player, retlnk: team_path(@team), team_id: @team.id), frame: "modal", items: []}
-					row[:items] << {kind: "normal", value: player.number, align: "center"}
-					row[:items] << {kind: "normal", value: player.to_s}
-					row[:items] << {kind: "percentage", value: p_att[:avg], align: "right"}
-					row[:items] << {kind: "percentage", value: p_att[:sessions], align: "right"}
-					row[:items] << {kind: "percentage", value: p_att[:matches], align: "right"}
-					rows << row
-				}
-				@att_data = [t_att[:sessions]]
-				rows << {items: [{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")}, {kind: "percentage", value: t_att[:total][:avg], align: "right"}, {kind: "percentage", value: t_att[:sessions][:avg], align: "right"}, {kind: "percentage", value: t_att[:matches][:avg], align: "right"}]}
-				return {title: title, rows: rows}
-			end
-			return nil
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

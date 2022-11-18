@@ -33,33 +33,33 @@ class Player < ApplicationRecord
 	end
 
 	# get attendance data for player over the period specified by "during"
-	# returns 2 numbers (so far): matches [%] & trainings [%]
-	def attendance(team:, during: "season")
-		t_matches  = 0
-		t_sessions = 0
-		a_matches  = 0
-		a_sessions = 0
-		case during
-		when "season"
-			events = team.events.normal.this_season
-		when "month"
-			events = team.events.normal.this_month
-		when "week"
-			events = team.events.normal.this_week
-		end
-		events.each { |event|
+	# returns attendance inthe form of:
+	# matches played and session attendance [%] for week, month and season
+	def attendance(team:)
+		l_week   = {tot: 0, att: 0}
+		l_month  = {tot: 0, att: 0}
+		l_season = {tot: 0, att: 0}
+		matches  = 0
+		d_last7  = Date.today - 7
+		d_last30 = Date.today - 30
+		team.events.normal.this_season.each { |event|
 			if event.match?
-				t_matches = t_matches + 1
-				a_matches = a_matches + 1 if event.players.include?(self)
-			elsif event.train?
-				t_sessions = t_sessions + 1
-				a_sessions = a_sessions + 1 if event.players.include?(self)
+				matches = matches + 1
+			else
+				l_season[:tot] = l_season[:tot] + 1
+				l_week[:tot]   = l_week[:tot] + 1 if event.start_date > d_last7
+				l_month[:tot]  = l_month[:tot] + 1 if event.start_date > d_last30
+				if event.players.include?(self)
+					l_season[:att] = l_season[:att] + 1
+					l_week[:att]   = l_week[:att] + 1 if event.start_date > d_last7
+					l_month[:att]  = l_month[:att] + 1 if event.start_date > d_last30
+				end
 			end
 		}
-		att_train = t_sessions>0 ? (a_sessions*100/t_sessions).to_i : nil
-		att_match = t_matches>0 ? (a_matches*100/t_matches).to_i : nil
-		att_avg   = (t_matches + t_sessions)>0 ? (100*(a_matches + a_sessions)/(t_matches + t_sessions)).to_i : nil
-		{avg: att_avg, matches: att_match, sessions: att_train}
+		att_week  = l_week[:tot]>0 ? (l_week[:att]*100/l_week[:tot]).to_i : nil
+		att_month = l_month[:tot]>0 ? (l_month[:att]*100/l_month[:tot]).to_i : nil
+		att_total = l_season[:tot]>0 ? (100*l_season[:att]/l_season[:tot]).to_i : nil
+		{matches: matches, last7: att_week, last30: att_month, avg: att_total}
 	end
 
 	# check if associated person exists in database already
