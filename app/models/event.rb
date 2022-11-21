@@ -33,17 +33,38 @@ class Event < ApplicationRecord
 		case self.kind.to_sym
 		when :train
 			res = self.name
-			res = res + " (" + self.date_string+ ")" if long
 		when :match
-			res = long ? self.team.name + " " : ""
-			res = res + (self.home? ? "vs " : "@ ") + self.name
-			res = res + " (" + self.date_string + ")" if long
+			m_row = self.to_hash
+			home  = m_row[:home_t] + (long ? "" : (" [" + m_row[:home_p].to_s + "]"))
+			away  = (long ? "" : ("[" + m_row[:away_p].to_s + "] ")) + m_row[:away_t]
+			res = home + " - " + away
 		when :rest
 			res=self.name
 		else
 			res = ""
 		end
+		res = res + " (" + self.date_string + ")" if long
 		res
+	end
+
+	# hash view of event data
+	# {home_t:, home_p, away_t:, away_p}
+	def to_hash(mode: 1)
+		if self.match?
+			m_score = self.score(mode:)
+			if self.home?
+				home_t = self.team.name
+				away_t = self.name
+			else
+				home_t = self.name
+				away_t = self.team.name
+			end
+			home_p = m_score[:home][:points]
+			away_p = m_score[:away][:points]
+			res = {home_t:, home_p:, away_p:, away_t:}
+		else
+			res = {home_t: self.name}
+		end
 	end
 
 	# string with duration and minutes indication (')
@@ -132,8 +153,8 @@ class Event < ApplicationRecord
 		cad = cad + "/" + two_dig(self.start_date.day)
 	end
 
-	def time_string
-		timeslot_string(t_begin: self.start_time, t_end: (self.train? ? self.end_time : nil))
+	def time_string(t_end=true)
+		timeslot_string(t_begin: self.start_time, t_end: ((self.train? and t_end) ? self.end_time : nil))
 	end
 
 	# return list of defensive targets
@@ -165,7 +186,7 @@ class Event < ApplicationRecord
 	#   0:  our team first
 	#   1:  home team first
 	#   2:  away team first
-	def score(mode=1)
+	def score(mode: 1)
 		p_for = self.stats.where(concept: :pts, player_id: 0).first # our team's points
 		p_for = p_for ? p_for.value : 0
 		p_opp = self.stats.where(concept: :pts, player_id: -1).first  # opponent points

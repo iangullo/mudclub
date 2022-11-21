@@ -104,24 +104,20 @@ class Team < ApplicationRecord
 		return res
 	end
 
-	# get attendance data for player over the period specified by "during"
-	# returns a a total & serialised numbers for attendace: matches [%] & trainings [%]
+	# get attendance data for a team in the season
+	# returns partial & serialised numbers for attendance: trainings [%]
 	def attendance
 		t_players  = self.players.count
 		if t_players > 0
 			l_week = {tot: 0, att: 0}
 			l_month = {tot: 0, att: 0}
 			l_season = {tot: 0, att: 0}
-#			matches  = {tot: 0, att: 0}
 			sessions = {name: I18n.t("player.many"), avg: 0, data: {}}
 			d_last7  = Date.today - 7
 			d_last30 = Date.today - 30
 			self.events.normal.this_season.each { |event|
-				e_att = event.players.count	# how many came?
-				if event.match?
-#					matches[:tot]= matches[:tot] + [t_players, 12].min
-#					matches[:att]= matches[:att] + e_att
-				elsif event.train?
+				if event.train?
+					e_att = event.players.count	# how many came?
 					l_week[:tot] = l_week[:tot] + t_players if event.start_date > d_last7
 					l_month[:tot] = l_month[:tot] + t_players if event.start_date > d_last30
 					l_season[:tot] = l_season[:tot] + t_players
@@ -132,14 +128,12 @@ class Team < ApplicationRecord
 					sessions[:avg] = sessions[:avg] + e_att
 				end
 			}
-#			matches[:avg]  = matches[:tot]>0 ? (100*matches[:att]/matches[:tot]).to_i : nil
 			sessions[:week] = l_week[:tot]>0 ? (100*l_week[:att]/l_week[:tot]).to_i : nil
 			sessions[:month] = l_month[:tot]>0 ? (100*l_month[:att]/l_month[:tot]).to_i : nil
 			sessions[:avg] = l_season[:tot]>0 ? (100*l_season[:att]/l_season[:tot]).to_i : nil
-#			{matches: matches, sessions: sessions}
 			{sessions: sessions}
-else
-			nil	# NO PLAYERS IN THE TEAM --> NO ATTENDANCE DATA TO SHOW
+		else
+			nil	# NO PLAYERS/SESSIONS IN THE TEAM --> NO ATTENDANCE DATA TO SHOW
 		end
 	end
 
@@ -159,6 +153,21 @@ else
 		check_targets(p_data[:team_targets_attributes]) if p_data[:team_targets_attributes]
 		check_players(p_data[:player_ids]) if p_data[:player_ids]
 		check_coaches(p_data[:coach_ids]) if p_data[:coach_ids]
+	end
+
+	# return a hash with {won:, lost:} games
+	def win_loss
+		res     = {won: 0, lost: 0}
+		matches = self.events.matches.this_season
+		matches.each {|m|
+			score = m.score(mode: 0) # our team first
+			if score[:home][:points] > score[:away][:points]
+				res[:won] = res[:won] + 1
+			elsif score[:away][:points] > score[:home][:points]
+				res[:lost] = res[:lost] + 1
+			end
+		}
+		res
 	end
 
 private

@@ -41,16 +41,16 @@ module EventsHelper
 		for_season = (obj.class==Season)
 		go_back    = retlnk ? retlnk : (for_season ? season_events_path(obj) : team_events_path(obj))
 		title = [{kind: "normal", value: I18n.t("calendar.date"), align: "center"}, {kind: "normal", value: I18n.t("calendar.time"), align: "center"}]
-		title << {kind: "normal", value: I18n.t("team.single")} if for_season
-		title << {kind: "normal", value: I18n.t("drill.desc")}
+		title << {kind: "normal", value: "", cols: 4}
 		rows  = Array.new
 		events.each { |event|
 			unless for_season and event.rest? and event.team_id>0 # show only general holidays in season events view
-				row = {url:  event_path(event, season_id: for_season ? obj.id : nil, retlnk: go_back), frame: event.rest? ? "modal": "_top", items: []}
+				row = {url: event_path(event, season_id: for_season ? obj.id : nil, retlnk: go_back), frame: event.rest? ? "modal": "_top", items: []}
 				row[:items] << {kind: "normal", value: event.date_string, align: "center"}
-				row[:items] << {kind: "normal", value: event.time_string, align: "center"}
-				row[:items] << {kind: "normal", value: event.team_id > 0 ? event.team.to_s : t("scope.all")} if for_season
-				row[:items] << {kind: "normal", value: event.to_s}
+				row[:items] << {kind: "normal", value: event.time_string(false), align: "center"}
+				event.to_hash.each_value { |row_f|
+					row[:items] << {kind: "normal", value: row_f.to_s, cols: event.match? ? 1 : 4}
+				}
 				row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
 				rows << row
 			end
@@ -78,16 +78,17 @@ module EventsHelper
 
 	#FieldComponents to show a match
 	def match_show_fields(event:)
+		score = event.score
 		res = [[
 			{kind: "gap", size: 2},
-			{kind: "top-cell", value: event.score[:home][:team]},
-			{kind: "label", value: event.score[:home][:points], class: "border px py"},
+			{kind: "top-cell", value: score[:home][:team]},
+			{kind: "label", value: score[:home][:points], class: "border px py"},
 			{kind: "gap"}
 			]]
 		res << [
 			{kind: "gap", size: 2},
-			{kind: "top-cell", value: event.score[:away][:team]},
-			{kind: "label", value: event.score[:away][:points], class: "border px py"},
+			{kind: "top-cell", value: score[:away][:team]},
+			{kind: "label", value: score[:away][:points], class: "border px py"},
 			{kind: "gap"}
 		]
 		res << [{kind: "gap", size: 1, cols: 4, class: "text-xs"}]
@@ -97,7 +98,7 @@ module EventsHelper
 
 	# return FieldsComponent for match form
 	def match_form_fields(event:)
-		score   = event.score(0)
+		score   = event.score(mode: 0)
 		periods = event.periods
 		res     = [[{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: event.team.to_s}, {kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}]]
 		res << [{kind: "radio-button", key: :home, value: false, checked: event.home==false, align: "right", class: "align-center"}, {kind: "text-box", key: :name, value: event.name}, {kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}]

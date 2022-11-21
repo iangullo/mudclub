@@ -141,6 +141,8 @@ es:
     rival: "Rival"
     default_rival: "<rival>"
     roster: "Convocatoria"
+    won: "V"
+    lost: "D"
   person:
     duplicate: "Persona duplicada: "
     created: "Persona creada: "

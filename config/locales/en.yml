@@ -141,6 +141,8 @@ en:
     rival: "Opponent"
     default_rival: "<Opponent>"
     roster: "Active players"
+    won: "W"
+    lost: "L"
   person:
     duplicate: "Duplicate person: "
     created: "Created person: "

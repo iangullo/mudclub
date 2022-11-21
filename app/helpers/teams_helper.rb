@@ -8,6 +8,11 @@ module TeamsHelper
 			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: team.season_id}]
 		else
 			res << [{kind: "label", value: team.season.name}]
+			w_l = team.win_loss
+			if w_l[:won]>0 or w_l[:lost]>0
+				wlstr = "(" + w_l[:won].to_s + I18n.t("match.won") + " - " + w_l[:lost].to_s + I18n.t("match.lost") + ")"
+				res << [{kind: "gap"}, {kind: "text", value: wlstr}]
+			end
 		end
 		res
 	end
