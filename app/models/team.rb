@@ -8,9 +8,6 @@ class Team < ApplicationRecord
 	has_many :events
 	has_many :team_targets
 	has_many :targets, through: :team_targets
-#	accepts_nested_attributes_for :category
-#	accepts_nested_attributes_for :division
-#	accepts_nested_attributes_for :season
 	accepts_nested_attributes_for :coaches
 	accepts_nested_attributes_for :players
 	accepts_nested_attributes_for :events
