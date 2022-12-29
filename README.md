@@ -6,6 +6,10 @@ DEPENDENCIES
 * PostgreSQL with unaccent extension.
 * Local storage of attachments & files.
 
+LICENSE
+==
+* GPL-3.0-only
+
 TODO
 ==
 * Manage statistics associated to events
