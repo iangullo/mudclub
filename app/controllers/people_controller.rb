@@ -1,3 +1,21 @@
+# MudClub - Simple Rails app to manage a team sports club.
+# Copyright (C) 2023  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
 class PeopleController < ApplicationController
 	include Filterable
 	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
@@ -106,7 +124,7 @@ class PeopleController < ApplicationController
 			@picture_field = helpers.form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @person.picture, cols: 2)
 			@person_fields = helpers.person_form_fields(person: @person)
 		end
-		
+
 		# Delete associated players/coaches
 		def erase_links
 			erase_coach if @person.coach_id > 0	# delete associated coach

@@ -1,4 +1,4 @@
-Little pet project to create a Web-based application to manage a team sports club (seasons, teams  players, coaches, etc.)
+MudClub - Little pet project to create a Web-based application to manage a team sports club (seasons, teams  players, coaches, etc.)
 
 DEPENDENCIES
 ==
