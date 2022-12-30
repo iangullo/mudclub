@@ -66,7 +66,7 @@ class TopbarComponent < ApplicationComponent
 			res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], kind: "modal", class: @profcls)
 			res[:options] << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url], class: @profcls)
 		else
-			res           = menu_link(label: nil, url: @profile[:login][:url], class: @profile[:closed][:class], class: @profcls)
+			res           = menu_link(label: nil, url: @profile[:login][:url], class: @profile[:closed][:class])
 			res[:icon]    = @profile[:closed][:icon]
 			res[:name]    = "profile"
 			res[:i_class] = @logincls
