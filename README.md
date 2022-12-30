@@ -17,3 +17,4 @@ TODO
 * TLS certificate for additional security.
 * Create installer for simple deployment in any linux server.
 * Lots of polishing.
+* Create a webmin module to manage the service : edit club name, app logo, data storage locations, etc.
