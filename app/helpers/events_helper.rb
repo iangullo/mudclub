@@ -55,24 +55,14 @@ module EventsHelper
 	end
 
 	# A Field Component with top link + grid for events. obj is the parent oject (season/team)
-	def event_grid(events:, obj: nil, retlnk: nil)
+	def event_grid(events:, obj:, retlnk:)
 		for_season = (obj.class==Season)
-		go_back    = retlnk ? retlnk : (for_season ? season_events_path(obj) : team_events_path(obj))
-		title = [{kind: "normal", value: I18n.t("calendar.date"), align: "center"}, {kind: "normal", value: I18n.t("calendar.time"), align: "center"}]
-		title << {kind: "normal", value: "", cols: 4}
-		rows  = Array.new
-		events.each { |event|
-			unless for_season and event.rest? and event.team_id>0 # show only general holidays in season events view
-				row = {url: event_path(event, season_id: for_season ? obj.id : nil, retlnk: go_back), frame: event.rest? ? "modal": "_top", items: []}
-				row[:items] << {kind: "normal", value: event.date_string, align: "center"}
-				row[:items] << {kind: "normal", value: event.time_string(false), align: "center"}
-				event.to_hash.each_value { |row_f|
-					row[:items] << {kind: "normal", value: row_f.to_s, cols: event.match? ? 1 : 4}
-				}
-				row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
-				rows << row
-			end
-		}
+		title  = [
+			{kind: "normal", value: I18n.t("calendar.date"), align: "center"},
+			{kind: "normal", value: I18n.t("calendar.time"), align: "center"},
+			{kind: "normal", value: I18n.t("train.many"), cols: 4}
+		]
+		rows  = event_rows(events: events, season_id: for_season ? obj.id : nil, retlnk: retlnk)
 		if for_season
 			title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"} if current_user.admin? # new season event
 			fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(season_id: @season.id), cols: 4, class: "align-middle text-indigo-900"}]]
@@ -315,6 +305,24 @@ module EventsHelper
 				res[0] << {kind: "icon-label", icon: "calendar.svg", label: event.date_string}
 				res[1] << {kind: "icon-label", icon: "clock.svg", label: event.time_string} unless event.rest?
 			end
+		end
+
+		# return GridComponent @rows for events passed
+		def event_rows(events:, season_id:, retlnk:)
+			rows  = Array.new
+			events.each { |event|
+				unless season_id and event.rest? and event.team_id>0 # show only general holidays in season events view
+					row = {url: event_path(event, season_id, retlnk), frame: event.rest? ? "modal": "_top", items: []}
+					row[:items] << {kind: "normal", value: event.date_string, align: "center"}
+					row[:items] << {kind: "normal", value: event.time_string(false), align: "center"}
+					event.to_hash.each_value { |row_f|
+						row[:items] << {kind: "normal", value: row_f.to_s, cols: event.match? ? 1 : 4}
+					}
+					row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
+					rows << row
+				end
+			}
+			rows
 		end
 
 		# grid to plan playing time dependiong on time rules

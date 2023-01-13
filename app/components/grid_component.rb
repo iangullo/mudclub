@@ -18,7 +18,7 @@
 #
 # frozen_string_literal: true
 
-# GridComponent - managa data grids as ViewComponent
+# GridComponent - manage data grids as ViewComponent
 # Each grid has two parts:
 #   => title items:
 #      => kind: :normal | :inverse | :gap | :button
@@ -42,10 +42,11 @@ class GridComponent < ApplicationComponent
 	end
 
 	def build_order_link(column:, label:)
+		ord_lnk = "?column=#{column}&direction="
 		if column == session.dig(@s_filt, 'column')
-			link_to(label, @s_url + "?column=#{column}&direction=#{next_direction}")
+			link_to(label, @s_url + ord_lnk + next_direction)
 		else
-			link_to(label, @s_url + "?column=#{column}&direction=asc")
+			link_to(label, @s_url + ord_lnk + "#{column}&direction=asc")
 		end
 	end
 

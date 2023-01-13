@@ -43,7 +43,7 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin, :coach], obj: @team, returl: @team)
 		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 		@links = helpers.team_links(team: @team)
-		@grid  = helpers.event_grid(events: @team.events.upcoming.order(:start_time), obj: @team, retlnk: team_path(@team))
+		@grid  = helpers.event_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team))
 	end
 
 	# GET /teams/1/roster

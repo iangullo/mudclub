@@ -31,6 +31,7 @@ class Event < ApplicationRecord
 	scope :this_week, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_week, Time.now).order(:start_time) }
 	scope :this_month, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_month, Time.now).order(:start_time) }
 	scope :this_season, -> { where("end_time < ?", Time.now).order(:start_time) }
+	scope :short_term, -> { where("start_time > ? and end_time < ?", Time.now - 1.week.to_i, Time.now + 1.week.to_i).order(:start_time) }
 	scope :upcoming, -> { where("start_time > ?", Time.now).order(:start_time) }
 	scope :for_season, -> (season) { where("start_time > ? and end_time < ?", season.start_date, season.end_date).order(:start_time) }
 	scope :normal, -> { where("kind > 0").order(:start_time) }
