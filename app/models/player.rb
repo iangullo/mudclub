@@ -60,14 +60,16 @@ class Player < ApplicationRecord
 		matches  = 0
 		d_last7  = Date.today - 7
 		d_last30 = Date.today - 30
-		team.events.normal.this_season.each { |event|
-			l_season[:tot] = l_season[:tot] + 1
-			l_week[:tot]   = l_week[:tot] + 1 if event.start_date > d_last7
-			l_month[:tot]  = l_month[:tot] + 1 if event.start_date > d_last30
+		team.events.normal.this_season.past.each { |event|
+			if event.train?
+				l_season[:tot] = l_season[:tot] + 1
+				l_week[:tot]   = l_week[:tot] + 1 if event.start_date > d_last7
+				l_month[:tot]  = l_month[:tot] + 1 if event.start_date > d_last30
+			end
 			if event.players.include?(self)
 				if event.match?
 					matches = matches + 1
-				else
+				elsif event.train?
 					l_season[:att] = l_season[:att] + 1
 					l_week[:att]   = l_week[:att] + 1 if event.start_date > d_last7
 					l_month[:att]  = l_month[:att] + 1 if event.start_date > d_last30
