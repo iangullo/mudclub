@@ -28,10 +28,11 @@ class Event < ApplicationRecord
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :tasks, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
-	scope :this_week, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_week, Time.now).order(:start_time) }
-	scope :this_month, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_month, Time.now).order(:start_time) }
+	scope :this_week, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_week, Time.now.at_end_of_week).order(:start_time) }
+	scope :this_month, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_month, Time.now.at_end_of_month).order(:start_time) }
 	scope :this_season, -> { where("end_time < ?", Time.now).order(:start_time) }
 	scope :short_term, -> { where("start_time > ? and end_time < ?", Time.now - 1.week.to_i, Time.now + 1.week.to_i).order(:start_time) }
+	scope :past, -> { where("start_time < ?", Time.now).order(:start_time) }
 	scope :upcoming, -> { where("start_time > ?", Time.now).order(:start_time) }
 	scope :for_season, -> (season) { where("start_time > ? and end_time < ?", season.start_date, season.end_date).order(:start_time) }
 	scope :normal, -> { where("kind > 0").order(:start_time) }
@@ -48,21 +49,21 @@ class Event < ApplicationRecord
 	}
 
 	# string view of object
-	def to_s(long=nil)
+	def to_s(style: nil)
 		case self.kind.to_sym
 		when :train
 			res = self.name
 		when :match
 			m_row = self.to_hash
-			home  = m_row[:home_t] + (long ? "" : (" [" + m_row[:home_p].to_s + "]"))
-			away  = (long ? "" : ("[" + m_row[:away_p].to_s + "] ")) + m_row[:away_t]
-			res = home + " - " + away
+			home  = m_row[:home_t] + " [" + m_row[:home_p].to_s + "]"
+			away  = "[" + m_row[:away_p].to_s + "] " + m_row[:away_t]
+			res   = home + "-" + away
 		when :rest
 			res=self.name
 		else
 			res = ""
 		end
-		res = res + " (" + self.date_string + ")" if long
+		res = res + " (" + self.date_string + ")" if style=="notice"
 		res
 	end
 

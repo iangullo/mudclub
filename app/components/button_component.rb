@@ -57,7 +57,7 @@ class ButtonComponent < ApplicationComponent
 		when "location"
 			@button[:tab]     = true
 			@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-		when "save", "edit", "menu", "login", "cancel", "close", "back", "action"
+		when "save", "edit", "menu", "login", "cancel", "close", "back", "action", "forward"
 			b_colour = b_colour + " shadow font-bold"
 			@button[:d_class] = @button[:d_class] + " shadow"
 	else
@@ -76,7 +76,7 @@ class ButtonComponent < ApplicationComponent
 		when "back"
 			@button[:icon]    = "back.svg"
 			@button[:turbo]   = "_top"
-			@button[:label]   = I18n.t("action_return") unless @button[:label]
+			@button[:label]   = I18n.t("action.previous") unless @button[:label]
 		when "cancel"
 			@button[:icon]    = "close.svg"
 			@button[:turbo]   = "_top"
@@ -91,6 +91,10 @@ class ButtonComponent < ApplicationComponent
 			@button[:flip]    = true
 		when "export"
 			@button[:icon]    = "export.svg"
+		when "forward"
+			@button[:icon]    = "forward.svg"
+			@button[:turbo]   = "_top"
+			@button[:label]   = I18n.t("action.next") unless @button[:label]
 		when "import"
 			@button[:icon]    = "import.svg"
 			@button[:confirm] = I18n.t("question.import")
@@ -118,7 +122,7 @@ class ButtonComponent < ApplicationComponent
 		when "close"
 			@button[:action] = "turbo-modal#hideModal"
 			b_start = b_start + " font-bold"
-		when "cancel", "save", "import", "export", "menu", "login", "back"
+		when "cancel", "save", "import", "export", "menu", "login", "back", "forward"
 			b_start = b_start + " font-bold"
 		end
 		@button[:type]    = "submit" if @button[:kind] =~ /^(save|import)$/
@@ -133,7 +137,7 @@ class ButtonComponent < ApplicationComponent
 			@button[:i_class] = "max-h-6 min-h-4 align-middle"
 		when "add-nested", "remove"
 			@button[:i_class] = "max-h-5 min-h-4 align-middle"
-		when  "close", "cancel", "save", "export", "import", "edit", "back"
+		when  "close", "cancel", "save", "export", "import", "edit", "back", "forward"
 			@button[:i_class] = "max-h-7 min-h-5 align-middle"
 		end
 	end
@@ -150,7 +154,7 @@ class ButtonComponent < ApplicationComponent
 			colour = "green"
 		when "jump", "link"
 			light = "blue-100"
-		when "back"
+		when "back", "forward"
 			colour = "gray"
 		when "menu"
 			wait  = "blue-900"

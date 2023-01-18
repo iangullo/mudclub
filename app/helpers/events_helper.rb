@@ -216,11 +216,11 @@ module EventsHelper
 	def event_create_notice
 		case @event.kind.to_sym
 		when :rest
-			msg = I18n.t("rest.created") + "#{@event.to_s}"
+			msg = I18n.t("rest.created") + "#{@event.to_s(style: "notice")}"
 		when :train
 			msg = I18n.t("train.created") + "#{@event.date_string}"
 		when :match
-			msg = I18n.t("match.created") + "#{@event.to_s}"
+			msg = I18n.t("match.created") + "#{@event.to_s(style: "notice")}"
 		end
 		flash_message(msg, "success")
 	end
@@ -229,11 +229,11 @@ module EventsHelper
 	def event_update_notice
 		case @event.kind.to_sym
 		when :rest
-			msg = I18n.t("rest.updated") + "#{@event.to_s}"
+			msg = I18n.t("rest.updated") + "#{@event.to_s(style: "notice")}"
 		when :train
 			msg = I18n.t("train.updated") + "#{@event.date_string}"
 		when :match
-			msg = I18n.t("match.updated") + "#{@event.to_s(true)}"
+			msg = I18n.t("match.updated") + "#{@event.to_s(style: "notice")}"
 		end
 		flash_message(msg, "success")
 	end
@@ -242,11 +242,11 @@ module EventsHelper
 	def event_delete_notice
 		case @event.kind.to_sym
 		when :rest
-			msg = I18n.t("rest.deleted") + "#{@event.to_s}"
+			msg = I18n.t("rest.deleted") + "#{@event.to_s(style: "notice")}"
 		when :train
 			msg = I18n.t("train.deleted") + "#{@event.date_string}"
 		when :match
-			msg = I18n.t("match.deleted") + "#{@event.to_s(true)}"
+			msg = I18n.t("match.deleted") + "#{@event.to_s(style: "notice")}"
 		end
 		flash_message(msg)
 	end

@@ -1,5 +1,5 @@
 <div id="events-index">
 	<%= render FieldsComponent.new(fields: @title) %>
-	<%= render GridComponent.new(grid: @grid.last.last[:value]) if @grid %>
+	<%= render CalendarComponent.new(start_date: @sdate, events: @events, anchor: @curlnk) %>
 	<%= render SubmitComponent.new(close: "back", close_return: @team ? team_path(@team) : seasons_path(season_id: @season.id)) %>
 </div>

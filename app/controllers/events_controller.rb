@@ -23,14 +23,16 @@ class EventsController < ApplicationController
 	# GET /events or /events.json
 	def index
 		check_access(roles: [:user])
+		@sdate  = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
 		@events = Event.search(params)
 		@team   = Team.find(params[:team_id]) if params[:team_id]
 		@season = @events.empty? ? Season.last : @events.first.team.season
+		@curlnk = @team ? team_events_path(@team, start_date: @sdate) : (@season ? season_events_path(@season, start_date: @sdate) : events_path)
 		@title  = helpers.event_index_title(team: @team, season: @season)
 		if @team
-			@grid = helpers.event_grid(events: @events, obj: @team, retlnk: team_events_path(@team))
+			#@grid = helpers.event_grid(events: @events, obj: @team, retlnk: team_events_path(@team))
 		elsif @season
-			@grid = helpers.event_grid(events: @events, obj: @season, retlnk: season_events_path(@season))
+			#@grid = helpers.event_grid(events: @events, obj: @season, retlnk: season_events_path(@season))
 		else
 			@grid = nil
 		end
@@ -39,7 +41,8 @@ class EventsController < ApplicationController
 	# GET /events/1 or /events/1.json
 	def show
 		check_access(roles: [:admin, :coach])
-		@title = helpers.event_title_fields(event: @event, cols: @event.train? ? 3 : nil)
+		@retlnk = params[:retlnk]
+		@title  = helpers.event_title_fields(event: @event, cols: @event.train? ? 3 : nil)
 		if @event.match?
 			@fields = helpers.match_show_fields(event: @event)
 		elsif @event.train?
@@ -134,7 +137,6 @@ class EventsController < ApplicationController
 	def destroy
 		check_access(roles: [:admin], obj: @event, returl: events_url)
 		erase_links
-		e_name = @event.to_s
 		team   = @event.team
 		@event.destroy
 		respond_to do |format|
