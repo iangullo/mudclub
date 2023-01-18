@@ -35,10 +35,10 @@ class Drill < ApplicationRecord
 	FILTER_PARAMS = %i[name kind_id skill_id column direction].freeze
 
 	def self.filter(filters)
-		Drill.by_name(filters['name'])
+		res = Drill.by_name(filters['name'])
 		.by_kind(filters['kind_id'])
 		.by_skill(filters['skill_id'])
-		.order("#{filters['column']} #{filters['direction']}")
+		filters['column'] ? res.order("#{filters['column']} #{filters['direction']}") : res.order(:name)
 	end
 
 	# search all drills for specific subsets
