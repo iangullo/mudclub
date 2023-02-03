@@ -22,7 +22,7 @@ module CategoriesHelper
 		title_start(icon: "category.svg", title: title, rows: rows, cols: cols)
 	end
 
-	# FieldCompoents for category.show
+	# FieldComponents for category.show
 	def category_show_fields(category:)
 		res = category_title_fields(title: I18n.t("category.single"), cols: 5, rows: 5)
 		res << [{kind: "subtitle", value: category.age_group, cols: 3}, {kind: "subtitle", value: category.sex, cols: 2}]
