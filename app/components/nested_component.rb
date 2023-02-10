@@ -20,24 +20,16 @@
 
 # NestedComponent - attempt to standadise dynamic nested_form_fields as
 #                   ViewComponent. NOR WORKING at the moment.
+# ViewComponent to standardise nested forms
+# row: is passed ass path to partial for each element to be rendered
 class NestedComponent < ApplicationComponent
-	def initialize(model:, key:, form:, child:, row:)
+	def initialize(model:, key:, form:, child:, row:, newline: true, btn_add: {kind: "add-nested"})
 		@model   = model
 		@form    = form
 		@child   = child
 		@key     = key
-#    @fields  = nested_form_fields(fields)
 		@row     = row
-		@btn_add = ButtonComponent.new(button: {kind: "add-nested"})
-	end
-
-	# add remove button at end of row fields
-	def nested_form_fields(fields)
-		btn_del =  {kind: "remove"}
-		fields.each {|item|
-			item << {kind: "hidden", key: :_destroy}
-			item << btn_del
-		}
-		fields
+		@btn_del = ButtonComponent.new(button: {kind: "remove"})
+		@btn_add = ButtonComponent.new(button: btn_add) if  btn_add
 	end
 end

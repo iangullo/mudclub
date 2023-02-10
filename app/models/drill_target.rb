@@ -34,7 +34,7 @@ class DrillTarget < ApplicationRecord
 	# Takes the input received from target_form (f_object)
 	# and either reads or creates a matching drill_target
 	def self.fetch(f_object)
-		res = f_object[:id] ? DrillTarget.find(f_object[:id]) : DrillTarget.new
+		res = (f_object[:id] and f_object[:id].to_i>0) ? DrillTarget.find(f_object[:id]) : DrillTarget.new
 		t   = f_object[:target_attributes]
 		tgt = Target.search(t[:id],t[:concept], t[:focus], t[:aspect])
 		tgt = Target.new unless tgt # ensure we have a target

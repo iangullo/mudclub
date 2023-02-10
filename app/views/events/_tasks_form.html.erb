@@ -1,13 +1,3 @@
 <td colspan="2" align="left" class="align-top">
-	<div id="tasks_form" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
-		<template data-nested-form-task="template">
-			<%= form.fields_for :tasks, Task.new, child_index: 'NEW_RECORD' do |task_fields| %>
-				<% task_fields.object.order = @event.tasks.count + 1 %>
-				<%= render 'task_row', form: task_fields %>
-			<% end %>
-		</template>
-		<%= form.fields_for :tasks, form.object.tasks.order(:order) do |task_fields| %>
-			<%= render 'task_row', form: task_fields %>
-		<% end %>
-	</div>
+  <%= render NestedComponent.new(model: "event", key: "tasks", form: form, child: Task.new, row: "task_row", btn_add: nil) %>
 </td>

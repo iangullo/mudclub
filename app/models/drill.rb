@@ -131,7 +131,7 @@ class Drill < ApplicationRecord
 		self.explanation = d_data[:explanation]
 		self.playbook    = d_data[:playbook]
 		self.check_skills(d_data[:skills_attributes]) if d_data[:skills_attributes]
-		self.check_targets(d_data[:drill_targets_attributes]) if d_data[:drill_targets_attributes]
+		self.check_targets(d_data[:targets_attributes]) if d_data[:targets_attributes]
 		self
 	end
 
@@ -144,14 +144,12 @@ class Drill < ApplicationRecord
 			a_skills << s[1] #unless a_skills.detect { |a| a[:name] == s[1][:name] }
 		}
 		a_skills.each { |s| # second pass - manage associations
+			sk = s.key?("id") ? Skill.find(s[:id]) : Skill.find_by(concept: s[:concept])
 			if s[:_destroy] == "1"
-				self.skills.delete(s[:id].to_i)
-			else
-				unless s.key?("id")	# if no id included, we check
-					sk = Skill.find_by(concept: s[:concept])
-					sk = Skill.create(concept: s[:concept]) unless sk
-					self.skills << sk	# add to collection
-				end
+				self.skills.delete(sk)
+			else	# add to collection
+				sk = Skill.create(concept: s[:concept]) unless sk
+				self.skills << sk	unless self.skills.include?(sk)
 			end
 		}
 	end

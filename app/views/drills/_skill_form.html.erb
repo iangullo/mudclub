@@ -1,7 +1,1 @@
-<div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
-	<div>
-		<%= form.text_field :concept, placeholder: t("skill.default"), class: "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0 px-1", size: 10 %>
-		<%= render ButtonComponent.new(button: {kind: "remove"}) %>
-	</div>
-	<%= form.hidden_field :_destroy %>
-</div>
+<%= form.text_field :concept, placeholder: t("skill.default"), class: "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0 px-1", size: 10 %>
