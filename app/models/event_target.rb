@@ -45,4 +45,13 @@ class EventTarget < ApplicationRecord
 		res.priority = f_object[:priority].to_i
 		return res
 	end
+
+	# ensure creation of associated target if required
+	def self.nest_create(aspect:, focus:)
+		res = EventTarget.new
+		res.build_target
+		res.target.aspect = aspect
+		res.target.focus  = focus
+		res
+	end
 end

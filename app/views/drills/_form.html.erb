@@ -7,7 +7,7 @@
         <tr>
             <td align="right" class="align-top font-semibold"><%= t("target.many") %></td>
             <td colspan="3">
-              <%= render NestedComponent.new(model: "drill", key: "targets", form: form, child: DrillTarget.new(priority: form.object.drill_targets.count+1), row: "target_form") %>
+              <%= render NestedComponent.new(model: "drill", key: "drill_targets", form: form, child: DrillTarget.new(priority: form.object.drill_targets.count+1), row: "target_row") %>
             </td>
           </tr>
       </table>
@@ -21,7 +21,7 @@
         <tr>
           <td align="right" class="align-top font-semibold"><%=t("skill.abbr")%></td>
           <td>
-            <%= render NestedComponent.new(model: "skills", key: "skills", form: form, child: Skill.new, row: "skill_form") %>
+            <%= render NestedComponent.new(model: "skills", key: "skills", form: form, child: Skill.new, row: "skill_row") %>
           </td>
           <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
           <td class="align-top"><%= render FieldsComponent.new(fields: @author, form: form) %></td>

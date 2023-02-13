@@ -50,4 +50,13 @@ class TeamTarget < ApplicationRecord
 		res.month    = f_object[:month]
 		return res
 	end
+
+	# ensure creation of associated target if required
+	def self.nest_create(month:, aspect:, focus:)
+		res = TeamTarget.new(month:)
+		res.build_target
+		res.target.aspect = aspect
+		res.target.focus  = focus
+		res
+	end
 end

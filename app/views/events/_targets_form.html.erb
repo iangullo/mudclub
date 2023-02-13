@@ -1,20 +1,4 @@
 <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= label %></th>
 <td align="left" class="align-top border px py">
-	<div id="targets_form" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
-		<template data-nested-form-target="template">
-			<%= form.fields_for :event_targets, EventTarget.new, child_index: 'NEW_RECORD' do |event_target_fields| %>
-				<% event_target_fields.object.build_target %>
-				<% event_target_fields.object.target.aspect = aspect %>
-				<% event_target_fields.object.target.focus  = focus %>
-				<%= render 'target_row', form: event_target_fields %>
-			<% end %>
-		</template>
-		<%= form.fields_for :event_targets do |event_target_fields| %>
-			<% if event_target_fields.object.target.aspect_before_type_cast == aspect and event_target_fields.object.target.focus_before_type_cast == focus %>
-				<%= render 'target_row', form: event_target_fields %>
-			<% end %>
-		<% end %>
-		<div data-nested-form-target="target"></div>
-		<%= render ButtonComponent.new(button: {kind: "add-nested"}) %>
-	</div>
+	<%= render NestedComponent.new(model: "event", key: "event_targets", form: form, child: EventTarget.nest_create(aspect:,focus:), row: "target_row") %>
 </td>

@@ -131,7 +131,7 @@ class Drill < ApplicationRecord
 		self.explanation = d_data[:explanation]
 		self.playbook    = d_data[:playbook]
 		self.check_skills(d_data[:skills_attributes]) if d_data[:skills_attributes]
-		self.check_targets(d_data[:targets_attributes]) if d_data[:targets_attributes]
+		self.check_targets(d_data[:drill_targets_attributes]) if d_data[:drill_targets_attributes]
 		self
 	end
 
