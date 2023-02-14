@@ -30,21 +30,26 @@
 						<% end%>
 						<% @cells[i][j][:events].each do |event|%>
 							<div class="<%=event[:b_class]%>" align="center">
-								<%= link_to event_path(event[:id], retlnk: @anchor), class: event[:l_class] do %>
-									<% if event[:home] #it's a match%>
-										<table>
-											<tr>
-												<td><%= event[:home][:team]%></td>
-												<td>[<%= event[:home][:points]%>]</td>
-											</tr><tr>
-												<td><%= event[:away][:team]%></td>
-												<td>[<%= event[:away][:points]%>]</td>
-											</tr>
-										</table>
-									<% else %>
-										<%= event[:label]%>
+								<button data-tooltip-target="<%="event-#{event[:id]}"%>" data-tooltip-trigger="hover" data-tooltip-placement="bottom" type="button" class="font-medium rounded-lg text-sm m-1">
+									<%= link_to event_path(event[:id], retlnk: @anchor), class: event[:l_class] do %>
+										<%= image_tag(event[:icon], size: "30x30") %>
 									<% end %>
-								<% end %>
+								</button>
+								<div id="<%="event-#{event[:id]}"%>" role="tooltip" class="<%=event[:t_class]%>">
+										<% if event[:home] #it's a match%>
+											<table>
+												<tr>
+													<td><%= event[:home][:team]%></td>
+													<td>[<%= event[:home][:points]%>]</td>
+												</tr><tr>
+													<td><%= event[:away][:team]%></td>
+													<td>[<%= event[:away][:points]%>]</td>
+												</tr>
+											</table>
+										<% else %>
+											<%= event[:label]%>
+										<% end %>
+								</div>
 							</div>
 						<% end %>
 						</td>

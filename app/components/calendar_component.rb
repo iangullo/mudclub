@@ -95,8 +95,10 @@ class CalendarComponent < ApplicationComponent
 	# determine event_color depending on event kind
 	def c_event_init(event:)
 		c_event = {id: event.id}
-		if event.match?
+		case event.kind
+		when "match"
 			sc = event.score(mode: 0)	# our team first
+			c_event[:icon] = "match.svg"
 			c_event[:home] = event.home? ? sc[:home] : sc[:away]
 			c_event[:away] = event.home? ? sc[:away] : sc[:home]
 			if sc[:home][:points] > sc[:away][:points]
@@ -106,11 +108,17 @@ class CalendarComponent < ApplicationComponent
 			else
 				b_color = "yellow"
 			end
-		else
+		when "train"
+			c_event[:icon] = "training.svg"
 			c_event[:label] = event.to_s
-			b_color         = event.train? ? "blue" : "gray"
+			b_color         = "blue"
+		when "rest"
+			c_event[:icon] = "rest.svg"
+			c_event[:label] = event.to_s
+			b_color         = "gray"
 		end
 		c_event[:b_class] = "bg-#{b_color}-300 rounded-lg border px py hover:text-white hover:bg-#{b_color}-700 text-sm"
+		c_event[:t_class] = "bg-#{b_color}-700 rounded-lg invisible inline-block font-light border border-gray-200 border shadow-sm m-2 text-white text-sm"
 		c_event[:l_class] = "hover:text-white hover:bg-#{b_color}-700"
 		c_event
 	end
