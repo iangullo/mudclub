@@ -18,10 +18,15 @@
 #
 # frozen_string_literal: true
 
-# NestedComponent - attempt to standadise dynamic nested_form_fields as
-#                   ViewComponent. NOR WORKING at the moment.
-# ViewComponent to standardise nested forms
-# row: is passed ass path to partial for each element to be rendered
+# NestedComponent - attempt to standardise dynamic nested_form_fields as
+#                   ViewComponent.
+#		expected arguments:
+#			model: name of parent object class
+#			key: nested fields to populate
+#			child: object instance to use for new objects to be added to collection
+#			row: path to partial for each element to be rendered
+#			filter: filter objects to be displayed - Hash of key-value pairs
+#			btn_add: definition of button to add new elements.
 class NestedComponent < ApplicationComponent
 	def initialize(model:, key:, form:, child:, row:, filter: nil, btn_add: {kind: "add-nested"})
 		@model   = model
