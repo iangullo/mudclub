@@ -17,14 +17,16 @@
 		<tr>
 			<th colspan="2" align="left" class="text-indigo-900 align-center"><%= t("task.many") %></th>
 		</tr><tr>
-			<%= render "tasks_form", form: form, tasks: @event.tasks.order(:order) %>
-			<tr>
-				<td align="left">
-					<% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
-						<%= render ButtonComponent.new(button: {kind: "add", label: t("task.add"), url: add_task_event_path}) %>
-					<% end %>
-				</td>
-				<th align="left"><%= t("stat.total_a") + " " + @event.work_duration %></th>
+			<td colspan="2" align="left" class="align-top">
+				<%= render NestedComponent.new(model: "event", key: "tasks", form: form, child: Task.new(order: @event.tasks.count+1), row: "task_row", btn_add: nil) %>
+			</td>
+		<tr>
+			<td align="left">
+				<% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
+					<%= render ButtonComponent.new(button: {kind: "add", label: t("task.add"), url: add_task_event_path}) %>
+				<% end %>
+			</td>
+			<th align="left"><%= t("stat.total_a") + " " + @event.work_duration %></th>
 		</tr>
 	<% end %>
 	<%= form.hidden_field :name %>
