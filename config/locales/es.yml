@@ -331,6 +331,7 @@ es:
     name: "Nombre"
     roster: "Plantilla"
     roster_edit: "Editar Plantilla"
+    roster_opt: "Jug. Adicionales"
   train:
     created: "Sesión creada: "
     updated: "Sesión guardada: "

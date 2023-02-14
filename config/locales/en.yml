@@ -331,6 +331,7 @@ en:
     name: "Name"
     roster: "Roster"
     roster_edit: "Edit Roster"
+    roster_opt: "Additional players"
   train:
     created: "Created session: "
     updated: "Updated session: "
