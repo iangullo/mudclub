@@ -371,7 +371,7 @@ class Event < ApplicationRecord
 		def check_targets(t_array)
 			a_targets = Array.new	# array to include only non-duplicates
 			t_array.each { |t| # first pass
-				if t[1][:_destroy]  # we ust include to remove it
+				if t[1][:_destroy]  # we must include to remove it
 					a_targets << t[1]
 				else
 					a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }

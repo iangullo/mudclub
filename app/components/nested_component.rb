@@ -23,13 +23,23 @@
 # ViewComponent to standardise nested forms
 # row: is passed ass path to partial for each element to be rendered
 class NestedComponent < ApplicationComponent
-	def initialize(model:, key:, form:, child:, row:, newline: true, btn_add: {kind: "add-nested"})
+	def initialize(model:, key:, form:, child:, row:, filter: nil, btn_add: {kind: "add-nested"})
 		@model   = model
 		@form    = form
 		@child   = child
 		@key     = key
 		@row     = row
+		@filter  = n_filter(filter:)
 		@btn_del = ButtonComponent.new(button: {kind: "remove"})
 		@btn_add = ButtonComponent.new(button: btn_add) if  btn_add
+	end
+
+	# filter collection of objects using filter hash
+	def n_filter(filter:)
+		if filter.class==Hash
+			return filter
+		else
+			return nil
+		end
 	end
 end

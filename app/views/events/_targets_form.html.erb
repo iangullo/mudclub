@@ -1,4 +1,4 @@
 <th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= label %></th>
 <td align="left" class="align-top border px py">
-	<%= render NestedComponent.new(model: "event", key: "event_targets", form: form, child: EventTarget.nest_create(aspect:,focus:), row: "target_row") %>
+	<%= render NestedComponent.new(model: "event", key: "event_targets", form: form, child: EventTarget.nest_create(aspect:,focus:), row: "target_row", filter: {aspect:, focus:}) %>
 </td>

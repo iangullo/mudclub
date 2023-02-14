@@ -65,6 +65,15 @@ class Team < ApplicationRecord
 		aux
 	end
 
+	# Get a list of players that are not members but are authorised to play in this team
+	def optional_players
+		res = []
+		self.eligible_players.each {|player|
+			res << player unless player.teams.include?(self)
+		}
+		res.empty? ? nil : res
+	end
+
 	#Search field matching season
 	def self.search(search)
 		if search
@@ -210,8 +219,12 @@ private
 	def check_targets(t_array)
 		a_targets = Array.new	# array to include all targets
 		t_array.each { |t| # first pass
-			a_targets << t[1] # unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
-		}
+			if t[1][:_destroy]  # we must include to remove it
+				a_targets << t[1]
+			else
+				a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
+			end
+	}
 		a_targets.each { |t| # second pass - manage associations
 			if t[:_destroy] == "1"	# remove team_target
 				TeamTarget.find(t[:id].to_i).delete

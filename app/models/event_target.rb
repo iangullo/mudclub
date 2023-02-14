@@ -31,10 +31,21 @@ class EventTarget < ApplicationRecord
 		cad = cad + self.target.concept
 	end
 
+	#wrapper to get aspect of associated Target
+	def aspect
+		self.target.aspect_before_type_cast
+	end
+
+	#wrapper to get focus of associated Target
+	def focus
+		self.target.focus_before_type_cast
+	end
+
 	# Takes the input received from target_form (f_object)
 	# and either reads or creates a matching drill_target
 	def self.fetch(f_object)
-		res = f_object[:id] ? EventTarget.find(f_object[:id]) : EventTarget.new
+		tid = f_object[:id].to_i > 0 ? f_object[:id].to_i : nil
+		res = tid ? EventTarget.find(tid) : EventTarget.new
 		t   = f_object[:target_attributes]
 		tgt = Target.search(t[:id], t[:concept], t[:focus], t[:aspect])
 		tgt = Target.new unless tgt # ensure we have a target

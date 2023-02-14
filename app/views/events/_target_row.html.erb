@@ -1,16 +1,7 @@
-<% if form.object %>
-	<% f_cls = "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0" %>
-	<div class="nested-form-wrapper" data-new-record="<%= form.object.new_record? %>">
-		<div class="inline-flex">
-			<%= form.number_field :priority, value: form.object.priority, min: 1, max: 99, size: 3, class: f_cls + " px-0 text-right" %>
-			<%= form.fields_for :target do |f| %>
-				<% form.object.build_target if form.object.new_record? %>
-				<%= f.text_field :concept, placeholder: t("target.default"), size: 20, class: f_cls + " px-1" %>
-				<%= f.hidden_field :focus %>
-				<%= f.hidden_field :aspect %>
-			<% end %>
-			<%= render ButtonComponent.new(button: {kind: "remove"}) %>
-		</div>
-		<%= form.hidden_field :_destroy %>
-	</div>
+<% f_cls = "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0" %>
+<%= form.number_field :priority, value: form.object.priority, min: 1, max: 99, size: 3, class: f_cls + " px-0 text-right" %>
+<%= form.fields_for :target do |f| %>
+	<%= f.text_field :concept, placeholder: t("target.default"), size: 20, class: f_cls + " px-1" %>
+	<%= f.hidden_field :focus %>
+	<%= f.hidden_field :aspect %>
 <% end %>
