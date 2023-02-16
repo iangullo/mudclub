@@ -60,7 +60,7 @@ class TopbarComponent < ApplicationComponent
 				user.teams.each { |team| m_teams[:options] << menu_link(label: team.name, url: '/teams/'+ team.id.to_s) if team.season==slast}
 			end
 		end
-		m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: '/teams') unless user.admin?
+		m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: '/teams')
 		res << m_teams unless m_teams[:options].empty?
 		if user.is_coach?
 			res << menu_link(label: I18n.t("drill.many"), url: '/drills')
@@ -80,7 +80,7 @@ class TopbarComponent < ApplicationComponent
 			c_opts[:options] << menu_link(label: I18n.t("division.many"), url: '/divisions')
 			c_opts[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
 			c_opts[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
-			c_opts[:options] << menu_link(label: I18n.t("team.many"), url: '/teams')
+			c_opts[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
 			res[:options] << c_opts
 			res[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
 			res[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
@@ -107,7 +107,9 @@ class TopbarComponent < ApplicationComponent
 		@menu_tabs.each { |m_opt|
 			if m_opt[:kind]=="menu" # let's break it down
 				m_opt[:options].each {|s_opt|
-					res[:options] << s_opt unless s_opt[:url]=="/teams"
+					a_opt = s_opt.dup
+					a_opt[:label] = I18n.t("team.many") if s_opt[:url]=="/teams"
+					res[:options] << a_opt
 				}
 			else
 				res[:options] << m_opt
