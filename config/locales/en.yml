@@ -94,6 +94,8 @@ en:
     q4: "1-in-3(+1)"
     q6: "Minibasket"
     fiba: "FIBA"
+  club:
+    single: "Club"
   coach:
     duplicate: "Duplicate coach: "
     created: "Created coach: "

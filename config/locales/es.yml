@@ -94,6 +94,8 @@ es:
     q4: "Pasarela"
     q6: "Minibasket"
     fiba: "FIBA"
+  club:
+    single: "Club"
   coach:
     duplicate: "Ent. duplicado: "
     created: "Ent. creado: "

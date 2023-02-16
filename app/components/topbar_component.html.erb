@@ -18,16 +18,20 @@
 				<!-- Navigation tabs -->
 				<div class="hidden sm:block sm:ml-6">
 					<div class="flex space-x-4">
-						<ul class="list-reset flex text-base text-gray-300">
 						<% if @user %>
+						<ul class="list-reset flex text-base text-gray-300">
 							<% @menu_tabs.each do |tab| %>
-							<li class="<%=@tabcls%>">
-								<%= link_to tab[:label], tab[:url], data: {turbo_frame: "_top", turbo_action: "replace"} %>
-							</li>
+								<% if tab[:kind]=="menu" %>
+									<%= render DropdownComponent.new(button: tab) %>
+								<% else %>
+									<li class="<%=@tabcls%>">
+										<%= link_to tab[:label], tab[:url], data: {turbo_frame: "_top", turbo_action: "replace"} %>
+									</li>
+								<% end %>
 							<% end %>
 							<%= render DropdownComponent.new(button: @admin_tab) if @admin_tab %>
-						<% end %>
 						</ul>
+						<% end %>
 					</div>
 				</div>
 			</div>
