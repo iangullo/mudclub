@@ -4,8 +4,6 @@
 			<% row.each do |item| %>
 				<%=item[:cell]%>
 				<% case item[:kind] %>
-				<% when "icon" %>
-					<%= image_tag item[:value], size: item[:size], class: item[:class] %>
 				<% when "header-icon", "icon" %>
 					<%= image_tag item[:value], size: item[:size], class: item[:class] %>
 				<% when "icon-label" %>
@@ -60,30 +58,7 @@
 						<%=obj.check_box({class: "rounded bg-gray-200 text-blue-700"})%> <%=obj.object.to_s%><br>
 					<% end %>
 				<% when "search-combo" %>
-					<div id="combo-search-box">
-						<%= form_with(url: item[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
-							<table>
-								<tr class="inline-flex">
-									<% item[:fields].each do |opt| %>
-									<td class="relative">
-										<% if opt[:label] %><label for="<%=opt[:key]%>" class="<%=item[:l_class]%>"><%=opt[:label]%></label><% end %>
-										<% case opt[:kind]%>
-										<% when "search-text" %>
-											<%=fsearch.text_field opt[:key], placeholder: t("action.search"), value: opt[:value], size: opt[:size], class: item[:i_class], data: {action: "input->search-form#search"}%>
-										<% when "search-select" %>
-											<%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t("scope.all")}, {class: item[:i_class]}%>
-										<% when "search-collection" %>
-											<%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym] ? params[opt[:key].to_sym] : opt[:value]}, {class: item[:i_class]}%>
-										<% when "hidden" %>
-											<%= fsearch.hidden_field(opt[:key].to_sym, value: opt[:value]) %>
-										<% end %>
-									</td>
-									<% end %>
-									<td><%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t("action.search") %></td>
-								</tr>
-							</table>
-						<% end %>
-					</div>
+					<%= render SearchComboComponent.new(search: item) %>
 				<% when "upload" %>
 					<div id="upload-file" class="<%=item[:class]%>">
 						<%= @form.file_field item[:key], id: "upload-btn", direct_upload: true, class: "hidden" %>
@@ -108,28 +83,9 @@
 				<% when "grid" %>
 					<%= render GridComponent.new(grid: item[:value], form: @form) %>
 				<% when "accordion" %>
-					<div id="accordion-collapse" data-accordion="collapse">
-						<h2 class="<%=item[:h_class]%>"><%=item[:title]%></h2>
-						<% item[:objects].each do |obj| %>
-							<h2 id="<%=obj[:head_id]%>">
-								<button type="button" class="<%=item[:i_class]%>" data-accordion-target="#<%=obj[:body_id]%>" aria-expanded="false" aria-controls="<%=obj[:body_id]%>">
-									<span><%=obj[:head]%></span>
-									<svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-								</button>
-							</h2>
-							<div id="<%=obj[:body_id]%>" class="hidden" aria-labelledby="<%=obj[:head_id]%>">
-								<div class="py px-2 rounded-lg border-2 border-indigo-900">
-									<% if obj[:content].class==FieldsComponent %>
-										<%=render obj[:content]%>
-									<% else %>
-										<%=obj[:content]%>
-									<% end %>
-								</div>
-							</div>
-						<% end %>
-						<div class="<%=item[:t_class]%>"><%= item[:tail] if item[:tail] %></div>
-					</div>
+					<%= render AccordionComponent.new(accordion: item) %>
 				<% when "nested-form" %>
+					<%= render NestedComponent.new(model: item[:model], key: item[:key], form: @form, child: item[:child], row: item[:row], filter: item[:filter], btn_add: item[:btn_add]) %>
 				<% when "hidden" # hidden form field %>
 					<%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>
 				<% else %>

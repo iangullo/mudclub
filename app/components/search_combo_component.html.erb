@@ -1,0 +1,24 @@
+<div id="combo-search-box">
+	<%= form_with(url: @search[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
+		<table>
+			<tr class="inline-flex">
+				<% @search[:fields].each do |opt| %>
+				<td class="relative">
+					<% if opt[:label] %><label for="<%=opt[:key]%>" class="<%=@search[:l_class]%>"><%=opt[:label]%></label><% end %>
+					<% case opt[:kind]%>
+					<% when "search-text" %>
+						<%=fsearch.text_field opt[:key], placeholder: t("action.search"), value: opt[:value], size: opt[:size], class: @search[:i_class], data: {action: "input->search-form#search"}%>
+					<% when "search-select" %>
+						<%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t("scope.all")}, {class: @search[:i_class]}%>
+					<% when "search-collection" %>
+						<%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym] ? params[opt[:key].to_sym] : opt[:value]}, {class: @search[:i_class]}%>
+					<% when "hidden" %>
+						<%= fsearch.hidden_field(opt[:key].to_sym, value: opt[:value]) %>
+					<% end %>
+				</td>
+				<% end %>
+				<td><%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t("action.search") %></td>
+			</tr>
+		</table>
+	<% end %>
+</div>
