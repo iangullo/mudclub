@@ -16,8 +16,26 @@
 	<ul aria-labelledby="<%=@button[:id]%>">
 		<% @button[:options].each do |option| %>
 		<li class="<%=@button[:o_class]%>">
-			<%= link_to option[:url], data: option[:data] do %>
-				<%= image_tag(option[:icon], size: option[:size] ? option[:size] : "25x25") if option[:icon] %><%= option[:label] if option[:label] %>
+			<% if option[:options] %>
+				<button id="<%=option[:name]%>-btn" data-dropdown-toggle="<%=option[:name]%>" data-dropdown-placement="right-start" type="button" class="inline-flex items-center">
+					<%= image_tag(option[:icon], size: option[:size] ? option[:size] : "25x25") if option[:icon] %><%= option[:label] if option[:label] %>
+					<svg aria-hidden="true" class="w-4 h-4 ml-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+				</button>
+				<div id="<%=option[:name]%>" class="<%=@button[:d_class]%>">
+					<ul aria-labelledby="<%=option[:name]%>-btn">
+						<% option[:options].each do |subopt| %>
+							<li class="<%=@button[:o_class]%>">
+								<%= link_to subopt[:url], data: subopt[:data] do %>
+									<%= image_tag(subopt[:icon], size: subopt[:size] ? subopt[:size] : "25x25") if subopt[:icon] %><%= subopt[:label] if subopt[:label] %>
+								<% end %>
+							</li>
+						<% end %>
+					</ul>
+				</div>
+			<% else %>
+				<%= link_to option[:url], data: option[:data] do %>
+					<%= image_tag(option[:icon], size: option[:size] ? option[:size] : "25x25") if option[:icon] %><%= option[:label] if option[:label] %>
+				<% end %>
 			<% end %>
 		</li>
 		<% end %>
