@@ -4,6 +4,24 @@
 			<% row.each do |item| %>
 				<%=item[:cell]%>
 				<% case item[:kind] %>
+				<% when "accordion" %>
+					<%= render AccordionComponent.new(accordion: item) %>
+				<% when "action", "add", "add-nested", "back", "edit", "jump", "link", "location" %>
+					<%= render ButtonComponent.new(button: item) %>
+				<% when "date-box" %>
+					<%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
+				<% when "dropdown" %>
+					<%= render DropdownComponent.new(button: item[:button]) %>
+				<% when "email-box" %>
+					<%= @form.email_field item[:key], autocomplete: item[:value], size: 25, class: item[:i_class] %>
+				<% when "gap" %>
+					<% item[:size].times do %>
+						&nbsp;
+					<% end %>
+				<% when "grid" %>
+					<%= render GridComponent.new(grid: item[:value], form: @form) %>
+				<% when "hidden" # hidden form field %>
+					<%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>
 				<% when "header-icon", "icon" %>
 					<%= image_tag item[:value], size: item[:size], class: item[:class] %>
 				<% when "icon-label" %>
@@ -13,31 +31,32 @@
 						<%= @form.check_box item[:key], class: item[:i_class] %>
 						<label class="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300"/><%= item[:label] %>
 					</div>
-				<% when "radio-button" %>
-					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
-				<% when "text-box" %>
-					<%= @form.text_field item[:key], value: item[:value], size: item[:size], rows: item[:rows], class: item[:i_class] %>
-				<% when "email-box" %>
-					<%= @form.email_field item[:key], autocomplete: item[:value], size: 25, class: item[:i_class] %>
+				<% when "lines" %>
+					<% item[:value].each do |line|%>
+						<%= line.to_s %>
+						<br>
+					<% end %>
+				<% when "nested-form" %>
+					<%= render NestedComponent.new(model: item[:model], key: item[:key], form: @form, child: item[:child], row: item[:row], filter: item[:filter], btn_add: item[:btn_add]) %>
+				<% when "number-box" %>
+					<%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, min: item[:min], max: item[:max], step: item[:step], class: item[:i_class] %>
+					<%= item[:units].to_s %>
 				<% when "password-box" %>
 					<%= @form.password_field item[:key], autocomplete: item[:auto], class: item[:i_class] %>
-				<% when "text-area" %>
-					<%= @form.text_area item[:key], value: item[:value], cols: item[:size], rows: item[:lines], class: item[:i_class] %>
+				<% when "radio-button" %>
+					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
 				<% when "rich-text-area" %>
 					<div id="trix-editor">
 						<%= @form.rich_text_area item[:key], class: item[:i_class] %>
 					</div>
-				<% when "number-box" %>
-					<%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, min: item[:min], max: item[:max], step: item[:step], class: item[:i_class] %>
-					<%= item[:units].to_s %>
-				<% when "date-box" %>
-					<%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
-				<% when "time-box" %>
-					<%= @form.number_field :hour, value: item[:hour], in: 10..22, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
-					<strong>:</strong>
-					<%= @form.number_field :min, value: item[:min], in: 0..45, step: 15, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
+				<% when "search-combo" %>
+					<%= render SearchComboComponent.new(search: item) %>
 				<% when "select-box" %>
 					<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: item[:i_class] %>
+				<% when "select-checkboxes" %>
+					<% @form.collection_check_boxes item[:key], item[:options], :id, :to_s do |obj| %>
+						<%=obj.check_box({class: "rounded bg-gray-200 text-blue-700"})%> <%=obj.object.to_s%><br>
+					<% end %>
 				<% when "select-collection" %>
 					<select class="<%=item[:i_class]%>" name="<%=@form.object.class.to_s.downcase + "[#{item[:key]}]"%>" id="<%=item[:key]%>">
 						<% item[:options].each do |opt| %>
@@ -53,12 +72,14 @@
 						</select>
 						<a href="<%=item[:url]%>" hidden data-search-params-target="anchor" data-select-load-target="click" data-turbo-frame="<%=@form.field_id(item[:key], :turbo_frame)%>">GetDrill</a>
 					</fieldset>
-				<% when "select-checkboxes" %>
-					<% @form.collection_check_boxes item[:key], item[:options], :id, :to_s do |obj| %>
-						<%=obj.check_box({class: "rounded bg-gray-200 text-blue-700"})%> <%=obj.object.to_s%><br>
-					<% end %>
-				<% when "search-combo" %>
-					<%= render SearchComboComponent.new(search: item) %>
+				<% when "text-area" %>
+					<%= @form.text_area item[:key], value: item[:value], cols: item[:size], rows: item[:lines], class: item[:i_class] %>
+				<% when "text-box" %>
+					<%= @form.text_field item[:key], value: item[:value], size: item[:size], rows: item[:rows], class: item[:i_class] %>
+				<% when "time-box" %>
+					<%= @form.number_field :hour, value: item[:hour], in: 10..22, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
+					<strong>:</strong>
+					<%= @form.number_field :min, value: item[:min], in: 0..45, step: 15, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
 				<% when "upload" %>
 					<div id="upload-file" class="<%=item[:class]%>">
 						<%= @form.file_field item[:key], id: "upload-btn", direct_upload: true, class: "hidden" %>
@@ -67,27 +88,6 @@
 						</label>
 						<span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t("status.no_file") %></span>
 					</div>
-				<% when "add", "add-nested", "back", "edit", "jump", "link", "location", "action" %>
-					<%= render ButtonComponent.new(button: item) %>
-				<% when "gap" %>
-					<% item[:size].times do %>
-						&nbsp;
-					<% end %>
-				<% when "lines" %>
-					<% item[:value].each do |line|%>
-						<%= line.to_s %>
-						<br>
-					<% end %>
-				<% when "dropdown" %>
-					<%= render DropdownComponent.new(button: item[:button]) %>
-				<% when "grid" %>
-					<%= render GridComponent.new(grid: item[:value], form: @form) %>
-				<% when "accordion" %>
-					<%= render AccordionComponent.new(accordion: item) %>
-				<% when "nested-form" %>
-					<%= render NestedComponent.new(model: item[:model], key: item[:key], form: @form, child: item[:child], row: item[:row], filter: item[:filter], btn_add: item[:btn_add]) %>
-				<% when "hidden" # hidden form field %>
-					<%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>
 				<% else %>
 					<%= item[:value] %>
 				<% end %>
