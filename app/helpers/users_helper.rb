@@ -65,10 +65,11 @@ module UsersHelper
 
 	# return FieldComponents for form user role
 	def user_form_role(user:)
+		res = [[{kind: "label", value: "#{I18n.t("locale.lang")}:"}, {kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: user.locale}]]
 		if current_user.admin?
-			res = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: user.role}]]
+			res << [{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: user.role}]
 		else
-			res = [[{kind: "label", align: "center", value: I18n.t(user.role)}]]
+			res << [{kind: "label", align: "center", value: I18n.t(user.role)}]
 		end
 		res
 	end

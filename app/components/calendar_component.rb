@@ -31,8 +31,8 @@ class CalendarComponent < ApplicationComponent
 		@start_date = start_date
 		@events     = events
 		@anchor     = anchor ? anchor : request.path
-		@iscope_cls = "bg-gray-100 text-gray-500 text-center border-1"
-		@oscope_cls = "bg-gray-500 text-gray-100 text-center border-1"
+		@iscope_cls = "bg-gray-100 text-gray-500 text-center"
+		@oscope_cls = "bg-gray-500 text-gray-100 text-center"
 		@cells      = new_canvas
 		@back_link  = ButtonComponent.new(button: {kind: "back", label: "", url: @anchor.split('?').first + "?start_date=" + (@start_date - 1.month).to_s})
 		@fwd_link   = ButtonComponent.new(button: {kind: "forward", label: "", url: @anchor.split('?').first + "?start_date=" + (@start_date + 1.month).to_s})

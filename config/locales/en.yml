@@ -78,10 +78,10 @@ en:
     start: "Start"
     end: "End"
     attendance: "Attendance"
-    monthnames: [January, February, March, April, May, June, July, August, September, October, November, December]
-    monthnames_a: [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
-    daynames: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
-    daynames_a: [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+    monthnames: [All, January, February, March, April, May, June, July, August, September, October, November, December]
+    monthnames_a: [All, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+    daynames: [All, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
+    daynames_a: [All, Mon, Tue, Wed, Thu, Fri, Sat, Sun]
   category:
     created: "Created category: "
     updated: "Updated category: "
@@ -135,7 +135,11 @@ en:
     author: "Author"
     none: "No task selected"
   kind:
-    single: "Tipo"
+    single: "Type"
+  locale:
+    lang: "Language"
+    en: "English"
+    es: "Spanish"
   location:
     duplicate: "Duplicate Location: "
     created: "Created location: "

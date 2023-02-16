@@ -33,13 +33,25 @@ class User < ApplicationRecord
 	# :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
 	devise :registerable, :database_authenticatable, :recoverable, :rememberable, :validatable
 
+	# locale preferences defined as enum and stored in database
+	enum locale: {
+		es: 0,
+		en: 1
+	}
+
 	# Just list person's full name
 	def to_s
 		person ? person.to_s : I18n.t("user.single")
 	end
 
+	# list of possible user roles for select box configuration
 	def self.role_list
 		User.roles.keys.map {|role| [I18n.t("role.#{role}"),role]}
+	end
+
+	# list of possible user locales for select box configuration
+	def self.locale_list
+		User.locales.keys.map {|locale| [I18n.t("locale.#{locale}"),locale]}
 	end
 
 	#short name for form viewing
@@ -121,6 +133,7 @@ class User < ApplicationRecord
 		p_data        = u_data[:person_attributes]
 		self.email    = u_data[:email] ? u_data[:email] : p_data[:email]
 		self.role     = u_data[:role] ? u_data[:role] : :user
+		self.locale   = u_data[:locale] if u_data[:locale]
 		self.password = u_data[:password] if u_data[:password]
 		self.password_confirmation = u_data[:password_confirmation] if u_data[:password_confirmation]
 		if self.person_id==0 # not bound to a person yet?

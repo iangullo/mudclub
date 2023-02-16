@@ -136,6 +136,10 @@ es:
     none: "Sin tarea seleccionada"
   kind:
     single: "Tipo"
+  locale:
+    lang: "Idioma"
+    es: "Español"
+    en: "Inglés"
   location:
     duplicate: "Ubicación duplicada: "
     created: "Ubicación creada: "

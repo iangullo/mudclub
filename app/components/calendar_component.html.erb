@@ -9,9 +9,9 @@
 					</td>
 					<td><%=render @fwd_link%></td>
 				</tr>
-				<tr class="bg-indigo-900 text-gray-300 text-center font-semibold border-1 border-gray-300">
+				<tr class="bg-indigo-900 text-gray-300 text-center font-semibold">
 					<% @dayname.each do |day| %>
-						<td><%=day%></td>
+						<td class="border border-gray-300"><%=day%></td>
 					<% end %>
 				</tr>
 			</thead>
