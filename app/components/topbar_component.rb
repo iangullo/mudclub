@@ -73,8 +73,8 @@ class TopbarComponent < ApplicationComponent
 	def admin_tab(user)
 		if user.admin?
 			res = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[], class: @tabcls}
-			c_opts = {name: "club-menu", label: I18n.t("club.single"), options:[]}
-			c_opts[:options] << menu_link(label: @clubname, url: '/home/edit', kind: "modal")
+			c_opts = {name: "club-menu", label: @clubname, options:[]}
+			c_opts[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")
 			c_opts[:options] << menu_link(label: I18n.t("season.many"), url: '/seasons')
 			c_opts[:options] << menu_link(label: I18n.t("category.many"), url: '/categories')
 			c_opts[:options] << menu_link(label: I18n.t("division.many"), url: '/divisions')
@@ -91,7 +91,7 @@ class TopbarComponent < ApplicationComponent
 	def prof_tab(user)
 		if user
 			res = {kind: "menu", name: "profile", icon: user.picture, options:[], class: @profcls, i_class: "rounded-full", size: "30x30"}
-			res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], kind: "modal", class: @profcls)
+			res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], class: @profcls)
 			res[:options] << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url], class: @profcls)
 		else
 			res           = menu_link(label: nil, url: @profile[:login][:url], class: @profile[:closed][:class])

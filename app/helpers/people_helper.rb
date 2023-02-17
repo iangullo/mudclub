@@ -28,6 +28,7 @@ module PeopleHelper
 		res << [{kind: "label", value: person.s_name}]
 		res << [{kind: "label", value: person.surname}]
 		res << [{kind: "string", value: person.birthday}]
+		res << [{kind: "string", value: person.email}]
 		res << [{kind: "string", value: person.dni, align: "center"}]
 		res.last << {kind: "icon", value: "player.svg"} if person.player_id > 0
 		res.last << {kind: "icon", value: "coach.svg"} if person.coach_id > 0

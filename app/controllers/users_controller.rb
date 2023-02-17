@@ -33,6 +33,7 @@ class UsersController < ApplicationController
 		check_access(roles: [:admin], obj: @user)
 		@user  = User.find(params[:id])
 		@title = helpers.user_show_fields(user: @user)
+		@role  = helpers.user_role(user: @user)
 		@grid  = helpers.team_grid(teams: @user.teams.order(:season_id))
 	end
 

@@ -231,7 +231,7 @@ en:
     updated: "Holiday updated: "
     deleted: "Holiday deleted: "
     single: "Holiday"
-  role: # NOT USED???
+  role:
     admin: "Admin"
     admin_a: "Adm."
     coach: "Coach"

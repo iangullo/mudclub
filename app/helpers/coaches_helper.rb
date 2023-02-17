@@ -28,7 +28,10 @@ module CoachesHelper
 		res << [{kind: "label", value: coach.s_name}]
 		res << [{kind: "label", value: coach.person.surname}]
 		res << [{kind: "string", value: coach.person.birthday}]
-		res << [{kind: "label", value: (I18n.t(coach.active ? "status.active" : "status.inactive")), align: "center"}]
+		res << [{kind: "icon", value: "at.svg", align: "right"}, {kind: "email", value: coach.person.email, cols: 3}] if coach.person.email.length>0
+		res << [{kind: "icon", value: "phone.svg", align: "right"}, {kind: "phone", value: coach.person.phone, cols: 3}] if coach.person.phone.length>0
+		res << [{kind: "gap"}, {kind: "icon-label", icon: (coach.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true}]
+		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
 	end
 
 	# return FieldsComponent @fields for forms

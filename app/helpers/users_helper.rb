@@ -34,7 +34,7 @@ module UsersHelper
 
 		rows = Array.new
 		users.each { |user|
-			row = {url: user_path(user), frame: "modal", items: []}
+			row = {url: user_path(user), items: []}
 			row[:items] << {kind: "normal", value: user.s_name}
 			row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
 			row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}
@@ -45,12 +45,21 @@ module UsersHelper
 		{title: title, rows: rows}
 	end
 
+	# fields to show when looking a user profile
 	def user_show_fields(user:)
-		res = user_title_fields(user.s_name, icon: user.picture, _class: "rounded-full")
-		res << []
-		res.last << {kind: "icon", value: "player.svg"} if user.is_player?
-		res.last << {kind: "icon", value: "coach.svg"} if user.is_coach?
-		res.last << {kind: "icon", value: "key.svg"} if user.admin?
+		res = user_title_fields(user.person.s_name, icon: user.picture, _class: "rounded-full", cols: 3)
+		res << [{kind: "label", value: user.person.surname, cols: 2}, cols: 3]
+		res << [{kind: "icon", value: "at.svg", align: "right"}, {kind: "email", value: user.person.email, cols: 3}]
+		res << [{kind: "icon", value: "phone.svg", align: "right"}, {kind: "phone", value: user.person.phone, cols: 3}]
+		res
+	end
+
+	# Fieldcomponents to display user roles
+	def user_role(user:)
+		res = [[{kind: "label", value: I18n.t("user.profile")}]]
+		res.last << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if user.admin?
+		res.last << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if user.is_coach?
+		res.last << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if user.is_player?
 		res
 	end
 

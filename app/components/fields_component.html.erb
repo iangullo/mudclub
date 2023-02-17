@@ -12,6 +12,8 @@
 					<%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
 				<% when "dropdown" %>
 					<%= render DropdownComponent.new(button: item[:button]) %>
+				<% when "email" %>
+					<a href="mailto:<%=item[:value]%>"><%=item[:value]%></a>
 				<% when "email-box" %>
 					<%= @form.email_field item[:key], autocomplete: item[:value], size: 25, class: item[:i_class] %>
 				<% when "gap" %>
@@ -23,9 +25,22 @@
 				<% when "hidden" # hidden form field %>
 					<%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>
 				<% when "header-icon", "icon" %>
+					<% if item[:tip] # show tooltip %>
+						<button data-tooltip-target="tooltip-<%=item[:tipid]%>" data-tooltip-placement="bottom" type="button">
+					<% end %>
 					<%= image_tag item[:value], size: item[:size], class: item[:class] %>
+					<% if item[:tip] # show tooltip %>
+						</button>
+						<div id="tooltip-<%=item[:tipid]%>" role="tooltip" class="absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-lg shadow-sm opacity-0 tooltip">
+							<%=item[:tip]%>
+						</div>
+					<% end %>
 				<% when "icon-label" %>
-					<%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:label] %>
+					<% if item[:right] %>
+						<%= item[:label] %>&nbsp;<%= image_tag(item[:icon], size: item[:size]) %>
+					<% else %>
+						<%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:label] %>
+					<% end %>
 				<% when "label-checkbox" %>
 					<div class="align-middle">
 						<%= @form.check_box item[:key], class: item[:i_class] %>
@@ -43,6 +58,8 @@
 					<%= item[:units].to_s %>
 				<% when "password-box" %>
 					<%= @form.password_field item[:key], autocomplete: item[:auto], class: item[:i_class] %>
+				<% when "phone" %>
+					<a href="tel:<%=item[:value]%>"><%=item[:value]%></a>
 				<% when "radio-button" %>
 					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
 				<% when "rich-text-area" %>

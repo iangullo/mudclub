@@ -54,6 +54,8 @@ module PlayersHelper
 		res << [{kind: "label", value: player.s_name}]
 		res << [{kind: "label", value: player.person.surname}]
 		res << [{kind: "string", value: player.person.birthday}]
+		res << [{kind: "icon", value: "phone.svg", align: "right"}, {kind: "phone", value: player.person.phone, cols: 3}] if player.person.phone.length>0
+		res << [{kind: "gap"}, {kind: "icon-label", icon: (player.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true}]
 		if team
 			att = player.attendance(team: team)
 			res << [{kind: "icon", value: "team.svg", size: "25x25"}, {kind: "text", value: team.to_s}]
