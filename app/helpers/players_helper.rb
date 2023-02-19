@@ -66,7 +66,7 @@ module PlayersHelper
 			res << [{kind: "icon-label", icon: (player.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"}, {kind: "string", value: player.person.dni.to_s}]
 		end
 		res << [{kind: "string", value: (I18n.t("player.number") + player.number.to_s), align: "center"}]
-		res.last << {kind: "contact", email: player.person.email, phone: player.person.phone}
+		res.last << {kind: "contact", email: player.person.email, phone: player.person.phone, device: device}
 		res
 	end
 

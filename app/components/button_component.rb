@@ -114,7 +114,8 @@ class ButtonComponent < ApplicationComponent
 			@button[:confirm] = I18n.t("question.save_chng")
 		when "whatsapp"
 			@button[:icon]    = "WhatsApp.svg"
-			@button[:url]     = "https://wa.me/#{@button[:value].delete(' ')}"
+			@button[:url]     = @button[:desktop] ? "https://wa.me/" : "whatsapp://"
+			@button[:url]     = @button[:url] + "send?phone=#{@button[:value].delete(' ')}"
 		end
 		@button[:size] = "25x25" unless @button[:size]
 	end

@@ -49,7 +49,7 @@ module UsersHelper
 	def user_show_fields(user:)
 		res = user_title_fields(user.person.s_name, icon: user.picture, _class: "rounded-full")
 		res << [{kind: "label", value: user.person.surname}]
-		res << [{kind: "gap", size: 1}, {kind: "contact", email: user.person.email, phone: user.person.phone}]
+		res << [{kind: "gap", size: 1}, {kind: "contact", email: user.person.email, phone: user.person.phone, device: device}]
 		res
 	end
 

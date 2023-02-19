@@ -79,8 +79,8 @@ class FieldsComponent < ApplicationComponent
 				when "contact"
 					item[:mail] = ButtonComponent.new(button: {kind: "email", value: item[:email]}) if (item[:email] and item[:email].length>0)
 					if item[:phone] and item[:phone].length>0
-						item[:call] = ButtonComponent.new(button: {kind: "call", value: item[:phone]})
-						item[:whatsapp] = ButtonComponent.new(button: {kind: "whatsapp", value: item[:phone]})
+						item[:call] = ButtonComponent.new(button: {kind: "call", value: item[:phone]}) if item[:device]=="mobile"
+						item[:whatsapp] = ButtonComponent.new(button: {kind: "whatsapp", value: item[:phone], web: (item[:device]=="desktop")})
 					end
 				when "gap"
 					item[:size]  = 4 unless item[:size]
