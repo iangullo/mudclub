@@ -54,8 +54,6 @@ module PlayersHelper
 		res << [{kind: "label", value: player.s_name}]
 		res << [{kind: "label", value: player.person.surname}]
 		res << [{kind: "string", value: player.person.birthday}]
-		res << [{kind: "icon", value: "phone.svg", align: "right"}, {kind: "phone", value: player.person.phone, cols: 3}] if player.person.phone.length>0
-		res << [{kind: "gap"}, {kind: "icon-label", icon: (player.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true}]
 		if team
 			att = player.attendance(team: team)
 			res << [{kind: "icon", value: "team.svg", size: "25x25"}, {kind: "text", value: team.to_s}]
@@ -65,9 +63,10 @@ module PlayersHelper
 			res << [{kind: "label", value: I18n.t("calendar.month"), align: "right"}, {kind: "text", value: att[:last30].to_s + "%"}] if att[:last30]
 			res << [{kind: "label", value: I18n.t("season.abbr"), align: "right"}, {kind: "text", value: att[:avg].to_s + "%"}] if att[:avg]
 		else
-			res << [{kind: "label", value: I18n.t(player.female ? "sex.fem_a" : "sex.male_a"), align: "center"}, {kind: "string", value: (I18n.t("player.number") + player.number.to_s)}]
-			res << [{kind: "label", value: I18n.t(player.active ? "status.active" : "status.inactive"), align: "center"}]
+			res << [{kind: "icon-label", icon: (player.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"}, {kind: "string", value: player.person.dni.to_s}]
 		end
+		res << [{kind: "string", value: (I18n.t("player.number") + player.number.to_s), align: "center"}]
+		res.last << {kind: "contact", email: player.person.email, phone: player.person.phone}
 		res
 	end
 

@@ -54,10 +54,10 @@ class ButtonComponent < ApplicationComponent
 		case @button[:kind]
 		when "jump"
 			@button[:d_class] = @button[:d_class] + " m-1 text-sm"
-		when "location"
+		when "location", "whatsapp"
 			@button[:tab]     = true
 			@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-		when "save", "edit", "menu", "login", "cancel", "close", "back", "action", "forward"
+		when "action", "back", "call", "cancel", "close", "edit", "email", "forward", "menu", "login", "save"
 			b_colour = b_colour + " shadow font-bold"
 			@button[:d_class] = @button[:d_class] + " shadow"
 	else
@@ -77,6 +77,9 @@ class ButtonComponent < ApplicationComponent
 			@button[:icon]    = "back.svg"
 			@button[:turbo]   = "_top"
 			@button[:label]   = I18n.t("action.previous") unless @button[:label]
+		when "call"
+			@button[:icon]    = "phone.svg"
+			@button[:url]     = "tel:#{@button[:value]}"
 		when "cancel"
 			@button[:icon]    = "close.svg"
 			@button[:turbo]   = "_top"
@@ -89,6 +92,9 @@ class ButtonComponent < ApplicationComponent
 		when "edit"
 			@button[:icon]    = "edit.svg"
 			@button[:flip]    = true
+		when "email"
+			@button[:icon]    = "at.svg"
+			@button[:url]     = "mailto:#{@button[:value]}"
 		when "export"
 			@button[:icon]    = "export.svg"
 		when "forward"
@@ -106,6 +112,9 @@ class ButtonComponent < ApplicationComponent
 		when "save"
 			@button[:icon]    = "save.svg"
 			@button[:confirm] = I18n.t("question.save_chng")
+		when "whatsapp"
+			@button[:icon]    = "WhatsApp.svg"
+			@button[:url]     = "https://wa.me/#{@button[:value].delete(' ')}"
 		end
 		@button[:size] = "25x25" unless @button[:size]
 	end
@@ -137,7 +146,7 @@ class ButtonComponent < ApplicationComponent
 			@button[:i_class] = "max-h-6 min-h-4 align-middle"
 		when "add-nested", "remove"
 			@button[:i_class] = "max-h-5 min-h-4 align-middle"
-		when  "close", "cancel", "save", "export", "import", "edit", "back", "forward"
+		when  "back", "call", "cancel", "close", "edit", "email", "export", "forward", "import", "save", "whatsapp"
 			@button[:i_class] = "max-h-7 min-h-5 align-middle"
 		end
 	end
@@ -161,7 +170,7 @@ class ButtonComponent < ApplicationComponent
 			light = "blue-700"
 			text  = "gray-200"
 			high  = "white"
-		when "action"
+		when "action", "call", "email", "whatsapp"
 			wait  = "gray-100"
 			light = "gray-300"
 			text  = "gray-700"

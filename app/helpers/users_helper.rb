@@ -47,10 +47,9 @@ module UsersHelper
 
 	# fields to show when looking a user profile
 	def user_show_fields(user:)
-		res = user_title_fields(user.person.s_name, icon: user.picture, _class: "rounded-full", cols: 3)
-		res << [{kind: "label", value: user.person.surname, cols: 2}, cols: 3]
-		res << [{kind: "icon", value: "at.svg", align: "right"}, {kind: "email", value: user.person.email, cols: 3}]
-		res << [{kind: "icon", value: "phone.svg", align: "right"}, {kind: "phone", value: user.person.phone, cols: 3}]
+		res = user_title_fields(user.person.s_name, icon: user.picture, _class: "rounded-full")
+		res << [{kind: "label", value: user.person.surname}]
+		res << [{kind: "gap", size: 1}, {kind: "contact", email: user.person.email, phone: user.person.phone}]
 		res
 	end
 

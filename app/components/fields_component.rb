@@ -29,14 +29,13 @@
 # => "icon-label": :icon (name of icon file), :label (added text)
 # => "label-checkbox": :key (attribute of checkbox), :value (added text)
 # => "text-box": :key (field name), :value (text_field), :size (box size)
-# => "email": :value (mail-to emmail address)
 # => "email-box": :key (field name), :value (email_field), :size (box size)
 # => "password-box": :key (field name), :value (password_field)
 # => "text-area": :key (field name), :value (text_field), :size (box size), lines: number of lines
 # => "rich-text-area": :key (field name)
 # => "number-box": :key (field name), :value (number_field), size:
 # => "date-box": :key (field name), :value (date_field), :s_year (start_year)
-# => "phone": :value (tel: phone number)
+# => "contact": mailto:, tel: and whatsapp: buttons for a person
 # => "time-box": :hour & :min (field names)
 # => "select-box": :key (field name), :options (array of valid options), :value (form, select)
 # => "select-collection": :key (field name), :collection, :value (form, select)
@@ -77,8 +76,12 @@ class FieldsComponent < ApplicationComponent
 						obj[:body_id] = "accordion-collapse-body-" + i.to_s
 						i = i +1
 					}
-				when "email"
-					item[:class] = "inline-flex align-middle hover:text-blue-700 hover:font-semibold" unless item[:class]
+				when "contact"
+					item[:mail] = ButtonComponent.new(button: {kind: "email", value: item[:email]}) if (item[:email] and item[:email].length>0)
+					if item[:phone] and item[:phone].length>0
+						item[:call] = ButtonComponent.new(button: {kind: "call", value: item[:phone]})
+						item[:whatsapp] = ButtonComponent.new(button: {kind: "whatsapp", value: [:phone]})
+					end
 				when "gap"
 					item[:size]  = 4 unless item[:size]
 				when "header-icon"
@@ -92,7 +95,7 @@ class FieldsComponent < ApplicationComponent
 					item[:size]  = "25x25" unless item[:size]
 				when "icon-label"
 					item[:size]  = "25x25" unless item[:size]
-					item[:class] = "align-top inline-flex"
+					item[:class] = "align-top inline-flex" unless item[:class]
 				when "label", "label-checkbox"
 					item[:class]   = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
 					item[:i_class] = "rounded bg-gray-200 text-blue-700"
@@ -104,8 +107,6 @@ class FieldsComponent < ApplicationComponent
 				when "location"
 					item[:class]   = "inline-flex align-top font-semibold"
 					item[:i_class] = "rounded-md hover:bg-blue-100"
-				when "phone"
-					item[:class] = "inline-flex align-middle hover:text-blue-700 hover:font-semibold" unless item[:class]
 				when /^(search-.+)$/
 					item[:align]   = "left" unless item[:align]
 					item[:size]    = 16 unless item[:size]

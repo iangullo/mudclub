@@ -25,13 +25,14 @@ module PeopleHelper
 	# FieldComponent fields to show a person
 	def person_show_fields(person:)
 		res = person_title_fields(title: I18n.t("person.single"), icon: person.picture, size: "100x100", rows: 4, _class: "rounded-full")
-		res << [{kind: "label", value: person.s_name}]
-		res << [{kind: "label", value: person.surname}]
-		res << [{kind: "string", value: person.birthday}]
-		res << [{kind: "string", value: person.email}]
+		res << [{kind: "label", value: person.s_name, cols: 3}]
+		res << [{kind: "label", value: person.surname, cols: 4}]
+		res << [{kind: "string", value: person.birthday, cols: 3}]
 		res << [{kind: "string", value: person.dni, align: "center"}]
+		res.last << {kind: "contact", email: person.email, phone: person.phone}
+		res << []
 		res.last << {kind: "icon", value: "player.svg"} if person.player_id > 0
-		res.last << {kind: "icon", value: "coach.svg"} if person.coach_id > 0
+		res.last << {kind: "icon", value: "coach.svg", align: "left"} if person.coach_id > 0
 		res
 	end
 

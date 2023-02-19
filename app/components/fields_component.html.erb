@@ -6,14 +6,16 @@
 				<% case item[:kind] %>
 				<% when "accordion" %>
 					<%= render AccordionComponent.new(accordion: item) %>
-				<% when "action", "add", "add-nested", "back", "edit", "jump", "link", "location" %>
+				<% when "action", "add", "add-nested", "back", "call", "edit", "jump", "link", "location", "mail", "whatsapp" %>
 					<%= render ButtonComponent.new(button: item) %>
+				<% when "contact" %>
+					<%= render item[:mail] if item[:mail] %>
+					<%= render item[:call] if item[:call] %>
+					<%= render item[:whatsapp] if item[:whatsapp] %>
 				<% when "date-box" %>
 					<%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
 				<% when "dropdown" %>
 					<%= render DropdownComponent.new(button: item[:button]) %>
-				<% when "email" %>
-					<a href="mailto:<%=item[:value]%>"><%=item[:value]%></a>
 				<% when "email-box" %>
 					<%= @form.email_field item[:key], autocomplete: item[:value], size: 25, class: item[:i_class] %>
 				<% when "gap" %>
@@ -58,8 +60,6 @@
 					<%= item[:units].to_s %>
 				<% when "password-box" %>
 					<%= @form.password_field item[:key], autocomplete: item[:auto], class: item[:i_class] %>
-				<% when "phone" %>
-					<a href="tel:<%=item[:value]%>"><%=item[:value]%></a>
 				<% when "radio-button" %>
 					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
 				<% when "rich-text-area" %>
