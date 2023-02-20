@@ -81,7 +81,7 @@ module EventsHelper
 	# FieldComponents to show an attendance form
 	def event_attendance_form_fields(event:)
 		res = [[{kind: "gap", size: 2}, {kind: "side-cell", value: I18n.t(event.match? ? "match.roster" : "calendar.attendance"), align: "left"}]]
-		res << [{kind: "gap", size: 2}, {kind: "select-checkboxes", key: :player_ids, options: event.team.players}]
+		res << [{kind: "gap", size: 2}, {kind: "select-checkboxes", key: :player_ids, options: event.team.players.active}]
 	end
 
 	#FieldComponents to show a match

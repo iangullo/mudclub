@@ -51,7 +51,7 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin, :coach], returl: @team)
 		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
 		@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
-		@grid  = helpers.player_grid(players: @team.players.order(:number), obj: @team)
+		@grid  = helpers.player_grid(players: @team.players.active.order(:number), obj: @team)
 	end
 
 	# GET /teams/1/edit_roster

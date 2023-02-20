@@ -92,7 +92,7 @@ module TeamsHelper
 			title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("calendar.week"), align: "center"}, {kind: "normal", value: I18n.t("calendar.month"), align: "center"}, {kind: "normal", value: I18n.t("season.abbr"), align: "center"}, {kind: "normal", value: I18n.t("match.many")}]
 			rows  = Array.new
 			m_tot = []
-			team.players.order(:number).each { |player|
+			team.players.active.order(:number).each { |player|
 				p_att = player.attendance(team: @team)
 				row   = {url: player_path(player, retlnk: team_path(team), team_id: team.id), frame: "modal", items: []}
 				row[:items] << {kind: "normal", value: player.number, align: "center"}
