@@ -26,15 +26,17 @@
 #			child: object instance to use for new objects to be added to collection
 #			row: path to partial for each element to be rendered
 #			filter: filter objects to be displayed - Hash of key-value pairs
+#			order: attribute to order by the nested elements.
 #			btn_add: definition of button to add new elements.
 class NestedComponent < ApplicationComponent
-	def initialize(model:, key:, form:, child:, row:, filter: nil, btn_add: {kind: "add-nested"})
+	def initialize(model:, key:, form:, child:, row:, filter: nil, order: nil, btn_add: {kind: "add-nested"})
 		@model   = model
 		@form    = form
 		@child   = child
-		@key     = key
+		@key     = key.to_sym
 		@row     = row
 		@filter  = n_filter(filter:)
+		@order   = order ? order.to_sym : nil
 		@btn_del = ButtonComponent.new(button: {kind: "remove"})
 		@btn_add = ButtonComponent.new(button: btn_add) if  btn_add
 	end

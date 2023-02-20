@@ -347,7 +347,7 @@ en:
     edit: "Edit session"
     new: "Create session"
     duration: "Dur."
-    worload: "Workload"
+    workload: "Workload"
     workload_by: "Workload by"
   user:
     duplicate: "Duplicate: "

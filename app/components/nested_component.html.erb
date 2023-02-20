@@ -1,6 +1,6 @@
 <div id="<%=@model%>-<%=@key%>" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
 	<template data-nested-form-target="template">
-		<% @form.fields_for @key.to_sym, @child, child_index: 'NEW_RECORD' do |ff| %>
+		<% @form.fields_for @key, @child, child_index: 'NEW_RECORD' do |ff| %>
 			<div class="nested-form-wrapper" data-new-record="<%= ff.object.new_record? %>">
 				<div class="inline-flex">
 					<%= render @row, form: ff %>
@@ -11,7 +11,7 @@
 			</div>
 		<% end %>
 	</template>
-	<% @form.fields_for @key.to_sym do |ff| %>
+	<% @form.fields_for @key, @form.object.send(@key).order(@order) do |ff| %>
 		<% ff_show = true %>
 		<% if @filter %>
 			<% @filter.each do |key, value| %>

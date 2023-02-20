@@ -18,7 +18,7 @@
 			<th colspan="2" align="left" class="text-indigo-900 align-center"><%= t("task.many") %></th>
 		</tr><tr>
 			<td colspan="2" align="left" class="align-top">
-				<%= render NestedComponent.new(model: "event", key: "tasks", form: form, child: Task.new(order: @event.tasks.count+1), row: "task_row", btn_add: nil) %>
+				<%= render NestedComponent.new(model: "event", key: "tasks", form: form, child: Task.new(order: @event.tasks.count+1), row: "task_row", order: "order", btn_add: nil) %>
 			</td>
 		<tr>
 			<td align="left">
