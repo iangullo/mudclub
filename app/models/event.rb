@@ -52,7 +52,7 @@ class Event < ApplicationRecord
 	def to_s(style: nil)
 		case self.kind.to_sym
 		when :train
-			res = self.name
+			res = I18n.t("train.single")
 		when :match
 			m_row = self.to_hash
 			home  = m_row[:home_t] + " [" + m_row[:home_p].to_s + "]"
