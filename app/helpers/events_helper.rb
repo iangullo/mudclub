@@ -316,7 +316,8 @@ module EventsHelper
 					row[:items] << {kind: "normal", value: event.date_string, align: "center"}
 					row[:items] << {kind: "normal", value: event.time_string(false), align: "center"}
 					event.to_hash.each_value { |row_f|
-						row[:items] << {kind: "normal", value: row_f.to_s, cols: event.match? ? 1 : 4}
+						n_row = event.match? ? {kind: "normal", value: row_f.to_s, cols: 1} : {kind: "normal", value: event.to_s, cols: 4}
+						row[:items] << n_row
 					}
 					row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
 					rows << row
