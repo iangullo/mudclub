@@ -20,8 +20,16 @@ class Skill < ApplicationRecord
 	has_and_belongs_to_many :drills
 	scope :real, -> { where("id>0") }
 	scope :search, -> (s_s) { where("unaccent(concept) ILIKE unaccent(?)","%#{s_s}%") }
+	self.inheritance_column = "not_sti"
 
 	def to_s
 		self.concept
+	end
+
+	# Takes the input received from a skill_form (f_object)
+	# and either reads or creates a matching skill
+	def self.fetch(f_object)
+		res = (f_object[:id] and f_object[:id].to_i>0) ? Skill.find(f_object[:id]) : Skill.search(f_object[:concept])
+		return res
 	end
 end

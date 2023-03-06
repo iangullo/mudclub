@@ -144,7 +144,7 @@ class Drill < ApplicationRecord
 			a_skills << s[1] #unless a_skills.detect { |a| a[:name] == s[1][:name] }
 		}
 		a_skills.each { |s| # second pass - manage associations
-			sk = s.key?("id") ? Skill.find(s[:id]) : Skill.find_by(concept: s[:concept])
+			sk = Skill.fetch(s)
 			if s[:_destroy] == "1"
 				self.skills.delete(sk)
 			else	# add to collection
