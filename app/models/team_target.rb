@@ -47,7 +47,7 @@ class TeamTarget < ApplicationRecord
 	# Takes the input received from target_form (f_object)
 	# and either reads or creates a matching drill_target
 	def self.fetch(f_object)
-		tid = f_object[:id].to_i > 0 ? f_object[:id].to_i : nil
+		tid = (f_object[:id] & f_object[:id].to_i) > 0 ? f_object[:id].to_i : nil
 		res = tid ? TeamTarget.find(tid) : TeamTarget.new
 		t   = f_object[:target_attributes]
 		tgt = Target.search(t[:id], t[:concept], t[:focus], t[:aspect])
