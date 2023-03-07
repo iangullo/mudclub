@@ -60,7 +60,7 @@ class ButtonComponent < ApplicationComponent
 		when "action", "back", "call", "cancel", "close", "edit", "email", "forward", "menu", "login", "save"
 			b_colour = b_colour + " shadow font-bold"
 			@button[:d_class] = @button[:d_class] + " shadow"
-	else
+		else
 			@button[:d_class] = @button[:d_class] + " font-semibold"
 		end
 		@button[:align]   = "center" unless @button[:align]
@@ -97,12 +97,16 @@ class ButtonComponent < ApplicationComponent
 			@button[:url]     = "mailto:#{@button[:value]}"
 		when "export"
 			@button[:icon]    = "export.svg"
+			@button[:label]   = I18n.t("action.export")
+			@button[:flip]    = true
 		when "forward"
 			@button[:icon]    = "forward.svg"
 			@button[:turbo]   = "_top"
 			@button[:label]   = I18n.t("action.next") unless @button[:label]
 		when "import"
 			@button[:icon]    = "import.svg"
+			@button[:label]   = I18n.t("action.import")
+			@button[:flip]    = true
 			@button[:confirm] = I18n.t("question.import")
 		when "jump"
 			@button[:size]    = "50x50" unless @button[:size]

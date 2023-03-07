@@ -18,7 +18,7 @@
 		<% end %>
 	<% else %>
 		<%= button_tag class: @button[:b_class], type: @button[:type], data: @button[:data], "data-confirm": @button[:confirm] do %>
-			<% if @button[:kind]=="save" %>
+			<% if ["save","import"].include? @button[:kind] %>
 				<% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
 				<%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
 			<% else %>
