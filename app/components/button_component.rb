@@ -57,7 +57,7 @@ class ButtonComponent < ApplicationComponent
 		when "location", "whatsapp"
 			@button[:tab]     = true
 			@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-		when "action", "back", "call", "cancel", "close", "edit", "email", "forward", "menu", "login", "save"
+		when "action", "back", "call", "cancel", "close", "edit", "email", "export", "forward", "import", "menu", "login", "save"
 			b_colour = b_colour + " shadow font-bold"
 			@button[:d_class] = @button[:d_class] + " shadow"
 		else
