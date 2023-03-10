@@ -34,20 +34,26 @@ module DrillsHelper
 		title_start(icon: "drill.svg", title: title, rows: rows, cols: cols)
 	end
 
-	# return title FieldComponent definition for edit/new drill
+	# return title FieldComponent definition for drill show
 	def drill_show_title(title:, drill:)
 		res = drill_title_fields(title: I18n.t("drill.single"))
 		res.last << {kind: "link", align: "right", icon: "playbook.png", size: "20x20", url: rails_blob_path(drill.playbook, disposition: "attachment"), label: "Playbook"} if drill.playbook.attached?
 		res << [{kind: "subtitle", value: drill.name}, {kind: "string", value: "(" + drill.kind.name + ")", cols: 2}]
 	end
 
-	# return title FieldComponent definition for edit/new drill
+	# return title FieldComponent definition for drill show
 	def drill_show_intro(drill:)
 		res  = [[{kind: "label", value: I18n.t("target.many")}, {kind: "lines", class: "align-top", value: drill.drill_targets}]]
 		res << [{kind: "label", value: I18n.t("drill.material")}, {kind: "string", value: drill.material}]
 		res << [{kind: "label", value: I18n.t("drill.desc_a")}, {kind: "string", value: drill.description}]
 	end
 
+	# return title FieldComponent definition for drill show
+	def drill_show_explain(drill:)
+		[[{kind: "string", value: @drill.explanation}]]
+	end
+
+	# return tail Field Component definition for drill show
 	def drill_show_tail(drill:)
 		res = [[{kind: "label", value: I18n.t("skill.abbr")}, {kind: "string", value: drill.print_skills}]]
 		res << [{kind: "label", value: I18n.t("drill.author")}, {kind: "string", value: drill.coach.s_name}]
