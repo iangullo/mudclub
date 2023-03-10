@@ -37,7 +37,7 @@ class DrillsController < ApplicationController
 		check_access(roles: [:admin, :coach])
 		@title   = helpers.drill_show_title(title: I18n.t("drill.single"), drill: @drill)
 		@intro   = helpers.drill_show_intro(drill: @drill)
-		@explain = [[{kind: "string", value: @drill.explanation}]]
+		@explain = helpers.drill_show_explain(drill: @drill)
 		@tail    = helpers.drill_show_tail(drill: @drill)
 	end
 
@@ -114,6 +114,6 @@ class DrillsController < ApplicationController
 
 		# Only allow a list of trusted parameters through.
 		def drill_params
-			params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, :skill_id, skills: [], target_ids: [], skill_ids: [], skills_attributes: [:id, :concept, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy, target_attributes: [:id, :aspect, :focus, :concept]])
+			params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, :skill_id, skills: [], drill_steps: [], target_ids: [], skill_ids: [], skills_attributes: [:id, :concept, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy, target_attributes: [:id, :aspect, :focus, :concept]])
 		end
 end
