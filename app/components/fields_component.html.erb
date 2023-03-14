@@ -63,9 +63,7 @@
 				<% when "radio-button" %>
 					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
 				<% when "rich-text-area" %>
-					<div id="trix-editor">
-						<%= @form.rich_text_area item[:key], class: item[:i_class] %>
-					</div>
+					<%= @form.rich_text_area item[:key], class: item[:i_class] %>
 				<% when "search-combo" %>
 					<%= render SearchComboComponent.new(search: item) %>
 				<% when "select-box" %>

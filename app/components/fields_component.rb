@@ -133,6 +133,7 @@ class FieldsComponent < ApplicationComponent
 					item[:i_class] = "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center"
 				when /^(select-.+|.+-box|.+-area)$/
 					item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
+					item[:i_class] = "trix-content " + item[:i_class] if item[:kind]=="rich-text-area"
 					if item[:kind]=="number-box" or item[:kind]=="time-box"
 						item[:i_class] = item[:i_class] + " text-right"
 						item[:min]     = 0 unless item[:min]

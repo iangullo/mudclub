@@ -29,3 +29,32 @@
   padding: 0 !important;
   max-width: 100% !important;
 }
+
+/** These are TailwindCSS specific tweaks */
+.trix-content {
+  @apply w-full;
+}
+
+.trix-content h1 {
+  font-size: 1.25rem !important;
+  line-height: 1.25rem !important;
+  @apply leading-5 font-semibold mb-4;
+}
+
+.trix-content a:not(.no-underline) {
+  @apply underline;
+}
+
+.trix-content ul {
+  list-style-type: disc;
+  padding-left: 2.5rem;
+}
+
+.trix-content ol {
+  list-style-type: decimal;
+  padding-left: 2.5rem;
+}
+
+.trix-content img {
+  margin: 0 auto;
+}
