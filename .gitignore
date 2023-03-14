@@ -41,3 +41,4 @@ yarn.lock
 Gemfile.lock
 .vscode/settings.json
 app/assets/builds/tailwind.css
+storage/.keep
