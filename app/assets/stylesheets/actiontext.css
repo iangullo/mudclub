@@ -58,3 +58,8 @@
 .trix-content img {
   margin: 0 auto;
 }
+
+/** Remove unused trix buttons **/
+.trix-button--icon-code,
+.trix-button--icon-quote,
+.trix-button--icon-strike { display:none; }
