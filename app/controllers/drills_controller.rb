@@ -35,10 +35,10 @@ class DrillsController < ApplicationController
 	# GET /drills/1 or /drills/1.json
 	def show
 		check_access(roles: [:admin, :coach])
-		@title   = helpers.drill_show_title(title: I18n.t("drill.single"), drill: @drill)
-		@intro   = helpers.drill_show_intro(drill: @drill)
-		@explain = helpers.drill_show_explain(drill: @drill)
-		@tail    = helpers.drill_show_tail(drill: @drill)
+		@title   = helpers.drill_show_title(title: I18n.t("drill.single"))
+		@intro   = helpers.drill_show_intro
+		@explain = helpers.drill_show_explain
+		@tail    = helpers.drill_show_tail
 	end
 
 	# GET /drills/new
@@ -100,11 +100,11 @@ class DrillsController < ApplicationController
 	private
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(title:)
-			@title    = helpers.drill_form_title(title:, drill: @drill)
+			@title    = helpers.drill_form_title(title:)
 			@playbook = helpers.drill_form_playbook(playbook: @drill.playbook)
-			@formdata = helpers.drill_form_data(drill: @drill)
+			@formdata = helpers.drill_form_data
 			@explain  = helpers.drill_form_explain
-			@author   = helpers.drill_form_author(drill: @drill)
+			@formtail = helpers.drill_form_tail
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

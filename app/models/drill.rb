@@ -97,6 +97,7 @@ class Drill < ApplicationRecord
 		res = res.joins(:targets).where(targets: Target.search(nil, s_t)).distinct
 	end
 
+	# Array of print strings for associated skills
 	def print_skills
 		print_names(self.skills)
 	end
@@ -110,15 +111,12 @@ class Drill < ApplicationRecord
 		cad
 	end
 
+	# A longer string with kind included
 	def nice_string
 		cad = self.kind_id ? (self.kind.name + " | ") : ""
 		cad = cad + (self.name ? self.name : I18n.t("drill.default"))
 		cad
 	end
-
-#	def print_kinds
-#		print_names(self.kinds)
-#	end
 
 	# build new @drill from raw input hash given by form submital submittal
 	# return nil if unsuccessful
