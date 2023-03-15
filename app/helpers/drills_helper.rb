@@ -35,34 +35,34 @@ module DrillsHelper
 	end
 
 	# return title FieldComponent definition for drill show
-	def drill_show_title(title:, drill:)
+	def drill_show_title(title:)
 		res = drill_title_fields(title: I18n.t("drill.single"))
-		res.last << {kind: "link", align: "right", icon: "playbook.png", size: "20x20", url: rails_blob_path(drill.playbook, disposition: "attachment"), label: "Playbook"} if drill.playbook.attached?
-		res << [{kind: "subtitle", value: drill.name}, {kind: "string", value: "(" + drill.kind.name + ")", cols: 2}]
+		res.last << {kind: "link", align: "right", icon: "playbook.png", size: "20x20", url: rails_blob_path(@drill.playbook, disposition: "attachment"), label: "Playbook"} if @drill.playbook.attached?
+		res << [{kind: "subtitle", value: @drill.name}, {kind: "string", value: "(" + @drill.kind.name + ")", cols: 2}]
 	end
 
 	# return title FieldComponent definition for drill show
-	def drill_show_intro(drill:)
-		res  = [[{kind: "label", value: I18n.t("target.many")}, {kind: "lines", class: "align-top", value: drill.drill_targets}]]
-		res << [{kind: "label", value: I18n.t("drill.material")}, {kind: "string", value: drill.material}]
-		res << [{kind: "label", value: I18n.t("drill.desc_a")}, {kind: "string", value: drill.description}]
+	def drill_show_intro
+		res  = [[{kind: "label", value: I18n.t("target.many")}, {kind: "lines", class: "align-top", value: @drill.drill_targets}]]
+		res << [{kind: "label", value: I18n.t("drill.material")}, {kind: "string", value: @drill.material}]
+		res << [{kind: "label", value: I18n.t("drill.desc_a")}, {kind: "string", value: @drill.description}]
 	end
 
 	# return title FieldComponent definition for drill show
-	def drill_show_explain(drill:)
+	def drill_show_explain
 		[[{kind: "string", value: @drill.explanation}]]
 	end
 
 	# return tail Field Component definition for drill show
-	def drill_show_tail(drill:)
-		res = [[{kind: "label", value: I18n.t("skill.abbr")}, {kind: "string", value: drill.print_skills}]]
-		res << [{kind: "label", value: I18n.t("drill.author")}, {kind: "string", value: drill.coach.s_name}]
+	def drill_show_tail
+		res = [[{kind: "label", value: I18n.t("skill.abbr")}, {kind: "string", value: @drill.print_skills}]]
+		res << [{kind: "label", value: I18n.t("drill.author")}, {kind: "string", value: @drill.coach.s_name}]
 	end
 
 	# return title FieldComponent definition for edit/new
-	def drill_form_title(title:, drill:)
+	def drill_form_title(title:)
 		res = drill_title_fields(title:)
-		res << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: drill.kind_id, align: "center"}]
+		res << [{kind: "text-box", key: :name, value: @drill.name}, {kind: "select-collection", key: :kind_id, options: Kind.all, value: @drill.kind_id, align: "center"}]
 	end
 
 	# return title FieldComponent definition for edit/new
@@ -71,21 +71,28 @@ module DrillsHelper
 	end
 
 	# return title FieldComponent definition for edit/new
-	def drill_form_data(drill:)
+	def drill_form_data
 		[
-			[{kind: "label", value: I18n.t("drill.material"), align: "right"}, {kind: "text-box", key: :material, size: 33, value: drill.material}],
-			[{kind: "label", value: I18n.t("drill.desc_a"), align: "right"}, {kind: "text-area", key: :description, size: 30, lines: 2, value: drill.description}]
+			[{kind: "label", value: I18n.t("target.many"), align: "right"}],
+			[{kind: "nested-form", model: "drill", key: "drill_targets", child: DrillTarget.new(priority: @drill.drill_targets.count+1), row: "target_row", cols: 2}],
+			[{kind: "label", value: I18n.t("drill.material"), align: "right"}, {kind: "text-box", key: :material, size: 40, value: @drill.material}],
+			[{kind: "label", value: I18n.t("drill.desc_a"), align: "right"}, {kind: "text-area", key: :description, size: 36, lines: 2, value: @drill.description}]
 		]
 	end
 
-	# return title FieldComponent definition for edit/new
+	# returng FieldComponent to edit drill explanation
 	def drill_form_explain
-		[[{kind: "rich-text-area", key: :explanation, align: "left", cols: 3}]]
+		[[{kind: "rich-text-area", key: :explanation, align: "left"}]]
 	end
 
 	# return title FieldComponent definition for edit/new
-	def drill_form_author(drill:)
-		[[{kind: "label", value: I18n.t("drill.author"), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real, value: (drill.coach_id.to_i>0) ? drill.coach_id : (current_user.is_coach? ? current_user.coach.id : 1) }]]
+	def drill_form_tail
+		[[
+			{kind: "label", value: I18n.t("skill.abbr"), align: "right"},
+			{kind: "nested-form", model: "drill", key: "skills", child: Skill.new, row: "skill_row"},
+			{kind: "gap"},
+			{kind: "label", value: I18n.t("drill.author"), align: "right"}, {kind: "select-collection", key: :coach_id, options: Coach.real, value: (@drill.coach_id.to_i>0) ? @drill.coach_id : (current_user.is_coach? ? current_user.coach.id : 1) }
+		]]
 	end
 
 	# return grid for @drills GridComponent
