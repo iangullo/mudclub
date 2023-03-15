@@ -29,7 +29,7 @@
 #			order: attribute to order by the nested elements.
 #			btn_add: definition of button to add new elements.
 class NestedComponent < ApplicationComponent
-	def initialize(model:, key:, form:, child:, row:, filter: nil, order: nil, btn_add: {kind: "add-nested"})
+	def initialize(model:, key:, form:, child:, row:, filter: nil, order: nil, btn_add: nil)
 		@model   = model
 		@form    = form
 		@child   = child
@@ -38,7 +38,7 @@ class NestedComponent < ApplicationComponent
 		@filter  = n_filter(filter:)
 		@order   = order ? order.to_sym : nil
 		@btn_del = ButtonComponent.new(button: {kind: "remove"})
-		@btn_add = ButtonComponent.new(button: btn_add) if  btn_add
+		@btn_add = ButtonComponent.new(button: btn_add ? btn_add : {kind: "add-nested"})
 	end
 
 	# filter collection of objects using filter hash
