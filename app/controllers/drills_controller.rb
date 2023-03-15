@@ -29,7 +29,7 @@ class DrillsController < ApplicationController
 		#@title << [{kind: "subtitle", value: I18n.t("catalog")}]
 		@search = helpers.drill_search_bar(search_in: drills_path)
 		@drills = filter!(Drill)
-		@grid   = helpers.drill_grid
+		@grid   = helpers.drill_grid(drills: @drills)
 	end
 
 	# GET /drills/1 or /drills/1.json
