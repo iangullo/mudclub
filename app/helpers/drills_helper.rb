@@ -96,31 +96,31 @@ module DrillsHelper
 	end
 
 	# return grid for @drills GridComponent
-	def drill_grid(drills:)
+	def drill_grid
 		track = {s_url: drills_path, s_filter: "drill_filters"}
 		title = [
 			{kind: "normal", value: I18n.t("kind.single"), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
 			{kind: "normal", value: I18n.t("drill.name"), sort: (session.dig('drill_filters', 'name') == "name"), order_by: "name"},
 			{kind: "normal", value: I18n.t("drill.author"), align: "center", sort: (session.dig('drill_filters', 'coach_id') == "coach_id"), order_by: "coach_id"},
-			{kind: "normal", value: I18n.t("target.many")},
-			{kind: "normal", value: I18n.t("task.many")}
+			{kind: "normal", value: I18n.t("target.many")}
+			#{kind: "normal", value: I18n.t("task.many")}
 		]
 		title << {kind: "add", url: new_drill_path, frame: "_top"} if current_user.admin? or current_user.is_coach?
 
-		{track: track, title: title, rows: drill_rows(drills)}
+		{track: track, title: title, rows: drill_rows}
 	end
 
 	private
 		# get the grid rows for @drills
-		def drill_rows(drills)
+		def drill_rows
 			rows = Array.new
-			drills.each { |drill|
+			@drills.each { |drill|
 				row = {url: drill_path(drill), items: []}
 				row[:items] << {kind: "normal", value: drill.kind.name, align: "center"}
 				row[:items] << {kind: "normal", value: drill.name}
 				row[:items] << {kind: "normal", value: drill.coach.s_name, align: "center"}
 				row[:items] << {kind: "lines", value: drill.print_targets}
-				row[:items] << {kind: "normal", value: Task.where(drill_id: drill.id).count, align: "center"}
+				#row[:items] << {kind: "normal", value: Task.where(drill_id: drill.id).count, align: "center"}
 				row[:items] << {kind: "delete", url: row[:url], name: drill.name} if current_user.admin?
 				rows << row
 			}
