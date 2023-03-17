@@ -45,7 +45,7 @@ class DrillsController < ApplicationController
 				prawn = helpers.create_prawn
 				prawn.render_file 'prawntest.pdf'
 			}
-			format.html { render :index }
+			format.html { render :show }
 		end
 	end
 

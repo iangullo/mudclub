@@ -19,8 +19,8 @@
 class User < ApplicationRecord
 	# Include default devise modules. Others available are:
 	# :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-	devise :database_authenticatable, :registerable,
-				 :recoverable, :rememberable, :validatable
+	devise :database_authenticatable, :recoverable,
+				 :rememberable, :validatable
 	has_one :person
 	has_one_attached :avatar
 	scope :real, -> { where("id>0") }
@@ -28,10 +28,6 @@ class User < ApplicationRecord
 	after_initialize :set_default_role, :if => :new_record?
 	accepts_nested_attributes_for :person, update_only: true
 	self.inheritance_column = "not_sti"
-
-	# Include default devise modules. Others available are:
-	# :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-	devise :registerable, :database_authenticatable, :recoverable, :rememberable, :validatable
 
 	# locale preferences defined as enum and stored in database
 	enum locale: {
