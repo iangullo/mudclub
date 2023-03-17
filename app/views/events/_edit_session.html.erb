@@ -18,10 +18,14 @@
 			<th colspan="2" align="left" class="text-indigo-900 align-center"><%= t("task.many") %></th>
 		</tr><tr>
 			<td colspan="2" align="left" class="align-top">
-				<%= render NestedComponent.new(model: "event", key: "tasks", form: form, child: Task.new(oder: @event.tasks.count+1), row: "task_row", order: "order", btn_add: {kind: "add", label: t("task.add"), url: add_task_event_path}) %>
+				<%= render NestedComponent.new(model: "event", key: "tasks", form: form, child: Task.new(order: @event.tasks.count+1), row: "task_row", order: "order", btn_add: nil) %>
 			</td>
 		</tr><tr>
-			<td align="left">&nbpsp;</td>
+			<td align="left">
+				<% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
+					<%= render ButtonComponent.new(button: {kind: "add", label: t("task.add"), url: add_task_event_path}) %>
+				<% end %>
+			</td>
 			<th align="left"><%= t("stat.total_a") + " " + @event.work_duration %></th>
 		</tr>
 	<% end %>
