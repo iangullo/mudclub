@@ -55,4 +55,23 @@ module ApplicationHelper
 	def flash_message(message, kind="info")
 		res = {message: message, kind: kind}
 	end
+
+	# creates a PrawnPDF document with initial characteristics
+	def create_prawn(subtitle: nil)
+		prawn = Prawn::Document.new(page_size: 'A5', margin: 50)
+		prawn_header(prawn:, subtitle:)
+		prawn
+	end
+
+	# header of a prawn page
+	def prawn_header(prawn:, subtitle:)
+		logo = Rails.root.join('app', 'assets', 'images','clublogo.png')
+		prawn.image logo, at: [50,50], height: 64, width: 64
+		prawn.font(Rails.root.join('app', 'assets', 'fonts','Constantia.ttf')) do
+			prawn.text Person.find(0).name, size: 18, styles: [:bold]
+		end
+		if subtitle
+			prawn.text subtitle, size: 30, styles: [:bold]
+		end
+	end
 end
