@@ -110,6 +110,15 @@ module DrillsHelper
 		{track: track, title: title, rows: drill_rows(drills:)}
 	end
 
+	# pdf export of @drill content
+	def drill_pdf
+		pdf = create_prawn(subtitle: I18n.t("task.single"))
+		pdf.text "#{I18n.t("drill.name")}: "
+		pdf.text "#{I18n.t("target.many")}: "
+		pdf.text "#{I18n.t("drill.expl")}: "
+		pdf
+	end
+
 	private
 		# get the grid rows for @drills
 		def drill_rows(drills:)

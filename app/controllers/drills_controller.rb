@@ -42,8 +42,8 @@ class DrillsController < ApplicationController
 		respond_to do |format|
 			format.pdf {
 				response.headers['Content-Disposition'] = "attachment; filename=drill.pdf"
-				prawn = helpers.create_prawn
-				prawn.render_file 'prawntest.pdf'
+				prawn = helpers.drill_pdf
+				prawn.render_file "#{@drill.name}.pdf"
 			}
 			format.html { render :show }
 		end

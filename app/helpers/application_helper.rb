@@ -57,8 +57,8 @@ module ApplicationHelper
 	end
 
 	# creates a PrawnPDF document with initial characteristics
-	def create_prawn(subtitle: nil)
-		prawn = Prawn::Document.new(page_size: 'A5', margin: 50)
+	def create_prawn(subtitle: nil, page_size: "A5", page_layout: :landscape)
+		prawn = Prawn::Document.new(page_size:, page_layout:, margin: 10)
 		prawn_header(prawn:, subtitle:)
 		prawn
 	end
@@ -66,12 +66,15 @@ module ApplicationHelper
 	# header of a prawn page
 	def prawn_header(prawn:, subtitle:)
 		logo = Rails.root.join('app', 'assets', 'images','clublogo.png')
-		prawn.image logo, at: [50,50], height: 64, width: 64
+		prawn.image logo, height: 32, width: 32
+		prawn.fill_color = '000080'	# dark blue font
 		prawn.font(Rails.root.join('app', 'assets', 'fonts','Constantia.ttf')) do
-			prawn.text Person.find(0).name, size: 18, styles: [:bold]
+			prawn.draw_text Person.find(0).nick, size: 24, styles: [:bold], at: [40,375]
 		end
 		if subtitle
-			prawn.text subtitle, size: 30, styles: [:bold]
+			prawn.move_up 30
+			prawn.text subtitle, size: 30, styles: [:bold], align: :right
 		end
+		prawn.move_down 10
 	end
 end
