@@ -39,6 +39,14 @@ class DrillsController < ApplicationController
 		@intro   = helpers.drill_show_intro
 		@explain = helpers.drill_show_explain
 		@tail    = helpers.drill_show_tail
+		respond_to do |format|
+			format.pdf {
+				response.headers['Content-Disposition'] = "attachment; filename=drill.pdf"
+				prawn = helpers.create_prawn
+				prawn.render_file 'prawntest.pdf'
+			}
+			format.html { render :index }
+		end
 	end
 
 	# GET /drills/new
