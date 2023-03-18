@@ -62,12 +62,12 @@ module EventsHelper
 			{kind: "normal", value: I18n.t("calendar.time"), align: "center"},
 			{kind: "normal", value: I18n.t("train.many"), cols: 4}
 		]
-		rows  = event_rows(events: events, season_id: for_season ? obj.id : nil, retlnk: retlnk)
+		rows    = event_rows(events: events, season_id: for_season ? obj.id : nil, retlnk: retlnk)
+		btn_add = new_event_button(obj:, for_season:)
+		title << btn_add if btn_add
 		if for_season
-			title << {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"} if current_user.admin? # new season event
 			fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(season_id: @season.id), cols: 4, class: "align-middle text-indigo-900"}]]
 		else
-			title << new_event_button(obj.id) if obj.has_coach(current_user.person.coach_id) # new team event
 			fields = [[
 				{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(team_id: obj.id), class: "align-middle text-indigo-900"},
 				{kind: "gap"},
@@ -366,11 +366,17 @@ module EventsHelper
 		end
 
 		# dropdown button definition to create a new Event
-		def new_event_button(team_id)
-			button = {kind: "add", name: "add-event", options: []}
-			button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: team_id}), data: {turbo_frame: :modal}}
-			button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: team_id}), data: {turbo_frame: :modal}}
-			button[:options] << {label: I18n.t("rest.single"), url: new_event_path(event: {kind: :rest, team_id: team_id}), data: {turbo_frame: :modal}}
-			return {kind: "dropdown", button: button}
+		def new_event_button(obj:, for_season: nil)
+			if for_season and current_user.admin? # new season event
+				return {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"}
+			elsif obj.has_coach(current_user.person.coach_id) # new team event
+				button = {kind: "add", name: "add-event", options: []}
+				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id}), data: {turbo_frame: :modal}}
+				button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: obj.id}), data: {turbo_frame: :modal}}
+				button[:options] << {label: I18n.t("rest.single"), url: new_event_path(event: {kind: :rest, team_id: obj.id}), data: {turbo_frame: :modal}}
+				return {kind: "dropdown", button: button}
+			else
+				return nil
+			end
 		end
 end
