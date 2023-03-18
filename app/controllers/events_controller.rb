@@ -23,12 +23,14 @@ class EventsController < ApplicationController
 	# GET /events or /events.json
 	def index
 		check_access(roles: [:user])
-		@sdate  = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
-		@events = Event.search(params)
-		@team   = Team.find(params[:team_id]) if params[:team_id]
-		@season = @events.empty? ? Season.last : @events.first.team.season
-		@curlnk = @team ? team_events_path(@team, start_date: @sdate) : (@season ? season_events_path(@season, start_date: @sdate) : events_path)
-		@title  = helpers.event_index_title(team: @team, season: @season)
+		start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
+		events     = Event.search(params)
+		team       = Team.find(params[:team_id]) if params[:team_id]
+		season     = events.empty? ? Season.last : events.first.team.season
+		curlnk     = team ? team_events_path(team, start_date:) : (season ? season_events_path(season, start_date:) : events_path)
+		@title     = FieldsComponent.new(fields: helpers.event_index_title(team: team, season: season))
+		@calendar  = CalendarComponent.new(start_date:, events:, anchor: curlnk, obj: team ? team : season, user: current_user, create_url: new_event_path)
+		@submit    = SubmitComponent.new(close: "back", close_return: team ? team_path(team) : seasons_path(season_id: season.id))
 	end
 
 	# GET /events/1 or /events/1.json

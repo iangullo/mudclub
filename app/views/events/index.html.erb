@@ -1,5 +1,5 @@
 <div id="events-index">
-	<%= render FieldsComponent.new(fields: @title) %>
-	<%= render CalendarComponent.new(start_date: @sdate, events: @events, anchor: @curlnk) %>
-	<%= render SubmitComponent.new(close: "back", close_return: @team ? team_path(@team) : seasons_path(season_id: @season.id)) %>
+	<%= render @title %>
+	<%= render @calendar %>
+	<%= render @submit %>
 </div>
