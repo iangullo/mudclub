@@ -352,7 +352,7 @@ module EventsHelper
 			{title: head, rows: rows}
 		end
 
-		# return the dropdowFistron element to access workload charts
+		# return the dropdown element to access workload charts
 		def workload_button(event, cols: 2, align: "center")
 			res = { kind: "dropdown", align:, cols:,
 				button: {kind: "link", icon: "pie.svg", size: "20x20", label: I18n.t("train.workload"), name: "show-chart",

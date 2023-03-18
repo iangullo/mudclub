@@ -127,7 +127,7 @@ class ButtonComponent < ApplicationComponent
 	# set the @button class depending on button type
 	def set_bclass
 		b_start        = @button[:b_class] ? "#{@button[:kind]}-btn " + @button[:b_class] : "#{@button[:kind]}-btn"
-		@button[:name] = @button[:kind]
+		@button[:name] = @button[:kind] unless @button[:name]
 		case @button[:kind]
 		when "remove"
 			@button[:action] = "nested-form#remove"
