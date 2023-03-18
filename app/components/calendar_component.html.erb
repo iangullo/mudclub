@@ -26,7 +26,11 @@
 					<% 1.upto(@c_cols) do |j| %>
 						<td class="<%=@cells[i][j][:c_class]%>">
 						<% if @cells[i][j][:events].empty? %>
-							<br>
+							<% if @add_btn[i][j] %>
+								<%=render @add_btn[i][j]%>
+							<% else %>
+								<br>
+							<% end %>
 						<% end%>
 						<% @cells[i][j][:events].each do |event|%>
 							<div class="<%=event[:b_class]%>" align="center">
