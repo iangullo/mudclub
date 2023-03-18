@@ -29,13 +29,6 @@ class EventsController < ApplicationController
 		@season = @events.empty? ? Season.last : @events.first.team.season
 		@curlnk = @team ? team_events_path(@team, start_date: @sdate) : (@season ? season_events_path(@season, start_date: @sdate) : events_path)
 		@title  = helpers.event_index_title(team: @team, season: @season)
-		if @team
-			#@grid = helpers.event_grid(events: @events, obj: @team, retlnk: team_events_path(@team))
-		elsif @season
-			#@grid = helpers.event_grid(events: @events, obj: @season, retlnk: season_events_path(@season))
-		else
-			@grid = nil
-		end
 	end
 
 	# GET /events/1 or /events/1.json
