@@ -307,30 +307,37 @@ class Event < ApplicationRecord
 
 	# prepare a new Event using data provided
 	def self.prepare(s_data)
-		team = Team.find(s_data[:team_id] ? s_data[:team_id].to_i : 0)
-		res  = Event.new(team_id: team.id, kind: s_data[:kind].to_sym)
+		team   = Team.find(s_data[:team_id] ? s_data[:team_id].to_i : 0)
+		res    = Event.new(team_id: team.id, kind: s_data[:kind].to_sym)
+		s_date = s_data[:start_date] ? Date.parse(s_data[:start_date]) : nil
+		c_date = s_date ? s_date : Date.current
 		case res.kind.to_sym  # depending on event kind
 		when :rest
 			res.name        = I18n.t("rest.single")
-			res.start_time  = Date.current
+			res.start_time  = c_date
 			res.duration    = 1440
 			res.location_id = 0
 		when :train
-			res.name        = I18n.t("train.single")
-			last            = team.events.trainings.last
-			slot            = team.next_slot(last)
+			res.name = I18n.t("train.single")
+			last     = team.events.trainings.last
+			slot     = team.next_slot(last)
 			if slot
-				res.start_time  = (slot.next_date + slot.hour.hours + slot.min.minutes).to_datetime
+				s_date          = s_date ? s_date : slot.next_date
+				res.start_time  = (s_date + slot.hour.hours + slot.min.minutes).to_datetime
 				res.duration    = slot.duration
 				res.location_id = slot.location_id
 			else
-				res.start_time  = (Date.current + 16.hours + 0.minutes).to_datetime
+				res.start_time  = (c_date + 16.hours + 0.minutes).to_datetime
 				res.duration    = 60
 				res.location_id = 0
 			end
 		when :match
 			last            = team.events.matches.last
-			starting        = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
+			if s_date
+				starting = s_date + last.hour.hours + last.min.minutes
+			else
+				starting = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
+			end
 			res.name        = I18n.t("match.default_rival")
 			res.start_time  = starting
 			res.duration    = 120
