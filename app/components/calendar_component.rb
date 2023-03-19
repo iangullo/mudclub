@@ -110,12 +110,13 @@ class CalendarComponent < ApplicationComponent
 					b_color = "yellow"
 				end
 			when "train"
-				c_event[:icon] = "training.svg"
+				c_event[:icon]  = "training.svg"
 				c_event[:label] = event.to_s
 				b_color         = "blue"
 			when "rest"
-				c_event[:icon] = "rest.svg"
+				c_event[:icon]  = "rest.svg"
 				c_event[:label] = event.to_s
+				c_event[:data]  = {turbo_frame: "modal"	}
 				b_color         = "gray"
 			end
 			c_event[:b_class] = "bg-#{b_color}-300 rounded-lg border px py hover:text-white hover:bg-#{b_color}-700 text-sm"
