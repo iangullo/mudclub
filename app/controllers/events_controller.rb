@@ -36,12 +36,13 @@ class EventsController < ApplicationController
 	# GET /events/1 or /events/1.json
 	def show
 		check_access(roles: [:admin, :coach])
-		@retlnk = params[:retlnk]
-		@title  = helpers.event_title_fields(event: @event, cols: @event.train? ? 3 : nil)
-		if @event.match?
-			@fields = helpers.match_show_fields(event: @event)
-		elsif @event.train?
-			@fields = helpers.training_show_fields(event: @event)
+		retlnk = params[:retlnk]
+		@title  = FieldsComponent.new(fields: helpers.event_title_fields(event: @event, cols: @event.train? ? 3 : nil))
+		if @event.rest?
+			@submit = SubmitComponent.new(submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_event_path(season_id: params[:season_id]) : nil, frame: "modal")
+		else
+			@submit = SubmitComponent.new(close: "back", close_return: retlnk ? retlnk : team_path(@event.team), submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_event_path(season_id: params[:season_id]) : nil)
+			@fields = FieldsComponent.new(fields: @event.match? ? helpers.match_show_fields(event: @event) : helpers.training_show_fields(event: @event))
 		end
 	end
 
@@ -56,8 +57,8 @@ class EventsController < ApplicationController
 				else
 					@season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
 				end
-				@title  = helpers.event_title_fields(event: @event, form: true, cols: @event.match? ? 2 : nil)
-				@fields = [[{kind: "gap"}, {kind: "label", value: I18n.t("match.rival")}, {kind: "text-box", key: :name, value: I18n.t("match.default_rival")} ]] if @event.match?
+				@title  = FieldComponent.new(fields: helpers.event_title_fields(event: @event, form: true, cols: @event.match? ? 2 : nil))
+				@fields = FieldComponent.new(fields: helpers.event_match_form_fields if @event.match?
 			else
 				redirect_to(current_user.admin? ? "/slots" : @event.team)
 			end

@@ -55,6 +55,10 @@ class FieldsComponent < ApplicationComponent
 		@form   = form
 	end
 
+	def form=(formobj)
+		@form = formobj
+	end
+
 	def render?
 		@fields.present?
 	end
