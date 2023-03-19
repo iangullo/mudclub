@@ -1,16 +1,18 @@
 <div id="edit-task-form">
-	<%= render FieldsComponent.new(fields: @title) %>
-	<%= render FieldsComponent.new(fields: @search) %>
+	<%= render @title %>
+	<%= render @search %>
 	<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
 		<%= form.fields_for @task do |f| %>
 			<%= turbo_frame_tag "search-results" do %>
-				<%= render FieldsComponent.new(fields: @fields, form: f) %>
+				<% @fields.form = f %>
+				<%= render @fields %>
 			<% end %>
 			<turbo-frame id="<%=f.field_id(:drill_id, :turbo_frame)%>" class="contents">
 				<%= render "drill_description" %>
 			</turbo-frame>
-			<%= render FieldsComponent.new(fields: @remarks, form: f) if @drill %>
+			<% @remarks.form = f %>
+			<%= render @remarks if @drill %>
 		<% end %>
-		<%= render SubmitComponent.new(submit: "save", close_return: :back) %>
+		<%= render @submit %>
 	<% end %>
 </div>

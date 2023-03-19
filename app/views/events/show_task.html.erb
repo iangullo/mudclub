@@ -1,4 +1,4 @@
 <%= render ModalComponent.new do %>
- 	<%= render FieldsComponent.new(fields: @fields) %>
-	<%= render SubmitComponent.new(close: "back", close_return: :back, submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_task_event_path(task_id: @task.id) : nil) %>
+ 	<%= render @fields %>
+	<%= render @submit %>
 <% end %>

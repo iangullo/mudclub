@@ -1,10 +1,12 @@
 <%= form_with model: event, authenticity_token: true, data: {title: title, turbo_frame: "_top"} do |form| %>
-	<%= render FieldsComponent.new(fields: @title, form: form) %>
+	<%@title.form=form%>
+	<%=render @title%>
 	<div id="edit-event-data">
-		<%= render FieldsComponent.new(fields: @fields, form: form) if @fields%>
-		<% if event.train? %>
-			<%= render 'edit_session', form: form, title: title %>
-		<% end %>
+		<%if @fields%>
+			<%@fields.form=form%>
+			<%=render @fields%>
+		<%end%>
+		<%=render('edit_session', form: form, title: title) if event.train?%>
 	</div>
-	<%= render SubmitComponent.new(submit: "save", close_return: close_return) %>
+	<%= render @submit %>
 <% end %>

@@ -52,13 +52,8 @@ class EventsController < ApplicationController
 		@event  = Event.prepare(event_params)
 		if @event
 			if @event.rest? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id))
-				if params[:season_id]
-					@season = Season.find(event_params[:season_id])
-				else
-					@season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
-				end
-				@title  = FieldComponent.new(fields: helpers.event_title_fields(event: @event, form: true, cols: @event.match? ? 2 : nil))
-				@fields = FieldComponent.new(fields: helpers.event_match_form_fields) if @event.match?
+				prepare_event_form(new: true)
+				@submit = SubmitComponent.new(submit: "save", close_return: nil)
 			else
 				redirect_to(current_user.admin? ? "/slots" : @event.team)
 			end
@@ -70,14 +65,14 @@ class EventsController < ApplicationController
 	# GET /events/1/edit
 	def edit
 		check_access(roles: [:admin], obj: @event)
-		if params[:season_id]
-			@season = Season.find(params[:season_id])
+		prepare_event_form(new: false)
+		if @event.rest?
+			c_ret =  @event.team_id==0 ? seasons_path(season_id: @season.id) : team_path(@event.team)
 		else
-			@season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+			c_ret =  event_path(@event)
 		end
+		@submit = SubmitComponent.new(submit: "save", close_return: c_ret)
 		@drills = @event.drill_list if @event.train?
-		@title  = helpers.event_title_fields(event: @event, form: true, cols: @event.match? ? 2 : nil)
-		@fields = helpers.match_form_fields(event: @event) if @event.match?
 	end
 
 	# POST /events or /events.json
@@ -147,7 +142,8 @@ class EventsController < ApplicationController
 	def show_task
 		check_access(roles: [:admin, :coach], returl: events_url)
 		@task   = Task.find(params[:task_id])
-		@fields = helpers.task_show_fields(task: @task, team: @event.team)
+		@fields = FieldsComponent.new(fields: helpers.task_show_fields(task: @task, team: @event.team))
+		@submit = SubmitComponent.new(close: "back", close_return: :back, submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_task_event_path(task_id: @task.id) : nil)
 	end
 
 	# GET /events/1/add_task
@@ -165,15 +161,16 @@ class EventsController < ApplicationController
 	# GET /events/1/load_chart
 	def load_chart
 		check_access(roles: [:admin, :coach])
-		@header = helpers.event_title_fields(event: @event, cols: @event.train? ? 3 : nil, chart: true)
-		@chart  = helpers.event_workload(name: params[:name])
+		header = helpers.event_title_fields(event: @event, cols: @event.train? ? 3 : nil, chart: true)
+		@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
 	end
 
 	# GET /events/1/attendance
 	def attendance
 		check_access(roles: [:admin, :coach])
-		@title  = helpers.event_attendance_title(event: @event)
-		@fields = helpers.event_attendance_form_fields(event: @event)
+		@title  = FieldsComponent.new(fields: helpers.event_attendance_title(event: @event))
+		@fields = FieldsComponent.new(fields: helpers.event_attendance_form_fields(event: @event))
+		@submit = SubmitComponent.new(submit: "save")
 	end
 
 	private
@@ -256,14 +253,28 @@ class EventsController < ApplicationController
 			@event.players.each { |t| t.delete }
 		end
 
+		# prepare new/edit event form
+		def prepare_event_form(new:)
+			if params[:season_id]
+				@season = Season.find(event_params[:season_id])
+			else
+				@season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
+			end
+			@title  = FieldsComponent.new(fields: helpers.event_title_fields(event: @event, form: true, cols: @event.match? ? 2 : nil))
+			if @event.match?
+				m_fields = new ? helpers.match_new_fields(event: @event) : helpers.match_form_fields(event: @event)
+				@fields  = FieldsComponent.new(fields: m_fields)
+			end
+		end
 		# prepare edit/add task form
 		def prepare_task_form(subtitle:, retlnk:, search_in:, task_id: nil)
 			get_task(load_drills: true) # get the right @task/@drill
-			@title       = helpers.event_task_title(event: @event, subtitle: subtitle)
-			@search      = helpers.drill_search_bar(search_in: search_in, task_id: task_id ? @task.id : nil, scratch: true)
-			@fields      = helpers.task_form_fields(search_in: search_in, retlnk: retlnk)
+			@title       = FieldsComponent.new(fields: helpers.event_task_title(event: @event, subtitle: subtitle))
+			@search      = FieldsComponent.new(fields: helpers.drill_search_bar(search_in: search_in, task_id: task_id ? @task.id : nil, scratch: true))
+			@fields      = FieldsComponent.new(fields: helpers.task_form_fields(search_in: search_in, retlnk: retlnk))
 			@description = helpers.task_form_description(drill: @drill)
-			@remarks     = helpers.task_form_remarks(task: task_id ? @task : nil)
+			@remarks     = FieldsComponent.new(fields: helpers.task_form_remarks(task: task_id ? @task : nil))
+			@submit      = SubmitComponent.new(submit: "save", close_return: :back)
 		end
 
 		# determine task/drill objects from params received

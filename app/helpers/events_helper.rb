@@ -120,6 +120,11 @@ module EventsHelper
 		res << [{kind: "gap", size:2}, {kind: "grid", value: grid, cols: 4}]
 	end
 
+	# fields for a new match form
+	def match_new_fields(event:)
+		[[{kind: "gap"}, {kind: "label", value: I18n.t("match.rival")}, {kind: "text-box", key: :name, value: I18n.t("match.default_rival")} ]]
+	end
+
 	# return FieldsComponent @fields for show_training
 	def training_show_fields(event:)
 		res = [[{kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + event.work_duration, objects: task_accordion(event:)}]]
