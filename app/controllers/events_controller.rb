@@ -58,7 +58,7 @@ class EventsController < ApplicationController
 					@season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
 				end
 				@title  = FieldComponent.new(fields: helpers.event_title_fields(event: @event, form: true, cols: @event.match? ? 2 : nil))
-				@fields = FieldComponent.new(fields: helpers.event_match_form_fields if @event.match?
+				@fields = FieldComponent.new(fields: helpers.event_match_form_fields) if @event.match?
 			else
 				redirect_to(current_user.admin? ? "/slots" : @event.team)
 			end
