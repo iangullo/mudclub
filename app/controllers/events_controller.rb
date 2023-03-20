@@ -143,7 +143,7 @@ class EventsController < ApplicationController
 		check_access(roles: [:admin, :coach], returl: events_url)
 		@task   = Task.find(params[:task_id])
 		@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
-		@submit = SubmitComponent.new(close: "back", close_return: :back, submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_task_event_path(task_id: @task.id) : nil)
+		@submit = create_submit(close: "back", close_return: :back, submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_task_event_path(task_id: @task.id) : nil)
 	end
 
 	# GET /events/1/add_task
@@ -275,7 +275,7 @@ class EventsController < ApplicationController
 			@fields      = create_fields(helpers.task_form_fields(search_in: search_in, retlnk: retlnk))
 			@description = helpers.task_form_description
 			@remarks     = create_fields(helpers.task_form_remarks)
-			@submit      = SubmitComponent.new(close_return: :back)
+			@submit      = create_submit(close_return: :back)
 		end
 
 		# determine task/drill objects from params received
