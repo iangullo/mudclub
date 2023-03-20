@@ -26,10 +26,11 @@ class SeasonsController < ApplicationController
 		check_access(roles: [:admin])
 		@season = Season.search(params[:search])
 		@events = Event.short_term.for_season(@season).non_training
-		@title  = helpers.season_title_fields(title: I18n.t("season.single"), cols: 2)
-		@title << [{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t("action.create"), frame: "modal"}]
-		@links  = helpers.season_links(season: @season)
-		@grid   = helpers.event_grid(events: @events, obj: @season, retlnk: seasons_path)
+		title   = helpers.season_title_fields(title: I18n.t("season.single"), cols: 2)
+		title << [{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t("action.create"), frame: "modal"}]
+		@fields = create_fields(title)
+		@links  = create_fields(helpers.season_links)
+		@grid   = create_fields(helpers.event_list_grid(events: @events, obj: @season, retlnk: seasons_path))
 	end
 
 	# GET /seasons/1/edit
@@ -37,14 +38,14 @@ class SeasonsController < ApplicationController
 		check_access(roles: [:admin])
 		@season = Season.new(start_date: Date.today, end_date: Date.today) unless @season
 		@eligible_locations = @season.eligible_locations
-		@fields = helpers.season_form_fields(title: I18n.t("season.edit"), season: @season)
+		prepare_form(title: I18n.t("season.edit"))
 	end
 
 	# GET /seasons/new
 	def new
 		check_access(roles: [:admin])
 		@season = Season.new(start_date: Date.today, end_date: Date.today)
-		@fields = helpers.season_form_fields(title: I18n.t("season.new"), season: @season)
+		prepare_form(title: I18n.t("season.new"))
 	end
 
 	# POST /seasons
@@ -108,7 +109,13 @@ class SeasonsController < ApplicationController
 		end
 
 		def set_season
-			 @season = Season.find(params[:id]) unless @season.try(:id)==params[:id]
+			@season = Season.find(params[:id]) unless @season.try(:id)==params[:id]
+		end
+
+		# prepare fields for new/edit season
+		def prepare_form(title:)
+			@fields = create_fields(helpers.season_form_fields(title:))
+			@submit = create_submit
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

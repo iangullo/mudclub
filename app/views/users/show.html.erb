@@ -1,6 +1,6 @@
 <div id="user-show">
-	<%= render FieldsComponent.new(fields: @title) %>
-	<%= render FieldsComponent.new(fields: @role) %>
-	<%= render GridComponent.new(grid: @grid) if @grid %>
-	<%= render SubmitComponent.new(close: nil, submit: edit_user_path(@user), frame: "modal") %>
+	<%= render @title %>
+	<%= render @role %>
+	<%= render @grid if @grid %>
+	<%= render @submit %>
 </div>

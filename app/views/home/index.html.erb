@@ -1,7 +1,7 @@
 <% if current_user.present? %>
 	<div id="home-logged-in">
-		<%= render FieldsComponent.new(fields: @title) %>
-		<%= render GridComponent.new(grid: @teams) if @teams %>
+		<%= render @fields %>
+		<%= render @grid if @grid %>
 	</div>
 <% else %>
 	<div id="home-logged-out" class="align-middle">

@@ -1,6 +1,7 @@
 <%= render ModalComponent.new do %>
-	<%= form_with model: category, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
-		<%= render FieldsComponent.new(fields: fields, form: form) %>
-		<%= render SubmitComponent.new(submit: "save") %>
+	<%= form_with model: @category, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+		<% @fields.form = form %>
+		<%= render @fields %>
+		<%= render @submit %>
 	<% end %>
 <% end %>

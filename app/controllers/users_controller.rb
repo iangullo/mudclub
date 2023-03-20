@@ -24,17 +24,19 @@ class UsersController < ApplicationController
 	def index
 		check_access(roles: [:admin])
 		@users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
-		@title = helpers.user_title_fields(I18n.t("user.many"))
-		@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
-		@grid  = helpers.user_grid(users: @users)
+		title  = helpers.user_title_fields(I18n.t("user.many"))
+		title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
+		@title = create_fields(title)
+		@grid  = create_grid(helpers.user_grid)
 	end
 
 	def show
 		check_access(roles: [:admin], obj: @user)
-		@user  = User.find(params[:id])
-		@title = helpers.user_show_fields(user: @user)
-		@role  = helpers.user_role(user: @user)
-		@grid  = helpers.team_grid(teams: @user.teams.order(:season_id))
+		@user   = User.find(params[:id])
+		@title  = create_fields(helpers.user_show_fields)
+		@role   = create_fields(helpers.user_role)
+		@grid   = create_grid(helpers.team_grid(teams: @user.teams.order(:season_id)))
+		@submit = create_submit(close: "back", close_return: :back, submit: edit_user_path(@user), frame: "modal")
 	end
 
 	def new
@@ -107,11 +109,12 @@ class UsersController < ApplicationController
 	private
 		# Prepare user form
 		def prepare_form(title)
-			@title         = helpers.user_form_title(title:, user: @user)
-			@role          = helpers.user_form_role(user: @user)
-			@avatar        = helpers.user_form_avatar(user: @user)
-			@person_fields = helpers.user_form_person(user: @user)
-			@pass_fields   = helpers.user_form_pass(user: @user)
+			@title    = create_fields(helpers.user_form_title(title:))
+			@role     = create_fields(helpers.user_form_role)
+			@avatar   = create_fields(helpers.user_form_avatar)
+			@p_fields = create_fields(helpers.user_form_person)
+			@k_fields = create_fields(helpers.user_form_pass)
+			@submit   = create_submit
 		end
 
 		# De-couple from associated person

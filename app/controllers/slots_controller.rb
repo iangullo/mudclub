@@ -26,16 +26,18 @@ class SlotsController < ApplicationController
 		check_access(roles: [:user])
 		@season   = Season.search(params[:season_id])
 		@location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
-		@title    = helpers.slot_title_fields(title: I18n.t("slot.many"), season: @season)
-		@title << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
+		title     = helpers.slot_title_fields(title: I18n.t("slot.many"))
+		title << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
+		@fields   = create_fields(title)
 		week_view if @season and @location
+		@submit   = create_submit(close: "back", submit: nil, close_return: seasons_path(season_id: @season.id))
 	end
 
 	# GET /slots/1 or /slots/1.json
 	def show
 		check_access(roles: [:user])
-		@season = Season.find(params[:season_id]) if params[:season_id]
-		@title  = helpers.slot_title_fields(title: I18n.t("slot.many"), season: @season)
+		@title  = create_fields(helpers.slot_title_fields(title: I18n.t("slot.many")))
+		@submit = create_submit(submit: current_user.admin? ? edit_slot_path(@slot) : nil, frame: current_user.admin? ? "modal" : nil)
 	end
 
 	# GET /slots/new
@@ -43,14 +45,14 @@ class SlotsController < ApplicationController
 		check_access(roles: [:admin], returl: slots_url)
 		@season   = Season.find(params[:season_id]) if params[:season_id]
 		@slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: params[:location_id] ? params[:location_id] : 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
-		@fields   = helpers.slot_form_fields(title: I18n.t("slot.new"), slot: @slot, season: @season)
+		prepare_form(title: I18n.t("slot.new"))
 	end
 
 	# GET /slots/1/edit
 	def edit
 		check_access(roles: [:admin], returl: slots_url)
-		@season   = Season.find(@slot.season_id)
-		@fields   = helpers.slot_form_fields(title: I18n.t("slot.edit"), slot: @slot, season: @season)
+		@season = Season.find(@slot.season_id)
+		prepare_form(title: I18n.t("slot.edit"))
 	end
 
 	# POST /slots or /slots.json
@@ -58,8 +60,9 @@ class SlotsController < ApplicationController
 		check_access(roles: [:admin], returl: slots_url)
 		respond_to do |format|
 			@slot.rebuild(slot_params) # rebuild @slot
+			@season = Season.find(@slot.season_id)
 			if @slot.save # try to store
-				format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message("#{I18n.t("slot.created")} '#{@sot.to_s}'","success"), data: {turbo_action: "replace"} }
+				format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message("#{I18n.t("slot.created")} '#{@slot.to_s}'","success"), data: {turbo_action: "replace"} }
 				format.json { render :index, status: :created, location: @slot }
 			else
 				format.html { render :new, status: :unprocessable_entity }
@@ -73,6 +76,7 @@ class SlotsController < ApplicationController
 		check_access(roles: [:admin], returl: slots_url)
 		respond_to do |format|
 			@slot.rebuild(slot_params) # rebuild @slot
+			@season = Season.find(@slot.season_id)
 			if @slot.save
 				format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message("#{I18n.t("slot.updated")} '#{@slot.to_s}'","success"), data: {turbo_action: "replace"} }
 				format.json { render :index, status: :ok, location: @slot }
@@ -109,7 +113,6 @@ class SlotsController < ApplicationController
 					gap     = nil
 					s_slots = Slot.at_time(slice[:time], d_slots) # slots working on this slice
 					unless s_slots.empty?
-						puts s_slots.count
 						s_slots.each { |t_slot| # slots working on this slice
 							t_cols = t_slot.timecols(@d_cols[i][:cols], w_slots: d_slots)
 							t_rows = t_slot.timerows(i, slice[:time])
@@ -123,7 +126,6 @@ class SlotsController < ApplicationController
 					else
 						gap = {rows: 1, cols: @d_cols[i][:cols]}
 					end
-					#gap[:wday] = @d_cols[i][:name] if gap
 					slice[:chunks] << gap if gap  # insert gap if required
 				}
 			}
@@ -177,11 +179,15 @@ class SlotsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_slot
-			@season = Season.find(params[:slot][:season_id]) if params[:slot].try(:season_id)
-			@slot   = Slot.find(params[:id]) unless @slot.try(:id)==params[:id]
-			@slot   = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
+			@slot = Slot.find(params[:id]) unless @slot.try(:id)==params[:id]
+			@slot = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
 		end
 
+		# prepare fields to renfeer edit/new slot form
+		def prepare_form(title:)
+			@fields = create_fields(helpers.slot_form_fields(title:))
+			@submit = create_submit
+		end
 		# Only allow a list of trusted parameters through.
 		def slot_params
 			params.require(:slot).permit(:season_id, :location_id, :team_id, :wday, :start, :duration, :hour, :min)

@@ -25,30 +25,32 @@ class LocationsController < ApplicationController
 	def index
 		check_access(roles: [:admin, :coach])
 		@season = Season.find(params[:season_id]) if params[:season_id]
-		@title  = helpers.location_title_fields(title: I18n.t("location.many"))
-		@title << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", key: :search, value: params[:search], url: locations_path}]
-		@grid = helpers.location_grid(locations: @locations, season: @season)
+		title  = helpers.location_title_fields(title: I18n.t("location.many"))
+		title << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", key: :search, value: params[:search], url: locations_path}]
+		@fields = create_fields(title)
+		@grid   = create_grid(helpers.location_grid)
 	end
 
 	# GET /locations/1
 	# GET /locations/1.json
 	def show
 		check_access(roles: [:user])
-		@fields = helpers.location_show_fields(location: @location)
+		@fields = create_fields(helpers.location_show_fields)
+		@submit = create_submit(submit: (current_user.admin? or current_user.is_coach?) ? edit_location_path(@location) : nil)
 	end
 
 	# GET /locations/1/edit
 	def edit
 		check_access(roles: [:admin, :coach])
 		@location = Location.new(name: I18n.t("location.default")) unless @location
-		@fields   = helpers.location_form_fields(title: I18n.t("location.edit"), location: @location, season: @season)
+		prepare_form(title: I18n.t("location.edit"))
 	end
 
 	# GET /locations/new
 	def new
 		check_access(roles: [:admin, :coach])
 		@location = Location.new(name: t("location.default")) unless @location
-		@fields   = helpers.location_form_fields(title: I18n.t("location.new"), location: @location, season: @season)
+		prepare_form(title: I18n.t("location.new"))
 	end
 
 	# POST /locations
@@ -136,6 +138,12 @@ private
 		if params[:id]
 			@location = Location.find(params[:id]) unless @location.try(:id)==params[:id]
 		end
+	end
+
+	# prepare ViewComponents for a Location edit/new form
+	def prepare_form(title:)
+		@fields = create_fields(helpers.location_form_fields(title:))
+		@submit = create_submit
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.

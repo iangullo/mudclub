@@ -1,7 +1,7 @@
 <div id="coaches-index">
-	<%= render FieldsComponent.new(fields: @title) %>
+	<%= render @fields %>
 	<%= turbo_frame_tag "search-results" do %>
-		<%= render GridComponent.new(grid: @grid) %>
+		<%= render @grid %>
 	<% end %>
 	<% if current_user.admin? %>
 		<br>

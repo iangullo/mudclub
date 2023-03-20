@@ -26,9 +26,10 @@ class PlayersController < ApplicationController
 	def index
 		check_access(roles: [:admin, :coach])
 		@players = get_players
-		@title   = helpers.player_title_fields(title: I18n.t("player.many"))
-		@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
-		@grid    = helpers.player_grid(players: @players)
+		title    = helpers.player_title_fields(title: I18n.t("player.many"))
+		title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
+		@fields  = create_fields(title)
+		@grid    = create_grid(helpers.player_grid(players: @players))
 		respond_to do |format|
 			format.xlsx {
 				response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
@@ -41,7 +42,8 @@ class PlayersController < ApplicationController
 	# GET /players/1.json
 	def show
 		check_access(roles: [:admin, :coach], obj: @player)
-		@fields = helpers.player_show_fields(player: @player, team: params[:team_id] ? Team.find(params[:team_id]) : nil)
+		@fields = create_fields(helpers.player_show_fields(team: params[:team_id] ? Team.find(params[:team_id]) : nil))
+		@submit = create_submit(submit: (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id) ? edit_player_path(@player, retlnk: params[:retlnk]) : nil, frame: "modal")
 	end
 
 	# GET /players/new
@@ -124,10 +126,11 @@ class PlayersController < ApplicationController
 	private
 		# Prepare a player form
 		def prepare_form(title:)
-			@title_fields    = helpers.player_form_title(title:, player: @player)
-			@player_fields_1 = helpers.player_form_fields_1(player: @player, retlnk: params[:retlnk])
-			@player_fields_2 = helpers.player_form_fields_2(avatar: @player.avatar)
-			@person_fields   = helpers.player_form_person(person: @player.person)
+			@title      = create_fields(helpers.player_form_title(title:))
+			@j_fields_1 = create_fields(helpers.player_form_fields_1(retlnk: params[:retlnk]))
+			@j_fields_2 = create_fields(helpers.player_form_fields_2(avatar: @player.avatar))
+			@p_fields   = create_fields(helpers.player_form_person(person: @player.person))
+			@submit     = create_submit
 		end
 
 		# De-couple from associated person

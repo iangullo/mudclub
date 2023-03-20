@@ -23,7 +23,7 @@ module UsersHelper
 	end
 
 	# return grid for @users GridComponent
-	def user_grid(users:)
+	def user_grid
 		title = [
 			{kind: "normal", value: I18n.t("person.name")},
 			{kind: "normal", value: I18n.t("role.player_a"), align: "center"},
@@ -33,7 +33,7 @@ module UsersHelper
 		title << {kind: "add", url: new_user_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
 
 		rows = Array.new
-		users.each { |user|
+		@users.each { |user|
 			row = {url: user_path(user), items: []}
 			row[:items] << {kind: "normal", value: user.s_name}
 			row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
@@ -46,57 +46,57 @@ module UsersHelper
 	end
 
 	# fields to show when looking a user profile
-	def user_show_fields(user:)
-		res = user_title_fields(user.person.s_name, icon: user.picture, _class: "rounded-full")
-		res << [{kind: "label", value: user.person.surname}]
-		res << [{kind: "gap", size: 1}, {kind: "contact", email: user.person.email, phone: user.person.phone, device: device}]
+	def user_show_fields
+		res = user_title_fields(@user.person.s_name, icon: @user.picture, _class: "rounded-full")
+		res << [{kind: "label", value: @user.person.surname}]
+		res << [{kind: "gap", size: 1}, {kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device}]
 		res
 	end
 
 	# Fieldcomponents to display user roles
-	def user_role(user:)
+	def user_role
 		res = [[{kind: "label", value: I18n.t("user.profile")}]]
-		res.last << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if user.admin?
-		res.last << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if user.is_coach?
-		res.last << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if user.is_player?
+		res.last << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
+		res.last << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
+		res.last << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
 		res
 	end
 
 	# return FieldComponents for form title
-	def user_form_title(title:, user:)
-		res = user_title_fields(title, icon: user.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
-		res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: user.person.name}]
-		res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: user.person.surname}]
-		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: user.person.birthday}]
+	def user_form_title(title:)
+		res = user_title_fields(title, icon: @user.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
+		res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @user.person.name}]
+		res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @user.person.surname}]
+		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}]
 		res
 	end
 
 	# return FieldComponents for form user role
-	def user_form_role(user:)
-		res = [[{kind: "label", value: "#{I18n.t("locale.lang")}:"}, {kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: user.locale}]]
+	def user_form_role
+		res = [[{kind: "label", value: "#{I18n.t("locale.lang")}:"}, {kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: @user.locale}]]
 		if current_user.admin?
-			res << [{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: user.role}]
+			res << [{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]
 		else
-			res << [{kind: "label", align: "center", value: I18n.t(user.role)}]
+			res << [{kind: "label", align: "center", value: I18n.t(@user.role)}]
 		end
 		res
 	end
 
 	# return FieldComponents for form user avatar
-	def user_form_avatar(user:)
-		[[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: user.avatar.filename}]]
+	def user_form_avatar
+		[[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
 	end
 
 	# return FieldComponents for form user personal data
-	def user_form_person(user:)
+	def user_form_person
 		[
-			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: user.person.email}],
-			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: user.person.phone}]
+			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
+			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
 		]
 	end
 
 	# return FieldComponents for form user personal data
-	def user_form_pass(user:)
+	def user_form_pass
 		[
 			[{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t("password.single")}],
 			[{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t("password.confirm")}],

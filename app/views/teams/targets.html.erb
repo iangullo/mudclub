@@ -1,5 +1,5 @@
 <div id="show-targets-data">
-	<%= render FieldsComponent.new(fields: @title) %>
+	<%= render @title %>
 	<table>
 		<tr>
 			<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t("target.focus.def") %></th>
@@ -37,5 +37,5 @@
 			</td>
 		</tr>
 	</table>
-	<%= render SubmitComponent.new(close: "back", close_return: team_path(@team), submit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil) %>
+	<%= render @submit %>
 </div>

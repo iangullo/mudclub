@@ -23,35 +23,36 @@ module CoachesHelper
 	end
 
 	# FieldComponents to show a @coach
-	def coach_show_fields(coach:)
-		res = coach_title(title: I18n.t("coach.single"), icon: coach.picture, rows: 4, size: "100x100", _class: "rounded-full")
-		res << [{kind: "label", value: coach.s_name}]
-		res << [{kind: "label", value: coach.person.surname}]
-		res << [{kind: "string", value: coach.person.birthday}]
-		res << [{kind: "icon-label", icon: (coach.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"}, {kind: "string", value: coach.person.dni.to_s}]
-		res << [{kind: "gap", size: 1}, {kind: "contact", email: coach.person.email, phone: coach.person.phone, device: device}]
+	def coach_show_fields
+		res = coach_title(title: I18n.t("coach.single"), icon:  @coach.picture, rows: 4, size: "100x100", _class: "rounded-full")
+		res << [{kind: "label", value:  @coach.s_name}]
+		res << [{kind: "label", value:  @coach.person.surname}]
+		res << [{kind: "string", value:  @coach.person.birthday}]
+		res << [{kind: "icon-label", icon: ( @coach.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"}, {kind: "string", value:  @coach.person.dni.to_s}]
+		res << [{kind: "gap", size: 1}, {kind: "contact", email:  @coach.person.email, phone:  @coach.person.phone, device: device}]
 		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
 	end
 
 	# return FieldsComponent @fields for forms
-	def coach_form_title(title:, coach:, rows: 3, cols: 2)
-		res = coach_title(title:, icon: coach.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
+	def coach_form_title(title:, rows: 3, cols: 2)
+		res = coach_title(title:, icon:  @coach.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
 		f_cols = cols>2 ? cols - 1 : nil
-		res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: coach.person.name, cols: f_cols}]
-		res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: coach.person.surname, cols: f_cols}]
-		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: coach.person.birthday, cols: f_cols}]
+		res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value:  @coach.person.name, cols: f_cols}]
+		res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value:  @coach.person.surname, cols: f_cols}]
+		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value:  @coach.person.birthday, cols: f_cols}]
 	end
 
 	# return FieldsComponent @fields for forms
-	def coach_form_fields(coach:)
+	def coach_form_fields
 		[
-			[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: coach.active, cols: 4}],
-			[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: coach.avatar.filename, cols: 3}]
+			[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value:  @coach.active, cols: 4}],
+			[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value:  @coach.avatar.filename, cols: 3}]
 		]
 	end
 
 	# return FieldsComponent @fields for forms
-	def coach_person_fields(person:)
+	def coach_person_fields
+		person = @coach.person
 		[
 			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: person.email}],
 			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: person.phone}]
@@ -59,7 +60,7 @@ module CoachesHelper
 	end
 
 	# return grid for @coaches GridComponent
-	def coach_grid(coaches:)
+	def coach_grid
 		title = [
 			{kind: "normal", value: I18n.t("person.name")},
 			{kind: "normal", value: I18n.t("person.age")},
@@ -68,12 +69,12 @@ module CoachesHelper
 		title << {kind: "add", url: new_coach_path, frame: "modal"} if current_user.admin?
 
 		rows = Array.new
-		coaches.each { |coach|
+		@coaches.each { |coach|
 			row = {url: coach_path(coach), frame: "modal", items: []}
-			row[:items] << {kind: "normal", value: coach.to_s}
-			row[:items] << {kind: "normal", value: coach.person.age, align: "center"}
-			row[:items] << {kind: "icon", value: coach.active? ? "Yes.svg" : "No.svg", align: "center"}
-			row[:items] << {kind: "delete", url: row[:url], name: coach.to_s} if current_user.admin?
+			row[:items] << {kind: "normal", value:  coach.to_s}
+			row[:items] << {kind: "normal", value:  coach.person.age, align: "center"}
+			row[:items] << {kind: "icon", value:  coach.active? ? "Yes.svg" : "No.svg", align: "center"}
+			row[:items] << {kind: "delete", url: row[:url], name:  coach.to_s} if current_user.admin?
 			rows << row
 		}
 		{title: title, rows: rows}

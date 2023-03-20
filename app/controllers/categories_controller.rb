@@ -23,27 +23,28 @@ class CategoriesController < ApplicationController
 	def index
 		check_access(roles: [:admin])
 		@categories = Category.real
-		@fields     = helpers.category_title_fields(title: I18n.t("category.many"))
-		@grid       = helpers.category_grid(categories: @categories)
+		@fields     = create_fields(helpers.category_title_fields(title: I18n.t("category.many")))
+		@grid       = create_grid(helpers.category_grid)
 	end
 
 	# GET /categories/1 or /categories/1.json
 	def show
 		check_access(roles: [:admin])
-		@fields = helpers.category_show_fields(category: @category)
+		@fields = create_fields(helpers.category_show_fields)
+		@submit = create_submit(submit: current_user.admin? ? edit_category_path(@category) : nil)
 	end
 
 	# GET /categories/new
 	def new
 		check_access(roles: [:admin])
 		@category = Category.new
-		@fields  = helpers.category_form_fields(title: I18n.t("category.new"), category: @category)
+		prepare_form(title: I18n.t("category.new"))
 	end
 
 	# GET /categories/1/edit
 	def edit
 		check_access(roles: [:admin])
-		@fields  = helpers.category_form_fields(title: I18n.t("category.edit"), category: @category)
+		prepare_form(title: I18n.t("category.edit"))
 	end
 
 	# POST /categories or /categories.json
@@ -99,6 +100,12 @@ class CategoriesController < ApplicationController
 		# Use callbacks to share common setup or constraints between actions.
 		def set_category
 			@category = Category.find(params[:id])
+		end
+
+		# prepare a form to edit/create a Category
+		def prepare_form(title:)
+			@fields = create_fields(helpers.category_form_fields(title:))
+			@submit = create_submit
 		end
 
 		# Only allow a list of trusted parameters through.

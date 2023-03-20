@@ -1,5 +1,5 @@
 <div id="slots-index">
-	<%= render FieldsComponent.new(fields: @title) %>
+	<%= render @fields %>
 	<div id="slots-grid">
 		<table class="table-auto border-separate">
 			<thead>
@@ -38,4 +38,5 @@
 			</tbody>
 		</table>
 	</div>
+	<%= render @submit %>
 </div>

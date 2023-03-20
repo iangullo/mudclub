@@ -1,11 +1,15 @@
 <%= render ModalComponent.new do %>
 	<%= form_for @player, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+		<% @j_fields_1.form = form %>
+		<% @j_fields_2.form = form %>
 		<%= form.fields_for :person do |f| %>
-			<%= render FieldsComponent.new(fields: @title_fields, form: f) %>
-			<%= render FieldsComponent.new(fields: @player_fields_1, form: form) %>
-			<%= render FieldsComponent.new(fields: @player_fields_2, form: form) %>
-			<%= render FieldsComponent.new(fields: @person_fields, form: f) %>
+			<% @title.form    = f %>
+			<% @p_fields.form = f %>
+			<%= render @title %>
+			<%= render @j_fields_1 %>
+			<%= render @j_fields_2 %>
+			<%= render @p_fields %>
 		<% end %>
-		<%= render SubmitComponent.new(submit: "save") %>
+		<%= render @submit %>
 	<% end %>
 <% end %>

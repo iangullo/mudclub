@@ -1,5 +1,5 @@
 <div id="team-plan">
-	<%= render FieldsComponent.new(fields: @title) %>
+	<%= render @title %>
 	<div id="accordion-collapse" data-accordion="collapse">
 		<% @targets.each do |tgt| %>
 			<h2 id="<%="#{tgt[:month]}-targets-head"%>">

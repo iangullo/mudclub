@@ -8,7 +8,13 @@
 				<%= render @fields %>
 			<% end %>
 			<turbo-frame id="<%=f.field_id(:drill_id, :turbo_frame)%>" class="contents">
-				<%= render "drill_description" %>
+				<div id="drill_description">
+					<% if @drill %>
+					<%= @drill.explanation.empty? ? @drill.description : @drill.explanation %>
+					<% else %>
+					<%= t("drill.none") %>
+					<% end %>
+				</div>
 			</turbo-frame>
 			<% @remarks.form = f %>
 			<%= render @remarks if @drill %>

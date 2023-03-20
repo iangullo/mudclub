@@ -26,9 +26,10 @@ class CoachesController < ApplicationController
 	def index
 		check_access(roles: [:admin, :coach])
 		@coaches = get_coaches
-		@title  = helpers.coach_title(title: I18n.t("coach.many"))
-		@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
-		@grid    = helpers.coach_grid(coaches: @coaches)
+		title    = helpers.coach_title(title: I18n.t("coach.many"))
+		title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
+		@fields = create_fields(title)
+		@grid   = create_grid(helpers.coach_grid)
 		respond_to do |format|
 			format.xlsx {
 				response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
@@ -41,8 +42,9 @@ class CoachesController < ApplicationController
 	# GET /coaches/1.json
 	def show
 		check_access(roles: [:admin, :coach])
-		@fields = helpers.coach_show_fields(coach: @coach)
-		@grid   = helpers.team_grid(teams: @coach.teams.order(:season_id))
+		@fields = create_fields(helpers.coach_show_fields)
+		@grid   = create_grid(helpers.team_grid(teams: @coach.teams.order(:season_id)))
+		@submit = create_submit(submit: (current_user.admin? or current_user.person.coach_id==@coach.id) ? edit_coach_path(@coach) : nil, frame: "modal")
 	end
 
 	# GET /coaches/new
@@ -149,7 +151,7 @@ class CoachesController < ApplicationController
 		# get coach list depending on the search parameter & user role
 		def get_coaches
 			if (params[:search] != nil) and (params[:search].length > 0)
-				@players = Coach.search(params[:search])
+				@coaches = Coach.search(params[:search])
 			else
 				if current_user.admin? or current_user.is_coach?
 					Coach.active
@@ -161,9 +163,10 @@ class CoachesController < ApplicationController
 
 		# prepare form FieldComponents
 		def prepare_form(title:)
-			@title_fields = helpers.coach_form_title(title:, coach: @coach, rows: 4, cols: 3)
-			@coach_fields = helpers.coach_form_fields(coach: @coach)
-			@person_fields = helpers.coach_person_fields(person: @coach.person)
+			@title    = create_fields(helpers.coach_form_title(title:, rows: 4, cols: 3))
+			@c_fields = create_fields(helpers.coach_form_fields)
+			@p_fields = create_fields(helpers.coach_person_fields)
+			@submit   = create_submit
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

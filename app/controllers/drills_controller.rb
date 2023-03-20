@@ -25,20 +25,21 @@ class DrillsController < ApplicationController
 	def index
 		check_access(roles: [:admin, :coach])
 		# Simple search by name/description for now
-		@title  = helpers.drill_title_fields(title: I18n.t("drill.many"))
+		@title  = create_fields(helpers.drill_title_fields(title: I18n.t("drill.many")))
 		#@title << [{kind: "subtitle", value: I18n.t("catalog")}]
-		@search = helpers.drill_search_bar(search_in: drills_path)
+		@search = create_fields(helpers.drill_search_bar(search_in: drills_path))
 		@drills = filter!(Drill)
-		@grid   = helpers.drill_grid(drills: @drills)
+		@grid   = create_grid(helpers.drill_grid(drills: @drills))
 	end
 
 	# GET /drills/1 or /drills/1.json
 	def show
 		check_access(roles: [:admin, :coach])
-		@title   = helpers.drill_show_title(title: I18n.t("drill.single"))
-		@intro   = helpers.drill_show_intro
-		@explain = helpers.drill_show_explain
-		@tail    = helpers.drill_show_tail
+		@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
+		@intro   = create_fields(helpers.drill_show_intro)
+		@explain = create_fields(helpers.drill_show_explain)
+		@tail    = create_fields(helpers.drill_show_tail)
+		@submit  = create_submit(close: "back", close_return: drills_path, submit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil)
 	end
 
 	# GET /drills/new
@@ -100,11 +101,12 @@ class DrillsController < ApplicationController
 	private
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(title:)
-			@title    = helpers.drill_form_title(title:)
-			@playbook = helpers.drill_form_playbook(playbook: @drill.playbook)
-			@formdata = helpers.drill_form_data
-			@explain  = helpers.drill_form_explain
-			@formtail = helpers.drill_form_tail
+			@title    = create_fields(helpers.drill_form_title(title:))
+			@playbook = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
+			@formdata = create_fields(helpers.drill_form_data)
+			@explain  = create_fields(helpers.drill_form_explain)
+			@formtail = create_fields(helpers.drill_form_tail)
+			@submit   = create_submit(close_return: :back)
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

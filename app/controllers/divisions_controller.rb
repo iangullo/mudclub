@@ -23,28 +23,30 @@ class DivisionsController < ApplicationController
 	def index
 		check_access(roles: [:admin])
 		@divisions = Division.real
-		@fields    = helpers.division_title_fields(title: I18n.t("division.many"))
-		@grid      = helpers.division_grid(divisions: @divisions)
+		@fields    = create_fields(helpers.division_title_fields(title: I18n.t("division.many")))
+		@grid      = create_grid(helpers.division_grid)
 	end
 
 	# GET /divisions/1 or /divisions/1.json
 	def show
 		check_access(roles: [:admin])
-		@fields = helpers.division_title_fields(title: I18n.t("division.single"))
-		@fields << [{kind: "subtitle", value: @division.name}]
+		fields  = helpers.division_title_fields(title: I18n.t("division.single"))
+		fields << [{kind: "subtitle", value: @division.name}]
+		@fields = create_fields(fields)
+		@submit = create_submit(submit: current_user.admin? ? edit_division_path(@division) : nil)
 	end
 
 	# GET /divisions/new
 	def new
 		check_access(roles: [:admin])
 		@division = Division.new
-		@fields   = helpers.division_form_fields(title: I18n.t("division.new"), division: @division)
+		prepare_form(title: I18n.t("division.new"))
 	end
 
 	# GET /divisions/1/edit
 	def edit
 		check_access(roles: [:admin])
-		@fields   = helpers.division_form_fields(title: I18n.t("division.edit"), division: @division)
+		prepare_form(title: I18n.t("division.edit"))
 	end
 
 	# POST /divisions or /divisions.json
@@ -100,6 +102,12 @@ class DivisionsController < ApplicationController
 		# Use callbacks to share common setup or constraints between actions.
 		def set_division
 			@division = Division.find(params[:id])
+		end
+
+		# prepare elements to edit/create a new division
+		def prepare_form(title:)
+			@fields = create_fields(helpers.division_form_fields(title:))
+			@submit = create_submit
 		end
 
 		# Only allow a list of trusted parameters through.

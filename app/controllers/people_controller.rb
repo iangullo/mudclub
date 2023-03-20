@@ -26,9 +26,10 @@ class PeopleController < ApplicationController
 	def index
 		check_access(roles: [:admin])
 		@people = get_people
-		@title  = helpers.person_title_fields(title: I18n.t("person.many"))
-		@title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('people_filters','search'), url: people_path}]
-		@grid   = helpers.person_grid(people: @people)
+		title   = helpers.person_title_fields(title: I18n.t("person.many"))
+		title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('people_filters','search'), url: people_path}]
+		@fields = create_fields(title)
+		@grid   = create_grid(helpers.person_grid)
 		respond_to do |format|
 			format.xlsx {
 				response.headers['Content-Disposition'] = "attachment; filename=people.xlsx"
@@ -41,7 +42,8 @@ class PeopleController < ApplicationController
 	# GET /people/1.json
 	def show
 		check_access(roles: [:admin], obj: @person)
-		@fields = helpers.person_show_fields(person: @person)
+		@fields = create_fields(helpers.person_show_fields)
+		@submit = create_submit(submit: (current_user.admin? or current_user.person_id==@person.id) ? edit_person_path(@person) : nil, frame: "modal")
 	end
 
 	# GET /people/new
@@ -120,9 +122,10 @@ class PeopleController < ApplicationController
 	private
 		# prepare form FieldComponents
 		def prepare_form(title:)
-			@title_fields  = helpers.person_form_title(title:, person: @person)
-			@picture_field = helpers.form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @person.picture, cols: 2)
-			@person_fields = helpers.person_form_fields(person: @person)
+			@title   = create_fields(helpers.person_form_title(title:))
+			@picture = create_fields(helpers.form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @person.picture, cols: 2))
+			@fields  = create_fields(helpers.person_form_fields)
+			@submit  = create_submit
 		end
 
 		# Delete associated players/coaches

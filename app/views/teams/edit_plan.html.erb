@@ -1,5 +1,5 @@
 <div id="edit-plan">
-	<%= render FieldsComponent.new(fields: @title) %>
+	<%= render @title %>
 	<%= form_with model: @team, data: {turbo_frame: "_top"} do |form| %>
 		<div id="accordion-collapse" data-accordion="open">
 			<% @targets.each do |tgt| %>
@@ -47,6 +47,6 @@
 			<% end %>
 		</div>
 		<%= form.hidden_field :retlnk, value: plan_team_path(@team) %>
-		<%= render SubmitComponent.new(close: "cancel", close_return: :back, submit: "save") %>
+		<%= render @submit %>
 	<% end %>
 </div>

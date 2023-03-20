@@ -55,4 +55,19 @@ class ApplicationController < ActionController::Base
 		end
 		redirect_to returl, data: {turbo_action: "replace"} unless res
 	end
+
+	# return FieldsComponent object from a fields array
+	def create_fields(fields)
+		FieldsComponent.new(fields:)
+	end
+
+	# return GridComponent object from a grid hash
+	def create_grid(grid)
+		grid ? GridComponent.new(grid:) : nil
+	end
+
+	# Create a submit component
+	def create_submit(close: "close", submit: "save", close_return: nil, frame: nil)
+		SubmitComponent.new(close:, submit:, close_return:, frame:)
+	end
 end

@@ -1,5 +1,5 @@
 <div id="team-show">
-	<%= render FieldsComponent.new(fields: @title) %>
+	<%= render @title %>
 	<br>
 	<div id="team-coaches">
 		<table>
@@ -15,6 +15,6 @@
 		</table>
 	</div>
 	<br>
-	<%= render FieldsComponent.new(fields: @links) %>
-	<%= render FieldsComponent.new(fields: @grid) %>
+	<%= render @links %>
+	<%= render @grid %>
 </div>

@@ -25,33 +25,36 @@ class TeamsController < ApplicationController
 	# GET /teams.json
 	def index
 		check_access(roles: [:admin, :coach])
-		@title = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
-		@grid  = helpers.team_grid(teams: @teams, season: not(@season), add_teams: current_user.admin?)
+		@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: true))
+		@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: current_user.admin?))
 	end
 
 	# GET /teams/new
 	def new
 		check_access(roles: [:admin], returl: teams_path)
-	 	@team = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
 		@eligible_coaches = Coach.active
-		@form_fields      = helpers.team_form_fields(title: I18n.t("team.new"), team: @team, eligible_coaches: @eligible_coaches)
+	 	@team   = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
+		@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
+		@submit = create_submit
 	end
 
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
 		check_access(roles: [:admin, :coach], obj: @team, returl: @team)
-		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
-		@links = helpers.team_links(team: @team)
-		@grid  = helpers.event_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team))
+		@title = create_fields(helpers.team_title_fields(title: @team.to_s))
+		@links = create_fields(helpers.team_links)
+		@grid  = create_fields(helpers.event_list_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team)))
 	end
 
 	# GET /teams/1/roster
 	def roster
 		check_access(roles: [:admin, :coach], returl: @team)
-		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
-		@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
-		@grid  = helpers.player_grid(players: @team.players.active.order(:number), obj: @team)
+		title  = helpers.team_title_fields(title: @team.to_s)
+		title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
+		@title = create_fields(title)
+		@grid   = create_grid(helpers.player_grid(players: @team.players.active.order(:number), obj: @team))
+		@submit = create_submit(submit:(current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil, frame: "modal")
 	end
 
 	# GET /teams/1/edit_roster
@@ -59,8 +62,10 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin], obj: @team, returl: @team)
 		if current_user.present?
 			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
-				@title = helpers.team_title_fields(title: @team.to_s, team: @team)
-				@title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
+				title = helpers.team_title_fields(title: @team.to_s)
+				title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
+				@title  = create_fields(title)
+				@submit = create_submit
 				@eligible_players = @team.eligible_players
 			else
 				redirect_to @team, data: {turbo_action: "replace"}
@@ -73,8 +78,9 @@ class TeamsController < ApplicationController
 	# GET /teams/1/slots
 	def slots
 		check_access(roles: [:admin, :coach], returl: @team)
-		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
-		@title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
+		title   = helpers.team_title_fields(title: @team.to_s)
+		title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
+		@fields = create_fields(title)
 	end
 
 	# GET /teams/1/targets
@@ -82,8 +88,10 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin, :coach], returl: @team)
 		redirect_to "/" unless @team
 		global_targets(true)	# get & breakdown global targets
-		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
-		@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
+		title = helpers.team_title_fields(title: @team.to_s)
+		title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
+		@title  = create_fields(title)
+		@submit = create_submit(close: "back", close_return: team_path(@team), submit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil)
 	end
 
 	# GET /teams/1/edit_targets
@@ -91,8 +99,10 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin], obj: @team, returl: @team)
 		redirect_to("/", data: {turbo_action: "replace"}) unless @team
 		global_targets(false)	# get global targets
-		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
-		@title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
+		title   = helpers.team_title_fields(title: @team.to_s)
+		title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
+		@title  = create_fields(title)
+		@submit = create_submit(close: "cancel", close_return: :back)
 	end
 
 	# GET /teams/1/edit_targets
@@ -100,9 +110,10 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin, :coach], returl: @team)
 		redirect_to "/" unless @team
 		plan_targets
-		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
-		@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
-		@edit = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
+		title = helpers.team_title_fields(title: @team.to_s)
+		title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
+		@title = create_fields(title)
+		@edit  = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
 	end
 
 	# GET /teams/1/edit_plan
@@ -110,24 +121,30 @@ class TeamsController < ApplicationController
 		check_access(roles: [:admin], obj: @team, returl: @team)
 		redirect_to("/", data: {turbo_action: "replace"}) unless @team
 		plan_targets
-		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
-		@title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
+		title   = helpers.team_title_fields(title: @team.to_s)
+		title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
+		@title  = create_fields(title)
+		@submit = create_submit(close: "cancel", close_return: :back)
 	end
 
 	# GET /teams/1/attendance
 	def attendance
 		check_access(roles: [:admin, :coach], returl: @team)
-		@title = helpers.team_title_fields(title: @team.to_s, team: @team)
-		@title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
-		@grid  = helpers.team_attendance_grid(team: @team)
-		@att_data = [@grid[:chart]]
+		title     = helpers.team_title_fields(title: @team.to_s)
+		title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
+		@title    = create_fields(title)
+		a_data    = helpers.team_attendance_grid
+		@grid     = create_grid({title: a_data[:title], rows: a_data[:rows]})
+		@submit   = create_submit(submit:nil)
+		@att_data = [a_data[:chart]]
 	end
 
 	# GET /teams/1/edit
 	def edit
 		check_access(roles: [:admin], obj: @team, returl: @team)
 		@eligible_coaches = Coach.active
-		@form_fields      = helpers.team_form_fields(title: I18n.t("team.edit"), team: @team, eligible_coaches: @eligible_coaches)
+		@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
+		@submit = create_submit
 	end
 
 	# POST /teams

@@ -1,8 +1,13 @@
-<%= form_with model: drill, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
-  <%= render FieldsComponent.new(fields: @title, form: form) %>
-  <%= render FieldsComponent.new(fields: @playbook, form: form) %>
-  <%= render FieldsComponent.new(fields: @formdata, form: form) %>
-  <%= render FieldsComponent.new(fields: @explain, form: form) %>
-  <%= render FieldsComponent.new(fields: @formtail, form: form) %>
-  <%= render SubmitComponent.new(close: "cancel", close_return: :back, submit: "save") %>
+<%= form_with model: @drill, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+  <% @title.form    = form %>
+  <% @playbook.form = form %>
+  <% @formdata.form = form %>
+  <% @explain.form  = form %>
+  <% @formtail.form = form %>
+  <%= render @title %>
+  <%= render @playbook %>
+  <%= render @formdata %>
+  <%= render @explain %>
+  <%= render @formtail %>
+  <%= render @submit %>
 <% end %>
