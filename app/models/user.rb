@@ -139,7 +139,8 @@ class User < ApplicationRecord
 		end
 		self.person.rebuild(p_data) # rebuild from passed data
 		self.person.user_id = self.id if self.id
-		self.person_id = self.person.id if self.person.id
+		self.person.save unless self.person.id
+		self.person_id = self.person.id
 		if self.player? and self.person.player_id.to_i==0 # Bound to a player?
 			self.person.player = Player.new(active: true, number: 0, person_id: self.person_id)
 		end

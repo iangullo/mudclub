@@ -164,7 +164,7 @@ class Player < ApplicationRecord
 		end
 	end
 
-	# rebuild Coach data from raw input hash given by a form submittal
+	# rebuild Player data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(j_data)
 		p_data = j_data[:person_attributes]
@@ -175,7 +175,8 @@ class Player < ApplicationRecord
 		end
 		self.person.rebuild(p_data) # rebuild from passed data
 		self.person.player_id  = self.id if self.id
-		self.person_id = self.person.id if self.person.id
+		self.person.save unless self.person.id
+		self.person_id = self.person.id
 		self.number    = j_data[:number]
 		self.active    = j_data[:active]
 	end
