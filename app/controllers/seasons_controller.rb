@@ -17,80 +17,96 @@
 # contact email - iangullo@gmail.com.
 #
 class SeasonsController < ApplicationController
-	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
+	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_season, only: [:index, :edit, :update, :destroy, :locations]
 
 	# GET /seasons
 	# GET /seasons.json
 	def index
-		check_access(roles: [:admin])
-		@season = Season.search(params[:search])
-		@events = Event.short_term.for_season(@season).non_training
-		title   = helpers.season_title_fields(title: I18n.t("season.single"), cols: 2)
-		title << [{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t("action.create"), frame: "modal"}]
-		@fields = create_fields(title)
-		@links  = create_fields(helpers.season_links)
-		@grid   = create_fields(helpers.event_list_grid(events: @events, obj: @season, retlnk: seasons_path))
+		if check_access(roles: [:admin], obj: @season)
+			@events = Event.short_term.for_season(@season).non_training
+			title   = helpers.season_title_fields(title: I18n.t("season.single"), cols: 2)
+			title << [{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t("action.create"), frame: "modal"}]
+			@fields = create_fields(title)
+			@links  = create_fields(helpers.season_links)
+			@grid   = create_fields(helpers.event_list_grid(events: @events, obj: @season, retlnk: seasons_path))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /seasons/1/edit
 	def edit
-		check_access(roles: [:admin])
-		@season = Season.new(start_date: Date.today, end_date: Date.today) unless @season
-		@eligible_locations = @season.eligible_locations
-		prepare_form(title: I18n.t("season.edit"))
+		if check_access(roles: [:admin], obj: @season)
+			@eligible_locations = @season.eligible_locations
+			prepare_form(title: I18n.t("season.edit"))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /seasons/new
 	def new
-		check_access(roles: [:admin])
-		@season = Season.new(start_date: Date.today, end_date: Date.today)
-		prepare_form(title: I18n.t("season.new"))
+		if check_access(roles: [:admin])
+			@season = Season.new(start_date: Date.today, end_date: Date.today)
+			prepare_form(title: I18n.t("season.new"))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	# POST /seasons
 	# POST /seasons.json
 	def create
-		check_access(roles: [:admin])
-		@season = Season.new(season_params)
-		@eligible_locations = @season.eligible_locations
-		respond_to do |format|
-			if @season.save
-				format.html { redirect_to seasons_path(@season), notice: helpers.flash_message("#{I18n.t("season.created")} '#{@season.name}'","success"), data: {turbo_action: "replace"} }
-				format.json { render :index, status: :created, location: seasons_url }
-			else
-				format.html { render :new }
-				format.json { render json: @season.errors, status: :unprocessable_entity }
+		if check_access(roles: [:admin])
+			@season = Season.new(season_params)
+			@eligible_locations = @season.eligible_locations
+			respond_to do |format|
+				if @season.save
+					format.html { redirect_to seasons_path(@season), notice: helpers.flash_message("#{I18n.t("season.created")} '#{@season.name}'","success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: seasons_url }
+				else
+					format.html { render :new }
+					format.json { render json: @season.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# PATCH/PUT /seasons/1
 	# PATCH/PUT /seasons/1.json
 	def update
-		check_access(roles: [:admin])
-		respond_to do |format|
-			check_locations
-			if @season.update(season_params)
-				format.html { redirect_to seasons_path(@season), notice: helpers.flash_message("#{I18n.t("season.updated")} '#{@season.name}'","success"), data: {turbo_action: "replace"} }
-				format.json { render :index, status: :created, location: seasons_url}
-			else
-				format.html { render :edit }
-				format.json { render json: @season.errors, status: :unprocessable_entity }
+		if check_access(roles: [:admin, :coach], obj: @season)
+			respond_to do |format|
+				check_locations
+				if @season.update(season_params)
+					format.html { redirect_to seasons_path(@season), notice: helpers.flash_message("#{I18n.t("season.updated")} '#{@season.name}'","success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: seasons_url}
+				else
+					format.html { render :edit }
+					format.json { render json: @season.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# DELETE /seasons/1
 	# DELETE /seasons/1.json
 	def destroy
-		check_access(roles: [:admin])
-		s_name = @season.name
-		erase_links
-		@season.destroy
-		respond_to do |format|
-			format.html { redirect_to seasons_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("season.deleted")} '#{s_name}'"), data: {turbo_action: "replace"} }
-			format.json { head :no_content }
+		if check_access(roles: [:admin], obj: @season)
+			s_name = @season.name
+			erase_links
+			@season.destroy
+			respond_to do |format|
+				format.html { redirect_to seasons_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("season.deleted")} '#{s_name}'"), data: {turbo_action: "replace"} }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -109,7 +125,13 @@ class SeasonsController < ApplicationController
 		end
 
 		def set_season
-			@season = Season.find(params[:id]) unless @season.try(:id)==params[:id]
+			if params[:search]
+				@season = Season.search(params[:search])
+			elsif params[:id]
+				@season = Season.find_by_id(params[:id]) unless @season.try(:id)==params[:id]
+			else
+				@season = Season.real.last unless @season
+			end
 		end
 
 		# prepare fields for new/edit season

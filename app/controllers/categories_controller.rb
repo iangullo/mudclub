@@ -21,70 +21,91 @@ class CategoriesController < ApplicationController
 
 	# GET /categories or /categories.json
 	def index
-		check_access(roles: [:admin])
-		@categories = Category.real
-		@fields     = create_fields(helpers.category_title_fields(title: I18n.t("category.many")))
-		@grid       = create_grid(helpers.category_grid)
+		if check_access(roles: [:admin])
+			@categories = Category.real
+			@fields     = create_fields(helpers.category_title_fields(title: I18n.t("category.many")))
+			@grid       = create_grid(helpers.category_grid)
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /categories/1 or /categories/1.json
 	def show
-		check_access(roles: [:admin])
-		@fields = create_fields(helpers.category_show_fields)
-		@submit = create_submit(submit: current_user.admin? ? edit_category_path(@category) : nil)
+		if check_access(roles: [:admin], obj: @category)
+			@fields = create_fields(helpers.category_show_fields)
+			@submit = create_submit(submit: current_user.admin? ? edit_category_path(@category) : nil)
+		else
+			redirect_to categories_path, data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /categories/new
 	def new
-		check_access(roles: [:admin])
-		@category = Category.new
-		prepare_form(title: I18n.t("category.new"))
+		if check_access(roles: [:admin])
+			@category = Category.new
+			prepare_form(title: I18n.t("category.new"))
+		else
+			redirect_to categories_path, data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /categories/1/edit
 	def edit
-		check_access(roles: [:admin])
-		prepare_form(title: I18n.t("category.edit"))
+		if check_access(roles: [:admin], obj: @category)
+			prepare_form(title: I18n.t("category.edit"))
+		else
+			redirect_to categories_path, data: {turbo_action: "replace"}
+		end
 	end
 
 	# POST /categories or /categories.json
 	def create
-		check_access(roles: [:admin])
-		@category = Category.new(category_params)
-		respond_to do |format|
-			if @category.save
-				format.html { redirect_to categories_url, notice: helpers.flash_message("#{I18n.t("category.created")} '#{@category.name}'", "success"), data: {turbo_action: "replace"} }
-				format.json { render :index, status: :created, location: categories_url }
-			else
-				format.html { render :new, status: :unprocessable_entity }
-				format.json { render json: @category.errors, status: :unprocessable_entity }
+		if check_access(roles: [:admin], obj: @category)
+			@category = Category.new(category_params)
+			respond_to do |format|
+				if @category.save
+					format.html { redirect_to categories_url, notice: helpers.flash_message("#{I18n.t("category.created")} '#{@category.name}'", "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: categories_url }
+				else
+					format.html { render :new, status: :unprocessable_entity }
+					format.json { render json: @category.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to categories_path, data: {turbo_action: "replace"}
 		end
 	end
 
 	# PATCH/PUT /categories/1 or /categories/1.json
 	def update
-		check_access(roles: [:admin])
-		respond_to do |format|
-			if @category.update(category_params)
-				format.html { redirect_to categories_url, notice: helpers.flash_message("#{I18n.t("category.updated")} '#{@category.name}'", "success"), data: {turbo_action: "replace"} }
-				format.json { render :index, status: :ok, location: categories_url }
-			else
-				format.html { render :edit, status: :unprocessable_entity }
-				format.json { render json: @category.errors, status: :unprocessable_entity }
+		if check_access(roles: [:admin], obj: @category)
+			respond_to do |format|
+				if @category.update(category_params)
+					format.html { redirect_to categories_url, notice: helpers.flash_message("#{I18n.t("category.updated")} '#{@category.name}'", "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :ok, location: categories_url }
+				else
+					format.html { render :edit, status: :unprocessable_entity }
+					format.json { render json: @category.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to categories_path, data: {turbo_action: "replace"}
 		end
 	end
 
 	# DELETE /categories/1 or /categories/1.json
 	def destroy
-		check_access(roles: [:admin])
-		c_name = @category.name
-		prune_teams
-		@category.destroy
-		respond_to do |format|
-			format.html { redirect_to categories_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("category.deleted")} '#{c_name}'"), data: {turbo_action: "replace"} }
-			format.json { head :no_content }
+		if check_access(roles: [:admin], obj: @category)
+			c_name = @category.name
+			prune_teams
+			@category.destroy
+			respond_to do |format|
+				format.html { redirect_to categories_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("category.deleted")} '#{c_name}'"), data: {turbo_action: "replace"} }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to categories_path, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -99,7 +120,7 @@ class CategoriesController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_category
-			@category = Category.find(params[:id])
+			@category = Category.find_by_id(params[:id])
 		end
 
 		# prepare a form to edit/create a Category

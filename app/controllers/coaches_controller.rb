@@ -18,109 +18,134 @@
 #
 class CoachesController < ApplicationController
 	include Filterable
-	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
+	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_coach, only: [:show, :edit, :update, :destroy]
 
 	# GET /coaches
 	# GET /coaches.json
 	def index
-		check_access(roles: [:admin, :coach])
-		@coaches = get_coaches
-		title    = helpers.coach_title(title: I18n.t("coach.many"))
-		title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
-		@fields = create_fields(title)
-		@grid   = create_grid(helpers.coach_grid)
-		respond_to do |format|
-			format.xlsx {
-				response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
-			}
-			format.html { render :index }
+		if check_access(roles: [:admin, :coach])
+			@coaches = get_coaches
+			title    = helpers.coach_title(title: I18n.t("coach.many"))
+			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
+			@fields = create_fields(title)
+			@grid   = create_grid(helpers.coach_grid)
+			respond_to do |format|
+				format.xlsx {
+					response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
+				}
+				format.html { render :index }
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# GET /coaches/1
 	# GET /coaches/1.json
 	def show
-		check_access(roles: [:admin, :coach])
-		@fields = create_fields(helpers.coach_show_fields)
-		@grid   = create_grid(helpers.team_grid(teams: @coach.teams.order(:season_id)))
-		@submit = create_submit(submit: (current_user.admin? or current_user.person.coach_id==@coach.id) ? edit_coach_path(@coach) : nil, frame: "modal")
+		if check_access(roles: [:admin, :coach], obj: @coach)
+			@fields = create_fields(helpers.coach_show_fields)
+			@grid   = create_grid(helpers.team_grid(teams: @coach.teams.order(:season_id)))
+			@submit = create_submit(submit: (current_user.admin? or current_user.person.coach_id==@coach.id) ? edit_coach_path(@coach) : nil, frame: "modal")
+		else
+			redirect_to coaches_path, data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /coaches/new
 	def new
-		check_access(roles: [:admin])
-		@coach = Coach.new(active: true)
-		@coach.build_person
-		prepare_form(title: I18n.t("coach.new"))
+		if check_access(roles: [:admin])
+			@coach = Coach.new(active: true)
+			@coach.build_person
+			prepare_form(title: I18n.t("coach.new"))
+		else
+			redirect_to coaches_path, data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /coaches/1/edit
 	def edit
-		check_access(roles: [:admin, :coach], obj: @coach)
-		prepare_form(title: I18n.t("coach.edit"))
+		if check_access(roles: [:admin, :coach], obj: @coach)
+			prepare_form(title: I18n.t("coach.edit"))
+		else
+			redirect_to coaches_path, data: {turbo_action: "replace"}
+		end
 	end
 
 	# POST /coaches
 	# POST /coaches.json
 	def create
-		check_access(roles: [:admin])
-		respond_to do |format|
-			@coach = Coach.new
-			@coach.rebuild(coach_params)	# rebuild coach
-			if @coach.is_duplicate? then
-				format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
-				format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
-			else
-				if @coach.save # coach saved to database
-					if @coach.person.coach_id != @coach.id
-						@coach.person.coach_id = @coach.id
-						@coach.person.save
-					end
-					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.created")} '#{@coach.s_name}'", "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: coaches_path(search: @coach.s_name) }
+		if check_access(roles: [:admin])
+			respond_to do |format|
+				@coach = Coach.new
+				@coach.rebuild(coach_params)	# rebuild coach
+				if @coach.is_duplicate? then
+					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
+					format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
 				else
-					format.html { render :new }
-					format.json { render json: @coach.errors, status: :unprocessable_entity }
+					@coach.person.save unless @coach.person.persisted?
+					if @coach.save # coach saved to database
+						if @coach.person.coach_id != @coach.id
+							@coach.person.coach_id = @coach.id
+							@coach.person.save
+						end
+						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.created")} '#{@coach.s_name}'", "success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :created, location: coaches_path(search: @coach.s_name) }
+					else
+						format.html { render :new }
+						format.json { render json: @coach.errors, status: :unprocessable_entity }
+					end
 				end
 			end
+		else
+			redirect_to coaches_path, data: {turbo_action: "replace"}
 		end
 	end
 
 	# PATCH/PUT /coaches/1
 	# PATCH/PUT /coaches/1.json
 	def update
-		check_access(roles: [:admin], obj: @coach)
-		respond_to do |format|
-			@coach.rebuild(coach_params)
-			if @coach.save
-				format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.updated")} '#{@coach.s_name}'", "success"), data: {turbo_action: "replace"} }
-				format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
-			else
-				format.html { render :edit }
-				format.json { render json: @coach.errors, status: :unprocessable_entity }
+		if check_access(roles: [:admin], obj: @coach)
+			respond_to do |format|
+				@coach.rebuild(coach_params)
+				if @coach.save
+					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.updated")} '#{@coach.s_name}'", "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
+				else
+					format.html { render :edit }
+					format.json { render json: @coach.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to coaches_path, data: {turbo_action: "replace"}
 		end
 	end
 
 	# GET /coaches/import
 	# GET /coaches/import.json
 	def import
-		check_access(roles: [:admin])
-		Coach.import(params[:file])	# added to import excel
-		format.html { redirect_to coaches_path, notice: helpers.flash_message("#{I18n.t("coach.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
+		if check_access(roles: [:admin])
+			Coach.import(params[:file])	# added to import excel
+			format.html { redirect_to coaches_path, notice: helpers.flash_message("#{I18n.t("coach.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
  	# DELETE /coaches/1
 	# DELETE /coaches/1.json
 	def destroy
-		check_access(roles: [:admin])
-		c_name = @coach.s_name
-		unlink_person
-		@coach.destroy
-		respond_to do |format|
-			format.html { redirect_to coaches_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("coach.deleted")} '#{c_name}'"), data: {turbo_action: "replace"} }
-			format.json { head :no_content }
+		if check_access(roles: [:admin], obj: @coach)
+			c_name = @coach.s_name
+			unlink_person
+			@coach.destroy
+			respond_to do |format|
+				format.html { redirect_to coaches_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("coach.deleted")} '#{c_name}'"), data: {turbo_action: "replace"} }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to coaches_path, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -145,7 +170,7 @@ class CoachesController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_coach
-			@coach = Coach.find(params[:id]) unless @coach.try(:id)==params[:id]
+			@coach = Coach.find_by_id(params[:id]) unless @coach.try(:id)==params[:id]
 		end
 
 		# get coach list depending on the search parameter & user role

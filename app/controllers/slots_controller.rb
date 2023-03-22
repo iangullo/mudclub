@@ -17,84 +17,106 @@
 # contact email - iangullo@gmail.com.
 #
 class SlotsController < ApplicationController
-	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
-	before_action :set_slot, only: [:show, :edit, :create, :update, :destroy]
+	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
+	before_action :set_slot, only: [:show, :edit, :update, :destroy]
 
 
 	# GET /slots or /slots.json
 	def index
-		check_access(roles: [:user])
-		@season   = Season.search(params[:season_id])
-		@location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
-		title     = helpers.slot_title_fields(title: I18n.t("slot.many"))
-		title << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
-		@fields   = create_fields(title)
-		week_view if @season and @location
-		@submit   = create_submit(close: "back", submit: nil, close_return: seasons_path(season_id: @season.id))
+		if check_access(roles: [:user])
+			@season   = Season.search(params[:season_id])
+			@location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
+			title     = helpers.slot_title_fields(title: I18n.t("slot.many"))
+			title << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
+			@fields   = create_fields(title)
+			week_view if @season and @location
+			@submit   = create_submit(close: "back", submit: nil, close_return: seasons_path(season_id: @season.id))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /slots/1 or /slots/1.json
 	def show
-		check_access(roles: [:user])
-		@title  = create_fields(helpers.slot_title_fields(title: I18n.t("slot.many")))
-		@submit = create_submit(submit: current_user.admin? ? edit_slot_path(@slot) : nil, frame: current_user.admin? ? "modal" : nil)
+		if check_access(roles: [:user], obj: @slot)
+			@title  = create_fields(helpers.slot_title_fields(title: I18n.t("slot.many")))
+			@submit = create_submit(submit: current_user.admin? ? edit_slot_path(@slot) : nil, frame: current_user.admin? ? "modal" : nil)
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /slots/new
 	def new
-		check_access(roles: [:admin], returl: slots_url)
-		@season   = Season.find(params[:season_id]) if params[:season_id]
-		@slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: params[:location_id] ? params[:location_id] : 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
-		prepare_form(title: I18n.t("slot.new"))
+		if check_access(roles: [:admin])
+			@season   = Season.find(params[:season_id]) if params[:season_id]
+			@slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: params[:location_id] ? params[:location_id] : 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
+			prepare_form(title: I18n.t("slot.new"))
+		else
+			redirect_to slots_path, data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /slots/1/edit
 	def edit
-		check_access(roles: [:admin], returl: slots_url)
-		@season = Season.find(@slot.season_id)
-		prepare_form(title: I18n.t("slot.edit"))
+		if check_access(roles: [:admin], obj: @slot)
+			@season = Season.find(@slot.season_id)
+			prepare_form(title: I18n.t("slot.edit"))
+		else
+			redirect_to slots_path, data: {turbo_action: "replace"}
+		end
 	end
 
 	# POST /slots or /slots.json
 	def create
-		check_access(roles: [:admin], returl: slots_url)
-		respond_to do |format|
-			@slot.rebuild(slot_params) # rebuild @slot
-			@season = Season.find(@slot.season_id)
-			if @slot.save # try to store
-				format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message("#{I18n.t("slot.created")} '#{@slot.to_s}'","success"), data: {turbo_action: "replace"} }
-				format.json { render :index, status: :created, location: @slot }
-			else
-				format.html { render :new, status: :unprocessable_entity }
-				format.json { render json: @slot.errors, status: :unprocessable_entity }
+		if check_access(roles: [:admin])
+			@slot = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
+			respond_to do |format|
+				@slot.rebuild(slot_params) # rebuild @slot
+				@season = Season.find(@slot.season_id)
+				if @slot.save # try to store
+					format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message("#{I18n.t("slot.created")} '#{@slot.to_s}'","success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: @slot }
+				else
+					format.html { render :new, status: :unprocessable_entity }
+					format.json { render json: @slot.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to slots_path, data: {turbo_action: "replace"}
 		end
 	end
 
 	# PATCH/PUT /slots/1 or /slots/1.json
 	def update
-		check_access(roles: [:admin], returl: slots_url)
-		respond_to do |format|
-			@slot.rebuild(slot_params) # rebuild @slot
-			@season = Season.find(@slot.season_id)
-			if @slot.save
-				format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message("#{I18n.t("slot.updated")} '#{@slot.to_s}'","success"), data: {turbo_action: "replace"} }
-				format.json { render :index, status: :ok, location: @slot }
-			else
-				format.html { redirect_to edit_slot_path(@slot) }
-				format.json { render json: @slot.errors, status: :unprocessable_entity }
+		if check_access(roles: [:admin], obj: @slot)
+			respond_to do |format|
+				@slot.rebuild(slot_params) # rebuild @slot
+				@season = Season.find(@slot.season_id)
+				if @slot.save
+					format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message("#{I18n.t("slot.updated")} '#{@slot.to_s}'","success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :ok, location: @slot }
+				else
+					format.html { redirect_to edit_slot_path(@slot) }
+					format.json { render json: @slot.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to slots_path, data: {turbo_action: "replace"}
 		end
 	end
 
 	# DELETE /slots/1 or /slots/1.json
 	def destroy
-		check_access(roles: [:admin], returl: slots_url)
-		s_name = @slot.to_s
-		@slot.destroy
-		respond_to do |format|
-			format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("slot.deleted")} '#{s_name}'"), data: {turbo_action: "replace"} }
-			format.json { head :no_content }
+		if check_access(roles: [:admin], obj: @slot)
+			s_name = @slot.to_s
+			@slot.destroy
+			respond_to do |format|
+				format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("slot.deleted")} '#{s_name}'"), data: {turbo_action: "replace"} }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to slots_path, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -179,8 +201,7 @@ class SlotsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_slot
-			@slot = Slot.find(params[:id]) unless @slot.try(:id)==params[:id]
-			@slot = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
+			@slot = Slot.find_by_id(params[:id]) unless @slot.try(:id)==params[:id]
 		end
 
 		# prepare fields to renfeer edit/new slot form

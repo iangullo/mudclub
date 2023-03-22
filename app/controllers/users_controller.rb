@@ -18,92 +18,113 @@
 #
 class UsersController < ApplicationController
 	include Filterable
-	skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
+	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_user, only: [:show, :edit, :update, :destroy]
 
 	def index
-		check_access(roles: [:admin])
-		@users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
-		title  = helpers.user_title_fields(I18n.t("user.many"))
-		title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
-		@title = create_fields(title)
-		@grid  = create_grid(helpers.user_grid)
+		if check_access(roles: [:admin])
+			@users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
+			title  = helpers.user_title_fields(I18n.t("user.many"))
+			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
+			@title = create_fields(title)
+			@grid  = create_grid(helpers.user_grid)
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	def show
-		check_access(roles: [:admin], obj: @user)
-		@user   = User.find(params[:id])
-		@title  = create_fields(helpers.user_show_fields)
-		@role   = create_fields(helpers.user_role)
-		@grid   = create_grid(helpers.team_grid(teams: @user.teams.order(:season_id)))
-		@submit = create_submit(close: "back", close_return: :back, submit: edit_user_path(@user), frame: "modal")
+		if check_access(roles: [:admin], obj: @user)
+			@user   = User.find(params[:id])
+			@title  = create_fields(helpers.user_show_fields)
+			@role   = create_fields(helpers.user_role)
+			@grid   = create_grid(helpers.team_grid(teams: @user.teams.order(:season_id)))
+			@submit = create_submit(close: "back", close_return: :back, submit: edit_user_path(@user), frame: "modal")
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	def new
-		check_access(roles: [:admin])
-		@user = User.new
-		@user.build_person
-		prepare_form(I18n.t("user.new"))
+		if check_access(roles: [:admin])
+			@user = User.new
+			@user.build_person
+			prepare_form(I18n.t("user.new"))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	def edit
-		check_access(roles: [:admin], obj: @user)
-		prepare_form(I18n.t("user.edit"))
+		if check_access(roles: [:admin], obj: @user)
+			prepare_form(I18n.t("user.edit"))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	def create
-		check_access(roles: [:admin])
-		respond_to do |format|
- 			@user = User.new
-			@user.rebuild(user_params)	# build user
- 			if @user.is_duplicate? then
-				format.html { redirect_to @user, notice: helpers.flash_message("#{I18n.t("user.duplicate")} '#{@user.s_name}'"), data: {turbo_action: "replace"}}
- 				format.json { render :show,  :created, location: @user }
- 			else
- 				@user.person.save
- 				@user.person_id = @user.person.id
- 				if @user.save
- 					if @user.person.user_id != @user.id
- 						@user.person.user_id = @user.id
- 						@user.person.save
- 					end
- 					format.html { redirect_to users_url, notice: helpers.flash_message("#{I18n.t("user.created")} '#{@user.s_name}'","success"), data: {turbo_action: "replace"} }
- 					format.json { render :index, status: :created, location: users_url }
- 				else
- 					format.html { render :new, notice: helpers.flash_message("#{@user.errors}","error") }
- 					format.json { render json: @user.errors, status: :unprocessable_entity }
- 				end
- 			end
- 		end
+		if check_access(roles: [:admin])
+			respond_to do |format|
+				@user = User.new
+				@user.rebuild(user_params)	# build user
+				if @user.is_duplicate? then
+					format.html { redirect_to @user, notice: helpers.flash_message("#{I18n.t("user.duplicate")} '#{@user.s_name}'"), data: {turbo_action: "replace"}}
+					format.json { render :show,  :created, location: @user }
+				else
+					@user.person.save unless @user.person.persisted?
+					@user.person_id = @user.person.id
+					if @user.save
+						if @user.person.user_id != @user.id
+							@user.person.user_id = @user.id
+							@user.person.save
+						end
+						format.html { redirect_to users_url, notice: helpers.flash_message("#{I18n.t("user.created")} '#{@user.s_name}'","success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :created, location: users_url }
+					else
+						format.html { render :new, notice: helpers.flash_message("#{@user.errors}","error") }
+						format.json { render json: @user.errors, status: :unprocessable_entity }
+					end
+				end
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	def update
-		check_access(roles: [:admin], obj: @user)
-		respond_to do |format|
-			if params[:user][:password].blank? or params[:user][:password_confirmation].blank?
-				params[:user].delete(:password)
-				params[:user].delete(:password_confirmation)
+		if check_access(roles: [:admin], obj: @user)
+			respond_to do |format|
+				if params[:user][:password].blank? or params[:user][:password_confirmation].blank?
+					params[:user].delete(:password)
+					params[:user].delete(:password_confirmation)
+				end
+				@user.rebuild(user_params)	# rebuild user
+				if @user.save
+					format.html { redirect_to users_url, notice: helpers.flash_message("#{I18n.t("user.updated")} '#{@user.s_name}'","success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :ok, location: users_url }
+				else
+					format.html { render :edit }
+					format.json { render json: @user.errors, status: :unprocessable_entity }
+				end
 			end
-			@user.rebuild(user_params)	# rebuild user
-			if @user.save
-				format.html { redirect_to users_url, notice: helpers.flash_message("#{I18n.t("user.updated")} '#{@user.s_name}'","success"), data: {turbo_action: "replace"} }
-				format.json { render :index, status: :ok, location: users_url }
-			else
-				format.html { render :edit }
-				format.json { render json: @user.errors, status: :unprocessable_entity }
-			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	def destroy
-		check_access(roles: [:admin])
-		uname = @user.s_name
-		unlink_person
-		@user.destroy
- 		respond_to do |format|
- 			format.html { redirect_to users_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("user.deleted")} '#{@user.s_name}'"), data: {turbo_action: "replace"} }
- 			format.json { head :no_content }
- 		end
+		if check_access(roles: [:admin])
+			uname = @user.s_name
+			unlink_person
+			@user.destroy
+			respond_to do |format|
+				format.html { redirect_to users_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("user.deleted")} '#{@user.s_name}'"), data: {turbo_action: "replace"} }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	private
@@ -129,7 +150,7 @@ class UsersController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_user
-			@user = User.find(params[:id]) unless @user.try(:id)==params[:id]
+			@user = User.find_by_id(params[:id]) unless @user.try(:id)==params[:id]
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

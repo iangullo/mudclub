@@ -18,187 +18,223 @@
 #
 class TeamsController < ApplicationController
 	include Filterable
-	skip_before_action :verify_authenticity_token, :only => [:create, :edit, :new, :update, :check_reload]
+	#skip_before_action :verify_authenticity_token, :only => [:create, :edit, :new, :update, :check_reload]
 	before_action :set_team, only: [:index, :show, :roster, :slots, :edit, :edit_roster, :attendance, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]
 
 	# GET /teams
 	# GET /teams.json
 	def index
-		check_access(roles: [:admin, :coach])
-		@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: true))
-		@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: current_user.admin?))
-	end
-
-	# GET /teams/new
-	def new
-		check_access(roles: [:admin], returl: teams_path)
-		@eligible_coaches = Coach.active
-	 	@team   = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
-		@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
-		@submit = create_submit
-	end
-
-	# GET /teams/1
-	# GET /teams/1.json
-	def show
-		check_access(roles: [:admin, :coach], obj: @team, returl: @team)
-		@title = create_fields(helpers.team_title_fields(title: @team.to_s))
-		@links = create_fields(helpers.team_links)
-		@grid  = create_fields(helpers.event_list_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team)))
-	end
-
-	# GET /teams/1/roster
-	def roster
-		check_access(roles: [:admin, :coach], returl: @team)
-		title  = helpers.team_title_fields(title: @team.to_s)
-		title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
-		@title = create_fields(title)
-		@grid   = create_grid(helpers.player_grid(players: @team.players.active.order(:number), obj: @team))
-		@submit = create_submit(submit:(current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil, frame: "modal")
-	end
-
-	# GET /teams/1/edit_roster
-	def edit_roster
-		check_access(roles: [:admin], obj: @team, returl: @team)
-		if current_user.present?
-			if current_user.admin? or @team.has_coach(current_user.person.coach_id)
-				title = helpers.team_title_fields(title: @team.to_s)
-				title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
-				@title  = create_fields(title)
-				@submit = create_submit
-				@eligible_players = @team.eligible_players
-			else
-				redirect_to @team, data: {turbo_action: "replace"}
-			end
+		if check_access(roles: [:admin, :coach])
+			@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: true))
+			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: current_user.admin?))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
+	# GET /teams/new
+	def new
+		if check_access(roles: [:admin])
+			@eligible_coaches = Coach.active
+			@team   = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
+			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
+			@submit = create_submit
+		else
+			redirect_to teams_path, data: {turbo_action: "replace"}
+		end
+	end
+
+	# GET /teams/1
+	# GET /teams/1.json
+	def show
+		if check_access(roles: [:admin, :coach], obj: @team)
+			@title = create_fields(helpers.team_title_fields(title: @team.to_s))
+			@links = create_fields(helpers.team_links)
+			@grid  = create_fields(helpers.event_list_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team)))
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
+		end
+	end
+
+	# GET /teams/1/roster
+	def roster
+		if check_access(roles: [:admin, :coach], obj: @team)
+			title  = helpers.team_title_fields(title: @team.to_s)
+			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
+			@title = create_fields(title)
+			@grid   = create_grid(helpers.player_grid(players: @team.players.active.order(:number), obj: @team))
+			@submit = create_submit(submit:(current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil, frame: "modal")
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
+		end
+	end
+
+	# GET /teams/1/edit_roster
+	def edit_roster
+		if check_access(roles: [:admin, :coach], obj: @team)
+			title = helpers.team_title_fields(title: @team.to_s)
+			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
+			@title  = create_fields(title)
+			@submit = create_submit
+			@eligible_players = @team.eligible_players
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
+		end
+	end
+
 	# GET /teams/1/slots
 	def slots
-		check_access(roles: [:admin, :coach], returl: @team)
-		title   = helpers.team_title_fields(title: @team.to_s)
-		title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
-		@fields = create_fields(title)
+		if check_access(roles: [:admin, :coach], obj: @team)
+			title   = helpers.team_title_fields(title: @team.to_s)
+			title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
+			@fields = create_fields(title)
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /teams/1/targets
 	def targets
-		check_access(roles: [:admin, :coach], returl: @team)
-		redirect_to "/" unless @team
-		global_targets(true)	# get & breakdown global targets
-		title = helpers.team_title_fields(title: @team.to_s)
-		title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
-		@title  = create_fields(title)
-		@submit = create_submit(close: "back", close_return: team_path(@team), submit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil)
+		if check_access(roles: [:admin, :coach], obj: @team)
+			global_targets(true)	# get & breakdown global targets
+			title = helpers.team_title_fields(title: @team.to_s)
+			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
+			@title  = create_fields(title)
+			@submit = create_submit(close: "back", close_return: team_path(@team), submit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil)
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
+		end
+
 	end
 
 	# GET /teams/1/edit_targets
 	def edit_targets
-		check_access(roles: [:admin], obj: @team, returl: @team)
-		redirect_to("/", data: {turbo_action: "replace"}) unless @team
-		global_targets(false)	# get global targets
-		title   = helpers.team_title_fields(title: @team.to_s)
-		title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
-		@title  = create_fields(title)
-		@submit = create_submit(close: "cancel", close_return: :back)
+		if check_access(roles: [:admin], obj: @team)
+			redirect_to("/", data: {turbo_action: "replace"}) unless @team
+			global_targets(false)	# get global targets
+			title   = helpers.team_title_fields(title: @team.to_s)
+			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
+			@title  = create_fields(title)
+			@submit = create_submit(close: "cancel", close_return: :back)
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /teams/1/edit_targets
 	def plan
-		check_access(roles: [:admin, :coach], returl: @team)
-		redirect_to "/" unless @team
-		plan_targets
-		title = helpers.team_title_fields(title: @team.to_s)
-		title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
-		@title = create_fields(title)
-		@edit  = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
+		if check_access(roles: [:admin, :coach], obj: @team)
+			plan_targets
+			title = helpers.team_title_fields(title: @team.to_s)
+			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
+			@title = create_fields(title)
+			@edit  = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /teams/1/edit_plan
 	def edit_plan
-		check_access(roles: [:admin], obj: @team, returl: @team)
-		redirect_to("/", data: {turbo_action: "replace"}) unless @team
-		plan_targets
-		title   = helpers.team_title_fields(title: @team.to_s)
-		title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
-		@title  = create_fields(title)
-		@submit = create_submit(close: "cancel", close_return: :back)
+		if check_access(roles: [:admin], obj: @team)
+			redirect_to("/", data: {turbo_action: "replace"}) unless @team
+			plan_targets
+			title   = helpers.team_title_fields(title: @team.to_s)
+			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
+			@title  = create_fields(title)
+			@submit = create_submit(close: "cancel", close_return: :back)
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /teams/1/attendance
 	def attendance
-		check_access(roles: [:admin, :coach], returl: @team)
-		title  = helpers.team_title_fields(title: @team.to_s)
-		title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
-		@title = create_fields(title)
-		a_data = helpers.team_attendance_grid
-		if a_data
-			@grid = create_grid({title: a_data[:title], rows: a_data[:rows]})
-			@att_data = [a_data[:chart]] if a_data
+		if check_access(roles: [:admin, :coach], obj: @team)
+			title  = helpers.team_title_fields(title: @team.to_s)
+			title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
+			@title = create_fields(title)
+			a_data = helpers.team_attendance_grid
+			if a_data
+				@grid = create_grid({title: a_data[:title], rows: a_data[:rows]})
+				@att_data = [a_data[:chart]] if a_data
+			end
+			@submit = create_submit(submit:nil)
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
 		end
-		@submit = create_submit(submit:nil)
 	end
 
 	# GET /teams/1/edit
 	def edit
-		check_access(roles: [:admin], obj: @team, returl: @team)
-		@eligible_coaches = Coach.active
-		@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
-		@submit = create_submit
+		if check_access(roles: [:admin], obj: @team)
+			@eligible_coaches = Coach.active
+			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
+			@submit = create_submit
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
+		end
 	end
 
 	# POST /teams
 	# POST /teams.json
 	def create
-		check_access(roles: [:admin], returl: teams_path)
-		@team = Team.new(team_params)
-		respond_to do |format|
-			if @team.save
-				format.html { redirect_to teams_path, notice: helpers.flash_message("#{I18n.t("team.created")} '#{@team.to_s}'","success"), data: {turbo_action: "replace"} }
-				format.json { render :index, status: :created, location: teams_path }
-			else
-				format.html { render :new }
-				format.json { render json: @team.errors, status: :unprocessable_entity }
+		if check_access(roles: [:admin])
+			@team = Team.new(team_params)
+			respond_to do |format|
+				if @team.save
+					format.html { redirect_to teams_path, notice: helpers.flash_message("#{I18n.t("team.created")} '#{@team.to_s}'","success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: teams_path }
+				else
+					format.html { render :new }
+					format.json { render json: @team.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to teams_path, data: {turbo_action: "replace"}
 		end
 	end
 
 	# PATCH/PUT /teams/1
 	# PATCH/PUT /teams/1.json
 	def update
-		check_access(roles: [:admin], obj: @team, returl: @team)
-		respond_to do |format|
-			if params[:team]
-				retlnk = params[:team][:retlnk]
-				@team.rebuild(params[:team])
-					if @team.save
-					format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("team.updated")} '#{@team.to_s}'","success"), data: {turbo_action: "replace"} }
-					format.json { redirect_to retlnk, status: :created, location: retlnk }
-				else
-					@eligible_coaches = Coach.active
-					@form_fields      = form_fields(I18n.t("team.edit"))
-					format.html { render :edit, data:{"turbo-frame": "replace"}, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})","error") }
+		if check_access(roles: [:admin], obj: @team)
+			respond_to do |format|
+				if params[:team]
+					retlnk = params[:team][:retlnk]
+					@team.rebuild(params[:team])
+						if @team.save
+						format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("team.updated")} '#{@team.to_s}'","success"), data: {turbo_action: "replace"} }
+						format.json { redirect_to retlnk, status: :created, location: retlnk }
+					else
+						@eligible_coaches = Coach.active
+						@form_fields      = form_fields(I18n.t("team.edit"))
+						format.html { render :edit, data:{"turbo-frame": "replace"}, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})","error") }
+						format.json { render json: @team.errors, status: :unprocessable_entity }
+					end
+				else	# no data to save...
+					format.html { redirect_to @team, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})"), data: {turbo_action: "replace"} }
 					format.json { render json: @team.errors, status: :unprocessable_entity }
 				end
-			else	# no data to save...
-				format.html { redirect_to @team, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})"), data: {turbo_action: "replace"} }
-				format.json { render json: @team.errors, status: :unprocessable_entity }
 			end
+		else
+			redirect_to @team, data: {turbo_action: "replace"}
 		end
 	end
 
 	# DELETE /teams/1
 	# DELETE /teams/1.json
 	def destroy
-		check_access(roles: [:admin], returl: teams_path)
-		t_name = @team.to_s
-		erase_links
-		@team.destroy
-		respond_to do |format|
-			format.html { redirect_to teams_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("team.deleted")} '#{t_name}'"}, data: {turbo_action: "replace"} }
-			format.json { head :no_content }
+		if check_access(roles: [:admin]) and @team
+			t_name = @team.to_s
+			erase_links
+			@team.destroy
+			respond_to do |format|
+				format.html { redirect_to teams_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("team.deleted")} '#{t_name}'"}, data: {turbo_action: "replace"} }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to teams_path, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -269,7 +305,7 @@ class TeamsController < ApplicationController
 			if params[:id]=="coaching"
 				@team = current_user.coach.teams.first
 			else
-				@team = Team.find(params[:id]) if params[:id]
+				@team = Team.find_by_id(params[:id]) if params[:id]
 			end
 		end
 

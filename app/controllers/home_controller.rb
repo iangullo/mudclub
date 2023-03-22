@@ -28,10 +28,13 @@ class HomeController < ApplicationController
 	end
 
 	def edit
-		check_access(roles: [:admin])
-		@club   = Person.find(0)
-		@fields = create_fields(helpers.home_form_fields(club: @club))
-		@f_logo = create_fields(helpers.form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @club.avatar.filename))
-		@submit = create_submit
+		if check_access(roles: [:admin])
+			@club   = Person.find_by_id(0)
+			@fields = create_fields(helpers.home_form_fields(club: @club))
+			@f_logo = create_fields(helpers.form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @club.avatar.filename))
+			@submit = create_submit
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 end

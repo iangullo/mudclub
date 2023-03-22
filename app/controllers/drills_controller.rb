@@ -19,82 +19,103 @@
 class DrillsController < ApplicationController
 	include Filterable
 	before_action :set_drill, only: [:show, :edit, :update, :destroy]
-	skip_before_action :verify_authenticity_token, :only => [:create, :new, :edit, :update, :check_reload]
+	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :edit, :update, :check_reload]
 
 	# GET /drills or /drills.json
 	def index
-		check_access(roles: [:admin, :coach])
-		# Simple search by name/description for now
-		@title  = create_fields(helpers.drill_title_fields(title: I18n.t("drill.many")))
-		#@title << [{kind: "subtitle", value: I18n.t("catalog")}]
-		@search = create_fields(helpers.drill_search_bar(search_in: drills_path))
-		@drills = filter!(Drill)
-		@grid   = create_grid(helpers.drill_grid(drills: @drills))
+		if check_access(roles: [:admin, :coach])
+			# Simple search by name/description for now
+			@title  = create_fields(helpers.drill_title_fields(title: I18n.t("drill.many")))
+			#@title << [{kind: "subtitle", value: I18n.t("catalog")}]
+			@search = create_fields(helpers.drill_search_bar(search_in: drills_path))
+			@drills = filter!(Drill)
+			@grid   = create_grid(helpers.drill_grid(drills: @drills))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /drills/1 or /drills/1.json
 	def show
-		check_access(roles: [:admin, :coach])
-		@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
-		@intro   = create_fields(helpers.drill_show_intro)
-		@explain = create_fields(helpers.drill_show_explain)
-		@tail    = create_fields(helpers.drill_show_tail)
-		@submit  = create_submit(close: "back", close_return: drills_path, submit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil)
+		if check_access(roles: [:admin, :coach], obj: @drill)
+			@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
+			@intro   = create_fields(helpers.drill_show_intro)
+			@explain = create_fields(helpers.drill_show_explain)
+			@tail    = create_fields(helpers.drill_show_tail)
+			@submit  = create_submit(close: "back", close_return: drills_path, submit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil)
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /drills/new
 	def new
-		check_access(roles: [:admin, :coach])
-		@drill = Drill.new
-		prepare_form(title: I18n.t("drill.new"))
+		if check_access(roles: [:admin, :coach])
+			@drill = Drill.new
+			prepare_form(title: I18n.t("drill.new"))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /drills/1/edit
 	def edit
-		check_access(roles: [:admin], obj: @drill, returl: drills_url)
-		prepare_form(title: I18n.t("drill.edit"))
+		if check_access(roles: [:admin, :coach], obj: @drill)
+			prepare_form(title: I18n.t("drill.edit"))
+		else
+			redirect_to drills_path, data: {turbo_action: "replace"}
+		end
 	end
 
 	# POST /drills or /drills.json
 	def create
-		check_access(roles: [:admin, :coach])
-		respond_to do |format|
-			@drill = Drill.new
-			@drill.rebuild(drill_params)	# rebuild drill
-			if @drill.save
-				format.html { redirect_to drills_url, notice: helpers.flash_message("#{I18n.t("drill.created")} '#{@drill.name}'", "success"), data: {turbo_action: "replace"} }
-				format.json { render :index, status: :created, location: @drill }
-			else
-				format.html { render :new }
-				format.json { render json: @drill.errors, status: :unprocessable_entity }
+		if check_access(roles: [:admin, :coach])
+			respond_to do |format|
+				@drill = Drill.new
+				@drill.rebuild(drill_params)	# rebuild drill
+				if @drill.save
+					format.html { redirect_to drills_url, notice: helpers.flash_message("#{I18n.t("drill.created")} '#{@drill.name}'", "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: @drill }
+				else
+					format.html { render :new }
+					format.json { render json: @drill.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# PATCH/PUT /drills/1 or /drills/1.json
 	def update
-		check_access(roles: [:admin], obj: @drill, returl: drills_url)
-		respond_to do |format|
-			@drill.rebuild(drill_params)	# rebuild drill
-		 	if @drill.save
-				format.html { redirect_to drill_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("drill.updated")} '#{@drill.name}'", "success"), data: {turbo_action: "replace"} }
-				format.json { render :show, status: :ok, location: @drill }
-			else
-				format.html { render :edit, status: :unprocessable_entity }
-				format.json { render json: @drill.errors, status: :unprocessable_entity }
+		if check_access(roles: [:admin, :coach], obj: @drill)
+			respond_to do |format|
+				@drill.rebuild(drill_params)	# rebuild drill
+				if @drill.save
+					format.html { redirect_to drill_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("drill.updated")} '#{@drill.name}'", "success"), data: {turbo_action: "replace"} }
+					format.json { render :show, status: :ok, location: @drill }
+				else
+					format.html { render :edit, status: :unprocessable_entity }
+					format.json { render json: @drill.errors, status: :unprocessable_entity }
+				end
 			end
+		else
+			redirect_to drills_path, data: {turbo_action: "replace"}
 		end
 	end
 
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
-		check_access(roles: [:admin])
-		d_name = @drill.name
-		@drill.drill_targets.each { |d_t| d_t.delete }
-		@drill.destroy
-		respond_to do |format|
-			format.html { redirect_to drills_url, notice: helpers.flash_message("#{I18n.t("drill.deleted")} '#{d_name}'"), data: {turbo_action: "replace"} }
-			format.json { head :no_content }
+		if check_access(roles: [:admin, :coach], obj: @drill)
+			d_name = @drill.name
+			@drill.drill_targets.each { |d_t| d_t.delete }
+			@drill.destroy
+			respond_to do |format|
+				format.html { redirect_to drills_url, notice: helpers.flash_message("#{I18n.t("drill.deleted")} '#{d_name}'"), data: {turbo_action: "replace"} }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -111,7 +132,7 @@ class DrillsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_drill
-			@drill = Drill.find(params[:id]) unless @drill.try(:id)==params[:id]
+			@drill = Drill.find_by_id(params[:id]) unless @drill.try(:id)==params[:id]
 		end
 
 		# Only allow a list of trusted parameters through.
