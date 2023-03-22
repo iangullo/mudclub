@@ -25,8 +25,17 @@ module CategoriesHelper
 	# FieldComponents for category.show
 	def category_show_fields
 		res = category_title_fields(title: I18n.t("category.single"), cols: 5, rows: 5)
-		res << [{kind: "subtitle", value: @category.age_group, cols: 3}, {kind: "subtitle", value: @category.sex, cols: 2}]
-		res << [{kind: "label", value: I18n.t("stat.min")}, {kind: "string", value: @category.min_years}, {kind: "gap"}, {kind: "label", value: I18n.t("stat.max")}, {kind: "string", value: @category.max_years}]
+		res << [
+			{kind: "subtitle", value: @category.age_group, cols: 3},
+			{kind: "subtitle", value: @category.sex, cols: 2}
+		]
+		res << [
+			{kind: "label", value: I18n.t("stat.min")},
+			{kind: "string", value: @category.min_years},
+			{kind: "gap"},
+			{kind: "label", value: I18n.t("stat.max")},
+			{kind: "string", value: @category.max_years}
+		]
 		res
 	end
 
@@ -34,9 +43,21 @@ module CategoriesHelper
 	def category_form_fields(title:)
 		@submit   = SubmitComponent.new(submit: "save")
 		res = category_title_fields(title:, rows: 3, cols: 5)
-		res << [{kind: "text-box", key: :age_group, value: @category.age_group, size: 10, cols: 3}, {kind: "select-box", key: :sex, options: [I18n.t("sex.fem_a"), I18n.t("sex.male_a"), I18n.t("sex.mixed_a")], value: @category.sex, cols: 2}]
-		res << [{kind: "label", value: I18n.t("stat.min")}, {kind: "number-box", key: :min_years, min: 5, size: 3, value: @category.min_years}, {kind: "gap", size: 5}, {kind: "label", value: I18n.t("stat.max")}, {kind: "number-box", key: :max_years, min: 6, size: 3, value: @category.max_years}]
-		res << [{kind: "icon", value: "time.svg"}, {kind: "select-box", key: :rules, options: Category.time_rules, value: @category.rules ? @category.rules : @category.def_rules, cols: 4}]
+		res << [
+			{kind: "text-box", key: :age_group, value: @category.age_group, size: 10, cols: 3},
+			{kind: "select-box", key: :sex, options: [I18n.t("sex.fem_a"), I18n.t("sex.male_a"), I18n.t("sex.mixed_a")], value: @category.sex, cols: 2}
+		]
+		res << [
+			{kind: "label", value: I18n.t("stat.min")},
+			{kind: "number-box", key: :min_years, min: 5, size: 3, value: @category.min_years},
+			{kind: "gap", size: 5},
+			{kind: "label", value: I18n.t("stat.max")},
+			{kind: "number-box", key: :max_years, min: 6, size: 3, value: @category.max_years}
+		]
+		res << [
+			{kind: "icon", value: "time.svg"},
+			{kind: "select-box", key: :rules, options: Category.time_rules, value: @category.rules ? @category.rules : @category.def_rules, cols: 4}
+		]
 		res
 	end
 

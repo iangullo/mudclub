@@ -27,8 +27,14 @@ module HomeHelper
 	# home edit form fields
 	def home_form_fields(club:)
 		[
-			[{kind: "header-icon", value: club.logo}, {kind: "title", value: I18n.t("action.edit"), cols: 2}],
-			[{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :nick, value: club.nick}]
+			[
+				{kind: "header-icon", value: club.logo},
+				{kind: "title", value: I18n.t("action.edit"), cols: 2}
+			],
+			[
+				{kind: "label", value: I18n.t("person.name_a")},
+				{kind: "text-box", key: :nick, value: club.nick}
+			]
 		]
 	end
 end

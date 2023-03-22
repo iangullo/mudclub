@@ -32,8 +32,14 @@ module LocationsHelper
 	def location_form_fields(title:)
 		res = location_title_fields(title:)
 		res << [{kind: "text-box", key: :name, value: @location.name, size: 20}]
-		res << [{kind: "icon", value: "gmaps.svg"}, {kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, size: 20}]
-		res << [{kind: "icon", value: "training.svg"}, {kind: "label-checkbox", key: :practice_court, label: I18n.t("location.train")}]
+		res << [
+			{kind: "icon", value: "gmaps.svg"},
+			{kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, size: 20}
+		]
+		res << [
+			{kind: "icon", value: "training.svg"},
+			{kind: "label-checkbox", key: :practice_court, label: I18n.t("location.train")}
+		]
 		res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
 		res
 	end

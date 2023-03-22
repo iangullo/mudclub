@@ -49,7 +49,10 @@ module UsersHelper
 	def user_show_fields
 		res = user_title_fields(@user.person.s_name, icon: @user.picture, _class: "rounded-full")
 		res << [{kind: "label", value: @user.person.surname}]
-		res << [{kind: "gap", size: 1}, {kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device}]
+		res << [
+			{kind: "gap", size: 1},
+			{kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device}
+		]
 		res
 	end
 
@@ -65,17 +68,34 @@ module UsersHelper
 	# return FieldComponents for form title
 	def user_form_title(title:)
 		res = user_title_fields(title, icon: @user.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
-		res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @user.person.name}]
-		res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @user.person.surname}]
-		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}]
+		res << [
+			{kind: "label", value: I18n.t("person.name_a")},
+			{kind: "text-box", key: :name, value: @user.person.name}
+		]
+		res << [
+			{kind: "label", value: I18n.t("person.surname_a")},
+			{kind: "text-box", key: :surname, value: @user.person.surname}
+		]
+		res << [
+			{kind: "icon", value: "calendar.svg"},
+			{kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}
+		]
 		res
 	end
 
 	# return FieldComponents for form user role
 	def user_form_role
-		res = [[{kind: "label", value: "#{I18n.t("locale.lang")}:"}, {kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: @user.locale}]]
+		res = [
+			[
+				{kind: "label", value: "#{I18n.t("locale.lang")}:"},
+				{kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: @user.locale}
+			]
+		]
 		if current_user.admin?
-			res << [{kind: "label", value: "#{I18n.t("user.profile")}:"}, {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}]
+			res << [
+				{kind: "label", value: "#{I18n.t("user.profile")}:"},
+				{kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}
+			]
 		else
 			res << [{kind: "label", align: "center", value: I18n.t(@user.role)}]
 		end
@@ -90,17 +110,36 @@ module UsersHelper
 	# return FieldComponents for form user personal data
 	def user_form_person
 		[
-			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @user.person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @user.person.email}],
-			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @user.person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @user.person.phone}]
+			[
+				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
+				{kind: "text-box", key: :dni, size: 8, value: @user.person.dni},
+				{kind: "gap"}, {kind: "icon", value: "at.svg"},
+				{kind: "email-box", key: :email, value: @user.person.email}
+			],
+			[
+				{kind: "icon", value: "user.svg"},
+				{kind: "text-box", key: :nick, size: 8, value: @user.person.nick},
+				{kind: "gap"}, {kind: "icon", value: "phone.svg"},
+				{kind: "text-box", key: :phone, size: 12, value: @user.person.phone}
+			]
 		]
 	end
 
 	# return FieldComponents for form user personal data
 	def user_form_pass
 		[
-			[{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password, auto: I18n.t("password.single")}],
-			[{kind: "icon", value: "key.svg"}, {kind: "password-box", key: :password_confirmation, auto: I18n.t("password.confirm")}],
-			[{kind: "gap"}, {kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}]
+			[
+				{kind: "icon", value: "key.svg"},
+				{kind: "password-box", key: :password, auto: I18n.t("password.single")}
+			],
+			[
+				{kind: "icon", value: "key.svg"},
+				{kind: "password-box", key: :password_confirmation, auto: I18n.t("password.confirm")}
+			],
+			[
+				{kind: "gap"},
+				{kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}
+			]
 		]
 	end
 end

@@ -56,14 +56,32 @@ module PlayersHelper
 		res << [{kind: "string", value: @player.person.birthday}]
 		if team
 			att = @player.attendance(team: team)
-			res << [{kind: "icon", value: "team.svg", size: "25x25"}, {kind: "text", value: team.to_s}]
-			res << [{kind: "label", value: I18n.t("match.many"), align: "right"}, {kind: "text", value: att[:matches]}]
+			res << [
+				{kind: "icon", value: "team.svg", size: "25x25"},
+				{kind: "text", value: team.to_s}
+			]
+			res << [
+				{kind: "label", value: I18n.t("match.many"), align: "right"},
+				{kind: "text", value: att[:matches]}
+			]
 			res << [{kind: "icon-label", icon: "attendance.svg", label:  I18n.t("calendar.attendance"), cols: 3}]
-			res << [{kind: "label", value: I18n.t("calendar.week"), align: "right"}, {kind: "text", value: att[:last7].to_s + "%"}] if att[:last7]
-			res << [{kind: "label", value: I18n.t("calendar.month"), align: "right"}, {kind: "text", value: att[:last30].to_s + "%"}] if att[:last30]
-			res << [{kind: "label", value: I18n.t("season.abbr"), align: "right"}, {kind: "text", value: att[:avg].to_s + "%"}] if att[:avg]
+			res << [
+				{kind: "label", value: I18n.t("calendar.week"), align: "right"},
+				{kind: "text", value: att[:last7].to_s + "%"}
+			] if att[:last7]
+			res << [
+				{kind: "label", value: I18n.t("calendar.month"), align: "right"},
+				{kind: "text", value: att[:last30].to_s + "%"}
+			] if att[:last30]
+			res << [
+				{kind: "label", value: I18n.t("season.abbr"), align: "right"},
+				{kind: "text", value: att[:avg].to_s + "%"}
+			] if att[:avg]
 		else
-			res << [{kind: "icon-label", icon: (@player.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"}, {kind: "string", value: @player.person.dni.to_s}]
+			res << [
+				{kind: "icon-label", icon: (@player.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"},
+				{kind: "string", value: @player.person.dni.to_s}
+			]
 		end
 		res << [{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}]
 		res.last << {kind: "contact", email: @player.person.email, phone: @player.person.phone, device: device}
@@ -74,9 +92,19 @@ module PlayersHelper
 	def player_form_title(title:, rows: 3, cols: 2)
 		res = player_title_fields(title:, icon: @player.picture, rows:, cols:, size: "100x100", _class: "rounded-full")
 		f_cols = cols>2 ? cols - 1 : nil
-		res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, label: I18n.t("person.name"), value: @player.person.name, cols: f_cols}]
-		res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}]
-		res << [{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @player.person.female}, {kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}]
+		res << [
+			{kind: "label", value: I18n.t("person.name_a")},
+			{kind: "text-box", key: :name, label: I18n.t("person.name"), value: @player.person.name, cols: f_cols}
+		]
+		res << [
+			{kind: "label", value: I18n.t("person.surname_a")},
+			{kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}
+		]
+		res << [
+			{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @player.person.female},
+			{kind: "icon", value: "calendar.svg"},
+			{kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}
+		]
 		res
 	end
 
@@ -98,8 +126,18 @@ module PlayersHelper
 	# return personal data FieldsComponent for Player forms
 	def player_form_person(person:)
 		[
-			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: person.email}],
-			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: person.phone}]
+			[
+				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
+				{kind: "text-box", key: :dni, size: 8, value: person.dni},
+				{kind: "gap"}, {kind: "icon", value: "at.svg"},
+				{kind: "email-box", key: :email, value: person.email}
+			],
+			[
+				{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: person.nick},
+				{kind: "gap"},
+				{kind: "icon", value: "phone.svg"},
+				{kind: "text-box", key: :phone, size: 12, value: person.phone}
+			]
 		]
 	end
 end

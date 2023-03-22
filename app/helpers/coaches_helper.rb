@@ -28,8 +28,14 @@ module CoachesHelper
 		res << [{kind: "label", value:  @coach.s_name}]
 		res << [{kind: "label", value:  @coach.person.surname}]
 		res << [{kind: "string", value:  @coach.person.birthday}]
-		res << [{kind: "icon-label", icon: ( @coach.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"}, {kind: "string", value:  @coach.person.dni.to_s}]
-		res << [{kind: "gap", size: 1}, {kind: "contact", email:  @coach.person.email, phone:  @coach.person.phone, device: device}]
+		res << [
+			{kind: "icon-label", icon: ( @coach.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"},
+			{kind: "string", value:  @coach.person.dni.to_s}
+		]
+		res << [
+			{kind: "gap", size: 1},
+			{kind: "contact", email:  @coach.person.email, phone:  @coach.person.phone, device: device}
+		]
 		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
 	end
 
@@ -37,9 +43,18 @@ module CoachesHelper
 	def coach_form_title(title:, rows: 3, cols: 2)
 		res = coach_title(title:, icon:  @coach.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
 		f_cols = cols>2 ? cols - 1 : nil
-		res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value:  @coach.person.name, cols: f_cols}]
-		res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value:  @coach.person.surname, cols: f_cols}]
-		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value:  @coach.person.birthday, cols: f_cols}]
+		res << [
+			{kind: "label", value: I18n.t("person.name_a")},
+			{kind: "text-box", key: :name, value:  @coach.person.name, cols: f_cols}
+		]
+		res << [
+			{kind: "label", value: I18n.t("person.surname_a")},
+			{kind: "text-box", key: :surname, value:  @coach.person.surname, cols: f_cols}
+		]
+		res << [
+			{kind: "icon", value: "calendar.svg"},
+			{kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value:  @coach.person.birthday, cols: f_cols}
+		]
 	end
 
 	# return FieldsComponent @fields for forms
@@ -54,8 +69,14 @@ module CoachesHelper
 	def coach_person_fields
 		person = @coach.person
 		[
-			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: person.email}],
-			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: person.phone}]
+			[
+				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
+				{kind: "text-box", key: :dni, size: 8, value: person.dni},
+				{kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: person.email}],
+			[
+				{kind: "icon", value: "user.svg"},
+				{kind: "text-box", key: :nick, size: 8, value: person.nick},
+				{kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: person.phone}]
 		]
 	end
 

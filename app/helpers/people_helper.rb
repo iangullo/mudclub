@@ -39,17 +39,38 @@ module PeopleHelper
 	# return FieldsComponent @fields for forms
 	def person_form_title(title:)
 		res = person_title_fields(title:, icon: @person.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
-		res << [{kind: "label", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @person.name}]
-		res << [{kind: "label", value: I18n.t("person.surname_a")}, {kind: "text-box", key: :surname, value: @person.surname}]
-		res << [{kind: "icon", value: "calendar.svg"}, {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @person.birthday}]
+		res << [
+			{kind: "label", value: I18n.t("person.name_a")},
+			{kind: "text-box", key: :name, value: @person.name}
+		]
+		res << [
+			{kind: "label", value: I18n.t("person.surname_a")},
+			{kind: "text-box", key: :surname, value: @person.surname}
+		]
+		res << [
+			{kind: "icon", value: "calendar.svg"},
+			{kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @person.birthday}
+		]
 		res << [{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @person.female, align: "center"}]
 		res
 	end
 
 	def person_form_fields
 		res = [
-			[{kind: "label", value: I18n.t("person.pid_a"), align: "right"}, {kind: "text-box", key: :dni, size: 8, value: @person.dni}, {kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: @person.email}],
-			[{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: @person.nick}, {kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: @person.phone}]
+			[
+				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
+				{kind: "text-box", key: :dni, size: 8, value: @person.dni},
+				{kind: "gap"},
+				{kind: "icon", value: "at.svg"},
+				{kind: "email-box", key: :email, value: @person.email}
+			],
+			[
+				{kind: "icon", value: "user.svg"},
+				{kind: "text-box", key: :nick, size: 8, value: @person.nick},
+				{kind: "gap"},
+				{kind: "icon", value: "phone.svg"},
+				{kind: "text-box", key: :phone, size: 12, value: @person.phone}
+			]
 		]
 	end
 

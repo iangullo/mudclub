@@ -29,7 +29,10 @@ module TeamsHelper
 			w_l = @team.win_loss
 			if w_l[:won]>0 or w_l[:lost]>0
 				wlstr = "(" + w_l[:won].to_s + I18n.t("match.won") + " - " + w_l[:lost].to_s + I18n.t("match.lost") + ")"
-				res << [{kind: "gap"}, {kind: "text", value: wlstr}]
+				res << [
+					{kind: "gap"},
+					{kind: "text", value: wlstr}
+				]
 			end
 		end
 		res
@@ -60,13 +63,34 @@ module TeamsHelper
 	# return HeaderComponent @fields for forms
 	def team_form_fields(title:, cols: nil)
 		res = team_title_fields(title:, cols:, edit: true)
-		res << [{kind: "label", align: "right", value: I18n.t("person.name_a")}, {kind: "text-box", key: :name, value: @team.name}]
-		res << [{kind: "icon", value: "category.svg"}, {kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}]
-		res << [{kind: "icon", value: "division.svg"}, {kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}]
-		res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :homecourt_id, options: Location.home, value: @team.homecourt_id}]
-		res << [{kind: "icon", value: "time.svg"}, {kind: "select-box", key: :rules, options: Category.time_rules, value: @team.periods }]
-		res << [{kind: "icon", value: "coach.svg"}, {kind: "label", value:I18n.t("coach.many"), class: "align-center"}]
-		res << [{kind: "gap"}, {kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}]
+		res << [
+			{kind: "label", align: "right", value: I18n.t("person.name_a")},
+			{kind: "text-box", key: :name, value: @team.name}
+		]
+		res << [
+			{kind: "icon", value: "category.svg"},
+			{kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}
+		]
+		res << [
+			{kind: "icon", value: "division.svg"},
+			{kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}
+		]
+		res << [
+			{kind: "icon", value: "location.svg"},
+			{kind: "select-collection", key: :homecourt_id, options: Location.home, value: @team.homecourt_id}
+		]
+		res << [
+			{kind: "icon", value: "time.svg"},
+			{kind: "select-box", key: :rules, options: Category.time_rules, value: @team.periods }
+		]
+		res << [
+			{kind: "icon", value: "coach.svg"},
+			{kind: "label", value:I18n.t("coach.many"), class: "align-center"}
+		]
+		res << [
+			{kind: "gap"},
+			{kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}
+		]
 		res
 	end
 

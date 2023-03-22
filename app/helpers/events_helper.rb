@@ -44,7 +44,10 @@ module EventsHelper
 	def event_attendance_title
 		res = title_start(icon: "attendance.svg", title: @event.team.name)
 		res[0] << {kind: "gap"}
-		res << [{kind: "subtitle", value: @event.to_s}, {kind: "gap"}]
+		res << [
+			{kind: "subtitle", value: @event.to_s},
+			{kind: "gap"}
+		]
 		event_top_right_fields(res:)
 		res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
 	end
@@ -80,8 +83,14 @@ module EventsHelper
 
 	# FieldComponents to show an attendance form
 	def event_attendance_form_fields
-		res = [[{kind: "gap", size: 2}, {kind: "side-cell", value: I18n.t(@event.match? ? "match.roster" : "calendar.attendance"), align: "left"}]]
-		res << [{kind: "gap", size: 2}, {kind: "select-checkboxes", key: :player_ids, options: @event.team.players.active}]
+		res = [[
+			{kind: "gap", size: 2},
+			{kind: "side-cell", value: I18n.t(@event.match? ? "match.roster" : "calendar.attendance"), align: "left"}
+		]]
+		res << [
+			{kind: "gap", size: 2},
+			{kind: "select-checkboxes", key: :player_ids, options: @event.team.players.active}
+		]
 	end
 
 	#FieldComponents to show a match
@@ -92,7 +101,7 @@ module EventsHelper
 			{kind: "top-cell", value: score[:home][:team]},
 			{kind: "label", value: score[:home][:points], class: "border px py"},
 			{kind: "gap"}
-			]]
+		]]
 		res << [
 			{kind: "gap", size: 2},
 			{kind: "top-cell", value: score[:away][:team]},
@@ -100,16 +109,31 @@ module EventsHelper
 			{kind: "gap"}
 		]
 		res << [{kind: "gap", size: 1, cols: 4, class: "text-xs"}]
-		res << [{kind: "gap", size: 2}, {kind: "side-cell", value: I18n.t("player.many"), align: "left", cols: 3}]
-		res << [{kind: "gap", size: 2}, {kind: "grid", value: period_grid(periods: @event.periods), cols: 3}]
+		res << [
+			{kind: "gap", size: 2},
+			{kind: "side-cell", value: I18n.t("player.many"), align: "left", cols: 3}
+		]
+		res << [
+			{kind: "gap", size: 2},
+			{kind: "grid", value: period_grid(periods: @event.periods), cols: 3}
+		]
 	end
 
 	# return FieldsComponent for match form
 	def match_form_fields
 		score   = @event.score(mode: 0)
 		periods = @event.periods
-		res     = [[{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2}, {kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"}, {kind: "top-cell", value: @event.team.to_s}, {kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}]]
-		res << [{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center"}, {kind: "text-box", key: :name, value: @event.name}, {kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}]
+		res     = [[
+			{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2},
+			{kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"},
+			{kind: "top-cell", value: @event.team.to_s},
+			{kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}
+		]]
+		res << [
+			{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center"},
+			{kind: "text-box", key: :name, value: @event.name},
+			{kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}
+		]
 		res << [{kind: "gap", size: 1, class: "text-xs"}]
 		res << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: 3}]
 		if periods
@@ -117,12 +141,19 @@ module EventsHelper
 		else
 			grid = player_grid(players: @event.players.order(:number), obj: @event.team)
 		end
-		res << [{kind: "gap", size:2}, {kind: "grid", value: grid, cols: 4}]
+		res << [
+			{kind: "gap", size:2},
+			{kind: "grid", value: grid, cols: 4}
+		]
 	end
 
 	# fields for a new match form
 	def match_new_fields
-		[[{kind: "gap"}, {kind: "label", value: I18n.t("match.rival")}, {kind: "text-box", key: :name, value: I18n.t("match.default_rival")} ]]
+		[[
+			{kind: "gap"},
+			{kind: "label", value: I18n.t("match.rival")},
+			{kind: "text-box", key: :name, value: I18n.t("match.default_rival")}
+		]]
 	end
 
 	# return FieldsComponent @fields for show_training
@@ -133,13 +164,21 @@ module EventsHelper
 	# fields to show in task views
 	def task_show_fields(task:, team:, title: true)
 		res = []
-		res << [{kind: "icon", value: "drill.svg", size: "30x30", align: "center"}, {kind: "label", value: task.drill.name}, {kind: "gap"}, {kind: "icon-label", icon: "clock.svg", label: task.s_dur}] if title
+		res << [
+			{kind: "icon", value: "drill.svg", size: "30x30", align: "center"},
+			{kind: "label", value: task.drill.name},
+			{kind: "gap"},
+			{kind: "icon-label", icon: "clock.svg", label: task.s_dur}
+		] if title
 		res << [{kind: "cell", value: task.drill.explanation.empty? ? @task.drill.description : task.drill.explanation}]
 		if task.remarks?
 			res << [{kind: "label", value: I18n.t("task.remarks")}]
 			res << [{kind: "cell", value: task.remarks, size: 28}]
 		end
-		res << [{kind: "gap", cols: 2}, {kind: "edit", align: "right", url: edit_task_event_path(task_id: task.id)}] if team.has_coach(current_user.person.coach_id)
+		res << [
+			{kind: "gap", cols: 2},
+			{kind: "edit", align: "right", url: edit_task_event_path(task_id: task.id)}
+		] if team.has_coach(current_user.person.coach_id)
 		res
 	end
 
@@ -167,9 +206,7 @@ module EventsHelper
 	# fields for task edit/add views
 	def task_form_description
 		if @task.drill
-			[[
-				{kind: "string", value: @task.drill.explanation.empty? ? @task.drill.description : @task.drill.explanation}
-			]]
+			[[{kind: "string", value: @task.drill.explanation.empty? ? @task.drill.description : @task.drill.explanation}]]
 		else
 			nil
 		end
@@ -266,16 +303,30 @@ module EventsHelper
 		# complete event title for matches
 		def match_title(res:, cols:, form:)
 			if form
-				res << [{kind: "icon", value: "location.svg"}, {kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id}, {kind: "gap"}]
-				res << [{kind: "gap", size: 1, cols: 4}, {kind: "icon", value: "attendance.svg"}, {kind: "link", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left"}] if @event.id
+				res << [
+					{kind: "icon", value: "location.svg"},
+					{kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id},
+					{kind: "gap"}
+				]
+				res << [
+					{kind: "gap", size: 1, cols: 4},
+					{kind: "icon", value: "attendance.svg"},
+					{kind: "link", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left"}
+				] if @event.id
 				#res << [{kind: "gap", size: 1, cols: 4}, {kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}]
 			else
 				if @event.location.gmaps_url
-					res << [{kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}, {kind: "gap"}]
+					res << [
+						{kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name},
+						{kind: "gap"}
+					]
 				else
 					res << [{kind: "gap", cols: 2}]
 				end
-				res << [{kind: "gap", size: 1, cols: 3}, {kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}]
+				res << [
+					{kind: "gap", size: 1, cols: 3},
+					{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}
+				]
 			end
 		end
 
@@ -286,10 +337,21 @@ module EventsHelper
 				if form
 					res << [workload_button(align: "left", cols: 3)] if @event.id
 				else
-					res << [workload_button(align: "left", cols: 4), {kind: "gap", size: 1}, {kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}]
+					res << [
+						workload_button(align: "left", cols: 4),
+						{kind: "gap", size: 1},
+						{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}
+					]
 					res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
-					res << [{kind: "side-cell", value: I18n.t("target.abbr"),rows: 2}, {kind: "top-cell", value: I18n.t("target.focus.def_a")}, {kind: "lines", value: @event.def_targets, cols: 5}]
-					res << [{kind: "top-cell", value: I18n.t("target.focus.ofe_a")}, {kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}]
+					res << [
+						{kind: "side-cell", value: I18n.t("target.abbr"),rows: 2},
+						{kind: "top-cell", value: I18n.t("target.focus.def_a")},
+						{kind: "lines", value: @event.def_targets, cols: 5}
+					]
+					res << [
+						{kind: "top-cell", value: I18n.t("target.focus.ofe_a")},
+						{kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}
+					]
 				end
 			end
 		end

@@ -36,8 +36,14 @@ module SeasonsHelper
 	def season_form_fields(title:, cols: nil)
 		res = season_title_fields(title:, cols:)
 		res << [{kind: "subtitle", value: @season.name}]
-		res << [{kind: "label", align: "right", value: I18n.t("calendar.start")}, {kind: "date-box", key: :start_date, s_year: 2020, value: @season.start_date}]
-		res << [{kind: "label", align: "right", value: I18n.t("calendar.end")}, {kind: "date-box", key: :end_date, s_year: 2020, value: @season.end_date}]
+		res << [
+			{kind: "label", align: "right", value: I18n.t("calendar.start")},
+			{kind: "date-box", key: :start_date, s_year: 2020, value: @season.start_date}
+		]
+		res << [
+			{kind: "label", align: "right", value: I18n.t("calendar.end")},
+			{kind: "date-box", key: :end_date, s_year: 2020, value: @season.end_date}
+		]
 		res
 	end
 end

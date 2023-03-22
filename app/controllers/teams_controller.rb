@@ -130,13 +130,15 @@ class TeamsController < ApplicationController
 	# GET /teams/1/attendance
 	def attendance
 		check_access(roles: [:admin, :coach], returl: @team)
-		title     = helpers.team_title_fields(title: @team.to_s)
+		title  = helpers.team_title_fields(title: @team.to_s)
 		title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
-		@title    = create_fields(title)
-		a_data    = helpers.team_attendance_grid
-		@grid     = create_grid({title: a_data[:title], rows: a_data[:rows]})
-		@submit   = create_submit(submit:nil)
-		@att_data = [a_data[:chart]]
+		@title = create_fields(title)
+		a_data = helpers.team_attendance_grid
+		if a_data
+			@grid = create_grid({title: a_data[:title], rows: a_data[:rows]})
+			@att_data = [a_data[:chart]] if a_data
+		end
+		@submit = create_submit(submit:nil)
 	end
 
 	# GET /teams/1/edit
