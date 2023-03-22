@@ -77,4 +77,10 @@ module ApplicationHelper
 		end
 		prawn.move_down 10
 	end
+
+
+	# def a prawn label
+	def prawn_label(prawn:, label:)
+		prawn.text "#{label}: ", size: 16, styles: [:bold]
+	end
 end

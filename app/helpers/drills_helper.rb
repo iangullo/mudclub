@@ -112,11 +112,13 @@ module DrillsHelper
 
 	# pdf export of @drill content
 	def drill_pdf
-		pdf = create_prawn(subtitle: I18n.t("task.single"))
-		pdf.text "#{I18n.t("drill.name")}: "
-		pdf.text "#{I18n.t("target.many")}: "
-		pdf.text "#{I18n.t("drill.expl")}: "
-		pdf
+		prawn = create_prawn(subtitle: I18n.t("task.single"))
+		prawn_label(prawn:, label: "#{I18n.t("drill.name")}")
+		prawn_label(prawn:, label: "#{I18n.t("target.many")}")
+		prawn_label(prawn:, label: "#{I18n.t("drill.expl")}")
+		prawn.fill_color = '404040'	# dark blue font
+		PrawnHtml.append_html(prawn,@drill.explanation.body.to_html)
+		prawn
 	end
 
 	private

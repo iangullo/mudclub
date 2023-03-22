@@ -110,3 +110,5 @@ gem 'devise-i18n'
 gem "chartkick", "~> 4.2"
 
 gem "prawn", "~> 2.4"
+
+gem "prawn-html", "~> 0.7.1"
