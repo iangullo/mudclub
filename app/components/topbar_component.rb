@@ -65,7 +65,9 @@ class TopbarComponent < ApplicationComponent
 		if user.is_coach?
 			res << menu_link(label: I18n.t("drill.many"), url: '/drills')
 			res << menu_link(label: I18n.t("player.many"), url: '/players') unless user.admin?
+			res << menu_link(label: I18n.t("coach.many"), url: '/coaches') unless user.admin?
 			res << menu_link(label: I18n.t("location.many"), url: '/locations') unless user.admin?
+			res << menu_link(label: I18n.t("slot.many"), url: '/slots') unless user.admin?
 		end
 		res
 	end
