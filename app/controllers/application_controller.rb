@@ -29,32 +29,7 @@ class ApplicationController < ActionController::Base
 	def check_access(roles:, obj: false)
 		res = false
 		if current_user.present?
-			admin   = current_user.admin?
-			coachid = current_user.person.coach_id
-			persid  = current_user.person.id
-			playid  = current_user.person.player_id
-			roles.each { |rol|	# ok as if any of roles is found
-				case rol
-				when :admin then res = admin
-				when :coach then res = current_user.is_coach?
-				when :player then res = current_user.is_player?
-				when :user then res = true  # it's a user alright
-				end
-				break if res
-			}
-			if res # additional check for OBJ related conditions
-				case obj
-				when Category, Division, Location, Season, Slot then res = true
-				when Coach then res = (admin or coachid==obj.id)
-				when Drill then res = (admin or coachid==obj.coach_id)
-				when Event then res = (admin or obj.team.has_coach(coachid))
-				when Person then res = (admin or persid==obj.id)
-				when Player then res = (admin or current_user.is_coach? or playid==obj.id)
-				when Team then res = (admin or obj.has_coach(coachid))
-				when User then res = (admin or current_user.id==@user.id)
-				when NilClass then res = false
-				end
-			end
+			res = check_role(roles:) and check_object(obj:)
 		end
 		res
 	end
@@ -73,4 +48,77 @@ class ApplicationController < ActionController::Base
 	def create_submit(close: "close", submit: "save", close_return: nil, frame: nil)
 		SubmitComponent.new(close:, submit:, close_return:, frame:)
 	end
+
+	# wrappers to make code in all views/controllers more readable
+	def u_admin?
+		current_user.admin?
+	end
+
+	def u_coach?
+		current_user.is_coach?
+	end
+
+	def u_player?
+		current_user.is_player?
+	end
+
+	def u_coachid
+		current_user.person.coach_id
+	end
+
+	def u_playerid
+		current_user.person.player_id
+	end
+
+	def u_personid
+		current_user.person.id
+	end
+
+	def u_userid
+		current_user.id
+	end
+
+	private
+		# check if current user satisfies access policy
+		def check_role(roles:)
+			roles.each { |rol|	# ok as if any of roles is found
+				case rol
+				when :admin
+					return true if u_admin?
+				when :coach
+					return true if u_coach?
+				when :player
+					return true if u_player?
+				when :user
+					return true  # it's a user alright
+				end
+			}
+			return false
+		end
+
+		# check object related access policy
+		def check_object(obj:)
+			case obj
+			when Category, Division, FalseClass, Location, Season, Slot
+				return true
+			when Coach
+				return (u_admin? or u_coachid==obj.id)
+			when Drill
+				return (u_admin? or u_coachid==obj.coach_id)
+			when Event
+				return (u_admin? or obj.team.has_coach(u_coachid))
+			when Person
+				return (u_admin? or u_persid==obj.id)
+			when Player
+				return (u_admin? or coach? or u_playid==obj.id)
+			when Team
+				return (u_admin? or obj.has_coach(u_coachid))
+			when User
+				return (u_admin? or u_userid==@user.id)
+			when NilClass
+				return false
+			else
+				return false
+			end
+		end
 end
