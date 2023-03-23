@@ -15,12 +15,12 @@
 				</tr><tr>
 					<td align="right"><%= image_tag("clock.svg", size: "25x25") %></td>
 					<td><%= @slot.duration %>&nbsp;<strong>'</strong></td>
-					<% if current_user.admin?%>
+					<% if u_admin?%>
 					<td><%= render ButtonComponent.new(button: {kind: "delete", url: slot_path(@slot), name: @slot.to_s})%></td>
 					<% end %>
 				</tr>
 			</div>
 		</table>
 	</div>
-	<%= render SubmitComponent.new(submit: current_user.admin? ? edit_slot_path(@slot) : nil, frame: current_user.admin? ? "modal" : nil) %>
+	<%= render @submit %>
 <% end %>

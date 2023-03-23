@@ -77,13 +77,13 @@ module PeopleHelper
 	# return title for @people GridComponent
 	def person_grid
 		title = [{kind: "normal", value: I18n.t("person.name")}]
-		title << {kind: "add", url: new_person_path, frame: "modal"} if current_user.admin?
+		title << {kind: "add", url: new_person_path, frame: "modal"} if u_admin?
 
 		rows = Array.new
 		@people.each { |person|
 			row = {url: person_path(person), frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: person.to_s}
-			row[:items] << {kind: "delete", url: row[:url], name: person.to_s} if current_user.admin?
+			row[:items] << {kind: "delete", url: row[:url], name: person.to_s} if u_admin?
 			rows << row
 		}
 		{title: title, rows: rows}

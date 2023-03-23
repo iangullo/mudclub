@@ -5,7 +5,7 @@
 			<thead>
 				<tr>
 					<th align="center">
-						<% if current_user.admin? and not (@season.teams.empty?) %>
+						<% if u_admin? and not (@season.teams.empty?) %>
 							<%= render ButtonComponent.new(button: {kind: "add", url: new_slot_path(location_id: @location.id, season_id: @season.id), frame: "modal"}) %>
 						<% end %>
 					</th>

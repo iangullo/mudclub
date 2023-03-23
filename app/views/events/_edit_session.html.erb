@@ -22,7 +22,7 @@
 			</td>
 		</tr><tr>
 			<td align="left">
-				<% if current_user.admin? or @event.team.has_coach(current_user.person.coach_id)  %>
+				<% if u_admin? or @event.team.has_coach(u_coachid)  %>
 					<%= render ButtonComponent.new(button: {kind: "add", label: t("task.add"), url: add_task_event_path}) %>
 				<% end %>
 			</td>

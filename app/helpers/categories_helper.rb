@@ -69,7 +69,7 @@ module CategoriesHelper
 			{kind: "normal", value: I18n.t("stat.min")},
 			{kind: "normal", value: I18n.t("stat.max")}
 		]
-		title <<  {kind: "add", url: new_category_path, frame: "modal"} if current_user.admin?
+		title <<  {kind: "add", url: new_category_path, frame: "modal"} if u_admin?
 
 		rows = Array.new
 		@categories.each { |cat|
@@ -78,7 +78,7 @@ module CategoriesHelper
 			row[:items] << {kind: "normal", value: cat.sex}
 			row[:items] << {kind: "normal", value: cat.min_years, align: "right"}
 			row[:items] << {kind: "normal", value: cat.max_years, align: "right"}
-			row[:items] << {kind: "delete", url: category_path(cat), name: cat.name} if current_user.admin?
+			row[:items] << {kind: "delete", url: category_path(cat), name: cat.name} if u_admin?
 			rows << row
 		}
 		{title: title, rows: rows}

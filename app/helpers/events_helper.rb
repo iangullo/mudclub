@@ -178,7 +178,7 @@ module EventsHelper
 		res << [
 			{kind: "gap", cols: 2},
 			{kind: "edit", align: "right", url: edit_task_event_path(task_id: task.id)}
-		] if team.has_coach(current_user.person.coach_id)
+		] if team.has_coach(u_coachid)
 		res
 	end
 
@@ -386,7 +386,7 @@ module EventsHelper
 						n_row = event.match? ? {kind: "normal", value: row_f.to_s, cols: 1} : {kind: "normal", value: event.to_s, cols: 4}
 						row[:items] << n_row
 					}
-					row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if current_user.admin? or (event.team_id>0 and event.team.has_coach(current_user.person.coach_id))
+					row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if u_admin? or (event.team_id>0 and event.team.has_coach(u_coachid))
 					rows << row
 				end
 			}
@@ -434,9 +434,9 @@ module EventsHelper
 
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, for_season: nil)
-			if for_season and current_user.admin? # new season event
+			if for_season and u_admin? # new season event
 				return {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"}
-			elsif obj.has_coach(current_user.person.coach_id) # new team event
+			elsif obj.has_coach(u_coachid) # new team event
 				button = {kind: "add", name: "add-event", options: []}
 				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id}), data: {turbo_frame: :modal}}
 				button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: obj.id}), data: {turbo_frame: :modal}}

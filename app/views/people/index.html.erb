@@ -3,7 +3,7 @@
 	<%= turbo_frame_tag "search-results" do %>
 		<%= render @grid %>
 	<% end %>
-	<% if current_user.admin? %>
+	<% if u_admin? %>
 		<br>
 		<%= render "shared/import_export", import_path: import_people_path, export_path: people_path(format: :xlsx) %>
 	<% end %>

@@ -22,7 +22,7 @@ module TeamsHelper
 		res = title_start(icon: "team.svg", title: title, cols: cols)
 		if search
 			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: @team ? @team.season_id : session.dig('team_filters', 'season_id')}]
-		elsif edit and current_user.admin?
+		elsif edit and u_admin?
 			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
 		else
 			res << [{kind: "label", value: @team.season.name}]
@@ -97,12 +97,12 @@ module TeamsHelper
 	# return jump links for a team
 	def team_links
 		res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster"), frame: "modal", align: "center"}]]
-		if (current_user.admin? or current_user.is_coach?)
+		if (u_admin? or u_coach?)
 			res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t("target.many"), align: "center"}
 			res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr"), align: "center"}
 		end
 		res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal", align: "center"}
-		if (current_user.admin? or @team.has_coach(current_user.person.coach_id))
+		if (u_admin? or @team.has_coach(u_coachid))
 			res.last << {kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}
 		end
 		res << [{kind: "gap"}]

@@ -30,7 +30,7 @@ module UsersHelper
 			{kind: "normal", value: I18n.t("role.coach_a"), align: "center"},
 			{kind: "normal", value: I18n.t("role.admin_a"), align: "center"}
 		]
-		title << {kind: "add", url: new_user_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
+		title << {kind: "add", url: new_user_path, frame: "modal"} if u_admin? or u_coach?
 
 		rows = Array.new
 		@users.each { |user|
@@ -39,7 +39,7 @@ module UsersHelper
 			row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
 			row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}
 			row[:items] << {kind: "icon", value: user.admin? ? "Yes.svg" : "No.svg", align: "center"}
-			row[:items] << {kind: "delete", url: row[:url], name: user.s_name} if current_user.admin? and user.id!=current_user.id
+			row[:items] << {kind: "delete", url: row[:url], name: user.s_name} if u_admin? and user.id!=current_user.id
 			rows << row
 		}
 		{title: title, rows: rows}
@@ -91,7 +91,7 @@ module UsersHelper
 				{kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: @user.locale}
 			]
 		]
-		if current_user.admin?
+		if u_admin?
 			res << [
 				{kind: "label", value: "#{I18n.t("user.profile")}:"},
 				{kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}

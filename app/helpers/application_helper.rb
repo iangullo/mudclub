@@ -55,4 +55,33 @@ module ApplicationHelper
 	def flash_message(message, kind="info")
 		res = {message: message, kind: kind}
 	end
+
+	# wrappers to make code in all views/helpers more readable
+	def u_admin?
+		current_user.admin?
+	end
+
+	def u_coach?
+		current_user.is_coach?
+	end
+
+	def u_player?
+		current_user.is_player?
+	end
+
+	def u_coachid
+		current_user.person.coach_id
+	end
+
+	def u_playerid
+		current_user.person.player_id
+	end
+
+	def u_personid
+		current_user.person.id
+	end
+
+	def u_userid
+		current_user.id
+	end
 end

@@ -128,7 +128,7 @@ module DrillsHelper
 				{kind: "nested-form", model: "drill", key: "skills", child: Skill.new, row: "skill_row"},
 				{kind: "gap"},
 				{kind: "label", value: I18n.t("drill.author"), align: "right"},
-				{kind: "select-collection", key: :coach_id, options: Coach.real, value: (@drill.coach_id.to_i>0) ? @drill.coach_id : (current_user.is_coach? ? current_user.coach.id : 1)}
+				{kind: "select-collection", key: :coach_id, options: Coach.real, value: (@drill.coach_id.to_i>0) ? @drill.coach_id : (u_coach? ? current_user.coach.id : 1)}
 			]
 		]
 	end
@@ -143,7 +143,7 @@ module DrillsHelper
 			{kind: "normal", value: I18n.t("target.many")}
 			#{kind: "normal", value: I18n.t("task.many")}
 		]
-		title << {kind: "add", url: new_drill_path, frame: "_top"} if current_user.admin? or current_user.is_coach?
+		title << {kind: "add", url: new_drill_path, frame: "_top"} if u_admin? or u_coach?
 
 		{track: track, title: title, rows: drill_rows(drills:)}
 	end
@@ -159,7 +159,7 @@ module DrillsHelper
 				row[:items] << {kind: "normal", value: drill.coach.s_name, align: "center"}
 				row[:items] << {kind: "lines", value: drill.print_targets}
 				#row[:items] << {kind: "normal", value: Task.where(drill_id: drill.id).count, align: "center"}
-				row[:items] << {kind: "delete", url: row[:url], name: drill.name} if current_user.admin?
+				row[:items] << {kind: "delete", url: row[:url], name: drill.name} if u_admin?
 				rows << row
 			}
 			rows

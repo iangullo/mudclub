@@ -30,7 +30,7 @@ module PlayersHelper
 		title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("person.age"), align: "center"}]
 		if p_index
 			title << {kind: "normal", value: I18n.t("status.active_a"), align: "center"}
-			title << {kind: "add", url: new_player_path, frame: "modal"} if current_user.admin? or current_user.is_coach?
+			title << {kind: "add", url: new_player_path, frame: "modal"} if u_admin? or u_coach?
 		end
 		rows = Array.new
 		players.each { | player|
@@ -41,7 +41,7 @@ module PlayersHelper
 			row[:items] << {kind: "normal", value: player.person.age, align: "center"}
 			if p_index
 				row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
-				row[:items] << {kind: "delete", url: row[:url], name: player.to_s} if current_user.admin? or current_user.is_coach? and p_index
+				row[:items] << {kind: "delete", url: row[:url], name: player.to_s} if u_admin? or u_coach? and p_index
 			end
 			rows << row
 		}
