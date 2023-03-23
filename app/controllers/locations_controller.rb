@@ -39,7 +39,7 @@ class LocationsController < ApplicationController
 	def show
 		if check_access(roles: [:users], obj: @location)
 			@fields = create_fields(helpers.location_show_fields)
-			@submit = create_submit(submit: (current_user.admin? or current_user.is_coach?) ? edit_location_path(@location) : nil)
+			@submit = create_submit(submit: (u_admin? or u_coach?) ? edit_location_path(@location) : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

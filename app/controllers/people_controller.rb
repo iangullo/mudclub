@@ -46,7 +46,7 @@ class PeopleController < ApplicationController
 	def show
 		if check_access(roles: [:admin], obj: @person)
 			@fields = create_fields(helpers.person_show_fields)
-			@submit = create_submit(submit: (current_user.admin? or current_user.person_id==@person.id) ? edit_person_path(@person) : nil, frame: "modal")
+			@submit = create_submit(submit: (u_admin? or u_personid==@person.id) ? edit_person_path(@person) : nil, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

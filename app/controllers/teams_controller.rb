@@ -26,7 +26,7 @@ class TeamsController < ApplicationController
 	def index
 		if check_access(roles: [:admin, :coach])
 			@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: true))
-			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: current_user.admin?))
+			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: u_admin?))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -63,7 +63,7 @@ class TeamsController < ApplicationController
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
 			@title = create_fields(title)
 			@grid   = create_grid(helpers.player_grid(players: @team.players.active.order(:number), obj: @team))
-			@submit = create_submit(submit:(current_user.admin? or @team.has_coach(current_user.person.coach_id)) ? edit_roster_team_path : nil, frame: "modal")
+			@submit = create_submit(submit:(u_admin? or @team.has_coach(u_coachid)) ? edit_roster_team_path : nil, frame: "modal")
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
 		end
@@ -100,7 +100,7 @@ class TeamsController < ApplicationController
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "back", close_return: team_path(@team), submit: @team.has_coach(current_user.person.coach_id) ? edit_targets_team_path : nil)
+			@submit = create_submit(close: "back", close_return: team_path(@team), submit: @team.has_coach(u_coachid) ? edit_targets_team_path : nil)
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
 		end
@@ -128,7 +128,7 @@ class TeamsController < ApplicationController
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
 			@title = create_fields(title)
-			@edit  = edit_plan_team_path if @team.has_coach(current_user.person.coach_id)
+			@edit  = edit_plan_team_path if @team.has_coach(u_coachid)
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
 		end

@@ -36,7 +36,7 @@ class DivisionsController < ApplicationController
 			fields  = helpers.division_title_fields(title: I18n.t("division.single"))
 			fields << [{kind: "subtitle", value: @division.name}]
 			@fields = create_fields(fields)
-			@submit = create_submit(submit: current_user.admin? ? edit_division_path(@division) : nil)
+			@submit = create_submit(submit: u_admin? ? edit_division_path(@division) : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

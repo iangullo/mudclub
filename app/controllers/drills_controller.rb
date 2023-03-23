@@ -42,7 +42,7 @@ class DrillsController < ApplicationController
 			@intro   = create_fields(helpers.drill_show_intro)
 			@explain = create_fields(helpers.drill_show_explain)
 			@tail    = create_fields(helpers.drill_show_tail)
-			@submit  = create_submit(close: "back", close_return: drills_path, submit: (current_user.admin? or (@drill.coach_id==current_user.person.coach_id)) ? edit_drill_path(@drill) : nil)
+			@submit  = create_submit(close: "back", close_return: drills_path, submit: (u_admin? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

@@ -46,7 +46,7 @@ class PlayersController < ApplicationController
 	def show
 		if check_access(roles: [:admin, :coach], obj: @player)
 			@fields = create_fields(helpers.player_show_fields(team: params[:team_id] ? Team.find(params[:team_id]) : nil))
-			@submit = create_submit(submit: (current_user.admin? or current_user.is_coach? or current_user.person.player_id==@player.id) ? edit_player_path(@player, retlnk: params[:retlnk]) : nil, frame: "modal")
+			@submit = create_submit(submit: (u_admin? or u_coach? or u_playerid==@player.id) ? edit_player_path(@player, retlnk: params[:retlnk]) : nil, frame: "modal")
 		else
 			redirect_to players_path, data: {turbo_action: "replace"}
 		end

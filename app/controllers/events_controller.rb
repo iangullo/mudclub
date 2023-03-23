@@ -42,9 +42,9 @@ class EventsController < ApplicationController
 			retlnk = params[:retlnk]
 			@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
 			if @event.rest?
-				@submit = create_submit(submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_event_path(season_id: params[:season_id]) : nil, frame: "modal")
+				@submit = create_submit(submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil, frame: "modal")
 			else
-				@submit = create_submit(close: "back", close_return: retlnk ? retlnk : team_path(@event.team), submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_event_path(season_id: params[:season_id]) : nil)
+				@submit = create_submit(close: "back", close_return: retlnk ? retlnk : team_path(@event.team), submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil)
 				@fields = create_fields(@event.match? ? helpers.match_show_fields : helpers.training_show_fields)
 			end
 		else
@@ -57,14 +57,14 @@ class EventsController < ApplicationController
 		if check_access(roles: [:admin, :coach])
 			@event  = Event.prepare(event_params)
 			if @event
-				if @event.rest? or (@event.team_id >0 and @event.team.has_coach(current_user.person.coach_id))
+				if @event.rest? or (@event.team_id >0 and @event.team.has_coach(u_coachid))
 					prepare_event_form(new: true)
 					@submit = create_submit
 				else
-					redirect_to(current_user.admin? ? "/slots" : @event.team)
+					redirect_to(u_admin? ? "/slots" : @event.team)
 				end
 			else
-				redirect_to(current_user.admin? ? "/slots" : "/", data: {turbo_action: "replace"})
+				redirect_to(u_admin? ? "/slots" : "/", data: {turbo_action: "replace"})
 			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -164,7 +164,7 @@ class EventsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @event)
 			@task   = Task.find(params[:task_id])
 			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
-			@submit = create_submit(close: "back", close_return: :back, submit: (current_user.admin? or @event.team.has_coach(current_user.person.coach_id)) ? edit_task_event_path(task_id: @task.id) : nil)
+			@submit = create_submit(close: "back", close_return: :back, submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_task_event_path(task_id: @task.id) : nil)
 		else
 			redirect_to events_path, data: {turbo_action: "replace"}
 		end

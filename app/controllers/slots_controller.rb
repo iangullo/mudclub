@@ -40,7 +40,7 @@ class SlotsController < ApplicationController
 	def show
 		if check_access(roles: [:user], obj: @slot)
 			@title  = create_fields(helpers.slot_title_fields(title: I18n.t("slot.many")))
-			@submit = create_submit(submit: current_user.admin? ? edit_slot_path(@slot) : nil, frame: current_user.admin? ? "modal" : nil)
+			@submit = create_submit(submit: u_admin? ? edit_slot_path(@slot) : nil, frame: u_admin? ? "modal" : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

@@ -47,7 +47,7 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @coach)
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.teams.order(:season_id)))
-			@submit = create_submit(submit: (current_user.admin? or current_user.person.coach_id==@coach.id) ? edit_coach_path(@coach) : nil, frame: "modal")
+			@submit = create_submit(submit: (u_admin? or u_coachid==@coach.id) ? edit_coach_path(@coach) : nil, frame: "modal")
 		else
 			redirect_to coaches_path, data: {turbo_action: "replace"}
 		end
@@ -178,7 +178,7 @@ class CoachesController < ApplicationController
 			if (params[:search] != nil) and (params[:search].length > 0)
 				@coaches = Coach.search(params[:search])
 			else
-				if current_user.admin? or current_user.is_coach?
+				if u_admin? or u_coach?
 					Coach.active
 				else
 					Coach.none
