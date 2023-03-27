@@ -354,6 +354,7 @@ en:
     created: "Created user: "
     updated: "Updated user: "
     deleted: "Deleted user: "
+    last_in: "Last login"
     many: "Users"
     edit: "Edit User"
     new: "Create User"

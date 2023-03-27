@@ -28,7 +28,8 @@ module UsersHelper
 			{kind: "normal", value: I18n.t("person.name")},
 			{kind: "normal", value: I18n.t("role.player_a"), align: "center"},
 			{kind: "normal", value: I18n.t("role.coach_a"), align: "center"},
-			{kind: "normal", value: I18n.t("role.admin_a"), align: "center"}
+			{kind: "normal", value: I18n.t("role.admin_a"), align: "center"},
+			{kind: "normal", value: I18n.t("user.last_in"), align: "center"}
 		]
 		title << {kind: "add", url: new_user_path, frame: "modal"} if u_admin? or u_coach?
 
@@ -39,6 +40,7 @@ module UsersHelper
 			row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
 			row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}
 			row[:items] << {kind: "icon", value: user.admin? ? "Yes.svg" : "No.svg", align: "center"}
+			row[:items] << {kind: "normal", value: user.last_sign_in_at.try(:to_date), align: "center"}
 			row[:items] << {kind: "delete", url: row[:url], name: user.s_name} if u_admin? and user.id!=current_user.id
 			rows << row
 		}
@@ -62,6 +64,9 @@ module UsersHelper
 		res.last << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
 		res.last << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
 		res.last << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
+		res.last << {kind: "gap"}
+		res.last << {kind: "icon", value: "logout.svg", tip: I18n.t("user.last_in"), tipid: "last"}
+		res.last << {kind: "string", value: @user.last_sign_in_at.try(:to_date)}
 		res
 	end
 

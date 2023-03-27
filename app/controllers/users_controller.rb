@@ -38,7 +38,7 @@ class UsersController < ApplicationController
 			@user   = User.find(params[:id])
 			@title  = create_fields(helpers.user_show_fields)
 			@role   = create_fields(helpers.user_role)
-			@grid   = create_grid(helpers.team_grid(teams: @user.teams.order(:season_id)))
+			@grid   = create_grid(helpers.team_grid(teams: @user.teams.order(:season_id))) if @user.teams
 			@submit = create_submit(close: "back", close_return: :back, submit: edit_user_path(@user), frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

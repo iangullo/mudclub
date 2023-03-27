@@ -354,6 +354,7 @@ es:
     created: "Usuario creado: "
     updated: "Usuario guardado: "
     deleted: "Usuario borrado: "
+    last_in: "Ult. Entrada"
     many: "Usuarios"
     edit: "Editar Usuario"
     new: "Crear Usuario"
