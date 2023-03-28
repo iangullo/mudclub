@@ -123,6 +123,17 @@ class User < ApplicationRecord
 		self.role ||= :user
 	end
 
+	# return string with last date of user login
+	def last_login
+		res = self.last_sign_in_at.try(:to_date)
+		return res ? res : I18n.t("user.never")
+	end
+
+	# return last login IP
+	def last_from
+		self.last_sign_in_ip
+	end
+
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(u_data)

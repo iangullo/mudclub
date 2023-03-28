@@ -356,6 +356,7 @@ es:
     deleted: "Usuario borrado: "
     last_in: "Ult. Entrada"
     many: "Usuarios"
+    never: "(sin entradas)"
     edit: "Editar Usuario"
     new: "Crear Usuario"
     single: "Usuario"

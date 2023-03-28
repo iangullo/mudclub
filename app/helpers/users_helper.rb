@@ -49,24 +49,27 @@ module UsersHelper
 
 	# fields to show when looking a user profile
 	def user_show_fields
-		res = user_title_fields(@user.person.s_name, icon: @user.picture, _class: "rounded-full")
-		res << [{kind: "label", value: @user.person.surname}]
-		res << [
-			{kind: "gap", size: 1},
-			{kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device}
-		]
+		res = user_title_fields(@user.person.s_name, icon: @user.picture, _class: "rounded-full", cols: 4)
+		res << [{kind: "label", value: @user.person.surname, cols: 4}]
 		res
 	end
 
 	# Fieldcomponents to display user roles
 	def user_role
-		res = [[{kind: "label", value: I18n.t("user.profile")}]]
+		res =[[
+			{kind: "icon", value: "logout.svg", tip: I18n.t("user.last_in"), tipid: "last"},
+			{kind: "string", value: @user.last_login, cols: 3},
+			{kind: "gap"},
+			{kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device}
+		]]
+		res << [
+			{kind: "gap", size: 1},
+			{kind: "string", value: "(#{@user.last_from})",cols: 3}
+		] if @user.last_sign_in_ip?
+		res << [{kind: "label", value: "#{I18n.t("user.profile")}: "}]
 		res.last << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
 		res.last << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
 		res.last << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
-		res.last << {kind: "gap"}
-		res.last << {kind: "icon", value: "logout.svg", tip: I18n.t("user.last_in"), tipid: "last"}
-		res.last << {kind: "string", value: @user.last_sign_in_at.try(:to_date)}
 		res
 	end
 

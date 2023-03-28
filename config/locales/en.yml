@@ -356,6 +356,7 @@ en:
     deleted: "Deleted user: "
     last_in: "Last login"
     many: "Users"
+    never: "(never logged)"
     edit: "Edit User"
     new: "Create User"
     single: "User"
