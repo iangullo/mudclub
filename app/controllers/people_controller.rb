@@ -146,7 +146,7 @@ class PeopleController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("person.deleted")} '#{@person.to_s}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to people_url, status: :see_other, notice: helpers.flash_message(a_desc, data: {turbo_action: "replace"} }
+				format.html { redirect_to people_url, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
