@@ -75,7 +75,9 @@ class SlotsController < ApplicationController
 				@slot.rebuild(slot_params) # rebuild @slot
 				@season = Season.find(@slot.season_id)
 				if @slot.save # try to store
-					format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message("#{I18n.t("slot.created")} '#{@slot.to_s}'","success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("slot.created")} '#{@slot.to_s}'"
+					register_action(:created, a_desc)
+					format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: @slot }
 				else
 					format.html { render :new, status: :unprocessable_entity }
@@ -94,7 +96,9 @@ class SlotsController < ApplicationController
 				@slot.rebuild(slot_params) # rebuild @slot
 				@season = Season.find(@slot.season_id)
 				if @slot.save
-					format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message("#{I18n.t("slot.updated")} '#{@slot.to_s}'","success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("slot.updated")} '#{@slot.to_s}'"
+					register_action(:updated, a_desc)
+					format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: @slot }
 				else
 					format.html { redirect_to edit_slot_path(@slot) }
@@ -112,7 +116,9 @@ class SlotsController < ApplicationController
 			s_name = @slot.to_s
 			@slot.destroy
 			respond_to do |format|
-				format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("slot.deleted")} '#{s_name}'"), data: {turbo_action: "replace"} }
+				a_desc = "#{I18n.t("slot.deleted")} '#{s_name}'"
+				register_action(:deleted, a_desc)
+				format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

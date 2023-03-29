@@ -32,6 +32,8 @@ class PlayersController < ApplicationController
 			@grid    = create_grid(helpers.player_grid(players: @players))
 			respond_to do |format|
 				format.xlsx {
+					a_desc = "#{I18n.t("player.export")} 'players.xlsx'"
+					register_action(:exported, a_desc)
 					response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
 				}
 				format.html { render :index }
@@ -89,7 +91,9 @@ class PlayersController < ApplicationController
 							@player.person.player_id = @player.id
 							@player.person.save
 						end
-						format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message("#{I18n.t("player.created")} '#{@player.to_s}'", "success"), data: {turbo_action: "replace"} }
+						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
+						register_action(:created, a_desc)
+						format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: players_path(search: @player.s_name) }
 					else
 						format.html { render :new }
@@ -109,7 +113,9 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player.rebuild(player_params)
 				if @player.save
-					format.html { redirect_to player_params[:retlnk], notice: helpers.flash_message("#{I18n.t("player.updated")} '#{@player.to_s}'", "success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("player.updated")} '#{@player.to_s}'"
+					register_action(:updated, a_desc)
+					format.html { redirect_to player_params[:retlnk], notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: players_path(search: @player.s_name) }
 				else
 					format.html { render :edit }
@@ -126,7 +132,9 @@ class PlayersController < ApplicationController
 	def import
 		if check_access(roles: [:admin])
 			Player.import(params[:file])	# added to import excel
-			format.html { redirect_to players_path, notice: helpers.flash_message("#{I18n.t("player.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
+			a_desc = "#{I18n.t("player.import")} '#{params[:file].original_filename}'"
+			register_action(:imported, a_desc)
+			format.html { redirect_to players_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -140,7 +148,9 @@ class PlayersController < ApplicationController
 			unlink_person
 			@player.destroy
 			respond_to do |format|
-				format.html { redirect_to players_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("player.deleted")} '#{p_name}'"), data: {turbo_action: "replace"} }
+				a_desc = "#{I18n.t("player.deleted")} '#{p_name}'"
+				register_action(:deleted, a_desc)
+				format.html { redirect_to players_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

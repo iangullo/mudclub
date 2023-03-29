@@ -75,11 +75,13 @@ class UsersController < ApplicationController
 					@user.person.save unless @user.person.persisted?
 					@user.person_id = @user.person.id
 					if @user.save
+						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
+						register_action(:created, a_desc)
 						if @user.person.user_id != @user.id
 							@user.person.user_id = @user.id
 							@user.person.save
 						end
-						format.html { redirect_to users_url, notice: helpers.flash_message("#{I18n.t("user.created")} '#{@user.s_name}'","success"), data: {turbo_action: "replace"} }
+						format.html { redirect_to users_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: users_url }
 					else
 						format.html { render :new, notice: helpers.flash_message("#{@user.errors}","error") }
@@ -101,7 +103,9 @@ class UsersController < ApplicationController
 				end
 				@user.rebuild(user_params)	# rebuild user
 				if @user.save
-					format.html { redirect_to users_url, notice: helpers.flash_message("#{I18n.t("user.updated")} '#{@user.s_name}'","success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("user.updated")} '#{@user.s_name}'"
+					register_action(:updated, a_desc)
+					format.html { redirect_to users_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: users_url }
 				else
 					format.html { render :edit }
@@ -119,7 +123,9 @@ class UsersController < ApplicationController
 			unlink_person
 			@user.destroy
 			respond_to do |format|
-				format.html { redirect_to users_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("user.deleted")} '#{@user.s_name}'"), data: {turbo_action: "replace"} }
+				a_desc = "#{I18n.t("user.deleted")} '#{@user.s_name}'"
+				register_action(:deleted, a_desc)
+				format.html { redirect_to users_url, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

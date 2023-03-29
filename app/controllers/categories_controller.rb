@@ -65,7 +65,9 @@ class CategoriesController < ApplicationController
 			@category = Category.new(category_params)
 			respond_to do |format|
 				if @category.save
-					format.html { redirect_to categories_url, notice: helpers.flash_message("#{I18n.t("category.created")} '#{@category.name}'", "success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("category.created")} '#{@category.name}'"
+					register_action(:created, a_desc)
+					format.html { redirect_to categories_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: categories_url }
 				else
 					format.html { render :new, status: :unprocessable_entity }
@@ -82,7 +84,9 @@ class CategoriesController < ApplicationController
 		if check_access(roles: [:admin], obj: @category)
 			respond_to do |format|
 				if @category.update(category_params)
-					format.html { redirect_to categories_url, notice: helpers.flash_message("#{I18n.t("category.updated")} '#{@category.name}'", "success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("category.updated")} '#{@category.name}'"
+					register_action(:updated, a_desc)
+					format.html { redirect_to categories_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: categories_url }
 				else
 					format.html { render :edit, status: :unprocessable_entity }
@@ -101,7 +105,9 @@ class CategoriesController < ApplicationController
 			prune_teams
 			@category.destroy
 			respond_to do |format|
-				format.html { redirect_to categories_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("category.deleted")} '#{c_name}'"), data: {turbo_action: "replace"} }
+				a_desc = "#{I18n.t("category.deleted")} '#{c_name}'"
+				register_action(:deleted, a_desc)
+				format.html { redirect_to categories_url, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

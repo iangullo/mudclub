@@ -50,8 +50,8 @@ class ApplicationController < ActionController::Base
 	end
 
 	# register a new user action
-	def register_action(kind:, description:)
-		u_act = UserAction.new(user_id: current_user.id, kind:,description:,performed_at: DateTime.now)
+	def register_action(kind, description)
+		u_act = UserAction.new(user_id: current_user.id, kind:, description:, performed_at: DateTime.now)
 		current_user.user_actions << u_act
 		u_act.save
 	end

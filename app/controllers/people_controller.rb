@@ -32,6 +32,8 @@ class PeopleController < ApplicationController
 			@grid   = create_grid(helpers.person_grid)
 			respond_to do |format|
 				format.xlsx {
+					a_desc = "#{I18n.t("person.export")} 'people.xlsx'"
+					register_action(:exported, a_desc)
 					response.headers['Content-Disposition'] = "attachment; filename=people.xlsx"
 				}
 				format.html { render :index }
@@ -82,7 +84,9 @@ class PeopleController < ApplicationController
 					format.html { redirect_to people_url(search: @person.name), notice: helpers.flash_message("#{I18n.t("person.duplicate")} '#{@person.to_s}'", "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :duplicate, location: people_url }
 				elsif @person.save
-					format.html { redirect_to people_url(search: @person.name), notice: helpers.flash_message("#{I18n.t("person.created")} '#{@person.to_s}'", "success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("person.created")} '#{@person.to_s}'"
+					register_action(:created, a_desc)
+					format.html { redirect_to people_url(search: @person.name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: people_url }
 				else
 					format.html { render :new }
@@ -100,13 +104,16 @@ class PeopleController < ApplicationController
 		if check_access(roles: [:admin], obj: @person)
 			respond_to do |format|
 				if @person.update(person_params)
-					if @person.id=0 # just edited the club identity
-						format.html { redirect_to "/", notice: helpers.flash_message("'#{@person.nick}' #{I18n.t("status.saved")}", "success"), data: {turbo_action: "replace"} }
-						format.json { render "/", status: :created, location: home_url }
+					if @person.id==0 # just edited the club identity
+						a_desc = "'#{@person.nick}' #{I18n.t("status.saved")}"
+						returl = home_url
 					else
-						format.html { redirect_to people_url(search: @person.name), notice: helpers.flash_message("#{I18n.t("person.updated")} '#{@person.to_s}'", "success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: people_url }
+						a_desc = "#{I18n.t("person.updated")} '#{@person.to_s}'"
+						returl = people_url(search: @person.name)
 					end
+					register_action(:updated, a_desc)
+					format.html { redirect_to returl, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: returl }
 				else
 					format.html { render :edit }
 					format.json { render json: @person.errors, status: :unprocessable_entity }
@@ -122,7 +129,9 @@ class PeopleController < ApplicationController
 	def import
 		if check_access(roles: [:admin])
 			Person.import(params[:file]) # added to import excel
-			format.html { redirect_to people_url, notice: helpers.flash_message("#{I18n.t("person.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
+			a_desc = "#{I18n.t("person.import")} '#{params[:file].original_filename}'"
+			register_action(:imported, a_desc)
+			format.html { redirect_to people_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -135,7 +144,9 @@ class PeopleController < ApplicationController
 			erase_links
 			@person.destroy
 			respond_to do |format|
-				format.html { redirect_to people_url, status: :see_other, notice: helpers.flash_message("#{I18n.t("person.deleted")} '#{@person.to_s}'"), data: {turbo_action: "replace"} }
+				a_desc = "#{I18n.t("person.deleted")} '#{@person.to_s}'"
+				register_action(:deleted, a_desc)
+				format.html { redirect_to people_url, status: :see_other, notice: helpers.flash_message(a_desc, data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

@@ -72,24 +72,22 @@ class LocationsController < ApplicationController
 				@season   = Season.find(params[:location][:season_id]) if params[:location][:season_id]
 				@location = Location.new
 				@location.rebuild(location_params) # rebuild @location
+				a_desc    = "#{I18n.t("location.created")} #{@season.try(:name)} => '#{@location.name}'"
+				u_notice  = helpers.flash_message(a_desc, "success")
+				posturl   = @season ? season_locations_path(@season) : locations_url
 				if @location.id!=nil  # @location is already stored in database
-					if @season
-						@season.locations |= [@location]
-						format.html { redirect_to season_locations_path(@season), notice: helpers.flash_message("#{I18n.t("location.created")} #{@season.name} => '#{@location.name}'"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: season_locations_path(@season) }
-					else
-						format.html { render @location, notice: {kind: "info", message: t(:loc_created) + "'#{@location.name}'"}}
-						format.json { render :show, :created, location: locations_url(@location) }
-					end
+					@season.locations |= [@location] if @season
+					register_action(:created, a_desc)
+					format.html { redirect_to posturl, notice: u_notice, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: posturl }
+				elsif @location.save # attempt to save a new one
+					@season.locations |= [@location] if @season
+					register_action(:created, a_desc)
+					format.html { redirect_to posturl, notice: u_notice, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: posturl }
 				else
-					if @location.save
-						@season.locations |= [@location] if @season
-						format.html { redirect_to @season ? season_locations_path(@season) : locations_url, notice: helpers.flash_message("#{I18n.t("location.created")} '#{@location.name}'", "success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: locations_url }
-					else
-						format.html { render :new }
-						format.json { render json: @location.errors, status: :unprocessable_entity }
-					end
+					format.html { render :new }
+					format.json { render json: @location.errors, status: :unprocessable_entity }
 				end
 			end
 		else
@@ -102,17 +100,20 @@ class LocationsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @location)
 			respond_to do |format|
 				@location.rebuild(location_params)
+				returl = @season ? season_locations_path(@season) : locations_path
 				if @location.id!=nil  # we have location to save
 					if @location.update(location_params)  # try to save
+						a_desc = "#{I18n.t("location.updated")} '#{@location.name}'"
+						register_action(:updated, a_desc)
 						@season.locations |= [@location] if @season
-						format.html { redirect_to @season ? seasons_path(@season) : locations_path, notice: helpers.flash_message("#{I18n.t("location.updated")} '#{@location.name}'", "success"), data: {turbo_action: "replace"} }
+						format.html { redirect_to returl, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: locations_path }
 					else
 						format.html { redirect_to edit_location_path(@location), data: {turbo_action: "replace"} }
 						format.json { render json: @location.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { render @season ? season_locations_path(@season) : locations_path }
+					format.html { render returl }
 					format.json { render :index, status: :unprocessable_entity, location: locations_path }
 				end
 			end
@@ -127,15 +128,17 @@ class LocationsController < ApplicationController
 		if check_access(roles: [:admin], obj: @location)
 			respond_to do |format|
 				l_name = @location.name
+				a_desc = "#{I18n.t("location.deleted")} #{@season.try(:name)} => '#{l_name}'"
+				register_action(:deleted, a_desc)
 				if @season
 					@season.locations.delete(@location)
 					@locations = @season.locations
-					format.html { redirect_to season_locations_path(@season), status: :see_other, notice: helpers.flash_message("#{I18n.t("location.deleted")} #{@season.name} => '#{l_name}'"), data: {turbo_action: "replace"} }
+					format.html { redirect_to season_locations_path(@season), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: season_locations_path(@season) }
 				else
 					@location.scrub
 					@location.delete
-					format.html { redirect_to locations_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("location.deleted")} '#{l_name}'") }
+					format.html { redirect_to locations_path, status: :see_other, notice: helpers.flash_message(a_desc) }
 					format.json { render :show, :created, location: locations_url(@location) }
 				end
 			end

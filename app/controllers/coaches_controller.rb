@@ -32,6 +32,8 @@ class CoachesController < ApplicationController
 			@grid   = create_grid(helpers.coach_grid)
 			respond_to do |format|
 				format.xlsx {
+					a_desc = "#{I18n.t("coach.export")} 'coaches.xlsx'"
+					register_action(:exported, a_desc)
 					response.headers['Content-Disposition'] = "attachment; filename=coaches.xlsx"
 				}
 				format.html { render :index }
@@ -90,7 +92,9 @@ class CoachesController < ApplicationController
 							@coach.person.coach_id = @coach.id
 							@coach.person.save
 						end
-						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.created")} '#{@coach.s_name}'", "success"), data: {turbo_action: "replace"} }
+						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
+						register_action(:created, a_desc)
+						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: coaches_path(search: @coach.s_name) }
 					else
 						format.html { render :new }
@@ -110,7 +114,9 @@ class CoachesController < ApplicationController
 			respond_to do |format|
 				@coach.rebuild(coach_params)
 				if @coach.save
-					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.updated")} '#{@coach.s_name}'", "success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
+					register_action(:updated, a_desc)
+					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
 				else
 					format.html { render :edit }
@@ -127,7 +133,9 @@ class CoachesController < ApplicationController
 	def import
 		if check_access(roles: [:admin])
 			Coach.import(params[:file])	# added to import excel
-			format.html { redirect_to coaches_path, notice: helpers.flash_message("#{I18n.t("coach.import")} '#{params[:file].original_filename}'", "success"), data: {turbo_action: "replace"} }
+			a_desc = "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"
+			register_action(:imported, a_desc)
+			format.html { redirect_to coaches_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -141,7 +149,9 @@ class CoachesController < ApplicationController
 			unlink_person
 			@coach.destroy
 			respond_to do |format|
-				format.html { redirect_to coaches_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("coach.deleted")} '#{c_name}'"), data: {turbo_action: "replace"} }
+				a_desc = "#{I18n.t("coach.deleted")} '#{c_name}'"
+				register_action(:deleted, a_desc)
+				format.html { redirect_to coaches_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

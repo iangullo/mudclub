@@ -183,7 +183,9 @@ class TeamsController < ApplicationController
 			@team = Team.new(team_params)
 			respond_to do |format|
 				if @team.save
-					format.html { redirect_to teams_path, notice: helpers.flash_message("#{I18n.t("team.created")} '#{@team.to_s}'","success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
+					register_action(:created, a_desc)
+					format.html { redirect_to teams_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: teams_path }
 				else
 					format.html { render :new }
@@ -203,8 +205,10 @@ class TeamsController < ApplicationController
 				if params[:team]
 					retlnk = params[:team][:retlnk]
 					@team.rebuild(params[:team])
-						if @team.save
-						format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("team.updated")} '#{@team.to_s}'","success"), data: {turbo_action: "replace"} }
+					if @team.save
+						a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
+						register_action(:updated, a_desc)
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { redirect_to retlnk, status: :created, location: retlnk }
 					else
 						@eligible_coaches = Coach.active
@@ -230,7 +234,9 @@ class TeamsController < ApplicationController
 			erase_links
 			@team.destroy
 			respond_to do |format|
-				format.html { redirect_to teams_path, status: :see_other, notice: {kind: "success", message: "#{I18n.t("team.deleted")} '#{t_name}'"}, data: {turbo_action: "replace"} }
+				a_desc = "#{I18n.t("team.deleted")} '#{t_name}'"
+				register_action(:deleted, a_desc)
+				format.html { redirect_to teams_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

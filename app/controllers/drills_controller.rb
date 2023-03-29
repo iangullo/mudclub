@@ -74,7 +74,9 @@ class DrillsController < ApplicationController
 				@drill = Drill.new
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.save
-					format.html { redirect_to drills_url, notice: helpers.flash_message("#{I18n.t("drill.created")} '#{@drill.name}'", "success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("drill.created")} '#{@drill.name}'"
+					register_action(:created, a_desc)
+					format.html { redirect_to drills_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: @drill }
 				else
 					format.html { render :new }
@@ -92,7 +94,9 @@ class DrillsController < ApplicationController
 			respond_to do |format|
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.save
-					format.html { redirect_to drill_path, status: :see_other, notice: helpers.flash_message("#{I18n.t("drill.updated")} '#{@drill.name}'", "success"), data: {turbo_action: "replace"} }
+					a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
+					register_action(:updated, a_desc)
+					format.html { redirect_to drill_path, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :show, status: :ok, location: @drill }
 				else
 					format.html { render :edit, status: :unprocessable_entity }
@@ -111,7 +115,9 @@ class DrillsController < ApplicationController
 			@drill.drill_targets.each { |d_t| d_t.delete }
 			@drill.destroy
 			respond_to do |format|
-				format.html { redirect_to drills_url, notice: helpers.flash_message("#{I18n.t("drill.deleted")} '#{d_name}'"), data: {turbo_action: "replace"} }
+				a_desc = "#{I18n.t("drill.deleted")} '#{d_name}'"
+				register_action(:deleted, a_desc)
+				format.html { redirect_to drills_url, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
