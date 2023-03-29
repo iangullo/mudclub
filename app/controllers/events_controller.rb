@@ -123,7 +123,8 @@ class EventsController < ApplicationController
 					format.json { render :show, status: :ok, location: @event }
 				elsif e_data[:task]
 					check_task(e_data[:task]) # updated task from edit_task_form (add or edit)
-					format.html { redirect_to e_data[:task][:retlnk], notice: "#{u_notice}'#{@task.to_s}'" }
+					u_notice[:message] = u_notice[:message] + "'#{@task.to_s}'"
+					format.html { redirect_to e_data[:task][:retlnk], notice: u_notice }
 					format.json { render :edit, status: :ok, location: @event }
 				elsif @event.save
 					register_action(:updated, u_notice[:message])
