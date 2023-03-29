@@ -49,6 +49,13 @@ class ApplicationController < ActionController::Base
 		SubmitComponent.new(close:, submit:, close_return:, frame:)
 	end
 
+	# register a new user action
+	def register_action(kind:, description:)
+		u_act = UserAction.new(user_id: current_user.id, kind:,description:,performed_at: DateTime.now)
+		current_user.user_actions << u_act
+		u_act.save
+	end
+
 	# wrappers to make code in all views/controllers more readable
 	def u_admin?
 		current_user.admin?

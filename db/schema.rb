@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_27_162239) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_28_170730) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -284,6 +284,16 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_27_162239) do
     t.index ["season_id"], name: "index_teams_on_season_id"
   end
 
+  create_table "user_actions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.datetime "performed_at"
+    t.integer "kind"
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_user_actions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -335,5 +345,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_27_162239) do
   add_foreign_key "teams", "divisions"
   add_foreign_key "teams", "locations", column: "homecourt_id"
   add_foreign_key "teams", "seasons"
+  add_foreign_key "user_actions", "users"
   add_foreign_key "users", "people"
 end

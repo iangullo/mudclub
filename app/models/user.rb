@@ -23,6 +23,7 @@ class User < ApplicationRecord
 				 :rememberable, :trackable, :validatable
 	has_one :person
 	has_one_attached :avatar
+	has_many :user_actions
 	scope :real, -> { where("id>0") }
 	enum role: [:user, :player, :coach, :admin]
 	after_initialize :set_default_role, :if => :new_record?
