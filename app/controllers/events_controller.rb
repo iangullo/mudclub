@@ -114,18 +114,19 @@ class EventsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @event)
 			respond_to do |format|
 				e_data   = event_params
-				u_notice = e_data[:task] ? helpers.flash_message("#{I18n.t("task.updated")} '#{@task.to_s}'", "success") : helpers.event_update_notice
-				register_action(:updated, u_notice[:message])
 				@event.rebuild(e_data)
+				u_notice = e_data[:task] ? helpers.flash_message("#{I18n.t("task.updated")} ", "success") : helpers.event_update_notice(attendance: e_data[:player_ids])
 				if e_data[:player_ids]  # we are updating attendance
 					check_attendance(e_data[:player_ids])
+					register_action(:updated, u_notice[:message])
 					format.html { redirect_to @event, notice: u_notice, data: {turbo_action: "replace"}}
 					format.json { render :show, status: :ok, location: @event }
 				elsif e_data[:task]
 					check_task(e_data[:task]) # updated task from edit_task_form (add or edit)
-					format.html { redirect_to e_data[:task][:retlnk], notice: u_notice }
+					format.html { redirect_to e_data[:task][:retlnk], notice: "#{u_notice}'#{@task.to_s}'" }
 					format.json { render :edit, status: :ok, location: @event }
 				elsif @event.save
+					register_action(:updated, u_notice[:message])
 					if e_data[:season_id].to_i > 0 # season event
 						format.html { redirect_to season_path(e_data[:season_id]), notice: u_notice, data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: @event }

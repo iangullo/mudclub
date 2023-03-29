@@ -47,6 +47,22 @@ module UsersHelper
 		{title: title, rows: rows}
 	end
 
+	# return user_actions GridComponent
+	def user_actions_table
+		fields = [[{kind: "side-cell", value: I18n.t("user.actions"), align: "left"}]]
+		fields << [
+			{kind: "top-cell", value: I18n.t("calendar.date"), align: "center"},
+			{kind: "top-cell", value: I18n.t("drill.desc"), align: "center"}
+		]
+		@user.user_actions.latest.each { |u_act|
+			fields << [
+				{kind: "string", value: u_act.performed_at, class: "border px py"},
+				{kind: "string", value: u_act.description, class: "border px py"}
+			]
+		}
+		fields
+	end
+
 	# fields to show when looking a user profile
 	def user_show_fields
 		res = user_title_fields(@user.person.s_name, icon: @user.picture, _class: "rounded-full", cols: 4)

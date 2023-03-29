@@ -3,6 +3,7 @@ class UserAction < ApplicationRecord
 	scope :logs, -> { where("kind<2") }
 	scope :by_user, -> (user_id) { (user_id and user_id.to_i>0) ? where(user_ud: useer_id.to_i) : where("user_id>0").order(:performed_at) }
 	scope :by_kind, -> (kind) { (kind and kind.to_i>0) ? where(kind: kind.to_i) : where("kind>1").order(:performed_at) }
+	scope :latest, -> { order(performed_at: :desc).first(10) }
 
   enum kind: {
 		enter: 0,

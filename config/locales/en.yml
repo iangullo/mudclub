@@ -158,6 +158,7 @@ en:
     gmaps: "Google Maps link"
     default: "<new location.>"
   match:
+    att_check: "Player list: "
     created: "Created match: "
     updated: "Updated match: "
     deleted: "Deleted match: "
@@ -339,6 +340,7 @@ en:
     roster_edit: "Edit Roster"
     roster_opt: "Additional players"
   train:
+    att_check: "Checked attendance: "
     created: "Created session: "
     updated: "Updated session: "
     deleted: "Deleted session: "
@@ -350,6 +352,7 @@ en:
     workload: "Workload"
     workload_by: "Workload by"
   user:
+    actions: "Actions"
     duplicate: "Duplicate: "
     created: "Created user: "
     updated: "Updated user: "

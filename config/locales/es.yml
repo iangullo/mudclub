@@ -158,6 +158,7 @@ es:
     gmaps: "Enlace Google Maps"
     default: "<nueva ubic.>"
   match:
+    att_check: "Convocatoria: "
     created: "Partido creado: "
     updated: "Partido guardado: "
     deleted: "Partido borrado: "
@@ -339,6 +340,7 @@ es:
     roster_edit: "Editar Plantilla"
     roster_opt: "Jug. Adicionales"
   train:
+    att_check: "Comprobada asistencia: "
     created: "Sesión creada: "
     updated: "Sesión guardada: "
     deleted: "Sesión borrada: "
@@ -350,6 +352,7 @@ es:
     workload: "Carga"
     workload_by: "Carga por"
   user:
+    actions: "Acciones"
     duplicate: "Usuario duplicado: "
     created: "Usuario creado: "
     updated: "Usuario guardado: "
