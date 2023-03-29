@@ -30,6 +30,7 @@ class SlotsController < ApplicationController
 			title << [{kind: "gap", size: 1}, {kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}]
 			@fields   = create_fields(title)
 			week_view if @season and @location
+			@btn_add  = ButtonComponent.new(button: {kind: "add", url: new_slot_path(location_id: @location.id, season_id: @season.id), frame: "modal"})
 			@submit   = create_submit(close: "back", submit: nil, close_return: seasons_path(season_id: @season.id))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -39,8 +40,9 @@ class SlotsController < ApplicationController
 	# GET /slots/1 or /slots/1.json
 	def show
 		if check_access(roles: [:user], obj: @slot)
-			@title  = create_fields(helpers.slot_title_fields(title: I18n.t("slot.many")))
-			@submit = create_submit(submit: u_admin? ? edit_slot_path(@slot) : nil, frame: u_admin? ? "modal" : nil)
+			@title   = create_fields(helpers.slot_title_fields(title: I18n.t("slot.many")))
+			@btn_del = ButtonComponent.new(button: {kind: "delete", url: slot_path(@slot), name: @slot.to_s})
+			@submit  = create_submit(submit: u_admin? ? edit_slot_path(@slot) : nil, frame: u_admin? ? "modal" : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

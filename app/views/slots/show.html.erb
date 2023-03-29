@@ -16,7 +16,7 @@
 					<td align="right"><%= image_tag("clock.svg", size: "25x25") %></td>
 					<td><%= @slot.duration %>&nbsp;<strong>'</strong></td>
 					<% if u_admin?%>
-					<td><%= render ButtonComponent.new(button: {kind: "delete", url: slot_path(@slot), name: @slot.to_s})%></td>
+					<td><%= render @btn_del %></td>
 					<% end %>
 				</tr>
 			</div>

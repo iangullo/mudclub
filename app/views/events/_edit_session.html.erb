@@ -23,7 +23,7 @@
 		</tr><tr>
 			<td align="left">
 				<% if u_admin? or @event.team.has_coach(u_coachid)  %>
-					<%= render ButtonComponent.new(button: {kind: "add", label: t("task.add"), url: add_task_event_path}) %>
+					<%= render @btn_add %>
 				<% end %>
 			</td>
 			<th align="left"><%= t("stat.total_a") + " " + @event.work_duration %></th>

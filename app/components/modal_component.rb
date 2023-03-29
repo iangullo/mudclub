@@ -22,6 +22,6 @@
 include Turbo::FramesHelper
 class ModalComponent < ApplicationComponent
 	def initialize(simple: nil)
-		@close = {kind: "close", label: I18n.t("action.close")} if simple
+		@close = ButtonComponent.new(button: {kind: "close", label: I18n.t("action.close")}) if simple
 	end
 end

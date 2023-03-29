@@ -6,7 +6,7 @@
 				<tr>
 					<th align="center">
 						<% if u_admin? and not (@season.teams.empty?) %>
-							<%= render ButtonComponent.new(button: {kind: "add", url: new_slot_path(location_id: @location.id, season_id: @season.id), frame: "modal"}) %>
+							<%= render @btn_add %>
 						<% end %>
 					</th>
 					<% 1.upto(5) do |i| %>
