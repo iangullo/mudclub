@@ -62,10 +62,10 @@ module UsersHelper
 			{kind: "gap"},
 			{kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device}
 		]]
-		res << [
-			{kind: "gap", size: 1},
-			{kind: "string", value: "(#{@user.last_from})",cols: 3}
-		] if @user.last_sign_in_ip?
+		#res << [		# removing cause IP registered is always local - from NGINX
+		#	{kind: "gap", size: 1},
+		#	{kind: "string", value: "(#{@user.last_from})",cols: 3}
+		#] if @user.last_sign_in_ip?
 		res << [{kind: "label", value: "#{I18n.t("user.profile")}: "}]
 		res.last << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
 		res.last << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
