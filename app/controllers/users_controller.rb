@@ -137,7 +137,7 @@ class UsersController < ApplicationController
 		if check_access(roles: [:admin], obj: @user)
 			@title  = create_fields(helpers.user_actions_title)
 			@actions= create_fields(helpers.user_actions_table)
-			@submit = create_submit(submit: helpers.user_actions_clear_button, frame: "modal")
+			@submit = create_submit(submit: helpers.user_actions_clear_fields, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

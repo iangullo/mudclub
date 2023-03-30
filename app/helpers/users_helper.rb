@@ -181,9 +181,9 @@ module UsersHelper
 	end
 
 	# prepare clear button only if there are actions to clear
-	def user_actions_clear_button
+	def user_actions_clear_fields
 		return nil if @user.user_actions.empty?
-		return button_field({kind: "clear", url: clear_actions_user_path, name: @user.s_name})
+		return {kind: "clear", url: clear_actions_user_path, name: @user.s_name}
 	end
 
 	private
