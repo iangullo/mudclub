@@ -47,22 +47,6 @@ module UsersHelper
 		{title: title, rows: rows}
 	end
 
-	# return user_actions GridComponent
-	def user_actions_table
-		fields = [[{kind: "side-cell", value: I18n.t("user.actions"), align: "left"}]]
-		fields << [
-			{kind: "top-cell", value: I18n.t("calendar.date"), align: "center"},
-			{kind: "top-cell", value: I18n.t("drill.desc"), align: "center"}
-		]
-		@user.user_actions.latest.each { |u_act|
-			fields << [
-				{kind: "string", value: u_act.performed_at, class: "border px py"},
-				{kind: "string", value: u_act.description, class: "border px py"}
-			]
-		}
-		fields
-	end
-
 	# fields to show when looking a user profile
 	def user_show_fields
 		res = user_title_fields(@user.person.s_name, icon: @user.picture, _class: "rounded-full", cols: 4)
@@ -86,6 +70,10 @@ module UsersHelper
 		res.last << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
 		res.last << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
 		res.last << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
+		res.last << {kind: "gap"}
+		unless @user.user_actions.empty?
+			res.last << {kind: "action", icon: user_actions_icon, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal", cols: 2, align: "right"}
+		end
 		res
 	end
 
@@ -166,4 +154,37 @@ module UsersHelper
 			]
 		]
 	end
+
+	# return user_actions GridComponent
+	def user_actions_title
+		res  = user_title_fields(@user.person.s_name, icon: user_actions_icon)
+		res << [{kind: "subtitle", value: I18n.t("user.actions")}]
+	end
+
+	# return user_actions GridComponent
+	def user_actions_table
+		res = [[
+			{kind: "top-cell", value: I18n.t("calendar.date"), align: "center"},
+			{kind: "top-cell", value: I18n.t("drill.desc"), align: "center"}
+		]]
+		@user.user_actions.each { |u_act|
+			res << [
+				{kind: "string", value: u_act.date_time, class: "border px py"},
+				{kind: "string", value: u_act.description, class: "border px py"}
+			]
+		}
+		res
+	end
+
+	# prepare clear button only if there are actions to clear
+	def user_actions_clear_button
+		return nil if @user.user_actions.empty?
+		return {kind: "clear", url: clear_actions_user_path, name: @user.to_s}
+	end
+
+	private
+		# tails actions_icon to mark if log is quite full
+		def user_actions_icon
+			@user.user_actions.count>10 ? "user_actions_full.svg" : "user_actions.svg"
+		end
 end

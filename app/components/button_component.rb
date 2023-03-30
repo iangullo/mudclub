@@ -20,16 +20,27 @@
 # button is hash with following fields:
 # (kind: , max_h: 6, icon: nil, label: nil, url: nil, turbo: nil)
 # kinds of button:
+# => "action": perform a specific controller action
 # => "add": new item button
 # => "add-nested": new nested-item
+# => "back": go back to previous view
+# => "call": make a phone call - if supported by device
 # => "cancel": non-modal form cancel
+# => "clear": delete a set of data
 # => "close": modal close
 # => "delete": delete item
 # => "edit": edit link_to
+# => "email": prepare  an email to somebody
 # => "export": export data to excel
+# => "forward": switch to next view
 # => "import": import data from excel
+# => "jump": jump to another view
+# => "location": link to open a mapss locaiton in another browser window
+# => "login": login button
+# => "menu": menu button
 # => "remove": remove item from nested form
 # => "save": save form
+# => "whatsapp": open whatsapp chat
 # frozen_string_literal: true
 class ButtonComponent < ApplicationComponent
 	def initialize(button:)
@@ -57,7 +68,7 @@ class ButtonComponent < ApplicationComponent
 		when "location", "whatsapp"
 			@button[:tab]     = true
 			@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-		when "action", "back", "call", "cancel", "close", "edit", "email", "export", "forward", "import", "menu", "login", "save"
+		when "action", "back", "call", "cancel", "clear", "close", "edit", "email", "export", "forward", "import", "menu", "login", "save"
 			b_colour = b_colour + " shadow font-bold"
 			@button[:d_class] = @button[:d_class] + " shadow"
 		else
@@ -85,6 +96,10 @@ class ButtonComponent < ApplicationComponent
 			@button[:turbo]   = "_top"
 		when "close"
 			@button[:icon]    = "close.svg"
+		when "clear"
+			@button[:icon]    = "clear.svg"
+			@button[:label]   = I18n.t("action.clear") unless @button[:label]
+			@button[:confirm] = I18n.t("question.clear") + " \'#{@button[:name]}\'?"
 		when "delete"
 			@button[:turbo]   = "_top"
 			@button[:icon]    = "delete.svg"
@@ -136,7 +151,7 @@ class ButtonComponent < ApplicationComponent
 		when "close"
 			@button[:action] = "turbo-modal#hideModal"
 			b_start = b_start + " font-bold"
-		when "cancel", "save", "import", "export", "menu", "login", "back", "forward"
+		when "cancel", "clear" "save", "import", "export", "menu", "login", "back", "forward"
 			b_start = b_start + " font-bold"
 		end
 		@button[:type]    = "submit" if @button[:kind] =~ /^(save|import)$/
@@ -151,7 +166,7 @@ class ButtonComponent < ApplicationComponent
 			@button[:i_class] = "max-h-6 min-h-4 align-middle"
 		when "add-nested", "remove"
 			@button[:i_class] = "max-h-5 min-h-4 align-middle"
-		when  "back", "call", "cancel", "close", "edit", "email", "export", "forward", "import", "save", "whatsapp"
+		when  "back", "call", "cancel", "clear", "close", "edit", "email", "export", "forward", "import", "save", "whatsapp"
 			@button[:i_class] = "max-h-7 min-h-5 align-middle"
 		end
 	end
@@ -160,7 +175,7 @@ class ButtonComponent < ApplicationComponent
 	def set_colour
 		res = " rounded-md "
 		case @button[:kind]
-		when "delete", "remove", "close", "cancel"
+		when "delete", "remove", "clear", "close", "cancel"
 			colour = "red"
 		when "edit", "attach"
 			colour = "yellow"

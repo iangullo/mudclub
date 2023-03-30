@@ -19,7 +19,7 @@
 class UsersController < ApplicationController
 	include Filterable
 	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
-	before_action :set_user, only: [:show, :edit, :update, :destroy]
+	before_action :set_user, only: [:show, :edit, :update, :destroy, :actions, :clear_actions]
 
 	def index
 		if check_access(roles: [:admin])
@@ -35,10 +35,9 @@ class UsersController < ApplicationController
 
 	def show
 		if check_access(roles: [:admin], obj: @user)
-			@user   = User.find(params[:id])
 			@title  = create_fields(helpers.user_show_fields)
 			@role   = create_fields(helpers.user_role)
-			@actions= create_fields(helpers.user_actions_table)
+			@grid   = create_grid(helpers.team_grid(teams: @user.teams))
 			@submit = create_submit(close: "back", close_return: :back, submit: edit_user_path(@user), frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -126,6 +125,32 @@ class UsersController < ApplicationController
 				a_desc = "#{I18n.t("user.deleted")} '#{@user.s_name}'"
 				register_action(:deleted, a_desc)
 				format.html { redirect_to users_url, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# modal view of User Action log
+	def actions
+		if check_access(roles: [:admin], obj: @user)
+			@title  = create_fields(helpers.user_actions_title)
+			@actions= create_fields(helpers.user_actions_table)
+			@submit = create_submit(submit: helpers.user_actions_clear_button, frame: "modal")
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# forget user_actions when reviewed
+	def clear_actions
+		if check_access(roles: [:admin])
+			UserAction.clear(@user)
+			respond_to do |format|
+				a_desc = "#{I18n.t("user.cleared")} '#{@user.s_name}'"
+				register_action(:deleted, a_desc)
+				format.html { redirect_to user_path(@user), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

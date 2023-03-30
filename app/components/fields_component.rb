@@ -20,6 +20,7 @@
 
 # FieldsComponent - ViewComponent to render rows of fields as table cells in a view
 # managing different kinds of content for each field:
+# => "button": a specific ButtonComponent - passed as argument item[:button]
 # => "icon": :value (name of icon file in assets)
 # => "header-icon": :value (name of icon file in assets)
 # => "title": :value (bold text of title in orange colour)

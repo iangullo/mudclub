@@ -30,7 +30,9 @@ class SubmitComponent < ApplicationComponent
 			b_close = {kind: "back", label: I18n.t("action.return"), url: close_return}
 		end
 		@close = ButtonComponent.new(button: b_close) if b_close
-		if submit == "save" # save button
+		if submit.class==Hash
+			b_submit = submit
+		elsif submit == "save" # save button
 			b_submit = {kind: "save", label: I18n.t("action.save")}
 		elsif submit # edit button with link in "submit"
 			b_submit = {kind: "edit", label: I18n.t("action.edit"), url: submit, frame:}
