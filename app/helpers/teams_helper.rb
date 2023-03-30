@@ -44,14 +44,14 @@ module TeamsHelper
 			title = season ? [] : [{kind: "normal", value: I18n.t("season.abbr")}]
 			title << {kind: "normal", value: I18n.t("team.single")}
 			title << {kind: "normal", value: I18n.t("division.single")}
-			title << {kind: "add", url: new_team_path, frame: "modal"} if add_teams
+			title << button_field({kind: "add", url: new_team_path, frame: "modal"}) if add_teams
 			rows = Array.new
 			teams.each { |team|
 				row = {url: team_path(team), items: []}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless season
 				row[:items] << {kind: "normal", value: team.to_s}
 				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
-				row[:items] << {kind: "delete", url: row[:url], name: team.to_s} if add_teams
+				row[:items] << button_field({kind: "delete", url: row[:url], name: team.to_s}) if add_teams
 				rows << row
 			}
 			{title: title, rows: rows}
@@ -96,14 +96,28 @@ module TeamsHelper
 
 	# return jump links for a team
 	def team_links
-		res = [[{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster"), frame: "modal", align: "center"}]]
+		res = [[
+			button_field(
+				{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster"), frame: "modal"},
+				align: "center"
+			)
+		]]
 		if (u_admin? or u_coach?)
-			res.last << {kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t("target.many"), align: "center"}
-			res.last << {kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr"), align: "center"}
+			res.last << button_field(
+				{kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t("target.many")},
+				align: "center"
+			)
+			res.last << button_field(
+				{kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr")},
+				align: "center"
+			)
 		end
-		res.last << {kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal", align: "center"}
+		res.last << button_field(
+			{kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal"},
+			align: "center"
+		)
 		if (u_admin? or @team.has_coach(u_coachid))
-			res.last << {kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}
+			res.last << button_field({kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"})
 		end
 		res << [{kind: "gap"}]
 		res
@@ -113,7 +127,12 @@ module TeamsHelper
 	def team_attendance_grid
 		t_att = @team.attendance
 		if t_att # we have attendance data
-			title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}, {kind: "normal", value: I18n.t("calendar.week"), align: "center"}, {kind: "normal", value: I18n.t("calendar.month"), align: "center"}, {kind: "normal", value: I18n.t("season.abbr"), align: "center"}, {kind: "normal", value: I18n.t("match.many")}]
+			title = [
+				{kind: "normal", value: I18n.t("player.number"), align: "center"},
+				{kind: "normal", value: I18n.t("person.name")},
+				{kind: "normal", value: I18n.t("calendar.week"), align: "center"}, {kind: "normal", value: I18n.t("calendar.month"), align: "center"},
+				{kind: "normal", value: I18n.t("season.abbr"), align: "center"}, {kind: "normal", value: I18n.t("match.many")}
+			]
 			rows  = Array.new
 			m_tot = []
 			@team.players.active.order(:number).each { |player|
@@ -128,7 +147,15 @@ module TeamsHelper
 				m_tot << p_att[:matches]
 				rows << row
 			}
-			rows << {items: [{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")}, {kind: "percentage", value: t_att[:sessions][:week], align: "right"}, {kind: "percentage", value: t_att[:sessions][:month], align: "right"}, {kind: "percentage", value: t_att[:sessions][:avg], align: "right"}, {kind: "normal", value: m_tot.sum/m_tot.size, align: "center"}]}
+			rows << {
+				items: [
+					{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")},
+					{kind: "percentage", value: t_att[:sessions][:week], align: "right"},
+					{kind: "percentage", value: t_att[:sessions][:month], align: "right"},
+					{kind: "percentage", value: t_att[:sessions][:avg], align: "right"},
+					{kind: "normal", value: m_tot.sum/m_tot.size, align: "center"}
+				]
+			}
 			return {title: title, rows: rows, chart: t_att[:sessions]}
 		end
 		return nil

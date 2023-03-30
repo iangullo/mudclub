@@ -82,7 +82,7 @@ class EventsController < ApplicationController
 			end
 			@submit = create_submit(close_return: c_ret)
 			if @event.train?
-				@btn_add = ButtonComponent.new(button: {kind: "add", label: I18n.t("task.add"), url: add_task_event_path})
+				@btn_add = create_button({kind: "add", label: I18n.t("task.add"), url: add_task_event_path})
 				@drills  = @event.drill_list
 			end
 		else

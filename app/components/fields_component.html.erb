@@ -6,8 +6,6 @@
 				<% case item[:kind] %>
 				<% when "accordion" %>
 					<%= render AccordionComponent.new(accordion: item) %>
-				<% when "action", "add", "add-nested", "back", "button", "call", "clear", "edit", "jump", "link", "location", "mail", "whatsapp" %>
-					<%= render ButtonComponent.new(button: item) %>
 				<% when "button" %>
 					<%= render item[:value] %>
 				<% when "contact" %>

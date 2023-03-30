@@ -26,7 +26,10 @@ class SeasonsController < ApplicationController
 		if check_access(roles: [:admin], obj: @season)
 			@events = Event.short_term.for_season(@season).non_training
 			title   = helpers.season_title_fields(title: I18n.t("season.single"), cols: 2)
-			title << [{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc)}, {kind: "add", url: new_season_path, label: I18n.t("action.create"), frame: "modal"}]
+			title << [
+				{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc)},
+				helpers.button_field({kind: "add", url: new_season_path, label: I18n.t("action.create"), frame: "modal"})
+			]
 			@fields = create_fields(title)
 			@links  = create_fields(helpers.season_links)
 			@grid   = create_fields(helpers.event_list_grid(events: @events, obj: @season, retlnk: seasons_path))

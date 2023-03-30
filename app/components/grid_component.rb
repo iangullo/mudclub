@@ -66,7 +66,11 @@ class GridComponent < ApplicationComponent
 					item[:class] = "font-semibold bg-white text-indigo-900 border px py"
 				when "gap"
 					item[:value] = "&nbsp;"
-				when "add", "add-event", "dropdown"
+				when "button"
+					item[:value] = ButtonComponent.new(button: item[:button])
+					item[:class] = "bg-white"
+				when "dropdown"
+					item[:value] = DropdownComponent.new(button: item[:button])
 					item[:class] = "bg-white"
 				end
 				item[:align] = "left" unless item[:align]
@@ -85,8 +89,9 @@ class GridComponent < ApplicationComponent
 					case item[:kind]
 					when "normal", "lines", "icon", "location"
 						item[:class] = "border px py"
-					when "add", "add-event", "delete", "dropdown"
-						item[:class] = "bg-white"
+					when "button"
+						item[:class] = "bg-white" unless item[:button][:kind]=="location"
+						item[:value] = ButtonComponent.new(button: item[:button])
 					when "bottom"
 						item[:align] = "center" unless item[:align]
 						item[:class] = "text-indigo-900 font-semibold"

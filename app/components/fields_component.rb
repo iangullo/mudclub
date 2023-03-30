@@ -45,9 +45,6 @@
 # => "search-select": :key (search field), :url (search_in), :options, :value
 # => "search-collection": :key (search field), :url (search_in), :options, :value
 # => "search-combo": :key (search field), :url (search_in), :options
-# => "location": :icon (optional), :url (gmaps_url), :name (name to display)
-# => "link": :icon (optional), :url (link_to_url), :label (label to display), frame:, replace: (pass turbo data?)
-# => "jump": :icon (optional), :url (link_to_url in the site), :label (label to display), frame:, replace: (pass turbo data?)
 # => "hidden": :a hidden link for the form
 # => "gap": :size (count of &nbsp; to separate content)
 class FieldsComponent < ApplicationComponent
@@ -81,6 +78,8 @@ class FieldsComponent < ApplicationComponent
 						obj[:body_id] = "accordion-collapse-body-" + i.to_s
 						i = i +1
 					}
+				when "button"	# item[:button] has to contain the button definition
+					item[:value] = ButtonComponent.new(button: item[:button])
 				when "contact"
 					item[:mail] = ButtonComponent.new(button: {kind: "email", value: item[:email]}) if (item[:email] and item[:email].length>0)
 					if item[:phone] and item[:phone].length>0
@@ -106,12 +105,6 @@ class FieldsComponent < ApplicationComponent
 					item[:i_class] = "rounded bg-gray-200 text-blue-700"
 				when "lines"
 					item[:class] = "align-top border px py" unless item[:class]
-				when "link"
-					item[:class]   = item[:class] ? item[:class] : " inline-flex align-middle p-0 text-sm"
-					item[:size]    = "20x20" unless item[:size]
-				when "location"
-					item[:class]   = "inline-flex align-top font-semibold"
-					item[:i_class] = "rounded-md hover:bg-blue-100"
 				when /^(search-.+)$/
 					item[:align]   = "left" unless item[:align]
 					item[:size]    = 16 unless item[:size]

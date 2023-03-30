@@ -37,7 +37,16 @@ module DrillsHelper
 	# return title FieldComponent definition for drill show
 	def drill_show_title(title:)
 		res = drill_title_fields(title: I18n.t("drill.single"))
-		res.last << {kind: "link", align: "right", icon: "playbook.png", size: "20x20", url: rails_blob_path(@drill.playbook, disposition: "attachment"), label: "Playbook"} if @drill.playbook.attached?
+		if @drill.playbook.attached?
+			res.last << button_field({
+				kind: "link",
+				align: "right",
+				icon: "playbook.png",
+				size: "20x20",
+				url: rails_blob_path(@drill.playbook, disposition: "attachment"),
+				label: "Playbook"
+			})
+		end
 		res << [
 			{kind: "subtitle", value: @drill.name},
 			{kind: "string", value: "(" + @drill.kind.name + ")", cols: 2}
@@ -143,7 +152,7 @@ module DrillsHelper
 			{kind: "normal", value: I18n.t("target.many")}
 			#{kind: "normal", value: I18n.t("task.many")}
 		]
-		title << {kind: "add", url: new_drill_path, frame: "_top"} if u_admin? or u_coach?
+		title << button_field({kind: "add", url: new_drill_path, frame: "_top"}) if u_admin? or u_coach?
 
 		{track: track, title: title, rows: drill_rows(drills:)}
 	end
@@ -159,7 +168,7 @@ module DrillsHelper
 				row[:items] << {kind: "normal", value: drill.coach.s_name, align: "center"}
 				row[:items] << {kind: "lines", value: drill.print_targets}
 				#row[:items] << {kind: "normal", value: Task.where(drill_id: drill.id).count, align: "center"}
-				row[:items] << {kind: "delete", url: row[:url], name: drill.name} if u_admin?
+				row[:items] << button_field({kind: "delete", url: row[:url], name: drill.name}) if u_admin?
 				rows << row
 			}
 			rows

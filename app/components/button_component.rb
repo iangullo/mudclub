@@ -35,7 +35,8 @@
 # => "forward": switch to next view
 # => "import": import data from excel
 # => "jump": jump to another view
-# => "location": link to open a mapss locaiton in another browser window
+# => "link": link to open a url in this browser window
+# => "location": link to open a maps location in another browser window
 # => "login": login button
 # => "menu": menu button
 # => "remove": remove item from nested form
@@ -61,18 +62,20 @@ class ButtonComponent < ApplicationComponent
 		set_bclass
 		set_data
 		b_colour = set_colour
-		@button[:d_class] = "inline-flex align-middle" unless @button[:d_class]
-		case @button[:kind]
-		when "jump"
-			@button[:d_class] = @button[:d_class] + " m-1 text-sm"
-		when "location", "whatsapp"
-			@button[:tab]     = true
-			@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-		when "action", "back", "call", "cancel", "clear", "close", "edit", "email", "export", "forward", "import", "menu", "login", "save"
-			b_colour = b_colour + " shadow font-bold"
-			@button[:d_class] = @button[:d_class] + " shadow"
-		else
-			@button[:d_class] = @button[:d_class] + " font-semibold"
+		unless @button[:d_class]
+			@button[:d_class] = "inline-flex align-middle"
+			case @button[:kind]
+			when "jump"
+				@button[:d_class] = @button[:d_class] + " m-1 text-sm"
+			when "location", "whatsapp"
+				@button[:tab]     = true
+				@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
+			when "action", "back", "call", "cancel", "clear", "close", "edit", "email", "export", "forward", "import", "menu", "login", "save"
+				b_colour = b_colour + " shadow font-bold"
+				@button[:d_class] = @button[:d_class] + " shadow"
+			else
+				@button[:d_class] = @button[:d_class] + " font-semibold"
+			end
 		end
 		@button[:align]   = "center" unless @button[:align]
 		@button[:d_class] = @button[:d_class] + (b_colour ?  b_colour : "")
@@ -162,7 +165,7 @@ class ButtonComponent < ApplicationComponent
 	# set the i_class for the button div
 	def set_iclass
 		case @button[:kind]
-		when "add", "delete", "location", "link"
+		when "add", "delete", "link", "location"
 			@button[:i_class] = "max-h-6 min-h-4 align-middle"
 		when "add-nested", "remove"
 			@button[:i_class] = "max-h-5 min-h-4 align-middle"
@@ -181,7 +184,7 @@ class ButtonComponent < ApplicationComponent
 			colour = "yellow"
 		when "save", "import", "export", "add", "add-nested"
 			colour = "green"
-		when "jump", "link"
+		when "jump", "link", "location"
 			light = "blue-100"
 		when "back", "forward"
 			colour = "gray"

@@ -31,7 +31,7 @@ module UsersHelper
 			{kind: "normal", value: I18n.t("role.admin_a"), align: "center"},
 			{kind: "normal", value: I18n.t("user.last_in"), align: "center"}
 		]
-		title << {kind: "add", url: new_user_path, frame: "modal"} if u_admin? or u_coach?
+		title << button_field({kind: "add", url: new_user_path, frame: "modal"}) if u_admin? or u_coach?
 
 		rows = Array.new
 		@users.each { |user|
@@ -41,7 +41,7 @@ module UsersHelper
 			row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}
 			row[:items] << {kind: "icon", value: user.admin? ? "Yes.svg" : "No.svg", align: "center"}
 			row[:items] << {kind: "normal", value: user.last_sign_in_at.try(:to_date), align: "center"}
-			row[:items] << {kind: "delete", url: row[:url], name: user.s_name} if u_admin? and user.id!=current_user.id
+			row[:items] << button_field({kind: "delete", url: row[:url], name: user.s_name}) if u_admin? and user.id!=current_user.id
 			rows << row
 		}
 		{title: title, rows: rows}
@@ -72,7 +72,11 @@ module UsersHelper
 		res.last << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
 		res.last << {kind: "gap"}
 		unless @user.user_actions.empty?
-			res.last << {kind: "action", icon: user_actions_icon, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal", cols: 2, align: "right"}
+			res.last << button_field(
+				{kind: "link", icon: user_actions_icon, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal", flip: true},
+				cols: 2,
+				align: "right"
+			)
 		end
 		res
 	end
@@ -179,7 +183,7 @@ module UsersHelper
 	# prepare clear button only if there are actions to clear
 	def user_actions_clear_button
 		return nil if @user.user_actions.empty?
-		return {kind: "clear", url: clear_actions_user_path, name: @user.to_s}
+		return button_field({kind: "clear", url: clear_actions_user_path, name: @user.s_name})
 	end
 
 	private

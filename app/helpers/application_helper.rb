@@ -56,6 +56,11 @@ module ApplicationHelper
 		res = {message: message, kind: kind}
 	end
 
+	# standardised FieldsComponent button field wrapper
+	def button_field(button, cols: nil, rows: nil, align: nil, class: nil)
+		{kind: "button", button: button, cols:, rows:, align:, class:}
+	end
+
 	# wrappers to make code in all views/helpers more readable
 	def u_admin?
 		current_user.admin?

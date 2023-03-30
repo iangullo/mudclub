@@ -16,10 +16,8 @@
 						<%= line.to_s %>
 						<br>
 					<% end %>
-				<% when "dropdown" %>
-					<%= render DropdownComponent.new(button: item[:button]) %>
-				<% else %>
-					<%= render ButtonComponent.new(button: item) %>
+				<% when "dropdown", "button" %>
+					<%= render item[:value] %>
 				<% end %>
 			<% end %>
 		</tr>
@@ -52,7 +50,7 @@
 							<%= check_box item[:key], "#{item[:player_id]}_#{item[:q]}", {checked: item[:value]==1, class: "rounded bg-gray-200 text-blue-700"} %>
 						</div>
 					<% else %>
-						<%= render ButtonComponent.new(button: item) %>
+						<%= render item[:value] %>
 					<% end %>
 				<% end %>
 			</tr>

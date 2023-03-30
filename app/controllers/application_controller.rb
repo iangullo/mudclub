@@ -34,6 +34,11 @@ class ApplicationController < ActionController::Base
 		res
 	end
 
+	# return a ButtonComponent object from a definition hash
+	def create_button(button)
+		ButtonComponent.new(button:)
+	end
+
 	# return FieldsComponent object from a fields array
 	def create_fields(fields)
 		FieldsComponent.new(fields:)

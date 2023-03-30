@@ -87,7 +87,7 @@ module CoachesHelper
 			{kind: "normal", value: I18n.t("person.age")},
 			{kind: "normal", value: I18n.t("status.active_a")}
 		]
-		title << {kind: "add", url: new_coach_path, frame: "modal"} if u_admin?
+		title << button_field({kind: "add", url: new_coach_path, frame: "modal"}) if u_admin?
 
 		rows = Array.new
 		@coaches.each { |coach|
@@ -95,7 +95,7 @@ module CoachesHelper
 			row[:items] << {kind: "normal", value:  coach.to_s}
 			row[:items] << {kind: "normal", value:  coach.person.age, align: "center"}
 			row[:items] << {kind: "icon", value:  coach.active? ? "Yes.svg" : "No.svg", align: "center"}
-			row[:items] << {kind: "delete", url: row[:url], name:  coach.to_s} if u_admin?
+			row[:items] << button_field({kind: "delete", url: row[:url], name:  coach.to_s}) if u_admin?
 			rows << row
 		}
 		{title: title, rows: rows}

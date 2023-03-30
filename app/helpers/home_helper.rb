@@ -20,7 +20,10 @@ module HomeHelper
 	# default title FieldComponents for home page
 	def home_title_fields
 		res = title_start(icon: current_user.picture, title: current_user.s_name, _class: "rounded-full")
-		res.last << {kind: "jump", icon: "key.svg", size: "30x30", url: edit_user_registration_path, frame: "modal"}
+		res.last << {kind: "gap"}
+		res.last <<	button_field(
+			{kind: "link", icon: "key.svg", label: I18n.t("action.change"), url: edit_user_registration_path, frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true}
+		)
 		res
 	end
 

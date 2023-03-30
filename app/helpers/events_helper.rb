@@ -69,12 +69,24 @@ module EventsHelper
 		btn_add = new_event_button(obj:, for_season:)
 		title << btn_add if btn_add
 		if for_season
-			fields = [[{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(season_id: @season.id), cols: 4, class: "align-middle text-indigo-900"}]]
+			fields = [[
+				button_field(
+					{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(season_id: @season.id)},
+					cols: 4,
+					class: "align-middle text-indigo-900"
+				)
+			]]
 		else
 			fields = [[
-				{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(team_id: obj.id), class: "align-middle text-indigo-900"},
+				button_field(
+					{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(team_id: obj.id)},
+					class: "align-middle text-indigo-900"
+				),
 				{kind: "gap"},
-				{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(obj), align: "right", frame: "modal", class: "align-middle text-indigo-900"}
+				button_field(
+					{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(obj), align: "right", frame: "modal"},
+					class: "align-middle text-indigo-900"
+				)
 			]]
 		end
 		fields << [{kind: "grid", value: {title: title, rows: rows}, cols: 3}]
@@ -311,13 +323,12 @@ module EventsHelper
 				res << [
 					{kind: "gap", size: 1, cols: 4},
 					{kind: "icon", value: "attendance.svg"},
-					{kind: "link", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left"}
+					button_field({kind: "link", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal"}, align: "left")
 				] if @event.id
-				#res << [{kind: "gap", size: 1, cols: 4}, {kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}]
 			else
 				if @event.location.gmaps_url
 					res << [
-						{kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name},
+						button_field({kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}),
 						{kind: "gap"}
 					]
 				else
@@ -325,7 +336,11 @@ module EventsHelper
 				end
 				res << [
 					{kind: "gap", size: 1, cols: 3},
-					{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}
+					button_field(
+						{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal"},
+						align: "left",
+						cols: 2
+					)
 				]
 			end
 		end
@@ -340,7 +355,11 @@ module EventsHelper
 					res << [
 						workload_button(align: "left", cols: 4),
 						{kind: "gap", size: 1},
-						{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal", align: "left", cols: 2}
+						button_field(
+							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal"},
+							align: "left",
+							cols: 2
+						)
 					]
 					res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
 					res << [
@@ -386,7 +405,7 @@ module EventsHelper
 						n_row = event.match? ? {kind: "normal", value: row_f.to_s, cols: 1} : {kind: "normal", value: event.to_s, cols: 4}
 						row[:items] << n_row
 					}
-					row[:items] << {kind: "delete", url: row[:url], name: event.to_s} if u_admin? or (event.team_id>0 and event.team.has_coach(u_coachid))
+					row[:items] << button_field({kind: "delete", url: row[:url], name: event.to_s}) if u_admin? or (event.team_id>0 and event.team.has_coach(u_coachid))
 					rows << row
 				end
 			}
@@ -422,7 +441,7 @@ module EventsHelper
 		# return the dropdown element to access workload charts
 		def workload_button(cols: 2, align: "center")
 			res = { kind: "dropdown", align:, cols:,
-				button: {kind: "link", icon: "pie.svg", size: "20x20", label: I18n.t("train.workload"), name: "show-chart",
+				button: {kind: "link", icon: "pie.svg", label: I18n.t("train.workload"), name: "show-chart",
 					options: [
 						{label: I18n.t("kind.single"), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
 						#{label: I18n.t("target.many"), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal}},
@@ -435,13 +454,13 @@ module EventsHelper
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, for_season: nil)
 			if for_season and u_admin? # new season event
-				return {kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"}
+				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"})
 			elsif obj.has_coach(u_coachid) # new team event
 				button = {kind: "add", name: "add-event", options: []}
 				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id}), data: {turbo_frame: :modal}}
 				button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: obj.id}), data: {turbo_frame: :modal}}
 				button[:options] << {label: I18n.t("rest.single"), url: new_event_path(event: {kind: :rest, team_id: obj.id}), data: {turbo_frame: :modal}}
-				return {kind: "dropdown", button: button}
+				return {kind: "dropdown", button: button, class: "bg-white"}
 			else
 				return nil
 			end
