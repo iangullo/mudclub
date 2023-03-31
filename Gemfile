@@ -108,3 +108,5 @@ gem 'devise'
 gem 'devise-i18n'
 
 gem "chartkick", "~> 4.2"
+
+gem "paper_trail", "~> 14.0"
