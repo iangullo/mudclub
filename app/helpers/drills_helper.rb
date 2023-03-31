@@ -90,7 +90,7 @@ module DrillsHelper
 				{
 					kind: "link",
 					icon: "drill_versions.svg",
-					label: I18n.t("drill.versions"),
+					label: I18n.t("version.many"),
 					url: versions_drill_path,
 					frame: "modal"
 				},
@@ -173,7 +173,7 @@ module DrillsHelper
 	# return title FieldComponent definition for drill show
 	def drill_versions_title
 		res = title_start(icon: "drill.svg", title: @drill.name)
-		res << [{kind: "subtitle", value: I18n.t("drill.versions")}]
+		res << [{kind: "subtitle", value: I18n.t("version.many")}]
 		res
 	end
 
@@ -182,13 +182,13 @@ module DrillsHelper
 		res = [[
 			{kind: "top-cell", value: I18n.t("calendar.date"), align: "center"},
 			{kind: "top-cell", value: I18n.t("drill.author"), align: "center"},
-			{kind: "top-cell", value: I18n.t("status.updated"), align: "center"}
+			{kind: "top-cell", value: I18n.t("version.changes.many"), align: "center"}
 		]]
 		@drill.versions.each { |d_ver|
 			v_user = User.find_by(id: d_ver.whodunnit)
 			res << [
 				{kind: "string", value: d_ver.created_at.localtime.strftime("%Y/%m/%d %H:%M"), align: "center", class: "border px py"},
-				{kind: "string", value: v_user ? v_user.s_name : "", class: "border px py"},
+				{kind: "string", value: v_user ? v_user.s_name : "", align: "center", class: "border px py"},
 				{kind: "string", value: version_changes(d_ver), class: "border px py"}
 			]
 		}
@@ -215,8 +215,9 @@ module DrillsHelper
 		def version_changes(d_ver)
 			d_vch = nil
 			d_ver.changeset.each_key { |key|
-				d_vch = (d_vch ? "#{d_vch}, #{key}" : "#{key}") unless key=="updated_at"
+				keyst = I18n.t("version.changes.#{key}")
+				d_vch = (d_vch ? "#{d_vch}, #{keyst}" : "#{keyst}") unless key=="updated_at"
 			}
-			return d_vch ? d_vch : I18n.t("status.unknown")
+			return d_vch ? d_vch : I18n.t("version.changes.unknown")
 		end
 end

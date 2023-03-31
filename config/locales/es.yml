@@ -135,8 +135,6 @@ es:
     none: "Sin tarea seleccionada"
     single: "Ejercicio"
     updated: "Ejercicio guardado: "
-    version: "Versión"
-    versions: "Versiones"
   kind:
     single: "Tipo"
   locale:
@@ -298,8 +296,6 @@ es:
     no_data: "Sin datos que guardar"
     no_file: "Cargar archivo..."
     saved: "guardado."
-    unknown: "Desconocidos"
-    updated: "Cambios"
   target:
     single: "Objetivo"
     many: "Objetivos"
@@ -371,3 +367,17 @@ es:
     profile: "Perfil"
     single: "Usuario"
     updated: "Usuario guardado: "
+  version:
+    author: "autor"
+    changes:
+      many: "Cambios"
+      description: "descripción"
+      explanation: "explicación"
+      kind: "tipo"
+      material: "material"
+      name: "nombre"
+      skills: "fundamentos"
+      targets: "objetivos"
+      unknown: "Desconocidos"
+    many: "Versiones"
+    single: "Versión"
