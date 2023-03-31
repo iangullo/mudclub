@@ -56,7 +56,9 @@ Rails.application.routes.draw do
     get 'attendance', on: :member
     resources :events
   end
-  resources :drills
+  resources :drills do
+    get 'versions', on: :member
+  end
   resources :coaches do
     collection do
       post :import

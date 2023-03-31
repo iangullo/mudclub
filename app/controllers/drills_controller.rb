@@ -18,7 +18,7 @@
 #
 class DrillsController < ApplicationController
 	include Filterable
-	before_action :set_drill, only: [:show, :edit, :update, :destroy]
+	before_action :set_drill, only: [:show, :edit, :update, :destroy, :versions]
 	before_action :set_paper_trail_whodunnit
 
 	# GET /drills or /drills.json
@@ -120,6 +120,17 @@ class DrillsController < ApplicationController
 				format.html { redirect_to drills_url, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# GET /drills/1/versions
+	def versions
+		if check_access(roles: [:admin, :coach])
+			@title   = create_fields(helpers.drill_versions_title)
+			@table   = create_fields(helpers.drill_versions_table)
+			@submit  = create_submit(submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

@@ -84,6 +84,19 @@ module DrillsHelper
 				{kind: "string", value: @drill.print_skills}
 			]
 		]
+		if @drill.versions.size > 1 and u_admin?
+			res.last << {kind: "gap", rows: 2}
+			res.last << button_field(
+				{
+					kind: "link",
+					icon: "drill_versions.svg",
+					label: I18n.t("drill.versions"),
+					url: versions_drill_path,
+					frame: "modal"
+				},
+				rows: 2
+			)
+		end
 		res << [
 			{kind: "label", value: I18n.t("drill.author")},
 			{kind: "string", value: @drill.coach.s_name}
@@ -157,6 +170,31 @@ module DrillsHelper
 		{track: track, title: title, rows: drill_rows(drills:)}
 	end
 
+	# return title FieldComponent definition for drill show
+	def drill_versions_title
+		res = title_start(icon: "drill.svg", title: @drill.name)
+		res << [{kind: "subtitle", value: I18n.t("drill.versions")}]
+		res
+	end
+
+	# create table for drill versions
+	def drill_versions_table
+		res = [[
+			{kind: "top-cell", value: I18n.t("calendar.date"), align: "center"},
+			{kind: "top-cell", value: I18n.t("drill.author"), align: "center"},
+			{kind: "top-cell", value: I18n.t("status.updated"), align: "center"}
+		]]
+		@drill.versions.each { |d_ver|
+			v_user = User.find_by(id: d_ver.whodunnit)
+			res << [
+				{kind: "string", value: d_ver.created_at.localtime.strftime("%Y/%m/%d %H:%M"), align: "center", class: "border px py"},
+				{kind: "string", value: v_user ? v_user.s_name : "", class: "border px py"},
+				{kind: "string", value: version_changes(d_ver), class: "border px py"}
+			]
+		}
+		res
+	end
+
 	private
 		# get the grid rows for @drills
 		def drill_rows(drills:)
@@ -172,5 +210,13 @@ module DrillsHelper
 				rows << row
 			}
 			rows
+		end
+		# return a short definition of version changes
+		def version_changes(d_ver)
+			d_vch = nil
+			d_ver.changeset.each_key { |key|
+				d_vch = (d_vch ? "#{d_vch}, #{key}" : "#{key}") unless key=="updated_at"
+			}
+			return d_vch ? d_vch : I18n.t("status.unknown")
 		end
 end
