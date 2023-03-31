@@ -69,52 +69,24 @@ class FieldsComponent < ApplicationComponent
 			row.each do |item|
 				case item[:kind]
 				when "accordion"
-					item[:h_class] = "font-semibold text-left text-indigo-900"
-					item[:t_class] = "font-semibold text-right text-indigo-900"
-					item[:i_class] = "flex justify-between items-center p-1 w-full bg-gray-100 text-left text-gray-700 rounded-md hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200"
-					i = 1
-					item[:objects].each { |obj|
-						obj[:head_id] = "accordion-collapse-heading-" + i.to_s
-						obj[:body_id] = "accordion-collapse-body-" + i.to_s
-						i = i +1
-					}
+					set_accordion(item)
 				when "button"	# item[:button] has to contain the button definition
 					item[:value] = ButtonComponent.new(button: item[:button])
 				when "contact"
-					item[:mail] = ButtonComponent.new(button: {kind: "email", value: item[:email]}) if (item[:email] and item[:email].length>0)
-					if item[:phone] and item[:phone].length>0
-						item[:call] = ButtonComponent.new(button: {kind: "call", value: item[:phone]}) if item[:device]=="mobile"
-						item[:whatsapp] = ButtonComponent.new(button: {kind: "whatsapp", value: item[:phone], web: (item[:device]=="desktop")})
-					end
+					set_contact(item)
 				when "gap"
 					item[:size]  = 4 unless item[:size]
-				when "header-icon"
-					item[:align] = "center"
-					item[:class] = item[:class] ? item[:class] + " align-top" : "align-top"
-					item[:size]  = "50x50" unless item[:size]
-					item[:rows]  = 2 unless item[:rows]
-				when "icon"
-					item[:align] = "right" unless item[:align]
-					item[:class] = item[:class] ? item[:class] + " align-middle" : "align-middle"
-					item[:size]  = "25x25" unless item[:size]
-				when "icon-label"
-					item[:size]  = "25x25" unless item[:size]
-					item[:class] = "align-top inline-flex" unless item[:class]
+				when "header-icon", "icon", "icon-label"
+					set_icon(item)
 				when "label", "label-checkbox"
 					item[:class]   = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
 					item[:i_class] = "rounded bg-gray-200 text-blue-700"
 				when "lines"
 					item[:class] = "align-top border px py" unless item[:class]
 				when /^(search-.+)$/
-					item[:align]   = "left" unless item[:align]
-					item[:size]    = 16 unless item[:size]
-					item[:lines]   = 1 unless item[:lines]
-					item[:class]   = "inline-flex rounded-md border-2 border-gray-300"
-					item[:i_class] = "block px-1 py-0 w-full text-gray-900 bg-gray-50 shadow-inner rounded border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-700 peer"
-					item[:i_class] = item[:i_class] + ((item[:label] or item[:fields]) ? " mt-3" : " align-middle")
-					item[:l_class] = "absolute text-md font-semibold text-gray-700 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-transparent px-0 peer-focus:px-0 peer-focus:text-blue-700 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-0"
-					item[:fields]  = [{kind: item[:kind], key: item[:key].to_sym, label: item[:label], options: item[:options], value: item[:value]}] unless item[:kind] == "search-combo"
-					item[:kind]    = "search-combo"
+					set_search(item)
+				when "nested-form"
+					item[:btn_add] = {kind: "add-nested"} unless item[:btn_add]
 				when "side-cell"
 					item[:align] = "right" unless item[:align]
 					item[:class] = "align-center font-semibold text-indigo-900"
@@ -130,15 +102,7 @@ class FieldsComponent < ApplicationComponent
 					item[:class] = "align-middle px py" unless item[:class]
 					item[:i_class] = "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center"
 				when /^(select-.+|.+-box|.+-area)$/
-					item[:class]   = "align-top" unless item[:class]
-					item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
-					item[:i_class] = "trix-content " + item[:i_class] if item[:kind]=="rich-text-area"
-					if item[:kind]=="number-box" or item[:kind]=="time-box"
-						item[:i_class] = item[:i_class] + " text-right"
-						item[:min]     = 0 unless item[:min]
-						item[:max]     = 99 unless item[:max]
-						item[:step]    = 1 unless item[:step]
-					end
+					set_box(item)
 				else
 					item[:i_class] = "rounded p-0" unless item[:kind]=="gap"
 				end
@@ -148,5 +112,68 @@ class FieldsComponent < ApplicationComponent
 			end
 		end
 		res
+	end
+
+	# a few specific wrappers to define additional item data
+	def set_accordion(item)
+		item[:h_class] = "font-semibold text-left text-indigo-900"
+		item[:t_class] = "font-semibold text-right text-indigo-900"
+		item[:i_class] = "flex justify-between items-center p-1 w-full bg-gray-100 text-left text-gray-700 rounded-md hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200"
+		i = 1
+		item[:objects].each { |obj|
+			obj[:head_id] = "accordion-collapse-heading-" + i.to_s
+			obj[:body_id] = "accordion-collapse-body-" + i.to_s
+			i = i +1
+		}
+	end
+
+	def set_contact(item)
+		item[:mail] = ButtonComponent.new(button: {kind: "email", value: item[:email]}) if (item[:email] and item[:email].length>0)
+		if item[:phone] and item[:phone].length>0
+			item[:call] = ButtonComponent.new(button: {kind: "call", value: item[:phone]}) if item[:device]=="mobile"
+			item[:whatsapp] = ButtonComponent.new(button: {kind: "whatsapp", value: item[:phone], web: (item[:device]=="desktop")})
+		end
+	end
+
+	def set_search(item)
+		item[:align]   = "left" unless item[:align]
+		item[:size]    = 16 unless item[:size]
+		item[:lines]   = 1 unless item[:lines]
+		item[:class]   = "inline-flex rounded-md border-2 border-gray-300"
+		item[:i_class] = "block px-1 py-0 w-full text-gray-900 bg-gray-50 shadow-inner rounded border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-700 peer"
+		item[:i_class] = item[:i_class] + ((item[:label] or item[:fields]) ? " mt-3" : " align-middle")
+		item[:l_class] = "absolute text-md font-semibold text-gray-700 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-transparent px-0 peer-focus:px-0 peer-focus:text-blue-700 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-0"
+		item[:fields]  = [{kind: item[:kind], key: item[:key].to_sym, label: item[:label], options: item[:options], value: item[:value]}] unless item[:kind] == "search-combo"
+		item[:kind]    = "search-combo"
+	end
+
+	def set_box(item)
+		item[:class]   = "align-top" unless item[:class]
+		item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
+		item[:i_class] = "trix-content " + item[:i_class] if item[:kind]=="rich-text-area"
+		if item[:kind]=="number-box" or item[:kind]=="time-box"
+			item[:i_class] = item[:i_class] + " text-right"
+			item[:min]     = 0 unless item[:min]
+			item[:max]     = 99 unless item[:max]
+			item[:step]    = 1 unless item[:step]
+		end
+	end
+
+	def set_icon(item)
+		if item[:kind]=="header-icon"
+			i_size       = "50x50"
+			item[:align] = "center"
+			item[:class] = item[:class] ? item[:class] + " align-top" : "align-top"
+			item[:rows]  = 2 unless item[:rows]
+		else
+			i_size = "25x25"
+			if item[:label]
+				item[:class] = "align-top inline-flex" unless item[:class]
+			else
+				item[:align] = "right" unless item[:align]
+				item[:class] = item[:class] ? item[:class] + " align-middle" : "align-middle"
+			end
+		end
+		item[:size] = i_size unless item[:size]
 	end
 end

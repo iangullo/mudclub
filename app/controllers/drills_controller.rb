@@ -19,7 +19,7 @@
 class DrillsController < ApplicationController
 	include Filterable
 	before_action :set_drill, only: [:show, :edit, :update, :destroy]
-	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :edit, :update, :check_reload]
+	before_action :set_paper_trail_whodunnit
 
 	# GET /drills or /drills.json
 	def index

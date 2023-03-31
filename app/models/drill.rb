@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class Drill < ApplicationRecord
+	has_paper_trail
 	belongs_to :coach
 	belongs_to :kind
 	has_and_belongs_to_many :skills
