@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class Drill < ApplicationRecord
-	has_paper_trail
+	has_paper_trail on: [:create, :update]
 	belongs_to :coach
 	belongs_to :kind
 	has_and_belongs_to_many :skills
@@ -148,7 +148,7 @@ class Drill < ApplicationRecord
 				self.skills.delete(sk)
 			else	# add to collection
 				sk = Skill.create(concept: s[:concept]) unless sk
-				self.skills << sk	unless self.skills.include?(sk)
+				self.skills << sk unless self.skills.include?(sk)
 			end
 		}
 	end
