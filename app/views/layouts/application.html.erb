@@ -14,7 +14,6 @@
 
 	<body class="text-base xl:text-lg sm:text-sm, xs:text-sm">
 		<div class="flex flex-col w-full min-h-screen justify-between">
-			<% @topbar = TopbarComponent.new(user: user_signed_in? ? current_user : nil, login: new_user_session_path, logout: destroy_user_session_path) %>
 			<!-- App NavBar goes here -->
 			<%= render @topbar %>
 			<!-- App content goes here -->

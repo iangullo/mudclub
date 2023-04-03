@@ -17,11 +17,18 @@
 # contact email - iangullo@gmail.com.
 #
 class ApplicationController < ActionController::Base
+	before_action :create_topbar
 	around_action :switch_locale
 
+	# switch app locale
 	def switch_locale(&action)
 		locale = params[:locale] ? params[:locale] : (current_user.try(:locale) || I18n.default_locale)
 		I18n.with_locale(locale, &action)
+	end
+
+	# create the view's topbar
+	def create_topbar
+		@topbar = TopbarComponent.new(user: user_signed_in? ? current_user : nil, login: new_user_session_path, logout: destroy_user_session_path)
 	end
 
 	# check if correct  access level exists

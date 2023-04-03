@@ -2,15 +2,17 @@
 	<%= form_for @user, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
 		<% @role.form     = form %>
 		<% @avatar.form   = form %>
-		<% @k_fields.form = form %>
 		<%= form.fields_for :person do |f| %>
 			<% @title.form    = f %>
-			<% @p_fields.form = f %>
 			<%= render @title %>
 			<%= render @role %>
 			<%= render @avatar %>
-			<%= render @p_fields %>
-			<%= render @k_fields %>
+			<% if @k_fields and @p_fields %>
+				<% @p_fields.form = f %>
+				<% @k_fields.form = form %>
+				<%= render @p_fields %>
+				<%= render @k_fields %>
+			<% end %>
 		<% end %>
 		<%= render @submit %>
 	<% end %>

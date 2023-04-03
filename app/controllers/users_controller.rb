@@ -48,7 +48,7 @@ class UsersController < ApplicationController
 		if check_access(roles: [:admin])
 			@user = User.new
 			@user.build_person
-			prepare_form(I18n.t("user.new"))
+			prepare_form(I18n.t("user.new"), create: true)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -160,13 +160,15 @@ class UsersController < ApplicationController
 
 	private
 		# Prepare user form
-		def prepare_form(title)
-			@title    = create_fields(helpers.user_form_title(title:))
-			@role     = create_fields(helpers.user_form_role)
-			@avatar   = create_fields(helpers.user_form_avatar)
-			@p_fields = create_fields(helpers.user_form_person)
-			@k_fields = create_fields(helpers.user_form_pass)
-			@submit   = create_submit
+		def prepare_form(title, create: nil)
+			@title  = create_fields(helpers.user_form_title(title:))
+			@role   = create_fields(helpers.user_form_role)
+			@avatar = create_fields(helpers.user_form_avatar)
+			if create
+				@p_fields = create_fields(helpers.user_form_person)
+				@k_fields = create_fields(helpers.user_form_pass)
+			end
+			@submit = create_submit
 		end
 
 		# De-couple from associated person

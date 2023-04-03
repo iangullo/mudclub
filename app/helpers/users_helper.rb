@@ -50,6 +50,12 @@ module UsersHelper
 	# fields to show when looking a user profile
 	def user_show_fields
 		res = user_title_fields(@user.person.s_name, icon: @user.picture, _class: "rounded-full", cols: 4)
+		res.last << {kind: "gap"}
+		res.last <<	button_field(
+			{kind: "link", icon: "key.svg", label: I18n.t("action.change"), url: edit_user_registration_path, frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true},
+			rows: 2,
+			align: "right"
+		)
 		res << [{kind: "label", value: @user.person.surname, cols: 4}]
 		res
 	end
