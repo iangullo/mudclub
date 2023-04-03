@@ -3,11 +3,11 @@
 		<table class="rounded-md shadow-lg">
 			<thead class="font-semibold">
 				<tr>
-					<td><%=render @back_link%></td>
+					<td><%= render @back_link if @back_link %></td>
 					<td colspan=<%=@c_cols - 2%> class="text-indigo-900 text-center">
 						<%=I18n.t("calendar.monthnames")[@start_date.month] + " " + @start_date.year.to_s%>
 					</td>
-					<td><%=render @fwd_link%></td>
+					<td><%= render @fwd_link if @fwd_link%></td>
 				</tr>
 				<tr class="bg-indigo-900 text-gray-300 text-center font-semibold">
 					<% @dayname.each do |day| %>

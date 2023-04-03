@@ -34,8 +34,8 @@ class CalendarComponent < ApplicationComponent
 		@iscope_cls = "bg-gray-100 text-gray-500 text-center"
 		@oscope_cls = "bg-gray-500 text-gray-100 text-center"
 		@cells      = new_canvas(start_date:)
-		@back_link  = ButtonComponent.new(button: {kind: "back", label: "", url: @anchor.split('?').first + "?start_date=" + (@start_date - 1.month).to_s})
-		@fwd_link   = ButtonComponent.new(button: {kind: "forward", label: "", url: @anchor.split('?').first + "?start_date=" + (@start_date + 1.month).to_s})
+		@back_link  = set_back_button(events:)
+		@fwd_link   = set_fwd_button(events:)
 		parse_events(events:, obj:, user:, create_url:)
 	end
 
@@ -158,5 +158,26 @@ class CalendarComponent < ApplicationComponent
 			else
 				return nil
 			end
+		end
+
+		# return backbutton if we do not exceed beginning of events season
+		def set_back_button(events:)
+			if events # we can check for a starting point of the season
+				e_date = events.first.team.season.start_date
+				c_date = @cells[1][1][:date]
+				return nil if c_date <= e_date	# we have reached beginning of season
+			end
+			ButtonComponent.new(button: {kind: "back", label: "", url: @anchor.split('?').first + "?start_date=" + (@start_date - 1.month).to_s})
+		end
+
+		# return fwdbutton depending on end_date
+		def set_fwd_button(events:)
+			if events # we can check for a starting point of the season
+				binding.break
+				e_date = events.last.team.season.start_date
+				c_date = @cells.last.last[:date]
+				return nil if c_date >= e_date	# we have reached end of season
+			end
+			ButtonComponent.new(button: {kind: "forward", label: "", url: @anchor.split('?').first + "?start_date=" + (@start_date + 1.month).to_s})
 		end
 end
