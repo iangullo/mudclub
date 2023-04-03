@@ -173,7 +173,7 @@ class CalendarComponent < ApplicationComponent
 		# return fwdbutton depending on end_date
 		def set_fwd_button(events:)
 			if events # we can check for a starting point of the season
-				e_date = events.last.team.season.start_date
+				e_date = events.last.team.season.end_date
 				c_date = @cells.last.last[:date]
 				return nil if c_date >= e_date	# we have reached end of season
 			end
