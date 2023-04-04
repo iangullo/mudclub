@@ -1,5 +1,7 @@
 MudClub - Little pet project to create a Web-based application to manage a team sports club (seasons, teams  players, coaches, etc.)
 
+check out wiki for a bit of documentation: https://github.com/iangullo/mudclub/wiki
+
 DEPENDENCIES
 ==
 * Ruby v3 / Rails 7
