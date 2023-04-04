@@ -412,7 +412,7 @@ module EventsHelper
 			rows
 		end
 
-		# grid to plan playing time dependiong on time rules
+		# grid to plan playing time depending on time rules
 		def period_grid(periods:, edit: nil)
 			head = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}]
 			rows    = []
@@ -454,7 +454,7 @@ module EventsHelper
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, for_season: nil)
 			if for_season and u_admin? # new season event
-				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"})
+				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"}) if obj==Season.latest
 			elsif obj.has_coach(u_coachid) # new team event
 				button = {kind: "add", name: "add-event", options: []}
 				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id}), data: {turbo_frame: :modal}}
