@@ -135,6 +135,9 @@ en:
     none: "No task selected"
     single: "Drill"
     updated: "Updated drill: "
+  event:
+    single: "Event"
+    many: "Events"
   kind:
     single: "Type"
   locale:

@@ -63,7 +63,7 @@ module EventsHelper
 		title  = [
 			{kind: "normal", value: I18n.t("calendar.date"), align: "center"},
 			{kind: "normal", value: I18n.t("calendar.time"), align: "center"},
-			{kind: "normal", value: I18n.t("train.many"), cols: 4}
+			{kind: "normal", value: I18n.t("event.single"), cols: 4}
 		]
 		rows    = event_rows(events:, season_id: for_season ? obj.id : nil, retlnk: retlnk)
 		btn_add = new_event_button(obj:, for_season:)

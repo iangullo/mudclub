@@ -135,6 +135,9 @@ es:
     none: "Sin tarea seleccionada"
     single: "Ejercicio"
     updated: "Ejercicio guardado: "
+  event:
+    single: "Actividad"
+    many: "Actividades"
   kind:
     single: "Tipo"
   locale:
