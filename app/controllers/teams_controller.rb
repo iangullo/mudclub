@@ -188,6 +188,10 @@ class TeamsController < ApplicationController
 					format.html { redirect_to teams_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: teams_path }
 				else
+					@eligible_coaches = Coach.active
+					@team   = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
+					@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
+					@submit = create_submit
 					format.html { render :new }
 					format.json { render json: @team.errors, status: :unprocessable_entity }
 				end
@@ -212,7 +216,8 @@ class TeamsController < ApplicationController
 						format.json { redirect_to retlnk, status: :created, location: retlnk }
 					else
 						@eligible_coaches = Coach.active
-						@form_fields      = form_fields(I18n.t("team.edit"))
+						@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
+						@submit = create_submit
 						format.html { render :edit, data:{"turbo-frame": "replace"}, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})","error") }
 						format.json { render json: @team.errors, status: :unprocessable_entity }
 					end

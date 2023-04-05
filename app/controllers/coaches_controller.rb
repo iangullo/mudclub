@@ -97,6 +97,7 @@ class CoachesController < ApplicationController
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: coaches_path(search: @coach.s_name) }
 					else
+						prepare_form(title: I18n.t("coach.new"))
 						format.html { render :new }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
@@ -119,6 +120,7 @@ class CoachesController < ApplicationController
 					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
 				else
+					prepare_form(title: I18n.t("coach.edit"))
 					format.html { render :edit }
 					format.json { render json: @coach.errors, status: :unprocessable_entity }
 				end

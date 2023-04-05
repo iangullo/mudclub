@@ -70,6 +70,7 @@ class CategoriesController < ApplicationController
 					format.html { redirect_to categories_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: categories_url }
 				else
+					prepare_form(title: I18n.t("category.new"))
 					format.html { render :new, status: :unprocessable_entity }
 					format.json { render json: @category.errors, status: :unprocessable_entity }
 				end
@@ -89,6 +90,7 @@ class CategoriesController < ApplicationController
 					format.html { redirect_to categories_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: categories_url }
 				else
+					prepare_form(title: I18n.t("category.edit"))
 					format.html { render :edit, status: :unprocessable_entity }
 					format.json { render json: @category.errors, status: :unprocessable_entity }
 				end

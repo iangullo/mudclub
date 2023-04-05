@@ -79,6 +79,7 @@ class DrillsController < ApplicationController
 					format.html { redirect_to drills_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: @drill }
 				else
+					prepare_form(title: I18n.t("drill.new"))
 					format.html { render :new }
 					format.json { render json: @drill.errors, status: :unprocessable_entity }
 				end
@@ -99,6 +100,7 @@ class DrillsController < ApplicationController
 					format.html { redirect_to drill_path, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :show, status: :ok, location: @drill }
 				else
+					prepare_form(title: I18n.t("drill.edit"))
 					format.html { render :edit, status: :unprocessable_entity }
 					format.json { render json: @drill.errors, status: :unprocessable_entity }
 				end

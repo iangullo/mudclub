@@ -96,6 +96,9 @@ class PlayersController < ApplicationController
 						format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: players_path(search: @player.s_name) }
 					else
+						@player = Player.new(active: true)
+						@player.build_person
+						prepare_form(title: I18n.t("player.new"))
 						format.html { render :new }
 						format.json { render json: @player.errors, status: :unprocessable_entity }
 					end
@@ -118,6 +121,7 @@ class PlayersController < ApplicationController
 					format.html { redirect_to player_params[:retlnk], notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: players_path(search: @player.s_name) }
 				else
+					prepare_form(title: I18n.t("player.edit"))
 					format.html { render :edit }
 					format.json { render json: @player.errors, status: :unprocessable_entity }
 				end

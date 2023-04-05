@@ -85,6 +85,7 @@ class SlotsController < ApplicationController
 					format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: @slot }
 				else
+					prepare_form(title: I18n.t("slot.new"))
 					format.html { render :new, status: :unprocessable_entity }
 					format.json { render json: @slot.errors, status: :unprocessable_entity }
 				end
@@ -106,7 +107,8 @@ class SlotsController < ApplicationController
 					format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: @slot }
 				else
-					format.html { redirect_to edit_slot_path(@slot) }
+					prepare_form(title: I18n.t("slot.edit"))
+					format.html { render :edit, status: :unprocessable_entity }
 					format.json { render json: @slot.errors, status: :unprocessable_entity }
 				end
 			end

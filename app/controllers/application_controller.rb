@@ -34,11 +34,8 @@ class ApplicationController < ActionController::Base
 	# check if correct  access level exists
 	# works as "present AND (valid(role) OR valid(obj.condition))"
 	def check_access(roles:, obj: false)
-		res = false
-		if current_user.present?
-			res = check_role(roles:) and check_object(obj:)
-		end
-		res
+		return (obj ? check_object(obj:) : check_role(roles:) ) if current_user.present?
+		return false
 	end
 
 	# return a ButtonComponent object from a definition hash
@@ -117,26 +114,24 @@ class ApplicationController < ActionController::Base
 
 		# check object related access policy
 		def check_object(obj:)
-			case obj
-			when Category, Division, FalseClass, Location, Season, Slot
+			case obj.class.name
+			when "Category", "Division", "FalseClass", "Location", "Season", "Slot"
 				return true
-			when Coach
+			when "Coach"
 				return (u_admin? or u_coachid==obj.id)
-			when Drill
+			when "Drill"
 				return (u_admin? or u_coachid==obj.coach_id)
-			when Event
+			when "Event"
 				return (u_admin? or obj.team.has_coach(u_coachid))
-			when Person
+			when "Person"
 				return (u_admin? or u_persid==obj.id)
-			when Player
+			when "Player"
 				return (u_admin? or coach? or u_playid==obj.id)
-			when Team
+			when "Team"
 				return (u_admin? or obj.has_coach(u_coachid))
-			when User
+			when "User"
 				return (u_admin? or u_userid==@user.id)
-			when NilClass
-				return false
-			else
+			else # including "NilClass"
 				return false
 			end
 		end

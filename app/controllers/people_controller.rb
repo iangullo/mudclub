@@ -89,6 +89,8 @@ class PeopleController < ApplicationController
 					format.html { redirect_to people_url(search: @person.name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: people_url }
 				else
+					@person = Person.new(coach_id: 0, player_id: 0)
+					prepare_form(title: I18n.t("person.new"))
 					format.html { render :new }
 					format.json { render json: @person.errors, status: :unprocessable_entity }
 				end
@@ -115,6 +117,7 @@ class PeopleController < ApplicationController
 					format.html { redirect_to returl, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: returl }
 				else
+					prepare_form(title: I18n.t("person.edit"))
 					format.html { render :edit }
 					format.json { render json: @person.errors, status: :unprocessable_entity }
 				end

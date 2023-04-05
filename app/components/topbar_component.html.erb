@@ -18,7 +18,7 @@
 				<!-- Navigation tabs -->
 				<div class="hidden sm:block sm:ml-6">
 					<div class="flex space-x-4">
-						<% if @user %>
+						<% if @u_logged %>
 						<ul class="list-reset flex text-base text-gray-300">
 							<% @menu_tabs.each do |tab| %>
 								<% if tab[:kind]=="menu" %>
@@ -38,7 +38,7 @@
 			<!-- Profile dropdown -->
 			<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 				<div class="relative">
-				<% if @user %>
+				<% if @u_logged %>
 						<%= render DropdownComponent.new(button: @prof_tab) %>
 					<% else %>
 						<%= link_to @prof_tab[:url], data: {turbo_frame: "_top"} do %>

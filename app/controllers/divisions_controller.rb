@@ -72,6 +72,7 @@ class DivisionsController < ApplicationController
 					format.html { redirect_to divisions_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: divisions_url }
 				else
+					prepare_form(title: I18n.t("division.new"))
 					format.html { render :new, status: :unprocessable_entity }
 					format.json { render json: @division.errors, status: :unprocessable_entity }
 				end
@@ -91,6 +92,7 @@ class DivisionsController < ApplicationController
 					format.html { redirect_to divisions_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: divisions_url }
 				else
+					prepare_form(title: I18n.t("division.new"))
 					format.html { render :edit, status: :unprocessable_entity }
 					format.json { render json: @division.errors, status: :unprocessable_entity }
 				end

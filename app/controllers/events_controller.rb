@@ -58,8 +58,7 @@ class EventsController < ApplicationController
 			@event  = Event.prepare(event_params)
 			if @event
 				if @event.rest? or (@event.team_id >0 and @event.team.has_coach(u_coachid))
-					prepare_event_form(new: true)
-					@submit = create_submit
+					prepare_event_form(edit: false)
 				else
 					redirect_to(u_admin? ? "/slots" : @event.team)
 				end
@@ -74,17 +73,7 @@ class EventsController < ApplicationController
 	# GET /events/1/edit
 	def edit
 		if check_access(roles: [:admin, :coach], obj: @event)
-			prepare_event_form(new: false)
-			if @event.rest?
-				c_ret =  @event.team_id==0 ? seasons_path(season_id: @season.id) : team_path(@event.team)
-			else
-				c_ret =  event_path(@event)
-			end
-			@submit = create_submit(close_return: c_ret)
-			if @event.train?
-				@btn_add = create_button({kind: "add", label: I18n.t("task.add"), url: add_task_event_path})
-				@drills  = @event.drill_list
-			end
+			prepare_event_form(edit: true)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -103,6 +92,7 @@ class EventsController < ApplicationController
 					format.html { redirect_to @event.team_id > 0 ? team_path(@event.team) : events_url, notice: c_notice, data: {turbo_action: "replace"} }
 					format.json { render :show, status: :created, location: events_path}
 				else
+					prepare_event_form(edit: false)
 					format.html { render :new, status: :unprocessable_entity }
 					format.json { render json: @event.errors, status: :unprocessable_entity }
 				end
@@ -142,6 +132,7 @@ class EventsController < ApplicationController
 						format.html { redirect_to @event, notice: u_notice, data: {turbo_action: "replace"} }
 					end
 				else
+					prepare_event_form(edit: true)
 					format.html { render :edit, status: :unprocessable_entity }
 					format.json { render json: @event.errors, status: :unprocessable_entity }
 				end
@@ -302,17 +293,27 @@ class EventsController < ApplicationController
 		end
 
 		# prepare new/edit event form
-		def prepare_event_form(new:)
+		def prepare_event_form(edit: nil)
 			if params[:season_id]
 				@season = Season.find(event_params[:season_id])
 			else
 				@season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
 			end
-			@title  = create_fields(helpers.event_title_fields(form: true, cols: @event.match? ? 2 : nil))
+			@title = create_fields(helpers.event_title_fields(form: true, cols: @event.match? ? 2 : nil))
 			if @event.match?
-				m_fields = new ? helpers.match_new_fields : helpers.match_form_fields
+				m_fields = edit ? helpers.match_form_fields : helpers.match_new_fields
 				@fields  = create_fields(m_fields)
 			end
+			if edit
+				if @event.rest?
+					c_ret = @event.team_id==0 ? seasons_path(season_id: @season.id) : team_path(@event.team)
+				elsif @event.train?
+					@btn_add = create_button({kind: "add", label: I18n.t("task.add"), url: add_task_event_path})
+					@drills  = @event.drill_list
+				end
+				c_ret = event_path(@event) unless c_ret
+			end
+			@submit = create_submit(close_return: c_ret)
 		end
 
 		# prepare edit/add task form

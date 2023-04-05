@@ -83,6 +83,7 @@ class UsersController < ApplicationController
 						format.html { redirect_to users_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: users_url }
 					else
+						prepare_form(I18n.t("user.new"), create: true)
 						format.html { render :new, notice: helpers.flash_message("#{@user.errors}","error") }
 						format.json { render json: @user.errors, status: :unprocessable_entity }
 					end
@@ -107,6 +108,7 @@ class UsersController < ApplicationController
 					format.html { redirect_to users_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :ok, location: users_url }
 				else
+					prepare_form(I18n.t("user.edit"))
 					format.html { render :edit }
 					format.json { render json: @user.errors, status: :unprocessable_entity }
 				end
@@ -161,11 +163,11 @@ class UsersController < ApplicationController
 	private
 		# Prepare user form
 		def prepare_form(title, create: nil)
-			@title  = create_fields(helpers.user_form_title(title:))
-			@role   = create_fields(helpers.user_form_role)
-			@avatar = create_fields(helpers.user_form_avatar)
+			@title    = create_fields(helpers.user_form_title(title:))
+			@role     = create_fields(helpers.user_form_role)
+			@avatar   = create_fields(helpers.user_form_avatar)
+			@p_fields = create_fields(helpers.user_form_person)
 			if create
-				@p_fields = create_fields(helpers.user_form_person)
 				@k_fields = create_fields(helpers.user_form_pass)
 			end
 			@submit = create_submit

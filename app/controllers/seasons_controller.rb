@@ -71,6 +71,8 @@ class SeasonsController < ApplicationController
 					format.html { redirect_to seasons_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: seasons_url }
 				else
+					@season = Season.new(start_date: Date.today, end_date: Date.today)
+					prepare_form(title: I18n.t("season.new"))
 					format.html { render :new }
 					format.json { render json: @season.errors, status: :unprocessable_entity }
 				end
@@ -92,6 +94,8 @@ class SeasonsController < ApplicationController
 					format.html { redirect_to seasons_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: seasons_url}
 				else
+					@eligible_locations = @season.eligible_locations
+					prepare_form(title: I18n.t("season.edit"))
 					format.html { render :edit }
 					format.json { render json: @season.errors, status: :unprocessable_entity }
 				end

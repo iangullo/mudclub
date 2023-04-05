@@ -24,21 +24,27 @@ class TopbarComponent < ApplicationComponent
 		clubperson = Person.find(0)
 		@clublogo  = clubperson.logo
 		@clubname  = clubperson.nick
-		@user      = user
-		@profile   = set_profile(user:, login:, logout:)
 		@tabcls    = 'hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap shadow rounded ml-2 px-2 py-2 rounded-md font-semibold'
 		@lnkcls    = 'no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap'
 		@profcls   = 'align-middle rounded-full min-h-8 min-w-8 align-middle hover:bg-blue-700 hover:ring-4 hover:ring-blue-200 focus:ring-4 focus:ring-blue-200'
 		@logincls  = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
+		@u_logged  = user.try(:present?)
+		load_menus(user:, login:, logout:)
+	end
+
+	private
+	# load menu buttons
+	def load_menus(user:, login:, logout:)
+		@profile  = set_profile(user:, login:, logout:)
 		if user
-			@menu_tabs = menu_tabs(user)
-			@admin_tab = admin_tab(user) if user.admin? or user.is_coach?
+			I18n.locale = user.locale.to_sym
+			@menu_tabs  = menu_tabs(user)
+			@admin_tab  = admin_tab(user) if user.admin? or user.is_coach?
 		end
 		@prof_tab = prof_tab(user)
 		@ham_menu = set_hamburger_menu if user
 	end
 
-	private
 	#right hand profile menu
 	def set_profile(user:, login:, logout:)
 		res  = {
