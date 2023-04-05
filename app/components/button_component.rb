@@ -157,7 +157,7 @@ class ButtonComponent < ApplicationComponent
 		when "cancel", "clear" "save", "import", "export", "menu", "login", "back", "forward"
 			b_start = b_start + " font-bold"
 		end
-		@button[:type]    = "submit" if @button[:kind] =~ /^(save|import)$/
+		@button[:type]    = "submit" if @button[:kind] =~ /^(save|import|login)$/
 		@button[:replace] = true if @button[:kind] =~ /^(cancel|close|save|back)$/
 		@button[:b_class] = b_start + (@button[:kind]!= "jump" ? " m-1 inline-flex align-middle" : "") unless @button[:b_class]
 	end
@@ -188,7 +188,7 @@ class ButtonComponent < ApplicationComponent
 			light = "blue-100"
 		when "back", "forward"
 			colour = "gray"
-		when "menu"
+		when "menu", "login"
 			wait  = "blue-900"
 			light = "blue-700"
 			text  = "gray-200"

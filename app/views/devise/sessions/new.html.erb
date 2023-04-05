@@ -1,30 +1,23 @@
 <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-	<table>
-		<tr>
-			<td colspan="4">&nbsp;</td>
-		</tr><tr>
-			<td colspan="4" align="center" class="text-blue-900"><strong><%= t("action.login") %></strong></td>
-		</tr><tr>
-			<td rowspan="3" align="center" class="align-center">
-				<%= image_tag("user.svg", :size => "50x50") %>
-			</td>
-		</tr><tr>
-			<td align="right"><%= image_tag "at.svg", size: "25x25", alt: "e-mail"  %></td>
-			<td colspan="2"><%= f.email_field :email, autofocus: true, autocomplete: "email", class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td align="right"><%= image_tag "key.svg", size: "25x25", alt: "Clave"  %></td>
-			<td colspan="2"><%= f.password_field :password, autocomplete: "current-password", class: "rounded border shadow-inner" %></td>
-		</tr><tr>
-			<td colspan="2"></td>
-			<td>
-				<% if devise_mapping.rememberable? %>
-					<strong>Recordar&nbsp;</strong><%= f.check_box :remember_me,{class: "rounded bg-gray-200 text-blue-700"} %>
-				<% end %>
-			</td>
-			<td align="right"><%= f.submit t("action.login"), class: "rounded text-white bg-blue-900 hover:bg-blue-700" %>
-		</tr><tr>
-			<td colspan="2"></td>
-			<td><%= render "devise/shared/links" %></td>
-		</tr>
-	</table>
+	<%= render FieldsComponent.new(form: f, fields:
+		[
+			[{kind: "side-cell", value: t("action.login"), align: "center", cols: 5}],
+			[
+				{kind: "header-icon", value: "user.svg", rows: 2},
+				{kind: "icon", value: "at.svg"},
+				{kind: "email-box", key: :email, autocomplete: "email", cols: 3}
+			],
+			[
+				{kind: "icon", value: "key.svg"},
+				{kind: "password-box", key: :password, autocomplete: "password", size: 25, cols: 3}
+			],
+			[
+				{kind: "gap", size: 1, cols: 2},
+				{kind: "label-checkbox", label: t("action.remember"), key: :remember_me, right: true},
+				{kind: "gap"},
+				{kind: "button", button: {kind: "login", label: t("action.login"), align: "right"}}
+			]
+		])
+	%>
+	<div class="text-right text-sm"><%= render "devise/shared/links" %></div>
 <% end %>

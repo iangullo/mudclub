@@ -45,8 +45,13 @@
 					<% end %>
 				<% when "label-checkbox" %>
 					<div class="align-middle">
-						<%= @form.check_box item[:key], class: item[:i_class] %>
-						<label class="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300"/><%= item[:label] %>
+						<% if item[:right] %>
+							<label class="mr-1 font-semibold"/><%= item[:label] %>
+							<%= @form.check_box item[:key], class: item[:i_class] %>
+						<% else %>
+							<%= @form.check_box item[:key], class: item[:i_class] %>
+							<label class="ml-1 text-sm font-medium"/><%= item[:label] %>
+						<% end %>
 					</div>
 				<% when "lines" %>
 					<% item[:value].each do |line|%>
@@ -59,7 +64,7 @@
 					<%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, min: item[:min], max: item[:max], step: item[:step], class: item[:i_class] %>
 					<%= item[:units].to_s %>
 				<% when "password-box" %>
-					<%= @form.password_field item[:key], autocomplete: item[:auto], class: item[:i_class] %>
+					<%= @form.password_field item[:key], autocomplete: item[:auto], class: item[:i_class], size: item[:size] %>
 				<% when "radio-button" %>
 					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
 				<% when "rich-text-area" %>
