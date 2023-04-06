@@ -71,7 +71,6 @@ class SeasonsController < ApplicationController
 					format.html { redirect_to seasons_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: seasons_url }
 				else
-					@season = Season.new(start_date: Date.today, end_date: Date.today)
 					prepare_form(title: I18n.t("season.new"))
 					format.html { render :new }
 					format.json { render json: @season.errors, status: :unprocessable_entity }

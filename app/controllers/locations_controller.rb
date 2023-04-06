@@ -86,7 +86,6 @@ class LocationsController < ApplicationController
 					format.html { redirect_to posturl, notice: u_notice, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: posturl }
 				else
-					@location = Location.new(name: t("location.default")) unless @location
 					prepare_form(title: I18n.t("location.new"))
 					format.html { render :new }
 					format.json { render json: @location.errors, status: :unprocessable_entity }

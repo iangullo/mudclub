@@ -189,7 +189,6 @@ class TeamsController < ApplicationController
 					format.json { render :index, status: :created, location: teams_path }
 				else
 					@eligible_coaches = Coach.active
-					@team   = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
 					@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
 					@submit = create_submit
 					format.html { render :new }
