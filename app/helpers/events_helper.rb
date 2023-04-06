@@ -281,15 +281,15 @@ module EventsHelper
 
 	# return adequate notice depending on @event kind
 	def event_update_notice(attendance: nil)
-		if @event.changed?
-			case @event.kind.to_sym
-			when :rest
-				msg = I18n.t("rest.updated") + "#{@event.to_s(style: "notice")}"
-			when :train
-				msg = I18n.t(attendance ? "train.att_check" : "train.updated") + "#{@event.date_string}"
-			when :match
-				msg = I18n.t(attendance ? "match.att_check" : "match.updated") + "#{@event.to_s(style: "notice")}"
-			end
+		case @event.kind.to_sym
+		when :rest
+			msg = I18n.t("rest.updated") + "#{@event.to_s(style: "notice")}"
+		when :train
+			msg = I18n.t(attendance ? "train.att_check" : "train.updated") + "#{@event.date_string}"
+		when :match
+			msg = I18n.t(attendance ? "match.att_check" : "match.updated") + "#{@event.to_s(style: "notice")}"
+		end
+		if attendance or @event.changed?
 			return flash_message(msg, "success")
 		else
 			return flash_message(I18n.t("status.no_data"), "info")

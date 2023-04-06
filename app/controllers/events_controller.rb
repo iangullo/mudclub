@@ -106,41 +106,32 @@ class EventsController < ApplicationController
 	def update
 		if check_access(roles: [:admin, :coach], obj: @event)
 			respond_to do |format|
-				e_data   = event_params
+				e_data = event_params
 				@event.rebuild(e_data)
-				u_notice = e_data[:task] ? helpers.flash_message("#{I18n.t("task.updated")} ", "success") : helpers.event_update_notice(attendance: e_data[:player_ids])
-				if e_data[:player_ids]  # we are updating attendance
-					check_attendance(e_data[:player_ids])
-					register_action(:updated, u_notice[:message])
-					format.html { redirect_to @event, notice: u_notice, data: {turbo_action: "replace"}}
-					format.json { render :show, status: :ok, location: @event }
-				elsif e_data[:task]
-					check_task(e_data[:task]) # updated task from edit_task_form (add or edit)
-					u_notice[:message] = u_notice[:message] + "'#{@task.to_s}'"
-					format.html { redirect_to e_data[:task][:retlnk], notice: u_notice, data: {turbo_action: "replace"} }
-					format.json { render :edit, status: :ok, location: @event }
-				elsif @event.changed?
-					if @event.save
-						register_action(:updated, u_notice[:message])
-						if e_data[:season_id].to_i > 0 # season event
-							format.html { redirect_to season_events_path(e_data[:season_id], start_date: @event.start_date), notice: u_notice, data: {turbo_action: "replace"} }
-							format.json { render :show, status: :ok, location: @event }
-						elsif e_data[:tasks_attributes] # a training session
-							@event.tasks.reload
-							format.html { redirect_to @event, notice: u_notice, data: {turbo_action: "replace"} }
-							format.json { render :show, status: :ok, location: @event }
-						else # updating match
-							format.html { redirect_to @event, notice: u_notice, data: {turbo_action: "replace"} }
-							format.json { render :show, status: :ok, location: @event }
-						end
+				if prepare_update_redirect(e_data)	# prepare links to redirect
+					if e_data[:player_ids].present?	# update attendance
+						check_attendance(e_data[:player_ids])
+						register_action(:updated, @notice[:message])
+					elsif e_data[:task].present? # updated task from edit_task_form
+						check_task(e_data[:task])
+						@notice[:message] = @notice[:message] + @task.to_s
+					end
+					format.html { redirect_to @r_link, notice: @notice, data: {turbo_action: "replace"}}
+					format.json { render @r_view, status: :ok, location: @r_link }
+				elsif @event.changed?	# do we need to save?
+					if @event.save	# try to do its
+						register_action(:updated, @notice[:message])
+						@event.tasks.reload if e_data[:tasks_attributes] # a training session
+						format.html { redirect_to @r_link, notice: @notice, data: {turbo_action: "replace"}}
+						format.json { render @r_view, status: :ok, location: @r_link }
 					else
-						prepare_event_form(edit: true)
+						prepare_event_form(edit: true)	# continue editing, it did not work
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @event.errors, status: :unprocessable_entity }
 					end
-				else
-					format.html { redirect_to @event, notice: u_notice, data: {turbo_action: "replace"} }
-					format.json { render :show, status: :ok, location: @event }
+				else	# nothing to save
+					format.html { redirect_to @r_link, notice: @notice, data: {turbo_action: "replace"}}
+					format.json { render @r_view, status: :ok, location: @r_link }
 				end
 			end
 		else
@@ -219,6 +210,25 @@ class EventsController < ApplicationController
 	end
 
 	private
+		# establish redirection & notice for based on udpate kind
+		def prepare_update_redirect(e_data)
+			if e_data[:task].present?
+				@notice = helpers.flash_message("#{I18n.t("task.updated")} ", "success")
+				@r_view = :edit
+				@r_link = e_data[:task][:retlnk]
+			else
+				@notice = helpers.event_update_notice(attendance: e_data[:player_ids])
+				@r_view = :show
+				if e_data[:season_id].to_i > 0 # season event
+					@r_link = season_events_path(e_data[:season_id], start_date: @event.start_date)
+				else
+					@r_link = event_path(@event)
+				end
+			end
+			# returns whether we have something to save
+			return (e_data[:task].present? or e_data[:player_ids].present?)
+		end
+
  		# check attendance
 		def check_attendance(p_array)
 			# first pass
