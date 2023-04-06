@@ -218,10 +218,14 @@ class EventsController < ApplicationController
 				@r_link = e_data[:task][:retlnk]
 			else
 				@notice = helpers.event_update_notice(attendance: e_data[:player_ids])
-				@r_view = :show
 				if e_data[:season_id].to_i > 0 # season event
+					@r_view = :index
 					@r_link = season_events_path(e_data[:season_id], start_date: @event.start_date)
-				else
+				elsif @event.rest?	# careful, these are modal
+					@r_view = :index
+					@r_link = params[:retlnk] ? params[:retlnk] : team_events_path(@event, start_date: @event.start_date)
+				else	# match or training session
+					@r_view = :show
 					@r_link = event_path(@event)
 				end
 			end
