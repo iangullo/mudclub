@@ -100,8 +100,33 @@ class Person < ApplicationRecord
 		end
 	end
 
-	def birthyear
-		self.birthday.year
+	# personal logo
+	def picture
+		self.avatar.attached? ? self.avatar : "person.svg"
+	end
+
+	# used for clublogo (Person(id: 0))
+	def logo
+		self.avatar.attached? ? self.avatar : "clublogo.svg"
+	end
+
+	# Checks parent is linked well - saves if changed
+	def bind_parent(o_class:, o_id:)
+		if o_class and o_id
+			case o_class
+			when "Coach"
+				field = :coach_id
+			when "Player"
+				field = :player_id
+			when "User"
+				field = :user_id
+			end
+
+			self[field] = o_id if  self[field] != o_id
+			self.save if self.changed?
+			return true
+		end
+		return false
 	end
 
 	# to import from excel
@@ -125,14 +150,6 @@ class Person < ApplicationRecord
 				p.save
 			end
 		end
-	end
-
-	def picture
-		self.avatar.attached? ? self.avatar : "person.svg"
-	end
-
-	def logo
-		self.avatar.attached? ? self.avatar : "clublogo.svg"
 	end
 
 	#Search field matching
