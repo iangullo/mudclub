@@ -88,10 +88,7 @@ class CoachesController < ApplicationController
 				else
 					@coach.person.save unless @coach.person.persisted?
 					if @coach.save # coach saved to database
-						if @coach.person.coach_id != @coach.id
-							@coach.person.coach_id = @coach.id
-							@coach.person.save
-						end
+						@coach.clean_bind	# ensure person is well bound
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }

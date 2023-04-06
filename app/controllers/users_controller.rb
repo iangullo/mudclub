@@ -74,12 +74,9 @@ class UsersController < ApplicationController
 					@user.person.save unless @user.person.persisted?
 					@user.person_id = @user.person.id
 					if @user.save
+						@user.clean_bind	# ensure person is well bound
 						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
 						register_action(:created, a_desc)
-						if @user.person.user_id != @user.id
-							@user.person.user_id = @user.id
-							@user.person.save
-						end
 						format.html { redirect_to users_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: users_url }
 					else

@@ -87,10 +87,7 @@ class PlayersController < ApplicationController
 				else
 					@player.person.save unless @player.person.persisted?
 					if @player.save
-						if @player.person.player_ind != @player.id
-							@player.person.player_id = @player.id
-							@player.person.save
-						end
+						@player.clean_bind	# ensure person is well bound
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
