@@ -96,6 +96,7 @@ class Player < ApplicationRecord
 		end
 	end
 
+	# Player picture
 	def picture
 		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "player.svg"
 	end
@@ -148,20 +149,16 @@ class Player < ApplicationRecord
 		end
 	end
 
+	# Is this player included in an event?
 	def present?(event_id)
 		self.events.include?(event_id)
 	end
 
-	#ensures a person is well bound to the player
+	# ensures a person is well bound to the player - expects both to be persisted
 	def clean_bind
-		if self.person_id != self.person.id
-			self.person_id = self.person.id
-			self.save
-		end
-		if self.person.player_id != self.id
-			self.person.player_id = self.id
-			self.person.save
-		end
+		self.person_id = self.person.id if self.person_id != self.person.id
+		self.save if self.changed?
+		self.person.bind_parent(o_class: "Player", o_id: self.id)
 	end
 
 	# rebuild Player data from raw input hash given by a form submittal

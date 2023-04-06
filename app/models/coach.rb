@@ -101,16 +101,11 @@ class Coach < ApplicationRecord
 		end
 	end
 
-	#ensures a person is well bound to the coach
+	# ensures a person is well bound to the coach - expects both to be persisted
 	def clean_bind
-		if self.person_id != self.person.id
-			self.person_id = self.person.id
-			self.save
-		end
-		if self.person.coach_id != self.id
-			self.person.coach_id = self.id
-			self.person.save
-		end
+		self.person_id = self.person.id if self.person_id != self.person.id
+		self.save if self.changed?
+		self.person.bind_parent(o_class: "Coach", o_id: self.id)
 	end
 
 	# rebuild Coach data from raw input hash given by a form submittal

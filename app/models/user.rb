@@ -135,6 +135,13 @@ class User < ApplicationRecord
 		self.last_sign_in_ip
 	end
 
+	#ensures a person is well bound to the user - expects both to be persisted
+	def clean_bind
+		self.person_id = self.person.id if self.person_id != self.person.id
+		self.save if self.changed?
+		self.person.bind_parent(o_class: "User", o_id: self.id)
+	end
+
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(u_data)
