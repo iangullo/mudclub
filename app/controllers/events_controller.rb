@@ -89,7 +89,7 @@ class EventsController < ApplicationController
 					link_holidays
 					c_notice = helpers.event_create_notice
 					register_action(:created, c_notice[:message])
-					format.html { redirect_to @event.team_id > 0 ? team_events_path(@event.team, start_date: @event.start_date) : events_url, notice: c_notice, data: {turbo_action: "replace"} }
+					format.html { redirect_to @event.team_id > 0 ? team_events_path(@event.team, start_date: @event.start_date) : events_path(start_date: @event.start_date), notice: c_notice, data: {turbo_action: "replace"} }
 					format.json { render :show, status: :created, location: events_path}
 				else
 					prepare_event_form(edit: false)
@@ -117,24 +117,30 @@ class EventsController < ApplicationController
 				elsif e_data[:task]
 					check_task(e_data[:task]) # updated task from edit_task_form (add or edit)
 					u_notice[:message] = u_notice[:message] + "'#{@task.to_s}'"
-					format.html { redirect_to e_data[:task][:retlnk], notice: u_notice }
+					format.html { redirect_to e_data[:task][:retlnk], notice: u_notice, data: {turbo_action: "replace"} }
 					format.json { render :edit, status: :ok, location: @event }
-				elsif @event.save
-					register_action(:updated, u_notice[:message])
-					if e_data[:season_id].to_i > 0 # season event
-						format.html { redirect_to season_path(e_data[:season_id]), notice: u_notice, data: {turbo_action: "replace"} }
-						format.json { render :show, status: :ok, location: @event }
-					elsif e_data[:tasks_attributes] # a training session
-						@event.tasks.reload
-						format.html { redirect_to @event, notice: u_notice }
-						format.json { render :show, status: :ok, location: @event }
-					else # updating match
-						format.html { redirect_to @event, notice: u_notice, data: {turbo_action: "replace"} }
+				elsif @event.changed?
+					if @event.save
+						register_action(:updated, u_notice[:message])
+						if e_data[:season_id].to_i > 0 # season event
+							format.html { redirect_to season_events_path(e_data[:season_id], start_date: @event.start_date), notice: u_notice, data: {turbo_action: "replace"} }
+							format.json { render :show, status: :ok, location: @event }
+						elsif e_data[:tasks_attributes] # a training session
+							@event.tasks.reload
+							format.html { redirect_to @event, notice: u_notice, data: {turbo_action: "replace"} }
+							format.json { render :show, status: :ok, location: @event }
+						else # updating match
+							format.html { redirect_to @event, notice: u_notice, data: {turbo_action: "replace"} }
+							format.json { render :show, status: :ok, location: @event }
+						end
+					else
+						prepare_event_form(edit: true)
+						format.html { render :edit, status: :unprocessable_entity }
+						format.json { render json: @event.errors, status: :unprocessable_entity }
 					end
 				else
-					prepare_event_form(edit: true)
-					format.html { render :edit, status: :unprocessable_entity }
-					format.json { render json: @event.errors, status: :unprocessable_entity }
+					format.html { redirect_to @event, notice: u_notice, data: {turbo_action: "replace"} }
+					format.json { render :show, status: :ok, location: @event }
 				end
 			end
 		else

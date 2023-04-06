@@ -281,15 +281,19 @@ module EventsHelper
 
 	# return adequate notice depending on @event kind
 	def event_update_notice(attendance: nil)
-		case @event.kind.to_sym
-		when :rest
-			msg = I18n.t("rest.updated") + "#{@event.to_s(style: "notice")}"
-		when :train
-			msg = I18n.t(attendance ? "train.att_check" : "train.updated") + "#{@event.date_string}"
-		when :match
-			msg = I18n.t(attendance ? "match.att_check" : "match.updated") + "#{@event.to_s(style: "notice")}"
+		if @event.changed?
+			case @event.kind.to_sym
+			when :rest
+				msg = I18n.t("rest.updated") + "#{@event.to_s(style: "notice")}"
+			when :train
+				msg = I18n.t(attendance ? "train.att_check" : "train.updated") + "#{@event.date_string}"
+			when :match
+				msg = I18n.t(attendance ? "match.att_check" : "match.updated") + "#{@event.to_s(style: "notice")}"
+			end
+			return flash_message(msg, "success")
+		else
+			return flash_message(I18n.t("status.no_data"), "info")
 		end
-		flash_message(msg, "success")
 	end
 
 	# return adequate notice depending on @event kind
@@ -398,7 +402,7 @@ module EventsHelper
 			rows  = Array.new
 			events.each { |event|
 				unless season_id and event.rest? and event.team_id>0 # show only general holidays in season events view
-					row = {url: event_path(event, season_id, retlnk), frame: event.rest? ? "modal": "_top", items: []}
+					row = {url: event_path(event, season_id:, retlnk:), frame:(event.rest? ? "modal": "_top"), items: []}
 					row[:items] << {kind: "normal", value: event.date_string, align: "center"}
 					row[:items] << {kind: "normal", value: event.time_string(false), align: "center"}
 					event.to_hash.each_value { |row_f|
