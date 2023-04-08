@@ -6,9 +6,9 @@
 		<table>
 			<tr>
 				<td align="center" class="align-center" rowspan="2">
-					<%= image_tag(current_user.picture, :size => "50x50", class: "rounded-full") %>
+					<%= image_tag(f.object.picture, :size => "50x50", class: "rounded-full") %>
 				</td>
-				<td class="text-blue-900 font-bold"><%= current_user.s_name %></td>
+				<td class="text-blue-900 font-bold"><%= f.object.s_name %></td>
 			</tr><tr>
 				<td class="font-semibold"><%= I18n.t("password.change") %></td>
 			</tr><tr>
