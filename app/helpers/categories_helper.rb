@@ -44,7 +44,7 @@ module CategoriesHelper
 		@submit   = SubmitComponent.new(submit: "save")
 		res = category_title_fields(title:, rows: 3, cols: 5)
 		res << [
-			{kind: "text-box", key: :age_group, value: @category.age_group, size: 10, cols: 3},
+			{kind: "text-box", key: :age_group, value: @category.age_group, placeholder: I18n.t("category.single"), size: 10, cols: 3},
 			{kind: "select-box", key: :sex, options: [I18n.t("sex.fem_a"), I18n.t("sex.male_a"), I18n.t("sex.mixed_a")], value: @category.sex, cols: 2}
 		]
 		res << [

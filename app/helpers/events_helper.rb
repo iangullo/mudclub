@@ -143,7 +143,7 @@ module EventsHelper
 		]]
 		res << [
 			{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center"},
-			{kind: "text-box", key: :name, value: @event.name},
+			{kind: "text-box", key: :name, value: @event.name, placeholder: I18n.t("match.default_rival")},
 			{kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}
 		]
 		res << [{kind: "gap", size: 1, class: "text-xs"}]
@@ -313,7 +313,7 @@ module EventsHelper
 		# complete event_title for rest events
 		def rest_title(team: nil, season: nil, res:, cols:, form:)
 			res << [{kind: "subtitle", value: team ? team.name : season ? season.name : "", cols: cols}] if team or season
-			res << [form ? {kind: "text-box", key: :name, value: @event.name} : {kind: "label", value: @event.name}]
+			res << [form ? {kind: "text-box", key: :name, value: @event.name, placeholder: I18n.t("person.name")} : {kind: "label", value: @event.name}]
 		end
 
 		# complete event title for matches

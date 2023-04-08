@@ -17,7 +17,7 @@
 				<% when "dropdown" %>
 					<%= render DropdownComponent.new(button: item[:button]) %>
 				<% when "email-box" %>
-					<%= @form.email_field item[:key], autocomplete: item[:value], size: 25, class: item[:i_class] %>
+					<%= @form.email_field item[:key], placeholder: item[:placeholder], size: 25, class: item[:i_class] %>
 				<% when "gap" %>
 					<% item[:size].times do %>
 						&nbsp;
@@ -64,7 +64,7 @@
 					<%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, min: item[:min], max: item[:max], step: item[:step], class: item[:i_class] %>
 					<%= item[:units].to_s %>
 				<% when "password-box" %>
-					<%= @form.password_field item[:key], autocomplete: item[:auto], class: item[:i_class], size: item[:size] %>
+					<%= @form.password_field item[:key], placeholder: item[:placeholder], class: item[:i_class], size: item[:size] %>
 				<% when "radio-button" %>
 					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
 				<% when "rich-text-area" %>
@@ -96,7 +96,7 @@
 					<%= @form.text_area item[:key], value: item[:value], cols: item[:size], rows: item[:lines], class: item[:i_class] %>
 				<% when "text-box" %>
 					<% if item[:options] # autosearch text input %>
-						<%= @form.text_field item[:key], list: "#{item[:key]}_list", value: item[:value], placeholder: item[:placeholder], size: item[:size], rows: item[:rows], class: item[:i_class], autocomplete: :off %>
+						<%= @form.text_field item[:key], list: "#{item[:key]}_list", value: item[:value], placeholder: item[:placeholder], size: item[:size], rows: item[:rows], class: item[:i_class] %>
 						<datalist id="<%=item[:key]%>_list">
 							<% item[:options].each do |opt| %>
 							<option><%=opt%></option>

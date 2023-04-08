@@ -65,7 +65,7 @@ module TeamsHelper
 		res = team_title_fields(title:, cols:, edit: true)
 		res << [
 			{kind: "label", align: "right", value: I18n.t("person.name_a")},
-			{kind: "text-box", key: :name, value: @team.name}
+			{kind: "text-box", key: :name, value: @team.name, placeholder: I18n.t("team.single")}
 		]
 		res << [
 			{kind: "icon", value: "category.svg"},

@@ -25,7 +25,7 @@ module DivisionsHelper
 	# return FieldsComponent @fields for forms
 	def division_form_fields(title:)
 		res = division_title_fields(title:, cols: 3)
-		res << [{kind: "text-box", key: :name, value: @division.name, cols: 3}]
+		res << [{kind: "text-box", key: :name, value: @division.name, placeholder: I18n.t("division.name"),cols: 3}]
 	end
 
 	# return grid for @divisions GridComponent

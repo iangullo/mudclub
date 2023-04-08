@@ -206,7 +206,10 @@ es:
     change: "Cambiar Contraseña"
     confirm: "Confirmar contraseña"
     confirm_label: "(*) confirmar contraseña"
+    confirm_wait: "Esperando confirmación de: "
+    min_chars: "Longitud mínima: "
     new: "Nueva contraseña"
+    old: "Contraseña actual"
   plan:
     edit: "Editar Planificación"
     new: "Crear Planificación"

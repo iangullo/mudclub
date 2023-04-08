@@ -92,11 +92,11 @@ module UsersHelper
 		res = user_title_fields(title, icon: @user.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
 		res << [
 			{kind: "label", value: I18n.t("person.name_a")},
-			{kind: "text-box", key: :name, value: @user.person.name}
+			{kind: "text-box", key: :name, value: @user.person.name, placeholder: I18n.t("person.name")}
 		]
 		res << [
 			{kind: "label", value: I18n.t("person.surname_a")},
-			{kind: "text-box", key: :surname, value: @user.person.surname}
+			{kind: "text-box", key: :surname, value: @user.person.surname, placeholder: I18n.t("person.surname")}
 		]
 		res << [
 			{kind: "icon", value: "calendar.svg"},
@@ -129,15 +129,15 @@ module UsersHelper
 		[
 			[
 				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
-				{kind: "text-box", key: :dni, size: 8, value: @user.person.dni},
+				{kind: "text-box", key: :dni, size: 8, value: @user.person.dni, placeholder: I18n.t("person.pid")},
 				{kind: "gap"}, {kind: "icon", value: "at.svg"},
-				{kind: "email-box", key: :email, value: @user.person.email}
+				{kind: "email-box", key: :email, value: @user.person.email, placeholder: I18n.t("person.email")}
 			],
 			[
 				{kind: "icon", value: "user.svg"},
-				{kind: "text-box", key: :nick, size: 8, value: @user.person.nick},
+				{kind: "text-box", key: :nick, size: 8, value: @user.person.nick, placeholder: I18n.t("person.nick")},
 				{kind: "gap"}, {kind: "icon", value: "phone.svg"},
-				{kind: "text-box", key: :phone, size: 12, value: @user.person.phone}
+				{kind: "text-box", key: :phone, size: 12, value: @user.person.phone, placeholder: I18n.t("person.phone")}
 			]
 		]
 	end
@@ -147,11 +147,11 @@ module UsersHelper
 		[
 			[
 				{kind: "icon", value: "key.svg"},
-				{kind: "password-box", key: :password, auto: I18n.t("password.single")}
+				{kind: "password-box", key: :password, placeholder: I18n.t("password.single")}
 			],
 			[
 				{kind: "icon", value: "key.svg"},
-				{kind: "password-box", key: :password_confirmation, auto: I18n.t("password.confirm")}
+				{kind: "password-box", key: :password_confirmation, placeholder: I18n.t("password.confirm")}
 			],
 			[
 				{kind: "gap"},

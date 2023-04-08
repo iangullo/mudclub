@@ -41,11 +41,11 @@ module PeopleHelper
 		res = person_title_fields(title:, icon: @person.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
 		res << [
 			{kind: "label", value: I18n.t("person.name_a")},
-			{kind: "text-box", key: :name, value: @person.name}
+			{kind: "text-box", key: :name, value: @person.name, placeholder: I18n.t("person.name")}
 		]
 		res << [
 			{kind: "label", value: I18n.t("person.surname_a")},
-			{kind: "text-box", key: :surname, value: @person.surname}
+			{kind: "text-box", key: :surname, value: @person.surname, placeholder: I18n.t("person.surname")}
 		]
 		res << [
 			{kind: "icon", value: "calendar.svg"},
@@ -59,17 +59,17 @@ module PeopleHelper
 		res = [
 			[
 				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
-				{kind: "text-box", key: :dni, size: 8, value: @person.dni},
+				{kind: "text-box", key: :dni, size: 8, value: @person.dni, placeholder: I18n.t("person.pid")},
 				{kind: "gap"},
 				{kind: "icon", value: "at.svg"},
-				{kind: "email-box", key: :email, value: @person.email}
+				{kind: "email-box", key: :email, value: @person.email, placeholder: I18n.t("person.email")}
 			],
 			[
 				{kind: "icon", value: "user.svg"},
-				{kind: "text-box", key: :nick, size: 8, value: @person.nick},
+				{kind: "text-box", key: :nick, size: 8, value: @person.nick, placeholder: I18n.t("person.nick")},
 				{kind: "gap"},
 				{kind: "icon", value: "phone.svg"},
-				{kind: "text-box", key: :phone, size: 12, value: @person.phone}
+				{kind: "text-box", key: :phone, size: 12, value: @person.phone, placeholder: I18n.t("person.phone")}
 			]
 		]
 	end

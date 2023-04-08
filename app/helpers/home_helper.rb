@@ -31,7 +31,7 @@ module HomeHelper
 			],
 			[
 				{kind: "label", value: I18n.t("person.name_a")},
-				{kind: "text-box", key: :nick, value: club.nick}
+				{kind: "text-box", key: :nick, value: club.nick, placeholder: "MudClub"}
 			]
 		]
 	end

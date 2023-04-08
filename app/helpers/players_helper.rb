@@ -98,11 +98,11 @@ module PlayersHelper
 		f_cols = cols>2 ? cols - 1 : nil
 		res << [
 			{kind: "label", value: I18n.t("person.name_a")},
-			{kind: "text-box", key: :name, label: I18n.t("person.name"), value: @player.person.name, cols: f_cols}
+			{kind: "text-box", key: :name, label: I18n.t("person.name"), value: @player.person.name, placeholder: I18n.t("person.name"), cols: f_cols}
 		]
 		res << [
 			{kind: "label", value: I18n.t("person.surname_a")},
-			{kind: "text-box", key: :surname, value: @player.person.surname, cols: f_cols}
+			{kind: "text-box", key: :surname, value: @player.person.surname, placeholder: I18n.t("person.surname"), cols: f_cols}
 		]
 		res << [
 			{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @player.person.female},
@@ -132,15 +132,15 @@ module PlayersHelper
 		[
 			[
 				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
-				{kind: "text-box", key: :dni, size: 8, value: person.dni},
+				{kind: "text-box", key: :dni, size: 8, value: person.dni, placeholder: I18n.t("person.pid")},
 				{kind: "gap"}, {kind: "icon", value: "at.svg"},
-				{kind: "email-box", key: :email, value: person.email}
+				{kind: "email-box", key: :email, value: person.email, placeholder: I18n.t("person.email")}
 			],
 			[
-				{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: person.nick},
+				{kind: "icon", value: "user.svg"}, {kind: "text-box", key: :nick, size: 8, value: person.nick, placeholder: I18n.t("person.nick")},
 				{kind: "gap"},
 				{kind: "icon", value: "phone.svg"},
-				{kind: "text-box", key: :phone, size: 12, value: person.phone}
+				{kind: "text-box", key: :phone, size: 12, value: person.phone, placeholder: I18n.t("person.phone")}
 			]
 		]
 	end
