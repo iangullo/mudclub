@@ -72,8 +72,8 @@ class TopbarComponent < ApplicationComponent
 			res << menu_link(label: I18n.t("drill.many"), url: '/drills')
 			res << menu_link(label: I18n.t("player.many"), url: '/players') unless user.admin?
 			res << menu_link(label: I18n.t("coach.many"), url: '/coaches') unless user.admin?
-			res << menu_link(label: I18n.t("location.many"), url: '/locations') unless user.admin?
 			res << menu_link(label: I18n.t("slot.many"), url: '/slots') unless user.admin?
+			res << menu_link(label: I18n.t("location.many"), url: '/locations') unless user.admin?
 		end
 		res
 	end
@@ -81,17 +81,17 @@ class TopbarComponent < ApplicationComponent
 	def admin_tab(user)
 		if user.admin?
 			res = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[], class: @tabcls}
+			res[:options] << menu_link(label: I18n.t("category.many"), url: '/categories')
+			res[:options] << menu_link(label: I18n.t("division.many"), url: '/divisions')
 			c_opts = {name: "club-menu", label: @clubname, options:[]}
 			c_opts[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")
 			c_opts[:options] << menu_link(label: I18n.t("season.many"), url: '/seasons')
-			c_opts[:options] << menu_link(label: I18n.t("category.many"), url: '/categories')
-			c_opts[:options] << menu_link(label: I18n.t("division.many"), url: '/divisions')
 			c_opts[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
 			c_opts[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
 			c_opts[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
 			res[:options] << c_opts
-			res[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
 			res[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
+			res[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
 		end
 		res
 	end

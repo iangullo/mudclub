@@ -19,11 +19,15 @@
 class HomeController < ApplicationController
 	def index
 		if current_user.present?
-			title   = helpers.home_title_fields
-			title << [{kind: "gap"}]
-			@fields = create_fields(title)
-			teams   = helpers.team_grid(teams: current_user.teams.order(:season_id)) if current_user.teams
-			@grid   = create_grid(teams) if teams
+			if u_admin?	# we will redirect to season.index
+				redirect_to seasons_path, data: {turbo_action: "replace"}
+			else
+				title   = helpers.home_title_fields
+				title << [{kind: "gap"}]
+				@fields = create_fields(title)
+				teams   = helpers.team_grid(teams: current_user.teams.order(:season_id)) if current_user.teams
+				@grid   = create_grid(teams) if teams
+			end
 		end
 	end
 
