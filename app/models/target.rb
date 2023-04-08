@@ -59,9 +59,8 @@ class Target < ApplicationRecord
 			else
 				res = Target.real
 			end
-				res = focus ? res.where(focus: focus.length==1 ? focus.to_i : focus.to_sym) : res
-				res = aspect ? res.where(aspect: aspect.length==1 ? aspect.to_i : aspect.to_sym) : res
-			end
+			res = focus ? res.where(focus: focus.length==1 ? focus.to_i : focus.to_sym) : res
+			res = aspect ? res.where(aspect: aspect.length==1 ? aspect.to_i : aspect.to_sym) : res
 			res = res ? res.first : nil
 		end
 		return res
@@ -70,7 +69,7 @@ class Target < ApplicationRecord
 	# return list of registered Targets ordered by concept
 	def self.list(focus: nil,aspect: nil)
 		res  = []
-		Target.seearch(nil,"",focus,aspect).order(:concept).each {|target|
+		Target.search(nil,"",focus,aspect).order(:concept).each {|target|
 			res << target.concept
 		}
 		res	end
