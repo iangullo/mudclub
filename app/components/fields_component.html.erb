@@ -95,7 +95,16 @@
 				<% when "text-area" %>
 					<%= @form.text_area item[:key], value: item[:value], cols: item[:size], rows: item[:lines], class: item[:i_class] %>
 				<% when "text-box" %>
-					<%= @form.text_field item[:key], value: item[:value], size: item[:size], rows: item[:rows], class: item[:i_class] %>
+					<% if item[:options] # autosearch text input %>
+						<%= @form.text_field item[:key], list: "#{item[:key]}_list", value: item[:value], placeholder: item[:placeholder], size: item[:size], rows: item[:rows], class: item[:i_class], autocomplete: :off %>
+						<datalist id="<%=item[:key]%>_list">
+							<% item[:options].each do |opt| %>
+							<option><%=opt%></option>
+							<% end %>
+						</datalist>
+					<% else # regular text box%>
+						<%= @form.text_field item[:key], value: item[:value], placeholder: item[:placeholder], size: item[:size], rows: item[:rows], class: item[:i_class] %>
+					<% end %>
 				<% when "time-box" %>
 					<%= @form.number_field :hour, value: item[:hour], in: 10..22, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
 					<strong>:</strong>

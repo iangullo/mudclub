@@ -10,4 +10,9 @@
   <%= render @explain %>
   <%= render @formtail %>
   <%= render @submit %>
+  <datalist id="skill_list">
+    <% Skill.list.each do |opt| %>
+    <option><%=opt%></option>
+    <% end %>
+  </datalist>
 <% end %>

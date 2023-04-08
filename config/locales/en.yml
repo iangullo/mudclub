@@ -140,6 +140,7 @@ en:
     many: "Events"
   kind:
     single: "Type"
+    default: "<type>"
   locale:
     lang: "Language"
     en: "English"

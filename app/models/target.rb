@@ -56,6 +56,9 @@ class Target < ApplicationRecord
 		if res==nil and concept
 			if concept.length > 0
 				res = Target.where("unaccent(concept) ILIKE unaccent(?)","%#{concept}%")
+			else
+				res = Target.real
+			end
 				res = focus ? res.where(focus: focus.length==1 ? focus.to_i : focus.to_sym) : res
 				res = aspect ? res.where(aspect: aspect.length==1 ? aspect.to_i : aspect.to_sym) : res
 			end
@@ -63,4 +66,12 @@ class Target < ApplicationRecord
 		end
 		return res
 	end
+
+	# return list of registered Targets ordered by concept
+	def self.list(focus: nil,aspect: nil)
+		res  = []
+		Target.seearch(nil,"",focus,aspect).order(:concept).each {|target|
+			res << target.concept
+		}
+		res	end
 end

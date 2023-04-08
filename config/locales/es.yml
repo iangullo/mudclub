@@ -140,6 +140,7 @@ es:
     many: "Actividades"
   kind:
     single: "Tipo"
+    default: "<tipo>"
   locale:
     lang: "Idioma"
     es: "Español"

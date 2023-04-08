@@ -21,5 +21,12 @@ class Kind < ApplicationRecord
 	before_save { self.name = self.name.mb_chars.titleize }
 	scope :real, -> { where("id>0") }
 	scope :search, -> (s_k) { where("unaccent(name) ILIKE unaccent(?)","%#{s_k}%") }
+	self.inheritance_column = "not_sti"
 
+	# return an array with all available Kind names
+	def self.list
+		res  = []
+		Kind.real.order(:name).each {|kind|	res << kind.name }
+		res
+	end
 end

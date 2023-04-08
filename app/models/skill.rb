@@ -32,4 +32,11 @@ class Skill < ApplicationRecord
 		res = (f_object[:id] and f_object[:id].to_i>0) ? Skill.find(f_object[:id]) : Skill.search(f_object[:concept]).first
 		return res
 	end
+
+	# return an array with all available Skill names
+	def self.list
+		res  = []
+		Skill.real.order(:concept).each {|skill| res << skill.concept}
+		res
+	end
 end

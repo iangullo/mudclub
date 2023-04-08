@@ -1,1 +1,2 @@
-<%= form.text_field :concept, placeholder: t("skill.default"), class: "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0 px-1", size: 10 %>
+<% f_cls = "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0 px-1" %>
+<%= form.text_field :concept, list: "skill_list", placeholder: t("skill.default"), class: f_cls, size: 10 %>
