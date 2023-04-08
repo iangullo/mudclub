@@ -23,6 +23,13 @@ class Kind < ApplicationRecord
 	scope :search, -> (s_k) { where("unaccent(name) ILIKE unaccent(?)","%#{s_k}%") }
 	self.inheritance_column = "not_sti"
 
+	# Takes the input received from a skill_form (s_kind - string)
+	# and either reads or creates a matching Kind
+	def self.fetch(s_kind)
+		res = Kind.create(name: s_kind) unless (res = Kind.search(s_kind).first)
+		return res
+	end
+
 	# return an array with all available Kind names
 	def self.list
 		res  = []

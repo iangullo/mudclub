@@ -126,7 +126,7 @@ class Drill < ApplicationRecord
 		self.description = d_data[:description]
 		self.material    = d_data[:material]
 		self.coach_id    = d_data[:coach_id]
-		self.kind_id     = d_data[:kind_id]
+		self.kind_id     = Kind.fetch(d_data[:kind_id]).id
 		self.explanation = d_data[:explanation]
 		self.playbook    = d_data[:playbook]
 		self.check_skills(d_data[:skills_attributes]) if d_data[:skills_attributes]

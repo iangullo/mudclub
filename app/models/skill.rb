@@ -27,9 +27,9 @@ class Skill < ApplicationRecord
 	end
 
 	# Takes the input received from a skill_form (f_object)
-	# and either reads or creates a matching skill
+	# and either reads or returns nil
 	def self.fetch(f_object)
-		res = (f_object[:id] and f_object[:id].to_i>0) ? Skill.find(f_object[:id]) : Skill.search(f_object[:concept]).first
+		res = (f_object[:id] and f_object[:id].to_i>0) ? Skill.find_by(id: f_object[:id]) : Skill.search(f_object[:concept]).first
 		return res
 	end
 
