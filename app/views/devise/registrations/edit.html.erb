@@ -14,7 +14,7 @@
 			</tr><tr>
 				<td align="right" class="<%=i_cls%>"><%= image_tag "oldkey.svg", size: "25x25" %></td>
 				</td><td>
-					<%= f.password_field :current_password, placeholder: I18n.t("password.old"), class: f_cls %>
+					<%= f.password_field :current_password, autofocus: true, placeholder: I18n.t("password.old"), class: f_cls %>
 				</td>
 			</tr><tr>
 				<td></td>
@@ -22,7 +22,7 @@
 			</tr><tr>
 				<td align="right" class="<%=i_cls%>"><%= image_tag "key.svg", size: "25x25" %></td>
 				<td>
-					<%= f.password_field :password, autofocus: true, placeholder: I18n.t("password.new"), class: f_cls %>
+					<%= f.password_field :password, placeholder: I18n.t("password.new"), class: f_cls %>
 					<% if @minimum_password_length %>
 						<br />
 						<i class="text-sm"><%= I18n.t("password.min_chars")%><%= @minimum_password_length %></i>
