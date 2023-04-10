@@ -19,8 +19,8 @@
 class Kind < ApplicationRecord
 	has_many :drills
 	before_save { self.name = self.name.mb_chars.titleize }
-	scope :real, -> { where("id>0") }
-	scope :search, -> (s_k) { where("unaccent(name) ILIKE unaccent(?)","%#{s_k}%") }
+	scope :real, -> { where("id>0").order(:name) }
+	scope :search, -> (s_k) { where("unaccent(name) ILIKE unaccent(?)","%#{s_k}%").order(:name) }
 	self.inheritance_column = "not_sti"
 
 	# Takes the input received from a skill_form (s_kind - string)

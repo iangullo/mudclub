@@ -36,7 +36,7 @@ class DrillTarget < ApplicationRecord
 	def self.fetch(f_object)
 		res = (f_object[:id] and f_object[:id].to_i>0) ? DrillTarget.find(f_object[:id]) : DrillTarget.new
 		t   = f_object[:target_attributes]
-		tgt = Target.search(t[:id],t[:concept], t[:focus], t[:aspect])
+		tgt = Target.fetch(t[:id],t[:concept], t[:focus], t[:aspect])
 		tgt = Target.new unless tgt # ensure we have a target
 		tgt.concept  = t[:concept]      # accept concept edition
 		tgt.focus    = t[:focus].length==1 ? t[:focus].to_i : t[:focus].to_sym

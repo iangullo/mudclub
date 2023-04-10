@@ -95,7 +95,7 @@ class Drill < ApplicationRecord
 
 	# filter for targets
 	def self.search_target(res=Drill.all, s_t)
-		res = res.joins(:targets).where(targets: Target.search(nil, s_t)).distinct
+		res = res.joins(:targets).where(targets: Target.fetch(nil, s_t)).distinct
 	end
 
 	# Array of print strings for associated skills

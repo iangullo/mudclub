@@ -50,8 +50,8 @@ class Target < ApplicationRecord
 		res << [I18n.t("target.focus.def"), 2]
 	end
 
-	#Search target matching. returns either nil or a Target
-	def self.search(id, concept, focus=nil, aspect=nil)
+	# Search target matching. returns either nil or a Target
+	def self.fetch(id, concept, focus=nil, aspect=nil)
 		res = id ? Target.find(id.to_i) : nil
 		if res==nil and concept
 			if concept.length > 0
@@ -69,7 +69,7 @@ class Target < ApplicationRecord
 	# return list of registered Targets ordered by concept
 	def self.list(focus: nil,aspect: nil)
 		res  = []
-		Target.search(nil,"",focus,aspect).order(:concept).each {|target|
+		Target.fetch(nil,"",focus,aspect).order(:concept).each {|target|
 			res << target.concept
 		}
 		res	end

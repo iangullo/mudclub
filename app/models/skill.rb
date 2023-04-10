@@ -18,8 +18,8 @@
 #
 class Skill < ApplicationRecord
 	has_and_belongs_to_many :drills
-	scope :real, -> { where("id>0") }
-	scope :search, -> (s_s) { where("unaccent(concept) ILIKE unaccent(?)","%#{s_s}%") }
+	scope :real, -> { where("id>0").order(:concept) }
+	scope :search, -> (s_s) { where("unaccent(concept) ILIKE unaccent(?)","%#{s_s}%").order(:concept) }
 	self.inheritance_column = "not_sti"
 
 	def to_s
