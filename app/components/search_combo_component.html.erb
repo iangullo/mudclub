@@ -7,7 +7,7 @@
 					<% if opt[:label] %><label for="<%=opt[:key]%>" class="<%=@search[:l_class]%>"><%=opt[:label]%></label><% end %>
 					<% case opt[:kind]%>
 					<% when "search-text" %>
-						<%=fsearch.text_field opt[:key], placeholder: t("action.search"), value: opt[:value], size: opt[:size], class: @search[:i_class], data: {action: "input->search-form#search"}%>
+						<%=fsearch.text_field opt[:key], placeholder: opt[:placeholder], value: opt[:value], size: opt[:size], class: @search[:i_class], data: @s_action %>
 					<% when "search-select" %>
 						<%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: t("scope.all")}, {class: @search[:i_class]}%>
 					<% when "search-collection" %>

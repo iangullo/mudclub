@@ -34,6 +34,10 @@
 class SearchComboComponent < ApplicationComponent
 
 	def initialize(search:)
-		@search = search
+		@search   = search
+		@s_action = {action: "input->search-form#search"}
+		search[:fields].each {|field|
+			field[:placeholder] = I18n.t("action.search") unless field[:placeholder] if field[:kind]=="search-text"
+		}
 	end
 end
