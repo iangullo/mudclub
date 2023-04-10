@@ -21,7 +21,7 @@ module DrillsHelper
 	def drill_search_bar(search_in:, task_id: nil, scratch: nil)
 		session.delete('drill_filters') if scratch
 		fields = [
-			{kind: "search-text", key: :name, label: I18n.t("person.name_a"), value: session.dig('drill_filters', 'name'), size: 10},
+			{kind: "search-text", key: :name, placeholder: I18n.t("person.name_a"), value: session.dig('drill_filters', 'name'), size: 10},
 			{kind: "search-select", key: :kind_id, label: "#{I18n.t("kind.single")}:", value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)},
 			{kind: "search-select", key: :skill_id, label: I18n.t("skill.single"), value: session.dig('drill_filters', 'skill_id'), options: Skill.real.pluck(:concept, :id)}
 		]
