@@ -108,7 +108,7 @@ module DrillsHelper
 		res = drill_title_fields(title:)
 		res << [
 			{kind: "text-box", key: :name, placeholder: I18n.t("drill.default"), value: @drill.name},
-			{kind: "text-box", key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: I18n.t("kind.default"), size: 16}
+			{kind: "text-box", key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: I18n.t("kind.default")}
 		]
 	end
 

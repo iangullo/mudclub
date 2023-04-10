@@ -144,6 +144,10 @@ class DrillsController < ApplicationController
 			@formdata = create_fields(helpers.drill_form_data)
 			@explain  = create_fields(helpers.drill_form_explain)
 			@formtail = create_fields(helpers.drill_form_tail)
+			@skills   = Skill.list
+			s_size    = 10
+			@skills.each { |skill| s_size = skill.length if skill.length > s_size }
+			@s_size   = s_size - 3
 			@submit   = create_submit(close_return: :back)
 		end
 
