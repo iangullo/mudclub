@@ -37,4 +37,4 @@ test:
 
 production:
   <<: *default
-  database: <%= ENV.fetch('DB_NAME', 'mudclub' %>
+  database: <%= ENV.fetch('DB_NAME', 'mudclub') %>
