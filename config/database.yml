@@ -17,10 +17,10 @@
 # contact email - iangullo@gmail.com.
 #
 default: &default
-  host: localhost
+  host: <%= ENV.fetch('DB_HOST', 'localhost') %>
   adapter: postgresql
-  username: mudclub
-  password: EtClausi
+  username: <%= ENV.fetch('DB_USERNAME','mudclub') %>
+  password: <%= ENV.fetch('DB_PASSWORD', 'EtClausi') %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
 
@@ -37,4 +37,4 @@ test:
 
 production:
   <<: *default
-  database: mudclub_production
+  database: <%= ENV.fetch('DB_NAME', 'mudclub' %>
