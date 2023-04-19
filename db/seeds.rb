@@ -96,4 +96,3 @@ Team.create(name: "Baby Basket", season_id: 1, category_id: 15, division_id: 1, 
 Season.last.locations << Location.find(1)
 Season.last.locations << Location.find(2)
 Season.last.locations << Location.find(3)
-Season.last.locations << Location.find(4)
