@@ -23,7 +23,8 @@ s_year = s_date.year - (s_date.month < 7 ? 1 : 0)
 e_year = s_date.year + (s_date.month > 6 ? 0 : 1)
 e_date = Date.new(s_year,9,1).to_s
 s_date = Date.new(e_year,30,1).to_s
-Season.create(start_date: s_date, end_date: e_date)Location.create(name: "Homecourt", practice_court: false)
+Season.create(start_date: s_date, end_date: e_date)
+Location.create(name: "Homecourt", practice_court: false)
 Location.create(name: "Indoor gym",practice_court: true)
 Location.create(name: "Outdoor court", practice_court: true)
 Division.create(name: "Local")
