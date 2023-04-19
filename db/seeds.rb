@@ -23,10 +23,11 @@ s_year = s_date.year - (s_date.month < 7 ? 1 : 0)
 e_year = s_date.year + (s_date.month > 6 ? 0 : 1)
 e_date = Date.new(s_year,6,30).to_s
 s_date = Date.new(e_year,9,1).to_s
-Season.create(start_date: s_date, end_date: e_date)
+season = Season.create(start_date: s_date, end_date: e_date)
 Location.create(name: "Homecourt", practice_court: false)
 Location.create(name: "Indoor gym",practice_court: true)
 Location.create(name: "Outdoor court", practice_court: true)
+Location.real.each { |location| season.locations << location }
 Division.create(name: "Local")
 Division.create(name: "Regional")
 Division.create(name: "National")
@@ -93,6 +94,4 @@ Team.create(name: "U12 Masc.", season_id: 1, category_id: 9, division_id: 1, hom
 Team.create(name: "U12 Fem.", season_id: 1, category_id: 10, division_id: 1, homecourt_id: 1, rules: 2)
 Team.create(name: "U10 Mixed", season_id: 1, category_id: 14, division_id: 1, homecourt_id: 1, rules: 1)
 Team.create(name: "Baby Basket", season_id: 1, category_id: 15, division_id: 1, homecourt_id: 1, rules: 1)
-Season.last.locations << Location.find(1)
-Season.last.locations << Location.find(2)
-Season.last.locations << Location.find(3)
+Team.real.each { |team| season.teams << team }

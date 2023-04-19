@@ -30,11 +30,12 @@ class Season < ApplicationRecord
 		if self.id == 0	# fake season for all events/teams
 			cad = I18n.t("scope.all")
 		else
-				cad = self.start_year.to_s
+			cad = self.start_year.to_s
 			if self.end_year > self.start_year
 				cad = cad + "/" + (self.end_year % 100).to_s
 			end
 		end
+		cad
 	end
 
 	def start_year
