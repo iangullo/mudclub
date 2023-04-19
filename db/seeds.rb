@@ -21,8 +21,8 @@
 s_date = Date.today
 s_year = s_date.year - (s_date.month < 7 ? 1 : 0)
 e_year = s_date.year + (s_date.month > 6 ? 0 : 1)
-e_date = Date.new(s_year,6,30).to_s
-s_date = Date.new(e_year,9,1).to_s
+e_date = Date.new(e_year,6,30).to_s
+s_date = Date.new(s_year,9,1).to_s
 season = Season.create(start_date: s_date, end_date: e_date)
 Location.create(name: "Homecourt", practice_court: false)
 Location.create(name: "Indoor gym",practice_court: true)
