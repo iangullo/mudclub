@@ -359,7 +359,7 @@ class EventsController < ApplicationController
 			end
 			@task   = t_param[:task_id] ? Task.find(t_param[:task_id]) : Task.new(event: @event, order: @event.tasks.count + 1, duration: 5)
 			if load_drills
-				@drills = filter!(Drill).pluck(:name, :id)
+				@drills = filter!(Drill).pluck(:name, :id, :coach_id)
 				@drill  = t_param[:drill_id] ? Drill.find(t_param[:drill_id]) : (@task.drill ? @task.drill : @drills.size>0 ? Drill.find(@drills.first[1]) : nil)
 			end
 		end
