@@ -98,7 +98,7 @@ module TeamsHelper
 	def team_links
 		res = [[
 			button_field(
-				{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster"), frame: "modal"},
+				{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster")},
 				align: "center"
 			)
 		]]

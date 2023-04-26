@@ -63,7 +63,7 @@ class TeamsController < ApplicationController
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
 			@title = create_fields(title)
 			@grid   = create_grid(helpers.player_grid(players: @team.players.active.order(:number), obj: @team))
-			@submit = create_submit(submit:(u_admin? or @team.has_coach(u_coachid)) ? edit_roster_team_path : nil, frame: "modal")
+			@submit = create_submit(close: "back", close_return: team_path(@team), submit:(u_admin? or @team.has_coach(u_coachid)) ? edit_roster_team_path : nil, frame: "modal")
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
 		end
@@ -75,7 +75,7 @@ class TeamsController < ApplicationController
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
 			@title  = create_fields(title)
-			@submit = create_submit
+			@submit = create_submit(close: "cancel", close_return: :back)
 			@eligible_players = @team.eligible_players
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
@@ -208,16 +208,21 @@ class TeamsController < ApplicationController
 				if params[:team]
 					retlnk = params[:team][:retlnk]
 					@team.rebuild(params[:team])
-					if @team.save
-						a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
-						register_action(:updated, a_desc)
-						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-						format.json { redirect_to retlnk, status: :created, location: retlnk }
-					else
-						@eligible_coaches = Coach.active
-						@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
-						@submit = create_submit
-						format.html { render :edit, data:{"turbo-frame": "replace"}, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})","error") }
+					if @team.changed?
+						if @team.save
+							a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
+							register_action(:updated, a_desc)
+							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+							format.json { redirect_to retlnk, status: :created, location: retlnk }
+						else
+							@eligible_coaches = Coach.active
+							@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
+							@submit = create_submit
+							format.html { render :edit, data:{"turbo-frame": "replace"}, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})","error") }
+							format.json { render json: @team.errors, status: :unprocessable_entity }
+						end
+					else	# no data to save...
+						format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})"), data: {turbo_action: "replace"} }
 						format.json { render json: @team.errors, status: :unprocessable_entity }
 					end
 				else	# no data to save...
