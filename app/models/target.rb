@@ -21,6 +21,8 @@ class Target < ApplicationRecord
 	has_many :teams, through: :team_targets
 	has_many :drill_targets
 	has_many :drills, through: :drill_targets
+	has_many :event_targets
+	has_many :events, through: :event_targets
 	self.inheritance_column = "not_sti"
 
 	enum aspect: {
