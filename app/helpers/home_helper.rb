@@ -23,8 +23,8 @@ module HomeHelper
 	end
 
 	# home edit form fields
-	def home_form_fields(club:)
-		[
+	def home_form_fields(club:, retlnk: nil)
+		res = [
 			[
 				{kind: "header-icon", value: club.logo},
 				{kind: "title", value: I18n.t("action.edit"), cols: 2}
@@ -34,5 +34,7 @@ module HomeHelper
 				{kind: "text-box", key: :nick, value: club.nick, placeholder: "MudClub"}
 			]
 		]
+		res << {kind: "hidden", key: :retlnk, value: retlnk} if retlnk
+		res
 	end
 end

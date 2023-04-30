@@ -69,8 +69,8 @@ class DivisionsController < ApplicationController
 				if @division.save
 					a_desc = "#{I18n.t("division.created")} '#{@division.name}'"
 					register_action(:created, a_desc)
-					format.html { redirect_to divisions_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: divisions_url }
+					format.html { redirect_to divisions_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: divisions_path }
 				else
 					prepare_form(title: I18n.t("division.new"))
 					format.html { render :new, status: :unprocessable_entity }
@@ -86,15 +86,20 @@ class DivisionsController < ApplicationController
 	def update
 		if check_access(roles: [:admin], obj: @division)
 			respond_to do |format|
-				if @division.update(division_params)
-					a_desc = "#{I18n.t("division.updated")} '#{@division.name}'"
-					register_action(:updated, a_desc)
-					format.html { redirect_to divisions_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: divisions_url }
+				if @division.changed?
+					if @division.update(division_params)
+						a_desc = "#{I18n.t("division.updated")} '#{@division.name}'"
+						register_action(:updated, a_desc)
+						format.html { redirect_to divisions_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :created, location: divisions_path }
+					else
+						prepare_form(title: I18n.t("division.new"))
+						format.html { render :edit, status: :unprocessable_entity }
+						format.json { render json: @division.errors, status: :unprocessable_entity }
+					end
 				else
-					prepare_form(title: I18n.t("division.new"))
-					format.html { render :edit, status: :unprocessable_entity }
-					format.json { render json: @division.errors, status: :unprocessable_entity }
+					format.html { redirect_to divisions_path, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :index, status: :ok, location: divisions_path }
 				end
 			end
 		else
@@ -111,7 +116,7 @@ class DivisionsController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("division.deleted")} '#{d_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to divisions_url, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to divisions_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

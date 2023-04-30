@@ -116,22 +116,22 @@ class EventsController < ApplicationController
 						check_task(e_data[:task])
 						@notice[:message] = @notice[:message] + @task.to_s
 					end
-					format.html { redirect_to @r_link, notice: @notice, data: {turbo_action: "replace"}}
-					format.json { render @r_view, status: :ok, location: @r_link }
+					format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
+					format.json { render @retview, status: :ok, location: @retlnk }
 				elsif @event.changed?	# do we need to save?
 					if @event.save	# try to do its
 						register_action(:updated, @notice[:message])
 						@event.tasks.reload if e_data[:tasks_attributes] # a training session
-						format.html { redirect_to @r_link, notice: @notice, data: {turbo_action: "replace"}}
-						format.json { render @r_view, status: :ok, location: @r_link }
+						format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
+						format.json { render @retview, status: :ok, location: @retlnk }
 					else
 						prepare_event_form(edit: true)	# continue editing, it did not work
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @event.errors, status: :unprocessable_entity }
 					end
 				else	# nothing to save
-					format.html { redirect_to @r_link, notice: @notice, data: {turbo_action: "replace"}}
-					format.json { render @r_view, status: :ok, location: @r_link }
+					format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
+					format.json { render @retview, status: :ok, location: @retlnk }
 				end
 			end
 		else
@@ -146,7 +146,7 @@ class EventsController < ApplicationController
 			team   = @event.team
 			@event.destroy
 			respond_to do |format|
-				next_url = team.id > 0 ? team_path : events_url
+				next_url = team.id > 0 ? team_path : events_path
 				next_act = team.id > 0 ? :show : :index
 				a_desc   = helpers.event_delete_notice
 				register_action(:deleted, a_desc)
@@ -214,19 +214,19 @@ class EventsController < ApplicationController
 		def prepare_update_redirect(e_data)
 			if e_data[:task].present?
 				@notice = helpers.flash_message("#{I18n.t("task.updated")} ", "success")
-				@r_view = :edit
-				@r_link = e_data[:task][:retlnk]
+				@retview = :edit
+				@retlnk = e_data[:task][:retlnk]
 			else
 				@notice = helpers.event_update_notice(attendance: e_data[:player_ids])
 				if e_data[:season_id].to_i > 0 # season event
-					@r_view = :index
-					@r_link = season_events_path(e_data[:season_id], start_date: @event.start_date)
+					@retview = :index
+					@retlnk = season_events_path(e_data[:season_id], start_date: @event.start_date)
 				elsif @event.rest?	# careful, these are modal
-					@r_view = :index
-					@r_link = params[:retlnk] ? params[:retlnk] : team_events_path(@event, start_date: @event.start_date)
+					@retview = :index
+					@retlnk = params[:retlnk] ? params[:retlnk] : team_events_path(@event, start_date: @event.start_date)
 				else	# match or training session
-					@r_view = :show
-					@r_link = event_path(@event)
+					@retview = :show
+					@retlnk = event_path(@event)
 				end
 			end
 			# returns whether we have something to save

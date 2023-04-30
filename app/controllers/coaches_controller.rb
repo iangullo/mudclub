@@ -111,17 +111,23 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:admin], obj: @coach)
 			respond_to do |format|
 				@coach.rebuild(coach_params)
-				if @coach.save
-					a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
-					register_action(:updated, a_desc)
-					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
+				if @coach.changed?
+					if @coach.save
+						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
+						register_action(:updated, a_desc)
+						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
+					else
+						prepare_form(title: I18n.t("coach.edit"))
+						format.html { render :edit }
+						format.json { render json: @coach.errors, status: :unprocessable_entity }
+					end
 				else
-					prepare_form(title: I18n.t("coach.edit"))
-					format.html { render :edit }
-					format.json { render json: @coach.errors, status: :unprocessable_entity }
+					retlnk = params[:retlnk] ? params[:retlnk] : coaches_path
+					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :index, status: :ok, location: retlnk }
 				end
-			end
+		end
 		else
 			redirect_to coaches_path, data: {turbo_action: "replace"}
 		end

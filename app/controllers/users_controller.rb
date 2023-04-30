@@ -77,8 +77,8 @@ class UsersController < ApplicationController
 						@user.clean_bind	# ensure person is well bound
 						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
 						register_action(:created, a_desc)
-						format.html { redirect_to users_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: users_url }
+						format.html { redirect_to users_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :created, location: users_path }
 					else
 						prepare_form(I18n.t("user.new"), create: true)
 						format.html { render :new, notice: helpers.flash_message("#{@user.errors}","error") }
@@ -99,15 +99,20 @@ class UsersController < ApplicationController
 					params[:user].delete(:password_confirmation)
 				end
 				@user.rebuild(user_params)	# rebuild user
-				if @user.save
-					a_desc = "#{I18n.t("user.updated")} '#{@user.s_name}'"
-					register_action(:updated, a_desc)
-					format.html { redirect_to users_url, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :ok, location: users_url }
+				if @user.changed?
+					if @user.save
+						a_desc = "#{I18n.t("user.updated")} '#{@user.s_name}'"
+						register_action(:updated, a_desc)
+						format.html { redirect_to user_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :ok, location: user_path }
+					else
+						prepare_form(I18n.t("user.edit"))
+						format.html { render :edit }
+						format.json { render json: @user.errors, status: :unprocessable_entity }
+					end
 				else
-					prepare_form(I18n.t("user.edit"))
-					format.html { render :edit }
-					format.json { render json: @user.errors, status: :unprocessable_entity }
+					format.html { redirect_to user_path, notice: no_data_notice, data: {turbo_action: "replace"} }
+					format.json { render :show, status: :ok, location: user_path }
 				end
 			end
 		else
@@ -123,7 +128,7 @@ class UsersController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("user.deleted")} '#{@user.s_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to users_url, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to users_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

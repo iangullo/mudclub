@@ -80,14 +80,14 @@ class PeopleController < ApplicationController
 			@person = Person.new
 			respond_to do |format|
 				@person.rebuild(person_params)	# take care of duplicates
-				if @person.persisted?	# it was a duplicate
-					format.html { redirect_to people_url(search: @person.name), notice: helpers.flash_message("#{I18n.t("person.duplicate")} '#{@person.to_s}'", "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :duplicate, location: people_url }
+				if @person.exists?	# it was a duplicate
+					format.html { redirect_to people_path(search: @person.name), notice: helpers.flash_message("#{I18n.t("person.duplicate")} '#{@person.to_s}'", "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :duplicate, location: people_path }
 				elsif @person.save
 					a_desc = "#{I18n.t("person.created")} '#{@person.to_s}'"
 					register_action(:created, a_desc)
-					format.html { redirect_to people_url(search: @person.name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: people_url }
+					format.html { redirect_to people_path(search: @person.name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: people_path }
 				else
 					prepare_form(title: I18n.t("person.new"))
 					format.html { render :new }
@@ -104,21 +104,25 @@ class PeopleController < ApplicationController
 	def update
 		if check_access(roles: [:admin], obj: @person)
 			respond_to do |format|
-				if @person.update(person_params)
-					if @person.id==0 # just edited the club identity
-						a_desc = "'#{@person.nick}' #{I18n.t("status.saved")}"
-						returl = home_url
+				retlnk = params[:retlnk] ? params[:retlnk] : (@person.id==0 ? "/" : people_path(search: @person.name))
+				if @person.changed?
+					if @person.update(person_params)
+						if @person.id==0 # just edited the club identity
+							a_desc = "'#{@person.nick}' #{I18n.t("status.saved")}"
+						else
+							a_desc = "#{I18n.t("person.updated")} '#{@person.to_s}'"
+						end
+						register_action(:updated, a_desc)
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :created, location: retlnk }
 					else
-						a_desc = "#{I18n.t("person.updated")} '#{@person.to_s}'"
-						returl = people_url(search: @person.name)
+						prepare_form(title: I18n.t("person.edit"))
+						format.html { render :edit }
+						format.json { render json: @person.errors, status: :unprocessable_entity }
 					end
-					register_action(:updated, a_desc)
-					format.html { redirect_to returl, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: returl }
-				else
-					prepare_form(title: I18n.t("person.edit"))
-					format.html { render :edit }
-					format.json { render json: @person.errors, status: :unprocessable_entity }
+				elsif @person.id != 0
+					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { redirect_to retlnk, status: :ok, location: retlnk }
 				end
 			end
 		else
@@ -133,7 +137,7 @@ class PeopleController < ApplicationController
 			Person.import(params[:file]) # added to import excel
 			a_desc = "#{I18n.t("person.import")} '#{params[:file].original_filename}'"
 			register_action(:imported, a_desc)
-			format.html { redirect_to people_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+			format.html { redirect_to people_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -148,7 +152,7 @@ class PeopleController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("person.deleted")} '#{@person.to_s}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to people_url, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to people_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

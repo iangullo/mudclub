@@ -110,15 +110,20 @@ class PlayersController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @player)
 			respond_to do |format|
 				@player.rebuild(player_params)
-				if @player.save
-					a_desc = "#{I18n.t("player.updated")} '#{@player.to_s}'"
-					register_action(:updated, a_desc)
-					format.html { redirect_to player_params[:retlnk], notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :ok, location: players_path(search: @player.s_name) }
+				if @player.changed?
+					if @player.save
+						a_desc = "#{I18n.t("player.updated")} '#{@player.to_s}'"
+						register_action(:updated, a_desc)
+						format.html { redirect_to player_params[:retlnk], notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :ok, location: players_path(search: @player.s_name) }
+					else
+						prepare_form(title: I18n.t("player.edit"))
+						format.html { render :edit }
+						format.json { render json: @player.errors, status: :unprocessable_entity }
+					end
 				else
-					prepare_form(title: I18n.t("player.edit"))
-					format.html { render :edit }
-					format.json { render json: @player.errors, status: :unprocessable_entity }
+					format.html { redirect_to player_params[:retlnk], notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :index, status: :ok, location: player_params[:retlnk] }
 				end
 			end
 		else

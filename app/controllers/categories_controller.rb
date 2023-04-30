@@ -67,8 +67,8 @@ class CategoriesController < ApplicationController
 				if @category.save
 					a_desc = "#{I18n.t("category.created")} '#{@category.name}'"
 					register_action(:created, a_desc)
-					format.html { redirect_to categories_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: categories_url }
+					format.html { redirect_to categories_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: categories_path }
 				else
 					prepare_form(title: I18n.t("category.new"))
 					format.html { render :new, status: :unprocessable_entity }
@@ -84,15 +84,20 @@ class CategoriesController < ApplicationController
 	def update
 		if check_access(roles: [:admin], obj: @category)
 			respond_to do |format|
-				if @category.update(category_params)
-					a_desc = "#{I18n.t("category.updated")} '#{@category.name}'"
-					register_action(:updated, a_desc)
-					format.html { redirect_to categories_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :ok, location: categories_url }
+				if @category.changed?
+					if @category.update(category_params)
+						a_desc = "#{I18n.t("category.updated")} '#{@category.name}'"
+						register_action(:updated, a_desc)
+						format.html { redirect_to categories_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :ok, location: categories_path }
+					else
+						prepare_form(title: I18n.t("category.edit"))
+						format.html { render :edit, status: :unprocessable_entity }
+						format.json { render json: @category.errors, status: :unprocessable_entity }
+					end
 				else
-					prepare_form(title: I18n.t("category.edit"))
-					format.html { render :edit, status: :unprocessable_entity }
-					format.json { render json: @category.errors, status: :unprocessable_entity }
+					format.html { redirect_to categories_path, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :index, status: :ok, location: categories_path }
 				end
 			end
 		else
@@ -109,7 +114,7 @@ class CategoriesController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("category.deleted")} '#{c_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to categories_url, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to categories_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

@@ -34,7 +34,7 @@ module LocationsHelper
 		res << [{kind: "text-box", key: :name, value: @location.name, placeholder: I18n.t("location.name"), size: 20}]
 		res << [
 			{kind: "icon", value: "gmaps.svg"},
-			{kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, placeholder: I18n.t("location.gmap"), size: 20}
+			{kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, placeholder: I18n.t("location.gmaps"), size: 20}
 		]
 		res << [
 			{kind: "icon", value: "training.svg"},
@@ -55,7 +55,7 @@ module LocationsHelper
 
 		rows = Array.new
 		@locations.each { |loc|
-			row = {url: edit_location_path(loc), frame: "modal", items: []}
+			row = {url: edit_location_path(loc, season_id: @season ? @season.id : nil), frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: loc.name}
 			row[:items] << {kind: "icon", value: loc.practice_court ? "training.svg" : "team.svg", align: "center"}
 			if loc.gmaps_url

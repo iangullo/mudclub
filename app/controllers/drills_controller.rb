@@ -74,7 +74,7 @@ class DrillsController < ApplicationController
 				if @drill.save
 					a_desc = "#{I18n.t("drill.created")} '#{@drill.name}'"
 					register_action(:created, a_desc)
-					format.html { redirect_to drills_url, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					format.html { redirect_to drills_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: @drill }
 				else
 					prepare_form(title: I18n.t("drill.new"))
@@ -92,15 +92,20 @@ class DrillsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @drill)
 			respond_to do |format|
 				@drill.rebuild(drill_params)	# rebuild drill
-				if @drill.save
-					a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
-					register_action(:updated, a_desc)
-					format.html { redirect_to drill_path, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :show, status: :ok, location: @drill }
+				if @drill.changed? or @drill.explanation.changed?
+					if @drill.save
+						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
+						register_action(:updated, a_desc)
+						format.html { redirect_to drill_path, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :ok, location: @drill }
+					else
+						prepare_form(title: I18n.t("drill.edit"))
+						format.html { render :edit, status: :unprocessable_entity }
+						format.json { render json: @drill.errors, status: :unprocessable_entity }
+					end
 				else
-					prepare_form(title: I18n.t("drill.edit"))
-					format.html { render :edit, status: :unprocessable_entity }
-					format.json { render json: @drill.errors, status: :unprocessable_entity }
+					format.html { redirect_to drill_path, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :show, status: :ok, location: drill_path }
 				end
 			end
 		else
@@ -117,7 +122,7 @@ class DrillsController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("drill.deleted")} '#{d_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to drills_url, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to drills_path, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

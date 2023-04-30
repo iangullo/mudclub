@@ -205,6 +205,7 @@ class TeamsController < ApplicationController
 	def update
 		if check_access(roles: [:admin], obj: @team)
 			respond_to do |format|
+				n_notice = no_data_notice(trail: @team.to_s)
 				if params[:team]
 					retlnk = params[:team][:retlnk]
 					@team.rebuild(params[:team])
@@ -218,16 +219,16 @@ class TeamsController < ApplicationController
 							@eligible_coaches = Coach.active
 							@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
 							@submit = create_submit
-							format.html { render :edit, data:{"turbo-frame": "replace"}, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})","error") }
+							format.html { render :edit, data:{"turbo-frame": "replace"}, notice: helpers.flash_message(@team.errors,"error") }
 							format.json { render json: @team.errors, status: :unprocessable_entity }
 						end
 					else	# no data to save...
-						format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})"), data: {turbo_action: "replace"} }
+						format.html { redirect_to retlnk, notice: n_notice, data: {turbo_action: "replace"} }
 						format.json { render json: @team.errors, status: :unprocessable_entity }
 					end
 				else	# no data to save...
-					format.html { redirect_to @team, notice: helpers.flash_message("#{I18n.t("status.no_data")} (#{@team.to_s})"), data: {turbo_action: "replace"} }
-					format.json { render json: @team.errors, status: :unprocessable_entity }
+					format.html { redirect_to retlnk, notice: n_notice, data: {turbo_action: "replace"} }
+					format.json { redirect_to retlnk, status: :ok, location: retlnk }
 				end
 			end
 		else

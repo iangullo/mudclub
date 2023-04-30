@@ -74,7 +74,7 @@ class LocationsController < ApplicationController
 				@location.rebuild(location_params) # rebuild @location
 				a_desc    = "#{I18n.t("location.created")} #{@season.try(:name)} => '#{@location.name}'"
 				u_notice  = helpers.flash_message(a_desc, "success")
-				posturl   = @season ? season_locations_path(@season) : locations_url
+				posturl   = @season ? season_locations_path(@season) : locations_path
 				if @location.id!=nil  # @location is already stored in database
 					@season.locations |= [@location] if @season
 					register_action(:created, a_desc)
@@ -101,21 +101,29 @@ class LocationsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @location)
 			respond_to do |format|
 				@location.rebuild(location_params)
-				returl = @season ? season_locations_path(@season) : locations_path
+				retlnk = @season ? season_locations_path(@season) : locations_path
 				if @location.id!=nil  # we have location to save
-					if @location.update(location_params)  # try to save
-						a_desc = "#{I18n.t("location.updated")} '#{@location.name}'"
-						register_action(:updated, a_desc)
-						@season.locations |= [@location] if @season
-						format.html { redirect_to returl, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: locations_path }
+					a_desc = "#{I18n.t("location.updated")} '#{@location.name}'"
+					if @location.changed?
+						if @location.update(location_params)  # try to save
+							register_action(:updated, a_desc)
+							@season.locations |= [@location] if @season
+							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+							format.json { render :index, status: :created, location: locations_path }
+						else
+							format.html { redirect_to edit_location_path(@location), data: {turbo_action: "replace"} }
+							format.json { render json: @location.errors, status: :unprocessable_entity }
+						end
+					elsif @season and @season.try(:locations).try(:exclude?, @location)
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						@season.locations << @location
 					else
-						format.html { redirect_to edit_location_path(@location), data: {turbo_action: "replace"} }
-						format.json { render json: @location.errors, status: :unprocessable_entity }
+						format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"} }
+						format.json { render :index, status: :unprocessable_entity, location: locations_path }
 					end
 				else
 					prepare_form(title: I18n.t("location.edit"))
-					format.html { render returl }
+					format.html { render retlnk }
 					format.json { render :index, status: :unprocessable_entity, location: locations_path }
 				end
 			end
@@ -141,7 +149,7 @@ class LocationsController < ApplicationController
 					@location.scrub
 					@location.delete
 					format.html { redirect_to locations_path, status: :see_other, notice: helpers.flash_message(a_desc) }
-					format.json { render :show, :created, location: locations_url(@location) }
+					format.json { render :show, :created, location: locations_path(@location) }
 				end
 			end
 		else

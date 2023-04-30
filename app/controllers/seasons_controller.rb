@@ -69,7 +69,7 @@ class SeasonsController < ApplicationController
 					a_desc = "#{I18n.t("season.created")} '#{@season.name}'"
 					register_action(:created, description:)
 					format.html { redirect_to seasons_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: seasons_url }
+					format.json { render :index, status: :created, location: seasons_path }
 				else
 					prepare_form(title: I18n.t("season.new"))
 					format.html { render :new }
@@ -87,16 +87,21 @@ class SeasonsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @season)
 			respond_to do |format|
 				check_locations
-				if @season.update(season_params)
-					a_desc = "#{I18n.t("season.updated")} '#{@season.name}'"
-					register_action(:updated, a_desc)
-					format.html { redirect_to seasons_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: seasons_url}
+				if @season.changed?
+					if @season.update(season_params)
+						a_desc = "#{I18n.t("season.updated")} '#{@season.name}'"
+						register_action(:updated, a_desc)
+						format.html { redirect_to seasons_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :created, location: seasons_path}
+					else
+						@eligible_locations = @season.eligible_locations
+						prepare_form(title: I18n.t("season.edit"))
+						format.html { render :edit }
+						format.json { render json: @season.errors, status: :unprocessable_entity }
+					end
 				else
-					@eligible_locations = @season.eligible_locations
-					prepare_form(title: I18n.t("season.edit"))
-					format.html { render :edit }
-					format.json { render json: @season.errors, status: :unprocessable_entity }
+					format.html { redirect_to seasons_path(@season), notice: no_data_notice, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :unprocessable_entity, location: seasons_path(@season) }
 				end
 			end
 		else

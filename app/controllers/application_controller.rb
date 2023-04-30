@@ -94,6 +94,12 @@ class ApplicationController < ActionController::Base
 		current_user.id
 	end
 
+	def no_data_notice(trail: nil)
+		cad = I18n.t("status.no_data")
+		cad = "#{cad} (#{trail})" if trail
+		helpers.flash_message(cad, "info")
+	end
+
 	private
 		# check if current user satisfies access policy
 		def check_role(roles:)
