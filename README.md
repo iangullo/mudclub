@@ -19,6 +19,5 @@ TODO
 ==
 * Manage statistics associated to events
 * Export/import from Excel of drills & training sessions (matches in future).
-* TLS certificate for additional security.
 * Some UI polishing.
 * Create a webmin module to manage the service : edit club name, app logo, data storage locations, etc.
