@@ -21,6 +21,8 @@ class UsersController < ApplicationController
 	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_user, only: [:show, :edit, :update, :destroy, :actions, :clear_actions]
 
+	# GET /users
+	# GET /users.json
 	def index
 		if check_access(roles: [:admin])
 			@users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
@@ -33,6 +35,8 @@ class UsersController < ApplicationController
 		end
 	end
 
+	# GET /users/1
+	# GET /users/1.json
 	def show
 		if check_access(roles: [:admin], obj: @user)
 			@title  = create_fields(helpers.user_show_fields)
@@ -44,6 +48,7 @@ class UsersController < ApplicationController
 		end
 	end
 
+	# GET /users/new
 	def new
 		if check_access(roles: [:admin])
 			@user = User.new
@@ -54,6 +59,7 @@ class UsersController < ApplicationController
 		end
 	end
 
+	# GET /users/1/edit
 	def edit
 		if check_access(roles: [:admin], obj: @user)
 			prepare_form(I18n.t("user.edit"))
@@ -62,6 +68,7 @@ class UsersController < ApplicationController
 		end
 	end
 
+	# POST /users.json
 	def create
 		if check_access(roles: [:admin])
 			respond_to do |format|
@@ -71,8 +78,7 @@ class UsersController < ApplicationController
 					format.html { redirect_to @user, notice: helpers.flash_message("#{I18n.t("user.duplicate")} '#{@user.s_name}'"), data: {turbo_action: "replace"}}
 					format.json { render :show,  :created, location: @user }
 				else
-					@user.person.save unless @user.person.persisted?
-					@user.person_id = @user.person.id
+					@user.person.save if @user.person.changed?
 					if @user.save
 						@user.clean_bind	# ensure person is well bound
 						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
@@ -91,6 +97,8 @@ class UsersController < ApplicationController
 		end
 	end
 
+	# PATCH/PUT /users/1
+	# PATCH/PUT /users/1.json
 	def update
 		if check_access(roles: [:admin], obj: @user)
 			respond_to do |format|
@@ -100,6 +108,7 @@ class UsersController < ApplicationController
 				end
 				@user.rebuild(user_params)	# rebuild user
 				if @user.changed?
+					@user.person.save if @user.person.changed?
 					if @user.save
 						a_desc = "#{I18n.t("user.updated")} '#{@user.s_name}'"
 						register_action(:updated, a_desc)
@@ -120,6 +129,8 @@ class UsersController < ApplicationController
 		end
 	end
 
+	# DELETE /users/1
+	# DELETE /users/1.json
 	def destroy
 		if check_access(roles: [:admin])
 			uname = @user.s_name

@@ -85,7 +85,7 @@ class PlayersController < ApplicationController
 					format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :duplicate, location: players_path(search: @player.s_name) }
 				else
-					@player.person.save unless @player.person.persisted?
+					@player.person.save if @player.person.changed?
 					if @player.save
 						@player.clean_bind	# ensure person is well bound
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
@@ -111,6 +111,7 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player.rebuild(player_params)
 				if @player.changed?
+					@player.person.save if @player.person.changed?
 					if @player.save
 						a_desc = "#{I18n.t("player.updated")} '#{@player.to_s}'"
 						register_action(:updated, a_desc)

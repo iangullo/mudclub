@@ -86,7 +86,7 @@ class CoachesController < ApplicationController
 					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
 					format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
 				else
-					@coach.person.save unless @coach.person.persisted?
+					@coach.person.save if @coach.person.changed?
 					if @coach.save # coach saved to database
 						@coach.clean_bind	# ensure person is well bound
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
@@ -112,6 +112,7 @@ class CoachesController < ApplicationController
 			respond_to do |format|
 				@coach.rebuild(coach_params)
 				if @coach.changed?
+					@coach.person.save if @coach.person.changed?
 					if @coach.save
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
 						register_action(:updated, a_desc)
