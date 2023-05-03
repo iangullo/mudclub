@@ -3,5 +3,6 @@
 	<%= render @intro %>
 	<%= render @explain %>
 	<%= render @tail %>
+	<%= render ButtonComponent.new(button: {kind: "export", url: drill_path(format: :xlsx)}) %>
 	<%= render @submit %>
 </div>

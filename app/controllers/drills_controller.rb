@@ -41,6 +41,12 @@ class DrillsController < ApplicationController
 			@explain = create_fields(helpers.drill_show_explain)
 			@tail    = create_fields(helpers.drill_show_tail)
 			@submit  = create_submit(close: "back", close_return: drills_path, submit: (u_admin? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
+			respond_to do |format|
+				format.xlsx {
+					response.headers['Content-Disposition'] = "attachment; filename=#{@drill.name_xls(long: true)}.xlsx"
+				}
+				format.html { render :show }
+			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

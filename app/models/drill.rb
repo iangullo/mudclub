@@ -119,6 +119,13 @@ class Drill < ApplicationRecord
 		cad
 	end
 
+	# sanitized sheetname for excel exports
+	def name_xls(long: nil)
+		res = self.name.delete("'/\\?*:[]\"")
+		res = long ? res : res[0,31]
+		res = res=="History" ? "Histry" : res
+	end
+
 	# build new @drill from raw input hash given by form submital submittal
 	# return nil if unsuccessful
 	def rebuild(d_data)

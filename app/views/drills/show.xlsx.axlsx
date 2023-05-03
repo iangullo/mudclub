@@ -1,0 +1,40 @@
+wb = xlsx_package.workbook
+s = wb.styles
+s_sep   = s.add_style bg_color: 'FFFFFF', size: 10, hidden: true, locked: true
+s_club  = s.add_style bg_color: 'FFFFFF', fg_color: '2A6099', sz: 18, hidden: true, locked: true, b: true, font_name: "Constantia", alignment: { vertical: :center, horizontal: :left }
+s_task  = s.add_style bg_color: 'FFFFFF', fg_color: '2A6099', sz: 36, hidden: true, locked: true, b: true, font_name: "Liberation Sans", alignment: { vertical: :center, horizontal: :center }
+s_fig   = s.add_style bg_color: 'FFFFFF', fg_color: '000000', sz: 12, font_name: "Liberation Sans", alignment: { vertical: :center, horizontal: :center }
+s_txt   = s.add_style bg_color: 'FFFFFF', fg_color: '000000', sz: 12, font_name: "Liberation Sans", alignment: { vertical: :top, horizontal: :left, wrap_text: true }
+s_i_txt = s.add_style bg_color: 'FFFFFF', fg_color: '000000', sz: 12, font_name: "Liberation Sans", alignment: { vertical: :top, horizontal: :left, wrap_text: true, indent: 1 }
+s_lbl   = s.add_style bg_color: 'FFFFFF', fg_color: '2A6099', sz: 12, hidden: true, locked: true, b: true, font_name: "Liberation Sans", alignment: { vertical: :center, horizontal: :center }
+club    = Person.find(0)
+clubname = club.nick
+clublogo = club.avatar.attached? ? "" : File.expand_path("app/assets/images/clublogo.png")
+s_title  = [s_sep, s_sep, s_club, s_sep, s_sep, s_sep, s_sep, s_sep, s_sep, s_task, s_sep]
+s_head   = [s_sep, s_lbl, s_sep, s_txt, s_sep, s_sep, s_sep, s_sep, s_lbl, s_txt, s_sep]
+s_expl_l = [s_sep, s_lbl, s_sep, s_sep, s_sep, s_sep, s_sep, s_sep, s_sep, s_sep, s_sep]
+s_expl_t = [s_sep, s_i_txt, s_sep, s_sep, s_sep, s_sep, s_sep, s_sep, s_sep, s_sep, s_sep]
+wb.add_worksheet(name: @drill.name_xls) do |sheet|
+  sheet.add_row ['']*11, style: [s_sep]*11, height: 8 # s_sep row
+	sheet.add_row ['','',clubname,'','','','','','',t("task.single"), ''], height: 36, style: s_title
+	sheet.merge_cells('C2:G2')
+	sheet.add_image(image_src: clublogo, start_at: 'B2', width: 48, height: 48)
+	sheet.add_row ['']*11, style: [s_sep]*11, height: 8 # s_sep row
+	sheet.add_row ['',t("person.name"),'',@drill.name,'','','','',t("drill.author"), @drill.coach.to_s,''], style: s_head, height: 16
+	sheet.merge_cells('B4:C4')
+	sheet.merge_cells('D4:G4')
+	sheet.add_row ['',t("target.many"),'', @drill.targets.first.try(:concept),'','','','',t("kind.single"), @drill.kind.name, ''], style: s_head, height: 16
+	sheet.merge_cells('B5:C5')
+	sheet.add_row ['','','','','','','','',t("drill.material"),@drill.material,''], style: s_head, height: 16
+	sheet.add_border "B5:G5", { edges: [:top], style: :thin, color: '2A6099'}
+	sheet.add_border "I5:J5", { edges: [:top, :bottom], style: :thin, color: '2A6099'}
+	sheet.merge_cells('D5:G6')
+	sheet.add_row ['']*11, style: [s_sep]*11, height: 8 # s_sep row
+	sheet.add_row ['',t("drill.expl"),'', '','','','','','', '', ''], style: s_expl_l, height: 16
+	sheet.merge_cells('B8:C8')
+	sheet.add_row ['',@drill.explanation.to_s,'', '','','','','','', '', ''], height: 280, style: s_expl_t
+	sheet.merge_cells('B9:J9')
+	sheet.add_border "B9:J9", { edges: [:top, :bottom, :right, :left], style: :thin, color: '2A6099'}
+	sheet.add_row ['']*11, style: [s_sep]*11, height: 8 # s_sep row
+	sheet.column_widths 1, 7, 12, 4, 15, 4, 7, 2, 11, 42, 2
+end
