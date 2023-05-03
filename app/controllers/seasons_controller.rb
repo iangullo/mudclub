@@ -87,8 +87,9 @@ class SeasonsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @season)
 			respond_to do |format|
 				check_locations
+				@season.rebuild(season_params)
 				if @season.changed?
-					if @season.update(season_params)
+					if @season.save
 						a_desc = "#{I18n.t("season.updated")} '#{@season.name}'"
 						register_action(:updated, a_desc)
 						format.html { redirect_to seasons_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }

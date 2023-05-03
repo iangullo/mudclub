@@ -23,4 +23,9 @@ class Division < ApplicationRecord
 	def to_s
 		self.name
 	end
+
+	# parse raw form data to update object values
+	def rebuild(f_data)
+		self.name = f_data[:name] if f_data[:name]
+	end
 end

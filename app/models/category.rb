@@ -63,4 +63,13 @@ class Category < ApplicationRecord
 			[I18n.t("category.q6"), :q6]
 		]
 	end
+
+	# parse raw form data to update object values
+	def rebuild(f_data)
+		self.age_group = f_data[:age_group] if f_data[:age_group]
+		self.sex       = f_data[:sex] if f_data[:sex]
+		self.min_years = f_data[:min_years] if f_data[:min_years]
+		self.max_years = f_data[:max_years] if f_data[:max_years]
+		self.rules     = f_data[:rules].to_sym if f_data[:rules]
+	end
 end

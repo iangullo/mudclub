@@ -86,8 +86,9 @@ class DivisionsController < ApplicationController
 	def update
 		if check_access(roles: [:admin], obj: @division)
 			respond_to do |format|
+				@division.rebuild(division_params)
 				if @division.changed?
-					if @division.update(division_params)
+					if @division.save
 						a_desc = "#{I18n.t("division.updated")} '#{@division.name}'"
 						register_action(:updated, a_desc)
 						format.html { redirect_to divisions_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }

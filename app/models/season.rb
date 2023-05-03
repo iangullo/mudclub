@@ -95,4 +95,10 @@ class Season < ApplicationRecord
 		last_date = Season.maximum('start_date')
 		return last_date ? Season.real.where(start_date: last_date).first : nil
 	end
+
+	# parse data from raw input given by submittal from "new" or "edit"
+	def rebuild(f_data)
+		self.start_date = f_data[:start_date] if f_data[:start_date]
+		self.end_date   = f_data[:end_date] if f_data[:end_date]
+	end
 end

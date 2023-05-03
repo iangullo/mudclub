@@ -84,8 +84,9 @@ class CategoriesController < ApplicationController
 	def update
 		if check_access(roles: [:admin], obj: @category)
 			respond_to do |format|
+				@category.rebuild(category_params)
 				if @category.changed?
-					if @category.update(category_params)
+					if @category.save
 						a_desc = "#{I18n.t("category.updated")} '#{@category.name}'"
 						register_action(:updated, a_desc)
 						format.html { redirect_to categories_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }

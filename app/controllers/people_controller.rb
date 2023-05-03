@@ -105,8 +105,9 @@ class PeopleController < ApplicationController
 		if check_access(roles: [:admin], obj: @person)
 			respond_to do |format|
 				retlnk = params[:retlnk] ? params[:retlnk] : (@person.id==0 ? "/" : people_path(search: @person.name))
+				@person.rebuild(person_params)
 				if @person.changed?
-					if @person.update(person_params)
+					if @person.save
 						if @person.id==0 # just edited the club identity
 							a_desc = "'#{@person.nick}' #{I18n.t("status.saved")}"
 						else
