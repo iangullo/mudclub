@@ -23,9 +23,11 @@ class Drill < ApplicationRecord
 	has_and_belongs_to_many :skills
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
 	has_many :drill_targets
+	has_many :steps
 	has_many :targets, through: :drill_targets
-	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :drill_targets, reject_if: :all_blank, allow_destroy: true
+	accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
+	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	has_one_attached :playbook
 	has_rich_text :explanation
 	scope :real, -> { where("id>0") }
@@ -98,6 +100,31 @@ class Drill < ApplicationRecord
 		res = res.joins(:targets).where(targets: Target.fetch(nil, s_t)).distinct
 	end
 
+	# check if drill (or assoations) has changed
+	def modified?
+		res = self.changed?
+		unless res
+			res = self.explanation.changed?
+			unless res
+				res = self.skills.any?(&:saved_changes?)
+				unless res
+					res = self.targets.any?(&:saved_changes?)
+					unless res
+						res = self.steps.any?(&:saved_changes?)
+					end
+				end
+			end
+		end
+		res
+	end
+
+	# scrub trailing objects - to be called before deleting
+	def scrub
+		self.drill_targets.each { |d_t| d_t.delete }
+		self.skills.each { |º| d_s.delete }
+		self.steps.each { |d_s| d_s.delete }
+	end
+
 	# Array of print strings for associated skills
 	def print_skills
 		print_names(self.skills)
@@ -137,9 +164,22 @@ class Drill < ApplicationRecord
 		self.explanation = d_data[:explanation]
 		self.playbook    = d_data[:playbook]
 		self.check_skills(d_data[:skills_attributes]) if d_data[:skills_attributes]
+		self.check_steps(d_data[:steps_attributes]) if d_data[:steps_attributes]
 		self.check_targets(d_data[:drill_targets_attributes]) if d_data[:drill_targets_attributes]
 		self
 	end
+
+	private
+	def print_names(obj_array)
+		i = 0
+		aux = ""
+		obj_array.each { |obj|
+			aux = (i == 0) ? obj.concept : aux + "; " + obj.concept
+			i = i +1
+		}
+		aux
+	end
+
 
 	# checks skills array received and manages adding/removing
 	# from the drill collection - remove duplicates from list
@@ -160,6 +200,19 @@ class Drill < ApplicationRecord
 		}
 	end
 
+	# checks steps_attributes array received and manages adding/removing
+	# from the steps collection
+	def check_steps(s_array)
+		s_array.each { |sv| # manage associations
+			st = Step.fetch(sv[1])
+			if sv[1][:_destroy] == "1"	# remove step
+				st.delete
+			else
+				self.steps ? self.steps << st : self.steps |= st
+			end
+		}
+	end
+
 	# checks targets_attributes array received and manages adding/removing
 	# from the target collection - remove duplicates from list
 	def check_targets(t_array)
@@ -175,16 +228,5 @@ class Drill < ApplicationRecord
 				self.drill_targets ? self.drill_targets << dt : self.drill_targets |= dt
 			end
 		}
-	end
-
-	private
-	def print_names(obj_array)
-		i = 0
-		aux = ""
-		obj_array.each { |obj|
-			aux = (i == 0) ? obj.concept : aux + "; " + obj.concept
-			i = i +1
-		}
-		aux
 	end
 end

@@ -126,6 +126,7 @@ es:
     deleted: "Ejercicio borrado: "
     desc: "Descripción"
     desc_a: "Descrip."
+    diag: "Gráfico"
     edit: "Editar Ejercicio"
     expl: "Explicación"
     many: "Ejercicios"

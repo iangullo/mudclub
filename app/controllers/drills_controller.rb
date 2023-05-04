@@ -38,7 +38,7 @@ class DrillsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @drill)
 			@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
 			@intro   = create_fields(helpers.drill_show_intro)
-			@explain = create_fields(helpers.drill_show_explain)
+			@steps   = create_fields(helpers.drill_show_steps)
 			@tail    = create_fields(helpers.drill_show_tail)
 			@submit  = create_submit(close: "back", close_return: drills_path, submit: (u_admin? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
 			respond_to do |format|
@@ -98,7 +98,7 @@ class DrillsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @drill)
 			respond_to do |format|
 				@drill.rebuild(drill_params)	# rebuild drill
-				if @drill.changed? or @drill.explanation.changed?
+				if @drill.modified?
 					if @drill.save
 						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
 						register_action(:updated, a_desc)
@@ -123,7 +123,7 @@ class DrillsController < ApplicationController
 	def destroy
 		if check_access(roles: [:admin, :coach], obj: @drill)
 			d_name = @drill.name
-			@drill.drill_targets.each { |d_t| d_t.delete }
+			@drill.scrub
 			@drill.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("drill.deleted")} '#{d_name}'"
@@ -169,6 +169,29 @@ class DrillsController < ApplicationController
 
 		# Only allow a list of trusted parameters through.
 		def drill_params
-			params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, :skill_id, skills: [], drill_steps: [], target_ids: [], skill_ids: [], skills_attributes: [:id, :concept, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy, target_attributes: [:id, :aspect, :focus, :concept]])
+			params.require(:drill).permit(
+				:name,
+				:material,
+				:description,
+				:coach_id,
+				:explanation,
+				:playbook,
+				:kind_id,
+				:skill_id,
+				skills: [],
+				drill_steps: [],
+				target_ids: [],
+				skill_ids: [],
+				skills_attributes: [:id, :concept, :_destroy],
+				drill_targets_attributes: [
+					:id,
+					:priority,
+					:drill_id,
+					:target_id,
+					:_destroy,
+					target_attributes: [:id, :aspect, :focus, :concept]
+				],
+				steps_attributes: [:id, :order, :description, :diagram, :_destroy]
+			)
 		end
 end

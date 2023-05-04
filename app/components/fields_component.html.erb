@@ -26,7 +26,7 @@
 					<%= render GridComponent.new(grid: item[:value], form: @form) %>
 				<% when "hidden" # hidden form field %>
 					<%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>
-				<% when "header-icon", "icon" %>
+				<% when "header-icon", "icon", "image" %>
 					<% if item[:tip] # show tooltip %>
 						<button data-tooltip-target="tooltip-<%=item[:tipid]%>" data-tooltip-placement="bottom" type="button">
 					<% end %>
