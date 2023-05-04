@@ -280,6 +280,28 @@ class Event < ApplicationRecord
 		check_tasks(e_data[:tasks_attributes]) if e_data[:tasks_attributes]
 	end
 
+	# check if drill (or associations) has changed
+	def modified?
+		res = self.changed?
+		unless res
+			res = self.stats.any?(&:saved_changes?)
+			unless res
+				res = self.event_targets.any?(&:saved_changes?)
+				unless res
+					res = self.tasks.any?(&:saved_changes?)
+				end
+			end
+		end
+		res
+	end
+
+	# scrub trailing objects - to be called before deleting
+	def scrub
+		self.event_targets.each { |e_t| e_t.delete }
+		self.stats.each { |e_s| e_s.delete }
+		self.tasks.each { |e_t| e_t.delete }
+	end
+
 	# Search for a list of Events
 	# s_data is an array with either season_id+kind+name or team_id+kind+name
 	def self.search(s_data)

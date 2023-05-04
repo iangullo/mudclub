@@ -209,7 +209,7 @@ class TeamsController < ApplicationController
 				if params[:team]
 					retlnk = params[:team][:retlnk]
 					@team.rebuild(params[:team])
-					if @team.changed?
+					if @team.modified?
 						if @team.save
 							a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
 							register_action(:updated, a_desc)
@@ -241,7 +241,7 @@ class TeamsController < ApplicationController
 	def destroy
 		if check_access(roles: [:admin]) and @team
 			t_name = @team.to_s
-			erase_links
+			@team.scrub
 			@team.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("team.deleted")} '#{t_name}'"
@@ -302,17 +302,6 @@ class TeamsController < ApplicationController
 				res << tgt if (tgt.target.aspect_before_type_cast == aspect) and (tgt.target.focus_before_type_cast == focus)
 			}
 			return res
-		end
-
-		# remove dependent records prior to deleting
-		def erase_links
-			@team.slots.each { |slot| slot.delete }	# training slots
-			@team.targets.each { |tgt| tgt.delete }	# team targets & coaching plan
-			@team.events.each { |event|							# associated events
-				event.tasks.each { |task| task.delete }
-				#event.match.delete if event.match
-				event.delete
-			}
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

@@ -98,6 +98,31 @@ class Drill < ApplicationRecord
 		res = res.joins(:targets).where(targets: Target.fetch(nil, s_t)).distinct
 	end
 
+	# check if drill (or associations) has changed
+	def modified?
+		res = self.changed?
+		unless res
+			res = self.explanation.changed?
+			unless res
+				res = self.skills.any?(&:saved_changes?)
+				unless res
+					res = self.drill_targets.any?(&:saved_changes?)
+					unless res
+						res = self.steps.any?(&:saved_changes?)
+					end
+				end
+			end
+		end
+		res
+	end
+
+	# scrub trailing objects - to be called before deleting
+	def scrub
+		self.drill_targets.each { |d_t| d_t.delete }
+		self.skills.each { |d_s| d_s.delete }
+		self.steps.each { |d_s| d_s.delete }
+	end
+
 	# Array of print strings for associated skills
 	def print_skills
 		print_names(self.skills)

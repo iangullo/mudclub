@@ -179,6 +179,33 @@ class Team < ApplicationRecord
 		check_coaches(p_data[:coach_ids]) if p_data[:coach_ids]
 	end
 
+	# check if drill (or associations) has changed
+	def modified?
+		res = self.changed?
+		unless res
+			res = self.players.any?(&:saved_changes?)
+			unless res
+				res = self.team_targets.any?(&:saved_changes?)
+				unless res
+					res = self.coaches.any?(&:saved_changes?)
+				end
+			end
+		end
+		res
+	end
+
+	# scrub trailing objects - to be called before deleting
+	def scrub
+		self.coaches.each { |t_c| self.coaches.delete(t_c) }
+		self.players.each { |t_p| self.players.delete(t_p) }
+		self.team_targets.each { |t_t| t_t.delete }
+		self.events.each { |t_e|
+			t_e.tasks.each { |task| task.delete }
+			t_e.delete
+		}
+		self.slots.each { |t_s| t_s.delete }
+	end
+
 	# return a hash with {won:, lost:} games
 	def win_loss
 		res     = {won: 0, lost: 0}

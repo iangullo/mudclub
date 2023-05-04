@@ -118,7 +118,7 @@ class EventsController < ApplicationController
 					end
 					format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
 					format.json { render @retview, status: :ok, location: @retlnk }
-				elsif @event.changed?	# do we need to save?
+				elsif @event.modified?	# do we need to save?
 					if @event.save	# try to do its
 						register_action(:updated, @notice[:message])
 						@event.tasks.reload if e_data[:tasks_attributes] # a training session
@@ -144,6 +144,7 @@ class EventsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @event)
 			erase_links
 			team   = @event.team
+			@event.scrub
 			@event.destroy
 			respond_to do |format|
 				next_url = team.id > 0 ? team_path : events_path
@@ -303,13 +304,13 @@ class EventsController < ApplicationController
 		def purge_train
 			@event.tasks.each { |t| t.delete }
 			@event.event_targets.each { |t| t.delete }
-			@event.players.each { |t| t.delete }
+			@event.players.each { |t| @event.players.delete(t) }
 		end
 
 		# purge assocaited tasks
 		def purge_match
 			@event.match.delete
-			@event.players.each { |t| t.delete }
+			@event.players.each { |t| @event.players.delete(t) }
 		end
 
 		# prepare new/edit event form

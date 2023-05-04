@@ -92,7 +92,7 @@ class DrillsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @drill)
 			respond_to do |format|
 				@drill.rebuild(drill_params)	# rebuild drill
-				if @drill.changed? or @drill.explanation.changed?
+				if @drill.modified?
 					if @drill.save
 						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
 						register_action(:updated, a_desc)
