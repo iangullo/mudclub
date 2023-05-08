@@ -3,11 +3,11 @@
 	<% id_btn = "step-#{n_p}-diagram-btn" %>
 	<% id_fld = "step-#{n_p}-diagram" %>
 	<% f_cls  = "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0" %>
-	<div class="<%=f_cls%> inline-flex">
-		<%= form.number_field :order, value: n_p, class: f_cls + " px-0 text-right", min: 1, max: 10, size: 2, step:1 %>
-		<div id="<%=id_fld%>" class="<%=f_cls%>">
-			<%= form.file_field :diagram, id: id_btn, direct_upload: true, 'data-dropzone-target': 'input' %>
-		</div>
+	<div class="<%=f_cls%> inline-flex align-top">
+		<%= form.number_field :order, value: n_p, class: f_cls + " px-0 text-right align-top", min: 1, max: 10, size: 2, step:1 %>
+		<%= dropzone_controller_div do %>
+			<%= form.file_field :diagram, direct_upload: true, 'data-dropzone-target': 'input', value: form.object.diagram.attached? ? url_for(form.object.diagram) : nil %>
+		<% end %>
 		<div>
 			<%= form.rich_text_area :description, placeholder: t("drill.desc"), class: f_cls + " px-1", size: 80, rows: 3 %>
 		</div>

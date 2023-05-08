@@ -1,6 +1,5 @@
 // app/javascript/controllers/dropzone_controller.js
-import { Controller } from "@hotwired/stimulus"
-import { DirectUpload } from "@rails/activestorage";
+import { Controller } from "@hotwired/stimulus";
 import { Dropzone } from "dropzone";
 
 
@@ -49,11 +48,11 @@ export default class extends Controller {
   }
 
   get maxFileSize() {
-    return this.data.get("maxFileSize") || 256;
+    return this.data.get("maxFileSize") || 2;
   }
 
   get dictFileTooBig() {
-    return this.data.get("dictFileTooBig") || "File sile is {{filesize}} but only files up to {{maxFilesize}} are allowed";
+    return this.data.get("dictFileTooBig") || "Max. size < {{maxFilesize}} MB";
   }
 
   get dictInvalidFileType() {

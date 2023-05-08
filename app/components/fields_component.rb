@@ -22,6 +22,7 @@
 # managing different kinds of content for each field:
 # => "button": a specific ButtonComponent - passed as argument item[:button]
 # => "icon": :value (name of icon file in assets)
+# => "image": :value (name of image file in assets with max-h & max-w)
 # => "header-icon": :value (name of icon file in assets)
 # => "title": :value (bold text of title in orange colour)
 # => "subtitle": :value (bold text of title)
@@ -74,9 +75,11 @@ class FieldsComponent < ApplicationComponent
 					item[:value] = ButtonComponent.new(button: item[:button])
 				when "contact"
 					set_contact(item)
+				when "dropzone"
+					set_dropzone(item)
 				when "gap"
 					item[:size]  = 4 unless item[:size]
-				when "header-icon", "icon", "icon-label"
+				when "header-icon", "icon", "icon-label", "image"
 					set_icon(item)
 				when "label", "label-checkbox"
 					item[:class]   = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
@@ -135,6 +138,25 @@ class FieldsComponent < ApplicationComponent
 		end
 	end
 
+	def set_dropzone(item)
+    content_for :head_link do
+      tag :link, rel: "stylesheet", href: "https://unpkg.com/dropzone@5/dist/min/dropzone.min.css", type: "text/css"
+    end
+
+    item[:data] = {
+      controller: "dropzone",
+      'dropzone-max-file-size'=>"1",	# 1MB max
+      'dropzone-max-files' => "1",	# only one file
+      'dropzone-accepted-files' => 'image/jpeg,image/jpg,image/png,image/gif,image/svg',
+      'dropzone-dict-file-too-big' => "Too large! (should be < {{maxFilesize}} MB)",
+      'dropzone-dict-invalid-file-type' => "Invalid format. Only .jpg, .png, .gif and .svg are recognized",
+    }
+
+    content_tag :div, class: 'dropzone dropzone-default dz-clickable', data: data do
+      yield
+    end
+  end
+
 	def set_search(item)
 		item[:align]   = "left" unless item[:align]
 		item[:size]    = 16 unless item[:size]
@@ -171,7 +193,7 @@ class FieldsComponent < ApplicationComponent
 			item[:class] = item[:class] ? item[:class] + " align-top" : "align-top"
 			item[:rows]  = 2 unless item[:rows]
 		else
-			i_size = "25x25"
+			i_size = "25x25" if item[:kind]=="icon"
 			if item[:label]
 				item[:class] = "align-top inline-flex" unless item[:class]
 			else
