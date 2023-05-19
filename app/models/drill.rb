@@ -22,8 +22,8 @@ class Drill < ApplicationRecord
 	belongs_to :kind
 	has_and_belongs_to_many :skills
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
-	has_many :drill_targets
-	has_many :steps
+	has_many :drill_targets, dependent: :destroy
+	has_many :steps, -> { order(:order) }, dependent: :destroy
 	has_many :targets, through: :drill_targets
 	accepts_nested_attributes_for :drill_targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
@@ -151,6 +151,13 @@ class Drill < ApplicationRecord
 		res = self.name.delete("'/\\?*:[]\"")
 		res = long ? res : res[0,31]
 		res = res=="History" ? "Histry" : res
+	end
+
+	# Build a new step
+	def build_step
+		step       = self.steps.build
+		step.order = self.steps.length + 1
+		step
 	end
 
 	# build new @drill from raw input hash given by form submital submittal

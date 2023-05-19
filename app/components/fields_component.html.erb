@@ -16,6 +16,8 @@
 					<%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
 				<% when "dropdown" %>
 					<%= render DropdownComponent.new(button: item[:button]) %>
+				<% when "dropzone" %>
+					<%= render DropzoneComponent.new(object: item[:object], key: item[:key], options: item[:options]) %>
 				<% when "email-box" %>
 					<%= @form.email_field item[:key], placeholder: item[:placeholder], size: 25, class: item[:i_class] %>
 				<% when "gap" %>

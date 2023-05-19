@@ -76,7 +76,7 @@ module ApplicationHelper
       'dropzone-dict-invalid-file-type' => "Invalid format. Only .jpg, .png, .gif and .svg are recognized",
     }
 
-    content_tag :div, class: 'dropzone dropzone-default dz-clickable', data: data do
+    content_tag :div, class: 'dropzone dropzone-default dz-clickable object contain max-w-100 max-h-100', data: data do
       yield
     end
   end

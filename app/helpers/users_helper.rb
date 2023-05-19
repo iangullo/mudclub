@@ -91,7 +91,11 @@ module UsersHelper
 
 	# return FieldComponents for form title
 	def user_form_title(title:)
-		res = user_title_fields(title, icon: @user.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
+		res = [[
+			{kind: "dropzone", object: @user, kind: :avatar, rows: 4, options: {class: "rounded-full", size: "100x1000"}},
+			{kind: "title", value: title, cols: 2}
+		]]
+
 		res << [
 			{kind: "label", value: I18n.t("person.name_a")},
 			{kind: "text-box", key: :name, value: @user.person.name, placeholder: I18n.t("person.name")}
@@ -123,7 +127,8 @@ module UsersHelper
 
 	# return FieldComponents for form user avatar
 	def user_form_avatar
-		[[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
+		#[[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
+		[[{kind: "dropzone", object: @user, key: :avatar, options: {size: '100x100'}}]]
 	end
 
 	# return FieldComponents for form user personal data

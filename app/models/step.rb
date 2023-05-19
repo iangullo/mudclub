@@ -30,12 +30,25 @@ class Step < ApplicationRecord
     (desc and diag) ? 1 : 2
   end
 
+  # remove an attached diagram
+  def remove_diagram(value)
+    if ActiveModel::Type::Boolean.new.cast(value) && diagram.attached?
+      diagram.purge_later
+    end
+  end
+
+  # replace the atached diagram
+  def replace_diagram(file)
+    diagram.attach(file) if file.present?
+  end
+
   # Fetches a Step from the database - or creteas one it not found
   def self.fetch(s_data)
     if s_data[:id].try(:to_i)>0
       res = Step.find_by(id: s_data[:id])
     else
       res = Step.new(order: s_data[:order], description: s_data[:description], diagram: s_data[:diagram])
+      res.diagram.attach(s_data[:diagram]) if s_data[:diagram].present?
     end
     res
   end

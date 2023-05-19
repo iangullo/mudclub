@@ -77,6 +77,7 @@ class DrillsController < ApplicationController
 			respond_to do |format|
 				@drill = Drill.new
 				@drill.rebuild(drill_params)	# rebuild drill
+				update_diagrams(@drill.steps)
 				if @drill.save
 					a_desc = "#{I18n.t("drill.created")} '#{@drill.name}'"
 					register_action(:created, a_desc)
@@ -98,6 +99,7 @@ class DrillsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @drill)
 			respond_to do |format|
 				@drill.rebuild(drill_params)	# rebuild drill
+				update_diagrams(@drill.steps)
 				if @drill.modified?
 					if @drill.save
 						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
@@ -150,6 +152,7 @@ class DrillsController < ApplicationController
 	private
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(title:)
+			@drill.build_step unless @drill.steps.any? # Build a new Step object if there are no existing steps
 			@title    = create_fields(helpers.drill_form_title(title:))
 			@playbook = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
 			@formdata = create_fields(helpers.drill_form_data)
@@ -162,9 +165,23 @@ class DrillsController < ApplicationController
 			@submit   = create_submit(close_return: :back)
 		end
 
+		# update @drill steps diagrams
+		def update_diagrams(steps)
+			steps.each { |step|
+				if params[:drill][:steps_attributes].present? && params[:drill][:steps_attributes][step.id.to_s].present?
+					if params[:drill][:steps_attributes][step.id.to_s][:diagram].present?
+						step.update(diagram: params[:drill][:steps_attributes][step.id.to_s][:diagram])
+					elsif params[:drill][:steps_attributes][step.id.to_s][:remove_diagram] == "1"
+						step.diagram.purge
+					end
+					step.save!
+				end
+			}
+		end
+
 		# Use callbacks to share common setup or constraints between actions.
 		def set_drill
-			@drill = Drill.find_by_id(params[:id]) unless @drill.try(:id)==params[:id]
+			@drill = Drill.includes(steps: [:diagram_attachment]).find_by_id(params[:id]) unless @drill.try(:id)==params[:id]
 		end
 
 		# Only allow a list of trusted parameters through.

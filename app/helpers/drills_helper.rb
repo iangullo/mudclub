@@ -150,7 +150,7 @@ module DrillsHelper
 		[
 			#[{kind: "rich-text-area", key: :explanation, align: "left"}],
 			[{kind: "label", value: I18n.t("drill.expl")}],
-			[{kind: "nested-form", model: "drill", key: "steps", child: Step.new, row: "step_row"}]
+			[{kind: "nested-form", model: "drill", key: "steps", child: @drill.build_step, row: "step_row"}]
 		]
 	end
 

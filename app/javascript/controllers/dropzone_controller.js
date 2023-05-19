@@ -4,13 +4,30 @@ import { Dropzone } from "dropzone";
 
 
 export default class extends Controller {
-  static targets = ["input"];
+  static targets = ['input', 'preview', 'deleteButton'];
 
   connect() {
     this.dropZone = this.createDropZone(this);
     this.hideFileInput();
     this.bindEvents();
+    this.toggleElements();
     Dropzone.autoDiscover = false;
+  }
+
+  toggleElements() {
+    if (this.hasInputTarget && this.hasPreviewTarget) {
+      if (this.hasContent()) {
+        this.inputTarget.style.display = 'none';
+        this.previewTarget.style.display = 'block';
+      } else {
+        this.inputTarget.style.display = 'block';
+        this.previewTarget.style.display = 'none';
+      }
+    }
+  }
+
+  hasContent() {
+    return this.previewTarget.hasChildNodes();
   }
 
   // Private
