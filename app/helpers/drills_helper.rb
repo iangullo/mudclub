@@ -69,19 +69,7 @@ module DrillsHelper
 			{kind: "label", value: I18n.t("drill.desc_a")},
 			{kind: "string", value: @drill.description}
 		]
-		res << [{kind: "label", value: I18n.t("drill.expl"), cols: 2}]
-	end
-
-	# return title FieldComponent definition for drill steps
-	def drill_show_steps
-#		res << [{kind: "label", value: I18n.t("drill.desc"), cols: 3}]
-		res = []
-		@drill.steps.each { |step|
-			res << [{kind: "order", value: step.order}]
-			res.last << {kind: "image", value: step.diagram, class: "max-w-[20%] max-h-[20%]"} if step.diagram.attached?
-			res.last << {kind: "rich-text", value: step.description, class: "font-md align-top"}
-		}
-		res
+		res << [{kind: "rich-text", value: @drill.explanation, cols: 2}]
 	end
 
 	# return tail Field Component definition for drill show
@@ -147,11 +135,7 @@ module DrillsHelper
 
 	# returng FieldComponent to edit drill explanation
 	def drill_form_explain
-		[
-			#[{kind: "rich-text-area", key: :explanation, align: "left"}],
-			[{kind: "label", value: I18n.t("drill.expl")}],
-			[{kind: "nested-form", model: "drill", key: "steps", child: @drill.build_step, row: "step_row"}]
-		]
+		[[{kind: "rich-text-area", key: :explanation, align: "left"}]]
 	end
 
 	# return title FieldComponent definition for edit/new

@@ -38,7 +38,6 @@ class DrillsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @drill)
 			@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
 			@intro   = create_fields(helpers.drill_show_intro)
-			@steps   = create_fields(helpers.drill_show_steps)
 			@tail    = create_fields(helpers.drill_show_tail)
 			@submit  = create_submit(close: "back", close_return: drills_path, submit: (u_admin? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
 			respond_to do |format|
@@ -99,7 +98,6 @@ class DrillsController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @drill)
 			respond_to do |format|
 				@drill.rebuild(drill_params)	# rebuild drill
-				update_diagrams(@drill.steps)
 				if @drill.modified?
 					if @drill.save
 						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
@@ -152,7 +150,6 @@ class DrillsController < ApplicationController
 	private
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(title:)
-			@drill.build_step unless @drill.steps.any? # Build a new Step object if there are no existing steps
 			@title    = create_fields(helpers.drill_form_title(title:))
 			@playbook = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
 			@formdata = create_fields(helpers.drill_form_data)
@@ -165,23 +162,9 @@ class DrillsController < ApplicationController
 			@submit   = create_submit(close_return: :back)
 		end
 
-		# update @drill steps diagrams
-		def update_diagrams(steps)
-			steps.each { |step|
-				if params[:drill][:steps_attributes].present? && params[:drill][:steps_attributes][step.id.to_s].present?
-					if params[:drill][:steps_attributes][step.id.to_s][:diagram].present?
-						step.update(diagram: params[:drill][:steps_attributes][step.id.to_s][:diagram])
-					elsif params[:drill][:steps_attributes][step.id.to_s][:remove_diagram] == "1"
-						step.diagram.purge
-					end
-					step.save!
-				end
-			}
-		end
-
 		# Use callbacks to share common setup or constraints between actions.
 		def set_drill
-			@drill = Drill.includes(steps: [:diagram_attachment]).find_by_id(params[:id]) unless @drill.try(:id)==params[:id]
+			@drill = Drill.includes(:skills,:targets).with_rich_text_explanation.find_by_id(params[:id]) unless @drill.try(:id)==params[:id]
 		end
 
 		# Only allow a list of trusted parameters through.
@@ -207,8 +190,7 @@ class DrillsController < ApplicationController
 					:target_id,
 					:_destroy,
 					target_attributes: [:id, :aspect, :focus, :concept]
-				],
-				steps_attributes: [:id, :order, :description, :diagram, :_destroy]
+				]
 			)
 		end
 end

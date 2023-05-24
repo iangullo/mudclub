@@ -23,10 +23,8 @@ class Drill < ApplicationRecord
 	has_and_belongs_to_many :skills
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
 	has_many :drill_targets, dependent: :destroy
-	has_many :steps, -> { order(:order) }, dependent: :destroy
 	has_many :targets, through: :drill_targets
 	accepts_nested_attributes_for :drill_targets, reject_if: :all_blank, allow_destroy: true
-	accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	has_one_attached :playbook
 	has_rich_text :explanation
@@ -109,9 +107,6 @@ class Drill < ApplicationRecord
 				res = self.skills.any?(&:saved_changes?)
 				unless res
 					res = self.targets.any?(&:saved_changes?)
-					unless res
-						res = self.steps.any?(&:saved_changes?)
-					end
 				end
 			end
 		end
@@ -121,8 +116,7 @@ class Drill < ApplicationRecord
 	# scrub trailing objects - to be called before deleting
 	def scrub
 		self.drill_targets.each { |d_t| d_t.delete }
-		self.skills.each { |º| d_s.delete }
-		self.steps.each { |d_s| d_s.delete }
+		self.skills.each { |d_s| d_s.delete }
 	end
 
 	# Array of print strings for associated skills
@@ -153,13 +147,6 @@ class Drill < ApplicationRecord
 		res = res=="History" ? "Histry" : res
 	end
 
-	# Build a new step
-	def build_step
-		step       = self.steps.build
-		step.order = self.steps.length + 1
-		step
-	end
-
 	# build new @drill from raw input hash given by form submital submittal
 	# return nil if unsuccessful
 	def rebuild(d_data)
@@ -171,7 +158,6 @@ class Drill < ApplicationRecord
 		self.explanation = d_data[:explanation]
 		self.playbook    = d_data[:playbook]
 		self.check_skills(d_data[:skills_attributes]) if d_data[:skills_attributes]
-		self.check_steps(d_data[:steps_attributes]) if d_data[:steps_attributes]
 		self.check_targets(d_data[:drill_targets_attributes]) if d_data[:drill_targets_attributes]
 		self
 	end
@@ -203,19 +189,6 @@ class Drill < ApplicationRecord
 			else	# add to collection
 				sk = Skill.create(concept: s[:concept]) unless sk
 				self.skills << sk unless self.skills.include?(sk)
-			end
-		}
-	end
-
-	# checks steps_attributes array received and manages adding/removing
-	# from the steps collection
-	def check_steps(s_array)
-		s_array.each { |sv| # manage associations
-			st = Step.fetch(sv[1])
-			if sv[1][:_destroy] == "1"	# remove step
-				st.delete
-			else
-				self.steps ? self.steps << st : self.steps |= st
 			end
 		}
 	end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_05_04_135821) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_31_132152) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -238,14 +238,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_04_135821) do
     t.index ["player_id"], name: "index_stats_on_player_id"
   end
 
-  create_table "steps", force: :cascade do |t|
-    t.bigint "drill_id", null: false
-    t.integer "order"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["drill_id"], name: "index_steps_on_drill_id"
-  end
-
   create_table "targets", force: :cascade do |t|
     t.integer "focus"
     t.integer "aspect"
@@ -356,7 +348,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_04_135821) do
   add_foreign_key "slots", "teams"
   add_foreign_key "stats", "events"
   add_foreign_key "stats", "players"
-  add_foreign_key "steps", "drills"
   add_foreign_key "tasks", "drills"
   add_foreign_key "tasks", "events"
   add_foreign_key "team_targets", "targets"

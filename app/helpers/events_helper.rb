@@ -235,7 +235,7 @@ module EventsHelper
 	# return accordion for event tasks
 	def task_accordion
 		tasks   = Array.new
-		@event.tasks.order(:order).each { |task|
+		@event.tasks.each { |task|
 			item = {}
 			item[:url]     = show_task_event_path(task_id: task.id)
 			item[:turbo]   = "modal"
