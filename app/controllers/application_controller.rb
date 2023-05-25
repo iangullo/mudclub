@@ -132,7 +132,7 @@ class ApplicationController < ActionController::Base
 			when "Person"
 				return (u_admin? or u_persid==obj.id)
 			when "Player"
-				return (u_admin? or coach? or u_playid==obj.id)
+				return (u_admin? or u_coach? or u_playid==obj.id)
 			when "Team"
 				return (u_admin? or obj.has_coach(u_coachid))
 			when "User"
