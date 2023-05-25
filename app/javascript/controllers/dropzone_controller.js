@@ -1,5 +1,6 @@
 // app/javascript/controllers/dropzone_controller.js
 import { Controller } from "@hotwired/stimulus";
+import { DirectUpload } from "@rails/activestorage";
 import { Dropzone } from "dropzone";
 
 

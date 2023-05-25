@@ -54,7 +54,6 @@ class DropzoneComponent < ApplicationComponent
 
 		# renders the @image, called when atached
 		def render_image
-			binding.break
 			image_url = @object.send(@key).url
 			tag.img src: image_url, class: @class, size: @size
 		end
