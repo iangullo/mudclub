@@ -19,10 +19,10 @@
 class Event < ApplicationRecord
 	belongs_to :team
 	belongs_to :location
-	has_many :event_targets
+	has_many :event_targets, dependent: :destroy
 	has_many :targets, through: :event_targets
-	has_many :tasks
-	has_many :stats
+	has_many :tasks, -> { order(order: :asc).includes(:remarks, :drill) }, dependent: :destroy
+	has_many :stats, dependent: :destroy
 	has_and_belongs_to_many :players
 	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true

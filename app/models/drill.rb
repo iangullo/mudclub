@@ -22,7 +22,7 @@ class Drill < ApplicationRecord
 	belongs_to :kind
 	has_and_belongs_to_many :skills
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
-	has_many :drill_targets
+	has_many :drill_targets, dependent: :destroy
 	has_many :targets, through: :drill_targets
 	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :drill_targets, reject_if: :all_blank, allow_destroy: true
@@ -107,9 +107,6 @@ class Drill < ApplicationRecord
 				res = self.skills.any?(&:saved_changes?)
 				unless res
 					res = self.drill_targets.any?(&:saved_changes?)
-					unless res
-						res = self.steps.any?(&:saved_changes?)
-					end
 				end
 			end
 		end
@@ -120,7 +117,6 @@ class Drill < ApplicationRecord
 	def scrub
 		self.drill_targets.each { |d_t| d_t.delete }
 		self.skills.each { |d_s| d_s.delete }
-		self.steps.each { |d_s| d_s.delete }
 	end
 
 	# Array of print strings for associated skills
@@ -196,13 +192,13 @@ class Drill < ApplicationRecord
 	end
 
 	private
-	def print_names(obj_array)
-		i = 0
-		aux = ""
-		obj_array.each { |obj|
-			aux = (i == 0) ? obj.concept : aux + "; " + obj.concept
-			i = i +1
-		}
-		aux
-	end
+		def print_names(obj_array)
+			i = 0
+			aux = ""
+			obj_array.each { |obj|
+				aux = (i == 0) ? obj.concept : aux + "; " + obj.concept
+				i = i +1
+			}
+			aux
+		end
 end

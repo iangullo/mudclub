@@ -158,11 +158,32 @@ class DrillsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_drill
-			@drill = Drill.find_by_id(params[:id]) unless @drill.try(:id)==params[:id]
+			@drill = Drill.includes(:skills,:targets).with_rich_text_explanation.find_by_id(params[:id]) unless @drill.try(:id)==params[:id]
 		end
 
 		# Only allow a list of trusted parameters through.
 		def drill_params
-			params.require(:drill).permit(:name, :material, :description, :coach_id, :explanation, :playbook, :kind_id, :skill_id, skills: [], drill_steps: [], target_ids: [], skill_ids: [], skills_attributes: [:id, :concept, :_destroy], drill_targets_attributes: [:id, :priority, :drill_id, :target_id, :_destroy, target_attributes: [:id, :aspect, :focus, :concept]])
+			params.require(:drill).permit(
+				:name,
+				:material,
+				:description,
+				:coach_id,
+				:explanation,
+				:playbook,
+				:kind_id,
+				:skill_id,
+				skills: [],
+				target_ids: [],
+				skill_ids: [],
+				skills_attributes: [:id, :concept, :_destroy],
+				drill_targets_attributes: [
+					:id,
+					:priority,
+					:drill_id,
+					:target_id,
+					:_destroy,
+					target_attributes: [:id, :aspect, :focus, :concept]
+				]
+			)
 		end
 end
