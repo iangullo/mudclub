@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class DrillsController < ApplicationController
+	include ActiveStorage::SetCurrent
 	include Filterable
 	before_action :set_drill, only: [:show, :edit, :update, :destroy, :versions]
 	before_action :set_paper_trail_whodunnit
@@ -42,6 +43,7 @@ class DrillsController < ApplicationController
 			@submit  = create_submit(close: "back", close_return: drills_path, submit: (u_admin? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
 			respond_to do |format|
 				format.xlsx {
+					@explain = drill_explain_html
 					response.headers['Content-Disposition'] = "attachment; filename=#{@drill.name_xls(long: true)}.xlsx"
 				}
 				format.html { render :show }
@@ -160,6 +162,19 @@ class DrillsController < ApplicationController
 			@skills.each { |skill| s_size = skill.length if skill.length > s_size }
 			@s_size   = s_size - 3
 			@submit   = create_submit(close_return: :back)
+		end
+
+		# return an html view of the explanation, including embedded images.
+		def drill_explain_html
+			# Retrieve the attachments and the explanation body
+			attachments = @drill.explanation.body.attachments
+			res         = @drill.explanation.body.to_html
+
+			attachments.each do |attachment|
+				attachment_link = "<img src='#{attachment.url}' alt='#{attachment.filename}' style='max-width: 100%; height: auto;' />"
+				res.gsub!(attachment.signed_id.to_s, attachment_link) # Replace attachment reference with the attachment link
+			end
+			res
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

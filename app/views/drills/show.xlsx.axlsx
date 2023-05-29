@@ -1,3 +1,4 @@
+require 'nokogiri'
 wb = xlsx_package.workbook
 s = wb.styles
 s_sep   = s.add_style bg_color: 'FFFFFF', size: 10, hidden: true, locked: true
@@ -32,7 +33,14 @@ wb.add_worksheet(name: @drill.name_xls) do |sheet|
 	sheet.add_row ['']*11, style: [s_sep]*11, height: 8 # s_sep row
 	sheet.add_row ['',t("drill.expl"),'', '','','','','','', '', ''], style: s_expl_l, height: 16
 	sheet.merge_cells('B8:C8')
-	sheet.add_row ['',@drill.explanation.to_s,'', '','','','','','', '', ''], height: 280, style: s_expl_t
+
+#	sheet.add_row ['',Nokogiri::HTML(@explain).text,'', '','','','','','', '', ''], height: 280, style: s_expl_t
+
+	# Convert ActionText content to HTML string
+	explanation_html = @explain
+	explanation_html.gsub!(/<div>(.*?)<\/div>/m, '\1') # Remove surrounding <div> tags
+	sheet.add_row(['', explanation_html, '', '', '', '', '', '', '', '', ''], height: 280, style: s_expl_t)
+
 	sheet.merge_cells('B9:J9')
 	sheet.add_border "B9:J9", { edges: [:top, :bottom, :right, :left], style: :thin, color: '2A6099'}
 	sheet.add_row ['']*11, style: [s_sep]*11, height: 8 # s_sep row
