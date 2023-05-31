@@ -25,6 +25,6 @@ class CreateLocations < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Location.create(id: 0, name: I18n.t(:l_none), gmaps_url: "", practice_court: false)
+    Location.create(id: 0, name: I18n.t("location.none"), gmaps_url: "", practice_court: false)
   end
 end

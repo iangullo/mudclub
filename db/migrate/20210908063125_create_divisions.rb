@@ -23,6 +23,6 @@ class CreateDivisions < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Division.create(id: 0, name: I18n.t(:l_none))
+    Division.create(id: 0, name: I18n.t("scope.none"))
   end
 end
