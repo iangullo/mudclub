@@ -148,7 +148,6 @@ class PeopleController < ApplicationController
 	# DELETE /people/1.json
 	def destroy
 		if check_access(roles: [:admin], obj: @person)
-			erase_links
 			@person.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("person.deleted")} '#{@person.to_s}'"
@@ -168,40 +167,6 @@ class PeopleController < ApplicationController
 			@picture = create_fields(helpers.form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @person.picture, cols: 2))
 			@fields  = create_fields(helpers.person_form_fields)
 			@submit  = create_submit
-		end
-
-		# Delete associated players/coaches
-		def erase_links
-			erase_coach if @person.coach_id > 0	# delete associated coach
-			erase_player if @person.player_id > 0	# delete associated player
-			erase_user if @person.user_id > 0	# unlink associated user
-		end
-
-		def erase_coach
-			c = @person.coach
-			c.person_id = 0
-			c.save
-			@person.coach_id = 0
-			@person.save
-			c.destroy
-		end
-
-		def erase_player
-			p = @person.player
-			p.person_id = 0
-			p.save
-			@person.player_id = 0
-			@person.save
-			p.destroy
-		end
-
-		def erase_user
-			u = @person.user
-			u.person_id = 0
-			u.save
-			@person.user_id = 0
-			@person.save
-			u.destroy
 		end
 
 		def set_person

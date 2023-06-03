@@ -112,7 +112,6 @@ class DivisionsController < ApplicationController
 	def destroy
 		if check_access(roles: [:admin], obj: @division)
 			d_name = @division.name
-			prune_teams
 			@division.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("division.deleted")} '#{d_name}'"
@@ -126,14 +125,6 @@ class DivisionsController < ApplicationController
 	end
 
 	private
-		# prune teams from a category to be deleted
-		def prune_teams
-			@division.teams.each { |t|
-				t.category=Division.find(0)  # de-allocate teams
-				t.save
-			}
-		end
-
 		# Use callbacks to share common setup or constraints between actions.
 		def set_division
 			@division = Division.find_by_id(params[:id])

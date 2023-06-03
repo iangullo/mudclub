@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class Event < ApplicationRecord
+	before_destroy :unlink
 	belongs_to :team
 	belongs_to :location
 	has_many :event_targets, dependent: :destroy
@@ -295,13 +296,6 @@ class Event < ApplicationRecord
 		res
 	end
 
-	# scrub trailing objects - to be called before deleting
-	def scrub
-		self.event_targets.each { |e_t| e_t.delete }
-		self.stats.each { |e_s| e_s.delete }
-		self.tasks.each { |e_t| e_t.delete }
-	end
-
 	# Search for a list of Events
 	# s_data is an array with either season_id+kind+name or team_id+kind+name
 	def self.search(s_data)
@@ -427,5 +421,23 @@ class Event < ApplicationRecord
 					tsk.save
 				end
 			}
+		end
+
+		# cleanup dependent teams, reassigning to 'dummy' category
+		def unlink
+			case self.kind.to_sym
+			when :rest
+				if self.team_id==0  # clean off copies
+					season = Season.search_date(self.start_date)
+					if season # we have a season for this event
+						season.teams.real.each { |team| # delete event from all teams
+							e_copy = Event.holidays.where(team_id: team.id, name: self.name, start_time: self.start_time).first
+							e_copy.delete if e_copy # delete linked event
+						}
+					end
+				end
+			when :train, :match
+				self.players.each { |t| self.players.delete(t) }
+			end
 		end
 end

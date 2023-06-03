@@ -146,7 +146,6 @@ class LocationsController < ApplicationController
 					format.html { redirect_to season_locations_path(@season), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: season_locations_path(@season) }
 				else
-					@location.scrub
 					@location.delete
 					format.html { redirect_to locations_path, status: :see_other, notice: helpers.flash_message(a_desc) }
 					format.json { render :show, :created, location: locations_path(@location) }

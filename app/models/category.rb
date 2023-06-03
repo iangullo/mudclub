@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class Category < ApplicationRecord
+	before_destroy :unlink
 	has_many :teams
 	scope :real, -> { where("id>0").order(min_years: :desc) }
 	enum rules: {
@@ -26,7 +27,7 @@ class Category < ApplicationRecord
 	}
 
 	def to_s
-		self.name
+		self.id==0 ? I18n.t("scope.none") : self.name
 	end
 
 	def name
@@ -72,4 +73,10 @@ class Category < ApplicationRecord
 		self.max_years = f_data[:max_years] if f_data[:max_years]
 		self.rules     = f_data[:rules].to_sym if f_data[:rules]
 	end
+
+	private
+		# cleanup dependent teams, reassigning to 'dummy' category
+		def unlink
+			self.teams.update_all(category_id: 0)
+		end
 end

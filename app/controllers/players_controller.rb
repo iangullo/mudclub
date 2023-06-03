@@ -150,7 +150,6 @@ class PlayersController < ApplicationController
 	def destroy
 		if check_access(roles: [:admin], obj: @player)
 			p_name = @player.to_s
-			unlink_person
 			@player.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("player.deleted")} '#{p_name}'"
@@ -171,16 +170,6 @@ class PlayersController < ApplicationController
 			@j_fields_2 = create_fields(helpers.player_form_fields_2(avatar: @player.avatar))
 			@p_fields   = create_fields(helpers.player_form_person(person: @player.person))
 			@submit     = create_submit
-		end
-
-		# De-couple from associated person
-		def unlink_person
-			if @player.person.try(:player_id) == @player.id
-				p = @player.person
-				p.player=Player.find(0)   # map to empty player
-				p.save
-				@player.person_id = 0    # map to empty person
-			end
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

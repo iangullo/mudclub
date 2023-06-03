@@ -17,13 +17,15 @@
 # contact email - iangullo@gmail.com.
 #
 class Drill < ApplicationRecord
+	before_destroy :unlink
 	has_paper_trail on: [:create, :update]
 	belongs_to :coach
 	belongs_to :kind
-	has_and_belongs_to_many :skills
+	has_and_belongs_to_many :skills, dependent: :nullify
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
 	has_many :drill_targets, dependent: :destroy
 	has_many :targets, through: :drill_targets
+	has_many :tasks, dependent: :destroy
 	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :drill_targets, reject_if: :all_blank, allow_destroy: true
 	has_one_attached :playbook
@@ -113,12 +115,6 @@ class Drill < ApplicationRecord
 		res
 	end
 
-	# scrub trailing objects - to be called before deleting
-	def scrub
-		self.drill_targets.each { |d_t| d_t.delete }
-		self.skills.each { |d_s| d_s.delete }
-	end
-
 	# Array of print strings for associated skills
 	def print_skills
 		print_names(self.skills)
@@ -200,5 +196,10 @@ class Drill < ApplicationRecord
 				i = i +1
 			}
 			aux
+		end
+
+		# cleanup dependent teams, reassigning to 'dummy' category
+		def unlink
+			self.playbook.purge if self.playbook.attached?
 		end
 end

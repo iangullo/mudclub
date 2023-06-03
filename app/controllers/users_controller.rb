@@ -134,7 +134,6 @@ class UsersController < ApplicationController
 	def destroy
 		if check_access(roles: [:admin])
 			uname = @user.s_name
-			unlink_person
 			@user.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("user.deleted")} '#{@user.s_name}'"
@@ -186,16 +185,6 @@ class UsersController < ApplicationController
 			@submit = create_submit
 		end
 
-		# De-couple from associated person
-		def unlink_person
-			if @user.person.try(:user_id)==@user.id
-				p = @user.person
-				p.user=User.find(0)   # map to empty user
-				p.save
-				@user.person_id = 0    # map to empty person
-			end
-		end
-
 		# Use callbacks to share common setup or constraints between actions.
 		def set_user
 			@user = User.find_by_id(params[:id]) unless @user.try(:id)==params[:id]
@@ -203,6 +192,27 @@ class UsersController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def user_params
-			params.require(:user).permit(:id, :email, :locale, :role, :password, :password_confirmation, :avatar, :person_id, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :user_id])
+			params.require(:user).permit(
+				:id,
+				:email,
+				:locale,
+				:role,
+				:password,
+				:password_confirmation,
+				:avatar,
+				:person_id,
+				person_attributes: [
+					:id,
+					:dni,
+					:nick,
+					:name,
+					:surname,
+					:birthday,
+					:female,
+					:email,
+					:phone,
+					:user_id
+				]
+			)
 		end
 end

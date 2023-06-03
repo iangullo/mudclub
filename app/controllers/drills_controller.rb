@@ -117,7 +117,6 @@ class DrillsController < ApplicationController
 	def destroy
 		if check_access(roles: [:admin, :coach], obj: @drill)
 			d_name = @drill.name
-			@drill.scrub
 			@drill.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("drill.deleted")} '#{d_name}'"

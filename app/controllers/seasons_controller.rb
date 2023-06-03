@@ -115,7 +115,6 @@ class SeasonsController < ApplicationController
 	def destroy
 		if check_access(roles: [:admin], obj: @season)
 			s_name = @season.name
-			erase_links
 			@season.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("season.deleted")} '#{s_name}'"

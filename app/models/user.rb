@@ -17,13 +17,14 @@
 # contact email - iangullo@gmail.com.
 #
 class User < ApplicationRecord
+	before_destroy :unlink
 	# Include default devise modules. Others available are:
 	# :confirmable, :lockable, :timeoutable, :registerable and :omniauthable
 	devise :database_authenticatable, :recoverable,
 				 :rememberable, :trackable, :validatable
 	has_one :person
 	has_one_attached :avatar
-	has_many :user_actions
+	has_many :user_actions, dependent: :destroy
 	scope :real, -> { where("id>0") }
 	enum role: [:user, :player, :coach, :admin]
 	after_initialize :set_default_role, :if => :new_record?
@@ -177,5 +178,12 @@ class User < ApplicationRecord
 		else
 			nil
 		end
+	end
+
+	private
+	#unlink dependent person
+	def unlink
+		self.person.update(user_id: 0)
+		self.avatar.purge if self.avatar.attached?
 	end
 end

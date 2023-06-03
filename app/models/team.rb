@@ -20,11 +20,11 @@ class Team < ApplicationRecord
 	belongs_to :category
 	belongs_to :division
 	belongs_to :season
-	has_and_belongs_to_many :players
-	has_and_belongs_to_many :coaches
-	has_many :slots
-	has_many :events
-	has_many :team_targets
+	has_and_belongs_to_many :players, dependent: :nullify
+	has_and_belongs_to_many :coaches, dependent: :nullify
+	has_many :slots, dependent: :destroy
+	has_many :events, dependent: :destroy
+	has_many :team_targets, dependent: :destroy
 	has_many :targets, through: :team_targets
 	accepts_nested_attributes_for :coaches
 	accepts_nested_attributes_for :players
@@ -42,7 +42,7 @@ class Team < ApplicationRecord
 
 	def to_s
 		if self.name and self.name.length > 0
-			self.name.to_s
+			self.id==0 ? I18n.t("scope.none") : self.name.to_s
 		else
 			self.category.to_s
 		end
@@ -192,18 +192,6 @@ class Team < ApplicationRecord
 			end
 		end
 		res
-	end
-
-	# scrub trailing objects - to be called before deleting
-	def scrub
-		self.coaches.each { |t_c| self.coaches.delete(t_c) }
-		self.players.each { |t_p| self.players.delete(t_p) }
-		self.team_targets.each { |t_t| t_t.delete }
-		self.events.each { |t_e|
-			t_e.tasks.each { |task| task.delete }
-			t_e.delete
-		}
-		self.slots.each { |t_s| t_s.delete }
 	end
 
 	# return a hash with {won:, lost:} games

@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class Person < ApplicationRecord
+	before_destroy :unlink
 	belongs_to :coach
 	belongs_to :player
 	belongs_to :user
@@ -160,4 +161,21 @@ class Person < ApplicationRecord
 			Person.none
 		end
 	end
+
+	private
+		# unlink/delete dependent objects
+		def unlink
+			gen_unlink(:coach) if @person.coach_id > 0	# delete associated coach
+			gen_unlink(:player) if @person.player_id > 0	# delete associated player
+			gen_unlink(:user) if @person.user_id > 0	# delete associated user
+		end
+
+		# called by unlink using either :coach, :player or :user as arguments
+		def gen_unlink(kind)
+			dep = self.try(kind.to_sym)
+			if dep
+				self.update!("#{kind_id}".to_sym 0)
+				dep.destroy
+			end
+		end
 end

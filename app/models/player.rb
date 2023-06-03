@@ -17,11 +17,12 @@
 # contact email - iangullo@gmail.com.
 #
 class Player < ApplicationRecord
+	before_destroy :unlink
 	has_one :person
 	has_one_attached :avatar
-	has_many :stats
-	has_and_belongs_to_many :teams
-	has_and_belongs_to_many :events
+	has_many :stats, dependent: :destroy
+	has_and_belongs_to_many :teams, dependent: :nullify
+	has_and_belongs_to_many :events, dependent: :nullify
 	accepts_nested_attributes_for :person, update_only: true
 	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
 	scope :real, -> { where("id>0") }
@@ -177,4 +178,11 @@ class Player < ApplicationRecord
 		self.number    = j_data[:number]
 		self.active    = j_data[:active]
 	end
+
+	private
+		# cleanup association of dependent objects
+		def unlink
+			self.person.update(player_id: 0)
+			self.avatar.purge if self.avatar.attached?
+		end
 end

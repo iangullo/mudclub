@@ -17,9 +17,9 @@
 # contact email - iangullo@gmail.com.
 #
 class Season < ApplicationRecord
-	has_many :slots
-	has_many :teams
-	has_many :season_locations
+	has_many :slots, dependent: :destroy
+	has_many :teams, dependent: :destroy
+	has_many :season_locations, dependent: :destroy
 	has_many :locations, through: :season_locations
 	accepts_nested_attributes_for :locations
 	scope :real, -> { where("id>0") }

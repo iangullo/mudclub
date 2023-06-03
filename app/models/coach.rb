@@ -17,8 +17,9 @@
 # contact email - iangullo@gmail.com.
 #
 class Coach < ApplicationRecord
+	before_destroy :unlink
 	has_many :drills
-	has_and_belongs_to_many :teams
+	has_and_belongs_to_many :teams, dependent: :nullify
 	has_one :person
 	has_one_attached :avatar
 	accepts_nested_attributes_for :person, update_only: true
@@ -123,4 +124,12 @@ class Coach < ApplicationRecord
 		self.person_id = self.person.id
 		self.active    = c_data[:active]
 	end
+
+	private
+		# cleanup association of dependent objects
+		def unlink
+			self.drills.update_all(coach_id: 0)
+			self.person.update(coach_id: 0)
+			self.avatar.purge if self.avatar.attached?
+		end
 end

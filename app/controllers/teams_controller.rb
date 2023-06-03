@@ -241,7 +241,6 @@ class TeamsController < ApplicationController
 	def destroy
 		if check_access(roles: [:admin]) and @team
 			t_name = @team.to_s
-			@team.scrub
 			@team.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("team.deleted")} '#{t_name}'"

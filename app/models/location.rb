@@ -17,18 +17,20 @@
 # contact email - iangullo@gmail.com.
 #
 class Location < ApplicationRecord
+	before_destroy :unlink
 	scope :practice, -> { where("practice_court = true") }
 	scope :home, -> { where("id > 0 and practice_court = false") }
 	scope :real, -> { where("id > 0") }
-	has_many :slots
+	has_many :teams
+	has_many :slots, dependent: :destroy
 	has_many :events
-	has_many :season_locations
+	has_many :season_locations, dependent: :destroy
 	has_many :seasons, through: :season_locations
 	accepts_nested_attributes_for :seasons
 	self.inheritance_column = "not_sti"
 
 	def to_s
-		self.name
+		self.id==0 ? I18n.t("location.none") : self.name
 	end
 
 	# checks if it exists in the collection before adding it
@@ -53,14 +55,6 @@ class Location < ApplicationRecord
 		end
 	end
 
-	# Ensure we remove dependencies of location before deleting.
-	def scrub
-		self.seasons.clear
-		self.slots.each { |s|
-			s.delete
-		}
-	end
-
 	# rebuild @location from raw hash returned by a form
 	def rebuild(l_data)
 		self.name           = l_data[:name]
@@ -68,4 +62,11 @@ class Location < ApplicationRecord
 		self.gmaps_url      = l_data[:gmaps_url] if l_data[:gmaps_url].length > 0
 		self.practice_court = (l_data[:practice_court] == "1")
 	end
+
+	private
+		# cleanup dependent events, reassigning to 'dummy' location
+		def unlink
+			self.events.update_all(location_id: 0)
+			self.teams.update_all(location_id: 0)
+		end
 end

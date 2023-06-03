@@ -117,11 +117,6 @@ class Slot < ApplicationRecord
 		from_date.next_occurring(Date::DAYNAMES[self.wday].downcase.to_sym)
 	end
 
-	# Ensure we remove dependencies of location before deleting.
-	def scrub
-		self.seasons.clear
-	end
-
 	# Search for a list of SLots
 	# s_data is an array with either season_id+location_id or team_id
 	def self.search(s_data)

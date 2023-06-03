@@ -152,7 +152,6 @@ class CoachesController < ApplicationController
 	def destroy
 		if check_access(roles: [:admin], obj: @coach)
 			c_name = @coach.s_name
-			unlink_person
 			@coach.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("coach.deleted")} '#{c_name}'"
@@ -171,16 +170,6 @@ class CoachesController < ApplicationController
 			if @coach.person.coach_id==0
 				format.html { render :new }
 				format.json { render :new, status: :ok }
-			end
-		end
-
-		# De-couple from associated person
-		def unlink_person
-			if @coach.person.try(:coach_id) == @coach.id
-				p = @coach.person
-				p.coach=Coach.find(0)	# map to empty coach
-				p.save
-				@coach.person_id = 0	# map to empty person
 			end
 		end
 

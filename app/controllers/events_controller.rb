@@ -142,9 +142,7 @@ class EventsController < ApplicationController
 	# DELETE /events/1 or /events/1.json
 	def destroy
 		if check_access(roles: [:admin, :coach], obj: @event)
-			erase_links
 			team   = @event.team
-			@event.scrub
 			@event.destroy
 			respond_to do |format|
 				next_url = team.id > 0 ? team_path : events_path
@@ -273,44 +271,6 @@ class EventsController < ApplicationController
 					end
 				end
 			end
-		end
-
-		# Remove any links to this event prior to deleting it
-		def erase_links
-			if @event
-				case @event.kind.to_sym
-				when :rest
-					purge_holiday if @event.team_id==0  # clean off copies
-				when :train
-					purge_train
-				when :match
-					purge_match
-				end
-			end
-		end
-
-		# Remove holidays linked to a general holiday
-		def purge_holiday
-			season = Season.search_date(@event.start_date)
-			if season # we have a season for this event
-				season.teams.real.each { |team| # delete event to all teams
-					e_copy = Event.holidays.where(team_id: team.id, name: @event.name, start_time: @event.start_time).first
-					e_copy.delete if e_copy # delete linked event
-				}
-			end
-		end
-
-		# purge associated tasks
-		def purge_train
-			@event.tasks.each { |t| t.delete }
-			@event.event_targets.each { |t| t.delete }
-			@event.players.each { |t| @event.players.delete(t) }
-		end
-
-		# purge assocaited tasks
-		def purge_match
-			@event.match.delete
-			@event.players.each { |t| @event.players.delete(t) }
 		end
 
 		# prepare new/edit event form

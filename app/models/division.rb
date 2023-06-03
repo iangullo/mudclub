@@ -17,15 +17,22 @@
 # contact email - iangullo@gmail.com.
 #
 class Division < ApplicationRecord
+	before_destroy :unlink
 	has_many :teams
 	scope :real, -> { where("id>0") }
 
 	def to_s
-		self.name
+		self.id==0 ? I18n.t("scope.none") : self.name
 	end
 
 	# parse raw form data to update object values
 	def rebuild(f_data)
 		self.name = f_data[:name] if f_data[:name]
 	end
+
+	private
+		# cleanup dependent teams, reassigning to 'dummy' category
+		def unlink
+			self.teams.update_all(category_id: 0)
+		end
 end
