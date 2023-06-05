@@ -33,7 +33,7 @@ class Coach < ApplicationRecord
 	end
 
 	def name
-		self. s_name
+		self.s_name
 	end
 
 	#short name for form viewing
