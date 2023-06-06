@@ -47,12 +47,12 @@ class TeamsController < ApplicationController
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
-		if check_access(roles: [:admin, :coach], obj: @team)
+		if check_access(roles: [:admin, :coach])
 			@title = create_fields(helpers.team_title_fields(title: @team.to_s))
 			@links = create_fields(helpers.team_links)
 			@grid  = create_fields(helpers.event_list_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team)))
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to teams_path, data: {turbo_action: "replace"}
 		end
 	end
 
