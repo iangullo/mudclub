@@ -38,7 +38,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1 or /events/1.json
 	def show
-		if check_access(roles: [:admin, :coach], obj: @event)
+		if check_access(roles: [:admin, :coach])
 			retlnk = params[:retlnk]
 			@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
 			if @event.rest?
@@ -159,7 +159,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/show_task
 	def show_task
-		if check_access(roles: [:admin, :coach], obj: @event)
+		if check_access(roles: [:admin, :coach])
 			@task   = Task.find(params[:task_id])
 			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
 			@submit = create_submit(close: "back", close_return: :back, submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_task_event_path(task_id: @task.id) : nil)
@@ -189,7 +189,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/load_chart
 	def load_chart
-		if check_access(roles: [:admin, :coach], obj: @event)
+		if check_access(roles: [:admin, :coach])
 			header = helpers.event_title_fields(cols: @event.train? ? 3 : nil, chart: true)
 			@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
 		else

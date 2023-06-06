@@ -58,7 +58,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/roster
 	def roster
-		if check_access(roles: [:admin, :coach], obj: @team)
+		if check_access(roles: [:admin, :coach])
 			title  = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
 			@title = create_fields(title)
@@ -84,7 +84,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/slots
 	def slots
-		if check_access(roles: [:admin, :coach], obj: @team)
+		if check_access(roles: [:admin, :coach])
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
 			@fields = create_fields(title)
@@ -95,7 +95,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/targets
 	def targets
-		if check_access(roles: [:admin, :coach], obj: @team)
+		if check_access(roles: [:admin, :coach])
 			global_targets(true)	# get & breakdown global targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
@@ -123,7 +123,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_targets
 	def plan
-		if check_access(roles: [:admin, :coach], obj: @team)
+		if check_access(roles: [:admin, :coach])
 			plan_targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
@@ -150,7 +150,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/attendance
 	def attendance
-		if check_access(roles: [:admin, :coach], obj: @team)
+		if check_access(roles: [:admin, :coach])
 			title  = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
 			@title = create_fields(title)
