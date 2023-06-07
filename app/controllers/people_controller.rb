@@ -170,7 +170,7 @@ class PeopleController < ApplicationController
 		end
 
 		def set_person
-			 @person = Person.find_by_id(params[:id]) unless @person.try(:id)==params[:id]
+			 @person = Person.find_by_id(params[:id]) unless @person&.id==params[:id]
 		end
 
 		# get player list depending on the search parameter & user role

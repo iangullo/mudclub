@@ -16,20 +16,19 @@
 #
 # contact email - iangullo@gmail.com.
 #
-class Coach < ApplicationRecord
+# Manage parents of underage players
+class Parent < ApplicationRecord
 	before_destroy :unlink
-	has_many :drills
-	has_and_belongs_to_many :teams
-	has_one :person
-	has_one_attached :avatar
-	accepts_nested_attributes_for :person, update_only: true
-	scope :real, -> { where("id>0") }
+  belongs_to :person
+  has_many :players
+
+  scope :real, -> { where("id>0") }
 	scope :active, -> { where("active = true") }
 	self.inheritance_column = "not_sti"
 
 	# Just list person's full name
 	def to_s
-		self.person ? self.person.to_s : I18n.t("coach.single")
+		self.person ? self.person.to_s : I18n.t("person.single")
 	end
 
 	def name
@@ -38,7 +37,7 @@ class Coach < ApplicationRecord
 
 	#short name for form viewing
 	def s_name
-		self.person ? self.person.s_name : I18n.t("coach.show")
+		self.person ? self.person.s_name : I18n.t("person.show")
 	end
 
 	# check if associated person exists in database already
@@ -55,58 +54,11 @@ class Coach < ApplicationRecord
 		end
 	end
 
-	def picture
-		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "coach.svg"
-	end
-
-	#Search field matching
-	def self.search(search)
-		if search
-			if search.length>0
-				Coach.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
-			else
-				Coach.none
-			end
-		else
-			Coach.none
-		end
-	end
-
-	# to import from excel
-	def self.import(file)
-		xlsx = Roo::Excelx.new(file.tempfile)
-		xlsx.each_row_streaming(offset: 1, pad_cells: true) do |row|
-			if row.empty?	# stop parsing if row is empty
-				return
-			else
-				c = self.new(active: row[7].value)
-				c.build_person
-				c.person.name = row[2].value.to_s
-				c.person.surname = row[3].value.to_s
-				unless c.is_duplicate? # only if not a duplicate
-					if c.person.coach_id == nil # new person
-						c.person.coach_id  = 0
-						c.person.player_id = 0
-						c.person.save	# Save and link
-					end
-				end
-				c.person.dni      = c.read_field(row[0], c.person.dni, I18n.t("person.pid"))
-				c.person.nick     = c.read_field(row[1], c.person.nick, "")
-				c.person.birthday = c.read_field(row[4], c.person.birthday, Date.today.to_s)
-				c.person.email		= c.read_field(row[5], c.person.email, "")
-				c.person.phone		= c.read_field(Phonelib.parse(row[6]).international, c.person.phone, "")
-				c.active	  			= c.read_field(row[7], c.active, false)
-				c.save
-				c.clean_bind	# ensure person is bound
-			end
-		end
-	end
-
 	# ensures a person is well bound to the coach - expects both to be persisted
 	def clean_bind
 		self.person_id = self.person.id if self.person_id != self.person.id
 		self.save if self.changed?
-		self.person.bind_parent(o_class: "Coach", o_id: self.id)
+		self.person.bind_parent(o_class: "Parent", o_id: self.id)
 	end
 
 	# rebuild Coach data from raw input hash given by a form submittal
@@ -128,10 +80,10 @@ class Coach < ApplicationRecord
 	private
 		# cleanup association of dependent objects
 		def unlink
-			self.drills.update_all(coach_id: 0)
-			self.person.update(coach_id: 0)
-			self.teams.delete_all
-			self.avatar.purge if self.avatar.attached?
-			self.person.destroy if self.person&.orphan?
+			self.players.clear
+			if self.person	# see what we do with the person
+				self.person.update(parent_id: 0)
+				self.person.destroy if self.person&.orphan?
+			end
 		end
 end

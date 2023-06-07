@@ -169,12 +169,13 @@ class PlayersController < ApplicationController
 			@j_fields_1 = create_fields(helpers.player_form_fields_1(retlnk: params[:retlnk]))
 			@j_fields_2 = create_fields(helpers.player_form_fields_2(avatar: @player.avatar))
 			@p_fields   = create_fields(helpers.player_form_person(person: @player.person))
+			#@parents    = create_fields(helpers.player_form_parents) if @player.person.age < 18
 			@submit     = create_submit
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_player
-			@player = Player.find_by_id(params[:id]) unless @player.try(:id)==params[:id]
+			@player = Player.find_by_id(params[:id]) unless @player&.id==params[:id]
 		end
 
 		# get player list depending on the search parameter & user role

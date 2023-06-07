@@ -175,6 +175,19 @@ es:
     roster: "Convocatoria"
     won: "V"
     lost: "D"
+  parent:
+    single: "Tutor"
+    many: "Tutores"
+  password:
+    single: "Contraseña"
+    blank_abort: "(dejar en blanco si no quiere cambiarla)"
+    change: "Cambiar Contraseña"
+    confirm: "Confirmar contraseña"
+    confirm_label: "(*) confirmar contraseña"
+    confirm_wait: "Esperando confirmación de: "
+    min_chars: "Longitud mínima: "
+    new: "Nueva contraseña"
+    old: "Contraseña actual"
   person:
     duplicate: "Persona duplicada: "
     created: "Persona creada: "
@@ -200,16 +213,6 @@ es:
     phone_a: "Tel."
     email: "e-mail"
     pic: "Foto"
-  password:
-    single: "Contraseña"
-    blank_abort: "(dejar en blanco si no quiere cambiarla)"
-    change: "Cambiar Contraseña"
-    confirm: "Confirmar contraseña"
-    confirm_label: "(*) confirmar contraseña"
-    confirm_wait: "Esperando confirmación de: "
-    min_chars: "Longitud mínima: "
-    new: "Nueva contraseña"
-    old: "Contraseña actual"
   plan:
     edit: "Editar Planificación"
     new: "Crear Planificación"

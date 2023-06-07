@@ -28,7 +28,7 @@ class TopbarComponent < ApplicationComponent
 		@lnkcls    = 'no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap'
 		@profcls   = 'align-middle rounded-full min-h-8 min-w-8 align-middle hover:bg-blue-700 hover:ring-4 hover:ring-blue-200 focus:ring-4 focus:ring-blue-200'
 		@logincls  = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
-		@u_logged  = user.try(:present?)
+		@u_logged  = user&.present?
 		load_menus(user:, login:, logout:)
 	end
 
@@ -112,22 +112,22 @@ class TopbarComponent < ApplicationComponent
 
 	def set_hamburger_menu
 		res = {kind: "menu", name: "hamburger", ham: true, options:[], class: @tabcls}
-		@menu_tabs.each { |m_opt|
+		@menu_tabs.each do |m_opt|
 			if m_opt[:kind]=="menu" # let's break it down
-				m_opt[:options].each {|s_opt|
+				m_opt[:options].each do |s_opt|
 					a_opt = s_opt.dup
 					a_opt[:label] = I18n.t("team.many") if s_opt[:url]=="/teams"
 					res[:options] << a_opt
-				}
+				end
 			else
 				res[:options] << m_opt
 			end
-		}
-		@admin_tab[:options].each { |m_adm|
+		end
+		@admin_tab[:options].each do |m_adm|
 			a_opt = m_adm.dup
 			a_opt[:name]="h_#{m_adm[:name]}"
 			res[:options] << a_opt
-		} if @admin_tab
+		end if @admin_tab
 		res
 	end
 

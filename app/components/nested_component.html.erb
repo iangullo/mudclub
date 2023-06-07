@@ -12,7 +12,7 @@
 		<% end %>
 	</template>
 	<% @form.fields_for @key, @form.object.send(@key).order(@order) do |ff| %>
-		<% ff.object = ff.object.first if ff.object.try(:size) %>
+		<% ff.object = ff.object.first if ff.object&.size %>
 		<% ff_show   = true %>
 		<% if @filter %>
 			<% @filter.each do |key, value| %>

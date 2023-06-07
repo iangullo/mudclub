@@ -437,7 +437,7 @@ class Event < ApplicationRecord
 					end
 				end
 			when :train, :match
-				self.players.each { |t| self.players.delete(t) }
+				self.players.delete_all
 			end
 		end
 end

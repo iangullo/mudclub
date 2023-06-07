@@ -175,7 +175,7 @@ class CoachesController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_coach
-			@coach = Coach.find_by_id(params[:id]) unless @coach.try(:id)==params[:id]
+			@coach = Coach.find_by_id(params[:id]) unless @coach&.id==params[:id]
 		end
 
 		# get coach list depending on the search parameter & user role

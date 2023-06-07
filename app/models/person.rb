@@ -21,6 +21,7 @@ class Person < ApplicationRecord
 	belongs_to :coach
 	belongs_to :player
 	belongs_to :user
+	belongs_to :parent
 	has_one_attached :avatar
 	accepts_nested_attributes_for :player
 	accepts_nested_attributes_for :coach
@@ -58,7 +59,7 @@ class Person < ApplicationRecord
 		else	# we search by name/surname since no unique fields are there
 			p_aux = Person.where(name: self.name, surname: self.surname)
 		end
-		if p_aux.try(:size)==1
+		if p_aux&.size==1
 			self.id = p_aux.first.id
 			self.reload
 		else
@@ -88,6 +89,7 @@ class Person < ApplicationRecord
 		self.phone     = Phonelib.parse(p_data[:phone]).international.to_s  if p_data[:phone]
 		self.coach_id  = 0 unless self.coach_id.to_i > 0
 		self.player_id = 0 unless self.player_id.to_i > 0
+		self.parent_id = 0 unless self.parent_id.to_i > 0
 	end
 
 	# calculate age
@@ -117,6 +119,8 @@ class Person < ApplicationRecord
 			case o_class
 			when "Coach"
 				field = :coach_id
+			when "Parent"
+				field = :parent_id
 			when "Player"
 				field = :player_id
 			when "User"
@@ -162,19 +166,25 @@ class Person < ApplicationRecord
 		end
 	end
 
+	# return if person is orphaned from any dependent objects
+	def orphan?
+		(self.player_id.to_i==0) and (self.coach_id.to_i==0) and (self.user_id.to_i==0) and (self.parent_id.to_i==0)
+	end
+
 	private
 		# unlink/delete dependent objects
 		def unlink
 			gen_unlink(:coach) if @person.coach_id > 0	# delete associated coach
 			gen_unlink(:player) if @person.player_id > 0	# delete associated player
 			gen_unlink(:user) if @person.user_id > 0	# delete associated user
+			gen_unlink(:parent) if @person.parent_id > 0	# delete associated user
 		end
 
 		# called by unlink using either :coach, :player or :user as arguments
 		def gen_unlink(kind)
-			dep = self.try(kind.to_sym)
+			dep = self.send(kind.to_sym)
 			if dep
-				self.update!("#{kind_id}".to_sym 0)
+				self.update!("#{kind}_id".to_sym 0)
 				dep.destroy
 			end
 		end

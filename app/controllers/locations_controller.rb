@@ -72,7 +72,7 @@ class LocationsController < ApplicationController
 				@season   = Season.find(params[:location][:season_id]) if params[:location][:season_id]
 				@location = Location.new
 				@location.rebuild(location_params) # rebuild @location
-				a_desc    = "#{I18n.t("location.created")} #{@season.try(:name)} => '#{@location.name}'"
+				a_desc    = "#{I18n.t("location.created")} #{@season&.name} => '#{@location.name}'"
 				u_notice  = helpers.flash_message(a_desc, "success")
 				posturl   = @season ? season_locations_path(@season) : locations_path
 				if @location.id!=nil  # @location is already stored in database
@@ -114,7 +114,7 @@ class LocationsController < ApplicationController
 							format.html { redirect_to edit_location_path(@location), data: {turbo_action: "replace"} }
 							format.json { render json: @location.errors, status: :unprocessable_entity }
 						end
-					elsif @season and @season.try(:locations).try(:exclude?, @location)
+					elsif @season&.locations&.exclude?(@location)
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						@season.locations << @location
 					else
@@ -138,7 +138,7 @@ class LocationsController < ApplicationController
 		if check_access(roles: [:admin], obj: @location)
 			respond_to do |format|
 				l_name = @location.name
-				a_desc = "#{I18n.t("location.deleted")} #{@season.try(:name)} => '#{l_name}'"
+				a_desc = "#{I18n.t("location.deleted")} #{@season&.name} => '#{l_name}'"
 				register_action(:deleted, a_desc)
 				if @season
 					@season.locations.delete(@location)
@@ -160,7 +160,7 @@ private
 	# ensure internal variables are well defined
 	def set_locations
 		if params[:season_id]
-			@season = Season.find(params[:season_id]) unless @season.try(:id)==params[:season_id]
+			@season = Season.find(params[:season_id]) unless @season&.id==params[:season_id]
 			@locations = @season.locations.order(:name)
 			@eligible_locations = @season.eligible_locations
 		else
@@ -168,7 +168,7 @@ private
 			@season    = (params[:location][:season_id] ? Season.find(params[:location][:season_id]) : nil) if params[:location]
 		end
 		if params[:id]
-			@location = Location.find_by_id(params[:id]) unless @location.try(:id)==params[:id]
+			@location = Location.find_by_id(params[:id]) unless @location&.id==params[:id]
 		end
 	end
 

@@ -145,7 +145,7 @@ class SeasonsController < ApplicationController
 			if params[:search]
 				@season = Season.search(params[:search])
 			elsif params[:id]
-				@season = Season.find_by_id(params[:id]) unless @season.try(:id)==params[:id]
+				@season = Season.find_by_id(params[:id]) unless @season&.id==params[:id]
 			else
 				@season = Season.latest unless @season
 			end

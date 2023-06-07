@@ -175,6 +175,19 @@ en:
     roster: "Active players"
     won: "W"
     lost: "L"
+  parent:
+    single: "Parent"
+    many: "Parents"
+  password:
+    single: "Password"
+    blank_abort: "(leave blank to avoid changing it)"
+    change: "Change password"
+    confirm: "Confirm Password"
+    confirm_label: "(*) confirm password"
+    confirm_wait: "Awaiting confirmation from: "
+    min_chars: "Minimum length: "
+    new: "New password"
+    old: "Current password"
   person:
     duplicate: "Duplicate person: "
     created: "Created person: "
@@ -200,16 +213,6 @@ en:
     phone_a: "Tel."
     email: "e-mail"
     pic: "Pic:"
-  password:
-    single: "Password"
-    blank_abort: "(leave blank to avoid changing it)"
-    change: "Change password"
-    confirm: "Confirm Password"
-    confirm_label: "(*) confirm password"
-    confirm_wait: "Awaiting confirmation from: "
-    min_chars: "Minimum length: "
-    new: "New password"
-    old: "Current password"
   plan:
     edit: "Edit Team-plan"
     new: "Create Team-plan"

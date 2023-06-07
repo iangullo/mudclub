@@ -58,38 +58,38 @@ class CalendarComponent < ApplicationComponent
 		# cells of canvas have strong dependency on calendar scope
 		def canvas_cells(f_date:)
 			@cells = []	# prepare cell canvas (organized as [row][column])
-			1.upto(@c_rows) { |i| # one cell per day
+			1.upto(@c_rows) do |i| # one cell per day
 				row = []	# new calendar row
-				1.upto(@c_cols) { |j|
+				1.upto(@c_cols) do |j|
 					in_scope = (f_date.month==@start_date.month)
 					n_cell = {c_class: (in_scope ? @iscope_cls : @oscope_cls), date: f_date, events: []}
 					row[j] = n_cell	# add new cell to the row
 					f_date = f_date + 1 # check next day
-				}
+				end
 				@cells[i] = row	# add row
-			}
+			end
 			@cells
 		end
 
 		# Parse a collection of Events and map to the canvas
 		def parse_events(events: nil, obj: nil, user: nil, create_url: nil)
-			events.each { |event|	# find the day for each event
+			events.each do |event|	# find the day for each event
 				e_cell = get_cell(e_date: event.start_date)
 				if e_cell
 					c_event = c_event_init(event:)
 					e_cell[:events] << c_event
 				end
-			} if events
+			end if events
 			add_empty_buttons(obj:, user:, create_url:) if obj and user and create_url
 		end
 
 		# returns cell for a specific date
 		def get_cell(e_date:)
-			1.upto(@c_rows) { |i|
-				@cells[i].each { |e_cell|
+			1.upto(@c_rows) do |i|
+				@cells[i].each do |e_cell|
 					return e_cell if e_cell and e_cell[:date]==e_date # found it!
-				}
-			}
+				end
+			end
 			return nil
 		end
 
@@ -128,18 +128,18 @@ class CalendarComponent < ApplicationComponent
 		# add create event buttons to empty canvas cells
 		def add_empty_buttons(obj:, user:, create_url:)
 			@add_btn = []
-			1.upto(@c_rows) { |i|
+			1.upto(@c_rows) do |i|
 				row = []
 				cday = Date.current
-				1.upto(@c_cols) { |j|
+				1.upto(@c_cols) do |j|
 					if @cells[i][j][:events].empty? and @cells[i][j][:date]>=cday # add a create_event button
 						row[j] = add_event_button(obj:, for_season: (obj.class==Season), i:, j:, user:, create_url:)
 					else
 						row[j] = nil
 					end
 					@add_btn[i] = row
-				}
-			}
+				end
+			end
 		end
 
 		# dropdown button definition to create a new Event
@@ -162,7 +162,7 @@ class CalendarComponent < ApplicationComponent
 
 		# return backbutton if we do not exceed beginning of events season
 		def set_back_button(events:)
-			e_first = events.try(:first)	# we have a first event?
+			e_first = events&.first	# we have a first event?
 			e_date  = e_first ? e_first.team.season.start_date : Season.latest.start_date
 			if e_date
 				c_date = @cells[1][1][:date]
@@ -173,7 +173,7 @@ class CalendarComponent < ApplicationComponent
 
 		# return fwdbutton depending on end_date
 		def set_fwd_button(events:)
-			e_last = events.try(:last)# we have a last event?
+			e_last = events&.last	# we have a last event?
 			e_date = e_last ? e_last.team.season.end_date : Season.latest.end_date
 			if e_date
 				c_date = @cells.last.last[:date]

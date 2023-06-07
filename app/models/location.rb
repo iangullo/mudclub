@@ -38,7 +38,7 @@ class Location < ApplicationRecord
 	# 	   'nil' if it needs to be created.
 	def exists?
 		p = Location.where(name: self.name)
-		if p.try(:size)==1
+		if p&.size==1
 			self.id = p.first.id
 			self.reload
 		else

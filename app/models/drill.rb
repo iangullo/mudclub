@@ -21,7 +21,7 @@ class Drill < ApplicationRecord
 	has_paper_trail on: [:create, :update]
 	belongs_to :coach
 	belongs_to :kind
-	has_and_belongs_to_many :skills, dependent: :nullify
+	has_and_belongs_to_many :skills
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
 	has_many :drill_targets, dependent: :destroy
 	has_many :targets, through: :drill_targets
@@ -200,6 +200,7 @@ class Drill < ApplicationRecord
 
 		# cleanup dependent teams, reassigning to 'dummy' category
 		def unlink
+			self.skills.delete_all
 			self.playbook.purge if self.playbook.attached?
 		end
 end

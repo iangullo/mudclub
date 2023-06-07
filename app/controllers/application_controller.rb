@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
 
 	# switch app locale
 	def switch_locale(&action)
-		locale = params[:locale] ? params[:locale] : (current_user.try(:locale) || I18n.default_locale)
+		locale = params[:locale] ? params[:locale] : (current_user&.locale || I18n.default_locale)
 		I18n.with_locale(locale, &action)
 	end
 
@@ -103,7 +103,7 @@ class ApplicationController < ActionController::Base
 	private
 		# check if current user satisfies access policy
 		def check_role(roles:)
-			roles.each { |rol|	# ok as if any of roles is found
+			roles.each do |rol|	# ok as if any of roles is found
 				case rol
 				when :admin
 					return true if u_admin?
@@ -114,7 +114,7 @@ class ApplicationController < ActionController::Base
 				when :user
 					return true  # it's a user alright
 				end
-			}
+			end
 			return false
 		end
 

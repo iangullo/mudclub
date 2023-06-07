@@ -226,7 +226,7 @@ class SlotsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_slot
-			@slot = Slot.find_by_id(params[:id]) unless @slot.try(:id)==params[:id]
+			@slot = Slot.find_by_id(params[:id]) unless @slot&.id==params[:id]
 		end
 
 		# prepare fields to renfeer edit/new slot form

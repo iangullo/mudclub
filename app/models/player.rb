@@ -19,10 +19,11 @@
 class Player < ApplicationRecord
 	before_destroy :unlink
 	has_one :person
+	has_many :parents
 	has_one_attached :avatar
 	has_many :stats, dependent: :destroy
-	has_and_belongs_to_many :teams, dependent: :nullify
-	has_and_belongs_to_many :events, dependent: :nullify
+	has_and_belongs_to_many :teams
+	has_and_belongs_to_many :events
 	accepts_nested_attributes_for :person, update_only: true
 	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
 	scope :real, -> { where("id>0") }
@@ -61,7 +62,7 @@ class Player < ApplicationRecord
 		matches  = 0
 		d_last7  = Date.today - 7
 		d_last30 = Date.today - 30
-		team.events.normal.this_season.past.each { |event|
+		team.events.normal.this_season.past.each do |event|
 			if event.train?
 				l_season[:tot] = l_season[:tot] + 1
 				l_week[:tot]   = l_week[:tot] + 1 if event.start_date > d_last7
@@ -76,7 +77,7 @@ class Player < ApplicationRecord
 					l_month[:att]  = l_month[:att] + 1 if event.start_date > d_last30
 				end
 			end
-		}
+		end
 		att_week  = l_week[:tot]>0 ? (l_week[:att]*100/l_week[:tot]).to_i : nil
 		att_month = l_month[:tot]>0 ? (l_month[:att]*100/l_month[:tot]).to_i : nil
 		att_total = l_season[:tot]>0 ? (100*l_season[:att]/l_season[:tot]).to_i : nil
@@ -137,10 +138,10 @@ class Player < ApplicationRecord
 						j.person.save	# Save and link
 					end
 				end
-				j.person.dni      = j.read_field(row[0], j.person.dni, I18n.t("person.pid"))
-				j.person.nick     = j.read_field(row[2], j.person.nick, "")
-				j.person.birthday = j.read_field(row[5], j.person.birthday, Date.today.to_s)
-				j.person.female   = j.read_field(row[6], j.person.female, false)
+				j.person.dni			= j.read_field(row[0], j.person.dni, I18n.t("person.pid"))
+				j.person.nick			= j.read_field(row[2], j.person.nick, "")
+				j.person.birthday	= j.read_field(row[5], j.person.birthday, Date.today.to_s)
+				j.person.female		= j.read_field(row[6], j.person.female, false)
 				j.person.email		= j.read_field(row[7], j.person.email, "")
 				j.person.phone		= j.read_field(Phonelib.parse(row[8]).international, j.person.phone, "")
 				j.active	  			= j.read_field(row[9], j.active, false)
@@ -183,6 +184,9 @@ class Player < ApplicationRecord
 		# cleanup association of dependent objects
 		def unlink
 			self.person.update(player_id: 0)
+			self.teams.delete_all
+			self.events.delete_all
 			self.avatar.purge if self.avatar.attached?
+			self.person.destroy if self.person&.orphan?
 		end
 end

@@ -106,19 +106,19 @@ class User < ApplicationRecord
 	end
 
 	def is_player?
-		(self.person.try(:player_id).to_i > 0 and self.person.player.active) or self.player?
+		(self.person&.player_id.to_i > 0 and self.person.player.active) or self.player?
 	end
 
 	def is_coach?
-		(self.person.try(:coach_id).to_i > 0 and self.person.coach.active) or self.coach?
+		(self.person&.coach_id.to_i > 0 and self.person.coach.active) or self.coach?
 	end
 
 	def coach
-		(self.person.try(:coach_id).to_i > 0) ? self.person.coach : nil
+		(self.person&.coach_id.to_i > 0) ? self.person.coach : nil
 	end
 
 	def player
-		(self.person.try(:player_id).to_i > 0) ? self.person.player : nil
+		(self.person&.player_id.to_i > 0) ? self.person.player : nil
 	end
 
 	def set_default_role
@@ -127,7 +127,7 @@ class User < ApplicationRecord
 
 	# return string with last date of user login
 	def last_login
-		res = self.last_sign_in_at.try(:to_date)
+		res = self.last_sign_in_at&.to_date
 		return res ? res : I18n.t("user.never")
 	end
 
@@ -181,9 +181,10 @@ class User < ApplicationRecord
 	end
 
 	private
-	#unlink dependent person
-	def unlink
-		self.person.update(user_id: 0)
-		self.avatar.purge if self.avatar.attached?
-	end
+		#unlink dependent person
+		def unlink
+			self.person.update(user_id: 0)
+			self.avatar.purge if self.avatar.attached?
+			self.person.destroy if self.person&.orphan?
+		end
 end

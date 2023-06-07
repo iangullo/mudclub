@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_31_132152) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_05_054812) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -60,7 +60,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_31_132152) do
     t.integer "max_years"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "rules"
+    t.integer "rules", default: 0
   end
 
   create_table "coaches", force: :cascade do |t|
@@ -155,6 +155,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_31_132152) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "parents", force: :cascade do |t|
+    t.bigint "person_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id"], name: "index_parents_on_person_id"
+  end
+
   create_table "people", force: :cascade do |t|
     t.string "dni"
     t.string "nick"
@@ -169,8 +176,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_31_132152) do
     t.bigint "player_id", default: 0, null: false
     t.bigint "coach_id", default: 0, null: false
     t.bigint "user_id", default: 0, null: false
+    t.bigint "parent_id", default: 0, null: false
     t.index ["coach_id"], name: "index_people_on_coach_id"
     t.index ["name"], name: "index_people_on_name"
+    t.index ["parent_id"], name: "index_people_on_parent_id"
     t.index ["player_id"], name: "index_people_on_player_id"
     t.index ["surname"], name: "index_people_on_surname"
     t.index ["user_id"], name: "index_people_on_user_id"
@@ -277,7 +286,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_31_132152) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "homecourt_id", default: 0
-    t.integer "rules"
+    t.integer "rules", default: 0
     t.index ["category_id"], name: "index_teams_on_category_id"
     t.index ["division_id"], name: "index_teams_on_division_id"
     t.index ["homecourt_id"], name: "index_teams_on_homecourt_id"
@@ -337,7 +346,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_31_132152) do
   add_foreign_key "event_targets", "targets"
   add_foreign_key "events", "locations"
   add_foreign_key "events", "teams"
+  add_foreign_key "parents", "people"
   add_foreign_key "people", "coaches"
+  add_foreign_key "people", "parents"
   add_foreign_key "people", "players"
   add_foreign_key "people", "users"
   add_foreign_key "players", "people"
