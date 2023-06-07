@@ -145,14 +145,14 @@ class User < ApplicationRecord
 
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
-	def rebuild(u_data)
-		p_data        = u_data[:person_attributes]
-		self.email    = u_data[:email] ? u_data[:email] : p_data[:email]
-		self.role     = u_data[:role] ? u_data[:role] : :user
-		self.locale   = u_data[:locale] if u_data[:locale]
-		self.password = u_data[:password] if u_data[:password]
-		self.password_confirmation = u_data[:password_confirmation] if u_data[:password_confirmation]
-		if self.person_id==0 # not bound to a person yet?
+	def rebuild(f_data)
+		p_data        = f_data[:person_attributes]
+		self.email    = f_data[:email] ? f_data[:email] : p_data[:email]
+		self.role     = f_data[:role] ? f_data[:role] : :user
+		self.locale   = f_data[:locale] if f_data[:locale]
+		self.password = f_data[:password] if f_data[:password]
+		self.password_confirmation = f_data[:password_confirmation] if f_data[:password_confirmation]
+		if self.person_id.to_i==0 # not bound to a person yet?
 			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
 		else # person is linked, get it
 			self.person.reload

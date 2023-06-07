@@ -19,7 +19,7 @@
 				<% ff_show = (ff_show and ff.object.send(key)==value) %>
 			<% end %>
 		<% end %>
-		<% if ff_show %>
+		<% if ff.object and ff_show %>
 			<div class="nested-form-wrapper" data-new-record="<%= ff.object.new_record? %>">
 				<div class="inline-flex">
 					<%= render @row, form: ff %>

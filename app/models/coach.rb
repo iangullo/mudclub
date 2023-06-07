@@ -111,9 +111,9 @@ class Coach < ApplicationRecord
 
 	# rebuild Coach data from raw input hash given by a form submittal
 	# avoids duplicate person binding
-	def rebuild(c_data)
-		p_data = c_data[:person_attributes]
-		if self.person_id==0 # not bound to a person yet?
+	def rebuild(f_data)
+		p_data = f_data[:person_attributes]
+		if self.person_id.to_i==0 # not bound to a person yet?
 			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
 		else # person is linked, get it
 			self.person.reload
@@ -122,7 +122,7 @@ class Coach < ApplicationRecord
 		self.person.coach_id  = self.id if self.id
 		self.person.save unless self.person.id
 		self.person_id = self.person.id
-		self.active    = c_data[:active]
+		self.active    = f_data[:active]
 	end
 
 	private

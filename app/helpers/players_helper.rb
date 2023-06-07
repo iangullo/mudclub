@@ -89,6 +89,15 @@ module PlayersHelper
 		end
 		res << [{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}]
 		res.last << {kind: "contact", email: @player.person.email, phone: @player.person.phone, device: device}
+		unless @player.parents.empty?
+			res << [{kind: "label", value: "#{I18n.t("parent.many")}:"}]
+			@player.parents.each { |parent|
+				res << [
+					{kind: "string", value: parent.to_s},
+					{kind: "contact", email: parent.person.email, phone: parent.person.phone, device: device}
+				]
+			}
+		end
 		res
 	end
 
@@ -143,5 +152,14 @@ module PlayersHelper
 				{kind: "text-box", key: :phone, size: 12, value: person.phone, placeholder: I18n.t("person.phone")}
 			]
 		]
+	end
+
+	# nested form to add/edit player parents
+	def player_form_parents
+		res = [[{kind: "label", value: I18n.t("parent.many")}]]
+		res << [
+			{kind: "nested-form", model: "player", key: "parents", child: Parent.new, row: "parent_row", cols: 2}
+		]
+		res
 	end
 end

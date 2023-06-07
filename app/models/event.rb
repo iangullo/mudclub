@@ -266,19 +266,19 @@ class Event < ApplicationRecord
 	end
 
 	# rebuild Event using raw hash from a form submittal
-	def rebuild(e_data, s_data=nil)
-		self.start_time = e_data[:start_date] if e_data[:start_date]
-		self.hour       = e_data[:hour].to_i if e_data[:hour]
-		self.min        = e_data[:min].to_i if e_data[:min]
-		self.duration   = e_data[:duration].to_i if e_data[:duration]
-		self.name       = e_data[:name] if e_data[:name]
-		self.p_for      = e_data[:p_for].to_i if e_data[:p_for]
-		self.p_opp      = e_data[:p_opp].to_i if e_data[:p_opp]
-		self.location_id= e_data[:location_id].to_i if e_data[:location_id]
-		self.home       = e_data[:home] if e_data[:home]
+	def rebuild(f_data, s_data=nil)
+		self.start_time = f_data[:start_date] if f_data[:start_date]
+		self.hour       = f_data[:hour].to_i if f_data[:hour]
+		self.min        = f_data[:min].to_i if f_data[:min]
+		self.duration   = f_data[:duration].to_i if f_data[:duration]
+		self.name       = f_data[:name] if f_data[:name]
+		self.p_for      = f_data[:p_for].to_i if f_data[:p_for]
+		self.p_opp      = f_data[:p_opp].to_i if f_data[:p_opp]
+		self.location_id= f_data[:location_id].to_i if f_data[:location_id]
+		self.home       = f_data[:home] if f_data[:home]
 		check_stats(s_data) if s_data # manage stats if provided
-		check_targets(e_data[:event_targets_attributes]) if e_data[:event_targets_attributes]
-		check_tasks(e_data[:tasks_attributes]) if e_data[:tasks_attributes]
+		check_targets(f_data[:event_targets_attributes]) if f_data[:event_targets_attributes]
+		check_tasks(f_data[:tasks_attributes]) if f_data[:tasks_attributes]
 	end
 
 	# check if drill (or associations) has changed

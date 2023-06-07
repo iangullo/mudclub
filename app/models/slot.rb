@@ -159,13 +159,13 @@ class Slot < ApplicationRecord
 
 	# build new @slot from raw input given by submittal from "new" or "edit"
 	# always returns a @slot
-	def rebuild(s_data)
-		self.wday        = s_data[:wday] if s_data[:wday]
-		self.hour        = s_data[:hour] if s_data[:hour]
-		self.min         = s_data[:min] if s_data[:min]
-		self.duration    = s_data[:duration] if s_data[:duration]
-		self.location_id = s_data[:location_id] if s_data[:location_id]
-		self.team_id     = s_data[:team_id] if s_data[:team_id]
+	def rebuild(f_data)
+		self.wday        = f_data[:wday] if f_data[:wday]
+		self.hour        = f_data[:hour] if f_data[:hour]
+		self.min         = f_data[:min] if f_data[:min]
+		self.duration    = f_data[:duration] if f_data[:duration]
+		self.location_id = f_data[:location_id] if f_data[:location_id]
+		self.team_id     = f_data[:team_id] if f_data[:team_id]
 		self.season_id   = self.team.season_id.to_i
 	end
 end

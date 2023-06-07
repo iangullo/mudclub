@@ -138,16 +138,16 @@ class Drill < ApplicationRecord
 
 	# build new @drill from raw input hash given by form submital submittal
 	# return nil if unsuccessful
-	def rebuild(d_data)
-		self.name        = d_data[:name]
-		self.description = d_data[:description]
-		self.material    = d_data[:material]
-		self.coach_id    = d_data[:coach_id]
-		self.kind_id     = Kind.fetch(d_data[:kind_id]).id
-		self.explanation = d_data[:explanation]
-		self.playbook    = d_data[:playbook]
-		self.check_skills(d_data[:skills_attributes]) if d_data[:skills_attributes]
-		self.check_targets(d_data[:drill_targets_attributes]) if d_data[:drill_targets_attributes]
+	def rebuild(f_data)
+		self.name        = f_data[:name]
+		self.description = f_data[:description]
+		self.material    = f_data[:material]
+		self.coach_id    = f_data[:coach_id]
+		self.kind_id     = Kind.fetch(f_data[:kind_id]).id
+		self.explanation = f_data[:explanation]
+		self.playbook    = f_data[:playbook]
+		self.check_skills(f_data[:skills_attributes]) if f_data[:skills_attributes]
+		self.check_targets(f_data[:drill_targets_attributes]) if f_data[:drill_targets_attributes]
 		self
 	end
 

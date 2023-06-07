@@ -69,24 +69,24 @@ class Person < ApplicationRecord
 
 	# rebuild Person data from raw input (as hash) given by a form submittal
 	# avoids creating duplicates
-	def rebuild(p_data)
+	def rebuild(f_data)
 		p_aux         = Person.new # check for duplicates
-		p_aux.dni     = p_data[:dni] if p_data[:dni]
-		p_aux.email   = p_data[:email] if p_data[:email]
-		p_aux.name    = p_data[:name] if p_data[:name]
-		p_aux.surname = p_data[:surname] if p_data[:surname]
+		p_aux.dni     = f_data[:dni] if f_data[:dni]
+		p_aux.email   = f_data[:email] if f_data[:email]
+		p_aux.name    = f_data[:name] if f_data[:name]
+		p_aux.surname = f_data[:surname] if f_data[:surname]
 		if p_aux.exists?	# re-assign if exists
 			self.id=p_aux.id
 			self.reload
 		end
-		self.dni       = p_data[:dni] if p_data[:dni]
-		self.email     = p_data[:email] if p_data[:email]
-		self.name      = p_data[:name] if p_data[:name]
-		self.surname   = p_data[:surname] if p_data[:surname]
-		self.birthday  = p_data[:birthday] if p_data[:birthday]
-		self.nick      = p_data[:nick] if p_data[:nick]
-		self.female    = p_data[:female]
-		self.phone     = Phonelib.parse(p_data[:phone]).international.to_s  if p_data[:phone]
+		self.dni       = f_data[:dni] if f_data[:dni]
+		self.email     = f_data[:email] if f_data[:email]
+		self.name      = f_data[:name] if f_data[:name]
+		self.surname   = f_data[:surname] if f_data[:surname]
+		self.birthday  = f_data[:birthday] if f_data[:birthday]
+		self.nick      = f_data[:nick] if f_data[:nick]
+		self.female    = f_data[:female]
+		self.phone     = Phonelib.parse(f_data[:phone]).international.to_s  if f_data[:phone]
 		self.coach_id  = 0 unless self.coach_id.to_i > 0
 		self.player_id = 0 unless self.player_id.to_i > 0
 		self.parent_id = 0 unless self.parent_id.to_i > 0

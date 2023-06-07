@@ -20,8 +20,7 @@
 class Parent < ApplicationRecord
 	before_destroy :unlink
   belongs_to :person
-  has_many :players
-
+  has_and_belongs_to_many :players
   scope :real, -> { where("id>0") }
 	scope :active, -> { where("active = true") }
 	self.inheritance_column = "not_sti"
@@ -54,33 +53,42 @@ class Parent < ApplicationRecord
 		end
 	end
 
-	# ensures a person is well bound to the coach - expects both to be persisted
+	# ensures a person is well bound to the Parent - expects both to be persisted
 	def clean_bind
 		self.person_id = self.person.id if self.person_id != self.person.id
 		self.save if self.changed?
 		self.person.bind_parent(o_class: "Parent", o_id: self.id)
 	end
 
-	# rebuild Coach data from raw input hash given by a form submittal
+	# rebuild Parent data from raw input hash given by a form submittal
 	# avoids duplicate person binding
-	def rebuild(c_data)
-		p_data = c_data[:person_attributes]
-		if self.person_id==0 # not bound to a person yet?
+	def rebuild(f_data)
+		p_data = f_data[:person]
+		if self.person_id.to_i==0 # not bound to a person yet?
 			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
 		else # person is linked, get it
 			self.person.reload
 		end
 		self.person.rebuild(p_data) # rebuild from passed data
-		self.person.coach_id  = self.id if self.id
+		self.person.parent_id  = self.id if self.id
 		self.person.save unless self.person.id
 		self.person_id = self.person.id
-		self.active    = c_data[:active]
+	end
+
+
+	# Attempts to fetch a Parent (or creates a new one)
+	# using the hash of fields received.
+	def self.fetch(f_data)
+		res = f_data[:id] ? Parent.find_by(id: f_data[:id]) : Parent.new
+		res.person.rebuild(f_data[:person])
+		res.person.parent_id = res.id if res.id.to_i > 0
+		res
 	end
 
 	private
 		# cleanup association of dependent objects
 		def unlink
-			self.players.clear
+			self.players.delete_all
 			if self.person	# see what we do with the person
 				self.person.update(parent_id: 0)
 				self.person.destroy if self.person&.orphan?

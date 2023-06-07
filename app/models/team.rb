@@ -168,16 +168,16 @@ class Team < ApplicationRecord
 	end
 
 	# rebuild Teamm from raw hash returned by a form
-	def rebuild(p_data)
-		self.name         = p_data[:name] if p_data[:name]
-		self.season_id    = p_data[:season_id].to_i if p_data[:season_id]
-		self.category_id  = p_data[:category_id].to_i if p_data[:category_id]
-		self.division_id  = p_data[:division_id].to_i if p_data[:division_id]
-		self.homecourt_id = p_data[:homecourt_id].to_i if p_data[:homecourt_id]
-		self.rules        = Team.rules[p_data[:rules]].to_i if p_data[:rules]
-		check_targets(p_data[:team_targets_attributes]) if p_data[:team_targets_attributes]
-		check_players(p_data[:player_ids]) if p_data[:player_ids]
-		check_coaches(p_data[:coach_ids]) if p_data[:coach_ids]
+	def rebuild(f_data)
+		self.name         = f_data[:name] if f_data[:name]
+		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
+		self.category_id  = f_data[:category_id].to_i if f_data[:category_id]
+		self.division_id  = f_data[:division_id].to_i if f_data[:division_id]
+		self.homecourt_id = f_data[:homecourt_id].to_i if f_data[:homecourt_id]
+		self.rules        = Team.rules[f_data[:rules]].to_i if f_data[:rules]
+		check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
+		check_players(f_data[:player_ids]) if f_data[:player_ids]
+		check_coaches(f_data[:coach_ids]) if f_data[:coach_ids]
 	end
 
 	# check if drill (or associations) has changed

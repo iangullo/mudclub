@@ -19,11 +19,11 @@
 class Player < ApplicationRecord
 	before_destroy :unlink
 	has_one :person
-	has_many :parents
 	has_one_attached :avatar
 	has_many :stats, dependent: :destroy
 	has_and_belongs_to_many :teams
 	has_and_belongs_to_many :events
+	has_and_belongs_to_many :parents
 	accepts_nested_attributes_for :person, update_only: true
 	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
 	scope :real, -> { where("id>0") }
@@ -165,27 +165,46 @@ class Player < ApplicationRecord
 
 	# rebuild Player data from raw input hash given by a form submittal
 	# avoids duplicate person binding
-	def rebuild(j_data)
-		p_data = j_data[:person_attributes]
-		if self.person_id==0 # not bound to a person yet?
+	def rebuild(f_data)
+		p_data = f_data[:person_attributes]
+		if self.person_id.to_i==0 # not bound to a person yet?
 			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
 		else # person is linked, get it
 			self.person.reload
 		end
-		self.person.rebuild(p_data) # rebuild from passed data
+		self.check_parents(f_data[:parents]) if f_data[:parents]
+		self.person.rebuild(f_data) # rebuild from passed data
 		self.person.player_id  = self.id if self.id
 		self.person.save unless self.person.id
 		self.person_id = self.person.id
-		self.number    = j_data[:number]
-		self.active    = j_data[:active]
+		self.number    = f_data[:number]
+		self.active    = f_data[:active]
 	end
 
 	private
-		# cleanup association of dependent objects
+		# checks parents array received and manages adding/removing
+		# from the drill collection - remove duplicates from list
+		def check_parents(s_array)
+			a_parents = Array.new	# array to include only non-duplicates
+			s_array.each { |s| # first pass
+				parent = Parent.fetch(s)	# attempt to fetch (or create a new parent)
+				a_parents << parent
+			}
+			a_parents.each { |parent| # second pass - manage associations
+				if s[:_destroy] == "1"
+					self.parents.delete(parent)
+				else	# add to collection
+					self.parents << parent unless self.parents.include?(parent)
+				end
+			}
+		end
+
+	# cleanup association of dependent objects
 		def unlink
 			self.person.update(player_id: 0)
 			self.teams.delete_all
 			self.events.delete_all
+			self.parents.delete_all
 			self.avatar.purge if self.avatar.attached?
 			self.person.destroy if self.person&.orphan?
 		end

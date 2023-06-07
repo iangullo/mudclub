@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_05_054812) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_07_102158) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -160,6 +160,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_05_054812) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["person_id"], name: "index_parents_on_person_id"
+  end
+
+  create_table "parents_players", id: false, force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "parent_id", null: false
   end
 
   create_table "people", force: :cascade do |t|
