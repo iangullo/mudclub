@@ -169,7 +169,7 @@ class PlayersController < ApplicationController
 			@j_fields_1 = create_fields(helpers.player_form_fields_1(retlnk: params[:retlnk]))
 			@j_fields_2 = create_fields(helpers.player_form_fields_2(avatar: @player.avatar))
 			@p_fields   = create_fields(helpers.player_form_person(person: @player.person))
-			#@parents    = create_fields(helpers.player_form_parents) if @player.person.age < 18
+			@parents    = create_fields(helpers.player_form_parents) if @player.person.age < 18
 			@submit     = create_submit
 		end
 
@@ -189,6 +189,29 @@ class PlayersController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def player_params
-			params.require(:player).permit(:id, :number, :active, :avatar, :retlnk, person_attributes: [:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone], teams_attributes: [:id, :_destroy])
+			params.require(:player).permit(
+				:id,
+				:number,
+				:active,
+				:avatar,
+				:retlnk,
+				person_attributes: [
+					:id,
+					:dni,
+					:nick,
+					:name,
+					:surname,
+					:birthday,
+					:female,
+					:email,
+					:phone
+				],
+				teams_attributes: [:id, :_destroy],
+				parents_attributes: [
+					:id,
+					:_destroy,
+					person_attributes: [:id, :name, :surname, :email, :phone]
+				]
+			)
 		end
 end

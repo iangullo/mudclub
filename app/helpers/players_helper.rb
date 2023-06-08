@@ -158,7 +158,7 @@ module PlayersHelper
 	def player_form_parents
 		res = [[{kind: "label", value: I18n.t("parent.many")}]]
 		res << [
-			{kind: "nested-form", model: "player", key: "parents", child: Parent.new, row: "parent_row", cols: 2}
+			{kind: "nested-form", model: "player", key: "parents", child: Parent.create_new, row: "parent_row", cols: 2}
 		]
 		res
 	end

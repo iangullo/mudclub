@@ -10,6 +10,10 @@
 			<%= render @j_fields_2 %>
 			<%= render @p_fields %>
 		<% end %>
+		<% if @parents %>
+		  <% @parents.form = form %>
+			<%= render @parents %>
+		<% end %>
 		<%= render @submit %>
 	<% end %>
 <% end %>

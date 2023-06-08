@@ -31,10 +31,10 @@ module LocationsHelper
 	# return FieldsComponent @title for forms
 	def location_form_fields(title:)
 		res = location_title_fields(title:)
-		res << [{kind: "text-box", key: :name, value: @location.name, placeholder: I18n.t("location.name"), size: 20}]
+		res << [{kind: "text-box", key: :name, value: @location.name, placeholder: I18n.t("location.name")}]
 		res << [
 			{kind: "icon", value: "gmaps.svg"},
-			{kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, placeholder: I18n.t("location.gmaps"), size: 20}
+			{kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, placeholder: I18n.t("location.gmaps")}
 		]
 		res << [
 			{kind: "icon", value: "training.svg"},

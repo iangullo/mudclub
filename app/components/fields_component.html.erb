@@ -17,7 +17,7 @@
 				<% when "dropdown" %>
 					<%= render DropdownComponent.new(button: item[:button]) %>
 				<% when "email-box" %>
-					<%= @form.email_field item[:key], placeholder: item[:placeholder], size: 25, class: item[:i_class] %>
+					<%= @form.email_field item[:key], placeholder: item[:placeholder], size: item[:size], class: item[:i_class] %>
 				<% when "gap" %>
 					<% item[:size].times do %>
 						&nbsp;

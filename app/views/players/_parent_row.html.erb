@@ -1,0 +1,19 @@
+<% if form.object %>
+	<% f_cls = "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0" %>
+	<%= form.fields_for :person do |f| %>
+		<table>
+			<tr>
+				<td colspan="2"><%= f.text_field :name, placeholder: t("person.name"), size: 15, class: f_cls + " px-1" %></td>
+				<td colspan="2"><%= f.text_field :surname, placeholder: t("person.surname"), size: 18, class: f_cls + " px-1" %></td>
+			</tr><tr>
+				<td><%= image_tag("phone.svg", size: "25x25") %></td>
+				<td><%= f.text_field :phone, placeholder: t("person.phone"), class: f_cls + " px-1", size: 12 %></td>
+				<td><%= image_tag("at.svg", size: "25x25") %></td>
+				<td><%= f.text_field :email, placeholder: t("person.email"), size: 15, class: f_cls + " px-1" %></td>
+			</tr><tr>
+				<td colspan="4"><div class="w-full border-b border-gray-200"></div></td>
+				<%= f.hidden_field :id %>
+			</tr>
+		</table>
+	<% end %>
+<% end %>

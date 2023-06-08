@@ -25,6 +25,7 @@ class Player < ApplicationRecord
 	has_and_belongs_to_many :events
 	has_and_belongs_to_many :parents
 	accepts_nested_attributes_for :person, update_only: true
+	accepts_nested_attributes_for :parents, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
 	scope :real, -> { where("id>0") }
 	scope :active, -> { where("active = true") }
@@ -172,7 +173,7 @@ class Player < ApplicationRecord
 		else # person is linked, get it
 			self.person.reload
 		end
-		self.check_parents(f_data[:parents]) if f_data[:parents]
+		self.check_parents(f_data[:parents_attributes]) if f_data[:parents_attributes]
 		self.person.rebuild(f_data) # rebuild from passed data
 		self.person.player_id  = self.id if self.id
 		self.person.save unless self.person.id
@@ -186,20 +187,18 @@ class Player < ApplicationRecord
 		# from the drill collection - remove duplicates from list
 		def check_parents(s_array)
 			a_parents = Array.new	# array to include only non-duplicates
-			s_array.each { |s| # first pass
-				parent = Parent.fetch(s)	# attempt to fetch (or create a new parent)
-				a_parents << parent
-			}
-			a_parents.each { |parent| # second pass - manage associations
-				if s[:_destroy] == "1"
+			s_array.each { |s| a_parents << s[1] }	# first pass - get inputs
+			a_parents.each do |p_input| # second pass - manage associations
+				parent = Parent.fetch(p_input)	# attempt to fetch (or create a new parent)
+				if p_input[:_destroy] == "1"
 					self.parents.delete(parent)
 				else	# add to collection
 					self.parents << parent unless self.parents.include?(parent)
 				end
-			}
+			end
 		end
 
-	# cleanup association of dependent objects
+		# cleanup association of dependent objects
 		def unlink
 			self.person.update(player_id: 0)
 			self.teams.delete_all

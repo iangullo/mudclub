@@ -21,6 +21,7 @@ class Parent < ApplicationRecord
 	before_destroy :unlink
   belongs_to :person
   has_and_belongs_to_many :players
+	accepts_nested_attributes_for :person, update_only: true
   scope :real, -> { where("id>0") }
 	scope :active, -> { where("active = true") }
 	self.inheritance_column = "not_sti"
@@ -63,7 +64,8 @@ class Parent < ApplicationRecord
 	# rebuild Parent data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
-		p_data = f_data[:person]
+		p_data = f_data[:person_attributes]
+		binding.break
 		if self.person_id.to_i==0 # not bound to a person yet?
 			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
 		else # person is linked, get it
@@ -71,7 +73,7 @@ class Parent < ApplicationRecord
 		end
 		self.person.rebuild(p_data) # rebuild from passed data
 		self.person.parent_id  = self.id if self.id
-		self.person.save unless self.person.id
+		self.person.save if self.person.changed?
 		self.person_id = self.person.id
 	end
 
@@ -79,10 +81,15 @@ class Parent < ApplicationRecord
 	# Attempts to fetch a Parent (or creates a new one)
 	# using the hash of fields received.
 	def self.fetch(f_data)
-		res = f_data[:id] ? Parent.find_by(id: f_data[:id]) : Parent.new
-		res.person.rebuild(f_data[:person])
-		res.person.parent_id = res.id if res.id.to_i > 0
+		res = f_data[:id].to_i > 0 ? Parent.find_by(id: f_data[:id].to_i) : Parent.new
+		res.rebuild(f_data)
 		res
+	end
+
+	# creates a new 'empty' parent to be used in Nested Forms.
+	def self.create_new
+		res = Parent.new
+		res.build_person
 	end
 
 	private
