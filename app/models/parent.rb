@@ -19,10 +19,10 @@
 # Manage parents of underage players
 class Parent < ApplicationRecord
 	before_destroy :unlink
-  belongs_to :person
-  has_and_belongs_to_many :players
+	belongs_to :person
+	has_and_belongs_to_many :players
 	accepts_nested_attributes_for :person, update_only: true
-  scope :real, -> { where("id>0") }
+	scope :real, -> { where("id>0") }
 	scope :active, -> { where("active = true") }
 	self.inheritance_column = "not_sti"
 
