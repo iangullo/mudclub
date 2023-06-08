@@ -65,7 +65,6 @@ class Parent < ApplicationRecord
 	# avoids duplicate person binding
 	def rebuild(f_data)
 		p_data = f_data[:person_attributes]
-		binding.break
 		if self.person_id.to_i==0 # not bound to a person yet?
 			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
 		else # person is linked, get it
