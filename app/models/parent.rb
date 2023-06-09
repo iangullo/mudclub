@@ -89,6 +89,7 @@ class Parent < ApplicationRecord
 	def self.create_new
 		res = Parent.new
 		res.build_person
+		res
 	end
 
 	private
@@ -97,7 +98,7 @@ class Parent < ApplicationRecord
 			self.players.delete_all
 			if self.person	# see what we do with the person
 				self.person.update(parent_id: 0)
-				self.person.destroy if self.person&.orphan?
+				self.person.destroy if self.person.orphan?
 			end
 		end
 end
