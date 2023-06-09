@@ -348,9 +348,10 @@ class Event < ApplicationRecord
 				res.location_id = 0
 			end
 		when :match
-			last            = team.events.matches.last
+			last = team.events.matches.last
+			last = Event.new(start_time: Time.now) unless last
 			if s_date
-				starting = s_date + last.hour.hours + last.min.minutes
+				starting = s_date + last.hour.hours + ((last.min/15).round*5).minutes
 			else
 				starting = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
 			end

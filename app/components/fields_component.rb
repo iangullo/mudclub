@@ -150,11 +150,10 @@ class FieldsComponent < ApplicationComponent
 	def set_box(item)
 		item[:class]   = "align-top" unless item[:class]
 		item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
-		bsize = 20
+		bsize = (item[:kind]=="time-box") ? 5 : ((item[:options].present?) ? 10 : 20)
 		if item[:kind]=="rich-text-area"	# correct rendering for trix editor
 			item[:i_class] = "trix-content " + item[:i_class]
 		elsif item[:options].present?	# check size
-			bsize = 10
 			item[:options].each { |opt| bsize = opt.to_s.length if opt.to_s.length > bsize }
 		elsif item[:kind]=="number-box" or item[:kind]=="time-box"	# check limits
 			item[:i_class] = item[:i_class] + " text-right"
