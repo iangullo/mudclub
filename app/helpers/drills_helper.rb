@@ -114,7 +114,7 @@ module DrillsHelper
 
 	# return title FieldComponent definition for edit/new
 	def drill_form_playbook(playbook:)
-		[[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: playbook.filename}]]
+		[[button_field({kind: "upload-button", icon: "playbook.png", label: "Playbook", key: :playbook, value: playbook.filename})]]
 	end
 
 	# return title FieldComponent definition for edit/new

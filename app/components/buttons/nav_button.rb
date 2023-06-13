@@ -17,32 +17,24 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
-class ApplicationComponent < ViewComponent::Base
-	def initialize(tag: nil, classes: nil, **options)
-		@tag = tag
-		@classes = classes
-		@options = options
-	end
-
-	def call
-		content_tag(@tag, content, class: @classes, **@options) if @tag
-	end
-
-	def tablecell_tag(item, tag=:td)
-		if item.class==Hash
-			tag(tag,
-				colspan: item[:cols],
-				rowspan: item[:rows],
-				align: item[:align],
-				class: item[:class]
-			)
-		else
-			tag(tag,
-				colspan: item.cols,
-				rowspan: item.rows,
-				align: item.align,
-				class: item.css_class
-			)
+#
+# NavButton class for ButtonComponents manages "back", "forward" kinds
+class NavButton < BaseButton
+	def initialize(button)
+		super(button)
+		case @bdata[:kind]
+		when "forward"
+			@bdata[:icon]  ||= "forward.svg"
+			@bdata[:label] ||= I18n.t("action.next")
+		when "back"
+			@bdata[:icon]    = "back.svg"
+			@bdata[:label] ||= I18n.t("action.previous")
+			@bdata[:replace] = true
 		end
+		@d_class += ["shadow", "font-semibold"]
+		@d_class += set_colour(colour: "gray")
+		@b_class += ["m-1", "inline-flex", "align-middle"]
+		@i_class  = ["max-h-7", "min-h-5", "align-middle"]
+		set_data
 	end
 end

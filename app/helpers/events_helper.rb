@@ -444,7 +444,7 @@ module EventsHelper
 
 		# return the dropdown element to access workload charts
 		def workload_button(cols: 2, align: "center")
-			res = { kind: "dropdown", align:, cols:,
+			res = { kind: "dropdown-button", align:, cols:,
 				button: {kind: "link", icon: "pie.svg", label: I18n.t("train.workload"), name: "show-chart",
 					options: [
 						{label: I18n.t("kind.single"), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
@@ -464,7 +464,7 @@ module EventsHelper
 				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id}), data: {turbo_frame: :modal}}
 				button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: obj.id}), data: {turbo_frame: :modal}}
 				button[:options] << {label: I18n.t("rest.single"), url: new_event_path(event: {kind: :rest, team_id: obj.id}), data: {turbo_frame: :modal}}
-				return {kind: "dropdown", button: button, class: "bg-white"}
+				return {kind: "dropdown-button", button: button, class: "bg-white"}
 			else
 				return nil
 			end

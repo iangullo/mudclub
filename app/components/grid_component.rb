@@ -27,10 +27,12 @@
 #   => row items: have links in them (per row)
 # optional: associated form object (if needed)
 class GridComponent < ApplicationComponent
-	def initialize(grid:, form: nil)
-		@title = parse_title(grid[:title])
-		@rows  = parse_rows(grid[:rows])
-		@form  = form
+	attr_writer :form
+	def initialize(grid:, form: nil, session: nil)
+		@form    = form
+		@session = session
+		@title   = parse_title(grid[:title])
+		@rows    = parse_rows(grid[:rows])
 		if grid[:track]
 			@s_url  = grid[:track][:s_url]
 			@s_filt = grid[:track][:s_filter]

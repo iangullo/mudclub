@@ -48,7 +48,7 @@ module ApplicationHelper
 
 	# file upload button
 	def form_file_field(label:, key:, value:, cols: nil)
-		[[{kind: "upload", label:, key:, value:, cols:}]]
+		[[button_field({kind: "upload-button", label:, key:, value:, cols:})]]
 	end
 
 	# standardised message wrapper

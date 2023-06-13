@@ -1,29 +1,52 @@
-<div class="<%=@button[:d_class]%>" align="<%=@button[:align]%>">
-	<% if @button[:url] %>
-		<% if @button[:tab] %>
-			<%= link_to @button[:url], target: "_blank", class: @button[:b_class] do %>
-				<%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
-				<%= @button[:label] if @button[:label] %>
-			<% end %>
-		<% else %>
-			<%= link_to @button[:url], data: @button[:data], class: @button[:b_class] do %>
-				<% if @button[:flip] %>
-					<% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
-					<%= image_tag(@button[:icon], size: @button[:size]) if @button[:icon] %>
-				<% else %>
-					<%= image_tag(@button[:icon], size: @button[:size]) if @button[:icon] %>
-					<% if @button[:label] %>&nbsp<%=@button[:label]%><% end %>
+<div class="<%=@button.d_class%>" align="<%=@button.align%>">
+	<% binding.break %>
+	<% case @button.class.to_s %>
+	<% when "RadioButton" %>
+		<%= @form.radio_button @button.key, @button.value, checked: @button.checked %>
+	<% when "UploadButton" %>
+			<%= @form.file_field @button.key, id: 'upload-btn', direct_upload: true, class: 'hidden' %>
+			<label for='upload-btn' class='<%=@button.i_class%>'>
+				<%= image_tag(@button.icon, size: "25x25") if @button.icon %>&nbsp;<%=@button.label%>
+			</label>
+			<span class="px mb-1 text-sm text-gray-500"><%=@button.value ? @button.value : I18n.t("status.no_file") %></span>
+	<% else %>
+		<% if @button.url %>
+			<% if @button.tab %>
+				<%= link_to @button.url, target: "_blank", class: @button.b_class do %>
+					<% if @button.flip %>
+						<%= @button.label if @button.label %>
+						<% if @button.label and @button.icon %>&nbsp;<% end %>
+						<%= image_tag(@button.icon, size: @button.size, class: @button.i_class) if @button.icon %>
+					<% else %>
+						<%= image_tag(@button.icon, size: @button.size, class: @button.i_class) if @button.icon %>
+						<% if @button.label and @button.icon %>&nbsp;<% end %>
+						<%= @button.label if @button.label %>
+					<% end %>
+				<% end %>
+			<% else %>
+				<%= link_to @button.url, data: @button.data, class: @button.b_class do %>
+					<% if @button.flip %>
+						<%= @button.label if @button.label %>
+						<% if @button.label and @button.icon %>&nbsp;<% end %>
+						<%= image_tag(@button.icon, size: @button.size, class: @button.i_class) if @button.icon %>
+					<% else %>
+						<%= image_tag(@button.icon, size: @button.size, class: @button.i_class) if @button.icon %>
+						<% if @button.label and @button.icon %>&nbsp;<% end %>
+						<%= @button.label if @button.label %>
+					<% end %>
 				<% end %>
 			<% end %>
-		<% end %>
-	<% else %>
-		<%= button_tag class: @button[:b_class], type: @button[:type], data: @button[:data], "data-confirm": @button[:confirm] do %>
-			<% if ["save","import"].include? @button[:kind] %>
-				<% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
-				<%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
-			<% else %>
-				<%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
-				<% if @button[:label] %>&nbsp<%=@button[:label]%><% end %>
+		<% else %>
+			<%= button_tag class: @button.b_class, type: @button.type, data: @button.data, "data-confirm": @button.confirm do %>
+				<% if @button.flip %>
+					<%= @button.label if @button.label %>
+					<% if @button.label and @button.icon %>&nbsp;<% end %>
+					<%= image_tag(@button.icon, size: @button.size, class: @button.i_class) if @button.icon %>
+				<% else %>
+					<%= image_tag(@button.icon, size: @button.size, class: @button.i_class) if @button.icon %>
+					<% if @button.label and @button.icon %>&nbsp;<% end %>
+					<%= @button.label if @button.label %>
+				<% end %>
 			<% end %>
 		<% end %>
 	<% end %>

@@ -17,32 +17,18 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
-class ApplicationComponent < ViewComponent::Base
-	def initialize(tag: nil, classes: nil, **options)
-		@tag = tag
-		@classes = classes
-		@options = options
-	end
-
-	def call
-		content_tag(@tag, content, class: @classes, **@options) if @tag
-	end
-
-	def tablecell_tag(item, tag=:td)
-		if item.class==Hash
-			tag(tag,
-				colspan: item[:cols],
-				rowspan: item[:rows],
-				align: item[:align],
-				class: item[:class]
-			)
-		else
-			tag(tag,
-				colspan: item.cols,
-				rowspan: item.rows,
-				align: item.align,
-				class: item.css_class
-			)
-		end
+#
+# ClearButton class for ButtonComponents manages "clear" kind
+class ClearButton < BaseButton
+	# basic button information
+	def initialize(button)
+		super(button)
+		@bdata[:icon]  ||= "clear.svg"
+		@bdata[:confirm] = "#{I18n.t("question.clear")} \'#{@bdata[:name]}\'?"
+		@d_class += ["shadow", "font-bold"]
+		@d_class += set_colour(colour: "red")
+		@b_class += ["font-bold", "m-1", "inline-flex", "align-middle"]
+		@i_class  = ["max-h-7", "min-h-5", "align-middle"]
+		set_data
 	end
 end

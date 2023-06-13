@@ -17,32 +17,26 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
-class ApplicationComponent < ViewComponent::Base
-	def initialize(tag: nil, classes: nil, **options)
-		@tag = tag
-		@classes = classes
-		@options = options
+#
+# NestedField class for FieldsComponents
+# conceived to serve as abstraction layer for nested-form elements. Relies on
+# NestedComponent.
+class NestedField < BaseField
+	def initialize(field, form=nil)
+		super(field, form)
+		@model   = field[:model]
+		@key     = field[:key]
+		@child   = field[:child]
+		@row     = field[:row]
+		@filter  = field[:filter]
+		@btn_add = field[:btn_add] || {kind: "add-nested"}
 	end
 
-	def call
-		content_tag(@tag, content, class: @classes, **@options) if @tag
-	end
-
-	def tablecell_tag(item, tag=:td)
-		if item.class==Hash
-			tag(tag,
-				colspan: item[:cols],
-				rowspan: item[:rows],
-				align: item[:align],
-				class: item[:class]
-			)
+	def content
+		if @form
+			NestedComponent.new(model: @model, key: @key, form: @form, child: @child, row: @row, filter: @filter, btn_add: @btn_add)
 		else
-			tag(tag,
-				colspan: item.cols,
-				rowspan: item.rows,
-				align: item.align,
-				class: item.css_class
-			)
+			"ERROR: Missing Form"
 		end
 	end
 end

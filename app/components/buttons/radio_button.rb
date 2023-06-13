@@ -17,32 +17,25 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
-class ApplicationComponent < ViewComponent::Base
-	def initialize(tag: nil, classes: nil, **options)
-		@tag = tag
-		@classes = classes
-		@options = options
+#
+# RadioButton class for ButtonComponents
+# very spartan only uses key, value amd checked fields of button hash
+class RadioButton < BaseButton
+	def initialize(button, form=nil)
+		@bdata = button	# original button definition
+		@form = form
 	end
 
-	def call
-		content_tag(@tag, content, class: @classes, **@options) if @tag
+	def key
+		@bdata[:key]
 	end
 
-	def tablecell_tag(item, tag=:td)
-		if item.class==Hash
-			tag(tag,
-				colspan: item[:cols],
-				rowspan: item[:rows],
-				align: item[:align],
-				class: item[:class]
-			)
-		else
-			tag(tag,
-				colspan: item.cols,
-				rowspan: item.rows,
-				align: item.align,
-				class: item.css_class
-			)
-		end
+	def value
+		@bdata[:value]
 	end
+
+	def checked
+		@bdata[:checked]
+	end
+
 end

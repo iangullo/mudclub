@@ -17,32 +17,19 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
-class ApplicationComponent < ViewComponent::Base
-	def initialize(tag: nil, classes: nil, **options)
-		@tag = tag
-		@classes = classes
-		@options = options
-	end
-
-	def call
-		content_tag(@tag, content, class: @classes, **@options) if @tag
-	end
-
-	def tablecell_tag(item, tag=:td)
-		if item.class==Hash
-			tag(tag,
-				colspan: item[:cols],
-				rowspan: item[:rows],
-				align: item[:align],
-				class: item[:class]
-			)
-		else
-			tag(tag,
-				colspan: item.cols,
-				rowspan: item.rows,
-				align: item.align,
-				class: item.css_class
-			)
+#
+# MenuButton class for ButtonComponents manages menu & login buttons
+class MenuButton < BaseButton
+	def initialize(button)
+		super(button)
+		@b_class << "font-bold"
+		@d_class += ["shadow", "font-bold"]
+		@d_class += set_colour(wait: "blue-900", light: "blue-700", text: "gray-200", high: "white")
+		@i_class  = ["max-h-7", "min-h-5", "align-middle"]
+		if @bdata[:kind]=="login"
+			@bdata[:icon] ||= "login.svg"
+			@bdata[:type]   = "submit"
 		end
+		set_data
 	end
 end

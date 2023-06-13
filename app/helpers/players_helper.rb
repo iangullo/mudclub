@@ -88,13 +88,13 @@ module PlayersHelper
 			]
 		end
 		res << [{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}]
-		res.last << {kind: "contact", email: @player.person.email, phone: @player.person.phone, device: device}
+		res.last << {kind: "contact-button", email: @player.person.email, phone: @player.person.phone, device: device}
 		unless @player.parents.empty?
 			res << [{kind: "label", value: "#{I18n.t("parent.many")}:"}]
 			@player.parents.each { |parent|
 				res << [
 					{kind: "string", value: parent.to_s},
-					{kind: "contact", email: parent.person.email, phone: parent.person.phone, device: device}
+					{kind: "contact-button", email: parent.person.email, phone: parent.person.phone, device: device}
 				]
 			}
 		end
@@ -133,7 +133,7 @@ module PlayersHelper
 
 	# return second part of FieldsComponent for Player forms
 	def player_form_fields_2(avatar:)
-		[[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: avatar.filename, cols: 5}]]
+		[[button_field({kind: "upload-button", key: :avatar, label: I18n.t("person.pic"), value: avatar.filename, cols: 5})]]
 	end
 
 	# return personal data FieldsComponent for Player forms

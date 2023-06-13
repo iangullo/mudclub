@@ -17,32 +17,22 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
-class ApplicationComponent < ViewComponent::Base
-	def initialize(tag: nil, classes: nil, **options)
-		@tag = tag
-		@classes = classes
-		@options = options
+#
+# UploadButton class for ButtonComponents
+# abit more spartan, only receives icon, value and key
+class UploadButton < BaseButton
+	def initialize(button, form=nil)
+		super(button, form)
+		@d_class  = ["align-middle", "px", "py"]
+		@i_class  = "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6".split(" ")
+		set_data
 	end
 
-	def call
-		content_tag(@tag, content, class: @classes, **@options) if @tag
+	def key
+		@bdata[:key]
 	end
 
-	def tablecell_tag(item, tag=:td)
-		if item.class==Hash
-			tag(tag,
-				colspan: item[:cols],
-				rowspan: item[:rows],
-				align: item[:align],
-				class: item[:class]
-			)
-		else
-			tag(tag,
-				colspan: item.cols,
-				rowspan: item.rows,
-				align: item.align,
-				class: item.css_class
-			)
-		end
+	def value
+		@bdata[:value]
 	end
 end

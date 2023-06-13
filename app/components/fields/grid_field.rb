@@ -17,32 +17,27 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
-class ApplicationComponent < ViewComponent::Base
-	def initialize(tag: nil, classes: nil, **options)
-		@tag = tag
-		@classes = classes
-		@options = options
+#
+# GridField class for FieldsComponents
+# conceived to serve as abstraction layer for Grid elements. Relies on
+# GridComponent.
+class GridField < BaseField
+	def initialize(field, form=nil, session=nil)
+		super(field, form, session)
+		@content = GridComponent.new(grid: @fdata[:value], form: @form, session: @session)
 	end
 
-	def call
-		content_tag(@tag, content, class: @classes, **@options) if @tag
+	def form=(formobj)
+		@form         = formobj
+		@content.form = formobj
 	end
 
-	def tablecell_tag(item, tag=:td)
-		if item.class==Hash
-			tag(tag,
-				colspan: item[:cols],
-				rowspan: item[:rows],
-				align: item[:align],
-				class: item[:class]
-			)
-		else
-			tag(tag,
-				colspan: item.cols,
-				rowspan: item.rows,
-				align: item.align,
-				class: item.css_class
-			)
-		end
+	def session=(sessobj)
+		@session         = sessobj
+		@content.session = sessobj
+	end
+
+	def render
+		@content.render
 	end
 end
