@@ -33,7 +33,7 @@ class ButtonField < BaseField
 			@button = set_contact_buttons
 		when "dropdown-button"
 			@button = DropdownComponent.new(button: @fdata)
-		when "upload-button", "radio-button"
+		when "upload-button", "radio-button"	# should eventually disappear
 			@button = ButtonComponent.new(button: @fdata, form:)
 		end
 	end

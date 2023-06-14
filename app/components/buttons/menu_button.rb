@@ -22,11 +22,12 @@
 class MenuButton < BaseButton
 	def initialize(button)
 		super(button)
-		@b_class << "font-bold"
+		@b_class += ["inline-flex", "font-bold", "m-1"]
 		@d_class += ["shadow", "font-bold"]
 		@d_class += set_colour(wait: "blue-900", light: "blue-700", text: "gray-200", high: "white")
 		@i_class  = ["max-h-7", "min-h-5", "align-middle"]
 		if @bdata[:kind]=="login"
+			@bdata[:flip]   = true
 			@bdata[:icon] ||= "login.svg"
 			@bdata[:type]   = "submit"
 		end
