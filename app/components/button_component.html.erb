@@ -1,5 +1,4 @@
 <div class="<%=@button.d_class%>" align="<%=@button.align%>">
-	<% binding.break %>
 	<% case @button.class.to_s %>
 	<% when "RadioButton" %>
 		<%= @form.radio_button @button.key, @button.value, checked: @button.checked %>
