@@ -82,13 +82,8 @@ class CoachesController < ApplicationController
 			respond_to do |format|
 				@coach = Coach.new
 				@coach.rebuild(coach_params)	# rebuild coach
-				if @coach.is_duplicate? then
-					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
-					format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
-				else
-					@coach.person.save if @coach.person.changed?
+				if @coach.modified? then	# it's a new coach
 					if @coach.save # coach saved to database
-						@coach.clean_bind	# ensure person is well bound
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
@@ -98,6 +93,9 @@ class CoachesController < ApplicationController
 						format.html { render :new }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
+				else	# duplicate coach
+					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
+					format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
 				end
 			end
 		else
@@ -111,8 +109,7 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:admin], obj: @coach)
 			respond_to do |format|
 				@coach.rebuild(coach_params)
-				if @coach.changed?
-					@coach.person.save if @coach.person.changed?
+				if @coach.modified?	# coach has been edited
 					if @coach.save
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
 						register_action(:updated, a_desc)
@@ -123,7 +120,7 @@ class CoachesController < ApplicationController
 						format.html { render :edit }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
-				else
+				else	# no changes made
 					retlnk = params[:retlnk] ? params[:retlnk] : coaches_path
 					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
 					format.json { render :index, status: :ok, location: retlnk }

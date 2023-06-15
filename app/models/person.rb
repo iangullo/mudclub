@@ -17,6 +17,9 @@
 # contact email - iangullo@gmail.com.
 #
 class Person < ApplicationRecord
+	include PersonDataManagement
+	#validates :email, uniqueness: true
+	#validates :dni, uniqueness: true
 	before_destroy :unlink
 	belongs_to :coach
 	belongs_to :player
@@ -48,35 +51,36 @@ class Person < ApplicationRecord
 		res.length > 0 ? res : I18n.t("person.single")
 	end
 
-	# checks if it exists in the collection before adding it
-	# returns: reloads self if it exists in the database already
-	# 	   'nil' if it needs to be created.
-	def exists?
-		if self.dni and self.dni!="" # not null, let's search by that unique field
-			p_aux = Person.where(dni: self.dni)
-		elsif self.email and self.email!=""	# another unique field is email
-			p_aux = Person.where(email: self.email)
-		else	# we search by name/surname since no unique fields are there
-			p_aux = Person.where(name: self.name, surname: self.surname)
+	# finds a person in the database based on id, email, dni, name & surname
+	# returns: reloads person if it exists in the database already or
+	# 	   'nil' if it not found.
+	def self.fetch(f_data)
+		# Try to find by id if present
+		id = f_data[:id].presence.to_i
+		p_aux = Person.find_by(id:) if id > 0
+
+		# Try to find by dni if present
+		p_aux = Person.find_by(dni:) if !p_aux && (dni = f_data[:dni].presence)
+
+		# Try to find by email if present
+		p_aux = Person.find_by(dni:) if !p_aux && (email = f_data[:email].presence)
+
+		unless p_aux	# last resort: attempt to find by name+surname
+			name    = f_data[:name].presence
+			surname = f_data[:surname].presence
+			if name and surname
+				p_aux = Person.where("unaccent(name) ILIKE unaccent(?) AND unaccent(surname) ILIKE unaccent(?)", name, surname).take
+			end
 		end
-		if p_aux&.size==1
-			self.id = p_aux.first.id
-			self.reload
-		else
-			nil
-		end
+		p_aux
 	end
 
 	# rebuild Person data from raw input (as hash) given by a form submittal
 	# avoids creating duplicates
 	def rebuild(f_data)
-		p_aux         = Person.new # check for duplicates
-		p_aux.dni     = f_data[:dni] if f_data[:dni]
-		p_aux.email   = f_data[:email] if f_data[:email]
-		p_aux.name    = f_data[:name] if f_data[:name]
-		p_aux.surname = f_data[:surname] if f_data[:surname]
-		if p_aux.exists?	# re-assign if exists
-			self.id=p_aux.id
+		p_aux = Person.fetch(f_data)
+		if p_aux&.id != self.id	# re-load self as existing Person
+			self.id = p_aux.id
 			self.reload
 		end
 		self.dni       = f_data[:dni] if f_data[:dni]
@@ -113,27 +117,6 @@ class Person < ApplicationRecord
 		self.avatar.attached? ? self.avatar : "clublogo.svg"
 	end
 
-	# Checks parent is linked well - saves if changed
-	def bind_parent(o_class:, o_id:)
-		if o_class and o_id
-			case o_class
-			when "Coach"
-				field = :coach_id
-			when "Parent"
-				field = :parent_id
-			when "Player"
-				field = :player_id
-			when "User"
-				field = :user_id
-			end
-
-			self[field] = o_id if  self[field] != o_id
-			self.save if self.changed?
-			return true
-		end
-		return false
-	end
-
 	# to import from excel
 	def self.import(file)
 		xlsx = Roo::Excelx.new(file.tempfile)
@@ -141,18 +124,30 @@ class Person < ApplicationRecord
 			if row.empty?	# stop parsing if row is empty
 				return
 			else
-				p = self.new(name: row[2].value.to_s, surname: row[3].value.to_s)
-				unless p.exists?
-					p.player_id = 0
-					p.coach_id = 0
+				p = Person.fetch({name: row[2].value, surname: row[3].value})
+				if p.nil?
+					p = self.new(
+						name:      row[2].value.to_s.strip,
+						surname:   row[3].value.to_s.strip,
+						coach_id:  0,
+						parent_id: 0,
+						player_id: 0,
+						user_id:   0
+					)
 				end
-				p.dni      = p.read_field(row[0], p.dni, I18n.t("person.pid"))
-				p.nick     = p.read_field(row[1], p.nick, "")
-				p.birthday = p.read_field(row[4], p.birthday, Date.today.to_s)
-				p.female   = p.read_field(row[5], p.female, false)
-				p.email		 = p.read_field(row[6], p.email, "")
-				p.phone		 = p.read_field(Phonelib.parse(row[7]).international, p.phone, "")
-				p.save
+				p.import_person_row(
+					[
+						row[0], # dni
+						row[2], # name
+						row[3], # surname
+						row[1],	# nick
+						row[4],	# birthday
+						row[6],	# email
+						row[7], # phone
+						row[5]	# female
+					]
+				)
+				p&.save
 			end
 		end
 	end
@@ -174,10 +169,10 @@ class Person < ApplicationRecord
 	private
 		# unlink/delete dependent objects
 		def unlink
-			gen_unlink(:coach) if @person.coach_id > 0	# delete associated coach
-			gen_unlink(:player) if @person.player_id > 0	# delete associated player
-			gen_unlink(:user) if @person.user_id > 0	# delete associated user
-			gen_unlink(:parent) if @person.parent_id > 0	# delete associated user
+			gen_unlink(:coach) if self.coach_id > 0	# delete associated coach
+			gen_unlink(:player) if self.player_id > 0	# delete associated player
+			gen_unlink(:user) if self.user_id > 0	# delete associated user
+			gen_unlink(:parent) if self.parent_id > 0	# delete associated user
 		end
 
 		# called by unlink using either :coach, :player or :user as arguments

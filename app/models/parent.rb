@@ -18,6 +18,7 @@
 #
 # Manage parents of underage players
 class Parent < ApplicationRecord
+	include PersonDataManagement
 	before_destroy :unlink
 	belongs_to :person
 	has_and_belongs_to_many :players
@@ -40,49 +41,16 @@ class Parent < ApplicationRecord
 		self.person ? self.person.s_name : I18n.t("person.show")
 	end
 
-	# check if associated person exists in database already
-	# reloads person if it does
-	def is_duplicate?
-		if self.person.exists? # check if it exists in database
-			if self.person.coach_id > 0 # coach already exists
-				true
-			else	# found but mapped to dummy placeholder person
-				false
-			end
-		else	# not found
-			false
-		end
-	end
-
-	# ensures a person is well bound to the Parent - expects both to be persisted
-	def clean_bind
-		self.person_id = self.person.id if self.person_id != self.person.id
-		self.save if self.changed?
-		self.person.bind_parent(o_class: "Parent", o_id: self.id)
+	# atempt to fetch a Parent using form input hash
+	def self.fetch(f_data)
+		self.new.fetch_obj(f_data)
 	end
 
 	# rebuild Parent data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
-		p_data = f_data[:person_attributes]
-		if self.person_id.to_i==0 # not bound to a person yet?
-			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
-		else # person is linked, get it
-			self.person.reload
-		end
-		self.person.rebuild(p_data) # rebuild from passed data
-		self.person.parent_id  = self.id if self.id
-		self.person.save if self.person.changed?
-		self.person_id = self.person.id
-	end
-
-
-	# Attempts to fetch a Parent (or creates a new one)
-	# using the hash of fields received.
-	def self.fetch(f_data)
-		res = f_data[:id].to_i > 0 ? Parent.find_by(id: f_data[:id].to_i) : Parent.new
-		res.rebuild(f_data)
-		res
+		self.rebuild_obj_person(f_data)
+		self.save if self.modified?
 	end
 
 	# creates a new 'empty' parent to be used in Nested Forms.

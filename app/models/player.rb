@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class Player < ApplicationRecord
+	include PersonDataManagement
 	before_destroy :unlink
 	has_one :person
 	has_one_attached :avatar
@@ -85,20 +86,6 @@ class Player < ApplicationRecord
 		{matches: matches, last7: att_week, last30: att_month, avg: att_total}
 	end
 
-	# check if associated person exists in database already
-	# reloads person if it does
-	def is_duplicate?
-		if self.person.exists? # check if it exists in database
-			if self.person.player_id > 0 # player already exists
-				true
-			else	# found but mapped to dummy placeholder person
-				false
-			end
-		else	# not found
-			false
-		end
-	end
-
 	# Player picture
 	def picture
 		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "player.svg"
@@ -121,6 +108,11 @@ class Player < ApplicationRecord
 		end
 	end
 
+	# atempt to fetch a Player using form input hash
+	def self.fetch(f_data)
+		self.new.fetch_obj(f_data)
+	end
+
 	# to import from excel
 	def self.import(file)
 		xlsx = Roo::Excelx.new(file.tempfile)
@@ -128,26 +120,23 @@ class Player < ApplicationRecord
 			if row.empty?	# stop parsing if row is empty
 				return
 			else
-				j = self.new(number: row[1].value.to_s, active: row[9].value)
-				j.build_person
-				j.person.name = row[3].value.to_s
-				j.person.surname = row[4].value.to_s
-				unless j.is_duplicate? # only if not a duplicate
-					if j.person.player_id == nil # new person
-						j.person.coach_id  = 0
-						j.person.player_id = 0
-						j.person.save	# Save and link
-					end
+				j = self.new(number: row[1].value.to_s.strip, active: row[9].value)
+				j.import_person_row( # import personal data
+					[
+						row[0],	# dni
+						row[3],	# name
+						row[4],	# surname
+						row[2],	# nick
+						row[5],	# birthday
+						row[7],	# email
+						row[8], # phone
+						row[6]	# female
+					]
+				)
+				if j.person	# only if person exists
+					j.active = j.read_field(parse_boolean(row[9].value), j.active, false)
+					j.save
 				end
-				j.person.dni			= j.read_field(row[0], j.person.dni, I18n.t("person.pid"))
-				j.person.nick			= j.read_field(row[2], j.person.nick, "")
-				j.person.birthday	= j.read_field(row[5], j.person.birthday, Date.today.to_s)
-				j.person.female		= j.read_field(row[6], j.person.female, false)
-				j.person.email		= j.read_field(row[7], j.person.email, "")
-				j.person.phone		= j.read_field(Phonelib.parse(row[8]).international, j.person.phone, "")
-				j.active	  			= j.read_field(row[9], j.active, false)
-				j.save
-				j.clean_bind	# ensure person is bound
 			end
 		end
 	end
@@ -157,43 +146,40 @@ class Player < ApplicationRecord
 		self.events.include?(event_id)
 	end
 
-	# ensures a person is well bound to the player - expects both to be persisted
-	def clean_bind
-		self.person_id = self.person.id if self.person_id != self.person.id
-		self.save if self.changed?
-		self.person.bind_parent(o_class: "Player", o_id: self.id)
-	end
-
 	# rebuild Player data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
-		p_data = f_data[:person_attributes]
-		if self.person_id.to_i==0 # not bound to a person yet?
-			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
-		else # person is linked, get it
-			self.person.reload
+		self.rebuild_obj_person(f_data)
+		if self.person # person exists
+			self.number = f_data[:number]
+			self.active = f_data[:active]
+			self.check_parents(f_data[:parents_attributes])
 		end
-		self.check_parents(f_data[:parents_attributes]) if f_data[:parents_attributes]
-		self.person.rebuild(f_data) # rebuild from passed data
-		self.person.player_id  = self.id if self.id
-		self.person.save unless self.person.id
-		self.person_id = self.person.id
-		self.number    = f_data[:number]
-		self.active    = f_data[:active]
+	end
+
+	# ensure saving of associated parents
+	def save_parents
+		self.parents.each do |parent|
+			parent.save if parent.modified?
+		end
 	end
 
 	private
 		# checks parents array received and manages adding/removing
 		# from the drill collection - remove duplicates from list
 		def check_parents(s_array)
-			a_parents = Array.new	# array to include only non-duplicates
-			s_array.each { |s| a_parents << s[1] }	# first pass - get inputs
-			a_parents.each do |p_input| # second pass - manage associations
-				parent = Parent.fetch(p_input)	# attempt to fetch (or create a new parent)
-				if p_input[:_destroy] == "1"
-					self.parents.delete(parent)
-				else	# add to collection
-					self.parents << parent unless self.parents.include?(parent)
+			if s_array
+				a_parents = Array.new	# array to include only non-duplicates
+				s_array.each { |s| a_parents << s[1] }	# first pass - get inputs
+				a_parents.each do |p_input| # second pass - manage associations
+					parent = Parent.fetch(p_input)	# attempt to fetch (or create a new parent)
+					parent = Parent.new unless parent
+					parent.rebuild(p_input)
+					if p_input[:_destroy] == "1"
+						self.parents.delete(parent)
+					else	# add to collection
+						self.parents << parent unless self.parents.include?(parent)
+					end
 				end
 			end
 		end
