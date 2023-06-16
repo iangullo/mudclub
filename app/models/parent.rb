@@ -50,7 +50,6 @@ class Parent < ApplicationRecord
 	# avoids duplicate person binding
 	def rebuild(f_data)
 		self.rebuild_obj_person(f_data)
-		self.save if self.modified?
 	end
 
 	# creates a new 'empty' parent to be used in Nested Forms.

@@ -71,11 +71,6 @@ module PersonDataManagement
 		self.rebuild_person(p_data)
 	end
 
-	# ensure reading boolean values from strings correctly
-	def parse_boolean(value)
-		value.to_s.strip.downcase == "true"
-	end
-
 	# Check to set default values.
 	def d_value(f_id)
 		d_src = self.is_a?(Person) ? self.try(f_id) : self.person.try(f_id)

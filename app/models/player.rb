@@ -18,7 +18,9 @@
 #
 class Player < ApplicationRecord
 	include PersonDataManagement
+	attr_accessor :parent_changed
 	before_destroy :unlink
+	after_initialize :set_changes_flag
 	has_one :person
 	has_one_attached :avatar
 	has_many :stats, dependent: :destroy
@@ -157,11 +159,13 @@ class Player < ApplicationRecord
 		end
 	end
 
-	# ensure saving of associated parents
-	def save_parents
-		self.parents.each do |parent|
-			parent.save if parent.modified?
-		end
+	def set_changes_flag
+		@parent_changed = false
+	end
+
+	# extended modified to acount for changed parents
+	def modified?
+		super || @parent_changed
 	end
 
 	private
@@ -173,11 +177,12 @@ class Player < ApplicationRecord
 				s_array.each { |s| a_parents << s[1] }	# first pass - get inputs
 				a_parents.each do |p_input| # second pass - manage associations
 					parent = Parent.fetch(p_input)	# attempt to fetch (or create a new parent)
-					parent = Parent.new unless parent
-					parent.rebuild(p_input)
 					if p_input[:_destroy] == "1"
 						self.parents.delete(parent)
 					else	# add to collection
+						parent = Parent.new unless parent
+						parent.rebuild(p_input)
+						@parent_changed = parent.save if parent.changed? || parent.person.changed?
 						self.parents << parent unless self.parents.include?(parent)
 					end
 				end
