@@ -37,7 +37,8 @@ class Task < ApplicationRecord
 	# Takes the input received from add_task (f_object)
 	# and either reads or creates a matching drill_target
 	def self.fetch(f_object)
-		res = f_object[:id] ? Task.includes(drill: :explanation).find(f_object[:id].to_i) : Task.new
+		res = Task.find_by(id: f_object[:id]) if  f_object[:id].present?
+		res = Task.new unless res
 		res.order    = f_object[:order].to_i
 		res.drill_id = f_object[:drill_id].to_i
 		res.duration = f_object[:duration].to_i
