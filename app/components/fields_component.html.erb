@@ -13,7 +13,16 @@
 						<%= render field.content %>
 					<% end %>
 				<% when "ImageField" %>
-					<%= field.content %>
+					<% if field.tip # show tooltip %>
+						<button type='button' data-tooltip-target='tooltip-<%=field.tip_id%>', data-tooltip-placement='bottom'>
+					<% end %>
+						<%= field.content %>
+					<% if field.tip # show tooltip %>
+						</button>
+						<div id='tooltip-<%=field.tip_id%>' role='tooltip' class='<%=field.tip_cls%>'>
+							<%= field.tip %>
+						</div>
+					<% end %>
 				<% when "InputBoxField" %>
 					<% case field.kind %>
 					<% when "label-checkbox" %>

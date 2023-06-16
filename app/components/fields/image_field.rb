@@ -41,19 +41,20 @@ class ImageField < BaseField
 			end
 			content_tag(:span, content.html_safe, class: @fdata[:class])
 		else
-			if @fdata[:tip]
-				tag(:div) do
-					tag(:button, type: 'button', 'data-tooltip-target': @fdata[:tip_id], 'data-tooltip-placement': 'bottom') do
-						@image
-					end
-					tag(:div, id: "tooltip-#{@fdata[:tip_id]}", role: "tooltup", class: @fdata[:tip_cls]) do
-						@fdata[:tip]
-					end
-				end
-			else
-				@image
-			end
+			@image
 		end
+	end
+
+	def tip
+		@fdata[:tip]
+	end
+
+	def tip_id
+		@fdata[:tip_id]
+	end
+
+	def tip_cls
+		@fdata[:tip_cls]
 	end
 
 	private
@@ -79,7 +80,7 @@ class ImageField < BaseField
 
 		def set_tooltip
 			@fdata[:tip_id]  = SecureRandom.hex(5)
-			@fdata[:tip_cls] = "absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-lg shadow-sm opacity-0 tooltip"
+			@fdata[:tip_cls] = "absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-500 rounded-md shadow-sm opacity-50 tooltip m-1"
 		end
 
 		def set_image
