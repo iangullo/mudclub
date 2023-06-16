@@ -32,7 +32,7 @@ class ImageField < BaseField
 		@image = set_image
 	end
 
-	def render
+	def content
 		if self.kind == "icon-label"
 			if @fdata[:right]
 				content = "#{@fdata[:label]}&nbsp;#{@image}"
@@ -42,11 +42,13 @@ class ImageField < BaseField
 			content_tag(:span, content.html_safe, class: @fdata[:class])
 		else
 			if @fdata[:tip]
-				content_tag(button:, type: 'button', 'data-tooltip-target': @fdata[:tip_id], 'data-tooltip-placement': 'bottom') do
-					@image
-				end
-				content_tag(:div, id: "tooltip-#{@fdata[:tip_id]}", role: "tooltup", class: @fdata[:tip_cls]) do
-					@fdata[:tip]
+				tag(:div) do
+					tag(:button, type: 'button', 'data-tooltip-target': @fdata[:tip_id], 'data-tooltip-placement': 'bottom') do
+						@image
+					end
+					tag(:div, id: "tooltip-#{@fdata[:tip_id]}", role: "tooltup", class: @fdata[:tip_cls]) do
+						@fdata[:tip]
+					end
 				end
 			else
 				@image
@@ -82,7 +84,7 @@ class ImageField < BaseField
 
 		def set_image
 			img = (self.kind == "icon-label" ? @fdata[:icon] : @fdata[:value])
-			img = "/assets/#{img}" unless img.start_with?("/assets/")
+			img = "/assets/#{img}" unless img.start_with?("/assets/") || img.start_with?("data:")
 			if self.kind == "icon-label"
 				image_tag(img, size: @fdata[:size])
 			else

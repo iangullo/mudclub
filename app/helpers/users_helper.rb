@@ -65,10 +65,10 @@ module UsersHelper
 	# Fieldcomponents to display user roles
 	def user_role
 		res =[[
-			{kind: "icon", value: "logout.svg", tip: I18n.t("user.last_in"), tipid: "last"},
+			{kind: "icon", value: "login.svg", tip: I18n.t("user.last_in"), tipid: "last"},
 			{kind: "string", value: @user.last_login, cols: 3},
 			{kind: "gap"},
-			{kind: "contact-button", email: @user.person.email, phone: @user.person.phone, device: device}
+			button_field({kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device})
 		]]
 		#res << [		# removing cause IP registered is always local - from NGINX
 		#	{kind: "gap", size: 1},

@@ -72,7 +72,7 @@ class BaseButton
 
 	# A few accessor methods for data attributes
 	def kind
-		@bdata[:kind]
+		@bdata[:kind].presence
 	end
 
 	def icon
@@ -80,7 +80,7 @@ class BaseButton
 	end
 
 	def label
-		@bdata[:label].to_s
+		@bdata[:label].presence
 	end
 
 	def image
@@ -108,38 +108,38 @@ class BaseButton
 	end
 
 	def url
-		@bdata[:url]
+		@bdata[:url].presence
 	end
 
 	def confirm
-		@bdata[:confirm]
+		@bdata[:confirm].presence
 	end
 
 	def flip
-		@bdata[:flip]
+		@bdata[:flip].presence
 	end
 
 	def size
-		@bdata[:size]
+		@bdata[:size].presence
 	end
 
 	def action
-		@bdata[:action]
+		@bdata[:action].presence
 	end
 
 	def replace
-		@bdata[:replace]
+		@bdata[:replace].presence
 	end
 
 	def type
-		@bdata[:type]
+		@bdata[:type].presence
 	end
 
 	def data
-		@bdata[:data]
+		@bdata[:data].presence
 	end
 
 	def tab
-		@bdata[:tab]
+		@bdata[:tab].presence
 	end
 end

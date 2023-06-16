@@ -5,7 +5,7 @@
 				<%=tablecell_tag(field)%>
 				<% case field.class.to_s %>
 				<% when "AccordionField", "ButtonField", "GridField", "NestedField", "SearchField" %>
-					<% if field.kind=="contact-button" %>
+					<% if field.kind=="contact" %>
 						<% field.content.each do |btn| %>
 							<%= render btn %>
 						<% end %>
@@ -13,7 +13,7 @@
 						<%= render field.content %>
 					<% end %>
 				<% when "ImageField" %>
-					<%= field.render %>
+					<%= field.content %>
 				<% when "InputBoxField" %>
 					<% case field.kind %>
 					<% when "label-checkbox" %>

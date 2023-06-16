@@ -22,8 +22,6 @@
 # managing different kinds of content for each field:
 # => "button": a specific ButtonComponent - passed as argument item[:button]
 # => "dropdown-button": A DropDownButton definition
-# => "contact-button": mailto:, tel: and whatsapp: buttons for a person
-# => "upload-button": Specific button to upload a file
 # => "icon": :value (name of icon file in assets)
 # => "header-icon": :value (name of icon file in assets)
 # => "title": :value (bold text of title in orange colour)

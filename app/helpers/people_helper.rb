@@ -29,7 +29,7 @@ module PeopleHelper
 		res << [{kind: "label", value: @person.surname, cols: 4}]
 		res << [{kind: "string", value: @person.birthday, cols: 3}]
 		res << [{kind: "string", value: @person.dni, align: "center"}]
-		res.last << {kind: "contact-button", email: @person.email, phone: @person.phone, device: device}
+		res.last << button_field({kind: "contact", email: @person.email, phone: @person.phone, device: device})
 		res << []
 		res.last << {kind: "icon", value: "player.svg"} if @person.player_id > 0
 		res.last << {kind: "icon", value: "coach.svg", align: "left"} if @person.coach_id > 0

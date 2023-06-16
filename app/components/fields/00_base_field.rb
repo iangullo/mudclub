@@ -35,46 +35,46 @@ class BaseField
 
 	# accessors for key field data
 	def kind
-		@fdata[:kind]
+		@fdata[:kind].presence
 	end
 
 	def key
-		@fdata[:key]
+		@fdata[:key].presence
 	end
 
 	def value
-		@fdata[:value]
+		@fdata[:value].presence
 	end
 
 	def cols
-		@fdata[:cols]
+		@fdata[:cols].presence
 	end
 
 	def rows
-		@fdata[:rows]
+		@fdata[:rows].presence
 	end
 
 	def align
-		@fdata[:align]
+		@fdata[:align].presence
 	end
 
 	def icon
-		@fdata[:icon]
+		@fdata[:icon].presence
 	end
 
 	def size
-		@fdata[:size]
+		@fdata[:size].presence
 	end
 
 	def css_class
-		@fdata[:class]
+		@fdata[:class].presence
 	end
 
 	def i_class
-		@fdata[:i_class]
+		@fdata[:i_class].presence
 	end
 
 	def label
-		@fdata[:label]
+		@fdata[:label].presence
 	end
 end

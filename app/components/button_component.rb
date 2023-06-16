@@ -74,9 +74,9 @@ class ButtonComponent < ApplicationComponent
 		when "export", "import"; BulkButton.new(button)
 		when "jump", "link", "location"; JumpButton.new(button)
 		when "login", "menu"; MenuButton.new(button)
-		when "radio", "radio-button"; RadioButton.new(button, @form)	# radio-button is deprecated
+		when "radio"; RadioButton.new(button, @form)
 		when "save"; SaveButton.new(button)
-		when "upload", "upload-button"; UploadButton.new(button, @form) # upload-button is deprecated
+		when "upload"; UploadButton.new(button, @form)
 		end
 	end
 end

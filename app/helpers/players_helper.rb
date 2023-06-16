@@ -88,13 +88,13 @@ module PlayersHelper
 			]
 		end
 		res << [{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}]
-		res.last << button_field({kind: "contact-button", email: @player.person.email, phone: @player.person.phone, device: device})
+		res.last << button_field({kind: "contact", email: @player.person.email, phone: @player.person.phone, device: device})
 		unless @player.parents.empty?
 			res << [{kind: "label", value: "#{I18n.t("parent.many")}:"}]
 			@player.parents.each { |parent|
 				res << [
 					{kind: "string", value: parent.to_s},
-					button_field({kind: "contact-button", email: parent.person.email, phone: parent.person.phone, device: device})
+					button_field({kind: "contact", email: parent.person.email, phone: parent.person.phone, device: device})
 				]
 			}
 		end

@@ -20,7 +20,7 @@
 #
 # ButtonField class for FieldsComponents
 # conceived to serve as abstraction layer for all application Buttons.
-# manages @kind: "button", "dropdown-button", "radio-button" and "upload-button"
+# manages @kind: "button", "dropdown-button", "radio" and "upload"
 class ButtonField < BaseField
 	include ActionView::Helpers::TagHelper
 
@@ -28,21 +28,19 @@ class ButtonField < BaseField
 		super(field, form)
 		@fdata[:kind] = field[:button][:kind] || "button"
 		case self.kind
-		when "button"
-			@button = ButtonComponent.new(button: @fdata[:button], form:)
-		when "contact-button"
+		when "contact"
 			@button = set_contact_buttons
 		when "dropdown-button"
 			@button = DropdownComponent.new(button: @fdata)
-		when "upload-button", "radio-button"	# should eventually disappear
-			@button = ButtonComponent.new(button: @fdata, form:)
+		else
+			@button = ButtonComponent.new(button: @fdata[:button], form:)
 		end
 	end
 
 	# custom form setter - has to take care of the in-built objects
 	def form=(formobj)
 		@form = formobj
-		@button&.form = formobj unless self.kind == "contact-button"
+		@button&.form = formobj unless self.kind == "contact"
 	end
 
 	def content

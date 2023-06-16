@@ -34,7 +34,7 @@ module CoachesHelper
 		]
 		res << [
 			{kind: "gap", size: 1},
-			{kind: "contact-button", email: @coach.person.email, phone: @coach.person.phone, device: device}
+			button_field({kind: "contact", email: @coach.person.email, phone: @coach.person.phone, device: device})
 		]
 		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
 	end
