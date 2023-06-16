@@ -24,6 +24,7 @@ class ContactButton < BaseButton
 		super(button)
 		@bdata[:icon] ||= set_icon
 		@bdata[:url]    = set_url
+		@b_class += ["m-1", "inline-flex", "align-middle"]
 		@d_class += ["shadow"]
 		@d_class += set_colour(wait: "gray-100", light: "gray-300", text: "gray-700", high: "gray-700")
 		@i_class  = ["max-h-7", "min-h-5", "align-middle"]

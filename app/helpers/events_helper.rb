@@ -137,12 +137,12 @@ module EventsHelper
 		periods = @event.periods
 		res     = [[
 			{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2},
-			{kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"},
+			button_field({kind: "radio", key: :home, value: true, checked: @event.home}, align: "right", class: "align-center"),
 			{kind: "top-cell", value: @event.team.to_s},
 			{kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}
 		]]
 		res << [
-			{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center"},
+			button_field({kind: "radio", key: :home, value: false, checked: @event.home==false}, align: "right", class: "align-center"),
 			{kind: "text-box", key: :name, value: @event.name, placeholder: I18n.t("match.default_rival")},
 			{kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}
 		]

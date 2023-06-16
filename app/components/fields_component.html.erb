@@ -3,62 +3,67 @@
 		<tr class='fields-component-row'>
 			<% row.each do |field| %>
 				<%=tablecell_tag(field)%>
-				<% case field.kind %>
-				<% when "accordion", "button", "dropdown-button", "grid", "nested-form","search-combo", "radio-button", "upload-button" %>
-					<%= render field.content %>
-				<% when "date-box", "email-box", "hidden", "number-box", "password-box", "rich-text-area", "select-box", "text-area" %>
-					<%= field.content %>
-				<% when "contact" %>
-					<% field.content.each do |cbutton| %>
-					<%= render cbutton %>
+				<% case field.class.to_s %>
+				<% when "AccordionField", "ButtonField", "GridField", "NestedField", "SearchField" %>
+					<% if field.kind=="contact-button" %>
+						<% field.content.each do |btn| %>
+							<%= render btn %>
+						<% end %>
+					<% else %>
+						<%= render field.content %>
 					<% end %>
-				<% when "header-icon", "icon", "icon-label", "image" %>
+				<% when "ImageField" %>
 					<%= field.render %>
-				<% when "label-checkbox" %>
-					<div class='align-middle'>
-						<% if field.right %>
-							<label class='mr-1 font-semibold'/><%= field.label %>
-							<%= @form.check_box field.key, class: field.i_class %>
-						<% else %>
-							<%= @form.check_box field.key, class: field.i_class %>
-							<label class='ml-1 text-sm font-medium'/><%= field.label %>
+				<% when "InputBoxField" %>
+					<% case field.kind %>
+					<% when "label-checkbox" %>
+						<div class='align-middle'>
+							<% if field.right %>
+								<label class='mr-1 font-semibold'/><%= field.label %>
+								<%= @form.check_box field.key, class: field.i_class %>
+							<% else %>
+								<%= @form.check_box field.key, class: field.i_class %>
+								<label class='ml-1 text-sm font-medium'/><%= field.label %>
+							<% end %>
+						</div>
+					<% when "lines" %>
+						<% field.value.each do |line|%>
+							<%= line.to_s %>
+							<br>
 						<% end %>
-					</div>
-				<% when "lines" %>
-					<% field.value.each do |line|%>
-						<%= line.to_s %>
-						<br>
-					<% end %>
-				<% when "select-collection" %>
-					<select class='<%=field.i_class%>' name='<%="#{@form.object.class.to_s.downcase}[#{field.key}]"%>' id='<%=field.key%>'>
-						<% field.options.each do |opt| %>#{
-							<option value='<%=opt[:id]%>'<% if (opt[:id] ? opt[:id] : opt.id) == field.value%> selected='selected'<% end %>><%=opt[:name] ? opt[:name] : opt[:name]%></option>
-						<% end %>
-					</select>
-				<% when "select-load" %>
-					<fieldset class='contents' data-controller='search-params select-load'>
-						<select class='<%=field.i_class%>' name='<%="#{@form.object.class.to_s.downcase}[#{field.key}]"%>' id='<%=field.key%>' data-action='change->search-params#encode change->select-load#click' autocomplete='off'>
-							<% field.options.each do |opt| %>
-								<option value=<%="#{opt[1]}" + (field.hidden ? "|#{field.hidden}" : "")%><% if opt[1]==field.value%> selected='selected'<% end %>><%=opt[0]%></option>
+					<% when "select-collection" %>
+						<select class='<%=field.i_class%>' name='<%="#{@form.object.class.to_s.downcase}[#{field.key}]"%>' id='<%=field.key%>'>
+							<% field.options.each do |opt| %>#{
+								<option value='<%=opt[:id]%>'<% if (opt[:id] ? opt[:id] : opt.id) == field.value%> selected='selected'<% end %>><%=opt[:name] ? opt[:name] : opt[:name]%></option>
 							<% end %>
 						</select>
-						<a href='<%=field.url%>' hidden data-search-params-target='anchor' data-select-load-target='click' data-turbo-frame='<%=@form.field_id(field.key, :turbo_frame)%>'>GetDrill</a>
-					</fieldset>
-				<% when "text-box" %>
-					<% if field.options # autosearch text input %>
-						<%= @form.text_field field.key, list: "#{field.key}_list", value: field.value, placeholder: field.placeholder, size: field.size, rows: field.rows, class: field.i_class %>
-						<datalist id='<%=field.key%>_list'>
-							<% field.options.each do |opt| %>
-							<option><%=opt%></option>
-							<% end %>
-						</datalist>
-					<% else # regular text box%>
-						<%= @form.text_field field.key, value: field.value, placeholder: field.placeholder, size: field.size, rows: field.rows, class: field.i_class %>
+					<% when "select-load" %>
+						<fieldset class='contents' data-controller='search-params select-load'>
+							<select class='<%=field.i_class%>' name='<%="#{@form.object.class.to_s.downcase}[#{field.key}]"%>' id='<%=field.key%>' data-action='change->search-params#encode change->select-load#click' autocomplete='off'>
+								<% field.options.each do |opt| %>
+									<option value=<%="#{opt[1]}" + (field.hidden ? "|#{field.hidden}" : "")%><% if opt[1]==field.value%> selected='selected'<% end %>><%=opt[0]%></option>
+								<% end %>
+							</select>
+							<a href='<%=field.url%>' hidden data-search-params-target='anchor' data-select-load-target='click' data-turbo-frame='<%=@form.field_id(field.key, :turbo_frame)%>'>GetDrill</a>
+						</fieldset>
+					<% when "text-box" %>
+						<% if field.options # autosearch text input %>
+							<%= @form.text_field field.key, list: "#{field.key}_list", value: field.value, placeholder: field.placeholder, size: field.size, rows: field.rows, class: field.i_class %>
+							<datalist id='<%=field.key%>_list'>
+								<% field.options.each do |opt| %>
+								<option><%=opt%></option>
+								<% end %>
+							</datalist>
+						<% else # regular text box%>
+							<%= @form.text_field field.key, value: field.value, placeholder: field.placeholder, size: field.size, rows: field.rows, class: field.i_class %>
+						<% end %>
+					<% when "time-box" %>
+						<%= @form.number_field :hour, value: field.hour, in: 10..22, size: field.size ? field.size: 3, class: field.i_class %>
+						<strong>:</strong>
+						<%= @form.number_field :min, value: field.min, in: 0..45, step: 15, size: field.size ? field.size: 3, class: field.i_class %>
+					<% else %>
+						<%= field.content %>
 					<% end %>
-				<% when "time-box" %>
-					<%= @form.number_field :hour, value: field.hour, in: 10..22, size: field.size ? field.size: 3, class: field.i_class %>
-					<strong>:</strong>
-					<%= @form.number_field :min, value: field.min, in: 0..45, step: 15, size: field.size ? field.size: 3, class: field.i_class %>
 				<% else %>
 					<%= field.value %>
 				<% end %>

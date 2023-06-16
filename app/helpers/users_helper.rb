@@ -123,7 +123,7 @@ module UsersHelper
 
 	# return FieldComponents for form user avatar
 	def user_form_avatar
-		[[button_field({kind: "upload-button", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename})]]
+		[[button_field({kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename})]]
 	end
 
 	# return FieldComponents for form user personal data

@@ -61,7 +61,7 @@ module CoachesHelper
 	def coach_form_fields
 		[
 			[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active, cols: 4}],
-			[button_field({kind: "upload-button", key: :avatar, label: I18n.t("person.pic"), value: @coach.avatar.filename, cols: 3})]
+			[button_field({kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @coach.avatar.filename}, cols: 3)]
 		]
 	end
 

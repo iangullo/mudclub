@@ -25,7 +25,6 @@ class BulkButton < BaseButton
 		super(button)
 		@bdata[:label]   ||= set_label
 		@bdata[:icon]    ||= set_icon
-		@bdata[:confirm] ||= set_confirm
 		@bdata[:flip]    ||= true
 		@d_class += ["shadow", "font-bold"]
 		@d_class += set_colour(colour: "green")

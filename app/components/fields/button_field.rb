@@ -26,6 +26,7 @@ class ButtonField < BaseField
 
 	def initialize(field, form=nil)
 		super(field, form)
+		@fdata[:kind] = field[:button][:kind] || "button"
 		case self.kind
 		when "button"
 			@button = ButtonComponent.new(button: @fdata[:button], form:)
@@ -52,11 +53,11 @@ class ButtonField < BaseField
 		# create the buttons for a contact form
 		def set_contact_buttons
 			res = []
-			res << ButtonComponent.new(button: {kind: "email", value: @fdata[:email]}) if @fdata[:email]&.length > 0
-			if @fdata[:phone]&.length > 0
-				res << ButtonComponent.new(button: {kind: "call", value: @fdata[:phone]})
-				res << ButtonComponent.new(button: {kind: "call", value: @fdata[:phone]}) if @fdata[:device] == "mobile"
-				res << ButtonComponent.new(button: {kind: "whatsapp", value: @fdata[:phone], web: (@fdata[:device] == "desktop")})
+			fld = @fdata[:button]
+			res << ButtonComponent.new(button: {kind: "email", value: fld[:email]}) if fld[:email].present?
+			if fld[:phone].present?
+				res << ButtonComponent.new(button: {kind: "call", value: fld[:phone]}) if fld[:device] == "mobile"
+				res << ButtonComponent.new(button: {kind: "whatsapp", value: fld[:phone], web: (fld[:device] == "desktop")})
 			end
 			res
 		end
