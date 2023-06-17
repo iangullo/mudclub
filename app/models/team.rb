@@ -86,11 +86,11 @@ class Team < ApplicationRecord
 	end
 
 	def has_coach(c_id)
-		self.coaches.find_index { |c| c[:id]==c_id }
+		!self.coaches.find_index { |c| c[:id]==c_id }.nil?
 	end
 
 	def has_player(p_id)
-		self.players.find_index { |p| p[:id]==p_id }
+		!self.players.find_index { |p| p[:id]==p_id }.nil?
 	end
 
 	def general_def(month=0)
