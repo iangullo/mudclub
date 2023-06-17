@@ -29,7 +29,13 @@ class TopbarComponent < ApplicationComponent
 		@profcls   = 'align-middle rounded-full min-h-8 min-w-8 align-middle hover:bg-blue-700 hover:ring-4 hover:ring-blue-200 focus:ring-4 focus:ring-blue-200'
 		@logincls  = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
 		@u_logged  = user&.present?
+		@title  = nil
 		load_menus(user:, login:, logout:)
+	end
+
+	# set subtitle
+	def title=(title_fields)
+		@title = FieldsComponent.new(fields: title_fields)
 	end
 
 	private

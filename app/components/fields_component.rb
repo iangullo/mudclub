@@ -65,6 +65,13 @@ class FieldsComponent < ApplicationComponent
 		end
 	end
 
+	def session=(sessobj)
+		@session = sessobj
+		@fields.each do |field_row|
+			field_row.each { |field| field&.session = sessobj }
+		end
+	end
+
 	def render?
 		@fields.present?
 	end

@@ -24,8 +24,9 @@ class DrillsController < ApplicationController
 	# GET /drills or /drills.json
 	def index
 		if check_access(roles: [:admin, :coach])
-			@title  = create_fields(helpers.drill_title_fields(title: I18n.t("drill.many")))
-			@search = create_fields(helpers.drill_search_bar(search_in: drills_path))
+			title  = helpers.drill_title_fields(title: I18n.t("drill.many"))
+			title << helpers.drill_search_bar(search_in: drills_path).first
+			@topbar.title = title
 			@drills = filter!(Drill)
 			@grid   = create_grid(helpers.drill_grid(drills: @drills))
 		else
