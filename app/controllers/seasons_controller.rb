@@ -27,7 +27,7 @@ class SeasonsController < ApplicationController
 			@events = Event.short_term.for_season(@season).non_training
 			title   = helpers.season_title_fields(title: I18n.t("season.single"), cols: 2)
 			title << [
-				{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc), value: @season},
+				{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc), value: @season.name},
 				helpers.button_field({kind: "add", url: new_season_path, label: I18n.t("action.create"), frame: "modal"})
 			]
 			@fields = create_fields(title)
@@ -146,10 +146,9 @@ class SeasonsController < ApplicationController
 				@season = Season.search(params[:search])
 			elsif params[:id]
 				@season = Season.find_by_id(params[:id]) unless @season&.id==params[:id]
-			else
-				@season = Season.latest
-				@season = Season.last unless @season
 			end
+			@season = Season.latest
+			@season = Season.last unless @season
 		end
 
 		# prepare fields for new/edit season

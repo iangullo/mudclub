@@ -1,4 +1,5 @@
 <div id="combo-search-box">
+<% console %>
 	<%= form_with(url: @search[:url], method: :get, data: {controller: "search-form", search_text_target: "fsearch", turbo_frame: "search-results"} ) do |fsearch| %>
 		<table>
 			<tr class="inline-flex">
@@ -9,7 +10,7 @@
 					<% when "search-text" %>
 						<%=fsearch.text_field opt[:key], placeholder: opt[:placeholder], value: opt[:value], size: opt[:size], class: @search[:i_class], data: @s_action %>
 					<% when "search-select" %>
-						<%= fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) || opt[:value]), { include_blank: t("scope.all") }, { class: @search[:i_class] } %>
+						<%= fsearch.select opt[:key], options_for_select(opt[:options], session[opt[:key].to_sym].presence || opt[:value]), { include_blank: t("scope.all") }, { class: @search[:i_class] } %>
 					<% when "search-collection" %>
 						<%= fsearch.collection_select opt[:key], opt[:options], :id, :name, { selected: params[opt[:key].to_sym] || opt[:value] }, { class: @search[:i_class] } %>
 					<% when "hidden" %>
