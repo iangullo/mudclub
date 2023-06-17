@@ -67,7 +67,7 @@ class SeasonsController < ApplicationController
 			respond_to do |format|
 				if @season.save
 					a_desc = "#{I18n.t("season.created")} '#{@season.name}'"
-					register_action(:created, description:)
+					register_action(:created, a_desc)
 					format.html { redirect_to seasons_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: seasons_path }
 				else
