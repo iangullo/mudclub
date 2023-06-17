@@ -35,7 +35,7 @@ class DrillsController < ApplicationController
 
 	# GET /drills/1 or /drills/1.json
 	def show
-		if check_access(roles: [:admin, :coach], obj: @drill)
+		if check_access(roles: [:admin, :coach])
 			@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
 			@intro   = create_fields(helpers.drill_show_intro)
 			@explain = create_fields(helpers.drill_show_explain)
