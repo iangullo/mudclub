@@ -87,7 +87,6 @@ class SearchComponent < ApplicationComponent
 
 		def render_search_label(opt)
 			return ""	unless opt[:label]
-			binding.break
 			"<label for='#{opt[:key]}' class='#{LABEL_CLASS}'>#{opt[:label]}</label>"
 		end
 
