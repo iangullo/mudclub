@@ -39,8 +39,10 @@ class SearchComponent < ApplicationComponent
 		@search   = search
 		@session  = session
 		@s_action = {action: "input->search-form#search"}
-		search[:fields].each do |field|
-			field[:placeholder] = I18n.t("action.search") unless field[:placeholder] if field[:kind]=="search-text"
+		search[:fields].each do |s_row|
+			s_row.each do |field|
+				field[:placeholder] = I18n.t("action.search") unless field[:placeholder] if field[:kind]=="search-text"
+			end
 		end
 	end
 
@@ -63,12 +65,14 @@ class SearchComponent < ApplicationComponent
 				}
 			) do |fsearch|
 				content_tag(:table) do
-					content_tag(:tr, class: "inline-flex") do
-						render_search_fields(fsearch)
-						content_tag(:td) do
-							fsearch.submit("search.svg", height: 25, class: "align-middle mt-2", alt: t("action.search"))
+					fsearch.each do |s_row|
+						content_tag(:tr, class: "inline-flex") do
+							render_search_fields(fsearch)
 						end
-          end
+					end
+					content_tag(:td, rowspan: fsearch.size, class: "align-middle") do
+						fsearch.submit("search.svg", height: 25, class: "align-middle", alt: t("action.search"))
+					end
 				end
 			end
 		end
