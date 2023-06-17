@@ -142,14 +142,14 @@ class SeasonsController < ApplicationController
 		end
 
 		def set_season
-			if params[:search]
+			if params[:search].present?
 				@season = Season.search(params[:search])
-			elsif params[:id]
+			elsif params[:id].present?
 				@season = Season.find_by_id(params[:id]) unless @season&.id==params[:id]
 			else
 				@season = Season.latest
-				@season = Season.last unless @season
 			end
+			@season = Season.last unless @season
 		end
 
 		# prepare fields for new/edit season
