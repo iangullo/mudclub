@@ -92,7 +92,7 @@ class Season < ApplicationRecord
 
 	# return the latest season registered
 	def self.latest
-		last_date = Season.maximum('start_date')
+		last_date = Season.where("start_date <= ?", Date.today).maximum('start_date')
 		return last_date ? Season.real.where(start_date: last_date).first : nil
 	end
 
