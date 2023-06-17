@@ -33,9 +33,14 @@ class TopbarComponent < ApplicationComponent
 		load_menus(user:, login:, logout:)
 	end
 
-	# set subtitle
+	# set view title
 	def title=(title_fields)
 		@title = FieldsComponent.new(fields: title_fields)
+	end
+
+	# sometimes required for the view title
+	def form=(formobj)
+		@title.form = formobj
 	end
 
 	private

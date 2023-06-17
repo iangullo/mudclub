@@ -37,7 +37,7 @@ class DrillsController < ApplicationController
 	# GET /drills/1 or /drills/1.json
 	def show
 		if check_access(roles: [:admin, :coach])
-			@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
+			@topbar.title   = helpers.drill_show_title(title: I18n.t("drill.single"))
 			@intro   = create_fields(helpers.drill_show_intro)
 			@explain = create_fields(helpers.drill_show_explain)
 			@tail    = create_fields(helpers.drill_show_tail)
@@ -144,7 +144,7 @@ class DrillsController < ApplicationController
 	private
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(title:)
-			@title    = create_fields(helpers.drill_form_title(title:))
+			@topbar.title = helpers.drill_form_title(title:)
 			@playbook = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
 			@formdata = create_fields(helpers.drill_form_data)
 			@explain  = create_fields(helpers.drill_form_explain)

@@ -1,10 +1,9 @@
 <%= form_with model: @drill, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
-  <% @title.form    = form %>
+  <% @topbar.form   = form %>
   <% @playbook.form = form %>
   <% @formdata.form = form %>
   <% @explain.form  = form %>
   <% @formtail.form = form %>
-  <%= render @title %>
   <%= render @playbook %>
   <%= render @formdata %>
   <%= render @explain %>

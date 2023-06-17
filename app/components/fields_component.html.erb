@@ -35,11 +35,6 @@
 								<label class='ml-1 text-sm font-medium'/><%= field.label %>
 							<% end %>
 						</div>
-					<% when "lines" %>
-						<% field.value.each do |line|%>
-							<%= line.to_s %>
-							<br>
-						<% end %>
 					<% when "select-collection" %>
 						<select class='<%=field.i_class%>' name='<%="#{@form.object.class.to_s.downcase}[#{field.key}]"%>' id='<%=field.key%>'>
 							<% field.options.each do |opt| %>
@@ -74,7 +69,14 @@
 						<%= field.content %>
 					<% end %>
 				<% else %>
-					<%= field.value %>
+					<% if field.kind == "lines" %>
+						<% field.value.each do |line|%>
+							<%= line.to_s %>
+							<br>
+						<% end %>
+					<% else %>
+						<%= field.value %>
+					<% end %>
 				<% end %>
 			<% end %>
 		</tr>

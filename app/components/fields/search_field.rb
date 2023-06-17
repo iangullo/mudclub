@@ -33,7 +33,7 @@ class SearchField < BaseField
 		@fdata[:align] ||= "left"
 		@fdata[:size]  ||= 16
 		@fdata[:lines] ||= 1
-		@fdata[:fields]  = [[{kind: @fdata[:kind], key: @fdata[:key].to_sym, label: @fdata[:label], options: @fdata[:options], value: @fdata[:value]}]] unless @fdata[:kind] == "search-combo"
+		@fdata[:fields]  = [{kind: @fdata[:kind], key: @fdata[:key].to_sym, label: @fdata[:label], options: @fdata[:options], value: @fdata[:value]}] unless @fdata[:kind] == "search-combo"
 		@fdata[:kind]    = "search-combo"
 		@content         = SearchComponent.new(search: @fdata, session:)
 	end

@@ -39,10 +39,8 @@ class SearchComponent < ApplicationComponent
 		@search   = search
 		@session  = session
 		@s_action = {action: "input->search-form#search"}
-		search[:fields].each do |s_row|
-			s_row.each do |field|
-				field[:placeholder] = I18n.t("action.search") unless field[:placeholder] if field[:kind]=="search-text"
-			end
+		search[:fields].each do |field|
+			field[:placeholder] = I18n.t("action.search") unless field[:placeholder] if field[:kind]=="search-text"
 		end
 	end
 
