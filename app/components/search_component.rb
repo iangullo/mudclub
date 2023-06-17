@@ -66,7 +66,7 @@ class SearchComponent < ApplicationComponent
 					content_tag(:tr, class: "inline-flex") do
 						render_search_fields(fsearch)
 						content_tag(:td) do
-							fsearch.submit("search.svg", height: 25, class: "align-middle", alt: t("action.search"))
+							fsearch.submit("search.svg", height: 25, class: "align-middle mt-2", alt: t("action.search"))
 						end
           end
 				end
@@ -83,6 +83,7 @@ class SearchComponent < ApplicationComponent
 
 		def render_search_label(opt)
 			return ""	unless opt[:label]
+			binding.break
 			"<label for='#{opt[:key]}' class='#{LABEL_CLASS}'>#{opt[:label]}</label>"
 		end
 

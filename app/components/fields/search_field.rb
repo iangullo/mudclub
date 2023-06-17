@@ -28,6 +28,7 @@ class SearchField < BaseField
 		super(field)
 		i_class = [INPUT_CLASS]
 		i_class << ((@fdata[:label] || @fdata[:fields]) ? "mt-3" : "align-middle")
+		@fdata[:class]   = "inline-flex rounded-md border-2 border-gray-300"
 		@fdata[:i_class] = i_class.join(" ")
 		@fdata[:align] ||= "left"
 		@fdata[:size]  ||= 16

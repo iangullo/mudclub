@@ -4,7 +4,7 @@
 			<tr class="inline-flex">
 				<% @search[:fields].each do |opt| %>
 				<td class="relative">
-					<% if opt[:label] %><label for="<%=opt[:key]%>" class="<%=@search[:l_class]%>"><%=opt[:label]%></label><% end %>
+					<% if opt[:label] %><label for="<%=opt[:key]%>" class="<%=LABEL_CLASS%>"><%=opt[:label]%></label><% end %>
 					<% case opt[:kind]%>
 					<% when "search-text" %>
 						<%=fsearch.text_field opt[:key], placeholder: opt[:placeholder], value: opt[:value], size: opt[:size], class: @search[:i_class], data: @s_action %>
@@ -17,7 +17,7 @@
 					<% end %>
 				</td>
 				<% end %>
-				<td><%=image_submit_tag "search.svg", height: 25, class: "align-middle", alt: t("action.search") %></td>
+				<td><%=image_submit_tag "search.svg", height: 25, class: "align-middle mt-2", alt: t("action.search") %></td>
 			</tr>
 		</table>
 	<% end %>
