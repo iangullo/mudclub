@@ -139,7 +139,7 @@ class InputBoxField < BaseField
 		# calculate size of box
 		def set_box_size
 			unless @fdata[:size]
-				case @fdata[kind]
+				case @fdata[:kind]
 				when "time-box", "number-box"
 					box_size = 5
 				else
