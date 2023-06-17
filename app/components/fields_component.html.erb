@@ -42,8 +42,8 @@
 						<% end %>
 					<% when "select-collection" %>
 						<select class='<%=field.i_class%>' name='<%="#{@form.object.class.to_s.downcase}[#{field.key}]"%>' id='<%=field.key%>'>
-							<% field.options.each do |opt| %>#{
-								<option value='<%=opt[:id]%>'<% if (opt[:id] ? opt[:id] : opt.id) == field.value%> selected='selected'<% end %>><%=opt[:name] ? opt[:name] : opt[:name]%></option>
+							<% field.options.each do |opt| %>
+								<option value='<%=opt[:id]%>'<% if (opt[:id] ? opt[:id] : opt.id) == field.value%> selected='selected'<% end %>><%=opt[:name] ? opt[:name] : opt.name%></option>
 							<% end %>
 						</select>
 					<% when "select-load" %>

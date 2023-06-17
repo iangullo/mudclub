@@ -57,7 +57,7 @@ class InputBoxField < BaseField
 			@form.select self.key, self.options, {selected: self.value ? self.value : self.options.first}, class: self.i_class
 		when "select-checkboxes"
 			@form.collection_check_boxes self.key, self.options, :id, :to_s do |obj|
-				obj.check_box({class: 'rounded bg-gray-200 text-blue-700'}) + " " + obj.object.to_s
+				obj.check_box({class: 'rounded bg-gray-200 text-blue-700'}) + " " + obj.object.to_s + "<br>".html_safe
 			end
 		when "text-area"
 			@form.text_area self.key, value: self.value, cols: self.size, rows: self.lines, class: self.i_class

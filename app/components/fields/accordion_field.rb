@@ -24,7 +24,7 @@
 class AccordionField < BaseField
 	def initialize(field, form=nil, session=nil)
 		super(field, form, session)
-		@content = GridComponent.new(grid: @value, form: @form, session: @session)
+		@content = AccordionComponent.new(field)
 	end
 
 	def form=(formobj)
