@@ -65,10 +65,10 @@ module UsersHelper
 	# Fieldcomponents to display user roles
 	def user_role
 		res =[[
-			{kind: "icon", value: "logout.svg", tip: I18n.t("user.last_in"), align: "right"},
+			{kind: "icon", value: "logout.svg", tip: I18n.t("user.last_in"), tipid: "last"},
 			{kind: "string", value: @user.last_login, cols: 3},
 			{kind: "gap"},
-			button_field({kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device})
+			{kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device}
 		]]
 		#res << [		# removing cause IP registered is always local - from NGINX
 		#	{kind: "gap", size: 1},
@@ -123,7 +123,7 @@ module UsersHelper
 
 	# return FieldComponents for form user avatar
 	def user_form_avatar
-		[[button_field({kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename})]]
+		[[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
 	end
 
 	# return FieldComponents for form user personal data

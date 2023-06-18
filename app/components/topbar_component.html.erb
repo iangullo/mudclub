@@ -1,6 +1,6 @@
 <!-- Navbar goes here -->
-<nav class="sticky top-0 z-10 w-full h-15 bg-blue-900 text-gray-300">
-	<div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 z-50">
+<nav class="sticky top-0 z-50 w-full h-15 bg-blue-900 text-gray-300">
+	<div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
 		<div class="relative flex items-center justify-between h-16">
 			<!-- Mobile menu, show/hide based on menu state. -->
 			<div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -50,13 +50,4 @@
 			</div>
 		</div>
 	</div>
-	<!-- view title bar here -->
-	<% if @title %>
-	<% @title.session = session %>
-	<div class="sticky top-15 z-10 w-full bg-white text-black">
-		<div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 flex items-center justify-center flex-1">
-			<%= render @title %>
-		</div>
-	</div>
-	<% end %>
 </nav>

@@ -21,7 +21,7 @@ module DrillsHelper
 	def drill_search_bar(search_in:, task_id: nil, scratch: nil)
 		session.delete('drill_filters') if scratch
 		fields = [
-			{kind: "search-text", key: :name, label: "#{I18n.t("drill.name")}:", placeholder: I18n.t("drill.name"), value: session.dig('drill_filters', 'name'), size: 10},
+			{kind: "search-text", key: :name, label: "#{I18n.t("person.name_a")}:", placeholder: I18n.t("drill.name"), value: session.dig('drill_filters', 'name'), size: 10},
 			{kind: "search-select", key: :kind_id, label: "#{I18n.t("kind.single")}:", value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)},
 			{kind: "search-select", key: :skill_id, label: "#{I18n.t("skill.single")}:", value: session.dig('drill_filters', 'skill_id'), options: Skill.real.pluck(:concept, :id)}
 		]
@@ -58,7 +58,7 @@ module DrillsHelper
 		res  = [
 			[
 				{kind: "label", value: I18n.t("target.many")},
-				{kind: "lines", class: "align-top", value: @drill.print_targets}
+				{kind: "lines", class: "align-top", value: @drill.drill_targets}
 			]
 		]
 		res << [
@@ -114,7 +114,7 @@ module DrillsHelper
 
 	# return title FieldComponent definition for edit/new
 	def drill_form_playbook(playbook:)
-		[[button_field({kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: playbook.filename})]]
+		[[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: playbook.filename}]]
 	end
 
 	# return title FieldComponent definition for edit/new

@@ -63,7 +63,7 @@ class Team < ApplicationRecord
 					aux
 			end
 		end
-		(self.players + aux).uniq
+		aux
 	end
 
 	# Get a list of players that are not members but are authorised to play in this team
@@ -86,11 +86,11 @@ class Team < ApplicationRecord
 	end
 
 	def has_coach(c_id)
-		!self.coaches.find_index { |c| c[:id]==c_id }.nil?
+		self.coaches.find_index { |c| c[:id]==c_id }
 	end
 
 	def has_player(p_id)
-		!self.players.find_index { |p| p[:id]==p_id }.nil?
+		self.players.find_index { |p| p[:id]==p_id }
 	end
 
 	def general_def(month=0)

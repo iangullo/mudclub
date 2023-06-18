@@ -1,11 +1,12 @@
 <% unless @event.rest? %>
 	<table>
+		<tr><td><%= render @title %></td></tr>
 		<tr><td><%= render @fields %></td></tr>
 		<tr><td><%= render @submit %></td></tr>
 	</table>
 <% else %>
 	<%= render ModalComponent.new do %>
- 		<%= render @topbar.title %>
+ 		<%= render @title %>
  		<%= render @submit %>
 	<% end %>
 <% end %>

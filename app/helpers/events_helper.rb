@@ -137,12 +137,12 @@ module EventsHelper
 		periods = @event.periods
 		res     = [[
 			{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2},
-			button_field({kind: "radio", key: :home, value: true, checked: @event.home}, align: "right", class: "align-center"),
+			{kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"},
 			{kind: "top-cell", value: @event.team.to_s},
 			{kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}
 		]]
 		res << [
-			button_field({kind: "radio", key: :home, value: false, checked: @event.home==false}, align: "right", class: "align-center"),
+			{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center"},
 			{kind: "text-box", key: :name, value: @event.name, placeholder: I18n.t("match.default_rival")},
 			{kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}
 		]
@@ -444,7 +444,7 @@ module EventsHelper
 
 		# return the dropdown element to access workload charts
 		def workload_button(cols: 2, align: "center")
-			res = button_field({ kind: "dropdown",
+			res = { kind: "dropdown", align:, cols:,
 				button: {kind: "link", icon: "pie.svg", label: I18n.t("train.workload"), name: "show-chart",
 					options: [
 						{label: I18n.t("kind.single"), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
@@ -452,7 +452,7 @@ module EventsHelper
 						{label: I18n.t("skill.single"), url: load_chart_event_path(name: "skill"), data: {turbo_frame: :modal}}
 					]
 				}
-			}, align:, cols:)
+			}
 		end
 
 		# dropdown button definition to create a new Event

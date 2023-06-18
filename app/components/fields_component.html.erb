@@ -1,82 +1,124 @@
-<table class='fields-component'>
+<table>
 	<% @fields.each do |row| %>
-		<tr class='fields-component-row'>
-			<% row.each do |field| %>
-				<%=tablecell_tag(field)%>
-				<% case field.class.to_s %>
-				<% when "AccordionField", "ButtonField", "GridField", "NestedField", "SearchField" %>
-					<% if field.kind=="contact" %>
-						<% field.content.each do |btn| %>
-							<%= render btn %>
-						<% end %>
-					<% else %>
-						<%= render field.content %>
+		<tr>
+			<% row.each do |item| %>
+				<%=item[:cell]%>
+				<% case item[:kind] %>
+				<% when "accordion" %>
+					<%= render AccordionComponent.new(accordion: item) %>
+				<% when "button" %>
+					<%= render item[:value] %>
+				<% when "contact" %>
+					<%= render item[:mail] if item[:mail] %>
+					<%= render item[:call] if item[:call] %>
+					<%= render item[:whatsapp] if item[:whatsapp] %>
+				<% when "date-box" %>
+					<%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
+				<% when "dropdown" %>
+					<%= render DropdownComponent.new(button: item[:button]) %>
+				<% when "email-box" %>
+					<%= @form.email_field item[:key], placeholder: item[:placeholder], size: item[:size], class: item[:i_class] %>
+				<% when "gap" %>
+					<% item[:size].times do %>
+						&nbsp;
 					<% end %>
-				<% when "ImageField" %>
-					<% if field.tip # show tooltip %>
-						<button type='button' data-tooltip-target='tooltip-<%=field.tip_id%>', data-tooltip-placement='bottom'>
+				<% when "grid" %>
+					<%= render GridComponent.new(grid: item[:value], form: @form) %>
+				<% when "hidden" # hidden form field %>
+					<%= @form.hidden_field(item[:key].to_sym, value: item[:value]) %>
+				<% when "header-icon", "icon" %>
+					<% if item[:tip] # show tooltip %>
+						<button data-tooltip-target="tooltip-<%=item[:tipid]%>" data-tooltip-placement="bottom" type="button">
 					<% end %>
-						<%= field.content %>
-					<% if field.tip # show tooltip %>
+					<%= image_tag item[:value], size: item[:size], class: item[:class] %>
+					<% if item[:tip] # show tooltip %>
 						</button>
-						<div id='tooltip-<%=field.tip_id%>' role='tooltip' class='<%=field.tip_cls%>'>
-							<%= field.tip %>
+						<div id="tooltip-<%=item[:tipid]%>" role="tooltip" class="absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-lg shadow-sm opacity-0 tooltip">
+							<%=item[:tip]%>
 						</div>
 					<% end %>
-				<% when "InputBoxField" %>
-					<% case field.kind %>
-					<% when "label-checkbox" %>
-						<div class='align-middle'>
-							<% if field.right %>
-								<label class='mr-1 font-semibold'/><%= field.label %>
-								<%= @form.check_box field.key, class: field.i_class %>
-							<% else %>
-								<%= @form.check_box field.key, class: field.i_class %>
-								<label class='ml-1 text-sm font-medium'/><%= field.label %>
-							<% end %>
-						</div>
-					<% when "select-collection" %>
-						<select class='<%=field.i_class%>' name='<%="#{@form.object.class.to_s.downcase}[#{field.key}]"%>' id='<%=field.key%>'>
-							<% field.options.each do |opt| %>
-								<option value='<%=opt[:id]%>'<% if (opt[:id] ? opt[:id] : opt.id) == field.value%> selected='selected'<% end %>><%=opt[:name] ? opt[:name] : opt.name%></option>
+				<% when "icon-label" %>
+					<% if item[:right] %>
+						<%= item[:label] %>&nbsp;<%= image_tag(item[:icon], size: item[:size]) %>
+					<% else %>
+						<%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:label] %>
+					<% end %>
+				<% when "label-checkbox" %>
+					<div class="align-middle">
+						<% if item[:right] %>
+							<label class="mr-1 font-semibold"/><%= item[:label] %>
+							<%= @form.check_box item[:key], class: item[:i_class] %>
+						<% else %>
+							<%= @form.check_box item[:key], class: item[:i_class] %>
+							<label class="ml-1 text-sm font-medium"/><%= item[:label] %>
+						<% end %>
+					</div>
+				<% when "lines" %>
+					<% item[:value].each do |line|%>
+						<%= line.to_s %>
+						<br>
+					<% end %>
+				<% when "nested-form" %>
+					<%= render NestedComponent.new(model: item[:model], key: item[:key], form: @form, child: item[:child], row: item[:row], filter: item[:filter], btn_add: item[:btn_add]) %>
+				<% when "number-box" %>
+					<%= @form.number_field item[:key], value: item[:value], size: item[:size] ? item[:size]: 2, min: item[:min], max: item[:max], step: item[:step], class: item[:i_class] %>
+					<%= item[:units].to_s %>
+				<% when "password-box" %>
+					<%= @form.password_field item[:key], placeholder: item[:placeholder], class: item[:i_class], size: item[:size] %>
+				<% when "radio-button" %>
+					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
+				<% when "rich-text-area" %>
+					<%= @form.rich_text_area item[:key], class: item[:i_class] %>
+				<% when "search-combo" %>
+					<%= render SearchComboComponent.new(search: item) %>
+				<% when "select-box" %>
+					<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: item[:i_class] %>
+				<% when "select-checkboxes" %>
+					<% @form.collection_check_boxes item[:key], item[:options], :id, :to_s do |obj| %>
+						<%=obj.check_box({class: "rounded bg-gray-200 text-blue-700"})%> <%=obj.object.to_s%><br>
+					<% end %>
+				<% when "select-collection" %>
+					<select class="<%=item[:i_class]%>" name="<%=@form.object.class.to_s.downcase + "[#{item[:key]}]"%>" id="<%=item[:key]%>">
+						<% item[:options].each do |opt| %>
+							<option value="<%=opt[:id]%>"<% if (opt[:id] ? opt[:id] : opt.id) == item[:value]%> selected="selected"<% end %>><%=opt[:name] ? opt[:name] : opt.name%></option>
+						<% end %>
+					</select>
+				<% when "select-load" %>
+					<fieldset class="contents" data-controller="search-params select-load">
+						<select class="<%=item[:i_class]%>" name="<%=@form.object.class.to_s.downcase + "[#{item[:key]}]"%>" id="<%=item[:key]%>" data-action="change->search-params#encode change->select-load#click" autocomplete="off">
+							<% item[:options].each do |opt| %>
+								<option value=<%="#{opt[1]}" + (item[:hidden] ? "|#{item[:hidden]}" : "")%><% if opt[1]==item[:value]%> selected="selected"<% end %>><%=opt[0]%></option>
 							<% end %>
 						</select>
-					<% when "select-load" %>
-						<fieldset class='contents' data-controller='search-params select-load'>
-							<select class='<%=field.i_class%>' name='<%="#{@form.object.class.to_s.downcase}[#{field.key}]"%>' id='<%=field.key%>' data-action='change->search-params#encode change->select-load#click' autocomplete='off'>
-								<% field.options.each do |opt| %>
-									<option value=<%="#{opt[1]}" + (field.hidden ? "|#{field.hidden}" : "")%><% if opt[1]==field.value%> selected='selected'<% end %>><%=opt[0]%></option>
-								<% end %>
-							</select>
-							<a href='<%=field.url%>' hidden data-search-params-target='anchor' data-select-load-target='click' data-turbo-frame='<%=@form.field_id(field.key, :turbo_frame)%>'>GetDrill</a>
-						</fieldset>
-					<% when "text-box" %>
-						<% if field.options # autosearch text input %>
-							<%= @form.text_field field.key, list: "#{field.key}_list", value: field.value, placeholder: field.placeholder, size: field.size, rows: field.rows, class: field.i_class %>
-							<datalist id='<%=field.key%>_list'>
-								<% field.options.each do |opt| %>
-								<option><%=opt%></option>
-								<% end %>
-							</datalist>
-						<% else # regular text box%>
-							<%= @form.text_field field.key, value: field.value, placeholder: field.placeholder, size: field.size, rows: field.rows, class: field.i_class %>
-						<% end %>
-					<% when "time-box" %>
-						<%= @form.number_field :hour, value: field.hour, in: 10..22, size: field.size ? field.size: 3, class: field.i_class %>
-						<strong>:</strong>
-						<%= @form.number_field :min, value: field.min, in: 0..45, step: 15, size: field.size ? field.size: 3, class: field.i_class %>
-					<% else %>
-						<%= field.content %>
+						<a href="<%=item[:url]%>" hidden data-search-params-target="anchor" data-select-load-target="click" data-turbo-frame="<%=@form.field_id(item[:key], :turbo_frame)%>">GetDrill</a>
+					</fieldset>
+				<% when "text-area" %>
+					<%= @form.text_area item[:key], value: item[:value], cols: item[:size], rows: item[:lines], class: item[:i_class] %>
+				<% when "text-box" %>
+					<% if item[:options] # autosearch text input %>
+						<%= @form.text_field item[:key], list: "#{item[:key]}_list", value: item[:value], placeholder: item[:placeholder], size: item[:size], rows: item[:rows], class: item[:i_class] %>
+						<datalist id="<%=item[:key]%>_list">
+							<% item[:options].each do |opt| %>
+							<option><%=opt%></option>
+							<% end %>
+						</datalist>
+					<% else # regular text box%>
+						<%= @form.text_field item[:key], value: item[:value], placeholder: item[:placeholder], size: item[:size], rows: item[:rows], class: item[:i_class] %>
 					<% end %>
+				<% when "time-box" %>
+					<%= @form.number_field :hour, value: item[:hour], in: 10..22, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
+					<strong>:</strong>
+					<%= @form.number_field :min, value: item[:min], in: 0..45, step: 15, size: item[:size] ? item[:size]: 3, class: item[:i_class] %>
+				<% when "upload" %>
+					<div id="upload-file" class="<%=item[:class]%>">
+						<%= @form.file_field item[:key], id: "upload-btn", direct_upload: true, class: "hidden" %>
+						<label for="upload-btn" class="<%=item[:i_class]%>">
+							<%= image_tag(item[:icon], size: "25x25") if item[:icon] %>&nbsp;<%=item[:label]%>
+						</label>
+						<span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t("status.no_file") %></span>
+					</div>
 				<% else %>
-					<% if field.kind == "lines" %>
-						<% field.value&.each do |line|%>
-							<%= line.to_s %>
-							<br>
-						<% end %>
-					<% else %>
-						<%= field.value %>
-					<% end %>
+					<%= item[:value] %>
 				<% end %>
 			<% end %>
 		</tr>

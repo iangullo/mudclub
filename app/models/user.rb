@@ -17,7 +17,6 @@
 # contact email - iangullo@gmail.com.
 #
 class User < ApplicationRecord
-	include PersonDataManagement
 	before_destroy :unlink
 	# Include default devise modules. Others available are:
 	# :confirmable, :lockable, :timeoutable, :registerable and :omniauthable
@@ -66,7 +65,33 @@ class User < ApplicationRecord
 		end
 	end
 
-	# return attached avatar (or default user icon)
+	# checks if it exists in the collection before adding it
+	# returns: reloads self if it exists in the database already
+	# 	   'nil' if it needs to be created.
+	def exists?
+		p = User.where(email: self.email).first
+		if p
+			self.id = p.id
+			self.reload
+		else
+			nil
+		end
+	end
+
+	# check if associated person exists in database already
+	# reloads person if it does
+	def is_duplicate?
+		if self.person.exists? # check if it exists in database
+			if self.person.user_id > 0 # user already exists
+				true
+			else	# found but mapped to dummy placeholder user
+				false
+			end
+		else	# not found
+			false
+		end
+	end
+
 	def picture
 		self.avatar.attached? ? self.avatar : "user.svg"
 	end
@@ -111,27 +136,36 @@ class User < ApplicationRecord
 		self.last_sign_in_ip
 	end
 
-	# atempt to fetch a User using form input hash
-	def self.fetch(f_data)
-		self.new.fetch_obj(f_data)
+	#ensures a person is well bound to the user - expects both to be persisted
+	def clean_bind
+		self.person_id = self.person.id if self.person_id != self.person.id
+		self.save if self.changed?
+		self.person.bind_parent(o_class: "User", o_id: self.id)
 	end
 
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
-		self.rebuild_obj_person(f_data)
-		if self.person
-			self.email                 = f_data[:email] || self.person.email
-			self.role                  = f_data[:role] ? f_data[:role] : :user
-			self.locale                = f_data[:locale] if f_data[:locale]
-			self.password              = f_data[:password] if f_data[:password]
-			self.password_confirmation = f_data[:password_confirmation] if f_data[:password_confirmation]
-			if self.player? and self.person.player_id.to_i==0 # Bound to a player?
-				self.person.player = Player.create(active: true, number: 0, person_id: self.person_id)
-			end
-			if self.coach? and self.person.coach_id.to_i==0 # need to create a Coach?
-				self.person.coach = Coach.create(active: true, person_id: self.person_id)
-			end
+		p_data        = f_data[:person_attributes]
+		self.email    = f_data[:email] ? f_data[:email] : p_data[:email]
+		self.role     = f_data[:role] ? f_data[:role] : :user
+		self.locale   = f_data[:locale] if f_data[:locale]
+		self.password = f_data[:password] if f_data[:password]
+		self.password_confirmation = f_data[:password_confirmation] if f_data[:password_confirmation]
+		if self.person_id.to_i==0 # not bound to a person yet?
+			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
+		else # person is linked, get it
+			self.person.reload
+		end
+		self.person.rebuild(p_data) # rebuild from passed data
+		self.person.user_id = self.id if self.id
+		self.person.save unless self.person.id
+		self.person_id = self.person.id
+		if self.player? and self.person.player_id.to_i==0 # Bound to a player?
+			self.person.player = Player.new(active: true, number: 0, person_id: self.person_id)
+		end
+		if self.coach? and self.person.coach_id.to_i==0 # need to create a Coach?
+			self.person.coach = Coach.new(active: true, person_id: self.person_id)
 		end
 	end
 

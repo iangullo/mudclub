@@ -28,7 +28,7 @@ class PeopleController < ApplicationController
 			@people = get_people
 			title   = helpers.person_title_fields(title: I18n.t("person.many"))
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('people_filters','search'), url: people_path}]
-			@topbar.title = title
+			@fields = create_fields(title)
 			@grid   = create_grid(helpers.person_grid)
 			respond_to do |format|
 				format.xlsx {

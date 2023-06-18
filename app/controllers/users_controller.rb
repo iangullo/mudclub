@@ -28,7 +28,7 @@ class UsersController < ApplicationController
 			@users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
 			title  = helpers.user_title_fields(I18n.t("user.many"))
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
-			@topbar.title = title
+			@title = create_fields(title)
 			@grid  = create_grid(helpers.user_grid)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -39,7 +39,7 @@ class UsersController < ApplicationController
 	# GET /users/1.json
 	def show
 		if check_access(roles: [:admin], obj: @user)
-			@topbar.title = helpers.user_show_fields
+			@title  = create_fields(helpers.user_show_fields)
 			@role   = create_fields(helpers.user_role)
 			@grid   = create_grid(helpers.team_grid(teams: @user.teams))
 			@submit = create_submit(close: "back", close_return: :back, submit: edit_user_path(@user), frame: "modal")
@@ -74,9 +74,13 @@ class UsersController < ApplicationController
 			respond_to do |format|
 				@user = User.new
 				@user.rebuild(user_params)	# build user
-				if @user.modified? then
+				if @user.is_duplicate? then
+					format.html { redirect_to @user, notice: helpers.flash_message("#{I18n.t("user.duplicate")} '#{@user.s_name}'"), data: {turbo_action: "replace"}}
+					format.json { render :show,  :created, location: @user }
+				else
+					@user.person.save if @user.person.changed?
 					if @user.save
-						@user.bind_person(save_changes: true) # ensure binding is correct
+						@user.clean_bind	# ensure person is well bound
 						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to users_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
@@ -86,9 +90,6 @@ class UsersController < ApplicationController
 						format.html { render :new, notice: helpers.flash_message("#{@user.errors}","error") }
 						format.json { render json: @user.errors, status: :unprocessable_entity }
 					end
-				else	# no changes to be made
-					format.html { redirect_to @user, notice: helpers.flash_message("#{I18n.t("user.duplicate")} '#{@user.s_name}'"), data: {turbo_action: "replace"}}
-					format.json { render :show,  :created, location: @user }
 				end
 			end
 		else
@@ -106,9 +107,9 @@ class UsersController < ApplicationController
 					params[:user].delete(:password_confirmation)
 				end
 				@user.rebuild(user_params)	# rebuild user
-				if @user.modified?
+				if @user.changed?
+					@user.person.save if @user.person.changed?
 					if @user.save
-						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.updated")} '#{@user.s_name}'"
 						register_action(:updated, a_desc)
 						format.html { redirect_to user_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
@@ -118,7 +119,7 @@ class UsersController < ApplicationController
 						format.html { render :edit }
 						format.json { render json: @user.errors, status: :unprocessable_entity }
 					end
-				else	# no changes made
+				else
 					format.html { redirect_to user_path, notice: no_data_notice, data: {turbo_action: "replace"} }
 					format.json { render :show, status: :ok, location: user_path }
 				end

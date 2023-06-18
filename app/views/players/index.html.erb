@@ -1,4 +1,5 @@
 <div id="players-index">
+	<%= render @fields %>
 	<%= turbo_frame_tag "search-results" do %>
 		<%= render @grid %>
 	<% end %>

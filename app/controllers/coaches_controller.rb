@@ -28,8 +28,8 @@ class CoachesController < ApplicationController
 			@coaches = get_coaches
 			title    = helpers.coach_title(title: I18n.t("coach.many"))
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
-			@topbar.title  = title
-			@grid          = create_grid(helpers.coach_grid)
+			@fields = create_fields(title)
+			@grid   = create_grid(helpers.coach_grid)
 			respond_to do |format|
 				format.xlsx {
 					a_desc = "#{I18n.t("coach.export")} 'coaches.xlsx'"
@@ -82,9 +82,13 @@ class CoachesController < ApplicationController
 			respond_to do |format|
 				@coach = Coach.new
 				@coach.rebuild(coach_params)	# rebuild coach
-				if @coach.modified? then	# it's a new coach
+				if @coach.is_duplicate? then
+					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
+					format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
+				else
+					@coach.person.save if @coach.person.changed?
 					if @coach.save # coach saved to database
-						@coach.bind_person(save_changes: true) # ensure binding is correct
+						@coach.clean_bind	# ensure person is well bound
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
@@ -94,9 +98,6 @@ class CoachesController < ApplicationController
 						format.html { render :new }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
-				else	# duplicate coach
-					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
-					format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
 				end
 			end
 		else
@@ -110,9 +111,9 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:admin], obj: @coach)
 			respond_to do |format|
 				@coach.rebuild(coach_params)
-				if @coach.modified?	# coach has been edited
+				if @coach.changed?
+					@coach.person.save if @coach.person.changed?
 					if @coach.save
-						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
 						register_action(:updated, a_desc)
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
@@ -122,7 +123,7 @@ class CoachesController < ApplicationController
 						format.html { render :edit }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
-				else	# no changes made
+				else
 					retlnk = params[:retlnk] ? params[:retlnk] : coaches_path
 					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
 					format.json { render :index, status: :ok, location: retlnk }

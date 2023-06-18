@@ -22,9 +22,9 @@ class CategoriesController < ApplicationController
 	# GET /categories or /categories.json
 	def index
 		if check_access(roles: [:admin])
-			@categories   = Category.real
-			@topbar.title = helpers.category_title_fields(title: I18n.t("category.many"))
-			@grid         = create_grid(helpers.category_grid)
+			@categories = Category.real
+			@fields     = create_fields(helpers.category_title_fields(title: I18n.t("category.many")))
+			@grid       = create_grid(helpers.category_grid)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -33,14 +33,8 @@ class CategoriesController < ApplicationController
 	# GET /categories/1 or /categories/1.json
 	def show
 		if check_access(roles: [:admin], obj: @category)
-			title = category_title_fields(title: I18n.t("category.single"), cols: 2)
-			title << [
-				{kind: "subtitle", value: @category.age_group},
-				{kind: "subtitle", value: @category.sex}
-			]
-			@topbar.title = title
-			@fields       = create_fields(helpers.category_show_fields)
-			@submit       = create_submit(submit: current_user.admin? ? edit_category_path(@category) : nil)
+			@fields = create_fields(helpers.category_show_fields)
+			@submit = create_submit(submit: current_user.admin? ? edit_category_path(@category) : nil)
 		else
 			redirect_to categories_path, data: {turbo_action: "replace"}
 		end
