@@ -24,7 +24,7 @@ class HomeController < ApplicationController
 			else
 				title   = helpers.home_title_fields
 				title << [{kind: "gap"}]
-				@topbar.title = title
+				@fields = create_fields(title)
 				teams   = helpers.team_grid(teams: current_user.teams.order(:season_id)) if current_user.teams
 				@grid   = create_grid(teams) if teams
 			end

@@ -24,9 +24,8 @@ class DrillsController < ApplicationController
 	# GET /drills or /drills.json
 	def index
 		if check_access(roles: [:admin, :coach])
-			title  = helpers.drill_title_fields(title: I18n.t("drill.many"))
-			title << helpers.drill_search_bar(search_in: drills_path).first
-			@topbar.title = title
+			@title  = create_fields(helpers.drill_title_fields(title: I18n.t("drill.many")))
+			@search = create_fields(helpers.drill_search_bar(search_in: drills_path))
 			@drills = filter!(Drill)
 			@grid   = create_grid(helpers.drill_grid(drills: @drills))
 		else
@@ -36,8 +35,8 @@ class DrillsController < ApplicationController
 
 	# GET /drills/1 or /drills/1.json
 	def show
-		if check_access(roles: [:admin, :coach])
-			@topbar.title   = helpers.drill_show_title(title: I18n.t("drill.single"))
+		if check_access(roles: [:admin, :coach], obj: @drill)
+			@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
 			@intro   = create_fields(helpers.drill_show_intro)
 			@explain = create_fields(helpers.drill_show_explain)
 			@tail    = create_fields(helpers.drill_show_tail)
@@ -144,7 +143,7 @@ class DrillsController < ApplicationController
 	private
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(title:)
-			@topbar.title = helpers.drill_form_title(title:)
+			@title    = create_fields(helpers.drill_form_title(title:))
 			@playbook = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
 			@formdata = create_fields(helpers.drill_form_data)
 			@explain  = create_fields(helpers.drill_form_explain)

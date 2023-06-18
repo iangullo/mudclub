@@ -24,13 +24,19 @@ module CategoriesHelper
 
 	# FieldComponents for category.show
 	def category_show_fields
-		res = [[
+		res = category_title_fields(title: I18n.t("category.single"), cols: 5, rows: 5)
+		res << [
+			{kind: "subtitle", value: @category.age_group, cols: 3},
+			{kind: "subtitle", value: @category.sex, cols: 2}
+		]
+		res << [
 			{kind: "label", value: I18n.t("stat.min")},
 			{kind: "string", value: @category.min_years},
 			{kind: "gap"},
 			{kind: "label", value: I18n.t("stat.max")},
 			{kind: "string", value: @category.max_years}
-		]]
+		]
+		res
 	end
 
 	# return FieldsComponent @title for forms
