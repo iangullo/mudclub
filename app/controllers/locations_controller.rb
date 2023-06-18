@@ -27,7 +27,7 @@ class LocationsController < ApplicationController
 			@season = Season.find(params[:season_id]) if params[:season_id]
 			title  = helpers.location_title_fields(title: I18n.t("location.many"))
 			title << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", key: :search, value: params[:search], url: locations_path}]
-			@fields = create_fields(title)
+			@topbar.title = title
 			@grid   = create_grid(helpers.location_grid)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

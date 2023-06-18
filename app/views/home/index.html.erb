@@ -1,6 +1,5 @@
 <% if current_user.present? %>
 	<div id="home-logged-in">
-		<%= render @fields %>
 		<%= render @grid if @grid %>
 	</div>
 <% else %>

@@ -28,7 +28,7 @@ class PlayersController < ApplicationController
 			@players = get_players
 			title    = helpers.player_title_fields(title: I18n.t("player.many"))
 			title << [{kind: "search-text", key: :search, value: params[:search] || session.dig('player_filters', 'search'), url: players_path, size: 10}]
-			@fields  = create_fields(title)
+			@topbar.title = title
 			@grid    = create_grid(helpers.player_grid(players: @players))
 			respond_to do |format|
 				format.xlsx {

@@ -39,9 +39,8 @@ class CategoriesController < ApplicationController
 				{kind: "subtitle", value: @category.sex}
 			]
 			@topbar.title = title
-			binding.break
-			@fields = create_fields(helpers.category_show_fields)
-			@submit = create_submit(submit: current_user.admin? ? edit_category_path(@category) : nil)
+			@fields       = create_fields(helpers.category_show_fields)
+			@submit       = create_submit(submit: current_user.admin? ? edit_category_path(@category) : nil)
 		else
 			redirect_to categories_path, data: {turbo_action: "replace"}
 		end

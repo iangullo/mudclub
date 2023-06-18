@@ -28,7 +28,7 @@ class UsersController < ApplicationController
 			@users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
 			title  = helpers.user_title_fields(I18n.t("user.many"))
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
-			@title = create_fields(title)
+			@topbar.title = title
 			@grid  = create_grid(helpers.user_grid)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -39,7 +39,7 @@ class UsersController < ApplicationController
 	# GET /users/1.json
 	def show
 		if check_access(roles: [:admin], obj: @user)
-			@title  = create_fields(helpers.user_show_fields)
+			@topbar.title = helpers.user_show_fields
 			@role   = create_fields(helpers.user_role)
 			@grid   = create_grid(helpers.team_grid(teams: @user.teams))
 			@submit = create_submit(close: "back", close_return: :back, submit: edit_user_path(@user), frame: "modal")

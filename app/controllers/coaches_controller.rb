@@ -28,8 +28,8 @@ class CoachesController < ApplicationController
 			@coaches = get_coaches
 			title    = helpers.coach_title(title: I18n.t("coach.many"))
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
-			@fields = create_fields(title)
-			@grid   = create_grid(helpers.coach_grid)
+			@topbar.title  = title
+			@grid          = create_grid(helpers.coach_grid)
 			respond_to do |format|
 				format.xlsx {
 					a_desc = "#{I18n.t("coach.export")} 'coaches.xlsx'"

@@ -31,7 +31,7 @@ class SlotsController < ApplicationController
 				{kind: "gap", size: 1},
 				{kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}
 			]
-			@fields   = create_fields(title)
+			@topbar.title = title
 			week_view if @season and @location
 			@btn_add  = create_button({kind: "add", url: new_slot_path(location_id: @location.id, season_id: @season.id), frame: "modal"})
 			@submit   = create_submit(close: "back", submit: nil, close_return: seasons_path(season_id: @season.id))

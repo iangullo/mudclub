@@ -22,9 +22,9 @@ class DivisionsController < ApplicationController
 	# GET /divisions or /divisions.json
 	def index
 		if check_access(roles: [:admin])
-			@divisions = Division.real
-			@fields    = create_fields(helpers.division_title_fields(title: I18n.t("division.many")))
-			@grid      = create_grid(helpers.division_grid)
+			@divisions    = Division.real
+			@topbar.title = helpers.division_title_fields(title: I18n.t("division.many"))
+			@grid         = create_grid(helpers.division_grid)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
