@@ -1,6 +1,4 @@
 <div id="drills-index">
-	<%= render @title %>
-	<%= render @search %>
 	<%= turbo_frame_tag "search-results" do %>
 		<%= render @grid %>
 	<% end %>

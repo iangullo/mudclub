@@ -29,11 +29,20 @@ class ApplicationComponent < ViewComponent::Base
 	end
 
 	def tablecell_tag(item, tag=:td)
-		tag(tag,
-			colspan: item[:cols] ? item[:cols] : nil,
-			rowspan: item[:rows] ? item[:rows] : nil,
-			align: item[:align] ? item[:align] : nil,
-			class: item[:class] ? item[:class] : nil
-		)
+		if item.class==Hash
+			tag(tag,
+				colspan: item[:cols],
+				rowspan: item[:rows],
+				align: item[:align],
+				class: item[:class]
+			)
+		else
+			tag(tag,
+				colspan: item.cols,
+				rowspan: item.rows,
+				align: item.align,
+				class: item.css_class
+			)
+		end
 	end
 end

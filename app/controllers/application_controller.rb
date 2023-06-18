@@ -45,12 +45,12 @@ class ApplicationController < ActionController::Base
 
 	# return FieldsComponent object from a fields array
 	def create_fields(fields)
-		FieldsComponent.new(fields:)
+		FieldsComponent.new(fields:, session:)
 	end
 
 	# return GridComponent object from a grid hash
 	def create_grid(grid)
-		grid ? GridComponent.new(grid:) : nil
+		grid ? GridComponent.new(grid:, session:) : nil
 	end
 
 	# Create a submit component

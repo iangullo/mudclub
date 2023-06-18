@@ -25,7 +25,7 @@ class TeamsController < ApplicationController
 	# GET /teams.json
 	def index
 		if check_access(roles: [:admin, :coach])
-			@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: true))
+			@topbar.title = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
 			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: u_admin?))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -48,7 +48,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1.json
 	def show
 		if check_access(roles: [:admin, :coach])
-			@title = create_fields(helpers.team_title_fields(title: @team.to_s))
+			@topbar.title = helpers.team_title_fields(title: @team.to_s)
 			@links = create_fields(helpers.team_links)
 			@grid  = create_fields(helpers.event_list_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team)))
 		else
@@ -61,8 +61,8 @@ class TeamsController < ApplicationController
 		if check_access(roles: [:admin, :coach])
 			title  = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
-			@title = create_fields(title)
-			@grid   = create_grid(helpers.player_grid(players: @team.players.active.order(:number), obj: @team))
+			@topbar.title = title
+			@grid   = create_grid(helpers.player_grid(players: @team.players.order(:number), obj: @team))
 			@submit = create_submit(close: "back", close_return: team_path(@team), submit:(u_admin? or @team.has_coach(u_coachid)) ? edit_roster_team_path : nil, frame: "modal")
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
@@ -99,7 +99,7 @@ class TeamsController < ApplicationController
 			global_targets(true)	# get & breakdown global targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
-			@title  = create_fields(title)
+			@topbar.title = title
 			@submit = create_submit(close: "back", close_return: team_path(@team), submit: @team.has_coach(u_coachid) ? edit_targets_team_path : nil)
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
@@ -114,7 +114,7 @@ class TeamsController < ApplicationController
 			global_targets(false)	# get global targets
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
-			@title  = create_fields(title)
+			@topbar.title = title
 			@submit = create_submit(close: "cancel", close_return: :back)
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
@@ -127,7 +127,7 @@ class TeamsController < ApplicationController
 			plan_targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
-			@title = create_fields(title)
+			@topbar.title = title
 			@edit  = edit_plan_team_path if @team.has_coach(u_coachid)
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
@@ -141,7 +141,7 @@ class TeamsController < ApplicationController
 			plan_targets
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
-			@title  = create_fields(title)
+			@topbar.title = title
 			@submit = create_submit(close: "cancel", close_return: :back)
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
@@ -305,15 +305,19 @@ class TeamsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_team
-			s_id    = params[:season_id] ? params[:season_id] : session.dig('team_filters', 'season_id')
-			@season = s_id ? Season.find(s_id) : Season.latest
-			@season = Season.last unless @season
-			@teams  = Team.search(@season.id)
 			if params[:id]=="coaching"
 				@team = current_user.coach.teams.first
 			else
 				@team = Team.find_by_id(params[:id]) if params[:id]
 			end
+			if @team
+				@season = @team.season
+			else
+				s_id    = params[:season_id].presence || session.dig('team_filters', 'season_id')
+				@season = s_id ? Season.find_by(id: s_id) : Season.latest
+			end
+			@season = Season.last unless @season
+			@teams  = Team.search(@season&.id)
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

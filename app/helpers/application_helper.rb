@@ -48,7 +48,7 @@ module ApplicationHelper
 
 	# file upload button
 	def form_file_field(label:, key:, value:, cols: nil)
-		[[{kind: "upload", label:, key:, value:, cols:}]]
+		[[button_field({kind: "upload", label:, key:, value:}, cols:)]]
 	end
 
 	# standardised message wrapper
@@ -57,8 +57,8 @@ module ApplicationHelper
 	end
 
 	# standardised FieldsComponent button field wrapper
-	def button_field(button, cols: nil, rows: nil, align: nil, class: nil)
-		{kind: "button", button: button, cols:, rows:, align:, class:}
+	def button_field(button, kind: "button", cols: nil, rows: nil, align: nil, class: nil)
+		{kind:, button:, cols:, rows:, align:, class:}
 	end
 
 	# wrappers to make code in all views/helpers more readable

@@ -34,7 +34,7 @@ module CoachesHelper
 		]
 		res << [
 			{kind: "gap", size: 1},
-			{kind: "contact", email: @coach.person.email, phone: @coach.person.phone, device: device}
+			button_field({kind: "contact", email: @coach.person.email, phone: @coach.person.phone, device: device})
 		]
 		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
 	end
@@ -61,7 +61,7 @@ module CoachesHelper
 	def coach_form_fields
 		[
 			[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active, cols: 4}],
-			[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @coach.avatar.filename, cols: 3}]
+			[button_field({kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @coach.avatar.filename}, cols: 3)]
 		]
 	end
 

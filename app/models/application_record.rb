@@ -20,9 +20,9 @@ class ApplicationRecord < ActiveRecord::Base
 	primary_abstract_class
 
 	# read new field value, keep old value if empty & possible
-	def read_field(dat_value, old_value, def_value)
-		if dat_value    # we read & assign
-			read_field = (dat_value.class == String) ? dat_value : dat_value.value.to_s
+	def read_field(dat_value, old_value, def_value=nil)
+		if dat_value.present?    # we read & assign
+			read_field = (dat_value.class == String) ? dat_value.strip : dat_value.value.to_s
 		else    # assign default if no old value exists
 			read_field = def_value unless old_value
 		end
@@ -38,5 +38,10 @@ class ApplicationRecord < ActiveRecord::Base
 		cad = two_dig(t_begin.hour) + ":" + two_dig(t_begin.min)
 		cad = cad + "-" + two_dig(t_end.hour) + ":" + two_dig(t_end.min) if t_end
 		cad
+	end
+
+	# ensure reading boolean values from strings correctly
+	def parse_boolean(value)
+		value.to_s.strip.downcase == "true"
 	end
 end

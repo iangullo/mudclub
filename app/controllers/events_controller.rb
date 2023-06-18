@@ -28,9 +28,9 @@ class EventsController < ApplicationController
 			team       = Team.find(params[:team_id]) if params[:team_id]
 			season     = events.empty? ? Season.last : events.first.team.season
 			curlnk     = team ? team_events_path(team, start_date:) : (season ? season_events_path(season, start_date:) : events_path)
-			@title     = create_fields(helpers.event_index_title(team: team, season: season))
 			@calendar  = CalendarComponent.new(start_date:, events:, anchor: curlnk, obj: team ? team : season, user: current_user, create_url: new_event_path)
 			@submit    = create_submit(close: "back", submit: nil, close_return: team ? team_path(team) : seasons_path(season_id: season.id))
+			@topbar.title = helpers.event_index_title(team: team, season: season)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -40,13 +40,13 @@ class EventsController < ApplicationController
 	def show
 		if check_access(roles: [:admin, :coach])
 			retlnk = params[:retlnk]
-			@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
 			if @event.rest?
 				@submit = create_submit(submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil, frame: "modal")
 			else
 				@submit = create_submit(close: "back", close_return: retlnk ? retlnk : team_path(@event.team), submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil)
 				@fields = create_fields(@event.match? ? helpers.match_show_fields : helpers.training_show_fields)
 			end
+			@topbar.title = helpers.event_title_fields(cols: @event.train? ? 3 : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

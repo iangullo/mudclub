@@ -40,8 +40,8 @@ class DropdownComponent < ApplicationComponent
 			@button[:d_class] = "hidden rounded-md shadow border-2 border-gray-300 bg-gray-100 text-gray-500 text-left font-semibold overflow-hidden no-underline"
 			@button[:o_class] = "rounded-md hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block m-0 pl-1 pr-1"
 		when "menu"
-			@button[:d_class] = "hidden rounded-md shadow bg-blue-900"
-			@button[:o_class] = "rounded-md hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block m-0 pl-2 pr-2 py-2"
+			@button[:d_class] = "hidden rounded-md shadow bg-blue-900 z-50"
+			@button[:o_class] = "rounded-md hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block m-0 pl-2 pr-2 py-2 z-50"
 		end
 		@button
 	end
