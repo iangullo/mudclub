@@ -9,9 +9,9 @@
 				<% when "search-text" %>
 					<%=fsearch.text_field opt[:key], placeholder: opt[:placeholder], value: opt[:value], size: opt[:size], class: @search[:i_class], data: @s_action %>
 				<% when "search-select" %>
-					<%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) ? session.dig(opt[:key].to_sym).to_i : opt[:value]), {include_blank: opt[:blank] || t("scope.all")}, {class: @search[:i_class]}%>
+					<%=fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) || opt[:value]), {include_blank: opt[:blank] || t("scope.all")}, {class: @search[:i_class]}%>
 				<% when "search-collection" %>
-					<%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym] ? params[opt[:key].to_sym] : opt[:value]}, {class: @search[:i_class]}%>
+					<%=fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym].presence || opt[:value]}, {class: @search[:i_class]}%>
 				<% when "hidden" %>
 					<%= fsearch.hidden_field(opt[:key].to_sym, value: opt[:value]) %>
 				<% end %>

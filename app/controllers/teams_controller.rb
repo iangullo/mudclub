@@ -62,7 +62,7 @@ class TeamsController < ApplicationController
 			title  = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
 			@topbar.title = title
-			@grid   = create_grid(helpers.player_grid(players: @team.players.active.order(:number), obj: @team))
+			@grid   = create_grid(helpers.player_grid(players: @team.players.order(:number), obj: @team))
 			@submit = create_submit(close: "back", close_return: team_path(@team), submit:(u_admin? or @team.has_coach(u_coachid)) ? edit_roster_team_path : nil, frame: "modal")
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
@@ -305,14 +305,19 @@ class TeamsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_team
-			s_id    = params[:season_id] ? params[:season_id] : session.dig('team_filters', 'season_id')
-			@season = s_id ? Season.find(s_id) : Season.latest
-			@teams  = Team.search(@season&.id)
 			if params[:id]=="coaching"
 				@team = current_user.coach.teams.first
 			else
 				@team = Team.find_by_id(params[:id]) if params[:id]
 			end
+			if @team
+				@season = @team.season
+			else
+				s_id    = params[:season_id].presence || session.dig('team_filters', 'season_id')
+				@season = s_id ? Season.find_by(id: s_id) : Season.latest
+			end
+			@season = Season.last unless @season
+			@teams  = Team.search(@season&.id)
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

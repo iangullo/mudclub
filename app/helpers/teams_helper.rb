@@ -24,7 +24,7 @@ module TeamsHelper
 			s_id = @team&.season_id || @season&.id || session.dig('team_filters', 'season_id')
 			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: s_id}]
 		elsif edit and u_admin?
-			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team&.season_id}]
+			res << [{kind: "select-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: @team&.season_id}]
 		else
 			res << [{kind: "label", value: @team.season.name}]
 			w_l = @team.win_loss

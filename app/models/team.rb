@@ -63,7 +63,7 @@ class Team < ApplicationRecord
 					aux
 			end
 		end
-		aux
+		(self.players + aux).uniq
 	end
 
 	# Get a list of players that are not members but are authorised to play in this team
