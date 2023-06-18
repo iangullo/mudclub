@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # ClearButton class for ButtonComponents manages "clear" kind
-class ClearButton < AaBaseButton
+class ClearButton < BaseButton
 	# basic button information
 	def initialize(button)
 		super(button)

@@ -20,7 +20,7 @@
 #
 # UploadButton class for ButtonComponents
 # abit more spartan, only receives icon, value and key
-class UploadButton < AaBaseButton
+class UploadButton < BaseButton
 	def initialize(button, form=nil)
 		super(button, form)
 		@d_class  = ["align-middle", "px", "py"]

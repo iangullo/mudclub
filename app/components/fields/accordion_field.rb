@@ -21,7 +21,7 @@
 # AccordionField class for FieldsComponents
 # conceived to serve as abstraction layer for Grid elements. Relies on
 # AccordionComponent.
-class AccordionField < AaBaseField
+class AccordionField < BaseField
 	def initialize(field, form=nil, session=nil)
 		super(field, form, session)
 		@content = AccordionComponent.new(field)

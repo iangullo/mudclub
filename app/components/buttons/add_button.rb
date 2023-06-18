@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # AddButton class for ButtonComponents manages "add" buttons
-class AddButton < AaBaseButton
+class AddButton < BaseButton
 	# basic button information
 	def initialize(button)
 		super(button)

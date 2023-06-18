@@ -22,7 +22,7 @@
 # conceived to serve as abstraction layer for all labels & headers.handles
 # @kinds: gap, label, side-cell, string, subtitle, title
 #         and top-cell.
-class TextField < AaBaseField
+class TextField < BaseField
 	def initialize(field)
 		super(field)
 		case @fdata[:kind]

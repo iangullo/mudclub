@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # CancelButton class for ButtonComponents manages "cancel", "close" kinds
-class CancelButton < AaBaseButton
+class CancelButton < BaseButton
 	# basic button information
 	def initialize(button)
 		super(button)

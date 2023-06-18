@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # NestedButton class for ButtonComponents manages "add-nested" & "remove" buttons
-class NestedButton < AaBaseButton
+class NestedButton < BaseButton
 	# basic button information
 	def initialize(button)
 		super(button)

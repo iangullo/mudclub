@@ -21,7 +21,7 @@
 # ImageField class for FieldsComponents
 # conceived to serve as abstraction layer for all images/icons.
 # recognised kinds are: "header-icon", "icon" and "icon-label", "image"
-class ImageField < AaBaseField
+class ImageField < BaseField
 	include ActionView::Helpers::TagHelper
 	include ActionView::Helpers::AssetTagHelper
 

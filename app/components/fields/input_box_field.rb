@@ -23,7 +23,7 @@
 # @kinds: date-box, email-box, label-checkbox, number-box, password-box,
 #         rich-text-area, select-checkboxes, select-collection, select-box,
 #	        text-area, select-load, text-box, time-box
-class InputBoxField < AaBaseField
+class InputBoxField < BaseField
 	INPUT_CLASS = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700".freeze
 
 	def initialize(field, form=nil,session=nil)

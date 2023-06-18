@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # JumpButton class for ButtonComponents manages "jump", "link", "location" kinds
-class JumpButton < AaBaseButton
+class JumpButton < BaseButton
 	def initialize(button)
 		super(button)
 		case @bdata[:kind]

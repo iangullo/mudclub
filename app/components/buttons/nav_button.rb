@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # NavButton class for ButtonComponents manages "back", "forward" kinds
-class NavButton < AaBaseButton
+class NavButton < BaseButton
 	def initialize(button)
 		super(button)
 		case @bdata[:kind]

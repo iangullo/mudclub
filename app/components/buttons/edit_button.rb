@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # EditButton class for ButtonComponents manages "edit" kind
-class EditButton < AaBaseButton
+class EditButton < BaseButton
 	# basic button information
 	def initialize(button)
 		super(button)

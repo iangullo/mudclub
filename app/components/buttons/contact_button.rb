@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # ContactButton class for ButtonComponents manages call, email, phone kinds
-class ContactButton < AaBaseButton
+class ContactButton < BaseButton
 	def initialize(button)
 		super(button)
 		@bdata[:icon] ||= set_icon

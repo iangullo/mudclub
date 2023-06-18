@@ -20,7 +20,7 @@
 #
 # RadioButton class for ButtonComponents
 # very spartan only uses key, value amd checked fields of button hash
-class RadioButton < AaBaseButton
+class RadioButton < BaseButton
 	def initialize(button, form=nil)
 		@bdata = button	# original button definition
 		@form = form

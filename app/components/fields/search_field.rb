@@ -21,7 +21,7 @@
 # SearchField class for FieldsComponents
 # conceived to serve as abstraction layer for all Search boxes. Relies on
 # SearchComponent.
-class SearchField < AaBaseField
+class SearchField < BaseField
 	INPUT_CLASS = "block px-1 py-0 w-full text-gray-900 bg-gray-50 shadow-inner rounded border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-700 peer".freeze
 
 	def initialize(field, session)
