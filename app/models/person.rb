@@ -60,10 +60,10 @@ class Person < ApplicationRecord
 		p_aux = Person.find_by(id:) if id > 0
 
 		# Try to find by dni if present
-		p_aux = Person.find_by(dni:) if !p_aux && (dni = f_data[:dni].presence)
+		p_aux = Person.find_by(dni: f_data[:dni]) if !p_aux && (dni = f_data[:dni].presence)
 
 		# Try to find by email if present
-		p_aux = Person.find_by(dni:) if !p_aux && (email = f_data[:email].presence)
+		p_aux = Person.find_by(email: f_data[:email]) if !p_aux && (email = f_data[:email].presence)
 
 		unless p_aux	# last resort: attempt to find by name+surname
 			name    = f_data[:name].presence
