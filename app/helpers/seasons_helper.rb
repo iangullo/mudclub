@@ -34,7 +34,7 @@ module SeasonsHelper
 				align: "center"
 			),
 			button_field(
-				{kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? slots_path(season_id: @season.id) : slots_path(season_id: @season.id, location_id: @season.locations.practice.first.id), label: I18n.t("slot.many")},
+				{kind: "jump", icon: "timetable.svg", url: @season.locations.empty? ? slots_path(season_id: @season.id) : slots_path(season_id: @season&.id, location_id: @season.locations.practice.first&.id), label: I18n.t("slot.many")},
 				align: "center"
 			),
 			button_field({kind: "edit", url: edit_season_path(@season), size: "30x30", frame: "modal"})
