@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class Coach < ApplicationRecord
+	include PersonDataManagement
 	before_destroy :unlink
 	has_many :drills
 	has_and_belongs_to_many :teams
@@ -41,20 +42,6 @@ class Coach < ApplicationRecord
 		self.person ? self.person.s_name : I18n.t("coach.show")
 	end
 
-	# check if associated person exists in database already
-	# reloads person if it does
-	def is_duplicate?
-		if self.person.exists? # check if it exists in database
-			if self.person.coach_id > 0 # coach already exists
-				true
-			else	# found but mapped to dummy placeholder person
-				false
-			end
-		else	# not found
-			false
-		end
-	end
-
 	def picture
 		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "coach.svg"
 	end
@@ -72,6 +59,11 @@ class Coach < ApplicationRecord
 		end
 	end
 
+	# atempt to fetch a Coach using form input hash
+	def self.fetch(f_data)
+		self.new.fetch_obj(f_data)
+	end
+
 	# to import from excel
 	def self.import(file)
 		xlsx = Roo::Excelx.new(file.tempfile)
@@ -80,49 +72,31 @@ class Coach < ApplicationRecord
 				return
 			else
 				c = self.new(active: row[7].value)
-				c.build_person
-				c.person.name = row[2].value.to_s
-				c.person.surname = row[3].value.to_s
-				unless c.is_duplicate? # only if not a duplicate
-					if c.person.coach_id == nil # new person
-						c.person.coach_id  = 0
-						c.person.player_id = 0
-						c.person.save	# Save and link
-					end
+				c.import_person_row( # import personal data
+					[
+						row[0],	# dni
+						row[2],	# name
+						row[3],	# surname
+						row[1],	# nick
+						row[4],	# birthday
+						row[5],	# email
+						row[6], # phone
+						nil	# don't care on male/female tag
+					]
+				)
+				if c.person	# only if person is bound
+					c.active = c.read_field(parse_boolean(row[7].value), j.active, false)
+					c.save
 				end
-				c.person.dni      = c.read_field(row[0], c.person.dni, I18n.t("person.pid"))
-				c.person.nick     = c.read_field(row[1], c.person.nick, "")
-				c.person.birthday = c.read_field(row[4], c.person.birthday, Date.today.to_s)
-				c.person.email		= c.read_field(row[5], c.person.email, "")
-				c.person.phone		= c.read_field(Phonelib.parse(row[6]).international, c.person.phone, "")
-				c.active	  			= c.read_field(row[7], c.active, false)
-				c.save
-				c.clean_bind	# ensure person is bound
 			end
 		end
-	end
-
-	# ensures a person is well bound to the coach - expects both to be persisted
-	def clean_bind
-		self.person_id = self.person.id if self.person_id != self.person.id
-		self.save if self.changed?
-		self.person.bind_parent(o_class: "Coach", o_id: self.id)
 	end
 
 	# rebuild Coach data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
-		p_data = f_data[:person_attributes]
-		if self.person_id.to_i==0 # not bound to a person yet?
-			self.person = p_data[:id].to_i > 0 ? Person.find(p_data[:id].to_i) : self.build_person
-		else # person is linked, get it
-			self.person.reload
-		end
-		self.person.rebuild(p_data) # rebuild from passed data
-		self.person.coach_id  = self.id if self.id
-		self.person.save unless self.person.id
-		self.person_id = self.person.id
-		self.active    = f_data[:active]
+		self.rebuild_obj_person(f_data)
+		self.active = f_data[:active] if self.person
 	end
 
 	private
