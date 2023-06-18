@@ -136,7 +136,7 @@ module TeamsHelper
 			]
 			rows  = Array.new
 			m_tot = []
-			@team.players.active.order(:number).each { |player|
+			@team.players.order(:number).each { |player|
 				p_att = player.attendance(team: @team)
 				row   = {url: player_path(player, retlnk: team_path(@team), team_id: @team.id), frame: "modal", items: []}
 				row[:items] << {kind: "normal", value: player.number, align: "center"}
