@@ -21,9 +21,10 @@ module TeamsHelper
 	def team_title_fields(title:, cols: nil, search: nil, edit: nil)
 		res = title_start(icon: "team.svg", title: title, cols: cols)
 		if search
-			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: @team ? @team.season.name : session.dig('team_filters', 'season_id')}]
+			s_id = @team&.season_id || @season&.id || session.dig('team_filters', 'season_id')
+			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: s_id}]
 		elsif edit and u_admin?
-			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season.name}]
+			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
 		else
 			res << [{kind: "label", value: @team.season.name}]
 			w_l = @team.win_loss

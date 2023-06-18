@@ -159,9 +159,9 @@ class LocationsController < ApplicationController
 private
 	# ensure internal variables are well defined
 	def set_locations
-		if params[:season_id]
-			@season = Season.find(params[:season_id]) unless @season&.id==params[:season_id]
-			@locations = @season.locations.order(:name)
+		if params[:season_id].present?
+			@season             = Season.find(params[:season_id]) unless @season&.id==params[:season_id]
+			@locations          = @season.locations.order(:name)
 			@eligible_locations = @season.eligible_locations
 		else
 			@locations = Location.search(params[:search]).order(:name)

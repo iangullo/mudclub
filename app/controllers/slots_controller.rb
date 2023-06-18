@@ -29,7 +29,7 @@ class SlotsController < ApplicationController
 			title     = helpers.slot_title_fields(title: I18n.t("slot.many"))
 			title << [
 				{kind: "gap", size: 1},
-				{kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice}
+				{kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice, value: @location.id}
 			]
 			@fields   = create_fields(title)
 			week_view if @season and @location
