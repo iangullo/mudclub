@@ -70,7 +70,7 @@
 					<% end %>
 				<% else %>
 					<% if field.kind == "lines" %>
-						<% field.value.each do |line|%>
+						<% field.value&.each do |line|%>
 							<%= line.to_s %>
 							<br>
 						<% end %>
