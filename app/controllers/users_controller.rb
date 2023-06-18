@@ -41,7 +41,7 @@ class UsersController < ApplicationController
 		if check_access(roles: [:admin], obj: @user)
 			@title  = create_fields(helpers.user_show_fields)
 			@role   = create_fields(helpers.user_role)
-			@grid   = create_grid(helpers.team_grid(teams: @user.teams))
+			@grid   = create_grid(helpers.team_grid(teams: @user.teams.joins(:season).order('seasons.start_date DESC')))
 			@submit = create_submit(close: "back", close_return: :back, submit: edit_user_path(@user), frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
