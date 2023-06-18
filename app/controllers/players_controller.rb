@@ -81,13 +81,9 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = Player.new
 				@player.rebuild(player_params)	# rebuild player
-				if @player.is_duplicate? then
-					format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :duplicate, location: players_path(search: @player.s_name) }
-				else
-					@player.person.save if @player.person.changed?
+				if @player.modified? then	# it is a new player
 					if @player.save
-						@player.clean_bind	# ensure person is well bound
+						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
@@ -97,6 +93,9 @@ class PlayersController < ApplicationController
 						format.html { render :new }
 						format.json { render json: @player.errors, status: :unprocessable_entity }
 					end
+				else # player was already in the database
+					format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :duplicate, location: players_path(search: @player.s_name) }
 				end
 			end
 		else
@@ -110,9 +109,9 @@ class PlayersController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @player)
 			respond_to do |format|
 				@player.rebuild(player_params)
-				if @player.changed?
-					@player.person.save if @player.person.changed?
+				if @player.modified?
 					if @player.save
+						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.updated")} '#{@player.to_s}'"
 						register_action(:updated, a_desc)
 						format.html { redirect_to player_params[:retlnk], notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }

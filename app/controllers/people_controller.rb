@@ -80,7 +80,7 @@ class PeopleController < ApplicationController
 			@person = Person.new
 			respond_to do |format|
 				@person.rebuild(person_params)	# take care of duplicates
-				if @person.exists?	# it was a duplicate
+				if @person.id	# it was a duplicate
 					format.html { redirect_to people_path(search: @person.name), notice: helpers.flash_message("#{I18n.t("person.duplicate")} '#{@person.to_s}'", "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :duplicate, location: people_path }
 				elsif @person.save

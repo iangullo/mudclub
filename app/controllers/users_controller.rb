@@ -74,13 +74,9 @@ class UsersController < ApplicationController
 			respond_to do |format|
 				@user = User.new
 				@user.rebuild(user_params)	# build user
-				if @user.is_duplicate? then
-					format.html { redirect_to @user, notice: helpers.flash_message("#{I18n.t("user.duplicate")} '#{@user.s_name}'"), data: {turbo_action: "replace"}}
-					format.json { render :show,  :created, location: @user }
-				else
-					@user.person.save if @user.person.changed?
+				if @user.modified? then
 					if @user.save
-						@user.clean_bind	# ensure person is well bound
+						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to users_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
@@ -90,6 +86,9 @@ class UsersController < ApplicationController
 						format.html { render :new, notice: helpers.flash_message("#{@user.errors}","error") }
 						format.json { render json: @user.errors, status: :unprocessable_entity }
 					end
+				else	# no changes to be made
+					format.html { redirect_to @user, notice: helpers.flash_message("#{I18n.t("user.duplicate")} '#{@user.s_name}'"), data: {turbo_action: "replace"}}
+					format.json { render :show,  :created, location: @user }
 				end
 			end
 		else
@@ -107,9 +106,9 @@ class UsersController < ApplicationController
 					params[:user].delete(:password_confirmation)
 				end
 				@user.rebuild(user_params)	# rebuild user
-				if @user.changed?
-					@user.person.save if @user.person.changed?
+				if @user.modified?
 					if @user.save
+						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.updated")} '#{@user.s_name}'"
 						register_action(:updated, a_desc)
 						format.html { redirect_to user_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
@@ -119,7 +118,7 @@ class UsersController < ApplicationController
 						format.html { render :edit }
 						format.json { render json: @user.errors, status: :unprocessable_entity }
 					end
-				else
+				else	# no changes made
 					format.html { redirect_to user_path, notice: no_data_notice, data: {turbo_action: "replace"} }
 					format.json { render :show, status: :ok, location: user_path }
 				end
