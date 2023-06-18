@@ -23,6 +23,13 @@ class Target < ApplicationRecord
 	has_many :drills, through: :drill_targets
 	has_many :event_targets
 	has_many :events, through: :event_targets
+  scope :orphans, lambda {
+		left_outer_joins(:teams, :events, :drills)
+		.where("(teams.id IS NULL OR teams.id = 0)")
+		.where("(events.id IS NULL OR events.id = 0)")
+		.where("(drills.id IS NULL OR drills.id = 0)")
+		.distinct
+	}
 	self.inheritance_column = "not_sti"
 
 	enum aspect: {
