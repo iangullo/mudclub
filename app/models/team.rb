@@ -60,7 +60,7 @@ class Team < ApplicationRecord
 				when "Masc."
 					aux = aux.male
 				else
-					aux
+					(aux + self.players).uniq
 			end
 		end
 		aux
