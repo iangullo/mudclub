@@ -84,6 +84,7 @@ class CoachesController < ApplicationController
 				@coach.rebuild(coach_params)	# rebuild coach
 				if @coach.modified? then	# it's a new coach
 					if @coach.save # coach saved to database
+						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
@@ -111,6 +112,7 @@ class CoachesController < ApplicationController
 				@coach.rebuild(coach_params)
 				if @coach.modified?	# coach has been edited
 					if @coach.save
+						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
 						register_action(:updated, a_desc)
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }

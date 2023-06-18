@@ -88,23 +88,23 @@ module PersonDataManagement
 		res
 	end
 
-	private
-		# Checks person is linked well
-		def bind_person
-			return false if self.is_a?(Person) || !self.id
+	# Checks person is linked well
+	def bind_person(save_changes: false)
+		return false if self.is_a?(Person) || !self.id
 
-			s_id = bind_field
-			o_id = self.person.send(s_id).to_i
-			if (o_id > 0) && (o_id != self.id)	# there's another object bound!
-				self.id = o_id
-				self.reload	# reload previously bound object
-			end
-			self.person_id    = self.person.id
-			self.person[s_id] = self.id
-			#self.save # ==> this would leed to modified? returning false.
-			return true
+		s_id = bind_field
+		o_id = self.person.send(s_id).to_i
+		if (o_id > 0) && (o_id != self.id)	# there's another object bound!
+			self.id = o_id
+			self.reload	# reload previously bound object
 		end
+		self.person_id    = self.person.id
+		self.person[s_id] = self.id
+		self.save if save_changes && self.modified?
+		return true
+	end
 
+	private
 		# return which id_field to map against
 		def bind_field
 			case self.class.to_s

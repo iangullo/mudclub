@@ -76,6 +76,7 @@ class UsersController < ApplicationController
 				@user.rebuild(user_params)	# build user
 				if @user.modified? then
 					if @user.save
+						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to users_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
@@ -107,6 +108,7 @@ class UsersController < ApplicationController
 				@user.rebuild(user_params)	# rebuild user
 				if @user.modified?
 					if @user.save
+						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.updated")} '#{@user.s_name}'"
 						register_action(:updated, a_desc)
 						format.html { redirect_to user_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
