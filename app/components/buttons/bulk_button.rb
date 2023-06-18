@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # BulkButton class for ButtonComponents manages "import" & "export" kinds
-class BulkButton < BaseButton
+class BulkButton < AaBaseButton
 	# basic button information
 	def initialize(button)
 		super(button)

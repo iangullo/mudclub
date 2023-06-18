@@ -21,7 +21,7 @@
 # ButtonField class for FieldsComponents
 # conceived to serve as abstraction layer for all application Buttons.
 # manages @kind: "button", "dropdown", "radio" and "upload"
-class ButtonField < BaseField
+class ButtonField < AaBaseField
 	include ActionView::Helpers::TagHelper
 
 	def initialize(field, form=nil)

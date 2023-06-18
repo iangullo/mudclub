@@ -21,7 +21,7 @@
 # NestedField class for FieldsComponents
 # conceived to serve as abstraction layer for nested-form elements. Relies on
 # NestedComponent.
-class NestedField < BaseField
+class NestedField < AaBaseField
 	def initialize(field, form=nil)
 		super(field, form)
 		@model   = field[:model]

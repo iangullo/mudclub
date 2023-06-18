@@ -18,10 +18,10 @@
 #
 # frozen_string_literal: true
 #
-# BaseButton class for ButtonComponents
+# AaBaseButton class for ButtonComponents
 # conceived to serve as abstraction layer to be inherited by the
 # different Button classes.
-class BaseButton
+class AaBaseButton
 	include ActionView::Helpers::TagHelper
 	include ActionView::Helpers::AssetTagHelper
 

@@ -21,7 +21,7 @@
 # GridField class for FieldsComponents
 # conceived to serve as abstraction layer for Grid elements. Relies on
 # GridComponent.
-class GridField < BaseField
+class GridField < AaBaseField
 	def initialize(field, form=nil, session=nil)
 		super(field, form, session)
 		@content = GridComponent.new(grid: @fdata[:value], form: @form, session: @session)

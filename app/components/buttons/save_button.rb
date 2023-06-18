@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # SaveButton class for ButtonComponents
-class SaveButton < BaseButton
+class SaveButton < AaBaseButton
 	def initialize(button)
 		super(button)
 		@bdata[:label] ||= I18n.t("action.save")

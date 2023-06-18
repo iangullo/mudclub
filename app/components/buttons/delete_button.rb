@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # DeleteButton class for ButtonComponents manages "delete" kind
-class DeleteButton < BaseButton
+class DeleteButton < AaBaseButton
 	# basic button information
 	def initialize(button)
 		super(button)

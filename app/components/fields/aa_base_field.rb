@@ -20,7 +20,7 @@
 #
 # BaseField class for FieldsComponents
 # conceived to serve as abstraction layer to be inherited by different Field classes.
-class BaseField
+class AaBaseField
 	attr_writer :form, :session
 	attr_reader :content, :kind
 

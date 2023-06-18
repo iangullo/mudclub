@@ -20,7 +20,7 @@
 #
 # ActionButton class for ButtonComponents
 # conceived to manage non-standard action trigger buttons.
-class ActionButton < BaseButton
+class ActionButton < AaBaseButton
 	# basic button information
 	def initialize(button)
 		super(button,form,session)

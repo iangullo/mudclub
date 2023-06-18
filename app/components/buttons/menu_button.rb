@@ -19,7 +19,7 @@
 # frozen_string_literal: true
 #
 # MenuButton class for ButtonComponents manages menu & login buttons
-class MenuButton < BaseButton
+class MenuButton < AaBaseButton
 	def initialize(button)
 		super(button)
 		@b_class += ["inline-flex", "font-bold", "m-1"]
