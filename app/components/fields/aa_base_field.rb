@@ -18,7 +18,7 @@
 #
 # frozen_string_literal: true
 #
-# BaseField class for FieldsComponents
+# AaBaseField class for FieldsComponents
 # conceived to serve as abstraction layer to be inherited by different Field classes.
 class AaBaseField
 	attr_writer :form, :session
