@@ -48,7 +48,7 @@ class CoachesController < ApplicationController
 	def show
 		if check_access(roles: [:admin, :coach], obj: @coach)
 			@fields = create_fields(helpers.coach_show_fields)
-			@grid   = create_grid(helpers.team_grid(teams: @coach.teams.joins(:season).order('seasons.start_date DESC')))
+			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
 			@submit = create_submit(submit: (u_admin? or u_coachid==@coach.id) ? edit_coach_path(@coach) : nil, frame: "modal")
 		else
 			redirect_to coaches_path, data: {turbo_action: "replace"}

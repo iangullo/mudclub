@@ -41,6 +41,13 @@ class Parent < ApplicationRecord
 		self.person ? self.person.s_name : I18n.t("person.show")
 	end
 
+	# wrapper to get teams of children
+	def team_list
+		res = []
+		self.players.each { |player| res = (res + player.team_list).uniq }
+		res.sort_by{ |team| team.season.start_date }.reverse
+	end
+
 	# atempt to fetch a Parent using form input hash
 	def self.fetch(f_data)
 		self.new.fetch_obj(f_data)

@@ -104,6 +104,11 @@ module PersonDataManagement
 		return true
 	end
 
+	# get team history
+	def team_list
+		self.teams.includes(:season).to_a.sort_by { |team| team.season.start_date }.reverse
+	end
+
 	private
 		# return which id_field to map against
 		def bind_field

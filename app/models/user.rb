@@ -80,6 +80,10 @@ class User < ApplicationRecord
 		end
 	end
 
+	def is_parent?
+		self.person&.parent_id.to_i > 0
+	end
+
 	def is_player?
 		(self.person&.player_id.to_i > 0 and self.person.player.active) or self.player?
 	end
@@ -136,14 +140,11 @@ class User < ApplicationRecord
 	end
 
 	# get teams associated to this user
-	def teams
-		if self.is_coach?
-			Team.joins(:coaches).where(coaches: { id: [self.person.coach_id] })
-		elsif self.is_player?
-			Team.joins(:players).where(players: { id: [self.person.player_id] })
-		else
-			nil
-		end
+	def team_list
+		c_teams = self.is_coach? ? self.coach.team_list : []
+		j_teams = self.is_player? ? self.player.team_list : []
+		p_teams = self.is_parent? ? self.person.parent.team_list : []
+		(c_teams + j_teams + p_teams).uniq.sort_by{ |team| team.season.start_date }.reverse
 	end
 
 	private
