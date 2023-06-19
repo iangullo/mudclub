@@ -78,11 +78,13 @@ class FieldsComponent < ApplicationComponent
 					item[:value] = DropdownComponent.new(button: item[:button])
 				when "header-icon", "icon", "icon-label"
 					set_icon(item)
+				when "label-checkbox"
+					item[:class] ||= "align-middle"
 				when /^(search-.+)$/
 					item[:value] = SearchBoxComponent.new(search: item)
 				when "nested-form"
 					item[:btn_add] = {kind: "add-nested"} unless item[:btn_add]
-				when "gap", "label", "label-checkbox", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
+				when "gap", "label", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
 					set_text_field(item)
 				when "upload"
 					item[:class] = "align-middle px py" unless item[:class]
@@ -130,10 +132,9 @@ class FieldsComponent < ApplicationComponent
 		case item[:kind]
 		when "gap"
 			item[:size]  ||= 4
-		when "label", "label-checkbox"
+		when "label"
 			l_cls          = "inline-flex align-top font-semibold"
 			item[:class]   = item[:class] ? "#{item[:class]} #{l_cls}" : l_cls
-			item[:i_class] = "rounded bg-gray-200 text-blue-700"
 		when "lines"
 			item[:class] ||= "align-top border px py"
 		when "side-cell"
