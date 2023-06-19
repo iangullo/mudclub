@@ -98,7 +98,7 @@ module PlayersHelper
 				]
 			}
 		end
-		res << [{kind: "subtitle", value: I18n.t("team.many")}]
+		res << [{kind: "subtitle", value: "#{I18n.t("team.many")}:"}]
 		res
 	end
 
