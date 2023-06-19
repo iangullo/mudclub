@@ -82,13 +82,13 @@ class FieldsComponent < ApplicationComponent
 					item[:value] = SearchBoxComponent.new(search: item)
 				when "nested-form"
 					item[:btn_add] = {kind: "add-nested"} unless item[:btn_add]
-				when "label", "label-checkbox", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
+				when "gap", "label", "label-checkbox", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
 					set_text_field(item)
 				when "upload"
 					item[:class] = "align-middle px py" unless item[:class]
 					item[:i_class] = "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center"
 				when /^(select-.+|.+-box|.+-area)$/
-					set_box(item)
+					item[:class] ||= "align-top"
 				else
 					item[:i_class] = "rounded p-0" unless item[:kind]=="gap"
 				end
@@ -106,23 +106,6 @@ class FieldsComponent < ApplicationComponent
 			item[:call] = ButtonComponent.new(button: {kind: "call", value: item[:phone]}) if item[:device]=="mobile"
 			item[:whatsapp] = ButtonComponent.new(button: {kind: "whatsapp", value: item[:phone], web: (item[:device]=="desktop")})
 		end
-	end
-
-	def set_box(item)
-		item[:class]   = "align-top" unless item[:class]
-		item[:i_class] = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"
-		bsize = (item[:kind]=="time-box") ? 5 : ((item[:options].present?) ? 10 : 20)
-		if item[:kind]=="rich-text-area"	# correct rendering for trix editor
-			item[:i_class] = "trix-content " + item[:i_class]
-		elsif item[:options].present?	# check size
-			item[:options].each { |opt| bsize = opt.to_s.length if opt.to_s.length > bsize }
-		elsif item[:kind]=="number-box" or item[:kind]=="time-box"	# check limits
-			item[:i_class] = item[:i_class] + " text-right"
-			item[:min]     = 0 unless item[:min]
-			item[:max]     = 99 unless item[:max]
-			item[:step]    = 1 unless item[:step]
-		end
-		item[:size] = bsize - 3 unless item[:size]
 	end
 
 	def set_icon(item)

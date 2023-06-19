@@ -1,0 +1,65 @@
+<% case @fdata[:kind] %>
+<% when "date-box" %>
+  <%= @form.date_field(@fdata[:key], value: @fdata[:value], start_year: @fdata[:s_year], end_year: (@fdata[:e_year] || Time.now.year), class: @i_class) %>
+<% when "email-box" %>
+  <%= @form.email_field(@fdata[:key], placeholder: @fdata[:placeholder], size: @fdata[:size], class: @i_class) %>
+<% when "hidden" %>
+  <%= @form.hidden_field(@fdata[:key].to_sym, value: @fdata[:value]) %>
+<% when "label-checkbox" %>
+  <div class='inline-flex align-middle'>
+    <% if @fdata[:right] %>
+      <label class='font-medium'><%= @fdata[:label] %></label>
+      <%= @form.check_box(@fdata[:key], class: @i_class) %>
+    <% else %>
+      <%= @form.check_box(@fdata[:key], class: @i_class) %>
+      <label class='font-medium'><%= @fdata[:label] %></label>
+    <% end %>
+  </div>
+<% when "number-box" %>
+  <%= @form.number_field(@fdata[:key], value: @fdata[:value], size: @fdata[:size] || 2, min: @fdata[:min], max: @fdata[:max], step: @fdata[:step], class: @i_class) %>
+  <%= @fdata[:units].to_s %>
+<% when "password-box" %>
+  <%= @form.password_field(@fdata[:key], placeholder: @fdata[:placeholder], class: @i_class, size: @fdata[:size]) %>
+<% when "radio-button" %>
+  <%= @form.radio_button(@fdata[:key], @fdata[:value], checked: @fdata[:checked]) %>
+<% when "rich-text-area" %>
+  <%= @form.rich_text_area(@fdata[:key], class: @i_class) %>
+<% when "select-box" %>
+  <%= @form.select(@fdata[:key], @fdata[:options], { selected: @fdata[:value] ? @fdata[:value] : @fdata[:options].first }, class: @i_class) %>
+<% when "select-checkboxes" %>
+  <% @form.collection_check_boxes @fdata[:key], @fdata[:options], :id, :to_s do |obj| %>
+    <%= obj.check_box({ class: 'rounded bg-gray-200 text-blue-700' }) %>&nbsp;<%= obj.object.to_s %><br>
+  <% end %>
+<% when "select-collection" %>
+  <select class='<%= @i_class %>' name='<%= @form.object.class.to_s.downcase + "[#{@fdata[:key]}]" %>' id='<%= @fdata[:key] %>'>
+    <% @fdata[:options].each do |opt| %>
+      <option value="<%= opt[:id] %>"<% if (opt[:id] ? opt[:id] : opt.id) == @fdata[:value] %> selected='selected'<% end %>><%= opt[:name] ? opt[:name] : opt.name %></option>
+    <% end %>
+  </select>
+<% when "select-load" %>
+  <fieldset class='contents' data-controller='search-params select-load'>
+    <select class='<%= @i_class %>' name='<%= @form.object.class.to_s.downcase + "[#{@fdata[:key]}]" %>' id='<%= @fdata[:key] %>' data-action='change->search-params#encode change->select-load#click' autocomplete='off'>
+      <% @fdata[:options].each do |opt| %>
+        <option value=<%="#{opt[1]}" + (@fdata[:hidden] ? "|#{@fdata[:hidden]}" : "")%><% if opt[1] == @fdata[:value] %> selected='selected'<% end %>><%= opt[0] %></option>
+      <% end %>
+    </select>
+    <a href='<%= @fdata[:url] %>' hidden data-search-params-target='anchor' data-select-load-target='click' data-turbo-frame='<%= @form.field_id(@fdata[:key], :turbo_frame) %>'>GetDrill</a>
+  </fieldset>
+<% when "text-area" %>
+  <%= @form.text_area(@fdata[:key], value: @fdata[:value], cols: @fdata[:size], rows: @fdata[:lines], class: @i_class) %>
+<% when "text-box" %>
+  <% if @fdata[:options] # autosearch text input %>
+    <%= @form.text_field(@fdata[:key], list: "#{@fdata[:key]}_list", value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class) %>
+    <datalist id="<%=@fdata[:key]%>_list">
+      <% @fdata[:options].each do |opt| %>
+        <option><%=opt%></option>
+      <% end %>
+    </datalist>
+  <% else # regular text box%>
+    <%= @form.text_field(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class) %>
+  <% end %>
+<% when "time-box" %>
+  <%= @form.number_field(:hour, value: @fdata[:hour], in: 10..22, size: @fdata[:size] ? @fdata[:size] : 3, class: @i_class) %>
+  <strong>:</strong>
+  <%= @form.number_field(:min, value: @fdata[:min], in: 0..45, step: 15, size: @fdata[:size] ? @fdata[:size] : 3, class: @i_class) %>
+<% end %>
