@@ -69,8 +69,8 @@
 					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
 				<% when "rich-text-area" %>
 					<%= @form.rich_text_area item[:key], class: item[:i_class] %>
-				<% when "search-combo" %>
-					<%= render SearchComboComponent.new(search: item) %>
+				<% when /^(search-.+)$/ %>
+					<%= render @search %>
 				<% when "select-box" %>
 					<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: item[:i_class] %>
 				<% when "select-checkboxes" %>

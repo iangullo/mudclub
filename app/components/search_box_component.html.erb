@@ -1,0 +1,20 @@
+<div id='search-box' class='<%= D_CLASS %>'>
+	<%= form_with(url: @s_url, method: :get, data: {controller: "search-form", search_text_target: 'fsearch', turbo_frame: 'search-results'} ) do |fsearch| %>
+		<% @fields.each do |opt| %>
+		<div class='<%= F_CLASS %>'>
+			<% if opt[:label].present? %><label for='<%=opt[:key]%>' class='<%= L_CLASS %>'><%=opt[:label]%></label><% end %>
+			<% case opt[:kind]%>
+			<% when "search-text" %>
+				<%=fsearch.text_field opt[:key], placeholder: opt[:placeholder], value: opt[:value], size: opt[:size], class: @i_class, data: @s_action %>
+			<% when "search-select" %>
+				<%= fsearch.select opt[:key], options_for_select(opt[:options], session.dig(opt[:key].to_sym) || opt[:value]), {include_blank: opt[:blank] || t("scope.all")}, {class: @i_class}%>
+			<% when "search-collection" %>
+				<%= fsearch.collection_select opt[:key], opt[:options], :id, :name, {selected: params[opt[:key].to_sym].presence || opt[:value]}, {class: @i_class}%>
+			<% when "hidden" %>
+				<%= fsearch.hidden_field(opt[:key].to_sym, value: opt[:value]) %>
+			<% end %>
+		</div>
+		<% end %>
+		<div class='<%= S_CLASS %>'><%=image_submit_tag "search.svg", height: 25, alt: t("action.search"), class: "align-middle m-1" %></div>
+	<% end %>
+</div>
