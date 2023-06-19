@@ -4,9 +4,7 @@
 			<% row.each do |item| %>
 				<%=item[:cell]%>
 				<% case item[:kind] %>
-				<% when "accordion" %>
-					<%= render @accordion %>
-				<% when "button" %>
+				<% when /^(accordion|button|dropdown|search-.+)/ %>
 					<%= render item[:value] %>
 				<% when "contact" %>
 					<%= render item[:mail] if item[:mail] %>
@@ -14,8 +12,6 @@
 					<%= render item[:whatsapp] if item[:whatsapp] %>
 				<% when "date-box" %>
 					<%= @form.date_field item[:key], value: item[:value], start_year: item[:s_year], end_year: item[:e_year] ? item[:e_year] : Time.now.year, class: item[:i_class] %>
-				<% when "dropdown" %>
-					<%= render DropdownComponent.new(button: item[:button]) %>
 				<% when "email-box" %>
 					<%= @form.email_field item[:key], placeholder: item[:placeholder], size: item[:size], class: item[:i_class] %>
 				<% when "gap" %>
@@ -69,8 +65,6 @@
 					<%= @form.radio_button item[:key], item[:value], checked: item[:checked] %>
 				<% when "rich-text-area" %>
 					<%= @form.rich_text_area item[:key], class: item[:i_class] %>
-				<% when /^(search-.+)$/ %>
-					<%= render @search %>
 				<% when "select-box" %>
 					<%= @form.select item[:key], item[:options], {selected: item[:value] ? item[:value] : item[:options].first}, class: item[:i_class] %>
 				<% when "select-checkboxes" %>

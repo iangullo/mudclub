@@ -69,22 +69,24 @@ class FieldsComponent < ApplicationComponent
 			row.each do |item|
 				case item[:kind]
 				when "accordion"
-					@accordion = AccordionComponent.new(accordion: item)
+					item[:value] = AccordionComponent.new(accordion: item)
 				when "button"	# item[:button] has to contain the button definition
 					item[:value] = ButtonComponent.new(button: item[:button])
 				when "contact"
 					set_contact(item)
+				when "dropdown"	# item[:button] has to contain the button definition
+					item[:value] = DropdownComponent.new(button: item[:button])
 				when "gap"
 					item[:size]  = 4 unless item[:size]
 				when "header-icon", "icon", "icon-label"
 					set_icon(item)
 				when "label", "label-checkbox"
-					item[:class]   = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : " inline-flex align-top font-semibold"
+					item[:class]   = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : "inline-flex align-top font-semibold"
 					item[:i_class] = "rounded bg-gray-200 text-blue-700"
 				when "lines"
 					item[:class] = "align-top border px py" unless item[:class]
 				when /^(search-.+)$/
-					@search = SearchBoxComponent.new(search: item)
+					item[:value] = SearchBoxComponent.new(search: item)
 				when "nested-form"
 					item[:btn_add] = {kind: "add-nested"} unless item[:btn_add]
 				when "side-cell"

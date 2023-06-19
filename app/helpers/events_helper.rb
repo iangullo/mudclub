@@ -373,7 +373,7 @@ module EventsHelper
 					]
 					res << [
 						{kind: "top-cell", value: I18n.t("target.focus.ofe_a")},
-						{kind: "lines", class: "align-top border px py", value: @event.off_targets, cols: 5}
+						{kind: "lines", value: @event.off_targets, cols: 5}
 					]
 				end
 			end
