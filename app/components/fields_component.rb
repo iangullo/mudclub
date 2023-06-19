@@ -76,30 +76,14 @@ class FieldsComponent < ApplicationComponent
 					set_contact(item)
 				when "dropdown"	# item[:button] has to contain the button definition
 					item[:value] = DropdownComponent.new(button: item[:button])
-				when "gap"
-					item[:size]  = 4 unless item[:size]
 				when "header-icon", "icon", "icon-label"
 					set_icon(item)
-				when "label", "label-checkbox"
-					item[:class]   = item[:class] ? item[:class] + " inline-flex align-top font-semibold" : "inline-flex align-top font-semibold"
-					item[:i_class] = "rounded bg-gray-200 text-blue-700"
-				when "lines"
-					item[:class] = "align-top border px py" unless item[:class]
 				when /^(search-.+)$/
 					item[:value] = SearchBoxComponent.new(search: item)
 				when "nested-form"
 					item[:btn_add] = {kind: "add-nested"} unless item[:btn_add]
-				when "side-cell"
-					item[:align] = "right" unless item[:align]
-					item[:class] = "align-center font-semibold text-indigo-900"
-				when "string"
-					item[:class] = "align-top"
-				when "subtitle"
-					item[:class] = "align-top font-bold"
-				when "title"
-					item[:class] = "align-top font-bold text-yellow-600"
-				when "top-cell"
-					item[:class] = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
+				when "label", "label-checkbox", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
+					set_text_field(item)
 				when "upload"
 					item[:class] = "align-middle px py" unless item[:class]
 					item[:i_class] = "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center"
@@ -108,8 +92,8 @@ class FieldsComponent < ApplicationComponent
 				else
 					item[:i_class] = "rounded p-0" unless item[:kind]=="gap"
 				end
-				item[:align] = "left" unless item[:align]
-				item[:cell]  = tablecell_tag(item)
+				item[:align] ||= "left"
+				item[:cell]    = tablecell_tag(item)
 				res.last << item
 			end
 		end
@@ -157,5 +141,29 @@ class FieldsComponent < ApplicationComponent
 			end
 		end
 		item[:size] = i_size unless item[:size]
+	end
+
+	def set_text_field(item)
+		case item[:kind]
+		when "gap"
+			item[:size]  ||= 4
+		when "label", "label-checkbox"
+			l_cls          = "inline-flex align-top font-semibold"
+			item[:class]   = item[:class] ? "#{item[:class]} #{l_cls}" : l_cls
+			item[:i_class] = "rounded bg-gray-200 text-blue-700"
+		when "lines"
+			item[:class] ||= "align-top border px py"
+		when "side-cell"
+			item[:align] ||= "right"
+			item[:class]   = "align-center font-semibold text-indigo-900"
+		when "string"
+			item[:class]   = "align-top"
+		when "subtitle"
+			item[:class]   = "align-top font-bold"
+		when "title"
+			item[:class]   = "align-top font-bold text-yellow-600"
+		when "top-cell"
+			item[:class]   = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
+		end
 	end
 end
