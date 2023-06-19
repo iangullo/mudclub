@@ -1,14 +1,14 @@
 <div id="accordion-collapse" data-accordion="collapse">
-	<h2 class="<%=@accordion[:h_class]%>"><%=@accordion[:title]%></h2>
+	<h2 class="<%= H_CLASS %>"><%=@accordion[:title]%></h2>
 	<% @accordion[:objects].each do |obj| %>
 		<h2 id="<%=obj[:head_id]%>">
-			<button type="button" class="<%=@accordion[:i_class]%>" data-accordion-target="#<%=obj[:body_id]%>" aria-expanded="false" aria-controls="<%=obj[:body_id]%>">
+			<button type="button" class="<%= I_CLASS %>" data-accordion-target="#<%=obj[:body_id]%>" aria-expanded="false" aria-controls="<%=obj[:body_id]%>">
 				<span><%=obj[:head]%></span>
 				<svg data-accordion-icon class="w-6 h-6 rotate-180 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
 			</button>
 		</h2>
 		<div id="<%=obj[:body_id]%>" class="hidden" aria-labelledby="<%=obj[:head_id]%>">
-			<div class="py px-2 rounded-lg border-2 border-indigo-900">
+			<div class="<%= O_CLASS %>">
 				<% if obj[:content].class==FieldsComponent %>
 					<%=render obj[:content]%>
 				<% else %>
@@ -17,5 +17,5 @@
 			</div>
 		</div>
 	<% end %>
-	<div class="<%=@accordion[:t_class]%>"><%= @accordion[:tail] if @accordion[:tail] %></div>
+	<div class="<%= T_CLASS %>"><%= @accordion[:tail] if @accordion[:tail] %></div>
 </div>

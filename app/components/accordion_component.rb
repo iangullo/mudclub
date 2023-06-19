@@ -32,7 +32,17 @@
 #				-> body_id: unique identifier to expand/collapse object content
 #				-> content: object content to render in collapsible section
 class AccordionComponent < ApplicationComponent
+	H_CLASS = "font-semibold text-left text-indigo-900"
+	T_CLASS = "font-semibold text-right text-indigo-900"
+	I_CLASS = "flex justify-between items-center p-1 w-full bg-gray-100 text-left text-gray-700 rounded-md hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200"
+	O_CLASS = "py px-2 rounded-lg border-2 border-indigo-900"
+
 	def initialize(accordion:)
 		@accordion = accordion
-	end
+		i = 1
+		@accordion[:objects].each { |obj|
+			obj[:head_id] = "accordion-collapse-heading-" + i.to_s
+			obj[:body_id] = "accordion-collapse-body-" + i.to_s
+			i = i +1
+		}	end
 end

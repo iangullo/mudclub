@@ -5,7 +5,7 @@
 				<%=item[:cell]%>
 				<% case item[:kind] %>
 				<% when "accordion" %>
-					<%= render AccordionComponent.new(accordion: item) %>
+					<%= render @accordion %>
 				<% when "button" %>
 					<%= render item[:value] %>
 				<% when "contact" %>

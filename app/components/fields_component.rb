@@ -69,7 +69,7 @@ class FieldsComponent < ApplicationComponent
 			row.each do |item|
 				case item[:kind]
 				when "accordion"
-					set_accordion(item)
+					@accordion = AccordionComponent.new(accordion: item)
 				when "button"	# item[:button] has to contain the button definition
 					item[:value] = ButtonComponent.new(button: item[:button])
 				when "contact"
@@ -112,19 +112,6 @@ class FieldsComponent < ApplicationComponent
 			end
 		end
 		res
-	end
-
-	# a few specific wrappers to define additional item data
-	def set_accordion(item)
-		item[:h_class] = "font-semibold text-left text-indigo-900"
-		item[:t_class] = "font-semibold text-right text-indigo-900"
-		item[:i_class] = "flex justify-between items-center p-1 w-full bg-gray-100 text-left text-gray-700 rounded-md hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200"
-		i = 1
-		item[:objects].each { |obj|
-			obj[:head_id] = "accordion-collapse-heading-" + i.to_s
-			obj[:body_id] = "accordion-collapse-body-" + i.to_s
-			i = i +1
-		}
 	end
 
 	def set_contact(item)
