@@ -62,7 +62,10 @@ class TopbarComponent < ApplicationComponent
 		m_teams = {kind: "menu", name: "teams", label: I18n.t("team.many"), options:[], class: @tabcls}
 		u_teams = user.team_list
 		if u_teams
-			u_teams.each { |team| m_teams[:options] << menu_link(label: team.name, url: '/teams/'+ team.id.to_s) }
+			slast = Season.latest
+			if slast
+				u_teams.each { |team| m_teams[:options] << menu_link(label: team.name, url: '/teams/'+ team.id.to_s) if team.season==slast}
+			end
 		end
 		m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: '/teams')
 		res << m_teams unless m_teams[:options].empty?
