@@ -416,7 +416,6 @@ class Event < ApplicationRecord
 		def check_tasks(t_array)
 			order = 1
 			t_array.each { |t| # manage associations
-				binding.break
 				tsk = self.tasks.find_by_id(t[1][:id].to_i)
 				if t[1][:_destroy] == "1"	# delete task
 					tsk.delete
