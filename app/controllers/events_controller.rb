@@ -181,7 +181,7 @@ class EventsController < ApplicationController
 	# GET /events/1/edit_task
 	def edit_task
 		if check_access(roles: [:admin, :coach], obj: @event)
-			prepare_task_form(subtitle: I18n.t("task.edit"), retlnk: event_path(@event), search_in: edit_task_event_path(@event), task_id: true)
+			prepare_task_form(subtitle: I18n.t("task.edit"), retlnk: edit_event_path(@event), search_in: edit_task_event_path(@event), task_id: true)
 		else
 			redirect_to events_path, data: {turbo_action: "replace"}
 		end

@@ -182,7 +182,7 @@ module EventsHelper
 			{kind: "gap"},
 			{kind: "icon-label", icon: "clock.svg", label: task.s_dur}
 		] if title
-		res << [{kind: "cell", value: task.drill.explanation.empty? ? @task.drill.description : task.drill.explanation}]
+		res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
 		if task.remarks?
 			res << [{kind: "label", value: I18n.t("task.remarks")}]
 			res << [{kind: "cell", value: task.remarks, size: 28}]

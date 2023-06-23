@@ -21,6 +21,7 @@ class Task < ApplicationRecord
 	belongs_to :drill
 	has_rich_text :remarks
 	self.inheritance_column = "not_sti"
+	acts_as_list column: :order, scope: :event
 
 	def to_s
 		self.drill ? self.drill.nice_string : I18n.t("drill.default")
@@ -30,19 +31,25 @@ class Task < ApplicationRecord
 		self.duration.to_s + "\'"
 	end
 
-	def headstring
-		"#{self.order.to_s.rjust(2, "0")} - #{self.to_s} (#{self.s_dur})"
+	def headstring(order=true)
+		"#{order ? (self.order.to_s.rjust(2, "0") + " - ") : ""}#{self.to_s} (#{self.s_dur})"
 	end
 
-	# Takes the input received from add_task (f_object)
-	# and either reads or creates a matching drill_target
+	# Takes the input received from add/edit_task (f_object)
+	# rebuilds self with the data received data
+	def rebuild(f_object)
+		self.order    = f_object[:order].to_i
+		self.drill_id = f_object[:drill_id].to_i
+		self.duration = f_object[:duration].to_i
+		self.remarks  = f_object[:remarks]
+	end
+
+	# Takes the input received from add/edit task form (f_object)
+	# and either reads or creates a matching Task
 	def self.fetch(f_object)
 		res = Task.find_by(id: f_object[:id].to_i) if f_object[:id].present?
 		res = Task.new unless res
-		res.order    = f_object[:order].to_i
-		res.drill_id = f_object[:drill_id].to_i
-		res.duration = f_object[:duration].to_i
-		res.remarks  = f_object[:remarks]
+		res.rebuild(f_object)
 		return res
 	end
 end

@@ -414,12 +414,15 @@ class Event < ApplicationRecord
 		# checks tasks_attributes parameter received and manage adding/removing
 		# from the task collection - ALLOWING DUPLICATES.
 		def check_tasks(t_array)
+			order = 1
 			t_array.each { |t| # manage associations
+				binding.break
+				tsk = self.tasks.find_by_id(t[1][:id].to_i)
 				if t[1][:_destroy] == "1"	# delete task
-					Task.find(t[1][:id].to_i).delete
+					tsk.delete
 				else
-					tsk = Task.fetch(t[1])
-					tsk.save
+					tsk.update!(order:)
+					order += 1
 				end
 			}
 		end

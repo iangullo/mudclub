@@ -39,7 +39,7 @@
 # => "location": link to open a maps location in another browser window
 # => "login": login button
 # => "menu": menu button
-# => "remove": remove item from nested form
+# => "remove": remove item from nested form or sortable list
 # => "save": save form
 # => "whatsapp": open whatsapp chat
 # frozen_string_literal: true
@@ -148,11 +148,11 @@ class ButtonComponent < ApplicationComponent
 		@button[:name] = @button[:kind] unless @button[:name]
 		case @button[:kind]
 		when "remove"
-			@button[:action] = "nested-form#remove"
+			@button[:action] ||= "nested-form#remove"
 		when "add", "add-nested"
-			@button[:action] = "nested-form#add" if @button[:kind]=="add-nested"
+			@button[:action] ||= "nested-form#add" if @button[:kind]=="add-nested"
 		when "close"
-			@button[:action] = "turbo-modal#hideModal"
+			@button[:action] ||= "turbo-modal#hideModal"
 			b_start = b_start + " font-bold"
 		when "cancel", "clear" "save", "import", "export", "menu", "login", "back", "forward"
 			b_start = b_start + " font-bold"
