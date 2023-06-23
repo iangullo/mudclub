@@ -119,7 +119,7 @@ class EventsController < ApplicationController
 					format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
 					format.json { render @retview, status: :ok, location: @retlnk }
 				elsif @event.modified?	# do we need to save?
-					if @event.save	# try to do its
+					if @event.save	# try to do it
 						register_action(:updated, @notice[:message])
 						@event.tasks.reload if e_data[:tasks_attributes] # a training session
 						format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
@@ -181,7 +181,7 @@ class EventsController < ApplicationController
 	# GET /events/1/edit_task
 	def edit_task
 		if check_access(roles: [:admin, :coach], obj: @event)
-			prepare_task_form(subtitle: I18n.t("task.edit"), retlnk: event_path(@event), search_in: edit_task_event_path(@event), task_id: true)
+			prepare_task_form(subtitle: I18n.t("task.edit"), retlnk: edit_event_path(@event), search_in: edit_task_event_path(@event), task_id: true)
 		else
 			redirect_to events_path, data: {turbo_action: "replace"}
 		end
@@ -225,7 +225,8 @@ class EventsController < ApplicationController
 					@retlnk = params[:retlnk] ? params[:retlnk] : team_events_path(@event, start_date: @event.start_date)
 				else	# match or training session
 					@retview = :show
-					@retlnk = event_path(@event)
+					@notice  =  helpers.flash_message("#{I18n.t("train.updated")} ", "success") if @event.modified?
+					@retlnk  = event_path(@event)
 				end
 			end
 			# returns whether we have something to save
