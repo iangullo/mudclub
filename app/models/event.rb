@@ -17,7 +17,9 @@
 # contact email - iangullo@gmail.com.
 #
 class Event < ApplicationRecord
+	after_initialize :set_changed_flag
 	before_destroy :unlink
+	attr_accessor :event_changed
 	belongs_to :team
 	belongs_to :location
 	has_many :event_targets, dependent: :destroy
@@ -283,7 +285,7 @@ class Event < ApplicationRecord
 
 	# check if drill (or associations) has changed
 	def modified?
-		res = self.changed?
+		res = self.changed? || @event_changed
 		unless res
 			res = self.stats.any?(&:saved_changes?)
 			unless res
@@ -420,8 +422,10 @@ class Event < ApplicationRecord
 				if t[1][:_destroy] == "1"	# delete task
 					tsk.delete
 				else
-					tsk.update!(order:)
-					order += 1
+					tsk.rebuild(t[1])
+					tsk.order      = order
+					@event_changed = tsk.save if tsk.changed?
+					order         += 1
 				end
 			}
 		end
@@ -442,5 +446,9 @@ class Event < ApplicationRecord
 			when :train, :match
 				self.players.delete_all
 			end
+		end
+
+		def set_changed_flag
+			@event_changed = false
 		end
 end

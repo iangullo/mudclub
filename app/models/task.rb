@@ -41,7 +41,7 @@ class Task < ApplicationRecord
 		self.order    = f_object[:order].to_i
 		self.drill_id = f_object[:drill_id].to_i
 		self.duration = f_object[:duration].to_i
-		self.remarks  = f_object[:remarks]
+		self.remarks  = f_object[:remarks] if f_object[:remarks]
 	end
 
 	# Takes the input received from add/edit task form (f_object)

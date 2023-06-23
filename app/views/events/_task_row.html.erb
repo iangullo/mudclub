@@ -1,6 +1,7 @@
 <% if form.object %>
 	<% f_cls = "rounded shadow-inner border-indigo-100 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0 px-0 m-1 align-middle" %>
 	<div class="float-left">
+		<%= form.hidden_field :drill_id %>
 		<%= form.object.drill.nice_string %>
 	</div>
 	<div class="float-right">
