@@ -13,17 +13,13 @@ export default class extends Sortable {
 	}
 
   remove(event) {
-    console.log('before removing element');
-
     const item = event.currentTarget.closest(".draggable");
     const destroyInput = item.querySelector("[name*='_destroy']");
     const idInput = item.querySelector("input[name*='[id]']").value;
 
     if (destroyInput) {
-      console.log('removing an item with ID:', idInput)
       destroyInput.value = "1";
     } else {
-      console.log('prearing item to remove with ID:', idInput)
       const hiddenInput = document.createElement("input");
       hiddenInput.type = "hidden";
       hiddenInput.name = item.querySelector("[name*='[id]']").name.replace("[id]", "[_destroy']");
@@ -35,10 +31,6 @@ export default class extends Sortable {
     item.style.display = "none";
 
     event.preventDefault();
-  }
-
-  get preventDefault() {
-    return this.data.get("preventDefault") === "true";
   }
 
   onSubmit(event) {
