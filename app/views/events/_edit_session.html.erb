@@ -18,9 +18,7 @@
 			<th colspan="2" align="left" class="text-indigo-900 align-center"><%= t("task.many") %></th>
 		</tr><tr>
 			<td colspan="2" align="left" class="align-top">
-				<turbo-frame id="sortable-list" class="contents">
-					<%= render SortableComponent.new(form: form, key: "tasks", order: :order, row: "task_row") %>
-				</turbo-frame>
+				<%= render SortableComponent.new(form: form, key: "tasks", order: :order, row: "task_row") %>
 			</td>
 		</tr><tr>
 			<td align="left">

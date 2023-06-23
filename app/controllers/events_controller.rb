@@ -225,7 +225,6 @@ class EventsController < ApplicationController
 					@retlnk = params[:retlnk] ? params[:retlnk] : team_events_path(@event, start_date: @event.start_date)
 				else	# match or training session
 					@retview = :show
-					@notice  =  helpers.flash_message("#{I18n.t("train.updated")} ", "success") if @event.modified?
 					@retlnk  = event_path(@event)
 				end
 			end

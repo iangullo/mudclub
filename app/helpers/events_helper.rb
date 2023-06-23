@@ -285,7 +285,7 @@ module EventsHelper
 		when :match
 			msg = I18n.t(attendance ? "match.att_check" : "match.updated") + "#{@event.to_s(style: "notice")}"
 		end
-		if attendance or @event.changed?
+		if attendance or @event.modified?
 			return flash_message(msg, "success")
 		else
 			return flash_message(I18n.t("status.no_data"), "info")
