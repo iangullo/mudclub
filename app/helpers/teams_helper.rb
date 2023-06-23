@@ -25,7 +25,7 @@ module TeamsHelper
 			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: s_id}]
 		elsif edit and u_admin?
 			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
-		else
+		elsif @team
 			res << [{kind: "label", value: @team.season.name}]
 			w_l = @team.win_loss
 			if w_l[:won]>0 or w_l[:lost]>0

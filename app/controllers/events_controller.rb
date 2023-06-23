@@ -145,7 +145,7 @@ class EventsController < ApplicationController
 			team   = @event.team
 			@event.destroy
 			respond_to do |format|
-				next_url = team.id > 0 ? team_path : events_path
+				next_url = team.id > 0 ? team : events_path
 				next_act = team.id > 0 ? :show : :index
 				a_desc   = helpers.event_delete_notice
 				register_action(:deleted, a_desc)
