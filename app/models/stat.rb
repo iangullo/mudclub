@@ -46,12 +46,14 @@ class Stat < ApplicationRecord
 		blk: 14,  # blocks
 		pfc: 15,  # fouls
 		pfr: 16,  # fouls received
-		q1: 17, # outing in eaach qwuarter
+		q1: 17, # outing in each qwuarter
 		q2: 18,
 		q3: 19,
 		q4: 20,
 		q5: 21,
-		q6: 22
+		q6: 22,
+		zga: 23,	# shots near basket
+		zgm: 24
 	}
 
 	# fetch a stat based on event, player & concept

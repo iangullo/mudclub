@@ -39,12 +39,12 @@ class EventsController < ApplicationController
 	# GET /events/1 or /events/1.json
 	def show
 		if check_access(roles: [:admin, :coach])
-			retlnk = params[:retlnk]
-			@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
+			@title = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
 			if @event.rest?
 				@submit = create_submit(submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil, frame: "modal")
 			else
-				@submit = create_submit(close: "back", close_return: retlnk ? retlnk : team_path(@event.team), submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil)
+				retlnk  = params[:retlnk].presence || team_path(@event.team)
+				@submit = create_submit(close: "back", close_return: retlnk, submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil)
 				@fields = create_fields(@event.match? ? helpers.match_show_fields : helpers.training_show_fields)
 			end
 		else

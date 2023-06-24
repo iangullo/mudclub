@@ -26,27 +26,23 @@ module PlayersHelper
 	# => nil: for players index
 	# => Team: for team roster views
 	def player_grid(players:, obj: nil)
-		p_index = (obj == nil)
+		p_ndx = (obj == nil)
 		title = [
 			{kind: "normal", value: I18n.t("player.number"), align: "center"},
 			{kind: "normal", value: I18n.t("person.name")},
-			{kind: "normal", value: I18n.t("person.age"), align: "center"}
+			{kind: "normal", value: I18n.t("person.age"), align: "center"},
+			{kind: "normal", value: I18n.t("status.active_a"), align: "center"}
 		]
-		if p_index
-			title << {kind: "normal", value: I18n.t("status.active_a"), align: "center"}
-			title << button_field({kind: "add", url: new_player_path, frame: "modal"}) if u_admin? or u_coach?
-		end
+		title << button_field({kind: "add", url: new_player_path, frame: "modal"}) if u_admin?
 		rows = Array.new
 		players.each { | player|
-			go_back = p_index ? players_path(search: player.s_name) : team_path(obj)
-			row     = {url: player_path(player, retlnk: go_back), frame: "modal", items: []}
+			go_back = p_ndx ? players_path(search: player.s_name) : team_path(obj)
+			row     = {url: player_path(player, retlnk: go_back), items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
 			row[:items] << {kind: "normal", value: player.to_s}
 			row[:items] << {kind: "normal", value: player.person.age, align: "center"}
-			if p_index
-				row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
-				row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s}) if u_admin? or u_coach? and p_index
-			end
+			row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
+			row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s}) if u_admin?
 			rows << row
 		}
 		return {title: title, rows: rows}
@@ -58,6 +54,8 @@ module PlayersHelper
 		res << [{kind: "label", value: @player.s_name}]
 		res << [{kind: "label", value: @player.person.surname}]
 		res << [{kind: "string", value: @player.person.birthday}]
+		res << [{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}, {kind: "string", value: @player.person.dni.to_s}]
+		res << [{kind: "icon-label", icon: (@player.active ? "Yes.svg" : "No.svg"),	label: "#{I18n.t("status.active")}:",	right: true, class: "flex font-semibold justify-center",	align: "center"}]
 		if team
 			att = @player.attendance(team: team)
 			res << [
@@ -81,13 +79,7 @@ module PlayersHelper
 				{kind: "label", value: I18n.t("season.abbr"), align: "right"},
 				{kind: "text", value: att[:avg].to_s + "%"}
 			] if att[:avg]
-		else
-			res << [
-				{kind: "icon-label", icon: (@player.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"},
-				{kind: "string", value: @player.person.dni.to_s}
-			]
 		end
-		res << [{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}]
 		res.last << {kind: "contact", email: @player.person.email, phone: @player.person.phone, device: device}
 		unless @player.parents.empty?
 			res << [{kind: "label", value: "#{I18n.t("parent.many")}:"}]
