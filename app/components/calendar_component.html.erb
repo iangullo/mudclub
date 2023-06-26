@@ -26,7 +26,7 @@
 					<% 1.upto(@c_cols) do |j| %>
 						<td class="<%=@cells[i][j][:c_class]%>">
 						<% if @cells[i][j][:events].empty? %>
-							<% if @add_btn[i][j] %>
+							<% if @add_btn && @add_btn[i][j] %>
 								<%=render @add_btn[i][j]%>
 							<% else %>
 								<br>

@@ -1,20 +1,8 @@
 <div id="team-show">
 	<%= render @title %>
-	<br>
-	<div id="team-coaches">
-		<table>
-			<tr>
-				<td align="right" class="align-top"><%= image_tag("coach.svg", :size => "30x30") %></td>
-				<td align="left" colspan="3">
-					<% @team.coaches.each do |coach| %>
-						<%= link_to coach.to_s, coach, class:"hover:bg-blue-700 hover:text-white", data: {turbo_frame: "modal"} %>
-						<br>
-					<% end %>
-				</td>
-			</tr>
-		</table>
-	</div>
-	<br>
-	<%= render @links %>
-	<%= render @grid %>
+	<%= render @coaches %>
+	<%= render @links if @links %>
+	<%= render @grid  if @grid %>
+	<%= render @calendar if @calendar %>
+	<%= render @submit if @submit %>
 </div>

@@ -21,9 +21,14 @@ class HomeController < ApplicationController
 		if current_user.present?
 			if u_admin?	# we will redirect to season.index
 				redirect_to seasons_path, data: {turbo_action: "replace"}
-			else
-				title   = helpers.home_title_fields
-				title << [{kind: "gap"}]
+			elsif u_coach?
+				@coach  = current_user.coach
+				@fields = create_fields(helpers.coach_show_fields)
+				@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
+			elsif u_player?
+				start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
+				@player = current_user.player
+				title   = helpers.player_show_fields
 				@fields = create_fields(title)
 				teams   = helpers.team_grid(teams: current_user.team_list)
 				@grid   = create_grid(teams) if teams

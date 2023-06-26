@@ -97,34 +97,22 @@ module TeamsHelper
 
 	# return jump links for a team
 	def team_links
-		res = [[
-			button_field(
-				{kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster")},
-				align: "center"
-			)
-		]]
 		if (u_admin? or u_coach?)
-			res.last << button_field(
-				{kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t("target.many")},
-				align: "center"
-			)
-			res.last << button_field(
-				{kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr")},
-				align: "center"
-			)
-		end
-		res.last << button_field(
-			{kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal"},
-			align: "center"
-		)
-		if (u_admin? or @team.has_coach(u_coachid))
-			res.last << button_field({kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"})
+			res = [[
+				button_field({kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster")}, align: "center"),
+				button_field({kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t("target.many")}, align: "center"),
+				button_field({kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr")}, align: "center"),
+				button_field({kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal"}, align: "center")
+			]]
+			res.last << button_field({kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}) if @team.has_coach(u_coachid)
+		else
+			res = [[]]
 		end
 		res << [{kind: "gap"}]
 		res
 	end
 
-	# A Field Component with grid for team attendance. obj is the parent oject (player/team)
+	# A Field Component with grid for team attendance. obj is the parent object (player/team)
 	def team_attendance_grid
 		t_att = @team.attendance
 		if t_att # we have attendance data
@@ -160,5 +148,26 @@ module TeamsHelper
 			return {title: title, rows: rows, chart: t_att[:sessions]}
 		end
 		return nil
+	end
+
+	# Fields showing team coaches
+	def team_coaches
+		coaches = [[{kind: "gap", size:1, cols: 2, class: "text-xs"}]]
+		unless (c_count = @team.coaches.count) == 0	# only create if there are coaches
+			c_icon  = {kind: "icon", value: "coach.svg", tip: I18n.t("coach.many"), align: "right", class: "align-top", size: "30x30", rows: c_count}
+			c_first = true
+			@team.coaches.each do |coach|
+				if u_admin?
+					c_button = button_field({kind: "link", label: coach.to_s, url: coach, b_class: "align-middle", d_class: "align-middle", turbo: "modal"})
+					coaches << (c_first ? [c_icon, c_button] : [c_button])
+				else
+					c_string = {kind: "string", value: coach.to_s, class: "align-middle"}
+					c_button = {kind: "contact", phone: coach.person.phone}
+					coaches << (c_first ? [c_icon, c_string, c_button] : [c_string, c_button])
+				end
+				c_first = false if c_first
+			end
+		end
+		coaches
 	end
 end

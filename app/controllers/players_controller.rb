@@ -49,7 +49,7 @@ class PlayersController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @player)
 			retlnk  = params[:retlnk].presence || players_path
 			@fields = create_fields(helpers.player_show_fields(team: params[:team_id] ? Team.find(params[:team_id]) : nil))
-			@submit = create_submit(close: "back", close_return: retlnk, submit: (u_admin? or u_coach? or u_playerid==@player.id) ? edit_player_path(@player, retlnk:) : nil, frame: "modal")
+			@submit = create_submit(close: "back", close_return: retlnk, submit: edit_player_path(@player, retlnk:), frame: "modal")
 			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
 		else
 			redirect_to players_path, data: {turbo_action: "replace"}

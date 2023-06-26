@@ -1,0 +1,8 @@
+<%= render ModalComponent.new do %>
+	<%= form_for @event, data: {turbo_frame: "_top"} do |form| %>
+		<%= render @title %>
+		<% @fields.form = form %>
+		<%= render @fields %>
+		<%= render @submit %>
+	<% end %>
+<% end %>

@@ -39,7 +39,6 @@ class TopbarComponent < ApplicationComponent
 		if user
 			I18n.locale = user.locale.to_sym
 			@menu_tabs  = menu_tabs(user)
-			@admin_tab  = admin_tab(user) if user.admin? or user.is_coach?
 		end
 		@prof_tab = prof_tab(user)
 		@ham_menu = set_hamburger_menu if user
@@ -58,43 +57,15 @@ class TopbarComponent < ApplicationComponent
 	end
 
 	def menu_tabs(user)
-		res     = []
-		m_teams = {kind: "menu", name: "teams", label: I18n.t("team.many"), options:[], class: @tabcls}
-		u_teams = user.team_list
-		if u_teams
-			slast = Season.latest
-			if slast
-				u_teams.each { |team| m_teams[:options] << menu_link(label: team.name, url: '/teams/'+ team.id.to_s) if team.season==slast}
-			end
-		end
-		m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: '/teams')
-		res << m_teams unless m_teams[:options].empty?
-		if user.is_coach?
-			res << menu_link(label: I18n.t("drill.many"), url: '/drills')
-			res << menu_link(label: I18n.t("player.many"), url: '/players') unless user.admin?
-			res << menu_link(label: I18n.t("coach.many"), url: '/coaches') unless user.admin?
-			res << menu_link(label: I18n.t("slot.many"), url: '/slots') unless user.admin?
-			res << menu_link(label: I18n.t("location.many"), url: '/locations') unless user.admin?
-		end
-		res
-	end
-
-	def admin_tab(user)
 		if user.admin?
-			res = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[], class: @tabcls}
-			res[:options] << menu_link(label: I18n.t("category.many"), url: '/categories')
-			res[:options] << menu_link(label: I18n.t("division.many"), url: '/divisions')
-			c_opts = {name: "club-menu", label: @clubname, options:[]}
-			c_opts[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")
-			c_opts[:options] << menu_link(label: I18n.t("season.many"), url: '/seasons')
-			c_opts[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
-			c_opts[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
-			c_opts[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
-			res[:options] << c_opts
-			res[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
-			res[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
+			admin_menu(user)
+		elsif user.is_coach?
+			coach_menu(user)
+		elsif user.is_player?
+			player_menu(user)
+		else
+			user_menu(user)
 		end
-		res
 	end
 
 	def prof_tab(user)
@@ -142,5 +113,65 @@ class TopbarComponent < ApplicationComponent
 			l_data = {turbo_method: :delete}
 		end
 		{kind:, label:, url:, class:, data: l_data }
+	end
+
+	# menu buttons for coaches
+	def coach_menu(user)
+		menu = []
+		add_team_menu(user, menu)
+		menu += [
+			menu_link(label: I18n.t("drill.many"), url: '/drills'),
+			menu_link(label: I18n.t("player.many"), url: '/players'),
+			menu_link(label: I18n.t("coach.many"), url: '/coaches'),
+			menu_link(label: I18n.t("location.many"), url: '/locations')
+		]
+	end
+
+	# menu buttons for admins
+	def admin_menu(user)
+		menu = [menu_link(label: I18n.t("season.single"), url: '/seasons')]
+		if user.is_coach?
+			add_team_menu(user, menu)
+			menu << menu_link(label: I18n.t("drill.many"), url: '/drills')
+		end
+		@admin_tab = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[], class: @tabcls}
+		c_opts = {name: "club-menu", label: @clubname, options:[]}
+		c_opts[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")
+		c_opts[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
+		c_opts[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
+		c_opts[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
+		@admin_tab[:options] << c_opts
+		@admin_tab[:options] << menu_link(label: I18n.t("category.many"), url: '/categories')
+		@admin_tab[:options] << menu_link(label: I18n.t("division.many"), url: '/divisions')
+		@admin_tab[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
+		@admin_tab[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
+		menu
+	end
+
+	def player_menu(user)
+		menu = []
+		menu
+	end
+
+	def user_menu(user)
+		menu = []
+		menu
+	end
+
+	def add_team_menu(user, menu)
+		m_teams = {kind: "menu", name: "teams", label: I18n.t("team.many"), options:[], class: @tabcls}
+		u_teams = user.team_list
+		if u_teams
+			slast = Season.latest
+			if slast
+				u_teams.each { |team| m_teams[:options] << menu_link(label: team.name, url: '/teams/'+ team.id.to_s) if team.season==slast}
+			end
+		end
+		if m_teams[:options].empty?
+			menu << menu_link(label: I18n.t("team.many"), url: '/teams')
+		else
+			m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: '/teams')
+			menu << m_teams
+		end
 	end
 end

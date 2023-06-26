@@ -346,12 +346,13 @@ module EventsHelper
 		end
 
 		# complete event_title for train events
-		def train_title(res:, cols:, form:, subtitle:, chart: nil)
-			res << [{kind: "subtitle", value: subtitle ? subtitle : I18n.t("train.single"), cols:}, {kind: "gap"}]
+		def train_title(res:, cols:, form:, subtitle: nil, chart: nil)
+			value = subtitle || I18n.t("train.single")
+			res << [{kind: "subtitle", value:, cols:}, {kind: "gap"}]
 			unless chart
 				if form
 					res << [workload_button(align: "left", cols: 3)] if @event.id
-				else
+				elsif (u_admin? || u_coach?)
 					res << [
 						workload_button(align: "left", cols: 4),
 						{kind: "gap", size: 1},
@@ -371,6 +372,8 @@ module EventsHelper
 						{kind: "top-cell", value: I18n.t("target.focus.ofe_a")},
 						{kind: "lines", value: @event.off_targets, cols: 5}
 					]
+				elsif u_player?
+					res << [{kind: "gap"}, {kind: "label", value: current_user.to_s, cols: 3}]
 				end
 			end
 		end
