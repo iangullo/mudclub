@@ -1,5 +1,9 @@
-<%= render ModalComponent.new do %>
+<div class="content">
 	<%= render @fields %>
-	<%= render @grid if @grid%>
+	<% if @grid %>
+		<div class="flex justify-center">
+			<%= render @grid %>
+		</div>
+	<% end %>
 	<%= render @submit %>
-<% end %>
+</div>

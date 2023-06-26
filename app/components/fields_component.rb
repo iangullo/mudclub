@@ -83,11 +83,11 @@ class FieldsComponent < ApplicationComponent
 				when /^(search-.+)$/
 					item[:value] = SearchBoxComponent.new(search: item)
 				when "nested-form"
-					item[:btn_add] = {kind: "add-nested"} unless item[:btn_add]
+					item[:btn_add] ||= {kind: "add-nested"}
 				when "gap", "label", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
 					set_text_field(item)
 				when "upload"
-					item[:class] = "align-middle px py" unless item[:class]
+					item[:class] ||= "align-middle px py"
 					item[:i_class] = "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center"
 				when /^(select-.+|.+-box|.+-area)$/
 					item[:class] ||= "align-top"
@@ -119,10 +119,10 @@ class FieldsComponent < ApplicationComponent
 		else
 			i_size = "25x25"
 			if item[:label]
-				item[:class] = "align-top inline-flex" unless item[:class]
+				item[:class] ||= "align-top inline-flex"
 			else
-				item[:align] = "right" unless item[:align]
-				item[:class] = item[:class] ? item[:class] + " align-middle" : "align-middle"
+				item[:align] ||= "right"
+				item[:class] ||= item[:class]
 			end
 		end
 		item[:size] = i_size unless item[:size]

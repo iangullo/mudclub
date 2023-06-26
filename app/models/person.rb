@@ -83,8 +83,8 @@ class Person < ApplicationRecord
 			self.id = p_aux.id
 			self.reload
 		end
-		self.dni       = f_data[:dni] if f_data[:dni]
-		self.email     = f_data[:email] if f_data[:email]
+		self.dni       = f_data[:dni].presence || self.dni || ""
+		self.email     = f_data[:email].presence || self.email || ""
 		self.name      = f_data[:name] if f_data[:name]
 		self.surname   = f_data[:surname] if f_data[:surname]
 		self.birthday  = f_data[:birthday] if f_data[:birthday]
@@ -94,6 +94,7 @@ class Person < ApplicationRecord
 		self.coach_id  = 0 unless self.coach_id.to_i > 0
 		self.player_id = 0 unless self.player_id.to_i > 0
 		self.parent_id = 0 unless self.parent_id.to_i > 0
+		self.user_id   = 0 unless self.user_id.to_i > 0
 	end
 
 	# calculate age

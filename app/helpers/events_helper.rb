@@ -168,6 +168,31 @@ module EventsHelper
 		]]
 	end
 
+	# fields to display player's stats for an event
+	def event_stats_fields
+		# filter for this event & player
+		stats = Stat.for_event(@event.id).for_player(@player.id)
+		res   = event_stat_header
+		res << show_shooting_data("stat.shot.free", stats, :ftm, :fta)
+		res << show_shooting_data("stat.shot.close", stats, :zgm, :zga)
+		res << show_shooting_data("stat.shot.two", stats, :dgm, :dga)
+		res << show_shooting_data("stat.shot.three", stats, :tgm, :tga)
+		res << show_shooting_data("stat.total", stats, :psa, :psm)
+		res
+	end
+
+	# fields to display player's edit stats form for an event
+	def event_edit_stats_fields
+		stats = Stat.by_event(@event.id)	# filter for this event
+		stats = Stat.by_player(@player.id, stats)	# filter for a player
+		res   = event_stat_header
+		res << form_shooting_data("stat.shot.free", stats, :ftm, :fta)
+		res << form_shooting_data("stat.shot.close", stats, :zgm, :zga)
+		res << form_shooting_data("stat.shot.two", stats, :dgm, :dga)
+		res << form_shooting_data("stat.shot.three", stats, :tgm, :tga)
+		res
+	end
+
 	# return FieldsComponent @fields for show_training
 	def training_show_fields
 		res = [[{kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + @event.work_duration, objects: task_accordion}]]
@@ -346,12 +371,13 @@ module EventsHelper
 		end
 
 		# complete event_title for train events
-		def train_title(res:, cols:, form:, subtitle:, chart: nil)
-			res << [{kind: "subtitle", value: subtitle ? subtitle : I18n.t("train.single"), cols:}, {kind: "gap"}]
+		def train_title(res:, cols:, form:, subtitle: nil, chart: nil)
+			value = subtitle || I18n.t("train.single")
+			res << [{kind: "subtitle", value:, cols:}, {kind: "gap"}]
 			unless chart
 				if form
 					res << [workload_button(align: "left", cols: 3)] if @event.id
-				else
+				elsif (u_admin? || u_coach?)
 					res << [
 						workload_button(align: "left", cols: 4),
 						{kind: "gap", size: 1},
@@ -371,6 +397,8 @@ module EventsHelper
 						{kind: "top-cell", value: I18n.t("target.focus.ofe_a")},
 						{kind: "lines", value: @event.off_targets, cols: 5}
 					]
+				elsif u_player?
+					res << [{kind: "gap"}, {kind: "label", value: current_user.to_s, cols: 3}]
 				end
 			end
 		end
@@ -464,5 +492,46 @@ module EventsHelper
 			else
 				return nil
 			end
+		end
+
+		def stat_label(stat_name)
+			{kind: "side-cell", value: I18n.t(stat_name), align: "middle", class: "border px py"}
+		end
+
+		def event_stat_header
+			res = [[{kind: "gap"}, {kind: "side-cell", value: I18n.t("stat.many"), align: "middle", cols: 5}]]
+			res << [
+				{kind: "gap"},
+				{kind: "top-cell", value: I18n.t("stat.shot.many")},
+				{kind: "top-cell", value: I18n.t("stat.shot.made"), align: "middle"},
+				{kind: "top-cell", value: "/", align: "middle"},
+				{kind: "top-cell", value: I18n.t("stat.shot.attempt"), align: "middle"}
+			]
+		end
+
+		def show_shooting_data(label, stats, made, attempts)
+			scored = Stat.by_concept(made, stats).first&.value.to_i
+			shot   = Stat.by_concept(attempts, stats).first&.value.to_i
+			pctg   = shot > 0 ? "#{(scored*100/shot)} %" : "N/A"
+			[
+				{kind: "gap"},
+				stat_label(label),
+				{kind: "string", value: scored, class: "border px py", align: "right"},
+				{kind: "label", value: "/"},
+				{kind: "string", value: shot, class: "border px py", align: "right"},
+				{kind: "string", value: pctg, class: "border px py", align: "right"}
+			]
+		end
+
+		def form_shooting_data(label, stats, made, attempts)
+			scored = Stat.by_concept(made, stats).first&.value.to_i
+			shot   = Stat.by_concept(attempts,stats).first&.value.to_i
+			[
+				{kind: "gap"},
+				stat_label(label),
+				{kind: "number-box", key: made, value: scored, class: "border px py", align: "right"},
+				{kind: "label", value: "/"},
+				{kind: "number-box", key: attempts, value: shot, class: "border px py", align: "right"}
+			]
 		end
 end

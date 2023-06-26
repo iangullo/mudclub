@@ -47,10 +47,18 @@ class TeamsController < ApplicationController
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
-		if check_access(roles: [:admin, :coach])
-			@title = create_fields(helpers.team_title_fields(title: @team.to_s))
-			@links = create_fields(helpers.team_links)
-			@grid  = create_fields(helpers.event_list_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team)))
+		if check_access(roles: [:admin, :coach], obj: @team)
+			@title   = create_fields(helpers.team_title_fields(title: @team.to_s))
+			@coaches = create_fields(helpers.team_coaches)
+			if u_admin? or u_coach?
+				@links = create_fields(helpers.team_links)
+				@grid  = create_fields(helpers.event_list_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team)))
+			else
+				start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
+				curlnk     = team_events_path(@team, start_date:)
+				@calendar  = CalendarComponent.new(start_date:, events: @team.events, anchor: curlnk, obj: @team, user: current_user)
+				@submit    = create_submit(close: "back", close_return: "/", submit: nil)
+			end
 		else
 			redirect_to teams_path, data: {turbo_action: "replace"}
 		end

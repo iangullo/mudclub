@@ -88,6 +88,7 @@ class Event < ApplicationRecord
 		else
 			res = {home_t: self.name}
 		end
+		res
 	end
 
 	# string with duration and minutes indication (')

@@ -30,13 +30,14 @@ class CalendarComponent < ApplicationComponent
 	def initialize(start_date:, events: nil, anchor: nil, obj: nil, user: nil, create_url: nil)
 		@start_date = start_date
 		@events     = events
-		@anchor     = anchor ? anchor : request.path
+		@anchor     = anchor || request.path
+		@user       = user
 		@iscope_cls = "bg-gray-100 text-gray-500 text-center"
 		@oscope_cls = "bg-gray-500 text-gray-100 text-center"
 		@cells      = new_canvas(start_date:)
 		@back_link  = set_back_button(events:)
 		@fwd_link   = set_fwd_button(events:)
-		parse_events(events:, obj:, user:, create_url:)
+		parse_events(events:, obj:, create_url:)
 	end
 
 	private
@@ -72,7 +73,7 @@ class CalendarComponent < ApplicationComponent
 		end
 
 		# Parse a collection of Events and map to the canvas
-		def parse_events(events: nil, obj: nil, user: nil, create_url: nil)
+		def parse_events(events: nil, obj: nil, create_url: nil)
 			events.each do |event|	# find the day for each event
 				e_cell = get_cell(e_date: event.start_date)
 				if e_cell
@@ -80,7 +81,7 @@ class CalendarComponent < ApplicationComponent
 					e_cell[:events] << c_event
 				end
 			end if events
-			add_empty_buttons(obj:, user:, create_url:) if obj and user and create_url
+			add_empty_buttons(obj:, create_url:) if obj and @user and create_url
 		end
 
 		# returns cell for a specific date
@@ -93,7 +94,7 @@ class CalendarComponent < ApplicationComponent
 			return nil
 		end
 
-		# determine event_color depending on event kind
+		# determine event_color & url depending on event kind and parameters
 		def c_event_init(event:)
 			c_event = {id: event.id}
 			case event.kind
@@ -112,6 +113,7 @@ class CalendarComponent < ApplicationComponent
 			when "train"
 				c_event[:icon]  = "training.svg"
 				c_event[:label] = event.to_s
+				c_event[:data]  = {turbo_frame: "modal"	} if @user.player?
 				b_color         = "blue"
 			when "rest"
 				c_event[:icon]  = "rest.svg"
@@ -126,14 +128,14 @@ class CalendarComponent < ApplicationComponent
 		end
 
 		# add create event buttons to empty canvas cells
-		def add_empty_buttons(obj:, user:, create_url:)
+		def add_empty_buttons(obj:, create_url:)
 			@add_btn = []
 			1.upto(@c_rows) do |i|
 				row = []
 				cday = Date.current
 				1.upto(@c_cols) do |j|
 					if @cells[i][j][:events].empty? and @cells[i][j][:date]>=cday # add a create_event button
-						row[j] = add_event_button(obj:, for_season: (obj.class==Season), i:, j:, user:, create_url:)
+						row[j] = add_event_button(obj:, for_season: (obj.class==Season), i:, j:, create_url:)
 					else
 						row[j] = nil
 					end
@@ -143,12 +145,12 @@ class CalendarComponent < ApplicationComponent
 		end
 
 		# dropdown button definition to create a new Event
-		def add_event_button(obj:, for_season: nil, i:, j:, user:, create_url:)
+		def add_event_button(obj:, for_season: nil, i:, j:, create_url:)
 			c_url = create_url + "?event[start_date]=#{@cells[i][j][:date]}"
 			cname = "add_btn_#{i}_#{j}"
-			if for_season and user.admin? # new season event
+			if for_season and @user.admin? # new season event
 				return ButtonComponent.new(button: {kind: "add", name: cname, url: c_url + "&event[kind]=rest&event[team_id]=0", frame: "modal"})
-			elsif obj.has_coach(user.person.coach_id) # new team event
+			elsif obj.has_coach(@user.person.coach_id) # new team event
 				c_url  = c_url + "&event[team_id]=#{obj.id}"
 				button = {kind: "add", name: cname, options: []}
 				button[:options] << {label: I18n.t("train.single"), url: c_url + "&event[kind]=train", data: {turbo_frame: :modal}}

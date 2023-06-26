@@ -128,13 +128,13 @@ class ApplicationController < ActionController::Base
 			when "Drill"
 				return (u_admin? or u_coachid==obj.coach_id)
 			when "Event"
-				return (u_admin? or obj.team.has_coach(u_coachid))
+				return (u_admin? or obj.team.has_coach(u_coachid) or obj.team.has_player(u_playerid))
 			when "Person"
 				return (u_admin? or u_persid==obj.id)
 			when "Player"
 				return (u_admin? or u_coach? or u_playid==obj.id)
 			when "Team"
-				return (u_admin? or obj.has_coach(u_coachid))
+				return (u_admin? or obj.has_coach(u_coachid) or obj.has_player(u_playerid))
 			when "User"
 				return (u_admin? or u_userid==@user.id)
 			else # including "NilClass"
