@@ -18,7 +18,7 @@
 #
 class EventsController < ApplicationController
 	include Filterable
-	before_action :set_event, only: %i[ show edit add_task show_task edit_task task_drill load_chart attendance update destroy ]
+	before_action :set_event, only: %i[ show edit add_task show_task edit_task task_drill stats edit_stats load_chart attendance update destroy ]
 
 	# GET /events or /events.json
 	def index
@@ -42,6 +42,9 @@ class EventsController < ApplicationController
 			@title = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
 			if @event.rest?
 				@submit = create_submit(submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil, frame: "modal")
+			elsif current_user.player?
+				player_id = params[:player_id].presence || u_playerid
+				redirect_to stats_event_path(@event, player_id:), data: {turbo_action: "replace"}
 			else
 				retlnk  = params[:retlnk].presence || team_path(@event.team)
 				@submit = create_submit(close: "back", close_return: retlnk, submit: (u_admin? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil)
@@ -106,11 +109,15 @@ class EventsController < ApplicationController
 	def update
 		if check_access(roles: [:admin, :coach], obj: @event)
 			respond_to do |format|
-				e_data = event_params
+				e_data  = event_params
+				@player = Player.find_by_id(e_data[:player_id].presence)
 				@event.rebuild(e_data)
 				if prepare_update_redirect(e_data)	# prepare links to redirect
 					if e_data[:player_ids].present?	# update attendance
 						check_attendance(e_data[:player_ids])
+						register_action(:updated, @notice[:message])
+					elsif params[:event][:stats_attributes]
+						check_stats(params[:event][:stats_attributes])
 						register_action(:updated, @notice[:message])
 					elsif e_data[:task].present? # updated task from edit_task_form
 						check_task(e_data[:task])
@@ -208,28 +215,61 @@ class EventsController < ApplicationController
 		end
 	end
 
+	# GET /events/1/stats
+	def stats
+		if check_access(roles: [:admin, :coach], obj: @event.team)
+			unless @event.rest?	# not keeing stats for holidays ;)
+				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
+				@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
+				@fields = create_fields(helpers.event_stats_fields)
+				editor  = (u_admin? || @event.team.has_coach(u_coachid) || @event.team.has_player(u_playerid))
+				@submit = create_submit(submit: @player ? edit_stats_event_path(@event, player_id: u_playerid) : nil, frame: "modal")
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# GET /events/1/stats
+	def edit_stats
+		if check_access(roles: [:admin, :coach], obj: @event.team)
+			unless @event.rest?	# not keeing stats for holidays ;)
+				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
+				@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
+				@fields = create_fields(helpers.event_edit_stats_fields)
+				@submit = create_submit
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
 	private
 		# establish redirection & notice for based on udpate kind
 		def prepare_update_redirect(e_data)
 			if e_data[:task].present?
-				@notice = helpers.flash_message("#{I18n.t("task.updated")} ", "success")
+				@notice  = helpers.flash_message("#{I18n.t("task.updated")} ", "success")
 				@retview = :edit
-				@retlnk = e_data[:task][:retlnk]
+				@retlnk  = e_data[:task][:retlnk]
+			elsif params[:event][:stats_attributes].present?	# just updated event stats
+				@notice  = helpers.flash_message("#{I18n.t("stat.updated")} ", "success")
+				@retview = :show
+				@retlnk  = current_user.player? ? team_path(@event.team, start_date: @event.start_date) : team_events_path(@event, start_date: @event.start_date)
 			else
 				@notice = helpers.event_update_notice(attendance: e_data[:player_ids])
 				if e_data[:season_id].to_i > 0 # season event
 					@retview = :index
-					@retlnk = season_events_path(e_data[:season_id], start_date: @event.start_date)
+					@retlnk  = season_events_path(e_data[:season_id], start_date: @event.start_date)
 				elsif @event.rest?	# careful, these are modal
 					@retview = :index
-					@retlnk = params[:retlnk] ? params[:retlnk] : team_events_path(@event, start_date: @event.start_date)
+					@retlnk  = params[:retlnk] ? params[:retlnk] : team_events_path(@event, start_date: @event.start_date)
 				else	# match or training session
 					@retview = :show
 					@retlnk  = event_path(@event)
 				end
 			end
 			# returns whether we have something to save
-			return (e_data[:task].present? or e_data[:player_ids].present?)
+			return (e_data[:task].present? || e_data[:player_ids].present? || e_data[:stats_attributes].present?)
 		end
 
  		# check attendance
@@ -243,6 +283,21 @@ class EventsController < ApplicationController
 
 			# cleanup removed attendances
 			@event.players.each {|p| @event.players.delete(p) unless attendees.include?(p)}
+		end
+
+		# check stats
+		def check_stats(s_dat)
+			if s_dat	# lets_ check them
+				e_id  = @event.id
+				p_id  = @player&.id.to_i
+				stats = Stat.for_event(e_id).for_player(p_id)
+				s_dat.values.first.each_pair do |key, val|
+					stat   = stats.find { |s| s.concept == key } unless stats.empty?
+					stat ||= Stat.new(event_id: e_id, player_id: p_id, concept: key)
+					stat.update(value: val)
+					stat.save if stat.changed?
+				end
+			end
 		end
 
 		# ensure a task is correctly added to event
@@ -352,8 +407,9 @@ class EventsController < ApplicationController
 					:kind_id,
 					:location_id,
 					:season_id,
+					:player_id,
 					player_ids: [],
-					stats: [],
+					stats_attributes: [:id, :event_id, :player_id, :concept, :value, :_destroy],
 					event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]],
 					task: [:id, :task_id, :order, :drill_id, :duration, :remarks, :retlnk],
 					tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy]

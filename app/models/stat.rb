@@ -20,12 +20,12 @@ class Stat < ApplicationRecord
 	belongs_to :event
 	belongs_to :player  # id==0 => team stat; id==-1 => rival stat
 	scope :real, -> { where("id>0") }
-	scope :for_event, -> (e_id) { where("event_id==?", e_id) }
-	scope :for_team, -> { where("player_id==0") }
-	scope :for_rival, -> { where("player_id==-1") }
+	scope :for_event, -> (e_id) { where(event_id: e_id) }
+	scope :for_team, -> { where(player_id: 0) }
+	scope :for_rival, -> { where(player_id: -1) }
 	scope :for_players, -> { where("player_id>0") }
-	scope :for_player, -> (p_id) { where("player_id==?", p_id) }
-	scope :for_concept, -> (cval) { where("concept==?", cval) }
+	scope :for_player, -> (p_id) { where(player_id: p_id) }
+	scope :for_concept, -> (cval) { where(concept: cval) }
 	self.inheritance_column = "not_sti"
 
 	enum concept: {
@@ -53,7 +53,9 @@ class Stat < ApplicationRecord
 		q5: 21,
 		q6: 22,
 		zga: 23,	# shots near basket
-		zgm: 24
+		zgm: 24,
+		psa: 25,	# total points shot
+		psm: 26
 	}
 
 	# fetch a stat based on event, player & concept
@@ -76,12 +78,12 @@ class Stat < ApplicationRecord
 
  	# filter stats by player
 	def self.by_player(player_id, stats=Stat.for_players)
-		stats.select {|stat| stat.player_id==player_id}
+		stats.select {|stat| stat.player_id == player_id}
 	end
 
  	# filter stats by player
 	def self.by_concept(concept, stats=Stat.real)
-		stats.select {|stat| stat.concept==concept}
+		stats.select {|stat| stat.concept == concept.to_s}
 	end
 
  	# filter stats by quarter

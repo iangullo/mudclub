@@ -297,6 +297,49 @@ en:
     min: "Min."
     max: "Max."
     number_a: "Num."
+    updated: "Updated stats"
+    assist:
+      abbr: "AS"
+      many: "Assists"
+      single: "Assist"
+    block:
+     abbr: "BL"
+     single: "Block"
+     many: "Blocks"
+    foul:
+      abbr: "PF"
+      disq: "Ejection"
+      many: "Fouls"
+      received: "Received"
+      single: "Foul"
+      tech: "Technical"
+    rebound:
+      abbr: "RB"
+      def: "Def."
+      many: "Rebounds"
+      off: "Off."
+      single: "Rebound"
+    shot:
+      abbr: "FG"
+      attempt: "A."
+      many: "Shots"
+      single: "Shot"
+      close: "IZ" # under the basket
+      free: "FT"
+      made: "M."
+      two: "2P"
+      three: "3P"
+    steal:
+      abbr: "ST"
+      many: "Steals"
+      single: "Steal"
+    time:
+      abbr: "T."
+      single: "Time"
+    turnover:
+      abbr: "TO"
+      many: "Turnovers"
+      single: "Turnover"
   status:
     active: "Active"
     active_a: "Act."
