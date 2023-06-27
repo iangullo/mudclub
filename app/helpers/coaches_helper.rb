@@ -35,7 +35,7 @@ module CoachesHelper
 		res << [
 			{kind: "gap", size: 1},
 			{kind: "contact", email: @coach.person.email, phone: @coach.person.phone, device: device}
-		]
+		] unless u_coachid == @coach.id
 		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
 	end
 

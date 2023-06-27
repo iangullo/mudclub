@@ -80,7 +80,7 @@ module PlayersHelper
 				{kind: "text", value: att[:avg].to_s + "%"}
 			] if att[:avg]
 		end
-		res.last << {kind: "contact", email: @player.person.email, phone: @player.person.phone, device: device}
+		res.last << {kind: "contact", email: @player.person.email, phone: @player.person.phone, device: device} unless u_playerid == @player.id
 		unless @player.parents.empty?
 			res << [{kind: "label", value: "#{I18n.t("parent.many")}:"}]
 			@player.parents.each { |parent|
