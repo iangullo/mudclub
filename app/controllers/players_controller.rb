@@ -88,6 +88,7 @@ class PlayersController < ApplicationController
 				if @player.modified? then	# it is a new player
 					if @player.save
 						@player.bind_person(save_changes: true) # ensure binding is correct
+						Team.find(player_params[:team_id]).players << @player if player_params[:team_id].present?
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
@@ -171,7 +172,7 @@ class PlayersController < ApplicationController
 		# Prepare a player form
 		def prepare_form(title:)
 			@title      = create_fields(helpers.player_form_title(title:))
-			@j_fields_1 = create_fields(helpers.player_form_fields_1(retlnk: params[:retlnk]))
+			@j_fields_1 = create_fields(helpers.player_form_fields_1(retlnk: params[:retlnk], team_id: params[:team_id]))
 			@j_fields_2 = create_fields(helpers.player_form_fields_2(avatar: @player.avatar))
 			@p_fields   = create_fields(helpers.player_form_person(person: @player.person))
 			@parents    = create_fields(helpers.player_form_parents) if @player.person.age < 18
@@ -200,6 +201,7 @@ class PlayersController < ApplicationController
 				:active,
 				:avatar,
 				:retlnk,
+				:team_id,
 				person_attributes: [
 					:id,
 					:dni,

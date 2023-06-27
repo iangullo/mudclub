@@ -26,17 +26,18 @@ module PlayersHelper
 	# => nil: for players index
 	# => Team: for team roster views
 	def player_grid(players:, obj: nil)
-		p_ndx = (obj == nil)
-		title = [
+		p_ndx  = (obj == nil)
+		retlnk = roster_team_path(obj) unless p_ndx
+		title  = [
 			{kind: "normal", value: I18n.t("player.number"), align: "center"},
 			{kind: "normal", value: I18n.t("person.name")},
 			{kind: "normal", value: I18n.t("person.age"), align: "center"},
 			{kind: "normal", value: I18n.t("status.active_a"), align: "center"}
 		]
-		title << button_field({kind: "add", url: new_player_path, frame: "modal"}) if u_admin?
+		title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"}) if u_admin?
 		rows = Array.new
 		players.each { | player|
-			retlnk = p_ndx ? players_path(search: player.s_name) : roster_team_path(obj)
+			retlnk = players_path(search: player.s_name) if p_ndx
 			row    = {url: player_path(player, retlnk:), items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
 			row[:items] << {kind: "normal", value: player.to_s}
@@ -115,12 +116,13 @@ module PlayersHelper
 	end
 
 	# return first part of FieldsComponent for Player forms
-	def player_form_fields_1(retlnk:)
+	def player_form_fields_1(retlnk:, team_id:)
 		[[
 			{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
 			{kind: "gap", size: 8}, {kind: "label", value: I18n.t("player.number")},
 			{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
-			{kind: "hidden", key: :retlnk, value: retlnk}
+			{kind: "hidden", key: :retlnk, value: retlnk},
+			{kind: "hidden", key: :team_id, value: team_id}
 		]]
 	end
 
