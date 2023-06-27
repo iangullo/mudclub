@@ -39,4 +39,10 @@ class ApplicationRecord < ActiveRecord::Base
 		cad = cad + "-" + two_dig(t_end.hour) + ":" + two_dig(t_end.min) if t_end
 		cad
 	end
+
+	# parse a value to determine if its true
+	def to_boolean(value)
+		val = value.presence
+		(val.to_s == "true" || val.to_i == 1)
+	end
 end

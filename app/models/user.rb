@@ -123,10 +123,11 @@ class User < ApplicationRecord
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
+		f_data[:person_attributes][:email] = f_data[:email]
 		self.rebuild_obj_person(f_data)
 		if self.person
-			self.email                 = f_data[:email] || self.person.email
-			self.role                  = f_data[:role] ? f_data[:role] : :user
+			self.email                 = self.person.email
+			self.role                  = f_data[:role] || :user
 			self.locale                = f_data[:locale] if f_data[:locale]
 			self.password              = f_data[:password] if f_data[:password]
 			self.password_confirmation = f_data[:password_confirmation] if f_data[:password_confirmation]

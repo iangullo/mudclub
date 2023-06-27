@@ -85,7 +85,7 @@ class Coach < ApplicationRecord
 					]
 				)
 				if c.person	# only if person is bound
-					c.active = c.read_field(parse_boolean(row[7].value), j.active, false)
+					c.active = c.read_field(to_boolean(row[7].value), j.active, false)
 					c.save
 				end
 			end
