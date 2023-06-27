@@ -83,21 +83,23 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = Player.new
 				@player.rebuild(player_params)	# rebuild player
+				retlnk  = player_params[:retlnk] || players_path(search: @player.s_name)
+				retview = (player_params[:retlnk] == players_path(search: @player.s_name)) ? :index : :roster
 				if @player.modified? then	# it is a new player
 					if @player.save
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
 						register_action(:created, a_desc)
-						format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: players_path(search: @player.s_name) }
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render retview, status: :created, location: retlnk }
 					else
 						prepare_form(title: I18n.t("player.new"))
 						format.html { render :new }
 						format.json { render json: @player.errors, status: :unprocessable_entity }
 					end
 				else # player was already in the database
-					format.html { redirect_to players_path(search: @player.s_name), notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :duplicate, location: players_path(search: @player.s_name) }
+					format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
+					format.json { render retview, status: :duplicate, location: retlnk }
 				end
 			end
 		else
@@ -111,21 +113,23 @@ class PlayersController < ApplicationController
 		if check_access(roles: [:admin, :coach], obj: @player)
 			respond_to do |format|
 				@player.rebuild(player_params)
+				retlnk  = player_params[:retlnk] || players_path(search: @player.s_name)
+				retview = player_params[:retlnk] ? :roster : :index
 				if @player.modified?
 					if @player.save
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.updated")} '#{@player.to_s}'"
 						register_action(:updated, a_desc)
-						format.html { redirect_to player_params[:retlnk], notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :ok, location: players_path(search: @player.s_name) }
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render retview, status: :ok, location: retlnk}
 					else
 						prepare_form(title: I18n.t("player.edit"))
 						format.html { render :edit }
 						format.json { render json: @player.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to player_params[:retlnk], notice: no_data_notice, data: {turbo_action: "replace"}}
-					format.json { render :index, status: :ok, location: player_params[:retlnk] }
+					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render retview, status: :ok, location: retlnk }
 				end
 			end
 		else

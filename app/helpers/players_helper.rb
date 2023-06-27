@@ -36,8 +36,8 @@ module PlayersHelper
 		title << button_field({kind: "add", url: new_player_path, frame: "modal"}) if u_admin?
 		rows = Array.new
 		players.each { | player|
-			go_back = p_ndx ? players_path(search: player.s_name) : team_path(obj)
-			row     = {url: player_path(player, retlnk: go_back), items: []}
+			retlnk = p_ndx ? players_path(search: player.s_name) : roster_team_path(obj)
+			row    = {url: player_path(player, retlnk:), items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
 			row[:items] << {kind: "normal", value: player.to_s}
 			row[:items] << {kind: "normal", value: player.person.age, align: "center"}
