@@ -177,7 +177,9 @@ module EventsHelper
 		res << show_shooting_data("stat.shot.close", stats, :zgm, :zga)
 		res << show_shooting_data("stat.shot.two", stats, :dgm, :dga)
 		res << show_shooting_data("stat.shot.three", stats, :tgm, :tga)
-		res << show_shooting_data("stat.total", stats, :psa, :psm)
+		tshot = Stat.new(event_id: @event.id, player_id: @player.id, concept: :fga, value: stats.select(&:attempt).sum(&:value))
+		tmade = Stat.new(event_id: @event.id, player_id: @player.id, concept: :fgm, value: stats.select(&:scored).sum(&:value))
+		res << show_shooting_data("stat.total", [tshot, tmade], :fgm, :fga)
 		res
 	end
 
@@ -512,14 +514,15 @@ module EventsHelper
 		def show_shooting_data(label, stats, made, attempts)
 			scored = Stat.by_concept(made, stats).first&.value.to_i
 			shot   = Stat.by_concept(attempts, stats).first&.value.to_i
-			pctg   = shot > 0 ? "#{(scored*100/shot)} %" : "N/A"
+			pctg   = shot > 0 ? (scored*100/shot) : "N/A"
+			pcol   = shot == 0 ? "gray-300" : (pctg < 20 ? "red-900": (pctg < 50 ? "yellow-700" : (pctg < 70 ? "gray-700" : "green-700")))
 			[
 				{kind: "gap"},
 				stat_label(label),
 				{kind: "string", value: scored, class: "border px py", align: "right"},
 				{kind: "label", value: "/"},
 				{kind: "string", value: shot, class: "border px py", align: "right"},
-				{kind: "string", value: pctg, class: "border px py", align: "right"}
+				{kind: "text", value: (shot == 0 ? pctg : "#{pctg}%"), class: "align-middle text-#{pcol}", align: "center"}
 			]
 		end
 

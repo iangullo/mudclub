@@ -285,7 +285,7 @@ class EventsController < ApplicationController
 			@event.players.each {|p| @event.players.delete(p) unless attendees.include?(p)}
 		end
 
-		# check stats
+		# check stats - a single player updating an event
 		def check_stats(s_dat)
 			if s_dat	# lets_ check them
 				e_id  = @event.id

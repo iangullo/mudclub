@@ -17,6 +17,9 @@
 # contact email - iangullo@gmail.com.
 #
 class Stat < ApplicationRecord
+	ATTEMPT_CONCEPTS = [:zga, :tga, :dga, :fta].freeze
+  SCORED_CONCEPTS = [:zgm, :tgm, :dgm, :ftm].freeze
+
 	belongs_to :event
 	belongs_to :player  # id==0 => team stat; id==-1 => rival stat
 	scope :real, -> { where("id>0") }
@@ -54,12 +57,14 @@ class Stat < ApplicationRecord
 		q6: 22,
 		zga: 23,	# shots near basket
 		zgm: 24,
-		psa: 25,	# total points shot
-		psm: 26
+		fga: 25,	# field goals
+		fgm: 26,
+		psa: 27,	# total points shot
+		psm: 28
 	}
 
 	# fetch a stat based on event, player & concept
-	# ought to be a single one
+	# ought to be a single one if none found, a new one is created
 	def self.fetch(event_id:, player_id:, concept:, stats: nil)
 		if stats # we got a stats - typically event.stats
 			res = Stat.by_event(event_id, stats)
@@ -68,6 +73,7 @@ class Stat < ApplicationRecord
 		else
 			res = Stat.for_event(event_id).for_player(player_id).for_concept(concept).first
 		end
+		res = Stat.new(event_id:, player_id:, concept:, value: 0)
 		res
 	end
 
@@ -89,5 +95,15 @@ class Stat < ApplicationRecord
  	# filter stats by quarter
 	def self.by_q(q, stats=Stat.for_players)
 		stats.select {|stat| stat[:concept]=="q#{q}"}
+	end
+
+	# return whether this stat is part of attempted shots
+	def attempt
+		ATTEMPT_CONCEPTS.include?(self.concept.to_sym)
+	end
+
+	# return whether this stat is part of attempted shots
+	def scored
+		SCORED_CONCEPTS.include?(self.concept.to_sym)
 	end
 end
