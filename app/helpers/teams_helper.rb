@@ -104,7 +104,7 @@ module TeamsHelper
 				button_field({kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr")}, align: "center"),
 				button_field({kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal"}, align: "center")
 			]]
-			res.last << button_field({kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}) if @team.has_coach(u_coachid)
+			res.last << button_field({kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}) if (u_admin? || @team.has_coach(u_coachid))
 		else
 			res = [[]]
 		end
