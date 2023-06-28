@@ -87,8 +87,8 @@ class PlayersController < ApplicationController
 				retview = (player_params[:retlnk] == players_path(search: @player.s_name)) ? :index : :roster
 				if @player.modified? then	# it is a new player
 					if @player.save
+						link_team(player_params[:team_id])	# try to add it to the team roster
 						@player.bind_person(save_changes: true) # ensure binding is correct
-						Team.find(player_params[:team_id]).players << @player if player_params[:team_id].present?
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
 						register_action(:created, a_desc)
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
@@ -99,6 +99,7 @@ class PlayersController < ApplicationController
 						format.json { render json: @player.errors, status: :unprocessable_entity }
 					end
 				else # player was already in the database
+					link_team(player_params[:team_id])	# try to add it to the team roster
 					format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
 					format.json { render retview, status: :duplicate, location: retlnk }
 				end
@@ -177,6 +178,13 @@ class PlayersController < ApplicationController
 			@p_fields   = create_fields(helpers.player_form_person(person: @player.person))
 			@parents    = create_fields(helpers.player_form_parents) if @player.person.age < 18
 			@submit     = create_submit
+		end
+
+		# link a player to a team
+		def link_team(team_id)
+			if team_id && (team = Team.find(team_id))	# only if we find it
+				team.players << @player unless team.has_player(@player.id)
+			end
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
