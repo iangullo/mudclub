@@ -39,8 +39,8 @@ Rails.application.routes.draw do
     get 'add_task', on: :member
     get 'edit_task', on: :member
     get 'attendance', on: :member
-    get 'stats', on: :member
-    get 'edit_stats', on: :member
+    get 'player_shots', on: :member
+    get 'edit_player_shots', on: :member
   end
   resources :seasons do
     resources :locations

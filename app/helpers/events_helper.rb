@@ -169,7 +169,7 @@ module EventsHelper
 	end
 
 	# fields to display player's stats for an event
-	def event_stats_fields
+	def event_player_shots_fields
 		# filter for this event & player
 		stats = Stat.for_event(@event.id).for_player(@player.id)
 		res   = event_stat_header
@@ -184,7 +184,7 @@ module EventsHelper
 	end
 
 	# fields to display player's edit stats form for an event
-	def event_edit_stats_fields
+	def event_edit_player_shots_fields
 		stats = Stat.by_event(@event.id)	# filter for this event
 		stats = Stat.by_player(@player.id, stats)	# filter for a player
 		res   = event_stat_header
@@ -511,30 +511,30 @@ module EventsHelper
 			]
 		end
 
-		def show_shooting_data(label, stats, made, attempts)
-			scored = Stat.by_concept(made, stats).first&.value.to_i
-			shot   = Stat.by_concept(attempts, stats).first&.value.to_i
-			pctg   = shot > 0 ? (scored*100/shot) : "N/A"
-			pcol   = shot == 0 ? "gray-300" : (pctg < 20 ? "red-900": (pctg < 50 ? "yellow-700" : (pctg < 70 ? "gray-700" : "green-700")))
+		def show_shooting_data(label, stats, scored, attempts)
+			made  = Stat.by_concept(scored, stats).first&.value.to_i
+			taken = Stat.by_concept(attempts, stats).first&.value.to_i
+			pctg  = taken > 0 ? (made*100/taken) : "N/A"
+			pcol  = taken == 0 ? "gray-300" : (pctg < 20 ? "red-900": (pctg < 50 ? "yellow-700" : (pctg < 70 ? "gray-700" : "green-700")))
 			[
 				{kind: "gap"},
 				stat_label(label),
-				{kind: "string", value: scored, class: "border px py", align: "right"},
+				{kind: "string", value: made, class: "border px py", align: "right"},
 				{kind: "label", value: "/"},
-				{kind: "string", value: shot, class: "border px py", align: "right"},
-				{kind: "text", value: (shot == 0 ? pctg : "#{pctg}%"), class: "align-middle text-#{pcol}", align: "center"}
+				{kind: "string", value: taken, class: "border px py", align: "right"},
+				{kind: "text", value: (taken == 0 ? pctg : "#{pctg}%"), class: "align-middle text-#{pcol}", align: "center"}
 			]
 		end
 
-		def form_shooting_data(label, stats, made, attempts)
-			scored = Stat.by_concept(made, stats).first&.value.to_i
-			shot   = Stat.by_concept(attempts,stats).first&.value.to_i
+		def form_shooting_data(label, stats, scored, attempts)
+			made  = Stat.by_concept(scored, stats).first&.value.to_i
+			taken = Stat.by_concept(attempts, stats).first&.value.to_i
 			[
 				{kind: "gap"},
 				stat_label(label),
-				{kind: "number-box", key: made, value: scored, class: "border px py", align: "right"},
+				{kind: "number-box", key: scored, value: made, class: "shots-made border px py", align: "right"},
 				{kind: "label", value: "/"},
-				{kind: "number-box", key: attempts, value: shot, class: "border px py", align: "right"}
+				{kind: "number-box", key: attempts, value: taken, class: "shots-taken border px py", align: "right"}
 			]
 		end
 end
