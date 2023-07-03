@@ -29,12 +29,14 @@ module TeamsHelper
 			res << [{kind: "label", value: @team.season.name}]
 			w_l = @team.win_loss
 			if w_l[:won]>0 or w_l[:lost]>0
-				wlstr = "(" + w_l[:won].to_s + I18n.t("match.won") + " - " + w_l[:lost].to_s + I18n.t("match.lost") + ")"
+				wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
 				res << [
 					{kind: "gap"},
 					{kind: "text", value: wlstr}
 				]
 			end
+		else # player teams index
+			res << [{kind: "subtitle", value: current_user.player.to_s}]
 		end
 		res
 	end

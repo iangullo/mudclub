@@ -24,8 +24,8 @@ class TeamsController < ApplicationController
 	# GET /teams
 	# GET /teams.json
 	def index
-		if check_access(roles: [:admin, :coach])
-			@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: true))
+		if check_access(roles: [:admin, :coach, :player])
+			@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: !u_player?))
 			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: u_admin?))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -316,7 +316,7 @@ class TeamsController < ApplicationController
 			s_id    = params[:season_id].presence || session.dig('team_filters', 'season_id')
 			@season = s_id ? Season.find_by(id: s_id) : Season.latest
 			@season = Season.last unless @season
-			@teams  = Team.search(@season.id)
+			@teams  = u_player? ? current_user.team_list : Team.search(@season.id)
 			if params[:id]=="coaching"
 				@team = current_user.coach.teams.first
 			else
