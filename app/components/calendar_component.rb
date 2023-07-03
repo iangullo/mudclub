@@ -34,6 +34,7 @@ class CalendarComponent < ApplicationComponent
 		@user       = user
 		@iscope_cls = "bg-gray-100 text-gray-500 text-center"
 		@oscope_cls = "bg-gray-500 text-gray-100 text-center"
+		set_date_limits(events:, obj:)
 		@cells      = new_canvas(start_date:)
 		@back_link  = set_back_button(events:)
 		@fwd_link   = set_fwd_button(events:)
@@ -134,7 +135,7 @@ class CalendarComponent < ApplicationComponent
 				row = []
 				cday = Date.current
 				1.upto(@c_cols) do |j|
-					if @cells[i][j][:events].empty? and @cells[i][j][:date]>=cday # add a create_event button
+					if @cells[i][j][:events].empty? && @cells[i][j][:date]>=cday # add a create_event button
 						row[j] = add_event_button(obj:, for_season: (obj.class==Season), i:, j:, create_url:)
 					else
 						row[j] = nil
@@ -146,6 +147,7 @@ class CalendarComponent < ApplicationComponent
 
 		# dropdown button definition to create a new Event
 		def add_event_button(obj:, for_season: nil, i:, j:, create_url:)
+			return nil if ((@cells[i][j][:date] > @e_date) || (@cells[i][j][:date] < @s_date))
 			c_url = create_url + "?event[start_date]=#{@cells[i][j][:date]}"
 			cname = "add_btn_#{i}_#{j}"
 			if for_season and @user.admin? # new season event
@@ -162,25 +164,38 @@ class CalendarComponent < ApplicationComponent
 			end
 		end
 
+		# url for_date on top of the @anchor
+		def anchor_url(for_date)
+			"#{@anchor.split('?').first}?start_date=#{for_date}"
+		end
+
 		# return backbutton if we do not exceed beginning of events season
 		def set_back_button(events:)
-			e_first = events&.first	# we have a first event?
-			e_date  = e_first ? e_first.team.season.start_date : Season.latest.start_date
-			if e_date
+			if @s_date
 				c_date = @cells[1][1][:date]
-				return nil if c_date <= e_date	# we have reached beginning of season
+				return nil if c_date <= @s_date	# we have reached beginning of season
 			end
-			ButtonComponent.new(button: {kind: "back", label: "", url: @anchor.split('?').first + "?start_date=" + (@start_date - 1.month).to_s})
+			ButtonComponent.new(button: {kind: "back", label: "", url: anchor_url(@start_date - 1.month)})
 		end
 
 		# return fwdbutton depending on end_date
 		def set_fwd_button(events:)
-			e_last = events&.last	# we have a last event?
-			e_date = e_last ? e_last.team.season.end_date : Season.latest.end_date
-			if e_date
+			if @e_date
 				c_date = @cells.last.last[:date]
-				return nil if c_date >= e_date	# we have reached end of season
+				return nil if c_date >= @e_date	# we have reached end of season
 			end
-			ButtonComponent.new(button: {kind: "forward", label: "", url: @anchor.split('?').first + "?start_date=" + (@start_date + 1.month).to_s})
+			ButtonComponent.new(button: {kind: "forward", label: "", url: anchor_url(@start_date + 1.month)})
+		end
+
+		# define the first valid calendar date for the parent object (team/season)
+		def set_date_limits(events:, obj:)
+			case obj.class
+			when Season; season = obj
+			when Team; season = obj.season
+			else # let's try to get it from the events list
+				season = events&.empty? ? Season.latest : events.first.team.season
+			end
+			@s_date = season.start_date
+			@e_date = season.end_date
 		end
 end

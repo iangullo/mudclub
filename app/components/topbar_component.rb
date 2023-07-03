@@ -150,6 +150,7 @@ class TopbarComponent < ApplicationComponent
 
 	def player_menu(user)
 		menu = []
+		add_team_menu(user, menu)
 		menu
 	end
 
