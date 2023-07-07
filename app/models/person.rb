@@ -85,12 +85,12 @@ class Person < ApplicationRecord
 		end
 		self.dni       = f_data[:dni].presence || self.dni || ""
 		self.email     = f_data[:email].presence || self.email || ""
-		self.name      = f_data[:name] if f_data[:name]
-		self.surname   = f_data[:surname] if f_data[:surname]
-		self.birthday  = f_data[:birthday] if f_data[:birthday]
-		self.nick      = f_data[:nick] if f_data[:nick]
-		self.female    = f_data[:female]
-		self.phone     = Phonelib.parse(f_data[:phone]).international.to_s  if f_data[:phone]
+		self.name      = f_data[:name].presence || self.name
+		self.surname   = f_data[:surname].presence || self.surname
+		self.birthday  = f_data[:birthday].presence || self.birthday
+		self.nick      = f_data[:nick].presence || self.nick
+		self.female    = to_boolean(f_data[:female])
+		self.phone     = Phonelib.parse(f_data[:phone]).international.to_s if f_data[:phone].presence
 		self.coach_id  = 0 unless self.coach_id.to_i > 0
 		self.player_id = 0 unless self.player_id.to_i > 0
 		self.parent_id = 0 unless self.parent_id.to_i > 0
