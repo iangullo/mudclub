@@ -35,7 +35,7 @@ module HomeHelper
 	def home_admin_fields
 		res = home_admin_title
 		res <<[
-			button_field({kind: "jump", icon: "location.svg", url: locations_path, label: I18n.t("location.many")}, align: "center"),
+#			button_field({kind: "jump", icon: "location.svg", url: locations_path, label: I18n.t("location.many")}, align: "center"),
 			button_field({kind: "jump", icon: "user.svg", url: users_path, label: I18n.t("user.many")}, align: "center")
 		]
 		res

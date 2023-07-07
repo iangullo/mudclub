@@ -249,6 +249,8 @@ es:
     admin_a: "Adm."
     coach: "Entrenador"
     coach_a: "Ent."
+    manager: "Coordinador"
+    manager_a: "Coord."
     player: "Jugador"
     player_a: "Jug."
     user: "Usuario"

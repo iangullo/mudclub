@@ -483,9 +483,9 @@ module EventsHelper
 
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, for_season: nil)
-			if for_season and u_manager? # new season event
-				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"}) if obj==Season.latest
-			elsif obj.has_coach(u_coachid) # new team event
+			if for_season	# paste season event button
+				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"}) if u_manager? && obj==Season.latest
+			elsif obj.class == Team && obj.has_coach(u_coachid) # new team event
 				button = {kind: "add", name: "add-event", options: []}
 				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id}), data: {turbo_frame: :modal}}
 				button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: obj.id}), data: {turbo_frame: :modal}}

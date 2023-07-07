@@ -26,9 +26,10 @@ module UsersHelper
 	def user_grid
 		title = [
 			{kind: "normal", value: I18n.t("person.name")},
-			{kind: "normal", value: I18n.t("role.player_a"), align: "center"},
-			{kind: "normal", value: I18n.t("role.coach_a"), align: "center"},
 			{kind: "normal", value: I18n.t("role.admin_a"), align: "center"},
+			{kind: "normal", value: I18n.t("role.manager_a"), align: "center"},
+			{kind: "normal", value: I18n.t("role.coach_a"), align: "center"},
+			{kind: "normal", value: I18n.t("role.player_a"), align: "center"},
 			{kind: "normal", value: I18n.t("user.last_in"), align: "center"}
 		]
 		title << button_field({kind: "add", url: new_user_path, frame: "modal"}) if u_admin?
@@ -37,9 +38,10 @@ module UsersHelper
 		@users.each { |user|
 			row = {url: user_path(user), items: []}
 			row[:items] << {kind: "normal", value: user.s_name}
-			row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
-			row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}
 			row[:items] << {kind: "icon", value: user.admin? ? "Yes.svg" : "No.svg", align: "center"}
+			row[:items] << {kind: "icon", value: user.manager? ? "Yes.svg" : "No.svg", align: "center"}
+			row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}
+			row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
 			row[:items] << {kind: "normal", value: user.last_sign_in_at&.to_date, align: "center"}
 			row[:items] << button_field({kind: "delete", url: row[:url], name: user.s_name}) if u_admin? and user.id!=current_user.id
 			rows << row
@@ -78,6 +80,7 @@ module UsersHelper
 		#] if @user.last_sign_in_ip?
 		res << [{kind: "label", value: "#{I18n.t("user.profile")}: "}]
 		res.last << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
+		res.last << {kind: "icon", value: "user.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.manager?
 		res.last << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
 		res.last << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
 		res.last << {kind: "gap"}

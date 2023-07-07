@@ -249,6 +249,8 @@ en:
     admin_a: "Adm."
     coach: "Coach"
     coach_a: "Coach"
+    manager: "Manager"
+    manager_a: "Mngr."
     player: "Player"
     player_a: "Play."
     user: "User"

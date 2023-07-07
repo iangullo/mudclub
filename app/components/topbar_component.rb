@@ -119,10 +119,19 @@ class TopbarComponent < ApplicationComponent
 
 	# menu buttons for mudclub admins
 	def admin_menu(user)
-		menu = [menu_link(label: I18n.t("user.many"), url: '/users')]
-		menu << menu_link(label: I18n.t("person.many"), url: '/people')
-		menu << menu_link(label: I18n.t("category.many"), url: '/categories')
-		menu << menu_link(label: I18n.t("division.many"), url: '/divisions')
+		a_menu = [menu_link(label: I18n.t("user.many"), url: '/users')]
+		a_menu << menu_link(label: I18n.t("person.many"), url: '/people')
+		c_opts = {name: "club-menu", label: @clubname, options:[]}
+		c_opts[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")
+		c_opts[:options] << menu_link(label: I18n.t("category.many"), url: '/categories')
+		c_opts[:options] << menu_link(label: I18n.t("division.many"), url: '/divisions')
+		if user.is_coach?
+			menu = manager_menu(user)
+			c_opts[:options] += @admin_tab[:options]
+			@admin_tab[:options] = a_menu + [c_opts]
+		else
+			menu = a_menu
+		end
 		menu
 	end
 
@@ -134,14 +143,9 @@ class TopbarComponent < ApplicationComponent
 			menu << menu_link(label: I18n.t("drill.many"), url: '/drills')
 		end
 		@admin_tab = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[], class: @tabcls}
-		c_opts = {name: "club-menu", label: @clubname, options:[]}
-		c_opts[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")
-		c_opts[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
-		c_opts[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
-		c_opts[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
-		@admin_tab[:options] << c_opts
-		@admin_tab[:options] << menu_link(label: I18n.t("category.many"), url: '/categories')
-		@admin_tab[:options] << menu_link(label: I18n.t("division.many"), url: '/divisions')
+		@admin_tab[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
+		@admin_tab[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
+		@admin_tab[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
 		@admin_tab[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
 		menu
 	end
