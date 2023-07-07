@@ -83,11 +83,11 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = Player.new
 				@player.rebuild(player_params)	# rebuild player
-				retlnk  = player_params[:retlnk] || players_path(search: @player.s_name)
+				retlnk  = player_params[:retlnk].presence || players_path(search: @player.s_name)
 				retview = (player_params[:retlnk] == players_path(search: @player.s_name)) ? :index : :roster
 				if @player.modified? then	# it is a new player
 					if @player.save
-						link_team(player_params[:team_id])	# try to add it to the team roster
+						link_team(player_params[:team_id].presence)	# try to add it to the team roster
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
 						register_action(:created, a_desc)
