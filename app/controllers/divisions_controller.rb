@@ -21,7 +21,7 @@ class DivisionsController < ApplicationController
 
 	# GET /divisions or /divisions.json
 	def index
-		if check_access(roles: [:admin, :manager])
+		if check_access(roles: [:admin])
 			@divisions = Division.real
 			@fields    = create_fields(helpers.division_title_fields(title: I18n.t("division.many")))
 			@grid      = create_grid(helpers.division_grid)
@@ -32,7 +32,7 @@ class DivisionsController < ApplicationController
 
 	# GET /divisions/1 or /divisions/1.json
 	def show
-		if check_access(roles: [:admin, :manager], obj: @division)
+		if check_access(roles: [:admin], obj: @division)
 			fields  = helpers.division_title_fields(title: I18n.t("division.single"))
 			fields << [{kind: "subtitle", value: @division.name}]
 			@fields = create_fields(fields)
@@ -54,7 +54,7 @@ class DivisionsController < ApplicationController
 
 	# GET /divisions/1/edit
 	def edit
-		if check_access(roles: [:admin, :manager], obj:  @division)
+		if check_access(roles: [:admin])
 			prepare_form(title: I18n.t("division.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -63,7 +63,7 @@ class DivisionsController < ApplicationController
 
 	# POST /divisions or /divisions.json
 	def create
-		if check_access(roles: [:admin, :manager])
+		if check_access(roles: [:admin])
 			@division = Division.new(division_params)
 			respond_to do |format|
 				if @division.save
@@ -84,7 +84,7 @@ class DivisionsController < ApplicationController
 
 	# PATCH/PUT /divisions/1 or /divisions/1.json
 	def update
-		if check_access(roles: [:admin, :manager], obj: @division)
+		if check_access(roles: [:admin])
 			respond_to do |format|
 				@division.rebuild(division_params)
 				if @division.changed?
@@ -110,7 +110,7 @@ class DivisionsController < ApplicationController
 
 	# DELETE /divisions/1 or /divisions/1.json
 	def destroy
-		if check_access(roles: [:admin, :manager], obj: @division)
+		if check_access(roles: [:admin])
 			d_name = @division.name
 			@division.destroy
 			respond_to do |format|

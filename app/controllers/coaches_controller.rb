@@ -68,7 +68,7 @@ class CoachesController < ApplicationController
 
 	# GET /coaches/1/edit
 	def edit
-		if check_access(roles: [:manager, :coach], obj: @coach)
+		if check_access(roles: [:manager], obj: @coach)
 			prepare_form(title: I18n.t("coach.edit"))
 		else
 			redirect_to coaches_path, data: {turbo_action: "replace"}
@@ -149,7 +149,7 @@ class CoachesController < ApplicationController
  	# DELETE /coaches/1
 	# DELETE /coaches/1.json
 	def destroy
-		if check_access(roles: [:manager], obj: @coach)
+		if check_access(roles: [:manager])
 			c_name = @coach.s_name
 			@coach.destroy
 			respond_to do |format|

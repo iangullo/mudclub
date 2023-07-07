@@ -21,7 +21,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories or /categories.json
 	def index
-		if check_access(roles: [:admin, :manager])
+		if check_access(roles: [:admin])
 			@categories = Category.real
 			@fields     = create_fields(helpers.category_title_fields(title: I18n.t("category.many")))
 			@grid       = create_grid(helpers.category_grid)
@@ -32,7 +32,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories/1 or /categories/1.json
 	def show
-		if check_access(roles: [:admin, :manager], obj: @category)
+		if check_access(roles: [:admin], obj: @category)
 			@fields = create_fields(helpers.category_show_fields)
 			@submit = create_submit(submit: current_user.admin? ? edit_category_path(@category) : nil)
 		else
@@ -42,7 +42,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories/new
 	def new
-		if check_access(roles: [:admin, :manager])
+		if check_access(roles: [:admin])
 			@category = Category.new
 			prepare_form(title: I18n.t("category.new"))
 		else
@@ -52,7 +52,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories/1/edit
 	def edit
-		if check_access(roles: [:admin, :manager], obj: @category)
+		if check_access(roles: [:admin])
 			prepare_form(title: I18n.t("category.edit"))
 		else
 			redirect_to categories_path, data: {turbo_action: "replace"}
@@ -61,7 +61,7 @@ class CategoriesController < ApplicationController
 
 	# POST /categories or /categories.json
 	def create
-		if check_access(roles: [:admin, :manager], obj: @category)
+		if check_access(roles: [:admin])
 			@category = Category.new(category_params)
 			respond_to do |format|
 				if @category.save
@@ -82,7 +82,7 @@ class CategoriesController < ApplicationController
 
 	# PATCH/PUT /categories/1 or /categories/1.json
 	def update
-		if check_access(roles: [:admin, :manager], obj: @category)
+		if check_access(roles: [:admin])
 			respond_to do |format|
 				@category.rebuild(category_params)
 				if @category.changed?
@@ -108,7 +108,7 @@ class CategoriesController < ApplicationController
 
 	# DELETE /categories/1 or /categories/1.json
 	def destroy
-		if check_access(roles: [:admin, :manager], obj: @category)
+		if check_access(roles: [:admin])
 			c_name = @category.name
 			@category.destroy
 			respond_to do |format|
