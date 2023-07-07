@@ -49,7 +49,7 @@ module PersonDataManagement
 			p_aux = Person.fetch(p_data)
 			p_aux ? self.person = p_aux : self.build_person
 			self.person.rebuild(p_data)
-			self.person.save! if self.person.new_record? # Save the person record
+			self.person.save! unless self.person.persisted? # Save if new person
 			self.bind_person	# ensure correct binding
 		end
 	end
