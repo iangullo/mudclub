@@ -24,7 +24,7 @@ class CoachesController < ApplicationController
 	# GET /coaches
 	# GET /coaches.json
 	def index
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			@coaches = get_coaches
 			title    = helpers.coach_title(title: I18n.t("coach.many"))
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
@@ -46,10 +46,10 @@ class CoachesController < ApplicationController
 	# GET /coaches/1
 	# GET /coaches/1.json
 	def show
-		if check_access(roles: [:admin, :coach], obj: @coach)
+		if check_access(roles: [:manager, :coach], obj: @coach)
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
-			@submit = create_submit(submit: (u_admin? or u_coachid==@coach.id) ? edit_coach_path(@coach) : nil, frame: "modal")
+			@submit = create_submit(submit: (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach) : nil, frame: "modal")
 		else
 			redirect_to coaches_path, data: {turbo_action: "replace"}
 		end
@@ -57,7 +57,7 @@ class CoachesController < ApplicationController
 
 	# GET /coaches/new
 	def new
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			@coach = Coach.new(active: true)
 			@coach.build_person
 			prepare_form(title: I18n.t("coach.new"))
@@ -68,7 +68,7 @@ class CoachesController < ApplicationController
 
 	# GET /coaches/1/edit
 	def edit
-		if check_access(roles: [:admin, :coach], obj: @coach)
+		if check_access(roles: [:manager, :coach], obj: @coach)
 			prepare_form(title: I18n.t("coach.edit"))
 		else
 			redirect_to coaches_path, data: {turbo_action: "replace"}
@@ -78,7 +78,7 @@ class CoachesController < ApplicationController
 	# POST /coaches
 	# POST /coaches.json
 	def create
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			respond_to do |format|
 				@coach = Coach.new
 				@coach.rebuild(coach_params)	# rebuild coach
@@ -107,7 +107,7 @@ class CoachesController < ApplicationController
 	# PATCH/PUT /coaches/1
 	# PATCH/PUT /coaches/1.json
 	def update
-		if check_access(roles: [:admin], obj: @coach)
+		if check_access(roles: [:manager], obj: @coach)
 			respond_to do |format|
 				@coach.rebuild(coach_params)
 				if @coach.modified?	# coach has been edited
@@ -136,7 +136,7 @@ class CoachesController < ApplicationController
 	# GET /coaches/import
 	# GET /coaches/import.json
 	def import
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			Coach.import(params[:file])	# added to import excel
 			a_desc = "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"
 			register_action(:imported, a_desc)
@@ -149,7 +149,7 @@ class CoachesController < ApplicationController
  	# DELETE /coaches/1
 	# DELETE /coaches/1.json
 	def destroy
-		if check_access(roles: [:admin], obj: @coach)
+		if check_access(roles: [:manager], obj: @coach)
 			c_name = @coach.s_name
 			@coach.destroy
 			respond_to do |format|
@@ -182,7 +182,7 @@ class CoachesController < ApplicationController
 			if params[:search].present?
 				@coaches = Coach.search(params[:search])
 			else
-				if u_admin? or u_coach?
+				if u_manager? or u_coach?
 					Coach.active
 				else
 					Coach.none

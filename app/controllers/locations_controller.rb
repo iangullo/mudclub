@@ -23,7 +23,7 @@ class LocationsController < ApplicationController
 	# GET /locations
 	# GET /locations.json
 	def index
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			@season = Season.find(params[:season_id]) if params[:season_id]
 			title  = helpers.location_title_fields(title: I18n.t("location.many"))
 			title << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", key: :search, value: params[:search], url: locations_path}]
@@ -37,9 +37,9 @@ class LocationsController < ApplicationController
 	# GET /locations/1
 	# GET /locations/1.json
 	def show
-		if check_access(roles: [:users], obj: @location)
+		if check_access(roles: [:users])
 			@fields = create_fields(helpers.location_show_fields)
-			@submit = create_submit(submit: (u_admin? or u_coach?) ? edit_location_path(@location) : nil)
+			@submit = create_submit(submit: (u_manager? or u_coach?) ? edit_location_path(@location) : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -47,7 +47,7 @@ class LocationsController < ApplicationController
 
 	# GET /locations/1/edit
 	def edit
-		if check_access(roles: [:admin, :coach], obj: @location)
+		if check_access(roles: [:manager, :coach])
 			prepare_form(title: I18n.t("location.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -56,7 +56,7 @@ class LocationsController < ApplicationController
 
 	# GET /locations/new
 	def new
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			@location = Location.new(name: t("location.default")) unless @location
 			prepare_form(title: I18n.t("location.new"))
 		else
@@ -67,7 +67,7 @@ class LocationsController < ApplicationController
 	# POST /locations
 	# POST /locations.json
 	def create
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			respond_to do |format|
 				@season   = Season.find(params[:location][:season_id]) if params[:location][:season_id]
 				@location = Location.new
@@ -98,7 +98,7 @@ class LocationsController < ApplicationController
 
 	# PATCH/PUT /locations/1 or /locations/1.json
 	def update
-		if check_access(roles: [:admin, :coach], obj: @location)
+		if check_access(roles: [:manager, :coach])
 			respond_to do |format|
 				@location.rebuild(location_params)
 				retlnk = @season ? season_locations_path(@season) : locations_path
@@ -135,7 +135,7 @@ class LocationsController < ApplicationController
 	# DELETE /locations/1
 	# DELETE /locations/1.json
 	def destroy
-		if check_access(roles: [:admin], obj: @location)
+		if check_access(roles: [:manager])
 			respond_to do |format|
 				l_name = @location.name
 				a_desc = "#{I18n.t("location.deleted")} #{@season&.name} => '#{l_name}'"

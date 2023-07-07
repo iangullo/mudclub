@@ -22,6 +22,25 @@ module HomeHelper
 		title_start(icon: current_user.picture, title: current_user.s_name, _class: "rounded-full")
 	end
 
+
+	# title fields for admin pages
+	def home_admin_title
+		[
+			[{kind: "header-icon", value: "clublogo.svg"}, {kind: "title", value: "MudClub - #{I18n.t("action.admin")}"}],
+			[{kind: "string", value: current_user.to_s}]
+		]
+	end
+
+	# landing page for mudclub administrators
+	def home_admin_fields
+		res = home_admin_title
+		res <<[
+			button_field({kind: "jump", icon: "location.svg", url: locations_path, label: I18n.t("location.many")}, align: "center"),
+			button_field({kind: "jump", icon: "user.svg", url: users_path, label: I18n.t("user.many")}, align: "center")
+		]
+		res
+	end
+
 	# home edit form fields
 	def home_form_fields(club:, retlnk: nil)
 		res = [

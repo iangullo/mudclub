@@ -22,9 +22,7 @@
 			</td>
 		</tr><tr>
 			<td align="left">
-				<% if u_admin? or @event.team.has_coach(u_coachid)  %>
-					<%= render @btn_add %>
-				<% end %>
+				<%= render @btn_add if @btn_add %>
 			</td>
 			<th align="left"><%= t("stat.total_a") + " " + @event.work_duration %></th>
 		</tr>

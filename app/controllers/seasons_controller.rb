@@ -23,7 +23,7 @@ class SeasonsController < ApplicationController
 	# GET /seasons
 	# GET /seasons.json
 	def index
-		if check_access(roles: [:admin], obj: @season)
+		if check_access(roles: [:manager], obj: @season)
 			@events = Event.short_term.for_season(@season).non_training
 			title   = helpers.season_title_fields(title: I18n.t("season.single"), cols: 2)
 			title << [
@@ -40,7 +40,7 @@ class SeasonsController < ApplicationController
 
 	# GET /seasons/1/edit
 	def edit
-		if check_access(roles: [:admin], obj: @season)
+		if check_access(roles: [:manager], obj: @season)
 			@eligible_locations = @season.eligible_locations
 			prepare_form(title: I18n.t("season.edit"))
 		else
@@ -50,7 +50,7 @@ class SeasonsController < ApplicationController
 
 	# GET /seasons/new
 	def new
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			@season = Season.new(start_date: Date.today, end_date: Date.today)
 			prepare_form(title: I18n.t("season.new"))
 		else
@@ -61,7 +61,7 @@ class SeasonsController < ApplicationController
 	# POST /seasons
 	# POST /seasons.json
 	def create
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			@season = Season.new(season_params)
 			@eligible_locations = @season.eligible_locations
 			respond_to do |format|
@@ -84,7 +84,7 @@ class SeasonsController < ApplicationController
 	# PATCH/PUT /seasons/1
 	# PATCH/PUT /seasons/1.json
 	def update
-		if check_access(roles: [:admin, :coach], obj: @season)
+		if check_access(roles: [:manager, :coach], obj: @season)
 			respond_to do |format|
 				check_locations
 				@season.rebuild(season_params)
@@ -113,7 +113,7 @@ class SeasonsController < ApplicationController
 	# DELETE /seasons/1
 	# DELETE /seasons/1.json
 	def destroy
-		if check_access(roles: [:admin], obj: @season)
+		if check_access(roles: [:manager], obj: @season)
 			s_name = @season.name
 			@season.destroy
 			respond_to do |format|

@@ -59,6 +59,8 @@ class TopbarComponent < ApplicationComponent
 	def menu_tabs(user)
 		if user.admin?
 			admin_menu(user)
+		elsif user.manager?
+			manager_menu(user)
 		elsif user.is_coach?
 			coach_menu(user)
 		elsif user.is_player?
@@ -115,20 +117,17 @@ class TopbarComponent < ApplicationComponent
 		{kind:, label:, url:, class:, data: l_data }
 	end
 
-	# menu buttons for coaches
-	def coach_menu(user)
-		menu = []
-		add_team_menu(user, menu)
-		menu += [
-			menu_link(label: I18n.t("drill.many"), url: '/drills'),
-			menu_link(label: I18n.t("player.many"), url: '/players'),
-			menu_link(label: I18n.t("coach.many"), url: '/coaches'),
-			menu_link(label: I18n.t("location.many"), url: '/locations')
-		]
+	# menu buttons for mudclub admins
+	def admin_menu(user)
+		menu = [menu_link(label: I18n.t("user.many"), url: '/users')]
+		menu << menu_link(label: I18n.t("person.many"), url: '/people')
+		menu << menu_link(label: I18n.t("category.many"), url: '/categories')
+		menu << menu_link(label: I18n.t("division.many"), url: '/divisions')
+		menu
 	end
 
-	# menu buttons for admins
-	def admin_menu(user)
+	# menu buttons for club managers
+	def manager_menu(user)
 		menu = [menu_link(label: I18n.t("season.single"), url: '/seasons')]
 		if user.is_coach?
 			add_team_menu(user, menu)
@@ -144,8 +143,19 @@ class TopbarComponent < ApplicationComponent
 		@admin_tab[:options] << menu_link(label: I18n.t("category.many"), url: '/categories')
 		@admin_tab[:options] << menu_link(label: I18n.t("division.many"), url: '/divisions')
 		@admin_tab[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
-		@admin_tab[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
 		menu
+	end
+
+	# menu buttons for coaches
+	def coach_menu(user)
+		menu = []
+		add_team_menu(user, menu)
+		menu += [
+			menu_link(label: I18n.t("drill.many"), url: '/drills'),
+			menu_link(label: I18n.t("player.many"), url: '/players'),
+			menu_link(label: I18n.t("coach.many"), url: '/coaches'),
+			menu_link(label: I18n.t("location.many"), url: '/locations')
+		]
 	end
 
 	def player_menu(user)

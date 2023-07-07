@@ -33,7 +33,7 @@ class SlotsController < ApplicationController
 			]
 			@fields   = create_fields(title)
 			week_view if @season and @location
-			@btn_add  = create_button({kind: "add", url: new_slot_path(location_id: @location&.id, season_id: @season&.id), frame: "modal"})
+			@btn_add  = create_button({kind: "add", url: new_slot_path(location_id: @location&.id, season_id: @season&.id), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
 			@submit   = create_submit(close: "back", submit: nil, close_return: seasons_path(season_id: @season.id))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -44,8 +44,8 @@ class SlotsController < ApplicationController
 	def show
 		if check_access(roles: [:user], obj: @slot)
 			@title   = create_fields(helpers.slot_title_fields(title: I18n.t("slot.many")))
-			@btn_del = create_button({kind: "delete", url: slot_path(@slot), name: @slot.to_s})
-			@submit  = create_submit(submit: u_admin? ? edit_slot_path(@slot) : nil, frame: u_admin? ? "modal" : nil)
+			@btn_del = create_button({kind: "delete", url: slot_path(@slot), name: @slot.to_s}) if u_manager?
+			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot) : nil, frame: u_manager? ? "modal" : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -53,7 +53,7 @@ class SlotsController < ApplicationController
 
 	# GET /slots/new
 	def new
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			@season   = Season.find(params[:season_id]) if params[:season_id]
 			@slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: params[:location_id] ? params[:location_id] : 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
 			prepare_form(title: I18n.t("slot.new"))
@@ -64,7 +64,7 @@ class SlotsController < ApplicationController
 
 	# GET /slots/1/edit
 	def edit
-		if check_access(roles: [:admin], obj: @slot)
+		if check_access(roles: [:manager])
 			@season = Season.find(@slot.season_id)
 			prepare_form(title: I18n.t("slot.edit"))
 		else
@@ -74,7 +74,7 @@ class SlotsController < ApplicationController
 
 	# POST /slots or /slots.json
 	def create
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			@slot = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
@@ -103,7 +103,7 @@ class SlotsController < ApplicationController
 
 	# PATCH/PUT /slots/1 or /slots/1.json
 	def update
-		if check_access(roles: [:admin], obj: @slot)
+		if check_access(roles: [:manager])
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
 				@season = Season.find(@slot.season_id)
@@ -131,7 +131,7 @@ class SlotsController < ApplicationController
 
 	# DELETE /slots/1 or /slots/1.json
 	def destroy
-		if check_access(roles: [:admin], obj: @slot)
+		if check_access(roles: [:manager])
 			s_name = @slot.to_s
 			@slot.destroy
 			respond_to do |format|

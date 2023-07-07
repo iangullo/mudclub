@@ -34,7 +34,7 @@ module PlayersHelper
 			{kind: "normal", value: I18n.t("person.age"), align: "center"},
 			{kind: "normal", value: I18n.t("status.active_a"), align: "center"}
 		]
-		title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"}) if u_admin?
+		title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"}) if u_manager?
 		rows = Array.new
 		players.each { | player|
 			retlnk = players_path(search: player.s_name) if p_ndx
@@ -43,7 +43,7 @@ module PlayersHelper
 			row[:items] << {kind: "normal", value: player.to_s}
 			row[:items] << {kind: "normal", value: player.person.age, align: "center"}
 			row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
-			row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s}) if u_admin?
+			row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s}) if u_manager?
 			rows << row
 		}
 		return {title: title, rows: rows}

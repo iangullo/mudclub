@@ -23,7 +23,7 @@ module TeamsHelper
 		if search
 			s_id = @team&.season_id || @season&.id || session.dig('team_filters', 'season_id')
 			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: s_id}]
-		elsif edit and u_admin?
+		elsif edit and u_manager?
 			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
 		elsif @team
 			res << [{kind: "label", value: @team.season.name}]
@@ -99,14 +99,14 @@ module TeamsHelper
 
 	# return jump links for a team
 	def team_links
-		if (u_admin? or u_coach?)
+		if (u_manager? or u_coach?)
 			res = [[
 				button_field({kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster")}, align: "center"),
 				button_field({kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t("target.many")}, align: "center"),
 				button_field({kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr")}, align: "center"),
 				button_field({kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal"}, align: "center")
 			]]
-			res.last << button_field({kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}) if (u_admin? || @team.has_coach(u_coachid))
+			res.last << button_field({kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}) if (u_manager? || @team.has_coach(u_coachid))
 		else
 			res = [[]]
 		end
@@ -159,7 +159,7 @@ module TeamsHelper
 			c_icon  = {kind: "icon", value: "coach.svg", tip: I18n.t("coach.many"), align: "right", class: "align-top", size: "30x30", rows: c_count}
 			c_first = true
 			@team.coaches.each do |coach|
-				if u_admin?
+				if u_manager?
 					c_button = button_field({kind: "link", label: coach.to_s, url: coach, b_class: "align-middle", d_class: "align-middle", turbo: "modal"})
 					coaches << (c_first ? [c_icon, c_button] : [c_button])
 				else

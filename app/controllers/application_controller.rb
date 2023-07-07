@@ -70,6 +70,10 @@ class ApplicationController < ActionController::Base
 		current_user.admin?
 	end
 
+	def u_manager?
+		current_user.manager?
+	end
+
 	def u_coach?
 		current_user.is_coach?
 	end
@@ -107,6 +111,8 @@ class ApplicationController < ActionController::Base
 				case rol
 				when :admin
 					return true if u_admin?
+				when :manager
+					return true if u_manager?
 				when :coach
 					return true if u_coach?
 				when :player
@@ -124,17 +130,17 @@ class ApplicationController < ActionController::Base
 			when "Category", "Division", "FalseClass", "Location", "Season", "Slot"
 				return true
 			when "Coach"
-				return (u_admin? or u_coachid==obj.id)
+				return (u_manager? or u_coachid==obj.id)
 			when "Drill"
-				return (u_admin? or u_coachid==obj.coach_id)
+				return (u_manager? or u_coachid==obj.coach_id)
 			when "Event"
-				return (u_admin? or obj.team.has_coach(u_coachid) or obj.team.has_player(u_playerid))
+				return (u_manager? or obj.team.has_coach(u_coachid) or obj.team.has_player(u_playerid))
 			when "Person"
 				return (u_admin? or u_personid==obj.id)
 			when "Player"
-				return (u_admin? or u_coach? or u_playerid==obj.id)
+				return (u_manager? or u_coach? or u_playerid==obj.id)
 			when "Team"
-				return (u_admin? or obj.has_coach(u_coachid) or obj.has_player(u_playerid))
+				return (u_manager? or obj.has_coach(u_coachid) or obj.has_player(u_playerid))
 			when "User"
 				return (u_admin? or u_userid==@user.id)
 			else # including "NilClass"

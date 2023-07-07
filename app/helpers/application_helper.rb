@@ -66,6 +66,10 @@ module ApplicationHelper
 		current_user.admin?
 	end
 
+	def u_manager?
+		current_user.manager?
+	end
+
 	def u_coach?
 		current_user.is_coach?
 	end

@@ -24,9 +24,9 @@ class TeamsController < ApplicationController
 	# GET /teams
 	# GET /teams.json
 	def index
-		if check_access(roles: [:admin, :coach, :player])
+		if check_access(roles: [:manager, :coach, :player])
 			@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: !u_player?))
-			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: u_admin?))
+			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: u_manager?))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -34,7 +34,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/new
 	def new
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			@eligible_coaches = Coach.active
 			@team   = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
@@ -47,10 +47,10 @@ class TeamsController < ApplicationController
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
-		if check_access(roles: [:admin, :coach], obj: @team)
+		if check_access(roles: [:manager, :coach], obj: @team)
 			@title   = create_fields(helpers.team_title_fields(title: @team.to_s))
 			@coaches = create_fields(helpers.team_coaches)
-			if u_admin? or u_coach?
+			if u_manager? or u_coach?
 				@links = create_fields(helpers.team_links)
 				@grid  = create_fields(helpers.event_list_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team)))
 			else
@@ -66,12 +66,12 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/roster
 	def roster
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			title  = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
 			@title = create_fields(title)
 			@grid   = create_grid(helpers.player_grid(players: @team.players.order(:number), obj: @team))
-			@submit = create_submit(close: "back", close_return: team_path(@team), submit: (u_admin? || @team.has_coach(u_coachid)) ? edit_roster_team_path : nil, frame: "modal")
+			@submit = create_submit(close: "back", close_return: team_path(@team), submit: (u_manager? || @team.has_coach(u_coachid)) ? edit_roster_team_path : nil, frame: "modal")
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
 		end
@@ -79,7 +79,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_roster
 	def edit_roster
-		if check_access(roles: [:admin]) || @team.has_coach(u_coachid)
+		if check_access(roles: [:manager]) || @team.has_coach(u_coachid)
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
 			@title  = create_fields(title)
@@ -92,7 +92,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/slots
 	def slots
-		if check_access(roles: [:admin, :coach], obj: @team)
+		if check_access(roles: [:manager, :coach], obj: @team)
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
 			@fields = create_fields(title)
@@ -103,12 +103,12 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/targets
 	def targets
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			global_targets(true)	# get & breakdown global targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "back", close_return: team_path(@team), submit: (u_admin? || @team.has_coach(u_coachid)) ? edit_targets_team_path : nil)
+			@submit = create_submit(close: "back", close_return: team_path(@team), submit: (u_manager? || @team.has_coach(u_coachid)) ? edit_targets_team_path : nil)
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
 		end
@@ -117,7 +117,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_targets
 	def edit_targets
-		if check_access(roles: [:admin]) || @team.has_coach(u_coachid)
+		if check_access(roles: [:manager]) || @team.has_coach(u_coachid)
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			global_targets(false)	# get global targets
 			title   = helpers.team_title_fields(title: @team.to_s)
@@ -131,7 +131,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_targets
 	def plan
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			plan_targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
@@ -158,7 +158,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/attendance
 	def attendance
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			title  = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
 			@title = create_fields(title)
@@ -175,7 +175,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit
 	def edit
-		if check_access(roles: [:admin]) || @team.has_coach(u_coachid)
+		if check_access(roles: [:manager]) || @team.has_coach(u_coachid)
 			@eligible_coaches = Coach.active
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
 			@submit = create_submit
@@ -187,7 +187,7 @@ class TeamsController < ApplicationController
 	# POST /teams
 	# POST /teams.json
 	def create
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			@team = Team.new(team_params)
 			respond_to do |format|
 				if @team.save
@@ -211,7 +211,7 @@ class TeamsController < ApplicationController
 	# PATCH/PUT /teams/1
 	# PATCH/PUT /teams/1.json
 	def update
-		if check_access(roles: [:admin]) || @team.has_coach(u_coachid)
+		if check_access(roles: [:manager]) || @team.has_coach(u_coachid)
 			respond_to do |format|
 				n_notice = no_data_notice(trail: @team.to_s)
 				if params[:team]
@@ -247,7 +247,7 @@ class TeamsController < ApplicationController
 	# DELETE /teams/1
 	# DELETE /teams/1.json
 	def destroy
-		if check_access(roles: [:admin]) && @team
+		if check_access(roles: [:manager]) && @team
 			t_name = @team.to_s
 			@team.destroy
 			respond_to do |format|

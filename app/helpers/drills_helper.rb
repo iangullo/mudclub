@@ -84,7 +84,7 @@ module DrillsHelper
 				{kind: "string", value: @drill.print_skills}
 			]
 		]
-		if @drill.versions.size > 1 and u_admin?
+		if @drill.versions.size > 1 and u_manager?
 			res.last << {kind: "gap", rows: 2}
 			res.last << button_field(
 				{
@@ -165,7 +165,7 @@ module DrillsHelper
 			{kind: "normal", value: I18n.t("target.many")}
 			#{kind: "normal", value: I18n.t("task.many")}
 		]
-		title << button_field({kind: "add", url: new_drill_path, frame: "_top"}) if u_admin? or u_coach?
+		title << button_field({kind: "add", url: new_drill_path, frame: "_top"}) if u_manager? or u_coach?
 
 		{track: track, title: title, rows: drill_rows(drills:)}
 	end
@@ -206,7 +206,7 @@ module DrillsHelper
 				row[:items] << {kind: "normal", value: drill.coach.s_name, align: "center"}
 				row[:items] << {kind: "lines", value: drill.print_targets}
 				#row[:items] << {kind: "normal", value: Task.where(drill_id: drill.id).count, align: "center"}
-				row[:items] << button_field({kind: "delete", url: row[:url], name: drill.name}) if u_admin?
+				row[:items] << button_field({kind: "delete", url: row[:url], name: drill.name}) if u_manager?
 				rows << row
 			}
 			rows

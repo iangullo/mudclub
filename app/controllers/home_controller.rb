@@ -19,7 +19,9 @@
 class HomeController < ApplicationController
 	def index
 		if current_user.present?
-			if u_admin?	# we will redirect to season.index
+			if u_admin?
+				@fields = create_fields(helpers.home_admin_fields)
+			elsif u_manager?	# we will redirect to season.index
 				redirect_to seasons_path, data: {turbo_action: "replace"}
 			elsif u_coach?
 				@coach  = current_user.coach
@@ -37,7 +39,7 @@ class HomeController < ApplicationController
 	end
 
 	def edit
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			@club   = Person.find_by_id(0)
 			@fields = create_fields(helpers.home_form_fields(club: @club))
 			@f_logo = create_fields(helpers.form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @club.avatar.filename))

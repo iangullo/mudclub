@@ -24,7 +24,7 @@ class PlayersController < ApplicationController
 	# GET /players
 	# GET /players.json
 	def index
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			@players = get_players
 			title    = helpers.player_title_fields(title: I18n.t("player.many"))
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
@@ -46,7 +46,7 @@ class PlayersController < ApplicationController
 	# GET /players/1
 	# GET /players/1.json
 	def show
-		if check_access(roles: [:admin, :coach], obj: @player)
+		if check_access(roles: [:manager, :coach], obj: @player)
 			retlnk  = params[:retlnk].presence || players_path
 			@fields = create_fields(helpers.player_show_fields(team: params[:team_id] ? Team.find(params[:team_id]) : nil))
 			@submit = create_submit(close: "back", close_return: retlnk, submit: edit_player_path(@player, retlnk:), frame: "modal")
@@ -58,7 +58,7 @@ class PlayersController < ApplicationController
 
 	# GET /players/new
 	def new
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			@player = Player.new(active: true)
 			@player.build_person
 			prepare_form(title: I18n.t("player.new"))
@@ -69,7 +69,7 @@ class PlayersController < ApplicationController
 
 	# GET /players/1/edit
 	def edit
-		if check_access(roles: [:admin, :coach], obj: @player)
+		if check_access(roles: [:manager, :coach], obj: @player)
 			prepare_form(title: I18n.t("player.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -79,7 +79,7 @@ class PlayersController < ApplicationController
 	# POST /players
 	# POST /players.json
 	def create
-		if check_access(roles: [:admin, :coach])
+		if check_access(roles: [:manager, :coach])
 			respond_to do |format|
 				@player = Player.new
 				@player.rebuild(player_params)	# rebuild player
@@ -112,7 +112,7 @@ class PlayersController < ApplicationController
 	# PATCH/PUT /players/1
 	# PATCH/PUT /players/1.json
 	def update
-		if check_access(roles: [:admin, :coach], obj: @player)
+		if check_access(roles: [:manager, :coach], obj: @player)
 			respond_to do |format|
 				@player.rebuild(player_params)
 				retlnk  = player_params[:retlnk] || players_path(search: @player.s_name)
@@ -142,7 +142,7 @@ class PlayersController < ApplicationController
 	# GET /players/import
 	# GET /players/import.json
 	def import
-		if check_access(roles: [:admin])
+		if check_access(roles: [:manager])
 			Player.import(params[:file])	# added to import excel
 			a_desc = "#{I18n.t("player.import")} '#{params[:file].original_filename}'"
 			register_action(:imported, a_desc)
@@ -155,7 +155,7 @@ class PlayersController < ApplicationController
 	# DELETE /players/1
 	# DELETE /players/1.json
 	def destroy
-		if check_access(roles: [:admin], obj: @player)
+		if check_access(roles: [:manager], obj: @player)
 			p_name = @player.to_s
 			@player.destroy
 			respond_to do |format|

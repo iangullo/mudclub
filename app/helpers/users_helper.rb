@@ -31,7 +31,7 @@ module UsersHelper
 			{kind: "normal", value: I18n.t("role.admin_a"), align: "center"},
 			{kind: "normal", value: I18n.t("user.last_in"), align: "center"}
 		]
-		title << button_field({kind: "add", url: new_user_path, frame: "modal"}) if u_admin? or u_coach?
+		title << button_field({kind: "add", url: new_user_path, frame: "modal"}) if u_admin?
 
 		rows = Array.new
 		@users.each { |user|

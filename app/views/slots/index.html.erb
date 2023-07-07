@@ -6,9 +6,7 @@
 			<thead>
 				<tr>
 					<th align="center">
-						<% if u_admin? and not (@season.teams.empty?) %>
-							<%= render @btn_add %>
-						<% end %>
+						<%= render @btn_add if @btn_add %>
 					</th>
 					<% 1.upto(5) do |i| %>
 						<th align="center" class="bg-indigo-900 text-gray-300 align-center" colspan=<%=@d_cols[i][:cols].to_s%>><%= @d_cols[i][:name] %></th>

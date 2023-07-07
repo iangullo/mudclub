@@ -379,7 +379,7 @@ module EventsHelper
 			unless chart
 				if form
 					res << [workload_button(align: "left", cols: 3)] if @event.id
-				elsif (u_admin? || u_coach?)
+				elsif (u_manager? || u_coach?)
 					res << [
 						workload_button(align: "left", cols: 4),
 						{kind: "gap", size: 1},
@@ -435,7 +435,7 @@ module EventsHelper
 						n_row = event.match? ? {kind: "normal", value: row_f.to_s, cols: 1} : {kind: "normal", value: event.to_s, cols: 4}
 						row[:items] << n_row
 					}
-					row[:items] << button_field({kind: "delete", url: row[:url], name: event.to_s}) if u_admin? or (event.team_id>0 and event.team.has_coach(u_coachid))
+					row[:items] << button_field({kind: "delete", url: row[:url], name: event.to_s}) if u_manager? or (event.team_id>0 and event.team.has_coach(u_coachid))
 					rows << row
 				end
 			}
@@ -483,7 +483,7 @@ module EventsHelper
 
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, for_season: nil)
-			if for_season and u_admin? # new season event
+			if for_season and u_manager? # new season event
 				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"}) if obj==Season.latest
 			elsif obj.has_coach(u_coachid) # new team event
 				button = {kind: "add", name: "add-event", options: []}

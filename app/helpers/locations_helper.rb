@@ -51,7 +51,7 @@ module LocationsHelper
 			{kind: "normal", value: I18n.t("kind.single"), align: "center"},
 			{kind: "normal", value: I18n.t("location.abbr")}
 		]
-		title << button_field({kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, frame: "modal"}) if u_admin? or u_coach?
+		title << button_field({kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, frame: "modal"}) if u_manager? or u_coach?
 
 		rows = Array.new
 		@locations.each { |loc|
@@ -63,7 +63,7 @@ module LocationsHelper
 			else
 				row[:items] << {kind: "normal", value: ""}
 			end
-			row[:items] << button_field({kind: "delete", url: location_path(loc, season_id: @season ? @season.id : nil), name: loc.name}) if u_admin?
+			row[:items] << button_field({kind: "delete", url: location_path(loc, season_id: @season ? @season.id : nil), name: loc.name}) if u_manager?
 			rows << row
 		}
 		{title: title, rows: rows}
