@@ -67,10 +67,12 @@ class TeamsController < ApplicationController
 	# GET /teams/1/roster
 	def roster
 		if check_access(roles: [:manager, :coach])
-			title  = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}]
-			@title = create_fields(title)
-			@grid   = create_grid(helpers.player_grid(players: @team.players.order(:number), obj: @team))
+			title   = helpers.team_title_fields(title: @team.to_s)
+			players = @team.players
+			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}, {kind: "string", value: "(#{players.count} #{I18n.t("player.abbr")})"}]
+			@title  = create_fields(title)
+			@title  = create_fields(title)
+			@grid   = create_grid(helpers.player_grid(players: players.order(:number), obj: @team))
 			@submit = create_submit(close: "back", close_return: team_path(@team), submit: (u_manager? || @team.has_coach(u_coachid)) ? edit_roster_team_path : nil, frame: "modal")
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
