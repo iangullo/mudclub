@@ -98,6 +98,7 @@ class Player < ApplicationRecord
 		if self.person.age < 18
 			email = ""
 			self.parents.each { |par| email += "#{par.person.email.presence}\n" if par.person.email.present?}
+			email
 		else
 			self.person.email.presence
 		end
@@ -105,8 +106,9 @@ class Player < ApplicationRecord
 
 	def p_phone
 		if self.person.age < 18
-			email = ""
-			self.parents.each { |par| email += "#{par.person.phone.presence}\n" if par.person.phone.present?}
+			phone = ""
+			self.parents.each { |par| phone += "#{par.person.phone.presence}\n" if par.person.phone.present?}
+			phone
 		else
 			self.person.email.presence
 		end
