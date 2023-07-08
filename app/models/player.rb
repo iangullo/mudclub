@@ -93,6 +93,26 @@ class Player < ApplicationRecord
 		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "player.svg"
 	end
 
+	# Return email/phone of player or of the associated tutors if underage players
+	def p_email
+		if self.person.age < 18
+			email = ""
+			self.parents.each { |par| email += "#{par.person.email.presence}\n" if par.person.email.present?}
+		else
+			self.person.email.presence
+		end
+	end
+
+	def p_phone
+		if self.person.age < 18
+			email = ""
+			self.parents.each { |par| email += "#{par.person.phone.presence}\n" if par.person.phone.present?}
+		else
+			self.person.email.presence
+		end
+	end
+
+	# Apply filters to player collection
 	def self.filter(filters)
 		self.search(filters[:search]).order(:name)
 	end
