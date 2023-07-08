@@ -110,7 +110,7 @@ class Player < ApplicationRecord
 			self.parents.each { |par| phone += "#{par.person.phone.presence}\n" if par.person.phone.present?}
 			phone
 		else
-			self.person.email.presence
+			self.person.phone.presence
 		end
 	end
 
