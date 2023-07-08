@@ -31,6 +31,7 @@ class Stat < ApplicationRecord
 	scope :for_concept, -> (cval) { where(concept: cval) }
 	self.inheritance_column = "not_sti"
 
+=begin
 	enum concept: {
 		sec: 0, # seconds played/trained
 		pts: 1, # points
@@ -62,6 +63,7 @@ class Stat < ApplicationRecord
 		psa: 27,	# total points shot
 		psm: 28
 	}
+=end
 
 	# fetch a stat based on event, player & concept
 	# ought to be a single one if none found, a new one is created
@@ -97,6 +99,7 @@ class Stat < ApplicationRecord
 		stats.select {|stat| stat[:concept]=="q#{q}"}
 	end
 
+=begin
 	# return whether this stat is part of attempted shots
 	def attempt
 		ATTEMPT_CONCEPTS.include?(self.concept.to_sym)
@@ -106,4 +109,5 @@ class Stat < ApplicationRecord
 	def scored
 		SCORED_CONCEPTS.include?(self.concept.to_sym)
 	end
+=end
 end

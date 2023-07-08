@@ -290,6 +290,9 @@ es:
     edit: "Editar Horario"
     new: "Crear Horario"
     single: "Horario"
+  sport:
+    many: "Deportes"
+    single: "Deporte"
   stat:
     many: "Estadísticas"
     average: "Media"

@@ -1,0 +1,9 @@
+<%= render ModalComponent.new do %>
+	<%= form_for @sport, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+		<div id="edit_club">
+			<% @fields.form = form %>
+			<%= render @fields %>
+			<%= render @submit %>
+		</div>
+	<% end %>
+<% end %>

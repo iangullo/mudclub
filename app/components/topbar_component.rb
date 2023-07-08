@@ -119,7 +119,8 @@ class TopbarComponent < ApplicationComponent
 
 	# menu buttons for mudclub admins
 	def admin_menu(user)
-		a_menu = [menu_link(label: I18n.t("user.many"), url: '/users')]
+		a_menu = [menu_link(label: I18n.t("sport.many"), url: '/sports')]
+		a_menu << menu_link(label: I18n.t("user.many"), url: '/users')
 		a_menu << menu_link(label: I18n.t("person.many"), url: '/people')
 		c_opts = {name: "club-menu", label: @clubname, options:[]}
 		c_opts[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")

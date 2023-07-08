@@ -290,6 +290,9 @@ en:
     edit: "Edit Timeslot"
     new: "Create Timeslot"
     single: "Timeslot"
+  sport:
+    many: "Sports"
+    single: "Sport"
   stat:
     many: "Stats"
     average: "Average"
