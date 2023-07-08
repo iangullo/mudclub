@@ -92,8 +92,16 @@ class Season < ApplicationRecord
 
 	# return the latest season registered
 	def self.latest
-		last_date = Season.where("start_date <= ?", Date.today).maximum('start_date')
-		return last_date ? Season.real.where(start_date: last_date).first : nil
+		# check past seasons
+		if (past_start = Season.where("start_date <= ?", Date.today).maximum('start_date'))
+			if (p_season = Season.where(start_date: past_start).first)
+				if p_season.end_date < Date.today
+					next_start = Season.where("start_date > ?", Date.today).minimum('start_date')
+					p_season   = Season.where(start_date: next_start).first
+				end
+			end
+		end
+		p_season
 	end
 
 	# parse data from raw input given by submittal from "new" or "edit"
