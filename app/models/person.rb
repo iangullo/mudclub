@@ -31,6 +31,7 @@ class Person < ApplicationRecord
 	accepts_nested_attributes_for :user
 	validates :name, :surname, presence: true
 	scope :real, -> { where("id>0") }
+	scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
 	before_save { self.name = self.name ? self.name.mb_chars.titleize : ""}
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : ""}
 	self.inheritance_column = "not_sti"
