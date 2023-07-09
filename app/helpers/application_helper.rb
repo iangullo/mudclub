@@ -67,7 +67,7 @@ module ApplicationHelper
 	end
 
 	def u_manager?
-		current_user.manager?
+		current_user.manager? || (current_user.admin? && current_user.is_coach?)
 	end
 
 	def u_coach?
