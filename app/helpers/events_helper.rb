@@ -108,7 +108,7 @@ module EventsHelper
 	#FieldComponents to show a match
 	def match_show_fields
 		score = @event.score
-		res = [[
+		res   = [[
 			{kind: "gap", size: 2},
 			{kind: "top-cell", value: score[:home][:team]},
 			{kind: "label", value: score[:home][:points], class: "border px py"},
@@ -170,29 +170,12 @@ module EventsHelper
 
 	# fields to display player's stats for an event
 	def event_player_shots_fields
-		# filter for this event & player
-		stats = Stat.for_event(@event.id).for_player(@player.id)
-		res   = event_stat_header
-		res << show_shooting_data("stat.shot.free", stats, :ftm, :fta)
-		res << show_shooting_data("stat.shot.close", stats, :zgm, :zga)
-		res << show_shooting_data("stat.shot.two", stats, :dgm, :dga)
-		res << show_shooting_data("stat.shot.three", stats, :tgm, :tga)
-		tshot = Stat.new(event_id: @event.id, player_id: @player.id, concept: :fga, value: stats.select(&:attempt).sum(&:value))
-		tmade = Stat.new(event_id: @event.id, player_id: @player.id, concept: :fgm, value: stats.select(&:scored).sum(&:value))
-		res << show_shooting_data("stat.total", [tshot, tmade], :fgm, :fga)
-		res
+		@sport.player_training_stats_fields(event_id: @event.id, player_id: @player.id)
 	end
 
 	# fields to display player's edit stats form for an event
 	def event_edit_player_shots_fields
-		stats = Stat.by_event(@event.id)	# filter for this event
-		stats = Stat.by_player(@player.id, stats)	# filter for a player
-		res   = event_stat_header
-		res << form_shooting_data("stat.shot.free", stats, :ftm, :fta)
-		res << form_shooting_data("stat.shot.close", stats, :zgm, :zga)
-		res << form_shooting_data("stat.shot.two", stats, :dgm, :dga)
-		res << form_shooting_data("stat.shot.three", stats, :tgm, :tga)
-		res
+		@sport.player_training_stats_form_fields(event_id: @event.id, player_id: @player.id)
 	end
 
 	# return FieldsComponent @fields for show_training
@@ -494,47 +477,5 @@ module EventsHelper
 			else
 				return nil
 			end
-		end
-
-		def stat_label(stat_name)
-			{kind: "side-cell", value: I18n.t(stat_name), align: "middle", class: "border px py"}
-		end
-
-		def event_stat_header
-			res = [[{kind: "gap"}, {kind: "side-cell", value: I18n.t("stat.many"), align: "middle", cols: 5}]]
-			res << [
-				{kind: "gap"},
-				{kind: "top-cell", value: I18n.t("stat.shot.many")},
-				{kind: "top-cell", value: I18n.t("stat.shot.made"), align: "middle"},
-				{kind: "top-cell", value: "/", align: "middle"},
-				{kind: "top-cell", value: I18n.t("stat.shot.attempt"), align: "middle"}
-			]
-		end
-
-		def show_shooting_data(label, stats, scored, attempts)
-			made  = Stat.by_concept(scored, stats).first&.value.to_i
-			taken = Stat.by_concept(attempts, stats).first&.value.to_i
-			pctg  = taken > 0 ? (made*100/taken) : "N/A"
-			pcol  = taken == 0 ? "gray-300" : (pctg < 20 ? "red-900": (pctg < 50 ? "yellow-700" : (pctg < 70 ? "gray-700" : "green-700")))
-			[
-				{kind: "gap"},
-				stat_label(label),
-				{kind: "string", value: made, class: "border px py", align: "right"},
-				{kind: "label", value: "/"},
-				{kind: "string", value: taken, class: "border px py", align: "right"},
-				{kind: "text", value: (taken == 0 ? pctg : "#{pctg}%"), class: "align-middle text-#{pcol}", align: "center"}
-			]
-		end
-
-		def form_shooting_data(label, stats, scored, attempts)
-			made  = Stat.by_concept(scored, stats).first&.value.to_i
-			taken = Stat.by_concept(attempts, stats).first&.value.to_i
-			[
-				{kind: "gap"},
-				stat_label(label),
-				{kind: "number-box", key: scored, value: made, class: "shots-made border px py", align: "right"},
-				{kind: "label", value: "/"},
-				{kind: "number-box", key: attempts, value: taken, class: "shots-taken border px py", align: "right"}
-			]
 		end
 end

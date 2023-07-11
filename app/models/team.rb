@@ -21,6 +21,7 @@ class Team < ApplicationRecord
 	belongs_to :category
 	belongs_to :division
 	belongs_to :season
+	belongs_to :sport
 	has_and_belongs_to_many :players
 	has_and_belongs_to_many :coaches
 	has_many :slots, dependent: :destroy
@@ -208,6 +209,13 @@ class Team < ApplicationRecord
 			end
 		}
 		res
+	end
+
+	# retrieve the adequate sport object
+	def sport_object
+		obj_cname = self.sport.name.camelize + "Sport"
+		obj_class = obj_cname.constantize
+		obj_class.new(id: self.sport.id)
 	end
 
 	private

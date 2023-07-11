@@ -384,11 +384,11 @@ class Event < ApplicationRecord
 			e_stats = self.stats
 			s_params.each {|s_param|
 				s_arg = s_param[0].split("_")
-				stat = Stat.fetch(event_id: self.id, player_id: s_arg[0].to_i, concept: s_arg[1], stats: e_stats)
+				stat = Stat.fetch(event_id: self.id, period: 0, player_id: s_arg[0].to_i, concept: s_arg[1], stats: e_stats).first
 				if stat # just update the value
 					stat[:value] = s_param[1].to_i
 				else  # create a new stat
-					e_stats << Stat.new(event_id: self.id, player_id: s_arg[0].to_i, concept: s_arg[1], value: s_param[1].to_i)
+					e_stats << Stat.new(event_id: self.id, period: 0, player_id: s_arg[0].to_i, concept: s_arg[1], value: s_param[1].to_i)
 				end
 			}
 		end
