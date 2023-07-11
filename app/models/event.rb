@@ -253,7 +253,7 @@ class Event < ApplicationRecord
 		self.players.find_index { |p| p[:id]==p_id }
 	end
 
-	# return contraints on event periods (if any)
+	# return constraints on event periods (if any)
 	# nil if none
 	def periods
 		if self.match?
@@ -382,7 +382,7 @@ class Event < ApplicationRecord
 		# check stats added to event
 		def check_stats(s_data)
 			e_stats = self.stats
-			s_params.each {|s_param|
+			s_data.each {|s_param|
 				s_arg = s_param[0].split("_")
 				stat = Stat.fetch(event_id: self.id, period: 0, player_id: s_arg[0].to_i, concept: s_arg[1], stats: e_stats).first
 				if stat # just update the value
