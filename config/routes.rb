@@ -45,8 +45,6 @@ Rails.application.routes.draw do
 			post :import
   	end
 	end
-	resources :categories
-	resources :divisions
 	resources :sports do
 		resources :categories
 		resources :divisions

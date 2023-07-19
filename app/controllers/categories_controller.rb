@@ -22,7 +22,8 @@ class CategoriesController < ApplicationController
 	# GET /categories or /categories.json
 	def index
 		if check_access(roles: [:admin])
-			@categories = Category.real
+			@sport      = (params[:sport_id] ? Sport.find_by(id: params[:sport_id]) : Sport.first).specific
+			@categories = Category.for_sport(@sport.id)
 			@fields     = create_fields(helpers.category_title_fields(title: I18n.t("category.many")))
 			@grid       = create_grid(helpers.category_grid)
 		else
@@ -136,6 +137,6 @@ class CategoriesController < ApplicationController
 
 		# Only allow a list of trusted parameters through.
 		def category_params
-			params.require(:category).permit(:age_group, :sex, :min_years, :max_years, :rules)
+			params.require(:category).permit(:age_group, :sex, :min_years, :max_years, :rules, :sport_id)
 		end
 end

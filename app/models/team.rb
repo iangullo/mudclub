@@ -165,7 +165,7 @@ class Team < ApplicationRecord
 
 	# return time rules that apply to this team
 	def periods
-		self.rules ? self.rules : self.category.def_rules
+		self.rules ? self.rules : self.sport.default_rules(self.category)
 	end
 
 	# rebuild Teamm from raw hash returned by a form

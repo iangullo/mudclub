@@ -22,7 +22,6 @@ class Sport < ApplicationRecord
 	has_many :divisions, dependent: :nullify
 	has_many :teams, dependent: :nullify
 
-
 	# empty wrappers to define FieldComponents for views
 	# MUST BE DEFINED IN SPORT-SPECIFIC OBJECTS!!
 	def match_show_fields(event, edit: nil)
@@ -53,9 +52,13 @@ class Sport < ApplicationRecord
 		raise "Must implement in Specific Sport object"
 	end
 
+	def rules_limits
+		raise "Must implement in Specific Sport object"
+	end
+
 	# multi-language string for sport name
 	def to_s
-		I18n.t("sport.#{self.name}")
+		I18n.t("sport.#{self.name.downcase}.name")
 	end
 
 	# retrieve the adequate sport-specific object
@@ -87,9 +90,18 @@ class Sport < ApplicationRecord
 		set_setting(:rules, value)
 	end
 
-	# default applicable rules
-	def def_rules
-		raise "Must implement in Specific Sport object"
+	# Getter method for accessing the Sport limits for matches
+	# will vary with sport and categories
+	# if any of them are nil, they will be ignored
+	# {rules(int): {roster: {max:, min:}, playing: {max:, min:}, outings: {max:, min:}, periods: {regular:, extra:}, duration: {regular:, extra:}}}
+	def limits
+		settings&.fetch(:limits, {})
+	end
+
+	# Setter method for updating the scoring mapping
+	# {rules(int): {roster: {max:, min:}, playing: {max:, min:}, outings: {max:, min:}, periods: {regular:, extra:}, duration: {regular:, extra:}}}
+	def limits=(value)
+		set_setting(:limits, value)
 	end
 
 	# Getter method for accessing the Sport scoring. Should

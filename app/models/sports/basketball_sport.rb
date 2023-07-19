@@ -71,16 +71,15 @@ class BasketballSport < Sport
 	# default applicable rules for a category
 	def default_rules(category)
 		case category.max_years
-		when 13	then return 1
-		when 11	then return 2
-		when 9	then return 3
-		when 7	then return 4
-		else return 0
+		when 13	then return 1	# U14
+		when 11	then return 2	# U12
+		when 9	then return 3	# U10
+		when 7	then return 4	# U8
+		else return 0	# fiba (0) or 3x3 (6)
 		end
 	end
 
-	# return time rules that may apply to BASKETBALL:
-	# 3x3: free (one period), FIBA: free, pas4: 1-2/3+1 Qs; pas6: 2-3/5+1 Qs
+	# return rules that may apply to BASKETBALL:
 	def rules_options
 		[
 			[I18n.t("#{SPORT_LBL}rules.fiba"), 0],
@@ -90,6 +89,11 @@ class BasketballSport < Sport
 			[I18n.t("#{SPORT_LBL}rules.u8"), 4],
 			[I18n.t("#{SPORT_LBL}rules.three"), 5]
 		]
+	end
+
+	# Return which limits apply depending on the rules
+	def rules_limits(category_rules)
+		self.limits[category_rules]
 	end
 
 	private

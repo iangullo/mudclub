@@ -21,6 +21,7 @@ class Division < ApplicationRecord
 	belongs_to :sport
 	has_many :teams
 	scope :real, -> { where("id>0") }
+	scope :for_sport, -> (sport_id) { (sport_id and sport_id.to_i>0) ? where(sport_id: sport_id.to_i) : where("sport_id>0") }
 
 	def to_s
 		self.id==0 ? I18n.t("scope.none") : self.name

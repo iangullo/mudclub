@@ -22,7 +22,8 @@ class DivisionsController < ApplicationController
 	# GET /divisions or /divisions.json
 	def index
 		if check_access(roles: [:admin])
-			@divisions = Division.real
+			@sport     = (params[:sport_id] ? Sport.find_by(id: params[:sport_id]) : Sport.first).specific
+			@divisions = Division.for_sport(@sport.id)
 			@fields    = create_fields(helpers.division_title_fields(title: I18n.t("division.many")))
 			@grid      = create_grid(helpers.division_grid)
 		else
@@ -138,6 +139,6 @@ class DivisionsController < ApplicationController
 
 		# Only allow a list of trusted parameters through.
 		def division_params
-			params.require(:division).permit(:name)
+			params.require(:division).permit(:name, :sport_id)
 		end
 end

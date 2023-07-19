@@ -34,7 +34,8 @@ class SportsController < ApplicationController
 
 	# View club details
 	def show
-		if check_access(roles: [:manager])
+		if check_access(roles: [:admin])
+			@fields = create_fields(helpers.sports_show_fields)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -43,6 +44,7 @@ class SportsController < ApplicationController
 	# Prepare a new club
 	def new
 		if check_access(roles: [:admin])
+			@fields = create_fields(title)
 			@sport = Sport.new
 			prepare_form(title: I18n.t("action.create"))
 		else
@@ -93,7 +95,7 @@ class SportsController < ApplicationController
 		# prepare a form to edit/create a Category
 		def prepare_form(title:)
 			@fields = create_fields(helpers.sports_form_fields(title:))
-			@submit = create_submit
+			@submit = create_submit(close_return: :back)
 		end
 
 		# Only allow a list of trusted parameters through.

@@ -25,14 +25,30 @@ module SportsHelper
 		rows = Array.new
 		Sport.all.each { |sport|
 			row = {url: edit_sport_path(sport), items: [], frame: "modal"}
-			row[:items] << {kind: "normal", value: I18n.t("sport.#{sport.name}"), align: "center"}
+			row[:items] << {kind: "normal", value: sport.to_s, align: "center"}
 			row[:items] << button_field({kind: "delete", url: row[:url], name: sport.to_s})
 			rows << row
 		}
 		{title: title, rows: rows}
 	end
 
-	# home edit form fields
+	# show sport & related objects
+	def sports_show_fields
+		res = [
+			[
+				{kind: "header-icon", value: "sport.svg"},
+				{kind: "title", value: @sport.to_s, cols: 2}
+			],
+			[{kind: "gap", size: 1}],
+			[
+				button_field({kind: "jump", icon: "category.svg", url: sport_categories_path(@sport), label: I18n.t("category.many")}, align: "center"),
+				button_field({kind: "jump", icon: "division.svg", url: sport_divisions_path(@sport), label: I18n.t("division.many")}, align: "center")
+			]
+		]
+		res
+	end
+
+	# sports edit fields
 	def sports_form_fields(title:, retlnk: nil)
 		res = [
 			[
@@ -40,13 +56,7 @@ module SportsHelper
 				{kind: "title", value: title, cols: 2}
 			],
 			[
-				{kind: "label", value: I18n.t("sport.single")},
-				{kind: "text-box", key: :name, value: @sport.name, placeholder: "MudClub"}
-			],
-			[
-				{kind: "gap"},
-				{kind: "label", value: I18n.t("sport.single")},
-				{kind: "select-collection", key: :sport_id, options: Sport.all, value: @sport.id}
+				{kind: "label", value: @sport.to_s}
 			]
 		]
 		res << {kind: "hidden", key: :retlnk, value: retlnk} if retlnk

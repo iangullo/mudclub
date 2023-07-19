@@ -288,8 +288,13 @@ en:
     new: "Create Timeslot"
     single: "Timeslot"
   sport:
+    created: "Created sport: "
+    deleted: "Deleted sport: "
+    edit: "Edit sport"
     many: "Sports"
+    new: "Create sport"
     single: "Sport"
+    updated: "Updated sport: "
   stat:
     many: "Stats"
     average: "Average"

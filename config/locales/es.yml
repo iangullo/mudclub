@@ -288,8 +288,13 @@ es:
     new: "Crear Horario"
     single: "Horario"
   sport:
+    created: "Deporte añadido: "
+    deleted: "Deporte borrado: "
+    edit: "Editar deporte"
     many: "Deportes"
+    new: "Crear deporte"
     single: "Deporte"
+    updated: "Deporte acrtualizado: "
   stat:
     many: "Estadísticas"
     average: "Media"

@@ -70,16 +70,16 @@ module CategoriesHelper
 			{kind: "normal", value: I18n.t("stat.min")},
 			{kind: "normal", value: I18n.t("stat.max")}
 		]
-		title <<  button_field({kind: "add", url: new_category_path, frame: "modal"}) if u_admin? || u_manager?
+		title <<  button_field({kind: "add", url: new_sport_category_path(sport_id: @sport.id), frame: "modal"}) if u_admin? || u_manager?
 
 		rows = Array.new
 		@categories.each { |cat|
-			row = {url: edit_category_path(cat), frame: "modal", items: []}
+			row = {url: edit_sport_category_path(id: cat.id, sport_id: cat.sport_id), frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: cat.age_group}
 			row[:items] << {kind: "normal", value: cat.sex}
 			row[:items] << {kind: "normal", value: cat.min_years, align: "right"}
 			row[:items] << {kind: "normal", value: cat.max_years, align: "right"}
-			row[:items] << button_field({kind: "delete", url: category_path(cat), name: cat.name}) if u_admin? || u_manager?
+			row[:items] << button_field({kind: "delete", url: sport_category_path(id: cat.id, sport_id: cat.sport_id), name: cat.name}) if u_admin? || u_manager?
 			rows << row
 		}
 		{title: title, rows: rows}
