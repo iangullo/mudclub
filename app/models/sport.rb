@@ -22,9 +22,47 @@ class Sport < ApplicationRecord
 	has_many :divisions, dependent: :nullify
 	has_many :teams, dependent: :nullify
 
+
+	# empty wrappers to define FieldComponents for views
+	# MUST BE DEFINED IN SPORT-SPECIFIC OBJECTS!!
+	def match_show_fields(event, edit: nil)
+		raise "Must implement in Specific Sport object"
+	end
+
+	def match_form_fields(event, edit: nil)
+		raise "Must implement in Specific Sport object"
+	end
+
+	def player_training_header_fields(event_id:, player_id:)
+		raise "Must implement in Specific Sport object"
+	end
+
+	def player_training_stats_fields(event_id:, player_id:)
+		raise "Must implement in Specific Sport object"
+	end
+
+	def player_training_stats_form_fields(event_id:, player_id:)
+		raise "Must implement in Specific Sport object"
+	end
+
+	def default_rules(category)
+		raise "Must implement in Specific Sport object"
+	end
+
+	def rules_options
+		raise "Must implement in Specific Sport object"
+	end
+
 	# multi-language string for sport name
 	def to_s
 		I18n.t("sport.#{self.name}")
+	end
+
+	# retrieve the adequate sport-specific object
+	def specific
+		obj_cname = self.name.camelize + "Sport"
+		obj_class = obj_cname.constantize
+		obj_class.new(id: self.id)
 	end
 
 	# Getter method for accessing the settings hash
@@ -38,55 +76,56 @@ class Sport < ApplicationRecord
 	end
 
 	# Getter method for accessing the Sport rules mapping
+	# as key=>value pairs (enum-like)
 	def rules
 		settings&.fetch(:rules, {})
 	end
 
 	# Setter method for updating the rules mapping
+	# as key=>value pairs (enum-like)
 	def rules=(value)
 		set_setting(:rules, value)
 	end
 
-	# Getter method for accessing the Sport scoring_system. Should
+	# default applicable rules
+	def def_rules
+		raise "Must implement in Specific Sport object"
+	end
+
+	# Getter method for accessing the Sport scoring. Should
 	# identify specific Stats concepts to calculate scoring
 	# if any of them are nil, they will be ignored
 	# value = {sets: true/false, points: :points_concept}
-	def scoring_system
+	def scoring
 		settings&.fetch(:scoring, {})
 	end
 
-	# Setter method for updating the scoring_system mapping
+	# Setter method for updating the scoring mapping
 	# value = {sets: true/false, points: :points_concept}
-	def scoring_system=(value)
+	def scoring=(value)
 		set_setting(:scoring, value)
 	end
 
 	# Getter method for accessing the stat mapping
+	# as key=>value pairs
 	def stats
 		settings&.fetch(:stats, {})
 	end
 
 	# Setter method for updating the stat mapping
+	# as key=>value pairs
 	def stats=(value)
 		set_setting(:stats, value)
 	end
 
-	# Getter method for accessing the Sport rules mapping
-	def stat_kinds
-		settings&.fetch(:stat_kinds, {})
-	end
-
-	# Setter method for updating the rules mapping
-	def stat_kinds=(value)
-		set_setting(:stat_kinds, value)
-	end
-
 	# are competition fixtures split in periods?
+	# as concept=>value pairs (enum-like)
 	def periods
 		settings&.fetch(:periods, {})
 	end
 
 	# Setter method for updating the periods mapping
+	# as concept=>value pairs (enum-like)
 	def periods=(value)
 		set_setting(:periods, value)
 	end
@@ -97,24 +136,15 @@ class Sport < ApplicationRecord
 		s_stats  = get_event_scoring_stats(event_id:)
 		t_score  = {ours: 0, opps: 0}	# (period: 0 => t_score)
 		score    = {}
-		self.periods.each_pair do |per, val|	#period==set if scoring by sets
-			r_tot = (per.to_sym == :tot)	# get all points/games
-			s_per = Stat.by_period(period: val, stats: s_stats)
-			p_for = get_period_score(stats: s_per, player_id: 0)
-			p_opp = get_period_score(stats: s_per, player_id: -1)
-			if p_for && p_opp	# we have a score for this period
-				score[per] = {ours: p_for, opps: p_opp}	# load it to the hash
-				unless r_tot	# if we already read the totals, this is unnecessary
-					if s_system[:sets]	# different handling for sets
-						(p_for > p_opp) ? (t_score[:ours] += 1) : (t_score[:opps] += 1)
-					else # just add the points to the total
-						t_score[:ours] += p_for
-						t_score[:opps] += p_opp
-					end
-				end
+		unless s_stats&.empty?
+			r_tot = false
+			self.periods.each_pair do |per, val|	#period==set if scoring by sets
+				binding.break
+				r_tot = read_score(val, s_stats, score, t_score)
 			end
 		end
 		score[:tot] = t_score unless r_tot	# add total unless read
+		score
 	end
 
 	# wrapper to write match scores. values are expected to
@@ -130,26 +160,6 @@ class Sport < ApplicationRecord
 		end
 	end
 
-	# fields to display match period
-	def match_period_grid(event, edit: nil)
-		raise "Must implement in Specific Sport object"
-	end
-
-	# fields to track player training stats
-	def player_training_header_fields(event_id:, player_id:)
-		raise "Must implement in Specific Sport object"
-	end
-
-	# fields to track player training stats
-	def player_training_stats_fields(event_id:, player_id:)
-		raise "Must implement in Specific Sport object"
-	end
-
-	# fields to track player training stats
-	def player_training_stats_form_fields(event_id:, player_id:)
-		raise "Must implement in Specific Sport object"
-	end
-
 	# return label field for a stat using I18n.t
 	def stat_label(label, abbr=true)
 		{kind: "side-cell", value: I18n.t(label), align: "middle", class: "border px py"}
@@ -163,21 +173,6 @@ class Sport < ApplicationRecord
 		Event.find(event_id).events << s_val unless s_val.id	# add to event stats if needed
 	end
 
-	# return the right symbol for a rule concept
-	def rules_key(concept)
-		self.rules.key(concept).to_sym
-	end
-
-	# return the right symbol for a rule concept
-	def period_key(concept)
-		self.periods.key(concept).to_sym
-	end
-
-	# return the right symbol for a stat concept
-	def stat_key(concept)
-		self.stats.key(concept).to_sym
-	end
-
 	# sum total value of a specific stat
 	# if concept included in stat_group array
 	def sum_stats(stats, stat_group)
@@ -188,6 +183,18 @@ class Sport < ApplicationRecord
 		res
 	end
 
+	# wrappers to return the symbols of specific rules/periods/stats
+	def rules_key(concept)
+		self.rules.key(concept).to_sym
+	end
+
+	def period_key(concept)
+		self.periods.key(concept).to_sym
+	end
+
+	def stat_key(concept)
+		self.stats.key(concept).to_sym
+	end
 
 	private
 		# generic setting method to be used for all setters
@@ -195,21 +202,43 @@ class Sport < ApplicationRecord
 			self.settings = settings.merge(key => value)
 		end
 
-		# Retrieve event scorign stats for an event of the sport
+		# Retrieve event scoring stats for an event of the sport
 		def get_event_scoring_stats(event_id:)
-			concept = self.scoring_system[:points]	# lets split by scoring system
-			s_stats  = Stat.fetch(event_id:, concept:)
+			concept = self.scoring["points"].to_sym	# lets split by scoring system
+			s_stats = Stat.fetch(event_id:, concept:, create: false)
 		end
+
 		# Scan period stats for the value of a score
 		# for a specific period & team
 		def get_period_score(stats:, player_id:)
 			s_val = Stat.by_player(player_id:, stats:).first
 			s_val&.value
 		end
+
+		# load score for a period from the stats
+		def read_score(period, stats, score, total)
+			r_tot = (period == 0)	# get all points/games
+			s_per = Stat.by_period(period:, stats:)
+			p_for = get_period_score(stats: s_per, player_id: 0)
+			p_opp = get_period_score(stats: s_per, player_id: -1)
+			if p_for && p_opp	# we have a score for this period
+				score[per] = {ours: p_for, opps: p_opp}	# load it to the hash
+				unless r_tot	# if we already read the totals, this is unnecessary
+					if s_system[:sets]	# different handling for sets
+						(p_for > p_opp) ? (t_score[:ours] += 1) : (t_score[:opps] += 1)
+					else # just add the points to the total
+						total[:ours] += p_for
+						total[:opps] += p_opp
+					end
+				end
+			end
+			r_tot	# did we just read a total?
+		end
+
 		# Scan period stats for the value of a score
 		# for a specific period & team
 		def set_period_score(event_id:, period:, player_id:, value:, stats:)
-			concept = self.scoring_system[:points]	# lets split by scoring system
+			concept = self.scoring[:points]	# lets split by scoring system
 			update_stat(event_id:, period:, player_id:, concept:, stats: nil)
 		end
 

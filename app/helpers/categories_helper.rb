@@ -41,8 +41,9 @@ module CategoriesHelper
 
 	# return FieldsComponent @title for forms
 	def category_form_fields(title:)
-		@submit   = SubmitComponent.new(submit: "save")
-		res = category_title_fields(title:, rows: 3, cols: 5)
+		@submit = SubmitComponent.new(submit: "save")
+		sport   = @category.sport.specific
+		res     = category_title_fields(title:, rows: 3, cols: 5)
 		res << [
 			{kind: "text-box", key: :age_group, value: @category.age_group, placeholder: I18n.t("category.single"), size: 10, cols: 3},
 			{kind: "select-box", key: :sex, options: [I18n.t("sex.fem_a"), I18n.t("sex.male_a"), I18n.t("sex.mixed_a")], value: @category.sex, cols: 2}
@@ -56,7 +57,7 @@ module CategoriesHelper
 		]
 		res << [
 			{kind: "icon", value: "time.svg"},
-			{kind: "select-box", key: :rules, options: Category.time_rules, value: @category.rules ? @category.rules : @category.def_rules, cols: 4}
+			{kind: "select-box", key: :rules, options: sport.rules, value: @category.rules ? @category.rules : sport.try(:default_rules), cols: 4}
 		]
 		res
 	end

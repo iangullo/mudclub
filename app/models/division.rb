@@ -18,6 +18,7 @@
 #
 class Division < ApplicationRecord
 	before_destroy :unlink
+	belongs_to :sport
 	has_many :teams
 	scope :real, -> { where("id>0") }
 

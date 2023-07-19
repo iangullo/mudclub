@@ -92,9 +92,6 @@ es:
     new: "Crear Categoría"
     single: "Categoría"
     name: "Nombre"
-    q4: "Pasarela"
-    q6: "Minibasket"
-    fiba: "FIBA"
   club:
     single: "Club"
   coach:

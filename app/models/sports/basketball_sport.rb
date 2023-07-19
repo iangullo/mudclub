@@ -30,7 +30,17 @@ class BasketballSport < Sport
 		self.basketball_rules if self.rules.empty?
 		self.basketball_periods if self.periods.empty?
 		self.basketball_stats if self.stats.empty?
-		self.basketball_scoring if self.scoring_system.empty?
+		self.basketball_scoring if self.scoring.empty?
+	end
+
+	# fields to display match period
+	def match_show_fields(event, edit: nil)
+		raise "Must implement in Specific Sport object"
+	end
+
+	# fields to display match period
+	def match_form_fields(event, edit: nil)
+		raise "Must implement in Specific Sport object"
 	end
 
 	# fields to display player's stats for training
@@ -56,6 +66,30 @@ class BasketballSport < Sport
 		res << form_shooting_data(s_label("dg"), stats, :dgm, :dga)
 		res << form_shooting_data(s_label("tg"), stats, :tgm, :tga)
 		res
+	end
+
+	# default applicable rules for a category
+	def default_rules(category)
+		case category.max_years
+		when 13	then return 1
+		when 11	then return 2
+		when 9	then return 3
+		when 7	then return 4
+		else return 0
+		end
+	end
+
+	# return time rules that may apply to BASKETBALL:
+	# 3x3: free (one period), FIBA: free, pas4: 1-2/3+1 Qs; pas6: 2-3/5+1 Qs
+	def rules_options
+		[
+			[I18n.t("#{SPORT_LBL}rules.fiba"), 0],
+			[I18n.t("#{SPORT_LBL}rules.u14"), 1],
+			[I18n.t("#{SPORT_LBL}rules.u12"), 2],
+			[I18n.t("#{SPORT_LBL}rules.u10"), 3],
+			[I18n.t("#{SPORT_LBL}rules.u8"), 4],
+			[I18n.t("#{SPORT_LBL}rules.three"), 5]
+		]
 	end
 
 	private
@@ -107,7 +141,7 @@ class BasketballSport < Sport
 
 		# generic setting method to be used for all setters
 		def basketball_scoring
-			self.scoring_system = {sets: false, points: :pts}
+			self.scoring = {sets: false, points: :pts}
 		end
 
 		# header fields to show shooting_stats
@@ -168,6 +202,7 @@ class BasketballSport < Sport
 		end
 
 		# fields to track player training stats
+		# REDESIGN!!
 		def period_grid(event, edit: nil)
 			head = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}]
 			rows    = []

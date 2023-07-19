@@ -211,12 +211,9 @@ class Event < ApplicationRecord
 	#   1:  home team first
 	#   2:  away team first
 	def score(mode: 1)
-		p_for = self.stats.where(concept: :pts, player_id: 0).first # our team's points
-		p_for = p_for ? p_for.value : 0
-		p_opp = self.stats.where(concept: :pts, player_id: -1).first  # opponent points
-		p_opp = p_opp ? p_opp.value : 0
-		our_s = {team: self.team.to_s, points: p_for}
-		opp_s = {team: self.name, points: p_opp}
+		total = self.team.sport.match_score(event_id: self.id)[:tot]
+		our_s = {team: self.team.to_s, points: total[:ours]}
+		opp_s = {team: self.name, points: total[:opps]}
 
 		if mode==0 or (mode==1 and self.home?) or (mode==2 and self.home==false)
 			{home: our_s, away: opp_s}
@@ -257,7 +254,7 @@ class Event < ApplicationRecord
 	# nil if none
 	def periods
 		if self.match?
-			case self.team.rules.to_sym  # ready to create period rule edition
+			case self.team.rules  # ready to create period rule edition
 			when :q4 then return {total: 4, max: 2, min: 3}
 			when :q6 then return {total: 6, max: 3, min: 2}
 			else

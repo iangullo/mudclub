@@ -211,13 +211,6 @@ class Team < ApplicationRecord
 		res
 	end
 
-	# retrieve the adequate sport object
-	def sport_object
-		obj_cname = self.sport.name.camelize + "Sport"
-		obj_class = obj_cname.constantize
-		obj_class.new(id: self.sport.id)
-	end
-
 	private
 		# search team_targets based on target attributes
 		def search_targets(month=0, aspect=nil, focus=nil)

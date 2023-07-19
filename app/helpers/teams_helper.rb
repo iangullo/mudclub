@@ -84,7 +84,7 @@ module TeamsHelper
 		]
 		res << [
 			{kind: "icon", value: "time.svg"},
-			{kind: "select-box", key: :rules, options: Category.time_rules, value: @team.periods }
+			{kind: "select-box", key: :rules, options: @sport.rules_options, value: @team.periods }
 		]
 		res << [
 			{kind: "icon", value: "coach.svg"},
