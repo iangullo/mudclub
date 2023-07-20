@@ -21,7 +21,7 @@ module SportsHelper
 	# sports page for admins
 	def sports_grid
 		title = [{kind: "normal", value: I18n.t("sport.single")}]
-		title << button_field({kind: "add", url: new_sport_path, frame: "modal"})
+		title << button_field({kind: "add", url: new_sport_category_path, frame: "modal"})
 		rows = Array.new
 		Sport.all.each { |sport|
 			row = {url: edit_sport_path(sport), items: [], frame: "modal"}

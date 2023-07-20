@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class DivisionsController < ApplicationController
+	before_action :set_sport
 	before_action :set_division, only: %i[ show edit update destroy ]
 
 	# GET /divisions or /divisions.json
@@ -37,7 +38,7 @@ class DivisionsController < ApplicationController
 			fields  = helpers.division_title_fields(title: I18n.t("division.single"))
 			fields << [{kind: "subtitle", value: @division.name}]
 			@fields = create_fields(fields)
-			@submit = create_submit(submit: u_manager? ? edit_division_path(@division) : nil)
+			@submit = create_submit(submit: u_manager? ? edit_sport_division_path(@sport, @division) : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -46,7 +47,7 @@ class DivisionsController < ApplicationController
 	# GET /divisions/new
 	def new
 		if check_access(roles: [:admin, :manager])
-			@division = Division.new
+			@division = @sport.divisions.build
 			prepare_form(title: I18n.t("division.new"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -65,13 +66,14 @@ class DivisionsController < ApplicationController
 	# POST /divisions or /divisions.json
 	def create
 		if check_access(roles: [:admin])
-			@division = Division.new(division_params)
+			@division = Division.new(sport_id: @sport.id)
 			respond_to do |format|
+				@division.rebuild(division_params)
 				if @division.save
 					a_desc = "#{I18n.t("division.created")} '#{@division.name}'"
 					register_action(:created, a_desc)
-					format.html { redirect_to divisions_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: divisions_path }
+					format.html { redirect_to sport_divisions_path(@sport), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: sport_divisions_path(@sport) }
 				else
 					prepare_form(title: I18n.t("division.new"))
 					format.html { render :new, status: :unprocessable_entity }
@@ -92,16 +94,16 @@ class DivisionsController < ApplicationController
 					if @division.save
 						a_desc = "#{I18n.t("division.updated")} '#{@division.name}'"
 						register_action(:updated, a_desc)
-						format.html { redirect_to divisions_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: divisions_path }
+						format.html { redirect_to sport_divisions_path(@sport), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :created, location: sport_divisions_path(@sport) }
 					else
 						prepare_form(title: I18n.t("division.new"))
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @division.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to divisions_path, notice: no_data_notice, data: {turbo_action: "replace"}}
-					format.json { render :index, status: :ok, location: divisions_path }
+					format.html { redirect_to sport_divisions_path(@sport), notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :index, status: :ok, location: sport_divisions_path(@sport) }
 				end
 			end
 		else
@@ -117,7 +119,7 @@ class DivisionsController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("division.deleted")} '#{d_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to divisions_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to sport_divisions_path(@sport), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
@@ -127,8 +129,12 @@ class DivisionsController < ApplicationController
 
 	private
 		# Use callbacks to share common setup or constraints between actions.
+		def set_sport
+			@sport = Sport.find(params[:sport_id]).specific
+		end
+
 		def set_division
-			@division = Division.find_by_id(params[:id])
+			@division = Division.find(params[:id])
 		end
 
 		# prepare elements to edit/create a new division

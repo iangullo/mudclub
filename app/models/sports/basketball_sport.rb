@@ -33,6 +33,10 @@ class BasketballSport < Sport
 		self.basketball_scoring if self.scoring.empty?
 	end
 
+	def generic
+		self.becomes(Sport)
+	end
+
 	# fields to display match period
 	def match_show_fields(event, edit: nil)
 		raise "Must implement in Specific Sport object"

@@ -1,5 +1,5 @@
 <%= render ModalComponent.new do %>
-	<%= form_with model: @division, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+	<%= form_for [@sport.generic, @division], authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
 		<% @fields.form = form %>
 		<%= render @fields %>
 		<%= render @submit %>

@@ -264,4 +264,4 @@ class Sport < ApplicationRecord
 			end
 			nstat
 		end
-	end
+end
