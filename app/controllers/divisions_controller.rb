@@ -23,7 +23,6 @@ class DivisionsController < ApplicationController
 	# GET /divisions or /divisions.json
 	def index
 		if check_access(roles: [:admin])
-			@sport     = (params[:sport_id] ? Sport.find_by(id: params[:sport_id]) : Sport.first).specific
 			@divisions = Division.for_sport(@sport.id)
 			@fields    = create_fields(helpers.division_title_fields(title: I18n.t("division.many")))
 			@grid      = create_grid(helpers.division_grid)
@@ -130,7 +129,7 @@ class DivisionsController < ApplicationController
 	private
 		# Use callbacks to share common setup or constraints between actions.
 		def set_sport
-			@sport = Sport.find(params[:sport_id]).specific
+			@sport = Sport.fetch(params[:sport_id])
 		end
 
 		def set_division

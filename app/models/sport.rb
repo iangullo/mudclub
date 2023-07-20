@@ -208,6 +208,13 @@ class Sport < ApplicationRecord
 		self.stats.key(concept).to_sym
 	end
 
+	# attempts to fetch the specific opbject from an id
+	def self.fetch(sport_id=nil)
+		sport = Sport.find(sport_id) if sport_id
+		sport = Sport.first unless sport
+		sport&.specific
+	end
+
 	private
 		# generic setting method to be used for all setters
 		def set_setting(key, value)

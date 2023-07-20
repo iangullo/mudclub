@@ -171,6 +171,7 @@ class Team < ApplicationRecord
 	# rebuild Teamm from raw hash returned by a form
 	def rebuild(f_data)
 		self.name         = f_data[:name] if f_data[:name]
+		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
 		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
 		self.category_id  = f_data[:category_id].to_i if f_data[:category_id]
 		self.division_id  = f_data[:division_id].to_i if f_data[:division_id]

@@ -36,8 +36,8 @@ class TeamsController < ApplicationController
 	def new
 		if check_access(roles: [:manager])
 			@eligible_coaches = Coach.active
+			@sport  = Sport.fetch(params[:sport_id])
 			@team   = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
-			@sport  = @team.sport.specific
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
 			@submit = create_submit
 		else
@@ -331,6 +331,6 @@ class TeamsController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def team_params
-			params.require(:team).permit(:id, :name, :category_id, :division_id, :season_id, :homecourt_id, :rules, :coaches, :players, :targets, :team_targets, coaches_attributes: [:id], coach_ids: [], player_ids: [], players_attributes: [:id], targets_attributes: [], team_targets_attributes: [])
+			params.require(:team).permit(:id, :name, :sport_id, :category_id, :division_id, :season_id, :homecourt_id, :rules, :coaches, :players, :targets, :team_targets, coaches_attributes: [:id], coach_ids: [], player_ids: [], players_attributes: [:id], targets_attributes: [], team_targets_attributes: [])
 		end
 end

@@ -127,7 +127,7 @@ class CategoriesController < ApplicationController
 	private
 		# Use callbacks to share common setup or constraints between actions.
 		def set_sport
-			@sport = Sport.find(params[:sport_id])&.specific
+			@sport = Sport.fetch(params[:sport_id])
 		end
 
 		def set_category
