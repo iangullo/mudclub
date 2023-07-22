@@ -36,7 +36,7 @@ class SportsController < ApplicationController
 	def show
 		if check_access(roles: [:admin])
 			@fields = create_fields(helpers.sports_show_fields)
-			@submit = create_submit(close: "back", submit: edit_sport_path(@sport), close_return: :back)
+			@submit = create_submit(close: "back", submit: nil, close_return: :back)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -45,33 +45,36 @@ class SportsController < ApplicationController
 	# Cannot create new sports yet
 	def new
 		if check_access(roles: [:admin])
-			redirect_to sport_path(@sport)
+			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	# Can edit some aspects from Sports
+	# Cannot edit Sports yet
 	def edit
 		if check_access(roles: [:admin])
-			@fields = create_fields(helpers.sports_form_fields)
-			@submit = create_submit
+			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
+#			@fields = create_fields(helpers.sports_form_fields(title: I18n.t("sport.edit")))
+#			@submit = create_submit
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	# View sport details
+	# Cannot create new sports yet
 	def create
 		if check_access(roles: [:admin])
+			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	# Update sport details
+	# Cannot update Sports yet
 	def update
 		if check_access(roles: [:admin])
+			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

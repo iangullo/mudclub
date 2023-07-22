@@ -52,7 +52,7 @@ module SportsHelper
 	end
 
 	# sports edit fields
-	def sports_form_fields(title:, retlnk: nil)
+	def sports_form_fields(title:)
 		res = [
 			[
 				{kind: "header-icon", value: "category.svg"},
@@ -62,7 +62,6 @@ module SportsHelper
 				{kind: "label", value: @sport.to_s}
 			]
 		]
-		res << {kind: "hidden", key: :retlnk, value: retlnk} if retlnk
 		res
 	end
 

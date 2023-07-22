@@ -28,7 +28,7 @@ class DivisionsController < ApplicationController
 			@grid      = create_grid(helpers.division_grid)
 			@submit    = create_submit(close: "close", submit: nil)
 		else
-			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -40,7 +40,7 @@ class DivisionsController < ApplicationController
 			@fields = create_fields(fields)
 			@submit = create_submit(submit: u_manager? ? edit_sport_division_path(@sport, @division) : nil)
 		else
-			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 

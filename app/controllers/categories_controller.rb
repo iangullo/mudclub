@@ -38,7 +38,7 @@ class CategoriesController < ApplicationController
 			@fields = create_fields(helpers.sport_category_show_fields(@sport))
 			@submit = create_submit(submit: current_user.admin? ? sport_edit_category_path(@sport, @category) : nil, close_return: sport_path(@sport.id))
 		else
-			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -48,7 +48,7 @@ class CategoriesController < ApplicationController
 			@category = @sport.categories.build
 			prepare_form(title: I18n.t("category.new"))
 		else
-			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -57,7 +57,7 @@ class CategoriesController < ApplicationController
 		if check_access(roles: [:admin])
 			prepare_form(title: I18n.t("category.edit"))
 		else
-			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -105,7 +105,7 @@ class CategoriesController < ApplicationController
 				end
 			end
 		else
-			redirect_to sport_categories_path(@sport), data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -121,7 +121,7 @@ class CategoriesController < ApplicationController
 				format.json { head :no_content }
 			end
 		else
-			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
