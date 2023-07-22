@@ -26,6 +26,7 @@ class CategoriesController < ApplicationController
 			@categories = Category.for_sport(@sport.id)
 			@fields     = create_fields(helpers.category_title_fields(title: I18n.t("category.many")))
 			@grid       = create_grid(helpers.category_grid)
+			@submit     = create_submit(close: "close", submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -35,9 +36,9 @@ class CategoriesController < ApplicationController
 	def show
 		if check_access(roles: [:admin], obj: @category)
 			@fields = create_fields(helpers.sport_category_show_fields(@sport))
-			@submit = create_submit(submit: current_user.admin? ? sport_edit_category_path(@sport, @category) : nil)
+			@submit = create_submit(submit: current_user.admin? ? sport_edit_category_path(@sport, @category) : nil, close_return: sport_path(@sport.id))
 		else
-			redirect_to sport_categories_path(@sport), data: {turbo_action: "replace"}
+			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -47,7 +48,7 @@ class CategoriesController < ApplicationController
 			@category = @sport.categories.build
 			prepare_form(title: I18n.t("category.new"))
 		else
-			redirect_to sport_categories_path(@sport), data: {turbo_action: "replace"}
+			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -56,7 +57,7 @@ class CategoriesController < ApplicationController
 		if check_access(roles: [:admin])
 			prepare_form(title: I18n.t("category.edit"))
 		else
-			redirect_to sport_categories_path(@sport), data: {turbo_action: "replace"}
+			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -69,8 +70,8 @@ class CategoriesController < ApplicationController
 				if @category.save
 					a_desc = "#{I18n.t("category.created")} '#{@category.name}'"
 					register_action(:created, a_desc)
-					format.html { redirect_to sport_categories_path(@sport), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: sport_categories_path(@sport) }
+					format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					format.json { render :show, status: :created, location: sport_path(@sport.id) }
 				else
 					prepare_form(title: I18n.t("category.new"))
 					format.html { render :new, status: :unprocessable_entity }
@@ -91,16 +92,16 @@ class CategoriesController < ApplicationController
 					if @category.save
 						a_desc = "#{I18n.t("category.updated")} '#{@category.name}'"
 						register_action(:updated, a_desc)
-						format.html { redirect_to sport_categories_path(@sport), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :ok, location: sport_categories_path(@sport) }
+						format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :ok, location: sport_path(@sport.id) }
 					else
 						prepare_form(title: I18n.t("category.edit"))
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @category.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to sport_categories_path(@sport), notice: no_data_notice, data: {turbo_action: "replace"}}
-					format.json { render :index, status: :ok, location: sport_categories_path(@sport) }
+					format.html { redirect_to sport_path(@sport.id), notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :index, status: :ok, location: sport_path(@sport.id) }
 				end
 			end
 		else
@@ -116,11 +117,11 @@ class CategoriesController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("category.deleted")} '#{c_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to sport_categories_path(@sport), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to sport_path(@sport.id), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to sport_categories_path(@sport), data: {turbo_action: "replace"}
+			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 		end
 	end
 

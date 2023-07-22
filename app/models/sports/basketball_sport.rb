@@ -28,9 +28,10 @@ class BasketballSport < Sport
 		super(*args)
 		self.name = "basketball"
 		self.basketball_rules if self.rules.empty?
-		self.basketball_periods if self.periods.empty?
-		self.basketball_stats if self.stats.empty?
 		self.basketball_scoring if self.scoring.empty?
+		self.basketball_periods if self.periods.empty?
+		self.basketball_limits if self.limits.empty?
+		self.basketball_stats if self.stats.empty?
 	end
 
 	def generic
@@ -72,6 +73,17 @@ class BasketballSport < Sport
 		res
 	end
 
+	# fields to show rules limits
+	def rules_limits_fields
+		res    = rules_limits_title_fields
+		rules  = self.rules
+		limits = self.limits
+		rules.each_key do |rule|
+			res << rules_limits_row_fields(rule, limits[rule])
+		end
+		res
+	end
+
 	# default applicable rules for a category
 	def default_rules(category)
 		case category.max_years
@@ -93,6 +105,11 @@ class BasketballSport < Sport
 			[I18n.t("#{SPORT_LBL}rules.u8"), 4],
 			[I18n.t("#{SPORT_LBL}rules.three"), 5]
 		]
+	end
+
+	# return an I18n string for a category
+	def rules_name(rules)
+		I18n.t("#{SPORT_LBL}rules.#{rules}")
 	end
 
 	# Return which limits apply depending on the rules
@@ -140,6 +157,19 @@ class BasketballSport < Sport
 		# category rulesets
 		def basketball_rules
 			self.rules = {fiba: 0, u14: 1, u12: 2, u10: 3, u8: 4, three: 5}
+		end
+
+		# set default limits applicable to rules
+		# {rules(int): {roster: {max:, min:}, playing: {max:, min:}, periods: {regular:, extra:}, outings: {first:, max:, min:}, duration: {regular:, extra:}}}
+		def basketball_limits
+			limits = {}
+			limits[:fiba]  = {roster: {max: 16, min: 5}, playing: {max: 5, min: 2}, periods: {regular: 4, extra: 10}, duration: {regular: 600, extra: 300}}
+			limits[:u14]   = {roster: {max: 16, min: 5}, playing: {max: 5, min: 2}, outings: {first: 3, max: 2, min: 1}, periods: {regular: 4, extra: 10}, duration: {regular: 600, extra: 300}}
+			limits[:u12]   = {roster: {max: 16, min: 5}, playing: {max: 5, min: 2}, outings: {first: 5, max: 3, min: 2}, periods: {regular: 6, extra: 10}, duration: {regular: 480, extra: 300}}
+			limits[:u10]   = {roster: {max: 16, min: 5}, playing: {max: 5, min: 2}, outings: {first: 3, max: 2, min: 1}, periods: {regular: 4, extra: 10}, duration: {regular: 600, extra: 300}}
+			limits[:u8]    = {roster: {max: 16, min: 5}, playing: {max: 4, min: 2}, outings: {first: 3, max: 2, min: 1}, periods: {regular: 4, extra: 10}, duration: {regular: 480, extra: 300}}
+			limits[:three] = {roster: {max: 5, min: 3}, playing: {max: 3, min: 2}, periods: {regular: 1, extra: 10}, duration: {regular: 420, extra: 180}}
+			self.limits = limits
 		end
 
 		# generic periods definition
@@ -234,5 +264,60 @@ class BasketballSport < Sport
 				rows << row
 			end
 			{title: head, rows: rows}
+		end
+
+		# fields to show the sport rules limits title
+		def rules_limits_title_fields
+			[
+				[
+					{kind: "top-cell", value: I18n.t("sport.rules"), rows: 3},
+					{kind: "top-cell", value: I18n.t("sport.period.many"), align: "center", cols: 4},
+					{kind: "top-cell", value: I18n.t("team.roster"), align: "center", cols: 2, rows: 2},
+					{kind: "top-cell", value: I18n.t("#{SPORT_LBL}outings.playing"), align: "center", cols: 2, rows: 2},
+					{kind: "top-cell", value: I18n.t("#{SPORT_LBL}outings.quarter"), align: "center", cols: 3, rows: 2},
+				],
+				[
+					{kind: "top-cell", value: I18n.t("sport.period.regular"), align: "center", cols: 2},	# periods
+					{kind: "top-cell", value: I18n.t("sport.period.extra"), align: "center", cols: 2}
+				],
+				[
+					{kind: "top-cell", value: I18n.t("sport.period.qty")},	# regular
+					{kind: "top-cell", value: I18n.t("sport.period.duration")},
+					{kind: "top-cell", value: I18n.t("sport.period.qty")},	# extra
+					{kind: "top-cell", value: I18n.t("sport.period.duration")},
+					{kind: "top-cell", value: I18n.t("stat.max")},	# match roster
+					{kind: "top-cell", value: I18n.t("stat.min")},
+					{kind: "top-cell", value: I18n.t("stat.max")},	# match playing
+					{kind: "top-cell", value: I18n.t("stat.min")},
+					{kind: "top-cell", value: I18n.t("#{SPORT_LBL}outings.first")},	# outings
+					{kind: "top-cell", value: I18n.t("stat.max")},	# in field
+					{kind: "top-cell", value: I18n.t("stat.min")}
+				]
+			]
+		end
+
+		# fields for a row of rules limits
+		def rules_limits_row_fields(rule, limit)
+			g_cls  = "border"
+			n_cls  = "#{g_cls} text-center"
+			r_per  = limit["periods"]
+			r_dur  = limit["duration"]
+			r_ros  = limit["roster"]
+			r_play = limit["playing"]
+			r_out  = limit["outings"] ? limit["outings"] : {"first" => "N/A", "min" => "N/A", "max" => "N/A"}
+			[
+				{kind: "normal", value: I18n.t("#{SPORT_LBL}rules.#{rule}"), class: g_cls},
+				{kind: "normal", value: r_per["regular"], class: n_cls},
+				{kind: "normal", value: r_dur["regular"]/60, class: n_cls},
+				{kind: "normal", value: r_per["extra"], class: n_cls},
+				{kind: "normal", value: r_dur["extra"]/60, class: n_cls},
+				{kind: "normal", value: r_ros["max"], class: n_cls},
+				{kind: "normal", value: r_ros["min"], class: n_cls},
+				{kind: "normal", value: r_play["max"], class: n_cls},
+				{kind: "normal", value: r_play["min"], class: n_cls},
+				{kind: "normal", value: r_out["first"], class: n_cls},
+				{kind: "normal", value: r_out["max"], class: n_cls},
+				{kind: "normal", value: r_out["min"], class: n_cls}
+			]
 		end
 end

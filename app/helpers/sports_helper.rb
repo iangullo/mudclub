@@ -37,15 +37,51 @@ module SportsHelper
 		res = [
 			[
 				{kind: "header-icon", value: "sport.svg"},
-				{kind: "title", value: @sport.to_s, cols: 2}
+				{kind: "title", value: I18n.t("sport.single")}
 			],
-			[{kind: "gap", size: 1}],
+			[{kind: "subtitle", value: @sport.to_s}],
 			[
-				button_field({kind: "jump", icon: "category.svg", url: sport_categories_path(@sport), label: I18n.t("category.many")}, align: "center"),
-				button_field({kind: "jump", icon: "division.svg", url: sport_divisions_path(@sport), label: I18n.t("division.many")}, align: "center")
+				button_field({kind: "jump", icon: "rules.svg", url: rules_sport_path, label: I18n.t("sport.rules"), frame: "modal"}, align: "center"),
+				button_field({kind: "jump", icon: "category.svg", url: sport_categories_path(@sport), label: I18n.t("category.many"), frame: "modal"}, align: "center")
+			],
+			[
+				button_field({kind: "jump", icon: "division.svg", url: sport_divisions_path(@sport), label: I18n.t("division.many"), frame: "modal"}, align: "center")
 			]
 		]
 		res
+	end
+
+	# sports edit fields
+	def sports_form_fields(title:, retlnk: nil)
+		res = [
+			[
+				{kind: "header-icon", value: "category.svg"},
+				{kind: "title", value: title, cols: 2}
+			],
+			[
+				{kind: "label", value: @sport.to_s}
+			]
+		]
+		res << {kind: "hidden", key: :retlnk, value: retlnk} if retlnk
+		res
+	end
+
+	# common title block for all rules views
+	def sport_rules_title(title)
+		[
+			[
+				{kind: "header-icon", value: "rules.svg"},
+				{kind: "title", value: title}
+			],
+			[{kind: "subtitle", value: @sport.to_s}]
+		]
+	end
+
+	# show sport & related objects
+	# sport rules limits are read as:
+	# {rules: {roster: {max:, min:}, playing: {max:, min:}, periods: {regular:, extra:}, duration: {regular:, extra:}, outings: {first:, max:, min:}}}
+	def sports_rules_fields
+		@sport.rules_limits_fields
 	end
 
 	# sports edit fields

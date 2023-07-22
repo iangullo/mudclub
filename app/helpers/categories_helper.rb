@@ -82,5 +82,9 @@ module CategoriesHelper
 			rows << row
 		}
 		{title: title, rows: rows}
-		end
+	end
+
+	def category_return
+
+	end
 end

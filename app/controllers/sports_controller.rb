@@ -18,7 +18,7 @@
 #
 # Managament on MudClub sports
 class SportsController < ApplicationController
-	before_action :set_sport, only: %i[ show edit update destroy ]
+	before_action :set_sport
 
 	# Club index for mudclub admins
 	def index
@@ -36,26 +36,26 @@ class SportsController < ApplicationController
 	def show
 		if check_access(roles: [:admin])
 			@fields = create_fields(helpers.sports_show_fields)
+			@submit = create_submit(close: "back", submit: edit_sport_path(@sport), close_return: :back)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	# Prepare a new club
+	# Cannot create new sports yet
 	def new
 		if check_access(roles: [:admin])
-			@fields = create_fields(title)
-			@sport = Sport.new
-			prepare_form(title: I18n.t("action.create"))
+			redirect_to sport_path(@sport)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	# used to edit a club
+	# Can edit some aspects from Sports
 	def edit
 		if check_access(roles: [:admin])
-			prepare_form(title: I18n.t("action.edit"))
+			@fields = create_fields(helpers.sports_form_fields)
+			@submit = create_submit
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -85,11 +85,21 @@ class SportsController < ApplicationController
 		end
 	end
 
+	# View club details
+	def rules
+		if check_access(roles: [:admin])
+			@title  = create_fields(helpers.sport_rules_title(I18n.t("sport.rules")))
+			@fields = create_fields(helpers.sports_rules_fields)
+			@submit = create_submit(submit: nil)
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
 	private
 		# Use callbacks to share common setup or constraints between actions.
 		def set_sport
-			sport_id = params[:id].presence
-			@sport   = Sport.find_by_id(sport_id.to_i) if sport_id
+			@sport  = Sport.fetch(params[:id].presence)
 		end
 
 		# prepare a form to edit/create a Category

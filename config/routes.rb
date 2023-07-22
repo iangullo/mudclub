@@ -46,6 +46,7 @@ Rails.application.routes.draw do
   	end
 	end
 	resources :sports do
+		get 'rules', on: :member
 		resources :categories
 		resources :divisions
 	end

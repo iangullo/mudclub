@@ -44,11 +44,19 @@ class Sport < ApplicationRecord
 		raise "Must implement in Specific Sport object"
 	end
 
+	def rules_limits_fields
+		raise "Must implement in Specific Sport object"
+	end
+
 	def default_rules(category)
 		raise "Must implement in Specific Sport object"
 	end
 
 	def rules_options
+		raise "Must implement in Specific Sport object"
+	end
+
+	def rules_name
 		raise "Must implement in Specific Sport object"
 	end
 
@@ -93,13 +101,13 @@ class Sport < ApplicationRecord
 	# Getter method for accessing the Sport limits for matches
 	# will vary with sport and categories
 	# if any of them are nil, they will be ignored
-	# {rules(int): {roster: {max:, min:}, playing: {max:, min:}, outings: {max:, min:}, periods: {regular:, extra:}, duration: {regular:, extra:}}}
+	# {rules(int): {roster: {max:, min:}, playing: {max:, min:}, periods: {regular:, extra:}, outings: {first:, max:, min:}, duration: {regular:, extra:}}}
 	def limits
 		settings&.fetch(:limits, {})
 	end
 
 	# Setter method for updating the scoring mapping
-	# {rules(int): {roster: {max:, min:}, playing: {max:, min:}, outings: {max:, min:}, periods: {regular:, extra:}, duration: {regular:, extra:}}}
+	# {rules(int): {roster: {max:, min:}, playing: {max:, min:}, periods: {regular:, extra:}, outings: {first:, max:, min:}, duration: {regular:, extra:}}}
 	def limits=(value)
 		set_setting(:limits, value)
 	end

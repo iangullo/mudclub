@@ -1,4 +1,7 @@
-<div id="division-index">
-	<%= render @fields %>
-	<%= render @grid %>
-</div>
+<%= render ModalComponent.new do %>
+	<div id="division-index">
+		<%= render @fields %>
+		<%= render @grid %>
+		<%= render @submit %>
+	</div>
+<% end %>
