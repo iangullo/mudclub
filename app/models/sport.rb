@@ -24,23 +24,27 @@ class Sport < ApplicationRecord
 
 	# empty wrappers to define FieldComponents for views
 	# MUST BE DEFINED IN SPORT-SPECIFIC OBJECTS!!
-	def match_show_fields(event, edit: nil)
+	def match_show_fields(event)
 		raise "Must implement in Specific Sport object"
 	end
 
-	def match_form_fields(event, edit: nil)
+	def match_form_fields(event)
 		raise "Must implement in Specific Sport object"
 	end
 
-	def player_training_header_fields(event_id:, player_id:)
+	def match_outings(a_rules)
 		raise "Must implement in Specific Sport object"
 	end
 
-	def player_training_stats_fields(event_id:, player_id:)
+	def outings_grid(event, outings, edit: false)
 		raise "Must implement in Specific Sport object"
 	end
 
-	def player_training_stats_form_fields(event_id:, player_id:)
+	def player_training_stats_fields(event, player_id:)
+		raise "Must implement in Specific Sport object"
+	end
+
+	def player_training_stats_form_fields(event, player_id:)
 		raise "Must implement in Specific Sport object"
 	end
 
@@ -150,16 +154,15 @@ class Sport < ApplicationRecord
 		set_setting(:periods, value)
 	end
 
-	# returns the score of a match (object of Event class)
-	# our team always first - to be tweaked in controllers
-	def match_score(event_id:)
-		s_stats  = get_event_scoring_stats(event_id:)
+	# returns the full score of a match (object of Event class)
+	# {period1: {ours:, opps:}, period2: (etc.), tot: {ours:, opps:}}
+	def match_score(event_id)
+		s_stats  = get_event_scoring_stats(event_id)
 		t_score  = {ours: 0, opps: 0}	# (period: 0 => t_score)
 		score    = {}
 		unless s_stats&.empty?
 			r_tot = false
 			self.periods.each_pair do |per, val|	#period==set if scoring by sets
-				binding.break
 				r_tot = read_score(val, s_stats, score, t_score)
 			end
 		end
@@ -169,8 +172,8 @@ class Sport < ApplicationRecord
 
 	# wrapper to write match scores. values are expected to
 	# be in the form of an array of {period:, p_for:, p_opp:} hashes
-	def set_match_score(event_id:, values:)
-		s_stats = get_event_scoring_stats(event_id:)	# read them, in case they exist
+	def set_match_score(event_id, values:)
+		s_stats = get_event_scoring_stats(event_id)	# read them, in case they exist
 		values.each do |score|
 			r_tot   = (per.to_sym == :tot)
 			period  = score[:period]
@@ -230,7 +233,7 @@ class Sport < ApplicationRecord
 		end
 
 		# Retrieve event scoring stats for an event of the sport
-		def get_event_scoring_stats(event_id:)
+		def get_event_scoring_stats(event_id)
 			concept = self.scoring["points"].to_sym	# lets split by scoring system
 			s_stats = Stat.fetch(event_id:, concept:, create: false)
 		end

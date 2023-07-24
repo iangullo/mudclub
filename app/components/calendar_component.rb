@@ -100,13 +100,13 @@ class CalendarComponent < ApplicationComponent
 			c_event = {id: event.id}
 			case event.kind
 			when "match"
-				sc = event.score(mode: 0)	# our team first
+				sc = event.total_score	# our team first
 				c_event[:icon] = "match.svg"
-				c_event[:home] = event.home? ? sc[:home] : sc[:away]
-				c_event[:away] = event.home? ? sc[:away] : sc[:home]
-				if sc[:home][:points] > sc[:away][:points]
+				c_event[:home] = event.home? ? sc[:ours] : sc[:opps]
+				c_event[:away] = event.home? ? sc[:opps] : sc[:ours]
+				if sc[:ours][:points] > sc[:opps][:points]
 					b_color = "green"
-				elsif sc[:home][:points] < sc[:away][:points]
+				elsif sc[:ours][:points] < sc[:opps][:points]
 					b_color = "red"
 				else
 					b_color = "yellow"

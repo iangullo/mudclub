@@ -39,20 +39,88 @@ class BasketballSport < Sport
 	end
 
 	# fields to display match period
-	def match_show_fields(event, edit: nil)
-		raise "Must implement in Specific Sport object"
+	def match_show_fields(event)
+		score  = self.match_score(event.id)
+		header = [{kind: "gap", size: 2}, {kind: "top-cell", value: I18n.t("team.single")}]
+		t_home = [{kind: "gap", size: 2}, {kind: "side-cell"}, value: (event.home? ? event.team.to_s : event.name)]
+		t_away = [{kind: "gap", size: 2}, {kind: "side-cell"}, value: (event.home? ? event.name : event.team.to_s)]
+		score.each_pair do |per, val|
+			header << {kind: "top-cell", value: I18n.t("#{SPORT_LBL}period.#{per}")} unless per == :tot
+			home_points = (event.home? ? val[:ours] : val[:opps])
+			away_points = (event.home? ? val[:opps] : val[:ours])
+			t_home << {kind: "label", value: home_points, class: "border px py"}
+			t_away << {kind: "label", value: away_points, class: "border px py"}
+		end
+		header << {kind: "top-cell", value: I18n.t("stat.total_a")}
+		res = [header]
+		res << t_home
+		res << t_away
+		res << [{kind: "gap", size: 1, cols: 4, class: "text-xs"}]
+		res << [
+			{kind: "gap", size: 2},
+			{kind: "side-cell", value: I18n.t("player.many"), align: "left", cols: 3}
+		]
+		res
 	end
 
 	# fields to display match period
-	def match_form_fields(event, edit: nil)
-		raise "Must implement in Specific Sport object"
+	def match_form_fields(event)
+		score = self.match_score(event.id, mode: 0)
+		res   = [[
+			{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2},
+			{kind: "radio-button", key: :home, value: true, checked: event.home, align: "right", class: "align-center"},
+			{kind: "top-cell", value: event.team.to_s},
+			{kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}
+		]]
+		res << [
+			{kind: "radio-button", key: :home, value: false, checked: event.home==false, align: "right", class: "align-center"},
+			{kind: "text-box", key: :name, value: event.name, placeholder: I18n.t("match.default_rival")},
+			{kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}
+		]
+		res << [{kind: "gap", size: 1, class: "text-xs"}]
+		res << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: 3}]
+		res
+	end
+
+	# return period limitations for a match of this sport
+	# depends on rules applied
+	def match_outings(a_rules)
+		s_limits = self.limits[a_rules.to_s] if self.rules[a_rules]
+		p_total  = s_limits["periods"]["regular"]
+		p_first  = s_limits["outings"]["first"]
+		p_min    = s_limits["outings"]["min"]
+		p_max    = s_limits["outings"]["max"]
+		{total: p_total, first: p_first, min: p_min, max: p_max}
+	end
+
+	# grid to show basketball period form for an event
+	def outings_grid(event, outings, edit: false)
+		head = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}]
+		rows    = []
+		e_stats = event.stats
+		1.upto(outings[:total]) {|i| head << {kind: "normal", value: "Q#{i.to_s}"}} if periods
+		event.players.order(:number).each do |player|
+			p_stats = Stat.by_player(player.id, e_stats)
+			row = {url: player_path(player), frame: "modal", items: []}
+			row[:items] << {kind: "normal", value: player.number, align: "center"}
+			row[:items] << {kind: "normal", value: player.to_s}
+			1.upto(outings[:total]) do |q|
+				q_stat = Stat.by_q(q, p_stats).first
+				if edit
+					row[:items] << {kind: "checkbox-q", key: :stats, player_id: player.id, q: "q#{q}", value: q_stat ? q_stat[:value] : 0, align: "center"}
+				else
+					row[:items] << ((q_stat and q_stat[:value]==1) ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
+				end
+			end
+			rows << row
+		end
+		{title: head, rows: rows}
 	end
 
 	# fields to display player's stats for training
-	def player_training_stats_fields(event_id:, player_id:)
-		# filter for this event & player
-		stats = Stat.fetch(event_id:, player_id:, create: false)
-		res   = shooting_header_fields
+	def player_training_stats_fields(event, player_id:)
+		stats = Stat.fetch(event_id: event.id, player_id:, create: false)
+		res   = player_training_stats_header
 		res << show_shooting_data(s_label("ft"), stats, :ftm, :fta)
 		res << show_shooting_data(s_label("zg"), stats, :zgm, :zga)
 		res << show_shooting_data(s_label("dg"), stats, :dgm, :dga)
@@ -63,9 +131,9 @@ class BasketballSport < Sport
 	end
 
 	# fields to track player training stats
-	def player_training_stats_form_fields(event_id:, player_id:)
-		stats = Stat.fetch(event_id:, player_id:)
-		res   = shooting_header_fields
+	def player_training_stats_form_fields(event, player_id:)
+		stats = Stat.fetch(event_id: event.id, player_id:)
+		res   = player_training_stats_header
 		res << form_shooting_data(s_label("ft"), stats, :ftm, :fta)
 		res << form_shooting_data(s_label("zg"), stats, :zgm, :zga)
 		res << form_shooting_data(s_label("dg"), stats, :dgm, :dga)
@@ -182,8 +250,8 @@ class BasketballSport < Sport
 			self.scoring = {sets: false, points: :pts}
 		end
 
-		# header fields to show shooting_stats
-		def shooting_header_fields
+		# header fields to show player training_stats
+		def player_training_stats_header
 			res = [[{kind: "gap"}, {kind: "side-cell", value: I18n.t("stat.many"), align: "middle", cols: 5}]]
 			res << [
 				{kind: "gap"},
@@ -237,33 +305,6 @@ class BasketballSport < Sport
 				{kind: "label", value: "/"},
 				{kind: "number-box", key: attempts, value: taken, class: "shots-taken border px py", align: "right"}
 			]
-		end
-
-		# fields to track player training stats
-		# REDESIGN!!
-		def period_grid(event, edit: nil)
-			head = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}]
-			rows    = []
-			e_stats = event.stats
-			1.upto(periods[:total]) {|i| head << {kind: "normal", value: "Q#{i.to_s}"}} if periods
-			event.players.order(:number).each do |player|
-				p_stats = Stat.by_player(player.id, e_stats)
-				row     = {url: "#", frame: "modal", items: []}
-				row[:items] << {kind: "normal", value: player.number, align: "center"}
-				row[:items] << {kind: "normal", value: player.to_s}
-				if periods
-					1.upto(periods[:total]) { |q|
-						q_stat = Stat.by_q(q, p_stats).first
-						if edit
-							row[:items] << {kind: "checkbox-q", key: :stats, player_id: player.id, q: "q#{q}", value: q_stat ? q_stat[:value] : 0, align: "center"}
-						else
-							row[:items] << ((q_stat and q_stat[:value]==1) ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
-						end
-					}
-				end
-				rows << row
-			end
-			{title: head, rows: rows}
 		end
 
 		# fields to show the sport rules limits title

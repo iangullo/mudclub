@@ -207,19 +207,12 @@ class Event < ApplicationRecord
 	end
 
 	# Scores accessor modes:
-	#   0:  our team first
-	#   1:  home team first
-	#   2:  away team first
-	def score(mode: 1)
-		total = self.team.sport.match_score(event_id: self.id)[:tot]
-		our_s = {team: self.team.to_s, points: total[:ours]}
-		opp_s = {team: self.name, points: total[:opps]}
-
-		if mode==0 or (mode==1 and self.home?) or (mode==2 and self.home==false)
-			{home: our_s, away: opp_s}
-		else
-			{home: opp_s, away: our_s}
-		end
+	# places  our team first
+	def total_score
+		score = self.team.sport.specific.match_score(self.id)
+		our_s = {team: self.team.to_s, points: score[:tot][:ours]}
+		opp_s = {team: self.name, points: score[:tot][:opps]}
+		{ours: our_s, opps: opp_s}
 	end
 
 	# wrapper to write points in favour of a match
@@ -248,21 +241,6 @@ class Event < ApplicationRecord
 	# check if player is in this event
 	def has_player(p_id)
 		self.players.find_index { |p| p[:id]==p_id }
-	end
-
-	# return constraints on event periods (if any)
-	# nil if none
-	def periods
-		if self.match?
-			case self.team.rules  # ready to create period rule edition
-			when :q4 then return {total: 4, max: 2, min: 3}
-			when :q6 then return {total: 6, max: 3, min: 2}
-			else
-				return nil
-			end
-		else
-			return nil
-		end
 	end
 
 	# rebuild Event using raw hash from a form submittal
@@ -379,7 +357,7 @@ class Event < ApplicationRecord
 		# check stats added to event
 		def check_stats(s_data)
 			e_stats = self.stats
-			s_data.each {|s_param|
+			s_data.each do |s_param|
 				s_arg = s_param[0].split("_")
 				stat = Stat.fetch(event_id: self.id, period: 0, player_id: s_arg[0].to_i, concept: s_arg[1], stats: e_stats).first
 				if stat # just update the value
@@ -387,7 +365,7 @@ class Event < ApplicationRecord
 				else  # create a new stat
 					e_stats << Stat.new(event_id: self.id, period: 0, player_id: s_arg[0].to_i, concept: s_arg[1], value: s_param[1].to_i)
 				end
-			}
+			end
 		end
 
 		# checks targets_attributes parameter received and manage adding/removing

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_20_072503) do
+ActiveRecord::Schema[7.0].define(version: 2023_07_22_171647) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -303,7 +303,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_20_072503) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "homecourt_id", default: 0
-    t.integer "rules", default: 0
     t.bigint "sport_id"
     t.index ["category_id"], name: "index_teams_on_category_id"
     t.index ["division_id"], name: "index_teams_on_division_id"

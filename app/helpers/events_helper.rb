@@ -107,56 +107,12 @@ module EventsHelper
 
 	#FieldComponents to show a match
 	def match_show_fields
-		score = @event.score
-		res   = [[
-			{kind: "gap", size: 2},
-			{kind: "top-cell", value: score[:home][:team]},
-			{kind: "label", value: score[:home][:points], class: "border px py"},
-			{kind: "gap"}
-		]]
-		res << [
-			{kind: "gap", size: 2},
-			{kind: "top-cell", value: score[:away][:team]},
-			{kind: "label", value: score[:away][:points], class: "border px py"},
-			{kind: "gap"}
-		]
-		res << [{kind: "gap", size: 1, cols: 4, class: "text-xs"}]
-		res << [
-			{kind: "gap", size: 2},
-			{kind: "side-cell", value: I18n.t("player.many"), align: "left", cols: 3}
-		]
-		res << [
-			{kind: "gap", size: 2},
-			{kind: "grid", value: period_grid(periods: @event.periods), cols: 3}
-		]
+		match_fields(edit: false)
 	end
 
 	# return FieldsComponent for match form
 	def match_form_fields
-		score   = @event.score(mode: 0)
-		periods = @event.periods
-		res     = [[
-			{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2},
-			{kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"},
-			{kind: "top-cell", value: @event.team.to_s},
-			{kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}
-		]]
-		res << [
-			{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center"},
-			{kind: "text-box", key: :name, value: @event.name, placeholder: I18n.t("match.default_rival")},
-			{kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}
-		]
-		res << [{kind: "gap", size: 1, class: "text-xs"}]
-		res << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: 3}]
-		if periods
-			grid = period_grid(periods: periods, edit: true)
-		else
-			grid = player_grid(players: @event.players.order(:number), obj: @event.team)
-		end
-		res << [
-			{kind: "gap", size:2},
-			{kind: "grid", value: grid, cols: 4}
-		]
+		match_fields(edit: true)
 	end
 
 	# fields for a new match form
@@ -355,6 +311,21 @@ module EventsHelper
 			end
 		end
 
+		# serves for both match_show and match_edit
+		def match_fields(edit:)
+			res     = edit ? @sport.match_form_fields(@event) : @sport.match_show_fields(@event)
+			a_rules = self.rules.key(@event.team.category.rules)
+			if (outings = @sport.match_outings(a_rules))
+				grid = @sport.outings_grid(@event, outings, edit:)
+			else
+				grid = player_grid(players: @event.players.order(:number), obj: @event.team)
+			end
+			res << [
+				{kind: "gap", size:2},
+				{kind: "grid", value: grid, cols: 4}
+			]
+		end
+
 		# complete event_title for train events
 		def train_title(res:, cols:, form:, subtitle: nil, chart: nil)
 			value = subtitle || I18n.t("train.single")
@@ -423,32 +394,6 @@ module EventsHelper
 				end
 			}
 			rows
-		end
-
-		# grid to plan playing time depending on time rules
-		def period_grid(periods:, edit: nil)
-			head = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}]
-			rows    = []
-			e_stats = @event.stats
-			1.upto(periods[:total]) {|i| head << {kind: "normal", value: "Q#{i.to_s}"}} if periods
-			@event.players.order(:number).each{|player|
-				p_stats = Stat.by_player(player.id, e_stats)
-				row = {url: player_path(player), frame: "modal", items: []}
-				row[:items] << {kind: "normal", value: player.number, align: "center"}
-				row[:items] << {kind: "normal", value: player.to_s}
-				if periods
-					1.upto(periods[:total]) { |q|
-						q_stat = Stat.by_q(q, p_stats).first
-						if edit
-							row[:items] << {kind: "checkbox-q", key: :stats, player_id: player.id, q: "q#{q}", value: q_stat ? q_stat[:value] : 0, align: "center"}
-						else
-							row[:items] << ((q_stat and q_stat[:value]==1) ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
-						end
-					}
-				end
-				rows << row
-			}
-			{title: head, rows: rows}
 		end
 
 		# return the dropdown element to access workload charts
