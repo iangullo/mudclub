@@ -61,5 +61,5 @@
 <% when "time-box" %>
   <%= @form.number_field(:hour, value: @fdata[:hour], in: 10..22, size: @fdata[:size] ? @fdata[:size] : 3, class: @i_class) %>
   <strong>:</strong>
-  <%= @form.number_field(:min, value: @fdata[:min], in: 0..45, step: 15, size: @fdata[:size] ? @fdata[:size] : 3, class: @i_class) %>
+  <%= @form.number_field(:min, value: @fdata[:mins], in: 0..45, step: 15, size: @fdata[:size] ? @fdata[:size] : 3, class: @i_class) %>
 <% end %>

@@ -154,6 +154,14 @@ class Sport < ApplicationRecord
 		set_setting(:periods, value)
 	end
 
+	# return quantity of match periods
+	# based on whith rules apply
+	def match_periods(rules)
+		a_rules = self.rules.key(rules)
+		periods = self.limits[a_rules]["periods"]
+		periods ? periods["regular"] : 1
+	end
+
 	# returns the full score of a match (object of Event class)
 	# {period1: {ours:, opps:}, period2: (etc.), tot: {ours:, opps:}}
 	def match_score(event_id)

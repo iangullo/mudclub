@@ -74,17 +74,14 @@ class Event < ApplicationRecord
 	# {home_t:, home_p, away_t:, away_p}
 	def to_hash(mode: 1)
 		if self.match?
-			m_score = self.score(mode:)
+			m_score = self.total_score
+			ours    = m_score[:ours]
+			opps    = m_score[:opps]
 			if self.home?
-				home_t = self.team.name
-				away_t = self.name
+				res = {home_t: ours[:team] , home_p: ours[:points], away_t: opps[:team], away_p: opps[:points]}
 			else
-				home_t = self.name
-				away_t = self.team.name
+				res = {home_t: opps[:team] , home_p: opps[:points], away_t: ours[:team], away_p: ours[:points]}
 			end
-			home_p = m_score[:home][:points]
-			away_p = m_score[:away][:points]
-			res = {home_t:, home_p:, away_p:, away_t:}
 		else
 			res = {home_t: self.name}
 		end

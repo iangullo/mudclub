@@ -40,46 +40,12 @@ class BasketballSport < Sport
 
 	# fields to display match period
 	def match_show_fields(event)
-		score  = self.match_score(event.id)
-		header = [{kind: "gap", size: 2}, {kind: "top-cell", value: I18n.t("team.single")}]
-		t_home = [{kind: "gap", size: 2}, {kind: "side-cell"}, value: (event.home? ? event.team.to_s : event.name)]
-		t_away = [{kind: "gap", size: 2}, {kind: "side-cell"}, value: (event.home? ? event.name : event.team.to_s)]
-		score.each_pair do |per, val|
-			header << {kind: "top-cell", value: I18n.t("#{SPORT_LBL}period.#{per}")} unless per == :tot
-			home_points = (event.home? ? val[:ours] : val[:opps])
-			away_points = (event.home? ? val[:opps] : val[:ours])
-			t_home << {kind: "label", value: home_points, class: "border px py"}
-			t_away << {kind: "label", value: away_points, class: "border px py"}
-		end
-		header << {kind: "top-cell", value: I18n.t("stat.total_a")}
-		res = [header]
-		res << t_home
-		res << t_away
-		res << [{kind: "gap", size: 1, cols: 4, class: "text-xs"}]
-		res << [
-			{kind: "gap", size: 2},
-			{kind: "side-cell", value: I18n.t("player.many"), align: "left", cols: 3}
-		]
-		res
+		match_fields(event)
 	end
 
 	# fields to display match period
 	def match_form_fields(event)
-		score = self.match_score(event.id, mode: 0)
-		res   = [[
-			{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2},
-			{kind: "radio-button", key: :home, value: true, checked: event.home, align: "right", class: "align-center"},
-			{kind: "top-cell", value: event.team.to_s},
-			{kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}
-		]]
-		res << [
-			{kind: "radio-button", key: :home, value: false, checked: event.home==false, align: "right", class: "align-center"},
-			{kind: "text-box", key: :name, value: event.name, placeholder: I18n.t("match.default_rival")},
-			{kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}
-		]
-		res << [{kind: "gap", size: 1, class: "text-xs"}]
-		res << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: 3}]
-		res
+		match_fields(event, edit: true)
 	end
 
 	# return period limitations for a match of this sport
@@ -95,13 +61,13 @@ class BasketballSport < Sport
 
 	# grid to show basketball period form for an event
 	def outings_grid(event, outings, edit: false)
-		head = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}]
-		rows    = []
+		head = [{kind: "top-cell", value: I18n.t("player.number"), align: "center"}, {kind: "top-cell", value: I18n.t("person.name")}]
+		rows = []
 		e_stats = event.stats
 		1.upto(outings[:total]) {|i| head << {kind: "normal", value: "Q#{i.to_s}"}} if periods
 		event.players.order(:number).each do |player|
 			p_stats = Stat.by_player(player.id, e_stats)
-			row = {url: player_path(player), frame: "modal", items: []}
+			row = {url: "/players/#{player.id}", items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
 			row[:items] << {kind: "normal", value: player.to_s}
 			1.upto(outings[:total]) do |q|
@@ -242,7 +208,7 @@ class BasketballSport < Sport
 
 		# generic periods definition
 		def basketball_periods
-			self.periods = {tot: 0, q1: 1, q2: 2, q3: 3, q4: 4, ot: 5}
+			self.periods = {tot: 0, q1: 1, q2: 2, q3: 3, q4: 4, q5: 5, q6: 6, ot: 7}
 		end
 
 		# generic setting method to be used for all setters
@@ -360,5 +326,66 @@ class BasketballSport < Sport
 				{kind: "normal", value: r_out["max"], class: n_cls},
 				{kind: "normal", value: r_out["min"], class: n_cls}
 			]
+		end
+
+		# generic match_fields generator for shoe or edit
+		def match_fields(event, edit: false)
+			t_pers  = self.match_periods(event.team.category.rules)
+			score   = self.match_score(event.id)
+			periods = self.periods
+			t_cols  = t_pers + (edit ? 3 : 2)
+			fields  = [[{kind: "gap", size: 1, cols: t_cols, class: "text-xs"}]]
+			t_home  = team_name_fields(event, home: event.home?, edit:)
+			t_away  = team_name_fields(event, home: !event.home?, edit:)
+			head    = edit ? [{kind: "side-cell", value: I18n.t("team.home_a"), cols: 2, align: "left"}] : [{kind: "gap", size:1}]
+			match_score_fields(event.home?, score, periods, t_pers, head, t_home, t_away, edit:)
+			head << {kind: "top-cell", value: I18n.t("stat.total_a")}
+			team_period_score_fields(event.home?, t_home, t_away, score[:tot], edit:)
+			fields += [head, t_home, t_away]
+			fields << [{kind: "gap", size: 1, cols: t_pers + 3, class: "text-xs"}]
+			fields << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: t_cols}]
+			fields
+		end
+
+		# fields for home team in a match
+		def team_name_fields(event, home:, edit: false)
+			if edit
+				if home
+					[
+						{kind: "radio-button", key: :home, value: true, checked: event.home, align: "right"},
+						{kind: "side-cell", align: "left", value: event.team.to_s}
+					]
+				else
+					[
+						{kind: "radio-button", key: :home, value: false, checked: event.home, align: "right"},
+						{kind: "text-box", key: :name, value: event.name, placeholder: I18n.t("match.default_rival"), size: 12}
+					]
+				end
+			else	# show
+				[{kind: "side-cell", value: (home ? event.team.to_s : event.name), align: "left"}]
+			end
+		end
+
+		# add fields to team period scores
+		def team_period_score_fields(home, t_home, t_away, val, edit: false)
+			p_home = (val ? (home ? val[:ours] : val[:opps]) : 0)
+			p_away = (val ? (home ? val[:opps] : val[:ours]) : 0)
+			if edit
+				t_home << {kind: "number-box", key: (home ? :p_ours : :p_opps), min: 0, max: 200, size: 2, value: p_home}
+				t_away << {kind: "number-box", key: (home ? :p_opps : :p_ours), min: 0, max: 200, size: 2, value: p_away}
+			else
+				t_home << {kind: "normal", value: p_home, class: "text-center border px py"}
+				t_away << {kind: "normal", value: p_away, class: "text-center border px py"}
+			end
+		end
+
+		# fill head, t_home & t_away the fields for match score
+		def match_score_fields(home, score, periods, t_pers, head, t_home, t_away, edit: false)
+			1.upto(t_pers) do |key|
+				per = periods.key(key)
+				val = score[per]
+				head << {kind: "top-cell", value: I18n.t("#{SPORT_LBL}period.#{per}"), align: "center"}
+				team_period_score_fields(home, t_home, t_away, val, edit:)
+			end
 		end
 end

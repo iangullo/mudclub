@@ -106,13 +106,24 @@ module EventsHelper
 	end
 
 	#FieldComponents to show a match
-	def match_show_fields
-		match_fields(edit: false)
+	def match_show_fields(sport)
+		match_fields(sport, edit: false)
 	end
 
 	# return FieldsComponent for match form
-	def match_form_fields
-		match_fields(edit: true)
+	def match_form_fields(sport)
+		match_fields(sport, edit: true)
+	end
+
+	# player grid for a match
+	def match_roster_grid(sport, edit: false)
+		a_rules = sport.rules.key(@event.team.category.rules)
+		if (outings = sport.match_outings(a_rules))
+			grid = sport.outings_grid(@event, outings, edit:)
+		else
+			grid = player_grid(players: @event.players.order(:number), obj: @event.team)
+		end
+		grid
 	end
 
 	# fields for a new match form
@@ -312,18 +323,8 @@ module EventsHelper
 		end
 
 		# serves for both match_show and match_edit
-		def match_fields(edit:)
-			res     = edit ? @sport.match_form_fields(@event) : @sport.match_show_fields(@event)
-			a_rules = self.rules.key(@event.team.category.rules)
-			if (outings = @sport.match_outings(a_rules))
-				grid = @sport.outings_grid(@event, outings, edit:)
-			else
-				grid = player_grid(players: @event.players.order(:number), obj: @event.team)
-			end
-			res << [
-				{kind: "gap", size:2},
-				{kind: "grid", value: grid, cols: 4}
-			]
+		def match_fields(sport, edit:)
+			edit ? sport.match_form_fields(@event) : sport.match_show_fields(@event)
 		end
 
 		# complete event_title for train events
@@ -366,7 +367,7 @@ module EventsHelper
 				res[0] << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
 				unless @event.rest? # add start_time inputs
 					res[1] << {kind: "icon", value: "clock.svg"}
-					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, min: @event.min}
+					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, mins: @event.min}
 				end
 				res.last << {kind: "hidden", key: :season_id, value: @season.id} if @event.team.id==0
 				res.last << {kind: "hidden", key: :team_id, value: @event.team_id}
