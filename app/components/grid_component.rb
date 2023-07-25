@@ -27,10 +27,12 @@
 #   => row items: have links in them (per row)
 # optional: associated form object (if needed)
 class GridComponent < ApplicationComponent
+	attr_writer :form
+
 	def initialize(grid:, form: nil)
+		@form  = form
 		@title = parse_title(grid[:title])
 		@rows  = parse_rows(grid[:rows])
-		@form  = form
 		if grid[:track]
 			@s_url  = grid[:track][:s_url]
 			@s_filt = grid[:track][:s_filter]
@@ -95,6 +97,8 @@ class GridComponent < ApplicationComponent
 					when "bottom"
 						item[:align] = "center" unless item[:align]
 						item[:class] = "text-indigo-900 font-semibold"
+					when "number-box"
+						item[:value] = InputBoxComponent.new(field: item, form: @form)
 					when "percentage"
 						item[:align] = "center" unless item[:align]
 						item[:class] = "font-semibold border px py "

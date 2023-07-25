@@ -191,9 +191,9 @@ class Sport < ApplicationRecord
 		end
 	end
 
-	# return label field for a stat using I18n.t
-	def stat_label(label, abbr=true)
-		{kind: "side-cell", value: I18n.t(label), align: "middle", class: "border px py"}
+	# return label field for a stat
+	def stat_label_field(label, abbr=true)
+		{kind: "side-cell", value:label, align: "middle", class: "border px py"}
 	end
 
 	# generic warpper to update a stat value
@@ -289,5 +289,20 @@ class Sport < ApplicationRecord
 				nstat.player_id = player_id
 			end
 			nstat
+		end
+
+		# return a normalised time string for a "seconds" value
+		def time_string(seconds)
+			tstr = ""
+			count = seconds.to_i
+			if (hours = (count / 360).to_i) > 0
+				tstr += "#{hours}º"
+				count = (count - (hours * 360)).to_i
+			end
+			if (mins = (count / 60).to_i) > 0
+				tstr += "#{mins}'"
+				secs  = (count - (mins * 60)).to_i
+			end
+			tstr += "#{count}\""
 		end
 end

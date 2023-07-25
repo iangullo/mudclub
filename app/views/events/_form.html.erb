@@ -1,9 +1,9 @@
 <%= form_with model: event, authenticity_token: true, data: {title: title, turbo_frame: "_top"} do |form| %>
-	<% @title.form=form %>
+	<% @title.form = form %>
 	<%= render @title %>
 	<div id="edit-event-data">
 		<% if @fields %>
-			<% @fields.form=form %>
+			<% @fields.form = form %>
 			<%= render @fields %>
 		<% end %>
 		<%= render('edit_session', form: form, title: title) if event.train? %>

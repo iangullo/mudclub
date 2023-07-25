@@ -107,23 +107,14 @@ module EventsHelper
 
 	#FieldComponents to show a match
 	def match_show_fields(sport)
-		match_fields(sport, edit: false)
+		res = match_fields(sport, edit: false)
+		res << [{kind: "grid", value: match_roster_grid(sport), cols: res.last.last[:cols]}]
 	end
 
 	# return FieldsComponent for match form
 	def match_form_fields(sport)
-		match_fields(sport, edit: true)
-	end
-
-	# player grid for a match
-	def match_roster_grid(sport, edit: false)
-		a_rules = sport.rules.key(@event.team.category.rules)
-		if (outings = sport.match_outings(a_rules))
-			grid = sport.outings_grid(@event, outings, edit:)
-		else
-			grid = player_grid(players: @event.players.order(:number), obj: @event.team)
-		end
-		grid
+		res = match_fields(sport, edit: true)
+		res << [{kind: "grid", value: match_roster_grid(sport, edit: true), cols: res.last.last[:cols]}]
 	end
 
 	# fields for a new match form
@@ -325,6 +316,17 @@ module EventsHelper
 		# serves for both match_show and match_edit
 		def match_fields(sport, edit:)
 			edit ? sport.match_form_fields(@event) : sport.match_show_fields(@event)
+		end
+
+		# player grid for a match
+		def match_roster_grid(sport, edit: false)
+			a_rules = sport.rules.key(@event.team.category.rules)
+			if (outings = sport.match_outings(a_rules))
+				grid = sport.outings_grid(@event, outings, edit:)
+			else
+				grid = sport.stats_grid(@event, edit:)
+			end
+			grid
 		end
 
 		# complete event_title for train events

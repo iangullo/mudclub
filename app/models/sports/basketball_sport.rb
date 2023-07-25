@@ -53,10 +53,13 @@ class BasketballSport < Sport
 	def match_outings(a_rules)
 		s_limits = self.limits[a_rules.to_s] if self.rules[a_rules]
 		p_total  = s_limits["periods"]["regular"]
-		p_first  = s_limits["outings"]["first"]
-		p_min    = s_limits["outings"]["min"]
-		p_max    = s_limits["outings"]["max"]
-		{total: p_total, first: p_first, min: p_min, max: p_max}
+		if (outings = s_limits["outings"])
+			p_first  = s_limits["outings"]["first"]
+			p_min    = s_limits["outings"]["min"]
+			p_max    = s_limits["outings"]["max"]
+			outings = {total: p_total, first: p_first, min: p_min, max: p_max}
+		end
+		outings
 	end
 
 	# grid to show basketball period form for an event
@@ -64,10 +67,10 @@ class BasketballSport < Sport
 		head = [{kind: "top-cell", value: I18n.t("player.number"), align: "center"}, {kind: "top-cell", value: I18n.t("person.name")}]
 		rows = []
 		e_stats = event.stats
-		1.upto(outings[:total]) {|i| head << {kind: "normal", value: "Q#{i.to_s}"}} if periods
+		1.upto(outings[:total]) {|i| head << {kind: "normal", value: I18n.t("#{SPORT_LBL}period.q#{i}")}} if periods
 		event.players.order(:number).each do |player|
 			p_stats = Stat.by_player(player.id, e_stats)
-			row = {url: "/players/#{player.id}", items: []}
+			row     = {url: "/players/#{player.id}?retlnk=/events/#{event.id}#{(edit ? '/edit' : '')}", items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
 			row[:items] << {kind: "normal", value: player.to_s}
 			1.upto(outings[:total]) do |q|
@@ -78,6 +81,20 @@ class BasketballSport < Sport
 					row[:items] << ((q_stat and q_stat[:value]==1) ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
 				end
 			end
+			rows << row
+		end
+		{title: head, rows: rows}
+	end
+
+	# grid to show basketball stats for a match
+	def stats_grid(event, edit: false)
+		head = match_stats_header
+		rows = []
+		e_stats = event.stats
+		event.players.each do |player|
+			p_stats = Stat.fetch(player_id: player.id, period: 0, stats: e_stats, create: false)
+			row     = {url: "/players/#{player.id}?retlnk=/events/#{event.id}#{(edit ? '/edit' : '')}", items: []}
+			row[:items] = match_stats_row(player, p_stats, edit:)
 			rows << row
 		end
 		{title: head, rows: rows}
@@ -231,7 +248,7 @@ class BasketballSport < Sport
 		# return label for a Baskeball stat
 		def s_label(label, abbr: true)
 			tail = abbr ? ".abbr" : ".many"
-			"#{SPORT_LBL}stat.#{label}#{tail}"
+			I18n.t("#{SPORT_LBL}stat.#{label}#{tail}")
 		end
 
 		# standardised shooting data fields
@@ -386,6 +403,65 @@ class BasketballSport < Sport
 				val = score[per]
 				head << {kind: "top-cell", value: I18n.t("#{SPORT_LBL}period.#{per}"), align: "center"}
 				team_period_score_fields(home, t_home, t_away, val, edit:)
+			end
+		end
+
+		# return fields for stats view
+		def match_stats_header(edit: false)
+			fields = [
+					{kind: "normal", value: I18n.t("player.number"), align: "center"},
+					{kind: "normal", value: I18n.t("person.name")},
+					{kind: "normal", value: s_label(:sec), align: "center"},
+					{kind: "normal", value: s_label(:pts), align: "center"},
+=begin
+					{kind: "normal", value: s_label(:ft), cols: 3, align: "center"},
+					{kind: "normal", value: s_label(:dg), cols: 3, align: "center"},
+					{kind: "normal", value: s_label(:tg), cols: 3, align: "center"},
+=end
+					{kind: "normal", value: s_label(:trb), align: "center"},
+					{kind: "normal", value: s_label(:ast), align: "center"},
+					{kind: "normal", value: s_label(:stl), align: "center"},
+					{kind: "normal", value: s_label(:blk), align: "center"},
+					{kind: "normal", value: s_label(:to), align: "center"},
+					{kind: "normal", value: s_label(:pfc), align: "center"},
+			]
+		end
+
+		# row fields for a player's stats
+		def match_stats_row(player, stats, edit: false)
+			key = "#{player.id}_0_"
+			[
+				{kind: "normal", value: player.number, align: "center"},
+				{kind: "normal", value: player.to_s},
+				{kind: "normal", value: self.time_string(Stat.fetch(concept: 0, stats:, create: false).first&.value.to_i), align: "right"},
+				match_stats_field(key, stats, 1, edit:),	# points
+=begin
+				match_stats_field(stats, 10, edit:),	# ftm
+				{kind: "normal", value: "/"},
+				match_stats_field(stats, 11, edit:),	# fta
+				match_stats_field(stats, 6, edit:),	# dga
+				{kind: "normal", value: "/"},
+				match_stats_field(stats, 7, edit:),	# dgm
+				match_stats_field(stats, 8, edit:),	# tgm
+				{kind: "normal", value: "/"},
+				match_stats_field(stats, 9, edit:),	# tga
+=end
+				match_stats_field(key, stats, 14, edit:),	# trb
+				match_stats_field(key, stats, 15, edit:),	# ast
+				match_stats_field(key, stats, 16, edit:),	# stl
+				match_stats_field(key, stats, 18, edit:),	# blk
+				match_stats_field(key, stats, 17, edit:),	# to
+				match_stats_field(key, stats, 20, edit:),	# fouls
+			]
+		end
+
+		def match_stats_field(key, stats, concept, edit: false)
+			key   = "#{key}#{concept}"
+			value = Stat.fetch(concept:, stats:, create: false).first&.value.to_i
+			if edit
+				{kind: "number-box", key:, value:}
+			else
+				{kind: "normal", value:, align: "right"}
 			end
 		end
 end

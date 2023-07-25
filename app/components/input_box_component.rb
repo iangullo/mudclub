@@ -38,7 +38,7 @@
 
 class InputBoxComponent < ApplicationComponent
 	DEF_INPUT_CLASS = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700".split(" ")
-	attr_writer :form, :sesion
+	attr_writer :form, :session
 
 	def initialize(field:, form: nil, session: nil)
 		@i_class = DEF_INPUT_CLASS.dup

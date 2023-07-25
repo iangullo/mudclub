@@ -47,8 +47,13 @@ class EventsController < ApplicationController
 				redirect_to stats_event_path(@event, player_id:), data: {turbo_action: "replace"}
 			else
 				retlnk  = params[:retlnk].presence || team_path(@event.team)
+				if @event.match?
+					@sport  = @event.team.sport.specific
+					@fields = create_fields(helpers.match_show_fields(@sport))
+				else
+					@fields = helpers.training_show_fields
+				end
 				@submit = create_submit(close: "back", close_return: retlnk, submit: (u_manager? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil)
-				@fields = create_fields(@event.match? ? helpers.match_show_fields : helpers.training_show_fields)
 			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -122,6 +127,9 @@ class EventsController < ApplicationController
 					elsif e_data[:task].present? # updated task from edit_task_form
 						check_task(e_data[:task])
 						@notice[:message] = @notice[:message] + @task.to_s
+					elsif params[:stats]
+						check_stats(params[:event][:stats])
+						@notice[:message] = "Cuartos actualizados"
 					end
 					format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
 					format.json { render @retview, status: :ok, location: @retlnk }
@@ -350,7 +358,7 @@ class EventsController < ApplicationController
 			@title = create_fields(helpers.event_title_fields(form: true, cols: @event.match? ? 2 : nil))
 			if @event.match?
 				@sport   = @event.team.sport.specific
-				m_fields = edit ? helpers.match_form_fields : helpers.match_new_fields
+				m_fields = (edit ? helpers.match_form_fields(@sport) : helpers.match_new_fields)
 				@fields  = create_fields(m_fields)
 			end
 			if edit
