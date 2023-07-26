@@ -193,10 +193,10 @@ class Team < ApplicationRecord
 		matches = self.events.matches.this_season
 		matches.each do |m|
 			score = m.total_score	# our team first
-			if score[:home_p] > score[:away_p]
-				res[:won] = res[:won] + 1
-			elsif score[:away_p] > score[:home_p]
-				res[:lost] = res[:lost] + 1
+			if score[:ours][:points] > score[:opps][:points]
+				res[:won]  +=  1
+			elsif score[:ours][:points] < score[:opps][:points]
+				res[:lost] +=  1
 			end
 		end
 		res
