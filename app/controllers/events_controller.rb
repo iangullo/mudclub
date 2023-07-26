@@ -48,8 +48,7 @@ class EventsController < ApplicationController
 			else
 				retlnk  = params[:retlnk].presence || team_path(@event.team)
 				if @event.match?
-					@sport  = @event.team.sport.specific
-					@fields = create_fields(helpers.match_show_fields(@sport))
+					@fields = create_fields(helpers.match_show_fields)
 				else
 					@fields = create_fields(helpers.training_show_fields)
 				end
@@ -349,8 +348,7 @@ class EventsController < ApplicationController
 			end
 			@title = create_fields(helpers.event_title_fields(form: true, cols: @event.match? ? 2 : nil))
 			if @event.match?
-				@sport   = @event.team.sport.specific
-				m_fields = helpers.match_form_fields(@sport, new:)
+				m_fields = helpers.match_form_fields(new:)
 				@fields  = create_fields(m_fields)
 			end
 			unless new # editing
@@ -395,7 +393,8 @@ class EventsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_event
-			@event  = Event.find_by_id(params[:id])
+			@event = Event.find_by_id(params[:id])
+			@sport = @event&.team&.sport&.specific
 		end
 
 		# Only allow a list of trusted parameters through.

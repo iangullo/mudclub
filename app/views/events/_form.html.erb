@@ -6,10 +6,8 @@
 			<%= render('edit_session', form: form, title: title) if @event.train? %>
 			<% if @fields %>
 				<%= form.fields_for :stats, Stat.new do |ff| %>
-					<% unless done %>
-						<% @fields.form = ff %>
-						<%= render @fields %>
-					<% end %>
+					<% @fields.form = ff %>
+					<%= render @fields %>
 				<% end %>
 			<% end %>
 		</div>

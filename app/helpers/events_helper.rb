@@ -106,15 +106,15 @@ module EventsHelper
 	end
 
 	#FieldComponents to show a match
-	def match_show_fields(sport)
-		res = match_fields(sport, edit: false)
-		res << [{kind: "grid", value: match_roster_grid(sport), cols: res.last.last[:cols]}]
+	def match_show_fields
+		res = match_fields(edit: false)
+		res << [{kind: "grid", value: match_roster_grid, cols: res.last.last[:cols]}]
 	end
 
 	# return FieldsComponent for match form
-	def match_form_fields(sport, new: false)
-		res = match_fields(sport, edit: true, new:)
-		res << [{kind: "grid", value: match_roster_grid(sport, edit: true), cols: res.last.last[:cols]}] unless new
+	def match_form_fields(new: false)
+		res = match_fields(edit: true, new:)
+		res << [{kind: "grid", value: match_roster_grid(edit: true), cols: res.last.last[:cols]}] unless new
 		res
 	end
 
@@ -294,29 +294,31 @@ module EventsHelper
 				else
 					res << [{kind: "gap", cols: 2}]
 				end
-				res << [
-					{kind: "gap", size: 1, cols: 3},
-					button_field(
-						{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal"},
-						align: "left",
-						cols: 2
-					)
-				]
+				if u_manager? || @event.team.has_coach(u_coachid)
+					res << [
+						{kind: "gap", size: 1, cols: 3},
+						button_field(
+							{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal"},
+							align: "left",
+							cols: 2
+						)
+					]
+				end
 			end
 		end
 
 		# serves for both match_show and match_edit
-		def match_fields(sport, edit:, new: false)
-			edit ? sport.match_form_fields(@event, new:) : sport.match_show_fields(@event)
+		def match_fields(edit:, new: false)
+			edit ? @sport.match_form_fields(@event, new:) : @sport.match_show_fields(@event)
 		end
 
 		# player grid for a match
-		def match_roster_grid(sport, edit: false)
-			a_rules = sport.rules.key(@event.team.category.rules)
-			if (outings = sport.match_outings(a_rules))
-				grid = sport.outings_grid(@event, outings, edit:)
+		def match_roster_grid(edit: false)
+			a_rules = @sport.rules.key(@event.team.category.rules)
+			if (outings = @sport.match_outings(a_rules))
+				grid = @sport.outings_grid(@event, outings, edit:)
 			else
-				grid = sport.stats_grid(@event, edit:)
+				grid = @sport.stats_grid(@event, edit:)
 			end
 			grid
 		end
