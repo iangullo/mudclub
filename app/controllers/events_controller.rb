@@ -18,7 +18,7 @@
 #
 class EventsController < ApplicationController
 	include Filterable
-	before_action :set_event, only: %i[ show edit add_task show_task edit_task task_drill player_shots edit_player_shots load_chart attendance update destroy ]
+	before_action :set_event, only: %i[ show edit add_task show_task edit_task task_drill player_stats edit_player_stats load_chart attendance update destroy ]
 
 	# GET /events or /events.json
 	def index
@@ -219,16 +219,16 @@ class EventsController < ApplicationController
 		end
 	end
 
-	# GET /events/1/player_shots?player_id=X
-	def player_shots
+	# GET /events/1/player_stats?player_id=X
+	def player_stats
 		if check_access(roles: [:manager, :coach], obj: @event.team)
 			unless @event.rest?	# not keeing stats for holidays ;)
 				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
 				if @player&.id.to_i > 0	# we do have a player
 					@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
-					@fields = create_fields(helpers.event_player_shots_fields)
+					@fields = create_fields(helpers.event_player_stats_fields)
 					editor  = (u_manager? || @event.team.has_coach(u_coachid) || @event.team.has_player(u_playerid))
-					@submit = create_submit(submit: @player ? edit_player_shots_event_path(@event, player_id: u_playerid) : nil, frame: "modal")
+					@submit = create_submit(submit: @player ? edit_player_stats_event_path(@event, player_id: u_playerid) : nil, frame: "modal")
 				else
 					redirect_to @event.team, data: {turbo_action: "replace"}
 				end
@@ -238,14 +238,14 @@ class EventsController < ApplicationController
 		end
 	end
 
-	# GET /events/1/edit_player_shots?player_id=X
-	def edit_player_shots
+	# GET /events/1/edit_player_stats?player_id=X
+	def edit_player_stats
 		if check_access(roles: [:manager, :coach], obj: @event.team)
 			unless @event.rest?	# not keeing stats for holidays ;)
 				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
 				if @player&.id.to_i > 0	# we do have a player
 					@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
-					@fields = create_fields(helpers.event_edit_player_shots_fields)
+					@fields = create_fields(helpers.event_edit_player_stats_fields)
 					@submit = create_submit
 				else
 					redirect_to @event.team, data: {turbo_action: "replace"}

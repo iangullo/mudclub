@@ -119,12 +119,12 @@ module EventsHelper
 	end
 
 	# fields to display player's stats for an event
-	def event_player_shots_fields
+	def event_player_stats_fields
 		@sport.player_training_stats_fields(@event, player_id: @player.id)
 	end
 
 	# fields to display player's edit stats form for an event
-	def event_edit_player_shots_fields
+	def event_edit_player_stats_fields
 		@sport.player_training_stats_form_fields(@event, player_id: @player.id)
 	end
 

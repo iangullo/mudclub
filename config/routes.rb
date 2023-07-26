@@ -74,8 +74,8 @@ Rails.application.routes.draw do
 		get 'add_task', on: :member
 		get 'edit_task', on: :member
 		get 'attendance', on: :member
-		get 'player_shots', on: :member
-		get 'edit_player_shots', on: :member
+		get 'player_stats', on: :member
+		get 'edit_player_stats', on: :member
 	end
 	resources :drills do
 		get 'versions', on: :member
