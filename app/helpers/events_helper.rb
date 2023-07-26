@@ -120,12 +120,12 @@ module EventsHelper
 
 	# fields to display player's stats for an event
 	def event_player_shots_fields
-		@sport.player_training_stats_fields(event_id: @event.id, player_id: @player.id)
+		@sport.player_training_stats_fields(@event, player_id: @player.id)
 	end
 
 	# fields to display player's edit stats form for an event
 	def event_edit_player_shots_fields
-		@sport.player_training_stats_form_fields(event_id: @event.id, player_id: @player.id)
+		@sport.player_training_stats_form_fields(@event, player_id: @player.id)
 	end
 
 	# return FieldsComponent @fields for show_training

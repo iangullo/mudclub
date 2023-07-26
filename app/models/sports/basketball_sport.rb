@@ -108,8 +108,8 @@ class BasketballSport < Sport
 		res << show_shooting_data(s_label("zg"), stats, :zgm, :zga)
 		res << show_shooting_data(s_label("dg"), stats, :dgm, :dga)
 		res << show_shooting_data(s_label("tg"), stats, :tgm, :tga)
-		get_shooting_totals(event_id, player_id, stats)
-		res << show_shooting_data("stat.total_a", stats, :fgm, :fga)
+		get_shooting_totals(event.id, player_id, stats)
+		res << show_shooting_data(I18n.t("stat.total_a"), stats, :fgm, :fga)
 		res
 	end
 
@@ -261,7 +261,7 @@ class BasketballSport < Sport
 			pcol  = taken == 0 ? "gray-300" : (pctg < 20 ? "red-900": (pctg < 50 ? "yellow-700" : (pctg < 70 ? "gray-700" : "green-700")))
 			[
 				{kind: "gap"},
-				stat_label(label),
+				stat_label_field(label),
 				{kind: "string", value: made, class: "border px py", align: "right"},
 				{kind: "label", value: "/"},
 				{kind: "string", value: taken, class: "border px py", align: "right"},
@@ -283,7 +283,7 @@ class BasketballSport < Sport
 			taken = Stat.by_concept(self.stats[attempts.to_s], stats).first&.value.to_i
 			[
 				{kind: "gap"},
-				stat_label(label),
+				stat_label_field(label),
 				{kind: "number-box", key: scored, value: made, class: "shots-made border px py", align: "right"},
 				{kind: "label", value: "/"},
 				{kind: "number-box", key: attempts, value: taken, class: "shots-taken border px py", align: "right"}
