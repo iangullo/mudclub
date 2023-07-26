@@ -127,9 +127,6 @@ class EventsController < ApplicationController
 					elsif e_data[:task].present? # updated task from edit_task_form
 						check_task(e_data[:task])
 						@notice[:message] = @notice[:message] + @task.to_s
-					elsif params[:stats]
-						check_stats(params[:event][:stats])
-						@notice[:message] = "Cuartos actualizados"
 					end
 					format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
 					format.json { render @retview, status: :ok, location: @retlnk }
@@ -272,7 +269,11 @@ class EventsController < ApplicationController
 			elsif params[:event][:stats_attributes].present?	# just updated event stats
 				@notice  = helpers.flash_message("#{I18n.t("stat.updated")} ", "success")
 				@retview = :show
-				@retlnk  = current_user.player? ? team_path(@event.team, start_date: @event.start_date) : team_events_path(@event, start_date: @event.start_date)
+				if params[:retlnk]
+					@retlnk  = params[:retlnk]
+				else
+					@retlnk  = current_user.player? ? team_path(@event.team, start_date: @event.start_date) : event_path(@event, retlnk: team_path(@event.team))
+				end
 			else
 				@notice = helpers.event_update_notice(attendance: e_data[:player_ids])
 				if e_data[:season_id].to_i > 0 # season event
@@ -306,17 +307,8 @@ class EventsController < ApplicationController
 		# check stats - a single player updating an event
 		def check_stats(s_dat)
 			if s_dat	# lets_ check them
-				e_id  = @event.id
-				p_id  = @player&.id.to_i
-				stats = Stat.fetch(event_id: e_id, player_id: p_id)
 				sport = @event.team.sport.specific
-				s_dat.values.first.each_pair do |key, val|
-					k_val  = sport.stats[key]
-					stat   = stats.find { |s| s.concept == k_val } unless stats.empty?
-					stat ||= Stat.new(event_id: e_id, player_id: p_id, concept: k_val)
-					stat.update(value: val)
-					stat.save if stat.changed?
-				end
+				sport.parse_stats(@event, s_dat.values.first)
 			end
 		end
 
@@ -404,6 +396,7 @@ class EventsController < ApplicationController
 		# Use callbacks to share common setup or constraints between actions.
 		def set_event
 			@event  = Event.find_by_id(params[:id])
+			@event.stats.build if @event.stats.empty?
 		end
 
 		# Only allow a list of trusted parameters through.
@@ -430,7 +423,7 @@ class EventsController < ApplicationController
 					:season_id,
 					:player_id,
 					player_ids: [],
-					stats_attributes: [:id, :event_id, :player_id, :concept, :value, :_destroy],
+					stats_attributes: {},
 					event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]],
 					task: [:id, :task_id, :order, :drill_id, :duration, :remarks, :retlnk],
 					tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy]

@@ -345,7 +345,7 @@ class BasketballSport < Sport
 			]
 		end
 
-		# generic match_fields generator for shoe or edit
+		# generic match_fields generator for show or edit
 		def match_fields(event, edit: false)
 			t_pers  = self.match_periods(event.team.category.rules)
 			score   = self.match_score(event.id)
@@ -356,8 +356,8 @@ class BasketballSport < Sport
 			t_away  = team_name_fields(event, home: !event.home?, edit:)
 			head    = edit ? [{kind: "side-cell", value: I18n.t("team.home_a"), cols: 2, align: "left"}] : [{kind: "gap", size:1}]
 			match_score_fields(event.home?, score, periods, t_pers, head, t_home, t_away, edit:)
-			head << {kind: "top-cell", value: I18n.t("stat.total_a")}
-			team_period_score_fields(event.home?, t_home, t_away, score[:tot], edit:)
+			head << {kind: "top-cell", value: I18n.t("stat.total_a"), align: "center"}
+			team_period_score_fields(event.home?, :tot, t_home, t_away, score[:tot], edit:)
 			fields += [head, t_home, t_away]
 			fields << [{kind: "gap", size: 1, cols: t_pers + 3, class: "text-xs"}]
 			fields << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: t_cols}]
@@ -374,7 +374,7 @@ class BasketballSport < Sport
 					]
 				else
 					[
-						{kind: "radio-button", key: :home, value: false, checked: event.home, align: "right"},
+						{kind: "radio-button", key: :home, value: false, checked: !event.home, align: "right"},
 						{kind: "text-box", key: :name, value: event.name, placeholder: I18n.t("match.default_rival"), size: 12}
 					]
 				end
@@ -384,15 +384,18 @@ class BasketballSport < Sport
 		end
 
 		# add fields to team period scores
-		def team_period_score_fields(home, t_home, t_away, val, edit: false)
+		def team_period_score_fields(home, period, t_home, t_away, val, edit: false)
 			p_home = (val ? (home ? val[:ours] : val[:opps]) : 0)
 			p_away = (val ? (home ? val[:opps] : val[:ours]) : 0)
+			k_tail = "_#{period}_1"
+			k_home = "#{(home ? 'ours' : 'opps')}#{k_tail}"
+			k_away = "#{(home ? 'opps' : 'ours')}#{k_tail}"
 			if edit
-				t_home << {kind: "number-box", key: (home ? :p_ours : :p_opps), min: 0, max: 200, size: 2, value: p_home}
-				t_away << {kind: "number-box", key: (home ? :p_opps : :p_ours), min: 0, max: 200, size: 2, value: p_away}
+				t_home << {kind: "number-box", key: k_home, min: 0, max: 200, size: 2, value: p_home, align: "center"}
+				t_away << {kind: "number-box", key: k_away, min: 0, max: 200, size: 2, value: p_away, align: "center"}
 			else
-				t_home << {kind: "normal", value: p_home, class: "text-center border px py"}
-				t_away << {kind: "normal", value: p_away, class: "text-center border px py"}
+				t_home << {kind: "normal", value: p_home, class: "text-center border px py", align: "right"}
+				t_away << {kind: "normal", value: p_away, class: "text-center border px py", align: "right"}
 			end
 		end
 
@@ -400,11 +403,13 @@ class BasketballSport < Sport
 		def match_score_fields(home, score, periods, t_pers, head, t_home, t_away, edit: false)
 			1.upto(t_pers) do |key|
 				per = periods.key(key)
-				val = score[per]
+				val = score[key]
 				head << {kind: "top-cell", value: I18n.t("#{SPORT_LBL}period.#{per}"), align: "center"}
-				team_period_score_fields(home, t_home, t_away, val, edit:)
+				team_period_score_fields(home, per, t_home, t_away, val, edit:)
 			end
-		end
+			head << {kind: "top-cell", value: I18n.t("#{SPORT_LBL}period.ot"), align: "center"}
+			team_period_score_fields(home, :ot, t_home, t_away, score[:ot], edit:)
+	end
 
 		# return fields for stats view
 		def match_stats_header(edit: false)
@@ -429,11 +434,17 @@ class BasketballSport < Sport
 
 		# row fields for a player's stats
 		def match_stats_row(player, stats, edit: false)
-			key = "#{player.id}_0_"
+			key  = "#{player.id}_0_"
+			secs = Stat.fetch(concept: 0, stats:, create: false).first&.value.to_i
+			if edit
+				tbox = {kind: "number-box", key: "#{key}0", max: 5400, min: 0, size: 3, value: secs, units: "\""}
+			else
+				tbox = {kind: "normal", value: self.time_string(secs), align: "right"}
+			end
 			[
 				{kind: "normal", value: player.number, align: "center"},
 				{kind: "normal", value: player.to_s},
-				{kind: "normal", value: self.time_string(Stat.fetch(concept: 0, stats:, create: false).first&.value.to_i), align: "right"},
+				tbox,
 				match_stats_field(key, stats, 1, edit:),	# points
 =begin
 				match_stats_field(stats, 10, edit:),	# ftm
@@ -459,7 +470,7 @@ class BasketballSport < Sport
 			key   = "#{key}#{concept}"
 			value = Stat.fetch(concept:, stats:, create: false).first&.value.to_i
 			if edit
-				{kind: "number-box", key:, value:}
+				{kind: "number-box", key:, value:, class: "hover:text-blue-900"}
 			else
 				{kind: "normal", value:, align: "right"}
 			end

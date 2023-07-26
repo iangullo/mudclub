@@ -178,16 +178,37 @@ class Sport < ApplicationRecord
 		score
 	end
 
-	# wrapper to write match scores. values are expected to
-	# be in the form of an array of {period:, p_for:, p_opp:} hashes
-	def set_match_score(event_id, values:)
-		s_stats = get_event_scoring_stats(event_id)	# read them, in case they exist
-		values.each do |score|
-			r_tot   = (per.to_sym == :tot)
-			period  = score[:period]
-			s_per   = Stat.by_period(period:, stats: s_stats)
-			set_period_score(event_id:, period:, player_id: 0, stats: s_per, value: score[:p_for])
-			set_period_score(event_id:, period:, player_id: -1, stats: s_per, value: score[:p_for])
+	# wrapper to write parse received stats hash from a form submission.
+	# be in the form of an array of {key: value} pairs
+	def parse_stats(event, stats_data)
+		e_stats = event.stats
+		f_stats = []	# pass one: fetch/create all stats
+		stats_data.each_pair do |key, val|
+			keyarg = key.split("_")
+			if keyarg.size == 1 # it's and event field, not a stat
+				if keyarg[0] == "name"
+					event.update(name: val)
+				elsif keyarg[0] == "home"
+					event.update(home: (val == "true"))
+				end
+			else
+				f_stats << parse_form_stat(event.id, keyarg, val.to_i, e_stats)
+			end
+		end
+
+		# bind stats
+		f_stats.each do |stat|
+			if stat.concept # a concept is assigned
+				event.stats << stat unless event.stats.include?(stat)
+			end
+		end
+
+		# purge fake stats
+		event.stats.each do |stat|
+			unless (stat.concept && stat.id)
+				event.stats.delete(stat)
+				stat.delete if stat.id
+			end
 		end
 	end
 
@@ -196,7 +217,7 @@ class Sport < ApplicationRecord
 		{kind: "side-cell", value:label, align: "middle", class: "border px py"}
 	end
 
-	# generic warpper to update a stat value
+	# generic wrapper to update a stat value
 	def update_stat(event_id:, period:, player_id:, concept:, stats: nil)
 		s_val = Stat.fetch(event_id:, period:, player_id:, concept:, stats:).first
 		s_val[:value] = value
@@ -242,27 +263,27 @@ class Sport < ApplicationRecord
 
 		# Retrieve event scoring stats for an event of the sport
 		def get_event_scoring_stats(event_id)
-			concept = self.scoring["points"].to_sym	# lets split by scoring system
+			# lets split by scoring system
+			concept = self.stats[self.scoring["points"]]
 			s_stats = Stat.fetch(event_id:, concept:, create: false)
 		end
 
 		# Scan period stats for the value of a score
 		# for a specific period & team
-		def get_period_score(stats:, player_id:)
-			s_val = Stat.by_player(player_id:, stats:).first
+		def get_period_score(period:, player_id:, stats:)
+			s_val = Stat.fetch(period:, player_id:, stats:, create: false).first
 			s_val&.value
 		end
 
 		# load score for a period from the stats
 		def read_score(period, stats, score, total)
 			r_tot = (period == 0)	# get all points/games
-			s_per = Stat.by_period(period:, stats:)
-			p_for = get_period_score(stats: s_per, player_id: 0)
-			p_opp = get_period_score(stats: s_per, player_id: -1)
+			p_for = get_period_score(period:, player_id: 0, stats:)
+			p_opp = get_period_score(period:, player_id: -1, stats:)
 			if p_for && p_opp	# we have a score for this period
-				score[per] = {ours: p_for, opps: p_opp}	# load it to the hash
+				score[period] = {ours: p_for, opps: p_opp}	# load it to the hash
 				unless r_tot	# if we already read the totals, this is unnecessary
-					if s_system[:sets]	# different handling for sets
+					if self.scoring[:sets]	# different handling for sets
 						(p_for > p_opp) ? (t_score[:ours] += 1) : (t_score[:opps] += 1)
 					else # just add the points to the total
 						total[:ours] += p_for
@@ -295,14 +316,30 @@ class Sport < ApplicationRecord
 		def time_string(seconds)
 			tstr = ""
 			count = seconds.to_i
-			if (hours = (count / 360).to_i) > 0
+			if (hours = (count / 3600).to_i) > 0
 				tstr += "#{hours}º"
-				count = (count - (hours * 360)).to_i
+				count = (count - (hours * 3600)).to_i
 			end
 			if (mins = (count / 60).to_i) > 0
 				tstr += "#{mins}'"
-				secs  = (count - (mins * 60)).to_i
+				count  = (count - (mins * 60)).to_i
 			end
 			tstr += "#{count}\""
+		end
+
+		# Retrieve/Create a stat from a form {key: val} hash
+		def parse_form_stat(event_id, keyarg, value, stats)
+			case keyarg[0]	# player_id part
+			when "ours"
+				player_id = 0
+			when "opps"
+				player_id = -1
+			else #number
+				player_id = keyarg[0]
+			end
+			period = (keyarg[1].match?(/^(\d+)$/)	? keyarg[1].to_i : self.periods[keyarg[1]])
+			stat   = Stat.fetch(event_id:, player_id:, period:, concept: keyarg[2], stats:).first
+			stat.update(value: value.to_i)
+			stat
 		end
 end

@@ -57,7 +57,7 @@ class InputBoxComponent < ApplicationComponent
 		def set_box_attributes
 			kind_mappings = {
 				"rich-text-area" => { class: "trix-content" },
-				"number-box" => { class: "text-right", min: 0, max: 99, step: 1 },
+				"number-box" => { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] || 1 },
 				"time-box" => { class: "text-right" },
 				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" }
 			}

@@ -97,8 +97,6 @@ class GridComponent < ApplicationComponent
 					when "bottom"
 						item[:align] = "center" unless item[:align]
 						item[:class] = "text-indigo-900 font-semibold"
-					when "number-box"
-						item[:value] = InputBoxComponent.new(field: item, form: @form)
 					when "percentage"
 						item[:align] = "center" unless item[:align]
 						item[:class] = "font-semibold border px py "

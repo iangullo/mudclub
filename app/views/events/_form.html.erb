@@ -3,8 +3,14 @@
 	<%= render @title %>
 	<div id="edit-event-data">
 		<% if @fields %>
-			<% @fields.form = form %>
-			<%= render @fields %>
+			<% done = false %>
+			<%= form.fields_for :stats do |f| %>
+				<% unless done %>
+					<% @fields.form = f %>
+					<%= render @fields %>
+					<% done = true %>
+				<% end %>
+			<% end %>
 		<% end %>
 		<%= render('edit_session', form: form, title: title) if event.train? %>
 	</div>
