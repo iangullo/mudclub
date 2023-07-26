@@ -1,5 +1,10 @@
 <%= render ModalComponent.new do %>
 	<%= render @title %>
+	<% if @event.match? %>
+		<strong><%= @event.to_s %></strong>
+		<br>
+	<% end %>
+	<%= "(##{current_user.player.number}) - #{current_user.player.to_s}"%>
 	<%= render @fields %>
 	<%= render @submit %>
 <% end %>

@@ -223,7 +223,6 @@ class EventsController < ApplicationController
 	def player_shots
 		if check_access(roles: [:manager, :coach], obj: @event.team)
 			unless @event.rest?	# not keeing stats for holidays ;)
-				@sport  = @event.team.sport.specific
 				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
 				if @player&.id.to_i > 0	# we do have a player
 					@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
@@ -243,7 +242,6 @@ class EventsController < ApplicationController
 	def edit_player_shots
 		if check_access(roles: [:manager, :coach], obj: @event.team)
 			unless @event.rest?	# not keeing stats for holidays ;)
-				@sport  = @event.team.sport.specific
 				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
 				if @player&.id.to_i > 0	# we do have a player
 					@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
