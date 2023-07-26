@@ -51,7 +51,7 @@ class EventsController < ApplicationController
 					@sport  = @event.team.sport.specific
 					@fields = create_fields(helpers.match_show_fields(@sport))
 				else
-					@fields = helpers.training_show_fields
+					@fields = create_fields(helpers.training_show_fields)
 				end
 				@submit = create_submit(close: "back", close_return: retlnk, submit: (u_manager? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil)
 			end
@@ -66,7 +66,7 @@ class EventsController < ApplicationController
 			@event = Event.prepare(event_params)
 			if @event
 				if @event.rest? or (@event.team_id >0 and @event.team.has_coach(u_coachid))
-					prepare_event_form(edit: false)
+					prepare_event_form(new: true)
 				else
 					redirect_to(u_manager? ? "/slots" : @event.team)
 				end
@@ -81,7 +81,7 @@ class EventsController < ApplicationController
 	# GET /events/1/edit
 	def edit
 		if check_access(roles: [:manager, :coach], obj: @event)
-			prepare_event_form(edit: true)
+			prepare_event_form(new: false)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -100,7 +100,7 @@ class EventsController < ApplicationController
 					format.html { redirect_to @event.team_id > 0 ? team_events_path(@event.team, start_date: @event.start_date) : events_path(start_date: @event.start_date), notice: c_notice, data: {turbo_action: "replace"} }
 					format.json { render :show, status: :created, location: events_path}
 				else
-					prepare_event_form(edit: false)
+					prepare_event_form(new: true)
 					format.html { render :new, status: :unprocessable_entity }
 					format.json { render json: @event.errors, status: :unprocessable_entity }
 				end
@@ -137,7 +137,7 @@ class EventsController < ApplicationController
 						format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
 						format.json { render @retview, status: :ok, location: @retlnk }
 					else
-						prepare_event_form(edit: true)	# continue editing, it did not work
+						prepare_event_form(new: false)	# continue editing, it did not work
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @event.errors, status: :unprocessable_entity }
 					end
@@ -341,7 +341,7 @@ class EventsController < ApplicationController
 		end
 
 		# prepare new/edit event form
-		def prepare_event_form(edit: nil)
+		def prepare_event_form(new: nil)
 			if params[:season_id]
 				@season = Season.find(event_params[:season_id])
 			else
@@ -350,10 +350,10 @@ class EventsController < ApplicationController
 			@title = create_fields(helpers.event_title_fields(form: true, cols: @event.match? ? 2 : nil))
 			if @event.match?
 				@sport   = @event.team.sport.specific
-				m_fields = (edit ? helpers.match_form_fields(@sport) : helpers.match_new_fields)
+				m_fields = helpers.match_form_fields(@sport, new:)
 				@fields  = create_fields(m_fields)
 			end
-			if edit
+			unless new # editing
 				if @event.rest?
 					c_ret = @event.team_id==0 ? seasons_path(season_id: @season.id) : team_path(@event.team)
 				elsif @event.train?

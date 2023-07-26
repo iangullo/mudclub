@@ -112,18 +112,10 @@ module EventsHelper
 	end
 
 	# return FieldsComponent for match form
-	def match_form_fields(sport)
-		res = match_fields(sport, edit: true)
-		res << [{kind: "grid", value: match_roster_grid(sport, edit: true), cols: res.last.last[:cols]}]
-	end
-
-	# fields for a new match form
-	def match_new_fields
-		[[
-			{kind: "gap"},
-			{kind: "label", value: I18n.t("match.rival")},
-			{kind: "text-box", key: :name, value: I18n.t("match.default_rival")}
-		]]
+	def match_form_fields(sport, new: false)
+		res = match_fields(sport, edit: true, new:)
+		res << [{kind: "grid", value: match_roster_grid(sport, edit: true), cols: res.last.last[:cols]}] unless new
+		res
 	end
 
 	# fields to display player's stats for an event
@@ -314,8 +306,8 @@ module EventsHelper
 		end
 
 		# serves for both match_show and match_edit
-		def match_fields(sport, edit:)
-			edit ? sport.match_form_fields(@event) : sport.match_show_fields(@event)
+		def match_fields(sport, edit:, new: false)
+			edit ? sport.match_form_fields(@event, new:) : sport.match_show_fields(@event)
 		end
 
 		# player grid for a match

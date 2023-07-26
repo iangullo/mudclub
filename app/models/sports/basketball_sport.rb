@@ -44,8 +44,8 @@ class BasketballSport < Sport
 	end
 
 	# fields to display match period
-	def match_form_fields(event)
-		match_fields(event, edit: true)
+	def match_form_fields(event, new: false)
+		match_fields(event, edit: true, new:)
 	end
 
 	# return period limitations for a match of this sport
@@ -346,21 +346,30 @@ class BasketballSport < Sport
 		end
 
 		# generic match_fields generator for show or edit
-		def match_fields(event, edit: false)
+		def match_fields(event, edit: false, new: false)
 			t_pers  = self.match_periods(event.team.category.rules)
-			score   = self.match_score(event.id)
-			periods = self.periods
 			t_cols  = t_pers + (edit ? 3 : 2)
-			fields  = [[{kind: "gap", size: 1, cols: t_cols, class: "text-xs"}]]
+			head    = edit ? [{kind: "side-cell", value: I18n.t("team.home_a"), cols: 2, align: "left"}] : [{kind: "gap", size:1}]
 			t_home  = team_name_fields(event, home: event.home?, edit:)
 			t_away  = team_name_fields(event, home: !event.home?, edit:)
-			head    = edit ? [{kind: "side-cell", value: I18n.t("team.home_a"), cols: 2, align: "left"}] : [{kind: "gap", size:1}]
-			match_score_fields(event.home?, score, periods, t_pers, head, t_home, t_away, edit:)
-			head << {kind: "top-cell", value: I18n.t("stat.total_a"), align: "center"}
-			team_period_score_fields(event.home?, :tot, t_home, t_away, score[:tot], edit:)
+			if new
+				fields = [[]]
+				head   = [{kind: "gap", size: 2}] + head
+				t_home = [{kind: "gap", size: 2}] + t_home
+				t_away = [{kind: "gap", size: 2}] + t_away
+			else	# editing an existing match - more fields to show
+				fields  = [[{kind: "gap", size: 1, cols: t_cols, class: "text-xs"}]]
+				score   = self.match_score(event.id)
+				periods = self.periods
+				match_score_fields(event.home?, score, periods, t_pers, head, t_home, t_away, edit:)
+				head << {kind: "top-cell", value: I18n.t("stat.total_a"), align: "center"}
+				team_period_score_fields(event.home?, :tot, t_home, t_away, score[:tot], edit:)
+			end
 			fields += [head, t_home, t_away]
-			fields << [{kind: "gap", size: 1, cols: t_pers + 3, class: "text-xs"}]
-			fields << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: t_cols}]
+			unless new
+				fields << [{kind: "gap", size: 1, cols: t_pers + 3, class: "text-xs"}]
+				fields << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: t_cols}]
+			end
 			fields
 		end
 

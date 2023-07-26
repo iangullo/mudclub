@@ -28,7 +28,7 @@ class Sport < ApplicationRecord
 		raise "Must implement in Specific Sport object"
 	end
 
-	def match_form_fields(event)
+	def match_form_fields(event, new: false)
 		raise "Must implement in Specific Sport object"
 	end
 
