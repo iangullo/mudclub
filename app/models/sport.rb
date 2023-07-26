@@ -181,8 +181,7 @@ class Sport < ApplicationRecord
 	# wrapper to write parse received stats hash from a form submission.
 	# be in the form of an array of {key: value} pairs
 	def parse_stats(event, stats_data)
-		e_stats = event.stats
-		f_stats = []	# pass one: fetch/create all stats
+		f_stats = []	# pass one: fetch all stats
 		stats_data.each_pair do |key, val|
 			keyarg = key.split("_")
 			if keyarg.size == 1 # it's and event field, not a stat
@@ -192,22 +191,13 @@ class Sport < ApplicationRecord
 					event.update(home: (val == "true"))
 				end
 			else
-				f_stats << parse_form_stat(event.id, keyarg, val.to_i, e_stats)
+				f_stats << parse_form_stat(event.id, keyarg, val.to_i)
 			end
 		end
 
-		# bind stats
-		f_stats.each do |stat|
-			if stat.concept # a concept is assigned
+		f_stats.each do |stat|	# bind stats
+			if stat.concept # if they have a valid concept
 				event.stats << stat unless event.stats.include?(stat)
-			end
-		end
-
-		# purge fake stats
-		event.stats.each do |stat|
-			unless (stat.concept && stat.id)
-				event.stats.delete(stat)
-				stat.delete if stat.id
 			end
 		end
 	end
@@ -302,14 +292,9 @@ class Sport < ApplicationRecord
 		end
 
 		# Include a stat in an event
-		def include_stat_in_event(event_id:, period: nil, player_id:, concept:, stats:)
+		def include_stat_in_event(event_id:, period: nil, player_id:, concept:)
 			c_val = concept.is_a?(Integer) ? concept : self.stats[concept.to_s]
-			nstat = Stat.fetch(concept: c_val, stats:).first
-			unless nstat.id	# it is newly added we need to configure all fields
-				nstat.event_id  = event_id
-				nstat.player_id = player_id
-			end
-			nstat
+			nstat = Stat.fetch(event_id:, period:, player_id:, concept: c_val).first
 		end
 
 		# return a normalised time string for a "seconds" value
@@ -328,17 +313,19 @@ class Sport < ApplicationRecord
 		end
 
 		# Retrieve/Create a stat from a form {key: val} hash
-		def parse_form_stat(event_id, keyarg, value, stats)
+		def parse_form_stat(event_id, keyarg, value)
 			case keyarg[0]	# player_id part
 			when "ours"
 				player_id = 0
 			when "opps"
 				player_id = -1
 			else #number
-				player_id = keyarg[0]
+				player_id = keyarg[0].to_i
 			end
-			period = (keyarg[1].match?(/^(\d+)$/)	? keyarg[1].to_i : self.periods[keyarg[1]])
-			stat   = Stat.fetch(event_id:, player_id:, period:, concept: keyarg[2], stats:).first
+			period  = (keyarg[1].match?(/^(\d+)$/)	? keyarg[1].to_i : self.periods[keyarg[1]])
+			concept = keyarg[2].to_i
+			stat    = Stat.fetch(event_id:, player_id:, period:, concept:, create: false).first
+			stat  ||= Stat.new(event_id:, player_id:, period:, concept:)
 			stat.update(value: value.to_i)
 			stat
 		end

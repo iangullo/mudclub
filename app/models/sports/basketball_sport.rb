@@ -256,8 +256,8 @@ class BasketballSport < Sport
 		def show_shooting_data(label, stats, scored, attempts)
 			s_key = self.stats[scored.to_s]
 			a_key = self.stats[attempts.to_s]
-			made  = Stat.fetch(concept: s_key, stats:).first&.value.to_i
-			taken = Stat.fetch(concept: a_key, stats:).first&.value.to_i
+			made  = Stat.fetch(concept: s_key, period: 0, stats:).first&.value.to_i
+			taken = Stat.fetch(concept: a_key, period: 0, stats:).first&.value.to_i
 			pctg  = taken > 0 ? (made*100/taken) : "N/A"
 			pcol  = taken == 0 ? "gray-300" : (pctg < 20 ? "red-900": (pctg < 50 ? "yellow-700" : (pctg < 70 ? "gray-700" : "green-700")))
 			[
@@ -272,9 +272,9 @@ class BasketballSport < Sport
 
 		# add field goal totals to shooting_data stats
 		def get_shooting_totals(event_id, player_id, stats)
-			made = include_stat_in_event(event_id:, player_id:, period: 0, concept: :fgm, stats:)
+			made = include_stat_in_event(event_id:, player_id:, period: 0, concept: :fgm)
 			made.update(value: sum_stats(stats, SCORED_KEYVALS))
-			shot = include_stat_in_event(event_id:, player_id:, period: 0, concept: :fga, stats:)
+			shot = include_stat_in_event(event_id:, player_id:, period: 0, concept: :fga)
 			shot.update(value: sum_stats(stats, ATTEMPT_KEYVALS))
 		end
 

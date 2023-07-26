@@ -212,15 +212,6 @@ class Event < ApplicationRecord
 		{ours: our_s, opps: opp_s}
 	end
 
-	# fetch or create a stat for a specific concept and player of an event
-	def fetch_stat(player_id, period, concept)
-		aux = self.stats.where(player_id: player_id, concept: concept).first
-		unless aux
-			aux = Stat.new(event_id: self.id, player_id: player_id, concept: concept, value: 0)
-		end
-		aux
-	end
-
 	# check if player is in this event
 	def has_player(p_id)
 		self.players.find_index { |p| p[:id]==p_id }

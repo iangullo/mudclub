@@ -306,8 +306,7 @@ class EventsController < ApplicationController
 		# check stats - a single player updating an event
 		def check_stats(s_dat)
 			if s_dat	# lets_ check them
-				sport = @event.team.sport.specific
-				sport.parse_stats(@event, s_dat.values.first)
+				@sport.parse_stats(@event, s_dat.values.first)
 			end
 		end
 
