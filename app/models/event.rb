@@ -212,22 +212,8 @@ class Event < ApplicationRecord
 		{ours: our_s, opps: opp_s}
 	end
 
-	# wrapper to write points in favour of a match
-	def p_for=(newval)
-		p_f       = fetch_stat(0, :pts)
-		p_f.value = newval
-		p_f.save
-	end
-
-	# wrapper to write points against of a match
-	def p_opp=(newval)
-		p_o       = fetch_stat(-1, :pts)
-		p_o.value = newval
-		p_o.save
-	end
-
 	# fetch or create a stat for a specific concept and player of an event
-	def fetch_stat(player_id, concept)
+	def fetch_stat(player_id, period, concept)
 		aux = self.stats.where(player_id: player_id, concept: concept).first
 		unless aux
 			aux = Stat.new(event_id: self.id, player_id: player_id, concept: concept, value: 0)

@@ -102,7 +102,7 @@ class BasketballSport < Sport
 
 	# fields to display player's stats for training
 	def player_training_stats_fields(event, player_id:)
-		stats = Stat.fetch(event_id: event.id, player_id:, create: false)
+		stats = Stat.fetch(event_id: event.id, period: 0, player_id:, create: false)
 		res   = player_training_stats_header
 		res << show_shooting_data(s_label("ft"), stats, :ftm, :fta)
 		res << show_shooting_data(s_label("zg"), stats, :zgm, :zga)
@@ -115,12 +115,13 @@ class BasketballSport < Sport
 
 	# fields to track player training stats
 	def player_training_stats_form_fields(event, player_id:)
+		key   = "#{player_id}_0_"
 		stats = Stat.fetch(event_id: event.id, player_id:)
 		res   = player_training_stats_header
-		res << form_shooting_data(s_label("ft"), stats, :ftm, :fta)
-		res << form_shooting_data(s_label("zg"), stats, :zgm, :zga)
-		res << form_shooting_data(s_label("dg"), stats, :dgm, :dga)
-		res << form_shooting_data(s_label("tg"), stats, :tgm, :tga)
+		res << form_shooting_data(key, s_label("ft"), stats, :ftm, :fta)
+		res << form_shooting_data(key, s_label("zg"), stats, :zgm, :zga)
+		res << form_shooting_data(key, s_label("dg"), stats, :dgm, :dga)
+		res << form_shooting_data(key, s_label("tg"), stats, :tgm, :tga)
 		res
 	end
 
@@ -255,8 +256,8 @@ class BasketballSport < Sport
 		def show_shooting_data(label, stats, scored, attempts)
 			s_key = self.stats[scored.to_s]
 			a_key = self.stats[attempts.to_s]
-			made  = Stat.by_concept(s_key, stats).first&.value.to_i
-			taken = Stat.by_concept(a_key, stats).first&.value.to_i
+			made  = Stat.fetch(concept: s_key, stats:).first&.value.to_i
+			taken = Stat.fetch(concept: a_key, stats:).first&.value.to_i
 			pctg  = taken > 0 ? (made*100/taken) : "N/A"
 			pcol  = taken == 0 ? "gray-300" : (pctg < 20 ? "red-900": (pctg < 50 ? "yellow-700" : (pctg < 70 ? "gray-700" : "green-700")))
 			[
@@ -271,22 +272,24 @@ class BasketballSport < Sport
 
 		# add field goal totals to shooting_data stats
 		def get_shooting_totals(event_id, player_id, stats)
-			made = include_stat_in_event(event_id:, player_id:, concept: :fgm, stats:)
+			made = include_stat_in_event(event_id:, player_id:, period: 0, concept: :fgm, stats:)
 			made.update(value: sum_stats(stats, SCORED_KEYVALS))
-			shot = include_stat_in_event(event_id:, player_id:, concept: :fga, stats:)
+			shot = include_stat_in_event(event_id:, player_id:, period: 0, concept: :fga, stats:)
 			shot.update(value: sum_stats(stats, ATTEMPT_KEYVALS))
 		end
 
 		# standardised shooting form fields
-		def form_shooting_data(label, stats, scored, attempts)
-			made  = Stat.by_concept(self.stats[scored.to_s], stats).first&.value.to_i
-			taken = Stat.by_concept(self.stats[attempts.to_s], stats).first&.value.to_i
+		def form_shooting_data(key, label, stats, scored, attempts)
+			k_made  = self.stats[scored.to_s]
+			v_made  = Stat.fetch(concept: k_made, stats:).first&.value.to_i
+			k_taken = self.stats[attempts.to_s]
+			v_taken = Stat.fetch(concept: k_taken, stats:).first&.value.to_i
 			[
 				{kind: "gap"},
 				stat_label_field(label),
-				{kind: "number-box", key: scored, value: made, class: "shots-made border px py", align: "right"},
+				{kind: "number-box", key: "#{key}#{k_made}", value: v_made, class: "shots-made border px py", align: "right"},
 				{kind: "label", value: "/"},
-				{kind: "number-box", key: attempts, value: taken, class: "shots-taken border px py", align: "right"}
+				{kind: "number-box", key: "#{key}#{k_taken}", value: v_taken, class: "shots-taken border px py", align: "right"}
 			]
 		end
 
