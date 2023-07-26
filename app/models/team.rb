@@ -21,8 +21,10 @@ class Team < ApplicationRecord
 	belongs_to :category
 	belongs_to :division
 	belongs_to :season
+	belongs_to :sport
 	has_and_belongs_to_many :players
 	has_and_belongs_to_many :coaches
+	has_one :rules, through: :category
 	has_many :slots, dependent: :destroy
 	has_many :events, dependent: :destroy
 	has_many :team_targets, dependent: :destroy
@@ -35,11 +37,6 @@ class Team < ApplicationRecord
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
-	enum rules: {
-		fiba: 0,
-		q4: 1,
-		q6: 2
-	}
 
 	def to_s
 		if self.name and self.name.length > 0
@@ -162,19 +159,14 @@ class Team < ApplicationRecord
 		end
 	end
 
-	# return time rules that apply to this team
-	def periods
-		self.rules ? self.rules : self.category.def_rules
-	end
-
 	# rebuild Teamm from raw hash returned by a form
 	def rebuild(f_data)
 		self.name         = f_data[:name] if f_data[:name]
+		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
 		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
 		self.category_id  = f_data[:category_id].to_i if f_data[:category_id]
 		self.division_id  = f_data[:division_id].to_i if f_data[:division_id]
 		self.homecourt_id = f_data[:homecourt_id].to_i if f_data[:homecourt_id]
-		self.rules        = Team.rules[f_data[:rules]].to_i if f_data[:rules]
 		check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
 		check_players(f_data[:player_ids]) if f_data[:player_ids]
 		check_coaches(f_data[:coach_ids]) if f_data[:coach_ids]

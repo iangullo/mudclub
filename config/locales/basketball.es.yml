@@ -1,0 +1,162 @@
+# MudClub - Simple Rails app to manage a team sports club.
+# Copyright (C) 2023  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t 'hello'
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t('hello') %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# The following keys must be escaped otherwise they will not be retrieved by
+# the default I18n backend:
+#
+# true, false, on, off, yes, no
+#
+# Instead, surround them with single quotes.
+#
+# en:
+#   'true': 'foo'
+#
+# To learn more, please read the Rails Internationalization guide
+# available at https://guides.rubyonrails.org/i18n.html.
+#
+# Spanish Locale strings for MudClub basketball
+es:
+  sport:
+    basketball:
+      name: "Baloncesto"
+      outings:
+        first: "Prim."
+        playing: "En pista"
+        quarter: "Salidas Jug."
+      period:
+        ot: "PR"
+        q1: "Q1"
+        q2: "Q2"
+        q3: "Q3"
+        q4: "Q4"
+        q5: "Q5"
+        q6: "Q6"
+      rules:
+        fiba: "FIBA"
+        u14: "Pasarela"
+        u12: "Minibasket"
+        u10: "Benjamín"
+        u8: "Babybasket"
+        three: "3x3"
+      shot:
+        many: "Tiros"
+        scored: "A."
+        attempt: "I."
+      stat:
+        ast:
+          abbr: "AS"
+          many: "Asistencias"
+        blk:
+          abbr: "TAP"
+          many: "Tapones"
+        bla:
+          abbr: "TR"
+          many: "Tapones recibidos"
+        drb:
+          abbr: "RBD"
+          many: "Rebotes defensivos"
+        orb:
+          abbr: "RBO"
+          many: "Rebotes de ataque"
+        trb:
+          abbr: "REB"
+          many: "Rebotes"
+        fg:
+          abbr: "FG"
+          many: "Field goals"
+        fga:
+          abbr: "TCI"
+          many: "Tiros de campo intentados"
+        fgm:
+          abbr: "TCA"
+          many: "Tiros de campo anotados"
+        ft:
+          abbr: "TL"
+          many: "Tiros libres"
+        fta:
+          abbr: "TLI"
+          many: "Tiros libres intentados"
+        ftm:
+          abbr: "TLA"
+          many: "Tiros libres anotados"
+        dg:
+          abbr: "2P"
+          many: "Tiros de 2P"
+        dga:
+          abbr: "2PI"
+          many: "Tiros de 2p. intentados"
+        dgm:
+          abbr: "2PA"
+          many: "Tiros de 2p. anotados"
+        tg:
+          abbr: "3P"
+          many: "Tiros de 3P"
+        tga:
+          abbr: "3PI"
+          many: "Tiros de 2p. intentados"
+        tgm:
+          abbr: "3PA"
+          many: "Tiros de 3p. anotados"
+        zg:
+          abbr: "PZ"
+          many: "Tiros cerca del aro"
+        zga:
+          abbr: "PZA"
+          many: "Tiros cercanos intentados"
+        zgm:
+          abbr: "PZM"
+          many: "Tiros cercanos anotados"
+        pfr:
+          abbr: "FR"
+          many: "Faltas recibidas"
+        pfc:
+          abbr: "FC"
+          many: "Faltas cometidas"
+        pts:
+          abbr: "P."
+          many: "Puntos"
+        psa:
+          abbr: "PI"
+          many: "Puntos intentados"
+        sec:
+          abbr: "T."
+          many: "Tiempo"
+        stl:
+          abbr: "ROB"
+          many: "Robos"
+        to:
+          abbr: "PÉR"
+          many: "Pérdidas"

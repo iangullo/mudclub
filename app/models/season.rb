@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 # contact email - iangullo@gmail.com.
-#
+# Class to manage club seasons
 class Season < ApplicationRecord
 	has_many :slots, dependent: :destroy
 	has_many :teams, dependent: :destroy

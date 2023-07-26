@@ -107,92 +107,25 @@ module EventsHelper
 
 	#FieldComponents to show a match
 	def match_show_fields
-		score = @event.score
-		res = [[
-			{kind: "gap", size: 2},
-			{kind: "top-cell", value: score[:home][:team]},
-			{kind: "label", value: score[:home][:points], class: "border px py"},
-			{kind: "gap"}
-		]]
-		res << [
-			{kind: "gap", size: 2},
-			{kind: "top-cell", value: score[:away][:team]},
-			{kind: "label", value: score[:away][:points], class: "border px py"},
-			{kind: "gap"}
-		]
-		res << [{kind: "gap", size: 1, cols: 4, class: "text-xs"}]
-		res << [
-			{kind: "gap", size: 2},
-			{kind: "side-cell", value: I18n.t("player.many"), align: "left", cols: 3}
-		]
-		res << [
-			{kind: "gap", size: 2},
-			{kind: "grid", value: period_grid(periods: @event.periods), cols: 3}
-		]
+		res = match_fields(edit: false)
+		res << [{kind: "grid", value: match_roster_grid, cols: res.last.last[:cols]}]
 	end
 
 	# return FieldsComponent for match form
-	def match_form_fields
-		score   = @event.score(mode: 0)
-		periods = @event.periods
-		res     = [[
-			{kind: "side-cell", value: I18n.t("team.home_a"), rows: 2},
-			{kind: "radio-button", key: :home, value: true, checked: @event.home, align: "right", class: "align-center"},
-			{kind: "top-cell", value: @event.team.to_s},
-			{kind: "number-box", key: :p_for, min: 0, max: 200, size: 3, value: score[:home][:points]}
-		]]
-		res << [
-			{kind: "radio-button", key: :home, value: false, checked: @event.home==false, align: "right", class: "align-center"},
-			{kind: "text-box", key: :name, value: @event.name, placeholder: I18n.t("match.default_rival")},
-			{kind: "number-box", key: :p_opp, min: 0, max: 200, size: 3, value: score[:away][:points]}
-		]
-		res << [{kind: "gap", size: 1, class: "text-xs"}]
-		res << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: 3}]
-		if periods
-			grid = period_grid(periods: periods, edit: true)
-		else
-			grid = player_grid(players: @event.players.order(:number), obj: @event.team)
-		end
-		res << [
-			{kind: "gap", size:2},
-			{kind: "grid", value: grid, cols: 4}
-		]
-	end
-
-	# fields for a new match form
-	def match_new_fields
-		[[
-			{kind: "gap"},
-			{kind: "label", value: I18n.t("match.rival")},
-			{kind: "text-box", key: :name, value: I18n.t("match.default_rival")}
-		]]
+	def match_form_fields(new: false)
+		res = match_fields(edit: true, new:)
+		res << [{kind: "grid", value: match_roster_grid(edit: true), cols: res.last.last[:cols]}] unless new
+		res
 	end
 
 	# fields to display player's stats for an event
-	def event_player_shots_fields
-		# filter for this event & player
-		stats = Stat.for_event(@event.id).for_player(@player.id)
-		res   = event_stat_header
-		res << show_shooting_data("stat.shot.free", stats, :ftm, :fta)
-		res << show_shooting_data("stat.shot.close", stats, :zgm, :zga)
-		res << show_shooting_data("stat.shot.two", stats, :dgm, :dga)
-		res << show_shooting_data("stat.shot.three", stats, :tgm, :tga)
-		tshot = Stat.new(event_id: @event.id, player_id: @player.id, concept: :fga, value: stats.select(&:attempt).sum(&:value))
-		tmade = Stat.new(event_id: @event.id, player_id: @player.id, concept: :fgm, value: stats.select(&:scored).sum(&:value))
-		res << show_shooting_data("stat.total", [tshot, tmade], :fgm, :fga)
-		res
+	def event_player_stats_fields
+		@sport.player_training_stats_fields(@event, player_id: @player.id)
 	end
 
 	# fields to display player's edit stats form for an event
-	def event_edit_player_shots_fields
-		stats = Stat.by_event(@event.id)	# filter for this event
-		stats = Stat.by_player(@player.id, stats)	# filter for a player
-		res   = event_stat_header
-		res << form_shooting_data("stat.shot.free", stats, :ftm, :fta)
-		res << form_shooting_data("stat.shot.close", stats, :zgm, :zga)
-		res << form_shooting_data("stat.shot.two", stats, :dgm, :dga)
-		res << form_shooting_data("stat.shot.three", stats, :tgm, :tga)
-		res
+	def event_edit_player_stats_fields
+		@sport.player_training_stats_form_fields(@event, player_id: @player.id)
 	end
 
 	# return FieldsComponent @fields for show_training
@@ -361,15 +294,33 @@ module EventsHelper
 				else
 					res << [{kind: "gap", cols: 2}]
 				end
-				res << [
-					{kind: "gap", size: 1, cols: 3},
-					button_field(
-						{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal"},
-						align: "left",
-						cols: 2
-					)
-				]
+				if u_manager? || @event.team.has_coach(u_coachid)
+					res << [
+						{kind: "gap", size: 1, cols: 3},
+						button_field(
+							{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal"},
+							align: "left",
+							cols: 2
+						)
+					]
+				end
 			end
+		end
+
+		# serves for both match_show and match_edit
+		def match_fields(edit:, new: false)
+			edit ? @sport.match_form_fields(@event, new:) : @sport.match_show_fields(@event)
+		end
+
+		# player grid for a match
+		def match_roster_grid(edit: false)
+			a_rules = @sport.rules.key(@event.team.category.rules)
+			if (outings = @sport.match_outings(a_rules))
+				grid = @sport.outings_grid(@event, outings, edit:)
+			else
+				grid = @sport.stats_grid(@event, edit:)
+			end
+			grid
 		end
 
 		# complete event_title for train events
@@ -412,7 +363,7 @@ module EventsHelper
 				res[0] << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
 				unless @event.rest? # add start_time inputs
 					res[1] << {kind: "icon", value: "clock.svg"}
-					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, min: @event.min}
+					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, mins: @event.min}
 				end
 				res.last << {kind: "hidden", key: :season_id, value: @season.id} if @event.team.id==0
 				res.last << {kind: "hidden", key: :team_id, value: @event.team_id}
@@ -442,32 +393,6 @@ module EventsHelper
 			rows
 		end
 
-		# grid to plan playing time depending on time rules
-		def period_grid(periods:, edit: nil)
-			head = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}]
-			rows    = []
-			e_stats = @event.stats
-			1.upto(periods[:total]) {|i| head << {kind: "normal", value: "Q#{i.to_s}"}} if periods
-			@event.players.order(:number).each{|player|
-				p_stats = Stat.by_player(player.id, e_stats)
-				row = {url: player_path(player), frame: "modal", items: []}
-				row[:items] << {kind: "normal", value: player.number, align: "center"}
-				row[:items] << {kind: "normal", value: player.to_s}
-				if periods
-					1.upto(periods[:total]) { |q|
-						q_stat = Stat.by_q(q, p_stats).first
-						if edit
-							row[:items] << {kind: "checkbox-q", key: :stats, player_id: player.id, q: "q#{q}", value: q_stat ? q_stat[:value] : 0, align: "center"}
-						else
-							row[:items] << ((q_stat and q_stat[:value]==1) ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
-						end
-					}
-				end
-				rows << row
-			}
-			{title: head, rows: rows}
-		end
-
 		# return the dropdown element to access workload charts
 		def workload_button(cols: 2, align: "center")
 			res = { kind: "dropdown", align:, cols:,
@@ -494,47 +419,5 @@ module EventsHelper
 			else
 				return nil
 			end
-		end
-
-		def stat_label(stat_name)
-			{kind: "side-cell", value: I18n.t(stat_name), align: "middle", class: "border px py"}
-		end
-
-		def event_stat_header
-			res = [[{kind: "gap"}, {kind: "side-cell", value: I18n.t("stat.many"), align: "middle", cols: 5}]]
-			res << [
-				{kind: "gap"},
-				{kind: "top-cell", value: I18n.t("stat.shot.many")},
-				{kind: "top-cell", value: I18n.t("stat.shot.made"), align: "middle"},
-				{kind: "top-cell", value: "/", align: "middle"},
-				{kind: "top-cell", value: I18n.t("stat.shot.attempt"), align: "middle"}
-			]
-		end
-
-		def show_shooting_data(label, stats, scored, attempts)
-			made  = Stat.by_concept(scored, stats).first&.value.to_i
-			taken = Stat.by_concept(attempts, stats).first&.value.to_i
-			pctg  = taken > 0 ? (made*100/taken) : "N/A"
-			pcol  = taken == 0 ? "gray-300" : (pctg < 20 ? "red-900": (pctg < 50 ? "yellow-700" : (pctg < 70 ? "gray-700" : "green-700")))
-			[
-				{kind: "gap"},
-				stat_label(label),
-				{kind: "string", value: made, class: "border px py", align: "right"},
-				{kind: "label", value: "/"},
-				{kind: "string", value: taken, class: "border px py", align: "right"},
-				{kind: "text", value: (taken == 0 ? pctg : "#{pctg}%"), class: "align-middle text-#{pcol}", align: "center"}
-			]
-		end
-
-		def form_shooting_data(label, stats, scored, attempts)
-			made  = Stat.by_concept(scored, stats).first&.value.to_i
-			taken = Stat.by_concept(attempts, stats).first&.value.to_i
-			[
-				{kind: "gap"},
-				stat_label(label),
-				{kind: "number-box", key: scored, value: made, class: "shots-made border px py", align: "right"},
-				{kind: "label", value: "/"},
-				{kind: "number-box", key: attempts, value: taken, class: "shots-taken border px py", align: "right"}
-			]
 		end
 end

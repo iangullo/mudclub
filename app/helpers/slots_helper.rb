@@ -38,7 +38,7 @@ module SlotsHelper
 		res << [
 			{kind: "icon", value: "calendar.svg"},
 			{kind: "select-box", key: :wday, value: @slot.wday, options: weekdays},
-			{kind: "time-box", hour: @slot.hour, min: @slot.min}
+			{kind: "time-box", hour: @slot.hour, mins: @slot.min}
 		]
 		res << [
 			{kind: "icon", value: "clock.svg"},

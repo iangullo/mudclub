@@ -117,18 +117,27 @@ class TopbarComponent < ApplicationComponent
 		{kind:, label:, url:, class:, data: l_data }
 	end
 
+	# menu to manage sports
+	def sport_menu
+		s_menu = {kind: "menu", name: "sports-menu", label: I18n.t("sport.many"), options:[]}
+		Sport.all.each do |sport|
+			s_path = "/sports/#{sport.id}"
+			s_menu[:options] << menu_link(label: sport.to_s, url: "#{s_path}")
+		end
+		s_menu
+	end
+
 	# menu buttons for mudclub admins
 	def admin_menu(user)
-		a_menu = [menu_link(label: I18n.t("user.many"), url: '/users')]
-		a_menu << menu_link(label: I18n.t("person.many"), url: '/people')
-		c_opts = {name: "club-menu", label: @clubname, options:[]}
-		c_opts[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")
-		c_opts[:options] << menu_link(label: I18n.t("category.many"), url: '/categories')
-		c_opts[:options] << menu_link(label: I18n.t("division.many"), url: '/divisions')
+		c_menu = {kind: "menu", name: "club-menu", label: @clubname, options:[], class: @tabcls}
+		c_menu[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")
+		a_menu = [c_menu]
+		a_menu << sport_menu
+		a_menu << menu_link(label: I18n.t("user.many"), url: '/users')
 		if user.is_coach?
 			menu = manager_menu(user)
-			c_opts[:options] += @admin_tab[:options]
-			@admin_tab[:options] = a_menu + [c_opts]
+			c_menu[:options] += @admin_tab[:options]
+			@admin_tab[:options] = a_menu
 		else
 			menu = a_menu
 		end

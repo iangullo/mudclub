@@ -31,13 +31,13 @@ module DivisionsHelper
 	# return grid for @divisions GridComponent
 	def division_grid
 		title = [{kind: "normal", value: I18n.t("division.name")}]
-		title << button_field({kind: "add", url: new_division_path, frame: "modal"}) if u_admin? || u_manager?
+		title << button_field({kind: "add", url: new_sport_division_path(@sport), frame: "modal"}) if u_admin? || u_manager?
 
 		rows = Array.new
 		@divisions.each { |div|
-			row = {url: edit_division_path(div), frame: "modal", items: []}
+			row = {url: edit_sport_division_path(@sport, div), frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: div.name}
-			row[:items] << button_field({kind: "delete", url: division_path(div), name: div.name}) if u_admin? || u_manager?
+			row[:items] << button_field({kind: "delete", url: sport_division_path(@sport, div), name: div.name}) if u_admin? || u_manager?
 			rows << row
 		}
 		{title: title, rows: rows}

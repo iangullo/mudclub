@@ -1,12 +1,21 @@
 <%= form_with model: event, authenticity_token: true, data: {title: title, turbo_frame: "_top"} do |form| %>
-	<% @title.form=form %>
+	<% @title.form = form %>
 	<%= render @title %>
-	<div id="edit-event-data">
-		<% if @fields %>
-			<% @fields.form=form %>
+	<% if @event.id || @event.train?%>
+		<div id="edit-event-data">
+			<%= render('edit_session', form: form, title: title) if @event.train? %>
+			<% if @fields %>
+				<%= form.fields_for :stats, Stat.new do |ff| %>
+					<% @fields.form = ff %>
+					<%= render @fields %>
+				<% end %>
+			<% end %>
+		</div>
+	<% elsif @fields # a new match to create %>
+		<div id="new-match-data">
+			<% @fields.form = form %>
 			<%= render @fields %>
-		<% end %>
-		<%= render('edit_session', form: form, title: title) if event.train? %>
-	</div>
+		</div>
+	<% end %>
 	<%= render @submit %>
 <% end %>

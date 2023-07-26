@@ -37,7 +37,7 @@
 # => "number-box": :key (field name), :value (number_field), size:
 # => "date-box": :key (field name), :value (date_field), :s_year (start_year)
 # => "contact": mailto:, tel: and whatsapp: buttons for a person
-# => "time-box": :hour & :min (field names)
+# => "time-box": :hour & :mins (field names)
 # => "select-box": :key (field name), :options (array of valid options), :value (form, select)
 # => "select-collection": :key (field name), :collection, :value (form, select)
 # => "select-file": :key (field name), :icon, :label, :value (form, select)

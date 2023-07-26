@@ -38,7 +38,7 @@
 
 class InputBoxComponent < ApplicationComponent
 	DEF_INPUT_CLASS = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700".split(" ")
-	attr_writer :form, :sesion
+	attr_writer :form, :session
 
 	def initialize(field:, form: nil, session: nil)
 		@i_class = DEF_INPUT_CLASS.dup
@@ -57,8 +57,8 @@ class InputBoxComponent < ApplicationComponent
 		def set_box_attributes
 			kind_mappings = {
 				"rich-text-area" => { class: "trix-content" },
-				"number-box" => { class: "text-right", min: 0, max: 99, step: 1 },
-				"time-box" => { class: "text-right", min: 0, max: 99, step: 1 },
+				"number-box" => { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] || 1 },
+				"time-box" => { class: "text-right" },
 				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" }
 			}
 

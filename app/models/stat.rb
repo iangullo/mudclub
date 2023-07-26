@@ -17,9 +17,6 @@
 # contact email - iangullo@gmail.com.
 #
 class Stat < ApplicationRecord
-	ATTEMPT_CONCEPTS = [:zga, :tga, :dga, :fta].freeze
-  SCORED_CONCEPTS = [:zgm, :tgm, :dgm, :ftm].freeze
-
 	belongs_to :event
 	belongs_to :player  # id==0 => team stat; id==-1 => rival stat
 	scope :real, -> { where("id>0") }
@@ -31,55 +28,34 @@ class Stat < ApplicationRecord
 	scope :for_concept, -> (cval) { where(concept: cval) }
 	self.inheritance_column = "not_sti"
 
-	enum concept: {
-		sec: 0, # seconds played/trained
-		pts: 1, # points
-		dgm: 2, # #two point shots
-		dga: 3,
-		tgm: 4, # Three point shots
-		tga: 5,
-		ftm: 6, # Free Throws
-		fta: 7,
-		drb: 8, # defensive rebounds
-		orb: 9, # offensive rebounds
-		trb: 10,
-		ast: 11,  # assists
-		stl: 12,  # steals
-		to: 13, # turnovers
-		blk: 14,  # blocks
-		pfc: 15,  # fouls
-		pfr: 16,  # fouls received
-		q1: 17, # outing in each qwuarter
-		q2: 18,
-		q3: 19,
-		q4: 20,
-		q5: 21,
-		q6: 22,
-		zga: 23,	# shots near basket
-		zgm: 24,
-		fga: 25,	# field goals
-		fgm: 26,
-		psa: 27,	# total points shot
-		psm: 28
-	}
-
-	# fetch a stat based on event, player & concept
-	# ought to be a single one if none found, a new one is created
-	def self.fetch(event_id:, player_id:, concept:, stats: nil)
-		if stats # we got a stats - typically event.stats
-			res = Stat.by_event(event_id, stats)
-			res = Stat.by_player(player_id, res)
-			res = Stat.by_concept(concept, res).first
-		else
-			res = Stat.for_event(event_id).for_player(player_id).for_concept(concept).first
-		end
-		res = Stat.new(event_id:, player_id:, concept:, value: 0)
-		res
+	# wrappers to access value & concept fields
+	def concept
+		self[:concept]
 	end
 
- 	# filter stats by player
+	def value
+		self[:value]
+	end
+
+	# fetch stats based on event, period, player & concept
+	# if none found, a new one is created. a collection is returned
+	def self.fetch(event_id: nil, period: nil, player_id: nil, concept: nil, stats: Stat.real, create: true)
+		stats = Stat.by_event(event_id, stats) if event_id
+		stats = Stat.by_player(player_id, stats) if player_id
+		stats = Stat.by_period(period, stats) if period
+		stats = Stat.by_concept(concept, stats) if concept
+		stats << Stat.new(event_id:, period:, player_id:, concept:, value: 0) if create && stats.empty?
+		stats
+	end
+
+ 	# filter stats by event
 	def self.by_event(event_id, stats=Stat.real)
 		stats.select {|stat| stat.event_id==event_id}
+	end
+
+ 	# filter stats by period
+	 def self.by_period(period, stats=Stat.real)
+		stats.select {|stat| stat.period == period}
 	end
 
  	# filter stats by player
@@ -89,21 +65,11 @@ class Stat < ApplicationRecord
 
  	# filter stats by player
 	def self.by_concept(concept, stats=Stat.real)
-		stats.select {|stat| stat.concept == concept.to_s}
+		stats.select {|stat| stat.concept == concept}
 	end
 
  	# filter stats by quarter
 	def self.by_q(q, stats=Stat.for_players)
 		stats.select {|stat| stat[:concept]=="q#{q}"}
-	end
-
-	# return whether this stat is part of attempted shots
-	def attempt
-		ATTEMPT_CONCEPTS.include?(self.concept.to_sym)
-	end
-
-	# return whether this stat is part of attempted shots
-	def scored
-		SCORED_CONCEPTS.include?(self.concept.to_sym)
 	end
 end

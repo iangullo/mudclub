@@ -97,16 +97,17 @@ class CalendarComponent < ApplicationComponent
 
 		# determine event_color & url depending on event kind and parameters
 		def c_event_init(event:)
-			c_event = {id: event.id}
+			c_event        = {id: event.id}
+			c_event[:data] = {turbo_frame: "modal"} if @user.player? || event.rest?
 			case event.kind
 			when "match"
-				sc = event.score(mode: 0)	# our team first
+				sc = event.total_score	# our team first
 				c_event[:icon] = "match.svg"
-				c_event[:home] = event.home? ? sc[:home] : sc[:away]
-				c_event[:away] = event.home? ? sc[:away] : sc[:home]
-				if sc[:home][:points] > sc[:away][:points]
+				c_event[:home] = event.home? ? sc[:ours] : sc[:opps]
+				c_event[:away] = event.home? ? sc[:opps] : sc[:ours]
+				if sc[:ours][:points] > sc[:opps][:points]
 					b_color = "green"
-				elsif sc[:home][:points] < sc[:away][:points]
+				elsif sc[:ours][:points] < sc[:opps][:points]
 					b_color = "red"
 				else
 					b_color = "yellow"
@@ -114,12 +115,10 @@ class CalendarComponent < ApplicationComponent
 			when "train"
 				c_event[:icon]  = "training.svg"
 				c_event[:label] = event.to_s
-				c_event[:data]  = {turbo_frame: "modal"	} if @user.player?
 				b_color         = "blue"
 			when "rest"
 				c_event[:icon]  = "rest.svg"
 				c_event[:label] = event.to_s
-				c_event[:data]  = {turbo_frame: "modal"	}
 				b_color         = "gray"
 			end
 			c_event[:b_class] = "bg-#{b_color}-300 rounded-lg border px py hover:text-white hover:bg-#{b_color}-700 text-sm"

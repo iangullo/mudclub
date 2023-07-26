@@ -83,16 +83,13 @@ module TeamsHelper
 			{kind: "select-collection", key: :homecourt_id, options: Location.home, value: @team.homecourt_id}
 		]
 		res << [
-			{kind: "icon", value: "time.svg"},
-			{kind: "select-box", key: :rules, options: Category.time_rules, value: @team.periods }
-		]
-		res << [
 			{kind: "icon", value: "coach.svg"},
 			{kind: "label", value:I18n.t("coach.many"), class: "align-center"}
 		]
 		res << [
 			{kind: "gap"},
-			{kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}
+			{kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches},
+			{kind: "hidden", key: :sport_id, value: @sport.id}
 		]
 		res
 	end

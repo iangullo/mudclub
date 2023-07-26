@@ -41,11 +41,11 @@ module CategoriesHelper
 
 	# return FieldsComponent @title for forms
 	def category_form_fields(title:)
-		@submit   = SubmitComponent.new(submit: "save")
-		res = category_title_fields(title:, rows: 3, cols: 5)
+		@submit = SubmitComponent.new(submit: "save")
+		res     = category_title_fields(title:, rows: 3, cols: 5)
 		res << [
 			{kind: "text-box", key: :age_group, value: @category.age_group, placeholder: I18n.t("category.single"), size: 10, cols: 3},
-			{kind: "select-box", key: :sex, options: [I18n.t("sex.fem_a"), I18n.t("sex.male_a"), I18n.t("sex.mixed_a")], value: @category.sex, cols: 2}
+			{kind: "select-box", key: :sex, options: Category.sex_options, value: @category.sex, cols: 2}
 		]
 		res << [
 			{kind: "label", value: I18n.t("stat.min")},
@@ -55,8 +55,8 @@ module CategoriesHelper
 			{kind: "number-box", key: :max_years, min: 6, size: 3, value: @category.max_years}
 		]
 		res << [
-			{kind: "icon", value: "time.svg"},
-			{kind: "select-box", key: :rules, options: Category.time_rules, value: @category.rules ? @category.rules : @category.def_rules, cols: 4}
+			{kind: "icon", value: "rules.svg"},
+			{kind: "select-box", key: :rules, options: @sport.rules_options, value: @category.rules ? @category.rules : @sport.try(:default_rules), cols: 4}
 		]
 		res
 	end
@@ -69,18 +69,22 @@ module CategoriesHelper
 			{kind: "normal", value: I18n.t("stat.min")},
 			{kind: "normal", value: I18n.t("stat.max")}
 		]
-		title <<  button_field({kind: "add", url: new_category_path, frame: "modal"}) if u_admin? || u_manager?
+		title <<  button_field({kind: "add", url: new_sport_category_path(@sport), frame: "modal"}) if u_admin? || u_manager?
 
 		rows = Array.new
 		@categories.each { |cat|
-			row = {url: edit_category_path(cat), frame: "modal", items: []}
+			row = {url: edit_sport_category_path(@sport, cat), frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: cat.age_group}
 			row[:items] << {kind: "normal", value: cat.sex}
 			row[:items] << {kind: "normal", value: cat.min_years, align: "right"}
 			row[:items] << {kind: "normal", value: cat.max_years, align: "right"}
-			row[:items] << button_field({kind: "delete", url: category_path(cat), name: cat.name}) if u_admin? || u_manager?
+			row[:items] << button_field({kind: "delete", url: sport_category_path(@sport, cat), name: cat.name}) if u_admin? || u_manager?
 			rows << row
 		}
 		{title: title, rows: rows}
-		end
+	end
+
+	def category_return
+
+	end
 end

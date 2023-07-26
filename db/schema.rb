@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_07_102158) do
+ActiveRecord::Schema[7.0].define(version: 2023_07_22_171647) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -61,6 +61,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_07_102158) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "rules", default: 0
+    t.bigint "sport_id"
+    t.index ["sport_id"], name: "index_categories_on_sport_id"
   end
 
   create_table "coaches", force: :cascade do |t|
@@ -80,6 +82,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_07_102158) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "sport_id"
+    t.index ["sport_id"], name: "index_divisions_on_sport_id"
   end
 
   create_table "drill_targets", force: :cascade do |t|
@@ -241,6 +245,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_07_102158) do
     t.index ["team_id"], name: "index_slots_on_team_id"
   end
 
+  create_table "sports", force: :cascade do |t|
+    t.string "name"
+    t.jsonb "settings", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "stats", force: :cascade do |t|
     t.bigint "event_id", null: false
     t.bigint "player_id", null: false
@@ -248,6 +259,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_07_102158) do
     t.integer "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "period", default: 0
     t.index ["event_id"], name: "index_stats_on_event_id"
     t.index ["player_id"], name: "index_stats_on_player_id"
   end
@@ -291,11 +303,12 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_07_102158) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "homecourt_id", default: 0
-    t.integer "rules", default: 0
+    t.bigint "sport_id"
     t.index ["category_id"], name: "index_teams_on_category_id"
     t.index ["division_id"], name: "index_teams_on_division_id"
     t.index ["homecourt_id"], name: "index_teams_on_homecourt_id"
     t.index ["season_id"], name: "index_teams_on_season_id"
+    t.index ["sport_id"], name: "index_teams_on_sport_id"
   end
 
   create_table "user_actions", force: :cascade do |t|
@@ -342,7 +355,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_07_102158) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "categories", "sports"
   add_foreign_key "coaches", "people"
+  add_foreign_key "divisions", "sports"
   add_foreign_key "drill_targets", "drills"
   add_foreign_key "drill_targets", "targets"
   add_foreign_key "drills", "coaches"
@@ -372,6 +387,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_07_102158) do
   add_foreign_key "teams", "divisions"
   add_foreign_key "teams", "locations", column: "homecourt_id"
   add_foreign_key "teams", "seasons"
+  add_foreign_key "teams", "sports"
   add_foreign_key "user_actions", "users"
   add_foreign_key "users", "people"
 end
