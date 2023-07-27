@@ -25,7 +25,6 @@
 	<tbody>
 		<% @rows.each do |g_row| %>
 			<tr<% unless g_row[:name]=="bottom" %> class="hover:text-white hover:bg-blue-700"<% end %>>
-				<% rowid = g_row[:items].last[:player_id].to_s if @limits%>
 				<% g_row[:items].each do |item| %>
 					<%= item[:cell] %>
 					<% case item[:kind] %>
@@ -33,7 +32,7 @@
 						<%= item[:value] %>
 					<% when "checkbox-q" %>
 						<div class="align-middle">
-        			<%= check_box item[:key], "#{rowid}_#{item[:q]}", {checked: item[:value] == 1, class: "rounded bg-gray-200 text-blue-700"} %>
+        			<%= check_box item[:key], "#{item[:player_id]}_#{item[:q]}", {checked: item[:value] == 1, class: "rounded bg-gray-200 text-blue-700"} %>
 						</div>
 					<% when "icon" %>
 						<%= link_to g_row[:url], data: g_row[:data] do %>
