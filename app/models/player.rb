@@ -93,6 +93,28 @@ class Player < ApplicationRecord
 		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "player.svg"
 	end
 
+	# Return email/phone of player or of the associated tutors if underage players
+	def p_email
+		if self.person.age < 18
+			email = ""
+			self.parents.each { |par| email += "#{par.person.email.presence}\n" if par.person.email.present?}
+			email
+		else
+			self.person.email.presence
+		end
+	end
+
+	def p_phone
+		if self.person.age < 18
+			phone = ""
+			self.parents.each { |par| phone += "#{par.person.phone.presence}\n" if par.person.phone.present?}
+			phone
+		else
+			self.person.phone.presence
+		end
+	end
+
+	# Apply filters to player collection
 	def self.filter(filters)
 		self.search(filters[:search]).order(:name)
 	end
@@ -179,6 +201,7 @@ class Player < ApplicationRecord
 						parent = Parent.new unless parent
 						parent.rebuild(p_input)
 						@parent_changed = parent.save if parent.changed? || parent.person.changed?
+						parent.person.update!(person_id: parent.id) unless parent.person.parent_id == parent.id
 						self.parents << parent unless self.parents.include?(parent)
 					end
 				end

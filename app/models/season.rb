@@ -26,13 +26,14 @@ class Season < ApplicationRecord
 	self.inheritance_column = "not_sti"
 
 	# return season name - taking start & finish years
-	def name
+	def name(safe: nil)
 		if self.id == 0	# fake season for all events/teams
 			cad = I18n.t("scope.all")
 		else
 			cad = self.start_year.to_s
 			if self.end_year > self.start_year
-				cad = cad + "/" + (self.end_year % 100).to_s
+				sep  = safe ? "_" : "/"
+				cad += "#{sep}#{(self.end_year % 100)}"
 			end
 		end
 		cad

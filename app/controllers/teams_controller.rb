@@ -18,7 +18,6 @@
 #
 class TeamsController < ApplicationController
 	include Filterable
-	#skip_before_action :verify_authenticity_token, :only => [:create, :edit, :new, :update, :check_reload]
 	before_action :set_team, only: [:index, :show, :roster, :slots, :edit, :edit_roster, :attendance, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]
 
 	# GET /teams
@@ -27,6 +26,15 @@ class TeamsController < ApplicationController
 		if check_access(roles: [:manager, :coach, :player])
 			@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: !u_player?))
 			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: u_manager?))
+			respond_to do |format|
+				format.xlsx {
+					f_name = "#{@season.name(safe: true)}-players.xlsx"
+					a_desc = "#{I18n.t("player.export")} '#{f_name}'"
+					register_action(:exported, a_desc)
+					response.headers['Content-Disposition'] = "attachment; filename=#{f_name}"
+				}
+				format.html { render :index }
+			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

@@ -18,7 +18,6 @@
 #
 class PlayersController < ApplicationController
 	include Filterable
-	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_player, only: [:show, :edit, :update, :destroy]
 
 	# GET /players
