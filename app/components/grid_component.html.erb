@@ -1,4 +1,4 @@
-<table class="table-auto" data-controller="checkbox-counter">
+<table class="table-auto">
 	<thead class="bg-indigo-900 text-gray-300">
 		<tr>
 			<% @title.each do |item| %>
@@ -33,7 +33,7 @@
 						<%= item[:value] %>
 					<% when "checkbox-q" %>
 						<div class="align-middle">
-        			<%= check_box item[:key], "#{rowid}_#{item[:q]}", {checked: item[:value] == 1, class: "rounded bg-gray-200 text-blue-700", data: { "row-id" => g_row[:player_id], "q" => item[:q] }} %>
+        			<%= check_box item[:key], "#{rowid}_#{item[:q]}", {checked: item[:value] == 1, class: "rounded bg-gray-200 text-blue-700"} %>
 						</div>
 					<% when "icon" %>
 						<%= link_to g_row[:url], data: g_row[:data] do %>
@@ -52,18 +52,7 @@
 						<%= render item[:value] %>
 					<% end %>
 				<% end %>
-				<% if @limits %>
-					<td>
-						<div class="align-middle" data-checkbox-counter-target="rowCounter" data-row-id="<%=rowid%>">0</div>
-					</td>
-				<% end %>
 			</tr>
 		<% end %>
 	</tbody>
-  <tfoot>
-    <tr>
-      <td colspan="6">Total checked:</td>
-      <td data-checkbox-counter-target="totalCounter">0</td>
-    </tr>
-  </tfoot>
 </table>

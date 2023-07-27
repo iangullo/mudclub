@@ -83,10 +83,7 @@ class BasketballSport < Sport
 			end
 			rows << row
 		end
-		e_lims = self.limits[self.rules_key(event.team.category.rules).to_s]
-		r_lims = {max: e_lims["outings"]["max"], min: e_lims["outings"]["min"]}
-		c_lims = {max: e_lims["playing"]["max"], min: e_lims["playing"]["min"]}
-		{title: head, rows:, limits: {row: r_lims, col: c_lims}}
+		{title: head, rows:}
 	end
 
 	# grid to show/edit player stats for a match
