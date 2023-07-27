@@ -1,4 +1,4 @@
-<table class="table-auto">
+<table class="table-auto" data-controller="checkbox-counter">
 	<thead class="bg-indigo-900 text-gray-300">
 		<tr>
 			<% @title.each do |item| %>
@@ -24,19 +24,16 @@
 	</thead>
 	<tbody>
 		<% @rows.each do |g_row| %>
-			<tr<% unless g_row[:name]=="bottom"%> class="hover:text-white hover:bg-blue-700"<% end %>>
+			<tr<% unless g_row[:name]=="bottom" %> class="hover:text-white hover:bg-blue-700"<% end %>>
+				<% rowid = g_row[:items].last[:player_id].to_s if @limits%>
 				<% g_row[:items].each do |item| %>
 					<%= item[:cell] %>
 					<% case item[:kind] %>
 					<% when "bottom", "percentage", "gap" %>
 						<%= item[:value] %>
-					<% when "checkbox" %>
-						<div class="align-middle">
-							<%= @form.check_box item[:key], value: item[:value], class: "rounded bg-gray-200 text-blue-700" %>
-						</div>
 					<% when "checkbox-q" %>
 						<div class="align-middle">
-							<%= check_box item[:key], "#{item[:player_id]}_#{item[:q]}", {checked: item[:value]==1, class: "rounded bg-gray-200 text-blue-700"} %>
+        			<%= check_box item[:key], "#{rowid}_#{item[:q]}", {checked: item[:value] == 1, class: "rounded bg-gray-200 text-blue-700", data: { "row-id" => g_row[:player_id], "q" => item[:q] }} %>
 						</div>
 					<% when "icon" %>
 						<%= link_to g_row[:url], data: g_row[:data] do %>
@@ -55,7 +52,18 @@
 						<%= render item[:value] %>
 					<% end %>
 				<% end %>
+				<% if @limits %>
+					<td>
+						<div class="align-middle" data-checkbox-counter-target="rowCounter" data-row-id="<%=rowid%>">0</div>
+					</td>
+				<% end %>
 			</tr>
 		<% end %>
 	</tbody>
+  <tfoot>
+    <tr>
+      <td colspan="6">Total checked:</td>
+      <td data-checkbox-counter-target="totalCounter">0</td>
+    </tr>
+  </tfoot>
 </table>

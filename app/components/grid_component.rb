@@ -25,14 +25,18 @@
 #      => value: associated text
 #      => class: optional (unrequired?)
 #   => row items: have links in them (per row)
-# optional: associated form object (if needed)
+# optional:
+#   => form: form object (if needed)
+#   => limits: limits to highlight visual cues in rows/columns
+#              {row: {max:, min:}, col: {min:, max:}}
 class GridComponent < ApplicationComponent
 	attr_writer :form
 
 	def initialize(grid:, form: nil)
-		@form  = form
-		@title = parse_title(grid[:title])
-		@rows  = parse_rows(grid[:rows])
+		@form   = form
+		@limits = grid[:limits]
+		@title  = parse_title(grid[:title])
+		@rows   = parse_rows(grid[:rows])
 		if grid[:track]
 			@s_url  = grid[:track][:s_url]
 			@s_filt = grid[:track][:s_filter]
@@ -115,7 +119,7 @@ class GridComponent < ApplicationComponent
 						else
 							item[:value] = ""
 						end
-					when /^(checkbox-.+)$/
+					when "checkbox-q"
 						item[:class] = "border px py"
 						item[:align] = "center"
 					end

@@ -120,8 +120,8 @@ class EventsController < ApplicationController
 					if e_data[:player_ids].present?	# update attendance
 						check_attendance(e_data[:player_ids])
 						register_action(:updated, @notice[:message])
-					elsif params[:event][:stats_attributes]
-						check_stats(params[:event][:stats_attributes])
+					elsif e_data[:stats_attributes] || params[:outings]
+						check_stats(e_data[:stats_attributes], params[:outings])
 						register_action(:updated, @notice[:message])
 					elsif e_data[:task].present? # updated task from edit_task_form
 						check_task(e_data[:task])
@@ -285,7 +285,7 @@ class EventsController < ApplicationController
 				end
 			end
 			# returns whether we have something to save
-			return (e_data[:task].present? || e_data[:player_ids].present? || e_data[:stats_attributes].present?)
+			return (e_data[:task].present? || e_data[:player_ids].present? || e_data[:stats_attributes].present? || params[:outings].present?)
 		end
 
  		# check attendance
@@ -302,10 +302,9 @@ class EventsController < ApplicationController
 		end
 
 		# check stats - a single player updating an event
-		def check_stats(s_dat)
-			if s_dat	# lets_ check them
-				@sport.parse_stats(@event, s_dat.values.first)
-			end
+		def check_stats(stats, outings)
+			@sport.parse_stats(@event, stats.values.first) if stats	# lets_ check them
+			@sport.parse_stats(@event, outings) if outings	# lets_ check them
 		end
 
 		# ensure a task is correctly added to event
@@ -417,6 +416,7 @@ class EventsController < ApplicationController
 					:location_id,
 					:season_id,
 					:player_id,
+					outings: {},
 					player_ids: [],
 					stats_attributes: {},
 					event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]],
