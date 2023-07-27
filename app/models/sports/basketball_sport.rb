@@ -69,21 +69,24 @@ class BasketballSport < Sport
 		e_stats = event.stats
 		1.upto(outings[:total]) {|i| head << {kind: "normal", value: I18n.t("#{SPORT_LBL}period.q#{i}")}} if periods
 		event.players.order(:number).each do |player|
-			p_stats = Stat.by_player(player.id, e_stats)
+			p_stats = Stat.fetch(player_id: player.id, stats: e_stats, create: false)
 			row     = {url: "/players/#{player.id}?retlnk=/events/#{event.id}#{(edit ? '/edit' : '')}", items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
 			row[:items] << {kind: "normal", value: player.to_s}
 			1.upto(outings[:total]) do |q|
-				q_stat = Stat.by_q(q, p_stats).first
+				q_val = Stat.fetch(period: q, stats: p_stats, create: false).first&.value.to_i
 				if edit
-					row[:items] << {kind: "checkbox-q", key: :stats, player_id: player.id, q: "q#{q}", value: q_stat ? q_stat[:value] : 0, align: "center"}
+					row[:items] << {kind: "checkbox-q", key: :outings, player_id: player.id, q: "#{q}_q#{q}", value: q_val, align: "center"}
 				else
-					row[:items] << ((q_stat and q_stat[:value]==1) ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
+					row[:items] << ((q_val == 1) ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
 				end
 			end
 			rows << row
 		end
-		{title: head, rows: rows}
+		e_lims = self.limits[self.rules_key(event.team.category.rules).to_s]
+		r_lims = {max: e_lims["outings"]["max"], min: e_lims["outings"]["min"]}
+		c_lims = {max: e_lims["playing"]["max"], min: e_lims["playing"]["min"]}
+		{title: head, rows:, limits: {row: r_lims, col: c_lims}}
 	end
 
 	# grid to show/edit player stats for a match
@@ -420,11 +423,9 @@ class BasketballSport < Sport
 					{kind: "normal", value: I18n.t("person.name")},
 					{kind: "normal", value: s_label(:sec), align: "center"},
 					{kind: "normal", value: s_label(:pts), align: "center"},
-=begin
 					{kind: "normal", value: s_label(:ft), cols: 3, align: "center"},
 					{kind: "normal", value: s_label(:dg), cols: 3, align: "center"},
 					{kind: "normal", value: s_label(:tg), cols: 3, align: "center"},
-=end
 					{kind: "normal", value: s_label(:trb), align: "center"},
 					{kind: "normal", value: s_label(:ast), align: "center"},
 					{kind: "normal", value: s_label(:stl), align: "center"},
@@ -448,17 +449,15 @@ class BasketballSport < Sport
 				{kind: "normal", value: player.to_s},
 				tbox,
 				match_stats_field(key, stats, 1, edit:),	# points
-=begin
-				match_stats_field(stats, 10, edit:),	# ftm
+				match_stats_field(key, stats, 11, edit:),	# fta
 				{kind: "normal", value: "/"},
-				match_stats_field(stats, 11, edit:),	# fta
-				match_stats_field(stats, 6, edit:),	# dga
+				match_stats_field(key, stats, 10, edit:),	# ftm
+				match_stats_field(key, stats, 7, edit:),	# dgm
 				{kind: "normal", value: "/"},
-				match_stats_field(stats, 7, edit:),	# dgm
-				match_stats_field(stats, 8, edit:),	# tgm
+				match_stats_field(key, stats, 6, edit:),	# dga
+				match_stats_field(key, stats, 9, edit:),	# tga
 				{kind: "normal", value: "/"},
-				match_stats_field(stats, 9, edit:),	# tga
-=end
+				match_stats_field(key, stats, 8, edit:),	# tgm
 				match_stats_field(key, stats, 14, edit:),	# trb
 				match_stats_field(key, stats, 15, edit:),	# ast
 				match_stats_field(key, stats, 16, edit:),	# stl

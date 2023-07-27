@@ -25,14 +25,18 @@
 #      => value: associated text
 #      => class: optional (unrequired?)
 #   => row items: have links in them (per row)
-# optional: associated form object (if needed)
+# optional:
+#   => form: form object (if needed)
+#   => limits: limits to highlight visual cues in rows/columns
+#              {row: {max:, min:}, col: {min:, max:}}
 class GridComponent < ApplicationComponent
 	attr_writer :form
 
 	def initialize(grid:, form: nil)
-		@form  = form
-		@title = parse_title(grid[:title])
-		@rows  = parse_rows(grid[:rows])
+		@form   = form
+		@limits = grid[:limits]
+		@title  = parse_title(grid[:title])
+		@rows   = parse_rows(grid[:rows])
 		if grid[:track]
 			@s_url  = grid[:track][:s_url]
 			@s_filt = grid[:track][:s_filter]
@@ -115,7 +119,7 @@ class GridComponent < ApplicationComponent
 						else
 							item[:value] = ""
 						end
-					when /^(checkbox-.+)$/
+					when "checkbox-q"
 						item[:class] = "border px py"
 						item[:align] = "center"
 					end
@@ -128,5 +132,50 @@ class GridComponent < ApplicationComponent
 
 		def next_direction
 			session[@s_filt]['direction'] == 'asc' ? 'desc' : 'asc'
+		end
+
+		# define script to manage visual highlightn based on @limits
+		def grid_limits_script
+			<<~JS
+				<script>
+					document.addEventListener("turbolinks:load", function () {
+						function updateRowShading(row) {
+							// Update row shading based on the overall count of selected checkboxes in rows and columns
+							const checkboxesInRow = row.querySelectorAll("input[type='checkbox']");
+							const rowId = checkboxesInRow[0].name.split("_")[0]; // Row identifier is the same for all checkboxes in the row
+
+							// Count selected checkboxes in the row
+							const selectedInRow = Array.from(checkboxesInRow).filter((checkbox) => checkbox.checked).length;
+							const rowCue = !limits.row || (selectedInRow >= limits.row.min && selectedInRow <= limits.row.max);
+							const hasCue = rowCue;
+
+							// Add or remove the cue class based on the checkbox state
+							if (hasCue) {
+								row.classList.add("bg-green-100");
+								row.classList.remove("bg-red-100");
+							} else {
+								row.classList.add("bg-red-100");
+								row.classList.remove("bg-green-100");
+							}
+						}
+
+						const checkboxCounts = <%= @rows.map { |row| row[:items].count { |item| item[:kind] == "checkbox" && item[:value] } }.to_json %>;
+						const checkboxCountsInColumns = <%= (0...@title.length).map { |i| @rows.count { |row| row[:items][i][:kind] == "checkbox" && row[:items][i][:value] } }.to_json %>;
+						const limits = <%= @limits.to_json %>;
+
+						// Attach event listeners to the checkboxes to update row shading dynamically
+						const rows = document.querySelectorAll("tbody tr");
+						rows.forEach((row) => {
+							updateRowShading(row);
+							const checkboxes = row.querySelectorAll("input[type='checkbox']");
+							checkboxes.forEach((checkbox) => {
+								checkbox.addEventListener("change", () => {
+									updateRowShading(row);
+								});
+							});
+						});
+					});
+				</script>
+			JS
 		end
 end
