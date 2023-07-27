@@ -108,7 +108,7 @@ module PlayersHelper
 			{kind: "text-box", key: :surname, value: @player.person.surname, placeholder: I18n.t("person.surname"), cols: f_cols}
 		]
 		res << [
-			{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @player.person.female},
+			{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: @player.person.female},
 			{kind: "icon", value: "calendar.svg"},
 			{kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @player.person.birthday, cols: f_cols}
 		]

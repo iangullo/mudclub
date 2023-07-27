@@ -60,9 +60,9 @@ class Category < ApplicationRecord
 	# which options can be set for category sex
 	def self.sex_options
 		[
-			[I18n.t("sex.male_a"), "male"],
-			[I18n.t("sex.fem_a"), "female"],
-			[I18n.t("sex.mixed_a"), "mixed"]
+			[I18n.t("sex.male"), "male"],
+			[I18n.t("sex.female"), "female"],
+			[I18n.t("sex.mixed"), "mixed"]
 		]
 	end
 

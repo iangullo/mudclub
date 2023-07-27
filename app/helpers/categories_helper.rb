@@ -75,7 +75,7 @@ module CategoriesHelper
 		@categories.each { |cat|
 			row = {url: edit_sport_category_path(@sport, cat), frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: cat.age_group}
-			row[:items] << {kind: "normal", value: cat.sex}
+			row[:items] << {kind: "normal", value: I18n.t("sex.#{cat.sex}_a")}
 			row[:items] << {kind: "normal", value: cat.min_years, align: "right"}
 			row[:items] << {kind: "normal", value: cat.max_years, align: "right"}
 			row[:items] << button_field({kind: "delete", url: sport_category_path(@sport, cat), name: cat.name}) if u_admin? || u_manager?

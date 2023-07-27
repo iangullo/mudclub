@@ -270,7 +270,7 @@ en:
     label: "Sex"
     abr: "Sex"
     female: "Female"
-    fem_a: "Fem."
+    female_a: "Fem."
     male: "Male"
     male_a: "Male"
     mixed: "Mixed"

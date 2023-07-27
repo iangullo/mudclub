@@ -51,7 +51,7 @@ module PeopleHelper
 			{kind: "icon", value: "calendar.svg"},
 			{kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @person.birthday}
 		]
-		res << [{kind: "label-checkbox", label: I18n.t("sex.fem_a"), key: :female, value: @person.female, align: "center"}]
+		res << [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: @person.female, align: "center"}]
 		res
 	end
 

@@ -269,8 +269,8 @@ es:
   sex:
     label: "Sexo"
     abbr: "Sex"
-    female: "Femanino"
-    fem_a: "Fem."
+    female: "Femenino"
+    female_a: "Fem."
     male: "Masculino"
     male_a: "Masc."
     mixed: "Mixto"
