@@ -22,51 +22,58 @@ class Sport < ApplicationRecord
 	has_many :divisions, dependent: :nullify
 	has_many :teams, dependent: :nullify
 
-	# empty wrappers to define FieldComponents for views
-	# MUST BE DEFINED IN SPORT-SPECIFIC OBJECTS!!
+	# Wrappers to define FieldComponents for views
+	# METHODS MUST BE DEFINED IN SPORT-SPECIFIC OBJECTS!!
 	def match_show_fields(event)
 		raise "Must implement in Specific Sport object"
 	end
 
+	# fields to display match period
 	def match_form_fields(event, new: false)
 		raise "Must implement in Specific Sport object"
 	end
 
+	# return period limitations for a match of this sport
+	# depends on rules applied
 	def match_outings(a_rules)
 		raise "Must implement in Specific Sport object"
 	end
 
+	# grid to show/edit player outings for a match
 	def outings_grid(event, outings, edit: false)
 		raise "Must implement in Specific Sport object"
 	end
 
+	# grid to show/edit player stats for a match
+	def stats_grid(event, edit: false)
+		raise "Must implement in Specific Sport object"
+	end
+
+	# fields to display player's stats for training
 	def player_training_stats_fields(event, player_id:)
 		raise "Must implement in Specific Sport object"
 	end
 
+	# fields to track player training stats
 	def player_training_stats_form_fields(event, player_id:)
 		raise "Must implement in Specific Sport object"
 	end
 
+	# fields to show rules limits
 	def rules_limits_fields
 		raise "Must implement in Specific Sport object"
 	end
 
+	# default applicable rules for a category
 	def default_rules(category)
 		raise "Must implement in Specific Sport object"
 	end
 
+	# return rules that may apply to the Sport
 	def rules_options
 		raise "Must implement in Specific Sport object"
 	end
-
-	def rules_name
-		raise "Must implement in Specific Sport object"
-	end
-
-	def rules_limits
-		raise "Must implement in Specific Sport object"
-	end
+	# END OF SPORT-SPECIFIC METHODS
 
 	# multi-language string for sport name
 	def to_s

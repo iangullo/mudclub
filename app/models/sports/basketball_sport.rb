@@ -62,7 +62,7 @@ class BasketballSport < Sport
 		outings
 	end
 
-	# grid to show basketball period form for an event
+	# grid to show/edit player outings for a match
 	def outings_grid(event, outings, edit: false)
 		head = [{kind: "top-cell", value: I18n.t("player.number"), align: "center"}, {kind: "top-cell", value: I18n.t("person.name")}]
 		rows = []
@@ -86,7 +86,7 @@ class BasketballSport < Sport
 		{title: head, rows: rows}
 	end
 
-	# grid to show basketball stats for a match
+	# grid to show/edit player stats for a match
 	def stats_grid(event, edit: false)
 		head = match_stats_header
 		rows = []
@@ -157,16 +157,6 @@ class BasketballSport < Sport
 			[I18n.t("#{SPORT_LBL}rules.u8"), 4],
 			[I18n.t("#{SPORT_LBL}rules.three"), 5]
 		]
-	end
-
-	# return an I18n string for a category
-	def rules_name(rules)
-		I18n.t("#{SPORT_LBL}rules.#{rules}")
-	end
-
-	# Return which limits apply depending on the rules
-	def rules_limits(category_rules)
-		self.limits[category_rules]
 	end
 
 	private
