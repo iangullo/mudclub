@@ -32,7 +32,7 @@
 						<%= item[:value] %>
 					<% when "checkbox-q" %>
 						<div class="align-middle">
-        			<%= check_box item[:key], "#{item[:player_id]}_#{item[:q]}", {checked: item[:value] == 1, class: "rounded bg-gray-200 text-blue-700"} %>
+							<%= check_box item[:key], "#{item[:player_id]}_#{item[:q]}", {checked: item[:value] == 1, class: "rounded bg-gray-200 text-blue-700"} %>
 						</div>
 					<% when "icon" %>
 						<%= link_to g_row[:url], data: g_row[:data] do %>
