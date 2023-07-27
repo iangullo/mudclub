@@ -190,13 +190,13 @@ class Team < ApplicationRecord
 	# return a hash with {won:, lost:} games
 	def win_loss
 		res     = {won: 0, lost: 0}
-		matches = self.events.matches.this_season
+		matches = self.events.matches
 		matches.each do |m|
 			score = m.total_score # our team first
-			if score[:home][:points] > score[:away][:points]
-				res[:won] = res[:won] + 1
-			elsif score[:away][:points] > score[:home][:points]
-				res[:lost] = res[:lost] + 1
+			if score[:ours][:points] > score[:opps][:points]
+				res[:won]  += 1
+			elsif score[:opps][:points] > score[:ours][:points]
+				res[:lost] += 1
 			end
 		end
 		res

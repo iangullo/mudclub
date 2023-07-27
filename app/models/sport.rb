@@ -202,42 +202,6 @@ class Sport < ApplicationRecord
 		end
 	end
 
-	# return label field for a stat
-	def stat_label_field(label, abbr=true)
-		{kind: "side-cell", value:label, align: "middle", class: "border px py"}
-	end
-
-	# generic wrapper to update a stat value
-	def update_stat(event_id:, period:, player_id:, concept:, stats: nil)
-		s_val = Stat.fetch(event_id:, period:, player_id:, concept:, stats:).first
-		s_val[:value] = value
-		s_val.save
-		Event.find(event_id).events << s_val unless s_val.id	# add to event stats if needed
-	end
-
-	# sum total value of a specific stat
-	# if concept included in stat_group array
-	def sum_stats(stats, stat_group)
-		res = 0
-		stats.each do |stat|
-			res += stat.value if stat_group.include?(stat.concept)
-		end
-		res
-	end
-
-	# wrappers to return the symbols of specific rules/periods/stats
-	def rules_key(concept)
-		self.rules.key(concept).to_sym
-	end
-
-	def period_key(concept)
-		self.periods.key(concept).to_sym
-	end
-
-	def stat_key(concept)
-		self.stats.key(concept).to_sym
-	end
-
 	# attempts to fetch the specific opbject from an id
 	def self.fetch(sport_id=nil)
 		sport = Sport.find(sport_id) if sport_id
@@ -249,6 +213,42 @@ class Sport < ApplicationRecord
 		# generic setting method to be used for all setters
 		def set_setting(key, value)
 			self.settings = settings.merge(key => value)
+		end
+
+		# return label field for a stat
+		def stat_label_field(label, abbr=true)
+			{kind: "side-cell", value:label, align: "middle", class: "border px py"}
+		end
+
+		# generic wrapper to update a stat value
+		def update_stat(event_id:, period:, player_id:, concept:, stats: nil)
+			s_val = Stat.fetch(event_id:, period:, player_id:, concept:, stats:).first
+			s_val[:value] = value
+			s_val.save
+			Event.find(event_id).events << s_val unless s_val.id	# add to event stats if needed
+		end
+
+		# sum total value of a specific stat
+		# if concept included in stat_group array
+		def sum_stats(stats, stat_group)
+			res = 0
+			stats.each do |stat|
+				res += stat.value if stat_group.include?(stat.concept)
+			end
+			res
+		end
+
+		# wrappers to return the symbols of specific rules/periods/stats
+		def rules_key(concept)
+			self.rules.key(concept).to_sym
+		end
+
+		def period_key(concept)
+			self.periods.key(concept).to_sym
+		end
+
+		def stat_key(concept)
+			self.stats.key(concept).to_sym
 		end
 
 		# Retrieve event scoring stats for an event of the sport
