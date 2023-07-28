@@ -24,11 +24,13 @@ class Sport < ApplicationRecord
 
 	# Wrappers to define FieldComponents for views
 	# METHODS MUST BE DEFINED IN SPORT-SPECIFIC OBJECTS!!
+	# ========================================
+	# fields to display match information - not title
 	def match_show_fields(event)
 		raise "Must implement in Specific Sport object"
 	end
 
-	# fields to display match period
+	# fields to edit a match
 	def match_form_fields(event, new: false)
 		raise "Must implement in Specific Sport object"
 	end
@@ -73,6 +75,7 @@ class Sport < ApplicationRecord
 	def rules_options
 		raise "Must implement in Specific Sport object"
 	end
+	# ========================================
 	# END OF SPORT-SPECIFIC METHODS
 
 	# multi-language string for sport name
@@ -185,7 +188,7 @@ class Sport < ApplicationRecord
 		score
 	end
 
-	# wrapper to write parse received stats hash from a form submission.
+	# parse received stats hash from a form submission.
 	# be in the form of an array of {key: value} pairs
 	def parse_stats(event, stats_data)
 		f_stats = []	# pass one: fetch all stats

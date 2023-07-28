@@ -8,6 +8,10 @@
 				<%= form.fields_for :stats, Stat.new do |ff| %>
 					<% @fields.form = ff %>
 					<%= render @fields %>
+					<% if @grid %>
+						<% @grid.form = ff %>
+							<%= render @grid %>
+					<% end %>
 				<% end %>
 			<% end %>
 		</div>

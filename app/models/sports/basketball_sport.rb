@@ -18,10 +18,10 @@
 # Manage Basketball rules / stats, etc.
 class BasketballSport < Sport
 	SPORT_LBL        = "sport.basketball."
-	ATTEMPT_CONCEPTS = [:zga, :tga, :dga, :fta].freeze
-	ATTEMPT_KEYVALS  = [4, 8, 6, 10].freeze
-  SCORED_CONCEPTS  = [:zgm, :tgm, :dgm, :ftm].freeze
-  SCORED_KEYVALS   = [5, 9, 7, 11].freeze
+	ATTEMPT_CONCEPTS = [:fta, :fga, :tza, :t3a, :t2a, :tma].freeze
+	ATTEMPT_KEYVALS  = [3, 5, 9, 7, 11, 13].freeze
+  SCORED_CONCEPTS  = [:ftm, :fgm, :tzm, :t3m, :t2m, :tmm].freeze
+  SCORED_KEYVALS   = [4, 6, 8, 10, 12, 14].freeze
 
 	# Setup the basic settings
 	def initialize(*args)
@@ -34,16 +34,17 @@ class BasketballSport < Sport
 		self.basketball_stats if self.stats.empty?
 	end
 
+	# return parent object
 	def generic
 		self.becomes(Sport)
 	end
 
-	# fields to display match period
+	# fields to display match information - not title
 	def match_show_fields(event)
 		match_fields(event)
 	end
 
-	# fields to display match period
+	# fields to edit a match
 	def match_form_fields(event, new: false)
 		match_fields(event, edit: true, new:)
 	end
@@ -105,9 +106,9 @@ class BasketballSport < Sport
 		stats = Stat.fetch(event_id: event.id, period: 0, player_id:, create: false)
 		res   = player_training_stats_header
 		res << show_shooting_data(s_label("ft"), stats, :ftm, :fta)
-		res << show_shooting_data(s_label("zg"), stats, :zgm, :zga)
-		res << show_shooting_data(s_label("dg"), stats, :dgm, :dga)
-		res << show_shooting_data(s_label("tg"), stats, :tgm, :tga)
+		res << show_shooting_data(s_label("tz"), stats, :tzm, :tza)
+		res << show_shooting_data(s_label("tm"), stats, :tmm, :tma)
+		res << show_shooting_data(s_label("t3"), stats, :t3m, :t3a)
 		get_shooting_totals(event.id, player_id, stats)
 		res << show_shooting_data(I18n.t("stat.total_a"), stats, :fgm, :fga)
 		res
@@ -119,9 +120,9 @@ class BasketballSport < Sport
 		stats = Stat.fetch(event_id: event.id, player_id:)
 		res   = player_training_stats_header
 		res << form_shooting_data(key, s_label("ft"), stats, :ftm, :fta)
-		res << form_shooting_data(key, s_label("zg"), stats, :zgm, :zga)
-		res << form_shooting_data(key, s_label("dg"), stats, :dgm, :dga)
-		res << form_shooting_data(key, s_label("tg"), stats, :tgm, :tga)
+		res << form_shooting_data(key, s_label("tz"), stats, :tzm, :tza)
+		res << form_shooting_data(key, s_label("tm"), stats, :tmm, :tma)
+		res << form_shooting_data(key, s_label("t3"), stats, :t3m, :t3a)
 		res
 	end
 
@@ -159,40 +160,49 @@ class BasketballSport < Sport
 		]
 	end
 
+	# Some pre-processing of stats_data
+	# before parsing normally - grouping & additional calculations
+	def parse_stats(event, stats_data)
+		event.players.each { |player|	parse_player_stats(player.id, stats_data) }
+		super(event, stats_data)
+	end
+
 	private
 		# generic creation of stats if inexistent in database
 		def basketball_stats
 			self.stats = {
 				sec: 0, # seconds played/trained
 				pts: 1, # points
-				fga: 2,	# field goals
-				fgm: 3,
-				zga: 4,	# shots near basket
-				zgm: 5,
-				dga: 6, # #two point shots
-				dgm: 7,
-				tga: 8, # Three point shots
-				tgm: 9,
-				fta: 10, # Free Throws
-				ftm: 11,
-				drb: 12, # defensive rebounds
-				orb: 13, # offensive rebounds
-				trb: 14,
-				ast: 15,  # assists
-				stl: 16,  # steals
-				to: 17, # turnovers
-				blk: 18,  # blocks
-				bla: 19,  # blocks against
-				pfc: 20,  # fouls committed
-				pfr: 21,  # fouls received
-				q1: 22, # outing in each quarter
-				q2: 23,
-				q3: 34,
-				q4: 25,
-				q5: 26,
-				q6: 27,
-				ot: 28,
-				psa: 29	# total points shot
+				pta: 2,	# total points shot
+				fta: 3, # Free Throws
+				ftm: 4,
+				fga: 5,	# field goals
+				fgm: 6,
+				t2a: 7, # Two point shots
+				t2m: 8,
+				tza: 9,	# shots near basket
+				tzm: 10,
+				tma: 11, # mid-range shots
+				tmm: 12,
+				t3a: 13, # Three point shots
+				t3m: 14,
+				drb: 15, # defensive rebounds
+				orb: 16, # offensive rebounds
+				trb: 17,
+				ast: 18,  # assists
+				stl: 19,  # steals
+				to: 20, # turnovers
+				blk: 21,  # blocks
+				bla: 22,  # blocks against
+				pfc: 23,  # fouls committed
+				pfr: 24,  # fouls received
+				q1: 25, # outing in each quarter
+				q2: 26,
+				q3: 27,
+				q4: 28,
+				q5: 29,
+				q6: 30,
+				ot: 31
 			}
 		end
 
@@ -421,8 +431,8 @@ class BasketballSport < Sport
 					{kind: "normal", value: s_label(:sec), align: "center"},
 					{kind: "normal", value: s_label(:pts), align: "center"},
 					{kind: "normal", value: s_label(:ft), cols: 3, align: "center"},
-					{kind: "normal", value: s_label(:dg), cols: 3, align: "center"},
-					{kind: "normal", value: s_label(:tg), cols: 3, align: "center"},
+					{kind: "normal", value: s_label(:t2), cols: 3, align: "center"},
+					{kind: "normal", value: s_label(:t3), cols: 3, align: "center"},
 					{kind: "normal", value: s_label(:trb), align: "center"},
 					{kind: "normal", value: s_label(:ast), align: "center"},
 					{kind: "normal", value: s_label(:stl), align: "center"},
@@ -445,25 +455,26 @@ class BasketballSport < Sport
 				{kind: "normal", value: player.number, align: "center"},
 				{kind: "normal", value: player.to_s},
 				tbox,
-				match_stats_field(key, stats, 1, edit:),	# points
-				match_stats_field(key, stats, 11, edit:),	# fta
+				match_stats_field(key, stats, 2, edit:),	# points
+				match_stats_field(key, stats, 4, edit:),	# ftm
 				{kind: "normal", value: "/"},
-				match_stats_field(key, stats, 10, edit:),	# ftm
-				match_stats_field(key, stats, 7, edit:),	# dgm
+				match_stats_field(key, stats, 3, edit:),	# fta
+				match_stats_field(key, stats, 8, edit:),	# t2a
 				{kind: "normal", value: "/"},
-				match_stats_field(key, stats, 6, edit:),	# dga
-				match_stats_field(key, stats, 9, edit:),	# tga
+				match_stats_field(key, stats, 7, edit:),	# t2m
+				match_stats_field(key, stats, 14, edit:),	# t3a
 				{kind: "normal", value: "/"},
-				match_stats_field(key, stats, 8, edit:),	# tgm
-				match_stats_field(key, stats, 14, edit:),	# trb
-				match_stats_field(key, stats, 15, edit:),	# ast
-				match_stats_field(key, stats, 16, edit:),	# stl
-				match_stats_field(key, stats, 18, edit:),	# blk
-				match_stats_field(key, stats, 17, edit:),	# to
-				match_stats_field(key, stats, 20, edit:),	# fouls
+				match_stats_field(key, stats, 13, edit:),	# t3m
+				match_stats_field(key, stats, 17, edit:),	# trb
+				match_stats_field(key, stats, 18, edit:),	# ast
+				match_stats_field(key, stats, 19, edit:),	# stl
+				match_stats_field(key, stats, 21, edit:),	# blk
+				match_stats_field(key, stats, 20, edit:),	# to
+				match_stats_field(key, stats, 23, edit:),	# fouls
 			]
 		end
 
+		# return a match_stats field for edit/view
 		def match_stats_field(key, stats, concept, edit: false)
 			key   = "#{key}#{concept}"
 			value = Stat.fetch(concept:, stats:, create: false).first&.value.to_i
@@ -472,5 +483,38 @@ class BasketballSport < Sport
 			else
 				{kind: "normal", value:, align: "right"}
 			end
+		end
+
+		# parse a player's stats from a form input
+		def parse_player_stats(player_id, stats)
+			kplay = "#{player_id}_0_"
+			pstat = {pta: 0, pts: 0, fga: 0, fgm: 0, t2a: 0, t2m: 0}
+			stats.each_pair do |key, val|
+				if key.start_with?(kplay)
+					keyarg = key.split("_")
+					kplay  = "#{keyarg[0]}_#{keyarg[1]}_"
+					kval   = val.to_i
+					case keyarg[2].to_i # deal with concepts
+					when 3; pstat[:pta] += kval	# free throws
+					when 4; pstat[:pts] += kval
+					# 5 & 6 total field goals - calculated
+					# we'll get either 7 & 8 or 9..12
+					when 7;	pstat[:fga] += kval; pstat[:t2a] += kval; pstat[:pta] += (2 * kval)	# Total 2P shots
+					when 8;	pstat[:fgm] += kval; pstat[:t2m] += kval; pstat[:pts] += (2 * kval)
+					when 9;	pstat[:fga] += kval; pstat[:t2a] += kval; pstat[:pta] += (2 * kval)	# near basket
+					when 10; pstat[:fgm] += kval; pstat[:t2m] += kval; pstat[:pts] += (2 * kval)
+					when 11; pstat[:fga] += kval; pstat[:t2a] += kval; pstat[:pta] += (2 * kval)	# mid range
+					when 12; pstat[:fgm] += kval; pstat[:t2m] += kval; pstat[:pts] += (2 * kval)
+					when 13; pstat[:fga] += kval; pstat[:pta] += (3 * kval)	# 3 pointers
+					when 14; pstat[:fgm] += kval; pstat[:pts] += (3 * kval)
+					end
+				end
+			end
+			stats["#{kplay}1"] = pstat[:pta]
+			stats["#{kplay}2"] = pstat[:pts]
+			stats["#{kplay}5"] = pstat[:fga]
+			stats["#{kplay}6"] = pstat[:fgm]
+			stats["#{kplay}7"] = pstat[:t2a]
+			stats["#{kplay}8"] = pstat[:t2m]
 		end
 end

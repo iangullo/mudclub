@@ -108,17 +108,25 @@ module EventsHelper
 	#FieldComponents to show a match
 	def match_show_fields
 		res = match_fields(edit: false)
-		res << [{kind: "grid", value: match_roster_grid, cols: res.last.last[:cols]}]
 	end
 
 	# return FieldsComponent for match form
 	def match_form_fields(new: false)
-		res = match_fields(edit: true, new:)
-		res << [{kind: "grid", value: match_roster_grid(edit: true), cols: res.last.last[:cols]}] unless new
-		res
+		match_fields(edit: true, new:)
 	end
 
-	# fields to display player's stats for an event
+	# player grid for a match
+	def match_roster_grid(edit: false)
+		a_rules = @sport.rules.key(@event.team.category.rules)
+		if (outings = @sport.match_outings(a_rules))
+			grid = @sport.outings_grid(@event, outings, edit:)
+		else
+			grid = @sport.stats_grid(@event, edit:)
+		end
+		grid
+	end
+
+		# fields to display player's stats for an event
 	def event_player_stats_fields
 		@sport.player_training_stats_fields(@event, player_id: @player.id)
 	end
@@ -310,17 +318,6 @@ module EventsHelper
 		# serves for both match_show and match_edit
 		def match_fields(edit:, new: false)
 			edit ? @sport.match_form_fields(@event, new:) : @sport.match_show_fields(@event)
-		end
-
-		# player grid for a match
-		def match_roster_grid(edit: false)
-			a_rules = @sport.rules.key(@event.team.category.rules)
-			if (outings = @sport.match_outings(a_rules))
-				grid = @sport.outings_grid(@event, outings, edit:)
-			else
-				grid = @sport.stats_grid(@event, edit:)
-			end
-			grid
 		end
 
 		# complete event_title for train events

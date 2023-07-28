@@ -112,31 +112,40 @@ en:
         ftm:
           abbr: "FTM"
           many: "Free throws made"
-        dg:
+        tm:
+          abbr: "MR"
+          many: "Mid-range shots"
+        tma:
+          abbr: "MRA"
+          many: "Mid-range attempts"
+        tmm:
+          abbr: "MRM"
+          many: "Mid-range scored"
+        t2:
           abbr: "2P"
           many: "2P shots"
-        dga:
+        t2a:
           abbr: "2PA"
           many: "2P shot attempts"
-        dgm:
+        t2m:
           abbr: "2PM"
           many: "2P shots scored"
-        tg:
+        t3:
           abbr: "3P"
           many: "3P shots"
-        tga:
+        t3a:
           abbr: "3PA"
           many: "3P shot attempts"
-        tgm:
+        t3m:
           abbr: "3PM"
           many: "3P shots scored"
-        zg:
+        tz:
           abbr: "ZP"
           many: "Shots near the basket"
-        zga:
+        tza:
           abbr: "PZA"
           many: "Shot attempts in the zone"
-        zgm:
+        tzm:
           abbr: "PZM"
           many: "Shots made in the zone"
         pfr:
@@ -148,7 +157,7 @@ en:
         pts:
           abbr: "P."
           many: "Points"
-        psa:
+        pta:
           abbr: "PS"
           many: "Points shot"
         sec:

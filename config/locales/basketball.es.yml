@@ -112,31 +112,40 @@ es:
         ftm:
           abbr: "TLA"
           many: "Tiros libres anotados"
-        dg:
+        tm:
+          abbr: "MR"
+          many: "Mid-range shots"
+        tma:
+          abbr: "MRA"
+          many: "Mid-range attempts"
+        tmm:
+          abbr: "MRM"
+          many: "Mid-range scored"
+        t2:
           abbr: "2P"
           many: "Tiros de 2P"
-        dga:
+        t2a:
           abbr: "2PI"
           many: "Tiros de 2p. intentados"
-        dgm:
+        t2m:
           abbr: "2PA"
           many: "Tiros de 2p. anotados"
-        tg:
+        t3:
           abbr: "3P"
           many: "Tiros de 3P"
-        tga:
+        t3a:
           abbr: "3PI"
           many: "Tiros de 2p. intentados"
-        tgm:
+        t3m:
           abbr: "3PA"
           many: "Tiros de 3p. anotados"
-        zg:
+        tz:
           abbr: "PZ"
           many: "Tiros cerca del aro"
-        zga:
+        tza:
           abbr: "PZA"
           many: "Tiros cercanos intentados"
-        zgm:
+        tzm:
           abbr: "PZM"
           many: "Tiros cercanos anotados"
         pfr:
@@ -148,7 +157,7 @@ es:
         pts:
           abbr: "P."
           many: "Puntos"
-        psa:
+        pta:
           abbr: "PI"
           many: "Puntos intentados"
         sec:
