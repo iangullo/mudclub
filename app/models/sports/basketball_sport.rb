@@ -89,7 +89,7 @@ class BasketballSport < Sport
 
 	# grid to show/edit player stats for a match
 	def stats_grid(event, edit: false)
-		head = match_stats_header
+		head = match_stats_header(edit:)
 		rows = []
 		e_stats = event.stats
 		event.players.each do |player|
@@ -426,19 +426,21 @@ class BasketballSport < Sport
 		# return fields for stats view
 		def match_stats_header(edit: false)
 			fields = [
-					{kind: "normal", value: I18n.t("player.number"), align: "center"},
-					{kind: "normal", value: I18n.t("person.name")},
-					{kind: "normal", value: s_label(:sec), align: "center"},
-					{kind: "normal", value: s_label(:pts), align: "center"},
-					{kind: "normal", value: s_label(:ft), cols: 3, align: "center"},
-					{kind: "normal", value: s_label(:t2), cols: 3, align: "center"},
-					{kind: "normal", value: s_label(:t3), cols: 3, align: "center"},
-					{kind: "normal", value: s_label(:trb), align: "center"},
-					{kind: "normal", value: s_label(:ast), align: "center"},
-					{kind: "normal", value: s_label(:stl), align: "center"},
-					{kind: "normal", value: s_label(:blk), align: "center"},
-					{kind: "normal", value: s_label(:to), align: "center"},
-					{kind: "normal", value: s_label(:pfc), align: "center"},
+				{kind: "normal", value: I18n.t("player.number"), align: "center"},
+				{kind: "normal", value: I18n.t("person.name")},
+				{kind: "normal", value: s_label(:sec), align: "center"}
+			]
+			fields <<	{kind: "normal", value: s_label(:pts), align: "center"} unless edit
+			fields += [
+				{kind: "normal", value: s_label(:ft), cols: 3, align: "center"},
+				{kind: "normal", value: s_label(:t2), cols: 3, align: "center"},
+				{kind: "normal", value: s_label(:t3), cols: 3, align: "center"},
+				{kind: "normal", value: s_label(:trb), align: "center"},
+				{kind: "normal", value: s_label(:ast), align: "center"},
+				{kind: "normal", value: s_label(:stl), align: "center"},
+				{kind: "normal", value: s_label(:blk), align: "center"},
+				{kind: "normal", value: s_label(:to), align: "center"},
+				{kind: "normal", value: s_label(:pfc), align: "center"}
 			]
 		end
 
@@ -451,11 +453,14 @@ class BasketballSport < Sport
 			else
 				tbox = {kind: "normal", value: self.time_string(secs), align: "right"}
 			end
-			[
+			fields = [
 				{kind: "normal", value: player.number, align: "center"},
 				{kind: "normal", value: player.to_s},
-				tbox,
-				match_stats_field(key, stats, 2, edit:),	# points
+				tbox
+			]
+			#show points only when not editing
+			fields <<	match_stats_field(key, stats, 2, edit:) unless edit
+			fields +=	[
 				match_stats_field(key, stats, 4, edit:),	# ftm
 				{kind: "normal", value: "/"},
 				match_stats_field(key, stats, 3, edit:),	# fta
