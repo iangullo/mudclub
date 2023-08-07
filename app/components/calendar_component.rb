@@ -97,8 +97,8 @@ class CalendarComponent < ApplicationComponent
 
 		# determine event_color & url depending on event kind and parameters
 		def c_event_init(event:)
-			c_event        = {id: event.id}
-			c_event[:data] = {turbo_frame: "modal"} if @user.player? || event.rest?
+			c_event       = {id: event.id}
+			c_event[:url] = "/events/#{event[:id]}?retlnk=#{@anchor}"
 			case event.kind
 			when "match"
 				sc = event.total_score	# our team first
@@ -115,10 +115,15 @@ class CalendarComponent < ApplicationComponent
 			when "train"
 				c_event[:icon]  = "training.svg"
 				c_event[:label] = event.to_s
+				if event.has_player(@user.player&.id)
+					c_event[:url]  = "/events/#{event[:id]}/player_stats?retlnk=#{@anchor}"
+					c_event[:data] = {turbo_frame: "modal"}
+				end
 				b_color         = "blue"
 			when "rest"
 				c_event[:icon]  = "rest.svg"
 				c_event[:label] = event.to_s
+				c_event[:data]  = {turbo_frame: "modal"}
 				b_color         = "gray"
 			end
 			c_event[:b_class] = "bg-#{b_color}-300 rounded-lg border px py hover:text-white hover:bg-#{b_color}-700 text-sm"

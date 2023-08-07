@@ -134,7 +134,7 @@ class ApplicationController < ActionController::Base
 			when "Drill"
 				return (u_manager? or u_coachid==obj.coach_id)
 			when "Event"
-				return (u_manager? or obj.team.has_coach(u_coachid) or obj.team.has_player(u_playerid))
+				return (u_manager? or obj.team.has_coach(u_coachid) or obj.has_player(u_playerid))
 			when "Person"
 				return (u_admin? or u_personid==obj.id)
 			when "Player"

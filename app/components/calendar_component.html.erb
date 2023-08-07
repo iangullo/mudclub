@@ -33,10 +33,9 @@
 							<% end %>
 						<% end%>
 						<% @cells[i][j][:events].each do |event|%>
-							<% e_url = @user&.player? ? player_stats_event_path(event[:id]) : event_path(event[:id], retlnk: @anchor) %>
 							<div class="<%=event[:b_class]%>" align="center">
 								<button data-tooltip-target="<%="event-#{event[:id]}"%>" data-tooltip-trigger="hover" data-tooltip-placement="bottom" type="button" class="font-medium rounded-lg text-sm m-1">
-									<%= link_to e_url, class: event[:l_class], data: event[:data] do %>
+									<%= link_to event[:url], class: event[:l_class], data: event[:data] do %>
 										<%= image_tag(event[:icon], size: "30x30") %>
 									<% end %>
 								</button>
