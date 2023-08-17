@@ -29,7 +29,7 @@ class Category < ApplicationRecord
 	end
 
 	def name
-		self.age_group.to_s + " " + self.sex.to_s
+		self.age_group.to_s + " " + I18n.t("#{self.sex.to_s}_a")
 	end
 
 	# calculate earliest valid birthday date depending on

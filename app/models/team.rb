@@ -52,9 +52,9 @@ class Team < ApplicationRecord
 		aux = Player.active.joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
 		if aux
 			case self.category.sex
-				when "Fem."
+				when "female"
 					aux = aux.female
-				when "Masc."
+				when "male"
 					aux = aux.male
 				else
 					(aux + self.players).uniq
