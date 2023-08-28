@@ -65,7 +65,7 @@ module PersonDataManagement
 			nick:     self.read_field(row[2], d_value(:nick), ""),
 			birthday: self.read_field(row[3], d_value(:birthday), Date.today.to_s),
 			email:		self.read_field(row[4], d_value(:email), ""),
-			phone:    self.read_field(Phonelib.parse(row[5]).international, d_value(:phone), ""),
+			phone:    self.read_field(Phonelib.parse(row[5]).delete(' ').international, d_value(:phone), ""),
 			female:   self.read_field(to_boolean(row[6].value), false, false)
 		}
 		self.rebuild_person(p_data)
