@@ -200,7 +200,8 @@ class Player < ApplicationRecord
 					else	# add to collection
 						parent = Parent.new unless parent
 						parent.rebuild(p_input)
-						@parent_changed = parent.save if parent.changed? || parent.person.changed?
+						parent.person_id = parent.person.id
+						@parent_changed  = parent.save if parent.changed? || parent.person.changed?
 						parent.person.update!(parent_id: parent.id) unless parent.person.parent_id == parent.id
 						self.parents << parent unless self.parents.include?(parent)
 					end
