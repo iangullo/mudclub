@@ -40,7 +40,6 @@
 # => "time-box": :hour & :mins (field names)
 # => "select-box": :key (field name), :options (array of valid options), :value (form, select)
 # => "select-collection": :key (field name), :collection, :value (form, select)
-# => "select-file": :key (field name), :icon, :label, :value (form, select)
 # => "search-text": :url (search_in), :value
 # => "search-select": :key (search field), :url (search_in), :options, :value
 # => "search-collection": :key (search field), :url (search_in), :options, :value

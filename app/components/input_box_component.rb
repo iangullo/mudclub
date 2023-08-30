@@ -33,7 +33,6 @@
 # => "select-box": :key (field name), :options (array of valid options), :value (form, select)
 # => "select-checkboxes": :key (field name), :collection, :value (form, select)
 # => "select-collection": :key (field name), :collection, :value (form, select)
-# => "select-file": :key (field name), :icon, :label, :value (form, select)
 # => "select-load": :key (field name), :icon, :label, :value (form, select)
 
 class InputBoxComponent < ApplicationComponent
