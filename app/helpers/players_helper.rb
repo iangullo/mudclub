@@ -34,7 +34,7 @@ module PlayersHelper
 			{kind: "normal", value: I18n.t("person.age"), align: "center"},
 			{kind: "normal", value: I18n.t("status.active_a"), align: "center"}
 		]
-		title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"}) if u_manager?
+		title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"}) if u_manager? or obj&.has_coach(u_coachid)
 		rows = Array.new
 		players.each { | player|
 			retlnk = players_path(search: player.s_name) if p_ndx
