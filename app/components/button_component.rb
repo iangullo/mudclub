@@ -71,8 +71,7 @@ class ButtonComponent < ApplicationComponent
 				@button[:tab]     = true
 				@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
 			when "action", "back", "call", "cancel", "clear", "close", "edit", "email", "export", "forward", "import", "menu", "login", "save"
-				b_colour = b_colour + " shadow font-bold"
-				@button[:d_class] = @button[:d_class] + " shadow"
+				b_colour = b_colour + " font-bold"
 			else
 				@button[:d_class] = @button[:d_class] + " font-semibold"
 			end
@@ -200,11 +199,11 @@ class ButtonComponent < ApplicationComponent
 			high  = "gray-700"
 		end
 		if colour
-			res = res + "hover:bg-#{colour}-200 text-#{colour}-700"
+			res += "hover:bg-#{colour}-200 text-#{colour}-700"
 		elsif wait
-			res = res + "bg-#{wait} text-#{text} hover:bg-#{light} hover:text-#{high} focus:bg-#{light} focus:text-#{high} focus:ring-2 focus:border-#{light}"
+			res += "bg-#{wait} text-#{text} hover:bg-#{light} hover:text-#{high} focus:bg-#{light} focus:text-#{high} focus:ring-2 focus:border-#{light}"
 		else
-			res = res + "hover:bg-#{light}"
+			res += "hover:bg-#{light}"
 		end
 		res
 	end
