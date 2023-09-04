@@ -40,12 +40,12 @@ class ApplicationController < ActionController::Base
 
 	# return a ButtonComponent object from a definition hash
 	def create_button(button)
-		ButtonComponent.new(button:)
+		button ? ButtonComponent.new(button:) : nil
 	end
 
 	# return FieldsComponent object from a fields array
 	def create_fields(fields)
-		FieldsComponent.new(fields:)
+		fields ? FieldsComponent.new(fields:) : nil
 	end
 
 	# return GridComponent object from a grid hash
