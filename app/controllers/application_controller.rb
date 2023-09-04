@@ -33,7 +33,7 @@ class ApplicationController < ActionController::Base
 
 	# check if correct  access level exists
 	# works as "present AND (valid(role) OR valid(obj.condition))"
-	def check_access(roles:, obj: false)
+	def check_access(roles: nil, obj: false)
 		return (obj ? check_object(obj:) : check_role(roles:) ) if current_user.present?
 		return false
 	end
@@ -107,7 +107,7 @@ class ApplicationController < ActionController::Base
 	private
 		# check if current user satisfies access policy
 		def check_role(roles:)
-			roles.each do |rol|	# ok as if any of roles is found
+			roles&.each do |rol|	# ok as if any of roles is found
 				case rol
 				when :admin
 					return true if u_admin?
