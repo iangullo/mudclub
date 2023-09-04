@@ -24,7 +24,7 @@ class TeamsController < ApplicationController
 	# GET /teams.json
 	def index
 		if check_access(roles: [:manager, :coach, :player])
-			@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: !u_player?))
+			@fields = create_fields(helpers.team_title_fields(title: I18n.t("team.many"), search: (u_coach? || u_manager?)))
 			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: u_manager?))
 			respond_to do |format|
 				format.xlsx {
@@ -56,7 +56,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
-		if check_access(roles: [:manager, :coach], obj: @team)
+		if check_access(roles: [:manager, :coach]) || check_access(obj: @team)
 			@sport   = @team.sport.specific
 			@title   = create_fields(helpers.team_title_fields(title: @team.to_s))
 			@coaches = create_fields(helpers.team_coaches)
@@ -104,7 +104,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/slots
 	def slots
-		if check_access(roles: [:manager, :coach], obj: @team)
+		if check_access(roles: [:manager, :coach]) || check_access(obj: @team)
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
 			@fields = create_fields(title)
@@ -329,7 +329,7 @@ class TeamsController < ApplicationController
 			s_id    = params[:season_id].presence || session.dig('team_filters', 'season_id')
 			@season = s_id ? Season.find_by(id: s_id) : Season.latest
 			@season = Season.last unless @season
-			@teams  = u_player? ? current_user.team_list : Team.search(@season.id)
+			@teams  = (u_coach? || u_manager?) ? Team.search(@season.id) : current_user.team_list
 			if params[:id]=="coaching"
 				@team = current_user.coach.teams.first
 			else
