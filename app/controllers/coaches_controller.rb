@@ -46,7 +46,7 @@ class CoachesController < ApplicationController
 	# GET /coaches/1
 	# GET /coaches/1.json
 	def show
-		if check_access(roles: [:manager, :coach], obj: @coach)
+		if check_access(roles: [:manager, :coach])
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
 			@submit = create_submit(submit: (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach) : nil, frame: "modal")

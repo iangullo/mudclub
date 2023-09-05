@@ -33,8 +33,8 @@ class ApplicationController < ActionController::Base
 
 	# check if correct  access level exists
 	# works as "present AND (valid(role) OR valid(obj.condition))"
-	def check_access(roles: nil, obj: false)
-		return (obj ? check_object(obj:) : check_role(roles:) ) if current_user.present?
+	def check_access(roles: nil, obj: nil)
+		return (check_object(obj:) || check_role(roles:)) if current_user.present?
 		return false
 	end
 
@@ -119,6 +119,8 @@ class ApplicationController < ActionController::Base
 					return true if u_player?
 				when :user
 					return true  # it's a user alright
+				else
+					return false
 				end
 			end
 			return false
@@ -130,19 +132,19 @@ class ApplicationController < ActionController::Base
 			when "Category", "Division", "FalseClass", "Location", "Season", "Slot"
 				return true
 			when "Coach"
-				return (u_manager? or u_coachid==obj.id)
+				return (u_coachid==obj.id)
 			when "Drill"
-				return (u_manager? or u_coachid==obj.coach_id)
+				return (u_coachid==obj.coach_id)
 			when "Event"
-				return (u_manager? or obj.team.has_coach(u_coachid) or obj.has_player(u_playerid))
+				return (obj.team.has_coach(u_coachid) or obj.has_player(u_playerid))
 			when "Person"
-				return (u_admin? or u_personid==obj.id)
+				return (u_personid==obj.id)
 			when "Player"
-				return (u_manager? or u_coach? or u_playerid==obj.id)
+				return (u_playerid==obj.id)
 			when "Team"
-				return (u_manager? or obj.has_coach(u_coachid) or obj.has_player(u_playerid))
+				return (obj.has_coach(u_coachid) or obj.has_player(u_playerid))
 			when "User"
-				return (u_admin? or u_userid==@user.id)
+				return (u_userid==@user.id)
 			else # including "NilClass"
 				return false
 			end

@@ -34,7 +34,7 @@ class DivisionsController < ApplicationController
 
 	# GET /divisions/1 or /divisions/1.json
 	def show
-		if check_access(roles: [:admin], obj: @division)
+		if check_access(roles: [:admin])
 			fields  = helpers.division_title_fields(title: I18n.t("division.single"))
 			fields << [{kind: "subtitle", value: @division.name}]
 			@fields = create_fields(fields)
@@ -46,7 +46,7 @@ class DivisionsController < ApplicationController
 
 	# GET /divisions/new
 	def new
-		if check_access(roles: [:admin, :manager])
+		if check_access(roles: [:admin])
 			@division = @sport.divisions.build
 			prepare_form(title: I18n.t("division.new"))
 		else

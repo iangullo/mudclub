@@ -56,7 +56,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
-		if check_access(roles: [:manager, :coach]) || check_access(obj: @team)
+		if check_access(roles: [:manager, :coach], obj: @team)
 			@sport   = @team.sport.specific
 			@title   = create_fields(helpers.team_title_fields(title: @team.to_s))
 			@coaches = create_fields(helpers.team_coaches)
@@ -104,7 +104,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/slots
 	def slots
-		if check_access(roles: [:manager, :coach]) || check_access(obj: @team)
+		if check_access(roles: [:manager], obj: @team)
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
 			@fields = create_fields(title)
@@ -156,7 +156,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_plan
 	def edit_plan
-		if @team.has_coach(u_coachid)
+		if check_access(roles: [:manager]) || @team.has_coach(u_coachid)
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			plan_targets
 			title   = helpers.team_title_fields(title: @team.to_s)

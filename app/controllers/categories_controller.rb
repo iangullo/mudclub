@@ -34,7 +34,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories/1 or /categories/1.json
 	def show
-		if check_access(roles: [:admin], obj: @category)
+		if check_access(roles: [:admin])
 			@fields = create_fields(helpers.sport_category_show_fields(@sport))
 			@submit = create_submit(submit: current_user.admin? ? sport_edit_category_path(@sport, @category) : nil, close_return: sport_path(@sport.id))
 		else

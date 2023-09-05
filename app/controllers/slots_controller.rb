@@ -42,7 +42,7 @@ class SlotsController < ApplicationController
 
 	# GET /slots/1 or /slots/1.json
 	def show
-		if check_access(roles: [:user], obj: @slot)
+		if check_access(roles: [:user])
 			@title   = create_fields(helpers.slot_title_fields(title: I18n.t("slot.many")))
 			@btn_del = create_button({kind: "delete", url: slot_path(@slot), name: @slot.to_s}) if u_manager?
 			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot) : nil, frame: u_manager? ? "modal" : nil)

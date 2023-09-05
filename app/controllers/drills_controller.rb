@@ -58,7 +58,7 @@ class DrillsController < ApplicationController
 
 	# GET /drills/1/edit
 	def edit
-		if check_access(roles: [:manager, :coach], obj: @drill)
+		if check_access(roles: [:manager], obj: @drill)
 			prepare_form(title: I18n.t("drill.edit"))
 		else
 			redirect_to drills_path, data: {turbo_action: "replace"}
@@ -89,7 +89,7 @@ class DrillsController < ApplicationController
 
 	# PATCH/PUT /drills/1 or /drills/1.json
 	def update
-		if check_access(roles: [:manager, :coach], obj: @drill)
+		if check_access(roles: [:manager], obj: @drill)
 			respond_to do |format|
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.modified?
@@ -115,7 +115,7 @@ class DrillsController < ApplicationController
 
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
-		if check_access(roles: [:manager, :coach], obj: @drill)
+		if check_access(roles: [:manager], obj: @drill)
 			d_name = @drill.name
 			@drill.destroy
 			respond_to do |format|

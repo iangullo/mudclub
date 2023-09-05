@@ -147,7 +147,7 @@ class PeopleController < ApplicationController
 	# DELETE /people/1
 	# DELETE /people/1.json
 	def destroy
-		if check_access(roles: [:admin], obj: @person)
+		if check_access(roles: [:admin])
 			@person.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("person.deleted")} '#{@person.to_s}'"
