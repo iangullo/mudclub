@@ -69,6 +69,7 @@ Rails.application.routes.draw do
 		resources :events
 	end
 	resources :events do
+		get 'copy', on: :member
 		get 'load_chart', on: :member
 		get 'show_task', on: :member
 		get 'add_task', on: :member

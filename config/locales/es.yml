@@ -52,10 +52,11 @@
 es:
   action:
     admin: "Administrar"
-    close: "Cerrar"
     cancel: "Cancelar"
     change: "Cambiar"
     clear: "Borrar"
+    close: "Cerrar"
+    copy: "Copiar"
     create: "Crear"
     edit: "Editar"
     export: "Exportar"
@@ -365,6 +366,7 @@ es:
     home: "Local"
     home_a: "Local"
     name: "Nombre"
+    none: "Sin equipos"
     roster: "Plantilla"
     roster_edit: "Editar Plantilla"
     roster_opt: "Jug. Adicionales"

@@ -26,15 +26,22 @@ module EventsHelper
 	end
 
 	# return icon and top of FieldsComponent
-	def event_title_fields(subtitle: nil, form: nil, cols: nil, chart: nil)
-		res = title_start(icon: @event.pic, title: @event.title(show: true), rows: @event.rest? ? 3 : nil, cols:)
-		res.last << {kind: "gap"}
-		case @event.kind.to_sym
-		when :rest then rest_title(res:, cols:, form:)
-		when :match then match_title(res:, cols:, form:)
-		when :train then train_title(res:, cols:, form:, subtitle:, chart:)
+	def event_title_fields(subtitle: nil, form: nil, cols: nil, chart: nil, teams: nil)
+		if teams	# we are going to prepare a copy of the event
+			t_id = @event.team ? @event.team.id : teams.first.id
+			copy = true
+			res  = title_start(icon: @event.pic, title: @event.title(copy: true), rows: @event.rest? ? 3 : nil, cols:)
+			res << [{kind: "select-collection", key: :team_id, options: teams, value: t_id, cols: cols}]
+		else
+			res = title_start(icon: @event.pic, title: @event.title(show: true), rows: @event.rest? ? 3 : nil, cols:)
+			res.last << {kind: "gap"}
+			case @event.kind.to_sym
+			when :rest then rest_title(res:, cols:, form:)
+			when :match then match_title(res:, cols:, form:)
+			when :train then train_title(res:, cols:, form:, subtitle:, chart:)
+			end
 		end
-		event_top_right_fields(res:, form:)
+		event_top_right_fields(res:, form:, copy:)
 		#res << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
 		res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}] unless @event.match? and form==nil
 		res
@@ -136,9 +143,18 @@ module EventsHelper
 		@sport.player_training_stats_form_fields(@event, player_id: @player.id)
 	end
 
+	# return a fields to show a copy event form
+	def event_copy_fields
+		if u_coach? or u_manager?
+			res = event_title_fields(form: true, cols: @event.match? ? 2 : nil, teams: @teams)
+			res.last << {kind: "hidden", key: :copy, value: true}
+		end
+		res
+	end
+
 	# return FieldsComponent @fields for show_training
 	def training_show_fields
-		res = [[{kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + @event.work_duration, objects: task_accordion}]]
+		[[{kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + @event.work_duration, objects: task_accordion}]]
 	end
 
 	# fields to show in task views
@@ -329,7 +345,7 @@ module EventsHelper
 					res << [workload_button(align: "left", cols: 3)] if @event.id
 				elsif (u_manager? || u_coach?)
 					res << [
-						workload_button(align: "left", cols: 4),
+						button_field(event_copy_button, align: "left", cols: 4),
 						{kind: "gap", size: 1},
 						button_field(
 							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal"},
@@ -354,7 +370,7 @@ module EventsHelper
 		end
 
 		# complete event title with top-right corner elements
-		def event_top_right_fields(res:, form: nil)
+		def event_top_right_fields(res:, form: nil, copy: false)
 			if form # top right corner of title
 				res[0] << {kind: "icon", value: "calendar.svg"}
 				res[0] << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
@@ -363,7 +379,7 @@ module EventsHelper
 					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, mins: @event.min}
 				end
 				res.last << {kind: "hidden", key: :season_id, value: @season.id} if @event.team.id==0
-				res.last << {kind: "hidden", key: :team_id, value: @event.team_id}
+				res.last << {kind: "hidden", key: :team_id, value: @event.team_id} unless copy
 				res.last << {kind: "hidden", key: :kind, value: @event.kind}
 			else
 				res[0] << {kind: "icon-label", icon: "calendar.svg", label: @event.date_string}
@@ -415,6 +431,13 @@ module EventsHelper
 				return {kind: "dropdown", button: button, class: "bg-white"}
 			else
 				return nil
+			end
+		end
+
+		# return a button field to copy event - if possible
+		def event_copy_button
+			if u_coach? or u_manager?
+				{kind: "action", icon: "copy.svg", label: I18n.t("action.copy"), url: copy_event_path(retlnk: event_path), frame: "modal"}
 			end
 		end
 end

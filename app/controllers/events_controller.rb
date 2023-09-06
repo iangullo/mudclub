@@ -117,6 +117,7 @@ class EventsController < ApplicationController
 			respond_to do |format|
 				e_data  = event_params
 				@player = Player.find_by_id(e_data[:player_id].presence)
+				seek_duplicate_event(e_data) if e_data[:copy].presence
 				@event.rebuild(e_data)
 				if prepare_update_redirect(e_data)	# prepare links to redirect
 					if e_data[:player_ids].present?	# update attendance
@@ -135,7 +136,7 @@ class EventsController < ApplicationController
 					if @event.save	# try to do it
 						register_action(:updated, @notice[:message])
 						@event.tasks.reload if e_data[:tasks_attributes] # a training session
-						format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
+						format.html { redirect_to (@retlnk ? @retlnk : event_path(@event)), notice: @notice, data: {turbo_action: "replace"}}
 						format.json { render @retview, status: :ok, location: @retlnk }
 					else
 						prepare_event_form(new: false)	# continue editing, it did not work
@@ -143,7 +144,7 @@ class EventsController < ApplicationController
 						format.json { render json: @event.errors, status: :unprocessable_entity }
 					end
 				else	# nothing to save
-					format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
+					format.html { redirect_to (@retlnk ? @retlnk : event_path(@event)), notice: @notice, data: {turbo_action: "replace"}}
 					format.json { render @retview, status: :ok, location: @retlnk }
 				end
 			end
@@ -222,9 +223,9 @@ class EventsController < ApplicationController
 
 	# GET /events/1/player_stats?player_id=X
 	def player_stats
-		if check_access(roles: [:manager, :coach], obj: @event)
+		@player = Player.real.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
+		if check_access(roles: [:manager, :coach], obj: @player)
 			unless @event.rest?	# not keeing stats for holidays ;)
-				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
 				if @event.has_player(@player&.id)	# we do have a player
 					@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
 					@fields = create_fields(helpers.event_player_stats_fields)
@@ -257,6 +258,25 @@ class EventsController < ApplicationController
 		end
 	end
 
+	# POST /events/1/copy
+	def copy
+		if check_access(roles: [:manager, :coach])
+			@season = Season.latest
+			@retlnk = params[:retlnk]
+			@teams  = u_manager? ? Team.for_season(@season.id) : current_user.coach.team_list
+			if @teams	# we have some teams we can copy to
+				@event  = Event.find_by_id(params[:id].presence.to_i)
+				@fields = create_fields(helpers.event_copy_fields)
+				@submit = create_submit(close_return: @retlnk)
+			else
+				notice  = helpers.flash_message("#{I18n.t("team.none")} ", "info")
+				redirect_to (@retlnk ? @retlnk : "/"), notice:, data: {turbo_action: "replace"}
+			end
+		else
+			redirect_to (@retlnk ? @retlnk : "/"), data: {turbo_action: "replace"}
+		end
+	end
+
 	private
 		# establish redirection & notice for based on udpate kind
 		def prepare_update_redirect(e_data)
@@ -278,14 +298,35 @@ class EventsController < ApplicationController
 					@retlnk ||= team_events_path(@event, start_date: @event.start_date)
 				else	# match or training session
 					@retview  = :show
-					@retlnk ||= event_path(@event)
+					@retlnk ||= @event.id ? event_path(@event) : @retlnk
 				end
 			end
 			# returns whether we have something to save
 			return (e_data[:task].present? || e_data[:player_ids].present? || e_data[:stats_attributes].present? || params[:outings].present?)
 		end
 
- 		# check attendance
+		# when copying an event, need to avoid duplicates, checking if an Event
+		# exists for the same date/time/team and reload if needed
+		def seek_duplicate_event(e_data)
+			e_search            = @event.dup	# prepare to search
+			e_search.team_id    = e_data[:team_id].presence
+			e_search.start_time = e_data[:start_date].presence
+			e_search.hour       = e_data[:hour].presence
+			e_search.min        = e_data[:min].presence
+			e_copy              = e_search.dup
+			e_search            = Event.where(start_time: e_search.start_time, team_id: e_search.team_id).first
+			e_copy              = e_search if e_search	# copy destination set
+			unless e_copy.id == @event.id	# manage task/target bindings unless it is the same destination
+				e_copy.duration = @event.duration
+				e_copy.targets.delete_all
+				@event.targets.each {|target| e_copy.targets << target.dup}	# copy targets
+				e_copy.tasks.delete_all
+				@event.tasks.each {|task| e_copy.tasks << task.dup}	# copy tasks
+				@event          = e_copy
+			end
+		end
+
+		# check attendance
 		def check_attendance(p_array)
 			# first pass
 			attendees = Array.new	# array to include all player_ids
@@ -307,7 +348,7 @@ class EventsController < ApplicationController
 		# ensure a task is correctly added to event
 		def check_task(t_dat)
 			if t_dat  # we are adding a single task
-				@task          = (t_dat[:task_id] and t_dat[:task_id]!="") ? Task.find(t_dat[:task_id]) : Task.new(event_id: @event.id)
+				@task          = t_dat[:task_id].present? ? Task.find(t_dat[:task_id]) : Task.new(event_id: @event.id)
 				@task.order    = t_dat[:order].to_i if t_dat[:order]
 				@task.drill_id = t_dat[:drill_id] ? t_dat[:drill_id].to_i : params[:task][:drill_id].split("|")[0].to_i
 				@task.duration = t_dat[:duration].to_i if t_dat[:duration]
@@ -395,6 +436,7 @@ class EventsController < ApplicationController
 		def event_params
 			params.require(:event).permit(
 					:id,
+					:copy,
 					:name,
 					:kind,
 					:home,

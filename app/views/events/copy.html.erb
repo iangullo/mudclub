@@ -1,0 +1,7 @@
+<%= render ModalComponent.new do %>
+	<%= form_with model: @event, authenticity_token: true, onsubmit: "logSelectedValue()", data: {turbo_frame: "_top"} do |form| %>
+	<% @fields.form = form %>
+		<%= render @fields %>
+		<%= render @submit %>
+	<% end %>
+<% end %>
