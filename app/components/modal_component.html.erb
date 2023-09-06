@@ -1,7 +1,7 @@
 <%= turbo_frame_tag "modal" do %>
 	<%= tag.div data: { controller: "turbo-modal",
 										turbo_modal_target: "modal",
-										action: "turbo:submit-end->turbo-modal#submitEnd keyup@window->turbo-modal#closeWithKeyboard click@window->turbo-modal#closeBackground" },
+										action: "turbo:submit-end->turbo-modal#submitEnd keyup@window->turbo-modal#closeWithKeyboard" },
 										class: "animated fadeIn fixed z-10 inset-0 mt-1 overflow-auto bg-gray-500 bg-opacity-75 flex items-center justify-center" do %>
 		<!-- Modal Container -->
 		<div class="animated fadeIn fixed z-10 inset-0 mt-1 overflow-auto bg-gray-500 bg-opacity-75 flex items-center justify-center">
