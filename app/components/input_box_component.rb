@@ -23,6 +23,8 @@
 # => "date-box": :key (field name), :value (date_field), :s_year (start_year)
 # => "email-box": :key (field name), :value (email_field), :size (box size)
 # => "hidden": :key (field name), :value (number_field)
+# => "image-box": :key (attribute of checkbox), :value (path to image), :size (optional)
+# => "number-box": :key (field name), :value (number_field), size:
 # => "label-checkbox": :key (attribute of checkbox), :value (added text)
 # => "number-box": :key (field name), :value (number_field), size:
 # => "password-box": :key (field name), :value (password_field)
@@ -55,16 +57,18 @@ class InputBoxComponent < ApplicationComponent
 		# offload some initial setting of field data
 		def set_box_attributes
 			kind_mappings = {
-				"rich-text-area" => { class: "trix-content" },
+				"image-box" => { class: "align-middle m-1 rounded border-blue-700 border-1", i_class: "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center" },
 				"number-box" => { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] || 1 },
+				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" },
+				"rich-text-area" => { class: "trix-content" },
 				"time-box" => { class: "text-right" },
-				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" }
-			}
+				"upload" => { class: "align-middle px py", i_class: "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center" }
+		}
 
 			mapping = kind_mappings[@fdata[:kind]]
 			return unless mapping
 
-			@i_class << mapping[:class]
+			@i_class << (mapping[:i_class] ? mapping[:i_class] : mapping[:class])
 			@fdata.merge!(mapping.reject { |key, _| key == :class })
 		end
 
@@ -72,6 +76,8 @@ class InputBoxComponent < ApplicationComponent
 		def set_box_size
 			unless @fdata[:size]
 				case @fdata[:kind]
+				when "image-box"
+					@fdata[:size] = "50x50"
 				when "time-box", "number-box"
 					box_size = 5
 				else
@@ -83,7 +89,7 @@ class InputBoxComponent < ApplicationComponent
 						box_size = 20
 					end
 				end
-				@fdata[:size] = box_size - 3
+				@fdata[:size] ||= box_size - 3
 			end
 		end
 end

@@ -52,6 +52,7 @@ class FieldsComponent < ApplicationComponent
 		@form   = form
 	end
 
+	# wrapper to define the component's @form - whe required.
 	def form=(formobj)
 		@form = formobj
 	end
@@ -61,12 +62,14 @@ class FieldsComponent < ApplicationComponent
 	end
 
 	private
+	# parse all specified fields to set the correct rendering
+	# parmeters for each.
 	def parse(fields)
 		res = Array.new
 		fields.each do |row|
 			res << [] # new row n header
 			row.each do |item|
-				case item[:kind]
+				case item[:kind]	# need to adapt to each fields "kind"
 				when "accordion"
 					item[:value] = AccordionComponent.new(accordion: item)
 				when "button"	# item[:button] has to contain the button definition
@@ -85,9 +88,6 @@ class FieldsComponent < ApplicationComponent
 					item[:btn_add] ||= {kind: "add-nested"}
 				when "gap", "label", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
 					set_text_field(item)
-				when "upload"
-					item[:class] ||= "align-middle px py"
-					item[:i_class] = "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center"
 				when /^(select-.+|.+-box|.+-area)$/
 					item[:class] ||= "align-top"
 				else
@@ -101,6 +101,7 @@ class FieldsComponent < ApplicationComponent
 		res
 	end
 
+	# wrapper to keep a person's available contact details in a single field.
 	def set_contact(item)
 		item[:mail] = ButtonComponent.new(button: {kind: "email", value: item[:email]}) if (item[:email] and item[:email].length>0)
 		if item[:phone] and item[:phone].length>0
@@ -109,6 +110,7 @@ class FieldsComponent < ApplicationComponent
 		end
 	end
 
+	# used for all icon/image fields - except for "image-box"
 	def set_icon(item)
 		if item[:kind]=="header-icon"
 			i_size       = "50x50"
@@ -127,6 +129,7 @@ class FieldsComponent < ApplicationComponent
 		item[:size] = i_size unless item[:size]
 	end
 
+	# used for all text-like fields - except for inputboxes, of course
 	def set_text_field(item)
 		case item[:kind]
 		when "gap"

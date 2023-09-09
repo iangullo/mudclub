@@ -10,7 +10,7 @@
 					<%= render item[:mail] if item[:mail] %>
 					<%= render item[:call] if item[:call] %>
 					<%= render item[:whatsapp] if item[:whatsapp] %>
-				<% when /^(select-.+|.+box|.+-area|hidden|radio.+)$/ %>
+				<% when /^(select-.+|.+box|.+-area|hidden|radio.+|upload)$/ %>
 					<%= render InputBoxComponent.new(field: item, form: @form) %>
 				<% when "gap" %>
 					<% item[:size].times do %>
@@ -42,14 +42,6 @@
 					<% end %>
 				<% when "nested-form" %>
 					<%= render NestedComponent.new(model: item[:model], key: item[:key], form: @form, child: item[:child], row: item[:row], filter: item[:filter], btn_add: item[:btn_add]) %>
-				<% when "upload" %>
-					<div id="upload-file" class="<%=item[:class]%>">
-						<%= @form.file_field item[:key], id: "upload-btn", direct_upload: true, class: "hidden" %>
-						<label for="upload-btn" class="<%=item[:i_class]%>">
-							<%= image_tag(item[:icon], size: "25x25") if item[:icon] %>&nbsp;<%=item[:label]%>
-						</label>
-						<span class="px mb-1 text-sm text-gray-500"><%=item[:value] ? item[:value] : t("status.no_file") %></span>
-					</div>
 				<% else %>
 					<%= item[:value] %>
 				<% end %>
