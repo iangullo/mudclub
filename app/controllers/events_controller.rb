@@ -162,7 +162,7 @@ class EventsController < ApplicationController
 				next_url = team.id > 0 ? team : events_path
 				next_act = team.id > 0 ? :show : :index
 				a_desc   = helpers.event_delete_notice
-				register_action(:deleted, a_desc)
+				register_action(:deleted, a_desc[:message])
 				format.html { redirect_to next_url, action: next_act.to_sym, status: :see_other, notice: a_desc, data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
