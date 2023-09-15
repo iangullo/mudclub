@@ -47,6 +47,7 @@ module TeamsHelper
 			title = season ? [] : [{kind: "normal", value: I18n.t("season.abbr")}]
 			title << {kind: "normal", value: I18n.t("team.single")}
 			title << {kind: "normal", value: I18n.t("division.single")}
+			title << {kind: "normal", value: I18n.t("player.abbr")}
 			title << button_field({kind: "add", url: new_team_path, frame: "modal"}) if add_teams
 			rows = Array.new
 			teams.each { |team|
@@ -54,10 +55,11 @@ module TeamsHelper
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless season
 				row[:items] << {kind: "normal", value: team.to_s}
 				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
+				row[:items] << {kind: "normal", value: team.players.count.to_s, align: "center"}
 				row[:items] << button_field({kind: "delete", url: row[:url], name: team.to_s}) if add_teams
 				rows << row
 			}
-			{title: title, rows: rows}
+			{title:, rows:}
 		else
 			nil
 		end
