@@ -1,5 +1,5 @@
 <div id='search-box' class='<%= D_CLASS %>'>
-	<%= form_with(url: @s_url, method: :get, data: {controller: "search-form", search_text_target: 'fsearch', turbo_frame: 'search-results'} ) do |fsearch| %>
+	<%= form_with(url: @s_url, method: :get, data: {controller: "search-form", search_form_fsearch_target: 'fsearch', turbo_frame: 'search-results'} ) do |fsearch| %>
 		<% @fields.each do |opt| %>
 		<div class='<%= F_CLASS %>'>
 			<% if opt[:label].present? %><label for='<%=opt[:key]%>' class='<%= L_CLASS %>'><%=opt[:label]%></label><% end %>

@@ -9,7 +9,8 @@ export default class extends Controller {
 	search() {
 		clearTimeout(this.timeout)
 		this.timeout = setTimeout(() => {
-			this.formTarget.requestSubmit()
-		}, 200)
+      const form = document.querySelector(`[data-target="${this.identifier}.fsearch"]`);
+      form?.submit();
+		}, 200);
 	}
 }
