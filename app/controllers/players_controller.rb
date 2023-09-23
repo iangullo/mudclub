@@ -46,7 +46,7 @@ class PlayersController < ApplicationController
 	# GET /players/1.json
 	def show
 		if check_access(roles: [:manager, :coach], obj: @player)
-			retlnk  = params[:retlnk].presence || players_path
+			retlnk  = params[:retlnk].presence || player_path(@player)
 			@fields = create_fields(helpers.player_show_fields(team: params[:team_id] ? Team.find(params[:team_id]) : nil))
 			@submit = create_submit(close: "back", close_return: retlnk, submit: edit_player_path(@player, retlnk:), frame: "modal")
 			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
@@ -114,8 +114,8 @@ class PlayersController < ApplicationController
 		if check_access(roles: [:manager, :coach], obj: @player)
 			respond_to do |format|
 				@player.rebuild(player_params)
-				retlnk  = player_params[:retlnk] || players_path(search: @player.s_name)
-				retview = player_params[:retlnk] ? :roster : :index
+				retlnk  = player_params[:retlnk] || @player
+				retview = player_params[:retlnk] ? :roster : :show
 				if @player.modified?
 					if @player.save
 						@player.bind_person(save_changes: true) # ensure binding is correct
