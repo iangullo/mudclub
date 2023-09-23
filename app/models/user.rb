@@ -126,6 +126,7 @@ class User < ApplicationRecord
 		f_data[:person_attributes][:email] = f_data[:email]
 		self.rebuild_obj_person(f_data)
 		if self.person
+			self.update_avatar(f_data[:avatar])
 			self.email                 = self.person.email
 			self.role                  = f_data[:role] || :user
 			self.locale                = f_data[:locale] if f_data[:locale]
@@ -148,6 +149,11 @@ class User < ApplicationRecord
 		j_teams = self.is_player? ? self.player.team_list : []
 		p_teams = self.is_parent? ? self.person.parent.team_list : []
 		(c_teams + j_teams + p_teams).uniq.sort_by{ |team| team.season.start_date }.reverse
+	end
+
+	# extended modified to account for changed avatar
+	def modified?
+		super || @avatar_changed
 	end
 
 	private

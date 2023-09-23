@@ -96,7 +96,15 @@ class Coach < ApplicationRecord
 	# avoids duplicate person binding
 	def rebuild(f_data)
 		self.rebuild_obj_person(f_data)
-		self.active = f_data[:active] if self.person
+		if self.person
+			self.update_avatar(f_data[:avatar])
+			self.active = f_data[:active]
+		end
+	end
+
+	# extended modified to account for changed avatar
+	def modified?
+		super || @avatar_changed
 	end
 
 	private

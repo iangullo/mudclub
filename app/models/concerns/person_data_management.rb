@@ -109,6 +109,17 @@ module PersonDataManagement
 		self.teams.includes(:season).to_a.sort_by { |team| team.season.start_date }.reverse
 	end
 
+	# def update object avatar
+	def update_avatar(new_avatar)
+		if new_avatar
+			new_blob = new_avatar.read
+			unless self.avatar.attached? && new_blob == self.avatar.blob # Compare blob content
+				self.update(avatar: new_avatar)
+				@avatar_changed = true
+			end
+		end
+	end
+
 	private
 		# return which id_field to map against
 		def bind_field
