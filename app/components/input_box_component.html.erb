@@ -5,6 +5,38 @@
 	<%= @form.email_field(@fdata[:key], placeholder: @fdata[:placeholder], size: @fdata[:size], class: @i_class) %>
 <% when "hidden" %>
 	<%= @form.hidden_field(@fdata[:key].to_sym, value: @fdata[:value]) %>
+<% when "image-box" %>
+	<style>
+		/* Style the container with fixed dimensions */
+		#imageboxContainer {
+			width: 75px;
+			height: 100px;
+			border: 1px solid gray;
+			overflow: hidden;
+			position: relative;
+			display: flex; /* Use flexbox */
+			justify-content: center; /* Center horizontally */
+			align-items: center; /* Center vertically */
+		}
+
+		#imageSnapshot {
+			max-width: 75px;
+			max-height: 100px;
+			object-fit: cover;
+		}
+</style>
+	<div id="imageboxContainer" data-controller="imagebox" class="group flex rounded relative">
+		<!-- Image element to display snapshots (loaded initially) -->
+		<%= image_tag @fdata[:value], id: "imageSnapshot", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
+
+		<!-- Overlay for the camera icon -->
+		<div class="overlay absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" data-action="click->imagebox#openFileDialog" >
+			<span class="camera-icon text-4xl">📷</span>
+		</div>
+
+		<!-- Hidden input for file upload -->
+		<%= @form.file_field @fdata[:key], id: "imageFile", direct_upload: true, class: "hidden", style: "display:none;", data: {action: "change->imagebox#handleFileChange", imagebox_target: "imageFile"} %>
+	</div>
 <% when "label-checkbox" %>
 	<div class='inline-flex align-middle'>
 		<% if @fdata[:right] %>

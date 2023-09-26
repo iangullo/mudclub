@@ -111,10 +111,11 @@ module PersonDataManagement
 
 	# def update object avatar
 	def update_avatar(new_avatar)
-		if new_avatar
+		if new_avatar && (self.is_a?(Coach) || self.is_a?(Player) || self.is_a?(User))
 			new_blob = new_avatar.read
-			unless self.avatar.attached? && new_blob == self.avatar.blob # Compare blob content
-				self.update(avatar: new_avatar)
+			unless new_blob == self.avatar&.blob # Compare blob content
+				self.avatar.purge if self.avatar.attached?
+				self.avatar.attach(new_avatar)
 				@avatar_changed = true
 			end
 		end

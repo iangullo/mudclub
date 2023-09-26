@@ -18,13 +18,13 @@
 #
 module CoachesHelper
 	# return icon and top of FieldsComponent
-	def coach_title(title:, icon: "coach.svg", rows: 2, cols: nil, size: nil, _class: nil)
-		title_start(icon: icon, title: title, rows: rows, size: size, cols: cols, _class: _class)
+	def coach_title(title:, icon: "coach.svg", rows: 2, cols: nil, _class: nil, form: nil)
+		title_start(icon: icon, title: title, rows: rows, size: "75x100", cols: cols, _class: "w-75 h-100 align-center rounded", form:)
 	end
 
 	# FieldComponents to show a @coach
 	def coach_show_fields
-		res = coach_title(title: I18n.t("coach.single"), icon: @coach.picture, rows: 4, size: "100x100", _class: "rounded-full")
+		res = coach_title(title: I18n.t("coach.single"), icon: @coach.picture, rows: 4)
 		res << [{kind: "label", value: @coach.s_name}]
 		res << [{kind: "label", value: @coach.person.surname}]
 		res << [{kind: "string", value: @coach.person.birthday}]
@@ -41,7 +41,7 @@ module CoachesHelper
 
 	# return FieldsComponent @fields for forms
 	def coach_form_title(title:, rows: 3, cols: 2)
-		res = coach_title(title:, icon: @coach.picture, rows: rows, cols: cols, size: "100x100", _class: "rounded-full")
+		res = coach_title(title:, icon: @coach.picture, rows: rows, cols: cols, form: true)
 		f_cols = cols>2 ? cols - 1 : nil
 		res << [
 			{kind: "label", value: I18n.t("person.name_a")},
@@ -57,12 +57,9 @@ module CoachesHelper
 		]
 	end
 
-	# return FieldsComponent @fields for forms
+	# return Coach-specific form fields
 	def coach_form_fields
-		[
-			[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active, cols: 4}],
-			[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @coach.avatar.filename, cols: 3}]
-		]
+		[[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active, cols: 4}]]
 	end
 
 	# return FieldsComponent @fields for forms

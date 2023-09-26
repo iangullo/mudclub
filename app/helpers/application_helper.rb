@@ -39,9 +39,11 @@ module ApplicationHelper
 	end
 
 	# generic title start FieldsComponent for views
-	def title_start(icon:, title:, size: nil, rows: nil, cols: nil, _class: nil)
+	def title_start(icon:, title:, size: nil, rows: nil, cols: nil, _class: nil, form: nil)
+		kind = form ? "image-box" : "header-icon"
+		key = form ? "avatar" : nil
 		[[
-			{kind: "header-icon", value: icon, size: size, rows: rows, class: _class},
+			{kind:, key:, value: icon, size: size, rows: rows, class: _class},
 			{kind: "title", value: title, cols: cols}
 		]]
 	end

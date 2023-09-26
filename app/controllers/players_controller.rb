@@ -173,7 +173,6 @@ class PlayersController < ApplicationController
 		def prepare_form(title:)
 			@title      = create_fields(helpers.player_form_title(title:))
 			@j_fields_1 = create_fields(helpers.player_form_fields_1(retlnk: params[:retlnk], team_id: params[:team_id]))
-			@j_fields_2 = create_fields(helpers.player_form_fields_2(avatar: @player.avatar))
 			@p_fields   = create_fields(helpers.player_form_person(person: @player.person))
 			@parents    = create_fields(helpers.player_form_parents) if @player.person.age < 18
 			@submit     = create_submit
@@ -210,6 +209,7 @@ class PlayersController < ApplicationController
 				:retlnk,
 				:team_id,
 				person_attributes: [
+					:avatar,
 					:id,
 					:dni,
 					:nick,

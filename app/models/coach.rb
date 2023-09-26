@@ -97,7 +97,7 @@ class Coach < ApplicationRecord
 	def rebuild(f_data)
 		self.rebuild_obj_person(f_data)
 		if self.person
-			self.update_avatar(f_data[:avatar])
+			self.update_avatar(f_data[:person_attributes][:avatar])
 			self.active = f_data[:active]
 		end
 	end

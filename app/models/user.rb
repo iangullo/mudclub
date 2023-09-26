@@ -126,7 +126,7 @@ class User < ApplicationRecord
 		f_data[:person_attributes][:email] = f_data[:email]
 		self.rebuild_obj_person(f_data)
 		if self.person
-			self.update_avatar(f_data[:avatar])
+			self.update_avatar(f_data[:person_attributes][:avatar])
 			self.email                 = self.person.email
 			self.role                  = f_data[:role] || :user
 			self.locale                = f_data[:locale] if f_data[:locale]

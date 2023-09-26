@@ -23,7 +23,7 @@
 # => "date-box": :key (field name), :value (date_field), :s_year (start_year)
 # => "email-box": :key (field name), :value (email_field), :size (box size)
 # => "hidden": :key (field name), :value (number_field)
-# => "image-box": :key (attribute of checkbox), :value (path to image), :size (optional)
+# => "image-box": :key (attribute of image), :value (path to image), :size (optional)
 # => "number-box": :key (field name), :value (number_field), size:
 # => "label-checkbox": :key (attribute of checkbox), :value (added text)
 # => "number-box": :key (field name), :value (number_field), size:

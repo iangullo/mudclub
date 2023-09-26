@@ -18,8 +18,8 @@
 #
 module UsersHelper
 	# return icon and top of HeaderComponent
-	def user_title_fields(title, icon: "user.svg", rows: 2, cols: nil, size: nil, _class: nil)
-		title_start(icon: icon, title: title, rows: rows, cols: cols, size: size, _class: _class)
+	def user_title_fields(title, icon: "user.svg", rows: 2, cols: nil, form: nil)
+		title_start(icon:, title:, rows:, cols:, size: "75x100", _class: "w-75 h-100 align-center rounded", form:)
 	end
 
 	# return grid for @users GridComponent
@@ -51,7 +51,7 @@ module UsersHelper
 
 	# fields to show when looking a user profile
 	def user_show_fields
-		res = user_title_fields(@user.person.s_name, icon: @user.picture, _class: "rounded-full", cols: 4)
+		res = user_title_fields(@user.person.s_name, icon: @user.picture, cols: 4)
 		if current_user == @user	# only allow current user to change his own password
 			res.last << {kind: "gap"}
 			res.last <<	button_field(
@@ -96,7 +96,7 @@ module UsersHelper
 
 	# return FieldComponents for form title
 	def user_form_title(title:)
-		res = user_title_fields(title, icon: @user.picture, rows: 4, cols: 2, size: "100x100", _class: "rounded-full")
+		res = user_title_fields(title, icon: @user.picture, rows: 4, cols: 2, form: true)
 		res << [
 			{kind: "label", value: I18n.t("person.name_a")},
 			{kind: "text-box", key: :name, value: @user.person.name, placeholder: I18n.t("person.name")}

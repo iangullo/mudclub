@@ -18,8 +18,8 @@
 #
 module PlayersHelper
 	# return icon and top of Player FieldsComponent
-	def player_title_fields(title:, icon: "player.svg", rows: 2, cols: nil, size: nil, _class: nil)
-		title_start(icon:, title:, rows:, cols:, size:, _class:)
+	def player_title_fields(title:, icon: "player.svg", rows: 2, cols: nil, form: nil)
+		title_start(icon:, title:, rows:, cols:, size: "75x100", _class: "w-75 h-100 align-center rounded", form:)
 	end
 
 	# return grid fields for players with obj indicating
@@ -51,7 +51,7 @@ module PlayersHelper
 
 	# FieldsComponent fields to show for a player
 	def player_show_fields(team: nil)
-		res = player_title_fields(title: I18n.t("player.single"), icon: @player.picture, rows: 4, size: "100x100", _class: "rounded-full")
+		res = player_title_fields(title: I18n.t("player.single"), icon: @player.picture, rows: 4)
 		res << [{kind: "label", value: @player.s_name}]
 		res << [{kind: "label", value: @player.person.surname}]
 		res << [{kind: "string", value: @player.person.birthday}]
@@ -97,7 +97,7 @@ module PlayersHelper
 
 	# return beginning FieldsComponent for Player forms
 	def player_form_title(title:, rows: 3, cols: 2)
-		res = player_title_fields(title:, icon: @player.picture, rows:, cols:, size: "100x100", _class: "rounded-full")
+		res = player_title_fields(title:, icon: @player.picture, rows:, cols:, form: true)
 		f_cols = cols>2 ? cols - 1 : nil
 		res << [
 			{kind: "label", value: I18n.t("person.name_a")},
@@ -124,11 +124,6 @@ module PlayersHelper
 			{kind: "hidden", key: :retlnk, value: retlnk},
 			{kind: "hidden", key: :team_id, value: team_id}
 		]]
-	end
-
-	# return second part of FieldsComponent for Player forms
-	def player_form_fields_2(avatar:)
-		[[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: avatar.filename, cols: 5}]]
 	end
 
 	# return personal data FieldsComponent for Player forms

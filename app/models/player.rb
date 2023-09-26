@@ -171,7 +171,7 @@ class Player < ApplicationRecord
 	def rebuild(f_data)
 		self.rebuild_obj_person(f_data)
 		if self.person # person exists
-			self.update_avatar(f_data[:avatar])
+			self.update_avatar(f_data[:person_attributes][:avatar])
 			self.number = f_data[:number]
 			self.active = f_data[:active]
 			self.check_parents(f_data[:parents_attributes])
