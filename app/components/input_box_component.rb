@@ -57,13 +57,13 @@ class InputBoxComponent < ApplicationComponent
 		# offload some initial setting of field data
 		def set_box_attributes
 			kind_mappings = {
-				"image-box" => { class: "align-middle m-1 rounded border-blue-700 border-1", i_class: "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center" },
+				"image-box" => { class: "group flex relative w-75 h-100 overflow-hidden justify-center align-middle rounded border-gray-300 border-1" },
 				"number-box" => { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] || 1 },
 				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" },
 				"rich-text-area" => { class: "trix-content" },
 				"time-box" => { class: "text-right" },
 				"upload" => { class: "align-middle px py", i_class: "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center" }
-		}
+			}
 
 			mapping = kind_mappings[@fdata[:kind]]
 			return unless mapping

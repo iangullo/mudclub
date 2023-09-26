@@ -18,7 +18,7 @@
 #
 module UsersHelper
 	# return icon and top of HeaderComponent
-	def user_title_fields(title, icon: "user.svg", rows: 2, cols: nil, form: nil)
+	def user_title_fields(title, icon: "user.svg", rows: 3, cols: nil, form: nil)
 		title_start(icon:, title:, rows:, cols:, size: "75x100", _class: "w-75 h-100 align-center rounded", form:)
 	end
 
@@ -51,7 +51,7 @@ module UsersHelper
 
 	# fields to show when looking a user profile
 	def user_show_fields
-		res = user_title_fields(@user.person.s_name, icon: @user.picture, cols: 4)
+		res = user_title_fields(@user.person.s_name, icon: @user.picture)
 		if current_user == @user	# only allow current user to change his own password
 			res.last << {kind: "gap"}
 			res.last <<	button_field(
@@ -60,25 +60,24 @@ module UsersHelper
 				align: "right"
 			)
 		end
-		res << [{kind: "label", value: @user.person.surname, cols: 4}]
+		res << [{kind: "label", value: @user.person.surname}]
+		res << [{kind: "icon-label", icon: "logout.svg", label: @user.last_login, tip: I18n.t("user.last_in"), tipid: "last"}]
 		res
 	end
 
 	# Fieldcomponents to display user roles
 	def user_role
-		res =[[
-			{kind: "icon", value: "logout.svg", tip: I18n.t("user.last_in"), tipid: "last"},
-			{kind: "string", value: @user.last_login, cols: 3},
-		]]
-		unless current_user.id == @user.id
-			res.last <<	{kind: "gap"}
-			res.last << {kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device}
+		res =[]
+		if u_admin?
+			res << [{kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device}]
+		else
+			res << [{kind: "gap"}]
 		end
 		#res << [		# removing cause IP registered is always local - from NGINX
 		#	{kind: "gap", size: 1},
 		#	{kind: "string", value: "(#{@user.last_from})",cols: 3}
 		#] if @user.last_sign_in_ip?
-		res << [{kind: "label", value: "#{I18n.t("user.profile")}: "}]
+		res.last << {kind: "label", value: "#{I18n.t("user.profile")}: "}
 		res.last << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
 		res.last << {kind: "icon", value: "user.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.manager?
 		res.last << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
@@ -124,11 +123,6 @@ module UsersHelper
 		res.last << {kind: "label", value: "#{I18n.t("locale.lang")}:"}
 		res.last << {kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: @user.locale}
 		res
-	end
-
-	# return FieldComponents for form user avatar
-	def user_form_avatar
-		[[{kind: "upload", key: :avatar, label: I18n.t("person.pic"), value: @user.avatar.filename}]]
 	end
 
 	# return FieldComponents for form user personal data

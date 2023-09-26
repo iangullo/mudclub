@@ -1,13 +1,11 @@
 <%= render ModalComponent.new do %>
 	<%= form_for @user, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
 		<% @role.form     = form %>
-		<% @avatar.form   = form %>
 		<%= form.fields_for :person do |f| %>
 			<% @title.form    = f %>
 			<% @p_fields.form = f %>
 			<%= render @title %>
 			<%= render @role %>
-			<%= render @avatar %>
 			<%= render @p_fields %>
 			<% if @k_fields %>
 				<% @k_fields.form = form %>

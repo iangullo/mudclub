@@ -176,7 +176,6 @@ class UsersController < ApplicationController
 		def prepare_form(title, create: nil)
 			@title    = create_fields(helpers.user_form_title(title:))
 			@role     = create_fields(helpers.user_form_role)
-			@avatar   = create_fields(helpers.user_form_avatar)
 			@p_fields = create_fields(helpers.user_form_person)
 			if create
 				@k_fields = create_fields(helpers.user_form_pass)
