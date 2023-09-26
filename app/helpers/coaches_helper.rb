@@ -32,10 +32,12 @@ module CoachesHelper
 			{kind: "icon-label", icon: ( @coach.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"},
 			{kind: "string", value: @coach.person.dni.to_s}
 		]
-		res << [
-			{kind: "gap", size: 1},
-			{kind: "contact", email: @coach.person.email, phone: @coach.person.phone, device: device}
-		] unless u_coachid == @coach.id
+		unless u_coachid == @coach.id
+			res << [
+				{kind: "gap"},
+				{kind: "contact", email: @coach.person.email, phone: @coach.person.phone, device: device}
+			]
+		end
 		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
 	end
 
