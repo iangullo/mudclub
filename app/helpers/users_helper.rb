@@ -18,8 +18,8 @@
 #
 module UsersHelper
 	# return icon and top of HeaderComponent
-	def user_title_fields(title, icon: "user.svg", rows: 3, cols: nil, form: nil)
-		title_start(icon:, title:, rows:, cols:, size: "75x100", _class: "w-75 h-100 align-center rounded", form:)
+	def user_title_fields(title, icon: "user.svg", rows: 4, cols: nil, form: nil)
+		title_start(icon:, title:, rows:, cols:, size: "75x100", _class: "w-75 h-100 rounded align-top m-1", form:)
 	end
 
 	# return grid for @users GridComponent
@@ -52,50 +52,41 @@ module UsersHelper
 	# fields to show when looking a user profile
 	def user_show_fields
 		res = user_title_fields(@user.person.s_name, icon: @user.picture)
+		res.last << {kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device, align: "right", rows: 3}
+		res << [{kind: "label", value: @user.person.surname}]
+		res << [{kind: "icon-label", icon: "logout.svg", label: @user.last_login, tip: I18n.t("user.last_in"), tipid: "last", class: "inline-flex align-center"}]
 		if current_user == @user	# only allow current user to change his own password
-			res.last << {kind: "gap"}
 			res.last <<	button_field(
 				{kind: "link", icon: "key.svg", label: I18n.t("action.change"), url: edit_user_registration_path, frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true},
-				rows: 2,
 				align: "right"
 			)
 		end
-		res << [{kind: "label", value: @user.person.surname}]
-		res << [{kind: "icon-label", icon: "logout.svg", label: @user.last_login, tip: I18n.t("user.last_in"), tipid: "last"}]
 		res
 	end
 
 	# Fieldcomponents to display user roles
 	def user_role
 		res =[]
-		if u_admin?
-			res << [{kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device}]
-		else
-			res << [{kind: "gap"}]
-		end
 		#res << [		# removing cause IP registered is always local - from NGINX
 		#	{kind: "gap", size: 1},
 		#	{kind: "string", value: "(#{@user.last_from})",cols: 3}
 		#] if @user.last_sign_in_ip?
-		res.last << {kind: "label", value: "#{I18n.t("user.profile")}: "}
-		res.last << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
-		res.last << {kind: "icon", value: "user.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.manager?
-		res.last << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
-		res.last << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
-		res.last << {kind: "gap"}
+		res << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
+		res << {kind: "icon", value: "user.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.manager?
+		res << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
+		res << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
+		res << {kind: "gap"}
 		unless @user.user_actions.empty?
-			res.last << button_field(
-				{kind: "link", icon: user_actions_icon, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal", flip: true},
-				cols: 2,
-				align: "right"
+			res <<	button_field(
+				{kind: "link", icon: user_actions_icon, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal"},
 			)
 		end
-		res
+		[res]
 	end
 
 	# return FieldComponents for form title
 	def user_form_title(title:)
-		res = user_title_fields(title, icon: @user.picture, rows: 4, cols: 2, form: true)
+		res = user_title_fields(title, icon: @user.picture, cols: 2, form: true)
 		res << [
 			{kind: "label", value: I18n.t("person.name_a")},
 			{kind: "text-box", key: :name, value: @user.person.name, placeholder: I18n.t("person.name")}

@@ -113,10 +113,10 @@ class FieldsComponent < ApplicationComponent
 	# used for all icon/image fields - except for "image-box"
 	def set_icon(item)
 		if item[:kind]=="header-icon"
-			i_size       = "50x50"
-			item[:align] = "center"
-			item[:class] = item[:class] ? item[:class] + " align-center" : "align-center"
-			item[:rows]  = 2 unless item[:rows]
+			i_size         = "50x50"
+			item[:align]   = "center"
+			item[:class] ||= "align-center"
+			item[:rows]    = 2 unless item[:rows]
 		else
 			i_size = "25x25"
 			if item[:label]
@@ -143,7 +143,7 @@ class FieldsComponent < ApplicationComponent
 			item[:align] ||= "right"
 			item[:class]   = "align-center font-semibold text-indigo-900"
 		when "string"
-			item[:class]   = "align-top"
+			item[:class] ||= "align-top"
 		when "subtitle"
 			item[:class]   = "align-top font-bold"
 		when "title"

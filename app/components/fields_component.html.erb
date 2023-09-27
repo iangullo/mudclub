@@ -43,7 +43,9 @@
 				<% when "nested-form" %>
 					<%= render NestedComponent.new(model: item[:model], key: item[:key], form: @form, child: item[:child], row: item[:row], filter: item[:filter], btn_add: item[:btn_add]) %>
 				<% else %>
-					<%= item[:value] %>
+					<div class="<%= item[:class] %>">
+						<%= item[:value] %>
+					</div>
 				<% end %>
 			<% end %>
 		</tr>

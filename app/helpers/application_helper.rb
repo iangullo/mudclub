@@ -63,6 +63,19 @@ module ApplicationHelper
 		{kind: "button", button: button, cols:, rows:, align:, class:}
 	end
 
+	# standardised generator of "active" label for user/player/coach
+	def obj_status_field(obj)
+		if obj&.active
+			if obj.respond_to?(:number)
+				{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}
+			else
+				{kind: "string", value: I18n.t("status.active"),	align: "center"}
+			end
+		else
+			{kind: "string", value: "(#{I18n.t("status.inactive")})",	class: "font-semibold text-gray-500 justify-center",	align: "center"}
+		end
+	end
+
 	# wrappers to make code in all views/helpers more readable
 	def u_admin?
 		current_user.admin?

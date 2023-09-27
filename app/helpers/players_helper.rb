@@ -19,7 +19,7 @@
 module PlayersHelper
 	# return icon and top of Player FieldsComponent
 	def player_title_fields(title:, icon: "player.svg", rows: 2, cols: nil, form: nil)
-		title_start(icon:, title:, rows:, cols:, size: "75x100", _class: "w-75 h-100 align-center rounded", form:)
+		title_start(icon:, title:, rows:, cols:, size: "75x100", _class: "w-75 h-100 rounded align-top m-1", form:)
 	end
 
 	# return grid fields for players with obj indicating
@@ -51,12 +51,13 @@ module PlayersHelper
 
 	# FieldsComponent fields to show for a player
 	def player_show_fields(team: nil)
-		res = player_title_fields(title: I18n.t("player.single"), icon: @player.picture, rows: 4)
+		res = player_title_fields(title: I18n.t("player.single"), icon: @player.picture, rows: 3)
+		res.last << {kind: "contact", email: @player.person.email, phone: @player.person.phone, device: device, rows: 3} unless u_playerid == @player.id
 		res << [{kind: "label", value: @player.s_name}]
 		res << [{kind: "label", value: @player.person.surname}]
-		res << [{kind: "string", value: @player.person.birthday}]
-		res << [{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}, {kind: "string", value: @player.person.dni.to_s}]
-		res << [{kind: "icon-label", icon: (@player.active ? "Yes.svg" : "No.svg"),	label: "#{I18n.t("status.active")}:",	right: true, class: "flex font-semibold justify-center",	align: "center"}]
+		res << [obj_status_field(@player)]
+		res.last << {kind: "string", value: @player.person.dni.to_s}
+		res << [{kind: "gap"}, {kind: "string", value: @player.person.birthday}]
 		if team
 			att = @player.attendance(team: team)
 			res << [
@@ -81,7 +82,6 @@ module PlayersHelper
 				{kind: "text", value: att[:avg].to_s + "%"}
 			] if att[:avg]
 		end
-		res.last << {kind: "contact", email: @player.person.email, phone: @player.person.phone, device: device} unless u_playerid == @player.id
 		unless @player.parents.empty?
 			res << [{kind: "label", value: "#{I18n.t("parent.many")}:"}]
 			@player.parents.each { |parent|

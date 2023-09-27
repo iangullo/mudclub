@@ -19,25 +19,18 @@
 module CoachesHelper
 	# return icon and top of FieldsComponent
 	def coach_title(title:, icon: "coach.svg", rows: 2, cols: nil, _class: nil, form: nil)
-		title_start(icon: icon, title: title, rows: rows, size: "75x100", cols: cols, _class: "w-75 h-100 align-center rounded", form:)
+		title_start(icon: icon, title: title, rows: rows, size: "75x100", cols: cols, _class: "w-75 h-100 rounded align-top m-1", form:)
 	end
 
 	# FieldComponents to show a @coach
 	def coach_show_fields
-		res = coach_title(title: I18n.t("coach.single"), icon: @coach.picture, rows: 4)
+		res = coach_title(title: I18n.t("coach.single"), icon: @coach.picture, rows: 3)
+		res.last << {kind: "contact", email: @coach.person.email, phone: @coach.person.phone, device: device, rows: 3} unless u_coachid == @coach.id
 		res << [{kind: "label", value: @coach.s_name}]
 		res << [{kind: "label", value: @coach.person.surname}]
-		res << [{kind: "string", value: @coach.person.birthday}]
-		res << [
-			{kind: "icon-label", icon: ( @coach.active ? "Yes.svg" : "No.svg"), label: "#{I18n.t("status.active")}:", right: true, class: "inline-flex font-semibold align-center"},
-			{kind: "string", value: @coach.person.dni.to_s}
-		]
-		unless u_coachid == @coach.id
-			res << [
-				{kind: "gap"},
-				{kind: "contact", email: @coach.person.email, phone: @coach.person.phone, device: device}
-			]
-		end
+		res << [obj_status_field(@coach)]
+		res.last << {kind: "string", value: @coach.person.dni.to_s}
+		res << [{kind: "gap"}, {kind: "string", value: @coach.person.birthday}]
 		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
 	end
 
