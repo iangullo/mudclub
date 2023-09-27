@@ -83,10 +83,10 @@ module PlayersHelper
 			] if att[:avg]
 		end
 		unless @player.parents.empty?
-			res << [{kind: "label", value: "#{I18n.t("parent.many")}:"}]
+			res << [{kind: "label", value: "#{I18n.t("parent.many")}:", cols: 2}]
 			@player.parents.each { |parent|
 				res << [
-					{kind: "string", value: parent.to_s},
+					{kind: "string", value: parent.to_s, cols: 2},
 					{kind: "contact", email: parent.person.email, phone: parent.person.phone, device: device}
 				]
 			}
