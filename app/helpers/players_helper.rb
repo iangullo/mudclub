@@ -119,7 +119,7 @@ module PlayersHelper
 	def player_form_fields_1(retlnk:, team_id:)
 		[[
 			{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
-			{kind: "gap", size: 8}, {kind: "label", value: I18n.t("player.number")},
+			{kind: "gap", size: 5}, {kind: "label", value: I18n.t("player.number")},
 			{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
 			{kind: "hidden", key: :retlnk, value: retlnk},
 			{kind: "hidden", key: :team_id, value: team_id}
