@@ -6,10 +6,6 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ['selectedImage', 'imageFile'];
 
-  connect() {
-    console.log('Connected to imagebox controller');
-  }
-
   openFileDialog() {
     const fileInput = this.imageFileTarget;
 
