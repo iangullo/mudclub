@@ -1,57 +1,59 @@
-<table class="table-auto">
+<%= table_tag(controller: @controller, data: @data) do %>
 	<thead class="bg-indigo-900 text-gray-300">
 		<tr>
 			<% @title.each do |item| %>
-				<%=item[:cell]%>
-				<% case item[:kind] %>
-				<% when "normal", "inverse", "gap" %>
-					<%= sort_indicator if item[:sort] %>
-					<% if item[:order_by] %>
-						<%= build_order_link(column: item[:order_by], label: item[:value]) %>
-					<% else %>
-						<%= item[:value] %>
+				<%= tablecell_tag(item, tag: :th) do%>
+					<% case item[:kind] %>
+					<% when "normal", "inverse", "gap" %>
+						<%= sort_indicator if item[:sort] %>
+						<% if item[:order_by] %>
+							<%= build_order_link(column: item[:order_by], label: item[:value]) %>
+						<% else %>
+							<%= item[:value] %>
+						<% end %>
+					<% when "lines" %>
+						<% item[:value].each do |line|%>
+							<%= line.to_s %>
+							<br>
+						<% end %>
+					<% when "dropdown", "button" %>
+						<%= render item[:value] %>
 					<% end %>
-				<% when "lines" %>
-					<% item[:value].each do |line|%>
-						<%= line.to_s %>
-						<br>
-					<% end %>
-				<% when "dropdown", "button" %>
-					<%= render item[:value] %>
 				<% end %>
 			<% end %>
 		</tr>
 	</thead>
 	<tbody>
 		<% @rows.each do |g_row| %>
-			<tr<% unless g_row[:name]=="bottom" %> class="hover:text-white hover:bg-blue-700"<% end %>>
+			<%= tablerow_tag(data: g_row[:data], classes: g_row[:classes]) do %>
 				<% g_row[:items].each do |item| %>
-					<%= item[:cell] %>
-					<% case item[:kind] %>
-					<% when "bottom", "percentage", "gap" %>
-						<%= item[:value] %>
-					<% when "checkbox-q" %>
-						<div class="align-middle">
-							<%= check_box item[:key], "#{item[:player_id]}_#{item[:q]}", {checked: item[:value] == 1, class: "rounded bg-gray-200 text-blue-700"} %>
-						</div>
-					<% when "icon" %>
-						<%= link_to g_row[:url], data: g_row[:data] do %>
-							<%= image_tag item[:value], size: "25x25" %>
+					<%= tablecell_tag(item) do %>
+						<% case item[:kind] %>
+						<% when "bottom", "percentage", "gap" %>
+							<%= item[:value] %>
+						<% when "checkbox-q" %>
+							<div class="align-middle">
+								<%= check_box item[:key], "#{item[:player_id]}_#{item[:q]}", {checked: item[:value] == 1, class: "rounded bg-gray-200 text-blue-700"} %>
+							</div>
+						<% when "icon" %>
+							<%= link_to g_row[:url], data: g_row[:data] do %>
+								<%= image_tag item[:value], size: "25x25" %>
+							<% end %>
+						<% when "lines" %>
+							<% item[:value].each do |cad| %>
+								<%= link_to cad, g_row[:url], data: g_row[:data] %>
+								<br>
+							<% end %>
+						<% when "normal" %>
+							<%= link_to item[:value].to_s, g_row[:url], data: g_row[:data] %>
+						<% when "number-box" %>
+							<%= render InputBoxComponent.new(field: item, form: @form) %>
+						<% else %>
+							<%= render item[:value] %>
 						<% end %>
-					<% when "lines" %>
-						<% item[:value].each do |cad| %>
-							<%= link_to cad, g_row[:url], data: g_row[:data] %>
-							<br>
-						<% end %>
-					<% when "normal" %>
-						<%= link_to item[:value].to_s, g_row[:url], data: g_row[:data] %>
-					<% when "number-box" %>
-						<%= render InputBoxComponent.new(field: item, form: @form) %>
-					<% else %>
-						<%= render item[:value] %>
 					<% end %>
 				<% end %>
-			</tr>
+			<% end %>
 		<% end %>
 	</tbody>
-</table>
+<% end %>

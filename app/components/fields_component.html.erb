@@ -1,53 +1,54 @@
-<table>
+<%= table_tag do %>
 	<% @fields.each do |row| %>
-		<tr>
+		<%= tablerow_tag do %>
 			<% row.each do |item| %>
-				<%=item[:cell]%>
-				<% case item[:kind] %>
-				<% when /^(accordion|button|dropdown|search-.+)$/ %>
-					<%= render item[:value] %>
-				<% when "contact" %>
-					<%= render item[:mail] if item[:mail] %>
-					<%= render item[:call] if item[:call] %>
-					<%= render item[:whatsapp] if item[:whatsapp] %>
-				<% when /^(select-.+|.+box|.+-area|hidden|radio.+|upload)$/ %>
-					<%= render InputBoxComponent.new(field: item, form: @form) %>
-				<% when "gap" %>
-					<% item[:size].times do %>
-						&nbsp;
-					<% end %>
-				<% when "grid" %>
-					<%= render GridComponent.new(grid: item[:value], form: @form) %>
-				<% when "header-icon", "icon" %>
-					<% if item[:tip] # show tooltip %>
-						<button data-tooltip-target="tooltip-<%=item[:tipid]%>" data-tooltip-placement="bottom" type="button">
-					<% end %>
-					<%= image_tag item[:value], size: item[:size], class: item[:class] %>
-					<% if item[:tip] # show tooltip %>
-						</button>
-						<div id="tooltip-<%=item[:tipid]%>" role="tooltip" class="absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-lg shadow-sm opacity-0 tooltip">
-							<%=item[:tip]%>
-						</div>
-					<% end %>
-				<% when "icon-label" %>
-					<% if item[:right] %>
-						<%= item[:label] %>&nbsp;<%= image_tag(item[:icon], size: item[:size]) %>
+				<%= tablecell_tag(item) do %>
+					<% case item[:kind] %>
+					<% when /^(accordion|button|dropdown|search-.+)$/ %>
+						<%= render item[:value] %>
+					<% when "contact" %>
+						<%= render item[:mail] if item[:mail] %>
+						<%= render item[:call] if item[:call] %>
+						<%= render item[:whatsapp] if item[:whatsapp] %>
+					<% when /^(select-.+|.+box|.+-area|hidden|radio.+|upload)$/ %>
+						<%= render InputBoxComponent.new(field: item, form: @form) %>
+					<% when "gap" %>
+						<% item[:size].times do %>
+							&nbsp;
+						<% end %>
+					<% when "grid" %>
+						<%= render GridComponent.new(grid: item[:value], form: @form) %>
+					<% when "header-icon", "icon" %>
+						<% if item[:tip] # show tooltip %>
+							<button data-tooltip-target="tooltip-<%=item[:tipid]%>" data-tooltip-placement="bottom" type="button">
+						<% end %>
+						<%= image_tag item[:value], size: item[:size], class: item[:class] %>
+						<% if item[:tip] # show tooltip %>
+							</button>
+							<div id="tooltip-<%=item[:tipid]%>" role="tooltip" class="absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-lg shadow-sm opacity-0 tooltip">
+								<%=item[:tip]%>
+							</div>
+						<% end %>
+					<% when "icon-label" %>
+						<% if item[:right] %>
+							<%= item[:label] %>&nbsp;<%= image_tag(item[:icon], size: item[:size]) %>
+						<% else %>
+							<%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:label] %>
+						<% end %>
+					<% when "lines" %>
+						<% item[:value].each do |line|%>
+							<%= line.to_s %>
+							<br>
+						<% end %>
+					<% when "nested-form" %>
+						<%= render NestedComponent.new(model: item[:model], key: item[:key], form: @form, child: item[:child], row: item[:row], filter: item[:filter], btn_add: item[:btn_add]) %>
 					<% else %>
-						<%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:label] %>
+						<% if item[:dclass] %><div class="<%= item[:dclass] %>"><% end %>
+							<%= item[:value] %>
+						<% if item[:dclass] %></div><% end %>
 					<% end %>
-				<% when "lines" %>
-					<% item[:value].each do |line|%>
-						<%= line.to_s %>
-						<br>
-					<% end %>
-				<% when "nested-form" %>
-					<%= render NestedComponent.new(model: item[:model], key: item[:key], form: @form, child: item[:child], row: item[:row], filter: item[:filter], btn_add: item[:btn_add]) %>
-				<% else %>
-					<div class="<%= item[:class] %>">
-						<%= item[:value] %>
-					</div>
 				<% end %>
 			<% end %>
-		</tr>
+		<% end %>
 	<% end %>
-</table>
+<% end %>

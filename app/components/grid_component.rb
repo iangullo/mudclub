@@ -25,18 +25,21 @@
 #      => value: associated text
 #      => class: optional (unrequired?)
 #   => row items: have links in them (per row)
+#   => data: data for the stimulus controller (optional)
 # optional:
 #   => form: form object (if needed)
-#   => limits: limits to highlight visual cues in rows/columns
-#              {row: {max:, min:}, col: {min:, max:}}
+#   => controller: stimulus controller for dynamic view updates
 class GridComponent < ApplicationComponent
 	attr_writer :form
 
-	def initialize(grid:, form: nil)
+	def initialize(grid:, form: nil, controller: nil, data: nil)
 		@form   = form
-		@limits = grid[:limits]
 		@title  = parse_title(grid[:title])
 		@rows   = parse_rows(grid[:rows])
+		if controller	# add stimulus controller and data
+			@controller = controller
+			@data       = grid[:data].merge(action: "change->#{controller}#update")
+		end
 		if grid[:track]
 			@s_url  = grid[:track][:s_url]
 			@s_filt = grid[:track][:s_filter]
@@ -80,7 +83,6 @@ class GridComponent < ApplicationComponent
 					item[:class] = "bg-white"
 				end
 				item[:align] = "left" unless item[:align]
-				item[:cell]  = tablecell_tag(item, :th)
 				res << item
 			}
 			res
@@ -90,8 +92,10 @@ class GridComponent < ApplicationComponent
 		# each row links to a url - buttons to specific url
 		def parse_rows(rows)
 			rows.each { |row|
-				row[:data] = row[:frame]=="modal" ? {turbo_frame: "modal"} : {turbo_frame: "_top"}
-				row[:items].each { |item|
+				row[:data] = {} unless row[:data]
+				row[:data][:turbo_frame] = (row[:frame]=="modal" ? "modal" : "_top")
+			 	row[:classes] = ["hover:text-white", "hover:bg-blue-700"] unless row[:name]=="bottom"
+					row[:items].each { |item|
 					case item[:kind]
 					when "normal", "lines", "icon", "location"
 						item[:class] = "border px py"
@@ -124,7 +128,6 @@ class GridComponent < ApplicationComponent
 						item[:align] = "center"
 					end
 					item[:align] = "left" unless item[:align]
-					item[:cell]  = tablecell_tag(item)
 				}
 			}
 			rows

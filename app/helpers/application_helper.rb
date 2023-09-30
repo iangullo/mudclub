@@ -72,7 +72,7 @@ module ApplicationHelper
 				{kind: "string", value: I18n.t("status.active"),	align: "center"}
 			end
 		else
-			{kind: "string", value: "(#{I18n.t("status.inactive")})",	class: "font-semibold text-gray-500 justify-center",	align: "center"}
+			{kind: "string", value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center"}
 		end
 	end
 

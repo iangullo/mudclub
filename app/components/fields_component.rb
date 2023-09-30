@@ -94,7 +94,6 @@ class FieldsComponent < ApplicationComponent
 					item[:i_class] = "rounded p-0" unless item[:kind]=="gap"
 				end
 				item[:align] ||= "left"
-				item[:cell]    = tablecell_tag(item)
 				res.last << item
 			end
 		end
