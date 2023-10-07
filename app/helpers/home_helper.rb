@@ -24,10 +24,10 @@ module HomeHelper
 
 
 	# title fields for admin pages
-	def home_admin_title
+	def home_admin_title(title: current_user.to_s)
 		[
 			[{kind: "header-icon", value: "clublogo.svg"}, {kind: "title", value: "MudClub - #{I18n.t("action.admin")}"}],
-			[{kind: "string", value: current_user.to_s}]
+			[{kind: "string", value: title}]
 		]
 	end
 
@@ -55,5 +55,24 @@ module HomeHelper
 		]
 		res << {kind: "hidden", key: :retlnk, value: retlnk} if retlnk
 		res
+	end
+
+	# user action log grid
+	def home_actions_grid(actions:, retlnk: nil)
+		title = [
+			{kind: "normal", value: I18n.t("calendar.date"), align: "center"},
+			{kind: "normal", value: I18n.t("user.single")},
+			{kind: "normal", value: I18n.t("drill.desc")}
+		]
+
+		rows = []
+		actions.each { |action|
+			row = {url: "#", items: []}
+			row[:items] << {kind: "normal", value: action.date_time}
+			row[:items] << {kind: "normal", value: action.user.to_s}
+			row[:items] << {kind: "normal", value: action.description}
+			rows << row
+		}
+		{title:, rows:}
 	end
 end

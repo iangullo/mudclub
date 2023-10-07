@@ -23,7 +23,7 @@ class UserAction < ApplicationRecord
 
 	# clear UserAction log - for all users if user is nil
 	def self.clear(user=nil)
-		actions = user ? UserAction.all : UserAction.by_user(user.id)
+		actions = user ? UserAction.all : UserAction.by_user(user&.id)
 		actions.each { |act|
 			act.delete
 			if user

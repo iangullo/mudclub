@@ -41,7 +41,7 @@ class ApplicationComponent < ViewComponent::Base
 	def tablerow_tag(controller: nil, data: nil, classes: [], **row_options)
 		row_options[:controller] = controller if controller.present?
 		row_options[:data] = data if data.present?
-		row_options[:class] = ["your-row-class", *classes].join(' ')
+		row_options[:class] = classes.join(' ')
 		content_tag(:tr, row_options) do
 			yield
 		end

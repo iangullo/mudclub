@@ -48,4 +48,29 @@ class HomeController < ApplicationController
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
+
+	def actions
+		if check_access(roles: [:admin])
+			actions = UserAction.all
+			title   = helpers.home_admin_title(title: I18n.t("user.actions"))
+			title.last << helpers.button_field({kind: "clear", url: home_clear_path}) unless actions.empty?
+			@title = create_fields(title)
+			@grid  = create_grid(helpers.home_actions_grid(actions: UserAction.all))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	def clear
+		if check_access(roles: [:admin])
+			UserAction.clear
+			respond_to do |format|
+				a_desc = I18n.t("user.cleared")
+				format.html { redirect_to home_actions_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.json { head :no_content }
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
 end

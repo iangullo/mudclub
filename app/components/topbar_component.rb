@@ -134,6 +134,7 @@ class TopbarComponent < ApplicationComponent
 		a_menu = [c_menu]
 		a_menu << sport_menu
 		a_menu << menu_link(label: I18n.t("user.many"), url: '/users')
+		a_menu << menu_link(label: I18n.t("user.actions"), url: '/home/actions')
 		if user.is_coach?
 			menu = manager_menu(user)
 			c_menu[:options] += @admin_tab[:options]

@@ -21,6 +21,8 @@ Rails.application.routes.draw do
 	root to: "home#index"
 	get 'home/index'
 	get 'home/edit'
+	get 'home/actions'
+	get 'home/clear'
 	devise_for :users, :skip => [:registrations]
 	as :user do
 		get 'users/edit' => 'devise/registrations#edit', :as => 'edit_user_registration'
