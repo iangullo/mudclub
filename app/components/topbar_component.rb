@@ -30,7 +30,6 @@ class TopbarComponent < ApplicationComponent
 		@logincls  = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
 		@u_logged  = user&.present?
 		load_menus(user:, login:, logout:)
-		binding.break
 	end
 
 	private
