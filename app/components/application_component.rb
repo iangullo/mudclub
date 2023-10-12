@@ -31,15 +31,18 @@ class ApplicationComponent < ViewComponent::Base
 	# wrappers to generate different field tags - self-explanatory
 	def table_tag(controller: nil, data: nil, classes: [], **table_options)
 		table_options[:class] = ["table-auto", *classes].join(' ')
-		table_options[:controller] = controller if controller.present?
-		table_options[:data] = data if data.present?
+		if data.present?
+			table_options[:data]  = data
+			table_options[:data][:controller] = controller if controller
+		elsif controller
+			table_options[:data] = {controller: controller }
+		end
 		content_tag(:table, table_options) do
 			yield
 		end
 	end
 
-	def tablerow_tag(controller: nil, data: nil, classes: [], **row_options)
-		row_options[:controller] = controller if controller.present?
+	def tablerow_tag(data: nil, classes: [], **row_options)
 		row_options[:data] = data if data.present?
 		row_options[:class] = classes.join(' ')
 		content_tag(:tr, row_options) do
@@ -47,9 +50,8 @@ class ApplicationComponent < ViewComponent::Base
 		end
 	end
 
-	def tablecell_tag(item, controller: nil, tag: :td)
+	def tablecell_tag(item, tag: :td)
 		cell_options = {}
-		cell_options[:controller] = controller if controller.present?
 		cell_options[:data] = item[:data] if item[:data].present?
 		cell_options[:class] = item[:class] if item.key?(:class)
 		cell_options[:align] = item[:align] if item.key?(:align)

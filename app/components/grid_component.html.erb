@@ -33,7 +33,15 @@
 							<%= item[:value] %>
 						<% when "checkbox-q" %>
 							<div class="align-middle">
-								<%= check_box item[:key], "#{item[:player_id]}_#{item[:q]}", {checked: item[:value] == 1, class: "rounded bg-gray-200 text-blue-700"} %>
+								<%= check_box item[:key], "#{item[:player_id]}_#{item[:q]}",
+									{checked: item[:value] == 1,
+									class: "rounded bg-gray-200 text-blue-700",
+									data: {
+										target: "grid.checkbox",
+										rowId: item[:player_id],
+										columnId: item[:q]
+  								}}
+								%>
 							</div>
 						<% when "icon" %>
 							<%= link_to g_row[:url], data: g_row[:data] do %>
@@ -52,6 +60,10 @@
 							<%= render item[:value] %>
 						<% end %>
 					<% end %>
+				<% end %>
+				<% if @rowcue %>
+					<td data-target="grid.ruleIndicator">
+					</td>
 				<% end %>
 			<% end %>
 		<% end %>

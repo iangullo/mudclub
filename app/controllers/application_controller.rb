@@ -49,8 +49,8 @@ class ApplicationController < ActionController::Base
 	end
 
 	# return GridComponent object from a grid hash
-	def create_grid(grid)
-		grid ? GridComponent.new(grid:) : nil
+	def create_grid(grid, controller: nil)
+		grid ? GridComponent.new(grid:, controller:) : nil
 	end
 
 	# Create a submit component

@@ -383,7 +383,7 @@ class EventsController < ApplicationController
 			@title = create_fields(helpers.event_title_fields(form: true, cols: @event.match? ? 2 : nil))
 			if @event.match?
 				@fields  = create_fields(helpers.match_form_fields(new:))
-				@grid    = create_grid(helpers.match_roster_grid(edit: true)) unless new
+				@grid    = create_grid(helpers.match_roster_grid(edit: true), controller: "outings") unless new
 			end
 			unless new # editing
 				if @event.rest?

@@ -65,26 +65,30 @@ class BasketballSport < Sport
 
 	# grid to show/edit player outings for a match
 	def outings_grid(event, outings, edit: false)
-		head = [{kind: "top-cell", value: I18n.t("player.number"), align: "center"}, {kind: "top-cell", value: I18n.t("person.name")}]
-		rows = []
+		title = [{kind: "top-cell", value: I18n.t("player.number"), align: "center"}, {kind: "top-cell", value: I18n.t("person.name")}]
+		rows  = []
 		e_stats = event.stats
-		1.upto(outings[:total]) {|i| head << {kind: "normal", value: I18n.t("#{SPORT_LBL}period.q#{i}")}} if periods
+		1.upto(outings[:total]) {|i| title << {kind: "normal", value: I18n.t("#{SPORT_LBL}period.q#{i}")}} if periods
 		event.players.order(:number).each do |player|
-			p_stats = Stat.fetch(player_id: player.id, stats: e_stats, create: false)
-			row     = {url: "/players/#{player.id}?retlnk=/events/#{event.id}#{(edit ? '/edit' : '')}", items: []}
+			p_stats    = Stat.fetch(player_id: player.id, stats: e_stats, create: false)
+			row        = {url: "/players/#{player.id}?retlnk=/events/#{event.id}#{(edit ? '/edit' : '')}", items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
 			row[:items] << {kind: "normal", value: player.to_s}
 			1.upto(outings[:total]) do |q|
 				q_val = Stat.fetch(period: q, stats: p_stats, create: false).first&.value.to_i
 				if edit
-					row[:items] << {kind: "checkbox-q", key: :outings, player_id: player.id, q: "#{q}_q#{q}", value: q_val, align: "center"}
+					row[:items] << {kind: "checkbox-q", key: :outings, player_id: player.id, q: "q#{q}", value: q_val, align: "center"}
 				else
 					row[:items] << ((q_val == 1) ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
 				end
 			end
 			rows << row
 		end
-		{title: head, rows:}
+		rules      = self.rules.key(event.team.category.rules)
+		data       = self.limits[rules]["outings"]
+		data[:tot] = self.limits[rules]["periods"]["regular"]
+		data[:act] = self.limits[rules]["playing"]["max"]
+		{title:, rows:, data: }
 	end
 
 	# grid to show/edit player stats for a match

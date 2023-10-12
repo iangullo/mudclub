@@ -30,6 +30,7 @@ class TopbarComponent < ApplicationComponent
 		@logincls  = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
 		@u_logged  = user&.present?
 		load_menus(user:, login:, logout:)
+		binding.break
 	end
 
 	private
@@ -58,7 +59,13 @@ class TopbarComponent < ApplicationComponent
 
 	def menu_tabs(user)
 		if user.admin?
-			admin_menu(user)
+			a_menu = admin_menu(user)
+			if user.is_coach?
+				menu  = manager_menu(user)
+				menu += a_menu
+			else
+				a_menu
+			end
 		elsif user.manager?
 			manager_menu(user)
 		elsif user.is_coach?
@@ -87,21 +94,8 @@ class TopbarComponent < ApplicationComponent
 	def set_hamburger_menu
 		res = {kind: "menu", name: "hamburger", ham: true, options:[], class: @tabcls}
 		@menu_tabs.each do |m_opt|
-			if m_opt[:kind]=="menu" # let's break it down
-				m_opt[:options].each do |s_opt|
-					a_opt = s_opt.dup
-					a_opt[:label] = I18n.t("team.many") if s_opt[:url]=="/teams"
-					res[:options] << a_opt
-				end
-			else
-				res[:options] << m_opt
-			end
+			res[:options] << m_opt
 		end
-		@admin_tab[:options].each do |m_adm|
-			a_opt = m_adm.dup
-			a_opt[:name]="h_#{m_adm[:name]}"
-			res[:options] << a_opt
-		end if @admin_tab
 		res
 	end
 
@@ -119,7 +113,7 @@ class TopbarComponent < ApplicationComponent
 
 	# menu to manage sports
 	def sport_menu
-		s_menu = {kind: "menu", name: "sports-menu", label: I18n.t("sport.many"), options:[]}
+		s_menu = {kind: "menu", name: "sports", label: I18n.t("sport.many"), options:[]}
 		Sport.all.each do |sport|
 			s_path = "/sports/#{sport.id}"
 			s_menu[:options] << menu_link(label: sport.to_s, url: "#{s_path}")
@@ -129,52 +123,42 @@ class TopbarComponent < ApplicationComponent
 
 	# menu buttons for mudclub admins
 	def admin_menu(user)
-		c_menu = {kind: "menu", name: "club-menu", label: @clubname, options:[], class: @tabcls}
+		c_menu = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[], class: @tabcls}
 		c_menu[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")
-		a_menu = [c_menu]
-		a_menu << sport_menu
-		a_menu << menu_link(label: I18n.t("user.many"), url: '/users')
-		a_menu << menu_link(label: I18n.t("user.actions"), url: '/home/actions')
-		if user.is_coach?
-			menu = manager_menu(user)
-			c_menu[:options] += @admin_tab[:options]
-			@admin_tab[:options] = a_menu
-		else
-			menu = a_menu
-		end
-		menu
+		c_menu[:options] << sport_menu
+		c_menu[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
+		c_menu[:options] << menu_link(label: I18n.t("user.actions"), url: '/home/actions')
+		[c_menu]
 	end
 
 	# menu buttons for club managers
 	def manager_menu(user)
-		menu = [menu_link(label: I18n.t("season.single"), url: '/seasons')]
+		m_menu = {kind: "menu", name: "manage", label: @clubname, options:[], class: @tabcls}
+		m_menu[:options] << menu_link(label: I18n.t("season.single"), url: '/seasons')
+		m_menu[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
+		m_menu[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
+		m_menu[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
+		m_menu[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
+		menu = [m_menu]
 		if user.is_coach?
-			add_team_menu(user, menu)
+			menu += team_menu(user)
 			menu << menu_link(label: I18n.t("drill.many"), url: '/drills')
 		end
-		@admin_tab = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[], class: @tabcls}
-		@admin_tab[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
-		@admin_tab[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
-		@admin_tab[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
-		@admin_tab[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
 		menu
 	end
 
 	# menu buttons for coaches
 	def coach_menu(user)
-		menu = []
-		add_team_menu(user, menu)
+		menu = team_menu(user)
 		menu += [
 			menu_link(label: I18n.t("drill.many"), url: '/drills'),
 			menu_link(label: I18n.t("player.many"), url: '/players'),
-			menu_link(label: I18n.t("coach.many"), url: '/coaches'),
 			menu_link(label: I18n.t("location.many"), url: '/locations')
 		]
 	end
 
 	def player_menu(user)
-		menu = []
-		add_team_menu(user, menu)
+		menu = team_menu(user)
 		menu
 	end
 
@@ -183,7 +167,8 @@ class TopbarComponent < ApplicationComponent
 		menu
 	end
 
-	def add_team_menu(user, menu)
+	def team_menu(user)
+		menu    = []
 		m_teams = {kind: "menu", name: "teams", label: I18n.t("team.many"), options:[], class: @tabcls}
 		u_teams = user.team_list
 		if u_teams

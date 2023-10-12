@@ -32,14 +32,14 @@
 class GridComponent < ApplicationComponent
 	attr_writer :form
 
-	def initialize(grid:, form: nil, controller: nil, data: nil)
-		@form   = form
-		@title  = parse_title(grid[:title])
-		@rows   = parse_rows(grid[:rows])
+	def initialize(grid:, form: nil, controller: nil)
 		if controller	# add stimulus controller and data
 			@controller = controller
 			@data       = grid[:data].merge(action: "change->#{controller}#update")
 		end
+		@form   = form
+		@title  = parse_title(grid[:title])
+		@rows   = parse_rows(grid[:rows])
 		if grid[:track]
 			@s_url  = grid[:track][:s_url]
 			@s_filt = grid[:track][:s_filter]
@@ -94,6 +94,7 @@ class GridComponent < ApplicationComponent
 			rows.each { |row|
 				row[:data] = {} unless row[:data]
 				row[:data][:turbo_frame] = (row[:frame]=="modal" ? "modal" : "_top")
+				row[:data]["#{@controller}-target"] ="player" if @controller
 			 	row[:classes] = ["hover:text-white", "hover:bg-blue-700"] unless row[:name]=="bottom"
 					row[:items].each { |item|
 					case item[:kind]
@@ -124,6 +125,7 @@ class GridComponent < ApplicationComponent
 							item[:value] = ""
 						end
 					when "checkbox-q"
+						@rowcue    ||= true if @controller
 						item[:class] = "border px py"
 						item[:align] = "center"
 					end
