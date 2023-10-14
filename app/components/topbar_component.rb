@@ -180,12 +180,13 @@ class TopbarComponent < ApplicationComponent
 	def team_menu(user)
 		u_teams = user.team_list
 		slast   = Season.latest
-		u_teams.each {|team| u_teams.delete(team) unless team&.season == slast}
-		if u_teams.empty?
+		s_teams = []
+		u_teams.each {|team| s_teams << team if team.season == slast}
+		if s_teams.empty?
 			m_teams = menu_link(label: I18n.t("team.many"), url: '/teams')
 		else
 			m_teams = {kind: "menu", name: "teams", label: I18n.t("team.many"), options:[]}
-			u_teams.each {|team| m_teams[:options] << menu_link(label: team.name, url: '/teams/'+ team.id.to_s)}
+			s_teams.each {|team| m_teams[:options] << menu_link(label: team.name, url: '/teams/'+ team.id.to_s)}
 			m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: '/teams')
 		end
 		[m_teams]
