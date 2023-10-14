@@ -146,7 +146,7 @@ class TopbarComponent < ApplicationComponent
 
 	# menu buttons for club managers
 	def manager_menu(user)
-		m_menu = {kind: "menu", name: "manage", label: @clubname, options:[]}
+		m_menu = {kind: "menu", name: "manage", label: I18n.t("club.single"), options:[]}
 		m_menu[:options] << menu_link(label: I18n.t("season.single"), url: '/seasons')
 		m_menu[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
 		m_menu[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
