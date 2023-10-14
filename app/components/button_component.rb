@@ -70,14 +70,14 @@ class ButtonComponent < ApplicationComponent
 			when "location", "whatsapp"
 				@button[:tab]     = true
 				@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-			when "action", "back", "call", "cancel", "clear", "close", "edit", "email", "export", "forward", "import", "menu", "login", "save"
-				b_colour = b_colour + " font-bold"
+			when "action", "back", "call", "cancel", "clear", "close", "edit", "email", "export", "forward", "import", "login", "save"
+				b_colour += " font-bold"
 			else
-				@button[:d_class] = @button[:d_class] + " font-semibold"
+				@button[:d_class] += " font-semibold"
 			end
 		end
 		@button[:align]   = "center" unless @button[:align]
-		@button[:d_class] = @button[:d_class] + (b_colour ?  b_colour : "")
+		@button[:d_class] += (b_colour ?  b_colour : "")
 		@button
 	end
 
@@ -146,15 +146,15 @@ class ButtonComponent < ApplicationComponent
 		b_start        = @button[:b_class] ? "#{@button[:kind]}-btn " + @button[:b_class] : "#{@button[:kind]}-btn"
 		@button[:name] = @button[:kind] unless @button[:name]
 		case @button[:kind]
-		when "remove"
-			@button[:action] ||= "nested-form#remove"
 		when "add", "add-nested"
 			@button[:action] ||= "nested-form#add" if @button[:kind]=="add-nested"
+		when "cancel", "clear" "save", "import", "export", "login", "back", "forward"
+			b_start += " font-bold"
 		when "close"
 			@button[:action] ||= "turbo-modal#hideModal"
-			b_start = b_start + " font-bold"
-		when "cancel", "clear" "save", "import", "export", "menu", "login", "back", "forward"
-			b_start = b_start + " font-bold"
+			b_start += " font-bold"
+		when "remove"
+			@button[:action] ||= "nested-form#remove"
 		end
 		@button[:type]    = "submit" if @button[:kind] =~ /^(save|import|login)$/
 		@button[:replace] = true if @button[:kind] =~ /^(cancel|close|save|back)$/

@@ -1,50 +1,37 @@
 <!-- Navbar goes here -->
-<nav class="sticky top-0 z-50 w-full h-15 bg-blue-900 text-gray-300">
+<nav class="sticky top-0 z-50 w-full h-15 bg-blue-900 text-gray-300" aria-label="MudClub Topbar">
 	<div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
 		<div class="relative flex items-center justify-between h-16">
 			<!-- Mobile menu, show/hide based on menu state. -->
-			<div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-				<%= render DropdownComponent.new(button: @ham_menu) if @ham_menu %>
+			<div class="absolute inset-y-0 left-0 flex items-center sm:hidden" aria-label="Mobile menu">
+				<%= render @ham_menu if @ham_menu %>
 			</div>
 			<!-- Regular menu for large screens, show/hide based on menu state. -->
-			<div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
+			<div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start" aria-label="Large menu">
 				<!-- Link to homepage -->
 				<div class="flex-shrink-0 flex items-center">
 					<%= link_to "/", class: "inline-flex align-center", data: {turbo_frame: "_top", turbo_action: "replace"} do %>
 						<%= image_tag @clublogo, class: "block lg:hidden h-8 w-auto" %>
-						<%= image_tag @clublogo, class: "hidden lg:block h-8 w-auto" %>&nbsp;<label class="font-bold text-2xl text-yellow-500"><%=@clubname%></label>
+						<%= image_tag @clublogo, class: "hidden lg:block h-8 w-auto" %>&nbsp;<label class="font-bold text-2xl text-yellow-500"><%= @clubname %></label>
 					<% end %>
 				</div>
 				<!-- Navigation tabs -->
-				<div class="hidden sm:block sm:ml-6">
-					<div class="flex space-x-4">
-						<% if @u_logged %>
-						<ul class="list-reset flex text-base text-gray-300">
-							<% @menu_tabs.each do |tab| %>
-								<% if tab[:kind]=="menu" %>
-									<%= render DropdownComponent.new(button: tab) %>
-								<% else %>
-									<li class="<%=@tabcls%>">
-										<%= link_to tab[:label], tab[:url], data: {turbo_frame: "_top", turbo_action: "replace"} %>
-									</li>
-								<% end %>
-							<% end %>
-						</ul>
-						<% end %>
-					</div>
-				</div>
-			</div>
-			<!-- Profile dropdown -->
-			<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-				<div class="relative">
 				<% if @u_logged %>
-						<%= render DropdownComponent.new(button: @prof_tab) %>
-					<% else %>
-						<%= link_to @prof_tab[:url], data: {turbo_frame: "_top"} do %>
-							<%= image_tag(@prof_tab[:icon], size: @prof_tab[:size] ? @prof_tab[:size] : "25x25", class: @prof_tab[:i_class]) if @prof_tab[:icon] %>
-							<%= @prof_tab[:label] if @prof_tab[:label] %>
+				<div class="hidden sm:block sm:ml-6 flex space-x-4 text-base text-gray-300" aria-label="Navigation buttons">
+					<% @menu_tabs.each do |tab| %>
+						<% if tab[:options].present? %>
+							<%= render DropdownComponent.new(button: tab) %>
+						<% else %>
+							<%= link_to tab[:label], tab[:url], class: @tabcls, data: {turbo_frame: "_top", turbo_action: "replace"} %>
 						<% end %>
 					<% end %>
+				</div>
+				<% end %>
+			</div>
+			<!-- Profile dropdown -->
+			<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0" aria-label="User profile">
+				<div class="relative">
+					<%= render @prof_tab %>
 				</div>
 			</div>
 		</div>

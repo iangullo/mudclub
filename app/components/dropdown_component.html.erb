@@ -1,4 +1,4 @@
-<button id="<%=@button[:id]%>" data-dropdown-toggle="<%=@button[:name]%>" class="<%=@button[:b_class]%>" type="button">
+<button id="<%= @button[:id] %>" class="<%= @button[:b_class] %>" type="button" data-dropdown-toggle="<%= @button[:name] %>" data-dropdown-placement="<%= @button[:place] %>" data-dropdown-offset-distance=10 data-dropdown-offset-skidding=10>
 	<% if @button[:ham] %>
 	<svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -7,8 +7,13 @@
 	<%=image_tag(@button[:icon], size: @button[:size] ? @button[:size] : "25x25", class: @button[:i_class])%>
 	<% end %>
 	<% if @button[:label] %>
-	<div class="inline-flex items-center ml-1">
-		<%=@button[:label]%> <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+	<div class="inline-flex items-center">
+		<%= @button[:label] %>
+		<% if @button[:sub] %>
+			<svg aria-hidden="true" class="w-4 h-4 ml-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+		<% else %>
+			<svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+		<% end %>
 	</div>
 	<% end %>
 </button>
@@ -17,21 +22,9 @@
 		<% @button[:options].each do |option| %>
 		<li class="<%=@button[:o_class]%>">
 			<% if option[:options] %>
-				<button id="<%=option[:name]%>-btn" data-dropdown-toggle="<%=option[:name]%>" data-dropdown-placement="right-start" type="button" class="inline-flex items-center">
-					<%= image_tag(option[:icon], size: option[:size] ? option[:size] : "25x25") if option[:icon] %><%= option[:label] if option[:label] %>
-					<svg aria-hidden="true" class="w-4 h-4 ml-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-				</button>
-				<div id="<%=option[:name]%>" class="<%=@button[:d_class]%>">
-					<ul aria-labelledby="<%=option[:name]%>-btn">
-						<% option[:options].each do |subopt| %>
-							<li class="<%=@button[:o_class]%>">
-								<%= link_to subopt[:url], data: subopt[:data] do %>
-									<%= image_tag(subopt[:icon], size: subopt[:size] ? subopt[:size] : "25x25") if subopt[:icon] %><%= subopt[:label] if subopt[:label] %>
-								<% end %>
-							</li>
-						<% end %>
-					</ul>
-				</div>
+				<% option[:id]  = "btn#{option[:name]}" %>
+				<% option[:sub] = true %>
+				<%= render DropdownComponent.new(button: option) %>
 			<% else %>
 				<%= link_to option[:url], data: option[:data] do %>
 					<%= image_tag(option[:icon], size: option[:size] ? option[:size] : "25x25") if option[:icon] %><%= option[:label] if option[:label] %>
