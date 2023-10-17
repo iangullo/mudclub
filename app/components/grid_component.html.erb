@@ -56,14 +56,12 @@
 							<%= link_to item[:value].to_s, g_row[:url], data: g_row[:data] %>
 						<% when "number-box" %>
 							<%= render InputBoxComponent.new(field: item, form: @form) %>
+						<% when "text" %>
+							<%= item[:value] %>
 						<% else %>
 							<%= render item[:value] %>
 						<% end %>
 					<% end %>
-				<% end %>
-				<% if @rowcue %>
-					<td data-target="grid.ruleIndicator">
-					</td>
 				<% end %>
 			<% end %>
 		<% end %>
