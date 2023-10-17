@@ -67,9 +67,20 @@ class BasketballSport < Sport
 	def outings_grid(event, outings, edit: false)
 		title = [{kind: "top-cell", value: I18n.t("player.number"), align: "center"}, {kind: "top-cell", value: I18n.t("person.name")}]
 		rows  = []
-		e_stats = event.stats
-		1.upto(outings[:total]) {|i| title << {kind: "normal", value: I18n.t("#{SPORT_LBL}period.q#{i}")}} if periods
+		e_stats    = event.stats
+		rules      = self.rules.key(event.team.category.rules)
+		data       = self.limits[rules]["outings"]
+		data[:tot] = self.limits[rules]["periods"]["regular"]
+		data[:act] = self.limits[rules]["playing"]["max"]
+		if periods
+			q_players = {}
+			1.upto(outings[:total]) do |i|
+				title << {kind: "normal", value: I18n.t("#{SPORT_LBL}period.q#{i}")}
+				q_players[i] = 0
+			end
+		end
 		event.players.order(:number).each do |player|
+			p_outings  = 0
 			p_stats    = Stat.fetch(player_id: player.id, stats: e_stats, create: false)
 			row        = {items: []}
 			row[:items] << {kind: "text", value: player.number, align: "center"}
@@ -78,16 +89,25 @@ class BasketballSport < Sport
 				q_val = Stat.fetch(period: q, stats: p_stats, create: false).first&.value.to_i
 				if edit
 					row[:items] << {kind: "checkbox-q", key: :outings, player_id: player.id, q: "q#{q}", value: q_val, align: "center", data: {columnId: "q#{q}"}}
+				elsif (q_val == 1)
+					p_outings    += 1 if (q <= data["first"])
+					q_players[q] += 1
+					row[:items] << {kind: "icon", value: "Yes.svg", class: ""}
 				else
-					row[:items] << ((q_val == 1) ? {kind: "icon", value: "Yes.svg"} : {kind: "gap", size: 1, class: "border px py"})
+					row[:items] << {kind: "gap", size: 1, class: "border px py"}
 				end
 			end
+			row[:classes] = (p_outings < data["min"]) || (p_outings > data["max"]) ? ["border", "px", "py", "bg-red-300"] : []
 			rows << row
 		end
-		rules      = self.rules.key(event.team.category.rules)
-		data       = self.limits[rules]["outings"]
-		data[:tot] = self.limits[rules]["periods"]["regular"]
-		data[:act] = self.limits[rules]["playing"]["max"]
+		unless edit
+			1.upto(outings[:total]) do |i|
+				if q_players[i] != data[:act]	# higligh all the Q as "bad"
+					rows.each {|row| row[:items][1+i][:class] += " bg-red-300"}
+				end
+			end
+		end
+
 		{title:, rows:, data:}
 	end
 

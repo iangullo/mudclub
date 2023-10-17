@@ -95,37 +95,34 @@ class GridComponent < ApplicationComponent
 				row[:data] ||= {}
 				row[:data][:turbo_frame] = (row[:frame]=="modal" ? "modal" : "_top") if row[:url]
 				row[:data]["#{@controller}-target"] ="player" if @controller
-			 	row[:classes] = ["hover:text-white", "hover:bg-blue-700"] unless row[:name]=="bottom"
+			 	row[:classes] += ["hover:text-white", "hover:bg-blue-700"] unless row[:name]=="bottom"
 					row[:items].each { |item|
 					case item[:kind]
 					when "normal", "lines", "icon", "location", "text"
-						item[:class] = "border px py"
+						item[:class] ||= "border px py"
 					when "button"
-						item[:class] = "bg-white" unless item[:button][:kind]=="location"
-						item[:value] = ButtonComponent.new(button: item[:button])
+						item[:class] ||= "bg-white" unless item[:button][:kind]=="location"
+						item[:value]   = ButtonComponent.new(button: item[:button])
 					when "bottom"
 						item[:align] ||= "center"
 						item[:class]   = "text-indigo-900 font-semibold"
 					when "checkbox-q"
-						@rowcue    ||= true if @controller
-						item[:align] = "center"
-						item[:class] = "border px py"
-					when "colcue"
-						item[:align] ||= "center"
-						item[:class]   = "text-center"
+						@rowcue      ||= true if @controller
+						item[:align]   = "center"
+						item[:class] ||= "border px py"
 					when "percentage"
 						item[:align] ||= "center"
-						item[:class]   = "font-semibold border px py "
+						item[:class] ||= "font-semibold border px py"
 						if item[:value] # not nil
 							case item[:value]
 							when 0..25
-								item[:class] += "text-red-900"
+								item[:class] += " text-red-900"
 							when 26..50
-								item[:class] += "text-yellow-700"
+								item[:class] += " text-yellow-700"
 							when 51..75
-								item[:class] += "text-gray-700"
+								item[:class] += " text-gray-700"
 							when 76..100
-								item[:class] += "text-green-900"
+								item[:class] += " text-green-900"
 							end
 							item[:value] = number_to_percentage(item[:value], precision: 0)
 						else
