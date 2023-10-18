@@ -94,8 +94,9 @@ class GridComponent < ApplicationComponent
 			rows.each { |row|
 				row[:data] ||= {}
 				row[:data][:turbo_frame] = (row[:frame]=="modal" ? "modal" : "_top") if row[:url]
-				row[:data]["#{@controller}-target"] ="player" if @controller
-			 	row[:classes] += ["hover:text-white", "hover:bg-blue-700"] unless row[:name]=="bottom"
+				row[:data]["#{@controller}-target"] = "player" if @controller
+				row[:classes] ||= []
+			 	row[:classes]  += ["hover:text-white", "hover:bg-blue-700"] unless row[:name]=="bottom"
 					row[:items].each { |item|
 					case item[:kind]
 					when "normal", "lines", "icon", "location", "text"
