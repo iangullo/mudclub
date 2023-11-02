@@ -66,5 +66,10 @@ class DeviseCreateUsers < ActiveRecord::Migration[6.1]
     # additional data to link well in bclub database
     # fake user_id (0)
     ActiveRecord::Base.connection.execute("INSERT INTO users (id, email, person_id, created_at, updated_at) values (0,'fake@mudclub.org',0,'2021-09-13 08:12','2021-09-13 08:12')")
+    ActiveRecord::Base.connection.execute("INSERT INTO users (id, email, person_id, created_at, updated_at) values (1,'admin@mudclub.org',1,'2021-09-13 08:12','2021-09-13 08:12')")
+    admin = User.last
+    admin.password = 'mudclub-admin'
+    admin.password_confirmation = 'mudclub-admin'
+    admin.save
   end
 end

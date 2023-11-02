@@ -19,5 +19,8 @@
 class AddUserToPerson < ActiveRecord::Migration[6.1]
   def change
     add_reference :people, :user, null: false, foreign_key: true, default: 0
+    u_id = User.find_by(email: 'admin@mudclub.org')&.id.to_i
+    p_id = Person.find_by(email: 'admin@mudclub.org')&.id.to_i
+    ActiveRecord::Base.connection.execute("UPDATE people SET user_id=#{u_id} WHERE id=#{p_id}")
   end
 end
