@@ -123,7 +123,7 @@ class User < ApplicationRecord
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
-		f_data[:person_attributes][:email] = f_data[:email]
+		f_data[:person_attributes][:email] ||= f_data[:email]
 		self.rebuild_obj_person(f_data)
 		if self.person
 			self.update_avatar(f_data[:person_attributes][:avatar])
