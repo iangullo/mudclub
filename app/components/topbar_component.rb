@@ -157,6 +157,7 @@ class TopbarComponent < ApplicationComponent
 			@menu_tabs += team_menu(user)
 			@menu_tabs << menu_link(label: I18n.t("drill.many"), url: '/drills')
 		end
+		@menu_tabs
 	end
 
 	# menu buttons for coaches
