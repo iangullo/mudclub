@@ -75,8 +75,7 @@ class UsersController < ApplicationController
 				@user = User.new
 				@user.rebuild(user_params)	# build user
 				if @user.modified? then
-					if @user.email.presence
-						@user.save
+					if @user.email.presence && @user.paranoid_create
 						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
 						register_action(:created, a_desc)

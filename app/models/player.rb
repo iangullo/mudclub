@@ -202,7 +202,7 @@ class Player < ApplicationRecord
 						parent = Parent.new unless parent
 						parent.rebuild(p_input)
 						parent.person_id = parent.person.id
-						@parent_changed  = parent.save if parent.changed? || parent.person.changed?
+						@parent_changed  = parent.paranoid_create if parent.changed? || parent.person.changed?
 						parent.person.update!(parent_id: parent.id) unless parent.person.parent_id == parent.id
 						self.parents << parent unless self.parents.include?(parent)
 					end

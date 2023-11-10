@@ -83,7 +83,7 @@ class CoachesController < ApplicationController
 				@coach = Coach.new
 				@coach.rebuild(coach_params)	# rebuild coach
 				if @coach.modified? then	# it's a new coach
-					if @coach.save # coach saved to database
+					if @coach.paranoid_create # coach saved to database
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
 						register_action(:created, a_desc)

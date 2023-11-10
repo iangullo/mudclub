@@ -49,14 +49,7 @@ module PersonDataManagement
 			p_aux = Person.fetch(p_data)
 			p_aux ? self.person = p_aux : self.build_person
 			self.person.rebuild(p_data)
-			unless self.person.persisted? # Save if new person
-				begin
-					self.person.save
-				rescue ActiveRecord::RecordNotUnique => e
-					Rails.logger.error("RecordNotUnique error: #{e.message}")
-					self.person.save
-				end
-			end
+			self.person.paranoid_create unless self.person.persisted? # Save if new person
 			self.bind_person if self.person.persisted?	# ensure correct binding
 		end
 	end
@@ -125,6 +118,15 @@ module PersonDataManagement
 				self.avatar.attach(new_avatar)
 				@avatar_changed = true
 			end
+		end
+	end
+
+	def paranoid_create
+		begin
+			self.save
+		rescue ActiveRecord::RecordNotUnique => e
+			Rails.logger.error("RecordNotUnique error: #{e.message}")
+			self.save
 		end
 	end
 
