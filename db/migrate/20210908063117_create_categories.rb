@@ -26,6 +26,7 @@ class CreateCategories < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Category.create(id: 0, name: I18n.t("scope.none"), sex: "mixed", min_years: 5, max_years: 99)
+    cname = I18n.t("scope.none")
+    ActiveRecord::Base.connection.execute("INSERT INTO categories (id, name, sex, min_years, max_years, created_at, updated_at) values (0,'#{cname}', 'mixed', 5, 99,'2021-09-13 08:12','2021-09-13 08:12')")
   end
 end

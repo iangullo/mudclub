@@ -23,6 +23,7 @@ class CreateDivisions < ActiveRecord::Migration[6.1]
 
       t.timestamps
     end
-    Division.create(id: 0, name: I18n.t("scope.none"))
+    dname = I18n.t("scope.none")
+    ActiveRecord::Base.connection.execute("INSERT INTO divisions (id, name, created_at, updated_at) values (0,'#{dname}','2021-09-13 08:12','2021-09-13 08:12')")
   end
 end

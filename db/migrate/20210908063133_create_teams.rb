@@ -27,6 +27,7 @@ class CreateTeams < ActiveRecord::Migration[6.1]
       t.timestamps
     end
     add_reference :teams, :homecourt, foreign_key: { to_table: :locations }, default: 0
-    Team.create(id: 0, name: I18n.t("team.single"))
+    tname = I18n.t("team.single")
+    ActiveRecord::Base.connection.execute("INSERT INTO teams (id, name, created_at, updated_at) values (0,'#{tname}','2021-09-13 08:12','2021-09-13 08:12')")
  end
 end

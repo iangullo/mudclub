@@ -319,6 +319,7 @@ es:
   status:
     active: "Activo"
     active_a: "Act."
+    calculating: "Calculando"
     closed: "Cerrado"
     empty: "Sin datos que mostrar"
     inactive: "Inactivo"
@@ -394,6 +395,7 @@ es:
     many: "Usuarios"
     never: "(sin entradas)"
     new: "Crear Usuario"
+    no_email: "¡falta e-mail del usuario!"
     profile: "Perfil"
     single: "Usuario"
     updated: "Usuario guardado: "

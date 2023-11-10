@@ -49,8 +49,15 @@ module PersonDataManagement
 			p_aux = Person.fetch(p_data)
 			p_aux ? self.person = p_aux : self.build_person
 			self.person.rebuild(p_data)
-			self.person.save unless self.person.persisted? # Save if new person
-			self.bind_person	# ensure correct binding
+			unless self.person.persisted? # Save if new person
+				begin
+					self.person.save
+				rescue ActiveRecord::RecordNotUnique => e
+					Rails.logger.error("RecordNotUnique error: #{e.message}")
+					self.person.save
+				end
+			end
+			self.bind_person if self.person.persisted?	# ensure correct binding
 		end
 	end
 

@@ -75,7 +75,8 @@ class UsersController < ApplicationController
 				@user = User.new
 				@user.rebuild(user_params)	# build user
 				if @user.modified? then
-					if @user.email.presence && @user.save
+					if @user.email.presence
+						@user.save
 						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
 						register_action(:created, a_desc)
@@ -87,8 +88,9 @@ class UsersController < ApplicationController
 						format.json { render json: @user.errors, status: :unprocessable_entity }
 					end
 				else	# no changes to be made
-					format.html { redirect_to @user, notice: helpers.flash_message("#{I18n.t("user.duplicate")} '#{@user.s_name}'"), data: {turbo_action: "replace"}}
-					format.json { render :show,  :created, location: @user }
+					notice = (@user.persisted? ? "#{I18n.t("user.no_data")} '#{@user.s_name}'" : @user.errors)
+					format.html { redirect_to users_path, notice: helpers.flash_message(notice), data: {turbo_action: "replace"}}
+					format.json { render :index,  :created, location: users_path }
 				end
 			end
 		else
