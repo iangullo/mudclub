@@ -2,9 +2,9 @@ wb = xlsx_package.workbook
 
 wb.add_worksheet(name: "Coach") do |sheet|
   # Create the header row
-  sheet.add_row [t("person.pid"), t("person.nick"), t("person.name"), t("person.surname"), t("person.bday"), t("person.email"), t("person.phone"), t("question.active")]
+  sheet.add_row [t("person.pid"), t("person.nick"), t("person.name"), t("person.surname"), t("person.bday"), t("person.address"), t("person.email"), t("person.phone"), t("question.active")]
   # Create entries for each item
   Coach.real.each do |coach|
-    sheet.add_row [coach.person.dni, coach.person.nick, coach.person.name, coach.person.surname, coach.person.birthday, coach.person.email, coach.person.phone, coach.active]
+    sheet.add_row [coach.person.dni, coach.person.nick, coach.person.name, coach.person.surname, coach.person.birthday, coach.person.address, coach.person.email, coach.person.phone, coach.active]
   end
 end
