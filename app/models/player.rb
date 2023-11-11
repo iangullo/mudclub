@@ -95,23 +95,19 @@ class Player < ApplicationRecord
 
 	# Return email/phone of player or of the associated tutors if underage players
 	def p_email
+		email = ""
 		if self.person.age < 18
-			email = ""
 			self.parents.each { |par| email += "#{par.person.email.presence}\n" if par.person.email.present?}
-			email
-		else
-			self.person.email.presence
 		end
+		email += self.person.email.presence
 	end
 
 	def p_phone
+		phone = ""
 		if self.person.age < 18
-			phone = ""
 			self.parents.each { |par| phone += "#{par.person.phone.presence}\n" if par.person.phone.present?}
-			phone
-		else
-			self.person.phone.presence
 		end
+		phone += self.person.phone.presence
 	end
 
 	# Apply filters to player collection
