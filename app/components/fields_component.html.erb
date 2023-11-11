@@ -25,8 +25,8 @@
 						<%= image_tag item[:value], size: item[:size], class: item[:class] %>
 						<% if item[:tip] # show tooltip %>
 							</button>
-							<div id="tooltip-<%=item[:tipid]%>" role="tooltip" class="absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-lg shadow-sm opacity-0 tooltip">
-								<%=item[:tip]%>
+							<div id="tooltip-<%=item[:tipid]%>" role="tooltip" class="absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip">
+								<%= item[:tip] %>
 							</div>
 						<% end %>
 					<% when "icon-label" %>
@@ -42,6 +42,19 @@
 						<% end %>
 					<% when "nested-form" %>
 						<%= render NestedComponent.new(model: item[:model], key: item[:key], form: @form, child: item[:child], row: item[:row], filter: item[:filter], btn_add: item[:btn_add]) %>
+					<% when "person-type" %>
+						<% item[:icons].each do |icon| %>
+							<% if icon[:tip] # show tooltip %>
+								<button data-tooltip-target="tooltip-<%=icon[:tipid]%>" data-tooltip-placement="bottom" type="button">
+							<% end %>
+							<%= image_tag icon[:img], size: "25x25" %>
+							<% if icon[:tip] # show tooltip %>
+								</button>
+								<div id="tooltip-<%=icon[:tipid]%>" role="tooltip" class="absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip">
+									<%= icon[:tip] %>
+								</div>
+							<% end %>
+						<% end %>
 					<% else %>
 						<% if item[:dclass] %><div class="<%= item[:dclass] %>"><% end %>
 							<%= item[:value] %>

@@ -37,6 +37,7 @@
 # => "number-box": :key (field name), :value (number_field), size:
 # => "date-box": :key (field name), :value (date_field), :s_year (start_year)
 # => "contact": mailto:, tel: and whatsapp: buttons for a person
+# => "person-type": icons (& tips) for type of person in the database
 # => "time-box": :hour & :mins (field names)
 # => "select-box": :key (field name), :options (array of valid options), :value (form, select)
 # => "select-collection": :key (field name), :collection, :value (form, select)
@@ -90,6 +91,8 @@ class FieldsComponent < ApplicationComponent
 					set_text_field(item)
 				when /^(select-.+|.+-box|.+-area)$/
 					item[:class] ||= "align-top"
+				when "person-type"
+					set_person_type(item)
 				else
 					item[:i_class] = "rounded p-0" unless item[:kind]=="gap"
 				end
@@ -150,5 +153,13 @@ class FieldsComponent < ApplicationComponent
 		when "top-cell"
 			item[:class]   = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
 		end
+	end
+
+	# set icons for a person-type
+	def set_person_type(item)
+		item[:icons] = []
+		item[:icons] << {img: "user.svg", tip: I18n.t("role.user"), tipid: "puser"} if item[:user]
+		item[:icons] << {img: "player.svg", tip: I18n.t("role.player"), tipid: "pplayer"} if item[:player]
+		item[:icons] << {img: "coach.svg", tip: I18n.t("role.coach"), tipid: "pcoach"} if item[:coach]
 	end
 end
