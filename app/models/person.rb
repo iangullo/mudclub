@@ -145,8 +145,9 @@ class Person < ApplicationRecord
 						row[3], # surname
 						row[1],	# nick
 						row[4],	# birthday
-						row[6],	# email
-						row[7], # phone
+						row[6],	# address
+						row[7],	# email
+						row[8], # phone
 						row[5]	# female
 					]
 				)

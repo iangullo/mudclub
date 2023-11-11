@@ -144,13 +144,14 @@ class Player < ApplicationRecord
 						row[4],	# surname
 						row[2],	# nick
 						row[5],	# birthday
-						row[7],	# email
-						row[8], # phone
+						row[7],	# address
+						row[8],	# email
+						row[9], # phone
 						row[6]	# female
 					]
 				)
 				if j.person	# only if person exists
-					j.active = j.read_field(to_boolean(row[9].value), j.active, false)
+					j.active = j.read_field(to_boolean(row[10].value), j.active, false)
 					j.save
 				end
 			end

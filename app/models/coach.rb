@@ -79,13 +79,14 @@ class Coach < ApplicationRecord
 						row[3],	# surname
 						row[1],	# nick
 						row[4],	# birthday
-						row[5],	# email
-						row[6], # phone
+						row[5],	# address
+						row[6],	# email
+						row[7], # phone
 						nil	# don't care on male/female tag
 					]
 				)
 				if c.person	# only if person is bound
-					c.active = c.read_field(to_boolean(row[7].value), j.active, false)
+					c.active = c.read_field(to_boolean(row[8].value), j.active, false)
 					c.save
 				end
 			end

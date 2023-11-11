@@ -56,17 +56,18 @@ module PersonDataManagement
 
 	# imports person data from received excel row
 	# row is an array ordered as:
-	# [ dni, name, surname, nick, birthday, email, phone, female ]
+	# [ dni, name, surname, nick, birthday, address, email, phone, female ]
 	def import_person_row(row)
 		p_ data = {
 			dni:      self.read_field(row[0], d_value(:dni), I18n.t("person.pid")),
 			name:     self.read_field(row[1], d_value(:name), ""),
 			surname:  self.read_field(row[2], d_value(:surname), ""),
-			nick:     self.read_field(row[2], d_value(:nick), ""),
-			birthday: self.read_field(row[3], d_value(:birthday), Date.today.to_s),
-			email:		self.read_field(row[4], d_value(:email), ""),
-			phone:    self.read_field(Phonelib.parse(row[5]).delete(' ').international, d_value(:phone), ""),
-			female:   self.read_field(to_boolean(row[6].value), false, false)
+			nick:     self.read_field(row[3], d_value(:nick), ""),
+			birthday: self.read_field(row[4], d_value(:birthday), Date.today.to_s),
+			address:	self.read_field(row[5], d_value(:address), ""),
+			email:		self.read_field(row[6], d_value(:email), ""),
+			phone:    self.read_field(Phonelib.parse(row[7]).delete(' ').international, d_value(:phone), ""),
+			female:   self.read_field(to_boolean(row[8].value), false, false)
 		}
 		self.rebuild_person(p_data)
 	end
