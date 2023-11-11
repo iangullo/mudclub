@@ -78,7 +78,7 @@
 		<a href='<%= @fdata[:url] %>' hidden data-search-params-target='anchor' data-select-load-target='click' data-turbo-frame='<%= @form.field_id(@fdata[:key], :turbo_frame) %>'>GetDrill</a>
 	</fieldset>
 <% when "text-area" %>
-	<%= @form.text_area(@fdata[:key], value: @fdata[:value], cols: @fdata[:size], rows: @fdata[:lines], class: @i_class) %>
+	<%= @form.text_area(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], cols: @fdata[:size], rows: @fdata[:lines], class: @i_class) %>
 <% when "text-box" %>
 	<% if @fdata[:options] # autosearch text input %>
 		<%= @form.text_field(@fdata[:key], list: "#{@fdata[:key]}_list", value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class) %>
