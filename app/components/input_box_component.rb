@@ -61,7 +61,7 @@ class InputBoxComponent < ApplicationComponent
 				"number-box" => { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] || 1 },
 				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" },
 				"rich-text-area" => { class: "trix-content" },
-				"text-area" => {class: "text-md"},
+				"text-area" => {class: "text-base"},
 				"time-box" => { class: "text-right" },
 				"upload" => { class: "align-middle px py", i_class: "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center" }
 			}
