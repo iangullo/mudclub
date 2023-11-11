@@ -188,6 +188,7 @@ en:
     new: "New password"
     old: "Current password"
   person:
+    address: "Home address"
     duplicate: "Duplicate person: "
     created: "Created person: "
     updated: "Updated person: "

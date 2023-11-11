@@ -32,7 +32,7 @@ class ApplicationComponent < ViewComponent::Base
 	def table_tag(controller: nil, data: nil, classes: [], **table_options)
 		table_options[:class] = ["table-auto", *classes].join(' ')
 		if data.present?
-			table_options[:data]  = data
+			table_options[:data] = data
 			table_options[:data][:controller] = controller if controller
 		elsif controller
 			table_options[:data] = {controller: controller }
@@ -43,8 +43,8 @@ class ApplicationComponent < ViewComponent::Base
 	end
 
 	def tablerow_tag(data: nil, classes: [], **row_options)
-		row_options[:data] = data if data.present?
-		row_options[:class] = classes.join(' ')
+		row_options[:data]  = data if data.present?
+		row_options[:class] = classes.join(' ') unless classes.empty?
 		content_tag(:tr, row_options) do
 			yield
 		end
@@ -52,11 +52,11 @@ class ApplicationComponent < ViewComponent::Base
 
 	def tablecell_tag(item, tag: :td)
 		cell_options = {}
-		cell_options[:data] = item[:data] if item[:data].present?
-		cell_options[:class] = item[:class] if item.key?(:class)
-		cell_options[:align] = item[:align] if item.key?(:align)
-		cell_options[:rowspan] = item[:rows] if item.key?(:rows)
-		cell_options[:colspan] = item[:cols] if item.key?(:cols)
+		cell_options[:data]    = item[:data] if item[:data].present?
+		cell_options[:class]   = item[:class] if item[:class].present?
+		cell_options[:align]   = item[:align] if item[:align].present?
+		cell_options[:rowspan] = item[:rows] if item[:rows].present?
+		cell_options[:colspan] = item[:cols] if item[:cols].present?
 		content_tag(tag, cell_options) do
 			yield
 		end

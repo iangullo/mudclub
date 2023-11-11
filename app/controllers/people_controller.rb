@@ -47,7 +47,10 @@ class PeopleController < ApplicationController
 	# GET /people/1.json
 	def show
 		if check_access(roles: [:admin], obj: @person)
-			@fields = create_fields(helpers.person_show_fields)
+			fields = helpers.person_show_fields(@person)
+			fields << [{kind: "gap", size: 1}]
+			fields.last << {kind: "person-type", user: (@person.user_id > 0), player: (@person.player_id > 0), coach: (@person.coach_id > 0)}
+			@fields = create_fields(fields)
 			@submit = create_submit(submit: (u_admin? or u_personid==@person.id) ? edit_person_path(@person) : nil, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -164,7 +167,6 @@ class PeopleController < ApplicationController
 		# prepare form FieldComponents
 		def prepare_form(title:)
 			@title   = create_fields(helpers.person_form_title(title:))
-			@picture = create_fields(helpers.form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @person.picture, cols: 2))
 			@fields  = create_fields(helpers.person_form_fields)
 			@submit  = create_submit
 		end
@@ -184,6 +186,20 @@ class PeopleController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def person_params
-			params.require(:person).permit(:id, :dni, :nick, :name, :surname, :birthday, :female, :email, :phone, :player_id, :coach_id, :user_id, :avatar)
+			params.require(:person).permit(
+				:id,
+				:address,
+				:birthday,
+				:dni,
+				:email,
+				:female,
+				:name,
+				:nick,
+				:phone,
+				:surname,
+				:player_id,
+				:coach_id,
+				:user_id
+			)
 		end
 end

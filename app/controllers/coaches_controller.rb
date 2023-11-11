@@ -26,7 +26,7 @@ class CoachesController < ApplicationController
 	def index
 		if check_access(roles: [:manager, :coach])
 			@coaches = get_coaches
-			title    = helpers.coach_title(title: I18n.t("coach.many"))
+			title    = helpers.person_title_fields(title: I18n.t("coach.many"), icon: "coach.svg")
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
 			@fields = create_fields(title)
 			@grid   = create_grid(helpers.coach_grid)
@@ -192,9 +192,9 @@ class CoachesController < ApplicationController
 
 		# prepare form FieldComponents
 		def prepare_form(title:)
-			@title    = create_fields(helpers.coach_form_title(title:, rows: 4, cols: 3))
+			@title    = create_fields(helpers.person_form_title(@coach.person, title:, icon: @coach.picture))
 			@c_fields = create_fields(helpers.coach_form_fields)
-			@p_fields = create_fields(helpers.coach_person_fields)
+			@p_fields = create_fields(helpers.person_form_fields(@coach.person))
 			@submit   = create_submit
 		end
 

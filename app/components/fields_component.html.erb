@@ -30,11 +30,13 @@
 							</div>
 						<% end %>
 					<% when "icon-label" %>
+						<div class="inline-flex">
 						<% if item[:right] %>
 							<%= item[:label] %>&nbsp;<%= image_tag(item[:icon], size: item[:size]) %>
 						<% else %>
 							<%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:label] %>
 						<% end %>
+						</div>
 					<% when "lines" %>
 						<% item[:value].each do |line|%>
 							<%= line.to_s %>

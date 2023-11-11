@@ -17,9 +17,96 @@
 # contact email - iangullo@gmail.com.
 #
 module UsersHelper
-	# return icon and top of HeaderComponent
-	def user_title_fields(title, icon: "user.svg", rows: 4, cols: nil, form: nil)
-		title_start(icon:, title:, rows:, cols:, size: "75x100", _class: "w-75 h-100 rounded align-top m-1", form:)
+	# fields to show when looking a user profile
+	def user_show_fields
+		res = person_show_fields(@user.person, title: I18n.t("user.single"), icon: @user.picture, rows: 3)
+		if current_user == @user	# only allow current user to change his own password
+			res[3] <<	button_field(
+				{kind: "link", icon: "key.svg", label: I18n.t("action.change"), url: edit_user_registration_path, frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true},
+				align: "right",
+				rows: 2
+			)
+		end
+		res
+	end
+
+	# Fieldcomponents to display user roles
+	def user_role_fields
+		res =[]
+		#res << [		# removing cause IP registered is always local - from NGINX
+		#	{kind: "gap", size: 1},
+		#	{kind: "string", value: "(#{@user.last_from})",cols: 3}
+		#] if @user.last_sign_in_ip?
+		res << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
+		res << {kind: "icon", value: "user.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.manager?
+		res << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
+		res << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
+		res << {kind: "gap"}
+		unless @user.user_actions.empty?
+			res <<	button_field(
+				{kind: "link", icon: user_actions_icon, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal"},
+			)
+		end
+		[res]
+	end
+
+	# return FieldComponents for form user role
+	def user_form_role
+		res = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}]]
+		if u_admin?
+			res.last << {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}
+		else
+			res.last << {kind: "string", align: "center", value: I18n.t("role.#{@user.role}")}
+		end
+		res.last << {kind: "gap"}
+		res.last << {kind: "label", value: "#{I18n.t("locale.lang")}:"}
+		res.last << {kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: @user.locale}
+		res
+	end
+
+	# return FieldComponents for form user personal data
+	def user_form_pass
+		[
+			[
+				{kind: "icon", value: "key.svg"},
+				{kind: "password-box", key: :password, placeholder: I18n.t("password.single")}
+			],
+			[
+				{kind: "icon", value: "key.svg"},
+				{kind: "password-box", key: :password_confirmation, placeholder: I18n.t("password.confirm")}
+			],
+			[
+				{kind: "gap"},
+				{kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}
+			]
+		]
+	end
+
+	# return user_actions GridComponent
+	def user_actions_title
+		res  = person_title_fields(title: @user.person.s_name, icon: user_actions_icon, rows: 4)
+		res << [{kind: "subtitle", value: I18n.t("user.actions")}]
+	end
+
+	# return user_actions GridComponent
+	def user_actions_table
+		res = [[
+			{kind: "top-cell", value: I18n.t("calendar.date"), align: "center"},
+			{kind: "top-cell", value: I18n.t("drill.desc"), align: "center"}
+		]]
+		@user.user_actions.each { |u_act|
+			res << [
+				{kind: "string", value: u_act.date_time, class: "border px py"},
+				{kind: "string", value: u_act.description, class: "border px py"}
+			]
+		}
+		res
+	end
+
+	# prepare clear button only if there are actions to clear
+	def user_actions_clear_fields
+		return nil if @user.user_actions.empty?
+		return {kind: "clear", url: clear_actions_user_path, name: @user.s_name}
 	end
 
 	# return grid for @users GridComponent
@@ -47,136 +134,6 @@ module UsersHelper
 			rows << row
 		}
 		{title: title, rows: rows}
-	end
-
-	# fields to show when looking a user profile
-	def user_show_fields
-		res = user_title_fields(@user.person.s_name, icon: @user.picture)
-		res.last << {kind: "contact", email: @user.person.email, phone: @user.person.phone, device: device, align: "right", rows: 3}
-		res << [{kind: "label", value: @user.person.surname}]
-		res << [{kind: "icon-label", icon: "logout.svg", label: @user.last_login, tip: I18n.t("user.last_in"), tipid: "last", class: "inline-flex align-center"}]
-		if current_user == @user	# only allow current user to change his own password
-			res.last <<	button_field(
-				{kind: "link", icon: "key.svg", label: I18n.t("action.change"), url: edit_user_registration_path, frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true},
-				align: "right"
-			)
-		end
-		res
-	end
-
-	# Fieldcomponents to display user roles
-	def user_role
-		res =[]
-		#res << [		# removing cause IP registered is always local - from NGINX
-		#	{kind: "gap", size: 1},
-		#	{kind: "string", value: "(#{@user.last_from})",cols: 3}
-		#] if @user.last_sign_in_ip?
-		res << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
-		res << {kind: "icon", value: "user.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.manager?
-		res << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
-		res << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
-		res << {kind: "gap"}
-		unless @user.user_actions.empty?
-			res <<	button_field(
-				{kind: "link", icon: user_actions_icon, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal"},
-			)
-		end
-		[res]
-	end
-
-	# return FieldComponents for form title
-	def user_form_title(title:)
-		res = user_title_fields(title, icon: @user.picture, cols: 2, form: true)
-		res << [
-			{kind: "label", value: I18n.t("person.name_a")},
-			{kind: "text-box", key: :name, value: @user.person.name, placeholder: I18n.t("person.name")}
-		]
-		res << [
-			{kind: "label", value: I18n.t("person.surname_a")},
-			{kind: "text-box", key: :surname, value: @user.person.surname, placeholder: I18n.t("person.surname")}
-		]
-		res << [
-			{kind: "icon", value: "calendar.svg"},
-			{kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @user.person.birthday}
-		]
-		res
-	end
-
-	# return FieldComponents for form user role
-	def user_form_role
-		res = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}]]
-		if u_admin?
-			res.last << {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}
-		else
-			res.last << {kind: "string", align: "center", value: I18n.t("role.#{@user.role}")}
-		end
-		res.last << {kind: "gap"}
-		res.last << {kind: "label", value: "#{I18n.t("locale.lang")}:"}
-		res.last << {kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: @user.locale}
-		res
-	end
-
-	# return FieldComponents for form user personal data
-	def user_form_person
-		[
-			[
-				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
-				{kind: "text-box", key: :dni, size: 8, value: @user.person.dni, placeholder: I18n.t("person.pid")},
-				{kind: "gap"}, {kind: "icon", value: "at.svg"},
-				{kind: "email-box", key: :email, value: @user.person.email, placeholder: I18n.t("person.email")}
-			],
-			[
-				{kind: "icon", value: "user.svg"},
-				{kind: "text-box", key: :nick, size: 8, value: @user.person.nick, placeholder: I18n.t("person.nick")},
-				{kind: "gap"}, {kind: "icon", value: "phone.svg"},
-				{kind: "text-box", key: :phone, size: 12, value: @user.person.phone, placeholder: I18n.t("person.phone")}
-			]
-		]
-	end
-
-	# return FieldComponents for form user personal data
-	def user_form_pass
-		[
-			[
-				{kind: "icon", value: "key.svg"},
-				{kind: "password-box", key: :password, placeholder: I18n.t("password.single")}
-			],
-			[
-				{kind: "icon", value: "key.svg"},
-				{kind: "password-box", key: :password_confirmation, placeholder: I18n.t("password.confirm")}
-			],
-			[
-				{kind: "gap"},
-				{kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}
-			]
-		]
-	end
-
-	# return user_actions GridComponent
-	def user_actions_title
-		res  = user_title_fields(@user.person.s_name, icon: user_actions_icon)
-		res << [{kind: "subtitle", value: I18n.t("user.actions")}]
-	end
-
-	# return user_actions GridComponent
-	def user_actions_table
-		res = [[
-			{kind: "top-cell", value: I18n.t("calendar.date"), align: "center"},
-			{kind: "top-cell", value: I18n.t("drill.desc"), align: "center"}
-		]]
-		@user.user_actions.each { |u_act|
-			res << [
-				{kind: "string", value: u_act.date_time, class: "border px py"},
-				{kind: "string", value: u_act.description, class: "border px py"}
-			]
-		}
-		res
-	end
-
-	# prepare clear button only if there are actions to clear
-	def user_actions_clear_fields
-		return nil if @user.user_actions.empty?
-		return {kind: "clear", url: clear_actions_user_path, name: @user.s_name}
 	end
 
 	private

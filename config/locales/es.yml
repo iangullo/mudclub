@@ -188,6 +188,7 @@ es:
     new: "Nueva contraseña"
     old: "Contraseña actual"
   person:
+    address: "Domicilio"
     duplicate: "Persona duplicada: "
     created: "Persona creada: "
     updated: "Persona guardada: "

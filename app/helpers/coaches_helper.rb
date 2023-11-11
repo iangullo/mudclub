@@ -17,59 +17,16 @@
 # contact email - iangullo@gmail.com.
 #
 module CoachesHelper
-	# return icon and top of FieldsComponent
-	def coach_title(title:, icon: "coach.svg", rows: 2, cols: nil, _class: nil, form: nil)
-		title_start(icon: icon, title: title, rows: rows, size: "75x100", cols: cols, _class: "w-75 h-100 rounded align-top m-1", form:)
-	end
-
 	# FieldComponents to show a @coach
 	def coach_show_fields
-		res = coach_title(title: I18n.t("coach.single"), icon: @coach.picture, rows: 3)
-		res.last << {kind: "contact", email: @coach.person.email, phone: @coach.person.phone, device: device, rows: 3} unless u_coachid == @coach.id
-		res << [{kind: "label", value: @coach.s_name}]
-		res << [{kind: "label", value: @coach.person.surname}]
-		res << [obj_status_field(@coach)]
-		res.last << {kind: "string", value: @coach.person.dni.to_s}
-		res << [{kind: "gap"}, {kind: "string", value: @coach.person.birthday}]
+		res = person_show_fields(@coach.person, title: I18n.t("coach.single"), icon: @coach.picture)
+		res[4][0] = obj_status_field(@coach)
 		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
-	end
-
-	# return FieldsComponent @fields for forms
-	def coach_form_title(title:, rows: 3, cols: 2)
-		res = coach_title(title:, icon: @coach.picture, rows: rows, cols: cols, form: true)
-		f_cols = cols>2 ? cols - 1 : nil
-		res << [
-			{kind: "label", value: I18n.t("person.name_a")},
-			{kind: "text-box", key: :name, value: @coach.person.name, placeholder: I18n.t("person.name"), cols: f_cols}
-		]
-		res << [
-			{kind: "label", value: I18n.t("person.surname_a")},
-			{kind: "text-box", key: :surname, value: @coach.person.surname, placeholder: I18n.t("person.surname"), cols: f_cols}
-		]
-		res << [
-			{kind: "icon", value: "calendar.svg"},
-			{kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: @coach.person.birthday, cols: f_cols}
-		]
 	end
 
 	# return Coach-specific form fields
 	def coach_form_fields
-		[[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active, cols: 4}]]
-	end
-
-	# return FieldsComponent @fields for forms
-	def coach_person_fields
-		person = @coach.person
-		[
-			[
-				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
-				{kind: "text-box", key: :dni, size: 8, value: person.dni, placeholder: I18n.t("person.pid")},
-				{kind: "gap"}, {kind: "icon", value: "at.svg"}, {kind: "email-box", key: :email, value: person.email, placeholder: I18n.t("person.email")}],
-			[
-				{kind: "icon", value: "user.svg"},
-				{kind: "text-box", key: :nick, size: 8, value: person.nick, placeholder: I18n.t("person.nick")},
-				{kind: "gap"}, {kind: "icon", value: "phone.svg"}, {kind: "text-box", key: :phone, size: 12, value: person.phone, placeholder: I18n.t("person.phone")}]
-		]
+		[[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active}]]
 	end
 
 	# return grid for @coaches GridComponent

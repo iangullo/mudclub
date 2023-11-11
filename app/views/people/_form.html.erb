@@ -1,10 +1,8 @@
 <%= render ModalComponent.new do %>
 	<%= form_with model: @person, data: {turbo_frame: "_top"} do |f| %>
 		<% @title.form   = f %>
-		<% @picture.form = f %>
 		<% @fields.form  = f %>
 		<%= render @title %>
-		<%= render @picture %>
 		<%= render @fields %>
 		<%= render @submit %>
 	<% end %>

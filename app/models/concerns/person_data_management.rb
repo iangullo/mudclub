@@ -121,6 +121,7 @@ module PersonDataManagement
 		end
 	end
 
+	# required to work around for occasional glitch saving new records
 	def paranoid_create
 		begin
 			self.save

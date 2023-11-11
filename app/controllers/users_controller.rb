@@ -26,7 +26,7 @@ class UsersController < ApplicationController
 	def index
 		if check_access(roles: [:admin])
 			@users = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
-			title  = helpers.user_title_fields(I18n.t("user.many"))
+			title  = helpers.person_title_fields(title: I18n.t("user.many"), icon: "user.svg", size: "50x50")
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
 			@title = create_fields(title)
 			@grid  = create_grid(helpers.user_grid)
@@ -40,7 +40,7 @@ class UsersController < ApplicationController
 	def show
 		if check_access(roles: [:admin], obj: @user)
 			@title  = create_fields(helpers.user_show_fields)
-			@role   = create_fields(helpers.user_role)
+			@role   = create_fields(helpers.user_role_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @user.team_list))
 			@submit = create_submit(close: "back", close_return: :back, submit: edit_user_path(@user), frame: "modal")
 		else
@@ -175,9 +175,9 @@ class UsersController < ApplicationController
 	private
 		# Prepare user form
 		def prepare_form(title, create: nil)
-			@title    = create_fields(helpers.user_form_title(title:))
+			@title    = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
 			@role     = create_fields(helpers.user_form_role)
-			@p_fields = create_fields(helpers.user_form_person)
+			@p_fields = create_fields(helpers.person_form_fields(@user.person))
 			if create
 				@k_fields = create_fields(helpers.user_form_pass)
 			end

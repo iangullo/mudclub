@@ -88,6 +88,7 @@ class Person < ApplicationRecord
 		self.email     = f_data[:email].presence || self.email || ""
 		self.name      = f_data[:name].presence || self.name
 		self.surname   = f_data[:surname].presence || self.surname
+		self.address   = f_data[:address].presence || self.address
 		self.birthday  = f_data[:birthday].presence || self.birthday
 		self.nick      = f_data[:nick].presence || self.nick
 		self.female    = to_boolean(f_data[:female])

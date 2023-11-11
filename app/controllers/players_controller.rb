@@ -25,7 +25,7 @@ class PlayersController < ApplicationController
 	def index
 		if check_access(roles: [:manager, :coach])
 			@players = get_players
-			title    = helpers.player_title_fields(title: I18n.t("player.many"))
+			title    = helpers.person_title_fields(title: I18n.t("player.many"), icon: "player.svg", size: "50x50")
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
 			@fields  = create_fields(title)
 			@grid    = create_grid(helpers.player_grid(players: @players))
@@ -171,9 +171,9 @@ class PlayersController < ApplicationController
 	private
 		# Prepare a player form
 		def prepare_form(title:)
-			@title      = create_fields(helpers.player_form_title(title:))
+			@title      = create_fields(helpers.person_form_title(@player.person, icon: @player.picture, title:, sex: true))
 			@j_fields_1 = create_fields(helpers.player_form_fields_1(retlnk: params[:retlnk], team_id: params[:team_id]))
-			@p_fields   = create_fields(helpers.player_form_person(person: @player.person))
+			@p_fields   = create_fields(helpers.person_form_fields(@player.person))
 			@parents    = create_fields(helpers.player_form_parents) if @player.person.age < 18
 			@submit     = create_submit
 		end
