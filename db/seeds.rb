@@ -20,7 +20,7 @@
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
 s_date = Date.today
 s_year = s_date.year - (s_date.month < 7 ? 1 : 0)
-e_year = s_date.year + (s_date.month > 6 ? 0 : 1)
+e_year = s_year + 1
 e_date = Date.new(e_year,6,30).to_s
 s_date = Date.new(s_year,9,1).to_s
 season = Season.create(start_date: s_date, end_date: e_date)

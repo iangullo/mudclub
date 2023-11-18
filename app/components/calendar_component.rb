@@ -134,13 +134,14 @@ class CalendarComponent < ApplicationComponent
 
 		# add create event buttons to empty canvas cells
 		def add_empty_buttons(obj:, create_url:)
-			@add_btn = []
+			@add_btn   = []
+			for_season = (obj.class==Season) && (@user.admin? || @user.manager?)
 			1.upto(@c_rows) do |i|
-				row = []
+				row  = []
 				cday = Date.current
 				1.upto(@c_cols) do |j|
 					if @cells[i][j][:events].empty? && @cells[i][j][:date]>=cday # add a create_event button
-						row[j] = add_event_button(obj:, for_season: (obj.class==Season), i:, j:, create_url:)
+						row[j] = add_event_button(obj:, for_season:, i:, j:, create_url:)
 					else
 						row[j] = nil
 					end
@@ -154,9 +155,9 @@ class CalendarComponent < ApplicationComponent
 			return nil if ((@cells[i][j][:date] > @e_date) || (@cells[i][j][:date] < @s_date))
 			c_url = create_url + "?event[start_date]=#{@cells[i][j][:date]}"
 			cname = "add_btn_#{i}_#{j}"
-			if for_season and @user.admin? # new season event
+			if for_season # new season event
 				return ButtonComponent.new(button: {kind: "add", name: cname, url: c_url + "&event[kind]=rest&event[team_id]=0", frame: "modal"})
-			elsif obj.has_coach(@user.person.coach_id) # new team event
+			elsif obj.try(:has_coach, @user.person.coach_id) # new team event
 				c_url  = c_url + "&event[team_id]=#{obj.id}"
 				button = {kind: "add", name: cname, options: []}
 				button[:options] << {label: I18n.t("train.single"), url: c_url + "&event[kind]=train", data: {turbo_frame: :modal}}
@@ -193,9 +194,9 @@ class CalendarComponent < ApplicationComponent
 
 		# define the first valid calendar date for the parent object (team/season)
 		def set_date_limits(events:, obj:)
-			case obj.class
-			when Season; season = obj
-			when Team; season = obj.season
+			case obj.class.to_s
+			when "Season"; season = obj
+			when "Team"; season = obj.season
 			else # let's try to get it from the events list
 				season = events&.empty? ? Season.latest : events.first.team.season
 			end
