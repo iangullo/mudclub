@@ -437,14 +437,21 @@ class BasketballSport < Sport
 
 		# fill head, t_home & t_away the fields for match score
 		def match_score_fields(home, score, periods, t_pers, head, t_home, t_away, edit: false)
+			rsc = {ours: 0, opps: 0} # may not need to show overtime scores
 			1.upto(t_pers) do |key|
 				per = periods.key(key)
 				val = score[key]
+				if val
+					rsc[:ours] += val[:ours]
+					rsc[:opps] += val[:opps]
+				end
 				head << {kind: "top-cell", value: I18n.t("#{SPORT_LBL}period.#{per}"), align: "center"}
 				team_period_score_fields(home, per, t_home, t_away, val, edit:)
 			end
-			head << {kind: "top-cell", value: I18n.t("#{SPORT_LBL}period.ot"), align: "center"}
-			team_period_score_fields(home, :ot, t_home, t_away, score[:ot], edit:)
+			if edit || (rsc[:ours] == rsc[:opps] && rsc[:ours] > 0)
+				head << {kind: "top-cell", value: I18n.t("#{SPORT_LBL}period.ot"), align: "center"}
+				team_period_score_fields(home, :ot, t_home, t_away, score[:ot], edit:)
+			end
 	end
 
 		# return fields for stats view
