@@ -206,6 +206,7 @@ class CoachesController < ApplicationController
 				:avatar,
 				:retlnk,
 				person_attributes: [
+					:address,
 					:avatar,
 					:id,
 					:dni,

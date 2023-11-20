@@ -135,11 +135,11 @@ module PersonDataManagement
 	private
 		# return which id_field to map against
 		def bind_field
-			case self.class.to_s
-			when "Coach"; return :coach_id
-			when "Parent"; return :parent_id
-			when "Player"; return :player_id
-			when "User"; return :user_id
+			case self
+			when Coach; return :coach_id
+			when Parent; return :parent_id
+			when Player; return :player_id
+			when User; return :user_id
 			end
 		end
 end

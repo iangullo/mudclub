@@ -201,6 +201,7 @@ class UsersController < ApplicationController
 				:avatar,
 				:person_id,
 				person_attributes: [
+					:address,
 					:avatar,
 					:id,
 					:dni,

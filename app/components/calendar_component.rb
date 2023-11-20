@@ -194,9 +194,9 @@ class CalendarComponent < ApplicationComponent
 
 		# define the first valid calendar date for the parent object (team/season)
 		def set_date_limits(events:, obj:)
-			case obj.class.to_s
-			when "Season"; season = obj
-			when "Team"; season = obj.season
+			case obj
+			when Season; season = obj
+			when Team; season = obj.season
 			else # let's try to get it from the events list
 				season = events&.empty? ? Season.latest : events.first.team.season
 			end

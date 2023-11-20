@@ -209,6 +209,7 @@ class PlayersController < ApplicationController
 				:retlnk,
 				:team_id,
 				person_attributes: [
+					:address,
 					:avatar,
 					:id,
 					:dni,

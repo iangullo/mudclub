@@ -128,24 +128,24 @@ class ApplicationController < ActionController::Base
 
 		# check object related access policy
 		def check_object(obj:)
-			case obj.class.name
-			when "Category", "Division", "FalseClass", "Location", "Season", "Slot"
+			case obj
+			when Category, Division, FalseClass, Location, Season, Slot
 				return true
-			when "Coach"
+			when Coach
 				return (u_coachid==obj.id)
-			when "Drill"
+			when Drill
 				return (u_coachid==obj.coach_id)
-			when "Event"
+			when Event
 				return (obj.team.has_coach(u_coachid) or obj.has_player(u_playerid))
-			when "Person"
+			when Person
 				return (u_personid==obj.id)
-			when "Player"
+			when Player
 				return (u_playerid==obj.id)
-			when "Team"
+			when Team
 				return (obj.has_coach(u_coachid) or obj.has_player(u_playerid))
-			when "User"
+			when User
 				return (u_userid==@user.id)
-			else # including "NilClass"
+			else # including NilClass"
 				return false
 			end
 		end
