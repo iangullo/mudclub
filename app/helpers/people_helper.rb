@@ -53,7 +53,7 @@ module PeopleHelper
 		res
 	end
 
-	def person_form_fields(person=@person)
+	def person_form_fields(person)
 		res = [
 			[
 				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},

@@ -165,8 +165,8 @@ class PeopleController < ApplicationController
 	private
 		# prepare form FieldComponents
 		def prepare_form(title:)
-			@title   = create_fields(helpers.person_form_title(title:))
-			@fields  = create_fields(helpers.person_form_fields)
+			@title   = create_fields(helpers.person_form_title(@person, title:))
+			@fields  = create_fields(helpers.person_form_fields(@person))
 			@submit  = create_submit
 		end
 
