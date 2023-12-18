@@ -67,7 +67,9 @@ module HomeHelper
 
 		rows = []
 		actions.each { |action|
-			row = {url: "#", items: []}
+			url = action.url.present? ? action.url : "#"
+			frm = action.modal ? "modal" : "_top"
+			row = {url:, frame: frm, items: []}
 			row[:items] << {kind: "normal", value: action.date_time}
 			row[:items] << {kind: "normal", value: action.user.to_s}
 			row[:items] << {kind: "normal", value: action.description}
