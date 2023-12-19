@@ -111,10 +111,14 @@ class Coach < ApplicationRecord
 	private
 		# cleanup association of dependent objects
 		def unlink
+			self.avatar.purge if self.avatar.attached?
 			self.drills.update_all(coach_id: 0)
 			self.person.update(coach_id: 0)
 			self.teams.delete_all
-			self.avatar.purge if self.avatar.attached?
-			self.person.destroy if self.person&.orphan?
+			per = self.person
+			self.update(person_id: 0)
+			per.update(coach_id: 0)
+			per.destroy if per&.orphan?
+			UserAction.prune("/coaches/#{self.id}")
 		end
 end

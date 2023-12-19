@@ -70,9 +70,10 @@ class Parent < ApplicationRecord
 		# cleanup association of dependent objects
 		def unlink
 			self.players.delete_all
-			if self.person	# see what we do with the person
-				self.person.update(parent_id: 0)
-				self.person.destroy if self.person.orphan?
+			if (per = self.person)	# see what we do with the person
+				self.update(person_id: 0)
+				per.update(parent_id: 0)
+				per.destroy if per&.orphan?
 			end
 		end
 end

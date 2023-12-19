@@ -71,7 +71,7 @@ class DivisionsController < ApplicationController
 				@division.rebuild(division_params)
 				if @division.save
 					a_desc = "#{I18n.t("division.created")} '#{@division.name}'"
-					register_action(:created, a_desc)
+					register_action(:created, a_desc, url: sport_division_path(@sport, @division), modal: true)
 					format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: sport_path(@sport.id) }
 				else
@@ -93,7 +93,7 @@ class DivisionsController < ApplicationController
 				if @division.changed?
 					if @division.save
 						a_desc = "#{I18n.t("division.updated")} '#{@division.name}'"
-						register_action(:updated, a_desc)
+						register_action(:updated, a_desc, url: sport_division_path(@sport, @division), modal: true)
 						format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: sport_path(@sport.id) }
 					else

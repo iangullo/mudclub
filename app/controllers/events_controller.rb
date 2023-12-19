@@ -97,7 +97,8 @@ class EventsController < ApplicationController
 				if @event.save
 					link_holidays
 					c_notice = helpers.event_create_notice
-					register_action(:created, c_notice[:message])
+					modal    = event.rest?
+					register_action(:created, c_notice[:message], url: event_path(@event), modal:)
 					format.html { redirect_to @event.team_id > 0 ? team_events_path(@event.team, start_date: @event.start_date) : events_path(start_date: @event.start_date), notice: c_notice, data: {turbo_action: "replace"} }
 					format.json { render :show, status: :created, location: events_path}
 				else
@@ -119,13 +120,15 @@ class EventsController < ApplicationController
 				@player = Player.find_by_id(e_data[:player_id].presence)
 				seek_duplicate_event(e_data) if e_data[:copy].presence
 				@event.rebuild(e_data)
+				modal = event.rest?
+				url   = event_path(@event)
 				if prepare_update_redirect(e_data)	# prepare links to redirect
 					if e_data[:player_ids].present?	# update attendance
 						check_attendance(e_data[:player_ids])
-						register_action(:updated, @notice[:message])
+						register_action(:updated, @notice[:message], url:, modal:)
 					elsif e_data[:stats_attributes] || params[:outings]
 						check_stats(e_data[:stats_attributes], params[:outings])
-						register_action(:updated, @notice[:message])
+						register_action(:updated, @notice[:message], url:, modal:)
 					elsif e_data[:task].present? # updated task from edit_task_form
 						check_task(e_data[:task])
 						@notice[:message] = @notice[:message] + @task.to_s
@@ -134,7 +137,7 @@ class EventsController < ApplicationController
 					format.json { render @retview, status: :ok, location: @retlnk }
 				elsif @event.modified?	# do we need to save?
 					if @event.save	# try to do it
-						register_action(:updated, @notice[:message])
+						register_action(:updated, @notice[:message], url:, modal:)
 						@event.tasks.reload if e_data[:tasks_attributes] # a training session
 						format.html { redirect_to (@retlnk ? @retlnk : event_path(@event)), notice: @notice, data: {turbo_action: "replace"}}
 						format.json { render @retview, status: :ok, location: @retlnk }

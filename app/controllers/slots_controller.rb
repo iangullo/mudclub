@@ -83,7 +83,7 @@ class SlotsController < ApplicationController
 				if @slot.changed?
 					if @slot.save # try to store
 						a_desc = "#{I18n.t("slot.created")} '#{@slot.to_s}'"
-						register_action(:created, a_desc)
+						register_action(:created, a_desc, url: slot_path(@slot), modal: true)
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: @slot }
 					else
@@ -111,7 +111,7 @@ class SlotsController < ApplicationController
 				if @slot.changed?
 					if @slot.save
 						a_desc = "#{I18n.t("slot.updated")} '#{@slot.to_s}'"
-						register_action(:updated, a_desc)
+						register_action(:updated, a_desc, url: slot_path(@slot), modal: true)
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :ok, location: @slot }
 					else
@@ -226,7 +226,8 @@ class SlotsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_slot
-			@slot = Slot.find_by_id(params[:id]) unless @slot&.id==params[:id]
+			@slot     = Slot.find_by_id(params[:id]) unless @slot&.id==params[:id]
+			@season ||= @slot.season
 		end
 
 		# prepare fields to renfeer edit/new slot form

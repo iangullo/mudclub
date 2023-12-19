@@ -202,5 +202,6 @@ class Drill < ApplicationRecord
 		def unlink
 			self.skills.delete_all
 			self.playbook.purge if self.playbook.attached?
+			UserAction.prune("/drills/#{self.id}")
 		end
 end

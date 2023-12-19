@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class Slot < ApplicationRecord
+	before_destroy :unlink
 	belongs_to :season
 	belongs_to :team
 	belongs_to :location
@@ -167,5 +168,10 @@ class Slot < ApplicationRecord
 		self.location_id = f_data[:location_id] if f_data[:location_id]
 		self.team_id     = f_data[:team_id] if f_data[:team_id]
 		self.season_id   = self.team.season_id.to_i
+	end
+
+	# unlink slot to avoid issues
+	def unlink
+		UserAction.prune("/slots/#{self.id}")
 	end
 end

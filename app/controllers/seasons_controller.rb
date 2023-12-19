@@ -18,11 +18,16 @@
 #
 class SeasonsController < ApplicationController
 	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
-	before_action :set_season, only: [:index, :edit, :update, :destroy, :locations]
+	before_action :set_season, only: [:index, :show, :edit, :update, :destroy, :locations]
 
 	# GET /seasons
 	# GET /seasons.json
 	def index
+		redirect_to season_path(@season), data: {turbo_action: "replace"}
+	end
+
+	# GET /seasons/1
+	def show
 		if check_access(roles: [:manager])
 			@events = Event.short_term.for_season(@season).non_training
 			title   = helpers.season_title_fields(title: I18n.t("season.single"), cols: 2)
@@ -67,8 +72,8 @@ class SeasonsController < ApplicationController
 			respond_to do |format|
 				if @season.save
 					a_desc = "#{I18n.t("season.created")} '#{@season.name}'"
-					register_action(:created, a_desc)
-					format.html { redirect_to seasons_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+					register_action(:created, a_desc, url: season_path(@season))
+					format.html { redirect_to season_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: seasons_path }
 				else
 					prepare_form(title: I18n.t("season.new"))
@@ -91,8 +96,8 @@ class SeasonsController < ApplicationController
 				if @season.changed?
 					if @season.save
 						a_desc = "#{I18n.t("season.updated")} '#{@season.name}'"
-						register_action(:updated, a_desc)
-						format.html { redirect_to seasons_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						register_action(:updated, a_desc, url: season_path(@season))
+						format.html { redirect_to season_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: seasons_path}
 					else
 						@eligible_locations = @season.eligible_locations
@@ -101,8 +106,8 @@ class SeasonsController < ApplicationController
 						format.json { render json: @season.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to seasons_path(@season), notice: no_data_notice, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :unprocessable_entity, location: seasons_path(@season) }
+					format.html { redirect_to season_path(@season), notice: no_data_notice, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :unprocessable_entity, location: season_path(@season) }
 				end
 			end
 		else
@@ -113,6 +118,7 @@ class SeasonsController < ApplicationController
 	# DELETE /seasons/1
 	# DELETE /seasons/1.json
 	def destroy
+		binding.break
 		if check_access(roles: [:manager])
 			s_name = @season.name
 			@season.destroy
@@ -146,6 +152,8 @@ class SeasonsController < ApplicationController
 				@season = Season.search(params[:search])
 			elsif params[:id].present?
 				@season = Season.find_by_id(params[:id].to_i) unless @season&.id==params[:id].to_i
+			elsif params[:season_id].present?
+				@season = Season.find_by_id(params[:season_id].to_i) unless @season&.id==params[:id].to_i
 			else
 				@season = Season.latest
 			end

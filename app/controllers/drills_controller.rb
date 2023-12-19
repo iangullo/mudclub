@@ -73,7 +73,7 @@ class DrillsController < ApplicationController
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.save
 					a_desc = "#{I18n.t("drill.created")} '#{@drill.name}'"
-					register_action(:created, a_desc)
+					register_action(:created, a_desc, url: drill_path(@drill))
 					format.html { redirect_to drills_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: @drill }
 				else
@@ -95,7 +95,7 @@ class DrillsController < ApplicationController
 				if @drill.modified?
 					if @drill.save
 						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
-						register_action(:updated, a_desc)
+						register_action(:updated, a_desc, url: drill_path(@drill))
 						format.html { redirect_to drill_path, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: @drill }
 					else

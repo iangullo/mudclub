@@ -21,7 +21,6 @@ class Location < ApplicationRecord
 	scope :practice, -> { where("practice_court = true") }
 	scope :home, -> { where("id > 0 and practice_court = false") }
 	scope :real, -> { where("id > 0") }
-	has_many :teams
 	has_many :slots, dependent: :destroy
 	has_many :events
 	has_many :season_locations, dependent: :destroy
@@ -63,10 +62,16 @@ class Location < ApplicationRecord
 		self.practice_court = (f_data[:practice_court] == "1")
 	end
 
+	# return teams that have this location as homecourt
+	def teams
+		Team.where(homecourt_id: self.id)
+	end
+
 	private
 		# cleanup dependent events, reassigning to 'dummy' location
 		def unlink
 			self.events.update_all(location_id: 0)
-			self.teams.update_all(location_id: 0)
+			self.teams.update_all(homecourt_id: 0)
+			UserAction.prune("/locations/#{self.id}")
 		end
 end

@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 # Class to manage club seasons
 class Season < ApplicationRecord
+	before_destroy :unlink
 	has_many :slots, dependent: :destroy
 	has_many :teams, dependent: :destroy
 	has_many :season_locations, dependent: :destroy
@@ -109,5 +110,13 @@ class Season < ApplicationRecord
 	def rebuild(f_data)
 		self.start_date = f_data[:start_date] if f_data[:start_date]
 		self.end_date   = f_data[:end_date] if f_data[:end_date]
+	end
+
+	# ensure clean deleting of a Season - SHOULD NEVER HAPPEN!!
+	def unlink
+		self.slots.delete_all
+		self.teams.delete_all
+		self.locations.delete_all
+		UserAction.prune("/seasons/#{self.id}")
 	end
 end

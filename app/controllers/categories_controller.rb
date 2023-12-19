@@ -35,8 +35,8 @@ class CategoriesController < ApplicationController
 	# GET /categories/1 or /categories/1.json
 	def show
 		if check_access(roles: [:admin])
-			@fields = create_fields(helpers.sport_category_show_fields(@sport))
-			@submit = create_submit(submit: current_user.admin? ? sport_edit_category_path(@sport, @category) : nil, close_return: sport_path(@sport.id))
+			@fields = create_fields(helpers.category_show_fields)
+			@submit = create_submit(submit: current_user.admin? ? edit_sport_category_path(@sport, @category) : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -69,7 +69,7 @@ class CategoriesController < ApplicationController
 				@category.rebuild(category_params)
 				if @category.save
 					a_desc = "#{I18n.t("category.created")} '#{@category.name}'"
-					register_action(:created, a_desc)
+					register_action(:created, a_desc, url: sport_category_path(@sport,@category), modal: true)
 					format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :show, status: :created, location: sport_path(@sport.id) }
 				else
@@ -91,7 +91,7 @@ class CategoriesController < ApplicationController
 				if @category.changed?
 					if @category.save
 						a_desc = "#{I18n.t("category.updated")} '#{@category.name}'"
-						register_action(:updated, a_desc)
+						register_action(:updated, a_desc, url: sport_category_path(@sport,@category), modal: true)
 						format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: sport_path(@sport.id) }
 					else

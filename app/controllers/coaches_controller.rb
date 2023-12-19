@@ -86,7 +86,7 @@ class CoachesController < ApplicationController
 					if @coach.paranoid_create # coach saved to database
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
-						register_action(:created, a_desc)
+						register_action(:created, a_desc, url: coach_path(@coach), modal: true)
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: coaches_path(search: @coach.s_name) }
 					else
@@ -114,7 +114,7 @@ class CoachesController < ApplicationController
 					if @coach.save
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
-						register_action(:updated, a_desc)
+						register_action(:updated, a_desc, url: coach_path(@coach), modal: true)
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
 					else
@@ -139,7 +139,7 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:manager])
 			Coach.import(params[:file])	# added to import excel
 			a_desc = "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"
-			register_action(:imported, a_desc)
+			register_action(:imported, a_desc, url: coaches_path)
 			format.html { redirect_to coaches_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

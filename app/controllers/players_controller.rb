@@ -46,7 +46,7 @@ class PlayersController < ApplicationController
 	# GET /players/1.json
 	def show
 		if check_access(roles: [:manager, :coach], obj: @player)
-			retlnk  = params[:retlnk].presence || player_path(@player)
+			retlnk  = params[:retlnk].presence || :back
 			@fields = create_fields(helpers.player_show_fields(team: params[:team_id] ? Team.find(params[:team_id]) : nil))
 			@submit = create_submit(close: "back", close_return: retlnk, submit: edit_player_path(@player, retlnk:), frame: "modal")
 			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
@@ -89,7 +89,7 @@ class PlayersController < ApplicationController
 						link_team(player_params[:team_id].presence)	# try to add it to the team roster
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
-						register_action(:created, a_desc)
+						register_action(:created, a_desc, url: player_path(@player))
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render retview, status: :created, location: retlnk }
 					else
@@ -120,7 +120,7 @@ class PlayersController < ApplicationController
 					if @player.save
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.updated")} '#{@player.to_s}'"
-						register_action(:updated, a_desc)
+						register_action(:updated, a_desc, url: player_path(@player))
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render retview, status: :ok, location: retlnk}
 					else
@@ -144,7 +144,7 @@ class PlayersController < ApplicationController
 		if check_access(roles: [:manager])
 			Player.import(params[:file])	# added to import excel
 			a_desc = "#{I18n.t("player.import")} '#{params[:file].original_filename}'"
-			register_action(:imported, a_desc)
+			register_action(:imported, a_desc, url: players_path)
 			format.html { redirect_to players_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

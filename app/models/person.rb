@@ -177,6 +177,7 @@ class Person < ApplicationRecord
 			gen_unlink(:player) if self.player_id > 0	# delete associated player
 			gen_unlink(:user) if self.user_id > 0	# delete associated user
 			gen_unlink(:parent) if self.parent_id > 0	# delete associated user
+			UserAction.prune("/people/#{self.id}")
 		end
 
 		# called by unlink using either :coach, :player or :user as arguments

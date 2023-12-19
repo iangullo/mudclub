@@ -87,7 +87,7 @@ class PeopleController < ApplicationController
 					format.json { render :index, status: :duplicate, location: people_path }
 				elsif @person.paranoid_create
 					a_desc = "#{I18n.t("person.created")} '#{@person.to_s}'"
-					register_action(:created, a_desc)
+					register_action(:created, a_desc, url: person_path(@person), modal: true)
 					format.html { redirect_to people_path(search: @person.name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: people_path }
 				else
@@ -115,7 +115,7 @@ class PeopleController < ApplicationController
 						else
 							a_desc = "#{I18n.t("person.updated")} '#{@person.to_s}'"
 						end
-						register_action(:updated, a_desc)
+						register_action(:updated, a_desc, url: person_path(@person), modal: true)
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: retlnk }
 					else
@@ -139,7 +139,7 @@ class PeopleController < ApplicationController
 		if check_access(roles: [:admin])
 			Person.import(params[:file]) # added to import excel
 			a_desc = "#{I18n.t("person.import")} '#{params[:file].original_filename}'"
-			register_action(:imported, a_desc)
+			register_action(:imported, a_desc, url: people_path)
 			format.html { redirect_to people_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

@@ -270,5 +270,6 @@ class Team < ApplicationRecord
 		def unlink
 			self.players.delete_all
 			self.coaches.delete_all
+			UserAction.prune("/teams/#{self.id}")
 		end
 end

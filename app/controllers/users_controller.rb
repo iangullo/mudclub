@@ -78,7 +78,7 @@ class UsersController < ApplicationController
 					if @user.email.presence && @user.paranoid_create
 						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
-						register_action(:created, a_desc)
+						register_action(:created, a_desc, url: user_path(@user))
 						format.html { redirect_to users_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: users_path }
 					else
@@ -111,7 +111,7 @@ class UsersController < ApplicationController
 					if @user.email.presence && @user.save
 						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.updated")} '#{@user.s_name}'"
-						register_action(:updated, a_desc)
+						register_action(:updated, a_desc, url: user_path(@user))
 						format.html { redirect_to user_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: user_path }
 					else

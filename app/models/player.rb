@@ -209,11 +209,14 @@ class Player < ApplicationRecord
 
 		# cleanup association of dependent objects
 		def unlink
-			self.person.update(player_id: 0)
+			self.avatar.purge if self.avatar.attached?
 			self.teams.delete_all
 			self.events.delete_all
 			self.parents.delete_all
-			self.avatar.purge if self.avatar.attached?
-			self.person.destroy if self.person&.orphan?
+			per = self.person
+			self.update(person_id: 0)
+			per.update(player_id: 0)
+			per.destroy if per&.orphan?
+			UserAction.prune("/players/#{self.id}")
 		end
 end

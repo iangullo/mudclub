@@ -36,5 +36,6 @@ class Division < ApplicationRecord
 		# cleanup dependent teams, reassigning to 'dummy' category
 		def unlink
 			self.teams.update_all(category_id: 0)
+			UserAction.prune("/sports/#{self.sport.id}/divisions/#{self.id}")
 		end
 end

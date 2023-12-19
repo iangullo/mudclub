@@ -30,7 +30,7 @@ class TeamsController < ApplicationController
 				format.xlsx {
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
 					a_desc = "#{I18n.t("player.export")} '#{f_name}'"
-					register_action(:exported, a_desc)
+					register_action(:exported, a_desc, url: teams_path)
 					response.headers['Content-Disposition'] = "attachment; filename=#{f_name}"
 				}
 				format.html { render :index }
@@ -205,7 +205,7 @@ class TeamsController < ApplicationController
 			respond_to do |format|
 				if @team.save
 					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
-					register_action(:created, a_desc)
+					register_action(:created, a_desc, url: team_path(@team))
 					format.html { redirect_to teams_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: teams_path }
 				else
@@ -233,7 +233,7 @@ class TeamsController < ApplicationController
 					if @team.modified?
 						if @team.save
 							a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
-							register_action(:updated, a_desc)
+							register_action(:updated, a_desc, url: team_path(@team))
 							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 							format.json { redirect_to retlnk, status: :created, location: retlnk }
 						else

@@ -37,7 +37,7 @@ class LocationsController < ApplicationController
 	# GET /locations/1
 	# GET /locations/1.json
 	def show
-		if check_access(roles: [:users])
+		if check_access(roles: [:user])
 			@fields = create_fields(helpers.location_show_fields)
 			@submit = create_submit(submit: (u_manager? or u_coach?) ? edit_location_path(@location) : nil)
 		else
@@ -77,12 +77,12 @@ class LocationsController < ApplicationController
 				posturl   = @season ? season_locations_path(@season) : locations_path
 				if @location.id!=nil  # @location is already stored in database
 					@season.locations |= [@location] if @season
-					register_action(:created, a_desc)
+					register_action(:created, a_desc, url: location_path(@location), modal: true)
 					format.html { redirect_to posturl, notice: u_notice, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: posturl }
 				elsif @location.save # attempt to save a new one
 					@season.locations |= [@location] if @season
-					register_action(:created, a_desc)
+					register_action(:created, a_desc, url: location_path(@location), modal: true)
 					format.html { redirect_to posturl, notice: u_notice, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: posturl }
 				else
@@ -105,8 +105,8 @@ class LocationsController < ApplicationController
 				if @location.id!=nil  # we have location to save
 					a_desc = "#{I18n.t("location.updated")} '#{@location.name}'"
 					if @location.changed?
-						if @location.update(location_params)  # try to save
-							register_action(:updated, a_desc)
+						if @location.save  # try to save
+							register_action(:updated, a_desc, url: location_path(@location), modal: true)
 							@season.locations |= [@location] if @season
 							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 							format.json { render :index, status: :created, location: locations_path }
@@ -146,7 +146,7 @@ class LocationsController < ApplicationController
 					format.html { redirect_to season_locations_path(@season), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: season_locations_path(@season) }
 				else
-					@location.delete
+					@location.destroy
 					format.html { redirect_to locations_path, status: :see_other, notice: helpers.flash_message(a_desc) }
 					format.json { render :show, :created, location: locations_path(@location) }
 				end
@@ -180,6 +180,15 @@ private
 
 	# Never trust parameters from the scary internet, only allow the white list through.
 	def location_params
-		params.require(:location).permit(:id, :name, :gmaps_url, :practice_court, :season_id, seasons: [], season_locations: [] , seasons_attributes: [:id, :_destroy])
+		params.require(:location).permit(
+			:id,
+			:name,
+			:gmaps_url,
+			:practice_court,
+			:season_id,
+			seasons: [],
+			season_locations: [],
+			seasons_attributes: [:id, :_destroy]
+		)
 	end
 end

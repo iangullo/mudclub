@@ -396,6 +396,7 @@ class Event < ApplicationRecord
 			when :train, :match
 				self.players.delete_all
 			end
+			UserAction.prune("/events/#{self.id}")
 		end
 
 		def set_changed_flag
