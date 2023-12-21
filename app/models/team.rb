@@ -174,7 +174,7 @@ class Team < ApplicationRecord
 
 	# check if drill (or associations) has changed
 	def modified?
-		res = self.changed?
+		res = self.changed? || @modified
 		unless res
 			res = self.players.any?(&:saved_changes?)
 			unless res
@@ -208,10 +208,10 @@ class Team < ApplicationRecord
 			#puts "Plan.search(team: " + ", month: " + month.to_s + ", aspect: " + aspect.to_s + ", focus: " + focus.to_s + ")"
 			tgt = self.team_targets.monthly(month)
 			res = Array.new
-			tgt.each { |p|
+			tgt.each do |p|
 				puts p.to_s
-				if aspect and focus
-					res.push p if ((p.target.aspect_before_type_cast == aspect) and (p.target.focus_before_type_cast == focus))
+				if aspect && focus
+					res.push p if ((p.target.aspect_before_type_cast == aspect) && (p.target.focus_before_type_cast == focus))
 				elsif aspect
 					res.push p if (p.target.aspect_before_type_cast == aspect)
 				elsif focus
@@ -219,51 +219,76 @@ class Team < ApplicationRecord
 				else
 					res.push p
 				end
-			}
+			end
 			res
 		end
 
 		# ensure we get the right targets
 		def check_targets(t_array)
 			a_targets = Array.new	# array to include all targets
-			t_array.each { |t| # first pass
+			t_array.each do |t| # first pass
 				if t[1][:_destroy]  # we must include to remove it
 					a_targets << t[1]
 				else
 					a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
 				end
-			}
-			a_targets.each { |t| # second pass - manage associations
+			end
+			a_targets.each do |t| # second pass - manage associations
 				if t[:_destroy] == "1"	# remove team_target
 					TeamTarget.find(t[:id].to_i).delete
+					@modified = true
 				else	# ensure creation of team_targets
 					tt = TeamTarget.fetch(t)
 					tt.save unless tt.persisted?
+					@modified = true unless self.team_targets.include?(tt)
 					self.team_targets ? self.team_targets << tt : self.team_targets |= tt
 				end
-			}
+			end
 		end
 
 		# ensure we get the right players
 		def check_players(p_array)
-			# first pass
 			a_targets = Array.new	# array to include all targets
-			p_array.each { |t| a_targets << Player.find(t.to_i) unless t.to_i==0 }
-			# second pass - manage associations
-			a_targets.each { |t| self.players << t unless self.has_player(t.id)	}
-			# cleanup roster
-			self.players.each { |p| self.players.delete(p) unless a_targets.include?(p) }
+			p_array.each do |t|	# first pass
+				a_targets << Player.find(t.to_i) unless t.to_i==0
+			end
+		
+			a_targets.each do |t|	# second pass - manage associations
+				unless self.has_player(t.id)
+					self.players << t 
+					@modified = true
+				end
+			end
+			
+			self.players.each do |p|	# cleanup roster
+				unless a_targets.include?(p)
+					self.players.delete(p)
+					@modified = true
+				end
+			end
 		end
 
 		# ensure we get the right players
 		def check_coaches(c_array)
-			# first pass
+			
 			a_targets = Array.new	# array to include all targets
-			c_array.each { |t| a_targets << Coach.find(t.to_i) unless t.to_i==0 }
-			# second pass - manage associations
-			a_targets.each { |t| self.coaches << t unless self.has_coach(t.id) }
-			# cleanup roster
-			self.coaches.each { |c| self.coaches.delete(c) unless a_targets.include?(c) }
+			c_array.each do |t|	# first pass
+				a_targets << Coach.find(t.to_i) unless t.to_i==0
+			end
+			
+			a_targets.each do |t|	# second pass - manage associations
+				unless self.has_coach(t.id)
+					self.coaches << t
+					@modified = true
+				end
+			end
+			
+			self.coaches.each do |c|	# cleanup coaches
+				unless a_targets.include?(c)
+					self.coaches.delete(c)
+					@modified = true
+				end
+			end
 		end
 
 		# unlink dependents properly, if deleting team
