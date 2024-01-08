@@ -288,7 +288,7 @@ class EventsController < ApplicationController
 			if e_data[:task].present?
 				@notice  = helpers.flash_message("#{I18n.t("task.updated")} ", "success")
 				@retview = :edit
-				@retlnk  = safelink([:task][:retlnk])
+				@retlnk  = safelink(e_data[:task][:retlnk])
 			elsif params[:event][:stats_attributes].present?	# just updated event stats
 				@notice   = helpers.flash_message("#{I18n.t("stat.updated")} ", "success")
 				@retview  = :show
