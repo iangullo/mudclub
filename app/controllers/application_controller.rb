@@ -106,7 +106,7 @@ class ApplicationController < ActionController::Base
 
 
 	# Validate a link as valid input
-	def safelink(lnk=nil, vlinks=["/"])
+	def validate_link(lnk=nil, vlinks=["/"])
 		return nil unless lnk.class == String
 		vlinks.include?(lnk) ? lnk : nil
 	end

@@ -451,7 +451,7 @@ class EventsController < ApplicationController
 			end
 			vlinks << team_path(team) if team
 			vlinks << season_path(season) if season
-			@retlnk = super.safelink(lnk,vlinks)
+			@retlnk = validate_link(lnk, vlinks)
 		end
 
 		# Only allow a list of trusted parameters through.
