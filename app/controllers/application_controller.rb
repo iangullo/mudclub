@@ -104,6 +104,13 @@ class ApplicationController < ActionController::Base
 		helpers.flash_message(cad, "info")
 	end
 
+
+	# Validate a link as valid input
+	def safelink(lnk=nil, vlinks=["/"])
+		return nil unless lnk.class == String
+		vlinks.include?(lnk) ? lnk : nil
+	end
+
 	private
 		# check if current user satisfies access policy
 		def check_role(roles:)

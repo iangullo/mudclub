@@ -18,7 +18,7 @@
 #
 class EventsController < ApplicationController
 	include Filterable
-	before_action :set_event, only: %i[ show edit add_task show_task edit_task task_drill player_stats edit_player_stats load_chart attendance update destroy ]
+	before_action :set_event, only: %i[ show edit add_task show_task edit_task task_drill player_stats edit_player_stats load_chart attendance copy update destroy ]
 
 	# GET /events or /events.json
 	def index
@@ -56,7 +56,7 @@ class EventsController < ApplicationController
 				@submit = create_submit(close: "back", close_return: @retlnk, submit: (u_manager? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil)
 			end
 		else
-			redirect_to (@retlnk ? @retlnk : "/"), data: {turbo_action: "replace"}
+			redirect_to @retlnk || events_path, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -75,7 +75,8 @@ class EventsController < ApplicationController
 				redirect_to(u_manager? ? "/slots" : "/", data: {turbo_action: "replace"})
 			end
 		else
-			redirect_to (@retlnk ? @retlnk : "/"), data: {turbo_action: "replace"}
+			@retlnk = safelink(params[:retlnk].presence) || "/"
+			redirect_to @retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -84,7 +85,7 @@ class EventsController < ApplicationController
 		if check_access(roles: [:manager]) || @event.team.has_coach(u_coachid)
 			prepare_event_form(new: false)
 		else
-			redirect_to (@retlnk ? @retlnk : "/"), data: {turbo_action: "replace"}
+			redirect_to @retlnk || events_path, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -97,7 +98,7 @@ class EventsController < ApplicationController
 				if @event.save
 					link_holidays
 					c_notice = helpers.event_create_notice
-					modal    = event.rest?
+					modal    = @event.rest?
 					register_action(:created, c_notice[:message], url: event_path(@event), modal:)
 					format.html { redirect_to @event.team_id > 0 ? team_events_path(@event.team, start_date: @event.start_date) : events_path(start_date: @event.start_date), notice: c_notice, data: {turbo_action: "replace"} }
 					format.json { render :show, status: :created, location: events_path}
@@ -108,7 +109,8 @@ class EventsController < ApplicationController
 				end
 			end
 		else
-			redirect_to (@retlnk ? @retlnk : "/"), data: {turbo_action: "replace"}
+			@retlnk = safelink(params[:retlnk].presence) || "/"
+			redirect_to @retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -120,7 +122,7 @@ class EventsController < ApplicationController
 				@player = Player.find_by_id(e_data[:player_id].presence)
 				seek_duplicate_event(e_data) if e_data[:copy].presence
 				@event.rebuild(e_data)
-				modal = event.rest?
+				modal = @event.rest?
 				url   = event_path(@event)
 				if prepare_update_redirect(e_data)	# prepare links to redirect
 					if e_data[:player_ids].present?	# update attendance
@@ -137,9 +139,10 @@ class EventsController < ApplicationController
 					format.json { render @retview, status: :ok, location: @retlnk }
 				elsif @event.modified?	# do we need to save?
 					if @event.save	# try to do it
+						@retlnk ||= event_path(@event)
 						register_action(:updated, @notice[:message], url:, modal:)
 						@event.tasks.reload if e_data[:tasks_attributes] # a training session
-						format.html { redirect_to (@retlnk ? @retlnk : event_path(@event)), notice: @notice, data: {turbo_action: "replace"}}
+						format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
 						format.json { render @retview, status: :ok, location: @retlnk }
 					else
 						prepare_event_form(new: false)	# continue editing, it did not work
@@ -147,12 +150,13 @@ class EventsController < ApplicationController
 						format.json { render json: @event.errors, status: :unprocessable_entity }
 					end
 				else	# nothing to save
-					format.html { redirect_to (@retlnk ? @retlnk : event_path(@event)), notice: @notice, data: {turbo_action: "replace"}}
+					@retlnk ||= event_path(@event)
+					format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
 					format.json { render @retview, status: :ok, location: @retlnk }
 				end
 			end
 		else
-			redirect_to (@retlnk ? @retlnk : events_path), data: {turbo_action: "replace"}
+			redirect_to (@retlnk || events_path), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -170,7 +174,7 @@ class EventsController < ApplicationController
 				format.json { head :no_content }
 			end
 		else
-			redirect_to (@retlnk ? @retlnk : events_path), data: {turbo_action: "replace"}
+			redirect_to (@retlnk || events_path), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -181,7 +185,7 @@ class EventsController < ApplicationController
 			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
 			@submit = create_submit(close: "back", close_return: :back, submit: (u_manager? or @event.team.has_coach(u_coachid)) ? edit_task_event_path(task_id: @task.id) : nil)
 		else
-			redirect_to (@retlnk ? @retlnk : events_path), data: {turbo_action: "replace"}
+			redirect_to (@retlnk || events_path), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -190,7 +194,7 @@ class EventsController < ApplicationController
 		if @event && (check_access(roles: [:manager]) || @event.team.has_coach(u_coachid))
 			prepare_task_form(subtitle: I18n.t("task.add"), retlnk: edit_event_path(@event), search_in: add_task_event_path(@event))
 		else
-			redirect_to (@retlnk ? @retlnk : events_path), data: {turbo_action: "replace"}
+			redirect_to (@retlnk || events_path), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -199,7 +203,7 @@ class EventsController < ApplicationController
 		if check_access(roles: [:manager]) || @event.team.has_coach(u_coachid)
 			prepare_task_form(subtitle: I18n.t("task.edit"), retlnk: edit_event_path(@event), search_in: edit_task_event_path(@event), task_id: true)
 		else
-			redirect_to (@retlnk ? @retlnk : events_path), data: {turbo_action: "replace"}
+			redirect_to (@retlnk || events_path), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -209,7 +213,7 @@ class EventsController < ApplicationController
 			header = helpers.event_title_fields(cols: @event.train? ? 3 : nil, chart: true)
 			@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
 		else
-			redirect_to (@retlnk ? @retlnk : "/"), data: {turbo_action: "replace"}
+			redirect_to @retlnk || event_path(@event), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -220,7 +224,7 @@ class EventsController < ApplicationController
 			@fields = create_fields(helpers.event_attendance_form_fields)
 			@submit = create_submit
 		else
-			redirect_to (@retlnk ? @retlnk : "/"), data: {turbo_action: "replace"}
+			redirect_to @retlnk || event_path(@event), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -235,7 +239,7 @@ class EventsController < ApplicationController
 					editor  = (u_manager? || @event.team.has_coach(u_coachid) || @event.team.has_player(u_playerid))
 					@submit = create_submit(submit: @player ? edit_player_stats_event_path(@event, player_id: u_playerid) : nil, frame: "modal")
 				else
-					redirect_to @retlnk ? @retlnk : @event.team, data: {turbo_action: "replace"}
+					redirect_to @retlnk || team_path(@event.team), data: {turbo_action: "replace"}
 				end
 			end
 		else
@@ -253,7 +257,7 @@ class EventsController < ApplicationController
 					@fields = create_fields(helpers.event_edit_player_stats_fields)
 					@submit = create_submit
 				else
-					redirect_to @retlnk ? @retlnk : @event.team, data: {turbo_action: "replace"}
+					redirect_to @retlnk || team_path(@event.team), data: {turbo_action: "replace"}
 				end
 			end
 		else
@@ -265,18 +269,16 @@ class EventsController < ApplicationController
 	def copy
 		if check_access(roles: [:manager, :coach])
 			@season = Season.latest
-			@retlnk = params[:retlnk]
 			@teams  = u_manager? ? Team.for_season(@season.id) : current_user.coach.team_list
 			if @teams	# we have some teams we can copy to
-				@event  = Event.find_by_id(params[:id].presence.to_i)
 				@fields = create_fields(helpers.event_copy_fields)
 				@submit = create_submit(close_return: @retlnk)
 			else
 				notice  = helpers.flash_message("#{I18n.t("team.none")} ", "info")
-				redirect_to (@retlnk ? @retlnk : "/"), notice:, data: {turbo_action: "replace"}
+				redirect_to @retlnk || event_path(@event), notice:, data: {turbo_action: "replace"}
 			end
 		else
-			redirect_to (@retlnk ? @retlnk : "/"), data: {turbo_action: "replace"}
+			redirect_to @retlnk || events_path, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -286,7 +288,7 @@ class EventsController < ApplicationController
 			if e_data[:task].present?
 				@notice  = helpers.flash_message("#{I18n.t("task.updated")} ", "success")
 				@retview = :edit
-				@retlnk  = e_data[:task][:retlnk]
+				@retlnk  = safelink([:task][:retlnk])
 			elsif params[:event][:stats_attributes].present?	# just updated event stats
 				@notice   = helpers.flash_message("#{I18n.t("stat.updated")} ", "success")
 				@retview  = :show
@@ -301,7 +303,7 @@ class EventsController < ApplicationController
 					@retlnk ||= team_events_path(@event, start_date: @event.start_date)
 				else	# match or training session
 					@retview  = :show
-					@retlnk ||= @event.id ? event_path(@event) : @retlnk
+					@retlnk ||= @event.id ? event_path(@event) : safelink(@retlnk, team: @event.team, season: @event.team.season)
 				end
 			end
 			# returns whether we have something to save
@@ -430,9 +432,26 @@ class EventsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_event
-			@retlnk = params[:retlnk].presence
 			@event  = Event.find_by_id(params[:id])
 			@sport  = @event&.team&.sport&.specific
+			@retlnk = safelink(params[:retlnk].presence)
+		end
+
+		# Sanitize retlink input
+		def safelink(lnk=nil, team: nil, season: nil)
+			vlinks = [seasons_path, events_path]
+			if @event
+				vlinks += [
+					event_path(@event),
+					copy_event_path(@event),
+					edit_event_path(@event),
+					team_path(@event.team, start_date: @event.start_date),
+					season_path(@event.team.season)
+				]
+			end
+			vlinks << team_path(team) if team
+			vlinks << season_path(season) if season
+			@retlnk = super.safelink(lnk,vlinks)
 		end
 
 		# Only allow a list of trusted parameters through.
