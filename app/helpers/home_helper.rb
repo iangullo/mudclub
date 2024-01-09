@@ -22,6 +22,19 @@ module HomeHelper
 		title_start(icon: current_user.picture, title: current_user.s_name, _class: "rounded-full")
 	end
 
+	# fields for "about MudClub.." view
+	def home_about_fields
+		[
+			[{kind: "gap", size: 1, cols: 2}],
+			[{kind: "string", value: I18n.t("server.info-1"), cols: 2}],
+			[{kind: "string", value: I18n.t("server.info-2"), cols: 2}],
+			[{kind: "string", value: I18n.t("server.info-3"), cols: 2}],
+			[{kind: "string", value: I18n.t("server.info-4"), cols: 2}],
+			[{kind: "string", value: I18n.t("server.info-5"), cols: 2}],
+			[button_field({kind: "jump", label: I18n.t("server.website"), url: "https://github.com/iangullo/mudclub/wiki", tab: true}, align: "right")],
+			[{kind: "string", value: "(c) iangullo@gmail.com", align: "right", class: "text-sm text-gray-500"}],
+		]
+	end
 
 	# title fields for admin pages
 	def home_admin_title(title: current_user.to_s)
@@ -45,13 +58,14 @@ module HomeHelper
 	def home_form_fields(club:, retlnk: nil)
 		res = [
 			[
-				{kind: "header-icon", value: club.logo},
-				{kind: "title", value: I18n.t("action.edit"), cols: 2}
+				{kind: "image-box", value: club.logo, rows: 3},
+				{kind: "title", value: I18n.t("club.edit"), cols: 2}
 			],
 			[
 				{kind: "label", value: I18n.t("person.name_a")},
 				{kind: "text-box", key: :nick, value: club.nick, placeholder: "MudClub"}
-			]
+			],
+			[{kind: "gap", size: 1, cols: 2}]
 		]
 		res << {kind: "hidden", key: :retlnk, value: retlnk} if retlnk
 		res

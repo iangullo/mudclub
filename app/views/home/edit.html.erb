@@ -2,9 +2,7 @@
 	<%= form_for @club, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
 		<div id="home-logged-in">
 			<% @fields.form = form %>
-			<% @f_logo.form = form %>
 			<%= render @fields %>
-			<%= render @f_logo %>
 			<%= render @submit %>
 		</div>
 	<% end %>

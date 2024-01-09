@@ -52,6 +52,7 @@
 en:
   action:
     admin: "Manage"
+    backup: "Backup"
     cancel: "Cancel"
     change: "Change"
     clear: "Clear"
@@ -67,6 +68,7 @@ en:
     login: "Log-in"
     logout: "Log-out"
     previous: "<<"
+    restore: "Recuperar"
     return: "Return"
     save: "Save"
     search: "Search"
@@ -95,6 +97,7 @@ en:
     single: "Category"
     name: "Name"
   club:
+    edit: "Edit Club"
     single: "Club"
   coach:
     duplicate: "Duplicate coach: "
@@ -269,6 +272,16 @@ en:
     abbr: "Seas."
     single: "Season"
     locations: "Season Courts"
+  server:
+    about: "About ..."
+    info-1: "Open-source web application to manage your"
+    info-2: "sports club:"
+    info-3: " (*) Seasons: teams & athletes."
+    info-4: " (*) Training: drills, plays, sessions."
+    info-5: " (*) Matches: rosters & results."
+    log: "Logs"
+    single: "Server"
+    website: "MudClub wiki"
   sex:
     label: "Sex"
     abr: "Sex"

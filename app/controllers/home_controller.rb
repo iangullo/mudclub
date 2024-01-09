@@ -42,17 +42,24 @@ class HomeController < ApplicationController
 		if check_access(roles: [:admin, :manager])
 			@club   = Person.find_by_id(0)
 			@fields = create_fields(helpers.home_form_fields(club: @club))
-			@f_logo = create_fields(helpers.form_file_field(label: I18n.t("person.pic"), key: :avatar, value: @club.avatar.filename))
 			@submit = create_submit
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	def actions
+	def about
+		title = helpers.title_start(icon: "clublogo.svg", title: "MudClub (v1.0)")
+		title << [{kind: "subtitle", value: I18n.t("server.about")}]
+		@title  = create_fields(title)
+		@fields = create_fields(helpers.home_about_fields)
+		@submit = create_submit(submit: nil)
+	end
+
+	def log
 		if check_access(roles: [:admin])
 			actions = UserAction.all
-			title   = helpers.home_admin_title(title: I18n.t("user.actions"))
+			title   = helpers.home_admin_title(title: I18n.t("server.log"))
 			title.last << helpers.button_field({kind: "clear", url: home_clear_path}) unless actions.empty?
 			@title = create_fields(title)
 			@grid  = create_grid(helpers.home_actions_grid(actions: UserAction.all))
@@ -66,7 +73,7 @@ class HomeController < ApplicationController
 			UserAction.clear
 			respond_to do |format|
 				a_desc = I18n.t("user.cleared")
-				format.html { redirect_to home_actions_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to home_log_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else

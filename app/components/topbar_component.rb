@@ -133,13 +133,23 @@ class TopbarComponent < ApplicationComponent
 		s_menu
 	end
 
+	# menu to manage server application
+	def server_menu
+		s_menu = {kind: "menu", name: "server", label: I18n.t("server.single"), options:[]}
+		s_menu[:options] << sport_menu
+		s_menu[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
+		s_menu[:options] << menu_link(label: I18n.t("server.log"), url: '/home/log')
+		#s_menu[:options] << menu_link(label: I18n.t("action.backup"), url: '/home/log')
+		#s_menu[:options] << menu_link(label: I18n.t("action.restore"), url: '/home/log')
+		s_menu[:options] << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal")
+		s_menu
+	end
+
 	# menu buttons for mudclub admins
 	def admin_menu(user)
 		a_menu = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[]}
-		a_menu[:options] << menu_link(label: I18n.t("person.name"), url: '/home/edit', kind: "modal")
-		a_menu[:options] << sport_menu
-		a_menu[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
-		a_menu[:options] << menu_link(label: I18n.t("user.actions"), url: '/home/actions')
+		a_menu[:options] << menu_link(label: I18n.t("club.edit"), url: '/home/edit', kind: "modal")
+		a_menu[:options] << server_menu
 		manager_menu(user) if user.is_coach?
 		@menu_tabs << a_menu
 	end
