@@ -148,6 +148,7 @@ module EventsHelper
 		if u_coach? or u_manager?
 			res = event_title_fields(form: true, cols: @event.match? ? 2 : nil, teams: @teams)
 			res.last << {kind: "hidden", key: :copy, value: true}
+			res.last << {kind: "hidden", key: :id, value: @event.id}
 		end
 		res
 	end

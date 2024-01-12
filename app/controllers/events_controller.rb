@@ -322,6 +322,7 @@ class EventsController < ApplicationController
 			e_search            = Event.where(start_time: e_search.start_time, team_id: e_search.team_id).first
 			e_copy              = e_search if e_search	# copy destination set
 			unless e_copy.id == @event.id	# manage task/target bindings unless it is the same destination
+				e_copy.save unless e_copy.id	# save if it's a new event
 				e_copy.duration = @event.duration
 				e_copy.targets.delete_all
 				@event.targets.each {|target| e_copy.targets << target.dup}	# copy targets
