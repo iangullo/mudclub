@@ -21,8 +21,7 @@ module EventsHelper
 	def event_index_title(team: nil, season: nil)
 		title    = team ? (team.name + " (#{team.season.name})") : season ? season.name : I18n.t("calendar.label")
 		subtitle = (title == I18n.t("calendar.label")) ? I18n.t("scope.all") : I18n.t("calendar.label")
-		res      = title_start(icon: "calendar.svg", title: title)
-		res << [{kind: "subtitle", value: subtitle}]
+		res      = title_start(icon: "calendar.svg", title:, subtitle:)
 	end
 
 	# return icon and top of FieldsComponent
@@ -49,12 +48,9 @@ module EventsHelper
 
 	# FieldComponents for event attendance
 	def event_attendance_title
-		res = title_start(icon: "attendance.svg", title: @event.team.name)
+		res = title_start(icon: "attendance.svg", title: @event.team.name, subtitle: @event.to_s)
 		res[0] << {kind: "gap"}
-		res << [
-			{kind: "subtitle", value: @event.to_s},
-			{kind: "gap"}
-		]
+		res[1] << {kind: "gap"}
 		event_top_right_fields(res:)
 		res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
 	end

@@ -19,7 +19,7 @@
 module CategoriesHelper
  	# return icon and top of FieldsComponent
  	def category_title_fields(title:, rows: 2, cols: nil)
-		title_start(icon: "category.svg", title: title, rows: rows, cols: cols)
+		title_start(icon: "category.svg", title:, rows:, cols:)
 	end
 
 	# FieldComponents for category.show

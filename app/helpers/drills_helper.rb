@@ -36,9 +36,9 @@ module DrillsHelper
 
 	# return title FieldComponent definition for drill show
 	def drill_show_title(title:)
-		res = drill_title_fields(title: I18n.t("drill.single"))
+		res = drill_title_fields(title: I18n.t("drill.single"), subtitle: @drill.name)
 		if @drill.playbook.attached?
-			res.last << button_field({
+			res.first << button_field({
 				kind: "link",
 				align: "right",
 				icon: "playbook.png",
@@ -47,10 +47,7 @@ module DrillsHelper
 				label: "Playbook"
 			})
 		end
-		res << [
-			{kind: "subtitle", value: @drill.name},
-			{kind: "string", value: "(" + @drill.kind.name + ")", cols: 2}
-		]
+		res.last << {kind: "string", value: "(" + @drill.kind.name + ")", cols: 2}
 	end
 
 	# return title FieldComponent definition for drill show
@@ -172,9 +169,7 @@ module DrillsHelper
 
 	# return title FieldComponent definition for drill show
 	def drill_versions_title
-		res = title_start(icon: "drill.svg", title: @drill.name)
-		res << [{kind: "subtitle", value: I18n.t("version.many")}]
-		res
+		title_start(icon: "drill.svg", title: @drill.name, subtitle: I18n.t("version.many"))
 	end
 
 	# create table for drill versions

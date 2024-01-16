@@ -35,8 +35,7 @@ class DivisionsController < ApplicationController
 	# GET /divisions/1 or /divisions/1.json
 	def show
 		if check_access(roles: [:admin])
-			fields  = helpers.division_title_fields(title: I18n.t("division.single"))
-			fields << [{kind: "subtitle", value: @division.name}]
+			fields  = helpers.division_title_fields(title: I18n.t("division.single"), subtitle: @division.name)
 			@fields = create_fields(fields)
 			@submit = create_submit(submit: u_manager? ? edit_sport_division_path(@sport, @division) : nil)
 		else

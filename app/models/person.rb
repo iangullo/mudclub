@@ -117,7 +117,7 @@ class Person < ApplicationRecord
 
 	# used for clublogo (Person(id: 0))
 	def logo
-		self.avatar.attached? ? self.avatar : "clublogo.svg"
+		self.avatar.attached? ? self.avatar : "mudclub.svg"
 	end
 
 	# to import from excel

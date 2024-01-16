@@ -19,7 +19,7 @@
 module TeamsHelper
 	# return FieldComponent for team view title
 	def team_title_fields(title:, cols: nil, search: nil, edit: nil)
-		res = title_start(icon: "team.svg", title: title, cols: cols)
+		res = title_start(icon: "team.svg", title:, cols:)
 		if search
 			s_id = @team&.season_id || @season&.id || session.dig('team_filters', 'season_id')
 			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: s_id}]

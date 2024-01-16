@@ -19,9 +19,8 @@
 module SlotsHelper
 	# return icon and top of FieldsComponent
 	def slot_title_fields(title:)
-		res = title_start(icon: "timetable.svg", title: title)
-		res << [{kind: "subtitle", value: @season ? @season.name : ""}]
-		res
+		subtitle = (@season ? @season.name : "")
+		title_start(icon: "timetable.svg", title:, subtitle:)
 	end
 
 	# return FieldsComponent @fields for forms

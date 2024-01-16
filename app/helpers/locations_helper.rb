@@ -19,7 +19,7 @@
 module LocationsHelper
 	# return icon and top of FieldsComponent
 	def location_title_fields(title:)
-		title_start(icon: "location.svg", title: title)
+		title_start(icon: "location.svg", title:)
 	end
 
 	def location_show_fields

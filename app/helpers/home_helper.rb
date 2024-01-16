@@ -18,11 +18,15 @@
 #
 module HomeHelper
 	# default title FieldComponents for home page
-	def home_title_fields
-		title_start(icon: current_user.picture, title: current_user.s_name, _class: "rounded-full")
+	def home_title_fields(icon: current_user.picture, title: current_user.s_name, subtitle: nil)
+		title_start(icon:, title:, subtitle:, _class: "rounded-full")
 	end
 
 	# fields for "about MudClub.." view
+	def home_about_title
+		title_start(icon: "mudclub.svg", title: "MudClub (v1.0)", subtitle: I18n.t("server.about"))
+	end
+		# fields for "about MudClub.." view
 	def home_about_fields
 		[
 			[{kind: "gap", size: 1, cols: 2}],
@@ -39,7 +43,7 @@ module HomeHelper
 	# title fields for admin pages
 	def home_admin_title(title: current_user.to_s)
 		[
-			[{kind: "header-icon", value: "clublogo.svg"}, {kind: "title", value: "MudClub - #{I18n.t("action.admin")}"}],
+			[{kind: "header-icon", value: "mudclub.svg"}, {kind: "title", value: "MudClub - #{I18n.t("action.admin")}"}],
 			[{kind: "string", value: title}]
 		]
 	end

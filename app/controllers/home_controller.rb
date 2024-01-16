@@ -49,9 +49,7 @@ class HomeController < ApplicationController
 	end
 
 	def about
-		title = helpers.title_start(icon: "clublogo.svg", title: "MudClub (v1.0)")
-		title << [{kind: "subtitle", value: I18n.t("server.about")}]
-		@title  = create_fields(title)
+		@title  = create_fields(helpers.home_about_title)
 		@fields = create_fields(helpers.home_about_fields)
 		@submit = create_submit(submit: nil)
 	end
