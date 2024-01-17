@@ -39,6 +39,7 @@ module HomeHelper
 			[{kind: "string", value: bulletize(I18n.t("server.info-3"))}],
 			[{kind: "string", value: bulletize(I18n.t("server.info-4"))}],
 			[{kind: "string", value: bulletize(I18n.t("server.info-5"))}],
+			[{kind: "string", value: bulletize(I18n.t("server.info-6"))}],
 			[{kind: "gap", size: 1}],
 			[copyright_field],
 			[{kind: "string", value: I18n.t("server.published"), align: "right", class: "text-sm text-gray-500"}]
@@ -46,9 +47,9 @@ module HomeHelper
 	end
 
 	# title fields for admin pages
-	def home_admin_title(title: current_user.to_s)
+	def home_admin_title(icon: "mudclub.svg", title: current_user.to_s)
 		[
-			[{kind: "header-icon", value: "mudclub.svg"}, {kind: "title", value: "MudClub - #{I18n.t("action.admin")}"}],
+			[{kind: "header-icon", value: icon}, {kind: "title", value: "MudClub - #{I18n.t("action.admin")}"}],
 			[{kind: "string", value: title}]
 		]
 	end
