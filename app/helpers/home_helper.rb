@@ -24,19 +24,24 @@ module HomeHelper
 
 	# fields for "about MudClub.." view
 	def home_about_title
-		title_start(icon: "mudclub.svg", title: "MudClub (v1.0)", subtitle: I18n.t("server.about"))
+		build = "(#{I18n.t("server.build")}#{BUILD})"
+		res   = title_start(icon: "mudclub.svg", title: "MudClub #{VERSION}")
+		res << [{kind: "string", value: build, class: "text-sm text-gray-500"}]
+		res << [
+			button_field({kind: "link", label: I18n.t("server.about"), url: "https://github.com/iangullo/mudclub/wiki", tab: true}, cols: 2)
+		]
 	end
 		# fields for "about MudClub.." view
 	def home_about_fields
 		[
-			[{kind: "gap", size: 1, cols: 2}],
-			[{kind: "string", value: I18n.t("server.info-1"), cols: 2}],
-			[{kind: "string", value: I18n.t("server.info-2"), cols: 2}],
-			[{kind: "string", value: I18n.t("server.info-3"), cols: 2}],
-			[{kind: "string", value: I18n.t("server.info-4"), cols: 2}],
-			[{kind: "string", value: I18n.t("server.info-5"), cols: 2}],
-			[button_field({kind: "jump", label: I18n.t("server.website"), url: "https://github.com/iangullo/mudclub/wiki", tab: true}, align: "right")],
-			[{kind: "string", value: "(c) iangullo@gmail.com", align: "right", class: "text-sm text-gray-500"}],
+			[{kind: "string", value: I18n.t("server.info-1")}],
+			[{kind: "string", value: I18n.t("server.info-2")}],
+			[{kind: "string", value: bulletize(I18n.t("server.info-3"))}],
+			[{kind: "string", value: bulletize(I18n.t("server.info-4"))}],
+			[{kind: "string", value: bulletize(I18n.t("server.info-5"))}],
+			[{kind: "gap", size: 1}],
+			[copyright_field],
+			[{kind: "string", value: I18n.t("server.published"), align: "right", class: "text-sm text-gray-500"}]
 		]
 	end
 

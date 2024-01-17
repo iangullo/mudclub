@@ -65,6 +65,19 @@ module ApplicationHelper
 		{kind: "button", button: button, cols:, rows:, align:, class:}
 	end
 
+	# return an html bulletized string from info
+	def bulletize(info, indent: 1)
+		bull = ""
+		1.upto(indent) { bull += "&nbsp;&nbsp;" }
+		bull += "&bull;&nbsp;"
+		raw(bull + info)
+	end
+
+	# return definition of copyright field
+	def copyright_field
+		{kind: "string", value: raw("&copy; 2024 iangullo@gmail.com"), align: "right", class: "text-sm text-gray-500"}
+	end
+
 	# standardised generator of "active" label for user/player/coach
 	def obj_status_field(obj)
 		if obj&.active
