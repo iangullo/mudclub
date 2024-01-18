@@ -50,15 +50,21 @@ module TeamsHelper
 			title << {kind: "normal", value: I18n.t("player.abbr")}
 			title << button_field({kind: "add", url: new_team_path, frame: "modal"}) if add_teams
 			rows = Array.new
+			trow = {url: "#", items: [{kind: "gap"}, {kind: "gap"}, {kind: "bottom", value: I18n.t("stat.total")}]}
+			tcnt = 0	# total players
 			teams.each { |team|
+				cnt = team.players.count
 				row = {url: team_path(team), items: []}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless season
 				row[:items] << {kind: "normal", value: team.to_s}
 				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
-				row[:items] << {kind: "normal", value: team.players.count.to_s, align: "center"}
+				row[:items] << {kind: "normal", value: cnt.to_s, align: "center"}
 				row[:items] << button_field({kind: "delete", url: row[:url], name: team.to_s}) if add_teams
 				rows << row
+				tcnt += cnt
 			}
+			trow[:items] << {kind: "text", value: tcnt, align: "center"}
+			rows << trow
 			{title:, rows:}
 		else
 			nil
