@@ -205,11 +205,7 @@ class Sport < ApplicationRecord
 			end
 		end
 
-		f_stats.each do |stat|	# bind stats
-			if stat.concept # if they have a valid concept
-				event.stats << stat unless event.stats.include?(stat)
-			end
-		end
+		update_stats(event, f_stats)
 	end
 
 	# attempts to fetch the specific opbject from an id
@@ -324,19 +320,28 @@ class Sport < ApplicationRecord
 
 		# Retrieve/Create a stat from a form {key: val} hash
 		def parse_form_stat(event_id, keyarg, value)
-			case keyarg[0]	# player_id part
-			when "ours"
-				player_id = 0
-			when "opps"
-				player_id = -1
-			else #number
-				player_id = keyarg[0].to_i
+			player_id = case keyarg[0]	# player_id part
+				when "ours" then 0
+				when "opps" then -1
+				else keyarg[0].to_i
 			end
-			period  = (keyarg[1].match?(/^(\d+)$/)	? keyarg[1].to_i : self.periods[keyarg[1]])
-			concept = keyarg[2].to_i
-			stat    = Stat.fetch(event_id:, player_id:, period:, concept:, create: false).first
-			stat  ||= Stat.new(event_id:, player_id:, period:, concept:)
-			stat.update(value: value.to_i)
+			period     = (keyarg[1].match?(/^(\d+)$/)	? keyarg[1].to_i : self.periods[keyarg[1]])
+			concept    = keyarg[2].to_i
+			stat       = Stat.fetch(event_id:, player_id:, period:, concept:, create: false).first
+			stat     ||= Stat.new(event_id:, player_id:, period:, concept:)
+			stat.value = value.to_i
 			stat
+		end
+
+		# bulk update of stats
+		def update_stats(event, f_stats)
+			Stat.transaction do
+				f_stats.each do |stat|	# bind stats
+					if stat.concept # if they have a valid concept
+						stat.save if stat.changed?
+						event.stats << stat unless event.stats.include?(stat)
+					end
+				end
+			end
 		end
 end
