@@ -16,7 +16,8 @@
 #
 # contact email - iangullo@gmail.com.
 #
-class EventsPlayer < ApplicationRecord
+class EventAttendance < ApplicationRecord
+  self.table_name = 'events_players'
   belongs_to :event
   belongs_to :player
   scope :for_event, -> (event_id) { where(event_id:) }
@@ -29,25 +30,25 @@ class EventsPlayer < ApplicationRecord
 	self.inheritance_column = "not_sti"
 
   # Count total attendance for an event. 'e_att' can be either an event_id and
-  # query the database for the count, or a collection of EventsPlayer objs.
+  # query the database for the count, or a collection of EventAttendance objs.
   # to sum.
   def self.count(e_att)
     case e_att
     when Integer
-      return EventsPlayer.where(event_id: e_att).count
+      return EventAttendance.where(event_id: e_att).count
     else
       return e_att.count
     end
   end
 
-  # fetch (or create) an EventsPlayer object for event_id and player_id 
+  # fetch (or create) an EventAttendance object for event_id and player_id 
   def self.fetch(event_id, player_id, create: false)
-    res   = EventsPlayer.find_by(event_id:, player_id:)
-    res ||= EventsPlayer.new(event_id:, player_id:) if create
+    res   = EventAttendance.find_by(event_id:, player_id:)
+    res ||= EventAttendance.new(event_id:, player_id:) if create
     res
   end
 
-  # prepare an EventsPlayer object to record  attendance of event_id and player_id 
+  # prepare an EventAttendance object to record  attendance of event_id and player_id 
   def self.prepare(event_id, player_id)
     res = self.fetch(event_id, player_id, create: true)
     res

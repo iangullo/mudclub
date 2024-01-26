@@ -65,7 +65,7 @@ class Player < ApplicationRecord
 		l_week     = {tot: t_sessions.last7.count, att: 0}
 		l_month    = {tot: t_sessions.last30.count, att: 0}
 		l_season   = {tot: t_sessions.count, att: 0}
-		p_att      = EventsPlayer.for_player(self.id).for_team(team.id).includes(:event)
+		p_att      = EventAttendance.for_player(self.id).for_team(team.id).includes(:event)
 		matches    = p_att.matches.count
 		t_att      = p_att.trainings
 		l_season[:att] = t_att.count

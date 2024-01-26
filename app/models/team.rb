@@ -141,7 +141,7 @@ class Team < ApplicationRecord
 		sessions = {name: I18n.t("player.many"), avg: 0, data: {}}
 		s_avg    = 0
 		t_events = self.events.past.trainings.includes(:events_players)
-		t_att    = EventsPlayer.for_team(self.id)
+		t_att    = EventAttendance.for_team(self.id)
 		t_events.each do |event|
 			if event.train?
 				e_cnt           = t_att.for_event(event.id).count
