@@ -47,24 +47,30 @@ module TeamsHelper
 			title = season ? [] : [{kind: "normal", value: I18n.t("season.abbr")}]
 			title << {kind: "normal", value: I18n.t("team.single")}
 			title << {kind: "normal", value: I18n.t("division.single")}
-			title << {kind: "normal", value: I18n.t("player.abbr")}
-			title << button_field({kind: "add", url: new_team_path, frame: "modal"}) if add_teams
+			if add_teams
+				title << {kind: "normal", value: I18n.t("player.abbr")} 
+				title << button_field({kind: "add", url: new_team_path, frame: "modal"})
+				trow = {url: "#", items: [{kind: "gap"}, {kind: "gap"}, {kind: "bottom", value: I18n.t("stat.total")}]}
+				tcnt = 0	# total players
+			end
 			rows = Array.new
-			trow = {url: "#", items: [{kind: "gap"}, {kind: "gap"}, {kind: "bottom", value: I18n.t("stat.total")}]}
-			tcnt = 0	# total players
 			teams.each { |team|
 				cnt = team.players.count
 				row = {url: team_path(team), items: []}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless season
 				row[:items] << {kind: "normal", value: team.to_s}
 				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
-				row[:items] << {kind: "normal", value: cnt.to_s, align: "center"}
-				row[:items] << button_field({kind: "delete", url: row[:url], name: team.to_s}) if add_teams
+				if add_teams
+					tcnt += cnt
+					row[:items] << {kind: "normal", value: cnt.to_s, align: "center"}
+					row[:items] << button_field({kind: "delete", url: row[:url], name: team.to_s})
+				end
 				rows << row
-				tcnt += cnt
 			}
-			trow[:items] << {kind: "text", value: tcnt, align: "center"}
-			rows << trow
+			if add_teams
+				trow[:items] << {kind: "text", value: tcnt, align: "center"}
+				rows << trow
+			end
 			{title:, rows:}
 		else
 			nil
@@ -121,8 +127,8 @@ module TeamsHelper
 
 	# A Field Component with grid for team attendance. obj is the parent object (player/team)
 	def team_attendance_grid
-		t_att = @team.attendance
-		if t_att # we have attendance data
+		# Check that the offline job has produced attendance data
+		if (t_att = @team&.attendance)
 			title = [
 				{kind: "normal", value: I18n.t("player.number"), align: "center"},
 				{kind: "normal", value: I18n.t("person.name")},
@@ -131,7 +137,7 @@ module TeamsHelper
 			]
 			rows  = Array.new
 			m_tot = []
-			@team.players.order(:number).each { |player|
+			@team.players.order(:number).each do |player|
 				p_att = player.attendance(team: @team)
 				row   = {url: player_path(player, retlnk: team_path(@team), team_id: @team.id), frame: "modal", items: []}
 				row[:items] << {kind: "normal", value: player.number, align: "center"}
@@ -142,7 +148,7 @@ module TeamsHelper
 				row[:items] << {kind: "normal", value: p_att[:matches], align: "center"}
 				m_tot << p_att[:matches]
 				rows << row
-			}
+			end
 			rows << {
 				items: [
 					{kind: "bottom", value: nil}, {kind: "bottom", align: "right", value: I18n.t("stat.average")},
@@ -152,7 +158,7 @@ module TeamsHelper
 					{kind: "normal", value: m_tot.sum/m_tot.size, align: "center"}
 				]
 			}
-			return {title: title, rows: rows, chart: t_att[:sessions]}
+			return {title:, rows:, chart: t_att[:sessions]}
 		end
 		return nil
 	end

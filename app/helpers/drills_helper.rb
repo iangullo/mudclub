@@ -30,8 +30,8 @@ module DrillsHelper
 	end
 
 	# return icon and top of FieldsComponent
-	def drill_title_fields(title:, rows: nil, cols: nil)
-		title_start(icon: "drill.svg", title: title, rows: rows, cols: cols)
+	def drill_title_fields(title:, subtitle: nil, rows: nil, cols: nil)
+		title_start(icon: "drill.svg", title:, subtitle:, rows:, cols:)
 	end
 
 	# return title FieldComponent definition for drill show

@@ -129,34 +129,41 @@ class Team < ApplicationRecord
 	# get attendance data for a team in the season
 	# returns partial & serialised numbers for attendance: trainings [%]
 	def attendance
-		t_players  = self.players.count
-		if t_players > 0
-			l_week = {tot: 0, att: 0}
-			l_month = {tot: 0, att: 0}
-			l_season = {tot: 0, att: 0}
-			sessions = {name: I18n.t("player.many"), avg: 0, data: {}}
-			d_last7  = Date.today - 7
-			d_last30 = Date.today - 30
-			self.events.normal.this_season.each { |event|
-				if event.train?
-					e_att = event.players.count	# how many came?
-					l_week[:tot] = l_week[:tot] + t_players if event.start_date > d_last7
-					l_month[:tot] = l_month[:tot] + t_players if event.start_date > d_last30
-					l_season[:tot] = l_season[:tot] + t_players
-					sessions[:data][event.start_date] = e_att.to_i # add to sessions
-					l_week[:att] = l_week[:att] + e_att if event.start_date > d_last7
-					l_month[:att] = l_month[:att] + e_att if event.start_date > d_last30
-					l_season[:att] = l_season[:att] + e_att
-					sessions[:avg] = sessions[:avg] + e_att
+		t_players = self.players.count
+		return nil if t_players.zero?	# NO PLAYERS IN TEAM --> NO ATTENDANCE DATA
+		
+		d_morrow = Date.today + 1	# tomorrow
+		d_last7  = d_morrow - 8	# date limit for last 7 days
+		d_last30 = d_morrow - 31	# date limit for last 30 days
+		l_week   = {tot: 0, att: 0}
+		l_month  = {tot: 0, att: 0}
+		l_season = {tot: 0, att: 0}
+		sessions = {name: I18n.t("player.many"), avg: 0, data: {}}
+		s_avg    = 0
+		t_events = self.events.past.trainings.includes(:events_players)
+		t_att    = EventsPlayer.for_team(self.id)
+		t_events.each do |event|
+			if event.train?
+				e_cnt           = t_att.for_event(event.id).count
+				e_date          = event.start_date
+				l_season[:tot] += t_players
+				l_season[:att] += e_cnt
+				sessions[:avg] += e_cnt
+				if e_date.between?(d_last30, d_morrow)	# event in last month
+					l_month[:tot]  += t_players
+					l_month[:att]  += e_cnt
+					if (e_date > d_last7)	# event occurs in last 7 days
+						l_week[:att] += e_cnt
+						l_week[:tot] += t_players
+					end
 				end
-			}
-			sessions[:week] = l_week[:tot]>0 ? (100*l_week[:att]/l_week[:tot]).to_i : nil
-			sessions[:month] = l_month[:tot]>0 ? (100*l_month[:att]/l_month[:tot]).to_i : nil
-			sessions[:avg] = l_season[:tot]>0 ? (100*l_season[:att]/l_season[:tot]).to_i : nil
-			{sessions: sessions}
-		else
-			nil	# NO PLAYERS/SESSIONS IN THE TEAM --> NO ATTENDANCE DATA TO SHOW
+				sessions[:data][e_date] = e_cnt # add to sessions
+			end
 		end
+		sessions[:week]  = l_week[:tot]>0 ? (100*l_week[:att]/l_week[:tot]).to_i : nil
+		sessions[:month] = l_month[:tot]>0 ? (100*l_month[:att]/l_month[:tot]).to_i : nil
+		sessions[:avg]   = l_season[:tot]>0 ? (100*l_season[:att]/l_season[:tot]).to_i : nil
+		{ sessions: sessions }
 	end
 
 	# rebuild Teamm from raw hash returned by a form

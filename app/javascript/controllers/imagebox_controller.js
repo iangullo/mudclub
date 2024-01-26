@@ -1,6 +1,5 @@
 // app/javascript/controllers/imagebox_controller.js
-// Assistance from ChatGPT tweaking behaviour!import { Controller } from "@hotwired/stimulus"
-// app/javascript/controllers/imagebox_controller.js
+// Assistance from ChatGPT tweaking behaviour
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {

@@ -60,32 +60,21 @@ class Player < ApplicationRecord
 	# returns attendance inthe form of:
 	# matches played and session attendance [%] for week, month and season
 	def attendance(team:)
-		l_week   = {tot: 0, att: 0}
-		l_month  = {tot: 0, att: 0}
-		l_season = {tot: 0, att: 0}
-		matches  = 0
-		d_last7  = Date.today - 7
-		d_last30 = Date.today - 30
-		team.events.normal.this_season.past.each do |event|
-			if event.train?
-				l_season[:tot] = l_season[:tot] + 1
-				l_week[:tot]   = l_week[:tot] + 1 if event.start_date > d_last7
-				l_month[:tot]  = l_month[:tot] + 1 if event.start_date > d_last30
-			end
-			if event.players.include?(self)
-				if event.match?
-					matches = matches + 1
-				elsif event.train?
-					l_season[:att] = l_season[:att] + 1
-					l_week[:att]   = l_week[:att] + 1 if event.start_date > d_last7
-					l_month[:att]  = l_month[:att] + 1 if event.start_date > d_last30
-				end
-			end
-		end
+		t_events   = team.events.normal.past.includes(:event_attendances)
+		t_sessions = t_events.trainings
+		l_week     = {tot: t_sessions.last7.count, att: 0}
+		l_month    = {tot: t_sessions.last30.count, att: 0}
+		l_season   = {tot: t_sessions.count, att: 0}
+		p_att      = EventsPlayer.for_player(self.id).for_team(team.id).includes(:event)
+		matches    = p_att.matches.count
+		t_att      = p_att.trainings
+		l_season[:att] = t_att.count
+		l_week[:att]   = t_att.last7.count
+		l_month[:att]  = t_att.last30.count
 		att_week  = l_week[:tot]>0 ? (l_week[:att]*100/l_week[:tot]).to_i : nil
 		att_month = l_month[:tot]>0 ? (l_month[:att]*100/l_month[:tot]).to_i : nil
 		att_total = l_season[:tot]>0 ? (100*l_season[:att]/l_season[:tot]).to_i : nil
-		{matches: matches, last7: att_week, last30: att_month, avg: att_total}
+		{matches:, last7: att_week, last30: att_month, avg: att_total}
 	end
 
 	# Player picture

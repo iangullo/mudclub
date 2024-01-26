@@ -30,7 +30,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_12_17_115106) do
     t.string "record_type", null: false
     t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
@@ -42,8 +42,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_12_17_115106) do
     t.text "metadata"
     t.string "service_name", null: false
     t.bigint "byte_size", null: false
-    t.string "checksum"
-    t.datetime "created_at", null: false
+    t.string "checksum", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
@@ -232,18 +232,18 @@ ActiveRecord::Schema[7.0].define(version: 2023_12_17_115106) do
     t.index ["concept"], name: "index_skills_on_concept"
   end
 
-  create_table "slots", force: :cascade do |t|
+  create_table "slots", id: :bigint, default: -> { "nextval('training_slots_id_seq'::regclass)" }, force: :cascade do |t|
+    t.bigint "season_id", default: 0, null: false
+    t.bigint "location_id", default: 0, null: false
     t.integer "wday"
     t.time "start"
     t.integer "duration"
-    t.bigint "season_id", default: 0, null: false
     t.bigint "team_id", default: 0, null: false
-    t.bigint "location_id", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["location_id"], name: "index_slots_on_location_id"
-    t.index ["season_id"], name: "index_slots_on_season_id"
-    t.index ["team_id"], name: "index_slots_on_team_id"
+    t.index ["location_id"], name: "index_training_slots_on_location_id"
+    t.index ["season_id"], name: "index_training_slots_on_season_id"
+    t.index ["team_id"], name: "index_training_slots_on_team_id"
   end
 
   create_table "sports", force: :cascade do |t|
