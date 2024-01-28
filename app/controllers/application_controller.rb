@@ -111,6 +111,15 @@ class ApplicationController < ActionController::Base
 		vlinks.include?(lnk) ? lnk : nil
 	end
 
+	# check if a string is a valid date
+	def valid_date(v_string)
+		return nil if (d_str = v_string&.last(10))&.length != 10
+		d_hash = Date._parse(d_str)
+		return nil if d_hash&.size !=3
+		v_date = Date.valid_date?(d_hash[:year].to_i, d_hash[:month].to_i, d_hash[:month].to_i)
+		return v_date ? d_str : nil
+	end
+
 	private
 		# check if current user satisfies access policy
 		def check_role(roles:)
