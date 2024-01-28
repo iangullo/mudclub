@@ -45,8 +45,8 @@ class BasketballSport < Sport
 	end
 
 	# fields to edit a match
-	def match_form_fields(event, new: false)
-		match_fields(event, edit: true, new:)
+	def match_form_fields(event, new: false, retlnk: nil)
+		match_fields(event, edit: true, new:, retlnk:)
 	end
 
 	# return period limitations for a match of this sport
@@ -373,7 +373,7 @@ class BasketballSport < Sport
 		end
 
 		# generic match_fields generator for show or edit
-		def match_fields(event, edit: false, new: false)
+		def match_fields(event, edit: false, new: false, retlnk: nil)
 			t_pers  = self.match_periods(event.team.category.rules)
 			t_cols  = t_pers + (edit ? 3 : 2)
 			head    = edit ? [{kind: "side-cell", value: I18n.t("team.home_a"), cols: 2, align: "left"}] : [{kind: "gap", size:1}]
@@ -397,6 +397,7 @@ class BasketballSport < Sport
 				fields << [{kind: "gap", size: 1, cols: t_pers + 3, class: "text-xs"}]
 				fields << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: t_cols}]
 			end
+			fields << [{kind: "hidden", key: "retlnk", value: retlnk}] if edit && retlnk
 			fields
 		end
 

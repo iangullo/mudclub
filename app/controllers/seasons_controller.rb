@@ -118,7 +118,6 @@ class SeasonsController < ApplicationController
 	# DELETE /seasons/1
 	# DELETE /seasons/1.json
 	def destroy
-		binding.break
 		if check_access(roles: [:manager])
 			s_name = @season.name
 			@season.destroy

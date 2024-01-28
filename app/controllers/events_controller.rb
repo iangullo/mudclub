@@ -53,7 +53,7 @@ class EventsController < ApplicationController
 				else
 					@fields = create_fields(helpers.training_show_fields)
 				end
-				@submit = create_submit(close: "back", close_return: @retlnk, submit: (u_manager? or @event.team.has_coach(u_coachid)) ? edit_event_path(season_id: params[:season_id]) : nil)
+				@submit = create_submit(close: "back", close_return: @retlnk, submit: (u_manager? or @event.team.has_coach(u_coachid)) ? edit_event_path(retlnk: @retlnk) : nil)
 			end
 		else
 			redirect_to @retlnk || events_path, data: {turbo_action: "replace"}
@@ -85,7 +85,7 @@ class EventsController < ApplicationController
 		if check_access(roles: [:manager]) || @event.team.has_coach(u_coachid)
 			prepare_event_form(new: false)
 		else
-			redirect_to @retlnk || events_path, data: {turbo_action: "replace"}
+			redirect_to @retlnk || events_path(team_id: @event.team.id, start_date: @event.start_date), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -381,11 +381,6 @@ class EventsController < ApplicationController
 
 		# prepare new/edit event form
 		def prepare_event_form(new: nil)
-			if params[:season_id]
-				@season = Season.find(event_params[:season_id])
-			else
-				@season = (@event.team and @event.team_id > 0) ? @event.team.season : Season.last
-			end
 			@title = create_fields(helpers.event_title_fields(form: true, cols: @event.match? ? 2 : nil))
 			if @event.match?
 				@fields  = create_fields(helpers.match_form_fields(new:))
@@ -393,12 +388,14 @@ class EventsController < ApplicationController
 			end
 			unless new # editing
 				if @event.rest?
-					c_ret = @event.team_id==0 ? seasons_path(season_id: @season.id) : team_path(@event.team)
-				elsif @event.train?
-					@btn_add = create_button({kind: "add", label: I18n.t("task.add"), url: add_task_event_path}) if (u_manager? || @event.team.has_coach(u_coachid))
-					@drills  = @event.drill_list
+					c_ret = @event.team_id==0 ? seasons_path(season_id: @event.team.season_id) : @retlnk
+				else
+					c_ret = event_path(@event, retlnk: @retlnk)
+					if @event.train?
+						@btn_add = create_button({kind: "add", label: I18n.t("task.add"), url: add_task_event_path}) if (u_manager? || @event.team.has_coach(u_coachid))
+						@drills  = @event.drill_list
+					end
 				end
-				c_ret = event_path(@event) unless c_ret
 			end
 			@submit = create_submit(close_return: c_ret)
 		end
@@ -435,23 +432,35 @@ class EventsController < ApplicationController
 		def set_event
 			@event  = Event.find_by_id(params[:id])
 			@sport  = @event&.team&.sport&.specific
-			@retlnk = safelink(params[:retlnk].presence)
+			if params[:retlnk]
+				@retlnk = safelink(params[:retlnk].presence)
+			elsif params[:season_id]
+				@retlnk = safelink(season_path(params[:season_id]))
+			else
+				@retlnk = (@event.team and @event.team_id > 0) ? team_path(@event.team) : season_path(@event.team.season)
+			end
 		end
 
 		# Sanitize retlink input
-		def safelink(lnk=nil, team: nil, season: nil)
+		def safelink(lnk=nil, team: nil)
 			vlinks = [seasons_path, events_path]
 			if @event
 				vlinks += [
 					event_path(@event),
 					copy_event_path(@event),
 					edit_event_path(@event),
-					team_path(@event.team, start_date: @event.start_date),
-					season_path(@event.team.season)
+					events_path(team_id: @event.team.id, start_date: @event.start_date.beginning_of_month, retlnk: team_path(@event.team)),
+					team_path(@event.team),
+					team_events_path(@event.team, start_date: @event.start_date.beginning_of_month),
+					season_path(@event.team.season),
+					season_events_path(@event.team.season, start_date: @event.start_date.beginning_of_month)
 				]
 			end
 			vlinks << team_path(team) if team
-			vlinks << season_path(season) if season
+			if (sdate = valid_date(lnk))
+				vlinks << team_events_path(@event.team, start_date: sdate)
+				vlinks << season_events_path(@event.team.season, start_date: sdate)
+			end
 			@retlnk = validate_link(lnk, vlinks)
 		end
 

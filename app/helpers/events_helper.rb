@@ -110,12 +110,12 @@ module EventsHelper
 
 	#FieldComponents to show a match
 	def match_show_fields
-		res = match_fields(edit: false)
+		res = match_fields(edit: false, retlnk: @retlnk)
 	end
 
 	# return FieldsComponent for match form
 	def match_form_fields(new: false)
-		match_fields(edit: true, new:)
+		match_fields(edit: true, new:, retlnk: @retlnk)
 	end
 
 	# player grid for a match
@@ -329,8 +329,12 @@ module EventsHelper
 		end
 
 		# serves for both match_show and match_edit
-		def match_fields(edit:, new: false)
-			edit ? @sport.match_form_fields(@event, new:) : @sport.match_show_fields(@event)
+		def match_fields(edit:, new: false, retlnk: nil)
+			if edit
+				@sport.match_form_fields(@event, new:, retlnk: @retlnk)
+			else
+				@sport.match_show_fields(@event)
+			end
 		end
 
 		# complete event_title for train events

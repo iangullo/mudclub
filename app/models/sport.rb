@@ -31,7 +31,7 @@ class Sport < ApplicationRecord
 	end
 
 	# fields to edit a match
-	def match_form_fields(event, new: false)
+	def match_form_fields(event, new: false, retlnk: nil)
 		raise "Must implement in Specific Sport object"
 	end
 
