@@ -60,7 +60,7 @@ export default class extends Controller {
         }
       }
     }
-    console.log(`validateRow(${rowId}) ==> ${checkedCount}`)
+    //console.log(`validateRow(${rowId}) ==> ${checkedCount}`)
     // Implement your rule validation logic here
     // Check checkedCount against this.min and this.max values
     return checkedCount >= this.min && checkedCount <= this.max
@@ -96,7 +96,7 @@ export default class extends Controller {
       }
     });
 
-    console.log(`validateColumn(${columnId}) ==> ${columnOutings}`)
+    //console.log(`validateColumn(${columnId}) ==> ${columnOutings}`)
     return columnOutings === this.activePlayers;
   }
 
