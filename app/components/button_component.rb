@@ -62,7 +62,7 @@ class ButtonComponent < ApplicationComponent
 		set_dclass
 		set_iclass
 		set_data
-		@button[:align]   = "center" unless @button[:align]
+		@button[:align] ||= "center"
 	end
 
 	# determine class of item depending on kind
@@ -73,7 +73,7 @@ class ButtonComponent < ApplicationComponent
 		when "back"
 			@button[:icon]  ||= "back.svg"
 			@button[:turbo]   = "_top"
-			@button[:label]   = I18n.t("action.previous") unless @button[:label]
+			@button[:label] ||= I18n.t("action.previous")
 		when "call"
 			@button[:icon]  ||= "phone.svg"
 			@button[:url]     = "tel:#{@button[:value]}"
@@ -84,7 +84,7 @@ class ButtonComponent < ApplicationComponent
 			@button[:icon]  ||= "close.svg"
 		when "clear"
 			@button[:icon]  ||= "clear.svg"
-			@button[:label]   = I18n.t("action.clear") unless @button[:label]
+			@button[:label] ||= I18n.t("action.clear")
 			@button[:confirm] = I18n.t("question.clear") + " \'#{@button[:name]}\'?"
 		when "delete"
 			@button[:icon]  ||= "delete.svg"
@@ -103,7 +103,7 @@ class ButtonComponent < ApplicationComponent
 		when "forward"
 			@button[:icon]  ||= "forward.svg"
 			@button[:turbo]   = "_top"
-			@button[:label]   = I18n.t("action.next") unless @button[:label]
+			@button[:label] ||= I18n.t("action.next")
 		when "import"
 			@button[:icon]  ||= "import.svg"
 			@button[:label]   = I18n.t("action.import")
@@ -127,8 +127,8 @@ class ButtonComponent < ApplicationComponent
 
 	# set the @button class depending on button type
 	def set_bclass
-		b_start        = @button[:b_class] ? "#{@button[:kind]}-btn " + @button[:b_class] : "#{@button[:kind]}-btn"
-		@button[:name] = @button[:kind] unless @button[:name]
+		b_start          = @button[:b_class] ? "#{@button[:kind]}-btn " + @button[:b_class] : "#{@button[:kind]}-btn"
+		@button[:name] ||= @button[:kind]
 		case @button[:kind]
 		when "add", "add-nested"
 			@button[:action] ||= "nested-form#add" if @button[:kind]=="add-nested"
@@ -140,10 +140,10 @@ class ButtonComponent < ApplicationComponent
 		when "remove"
 			@button[:action] ||= "nested-form#remove"
 		end
-		@button[:flip]  ||= true if ["save","import"].include? @button[:kind]
-		@button[:type]    = "submit" if @button[:kind] =~ /^(save|import|login)$/
-		@button[:replace] = true if @button[:kind] =~ /^(cancel|close|save|back)$/
-		@button[:b_class] = b_start + (@button[:kind]!= "jump" ? " m-1 inline-flex align-middle" : "") unless @button[:b_class]
+		@button[:flip]     ||= true if ["save","import"].include? @button[:kind]
+		@button[:type]       = "submit" if @button[:kind] =~ /^(save|import|login)$/
+		@button[:replace]    = true if @button[:kind] =~ /^(cancel|close|save|back)$/
+		@button[:b_class]  ||= b_start + (@button[:kind]!= "jump" ? " m-1 inline-flex align-middle" : "")
 	end
 
 	# set the buttonn d_class depending on button type
@@ -222,7 +222,13 @@ class ButtonComponent < ApplicationComponent
 		res[:turbo_method]  = "delete".to_sym if @button[:kind]=="delete"
 		res[:action]        = @button[:action] if @button[:action]
 		res[:confirm]       = @button[:confirm] if @button[:confirm]
-		res[:controller]    = @button[:confirm] if @button[:controller]
+		if (@button[:working] || @button[:type] == "submit")
+			@button[:controller] = "processing"
+			@button[:working]  ||= true
+			res[:action]         = "processing#submit"
+		else
+			res[:controller]  = @button[:controller] if @button[:controller]
+		end
 		@button[:data]      = res unless res.empty?
 	end
 end

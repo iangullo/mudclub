@@ -88,7 +88,7 @@ class Player < ApplicationRecord
 		if self.person.age < 18
 			self.parents.each { |par| email += "#{par.person.email.presence}\n" if par.person.email.present?}
 		end
-		email += self.person.email.presence
+		email += self.person.email.to_s
 	end
 
 	def p_phone
@@ -96,7 +96,7 @@ class Player < ApplicationRecord
 		if self.person.age < 18
 			self.parents.each { |par| phone += "#{par.person.phone.presence}\n" if par.person.phone.present?}
 		end
-		phone += self.person.phone.presence
+		phone += self.person.phone.to_s
 	end
 
 	# Apply filters to player collection
