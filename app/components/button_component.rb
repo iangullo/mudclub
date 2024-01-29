@@ -45,7 +45,8 @@
 # frozen_string_literal: true
 class ButtonComponent < ApplicationComponent
 	def initialize(button:)
-		@button = parse(button)
+		@button = button
+		parse(button)
 	end
 
 	def render?
@@ -56,72 +57,55 @@ class ButtonComponent < ApplicationComponent
 
 	# determine class of item depending on kind
 	def parse(button)
-		@button = button
 		set_icon
-		set_iclass
 		set_bclass
+		set_dclass
+		set_iclass
 		set_data
-		b_colour = set_colour
-		unless @button[:d_class]
-			@button[:d_class] = "inline-flex align-middle"
-			case @button[:kind]
-			when "jump"
-				@button[:d_class] = @button[:d_class] + " m-1 text-sm"
-			when "location", "whatsapp"
-				@button[:tab]     = true
-				@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-			when "action", "back", "call", "cancel", "clear", "close", "edit", "email", "export", "forward", "import", "login", "save"
-				b_colour += " font-bold"
-			else
-				@button[:d_class] += " font-semibold"
-			end
-		end
 		@button[:align]   = "center" unless @button[:align]
-		@button[:d_class] += (b_colour ?  b_colour : "")
-		@button
 	end
 
 	# determine class of item depending on kind
 	def set_icon
 		case @button[:kind]
 		when "add", "add-nested"
-			@button[:icon]    = "add.svg"
+			@button[:icon]  ||= "add.svg"
 		when "back"
-			@button[:icon]    = "back.svg"
+			@button[:icon]  ||= "back.svg"
 			@button[:turbo]   = "_top"
 			@button[:label]   = I18n.t("action.previous") unless @button[:label]
 		when "call"
-			@button[:icon]    = "phone.svg"
+			@button[:icon]  ||= "phone.svg"
 			@button[:url]     = "tel:#{@button[:value]}"
 		when "cancel"
-			@button[:icon]    = "close.svg"
+			@button[:icon]  ||= "close.svg"
 			@button[:turbo]   = "_top"
 		when "close"
-			@button[:icon]    = "close.svg"
+			@button[:icon]  ||= "close.svg"
 		when "clear"
-			@button[:icon]    = "clear.svg"
+			@button[:icon]  ||= "clear.svg"
 			@button[:label]   = I18n.t("action.clear") unless @button[:label]
 			@button[:confirm] = I18n.t("question.clear") + " \'#{@button[:name]}\'?"
 		when "delete"
+			@button[:icon]  ||= "delete.svg"
 			@button[:turbo]   = "_top"
-			@button[:icon]    = "delete.svg"
 			@button[:confirm] = I18n.t("question.delete") + " \'#{@button[:name]}\'?"
 		when "edit"
-			@button[:icon]    = "edit.svg"
+			@button[:icon]  ||= "edit.svg"
 			@button[:flip]    = true
 		when "email"
-			@button[:icon]    = "at.svg"
+			@button[:icon]  ||= "at.svg"
 			@button[:url]     = "mailto:#{@button[:value]}"
 		when "export"
-			@button[:icon]    = "export.svg"
+			@button[:icon]  ||= "export.svg"
 			@button[:label]   = I18n.t("action.export")
 			@button[:flip]    = true
 		when "forward"
-			@button[:icon]    = "forward.svg"
+			@button[:icon]  ||= "forward.svg"
 			@button[:turbo]   = "_top"
 			@button[:label]   = I18n.t("action.next") unless @button[:label]
 		when "import"
-			@button[:icon]    = "import.svg"
+			@button[:icon]  ||= "import.svg"
 			@button[:label]   = I18n.t("action.import")
 			@button[:flip]    = true
 			@button[:confirm] = I18n.t("question.import")
@@ -129,12 +113,12 @@ class ButtonComponent < ApplicationComponent
 			@button[:size]    = "50x50" unless @button[:size]
 			@button[:turbo]   = "_top" unless @button[:turbo]
 		when "remove"
-			@button[:icon]    = "remove.svg"
+			@button[:icon]  ||= "remove.svg"
 		when "save"
-			@button[:icon]    = "save.svg"
+			@button[:icon]  ||= "save.svg"
 			@button[:confirm] = I18n.t("question.save_chng")
 		when "whatsapp"
-			@button[:icon]    = "WhatsApp.svg"
+			@button[:icon]  ||= "WhatsApp.svg"
 			@button[:url]     = @button[:web] ? "https://web.whatsapp.com/" : "whatsapp://"
 			@button[:url]     = @button[:url] + "send?phone=#{@button[:value].delete(' ')}"
 		end
@@ -156,9 +140,30 @@ class ButtonComponent < ApplicationComponent
 		when "remove"
 			@button[:action] ||= "nested-form#remove"
 		end
+		@button[:flip]  ||= true if ["save","import"].include? @button[:kind]
 		@button[:type]    = "submit" if @button[:kind] =~ /^(save|import|login)$/
 		@button[:replace] = true if @button[:kind] =~ /^(cancel|close|save|back)$/
 		@button[:b_class] = b_start + (@button[:kind]!= "jump" ? " m-1 inline-flex align-middle" : "") unless @button[:b_class]
+	end
+
+	# set the buttonn d_class depending on button type
+	def set_dclass
+		b_colour = set_colour
+		unless @button[:d_class]
+			@button[:d_class] = "inline-flex align-middle"
+			case @button[:kind]
+			when "jump"
+				@button[:d_class] = @button[:d_class] + " m-1 text-sm"
+			when "location", "whatsapp"
+				@button[:tab]     = true
+				@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
+			when "action", "back", "call", "cancel", "clear", "close", "edit", "email", "export", "forward", "import", "login", "save"
+				b_colour += " font-bold"
+			else
+				@button[:d_class] += " font-semibold"
+			end
+		end
+		@button[:d_class] += b_colour if b_colour
 	end
 
 	# set the i_class for the button div
@@ -216,6 +221,8 @@ class ButtonComponent < ApplicationComponent
 		res[:turbo_confirm] = @button[:confirm] if @button[:confirm]
 		res[:turbo_method]  = "delete".to_sym if @button[:kind]=="delete"
 		res[:action]        = @button[:action] if @button[:action]
+		res[:confirm]       = @button[:confirm] if @button[:confirm]
+		res[:controller]    = @button[:confirm] if @button[:controller]
 		@button[:data]      = res unless res.empty?
 	end
 end
