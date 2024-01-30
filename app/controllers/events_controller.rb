@@ -75,8 +75,7 @@ class EventsController < ApplicationController
 				redirect_to(u_manager? ? "/slots" : "/", data: {turbo_action: "replace"})
 			end
 		else
-			@retlnk = safelink(params[:retlnk].presence) || "/"
-			redirect_to @retlnk, data: {turbo_action: "replace"}
+			redirect_to get_retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -109,8 +108,7 @@ class EventsController < ApplicationController
 				end
 			end
 		else
-			@retlnk = safelink(params[:retlnk].presence) || "/"
-			redirect_to @retlnk, data: {turbo_action: "replace"}
+			redirect_to get_retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -432,12 +430,17 @@ class EventsController < ApplicationController
 		def set_event
 			@event  = Event.find_by_id(params[:id])
 			@sport  = @event&.team&.sport&.specific
+			@retlnk = get_retlnk
+		end
+
+		# determine the right retlnk
+		def get_retlnk
 			if params[:retlnk]
-				@retlnk = safelink(params[:retlnk].presence)
+				return safelink(params[:retlnk].presence)
 			elsif params[:season_id]
-				@retlnk = safelink(season_path(params[:season_id]))
+				return safelink(season_path(params[:season_id]))
 			else
-				@retlnk = (@event.team and @event.team_id > 0) ? team_path(@event.team) : season_path(@event.team.season)
+				return (@event.team and @event.team_id > 0) ? team_path(@event.team) : season_path(@event.team.season)
 			end
 		end
 
