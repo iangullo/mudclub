@@ -148,26 +148,25 @@ class TopbarComponent < ApplicationComponent
 	# menu buttons for mudclub admins
 	def admin_menu(user)
 		a_menu = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[]}
-		a_menu[:options] << menu_link(label: I18n.t("club.edit"), url: '/home/edit', kind: "modal")
+		if user.is_coach?
+			a_menu[:options] << manager_menu(user)
+			@menu_tabs += team_menu(user)
+			@menu_tabs << menu_link(label: I18n.t("drill.many"), url: '/drills')
+		end
 		a_menu[:options] << server_menu
-		manager_menu(user) if user.is_coach?
 		@menu_tabs << a_menu
 	end
 
 	# menu buttons for club managers
 	def manager_menu(user)
 		m_menu = {kind: "menu", name: "manage", label: I18n.t("club.single"), options:[]}
+		m_menu[:options] << menu_link(label: I18n.t("club.edit"), url: '/home/edit', kind: "modal")
 		m_menu[:options] << menu_link(label: I18n.t("season.single"), url: '/seasons')
 		m_menu[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
 		m_menu[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
 		m_menu[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
 		m_menu[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
-		@menu_tabs << m_menu
-		if user.is_coach?
-			@menu_tabs += team_menu(user)
-			@menu_tabs << menu_link(label: I18n.t("drill.many"), url: '/drills')
-		end
-		@menu_tabs
+		m_menu
 	end
 
 	# menu buttons for coaches
