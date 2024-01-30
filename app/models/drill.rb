@@ -143,7 +143,7 @@ class Drill < ApplicationRecord
 		self.description = f_data[:description]
 		self.material    = f_data[:material]
 		self.coach_id    = f_data[:coach_id]
-		self.kind_id     = Kind.fetch(f_data[:kind_id]).id
+		self.kind_id     = Kind.fetch(f_data[:kind_id]&.strip).id
 		self.explanation = f_data[:explanation]
 		self.playbook    = f_data[:playbook]
 		self.check_skills(f_data[:skills_attributes]) if f_data[:skills_attributes]
@@ -164,7 +164,7 @@ class Drill < ApplicationRecord
 			if s[:_destroy] == "1"
 				self.skills.delete(sk)
 			else	# add to collection
-				sk = Skill.create(concept: s[:concept]) unless sk
+				sk = Skill.create(concept: s[:concept].strip) unless sk
 				self.skills << sk unless self.skills.include?(sk)
 			end
 		}
@@ -175,7 +175,7 @@ class Drill < ApplicationRecord
 	def check_targets(t_array)
 		a_targets = Array.new	# array to include only non-duplicates
 		t_array.each { |t| # first pass
-			a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
+			a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept].strip }
 		}
 		a_targets.each { |t| # second pass - manage associations
 			if t[:_destroy] == "1"	# remove drill_target

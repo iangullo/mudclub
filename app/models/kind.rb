@@ -20,14 +20,14 @@ class Kind < ApplicationRecord
 	has_many :drills
 	before_save { self.name = self.name.mb_chars.titleize }
 	scope :real, -> { where("id>0").order(:name) }
-	scope :search, -> (s_k) { where("unaccent(name) ILIKE unaccent(?)","%#{s_k}%").order(:name) }
+	scope :search, -> (s_k) { where("unaccent(name) ILIKE unaccent(?)","%#{s_k.strip}%").order(:name) }
 	scope :orphans, -> { left_outer_joins(:drills).where("drills.id IS NULL OR drills.id = 0") }
 	self.inheritance_column = "not_sti"
 
 	# Takes the input received from a skill_form (s_kind - string)
 	# and either reads or creates a matching Kind
 	def self.fetch(s_kind)
-		res = Kind.create(name: s_kind) unless (res = Kind.search(s_kind).first)
+		res = Kind.create(name: s_kind.strip) unless (res = Kind.search(s_kind.strip).first)
 		return res
 	end
 

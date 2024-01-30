@@ -52,7 +52,7 @@ class TeamTarget < ApplicationRecord
 		t   = f_object[:target_attributes]
 		tgt = Target.fetch(t[:id], t[:concept], t[:focus], t[:aspect])
 		tgt = Target.new unless tgt # ensure we have a target
-		tgt.concept  = t[:concept]        # accept concept edition
+		tgt.concept  = t[:concept]&.strip	# accept concept edition
 		tgt.focus    = t[:focus].length==1 ? t[:focus].to_i : t[:focus].to_sym  # accept focus edition
 		tgt.aspect   = t[:aspect].length==1 ? t[:aspect].to_i : t[:aspect].to_sym  # accept aspect edition
 		tgt.save unless tgt.persisted?

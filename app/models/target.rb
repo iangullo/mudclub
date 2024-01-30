@@ -63,8 +63,8 @@ class Target < ApplicationRecord
 	def self.fetch(id, concept, focus=nil, aspect=nil)
 		res = id ? Target.find(id.to_i) : nil
 		if res==nil and concept
-			if concept.length > 0
-				res = Target.where("unaccent(concept) ILIKE unaccent(?)","%#{concept}%")
+			if concept.strip.length > 0
+				res = Target.where("unaccent(concept) ILIKE unaccent(?)","%#{concept.strip}%")
 			else
 				res = Target.real
 			end

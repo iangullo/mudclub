@@ -48,6 +48,7 @@ module DrillsHelper
 			})
 		end
 		res.last << {kind: "string", value: "(" + @drill.kind.name + ")", cols: 2}
+		res
 	end
 
 	# return title FieldComponent definition for drill show
