@@ -163,8 +163,8 @@ class TopbarComponent < ApplicationComponent
 		m_menu[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
 		m_menu[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
 		coach_menu(user, pure=false) if user.is_coach?
-		@menu_tabs << m_menu unless user.admin?
-		m_menu
+		return m_menu if user.admin?
+		@menu_tabs << m_menu
 	end
 
 	# menu buttons for coaches
