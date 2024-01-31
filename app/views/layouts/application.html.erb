@@ -13,17 +13,13 @@
 	</head>
 
 	<body class="text-base xl:text-lg sm:text-sm, xs:text-sm">
-		<div class="flex flex-col w-full min-h-screen justify-between">
-			<!-- App NavBar goes here -->
-			<%= render @topbar %>
+		<!-- App NavBar goes here -->
+		<%= render @topbar %>
+		<!-- App content goes here -->
+		<main class="flex w-full flex items-center justify-center">
 			<%= render FlashComponent.new(notice:) if notice %>
-			<!-- App content goes here -->
-			<main class="mb-auto h-15 w-full h-auto p-15">
-				<div class="content flex items-center justify-center">
-					<%= turbo_frame_tag "modal" %>
-					<%= yield %>
-				</div>
-			</main>
-		</div>
+			<%= turbo_frame_tag "modal" %>
+			<%= yield %>
+		</main>
 	</body>
 </html>
