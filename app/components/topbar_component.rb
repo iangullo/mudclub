@@ -148,13 +148,13 @@ class TopbarComponent < ApplicationComponent
 	# menu buttons for mudclub admins
 	def admin_menu(user)
 		a_menu = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[]}
-		manager_menu(user) if user.is_coach?
+		a_menu[:options] << manager_menu(user) if user.is_coach?
 		a_menu[:options] << server_menu
 		@menu_tabs << a_menu
 	end
 
 	# menu buttons for club managers
-	def manager_menu(user, admin=false)
+	def manager_menu(user)
 		m_menu = {kind: "menu", name: "manage", label: I18n.t("club.single"), options:[]}
 		m_menu[:options] << menu_link(label: I18n.t("club.edit"), url: '/home/edit', kind: "modal")
 		m_menu[:options] << menu_link(label: I18n.t("season.single"), url: '/seasons')
@@ -163,7 +163,8 @@ class TopbarComponent < ApplicationComponent
 		m_menu[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
 		m_menu[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
 		coach_menu(user, pure=false) if user.is_coach?
-		@menu_tabs << m_menu
+		@menu_tabs << m_menu unless user.admin?
+		m_menu
 	end
 
 	# menu buttons for coaches
