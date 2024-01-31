@@ -15,11 +15,15 @@
 	<body class="text-base xl:text-lg sm:text-sm, xs:text-sm">
 		<!-- App NavBar goes here -->
 		<%= render @topbar %>
-		<!-- App content goes here -->
-		<main class="flex w-full flex items-center justify-center">
+		<div class="mt-15 p-4">
 			<%= render FlashComponent.new(notice:) if notice %>
-			<%= turbo_frame_tag "modal" %>
-			<%= yield %>
-		</main>
+			<!-- App content goes here -->
+			<main class="mb-auto h-auto overflow-y-auto">
+				<%= turbo_frame_tag "modal" %>
+				<div class="flex w-full flex items-center justify-center">
+					<%= yield %>
+				</div>
+			</main>
+		</div>
 	</body>
 </html>

@@ -83,7 +83,7 @@ class TeamsController < ApplicationController
 			@title  = create_fields(title)
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.player_grid(players: players.order(:number), obj: @team))
-			@submit = create_submit(close: "back", close_return: team_path(@team), submit: (u_manager? || @team.has_coach(u_coachid)) ? edit_roster_team_path : nil, frame: "modal")
+			@submit = create_submit(close: "back", close_return: team_path(@team), submit: (u_manager? || @team.has_coach(u_coachid)) ? edit_roster_team_path : nil)
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
 		end
@@ -95,7 +95,7 @@ class TeamsController < ApplicationController
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "cancel", close_return: :back)
+			@submit = create_submit(close: "cancel", close_return: roster_team_path(@team))
 			@eligible_players = @team.eligible_players
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
@@ -135,7 +135,7 @@ class TeamsController < ApplicationController
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "cancel", close_return: :back)
+			@submit = create_submit(close: "cancel", close_return: targets_team_path(@team))
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
 		end
@@ -162,7 +162,7 @@ class TeamsController < ApplicationController
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "cancel", close_return: :back)
+			@submit = create_submit(close: "cancel", close_return: plan_team_path(@team))
 		else
 			redirect_to @team, data: {turbo_action: "replace"}
 		end
