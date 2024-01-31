@@ -57,7 +57,7 @@ module EventsHelper
 
 	# return icon and top of FieldsComponent for Tasks
 	def event_task_title(subtitle:)
-		res = event_title_fields(subtitle:, cols: 3)
+		res = event_title_fields(subtitle:, chart: true)
 	end
 
 	# A Field Component with top link + grid for events. obj is the parent oject (season/team)

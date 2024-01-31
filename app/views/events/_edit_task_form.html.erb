@@ -1,6 +1,5 @@
 <div id="edit-task-form">
 	<%= render @title %>
-	<%= render @search %>
 	<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
 		<%= form.fields_for @task do |f| %>
 			<%= turbo_frame_tag "search-results" do %>

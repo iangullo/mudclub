@@ -18,7 +18,7 @@
 #
 module DrillsHelper
 	# specific search bar to search through drills
-	def drill_search_bar(search_in:, task_id: nil, scratch: nil)
+	def drill_search_bar(search_in:, task_id: nil, scratch: nil, cols: nil)
 		session.delete('drill_filters') if scratch
 		fields = [
 			{kind: "search-text", key: :name, placeholder: I18n.t("drill.name"), value: session.dig('drill_filters', 'name'), size: 10},
@@ -26,7 +26,7 @@ module DrillsHelper
 			{kind: "search-select", key: :skill_id, blank: "#{I18n.t("skill.abbr")}:", value: session.dig('drill_filters', 'skill_id'), options: Skill.real.pluck(:concept, :id)}
 		]
 		fields << {kind: "hidden", key: :task_id, value: task_id} if task_id
-		res = [[{kind: "search-box", url: search_in, fields: fields}]]
+		res = [{kind: "search-box", url: search_in, fields: fields, cols:}]
 	end
 
 	# return icon and top of FieldsComponent

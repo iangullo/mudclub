@@ -401,8 +401,9 @@ class EventsController < ApplicationController
 		# prepare edit/add task form
 		def prepare_task_form(subtitle:, retlnk:, search_in:, task_id: nil)
 			get_task(load_drills: true) # get the right @task/@drill
-			@title       = create_fields(helpers.event_task_title(subtitle:))
-			@search      = create_fields(helpers.drill_search_bar(search_in:, task_id: (task_id ? @task.id : nil), scratch: true))
+			title        = helpers.event_task_title(subtitle:)
+			title       << helpers.drill_search_bar(search_in:, task_id: (task_id ? @task.id : nil), scratch: true, cols: 4)
+			@title       = create_fields(title)
 			@fields      = create_fields(helpers.task_form_fields(search_in:, retlnk:))
 			@description = helpers.task_form_description
 			@remarks     = create_fields(helpers.task_form_remarks)
