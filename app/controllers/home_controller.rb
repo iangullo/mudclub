@@ -56,11 +56,11 @@ class HomeController < ApplicationController
 
 	def log
 		if check_access(roles: [:admin])
-			actions = UserAction.all.order(performed_at: :desc)
+			actions = UserAction.logs
 			title   = helpers.home_admin_title(icon: "user_actions.svg", title: I18n.t("server.log"))
 			title.last << helpers.button_field({kind: "clear", url: home_clear_path}) unless actions.empty?
 			@title = create_fields(title)
-			@grid  = create_grid(helpers.home_actions_grid(actions: UserAction.all))
+			@grid  = create_grid(helpers.home_actions_grid(actions:))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

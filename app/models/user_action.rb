@@ -1,9 +1,9 @@
 class UserAction < ApplicationRecord
 	belongs_to :user
-	scope :logs, -> { where("kind<2") }
-	scope :by_user, -> (user_id) { (user_id and user_id.to_i>0) ? where(user_ud: useer_id.to_i) : where("user_id>0").order(:performed_at) }
-	scope :by_kind, -> (kind) { (kind and kind.to_i>0) ? where(kind: kind.to_i) : where("kind>1").order(:performed_at) }
-	scope :latest, -> { order(performed_at: :desc).first(10) }
+	scope :logs, -> { order(updated_at: :desc) }
+	scope :by_user, -> (user_id) { (user_id and user_id.to_i>0) ? where(user_ud: useer_id.to_i) : where("user_id>0").order(updated_at: :desc) }
+	scope :by_kind, -> (kind) { (kind and kind.to_i>0) ? where(kind: kind.to_i) : where("kind>1").order(updated_at: :desc) }
+	scope :latest, -> { order(updated_at: :desc).first(10) }
 	self.inheritance_column = "not_sti"
 
 	enum kind: {
@@ -18,7 +18,7 @@ class UserAction < ApplicationRecord
 
 	# return a standardised string for this user_action datetime
 	def date_time
-		self.performed_at.localtime.strftime("%Y/%m/%d %H:%M")
+		self.updated_at.localtime.strftime("%Y/%m/%d %H:%M")
 	end
 
 	# clear UserAction log - for all users if user is nil
