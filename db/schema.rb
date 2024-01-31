@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_12_17_115106) do
+ActiveRecord::Schema[7.0].define(version: 2024_01_31_054703) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -314,7 +314,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_12_17_115106) do
 
   create_table "user_actions", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.datetime "performed_at"
     t.integer "kind"
     t.string "description"
     t.datetime "created_at", null: false
