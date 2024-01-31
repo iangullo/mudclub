@@ -17,6 +17,25 @@
 # contact email - iangullo@gmail.com.
 #
 module ApplicationHelper
+	# standardised FieldsComponent button field wrapper
+	def button_field(button, cols: nil, rows: nil, align: nil, class: nil)
+		{kind: "button", button: button, cols:, rows:, align:, class:}
+	end
+
+	# return an html bulletized string from info
+	def bulletize(info, indent: 1)
+		bull = ""
+		1.upto(indent) { bull += "&nbsp;&nbsp;" }
+		bull += "&bull;&nbsp;"
+		raw(bull + info)
+	end
+
+	# return definition of copyright field
+	def copyright_field
+		{kind: "string", value: raw("&copy; 2024 iangullo@gmail.com"), align: "right", class: "text-sm text-gray-500"}
+	end
+
+	# return device type
 	def device
 		agent = request.user_agent
 		return "tablet" if agent =~ /(tablet|ipad)|(android(?!.*mobile))/i
@@ -24,10 +43,35 @@ module ApplicationHelper
 		return "desktop"
 	end
 
-	def create_topbar
-		TopbarComponent.new(user: user_signed_in? ? current_user : nil)
+	# file upload button
+	def form_file_field(label:, key:, value:, cols: nil)
+		[[{kind: "upload", label:, key:, value:, cols:}]]
 	end
 
+	# standardised message wrapper
+	def flash_message(message, kind="info")
+		res = {message: message, kind: kind}
+	end
+
+	# standardised gap row field definition
+	def gap_row(size: 1, cols: 1, _class: "text-xs")
+		[{kind: "gap", size:, cols:, class: _class}]
+	end
+
+	# standardised generator of "active" label for user/player/coach
+	def obj_status_field(obj)
+		if obj&.active
+			if obj.respond_to?(:number)
+				{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}
+			else
+				{kind: "string", value: I18n.t("status.active"),	align: "center"}
+			end
+		else
+			{kind: "string", value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center"}
+		end
+	end
+
+	# iconize an svg
 	def svgicon(icon_name, options={})
 		file = File.read(Rails.root.join('app', 'assets', 'images', "#{icon_name}.svg"))
 		doc = Nokogiri::HTML::DocumentFragment.parse file
@@ -48,47 +92,6 @@ module ApplicationHelper
 		]]
 		res << [{kind: "subtitle", value: subtitle}] if subtitle
 		res
-	end
-
-	# file upload button
-	def form_file_field(label:, key:, value:, cols: nil)
-		[[{kind: "upload", label:, key:, value:, cols:}]]
-	end
-
-	# standardised message wrapper
-	def flash_message(message, kind="info")
-		res = {message: message, kind: kind}
-	end
-
-	# standardised FieldsComponent button field wrapper
-	def button_field(button, cols: nil, rows: nil, align: nil, class: nil)
-		{kind: "button", button: button, cols:, rows:, align:, class:}
-	end
-
-	# return an html bulletized string from info
-	def bulletize(info, indent: 1)
-		bull = ""
-		1.upto(indent) { bull += "&nbsp;&nbsp;" }
-		bull += "&bull;&nbsp;"
-		raw(bull + info)
-	end
-
-	# return definition of copyright field
-	def copyright_field
-		{kind: "string", value: raw("&copy; 2024 iangullo@gmail.com"), align: "right", class: "text-sm text-gray-500"}
-	end
-
-	# standardised generator of "active" label for user/player/coach
-	def obj_status_field(obj)
-		if obj&.active
-			if obj.respond_to?(:number)
-				{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}
-			else
-				{kind: "string", value: I18n.t("status.active"),	align: "center"}
-			end
-		else
-			{kind: "string", value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center"}
-		end
 	end
 
 	# wrappers to make code in all views/helpers more readable

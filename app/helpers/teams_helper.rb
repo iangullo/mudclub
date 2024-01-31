@@ -121,7 +121,6 @@ module TeamsHelper
 		else
 			res = [[]]
 		end
-		res << [{kind: "gap"}]
 		res
 	end
 
@@ -165,22 +164,24 @@ module TeamsHelper
 
 	# Fields showing team coaches
 	def team_coaches
-		coaches = [[{kind: "gap", size:1, cols: 2, class: "text-xs"}]]
+		g_row   = gap_row(cols:2)
+		coaches = [g_row]
 		unless (c_count = @team.coaches.count) == 0	# only create if there are coaches
 			c_icon  = {kind: "icon", value: "coach.svg", tip: I18n.t("coach.many"), align: "right", class: "align-top", size: "30x30", rows: c_count}
 			c_first = true
 			@team.coaches.each do |coach|
 				if u_manager?
-					c_button = button_field({kind: "link", label: coach.to_s, url: coach, b_class: "align-middle", d_class: "align-middle", turbo: "modal"})
+					c_button = button_field({kind: "link", label: coach.to_s, url: coach, b_class: "items-center", d_class: "text-left", turbo: "modal"})
 					coaches << (c_first ? [c_icon, c_button] : [c_button])
 				else
-					c_string = {kind: "string", value: coach.to_s, class: "align-middle"}
+					c_string = {kind: "string", value: coach.to_s, class: "align-middle text-left"}
 					c_button = {kind: "contact", phone: coach.person.phone}
 					coaches << (c_first ? [c_icon, c_string, c_button] : [c_string, c_button])
 				end
 				c_first = false if c_first
 			end
 		end
+		coaches << g_row
 		coaches
 	end
 end

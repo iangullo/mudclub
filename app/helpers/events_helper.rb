@@ -42,7 +42,7 @@ module EventsHelper
 		end
 		event_top_right_fields(res:, form:, copy:)
 		#res << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
-		res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}] unless @event.match? and form==nil
+		res << gap_row(cols: 6) unless @event.match? and form==nil
 		res
 	end
 
@@ -52,7 +52,7 @@ module EventsHelper
 		res[0] << {kind: "gap"}
 		res[1] << {kind: "gap"}
 		event_top_right_fields(res:)
-		res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
+		res << gap_row(cols: 6)
 	end
 
 	# return icon and top of FieldsComponent for Tasks
@@ -313,7 +313,7 @@ module EventsHelper
 						{kind: "gap"}
 					]
 				else
-					res << [{kind: "gap", cols: 2}]
+					res << gap_row(cols: 2)
 				end
 				if u_manager? || @event.team.has_coach(u_coachid)
 					res << [
@@ -354,7 +354,7 @@ module EventsHelper
 							cols: 2
 						)
 					]
-					res << [{kind: "gap", size:1, cols: 6, class: "text-xs"}]
+					res << gap_row(cols: 6)
 					res << [
 						{kind: "side-cell", value: I18n.t("target.abbr"),rows: 2},
 						{kind: "top-cell", value: I18n.t("target.focus.def_a")},

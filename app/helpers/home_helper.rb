@@ -40,7 +40,7 @@ module HomeHelper
 			[{kind: "string", value: bulletize(I18n.t("server.info-4"))}],
 			[{kind: "string", value: bulletize(I18n.t("server.info-5"))}],
 			[{kind: "string", value: bulletize(I18n.t("server.info-6"))}],
-			[{kind: "gap", size: 1}],
+			gap_row,
 			[copyright_field],
 			[{kind: "string", value: I18n.t("server.published"), align: "right", class: "text-sm text-gray-500"}]
 		]
@@ -75,7 +75,7 @@ module HomeHelper
 				{kind: "label", value: I18n.t("person.name_a")},
 				{kind: "text-box", key: :nick, value: club.nick, placeholder: "MudClub"}
 			],
-			[{kind: "gap", size: 1, cols: 2}]
+			gap_row(cols: 2)
 		]
 		res << {kind: "hidden", key: :retlnk, value: retlnk} if retlnk
 		res
