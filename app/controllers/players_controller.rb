@@ -29,6 +29,8 @@ class PlayersController < ApplicationController
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
 			@fields  = create_fields(title)
 			@grid    = create_grid(helpers.player_grid(players: @players))
+			submit  = {kind: "export", url: teams_path(format: :xlsx), working: false} if u_manager?
+			@submit = create_submit(close: "back", close_return: u_manager? ? "/" : user_path(current_user), submit:)
 			respond_to do |format|
 				format.xlsx {
 					a_desc = "#{I18n.t("player.export")} 'players.xlsx'"

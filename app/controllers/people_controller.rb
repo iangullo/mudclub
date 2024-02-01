@@ -27,9 +27,11 @@ class PeopleController < ApplicationController
 		if check_access(roles: [:admin])
 			@people = get_people
 			title   = helpers.person_title_fields(title: I18n.t("person.many"))
-			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('people_filters','search'), url: people_path}]
+			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('people_filters','search'), url: people_path, cols: 3}]
 			@fields = create_fields(title)
 			@grid   = create_grid(helpers.person_grid)
+			submit  = {kind: "export", url: people_path(format: :xlsx), working: false} if u_admin?
+			@submit = create_submit(close: "back", close_return: "/", submit:)
 			respond_to do |format|
 				format.xlsx {
 					a_desc = "#{I18n.t("person.export")} 'people.xlsx'"

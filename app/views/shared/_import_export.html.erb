@@ -1,5 +1,7 @@
 <div id="import-export">
-	<%= render ButtonComponent.new(button: {kind: "export", url: export_path, working: false}) %>
+	<% if export_path %>
+		<%= render ButtonComponent.new(button: {kind: "export", url: export_path, working: false}) %>
+	<% end %>
 	<% if import_path %>
 		<div id="import" class="mt-3">
 			<%= form_with url: import_path, local: true do |form| %>

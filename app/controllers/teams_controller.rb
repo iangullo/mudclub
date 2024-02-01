@@ -25,15 +25,11 @@ class TeamsController < ApplicationController
 	def index
 		if check_access(roles: [:manager, :coach, :player])
 			title   = helpers.team_title_fields(title: I18n.t("team.many"), search: (u_coach? || u_manager?))
-			if u_manager?
-				export = {kind: "export", url: teams_path(format: :xlsx), working: false}
-				title.last << helpers.gap_field(size: 6)
-				title.last << helpers.button_field(export)
-			end
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: u_manager?))
 			@retlnk = (u_manager? ? seasons_path : "/")
-			@submit = create_submit(close: "back", close_return: @retlnk, submit: nil)
+			submit  = {kind: "export", url: teams_path(format: :xlsx), working: false} if u_manager?
+			@submit = create_submit(close: "back", close_return: @retlnk, submit:)
 			respond_to do |format|
 				format.xlsx {
 					f_name = "#{@season.name(safe: true)}-players.xlsx"

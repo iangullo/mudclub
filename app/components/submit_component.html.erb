@@ -1,8 +1,12 @@
 <div class="inline-flex align-middle flow-root mt-3 mb-1">
+	<% if @close %>
 	<div class="float-left mr-3 ml-1">
-		<%= render @close if @close %>
+		<%= render @close %>
 	</div>
+	<% end %>
+	<% if @submit %>
 	<div class="float-right ml-3 mr-1">
-		<%= render @submit if @submit %>
+		<%= render @submit %>
 	</div>
+	<% end %>
 </div>
