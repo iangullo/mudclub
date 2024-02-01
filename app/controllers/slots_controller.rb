@@ -28,7 +28,7 @@ class SlotsController < ApplicationController
 			@location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
 			title     = helpers.slot_title_fields(title: I18n.t("slot.many"))
 			title << [
-				{kind: "gap", size: 1},
+				helpers.gap_field(size: 1),
 				{kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice, value: @location.id}
 			]
 			@fields   = create_fields(title)
