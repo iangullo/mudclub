@@ -55,7 +55,7 @@ class HomeController < ApplicationController
 	end
 
 	def log
-		if check_access(roles: [:admin])
+		if check_access(roles: [:admin, :manager])
 			actions = UserAction.logs
 			title   = helpers.home_admin_title(icon: "user_actions.svg", title: I18n.t("server.log"))
 			title.last << helpers.button_field({kind: "clear", url: home_clear_path}) unless actions.empty?

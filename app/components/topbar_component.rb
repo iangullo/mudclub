@@ -66,7 +66,7 @@ class TopbarComponent < ApplicationComponent
 			coach_menu(user)
 		elsif user.is_player?
 			player_menu(user)
-		else
+		else	
 			user_menu(user)
 		end
 	end
@@ -76,6 +76,7 @@ class TopbarComponent < ApplicationComponent
 			res = {kind: "menu", name: "profile", icon: user.picture, options:[], class: @profcls, i_class: "rounded", size: "30x30"}
 			res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], class: @profcls)
 			res[:options] << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url], class: @profcls)
+			res[:options] << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal", class: @profcls) unless (user.admin? || user.manager?)
 			DropdownComponent.new(button: res)
 		else
 			res           = {kind: "menu", label: nil, url: @profile[:login][:url], class: @profile[:closed][:class]}
@@ -134,13 +135,15 @@ class TopbarComponent < ApplicationComponent
 	end
 
 	# menu to manage server application
-	def server_menu
+	def server_menu(user)
 		s_menu = {kind: "menu", name: "server", label: I18n.t("server.single"), options:[]}
-		s_menu[:options] << sport_menu
-		s_menu[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
+		if user.admin?
+			s_menu[:options] << sport_menu
+			s_menu[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
+			#s_menu[:options] << menu_link(label: I18n.t("action.backup"), url: '/home/log')
+			#s_menu[:options] << menu_link(label: I18n.t("action.restore"), url: '/home/log')
+		end
 		s_menu[:options] << menu_link(label: I18n.t("server.log"), url: '/home/log')
-		#s_menu[:options] << menu_link(label: I18n.t("action.backup"), url: '/home/log')
-		#s_menu[:options] << menu_link(label: I18n.t("action.restore"), url: '/home/log')
 		s_menu[:options] << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal")
 		s_menu
 	end
@@ -149,7 +152,7 @@ class TopbarComponent < ApplicationComponent
 	def admin_menu(user)
 		a_menu = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[]}
 		a_menu[:options] << manager_menu(user) if user.is_coach?
-		a_menu[:options] << server_menu
+		a_menu[:options] << server_menu(user)
 		@menu_tabs << a_menu
 	end
 
@@ -165,6 +168,7 @@ class TopbarComponent < ApplicationComponent
 		coach_menu(user, pure=false) if user.is_coach?
 		return m_menu if user.admin?
 		@menu_tabs << m_menu
+		@menu_tabs << server_menu(user)
 	end
 
 	# menu buttons for coaches
