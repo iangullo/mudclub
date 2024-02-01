@@ -223,9 +223,11 @@ class ButtonComponent < ApplicationComponent
 		res[:action]        = @button[:action] if @button[:action]
 		res[:confirm]       = @button[:confirm] if @button[:confirm]
 		if (@button[:working] || @button[:type] == "submit")
-			@button[:controller] = "processing"
-			@button[:working]  ||= true
-			res[:action]         = "processing#submit"
+			unless @button[:working] == false
+				@button[:controller] = "processing"
+				@button[:working]  ||= true
+				res[:action]         = "processing#submit"
+			end
 		else
 			res[:controller]  = @button[:controller] if @button[:controller]
 		end
