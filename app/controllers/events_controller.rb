@@ -288,9 +288,9 @@ class EventsController < ApplicationController
 				@retview = :edit
 				@retlnk  = safelink(e_data[:task][:retlnk])
 			elsif params[:event][:stats_attributes].present?	# just updated event stats
-				@notice   = helpers.flash_message("#{I18n.t("stat.updated")} ", "success")
-				@retview  = :show
-				@retlnk ||= current_user.player? ? team_path(@event.team, start_date: @event.start_date) : event_path(@event, retlnk: team_path(@event.team))
+				@notice  = helpers.flash_message("#{I18n.t("stat.updated")} ", "success")
+				@retview = :show
+				@retlnk  = event_path(@event, retlnk: @retlnk)
 			else
 				@notice = helpers.event_update_notice(attendance: e_data[:player_ids])
 				if e_data[:season_id].to_i > 0 # season event
@@ -300,8 +300,8 @@ class EventsController < ApplicationController
 					@retview  = :index
 					@retlnk ||= team_events_path(@event, start_date: @event.start_date)
 				else	# match or training session
-					@retview  = :show
-					@retlnk ||= @event.id ? event_path(@event) : safelink(@retlnk, team: @event.team, season: @event.team.season)
+					@retview = :show
+					@retlnk  = @event.id ? event_path(@event, retlnk: @retlnk) : safelink(@retlnk, team: @event.team, season: @event.team.season)
 				end
 			end
 			# returns whether we have something to save
