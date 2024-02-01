@@ -20,21 +20,16 @@ class ApplicationController < ActionController::Base
 	before_action :create_topbar
 	around_action :switch_locale
 
-	# switch app locale
-	def switch_locale(&action)
-		locale = params[:locale] ? params[:locale] : (current_user&.locale || I18n.default_locale)
-		I18n.with_locale(locale, &action)
-	end
-
-	# create the view's topbar
-	def create_topbar
-		@topbar = TopbarComponent.new(user: user_signed_in? ? current_user : nil, login: new_user_session_path, logout: destroy_user_session_path)
-	end
-
 	# check if correct  access level exists
 	# works as "present AND (valid(role) OR valid(obj.condition))"
-	def check_access(roles: nil, obj: nil)
-		return (check_object(obj:) || check_role(roles:)) if current_user.present?
+	def check_access(roles: nil, obj: nil, both: false)
+		if current_user.present?	# no access if no user logged in
+			if both	# both conditions to apply
+				return (check_object(obj:) && check_role(roles:))
+			else	# either condition is sufficient
+				return (check_object(obj:) || check_role(roles:)) 
+			end
+		end
 		return false
 	end
 
@@ -58,11 +53,22 @@ class ApplicationController < ActionController::Base
 		SubmitComponent.new(close:, submit:, close_return:, frame:)
 	end
 
+	# create the view's topbar
+	def create_topbar
+		@topbar = TopbarComponent.new(user: user_signed_in? ? current_user : nil, login: new_user_session_path, logout: destroy_user_session_path)
+	end
+
 	# register a new user action
 	def register_action(kind, description, url: nil, modal: nil)
 		u_act = UserAction.new(user_id: current_user.id, kind:, description:, url:, modal:)
 		current_user.user_actions << u_act
 		u_act.save
+	end
+
+	# switch app locale
+	def switch_locale(&action)
+		locale = params[:locale] ? params[:locale] : (current_user&.locale || I18n.default_locale)
+		I18n.with_locale(locale, &action)
 	end
 
 	# wrappers to make code in all views/controllers more readable
@@ -152,13 +158,13 @@ class ApplicationController < ActionController::Base
 			when Drill
 				return (u_coachid==obj.coach_id)
 			when Event
-				return (obj.team.has_coach(u_coachid) or obj.has_player(u_playerid))
+				return (obj.team.has_coach(u_coachid) || obj.has_player(u_playerid))
 			when Person
 				return (u_personid==obj.id)
 			when Player
 				return (u_playerid==obj.id)
 			when Team
-				return (obj.has_coach(u_coachid) or obj.has_player(u_playerid))
+				return (obj.has_coach(u_coachid) || obj.has_player(u_playerid))
 			when User
 				return (u_userid==@user.id)
 			else # including NilClass"

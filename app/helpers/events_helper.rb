@@ -33,7 +33,7 @@ module EventsHelper
 			res << [{kind: "select-collection", key: :team_id, options: teams, value: t_id, cols: cols}]
 		else
 			res = title_start(icon: @event.pic, title: @event.title(show: true), rows: @event.rest? ? 3 : nil, cols:)
-			res.last << {kind: "gap"}
+			res.last << gap_field
 			case @event.kind.to_sym
 			when :rest then rest_title(res:, cols:, form:)
 			when :match then match_title(res:, cols:, form:)
@@ -49,8 +49,8 @@ module EventsHelper
 	# FieldComponents for event attendance
 	def event_attendance_title
 		res = title_start(icon: "attendance.svg", title: @event.team.name, subtitle: @event.to_s)
-		res[0] << {kind: "gap"}
-		res[1] << {kind: "gap"}
+		res[0] << gap_field
+		res[1] << gap_field
 		event_top_right_fields(res:)
 		res << gap_row(cols: 6)
 	end
@@ -85,7 +85,7 @@ module EventsHelper
 					{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(team_id: obj.id)},
 					class: "align-middle text-indigo-900"
 				),
-				{kind: "gap"},
+				gap_field,
 				button_field(
 					{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(obj), align: "right", frame: "modal"},
 					class: "align-middle text-indigo-900"
@@ -99,11 +99,11 @@ module EventsHelper
 	# FieldComponents to show an attendance form
 	def event_attendance_form_fields
 		res = [[
-			{kind: "gap", size: 2},
+			gap_field(size: 2),
 			{kind: "side-cell", value: I18n.t(@event.match? ? "match.roster" : "calendar.attendance"), align: "left"}
 		]]
 		res << [
-			{kind: "gap", size: 2},
+			gap_field(size: 2),
 			{kind: "select-checkboxes", key: :player_ids, options: @event.team.players.active}
 		]
 	end
@@ -160,7 +160,7 @@ module EventsHelper
 		res << [
 			{kind: "icon", value: "drill.svg", size: "30x30", align: "center"},
 			{kind: "label", value: task.drill.name},
-			{kind: "gap"},
+			gap_field,
 			{kind: "icon-label", icon: "clock.svg", label: task.s_dur}
 		] if title
 		res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
@@ -299,10 +299,10 @@ module EventsHelper
 				res << [
 					{kind: "icon", value: "location.svg"},
 					{kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id},
-					{kind: "gap"}
+					gap_field
 				]
 				res << [
-					{kind: "gap", size: 1, cols: 4},
+					gap_field(size: 1, cols: 4),
 					{kind: "icon", value: "attendance.svg"},
 					button_field({kind: "link", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal"}, align: "left")
 				] if @event.id
@@ -310,14 +310,14 @@ module EventsHelper
 				if @event.location.gmaps_url
 					res << [
 						button_field({kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}),
-						{kind: "gap"}
+						gap_field
 					]
 				else
 					res << gap_row(cols: 2)
 				end
 				if u_manager? || @event.team.has_coach(u_coachid)
 					res << [
-						{kind: "gap", size: 1, cols: 3},
+						gap_field(size: 1, cols: 3),
 						button_field(
 							{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal"},
 							align: "left",
@@ -340,14 +340,14 @@ module EventsHelper
 		# complete event_title for train events
 		def train_title(res:, cols:, form:, subtitle: nil, chart: nil)
 			value = subtitle || I18n.t("train.single")
-			res << [{kind: "subtitle", value:, cols:}, {kind: "gap"}]
+			res << [{kind: "subtitle", value:, cols:}, gap_field]
 			unless chart
 				if form
 					res << [workload_button(align: "left", cols: 3)] if @event.id
 				elsif (u_manager? || u_coach?)
 					res << [
 						button_field(event_copy_button, align: "left", cols: 4),
-						{kind: "gap", size: 1},
+						gap_field(size: 1),
 						button_field(
 							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal"},
 							align: "left",
@@ -365,7 +365,7 @@ module EventsHelper
 						{kind: "lines", value: @event.off_targets, cols: 5}
 					]
 				elsif u_player?
-					res << [{kind: "gap"}, {kind: "label", value: current_user.to_s, cols: 3}]
+					res << [gap_field, {kind: "label", value: current_user.to_s, cols: 3}]
 				end
 			end
 		end

@@ -28,7 +28,7 @@ module PeopleHelper
 		res << [{kind: "label", value: person.s_name, cols: 2}]
 		res << [{kind: "label", value: person.surname, cols: 2}]
 		res << [{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"}, {kind: "string", value: person.dni}]
-		res << [{kind: "gap", size: 1}, {kind: "string", value: person.birthday}]
+		res << [gap_field(size: 1), {kind: "string", value: person.birthday}]
 		res << [
 			{kind: "icon", value: "home.svg", class: "align-top"},
 			{kind: "string", value: simple_format("#{person.address}"), align: "left", cols: 2}
@@ -58,14 +58,14 @@ module PeopleHelper
 			[
 				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
 				{kind: "text-box", key: :dni, size: 8, value: person.dni, placeholder: I18n.t("person.pid")},
-				{kind: "gap"},
+				gap_field,
 				{kind: "icon", value: "phone.svg"},
 				{kind: "text-box", key: :phone, size: 12, value: person.phone, placeholder: I18n.t("person.phone")}
 			],
 			[
 				{kind: "icon", value: "user.svg"},
 				{kind: "text-box", key: :nick, size: 8, value: person.nick, placeholder: I18n.t("person.nick")},
-				{kind: "gap"},
+				gap_field,
 				{kind: "icon", value: "at.svg"},
 				{kind: "email-box", key: :email, value: person.email, placeholder: I18n.t("person.email")}
 			],

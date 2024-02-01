@@ -12,9 +12,9 @@
 				{kind: "password-box", key: :password, autocomplete: "password", cols: 3}
 			],
 			[
-				{kind: "gap", size: 1, cols: 2},
+				gap_field(size: 1, cols: 2),
 				{kind: "label-checkbox", label: t("action.remember"), key: :remember_me, right: true},
-				{kind: "gap"},
+				gap_field,
 				{kind: "button", button: {kind: "login", label: t("action.login"), align: "right"}}
 			]
 		])

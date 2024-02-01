@@ -32,7 +32,7 @@ module CategoriesHelper
 		res << [
 			{kind: "label", value: I18n.t("stat.min")},
 			{kind: "string", value: @category.min_years},
-			{kind: "gap"},
+			gap_field,
 			{kind: "label", value: I18n.t("stat.max")},
 			{kind: "string", value: @category.max_years}
 		]
@@ -50,7 +50,7 @@ module CategoriesHelper
 		res << [
 			{kind: "label", value: I18n.t("stat.min")},
 			{kind: "number-box", key: :min_years, min: 5, size: 3, value: @category.min_years},
-			{kind: "gap", size: 5},
+			gap_field(size: 5),
 			{kind: "label", value: I18n.t("stat.max")},
 			{kind: "number-box", key: :max_years, min: 6, size: 3, value: @category.max_years}
 		]

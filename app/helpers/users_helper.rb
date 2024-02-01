@@ -34,14 +34,14 @@ module UsersHelper
 	def user_role_fields
 		res =[]
 		#res << [		# removing cause IP registered is always local - from NGINX
-		#	{kind: "gap", size: 1},
+		#	gap_field(size: 1},
 		#	{kind: "string", value: "(#{@user.last_from})",cols: 3}
 		#] if @user.last_sign_in_ip?
 		res << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
 		res << {kind: "icon", value: "user.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.manager?
 		res << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
 		res << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
-		res << {kind: "gap"}
+		res << gap_field
 		unless @user.user_actions.empty?
 			res <<	button_field(
 				{kind: "link", icon: user_actions_icon, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal"},
@@ -58,7 +58,7 @@ module UsersHelper
 		else
 			res.last << {kind: "string", align: "center", value: I18n.t("role.#{@user.role}")}
 		end
-		res.last << {kind: "gap"}
+		res.last << gap_field
 		res.last << {kind: "label", value: "#{I18n.t("locale.lang")}:"}
 		res.last << {kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: @user.locale}
 		res
@@ -76,7 +76,7 @@ module UsersHelper
 				{kind: "password-box", key: :password_confirmation, placeholder: I18n.t("password.confirm")}
 			],
 			[
-				{kind: "gap"},
+				gap_field,
 				{kind: "text", value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs"}
 			]
 		]

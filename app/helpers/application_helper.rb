@@ -54,6 +54,11 @@ module ApplicationHelper
 	end
 
 	# standardised gap row field definition
+	def gap_field(size: nil, cols: nil, rows: nil)
+		{kind: "gap", size:, cols:}
+	end
+
+	# standardised gap row field definition
 	def gap_row(size: 1, cols: 1, _class: "text-xs")
 		[{kind: "gap", size:, cols:, class: _class}]
 	end

@@ -83,7 +83,7 @@ module DrillsHelper
 			]
 		]
 		if @drill.versions.size > 1 and u_manager?
-			res.last << {kind: "gap", rows: 2}
+			res.last << gap_field(rows: 2)
 			res.last << button_field(
 				{
 					kind: "link",
@@ -146,7 +146,7 @@ module DrillsHelper
 			[
 				{kind: "label", value: I18n.t("skill.abbr"), align: "right"},
 				{kind: "nested-form", model: "drill", key: "skills", child: Skill.new, row: "skill_row"},
-				{kind: "gap"},
+				gap_field,
 				{kind: "label", value: I18n.t("drill.author"), align: "right"},
 				{kind: "select-collection", key: :coach_id, options: Coach.real, value: (@drill.coach_id.to_i>0) ? @drill.coach_id : (u_coach? ? current_user.coach.id : 1)}
 			]

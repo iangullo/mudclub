@@ -31,7 +31,7 @@ module TeamsHelper
 			if w_l[:won]>0 or w_l[:lost]>0
 				wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
 				res << [
-					{kind: "gap"},
+					gap_field,
 					{kind: "text", value: wlstr}
 				]
 			end
@@ -50,13 +50,13 @@ module TeamsHelper
 			if add_teams
 				title << {kind: "normal", value: I18n.t("player.abbr")} 
 				title << button_field({kind: "add", url: new_team_path, frame: "modal"})
-				trow = {url: "#", items: [{kind: "gap"}, {kind: "gap"}, {kind: "bottom", value: I18n.t("stat.total")}]}
+				trow = {url: "#", items: [gap_field(cols: 2), {kind: "bottom", value: I18n.t("stat.total")}]}
 				tcnt = 0	# total players
 			end
 			rows = Array.new
 			teams.each { |team|
 				cnt = team.players.count
-				row = {url: team_path(team), items: []}
+				row = {url: team_path(team, retlnk: @retlnk), items: []}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless season
 				row[:items] << {kind: "normal", value: team.to_s}
 				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
@@ -101,7 +101,7 @@ module TeamsHelper
 			{kind: "label", value:I18n.t("coach.many"), class: "align-center"}
 		]
 		res << [
-			{kind: "gap"},
+			gap_field,
 			{kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches},
 			{kind: "hidden", key: :sport_id, value: @sport.id}
 		]
@@ -117,7 +117,6 @@ module TeamsHelper
 				button_field({kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr")}, align: "center"),
 				button_field({kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal"}, align: "center")
 			]]
-			res.last << button_field({kind: "edit", url: edit_team_path, size: "30x30", frame: "modal"}) if (u_manager? || @team.has_coach(u_coachid))
 		else
 			res = [[]]
 		end
