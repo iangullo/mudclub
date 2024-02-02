@@ -73,22 +73,22 @@ class TopbarComponent < ApplicationComponent
 
 	def prof_tab(user)
 		if user.present?
-			res = {kind: "menu", name: "profile", icon: user.picture, options:[], class: @profcls, i_class: "rounded", size: "30x30"}
-			res[:options] << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], class: @profcls)
-			res[:options] << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url], class: @profcls)
-			res[:options] << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal", class: @profcls) unless (user.admin? || user.manager?)
+			options = []
+			options << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], class: @profcls)
+			options << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url], class: @profcls)
+			options << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal", class: @profcls) unless (user.admin? || user.manager?)
+			res = menu_drop("profile", options:)
+			res.merge!({icon: user.picture, class: @profcls, i_class: "rounded", size: "30x30"})
 			DropdownComponent.new(button: res)
 		else
-			res           = {kind: "menu", label: nil, url: @profile[:login][:url], class: @profile[:closed][:class]}
-			res[:icon]    = @profile[:closed][:icon]
-			res[:name]    = "profile"
-			res[:i_class] = @logincls
+			res = {kind: "menu", label: I18n.t("action.login"), url: @profile[:login][:url], class: @profile[:closed][:class]}
+			res.merge!({icon: @profile[:closed][:icon], name: "profile", i_class: @logincls})
 			ButtonComponent.new(button: res)
 		end
 	end
 
 	def set_hamburger_menu
-		res = {kind: "menu", name: "hamburger", ham: true, options:[]}
+		options = []
 		@menu_tabs.each do |m_opt|
 			h_opt = m_opt.deep_dup
 			if h_opt[:options]
@@ -107,9 +107,14 @@ class TopbarComponent < ApplicationComponent
 					end
 				end
 			end
-			res[:options] << h_opt
+			options << h_opt
 		end
-		DropdownComponent.new(button: res)
+		DropdownComponent.new(button: menu_drop("hamburger", ham: true, options:))
+	end
+
+	# wrapper to define a dropdown menu hash - :options returned as [] if received as nil
+	def menu_drop(name, label: nil, options: [], ham: nil)
+		{kind: "menu", name:, label:, options:, ham:}
 	end
 
 	def menu_link(label:, url:, class: "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap", kind: "normal")
@@ -126,45 +131,46 @@ class TopbarComponent < ApplicationComponent
 
 	# menu to manage sports
 	def sport_menu
-		s_menu = {kind: "menu", name: "sports", label: I18n.t("sport.many"), options:[]}
+		options = []
 		Sport.all.each do |sport|
 			s_path = "/sports/#{sport.id}"
-			s_menu[:options] << menu_link(label: sport.to_s, url: "#{s_path}")
+			options << menu_link(label: sport.to_s, url: "#{s_path}")
 		end
-		s_menu
+		menu_drop("sports", label: I18n.t("sport.many"), options:)
 	end
 
 	# menu to manage server application
 	def server_menu(user)
-		s_menu = {kind: "menu", name: "server", label: I18n.t("server.single"), options:[]}
+		options = []
 		if user.admin?
-			s_menu[:options] << sport_menu
-			s_menu[:options] << menu_link(label: I18n.t("user.many"), url: '/users')
-			#s_menu[:options] << menu_link(label: I18n.t("action.backup"), url: '/home/log')
-			#s_menu[:options] << menu_link(label: I18n.t("action.restore"), url: '/home/log')
+			options << sport_menu
+			options << menu_link(label: I18n.t("user.many"), url: '/users', kind: "nav")
+			#options << menu_link(label: I18n.t("action.backup"), url: '/home/log')
+			#options << menu_link(label: I18n.t("action.restore"), url: '/home/log')
 		end
-		s_menu[:options] << menu_link(label: I18n.t("server.log"), url: '/home/log')
-		s_menu[:options] << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal")
-		s_menu
+		options << menu_link(label: I18n.t("server.log"), url: '/home/log', kind: "nav")
+		options << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal")
+		menu_drop("server", label: I18n.t("server.single"), options:)
 	end
 
 	# menu buttons for mudclub admins
 	def admin_menu(user)
-		a_menu = {kind: "menu", name: "admin", label: I18n.t("action.admin"), options:[]}
-		a_menu[:options] << manager_menu(user) if user.is_coach?
-		a_menu[:options] << server_menu(user)
-		@menu_tabs << a_menu
+		options = []
+		options << manager_menu(user) if user.is_coach?
+		options << server_menu(user)
+		@menu_tabs << menu_drop("admin", label: I18n.t("action.admin"), options:)
 	end
 
 	# menu buttons for club managers
 	def manager_menu(user)
-		m_menu = {kind: "menu", name: "manage", label: I18n.t("club.single"), options:[]}
-		m_menu[:options] << menu_link(label: I18n.t("club.edit"), url: '/home/edit', kind: "modal")
-		m_menu[:options] << menu_link(label: I18n.t("season.single"), url: '/seasons')
-		m_menu[:options] << menu_link(label: I18n.t("player.many"), url: '/players')
-		m_menu[:options] << menu_link(label: I18n.t("coach.many"), url: '/coaches')
-		m_menu[:options] << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
-		m_menu[:options] << menu_link(label: I18n.t("location.many"), url: '/locations')
+		options = []
+		options << menu_link(label: I18n.t("club.edit"), url: '/home/edit', kind: "modal")
+		options << menu_link(label: I18n.t("season.single"), url: '/seasons')
+		options << menu_link(label: I18n.t("player.many"), url: '/players')
+		options << menu_link(label: I18n.t("coach.many"), url: '/coaches')
+		options << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
+		options << menu_link(label: I18n.t("location.many"), url: '/locations')
+		m_menu = menu_drop("manage", label: I18n.t("club.single"), options:)
 		coach_menu(user, pure=false) if user.is_coach?
 		return m_menu if user.admin?
 		@menu_tabs << m_menu
@@ -195,7 +201,7 @@ class TopbarComponent < ApplicationComponent
 		if s_teams.empty?
 			m_teams = menu_link(label: I18n.t("team.many"), url: '/teams')
 		else
-			m_teams = {kind: "menu", name: "teams", label: I18n.t("team.many"), options:[]}
+			m_teams = menu_drop("teams", label: I18n.t("team.many"))
 			s_teams.each {|team| m_teams[:options] << menu_link(label: team.name, url: '/teams/'+ team.id.to_s)}
 			m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: '/teams')
 		end
