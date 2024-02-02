@@ -59,8 +59,9 @@ class HomeController < ApplicationController
 			actions = UserAction.logs
 			title   = helpers.home_admin_title(icon: "user_actions.svg", title: I18n.t("server.log"))
 			title.last << helpers.button_field({kind: "clear", url: home_clear_path}) unless actions.empty?
-			@title = create_fields(title)
-			@grid  = create_grid(helpers.home_actions_grid(actions:))
+			@title  = create_fields(title)
+			@grid   = create_grid(helpers.home_actions_grid(actions:))
+			@submit = create_submit(close: "back", close_return: :back, submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
