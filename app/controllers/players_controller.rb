@@ -144,9 +144,13 @@ class PlayersController < ApplicationController
 	# GET /players/import.json
 	def import
 		if check_access(roles: [:manager])
-			Player.import(params[:file])	# added to import excel
-			a_desc = "#{I18n.t("player.import")} '#{params[:file].original_filename}'"
-			register_action(:imported, a_desc, url: players_path)
+			if params[:file].present?
+				Player.import(params[:file].presence)	# added to import excel
+				a_desc = "#{I18n.t("player.import")} '#{params[:file].original_filename}'"
+				register_action(:imported, a_desc, url: players_path)
+			else
+				a_desc = "#{I18n.t("player.import")}: #{I18n.t("status.no_file")}"
+			end
 			format.html { redirect_to players_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

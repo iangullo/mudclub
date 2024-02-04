@@ -72,6 +72,7 @@ es:
     return: "Volver"
     save: "Guardar"
     search: "Buscar"
+    select: "Seleccionar"
   calendar:
     label: "Calendario"
     date: "Fecha"
