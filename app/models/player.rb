@@ -141,7 +141,7 @@ class Player < ApplicationRecord
 				)
 				if j.person	# only if person exists
 					j.active = j.read_field(to_boolean(row[10].value), j.active, false)
-					j.save
+					j.save if j.changed?
 				end
 			end
 		end

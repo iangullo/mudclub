@@ -29,7 +29,7 @@ class PlayersController < ApplicationController
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
 			@fields  = create_fields(title)
 			@grid    = create_grid(helpers.player_grid(players: @players))
-			submit  = {kind: "export", url: teams_path(format: :xlsx), working: false} if u_manager?
+			submit  = {kind: "export", url: players_path(format: :xlsx), working: false} if u_manager?
 			@submit = create_submit(close: "back", close_return: u_manager? ? "/" : user_path(current_user), submit:)
 			respond_to do |format|
 				format.xlsx {
@@ -151,7 +151,7 @@ class PlayersController < ApplicationController
 			else
 				a_desc = "#{I18n.t("player.import")}: #{I18n.t("status.no_file")}"
 			end
-			format.html { redirect_to players_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+			redirect_to players_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

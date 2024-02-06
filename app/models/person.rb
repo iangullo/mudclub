@@ -97,6 +97,7 @@ class Person < ApplicationRecord
 		self.player_id = 0 unless self.player_id.to_i > 0
 		self.parent_id = 0 unless self.parent_id.to_i > 0
 		self.user_id   = 0 unless self.user_id.to_i > 0
+		return self
 	end
 
 	# calculate age

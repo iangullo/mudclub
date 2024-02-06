@@ -142,7 +142,7 @@ class PeopleController < ApplicationController
 			Person.import(params[:file]) # added to import excel
 			a_desc = "#{I18n.t("person.import")} '#{params[:file].original_filename}'"
 			register_action(:imported, a_desc, url: people_path)
-			format.html { redirect_to people_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+			redirect_to people_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
