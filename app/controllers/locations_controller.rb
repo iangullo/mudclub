@@ -69,7 +69,7 @@ class LocationsController < ApplicationController
 	def create
 		if check_access(roles: [:manager, :coach])
 			respond_to do |format|
-				@season   = Season.find(params[:location][:season_id]) if params[:location][:season_id]
+				@season   = Season.find(param_passed(:location, :season_id))
 				@location = Location.new
 				@location.rebuild(location_params) # rebuild @location
 				a_desc    = "#{I18n.t("location.created")} #{@season&.name} => '#{@location.name}'"

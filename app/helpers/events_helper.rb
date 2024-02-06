@@ -69,7 +69,7 @@ module EventsHelper
 			{kind: "normal", value: I18n.t("event.single"), cols: 4}
 		]
 		rows    = event_rows(events:, season_id: for_season ? obj.id : nil, retlnk:)
-		btn_add = new_event_button(obj:, for_season:)
+		btn_add = new_event_button(obj:, for_season:, retlnk:)
 		title << btn_add if btn_add
 		if for_season
 			fields = [[
@@ -106,16 +106,17 @@ module EventsHelper
 			gap_field(size: 2),
 			{kind: "select-checkboxes", key: :player_ids, options: @event.team.players.active}
 		]
+		res << [{kind: "hidden", key: "retlnk", value: @retlnk}]
 	end
 
 	#FieldComponents to show a match
 	def match_show_fields
-		res = match_fields(edit: false, retlnk: @retlnk)
+		res = match_fields(edit: false)
 	end
 
 	# return FieldsComponent for match form
 	def match_form_fields(new: false)
-		match_fields(edit: true, new:, retlnk: @retlnk)
+		match_fields(edit: true, new:)
 	end
 
 	# player grid for a match
@@ -257,16 +258,13 @@ module EventsHelper
 	end
 
 	# return adequate notice depending on @event kind
-	def event_update_notice(attendance: nil)
-		case @event.kind.to_sym
-		when :rest
-			msg = I18n.t("rest.updated") + "#{@event.to_s(style: "notice")}"
-		when :train
-			msg = I18n.t(attendance ? "train.att_check" : "train.updated") + "#{@event.date_string}"
-		when :match
-			msg = I18n.t(attendance ? "match.att_check" : "match.updated") + "#{@event.to_s(style: "notice")}"
-		end
-		if attendance or @event.modified?
+	def event_update_notice(msg, changed: false)
+		if changed
+			if @event.train?
+				msg += @event.date_string
+			elsif msg != I18n.t("stat.updated")
+				msg += @event.to_s(style: "notice")
+			end
 			return flash_message(msg, "success")
 		else
 			return flash_message(I18n.t("status.no_data"), "info")
@@ -301,11 +299,6 @@ module EventsHelper
 					{kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id},
 					gap_field
 				]
-				res << [
-					gap_field(size: 1, cols: 4),
-					{kind: "icon", value: "attendance.svg"},
-					button_field({kind: "link", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal"}, align: "left")
-				] if @event.id
 			else
 				if @event.location.gmaps_url
 					res << [
@@ -319,7 +312,7 @@ module EventsHelper
 					res << [
 						gap_field(size: 1, cols: 3),
 						button_field(
-							{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path, frame: "modal"},
+							{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path(retlnk: @retlnk), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
@@ -329,11 +322,11 @@ module EventsHelper
 		end
 
 		# serves for both match_show and match_edit
-		def match_fields(edit:, new: false, retlnk: nil)
+		def match_fields(edit:, new: false)
 			if edit
 				@sport.match_form_fields(@event, new:, retlnk: @retlnk)
 			else
-				@sport.match_show_fields(@event)
+				@sport.match_show_fields(@event, retlnk: @retlnk)
 			end
 		end
 
@@ -349,7 +342,7 @@ module EventsHelper
 						button_field(event_copy_button, align: "left", cols: 4),
 						gap_field(size: 1),
 						button_field(
-							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path, frame: "modal"},
+							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path(retlnk: @retlnk), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
@@ -421,14 +414,14 @@ module EventsHelper
 		end
 
 		# dropdown button definition to create a new Event
-		def new_event_button(obj:, for_season: nil)
+		def new_event_button(obj:, for_season: nil, retlnk: team_events_path(@team))
 			if for_season	# paste season event button
-				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id}), frame: "modal"}) if u_manager? && obj==Season.latest
+				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id, retlnk:}), frame: "modal"}) if u_manager? && obj==Season.latest
 			elsif obj.class == Team && obj.has_coach(u_coachid) # new team event
 				button = {kind: "add", name: "add-event", options: []}
-				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id}), data: {turbo_frame: :modal}}
-				button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: obj.id}), data: {turbo_frame: :modal}}
-				button[:options] << {label: I18n.t("rest.single"), url: new_event_path(event: {kind: :rest, team_id: obj.id}), data: {turbo_frame: :modal}}
+				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id, retlnk:}), data: {turbo_frame: :modal}}
+				button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: obj.id, retlnk:}), data: {turbo_frame: :modal}}
+				button[:options] << {label: I18n.t("rest.single"), url: new_event_path(event: {kind: :rest, team_id: obj.id, retlnk:}), data: {turbo_frame: :modal}}
 				return {kind: "dropdown", button: button, class: "bg-white"}
 			else
 				return nil

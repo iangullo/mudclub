@@ -84,7 +84,7 @@ class EventsController < ApplicationController
 		if check_access(roles: [:manager]) || @event.team.has_coach(u_coachid)
 			prepare_event_form(new: false)
 		else
-			redirect_to @retlnk || events_path(team_id: @event.team.id, start_date: @event.start_date), data: {turbo_action: "replace"}
+			redirect_to @retlnk || team_events_path(team_id: @event.team.id, start_date: @event.start_date), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -117,41 +117,34 @@ class EventsController < ApplicationController
 		if check_access(roles: [:manager]) || @event.team.has_coach(u_coachid)
 			respond_to do |format|
 				e_data  = event_params
+				url     = event_path(@event, retlnk: @retlnk)
+				modal   = @event.rest?
 				@player = Player.find_by_id(e_data[:player_id].presence)
-				seek_duplicate_event(e_data) if e_data[:copy].presence
-				@event.rebuild(e_data)
-				modal = @event.rest?
-				url   = event_path(@event)
-				if prepare_update_redirect(e_data)	# prepare links to redirect
-					if e_data[:player_ids].present?	# update attendance
-						check_attendance(e_data[:player_ids])
-						register_action(:updated, @notice[:message], url:, modal:)
-					elsif e_data[:stats_attributes] || params[:outings]
-						check_stats(e_data[:stats_attributes], params[:outings])
-						register_action(:updated, @notice[:message], url:, modal:)
-					elsif e_data[:task].present? # updated task from edit_task_form
-						check_task(e_data[:task])
-						@notice[:message] = @notice[:message] + @task.to_s
+				prepare_update_redirect(e_data)
+				if e_data[:player_ids].present?	# updated attendance
+					changed = check_attendance(e_data[:player_ids])
+				elsif e_data[:task].present? # updated task from edit_task_form
+					changed = check_task(e_data[:task])
+					@notice = @notice + @task.to_s if changed
+				else	# it is an event update attempt
+					seek_duplicate_event(e_data) if e_data[:copy].presence
+					if @event.modified?	# do we need to save?
+						if @event.save
+							changed = true		
+							@event.tasks.reload if e_data[:tasks_attributes] # a training session
+						else
+							prepare_event_form(new: false)	# continue editing, it did not work
+							format.html { render :edit, status: :unprocessable_entity }
+							format.json { render json: @event.errors, status: :unprocessable_entity }
+						end
 					end
-					format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
-					format.json { render @retview, status: :ok, location: @retlnk }
-				elsif @event.modified?	# do we need to save?
-					if @event.save	# try to do it
-						@retlnk ||= event_path(@event)
-						register_action(:updated, @notice[:message], url:, modal:)
-						@event.tasks.reload if e_data[:tasks_attributes] # a training session
-						format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
-						format.json { render @retview, status: :ok, location: @retlnk }
-					else
-						prepare_event_form(new: false)	# continue editing, it did not work
-						format.html { render :edit, status: :unprocessable_entity }
-						format.json { render json: @event.errors, status: :unprocessable_entity }
-					end
-				else	# nothing to save
-					@retlnk ||= event_path(@event)
-					format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
-					format.json { render @retview, status: :ok, location: @retlnk }
+					binding.break
+					changed = (check_stats(param_passed(:event, :stats_attributes)&.values&.first) || changed)
+					changed = (check_stats(params[:outings]) || changed)
 				end
+				@notice = helpers.event_update_notice(@notice, changed:)
+				format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
+				format.json { render @retview, status: :ok, location: @retlnk }
 			end
 		else
 			redirect_to (@retlnk || events_path), data: {turbo_action: "replace"}
@@ -220,7 +213,7 @@ class EventsController < ApplicationController
 		if check_access(roles: [:manager, :coach], obj: @event)
 			@title  = create_fields(helpers.event_attendance_title)
 			@fields = create_fields(helpers.event_attendance_form_fields)
-			@submit = create_submit
+			@submit = create_submit(close_return: event_path(@event, retlnk: @retlnk))
 		else
 			redirect_to @retlnk || event_path(@event), data: {turbo_action: "replace"}
 		end
@@ -281,31 +274,26 @@ class EventsController < ApplicationController
 	end
 
 	private
-		# establish redirection & notice for based on udpate kind
+		# establish redirection & notice for based on update kind
 		def prepare_update_redirect(e_data)
+			@event.rebuild(e_data)
 			if e_data[:task].present?
-				@notice  = helpers.flash_message("#{I18n.t("task.updated")} ", "success")
+				@notice  = I18n.t("task.updated")
 				@retview = :edit
-				@retlnk  = safelink(e_data[:task][:retlnk])
-			elsif params[:event][:stats_attributes].present?	# just updated event stats
-				@notice  = helpers.flash_message("#{I18n.t("stat.updated")} ", "success")
+				@retlnk  = edit_event_path(@event, retlnk: @retlnk)
+			elsif params[:event].present?
 				@retview = :show
-				@retlnk  = event_path(@event, retlnk: @retlnk)
-			else
-				@notice = helpers.event_update_notice(attendance: e_data[:player_ids])
-				if e_data[:season_id].to_i > 0 # season event
-					@retview = :index
-					@retlnk  = season_events_path(e_data[:season_id], start_date: @event.start_date)
-				elsif @event.rest?	# careful, these are modal
-					@retview  = :index
-					@retlnk ||= team_events_path(@event, start_date: @event.start_date)
-				else	# match or training session
-					@retview = :show
-					@retlnk  = @event.id ? event_path(@event, retlnk: @retlnk) : safelink(@retlnk, team: @event.team, season: @event.team.season)
+				@retlnk  = event_path(@event, retlnk: @retlnk) unless @event.rest?
+				if @event.modified?
+					@notice = I18n.t("#{@event.kind}.updated")
+				elsif	e_data[:player_ids].present?	# players to partcipate
+					@notice = I18n.t("#{@event.kind}.att_check")
+				elsif params[:event][:stats_attributes].present? || params[:outings].present?	# updated stats/outings
+					@notice = I18n.t("stat.updated")
+				else
+					@notice = I18n.t("status.no_data")
 				end
 			end
-			# returns whether we have something to save
-			return (e_data[:task].present? || e_data[:player_ids].present? || e_data[:stats_attributes].present? || params[:outings].present?)
 		end
 
 		# when copying an event, need to avoid duplicates, checking if an Event
@@ -332,21 +320,29 @@ class EventsController < ApplicationController
 
 		# check attendance
 		def check_attendance(p_array)
-			# first pass
+			changed   = nil	# first pass
 			attendees = Array.new	# array to include all player_ids
 			p_array.each {|p| attendees <<  Player.find(p.to_i) unless (p=="" or p.to_i==0)}
 
-			# second pass - manage associations
-			attendees.each {|p| @event.players << p unless @event.has_player(p.id)}
+			attendees.each do |player|	# second pass - manage associations
+				unless @event.has_player(player.id)
+					changed ||= true
+					@event.players << player
+				end
+			end
 
-			# cleanup removed attendances
-			@event.players.each {|p| @event.players.delete(p) unless attendees.include?(p)}
+			@event.players.each do |player|	# cleanup removed attendances
+				unless attendees.include?(player)
+					changed ||= true
+					@event.players.delete(player)
+				end
+			end
+			return changed
 		end
 
 		# check stats - a single player updating an event
-		def check_stats(stats, outings)
-			@sport.parse_stats(@event, stats.values.first) if stats	# lets_ check them
-			@sport.parse_stats(@event, outings) if outings	# lets_ check them
+		def check_stats(stats)
+			@sport.parse_stats(@event, stats) if stats	# lets_ check them
 		end
 
 		# ensure a task is correctly added to event
@@ -385,17 +381,16 @@ class EventsController < ApplicationController
 				@grid    = create_grid(helpers.match_roster_grid(edit: true), controller: "outings") unless new
 			end
 			unless new # editing
-				if @event.rest?
-					c_ret = @event.team_id==0 ? seasons_path(season_id: @event.team.season_id) : @retlnk
-				else
-					c_ret = event_path(@event, retlnk: @retlnk)
+				unless @event.rest?
+					r_lnk = event_path(@event, retlnk: @retlnk)
 					if @event.train?
-						@btn_add = create_button({kind: "add", label: I18n.t("task.add"), url: add_task_event_path}) if (u_manager? || @event.team.has_coach(u_coachid))
+						@btn_add = create_button({kind: "add", label: I18n.t("task.add"), url: add_task_event_path(retlnk: r_lnk)}) if (u_manager? || @event.team.has_coach(u_coachid))
 						@drills  = @event.drill_list
 					end
+					@submit = create_submit(close: "back", close_return: r_lnk)
 				end
 			end
-			@submit = create_submit(close_return: c_ret)
+			@submit ||= create_submit(close_return: @retlnk)
 		end
 
 		# prepare edit/add task form
@@ -415,7 +410,7 @@ class EventsController < ApplicationController
 			if params[:event]
 				t_param = event_params[:task]
 			elsif params[:task] # comes from a dynamic refresh
-				tmp     = params[:task][:drill_id].split("|")
+				tmp     = params[:task][:drill_id]&.split("|")
 				t_param = {drill_id: tmp[0], task_id: tmp[1]}
 			else
 				t_param = params
@@ -436,10 +431,20 @@ class EventsController < ApplicationController
 
 		# determine the right retlnk
 		def get_retlnk
-			if params[:retlnk]
-				return safelink(params[:retlnk].presence)
-			elsif params[:season_id]
-				return safelink(season_path(params[:season_id]))
+			if params[:retlnk].present?
+				retlnk = params[:retlnk].presence
+			elsif params[:event].present?
+				if event_params[:retlnk].present?
+					retlnk = event_params[:retlnk].presence
+				elsif params[:task].present?
+					retlnk = event_params[:task][:retlnk].presence
+				end
+			elsif params[:season_id].present?
+				retlnk = params[:season_id].presence
+			end
+
+			if retlnk
+				return safelink(retlnk)
 			else
 				return (@event.team and @event.team_id > 0) ? team_path(@event.team) : season_path(@event.team.season)
 			end
@@ -492,9 +497,10 @@ class EventsController < ApplicationController
 					:location_id,
 					:season_id,
 					:player_id,
+					:retlnk,
 					outings: {},
 					player_ids: [],
-					stats_attributes: {},
+					stats_attributes: [],
 					event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]],
 					task: [:id, :task_id, :order, :drill_id, :duration, :remarks, :retlnk],
 					tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy]

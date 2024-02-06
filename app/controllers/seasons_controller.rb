@@ -134,15 +134,13 @@ class SeasonsController < ApplicationController
 
 	private
 		def check_locations
-			if params[:season][:locations_attributes]
-				params[:season][:locations_attributes].each { |loc|
-					if loc[1][:_destroy] == "1"
-						@season.locations.delete(loc[1][:id].to_i)
-					else
-						l = Location.find(loc[1][:id].to_i)
-						@season.locations ? @season.locations << l : @season.locations |= l
-					end
-				}
+			param_passed(:season, :locations_attributes)&.each do |loc|
+				if loc[1][:_destroy] == "1"
+					@season.locations.delete(loc[1][:id].to_i)
+				else
+					l = Location.find(loc[1][:id].to_i)
+					@season.locations ? @season.locations << l : @season.locations |= l
+				end
 			end
 		end
 
@@ -156,7 +154,7 @@ class SeasonsController < ApplicationController
 			else
 				@season = Season.latest
 			end
-			@season = Season.last unless @season
+			@season ||= Season.last
 		end
 
 		# prepare fields for new/edit season

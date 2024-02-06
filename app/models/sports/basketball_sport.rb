@@ -40,7 +40,7 @@ class BasketballSport < Sport
 	end
 
 	# fields to display match information - not title
-	def match_show_fields(event)
+	def match_show_fields(event, retlnk: nil)
 		match_fields(event)
 	end
 
@@ -187,8 +187,8 @@ class BasketballSport < Sport
 	# Some pre-processing of stats_data
 	# before parsing normally - grouping & additional calculations
 	def parse_stats(event, stats_data)
-		event.players.each { |player|	parse_player_stats(player.id, stats_data) }
-		super(event, stats_data)
+		event.players.each { |player| parse_player_stats(player.id, stats_data) }
+		return super(event, stats_data)
 	end
 
 	private
@@ -397,7 +397,7 @@ class BasketballSport < Sport
 				fields << [{kind: "gap", size: 1, cols: t_pers + 3, class: "text-xs"}]
 				fields << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: t_cols}]
 			end
-			fields << [{kind: "hidden", key: "retlnk", value: retlnk}] if edit && retlnk
+			fields << [{kind: "hidden", key: "retlnk", value: "/events/#{event.id}/?retlnk:#{retlnk}"}] if retlnk
 			fields
 		end
 

@@ -58,6 +58,16 @@ class ApplicationController < ActionController::Base
 		@topbar = TopbarComponent.new(user: user_signed_in? ? current_user : nil, login: new_user_session_path, logout: destroy_user_session_path)
 	end
 
+	# check if some specific params are passed
+	def param_passed(*keys)
+		current_hash = params
+		keys.each do |key|
+			return nil unless current_hash[key].present?
+			current_hash = current_hash[key]
+		end
+		return current_hash
+	end
+
 	# register a new user action
 	def register_action(kind, description, url: nil, modal: nil)
 		u_act = UserAction.new(user_id: current_user.id, kind:, description:, url:, modal:)
@@ -110,13 +120,6 @@ class ApplicationController < ActionController::Base
 		helpers.flash_message(cad, "info")
 	end
 
-
-	# Validate a link as valid input
-	def validate_link(lnk=nil, vlinks=["/"])
-		return nil unless lnk.class == String
-		vlinks.include?(lnk) ? lnk : nil
-	end
-
 	# check if a string is a valid date
 	def valid_date(v_string)
 		return nil if (d_str = v_string&.last(10))&.length != 10
@@ -124,6 +127,12 @@ class ApplicationController < ActionController::Base
 		return nil if d_hash&.size !=3
 		v_date = Date.valid_date?(d_hash[:year].to_i, d_hash[:month].to_i, d_hash[:month].to_i)
 		return v_date ? d_str : nil
+	end
+
+	# Validate a link as valid input
+	def validate_link(lnk=nil, vlinks=["/"])
+		return nil unless lnk.class == String
+		vlinks.include?(lnk) ? lnk : nil
 	end
 
 	private

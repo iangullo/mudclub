@@ -26,7 +26,7 @@ class Sport < ApplicationRecord
 	# METHODS MUST BE DEFINED IN SPORT-SPECIFIC OBJECTS!!
 	# ========================================
 	# fields to display match information - not title
-	def match_show_fields(event)
+	def match_show_fields(event, retlnk: nil)
 		raise "Must implement in Specific Sport object"
 	end
 
@@ -335,13 +335,21 @@ class Sport < ApplicationRecord
 
 		# bulk update of stats
 		def update_stats(event, f_stats)
+			updated = nil
 			Stat.transaction do
 				f_stats.each do |stat|	# bind stats
 					if stat.concept # if they have a valid concept
-						stat.save if stat.changed?
-						event.stats << stat unless event.stats.include?(stat)
+						if stat.changed?
+							stat.save
+							updated ||= true
+						end
+						unless event.stats.include?(stat)
+							event.stats << stat
+							updated ||= true
+						end
 					end
 				end
 			end
+			return updated
 		end
 end
