@@ -13,8 +13,17 @@ export default class extends Controller {
     }
   }
 
-  submit() {
-    this.showProcessingCue();
+  submit(event) {
+    const button = event.currentTarget;
+    const requiresConfirmation = button.dataset.confirm; // Check if button requires confirmation
+
+    if (requiresConfirmation !== null) {
+        if (confirm(requiresConfirmation)) {
+            this.showProcessingCue();
+        }
+    } else {
+        this.showProcessingCue();
+    }
   }
 
   hideProcessingCue() {
