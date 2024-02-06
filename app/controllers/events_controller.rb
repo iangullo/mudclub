@@ -138,7 +138,6 @@ class EventsController < ApplicationController
 							format.json { render json: @event.errors, status: :unprocessable_entity }
 						end
 					end
-					binding.break
 					changed = (check_stats(param_passed(:event, :stats_attributes)&.values&.first) || changed)
 					changed = (check_stats(params[:outings]) || changed)
 				end
