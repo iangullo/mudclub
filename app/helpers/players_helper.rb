@@ -59,7 +59,7 @@ module PlayersHelper
 	end
 
 	# return player part of FieldsComponent for Player forms
-	def player_form_fields_1(retlnk:, team_id:)
+	def player_form_fields(retlnk:, team_id:)
 		[[
 				{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
 				gap_field(size: 5),
