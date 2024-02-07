@@ -72,6 +72,21 @@ class Team < ApplicationRecord
 		res.empty? ? nil : res
 	end
 
+	# Wrappper to handle creation of a new Team from params
+	# received from Teams form, discarding the optional arguments
+	def self.build(f_data)
+		t_data = f_data.permit(
+			:season_id,
+			:name,
+			:category_id,
+			:division_id,
+			:homecourt_id,
+			:sport_id,
+			coach_ids: []
+		)
+		Team.new(t_data)
+	end
+
 	#Search field matching season
 	def self.search(search)
 		if search

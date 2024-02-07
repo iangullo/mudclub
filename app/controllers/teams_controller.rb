@@ -23,13 +23,14 @@ class TeamsController < ApplicationController
 	# GET /teams
 	# GET /teams.json
 	def index
+		c_ret = get_retlnk(t_index: true)
 		if check_access(roles: [:manager, :coach, :player])
+			@teams  = (u_coach? || u_manager?) ? Team.search(@season.id) : current_user.team_list
 			title   = helpers.team_title_fields(title: I18n.t("team.many"), search: (u_coach? || u_manager?))
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.team_grid(teams: @teams, season: not(@season), add_teams: u_manager?))
-			@retlnk = (u_manager? ? seasons_path : "/")
 			submit  = {kind: "export", url: teams_path(format: :xlsx), working: false} if u_manager?
-			@submit = create_submit(close: "back", close_return: @retlnk, submit:)
+			@submit = create_submit(close: "back", close_return: c_ret, submit:)
 			respond_to do |format|
 				format.xlsx {
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
@@ -40,7 +41,7 @@ class TeamsController < ApplicationController
 				format.html { render :index }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to c_ret, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -51,9 +52,9 @@ class TeamsController < ApplicationController
 			@sport  = Sport.fetch(params[:sport_id])
 			@team   = Team.new(season_id: params[:season_id] ? params[:season_id] : Season.last.id)
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
-			@submit = create_submit
+			@submit = create_submit(close_return: teams_path(retlnk: @retlnk))
 		else
-			redirect_to get_retlnk, data: {turbo_action: "replace"}
+			redirect_to @retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -66,12 +67,12 @@ class TeamsController < ApplicationController
 			@coaches = create_fields(helpers.team_coaches)
 			if u_manager? or u_coach?
 				@links = create_fields(helpers.team_links)
-				@grid  = create_fields(helpers.event_list_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(@team)))
-				submit = ((u_manager? || @team.has_coach(u_coachid)) ? edit_team_path : nil)
+				@grid  = create_fields(helpers.event_list_grid(events: @team.events.short_term, obj: @team, retlnk: team_path(retlnk: @retlnk)))
+				submit = ((u_manager? || @team.has_coach(u_coachid)) ? edit_team_path(retlnk: @retlnk) : nil)
 			else
 				start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
-				curlnk     = team_events_path(@team, start_date:)
-				@calendar  = CalendarComponent.new(start_date:, events: @team.events, anchor: curlnk, obj: @team, user: current_user)
+				anchorlnk  = team_events_path(@team, retlnk: team_path(retlnk: @retlnk), start_date:)
+				@calendar  = CalendarComponent.new(start_date:, events: @team.events, anchor: anchorlnk, obj: @team, user: current_user)
 				submit     = nil
 			end
 			@submit    = create_submit(close: "back", close_return: @retlnk, submit:, frame: (submit ? "modal" : nil))
@@ -89,9 +90,10 @@ class TeamsController < ApplicationController
 			@title  = create_fields(title)
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.player_grid(players: players.order(:number), obj: @team))
-			@submit = create_submit(close: "back", close_return: team_path(@team), submit: (u_manager? || @team.has_coach(u_coachid)) ? edit_roster_team_path : nil)
+			submit  = (u_manager? || @team.has_coach(u_coachid)) ? edit_roster_team_path(retlnk: @retlnk) : nil
+			@submit = create_submit(close: "back", close_return: team_path(retlnk: @retlnk), submit:)
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to team_path(retlnk: @retlnk), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -101,10 +103,10 @@ class TeamsController < ApplicationController
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "cancel", close_return: roster_team_path(@team))
+			@submit = create_submit(close: "cancel", close_return: roster_team_path(retlnk: @retlnk))
 			@eligible_players = @team.eligible_players
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to team_path(retlnk: @retlnk), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -115,7 +117,7 @@ class TeamsController < ApplicationController
 			title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
 			@fields = create_fields(title)
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to team_path(retlnk: @retlnk), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -126,10 +128,10 @@ class TeamsController < ApplicationController
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
 			@title  = create_fields(title)
-			edit    = ((u_manager? || @team.has_coach(u_coachid)) ? edit_targets_team_path : nil)
-			@submit = create_submit(close: "back", close_return: team_path(@team), submit: edit)
+			edit    = ((u_manager? || @team.has_coach(u_coachid)) ? edit_targets_team_path(retlnk: @retlnk) : nil)
+			@submit = create_submit(close: "back", close_return: team_path(retlnk: @retlnk), submit: edit)
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to team_path(retlnk: @retlnk), data: {turbo_action: "replace"}
 		end
 
 	end
@@ -142,9 +144,9 @@ class TeamsController < ApplicationController
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "cancel", close_return: targets_team_path(@team))
+			@submit = create_submit(close: "cancel", close_return: targets_team_path(retlnk: @retlnk))
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to team_path(retlnk: @retlnk), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -155,10 +157,10 @@ class TeamsController < ApplicationController
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
 			@title = create_fields(title)
-			edit    = ((u_manager? || @team.has_coach(u_coachid)) ? edit_targets_team_path : nil)
-			@submit = create_submit(close: "back", close_return: team_path(@team), submit: edit)
+			edit    = ((u_manager? || @team.has_coach(u_coachid)) ? edit_plan_team_path(retlnk: @retlnk) : nil)
+			@submit = create_submit(close: "back", close_return: team_path(retlnk: @retlnk), submit: edit)
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to team_path(retlnk: @retlnk), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -170,9 +172,9 @@ class TeamsController < ApplicationController
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "cancel", close_return: plan_team_path(@team))
+			@submit = create_submit(close: "cancel", close_return: plan_team_path(retlnk: @retlnk))
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to team_path(retlnk: @retlnk), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -187,9 +189,9 @@ class TeamsController < ApplicationController
 				@grid = create_grid({title: a_data[:title], rows: a_data[:rows]})
 				@att_data = [a_data[:chart]] if a_data
 			end
-			@submit = create_submit(submit:nil)
+			@submit = create_submit(submit: nil)
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to team_path(retlnk: @retlnk), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -201,7 +203,7 @@ class TeamsController < ApplicationController
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
 			@submit = create_submit
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to team_path(retlnk: @retlnk), data: {turbo_action: "replace"}
 		end
 	end
 
@@ -209,13 +211,13 @@ class TeamsController < ApplicationController
 	# POST /teams.json
 	def create
 		if check_access(roles: [:manager])
-			@team = Team.new(team_params)
+			@team = Team.build(team_params)
 			respond_to do |format|
 				if @team.save
 					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
 					register_action(:created, a_desc, url: team_path(@team))
-					format.html { redirect_to teams_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: teams_path }
+					format.html { redirect_to teams_path(season_id: @team.season.id), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: teams_path(season_id: @team.season.id) }
 				else
 					@eligible_coaches = Coach.active
 					@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
@@ -225,7 +227,7 @@ class TeamsController < ApplicationController
 				end
 			end
 		else
-			redirect_to get_retlnk, data: {turbo_action: "replace"}
+			redirect_to @retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -235,14 +237,15 @@ class TeamsController < ApplicationController
 		if check_access(roles: [:manager]) || @team.has_coach(u_coachid)
 			respond_to do |format|
 				n_notice = no_data_notice(trail: @team.to_s)
+				retshow  = prepare_update_redirect
 				if params[:team]
 					@team.rebuild(params[:team])
 					if @team.modified?
 						if @team.save
 							a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
 							register_action(:updated, a_desc, url: team_path(@team))
-							format.html { redirect_to @retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-							format.json { redirect_to @retlnk, status: :created, location: retlnk }
+							format.html { redirect_to retshow, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+							format.json { redirect_to retshow, status: :created, location: retlnk }
 						else
 							@eligible_coaches = Coach.active
 							@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
@@ -251,16 +254,16 @@ class TeamsController < ApplicationController
 							format.json { render json: @team.errors, status: :unprocessable_entity }
 						end
 					else	# no data to save...
-						format.html { redirect_to @retlnk, notice: n_notice, data: {turbo_action: "replace"} }
+						format.html { redirect_to retshow, notice: n_notice, data: {turbo_action: "replace"} }
 						format.json { render json: @team.errors, status: :unprocessable_entity }
 					end
 				else	# no data to save...
-					format.html { redirect_to @retlnk, notice: n_notice, data: {turbo_action: "replace"} }
-					format.json { redirect_to @retlnk, status: :ok, location: retlnk }
+					format.html { redirect_to retshow, notice: n_notice, data: {turbo_action: "replace"} }
+					format.json { redirect_to retshow, status: :ok, location: retlnk }
 				end
 			end
 		else
-			redirect_to @team, data: {turbo_action: "replace"}
+			redirect_to retshow, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -273,7 +276,7 @@ class TeamsController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("team.deleted")} '#{t_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to teams_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to teams_path(retlnk: @retlnk), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
@@ -331,49 +334,95 @@ class TeamsController < ApplicationController
 			return res
 		end
 
+		# defines correct retlnk based on params received
+		def get_retlnk(t_index: nil)
+			if t_index
+				return @season ? seasons_path(season_id: @season.id) : seasons_path
+			elsif (rlnk = (param_passed(:retlnk) || param_passed(:team, :retlnk)))
+				res = safelink(rlnk)
+			elsif (u_coach? || u_manager? || params[:season_id].present?)
+				res = teams_path(season_id: @season.id)
+			elsif current_user
+				res = user_path(current_user)
+			end
+			res ||= "/"
+		end
 
-		# determine the right retlnk
-		def get_retlnk
-			if params[:retlnk]
-				return safelink(params[:retlnk].presence)
-			elsif params[:team]
-				return safelink(params[:team][:retlnk].presence)
-			elsif params[:season_id]
-				return safelink(season_path(params[:season_id]))
-			elsif u_manager?
-				return teams_path
+		# set the right redirect for update depending on params received
+		def prepare_update_redirect
+			if param_passed(:team, :player_ids)
+				return roster_team_path(retlnk: @retlnk)
+			elsif param_passed(:team, :team_targets_attributes)
+				first_target = team_params[:team_targets_attributes].to_h.first
+				if first_target
+					if first_target[1]["month"] == "0"
+						return targets_team_path(retlnk: @retlnk)
+					else
+						return plan_team_path(retlnk: @retlnk)
+					end
+				else
+					return team_path(retlnk: @retlnk)
+				end
 			else
-				return user_path(current_user)
+				team_path(retlnk: @retlnk)
 			end
 		end
 
-		# Sanitize retlink input
-		def safelink(lnk=nil, team: nil)
-			vlinks = [seasons_path, teams_path]
-			vlinks << user_path(current_user) if current_user
-			if @team
-				vlinks << seasons_path(@team.season)
-				vlinks << team_path(@team)
+		# return array of safe links to redirect
+		def safelink(lnk=nil)
+			val = [teams_path]
+			val << (u_path = current_user ? user_path(current_user) : "/")
+			if @season
+				val << (t_path = teams_path(season_id: @season.id))
+				if @team
+					val << team_path(retlnk: t_path)
+					val << team_path(retlnk: u_path)
+					val << team_path(season_id: @season.id)
+					val << plan_team_path(retlnk: t_path)
+					val << plan_team_path(retlnk: u_path)
+					val << plan_team_path(season_id: @season.id)
+					val << roster_team_path(retlnk: t_path)
+					val << roster_team_path(retlnk: u_path)
+					val << roster_team_path(season_id: @season.id)
+					val << targets_team_path(retlnk: t_path)
+					val << targets_team_path(retlnk: u_path)
+					val << targets_team_path(season_id: @season.id)
+				end
 			end
-			@retlnk = validate_link(lnk, vlinks)
-		end
+			validate_link(lnk, val)
+	end
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_team
-			s_id    = params[:season_id].presence || session.dig('team_filters', 'season_id')
-			@season = s_id ? Season.find_by(id: s_id) : Season.latest
-			@season = Season.last unless @season
-			@teams  = (u_coach? || u_manager?) ? Team.search(@season.id) : current_user.team_list
-			if params[:id]=="coaching"
-				@team = current_user.coach.teams.first
-			else
-				@team = Team.find_by_id(params[:id]) if params[:id]
-			end
-			@retlnk = get_retlnk
+			@team     = Team.find_by_id(params[:id]) if params[:id]
+			s_id      = @team&.season&.id || params[:season_id].presence || session.dig('team_filters', 'season_id')
+			@season   = Season.find_by(id: s_id) if s_id
+			@season ||= Season.latest || Season.last
+			@retlnk   = get_retlnk
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def team_params
-			params.require(:team).permit(:id, :name, :sport_id, :category_id, :division_id, :season_id, :homecourt_id, :rules, :coaches, :players, :targets, :team_targets, coaches_attributes: [:id], coach_ids: [], player_ids: [], players_attributes: [:id], targets_attributes: [], team_targets_attributes: [])
+			params.require(:team).permit(
+				:id,
+				:name,
+				:sport_id,
+				:category_id,
+				:division_id,
+				:season_id,
+				:homecourt_id,
+				:rules,
+				:coaches,
+				:players,
+				:retlnk,
+				:targets,
+				:team_targets,
+				coaches_attributes: [:id],
+				coach_ids: [],
+				player_ids: [],
+				players_attributes: [:id],
+				targets_attributes: [],
+				team_targets_attributes: {}
+			)
 		end
 end

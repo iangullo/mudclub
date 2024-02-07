@@ -56,7 +56,8 @@ module TeamsHelper
 			rows = Array.new
 			teams.each { |team|
 				cnt = team.players.count
-				row = {url: team_path(team, retlnk: @retlnk), items: []}
+				url = params[:season_id].present? ? team_path(team, season_id: @season.id) : team_path(team, retlnk: user_path(current_user))
+				row = {url: , items: []}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless season
 				row[:items] << {kind: "normal", value: team.to_s}
 				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
@@ -112,10 +113,10 @@ module TeamsHelper
 	def team_links
 		if (u_manager? or u_coach?)
 			res = [[
-				button_field({kind: "jump", icon: "player.svg", url: roster_team_path(@team), label: I18n.t("team.roster")}, align: "center"),
-				button_field({kind: "jump", icon: "target.svg", url: targets_team_path(@team), label: I18n.t("target.many")}, align: "center"),
-				button_field({kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team), label: I18n.t("plan.abbr")}, align: "center"),
-				button_field({kind: "jump", icon: "timetable.svg", url: slots_team_path(@team), label: I18n.t("slot.many"), frame: "modal"}, align: "center")
+				button_field({kind: "jump", icon: "player.svg", url: roster_team_path(retlnk: @retlnk), label: I18n.t("team.roster")}, align: "center"),
+				button_field({kind: "jump", icon: "target.svg", url: targets_team_path(retlnk: @retlnk), label: I18n.t("target.many")}, align: "center"),
+				button_field({kind: "jump", icon: "teamplan.svg", url: plan_team_path(retlnk: @retlnk), label: I18n.t("plan.abbr")}, align: "center"),
+				button_field({kind: "jump", icon: "timetable.svg", url: slots_team_path, label: I18n.t("slot.many"), frame: "modal"}, align: "center")
 			]]
 		else
 			res = [[]]
