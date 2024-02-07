@@ -58,16 +58,16 @@ module PlayersHelper
 		res
 	end
 
-	# return first part of FieldsComponent for Player forms
+	# return player part of FieldsComponent for Player forms
 	def player_form_fields_1(retlnk:, team_id:)
 		[[
-			{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
-			gap_field(size: 5),
-			{kind: "label", value: I18n.t("player.number")},
-			{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
-			{kind: "hidden", key: :retlnk, value: retlnk},
-			{kind: "hidden", key: :team_id, value: team_id}
-		]]
+				{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
+				gap_field(size: 5),
+				{kind: "label", value: I18n.t("player.number")},
+				{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
+				{kind: "hidden", key: :retlnk, value: retlnk},
+				{kind: "hidden", key: :team_id, value: team_id}
+			]]
 	end
 
 	# nested form to add/edit player parents

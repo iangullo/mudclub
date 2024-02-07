@@ -1,11 +1,11 @@
 <%= render ModalComponent.new do %>
 	<%= form_for @player, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
-		<% @j_fields_1.form = form %>
+		<% @j_fields.form = form %>
 		<%= form.fields_for :person do |f| %>
 			<% @title.form    = f %>
 			<% @p_fields.form = f %>
 			<%= render @title %>
-			<%= render @j_fields_1 %>
+			<%= render @j_fields %>
 			<%= render @p_fields %>
 		<% end %>
 		<% if @parents %>

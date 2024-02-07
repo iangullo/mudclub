@@ -177,11 +177,11 @@ class PlayersController < ApplicationController
 	private
 		# Prepare a player form
 		def prepare_form(title:)
-			@title      = create_fields(helpers.person_form_title(@player.person, icon: @player.picture, title:, sex: true))
-			@j_fields_1 = create_fields(helpers.player_form_fields_1(retlnk: params[:retlnk], team_id: params[:team_id]))
-			@p_fields   = create_fields(helpers.person_form_fields(@player.person))
-			@parents    = create_fields(helpers.player_form_parents) if @player.person.age < 18
-			@submit     = create_submit
+			@title    = create_fields(helpers.person_form_title(@player.person, icon: @player.picture, title:, sex: true))
+			@j_fields = create_fields(helpers.player_form_fields(retlnk: params[:retlnk], team_id: params[:team_id]))
+			@p_fields = create_fields(helpers.person_form_fields(@player.person))
+			@parents  = create_fields(helpers.player_form_parents) if @player.person.age < 18
+			@submit   = create_submit
 		end
 
 		# link a player to a team
