@@ -142,6 +142,7 @@ class EventsController < ApplicationController
 					changed = (check_stats(params[:outings]) || changed)
 				end
 				@notice = helpers.event_update_notice(@notice, changed:)
+				register_action(:updated, @notice[:message], url: event_path(retlnk: home_log_path)) if changed
 				format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
 				format.json { render @retview, status: :ok, location: @retlnk }
 			end
@@ -451,7 +452,7 @@ class EventsController < ApplicationController
 
 		# Sanitize retlink input
 		def safelink(lnk=nil, team: nil)
-			vlinks = [seasons_path, events_path]
+			vlinks = [seasons_path, events_path, home_log_path]
 			if @event
 				vlinks += [
 					event_path(@event),
