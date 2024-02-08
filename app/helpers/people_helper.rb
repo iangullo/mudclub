@@ -113,12 +113,13 @@ module PeopleHelper
 		def idpic_field(person, idpic: nil, cols: nil, align: "center")
 			if idpic	# it is an editor field
 				{kind: "upload", icon: idpic, label: I18n.t("person.#{idpic}"), key: idpic, value: person.send(idpic).filename, cols:}
-			else	# dropdown menu
-#				{kind: "icon-label", icon: person.id_icon, label: person.dni, right: true}
+			elsif u_manager?	# dropdown menu
 				button = {kind: "link", name: "id-pics", icon: person.id_icon, options: []}		
 				button[:options] << idpic_button(person, "id_front") if person.id_front.attached?
 				button[:options] << idpic_button(person, "id_back") if person.id_back.attached?
 				{kind: "dropdown", button: button, class: "bg-white"}
+			else
+				{kind: "icon", value: person.id_icon}
 			end
 		end
 end
