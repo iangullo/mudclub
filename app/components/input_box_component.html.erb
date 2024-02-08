@@ -95,33 +95,16 @@
 	<strong>:</strong>
 	<%= @form.number_field(:min, value: @fdata[:mins], in: 0..45, step: 15, size: @fdata[:size] ? @fdata[:size] : 3, class: @i_class) %>
 <% when "upload" %>
-	<div id="upload-file" class="<%=@fdata[:class]%>">
+	<div id="upload-file" class="inline-flex items-center" data-controller="upload">
 		<!-- Hidden input for file upload -->
-		<%= @form.file_field @fdata[:key], id: "upload-btn", direct_upload: true, class: "hidden", style: "display:none;" %>
+		<%= @form.file_field @fdata[:key], id: "upload-btn-#{@fdata[:key]}", direct_upload: true, class: "hidden", style: "display:none;", "data-upload-target":"fileInput" %>
 
 		<!-- Custom button to trigger file input -->
-		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" onclick="selectFile()">
+		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" data-action="click->upload#selectFile" data-upload-target="button">
 			<%= image_tag(@fdata[:icon], size: "25x25") if @fdata[:icon] %>&nbsp;<%=@fdata[:label]%>
 		</button>
 
 		<!-- Display selected file name -->
-		<span id="file-name" class="px mb-1 text-sm text-gray-500"><%= "#{t("status.no_file")}" %></span>
+		<span id="file-name-<%= @fdata[:key] %>" class="px text-sm text-gray-500" data-upload-target="fileName"><%= @fdata[:fname] %></span>
 	</div>
-	<script>
-		function selectFile() {
-			const fileInput = document.getElementById("upload-btn");
-			if (fileInput) {
-				fileInput.click(); // Trigger the hidden file input
-				fileInput.addEventListener("change", () => {
-					const fileNameDisplay = document.getElementById("file-name");
-					if (fileNameDisplay) {
-						const selectedFiles = fileInput.files;
-						if (selectedFiles.length > 0) {
-							fileNameDisplay.textContent = selectedFiles[0].name; // Display selected file name
-						}
-					}
-				});
-			}
-		}
-	</script>
 <% end %>

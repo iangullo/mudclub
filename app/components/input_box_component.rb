@@ -48,6 +48,7 @@ class InputBoxComponent < ApplicationComponent
 		@fdata   = field
 		@fdata[:align] ||= "left"
 		@fdata[:class] ||= "align-top"
+		@fdata[:fname]   = @fdata[:value].to_s.presence || I18n.t("status.no_file") if (@fdata[:kind] == "upload")
 		set_box_size
 		set_box_attributes
 		@i_class  = @i_class.join(" ")
@@ -63,7 +64,7 @@ class InputBoxComponent < ApplicationComponent
 				"rich-text-area" => { class: "trix-content" },
 				"text-area" => {class: "text-base"},
 				"time-box" => { class: "text-right" },
-				"upload" => { class: "align-middle px py", i_class: "inline-flex align-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center" }
+				"upload" => { class: "align-middle px py", i_class: "inline-flex items-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center" }
 			}
 
 			mapping = kind_mappings[@fdata[:kind]]
