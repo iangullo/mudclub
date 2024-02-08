@@ -124,10 +124,12 @@ module EventsHelper
 		a_rules = @sport.rules.key(@event.team.category.rules)
 		if (outings = @sport.match_outings(a_rules))
 			grid = @sport.outings_grid(@event, outings, edit:)
+			stim = "outings"
 		else
 			grid = @sport.stats_grid(@event, edit:)
+			stim = nil
 		end
-		grid
+		{data: grid, controller: stim}
 	end
 
 		# fields to display player's stats for an event

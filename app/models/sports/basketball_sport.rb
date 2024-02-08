@@ -41,7 +41,7 @@ class BasketballSport < Sport
 
 	# fields to display match information - not title
 	def match_show_fields(event, retlnk: nil)
-		match_fields(event)
+		match_fields(event, retlnk:)
 	end
 
 	# fields to edit a match
@@ -67,6 +67,7 @@ class BasketballSport < Sport
 	def outings_grid(event, outings, edit: false)
 		title = [{kind: "top-cell", value: I18n.t("player.number"), align: "center"}, {kind: "top-cell", value: I18n.t("person.name")}]
 		rows  = []
+		kind  = (edit ? "text" : "normal")
 		e_stats    = event.stats
 		rules      = self.rules.key(event.team.category.rules)
 		data       = self.limits[rules]["outings"]
@@ -83,8 +84,9 @@ class BasketballSport < Sport
 			p_outings  = 0
 			p_stats    = Stat.fetch(player_id: player.id, stats: e_stats, create: false)
 			row        = {items: []}
-			row[:items] << {kind: "text", value: player.number, align: "center"}
-			row[:items] << {kind: "text", value: player.to_s}
+			row[:url]  = "/players/#{player.id}?retlnk=/events/#{event.id}" unless edit
+			row[:items] << {kind:, value: player.number, align: "center"}
+			row[:items] << {kind:, value: player.to_s}
 			1.upto(outings[:total]) do |q|
 				q_val = Stat.fetch(period: q, stats: p_stats, create: false).first&.value.to_i
 				if edit
@@ -117,8 +119,9 @@ class BasketballSport < Sport
 		rows = []
 		e_stats = event.stats
 		event.players.each do |player|
-			p_stats = Stat.fetch(player_id: player.id, period: 0, stats: e_stats, create: false)
-			row     = {url: "/players/#{player.id}?retlnk=/events/#{event.id}#{(edit ? '/edit' : '')}", items: []}
+			p_stats   = Stat.fetch(player_id: player.id, period: 0, stats: e_stats, create: false)
+			row       = {items: []}
+			row[:url] = "/players/#{player.id}?retlnk=/events/#{event.id}" unless edit
 			row[:items] = match_stats_row(player, p_stats, edit:)
 			rows << row
 		end
@@ -397,7 +400,7 @@ class BasketballSport < Sport
 				fields << [{kind: "gap", size: 1, cols: t_pers + 3, class: "text-xs"}]
 				fields << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: t_cols}]
 			end
-			fields << [{kind: "hidden", key: "retlnk", value: "/events/#{event.id}/?retlnk:#{retlnk}"}] if retlnk
+			fields << [{kind: "hidden", key: "retlnk", value: "/events/#{event.id}/?retlnk=#{retlnk}"}] if retlnk && edit
 			fields
 		end
 

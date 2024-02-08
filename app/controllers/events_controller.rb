@@ -49,7 +49,8 @@ class EventsController < ApplicationController
 				@retlnk ||= team_path(@event.team)
 				if @event.match?
 					@fields = create_fields(helpers.match_show_fields)
-					@grid   = create_grid(helpers.match_roster_grid)
+					grid    = helpers.match_roster_grid
+					@grid   = create_grid(grid[:data], controller: grid[:controller])
 				else
 					@fields = create_fields(helpers.training_show_fields)
 				end
@@ -378,7 +379,10 @@ class EventsController < ApplicationController
 			@title = create_fields(helpers.event_title_fields(form: true, cols: @event.match? ? 2 : nil))
 			if @event.match?
 				@fields  = create_fields(helpers.match_form_fields(new:))
-				@grid    = create_grid(helpers.match_roster_grid(edit: true), controller: "outings") unless new
+				unless new
+					grid  = helpers.match_roster_grid(edit: true)
+					@grid = create_grid(grid[:data], controller: grid[:controller])
+				end
 			end
 			unless new # editing
 				unless @event.rest?
