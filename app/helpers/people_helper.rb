@@ -23,11 +23,15 @@ module PeopleHelper
 	end
 
 	# FieldComponent fields to show a person
-	def person_show_fields(person, title: I18n.t("person.single"), icon: @person.picture, rows: 3)
-		res = person_title_fields(title:, icon:, rows:, cols: 2)
-		res << [{kind: "label", value: person.s_name, cols: 2}]
-		res << [{kind: "label", value: person.surname, cols: 2}]
-		res << [{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"}, {kind: "string", value: person.dni}]
+	def person_show_fields(person, title: I18n.t("person.single"), icon: person.picture, rows: 3, cols: 2)
+		res = person_title_fields(title:, icon:, rows:, cols:)
+		res << [{kind: "label", value: person.s_name, cols:}]
+		res << [{kind: "label", value: person.surname, cols:}]
+		res << [
+			{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"},
+			{kind: "label", value: person.dni},
+			idpic_field(person)
+		]
 		res << [gap_field(size: 1), {kind: "string", value: person.birthday}]
 		res << [
 			{kind: "icon", value: "home.svg", class: "align-top"},
@@ -56,22 +60,24 @@ module PeopleHelper
 	def person_form_fields(person)
 		res = [
 			[
-				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
-				{kind: "text-box", key: :dni, size: 8, value: person.dni, placeholder: I18n.t("person.pid")},
+				{kind: "icon", value: "user.svg"},
+				{kind: "text-box", key: :nick, size: 8, value: person.nick, placeholder: I18n.t("person.nick")},
 				gap_field,
 				{kind: "icon", value: "phone.svg"},
 				{kind: "text-box", key: :phone, size: 12, value: person.phone, placeholder: I18n.t("person.phone")}
 			],
 			[
-				{kind: "icon", value: "user.svg"},
-				{kind: "text-box", key: :nick, size: 8, value: person.nick, placeholder: I18n.t("person.nick")},
+				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
+				{kind: "text-box", key: :dni, size: 8, value: person.dni, placeholder: I18n.t("person.pid")},
 				gap_field,
 				{kind: "icon", value: "at.svg"},
 				{kind: "email-box", key: :email, value: person.email, placeholder: I18n.t("person.email")}
 			],
+			[gap_field(size: 1), idpic_field(person, idpic: "id_front", align: "left", cols: 4)],
+			[gap_field(size: 1), idpic_field(person, idpic: "id_back", align: "left", cols: 4)],
 			[
 				{kind: "icon", value: "home.svg", class: "align-top"},
-				{kind: "text-area", key: :address, size: 34, cols: 4, lines: 2, value: person.address, placeholder: I18n.t("person.address")},
+				{kind: "text-area", key: :address, size: 34, cols: 4, lines: 3, value: person.address, placeholder: I18n.t("person.address")},
 			]
 		]
 	end
@@ -90,4 +96,29 @@ module PeopleHelper
 		}
 		{title: title, rows: rows}
 	end
+
+	private
+		# button to download an idpic
+		def idpic_button(person, idpic)
+			{
+				kind: "link",
+				label: I18n.t("person.#{idpic}"),
+				url: rails_blob_path(person.send(idpic), disposition: "attachment"),
+				d_class: "inline-flex items-center"
+			}
+		end
+
+		# wrapper to manage return of suitable Field for dni Person fields
+		# standardised field with icons for player/coach id pics
+		def idpic_field(person, idpic: nil, cols: nil, align: "center")
+			if idpic	# it is an editor field
+				{kind: "upload", icon: idpic, label: I18n.t("person.#{idpic}"), key: idpic, value: person.send(idpic).filename, cols:}
+			else	# dropdown menu
+#				{kind: "icon-label", icon: person.id_icon, label: person.dni, right: true}
+				button = {kind: "link", name: "id-pics", icon: person.id_icon, options: []}		
+				button[:options] << idpic_button(person, "id_front") if person.id_front.attached?
+				button[:options] << idpic_button(person, "id_back") if person.id_back.attached?
+				{kind: "dropdown", button: button, class: "bg-white"}
+			end
+		end
 end

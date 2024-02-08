@@ -26,6 +26,8 @@ class Person < ApplicationRecord
 	belongs_to :user
 	belongs_to :parent
 	has_one_attached :avatar
+	has_one_attached :id_front
+	has_one_attached :id_back
 	accepts_nested_attributes_for :player
 	accepts_nested_attributes_for :coach
 	accepts_nested_attributes_for :user
@@ -36,6 +38,80 @@ class Person < ApplicationRecord
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : ""}
 	self.inheritance_column = "not_sti"
 
+	# calculate age
+	def age
+		if self.birthday
+			now = Time.now.utc.to_date
+			bday=self.birthday
+			now.year - bday.year - ((now.month > bday.month || (now.month == bday.month && now.day >= bday.day)) ? 0 : 1)
+		else
+			0
+		end
+	end
+
+	# returns a hash (or nil) of icon & label to mark
+	# whether a Person has attached id pictures (front && back)
+	def id_icon
+		if self.id_front.attached? && self.id_back.attached?
+			return "id_front.svg"
+		else
+			return "id_front-no.svg"
+		end
+	end
+
+	# used for clublogo (Person(id: 0))
+	def logo
+		self.avatar.attached? ? self.avatar : "mudclub.svg"
+	end
+
+	# extended modified to acount for changed parents or avatar
+	def modified?
+		self.changed? || @attachment_changed
+	end
+
+	# return if person is orphaned from any dependent objects
+	def orphan?
+		(self.player_id.to_i==0) and (self.coach_id.to_i==0) and (self.user_id.to_i==0) and (self.parent_id.to_i==0)
+	end
+
+	# personal logo
+	def picture
+		self.avatar.attached? ? self.avatar : "person.svg"
+	end
+
+	# rebuild Person data from raw input (as hash) given by a form submittal
+	# avoids creating duplicates
+	def rebuild(f_data)
+		p_aux = Person.fetch(f_data)
+		if p_aux&.id != self.id	# re-load self as existing Person
+			self.id = p_aux.id
+			self.reload
+		end
+		self.dni       = f_data[:dni].presence || self.dni || ""
+		self.email     = f_data[:email].presence || self.email || ""
+		self.name      = f_data[:name].presence || self.name
+		self.surname   = f_data[:surname].presence || self.surname
+		self.address   = f_data[:address].presence || self.address
+		self.birthday  = f_data[:birthday].presence || self.birthday
+		self.nick      = f_data[:nick].presence || self.nick
+		self.female    = to_boolean(f_data[:female])
+		self.phone     = Phonelib.parse(f_data[:phone].delete(' ')).international.to_s if f_data[:phone].presence
+		self.coach_id  = 0 unless self.coach_id.to_i > 0
+		self.player_id = 0 unless self.player_id.to_i > 0
+		self.parent_id = 0 unless self.parent_id.to_i > 0
+		self.user_id   = 0 unless self.user_id.to_i > 0
+		self.update_attachment("avatar", f_data[:avatar]) if f_data[:avatar].present?
+		self.update_attachment("id_front", f_data[:id_front]) if f_data[:id_front].present?
+		self.update_attachment("id_back", f_data[:id_back]) if f_data[:id_back].present?
+		return self
+	end
+
+	#short name for form viewing
+	def s_name
+		res = self.to_s(false)
+		res.length > 0 ? res : I18n.t("person.single")
+	end
+
 	def to_s(long=true)
 		if self.nick and self.nick.length > 0
 			aux = self.nick.to_s
@@ -44,12 +120,6 @@ class Person < ApplicationRecord
 		end
 		aux += " " + self.surname.to_s if long
 		aux
-	end
-
-	#short name for form viewing
-	def s_name
-		res = self.to_s(false)
-		res.length > 0 ? res : I18n.t("person.single")
 	end
 
 	# finds a person in the database based on id, email, dni, name & surname
@@ -74,51 +144,6 @@ class Person < ApplicationRecord
 			end
 		end
 		p_aux
-	end
-
-	# rebuild Person data from raw input (as hash) given by a form submittal
-	# avoids creating duplicates
-	def rebuild(f_data)
-		p_aux = Person.fetch(f_data)
-		if p_aux&.id != self.id	# re-load self as existing Person
-			self.id = p_aux.id
-			self.reload
-		end
-		self.dni       = f_data[:dni].presence || self.dni || ""
-		self.email     = f_data[:email].presence || self.email || ""
-		self.name      = f_data[:name].presence || self.name
-		self.surname   = f_data[:surname].presence || self.surname
-		self.address   = f_data[:address].presence || self.address
-		self.birthday  = f_data[:birthday].presence || self.birthday
-		self.nick      = f_data[:nick].presence || self.nick
-		self.female    = to_boolean(f_data[:female])
-		self.phone     = Phonelib.parse(f_data[:phone].delete(' ')).international.to_s if f_data[:phone].presence
-		self.coach_id  = 0 unless self.coach_id.to_i > 0
-		self.player_id = 0 unless self.player_id.to_i > 0
-		self.parent_id = 0 unless self.parent_id.to_i > 0
-		self.user_id   = 0 unless self.user_id.to_i > 0
-		return self
-	end
-
-	# calculate age
-	def age
-		if self.birthday
-			now = Time.now.utc.to_date
-			bday=self.birthday
-			now.year - bday.year - ((now.month > bday.month || (now.month == bday.month && now.day >= bday.day)) ? 0 : 1)
-		else
-			0
-		end
-	end
-
-	# personal logo
-	def picture
-		self.avatar.attached? ? self.avatar : "person.svg"
-	end
-
-	# used for clublogo (Person(id: 0))
-	def logo
-		self.avatar.attached? ? self.avatar : "mudclub.svg"
 	end
 
 	# to import from excel
@@ -164,11 +189,6 @@ class Person < ApplicationRecord
 		else
 			Person.none
 		end
-	end
-
-	# return if person is orphaned from any dependent objects
-	def orphan?
-		(self.player_id.to_i==0) and (self.coach_id.to_i==0) and (self.user_id.to_i==0) and (self.parent_id.to_i==0)
 	end
 
 	private

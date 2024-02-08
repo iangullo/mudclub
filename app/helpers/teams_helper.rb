@@ -171,7 +171,7 @@ module TeamsHelper
 			c_first = true
 			@team.coaches.each do |coach|
 				if u_manager?
-					c_button = button_field({kind: "link", label: coach.to_s, url: coach, b_class: "items-center", d_class: "text-left", turbo: "modal"})
+					c_button = button_field({kind: "link", label: coach.to_s, url: coach, b_class: "items-center", d_class: "text-left", frame: "modal"})
 					coaches << (c_first ? [c_icon, c_button] : [c_button])
 				else
 					c_string = {kind: "string", value: coach.to_s, class: "align-middle text-left"}

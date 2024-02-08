@@ -28,13 +28,27 @@ class Coach < ApplicationRecord
 	scope :active, -> { where("active = true") }
 	self.inheritance_column = "not_sti"
 
-	# Just list person's full name
-	def to_s
-		self.person ? self.person.to_s : I18n.t("coach.single")
+	# extended modified to account for changed avatar
+	def modified?
+		super || @attachment_changed
 	end
 
 	def name
 		self.s_name
+	end
+
+	def picture
+		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "coach.svg"
+	end
+
+	# rebuild Coach data from raw input hash given by a form submittal
+	# avoids duplicate person binding
+	def rebuild(f_data)
+		self.rebuild_obj_person(f_data)
+		if self.person
+			self.update_attachment("avatar", f_data[:person_attributes][:avatar])
+			self.active = f_data[:active]
+		end
 	end
 
 	#short name for form viewing
@@ -42,21 +56,9 @@ class Coach < ApplicationRecord
 		self.person ? self.person.s_name : I18n.t("coach.show")
 	end
 
-	def picture
-		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "coach.svg"
-	end
-
-	#Search field matching
-	def self.search(search)
-		if search
-			if search.length>0
-				Coach.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
-			else
-				Coach.none
-			end
-		else
-			Coach.none
-		end
+	# Just list person's full name
+	def to_s
+		self.person ? self.person.to_s : I18n.t("coach.single")
 	end
 
 	# atempt to fetch a Coach using form input hash
@@ -93,19 +95,17 @@ class Coach < ApplicationRecord
 		end
 	end
 
-	# rebuild Coach data from raw input hash given by a form submittal
-	# avoids duplicate person binding
-	def rebuild(f_data)
-		self.rebuild_obj_person(f_data)
-		if self.person
-			self.update_avatar(f_data[:person_attributes][:avatar])
-			self.active = f_data[:active]
+	#Search field matching
+	def self.search(search)
+		if search
+			if search.length>0
+				Coach.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
+			else
+				Coach.none
+			end
+		else
+			Coach.none
 		end
-	end
-
-	# extended modified to account for changed avatar
-	def modified?
-		super || @avatar_changed
 	end
 
 	private

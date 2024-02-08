@@ -190,10 +190,13 @@ class PeopleController < ApplicationController
 			params.require(:person).permit(
 				:id,
 				:address,
+				:avatar,
 				:birthday,
 				:dni,
 				:email,
 				:female,
+				:id_back,
+				:id_front,
 				:name,
 				:nick,
 				:phone,

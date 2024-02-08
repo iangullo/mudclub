@@ -215,17 +215,19 @@ class PlayersController < ApplicationController
 				:retlnk,
 				:team_id,
 				person_attributes: [
+					:id,
 					:address,
 					:avatar,
-					:id,
-					:dni,
-					:nick,
-					:name,
-					:surname,
 					:birthday,
-					:female,
+					:dni,
 					:email,
-					:phone
+					:female,
+					:id_back,
+					:id_front,
+					:name,
+					:nick,
+					:phone,
+					:surname
 				],
 				teams_attributes: [:id, :_destroy],
 				parents_attributes: [

@@ -208,16 +208,19 @@ class CoachesController < ApplicationController
 				:avatar,
 				:retlnk,
 				person_attributes: [
+					:id,
 					:address,
 					:avatar,
-					:id,
-					:dni,
-					:nick,
-					:name,
-					:surname,
 					:birthday,
+					:dni,
 					:email,
-					:phone
+					:female,
+					:id_back,
+					:id_front,
+					:name,
+					:nick,
+					:phone,
+					:surname
 				]
 			)
 		end

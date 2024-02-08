@@ -38,46 +38,12 @@ class User < ApplicationRecord
 		en: 1
 	}
 
-	# Just list person's full name
-	def to_s
-		person ? person.to_s : I18n.t("user.single")
+	def coach
+		(self.person&.coach_id.to_i > 0) ? self.person.coach : nil
 	end
 
-	# list of possible user roles for select box configuration
-	def self.role_list
-		User.roles.keys.map {|role| [I18n.t("role.#{role}"),role]}
-	end
-
-	# list of possible user locales for select box configuration
-	def self.locale_list
-		User.locales.keys.map {|locale| [I18n.t("locale.#{locale}"),locale]}
-	end
-
-	#short name for form viewing
-	def s_name
-		if self.person
-			if self.person.nick
-				self.person.nick.length >  0 ? self.person.nick : self.person.name
-			else
-				self.person.name
-			end
-		else
-			I18n.t("user.single")
-		end
-	end
-
-	# return attached avatar (or default user icon)
-	def picture
-		self.avatar.attached? ? self.avatar : "user.svg"
-	end
-
-	#Search field matching
-	def self.search(search)
-		if search
-			search.length>0 ? User.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"])) : User.where(person_id: Person.real)
-		else
-			User.real
-		end
+	def is_coach?
+		(self.person&.coach_id.to_i > 0 and self.person.coach.active) or self.coach?
 	end
 
 	def is_parent?
@@ -88,20 +54,9 @@ class User < ApplicationRecord
 		(self.person&.player_id.to_i > 0 and self.person.player.active) or self.player?
 	end
 
-	def is_coach?
-		(self.person&.coach_id.to_i > 0 and self.person.coach.active) or self.coach?
-	end
-
-	def coach
-		(self.person&.coach_id.to_i > 0) ? self.person.coach : nil
-	end
-
-	def player
-		(self.person&.player_id.to_i > 0) ? self.person.player : nil
-	end
-
-	def set_default_role
-		self.role ||= :user
+	# return last login IP
+	def last_from
+		self.last_sign_in_ip
 	end
 
 	# return string with last date of user login
@@ -110,14 +65,18 @@ class User < ApplicationRecord
 		return res ? res : I18n.t("user.never")
 	end
 
-	# return last login IP
-	def last_from
-		self.last_sign_in_ip
+	# extended modified to account for changed avatar
+	def modified?
+		super || @attachment_changed
 	end
 
-	# atempt to fetch a User using form input hash
-	def self.fetch(f_data)
-		self.new.fetch_obj(f_data)
+	def player
+		(self.person&.player_id.to_i > 0) ? self.person.player : nil
+	end
+
+	# return attached avatar (or default user icon)
+	def picture
+		self.avatar.attached? ? self.avatar : "user.svg"
 	end
 
 	# rebuild User data from raw input hash given by a form submittal
@@ -126,7 +85,7 @@ class User < ApplicationRecord
 		f_data[:person_attributes][:email] ||= f_data[:email]
 		self.rebuild_obj_person(f_data)
 		if self.person
-			self.update_avatar(f_data[:person_attributes][:avatar])
+			self.update_attachment("avatar", f_data[:person_attributes][:avatar])
 			self.email                 = self.person.email
 			self.role                  = f_data[:role] || :user
 			self.locale                = f_data[:locale] if f_data[:locale]
@@ -143,6 +102,23 @@ class User < ApplicationRecord
 		end
 	end
 
+	#short name for form viewing
+	def s_name
+		if self.person
+			if self.person.nick
+				self.person.nick.length >  0 ? self.person.nick : self.person.name
+			else
+				self.person.name
+			end
+		else
+			I18n.t("user.single")
+		end
+	end
+
+	def set_default_role
+		self.role ||= :user
+	end
+
 	# get teams associated to this user
 	def team_list
 		c_teams = self.is_coach? ? self.coach.team_list : []
@@ -151,9 +127,33 @@ class User < ApplicationRecord
 		(c_teams + j_teams + p_teams).uniq.sort_by{ |team| team.season.start_date }.reverse
 	end
 
-	# extended modified to account for changed avatar
-	def modified?
-		super || @avatar_changed
+	# Just list person's full name
+	def to_s
+		person ? person.to_s : I18n.t("user.single")
+	end
+
+	# atempt to fetch a User using form input hash
+	def self.fetch(f_data)
+		self.new.fetch_obj(f_data)
+	end
+
+	# list of possible user locales for select box configuration
+	def self.locale_list
+		User.locales.keys.map {|locale| [I18n.t("locale.#{locale}"),locale]}
+	end
+
+	# list of possible user roles for select box configuration
+	def self.role_list
+		User.roles.keys.map {|role| [I18n.t("role.#{role}"),role]}
+	end
+
+	#Search field matching
+	def self.search(search)
+		if search
+			search.length>0 ? User.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"])) : User.where(person_id: Person.real)
+		else
+			User.real
+		end
 	end
 
 	private

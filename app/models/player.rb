@@ -37,25 +37,6 @@ class Player < ApplicationRecord
 	self.inheritance_column = "not_sti"
 	FILTER_PARAMS = %i[search].freeze
 
-	# Just list person's full name
-	def to_s
-		self.person ? self.person.to_s : I18n.t("player.single")
-	end
-
-	#short name for form viewing
-	def s_name
-		self.person ? self.person.s_name : I18n.t("player.single")
-	end
-
-	# String with number, name & age
-	def num_name_age
-		number.to_s.rjust(7," ") + "-" + self.to_s + " (" + self.person.age.to_s + ")"
-	end
-
-	def female
-		self.person.female
-	end
-
 	# get attendance data for player over the period specified by "during"
 	# returns attendance inthe form of:
 	# matches played and session attendance [%] for week, month and season
@@ -77,9 +58,18 @@ class Player < ApplicationRecord
 		{matches:, last7: att_week, last30: att_month, avg: att_total}
 	end
 
-	# Player picture
-	def picture
-		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "player.svg"
+	def female
+		self.person.female
+	end
+
+	# extended modified to acount for changed parents or avatar
+	def modified?
+		super || @attachment_changed || @parent_changed
+	end
+
+	# String with number, name & age
+	def num_name_age
+		number.to_s.rjust(7," ") + "-" + self.to_s + " (" + self.person.age.to_s + ")"
 	end
 
 	# Return email/phone of player or of the associated tutors if underage players
@@ -99,23 +89,50 @@ class Player < ApplicationRecord
 		phone += self.person.phone.to_s
 	end
 
-	# Apply filters to player collection
-	def self.filter(filters)
-		self.search(filters[:search]).order(:name)
+	# Player picture
+	def picture
+		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "player.svg"
 	end
 
-	#Search field matching
-	def self.search(search)
-		if search.present?
-			Player.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
-		else
-			Player.none
+	# Is this player included in an event?
+	def present?(event_id)
+		self.events.include?(event_id)
+	end
+
+	# rebuild Player data from raw input hash given by a form submittal
+	# avoids duplicate person binding
+	def rebuild(f_data)
+		self.rebuild_obj_person(f_data)
+		if self.person # person exists
+			self.update_attachment("avatar", f_data[:person_attributes][:avatar])
+			self.number = f_data[:number]
+			self.active = f_data[:active]
+			self.check_parents(f_data[:parents_attributes])
 		end
+	end
+
+	#short name for form viewing
+	def s_name
+		self.person ? self.person.s_name : I18n.t("player.single")
+	end
+
+	def set_changes_flag
+		@parent_changed = false
+	end
+
+	# Just list person's full name
+	def to_s
+		self.person ? self.person.to_s : I18n.t("player.single")
 	end
 
 	# atempt to fetch a Player using form input hash
 	def self.fetch(f_data)
 		self.new.fetch_obj(f_data)
+	end
+
+	# Apply filters to player collection
+	def self.filter(filters)
+		self.search(filters[:search]).order(:name)
 	end
 
 	# to import from excel
@@ -147,30 +164,13 @@ class Player < ApplicationRecord
 		end
 	end
 
-	# Is this player included in an event?
-	def present?(event_id)
-		self.events.include?(event_id)
-	end
-
-	# rebuild Player data from raw input hash given by a form submittal
-	# avoids duplicate person binding
-	def rebuild(f_data)
-		self.rebuild_obj_person(f_data)
-		if self.person # person exists
-			self.update_avatar(f_data[:person_attributes][:avatar])
-			self.number = f_data[:number]
-			self.active = f_data[:active]
-			self.check_parents(f_data[:parents_attributes])
+	#Search field matching
+	def self.search(search)
+		if search.present?
+			Player.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
+		else
+			Player.none
 		end
-	end
-
-	def set_changes_flag
-		@parent_changed = false
-	end
-
-	# extended modified to acount for changed parents or avatar
-	def modified?
-		super || @parent_changed || @avatar_changed
 	end
 
 	private

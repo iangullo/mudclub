@@ -19,7 +19,7 @@
 module PlayersHelper
 	# FieldsComponent fields to show for a player
 	def player_show_fields(team: nil)
-		res = person_show_fields(@player.person, title: I18n.t("player.single"), icon: @player.picture)
+		res = person_show_fields(@player.person, title: I18n.t("player.single"), icon: @player.picture, cols: 3)
 		res[4][0] = obj_status_field(@player)
 		if team
 			att = @player.attendance(team: team)
@@ -61,13 +61,13 @@ module PlayersHelper
 	# return player part of FieldsComponent for Player forms
 	def player_form_fields(retlnk:, team_id:)
 		[[
-				{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
-				gap_field(size: 5),
-				{kind: "label", value: I18n.t("player.number")},
-				{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
-				{kind: "hidden", key: :retlnk, value: retlnk},
-				{kind: "hidden", key: :team_id, value: team_id}
-			]]
+			{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
+			gap_field(size: 5),
+			{kind: "label", value: I18n.t("player.number")},
+			{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
+			{kind: "hidden", key: :retlnk, value: retlnk},
+			{kind: "hidden", key: :team_id, value: team_id}
+		]]
 	end
 
 	# nested form to add/edit player parents
@@ -91,6 +91,7 @@ module PlayersHelper
 			{kind: "normal", value: I18n.t("person.age"), align: "center"},
 			{kind: "normal", value: I18n.t("status.active_a"), align: "center"}
 		]
+		title << {kind: "normal", value: I18n.t("person.pics"), align: "center"} if @team
 		title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"}) if u_manager? or obj&.has_coach(u_coachid)
 		rows = Array.new
 		players.each { | player|
@@ -100,6 +101,7 @@ module PlayersHelper
 			row[:items] << {kind: "normal", value: player.to_s}
 			row[:items] << {kind: "normal", value: player.person.age, align: "center"}
 			row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
+			row[:items] << {kind: "icon", value: player.all_pics? ? "Yes.svg" : "No.svg", align: "center"} if @team
 			row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s}) if u_manager?
 			rows << row
 		}
