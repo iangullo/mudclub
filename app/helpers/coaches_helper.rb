@@ -17,16 +17,11 @@
 # contact email - iangullo@gmail.com.
 #
 module CoachesHelper
-	# FieldComponents to show a @coach
-	def coach_show_fields
-		res = person_show_fields(@coach.person, title: I18n.t("coach.single"), icon: @coach.picture)
-		res[4][0] = obj_status_field(@coach)
-		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
-	end
-
 	# return Coach-specific form fields
 	def coach_form_fields
-		[[{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active}]]
+		res = [{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active}]
+		res << {kind: "hidden", key: :retlnk, value: @retlnk} if @retlnk
+		return [res]
 	end
 
 	# return grid for @coaches GridComponent
@@ -47,6 +42,13 @@ module CoachesHelper
 			row[:items] << button_field({kind: "delete", url: row[:url], name: coach.to_s}) if u_manager?
 			rows << row
 		}
-		{title: title, rows: rows}
+		{title:, rows:}
+	end
+
+	# FieldComponents to show a @coach
+	def coach_show_fields
+		res = person_show_fields(@coach.person, title: I18n.t("coach.single"), icon: @coach.picture)
+		res[4][0] = obj_status_field(@coach)
+		res << [{kind: "side-cell", value: (I18n.t("team.many")), align: "left"}]
 	end
 end

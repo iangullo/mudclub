@@ -99,7 +99,7 @@ class EventsController < ApplicationController
 					link_holidays
 					c_notice = helpers.event_create_notice
 					modal    = @event.rest?
-					register_action(:created, c_notice[:message], url: event_path(@event), modal:)
+					register_action(:created, c_notice[:message], url: event_path(@event, retlnk: home_log_path), modal:)
 					format.html { redirect_to @event.team_id > 0 ? team_events_path(@event.team, start_date: @event.start_date) : events_path(start_date: @event.start_date), notice: c_notice, data: {turbo_action: "replace"} }
 					format.json { render :show, status: :created, location: events_path}
 				else

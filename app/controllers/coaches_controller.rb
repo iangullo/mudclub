@@ -51,7 +51,7 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:manager, :coach])
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
-			@submit = create_submit(submit: (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach) : nil, frame: "modal")
+			@submit = create_submit(submit: (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach, retlnk: @retlnk) : nil, frame: "modal")
 		else
 			redirect_to coaches_path, data: {turbo_action: "replace"}
 		end
@@ -82,13 +82,14 @@ class CoachesController < ApplicationController
 	def create
 		if check_access(roles: [:manager])
 			respond_to do |format|
-				@coach = Coach.new
+				@coach  = Coach.new
+				@retlnk = get_retlnk || coaches_path
 				@coach.rebuild(coach_params)	# rebuild coach
 				if @coach.modified? then	# it's a new coach
 					if @coach.paranoid_create # coach saved to database
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
-						register_action(:created, a_desc, url: coach_path(@coach), modal: true)
+						register_action(:created, a_desc, url: coach_path(@coach, retlnk: home_log), modal: true)
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: coaches_path(search: @coach.s_name) }
 					else
@@ -116,7 +117,7 @@ class CoachesController < ApplicationController
 					if @coach.save
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
-						register_action(:updated, a_desc, url: coach_path(@coach), modal: true)
+						register_action(:updated, a_desc, url: coach_path(@coach, retlnk: home_log_path), modal: true)
 						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
 					else
@@ -141,7 +142,7 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:manager])
 			Coach.import(params[:file])	# added to import excel
 			a_desc = "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"
-			register_action(:imported, a_desc, url: coaches_path)
+			register_action(:imported, a_desc, url: coaches_path(retlnk: home_log_path))
 			redirect_to coaches_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -190,6 +191,7 @@ class CoachesController < ApplicationController
 
 		# prepare form FieldComponents
 		def prepare_form(title:)
+			@retlnk ||= coaches_path(search: @coach.s_name)	# ensure we have a valid return link
 			@title    = create_fields(helpers.person_form_title(@coach.person, title:, icon: @coach.picture))
 			@c_fields = create_fields(helpers.coach_form_fields)
 			@p_fields = create_fields(helpers.person_form_fields(@coach.person))
@@ -198,7 +200,7 @@ class CoachesController < ApplicationController
 
 		# return array of safe links to redirect
 		def safelink(lnk=nil)
-			val = [coaches_path]
+			val = [home_log_path, coaches_path]
 			val << (u_path = current_user ? user_path(current_user) : "/")
 			@coach&.teams.each do |team|
 				val << team_path(retlnk: team_path(team, season_id: team.season.id))
@@ -208,7 +210,8 @@ class CoachesController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_coach
-			@coach = Coach.find_by_id(params[:id]) unless @coach&.id==params[:id]
+			@coach  = Coach.find_by_id(params[:id]) unless @coach&.id==params[:id]
+			@retlnk = get_retlnk
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

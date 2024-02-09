@@ -35,7 +35,7 @@ class TeamsController < ApplicationController
 				format.xlsx {
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
 					a_desc = "#{I18n.t("player.export")} '#{f_name}'"
-					register_action(:exported, a_desc, url: teams_path)
+					register_action(:exported, a_desc, url: teams_path(retlnk: home_log_path))
 					response.headers['Content-Disposition'] = "attachment; filename=#{f_name}"
 				}
 				format.html { render :index }
@@ -215,7 +215,7 @@ class TeamsController < ApplicationController
 			respond_to do |format|
 				if @team.save
 					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
-					register_action(:created, a_desc, url: team_path(@team))
+					register_action(:created, a_desc, url: team_path(@team, retlnk: home_log_path))
 					format.html { redirect_to teams_path(season_id: @team.season.id), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: teams_path(season_id: @team.season.id) }
 				else
@@ -243,7 +243,7 @@ class TeamsController < ApplicationController
 					if @team.modified?
 						if @team.save
 							a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
-							register_action(:updated, a_desc, url: team_path(@team))
+							register_action(:updated, a_desc, url: team_path(@team, retlnk: home_log_path))
 							format.html { redirect_to retshow, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 							format.json { redirect_to retshow, status: :created, location: retlnk }
 						else
@@ -370,7 +370,7 @@ class TeamsController < ApplicationController
 
 		# return array of safe links to redirect
 		def safelink(lnk=nil)
-			val = [teams_path]
+			val = [home_log_path, teams_path]
 			val << (u_path = current_user ? user_path(current_user) : "/")
 			if @season
 				val << (t_path = teams_path(season_id: @season.id))

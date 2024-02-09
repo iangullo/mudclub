@@ -50,7 +50,7 @@ class PlayersController < ApplicationController
 		if check_access(roles: [:manager, :coach], obj: @player)
 			@retlnk = get_retlnk ||= players_path(search: @player.s_name)
 			@fields = create_fields(helpers.player_show_fields(team: params[:team_id] ? Team.find(params[:team_id]) : nil))
-			@submit = create_submit(close: "back", close_return: @retlnk, submit: edit_player_path(@player, @retlnk:), frame: "modal")
+			@submit = create_submit(close: "back", close_return: @retlnk, submit: edit_player_path(@player, retlnk: @retlnk), frame: "modal")
 			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
 		else
 			redirect_to players_path, data: {turbo_action: "replace"}
@@ -91,7 +91,7 @@ class PlayersController < ApplicationController
 						link_team(player_params[:team_id].presence)	# try to add it to the team roster
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
-						register_action(:created, a_desc, url: player_path(@player))
+						register_action(:created, a_desc, url: player_path(@player, retlnk: home_log_path))
 						format.html { redirect_to @retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render retview, status: :created, location: @retlnk }
 					else
@@ -116,13 +116,13 @@ class PlayersController < ApplicationController
 		if check_access(roles: [:manager, :coach], obj: @player)
 			respond_to do |format|
 				@player.rebuild(player_params)
-				@retlnk = get_retlnk || player_path(@player)
+				@retlnk = get_retlnk || players_path(search: @player.s_name)
 				retview = player_params[:retlnk] ? :roster : :show
 				if @player.modified?
 					if @player.save
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.updated")} '#{@player.to_s}'"
-						register_action(:updated, a_desc, url: player_path(@player))
+						register_action(:updated, a_desc, url: player_path(@player, retlnk: home_log_path))
 						format.html { redirect_to @retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render retview, status: :ok, location: @retlnk}
 					else
@@ -147,7 +147,7 @@ class PlayersController < ApplicationController
 			if params[:file].present?
 				Player.import(params[:file].presence)	# added to import excel
 				a_desc = "#{I18n.t("player.import")} '#{params[:file].original_filename}'"
-				register_action(:imported, a_desc, url: players_path)
+				register_action(:imported, a_desc, url: players_path(retlnk: home_log_path))
 			else
 				a_desc = "#{I18n.t("player.import")}: #{I18n.t("status.no_file")}"
 			end
@@ -204,8 +204,9 @@ class PlayersController < ApplicationController
 
 		# Prepare a player form
 		def prepare_form(title:)
+			@retlnk ||= players_path(search: @player.s_name)	# ensure we have a valid return link
 			@title    = create_fields(helpers.person_form_title(@player.person, icon: @player.picture, title:, sex: true))
-			@j_fields = create_fields(helpers.player_form_fields(retlnk: params[:retlnk], team_id: params[:team_id]))
+			@j_fields = create_fields(helpers.player_form_fields(team_id: params[:team_id]))
 			@p_fields = create_fields(helpers.person_form_fields(@player.person))
 			@parents  = create_fields(helpers.player_form_parents) if @player.person.age < 18
 			@submit   = create_submit
@@ -213,7 +214,7 @@ class PlayersController < ApplicationController
 
 		# return array of safe links to redirect
 		def safelink(lnk=nil)
-			val = [players_path]
+			val = [home_log_path, players_path]
 			val << (u_path = current_user ? user_path(current_user) : "/")
 			@player&.teams.each do |team|
 				val << team_path(retlnk: team_path(team, season_id: team.season.id))
@@ -224,6 +225,7 @@ class PlayersController < ApplicationController
 		# Use callbacks to share common setup or constraints between actions.
 		def set_player
 			@player = Player.find_by_id(params[:id]) unless @player&.id==params[:id]
+			@retlnk = get_retlnk
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

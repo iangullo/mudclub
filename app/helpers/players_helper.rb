@@ -17,6 +17,57 @@
 # contact email - iangullo@gmail.com.
 #
 module PlayersHelper
+	# return player part of FieldsComponent for Player forms
+	def player_form_fields(team_id:)
+		res = [
+			{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
+			gap_field(size: 5),
+			{kind: "label", value: I18n.t("player.number")},
+			{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
+		]
+		res << {kind: "hidden", key: :retlnk, value: @retlnk} if @retlnk
+		res << {kind: "hidden", key: :team_id, value: team_id} if team_id
+		[res]
+	end
+
+	# nested form to add/edit player parents
+	def player_form_parents
+		res = [[{kind: "label", value: I18n.t("parent.many")}]]
+		res << [
+			{kind: "nested-form", model: "player", key: "parents", child: Parent.create_new, row: "parent_row", cols: 2}
+		]
+		res
+	end
+
+	# return grid fields for players with obj indicating
+	# => nil: for players index
+	# => Team: for team roster views
+	def player_grid(players:, obj: nil)
+		p_ndx  = (obj == nil)
+		retlnk = roster_team_path(obj) unless p_ndx
+		title  = [
+			{kind: "normal", value: I18n.t("player.number"), align: "center"},
+			{kind: "normal", value: I18n.t("person.name")},
+			{kind: "normal", value: I18n.t("person.age"), align: "center"},
+			{kind: "normal", value: I18n.t("status.active_a"), align: "center"}
+		]
+		title << {kind: "normal", value: I18n.t("person.pics"), align: "center"} if @team
+		title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"}) if u_manager? or obj&.has_coach(u_coachid)
+		rows = Array.new
+		players.each { | player|
+			retlnk = players_path(search: player.s_name) if p_ndx
+			row    = {url: player_path(player, retlnk:), items: []}
+			row[:items] << {kind: "normal", value: player.number, align: "center"}
+			row[:items] << {kind: "normal", value: player.to_s}
+			row[:items] << {kind: "normal", value: player.person.age, align: "center"}
+			row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
+			row[:items] << {kind: "icon", value: player.all_pics? ? "Yes.svg" : "No.svg", align: "center"} if @team
+			row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s}) if u_manager?
+			rows << row
+		}
+		return {title:, rows:}
+	end
+
 	# FieldsComponent fields to show for a player
 	def player_show_fields(team: nil)
 		res = person_show_fields(@player.person, title: I18n.t("player.single"), icon: @player.picture, cols: 3)
@@ -56,55 +107,5 @@ module PlayersHelper
 		end
 		res << [{kind: "subtitle", value: "#{I18n.t("team.many")}:"}]
 		res
-	end
-
-	# return player part of FieldsComponent for Player forms
-	def player_form_fields(retlnk:, team_id:)
-		[[
-			{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
-			gap_field(size: 5),
-			{kind: "label", value: I18n.t("player.number")},
-			{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
-			{kind: "hidden", key: :retlnk, value: retlnk},
-			{kind: "hidden", key: :team_id, value: team_id}
-		]]
-	end
-
-	# nested form to add/edit player parents
-	def player_form_parents
-		res = [[{kind: "label", value: I18n.t("parent.many")}]]
-		res << [
-			{kind: "nested-form", model: "player", key: "parents", child: Parent.create_new, row: "parent_row", cols: 2}
-		]
-		res
-	end
-
-	# return grid fields for players with obj indicating
-	# => nil: for players index
-	# => Team: for team roster views
-	def player_grid(players:, obj: nil)
-		p_ndx  = (obj == nil)
-		retlnk = roster_team_path(obj) unless p_ndx
-		title  = [
-			{kind: "normal", value: I18n.t("player.number"), align: "center"},
-			{kind: "normal", value: I18n.t("person.name")},
-			{kind: "normal", value: I18n.t("person.age"), align: "center"},
-			{kind: "normal", value: I18n.t("status.active_a"), align: "center"}
-		]
-		title << {kind: "normal", value: I18n.t("person.pics"), align: "center"} if @team
-		title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"}) if u_manager? or obj&.has_coach(u_coachid)
-		rows = Array.new
-		players.each { | player|
-			retlnk = players_path(search: player.s_name) if p_ndx
-			row    = {url: player_path(player, retlnk:), items: []}
-			row[:items] << {kind: "normal", value: player.number, align: "center"}
-			row[:items] << {kind: "normal", value: player.to_s}
-			row[:items] << {kind: "normal", value: player.person.age, align: "center"}
-			row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
-			row[:items] << {kind: "icon", value: player.all_pics? ? "Yes.svg" : "No.svg", align: "center"} if @team
-			row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s}) if u_manager?
-			rows << row
-		}
-		return {title: title, rows: rows}
 	end
 end
