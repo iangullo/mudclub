@@ -26,12 +26,13 @@ class CoachesController < ApplicationController
 	def index
 		if check_access(roles: [:manager, :coach])
 			@coaches = get_coaches
+			@retlnk  = get_retlnk || "/"
 			title    = helpers.person_title_fields(title: I18n.t("coach.many"), icon: "coach.svg")
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
 			@fields = create_fields(title)
 			@grid   = create_grid(helpers.coach_grid)
 			submit  = {kind: "export", url: teams_path(format: :xlsx), working: false} if u_manager?
-			@submit = create_submit(close: "back", close_return: u_manager? ? "/" : user_path(current_user), submit:)
+			@submit = create_submit(close: "back", close_return: @retlnk, submit:)
 			respond_to do |format|
 				format.xlsx {
 					a_desc = "#{I18n.t("coach.export")} 'coaches.xlsx'"
@@ -49,9 +50,10 @@ class CoachesController < ApplicationController
 	# GET /coaches/1.json
 	def show
 		if check_access(roles: [:manager, :coach])
-			@fields = create_fields(helpers.coach_show_fields)
-			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
-			@submit = create_submit(submit: (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach, retlnk: @retlnk) : nil, frame: "modal")
+			@retlnk ||= coaches_path(search: @coach.s_name)
+			@fields   = create_fields(helpers.coach_show_fields)
+			@grid     = create_grid(helpers.team_grid(teams: @coach.team_list))
+			@submit   = create_submit(submit: (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach, retlnk: @retlnk) : nil, frame: "modal")
 		else
 			redirect_to coaches_path, data: {turbo_action: "replace"}
 		end
@@ -113,20 +115,20 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:manager], obj: @coach)
 			respond_to do |format|
 				@coach.rebuild(coach_params)
+				@retlnk ||= coaches_path(search: @coach.s_name)
 				if @coach.modified?	# coach has been edited
 					if @coach.save
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
 						register_action(:updated, a_desc, url: coach_path(@coach, retlnk: home_log_path), modal: true)
-						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :ok, location: coaches_path(search: @coach.s_name) }
+						format.html { redirect_to @retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :ok, location: @retlnk }
 					else
 						prepare_form(title: I18n.t("coach.edit"))
 						format.html { render :edit }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
 				else	# no changes made
-					@retlnk = get_retlnk ||= "/"
 					format.html { redirect_to @retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
 					format.json { render :index, status: :ok, location: @retlnk }
 				end
@@ -184,6 +186,8 @@ class CoachesController < ApplicationController
 		def get_retlnk
 			if (rlnk = (param_passed(:retlnk) || param_passed(:coach, :retlnk)))
 				return safelink(rlnk)
+			elsif u_coach? || u_manager?
+				return coaches_path
 			elsif current_user
 				return user_path(current_user)
 			end
@@ -202,8 +206,11 @@ class CoachesController < ApplicationController
 		def safelink(lnk=nil)
 			val = [home_log_path, coaches_path]
 			val << (u_path = current_user ? user_path(current_user) : "/")
+			val << coaches_path(search: @coach.s_name) if @coach
 			@coach&.teams.each do |team|
-				val << team_path(retlnk: team_path(team, season_id: team.season.id))
+				val << team_path(team)
+				val << team_path(team, retlnk: teams_path(season_id: team.season_id))
+				val << roster_team_path(team, retlnk: teams_path(retlnk: u_path))
 			end
 			validate_link(lnk, val)
 		end

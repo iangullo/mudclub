@@ -25,12 +25,13 @@ class PlayersController < ApplicationController
 	def index
 		if check_access(roles: [:manager, :coach])
 			@players = get_players
+			@retlnk  = get_retlnk ||  "/"
 			title    = helpers.person_title_fields(title: I18n.t("player.many"), icon: "player.svg", size: "50x50")
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('player_filters', 'search'), url: players_path, size: 10}]
 			@fields  = create_fields(title)
 			@grid    = create_grid(helpers.player_grid(players: @players))
 			submit  = {kind: "export", url: players_path(format: :xlsx), working: false} if u_manager?
-			@submit = create_submit(close: "back", close_return: u_manager? ? "/" : user_path(current_user), submit:)
+			@submit = create_submit(close: "back", close_return: @retlnk, submit:)
 			respond_to do |format|
 				format.xlsx {
 					a_desc = "#{I18n.t("player.export")} 'players.xlsx'"
@@ -48,10 +49,10 @@ class PlayersController < ApplicationController
 	# GET /players/1.json
 	def show
 		if check_access(roles: [:manager, :coach], obj: @player)
-			@retlnk = get_retlnk ||= players_path(search: @player.s_name)
-			@fields = create_fields(helpers.player_show_fields(team: params[:team_id] ? Team.find(params[:team_id]) : nil))
-			@submit = create_submit(close: "back", close_return: @retlnk, submit: edit_player_path(@player, retlnk: @retlnk), frame: "modal")
-			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
+			@retlnk ||= players_path(search: @player.s_name)
+			@fields   = create_fields(helpers.player_show_fields(team: params[:team_id] ? Team.find(params[:team_id]) : nil))
+			@submit   = create_submit(close: "back", close_return: @retlnk, submit: edit_player_path(@player, retlnk: @retlnk), frame: "modal")
+			@grid     = create_grid(helpers.team_grid(teams: @player.team_list))
 		else
 			redirect_to players_path, data: {turbo_action: "replace"}
 		end
@@ -84,8 +85,7 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = Player.new
 				@player.rebuild(player_params)	# rebuild player
-				@retlnk = get_retlnk || players_path(search: @player.s_name)
-				retview = (@retlnk == players_path(search: @player.s_name)) ? :index : :roster
+				@retlnk = player_path(retlnk: get_retlnk || players_path(search: @player.s_name))
 				if @player.modified? then	# it is a new player
 					if @player.paranoid_create
 						link_team(player_params[:team_id].presence)	# try to add it to the team roster
@@ -93,7 +93,7 @@ class PlayersController < ApplicationController
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
 						register_action(:created, a_desc, url: player_path(@player, retlnk: home_log_path))
 						format.html { redirect_to @retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render retview, status: :created, location: @retlnk }
+						format.json { render :show, status: :created, location: @retlnk }
 					else
 						prepare_form(title: I18n.t("player.new"))
 						format.html { render :new }
@@ -102,7 +102,7 @@ class PlayersController < ApplicationController
 				else # player was already in the database
 					link_team(player_params[:team_id])	# try to add it to the team roster
 					format.html { redirect_to @retlnk, notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
-					format.json { render retview, status: :duplicate, location: @retlnk }
+					format.json { render :show, status: :duplicate, location: @retlnk }
 				end
 			end
 		else
@@ -116,15 +116,15 @@ class PlayersController < ApplicationController
 		if check_access(roles: [:manager, :coach], obj: @player)
 			respond_to do |format|
 				@player.rebuild(player_params)
-				@retlnk = get_retlnk || players_path(search: @player.s_name)
-				retview = player_params[:retlnk] ? :roster : :show
+				@retlnk ||= players_path(search: @player.s_name)
+				@retlnk   = player_path(retlnk: @retlnk)
 				if @player.modified?
 					if @player.save
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.updated")} '#{@player.to_s}'"
 						register_action(:updated, a_desc, url: player_path(@player, retlnk: home_log_path))
 						format.html { redirect_to @retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render retview, status: :ok, location: @retlnk}
+						format.json { render :show, status: :ok, location: @retlnk}
 					else
 						prepare_form(title: I18n.t("player.edit"))
 						format.html { render :edit }
@@ -132,7 +132,7 @@ class PlayersController < ApplicationController
 					end
 				else
 					format.html { redirect_to @retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
-					format.json { render retview, status: :ok, location: @retlnk }
+					format.json { render :show, status: :ok, location: @retlnk }
 				end
 			end
 		else
@@ -216,8 +216,11 @@ class PlayersController < ApplicationController
 		def safelink(lnk=nil)
 			val = [home_log_path, players_path]
 			val << (u_path = current_user ? user_path(current_user) : "/")
+			val << players_path(search: @player.s_name) if @player
 			@player&.teams.each do |team|
-				val << team_path(retlnk: team_path(team, season_id: team.season.id))
+				val << roster_team_path(team)
+				val << roster_team_path(team, retlnk: teams_path(season_id: team.season_id))
+				val << roster_team_path(team, retlnk: u_path)
 			end
 			validate_link(lnk, val)
 		end

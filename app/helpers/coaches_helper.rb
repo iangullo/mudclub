@@ -35,7 +35,7 @@ module CoachesHelper
 
 		rows = Array.new
 		@coaches.each { |coach|
-			row = {url: coach_path(coach), frame: "modal", items: []}
+			row = {url: coach_path(coach, retlnk: @retlnk), frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: coach.to_s}
 			row[:items] << {kind: "normal", value: coach.person.age, align: "center"}
 			row[:items] << {kind: "icon", value: coach.active? ? "Yes.svg" : "No.svg", align: "center"}

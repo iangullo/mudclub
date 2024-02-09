@@ -44,7 +44,7 @@ module PlayersHelper
 	# => Team: for team roster views
 	def player_grid(players:, obj: nil)
 		p_ndx  = (obj == nil)
-		retlnk = roster_team_path(obj) unless p_ndx
+		retlnk = roster_team_path(obj, retlnk: @retlnk) unless p_ndx
 		title  = [
 			{kind: "normal", value: I18n.t("player.number"), align: "center"},
 			{kind: "normal", value: I18n.t("person.name")},
@@ -55,7 +55,7 @@ module PlayersHelper
 		title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"}) if u_manager? or obj&.has_coach(u_coachid)
 		rows = Array.new
 		players.each { | player|
-			retlnk = players_path(search: player.s_name) if p_ndx
+			retlnk = players_path(search: player.s_name, retlnk: @retlnk) if p_ndx
 			row    = {url: player_path(player, retlnk:), items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
 			row[:items] << {kind: "normal", value: player.to_s}
