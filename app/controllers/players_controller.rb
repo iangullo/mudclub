@@ -85,7 +85,7 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = Player.new
 				@player.rebuild(player_params)	# rebuild player
-				retlnk = get_retlnk || players_path(search: @player.s_name))
+				retlnk = (get_retlnk || players_path(search: @player.s_name))
 				if @player.modified? then	# it is a new player
 					if @player.paranoid_create
 						link_team(player_params[:team_id].presence)	# try to add it to the team roster
