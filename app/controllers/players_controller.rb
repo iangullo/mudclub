@@ -61,6 +61,7 @@ class PlayersController < ApplicationController
 	# GET /players/new
 	def new
 		if check_access(roles: [:manager, :coach])
+			@retlnk = get_retlnk || players_path
 			@player = Player.new(active: true)
 			@player.build_person
 			prepare_form(title: I18n.t("player.new"))
