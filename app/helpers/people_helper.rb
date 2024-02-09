@@ -112,7 +112,7 @@ module PeopleHelper
 		# standardised field with icons for player/coach id pics
 		def idpic_field(person, idpic: nil, cols: nil, align: "center")
 			if idpic	# it is an editor field
-				{kind: "upload", icon: idpic, label: I18n.t("person.#{idpic}"), key: idpic, value: person.send(idpic).filename, cols:}
+				{kind: "upload", icon: "#{idpic}.svg", label: I18n.t("person.#{idpic}"), key: idpic, value: person.send(idpic).filename, cols:}
 			elsif u_manager?	# dropdown menu
 				button = {kind: "link", name: "id-pics", icon: person.id_icon, options: []}		
 				button[:options] << idpic_button(person, "id_front") if person.id_front.attached?
