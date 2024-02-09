@@ -298,13 +298,6 @@ class TeamsController < ApplicationController
 			end
 		end
 
-		# retrieve monthly targets for the team
-		def plan_targets
-			@months = @team.season.months(true)
-			@targets = Array.new
-			@months.each { |m| @targets << fetch_targets(m)	}
-		end
-
 		# get team targets for a specific month
 		def fetch_targets(month)
 			case month
@@ -346,6 +339,13 @@ class TeamsController < ApplicationController
 				res = user_path(current_user)
 			end
 			res ||= "/"
+		end
+
+		# retrieve monthly targets for the team
+		def plan_targets
+			@months = @team.season.months(true)
+			@targets = Array.new
+			@months.each { |m| @targets << fetch_targets(m)	}
 		end
 
 		# set the right redirect for update depending on params received

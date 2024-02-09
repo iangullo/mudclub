@@ -125,9 +125,9 @@ class CoachesController < ApplicationController
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
 				else	# no changes made
-					retlnk = params[:retlnk] ? params[:retlnk] : coaches_path
-					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
-					format.json { render :index, status: :ok, location: retlnk }
+					@retlnk = get_retlnk ||= "/"
+					format.html { redirect_to @retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :index, status: :ok, location: @retlnk }
 				end
 			end
 		else
@@ -166,19 +166,6 @@ class CoachesController < ApplicationController
 	end
 
 	private
-		# reload edit/create form if person exists without a coach record
-		def reload_data(format)
-			if @coach.person.coach_id==0
-				format.html { render :new }
-				format.json { render :new, status: :ok }
-			end
-		end
-
-		# Use callbacks to share common setup or constraints between actions.
-		def set_coach
-			@coach = Coach.find_by_id(params[:id]) unless @coach&.id==params[:id]
-		end
-
 		# get coach list depending on the search parameter & user role
 		def get_coaches
 			if params[:search].present?
@@ -192,12 +179,36 @@ class CoachesController < ApplicationController
 			end
 		end
 
+		# defines correct retlnk based on params received
+		def get_retlnk
+			if (rlnk = (param_passed(:retlnk) || param_passed(:coach, :retlnk)))
+				return safelink(rlnk)
+			elsif current_user
+				return user_path(current_user)
+			end
+		end
+
 		# prepare form FieldComponents
 		def prepare_form(title:)
 			@title    = create_fields(helpers.person_form_title(@coach.person, title:, icon: @coach.picture))
 			@c_fields = create_fields(helpers.coach_form_fields)
 			@p_fields = create_fields(helpers.person_form_fields(@coach.person))
 			@submit   = create_submit
+		end
+
+		# return array of safe links to redirect
+		def safelink(lnk=nil)
+			val = [coaches_path]
+			val << (u_path = current_user ? user_path(current_user) : "/")
+			@coach&.teams.each do |team|
+				val << team_path(retlnk: team_path(team, season_id: team.season.id))
+			end
+			validate_link(lnk, val)
+		end
+
+		# Use callbacks to share common setup or constraints between actions.
+		def set_coach
+			@coach = Coach.find_by_id(params[:id]) unless @coach&.id==params[:id]
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
