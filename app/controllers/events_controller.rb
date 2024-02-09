@@ -143,7 +143,7 @@ class EventsController < ApplicationController
 					changed = (check_stats(params[:outings]) || changed)
 				end
 				@notice = helpers.event_update_notice(@notice, changed:)
-				register_action(:updated, @notice[:message], url: event_path(retlnk: home_log_path)) if changed
+				register_action(:updated, @notice[:message], url: event_path(retlnk: home_log_path)) if changed && !e_data[:task].present?
 				format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
 				format.json { render @retview, status: :ok, location: @retlnk }
 			end

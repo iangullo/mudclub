@@ -66,7 +66,7 @@ class Target < ApplicationRecord
 			if concept.strip.length > 0
 				res = Target.where("unaccent(concept) ILIKE unaccent(?)","%#{concept.strip}%")
 			else
-				res = Target.real
+				res = Target.all
 			end
 			res = focus ? res.where(focus: focus.length==1 ? focus.to_i : focus.to_sym) : res
 			res = aspect ? res.where(aspect: aspect.length==1 ? aspect.to_i : aspect.to_sym) : res
