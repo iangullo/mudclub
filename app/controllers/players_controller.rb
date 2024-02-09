@@ -85,14 +85,14 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				@player = Player.new
 				@player.rebuild(player_params)	# rebuild player
-				@retlnk = player_path(retlnk: get_retlnk || players_path(search: @player.s_name))
+				retlnk = get_retlnk || players_path(search: @player.s_name))
 				if @player.modified? then	# it is a new player
 					if @player.paranoid_create
 						link_team(player_params[:team_id].presence)	# try to add it to the team roster
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
 						register_action(:created, a_desc, url: player_path(@player, retlnk: home_log_path))
-						format.html { redirect_to @retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.html { redirect_to player_path(@player, retlnk:), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :created, location: @retlnk }
 					else
 						prepare_form(title: I18n.t("player.new"))
@@ -101,7 +101,7 @@ class PlayersController < ApplicationController
 					end
 				else # player was already in the database
 					link_team(player_params[:team_id])	# try to add it to the team roster
-					format.html { redirect_to @retlnk, notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
+					format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
 					format.json { render :show, status: :duplicate, location: @retlnk }
 				end
 			end
