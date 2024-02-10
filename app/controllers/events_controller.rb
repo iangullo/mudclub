@@ -64,8 +64,9 @@ class EventsController < ApplicationController
 	# GET /events/new
 	def new
 		if check_access(roles: [:manager, :coach])
-			@event = Event.prepare(event_params)
-			@sport = @event.team.sport&.specific
+			@event  = Event.prepare(event_params)
+			@season = (@event.team_id == 0) ? Season.search(event_params[:season_id]) : @event.team.season
+			@sport  = @event.team.sport&.specific
 			if @event
 				if @event.rest? or (@event.team_id >0 and @event.team.has_coach(u_coachid))
 					prepare_event_form(new: true)
