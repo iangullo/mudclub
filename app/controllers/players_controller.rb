@@ -218,7 +218,7 @@ class PlayersController < ApplicationController
 			val = [home_log_path, players_path]
 			val << (u_path = current_user ? user_path(current_user) : "/")
 			val << players_path(search: @player.s_name) if @player
-			@player&.teams.each do |team|
+			@player&.teams&.each do |team|
 				val << roster_team_path(team)
 				val << roster_team_path(team, retlnk: teams_path(season_id: team.season_id))
 				val << roster_team_path(team, retlnk: u_path)
