@@ -1,3 +1,7 @@
+<% if @button[:append] %>
+<div class="inline-flex items-center">
+	<%= @button[:label] %>
+<% end %>
 <button id="<%= @button[:id] %>" class="<%= @button[:b_class] %>" type="button" data-dropdown-toggle="<%= @button[:name] %>" data-dropdown-placement="<%= @button[:place] %>" data-dropdown-offset-distance=10 data-dropdown-offset-skidding=10>
 	<% if @button[:ham] %>
 	<svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -6,7 +10,7 @@
 	<% elsif @button[:icon] %>
 	<%=image_tag(@button[:icon], size: @button[:size] ? @button[:size] : "25x25", class: @button[:i_class])%>
 	<% end %>
-	<% if @button[:label] %>
+	<% if @button[:label] && !@button[:append] %>
 	<div class="inline-flex items-center">
 		<%= @button[:label] %>
 		<% if @button[:sub] %>
@@ -34,3 +38,6 @@
 		<% end %>
 	</ul>
 </div>
+<% if @button[:append] %>
+</div>
+<% end %>

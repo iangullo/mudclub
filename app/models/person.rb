@@ -49,14 +49,25 @@ class Person < ApplicationRecord
 		end
 	end
 
-	# returns a hash (or nil) of icon & label to mark
-	# whether a Person has attached id pictures (front && back)
-	def id_icon
-		if self.id_front.attached? && self.id_back.attached?
-			return "id_front.svg"
+	# returns a hash of icon & label to mark whether a
+	# Person has attached id pictures (front && back)
+	def idpic_content
+		label = self.dni
+		if self.idpics_attached?
+			found = true
+			icon  = "id_front.svg"
+			tip   = I18n.t("person.pics_found")
 		else
-			return "id_front-no.svg"
+			found = self.id_front.attached? || self.id_back.attached?
+			icon  = "id_front-no.svg"
+			tip   = I18n.t("person.pics_missing")
 		end
+		{found:, icon:, label:, tip:}
+	end
+
+	# checks whether a Person has attached id pictures (front && back)
+	def idpics_attached?
+		self.id_front.attached? && self.id_back.attached?
 	end
 
 	# used for clublogo (Person(id: 0))

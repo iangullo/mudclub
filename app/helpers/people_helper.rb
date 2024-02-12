@@ -29,7 +29,6 @@ module PeopleHelper
 		res << [{kind: "label", value: person.surname, cols:}]
 		res << [
 			{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"},
-			{kind: "label", value: person.dni},
 			idpic_field(person)
 		]
 		res << [gap_field(size: 1), {kind: "string", value: person.birthday}]
@@ -113,13 +112,19 @@ module PeopleHelper
 		def idpic_field(person, idpic: nil, cols: nil, align: "center")
 			if idpic	# it is an editor field
 				{kind: "upload", icon: "#{idpic}.svg", label: I18n.t("person.#{idpic}"), key: idpic, value: person.send(idpic).filename, cols:}
-			elsif u_manager?	# dropdown menu
-				button = {kind: "link", name: "id-pics", icon: person.id_icon, options: []}		
-				button[:options] << idpic_button(person, "id_front") if person.id_front.attached?
-				button[:options] << idpic_button(person, "id_back") if person.id_back.attached?
-				{kind: "dropdown", button: button, class: "bg-white"}
 			else
-				{kind: "icon", value: person.id_icon}
+				pitip = person.idpic_content
+				icon  = pitip[:icon]
+				label = pitip[:label]
+				tip   = pitip[:tip]
+				if pitip[:found] && u_manager?	# dropdown menu
+					button = {kind: "link", name: "id-pics", icon:, label:, append: true, options: []}		
+					button[:options] << idpic_button(person, "id_front") if person.id_front.attached?
+					button[:options] << idpic_button(person, "id_back") if person.id_back.attached?
+					{kind: "dropdown", button:, class: "bg-white"}
+				else
+					{kind: "icon-label", icon:, label:, right: true, tip:}
+				end
 			end
 		end
 end

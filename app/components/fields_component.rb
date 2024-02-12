@@ -121,11 +121,10 @@ class FieldsComponent < ApplicationComponent
 			item[:rows]    = 2 unless item[:rows]
 		else
 			i_size = "25x25"
-			if item[:label]
+			if item[:label] && item[:kind]!="icon-label"
 				item[:class] ||= "align-top inline-flex"
 			else
 				item[:align] ||= "right"
-				item[:class] ||= item[:class]
 			end
 		end
 		item[:size] = i_size unless item[:size]

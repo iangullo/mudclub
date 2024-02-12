@@ -18,25 +18,29 @@
 						<% end %>
 					<% when "grid" %>
 						<%= render GridComponent.new(grid: item[:value], form: @form) %>
-					<% when "header-icon", "icon" %>
+					<% when "header-icon", "icon", "icon-label" %>
+						<% if item[:label] %>
+							<div class="inline-flex items-center">
+							<% if item[:right] %>
+								<%= item[:label] %>&nbsp;
+							<% end %>
+						<% end %>
 						<% if item[:tip] # show tooltip %>
 							<button data-tooltip-target="tooltip-<%=item[:tipid]%>" data-tooltip-placement="bottom" type="button">
 						<% end %>
-						<%= image_tag item[:value], size: item[:size], class: item[:class] %>
+						<%= image_tag (item[:value] || item[:icon]), size: item[:size], class: item[:class] %>
 						<% if item[:tip] # show tooltip %>
 							</button>
-							<div id="tooltip-<%=item[:tipid]%>" role="tooltip" class="absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip">
+							<div id="tooltip-<%=item[:tipid]%>" role="tooltip" class="absolute z-10 invisible inline-block px-1 py-1 text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip">
 								<%= item[:tip] %>
 							</div>
 						<% end %>
-					<% when "icon-label" %>
-						<div class="inline-flex items-center">
-						<% if item[:right] %>
-							<%= item[:label] %>&nbsp;<%= image_tag(item[:icon], size: item[:size]) %>
-						<% else %>
-							<%= image_tag(item[:icon], size: item[:size]) %>&nbsp;<%= item[:label] %>
+						<% if item[:label] %>
+							<% unless item[:right] %>
+								&nbsp;<%= item[:label] %>
+							<% end %>
+							</div>
 						<% end %>
-						</div>
 					<% when "lines" %>
 						<% item[:value].each do |line|%>
 							<%= line.to_s %>
