@@ -20,6 +20,7 @@
 
 # DropdownComponent - Viewcomponent buttons specific for muli-add and menu buttons
 #  They have an :options array with :url,:icon:label
+#  If :append is set, button with icon will be appended inline after a label.
 class DropdownComponent < ApplicationComponent
 	def initialize(button:)
 		@button = parse(button)
