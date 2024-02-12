@@ -111,6 +111,10 @@ class GridComponent < ApplicationComponent
 						@rowcue      ||= true if @controller
 						item[:align]   = "center"
 						item[:class] ||= "border px py"
+					when "contact"
+						item[:align]   = "center"
+						item[:class] ||= "border px py"
+						item[:value]   = ContactComponent.new(email: item[:email], phone: item[:phone], device: item[:device])
 					when "percentage"
 						item[:align] ||= "center"
 						item[:class] ||= "font-semibold border px py"

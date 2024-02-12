@@ -179,7 +179,7 @@ class PlayersController < ApplicationController
 		# get player list depending on the search parameter & user role
 		def get_players
 			if params[:search].present?
-				@players = Player.search(params[:search])
+				@players = Player.search(params[:search], u_manager?)
 			else
 				Player.none
 			end

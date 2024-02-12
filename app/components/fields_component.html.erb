@@ -4,12 +4,8 @@
 			<% row.each do |item| %>
 				<%= tablecell_tag(item) do %>
 					<% case item[:kind] %>
-					<% when /^(accordion|button|dropdown|search-.+)$/ %>
+					<% when /^(accordion|button|contact|dropdown|search-.+)$/ %>
 						<%= render item[:value] %>
-					<% when "contact" %>
-						<%= render item[:mail] if item[:mail] %>
-						<%= render item[:call] if item[:call] %>
-						<%= render item[:whatsapp] if item[:whatsapp] %>
 					<% when /^(select-.+|.+box|.+-area|hidden|radio.+|upload)$/ %>
 						<%= render InputBoxComponent.new(field: item, form: @form) %>
 					<% when "gap" %>

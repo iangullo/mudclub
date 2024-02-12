@@ -196,6 +196,7 @@ es:
     age: "Edad"
     bday: "F.Nacimiento"
     bday_a: "Nac."
+    contact: "Contacto"
     created: "Persona creada: "
     deleted: "Persona borrada: "
     duplicate: "Persona duplicada: "

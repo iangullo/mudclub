@@ -105,11 +105,7 @@ class FieldsComponent < ApplicationComponent
 
 	# wrapper to keep a person's available contact details in a single field.
 	def set_contact(item)
-		item[:mail] = ButtonComponent.new(button: {kind: "email", value: item[:email]}) if (item[:email] and item[:email].length>0)
-		if item[:phone] and item[:phone].length>0
-			item[:call] = ButtonComponent.new(button: {kind: "call", value: item[:phone]}) if item[:device]=="mobile"
-			item[:whatsapp] = ButtonComponent.new(button: {kind: "whatsapp", value: item[:phone], web: (item[:device]=="desktop")})
-		end
+		item[:value] = ContactComponent.new(email: item[:email], phone: item[:phone], device: item[:device])
 	end
 
 	# used for all icon/image fields - except for "image-box"

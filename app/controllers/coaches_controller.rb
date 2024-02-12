@@ -172,7 +172,7 @@ class CoachesController < ApplicationController
 		# get coach list depending on the search parameter & user role
 		def get_coaches
 			if params[:search].present?
-				@coaches = Coach.search(params[:search])
+				@coaches = Coach.search(params[:search], u_manager?)
 			else
 				if u_manager? or u_coach?
 					Coach.active

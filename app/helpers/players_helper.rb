@@ -45,14 +45,19 @@ module PlayersHelper
 	def player_grid(players:, obj: nil)
 		p_ndx  = (obj == nil)
 		retlnk = roster_team_path(obj, retlnk: @retlnk) unless p_ndx
+		adview = u_manager? || obj&.has_coach(u_coachid)
 		title  = [
 			{kind: "normal", value: I18n.t("player.number"), align: "center"},
 			{kind: "normal", value: I18n.t("person.name")},
-			{kind: "normal", value: I18n.t("person.age"), align: "center"},
-			{kind: "normal", value: I18n.t("status.active_a"), align: "center"}
+			{kind: "normal", value: I18n.t("person.age"), align: "center"}
 		]
-		title << {kind: "normal", value: I18n.t("person.pics"), align: "center"} if @team
-		title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"}) if u_manager? or obj&.has_coach(u_coachid)
+		if adview
+			title << {kind: "normal", value: I18n.t("person.phone_a"), align: "center"}
+			title << {kind: "normal", value: I18n.t("person.pics"), align: "center"}
+			title << {kind: "normal", value: I18n.t("status.active_a"), align: "center"}
+			title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"})
+		end
+
 		rows = Array.new
 		players.each { | player|
 			retlnk = players_path(search: player.s_name, retlnk: @retlnk) if p_ndx
@@ -60,9 +65,12 @@ module PlayersHelper
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
 			row[:items] << {kind: "normal", value: player.to_s}
 			row[:items] << {kind: "normal", value: player.person.age, align: "center"}
-			row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
-			row[:items] << {kind: "icon", value: player.all_pics? ? "Yes.svg" : "No.svg", align: "center"} if @team
-			row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s}) if u_manager?
+			if adview
+				row[:items] << {kind: "contact", phone: player.person.phone, device: device}
+				row[:items] << {kind: "icon", value: player.all_pics? ? "Yes.svg" : "No.svg", align: "center"}
+				row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
+				row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s}) if u_manager?
+			end
 			rows << row
 		}
 		return {title:, rows:}

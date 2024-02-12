@@ -196,6 +196,7 @@ en:
     age: "Age"
     bday: "Birthdate"
     bday_a: "DoB"
+    contact: "Contact"
     created: "Created person: "
     deleted: "Deleted person: "
     duplicate: "Duplicate person: "
