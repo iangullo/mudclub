@@ -213,6 +213,8 @@ es:
     phone: "Teléfono"
     phone_a: "Tel."
     pics: "Fotos"
+    pics_found: "Fotos disponibles"
+    pics_missing: "Faltan fotos"
     pid: "DNI/NIE"
     pid_a: "DNI"
     single: "Persona"
@@ -244,6 +246,7 @@ es:
     delete: "¿Borrar "
     female: "¿Femenino?"
     import: "¿Importar datos?"
+    login: "¿Abrir sesión?"
     save: "¿Guardar "
     save_chng: "¿Guardar Cambios?"
   rest:

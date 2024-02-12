@@ -15,7 +15,7 @@
 				gap_field(size: 1, cols: 2),
 				{kind: "label-checkbox", label: t("action.remember"), key: :remember_me, right: true},
 				gap_field,
-				{kind: "button", button: {kind: "login", label: t("action.login"), align: "right"}}
+				{kind: "button", button: {kind: "login", label: t("action.login"), confirm: I18n.t("question.login"), align: "right"}}
 			]
 		])
 	%>
