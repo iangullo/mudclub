@@ -120,16 +120,16 @@ class Person < ApplicationRecord
 	#short name for form viewing
 	def s_name
 		res = self.to_s(false)
-		res.length > 0 ? res : I18n.t("person.single")
+		res.present? ? res : I18n.t("person.single")
 	end
 
 	def to_s(long=true)
-		if self.nick and self.nick.length > 0
+		if self.nick.present?
 			aux = self.nick.to_s
 		else
 			aux = self.name.to_s
 		end
-		aux += " " + self.surname.to_s if long
+		aux += " #{self.surname.to_s}" if long
 		aux
 	end
 
@@ -195,8 +195,8 @@ class Person < ApplicationRecord
 
 	#Search field matching
 	def self.search(search)
-		if search
-			search.length>0 ? Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]) : Person.none
+		if search.present?
+			Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"])
 		else
 			Person.none
 		end

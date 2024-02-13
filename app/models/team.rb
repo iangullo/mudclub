@@ -24,6 +24,7 @@ class Team < ApplicationRecord
 	belongs_to :sport
 	has_and_belongs_to_many :players
 	has_and_belongs_to_many :coaches
+	has_one :homecourt
 	has_one :rules, through: :category
 	has_many :slots, dependent: :destroy
 	has_many :events, dependent: :destroy
@@ -39,7 +40,7 @@ class Team < ApplicationRecord
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
 
 	def to_s
-		if self.name and self.name.length > 0
+		if self.name.present?
 			self.id==0 ? I18n.t("scope.none") : self.name.to_s
 		else
 			self.category.to_s
@@ -87,11 +88,10 @@ class Team < ApplicationRecord
 		Team.new(t_data)
 	end
 
-	#Search field matching season
+	# Search field matching season
 	def self.search(search)
-		if search
-			s_id = search.to_i
-			s_id > 0 ? Team.for_season(s_id).order(:category_id) : Team.real
+		if (s_id = search&.to_i) > 0
+			Team.for_season(s_id).order(:category_id)
 		else
 			Team.real
 		end

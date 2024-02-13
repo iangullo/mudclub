@@ -43,7 +43,7 @@ class User < ApplicationRecord
 	end
 
 	def is_coach?
-		(self.person&.coach_id.to_i > 0 and self.person.coach.active) or self.coach?
+		(self.person&.coach_id.to_i > 0 && self.person.coach.active) or self.coach?
 	end
 
 	def is_parent?
@@ -51,7 +51,7 @@ class User < ApplicationRecord
 	end
 
 	def is_player?
-		(self.person&.player_id.to_i > 0 and self.person.player.active) or self.player?
+		(self.person&.player_id.to_i > 0 && self.person.player.active) or self.player?
 	end
 
 	# return last login IP
@@ -149,8 +149,8 @@ class User < ApplicationRecord
 
 	#Search field matching
 	def self.search(search)
-		if search
-			search.length>0 ? User.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"])) : User.where(person_id: Person.real)
+		if search.present?
+			User.where(person_id: Person.where(["(id > 0) AND (name LIKE ? OR nick like ?)","%#{search}%","%#{search}%"]))
 		else
 			User.real
 		end
