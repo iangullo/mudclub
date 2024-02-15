@@ -17,7 +17,6 @@
 # contact email - iangullo@gmail.com.
 #
 class SeasonsController < ApplicationController
-	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_season, only: [:index, :show, :edit, :update, :destroy, :locations]
 
 	# GET /seasons
@@ -118,7 +117,8 @@ class SeasonsController < ApplicationController
 	# DELETE /seasons/1
 	# DELETE /seasons/1.json
 	def destroy
-		if check_access(roles: [:manager])
+		# cannot destroy placeholder season (id ==0)
+		if @season.id != 0 && ccheck_access(roles: [:manager])
 			s_name = @season.name
 			@season.destroy
 			respond_to do |format|

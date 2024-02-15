@@ -17,7 +17,6 @@
 # contact email - iangullo@gmail.com.
 #
 class LocationsController < ApplicationController
-	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_locations, only: [:index, :show, :edit, :new, :update, :destroy, :locations]
 
 	# GET /locations

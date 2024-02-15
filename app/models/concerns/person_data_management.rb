@@ -20,6 +20,12 @@
 # same way for all has_one :person objects.
 module PersonDataManagement
 
+	# return whether all pics are attached
+	def all_pics?
+		per = self.is_a?(Person) ? self : self.person
+		self.avatar.attached? && per&.id_front.attached? && per&.id_back.attached?
+	end
+
 	# Checks person is linked well
 	def bind_person(save_changes: false)
 		return false if self.is_a?(Person) || !self.id
@@ -72,7 +78,7 @@ module PersonDataManagement
 			birthday: self.read_field(row[4], d_value(:birthday), Date.today.to_s),
 			address:	self.read_field(row[5], d_value(:address), ""),
 			email:		self.read_field(row[6], d_value(:email), ""),
-			phone:    self.read_field(Phonelib.parse(row[7]).international, d_value(:phone), ""),
+			phone:    self.read_field(row[7], d_value(:phone), ""),
 			female:   self.read_field(to_boolean(row[8].value), false, false)
 		}
 		Person.new.rebuild(p_data)
@@ -100,10 +106,10 @@ module PersonDataManagement
 		end
 	end
 
-	# return whether all pics are attached
-	def all_pics?
-		per = self.is_a?(Person) ? self : self.person
-		self.avatar.attached? && per&.id_front.attached? && per&.id_back.attached?
+	# parse phone number using defined locale as p_country
+	def parse_phone(p_number, p_ctry=nil)
+		ctry = p_ctry || Phonelib.default_country
+		Phonelib.parse(p_number.to_s.delete(' '), ctry).international.to_s
 	end
 
 	# attempt to unified rebuild Object method

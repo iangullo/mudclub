@@ -18,15 +18,14 @@
 #
 class CoachesController < ApplicationController
 	include Filterable
-	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_coach, only: [:show, :edit, :update, :destroy]
 
 	# GET /coaches
 	# GET /coaches.json
 	def index
+		@retlnk = get_retlnk(c_index: true)
 		if check_access(roles: [:manager, :coach])
 			@coaches = get_coaches
-			@retlnk  = get_retlnk || "/"
 			title    = helpers.person_title_fields(title: I18n.t("coach.many"), icon: "coach.svg")
 			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
 			@fields = create_fields(title)
@@ -50,23 +49,24 @@ class CoachesController < ApplicationController
 	# GET /coaches/1.json
 	def show
 		if check_access(roles: [:manager, :coach])
-			@retlnk ||= coaches_path(search: @coach.s_name)
-			@fields   = create_fields(helpers.coach_show_fields)
-			@grid     = create_grid(helpers.team_grid(teams: @coach.team_list))
-			@submit   = create_submit(submit: (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach, retlnk: @retlnk) : nil, frame: "modal")
+			@fields = create_fields(helpers.coach_show_fields)
+			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
+			submit  = (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach, retlnk: @retlnk) : nil
+			@submit = create_submit(close: "back", close_return: @retlnk, submit:, frame: "modal")
 		else
-			redirect_to coaches_path, data: {turbo_action: "replace"}
+			redirect_to @retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
 	# GET /coaches/new
 	def new
+		@retlnk = get_retlnk
 		if check_access(roles: [:manager])
 			@coach = Coach.new(active: true)
 			@coach.build_person
 			prepare_form(title: I18n.t("coach.new"))
 		else
-			redirect_to coaches_path, data: {turbo_action: "replace"}
+			redirect_to @retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -75,66 +75,66 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:manager], obj: @coach)
 			prepare_form(title: I18n.t("coach.edit"))
 		else
-			redirect_to coaches_path, data: {turbo_action: "replace"}
+			redirect_to @retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
 	# POST /coaches
 	# POST /coaches.json
 	def create
+		@retlnk = get_retlnk
 		if check_access(roles: [:manager])
 			respond_to do |format|
-				@coach  = Coach.new
-				@retlnk = get_retlnk || coaches_path
-				@coach.rebuild(coach_params)	# rebuild coach
-				if @coach.modified? then	# it's a new coach
+				@coach = Coach.new
+				@coach.rebuild(coach_params, @club.country)	# rebuild coach
+				if @coach.id == nil then	# it's a new coach
 					if @coach.paranoid_create # coach saved to database
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
 						register_action(:created, a_desc, url: coach_path(@coach, retlnk: home_log), modal: true)
-						format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: coaches_path(search: @coach.s_name) }
+						format.html { redirect_to coach_path(@coach, retlnk: @retlnk), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :created, location: coach_path(@coach, retlnk: @retlnk) }
 					else
 						prepare_form(title: I18n.t("coach.new"))
 						format.html { render :new }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
 				else	# duplicate coach
-					format.html { redirect_to coaches_path(search: @coach.s_name), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
+					format.html { redirect_to coach_path(@coach, retlnk: @retlnk), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
 					format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
 				end
 			end
 		else
-			redirect_to coaches_path, data: {turbo_action: "replace"}
+			redirect_to @retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
 	# PATCH/PUT /coaches/1
 	# PATCH/PUT /coaches/1.json
 	def update
+		r_path = coach_path(@coach, retlnk: @retlnk)
 		if check_access(roles: [:manager], obj: @coach)
 			respond_to do |format|
-				@coach.rebuild(coach_params)
-				@retlnk ||= coaches_path(search: @coach.s_name)
+				@coach.rebuild(coach_params, @club.country)
 				if @coach.modified?	# coach has been edited
 					if @coach.save
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
 						register_action(:updated, a_desc, url: coach_path(@coach, retlnk: home_log_path), modal: true)
-						format.html { redirect_to @retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :ok, location: @retlnk }
+						format.html { redirect_to r_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :ok, location: r_path }
 					else
 						prepare_form(title: I18n.t("coach.edit"))
 						format.html { render :edit }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
 				else	# no changes made
-					format.html { redirect_to @retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
-					format.json { render :index, status: :ok, location: @retlnk }
+					format.html { redirect_to r_path, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :show, status: :ok, location: r_path }
 				end
 			end
 		else
-			redirect_to coaches_path, data: {turbo_action: "replace"}
+			redirect_to r_path, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -142,29 +142,30 @@ class CoachesController < ApplicationController
 	# GET /coaches/import.json
 	def import
 		if check_access(roles: [:manager])
-			Coach.import(params[:file])	# added to import excel
+			Coach.import(params[:file], @club.country)	# added to import excel
 			a_desc = "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"
 			register_action(:imported, a_desc, url: coaches_path(retlnk: home_log_path))
 			redirect_to coaches_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"}
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to coaches_path, data: {turbo_action: "replace"}
 		end
 	end
 
  	# DELETE /coaches/1
 	# DELETE /coaches/1.json
 	def destroy
-		if check_access(roles: [:manager])
+		# cannot destroy placeholder coach (id ==0)
+		if @coach.id != 0 && check_access(roles: [:manager])
 			c_name = @coach.s_name
 			@coach.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("coach.deleted")} '#{c_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to coaches_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to @retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to coaches_path, data: {turbo_action: "replace"}
+			redirect_to @retlnk, data: {turbo_action: "replace"}
 		end
 	end
 
@@ -183,9 +184,9 @@ class CoachesController < ApplicationController
 		end
 
 		# defines correct retlnk based on params received
-		def get_retlnk
+		def get_retlnk(c_index: false)
 			if (rlnk = (param_passed(:retlnk) || param_passed(:coach, :retlnk)))
-				return safelink(rlnk)
+				return safelink(rlnk) || (c_index ? "/" : coaches_path)
 			elsif u_coach? || u_manager?
 				return coaches_path
 			elsif current_user

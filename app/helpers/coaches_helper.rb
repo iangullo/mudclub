@@ -38,7 +38,7 @@ module CoachesHelper
 
 		rows = Array.new
 		@coaches.each { |coach|
-			row = {url: coach_path(coach, retlnk: @retlnk), frame: "modal", items: []}
+			row = {url: coach_path(coach, retlnk: @retlnk), items: []}
 			row[:items] << {kind: "normal", value: coach.to_s}
 			row[:items] << {kind: "contact", email: coach.person.email, phone: coach.person.phone, device: device}
 			if u_manager?

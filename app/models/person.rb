@@ -106,7 +106,7 @@ class Person < ApplicationRecord
 		self.birthday  = f_data[:birthday].presence || self.birthday
 		self.nick      = f_data[:nick].presence || self.nick
 		self.female    = to_boolean(f_data[:female])
-		self.phone     = Phonelib.parse(f_data[:phone].delete(' ')).international.to_s if f_data[:phone].presence
+		self.phone     = parse_phone(f_data[:phone]) if f_data[:phone].presence
 		self.coach_id  = 0 unless self.coach_id.to_i > 0
 		self.player_id = 0 unless self.player_id.to_i > 0
 		self.parent_id = 0 unless self.parent_id.to_i > 0

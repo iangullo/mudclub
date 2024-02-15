@@ -270,7 +270,8 @@ class TeamsController < ApplicationController
 	# DELETE /teams/1
 	# DELETE /teams/1.json
 	def destroy
-		if check_access(roles: [:manager]) && @team
+		# cannot destroy placeholder teams (id: 0 || -1)
+		if @team.id > 0 && ccheck_access(roles: [:manager]) && @team
 			t_name = @team.to_s
 			@team.destroy
 			respond_to do |format|

@@ -94,7 +94,7 @@ module UsersHelper
 			{kind: "top-cell", value: I18n.t("calendar.date"), align: "center"},
 			{kind: "top-cell", value: I18n.t("drill.desc"), align: "center"}
 		]]
-		@user.user_actions.each { |u_act|
+		@user.user_actions.order(updated_at: :desc).each { |u_act|
 			res << [
 				{kind: "string", value: u_act.date_time, class: "border px py"},
 				{kind: "string", value: u_act.description, class: "border px py"}

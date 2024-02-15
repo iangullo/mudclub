@@ -97,15 +97,11 @@ class Coach < ApplicationRecord
 
 	#Search field matching
 	def self.search(search, manager=false)
-		if search
-			if search.present?
-				if manager
-					Coach.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
-				else
-					Coach.active.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
-				end
+		if search.present?
+			if manager
+				Coach.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
 			else
-				Coach.none
+				Coach.active.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
 			end
 		else
 			Coach.none

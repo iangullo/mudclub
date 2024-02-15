@@ -18,7 +18,6 @@
 #
 class UsersController < ApplicationController
 	include Filterable
-	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_user, only: [:show, :edit, :update, :destroy, :actions, :clear_actions]
 
 	# GET /users
