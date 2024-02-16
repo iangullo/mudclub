@@ -17,45 +17,6 @@
 # contact email - iangullo@gmail.com.
 #
 module PeopleHelper
-	# return icon and top of FieldsComponent
-	def person_title_fields(title:, icon: "person.svg", rows: 2, cols: nil, size: "75x100", _class: "w-75 h-100 rounded align-top m-1", form: nil)
-		title_start(icon:, title:, rows:, cols:, size:, _class: _class, form:)
-	end
-
-	# FieldComponent fields to show a person
-	def person_show_fields(person, title: I18n.t("person.single"), icon: person.picture, rows: 3, cols: 2)
-		res = person_title_fields(title:, icon:, rows:, cols:)
-		res << [{kind: "label", value: person.s_name, cols:}]
-		res << [{kind: "label", value: person.surname, cols:}]
-		res << [
-			{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"},
-			idpic_field(person)
-		]
-		res << [gap_field(size: 1), {kind: "string", value: person.birthday}]
-		res << [
-			{kind: "icon", value: "home.svg", class: "align-top"},
-			{kind: "string", value: simple_format("#{person.address}"), align: "left", cols: 2}
-		] if person.address.present?
-		res
-	end
-
-	# return FieldsComponent @fields for forms
-	def person_form_title(person, icon: person.picture, title:, cols: 2, sex: nil)
-		res = person_title_fields(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
-		res << [
-			{kind: "label", value: I18n.t("person.name_a")},
-			{kind: "text-box", key: :name, value: person.name, placeholder: I18n.t("person.name")}
-		]
-		res << [
-			{kind: "label", value: I18n.t("person.surname_a")},
-			{kind: "text-box", key: :surname, value: person.surname, placeholder: I18n.t("person.surname")}
-		]
-		res << (sex ? [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: person.female, align: "center"}] : [])
-		res.last << {kind: "icon", value: "calendar.svg"}
-		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person.birthday}
-		res
-	end
-
 	def person_form_fields(person)
 		res = [
 			[
@@ -81,6 +42,23 @@ module PeopleHelper
 		]
 	end
 
+	# return FieldsComponent @fields for forms
+	def person_form_title(person, icon: person.picture, title:, cols: 2, sex: nil)
+		res = person_title_fields(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
+		res << [
+			{kind: "label", value: I18n.t("person.name_a")},
+			{kind: "text-box", key: :name, value: person.name, placeholder: I18n.t("person.name")}
+		]
+		res << [
+			{kind: "label", value: I18n.t("person.surname_a")},
+			{kind: "text-box", key: :surname, value: person.surname, placeholder: I18n.t("person.surname")}
+		]
+		res << (sex ? [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: person.female, align: "center"}] : [])
+		res.last << {kind: "icon", value: "calendar.svg"}
+		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person.birthday}
+		res
+	end
+
 	# return title for @people GridComponent
 	def person_grid
 		title = [{kind: "normal", value: I18n.t("person.name")}]
@@ -94,6 +72,28 @@ module PeopleHelper
 			rows << row
 		}
 		{title: title, rows: rows}
+	end
+
+	# FieldComponent fields to show a person
+	def person_show_fields(person, title: I18n.t("person.single"), icon: person.picture, rows: 3, cols: 2)
+		res = person_title_fields(title:, icon:, rows:, cols:)
+		res << [{kind: "label", value: person.s_name, cols:}]
+		res << [{kind: "label", value: person.surname, cols:}]
+		res << [
+			{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"},
+			idpic_field(person)
+		]
+		res << [gap_field(size: 0), {kind: "string", value: person.birthday}]
+		res << [
+			{kind: "icon", value: "home.svg", class: "align-top"},
+			{kind: "string", value: simple_format("#{person.address}"), align: "left", cols: 2}
+		] if person.address.present?
+		res
+	end
+
+	# return icon and top of FieldsComponent
+	def person_title_fields(title:, icon: "person.svg", rows: 2, cols: nil, size: "75x100", _class: "w-75 h-100 rounded align-top m-1", form: nil)
+		title_start(icon:, title:, rows:, cols:, size:, _class: _class, form:)
 	end
 
 	private
@@ -123,7 +123,7 @@ module PeopleHelper
 					button[:options] << idpic_button(person, "id_back") if person.id_back.attached?
 					{kind: "dropdown", button:, class: "bg-white"}
 				else
-					{kind: "icon-label", icon:, label:, right: true, tip:}
+					{kind: "icon-label", icon:, label:, right: true, tip:, align: "left"}
 				end
 			end
 		end
