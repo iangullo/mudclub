@@ -436,46 +436,29 @@ class EventsController < ApplicationController
 
 		# determine the right retlnk
 		def get_retlnk
-			if params[:retlnk].present?
-				retlnk = params[:retlnk].presence
-			elsif params[:event].present?
-				if event_params[:retlnk].present?
-					retlnk = event_params[:retlnk].presence
-				elsif params[:task].present?
-					retlnk = event_params[:task][:retlnk].presence
-				end
-			elsif params[:season_id].present?
-				retlnk = params[:season_id].presence
-			end
-
-			if retlnk
-				return safelink(retlnk)
-			else
-				return (@event.team and @event.team_id > 0) ? team_path(@event.team) : season_path(@event.team.season)
-			end
-		end
-
-		# Sanitize retlink input
-		def safelink(lnk=nil, team: nil)
-			vlinks = [seasons_path, events_path, home_log_path]
+			def_path = (@event.team and @event.team_id > 0) ? team_path(@event.team) : season_path(@event.team.season)
+			retlnk   = (param_passed(:retlnk) || param_passed(:event, :retlnk) || param_passed(:event, :task, :retlnk))
+			retlnk ||= params[:season_id].presence
+			vlinks   = (u_manager? || u_admin?) ? [seasons_path, events_path, home_log_path] : []
 			if @event
 				vlinks += [
 					event_path(@event),
-					copy_event_path(@event),
-					edit_event_path(@event),
-					events_path(team_id: @event.team.id, start_date: @event.start_date.beginning_of_month, retlnk: team_path(@event.team)),
 					team_path(@event.team),
 					team_events_path(@event.team, start_date: @event.start_date.beginning_of_month),
-					season_path(@event.team.season),
-					season_events_path(@event.team.season, start_date: @event.start_date.beginning_of_month)
+					events_path(team_id: @event.team.id, start_date: @event.start_date.beginning_of_month, retlnk: team_path(@event.team))
 				]
+				vlinks << edit_event_path(@event) if @event.team.has_coach(u_coachid)
+				vlinks << team_events_path(@event.team, start_date: sdate) if (sdate = valid_date(retlnk))
+				if u_manager || u_coach?
+					vlinks << copy_event_path(@event)
+					vlinks += [
+						season_events_path(@event.team.season, start_date: @event.start_date.beginning_of_month)
+						season_path(@event.team.season),
+						season_events_path(@event.team.season, start_date: sdate)
+					] if u_manager
+				end
 			end
-			vlinks << team_path(team) if team
-			if (sdate = valid_date(lnk))
-				vlinks << team_events_path(@event.team, start_date: sdate)
-				vlinks << season_events_path(@event.team.season, start_date: sdate)
-			end
-			@retlnk = validate_link(lnk, vlinks)
+			parse_retlnk(retlnk:, valid_links: vlinks, def_path: events_path)
 		end
 
 		# Only allow a list of trusted parameters through.

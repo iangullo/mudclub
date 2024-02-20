@@ -41,6 +41,7 @@ class SearchBoxComponent < ApplicationComponent
 	def initialize(search:)
 		labels    = false
 		@s_url    = search[:url]
+		@s_filter = search[:filter].presence
 		@s_action = {action: "input->search-form#search"}
 		if search[:kind] == "search-box"	# we'll get an array of search_fields
 			@fields = search[:fields]

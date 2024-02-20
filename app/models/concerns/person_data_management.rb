@@ -19,7 +19,6 @@
 # PersonDataManagement: Module to abstract management of Person data in the
 # same way for all has_one :person objects.
 module PersonDataManagement
-
 	# return whether all pics are attached
 	def all_pics?
 		per = self.is_a?(Person) ? self : self.person
@@ -69,7 +68,7 @@ module PersonDataManagement
 	# imports person data from received excel row
 	# row is an array ordered as:
 	# [ dni, name, surname, nick, birthday, address, email, phone, female ]
-	def import_person_row(row)
+	def import_person_row(row, club=nil)
 		p_data = {
 			dni:      self.read_field(row[0], d_value(:dni), I18n.t("person.pid")),
 			name:     self.read_field(row[1], d_value(:name), ""),
@@ -78,7 +77,7 @@ module PersonDataManagement
 			birthday: self.read_field(row[4], d_value(:birthday), Date.today.to_s),
 			address:	self.read_field(row[5], d_value(:address), ""),
 			email:		self.read_field(row[6], d_value(:email), ""),
-			phone:    self.read_field(row[7], d_value(:phone), ""),
+			phone:    self.read_field(self.parse_phone(row[7], club&.country), d_value(:phone), ""),
 			female:   self.read_field(to_boolean(row[8].value), false, false)
 		}
 		Person.new.rebuild(p_data)
@@ -106,12 +105,6 @@ module PersonDataManagement
 		end
 	end
 
-	# parse phone number using defined locale as p_country
-	def parse_phone(p_number, p_ctry=nil)
-		ctry = p_ctry || Phonelib.default_country
-		Phonelib.parse(p_number.to_s.delete(' '), ctry).international.to_s
-	end
-
 	# attempt to unified rebuild Object method
 	def rebuild_obj_person(f_data)
 		if (p_aux = self.fetch_obj(f_data)) && (p_aux&.id != self.id)
@@ -131,21 +124,6 @@ module PersonDataManagement
 	# get team history
 	def team_list
 		self.teams.includes(:season).to_a.sort_by { |team| team.season.start_date }.reverse
-	end
-
-	# def update object attachment
-	def update_attachment(field, new_file=nil)
-		if self.respond_to?(field)
-			attachment = self.send(field)
-			if new_file
-				new_blob = new_file.read
-				unless new_blob == attachment&.blob # Compare blob content
-					attachment.purge if attachment.attached?
-					attachment.attach(new_file)
-					@attachment_changed = true
-				end
-			end
-		end
 	end
 
 	private

@@ -15,6 +15,7 @@
 			<% end %>
 		</div>
 		<% end %>
+		<%= fsearch.hidden_field(@s_filter[:key].to_sym, value: @s_filter[:value]) if @s_filter.presence %>
 		<div class='<%= S_CLASS %>'><%=image_submit_tag "search.svg", height: 25, alt: t("action.search"), class: "align-middle m-1" %></div>
 	<% end %>
 </div>

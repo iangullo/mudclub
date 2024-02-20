@@ -19,6 +19,12 @@
 class ApplicationRecord < ActiveRecord::Base
 	primary_abstract_class
 
+	# parse phone number using defined locale as p_country
+	def parse_phone(p_number, p_ctry=nil)
+		ctry = p_ctry || Phonelib.default_country
+		Phonelib.parse(p_number.to_s.delete(' '), ctry).international.to_s
+	end
+
 	# read new field value, keep old value if empty & possible
 	def read_field(dat_value, old_value, def_value)
 		if dat_value    # we read & assign
@@ -51,5 +57,20 @@ class ApplicationRecord < ActiveRecord::Base
 	def to_boolean(value)
 		val = value.presence
 		(val.to_s == "true" || val.to_i == 1)
+	end
+
+	# def update object attachment
+	def update_attachment(field, new_file=nil)
+		if self.respond_to?(field)
+			attachment = self.send(field)
+			if new_file
+				new_blob = new_file.read
+				unless new_blob == attachment&.blob # Compare blob content
+					attachment.purge if attachment.attached?
+					attachment.attach(new_file)
+					@attachment_changed = true
+				end
+			end
+		end
 	end
 end
