@@ -11,7 +11,7 @@
 			</div>
 		<% end %>
 	</template>
-	<% @form.fields_for @key, @form.object.send(@key).order(@order) do |ff| %>
+	<% @form.fields_for @key, @form&.object&.send(@key)&.order(@order) do |ff| %>
 		<% ff.object = ff.object.first if ff.object.try(:size) %>
 		<% ff_show   = true %>
 		<% if @filter %>
