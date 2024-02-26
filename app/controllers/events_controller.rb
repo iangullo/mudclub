@@ -333,25 +333,17 @@ class EventsController < ApplicationController
 
 		# determine the right retlnk
 		def get_retlnk
-			if @cal
-				if @event	# return to a calendar view
-					sdate = @event.start_date
-					return team_events_path(@event.team_id, start_date: sdate, cal: true) if @event&.team_id>0	# coming froma team calendar event view
-					return season_events_path(@event.team.season_id, start_date: sdate, cal: true) if @seasonid	# it's a season calendar
-					return "/"	# failsafe
-				end
-			else	# regular team/season views
-				case @rdx&.to_i
-				when 0
-					return team_path(id: @teamid, rdx: @rdx) if @teamid
-					return season_path(id: @seasonid, rdx: @rdx) if @seasonid
-					return "/"
-				when 1; return u_path
-				when 2; return home_log_path
-				else
-					return team_path(id: @teamid, rdx: @rdx) if @teamid
-					return teams_path(rdx: @rdx)
-				end
+			if @cal && @event	# return to a calendar view
+				sdate = @event.start_date
+				return team_events_path(@event.team_id, start_date: sdate, cal: true) if @event&.team_id>0	# coming froma team calendar event view
+				return season_events_path(@event.team.season_id, start_date: sdate, cal: true) if @seasonid	# it's a season calendar
+				return "/"	# failsafe
+			elsif @rdx&.to_i == 2	# called from a server log view
+				return home_log_path
+			else
+				return team_path(id: @teamid, rdx: @rdx) if @teamid
+				return season_path(id: @seasonid, rdx: @rdx) if @seasonid
+				return "/"
 			end
 		end
 
