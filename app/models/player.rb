@@ -118,7 +118,7 @@ class Player < ApplicationRecord
 
 	#short name for form viewing
 	def s_name
-		self.person ? self.person.s_name : I18n.t("player.single")
+		self.person&.s_name || I18n.t("player.single")
 	end
 
 	def set_changes_flag
@@ -127,7 +127,7 @@ class Player < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		self.person ? self.person.to_s : I18n.t("player.single")
+		self.person&.to_s || I18n.t("player.single")
 	end
 
 	# atempt to fetch a Player using form input hash

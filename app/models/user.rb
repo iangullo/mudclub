@@ -113,11 +113,7 @@ class User < ApplicationRecord
 	#short name for form viewing
 	def s_name
 		if self.person
-			if self.person.nick
-				self.person.nick.length >  0 ? self.person.nick : self.person.name
-			else
-				self.person.name
-			end
+			self.person.nick.presence || self.person.name
 		else
 			I18n.t("user.single")
 		end
@@ -137,7 +133,7 @@ class User < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		person ? person.to_s : I18n.t("user.single")
+		self.person&.to_s || I18n.t("user.single")
 	end
 
 	# atempt to fetch a User using form input hash

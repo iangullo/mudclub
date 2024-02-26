@@ -27,18 +27,19 @@ class Parent < ApplicationRecord
 	scope :active, -> { where("active = true") }
 	self.inheritance_column = "not_sti"
 
-	# Just list person's full name
-	def to_s
-		self.person ? self.person.to_s : I18n.t("person.single")
-	end
-
 	def name
 		self.s_name
 	end
 
+	# rebuild Parent data from raw input hash given by a form submittal
+	# avoids duplicate person binding
+	def rebuild(f_data)
+		self.rebuild_obj_person(f_data)
+	end
+
 	#short name for form viewing
 	def s_name
-		self.person ? self.person.s_name : I18n.t("person.show")
+		self.person&.s_name || I18n.t("person.show")
 	end
 
 	# wrapper to get teams of children
@@ -48,15 +49,9 @@ class Parent < ApplicationRecord
 		res.sort_by{ |team| team.season.start_date }.reverse
 	end
 
-	# atempt to fetch a Parent using form input hash
-	def self.fetch(f_data)
-		self.new.fetch_obj(f_data)
-	end
-
-	# rebuild Parent data from raw input hash given by a form submittal
-	# avoids duplicate person binding
-	def rebuild(f_data)
-		self.rebuild_obj_person(f_data)
+	# Just list person's full name
+	def to_s
+		self.person&.to_s || I18n.t("person.single")
 	end
 
 	# creates a new 'empty' parent to be used in Nested Forms.
@@ -64,6 +59,11 @@ class Parent < ApplicationRecord
 		res = Parent.new
 		res.build_person
 		res
+	end
+
+	# atempt to fetch a Parent using form input hash
+	def self.fetch(f_data)
+		self.new.fetch_obj(f_data)
 	end
 
 	private

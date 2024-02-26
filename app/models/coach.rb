@@ -58,7 +58,7 @@ class Coach < ApplicationRecord
 
 	#short name for form viewing
 	def s_name
-		self.person&.person.s_name || I18n.t("coach.show")
+		self.person&.s_name || I18n.t("coach.show")
 	end
 
 	# Just list person's full name
