@@ -31,8 +31,8 @@ class EventsController < ApplicationController
 			url        = (team ? team_events_path(team, start_date:) : (season ? season_events_path(season, start_date:) : events_path))
 			anchor     = {url:, rdx: @rdx}
 			@title     = create_fields(helpers.event_index_title(team:, season:))
-			@calendar  = CalendarComponent.new(anchor:, obj: (team || season), start_date:, user: current_user, create_url: new_event_path(team_id: @teamid, season_id: @seasonid, rdx: @rdx))
-			retlnk     = (team_path(team, rdx: @rdx) || season_path(season, rdx: @rdx) || u_path)
+			@calendar  = CalendarComponent.new(anchor:, obj: (team || season), start_date:, user: current_user, create_url: new_event_path)
+			retlnk     = (team ? team_path(team, rdx: @rdx) : season_path(season, rdx: @rdx))
 			@submit    = create_submit(close: "back", submit: nil, retlnk:)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -98,15 +98,16 @@ class EventsController < ApplicationController
 		if check_access(roles: [:manager]) || @event.team.has_coach(u_coachid)
 			@event = Event.prepare(event_params)
 			respond_to do |format|
-				@event.rebuild(event_params)
+				e_data  = event_params
+				@event.rebuild(e_data)
 				if @event.save
-					prepare_update_redirect
+					prepare_update_redirect(e_data)
 					link_holidays
 					c_notice = helpers.event_create_notice
 					modal    = @event.rest?
 					register_action(:created, c_notice[:message], url: event_path(@event, rdx: 2), modal:)
-					format.html { redirect_to retlnk, notice: c_notice, data: {turbo_action: "replace"} }
-					format.json { render :show, status: :created, location: retlnk}
+					format.html { redirect_to @retlnk, notice: c_notice, data: {turbo_action: "replace"} }
+					format.json { render :show, status: :created, location: @retlnk}
 				else
 					prepare_event_form(new: true)
 					format.html { render :new, status: :unprocessable_entity }
@@ -126,6 +127,7 @@ class EventsController < ApplicationController
 				url     = event_path(@event, rdx: @rdx)
 				modal   = @event.rest?
 				@player = Player.find_by_id(e_data[:player_id].presence)
+				@event.rebuild(e_data)
 				prepare_update_redirect(e_data)
 				if e_data[:player_ids].present?	# updated attendance
 					changed = check_attendance(e_data[:player_ids])
@@ -421,14 +423,21 @@ class EventsController < ApplicationController
 
 		# establish redirection & notice for based on update kind
 		def prepare_update_redirect(e_data)
-			@event.rebuild(e_data)
 			if e_data[:task].present?
 				@notice  = I18n.t("task.updated")
 				@retview = :edit
 				@retlnk  = edit_event_path(@event, rdx: @rdx, cal: @cal)
 			elsif params[:event].present?
 				@retview = :show
-				@retlnk  = event_path(@event, rdx: @rdx, cal: @cal) unless @event.rest?
+				if @cal || @event.rest? #--> Calendar view
+					if @event.team_id.to_i > 0 # team events
+						@retlnk = team_events_path(@event.team, start_date: @event.start_date, rdx: @rdx, cal: true)
+					else
+						@retlnk = season_events_path(@event.start_date, start_date: @event.start_date, rdx: @rdx, cal: true)
+					end
+				else
+					@retlnk = event_path(@event, rdx: @rdx, cal: @cal) unless @event.rest?
+				end
 				if @event.modified?
 					@notice = I18n.t("#{@event.kind}.updated")
 				elsif	e_data[:player_ids].present?	# players to partcipate
@@ -474,6 +483,7 @@ class EventsController < ApplicationController
 		def event_params
 			params.require(:event).permit(
 					:id,
+					:cal,
 					:copy,
 					:drill_id,
 					:duration,

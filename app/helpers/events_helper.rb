@@ -329,7 +329,6 @@ module EventsHelper
 					res[1] << {kind: "icon", value: "clock.svg"}
 					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, mins: @event.min}
 				end
-				res.last << {kind: "hidden", key: :season_id, value: @seasonid} if @event.team.id==0
 				res.last << {kind: "hidden", key: :team_id, value: @event.team_id} unless copy
 				res.last << {kind: "hidden", key: :cal, value: @cal}
 				res.last << {kind: "hidden", key: :rdx, value: @rdx}

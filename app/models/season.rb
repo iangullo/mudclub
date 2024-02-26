@@ -31,8 +31,14 @@ class Season < ApplicationRecord
 		Location.real - self.locations
 	end
 
+	# returns theyear where a season ends
 	def end_year
 		self.end_date.year.to_i
+	end
+
+	# Return club-wide events for this season
+	def events
+		Event.for_season(self).non_training
 	end
 
 	# returns an ordered array of months
