@@ -330,8 +330,8 @@ module EventsHelper
 					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, mins: @event.min}
 				end
 				res.last << {kind: "hidden", key: :team_id, value: @event.team_id} unless copy
-				res.last << {kind: "hidden", key: :cal, value: @cal}
-				res.last << {kind: "hidden", key: :rdx, value: @rdx}
+				res.last << {kind: "hidden", key: :cal, value: @cal} if @cal
+				res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 				res.last << {kind: "hidden", key: :kind, value: @event.kind}
 			else
 				res[0] << {kind: "icon-label", icon: "calendar.svg", label: @event.date_string}

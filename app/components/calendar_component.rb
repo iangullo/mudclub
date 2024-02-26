@@ -155,8 +155,8 @@ class CalendarComponent < ApplicationComponent
 		# dropdown button definition to create a new Event
 		def add_event_button(obj:, clubevent: nil, i:, j:, create_url:)
 			return nil if ((@cells[i][j][:date] > @e_date) || (@cells[i][j][:date] < @s_date))
-			c_url  = "#{create_url}?event[start_date]=#{@cells[i][j][:date]}&cal=true"
-			c_url += "&rdx=#{@rdx}" if @rdx
+			c_url  = "#{create_url}?event[start_date]=#{@cells[i][j][:date]}&event[cal]=true"
+			c_url += "&event[rdx]=#{@rdx}" if @rdx
 			cname  = "add_btn_#{i}_#{j}"
 			if clubevent # new season event
 				return ButtonComponent.new(button: {kind: "add", name: cname, url: c_url + "&event[kind]=rest&event[team_id]=0", frame: "modal"})

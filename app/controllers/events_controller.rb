@@ -67,8 +67,9 @@ class EventsController < ApplicationController
 	# GET /events/new
 	def new
 		if check_access(roles: [:manager, :coach])
+			get_event_context
 			@event  = Event.prepare(event_params)
-			@season = (@event.team_id == 0) ? Season.search(event_params[:season_id]) : @event.team.season
+			@season = (@event.team_id == 0) ? Season.search(@seasonid) : @event.team.season
 			@sport  = @event.team.sport&.specific
 			if @event
 				if @event.rest? or (@event.team_id >0 and @event.team.has_coach(u_coachid))
@@ -96,6 +97,7 @@ class EventsController < ApplicationController
 	# POST /events or /events.json
 	def create
 		if check_access(roles: [:manager]) || @event.team.has_coach(u_coachid)
+			get_event_context
 			@event = Event.prepare(event_params)
 			respond_to do |format|
 				e_data  = event_params
