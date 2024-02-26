@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,54 +26,13 @@ class Season < ApplicationRecord
 	scope :real, -> { where("id>0") }
 	self.inheritance_column = "not_sti"
 
-	# return season name - taking start & finish years
-	def name(safe: nil)
-		if self.id == 0	# fake season for all events/teams
-			cad = I18n.t("scope.all")
-		else
-			cad = self.start_year.to_s
-			if self.end_year > self.start_year
-				sep  = safe ? "_" : "/"
-				cad += "#{sep}#{(self.end_year % 100)}"
-			end
-		end
-		cad
-	end
-
-	def start_year
-		self.start_date.year.to_i
+	# elgible locations to train / play
+	def eligible_locations
+		Location.real - self.locations
 	end
 
 	def end_year
 		self.end_date.year.to_i
-	end
-
-	#Search field matching
-	def self.search(search)
-		if search
-			search.to_s.length>0 ? Season.where(["id = ?","#{search.to_s}"]).first : Season.real.last
-		else
-			Season.last
-		end
-	end
-
-	#Search field matching
-	def self.search_date(s_date)
-		res = nil
-		if s_date
-			sd = s_date.to_date	# ensure type conversion
-			if sd
-				Season.real.each { |season|
-					return season if sd.between?(season.start_date, season.end_date)
-				}
-			end
-		end
-		return res
-	end
-
-	# elgible locations to train / play
-	def eligible_locations
-		@locations = Location.real - self.locations
 	end
 
 	# returns an ordered array of months
@@ -92,6 +51,38 @@ class Season < ApplicationRecord
 		r
 	end
 
+	# return season name - taking start & finish years
+	def name(safe: nil)
+		if self.id == 0	# fake season for all events/teams
+			cad = I18n.t("scope.all")
+		else
+			cad = self.start_year.to_s
+			if self.end_year > self.start_year
+				sep  = safe ? "_" : "/"
+				cad += "#{sep}#{(self.end_year % 100)}"
+			end
+		end
+		cad
+	end
+
+	# parse data from raw input given by submittal from "new" or "edit"
+	def rebuild(f_data)
+		self.start_date = f_data[:start_date] if f_data[:start_date]
+		self.end_date   = f_data[:end_date] if f_data[:end_date]
+	end
+
+	def start_year
+		self.start_date.year.to_i
+	end
+
+	# ensure clean deleting of a Season - SHOULD NEVER HAPPEN!!
+	def unlink
+		self.slots.delete_all
+		self.teams.delete_all
+		self.locations.delete_all
+		UserAction.prune("/seasons/#{self.id}")
+	end
+
 	# return the latest season registered
 	def self.latest
 		# check past seasons
@@ -106,17 +97,33 @@ class Season < ApplicationRecord
 		p_season
 	end
 
-	# parse data from raw input given by submittal from "new" or "edit"
-	def rebuild(f_data)
-		self.start_date = f_data[:start_date] if f_data[:start_date]
-		self.end_date   = f_data[:end_date] if f_data[:end_date]
+	# options list for search-select boxes
+	def self.list
+		res = []
+		Season.real.order(start_date: :desc).each do |season|
+			res << [season.name, season.id]
+		end
+		return res
 	end
 
-	# ensure clean deleting of a Season - SHOULD NEVER HAPPEN!!
-	def unlink
-		self.slots.delete_all
-		self.teams.delete_all
-		self.locations.delete_all
-		UserAction.prune("/seasons/#{self.id}")
+	#Search field matching
+	def self.search(search)
+		res   = (Season.find_by_id(search) || Season.search_date(search)) if search.present?
+		res ||= Season.latest
+		return (res || Season.real.last)
+	end
+
+	#Search field matching
+	def self.search_date(s_date)
+		res = nil
+		if s_date
+			sd = s_date.to_date	# ensure type conversion
+			if sd
+				Season.real.each { |season|
+					return season if sd.between?(season.start_date, season.end_date)
+				}
+			end
+		end
+		return res
 	end
 end

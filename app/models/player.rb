@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ class Player < ApplicationRecord
 	attr_accessor :parent_changed
 	before_destroy :unlink
 	after_initialize :set_changes_flag
-	has_one :person
+		has_one :person
 	has_one_attached :avatar
 	has_many :stats, dependent: :destroy
 	has_and_belongs_to_many :teams
@@ -30,12 +30,17 @@ class Player < ApplicationRecord
 	accepts_nested_attributes_for :person, update_only: true
 	accepts_nested_attributes_for :parents, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
-	scope :real, -> { where("id>0") }
 	scope :active, -> { where("active = true") }
 	scope :female, -> { joins(:person).where("female = true") }
 	scope :male, -> { joins(:person).where("female = false") }
+	scope :real, -> { where("id>0") }
 	self.inheritance_column = "not_sti"
 	FILTER_PARAMS = %i[search].freeze
+
+	# returns whether the object is bound to a real club
+	def active?
+		self.active
+	end
 
 	# get attendance data for player over the period specified by "during"
 	# returns attendance inthe form of:
@@ -165,12 +170,15 @@ class Player < ApplicationRecord
 	end
 
 	#Search field matching
-	def self.search(search, manager=false)
+	def self.search(search, user=nil)
 		if search.present?
-			if manager
-				Player.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
+			sqry = ["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]
+			if user&.is_manager?	# only players retired and belonging to the managers club 
+				Player.where(person_id: Person.where(sqry).order(:birthday))
+			elsif user&.coach?
+				Player.where(person_id: Person.where(sqry).order(:birthday))
 			else
-				Player.active.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
+				Player.none
 			end
 		else
 			Player.none

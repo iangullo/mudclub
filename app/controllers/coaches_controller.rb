@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,18 +20,17 @@ class CoachesController < ApplicationController
 	include Filterable
 	before_action :set_coach, only: [:show, :edit, :update, :destroy]
 
-	# GET /coaches
+	# GET /coaches 
 	# GET /coaches.json
 	def index
-		@retlnk = get_retlnk(c_index: true)
 		if check_access(roles: [:manager, :coach])
 			@coaches = get_coaches
 			title    = helpers.person_title_fields(title: I18n.t("coach.many"), icon: "coach.svg")
-			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('coach_filters','search'), url: coaches_path}]
+			title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: coaches_path}]
 			@fields = create_fields(title)
 			@grid   = create_grid(helpers.coach_grid)
-			submit  = {kind: "export", url: teams_path(format: :xlsx), working: false} if u_manager?
-			@submit = create_submit(close: "back", close_return: @retlnk, submit:)
+			submit  = u_manager? ? {kind: "export", url: coaches_path(format: :xlsx), working: false} : nil
+			@submit = create_submit(close: "back", retlnk: "/", submit:)
 			respond_to do |format|
 				format.xlsx {
 					a_desc = "#{I18n.t("coach.export")} 'coaches.xlsx'"
@@ -51,22 +50,22 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:manager, :coach])
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
-			submit  = (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach, retlnk: @retlnk) : nil
-			@submit = create_submit(close: "back", close_return: @retlnk, submit:, frame: "modal")
+			retlnk  = get_retlnk
+			submit  = (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach, team_id: pteam_id, user: p_userid) : nil
+			@submit = create_submit(close: "back", retlnk:, submit:, frame: "modal")
 		else
-			redirect_to @retlnk, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# GET /coaches/new
 	def new
-		@retlnk = get_retlnk
 		if check_access(roles: [:manager])
 			@coach = Coach.new(active: true)
 			@coach.build_person
 			prepare_form(title: I18n.t("coach.new"))
 		else
-			redirect_to @retlnk, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -75,52 +74,51 @@ class CoachesController < ApplicationController
 		if check_access(roles: [:manager], obj: @coach)
 			prepare_form(title: I18n.t("coach.edit"))
 		else
-			redirect_to @retlnk, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	# POST /coaches
+	# POST /coaches 
 	# POST /coaches.json
 	def create
-		@retlnk = get_retlnk
 		if check_access(roles: [:manager])
 			respond_to do |format|
 				@coach = Coach.new
-				@coach.rebuild(coach_params, @club.country)	# rebuild coach
+				@coach.rebuild(coach_params)	# rebuild coach
 				if @coach.id == nil then	# it's a new coach
 					if @coach.paranoid_create # coach saved to database
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
-						register_action(:created, a_desc, url: coach_path(@coach, retlnk: home_log), modal: true)
-						format.html { redirect_to coach_path(@coach, retlnk: @retlnk), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :show, status: :created, location: coach_path(@coach, retlnk: @retlnk) }
+						register_action(:created, a_desc, url: coach_path(@coach, rdx: 2), modal: true)
+						format.html { redirect_to coach_path(@coach, rdx: 0), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :created, location: coach_path(@coach, rdx: 0) }
 					else
 						prepare_form(title: I18n.t("coach.new"))
 						format.html { render :new }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
 				else	# duplicate coach
-					format.html { redirect_to coach_path(@coach, retlnk: @retlnk), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
-					format.json { render :index,  :created, location: coaches_path(search: @coach.s_name) }
+					format.html { redirect_to coach_path(@coach, rdx: 0), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
+					format.json { render :show,  :created, location: coach_path(@coach) }
 				end
 			end
 		else
-			redirect_to @retlnk, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# PATCH/PUT /coaches/1
 	# PATCH/PUT /coaches/1.json
 	def update
-		r_path = coach_path(@coach, retlnk: @retlnk)
 		if check_access(roles: [:manager], obj: @coach)
+			r_path = coach_path(@coach, rdx: @rdx)
 			respond_to do |format|
-				@coach.rebuild(coach_params, @club.country)
+				@coach.rebuild(coach_params)
 				if @coach.modified?	# coach has been edited
 					if @coach.save
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
-						register_action(:updated, a_desc, url: coach_path(@coach, retlnk: home_log_path), modal: true)
+						register_action(:updated, a_desc, url: coach_path(@coach, rdx: 2), modal: true)
 						format.html { redirect_to r_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: r_path }
 					else
@@ -134,7 +132,7 @@ class CoachesController < ApplicationController
 				end
 			end
 		else
-			redirect_to r_path, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -142,12 +140,12 @@ class CoachesController < ApplicationController
 	# GET /coaches/import.json
 	def import
 		if check_access(roles: [:manager])
-			Coach.import(params[:file], @club.country)	# added to import excel
+			Coach.import(params[:file])	# added to import excel
 			a_desc = "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"
-			register_action(:imported, a_desc, url: coaches_path(retlnk: home_log_path))
-			redirect_to coaches_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"}
+			register_action(:imported, a_desc, url: coaches_path(rdx: 2))
+			redirect_to coaches_path(rdx: @rdx), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"}
 		else
-			redirect_to coaches_path, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -161,65 +159,43 @@ class CoachesController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("coach.deleted")} '#{c_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to @retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to coaches_path(rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to @retlnk, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	private
 		# get coach list depending on the search parameter & user role
 		def get_coaches
-			if params[:search].present?
-				@coaches = Coach.search(params[:search], u_manager?)
-			else
-				if u_manager? or u_coach?
-					Coach.active
-				else
-					Coach.none
-				end
-			end
+			@coaches = Coach.search(params[:search], current_user)
 		end
 
 		# defines correct retlnk based on params received
-		def get_retlnk(c_index: false)
-			if (rlnk = (param_passed(:retlnk) || param_passed(:coach, :retlnk)))
-				return safelink(rlnk) || (c_index ? "/" : coaches_path)
-			elsif u_coach? || u_manager?
-				return coaches_path
-			elsif current_user
-				return user_path(current_user)
+		def get_retlnk
+			binding.break
+			return team_path(team_id:, user: current_user, rdx: @rdx) if p_teamid && current_user
+			case @rdx&.to_i
+			when 0;	return coaches_path(rdx: 0)
+			when 1; return u_path
+			when 2; return home_log_path
+			else; return "/"
 			end
 		end
 
 		# prepare form FieldComponents
 		def prepare_form(title:)
-			@retlnk ||= coaches_path(search: @coach.s_name)	# ensure we have a valid return link
 			@title    = create_fields(helpers.person_form_title(@coach.person, title:, icon: @coach.picture))
-			@c_fields = create_fields(helpers.coach_form_fields)
+			@c_fields = create_fields(helpers.coach_form_fields(team_id: p_teamid, user: p_userid))
 			@p_fields = create_fields(helpers.person_form_fields(@coach.person))
 			@submit   = create_submit
 		end
 
-		# return array of safe links to redirect
-		def safelink(lnk=nil)
-			val = [home_log_path, coaches_path]
-			val << (u_path = current_user ? user_path(current_user) : "/")
-			val << coaches_path(search: @coach.s_name) if @coach
-			@coach&.teams&.each do |team|
-				val << team_path(team)
-				val << team_path(team, retlnk: teams_path(season_id: team.season_id))
-				val << roster_team_path(team, retlnk: teams_path(retlnk: u_path))
-			end
-			validate_link(lnk, val)
-		end
-
 		# Use callbacks to share common setup or constraints between actions.
 		def set_coach
-			@coach  = Coach.find_by_id(params[:id]) unless @coach&.id==params[:id]
-			@retlnk = get_retlnk
+			@coach = Coach.find_by_id(params[:id]) unless @coach&.id==params[:id]&.to_i
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
@@ -228,7 +204,9 @@ class CoachesController < ApplicationController
 				:id,
 				:active,
 				:avatar,
-				:retlnk,
+				:rdx,
+				:team_id, # used to build return links
+				:user,
 				person_attributes: [
 					:id,
 					:address,

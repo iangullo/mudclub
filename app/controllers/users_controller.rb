@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,12 +24,13 @@ class UsersController < ApplicationController
 	# GET /users.json
 	def index
 		if check_access(roles: [:admin])
-			@users  = User.search(params[:search] ? params[:search] : session.dig('user_filters', 'search'))
+			search  = (params[:search].presence || session.dig('user_filters', 'search'))
+			@users  = User.search(search)
 			title   = helpers.person_title_fields(title: I18n.t("user.many"), icon: "user.svg", size: "50x50")
-			title << [{kind: "search-text", key: :search, value: params[:search] ? params[:search] : session.dig('user_filters', 'search'), url: users_path}]
+			title << [{kind: "search-text", key: :search, value: search, url: users_path}]
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.user_grid)
-			@submit = create_submit(close: "back", close_return: u_manager? ? "/" : user_path(current_user), submit: nil)
+			@submit = create_submit(close: "back", retlnk: "/", submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -39,10 +40,13 @@ class UsersController < ApplicationController
 	# GET /users/1.json
 	def show
 		if check_access(roles: [:admin], obj: @user)
-			@title  = create_fields(helpers.user_show_fields)
-			@role   = create_fields(helpers.user_role_fields)
-			@grid   = create_grid(helpers.team_grid(teams: @user.team_list))
-			@submit = create_submit(close: "back", close_return: :back, submit: edit_user_path(@user), frame: "modal")
+			@title = create_fields(helpers.user_show_fields)
+			@role  = create_fields(helpers.user_role_fields(@user))
+			@grid  = create_grid(helpers.team_grid(teams: @user.team_list))
+			close  = (@rdx==1 ? nil : "back")
+			retlnk = (@log ? home_log_path : users_path)
+			submit  = edit_user_path(@user, rdx: @rdx) if u_admin? || @rdx==1
+			@submit = create_submit(close:, retlnk:, submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -51,7 +55,7 @@ class UsersController < ApplicationController
 	# GET /users/new
 	def new
 		if check_access(roles: [:admin])
-			@user = User.new
+			@user = User.new(locale: current_user.locale)
 			@user.build_person
 			prepare_form(I18n.t("user.new"), create: true)
 		else
@@ -62,7 +66,7 @@ class UsersController < ApplicationController
 	# GET /users/1/edit
 	def edit
 		if check_access(roles: [:admin], obj: @user)
-			prepare_form(I18n.t("user.edit"))
+			prepare_form(I18n.t("user.edit"), home: p_home(:user))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -77,10 +81,11 @@ class UsersController < ApplicationController
 				if @user.modified? then
 					if @user.email.presence && @user.paranoid_create
 						@user.bind_person(save_changes: true) # ensure binding is correct
-						a_desc = "#{I18n.t("user.created")} '#{@user.s_name}'"
-						register_action(:created, a_desc, url: user_path(@user))
-						format.html { redirect_to users_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: users_path }
+						userview = user_path(@user)
+						a_desc   = "#{I18n.t("user.created")} '#{@user.s_name}'"
+						register_action(:created, a_desc, url: user_path(@user, rdx: 2))
+						format.html { redirect_to userview, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :created, location: userview }
 					else
 						prepare_form(I18n.t("user.new"), create: true)
 						format.html { render :new, notice: helpers.flash_message("#{@user.errors}","error") }
@@ -107,21 +112,22 @@ class UsersController < ApplicationController
 					params[:user].delete(:password_confirmation)
 				end
 				@user.rebuild(user_params)	# rebuild user
+				userview = user_path(@user, rdx: @rdx)
 				if @user.modified?
 					if @user.email.presence && @user.save
 						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.updated")} '#{@user.s_name}'"
-						register_action(:updated, a_desc, url: user_path(@user))
-						format.html { redirect_to user_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-						format.json { render :show, status: :ok, location: user_path }
+						register_action(:updated, a_desc, url: user_path(@user, rdx: 2))
+						format.html { redirect_to userview, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :ok, location: userview }
 					else
-						prepare_form(I18n.t("user.edit"))
+						prepare_form(I18n.t("user.edit"), home: p_home(:user))
 						format.html { render :edit }
 						format.json { render json: @user.errors, status: :unprocessable_entity }
 					end
 				else	# no changes made
-					format.html { redirect_to user_path, notice: no_data_notice, data: {turbo_action: "replace"} }
-					format.json { render :show, status: :ok, location: user_path }
+					format.html { redirect_to userview, notice: no_data_notice, data: {turbo_action: "replace"} }
+					format.json { render :show, status: :ok, location: userview }
 				end
 			end
 		else
@@ -164,7 +170,7 @@ class UsersController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("user.cleared")} '#{@user.s_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to user_path(@user), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to user_path(@user, rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
@@ -174,7 +180,7 @@ class UsersController < ApplicationController
 
 	private
 		# Prepare user form
-		def prepare_form(title, create: nil)
+		def prepare_form(title, create: nil, rdx: @rdx)
 			@title    = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
 			@role     = create_fields(helpers.user_form_role)
 			@p_fields = create_fields(helpers.person_form_fields(@user.person))
@@ -186,7 +192,8 @@ class UsersController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_user
-			@user = User.find_by_id(params[:id]) unless @user&.id==params[:id]
+			@user = (User.find_by_id(params[:id]) unless @user&.id==params[:id]) || current_user
+			@rdx  = 1 if (@user&.id.to_i == current_user.id)
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
@@ -195,6 +202,7 @@ class UsersController < ApplicationController
 				:id,
 				:email,
 				:locale,
+				:rdx,
 				:role,
 				:password,
 				:password_confirmation,

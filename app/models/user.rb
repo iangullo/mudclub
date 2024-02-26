@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,20 +38,28 @@ class User < ApplicationRecord
 		en: 1
 	}
 
+	def active?
+		return true
+	end
+
 	def coach
-		(self.person&.coach_id.to_i > 0) ? self.person.coach : nil
+		(self.person&.coach_id&.to_i > 0) ? self.person.coach : nil
 	end
 
 	def is_coach?
-		(self.person&.coach_id.to_i > 0 && self.person.coach.active) or self.coach?
+		(self.person&.coach_id&.to_i > 0 && self.person.coach.active) or self.coach?
+	end
+
+	def is_manager?
+		self.manager? || (self.admin? && self.is_coach?)
 	end
 
 	def is_parent?
-		self.person&.parent_id.to_i > 0
+		self.person&.parent_id&.to_i > 0
 	end
 
 	def is_player?
-		(self.person&.player_id.to_i > 0 && self.person.player.active) or self.player?
+		self.person&.player_id&.to_i > 0 || self.player?
 	end
 
 	# return last login IP
@@ -71,7 +79,7 @@ class User < ApplicationRecord
 	end
 
 	def player
-		(self.person&.player_id.to_i > 0) ? self.person.player : nil
+		(self.person&.player_id&.to_i > 0) ? self.person.player : nil
 	end
 
 	# return attached avatar (or default user icon)
@@ -91,11 +99,11 @@ class User < ApplicationRecord
 			self.locale                = f_data[:locale] if f_data[:locale]
 			self.password              = f_data[:password] if f_data[:password]
 			self.password_confirmation = f_data[:password_confirmation] if f_data[:password_confirmation]
-			if self.player? and self.person.player_id.to_i==0 # need to get the player?
+			if self.is_player? && self.person.player_id.to_i==0 # need to get the player?
 				self.person.player = Player.create(active: true, number: 0, person_id: self.person_id)
 				self.person.player.bind_person(save_changes: true)
 			end
-			if self.coach? and self.person.coach_id.to_i==0 # need to create a Coach?
+			if self.is_coach? && self.person.coach_id.to_i==0 # need to create a Coach?
 				self.person.coach = Coach.create(active: true, person_id: self.person_id)
 				self.person.coach.bind_person(save_changes: true)
 			end
@@ -139,7 +147,7 @@ class User < ApplicationRecord
 
 	# list of possible user locales for select box configuration
 	def self.locale_list
-		User.locales.keys.map {|locale| [I18n.t("locale.#{locale}"),locale]}
+		User.locales.keys.map {|locale| [I18n.t("locale.#{locale}", locale:), locale]}
 	end
 
 	# list of possible user roles for select box configuration

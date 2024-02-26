@@ -17,24 +17,23 @@
 # contact email - iangullo@gmail.com.
 #
 class SlotsController < ApplicationController
-	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_slot, only: [:show, :edit, :update, :destroy]
 
 
 	# GET /slots or /slots.json
 	def index
 		if check_access(roles: [:user])
-			@season   = Season.search(params[:season_id])
-			@location = params[:location_id] ? Location.find(params[:location_id]) : @season.locations.practice.first
-			title     = helpers.slot_title_fields(title: I18n.t("slot.many"))
+			@locations = @season.locations.practice.order(name: :asc)
+			@location  = Location.find_by_id(params[:location_id]) || @locations.first
+			title      = helpers.slot_title_fields(title: I18n.t("slot.many"))
 			title << [
 				helpers.gap_field(size: 1),
-				{kind: "search-collection", key: :location_id, url: slots_path, options: @season.locations.practice, value: @location.id}
+				{kind: "search-collection", key: :location_id, url: slots_path, options: @locations, value: @location.id}
 			]
 			@fields   = create_fields(title)
-			week_view if @season and @location
-			@btn_add  = create_button({kind: "add", url: new_slot_path(location_id: @location&.id, season_id: @season&.id), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
-			@submit   = create_submit(close: "back", submit: nil, close_return: seasons_path(season_id: @season.id))
+			week_view if @location
+			@btn_add  = create_button({kind: "add", url: new_slot_path(location_id: @location&.id, season_id: @season.id), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
+			@submit   = create_submit(close: "back", submit: nil, retlnk: season_path(@season))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -54,21 +53,22 @@ class SlotsController < ApplicationController
 	# GET /slots/new
 	def new
 		if check_access(roles: [:manager])
-			@season   = Season.find(params[:season_id]) if params[:season_id]
-			@slot     = Slot.new(season_id: @season ? @season.id : 1, location_id: params[:location_id] ? params[:location_id] : 1, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
+			@locations  = @season.locations.practice.order(name: :asc)
+			location_id = params[:location_id] || @locations.first
+			@slot       = Slot.new(season_id: @season.id, location_id:, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
 			prepare_form(title: I18n.t("slot.new"))
 		else
-			redirect_to slots_path, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	# GET /slots/1/edit
 	def edit
 		if check_access(roles: [:manager])
-			@season = Season.find(@slot.season_id)
+			get_season(obj: @slot)
 			prepare_form(title: I18n.t("slot.edit"))
 		else
-			redirect_to slots_path, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -78,8 +78,8 @@ class SlotsController < ApplicationController
 			@slot = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
-				@season = Season.find(@slot.season_id)
-				retlnk  = @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_path
+				get_season(obj: @slot)
+				retlnk = season_slots_path(@season, location_id: @slot.location_id)
 				if @slot.changed?
 					if @slot.save # try to store
 						a_desc = "#{I18n.t("slot.created")} '#{@slot.to_s}'"
@@ -106,8 +106,7 @@ class SlotsController < ApplicationController
 		if check_access(roles: [:manager])
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
-				@season = Season.find(@slot.season_id)
-				retlnk  = @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_path(location_id: @slot.location_id)
+				retlnk = season_slots_path(@season, location_id: @slot.location_id)
 				if @slot.changed?
 					if @slot.save
 						a_desc = "#{I18n.t("slot.updated")} '#{@slot.to_s}'"
@@ -125,7 +124,7 @@ class SlotsController < ApplicationController
 				end
 			end
 		else
-			redirect_to slots_path, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -133,19 +132,73 @@ class SlotsController < ApplicationController
 	def destroy
 		if check_access(roles: [:manager])
 			s_name = @slot.to_s
+			retlnk = season_slots_path(@season, location_id: @slot.location_id)
 			@slot.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("slot.deleted")} '#{s_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to @season ? season_slots_path(@season, location_id: @slot.location_id) : slots_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to slots_path, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
 	private
+		# Create fresh time_table slices for each timetable row
+		def create_slices
+			slices  = []
+			t_start = Time.utc(2000,1,1,16,00)
+			t_end   = Time.utc(2000,1,1,22,30)
+			t_hour  = t_start # reset clock
+			while t_hour < t_end  # cicle the full day
+				slices << {time: t_hour, label: t_hour.min==0 ? (t_hour.hour.to_s.rjust(2,"0") + ":00") : nil, chunks: []}
+				t_hour = t_hour + 15.minutes  # 15 min intervals
+			end
+			slices
+		end
+
+		# Create associated gap if needed
+		# if t_slot is passed, it needs to be operationg at s_time
+		def create_gap(s_time, d_cols, s_slots, t_slot=nil, t_cols=0)
+			gap = nil  # no gap yet
+			if t_cols < d_cols # only create if we have a wider d_col
+				t_time  = s_time
+				s_end   = t_slot ? t_slot.ending : s_time + 1.minute
+				t_slots = t_slot ? s_slots.excluding(t_slot) : s_slots
+				overlap = t_slot ? t_slots.size>0 : false # check overlaps
+				gap = {gap: true, rows: 1, cols: d_cols-t_cols} unless overlap  # we will need a gap
+			end
+			gap
+		end
+
+		# CALCULATE HOW MANY cols we need to reserve for this day
+		# i.e. overlapping teams in same location/time
+		def day_cols(sea_id, loc_id, wday)
+			res     = 1
+			s_time  = Time.new(2021,9,1,16,0)
+			e_time  = Time.new(2021,9,1,22,30)
+			t_time  = s_time
+			d_slots = Slot.by_wday(wday, @w_slots)
+			while t_time < e_time do	# check the full day
+				s_count = 0
+				d_slots.each { |slot|
+					s_count = s_count+1 if slot.at_work?(wday, t_time)
+				}
+				res     = s_count if s_count > res
+				t_time  = t_time + 15.minutes
+			end
+			res
+		end
+
+		# prepare fields to renfeer edit/new slot form
+		def prepare_form(title:)
+			@fields = create_fields(helpers.slot_form_fields(title:))
+			@submit = create_submit
+		end
+
+		# Use callbacks to share common setup or constraints between actions.
 		# create the timetable view grid
 		# requires that @location & @season defined
 		def week_view
@@ -178,65 +231,25 @@ class SlotsController < ApplicationController
 			}
 		end
 
-		# CALCULATE HOW MANY cols we need to reserve for this day
-		# i.e. overlapping teams in same location/time
-		def day_cols(sea_id, loc_id, wday)
-			res     = 1
-			s_time  = Time.new(2021,9,1,16,0)
-			e_time  = Time.new(2021,9,1,22,30)
-			t_time  = s_time
-			d_slots = Slot.by_wday(wday, @w_slots)
-			while t_time < e_time do	# check the full day
-				s_count = 0
-				d_slots.each { |slot|
-					s_count = s_count+1 if slot.at_work?(wday, t_time)
-				}
-				res     = s_count if s_count > res
-				t_time  = t_time + 15.minutes
-			end
-			res
-		end
-
-		# Create fresh time_table slices for each timetable row
-		def create_slices
-			slices  = []
-			t_start = Time.utc(2000,1,1,16,00)
-			t_end   = Time.utc(2000,1,1,22,30)
-			t_hour  = t_start # reset clock
-			while t_hour < t_end  # cicle the full day
-				slices << {time: t_hour, label: t_hour.min==0 ? (t_hour.hour.to_s.rjust(2,"0") + ":00") : nil, chunks: []}
-				t_hour = t_hour + 15.minutes  # 15 min intervals
-			end
-			slices
-		end
-
-		# Create associated gap if needed
-		# if t_slot is passed, it needs to be operationg at s_time
-		def create_gap(s_time, d_cols, s_slots, t_slot=nil, t_cols=0)
-			gap = nil  # no gap yet
-			if t_cols < d_cols # only create if we have a wider d_col
-				t_time  = s_time
-				s_end   = t_slot ? t_slot.ending : s_time + 1.minute
-				t_slots = t_slot ? s_slots.excluding(t_slot) : s_slots
-				overlap = t_slot ? t_slots.size>0 : false # check overlaps
-				gap = {gap: true, rows: 1, cols: d_cols-t_cols} unless overlap  # we will need a gap
-			end
-			gap
-		end
-
-		# Use callbacks to share common setup or constraints between actions.
 		def set_slot
-			@slot     = Slot.find_by_id(params[:id]) unless @slot&.id==params[:id]
-			@season ||= @slot.season
+			@slot = Slot.find_by_id(params[:id].presence) unless @slot&.id == params[:id].presence.to_i
+			get_season(obj: @slot)
+			@locations = @season.locations.practice.order(name: :asc)
+			loc_id     = param_passed(:location_id) || param_passed(:slot, :location_id)
+			@location  = @slot&.location || Location.find_by_id((loc_id || @locations.first.id))
 		end
 
-		# prepare fields to renfeer edit/new slot form
-		def prepare_form(title:)
-			@fields = create_fields(helpers.slot_form_fields(title:))
-			@submit = create_submit
-		end
 		# Only allow a list of trusted parameters through.
 		def slot_params
-			params.require(:slot).permit(:season_id, :location_id, :team_id, :wday, :start, :duration, :hour, :min)
+			params.require(:slot).permit(
+				:id,
+				:season_id,
+				:location_id,
+				:team_id,
+				:wday,
+				:start,
+				:duration,
+				:hour,
+				:min)
 		end
 end

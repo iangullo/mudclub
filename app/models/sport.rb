@@ -26,12 +26,12 @@ class Sport < ApplicationRecord
 	# METHODS MUST BE DEFINED IN SPORT-SPECIFIC OBJECTS!!
 	# ========================================
 	# fields to display match information - not title
-	def match_show_fields(event, retlnk: nil)
+	def match_show_fields(event, home: nil)
 		raise "Must implement in Specific Sport object"
 	end
 
 	# fields to edit a match
-	def match_form_fields(event, new: false, retlnk: nil)
+	def match_form_fields(event, new: false)
 		raise "Must implement in Specific Sport object"
 	end
 
@@ -42,12 +42,12 @@ class Sport < ApplicationRecord
 	end
 
 	# grid to show/edit player outings for a match
-	def outings_grid(event, outings, edit: false)
+	def outings_grid(event, outings, edit: false, home: nil, log: nil)
 		raise "Must implement in Specific Sport object"
 	end
 
 	# grid to show/edit player stats for a match
-	def stats_grid(event, edit: false)
+	def stats_grid(event, edit: false, home: nil, log: nil)
 		raise "Must implement in Specific Sport object"
 	end
 

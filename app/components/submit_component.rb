@@ -20,14 +20,14 @@
 
 # SubmitComponent - ViewComponent to standardise form submissions/cancellations
 class SubmitComponent < ApplicationComponent
-	def initialize(close: "close", submit: nil, close_return: nil, frame: nil)
+	def initialize(close: "close", submit: nil, retlnk: nil, frame: nil)
 		case close
 		when "close"
-			b_close = {kind: "close", label: (submit=="save" ? I18n.t("action.cancel"): I18n.t("action.close")), url: close_return}
+			b_close = {kind: "close", label: (submit=="save" ? I18n.t("action.cancel"): I18n.t("action.close")), url: retlnk}
 		when "cancel"
-			b_close = {kind: "cancel", label: I18n.t("action.cancel"), url: close_return, frame:}
+			b_close = {kind: "cancel", label: I18n.t("action.cancel"), url: retlnk, frame:}
 		when "back"
-			b_close = {kind: "back", label: I18n.t("action.return"), url: close_return}
+			b_close = {kind: "back", label: I18n.t("action.return"), url: retlnk}
 		end
 		@close = ButtonComponent.new(button: b_close) if b_close
 		if submit.class==Hash

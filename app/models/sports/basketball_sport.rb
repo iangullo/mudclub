@@ -40,13 +40,13 @@ class BasketballSport < Sport
 	end
 
 	# fields to display match information - not title
-	def match_show_fields(event, retlnk: nil)
-		match_fields(event, retlnk:)
+	def match_show_fields(event)
+		match_fields(event)
 	end
 
 	# fields to edit a match
-	def match_form_fields(event, new: false, retlnk: nil)
-		match_fields(event, edit: true, new:, retlnk:)
+	def match_form_fields(event, new: false)
+		match_fields(event, edit: true, new:)
 	end
 
 	# return period limitations for a match of this sport
@@ -64,7 +64,7 @@ class BasketballSport < Sport
 	end
 
 	# grid to show/edit player outings for a match
-	def outings_grid(event, outings, edit: false)
+	def outings_grid(event, outings, edit: false, rdx: nil)
 		title = [{kind: "top-cell", value: I18n.t("player.number"), align: "center"}, {kind: "top-cell", value: I18n.t("person.name")}]
 		rows  = []
 		kind  = (edit ? "text" : "normal")
@@ -84,7 +84,7 @@ class BasketballSport < Sport
 			p_outings  = 0
 			p_stats    = Stat.fetch(player_id: player.id, stats: e_stats, create: false)
 			row        = {items: []}
-			row[:url]  = "/players/#{player.id}?retlnk=/events/#{event.id}" unless edit
+			row[:url]  = "/players/#{player.id}?event_id=#{event.id}&rdx=#{rdx}" unless edit
 			row[:items] << {kind:, value: player.number, align: "center"}
 			row[:items] << {kind:, value: player.to_s}
 			1.upto(outings[:total]) do |q|
@@ -114,14 +114,14 @@ class BasketballSport < Sport
 	end
 
 	# grid to show/edit player stats for a match
-	def stats_grid(event, edit: false)
+	def stats_grid(event, edit: false, rdx: nil)
 		head = match_stats_header(edit:)
 		rows = []
 		e_stats = event.stats
 		event.players.each do |player|
 			p_stats   = Stat.fetch(player_id: player.id, period: 0, stats: e_stats, create: false)
 			row       = {items: []}
-			row[:url] = "/players/#{player.id}?retlnk=/events/#{event.id}" unless edit
+			row[:url] = "/players/#{player.id}?event_id=#{event.id}&rdx=#{rdx}" unless edit
 			row[:items] = match_stats_row(player, p_stats, edit:)
 			rows << row
 		end
@@ -376,7 +376,7 @@ class BasketballSport < Sport
 		end
 
 		# generic match_fields generator for show or edit
-		def match_fields(event, edit: false, new: false, retlnk: nil)
+		def match_fields(event, edit: false, new: false)
 			t_pers  = self.match_periods(event.team.category.rules)
 			t_cols  = t_pers + (edit ? 3 : 2)
 			head    = edit ? [{kind: "side-cell", value: I18n.t("team.home_a"), cols: 2, align: "left"}] : [{kind: "gap", size:1}]
@@ -400,7 +400,6 @@ class BasketballSport < Sport
 				fields << [{kind: "gap", size: 1, cols: t_pers + 3, class: "text-xs"}]
 				fields << [{kind: "side-cell", value: I18n.t("player.many"), align:"left", cols: t_cols}]
 			end
-			fields << [{kind: "hidden", key: "retlnk", value: "/events/#{event.id}/?retlnk=#{retlnk}"}] if retlnk && edit
 			fields
 		end
 

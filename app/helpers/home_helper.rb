@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,16 +52,6 @@ module HomeHelper
 			[{kind: "header-icon", value: icon}, {kind: "title", value: "MudClub - #{I18n.t("action.admin")}"}],
 			[{kind: "string", value: title}]
 		]
-	end
-
-	# landing page for mudclub administrators
-	def home_admin_fields
-		res = home_admin_title
-		res <<[
-#			button_field({kind: "jump", icon: "location.svg", url: locations_path, label: I18n.t("location.many")}, align: "center"),
-			button_field({kind: "jump", icon: "user.svg", url: users_path, label: I18n.t("user.many")}, align: "center")
-		]
-		res
 	end
 
 	# home edit form fields

@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ class DrillsController < ApplicationController
 			@intro   = create_fields(helpers.drill_show_intro)
 			@explain = create_fields(helpers.drill_show_explain)
 			@tail    = create_fields(helpers.drill_show_tail)
-			@submit  = create_submit(close: "back", close_return: drills_path, submit: (u_manager? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
+			@submit  = create_submit(close: "back", retlnk: drills_path, submit: (u_manager? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -59,7 +59,7 @@ class DrillsController < ApplicationController
 
 	# GET /drills/1/edit
 	def edit
-		if check_access(roles: [:manager], obj: @drill)
+		if check_access(roles: [:admin], obj: @drill)
 			prepare_form(title: I18n.t("drill.edit"))
 		else
 			redirect_to drills_path, data: {turbo_action: "replace"}
@@ -90,7 +90,7 @@ class DrillsController < ApplicationController
 
 	# PATCH/PUT /drills/1 or /drills/1.json
 	def update
-		if check_access(roles: [:manager], obj: @drill)
+		if check_access(roles: [:admin], obj: @drill)
 			respond_to do |format|
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.modified?
@@ -116,7 +116,7 @@ class DrillsController < ApplicationController
 
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
-		if check_access(roles: [:manager], obj: @drill)
+		if check_access(roles: [:admin], obj: @drill)
 			d_name = @drill.name
 			@drill.destroy
 			respond_to do |format|
@@ -153,7 +153,7 @@ class DrillsController < ApplicationController
 			s_size    = 10
 			@skills.each { |skill| s_size = skill.length if skill.length > s_size }
 			@s_size   = s_size - 3
-			@submit   = create_submit(close_return: :back)
+			@submit   = create_submit(retlnk: :back)
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

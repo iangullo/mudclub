@@ -20,7 +20,7 @@
 
 # TopbarComponent - dynamic display of application top bar as ViewComponent
 class TopbarComponent < ApplicationComponent
-	def initialize(user:, login:, logout:)
+	def initialize(user:, home:, login:, logout:)
 		clubperson = Person.find(0)
 		@clublogo  = clubperson.logo
 		@clubname  = clubperson.nick
@@ -29,13 +29,13 @@ class TopbarComponent < ApplicationComponent
 		@profcls   = 'align-middle rounded-full min-h-8 min-w-8 align-middle hover:bg-blue-700 hover:ring-4 hover:ring-blue-200 focus:ring-4 focus:ring-blue-200'
 		@logincls  = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
 		@u_logged  = user&.present?
-		load_menus(user:, login:, logout:)
+		load_menus(user:, home:, login:, logout:)
 	end
 
 	private
 	# load menu buttons
-	def load_menus(user:, login:, logout:)
-		@profile  = set_profile(user:, login:, logout:)
+	def load_menus(user:, home:, login:, logout:)
+		@profile  = set_profile(user:, home:, login:, logout:)
 		if user.present?
 			I18n.locale = user.locale.to_sym
 			@menu_tabs  = menu_tabs(user)
@@ -44,16 +44,21 @@ class TopbarComponent < ApplicationComponent
 		@prof_tab = prof_tab(user)
 	end
 
-	#right hand profile menu
-	def set_profile(user:, login:, logout:)
-		res  = {
-			profile: menu_link(label: I18n.t("user.profile"), url: user, kind: "modal"),
-			login: menu_link(label: I18n.t("action.login"), url: login),
-			logout: menu_link(label: I18n.t("action.logout"), url: logout, kind: "delete"),
-			closed: {icon: "login.svg", url: login, class: @logincls}
-		}
-		res[:open] = {icon: user.picture, url: login, class: @logincls} if user.present?
-		res
+	# wrapper to define a dropdown menu hash - :options returned as [] if received as nil
+	def menu_drop(name, label: nil, options: [], ham: nil)
+		{kind: "menu", name:, label:, options:, ham:}
+	end
+
+	def menu_link(label:, url:, class: "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap", kind: "normal")
+		case kind
+		when "normal"
+			l_data = {turbo_action: "replace"}
+		when "modal"
+			l_data = {turbo_frame: "modal"}
+		when "delete"
+			l_data = {turbo_method: :delete}
+		end
+		{kind:, label:, url:, class:, data: l_data }
 	end
 
 	def menu_tabs(user)
@@ -112,31 +117,50 @@ class TopbarComponent < ApplicationComponent
 		DropdownComponent.new(button: menu_drop("hamburger", ham: true, options:))
 	end
 
-	# wrapper to define a dropdown menu hash - :options returned as [] if received as nil
-	def menu_drop(name, label: nil, options: [], ham: nil)
-		{kind: "menu", name:, label:, options:, ham:}
+	# right hand profile menu
+	def set_profile(user:, home:, login:, logout:)
+		res  = {
+			profile: menu_link(label: I18n.t("user.profile"), url: home, kind: "modal"),
+			login: menu_link(label: I18n.t("action.login"), url: login),
+			logout: menu_link(label: I18n.t("action.logout"), url: logout, kind: "delete"),
+			closed: {icon: "login.svg", url: login, class: @logincls}
+		}
+		res[:open] = {icon: user.picture, url: login, class: @logincls} if user.present?
+		res
 	end
 
-	def menu_link(label:, url:, class: "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap", kind: "normal")
-		case kind
-		when "normal"
-			l_data = {turbo_action: "replace"}
-		when "modal"
-			l_data = {turbo_frame: "modal"}
-		when "delete"
-			l_data = {turbo_method: :delete}
-		end
-		{kind:, label:, url:, class:, data: l_data }
+	# menu buttons for mudclub admins
+	def admin_menu(user)
+		options = [menu_link(label: I18n.t("season.single"), url: "/seasons")]
+		options << manager_menu(user) if user.is_manager?
+		options << server_menu(user) if user.admin?
+		@menu_tabs << menu_drop("admin", label: I18n.t("action.admin"), options:)
 	end
 
-	# menu to manage sports
-	def sport_menu
-		options = []
-		Sport.all.each do |sport|
-			s_path = "/sports/#{sport.id}"
-			options << menu_link(label: sport.to_s, url: "#{s_path}")
+	# menu buttons for coaches
+	def coach_menu(user, pure=true)
+		@menu_tabs << menu_link(label: I18n.t("drill.many"), url: '/drills')
+		@menu_tabs << menu_link(label: I18n.t("player.many"), url: '/players') if pure
+	end
+
+	# menu buttons for club managers
+	def manager_menu(user)
+		coach_menu(user, pure=false) if user.is_coach?
+		if user.is_manager?
+			options = []
+			options << menu_link(label: I18n.t("club.edit"), url: '/home/edit', kind: "modal")
+			options << menu_link(label: I18n.t("player.many"), url: "/players")
+			options << menu_link(label: I18n.t("coach.many"), url: "/coaches")
+			options << menu_link(label: I18n.t("team.many"), url: "/teams") unless user.is_coach?
+			options << menu_link(label: I18n.t("location.many"), url: "/locations")
+			c_menu = menu_drop("manage", label: @clubname, options:)
+			return c_menu if user.admin?
+			s_menu = server_menu(user)
+			@menu_tabs << menu_drop("admin", label: I18n.t("action.admin"), options: [c_menu, s_menu])
 		end
-		menu_drop("sports", label: I18n.t("sport.many"), options:)
+	end
+
+	def player_menu(user)
 	end
 
 	# menu to manage server application
@@ -153,44 +177,14 @@ class TopbarComponent < ApplicationComponent
 		menu_drop("server", label: I18n.t("server.single"), options:)
 	end
 
-	# menu buttons for mudclub admins
-	def admin_menu(user)
+	# menu to manage sports
+	def sport_menu
 		options = []
-		options << manager_menu(user) if user.is_coach?
-		options << server_menu(user)
-		@menu_tabs << menu_drop("admin", label: I18n.t("action.admin"), options:)
-	end
-
-	# menu buttons for club managers
-	def manager_menu(user)
-		options = []
-		options << menu_link(label: I18n.t("club.edit"), url: '/home/edit', kind: "modal")
-		options << menu_link(label: I18n.t("season.single"), url: '/seasons')
-		options << menu_link(label: I18n.t("player.many"), url: '/players')
-		options << menu_link(label: I18n.t("coach.many"), url: '/coaches')
-		options << menu_link(label: I18n.t("team.many"), url: '/teams') unless user.is_coach?
-		options << menu_link(label: I18n.t("location.many"), url: '/locations')
-		m_menu = menu_drop("manage", label: I18n.t("club.single"), options:)
-		coach_menu(user, pure=false) if user.is_coach?
-		return m_menu if user.admin?
-		@menu_tabs << m_menu
-		@menu_tabs << server_menu(user)
-	end
-
-	# menu buttons for coaches
-	def coach_menu(user, pure=true)
-		@menu_tabs << menu_link(label: I18n.t("drill.many"), url: '/drills')
-		@menu_tabs += [
-			menu_link(label: I18n.t("player.many"), url: '/players'),
-			menu_link(label: I18n.t("location.many"), url: '/locations')
-		] if pure
-	end
-
-	def player_menu(user)
-	end
-
-	def user_menu(user)
-		@menu_tabs = []
+		Sport.all.each do |sport|
+			s_path = "/sports/#{sport.id}"
+			options << menu_link(label: sport.to_s, url: "#{s_path}")
+		end
+		menu_drop("sports", label: I18n.t("sport.many"), options:)
 	end
 
 	def team_menu(user)
@@ -206,5 +200,9 @@ class TopbarComponent < ApplicationComponent
 			m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: '/teams')
 		end
 		[m_teams]
+	end
+
+	def user_menu(user)
+		@menu_tabs = []
 	end
 end

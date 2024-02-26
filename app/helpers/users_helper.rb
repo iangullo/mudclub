@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,8 @@
 module UsersHelper
 	# fields to show when looking a user profile
 	def user_show_fields
-		res = person_show_fields(@user.person, title: I18n.t("user.single"), icon: @user.picture, rows: 3)
+		res       = person_show_fields(@user.person, title: I18n.t("user.single"), icon: @user.picture, rows: 3)
+		res[3][0] = obj_status_field(@user)
 		if current_user == @user	# only allow current user to change his own password
 			res[3] <<	button_field(
 				{kind: "link", icon: "key.svg", label: I18n.t("action.change"), url: edit_user_registration_path, frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true},
@@ -31,16 +32,22 @@ module UsersHelper
 	end
 
 	# Fieldcomponents to display user roles
-	def user_role_fields
+	def user_role_fields(user=current_user, grid: false)
 		res =[]
 		#res << [		# removing cause IP registered is always local - from NGINX
 		#	gap_field(size: 1},
 		#	{kind: "string", value: "(#{@user.last_from})",cols: 3}
 		#] if @user.last_sign_in_ip?
-		res << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.admin?
-		res << {kind: "icon", value: "user.svg", tip: I18n.t("role.admin"), tipid: "adm"} if @user.manager?
-		res << {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} if @user.is_coach?
-		res << {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} if @user.is_player?
+		if user.admin?
+			res << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"}
+		elsif user.manager?
+			res << {kind: "icon", value: "mudclub.svg", tip: I18n.t("role.manager"), tipid: "mng"}
+		else
+			res << gap_field(size: 0)
+		end
+		res << (user.is_coach? ? {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} : gap_field(size: 0))
+		res << (user.is_player? ? {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} : gap_field(size: 0))
+		return res if grid	# only interested in these 3 icons
 		res << gap_field
 		unless @user.user_actions.empty?
 			res <<	button_field(
@@ -52,15 +59,16 @@ module UsersHelper
 
 	# return FieldComponents for form user role
 	def user_form_role
-		res = [[{kind: "label", value: "#{I18n.t("user.profile")}:"}]]
+		res = [[{kind: "icon", value: "mudclub.svg", tip: "#{I18n.t("user.profile")}", tipid: "rolicon"}]]
 		if u_admin?
 			res.last << {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}
 		else
 			res.last << {kind: "string", align: "center", value: I18n.t("role.#{@user.role}")}
 		end
-		res.last << gap_field
-		res.last << {kind: "label", value: "#{I18n.t("locale.lang")}:"}
+		res.last <<	gap_field
+		res.last << {kind: "icon", value: "locale.png", tip: I18n.t("locale.lang"), tipid: "lang"}
 		res.last << {kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: @user.locale}
+		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		res
 	end
 
@@ -113,10 +121,8 @@ module UsersHelper
 	def user_grid
 		title = [
 			{kind: "normal", value: I18n.t("person.name")},
-			{kind: "normal", value: I18n.t("role.admin_a"), align: "center"},
-			{kind: "normal", value: I18n.t("role.manager_a"), align: "center"},
-			{kind: "normal", value: I18n.t("role.coach_a"), align: "center"},
-			{kind: "normal", value: I18n.t("role.player_a"), align: "center"},
+			{kind: "normal", value: I18n.t("user.profile"), align: "center", cols: 3},
+			{kind: "normal", value: I18n.t("person.contact"), align: "center"},
 			{kind: "normal", value: I18n.t("user.last_in"), align: "center"}
 		]
 		title << button_field({kind: "add", url: new_user_path, frame: "modal"}) if u_admin?
@@ -125,10 +131,8 @@ module UsersHelper
 		@users.each { |user|
 			row = {url: user_path(user), items: []}
 			row[:items] << {kind: "normal", value: user.s_name}
-			row[:items] << {kind: "icon", value: user.admin? ? "Yes.svg" : "No.svg", align: "center"}
-			row[:items] << {kind: "icon", value: user.manager? ? "Yes.svg" : "No.svg", align: "center"}
-			row[:items] << {kind: "icon", value: user.is_coach? ? "Yes.svg" : "No.svg", align: "center"}
-			row[:items] << {kind: "icon", value: user.is_player? ? "Yes.svg" : "No.svg", align: "center"}
+			row[:items] += user_role_fields(user, grid: true)
+			row[:items] << {kind: "contact", phone: user.person.phone, email: user.person.email}
 			row[:items] << {kind: "normal", value: user.last_sign_in_at&.to_date, align: "center"}
 			row[:items] << button_field({kind: "delete", url: row[:url], name: user.s_name}) if u_admin? and user.id!=current_user.id
 			rows << row

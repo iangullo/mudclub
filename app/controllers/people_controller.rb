@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 #
 class PeopleController < ApplicationController
 	include Filterable
-	#skip_before_action :verify_authenticity_token, :only => [:create, :new, :update, :check_reload]
 	before_action :set_person, only: [:show, :edit, :update, :destroy]
 
 	# GET /people
@@ -31,7 +30,7 @@ class PeopleController < ApplicationController
 			@fields = create_fields(title)
 			@grid   = create_grid(helpers.person_grid)
 			submit  = {kind: "export", url: people_path(format: :xlsx), working: false} if u_admin?
-			@submit = create_submit(close: "back", close_return: "/", submit:)
+			@submit = create_submit(close: "back", retlnk: "/", submit:)
 			respond_to do |format|
 				format.xlsx {
 					a_desc = "#{I18n.t("person.export")} 'people.xlsx'"
@@ -108,7 +107,7 @@ class PeopleController < ApplicationController
 	def update
 		if check_access(roles: [:admin], obj: @person)
 			respond_to do |format|
-				retlnk = params[:retlnk] ? params[:retlnk] : (@person.id==0 ? "/" : people_path(search: @person.name))
+				retlnk = people_path(search: @person.name)
 				@person.rebuild(person_params)
 				if @person.changed?
 					if @person.save

@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -260,13 +260,13 @@ class Event < ApplicationRecord
 			res = Event.for_season(Season.find(s_id)).non_training.order(:start_time)
 		elsif t_id  # filter for the team received
 			if kind   # and kind
-				if s_data[:name]  # and name
+				if s_data[:name].present?  # and name
 					res = Event.where("unaccent(name) ILIKE unaccent(?) and kind = (?) and team_id= (?)","%#{s_data[:name]}%",kind,t_id).order(:start_time)
 				else  # only team & kind
 					res = Event.where("kind = (?) and team_id= (?)",kind,t_id).order(:start_time)
 				end
-			elsif s_data[:name] # team & name only
-				res = Event.where("unaccent(name) ILIKE unaccent(?) and team_id= (?)","%#{s_data[:name]}%",t_id).order(:start_time)
+			elsif s_data[:name].present? # team & name only
+				res = Event.where("unaccent(name) ILIKE unaccent(?) and team_id= (?)","%#{s_data[:name].presence}%",t_id).order(:start_time)
 			else  # only team_id
 				res = Event.where(team_id: t_id).order(:start_time)
 			end

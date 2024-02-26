@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
 #
 class Slot < ApplicationRecord
 	before_destroy :unlink
+	belongs_to :location
 	belongs_to :season
 	belongs_to :team
-	belongs_to :location
 	scope :real, -> { where("id>0") }
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
 	scope :for_team, -> (t_id) { where("team_id = ?", t_id) }
@@ -121,14 +121,14 @@ class Slot < ApplicationRecord
 	# Search for a list of SLots
 	# s_data is an array with either season_id+location_id or team_id
 	def self.search(s_data)
-		if s_data[:season_id]
-			 if s_data[:location_id]
+		if s_data[:season_id].present?
+			 if s_data[:location_id].present?
 				 Slot.real.where(season_id: s_data[:season_id].to_i, location_id: s_data[:location_id].to_i).order(:start)
 			 else
 				 Slot.real.where(season_id: s_data[:season_id].to_i).order(:start)
 			 end
-		elsif s_data[:team_id]
-			if s_data[:location_id]
+		elsif s_data[:team_id].present?
+			if s_data[:location_id].present?
 				Slot.real.where(team_id: s_data[:team_id].to_i, location_id: s_data[:location_id].to_i).order(:start)
 			else
 				Slot.real.where(team_id: s_data[:team_id].to_i).order(:start)
@@ -142,7 +142,7 @@ class Slot < ApplicationRecord
 	def self.fetch(s_data)
 		unless s_data.empty?
 			t = Time.new(2021,8,30,s_data[:hour].to_i+1,s_data[:min].to_i)
-			Slot.where(wday: s_data[:wday].to_i, start: t, team_id: s_data[:team_id].to_i).or(Slot.where(wday: s_data[:wday].to_i, start: t, location_id: s_data[:location_id].to_i)).first
+			Slot.where(wday: s_data[:wday].to_i, start: t, team_id: s_data[:team_id].to_i).or(Slot.where(season_id: s_data[:season_id]&.to_i, wday: s_data[:wday].to_i, start: t, location_id: s_data[:location_id].to_i)).first
 		else
 			nil
 		end
@@ -161,12 +161,12 @@ class Slot < ApplicationRecord
 	# build new @slot from raw input given by submittal from "new" or "edit"
 	# always returns a @slot
 	def rebuild(f_data)
-		self.wday        = f_data[:wday] if f_data[:wday]
-		self.hour        = f_data[:hour] if f_data[:hour]
-		self.min         = f_data[:min] if f_data[:min]
-		self.duration    = f_data[:duration] if f_data[:duration]
-		self.location_id = f_data[:location_id] if f_data[:location_id]
-		self.team_id     = f_data[:team_id] if f_data[:team_id]
+		self.wday        = f_data[:wday] if f_data[:wday].present?
+		self.hour        = f_data[:hour] if f_data[:hour].present?
+		self.min         = f_data[:min] if f_data[:min].present?
+		self.duration    = f_data[:duration] if f_data[:duration].present?
+		self.location_id = f_data[:location_id].to_i if f_data[:location_id].present?
+		self.team_id     = f_data[:team_id].to_i if f_data[:team_id].present?
 		self.season_id   = self.team.season_id.to_i
 	end
 

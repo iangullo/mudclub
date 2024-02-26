@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,11 +23,11 @@ class LocationsController < ApplicationController
 	# GET /locations.json
 	def index
 		if check_access(roles: [:manager, :coach])
-			@season = Season.find(params[:season_id]) if params[:season_id]
 			title  = helpers.location_title_fields(title: I18n.t("location.many"))
-			title << [@season ? {kind: "label", value: @season.name} : {kind: "search-text", key: :search, value: params[:search], url: locations_path}]
+			title << helpers.location_search_bar(search_in: locations_path)
 			@fields = create_fields(title)
 			@grid   = create_grid(helpers.location_grid)
+			@submit = create_submit(close: "back", retlnk: :back, submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -68,7 +68,7 @@ class LocationsController < ApplicationController
 	def create
 		if check_access(roles: [:manager, :coach])
 			respond_to do |format|
-				@season   = Season.find(param_passed(:location, :season_id))
+				@season   = Season.search(param_passed(:location, :season_id))
 				@location = Location.new
 				@location.rebuild(location_params) # rebuild @location
 				a_desc    = "#{I18n.t("location.created")} #{@season&.name} => '#{@location.name}'"
@@ -134,7 +134,7 @@ class LocationsController < ApplicationController
 	# DELETE /locations/1
 	# DELETE /locations/1.json
 	def destroy
-		if check_access(roles: [:manager])
+		if check_access(roles: [:manager, :admin])
 			respond_to do |format|
 				l_name = @location.name
 				a_desc = "#{I18n.t("location.deleted")} #{@season&.name} => '#{l_name}'"
@@ -158,17 +158,11 @@ class LocationsController < ApplicationController
 private
 	# ensure internal variables are well defined
 	def set_locations
-		if params[:season_id].present?
-			@season             = Season.find(params[:season_id]) unless @season&.id==params[:season_id]
-			@locations          = @season.locations.order(:name)
-			@eligible_locations = @season.eligible_locations
-		else
-			@locations = Location.search(params[:search]).order(:name)
-			@season    = (params[:location][:season_id] ? Season.find(params[:location][:season_id]) : nil) if params[:location]
-		end
 		if params[:id]
 			@location = Location.find_by_id(params[:id]) unless @location&.id==params[:id]
 		end
+		@locations = Location.search(season_id: params[:season_id] || @season&.id, name: params[:name].presence).order(:name)
+		@eligible_locations = @season&.eligible_locations
 	end
 
 	# prepare ViewComponents for a Location edit/new form

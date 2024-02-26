@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,9 +24,14 @@ class Coach < ApplicationRecord
 	has_one :person
 	has_one_attached :avatar
 	accepts_nested_attributes_for :person, update_only: true
-	scope :real, -> { where("id>0") }
 	scope :active, -> { where("active = true") }
+	scope :real, -> { where("id>0") }
 	self.inheritance_column = "not_sti"
+
+	# returns whether the object is bound to a real club
+	def active?
+		self.active
+	end
 
 	# extended modified to account for changed avatar
 	def modified?
@@ -53,12 +58,12 @@ class Coach < ApplicationRecord
 
 	#short name for form viewing
 	def s_name
-		self.person ? self.person.s_name : I18n.t("coach.show")
+		self.person&.person.s_name || I18n.t("coach.show")
 	end
 
 	# Just list person's full name
 	def to_s
-		self.person ? self.person.to_s : I18n.t("coach.single")
+		self.person&.to_s || I18n.t("coach.single")
 	end
 
 	# atempt to fetch a Coach using form input hash
@@ -96,13 +101,18 @@ class Coach < ApplicationRecord
 	end
 
 	#Search field matching
-	def self.search(search, manager=false)
+	def self.search(search, user=nil)
 		if search.present?
-			if manager
-				Coach.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
+			sqry = ["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]
+			if user&.is_manager?
+				Coach.where(person_id: Person.where(sqry)).order(:birthday)
+			elsif user&.coach?
+				Coach.active.where(person_id: Person.where(sqry).order(:birthday))
 			else
-				Coach.active.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]).order(:birthday))
+				Coach.none
 			end
+		elsif user&.is_manager?
+			Coach.real
 		else
 			Coach.none
 		end

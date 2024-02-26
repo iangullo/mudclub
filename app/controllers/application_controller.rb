@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class ApplicationController < ActionController::Base
-	before_action :create_topbar
+	before_action :create_context
 	around_action :switch_locale
 
 	# check if correct  access level exists
@@ -38,6 +38,14 @@ class ApplicationController < ActionController::Base
 		button ? ButtonComponent.new(button:) : nil
 	end
 
+	# create the view's context
+	def create_context
+		user    = user_signed_in? ? current_user : nil
+		@rdx    = p_rdx
+		@season = Season.search((params[:season_id].presence)) if user
+		@topbar = TopbarComponent.new(user:, home: u_path, login: new_user_session_path, logout: destroy_user_session_path)
+	end
+
 	# return FieldsComponent object from a fields array
 	def create_fields(fields)
 		fields ? FieldsComponent.new(fields:) : nil
@@ -49,13 +57,52 @@ class ApplicationController < ActionController::Base
 	end
 
 	# Create a submit component
-	def create_submit(close: "close", submit: "save", close_return: nil, frame: nil)
-		SubmitComponent.new(close:, submit:, close_return:, frame:)
+	def create_submit(close: "close", submit: "save", retlnk: nil, frame: nil)
+		SubmitComponent.new(close:, submit:, retlnk:, frame:)
+	end
+	# ensure @season matches the calling context.
+	# :obj is an object that has a :season_id link
+	def get_season(obj: nil)
+		return @season if @season&.id==obj&.season_id&.to_i
+		@season = Season.search(obj&.season_id)
 	end
 
-	# create the view's topbar
-	def create_topbar
-		@topbar = TopbarComponent.new(user: user_signed_in? ? current_user : nil, login: new_user_session_path, logout: destroy_user_session_path)
+	# check if a string is an integer
+	def is_integer(cad)
+		cad.to_i.to_s == cad
+	end
+
+	# standard message for actions that had no data to change
+	def no_data_notice(trail: nil)
+		cad = I18n.t("status.no_data")
+		cad = "#{cad} (#{trail})" if trail
+		helpers.flash_message(cad, "info")
+	end
+
+	# wrappers to manage navigation routing specifiers
+	# rdx (radix) arguemnt specifies base url for this view
+	#		nil=>toplevel
+	#		0: club/season view)
+	#		1: user home view
+	#		2: server logs view
+	def p_rdx(base=params[:controller])
+		get_param(base, :rdx)
+	end
+	
+	def p_log(base=params[:controller])
+		get_param(base, :log)
+	end
+
+	def p_seasonid(base=params[:controller])
+		get_param(base, :season_id)
+	end
+	
+	def p_teamid(base=params[:controller])
+		get_param(base, :team_id)
+	end
+	
+	def p_userid(base=params[:controller])
+		get_param(base, :user_id)
 	end
 
 	# check if some specific params are passed
@@ -68,6 +115,19 @@ class ApplicationController < ActionController::Base
 		return current_hash
 	end
 
+	# defines correct retlnk based on params received
+	def parse_retlnk(retlnk:, valid_links:, def_path:, c_index: false)
+		valid_links << u_path	# add the users path as valid destination
+		if retlnk
+			retlnk = (validate_link(retlnk:, valid_links:) || def_path)
+		elsif u_coach? || u_manager?
+			retlnk = def_path
+		else
+			retlnk = user_club_path
+		end
+		return (c_index && (retlnk == def_path)) ? "/" : retlnk
+	end
+
 	# register a new user action
 	def register_action(kind, description, url: nil, modal: nil)
 		u_act = UserAction.new(user_id: current_user.id, kind:, description:, url:, modal:)
@@ -77,47 +137,46 @@ class ApplicationController < ActionController::Base
 
 	# switch app locale
 	def switch_locale(&action)
-		locale = params[:locale] ? params[:locale] : (current_user&.locale || I18n.default_locale)
+		locale = (params[:locale] || current_user&.locale || I18n.default_locale)
 		I18n.with_locale(locale, &action)
 	end
 
-	# wrappers to make code in all views/controllers more readable
+	# wrappers to access user attributes
 	def u_admin?
-		current_user.admin?
+		current_user&.admin?
 	end
 
 	def u_manager?
-		current_user.manager? || (current_user.admin? && current_user.is_coach?)
+		current_user&.is_manager?
 	end
 
 	def u_coach?
-		current_user.is_coach?
+		current_user&.is_coach?
 	end
 
 	def u_player?
-		current_user.is_player?
+		current_user&.is_player?
 	end
-
+ 
 	def u_coachid
-		current_user.person.coach_id
+		current_user&.person.coach_id
 	end
 
 	def u_playerid
-		current_user.person.player_id
+		current_user&.person.player_id
 	end
 
 	def u_personid
-		current_user.person.id
+		current_user&.person.id
 	end
 
 	def u_userid
-		current_user.id
+		current_user&.id
 	end
 
-	def no_data_notice(trail: nil)
-		cad = I18n.t("status.no_data")
-		cad = "#{cad} (#{trail})" if trail
-		helpers.flash_message(cad, "info")
+	# wrapper to manage return links home path
+	def u_path
+		user_signed_in? ? user_path(current_user, rdx: 1) : "/"
 	end
 
 	# check if a string is a valid date
@@ -127,12 +186,6 @@ class ApplicationController < ActionController::Base
 		return nil if d_hash&.size !=3
 		v_date = Date.valid_date?(d_hash[:year].to_i, d_hash[:month].to_i, d_hash[:month].to_i)
 		return v_date ? d_str : nil
-	end
-
-	# Validate a link as valid input
-	def validate_link(lnk=nil, vlinks=["/"])
-		return nil unless lnk.class == String
-		vlinks.include?(lnk) ? lnk : nil
 	end
 
 	private
@@ -149,7 +202,7 @@ class ApplicationController < ActionController::Base
 				when :player
 					return true if u_player?
 				when :user
-					return true  # it's a user alright
+					return true if user_signed_in?  # it's a user alright
 				else
 					return false
 				end
@@ -179,5 +232,16 @@ class ApplicationController < ActionController::Base
 			else # including NilClass"
 				return false
 			end
+		end
+
+		# get a param either from base or from a sub-node
+		def get_param(base=params[:controller], key)
+			(param_passed(key) || param_passed(base, key) || param_passed(base.singularize, key))
+		end
+			
+		# Validate a link as valid input
+		def validate_link(retlnk:, valid_links:)
+			return nil unless retlnk.class == String
+			valid_links&.include?(retlnk) ? retlnk : nil
 		end
 end

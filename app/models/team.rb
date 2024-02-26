@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,108 +38,6 @@ class Team < ApplicationRecord
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
 	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
-
-	def to_s
-		if self.name.present?
-			self.id==0 ? I18n.t("scope.none") : self.name.to_s
-		else
-			self.category.to_s
-		end
-	end
-
-	# Get a list of players that are valid to play in this team
-	def eligible_players
-		s_year = self.season.start_year
-		aux = Player.active.joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
-		if aux
-			case self.category.sex
-				when "female"
-					aux = aux.female
-				when "male"
-					aux = aux.male
-				else
-					(aux + self.players).uniq
-			end
-		end
-		aux
-	end
-
-	# Get a list of players that are not members but are authorised to play in this team
-	def optional_players
-		res = []
-		self.eligible_players.each {|player|
-			res << player unless player.teams.include?(self)
-		}
-		res.empty? ? nil : res
-	end
-
-	# Wrappper to handle creation of a new Team from params
-	# received from Teams form, discarding the optional arguments
-	def self.build(f_data)
-		t_data = f_data.permit(
-			:season_id,
-			:name,
-			:category_id,
-			:division_id,
-			:homecourt_id,
-			:sport_id,
-			coach_ids: []
-		)
-		Team.new(t_data)
-	end
-
-	# Search field matching season
-	def self.search(search)
-		if (s_id = search&.to_i) > 0
-			Team.for_season(s_id).order(:category_id)
-		else
-			Team.real
-		end
-	end
-
-	def has_coach(c_id)
-		self.coaches.find_index { |c| c[:id]==c_id }
-	end
-
-	def has_player(p_id)
-		self.players.find_index { |p| p[:id]==p_id }
-	end
-
-	def general_def(month=0)
-		search_targets(month, 0, 2)
-	end
-
-	def general_off(month=0)
-		search_targets(month, 0, 1)
-	end
-
-	def individual_def(month=0)
-		search_targets(month, 1, 2)
-	end
-
-	def individual_off(month=0)
-		search_targets(month, 1, 1)
-	end
-
-	def collective_def(month=0)
-		search_targets(month, 2, 2)
-	end
-
-	def collective_off(month=0)
-		search_targets(month, 2, 1)
-	end
-
-	# return next free training_slot
-	# after the last existing one in the calendar
-	def next_slot(last=nil)
-		d   = last ? last.start_time.to_date : Date.today	# last planned slot date
-		res = nil
-		self.slots.each { |slot|
-			s   = slot.next_date(d)
-			res = res ? (s < res.next_date(d) ? slot : res) : slot
-		}
-		return res
-	end
 
 	# get attendance data for a team in the season
 	# returns partial & serialised numbers for attendance: trainings [%]
@@ -181,17 +79,56 @@ class Team < ApplicationRecord
 		{ sessions: sessions }
 	end
 
-	# rebuild Teamm from raw hash returned by a form
-	def rebuild(f_data)
-		self.name         = f_data[:name] if f_data[:name]
-		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
-		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
-		self.category_id  = f_data[:category_id].to_i if f_data[:category_id]
-		self.division_id  = f_data[:division_id].to_i if f_data[:division_id]
-		self.homecourt_id = f_data[:homecourt_id].to_i if f_data[:homecourt_id]
-		check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
-		check_players(f_data[:player_ids]) if f_data[:player_ids]
-		check_coaches(f_data[:coach_ids]) if f_data[:coach_ids]
+	# collective target filtering methods
+	def collective_def(month=0)
+		search_targets(month, 2, 2)
+	end
+
+	def collective_off(month=0)
+		search_targets(month, 2, 1)
+	end
+
+	# Get a list of players that are valid to play in this team
+	def eligible_players
+		s_year = self.season.start_year
+		aux = Player.active.joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
+		if aux
+			case self.category.sex
+				when "female"
+					aux = aux.female
+				when "male"
+					aux = aux.male
+				else
+					(aux + self.players).uniq
+			end
+		end
+		aux
+	end
+
+	# general Team target filtering methods
+	def general_def(month=0)
+		search_targets(month, 0, 2)
+	end
+
+	def general_off(month=0)
+		search_targets(month, 0, 1)
+	end
+
+	def has_coach(c_id)
+		self.coaches.find_index { |c| c[:id]==c_id }
+	end
+
+	def has_player(p_id)
+		self.players.find_index { |p| p[:id]==p_id }
+	end
+
+	# Individual skill target filtering methods
+	def individual_def(month=0)
+		search_targets(month, 1, 2)
+	end
+
+	def individual_off(month=0)
+		search_targets(month, 1, 1)
 	end
 
 	# check if drill (or associations) has changed
@@ -209,6 +146,53 @@ class Team < ApplicationRecord
 		res
 	end
 
+	# return next free training_slot
+	# after the last existing one in the calendar
+	def next_slot(last=nil)
+		d   = last ? last.start_time.to_date : Date.today	# last planned slot date
+		res = nil
+		self.slots.each { |slot|
+			s   = slot.next_date(d)
+			res = res ? (s < res.next_date(d) ? slot : res) : slot
+		}
+		return res
+	end
+
+	# Get a list of players that are not members but are authorised to play in this team
+	def optional_players
+		res = []
+		self.eligible_players.each {|player|
+			res << player unless player.teams.include?(self)
+		}
+		res.empty? ? nil : res
+	end
+
+	# rebuild Teamm from raw hash returned by a form
+	def rebuild(f_data)
+		self.name         = f_data[:name] if f_data[:name]
+		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
+		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
+		self.category_id  = f_data[:category_id].to_i if f_data[:category_id]
+		self.division_id  = f_data[:division_id].to_i if f_data[:division_id]
+		self.homecourt_id = f_data[:homecourt_id].to_i if f_data[:homecourt_id]
+		check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
+		check_players(f_data[:player_ids]) if f_data[:player_ids]
+		check_coaches(f_data[:coach_ids]) if f_data[:coach_ids]
+	end
+
+	def to_s
+		if self.name.present?
+			self.id==0 ? I18n.t("scope.none") : self.name.to_s
+		else
+			self.category.to_s
+		end
+	end
+
+	# Return upcoming events for the Team
+	def upcoming_events
+		self.events.non_training.short_term
+	end
+
 	# return a hash with {won:, lost:} games
 	def win_loss
 		res     = {won: 0, lost: 0}
@@ -224,27 +208,31 @@ class Team < ApplicationRecord
 		res
 	end
 
-	private
-		# search team_targets based on target attributes
-		def search_targets(month=0, aspect=nil, focus=nil)
-			#puts "Plan.search(team: " + ", month: " + month.to_s + ", aspect: " + aspect.to_s + ", focus: " + focus.to_s + ")"
-			tgt = self.team_targets.monthly(month)
-			res = Array.new
-			tgt.each do |p|
-				puts p.to_s
-				if aspect && focus
-					res.push p if ((p.target.aspect_before_type_cast == aspect) && (p.target.focus_before_type_cast == focus))
-				elsif aspect
-					res.push p if (p.target.aspect_before_type_cast == aspect)
-				elsif focus
-					res.push p if (p.target.focus_before_type_cast == focus)
-				else
-					res.push p
-				end
-			end
-			res
-		end
+	# Wrappper to handle creation of a new Team from params
+	# received from Teams form, discarding the optional arguments
+	def self.build(f_data)
+		t_data = f_data.permit(
+			:category_id,
+			:division_id,
+			:homecourt_id,
+			:name,
+			:season_id,
+			:sport_id,
+			coach_ids: []
+		)
+		Team.new(t_data)
+	end
 
+	# Search field matching season
+	def self.search(search)
+		if (season_id = search.presence.to_i) > 0
+			Team.where(season_id:).order(:category_id)
+		else
+			Team.real.order(:category_id)
+		end
+	end
+
+	private
 		# ensure we get the right targets
 		def check_targets(t_array)
 			a_targets = Array.new	# array to include all targets
@@ -311,6 +299,26 @@ class Team < ApplicationRecord
 					@modified = true
 				end
 			end
+		end
+
+		# search team_targets based on target attributes
+		def search_targets(month=0, aspect=nil, focus=nil)
+			#puts "Plan.search(team: " + ", month: " + month.to_s + ", aspect: " + aspect.to_s + ", focus: " + focus.to_s + ")"
+			tgt = self.team_targets.monthly(month)
+			res = Array.new
+			tgt.each do |p|
+				puts p.to_s
+				if aspect && focus
+					res.push p if ((p.target.aspect_before_type_cast == aspect) && (p.target.focus_before_type_cast == focus))
+				elsif aspect
+					res.push p if (p.target.aspect_before_type_cast == aspect)
+				elsif focus
+					res.push p if (p.target.focus_before_type_cast == focus)
+				else
+					res.push p
+				end
+			end
+			res
 		end
 
 		# unlink dependents properly, if deleting team

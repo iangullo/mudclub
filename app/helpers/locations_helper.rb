@@ -22,6 +22,17 @@ module LocationsHelper
 		title_start(icon: "location.svg", title:)
 	end
 
+	# specific search bar to search through drills
+	def location_search_bar(search_in:, scratch: nil, cols: nil)
+		session.delete('location_filters') if scratch
+		fields = [
+			{kind: "search-text", key: :name, placeholder: I18n.t("location.name"), value: (params[:name].presence || session.dig('location_filters', 'name')), size: 10},
+			{kind: "search-select", key: :season_id, options: Season.list, value: (params[:season_id] || session.dig('location_filters', 'season_id') || @season&.id)}
+		]
+		[{kind: "search-box", url: search_in, fields:, cols:}]
+	end
+	
+
 	def location_show_fields
 		res = location_title_fields(title: @location.name)
 		res << [(@location.gmaps_url and @location.gmaps_url.length > 0) ? {kind: "location", url: @location.gmaps_url, name: I18n.t("location.see")} : {kind: "text", value: I18n.t("location.none")}]
@@ -55,9 +66,9 @@ module LocationsHelper
 
 		rows = Array.new
 		@locations.each { |loc|
-			row = {url: edit_location_path(loc, season_id: @season ? @season.id : nil), frame: "modal", items: []}
+			row = {url: edit_location_path(loc, season_id: @season&.id), frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: loc.name}
-			row[:items] << {kind: "icon", value: loc.practice_court ? "training.svg" : "team.svg", align: "center"}
+			row[:items] << {kind: "icon", value: loc.practice_court ? "training.svg" : "home.svg", align: "center"}
 			if loc.gmaps_url
 				row[:items] << button_field({kind: "location", icon: "gmaps.svg", align: "center", url: loc.gmaps_url}, align: "center")
 			else
@@ -66,6 +77,6 @@ module LocationsHelper
 			row[:items] << button_field({kind: "delete", url: location_path(loc, season_id: @season ? @season.id : nil), name: loc.name}) if u_manager?
 			rows << row
 		}
-		{title: title, rows: rows}
+		{title:, rows:}
 	end
 end

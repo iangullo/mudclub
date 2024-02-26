@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,113 +17,6 @@
 # contact email - iangullo@gmail.com.
 #
 module TeamsHelper
-	# return FieldComponent for team view title
-	def team_title_fields(title:, cols: nil, search: nil, edit: nil)
-		res = title_start(icon: "team.svg", title:, cols:)
-		if search
-			s_id = @team&.season_id || @season&.id || session.dig('team_filters', 'season_id')
-			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: s_id}]
-		elsif edit and u_manager?
-			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
-		elsif @team
-			res << [{kind: "label", value: @team.season.name}]
-			w_l = @team.win_loss
-			if w_l[:won]>0 or w_l[:lost]>0
-				wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
-				res << [
-					gap_field,
-					{kind: "text", value: wlstr}
-				]
-			end
-		else # player teams index
-			res << [{kind: "subtitle", value: current_user.player.to_s}]
-		end
-		res
-	end
-
-	# return a GridComponent for the teams given
-	def team_grid(teams:, season: nil, add_teams: false)
-		if teams
-			title = season ? [] : [{kind: "normal", value: I18n.t("season.abbr")}]
-			title << {kind: "normal", value: I18n.t("team.single")}
-			title << {kind: "normal", value: I18n.t("division.single")}
-			if add_teams
-				title << {kind: "normal", value: I18n.t("player.abbr")} 
-				title << button_field({kind: "add", url: new_team_path, frame: "modal"})
-				trow = {url: "#", items: [gap_field(cols: 2), {kind: "bottom", value: I18n.t("stat.total")}]}
-				tcnt = 0	# total players
-			end
-			rows = Array.new
-			teams.each { |team|
-				cnt = team.players.count
-				url = params[:season_id].present? ? team_path(team, season_id: @season.id) : team_path(team, retlnk: user_path(current_user))
-				row = {url: , items: []}
-				row[:items] << {kind: "normal", value: team.season.name, align: "center"} unless season
-				row[:items] << {kind: "normal", value: team.to_s}
-				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
-				if add_teams
-					tcnt += cnt
-					row[:items] << {kind: "normal", value: cnt.to_s, align: "center"}
-					row[:items] << button_field({kind: "delete", url: row[:url], name: team.to_s})
-				end
-				rows << row
-			}
-			if add_teams
-				trow[:items] << {kind: "text", value: tcnt, align: "center"}
-				rows << trow
-			end
-			{title:, rows:}
-		else
-			nil
-		end
-	end
-
-	# return HeaderComponent @fields for forms
-	def team_form_fields(title:, cols: nil)
-		res = team_title_fields(title:, cols:, edit: true)
-		res << [
-			{kind: "label", align: "right", value: I18n.t("person.name_a")},
-			{kind: "text-box", key: :name, value: @team.name, placeholder: I18n.t("team.single")}
-		]
-		res << [
-			{kind: "icon", value: "category.svg"},
-			{kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}
-		]
-		res << [
-			{kind: "icon", value: "division.svg"},
-			{kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}
-		]
-		res << [
-			{kind: "icon", value: "location.svg"},
-			{kind: "select-collection", key: :homecourt_id, options: Location.home, value: @team.homecourt_id}
-		]
-		res << [
-			{kind: "icon", value: "coach.svg"},
-			{kind: "label", value:I18n.t("coach.many"), class: "align-center"}
-		]
-		res << [
-			gap_field,
-			{kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches},
-			{kind: "hidden", key: :sport_id, value: @sport.id}
-		]
-		res
-	end
-
-	# return jump links for a team
-	def team_links
-		if (u_manager? or u_coach?)
-			res = [[
-				button_field({kind: "jump", icon: "player.svg", url: roster_team_path(retlnk: @retlnk), label: I18n.t("team.roster")}, align: "center"),
-				button_field({kind: "jump", icon: "target.svg", url: targets_team_path(retlnk: @retlnk), label: I18n.t("target.many")}, align: "center"),
-				button_field({kind: "jump", icon: "teamplan.svg", url: plan_team_path(retlnk: @retlnk), label: I18n.t("plan.abbr")}, align: "center"),
-				button_field({kind: "jump", icon: "timetable.svg", url: slots_team_path, label: I18n.t("slot.many"), frame: "modal"}, align: "center")
-			]]
-		else
-			res = [[]]
-		end
-		res
-	end
-
 	# A Field Component with grid for team attendance. obj is the parent object (player/team)
 	def team_attendance_grid
 		# Check that the offline job has produced attendance data
@@ -138,7 +31,7 @@ module TeamsHelper
 			m_tot = []
 			@team.players.order(:number).each do |player|
 				p_att = player.attendance(team: @team)
-				row   = {url: player_path(player, retlnk: team_path(@team), team_id: @team.id), frame: "modal", items: []}
+				row   = {url: player_path(player, team_id: @team.id, rdx: @rdx), frame: "modal", items: []}
 				row[:items] << {kind: "normal", value: player.number, align: "center"}
 				row[:items] << {kind: "normal", value: player.to_s}
 				row[:items] << {kind: "percentage", value: p_att[:last7], align: "right"}
@@ -171,7 +64,7 @@ module TeamsHelper
 			c_first = true
 			@team.coaches.each do |coach|
 				if u_manager?
-					c_start  = button_field({kind: "link", label: coach.to_s, url: coach_path(coach, retlnk: team_path(@team, retlnk: @retlnk)), b_class: "items-center", d_class: "text-left", frame: "modal"})
+					c_start  = button_field({kind: "link", label: coach.to_s, url: coach_path(coach, team_id: @team.id, rdx: @rdx), b_class: "items-center", d_class: "text-left"})
 				else
 					c_start  = {kind: "string", value: coach.to_s, class: "align-middle text-left"}
 				end
@@ -182,5 +75,112 @@ module TeamsHelper
 		end
 		coaches << g_row
 		coaches
+	end
+
+	# return HeaderComponent @fields for forms
+	def team_form_fields(title:, cols: nil)
+		res = team_title_fields(title:, cols:, edit: true)
+		res << [{kind: "hidden", key: :sport_id, value: (@sport&.id || 1)}]
+		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
+		res << [
+			{kind: "icon", value: "user.svg", align: "right"},
+			{kind: "text-box", key: :name, value: @team.name, placeholder: I18n.t("team.single")}
+		]
+		res << [
+			{kind: "icon", value: "category.svg"},
+			{kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}
+		]
+		res << [
+			{kind: "icon", value: "division.svg"},
+			{kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}
+		]
+		res << [
+			{kind: "icon", value: "location.svg"},
+			{kind: "select-collection", key: :homecourt_id, options: Location.search(season_id: @season&.id).home, value: @team.homecourt_id}
+		]
+		res << [
+			{kind: "icon", value: "coach.svg"},
+			{kind: "label", value:I18n.t("coach.many"), class: "align-center"}
+		]
+		res << [gap_field,{kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}]
+		res
+	end
+
+	# return a GridComponent for the teams given
+	def team_grid(teams: @teams, add_teams: false)
+		if teams
+			title  = (@rdx==1 ? [{kind: "normal", value: I18n.t("season.abbr")}] : [])
+			title << {kind: "normal", value: I18n.t("category.single")}
+			title << {kind: "normal", value: I18n.t("team.single")}
+			title << {kind: "normal", value: I18n.t("division.single")}
+			if add_teams
+				title << {kind: "normal", value: I18n.t("player.abbr")} 
+				title << button_field({kind: "add", url: new_team_path, frame: "modal"})
+				trow = {url: "#", items: [gap_field(cols: 2), {kind: "bottom", value: I18n.t("stat.total")}]}
+				tcnt = 0	# total players
+			end
+			rows = Array.new
+			teams.each { |team|
+				cnt  = team.players.count
+				url  = team_path(team, rdx: @rdx)
+				row  = {url: , items: []}
+				row[:items] << {kind: "normal", value: team.season.name, align: "center"} if @rdx==1
+				row[:items] << {kind: "normal", value: team.category.name, align: "center"}
+				row[:items] << {kind: "normal", value: team.to_s}
+				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
+				if add_teams
+					tcnt += cnt
+					row[:items] << {kind: "normal", value: cnt.to_s, align: "center"}
+					row[:items] << button_field({kind: "delete", url: row[:url], name: team.to_s}) if (u_admin? || u_manager?)
+				end
+				rows << row
+			}
+			if add_teams
+				trow[:items] << {kind: "text", value: tcnt, align: "center"}
+				rows << trow
+			end
+			{title:, rows:}
+		else
+			nil
+		end
+	end
+
+	# return jump links for a team
+	def team_links
+		if (u_manager? or u_coach?)
+			res = [[
+				button_field({kind: "jump", icon: "player.svg", url: roster_team_path(@team, rdx: @rdx), label: I18n.t("team.roster")}, align: "center"),
+				button_field({kind: "jump", icon: "target.svg", url: targets_team_path(@team, rdx: @rdx), label: I18n.t("target.many")}, align: "center"),
+				button_field({kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team, rdx: @rdx), label: I18n.t("plan.abbr")}, align: "center"),
+				button_field({kind: "jump", icon: "timetable.svg", url: slots_team_path, label: I18n.t("slot.many"), frame: "modal"}, align: "center")
+			]]
+		else
+			res = [[]]
+		end
+		res
+	end
+
+	# return FieldComponent for team view title
+	def team_title_fields(title:, cols: nil, search: nil, edit: nil)
+		res = title_start(icon: "team.svg", title:, cols:)
+		if search
+			s_id = @team&.season_id || @season&.id || session.dig('team_filters', 'season_id')
+			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: s_id}]
+		elsif edit and u_manager?
+			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
+		elsif @team
+			res << [{kind: "label", value: @team.season.name}]
+			w_l = @team.win_loss
+			if w_l[:won]>0 or w_l[:lost]>0
+				wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
+				res << [
+					gap_field,
+					{kind: "text", value: wlstr}
+				]
+			end
+		else # player teams index
+			res << [{kind: "subtitle", value: current_user.player.to_s}]
+		end
+		res
 	end
 end

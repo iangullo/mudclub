@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ module PeopleHelper
 				{kind: "text-box", key: :phone, size: 12, value: person.phone, placeholder: I18n.t("person.phone")}
 			],
 			[
-				{kind: "label", value: I18n.t("person.pid_a"), align: "right"},
+				{kind: "icon", value: "id_front.svg"},
 				{kind: "text-box", key: :dni, size: 8, value: person.dni, placeholder: I18n.t("person.pid")},
 				gap_field,
 				{kind: "icon", value: "at.svg"},
@@ -45,15 +45,9 @@ module PeopleHelper
 	# return FieldsComponent @fields for forms
 	def person_form_title(person, icon: person.picture, title:, cols: 2, sex: nil)
 		res = person_title_fields(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
-		res << [
-			{kind: "label", value: I18n.t("person.name_a")},
-			{kind: "text-box", key: :name, value: person.name, placeholder: I18n.t("person.name")}
-		]
-		res << [
-			{kind: "label", value: I18n.t("person.surname_a")},
-			{kind: "text-box", key: :surname, value: person.surname, placeholder: I18n.t("person.surname")}
-		]
-		res << (sex ? [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: person.female, align: "center"}] : [])
+		res << [{kind: "text-box", key: :name, value: person.name, placeholder: I18n.t("person.name"), cols: 2}]
+		res << [{kind: "text-box", key: :surname, value: person.surname, placeholder: I18n.t("person.surname"), cols: 2}]
+		res << (sex ? [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: person.female, align: "left"}] : [])
 		res.last << {kind: "icon", value: "calendar.svg"}
 		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person.birthday}
 		res
@@ -79,11 +73,11 @@ module PeopleHelper
 		res = person_title_fields(title:, icon:, rows:, cols:)
 		res << [{kind: "label", value: person.s_name, cols:}]
 		res << [{kind: "label", value: person.surname, cols:}]
+		res << [gap_field(size: 0), {kind: "string", value: person.birthday}]
 		res << [
 			{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"},
 			idpic_field(person)
 		]
-		res << [gap_field(size: 0), {kind: "string", value: person.birthday}]
 		res << [
 			{kind: "icon", value: "home.svg", class: "align-top"},
 			{kind: "string", value: simple_format("#{person.address}"), align: "left", cols: 2}

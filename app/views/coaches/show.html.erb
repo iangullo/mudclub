@@ -1,5 +1,9 @@
-<%= render ModalComponent.new do %>
-	<%= render @fields %>
-	<%= render @grid %>
-	<%= render @submit %>
-<% end %>
+<table>
+	<tr>
+		<td><%= render @fields %></td>
+	</tr><tr>
+		<td><%= render @grid if @grid %></td>
+	</tr><tr>
+		<td><%= render @submit %></td>
+	</tr>
+</table>

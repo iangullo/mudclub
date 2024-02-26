@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,14 +65,18 @@ module ApplicationHelper
 
 	# standardised generator of "active" label for user/player/coach
 	def obj_status_field(obj)
-		if obj&.active
-			if obj.respond_to?(:number)
-				{kind: "string", value: (I18n.t("player.number") + @player.number.to_s), align: "center"}
+		if obj&.active?
+			label = case obj
+			when Coach
+				I18n.t("coach.abbr")
+			when Player
+				I18n.t("player.number") + @player.number.to_s
 			else
-				{kind: "string", value: I18n.t("status.active"),	align: "center"}
+				""
 			end
+			return {kind: "icon-label", icon: "mudclub.svg", label:, align: "center"}
 		else
-			{kind: "string", value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center"}
+			return {kind: "string", value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center"}
 		end
 	end
 
@@ -92,8 +96,8 @@ module ApplicationHelper
 		kind = form ? "image-box" : "header-icon"
 		key  = form ? "avatar" : nil
 		res  = [[
-			{kind:, key:, value: icon, size: size, rows: rows, class: _class},
-			{kind: "title", value: title, cols: cols}
+			{kind:, key:, value: icon, size:, rows:, class: _class},
+			{kind: "title", value: title, cols:}
 		]]
 		res << [{kind: "subtitle", value: subtitle}] if subtitle
 		res

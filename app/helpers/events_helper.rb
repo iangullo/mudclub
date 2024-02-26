@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,11 +17,103 @@
 # contact email - iangullo@gmail.com.
 #
 module EventsHelper
+	# FieldComponents for event attendance
+	def event_attendance_title
+		res = title_start(icon: "attendance.svg", title: @event.team.name, subtitle: @event.to_s)
+		res[0] << gap_field
+		res[1] << gap_field
+		event_top_right_fields(res:)
+		res << gap_row(cols: 6)
+	end
+
+	# FieldComponents to show an attendance form
+	def event_attendance_form_fields
+		res = [[
+			gap_field(size: 2),
+			{kind: "side-cell", value: I18n.t(@event.match? ? "match.roster" : "calendar.attendance"), align: "left"}
+		]]
+		res << [
+			gap_field(size: 2),
+			{kind: "select-checkboxes", key: :player_ids, options: @event.team.players.active}
+		]
+		res << [{kind: "hidden", key: :rdx, value: @rdx}] if @rdx
+		res << [{kind: "hidden", key: :team_id, value: @teamid}] if @teamid
+		res
+	end
+
+	# return a fields to show a copy event form
+	def event_copy_fields
+		if u_coach? || u_manager?
+			res = event_title_fields(form: true, cols: @event.match? ? 2 : nil, teams: @teams)
+			res.last << {kind: "hidden", key: :copy, value: true}
+			res.last << {kind: "hidden", key: :id, value: @event.id}
+			res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
+		end
+		res
+	end
+
+	# return adequate notice depending on @event kind
+	def event_create_notice
+		case @event.kind.to_sym
+		when :rest
+			msg = I18n.t("rest.created") + "#{@event.to_s(style: "notice")}"
+		when :train
+			msg = I18n.t("train.created") + "#{@event.date_string}"
+		when :match
+			msg = I18n.t("match.created") + "#{@event.to_s(style: "notice")}"
+		end
+		flash_message(msg, "success")
+	end
+
+	# return adequate notice depending on @event kind
+	def event_delete_notice
+		case @event.kind.to_sym
+		when :rest
+			msg = I18n.t("rest.deleted") + "#{@event.to_s(style: "notice")}"
+		when :train
+			msg = I18n.t("train.deleted") + "#{@event.date_string}"
+		when :match
+			msg = I18n.t("match.deleted") + "#{@event.to_s(style: "notice")}"
+		end
+		flash_message(msg)
+	end
+
 	# return icon and top of FieldsComponent
 	def event_index_title(team: nil, season: nil)
 		title    = team ? (team.name + " (#{team.season.name})") : season ? season.name : I18n.t("calendar.label")
 		subtitle = (title == I18n.t("calendar.label")) ? I18n.t("scope.all") : I18n.t("calendar.label")
 		res      = title_start(icon: "calendar.svg", title:, subtitle:)
+	end
+
+	# A Field Component with top link + grid for events. obj is the parent oject (season/team)
+	# if it's a season, we need to reference everything to the userclub
+	def event_list_grid(obj:)
+		if clubevent = (obj.class==Season)	# global club event ?
+			season_id = obj.id
+			events    = Event.short_term.for_season(obj).non_training
+		else
+			team_id = obj&.id 
+			events  = obj.events.short_term
+		end
+		title = [
+			{kind: "normal", value: I18n.t("calendar.date"), align: "center"},
+			{kind: "normal", value: I18n.t("calendar.time"), align: "center"},
+			{kind: "normal", value: I18n.t("event.single"), cols: 4}
+		]
+		rows    = event_rows(events:, season_id:)
+		btn_add = new_event_button(obj:, clubevent:)
+		title << btn_add if btn_add
+		return [event_list_toprow(clubevent:), [{kind: "grid", value: {title:, rows:}, cols: 3}]]
+	end
+
+	# fields to display player's stats for an event
+	def event_player_stats_fields
+		@sport.player_training_stats_fields(@event, player_id: @player.id)
+	end
+	
+	# return icon and top of FieldsComponent for Tasks
+	def event_task_title(subtitle:)
+		res = event_title_fields(subtitle:, chart: true)
 	end
 
 	# return icon and top of FieldsComponent
@@ -46,184 +138,18 @@ module EventsHelper
 		res
 	end
 
-	# FieldComponents for event attendance
-	def event_attendance_title
-		res = title_start(icon: "attendance.svg", title: @event.team.name, subtitle: @event.to_s)
-		res[0] << gap_field
-		res[1] << gap_field
-		event_top_right_fields(res:)
-		res << gap_row(cols: 6)
-	end
-
-	# return icon and top of FieldsComponent for Tasks
-	def event_task_title(subtitle:)
-		res = event_title_fields(subtitle:, chart: true)
-	end
-
-	# A Field Component with top link + grid for events. obj is the parent oject (season/team)
-	def event_list_grid(events:, obj:, retlnk:)
-		for_season = (obj.class==Season)
-		title  = [
-			{kind: "normal", value: I18n.t("calendar.date"), align: "center"},
-			{kind: "normal", value: I18n.t("calendar.time"), align: "center"},
-			{kind: "normal", value: I18n.t("event.single"), cols: 4}
-		]
-		rows    = event_rows(events:, season_id: for_season ? obj.id : nil, retlnk:)
-		btn_add = new_event_button(obj:, for_season:, retlnk:)
-		title << btn_add if btn_add
-		if for_season
-			fields = [[
-				button_field(
-					{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(season_id: @season.id)},
-					cols: 4,
-					class: "align-middle text-indigo-900"
-				)
-			]]
+	# return adequate notice depending on @event kind
+	def event_update_notice(msg, changed: false)
+		if changed
+			if @event.train?
+				msg += @event.date_string
+			elsif msg != I18n.t("stat.updated")
+				msg += @event.to_s(style: "notice")
+			end
+			return flash_message(msg, "success")
 		else
-			fields = [[
-				button_field(
-					{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: events_path(team_id: obj.id)},
-					class: "align-middle text-indigo-900"
-				),
-				gap_field,
-				button_field(
-					{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(obj), align: "right", frame: "modal"},
-					class: "align-middle text-indigo-900"
-				)
-			]]
+			return flash_message(I18n.t("status.no_data"), "info")
 		end
-		fields << [{kind: "grid", value: {title: title, rows: rows}, cols: 3}]
-		return fields
-	end
-
-	# FieldComponents to show an attendance form
-	def event_attendance_form_fields
-		res = [[
-			gap_field(size: 2),
-			{kind: "side-cell", value: I18n.t(@event.match? ? "match.roster" : "calendar.attendance"), align: "left"}
-		]]
-		res << [
-			gap_field(size: 2),
-			{kind: "select-checkboxes", key: :player_ids, options: @event.team.players.active}
-		]
-		res << [{kind: "hidden", key: "retlnk", value: @retlnk}]
-	end
-
-	#FieldComponents to show a match
-	def match_show_fields
-		res = match_fields(edit: false)
-	end
-
-	# return FieldsComponent for match form
-	def match_form_fields(new: false)
-		match_fields(edit: true, new:)
-	end
-
-	# player grid for a match
-	def match_roster_grid(edit: false)
-		a_rules = @sport.rules.key(@event.team.category.rules)
-		if (outings = @sport.match_outings(a_rules))
-			grid = @sport.outings_grid(@event, outings, edit:)
-			stim = "outings"
-		else
-			grid = @sport.stats_grid(@event, edit:)
-			stim = nil
-		end
-		{data: grid, controller: stim}
-	end
-
-		# fields to display player's stats for an event
-	def event_player_stats_fields
-		@sport.player_training_stats_fields(@event, player_id: @player.id)
-	end
-
-	# fields to display player's edit stats form for an event
-	def event_edit_player_stats_fields
-		@sport.player_training_stats_form_fields(@event, player_id: @player.id)
-	end
-
-	# return a fields to show a copy event form
-	def event_copy_fields
-		if u_coach? or u_manager?
-			res = event_title_fields(form: true, cols: @event.match? ? 2 : nil, teams: @teams)
-			res.last << {kind: "hidden", key: :copy, value: true}
-			res.last << {kind: "hidden", key: :id, value: @event.id}
-		end
-		res
-	end
-
-	# return FieldsComponent @fields for show_training
-	def training_show_fields
-		[[{kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + @event.work_duration, objects: task_accordion}]]
-	end
-
-	# fields to show in task views
-	def task_show_fields(task:, team:, title: true)
-		res = []
-		res << [
-			{kind: "icon", value: "drill.svg", size: "30x30", align: "center"},
-			{kind: "label", value: task.drill.name},
-			gap_field,
-			{kind: "icon-label", icon: "clock.svg", label: task.s_dur}
-		] if title
-		res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
-		if task.remarks?
-			res << [{kind: "label", value: I18n.t("task.remarks")}]
-			res << [{kind: "cell", value: task.remarks, size: 28}]
-		end
-		res
-	end
-
-	# data fields for task edit/add views
-	def task_form_fields(search_in:, retlnk:)
-		[
-			[
-				{kind: "top-cell", value: I18n.t("task.number")},
-				{kind: "top-cell", value: I18n.t("drill.single")},
-				{kind: "top-cell", value: I18n.t("task.duration")}
-			],
-			[
-				{kind: "side-cell", value: @task.order},
-				{kind: "select-load", key: :drill_id, url: search_in, options: @drills, value: @drill ? @drill.id : nil, hidden: @task.id},
-				{kind: "number-box", key: :duration, min: 1, max: 90, size: 3, value: @task.duration}
-			],
-			[
-				{kind: "hidden", key: :task_id, value: @task.id},
-				{kind: "hidden", key: :order, value: @task.order},
-				{kind: "hidden", key: :retlnk, value: retlnk}
-			]
-		]
-	end
-
-	# fields for task edit/add views
-	def task_form_description
-		if @task.drill
-			[[{kind: "string", value: @task.drill.explanation.empty? ? @task.drill.description : @task.drill.explanation}]]
-		else
-			nil
-		end
-	end
-
-	# fields to edit task remarks
-	def task_form_remarks
-		[
-			[{kind: "label", value: I18n.t("task.remarks")}],
-			[{kind: "rich-text-area", key: :remarks, value: @task.remarks, size: 28}],
-		]
-	end
-
-	# return accordion for event tasks
-	def task_accordion
-		tasks   = Array.new
-		@event.tasks.each { |task|
-			item = {}
-			item[:url]     = show_task_event_path(task_id: task.id)
-			item[:turbo]   = "modal"
-			item[:head]    = task.headstring
-			item[:content] = FieldsComponent.new(fields: task_show_fields(task:, team: @event.team, title: nil))
-			tasks << item
-		}
-		tasks
 	end
 
 	# profile of event workload (task types)
@@ -246,51 +172,181 @@ module EventsHelper
 		{title: title, data: data}
 	end
 
-	# return adequate notice depending on @event kind
-	def event_create_notice
-		case @event.kind.to_sym
-		when :rest
-			msg = I18n.t("rest.created") + "#{@event.to_s(style: "notice")}"
-		when :train
-			msg = I18n.t("train.created") + "#{@event.date_string}"
-		when :match
-			msg = I18n.t("match.created") + "#{@event.to_s(style: "notice")}"
-		end
-		flash_message(msg, "success")
+	#FieldComponents to show a match
+	def match_show_fields
+		res = match_fields(edit: false)
 	end
 
-	# return adequate notice depending on @event kind
-	def event_update_notice(msg, changed: false)
-		if changed
-			if @event.train?
-				msg += @event.date_string
-			elsif msg != I18n.t("stat.updated")
-				msg += @event.to_s(style: "notice")
-			end
-			return flash_message(msg, "success")
+	# return FieldsComponent for match form
+	def match_form_fields(new: false)
+		match_fields(edit: true, new:)
+	end
+
+	# player grid for a match
+	def match_roster_grid(edit: false)
+		a_rules = @sport.rules.key(@event.team.category.rules)
+		if (outings = @sport.match_outings(a_rules))
+			grid = @sport.outings_grid(@event, outings, edit:, rdx: @rdx)
+			stim = "outings"
 		else
-			return flash_message(I18n.t("status.no_data"), "info")
+			grid = @sport.stats_grid(@event, edit:, rdx: @rdx)
+			stim = nil
+		end
+		{data: grid, controller: stim}
+	end
+
+	# fields to display player's edit stats form for an event
+	def event_edit_player_stats_fields
+		@sport.player_training_stats_form_fields(@event, player_id: @player.id)
+	end
+
+	# return accordion for event tasks
+	def task_accordion
+		tasks   = Array.new
+		@event.tasks.each { |task|
+			item = {}
+			item[:url]     = show_task_event_path(task_id: task.id)
+			item[:turbo]   = "modal"
+			item[:head]    = task.headstring
+			item[:content] = FieldsComponent.new(fields: task_show_fields(task:, team: @event.team, title: nil))
+			tasks << item
+		}
+		tasks
+	end
+
+	# fields to show in task views
+	def task_show_fields(task:, team:, title: true)
+		res = []
+		res << [
+			{kind: "icon", value: "drill.svg", size: "30x30", align: "center"},
+			{kind: "label", value: task.drill.name},
+			gap_field,
+			{kind: "icon-label", icon: "clock.svg", label: task.s_dur}
+		] if title
+		res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
+		if task.remarks?
+			res << [{kind: "label", value: I18n.t("task.remarks")}]
+			res << [{kind: "cell", value: task.remarks, size: 28}]
+		end
+		res
+	end
+
+	# data fields for task edit/add views
+	def task_form_fields(search_in:)
+		res  = (@rdx ? [[{kind: "hidden", key: :rdx, value: @rdx}]] : [[]])
+		res += [
+			[
+				{kind: "top-cell", value: I18n.t("task.number")},
+				{kind: "top-cell", value: I18n.t("drill.single")},
+				{kind: "top-cell", value: I18n.t("task.duration")}
+			],
+			[
+				{kind: "side-cell", value: @task.order},
+				{kind: "select-load", key: :drill_id, url: search_in, options: @drills, value: @drill ? @drill.id : nil, hidden: @task.id},
+				{kind: "number-box", key: :duration, min: 1, max: 90, size: 3, value: @task.duration}
+			],
+			[
+				{kind: "hidden", key: :task_id, value: @task.id},
+				{kind: "hidden", key: :order, value: @task.order},
+			]
+		]
+	end
+
+	# fields for task edit/add views
+	def task_form_description
+		if @task.drill
+			[[{kind: "string", value: @task.drill.explanation.empty? ? @task.drill.description : @task.drill.explanation}]]
+		else
+			nil
 		end
 	end
 
-	# return adequate notice depending on @event kind
-	def event_delete_notice
-		case @event.kind.to_sym
-		when :rest
-			msg = I18n.t("rest.deleted") + "#{@event.to_s(style: "notice")}"
-		when :train
-			msg = I18n.t("train.deleted") + "#{@event.date_string}"
-		when :match
-			msg = I18n.t("match.deleted") + "#{@event.to_s(style: "notice")}"
-		end
-		flash_message(msg)
+	# fields to edit task remarks
+	def task_form_remarks
+		[
+			[{kind: "label", value: I18n.t("task.remarks")}],
+			[{kind: "rich-text-area", key: :remarks, value: @task.remarks, size: 28}],
+		]
+	end
+
+	# return FieldsComponent @fields for show_training
+	def training_show_fields
+		[[{kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + @event.work_duration, objects: task_accordion}]]
 	end
 
 	private
-		# complete event_title for rest events
-		def rest_title(team: nil, season: nil, res:, cols:, form:)
-			res << [{kind: "subtitle", value: team ? team.name : season ? season.name : "", cols: cols}] if team or season
-			res << [form ? {kind: "text-box", key: :name, value: @event.name, placeholder: I18n.t("person.name")} : {kind: "label", value: @event.name}]
+		# return a button field to copy event - if possible
+		def event_copy_button
+			if u_coach? or u_manager?
+				{kind: "action", icon: "copy.svg", label: I18n.t("action.copy"), url: copy_event_path(@event, rdx: @rdx), frame: "modal"}
+			end
+		end
+
+		# define the toprow for an events list (just above the grid itself)
+		def event_list_toprow(clubevent:)
+			calendurl = clubevent	? season_events_path(@season, log: @log) : team_events_path(@team, rdx: @rdx)
+			toprow = [	#  top row above the grid
+				button_field(
+					{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: calendurl},
+					class: "align-middle text-indigo-900"
+				)
+			]
+			toprow += [	# team events--> add a team_attendance button
+				gap_field,
+				button_field(
+					{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(@team, rdx: @rdx), align: "right", frame: "modal"},
+					class: "align-middle text-indigo-900"
+				)
+			] unless clubevent
+			return toprow
+		end
+
+		# return GridComponent @rows for events passed
+		def event_rows(events:, season_id:)
+			rows  = Array.new
+			events.each { |event|
+				unless season_id && event.rest? && event.team_id>0 # show only general holidays in season events view
+					row = {url: event_path(event, season_id:, team_id: event.team_id, rdx: @rdx), frame:(event.rest? ? "modal": "_top"), items: []}
+					row[:items] << {kind: "normal", value: event.date_string, align: "center"}
+					row[:items] << {kind: "normal", value: event.time_string(false), align: "center"}
+					event.to_hash.each_value { |row_f|
+						n_row = event.match? ? {kind: "normal", value: row_f.to_s, cols: 1} : {kind: "normal", value: event.to_s, cols: 4}
+						row[:items] << n_row
+					}
+					row[:items] << button_field({kind: "delete", url: row[:url], name: event.to_s}) if u_manager? or (event.team_id>0 and event.team.has_coach(u_coachid))
+					rows << row
+				end
+			}
+			rows
+		end
+
+		# complete event title with top-right corner elements
+		def event_top_right_fields(res:, form: nil, copy: false)
+			if form # top right corner of title
+				res[0] << {kind: "icon", value: "calendar.svg"}
+				res[0] << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
+				unless @event.rest? # add start_time inputs
+					res[1] << {kind: "icon", value: "clock.svg"}
+					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, mins: @event.min}
+				end
+				res.last << {kind: "hidden", key: :season_id, value: @seasonid} if @event.team.id==0
+				res.last << {kind: "hidden", key: :team_id, value: @event.team_id} unless copy
+				res.last << {kind: "hidden", key: :cal, value: @cal}
+				res.last << {kind: "hidden", key: :rdx, value: @rdx}
+				res.last << {kind: "hidden", key: :kind, value: @event.kind}
+			else
+				res[0] << {kind: "icon-label", icon: "calendar.svg", label: @event.date_string}
+				res[1] << {kind: "icon-label", icon: "clock.svg", label: @event.time_string} unless @event.rest?
+			end
+		end
+
+		# serves for both match_show and match_edit
+		def match_fields(edit:, new: false)
+			if edit
+				@sport.match_form_fields(@event, new:)
+			else
+				@sport.match_show_fields(@event)
+			end
 		end
 
 		# complete event title for matches
@@ -314,7 +370,7 @@ module EventsHelper
 					res << [
 						gap_field(size: 1, cols: 3),
 						button_field(
-							{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path(retlnk: @retlnk), frame: "modal"},
+							{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
@@ -323,17 +379,8 @@ module EventsHelper
 			end
 		end
 
-		# serves for both match_show and match_edit
-		def match_fields(edit:, new: false)
-			if edit
-				@sport.match_form_fields(@event, new:, retlnk: @retlnk)
-			else
-				@sport.match_show_fields(@event, retlnk: @retlnk)
-			end
-		end
-
 		# complete event_title for train events
-		def train_title(res:, cols:, form:, subtitle: nil, chart: nil)
+		def train_title(res:, cols:, form:, subtitle: nil, chart: nil, rdx: @rdx)
 			value = subtitle || I18n.t("train.single")
 			res << [{kind: "subtitle", value:, cols:}, gap_field]
 			unless chart
@@ -344,7 +391,7 @@ module EventsHelper
 						button_field(event_copy_button, align: "left", cols: 4),
 						gap_field(size: 1),
 						button_field(
-							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path(retlnk: @retlnk), frame: "modal"},
+							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
@@ -365,41 +412,10 @@ module EventsHelper
 			end
 		end
 
-		# complete event title with top-right corner elements
-		def event_top_right_fields(res:, form: nil, copy: false)
-			if form # top right corner of title
-				res[0] << {kind: "icon", value: "calendar.svg"}
-				res[0] << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
-				unless @event.rest? # add start_time inputs
-					res[1] << {kind: "icon", value: "clock.svg"}
-					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, mins: @event.min}
-				end
-				res.last << {kind: "hidden", key: :season_id, value: @season.id} if @event.team.id==0
-				res.last << {kind: "hidden", key: :team_id, value: @event.team_id} unless copy
-				res.last << {kind: "hidden", key: :kind, value: @event.kind}
-			else
-				res[0] << {kind: "icon-label", icon: "calendar.svg", label: @event.date_string}
-				res[1] << {kind: "icon-label", icon: "clock.svg", label: @event.time_string} unless @event.rest?
-			end
-		end
-
-		# return GridComponent @rows for events passed
-		def event_rows(events:, season_id:, retlnk:)
-			rows  = Array.new
-			events.each { |event|
-				unless season_id and event.rest? and event.team_id>0 # show only general holidays in season events view
-					row = {url: event_path(event, season_id:, retlnk:), frame:(event.rest? ? "modal": "_top"), items: []}
-					row[:items] << {kind: "normal", value: event.date_string, align: "center"}
-					row[:items] << {kind: "normal", value: event.time_string(false), align: "center"}
-					event.to_hash.each_value { |row_f|
-						n_row = event.match? ? {kind: "normal", value: row_f.to_s, cols: 1} : {kind: "normal", value: event.to_s, cols: 4}
-						row[:items] << n_row
-					}
-					row[:items] << button_field({kind: "delete", url: row[:url], name: event.to_s}) if u_manager? or (event.team_id>0 and event.team.has_coach(u_coachid))
-					rows << row
-				end
-			}
-			rows
+		# complete event_title for rest events
+		def rest_title(team: nil, season: nil, res:, cols:, form:)
+			res << [{kind: "subtitle", value: team ? team.name : season ? season.name : "", cols: cols}] if team or season
+			res << [form ? {kind: "text-box", key: :name, value: @event.name, placeholder: I18n.t("person.name")} : {kind: "label", value: @event.name}]
 		end
 
 		# return the dropdown element to access workload charts
@@ -416,24 +432,17 @@ module EventsHelper
 		end
 
 		# dropdown button definition to create a new Event
-		def new_event_button(obj:, for_season: nil, retlnk: team_events_path(@team))
-			if for_season	# paste season event button
-				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, team_id: 0, season_id: obj.id, retlnk:}), frame: "modal"}) if u_manager? && obj==Season.latest
+		def new_event_button(obj:, clubevent: nil)
+			if clubevent	# paste season event button
+				return button_field({kind: "add", url: new_season_event_path(obj, event: {kind: :rest, team_id: 0, season_id: obj.id, rdx: @rdx}), frame: "modal"}) if u_manager? && obj==Season.latest
 			elsif obj.class == Team && obj.has_coach(u_coachid) # new team event
 				button = {kind: "add", name: "add-event", options: []}
-				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id, retlnk:}), data: {turbo_frame: :modal}}
-				button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: obj.id, retlnk:}), data: {turbo_frame: :modal}}
-				button[:options] << {label: I18n.t("rest.single"), url: new_event_path(event: {kind: :rest, team_id: obj.id, retlnk:}), data: {turbo_frame: :modal}}
-				return {kind: "dropdown", button: button, class: "bg-white"}
+				button[:options] << {label: I18n.t("train.single"), url: new_team_event_path(obj, event: {kind: :train, team_id: obj.id, rdx: @rdx}), data: {turbo_frame: :modal}}
+				button[:options] << {label: I18n.t("match.single"), url: new_team_event_path(obj, event: {kind: :match, team_id: obj.id, rdx: @rdx}), data: {turbo_frame: :modal}}
+				button[:options] << {label: I18n.t("rest.single"), url: new_team_event_path(obj, event: {kind: :rest, team_id: obj.id, rdx: @rdx}), data: {turbo_frame: :modal}}
+				return {kind: "dropdown", button:, class: "bg-white"}
 			else
 				return nil
-			end
-		end
-
-		# return a button field to copy event - if possible
-		def event_copy_button
-			if u_coach? or u_manager?
-				{kind: "action", icon: "copy.svg", label: I18n.t("action.copy"), url: copy_event_path(retlnk: event_path), frame: "modal"}
 			end
 		end
 end

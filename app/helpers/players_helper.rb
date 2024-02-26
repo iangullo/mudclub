@@ -17,55 +17,19 @@
 # contact email - iangullo@gmail.com.
 #
 module PlayersHelper
-	# return player part of FieldsComponent for Player forms
-	def player_form_fields(team_id:)
-		res = [
-			{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
-			gap_field(size: 5),
-			{kind: "label", value: I18n.t("player.number")},
-			{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
-		]
-		res << {kind: "hidden", key: :retlnk, value: @retlnk} if @retlnk
-		res << {kind: "hidden", key: :team_id, value: team_id} if team_id
-		[res]
-	end
-
-	# nested form to add/edit player parents
-	def player_form_parents
-		res = [[{kind: "label", value: I18n.t("parent.many")}]]
-		res << [
-			{kind: "nested-form", model: "player", key: "parents", child: Parent.create_new, row: "parent_row", cols: 2}
-		]
-		res
-	end
-
-	# return grid fields for players with obj indicating
+	# return grid fields for players with team indicating
 	# => nil: for players index
 	# => Team: for team roster views
-	def player_grid(players:, obj: nil)
-		p_ndx  = (obj == nil)
-		retlnk = roster_team_path(obj, retlnk: @retlnk) unless p_ndx
-		adview = u_manager? || obj&.has_coach(u_coachid)
-		title  = [
-			{kind: "normal", value: I18n.t("player.number"), align: "center"},
-			{kind: "normal", value: I18n.t("person.name")},
-			{kind: "normal", value: I18n.t("person.age"), align: "center"}
-		]
-		if adview
-			title << {kind: "normal", value: I18n.t("person.phone_a"), align: "center"}
-			title << {kind: "normal", value: I18n.t("person.pics"), align: "center"}
-			title << {kind: "normal", value: I18n.t("status.active_a"), align: "center"}
-			title << button_field({kind: "add", url: new_player_path(retlnk:, team_id: obj&.id), frame: "modal"})
-		end
-
-		rows = Array.new
+	def player_grid(players:, team: nil)
+		manage  = u_manager? || team&.has_coach(u_coachid)
+		title   = player_grid_title(team:, manage:)
+		rows    = Array.new
 		players.each { | player|
-			retlnk = players_path(search: player.s_name, retlnk: @retlnk) if p_ndx
-			row    = {url: player_path(player, retlnk:), items: []}
+			row = {url: player_path(player, team_id: team&.id, rdx: @rdx), items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
 			row[:items] << {kind: "normal", value: player.to_s}
 			row[:items] << {kind: "normal", value: player.person.age, align: "center"}
-			if adview
+			if manage
 				row[:items] << {kind: "contact", phone: player.person.phone, device: device}
 				row[:items] << {kind: "icon", value: player.all_pics? ? "Yes.svg" : "No.svg", align: "center"}
 				row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
@@ -76,12 +40,34 @@ module PlayersHelper
 		return {title:, rows:}
 	end
 
+	# return player part of FieldsComponent for Player forms
+	def player_form_fields
+		res = [
+		 {kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
+		 gap_field(size: 5),
+		 {kind: "label", value: I18n.t("player.number")},
+		 {kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
+	 ]
+	 res << {kind: "hidden", key: :home, value: @rdx} if @rdx
+	 res << {kind: "hidden", key: :team_id, value: @teamid} if @teamid
+	 [res]
+ end
+
+ # nested form to add/edit player parents
+	def player_form_parents
+		res = [[{kind: "label", value: I18n.t("parent.many")}]]
+		res << [
+			{kind: "nested-form", model: "player", key: "parents", child: Parent.create_new, row: "parent_row", cols: 2}
+		]
+		res
+	end
+
 	# FieldsComponent fields to show for a player
 	def player_show_fields(team: nil)
 		res = person_show_fields(@player.person, title: I18n.t("player.single"), icon: @player.picture, cols: 3)
-		res[4][0] = obj_status_field(@player)
+		res[3][0] = obj_status_field(@player)
 		if team
-			att = @player.attendance(team: team)
+			att = @player.attendance(team:)
 			res << [
 				{kind: "icon", value: "team.svg", size: "25x25"},
 				{kind: "text", value: team.to_s}
@@ -116,4 +102,21 @@ module PlayersHelper
 		res << [{kind: "subtitle", value: "#{I18n.t("team.many")}:"}]
 		res
 	end
+
+	private
+		# title for a player grid
+		def player_grid_title(team:, manage: false)
+			title  = [
+				{kind: "normal", value: I18n.t("player.number"), align: "center"},
+				{kind: "normal", value: I18n.t("person.name")},
+				{kind: "normal", value: I18n.t("person.age"), align: "center"}
+			]
+			if manage
+				title << {kind: "normal", value: I18n.t("person.phone_a"), align: "center"}
+				title << {kind: "normal", value: I18n.t("person.pics"), align: "center"}
+				title << {kind: "normal", value: I18n.t("status.active_a"), align: "center"}
+				title << button_field({kind: "add", url: new_player_path(team_id: team&.id, rdx: @rdx), frame: "modal"})
+			end
+			return title
+		end
 end

@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,8 +19,7 @@
 module SlotsHelper
 	# return icon and top of FieldsComponent
 	def slot_title_fields(title:)
-		subtitle = (@season ? @season.name : "")
-		title_start(icon: "timetable.svg", title:, subtitle:)
+		title_start(icon: "timetable.svg", title:, subtitle: @season&.name)
 	end
 
 	# return FieldsComponent @fields for forms
@@ -28,11 +27,11 @@ module SlotsHelper
 		res = slot_title_fields(title:)
 		res << [
 			{kind: "icon", value: "team.svg"},
-			{kind: "select-collection", key: :team_id, options:  @season ? Team.for_season( @season.id) : Team.real, value: @slot.team_id, cols: 2}
+			{kind: "select-collection", key: :team_id, options: Team.for_season(@season.id), value: @slot.team_id, cols: 2}
 		]
 		res << [
 			{kind: "icon", value: "location.svg"},
-			{kind: "select-collection", key: :location_id, options:  @season ?  @season.locations.practice.order(name: :asc) : Location.practice, value: @slot.location_id, cols: 2}
+			{kind: "select-collection", key: :location_id, options: @locations, value: @slot.location_id, cols: 2}
 		]
 		res << [
 			{kind: "icon", value: "calendar.svg"},
@@ -43,8 +42,18 @@ module SlotsHelper
 			{kind: "icon", value: "clock.svg"},
 			{kind: "number-box", key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins")}
 		]
-		res.last << {kind: "hidden", key: :season_id, value:  @season.id} if  @season
+		res.last << {kind: "hidden", key: :season_id, value: @season.id}
 		res
+	end
+
+	# search bar for slots index
+	def slot_search_bar
+		#options = @locations.practice.pluck(:id,:name).map {|id, name| {location_id: id, name: name}}
+		options = @locations.practice.select(:id, :name)
+		fields  = [
+			{kind: "search-collection", key: :location_id, options:, value: @location.id},
+		]
+		[gap_field(size: 1), {kind: "search-box", url: season_slots_path(@season), fields:}]
 	end
 
 	private

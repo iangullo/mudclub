@@ -27,7 +27,7 @@
 						<%= image_tag (item[:value] || item[:icon]), size: item[:size], class: item[:class] %>
 						<% if item[:tip] # show tooltip %>
 							</button>
-							<div id="tooltip-<%=item[:tipid]%>" role="tooltip" class="absolute z-10 invisible inline-block px-1 py-1 text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip">
+							<div id="tooltip-<%=item[:tipid]%>" role="tooltip" class="absolute z-20 invisible inline-block px-1 py-1 text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip">
 								<%= item[:tip] %>
 							</div>
 						<% end %>

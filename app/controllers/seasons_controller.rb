@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@ class SeasonsController < ApplicationController
 	# GET /seasons/1
 	def show
 		if check_access(roles: [:manager])
-			@events = Event.short_term.for_season(@season).non_training
 			title   = helpers.season_title_fields(title: I18n.t("season.single"), cols: 2)
 			title << [
 				{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc), value: @season.id},
@@ -36,7 +35,8 @@ class SeasonsController < ApplicationController
 			]
 			@fields = create_fields(title)
 			@links  = create_fields(helpers.season_links)
-			@grid   = create_fields(helpers.event_list_grid(events: @events, obj: @season, retlnk: seasons_path))
+			@grid   = create_fields(helpers.event_list_grid(obj: @season))
+			@submit = create_submit(close: "back", retlnk: get_retlnk, submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -144,17 +144,16 @@ class SeasonsController < ApplicationController
 			end
 		end
 
+		# defines correct retlnk based on params received
+		def get_retlnk
+			return home_log_path if param_passed(:log)	# return to log_path
+			return season_path(@season) if @season
+			return seasons_path
+		end
+
 		def set_season
-			if params[:search].present?
-				@season = Season.search(params[:search])
-			elsif params[:id].present?
-				@season = Season.find_by_id(params[:id].to_i) unless @season&.id==params[:id].to_i
-			elsif params[:season_id].present?
-				@season = Season.find_by_id(params[:season_id].to_i) unless @season&.id==params[:id].to_i
-			else
-				@season = Season.latest
-			end
-			@season ||= Season.last
+			s_id = params[:search].presence || params[:id].presence || params[:season_id].presence
+			@season = Season.search(s_id) unless @season&.id==s_id&.to_i
 		end
 
 		# prepare fields for new/edit season
@@ -165,6 +164,18 @@ class SeasonsController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def season_params
-			params.require(:season).permit(:id, :start_date, :end_date, locations_attributes: [:id, :_destroy], locations: [], season_locations: [])
+			params.require(:season).permit(
+				:id,
+				:end_date,
+				:log,
+				:rdx,
+				:start_date,
+				locations_attributes: [
+					:id,
+					:_destroy
+				],
+				locations: [],
+				season_locations: []
+			)
 		end
 end
