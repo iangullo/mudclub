@@ -372,7 +372,7 @@ class TeamsController < ApplicationController
 		# Use callbacks to share common setup or constraints between actions.
 		def set_team
 			@team   = Team.find_by_id(params[:id]) if params[:id]
-			s_id    = @team&.season&.id || session.dig('team_filters', 'season_id')
+			s_id    = @team&.season&.id || p_seasonid || session.dig('team_filters', 'season_id')
 			@season = Season.search(s_id) unless (s_id == @season&.id)
 		end
 
