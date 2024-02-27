@@ -18,20 +18,21 @@
 #
 class Person < ApplicationRecord
 	include PersonDataManagement
-	#validates :email, uniqueness: true
-	#validates :dni, uniqueness: true
 	before_destroy :unlink
-	belongs_to :coach
-	belongs_to :player
-	belongs_to :user
-	belongs_to :parent
+  validates :email, uniqueness: { allow_nil: true }
+  validates :dni, uniqueness: { allow_nil: true }
+  validates :phone, uniqueness: { allow_nil: true }
+	validates :name, :surname, presence: true
+	belongs_to :coach, optional: true
+	belongs_to :player, optional: true
+	belongs_to :user, optional: true
+	belongs_to :parent, optional: true
 	has_one_attached :avatar
 	has_one_attached :id_front
 	has_one_attached :id_back
 	accepts_nested_attributes_for :player
 	accepts_nested_attributes_for :coach
 	accepts_nested_attributes_for :user
-	validates :name, :surname, presence: true
 	scope :real, -> { where("id>0") }
 	scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
 	before_save { self.name = self.name ? self.name.mb_chars.titleize : ""}
@@ -82,7 +83,7 @@ class Person < ApplicationRecord
 
 	# return if person is orphaned from any dependent objects
 	def orphan?
-		(self.player_id.to_i==0) and (self.coach_id.to_i==0) and (self.user_id.to_i==0) and (self.parent_id.to_i==0)
+		self&.id.to_i > 0 && (self.player_id.nil?) && (self.coach_id.nil?) && (self.user_id.nil?) && (self.parent_id.nil?)
 	end
 
 	# personal logo
@@ -107,10 +108,10 @@ class Person < ApplicationRecord
 		self.nick      = f_data[:nick].presence || self.nick
 		self.female    = to_boolean(f_data[:female])
 		self.phone     = parse_phone(f_data[:phone]) if f_data[:phone].presence
-		self.coach_id  = 0 unless self.coach_id.to_i > 0
-		self.player_id = 0 unless self.player_id.to_i > 0
-		self.parent_id = 0 unless self.parent_id.to_i > 0
-		self.user_id   = 0 unless self.user_id.to_i > 0
+		self.coach_id  = nil unless self.coach_id.to_i > 0
+		self.player_id = nil unless self.player_id.to_i > 0
+		self.parent_id = nil unless self.parent_id.to_i > 0
+		self.user_id   = nil unless self.user_id.to_i > 0
 		self.update_attachment("avatar", f_data[:avatar]) if f_data[:avatar].present?
 		self.update_attachment("id_front", f_data[:id_front]) if f_data[:id_front].present?
 		self.update_attachment("id_back", f_data[:id_back]) if f_data[:id_back].present?
@@ -203,21 +204,21 @@ class Person < ApplicationRecord
 	end
 
 	private
-		# unlink/delete dependent objects
-		def unlink
-			gen_unlink(:coach) if self.coach_id > 0	# delete associated coach
-			gen_unlink(:player) if self.player_id > 0	# delete associated player
-			gen_unlink(:user) if self.user_id > 0	# delete associated user
-			gen_unlink(:parent) if self.parent_id > 0	# delete associated user
-			UserAction.prune("/people/#{self.id}")
-		end
-
 		# called by unlink using either :coach, :player or :user as arguments
 		def gen_unlink(kind)
-			dep = self.send(kind.to_sym)
-			if dep
-				self.update!("#{kind}_id".to_sym 0)
+			if (dep = self.send(kind.to_sym))
+				self.update!("#{kind}_id".to_sym nil)
 				dep.destroy
 			end
+		end
+
+		# unlink/delete dependent objects
+		def unlink
+			self.scrub
+			gen_unlink(:coach) if self.coach_id.to_i > 0	# delete associated coach
+			gen_unlink(:player) if self.player_id.to_i > 0	# delete associated player
+			gen_unlink(:user) if self.user_id.to_i > 0	# delete associated user
+			gen_unlink(:parent) if self.parent_id.to_i > 0	# delete associated user
+			UserAction.prune("/people/#{self.id}")
 		end
 end

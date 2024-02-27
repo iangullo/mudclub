@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_01_31_054703) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_27_072408) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -182,10 +182,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_01_31_054703) do
     t.string "phone"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "player_id", default: 0, null: false
-    t.bigint "coach_id", default: 0, null: false
-    t.bigint "user_id", default: 0, null: false
-    t.bigint "parent_id", default: 0, null: false
+    t.bigint "player_id"
+    t.bigint "coach_id"
+    t.bigint "user_id"
+    t.bigint "parent_id"
     t.string "address"
     t.index ["coach_id"], name: "index_people_on_coach_id"
     t.index ["name"], name: "index_people_on_name"

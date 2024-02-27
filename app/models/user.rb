@@ -163,11 +163,7 @@ class User < ApplicationRecord
 	private
 		# unlink dependent person
 		def unlink
-			self.avatar.purge if self.avatar.attached?
-			per = self.person
-			self.update(person_id: 0)
-			per.update(user_id: 0)
-			per.destroy if per&.orphan?
+			self.scrub_person
 			UserAction.prune("/users/#{self.id}")
 		end
 end

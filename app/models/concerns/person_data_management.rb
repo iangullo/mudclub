@@ -136,4 +136,15 @@ module PersonDataManagement
 			when User; return :user_id
 			end
 		end
+
+		# scrub data from object prior to destroying
+		def scrub_person
+			self.avatar.purge if self.try(:avatar)&.attached?
+			unless self.is_a?(Person)	# need to unlink
+				per = self.person
+				self.update(person_id: 0)
+				per[bind_field] = nil
+				per.destroy if per&.orphan?
+			end
+		end
 end

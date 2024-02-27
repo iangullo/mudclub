@@ -21,7 +21,7 @@ class Player < ApplicationRecord
 	attr_accessor :parent_changed
 	before_destroy :unlink
 	after_initialize :set_changes_flag
-		has_one :person
+	has_one :person
 	has_one_attached :avatar
 	has_many :stats, dependent: :destroy
 	has_and_belongs_to_many :teams
@@ -210,14 +210,10 @@ class Player < ApplicationRecord
 
 		# cleanup association of dependent objects
 		def unlink
-			self.avatar.purge if self.avatar.attached?
 			self.teams.delete_all
 			self.events.delete_all
 			self.parents.delete_all
-			per = self.person
-			self.update(person_id: 0)
-			per.update(player_id: 0)
-			per.destroy if per&.orphan?
+			self.scrub_person
 			UserAction.prune("/players/#{self.id}")
 		end
 end
