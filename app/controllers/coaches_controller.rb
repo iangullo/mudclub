@@ -51,7 +51,7 @@ class CoachesController < ApplicationController
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
 			retlnk  = get_retlnk
-			submit  = (u_manager? or u_coachid==@coach.id) ? edit_coach_path(@coach, team_id: pteam_id, user: p_userid) : nil
+			submit  = (u_manager? || u_coachid==@coach.id) ? edit_coach_path(@coach, team_id: p_teamid, user: p_userid) : nil
 			@submit = create_submit(close: "back", retlnk:, submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -175,7 +175,6 @@ class CoachesController < ApplicationController
 
 		# defines correct retlnk based on params received
 		def get_retlnk
-			binding.break
 			return team_path(team_id:, user: current_user, rdx: @rdx) if p_teamid && current_user
 			case @rdx&.to_i
 			when 0;	return coaches_path(rdx: 0)

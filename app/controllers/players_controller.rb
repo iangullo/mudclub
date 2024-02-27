@@ -179,7 +179,7 @@ class PlayersController < ApplicationController
 	private
 		# prepare playyer action context
 		def get_player_context
-			@teamid = p_teamid(:player)
+			@teamid = p_teamid
 		end
 
 		# get player list depending on the search parameter & user role

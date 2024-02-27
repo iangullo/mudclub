@@ -215,10 +215,10 @@ class Person < ApplicationRecord
 		# unlink/delete dependent objects
 		def unlink
 			self.scrub
-			gen_unlink(:coach) if self.coach_id.to_i > 0	# delete associated coach
-			gen_unlink(:player) if self.player_id.to_i > 0	# delete associated player
-			gen_unlink(:user) if self.user_id.to_i > 0	# delete associated user
-			gen_unlink(:parent) if self.parent_id.to_i > 0	# delete associated user
+			gen_unlink(:coach) if self.coach_id.to_i > 0	# avoid deleting placeholders
+			gen_unlink(:player) if self.player_id.to_i > 0
+			gen_unlink(:user) if self.user_id
+			gen_unlink(:parent) if self.parent_id
 			UserAction.prune("/people/#{self.id}")
 		end
 end

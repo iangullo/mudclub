@@ -49,7 +49,7 @@ class PeopleController < ApplicationController
 	def show
 		if check_access(roles: [:admin], obj: @person)
 			fields = helpers.person_show_fields(@person)
-			fields[4][0] = {kind: "person-type", user: (@person.user_id > 0), player: (@person.player_id > 0), coach: (@person.coach_id > 0)}
+			fields[4][0] = {kind: "person-type", user: @person.user_id, player: @person.player_id, coach: @person.coach_id}
 			@fields = create_fields(fields)
 			@submit = create_submit(submit: (u_admin? or u_personid==@person.id) ? edit_person_path(@person) : nil, frame: "modal")
 		else

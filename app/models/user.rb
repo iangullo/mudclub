@@ -43,11 +43,11 @@ class User < ApplicationRecord
 	end
 
 	def coach
-		(self.person&.coach_id&.to_i > 0) ? self.person.coach : nil
+		self.person.coach
 	end
 
 	def is_coach?
-		(self.person&.coach_id&.to_i > 0 && self.person.coach.active) or self.coach?
+		self.coach? || (self.coach&.active?)
 	end
 
 	def is_manager?
@@ -55,11 +55,11 @@ class User < ApplicationRecord
 	end
 
 	def is_parent?
-		self.person&.parent_id&.to_i > 0
+		!self.person.parent_id.nil?
 	end
 
 	def is_player?
-		self.person&.player_id&.to_i > 0 || self.player?
+		self.player? || self.player&.active?
 	end
 
 	# return last login IP
@@ -79,7 +79,7 @@ class User < ApplicationRecord
 	end
 
 	def player
-		(self.person&.player_id&.to_i > 0) ? self.person.player : nil
+		self.person.player
 	end
 
 	# return attached avatar (or default user icon)
@@ -99,11 +99,11 @@ class User < ApplicationRecord
 			self.locale                = f_data[:locale] if f_data[:locale]
 			self.password              = f_data[:password] if f_data[:password]
 			self.password_confirmation = f_data[:password_confirmation] if f_data[:password_confirmation]
-			if self.is_player? && self.person.player_id.to_i==0 # need to get the player?
+			if self.is_player? && self.person.player_id.nil? # need to get the player?
 				self.person.player = Player.create(active: true, number: 0, person_id: self.person_id)
 				self.person.player.bind_person(save_changes: true)
 			end
-			if self.is_coach? && self.person.coach_id.to_i==0 # need to create a Coach?
+			if self.is_coach? && self.person.coach_id.nil? # need to create a Coach?
 				self.person.coach = Coach.create(active: true, person_id: self.person_id)
 				self.person.coach.bind_person(save_changes: true)
 			end
