@@ -99,8 +99,8 @@ class Person < ApplicationRecord
 			self.id = p_aux.id
 			self.reload
 		end
-		self.dni       = f_data[:dni].presence || self.dni || ""
-		self.email     = f_data[:email].presence || self.email || ""
+		self.dni       = f_data[:dni].presence || self.dni
+		self.email     = f_data[:email].presence || self.email
 		self.name      = f_data[:name].presence || self.name
 		self.surname   = f_data[:surname].presence || self.surname
 		self.address   = f_data[:address].presence || self.address
