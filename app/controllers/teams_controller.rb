@@ -87,7 +87,7 @@ class TeamsController < ApplicationController
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}, {kind: "string", value: "(#{players.count} #{I18n.t("player.abbr")})"}]
 			@title  = create_fields(title)
 			@title  = create_fields(title)
-			@grid   = create_grid(helpers.player_grid(players: players.order(:number)))
+			@grid   = create_grid(helpers.player_grid(team: @team, players: players.order(:number)))
 			submit  = (u_manager? || @team.has_coach(u_coachid)) ? edit_roster_team_path(rdx: @rdx) : nil
 			@submit = create_submit(close: "back", retlnk: team_path(rdx: @rdx), submit:)
 		else
@@ -235,7 +235,6 @@ class TeamsController < ApplicationController
 	def update
 		if check_access(roles: [:manager]) || @team.has_coach(u_coachid)
 			respond_to do |format|
-				binding.break
 				n_notice = no_data_notice(trail: @team.to_s)
 				retlnk   = prepare_update_redirect
 				if params[:team]

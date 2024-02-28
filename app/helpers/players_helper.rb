@@ -66,17 +66,18 @@ module PlayersHelper
 	def player_show_fields(team: nil)
 		res = person_show_fields(@player.person, title: I18n.t("player.single"), icon: @player.picture, cols: 3)
 		res[3][0] = obj_status_field(@player)
+=begin	# COmmentingn out - not a good layout as of now
 		if team
 			att = @player.attendance(team:)
 			res << [
 				{kind: "icon", value: "team.svg", size: "25x25"},
 				{kind: "text", value: team.to_s}
 			]
+			res << [{kind: "icon-label", icon: "attendance.svg", label:  I18n.t("calendar.attendance"), cols: 3, align: "left"}]
 			res << [
 				{kind: "label", value: I18n.t("match.many"), align: "right"},
 				{kind: "text", value: att[:matches]}
 			]
-			res << [{kind: "icon-label", icon: "attendance.svg", label:  I18n.t("calendar.attendance"), cols: 3}]
 			res << [
 				{kind: "label", value: I18n.t("calendar.week"), align: "right"},
 				{kind: "text", value: att[:last7].to_s + "%"}
@@ -90,6 +91,7 @@ module PlayersHelper
 				{kind: "text", value: att[:avg].to_s + "%"}
 			] if att[:avg]
 		end
+=end
 		unless @player.person.age > 18 || @player.parents.empty?
 			res << [{kind: "label", value: "#{I18n.t("parent.many")}:", cols: 2}]
 			@player.parents.each { |parent|
