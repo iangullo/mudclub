@@ -27,9 +27,10 @@ module LocationsHelper
 		session.delete('location_filters') if scratch
 		fields = [
 			{kind: "search-text", key: :name, placeholder: I18n.t("location.name"), value: (params[:name].presence || session.dig('location_filters', 'name')), size: 10},
-			{kind: "search-select", key: :season_id, options: Season.list, value: (params[:season_id] || session.dig('location_filters', 'season_id') || @season&.id)}
+#			{kind: "search-select", key: :season_id, options: Season.list, value: (params[:season_id] || session.dig('location_filters', 'season_id') || @season&.id)}
+			{kind: "hidden", key: :season_id, value: @seasonid}
 		]
-		[{kind: "search-box", url: search_in, fields:, cols:}]
+		[{kind: "search-box", url: search_in, fields:, cols: 2}]
 	end
 	
 
@@ -62,7 +63,7 @@ module LocationsHelper
 			{kind: "normal", value: I18n.t("kind.single"), align: "center"},
 			{kind: "normal", value: I18n.t("location.abbr")}
 		]
-		title << button_field({kind: "add", url: @season ? season_locations_path(@season)+"/new" : new_location_path, frame: "modal"}) if u_manager? or u_coach?
+		title << button_field({kind: "add", url: new_location_path(season_id: @season&.id), frame: "modal"}) if u_manager? or u_coach?
 
 		rows = Array.new
 		@locations.each { |loc|
@@ -74,7 +75,7 @@ module LocationsHelper
 			else
 				row[:items] << {kind: "normal", value: ""}
 			end
-			row[:items] << button_field({kind: "delete", url: location_path(loc, season_id: @season ? @season.id : nil), name: loc.name}) if u_manager?
+			row[:items] << button_field({kind: "delete", url: location_path(loc, season_id: @season&.id), name: loc.name}) if u_manager?
 			rows << row
 		}
 		{title:, rows:}

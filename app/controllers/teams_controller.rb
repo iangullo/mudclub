@@ -18,13 +18,13 @@
 #
 class TeamsController < ApplicationController
 	include Filterable
-	before_action :set_team, only: [:index, :show, :roster, :slots, :edit, :edit_roster, :attendance, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]
+	before_action :set_team, only: [:show, :roster, :slots, :edit, :edit_roster, :attendance, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]
 
 	# GET /teams
 	# GET /teams.json
 	def index
 		if check_access(roles: [:manager, :coach, :player])
-			@teams  = (u_coach? || u_manager?) ? Team.search(@season.id) : current_user.team_list
+			@teams  = (u_coach? || u_manager?) ? Team.search(@seasonid) : current_user.team_list
 			title   = helpers.team_title_fields(title: I18n.t("team.many"), search: (u_coach? || u_manager?))
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.team_grid(add_teams: u_manager?))
@@ -370,9 +370,12 @@ class TeamsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_team
-			@team   = Team.find_by_id(params[:id]) if params[:id]
-			s_id    = @team&.season&.id || p_seasonid || session.dig('team_filters', 'season_id')
-			@season = Season.search(s_id) unless (s_id == @season&.id)
+			t_id      = params[:id].presence || p_teamid
+			@team     = Team.find_by_id(t_id)
+			@teamid   = @team&.id
+			s_id      = @team&.season&.id || p_seasonid || session.dig('team_filters', 'season_id')
+			@season   = Season.search(s_id) unless (s_id == @season&.id)
+			@seasonid = @season&.id
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

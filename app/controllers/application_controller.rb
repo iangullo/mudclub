@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class ApplicationController < ActionController::Base
-	before_action :create_context
+	before_action :set_context
 	around_action :switch_locale
 
 	# check if correct  access level exists
@@ -38,14 +38,6 @@ class ApplicationController < ActionController::Base
 		button ? ButtonComponent.new(button:) : nil
 	end
 
-	# create the view's context
-	def create_context
-		user    = user_signed_in? ? current_user : nil
-		@rdx    = p_rdx
-		@season = Season.search((params[:season_id].presence)) if user
-		@topbar = TopbarComponent.new(user:, home: u_path, login: new_user_session_path, logout: destroy_user_session_path)
-	end
-
 	# return FieldsComponent object from a fields array
 	def create_fields(fields)
 		fields ? FieldsComponent.new(fields:) : nil
@@ -60,11 +52,15 @@ class ApplicationController < ActionController::Base
 	def create_submit(close: "close", submit: "save", retlnk: nil, frame: nil)
 		SubmitComponent.new(close:, submit:, retlnk:, frame:)
 	end
+
 	# ensure @season matches the calling context.
 	# :obj is an object that has a :season_id link
 	def get_season(obj: nil)
-		return @season if @season&.id==obj&.season_id&.to_i
-		@season = Season.search(obj&.season_id)
+		unless @season&.id != obj&.season_id&.to_i
+			@season   = Season.search(obj&.season_id)
+			@seasonid = @season&.id
+		end
+		return @season
 	end
 
 	# check if a string is an integer
@@ -115,24 +111,23 @@ class ApplicationController < ActionController::Base
 		return current_hash
 	end
 
-	# defines correct retlnk based on params received
-	def parse_retlnk(retlnk:, valid_links:, def_path:, c_index: false)
-		valid_links << u_path	# add the users path as valid destination
-		if retlnk
-			retlnk = (validate_link(retlnk:, valid_links:) || def_path)
-		elsif u_coach? || u_manager?
-			retlnk = def_path
-		else
-			retlnk = user_club_path
-		end
-		return (c_index && (retlnk == def_path)) ? "/" : retlnk
-	end
-
 	# register a new user action
 	def register_action(kind, description, url: nil, modal: nil)
 		u_act = UserAction.new(user_id: current_user.id, kind:, description:, url:, modal:)
 		current_user.user_actions << u_act
 		u_act.save
+	end
+
+	# set the action's context
+	def set_context
+		if user_signed_in?
+#			@clubid   = get_param(:club_id) || u_clubid
+			@rdx      = p_rdx
+			@season   = Season.search(p_seasonid)
+			@seasonid = @season&.id
+			user      = current_user
+		end
+		@topbar = TopbarComponent.new(user:, home: u_path, login: new_user_session_path, logout: destroy_user_session_path)
 	end
 
 	# switch app locale
@@ -149,6 +144,16 @@ class ApplicationController < ActionController::Base
 	def u_manager?
 		current_user&.is_manager?
 	end
+
+=begin	#	preapare for club management with dedicated model & CRUD
+	def u_club
+		current_user&.club
+	end
+
+	def u_clubid
+		current_user&.club_id
+	end
+=end
 
 	def u_coach?
 		current_user&.is_coach?
@@ -217,6 +222,8 @@ class ApplicationController < ActionController::Base
 				return true
 			when Coach
 				return (u_coachid==obj.id)
+			when Club
+				return (u_admin? || (u_manager? && u_clubid==obj.id))
 			when Drill
 				return (u_coachid==obj.coach_id)
 			when Event
@@ -237,11 +244,5 @@ class ApplicationController < ActionController::Base
 		# get a param either from base or from a sub-node
 		def get_param(base=params[:controller], key)
 			(param_passed(key) || param_passed(base, key) || param_passed(base.singularize, key))
-		end
-			
-		# Validate a link as valid input
-		def validate_link(retlnk:, valid_links:)
-			return nil unless retlnk.class == String
-			valid_links&.include?(retlnk) ? retlnk : nil
 		end
 end

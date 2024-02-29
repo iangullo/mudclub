@@ -24,7 +24,8 @@ class LocationsController < ApplicationController
 	def index
 		if check_access(roles: [:manager, :coach])
 			title  = helpers.location_title_fields(title: I18n.t("location.many"))
-			title << helpers.location_search_bar(search_in: locations_path)
+			title.first << {kind: "label", value: "(#{@season&.name})"}
+			title << helpers.location_search_bar(search_in: season_locations_path)
 			@fields = create_fields(title)
 			@grid   = create_grid(helpers.location_grid)
 			@submit = create_submit(close: "back", retlnk: :back, submit: nil)
@@ -147,7 +148,7 @@ class LocationsController < ApplicationController
 				else
 					@location.destroy
 					format.html { redirect_to locations_path, status: :see_other, notice: helpers.flash_message(a_desc) }
-					format.json { render :show, :created, location: locations_path(@location) }
+					format.json { render :index, :created, location: season_locations_path(@season) }
 				end
 			end
 		else

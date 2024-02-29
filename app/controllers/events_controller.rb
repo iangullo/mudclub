@@ -96,11 +96,11 @@ class EventsController < ApplicationController
 
 	# POST /events or /events.json
 	def create
+		get_event_context
+		e_data = event_params
+		@event = Event.prepare(event_params)
 		if check_access(roles: [:manager]) || @event.team.has_coach(u_coachid)
-			get_event_context
-			@event = Event.prepare(event_params)
 			respond_to do |format|
-				e_data  = event_params
 				@event.rebuild(e_data)
 				if @event.save
 					prepare_update_redirect(e_data)
