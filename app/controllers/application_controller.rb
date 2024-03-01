@@ -222,8 +222,8 @@ class ApplicationController < ActionController::Base
 				return true
 			when Coach
 				return (u_coachid==obj.id)
-			when Club
-				return (u_admin? || (u_manager? && u_clubid==obj.id))
+#			when Club
+#				return (u_admin? || (u_manager? && u_clubid==obj.id))
 			when Drill
 				return (u_coachid==obj.coach_id)
 			when Event
