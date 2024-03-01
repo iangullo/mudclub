@@ -394,7 +394,7 @@ class EventsController < ApplicationController
 				unless @event.rest?
 					r_lnk = event_path(@event, rdx: @rdx, cal: @cal)
 					if @event.train?
-						@btn_add = create_button({kind: "add", label: I18n.t("task.add"), url: add_task_event_path(retlnk: r_lnk)}) if (u_manager? || @event.team.has_coach(u_coachid))
+						@btn_add = create_button({kind: "add", label: I18n.t("task.add"), url: add_task_event_path(rdx: @rdx)}) if (u_manager? || @event.team.has_coach(u_coachid))
 						@drills  = @event.drill_list
 					end
 					@submit = create_submit(close: "back", retlnk: r_lnk)
