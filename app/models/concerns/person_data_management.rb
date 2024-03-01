@@ -138,14 +138,13 @@ module PersonDataManagement
 		end
 
 		# scrub data from object prior to destroying
-		def scrub_person(reap: nil)
+		def scrub_person(forget: nil)
 			self.avatar.purge if self.try(:avatar)&.attached?
 			unless self.is_a?(Person)	# need to unlink
 				per = self.person
-				self.update(person_id: 0)
-				per[bind_field] = 0
-				per.save
-				per.destroy if reap && per&.orphan?
+				per.update_column(bind_field, nil)
+				self.update_column(:person_id, 0)
+				per.destroy if forget && per&.orphan?
 			end
 		end
 end
