@@ -37,19 +37,21 @@ Rails.application.routes.draw do
 	resources :drills do
 		get 'versions', on: :member
 	end
-	resources :events do
-		get 'copy', on: :member
-		get 'load_chart', on: :member
-		get 'show_task', on: :member
-		get 'add_task', on: :member
-		get 'edit_task', on: :member
-		get 'attendance', on: :member
-		get 'player_stats', on: :member
-		get 'edit_player_stats', on: :member
+	resources :events, except: [:index] do
+		member do
+			get 'copy'
+			get 'load_chart'
+			get 'show_task'
+			get 'add_task'
+			get 'edit_task'
+			get 'attendance'
+			get 'player_stats'
+			get 'edit_player_stats'
+		end
 	end
-	resources :locations
+	resources :locations, except: [:index]
 	# Should REMOVE ACCESS to people records - only for development purposes
-	resources :people do
+resources :people do
 		collection do
 			post :import
 		end
@@ -60,26 +62,29 @@ Rails.application.routes.draw do
   	end
 	end
 	resources :seasons do
-		resources :locations
-		resources :slots
-		resources :events
+		get 'events', to: 'events#index'	# season event calendar
+		get 'locations', to: 'locations#index'	# season locations index
+		get 'teams', to: 'teams#index'	# season teams list
+		get 'slots', to: 'slots#index'	# season timeslots
 	end
-	resources :slots
+	resources :slots, except: [:index]
 	resources :sports do
 		get 'rules', on: :member
 		resources :categories
 		resources :divisions
 	end
 	resources :teams do
-		get 'roster', on: :member
-		get 'edit_roster', on: :member
-		get 'targets', on: :member
-		get 'edit_targets', on: :member
-		get 'plan', on: :member
-		get 'edit_plan', on: :member
-		get 'slots', on: :member
-		get 'attendance', on: :member
-		resources :events
+		get 'events', to: 'events#index'	# team event calendar
+		member do
+			get 'attendance'
+			get 'plan'
+			get 'edit_plan'
+			get 'roster'
+			get 'edit_roster'
+			get 'slots'
+			get 'targets'
+			get 'edit_targets'
+		end
 	end
 	resources :users do
 		get 'actions', on: :member

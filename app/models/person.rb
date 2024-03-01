@@ -214,7 +214,7 @@ class Person < ApplicationRecord
 
 		# unlink/delete dependent objects
 		def unlink
-			self.scrub
+			self.avatar.purge if self.try(:avatar)&.attached?
 			gen_unlink(:coach) if self.coach_id.to_i > 0	# avoid deleting placeholders
 			gen_unlink(:player) if self.player_id.to_i > 0
 			gen_unlink(:user) if self.user_id
