@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@
 class Person < ApplicationRecord
 	include PersonDataManagement
 	before_destroy :unlink
-  validates :email, uniqueness: { allow_nil: true }
-  validates :dni, uniqueness: { allow_nil: true }
-  validates :phone, uniqueness: { allow_nil: true }
+	validates :email, uniqueness: { allow_nil: true }
+	validates :dni, uniqueness: { allow_nil: true }
+	validates :phone, uniqueness: { allow_nil: true }
 	validates :name, :surname, presence: true
 	belongs_to :coach, optional: true
 	belongs_to :player, optional: true
@@ -141,13 +141,13 @@ class Person < ApplicationRecord
 		# Try to find by id if present
 		id = f_data[:id].presence.to_i
 		p_aux = Person.find_by(id:) if id > 0
-
+		
 		# Try to find by dni if present
 		p_aux = Person.find_by(dni: f_data[:dni]) if !p_aux && (dni = f_data[:dni].presence)
-
+		
 		# Try to find by email if present
 		p_aux = Person.find_by(email: f_data[:email]) if !p_aux && (email = f_data[:email].presence)
-
+		
 		unless p_aux	# last resort: attempt to find by name+surname
 			name    = f_data[:name].presence
 			surname = f_data[:surname].presence

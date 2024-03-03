@@ -85,7 +85,7 @@ module PersonDataManagement
 
 	# check if Player/Coach/User (or Person) has changed
 	def modified?
-		res = self.changed? # object changed?
+		res = self.id.nil? || self.changed? # object changed?
 		unless (res or self.is_a?(Person))	# changes in personal data?
 			res = self.person.modified?
 			if self.is_a?(Player) && !res	# player parents?
