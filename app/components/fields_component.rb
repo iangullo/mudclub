@@ -21,32 +21,32 @@
 # FieldsComponent - ViewComponent to render rows of fields as table cells in a view
 # managing different kinds of content for each field:
 # => "button": a specific ButtonComponent - passed as argument item[:button]
-# => "icon": :value (name of icon file in assets)
-# => "header-icon": :value (name of icon file in assets)
-# => "title": :value (bold text of title in orange colour)
-# => "subtitle": :value (bold text of title)
-# => "label": :value (semibold text string)
-# => "string": :value (regular text string)
-# => "icon-label": :icon (name of icon file), :label (added text)
-# => "label-checkbox": :key (attribute of checkbox), :value (added text)
-# => "text-box": :key (field name), :value (text_field), :size (box size)
-# => "email-box": :key (field name), :value (email_field), :size (box size)
-# => "password-box": :key (field name), :value (password_field)
-# => "text-area": :key (field name), :value (text_field), :size (box size), lines: number of lines
-# => "rich-text-area": :key (field name)
-# => "number-box": :key (field name), :value (number_field), size:
-# => "date-box": :key (field name), :value (date_field), :s_year (start_year)
 # => "contact": mailto:, tel: and whatsapp: buttons for a person
+# => "date-box": :key (field name), :value (date_field), :s_year (start_year)
+# => "email-box": :key (field name), :value (email_field), :size (box size)
+# => "gap": :size (count of &nbsp; to separate content)
+# => "header-icon": :value (name of icon file in assets)
+# => "hidden": :a hidden link for the form
+# => "icon": :value (name of icon file in assets)
+# => "icon-label": :icon (name of icon file), :label (added text)
+# => "label": :value (semibold text string)
+# => "label-checkbox": :key (attribute of checkbox), :value (added text)
+# => "number-box": :key (field name), :value (number_field), size:
+# => "password-box": :key (field name), :value (password_field)
 # => "person-type": icons (& tips) for type of person in the database
-# => "time-box": :hour & :mins (field names)
+# => "rich-text-area": :key (field name)
 # => "select-box": :key (field name), :options (array of valid options), :value (form, select)
 # => "select-collection": :key (field name), :collection, :value (form, select)
 # => "search-text": :url (search_in), :value
 # => "search-select": :key (search field), :url (search_in), :options, :value
 # => "search-collection": :key (search field), :url (search_in), :options, :value
 # => "search-box": :key (search field), :url (search_in), :options
-# => "hidden": :a hidden link for the form
-# => "gap": :size (count of &nbsp; to separate content)
+# => "string": :value (regular text string)
+# => "subtitle": :value (bold text of title)
+# => "text-area": :key (field name), :value (text_field), :size (box size), lines: number of lines
+# => "text-box": :key (field name), :value (text_field), :size (box size)
+# => "time-box": :hour & :mins (field names)
+# => "title": :value (bold text of title in orange colour)
 class FieldsComponent < ApplicationComponent
 	def initialize(fields:, form: nil)
 		@fields = parse(fields)
