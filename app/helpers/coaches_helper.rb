@@ -19,7 +19,7 @@
 module CoachesHelper
 	# return Coach-specific form fields
 	def coach_form_fields(team_id: nil, user: nil)
-		res = [{kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @coach.active}]
+		res = obj_club_selector(@coach)
 		res << {kind: "hidden", key: :team_id, value: team_id} if team_id
 		res << {kind: "hidden", key: :user, value: true} if user
 		res << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
@@ -35,7 +35,7 @@ module CoachesHelper
 		if u_manager?
 			title << {kind: "normal", value: I18n.t("person.pics"), align: "center"}
 			title << {kind: "normal", value: I18n.t("status.active_a")}
-			title << button_field({kind: "add", url: new_coach_path(rdx: 0), frame: "modal"})
+			title << button_field({kind: "add", url: new_coach_path(club_id: @clubid, rdx: 0), frame: "modal"})
 		end
 
 		rows = Array.new

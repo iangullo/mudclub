@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_27_072408) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_04_193942) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -65,11 +65,42 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_27_072408) do
     t.index ["sport_id"], name: "index_categories_on_sport_id"
   end
 
+  create_table "club_locations", force: :cascade do |t|
+    t.bigint "club_id", null: false
+    t.bigint "location_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["club_id"], name: "index_club_locations_on_club_id"
+    t.index ["location_id"], name: "index_club_locations_on_location_id"
+  end
+
+  create_table "club_sports", force: :cascade do |t|
+    t.bigint "club_id", null: false
+    t.bigint "sport_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["club_id"], name: "index_club_sports_on_club_id"
+    t.index ["sport_id"], name: "index_club_sports_on_sport_id"
+  end
+
+  create_table "clubs", force: :cascade do |t|
+    t.string "name"
+    t.string "nick"
+    t.string "email"
+    t.string "phone"
+    t.string "address"
+    t.jsonb "settings"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "coaches", force: :cascade do |t|
     t.boolean "active"
     t.bigint "person_id", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "club_id", default: 0
+    t.index ["club_id"], name: "index_coaches_on_club_id"
     t.index ["person_id"], name: "index_coaches_on_person_id"
   end
 
@@ -201,6 +232,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_27_072408) do
     t.bigint "person_id", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "club_id", default: 0
+    t.index ["club_id"], name: "index_players_on_club_id"
     t.index ["person_id"], name: "index_players_on_person_id"
   end
 
@@ -305,7 +338,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_27_072408) do
     t.datetime "updated_at", null: false
     t.bigint "homecourt_id", default: 0
     t.bigint "sport_id"
+    t.bigint "club_id", default: 0
     t.index ["category_id"], name: "index_teams_on_category_id"
+    t.index ["club_id"], name: "index_teams_on_club_id"
     t.index ["division_id"], name: "index_teams_on_division_id"
     t.index ["homecourt_id"], name: "index_teams_on_homecourt_id"
     t.index ["season_id"], name: "index_teams_on_season_id"
@@ -339,6 +374,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_27_072408) do
     t.datetime "last_sign_in_at"
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
+    t.bigint "club_id", default: 0
+    t.index ["club_id"], name: "index_users_on_club_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["person_id"], name: "index_users_on_person_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -358,6 +395,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_27_072408) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "categories", "sports"
+  add_foreign_key "club_locations", "clubs"
+  add_foreign_key "club_locations", "locations"
+  add_foreign_key "club_sports", "clubs"
+  add_foreign_key "club_sports", "sports"
+  add_foreign_key "coaches", "clubs"
   add_foreign_key "coaches", "people"
   add_foreign_key "divisions", "sports"
   add_foreign_key "drill_targets", "drills"
@@ -373,6 +415,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_27_072408) do
   add_foreign_key "people", "parents"
   add_foreign_key "people", "players"
   add_foreign_key "people", "users"
+  add_foreign_key "players", "clubs"
   add_foreign_key "players", "people"
   add_foreign_key "season_locations", "locations"
   add_foreign_key "season_locations", "seasons"
@@ -386,10 +429,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_27_072408) do
   add_foreign_key "team_targets", "targets"
   add_foreign_key "team_targets", "teams"
   add_foreign_key "teams", "categories"
+  add_foreign_key "teams", "clubs"
   add_foreign_key "teams", "divisions"
   add_foreign_key "teams", "locations", column: "homecourt_id"
   add_foreign_key "teams", "seasons"
   add_foreign_key "teams", "sports"
   add_foreign_key "user_actions", "users"
+  add_foreign_key "users", "clubs"
   add_foreign_key "users", "people"
 end

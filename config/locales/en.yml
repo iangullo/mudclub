@@ -98,8 +98,17 @@ en:
     single: "Category"
     name: "Name"
   club:
+    created: "Created club: "
+    deleted: "Deleted club: "
+    duplicate: "Duplicate club: "
     edit: "Edit Club"
+    entity: "Legal entity"
+    logo: "Logo"
+    many: "Clubs"
+    new: "Edit Club"
+    rivals: "Rival Clubs"
     single: "Club"
+    updated: "Updated club: "
   coach:
     duplicate: "Duplicate coach: "
     created: "Created coach: "

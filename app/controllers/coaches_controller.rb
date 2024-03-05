@@ -20,17 +20,17 @@ class CoachesController < ApplicationController
 	include Filterable
 	before_action :set_coach, only: [:show, :edit, :update, :destroy]
 
-	# GET /coaches 
-	# GET /coaches.json
+	# GET /clubs/x/coaches 
+	# GET /clubs/x/coaches.json
 	def index
-		if check_access(roles: [:manager, :coach])
+		if check_access(obj: Club.find(@clubid))
 			@coaches = get_coaches
 			title    = helpers.person_title_fields(title: I18n.t("coach.many"), icon: "coach.svg")
-			title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: coaches_path}]
+			title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_coaches_path(@clubid)}]
 			@fields = create_fields(title)
 			@grid   = create_grid(helpers.coach_grid)
-			submit  = u_manager? ? {kind: "export", url: coaches_path(format: :xlsx), working: false} : nil
-			@submit = create_submit(close: "back", retlnk: "/", submit:)
+			submit  = {kind: "export", url: club_coaches_path(@clubid, format: :xlsx), working: false} if u_manager?
+			@submit = create_submit(close: "back", retlnk: club_path(@clubid), submit:)
 			respond_to do |format|
 				format.xlsx {
 					a_desc = "#{I18n.t("coach.export")} 'coaches.xlsx'"
@@ -47,11 +47,11 @@ class CoachesController < ApplicationController
 	# GET /coaches/1
 	# GET /coaches/1.json
 	def show
-		if check_access(roles: [:manager, :coach])
+		if check_access(obj: @coach) || check_access(obj: @coach.club)
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
 			retlnk  = get_retlnk
-			submit  = (u_manager? || u_coachid==@coach.id) ? edit_coach_path(@coach, team_id: p_teamid, user: p_userid) : nil
+			submit  = (u_manager? || u_coachid==@coach.id) ? edit_coach_path(@coach, club_id: @clubid, team_id: p_teamid, user: p_userid, rdx: @rdx) : nil
 			@submit = create_submit(close: "back", retlnk:, submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -60,8 +60,8 @@ class CoachesController < ApplicationController
 
 	# GET /coaches/new
 	def new
-		if check_access(roles: [:manager])
-			@coach = Coach.new(active: true)
+		if check_access(obj: Club.find(@clubid))
+			@coach = Coach.new(club_id: @clubid)
 			@coach.build_person
 			prepare_form(title: I18n.t("coach.new"))
 		else
@@ -71,7 +71,7 @@ class CoachesController < ApplicationController
 
 	# GET /coaches/1/edit
 	def edit
-		if check_access(roles: [:manager], obj: @coach)
+		if check_access(obj: @coach) || check_access(obj: @coach.club)
 			prepare_form(title: I18n.t("coach.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -81,9 +81,9 @@ class CoachesController < ApplicationController
 	# POST /coaches 
 	# POST /coaches.json
 	def create
-		if check_access(roles: [:manager])
+		if check_access(obj: Club.find(@clubid))
 			respond_to do |format|
-				@coach = Coach.new
+				@coach = Coach.new(clubid: @clubid)
 				@coach.rebuild(coach_params)	# rebuild coach
 				if @coach.id == nil then	# it's a new coach
 					if @coach.paranoid_create # coach saved to database
@@ -110,7 +110,7 @@ class CoachesController < ApplicationController
 	# PATCH/PUT /coaches/1
 	# PATCH/PUT /coaches/1.json
 	def update
-		if check_access(roles: [:manager], obj: @coach)
+		if check_access(obj: @coach) || check_access(obj: @coach.club)
 			r_path = coach_path(@coach, rdx: @rdx)
 			respond_to do |format|
 				@coach.rebuild(coach_params)
@@ -139,8 +139,8 @@ class CoachesController < ApplicationController
 	# GET /coaches/import
 	# GET /coaches/import.json
 	def import
-		if check_access(roles: [:manager])
-			Coach.import(params[:file])	# added to import excel
+		if check_access(obj: Club.find(@clubid))
+			Coach.import(params[:file], u_clubid)	# added to import excel
 			a_desc = "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"
 			register_action(:imported, a_desc, url: coaches_path(rdx: 2))
 			redirect_to coaches_path(rdx: @rdx), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"}
@@ -153,7 +153,7 @@ class CoachesController < ApplicationController
 	# DELETE /coaches/1.json
 	def destroy
 		# cannot destroy placeholder coach (id ==0)
-		if @coach.id != 0 && check_access(roles: [:manager])
+		if @coach.id != 0 && check_access(obj: @coach.club)
 			c_name = @coach.s_name
 			@coach.destroy
 			respond_to do |format|
@@ -177,7 +177,7 @@ class CoachesController < ApplicationController
 		def get_retlnk
 			return team_path(team_id:, user: current_user, rdx: @rdx) if p_teamid && current_user
 			case @rdx&.to_i
-			when 0;	return coaches_path(rdx: 0)
+			when 0, nil;	return (@clubid ? club_coaches_path(@clubid, rdx: 0) : coaches_path(rdx: 0))
 			when 1; return u_path
 			when 2; return home_log_path
 			else; return "/"
@@ -194,7 +194,7 @@ class CoachesController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_coach
-			@coach = Coach.find_by_id(params[:id]) unless @coach&.id==params[:id]&.to_i
+			@coach  = Coach.find_by_id(params[:id]) unless @coach&.id==params[:id]&.to_i
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
@@ -203,6 +203,7 @@ class CoachesController < ApplicationController
 				:id,
 				:active,
 				:avatar,
+				:club_id,
 				:rdx,
 				:team_id, # used to build return links
 				:user,

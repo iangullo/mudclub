@@ -1,7 +1,6 @@
-<div id="seasons-show">
-	<%= render @fields %>
-	<%= turbo_frame_tag "search-results" do %>
-		<%= render @links %>
-		<%= render @grid %>
-	<% end %>
-</div>
+<%= render ModalComponent.new do %>
+	<div id="season-show">
+		<%= render @fields %>
+		<%= render @submit %>
+	</div>
+<% end %>

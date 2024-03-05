@@ -21,9 +21,9 @@
 # TopbarComponent - dynamic display of application top bar as ViewComponent
 class TopbarComponent < ApplicationComponent
 	def initialize(user:, home:, login:, logout:)
-		clubperson = Person.find(0)
-		@clublogo  = clubperson.logo
-		@clubname  = clubperson.nick
+		club = user&.club
+		@clublogo  = club&.logo || "mudclub.svg"
+		@clubname  = club&.nick || "MudClub"
 		@tabcls    = 'hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap rounded ml-2 px-2 py-2 rounded-md font-semibold'
 		@lnkcls    = 'no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap'
 		@profcls   = 'align-middle rounded-full min-h-8 min-w-8 align-middle hover:bg-blue-700 hover:ring-4 hover:ring-blue-200 focus:ring-4 focus:ring-blue-200'
@@ -131,7 +131,7 @@ class TopbarComponent < ApplicationComponent
 
 	# menu buttons for mudclub admins
 	def admin_menu(user)
-		options = [menu_link(label: I18n.t("season.single"), url: "/seasons")]
+		options = []
 		options << manager_menu(user) if user.is_manager?
 		options << server_menu(user) if user.admin?
 		@menu_tabs << menu_drop("admin", label: I18n.t("action.admin"), options:)
@@ -140,19 +140,22 @@ class TopbarComponent < ApplicationComponent
 	# menu buttons for coaches
 	def coach_menu(user, pure=true)
 		@menu_tabs << menu_link(label: I18n.t("drill.many"), url: '/drills')
-		@menu_tabs << menu_link(label: I18n.t("player.many"), url: '/players') if pure
+		@menu_tabs << menu_link(label: I18n.t("player.many"), url: "/clubs/#{user.club_id}/players") if pure
 	end
 
 	# menu buttons for club managers
 	def manager_menu(user)
 		coach_menu(user, pure=false) if user.is_coach?
 		if user.is_manager?
+			cluburl = "/clubs/#{user.club_id}"
 			options = []
-			options << menu_link(label: I18n.t("club.edit"), url: '/home/edit', kind: "modal")
-			options << menu_link(label: I18n.t("player.many"), url: "/players")
-			options << menu_link(label: I18n.t("coach.many"), url: "/coaches")
-			options << menu_link(label: I18n.t("team.many"), url: "/teams") unless user.is_coach?
-			options << menu_link(label: I18n.t("location.many"), url: "/locations")
+			options << menu_link(label: I18n.t("club.single"), url: cluburl)
+			options << menu_link(label: I18n.t("player.many"), url: "#{cluburl}/players")
+			options << menu_link(label: I18n.t("coach.many"), url: "#{cluburl}/coaches")
+			options << menu_link(label: I18n.t("team.many"), url: "#{cluburl}/teams") unless user.is_coach?
+			options << menu_link(label: I18n.t("club.rivals"), url: "/clubs")
+			options << menu_link(label: I18n.t("location.many"), url: "#{cluburl}/locations")
+			options << menu_link(label: I18n.t("slot.many"), url: "#{cluburl}/slots")
 			c_menu = menu_drop("manage", label: @clubname, options:)
 			return c_menu if user.admin?
 			s_menu = server_menu(user)
@@ -165,16 +168,21 @@ class TopbarComponent < ApplicationComponent
 
 	# menu to manage server application
 	def server_menu(user)
-		options = []
+		m_about = menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal")
 		if user.admin?
+			options = []
 			options << sport_menu
+			options << menu_link(label: I18n.t("season.many"), url: '/seasons', kind: "nav")
+			options << menu_link(label: I18n.t("club.many"), url: '/clubs', kind: "nav")
 			options << menu_link(label: I18n.t("user.many"), url: '/users', kind: "nav")
+			options << menu_link(label: I18n.t("server.log"), url: '/home/log', kind: "nav")
 			#options << menu_link(label: I18n.t("action.backup"), url: '/home/log')
 			#options << menu_link(label: I18n.t("action.restore"), url: '/home/log')
+			options << m_about
+			menu_drop("server", label: I18n.t("server.single"), options:)
+		else
+			return m_about
 		end
-		options << menu_link(label: I18n.t("server.log"), url: '/home/log', kind: "nav")
-		options << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal")
-		menu_drop("server", label: I18n.t("server.single"), options:)
 	end
 
 	# menu to manage sports
@@ -189,15 +197,18 @@ class TopbarComponent < ApplicationComponent
 
 	def team_menu(user)
 		u_teams = user.team_list
-		slast   = Season.latest
 		s_teams = []
+		return s_teams if (user.admin? && u_teams.empty?)
+		
+		t_url = "/clubs/#{user.club_id}/teams"
+		slast = Season.latest
 		u_teams.each {|team| s_teams << team if team.season == slast}
 		if s_teams.empty?
-			m_teams = menu_link(label: I18n.t("team.many"), url: '/teams')
+			m_teams = menu_link(label: I18n.t("team.many"), url: t_url)
 		else
 			m_teams = menu_drop("teams", label: I18n.t("team.many"))
-			s_teams.each {|team| m_teams[:options] << menu_link(label: team.name, url: '/teams/'+ team.id.to_s)}
-			m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: '/teams')
+			s_teams.each {|team| m_teams[:options] << menu_link(label: team.name, url: "#{t_url}/#{team.id}")}
+			m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: t_url)
 		end
 		[m_teams]
 	end

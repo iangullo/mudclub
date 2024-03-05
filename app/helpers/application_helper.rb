@@ -63,6 +63,14 @@ module ApplicationHelper
 		[{kind: "gap", size:, cols:, class: _class}]
 	end
 
+	# Field to use in forms to select club of a user/player/coach/team
+	def obj_club_selector(obj)
+		res = [
+			{kind: "icon", value: "mudclub.svg", tip: I18n.t("club.single"), tipid: "uclub"},
+			{kind: "select-box", align: "left", key: :club_id, options: current_user.club_list, value: obj.club_id, cols: 4},
+		]
+	end
+
 	# standardised generator of "active" label for user/player/coach
 	def obj_status_field(obj)
 		if obj&.active?
@@ -74,7 +82,7 @@ module ApplicationHelper
 			else
 				""
 			end
-			return {kind: "icon-label", icon: "mudclub.svg", label:, align: "center"}
+			return {kind: "icon-label", icon: obj.club.logo, label:, align: "center"}
 		else
 			return {kind: "string", value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center"}
 		end
@@ -109,7 +117,7 @@ module ApplicationHelper
 	end
 
 	def u_manager?
-		current_user.manager? || (current_user.admin? && current_user.is_coach?)
+		current_user.is_manager?
 	end
 
 	def u_coach?
@@ -118,6 +126,14 @@ module ApplicationHelper
 
 	def u_player?
 		current_user.is_player?
+	end
+
+	def u_club
+		current_user&.club
+	end
+
+	def u_clubid
+		current_user&.club_id
 	end
 
 	def u_coachid

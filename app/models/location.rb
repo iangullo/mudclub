@@ -46,8 +46,8 @@ class Location < ApplicationRecord
 	end
 
 	#Search field matching
-	def self.search(season_id: nil, name: nil)
-		qry = Location.real
+	def self.search(club_id: nil, season_id: nil, name: nil)
+		qry = (club_id ?  Location.where(id: ClubLocation.where(club_id:).pluck(:location_id)) : Location.real)
 		if season_id.present?
 			qry = qry.where(id: SeasonLocation.where(season_id:).pluck(:location_id))
 		end

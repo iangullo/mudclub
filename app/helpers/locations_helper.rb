@@ -17,29 +17,6 @@
 # contact email - iangullo@gmail.com.
 #
 module LocationsHelper
-	# return icon and top of FieldsComponent
-	def location_title_fields(title:)
-		title_start(icon: "location.svg", title:)
-	end
-
-	# specific search bar to search through drills
-	def location_search_bar(search_in:, scratch: nil, cols: nil)
-		session.delete('location_filters') if scratch
-		fields = [
-			{kind: "search-text", key: :name, placeholder: I18n.t("location.name"), value: (params[:name].presence || session.dig('location_filters', 'name')), size: 10},
-#			{kind: "search-select", key: :season_id, options: Season.list, value: (params[:season_id] || session.dig('location_filters', 'season_id') || @season&.id)}
-			{kind: "hidden", key: :season_id, value: @seasonid}
-		]
-		[{kind: "search-box", url: search_in, fields:, cols: 2}]
-	end
-	
-
-	def location_show_fields
-		res = location_title_fields(title: @location.name)
-		res << [(@location.gmaps_url and @location.gmaps_url.length > 0) ? {kind: "location", url: @location.gmaps_url, name: I18n.t("location.see")} : {kind: "text", value: I18n.t("location.none")}]
-		res << [{kind: "icon", value: @location.practice_court ? "training.svg" : "team.svg"}]
-	end
-
 	# return FieldsComponent @title for forms
 	def location_form_fields(title:)
 		res = location_title_fields(title:)
@@ -52,22 +29,25 @@ module LocationsHelper
 			{kind: "icon", value: "training.svg"},
 			{kind: "label-checkbox", key: :practice_court, label: I18n.t("location.train")}
 		]
-		res.last << {kind: "hidden", key: :season_id, value: @season.id} if @season
+		res.last << {kind: "hidden", key: :season_id, value: @seasonid} if @seasonid
+		res.last << {kind: "hidden", key: :club_id, value: @clubid} if @clubid
 		res
 	end
 
 	# return grid for @locations GridComponent
 	def location_grid
-		title = [
+		editor = u_admin? || (u_manager? && u_clubid==@clubid)
+		title  = [
 			{kind: "normal", value: I18n.t("location.name")},
 			{kind: "normal", value: I18n.t("kind.single"), align: "center"},
 			{kind: "normal", value: I18n.t("location.abbr")}
 		]
-		title << button_field({kind: "add", url: new_location_path(season_id: @season&.id), frame: "modal"}) if u_manager? or u_coach?
+		title << button_field({kind: "add", url: new_location_path(club_id: @club&.id, season_id: @season&.id), frame: "modal"}) if editor
 
 		rows = Array.new
 		@locations.each { |loc|
-			row = {url: edit_location_path(loc, season_id: @season&.id), frame: "modal", items: []}
+			url = editor ? location_path(loc, club_id: @clubid, season_id: @season&.id) : "#"
+			row = {url:, frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: loc.name}
 			row[:items] << {kind: "icon", value: loc.practice_court ? "training.svg" : "home.svg", align: "center"}
 			if loc.gmaps_url
@@ -75,9 +55,38 @@ module LocationsHelper
 			else
 				row[:items] << {kind: "normal", value: ""}
 			end
-			row[:items] << button_field({kind: "delete", url: location_path(loc, season_id: @season&.id), name: loc.name}) if u_manager?
+			row[:items] << button_field({kind: "delete", url: location_path(loc, season_id: @season&.id), name: loc.name}) if editor
 			rows << row
 		}
 		{title:, rows:}
+	end
+
+	# specific search bar to search through drills
+	def location_search_bar(search_in:, scratch: nil, cols: nil)
+		session.delete('location_filters') if scratch
+		fields = [
+			{kind: "search-text", key: :name, placeholder: I18n.t("location.name"), value: (params[:name].presence || session.dig('location_filters', 'name')), size: 10},
+#			{kind: "search-select", key: :season_id, options: Season.list, value: (params[:season_id] || session.dig('location_filters', 'season_id') || @season&.id)}
+			{kind: "hidden", key: :club_id, value: @clubid},
+			{kind: "hidden", key: :season_id, value: @seasonid}
+		]
+		[{kind: "search-box", url: search_in, fields:, cols: 2}]
+	end
+	
+	def location_show_fields
+		res = location_title_fields(title: @location.name)
+		if @location.gmaps_url.present?
+			res << [button_field({kind: "location", icon: "gmaps.svg", url: @location.gmaps_url, label: I18n.t("location.see")})]
+		else
+			res << [{kind: "text", value: I18n.t("location.none")}]
+		end
+		res << [{kind: "icon", value: @location.practice_court ? "training.svg" : "home.svg"}]
+	end
+
+	# return icon and top of FieldsComponent
+	def location_title_fields(title:)
+		clubid = @club&.id || @clubid || u_clubid
+		icon   =  ((u_clubid != clubid) ? @club&.logo : "location.svg")
+		title_start(icon:, title:)
 	end
 end

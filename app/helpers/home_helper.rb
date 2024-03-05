@@ -54,27 +54,25 @@ module HomeHelper
 		]
 	end
 
-	# home edit form fields
-	def home_form_fields(club:, retlnk: nil)
-		res = [
-			[
-				{kind: "image-box", value: club.logo, rows: 3},
-				{kind: "title", value: I18n.t("club.edit"), cols: 2}
-			],
-			[
-				{kind: "label", value: I18n.t("person.name_a")},
-				{kind: "text-box", key: :nick, value: club.nick, placeholder: "MudClub"}
-			],
-			gap_row(cols: 2)
+	def home_admin_fields(subtitle: I18n.t("action.admin"))
+		res = title_start(icon: "mudclub.svg", title: "MudClub", subtitle:, cols: 3)
+		res << [
+			button_field({kind: "jump", icon: "sport.svg", url: sports_path(rdx: 0), label: I18n.t("sport.many")}, align: "center"),
+			button_field({kind: "jump", icon: "calendar.svg", url: seasons_path(rdx: 0), label: I18n.t("season.many")}, align: "center"),
+			button_field({kind: "jump", icon: "rivals.svg", url: clubs_path(rdx: 0), label: I18n.t("club.many")}, align: "center"),
 		]
-		res << {kind: "hidden", key: :retlnk, value: retlnk} if retlnk
-		res
+		res << [
+			button_field({kind: "jump", icon: "user.svg", url: users_path(rdx: 0), label: I18n.t("user.many")}, align: "center"),
+			button_field({kind: "jump", icon: "user_actions.svg", url: home_log_path(rdx: 0), label: I18n.t("user.actions")}, align: "center")
+		]
+
 	end
 
 	# user action log grid
 	def home_actions_grid(actions:, retlnk: nil)
 		title = [
 			{kind: "normal", value: I18n.t("calendar.date"), align: "center"},
+			{kind: "normal", value: I18n.t("club.single")},
 			{kind: "normal", value: I18n.t("user.single")},
 			{kind: "normal", value: I18n.t("drill.desc")}
 		]
@@ -85,7 +83,8 @@ module HomeHelper
 			frm = action.modal ? "modal" : "_top"
 			row = {url:, frame: frm, items: []}
 			row[:items] << {kind: "normal", value: action.date_time}
-			row[:items] << {kind: "normal", value: action.user.to_s}
+			row[:items] << {kind: "icon", value: (action.user.active? ? action.user.club.logo : "No.svg"), align: "center"}
+			row[:items] << {kind: "normal", value: action.user.s_name}
 			row[:items] << {kind: "normal", value: action.description}
 			rows << row
 		}

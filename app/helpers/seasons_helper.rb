@@ -17,30 +17,6 @@
 # contact email - iangullo@gmail.com.
 #
 module SeasonsHelper
-	# return icon and top of HeaderComponent
-	def season_title_fields(title:, cols: nil)
-		title_start(icon: "calendar.svg", title: title, cols:)
-	end
-
-	# FieldComponents for season links
-	def season_links
-		[[
-			button_field(
-				{kind: "jump", icon: "location.svg", url: season_locations_path(@seasonid), label: I18n.t("location.many")},
-				align: "center"
-			),
-			button_field(
-				{kind: "jump", icon: "team.svg", url: season_teams_path(@seasonid), label: I18n.t("team.many")},
-				align: "center"
-			),
-			button_field(
-				{kind: "jump", icon: "timetable.svg", url: season_slots_path(@seasonid, location_id: @season&.locations&.practice&.first&.id), label: I18n.t("slot.many")},
-				align: "center"
-			),
-			button_field({kind: "edit", url: edit_season_path(@season), size: "30x30", frame: "modal"})
-		]]
-	end
-
 	# return HeaderComponent @fields for forms
 	def season_form_fields(title:, cols: nil)
 		res = season_title_fields(title:, cols:)
@@ -54,5 +30,44 @@ module SeasonsHelper
 			{kind: "date-box", key: :end_date, s_year: 2020, value: @season.end_date}
 		]
 		res
+	end
+
+	# grid for mudclub seasons
+	def season_grid
+		title = [
+			{kind: "normal", value: I18n.t("season.single"), align: "center"},
+			{kind: "normal", value: I18n.t("team.many"), align: "center"},
+			button_field({kind: "add", url: new_season_path, frame: "modal"})
+		]
+		rows = Array.new
+		@seasons.each { |season|
+			row = {url: season_path(season, rdx: 0), items: [], frame: "modal"}
+			row[:items] << {kind: "normal", value: season.name, align: "center"}
+			row[:items] << {kind: "normal", value: season.teams.count, align: "center"} 
+			row[:items] << button_field({kind: "delete", url: row[:url], name: season.to_s})
+			rows << row
+		}
+		{title:, rows:}
+	end
+
+	# return HeaderComponent @fields for forms
+	def season_fields(cols: nil)
+		res = season_title_fields(title: I18n.t("season.single"), cols:)
+		res << [{kind: "subtitle", value: @season.name}]
+		res << [
+			{kind: "label", align: "right", value: I18n.t("calendar.start")},
+			{kind: "text", value: @season.start_date}
+		]
+		res << [
+			{kind: "label", align: "right", value: I18n.t("calendar.end")},
+			{kind: "text", value: @season.end_date}
+		]
+		res
+	end
+
+
+	# return icon and top of HeaderComponent
+	def season_title_fields(icon: "calendar.svg", title:, cols: nil)
+		title_start(icon:, title:, cols:)
 	end
 end

@@ -23,10 +23,10 @@ class SportsController < ApplicationController
 	# Club index for mudclub admins
 	def index
 		if check_access(roles: [:admin])
-			title = helpers.home_admin_title
-			title << [{kind: "side-cell", value: I18n.t("sport.many"), align: "center", cols: 2}]
+			title = helpers.home_admin_title(title: I18n.t("sport.many"))
 			@fields = create_fields(title)
 			@grid   = create_grid(helpers.sports_grid)
+			@submit = create_submit(close: "back", retlnk: "/", submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -36,7 +36,7 @@ class SportsController < ApplicationController
 	def show
 		if check_access(roles: [:admin])
 			@fields = create_fields(helpers.sports_show_fields)
-			@submit = create_submit(close: "back", submit: nil, close_return: :back)
+			@submit = create_submit(close: "back", submit: nil, retlnk: :back)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -108,7 +108,7 @@ class SportsController < ApplicationController
 		# prepare a form to edit/create a Category
 		def prepare_form(title:)
 			@fields = create_fields(helpers.sports_form_fields(title:))
-			@submit = create_submit(close_return: :back)
+			@submit = create_submit(retlnk: :back)
 		end
 
 		# Only allow a list of trusted parameters through.

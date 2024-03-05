@@ -19,8 +19,9 @@
 class Player < ApplicationRecord
 	include PersonDataManagement
 	attr_accessor :parent_changed
-	before_destroy :unlink
 	after_initialize :set_changes_flag
+	before_destroy :unlink
+	belongs_to :club, optional: true
 	has_one :person
 	has_one_attached :avatar
 	has_many :stats, dependent: :destroy
@@ -39,7 +40,7 @@ class Player < ApplicationRecord
 
 	# returns whether the object is bound to a real club
 	def active?
-		self.active
+		self.club_id.present?
 	end
 
 	# get attendance data for player over the period specified by "during"
@@ -109,10 +110,11 @@ class Player < ApplicationRecord
 	def rebuild(f_data)
 		self.rebuild_obj_person(f_data)
 		if self.person # person exists
-			self.update_attachment("avatar", f_data[:person_attributes][:avatar])
-			self.number = f_data[:number]
-			self.active = f_data[:active]
+#			self.active  = f_data[:active]
+			self.club_id = f_data[:club_id].presence
+			self.number  = f_data[:number]
 			self.check_parents(f_data[:parents_attributes])
+			self.update_attachment("avatar", f_data[:person_attributes][:avatar])
 		end
 	end
 
@@ -141,7 +143,7 @@ class Player < ApplicationRecord
 	end
 
 	# to import from excel
-	def self.import(file)
+	def self.import(file, club_id=nil)
 		xlsx = Roo::Excelx.new(file.tempfile)
 		xlsx.each_row_streaming(offset: 1, pad_cells: true) do |row|
 			if row.empty?	# stop parsing if row is empty
@@ -162,7 +164,7 @@ class Player < ApplicationRecord
 					]
 				)
 				if j.person	# only if person exists
-					j.active = j.read_field(to_boolean(row[10].value), j.active, false)
+					j.club_id = to_boolean(row[10].value) ? clubid : nil
 					j.save if j.changed?
 				end
 			end
@@ -172,14 +174,16 @@ class Player < ApplicationRecord
 	#Search field matching
 	def self.search(search, user=nil)
 		if search.present?
-			sqry = ["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]
+			sqry = ["(unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]
 			if user&.is_manager?	# only players retired and belonging to the managers club 
-				Player.where(person_id: Person.where(sqry).order(:birthday))
+				Player.real.where(club_id: [user.club.id, nil], person_id: Person.where(sqry).order(:birthday))
 			elsif user&.coach?
-				Player.where(person_id: Person.where(sqry).order(:birthday))
+				Player.real.where(club_id: user.club.id, person_id: Person.where(sqry).order(:birthday))
 			else
 				Player.none
 			end
+		elsif user&.is_manager?
+			Player.real.where(club_id: user.club.id)
 		else
 			Player.none
 		end

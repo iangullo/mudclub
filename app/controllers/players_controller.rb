@@ -20,17 +20,17 @@ class PlayersController < ApplicationController
 	include Filterable
 	before_action :set_player, only: [:show, :edit, :update, :destroy]
 
-	# GET /players
-	# GET /players.json
+	# GET /clubs/x/players
+	# GET /clubs/x/players.json
 	def index
-		if check_access(roles: [:manager, :coach])
+		if check_access(obj: Club.find(@clubid)) || (u_coach? && u_clubid==@clubid)
 			@players = get_players
 			title    = helpers.person_title_fields(title: I18n.t("player.many"), icon: "player.svg", size: "50x50")
-			title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('player_filters', 'search'), url: players_path, size: 10}]
+			title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid)}]
 			@fields = create_fields(title)
 			@grid   = create_grid(helpers.player_grid(players: @players))
-			submit  = {kind: "export", url: players_path(format: :xlsx), working: false} if u_manager?
-			@submit = create_submit(close: nil, retlnk: get_retlnk, submit:)
+			submit  = {kind: "export", url: club_players_path(@clubid, format: :xlsx), working: false} if u_manager?
+			@submit = create_submit(close: "back", retlnk: club_path(@clubid), submit:)
 			respond_to do |format|
 				format.xlsx {
 					a_desc = "#{I18n.t("player.export")} 'players.xlsx'"
@@ -47,7 +47,7 @@ class PlayersController < ApplicationController
 	# GET /players/1
 	# GET /players/1.json
 	def show
-		if check_access(roles: [:manager, :coach], obj: @player)
+		if (u_manager? && [nil, @clubid].include?(u_clubid)) || (u_coach? && u_clubid==@clubid) ||  check_access(obj: @player)
 			@fields = create_fields(helpers.player_show_fields(team: Team.find_by_id(@teamid)))
 			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
 			submit  = (u_manager? || u_coach? || u_playerid==@player.id) ? edit_player_path(@player, team_id: @teamid, rdx: @rdx) : nil
@@ -71,7 +71,7 @@ class PlayersController < ApplicationController
 
 	# GET /players/1/edit
 	def edit
-		if check_access(roles: [:manager, :coach], obj: @player)
+		if (u_manager? && [nil, @clubid].include?(u_clubid)) || (u_coach? && u_clubid==@clubid) ||  check_access(obj: @player)
 			prepare_form(title: I18n.t("player.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -116,7 +116,7 @@ class PlayersController < ApplicationController
 	# PATCH/PUT /players/1.json
 	def update
 		retlnk = player_path(@player, rdx: @rdx, team_id: @teamid)
-		if check_access(roles: [:manager, :coach], obj: @player)
+		if (u_manager? && [nil, @clubid].include?(u_clubid)) || (u_coach? && u_clubid==@clubid) ||  check_access(obj: @player)
 			respond_to do |format|
 				@player.rebuild(player_params)
 				if @player.modified?
@@ -162,7 +162,7 @@ class PlayersController < ApplicationController
 	# DELETE /players/1.json
 	def destroy
 		# cannot destroy placeholder player (id ==0)
-		if @player.id != 0 && check_access(roles: [:manager], obj: @player)
+		if @player.id != 0 && check_access(obj: Club.find_by_id(@player.club_id))
 			p_name = @player.to_s
 			@player.destroy
 			respond_to do |format|
@@ -180,6 +180,7 @@ class PlayersController < ApplicationController
 		# prepare playyer action context
 		def get_player_context
 			@teamid = p_teamid
+			@clubid = @player&.club_id
 		end
 
 		# get player list depending on the search parameter & user role
@@ -199,6 +200,7 @@ class PlayersController < ApplicationController
 		# link a player to a team
 		def link_team(team_id)
 			if team_id && (team = Team.find(team_id))	# only if we find it
+				@player.teams << team unless @player.teams.include?(team)
 				team.players << @player unless team.has_player(@player.id)
 			end
 		end
@@ -214,8 +216,8 @@ class PlayersController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_player
-			get_player_context
 			@player = Player.find_by_id(params[:id]) unless @player&.id==params[:id]
+			get_player_context
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
@@ -225,6 +227,7 @@ class PlayersController < ApplicationController
 				:active,
 				:active?,
 				:avatar,
+				:club_id,
 				:event_id,
 				:number,
 				:rdx,

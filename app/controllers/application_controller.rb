@@ -20,8 +20,9 @@ class ApplicationController < ActionController::Base
 	before_action :set_context
 	around_action :switch_locale
 
-	# check if correct  access level exists
-	# works as "present AND (valid(role) OR valid(obj.condition))"
+	# check if correct  access level exists. Basically checks if:
+	# "user is present AND (valid(role) OR valid(obj.condition))"
+	# optionally, check that clubid matches.
 	def check_access(roles: nil, obj: nil, both: false)
 		if current_user.present?	# no access if no user logged in
 			if both	# both conditions to apply
@@ -89,16 +90,20 @@ class ApplicationController < ActionController::Base
 		get_param(base, :log)
 	end
 
+	def p_clubid(base=params[:controller])
+		get_param(base, :club_id, objid: true)
+	end
+
 	def p_seasonid(base=params[:controller])
-		get_param(base, :season_id)
+		get_param(base, :season_id, objid: true)
 	end
 	
 	def p_teamid(base=params[:controller])
-		get_param(base, :team_id)
+		get_param(base, :team_id, objid: true)
 	end
 	
 	def p_userid(base=params[:controller])
-		get_param(base, :user_id)
+		get_param(base, :user_id, objid: true)
 	end
 
 	# check if some specific params are passed
@@ -121,7 +126,7 @@ class ApplicationController < ActionController::Base
 	# set the action's context
 	def set_context
 		if user_signed_in?
-#			@clubid   = get_param(:club_id) || u_clubid
+			@clubid   = get_param(:club_id, objid: true) || u_clubid
 			@rdx      = p_rdx
 			@season   = Season.search(p_seasonid)
 			@seasonid = @season&.id
@@ -145,7 +150,6 @@ class ApplicationController < ActionController::Base
 		current_user&.is_manager?
 	end
 
-=begin	#	preapare for club management with dedicated model & CRUD
 	def u_club
 		current_user&.club
 	end
@@ -153,7 +157,6 @@ class ApplicationController < ActionController::Base
 	def u_clubid
 		current_user&.club_id
 	end
-=end
 
 	def u_coach?
 		current_user&.is_coach?
@@ -222,8 +225,8 @@ class ApplicationController < ActionController::Base
 				return true
 			when Coach
 				return (u_coachid==obj.id)
-#			when Club
-#				return (u_admin? || (u_manager? && u_clubid==obj.id))
+			when Club
+				return u_admin? || (u_manager? && obj.id==u_clubid)
 			when Drill
 				return (u_coachid==obj.coach_id)
 			when Event
@@ -242,7 +245,9 @@ class ApplicationController < ActionController::Base
 		end
 
 		# get a param either from base or from a sub-node
-		def get_param(base=params[:controller], key)
-			(param_passed(key) || param_passed(base, key) || param_passed(base.singularize, key))
+		def get_param(base=params[:controller], key, objid: false)
+			res = (param_passed(key) || param_passed(base, key) || param_passed(base.singularize, key))
+			return res unless objid
+			res.nil? ? nil :  res.to_i
 		end
 end

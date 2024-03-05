@@ -20,13 +20,14 @@
 module SportsHelper
 	# sports page for admins
 	def sports_grid
-		title = [{kind: "normal", value: I18n.t("sport.single")}]
-		title << button_field({kind: "add", url: new_sport_category_path, frame: "modal"})
+		title = [{kind: "normal", value: I18n.t("sport.single")}, {kind: "normal", value: I18n.t("team.many")}]
+		#title << button_field({kind: "add", url: new_sport_path, frame: "modal"})
 		rows = Array.new
 		Sport.all.each { |sport|
-			row = {url: edit_sport_path(sport), items: [], frame: "modal"}
+			row = {url: sport_path(sport, rdx: 0), items: []}
 			row[:items] << {kind: "normal", value: sport.to_s, align: "center"}
-			row[:items] << button_field({kind: "delete", url: row[:url], name: sport.to_s})
+			row[:items] << {kind: "normal", value: sport.teams.count, align: "center"}
+			#row[:items] << button_field({kind: "delete", url: row[:url], name: sport.to_s})
 			rows << row
 		}
 		{title: title, rows: rows}
@@ -41,7 +42,7 @@ module SportsHelper
 			],
 			[{kind: "subtitle", value: @sport.to_s}],
 			[
-				button_field({kind: "jump", icon: "rules.svg", url: rules_sport_path, label: I18n.t("sport.rules"), frame: "modal"}, align: "center"),
+				button_field({kind: "jump", icon: "rules.svg", url: rules_sport_path(@sport), label: I18n.t("sport.rules"), frame: "modal"}, align: "center"),
 				button_field({kind: "jump", icon: "category.svg", url: sport_categories_path(@sport), label: I18n.t("category.many"), frame: "modal"}, align: "center")
 			],
 			[

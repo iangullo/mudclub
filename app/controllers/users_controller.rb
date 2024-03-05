@@ -66,7 +66,7 @@ class UsersController < ApplicationController
 	# GET /users/1/edit
 	def edit
 		if check_access(roles: [:admin], obj: @user)
-			prepare_form(I18n.t("user.edit"), home: p_home(:user))
+			prepare_form(I18n.t("user.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -200,6 +200,7 @@ class UsersController < ApplicationController
 		def user_params
 			params.require(:user).permit(
 				:id,
+				:club_id,
 				:email,
 				:locale,
 				:rdx,

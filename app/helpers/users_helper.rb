@@ -59,11 +59,21 @@ module UsersHelper
 
 	# return FieldComponents for form user role
 	def user_form_role
-		res = [[{kind: "icon", value: "mudclub.svg", tip: "#{I18n.t("user.profile")}", tipid: "rolicon"}]]
 		if u_admin?
-			res.last << {kind: "select-box", align: "center", key: :role, options: User.role_list, value: @user.role}
+			res = [
+				obj_club_selector(@user),
+				[
+					{kind: "icon", value: "key.svg", tip: I18n.t("user.profile"), tipid: "urole"},
+					{kind: "select-box", align: "left", key: :role, options: User.role_list, value: @user.role}
+				]
+			]
 		else
-			res.last << {kind: "string", align: "center", value: I18n.t("role.#{@user.role}")}
+			res = [
+				[
+					{kind: "icon", value: @user.club.logo, tip: @user.club.nick, tipid: "uclub"},
+					{kind: "string", align: "center", value: I18n.t("role.#{@user.role}")}
+				]
+			]
 		end
 		res.last <<	gap_field
 		res.last << {kind: "icon", value: "locale.png", tip: I18n.t("locale.lang"), tipid: "lang"}
@@ -120,6 +130,7 @@ module UsersHelper
 	# return grid for @users GridComponent
 	def user_grid
 		title = [
+			{kind: "normal", value: I18n.t("club.single")},
 			{kind: "normal", value: I18n.t("person.name")},
 			{kind: "normal", value: I18n.t("user.profile"), align: "center", cols: 3},
 			{kind: "normal", value: I18n.t("person.contact"), align: "center"},
@@ -130,6 +141,7 @@ module UsersHelper
 		rows = Array.new
 		@users.each { |user|
 			row = {url: user_path(user), items: []}
+			row[:items] << {kind: "icon", value: (user.active? ? user.club.logo : "No.svg")}
 			row[:items] << {kind: "normal", value: user.s_name}
 			row[:items] += user_role_fields(user, grid: true)
 			row[:items] << {kind: "contact", phone: user.person.phone, email: user.person.email}
@@ -137,7 +149,7 @@ module UsersHelper
 			row[:items] << button_field({kind: "delete", url: row[:url], name: user.s_name}) if u_admin? and user.id!=current_user.id
 			rows << row
 		}
-		{title: title, rows: rows}
+		{title:, rows:}
 	end
 
 	private

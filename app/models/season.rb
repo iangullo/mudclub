@@ -22,7 +22,6 @@ class Season < ApplicationRecord
 	has_many :teams, dependent: :destroy
 	has_many :season_locations, dependent: :destroy
 	has_many :locations, through: :season_locations
-	accepts_nested_attributes_for :locations
 	scope :real, -> { where("id>0") }
 	self.inheritance_column = "not_sti"
 

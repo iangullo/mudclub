@@ -22,21 +22,21 @@ class SeasonsController < ApplicationController
 	# GET /seasons
 	# GET /seasons.json
 	def index
-		redirect_to season_path(@season), data: {turbo_action: "replace"}
+		if check_access(roles: [:admin])
+			@seasons = Season.real
+			@title   = create_fields(helpers.season_title_fields(icon: "mudclub.svg", title: I18n.t("season.many")))
+			@grid    = create_grid(helpers.season_grid)
+			@submit  = create_submit(close: "back", retlnk: "/", submit: nil)
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
 	end
 
 	# GET /seasons/1
 	def show
-		if check_access(roles: [:manager])
-			title   = helpers.season_title_fields(title: I18n.t("season.single"), cols: 2)
-			title << [
-				{kind: "search-collection", key: :search, url: seasons_path, options: Season.real.order(start_date: :desc), value: @season.id},
-				helpers.button_field({kind: "add", url: new_season_path, label: I18n.t("action.create"), frame: "modal"})
-			]
-			@fields = create_fields(title)
-			@links  = create_fields(helpers.season_links)
-			@grid   = create_fields(helpers.event_list_grid(obj: @season))
-			@submit = create_submit(close: "back", retlnk: get_retlnk, submit: nil)
+		if check_access(roles: [:admin])
+			@fields = create_fields(helpers.season_fields)
+			@submit = create_submit(close: "back", retlnk: seasons_path, submit: edit_season_path, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -44,7 +44,7 @@ class SeasonsController < ApplicationController
 
 	# GET /seasons/1/edit
 	def edit
-		if check_access(roles: [:manager])
+		if check_access(roles: [:admin])
 			@eligible_locations = @season.eligible_locations
 			prepare_form(title: I18n.t("season.edit"))
 		else
@@ -54,7 +54,7 @@ class SeasonsController < ApplicationController
 
 	# GET /seasons/new
 	def new
-		if check_access(roles: [:manager])
+		if check_access(roles: [:admin])
 			@season = Season.new(start_date: Date.today, end_date: Date.today)
 			prepare_form(title: I18n.t("season.new"))
 		else
@@ -65,14 +65,14 @@ class SeasonsController < ApplicationController
 	# POST /seasons
 	# POST /seasons.json
 	def create
-		if check_access(roles: [:manager])
+		if check_access(roles: [:admin])
 			@season = Season.new(season_params)
 			@eligible_locations = @season.eligible_locations
 			respond_to do |format|
 				if @season.save
 					a_desc = "#{I18n.t("season.created")} '#{@season.name}'"
-					register_action(:created, a_desc, url: season_path(@season))
-					format.html { redirect_to season_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+					register_action(:created, a_desc, url: seasons_path)
+					format.html { redirect_to seasons_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: seasons_path }
 				else
 					prepare_form(title: I18n.t("season.new"))
@@ -88,7 +88,7 @@ class SeasonsController < ApplicationController
 	# PATCH/PUT /seasons/1
 	# PATCH/PUT /seasons/1.json
 	def update
-		if check_access(roles: [:manager])
+		if check_access(roles: [:admin])
 			respond_to do |format|
 				check_locations
 				@season.rebuild(season_params)
@@ -105,8 +105,8 @@ class SeasonsController < ApplicationController
 						format.json { render json: @season.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to season_path(@season), notice: no_data_notice, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :unprocessable_entity, location: season_path(@season) }
+					format.html { redirect_to seasons_path, notice: no_data_notice, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :unprocessable_entity, location: seasons_path }
 				end
 			end
 		else
@@ -118,7 +118,7 @@ class SeasonsController < ApplicationController
 	# DELETE /seasons/1.json
 	def destroy
 		# cannot destroy placeholder season (id ==0)
-		if @season.id != 0 && ccheck_access(roles: [:manager])
+		if @season.id != 0 && ccheck_access(roles: [:admin])
 			s_name = @season.name
 			@season.destroy
 			respond_to do |format|
@@ -146,13 +146,13 @@ class SeasonsController < ApplicationController
 
 		# defines correct retlnk based on params received
 		def get_retlnk
-			return home_log_path if param_passed(:log)	# return to log_path
+			return home_log_path if @rdx==2	# return to log_path
 			return season_path(@season) if @season
 			return seasons_path
 		end
 
 		def set_season
-			s_id = params[:search].presence || params[:id].presence || params[:season_id].presence
+			s_id = params[:id].presence || params[:season_id].presence
 			@season = Season.search(s_id) unless @season&.id==s_id&.to_i
 		end
 

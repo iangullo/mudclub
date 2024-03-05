@@ -22,18 +22,19 @@ class SlotsController < ApplicationController
 
 	# GET /slots or /slots.json
 	def index
-		if check_access(roles: [:user])
-			@locations = @season.locations.practice.order(name: :asc)
+		@club = Club.find_by_id(@clubid)
+		if check_access(obj: @club)
+			@locations = Location.search(club_id: @clubid, season_id: @seasonid).practice.order(name: :asc)
 			@location  = Location.find_by_id(params[:location_id]) || @locations.first
 			title      = helpers.slot_title_fields(title: I18n.t("slot.many"))
 			title << [
 				helpers.gap_field(size: 1),
-				{kind: "search-collection", key: :location_id, url: slots_path, options: @locations, value: @location.id}
+				{kind: "search-collection", key: :location_id, url: club_slots_path(@club.id, season_id: @seasonid), options: @locations, value: @location&.id}
 			]
 			@fields   = create_fields(title)
 			week_view if @location
-			@btn_add  = create_button({kind: "add", url: new_slot_path(location_id: @location&.id, season_id: @season.id), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
-			@submit   = create_submit(close: "back", submit: nil, retlnk: season_path(@season))
+			@btn_add  = create_button({kind: "add", url: new_slot_path(clubid: @club.id, location_id: @location&.id, season_id: @seasonid), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
+			@submit   = create_submit(close: "back", submit: nil, retlnk: club_path(@club, rdx: @rdx))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -41,7 +42,7 @@ class SlotsController < ApplicationController
 
 	# GET /slots/1 or /slots/1.json
 	def show
-		if check_access(roles: [:user])
+		if check_access(obj: @slot.team.club)
 			@title   = create_fields(helpers.slot_title_fields(title: I18n.t("slot.many")))
 			@btn_del = create_button({kind: "delete", url: slot_path(@slot), name: @slot.to_s}) if u_manager?
 			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot) : nil, frame: u_manager? ? "modal" : nil)
@@ -52,8 +53,9 @@ class SlotsController < ApplicationController
 
 	# GET /slots/new
 	def new
-		if check_access(roles: [:manager])
-			@locations  = @season.locations.practice.order(name: :asc)
+		@club = Club.find_by_id(@clubid)
+		if check_access(obj: @club)
+			@locations  = Location.search(club_id: @clubid, season_id: @seasonid).practice.order(name: :asc)
 			location_id = params[:location_id] || @locations.first
 			@slot       = Slot.new(season_id: @season.id, location_id:, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
 			prepare_form(title: I18n.t("slot.new"))
@@ -64,8 +66,7 @@ class SlotsController < ApplicationController
 
 	# GET /slots/1/edit
 	def edit
-		if check_access(roles: [:manager])
-			get_season(obj: @slot)
+		if check_access(obj: @slot.club)
 			prepare_form(title: I18n.t("slot.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -78,8 +79,7 @@ class SlotsController < ApplicationController
 			@slot = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
-				get_season(obj: @slot)
-				retlnk = season_slots_path(@season, location_id: @slot.location_id)
+				retlnk = club_slots_path(@clubid, season_id: @seasonid, location_id: @slot.location_id)
 				if @slot.changed?
 					if @slot.save # try to store
 						a_desc = "#{I18n.t("slot.created")} '#{@slot.to_s}'"
@@ -103,10 +103,10 @@ class SlotsController < ApplicationController
 
 	# PATCH/PUT /slots/1 or /slots/1.json
 	def update
-		if check_access(roles: [:manager])
+		if check_access(obj: @slot.team.club)
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
-				retlnk = season_slots_path(@season, location_id: @slot.location_id)
+				retlnk = club_slots_path(@slot.club, season_id: @seasonid, location_id: @slot.location_id)
 				if @slot.changed?
 					if @slot.save
 						a_desc = "#{I18n.t("slot.updated")} '#{@slot.to_s}'"
@@ -130,9 +130,9 @@ class SlotsController < ApplicationController
 
 	# DELETE /slots/1 or /slots/1.json
 	def destroy
-		if check_access(roles: [:manager])
+		if check_access(obj: @slot.team.club)
 			s_name = @slot.to_s
-			retlnk = season_slots_path(@season, location_id: @slot.location_id)
+			retlnk = club_slots_path(@slot.team.club, season_id: @seasonid, location_id: @slot.location_id)
 			@slot.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("slot.deleted")} '#{s_name}'"
@@ -234,8 +234,8 @@ class SlotsController < ApplicationController
 		def set_slot
 			@slot = Slot.find_by_id(params[:id].presence) unless @slot&.id == params[:id].presence.to_i
 			get_season(obj: @slot)
-			@locations = @season.locations.practice.order(name: :asc)
-			loc_id     = param_passed(:location_id) || param_passed(:slot, :location_id)
+			@locations = Location.search(club_id: @clubid, season_id: @seasonid).practice.order(name: :asc)
+			loc_id     = get_param(:location_id, obj_id: true)
 			@location  = @slot&.location || Location.find_by_id((loc_id || @locations.first.id))
 		end
 
@@ -243,13 +243,14 @@ class SlotsController < ApplicationController
 		def slot_params
 			params.require(:slot).permit(
 				:id,
-				:season_id,
-				:location_id,
-				:team_id,
-				:wday,
-				:start,
+				:club_id,
 				:duration,
 				:hour,
-				:min)
+				:location_id,
+				:min,
+				:season_id,
+				:start,
+				:team_id,
+				:wday)
 		end
 end

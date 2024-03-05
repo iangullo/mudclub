@@ -19,6 +19,7 @@
 class Coach < ApplicationRecord
 	include PersonDataManagement
 	before_destroy :unlink
+	belongs_to :club, optional: true
 	has_many :drills
 	has_and_belongs_to_many :teams
 	has_one :person
@@ -30,7 +31,7 @@ class Coach < ApplicationRecord
 
 	# returns whether the object is bound to a real club
 	def active?
-		self.active
+		self.club_id.present?
 	end
 
 	# extended modified to account for changed avatar
@@ -52,7 +53,7 @@ class Coach < ApplicationRecord
 		self.rebuild_obj_person(f_data)
 		if self.person
 			self.update_attachment("avatar", f_data[:person_attributes][:avatar])
-			self.active = f_data[:active]
+			self.club_id = f_data[:club_id].presence
 		end
 	end
 
@@ -93,7 +94,7 @@ class Coach < ApplicationRecord
 					]
 				)
 				if c.person	# only if person is bound
-					c.active = c.read_field(to_boolean(row[8].value), j.active, false)
+					c.club_id = to_boolean(row[8].value) ? clubid : nil
 					c.save if c.changed?
 				end
 			end
@@ -103,21 +104,20 @@ class Coach < ApplicationRecord
 	#Search field matching
 	def self.search(search, user=nil)
 		if search.present?
-			sqry = ["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]
+			sqry = ["(unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]
 			if user&.is_manager?
-				Coach.where(person_id: Person.where(sqry)).order(:birthday)
+				Coach.real.where(club_id: [user.club_id, nil], person_id: Person.where(sqry))
 			elsif user&.coach?
-				Coach.active.where(person_id: Person.where(sqry).order(:birthday))
+				Coach.real.where(club_id: user.club_id, person_id: Person.where(sqry).order(:birthday))
 			else
 				Coach.none
 			end
 		elsif user&.is_manager?
-			Coach.real
+			Coach.where(club_id: user.club_id)
 		else
 			Coach.none
 		end
 	end
-
 	private
 		# cleanup association of dependent objects
 		def unlink

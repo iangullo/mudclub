@@ -19,21 +19,30 @@
 class HomeController < ApplicationController
 	def index
 		if current_user.present?
-			if u_admin? && !u_coach?
+			if u_manager?	# manage host club
+				redirect_to club_path(u_clubid), data: {turbo_action: "replace"}
+			elsif u_admin?
 				@fields = create_fields(helpers.home_admin_fields)
-			elsif u_manager?	# we will redirect to season.index
-				redirect_to seasons_path, data: {turbo_action: "replace"}
-			else
-				redirect_to user_path(current_user), data: {turbo_action: "replace"}
+			elsif u_coach?
+				@coach  = current_user.coach
+				@fields = create_fields(helpers.coach_show_fields)
+				@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
+			elsif u_player?
+				start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
+				@player = current_user.player
+				title   = helpers.player_show_fields
+				@fields = create_fields(title)
+				teams   = helpers.team_grid(teams: current_user.team_list)
+				@grid   = create_grid(teams) if teams
 			end
 		end
+
 	end
 
 	def edit
-		if check_access(roles: [:admin, :manager])
-			@club   = Person.find_by_id(0)
-			@fields = create_fields(helpers.home_form_fields(club: @club))
-			@submit = create_submit
+		@club = Club.find_by_id(@clubid)
+		if check_access(roles: [:admin], obj: @club)
+			redirect_to edit_club_path(@club)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

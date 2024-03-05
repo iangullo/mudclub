@@ -27,7 +27,7 @@ module SlotsHelper
 		res = slot_title_fields(title:)
 		res << [
 			{kind: "icon", value: "team.svg"},
-			{kind: "select-collection", key: :team_id, options: Team.for_season(@season.id), value: @slot.team_id, cols: 2}
+			{kind: "select-collection", key: :team_id, options: Club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2}
 		]
 		res << [
 			{kind: "icon", value: "location.svg"},
@@ -52,8 +52,10 @@ module SlotsHelper
 		options = @locations.practice.select(:id, :name)
 		fields  = [
 			{kind: "search-collection", key: :location_id, options:, value: @location.id},
+			{kind: "hidden", key: :club_id, value: @clubid},
+			{kind: "hidden", key: :season_id, value: @seasonid},
 		]
-		[gap_field(size: 1), {kind: "search-box", url: season_slots_path(@season), fields:}]
+		[gap_field(size: 1), {kind: "search-box", url: club_slots_path(@clubid), fields:}]
 	end
 
 	private

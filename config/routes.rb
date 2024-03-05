@@ -29,7 +29,15 @@ Rails.application.routes.draw do
 		get 'users/edit' => 'devise/registrations#edit', :as => 'edit_user_registration'
 		put 'users' => 'devise/registrations#update', :as => 'user_registration'
 	end
-	resources :coaches do
+	resources :clubs do
+		get 'coaches', to: 'coaches#index'	# team event calendar
+		get 'events', to: 'events#index'	# team event calendar
+		get 'locations', to: 'locations#index'	# team event calendar
+		get 'players', to: 'players#index'	# team event calendar
+		get 'slots', to: 'slots#index'	# team event calendar
+		get 'teams', to: 'teams#index'	# team event calendar
+	end
+	resources :coaches, except: [:index] do
 		collection do
 			post :import
 		end
@@ -51,29 +59,24 @@ Rails.application.routes.draw do
 	end
 	resources :locations, except: [:index]
 	# Should REMOVE ACCESS to people records - only for development purposes
-resources :people do
+	resources :people do
 		collection do
 			post :import
 		end
 	end
-	resources :players do
+	resources :players, except: [:index] do
 		collection do
 			post :import
   	end
 	end
-	resources :seasons do
-		get 'events', to: 'events#index'	# season event calendar
-		get 'locations', to: 'locations#index'	# season locations index
-		get 'teams', to: 'teams#index'	# season teams list
-		get 'slots', to: 'slots#index'	# season timeslots
-	end
+	resources :seasons
 	resources :slots, except: [:index]
-	resources :sports do
+	resources :sports, except: [:index] do
 		get 'rules', on: :member
 		resources :categories
 		resources :divisions
 	end
-	resources :teams do
+	resources :teams, except: [:index] do
 		get 'events', to: 'events#index'	# team event calendar
 		member do
 			get 'attendance'

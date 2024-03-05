@@ -18,6 +18,7 @@
 #
 class Team < ApplicationRecord
 	before_destroy :unlink
+	belongs_to :club
 	belongs_to :category
 	belongs_to :division
 	belongs_to :season
@@ -169,12 +170,13 @@ class Team < ApplicationRecord
 
 	# rebuild Teamm from raw hash returned by a form
 	def rebuild(f_data)
-		self.name         = f_data[:name] if f_data[:name]
-		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
-		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
 		self.category_id  = f_data[:category_id].to_i if f_data[:category_id]
+		self.club_id      = f_data[:club_id].presence if f_data[:club_id].present?
 		self.division_id  = f_data[:division_id].to_i if f_data[:division_id]
 		self.homecourt_id = f_data[:homecourt_id].to_i if f_data[:homecourt_id]
+		self.name         = f_data[:name] if f_data[:name]
+		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
+		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
 		check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
 		check_players(f_data[:player_ids]) if f_data[:player_ids]
 		check_coaches(f_data[:coach_ids]) if f_data[:coach_ids]
@@ -213,6 +215,7 @@ class Team < ApplicationRecord
 	def self.build(f_data)
 		t_data = f_data.permit(
 			:category_id,
+			:club_id,
 			:division_id,
 			:homecourt_id,
 			:name,
@@ -223,12 +226,12 @@ class Team < ApplicationRecord
 		Team.new(t_data)
 	end
 
-	# Search field matching season
-	def self.search(search)
-		if (season_id = search.presence.to_i) > 0
-			Team.where(season_id:).order(:category_id)
+	# Search teams for a club matching season
+	def self.search(club_id:, season_id: nil)
+		if (season_id = season_id.presence.to_i) > 0
+			Team.where(club_id:, season_id:).order(:category_id)
 		else
-			Team.real.order(:category_id)
+			Team.where(club_id:).order(:category_id)
 		end
 	end
 

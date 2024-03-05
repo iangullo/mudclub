@@ -98,8 +98,17 @@ es:
     single: "Categoría"
     name: "Nombre"
   club:
+    created: "Club creado: "
+    deleted: "Club borrado: "
+    duplicate: "Duplicate club: "
     edit: "Editar Club"
+    entity: "Entidad"
+    logo: "Logo"
+    many: "Clubes"
+    new: "Nuevo Club"
+    rivals: "Clubes Rivales"
     single: "Club"
+    updated: "Club guardado: "
   coach:
     duplicate: "Ent. duplicado: "
     created: "Ent. creado: "

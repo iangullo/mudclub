@@ -80,11 +80,12 @@ module TeamsHelper
 	# return HeaderComponent @fields for forms
 	def team_form_fields(title:, cols: nil)
 		res = team_title_fields(title:, cols:, edit: true)
-		res << [{kind: "hidden", key: :sport_id, value: (@sport&.id || 1)}]
 		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		res << [
 			{kind: "icon", value: "user.svg", align: "right"},
-			{kind: "text-box", key: :name, value: @team.name, placeholder: I18n.t("team.single")}
+			{kind: "text-box", key: :name, value: @team.name, placeholder: I18n.t("team.single")},
+			{kind: "hidden", key: :club_id, value: @clubid},
+			{kind: "hidden", key: :sport_id, value: (@sport&.id || 1)}	# will need to break this up for multi-sports in future
 		]
 		res << [
 			{kind: "icon", value: "category.svg"},
@@ -96,34 +97,36 @@ module TeamsHelper
 		]
 		res << [
 			{kind: "icon", value: "location.svg"},
-			{kind: "select-collection", key: :homecourt_id, options: Location.search(season_id: @season&.id).home, value: @team.homecourt_id}
+			{kind: "select-collection", key: :homecourt_id, options: Location.search(club_id: @clubid, season_id: @season&.id).home, value: @team.homecourt_id}
 		]
-		res << [
-			{kind: "icon", value: "coach.svg"},
-			{kind: "label", value:I18n.t("coach.many"), class: "align-center"}
-		]
-		res << [gap_field,{kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}]
+		unless @eligible_coaches.empty?
+			res << [
+				{kind: "icon", value: "coach.svg"},
+				{kind: "label", value:I18n.t("coach.many"), class: "align-center"}
+			]
+			res << [gap_field,{kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}]
+		end
 		res
 	end
 
 	# return a GridComponent for the teams given
 	def team_grid(teams: @teams, add_teams: false)
 		if teams
-			title  = (@rdx==1 ? [{kind: "normal", value: I18n.t("season.abbr")}] : [])
+			title = (@rdx==1 ? [{kind: "normal", value: I18n.t("season.abbr")}] : [])
 			title << {kind: "normal", value: I18n.t("category.single")}
 			title << {kind: "normal", value: I18n.t("team.single")}
 			title << {kind: "normal", value: I18n.t("division.single")}
 			if add_teams
 				title << {kind: "normal", value: I18n.t("player.abbr")} 
-				title << button_field({kind: "add", url: new_team_path, frame: "modal"})
+				title << button_field({kind: "add", url: new_team_path(club_id: @clubid), frame: "modal"})
 				trow = {url: "#", items: [gap_field(cols: 2), {kind: "bottom", value: I18n.t("stat.total")}]}
 				tcnt = 0	# total players
 			end
 			rows = Array.new
 			teams.each { |team|
-				cnt  = team.players.count
-				url  = team_path(team, rdx: @rdx)
-				row  = {url: , items: []}
+				cnt = team.players.count
+				url = team_path(team, rdx: @rdx)
+				row = {url: , items: []}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} if @rdx==1
 				row[:items] << {kind: "normal", value: team.category.name, align: "center"}
 				row[:items] << {kind: "normal", value: team.to_s}
@@ -162,12 +165,15 @@ module TeamsHelper
 
 	# return FieldComponent for team view title
 	def team_title_fields(title:, cols: nil, search: nil, edit: nil)
-		res = title_start(icon: "team.svg", title:, cols:)
+		clubid = @club&.id || @clubid || u_clubid
+		res    = title_start(icon: ((u_clubid != clubid) ? @club&.logo : "team.svg"), title:, cols:)
 		if search
 			s_id = @team&.season_id || @season&.id || session.dig('team_filters', 'season_id')
 			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: s_id}]
+			res.last.first[:filter] = {key: :club_id, value: clubid}
 		elsif edit and u_manager?
 			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
+			res.last.first[:filter] = {key: :club_id, value: clubid}
 		elsif @team
 			res << [{kind: "label", value: @team.season.name}]
 			w_l = @team.win_loss

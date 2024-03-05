@@ -17,6 +17,27 @@
 # contact email - iangullo@gmail.com.
 #
 module PlayersHelper
+	# return player part of FieldsComponent for Player forms
+	def player_form_fields
+		res = obj_club_selector(@player) + [
+			gap_field(size: 5),
+			{kind: "label", value: I18n.t("player.number")},
+			{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
+	 ]
+	 res << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
+	 res << {kind: "hidden", key: :team_id, value: @teamid} if @teamid
+	 [res]
+ end
+
+ # nested form to add/edit player parents
+	def player_form_parents
+		res = [[{kind: "label", value: I18n.t("parent.many")}]]
+		res << [
+			{kind: "nested-form", model: "player", key: "parents", child: Parent.create_new, row: "parent_row", cols: 2}
+		]
+		res
+	end
+
 	# return grid fields for players with team indicating
 	# => nil: for players index
 	# => Team: for team roster views
@@ -38,28 +59,6 @@ module PlayersHelper
 			rows << row
 		}
 		return {title:, rows:}
-	end
-
-	# return player part of FieldsComponent for Player forms
-	def player_form_fields
-		res = [
-		 {kind: "label-checkbox", label: I18n.t("status.active"), key: :active, value: @player.active},
-		 gap_field(size: 5),
-		 {kind: "label", value: I18n.t("player.number")},
-		 {kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
-	 ]
-	 res << {kind: "hidden", key: :home, value: @rdx} if @rdx
-	 res << {kind: "hidden", key: :team_id, value: @teamid} if @teamid
-	 [res]
- end
-
- # nested form to add/edit player parents
-	def player_form_parents
-		res = [[{kind: "label", value: I18n.t("parent.many")}]]
-		res << [
-			{kind: "nested-form", model: "player", key: "parents", child: Parent.create_new, row: "parent_row", cols: 2}
-		]
-		res
 	end
 
 	# FieldsComponent fields to show for a player

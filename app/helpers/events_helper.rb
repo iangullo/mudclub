@@ -284,7 +284,7 @@ module EventsHelper
 
 		# define the toprow for an events list (just above the grid itself)
 		def event_list_toprow(clubevent:)
-			calendurl = clubevent	? season_events_path(@season, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
+			calendurl = clubevent	? club_events_path(@clubid, season_id: @season&.id, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
 			toprow = [	#  top row above the grid
 				button_field(
 					{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: calendurl},
