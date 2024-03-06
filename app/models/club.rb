@@ -58,17 +58,21 @@ class Club < ApplicationRecord
 		self.name     = f_data[:name] if f_data[:name].present?
 		self.nick     = f_data[:nick] if f_data[:nick].present?
 		self.phone    = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
-		if f_data[:settings].present?
-			self.settings = f_data[:settings]
-		else
-			self.settings = {locale: 'en', country: 'US'}
-		end
+		self.settings[:country] = f_data[:country].presence || self.country || 'US'
+		self.settings[:locale]  = f_data[:locale].presence || self.locale || 'en'
+		self.settings[:social]  = f_data[:social].presence || self.social
+		self.settings[:website] = f_data[:website].presence || self.website
 		self.update_attachment("avatar", f_data[:avatar])
 	end
 
 	# return list of rivals for this club
 	def rivals
 		Club.real.where.not(id: self.id)
+	end
+
+	# access setting for country
+	def social
+		self.settings["social"].presence
 	end
 
 	# Just list person's full name
@@ -79,6 +83,18 @@ class Club < ApplicationRecord
 	# Get collection of upcoming events for the club
 	def upcoming_events
 		self.teams.includes(:events).flat_map(&:upcoming_events).order(:start_time)
+	end
+
+	# access setting for country
+	def website
+		self.settings["website"].presence
+	end
+
+	# handle custom behaviour for creation of a club
+	def self.build(f_data=nil)
+		club = Club.new(settings: {})
+		club.rebuild(f_data) if f_data.present?
+		return club
 	end
 
 	# finds a club in the database based on id, email, name & nick
@@ -104,7 +120,7 @@ class Club < ApplicationRecord
 			end
 		end
 		return c_aux unless create
-		return c_aux || Club.new(f_data)
+		return c_aux || Club.build(f_data)
 	end
 
 	# used to list available clubs in selectors

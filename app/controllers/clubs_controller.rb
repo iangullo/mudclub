@@ -56,7 +56,8 @@ class ClubsController < ApplicationController
 	# GET /clubs/new
 	def new
 		if check_access(roles: [:admin])
-			@club = Club.new
+			m_club = u_club
+			@club  = Club.new(settings: {locale: m_club.locale, country: m_club.country})
 			prepare_form(title: I18n.t("club.new"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -155,7 +156,8 @@ class ClubsController < ApplicationController
 
 		# prepare a form to edit/create a club
 		def prepare_form(title:)
-			@fields = create_fields(helpers.club_form_fields(title:))
+			@title  = create_fields(helpers.club_form_title(title:))
+			@fields = create_fields(helpers.club_form_fields)
 			@submit = create_submit
 		end
 
@@ -171,11 +173,20 @@ class ClubsController < ApplicationController
 				:id,
 				:address,
 				:avatar,
+				:country,
 				:email,
+				:locale,
 				:name,
 				:nick,
 				:phone,
-				:rdx
+				:rdx,
+				:website,
+				social: [
+					facebook: {},
+					google: {},
+					instagram: {},
+					twitter: {},
+				]
 			)
 		end
 end

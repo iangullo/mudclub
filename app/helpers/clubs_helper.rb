@@ -68,32 +68,38 @@ module ClubsHelper
 	def club_show_title(rows: 3, cols: 2)
 		res = club_title_fields(title: @club.nick, icon: @club.logo, rows:, cols:)
 		res << [{kind: "text", value: @club.name, cols:}]
-		res << [{kind: "contact", phone: @club.phone, email: @club.email, device: device}]
+		res << [{kind: "contact", website: @club.website, phone: @club.phone, email: @club.email, device: device}]
 		res
 	end
 
 	# return Club FieldsComponent @fields for forms
-	def club_form_fields(title:, cols: 2)
+	def club_form_title(title:, cols: 2)
 		res = club_title_fields(title:, icon: @club.logo, rows: 3, cols:, form: true)
-		res << [
-			{kind: "icon", value: "user.svg", class: "align-top mr-1"},
-			{kind: "text-box", key: :nick, value: @club.nick, placeholder: I18n.t("person.name")}
-		]
-		res << [
-			gap_field(size:0),
-			{kind: "text-box", key: :name, value: @club.name, size: 28, placeholder: I18n.t("club.entity")}
-		]
-		res << [
+		res << [{kind: "text-box", key: :nick, value: @club.nick, placeholder: I18n.t("person.name"), cols:}]
+		res << [{kind: "text-box", key: :name, value: @club.name, size: 27, placeholder: I18n.t("club.entity"), cols:}]
+	end
+
+	# return Club FieldsComponent @fields for forms
+	def club_form_fields(cols: 5)
+		res = [[
+			{kind: "icon", value: "website.svg", class: "align-top mr-1"},
+			{kind: "text-box", key: :website, value: @club.website, placeholder: I18n.t("club.website"), size: 31, cols:}
+		]]
+		res << [	# locale/country settings
 			{kind: "icon", value: "phone.svg", class: "align-top mr-1"},
-			{kind: "text-box", key: :phone, size: 12, value: @club.phone, placeholder: I18n.t("person.phone"), cols: 2}
+			{kind: "text-box", key: :phone, size: 12, value: @club.phone, placeholder: I18n.t("person.phone")},
+			{kind: "icon", value: "flag.svg", tip: I18n.t("locale.country"), tipid: "ctry"},
+			{kind: "text-box", align: "left", key: :country, value: @club.country, placeholder: "US", size: 2},
+			{kind: "icon", value: "locale.png", tip: I18n.t("locale.lang"), tipid: "lang"},
+			{kind: "select-box", align: "left", key: :locale, options: User.locale_list, value: @club.locale},
 		]
 		res << [
 			{kind: "icon", value: "at.svg", class: "align-top mr-1"},
-			{kind: "email-box", key: :email, value: @club.email, placeholder: I18n.t("person.email"), size: 34, cols: 2}
+			{kind: "email-box", key: :email, value: @club.email, placeholder: I18n.t("person.email"), size: 34, cols:}
 		]
 		res << [
 			{kind: "icon", value: "home.svg", class: "align-top mr-1"},
-			{kind: "text-area", key: :address, size: 34, cols: 2, lines: 3, value: @club.address, placeholder: I18n.t("person.address")},
+			{kind: "text-area", key: :address, size: 34, cols:, lines: 3, value: @club.address, placeholder: I18n.t("person.address")},
 		]
 	end
 
