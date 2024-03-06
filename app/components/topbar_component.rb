@@ -200,14 +200,13 @@ class TopbarComponent < ApplicationComponent
 		s_teams = []
 		return s_teams if (user.admin? && u_teams.empty?)
 		
-		t_url = "/clubs/#{user.club_id}/teams"
 		slast = Season.latest
 		u_teams.each {|team| s_teams << team if team.season == slast}
 		if s_teams.empty?
-			m_teams = menu_link(label: I18n.t("team.many"), url: t_url)
+			m_teams = menu_link(label: I18n.t("team.many"), url: "/clubs/#{user.club_id}/teams"l)
 		else
 			m_teams = menu_drop("teams", label: I18n.t("team.many"))
-			s_teams.each {|team| m_teams[:options] << menu_link(label: team.name, url: "#{t_url}/#{team.id}")}
+			s_teams.each {|team| m_teams[:options] << menu_link(label: team.name, url: "/teams/#{team.id}")}
 			m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: t_url)
 		end
 		[m_teams]
