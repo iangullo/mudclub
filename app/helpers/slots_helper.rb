@@ -27,7 +27,7 @@ module SlotsHelper
 		res = slot_title_fields(title:)
 		res << [
 			{kind: "icon", value: "team.svg"},
-			{kind: "select-collection", key: :team_id, options: Club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2}
+			{kind: "select-collection", key: :team_id, options: @club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2}
 		]
 		res << [
 			{kind: "icon", value: "location.svg"},

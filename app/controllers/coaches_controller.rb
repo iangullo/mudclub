@@ -83,7 +83,7 @@ class CoachesController < ApplicationController
 	def create
 		if check_access(obj: Club.find(@clubid))
 			respond_to do |format|
-				@coach = Coach.new(clubid: @clubid)
+				@coach = Coach.new(club_id: @clubid)
 				@coach.rebuild(coach_params)	# rebuild coach
 				if @coach.id == nil then	# it's a new coach
 					if @coach.paranoid_create # coach saved to database

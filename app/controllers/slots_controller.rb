@@ -33,7 +33,7 @@ class SlotsController < ApplicationController
 			]
 			@fields   = create_fields(title)
 			week_view if @location
-			@btn_add  = create_button({kind: "add", url: new_slot_path(clubid: @club.id, location_id: @location&.id, season_id: @seasonid), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
+			@btn_add  = create_button({kind: "add", url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @seasonid), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
 			@submit   = create_submit(close: "back", submit: nil, retlnk: club_path(@club, rdx: @rdx))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
