@@ -56,7 +56,11 @@ class HomeController < ApplicationController
 
 	def log
 		if check_access(roles: [:admin, :manager])
-			actions = UserAction.logs
+			if u_admin?
+				actions = UserAction.logs
+			else
+				actions = UserAction.where(user_id: u_club.users.pluck(:id)).order(updated_at: :desc)
+			end
 			title   = helpers.home_admin_title(icon: "user_actions.svg", title: I18n.t("server.log"))
 			title.last << helpers.button_field({kind: "clear", url: home_clear_path}) unless actions.empty?
 			@title  = create_fields(title)

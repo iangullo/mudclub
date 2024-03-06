@@ -134,6 +134,7 @@ class TopbarComponent < ApplicationComponent
 		options = []
 		options << manager_menu(user) if user.is_manager?
 		options << server_menu(user) if user.admin?
+		options << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal")
 		@menu_tabs << menu_drop("admin", label: I18n.t("action.admin"), options:)
 	end
 
@@ -158,7 +159,7 @@ class TopbarComponent < ApplicationComponent
 			options << menu_link(label: I18n.t("slot.many"), url: "#{cluburl}/slots")
 			c_menu = menu_drop("manage", label: @clubname, options:)
 			return c_menu if user.admin?
-			s_menu = server_menu(user)
+			s_menu  = server_menu(user)
 			@menu_tabs << menu_drop("admin", label: I18n.t("action.admin"), options: [c_menu, s_menu])
 		end
 	end
@@ -168,20 +169,19 @@ class TopbarComponent < ApplicationComponent
 
 	# menu to manage server application
 	def server_menu(user)
-		m_about = menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal")
+		m_logs  = menu_link(label: I18n.t("server.log"), url: '/home/log', kind: "nav")
 		if user.admin?
 			options = []
 			options << sport_menu
 			options << menu_link(label: I18n.t("season.many"), url: '/seasons', kind: "nav")
 			options << menu_link(label: I18n.t("club.many"), url: '/clubs', kind: "nav")
 			options << menu_link(label: I18n.t("user.many"), url: '/users', kind: "nav")
-			options << menu_link(label: I18n.t("server.log"), url: '/home/log', kind: "nav")
+			options << m_logs
 			#options << menu_link(label: I18n.t("action.backup"), url: '/home/log')
 			#options << menu_link(label: I18n.t("action.restore"), url: '/home/log')
-			options << m_about
 			menu_drop("server", label: I18n.t("server.single"), options:)
 		else
-			return m_about
+			return m_logs
 		end
 	end
 
