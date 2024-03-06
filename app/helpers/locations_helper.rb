@@ -20,7 +20,7 @@ module LocationsHelper
 	# return FieldsComponent @title for forms
 	def location_form_fields(title:)
 		res = location_title_fields(title:)
-		res << [{kind: "text-box", key: :name, value: @location.name, placeholder: I18n.t("location.name")}]
+		res << [{kind: "text-box", key: :name, value: @location.name, placeholder: I18n.t("location.default")}]
 		res << [
 			{kind: "icon", value: "gmaps.svg"},
 			{kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, placeholder: I18n.t("location.gmaps")}
@@ -29,7 +29,6 @@ module LocationsHelper
 			{kind: "icon", value: "training.svg"},
 			{kind: "label-checkbox", key: :practice_court, label: I18n.t("location.train")}
 		]
-		res.last << {kind: "hidden", key: :season_id, value: @seasonid} if @seasonid
 		res.last << {kind: "hidden", key: :club_id, value: @clubid} if @clubid
 		res
 	end
@@ -42,11 +41,11 @@ module LocationsHelper
 			{kind: "normal", value: I18n.t("kind.single"), align: "center"},
 			{kind: "normal", value: I18n.t("location.abbr")}
 		]
-		title << button_field({kind: "add", url: new_location_path(club_id: @club&.id, season_id: @season&.id), frame: "modal"}) if editor
+		title << button_field({kind: "add", url: new_location_path(club_id: @club&.id), frame: "modal"}) if editor
 
 		rows = Array.new
 		@locations.each { |loc|
-			url = editor ? location_path(loc, club_id: @clubid, season_id: @season&.id) : "#"
+			url = editor ? location_path(loc, club_id: @clubid) : "#"
 			row = {url:, frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: loc.name}
 			row[:items] << {kind: "icon", value: loc.practice_court ? "training.svg" : "home.svg", align: "center"}
@@ -55,7 +54,7 @@ module LocationsHelper
 			else
 				row[:items] << {kind: "normal", value: ""}
 			end
-			row[:items] << button_field({kind: "delete", url: location_path(loc, season_id: @season&.id), name: loc.name}) if editor
+			row[:items] << button_field({kind: "delete", url:, name: loc.name}) if editor
 			rows << row
 		}
 		{title:, rows:}
@@ -66,9 +65,7 @@ module LocationsHelper
 		session.delete('location_filters') if scratch
 		fields = [
 			{kind: "search-text", key: :name, placeholder: I18n.t("location.name"), value: (params[:name].presence || session.dig('location_filters', 'name')), size: 10},
-#			{kind: "search-select", key: :season_id, options: Season.list, value: (params[:season_id] || session.dig('location_filters', 'season_id') || @season&.id)}
 			{kind: "hidden", key: :club_id, value: @clubid},
-			{kind: "hidden", key: :season_id, value: @seasonid}
 		]
 		[{kind: "search-box", url: search_in, fields:, cols: 2}]
 	end

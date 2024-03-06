@@ -44,7 +44,7 @@ class ClubsController < ApplicationController
 				@grid   = create_fields(helpers.event_list_grid(obj: Season.latest))
 			else	# off return to  the user's club
 				close  = "back"
-				retlnk = clubs_path(u_clubid)
+				retlnk = clubs_path
 			end
 			submit  = edit_club_path(@club, rdx: @rdx) if check_access(obj: @club)
 			@submit = create_submit(close:, retlnk:, submit:, frame: "modal")

@@ -96,8 +96,8 @@ module TeamsHelper
 			{kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}
 		]
 		res << [
-			{kind: "icon", value: "location.svg"},
-			{kind: "select-collection", key: :homecourt_id, options: Location.search(club_id: @clubid, season_id: @season&.id).home, value: @team.homecourt_id}
+			{kind: "icon", value: "home.svg"},
+			{kind: "select-collection", key: :homecourt_id, options: Location.search(club_id: @clubid).home, value: @team.homecourt_id}
 		]
 		unless @eligible_coaches.empty?
 			res << [

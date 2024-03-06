@@ -24,7 +24,7 @@ class SlotsController < ApplicationController
 	def index
 		@club = Club.find_by_id(@clubid)
 		if check_access(obj: @club)
-			@locations = Location.search(club_id: @clubid, season_id: @seasonid).practice.order(name: :asc)
+			@locations = Location.search(club_id: @clubid).practice.order(name: :asc)
 			@location  = Location.find_by_id(params[:location_id]) || @locations.first
 			title      = helpers.slot_title_fields(title: I18n.t("slot.many"))
 			title << [
@@ -55,7 +55,7 @@ class SlotsController < ApplicationController
 	def new
 		@club = Club.find_by_id(@clubid)
 		if check_access(obj: @club)
-			@locations  = Location.search(club_id: @clubid, season_id: @seasonid).practice.order(name: :asc)
+			@locations  = Location.search(club_id: @clubid).practice.order(name: :asc)
 			location_id = params[:location_id] || @locations.first
 			@slot       = Slot.new(season_id: @season.id, location_id:, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
 			prepare_form(title: I18n.t("slot.new"))
@@ -234,7 +234,7 @@ class SlotsController < ApplicationController
 		def set_slot
 			@slot = Slot.find_by_id(params[:id].presence) unless @slot&.id == params[:id].presence.to_i
 			get_season(obj: @slot)
-			@locations = Location.search(club_id: @clubid, season_id: @seasonid).practice.order(name: :asc)
+			@locations = Location.search(club_id: @clubid).practice.order(name: :asc)
 			loc_id     = get_param(:location_id, obj_id: true)
 			@location  = @slot&.location || Location.find_by_id((loc_id || @locations.first.id))
 		end

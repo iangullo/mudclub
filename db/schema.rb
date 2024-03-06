@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_04_193942) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_06_105653) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -242,15 +242,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_193942) do
     t.bigint "player_id", null: false
   end
 
-  create_table "season_locations", force: :cascade do |t|
-    t.bigint "season_id", null: false
-    t.bigint "location_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["location_id"], name: "index_season_locations_on_location_id"
-    t.index ["season_id"], name: "index_season_locations_on_season_id"
-  end
-
   create_table "seasons", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -417,8 +408,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_04_193942) do
   add_foreign_key "people", "users"
   add_foreign_key "players", "clubs"
   add_foreign_key "players", "people"
-  add_foreign_key "season_locations", "locations"
-  add_foreign_key "season_locations", "seasons"
   add_foreign_key "slots", "locations"
   add_foreign_key "slots", "seasons"
   add_foreign_key "slots", "teams"

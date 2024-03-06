@@ -45,7 +45,6 @@ class SeasonsController < ApplicationController
 	# GET /seasons/1/edit
 	def edit
 		if check_access(roles: [:admin])
-			@eligible_locations = @season.eligible_locations
 			prepare_form(title: I18n.t("season.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -67,7 +66,6 @@ class SeasonsController < ApplicationController
 	def create
 		if check_access(roles: [:admin])
 			@season = Season.new(season_params)
-			@eligible_locations = @season.eligible_locations
 			respond_to do |format|
 				if @season.save
 					a_desc = "#{I18n.t("season.created")} '#{@season.name}'"
@@ -99,7 +97,6 @@ class SeasonsController < ApplicationController
 						format.html { redirect_to season_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: seasons_path}
 					else
-						@eligible_locations = @season.eligible_locations
 						prepare_form(title: I18n.t("season.edit"))
 						format.html { render :edit }
 						format.json { render json: @season.errors, status: :unprocessable_entity }

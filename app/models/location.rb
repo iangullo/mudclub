@@ -21,11 +21,10 @@ class Location < ApplicationRecord
 	scope :practice, -> { where("practice_court = true") }
 	scope :home, -> { where("id > 0 and practice_court = false") }
 	scope :real, -> { where("id > 0") }
-	has_many :slots, dependent: :destroy
+	has_many :club_locations, dependent: :destroy
+	has_many :clubs, through: :club_locations
 	has_many :events
-	has_many :season_locations, dependent: :destroy
-	has_many :seasons, through: :season_locations
-	accepts_nested_attributes_for :seasons
+	has_many :slots, dependent: :destroy
 	self.inheritance_column = "not_sti"
 
 	def to_s

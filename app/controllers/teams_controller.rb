@@ -30,7 +30,7 @@ class TeamsController < ApplicationController
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.team_grid(add_teams: (u_admin? || u_manager?)))
 			retlnk  = @clubid ? club_path(@clubid) : (u_admin? ? clubs_path : "/")
-			submit  = {kind: "export", url: teams_path(format: :xlsx), working: false} if u_manager?
+			submit  = {kind: "export", url: club_teams_path(@clubid, format: :xlsx), working: false} if u_manager?
 			@submit = create_submit(close: "back", retlnk:, submit:)
 			respond_to do |format|
 				format.xlsx {
@@ -52,7 +52,7 @@ class TeamsController < ApplicationController
 			@eligible_coaches = @club.coaches
 			@team   = Team.new(club_id: u_clubid, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
-			@submit = create_submit(retlnk: club_teams_path, rdx: 0)
+			@submit = create_submit(retlnk: club_teams_path(@clubid, rdx: 0))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

@@ -20,8 +20,6 @@ class Season < ApplicationRecord
 	before_destroy :unlink
 	has_many :slots, dependent: :destroy
 	has_many :teams, dependent: :destroy
-	has_many :season_locations, dependent: :destroy
-	has_many :locations, through: :season_locations
 	scope :real, -> { where("id>0") }
 	self.inheritance_column = "not_sti"
 
