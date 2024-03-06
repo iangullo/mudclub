@@ -25,13 +25,13 @@ class EventsController < ApplicationController
 		if check_access(roles: [:admin]) || (@clubid == u_clubid)
 			get_event_context
 			start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
-			events     = Event.search(params)
+			club       = Club.find_by_id(@clubid)
 			team       = Team.find_by_id(@teamid) if @teamid
 			season     = Season.find_by_id(@seasonid) || team&.season
 			url        = (team ? team_events_path(team, start_date:) : club_events_path(@clubid, season_id: season&.id, start_date:))
 			anchor     = {url:, rdx: @rdx}
 			@title     = create_fields(helpers.event_index_title(team:, season:))
-			@calendar  = CalendarComponent.new(anchor:, obj: (team || season), start_date:, user: current_user, create_url: new_event_path)
+			@calendar  = CalendarComponent.new(anchor:, obj: (team || club), start_date:, user: current_user, create_url: new_event_path)
 			retlnk     = (team ? team_path(team, rdx: @rdx) : club_path(@clubid, season_id: season&.id, rdx: @rdx))
 			@submit    = create_submit(close: "back", submit: nil, retlnk:)
 		else

@@ -251,15 +251,13 @@ class Event < ApplicationRecord
 	end
 
 	# Search for a list of Events
-	# s_data is an array with either season_id+kind+name or team_id+kind+name
+	# s_data is an array with either club_id+season_id+kind+name or team_id+kind+name
 	def self.search(s_data)
-		s_id = s_data[:season_id] ? s_data[:season_id].to_i : nil
-		t_id = s_data[:team_id] ? s_data[:team_id].to_i : nil
-		kind = s_data[:kind] ? s_data[:kind].to_sym : nil
-		if s_id
-			res = Event.for_season(Season.find(s_id)).non_training.order(:start_time)
-		elsif t_id  # filter for the team received
-			if kind   # and kind
+		if (c_id = s_data[:club_id]&.to_i) && (s_id = s_data[:season_id]&.to_i)
+			club = Club.find_by_id(c_id)	# non-training club events
+			res  = Event.where(team_id: club.teams.where(season_id: s_id).pluck(:id)).order(start_time: :asc)
+		elsif (t_id = s_data[:team_id]&.to_i)  # filter for the team received
+			if kind = s_data[:kind]&.to_sym	# and kind
 				if s_data[:name].present?  # and name
 					res = Event.where("unaccent(name) ILIKE unaccent(?) and kind = (?) and team_id= (?)","%#{s_data[:name]}%",kind,t_id).order(:start_time)
 				else  # only team & kind

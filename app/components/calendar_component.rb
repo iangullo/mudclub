@@ -137,7 +137,7 @@ class CalendarComponent < ApplicationComponent
 		# add create event buttons to empty canvas cells
 		def add_empty_buttons(obj:, create_url:)
 			@add_btn   = []
-			clubevent = (obj.class==Season) && (@user.admin? || @user.manager?)
+			clubevent = (obj.class==Club) && (@user.admin? || @user.manager?)
 			1.upto(@c_rows) do |i|
 				row  = []
 				cday = Date.current
@@ -158,7 +158,7 @@ class CalendarComponent < ApplicationComponent
 			c_url  = "#{create_url}?event[start_date]=#{@cells[i][j][:date]}&event[cal]=true"
 			c_url += "&event[rdx]=#{@rdx}" if @rdx
 			cname  = "add_btn_#{i}_#{j}"
-			if clubevent # new season event
+			if clubevent # new Club event
 				return ButtonComponent.new(button: {kind: "add", name: cname, url: c_url + "&event[kind]=rest&event[team_id]=0", frame: "modal"})
 			elsif obj.try(:has_coach, @user.person.coach_id) # new team event
 				c_url  = c_url + "&event[team_id]=#{obj.id}"
@@ -197,11 +197,10 @@ class CalendarComponent < ApplicationComponent
 			ButtonComponent.new(button: {kind: "forward", label: "", url: anchor_url(@start_date + 1.month)})
 		end
 
-		# define the first valid calendar date for the parent object (team/season)
+		# define the first valid calendar date for the parent object (team/Club)
 		def set_date_limits(obj:)
-			case obj
-			when Season; season = obj
-			when Team; season = obj.season
+			if obj.is_a?(Team)
+				season = obj.season
 			else # let's try to get it from the events list
 				season = @events&.empty? ? Season.latest : @events.first.team.season
 			end

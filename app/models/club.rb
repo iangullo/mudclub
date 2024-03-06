@@ -35,6 +35,11 @@ class Club < ApplicationRecord
 		self.settings["country"].presence
 	end
 
+	# list all club events for a season
+	def events
+		Event.non_training.where(team_id: self.teams.pluck(:id)).order(start_time: :asc)
+	end
+
 	# access setting for country
 	def locale
 		self.settings["locale"].presence
