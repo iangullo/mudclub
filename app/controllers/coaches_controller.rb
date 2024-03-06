@@ -89,7 +89,7 @@ class CoachesController < ApplicationController
 					if @coach.paranoid_create # coach saved to database
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
-						register_action(:created, a_desc, url: coach_path(@coach, rdx: 2), modal: true)
+						register_action(:created, a_desc, url: coach_path(@coach, rdx: 2))
 						format.html { redirect_to coach_path(@coach, rdx: 0), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :created, location: coach_path(@coach, rdx: 0) }
 					else
@@ -118,7 +118,7 @@ class CoachesController < ApplicationController
 					if @coach.save
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
-						register_action(:updated, a_desc, url: coach_path(@coach, rdx: 2), modal: true)
+						register_action(:updated, a_desc, url: coach_path(@coach, rdx: 2))
 						format.html { redirect_to r_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: r_path }
 					else
