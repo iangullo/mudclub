@@ -480,6 +480,7 @@ class EventsController < ApplicationController
 			params.require(:event).permit(
 					:id,
 					:cal,
+					:club_id,
 					:copy,
 					:drill_id,
 					:duration,

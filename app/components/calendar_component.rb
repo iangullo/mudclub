@@ -129,7 +129,7 @@ class CalendarComponent < ApplicationComponent
 				b_color         = "gray"
 			end
 			c_event[:b_class] = "bg-#{b_color}-300 rounded-lg border px py hover:text-white hover:bg-#{b_color}-700 text-sm"
-			c_event[:t_class] = "bg-#{b_color}-700 rounded-lg invisible inline-block font-light border border-gray-200 border shadow-sm m-2 text-white text-sm"
+			c_event[:t_class] = "bg-#{b_color}-700 rounded-lg invisible inline-block font-light border border-gray-200 border shadow-sm m-2 text-white text-sm z-10"
 			c_event[:l_class] = "hover:text-white hover:bg-#{b_color}-700"
 			c_event
 		end

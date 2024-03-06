@@ -90,7 +90,7 @@ module EventsHelper
 	def event_list_grid(obj:)
 		if clubevent = (obj.class==Season)	# global club event ?
 			season_id = obj.id
-			events    = Event.short_term.for_season(obj).non_training
+			events    = @club.upcoming_events
 		else
 			team_id = obj&.id 
 			events  = obj.events.short_term
@@ -304,19 +304,19 @@ module EventsHelper
 		# return GridComponent @rows for events passed
 		def event_rows(events:, season_id:)
 			rows  = Array.new
-			events.each { |event|
+			events.each do |event|
 				unless season_id && event.rest? && event.team_id>0 # show only general holidays in season events view
 					row = {url: event_path(event, season_id:, rdx: @rdx), frame:(event.rest? ? "modal": "_top"), items: []}
 					row[:items] << {kind: "normal", value: event.date_string, align: "center"}
 					row[:items] << {kind: "normal", value: event.time_string(false), align: "center"}
-					event.to_hash.each_value { |row_f|
+					event.to_hash.each_value do |row_f|
 						n_row = event.match? ? {kind: "normal", value: row_f.to_s, cols: 1} : {kind: "normal", value: event.to_s, cols: 4}
 						row[:items] << n_row
-					}
+					end
 					row[:items] << button_field({kind: "delete", url: row[:url], name: event.to_s}) if u_manager? or (event.team_id>0 and event.team.has_coach(u_coachid))
 					rows << row
 				end
-			}
+			end
 			rows
 		end
 
