@@ -62,7 +62,7 @@ class DrillsController < ApplicationController
 		if check_access(roles: [:admin], obj: @drill)
 			prepare_form(title: I18n.t("drill.edit"))
 		else
-			redirect_to drills_path, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
@@ -74,8 +74,8 @@ class DrillsController < ApplicationController
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.save
 					a_desc = "#{I18n.t("drill.created")} '#{@drill.name}'"
-					register_action(:created, a_desc, url: drill_path(@drill))
-					format.html { redirect_to drills_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					register_action(:created, a_desc, url: drill_path(@drill, rdx: 2))
+					format.html { redirect_to drill_path(@drill), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: @drill }
 				else
 					prepare_form(title: I18n.t("drill.new"))
@@ -96,8 +96,8 @@ class DrillsController < ApplicationController
 				if @drill.modified?
 					if @drill.save
 						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
-						register_action(:updated, a_desc, url: drill_path(@drill))
-						format.html { redirect_to drill_path, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						register_action(:updated, a_desc, url: drill_path(@drill, rdx: 2))
+						format.html { redirect_to drill_path(@drill), status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: @drill }
 					else
 						prepare_form(title: I18n.t("drill.edit"))
@@ -110,7 +110,7 @@ class DrillsController < ApplicationController
 				end
 			end
 		else
-			redirect_to drills_path, data: {turbo_action: "replace"}
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 

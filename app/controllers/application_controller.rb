@@ -228,7 +228,7 @@ class ApplicationController < ActionController::Base
 			when Club
 				return u_admin? || (u_manager? && obj.id==u_clubid)
 			when Drill
-				return (u_coachid==obj.coach_id)
+				return (u_coachid==obj.coach_id) || (u_manager? && obj.coach.club_id==u_clubid)
 			when Event
 				return (obj.team.has_coach(u_coachid) || obj.has_player(u_playerid))
 			when Person
