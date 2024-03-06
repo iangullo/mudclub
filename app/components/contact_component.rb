@@ -18,15 +18,17 @@
 #
 # ContactComponent - ViewComponent to manage flexible buttons to launch contact
 # actions dependent on email address, phone number and client device type.
-# initialised with: 
+# initialised with:
+# => "website": website of the contact - open a new tab with their website
 # => "email": email address - for mail_to: links
 # => "phone": phone number
 # => "device": client device type
 # frozen_string_literal: true
 
 class ContactComponent < ApplicationComponent
-	def initialize(email:, phone:, device:)
-		@email = ButtonComponent.new(button: {kind: "email", value: email}) if email.presence
+	def initialize(website: nil, email:, phone:, device:)
+		@email   = ButtonComponent.new(button: {kind: "email", value: email}) if email.presence
+		@website = ButtonComponent.new(button: {kind: "link", icon: "website.svg", url: website, tab: true}) if website.presence
 		if phone.presence
 			@call     = ButtonComponent.new(button: {kind: "call", value: phone}) if device == "mobile"
 			@whatsapp = ButtonComponent.new(button: {kind: "whatsapp", value: phone, web: (device=="desktop")})
