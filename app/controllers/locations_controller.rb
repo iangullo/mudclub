@@ -68,27 +68,27 @@ class LocationsController < ApplicationController
 	# POST /locations
 	# POST /locations.json
 	def create
-		if check_access(obj: Club.find_by_id(@clubid))
+		@club = Club.find_by_id(@clubid)
+		if check_access(obj: @club)
 			respond_to do |format|
-				@club     = Club.find_by_id(@clubid)
 				@season   = Season.search(@seasonid)
 				@location = Location.new
 				@location.rebuild(location_params) # rebuild @location
 				a_desc    = "#{I18n.t("location.created")} #{@season&.name} => '#{@location.name}'"
 				u_notice  = helpers.flash_message(a_desc, "success")
-				posturl   = club_locations_path(@clubid, season_id: @seasonid)
+				retlnk    = club_locations_path(@club, season_id: @seasonid)
 				if @location.id!=nil  # @location is already stored in database
 					@season.locations |= [@location] if @season
 					@club.locations |= [@location] if @club
 					register_action(:created, a_desc, url: location_path(@location), modal: true)
-					format.html { redirect_to posturl, notice: u_notice, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: posturl }
+					format.html { redirect_to retlnk, notice: u_notice, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: retlnk }
 				elsif @location.save # attempt to save a new one
 					@season.locations |= [@location] if @season
 					@club.locations |= [@location] if @club
 					register_action(:created, a_desc, url: location_path(@location), modal: true)
-					format.html { redirect_to posturl, notice: u_notice, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: posturl }
+					format.html { redirect_to retlnk, notice: u_notice, data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: retlnk }
 				else
 					prepare_form(title: I18n.t("location.new"))
 					format.html { render :new }
@@ -110,7 +110,7 @@ class LocationsController < ApplicationController
 					a_desc = "#{I18n.t("location.updated")} '#{@location.name}'"
 					if @location.changed?
 						if @location.save  # try to save
-							register_action(:updated, a_desc, url: location_path(@location), modal: true)
+							register_action(:updated, a_desc, url: location_path(@location, rdx: 2), modal: true)
 							@season.locations |= [@location] if @season
 							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 							format.json { render :index, status: :created, location: retlnk }

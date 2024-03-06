@@ -53,11 +53,16 @@ class Club < ApplicationRecord
 	# rebuild CLub data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
-		self.name    = f_data[:name] if f_data[:name].present?
-		self.nick    = f_data[:nick] if f_data[:nick].present?
-		self.email   = f_data[:email] if f_data[:email].present?
-		self.phone   = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
-		self.address = f_data[:address] if f_data[:address].present?
+		self.address  = f_data[:address] if f_data[:address].present?
+		self.email    = f_data[:email] if f_data[:email].present?
+		self.name     = f_data[:name] if f_data[:name].present?
+		self.nick     = f_data[:nick] if f_data[:nick].present?
+		self.phone    = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
+		if f_data[:settings].present?
+			self.settings = f_data[:settings]
+		else
+			self.settings = {locale: 'en', country: 'US'}
+		end
 		self.update_attachment("avatar", f_data[:avatar])
 	end
 

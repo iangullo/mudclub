@@ -103,7 +103,7 @@ class ClubsController < ApplicationController
 	def update
 		if check_access(roles: [:admin], obj: @club)
 			respond_to do |format|
-				retlnk = get_retlnk
+				retlnk = club_path(@club, rdx: @rdx)
 				@club.rebuild(club_params)
 				if @club.modified?# club has been edited
 					if @club.save
