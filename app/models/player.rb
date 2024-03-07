@@ -182,8 +182,6 @@ class Player < ApplicationRecord
 			else
 				Player.none
 			end
-		elsif user&.is_manager?
-			Player.real.where(club_id: user.club.id)
 		else
 			Player.none
 		end
