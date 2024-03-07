@@ -20,10 +20,9 @@
 
 # TopbarComponent - dynamic display of application top bar as ViewComponent
 class TopbarComponent < ApplicationComponent
-	def initialize(user:, home:, login:, logout:)
-		club = user&.club
-		@clublogo  = club&.logo || "mudclub.svg"
-		@clubname  = club&.nick || "MudClub"
+	def initialize(user:, logo:, nick:, home:, login:, logout:)
+		@clublogo  = logo
+		@clubname  = nick
 		@tabcls    = 'hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap rounded ml-2 px-2 py-2 rounded-md font-semibold'
 		@lnkcls    = 'no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap'
 		@profcls   = 'align-middle rounded-full min-h-8 min-w-8 align-middle hover:bg-blue-700 hover:ring-4 hover:ring-blue-200 focus:ring-4 focus:ring-blue-200'

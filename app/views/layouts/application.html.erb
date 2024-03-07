@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title><%=Person.find(0).nick%></title>
+		<title><%= @clubname %></title>
 		<meta name="viewport" content="width=device-width,initial-scale=1">
 		<%= csrf_meta_tags %>
 		<%= csp_meta_tag %>
@@ -9,7 +9,7 @@
 		<%= stylesheet_link_tag "application", media: "all", "data-turbo-track": "reload" %>
 		<%= javascript_importmap_tags %>
 		<link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
-		<%= favicon_link_tag asset_path("mudclub.svg"), type: "image/svg" %>
+		<%= favicon_link_tag asset_path(@favicon), type: "image/svg" %>
 	</head>
 
 	<body class="text-base xl:text-lg sm:text-sm, xs:text-sm">
