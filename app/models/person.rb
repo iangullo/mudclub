@@ -19,6 +19,8 @@
 class Person < ApplicationRecord
 	include PersonDataManagement
 	before_destroy :unlink
+	before_save { self.name = self.name ? self.name.mb_chars.titleize : ""}
+	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : ""}
 	validates :email, uniqueness: { allow_nil: true }
 	validates :dni, uniqueness: { allow_nil: true }
 	validates :phone, uniqueness: { allow_nil: true }
@@ -35,8 +37,6 @@ class Person < ApplicationRecord
 	accepts_nested_attributes_for :user
 	scope :real, -> { where("id>0") }
 	scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
-	before_save { self.name = self.name ? self.name.mb_chars.titleize : ""}
-	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : ""}
 	self.inheritance_column = "not_sti"
 
 	# calculate age

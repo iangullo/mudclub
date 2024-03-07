@@ -139,7 +139,7 @@ class Club < ApplicationRecord
 	def self.search(search, user=nil)
 		ucid = user&.club_id
 		if search.present?
-			sqry = ["(unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?) )","%#{search}%","%#{search}%","%#{search}%"]
+			sqry = ["(unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?))","%#{search}%","%#{search}%"]
 			return Club.where.not(id: [-1, ucid]).where(sqry).order(:nick) if user.is_manager?
 			return Club.real.where(sqry).order(:nick) if user.admin?
 		else
