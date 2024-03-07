@@ -278,7 +278,7 @@ module EventsHelper
 		# return a button field to copy event - if possible
 		def event_copy_button
 			if u_coach? or u_manager?
-				{kind: "action", icon: "copy.svg", label: I18n.t("action.copy"), url: copy_event_path(@event, rdx: @rdx), frame: "modal"}
+				{kind: "action", icon: "copy.svg", label: I18n.t("action.copy"), url: copy_event_path(@event, rdx: @rdx, cal: @cal), frame: "modal"}
 			end
 		end
 

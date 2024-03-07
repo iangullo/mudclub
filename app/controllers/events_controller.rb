@@ -142,7 +142,8 @@ class EventsController < ApplicationController
 					seek_duplicate_event(e_data) if e_data[:copy].presence
 					if @event.modified?	# do we need to save?
 						if @event.save
-							changed = true		
+							changed = true
+							@retlnk = event_path(@event, rdx: @rdx, cal: @cal)	
 							@event.tasks.reload if e_data[:tasks_attributes] # a training session
 						else
 							prepare_event_form(new: false)	# continue editing, it did not work
@@ -275,7 +276,7 @@ class EventsController < ApplicationController
 			@teams  = u_manager? ? Team.for_season(@season.id) : current_user.coach.team_list
 			if @teams	# we have some teams we can copy to
 				@fields = create_fields(helpers.event_copy_fields)
-				@submit = event_path(@event, rdx: @rdx)
+				@submit = create_submit
 			else
 				notice  = helpers.flash_message("#{I18n.t("team.none")} ", "info")
 				redirect_to event_path(@event, rdx: @rdx), notice:, data: {turbo_action: "replace"}
