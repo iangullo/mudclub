@@ -56,8 +56,10 @@ class ClubsController < ApplicationController
 	# GET /clubs/new
 	def new
 		if check_access(roles: [:admin])
-			m_club = u_club
-			@club  = Club.new(settings: {locale: m_club.locale, country: m_club.country})
+			m_club  = u_club
+			locale  = m_club&.locale || "en"
+			country = m_club&.country || "US"
+			@club   = Club.new(settings: {locale: , country:})
 			prepare_form(title: I18n.t("club.new"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
