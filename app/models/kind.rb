@@ -19,12 +19,8 @@
 class Kind < ApplicationRecord
 	has_many :drills
 	before_save { self.name = self.name.mb_chars.titleize }
-	pg_search_scope :search_by_name,
-		against: :name,
-		ignoring: :accents,
-		using: { tsearch: {prefix: true} }
 	scope :real, -> { where("id>0").order(:name) }
-	scope :search, -> (s_k) { search_by_name(s_k.strip).order(:name) }
+	scope :search, -> (s_k) { where("unaccent(name) ILIKE unaccent(?)","%#{s_k.strip}%").order(:name) }
 	scope :orphans, -> { left_outer_joins(:drills).where("drills.id IS NULL OR drills.id = 0") }
 	self.inheritance_column = "not_sti"
 

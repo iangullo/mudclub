@@ -30,10 +30,6 @@ class Drill < ApplicationRecord
 	accepts_nested_attributes_for :drill_targets, reject_if: :all_blank, allow_destroy: true
 	has_one_attached :playbook
 	has_rich_text :explanation
-	pg_search_scope :search_by_name,
-		against: [:name, :description],
-		ignoring: :accents,
-		using: { tsearch: {prefix: true} }
 	scope :real, -> { where("id>0") }
 	scope :by_name, -> (name) { where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{name}%","%#{name}%").distinct }
 	scope :by_kind, -> (kind_id) { (kind_id.to_i > 0) ? where(kind_id: kind_id.to_i) : where("kind_id>0") }
@@ -86,7 +82,7 @@ class Drill < ApplicationRecord
 
 	# filter by name/description
 	def self.search_name(res=Drill.all, s_n)
-		res = res.search_by_name(s_n).distinct
+		res = res.where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{s_n}%","%#{s_n}%").distinct
 	end
 
 	# filter drills by kind

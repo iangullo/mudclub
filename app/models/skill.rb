@@ -18,12 +18,8 @@
 #
 class Skill < ApplicationRecord
 	has_and_belongs_to_many :drills
-	pg_search_scope :search_by_concept,
-		against: :concept,
-		ignoring: :accents,
-		using: { tsearch: {prefix: true} }
 	scope :real, -> { where("id>0").order(:concept) }
-	scope :search, -> (s_s) { search_by_concept(s_s).order(:concept) }
+	scope :search, -> (s_s) { where("unaccent(concept) ILIKE unaccent(?)","%#{s_s}%").order(:concept) }
 	scope :orphans, -> { left_outer_joins(:drills).where("drills.id IS NULL OR drills.id = 0") }
 	self.inheritance_column = "not_sti"
 
