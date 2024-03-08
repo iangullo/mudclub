@@ -39,6 +39,7 @@ class Drill < ApplicationRecord
 	scope :by_kind, -> (kind_id) { (kind_id.to_i > 0) ? where(kind_id: kind_id.to_i) : real }
 	scope :by_skill, -> (skill_id) { (skill_id.to_i>0) ? joins(:skills).where(skills: {id: skill_id.to_i}) : real	}
 	self.inheritance_column = "not_sti"
+	validates :name, presence: true
 	FILTER_PARAMS = %i[name kind_id skill_id column direction].freeze
 
 	def self.filter(filters)

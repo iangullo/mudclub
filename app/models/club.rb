@@ -37,6 +37,7 @@ class Club < ApplicationRecord
 		against: [:nick, :name],
 		ignoring: :accents,
 		using: { tsearch: {prefix: true} }
+	validates :nick, presence: true
 
 	# access setting for country
 	def country
