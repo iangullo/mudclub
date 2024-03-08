@@ -37,7 +37,11 @@ class Club < ApplicationRecord
 		against: [:nick, :name],
 		ignoring: :accents,
 		using: { tsearch: {prefix: true} }
+	validates :email, uniqueness: { allow_nil: true }
+	validates :name, uniqueness: { allow_nil: true }
 	validates :nick, presence: true
+	validates :phone, uniqueness: { allow_nil: true }
+	validates :website, uniqueness: { allow_nil: true }
 
 	# access setting for country
 	def country
