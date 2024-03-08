@@ -46,6 +46,7 @@ module EventsHelper
 		if u_coach? || u_manager?
 			res = event_title_fields(form: true, cols: @event.match? ? 2 : nil, teams: @teams)
 			res.last << {kind: "hidden", key: :copy, value: true}
+			res.last << {kind: "hidden", key: :duration, value: @event.duration}
 			res.last << {kind: "hidden", key: :id, value: @event.id}
 			res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		end
@@ -76,6 +77,11 @@ module EventsHelper
 			msg = I18n.t("match.deleted") + "#{@event.to_s(style: "notice")}"
 		end
 		flash_message(msg)
+	end
+
+	# fields to display player's edit stats form for an event
+	def event_edit_player_stats_fields
+		@sport.player_training_stats_form_fields(@event, player_id: @player.id)
 	end
 
 	# return icon and top of FieldsComponent
@@ -193,11 +199,6 @@ module EventsHelper
 			stim = nil
 		end
 		{data: grid, controller: stim}
-	end
-
-	# fields to display player's edit stats form for an event
-	def event_edit_player_stats_fields
-		@sport.player_training_stats_form_fields(@event, player_id: @player.id)
 	end
 
 	# return accordion for event tasks

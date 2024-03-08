@@ -33,6 +33,10 @@ class Club < ApplicationRecord
 		against: [:nick, :name],
 		ignoring: :accents,
 		using: { tsearch: {prefix: true} }
+	pg_search_scope :search_by_any,
+		against: [:nick, :name],
+		ignoring: :accents,
+		using: { tsearch: {prefix: true} }
 
 	# access setting for country
 	def country
@@ -144,7 +148,7 @@ class Club < ApplicationRecord
 		ucid = user&.club_id
 		if search.present?
 			return Club.where.not(id: [-1, ucid]).search_by_any(search).order(:nick) if user.is_manager?
-			return Club.real.search_by_name(search).order(:nick) if user.admin?
+			return Club.real.search_by_any(search).order(:nick) if user.admin?
 		else
 			return Club.where.not(id: [-1, ucid]).order(:nick) if user.is_manager?
 			return Club.all.order(:nick) if user.admin?

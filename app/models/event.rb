@@ -358,11 +358,22 @@ class Event < ApplicationRecord
 					a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
 				end
 			}
+			t_pri = {def: 1, off: 1}
 			a_targets.each { |t| # second pass - manage associations
 				if t[:_destroy] == "1"	# remove drill_target
 					self.targets.delete(t[:target_attributes][:id].to_i)
 				elsif t[:target_attributes]
 					dt = EventTarget.fetch(t)
+					if dt.target&.offense?
+						priority     = t_pri[:off]
+						t_pri[:off] += 1
+					elsif dt.target&.defense?
+						priority     = t_pri[:def]
+						t_pri[:def] += 1
+					else
+						priority = 1
+					end
+					dt.update(priority: )
 					self.event_targets ? self.event_targets << dt : self.event_targets |= dt
 				end
 			}
