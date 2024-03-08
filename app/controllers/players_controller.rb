@@ -194,7 +194,7 @@ class PlayersController < ApplicationController
 			return home_log_path if @rdx&.to_i== 2	# return to log_path
 			return roster_team_path(id: @teamid, rdx: @rdx) if @teamid
 			return club_players_path(@player.club_id, search: @player.s_name, rdx: 0) if @player
-			return (@clubid ? club_coaches_path(@clubid, rdx: 0) : u_path)
+			return (@clubid ? club_players_path(@clubid, rdx: 0) : u_path)
 		end
 
 		# link a player to a team
