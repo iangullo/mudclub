@@ -24,7 +24,7 @@ class PlayersController < ApplicationController
 	# GET /clubs/x/players.json
 	def index
 		if check_access(obj: Club.find(@clubid)) || (u_coach? && u_clubid==@clubid)
-			@players = get_players
+			@players = Player.search(params[:search], current_user)
 			title    = helpers.person_title_fields(title: I18n.t("player.many"), icon: "player.svg", size: "50x50")
 			title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid)}]
 			@fields = create_fields(title)
@@ -181,11 +181,6 @@ class PlayersController < ApplicationController
 		def get_player_context
 			@teamid = p_teamid
 			@clubid = @player&.club_id
-		end
-
-		# get player list depending on the search parameter & user role
-		def get_players
-			@players = Player.search(params[:search], current_user)
 		end
 
 		# defines correct retlnk based on params received

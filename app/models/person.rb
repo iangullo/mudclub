@@ -18,25 +18,30 @@
 #
 class Person < ApplicationRecord
 	include PersonDataManagement
+	include PgSearch::Model
 	before_destroy :unlink
 	before_save { self.name = self.name ? self.name.mb_chars.titleize : ""}
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : ""}
-	validates :email, uniqueness: { allow_nil: true }
-	validates :dni, uniqueness: { allow_nil: true }
-	validates :phone, uniqueness: { allow_nil: true }
-	validates :name, :surname, presence: true
 	belongs_to :coach, optional: true
 	belongs_to :player, optional: true
 	belongs_to :user, optional: true
 	belongs_to :parent, optional: true
+	accepts_nested_attributes_for :coach
+	accepts_nested_attributes_for :player
+	accepts_nested_attributes_for :user
 	has_one_attached :avatar
 	has_one_attached :id_front
 	has_one_attached :id_back
-	accepts_nested_attributes_for :player
-	accepts_nested_attributes_for :coach
-	accepts_nested_attributes_for :user
+	pg_search_scope :search,
+		against: [:nick, :name, :surname],
+		ignoring: :accents,
+		using: { tsearch: {prefix: true} }
 	scope :real, -> { where("id>0") }
 	scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
+	validates :email, uniqueness: { allow_nil: true }
+	validates :dni, uniqueness: { allow_nil: true }
+	validates :phone, uniqueness: { allow_nil: true }
+	validates :name, :surname, presence: true
 	self.inheritance_column = "not_sti"
 
 	# calculate age
@@ -84,6 +89,11 @@ class Person < ApplicationRecord
 	# return if person is orphaned from any dependent objects
 	def orphan?
 		self&.id.to_i > 0 && (self.player_id.nil?) && (self.coach_id.nil?) && (self.user_id.nil?) && (self.parent_id.nil?)
+	end
+
+	# hopefully return self...
+	def person
+		self
 	end
 
 	# personal logo
@@ -191,15 +201,6 @@ class Person < ApplicationRecord
 				)
 				p&.save
 			end
-		end
-	end
-
-	#Search field matching
-	def self.search(search)
-		if search.present?
-			Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"])
-		else
-			Person.none
 		end
 	end
 

@@ -104,11 +104,10 @@ class Coach < ApplicationRecord
 	#Search field matching
 	def self.search(search, user=nil)
 		if search.present?
-			sqry = ["(unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?) OR unaccent(surname) ILIKE unaccent(?))","%#{search}%","%#{search}%","%#{search}%"]
 			if user&.is_manager?
-				Coach.real.where(club_id: [user.club_id, nil], person_id: Person.where(sqry))
+				Coach.real.where(club_id: [user.club_id, nil], person_id: Person.search(search).order(:birthday))
 			elsif user&.coach?
-				Coach.real.where(club_id: user.club_id, person_id: Person.where(sqry).order(:birthday))
+				Coach.real.where(club_id: user.club_id, person_id: Person.search(search).order(:birthday))
 			else
 				Coach.none
 			end

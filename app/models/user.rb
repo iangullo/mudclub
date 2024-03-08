@@ -164,11 +164,15 @@ class User < ApplicationRecord
 	end
 
 	#Search field matching
-	def self.search(search)
-		if search.present?
-			User.where(person_id: Person.where(["(id > 0) AND (unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILKE unaccent(?())","%#{search}%","%#{search}%"]))
+	def self.search(search, user=nil)
+		if user.admin?
+			if search.present?
+				User.where(person_id: Person.search(search))
+			else
+				User.real
+			end
 		else
-			User.real
+			User.none
 		end
 	end
 

@@ -25,7 +25,7 @@ class UsersController < ApplicationController
 	def index
 		if check_access(roles: [:admin])
 			search  = (params[:search].presence || session.dig('user_filters', 'search'))
-			@users  = User.search(search)
+			@users  = User.search(search, current_user)
 			title   = helpers.person_title_fields(title: I18n.t("user.many"), icon: "user.svg", size: "50x50")
 			title << [{kind: "search-text", key: :search, value: search, url: users_path}]
 			@title  = create_fields(title)
