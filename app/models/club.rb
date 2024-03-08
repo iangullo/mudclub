@@ -29,6 +29,10 @@ class Club < ApplicationRecord
 	has_many :teams
 	has_many :users
 	has_one_attached :avatar
+	pg_search_scope :search_by_name,
+		against: [:nick, :name],
+		ignoring: :accents,
+		using: { tsearch: {prefix: true} }
 
 	# access setting for country
 	def country
@@ -139,9 +143,8 @@ class Club < ApplicationRecord
 	def self.search(search, user=nil)
 		ucid = user&.club_id
 		if search.present?
-			sqry = ["(unaccent(name) ILIKE unaccent(?) OR unaccent(nick) ILIKE unaccent(?))","%#{search}%","%#{search}%"]
-			return Club.where.not(id: [-1, ucid]).where(sqry).order(:nick) if user.is_manager?
-			return Club.real.where(sqry).order(:nick) if user.admin?
+			return Club.where.not(id: [-1, ucid]).search_by_name(search).order(:nick) if user.is_manager?
+			return Club.real.search_by_name(search).order(:nick) if user.admin?
 		else
 			return Club.where.not(id: [-1, ucid]).order(:nick) if user.is_manager?
 			return Club.all.order(:nick) if user.admin?

@@ -25,6 +25,10 @@ class Location < ApplicationRecord
 	has_many :clubs, through: :club_locations
 	has_many :events
 	has_many :slots, dependent: :destroy
+	pg_search_scope :search_by_name,
+		against: :name,
+		ignoring: :accents,
+		using: { tsearch: {prefix: true} }
 	self.inheritance_column = "not_sti"
 
 	def to_s
@@ -50,7 +54,7 @@ class Location < ApplicationRecord
 		if season_id.present?
 			qry = qry.where(id: SeasonLocation.where(season_id:).pluck(:location_id))
 		end
-		qry = qry.where("unaccent(name) ILIKE unaccent(?)", "%#{name}%") if name.present?
+		qry = qry.search_by_name(name) if name.present?
 
 		qry.order(:name)
 	end

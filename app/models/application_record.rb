@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class ApplicationRecord < ActiveRecord::Base
+	include PgSearch::Model
 	primary_abstract_class
 
 	# parse phone number using defined locale as p_country
