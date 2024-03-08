@@ -23,6 +23,10 @@ class Target < ApplicationRecord
 	has_many :drills, through: :drill_targets
 	has_many :event_targets
 	has_many :events, through: :event_targets
+	pg_search_scope :search_by_concept,
+		against: :concept,
+		ignoring: :accents,
+		using: { tsearch: {prefix: true} }
   scope :orphans, lambda {
 		left_outer_joins(:teams, :events, :drills)
 		.where("(teams.id IS NULL OR teams.id = 0)")
@@ -64,7 +68,7 @@ class Target < ApplicationRecord
 		res = id ? Target.find(id.to_i) : nil
 		if res==nil and concept
 			if concept.strip.length > 0
-				res = Target.where("unaccent(concept) ILIKE unaccent(?)","%#{concept.strip}%")
+				res = Target.search_by_concept(concept&.strip)
 			else
 				res = Target.all
 			end

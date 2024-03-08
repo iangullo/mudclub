@@ -35,7 +35,7 @@ class Drill < ApplicationRecord
 		ignoring: :accents,
 		using: { tsearch: {prefix: true} }
 	scope :real, -> { where("id>0") }
-	scope :by_name, -> (name) { where("unaccent(name) ILIKE unaccent(?) OR unaccent(description) ILIKE unaccent(?)","%#{name}%","%#{name}%").distinct }
+	scope :by_name, -> (name) { search_by_name(name).distinct }
 	scope :by_kind, -> (kind_id) { (kind_id and kind_id.to_i>0) ? where(kind_id: kind_id.to_i) : where("kind_id>0") }
 	scope :by_skill, -> (skill_id) { (skill_id and skill_id.to_i>0) ? joins(:skills).where(skills: {id: skill_id.to_i}) : all	}
 	self.inheritance_column = "not_sti"

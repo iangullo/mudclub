@@ -31,6 +31,10 @@ class Event < ApplicationRecord
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :tasks, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
+	pg_search_scope :search_by_name,
+		against: :name,
+		ignoring: :accents,
+		using: { tsearch: {prefix: true} }
 	scope :last7, -> { where("start_time > ? and end_time < ?", Date.today-7, Date.today+1).order(:start_time) }
 	scope :last30, -> { where("start_time > ? and end_time < ?", Date.today-30, Date.today+1).order(:start_time) }
 	scope :this_week, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_week, Time.now.at_end_of_week).order(:start_time) }
@@ -257,14 +261,15 @@ class Event < ApplicationRecord
 			club = Club.find_by_id(c_id)	# non-training club events
 			res  = Event.where(team_id: club.teams.where(season_id: s_id).pluck(:id)).order(start_time: :asc)
 		elsif (t_id = s_data[:team_id]&.to_i)  # filter for the team received
+			s_name = s_data[:name].presence
 			if kind = s_data[:kind]&.to_sym	# and kind
-				if s_data[:name].present?  # and name
-					res = Event.where("unaccent(name) ILIKE unaccent(?) and kind = (?) and team_id= (?)","%#{s_data[:name]}%",kind,t_id).order(:start_time)
+				if s_name  # and name
+					res = Event.where(kind: kind, team_id: t_id).search_by_name(s_name).order(:start_time)
 				else  # only team & kind
-					res = Event.where("kind = (?) and team_id= (?)",kind,t_id).order(:start_time)
+					res = Event.where(kind: kind, team_id: t_id).order(:start_time)
 				end
-			elsif s_data[:name].present? # team & name only
-				res = Event.where("unaccent(name) ILIKE unaccent(?) and team_id= (?)","%#{s_data[:name].presence}%",t_id).order(:start_time)
+			elsif s_name # team & name only
+				res = Event.where(team_id: t_id).search_by_name(s_name).order(:start_time)
 			else  # only team_id
 				res = Event.where(team_id: t_id).order(:start_time)
 			end

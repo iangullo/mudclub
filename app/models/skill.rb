@@ -19,7 +19,7 @@
 class Skill < ApplicationRecord
 	has_and_belongs_to_many :drills
 	pg_search_scope :search_by_concept,
-		against: :name,
+		against: :concept,
 		ignoring: :accents,
 		using: { tsearch: {prefix: true} }
 	scope :real, -> { where("id>0").order(:concept) }
