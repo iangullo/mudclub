@@ -58,12 +58,6 @@ Rails.application.routes.draw do
 		end
 	end
 	resources :locations, except: [:index]
-	# Should REMOVE ACCESS to people records - only for development purposes
-	resources :people do
-		collection do
-			post :import
-		end
-	end
 	resources :players, except: [:index] do
 		collection do
 			post :import

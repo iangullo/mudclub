@@ -1,8 +1,0 @@
-<div id="people-index">
-	<%= render @fields %>
-	<%= turbo_frame_tag "search-results" do %>
-		<%= render @grid %>
-	<% end %>
-	<%= render @submit %>
-	<%= render("shared/import", import_path: import_people_path) if u_admin? %>
-</div>
