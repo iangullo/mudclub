@@ -17,12 +17,8 @@ export default class extends Controller {
     const button = event.currentTarget;
     const requiresConfirmation = button.dataset.confirm; // Check if button requires confirmation
 
-    if (requiresConfirmation !== null) {
-        if (confirm(requiresConfirmation)) {
-            this.showProcessingCue();
-        }
-    } else {
-        this.showProcessingCue();
+    if (requiresConfirmation == null || confirm(requiresConfirmation)) {
+      this.showProcessingCue();
     }
   }
 
