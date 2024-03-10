@@ -182,6 +182,7 @@ class Team < ApplicationRecord
 		check_coaches(f_data[:coach_ids]) if f_data[:coach_ids]
 	end
 
+	# return team name in string format
 	def to_s
 		if self.name.present?
 			self.id==0 ? I18n.t("scope.none") : self.name.to_s

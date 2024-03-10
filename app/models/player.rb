@@ -31,7 +31,7 @@ class Player < ApplicationRecord
 	accepts_nested_attributes_for :person, update_only: true
 	accepts_nested_attributes_for :parents, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
-	scope :active, -> { where("active = true") }
+	scope :active, -> { where.not(club_id: nil) }
 	scope :female, -> { joins(:person).where("female = true") }
 	scope :male, -> { joins(:person).where("female = false") }
 	scope :real, -> { where("id>0") }
@@ -128,8 +128,8 @@ class Player < ApplicationRecord
 	end
 
 	# Just list person's full name
-	def to_s
-		self.person&.to_s || I18n.t("player.single")
+	def to_s(long: false)
+		long ? self.person.to_s : self.s_name
 	end
 
 	# atempt to fetch a Player using form input hash
