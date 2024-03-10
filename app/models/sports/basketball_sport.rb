@@ -86,7 +86,7 @@ class BasketballSport < Sport
 			row        = {items: []}
 			row[:url]  = "/players/#{player.id}?event_id=#{event.id}&rdx=#{rdx}" unless edit
 			row[:items] << {kind:, value: player.number, align: "center"}
-			row[:items] << {kind:, value: player.to_s}
+			row[:items] << {kind:, value: player.s_name}
 			1.upto(outings[:total]) do |q|
 				q_val = Stat.fetch(period: q, stats: p_stats, create: false).first&.value.to_i
 				if edit
@@ -489,7 +489,7 @@ class BasketballSport < Sport
 			end
 			fields = [
 				{kind: "normal", value: player.number, align: "center"},
-				{kind: "normal", value: player.to_s},
+				{kind: "normal", value: player.s_name},
 				tbox
 			]
 			#show points only when not editing

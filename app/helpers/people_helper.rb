@@ -71,7 +71,7 @@ module PeopleHelper
 	# FieldComponent fields to show a person
 	def person_show_fields(person, title: I18n.t("person.single"), icon: person.picture, rows: 3, cols: 2)
 		res = person_title_fields(title:, icon:, rows:, cols:)
-		res << [{kind: "label", value: person.s_name, cols:}]
+		res << [{kind: "label", value: person.nick.presence || person.name, cols:}]
 		res << [{kind: "label", value: person.surname, cols:}]
 		res << [gap_field(size: 0), {kind: "string", value: person.birthday}]
 		res << [

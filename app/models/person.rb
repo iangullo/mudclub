@@ -76,7 +76,7 @@ class Person < ApplicationRecord
 		self.id_front.attached? && self.id_back.attached?
 	end
 
-	# used for clublogo (Person(id: 0))
+	# used for clublogo (Person(id: 0)) - DEPRECATED
 	def logo
 		self.avatar.attached? ? self.avatar : "mudclub.svg"
 	end
@@ -130,16 +130,12 @@ class Person < ApplicationRecord
 
 	#short name for form viewing
 	def s_name
-		res = self.to_s(false)
+		res = "#{self.to_s(false)} #{self.surname&.split&.first}"
 		res.present? ? res : I18n.t("person.single")
 	end
 
 	def to_s(long=true)
-		if self.nick.present?
-			aux = self.nick.to_s
-		else
-			aux = self.name.to_s
-		end
+		aux = self.nick.presence || self.name.to_s
 		aux += " #{self.surname.to_s}" if long
 		aux
 	end

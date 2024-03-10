@@ -33,7 +33,7 @@ module TeamsHelper
 				p_att = player.attendance(team: @team)
 				row   = {url: player_path(player, team_id: @team.id, rdx: @rdx), frame: "modal", items: []}
 				row[:items] << {kind: "normal", value: player.number, align: "center"}
-				row[:items] << {kind: "normal", value: player.to_s}
+				row[:items] << {kind: "normal", value: player.s_name}
 				row[:items] << {kind: "percentage", value: p_att[:last7], align: "right"}
 				row[:items] << {kind: "percentage", value: p_att[:last30], align: "right"}
 				row[:items] << {kind: "percentage", value: p_att[:avg], align: "right"}
@@ -64,9 +64,9 @@ module TeamsHelper
 			c_first = true
 			@team.coaches.each do |coach|
 				if u_manager?
-					c_start  = button_field({kind: "link", label: coach.to_s, url: coach_path(coach, team_id: @team.id, rdx: @rdx), b_class: "items-center", d_class: "text-left"})
+					c_start  = button_field({kind: "link", label: coach.s_name, url: coach_path(coach, team_id: @team.id, rdx: @rdx), b_class: "items-center", d_class: "text-left"})
 				else
-					c_start  = {kind: "string", value: coach.to_s, class: "align-middle text-left"}
+					c_start  = {kind: "string", value: coach.s_name, class: "align-middle text-left"}
 				end
 				c_contact = {kind: "contact", phone: coach.person.phone}
 				coaches << (c_first ? [c_icon, c_start, c_contact] : [c_start, c_contact])
@@ -185,7 +185,7 @@ module TeamsHelper
 				]
 			end
 		else # player teams index
-			res << [{kind: "subtitle", value: current_user.player.to_s}]
+			res << [{kind: "subtitle", value: current_user.player.s_name}]
 		end
 		res
 	end

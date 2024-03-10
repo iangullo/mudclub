@@ -125,7 +125,7 @@ class User < ApplicationRecord
 	#short name for form viewing
 	def s_name
 		if self.person
-			self.person.nick.presence || self.person.name
+			self.person.nick.presence || self.person.s_name
 		else
 			I18n.t("user.single")
 		end
