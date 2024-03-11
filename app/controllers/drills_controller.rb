@@ -28,7 +28,7 @@ class DrillsController < ApplicationController
 			title  << helpers.drill_search_bar(search_in: drills_path)
 			@title  = create_fields(title)
 			@drills = filter!(Drill)
-			@grid   = create_grid(helpers.drill_grid(drills: @drills))
+			@fields = create_grid(helpers.drill_grid(drills: @drills))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

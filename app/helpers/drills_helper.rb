@@ -17,6 +17,73 @@
 # contact email - iangullo@gmail.com.
 #
 module DrillsHelper
+	# return title FieldComponent definition for edit/new
+	def drill_form_data
+		[
+			[
+				{kind: "label", value: I18n.t("target.many"), align: "right"}
+			],
+			[
+				{kind: "nested-form", model: "drill", key: "drill_targets", child: DrillTarget.new(priority: @drill.drill_targets.count+1), row: "target_row", cols: 2}
+			],
+			[
+				{kind: "label", value: I18n.t("drill.material"), align: "right"},
+				{kind: "text-box", key: :material, size: 40, value: @drill.material}
+			],
+			[
+				{kind: "label", value: I18n.t("drill.desc_a"), align: "right"},
+				{kind: "text-area", key: :description, size: 36, lines: 2, value: @drill.description}
+			]
+		]
+	end
+
+	# returng FieldComponent to edit drill explanation
+	def drill_form_explain
+		[[{kind: "rich-text-area", key: :explanation, align: "left"}]]
+	end
+
+	# return title FieldComponent definition for edit/new
+	def drill_form_playbook(playbook:)
+		[[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: playbook.filename}]]
+	end
+
+	# return title FieldComponent definition for edit/new
+	def drill_form_tail
+		[
+			[
+				{kind: "label", value: I18n.t("skill.abbr"), align: "right"},
+				{kind: "nested-form", model: "drill", key: "skills", child: Skill.new, row: "skill_row"},
+				gap_field,
+				{kind: "label", value: I18n.t("drill.author"), align: "right"},
+				{kind: "select-collection", key: :coach_id, options: Coach.real, value: (@drill.coach_id.to_i>0) ? @drill.coach_id : (u_coach? ? current_user.coach.id : 1)}
+			]
+		]
+	end
+
+	# return title FieldComponent definition for edit/new
+	def drill_form_title(title:)
+		res = drill_title_fields(title:)
+		res << [
+			{kind: "text-box", key: :name, placeholder: I18n.t("drill.default"), value: @drill.name},
+			{kind: "text-box", key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: I18n.t("kind.default")}
+		]
+	end
+
+	# return grid for @drills GridComponent
+	def drill_grid(drills:)
+		track = {s_url: drills_path, s_filter: "drill_filters"}
+		title = [
+			{kind: "normal", value: I18n.t("kind.single"), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
+			{kind: "normal", value: I18n.t("drill.name"), sort: (session.dig('drill_filters', 'name') == "name"), order_by: "name"},
+			{kind: "normal", value: I18n.t("drill.author"), align: "center", sort: (session.dig('drill_filters', 'coach_id') == "coach_id"), order_by: "coach_id"},
+			{kind: "normal", value: I18n.t("target.many")}
+			#{kind: "normal", value: I18n.t("task.many")}
+		]
+		title << button_field({kind: "add", url: new_drill_path, frame: "_top"}) if u_manager? or u_coach?
+
+		{track: track, title: title, rows: drill_rows(drills:)}
+	end
+
 	# specific search bar to search through drills
 	def drill_search_bar(search_in:, task_id: nil, scratch: nil, cols: nil)
 		session.delete('drill_filters') if scratch
@@ -27,11 +94,6 @@ module DrillsHelper
 		]
 		fields << {kind: "hidden", key: :task_id, value: task_id} if task_id
 		res = [{kind: "search-box", url: search_in, fields: fields, cols:}]
-	end
-
-	# return icon and top of FieldsComponent
-	def drill_title_fields(title:, subtitle: nil, rows: nil, cols: nil)
-		title_start(icon: "drill.svg", title:, subtitle:, rows:, cols:)
 	end
 
 	# return title FieldComponent definition for drill show
@@ -101,71 +163,9 @@ module DrillsHelper
 		]
 	end
 
-	# return title FieldComponent definition for edit/new
-	def drill_form_title(title:)
-		res = drill_title_fields(title:)
-		res << [
-			{kind: "text-box", key: :name, placeholder: I18n.t("drill.default"), value: @drill.name},
-			{kind: "text-box", key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: I18n.t("kind.default")}
-		]
-	end
-
-	# return title FieldComponent definition for edit/new
-	def drill_form_playbook(playbook:)
-		[[{kind: "upload", icon: "playbook.png", label: "Playbook", key: :playbook, value: playbook.filename}]]
-	end
-
-	# return title FieldComponent definition for edit/new
-	def drill_form_data
-		[
-			[
-				{kind: "label", value: I18n.t("target.many"), align: "right"}
-			],
-			[
-				{kind: "nested-form", model: "drill", key: "drill_targets", child: DrillTarget.new(priority: @drill.drill_targets.count+1), row: "target_row", cols: 2}
-			],
-			[
-				{kind: "label", value: I18n.t("drill.material"), align: "right"},
-				{kind: "text-box", key: :material, size: 40, value: @drill.material}
-			],
-			[
-				{kind: "label", value: I18n.t("drill.desc_a"), align: "right"},
-				{kind: "text-area", key: :description, size: 36, lines: 2, value: @drill.description}
-			]
-		]
-	end
-
-	# returng FieldComponent to edit drill explanation
-	def drill_form_explain
-		[[{kind: "rich-text-area", key: :explanation, align: "left"}]]
-	end
-
-	# return title FieldComponent definition for edit/new
-	def drill_form_tail
-		[
-			[
-				{kind: "label", value: I18n.t("skill.abbr"), align: "right"},
-				{kind: "nested-form", model: "drill", key: "skills", child: Skill.new, row: "skill_row"},
-				gap_field,
-				{kind: "label", value: I18n.t("drill.author"), align: "right"},
-				{kind: "select-collection", key: :coach_id, options: Coach.real, value: (@drill.coach_id.to_i>0) ? @drill.coach_id : (u_coach? ? current_user.coach.id : 1)}
-			]
-		]
-	end
-
-	# return grid for @drills GridComponent
-	def drill_grid(drills:)
-		track = {s_url: drills_path, s_filter: "drill_filters"}
-		title = [
-			{kind: "normal", value: I18n.t("kind.single"), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
-			{kind: "normal", value: I18n.t("drill.name"), sort: (session.dig('drill_filters', 'name') == "name"), order_by: "name"},
-			{kind: "normal", value: I18n.t("drill.author"), align: "center", sort: (session.dig('drill_filters', 'coach_id') == "coach_id"), order_by: "coach_id"},
-			{kind: "normal", value: I18n.t("target.many")}
-			#{kind: "normal", value: I18n.t("task.many")}
-		]
-		title << button_field({kind: "add", url: new_drill_path, frame: "_top"}) if u_manager? or u_coach?
-
-		{track: track, title: title, rows: drill_rows(drills:)}
+	# return icon and top of FieldsComponent
+	def drill_title_fields(title:, subtitle: nil, rows: nil, cols: nil)
+		title_start(icon: "drill.svg", title:, subtitle:, rows:, cols:)
 	end
 
 	# return title FieldComponent definition for drill show

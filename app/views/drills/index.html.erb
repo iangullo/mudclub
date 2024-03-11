@@ -1,6 +1,6 @@
 <div id="drills-index">
 	<%= render @title %>
 	<%= turbo_frame_tag "search-results" do %>
-		<%= render @grid %>
+		<%= render @fields if @fields%>
 	<% end %>
 </div>
