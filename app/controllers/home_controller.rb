@@ -39,15 +39,6 @@ class HomeController < ApplicationController
 
 	end
 
-	def edit
-		@club = Club.find_by_id(@clubid)
-		if check_access(roles: [:admin], obj: @club)
-			redirect_to edit_club_path(@club)
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
-	end
-
 	def about
 		@title  = create_fields(helpers.home_about_title)
 		@fields = create_fields(helpers.home_about_fields)

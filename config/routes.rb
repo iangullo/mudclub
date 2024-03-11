@@ -22,7 +22,6 @@ Rails.application.routes.draw do
 	get 'home/about'
 	get 'home/log'
 	get 'home/clear'
-	get 'home/edit'
 	get 'home/index'
 	devise_for :users, :skip => [:registrations]
 	as :user do
