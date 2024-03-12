@@ -90,7 +90,7 @@ module DrillsHelper
 		fields = [
 			{kind: "search-text", key: :name, placeholder: I18n.t("drill.name"), value: session.dig('drill_filters', 'name'), size: 10},
 			{kind: "search-select", key: :kind_id, blank: "#{I18n.t("kind.single")}:", value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)},
-			{kind: "search-select", key: :skill_id, blank: "#{I18n.t("skill.abbr")}:", value: session.dig('drill_filters', 'skill_id'), options: Skill.real.pluck(:concept, :id)}
+			{kind: "search-text", key: :skill, placeholder: I18n.t("skill.single"), size: 14, value: session.dig('drill_filters', 'skill')}
 		]
 		fields << {kind: "hidden", key: :task_id, value: task_id} if task_id
 		res = [{kind: "search-box", url: search_in, fields: fields, cols:}]

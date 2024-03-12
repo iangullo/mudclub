@@ -35,18 +35,28 @@ class Drill < ApplicationRecord
 		ignoring: :accents,
 		using: { tsearch: {prefix: true} }
 	scope :real, -> { where("id>0") }
-	scope :by_name, -> (name) { name.present? ? search_by_name(name) : real }
-	scope :by_kind, -> (kind_id) { (kind_id.to_i > 0) ? where(kind_id: kind_id.to_i) : real }
-	scope :by_skill, -> (skill_id) { (skill_id.to_i>0) ? joins(:skills).where(skills: {id: skill_id.to_i}) : real	}
+	scope :by_name, -> (name) { name.present? ? search_by_name(name) : all }
+	scope :by_kind, -> (kind_id) { (kind_id.to_i > 0) ? where(kind_id: kind_id.to_i) : all }
+	scope :by_skill, -> (skill) { skill.present? ? joins(:skills).merge(Skill.search(skill)) : all	}
 	self.inheritance_column = "not_sti"
 	validates :name, presence: true
-	FILTER_PARAMS = %i[name kind_id skill_id column direction].freeze
+	FILTER_PARAMS = %i[name kind_id skill column direction].freeze
 
 	def self.filter(filters)
-		res = Drill.by_name(filters['name'])
-		.by_kind(filters['kind_id'])
-		.by_skill(filters['skill_id'])
-		filters['column'] ? res.order("#{filters['column']} #{filters['direction']}") : res.order(:name)
+		if filters.present?
+			name  = filters["name"]&.presence
+			kind  = filters["kind_id"]&.to_i
+			skill = filters["skill"]&.presence
+			if name || kind || skill
+				res = Drill.by_name(name).by_kind(kind).by_skill(skill)
+				filters['column'] ? res.order("#{filters['column']} #{filters['direction']}") : res.order(:name)
+			else
+				res = Drill.none
+			end
+		else
+			res = Drill.none
+		end
+		return res
 	end
 
 	# search all drills for specific subsets
