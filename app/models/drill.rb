@@ -37,7 +37,7 @@ class Drill < ApplicationRecord
 	scope :real, -> { where("id>0") }
 	scope :by_name, -> (name) { name.present? ? search_by_name(name) : all }
 	scope :by_kind, -> (kind_id) { (kind_id.to_i > 0) ? where(kind_id: kind_id.to_i) : all }
-	scope :by_skill, -> (skill) { skill.present? ? joins(:skills).merge(Skill.search(skill)) : all	}
+	scope :by_skill, -> (skill) { skill.present? ? where(id: Drill.joins(:skills).merge(Skill.search(skill)).pluck(:id)).distinct : all	}
 	self.inheritance_column = "not_sti"
 	validates :name, presence: true
 	FILTER_PARAMS = %i[name kind_id skill column direction].freeze
@@ -61,7 +61,7 @@ class Drill < ApplicationRecord
 
 	# search all drills for specific subsets
 	def self.search(search=nil)
-		if search and search.length > 0
+		if search.present?
 			s_type = "name"
 			res    = Drill.all
 			search.scan(/\s*\w+\s*/).each { |cad|	# scan the search string  for tokens
