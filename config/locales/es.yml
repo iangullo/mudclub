@@ -151,6 +151,15 @@ es:
   event:
     single: "Actividad"
     many: "Actividades"
+  helpers:
+    page_entries_info:
+      one_page:
+        display_entries:
+          zero: "%{entry_name} no se encuentra"
+          one: "Mostrando <b>1</b> %{entry_name}"
+          other: "Mostrando <b>todas %{count}</b> %{entry_name}"
+      more_pages:
+        display_entries: "Mostrando %{entry_name} <b>%{first}–%{last}</b> de <b>%{total}</b>"
   kind:
     single: "Tipo"
     default: "<tipo>"
@@ -448,3 +457,10 @@ es:
       unknown: "Desconocidos"
     many: "Versiones"
     single: "Versión"
+  views:
+    pagination:
+      first: "&laquo;"
+      last: "&raquo;"
+      previous: "&lsaquo;"
+      next: "&rsaquo;"
+      truncate: "&hellip;"

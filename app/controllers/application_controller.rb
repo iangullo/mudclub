@@ -255,6 +255,14 @@ class ApplicationController < ActionController::Base
 			res.nil? ? nil :  res.to_i
 		end
 
+		# Calculate pagination parameters based on available screen space or other criteria
+		def paginate(data)
+			per_page = 10
+			current_page = params[:page] || 1
+
+			data.page(current_page).per(per_page)
+		end
+
 		# determine the app favicon based on user favicon
 		def user_favicon(club)
 			if club&.avatar&.attached?

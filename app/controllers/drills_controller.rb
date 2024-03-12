@@ -27,8 +27,11 @@ class DrillsController < ApplicationController
 			title   = helpers.drill_title_fields(title: I18n.t("drill.many"))
 			title  << helpers.drill_search_bar(search_in: drills_path)
 			@title  = create_fields(title)
-			@drills = filter!(Drill)
-			@fields = create_grid(helpers.drill_grid(drills: @drills))
+			
+			@drills = filter!(Drill)	# Apply filters
+			@d_page = paginate(@drills)	# paginate results
+
+			@fields = create_grid(helpers.drill_grid(drills: @d_page))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

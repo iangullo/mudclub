@@ -2,5 +2,6 @@
 	<%= render @title %>
 	<%= turbo_frame_tag "search-results" do %>
 		<%= render @fields if @fields%>
+		<%= paginate @d_page %>
 	<% end %>
 </div>

@@ -113,3 +113,5 @@ gem "paper_trail", "~> 14.0"
 gem "acts_as_list", "~> 1.1"
 
 gem "pg_search", "~> 2.3"
+
+gem "kaminari", "~> 1.2"
