@@ -34,7 +34,7 @@ module EventsHelper
 		]]
 		res << [
 			gap_field(size: 2),
-			{kind: "select-checkboxes", key: :player_ids, options: @event.team.players.active}
+			{kind: "select-checkboxes", key: :player_ids, options: @event.team.players.order(:number)}
 		]
 		res << [{kind: "hidden", key: :rdx, value: @rdx}] if @rdx
 		res << [{kind: "hidden", key: :team_id, value: @teamid}] if @teamid

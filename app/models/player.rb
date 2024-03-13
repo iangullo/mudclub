@@ -127,9 +127,12 @@ class Player < ApplicationRecord
 		@parent_changed = false
 	end
 
-	# Just list person's full name
+	# Return player name and jersey number
 	def to_s(long: false)
-		long ? self.person.to_s : self.s_name
+		cad = self.number ? "##{self.number.to_s}" : "__"
+
+		cad = "(#{cad})".rjust(5,' ')
+		"#{cad} - #{(long ? self.person.to_s : self.s_name)}"
 	end
 
 	# atempt to fetch a Player using form input hash
