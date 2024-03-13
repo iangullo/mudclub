@@ -46,18 +46,6 @@ class TeamsController < ApplicationController
 		end
 	end
 
-	# GET /teams/new - can only be called from a teams index
-	def new
-		if check_access(obj: @club)
-			@eligible_coaches = @club.coaches
-			@team   = Team.new(club_id: u_clubid, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
-			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
-			@submit = create_submit(retlnk: club_teams_path(@clubid, rdx: 0))
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
-	end
-
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
@@ -76,6 +64,110 @@ class TeamsController < ApplicationController
 				submit     = nil
 			end
 			@submit = create_submit(close: "back", retlnk: get_retlnk, submit:, frame: (submit ? "modal" : nil))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# GET /teams/new - can only be called from a teams index
+	def new
+		if check_access(obj: @club)
+			@eligible_coaches = @club.coaches
+			@team   = Team.new(club_id: u_clubid, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
+			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
+			@submit = create_submit(retlnk: club_teams_path(@clubid, rdx: 0))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# GET /teams/1/edit
+	def edit
+		if check_access(obj: @club) || @team.has_coach(u_coachid)
+			@eligible_coaches = @club.coaches
+			@sport  = @team.sport.specific
+			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
+			@submit = create_submit
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# POST /teams
+	# POST /teams.json
+	def create
+		@club = Club.find(@clubid)
+		if check_access(obj: @club)
+			respond_to do |format|
+				@team = Team.build(team_params)
+				if @team.save
+					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
+					c_path = (@clubid==u_clubid ? team_path(@team, rdx: 0) : club_teams_path(@clubid))
+					register_action(:created, a_desc, url: team_path(@team, rdx: 2))
+					format.html { redirect_to c_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: c_path }
+				else
+					@eligible_coaches = Coach.active
+					@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
+					@submit = create_submit
+					format.html { render :new }
+					format.json { render json: @team.errors, status: :unprocessable_entity }
+				end
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# PATCH/PUT /teams/1
+	# PATCH/PUT /teams/1.json
+	def update
+		if check_access(obj: @club) || @team.has_coach(u_coachid)
+			respond_to do |format|
+				n_notice = no_data_notice(trail: @team.to_s)
+				retlnk   = prepare_update_redirect
+				if params[:team]
+					@team.rebuild(params[:team])
+					if @team.modified?
+						if @team.save
+							a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
+							register_action(:updated, a_desc, url: team_path(rdx: 1))
+							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+							format.json { redirect_to retlnk, status: :created, location: retlnk }
+						else
+							@eligible_coaches = Coach.active
+							@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
+							@submit = create_submit
+							format.html { render :edit, data:{"turbo-frame": "replace"}, notice: helpers.flash_message(@team.errors,"error") }
+							format.json { render json: @team.errors, status: :unprocessable_entity }
+						end
+					else	# no data to save...
+						format.html { redirect_to retlnk, notice: n_notice, data: {turbo_action: "replace"} }
+						format.json { render json: @team.errors, status: :unprocessable_entity }
+					end
+				else	# no data to save...
+					format.html { redirect_to retlnk, notice: n_notice, data: {turbo_action: "replace"} }
+					format.json { redirect_to retlnk, status: :ok, location: retlnk }
+				end
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# DELETE /teams/1
+	# DELETE /teams/1.json
+	def destroy
+		# cannot destroy placeholder teams (id: 0 || -1)
+		if check_access(obj: @club) && @team&.id&.to_i > 0
+			t_name = @team.to_s
+			@team.destroy
+			respond_to do |format|
+				a_desc = "#{I18n.t("team.deleted")} '#{t_name}'"
+				register_action(:deleted, a_desc)
+				format.html { redirect_to club_teams_path(@clubid, rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.json { head :no_content }
+			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -190,98 +282,6 @@ class TeamsController < ApplicationController
 				@att_data = [a_data[:chart]] if a_data
 			end
 			@submit = create_submit(submit: nil)
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
-	end
-
-	# GET /teams/1/edit
-	def edit
-		if (@clubid==u_clubid && u_manager?) || @team.has_coach(u_coachid)
-			@eligible_coaches = @club.coaches
-			@sport  = @team.sport.specific
-			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
-			@submit = create_submit
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
-	end
-
-	# POST /teams
-	# POST /teams.json
-	def create
-		@club = Club.find(@clubid)
-		if check_access(obj: @club)
-			respond_to do |format|
-				@team = Team.build(team_params)
-				if @team.save
-					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
-					c_path = (@clubid==u_clubid ? team_path(@team, rdx: 0) : club_teams_path(@clubid))
-					register_action(:created, a_desc, url: team_path(@team, rdx: 2))
-					format.html { redirect_to c_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: c_path }
-				else
-					@eligible_coaches = Coach.active
-					@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
-					@submit = create_submit
-					format.html { render :new }
-					format.json { render json: @team.errors, status: :unprocessable_entity }
-				end
-			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
-	end
-
-	# PATCH/PUT /teams/1
-	# PATCH/PUT /teams/1.json
-	def update
-		if (@clubid==u_clubid && u_manager?) || @team.has_coach(u_coachid)
-			respond_to do |format|
-				n_notice = no_data_notice(trail: @team.to_s)
-				retlnk   = prepare_update_redirect
-				if params[:team]
-					@team.rebuild(params[:team])
-					if @team.modified?
-						if @team.save
-							a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
-							register_action(:updated, a_desc, url: team_path(rdx: 1))
-							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-							format.json { redirect_to retlnk, status: :created, location: retlnk }
-						else
-							@eligible_coaches = Coach.active
-							@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
-							@submit = create_submit
-							format.html { render :edit, data:{"turbo-frame": "replace"}, notice: helpers.flash_message(@team.errors,"error") }
-							format.json { render json: @team.errors, status: :unprocessable_entity }
-						end
-					else	# no data to save...
-						format.html { redirect_to retlnk, notice: n_notice, data: {turbo_action: "replace"} }
-						format.json { render json: @team.errors, status: :unprocessable_entity }
-					end
-				else	# no data to save...
-					format.html { redirect_to retlnk, notice: n_notice, data: {turbo_action: "replace"} }
-					format.json { redirect_to retlnk, status: :ok, location: retlnk }
-				end
-			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
-	end
-
-	# DELETE /teams/1
-	# DELETE /teams/1.json
-	def destroy
-		# cannot destroy placeholder teams (id: 0 || -1)
-		if check_access(obj: @club) && @team&.id&.to_i > 0
-			t_name = @team.to_s
-			@team.destroy
-			respond_to do |format|
-				a_desc = "#{I18n.t("team.deleted")} '#{t_name}'"
-				register_action(:deleted, a_desc)
-				format.html { redirect_to club_teams_path(@clubid, rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
-				format.json { head :no_content }
-			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

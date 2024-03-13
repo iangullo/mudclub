@@ -53,7 +53,7 @@
 <% when "password-box" %>
 	<%= @form.password_field(@fdata[:key], placeholder: @fdata[:placeholder], class: @i_class, size: @fdata[:size]) %>
 <% when "radio-button" %>
-	<%= @form.radio_button(@fdata[:key], @fdata[:value], checked: @fdata[:checked]) %>
+	<%= @form.radio_button(@fdata[:key], @fdata[:value], checked: @fdata[:checked], class: "m-1") %>
 <% when "rich-text-area" %>
 	<%= @form.rich_text_area(@fdata[:key], class: @i_class) %>
 <% when "select-box" %>

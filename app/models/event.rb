@@ -312,7 +312,7 @@ class Event < ApplicationRecord
 			else
 				starting = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
 			end
-			res.name        = I18n.t("match.default_rival")
+			res.name        = nil
 			res.start_time  = starting
 			res.duration    = 120
 			res.location_id = team.homecourt_id

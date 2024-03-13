@@ -406,6 +406,7 @@ class BasketballSport < Sport
 		# fields for home team in a match
 		def team_name_fields(event, home:, edit: false)
 			if edit
+				rivals = event.team.rival_list
 				if home
 					[
 						{kind: "radio-button", key: :home, value: true, checked: event.home, align: "right"},
@@ -414,7 +415,7 @@ class BasketballSport < Sport
 				else
 					[
 						{kind: "radio-button", key: :home, value: false, checked: !event.home, align: "right"},
-						{kind: "text-box", key: :name, value: event.name, placeholder: I18n.t("match.default_rival"), size: 12}
+						{kind: "text-box", key: :name, value: event.name, placeholder: I18n.t("match.default_rival"), options: rivals, size: 12}
 					]
 				end
 			else	# show

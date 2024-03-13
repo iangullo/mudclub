@@ -30,7 +30,7 @@
 # => "password-box": :key (field name), :value (password_field)
 # => "rich-text-area": :key (field name)
 # => "text-area": :key (field name), :value (text_field), :size (box size), lines: number of lines
-# => "text-box": :key (field name), :value (text_field), :size (box size)
+# => "text-box": :key (field name), :value (text_field), :size (box size), :options (optional array of autocomplete options)
 # => "time-box": :hour & :min (field names)
 # => "select-box": :key (field name), :options (array of valid options), :value (form, select)
 # => "select-checkboxes": :key (field name), :collection, :value (form, select)
