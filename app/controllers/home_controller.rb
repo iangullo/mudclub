@@ -55,7 +55,8 @@ class HomeController < ApplicationController
 			title   = helpers.home_admin_title(icon: "user_actions.svg", title: I18n.t("server.log"))
 			title.last << helpers.button_field({kind: "clear", url: home_clear_path}) unless actions.empty?
 			@title  = create_fields(title)
-			@grid   = create_grid(helpers.home_actions_grid(actions:))
+			@l_page = paginate(actions)	# paginate results
+			@grid   = create_grid(helpers.home_actions_grid(actions: @l_page))
 			@submit = create_submit(close: "back", retlnk: :back, submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

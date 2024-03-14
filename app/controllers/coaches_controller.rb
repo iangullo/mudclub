@@ -28,7 +28,7 @@ class CoachesController < ApplicationController
 			title    = helpers.person_title_fields(title: I18n.t("coach.many"), icon: "coach.svg")
 			title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_coaches_path(@clubid)}]
 			@fields = create_fields(title)
-			@c_page = paginate(@clubs)	# paginate results
+			@c_page = paginate(@coaches)	# paginate results
 			@grid   = create_grid(helpers.coach_grid(coaches: @c_page))
 			submit  = {kind: "export", url: club_coaches_path(@clubid, format: :xlsx), working: false} if u_manager?
 			@submit = create_submit(close: "back", retlnk: club_path(@clubid), submit:)
