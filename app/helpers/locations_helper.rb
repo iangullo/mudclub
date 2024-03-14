@@ -34,7 +34,7 @@ module LocationsHelper
 	end
 
 	# return grid for @locations GridComponent
-	def location_grid
+	def location_grid(locations: @locations)
 		editor = u_admin? || (u_manager? && u_clubid==@clubid)
 		title  = [
 			{kind: "normal", value: I18n.t("location.name")},
@@ -44,7 +44,7 @@ module LocationsHelper
 		title << button_field({kind: "add", url: new_location_path(club_id: @club&.id), frame: "modal"}) if editor
 
 		rows = Array.new
-		@locations.each { |loc|
+		locations.each { |loc|
 			url = editor ? location_path(loc, club_id: @clubid) : "#"
 			row = {url:, frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: loc.name}

@@ -29,7 +29,8 @@ class UsersController < ApplicationController
 			title   = helpers.person_title_fields(title: I18n.t("user.many"), icon: "user.svg", size: "50x50")
 			title << [{kind: "search-text", key: :search, value: search, url: users_path}]
 			@title  = create_fields(title)
-			@grid   = create_grid(helpers.user_grid)
+			@u_page = paginate(@users)	# paginate results
+			@grid   = create_grid(helpers.user_grid(users: @u_page))
 			@submit = create_submit(close: "back", retlnk: "/", submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

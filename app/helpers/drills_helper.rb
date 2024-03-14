@@ -70,7 +70,7 @@ module DrillsHelper
 	end
 
 	# return grid for @drills GridComponent
-	def drill_grid(drills:)
+	def drill_grid(drills: @drills)
 		track = {s_url: drills_path, s_filter: "drill_filters"}
 		title = [
 			{kind: "normal", value: I18n.t("kind.single"), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
@@ -81,7 +81,7 @@ module DrillsHelper
 		]
 		title << button_field({kind: "add", url: new_drill_path, frame: "_top"}) if u_manager? or u_coach?
 
-		{track: track, title: title, rows: drill_rows(drills:)}
+		{track:, title:, rows: drill_rows(drills:)}
 	end
 
 	# specific search bar to search through drills

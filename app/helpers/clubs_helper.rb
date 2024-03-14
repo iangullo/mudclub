@@ -18,7 +18,7 @@
 #
 module ClubsHelper
 	# return title for @clubs GridComponent
-	def club_grid
+	def club_grid(clubs: @clubs)
 		title = [
 			{kind: "normal", value: I18n.t("club.logo")},
 			{kind: "normal", value: I18n.t("person.name")},
@@ -27,7 +27,7 @@ module ClubsHelper
 		title << button_field({kind: "add", url: new_club_path, frame: "modal"}) if u_admin?
 
 		rows = Array.new
-		@clubs.each { |club|
+		clubs.each { |club|
 			row = {url: club_path(club), items: []}
 			row[:items] += [
 				{kind: "icon", value: club.logo, align: "center"},

@@ -128,7 +128,7 @@ module UsersHelper
 	end
 
 	# return grid for @users GridComponent
-	def user_grid
+	def user_grid(users: @users)
 		title = [
 			{kind: "normal", value: I18n.t("club.single")},
 			{kind: "normal", value: I18n.t("person.name")},

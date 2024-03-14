@@ -26,7 +26,8 @@ class LocationsController < ApplicationController
 			title  = helpers.location_title_fields(title: I18n.t("location.many"))
 			title << helpers.location_search_bar(search_in: club_locations_path)
 			@fields = create_fields(title)
-			@grid   = create_grid(helpers.location_grid)
+			@l_page = paginate(@locations)	# paginate results
+			@grid   = create_grid(helpers.location_grid(locations: @l_page))
 			@submit = create_submit(close: "back", retlnk: club_path(@club), submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

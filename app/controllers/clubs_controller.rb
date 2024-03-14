@@ -27,7 +27,8 @@ class ClubsController < ApplicationController
 			title   = helpers.club_title_fields(title:, icon: "rivals.svg")
 			title << [{kind: "search-text", key: :search, value: params[:search] || session.dig('club_filters', 'search'), url: clubs_path, size: 10}]
 			@title  = create_fields(title)
-			@grid   = create_grid(helpers.club_grid)
+			@c_page = paginate(@clubs)	# paginate results
+			@grid   = create_grid(helpers.club_grid(clubs: @c_page))
 			retlnk  = u_clubid ? club_path(u_clubid) : "/"
 			@submit = create_submit(close: "back", retlnk:, submit: nil)
 		else

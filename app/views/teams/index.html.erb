@@ -3,5 +3,6 @@
 	<%= turbo_frame_tag "search-results" do %>
 		<%= render @grid %>
 	<% end %>
+	<%= paginate @t_page %>
 	<%= render @submit %>
 </div>

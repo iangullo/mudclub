@@ -28,7 +28,8 @@ class TeamsController < ApplicationController
 			@teams  = @club.teams.where(season_id: @seasonid)
 			title   = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
 			@title  = create_fields(title)
-			@grid   = create_grid(helpers.team_grid(add_teams: (u_admin? || u_manager?)))
+			@t_page = paginate(@teams)	# paginate results
+			@grid   = create_grid(helpers.team_grid(teams: @t_page, add_teams: (u_admin? || u_manager?)))
 			retlnk  = @clubid ? club_path(@clubid) : (u_admin? ? clubs_path : "/")
 			submit  = {kind: "export", url: club_teams_path(@clubid, format: :xlsx), working: false} if u_manager?
 			@submit = create_submit(close: "back", retlnk:, submit:)

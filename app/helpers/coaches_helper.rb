@@ -27,7 +27,7 @@ module CoachesHelper
 	end
 
 	# return grid for @coaches GridComponent
-	def coach_grid
+	def coach_grid(coaches: @coaches)
 		title = [
 			{kind: "normal", value: I18n.t("person.name")},
 			{kind: "normal", value: I18n.t("person.contact")}
@@ -39,7 +39,7 @@ module CoachesHelper
 		end
 
 		rows = Array.new
-		@coaches.each { |coach|
+		coaches.each { |coach|
 			row = {url: coach_path(coach, rdx: 0), items: []}
 			row[:items] << {kind: "normal", value: coach.to_s}
 			row[:items] << {kind: "contact", email: coach.person.email, phone: coach.person.phone, device: device}

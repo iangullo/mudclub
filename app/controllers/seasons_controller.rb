@@ -25,7 +25,8 @@ class SeasonsController < ApplicationController
 		if check_access(roles: [:admin])
 			@seasons = Season.real
 			@title   = create_fields(helpers.season_title_fields(icon: "mudclub.svg", title: I18n.t("season.many")))
-			@grid    = create_grid(helpers.season_grid)
+			@s_page  = paginate(@seasons)	# paginate results
+			@grid    = create_grid(helpers.season_grid(seasons: @s_page))
 			@submit  = create_submit(close: "back", retlnk: "/", submit: nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

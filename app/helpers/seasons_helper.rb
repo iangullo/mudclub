@@ -33,14 +33,14 @@ module SeasonsHelper
 	end
 
 	# grid for mudclub seasons
-	def season_grid
+	def season_grid(seasons: @seasons)
 		title = [
 			{kind: "normal", value: I18n.t("season.single"), align: "center"},
 			{kind: "normal", value: I18n.t("team.many"), align: "center"},
 			button_field({kind: "add", url: new_season_path, frame: "modal"})
 		]
 		rows = Array.new
-		@seasons.each { |season|
+		seasons.each { |season|
 			row = {url: season_path(season, rdx: 0), items: [], frame: "modal"}
 			row[:items] << {kind: "normal", value: season.name, align: "center"}
 			row[:items] << {kind: "normal", value: season.teams.count, align: "center"} 
