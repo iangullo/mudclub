@@ -52,12 +52,11 @@ class HomeController < ApplicationController
 			else
 				actions = UserAction.where(user_id: u_club.users.pluck(:id)).order(updated_at: :desc)
 			end
-			title   = helpers.home_admin_title(icon: "user_actions.svg", title: I18n.t("server.log"))
+			title = helpers.home_admin_title(icon: "user_actions.svg", title: I18n.t("server.log"))
 			title.last << helpers.button_field({kind: "clear", url: home_clear_path}) unless actions.empty?
-			@title  = create_fields(title)
-			@l_page = paginate(actions)	# paginate results
-			@grid   = create_grid(helpers.home_actions_grid(actions: @l_page))
-			@submit = create_submit(close: "back", retlnk: :back, submit: nil)
+			page  = paginate(actions)	# paginate results
+			grid  = helpers.home_actions_grid(actions: page)
+			create_index(title:, grid:, page:, retlnk: :back)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

@@ -20,13 +20,12 @@
 class SportsController < ApplicationController
 	before_action :set_sport
 
-	# Club index for mudclub admins
+	# Sport index for mudclub admins
 	def index
 		if check_access(roles: [:admin])
 			title = helpers.home_admin_title(title: I18n.t("sport.many"))
-			@fields = create_fields(title)
-			@grid   = create_grid(helpers.sports_grid)
-			@submit = create_submit(close: "back", retlnk: "/", submit: nil)
+			grid  = helpers.sports_grid
+			create_index(title:, grid:, retlnk: "/")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

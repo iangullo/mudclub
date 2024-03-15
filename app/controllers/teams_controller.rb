@@ -26,21 +26,22 @@ class TeamsController < ApplicationController
 		if check_access(roles: [:admin, :manager, :coach])
 			@club   = Club.find_by_id(@clubid)
 			@teams  = @club.teams.where(season_id: @seasonid)
-			title   = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
-			@title  = create_fields(title)
-			@t_page = paginate(@teams)	# paginate results
-			@grid   = create_grid(helpers.team_grid(teams: @t_page, add_teams: (u_admin? || u_manager?)))
-			retlnk  = @clubid ? club_path(@clubid) : (u_admin? ? clubs_path : "/")
-			submit  = {kind: "export", url: club_teams_path(@clubid, format: :xlsx), working: false} if u_manager?
-			@submit = create_submit(close: "back", retlnk:, submit:)
 			respond_to do |format|
-				format.xlsx {
+				format.xlsx do
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
 					a_desc = "#{I18n.t("player.export")} '#{f_name}'"
 					register_action(:exported, a_desc, url: teams_path(rdx: 2))
 					response.headers['Content-Disposition'] = "attachment; filename=#{f_name}"
-				}
-				format.html { render :index }
+				end
+				format.html do
+					title  = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
+					page   = paginate(@teams)	# paginate results
+					grid   = helpers.team_grid(teams: page, add_teams: (u_admin? || u_manager?))
+					retlnk = @clubid ? club_path(@clubid) : (u_admin? ? clubs_path : "/")
+					submit = {kind: "export", url: club_teams_path(@clubid, format: :xlsx), working: false} if u_manager?
+					create_index(title:, grid:, page:, retlnk:, submit:)
+					render :index
+				end
 			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -74,7 +75,7 @@ class TeamsController < ApplicationController
 	def new
 		if check_access(obj: @club)
 			@eligible_coaches = @club.coaches
-			@team   = Team.new(club_id: u_clubid, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
+			@team   = Team.new(club_id: @club.id, name: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
 			@submit = create_submit(retlnk: club_teams_path(@clubid, rdx: 0))
 		else

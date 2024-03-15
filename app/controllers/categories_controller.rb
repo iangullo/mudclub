@@ -24,9 +24,9 @@ class CategoriesController < ApplicationController
 	def index
 		if check_access(roles: [:admin])
 			@categories = Category.for_sport(@sport.id)
-			@fields     = create_fields(helpers.category_title_fields(title: I18n.t("category.many")))
-			@grid       = create_grid(helpers.category_grid)
-			@submit     = create_submit(close: "close", submit: nil)
+			title = helpers.category_title_fields(title: I18n.t("category.many"))
+			grid  = helpers.category_grid
+			create_index(title:, grid:)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

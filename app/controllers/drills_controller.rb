@@ -26,10 +26,10 @@ class DrillsController < ApplicationController
 		if check_access(roles: [:manager, :coach])
 			title   = helpers.drill_title_fields(title: I18n.t("drill.many"))
 			title  << helpers.drill_search_bar(search_in: drills_path)
-			@title  = create_fields(title)
 			@drills = filter!(Drill)	# Apply filters
-			@d_page = paginate(@drills)	# paginate results
-			@fields = create_grid(helpers.drill_grid(drills: @d_page))
+			page = paginate(@drills)	# paginate results
+			grid = helpers.drill_grid(drills: page)
+			create_index(title:, grid:, page:, retlnk: "/")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

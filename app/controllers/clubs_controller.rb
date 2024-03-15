@@ -23,14 +23,13 @@ class ClubsController < ApplicationController
 	def index
 		if check_access(roles: [:admin, :manager])
 			@clubs  = Club.search(params[:search], current_user)
+			page    = paginate(@clubs)
 			title   = I18n.t("club.#{u_manager? ? 'rivals': '.many'}")
 			title   = helpers.club_title_fields(title:, icon: "rivals.svg")
 			title << [{kind: "search-text", key: :search, value: params[:search] || session.dig('club_filters', 'search'), url: clubs_path, size: 10}]
-			@title  = create_fields(title)
-			@c_page = paginate(@clubs)	# paginate results
-			@grid   = create_grid(helpers.club_grid(clubs: @c_page))
+			grid    = helpers.club_grid(clubs: page)
 			retlnk  = u_clubid ? club_path(u_clubid) : "/"
-			@submit = create_submit(close: "back", retlnk:, submit: nil)
+			create_index(title:, grid:, page:, retlnk:)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

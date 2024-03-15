@@ -25,20 +25,21 @@ class PlayersController < ApplicationController
 	def index
 		if check_access(obj: Club.find(@clubid)) || (u_coach? && u_clubid==@clubid)
 			@players = Player.search(params[:search], current_user)
-			title    = helpers.person_title_fields(title: I18n.t("player.many"), icon: "player.svg", size: "50x50")
-			title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid)}]
-			@title = create_fields(title)
-			@p_page = paginate(@players)	# paginate results
-			@grid   = create_grid(helpers.player_grid(players: @p_page))
-			submit  = {kind: "export", url: club_players_path(@clubid, format: :xlsx), working: false} if u_manager?
-			@submit = create_submit(close: "back", retlnk: club_path(@clubid), submit:)
 			respond_to do |format|
-				format.xlsx {
+				format.xlsx do
 					a_desc = "#{I18n.t("player.export")} 'players.xlsx'"
 					register_action(:exported, a_desc)
 					response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
-				}
-				format.html { render :index }
+				end
+				format.html do
+					title  = helpers.person_title_fields(title: I18n.t("player.many"), icon: "player.svg", size: "50x50")
+					title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid)}]
+					page   = paginate(@players)	# paginate results
+					grid   = helpers.player_grid(players: page)
+					submit = {kind: "export", url: club_players_path(@clubid, format: :xlsx), working: false} if u_manager?
+					create_index(title:, grid:, page:, retlnk: club_path(@clubid), submit:)
+					render :index
+				end
 			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

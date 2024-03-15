@@ -64,7 +64,7 @@ Rails.application.routes.draw do
 	end
 	resources :seasons
 	resources :slots, except: [:index]
-	resources :sports, except: [:index] do
+	resources :sports do
 		get 'rules', on: :member
 		resources :categories
 		resources :divisions

@@ -25,10 +25,9 @@ class LocationsController < ApplicationController
 		if check_access(roles: [:admin, :manager])
 			title  = helpers.location_title_fields(title: I18n.t("location.many"))
 			title << helpers.location_search_bar(search_in: club_locations_path)
-			@fields = create_fields(title)
-			@l_page = paginate(@locations)	# paginate results
-			@grid   = create_grid(helpers.location_grid(locations: @l_page))
-			@submit = create_submit(close: "back", retlnk: club_path(@club), submit: nil)
+			page   = paginate(@locations)	# paginate results
+			grid   = helpers.location_grid(locations: page)
+			create_index(title:, grid:, page:, retlnk: club_path(@club))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

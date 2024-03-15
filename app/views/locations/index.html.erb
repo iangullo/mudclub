@@ -1,8 +1,1 @@
-<div id="locations-index">
-	<%= render @fields %>
-	<%= turbo_frame_tag "search-results" do %>
-		<%= render @grid %>
-		<%= paginate @l_page %>
-	<% end %>
-	<%= render @submit %>
-</div>
+<%= render "shared/g_index" %>

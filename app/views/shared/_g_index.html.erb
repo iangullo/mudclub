@@ -1,0 +1,11 @@
+<div id="generic-index">
+	<%= render @title %>
+	<%= render @fields if @fields %>
+	<% if @grid %>
+		<%= turbo_frame_tag "search-results" do %>
+			<%= render @grid %>
+			<%= paginate @page if @page %>
+		<% end %>
+	<% end %>
+	<%= render @submit if @submit %>
+</div>

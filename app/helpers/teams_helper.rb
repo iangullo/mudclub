@@ -113,8 +113,8 @@ module TeamsHelper
 	def team_grid(teams: @teams, add_teams: false)
 		if teams
 			title = (@rdx==1 ? [{kind: "normal", value: I18n.t("season.abbr")}] : [])
-			title << {kind: "normal", value: I18n.t("category.single")}
 			title << {kind: "normal", value: I18n.t("team.single")}
+			title << {kind: "normal", value: I18n.t("category.single")}
 			title << {kind: "normal", value: I18n.t("division.single")}
 			if add_teams
 				title << {kind: "normal", value: I18n.t("player.abbr")} 
@@ -127,9 +127,9 @@ module TeamsHelper
 				cnt = team.players.count
 				url = team_path(team, rdx: @rdx)
 				row = {url: , items: []}
+				row[:items] << {kind: "normal", value: team.name}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} if @rdx==1
 				row[:items] << {kind: "normal", value: team.category.name, align: "center"}
-				row[:items] << {kind: "normal", value: team.to_s}
 				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
 				if add_teams
 					tcnt += cnt
@@ -175,7 +175,10 @@ module TeamsHelper
 			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
 			res.last.first[:filter] = {key: :club_id, value: clubid}
 		elsif @team
-			res << [{kind: "label", value: @team.season.name}]
+			res += [
+				[{kind: "label", value: @team.category.name}],
+				[gap_field(size:0), {kind: "text", value: "#{@team.division.name} (#{@team.season.name})"}]
+			]
 			w_l = @team.win_loss
 			if w_l[:won]>0 or w_l[:lost]>0
 				wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"

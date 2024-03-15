@@ -49,6 +49,19 @@ class ApplicationController < ActionController::Base
 		grid ? GridComponent.new(grid:, controller:) : nil
 	end
 
+	# prepare typical controller index page variables
+	def create_index(title:, fields: nil, grid: nil, page: nil, retlnk: nil, submit: nil)
+		@title  = create_fields(title)
+		@fields = create_fields(fields)
+		@grid   = create_grid(grid)
+		@page   = page
+		if (retlnk || submit)
+			@submit = create_submit(close: "back", retlnk:, submit:)
+		else
+			@submit = create_submit(close: "close", submit: nil)
+		end
+	end
+
 	# Create a submit component
 	def create_submit(close: "close", submit: "save", retlnk: nil, frame: nil)
 		SubmitComponent.new(close:, submit:, retlnk:, frame:)

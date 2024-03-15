@@ -1,9 +1,4 @@
 <div id="coaches-index">
-	<%= render @fields %>
-	<%= turbo_frame_tag "search-results" do %>
-		<%= render @grid %>
-		<%= paginate @c_page %>
-	<% end %>
-	<%= render @submit %>
+	<%= render "shared/g_index" %>
 	<%= render("shared/import", import_path: import_coaches_path) if u_admin? %>
 </div>

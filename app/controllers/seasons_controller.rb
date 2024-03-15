@@ -24,10 +24,10 @@ class SeasonsController < ApplicationController
 	def index
 		if check_access(roles: [:admin])
 			@seasons = Season.real
-			@title   = create_fields(helpers.season_title_fields(icon: "mudclub.svg", title: I18n.t("season.many")))
-			@s_page  = paginate(@seasons)	# paginate results
-			@grid    = create_grid(helpers.season_grid(seasons: @s_page))
-			@submit  = create_submit(close: "back", retlnk: "/", submit: nil)
+			page  = paginate(@seasons)	# paginate results
+			title = helpers.season_title_fields(icon: "mudclub.svg", title: I18n.t("season.many"))
+			grid  = helpers.season_grid(seasons: page)
+			create_index(title:, grid:, page:, retlnk: "/")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

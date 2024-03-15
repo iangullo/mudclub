@@ -1,9 +1,4 @@
 <div id="players-index">
-	<%= render @title %>
-	<%= turbo_frame_tag "search-results" do %>
-		<%= render @grid %>
-		<%= paginate @p_page %>
-	<% end %>
-	<%= render @submit %>
+	<%= render "shared/g_index" %>
 	<%= render("shared/import", import_path: import_players_path) if u_admin? %>
 </div>

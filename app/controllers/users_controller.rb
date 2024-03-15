@@ -24,14 +24,13 @@ class UsersController < ApplicationController
 	# GET /users.json
 	def index
 		if check_access(roles: [:admin])
-			search  = (params[:search].presence || session.dig('user_filters', 'search'))
-			@users  = User.search(search, current_user)
-			title   = helpers.person_title_fields(title: I18n.t("user.many"), icon: "user.svg", size: "50x50")
+			search = (params[:search].presence || session.dig('user_filters', 'search'))
+			@users = User.search(search, current_user)
+			page   = paginate(@users)	# paginate results
+			title  = helpers.person_title_fields(title: I18n.t("user.many"), icon: "user.svg", size: "50x50")
 			title << [{kind: "search-text", key: :search, value: search, url: users_path}]
-			@title  = create_fields(title)
-			@u_page = paginate(@users)	# paginate results
-			@grid   = create_grid(helpers.user_grid(users: @u_page))
-			@submit = create_submit(close: "back", retlnk: "/", submit: nil)
+			grid   = helpers.user_grid(users: @u_page)
+			create_index(title:, grid:, page:, retlnk: "/")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

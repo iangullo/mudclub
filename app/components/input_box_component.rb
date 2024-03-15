@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -63,6 +63,7 @@ class InputBoxComponent < ApplicationComponent
 				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" },
 				"rich-text-area" => { class: "trix-content" },
 				"text-area" => {class: "text-base"},
+				"text-box" => { class: "overflow-hidden overflow-ellipsis" },
 				"time-box" => { class: "text-right" },
 				"upload" => { class: "align-middle px py", i_class: "inline-flex items-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center" }
 			}
@@ -85,6 +86,12 @@ class InputBoxComponent < ApplicationComponent
 				else
 					if @fdata[:options].present?
 						box_size = 10
+						if @fdata[:options].is_a(Hash)
+							optnames      = @fdata[:options].keys
+							@fdata[:data] = {"data-optvalues" => @fdata[:options].values}
+						else
+							optnames = @fdata[:options]
+						end
 						longest  = @fdata[:options].map(&:to_s).max_by(&:length).length
 						box_size = longest if longest > box_size
 					else

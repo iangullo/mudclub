@@ -1,8 +1,1 @@
-<div id="teams-index">
-	<%= render @title %>
-	<%= turbo_frame_tag "search-results" do %>
-		<%= render @grid %>
-		<%= paginate @t_page %>
-	<% end %>
-	<%= render @submit %>
-</div>
+<%= render "shared/g_index" %>
