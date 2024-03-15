@@ -48,19 +48,13 @@ class Target < ApplicationRecord
 		defense: 2
 	}
 
+	# return array of aspect strings & values for select boxes
 	def self.aspects
 		res = Array.new
 		res << [I18n.t("target.aspect.gen"), 0]
 		res << [I18n.t("target.aspect.ind"), 1]
 		res << [I18n.t("target.aspect.col"), 2]
 #    res << [I18n.t("target.aspect.str"),3]
-	end
-
-	def self.kinds
-		res = Array.new
-		res << [I18n.t("target.focus.fit"), 0]
-		res << [I18n.t("target.focus.ofe"), 1]
-		res << [I18n.t("target.focus.def"), 2]
 	end
 
 	# Search target matching. returns either nil or a Target
@@ -78,6 +72,14 @@ class Target < ApplicationRecord
 		end
 		return res
 	end
+	
+	# return array of kind strings & values for select boxes
+	def self.kinds
+		res = Array.new
+		res << [I18n.t("target.focus.fit"), 0]
+		res << [I18n.t("target.focus.ofe"), 1]
+		res << [I18n.t("target.focus.def"), 2]
+	end
 
 	# return list of registered Targets ordered by concept
 	def self.list(focus: nil,aspect: nil)
@@ -85,5 +87,19 @@ class Target < ApplicationRecord
 		Target.fetch(nil,"",focus,aspect).order(:concept).each {|target|
 			res << target.concept
 		}
-		res	end
+		res
+	end
+
+	# a list of passed targets fo bind to a related object
+	def self.passed(t_array)
+		a_targets = Array.new	# array to include only non-duplicates
+		t_array.each do |t| # first pass
+			if t[1][:_destroy]  # we must include to remove it
+				a_targets << t[1]
+			else
+				a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept].strip }
+			end
+		end
+		return a_targets
+	end
 end

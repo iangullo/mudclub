@@ -188,7 +188,7 @@ class Team < ApplicationRecord
 	end
 
 	# return list of potential rivals - used for text boxes - matching category & season
-	def rival_list
+		def rival_list
 		res = []
 		self.rivals.each do |team|
 			res << team.name
@@ -253,14 +253,7 @@ class Team < ApplicationRecord
 	private
 		# ensure we get the right targets
 		def check_targets(t_array)
-			a_targets = Array.new	# array to include all targets
-			t_array.each do |t| # first pass
-				if t[1][:_destroy]  # we must include to remove it
-					a_targets << t[1]
-				else
-					a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
-				end
-			end
+			a_targets = Target.passed(t_array)
 			a_targets.each do |t| # second pass - manage associations
 				if t[:_destroy] == "1"	# remove team_target
 					TeamTarget.find(t[:id].to_i).delete
@@ -298,7 +291,6 @@ class Team < ApplicationRecord
 
 		# ensure we get the right players
 		def check_coaches(c_array)
-			
 			a_targets = Array.new	# array to include all targets
 			c_array.each do |t|	# first pass
 				a_targets << Coach.find(t.to_i) unless t.to_i==0

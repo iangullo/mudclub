@@ -42,6 +42,57 @@ class Drill < ApplicationRecord
 	validates :name, presence: true
 	FILTER_PARAMS = %i[name kind_id skill column direction].freeze
 
+	# check if drill (or associations) has changed
+	def modified?
+		res = self.changed?
+		unless res
+			res = self.explanation.changed?
+			unless res
+				res = self.skills.any?(&:saved_changes?)
+				unless res
+					res = self.drill_targets.any?(&:saved_changes?)
+				end
+			end
+		end
+		res
+	end
+
+	# A longer string with kind included
+	def nice_string
+		cad = self.kind_id ? (self.kind.name + " | ") : ""
+		cad = cad + (self.name ? self.name : I18n.t("drill.default"))
+		cad
+	end
+
+	# Array of print strings for associated skills
+	def print_skills
+		print_names(self.skills)
+	end
+
+	# Array of print strings for associated targets
+	def print_targets
+		cad = []
+		self.drill_targets.each { |tgt|
+			cad << tgt.to_s
+		}
+		cad
+	end
+
+	# build new @drill from raw input hash given by form submital submittal
+	# return nil if unsuccessful
+	def rebuild(f_data)
+		self.name        = f_data[:name]
+		self.description = f_data[:description]
+		self.material    = f_data[:material]
+		self.coach_id    = f_data[:coach_id]
+		self.kind_id     = Kind.fetch(f_data[:kind_id]&.strip).id
+		self.explanation = f_data[:explanation]
+		self.playbook    = f_data[:playbook]
+		self.check_skills(f_data[:skills_attributes]) if f_data[:skills_attributes]
+		self.check_targets(f_data[:drill_targets_attributes]) if f_data[:drill_targets_attributes]
+		self
+	end
+
 	def self.filter(filters)
 		if filters.present?
 			name  = filters["name"]&.presence
@@ -95,14 +146,14 @@ class Drill < ApplicationRecord
 		res.order(:kind_id)
 	end
 
-	# filter by name/description
-	def self.search_name(res=Drill.all, s_n)
-		res = res.search_by_name(s_n)
-	end
-
 	# filter drills by kind
 	def self.search_kind(res=Drill.all, s_k)
 		res = res.where(kind_id: Kind.search(s_k)).distinct
+	end
+
+	# filter by name/description
+	def self.search_name(res=Drill.all, s_n)
+		res = res.search_by_name(s_n)
 	end
 
 	# filter for fundamentals
@@ -115,94 +166,43 @@ class Drill < ApplicationRecord
 		res = res.joins(:targets).where(targets: Target.fetch(nil, s_t)).distinct
 	end
 
-	# check if drill (or associations) has changed
-	def modified?
-		res = self.changed?
-		unless res
-			res = self.explanation.changed?
-			unless res
-				res = self.skills.any?(&:saved_changes?)
-				unless res
-					res = self.drill_targets.any?(&:saved_changes?)
+	private
+		# checks skills array received and manages adding/removing
+		# from the drill collection - remove duplicates from list
+		def check_skills(s_array)
+			a_skills = Array.new	# array to include only non-duplicates
+			s_array.each { |s| # first pass
+				#s[1][:name] = s[1][:name].mb_chars.titleize
+				a_skills << s[1] #unless a_skills.detect { |a| a[:name] == s[1][:name] }
+			}
+			a_skills.each { |s| # second pass - manage associations
+				sk = Skill.fetch(s)
+				if s[:_destroy] == "1"
+					self.skills.delete(sk)
+				else	# add to collection
+					sk = Skill.create(concept: s[:concept].strip) unless sk
+					self.skills << sk unless self.skills.include?(sk)
+				end
+			}
+		end
+
+		# checks targets_attributes array received and manages adding/removing
+		# from the target collection - remove duplicates from list
+		def check_targets(t_array)
+			a_targets = Target.passed(t_array)
+			priority  = 1
+			a_targets.each do |t| # second pass - manage associations
+				if t[:_destroy] == "1"	# remove drill_target
+					self.targets.delete(t[:target_attributes][:id].to_i)
+				else
+					dt = DrillTarget.fetch(t)
+					dt.update(priority:)
+					priority += 1
+					self.drill_targets ? self.drill_targets << dt : self.drill_targets |= dt
 				end
 			end
 		end
-		res
-	end
 
-	# Array of print strings for associated skills
-	def print_skills
-		print_names(self.skills)
-	end
-
-	# Array of print strings for associated targets
-	def print_targets
-		cad = []
-		self.drill_targets.each { |tgt|
-			cad << tgt.to_s
-		}
-		cad
-	end
-
-	# A longer string with kind included
-	def nice_string
-		cad = self.kind_id ? (self.kind.name + " | ") : ""
-		cad = cad + (self.name ? self.name : I18n.t("drill.default"))
-		cad
-	end
-
-	# build new @drill from raw input hash given by form submital submittal
-	# return nil if unsuccessful
-	def rebuild(f_data)
-		self.name        = f_data[:name]
-		self.description = f_data[:description]
-		self.material    = f_data[:material]
-		self.coach_id    = f_data[:coach_id]
-		self.kind_id     = Kind.fetch(f_data[:kind_id]&.strip).id
-		self.explanation = f_data[:explanation]
-		self.playbook    = f_data[:playbook]
-		self.check_skills(f_data[:skills_attributes]) if f_data[:skills_attributes]
-		self.check_targets(f_data[:drill_targets_attributes]) if f_data[:drill_targets_attributes]
-		self
-	end
-
-	# checks skills array received and manages adding/removing
-	# from the drill collection - remove duplicates from list
-	def check_skills(s_array)
-		a_skills = Array.new	# array to include only non-duplicates
-		s_array.each { |s| # first pass
-			#s[1][:name] = s[1][:name].mb_chars.titleize
-			a_skills << s[1] #unless a_skills.detect { |a| a[:name] == s[1][:name] }
-		}
-		a_skills.each { |s| # second pass - manage associations
-			sk = Skill.fetch(s)
-			if s[:_destroy] == "1"
-				self.skills.delete(sk)
-			else	# add to collection
-				sk = Skill.create(concept: s[:concept].strip) unless sk
-				self.skills << sk unless self.skills.include?(sk)
-			end
-		}
-	end
-
-	# checks targets_attributes array received and manages adding/removing
-	# from the target collection - remove duplicates from list
-	def check_targets(t_array)
-		a_targets = Array.new	# array to include only non-duplicates
-		t_array.each { |t| # first pass
-			a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept].strip }
-		}
-		a_targets.each { |t| # second pass - manage associations
-			if t[:_destroy] == "1"	# remove drill_target
-				self.targets.delete(t[:target_attributes][:id])
-			else
-				dt = DrillTarget.fetch(t)
-				self.drill_targets ? self.drill_targets << dt : self.drill_targets |= dt
-			end
-		}
-	end
-
-	private
 		def print_names(obj_array)
 			i = 0
 			aux = ""

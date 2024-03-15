@@ -350,33 +350,26 @@ class Event < ApplicationRecord
 		# checks targets_attributes parameter received and manage adding/removing
 		# from the target collection - remove duplicates from list
 		def check_targets(t_array)
-			a_targets = Array.new	# array to include only non-duplicates
-			t_array.each { |t| # first pass
-				if t[1][:_destroy]  # we must include to remove it
-					a_targets << t[1]
-				else
-					a_targets << t[1] unless a_targets.detect { |a| a[:target_attributes][:concept] == t[1][:target_attributes][:concept] }
-				end
-			}
+			a_targets = Target.passed(t_array)
 			t_pri = {def: 1, off: 1}
-			a_targets.each { |t| # second pass - manage associations
-				if t[:_destroy] == "1"	# remove drill_target
+			a_targets.each do |t| # second pass - manage associations
+				if t[:_destroy] == "1"	# remove event_target
 					self.targets.delete(t[:target_attributes][:id].to_i)
 				elsif t[:target_attributes]
 					dt = EventTarget.fetch(t)
 					if dt.target&.offense?
-						priority     = t_pri[:off]
+						priority = t_pri[:off]
 						t_pri[:off] += 1
 					elsif dt.target&.defense?
-						priority     = t_pri[:def]
+						priority = t_pri[:def]
 						t_pri[:def] += 1
 					else
 						priority = 1
 					end
-					dt.update(priority: )
+					dt.update(priority:)
 					self.event_targets ? self.event_targets << dt : self.event_targets |= dt
 				end
-			}
+			end
 		end
 
 		# checks tasks_attributes parameter received and manage adding/removing
