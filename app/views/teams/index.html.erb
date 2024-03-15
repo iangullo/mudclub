@@ -2,7 +2,7 @@
 	<%= render @title %>
 	<%= turbo_frame_tag "search-results" do %>
 		<%= render @grid %>
+		<%= paginate @t_page %>
 	<% end %>
-	<%= paginate @t_page %>
 	<%= render @submit %>
 </div>

@@ -1,6 +1,8 @@
 <div id="users-index">
 	<%= render @title %>
-	<%= render @grid %>
-	<%= paginate @u_page %>
+	<%= turbo_frame_tag "search-results" do %>
+		<%= render @grid %>
+		<%= paginate @u_page %>
+	<% end %>
 	<%= render @submit %>
 </div>
