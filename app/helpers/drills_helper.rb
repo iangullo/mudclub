@@ -75,10 +75,13 @@ module DrillsHelper
 		title = [
 			{kind: "normal", value: I18n.t("kind.single"), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
 			{kind: "normal", value: I18n.t("drill.name"), sort: (session.dig('drill_filters', 'name') == "name"), order_by: "name"},
-			{kind: "normal", value: I18n.t("drill.author"), align: "center", sort: (session.dig('drill_filters', 'coach_id') == "coach_id"), order_by: "coach_id"},
-			{kind: "normal", value: I18n.t("target.many")}
-			#{kind: "normal", value: I18n.t("task.many")}
+			{kind: "normal", value: I18n.t("drill.author"), align: "center", sort: (session.dig('drill_filters', 'coach_id') == "coach_id"), order_by: "coach_id"}
 		]
+		title += [
+			{kind: "normal", value: I18n.t("target.many")},
+			#{kind: "normal", value: I18n.t("task.many")}
+		] unless device=="mobile"
+
 		title << button_field({kind: "add", url: new_drill_path, frame: "_top"}) if u_manager? or u_coach?
 
 		{track:, title:, rows: drill_rows(drills:)}
@@ -200,7 +203,7 @@ module DrillsHelper
 				row[:items] << {kind: "normal", value: drill.kind.name, align: "center"}
 				row[:items] << {kind: "normal", value: drill.name}
 				row[:items] << {kind: "normal", value: drill.coach.s_name, align: "center"}
-				row[:items] << {kind: "lines", value: drill.print_targets}
+				row[:items] << {kind: "lines", value: drill.print_targets} unless device == "mobile"
 				#row[:items] << {kind: "normal", value: Task.where(drill_id: drill.id).count, align: "center"}
 				row[:items] << button_field({kind: "delete", url: row[:url], name: drill.name}) if u_manager?
 				rows << row

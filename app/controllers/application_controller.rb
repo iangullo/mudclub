@@ -269,8 +269,13 @@ class ApplicationController < ActionController::Base
 		end
 
 		# Calculate pagination parameters based on available screen space or other criteria
-		def paginate(data)
-			per_page = 10
+		def paginate(data, lines=1)
+			drows = case helpers.device
+				when "desktop", "tablet"; 18
+				when "mobile"; 15
+				else; 25
+			end
+			per_page = (drows/lines).round
 			current_page = params[:page] || 1
 
 			data.page(current_page).per(per_page)

@@ -24,7 +24,8 @@ class CoachesController < ApplicationController
 	# GET /clubs/x/coaches.json
 	def index
 		if check_access(obj: Club.find(@clubid))
-			@coaches = Coach.search(params[:search], current_user)
+			search   = params[:search].presence || session.dig('coach_filters','search')
+			@coaches = Coach.search(search, current_user)
 			respond_to do |format|
 				format.xlsx do
 					a_desc = "#{I18n.t("coach.export")} 'coaches.xlsx'"
@@ -34,7 +35,7 @@ class CoachesController < ApplicationController
 				format.html do
 					page   = paginate(@coaches)	# paginate results
 					title  = helpers.person_title_fields(title: I18n.t("coach.many"), icon: "coach.svg")
-					title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_coaches_path(@clubid)}]
+					title << [{kind: "search-text", key: :search, value: search, url: club_coaches_path(@clubid)}]
 					grid   = helpers.coach_grid(coaches: page)
 					submit = {kind: "export", url: club_coaches_path(@clubid, format: :xlsx), working: false} if u_manager?
 					create_index(title:, grid:, page:, retlnk: club_path(@clubid), submit:)

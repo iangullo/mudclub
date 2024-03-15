@@ -205,7 +205,7 @@ class TopbarComponent < ApplicationComponent
 			m_teams = menu_link(label: I18n.t("team.many"), url: t_url)
 		else
 			m_teams = menu_drop("teams", label: I18n.t("team.many"))
-			s_teams.each {|team| m_teams[:options] << menu_link(label: team.name, url: "/teams/#{team.id}")}
+			s_teams.each {|team| m_teams[:options] << menu_link(label: team.category.to_s, url: "/teams/#{team.id}")}
 			m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: t_url)
 		end
 		[m_teams]
