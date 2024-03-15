@@ -114,8 +114,10 @@ module TeamsHelper
 		if teams
 			title = (@rdx==1 ? [{kind: "normal", value: I18n.t("season.abbr")}] : [])
 			title << {kind: "normal", value: I18n.t("team.single")}
-			title << {kind: "normal", value: I18n.t("category.single")}
-			title << {kind: "normal", value: I18n.t("division.single")}
+			unless device=="mobile"
+				title << {kind: "normal", value: I18n.t("category.single")}
+				title << {kind: "normal", value: I18n.t("division.single")}
+			end
 			if add_teams
 				title << {kind: "normal", value: I18n.t("player.abbr")} 
 				title << button_field({kind: "add", url: new_team_path(club_id: @clubid), frame: "modal"})
@@ -129,8 +131,10 @@ module TeamsHelper
 				row = {url: , items: []}
 				row[:items] << {kind: "normal", value: team.name}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} if @rdx==1
-				row[:items] << {kind: "normal", value: team.category.name, align: "center"}
-				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
+				unless device=="mobile"
+					row[:items] << {kind: "normal", value: team.category.name, align: "center"}
+					row[:items] << {kind: "normal", value: team.division.name, align: "center"}
+				end
 				if add_teams
 					tcnt += cnt
 					row[:items] << {kind: "normal", value: cnt.to_s, align: "center"}
