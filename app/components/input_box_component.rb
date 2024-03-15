@@ -86,7 +86,7 @@ class InputBoxComponent < ApplicationComponent
 				else
 					if @fdata[:options].present?
 						box_size = 10
-						if @fdata[:options].is_a(Hash)
+						if @fdata[:options].is_a?(Hash)
 							optnames      = @fdata[:options].keys
 							@fdata[:data] = {"data-optvalues" => @fdata[:options].values}
 						else
