@@ -1,17 +1,23 @@
 <div id="event-show">
 	<% unless @event.rest? %>
+		<% if @title %>
 		<div id="event-show-title">
-			<%= render @title if @title%>
+			<%= render @title %>
 		</div>
+		<% end %>
 		<div id="event-show-fields">
 			<%= render @fields %>
 		</div>
+		<% if @grid %>
 		<div id="event-show-fields">
-			<%= render @grid if @grid %>
+			<%= render @grid %>
 		</div>
+		<% end %>
+		<% if @submit %>
 		<div id="event-show-submit">
-			<%= render @submit if @submit%></td>
+			<%= render @submit %>
 		</div>
+		<% end %>
 	<% else %>
 		<%= render ModalComponent.new do %>
 			<div id="event-show-title">

@@ -59,7 +59,7 @@ class InputBoxComponent < ApplicationComponent
 		def set_box_attributes
 			kind_mappings = {
 				"image-box" => { class: "group flex relative w-75 h-100 overflow-hidden justify-center align-middle rounded border-gray-300 border-1" },
-				"number-box" => { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] || 1 },
+				"number-box" => { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] },
 				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" },
 				"rich-text-area" => { class: "trix-content" },
 				"text-area" => {class: "text-base"},
@@ -81,7 +81,7 @@ class InputBoxComponent < ApplicationComponent
 				case @fdata[:kind]
 				when "image-box"
 					@fdata[:size] = "50x50"
-				when "time-box", "number-box"
+				when "number-box", "time-box"
 					box_size = 5
 				else
 					if @fdata[:options].present?

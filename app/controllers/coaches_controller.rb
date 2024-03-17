@@ -173,7 +173,7 @@ class CoachesController < ApplicationController
 	private
 		# defines correct retlnk based on params received
 		def get_retlnk
-			return team_path(team_id:, user: current_user, rdx: @rdx) if p_teamid && current_user
+			return team_path(id: p_teamid, user: current_user, rdx: @rdx) if p_teamid && current_user
 			case @rdx&.to_i
 			when 0, nil;	return (@clubid ? club_coaches_path(@clubid, rdx: 0) : u_path)
 			when 1; return u_path
