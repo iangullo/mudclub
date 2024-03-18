@@ -243,7 +243,7 @@ module EventsHelper
 			],
 			[
 				{kind: "side-cell", value: @task.order},
-				{kind: "select-load", key: :drill_id, url: search_in, options: @drills, value: @drill ? @drill.id : nil, hidden: @task.id},
+				{kind: "select-load", key: :drill_id, url: search_in, options: @drills, value: @drill&.id},
 				{kind: "number-box", key: :duration, min: 1, max: 90, size: 3, value: @task.duration}
 			],
 			[

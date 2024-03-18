@@ -373,6 +373,7 @@ class EventsController < ApplicationController
 			@task   = t_param[:task_id] ? Task.find(t_param[:task_id]) : Task.new(event: @event, order: @event.tasks.count + 1, duration: 5)
 			if load_drills
 				@drills = filter!(Drill).pluck(:name, :id, :coach_id)
+				@drills = Drill.where(kind_id: @task.drill.kind_id).pluck(:name, :id, :coach_id) if @drills.empty? && @task
 				@drill  = t_param[:drill_id] ? Drill.find(t_param[:drill_id]) : (@task.drill ? @task.drill : @drills.size>0 ? Drill.find(@drills.first[1]) : nil)
 			end
 		end
@@ -419,8 +420,9 @@ class EventsController < ApplicationController
 		# prepare edit/add task form
 		def prepare_task_form(subtitle:, retlnk:, search_in:, task_id: nil)
 			get_task(load_drills: true) # get the right @task/@drill
+			scratch      = task_id.nil?
 			title        = helpers.event_task_title(subtitle:)
-			title       << helpers.drill_search_bar(search_in:, task_id: (task_id ? @task.id : nil), scratch: true, cols: 4)
+			title       << helpers.drill_search_bar(search_in:, task_id: @task.id, scratch:, cols: 4)
 			@title       = create_fields(title)
 			@fields      = create_fields(helpers.task_form_fields(search_in:))
 			@description = helpers.task_form_description

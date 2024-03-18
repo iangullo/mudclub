@@ -90,9 +90,10 @@ module DrillsHelper
 	# specific search bar to search through drills
 	def drill_search_bar(search_in:, task_id: nil, scratch: nil, cols: nil)
 		session.delete('drill_filters') if scratch
+		skind  = Task.find_by(id: task_id)&.drill&.kind_id || session.dig('drill_filters', 'kind_id')
 		fields = [
 			{kind: "search-text", key: :name, placeholder: I18n.t("drill.name"), value: session.dig('drill_filters', 'name'), size: 10},
-			{kind: "search-select", key: :kind_id, blank: "#{I18n.t("kind.single")}:", value: session.dig('drill_filters', 'kind_id'), options: Kind.real.pluck(:name, :id)},
+			{kind: "search-select", key: :kind_id, blank: "#{I18n.t("kind.single")}:", value: skind, options: Kind.real.pluck(:name, :id)},
 			{kind: "search-text", key: :skill, placeholder: I18n.t("skill.single"), size: 14, value: session.dig('drill_filters', 'skill')}
 		]
 		fields << {kind: "hidden", key: :task_id, value: task_id} if task_id
