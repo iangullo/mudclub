@@ -182,12 +182,29 @@ class EventsController < ApplicationController
 		end
 	end
 
-	# GET /events/1/show_task
-	def show_task
+	# GET /events/1/attendance
+	def attendance
+		if @event && (check_access(obj: Club.find(@clubid)) || @event.team.has_coach(u_coachid))
+			@title  = create_fields(helpers.event_attendance_title)
+			@fields = create_fields(helpers.event_attendance_form_fields)
+			@submit = create_submit(retlnk: event_path(@event, rdx: @rdx))
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# POST /events/1/copy
+	def copy
 		if @clubid == u_clubid && check_access(roles: [:manager, :coach])
-			@task   = Task.find(params[:task_id])
-			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
-			@submit = create_submit(close: "back", retlnk: :back, submit: (u_manager? or @event.team.has_coach(u_coachid)) ? edit_task_event_path(task_id: @task.id) : nil)
+			@season = Season.latest
+			@teams  = get_teams
+			if @teams	# we have some teams we can copy to
+				@fields = create_fields(helpers.event_copy_fields)
+				@submit = create_submit
+			else
+				notice  = helpers.flash_message("#{I18n.t("team.none")} ", "info")
+				redirect_to event_path(@event, rdx: @rdx), notice:, data: {turbo_action: "replace"}
+			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -211,22 +228,22 @@ class EventsController < ApplicationController
 		end
 	end
 
-	# GET /events/1/load_chart
-	def load_chart
+	# GET /events/1/show_task
+	def show_task
 		if @clubid == u_clubid && check_access(roles: [:manager, :coach])
-			header = helpers.event_title_fields(cols: @event.train? ? 3 : nil, chart: true)
-			@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
+			@task   = Task.find(params[:task_id])
+			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
+			@submit = create_submit(close: "back", retlnk: :back, submit: (u_manager? or @event.team.has_coach(u_coachid)) ? edit_task_event_path(task_id: @task.id) : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	# GET /events/1/attendance
-	def attendance
-		if @event && (check_access(obj: Club.find(@clubid)) || @event.team.has_coach(u_coachid))
-			@title  = create_fields(helpers.event_attendance_title)
-			@fields = create_fields(helpers.event_attendance_form_fields)
-			@submit = create_submit(retlnk: event_path(@event, rdx: @rdx))
+	# GET /events/1/load_chart
+	def load_chart
+		if @clubid == u_clubid && check_access(roles: [:manager, :coach])
+			header = helpers.event_title_fields(cols: @event.train? ? 3 : nil, chart: true)
+			@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -263,23 +280,6 @@ class EventsController < ApplicationController
 				else
 					redirect_to team_path(@event.team, rdx: @rdx), data: {turbo_action: "replace"}
 				end
-			end
-		else
-			redirect_to "/", data: {turbo_action: "replace"}
-		end
-	end
-
-	# POST /events/1/copy
-	def copy
-		if @clubid == u_clubid && check_access(roles: [:manager, :coach])
-			@season = Season.latest
-			@teams  = u_manager? ? Team.for_season(@season.id) : current_user.coach.team_list
-			if @teams	# we have some teams we can copy to
-				@fields = create_fields(helpers.event_copy_fields)
-				@submit = create_submit
-			else
-				notice  = helpers.flash_message("#{I18n.t("team.none")} ", "info")
-				redirect_to event_path(@event, rdx: @rdx), notice:, data: {turbo_action: "replace"}
 			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -332,6 +332,16 @@ class EventsController < ApplicationController
 			@seasonid = p_seasonid
 			@teamid   = p_teamid
 			@teamid ||= @event&.team_id if @event&.team_id.to_i > 0
+		end
+
+		# return array of valid team options for a selector
+		def get_teams
+			teams = (u_manager? ? u_club.teams.for_season(@season.id) : current_user.coach.team_list(season_id: @season.id))
+			opts  = []
+			teams.each do |team|
+				opts << {id: team.id, name: team.to_s(long: true)}
+			end
+			return opts
 		end
 
 		# determine the right retlnk

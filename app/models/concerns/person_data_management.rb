@@ -122,8 +122,13 @@ module PersonDataManagement
 	end
 
 	# get team history
-	def team_list
-		self.teams.includes(:season).to_a.sort_by { |team| team.season.start_date }.reverse
+	def team_list(season_id: nil)
+		if season_id
+			res = self.teams.where(season_id:).includes(:season).to_a
+		else
+			res = self.teams.includes(:season).to_a
+		end
+		res.sort_by { |team| team.season.start_date }.reverse
 	end
 
 	private

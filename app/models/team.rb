@@ -197,12 +197,15 @@ class Team < ApplicationRecord
 	end
 
 	# return team name in string format
-	def to_s
+	def to_s(long: false)
 		if self.name.present?
-			self.id==0 ? I18n.t("scope.none") : self.name.to_s
+			cad = self.id==0 ? I18n.t("scope.none") : self.name.to_s
+			cad = "#{cad} - #{self.category.to_s}" if long
 		else
-			self.category.to_s
+			cad = self.category.to_s
+			cad = "#{cad} (#{self.season.to_s})" if long
 		end
+		return cad
 	end
 
 	# Return upcoming events for the Team
