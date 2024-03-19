@@ -257,7 +257,7 @@ class ApplicationController < ActionController::Base
 			when User
 				return (u_userid==@user.id)
 			else # including NilClass"
-				return false
+				return u_admin?
 			end
 		end
 
