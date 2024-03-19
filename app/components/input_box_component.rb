@@ -71,7 +71,7 @@ class InputBoxComponent < ApplicationComponent
 			mapping = kind_mappings[@fdata[:kind]]
 			return unless mapping
 
-			@i_class << (mapping[:i_class] ? mapping[:i_class] : mapping[:class])
+			@i_class << (mapping[:i_class] || mapping[:class])
 			@fdata.merge!(mapping.reject { |key, _| key == :class })
 		end
 
