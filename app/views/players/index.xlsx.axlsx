@@ -5,6 +5,6 @@ wb.add_worksheet(name: "Player") do |sheet|
   sheet.add_row [t("person.pid"), t("player.number"), t("person.nick"), t("person.name"), t("person.surname"), t("person.bday"), t("question.female"), t("person.address"), t("person.email"), t("person.phone"), t("question.active")]
   # Create entries for each item
   Player.real.each do |player|
-    sheet.add_row [player.person.dni, player.number, player.person.nick, player.person.name, player.person.surname, player.person.birthday, player.person.female, player.person.address, player.p_email, player.p_phone, player.active]
+    sheet.add_row [player.person.dni, player.number, player.person.nick, player.person.name, player.person.surname, player.person.birthday, player.person.female, player.person.address, player.p_email, player.p_phone, player.active?]
   end
 end

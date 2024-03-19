@@ -25,7 +25,7 @@ class Coach < ApplicationRecord
 	has_one :person
 	has_one_attached :avatar
 	accepts_nested_attributes_for :person, update_only: true
-	scope :active, -> { where("active = true") }
+	scope :active, -> { where.not(club_id: nil) }
 	scope :real, -> { where("id>0") }
 	self.inheritance_column = "not_sti"
 

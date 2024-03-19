@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_06_105653) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_19_064746) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -95,7 +95,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_06_105653) do
   end
 
   create_table "coaches", force: :cascade do |t|
-    t.boolean "active"
     t.bigint "person_id", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -228,7 +227,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_06_105653) do
 
   create_table "players", force: :cascade do |t|
     t.integer "number"
-    t.boolean "active"
     t.bigint "person_id", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

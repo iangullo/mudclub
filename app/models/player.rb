@@ -110,7 +110,6 @@ class Player < ApplicationRecord
 	def rebuild(f_data)
 		self.rebuild_obj_person(f_data)
 		if self.person # person exists
-#			self.active  = f_data[:active]
 			self.club_id = f_data[:club_id].presence
 			self.number  = f_data[:number]
 			self.check_parents(f_data[:parents_attributes])
