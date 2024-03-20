@@ -56,7 +56,7 @@ class HomeController < ApplicationController
 			title.last << helpers.button_field({kind: "clear", url: home_clear_path}) unless actions.empty?
 			page  = paginate(actions)	# paginate results
 			grid  = helpers.home_actions_grid(actions: page)
-			create_index(title:, grid:, page:, retlnk: :back)
+			create_index(title:, grid:, page:, retlnk: "/")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
