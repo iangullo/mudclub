@@ -63,7 +63,7 @@
 		<%= obj.check_box({ class: 'rounded bg-gray-200 text-blue-700' }) %>&nbsp;<%= obj.object.to_s %><br>
 	<% end %>
 <% when "select-collection" %>
-	<select class='<%= @i_class %>'	name='<%= @form.object.class.to_s.downcase + "[#{@fdata[:key]}]" %>' id='<%= @fdata[:key] %>' <%= @fdata[:s_target].html_safe	%>>
+	<select class='<%= @i_class %>'	name='<%= @form.object.class.to_s.downcase + "[#{@fdata[:key]}]" %>' id='<%= @fdata[:key] %>' <%= @fdata[:s_target]&.html_safe	%>>
 		<% @fdata[:options].each do |opt| %>
 			<option value="<%= opt[:id] %>"<% if (opt[:id] ? opt[:id] : opt.id) == @fdata[:value] %> selected='selected'<% end %>><%= opt[:name] ? opt[:name] : opt.name %></option>
 		<% end %>
