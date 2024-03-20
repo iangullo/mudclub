@@ -9,6 +9,11 @@ export default class extends Controller {
   connect() {
     //console.log("this.homeCourtId => ", this.homeCourtIdTarget.value)
     this.homeCourts = JSON.parse(this.rivalNameTarget.dataset.homecourts)
+    //console.log("this.homeCourts => ", this.homeCourts)
+    // Gather all options from the datalist directly
+    const dataList = document.getElementById("name_list");
+    this.rivalList = Array.from(dataList.options).map(option => option.value.trim());
+    //console.log("this.rivalList => ", this.rivalList)
     this.selectHomeCourt();
   }
 
@@ -24,20 +29,18 @@ export default class extends Controller {
     
     // Check if it's an away match and rival name has a match in the datalist
     if (!isHomeMatch && this.rivalNameTarget.value) {
-      const rivalName = this.rivalNameTarget.value.trim();
-      const index = this.rivalList.indexOf(rivalName);
+      const rivalName = this.rivalNameTarget.value.trim().toLowerCase(); // Convert to lowercase for case insensitivity
+      const index = this.rivalList.findIndex(option => option.toLowerCase() === rivalName); // Find the index case insensitively
+      //console.log("rivalName='",rivalName,"' has index=",index)
+      //console.log("awayGame. Should set location to:", this.homeCourts[index])
 
       // Set location select to the corresponding home court if needed
       if (index !== -1) {
         this.locationIdTarget.value = this.homeCourts[index];
+        this.rivalNameTarget.value = this.rivalList[index]; // Replace textbox value with the matched string
       }
     }
     //console.log("this.locationId => ", this.locationIdTarget.value)
-  }
-
-
-  get rivalList() {
-    return this.rivalNameTargets.map(option => option.value);
   }
 
   // Listen for changes in the rival name input field
