@@ -183,17 +183,13 @@ class Team < ApplicationRecord
 	end
 
 	# return potential rival teams - matching category & season
-	def rivals
+	def rival_teams
 		Team.where(sport_id: self.sport_id, season_id: self.season_id, category_id: self.category_id).where.not(club_id: self.club_id)
 	end
 
 	# return list of potential rivals - used for text boxes - matching category & season
-		def rival_list
-		res = []
-		self.rivals.each do |team|
-			res << team.name
-		end
-		res
+	def rival_teams_info
+		self.rival_teams.map { |team| [team.name, team.homecourt_id] }.to_h
 	end
 
 	# return team name in string format

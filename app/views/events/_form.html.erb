@@ -1,4 +1,4 @@
-<%= form_with model: event, authenticity_token: true, data: {title: title, turbo_frame: "_top"} do |form| %>
+<%= form_with model: event, authenticity_token: true, data: event_form_data_options(event, title) do |form| %>
 	<% @title.form = form %>
 	<%= render @title %>
 	<% if @event.id || @event.train?%>

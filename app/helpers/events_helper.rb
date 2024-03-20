@@ -84,6 +84,15 @@ module EventsHelper
 		@sport.player_training_stats_form_fields(@event, player_id: @player.id)
 	end
 
+
+	def event_form_data_options(event, title)
+		if event.match?
+			{ controller: "match-location", title:, turbo_frame: "_top"}
+		else
+			{title:, turbo_frame: "_top"}
+		end
+	end
+
 	# return icon and top of FieldsComponent
 	def event_index_title(team: nil, season: nil)
 		title    = team ? (team.name + " (#{team.season.name})") : season ? season.name : I18n.t("calendar.label")
@@ -354,8 +363,8 @@ module EventsHelper
 			if form
 				res << [
 					{kind: "icon", value: "location.svg"},
-					{kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id},
-					gap_field
+					{kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'"},
+					{kind: "hidden", key: :homecourt_id, value: @event.team.homecourt_id, h_data: {match_location_target: "homeCourtId"}}
 				]
 			else
 				if @event.location.gmaps_url
