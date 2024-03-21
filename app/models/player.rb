@@ -127,14 +127,14 @@ class Player < ApplicationRecord
 	end
 
 	# Return player name and jersey number
-	def to_s(style: 0)
+	def to_s(style: 2)
 		case style
 		when 0; return self.s_name
 		when 1; return self.person.to_s
 		when 2; name = self.s_name
 		when 3; name = self.person.to_s
 		end
-		num = "(#{self.number&.to_s || "__"})".rjust(5,' ')
+		num = "(##{self.number&.to_s || "__"})".rjust(5,' ')
 		return "#{num} #{name}"
 	end
 

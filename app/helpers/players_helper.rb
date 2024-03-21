@@ -48,7 +48,7 @@ module PlayersHelper
 		players.each { | player|
 			row = {url: player_path(player, team_id: team&.id, rdx: @rdx), items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
-			row[:items] << {kind: "normal", value: player.to_s}
+			row[:items] << {kind: "normal", value: player.to_s(style: 0)}
 			row[:items] << {kind: "normal", value: player.person&.age, align: "center"}
 			if manage
 				row[:items] << {kind: "contact", phone: player.person&.phone, device: device}
