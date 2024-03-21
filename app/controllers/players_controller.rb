@@ -49,7 +49,7 @@ class PlayersController < ApplicationController
 	# GET /players/1
 	# GET /players/1.json
 	def show
-		if (u_manager? && [nil, @clubid].include?(u_clubid)) || (u_coach? && u_clubid==@clubid) ||  check_access(obj: @player)
+		if (u_manager? && [nil, u_clubid].include?(@clubid)) || (u_coach? && u_clubid==@clubid) ||  check_access(obj: @player)
 			@fields = create_fields(helpers.player_show_fields(team: Team.find_by_id(@teamid)))
 			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
 			submit  = (u_manager? || u_coach? || u_playerid==@player.id) ? edit_player_path(@player, team_id: @teamid, rdx: @rdx) : nil
@@ -63,7 +63,7 @@ class PlayersController < ApplicationController
 	def new
 		if check_access(roles: [:manager, :coach])
 			get_player_context
-			@player = Player.new(active: true)
+			@player = Player.new(club_id: u_clubid)
 			@player.build_person
 			prepare_form(title: I18n.t("player.new"))
 		else
@@ -73,7 +73,7 @@ class PlayersController < ApplicationController
 
 	# GET /players/1/edit
 	def edit
-		if (u_manager? && [nil, @clubid].include?(u_clubid)) || (u_coach? && u_clubid==@clubid) ||  check_access(obj: @player)
+		if (u_manager? && [nil, u_clubid].include?(@clubid)) || (u_coach? && u_clubid==@clubid) ||  check_access(obj: @player)
 			prepare_form(title: I18n.t("player.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -93,7 +93,7 @@ class PlayersController < ApplicationController
 						retlnk = player_path(@player, rdx: @rdx, team_id: @teamid)
 						link_team(player_params[:team_id].presence)	# try to add it to the team roster
 						@player.bind_person(save_changes: true) # ensure binding is correct
-						a_desc = "#{I18n.t("player.created")} '#{@player.to_s}'"
+						a_desc = "#{I18n.t("player.created")} '#{@player.to_s(style: 1)}'"
 						register_action(:created, a_desc, url: player_path(@player, rdx: 2))
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :created, location: retlnk }
@@ -105,7 +105,7 @@ class PlayersController < ApplicationController
 				else # player was already in the database
 					retlnk = player_path(@player, rdx: @rdx, team_id: @teamid)
 					link_team(@teamid)	# try to add it to the team roster
-					format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s}'"), data: {turbo_action: "replace"} }
+					format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s(style: 1)}'"), data: {turbo_action: "replace"} }
 					format.json { render :show, status: :duplicate, location: retlnk }
 				end
 			end
@@ -124,7 +124,7 @@ class PlayersController < ApplicationController
 				if @player.modified?
 					if @player.save
 						@player.bind_person(save_changes: true) # ensure binding is correct
-						a_desc = "#{I18n.t("player.updated")} '#{@player.to_s}'"
+						a_desc = "#{I18n.t("player.updated")} '#{@player.to_s(style: 1)}'"
 						register_action(:updated, a_desc, url: player_path(@player, rdx: 2))
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: retlnk}
@@ -165,7 +165,7 @@ class PlayersController < ApplicationController
 	def destroy
 		# cannot destroy placeholder player (id ==0)
 		if @player.id != 0 && check_access(obj: Club.find_by_id(@player.club_id))
-			p_name = @player.to_s
+			p_name = @player.to_s(style: 1)
 			@player.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("player.deleted")} '#{p_name}'"
@@ -190,7 +190,7 @@ class PlayersController < ApplicationController
 		def get_retlnk
 			return home_log_path if @rdx&.to_i== 2	# return to log_path
 			return roster_team_path(id: @teamid, rdx: @rdx) if @teamid
-			return club_players_path(@player.club_id, search: @player.s_name, rdx: 0) if @player
+			return club_players_path(u_clubid, search: @player.s_name, rdx: 0) if @player
 			return (@clubid ? club_players_path(@clubid, rdx: 0) : u_path)
 		end
 
@@ -221,8 +221,6 @@ class PlayersController < ApplicationController
 		def player_params
 			params.require(:player).permit(
 				:id,
-				:active,
-				:active?,
 				:avatar,
 				:club_id,
 				:event_id,

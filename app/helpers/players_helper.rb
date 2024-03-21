@@ -48,13 +48,13 @@ module PlayersHelper
 		players.each { | player|
 			row = {url: player_path(player, team_id: team&.id, rdx: @rdx), items: []}
 			row[:items] << {kind: "normal", value: player.number, align: "center"}
-			row[:items] << {kind: "normal", value: player.s_name}
+			row[:items] << {kind: "normal", value: player.to_s}
 			row[:items] << {kind: "normal", value: player.person&.age, align: "center"}
 			if manage
 				row[:items] << {kind: "contact", phone: player.person&.phone, device: device}
 				row[:items] << {kind: "icon", value: player.all_pics? ? "Yes.svg" : "No.svg", align: "center"}
 				row[:items] << {kind: "icon", value: player.active? ? "Yes.svg" : "No.svg", align: "center"}
-				row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s}) if u_manager?
+				row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s(style: 1)}) if u_manager?
 			end
 			rows << row
 		}

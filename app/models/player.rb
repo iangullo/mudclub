@@ -127,11 +127,15 @@ class Player < ApplicationRecord
 	end
 
 	# Return player name and jersey number
-	def to_s(long: false)
-		cad = self.number ? "##{self.number.to_s}" : "__"
-
-		cad = "(#{cad})".rjust(5,' ')
-		"#{cad} - #{(long ? self.person.to_s : self.s_name)}"
+	def to_s(style: 0)
+		case style
+		when 0; return self.s_name
+		when 1; return self.person.to_s
+		when 2; name = self.s_name
+		when 3; name = self.person.to_s
+		end
+		num = "(#{self.number&.to_s || "__"})".rjust(5,' ')
+		return "#{num} #{name}"
 	end
 
 	# atempt to fetch a Player using form input hash

@@ -199,7 +199,6 @@ class CoachesController < ApplicationController
 		def coach_params
 			params.require(:coach).permit(
 				:id,
-				:active,
 				:avatar,
 				:club_id,
 				:rdx,
