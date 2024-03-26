@@ -38,11 +38,21 @@ class DrillsController < ApplicationController
 	# GET /drills/1 or /drills/1.json
 	def show
 		if check_access(roles: [:manager, :coach])
-			@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
-			@intro   = create_fields(helpers.drill_show_intro)
-			@explain = create_fields(helpers.drill_show_explain)
-			@tail    = create_fields(helpers.drill_show_tail)
-			@submit  = create_submit(close: "back", retlnk: drills_path, submit: (u_manager? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
+			respond_to do |format|
+				format.pdf do
+					response.headers['Content-Disposition'] = "attachment; filename=drill.pdf"
+					pdf = helpers.drill_to_pdf
+					send_data pdf.render(filename: "#{@drill.name}.pdf", type: "application/pdf")
+				end
+				format.html do
+					@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
+					@intro   = create_fields(helpers.drill_show_intro)
+					@explain = create_fields(helpers.drill_show_explain)
+					@tail    = create_fields(helpers.drill_show_tail)
+					@submit  = create_submit(close: "back", retlnk: drills_path, submit: (u_admin? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
+					render :show
+				end
+			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

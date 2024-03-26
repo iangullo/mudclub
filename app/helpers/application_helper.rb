@@ -88,6 +88,45 @@ module ApplicationHelper
 		end
 	end
 
+	# creates a PrawnPDF document with initial characteristics
+	def pdf_create(title: u_club.nick, subtitle: nil, page_size: "A5", page_layout: :landscape)
+		pdf = Prawn::Document.new(page_size:, page_layout:, margin: 10)
+		pdf_header(pdf:, title:, subtitle:)
+		pdf
+	end
+
+	# header of a pdf page
+	def pdf_header(pdf:, title:, subtitle:)
+		logo_file = Rails.root.join('app', 'assets', 'images','drill.svg')
+		logo_png  = ImageProcessing::Vips.source(logo_file).convert!("png")
+		pdf.image logo_png, height: 32, width: 32
+		pdf.fill_color = '000080'	# dark blue font
+		pdf.font(Rails.root.join('app', 'assets', 'fonts','Constantia.ttf')) do
+			pdf.draw_text title, size: 24, styles: [:bold], at: [40,375]
+		end
+		if subtitle
+			pdf.move_up 30
+			pdf.text subtitle, size: 30, styles: [:bold], align: :right
+		end
+		pdf.move_down 10
+	end
+
+	# def a pdf label
+	def pdf_label(pdf:, label:, text: nil)
+		PrawnHtml.append_html(pdf, "<b>#{label}: </b> #{text.to_s}")
+	end
+
+	# Render image in PDF
+	def pdf_image(pdf:, image:)
+		image_data = StringIO.new(Base64.decode64(image_part.match(/(?<=base64,)(.*?)(?=\))/).to_s))
+		pdf.image image_data, fit: [400, 400]
+	end
+
+	# Render rich text in PDF
+	def pdf_rich_text(pdf:, rich_text:)
+		PrawnHtml.append_html(pdf, rich_text&.body&.to_html)
+	end
+
 	# iconize an svg
 	def svgicon(icon_name, options={})
 		file = File.read(Rails.root.join('app', 'assets', 'images', "#{icon_name}.svg"))

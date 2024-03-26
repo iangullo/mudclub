@@ -115,3 +115,7 @@ gem "acts_as_list", "~> 1.1"
 gem "pg_search", "~> 2.3"
 
 gem "kaminari", "~> 1.2"
+
+gem "prawn", "~> 2.5"
+
+gem "prawn-html", "~> 0.7.1"
