@@ -87,16 +87,6 @@ module DrillsHelper
 		{track:, title:, rows: drill_rows(drills:)}
 	end
 
-	# pdf export of @drill content
-	def drill_to_pdf
-		pdf = pdf_create(title: @drill.name, subtitle: I18n.t("task.single"))
-		pdf.fill_color = '404040'	# dark blue font
-		pdf_label(pdf:, label: I18n.t("drill.desc"), text: @drill.description) if @drill.description.present?
-		pdf_label(pdf:, label: I18n.t("target.many"), text: @drill.print_targets(array: false))
-		pdf_rich_text(pdf:, rich_text: @drill.explanation) if @drill&.explanation&.present?
-		pdf
-	end
-
 	# specific search bar to search through drills
 	def drill_search_bar(search_in:, task_id: nil, scratch: nil, cols: nil)
 		session.delete('drill_filters') if scratch

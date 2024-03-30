@@ -18,6 +18,7 @@
 #
 class DrillsController < ApplicationController
 	include Filterable
+	include PdfGenerator
 	before_action :set_drill, only: [:show, :edit, :update, :destroy, :versions]
 	before_action :set_paper_trail_whodunnit
 
@@ -41,7 +42,7 @@ class DrillsController < ApplicationController
 			respond_to do |format|
 				format.pdf do
 					response.headers['Content-Disposition'] = "attachment; filename=drill.pdf"
-					pdf = helpers.drill_to_pdf
+					pdf = drill_to_pdf
 					send_data pdf.render(filename: "#{@drill.name}.pdf", type: "application/pdf")
 				end
 				format.html do
@@ -153,6 +154,19 @@ class DrillsController < ApplicationController
 	end
 
 	private
+		# pdf export of @drill content
+		def drill_to_pdf
+			header = {icon: "drill.svg", title: I18n.t("task.single")}
+			footer = "#{I18n.t('drill.author')}: #{@drill.coach.person.email}"
+			pdf    = pdf_create(header:, footer:)
+			pdf_label_text(label: I18n.t("drill.name"), text: @drill.name)
+			pdf_label_text(label: I18n.t("drill.desc"), text: @drill.description) if @drill.description.present?
+			pdf_label_text(label: I18n.t("target.many"), text: @drill.print_targets(array: false))
+			pdf_rich_text(@drill.explanation) if @drill&.explanation&.present?
+			pdf_label_text(label: I18n.t("skill.many"), text: @drill.print_skills)
+			pdf
+		end
+
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(title:)
 			@title    = create_fields(helpers.drill_form_title(title:))
