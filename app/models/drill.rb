@@ -81,7 +81,7 @@ class Drill < ApplicationRecord
 					zero = false
 					cad  = tgt.to_s
 				else
-					cad += "; \n\t#{tgt.to_s}"
+					cad += "\n\t#{tgt.to_s}"
 				end
 			end
 		end

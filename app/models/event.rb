@@ -57,23 +57,159 @@ class Event < ApplicationRecord
 		match: 2
 	}
 
-	# string view of object
-	def to_s(style: nil)
+	def date_string
+		cad = self.start_time.year.to_s
+		cad = cad + "/" + two_dig(self.start_date.month)
+		cad = cad + "/" + two_dig(self.start_date.day)
+	end
+
+	# return list of defensive targets
+	def def_targets
+		res = Array.new
+		self.event_targets.each { |tev|
+			res << tev if tev.target.defense?
+		}
+		res
+	end
+
+	# show this event?
+	def display?
+		if self.rest? and self.team_id > 0 # we have a team rest?
+			e = Event.where(team_id: 0, start_time: self.start_time)  # is it general?
+			return false if e.first # don't display it!
+		end
+		return true
+	end
+
+	# return a collection of Drills associated with this event
+	def drill_list
+		res = Array.new
+		self.tasks.each { |tsk| res.push(tsk.drill) }
+		res.uniq
+	end
+
+	def duration
+		((self.end_time - self.start_time)/60).to_i
+	end
+
+	def duration=(newduration)
+		self.end_time = self.start_time + newduration.minutes
+	end
+
+	# check if player is in this event
+	def has_player(p_id)
+		self.players.find_index { |p| p[:id]==p_id }
+	end
+
+	def hour
+		self.start_time.hour
+	end
+
+	def hour=(newhour)
+		self.start_time = self.start_time.change({ hour: newhour })
+	end
+
+	def min
+		self.start_time.min
+	end
+
+	def min=(newmin)
+		self.start_time = self.start_time.change({ min: newmin })
+	end
+
+	# check if drill (or associations) has changed
+	def modified?
+		res = self.changed? || @event_changed
+		unless res
+			res = self.stats.any?(&:saved_changes?)
+			unless res
+				res = self.event_targets.any?(&:saved_changes?)
+				unless res
+					res = self.tasks.any?(&:saved_changes?)
+				end
+			end
+		end
+		res
+	end
+
+	# return list of offensive targets
+	def off_targets
+		res = Array.new
+		self.event_targets.each { |tev|
+			res << tev if tev.target.offense?
+		}
+		res
+	end
+
+	# return name of assocatied icon
+	def pic
 		case self.kind.to_sym
 		when :train
-			res = I18n.t("train.single")
+			res = "training.svg"
 		when :match
-			m_row = self.to_hash
-			home  = m_row[:home_t] + " [" + m_row[:home_p].to_s + "]"
-			away  = "[" + m_row[:away_p].to_s + "] " + m_row[:away_t]
-			res   = home + "-" + away
+			res = "match.svg"
 		when :rest
-			res=self.name
+			res = "rest.svg"
 		else
-			res = ""
+			res = "team.svg"
 		end
-		res = res + " (" + self.date_string + ")" if style=="notice"
 		res
+	end
+
+	# return strings fro associated targets
+	def print_targets(kind: nil)
+		cad = ""
+		self.targets.each do |target|
+			cad += "\n\t" unless cad==""
+			cad += target.concept
+		end
+		cad
+	end
+
+	# rebuild Event using raw hash from a form submittal
+	def rebuild(f_data, s_data=nil)
+		self.start_time = f_data[:start_date] if f_data[:start_date]
+		self.hour       = f_data[:hour].to_i if f_data[:hour]
+		self.min        = f_data[:min].to_i if f_data[:min]
+		self.duration   = f_data[:duration].to_i if f_data[:duration]
+		self.name       = f_data[:name] if f_data[:name]
+		self.p_for      = f_data[:p_for].to_i if f_data[:p_for]
+		self.p_opp      = f_data[:p_opp].to_i if f_data[:p_opp]
+		self.location_id= f_data[:location_id].to_i if f_data[:location_id]
+		self.home       = f_data[:home] if f_data[:home]
+		check_stats(s_data) if s_data # manage stats if provided
+		check_targets(f_data[:event_targets_attributes]) if f_data[:event_targets_attributes]
+		check_tasks(f_data[:tasks_attributes]) if f_data[:tasks_attributes]
+	end
+
+	# string with duration and minutes indication (')
+	def s_dur
+		self.duration.to_s + "\'"
+	end
+	
+	# wrappers to read/update event values
+	def start_date
+		self.start_time.to_date
+	end
+
+	def time_string(t_end=true)
+		timeslot_string(t_begin: self.start_time, t_end: ((self.train? and t_end) ? self.end_time : nil))
+	end
+
+	# return event title depending on kind & data
+	def title(show: nil, copy: nil)
+		cad = show ? "" : (self.id ? (copy ? "#{I18n.t('action.copy')} " : "#{I18n.t('action.edit')} ") : "#{I18n.t('action.create')}")
+		case self.kind.to_sym
+		when :rest
+			cad += I18n.t("rest.single")
+		when :train
+			cad = show ? self.team.to_s : "#{cad}#{I18n.t('train.single')}"
+		when :match
+			cad += I18n.t("match.single")
+		else
+			cad += "(¿?)"
+		end
+		cad
 	end
 
 	# hash view of event data
@@ -94,119 +230,27 @@ class Event < ApplicationRecord
 		res
 	end
 
-	# string with duration and minutes indication (')
-	def s_dur
-		self.duration.to_s + "\'"
-	end
-
-	# return name of assocatied icon
-	def pic
+	# string view of object
+	def to_s(style: nil)
 		case self.kind.to_sym
 		when :train
-			res = "training.svg"
+			res = I18n.t("train.single")
 		when :match
-			res = "match.svg"
+			if style = "short"
+				res = I18n.t("match.single")
+			else
+				m_row = self.to_hash
+				home  = m_row[:home_t] + " [" + m_row[:home_p].to_s + "]"
+				away  = "[" + m_row[:away_p].to_s + "] " + m_row[:away_t]
+				res   = home + "-" + away
+			end
 		when :rest
-			res = "rest.svg"
+			res=self.name
 		else
-			res = "team.svg"
+			res = ""
 		end
+		res = res + " (" + self.date_string + ")" if style=="notice"
 		res
-	end
-
-	# show this event?
-	def display?
-		if self.rest? and self.team_id > 0 # we have a team rest?
-			e = Event.where(team_id: 0, start_time: self.start_time)  # is it general?
-			return false if e.first # don't display it!
-		end
-		return true
-	end
-
-	# return event title depending on kind & data
-	def title(show: nil, copy: nil)
-		cad = show ? "" : (self.id ? (copy ? "#{I18n.t('action.copy')} " : "#{I18n.t('action.edit')} ") : "#{I18n.t('action.create')}")
-		case self.kind.to_sym
-		when :rest
-			cad += I18n.t("rest.single")
-		when :train
-			cad = show ? self.team.to_s : "#{cad}#{I18n.t('train.single')}"
-		when :match
-			cad += I18n.t("match.single")
-		else
-			cad += "(¿?)"
-		end
-		cad
-	end
-
-	# wrappers to read/update event values
-	def start_date
-		self.start_time.to_date
-	end
-
-	def hour
-		self.start_time.hour
-	end
-
-	def min
-		self.start_time.min
-	end
-
-	def hour=(newhour)
-		self.start_time = self.start_time.change({ hour: newhour })
-	end
-
-	def min=(newmin)
-		self.start_time = self.start_time.change({ min: newmin })
-	end
-
-	def duration
-		((self.end_time - self.start_time)/60).to_i
-	end
-
-	def duration=(newduration)
-		self.end_time = self.start_time + newduration.minutes
-	end
-
-	def work_duration
-		res = 0
-		self.tasks.each { |tsk| res = res + tsk.duration }
-		res.to_s + "\'"
-	end
-
-	def date_string
-		cad = self.start_time.year.to_s
-		cad = cad + "/" + two_dig(self.start_date.month)
-		cad = cad + "/" + two_dig(self.start_date.day)
-	end
-
-	def time_string(t_end=true)
-		timeslot_string(t_begin: self.start_time, t_end: ((self.train? and t_end) ? self.end_time : nil))
-	end
-
-	# return list of defensive targets
-	def def_targets
-		res = Array.new
-		self.event_targets.each { |tev|
-			res << tev if tev.target.defense?
-		}
-		res
-	end
-
-	# return list of offensive targets
-	def off_targets
-		res = Array.new
-		self.event_targets.each { |tev|
-			res << tev if tev.target.offense?
-		}
-		res
-	end
-
-	# return a collection of Drills associated with this event
-	def drill_list
-		res = Array.new
-		self.tasks.each { |tsk| res.push(tsk.drill) }
-		res.uniq
 	end
 
 	# Scores accessor modes:
@@ -218,63 +262,19 @@ class Event < ApplicationRecord
 		{ours: our_s, opps: opp_s}
 	end
 
-	# check if player is in this event
-	def has_player(p_id)
-		self.players.find_index { |p| p[:id]==p_id }
+	def work_duration
+		res = 0
+		self.tasks.each { |tsk| res = res + tsk.duration }
+		res.to_s + "\'"
 	end
 
-	# rebuild Event using raw hash from a form submittal
-	def rebuild(f_data, s_data=nil)
-		self.start_time = f_data[:start_date] if f_data[:start_date]
-		self.hour       = f_data[:hour].to_i if f_data[:hour]
-		self.min        = f_data[:min].to_i if f_data[:min]
-		self.duration   = f_data[:duration].to_i if f_data[:duration]
-		self.name       = f_data[:name] if f_data[:name]
-		self.p_for      = f_data[:p_for].to_i if f_data[:p_for]
-		self.p_opp      = f_data[:p_opp].to_i if f_data[:p_opp]
-		self.location_id= f_data[:location_id].to_i if f_data[:location_id]
-		self.home       = f_data[:home] if f_data[:home]
-		check_stats(s_data) if s_data # manage stats if provided
-		check_targets(f_data[:event_targets_attributes]) if f_data[:event_targets_attributes]
-		check_tasks(f_data[:tasks_attributes]) if f_data[:tasks_attributes]
-	end
-
-	# check if drill (or associations) has changed
-	def modified?
-		res = self.changed? || @event_changed
-		unless res
-			res = self.stats.any?(&:saved_changes?)
-			unless res
-				res = self.event_targets.any?(&:saved_changes?)
-				unless res
-					res = self.tasks.any?(&:saved_changes?)
-				end
-			end
-		end
-		res
-	end
-
-	# Search for a list of Events
-	# s_data is an array with either club_id+season_id+kind+name or team_id+kind+name
-	def self.search(s_data)
-		if (c_id = s_data[:club_id]&.to_i) && (s_id = s_data[:season_id]&.to_i)
-			club = Club.find_by_id(c_id)	# non-training club events
-			res  = Event.where(team_id: club.teams.where(season_id: s_id).pluck(:id)).order(start_time: :asc)
-		elsif (t_id = s_data[:team_id]&.to_i)  # filter for the team received
-			s_name = s_data[:name].presence
-			if kind = s_data[:kind]&.to_sym	# and kind
-				if s_name  # and name
-					res = Event.where(kind: kind, team_id: t_id).search_by_name(s_name).order(:start_time)
-				else  # only team & kind
-					res = Event.where(kind: kind, team_id: t_id).order(:start_time)
-				end
-			elsif s_name # team & name only
-				res = Event.where(team_id: t_id).search_by_name(s_name).order(:start_time)
-			else  # only team_id
-				res = Event.where(team_id: t_id).order(:start_time)
-			end
+	# Find a slot matching slot form data
+	def self.next(s_data)
+		unless s_data.empty?
+			t = Time.new(2021,8,30,s_data[:hour].to_i+1,s_data[:min].to_i)
+			Slot.where(wday: s_data[:wday].to_i, start: t, team_id: s_data[:team_id].to_i).or(Slot.where(wday: s_data[:wday].to_i, start: t, location_id: s_data[:location_id].to_i)).first
 		else
-			res = Event.upcoming.order(:start_time)
+			nil
 		end
 	end
 
@@ -322,13 +322,27 @@ class Event < ApplicationRecord
 		return res
 	end
 
-	# Find a slot matching slot form data
-	def self.next(s_data)
-		unless s_data.empty?
-			t = Time.new(2021,8,30,s_data[:hour].to_i+1,s_data[:min].to_i)
-			Slot.where(wday: s_data[:wday].to_i, start: t, team_id: s_data[:team_id].to_i).or(Slot.where(wday: s_data[:wday].to_i, start: t, location_id: s_data[:location_id].to_i)).first
+	# Search for a list of Events
+	# s_data is an array with either club_id+season_id+kind+name or team_id+kind+name
+	def self.search(s_data)
+		if (c_id = s_data[:club_id]&.to_i) && (s_id = s_data[:season_id]&.to_i)
+			club = Club.find_by_id(c_id)	# non-training club events
+			res  = Event.where(team_id: club.teams.where(season_id: s_id).pluck(:id)).order(start_time: :asc)
+		elsif (t_id = s_data[:team_id]&.to_i)  # filter for the team received
+			s_name = s_data[:name].presence
+			if kind = s_data[:kind]&.to_sym	# and kind
+				if s_name  # and name
+					res = Event.where(kind: kind, team_id: t_id).search_by_name(s_name).order(:start_time)
+				else  # only team & kind
+					res = Event.where(kind: kind, team_id: t_id).order(:start_time)
+				end
+			elsif s_name # team & name only
+				res = Event.where(team_id: t_id).search_by_name(s_name).order(:start_time)
+			else  # only team_id
+				res = Event.where(team_id: t_id).order(:start_time)
+			end
 		else
-			nil
+			res = Event.upcoming.order(:start_time)
 		end
 	end
 
@@ -389,6 +403,10 @@ class Event < ApplicationRecord
 			}
 		end
 
+		def set_changed_flag
+			@event_changed = false
+		end
+
 		# cleanup dependent teams, reassigning to 'dummy' category
 		def unlink
 			case self.kind.to_sym
@@ -406,9 +424,5 @@ class Event < ApplicationRecord
 				self.players.delete_all
 			end
 			UserAction.prune("/events/#{self.id}")
-		end
-
-		def set_changed_flag
-			@event_changed = false
 		end
 end

@@ -37,12 +37,19 @@ module PdfGenerator
 	end
 
 	# def a pdf label
-	def pdf_label_text(label:, text:)
-		label_width  = @pdf.width_of("<b>#{label}:</b>", inline_format: true)
+	def pdf_label_text(label:, text: nil)
+		if label.present?
+			label += ":" if text.present?
+			label_width  = @pdf.width_of("<b>#{label}</b>", inline_format: true)
+			@pdf.text_box "<b>#{label}</b>", inline_format: true, at: [@pdf.bounds.left, @pdf.cursor]
+		else
+			label_width  = 0
+		end
 		label_height = content_height([label, text, label_width])
+		if text.present?
+			@pdf.text_box text.to_s, at: [@pdf.bounds.left + label_width + 5, @pdf.cursor], width: @pdf.bounds.width - label_width - 5, height: @pdf.cursor
+		end
 		start_new_page_if_needed(label_height) # Adjust the content height as needed
-		@pdf.text_box "<b>#{label}:</b>", inline_format: true, at: [@pdf.bounds.left, @pdf.cursor]
-		@pdf.text_box text, at: [@pdf.bounds.left + label_width + 5, @pdf.cursor], width: @pdf.bounds.width - label_width - 5, height: @pdf.cursor
 		@pdf.y -= (label_height + 3)
 	end
 
@@ -65,6 +72,20 @@ module PdfGenerator
 		end
 	end
 
+	# Draw a horizontal line to separate sections
+	def pdf_separator_line(style: "single")
+		@pdf.stroke_color "000000" # Set line color to black
+		case style
+		when "empty"; lines = 0; @pdf.move_down(10)
+		when "single"; lines = 1
+		when "double"; lines = 2
+		end
+		lines.times do
+			@pdf.stroke_horizontal_rule
+			@pdf.move_down 5 # Adjust the space between sections as needed
+		end
+	end
+
 	private
 		# Measure height of node content
 		def content_height(node)
@@ -73,9 +94,9 @@ module PdfGenerator
 				text_height  = 0
 				width        = @pdf.bounds.width - node[2].to_i
 				if node[1].is_a?(Array)
-					node[1].each { |line| text_height += @pdf.height_of(line, width:) }
+					node[1].each { |line| text_height += @pdf.height_of(line.to_s, width:) }
 				else
-					text_height = @pdf.height_of(node[1], width:)
+					text_height = @pdf.height_of(node[1].to_s, width:)
 				end
 				[label_height, text_height].max
 			else
