@@ -104,11 +104,11 @@ module PdfGenerator
 				@pdf.height_of(content, width: @pdf.bounds.width) + 5
 			end
 		end
-	  
+		
 		# Check if there's enough space left on the current page
-  	def enough_space_for_content?(content_height)
-    	@pdf.cursor - content_height >= FOOTER_HEIGHT
-  	end
+		def enough_space_for_content?(content_height)
+			@pdf.cursor - content_height >= FOOTER_HEIGHT
+		end
 
 		# Extract content from node
 		def extract_content(node)
