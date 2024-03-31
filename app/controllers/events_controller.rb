@@ -352,6 +352,7 @@ class EventsController < ApplicationController
 			when "train"
 				pdf_label_text(label: I18n.t("calendar.time"), text: @event.time_string(true))
 				pdf_label_text(label: I18n.t("target.many"), text: @event.print_targets)
+				pdf_separator_line(style: "empty")
 				@event.tasks.each do |task|
 					pdf_separator_line
 					pdf_label_text(label: task.headstring)
@@ -366,6 +367,7 @@ class EventsController < ApplicationController
 				@event.team.players.order(:number).each do |player|
 					pdf_label_text(label: player.to_s(style: 3), text: "_")
 				end
+				pdf_separator_line(style: "empty")
 				pdf_separator_line
 				pdf_label_text(label: I18n.t("task.remarks"))
 				pdf_separator_line

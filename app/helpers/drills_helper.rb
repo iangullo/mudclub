@@ -113,7 +113,8 @@ module DrillsHelper
 				label: "Playbook"
 			})
 		end
-		res.last << {kind: "string", value: "(" + @drill.kind.name + ")", cols: 2}
+		res.last << {kind: "string", value: "(" + @drill.kind.name + ")"}
+		res.last << pdf_button(drill_path(@drill, format: :pdf))
 		res
 	end
 

@@ -88,6 +88,17 @@ module ApplicationHelper
 		end
 	end
 
+	# common button to export to PDF
+	def pdf_button(url)
+		button_field({
+			kind: "link",
+			align: "right",
+			icon: "pdf.svg",
+			size: "20x20",
+			url:
+		})
+	end
+
 	# iconize an svg
 	def svgicon(icon_name, options={})
 		file = File.read(Rails.root.join('app', 'assets', 'images', "#{icon_name}.svg"))

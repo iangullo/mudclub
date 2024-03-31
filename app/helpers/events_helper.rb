@@ -398,7 +398,7 @@ module EventsHelper
 				elsif (u_manager? || u_coach?)
 					res << [
 						button_field(event_copy_button, align: "left", cols: 4),
-						gap_field(size: 1),
+						pdf_button(event_path(@event, format: :pdf)),
 						button_field(
 							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
 							align: "left",

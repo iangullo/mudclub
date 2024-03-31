@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 128 128"
+   version="1.1"
+   id="svg20"
+   sodipodi:docname="Icon-pdf.svg"
+   width="128"
+   height="128"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs24" />
+  <sodipodi:namedview
+     id="namedview22"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="0.34958333"
+     inkscape:cx="-642.19309"
+     inkscape:cy="-383.31347"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg20" />
+  <g
+     id="g12"
+     transform="scale(0.03368421)">
+    <path
+       fill="#ff0000"
+       d="M 0,3800.0001 H 3800 V 840 L 2960,0 H 0 Z"
+       id="path2"
+       sodipodi:nodetypes="cccccc" />
+    <path
+       fill="#fafafa"
+       d="M 100,3681.2501 H 3700 V 840 L 2960,100 H 100 Z"
+       id="path4"
+       sodipodi:nodetypes="cccccc" />
+    <path
+       fill="#ff0000"
+       d="m 2960,840 h 840 L 2960,0 Z"
+       id="path6" />
+    <path
+       fill="#880000"
+       d="M 3800,1680 V 840 h -100 v 740 z"
+       id="path8" />
+    <path
+       fill="#aaaaaa"
+       d="M 3700,1580 V 840 h -740 z"
+       id="path10" />
+  </g>
+  <g
+     id="g18"
+     transform="scale(0.03368421)">
+    <path
+       fill="#ffaaaa"
+       fill-rule="evenodd"
+       d="M 400,3503.1251 H 3400 V 1400 H 400 Z m 200,-178.125 H 3200 V 3146.875 H 600 Z M 600,2968.75 H 3200 V 2790.625 H 600 Z M 600,2600 H 2000 V 2400 H 600 Z m 0,-400 H 2000 V 2000 H 600 Z m 0,-400 H 2000 V 1600 H 600 Z m 1600,800 H 3200 V 1600 H 2200 Z"
+       id="path14"
+       sodipodi:nodetypes="ccccccccccccccccccccccccccccccccccc" />
+    <path
+       fill="#ff0000"
+       fill-rule="evenodd"
+       d="M 400,1200 H 600 V 900 h 100 c 450,0 450,-600 0,-600 H 400 Z M 600,750 h 100 c 250,0 250,-300 0,-300 H 600 Z m 600,450 h 200 c 650,0 650,-900 0,-900 h -200 z m 200,-200 c 400,0 400,-500 0,-500 z m 600,200 h 200 V 900 h 300 V 700 H 2200 V 500 h 400 V 300 h -600"
+       id="path16" />
+  </g>
+</svg>
