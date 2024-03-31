@@ -340,16 +340,13 @@ class EventsController < ApplicationController
 
 		# pdf export of @event content
 		def event_to_pdf
-			header = {icon: @event.pic, title: @event.title(show: true), subtitle: @event.to_s(style: "short")}
+			header = {icon: @event.pic, title: @event.title(show: true, print: true), subtitle: @event.to_s(style: "short")}
 			footer = "#{@event.team.to_s} #{@event.date_string}"
 			pdf    = pdf_create(header:, footer:, page_size: "A4")
 			pdf_label_text(label: I18n.t("calendar.date"), text: @event.date_string)
 			case @event.kind
 			when "match"
 				pdf_label_text(label: I18n.t("calendar.time"), text: @event.time_string)
-				m_data = @event.to_hash
-				pdf_label_text(label: m_data[:home_t], text: m_data[:home_p])
-				pdf_label_text(label: m_data[:away_t], text: m_data[:away_p])
 			when "rest"
 				pdf_label_text(label: I18n.t("person.name"), text: @event.name)
 			when "train"

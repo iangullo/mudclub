@@ -197,15 +197,22 @@ class Event < ApplicationRecord
 	end
 
 	# return event title depending on kind & data
-	def title(show: nil, copy: nil)
+	def title(show: nil, copy: nil, print: nil)
 		cad = show ? "" : (self.id ? (copy ? "#{I18n.t('action.copy')} " : "#{I18n.t('action.edit')} ") : "#{I18n.t('action.create')}")
+		e_string = I18n.t("#{self.kind}.single")
 		case self.kind.to_sym
 		when :rest
-			cad += I18n.t("rest.single")
+			cad += e_string
+			cad += ": #{self.name}" if print
 		when :train
-			cad = show ? self.team.to_s : "#{cad}#{I18n.t('train.single')}"
+			cad = show ? self.team.to_s : "#{cad}#{e_string}"
 		when :match
-			cad += I18n.t("match.single")
+			if print
+				m_data = self.to_hash
+				return "#{m_data[:home_t]} - #{m_data[:away_t]}"
+			else
+				cad += I18n.t("match.single")
+			end
 		else
 			cad += "(¿?)"
 		end
