@@ -18,6 +18,7 @@
 #
 class EventsController < ApplicationController
 	include Filterable
+	include PdfGenerator
 	before_action :set_event, only: %i[ show edit add_task show_task edit_task task_drill player_stats edit_player_stats load_chart attendance copy update destroy ]
 
 	# GET /events or /events.json
@@ -42,24 +43,35 @@ class EventsController < ApplicationController
 	# GET /events/1 or /events/1.json
 	def show
 		if @clubid == u_clubid && check_access(roles: [:manager, :coach], obj: @event.team)
-			editor    = check_access(obj: @event.team.club) || @event.team.has_coach(u_coachid)
-			@title    = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
-			player_id = params[:player_id].presence || u_playerid
-			if @event.rest?
-				submit  = edit_event_path(season_id: @seasonid, cal: @cal) if editor
-				@submit = create_submit(submit:, frame: "modal")
-			elsif @event.train? && @event.team.has_player(player_id)	# we want to check player stats for a training session
-				redirect_to player_stats_event_path(@event, player_id:, rdx: @rdx, cal: @cal), data: {turbo_action: "replace"}
-			else	# gotta be a coach or manager
-				if @event.match?
-					@fields = create_fields(helpers.match_show_fields)
-					grid    = helpers.match_roster_grid
-					@grid   = create_grid(grid[:data], controller: grid[:controller])
-				else
-					@fields = create_fields(helpers.training_show_fields)
+			respond_to do |format|
+				format.pdf do
+					if u_manager? || u_coach?
+						response.headers['Content-Disposition'] = "attachment; filename=drill.pdf"
+						pdf = event_to_pdf
+						send_data pdf.render(filename: "#{@event.to_s}.pdf", type: "application/pdf")
+					end
 				end
-				submit  = edit_event_path(season_id: @seasonid, rdx: @rdx, cal: @cal) if editor
-				@submit = create_submit(close: "back", retlnk: get_retlnk, submit:)
+				format.html do
+					editor    = check_access(obj: @event.team.club) || @event.team.has_coach(u_coachid)
+					@title    = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
+					player_id = params[:player_id].presence || u_playerid
+					if @event.rest?
+						submit  = edit_event_path(season_id: @seasonid, cal: @cal) if editor
+						@submit = create_submit(submit:, frame: "modal")
+					elsif @event.train? && @event.team.has_player(player_id)	# we want to check player stats for a training session
+						redirect_to player_stats_event_path(@event, player_id:, rdx: @rdx, cal: @cal), data: {turbo_action: "replace"}
+					else	# gotta be a coach or manager
+						if @event.match?
+							@fields = create_fields(helpers.match_show_fields)
+							grid    = helpers.match_roster_grid
+							@grid   = create_grid(grid[:data], controller: grid[:controller])
+						else
+							@fields = create_fields(helpers.training_show_fields)
+						end
+						submit  = edit_event_path(season_id: @seasonid, rdx: @rdx, cal: @cal) if editor
+						@submit = create_submit(close: "back", retlnk: get_retlnk, submit:)
+					end
+				end
 			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -324,6 +336,43 @@ class EventsController < ApplicationController
 				@task.remarks  = t_dat[:remarks] if t_dat[:remarks]
 				@task.save
 			end
+		end
+
+		# pdf export of @event content
+		def event_to_pdf
+			header = {icon: @event.pic, title: @event.title(show: true, print: true), subtitle: @event.to_s(style: "short")}
+			footer = "#{@event.team.to_s} #{@event.date_string}"
+			pdf    = pdf_create(header:, footer:, page_size: "A4")
+			pdf_label_text(label: I18n.t("calendar.date"), text: @event.date_string)
+			case @event.kind
+			when "match"
+				pdf_label_text(label: I18n.t("calendar.time"), text: @event.time_string)
+			when "rest"
+				pdf_label_text(label: I18n.t("person.name"), text: @event.name)
+			when "train"
+				pdf_label_text(label: I18n.t("calendar.time"), text: @event.time_string(true))
+				pdf_label_text(label: I18n.t("target.many"), text: @event.print_targets)
+				pdf_separator_line(style: "empty")
+				@event.tasks.each do |task|
+					pdf_separator_line
+					pdf_label_text(label: task.headstring)
+					pdf_separator_line
+					pdf_rich_text(task.drill.explanation) if task.drill.explanation&.present?
+					pdf_rich_text(task.remarks) if task.remarks&.present?
+					pdf_separator_line(style: "empty")
+				end
+				pdf_separator_line
+				pdf_label_text(label: I18n.t("calendar.attendance"))
+				pdf_separator_line
+				@event.team.players.order(:number).each do |player|
+					pdf_label_text(label: player.to_s(style: 3), text: "_")
+				end
+				pdf_separator_line(style: "empty")
+				pdf_separator_line
+				pdf_label_text(label: I18n.t("task.remarks"))
+				pdf_separator_line
+			end
+			pdf
 		end
 
 		# try to establish where we've been called from...

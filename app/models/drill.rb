@@ -70,12 +70,22 @@ class Drill < ApplicationRecord
 	end
 
 	# Array of print strings for associated targets
-	def print_targets
-		cad = []
-		self.drill_targets.each { |tgt|
-			cad << tgt.to_s
-		}
-		cad
+	def print_targets(array: true)
+		zero = !array
+		cad  = (array ? [] : "")
+		self.drill_targets.each do |tgt|
+			if array
+				cad << tgt.to_s
+			else
+				if zero
+					zero = false
+					cad  = tgt.to_s
+				else
+					cad += "\n\t#{tgt.to_s}"
+				end
+			end
+		end
+		return cad
 	end
 
 	# build new @drill from raw input hash given by form submital submittal

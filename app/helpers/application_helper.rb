@@ -42,7 +42,7 @@ module ApplicationHelper
 		return "mobile" if agent =~ /Mobile/
 		return "desktop"
 	end
-
+	
 	# file upload button
 	def form_file_field(label:, key:, value:, cols: nil)
 		[[{kind: "upload", label:, key:, value:, cols:}]]
@@ -86,6 +86,17 @@ module ApplicationHelper
 		else
 			return {kind: "string", value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center"}
 		end
+	end
+
+	# common button to export to PDF
+	def pdf_button(url)
+		button_field({
+			kind: "link",
+			align: "right",
+			icon: "pdf.svg",
+			size: "20x20",
+			url:
+		})
 	end
 
 	# iconize an svg
