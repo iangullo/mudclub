@@ -97,6 +97,7 @@ class FieldsComponent < ApplicationComponent
 					item[:i_class] = "rounded p-0" unless item[:kind]=="gap"
 				end
 				item[:align] ||= "left"
+#				item[:class] = (item[:class].present? ? item[:class] + " " : "") + "border px py"
 				res.last << item
 			end
 		end

@@ -66,7 +66,8 @@ class EventsController < ApplicationController
 							grid    = helpers.match_roster_grid
 							@grid   = create_grid(grid[:data], controller: grid[:controller])
 						else
-							@fields = create_fields(helpers.training_show_fields)
+							@targets = create_fields(helpers.training_target_fields)
+							@fields  = create_fields(helpers.training_show_fields)
 						end
 						submit  = edit_event_path(season_id: @seasonid, rdx: @rdx, cal: @cal) if editor
 						@submit = create_submit(close: "back", retlnk: get_retlnk, submit:)

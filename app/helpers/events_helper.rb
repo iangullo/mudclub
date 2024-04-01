@@ -149,7 +149,6 @@ module EventsHelper
 		end
 		event_top_right_fields(res:, form:, copy:)
 		#res << [{kind: "top-cell", value: "A"}, {kind: "top-cell", value: "B"}, {kind: "top-cell", value: "C"}, {kind: "top-cell", value: "D"}, {kind: "top-cell", value: "E"}, {kind: "top-cell", value: "F"}]
-		res << gap_row(cols: 6) unless @event.match? and form==nil
 		res
 	end
 
@@ -281,7 +280,23 @@ module EventsHelper
 
 	# return FieldsComponent @fields for show_training
 	def training_show_fields
-		[[{kind: "accordion", title: I18n.t("task.many"), tail: "#{I18n.t("stat.total")}:" + " " + @event.work_duration, objects: task_accordion}]]
+		[[{kind: "accordion", title: I18n.t("task.many"),	tail: "#{I18n.t("stat.total")}: #{@event.work_duration}", objects: task_accordion}]]
+	end
+
+	# fields for training sesssion targets
+	def training_target_fields
+		res = [
+			[
+				{kind: "side-cell", value: I18n.t("target.abbr"),rows: 2},
+				{kind: "top-cell", value: I18n.t("target.focus.def_a")},
+				{kind: "lines", value: @event.def_targets, cols: 5}
+			],
+			[
+				{kind: "top-cell", value: I18n.t("target.focus.ofe_a")},
+				{kind: "lines", value: @event.off_targets, cols: 5}
+			]
+		]
+		res << gap_row(cols: 3)
 	end
 
 	private
@@ -344,8 +359,12 @@ module EventsHelper
 				res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 				res.last << {kind: "hidden", key: :kind, value: @event.kind}
 			else
-				res[0] << {kind: "icon-label", icon: "calendar.svg", label: @event.date_string}
-				res[1] << {kind: "icon-label", icon: "clock.svg", label: @event.time_string} unless @event.rest?
+				res[0] << {kind: "icon", value: "calendar.svg", tip: I18n.t("calendar.date"), tipid: "caldate"}
+				res[0] << {kind: "string", value: @event.date_string}
+				unless @event.rest?
+					res[1] << {kind: "icon", value: "clock.svg", tip: I18n.t("calendar.time"), tipid: "caltime"}
+					res[1] << {kind: "string", value: @event.time_string}
+				end
 			end
 		end
 
@@ -391,30 +410,25 @@ module EventsHelper
 		# complete event_title for train events
 		def train_title(res:, cols:, form:, subtitle: nil, chart: nil, rdx: @rdx)
 			value = subtitle || I18n.t("train.single")
-			res << [{kind: "subtitle", value:, cols:}, gap_field]
+			res << [{kind: "subtitle", value:, cols:}]
 			unless chart
 				if form
+					res.last << gap_field
 					res << [workload_button(align: "left", cols: 3)] if @event.id
+					res << gap_row(cols: 5)
 				elsif (u_manager? || u_coach?)
+					res.first[1][:cols] = 4	# modify cols to avoid issues with show
+					res.last << pdf_button(event_path(@event, format: :pdf))
+					res.last << gap_field
 					res << [
-						button_field(event_copy_button, align: "left", cols: 4),
-						pdf_button(event_path(@event, format: :pdf)),
+						button_field(event_copy_button, align: "left", cols: 6),
 						button_field(
 							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
 					]
-					res << gap_row(cols: 6)
-					res << [
-						{kind: "side-cell", value: I18n.t("target.abbr"),rows: 2},
-						{kind: "top-cell", value: I18n.t("target.focus.def_a")},
-						{kind: "lines", value: @event.def_targets, cols: 5}
-					]
-					res << [
-						{kind: "top-cell", value: I18n.t("target.focus.ofe_a")},
-						{kind: "lines", value: @event.off_targets, cols: 5}
-					]
+					res << gap_row(cols: 8)
 				elsif u_player?
 					res << [gap_field, {kind: "label", value: current_user.to_s, cols: 3}]
 				end

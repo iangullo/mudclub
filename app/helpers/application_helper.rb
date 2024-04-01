@@ -91,12 +91,13 @@ module ApplicationHelper
 	# common button to export to PDF
 	def pdf_button(url)
 		button_field({
-			kind: "link",
-			align: "right",
-			icon: "pdf.svg",
-			size: "20x20",
-			url:
-		})
+				kind: "link",
+				icon: "pdf.svg",
+				size: "20x20",
+				url:
+			},
+			align: "center"
+		)
 	end
 
 	# iconize an svg
