@@ -1,38 +1,15 @@
 <div class="<%=@button[:d_class]%>" align="<%=@button[:align]%>"<%= " data-controller=\"#{@button[:controller]}\" data-processing-working=\"#{@button[:working]}\"".html_safe if @button[:working] %>>
 	<div class="relative">
 		<% if @button[:url] %>
-			<% if @button[:tab] %>
-				<%= link_to @button[:url], target: "_blank", class: @button[:b_class] do %>
-					<%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
-					<%= @button[:label] if @button[:label] %>
-				<% end %>
-			<% else %>
-				<%= link_to @button[:url], data: @button[:data], class: @button[:b_class] do %>
-					<% if @button[:flip] %>
-						<% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
-						<%= image_tag(@button[:icon], size: @button[:size]) if @button[:icon] %>
-					<% else %>
-						<%= image_tag(@button[:icon], size: @button[:size]) if @button[:icon] %>
-						<% if @button[:label] %>&nbsp<%=@button[:label]%><% end %>
-					<% end %>
-				<% end %>
+			<% target = "_blank" if @button[:tab] %>
+			<%= link_to(@button[:url], target:, class: @button[:b_class], data: @button[:data]) do %>
+				<%= button_content %>
 			<% end %>
 		<% else %>
-			<%= button_tag class: @button[:b_class], type: @button[:type], data: @button[:data] do %>
-				<% if @button[:flip] %>
-					<% if @button[:label] %><%=@button[:label]%>&nbsp<% end %>
-					<%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
-				<% else %>
-					<%= image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]) if @button[:icon] %>
-					<% if @button[:label] %>&nbsp<%=@button[:label]%><% end %>
-				<% end %>
+			<%= button_tag(class: @button[:b_class], type: @button[:type], data: @button[:data]) do %>
+				<%= button_content %>
 			<% end %>
 		<% end %>
-		<% if @button[:working] %>
-			<!-- Processing visual cue element -->
-			<div data-processing-target="processingCue" class="flex rounded-md overflow-hidden w-full h-full bg-gray-300 opacity-75 absolute top-0 left-0 hidden">
-				<%= image_tag('5-dots-fade.svg', class: "items-center align-center ml-3") %>
-			</div>
-		<% end %>
+		<%= button_cue if @button[:working] %>
 	</div>
 </div>

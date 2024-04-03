@@ -45,15 +45,67 @@
 # frozen_string_literal: true
 class ButtonComponent < ApplicationComponent
 	def initialize(button:)
+    validate(button)
 		@button = button
 		parse(button)
 	end
+
+=begin
+	# generate html content
+	def call
+		d_data = {controller: @button[:controller].presence}
+		d_data[:processing_working] = @button[:working].html_safe if @button[:working]
+		content_tag(:div, class: @button[:d_class], align: @button[:align], d_data:) do
+			content_tag(:div, class: "relative") do
+				if @button[:url]
+					target = @button[:tab] ? "_blank" : nil
+					link_to(@button[:url], target:, class: @button[:b_class], data: @button[:data]) do
+						button_content
+					end
+				else
+					button_tag(class: @button[:b_class], type: @button[:type], data: @button[:data]) do
+						button_content
+					end
+				end
+				button_cue if @button[:working] #Processing visual cue element
+			end
+		end
+	end
+=end
 
 	def render?
 		@button.present?
 	end
 
 	private
+	# label-icon content for the button
+	def button_content
+		c_class = "#{(@button[:kind] == "jump") ? '' : 'inline-flex '}items-center"
+		content_tag(:div, class: c_class) do
+			if @button[:flip]	# flip order - label first
+				concat(@button[:label]) if @button[:label]
+				if @button[:icon]
+					concat("&nbsp;".html_safe) if @button[:label]
+					concat(image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]))
+				end
+			else
+				concat(image_tag(@button[:icon], size: @button[:size], class: @button[:i_class])) if @button[:icon]
+				if @button[:label]
+					concat("&nbsp;".html_safe) if @button[:icon]
+					concat(@button[:label])	
+				end
+			end
+		end
+	rescue => e
+		handle_error(e)
+	end
+
+	# define the processing cue contetn to be pushed
+	def button_cue
+		content_tag(:div, class: "flex rounded-md overflow-hidden w-full h-full bg-gray-300 opacity-75 absolute top-0 left-0 hidden", data: { processing_target: "processingCue" }) do
+			image_tag('5-dots-fade.svg', class: "items-center align-center ml-3")
+		end
+	end
 
 	# determine class of item depending on kind
 	def parse(button)
@@ -232,5 +284,16 @@ class ButtonComponent < ApplicationComponent
 			res[:controller]  = @button[:controller] if @button[:controller]
 		end
 		@button[:data]      = res unless res.empty?
+	end
+
+	# validate the button hash received is well defined
+	def validate(button)
+		required_keys = [:kind] # Add other keys that are required
+		required_keys << :url if ["add", "back", "edit", "export", "delete", "forward", "jump", "link", "menu"].include?(button[:kind])
+		required_keys.each do |key|
+			unless button.key?(key)
+				raise ArgumentError, "Button hash is missing the required key: #{key}"
+			end	
+		end
 	end
 end

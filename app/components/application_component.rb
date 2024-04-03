@@ -28,6 +28,15 @@ class ApplicationComponent < ViewComponent::Base
 		content_tag(@tag, content, class: @classes, **@options) if @tag
 	end
 
+	# handle errors gracefully
+	def handle_error(error)
+		# Log the error for debugging purposes
+		Rails.logger.error("Error rendering button component: #{error.message}")
+		
+		# Render a fallback message or component
+		content_tag(:div, "An error occurred while rendering this button.", class: "error-message")
+	end
+
 	# wrappers to generate different field tags - self-explanatory
 	def table_tag(controller: nil, data: nil, classes: [], **table_options)
 		table_options[:class] = ["table-auto", *classes].join(' ')
