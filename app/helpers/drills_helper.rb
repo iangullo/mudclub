@@ -138,7 +138,7 @@ module DrillsHelper
 
 	# return title FieldComponent definition for drill show
 	def drill_show_explain
-		[[{kind: "string", value: @drill.explanation}]]
+		[[{kind: "action-text", value: @drill.explanation.body.to_s}]]
 	end
 
 	# return tail Field Component definition for drill show

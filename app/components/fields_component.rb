@@ -53,6 +53,17 @@ class FieldsComponent < ApplicationComponent
 		@form   = form
 	end
 
+	# render to html
+	def call
+		table_tag do
+      @fields.map do |row|
+        tablerow_tag do
+          row.map { |field| render_field(field) }.join.html_safe
+        end
+      end.join.html_safe
+    end
+	end
+
 	# wrapper to define the component's @form - whe required.
 	def form=(formobj)
 		@form = formobj
@@ -104,6 +115,78 @@ class FieldsComponent < ApplicationComponent
 		res
 	end
 
+	# wrapper to render a specific field
+	def render_field(field)
+    tablecell_tag(field) do
+      case field[:kind]
+      when /^(accordion|button|contact|dropdown|search-.+)$/
+        render field[:value]
+      when /^(select-.+|.+box|.+-area|hidden|radio.+|upload)$/
+        render InputBoxComponent.new(field:, form: @form)
+      when "gap"
+        " " * field[:size]
+      when "grid"
+        render GridComponent.new(grid: field[:value], form: @form)
+      when "header-icon", "icon", "icon-label"
+        render_image_field(field)
+      when "lines"
+        field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
+      when "nested-form"
+        render NestedComponent.new(model: field[:model], key: field[:key], form: @form, child: field[:child], row: field[:row], filter: field[:filter], btn_add: field[:btn_add])
+      when "person-type"
+        render_role_icons(field[:icons])
+      else
+        if field[:dclass]
+					field[:value].tap { |value| break "<div class=\"#{field[:dclass]}\">#{value}</div>"}.html_safe
+				else
+					field[:value]
+				end
+      end
+    end
+  end
+
+	# render an image field
+	def render_image_field(item)
+    html = ""
+    if item[:label]
+      html += "<div class=\"inline-flex items-center\">"
+      html += "#{item[:label]}&nbsp;" if item[:right]
+    end
+    if item[:tip]
+      html += "<button data-tooltip-target=\"tooltip-#{item[:tipid]}\" data-tooltip-placement=\"bottom\" type=\"button\">"
+    end
+    html += image_tag(item[:value] || item[:icon], size: item[:size], class: item[:class])
+    if item[:tip]
+      html += "</button>"
+      html += "<div id=\"tooltip-#{item[:tipid]}\" role=\"tooltip\" class=\"absolute z-20 invisible inline-block px-1 py-1 text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip\">"
+      html += item[:tip]
+      html += "</div>"
+    end
+    if item[:label]
+      html += "&nbsp;#{item[:label]}" unless item[:right]
+      html += "</div>"
+    end
+    html.html_safe
+  end
+
+  # render the icons/tooltips for rols attached to a user
+	def render_role_icons(icons)
+    icons.map do |icon|
+      html = ""
+      if icon[:tip]
+        html += "<button data-tooltip-target=\"tooltip-#{icon[:tipid]}\" data-tooltip-placement=\"bottom\" type=\"button\">"
+      end
+      html += image_tag(icon[:img], size: "25x25")
+      if icon[:tip]
+        html += "</button>"
+        html += "<div id=\"tooltip-#{icon[:tipid]}\" role=\"tooltip\" class=\"absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip\">"
+        html += icon[:tip]
+        html += "</div>"
+      end
+      html
+    end.join.html_safe
+  end
+	
 	# wrapper to keep a person's available contact details in a single field.
 	def set_contact(item)
 		item[:value] = ContactComponent.new(website: item[:website], email: item[:email], phone: item[:phone], device: item[:device])

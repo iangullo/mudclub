@@ -25,13 +25,13 @@ module PdfGenerator
 	PIC_HEIGHT    = 300
 
 	# Initialize variables for document, header and footer
-	# header: {icon: niil, title: subtitle: nil}
+	# header: [array of field component definitions]
 	# footer: text to be placed on left side of the footer
 	def pdf_create(header: nil, footer: nil, page_size: "A5", page_layout: :portrait)
-		@header = header
-		@footer = footer
 		@pdf    = Prawn::Document.new(page_size:, page_layout:, margin: 10)
-		@content_height = @pdf.bounds.height - HEADER_HEIGHT - FOOTER_HEIGHT
+		@header = set_header(header)	# prepare the page header content
+		@footer = footer
+		@content_height = @pdf.bounds.height - @header_height - FOOTER_HEIGHT
 		setup_new_page
 		return @pdf
 	end
@@ -138,8 +138,14 @@ module PdfGenerator
 			end
 		end
 
-		# set footers for pdf pages
-		def set_footer
+		# render the pdf table as a header
+		def render_header
+			puts @header.to_s
+			@pdf.table(@header)#,	width: @pdf.bounds.width)
+		end
+
+		# render footers for pdf pages
+		def render_footer
 			# Add page numbers and drill author to footer
 			@pdf.fill_color = '8b8680'	# mid gray font
 			if @footer
@@ -152,31 +158,73 @@ module PdfGenerator
 			end
 		end
 
-		# header of a pdf page
-		def set_header
-			if @header[:icon] # icon is optional
-				logo_file = Rails.root.join('app', 'assets', 'images', @header[:icon])
-				logo_png  = image_to_png(logo_file)
-				@pdf.image logo_png, height: 32, width: 32
+		# header of a pdf page. basically expecting 2 rows
+		# [icon] - [title, some optional fields]
+		#        - [subttle, some additonal optonal fields]
+		def set_header(header)
+			cells  = []
+			@header_height = 0
+			header.each do |row|
+				cells << []
+				r_height = 16
+				row.each do |item|	# check the imtes in the row
+					cell = setup_new_cell(item)
+					case item[:kind]
+					when "header-icon", "icon"
+						c_height = 16
+						img_file = Rails.root.join('app', 'assets', 'images', item[:value])
+						img_png  = image_to_png(img_file)
+						img_fit  = [32, 32]
+						cell[:image] = img_png
+						cell[:fit]   = img_fit
+						cell[:padding]   = [0, 10, 0, 0]
+						cell[:position]  = :center
+						cell[:rowspan]   = 2
+						cell[:vposition] = :top
+					when "subtitle"
+						c_height = 12
+						cell[:align]      = :left
+						cell[:font_style] = :bold
+						cell[:size]       = 12
+						cell[:valign]     = :top
+					when "title"
+						c_height = 14
+						cell[:align]      = :left
+						cell[:colspan]  ||= 2
+						cell[:font_style] = :bold
+						cell[:size]       = 14
+						cell[:text_color] =  "000080"
+					else # just print regular text
+						c_height       = 12
+						cell[:align]   = :left
+						cell[:padding] = [0, 0, 0, 10]
+						cell[:size]    = 12
+						cell[:valign]  = :top
+					end
+					cells.last << cell if cell[:content].present?
+					r_height = [r_height, c_height].max
+				end
+				@header_height += r_height
 			end
-			# title in header - compulsory
-			@pdf.fill_color = '000080'	# dark blue font
-			@pdf.font(Rails.root.join('app', 'assets', 'fonts','Constantia.ttf')) do
-				@pdf.draw_text @header[:title], size: 24, styles: [:bold], at: [40, @pdf.bounds.top - 25]
-			end
+			cells
+		end
 
-			if @header[:subtitle]	#subtitle us optional
-				@pdf.move_up 25
-				@pdf.text @header[:subtitle], size: 24, styles: [:bold], align: :right
-			end
+		# setup a table cell based on hash of passed options
+		def setup_new_cell(item)
+			cell = {content: item[:value]}
+			cell[:border_widths] = [0, 0, 0, 0]
+			cell[:colspan] = item[:cols].to_i if item[:cols].present?
+			cell[:rowspan] = item[:rows].to_i if item[:rows].present?
+			cell[:padding] = [0, 0, 0, 0]
+			cell
 		end
 
 		# setup header/footer && place curser where appropriate
 		def setup_new_page
-			set_header if @header
-			set_footer if @footer
+			render_header if @header
+			render_footer if @footer
 			@pdf.fill_color = '404040'	# back to regular color: black
-			@pdf.y          = @pdf.bounds.top - (@header.present? ? HEADER_HEIGHT : GUTTER) # Move cursor below the header
+			@pdf.y          = @pdf.bounds.top - (@header.present? ? @header_height : GUTTER) # Move cursor below the header
 			@pdf.font_size(FONT_SIZE)
 		end
 

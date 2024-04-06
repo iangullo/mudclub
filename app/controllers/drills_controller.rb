@@ -40,16 +40,17 @@ class DrillsController < ApplicationController
 	def show
 		if check_access(roles: [:manager, :coach])
 			respond_to do |format|
+				@intro = create_fields(helpers.drill_show_intro)
+				@tail  = create_fields(helpers.drill_show_tail)
+				title  = helpers.drill_show_title(title: I18n.t("drill.single"))
 				format.pdf do
 					response.headers['Content-Disposition'] = "attachment; filename=drill.pdf"
-					pdf = drill_to_pdf
+					pdf = drill_to_pdf(title)
 					send_data pdf.render(filename: "#{@drill.name}.pdf", type: "application/pdf")
 				end
 				format.html do
-					@title   = create_fields(helpers.drill_show_title(title: I18n.t("drill.single")))
-					@intro   = create_fields(helpers.drill_show_intro)
+					@title = create_fields(title)
 					@explain = create_fields(helpers.drill_show_explain)
-					@tail    = create_fields(helpers.drill_show_tail)
 					@submit  = create_submit(close: "back", retlnk: drills_path, submit: (u_admin? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
 					render :show
 				end
@@ -155,15 +156,14 @@ class DrillsController < ApplicationController
 
 	private
 		# pdf export of @drill content
-		def drill_to_pdf
-			header = {icon: "drill.svg", title: I18n.t("task.single")}
+		def drill_to_pdf(header)
 			footer = "#{I18n.t('drill.author')}: #{@drill.coach.person.email}"
 			pdf    = pdf_create(header:, footer:)
-			pdf_label_text(label: I18n.t("drill.name"), text: @drill.name)
 			pdf_label_text(label: I18n.t("drill.desc"), text: @drill.description) if @drill.description.present?
 			pdf_label_text(label: I18n.t("target.many"), text: @drill.print_targets(array: false))
 			pdf_separator_line
 			pdf_rich_text(@drill.explanation) if @drill&.explanation&.present?
+			pdf_separator_line
 			pdf_label_text(label: I18n.t("skill.many"), text: @drill.print_skills)
 			pdf
 		end
