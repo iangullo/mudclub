@@ -44,16 +44,17 @@ class EventsController < ApplicationController
 	def show
 		if @clubid == u_clubid && check_access(roles: [:manager, :coach], obj: @event.team)
 			respond_to do |format|
+				title = helpers.event_title_fields(cols: @event.train? ? 3 : nil)
 				format.pdf do
 					if u_manager? || u_coach?
 						response.headers['Content-Disposition'] = "attachment; filename=drill.pdf"
-						pdf = event_to_pdf
+						pdf = event_to_pdf(title)
 						send_data pdf.render(filename: "#{@event.to_s}.pdf", type: "application/pdf")
 					end
 				end
 				format.html do
 					editor    = check_access(obj: @event.team.club) || @event.team.has_coach(u_coachid)
-					@title    = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
+					@title    = create_fields(title)
 					player_id = params[:player_id].presence || u_playerid
 					if @event.rest?
 						submit  = edit_event_path(season_id: @seasonid, cal: @cal) if editor
@@ -340,18 +341,13 @@ class EventsController < ApplicationController
 		end
 
 		# pdf export of @event content
-		def event_to_pdf
-			header = {icon: @event.pic, title: @event.title(show: true, print: true), subtitle: @event.to_s(style: "short")}
+		def event_to_pdf(header)
+			p_title = header.take(2)
+			p_title[0][1][:cols] = 1
+			p_title[1][0][:cols] = 1
 			footer = "#{@event.team.to_s} #{@event.date_string}"
-			pdf    = pdf_create(header:, footer:, page_size: "A4")
-			pdf_label_text(label: I18n.t("calendar.date"), text: @event.date_string)
-			case @event.kind
-			when "match"
-				pdf_label_text(label: I18n.t("calendar.time"), text: @event.time_string)
-			when "rest"
-				pdf_label_text(label: I18n.t("person.name"), text: @event.name)
-			when "train"
-				pdf_label_text(label: I18n.t("calendar.time"), text: @event.time_string(true))
+			pdf    = pdf_create(header: p_title, footer:)#, full_width: true)
+			if @event.kind == "train"
 				pdf_label_text(label: I18n.t("target.many"), text: @event.print_targets)
 				pdf_separator_line(style: "empty")
 				@event.tasks.each do |task|

@@ -18,7 +18,7 @@
 #
 # handle creation of PDFs -relyes on PrawnPDF
 module PdfGenerator
-	GUTTER        = 5 # Adjust these as needed
+	GUTTER        = 10 # Adjust these as needed
 	HEADER_HEIGHT = 30
 	FOOTER_HEIGHT = 30
 	FONT_SIZE     = 10
@@ -27,9 +27,9 @@ module PdfGenerator
 	# Initialize variables for document, header and footer
 	# header: [array of field component definitions]
 	# footer: text to be placed on left side of the footer
-	def pdf_create(header: nil, footer: nil, page_size: "A5", page_layout: :portrait)
-		@pdf    = Prawn::Document.new(page_size:, page_layout:, margin: 10)
-		@header = set_header(header)	# prepare the page header content
+	def pdf_create(header: nil, footer: nil, page_size: "A5", page_layout: :portrait, full_width: nil)
+		@pdf    = Prawn::Document.new(page_size:, page_layout:, margin: 20)
+		@header = set_header(header, full_width)	# prepare the page header content
 		@footer = footer
 		@content_height = @pdf.bounds.height - @header_height - FOOTER_HEIGHT
 		setup_new_page
@@ -140,8 +140,11 @@ module PdfGenerator
 
 		# render the pdf table as a header
 		def render_header
-			puts @header.to_s
-			@pdf.table(@header)#,	width: @pdf.bounds.width)
+			if @header_width
+				@pdf.table(@header,	width: @header_width)
+			else
+				@pdf.table(@header)
+			end
 		end
 
 		# render footers for pdf pages
@@ -161,51 +164,50 @@ module PdfGenerator
 		# header of a pdf page. basically expecting 2 rows
 		# [icon] - [title, some optional fields]
 		#        - [subttle, some additonal optonal fields]
-		def set_header(header)
+		def set_header(header, full)
 			cells  = []
-			@header_height = 0
+			@header_height = 16 * header.size
+			@header_width  = (full ?  @pdf.bounds.width : nil)
 			header.each do |row|
 				cells << []
-				r_height = 16
 				row.each do |item|	# check the imtes in the row
 					cell = setup_new_cell(item)
+					binding.break
 					case item[:kind]
+					when "gap"; cell[:content] = " "
 					when "header-icon", "icon"
-						c_height = 16
 						img_file = Rails.root.join('app', 'assets', 'images', item[:value])
 						img_png  = image_to_png(img_file)
-						img_fit  = [32, 32]
+						img_fit  = (item[:kind] == "icon" ? [16, 16] : [32, 32])
 						cell[:image] = img_png
 						cell[:fit]   = img_fit
-						cell[:padding]   = [0, 10, 0, 0]
+						cell[:padding]   = [0, 0, 0, (item[:kind]== "icon" ? 20 : 0)]
 						cell[:position]  = :center
-						cell[:rowspan]   = 2
+						cell[:rowspan]   = 2 if item[:kind] == "header-icon"
 						cell[:vposition] = :top
 					when "subtitle"
-						c_height = 12
 						cell[:align]      = :left
 						cell[:font_style] = :bold
+						cell[:padding]   = [0, 0, 0, 10]
 						cell[:size]       = 12
 						cell[:valign]     = :top
 					when "title"
-						c_height = 14
 						cell[:align]      = :left
 						cell[:colspan]  ||= 2
 						cell[:font_style] = :bold
+						cell[:padding]   = [0, 0, 0, 10]
 						cell[:size]       = 14
 						cell[:text_color] =  "000080"
 					else # just print regular text
-						c_height       = 12
 						cell[:align]   = :left
-						cell[:padding] = [0, 0, 0, 10]
+						cell[:padding] = [0, 0, 0, 5]
 						cell[:size]    = 12
 						cell[:valign]  = :top
 					end
 					cells.last << cell if cell[:content].present?
-					r_height = [r_height, c_height].max
 				end
-				@header_height += r_height
 			end
+			binding.break
 			cells
 		end
 

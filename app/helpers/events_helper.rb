@@ -232,10 +232,10 @@ module EventsHelper
 			gap_field,
 			{kind: "icon-label", icon: "clock.svg", label: task.s_dur}
 		] if title
-		res << [{kind: "cell", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation}]
+		res << [{kind: "action-text", value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation.body.to_s}]
 		if task.remarks?
 			res << [{kind: "label", value: I18n.t("task.remarks")}]
-			res << [{kind: "cell", value: task.remarks, size: 28}]
+			res << [{kind: "action-text", value: task.remarks.body.to_s, size: 28}]
 		end
 		res
 	end
