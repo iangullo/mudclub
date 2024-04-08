@@ -31,6 +31,18 @@ class TopbarComponent < ApplicationComponent
 		load_menus(user:, home:, login:, logout:)
 	end
 
+	def call	# render HTML content
+		content_tag(:nav, class: "sticky top-0 z-10 w-full h-15 bg-blue-900 text-gray-300", aria_label: "MudClub Topbar") do
+			content_tag(:div, class: "max-w-7xl mx-auto px-2 sm:px-6 lg:px-8") do
+				content_tag(:div, class: "relative flex items-center justify-between h-16") do
+					render_mobile_menu +
+					render_large_menu +
+					render_profile_dropdown
+				end
+			end
+		end
+	end
+
 	private
 	# load menu buttons
 	def load_menus(user:, home:, login:, logout:)
@@ -88,6 +100,53 @@ class TopbarComponent < ApplicationComponent
 			res = {kind: "menu", label: I18n.t("action.login"), url: @profile[:login][:url], class: @profile[:closed][:class]}
 			res.merge!({icon: @profile[:closed][:icon], name: "profile", i_class: @logincls})
 			ButtonComponent.new(button: res)
+		end
+	end
+
+	def render_large_menu
+		content_tag(:div, class: "flex-1 flex items-center justify-center sm:items-stretch sm:justify-start", aria_label: "Large menu") do
+			concat(render_logo)
+			concat(render_tabs)
+		end
+	end
+
+	def render_logo
+		content_tag(:div, class: "flex-shrink-0 flex items-center") do
+			link_to("/", class: "inline-flex align-center", data: { turbo_frame: "_top", turbo_action: "replace" }) do
+				concat(image_tag(@clublogo, class: "block lg:hidden h-8 w-auto"))
+				concat(image_tag(@clublogo, class: "hidden lg:block h-8 w-auto"))
+				concat(content_tag(:label, @clubname, class: "font-bold text-2xl text-yellow-500"))
+			end
+		end
+	end
+
+	def render_mobile_menu
+		if @ham_menu
+			content_tag(:div, class: "absolute inset-y-0 left-0 flex items-center sm:hidden", aria_label: "Mobile menu") do
+				render(@ham_menu)
+			end
+		end
+	end
+
+	def render_profile_dropdown
+		content_tag(:div, class: "absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0", aria_label: "User profile") do
+			content_tag(:div, class: "relative") do
+				render(@prof_tab)
+			end
+		end
+	end
+
+	def render_tabs
+		if @u_logged
+			content_tag(:div, class: "hidden sm:block sm:ml-6 flex space-x-4 text-base text-gray-300", aria_label: "Navigation buttons") do
+				@menu_tabs.map do |tab|
+					if tab[:options].present?
+						render(DropdownComponent.new(button: tab))
+					else
+						link_to(tab[:label], tab[:url], class: @tabcls, data: { turbo_frame: "_top", turbo_action: "replace" })
+					end
+				end.join.html_safe
+			end
 		end
 	end
 
