@@ -172,7 +172,6 @@ module PdfGenerator
 				cells << []
 				row.each do |item|	# check the imtes in the row
 					cell = setup_new_cell(item)
-					binding.break
 					case item[:kind]
 					when "gap"; cell[:content] = " "
 					when "header-icon", "icon"
@@ -207,7 +206,6 @@ module PdfGenerator
 					cells.last << cell if cell[:content].present?
 				end
 			end
-			binding.break
 			cells
 		end
 

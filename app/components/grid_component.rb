@@ -166,7 +166,7 @@ class GridComponent < ApplicationComponent
 				when "checkbox-q"
 					render_checkbox(item)
 				when "icon"
-					render_icon(item)
+					render_icon(item, url, data)
 				when "lines"
 					item[:value].map { |cad| link_to(cad, url, data:) }.join("<br>").html_safe
 				when "normal"
@@ -214,8 +214,8 @@ class GridComponent < ApplicationComponent
 			end
 		end
 
-		def render_icon(item)
-			link_to(g_row[:url], data: g_row[:data]) do
+		def render_icon(item, url, data)
+			link_to(url, data:) do
 				image_tag(item[:value], size: "25x25")
 			end
 		end

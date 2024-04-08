@@ -56,4 +56,47 @@ class SearchBoxComponent < ApplicationComponent
 		@i_class  = I_CLASS << (labels ? "mt-3" : "align-middle")
 		@i_class  = @i_class.join(" ")
 	end
+
+	def call
+    content_tag(:div, id: 'search-box', class: D_CLASS) do
+      form_with(url: @s_url, method: :get, data: { controller: "search-form", search_form_fsearch_target: 'fsearch', turbo_frame: 'search-results' }) do |fsearch|
+        render_fields(fsearch) +
+          hidden_filter_field(fsearch) +
+          submit_button
+      end
+    end
+  end
+
+  private
+		def render_fields(fsearch)
+			@fields.map do |field|
+				content_tag(:div, class: F_CLASS) do
+					if field[:label].present?
+						content_tag(:label, field[:label], for: field[:key], class: L_CLASS)
+					end
+					case field[:kind]
+					when "search-text"
+						fsearch.text_field(field[:key], placeholder: field[:placeholder], value: field[:value], size: field[:size], class: @i_class, data: @s_action)
+					when "search-select"
+						fsearch.select(field[:key], options_for_select(field[:options], session.dig(field[:key].to_sym) || field[:value]), { include_blank: field[:blank] || t("scope.all") }, class: @i_class)
+					when "search-collection"
+						fsearch.collection_select(field[:key], field[:options], :id, :name, { selected: params[field[:key].to_sym].presence || field[:value] }, class: @i_class)
+					when "hidden"
+						fsearch.hidden_field(field[:key].to_sym, value: field[:value])
+					end
+				end
+			end.join.html_safe
+		end
+
+		def hidden_filter_field(fsearch)
+			if @s_filter.present?
+				fsearch.hidden_field(@s_filter[:key].to_sym, value: @s_filter[:value])
+			end
+		end
+
+		def submit_button
+			content_tag(:div, class: S_CLASS) do
+				image_submit_tag("search.svg", height: 25, alt: t("action.search"), class: "align-middle m-1")
+			end
+		end
 end
