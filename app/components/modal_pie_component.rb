@@ -21,8 +21,15 @@
 # ModalPieComponent - specific Modal ViewComponent for pie charts
 class ModalPieComponent < ApplicationComponent
 	def initialize(header:, chart: {})
-		@view_header = header
+		@pie_header  = header
 		@chart_title = chart[:title]
 		@chart_data  = chart[:data]
+	end
+
+	def call	# render as HTML
+		render ModalComponent.new(simple: true) do
+			render FieldsComponent.new(fields: @pie_header)
+			pie_chart(@chart_data, title: @chart_title, legend: "bottom")
+		end
 	end
 end

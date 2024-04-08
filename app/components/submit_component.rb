@@ -39,4 +39,18 @@ class SubmitComponent < ApplicationComponent
 		end
 		@submit = ButtonComponent.new(button: b_submit) if b_submit
 	end
+
+	def call	# render HTML
+		content_tag(:div, class: "inline-flex align-middle flow-root mt-3 mb-1") do
+			render_button(@close, "float-left mr-3 ml-1") if @close.present?
+			render_button(@submit, "float-right ml-3 mr-1") if @submit.present?
+		end
+	end
+
+	private
+		def render_button(button, div_class)
+			concat(content_tag(:div, class: div_class) do
+				render(button)
+			end)
+		end
 end

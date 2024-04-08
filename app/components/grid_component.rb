@@ -46,10 +46,6 @@ class GridComponent < ApplicationComponent
 		end
 	end
 
-	def update(rows:)
-		@rows  = parse_rows(rows)
-	end
-
 	def build_order_link(column:, label:)
 		ord_lnk = "?column=#{column}&direction="
 		if column == session.dig(@s_filt, 'column')
@@ -59,11 +55,27 @@ class GridComponent < ApplicationComponent
 		end
 	end
 
+	def call	# render into HTML
+		table_tag(controller: @controller, data: @data) do
+			concat(render_header)
+			render_body
+		end
+	end
+
 	def sort_indicator
 		tag.span(class: "sort sort-#{session[@s_filt]['direction']}")
 	end
 
+	def update(rows:)
+		@rows  = parse_rows(rows)
+	end
+
 	private
+		# track the ordering direction for trackable columns
+		def next_direction
+			session[@s_filt]['direction'] == 'asc' ? 'desc' : 'asc'
+		end
+
 		# parse header definition to set correct objects
 		def parse_title(title)
 			res = Array.new
@@ -139,8 +151,90 @@ class GridComponent < ApplicationComponent
 			}
 			rows
 		end
+		
+		def render_body
+			concat(content_tag(:tbody) do
+				@rows.map { |g_row| render_row(g_row) }.join.html_safe
+			end)
+		end
+		
+		def render_cell(item, url, data)
+			tablecell_tag(item) do
+				case item[:kind]
+				when "bottom", "gap", "percentage", "text"
+					item[:value]
+				when "checkbox-q"
+					render_checkbox(item)
+				when "icon"
+					render_icon(item)
+				when "lines"
+					item[:value].map { |cad| link_to(cad, url, data:) }.join("<br>").html_safe
+				when "normal"
+					link_to(item[:value].to_s, url, data:)
+				when "number-box"
+					render(InputBoxComponent.new(field: item, form: @form))
+				else
+					render(item[:value])
+				end
+			end
+		end
+		
+		def render_checkbox(item)
+			content_tag(:div, class: "align-middle") do
+				check_box(item[:key], "#{item[:player_id]}_#{item[:q]}", {
+					checked: item[:value] == 1,
+					class: "rounded bg-gray-200 text-blue-700",
+					data: {
+						target: "grid.checkbox",
+						rowId: item[:player_id],
+						columnId: item[:q]
+					}
+				})
+			end
+		end
 
-		def next_direction
-			session[@s_filt]['direction'] == 'asc' ? 'desc' : 'asc'
+		# render the GridComponent header
+		def render_header
+			content_tag(:thead, class: "bg-indigo-900 text-gray-300") do
+				content_tag(:tr) do
+					@title.map do |item|
+						tablecell_tag(item, tag: :th) do
+							case item[:kind]
+							when "normal", "inverse", "gap"
+								concat(render_sort_indicator(item))
+								concat(render_order_link(item))
+							when "lines"
+								concat(item[:value].map { |line| line_tag(line) }.join.html_safe)
+							when "dropdown", "button"
+								concat(render(item[:value]))
+							end
+						end
+					end.join.html_safe
+				end
+			end
+		end
+
+		def render_icon(item)
+			link_to(g_row[:url], data: g_row[:data]) do
+				image_tag(item[:value], size: "25x25")
+			end
+		end
+
+		def render_order_link(item)
+			if item[:order_by]
+				build_order_link(column: item[:order_by], label: item[:value])
+			else
+				item[:value]
+			end
+		end
+		
+		def render_row(g_row)
+			tablerow_tag(data: g_row[:data], classes: g_row[:classes]) do
+				g_row[:items].map { |item| render_cell(item, g_row[:url], g_row[:data]) }.join.html_safe
+			end
+		end
+
+		def render_sort_indicator(item)
+			sort_indicator if item[:sort]
 		end
 end

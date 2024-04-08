@@ -205,8 +205,8 @@ module DrillsHelper
 				row[:items] << {kind: "normal", value: drill.kind.name, align: "center"}
 				row[:items] << {kind: "normal", value: drill.name}
 				unless device == "mobile"
-					row[:items] << {kind: "lines", value: drill.print_targets}
 					row[:items] << {kind: "normal", value: drill.coach.s_name, align: "center"}
+					row[:items] << {kind: "lines", value: drill.print_targets}
 				end
 				#row[:items] << {kind: "normal", value: Task.where(drill_id: drill.id).count, align: "center"}
 				row[:items] << button_field({kind: "delete", url: row[:url], name: drill.name}) if u_manager?
