@@ -34,4 +34,19 @@ class ContactComponent < ApplicationComponent
 			@whatsapp = ButtonComponent.new(button: {kind: "whatsapp", value: phone, web: (device=="desktop")})
 		end
 	end
+
+	def call	# render HTML
+    content_tag(:div, class: "inline-flex items-center text-xs") do
+      render_button(@website)
+      render_button(@email)
+      render_button(@call)
+      render_button(@whatsapp)
+    end
+	end
+
+	private
+		# render one button
+		def render_button(button)
+			concat(render(button)) if button
+		end
 end

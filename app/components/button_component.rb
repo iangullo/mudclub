@@ -50,15 +50,14 @@ class ButtonComponent < ApplicationComponent
 		parse(button)
 	end
 
-=begin
 	# generate html content
 	def call
 		d_data = {controller: @button[:controller].presence}
-		d_data[:processing_working] = @button[:working].html_safe if @button[:working]
-		content_tag(:div, class: @button[:d_class], align: @button[:align], d_data:) do
+		d_data[:processing_working] = @button[:working] if @button[:working]
+		content_tag(:div, class: @button[:d_class], align: @button[:align], data: d_data) do
 			content_tag(:div, class: "relative") do
 				if @button[:url]
-					target = @button[:tab] ? "_blank" : nil
+					target = "_blank" if @button[:tab]
 					link_to(@button[:url], target:, class: @button[:b_class], data: @button[:data]) do
 						button_content
 					end
@@ -67,11 +66,9 @@ class ButtonComponent < ApplicationComponent
 						button_content
 					end
 				end
-				button_cue if @button[:working] #Processing visual cue element
 			end
 		end
 	end
-=end
 
 	def render?
 		@button.present?
@@ -92,9 +89,10 @@ class ButtonComponent < ApplicationComponent
 				concat(image_tag(@button[:icon], size: @button[:size], class: @button[:i_class])) if @button[:icon]
 				if @button[:label]
 					concat("&nbsp;".html_safe) if @button[:icon]
-					concat(@button[:label])	
+					concat(@button[:label])
 				end
 			end
+			concat(button_cue) if @button[:working]	#Processing visual cue element
 		end
 	rescue => e
 		handle_error(e)
@@ -117,7 +115,7 @@ class ButtonComponent < ApplicationComponent
 		@button[:align] ||= "center"
 	end
 
-	# determine class of item depending on kind
+	# determine button icon depending on kind
 	def set_icon
 		case @button[:kind]
 		when "add", "add-nested"
