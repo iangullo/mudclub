@@ -150,13 +150,14 @@ module PdfGenerator
 		# render footers for pdf pages
 		def render_footer
 			# Add page numbers and drill author to footer
-			@pdf.fill_color = '8b8680'	# mid gray font
 			if @footer
 				@pdf.bounding_box([@pdf.bounds.left + 10, @pdf.bounds.bottom + 20], width: @pdf.bounds.width) do
+					@pdf.fill_color = '8b8680'	# mid gray font
 					@pdf.text @footer, size: 10
 				end
 			end
 			@pdf.bounding_box([@pdf.bounds.right - 20, @pdf.bounds.bottom + 20], width: @pdf.bounds.width) do
+				@pdf.fill_color = '8b8680'	# mid gray font
 				@pdf.number_pages "# <page>", size: 10
 			end
 		end
