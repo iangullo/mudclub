@@ -35,9 +35,9 @@ class TopbarComponent < ApplicationComponent
 		content_tag(:nav, class: "sticky top-0 z-10 w-full h-15 bg-blue-900 text-gray-300", aria_label: "MudClub Topbar") do
 			content_tag(:div, class: "max-w-7xl mx-auto px-2 sm:px-6 lg:px-8") do
 				content_tag(:div, class: "relative flex items-center justify-between h-16") do
-					render_mobile_menu +
-					render_large_menu +
-					render_profile_dropdown
+					concat(render_mobile_menu)
+					concat(render_large_menu)
+					concat(render_profile_dropdown)
 				end
 			end
 		end
