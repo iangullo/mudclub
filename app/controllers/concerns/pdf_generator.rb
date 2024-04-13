@@ -16,13 +16,13 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# handle creation of PDFs -relyes on PrawnPDF
+# handle creation of PDFs -relies on PrawnPDF
 module PdfGenerator
 	GUTTER        = 10 # Adjust these as needed
-	HEADER_HEIGHT = 30
-	FOOTER_HEIGHT = 30
+	HEADER_HEIGHT = 40
+	FOOTER_HEIGHT = 40
 	FONT_SIZE     = 10
-	PIC_HEIGHT    = 300
+	PIC_HEIGHT    = 250
 
 	# Initialize variables for document, header and footer
 	# header: [array of field component definitions]
@@ -52,6 +52,12 @@ module PdfGenerator
 		start_new_page_if_needed(label_height) # Adjust the content height as needed
 		@pdf.y -= (label_height + 3)
 	end
+
+	# add a new page to the document
+	def pdf_new_page
+		@pdf.start_new_page
+		setup_new_page
+	end	
 
 	# Render rich text in PDF
 	def pdf_rich_text(rich_text)
@@ -86,6 +92,13 @@ module PdfGenerator
 		end
 	end
 
+	def pdf_subtitle(subtitle)
+		start_new_page_if_needed(30)
+		pdf_separator_line
+		pdf_label_text(label: subtitle)
+		pdf_separator_line
+	end
+
 	private
 		# Measure height of node content
 		def content_height(node)
@@ -115,6 +128,36 @@ module PdfGenerator
 			node.try(:html) || node.try(:to_s)
 		end
 
+		# attempt to wraparound lines maintaining markup for text
+		def extract_text_lines(html_content)
+			# Parse HTML content using Nokogiri
+			doc    = Nokogiri::HTML.fragment(html_content)
+			lines  = []
+			
+			# Iterate through text nodes and extract lines
+			doc.children.each do |node|
+				line  ||= ''
+				markup  = node.name
+				text    = node.text
+				text.split(/\s+/).each do |word|	# Split text into words
+					# Check if adding the word to the current line exceeds page width
+					if @pdf.width_of("#{line} #{word}", inline_format: true) > @pdf.bounds.width
+						line = "<#{markup}>#{line}</#{markup}>" if markup != "text"
+						lines << line
+						line  = '' # set a new line
+						line += word
+					else
+						line += ' ' unless line.empty?
+						line += word
+					end
+				end
+				line = "<#{markup}>#{line}</#{markup}>" if markup != "text"
+				lines << line unless line.last == line
+			end
+
+			lines
+		end
+
 		# convert any image file to png
 		def image_to_png(image_file)
 			ImageProcessing::Vips.source(image_file).convert!("png")
@@ -126,14 +169,17 @@ module PdfGenerator
 			when 'action-text-attachment'
 				blob = ActiveStorage::Blob.find_by(key:)
 				hfit = [@pdf.bounds.width - 2*GUTTER, blob.metadata[:width]].min
-				vfit = [PIC_HEIGHT, blob.metadata[:height]].min
+				vfit = [PIC_HEIGHT, blob.metadata[:height]].min + 12
 				start_new_page_if_needed(vfit)
 				@pdf.image StringIO.open(blob&.download), fit: [hfit, vfit], position: :center
 				@pdf.text(child[:caption], size: 10, styles: [:italic], align: :center) if child[:caption]
 				return 1 # add one to the key index
 			else
-				start_new_page_if_needed(content_height(child))
-				PrawnHtml.append_html(@pdf, child&.to_html)
+				lines = extract_text_lines(child&.to_html)
+				lines.each_with_index do |line|
+					start_new_page_if_needed(content_height(line))
+					PrawnHtml.append_html(@pdf, line)
+				end
 				return 0 # add nothing to the key index
 			end
 		end
@@ -167,7 +213,7 @@ module PdfGenerator
 		#        - [subttle, some additonal optonal fields]
 		def set_header(header, full)
 			cells  = []
-			@header_height = 16 * header.size
+			@header_height = 14 * header.size
 			@header_width  = (full ?  @pdf.bounds.width : nil)
 			header.each do |row|
 				cells << []
@@ -189,19 +235,19 @@ module PdfGenerator
 						cell[:align]      = :left
 						cell[:font_style] = :bold
 						cell[:padding]   = [0, 0, 0, 10]
-						cell[:size]       = 12
+						cell[:size]       = 10
 						cell[:valign]     = :top
 					when "title"
 						cell[:align]      = :left
 						cell[:colspan]  ||= 2
 						cell[:font_style] = :bold
 						cell[:padding]   = [0, 0, 0, 10]
-						cell[:size]       = 14
+						cell[:size]       = 12
 						cell[:text_color] =  "000080"
 					else # just print regular text
 						cell[:align]   = :left
 						cell[:padding] = [0, 0, 0, 5]
-						cell[:size]    = 12
+						cell[:size]    = 10
 						cell[:valign]  = :top
 					end
 					cells.last << cell if cell[:content].present?
@@ -231,12 +277,6 @@ module PdfGenerator
 
 		# Start a new page if there's not enough space left
 		def start_new_page_if_needed(content_height)
-			start_new_page unless enough_space_for_content?(content_height)
+			pdf_new_page unless enough_space_for_content?(content_height)
 		end
-		
-		# add a new page to the document
-		def start_new_page
-			@pdf.start_new_page
-			setup_new_page
-		end	
 end

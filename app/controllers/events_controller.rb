@@ -351,23 +351,18 @@ class EventsController < ApplicationController
 				pdf_label_text(label: I18n.t("target.many"), text: @event.print_targets)
 				pdf_separator_line(style: "empty")
 				@event.tasks.each do |task|
-					pdf_separator_line
-					pdf_label_text(label: task.headstring)
-					pdf_separator_line
+					pdf_subtitle(task.headstring)
 					pdf_rich_text(task.drill.explanation) if task.drill.explanation&.present?
 					pdf_rich_text(task.remarks) if task.remarks&.present?
 					pdf_separator_line(style: "empty")
 				end
-				pdf_separator_line
-				pdf_label_text(label: I18n.t("calendar.attendance"))
-				pdf_separator_line
+				pdf_new_page
+				pdf_subtitle(I18n.t("calendar.attendance"))
 				@event.team.players.order(:number).each do |player|
 					pdf_label_text(label: player.to_s(style: 3), text: "_")
 				end
 				pdf_separator_line(style: "empty")
-				pdf_separator_line
-				pdf_label_text(label: I18n.t("task.remarks"))
-				pdf_separator_line
+				pdf_subtitle(I18n.t("task.remarks"))
 			end
 			pdf
 		end
