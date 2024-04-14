@@ -22,7 +22,7 @@ module PdfGenerator
 	HEADER_HEIGHT = 40
 	FOOTER_HEIGHT = 40
 	FONT_SIZE     = 10
-	PIC_HEIGHT    = 250
+	PIC_HEIGHT    = 220
 
 	# Initialize variables for document, header and footer
 	# header: [array of field component definitions]
@@ -168,10 +168,14 @@ module PdfGenerator
 			case child.name
 			when 'action-text-attachment'
 				blob = ActiveStorage::Blob.find_by(key:)
+				img  = StringIO.open(blob&.download)
+				if blob&.metadata[:height] > blob&.metadata[:width]
+					img = rotate_image(image: img)
+				end
 				hfit = [@pdf.bounds.width - 2*GUTTER, blob.metadata[:width]].min
 				vfit = [PIC_HEIGHT, blob.metadata[:height]].min + 12
 				start_new_page_if_needed(vfit)
-				@pdf.image StringIO.open(blob&.download), fit: [hfit, vfit], position: :center
+				@pdf.image img, fit: [hfit, vfit], position: :center
 				@pdf.text(child[:caption], size: 10, styles: [:italic], align: :center) if child[:caption]
 				return 1 # add one to the key index
 			else
@@ -206,6 +210,13 @@ module PdfGenerator
 				@pdf.fill_color = '8b8680'	# mid gray font
 				@pdf.number_pages "# <page>", size: 10
 			end
+		end
+
+		# rotate an image object
+		def rotate_image(image:, angle: 270)
+			img = Vips::Image.new_from_buffer(image.read, "")
+			img = img.rot("d#{angle}")
+			StringIO.new(img.write_to_buffer(".png"))
 		end
 
 		# header of a pdf page. basically expecting 2 rows
