@@ -48,7 +48,7 @@
 		<% end %>
 	</div>
 <% when "number-box" %>
-	<%= @form.number_field(@fdata[:key], value: @fdata[:value], size: @fdata[:size] || 2, min: @fdata[:min], max: @fdata[:max], step: @fdata[:step], class: @i_class) %>
+	<%= @form.number_field(@fdata[:key], value: @fdata[:value], size: @fdata[:size] || 2, in: @fdata[:min]..@fdata[:max], step: @fdata[:step], class: @i_class) %>
 	<%= @fdata[:units].to_s %>
 <% when "password-box" %>
 	<%= @form.password_field(@fdata[:key], placeholder: @fdata[:placeholder], class: @i_class, size: @fdata[:size]) %>
@@ -91,9 +91,9 @@
 		<%= @form.text_field(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class) %>
 	<% end %>
 <% when "time-box" %>
-	<%= @form.number_field(:hour, value: @fdata[:hour], in: 10..22, size: @fdata[:size] ? @fdata[:size] : 3, class: @i_class) %>
+	<%= @form.number_field(:hour, value: @fdata[:hour], in: 10..22, size: @fdata[:size] || 3, class: @i_class) %>
 	<strong>:</strong>
-	<%= @form.number_field(:min, value: @fdata[:mins], in: 0..45, step: 15, size: @fdata[:size] ? @fdata[:size] : 3, class: @i_class) %>
+	<%= @form.number_field(:min, value: @fdata[:mins], in: 0..45, step: 15, size: @fdata[:size] || 3, class: @i_class) %>
 <% when "upload" %>
 	<div id="upload-file" class="inline-flex items-center" data-controller="upload">
 		<!-- Hidden input for file upload -->
