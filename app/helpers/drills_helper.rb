@@ -49,15 +49,23 @@ module DrillsHelper
 
 	# return title FieldComponent definition for edit/new
 	def drill_form_tail
-		[
+		coaches = (u_admin? ? Coach.real : (u_manager? ? u_club.coaches : [current_user.coach]))
+		author  = (@drill.coach_id.to_i > 0 ? @drill.coach_id : (u_coachid || coaches.first))
+		res = [
 			[
 				{kind: "label", value: I18n.t("skill.abbr"), align: "right"},
 				{kind: "nested-form", model: "drill", key: "skills", child: Skill.new, row: "skill_row"},
-				gap_field,
-				{kind: "label", value: I18n.t("drill.author"), align: "right"},
-				{kind: "select-collection", key: :coach_id, options: Coach.real, value: (@drill.coach_id.to_i>0) ? @drill.coach_id : (u_coach? ? current_user.coach.id : 1)}
+				gap_field(size: 4),
+				{kind: "label", value: I18n.t("drill.author") + ": ", align: "right"}
 			]
 		]
+		if coaches.size > 1
+			res.last << {kind: "select-collection", key: :coach_id, options: coaches, value: author}
+		else
+			res.last << {kind: "text", value: coaches.first.name, class: "inline-flex"}
+			res.last << {kind: "hidden", key: :coach_id, value: coaches.first.id}
+		end
+		res
 	end
 
 	# return title FieldComponent definition for edit/new

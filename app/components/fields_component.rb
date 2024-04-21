@@ -124,7 +124,7 @@ class FieldsComponent < ApplicationComponent
       when /^(select-.+|.+box|.+-area|hidden|radio.+|upload)$/
         render InputBoxComponent.new(field:, form: @form)
       when "gap"
-        " " * field[:size]
+        ("&nbsp;" * field[:size]).html_safe
       when "grid"
         render GridComponent.new(grid: field[:value], form: @form)
       when "header-icon", "icon", "icon-label"
