@@ -55,6 +55,11 @@ class Person < ApplicationRecord
 		end
 	end
 
+	# wrapper to display birthday strings
+	def birthstring
+		self.birthday.strftime("%d/%m/%Y")
+	end
+
 	# returns a hash of icon & label to mark whether a
 	# Person has attached id pictures (front && back)
 	def idpic_content

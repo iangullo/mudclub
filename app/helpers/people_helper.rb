@@ -73,7 +73,7 @@ module PeopleHelper
 		res = person_title_fields(title:, icon:, rows:, cols:)
 		res << [{kind: "label", value: person.nick.presence || person.name, cols:}]
 		res << [{kind: "label", value: person.surname, cols:}]
-		res << [gap_field(size: 0), {kind: "string", value: person.birthday}]
+		res << [gap_field(size: 0), {kind: "string", value: person.birthstring}]
 		res << [
 			{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"},
 			idpic_field(person)
