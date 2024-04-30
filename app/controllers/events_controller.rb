@@ -65,7 +65,7 @@ class EventsController < ApplicationController
 						if @event.match?
 							@fields = create_fields(helpers.match_show_fields)
 							grid    = helpers.match_roster_grid
-							@grid   = create_grid(grid[:data], controller: grid[:controller])
+							@grid   = create_grid(grid[:data], controller: grid[:controller],align: "center")
 						else
 							@targets = create_fields(helpers.training_target_fields)
 							@fields  = create_fields(helpers.training_show_fields)

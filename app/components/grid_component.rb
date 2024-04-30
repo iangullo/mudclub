@@ -32,11 +32,12 @@
 class GridComponent < ApplicationComponent
 	attr_writer :form
 
-	def initialize(grid:, form: nil, controller: nil)
+	def initialize(grid:, form: nil, controller: nil, align: "left")
 		if controller	# add stimulus controller and data
 			@controller = controller
 			@data       = grid[:data].merge(action: "change->#{controller}#update")
 		end
+		@align  = align
 		@form   = form
 		@title  = parse_title(grid[:title])
 		@rows   = parse_rows(grid[:rows])
@@ -56,9 +57,11 @@ class GridComponent < ApplicationComponent
 	end
 
 	def call	# render into HTML
-		table_tag(controller: @controller, data: @data) do
-			concat(render_header)
-			render_body
+		content_tag(:div, align: @align) do
+			table_tag(controller: @controller, data: @data) do
+				concat(render_header)
+				render_body
+			end
 		end
 	end
 

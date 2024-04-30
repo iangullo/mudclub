@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@ class BasketballSport < Sport
 	SPORT_LBL        = "sport.basketball."
 	ATTEMPT_CONCEPTS = [:fta, :fga, :tza, :t3a, :t2a, :tma].freeze
 	ATTEMPT_KEYVALS  = [3, 5, 9, 7, 11, 13].freeze
-  SCORED_CONCEPTS  = [:ftm, :fgm, :tzm, :t3m, :t2m, :tmm].freeze
-  SCORED_KEYVALS   = [4, 6, 8, 10, 12, 14].freeze
+	SCORED_CONCEPTS  = [:ftm, :fgm, :tzm, :t3m, :t2m, :tmm].freeze
+	SCORED_KEYVALS   = [4, 6, 8, 10, 12, 14].freeze
 
 	# Setup the basic settings
 	def initialize(*args)
@@ -65,7 +65,7 @@ class BasketballSport < Sport
 
 	# grid to show/edit player outings for a match
 	def outings_grid(event, outings, edit: false, rdx: nil)
-		title = [{kind: "top-cell", value: I18n.t("player.number"), align: "center"}, {kind: "top-cell", value: I18n.t("person.name")}]
+		title = [{kind: "normal", value: I18n.t("player.number"), align: "center"}, {kind: "normal", value: I18n.t("person.name")}]
 		rows  = []
 		kind  = (edit ? "text" : "normal")
 		e_stats    = event.stats
@@ -85,7 +85,7 @@ class BasketballSport < Sport
 			p_stats    = Stat.fetch(player_id: player.id, stats: e_stats, create: false)
 			row        = {items: []}
 			row[:url]  = "/players/#{player.id}?event_id=#{event.id}&rdx=#{rdx}" unless edit
-			row[:items] << {kind:, value: player.number, align: "center"}
+			row[:items] << {kind:, value: player.number.to_s, align: "center"}
 			row[:items] << {kind:, value: player.s_name}
 			1.upto(outings[:total]) do |q|
 				q_val = Stat.fetch(period: q, stats: p_stats, create: false).first&.value.to_i
@@ -109,7 +109,6 @@ class BasketballSport < Sport
 				end
 			end
 		end
-
 		{title:, rows:, data:}
 	end
 
