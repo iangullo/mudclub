@@ -122,11 +122,11 @@ module TeamsHelper
 				title << {kind: "normal", value: I18n.t("player.abbr")} 
 				title << button_field({kind: "add", url: new_team_path(club_id: @clubid), frame: "modal"})
 				trow = {url: "#", items: [gap_field(cols: 2), {kind: "bottom", value: I18n.t("stat.total")}]}
-				tcnt = 0	# total players
+				tcnt = []	# total players
 			end
 			rows = Array.new
 			teams.each { |team|
-				cnt = team.players.count
+				cnt = team.players.pluck(:id)
 				url = team_path(team, rdx: @rdx)
 				row = {url: , items: []}
 				row[:items] << {kind: "normal", value: team.name}
@@ -137,13 +137,13 @@ module TeamsHelper
 				end
 				if add_teams
 					tcnt += cnt
-					row[:items] << {kind: "normal", value: cnt.to_s, align: "center"}
+					row[:items] << {kind: "normal", value: cnt.count, align: "center"}
 					row[:items] << button_field({kind: "delete", url: row[:url], name: team.to_s}) if (u_admin? || u_manager?)
 				end
 				rows << row
 			}
 			if add_teams
-				trow[:items] << {kind: "text", value: tcnt, align: "center"}
+				trow[:items] << {kind: "normal", value: tcnt.uniq.count, align: "center"}
 				rows << trow
 			end
 			{title:, rows:}
