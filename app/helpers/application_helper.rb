@@ -57,11 +57,6 @@ module ApplicationHelper
 	def gap_field(size: nil, cols: nil, rows: nil)
 		{kind: "gap", size:, cols:, rows:}
 	end
-
-	# wrapper for hidden:field definitions
-	def hidden_field(key:, value:)
-		{kind: "hidden", key:, value:}
-	end
 	
 	# standardised icon field definitions
 	def icon_field(icon_name, align: nil, cols: nil, rows: nil, size: nil)

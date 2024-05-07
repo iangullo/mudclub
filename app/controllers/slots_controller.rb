@@ -63,7 +63,7 @@ class SlotsController < ApplicationController
 
 	# GET /clubs/x/slots/1/edit
 	def edit
-		if check_access(obj: @slot.club)
+		if check_access(obj: @slot.team.club)
 			prepare_form(title: I18n.t("slot.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -237,6 +237,8 @@ class SlotsController < ApplicationController
 
 		def set_slot
 			@slot = Slot.find_by_id(params[:id].presence) unless @slot&.id == params[:id].presence.to_i
+			@club = @slot&.team.club
+			@clubid = @club.id
 			get_season(obj: @slot)
 			set_location
 		end
