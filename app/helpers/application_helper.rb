@@ -55,7 +55,17 @@ module ApplicationHelper
 
 	# standardised gap row field definition
 	def gap_field(size: nil, cols: nil, rows: nil)
-		{kind: "gap", size:, cols:}
+		{kind: "gap", size:, cols:, rows:}
+	end
+
+	# wrapper for hidden:field definitions
+	def hidden_field(key:, value:)
+		{kind: "hidden", key:, value:}
+	end
+	
+	# standardised icon field definitions
+	def icon_field(icon_name, align: nil, cols: nil, rows: nil, size: nil)
+		{kind: "icon", value: icon_name, align:, cols:, rows:, size:}
 	end
 
 	# standardised gap row field definition
@@ -111,6 +121,11 @@ module ApplicationHelper
 		doc.to_html.html_safe
 	end
 
+	# wrapper for hidden:field definitions
+	def string_field(value, align: nil, cols: nil, rows: nil)
+		{kind: "string", value:, align:, cols:, rows:}
+	end
+	
 	# generic title start FieldsComponent for views
 	def title_start(icon:, title:, subtitle: nil, size: nil, rows: nil, cols: nil, _class: nil, form: nil)
 		kind = form ? "image-box" : "header-icon"

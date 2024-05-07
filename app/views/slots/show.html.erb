@@ -1,26 +1,5 @@
 <%= render ModalComponent.new do %>
 	<%= render @title %>
-	<div id="slots-show">
-		<table>
-			<div id="slots-show-data">
-				<tr>
-					<td align="right"><%= image_tag("team.svg", size: "25x25") %></td>
-					<td align="center" colspan="2"><%= @slot.team.name %></td>
-				</tr><tr>
-					<td align="right"><%= image_tag("location.svg", size: "25x25") %></td>
-					<td colspan="2"><%= @slot.court %></td>
-				</tr><tr>
-					<td align="right"><%= image_tag("calendar.svg", size: "25x25") %></td>
-					<td colspan="2"><%= @slot.to_s %></td>
-				</tr><tr>
-					<td align="right"><%= image_tag("clock.svg", size: "25x25") %></td>
-					<td><%= @slot.duration %>&nbsp;<strong>'</strong></td>
-					<% if @btn_del %>
-					<td><%= render @btn_del %></td>
-					<% end %>
-				</tr>
-			</div>
-		</table>
-	</div>
+	<%= render @fields %>
 	<%= render @submit %>
 <% end %>

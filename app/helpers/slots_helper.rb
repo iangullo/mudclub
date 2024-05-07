@@ -18,13 +18,15 @@
 #
 module SlotsHelper
 	# return icon and top of FieldsComponent
-	def slot_title_fields(title:)
-		title_start(icon: "timetable.svg", title:, subtitle: @season&.name)
+	def slot_title_fields(title:, subtitle: nil)
+		icon = "timetable.svg"
+		res  = title_start(icon: , title:, subtitle:)
+		res
 	end
 
 	# return FieldsComponent @fields for forms
 	def slot_form_fields(title:)
-		res = slot_title_fields(title:)
+		res = slot_title_fields(title:, subtitle: @season&.name)
 		res << [
 			{kind: "icon", value: "team.svg"},
 			{kind: "select-collection", key: :team_id, options: @club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2}
@@ -47,15 +49,33 @@ module SlotsHelper
 	end
 
 	# search bar for slots index
-	def slot_search_bar
-		#options = @locations.practice.pluck(:id,:name).map {|id, name| {location_id: id, name: name}}
-		options = @locations.practice.select(:id, :name)
-		fields  = [
-			{kind: "search-collection", key: :location_id, options:, value: @location.id},
-			{kind: "hidden", key: :club_id, value: @clubid},
-			{kind: "hidden", key: :season_id, value: @seasonid},
+	def slot_search_bar(full=false)
+		l_opts   = @locations.practice.select(:id, :name)
+		l_filter = {kind: "search-collection", key: :location_id, options: l_opts, value: @location.id}
+		fields   = [l_filter, {kind: "hidden", key: :club_id, value: @clubid}]
+		if full
+			s_filter = {kind: "search-collection", key: :season_id, options: Season.real, value: @season&.id}
+			fields = [s_filter] + fields
+			res = []
+		else
+			fields << {kind: "hidden", key: :season_id, value: @seasonid}
+			res = [gap_field(size: 1)]
+		end
+		res << {kind: "search-box", url: club_slots_path(@clubid), fields:}
+	end
+
+	# fields for individual slot views
+	def slot_show_fields
+		res = [
+			[icon_field("category.svg"), string_field(@slot.team.category.name, cols: 2)],
+			[icon_field("division.svg"), string_field(@slot.team.division.name, cols: 2)],
+			[icon_field("location.svg"), string_field(@slot.court, cols: 2)],
+			[icon_field("calendar.svg"), string_field(@slot.to_s, cols: 2)]
 		]
-		[gap_field(size: 1), {kind: "search-box", url: club_slots_path(@clubid), fields:}]
+		if u_manager?
+			res << [gap_field(cols: 2), button_field({kind: "delete", url: slot_path(@slot), name: @slot.to_s}, align: "right")]
+		end
+		res
 	end
 
 	private

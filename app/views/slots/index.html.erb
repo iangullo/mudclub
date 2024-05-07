@@ -21,11 +21,17 @@
 					</td>
 					<% slice[:chunks].each do |chunk| %>
 						<% if chunk[:slot] %>
-						<td align="center" class="bg-blue-300 rounded-lg border px py hover:text-white hover:bg-blue-700" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>>
-							<%= link_to chunk[:slot].team.to_s, slot_path(chunk[:slot]), class: "hover:text-white hover:bg-blue-700", data: {turbo_frame: "modal"} %>
-							<br>
-							<label class="text-xs"><%=chunk[:slot].to_s%></label>
-						</td>
+							<td align="center" class="bg-blue-300 rounded-lg border px py hover:text-white hover:bg-blue-700" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>>
+								<%= link_to(slot_path(chunk[:slot]), class: "hover:text-white hover:bg-blue-700", data: {turbo_frame: "modal"}) do %>
+									<% stitle = chunk[:slot].team.to_s %>
+									<%= stitle %>
+									<% if stitle != chunk[:slot].team.category.to_s %>
+										<div class="text-xs"><%= chunk[:slot].team.category.to_s %></div>
+									<% end %>
+									<div class="text-xs"><%=chunk[:slot].team.division.to_s%></div>
+									<div class="text-xs"><%=chunk[:slot].to_s(false)%></div>
+								<% end %>
+							</td>
 						<% elsif chunk[:gap] %>
 						<td class="text-xs" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>><%=chunk[:wday] ? "#{chunk[:wday]} #{slice[:time].hour.to_s}:#{slice[:time].min.to_s}" : ""%></td>
 						<% else %>

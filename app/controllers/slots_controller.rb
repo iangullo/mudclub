@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,51 +20,48 @@ class SlotsController < ApplicationController
 	before_action :set_slot, only: [:show, :edit, :update, :destroy]
 
 
-	# GET /slots or /slots.json
+	# GET /clubs/x/slots or /clubs/x/slots.json
 	def index
 		@club = Club.find_by_id(@clubid)
 		if check_access(obj: @club)
 			@locations = Location.search(club_id: @clubid).practice.order(name: :asc)
 			@location  = Location.find_by_id(params[:location_id]) || @locations.first
 			title      = helpers.slot_title_fields(title: I18n.t("slot.many"))
-			title << [
-				helpers.gap_field(size: 1),
-				{kind: "search-collection", key: :location_id, url: club_slots_path(@club.id, season_id: @seasonid), options: @locations, value: @location&.id}
-			]
-			@fields   = create_fields(title)
+			title     << helpers.slot_search_bar(u_manager?)
+			@fields    = create_fields(title)
 			week_view if @location
-			@btn_add  = create_button({kind: "add", url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @seasonid), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
-			@submit   = create_submit(close: "back", submit: nil, retlnk: club_path(@club, rdx: @rdx))
+			@btn_add   = create_button({kind: "add", url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @seasonid), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
+			@submit    = create_submit(close: "back", submit: nil, retlnk: club_path(@club, rdx: @rdx))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	# GET /slots/1 or /slots/1.json
+	# GET /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def show
 		if check_access(obj: @slot.team.club)
-			@title   = create_fields(helpers.slot_title_fields(title: I18n.t("slot.many")))
-			@btn_del = create_button({kind: "delete", url: slot_path(@slot), name: @slot.to_s}) if u_manager?
+			subtitle = @slot.team.season.name
+			@title   = create_fields(helpers.slot_title_fields(title: @slot.team.name, subtitle:))
+			@fields  = create_fields(helpers.slot_show_fields)
 			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot) : nil, frame: u_manager? ? "modal" : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	# GET /slots/new
+	# GET /clubs/x/slots/new
 	def new
 		@club = Club.find_by_id(@clubid)
 		if check_access(obj: @club)
-			@locations  = Location.search(club_id: @clubid).practice.order(name: :asc)
-			location_id = params[:location_id] || @locations.first
-			@slot       = Slot.new(season_id: @season.id, location_id:, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
+			set_location
+			@slot = Slot.new(season_id: @season.id, location_id: @location.id, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
 			prepare_form(title: I18n.t("slot.new"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 
-	# GET /slots/1/edit
+	# GET /clubs/x/slots/1/edit
 	def edit
 		if check_access(obj: @slot.club)
 			prepare_form(title: I18n.t("slot.edit"))
@@ -73,7 +70,7 @@ class SlotsController < ApplicationController
 		end
 	end
 
-	# POST /slots or /slots.json
+	# POST /clubs/x/slots or /clubs/x/slots.json
 	def create
 		if check_access(roles: [:manager])
 			@slot = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
@@ -101,7 +98,7 @@ class SlotsController < ApplicationController
 		end
 	end
 
-	# PATCH/PUT /slots/1 or /slots/1.json
+	# PATCH/PUT /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def update
 		if check_access(obj: @slot.team.club)
 			respond_to do |format|
@@ -128,7 +125,7 @@ class SlotsController < ApplicationController
 		end
 	end
 
-	# DELETE /slots/1 or /slots/1.json
+	# DELETE /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def destroy
 		if check_access(obj: @slot.team.club)
 			s_name = @slot.to_s
@@ -198,6 +195,13 @@ class SlotsController < ApplicationController
 			@submit = create_submit
 		end
 
+		# prepare valid locations for the slots view
+		def set_location
+			@locations = Location.search(club_id: @clubid).practice.order(name: :asc)
+			loc_id     = get_param(:location_id, objid: true) || @locations.first.id
+			@location  = @slot&.location || Location.find_by_id(loc_id)
+		end
+
 		# Use callbacks to share common setup or constraints between actions.
 		# create the timetable view grid
 		# requires that @location & @season defined
@@ -234,9 +238,7 @@ class SlotsController < ApplicationController
 		def set_slot
 			@slot = Slot.find_by_id(params[:id].presence) unless @slot&.id == params[:id].presence.to_i
 			get_season(obj: @slot)
-			@locations = Location.search(club_id: @clubid).practice.order(name: :asc)
-			loc_id     = get_param(:location_id, obj_id: true)
-			@location  = @slot&.location || Location.find_by_id((loc_id || @locations.first.id))
+			set_location
 		end
 
 		# Only allow a list of trusted parameters through.

@@ -122,8 +122,10 @@ class Slot < ApplicationRecord
 		end
 	end
 
-	def to_s
-		self.weekday + " (" + self.timeslot_string(t_begin: self.start, t_end: self.ending) + ")"
+	def to_s(with_day=true)
+		t_string = self.timeslot_string(t_begin: self.start, t_end: self.ending)
+		return t_string unless with_day
+		self.weekday + " (#{t_string})"
 	end
 
 	# unlink slot to avoid issues
