@@ -59,8 +59,8 @@ module ApplicationHelper
 	end
 	
 	# standardised icon field definitions
-	def icon_field(icon_name, align: nil, cols: nil, rows: nil, size: nil)
-		{kind: "icon", value: icon_name, align:, cols:, rows:, size:}
+	def icon_field(icon_name, align: nil, iclass: nil, cols: nil, rows: nil, size: nil, tip: nil, tipid: nil)
+		{kind: "icon", value: icon_name, align:, class: iclass, cols:, rows:, size:, tip:, tipid:}
 	end
 
 	# standardised gap row field definition

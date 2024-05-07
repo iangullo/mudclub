@@ -55,7 +55,7 @@ module CategoriesHelper
 			{kind: "number-box", key: :max_years, min: 6, size: 3, value: @category.max_years}
 		]
 		res << [
-			{kind: "icon", value: "rules.svg"},
+			icon_field("rules.svg"),
 			{kind: "select-box", key: :rules, options: @sport.rules_options, value: @category.rules ? @category.rules : @sport.try(:default_rules), cols: 4}
 		]
 		res

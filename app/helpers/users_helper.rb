@@ -39,14 +39,14 @@ module UsersHelper
 		#	{kind: "string", value: "(#{@user.last_from})",cols: 3}
 		#] if @user.last_sign_in_ip?
 		if user.admin?
-			res << {kind: "icon", value: "key.svg", tip: I18n.t("role.admin"), tipid: "adm"}
+			res << icon_field("key.svg", tip: I18n.t("role.admin"), tipid: "adm")
 		elsif user.manager?
-			res << {kind: "icon", value: "mudclub.svg", tip: I18n.t("role.manager"), tipid: "mng"}
+			res << icon_field("mudclub.svg", tip: I18n.t("role.manager"), tipid: "mng")
 		else
 			res << gap_field(size: 0)
 		end
-		res << (user.is_coach? ? {kind: "icon", value: "coach.svg", tip: I18n.t("role.coach"), tipid: "coach"} : gap_field(size: 0))
-		res << (user.is_player? ? {kind: "icon", value: "player.svg", tip: I18n.t("role.player"), tipid: "play"} : gap_field(size: 0))
+		res << (user.is_coach? ? icon_field("coach.svg", tip: I18n.t("role.coach"), tipid: "coach") : gap_field(size: 0))
+		res << (user.is_player? ? icon_field("player.svg", tip: I18n.t("role.player"), tipid: "play") : gap_field(size: 0))
 		return res if grid	# only interested in these 3 icons
 		res << gap_field
 		unless @user.user_actions.empty?
@@ -63,20 +63,20 @@ module UsersHelper
 			res = [
 				obj_club_selector(@user),
 				[
-					{kind: "icon", value: "key.svg", tip: I18n.t("user.profile"), tipid: "urole"},
+					icon_field("key.svg", tip: I18n.t("user.profile"), tipid: "urole"),
 					{kind: "select-box", align: "left", key: :role, options: User.role_list, value: @user.role}
 				]
 			]
 		else
 			res = [
 				[
-					{kind: "icon", value: @user.club.logo, tip: @user.club.nick, tipid: "uclub"},
+					icon_field(@user.club.logo, tip: @user.club.nick, tipid: "uclub"),
 					{kind: "string", align: "center", value: I18n.t("role.#{@user.role}")}
 				]
 			]
 		end
 		res.last <<	gap_field
-		res.last << {kind: "icon", value: "locale.png", tip: I18n.t("locale.lang"), tipid: "lang"}
+		res.last << icon_field("locale.png", tip: I18n.t("locale.lang"), tipid: "lang")
 		res.last << {kind: "select-box", align: "center", key: :locale, options: User.locale_list, value: @user.locale}
 		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		res
@@ -86,11 +86,11 @@ module UsersHelper
 	def user_form_pass
 		[
 			[
-				{kind: "icon", value: "key.svg"},
+				icon_field("key.svg"),
 				{kind: "password-box", key: :password, placeholder: I18n.t("password.single")}
 			],
 			[
-				{kind: "icon", value: "key.svg"},
+				icon_field("key.svg"),
 				{kind: "password-box", key: :password_confirmation, placeholder: I18n.t("password.confirm")}
 			],
 			[
@@ -141,7 +141,7 @@ module UsersHelper
 		rows = Array.new
 		@users.each { |user|
 			row = {url: user_path(user), items: []}
-			row[:items] << {kind: "icon", value: (user.active? ? user.club.logo : "No.svg")}
+			row[:items] << icon_field((user.active? ? user.club.logo : "No.svg"))
 			row[:items] << {kind: "normal", value: user.s_name}
 			row[:items] += user_role_fields(user, grid: true)
 			row[:items] << {kind: "contact", phone: user.person.phone, email: user.person.email}

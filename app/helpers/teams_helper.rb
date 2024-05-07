@@ -60,7 +60,7 @@ module TeamsHelper
 		g_row   = gap_row(cols:2)
 		coaches = [g_row]
 		unless (c_count = @team.coaches.count) == 0	# only create if there are coaches
-			c_icon  = {kind: "icon", value: "coach.svg", tip: I18n.t("coach.many"), align: "right", class: "align-top", size: "30x30", rows: c_count}
+			c_icon  = icon_field("coach.svg", tip: I18n.t("coach.many"), align: "right", iclass: "align-top", size: "30x30", rows: c_count)
 			c_first = true
 			@team.coaches.each do |coach|
 				if u_manager?
@@ -82,26 +82,26 @@ module TeamsHelper
 		res = team_title_fields(title:, cols:, edit: true)
 		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		res << [
-			{kind: "icon", value: "user.svg", align: "right"},
+			icon_field("user.svg", align: "right"),
 			{kind: "text-box", key: :name, value: @team.name, placeholder: I18n.t("team.single")},
 			{kind: "hidden", key: :club_id, value: @clubid},
 			{kind: "hidden", key: :sport_id, value: (@sport&.id || 1)}	# will need to break this up for multi-sports in future
 		]
 		res << [
-			{kind: "icon", value: "category.svg"},
+			icon_field("category.svg"),
 			{kind: "select-collection", key: :category_id, options: Category.real, value: @team.category_id}
 		]
 		res << [
-			{kind: "icon", value: "division.svg"},
+			icon_field("division.svg"),
 			{kind: "select-collection", key: :division_id, options: Division.real, value: @team.division_id}
 		]
 		res << [
-			{kind: "icon", value: "home.svg"},
+			icon_field("home.svg"),
 			{kind: "select-collection", key: :homecourt_id, options: Location.search(club_id: @clubid).home, value: @team.homecourt_id}
 		]
 		unless @eligible_coaches.empty?
 			res << [
-				{kind: "icon", value: "coach.svg"},
+				icon_field("coach.svg"),
 				{kind: "label", value:I18n.t("coach.many"), class: "align-center"}
 			]
 			res << [gap_field,{kind: "select-checkboxes", key: :coach_ids, options: @eligible_coaches}]

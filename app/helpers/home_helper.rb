@@ -83,7 +83,7 @@ module HomeHelper
 			frm = action.modal ? "modal" : "_top"
 			row = {url:, frame: frm, items: []}
 			row[:items] << {kind: "normal", value: action.date_time}
-			row[:items] << {kind: "icon", value: (action.user.active? ? action.user.club.logo : "No.svg"), align: "center"}
+			row[:items] << icon_field((action.user.active? ? action.user.club.logo : "No.svg"), align: "center")
 			row[:items] << {kind: "normal", value: action.user.s_name}
 			row[:items] << {kind: "normal", value: action.description}
 			rows << row

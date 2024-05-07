@@ -20,23 +20,23 @@ module PeopleHelper
 	def person_form_fields(person)
 		res = [
 			[
-				{kind: "icon", value: "user.svg"},
+				icon_field("user.svg"),
 				{kind: "text-box", key: :nick, size: 8, value: person.nick, placeholder: I18n.t("person.nick")},
 				gap_field,
-				{kind: "icon", value: "phone.svg"},
+				icon_field("phone.svg"),
 				{kind: "text-box", key: :phone, size: 12, value: person.phone, placeholder: I18n.t("person.phone")}
 			],
 			[
-				{kind: "icon", value: "id_front.svg"},
+				icon_field("id_front.svg"),
 				{kind: "text-box", key: :dni, size: 8, value: person.dni, placeholder: I18n.t("person.pid")},
 				gap_field,
-				{kind: "icon", value: "at.svg"},
+				icon_field("at.svg"),
 				{kind: "email-box", key: :email, value: person.email, placeholder: I18n.t("person.email")}
 			],
 			[gap_field(size: 1), idpic_field(person, idpic: "id_front", align: "left", cols: 4)],
 			[gap_field(size: 1), idpic_field(person, idpic: "id_back", align: "left", cols: 4)],
 			[
-				{kind: "icon", value: "home.svg", class: "align-top"},
+				icon_field("home.svg", iclass: "align-top"),
 				{kind: "text-area", key: :address, size: 34, cols: 4, lines: 3, value: person.address, placeholder: I18n.t("person.address")},
 			]
 		]
@@ -48,7 +48,7 @@ module PeopleHelper
 		res << [{kind: "text-box", key: :name, value: person.name, placeholder: I18n.t("person.name"), cols: 2}]
 		res << [{kind: "text-box", key: :surname, value: person.surname, placeholder: I18n.t("person.surname"), cols: 2}]
 		res << (sex ? [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: person.female, align: "left"}] : [])
-		res.last << {kind: "icon", value: "calendar.svg"}
+		res.last << icon_field("calendar.svg")
 		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person.birthday}
 		res
 	end
@@ -79,7 +79,7 @@ module PeopleHelper
 			idpic_field(person)
 		]
 		res << [
-			{kind: "icon", value: "home.svg", class: "align-top"},
+			icon_field("home.svg", iclass: "align-top"),
 			{kind: "string", value: simple_format("#{person.address}"), align: "left", cols: 2}
 		] if person.address.present?
 		res

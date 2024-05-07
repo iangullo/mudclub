@@ -22,11 +22,11 @@ module LocationsHelper
 		res = location_title_fields(title:)
 		res << [{kind: "text-box", key: :name, value: @location.name, placeholder: I18n.t("location.default")}]
 		res << [
-			{kind: "icon", value: "gmaps.svg"},
+			icon_field("gmaps.svg"),
 			{kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, placeholder: I18n.t("location.gmaps")}
 		]
 		res << [
-			{kind: "icon", value: "training.svg"},
+			icon_field("training.svg"),
 			{kind: "label-checkbox", key: :practice_court, label: I18n.t("location.train")}
 		]
 		res.last << {kind: "hidden", key: :club_id, value: @clubid} if @clubid
@@ -48,7 +48,7 @@ module LocationsHelper
 			url = editor ? location_path(loc, club_id: @clubid) : "#"
 			row = {url:, frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: loc.name}
-			row[:items] << {kind: "icon", value: loc.practice_court ? "training.svg" : "home.svg", align: "center"}
+			row[:items] << icon_field((loc.practice_court ? "training.svg" : "home.svg"), align: "center")
 			if loc.gmaps_url
 				row[:items] << button_field({kind: "location", icon: "gmaps.svg", align: "center", url: loc.gmaps_url}, align: "center")
 			else
@@ -77,7 +77,7 @@ module LocationsHelper
 		else
 			res << [{kind: "text", value: I18n.t("location.none")}]
 		end
-		res << [{kind: "icon", value: @location.practice_court ? "training.svg" : "home.svg"}]
+		res << [icon_field((@location.practice_court ? "training.svg" : "home.svg"))]
 	end
 
 	# return icon and top of FieldsComponent

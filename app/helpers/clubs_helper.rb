@@ -30,7 +30,7 @@ module ClubsHelper
 		clubs.each { |club|
 			row = {url: club_path(club), items: []}
 			row[:items] += [
-				{kind: "icon", value: club.logo, align: "center"},
+				icon_field(club.logo, align: "center"),
 				{kind: "normal", value: club.nick},
 				{kind: "contact", phone: club.phone, email: club.email, device: device}
 			]
@@ -81,24 +81,25 @@ module ClubsHelper
 
 	# return Club FieldsComponent @fields for forms
 	def club_form_fields(cols: 5)
+		iclass = "align-top mr-1"
 		res = [[
-			{kind: "icon", value: "website.svg", class: "align-top mr-1"},
+			icon_field("website.svg", iclass:),
 			{kind: "text-box", key: :website, value: @club.website, placeholder: I18n.t("club.website"), size: 31, cols:}
 		]]
 		res << [	# locale/country settings
-			{kind: "icon", value: "phone.svg", class: "align-top mr-1"},
+			icon_field("phone.svg", iclass:),
 			{kind: "text-box", key: :phone, size: 12, value: @club.phone, placeholder: I18n.t("person.phone")},
-			{kind: "icon", value: "flag.svg", tip: I18n.t("locale.country"), tipid: "ctry"},
+			icon_field("flag.svg", tip: I18n.t("locale.country"), tipid: "ctry"),
 			{kind: "text-box", align: "left", key: :country, value: @club.country, placeholder: "US", size: 2},
-			{kind: "icon", value: "locale.png", tip: I18n.t("locale.lang"), tipid: "lang"},
+			icon_field("locale.png", tip: I18n.t("locale.lang"), tipid: "lang"),
 			{kind: "select-box", align: "left", key: :locale, options: User.locale_list, value: @club.locale},
 		]
 		res << [
-			{kind: "icon", value: "at.svg", class: "align-top mr-1"},
+			icon_field("at.svg", iclass:),
 			{kind: "email-box", key: :email, value: @club.email, placeholder: I18n.t("person.email"), size: 34, cols:}
 		]
 		res << [
-			{kind: "icon", value: "home.svg", class: "align-top mr-1"},
+			icon_field("home.svg", iclass:),
 			{kind: "text-area", key: :address, size: 34, cols:, lines: 3, value: @club.address, placeholder: I18n.t("person.address")},
 		]
 	end

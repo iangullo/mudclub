@@ -28,20 +28,20 @@ module SlotsHelper
 	def slot_form_fields(title:)
 		res = slot_title_fields(title:, subtitle: @season&.name)
 		res << [
-			{kind: "icon", value: "team.svg"},
+			icon_field("team.svg"),
 			{kind: "select-collection", key: :team_id, options: @club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2}
 		]
 		res << [
-			{kind: "icon", value: "location.svg"},
+			icon_field("location.svg"),
 			{kind: "select-collection", key: :location_id, options: @locations, value: @slot.location_id, cols: 2}
 		]
 		res << [
-			{kind: "icon", value: "calendar.svg"},
+			icon_field("calendar.svg"),
 			{kind: "select-box", key: :wday, value: @slot.wday, options: weekdays},
 			{kind: "time-box", hour: @slot.hour, mins: @slot.min}
 		]
 		res << [
-			{kind: "icon", value: "clock.svg"},
+			icon_field("clock.svg"),
 			{kind: "number-box", key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins")}
 		]
 		res.last << {kind: "hidden", key: :season_id, value: @season.id}

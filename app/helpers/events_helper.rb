@@ -227,7 +227,7 @@ module EventsHelper
 	def task_show_fields(task:, team:, title: true)
 		res = []
 		res << [
-			{kind: "icon", value: "drill.svg", size: "30x30", align: "center"},
+			icon_field("drill.svg", size: "30x30", align: "center"),
 			{kind: "label", value: task.drill.name},
 			gap_field,
 			{kind: "icon-label", icon: "clock.svg", label: task.s_dur}
@@ -348,10 +348,10 @@ module EventsHelper
 		# complete event title with top-right corner elements
 		def event_top_right_fields(res:, form: nil, copy: false)
 			if form # top right corner of title
-				res[0] << {kind: "icon", value: "calendar.svg"}
+				res[0] << icon_field("calendar.svg")
 				res[0] << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
 				unless @event.rest? # add start_time inputs
-					res[1] << {kind: "icon", value: "clock.svg"}
+					res[1] << icon_field("clock.svg")
 					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, mins: @event.min}
 				end
 				res.last << {kind: "hidden", key: :team_id, value: @event.team_id} unless copy
@@ -359,10 +359,10 @@ module EventsHelper
 				res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 				res.last << {kind: "hidden", key: :kind, value: @event.kind}
 			else
-				res[0] << {kind: "icon", value: "calendar.svg", tip: I18n.t("calendar.date"), tipid: "caldate"}
+				res[0] << icon_field("calendar.svg", tip: I18n.t("calendar.date"), tipid: "caldate")
 				res[0] << {kind: "string", value: @event.date_string}
 				unless @event.rest?
-					res[1] << {kind: "icon", value: "clock.svg", tip: I18n.t("calendar.time"), tipid: "caltime"}
+					res[1] << icon_field("clock.svg", tip: I18n.t("calendar.time"), tipid: "caltime")
 					res[1] << {kind: "string", value: @event.time_string}
 				end
 			end
@@ -381,7 +381,7 @@ module EventsHelper
 		def match_title(res:, cols:, form:)
 			if form
 				res << [
-					{kind: "icon", value: "location.svg"},
+					iconf_field("location.svg"),
 					{kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'"},
 					{kind: "hidden", key: :homecourt_id, value: @event.team.homecourt_id, h_data: {match_location_target: "homeCourtId"}}
 				]
