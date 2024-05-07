@@ -45,7 +45,7 @@ class ApplicationController < ActionController::Base
 	end
 
 	# return GridComponent object from a grid hash
-	def create_grid(grid, controller: nil, align: "left")
+	def create_grid(grid, controller: nil, align: nil)
 		grid ? GridComponent.new(grid:, controller:, align:) : nil
 	end
 

@@ -32,12 +32,12 @@
 class GridComponent < ApplicationComponent
 	attr_writer :form
 
-	def initialize(grid:, form: nil, controller: nil, align: "left")
+	def initialize(grid:, form: nil, controller: nil, align: "center")
 		if controller	# add stimulus controller and data
 			@controller = controller
 			@data       = grid[:data].merge(action: "change->#{controller}#update")
 		end
-		@align  = align
+		@align  = align || "center"
 		@form   = form
 		@title  = parse_title(grid[:title])
 		@rows   = parse_rows(grid[:rows])
