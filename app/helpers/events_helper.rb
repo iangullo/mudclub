@@ -19,7 +19,7 @@
 module EventsHelper
 	# FieldComponents for event attendance
 	def event_attendance_title
-		res = title_start(icon: "attendance.svg", title: @event.team.name, subtitle: @event.to_s)
+		res = title_start(icon: "attendance.svg", title: @event.team.nick, subtitle: @event.to_s)
 		res[0] << gap_field
 		res[1] << gap_field
 		event_top_right_fields(res:)
@@ -44,7 +44,7 @@ module EventsHelper
 	# return a fields to show a copy event form
 	def event_copy_fields
 		if u_coach? || u_manager?
-			res = event_title_fields(form: true, cols: @event.match? ? 2 : nil, teams: @teams)
+			res = event_title_fields(form: true, teams: @teams)
 			res.last << {kind: "hidden", key: :copy, value: true}
 			res.last << {kind: "hidden", key: :duration, value: @event.duration}
 			res.last << {kind: "hidden", key: :id, value: @event.id}
@@ -95,9 +95,11 @@ module EventsHelper
 
 	# return icon and top of FieldsComponent
 	def event_index_title(team: nil, season: nil)
-		title    = team ? (team.name + " (#{team.season.name})") : season ? season.name : I18n.t("calendar.label")
-		subtitle = (title == I18n.t("calendar.label")) ? I18n.t("scope.all") : I18n.t("calendar.label")
+		title    = (team ? team.nick : (season ? season.name : I18n.t("calendar.label")))
+		subtitle = (team ? team.category.name : I18n.t("scope.all"))
 		res      = title_start(icon: "calendar.svg", title:, subtitle:)
+		res     += [[gap_field(size: 1), string_field(team.division.name + " (#{team.season.name})")]] if team
+		res
 	end
 
 	# A Field Component with top link + grid for events. obj is the parent oject (season/team)
@@ -379,56 +381,66 @@ module EventsHelper
 
 		# complete event title for matches
 		def match_title(res:, cols:, form:)
+			res << [{kind: "subtitle", value: @event.team.category.name}, gap_field]
+			res << [gap_field(size: 1),	string_field(@event.team.division.name + " (#{@event.team.season.name})"), gap_field]
 			if form
+				res[0][1][:cols] = nil
+				res <<[
+					gap_field(size: 1),
+					{kind: "side-cell", value: I18n.t("match.single"), align: "left", cols: 2},
+				]
 				res << [
-					iconf_field("location.svg"),
-					{kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'"},
+					icon_field("location.svg"),
+					{kind: "select-collection", key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'", cols: 6},
 					{kind: "hidden", key: :homecourt_id, value: @event.team.homecourt_id, h_data: {match_location_target: "homeCourtId"}}
 				]
 			else
 				if @event.location.gmaps_url
-					res << [
-						button_field({kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}),
-						gap_field
-					]
-				else
-					res << gap_row(cols: 2)
+					res.last << button_field({kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}, cols: 2)
 				end
 				if u_manager? || @event.team.has_coach(u_coachid)
-					res << [
-						gap_field(size: 1, cols: 3),
+					res <<[
+						gap_field(size: 1),
+						{kind: "side-cell", value: I18n.t("match.single"), align: "left", cols: 2},
 						button_field(
 							{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
 					]
+					res << gap_row
 				end
 			end
 		end
 
 		# complete event_title for train events
 		def train_title(res:, cols:, form:, subtitle: nil, chart: nil, rdx: @rdx)
-			value = subtitle || I18n.t("train.single")
-			res << [{kind: "subtitle", value:, cols:}]
+			tlabel = subtitle || I18n.t("train.single")
+			res << [{kind: "subtitle", value: @event.team.category.name, cols:}]
 			unless chart
 				if form
 					res.last << gap_field
-					res << [workload_button(align: "left", cols: 3)] if @event.id
-					res << gap_row(cols: 5)
+					res << [gap_field(size: 1), string_field(@event.team.division.name + " (#{@event.team.season.name})", cols: 2), workload_button(align: "left", cols: 2, rows: 2)]
+					res << [gap_field(size: 1), {kind: "side-cell", value: I18n.t("train.single"), cols: 2, align: "left"}]
+					res << gap_row(cols: 8)
 				elsif (u_manager? || u_coach?)
 					res.first[1][:cols] = 4	# modify cols to avoid issues with show
 					res.last << pdf_button(event_path(@event, format: :pdf))
 					res.last << gap_field
 					res << [
-						button_field(event_copy_button, align: "left", cols: 6),
+						button_field(event_copy_button, align: "left", class: "align-top", rows: 2),
+						string_field(@event.team.division.name + " (#{@event.team.season.name})", cols: 5, align: "left"),
+						workload_button(align: "left", cols: 2, rows: 2)
+					]
+					res << [{kind: "side-cell", value: I18n.t("train.single"), align: "left", cols: 5, class: "align-top"}]
+					res << [
+						gap_field(size:1, cols: 6),
 						button_field(
 							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
 					]
-					res << gap_row(cols: 8)
 				elsif u_player?
 					res << [gap_field, {kind: "label", value: current_user.to_s, cols: 3}]
 				end
@@ -437,13 +449,13 @@ module EventsHelper
 
 		# complete event_title for rest events
 		def rest_title(team: nil, season: nil, res:, cols:, form:)
-			res << [{kind: "subtitle", value: team ? team.name : season ? season.name : "", cols: cols}] if team or season
+			res << [{kind: "subtitle", value: team&.nick || season&.name || "", cols: cols}] if team or season
 			res << [form ? {kind: "text-box", key: :name, value: @event.name, placeholder: I18n.t("person.name")} : {kind: "label", value: @event.name}]
 		end
 
 		# return the dropdown element to access workload charts
-		def workload_button(cols: 2, align: "center")
-			res = { kind: "dropdown", align:, cols:,
+		def workload_button(cols: 2, rows: 1, align: "center")
+			res = { kind: "dropdown", align:, cols:, rows:,
 				button: {kind: "link", icon: "pie.svg", label: I18n.t("train.workload"), name: "show-chart",
 					options: [
 						{label: I18n.t("kind.single"), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},

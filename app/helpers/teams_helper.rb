@@ -83,7 +83,7 @@ module TeamsHelper
 		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		res << [
 			icon_field("user.svg", align: "right"),
-			{kind: "text-box", key: :name, value: @team.name, placeholder: I18n.t("team.single")},
+			{kind: "text-box", key: :name, value: @team.nick, placeholder: I18n.t("team.single")},
 			{kind: "hidden", key: :club_id, value: @clubid},
 			{kind: "hidden", key: :sport_id, value: (@sport&.id || 1)}	# will need to break this up for multi-sports in future
 		]
@@ -129,7 +129,7 @@ module TeamsHelper
 				cnt = team.players.pluck(:id)
 				url = team_path(team, rdx: @rdx)
 				row = {url: , items: []}
-				row[:items] << {kind: "normal", value: team.name}
+				row[:items] << {kind: "normal", value: team.nick}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} if @rdx==1
 				unless device=="mobile"
 					row[:items] << {kind: "normal", value: team.category.name, align: "center"}

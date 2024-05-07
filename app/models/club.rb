@@ -41,7 +41,7 @@ class Club < ApplicationRecord
 	validates :name, uniqueness: { allow_nil: true }
 	validates :nick, presence: true
 	validates :phone, uniqueness: { allow_nil: true }
-	validates :website, uniqueness: { allow_nil: true }
+#	validates :settings, uniqueness: { allow_nil: true }
 
 	# access setting for country
 	def country
@@ -76,10 +76,10 @@ class Club < ApplicationRecord
 		self.name     = f_data[:name] if f_data[:name].present?
 		self.nick     = f_data[:nick] if f_data[:nick].present?
 		self.phone    = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
-		self.settings[:country] = f_data[:country].presence || self.country || 'US'
-		self.settings[:locale]  = f_data[:locale].presence || self.locale || 'en'
-		self.settings[:social]  = f_data[:social].presence || self.social
-		self.settings[:website] = f_data[:website].presence || self.website
+		self.settings["country"] = f_data["country"].presence || self.country || 'US'
+		self.settings["locale"]  = f_data["locale"].presence || self.locale || 'en'
+		self.settings["social"]  = f_data["social"].presence || self.social
+		self.settings["website"] = f_data["website"].presence || self.website
 		self.update_attachment("avatar", f_data[:avatar])
 	end
 
