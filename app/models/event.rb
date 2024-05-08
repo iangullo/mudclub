@@ -211,7 +211,7 @@ class Event < ApplicationRecord
 				m_data = self.to_hash
 				return "#{m_data[:home_t]} - #{m_data[:away_t]}"
 			else
-				cad = self.team.nick
+				cad = self.team.to_s
 			end
 		else
 			cad += "(¿?)"

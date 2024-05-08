@@ -423,7 +423,7 @@ module EventsHelper
 					res << [gap_field(size: 1), string_field(@event.team.division.name + " (#{@event.team.season.name})", cols: 2), workload_button(align: "left", cols: 2, rows: 2)]
 					res << [gap_field(size: 1), {kind: "side-cell", value: I18n.t("train.single"), cols: 2, align: "left"}]
 					res << gap_row(cols: 8)
-				elsif (u_manager? || u_coach?)
+				elsif (u_manager? || u_coach?) && @event.id
 					res.first[1][:cols] = 4	# modify cols to avoid issues with show
 					res.last << pdf_button(event_path(@event, format: :pdf))
 					res.last << gap_field
