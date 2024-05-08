@@ -420,7 +420,8 @@ module EventsHelper
 			unless chart
 				if form
 					res.last << gap_field
-					res << [gap_field(size: 1), string_field(@event.team.division.name + " (#{@event.team.season.name})", cols: 2), workload_button(align: "left", cols: 2, rows: 2)]
+					res << [gap_field(size: 1), string_field(@event.team.division.name + " (#{@event.team.season.name})", cols: 2)]
+					res.last << workload_button(align: "left", cols: 2, rows: 2) if @event.id
 					res << [gap_field(size: 1), {kind: "side-cell", value: I18n.t("train.single"), cols: 2, align: "left"}]
 					res << gap_row(cols: 8)
 				elsif (u_manager? || u_coach?) && @event.id
