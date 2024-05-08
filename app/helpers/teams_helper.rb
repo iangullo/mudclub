@@ -167,6 +167,15 @@ module TeamsHelper
 		res
 	end
 
+	# fields for team time-slots view
+	def team_slots_fields
+		res = [[gap_field, {kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("slot.many"), align: "left"}]]
+		@team.slots.order(:wday).each do |slot|
+			res << [gap_field(size: 1), gap_field(size: 1), string_field(slot.to_s)]
+		end
+		res << [gap_field(size: 1), {kind: "icon-label", icon: "location.svg", label: @team.slots.first.court, cols: 2}]
+	end
+
 	# return FieldComponent for team view title
 	def team_title_fields(title:, cols: nil, search: nil, edit: nil)
 		clubid = @club&.id || @clubid || u_clubid
@@ -183,14 +192,6 @@ module TeamsHelper
 				[{kind: "label", value: @team.category.name}],
 				[gap_field(size:0), {kind: "text", value: "#{@team.division.name} (#{@team.season.name})"}]
 			]
-			w_l = @team.win_loss
-			if w_l[:won]>0 or w_l[:lost]>0
-				wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
-				res << [
-					gap_field,
-					{kind: "text", value: wlstr}
-				]
-			end
 		else # player teams index
 			res << [{kind: "subtitle", value: current_user.player.s_name}]
 		end

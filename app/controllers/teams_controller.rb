@@ -53,7 +53,13 @@ class TeamsController < ApplicationController
 	def show
 		if check_access(obj: @club) || check_access(obj: @team)
 			@sport   = @team.sport.specific
-			@title   = create_fields(helpers.team_title_fields(title: @team.to_s))
+			title    = helpers.team_title_fields(title: @team.to_s)
+			w_l = @team.win_loss
+			if w_l[:won] > 0 || w_l[:lost] > 0
+				wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
+				title << [helpers.gap_field, {kind: "text", value: wlstr}]
+			end
+			@title   = create_fields(title)
 			@coaches = create_fields(helpers.team_coaches)
 			if u_manager? || u_coach?
 				@links = create_fields(helpers.team_links)
@@ -180,7 +186,7 @@ class TeamsController < ApplicationController
 		if check_access(obj: @club) || (u_coach? && @clubid==u_clubid)
 			title   = helpers.team_title_fields(title: @team.to_s)
 			players = @team.players
-			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster")}, {kind: "string", value: "(#{players.count} #{I18n.t("player.abbr")})"}]
+			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster"), align: "left"}, {kind: "string", value: "(#{players.count} #{I18n.t("player.abbr")})"}]
 			@title  = create_fields(title)
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.player_grid(team: @team, players: players.order(:number)))
@@ -195,7 +201,7 @@ class TeamsController < ApplicationController
 	def edit_roster
 		if (@clubid==u_clubid && u_manager?) || @team.has_coach(u_coachid)
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "label", value: I18n.t("team.roster_edit")}]
+			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster_edit"), align: "left"}]
 			@title  = create_fields(title)
 			@submit = create_submit(close: "cancel", retlnk: roster_team_path(rdx: @rdx))
 			@eligible_players = @team.eligible_players
@@ -208,8 +214,8 @@ class TeamsController < ApplicationController
 	def slots
 		if check_access(obj: @club) || check_access(obj: @team)
 			title   = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "timetable.svg", size: "30x30"}, {kind: "label", value: I18n.t("slot.many")}]
-			@fields = create_fields(title)
+			@title  = create_fields(title)
+			@fields = create_fields(helpers.team_slots_fields) unless @team.slots.empty?
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -220,7 +226,7 @@ class TeamsController < ApplicationController
 		if check_access(obj: @club) || (u_coach? && @clubid==u_clubid)
 			global_targets(true)	# get & breakdown global targets
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.many")}]
+			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.many"), align: "left"}]
 			@title  = create_fields(title)
 			edit    = ((u_manager? || @team.has_coach(u_coachid)) ? edit_targets_team_path(rdx: @rdx) : nil)
 			@submit = create_submit(close: "back", retlnk: team_path(rdx: @rdx), submit: edit)
@@ -236,7 +242,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			global_targets(false)	# get global targets
 			title   = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "label", value: I18n.t("target.edit")}]
+			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.edit"), align: "left"}]
 			@title  = create_fields(title)
 			@submit = create_submit(close: "cancel", retlnk: targets_team_path(rdx: @rdx))
 		else
@@ -249,7 +255,7 @@ class TeamsController < ApplicationController
 		if check_access(obj: @club) || (u_coach? && @clubid==u_clubid)
 			plan_targets
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.single")}]
+			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.single"), align: "left"}]
 			@title = create_fields(title)
 			edit    = ((u_manager? || @team.has_coach(u_coachid)) ? edit_plan_team_path(rdx: @rdx) : nil)
 			@submit = create_submit(close: "back", retlnk: team_path(rdx: @rdx), submit: edit)
@@ -264,7 +270,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			plan_targets
 			title   = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "label", value: I18n.t("plan.edit")}]
+			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.edit"), align: "left"}]
 			@title  = create_fields(title)
 			@submit = create_submit(close: "cancel", retlnk: plan_team_path(rdx: @rdx))
 		else
@@ -276,7 +282,7 @@ class TeamsController < ApplicationController
 	def attendance
 		if check_access(obj: @club) || (u_coach? && @clubid==u_clubid)
 			title  = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "label", value: I18n.t("calendar.attendance")}]
+			title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("calendar.attendance"), align: "left"}]
 			@title = create_fields(title)
 			a_data = helpers.team_attendance_grid
 			if a_data
