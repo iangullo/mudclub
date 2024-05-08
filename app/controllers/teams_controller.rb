@@ -81,7 +81,7 @@ class TeamsController < ApplicationController
 	def new
 		if check_access(obj: @club)
 			@eligible_coaches = @club.coaches
-			@team   = Team.new(club_id: @club.id, name: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
+			@team   = Team.new(club_id: @club.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
 			@submit = create_submit(retlnk: club_teams_path(@clubid, rdx: 0))
 		else
