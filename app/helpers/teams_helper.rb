@@ -129,8 +129,8 @@ module TeamsHelper
 				cnt = team.players.pluck(:id)
 				url = team_path(team, rdx: @rdx)
 				row = {url: , items: []}
-				row[:items] << {kind: "normal", value: team.nick}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} if @rdx==1
+				row[:items] << {kind: "normal", value: team.nick}
 				unless device=="mobile"
 					row[:items] << {kind: "normal", value: team.category.name, align: "center"}
 					row[:items] << {kind: "normal", value: team.division.name, align: "center"}
