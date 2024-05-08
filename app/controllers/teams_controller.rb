@@ -401,7 +401,7 @@ class TeamsController < ApplicationController
 				:coaches,
 				:division_id,
 				:homecourt_id,
-				:name,
+				:nick,
 				:players,
 				:rdx,
 				:rules,

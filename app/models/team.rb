@@ -179,7 +179,7 @@ class Team < ApplicationRecord
 		self.club_id      = f_data[:club_id].presence if f_data[:club_id].present?
 		self.division_id  = f_data[:division_id].to_i if f_data[:division_id]
 		self.homecourt_id = f_data[:homecourt_id].to_i if f_data[:homecourt_id]
-		self.name         = f_data[:name] if f_data[:name]
+		self.nick         = f_data[:nick].presence if f_data[:nick].present?
 		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
 		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
 		check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
