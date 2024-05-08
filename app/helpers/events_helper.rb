@@ -19,10 +19,11 @@
 module EventsHelper
 	# FieldComponents for event attendance
 	def event_attendance_title
-		res = title_start(icon: "attendance.svg", title: @event.team.nick, subtitle: @event.to_s)
+		res = title_start(icon: "attendance.svg", title: @event.team.nick, subtitle: @event.team.category.name)
 		res[0] << gap_field
 		res[1] << gap_field
 		event_top_right_fields(res:)
+		res << [gap_field(size: 0), string_field(@event.team.division.name + " (#{@event.team.season.name})", cols: 5, align: "left")]
 		res << gap_row(cols: 6)
 	end
 
