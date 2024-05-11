@@ -102,7 +102,7 @@ class SlotsController < ApplicationController
 		if check_access(obj: @slot.team.club)
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
-				retlnk = club_slots_path(@slot.club, season_id: @seasonid, location_id: @slot.location_id)
+				retlnk = club_slots_path(@slot.team.club, season_id: @seasonid, location_id: @slot.location_id)
 				if @slot.changed?
 					if @slot.save
 						a_desc = "#{I18n.t("slot.updated")} '#{@slot.to_s}'"
