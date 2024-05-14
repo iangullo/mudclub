@@ -51,7 +51,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
-		if check_access(obj: @club) || check_access(obj: @team)
+		if check_access(obj: @club) || check_access(obj: @team) || (u_coach? && @clubid==u_clubid)
 			@sport   = @team.sport.specific
 			title    = helpers.team_title_fields(title: @team.to_s)
 			w_l = @team.win_loss
@@ -212,7 +212,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/slots
 	def slots
-		if check_access(obj: @club) || check_access(obj: @team)
+		if check_access(obj: @club) || check_access(obj: @team) || (u_coach? && @clubid==u_clubid)
 			title   = helpers.team_title_fields(title: @team.to_s)
 			@title  = create_fields(title)
 			@fields = create_fields(helpers.team_slots_fields) unless @team.slots.empty?

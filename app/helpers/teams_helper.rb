@@ -131,8 +131,8 @@ module TeamsHelper
 				row = {url: , items: []}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} if @rdx==1
 				row[:items] << {kind: "normal", value: team.nick}
+				row[:items] << {kind: "normal", value: team.category.name, align: "center"}
 				unless device=="mobile"
-					row[:items] << {kind: "normal", value: team.category.name, align: "center"}
 					row[:items] << {kind: "normal", value: team.division.name, align: "center"}
 				end
 				if add_teams
