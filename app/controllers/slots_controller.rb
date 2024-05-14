@@ -236,9 +236,9 @@ class SlotsController < ApplicationController
 
 		def set_slot
 			@slot = Slot.find_by_id(params[:id].presence) unless @slot&.id == params[:id].presence.to_i
-			@club = @slot&.team.club
+			@club = @slot&.team&.club
 			@clubid = @club.id
-			get_season(obj: @slot)
+			@season = @slot&.team&.season
 			set_location
 		end
 
