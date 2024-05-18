@@ -8,9 +8,9 @@ import Sortable from 'stimulus-sortable'
 export default class extends Sortable {
   static targets = [ "sortable-list" ]
 
-	connect() {
+  connect() {
     super.connect()
-	}
+  }
 
   remove(event) {
     const item = event.currentTarget.closest(".draggable");
