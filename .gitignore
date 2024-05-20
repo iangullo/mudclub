@@ -43,4 +43,4 @@ Gemfile.lock
 .vscode/settings.json
 app/assets/builds/tailwind.css
 storage/.keep
-app/assets/builds/tailwind.css
+package-lock.json
