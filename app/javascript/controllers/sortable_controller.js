@@ -9,7 +9,8 @@ export default class extends Sortable {
   static targets = [ "sortable-list" ]
 
   connect() {
-    super.connect()
+    super.connect();
+    console.log("Loading sortable controller...");
   }
 
   remove(event) {
@@ -27,7 +28,7 @@ export default class extends Sortable {
       item.appendChild(hiddenInput);
     }
 
-    console.log('hiding item with ID:', idInput)
+    //console.log('hiding item with ID:', idInput)
     item.style.display = "none";
 
     event.preventDefault();

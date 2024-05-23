@@ -178,21 +178,21 @@ class ApplicationController < ActionController::Base
 	def u_coach?
 		current_user&.is_coach?
 	end
+ 
+	def u_coachid
+		current_user&.person&.coach_id
+	end
+
+	def u_personid
+		current_user&.person&.id
+	end
 
 	def u_player?
 		current_user&.is_player?
 	end
- 
-	def u_coachid
-		current_user&.person.coach_id
-	end
 
 	def u_playerid
-		current_user&.person.player_id
-	end
-
-	def u_personid
-		current_user&.person.id
+		current_user&.person&.player_id
 	end
 
 	def u_userid
