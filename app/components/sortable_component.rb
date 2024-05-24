@@ -37,8 +37,8 @@ class SortableComponent < ApplicationComponent
 	def call
 		t_cls   = "draggable bg-gray-100 text-left text-gray-700 rounded-md hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200 focus:ring-blue-900"
 		c_style = "display: grid; grid-template-columns: 1fr;"
-		content_tag(:turbo_frame, id: "sortable-list", class: "contents", data: { controller: "sortable" }) do
-			content_tag(:div, "data-sortable-animation-value": 150, style: c_style) do
+		content_tag(:turbo_frame, id: "sortable-list", class: "contents") do
+			content_tag(:div, data: { controller: "sortable", "sortable-animation-value": 150}, style: c_style) do
 				@form.fields_for(@key, @form.object.send(@key).order(@order)) do |ff|
 					content_tag(:div, class: t_cls) do
 						concat ff.hidden_field(:id)
