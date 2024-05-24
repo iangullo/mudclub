@@ -10,7 +10,6 @@ export default class extends Sortable {
 
   connect() {
     super.connect();
-    console.log("Loading sortable controller...");
   }
 
   remove(event) {
