@@ -112,10 +112,10 @@ module TeamsHelper
 	# return a GridComponent for the teams given
 	def team_grid(teams: @teams, add_teams: false)
 		if teams
-			title = (@rdx==1 ? [{kind: "normal", value: I18n.t("season.abbr")}] : [])
+			title = ((@rdx==1 || @player || @coach) ? [{kind: "normal", value: I18n.t("season.abbr")}] : [])
 			title << {kind: "normal", value: I18n.t("team.single")} unless device=="mobile"
 			title << {kind: "normal", value: I18n.t("category.single")}
-			title << {kind: "normal", value: I18n.t("division.single")}
+			title << {kind: "normal", value: I18n.t("division.single")} unless device=="mobile"
 			if add_teams
 				unless device=="mobile"
 					title << {kind: "normal", value: I18n.t("player.abbr")}
@@ -128,10 +128,10 @@ module TeamsHelper
 			teams.each { |team|
 				url = team_path(team, rdx: @rdx)
 				row = {url: , items: []}
-				row[:items] << {kind: "normal", value: team.season.name, align: "center"} if @rdx==1
+				row[:items] << {kind: "normal", value: team.season.name, align: "center"} if (@rdx==1 || @player || @coach)
 				row[:items] << {kind: "normal", value: team.nick} unless device=="mobile"
 				row[:items] << {kind: "normal", value: team.category.name, align: "center"}
-				row[:items] << {kind: "normal", value: team.division.name, align: "center"}
+				row[:items] << {kind: "normal", value: team.division.name, align: "center"} unless device=="mobile"
 				if add_teams
 					unless device=="mobile"
 						cnt = team.players.pluck(:id)
