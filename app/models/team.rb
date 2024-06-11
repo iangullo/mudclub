@@ -198,8 +198,11 @@ class Team < ApplicationRecord
 	end
 
 	# return team name in string format
-	def to_s(long: false)
-		if self.nick.present?
+	def to_s(long: false, xls: false)
+		if xls
+			cad = self.category.to_s.gsub(/[\/|\\|?|*|:|\[|\]]/,"")[0, 27]
+			cad += "_#{self.id.to_s.rjust(3, '0')}"
+		elsif self.nick.present?
 			cad = self.id==0 ? I18n.t("scope.none") : self.nick
 			cad = "#{cad} - #{self.category.to_s}" if long
 		else

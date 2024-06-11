@@ -1,6 +1,6 @@
 wb = xlsx_package.workbook
 @teams.each do |team|
-	wb.add_worksheet(name: team.to_s) do |sheet|
+	wb.add_worksheet(name: team.to_s(xls: true)) do |sheet|
 		# Create the header row
 		sheet.add_row [t("player.number"), t("person.pid"), t("person.name"), t("person.surname"), t("person.bday"), t("person.address"), t("person.email"), t("person.phone"),]
 		team.players.each do |player|	# Create entries for each item
