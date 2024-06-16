@@ -36,7 +36,7 @@ class TeamsController < ApplicationController
 				format.html do
 					title  = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
 					page   = paginate(@teams)	# paginate results
-					grid   = helpers.team_grid(teams: page, add_teams: (u_admin? || u_manager?))
+					grid   = helpers.team_grid(teams: page, add_teams: (u_admin? || (@clubid == u_clubid && u_manager?)))
 					retlnk = @clubid ? club_path(@clubid) : (u_admin? ? clubs_path : "/")
 					submit = {kind: "export", url: club_teams_path(@clubid, format: :xlsx), working: false} if u_manager?
 					create_index(title:, grid:, page:, retlnk:, submit:)
