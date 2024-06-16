@@ -190,7 +190,7 @@ class Team < ApplicationRecord
 
 	# return list of potential rivals - used for text boxes - matching category & season
 	def rival_teams_info
-		self.rival_teams.map { |team| [team.nick, team.homecourt_id] }.to_h
+		self.rival_teams.map { |team| [team.name, team.homecourt_id] }.to_h
 	end
 
 	# return team name in string format
