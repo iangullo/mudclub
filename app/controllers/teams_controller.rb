@@ -53,7 +53,7 @@ class TeamsController < ApplicationController
 	def show
 		if check_access(obj: @club) || check_access(obj: @team) || (u_coach? && @clubid==u_clubid)
 			@sport   = @team.sport.specific
-			title    = helpers.team_title_fields(title: @team.to_s)
+			title    = helpers.team_title_fields(title: @team.name)
 			w_l = @team.win_loss
 			if w_l[:won] > 0 || w_l[:lost] > 0
 				wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
@@ -184,7 +184,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1/roster
 	def roster
 		if check_access(obj: @club) || (u_coach? && @clubid==u_clubid)
-			title   = helpers.team_title_fields(title: @team.to_s)
+			title   = helpers.team_title_fields(title: @team.nick)
 			players = @team.players
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster"), align: "left"}, {kind: "string", value: "(#{players.count} #{I18n.t("player.abbr")})"}]
 			@title  = create_fields(title)

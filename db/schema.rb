@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_05_07_132813) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_16_065826) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -328,6 +328,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_07_132813) do
     t.bigint "homecourt_id", default: 0
     t.bigint "sport_id"
     t.bigint "club_id", default: 0
+    t.string "name"
     t.index ["category_id"], name: "index_teams_on_category_id"
     t.index ["club_id"], name: "index_teams_on_club_id"
     t.index ["division_id"], name: "index_teams_on_division_id"

@@ -380,7 +380,7 @@ class EventsController < ApplicationController
 			teams = (u_manager? ? u_club.teams.for_season(@season.id) : current_user.coach.team_list(season_id: @season.id))
 			opts  = []
 			teams.each do |team|
-				opts << {id: team.id, name: team.to_s(long: true)}
+				opts << {id: team.id, name: team.nick}
 			end
 			return opts
 		end

@@ -147,11 +147,6 @@ class Team < ApplicationRecord
 		res
 	end
 
-	# Wrapper to provide team name strings
-	def name
-		self.to_s(long: true)
-	end
-
 	# return next free training_slot
 	# after the last existing one in the calendar
 	def next_slot(last=nil)
@@ -179,6 +174,7 @@ class Team < ApplicationRecord
 		self.club_id      = f_data[:club_id].presence if f_data[:club_id].present?
 		self.division_id  = f_data[:division_id].to_i if f_data[:division_id]
 		self.homecourt_id = f_data[:homecourt_id].to_i if f_data[:homecourt_id]
+		self.name         = f_data[:name].presence if f_data[:name].present?
 		self.nick         = f_data[:nick].presence if f_data[:nick].present?
 		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
 		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
@@ -198,16 +194,14 @@ class Team < ApplicationRecord
 	end
 
 	# return team name in string format
-	def to_s(long: false, xls: false)
+	def to_s(xls: false)
 		if xls
 			cad = self.category.to_s.gsub(/[\/|\\|?|*|:|\[|\]]/,"")[0, 27]
 			cad += "_#{self.id.to_s.rjust(3, '0')}"
 		elsif self.nick.present?
 			cad = self.id==0 ? I18n.t("scope.none") : self.nick
-			cad = "#{cad} - #{self.category.to_s}" if long
 		else
 			cad = self.category.to_s
-			cad = "#{cad} (#{self.season.to_s})" if long
 		end
 		return cad
 	end

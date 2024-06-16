@@ -83,7 +83,7 @@ module TeamsHelper
 		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		res << [
 			icon_field("user.svg", align: "right"),
-			{kind: "text-box", key: :nick, value: @team.nick, placeholder: I18n.t("team.single")},
+			{kind: "text-box", key: :name, value: @team.name, placeholder: I18n.t("team.single")},
 			{kind: "hidden", key: :club_id, value: @clubid},
 			{kind: "hidden", key: :sport_id, value: (@sport&.id || 1)}	# will need to break this up for multi-sports in future
 		]
@@ -113,9 +113,11 @@ module TeamsHelper
 	def team_grid(teams: @teams, add_teams: false)
 		if teams
 			title = ((@rdx==1 || @player || @coach) ? [{kind: "normal", value: I18n.t("season.abbr")}] : [])
-			title << {kind: "normal", value: I18n.t("team.single")} unless device=="mobile"
-			title << {kind: "normal", value: I18n.t("category.single")}
-			title << {kind: "normal", value: I18n.t("division.single")} unless device=="mobile"
+			title << {kind: "normal", value: I18n.t("team.single")}
+			unless device=="mobile"
+				title << {kind: "normal", value: I18n.t("category.single")}
+				title << {kind: "normal", value: I18n.t("division.single")}
+			end
 			if add_teams
 				unless device=="mobile"
 					title << {kind: "normal", value: I18n.t("player.abbr")}
@@ -129,9 +131,11 @@ module TeamsHelper
 				url = team_path(team, rdx: @rdx)
 				row = {url: , items: []}
 				row[:items] << {kind: "normal", value: team.season.name, align: "center"} if (@rdx==1 || @player || @coach)
-				row[:items] << {kind: "normal", value: team.nick} unless device=="mobile"
-				row[:items] << {kind: "normal", value: team.category.name, align: "center"}
-				row[:items] << {kind: "normal", value: team.division.name, align: "center"} unless device=="mobile"
+				row[:items] << {kind: "normal", value: team.nick}
+				unless device=="mobile"
+					row[:items] << {kind: "normal", value: team.category.name, align: "center"}
+					row[:items] << {kind: "normal", value: team.division.name, align: "center"}
+				end
 				if add_teams
 					unless device=="mobile"
 						cnt = team.players.pluck(:id)
@@ -185,7 +189,11 @@ module TeamsHelper
 			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: s_id}]
 			res.last.first[:filter] = {key: :club_id, value: clubid}
 		elsif edit and u_manager?
-			res << [{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}]
+			res << [{kind: "text-box", key: :nick, value: @team.nick, placeholder: I18n.t("team.single")}]
+			res << [
+				icon_field("calendar.svg", align: "right"),
+				{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}
+			]
 			res.last.first[:filter] = {key: :club_id, value: clubid}
 		elsif @team
 			res += [
