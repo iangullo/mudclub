@@ -25,7 +25,7 @@ class TeamsController < ApplicationController
 	def index
 		if check_access(roles: [:admin, :manager, :coach])
 			@club   = Club.find_by_id(@clubid)
-			@teams  = @club.teams.where(season_id: @seasonid).order(:category_id)
+			@teams  = @club.teams.where(season_id: @seasonid).order(:category_id, :name)
 			respond_to do |format|
 				format.xlsx do
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
