@@ -190,20 +190,19 @@ class Team < ApplicationRecord
 
 	# return list of potential rivals - used for text boxes - matching category & season
 	def rival_teams_info
-		self.rival_teams.map { |team| [team.name, team.homecourt_id] }.to_h
+		self.rival_teams.map { |team| [team.nick, team.homecourt_id] }.to_h
 	end
 
 	# return team name in string format
 	def to_s(xls: false)
 		if xls
 			cad = self.category.to_s.gsub(/[\/|\\|?|*|:|\[|\]]/,"")[0, 27]
-			cad += "_#{self.id.to_s.rjust(3, '0')}"
-		elsif self.nick.present?
-			cad = self.id==0 ? I18n.t("scope.none") : self.nick
-		else
-			cad = self.category.to_s
+			return cad += "_#{self.id.to_s.rjust(3, '0')}"
 		end
-		return cad
+		return I18n.t("scope.none") if self.id==0
+		return self.name if self.name.present?
+		return self.nick if self.nick.present?
+		return self.category.to_s
 	end
 
 	# Return upcoming events for the Team

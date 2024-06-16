@@ -40,7 +40,7 @@ class SlotsController < ApplicationController
 	# GET /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def show
 		if check_access(obj: @slot.team.club)
-			@title   = create_fields(helpers.slot_title_fields(title: @slot.team.nick, subtitle: @slot.team.season.name))
+			@title   = create_fields(helpers.slot_title_fields(title: @slot.team.to_s, subtitle: @slot.team.season.name))
 			@fields  = create_fields(helpers.slot_show_fields)
 			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot) : nil, frame: u_manager? ? "modal" : nil)
 		else
