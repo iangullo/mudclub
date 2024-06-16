@@ -45,7 +45,7 @@ module LocationsHelper
 
 		rows = Array.new
 		locations.each { |loc|
-			url = editor ? location_path(loc, club_id: @clubid) : "#"
+			url = editor ? location_path(loc, club_id: @clubid) : location_path(loc)
 			row = {url:, frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: loc.name}
 			row[:items] << icon_field((loc.practice_court ? "training.svg" : "home.svg"), align: "center")
