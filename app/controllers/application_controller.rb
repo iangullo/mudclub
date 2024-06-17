@@ -253,7 +253,7 @@ class ApplicationController < ActionController::Base
 			when Coach
 				return (u_coachid==obj.id)
 			when Club
-				return u_admin? || (u_manager? && obj.id==u_clubid)
+				return u_admin? || (u_manager? && (obj == nil || obj.id==u_clubid))
 			when Drill
 				return (u_coachid==obj.coach_id) || (u_manager? && obj.coach.club_id==u_clubid)
 			when Event
@@ -267,7 +267,7 @@ class ApplicationController < ActionController::Base
 			when User
 				return (u_userid==@user.id)
 			else # including NilClass"
-				return u_admin?
+				return u_manager?
 			end
 		end
 
