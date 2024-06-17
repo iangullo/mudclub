@@ -42,7 +42,7 @@ module ClubsHelper
 
 	# FieldComponent fields for club links
 	def club_links
-		if @clubid == u_clubid	# user's club
+		if user_in_club?	# user's club
 			res = [
 				[
 					button_field({kind: "jump", icon: "player.svg", url: club_players_path(@club, rdx: 0), label: I18n.t("player.many")}, align: "center"),
