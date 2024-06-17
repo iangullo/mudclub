@@ -23,7 +23,7 @@ class EventsController < ApplicationController
 
 	# GET /events or /events.json
 	def index
-		if check_access(roles: [:admin]) || (@clubid == u_clubid)
+		if check_access(roles: [:admin]) || user_in_club?
 			get_event_context
 			start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
 			club       = Club.find_by_id(@clubid)
@@ -42,7 +42,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1 or /events/1.json
 	def show
-		if @clubid == u_clubid && check_access(roles: [:manager, :coach], obj: @event.team)
+		if user_in_club? && check_access(roles: [:manager, :coach], obj: @event.team)
 			respond_to do |format|
 				title = helpers.event_title_fields(cols: @event.train? ? 3 : nil)
 				format.pdf do
@@ -209,7 +209,7 @@ class EventsController < ApplicationController
 
 	# POST /events/1/copy
 	def copy
-		if @clubid == u_clubid && check_access(roles: [:manager, :coach])
+		if user_in_club? && check_access(roles: [:manager, :coach])
 			@season = Season.latest
 			@teams  = get_teams
 			if @teams	# we have some teams we can copy to
@@ -244,7 +244,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/show_task
 	def show_task
-		if @clubid == u_clubid && check_access(roles: [:manager, :coach])
+		if user_in_club? && check_access(roles: [:manager, :coach])
 			@task   = Task.find(params[:task_id])
 			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
 			@submit = create_submit(close: "back", retlnk: :back, submit: (u_manager? or @event.team.has_coach(u_coachid)) ? edit_task_event_path(task_id: @task.id) : nil)
@@ -255,7 +255,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/load_chart
 	def load_chart
-		if @clubid == u_clubid && check_access(roles: [:manager, :coach])
+		if user_in_club? && check_access(roles: [:manager, :coach])
 			header = helpers.event_title_fields(cols: @event.train? ? 3 : nil, chart: true)
 			@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
 		else

@@ -40,7 +40,7 @@ class ClubsController < ApplicationController
 		if check_access(roles: [:admin, :manager])
 			@title  = create_fields(helpers.club_show_title)
 			@links  = create_fields(helpers.club_links)
-			if (@clubid == u_clubid)	# my own club: show events
+			if (user_in_club?)	# my own club: show events
 				@grid   = create_fields(helpers.event_list_grid(obj: Season.latest))
 			else	# off return to  the user's club
 				close  = "back"

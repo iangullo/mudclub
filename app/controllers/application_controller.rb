@@ -204,6 +204,13 @@ class ApplicationController < ActionController::Base
 		user_signed_in? ? user_path(current_user, rdx: 1) : "/"
 	end
 
+	# Check whether the user's club ID is the same as @clubid
+	# @return [Boolean] - True if the current_user's club ID matches @clubid, otherwise false
+	def user_in_club?
+		return false unless @clubid
+		@clubid == u_clubid
+	end
+
 	# check if a string is a valid date
 	def valid_date(v_string)
 		return nil if (d_str = v_string&.last(10))&.length != 10

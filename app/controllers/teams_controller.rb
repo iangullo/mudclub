@@ -36,7 +36,7 @@ class TeamsController < ApplicationController
 				format.html do
 					title  = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
 					page   = paginate(@teams)	# paginate results
-					grid   = helpers.team_grid(teams: page, add_teams: (u_admin? || (@clubid == u_clubid && u_manager?)))
+					grid   = helpers.team_grid(teams: page, add_teams: (u_admin? || (user_in_club? && u_manager?)))
 					retlnk = @clubid ? club_path(@clubid) : (u_admin? ? clubs_path : "/")
 					submit = {kind: "export", url: club_teams_path(@clubid, format: :xlsx), working: false} if u_manager?
 					create_index(title:, grid:, page:, retlnk:, submit:)
@@ -51,7 +51,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
-		if check_access(obj: @club) || check_access(obj: @team) || (u_coach? && @clubid==u_clubid)
+		if check_access(obj: @club) || check_access(obj: @team) || (u_coach? && user_in_club?)
 			@sport   = @team.sport.specific
 			title    = helpers.team_title_fields(title: @team.nick)
 			w_l = @team.win_loss
@@ -110,7 +110,7 @@ class TeamsController < ApplicationController
 				@team = Team.build(team_params)
 				if @team.save
 					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
-					c_path = (@clubid==u_clubid ? team_path(@team, rdx: 0) : club_teams_path(@clubid))
+					c_path = (user_in_club? ? team_path(@team, rdx: 0) : club_teams_path(@clubid))
 					register_action(:created, a_desc, url: team_path(@team, rdx: 2))
 					format.html { redirect_to c_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: c_path }
@@ -183,7 +183,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/roster
 	def roster
-		if check_access(obj: @club) || (u_coach? && @clubid==u_clubid)
+		if check_access(obj: @club) || (u_coach? && user_in_club?)
 			title   = helpers.team_title_fields(title: @team.nick)
 			players = @team.players
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster"), align: "left"}, {kind: "string", value: "(#{players.count} #{I18n.t("player.abbr")})"}]
@@ -199,7 +199,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_roster
 	def edit_roster
-		if (@clubid==u_clubid && u_manager?) || @team.has_coach(u_coachid)
+		if (user_in_club? && u_manager?) || @team.has_coach(u_coachid)
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster_edit"), align: "left"}]
 			@title  = create_fields(title)
@@ -212,7 +212,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/slots
 	def slots
-		if check_access(obj: @club) || check_access(obj: @team) || (u_coach? && @clubid==u_clubid)
+		if check_access(obj: @club) || check_access(obj: @team) || (u_coach? && user_in_club?)
 			title   = helpers.team_title_fields(title: @team.to_s)
 			@title  = create_fields(title)
 			@fields = create_fields(helpers.team_slots_fields) unless @team.slots.empty?
@@ -223,7 +223,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/targets
 	def targets
-		if check_access(obj: @club) || (u_coach? && @clubid==u_clubid)
+		if check_access(obj: @club) || (u_coach? && user_in_club?)
 			global_targets(true)	# get & breakdown global targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.many"), align: "left"}]
@@ -238,7 +238,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_targets
 	def edit_targets
-		if (@clubid==u_clubid && u_manager?) || @team.has_coach(u_coachid)
+		if (user_in_club? && u_manager?) || @team.has_coach(u_coachid)
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			global_targets(false)	# get global targets
 			title   = helpers.team_title_fields(title: @team.to_s)
@@ -252,7 +252,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_targets
 	def plan
-		if check_access(obj: @club) || (u_coach? && @clubid==u_clubid)
+		if check_access(obj: @club) || (u_coach? && user_in_club?)
 			plan_targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.single"), align: "left"}]
@@ -266,7 +266,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_plan
 	def edit_plan
-		if (@clubid==u_clubid && u_manager?) || @team.has_coach(u_coachid)
+		if (user_in_club? && u_manager?) || @team.has_coach(u_coachid)
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			plan_targets
 			title   = helpers.team_title_fields(title: @team.to_s)
@@ -280,7 +280,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/attendance
 	def attendance
-		if check_access(obj: @club) || (u_coach? && @clubid==u_clubid)
+		if check_access(obj: @club) || (u_coach? && user_in_club?)
 			title  = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("calendar.attendance"), align: "left"}]
 			@title = create_fields(title)
