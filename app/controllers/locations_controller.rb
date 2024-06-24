@@ -38,7 +38,8 @@ class LocationsController < ApplicationController
 	def show
 		if user_signed_in?	# basically all users can see this
 			@fields = create_fields(helpers.location_show_fields)
-			@submit = create_submit(submit: nil, frame: "modal")
+			submit  = check_access(obj: Club.find_by_id(@clubid)) ? edit_location_path(@location) : nil
+			@submit = create_submit(submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
