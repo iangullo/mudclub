@@ -106,6 +106,7 @@ en:
     logo: "Logo"
     many: "Clubs"
     new: "Edit Club"
+    none: "No club"
     rivals: "Rival Clubs"
     single: "Club"
     updated: "Updated club: "
@@ -263,6 +264,7 @@ en:
     updated: "Updated player: "
   question:
     active: "Active?"
+    camera: "Use Camera?"
     clear: "Clear actions for "
     delete: "Delete "
     female: "Female?"

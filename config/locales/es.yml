@@ -106,6 +106,7 @@ es:
     logo: "Logo"
     many: "Clubes"
     new: "Nuevo Club"
+    none: "Sin club"
     rivals: "Clubes Rivales"
     single: "Club"
     updated: "Club guardado: "
@@ -263,6 +264,7 @@ es:
     updated: "Jug. guardado: "
   question:
     active: "¿Activo?"
+    camera: "¿Usar la camara?"
     clear: "¿Borrar historial de "
     delete: "¿Borrar "
     female: "¿Femenino?"
