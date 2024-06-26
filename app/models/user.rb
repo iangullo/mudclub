@@ -33,12 +33,6 @@ class User < ApplicationRecord
 	accepts_nested_attributes_for :person, update_only: true
 	self.inheritance_column = "not_sti"
 
-	# locale preferences defined as enum and stored in database
-	enum locale: {
-		es: 0,
-		en: 1
-	}
-
 	def active?
 		self.club_id.present?
 	end
@@ -82,6 +76,15 @@ class User < ApplicationRecord
 	def last_login
 		res = self.last_sign_in_at&.to_date
 		return res ? res : I18n.t("user.never")
+	end
+	
+	# wrappers for locale setting
+	def locale
+		settings[:locale]
+	end
+
+	def locale=(newlocale)
+		set_setting(:locale, newlocale)
 	end
 
 	# extended modified to account for changed avatar
@@ -135,6 +138,16 @@ class User < ApplicationRecord
 		self.role ||= :user
 	end
 
+	# Getter method for accessing the settings hash
+	def settings
+		super&.symbolize_keys || {}
+	end
+
+	# Setter method for updating the settings hash
+	def settings=(value)
+		super(value&.to_h)
+	end
+	
 	# get teams associated to this user
 	def team_list
 		c_teams = self.is_coach? ? self.coach.team_list : []
@@ -155,12 +168,16 @@ class User < ApplicationRecord
 
 	# list of possible user locales for select box configuration
 	def self.locale_list
-		User.locales.keys.map {|locale| [I18n.t("locale.#{locale}", locale:), locale]}
+		I18n.available_locales.map do |locale|
+			[I18n.t("locale.#{locale}", locale:), locale]
+		end
 	end
 
 	# list of possible user roles for select box configuration
 	def self.role_list
-		User.roles.keys.map {|role| [I18n.t("role.#{role}"),role]}
+		User.roles.keys.map do |role|
+			[I18n.t("role.#{role}"),role]
+		end
 	end
 
 	#Search field matching
@@ -177,6 +194,11 @@ class User < ApplicationRecord
 	end
 
 	private
+		# generic setting method to be used for all setters
+		def set_setting(key, value)
+			self.settings = settings.merge(key => value)
+		end
+
 		# unlink dependent person
 		def unlink
 			self.scrub_person
