@@ -46,9 +46,9 @@ class TopbarComponent < ApplicationComponent
 	private
 	# load menu buttons
 	def load_menus(user:, home:, login:, logout:)
-		@profile  = set_profile(user:, home:, login:, logout:)
+		I18n.locale = (user&.locale || I18n.default_locale).to_sym
+		@profile    = set_profile(user:, home:, login:, logout:)
 		if user.present?
-			I18n.locale = user.locale.to_sym
 			@menu_tabs  = menu_tabs(user)
 			@ham_menu   = set_hamburger_menu
 		end
