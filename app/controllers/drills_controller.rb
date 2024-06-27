@@ -51,7 +51,8 @@ class DrillsController < ApplicationController
 				format.html do
 					@title = create_fields(title)
 					@explain = create_fields(helpers.drill_show_explain)
-					@submit  = create_submit(close: "back", retlnk: drills_path, submit: (u_admin? or (@drill.coach_id==u_coachid)) ? edit_drill_path(@drill) : nil)
+					submit   = edit_drill_path(@drill) if (@drill.coach_id == u_coachid) || (u_manager? && u_clubid == @drill.coach.club_id)
+					@submit  = create_submit(close: "back", retlnk: drills_path, submit:)
 					render :show
 				end
 			end
@@ -72,7 +73,7 @@ class DrillsController < ApplicationController
 
 	# GET /drills/1/edit
 	def edit
-		if check_access(roles: [:admin], obj: @drill)
+		if check_access(obj: @drill) || club_manager?(@drill&.coach&.club)
 			prepare_form(title: I18n.t("drill.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -103,7 +104,7 @@ class DrillsController < ApplicationController
 
 	# PATCH/PUT /drills/1 or /drills/1.json
 	def update
-		if check_access(roles: [:admin], obj: @drill)
+		if check_access(obj: @drill) || club_manager?(@drill&.coach&.club)
 			respond_to do |format|
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.modified?
@@ -129,7 +130,7 @@ class DrillsController < ApplicationController
 
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
-		if check_access(roles: [:admin], obj: @drill)
+		if check_access(roles: [:admin])
 			d_name = @drill.name
 			@drill.destroy
 			respond_to do |format|

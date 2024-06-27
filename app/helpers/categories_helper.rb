@@ -69,7 +69,7 @@ module CategoriesHelper
 			{kind: "normal", value: I18n.t("stat.min")},
 			{kind: "normal", value: I18n.t("stat.max")}
 		]
-		title <<  button_field({kind: "add", url: new_sport_category_path(@sport), frame: "modal"}) if u_admin? || u_manager?
+		title <<  button_field({kind: "add", url: new_sport_category_path(@sport), frame: "modal"}) if u_admin?
 
 		rows = Array.new
 		@categories.each { |cat|
@@ -78,7 +78,7 @@ module CategoriesHelper
 			row[:items] << {kind: "normal", value: I18n.t("sex.#{cat.sex}_a")}
 			row[:items] << {kind: "normal", value: cat.min_years, align: "right"}
 			row[:items] << {kind: "normal", value: cat.max_years, align: "right"}
-			row[:items] << button_field({kind: "delete", url: sport_category_path(@sport, cat), name: cat.name}) if u_admin? || u_manager?
+			row[:items] << button_field({kind: "delete", url: sport_category_path(@sport, cat), name: cat.name}) if u_admin?
 			rows << row
 		}
 		{title: title, rows: rows}

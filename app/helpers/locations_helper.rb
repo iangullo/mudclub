@@ -35,7 +35,7 @@ module LocationsHelper
 
 	# return grid for @locations GridComponent
 	def location_grid(locations: @locations)
-		editor = u_admin? || (u_manager? && u_clubid==@clubid)
+		editor = u_admin? || (u_clubid == @clubid && (u_manager? || u_secretary?))
 		title  = [
 			{kind: "normal", value: I18n.t("location.name")},
 			{kind: "normal", value: I18n.t("kind.single"), align: "center"},

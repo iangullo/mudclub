@@ -63,7 +63,7 @@ module TeamsHelper
 			c_icon  = icon_field("coach.svg", tip: I18n.t("coach.many"), align: "right", iclass: "align-top", size: "30x30", rows: c_count)
 			c_first = true
 			@team.coaches.each do |coach|
-				if u_manager?
+				if u_manager? || u_secretary?
 					c_start  = button_field({kind: "link", label: coach.s_name, url: coach_path(coach, team_id: @team.id, rdx: @rdx), b_class: "items-center", d_class: "text-left"})
 				else
 					c_start  = {kind: "string", value: coach.s_name, class: "align-middle text-left"}
@@ -158,13 +158,15 @@ module TeamsHelper
 
 	# return jump links for a team
 	def team_links
-		if (u_manager? or u_coach?)
+		if (u_manager? || u_coach? || u_secretary?)
 			res = [[
-				button_field({kind: "jump", icon: "player.svg", url: roster_team_path(@team, rdx: @rdx), label: I18n.t("team.roster")}, align: "center"),
-				button_field({kind: "jump", icon: "target.svg", url: targets_team_path(@team, rdx: @rdx), label: I18n.t("target.many")}, align: "center"),
-				button_field({kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team, rdx: @rdx), label: I18n.t("plan.abbr")}, align: "center"),
-				button_field({kind: "jump", icon: "timetable.svg", url: slots_team_path, label: I18n.t("slot.many"), frame: "modal"}, align: "center")
+				button_field({kind: "jump", icon: "player.svg", url: roster_team_path(@team, rdx: @rdx), label: I18n.t("team.roster")}, align: "center")
 			]]
+			if u_manager? || u_coach?
+				res.last <<	button_field({kind: "jump", icon: "target.svg", url: targets_team_path(@team, rdx: @rdx), label: I18n.t("target.many")}, align: "center")
+				res.last << button_field({kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team, rdx: @rdx), label: I18n.t("plan.abbr")}, align: "center")
+			end
+			res.last << button_field({kind: "jump", icon: "timetable.svg", url: slots_team_path, label: I18n.t("slot.many"), frame: "modal"}, align: "center")
 		else
 			res = [[]]
 		end

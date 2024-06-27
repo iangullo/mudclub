@@ -28,11 +28,12 @@ module CoachesHelper
 
 	# return grid for @coaches GridComponent
 	def coach_grid(coaches: @coaches)
-		title = [
+		editor = (u_manager? || u_secretary?)
+		title  = [
 			{kind: "normal", value: I18n.t("person.name")},
 			{kind: "normal", value: I18n.t("person.contact")}
 		]
-		if u_manager?
+		if editor
 			title << {kind: "normal", value: I18n.t("person.pics"), align: "center"}
 			title << {kind: "normal", value: I18n.t("status.active_a")}
 			title << button_field({kind: "add", url: new_coach_path(club_id: @clubid, rdx: 0), frame: "modal"})
@@ -43,7 +44,7 @@ module CoachesHelper
 			row = {url: coach_path(coach, rdx: 0), items: []}
 			row[:items] << {kind: "normal", value: coach.to_s}
 			row[:items] << {kind: "contact", email: coach.person.email, phone: coach.person.phone, device: device}
-			if u_manager?
+			if editor
 				row[:items] << icon_field(coach.all_pics? ? "Yes.svg" : "No.svg", align: "center") 
 				row[:items] << icon_field(coach.active? ? "Yes.svg" : "No.svg", align: "center")
 				row[:items] << button_field({kind: "delete", url: row[:url], name: coach.to_s})

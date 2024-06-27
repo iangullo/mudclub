@@ -22,7 +22,7 @@ class LocationsController < ApplicationController
 	# GET /club/x/locations
 	# GET /club/x/locations.json
 	def index
-		if check_access(roles: [:admin, :manager])
+		if check_access(roles: [:admin, :manager, :secretary])
 			title  = helpers.location_title_fields(title: I18n.t("location.many"))
 			title << helpers.location_search_bar(search_in: club_locations_path)
 			page   = paginate(@locations)	# paginate results
@@ -38,7 +38,7 @@ class LocationsController < ApplicationController
 	def show
 		if user_signed_in?	# basically all users can see this
 			@fields = create_fields(helpers.location_show_fields)
-			submit  = check_access(obj: Club.find_by_id(@clubid)) ? edit_location_path(@location) : nil
+			submit  = edit_location_path(@location) if user_in_club? && check_access(roles: [:manager, :secretary])
 			@submit = create_submit(submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -47,7 +47,7 @@ class LocationsController < ApplicationController
 
 	# GET /locations/1/edit
 	def edit
-		if check_access(obj: Club.find_by_id(@clubid))
+		if user_in_club? && check_access(roles: [:manager, :secretary])
 			prepare_form(title: I18n.t("location.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -56,7 +56,7 @@ class LocationsController < ApplicationController
 
 	# GET /locations/new
 	def new
-		if check_access(obj: Club.find_by_id(@clubid))
+		if user_in_club? && check_access(roles: [:manager, :secretary])
 			@location = Location.new unless @location
 			prepare_form(title: I18n.t("location.new"))
 		else
@@ -68,7 +68,7 @@ class LocationsController < ApplicationController
 	# POST /locations.json
 	def create
 		@club = Club.find_by_id(@clubid)
-		if check_access(obj: @club)
+		if user_in_club? && check_access(roles: [:manager, :secretary])
 			respond_to do |format|
 				@location = Location.new
 				@location.rebuild(location_params) # rebuild @location
@@ -93,10 +93,10 @@ class LocationsController < ApplicationController
 
 	# PATCH/PUT /locations/1 or /locations/1.json
 	def update
-		@club = Club.find_by_id(@clubid)
-		if check_access(obj: @club)
+		if user_in_club? && check_access(roles: [:manager, :secretary])
 			respond_to do |format|
 				@location.rebuild(location_params)
+				@club  = Club.find_by_id(@clubid)
 				retlnk = club_locations_path(@clubid)
 				if @location.id!=nil  # we have location to save
 					a_desc = "#{I18n.t("location.updated")} '#{@location.name}'"
@@ -131,9 +131,9 @@ class LocationsController < ApplicationController
 	# DELETE /locations/1
 	# DELETE /locations/1.json
 	def destroy
-		@club = Club.find_by_id(@clubid)
-		if check_access(obj: @club)
+		if user_in_club? && check_access(roles: [:manager, :secretary])
 			respond_to do |format|
+				@club  = Club.find_by_id(@clubid)
 				l_name = @location.name
 				a_desc = "#{I18n.t("location.deleted")} #{@club&.nick} => '#{l_name}'"
 				retlnk = club_locations_path(@clubid)

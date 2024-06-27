@@ -37,7 +37,7 @@ class ClubsController < ApplicationController
 
 	# GET /clubs/1 or /clubs/1.json
 	def show
-		if check_access(roles: [:admin, :manager])
+		if check_access(roles: [:admin, :manager, :secretary])
 			@title  = create_fields(helpers.club_show_title)
 			@links  = create_fields(helpers.club_links)
 			if (user_in_club?)	# my own club: show events
@@ -46,7 +46,7 @@ class ClubsController < ApplicationController
 				close  = "back"
 				retlnk = clubs_path
 			end
-			submit  = edit_club_path(@club, rdx: @rdx) if check_access(obj: @club)
+			submit  = edit_club_path(@club, rdx: @rdx) if club_manager?(@club)
 			@submit = create_submit(close:, retlnk:, submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -68,7 +68,7 @@ class ClubsController < ApplicationController
 
 	# GET /clubs/1/edit
 	def edit
-		if check_access(roles: [:admin], obj: @club)
+		if club_manager?(@club)
 			prepare_form(title: I18n.t("club.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -104,7 +104,7 @@ class ClubsController < ApplicationController
 
 	# PATCH/PUT /clubs/1 or /clubs/1.json
 	def update
-		if check_access(roles: [:admin], obj: @club)
+		if club_manager?(@club)
 			respond_to do |format|
 				retlnk = club_path(@club, rdx: @rdx)
 				@club.rebuild(club_params)

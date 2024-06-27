@@ -44,13 +44,11 @@ module EventsHelper
 
 	# return a fields to show a copy event form
 	def event_copy_fields
-		if u_coach? || u_manager?
-			res = event_title_fields(form: true, teams: @teams)
-			res.last << {kind: "hidden", key: :copy, value: true}
-			res.last << {kind: "hidden", key: :duration, value: @event.duration}
-			res.last << {kind: "hidden", key: :id, value: @event.id}
-			res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
-		end
+		res = event_title_fields(form: true, teams: @teams)
+		res.last << {kind: "hidden", key: :copy, value: true}
+		res.last << {kind: "hidden", key: :duration, value: @event.duration}
+		res.last << {kind: "hidden", key: :id, value: @event.id}
+		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		res
 	end
 

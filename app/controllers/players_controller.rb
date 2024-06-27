@@ -23,7 +23,7 @@ class PlayersController < ApplicationController
 	# GET /clubs/x/players
 	# GET /clubs/x/players.json
 	def index
-		if check_access(obj: Club.find(@clubid)) || (u_coach? && u_clubid==@clubid)
+		if player_manager?
 			@players = Player.search(params[:search], current_user)
 			respond_to do |format|
 				format.xlsx do
@@ -36,7 +36,7 @@ class PlayersController < ApplicationController
 					title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid)}]
 					page   = paginate(@players)	# paginate results
 					grid   = helpers.player_grid(players: page)
-					submit = {kind: "export", url: club_players_path(@clubid, format: :xlsx), working: false} if u_manager?
+					submit = {kind: "export", url: club_players_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?
 					create_index(title:, grid:, page:, retlnk: club_path(@clubid), submit:)
 					render :index
 				end
@@ -49,10 +49,10 @@ class PlayersController < ApplicationController
 	# GET /players/1
 	# GET /players/1.json
 	def show
-		if (u_manager? && [nil, u_clubid].include?(@clubid)) || (u_coach? && u_clubid==@clubid) ||  check_access(obj: @player)
+		if player_manager? || check_access(obj: @player)
 			@fields = create_fields(helpers.player_show_fields(team: Team.find_by_id(@teamid)))
 			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
-			submit  = (u_manager? || u_coach? || u_playerid==@player.id) ? edit_player_path(@player, team_id: @teamid, rdx: @rdx) : nil
+			submit  = edit_player_path(@player, team_id: @teamid, rdx: @rdx)
 			@submit = create_submit(close: "back", retlnk: get_retlnk, submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -61,7 +61,7 @@ class PlayersController < ApplicationController
 
 	# GET /players/new
 	def new
-		if check_access(roles: [:manager, :coach])
+		if player_manager?
 			get_player_context
 			@player = Player.new(club_id: u_clubid)
 			@player.build_person
@@ -73,7 +73,7 @@ class PlayersController < ApplicationController
 
 	# GET /players/1/edit
 	def edit
-		if (u_manager? && [nil, u_clubid].include?(@clubid)) || (u_coach? && u_clubid==@clubid) ||  check_access(obj: @player)
+		if player_manager? || check_access(obj: @player)
 			prepare_form(title: I18n.t("player.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -83,7 +83,7 @@ class PlayersController < ApplicationController
 	# POST /players
 	# POST /players.json
 	def create
-		if check_access(roles: [:manager, :coach])
+		if player_manager?
 			respond_to do |format|
 				get_player_context
 				@player = Player.new
@@ -118,7 +118,7 @@ class PlayersController < ApplicationController
 	# PATCH/PUT /players/1.json
 	def update
 		retlnk = player_path(@player, rdx: @rdx, team_id: @teamid)
-		if (u_manager? && [nil, @clubid].include?(u_clubid)) || (u_coach? && u_clubid==@clubid) ||  check_access(obj: @player)
+		if player_manager? ||  check_access(obj: @player)
 			respond_to do |format|
 				@player.rebuild(player_params)
 				if @player.modified?
@@ -146,7 +146,7 @@ class PlayersController < ApplicationController
 	# GET /players/import
 	# GET /players/import.json
 	def import
-		if check_access(roles: [:manager])
+		if check_access(roles: [:manager, :secretary])
 			if params[:file].present?
 				Player.import(params[:file].presence)	# added to import excel
 				a_desc = "#{I18n.t("player.import")} '#{params[:file].original_filename}'"
@@ -164,7 +164,7 @@ class PlayersController < ApplicationController
 	# DELETE /players/1.json
 	def destroy
 		# cannot destroy placeholder player (id ==0)
-		if @player.id != 0 && check_access(obj: Club.find_by_id(@player.club_id))
+		if @player.id != 0 && club_manager?(@player.club)
 			p_name = @player.to_s(style: 1)
 			@player.destroy
 			respond_to do |format|
@@ -200,6 +200,11 @@ class PlayersController < ApplicationController
 				@player.teams << team unless @player.teams.include?(team)
 				team.players << @player unless team.has_player(@player.id)
 			end
+		end
+
+		# wrapper to check if a user can edit players
+		def player_manager?
+			((u_manager? || u_coach? || u_secretary?) && [nil, u_clubid].include?(@clubid))
 		end
 
 		# Prepare a player form

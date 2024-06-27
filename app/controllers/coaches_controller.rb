@@ -23,7 +23,7 @@ class CoachesController < ApplicationController
 	# GET /clubs/x/coaches 
 	# GET /clubs/x/coaches.json
 	def index
-		if check_access(obj: Club.find(@clubid))
+		if user_in_club? && check_access(roles: [:manager, :secretary])
 			search   = params[:search].presence || session.dig('coach_filters','search')
 			@coaches = Coach.search(search, current_user)
 			respond_to do |format|
@@ -37,7 +37,7 @@ class CoachesController < ApplicationController
 					title  = helpers.person_title_fields(title: I18n.t("coach.many"), icon: "coach.svg")
 					title << [{kind: "search-text", key: :search, value: search, url: club_coaches_path(@clubid)}]
 					grid   = helpers.coach_grid(coaches: page)
-					submit = {kind: "export", url: club_coaches_path(@clubid, format: :xlsx), working: false} if u_manager?
+					submit = {kind: "export", url: club_coaches_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?
 					create_index(title:, grid:, page:, retlnk: club_path(@clubid), submit:)
 					render :index
 				end
@@ -50,11 +50,11 @@ class CoachesController < ApplicationController
 	# GET /coaches/1
 	# GET /coaches/1.json
 	def show
-		if check_access(obj: @coach) || check_access(obj: @coach.club)
+		if check_access(obj: @coach) || check_access(roles: [:manager, :secretary], obj: @coach.club, both: true)
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
 			retlnk  = get_retlnk
-			submit  = (u_manager? || u_coachid==@coach.id) ? edit_coach_path(@coach, club_id: @clubid, team_id: p_teamid, user: p_userid, rdx: @rdx) : nil
+			submit  = edit_coach_path(@coach, club_id: @clubid, team_id: p_teamid, user: p_userid, rdx: @rdx) if (u_manager? || u_secretary? || u_coachid == @coach.id)
 			@submit = create_submit(close: "back", retlnk:, submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -63,7 +63,7 @@ class CoachesController < ApplicationController
 
 	# GET /coaches/new
 	def new
-		if check_access(obj: Club.find(@clubid))
+		if user_in_club? && check_access(roles: [:manager, :secretary])
 			@coach = Coach.new(club_id: @clubid)
 			@coach.build_person
 			prepare_form(title: I18n.t("coach.new"))
@@ -74,7 +74,7 @@ class CoachesController < ApplicationController
 
 	# GET /coaches/1/edit
 	def edit
-		if check_access(obj: @coach) || check_access(obj: @coach.club)
+		if check_access(obj: @coach) || check_access(roles: [:manager, :secretary], obj: @coach.club, both: true)
 			prepare_form(title: I18n.t("coach.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -84,7 +84,7 @@ class CoachesController < ApplicationController
 	# POST /coaches 
 	# POST /coaches.json
 	def create
-		if check_access(obj: Club.find(@clubid))
+		if user_in_club? && check_access(roles: [:manager, :secretary])
 			respond_to do |format|
 				@coach = Coach.new(club_id: @clubid)
 				@coach.rebuild(coach_params)	# rebuild coach
@@ -113,7 +113,7 @@ class CoachesController < ApplicationController
 	# PATCH/PUT /coaches/1
 	# PATCH/PUT /coaches/1.json
 	def update
-		if check_access(obj: @coach) || check_access(obj: @coach.club)
+		if check_access(obj: @coach) || check_access(roles: [:manager, :secretary], obj: Club.find(@clubid), both: true)
 			r_path = coach_path(@coach, rdx: @rdx)
 			respond_to do |format|
 				@coach.rebuild(coach_params)
@@ -142,7 +142,7 @@ class CoachesController < ApplicationController
 	# GET /coaches/import
 	# GET /coaches/import.json
 	def import
-		if check_access(obj: Club.find(@clubid))
+		if check_access(roles: [:manager, :secretary], obj: Club.find(@clubid), both: true)
 			Coach.import(params[:file], u_clubid)	# added to import excel
 			a_desc = "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"
 			register_action(:imported, a_desc, url: coaches_path(rdx: 2))
@@ -156,7 +156,7 @@ class CoachesController < ApplicationController
 	# DELETE /coaches/1.json
 	def destroy
 		# cannot destroy placeholder coach (id ==0)
-		if @coach.id != 0 && check_access(obj: @coach.club)
+		if @coach.id != 0 && check_access(roles: [:admin])
 			c_name = @coach.s_name
 			@coach.destroy
 			respond_to do |format|

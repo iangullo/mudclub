@@ -90,7 +90,7 @@ module DrillsHelper
 			#{kind: "normal", value: I18n.t("task.many")}
 		] unless device=="mobile"
 
-		title << button_field({kind: "add", url: new_drill_path, frame: "_top"}) if u_manager? or u_coach?
+		title << button_field({kind: "add", url: new_drill_path, frame: "_top"}) if u_manager? || u_coach?
 
 		{track:, title:, rows: drill_rows(drills:)}
 	end

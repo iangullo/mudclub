@@ -286,6 +286,8 @@ es:
     manager_a: "Coord."
     player: "Jugador"
     player_a: "Jug."
+    secretary: "Secretaría"
+    secretary_a: "Sec."
     user: "Usuario"
     user_a: "Us."
   scope:

@@ -23,7 +23,7 @@ class EventsController < ApplicationController
 
 	# GET /events or /events.json
 	def index
-		if check_access(roles: [:admin]) || user_in_club?
+		if user_in_club? || check_access(roles: [:admin])
 			get_event_context
 			start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
 			club       = Club.find_by_id(@clubid)
@@ -53,7 +53,7 @@ class EventsController < ApplicationController
 					end
 				end
 				format.html do
-					editor    = check_access(obj: @event.team.club) || @event.team.has_coach(u_coachid)
+					editor    = event_manager?
 					@title    = create_fields(title)
 					player_id = params[:player_id].presence || u_playerid
 					if @event.rest?
@@ -83,7 +83,7 @@ class EventsController < ApplicationController
 	# GET /events/new
 	def new
 		get_event_context
-		if check_access(obj: Club.find(@clubid)) || Team.find(@teamid)&.has_coach(u_coachid)
+		if club_manager? || Team.find(@teamid)&.has_coach(u_coachid)
 			@event  = Event.prepare(event_params)
 			@season = (@event.team_id == 0) ? Season.search(@seasonid) : @event.team.season
 			@sport  = @event.team.sport&.specific
@@ -103,7 +103,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/edit
 	def edit
-		if check_access(obj: @event&.team&.club) || @event.team.has_coach(u_coachid)
+		if event_manager?
 			prepare_event_form(new: false)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -115,7 +115,7 @@ class EventsController < ApplicationController
 		get_event_context
 		e_data = event_params
 		@event = Event.prepare(event_params)
-		if check_access(obj: Club.find(@clubid)) || @event&.team&.has_coach(u_coachid)
+		if event_manager?
 			respond_to do |format|
 				@event.rebuild(e_data)
 				if @event.save
@@ -139,7 +139,7 @@ class EventsController < ApplicationController
 
 	# PATCH/PUT /events/1 or /events/1.json
 	def update
-		if check_access(obj: Club.find(@clubid)) || @event.team.has_coach(u_coachid)
+		if event_manager?
 			respond_to do |format|
 				e_data  = event_params
 				url     = event_path(@event, rdx: @rdx)
@@ -180,7 +180,7 @@ class EventsController < ApplicationController
 
 	# DELETE /events/1 or /events/1.json
 	def destroy
-		if check_access(obj: Club.find(@clubid)) || @event.team.has_coach(u_coachid)
+		if club_manager? || @event&.team&.has_coach(u_coachid)
 			team   = @event.team
 			@event.destroy
 			respond_to do |format|
@@ -198,7 +198,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/attendance
 	def attendance
-		if @event && (check_access(obj: Club.find(@clubid)) || @event.team.has_coach(u_coachid))
+		if @event && event_manager?
 			@title  = create_fields(helpers.event_attendance_title)
 			@fields = create_fields(helpers.event_attendance_form_fields)
 			@submit = create_submit(retlnk: event_path(@event, rdx: @rdx))
@@ -226,7 +226,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/add_task
 	def add_task
-		if @event && (check_access(obj: Club.find(@clubid)) || @event.team.has_coach(u_coachid))
+		if @event && event_manager?
 			prepare_task_form(subtitle: I18n.t("task.add"), retlnk: edit_event_path(@event), search_in: add_task_event_path(@event))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -235,7 +235,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/edit_task
 	def edit_task
-		if @event && (check_access(obj: Club.find(@clubid)) || @event.team.has_coach(u_coachid))
+		if @event && event_manager?
 			prepare_task_form(subtitle: I18n.t("task.edit"), retlnk: edit_event_path(@event), search_in: edit_task_event_path(@event), task_id: true)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -247,7 +247,8 @@ class EventsController < ApplicationController
 		if user_in_club? && check_access(roles: [:manager, :coach])
 			@task   = Task.find(params[:task_id])
 			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
-			@submit = create_submit(close: "back", retlnk: :back, submit: (u_manager? or @event.team.has_coach(u_coachid)) ? edit_task_event_path(task_id: @task.id) : nil)
+			submit  = edit_task_event_path(task_id: @task.id) if event_manager?
+			@submit = create_submit(close: "back", retlnk: :back, submit: : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -266,7 +267,7 @@ class EventsController < ApplicationController
 	# GET /events/1/player_stats?player_id=X
 	def player_stats
 		@player = Player.real.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
-		if (check_access(obj: Club.find(@clubid)) || check_access(roles: [:coach], obj: @player))
+		if event_manager? || check_access(obj: @player)
 			unless @event.rest?	# not keeing stats for holidays ;)
 				if @event.has_player(@player&.id)	# we do have a player
 					@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
@@ -284,7 +285,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/edit_player_stats?player_id=X
 	def edit_player_stats
-		if check_access(obj: Club.find(@clubid)) || check_access(obj: @event)
+		if event_manager? || check_access(obj: @player)
 			unless @event.rest?	# not keeing stats for holidays ;)
 				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
 				if @player&.id.to_i > 0	# we do have a player
@@ -338,6 +339,11 @@ class EventsController < ApplicationController
 				@task.remarks  = t_dat[:remarks] if t_dat[:remarks]
 				@task.save
 			end
+		end
+
+		# wrapper to determine whether the user can modify the event.
+		def event_manager?
+			club_manager?(@event&.team&.club) || @event&.team&.has_coach(u_coachid)
 		end
 
 		# pdf export of @event content

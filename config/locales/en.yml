@@ -286,6 +286,8 @@ en:
     manager_a: "Mngr."
     player: "Player"
     player_a: "Play."
+    secretary: "Secretary"
+    secretary_a: "Sec."
     user: "User"
     user_a: "User"
   scope:
