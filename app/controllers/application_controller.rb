@@ -23,18 +23,22 @@ class ApplicationController < ActionController::Base
 	helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_coachid,	:u_manager?,
 								:u_personid, :u_player?, :u_playerid,:u_userid, :user_in_club?
 
+	# Map actions to their respective permission checks
+	ACTION_ALIASES = {
+		edit: :update,
+		new: :create,
+	}.freeze
+
 	# check if correct  access level exists. Basically checks if:
 	# "user is present AND (valid(role) OR valid(obj.condition))"
 	# optionally, check that clubid matches.
-	def check_access(roles: nil, obj: nil, both: false)
-		if current_user.present?	# no access if no user logged in
-			if both	# both conditions to apply
-				return (check_object(obj:) && check_role(roles:))
-			else	# either condition is sufficient
-				return (check_object(obj:) || check_role(roles:)) 
-			end
+	def check_access(action: action_name.to_sym, obj: nil)
+		return false unless user_signed_in?	&& check_object(obj)	# no access
+		action = ACTION_ALIASES[action] || action	# match right level
+		current_user.roles.each do |role|
+			permissions = role.permissions[controller_name.to_sym.to_s]
+			return true if permissions&.include?(action)
 		end
-		return false
 	end
 
 	# return a ButtonComponent object from a definition hash
@@ -224,50 +228,27 @@ class ApplicationController < ActionController::Base
 	end
 
 	private
-		# check if current user satisfies access policy
-		def check_role(roles:)
-			roles&.each do |rol|	# ok as if any of roles is found
-				case rol
-				when :admin
-					return true if u_admin?
-				when :manager
-					return true if u_manager?
-				when :coach
-					return true if u_coach?
-				when :player
-					return true if u_player?
-				when :user
-					return true if user_signed_in?  # it's a user alright
-				else
-					return false
-				end
-			end
-			return false
-		end
-
 		# check object related access policy
-		def check_object(obj:)
+		def check_object(obj)
 			case obj
-			when Category, Division, FalseClass, Location, Season, Slot
-				return true
+			when Club	# allow club managers to access
+				return (obj.id == u_clubid)
 			when Coach
-				return (u_coachid==obj.id)
-			when Club
-				return u_admin? || (u_manager? && (obj == nil || obj.id==u_clubid))
+				return (obj.id == u_coachid)
 			when Drill
-				return (u_coachid==obj.coach_id) || (u_manager? && obj.coach.club_id==u_clubid)
+				return (obj.coach_id == u_coachid)
 			when Event
-				return (obj.team.has_coach(u_coachid) || obj.has_player(u_playerid))
+				return (obj.team.has_coach(u_coachid) || obj.has_player(u_playerid) || u_manager?)
 			when Person
-				return (u_personid==obj.id)
+				return (obj.id == u_personid)
 			when Player
-				return (u_playerid==obj.id)
+				return (obj.id == u_playerid || u_coach? || u_manager?)
 			when Team
-				return (obj.has_coach(u_coachid) || obj.has_player(u_playerid))
+				return obj.has_coach(u_coachid || u_manager?)
 			when User
-				return (u_userid==@user.id)
+				return (obj.id == u_userid)
 			else # including NilClass"
-				return u_manager?
+				return true?
 			end
 		end
 

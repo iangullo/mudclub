@@ -23,7 +23,7 @@ class UsersController < ApplicationController
 	# GET /users
 	# GET /users.json
 	def index
-		if check_access(roles: [:admin])
+		if check_access
 			search = (params[:search].presence || session.dig('user_filters', 'search'))
 			@users = User.search(search, current_user)
 			page   = paginate(@users)	# paginate results
@@ -39,7 +39,7 @@ class UsersController < ApplicationController
 	# GET /users/1
 	# GET /users/1.json
 	def show
-		if check_access(roles: [:admin], obj: @user)
+		if check_access(obj: @user)
 			@title = create_fields(helpers.user_show_fields)
 			@role  = create_fields(helpers.user_role_fields(@user))
 			@grid  = create_grid(helpers.team_grid(teams: @user.team_list))
@@ -54,7 +54,7 @@ class UsersController < ApplicationController
 
 	# GET /users/new
 	def new
-		if check_access(roles: [:admin])
+		if check_access
 			@user = User.new(locale: current_user.locale)
 			@user.build_person
 			prepare_form(I18n.t("user.new"), create: true)
@@ -65,7 +65,7 @@ class UsersController < ApplicationController
 
 	# GET /users/1/edit
 	def edit
-		if check_access(roles: [:admin], obj: @user)
+		if check_access(obj: @user)
 			prepare_form(I18n.t("user.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -74,7 +74,7 @@ class UsersController < ApplicationController
 
 	# POST /users.json
 	def create
-		if check_access(roles: [:admin])
+		if check_access
 			respond_to do |format|
 				@user = User.new
 				@user.rebuild(user_params)	# build user
@@ -105,7 +105,7 @@ class UsersController < ApplicationController
 	# PATCH/PUT /users/1
 	# PATCH/PUT /users/1.json
 	def update
-		if check_access(roles: [:admin], obj: @user)
+		if check_access(obj: @user)
 			respond_to do |format|
 				if params[:user][:password].blank? or params[:user][:password_confirmation].blank?
 					params[:user].delete(:password)
@@ -138,7 +138,7 @@ class UsersController < ApplicationController
 	# DELETE /users/1
 	# DELETE /users/1.json
 	def destroy
-		if check_access(roles: [:admin])
+		if check_access
 			uname = @user.s_name
 			@user.destroy
 			respond_to do |format|
@@ -154,7 +154,7 @@ class UsersController < ApplicationController
 
 	# modal view of User Action log
 	def actions
-		if check_access(roles: [:admin], obj: @user)
+		if check_access(action: :show, obj: @user)
 			@title  = create_fields(helpers.user_actions_title)
 			@actions= create_fields(helpers.user_actions_table)
 			@submit = create_submit(submit: helpers.user_actions_clear_fields, frame: "modal")
@@ -165,7 +165,7 @@ class UsersController < ApplicationController
 
 	# forget user_actions when reviewed
 	def clear_actions
-		if check_access(roles: [:admin])
+		if check_access(action: :edit)
 			UserAction.clear(@user)
 			respond_to do |format|
 				a_desc = "#{I18n.t("user.cleared")} '#{@user.s_name}'"

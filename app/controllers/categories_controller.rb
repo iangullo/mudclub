@@ -22,7 +22,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories or /categories.json
 	def index
-		if check_access(roles: [:admin])
+		if check_access
 			@categories = Category.for_sport(@sport.id)
 			title = helpers.category_title_fields(title: I18n.t("category.many"))
 			grid  = helpers.category_grid
@@ -34,7 +34,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories/1 or /categories/1.json
 	def show
-		if check_access(roles: [:admin])
+		if check_access
 			@fields = create_fields(helpers.category_show_fields)
 			@submit = create_submit(submit: current_user.admin? ? edit_sport_category_path(@sport, @category) : nil)
 		else
@@ -44,7 +44,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories/new
 	def new
-		if check_access(roles: [:admin])
+		if check_access
 			@category = @sport.categories.build
 			prepare_form(title: I18n.t("category.new"))
 		else
@@ -54,7 +54,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories/1/edit
 	def edit
-		if check_access(roles: [:admin])
+		if check_access
 			prepare_form(title: I18n.t("category.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -63,7 +63,7 @@ class CategoriesController < ApplicationController
 
 	# POST /categories or /categories.json
 	def create
-		if check_access(roles: [:admin])
+		if check_access
 			@category = Category.new(sport_id: @sport.id)
 			respond_to do |format|
 				@category.rebuild(category_params)
@@ -85,7 +85,7 @@ class CategoriesController < ApplicationController
 
 	# PATCH/PUT /categories/1 or /categories/1.json
 	def update
-		if check_access(roles: [:admin])
+		if check_access
 			respond_to do |format|
 				@category.rebuild(category_params)
 				if @category.changed?
@@ -111,7 +111,7 @@ class CategoriesController < ApplicationController
 
 	# DELETE /categories/1 or /categories/1.json
 	def destroy
-		if check_access(roles: [:admin])
+		if check_access
 			c_name = @category.name
 			@category.destroy
 			respond_to do |format|

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_26_052013) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_27_051351) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -238,6 +238,19 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_26_052013) do
   create_table "players_teams", id: false, force: :cascade do |t|
     t.bigint "team_id", null: false
     t.bigint "player_id", null: false
+  end
+
+  create_table "roles", force: :cascade do |t|
+    t.string "name"
+    t.jsonb "permissions", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "roles_users", id: false, force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "role_id", null: false
+    t.index ["user_id", "role_id"], name: "index_roles_users_on_user_id_and_role_id", unique: true
   end
 
   create_table "seasons", force: :cascade do |t|

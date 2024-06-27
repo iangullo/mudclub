@@ -27,6 +27,7 @@ class User < ApplicationRecord
 	has_one :person
 	has_one_attached :avatar
 	has_many :user_actions, dependent: :destroy
+	has_and_belongs_to_many :roles
 	scope :real, -> { where("id>0") }
 	enum role: [:user, :player, :coach, :manager, :admin]
 	after_initialize :set_default_role, :if => :new_record?
@@ -51,6 +52,12 @@ class User < ApplicationRecord
 		self.person.coach
 	end
 
+	# check if user has a specific role
+	def has_role?(role_name)
+		roles.exists?(name: role_name)
+	end
+
+	# legacy wrappers to check user role - DEPRECATED!!
 	def is_coach?
 		self.coach? || (self.coach&.active?)
 	end

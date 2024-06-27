@@ -22,7 +22,7 @@ class SportsController < ApplicationController
 
 	# Sport index for mudclub admins
 	def index
-		if check_access(roles: [:admin])
+		if check_access
 			title = helpers.home_admin_title(title: I18n.t("sport.many"))
 			grid  = helpers.sports_grid
 			create_index(title:, grid:, retlnk: "/")
@@ -33,7 +33,7 @@ class SportsController < ApplicationController
 
 	# View club details
 	def show
-		if check_access(roles: [:admin])
+		if check_access
 			@fields = create_fields(helpers.sports_show_fields)
 			@submit = create_submit(close: "back", submit: nil, retlnk: :back)
 		else
@@ -43,7 +43,7 @@ class SportsController < ApplicationController
 
 	# Cannot create new sports yet
 	def new
-		if check_access(roles: [:admin])
+		if check_access
 			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -52,7 +52,7 @@ class SportsController < ApplicationController
 
 	# Cannot edit Sports yet
 	def edit
-		if check_access(roles: [:admin])
+		if check_access
 			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 #			@fields = create_fields(helpers.sports_form_fields(title: I18n.t("sport.edit")))
 #			@submit = create_submit
@@ -63,7 +63,7 @@ class SportsController < ApplicationController
 
 	# Cannot create new sports yet
 	def create
-		if check_access(roles: [:admin])
+		if check_access
 			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -72,7 +72,7 @@ class SportsController < ApplicationController
 
 	# Cannot update Sports yet
 	def update
-		if check_access(roles: [:admin])
+		if check_access
 			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -81,7 +81,7 @@ class SportsController < ApplicationController
 
 	# Remove a club
 	def destroy
-		if check_access(roles: [:admin])
+		if check_access
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -89,7 +89,7 @@ class SportsController < ApplicationController
 
 	# View club details
 	def rules
-		if check_access(roles: [:admin])
+		if check_access(action: :show)
 			@title  = create_fields(helpers.sport_rules_title(I18n.t("sport.rules")))
 			@fields = create_fields(helpers.sports_rules_fields)
 			@submit = create_submit(submit: nil)

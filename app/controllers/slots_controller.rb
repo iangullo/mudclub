@@ -71,7 +71,7 @@ class SlotsController < ApplicationController
 
 	# POST /clubs/x/slots or /clubs/x/slots.json
 	def create
-		if check_access(roles: [:manager])
+		if check_access
 			@slot = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot

@@ -22,7 +22,7 @@ class LocationsController < ApplicationController
 	# GET /club/x/locations
 	# GET /club/x/locations.json
 	def index
-		if check_access(roles: [:admin, :manager])
+		if check_access
 			title  = helpers.location_title_fields(title: I18n.t("location.many"))
 			title << helpers.location_search_bar(search_in: club_locations_path)
 			page   = paginate(@locations)	# paginate results
@@ -38,7 +38,7 @@ class LocationsController < ApplicationController
 	def show
 		if user_signed_in?	# basically all users can see this
 			@fields = create_fields(helpers.location_show_fields)
-			submit  = check_access(obj: Club.find_by_id(@clubid)) ? edit_location_path(@location) : nil
+			submit  = edit_location_path(@location) if check_access(obj: Club.find_by_id(@clubid))
 			@submit = create_submit(submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}

@@ -22,7 +22,7 @@ class SeasonsController < ApplicationController
 	# GET /seasons
 	# GET /seasons.json
 	def index
-		if check_access(roles: [:admin])
+		if check_access
 			@seasons = Season.real
 			page  = paginate(@seasons)	# paginate results
 			title = helpers.season_title_fields(icon: "mudclub.svg", title: I18n.t("season.many"))
@@ -35,7 +35,7 @@ class SeasonsController < ApplicationController
 
 	# GET /seasons/1
 	def show
-		if check_access(roles: [:admin])
+		if check_access
 			@fields = create_fields(helpers.season_fields)
 			@submit = create_submit(close: "back", retlnk: seasons_path, submit: edit_season_path, frame: "modal")
 		else
@@ -45,7 +45,7 @@ class SeasonsController < ApplicationController
 
 	# GET /seasons/1/edit
 	def edit
-		if check_access(roles: [:admin])
+		if check_access
 			prepare_form(title: I18n.t("season.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -54,7 +54,7 @@ class SeasonsController < ApplicationController
 
 	# GET /seasons/new
 	def new
-		if check_access(roles: [:admin])
+		if check_access
 			@season = Season.new(start_date: Date.today, end_date: Date.today)
 			prepare_form(title: I18n.t("season.new"))
 		else
@@ -65,7 +65,7 @@ class SeasonsController < ApplicationController
 	# POST /seasons
 	# POST /seasons.json
 	def create
-		if check_access(roles: [:admin])
+		if check_access
 			@season = Season.new(season_params)
 			respond_to do |format|
 				if @season.save
@@ -87,7 +87,7 @@ class SeasonsController < ApplicationController
 	# PATCH/PUT /seasons/1
 	# PATCH/PUT /seasons/1.json
 	def update
-		if check_access(roles: [:admin])
+		if check_access
 			respond_to do |format|
 				check_locations
 				@season.rebuild(season_params)
@@ -116,7 +116,7 @@ class SeasonsController < ApplicationController
 	# DELETE /seasons/1.json
 	def destroy
 		# cannot destroy placeholder season (id ==0)
-		if @season.id != 0 && ccheck_access(roles: [:admin])
+		if @season.id != 0 && check_access
 			s_name = @season.name
 			@season.destroy
 			respond_to do |format|

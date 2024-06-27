@@ -46,7 +46,7 @@ class HomeController < ApplicationController
 	end
 
 	def log
-		if check_access(roles: [:admin, :manager])
+		if check_access
 			if u_admin?
 				actions = UserAction.logs
 			else
@@ -63,7 +63,7 @@ class HomeController < ApplicationController
 	end
 
 	def clear
-		if check_access(roles: [:admin])
+		if check_access
 			UserAction.clear
 			respond_to do |format|
 				a_desc = I18n.t("user.cleared")

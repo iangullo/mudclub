@@ -23,9 +23,9 @@ class TeamsController < ApplicationController
 	# GET /club/x/teams
 	# GET /club/x/teams.json
 	def index
-		if check_access(roles: [:admin, :manager, :coach])
-			@club   = Club.find_by_id(@clubid)
-			@teams  = @club.teams.where(season_id: @seasonid).order(:category_id, :name)
+		@club = Club.find_by_id(@clubid)
+		if check_access(obj: @club)
+			@teams = @club.teams.where(season_id: @seasonid).order(:category_id, :name)
 			respond_to do |format|
 				format.xlsx do
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
@@ -51,7 +51,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
-		if check_access(obj: @club) || check_access(obj: @team) || (u_coach? && user_in_club?)
+		if check_access(obj: @team)
 			@sport   = @team.sport.specific
 			title    = helpers.team_title_fields(title: @team.nick)
 			w_l = @team.win_loss
@@ -91,7 +91,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit
 	def edit
-		if check_access(obj: @club) || @team.has_coach(u_coachid)
+		if check_access(obj: @team)
 			@eligible_coaches = @club.coaches
 			@sport  = @team.sport.specific
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
@@ -130,7 +130,7 @@ class TeamsController < ApplicationController
 	# PATCH/PUT /teams/1
 	# PATCH/PUT /teams/1.json
 	def update
-		if check_access(obj: @club) || @team.has_coach(u_coachid)
+		if check_access(obj: @team)
 			respond_to do |format|
 				n_notice = no_data_notice(trail: @team.to_s)
 				retlnk   = prepare_update_redirect
@@ -167,7 +167,7 @@ class TeamsController < ApplicationController
 	# DELETE /teams/1.json
 	def destroy
 		# cannot destroy placeholder teams (id: 0 || -1)
-		if check_access(obj: @club) && @team&.id&.to_i > 0
+		if @team&.id&.to_i > 0 && check_access(obj: @team.club)
 			t_name = @team.to_s
 			@team.destroy
 			respond_to do |format|
@@ -183,7 +183,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/roster
 	def roster
-		if check_access(obj: @club) || (u_coach? && user_in_club?)
+		if check_access(action: :show, obj: @team)
 			title   = helpers.team_title_fields(title: @team.nick)
 			players = @team.players
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster"), align: "left"}, {kind: "string", value: "(#{players.count} #{I18n.t("player.abbr")})"}]
@@ -212,7 +212,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/slots
 	def slots
-		if check_access(obj: @club) || check_access(obj: @team) || (u_coach? && user_in_club?)
+		if check_access(action: :show, obj: @team)
 			title   = helpers.team_title_fields(title: @team.to_s)
 			@title  = create_fields(title)
 			@fields = create_fields(helpers.team_slots_fields) unless @team.slots.empty?
@@ -223,7 +223,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/targets
 	def targets
-		if check_access(obj: @club) || (u_coach? && user_in_club?)
+		if user_in_club? && (u_coach? || u_manager?)
 			global_targets(true)	# get & breakdown global targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.many"), align: "left"}]
@@ -252,7 +252,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_targets
 	def plan
-		if check_access(obj: @club) || (u_coach? && user_in_club?)
+		if user_in_club? && (u_coach? || u_manager?)
 			plan_targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.single"), align: "left"}]
@@ -280,7 +280,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/attendance
 	def attendance
-		if check_access(obj: @club) || (u_coach? && user_in_club?)
+		if user_in_club? && (u_coach? || u_manager?)
 			title  = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("calendar.attendance"), align: "left"}]
 			@title = create_fields(title)

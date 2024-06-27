@@ -23,7 +23,7 @@ class PlayersController < ApplicationController
 	# GET /clubs/x/players
 	# GET /clubs/x/players.json
 	def index
-		if check_access(obj: Club.find(@clubid)) || (u_coach? && u_clubid==@clubid)
+		if check_access(obj: Club.find(@clubid))
 			@players = Player.search(params[:search], current_user)
 			respond_to do |format|
 				format.xlsx do
@@ -61,7 +61,7 @@ class PlayersController < ApplicationController
 
 	# GET /players/new
 	def new
-		if check_access(roles: [:manager, :coach])
+		if check_access
 			get_player_context
 			@player = Player.new(club_id: u_clubid)
 			@player.build_person
@@ -83,7 +83,7 @@ class PlayersController < ApplicationController
 	# POST /players
 	# POST /players.json
 	def create
-		if check_access(roles: [:manager, :coach])
+		if check_access
 			respond_to do |format|
 				get_player_context
 				@player = Player.new
@@ -146,7 +146,7 @@ class PlayersController < ApplicationController
 	# GET /players/import
 	# GET /players/import.json
 	def import
-		if check_access(roles: [:manager])
+		if check_access(action: :create)
 			if params[:file].present?
 				Player.import(params[:file].presence)	# added to import excel
 				a_desc = "#{I18n.t("player.import")} '#{params[:file].original_filename}'"
