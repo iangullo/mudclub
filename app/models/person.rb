@@ -57,7 +57,7 @@ class Person < ApplicationRecord
 
 	# wrapper to display birthday strings
 	def birthstring
-		self.birthday.strftime("%d/%m/%Y")
+		self.birthday&.strftime("%d/%m/%Y")
 	end
 
 	# returns a hash of icon & label to mark whether a

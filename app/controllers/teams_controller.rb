@@ -23,9 +23,9 @@ class TeamsController < ApplicationController
 	# GET /club/x/teams
 	# GET /club/x/teams.json
 	def index
-		@club = Club.find_by_id(@clubid)
-		if check_access(roles: [:manager, :coach, :secretary], obj: @club, both: true)
-			@teams  = @club.teams.where(season_id: @seasonid).order(:category_id, :name)
+		if check_access(roles: [:manager, :coach, :secretary])
+			@club  = Club.find_by_id(@clubid)
+			@teams = @club.teams.where(season_id: @seasonid).order(:category_id, :name)
 			respond_to do |format|
 				format.xlsx do
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
@@ -38,7 +38,7 @@ class TeamsController < ApplicationController
 					page   = paginate(@teams)	# paginate results
 					grid   = helpers.team_grid(teams: page, add_teams: u_manager?)
 					retlnk = @clubid ? club_path(@clubid) : (u_admin? ? clubs_path : "/")
-					submit = {kind: "export", url: club_teams_path(@clubid, format: :xlsx, season_id: @seasonid), working: false} if u_manager? || u_secretary?
+					submit = {kind: "export", url: club_teams_path(@clubid, format: :xlsx, season_id: @seasonid), working: false} if user_in_club? && (u_manager? || u_secretary?)
 					create_index(title:, grid:, page:, retlnk:, submit:)
 					render :index
 				end
