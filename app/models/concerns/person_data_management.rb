@@ -37,7 +37,13 @@ module PersonDataManagement
 		end
 		self.person_id    = self.person.id
 		self.person[s_id] = self.id
-		self.save if save_changes && self.modified?
+		if save_changes && self.modified?
+			if self.save(validate: false)
+				Rails.logger.debug "Successfully saved #{self.class.name} with id #{self.id} after binding person"
+			else
+				raise ActiveRecord::Rollback, "Failed to save object after binding person"
+			end
+		end
 		return true
 	end
 
@@ -47,7 +53,7 @@ module PersonDataManagement
 	end
 
 	# Attempts to fetch a Person-related object using the hash of fields
-	# received as in put. returns nil otherwise.
+	# received as input. returns nil otherwise.
 	def fetch_obj(f_data)
 		p_cls = self.class	# object class
 		p_id  = f_data[:id].to_i	# check if we already have an id
@@ -97,28 +103,56 @@ module PersonDataManagement
 
 	# required to work around for occasional glitch saving new records
 	def paranoid_create
+		Rails.logger.debug "Attempting to save Person: #{self.inspect}"
 		begin
-			self.save
+			if self.save
+				Rails.logger.debug "Person saved successfully."
+				return true
+			else
+				Rails.logger.error "Person save failed: #{self.errors.full_messages.join(", ")}"
+				return false
+			end
 		rescue ActiveRecord::RecordNotUnique => e
-			Rails.logger.error("RecordNotUnique error: #{e.message}")
-			self.save
+			Rails.logger.debug("RecordNotUnique error: #{e.message}")
+			Rails.logger.debug "Workaround attempt to save Person."
+			if self.save
+				Rails.logger.debug "Person saved successfully."
+				return true
+			else
+				Rails.logger.error "Person save failed: #{self.errors.full_messages.join(", ")}"
+				return false
+			end
 		end
 	end
 
 	# attempt to unified rebuild Object method
 	def rebuild_obj_person(f_data)
-		if (p_aux = self.fetch_obj(f_data)) && (p_aux&.id != self.id)
-			self.id = p_aux.id	# need to swap
-			self.reload
+		Rails.logger.debug "Starting rebuild_obj_person with f_data: #{f_data.inspect}"
+		
+		o_aux = self.fetch_obj(f_data)	# try to fetch our object
+		if o_aux && (o_aux&.id != self.id)	# avoid duplicating it
+			Rails.logger.debug "Found existing object: #{o_aux.inspect}"
+			self.id = o_aux.id
+			self.reload	# reload from database
 		end
-		p_data = f_data[:person_attributes]
-		if p_data	# person data to be rebuilt
-			p_aux = Person.fetch(p_data)
-			p_aux ? self.person = p_aux : self.build_person
-			self.person.rebuild(p_data)
-			self.person.paranoid_create unless self.person.persisted? # Save if new person
-			self.bind_person if self.person.persisted?	# ensure correct binding
+		
+		p_aux = Person.fetch(f_data[:person_attributes])
+		Rails.logger.debug "Fetched or built person: #{p_aux.inspect}"
+
+		if p_aux.persisted?	# we have a match --> link it
+			self.person = p_aux
+			Rails.logger.debug "Linked to existing person: #{p_aux.inspect}"
+		else	# no match - must create new person
+			Rails.logger.debug "Creating new person"
+			if p_aux.paranoid_create
+				Rails.logger.debug "New person created: #{p_aux.inspect}"
+			else
+				Rails.logger.error "Failed to create new person: #{p_aux.errors.full_messages.join(", ")}"
+				raise ActiveRecord::Rollback, "Failed to create new person"
+			end
 		end
+		self.bind_person # ensure correct binding
+		Rails.logger.debug "Finished rebuild_obj_person"
 	end
 
 	# get team history

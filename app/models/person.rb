@@ -107,13 +107,7 @@ class Person < ApplicationRecord
 	end
 
 	# rebuild Person data from raw input (as hash) given by a form submittal
-	# avoids creating duplicates
 	def rebuild(f_data)
-		p_aux = Person.fetch(f_data)
-		if p_aux&.id != self.id	# re-load self as existing Person
-			self.id = p_aux.id
-			self.reload
-		end
 		self.dni       = f_data[:dni].presence || self.dni
 		self.email     = f_data[:email].presence || self.email
 		self.name      = f_data[:name].presence || self.name
@@ -147,7 +141,7 @@ class Person < ApplicationRecord
 
 	# finds a person in the database based on id, email, dni, name & surname
 	# returns: reloads person if it exists in the database already or
-	# 	   'nil' if it not found.
+	# 	   a freshly created person(id: nil) if it not found.
 	def self.fetch(f_data)
 		# Try to find by id if present
 		id = f_data[:id].presence.to_i
@@ -166,6 +160,8 @@ class Person < ApplicationRecord
 				p_aux = Person.where("unaccent(name) ILIKE unaccent(?) AND unaccent(surname) ILIKE unaccent(?)", name, surname).take
 			end
 		end
+		p_aux ||= Person.new
+		p_aux.rebuild(f_data)
 		p_aux
 	end
 
