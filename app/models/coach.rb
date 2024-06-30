@@ -104,14 +104,14 @@ class Coach < ApplicationRecord
 	#Search field matching
 	def self.search(search, user=nil)
 		if search.present?
-			if user&.is_manager?
+			if user&.is_manager? || user&.secretary?
 				Coach.real.where(club_id: [user.club_id, nil], person_id: Person.search(search).order(:birthday))
 			elsif user&.coach?
 				Coach.real.where(club_id: user.club_id, person_id: Person.search(search).order(:birthday))
 			else
 				Coach.none
 			end
-		elsif user&.is_manager?
+		elsif user&.is_manager? || user&.secretary?
 			Coach.where(club_id: user.club_id)
 		else
 			Coach.none

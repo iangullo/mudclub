@@ -82,6 +82,8 @@ class TopbarComponent < ApplicationComponent
 			coach_menu(user)
 		elsif user.is_player?
 			player_menu(user)
+		elsif user.secretary?
+			secretary_menu(user)
 		else	
 			user_menu(user)
 		end
@@ -223,6 +225,21 @@ class TopbarComponent < ApplicationComponent
 	end
 
 	def player_menu(user)
+		coach_menu(user, pure=false) if user.is_coach?
+	end
+
+
+	# menu buttons for club managers
+	def secretary_menu(user)
+		cluburl = "/clubs/#{user.club_id}"
+		if user.is_coach?
+			@menu_tabs << coach_menu(user, pure=false)
+		else
+			@menu_tabs << menu_link(label: I18n.t("player.many"), url: "#{cluburl}/players")
+		end
+		@menu_tabs << menu_link(label: I18n.t("coach.many"), url: "#{cluburl}/coaches")
+		@menu_tabs << menu_link(label: I18n.t("slot.many"), url: "#{cluburl}/slots")
+		@menu_tabs << menu_link(label: I18n.t("location.many"), url: "#{cluburl}/locations")
 	end
 
 	# menu to manage server application
@@ -271,6 +288,6 @@ class TopbarComponent < ApplicationComponent
 	end
 
 	def user_menu(user)
-		@menu_tabs = []
+		# nothing especial to show really
 	end
 end

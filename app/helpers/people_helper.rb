@@ -32,13 +32,15 @@ module PeopleHelper
 				gap_field,
 				icon_field("at.svg"),
 				{kind: "email-box", key: :email, value: person&.email, placeholder: I18n.t("person.email")}
-			],
-			[gap_field(size: 1), idpic_field(person, idpic: "id_front", align: "left", cols: 4)],
-			[gap_field(size: 1), idpic_field(person, idpic: "id_back", align: "left", cols: 4)],
-			[
-				icon_field("home.svg", iclass: "align-top"),
-				{kind: "text-area", key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: I18n.t("person.address")},
 			]
+		]
+		if person&.coach_id? || person&.player_id?
+			res << [gap_field(size: 1), idpic_field(person, idpic: "id_front", align: "left", cols: 4)]
+			res << [gap_field(size: 1), idpic_field(person, idpic: "id_back", align: "left", cols: 4)]
+		end
+		res << [
+			icon_field("home.svg", iclass: "align-top"),
+			{kind: "text-area", key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: I18n.t("person.address")},
 		]
 	end
 
@@ -74,10 +76,8 @@ module PeopleHelper
 		res << [{kind: "label", value: person.nick.presence || person.name, cols:}]
 		res << [{kind: "label", value: person.surname, cols:}]
 		res << [gap_field(size: 0), {kind: "string", value: person.birthstring}]
-		res << [
-			{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"},
-			idpic_field(person)
-		]
+		res << [{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"}]
+		res.last << idpic_field(person) if person&.coach_id? || person&.player_id?
 		res << [
 			icon_field("home.svg", iclass: "align-top"),
 			{kind: "string", value: simple_format("#{person.address}"), align: "left", cols: 2}
