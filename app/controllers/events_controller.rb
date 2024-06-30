@@ -248,7 +248,7 @@ class EventsController < ApplicationController
 			@task   = Task.find(params[:task_id])
 			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
 			submit  = edit_task_event_path(task_id: @task.id) if event_manager?
-			@submit = create_submit(close: "back", retlnk: :back, submit: : nil)
+			@submit = create_submit(close: "back", retlnk: :back, submit:)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
