@@ -232,11 +232,8 @@ class TopbarComponent < ApplicationComponent
 	# menu buttons for club managers
 	def secretary_menu(user)
 		cluburl = "/clubs/#{user.club_id}"
-		if user.is_coach?
-			@menu_tabs << coach_menu(user, pure=false)
-		else
-			@menu_tabs << menu_link(label: I18n.t("player.many"), url: "#{cluburl}/players")
-		end
+		coach_menu(user, pure=false) if user.is_coach?
+		@menu_tabs << menu_link(label: I18n.t("player.many"), url: "#{cluburl}/players")
 		@menu_tabs << menu_link(label: I18n.t("coach.many"), url: "#{cluburl}/coaches")
 		@menu_tabs << menu_link(label: I18n.t("slot.many"), url: "#{cluburl}/slots")
 		@menu_tabs << menu_link(label: I18n.t("location.many"), url: "#{cluburl}/locations")
