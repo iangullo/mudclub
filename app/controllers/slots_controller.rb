@@ -27,7 +27,7 @@ class SlotsController < ApplicationController
 			@locations = Location.search(club_id: @clubid).practice.order(name: :asc)
 			@location  = Location.find_by_id(params[:location_id]) || @locations.first
 			title      = helpers.slot_title_fields(title: I18n.t("slot.many"))
-			title     << helpers.slot_search_bar(u_manager?)
+			title     << helpers.slot_search_bar(u_manager? || u_secretary?)
 			@fields    = create_fields(title)
 			week_view if @location
 			@btn_add   = create_button({kind: "add", url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @seasonid), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
