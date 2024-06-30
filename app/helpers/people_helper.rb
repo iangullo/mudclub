@@ -21,35 +21,35 @@ module PeopleHelper
 		res = [
 			[
 				icon_field("user.svg"),
-				{kind: "text-box", key: :nick, size: 8, value: person.nick, placeholder: I18n.t("person.nick")},
+				{kind: "text-box", key: :nick, size: 8, value: person&.nick, placeholder: I18n.t("person.nick")},
 				gap_field,
 				icon_field("phone.svg"),
-				{kind: "text-box", key: :phone, size: 12, value: person.phone, placeholder: I18n.t("person.phone")}
+				{kind: "text-box", key: :phone, size: 12, value: person&.phone, placeholder: I18n.t("person.phone")}
 			],
 			[
 				icon_field("id_front.svg"),
-				{kind: "text-box", key: :dni, size: 8, value: person.dni, placeholder: I18n.t("person.pid")},
+				{kind: "text-box", key: :dni, size: 8, value: person&.dni, placeholder: I18n.t("person.pid")},
 				gap_field,
 				icon_field("at.svg"),
-				{kind: "email-box", key: :email, value: person.email, placeholder: I18n.t("person.email")}
+				{kind: "email-box", key: :email, value: person&.email, placeholder: I18n.t("person.email")}
 			],
 			[gap_field(size: 1), idpic_field(person, idpic: "id_front", align: "left", cols: 4)],
 			[gap_field(size: 1), idpic_field(person, idpic: "id_back", align: "left", cols: 4)],
 			[
 				icon_field("home.svg", iclass: "align-top"),
-				{kind: "text-area", key: :address, size: 34, cols: 4, lines: 3, value: person.address, placeholder: I18n.t("person.address")},
+				{kind: "text-area", key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: I18n.t("person.address")},
 			]
 		]
 	end
 
 	# return FieldsComponent @fields for forms
-	def person_form_title(person, icon: person.picture, title:, cols: 2, sex: nil)
+	def person_form_title(person, icon: person&.picture, title:, cols: 2, sex: nil)
 		res = person_title_fields(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
-		res << [{kind: "text-box", key: :name, value: person.name, placeholder: I18n.t("person.name"), cols: 2}]
-		res << [{kind: "text-box", key: :surname, value: person.surname, placeholder: I18n.t("person.surname"), cols: 2}]
-		res << (sex ? [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: person.female, align: "left"}] : [])
+		res << [{kind: "text-box", key: :name, value: person&.name, placeholder: I18n.t("person.name"), cols: 2}]
+		res << [{kind: "text-box", key: :surname, value: person&.surname, placeholder: I18n.t("person.surname"), cols: 2}]
+		res << (sex ? [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: person&.female, align: "left"}] : [])
 		res.last << icon_field("calendar.svg")
-		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person.birthday}
+		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday}
 		res
 	end
 
@@ -96,7 +96,7 @@ module PeopleHelper
 			{
 				kind: "link",
 				label: I18n.t("person.#{idpic}"),
-				url: rails_blob_path(person.send(idpic), disposition: "attachment"),
+				url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
 				d_class: "inline-flex items-center"
 			}
 		end
@@ -105,16 +105,16 @@ module PeopleHelper
 		# standardised field with icons for player/coach id pics
 		def idpic_field(person, idpic: nil, cols: nil, align: "center")
 			if idpic	# it is an editor field
-				{kind: "upload", icon: "#{idpic}.svg", label: I18n.t("person.#{idpic}"), key: idpic, value: person.send(idpic).filename, cols:}
+				{kind: "upload", icon: "#{idpic}.svg", label: I18n.t("person.#{idpic}"), key: idpic, value: person&.send(idpic)&.filename, cols:}
 			else
-				pitip = person.idpic_content
+				pitip = person&.idpic_content
 				icon  = pitip[:icon]
 				label = pitip[:label]
 				tip   = pitip[:tip]
 				if pitip[:found] && u_manager?	# dropdown menu
 					button = {kind: "link", name: "id-pics", icon:, label:, append: true, options: []}		
-					button[:options] << idpic_button(person, "id_front") if person.id_front.attached?
-					button[:options] << idpic_button(person, "id_back") if person.id_back.attached?
+					button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
+					button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
 					{kind: "dropdown", button:, class: "bg-white"}
 				else
 					{kind: "icon-label", icon:, label:, right: true, tip:, align: "left"}
