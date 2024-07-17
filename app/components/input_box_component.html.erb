@@ -1,10 +1,10 @@
 <% case @fdata[:kind] %>
 <% when "date-box" %>
-	<%= @form.date_field(@fdata[:key], value: @fdata[:value], start_year: @fdata[:s_year], end_year: (@fdata[:e_year] || Time.now.year), class: @i_class) %>
+	<%= @form.date_field(@fdata[:key], value: @fdata[:value], start_year: @fdata[:s_year], end_year: (@fdata[:e_year] || Time.now.year), class: @i_class, data: @i_data) %>
 <% when "email-box" %>
-	<%= @form.email_field(@fdata[:key], placeholder: @fdata[:placeholder], size: @fdata[:size], class: @i_class) %>
+	<%= @form.email_field(@fdata[:key], placeholder: @fdata[:placeholder], size: @fdata[:size], class: @i_class, data: @i_data) %>
 <% when "hidden" %>
-	<%= @form.hidden_field(@fdata[:key].to_sym, value: @fdata[:value], data: @fdata[:h_data]) %>
+	<%= @form.hidden_field(@fdata[:key].to_sym, value: @fdata[:value], data: @i_data) %>
 <% when "image-box" %>
 	<style>
 		/* Style the container with fixed dimensions */
@@ -35,7 +35,7 @@
 		</div>
 
 		<!-- Hidden input for file upload -->
-		<%= @form.file_field @fdata[:key], id: "imageFile", direct_upload: true, class: "hidden", style: "display:none;", data: {action: "change->imagebox#handleFileChange", imagebox_target: "imageFile"} %>
+		<%= @form.file_field @fdata[:key], id: "imageFile", direct_upload: true, class: "hidden", style: "display:none;", data: @i_data %>
 	</div>
 <% when "label-checkbox" %>
 	<div class='inline-flex align-middle'>
@@ -48,16 +48,16 @@
 		<% end %>
 	</div>
 <% when "number-box" %>
-	<%= @form.number_field(@fdata[:key], value: @fdata[:value], size: @fdata[:size] || 2, in: @fdata[:min]..@fdata[:max], step: @fdata[:step], class: @i_class) %>
+	<%= @form.number_field(@fdata[:key], value: @fdata[:value], size: @fdata[:size] || 2, in: @fdata[:min]..@fdata[:max], step: @fdata[:step], class: @i_class, data: @i_data) %>
 	<%= @fdata[:units].to_s %>
 <% when "password-box" %>
-	<%= @form.password_field(@fdata[:key], placeholder: @fdata[:placeholder], class: @i_class, size: @fdata[:size]) %>
+	<%= @form.password_field(@fdata[:key], placeholder: @fdata[:placeholder], class: @i_class, size: @fdata[:size], data: @i_data) %>
 <% when "radio-button" %>
-	<%= @form.radio_button(@fdata[:key], @fdata[:value], checked: @fdata[:checked], class: "m-1", data: @fdata[:r_data]) %>
+	<%= @form.radio_button(@fdata[:key], @fdata[:value], checked: @fdata[:checked], class: @i_class, data: @i_data) %>
 <% when "rich-text-area" %>
-	<%= @form.rich_text_area(@fdata[:key], class: @i_class) %>
+	<%= @form.rich_text_area(@fdata[:key], class: @i_class, data: @i_data) %>
 <% when "select-box" %>
-	<%= @form.select(@fdata[:key], @fdata[:options], { selected: @fdata[:value] ? @fdata[:value] : @fdata[:options].first }, class: @i_class) %>
+	<%= @form.select(@fdata[:key], @fdata[:options], { selected: @fdata[:value] ? @fdata[:value] : @fdata[:options].first }, class: @i_class, data: @i_data) %>
 <% when "select-checkboxes" %>
 	<% @form.collection_check_boxes @fdata[:key], @fdata[:options], :id, :to_s do |obj| %>
 		<%= obj.check_box({ class: 'rounded bg-gray-200 text-blue-700' }) %>&nbsp;<%= obj.object.to_s %><br>
@@ -78,26 +78,26 @@
 		<a href='<%= @fdata[:url] %>' hidden data-search-params-target='anchor' data-select-load-target='click' data-turbo-frame='<%= @form.field_id(@fdata[:key], :turbo_frame) %>'>GetDrill</a>
 	</fieldset>
 <% when "text-area" %>
-	<%= @form.text_area(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], cols: @fdata[:size], rows: @fdata[:lines], class: @i_class) %>
+	<%= @form.text_area(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], cols: @fdata[:size], rows: @fdata[:lines], class: @i_class, data: @i_data) %>
 <% when "text-box" %>
 	<% if @fdata[:options] # autosearch text input %>
-		<%= @form.text_field(@fdata[:key], list: "#{@fdata[:key]}_list", value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class, data: @fdata[:o_data]) %>
+		<%= @form.text_field(@fdata[:key], list: "#{@fdata[:key]}_list", value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class, data: @i_data) %>
 		<datalist id="<%=@fdata[:key]%>_list">
 			<% @fdata[:options].each do |opt| %>
 				<option><%=opt%></option>
 			<% end %>
 		</datalist>
 	<% else # regular text box%>
-		<%= @form.text_field(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class) %>
+		<%= @form.text_field(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class, data: @i_data) %>
 	<% end %>
 <% when "time-box" %>
-	<%= @form.number_field(:hour, value: @fdata[:hour], in: 10..22, size: @fdata[:size] || 3, class: @i_class) %>
+	<%= @form.number_field(:hour, value: @fdata[:hour], in: 10..22, size: @fdata[:size] || 3, class: @i_class, data: @i_data) %>
 	<strong>:</strong>
-	<%= @form.number_field(:min, value: @fdata[:mins], in: 0..45, step: 15, size: @fdata[:size] || 3, class: @i_class) %>
+	<%= @form.number_field(:min, value: @fdata[:mins], in: 0..45, step: 15, size: @fdata[:size] || 3, class: @i_class, data: @i_data) %>
 <% when "upload" %>
 	<div id="upload-file" class="inline-flex items-center" data-controller="upload">
 		<!-- Hidden input for file upload -->
-		<%= @form.file_field @fdata[:key], id: "upload-btn-#{@fdata[:key]}", direct_upload: true, class: "hidden", style: "display:none;", "data-upload-target":"fileInput" %>
+		<%= @form.file_field(@fdata[:key], id: "upload-btn-#{@fdata[:key]}", direct_upload: true, class: "hidden", style: "display:none;", data: @i_data) %>
 
 		<!-- Custom button to trigger file input -->
 		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" data-action="click->upload#selectFile" data-upload-target="button">

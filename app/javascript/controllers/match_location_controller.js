@@ -8,7 +8,7 @@ export default class extends Controller {
 
   connect() {
     //console.log("this.homeCourtId => ", this.homeCourtIdTarget.value)
-    this.homeCourts = JSON.parse(this.rivalNameTarget.dataset.homecourts)
+    this.homeCourts = JSON.parse(this.rivalNameTarget.dataset.homecourts);
     //console.log("this.homeCourts => ", this.homeCourts)
     // Gather all options from the datalist directly
     const dataList = document.getElementById("name_list");

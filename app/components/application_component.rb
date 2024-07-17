@@ -70,4 +70,9 @@ class ApplicationComponent < ViewComponent::Base
 			yield
 		end
 	end
+
+	# define a unique identifier for this Component
+	def unique_identifier(label="component")
+		"#{label}-#{SecureRandom.uuid}"
+	end
 end

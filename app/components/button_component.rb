@@ -214,6 +214,7 @@ class ButtonComponent < ApplicationComponent
 			end
 		end
 		@button[:d_class] += b_colour if b_colour
+		@button[:d_class] += " hover-div" if @button[:type] == "submit"
 	end
 
 	# set the i_class for the button div

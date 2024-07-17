@@ -38,7 +38,8 @@
 # => "select-load": :key (field name), :icon, :label, :value (form, select)
 
 class InputBoxComponent < ApplicationComponent
-	DEF_INPUT_CLASS = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700".split(" ")
+	DEF_INPUT_CLASS = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700".split(" ")
+	DEFAULT_BOX_SIZE = { "image-box" => "50x50", "number-box" => 5, "time-box" => 5, "default" => 20 }
 	attr_writer :form, :session
 
 	def initialize(field:, form: nil, session: nil)
@@ -51,16 +52,30 @@ class InputBoxComponent < ApplicationComponent
 		@fdata[:fname]   = @fdata[:value].to_s.presence || I18n.t("status.no_file") if (@fdata[:kind] == "upload")
 		set_box_size
 		set_box_attributes
-		@i_class  = @i_class.join(" ")
+		set_box_data
 	end
 
 	private
+		# handle mandatory conditions to bind with stimulus controller
+		def generate_condition(mandatory)
+			conditions = []
+			if mandatory.is_a?(Hash)
+				conditions << "length:#{mandatory[:length]}" if mandatory[:length]
+				conditions << "min:#{mandatory[:min]}" if mandatory[:min]
+				conditions << "max:#{mandatory[:max]}" if mandatory[:max]
+			else
+				conditions << "length:1"
+			end
+			{condition: conditions.join(";"), identifier: unique_identifier("inputbox")}
+		end
+
 		# offload some initial setting of field data
 		def set_box_attributes
 			kind_mappings = {
 				"image-box" => { class: "group flex relative w-75 h-100 overflow-hidden justify-center align-middle rounded border-gray-300 border-1" },
 				"number-box" => { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] },
 				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" },
+				"radio-button" => { class: "m-1" },
 				"rich-text-area" => { class: "trix-content" },
 				"text-area" => {class: "text-base"},
 				"text-box" => { class: "overflow-hidden overflow-ellipsis" },
@@ -72,7 +87,34 @@ class InputBoxComponent < ApplicationComponent
 			return unless mapping
 
 			@i_class << (mapping[:i_class] || mapping[:class])
+			@i_class = @i_class.join(" ")
 			@fdata.merge!(mapping.reject { |key, _| key == :class })
+		end
+
+		# data atributes to pass on to controllers/forms
+		def set_box_data
+			case @fdata[:kind]
+			when "hidden"
+				@i_data = @fdata[:h_data]
+			when "image-box"
+				@i_data = {action: "change->imagebox#handleFileChange", imagebox_target: "imageFile"}
+			when "radio-button"
+				@i_data = @fdata[:r_data]
+			when "text-box"
+				if @fdata[:options].present?
+					if @fdata[:options].is_a?(Hash)
+						@i_data  = {"data-optvalues" => @fdata[:options].values}
+					else
+						@i_data  = @fdata[:o_data]
+					end
+				end
+			end
+
+			if @fdata[:mandatory].present?
+				@i_data ||= {}
+				@i_data.merge!({mandatory_input: true, action: "mandatory#check"})
+				@i_data.merge!(generate_condition(@fdata[:mandatory]))
+			end
 		end
 
 		# calculate size of box
@@ -80,22 +122,16 @@ class InputBoxComponent < ApplicationComponent
 			unless @fdata[:size]
 				case @fdata[:kind]
 				when "image-box"
-					@fdata[:size] = "50x50"
+					@fdata[:size] = DEFAULT_BOX_SIZE["image-box"]
 				when "number-box", "time-box"
-					box_size = 5
+					box_size = DEFAULT_BOX_SIZE[@fdata[:kind]]
 				else
 					if @fdata[:options].present?
-						box_size = 10
-						if @fdata[:options].is_a?(Hash)
-							optnames      = @fdata[:options].keys
-							@fdata[:data] = {"data-optvalues" => @fdata[:options].values}
-						else
-							optnames = @fdata[:options]
-						end
-						longest  = @fdata[:options].map(&:to_s).max_by(&:length).length
-						box_size = longest if longest > box_size
+						optnames = @fdata[:options].is_a?(Hash) ? @fdata[:options].keys : @fdata[:options]
+						longest  = optnames.map(&:to_s).max_by(&:length).length
+						box_size = [longest, 10].max
 					else
-						box_size = 20
+						box_size ||= DEFAULT_BOX_SIZE["default"]
 					end
 				end
 				@fdata[:size] ||= box_size - 3
