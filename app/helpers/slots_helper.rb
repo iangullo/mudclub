@@ -38,11 +38,11 @@ module SlotsHelper
 		res << [
 			icon_field("calendar.svg"),
 			{kind: "select-box", key: :wday, value: @slot.wday, options: weekdays},
-			{kind: "time-box", hour: @slot.hour, mins: @slot.min}
+			{kind: "time-box", hour: @slot.hour, mins: @slot.min, mandatory: true}
 		]
 		res << [
 			icon_field("clock.svg"),
-			{kind: "number-box", key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins")}
+			{kind: "number-box", key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins"), mandatory: {min: 60}}
 		]
 		res.last << {kind: "hidden", key: :season_id, value: @season.id}
 		res

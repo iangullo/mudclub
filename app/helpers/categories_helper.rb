@@ -44,15 +44,15 @@ module CategoriesHelper
 		@submit = SubmitComponent.new(submit: "save")
 		res     = category_title_fields(title:, rows: 3, cols: 5)
 		res << [
-			{kind: "text-box", key: :age_group, value: @category.age_group, placeholder: I18n.t("category.single"), size: 10, cols: 3},
+			{kind: "text-box", key: :age_group, value: @category.age_group, placeholder: I18n.t("category.single"), size: 10, cols: 3, mandatory: {length: 3}},
 			{kind: "select-box", key: :sex, options: Category.sex_options, value: @category.sex, cols: 2}
 		]
 		res << [
 			{kind: "label", value: I18n.t("stat.min")},
-			{kind: "number-box", key: :min_years, min: 5, size: 3, value: @category.min_years},
+			{kind: "number-box", key: :min_years, min: 5, size: 3, value: @category.min_years, mandatory: {min: 5}},
 			gap_field(size: 5),
 			{kind: "label", value: I18n.t("stat.max")},
-			{kind: "number-box", key: :max_years, min: 6, size: 3, value: @category.max_years}
+			{kind: "number-box", key: :max_years, min: 6, size: 3, value: @category.max_years, mandatory: {max: 99}}
 		]
 		res << [
 			icon_field("rules.svg"),

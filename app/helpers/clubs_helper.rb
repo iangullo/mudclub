@@ -75,8 +75,8 @@ module ClubsHelper
 	# return Club FieldsComponent @fields for forms
 	def club_form_title(title:, cols: 2)
 		res = club_title_fields(title:, icon: @club.logo, rows: 3, cols:, form: true)
-		res << [{kind: "text-box", key: :nick, value: @club.nick, placeholder: I18n.t("person.name"), cols:}]
-		res << [{kind: "text-box", key: :name, value: @club.name, size: 27, placeholder: I18n.t("club.entity"), cols:}]
+		res << [{kind: "text-box", key: :nick, value: @club.nick, placeholder: I18n.t("person.name"), cols:, mandatory: {length: 3}}]
+		res << [{kind: "text-box", key: :name, value: @club.name, size: 27, placeholder: I18n.t("club.entity"), cols:, mandatory: {length: 3}}]
 	end
 
 	# return Club FieldsComponent @fields for forms
@@ -90,7 +90,7 @@ module ClubsHelper
 			icon_field("phone.svg", iclass:),
 			{kind: "text-box", key: :phone, size: 12, value: @club.phone, placeholder: I18n.t("person.phone")},
 			icon_field("flag.svg", tip: I18n.t("locale.country"), tipid: "ctry"),
-			{kind: "text-box", align: "left", key: :country, value: @club.country, placeholder: "US", size: 2},
+			{kind: "text-box", align: "left", key: :country, value: @club.country, placeholder: "US", size: 2, mandatory: {length: 2}},
 			icon_field("locale.png", tip: I18n.t("locale.lang"), tipid: "lang"),
 			{kind: "select-box", align: "left", key: :locale, options: User.locale_list, value: @club.locale},
 		]

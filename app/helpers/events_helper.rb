@@ -86,9 +86,9 @@ module EventsHelper
 
 	def event_form_data_options(event, title)
 		if event.match?
-			{ controller: "match-location", title:, turbo_frame: "_top"}
+			{controller: "match-location", title:, turbo_frame: "_top"}
 		else
-			{title:, turbo_frame: "_top"}
+			{controller: "mandatory-fields", title:, turbo_frame: "_top"}
 		end
 	end
 
@@ -353,7 +353,7 @@ module EventsHelper
 				res[0] << {kind: "date-box", key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
 				unless @event.rest? # add start_time inputs
 					res[1] << icon_field("clock.svg")
-					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, mins: @event.min}
+					res[1] << {kind: "time-box", key: :hour, hour: @event.hour, mins: @event.min, mandatory: true}
 				end
 				res.last << {kind: "hidden", key: :team_id, value: @event.team_id} unless copy
 				res.last << {kind: "hidden", key: :cal, value: @cal} if @cal

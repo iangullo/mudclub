@@ -20,7 +20,7 @@ module LocationsHelper
 	# return FieldsComponent @title for forms
 	def location_form_fields(title:)
 		res = location_title_fields(title:)
-		res << [{kind: "text-box", key: :name, value: @location.name, placeholder: I18n.t("location.default")}]
+		res << [{kind: "text-box", key: :name, value: @location.name, placeholder: I18n.t("location.default"), mandatory: {length:3}}]
 		res << [
 			icon_field("gmaps.svg"),
 			{kind: "text-box", key: :gmaps_url, value: @location.gmaps_url, placeholder: I18n.t("location.gmaps")}

@@ -87,11 +87,11 @@ module UsersHelper
 		[
 			[
 				icon_field("key.svg"),
-				{kind: "password-box", key: :password, placeholder: I18n.t("password.single")}
+				{kind: "password-box", key: :password, placeholder: I18n.t("password.single"), mandatory: {length: 8}}
 			],
 			[
 				icon_field("key.svg"),
-				{kind: "password-box", key: :password_confirmation, placeholder: I18n.t("password.confirm")}
+				{kind: "password-box", key: :password_confirmation, placeholder: I18n.t("password.confirm"), mandatory: {length: 8}}
 			],
 			[
 				gap_field,

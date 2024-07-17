@@ -32,7 +32,7 @@ module DrillsHelper
 			],
 			[
 				{kind: "label", value: I18n.t("drill.desc_a"), align: "right"},
-				{kind: "text-area", key: :description, size: 36, lines: 2, value: @drill.description}
+				{kind: "text-area", key: :description, size: 36, lines: 2, value: @drill.description, mandatory: {length: 7}}
 			]
 		]
 	end
@@ -72,8 +72,8 @@ module DrillsHelper
 	def drill_form_title(title:)
 		res = drill_title_fields(title:)
 		res << [
-			{kind: "text-box", key: :name, placeholder: I18n.t("drill.default"), value: @drill.name},
-			{kind: "text-box", key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: I18n.t("kind.default")}
+			{kind: "text-box", key: :name, placeholder: I18n.t("drill.default"), value: @drill.name, mandatory: {length:3}},
+			{kind: "text-box", key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: I18n.t("kind.default"), mandatory: {length: 3}}
 		]
 	end
 

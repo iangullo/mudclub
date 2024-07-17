@@ -91,9 +91,9 @@
 		<%= @form.text_field(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class, data: @i_data) %>
 	<% end %>
 <% when "time-box" %>
-	<%= @form.number_field(:hour, value: @fdata[:hour], in: 10..22, size: @fdata[:size] || 3, class: @i_class, data: @i_data) %>
+	<%= @form.number_field(:hour, value: @fdata[:hour], in: 10..22, size: @fdata[:size] || 3, class: @i_class, data: @i_data.merge({condition: "min:6"})) %>
 	<strong>:</strong>
-	<%= @form.number_field(:min, value: @fdata[:mins], in: 0..45, step: 15, size: @fdata[:size] || 3, class: @i_class, data: @i_data) %>
+	<%= @form.number_field(:min, value: @fdata[:mins], in: 0..45, step: 15, size: @fdata[:size] || 3, class: @i_class, data: @i_data.merge({condition: "max:59"})) %>
 <% when "upload" %>
 	<div id="upload-file" class="inline-flex items-center" data-controller="upload">
 		<!-- Hidden input for file upload -->

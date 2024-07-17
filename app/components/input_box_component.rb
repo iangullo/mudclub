@@ -53,6 +53,7 @@ class InputBoxComponent < ApplicationComponent
 		set_box_size
 		set_box_attributes
 		set_box_data
+		@i_class = @i_class.join(" ")
 	end
 
 	private
@@ -82,12 +83,11 @@ class InputBoxComponent < ApplicationComponent
 				"time-box" => { class: "text-right" },
 				"upload" => { class: "align-middle px py", i_class: "inline-flex items-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center" }
 			}
-
+			
 			mapping = kind_mappings[@fdata[:kind]]
 			return unless mapping
-
+			
 			@i_class << (mapping[:i_class] || mapping[:class])
-			@i_class = @i_class.join(" ")
 			@fdata.merge!(mapping.reject { |key, _| key == :class })
 		end
 

@@ -31,7 +31,7 @@ module PeopleHelper
 				{kind: "text-box", key: :dni, size: 8, value: person&.dni, placeholder: I18n.t("person.pid")},
 				gap_field,
 				icon_field("at.svg"),
-				{kind: "email-box", key: :email, value: person&.email, placeholder: I18n.t("person.email")}
+				{kind: "email-box", key: :email, value: person&.email, placeholder: I18n.t("person.email"), mandatory: person.user_id ? {length: 7} : nil}
 			]
 		]
 		if person&.coach_id? || person&.player_id?
@@ -47,11 +47,11 @@ module PeopleHelper
 	# return FieldsComponent @fields for forms
 	def person_form_title(person, icon: person&.picture, title:, cols: 2, sex: nil)
 		res = person_title_fields(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
-		res << [{kind: "text-box", key: :name, value: person&.name, placeholder: I18n.t("person.name"), cols: 2}]
-		res << [{kind: "text-box", key: :surname, value: person&.surname, placeholder: I18n.t("person.surname"), cols: 2}]
+		res << [{kind: "text-box", key: :name, value: person&.name, placeholder: I18n.t("person.name"), cols: 2, mandatory: {length: 2}}]
+		res << [{kind: "text-box", key: :surname, value: person&.surname, placeholder: I18n.t("person.surname"), cols: 2, mandatory: {length: 2}}]
 		res << (sex ? [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: person&.female, align: "left"}] : [])
 		res.last << icon_field("calendar.svg")
-		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday}
+		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: person.player_id?}
 		res
 	end
 

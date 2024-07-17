@@ -60,7 +60,7 @@ module SportsHelper
 				{kind: "title", value: title, cols: 2}
 			],
 			[
-				{kind: "label", value: @sport.to_s}
+				{kind: "label", value: @sport.to_s, mandatory: {length: 3}}
 			]
 		]
 		res
@@ -82,20 +82,5 @@ module SportsHelper
 	# {rules: {roster: {max:, min:}, playing: {max:, min:}, periods: {regular:, extra:}, duration: {regular:, extra:}, outings: {first:, max:, min:}}}
 	def sports_rules_fields
 		@sport.rules_limits_fields
-	end
-
-	# sports edit fields
-	def sports_form_fields(title:, retlnk: nil)
-		res = [
-			[
-				{kind: "header-icon", value: "category.svg"},
-				{kind: "title", value: title, cols: 2}
-			],
-			[
-				{kind: "label", value: @sport.to_s}
-			]
-		]
-		res << {kind: "hidden", key: :retlnk, value: retlnk} if retlnk
-		res
 	end
 end

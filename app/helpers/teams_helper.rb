@@ -83,7 +83,7 @@ module TeamsHelper
 		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		res << [
 			icon_field("user.svg", align: "right"),
-			{kind: "text-box", key: :nick, value: @team.nick, placeholder: I18n.t("team.single")},
+			{kind: "text-box", key: :nick, value: @team.nick, placeholder: I18n.t("team.single"), mandatory: {length: 3}},
 			{kind: "hidden", key: :club_id, value: @clubid},
 			{kind: "hidden", key: :sport_id, value: (@sport&.id || 1)}	# will need to break this up for multi-sports in future
 		]
@@ -191,7 +191,7 @@ module TeamsHelper
 			res << [{kind: "search-collection", key: :season_id, options: Season.real.order(start_date: :desc), value: s_id}]
 			res.last.first[:filter] = {key: :club_id, value: clubid}
 		elsif edit and u_manager?
-			res << [{kind: "text-box", key: :name, value: @team.name, placeholder: I18n.t("team.single")}]
+			res << [{kind: "text-box", key: :name, value: @team.name, placeholder: I18n.t("team.single"), mandatory: {length: 3}}]
 			res << [
 				icon_field("calendar.svg", align: "right"),
 				{kind: "select-collection", key: :season_id, options: Season.real, value: @team.season_id}
