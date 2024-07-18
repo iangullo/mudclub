@@ -23,7 +23,7 @@ class TeamsController < ApplicationController
 	# GET /club/x/teams
 	# GET /club/x/teams.json
 	def index
-		if check_access(roles: [:manager, :coach, :secretary])
+		if check_access(roles: [:admin, :manager, :coach, :secretary])
 			@club  = Club.find_by_id(@clubid)
 			@teams = @club.teams.where(season_id: @seasonid).order(:category_id, :name)
 			respond_to do |format|
@@ -79,7 +79,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/new - can only be called from a teams index
 	def new
-		if club_manager?
+		if u_manager?
 			@eligible_coaches = @club.coaches
 			@team   = Team.new(club_id: @club.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
@@ -104,7 +104,7 @@ class TeamsController < ApplicationController
 	# POST /teams
 	# POST /teams.json
 	def create
-		if club_manager?
+		if u_manager?
 			respond_to do |format|
 				@club = Club.find(@clubid)
 				@team = Team.build(team_params)

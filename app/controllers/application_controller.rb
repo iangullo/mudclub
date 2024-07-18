@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
 	# Make these methods available to views and helpers
 	helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_coachid,	:u_manager?,
 								:u_personid, :u_player?, :u_playerid, :u_secretary?, :u_userid,
-								:user_in_club?
+								:user_in_club?, :club_manager?
 
 	# check if correct  access level exists. Basically checks if:
 	# "user is present AND (valid(role) OR valid(obj.condition))"

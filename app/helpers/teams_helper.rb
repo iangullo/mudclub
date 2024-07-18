@@ -112,19 +112,20 @@ module TeamsHelper
 	# return a GridComponent for the teams given
 	def team_grid(teams: @teams, add_teams: false)
 		if teams
-			title = ((@rdx==1 || @player || @coach) ? [{kind: "normal", value: I18n.t("season.abbr")}] : [])
+			pcount = (device != "mobile" && (u_admin? || (user_in_club? && (u_manager? || u_secretary?))))
+			title  = ((@rdx==1 || @player || @coach) ? [{kind: "normal", value: I18n.t("season.abbr")}] : [])
 			title << {kind: "normal", value: I18n.t("team.single")}
 			unless device=="mobile"
 				title << {kind: "normal", value: I18n.t("category.single")}
 				title << {kind: "normal", value: I18n.t("division.single")}
 			end
-			if add_teams
-				unless device=="mobile"
-					title << {kind: "normal", value: I18n.t("player.abbr")}
-					tcnt = []	# total players
-				end
-				title << button_field({kind: "add", url: new_team_path(club_id: @clubid), frame: "modal"})
+			if pcount
+				title << {kind: "normal", value: I18n.t("player.abbr")}
 				trow = {url: "#", items: [gap_field(cols: 2), {kind: "bottom", value: I18n.t("stat.total")}]}
+				tcnt = []	# total players
+			end
+			if add_teams
+				title << button_field({kind: "add", url: new_team_path(club_id: @clubid), frame: "modal"})
 			end
 			rows = Array.new
 			teams.each { |team|
@@ -136,17 +137,15 @@ module TeamsHelper
 					row[:items] << {kind: "normal", value: team.category.name, align: "center"}
 					row[:items] << {kind: "normal", value: team.division.name, align: "center"}
 				end
-				if add_teams
-					unless device=="mobile"
-						cnt = team.players.pluck(:id)
-						tcnt += cnt
-						row[:items] << {kind: "normal", value: cnt.count, align: "center"}
-					end
-					row[:items] << button_field({kind: "delete", url: row[:url], name: team.to_s}) if (u_admin? || u_manager?)
+				if pcount
+					cnt = team.players.pluck(:id)
+					tcnt += cnt
+					row[:items] << {kind: "normal", value: cnt.count, align: "center"}
 				end
+				row[:items] << button_field({kind: "delete", url: row[:url], name: team.to_s}) if add_teams
 				rows << row
 			}
-			if add_teams && device != "mobile"
+			if pcount
 				trow[:items] << {kind: "normal", value: tcnt.uniq.count, align: "center"}
 				rows << trow
 			end
