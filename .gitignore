@@ -30,6 +30,10 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
+# Ignore development/production outputs/builds
+/app/assets/builds/*
+/tmp/cache/*
+/public/assets/*
 /public/packs
 /public/packs-test
 /node_modules
@@ -41,6 +45,5 @@ yarn.lock
 .git-credentials
 Gemfile.lock
 .vscode/settings.json
-app/assets/builds/tailwind.css
 storage/.keep
 package-lock.json
