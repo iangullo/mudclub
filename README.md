@@ -13,11 +13,12 @@ DEPENDENCIES
 
 LICENSE
 ==
-* GPL-3.0-only
+* Affero GPL-3.0-only
 
 TODO
 ==
 * Improve management of statistics associated to events - excel export/import.
-* Export/import from Excel of drills & training sessions (matches in future).
 * Some UI polishing.
-* Create a webmin module to manage the service : edit club name, app logo, data storage locations, etc.
+* Management dashboard for the server
+* Service redundancy: webserver, database & storage
+* Proper admin dashboard for the service - including backup/restore
