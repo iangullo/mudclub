@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 module PeopleHelper
-	def person_form_fields(person)
+	def person_form_fields(person, mandatory_email: nil)
 		res = [
 			[
 				icon_field("user.svg"),
@@ -31,7 +31,7 @@ module PeopleHelper
 				{kind: "text-box", key: :dni, size: 8, value: person&.dni, placeholder: I18n.t("person.pid")},
 				gap_field,
 				icon_field("at.svg"),
-				{kind: "email-box", key: :email, value: person&.email, placeholder: I18n.t("person.email"), mandatory: person.user_id ? {length: 7} : nil}
+				{kind: "email-box", key: :email, value: person&.email, placeholder: I18n.t("person.email"), mandatory: mandatory_email ? {length: 7} : nil}
 			]
 		]
 		if person&.coach_id? || person&.player_id?
@@ -51,7 +51,7 @@ module PeopleHelper
 		res << [{kind: "text-box", key: :surname, value: person&.surname, placeholder: I18n.t("person.surname"), cols: 2, mandatory: {length: 2}}]
 		res << (sex ? [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: person&.female, align: "left"}] : [])
 		res.last << icon_field("calendar.svg")
-		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: person.player_id?}
+		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: person&.player_id?}
 		res
 	end
 

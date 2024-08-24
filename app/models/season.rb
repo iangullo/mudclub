@@ -96,6 +96,8 @@ class Season < ApplicationRecord
 					p_season   = Season.where(start_date: next_start).first
 				end
 			end
+		else
+			p_season = Season.where("start_date >= ?", Date.today).order(:start_date).first
 		end
 		p_season
 	end

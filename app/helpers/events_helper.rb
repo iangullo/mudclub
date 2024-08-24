@@ -108,8 +108,8 @@ module EventsHelper
 			season_id = obj.id
 			events    = @club.upcoming_events
 		else
-			team_id = obj&.id 
-			events  = obj.events.short_term
+			clubevent = true unless (team_id = obj&.id)
+			events    = obj&.events&.short_term
 		end
 		title = [
 			{kind: "normal", value: I18n.t("calendar.date"), align: "center"},
@@ -310,7 +310,7 @@ module EventsHelper
 
 		# define the toprow for an events list (just above the grid itself)
 		def event_list_toprow(clubevent:)
-			calendurl = clubevent	? club_events_path(@clubid, season_id: @season&.id, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
+			calendurl = clubevent ? club_events_path(@clubid, season_id: @season&.id, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
 			toprow = [	#  top row above the grid
 				button_field(
 					{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: calendurl},
@@ -330,7 +330,7 @@ module EventsHelper
 		# return GridComponent @rows for events passed
 		def event_rows(events:, season_id:)
 			rows  = Array.new
-			events.each do |event|
+			events&.each do |event|
 				unless season_id && event.rest? && event.team_id>0 # show only general holidays in season events view
 					row = {url: event_path(event, season_id:, rdx: @rdx), frame:(event.rest? ? "modal": "_top"), items: []}
 					row[:items] << {kind: "normal", value: event.date_string, align: "center"}
@@ -469,7 +469,7 @@ module EventsHelper
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, clubevent: nil)
 			if clubevent	# paste season event button
-				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, club_id: @clubid, team_id: 0, season_id: obj.id}, rdx: @rdx), frame: "modal"}) if u_manager? && obj==Season.latest
+				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, club_id: @clubid, team_id: 0, season_id: obj&.id}, rdx: @rdx), frame: "modal"}) if u_manager? && obj==Season.latest
 			elsif obj.class == Team && obj.has_coach(u_coachid) # new team event
 				button = {kind: "add", name: "add-event", options: []}
 				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id}, rdx: @rdx), data: {turbo_frame: :modal}}

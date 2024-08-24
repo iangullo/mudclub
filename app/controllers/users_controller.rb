@@ -183,7 +183,7 @@ class UsersController < ApplicationController
 		def prepare_form(title, create: nil, rdx: @rdx)
 			@title    = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
 			@role     = create_fields(helpers.user_form_role)
-			@p_fields = create_fields(helpers.person_form_fields(@user.person))
+			@p_fields = create_fields(helpers.person_form_fields(@user.person, mandatory_email: true))
 			if create
 				@k_fields = create_fields(helpers.user_form_pass)
 			end
