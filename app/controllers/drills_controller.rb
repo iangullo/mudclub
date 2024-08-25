@@ -130,7 +130,7 @@ class DrillsController < ApplicationController
 
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
-		if check_access(obj: @drill)
+		if check_access
 			d_name = @drill.name
 			@drill.destroy
 			respond_to do |format|
@@ -146,7 +146,7 @@ class DrillsController < ApplicationController
 
 	# GET /drills/1/versions
 	def versions
-		if check_access
+		if check_access(action: :show)
 			@title   = create_fields(helpers.drill_versions_title)
 			@table   = create_fields(helpers.drill_versions_table)
 			@submit  = create_submit(submit: nil)

@@ -36,7 +36,6 @@ class HomeController < ApplicationController
 				@grid   = create_grid(teams) if teams
 			end
 		end
-
 	end
 
 	def about

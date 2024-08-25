@@ -23,11 +23,11 @@ class EventsController < ApplicationController
 
 	# GET /events or /events.json
 	def index
-		if user_in_club?
+		club  = Club.find_by_id(@clubid) if @clubid
+		team  = Team.find_by_id(@teamid) if @teamid
+		if check_access(obj: team || club)
 			get_event_context
 			start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
-			club       = Club.find_by_id(@clubid)
-			team       = Team.find_by_id(@teamid) if @teamid
 			season     = Season.find_by_id(@seasonid) || team&.season
 			url        = (team ? team_events_path(team, start_date:) : club_events_path(@clubid, season_id: season&.id, start_date:))
 			anchor     = {url:, rdx: @rdx}
@@ -42,7 +42,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1 or /events/1.json
 	def show
-		if check_access(obj: @event.team) || check_access(obj: @event.team.club)
+		if check_access(obj: @event)
 			respond_to do |format|
 				title = helpers.event_title_fields(cols: @event.train? ? 3 : nil)
 				format.pdf do

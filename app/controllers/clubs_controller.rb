@@ -132,7 +132,7 @@ class ClubsController < ApplicationController
 	# DELETE /clubs/1 or /clubs/1.json
 	def destroy
 		# cannot destroy user's club
-		if (@clubid != u_clubid) && check_access
+		if check_access(obj: @club)
 			c_name = @club.name
 			@club.destroy
 			respond_to do |format|

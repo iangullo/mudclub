@@ -26,6 +26,7 @@ class ApplicationController < ActionController::Base
 	# Map actions to their respective permission checks
 	ACTION_ALIASES = {
 		edit: :update,
+		import: :create,
 		new: :create,
 	}.freeze
 
@@ -72,6 +73,13 @@ class ApplicationController < ActionController::Base
 	# Create a submit component
 	def create_submit(close: "close", submit: "save", retlnk: nil, frame: nil)
 		SubmitComponent.new(close:, submit:, retlnk:, frame:)
+	end
+
+	# preload current_user roles
+	def current_user
+		super&.tap do |user|
+			user.roles.load unless user&.roles&.loaded?
+		end
 	end
 
 	# ensure @season matches the calling context.
@@ -151,12 +159,11 @@ class ApplicationController < ActionController::Base
 			@rdx      = p_rdx
 			@season   = Season.search(p_seasonid)
 			@seasonid = @season&.id
-			user      = current_user
 		end
 		@clublogo = club&.logo || "mudclub.svg"
 		@clubname = club&.nick || "MudClub"
 		@favicon  = user_favicon(club)
-		@topbar   = TopbarComponent.new(user:, logo: @clublogo, nick: @clubname, home: u_path, login: new_user_session_path, logout: destroy_user_session_path)
+		@topbar   = TopbarComponent.new(user: current_user, logo: @clublogo, nick: @clubname, home: u_path, login: new_user_session_path, logout: destroy_user_session_path)
 	end
 
 	# switch app locale

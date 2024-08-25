@@ -50,7 +50,7 @@ class CoachesController < ApplicationController
 	# GET /coaches/1
 	# GET /coaches/1.json
 	def show
-		if check_access(obj: Club.find(@clubid))
+		if check_access(obj: @coach)
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
 			retlnk  = get_retlnk
@@ -74,7 +74,7 @@ class CoachesController < ApplicationController
 
 	# GET /coaches/1/edit
 	def edit
-		if check_access(obj: @coach) || check_access(obj: @coach.club)
+		if check_access(obj: @coach)
 			prepare_form(title: I18n.t("coach.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -113,7 +113,7 @@ class CoachesController < ApplicationController
 	# PATCH/PUT /coaches/1
 	# PATCH/PUT /coaches/1.json
 	def update
-		if check_access(obj: @coach) || check_access(obj: @coach.club)
+		if check_access(obj: @coach)
 			r_path = coach_path(@coach, rdx: @rdx)
 			respond_to do |format|
 				@coach.rebuild(coach_params)
@@ -142,7 +142,7 @@ class CoachesController < ApplicationController
 	# GET /coaches/import
 	# GET /coaches/import.json
 	def import
-		if check_access(action: :create, obj: Club.find(@clubid))
+		if check_access(obj: Club.find(@clubid))
 			Coach.import(params[:file], u_clubid)	# added to import excel
 			a_desc = "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"
 			register_action(:imported, a_desc, url: coaches_path(rdx: 2))
