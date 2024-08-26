@@ -71,16 +71,16 @@ module PeopleHelper
 	end
 
 	# FieldComponent fields to show a person
-	def person_show_fields(person, title: I18n.t("person.single"), icon: person.picture, rows: 3, cols: 2)
+	def person_show_fields(person, title: I18n.t("person.single"), icon: person&.picture, rows: 3, cols: 2)
 		res = person_title_fields(title:, icon:, rows:, cols:)
-		res << [{kind: "label", value: person.nick.presence || person.name, cols:}]
-		res << [{kind: "label", value: person.surname, cols:}]
-		res << [gap_field(size: 0), {kind: "string", value: person.birthstring}]
-		res << [{kind: "contact", email: person.email, phone: person.phone, device: device, align: "center"}]
+		res << [{kind: "label", value: person&.nick&.presence || person&.name, cols:}]
+		res << [{kind: "label", value: person&.surname, cols:}]
+		res << [gap_field(size: 0), {kind: "string", value: person&.birthstring}]
+		res << [{kind: "contact", email: person.email, phone: person&.phone, device: device, align: "center"}]
 		res.last << idpic_field(person) if person&.coach_id? || person&.player_id?
 		res << [
 			icon_field("home.svg", iclass: "align-top"),
-			{kind: "string", value: simple_format("#{person.address}"), align: "left", cols: 2}
+			{kind: "string", value: simple_format("#{person%.address}"), align: "left", cols: 2}
 		] if person.address.present?
 		res
 	end
