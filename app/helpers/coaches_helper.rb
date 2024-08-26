@@ -2,9 +2,9 @@
 # Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# any later version.
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -43,7 +43,7 @@ module CoachesHelper
 		coaches.each { |coach|
 			row = {url: coach_path(coach, rdx: 0), items: []}
 			row[:items] << {kind: "normal", value: coach.to_s}
-			row[:items] << {kind: "contact", email: coach.person.email, phone: coach.person.phone, device: device}
+			row[:items] << {kind: "contact", email: coach&.person&.email, phone: coach&.person&.phone, device: device}
 			if editor
 				row[:items] << icon_field(coach.all_pics? ? "Yes.svg" : "No.svg", align: "center") 
 				row[:items] << icon_field(coach.active? ? "Yes.svg" : "No.svg", align: "center")
