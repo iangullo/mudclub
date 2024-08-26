@@ -80,7 +80,7 @@ module PeopleHelper
 		res.last << idpic_field(person) if person&.coach_id? || person&.player_id?
 		res << [
 			icon_field("home.svg", iclass: "align-top"),
-			{kind: "string", value: simple_format("#{person%.address}"), align: "left", cols: 2}
+			{kind: "string", value: simple_format("#{person&.address}"), align: "left", cols: 2}
 		] if person.address.present?
 		res
 	end
