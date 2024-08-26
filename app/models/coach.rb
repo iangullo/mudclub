@@ -44,7 +44,7 @@ class Coach < ApplicationRecord
 	end
 
 	def picture
-		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "coach.svg"
+		self.avatar.attached? ? self.avatar : self.person&.avatar&.attached? ? self.person.avatar : "coach.svg"
 	end
 
 	# rebuild Coach data from raw input hash given by a form submittal

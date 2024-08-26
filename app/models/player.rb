@@ -97,7 +97,7 @@ class Player < ApplicationRecord
 
 	# Player picture
 	def picture
-		self.avatar.attached? ? self.avatar : self.person.avatar.attached? ? self.person.avatar : "player.svg"
+		self.avatar.attached? ? self.avatar : self.person&.avatar&.attached? ? self.person.avatar : "player.svg"
 	end
 
 	# Is this player included in an event?
