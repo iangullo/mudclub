@@ -81,7 +81,7 @@ module PeopleHelper
 		res << [
 			icon_field("home.svg", iclass: "align-top"),
 			{kind: "string", value: simple_format("#{person&.address}"), align: "left", cols: 2}
-		] if person.address.present?
+		] if person&.address&.present?
 		res
 	end
 
