@@ -1,10 +1,10 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# any later version.
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -37,11 +37,12 @@ class Drill < ApplicationRecord
 	scope :real, -> { where("id>0") }
 	scope :by_name, -> (name) { name.present? ? search_by_name(name) : all }
 	scope :by_kind, -> (kind_id) { (kind_id.to_i > 0) ? where(kind_id: kind_id.to_i) : all }
+	scope :by_season, -> (season) { season.present? ? where(updated_at: season.start_date..season.end_date).distinct : all	}
 	scope :by_skill, -> (skill) { skill.present? ? where(id: Drill.joins(:skills).merge(Skill.search(skill)).pluck(:id)).distinct : all	}
 	self.inheritance_column = "not_sti"
 	validates :name, presence: true
-	FILTER_PARAMS = %i[name kind_id skill column direction].freeze
-
+	FILTER_PARAMS = %i[name kind_id season_id skill column direction].freeze
+	
 	# check if drill (or associations) has changed
 	def modified?
 		res = self.changed?
@@ -56,7 +57,7 @@ class Drill < ApplicationRecord
 		end
 		res
 	end
-
+	
 	# A longer string with kind included
 	def nice_string
 		cad = self.kind_id ? (self.kind.name + " | ") : ""
@@ -68,7 +69,7 @@ class Drill < ApplicationRecord
 	def print_skills
 		print_names(self.skills)
 	end
-
+	
 	# Array of print strings for associated targets
 	def print_targets(array: true)
 		zero = !array
@@ -87,7 +88,7 @@ class Drill < ApplicationRecord
 		end
 		return cad
 	end
-
+	
 	# build new @drill from raw input hash given by form submital submittal
 	# return nil if unsuccessful
 	def rebuild(f_data)
@@ -102,20 +103,28 @@ class Drill < ApplicationRecord
 		self.check_targets(f_data[:drill_targets_attributes]) if f_data[:drill_targets_attributes]
 		self
 	end
-
+	
+	# return the season of last update for a Drill.
+	def season_string
+		season = Season.where("start_date <= ? and end_date >= ?", self.updated_at, self.updated_at).distinct.first
+		season&.name
+	end
+	
+	# Apply a Filter to Drills using params received from a controller.
 	def self.filter(filters)
 		if filters.present?
-			name  = filters["name"]&.presence
-			kind  = filters["kind_id"]&.to_i
-			skill = filters["skill"]&.presence
-			if name || kind || skill
-				res = Drill.by_name(name).by_kind(kind).by_skill(skill)
+			name   = filters["name"]&.presence
+			kind   = filters["kind_id"]&.to_i
+			skill  = filters["skill"]&.presence
+			season = Season.find(filters["season_id"]&.presence) if filters["season_id"]&.present?
+			if name || kind || skill || season
+				res = Drill.by_name(name).by_kind(kind).by_skill(skill).by_season(season)
 				filters['column'] ? res.order("#{filters['column']} #{filters['direction']}") : res.order(:name)
 			else
 				res = Drill.none
 			end
 		else
-			res = Drill.none
+			res = Drill.all
 		end
 		return res
 	end
@@ -164,6 +173,12 @@ class Drill < ApplicationRecord
 	# filter by name/description
 	def self.search_name(res=Drill.all, s_n)
 		res = res.search_by_name(s_n)
+	end
+
+	# filter drills by season
+	def self.search_season(res=Drill.all, s_s)
+		season = Season.search(s_s)&.updated_at
+		res = season ? res.where(updated_at: season.start_date..season.end_date).distinct : res
 	end
 
 	# filter for fundamentals

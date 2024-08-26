@@ -1,10 +1,10 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2023  Iván González Angullo
+# Copyright (C) 2024  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# any later version.
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -82,10 +82,11 @@ module DrillsHelper
 		track = {s_url: drills_path, s_filter: "drill_filters"}
 		title = [
 			{kind: "normal", value: I18n.t("kind.single"), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
+			{kind: "normal", value: I18n.t("season.abbr"), sort: (session.dig('drill_filters', 'season_id') == "season_id")},
 			{kind: "normal", value: I18n.t("drill.name"), sort: (session.dig('drill_filters', 'name') == "name"), order_by: "name"},
-			{kind: "normal", value: I18n.t("drill.author"), align: "center", sort: (session.dig('drill_filters', 'coach_id') == "coach_id"), order_by: "coach_id"}
 		]
 		title += [
+			{kind: "normal", value: I18n.t("drill.author"), align: "center", sort: (session.dig('drill_filters', 'coach_id') == "coach_id"), order_by: "coach_id"},
 			{kind: "normal", value: I18n.t("target.many")},
 			#{kind: "normal", value: I18n.t("task.many")}
 		] unless device=="mobile"
@@ -100,9 +101,10 @@ module DrillsHelper
 		session.delete('drill_filters') if scratch
 		skind  = Task.find_by(id: task_id)&.drill&.kind_id || session.dig('drill_filters', 'kind_id')
 		fields = [
-			{kind: "search-text", key: :name, placeholder: I18n.t("drill.name"), value: session.dig('drill_filters', 'name'), size: 10},
 			{kind: "search-select", key: :kind_id, blank: "#{I18n.t("kind.single")}:", value: skind, options: Kind.real.pluck(:name, :id)},
-			{kind: "search-text", key: :skill, placeholder: I18n.t("skill.single"), size: 14, value: session.dig('drill_filters', 'skill')}
+			{kind: "search-select", key: :season_id, placeholder: I18n.t("season.single"), value: session.dig('drill_filters', 'season_id'), options: Season.list},
+			{kind: "search-text", key: :name, placeholder: I18n.t("drill.name"), value: session.dig('drill_filters', 'name'), size: 10},
+			{kind: "search-text", key: :skill, placeholder: I18n.t("skill.single"), size: 14, value: session.dig('drill_filters', 'skill')},
 		]
 		fields << {kind: "hidden", key: :task_id, value: task_id} if task_id
 		res = [{kind: "search-box", url: search_in, fields: fields, cols:}]
@@ -211,6 +213,7 @@ module DrillsHelper
 			drills.each { |drill|
 				row = {url: drill_path(drill), items: []}
 				row[:items] << {kind: "normal", value: drill.kind.name, align: "center"}
+				row[:items] << {kind: "normal", value: drill.season_string}
 				row[:items] << {kind: "normal", value: drill.name}
 				unless device == "mobile"
 					row[:items] << {kind: "normal", value: drill.coach.s_name, align: "center"}
