@@ -193,7 +193,7 @@ class UsersController < ApplicationController
 		# Use callbacks to share common setup or constraints between actions.
 		def set_user
 			@user = (User.find_by_id(params[:id]) unless @user&.id==params[:id]) || current_user
-			@rdx  = 1 if (@user&.id.to_i == current_user.id)
+			@rdx  = 1 if (@user&.id.to_i == current_user&.id)
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
