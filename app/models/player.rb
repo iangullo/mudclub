@@ -49,15 +49,15 @@ class Player < ApplicationRecord
   def attendance(team:)
     t_events = team.events.normal.past.includes(:players)
     t_sessions = t_events.trainings
-    l_week = { tot: t_sessions.last7.count, att: 0 }
-    l_month = { tot: t_sessions.last30.count, att: 0 }
+    l_week = { tot: t_sessions.last7.size, att: 0 }
+    l_month = { tot: t_sessions.last30.size, att: 0 }
     l_season = { tot: t_sessions.count, att: 0 }
     p_att = EventAttendance.for_player(self.id).for_team(team.id).includes(:event)
-    matches = p_att.matches.count
+    matches = p_att.matches.size
     t_att = p_att.trainings
-    l_season[:att] = t_att.count
-    l_week[:att] = t_att.last7.count
-    l_month[:att] = t_att.last30.count
+    l_season[:att] = t_att.size
+    l_week[:att] = t_att.last7.size
+    l_month[:att] = t_att.last30.size
     att_week = l_week[:tot] > 0 ? (l_week[:att] * 100 / l_week[:tot]).to_i : nil
     att_month = l_month[:tot] > 0 ? (l_month[:att] * 100 / l_month[:tot]).to_i : nil
     att_total = l_season[:tot] > 0 ? (100 * l_season[:att] / l_season[:tot]).to_i : nil
