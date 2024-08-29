@@ -243,7 +243,7 @@ class Event < ApplicationRecord
 		when :train
 			res = I18n.t("train.single")
 		when :match
-			if style = "short"
+			if style == "short"
 				res = I18n.t("match.single")
 			else
 				m_row = self.to_hash
