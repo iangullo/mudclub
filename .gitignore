@@ -48,3 +48,4 @@ Gemfile.lock
 storage/.keep
 package-lock.json
 package-lock.json
+config/credentials.yml.enc
