@@ -19,10 +19,10 @@
 class HomeController < ApplicationController
 	def index
 		if current_user.present?
-			if u_manager?	# manage host club
-				redirect_to club_path(u_clubid), data: {turbo_action: "replace"}
-			elsif u_admin?
+			if u_admin? # manage server
 				@fields = create_fields(helpers.home_admin_fields)
+			elsif u_manager?	# manage host club
+				redirect_to club_path(u_clubid), data: {turbo_action: "replace"}
 			elsif u_coach?
 				@coach  = current_user.coach
 				@fields = create_fields(helpers.coach_show_fields)

@@ -94,7 +94,7 @@ class TopbarComponent < ApplicationComponent
 			options = []
 			options << menu_link(label: @profile[:profile][:label], url: @profile[:profile][:url], class: @profcls)
 			options << menu_link(label: @profile[:logout][:label], url: @profile[:logout][:url], class: @profcls)
-			options << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal", class: @profcls) unless (user.admin? || user.manager?)
+			options << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal", class: @profcls)
 			res = menu_drop("profile", options:)
 			res.merge!({icon: user.picture, class: @profcls, i_class: "rounded", size: "30x30"})
 			DropdownComponent.new(button: res)
@@ -194,7 +194,7 @@ class TopbarComponent < ApplicationComponent
 		options = []
 		options << manager_menu(user) if user.is_manager?
 		options << server_menu(user) if user.admin?
-		options << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal")
+		options << menu_link(label: I18n.t("server.log"), url: '/home/log', kind: "nav")
 		@menu_tabs << menu_drop("admin", label: I18n.t("action.admin"), options:)
 	end
 
@@ -209,18 +209,7 @@ class TopbarComponent < ApplicationComponent
 		coach_menu(user, pure=false) if user.is_coach?
 		if user.is_manager?
 			cluburl = "/clubs/#{user.club_id}"
-			options = []
-			options << menu_link(label: I18n.t("club.single"), url: cluburl)
-			options << menu_link(label: I18n.t("player.many"), url: "#{cluburl}/players")
-			options << menu_link(label: I18n.t("coach.many"), url: "#{cluburl}/coaches")
-			options << menu_link(label: I18n.t("team.many"), url: "#{cluburl}/teams") unless user.is_coach?
-			options << menu_link(label: I18n.t("club.rivals"), url: "/clubs")
-			options << menu_link(label: I18n.t("location.many"), url: "#{cluburl}/locations")
-			options << menu_link(label: I18n.t("slot.many"), url: "#{cluburl}/slots")
-			c_menu = menu_drop("manage", label: @clubname, options:)
-			return c_menu if user.admin?
-			s_menu  = server_menu(user)
-			@menu_tabs << menu_drop("admin", label: I18n.t("action.admin"), options: [c_menu, s_menu])
+			menu_link(label: I18n.t("club.single"), url: cluburl)
 		end
 	end
 
@@ -240,19 +229,8 @@ class TopbarComponent < ApplicationComponent
 
 	# menu to manage server application
 	def server_menu(user)
-		m_logs  = menu_link(label: I18n.t("server.log"), url: '/home/log', kind: "nav")
 		if user.admin?
-			options = []
-			options << sport_menu
-			options << menu_link(label: I18n.t("season.many"), url: '/seasons', kind: "nav")
-			options << menu_link(label: I18n.t("club.many"), url: '/clubs', kind: "nav")
-			options << menu_link(label: I18n.t("user.many"), url: '/users', kind: "nav")
-			options << m_logs
-			#options << menu_link(label: I18n.t("action.backup"), url: '/home/log')
-			#options << menu_link(label: I18n.t("action.restore"), url: '/home/log')
-			menu_drop("server", label: I18n.t("server.single"), options:)
-		else
-			return m_logs
+			menu_link(label: I18n.t("server.single"), url: '/', kind: "nav")
 		end
 	end
 
