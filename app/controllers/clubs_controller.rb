@@ -46,7 +46,7 @@ class ClubsController < ApplicationController
 				close  = "back"
 				retlnk = clubs_path
 			end
-			submit  = edit_club_path(@club, rdx: @rdx) if club_manager?(@club)
+			submit  = edit_club_path(@club, rdx: @rdx) if u_admin? || club_manager?(@club)
 			@submit = create_submit(close:, retlnk:, submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
