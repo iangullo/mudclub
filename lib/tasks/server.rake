@@ -6,7 +6,7 @@ namespace :server do
   desc "Makes a backup of the MudClub server filesystem"
   task :backup do
     puts "MudClub server: backup (#{SERVER_DIR} => #{BACKUP_DIR})"
-    system "rsync -aPv #{SERVER_DIR} #{BACKUP_DIR} --exclude='backup' --exclude='node_modules' --exclude='tmp/*'}"
+    system "rsync -aPv #{SERVER_DIR} #{BACKUP_DIR} --exclude='backup' --exclude='node_modules' --exclude='tmp/*'"
   end
 
   task :status do
