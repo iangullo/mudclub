@@ -28,18 +28,24 @@ module PersonDataManagement
 	# Checks person is linked well
 	def bind_person(save_changes: false)
 		return false if self.is_a?(Person) || !self.id
+		p_obj = "#{self.class.name}[#{self.id.to_s}]"
+		Rails.logger.debug "Binding person ##{self&.person&.id} to #{p_obj}"
 
 		s_id = bind_field
 		o_id = self.person.send(s_id).to_i
+		Rails.logger.debug "#{p_obj}.person.#{s_id} == #{o_id}"
 		if (o_id > 0) && (o_id != self.id)	# there's another object bound!
+			Rails.logger.debug "Rebinding person to #{p_obj}"
 			self.id = o_id
 			self.reload	# reload previously bound object
 		end
 		self.person_id    = self.person.id
+		Rails.logger.debug "self.person_id == #{self.person_id}"
 		self.person[s_id] = self.id
+		Rails.logger.debug "self.person.#{s_id} == #{self.person.id}"
 		if save_changes && self.modified?
 			if self.save(validate: false)
-				Rails.logger.debug "Successfully saved #{self.class.name} with id #{self.id} after binding person"
+				Rails.logger.debug "Successfully saved #{self.class.name}[#{self.id}] after binding person"
 			else
 				raise ActiveRecord::Rollback, "Failed to save object after binding person"
 			end
@@ -146,12 +152,13 @@ module PersonDataManagement
 			Rails.logger.debug "Creating new person"
 			if p_aux.paranoid_create
 				Rails.logger.debug "New person created: #{p_aux.inspect}"
+				self.person = p_aux
 			else
 				Rails.logger.error "Failed to create new person: #{p_aux.errors.full_messages.join(", ")}"
 				raise ActiveRecord::Rollback, "Failed to create new person"
 			end
 		end
-		self.bind_person # ensure correct binding
+		self.bind_person if self.person	# ensure correct binding
 		Rails.logger.debug "Finished rebuild_obj_person"
 	end
 
