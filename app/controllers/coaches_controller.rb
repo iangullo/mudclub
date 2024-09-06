@@ -156,7 +156,7 @@ class CoachesController < ApplicationController
 	# DELETE /coaches/1.json
 	def destroy
 		# cannot destroy placeholder coach (id ==0)
-		if @coach (@coach.id != 0 && check_access(roles: [:admin]))
+		if @coach && (@coach.id != 0 && check_access(roles: [:admin]))
 			c_name = @coach.s_name
 			@coach.destroy
 			respond_to do |format|
