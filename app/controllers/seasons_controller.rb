@@ -116,7 +116,7 @@ class SeasonsController < ApplicationController
 	# DELETE /seasons/1.json
 	def destroy
 		# cannot destroy placeholder season (id ==0)
-		if @season &&  && @season.id != 0 && ccheck_access(roles: [:admin])
+		if @season && @season.id != 0 && ccheck_access(roles: [:admin])
 			s_name = @season.name
 			@season.destroy
 			respond_to do |format|
