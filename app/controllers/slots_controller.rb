@@ -39,7 +39,7 @@ class SlotsController < ApplicationController
 
 	# GET /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def show
-		if check_access(obj: @slot.team.club)
+		if @slot && check_access(obj: @slot.team.club)
 			@title   = create_fields(helpers.slot_title_fields(title: @slot.team.to_s, subtitle: @slot.team.season.name))
 			@fields  = create_fields(helpers.slot_show_fields)
 			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot) : nil, frame: u_manager? ? "modal" : nil)
@@ -62,7 +62,7 @@ class SlotsController < ApplicationController
 
 	# GET /clubs/x/slots/1/edit
 	def edit
-		if check_access(obj: @slot.team.club)
+		if @slot && check_access(obj: @slot.team.club)
 			prepare_form(title: I18n.t("slot.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -99,7 +99,7 @@ class SlotsController < ApplicationController
 
 	# PATCH/PUT /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def update
-		if check_access(obj: @slot.team.club)
+		if @slot && check_access(obj: @slot.team.club)
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
 				retlnk = club_slots_path(@slot.team.club, season_id: @seasonid, location_id: @slot.location_id)
@@ -126,7 +126,7 @@ class SlotsController < ApplicationController
 
 	# DELETE /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def destroy
-		if check_access(obj: @slot.team.club)
+		if @slot && check_access(obj: @slot.team.club)
 			s_name = @slot.to_s
 			retlnk = club_slots_path(@slot.team.club, season_id: @seasonid, location_id: @slot.location_id)
 			@slot.destroy

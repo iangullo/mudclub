@@ -279,7 +279,7 @@ class ApplicationController < ActionController::Base
 			when User
 				return (obj.id == u_userid)
 			else # including NilClass
-				return u_manager?
+				return u_admin?
 			end
 		end
 

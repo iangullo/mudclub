@@ -34,7 +34,7 @@ class DivisionsController < ApplicationController
 
 	# GET /divisions/1 or /divisions/1.json
 	def show
-		if check_access(roles: [:admin])
+		if @division && check_access(roles: [:admin])
 			fields  = helpers.division_title_fields(title: I18n.t("division.single"), subtitle: @division.name)
 			@fields = create_fields(fields)
 			@submit = create_submit(submit: u_manager? ? edit_sport_division_path(@sport, @division) : nil)
@@ -55,7 +55,7 @@ class DivisionsController < ApplicationController
 
 	# GET /divisions/1/edit
 	def edit
-		if check_access(roles: [:admin])
+		if @division && check_access(roles: [:admin])
 			prepare_form(title: I18n.t("division.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -86,7 +86,7 @@ class DivisionsController < ApplicationController
 
 	# PATCH/PUT /divisions/1 or /divisions/1.json
 	def update
-		if check_access(roles: [:admin])
+		if @division && check_access(roles: [:admin])
 			respond_to do |format|
 				@division.rebuild(division_params)
 				if @division.changed?
@@ -112,7 +112,7 @@ class DivisionsController < ApplicationController
 
 	# DELETE /divisions/1 or /divisions/1.json
 	def destroy
-		if check_access(roles: [:admin])
+		if @division && check_access(roles: [:admin])
 			d_name = @division.name
 			@division.destroy
 			respond_to do |format|

@@ -34,7 +34,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories/1 or /categories/1.json
 	def show
-		if check_access(roles: [:admin])
+		if @category && check_access(roles: [:admin])
 			@fields = create_fields(helpers.category_show_fields)
 			@submit = create_submit(submit: current_user.admin? ? edit_sport_category_path(@sport, @category) : nil)
 		else
@@ -54,7 +54,7 @@ class CategoriesController < ApplicationController
 
 	# GET /categories/1/edit
 	def edit
-		if check_access(roles: [:admin])
+		if @category && check_access(roles: [:admin])
 			prepare_form(title: I18n.t("category.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -85,7 +85,7 @@ class CategoriesController < ApplicationController
 
 	# PATCH/PUT /categories/1 or /categories/1.json
 	def update
-		if check_access(roles: [:admin])
+		if @category && check_access(roles: [:admin])
 			respond_to do |format|
 				@category.rebuild(category_params)
 				if @category.changed?
@@ -111,7 +111,7 @@ class CategoriesController < ApplicationController
 
 	# DELETE /categories/1 or /categories/1.json
 	def destroy
-		if check_access(roles: [:admin])
+		if @category && check_access(roles: [:admin])
 			c_name = @category.name
 			@category.destroy
 			respond_to do |format|

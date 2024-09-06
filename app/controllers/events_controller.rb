@@ -42,7 +42,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1 or /events/1.json
 	def show
-		if user_in_club? && check_access(roles: [:manager, :coach], obj: @event.team)
+		if user_in_club? && @event && check_access(roles: [:manager, :coach], obj: @event.team)
 			respond_to do |format|
 				title = helpers.event_title_fields(cols: @event.train? ? 3 : nil)
 				format.pdf do
@@ -103,7 +103,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/edit
 	def edit
-		if event_manager?
+		if @event && event_manager?
 			prepare_event_form(new: false)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -139,7 +139,7 @@ class EventsController < ApplicationController
 
 	# PATCH/PUT /events/1 or /events/1.json
 	def update
-		if event_manager?
+		if @event && event_manager?
 			respond_to do |format|
 				e_data  = event_params
 				url     = event_path(@event, rdx: @rdx)
@@ -180,7 +180,7 @@ class EventsController < ApplicationController
 
 	# DELETE /events/1 or /events/1.json
 	def destroy
-		if club_manager? || @event&.team&.has_coach(u_coachid)
+		if @event && (club_manager? || @event&.team&.has_coach(u_coachid))
 			team   = @event.team
 			@event.destroy
 			respond_to do |format|
@@ -209,7 +209,7 @@ class EventsController < ApplicationController
 
 	# POST /events/1/copy
 	def copy
-		if user_in_club? && check_access(roles: [:manager, :coach])
+		if @event && (user_in_club? && check_access(roles: [:manager, :coach]))
 			@season = Season.latest
 			@teams  = get_teams
 			if @teams	# we have some teams we can copy to
@@ -244,7 +244,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/show_task
 	def show_task
-		if user_in_club? && check_access(roles: [:manager, :coach])
+		if @event && (user_in_club? && check_access(roles: [:manager, :coach]))
 			@task   = Task.find(params[:task_id])
 			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
 			submit  = edit_task_event_path(task_id: @task.id) if event_manager?
@@ -256,7 +256,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/load_chart
 	def load_chart
-		if user_in_club? && check_access(roles: [:manager, :coach])
+		if @event && (user_in_club? && check_access(roles: [:manager, :coach]))
 			header = helpers.event_title_fields(cols: @event.train? ? 3 : nil, chart: true)
 			@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
 		else
@@ -267,7 +267,7 @@ class EventsController < ApplicationController
 	# GET /events/1/player_stats?player_id=X
 	def player_stats
 		@player = Player.real.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
-		if event_manager? || check_access(obj: @player)
+		if @event && (event_manager? || check_access(obj: @player))
 			unless @event.rest?	# not keeing stats for holidays ;)
 				if @event.has_player(@player&.id)	# we do have a player
 					@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
@@ -285,7 +285,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/edit_player_stats?player_id=X
 	def edit_player_stats
-		if event_manager? || check_access(obj: @player)
+		if @event && (event_manager? || check_access(obj: @player))
 			unless @event.rest?	# not keeing stats for holidays ;)
 				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
 				if @player&.id.to_i > 0	# we do have a player

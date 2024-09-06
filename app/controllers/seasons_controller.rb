@@ -35,7 +35,7 @@ class SeasonsController < ApplicationController
 
 	# GET /seasons/1
 	def show
-		if check_access(roles: [:admin])
+		if @season && check_access(roles: [:admin])
 			@fields = create_fields(helpers.season_fields)
 			@submit = create_submit(close: "back", retlnk: seasons_path, submit: edit_season_path, frame: "modal")
 		else
@@ -45,7 +45,7 @@ class SeasonsController < ApplicationController
 
 	# GET /seasons/1/edit
 	def edit
-		if check_access(roles: [:admin])
+		if @season && check_access(roles: [:admin])
 			prepare_form(title: I18n.t("season.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -87,7 +87,7 @@ class SeasonsController < ApplicationController
 	# PATCH/PUT /seasons/1
 	# PATCH/PUT /seasons/1.json
 	def update
-		if check_access(roles: [:admin])
+		if @season && check_access(roles: [:admin])
 			respond_to do |format|
 				check_locations
 				@season.rebuild(season_params)
@@ -116,7 +116,7 @@ class SeasonsController < ApplicationController
 	# DELETE /seasons/1.json
 	def destroy
 		# cannot destroy placeholder season (id ==0)
-		if @season.id != 0 && ccheck_access(roles: [:admin])
+		if @season &&  && @season.id != 0 && ccheck_access(roles: [:admin])
 			s_name = @season.name
 			@season.destroy
 			respond_to do |format|

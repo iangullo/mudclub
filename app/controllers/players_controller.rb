@@ -49,7 +49,7 @@ class PlayersController < ApplicationController
 	# GET /players/1
 	# GET /players/1.json
 	def show
-		if player_manager? || check_access(obj: @player)
+		if @player && (player_manager? || check_access(obj: @player))
 			@fields = create_fields(helpers.player_show_fields(team: Team.find_by_id(@teamid)))
 			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
 			submit  = edit_player_path(@player, team_id: @teamid, rdx: @rdx)
@@ -73,7 +73,7 @@ class PlayersController < ApplicationController
 
 	# GET /players/1/edit
 	def edit
-		if player_manager? || check_access(obj: @player)
+		if @player && (player_manager? || check_access(obj: @player))
 			prepare_form(title: I18n.t("player.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -117,8 +117,8 @@ class PlayersController < ApplicationController
 	# PATCH/PUT /players/1
 	# PATCH/PUT /players/1.json
 	def update
-		retlnk = player_path(@player, rdx: @rdx, team_id: @teamid)
-		if player_manager? ||  check_access(obj: @player)
+		if @player && (player_manager? || check_access(obj: @player))
+			retlnk = player_path(@player, rdx: @rdx, team_id: @teamid)
 			respond_to do |format|
 				@player.rebuild(player_params)
 				if @player.modified?
@@ -164,7 +164,7 @@ class PlayersController < ApplicationController
 	# DELETE /players/1.json
 	def destroy
 		# cannot destroy placeholder player (id ==0)
-		if @player.id != 0 && club_manager?(@player.club)
+		if @player && @player.id != 0 && club_manager?(@player.club)
 			p_name = @player.to_s(style: 1)
 			@player.destroy
 			respond_to do |format|

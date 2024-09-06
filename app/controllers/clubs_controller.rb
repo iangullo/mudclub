@@ -37,7 +37,7 @@ class ClubsController < ApplicationController
 
 	# GET /clubs/1 or /clubs/1.json
 	def show
-		if check_access(roles: [:admin, :manager, :secretary])
+		if @club && check_access(roles: [:admin, :manager, :secretary])
 			@title  = create_fields(helpers.club_show_title)
 			@links  = create_fields(helpers.club_links)
 			if (user_in_club?)	# my own club: show events
@@ -68,7 +68,7 @@ class ClubsController < ApplicationController
 
 	# GET /clubs/1/edit
 	def edit
-		if u_admin? || club_manager?(@club)
+		if @club && (u_admin? || club_manager?(@club))
 			prepare_form(title: I18n.t("club.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -104,7 +104,7 @@ class ClubsController < ApplicationController
 
 	# PATCH/PUT /clubs/1 or /clubs/1.json
 	def update
-		if u_admin? || club_manager?(@club)
+		if @club && (u_admin? || club_manager?(@club))
 			respond_to do |format|
 				retlnk = club_path(@club, rdx: @rdx)
 				@club.rebuild(club_params)
@@ -132,7 +132,7 @@ class ClubsController < ApplicationController
 	# DELETE /clubs/1 or /clubs/1.json
 	def destroy
 		# cannot destroy user's club
-		if check_access(roles: [:admin]) && (@clubid != u_clubid)
+		if @club && (check_access(roles: [:admin]) && (@clubid != u_clubid))
 			c_name = @club.name
 			@club.destroy
 			respond_to do |format|

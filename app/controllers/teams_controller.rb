@@ -51,7 +51,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
-		if user_in_club? && check_access(roles: [:coach, :manager, :secretary], obj: @team)
+		if @team && user_in_club? && check_access(roles: [:coach, :manager, :secretary], obj: @team)
 			@sport   = @team.sport.specific
 			title    = helpers.team_title_fields(title: @team.nick)
 			w_l = @team.win_loss
@@ -91,7 +91,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit
 	def edit
-		if team_manager?
+		if @team && team_manager?
 			@eligible_coaches = @club.coaches
 			@sport  = @team.sport.specific
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.edit")))
@@ -130,7 +130,7 @@ class TeamsController < ApplicationController
 	# PATCH/PUT /teams/1
 	# PATCH/PUT /teams/1.json
 	def update
-		if team_manager?
+		if @team && team_manager?
 			respond_to do |format|
 				n_notice = no_data_notice(trail: @team.to_s)
 				retlnk   = prepare_update_redirect
@@ -167,7 +167,7 @@ class TeamsController < ApplicationController
 	# DELETE /teams/1.json
 	def destroy
 		# cannot destroy placeholder teams (id: 0 || -1)
-		if @team&.id&.to_i > 0 && club_manager?
+		if @team && @team&.id&.to_i > 0 && club_manager?
 			t_name = @team.to_s
 			@team.destroy
 			respond_to do |format|
@@ -183,7 +183,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/roster
 	def roster
-		if check_access(roles: [:manager, :coach, :secretary], obj: @club, both: true)
+		if @team && check_access(roles: [:manager, :coach, :secretary], obj: @club, both: true)
 			title   = helpers.team_title_fields(title: @team.nick)
 			players = @team.players
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster"), align: "left"}, {kind: "string", value: "(#{players.count} #{I18n.t("player.abbr")})"}]
@@ -199,7 +199,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_roster
 	def edit_roster
-		if team_manager?
+		if @team && team_manager?
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster_edit"), align: "left"}]
 			@title  = create_fields(title)
@@ -212,7 +212,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/slots
 	def slots
-		if user_in_club?
+		if @team && user_in_club?
 			title   = helpers.team_title_fields(title: @team.to_s)
 			@title  = create_fields(title)
 			@fields = create_fields(helpers.team_slots_fields) unless @team.slots.empty?
@@ -223,7 +223,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/targets
 	def targets
-		if check_access(roles: [:coach, :manager], obj: @club, both: true)
+		if @team && check_access(roles: [:coach, :manager], obj: @club, both: true)
 			global_targets(true)	# get & breakdown global targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.many"), align: "left"}]
@@ -238,7 +238,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_targets
 	def edit_targets
-		if team_manager?
+		if @team && team_manager?
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			global_targets(false)	# get global targets
 			title   = helpers.team_title_fields(title: @team.to_s)
@@ -252,7 +252,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_targets
 	def plan
-		if check_access(roles: [:coach, :manager], obj: @club, both: true)
+		if @team && check_access(roles: [:coach, :manager], obj: @club, both: true)
 			plan_targets
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.single"), align: "left"}]
@@ -266,7 +266,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/edit_plan
 	def edit_plan
-		if team_manager?
+		if @team && team_manager?
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			plan_targets
 			title   = helpers.team_title_fields(title: @team.to_s)
@@ -280,7 +280,7 @@ class TeamsController < ApplicationController
 
 	# GET /teams/1/attendance
 	def attendance
-		if check_access(roles: [:coach, :manager, :secretary], obj: @club, both: true)
+		if @team && check_access(roles: [:coach, :manager, :secretary], obj: @club, both: true)
 			title  = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("calendar.attendance"), align: "left"}]
 			@title = create_fields(title)

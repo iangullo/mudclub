@@ -36,7 +36,7 @@ class LocationsController < ApplicationController
 	# GET /locations/1
 	# GET /locations/1.json
 	def show
-		if user_signed_in?	# basically all users can see this
+		if @location && user_signed_in?	# basically all users can see this
 			@fields = create_fields(helpers.location_show_fields)
 			submit  = edit_location_path(@location) if user_in_club? && check_access(roles: [:manager, :secretary])
 			@submit = create_submit(submit:, frame: "modal")
@@ -47,7 +47,7 @@ class LocationsController < ApplicationController
 
 	# GET /locations/1/edit
 	def edit
-		if user_in_club? && check_access(roles: [:manager, :secretary])
+		if @location && user_in_club? && check_access(roles: [:manager, :secretary])
 			prepare_form(title: I18n.t("location.edit"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -93,7 +93,7 @@ class LocationsController < ApplicationController
 
 	# PATCH/PUT /locations/1 or /locations/1.json
 	def update
-		if user_in_club? && check_access(roles: [:manager, :secretary])
+		if @location && user_in_club? && check_access(roles: [:manager, :secretary])
 			respond_to do |format|
 				@location.rebuild(location_params)
 				@club  = Club.find_by_id(@clubid)
@@ -131,7 +131,7 @@ class LocationsController < ApplicationController
 	# DELETE /locations/1
 	# DELETE /locations/1.json
 	def destroy
-		if user_in_club? && check_access(roles: [:manager, :secretary])
+		if @location && user_in_club? && check_access(roles: [:manager, :secretary])
 			respond_to do |format|
 				@club  = Club.find_by_id(@clubid)
 				l_name = @location.name
