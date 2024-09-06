@@ -36,6 +36,7 @@
 # => "select-checkboxes": :key (field name), :collection, :value (form, select)
 # => "select-collection": :key (field name), :collection, :value (form, select)
 # => "select-load": :key (field name), :icon, :label, :value (form, select)
+# => "upload": Upload file input - hidden and linked to an 'upload' ButtonComponent
 
 class InputBoxComponent < ApplicationComponent
 	DEF_INPUT_CLASS = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700".split(" ")
@@ -108,6 +109,8 @@ class InputBoxComponent < ApplicationComponent
 						@i_data  = @fdata[:o_data]
 					end
 				end
+			when "upload"
+					@i_data = {upload_target: "fileInput"}
 			end
 
 			if @fdata[:mandatory].present?
