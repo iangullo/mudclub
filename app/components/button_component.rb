@@ -45,7 +45,7 @@
 # frozen_string_literal: true
 class ButtonComponent < ApplicationComponent
 	def initialize(button:)
-    validate(button)
+		validate(button)
 		@button = button
 		parse(button)
 	end

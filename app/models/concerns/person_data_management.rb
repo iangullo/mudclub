@@ -134,14 +134,14 @@ module PersonDataManagement
 	# attempt to unified rebuild Object method
 	def rebuild_obj_person(f_data)
 		Rails.logger.debug "Starting rebuild_obj_person with f_data: #{f_data.inspect}"
-		
+
 		o_aux = self.fetch_obj(f_data)	# try to fetch our object
 		if o_aux && (o_aux&.id != self.id)	# avoid duplicating it
 			Rails.logger.debug "Found existing object: #{o_aux.inspect}"
 			self.id = o_aux.id
 			self.reload	# reload from database
 		end
-		
+
 		p_aux = Person.fetch(f_data[:person_attributes])
 		Rails.logger.debug "Fetched or built person: #{p_aux.inspect}"
 

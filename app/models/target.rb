@@ -27,7 +27,7 @@ class Target < ApplicationRecord
 		against: :concept,
 		ignoring: :accents,
 		using: { tsearch: {prefix: true} }
-  scope :orphans, lambda {
+	scope :orphans, lambda {
 		left_outer_joins(:teams, :events, :drills)
 		.where("(teams.id IS NULL OR teams.id = 0)")
 		.where("(events.id IS NULL OR events.id = 0)")

@@ -77,7 +77,7 @@ class User < ApplicationRecord
 		res = self.last_sign_in_at&.to_date
 		return res ? res : I18n.t("user.never")
 	end
-	
+
 	# wrappers for locale setting
 	def locale
 		settings[:locale]
@@ -147,7 +147,7 @@ class User < ApplicationRecord
 	def settings=(value)
 		super(value&.to_h)
 	end
-	
+
 	# get teams associated to this user
 	def team_list
 		c_teams = self.is_coach? ? self.coach.team_list : []

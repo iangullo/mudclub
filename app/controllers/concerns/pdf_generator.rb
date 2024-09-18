@@ -57,7 +57,7 @@ module PdfGenerator
 	def pdf_new_page
 		@pdf.start_new_page
 		setup_new_page
-	end	
+	end
 
 	# Render rich text in PDF
 	def pdf_rich_text(rich_text)
@@ -117,7 +117,7 @@ module PdfGenerator
 				@pdf.height_of(content, width: @pdf.bounds.width) + 5
 			end
 		end
-		
+
 		# Check if there's enough space left on the current page
 		def enough_space_for_content?(content_height)
 			@pdf.cursor - content_height >= FOOTER_HEIGHT
@@ -133,7 +133,7 @@ module PdfGenerator
 			# Parse HTML content using Nokogiri
 			doc    = Nokogiri::HTML.fragment(html_content)
 			lines  = []
-			
+
 			# Iterate through text nodes and extract lines
 			doc.children.each do |node|
 				line  ||= ''
