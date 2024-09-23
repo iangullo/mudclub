@@ -10,6 +10,39 @@ export default class extends Sortable {
 
   connect() {
     super.connect();
+    this.isDragging = false;
+    this.startX = 0;
+    this.startY = 0;  
+  }
+
+  startDrag(event) {
+    this.startX = event.clientX || event.touches[0].clientX;
+    this.startY = event.clientY || event.touches[0].clientY;
+    this.isDragging = false;
+  }
+  
+  moveDrag(event) {
+    const currentX = event.clientX || event.touches[0].clientX;
+    const currentY = event.clientY || event.touches[0].clientY;
+    
+    // If the movement is significant, it's a drag, not a click
+    if (Math.abs(currentX - this.startX) > 5 || Math.abs(currentY - this.startY) > 5) {
+      this.isDragging = true;
+    }
+  }
+
+  endDrag(event) {
+    if (!this.isDragging) {
+      event.preventDefault(); // It's a click, not a drag
+      this.handleClick(event);
+    }
+  }
+
+  handleClick(event) {
+    const button = event.target.closest("button");
+    if (button) {
+      button.click();
+    }
   }
 
   remove(event) {
