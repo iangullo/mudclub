@@ -177,7 +177,8 @@ class ButtonComponent < ApplicationComponent
 
 	# set the @button class depending on button type
 	def set_bclass
-		b_start          = @button[:b_class] ? "#{@button[:kind]}-btn " + @button[:b_class] : "#{@button[:kind]}-btn"
+		b_start  = "#{@button[:kind]}-btn z-40 pointer-events-auto"
+		b_start += " #{@button[:b_class]}" if @button[:b_class]
 		@button[:name] ||= @button[:kind]
 		case @button[:kind]
 		when "add", "add-nested"
