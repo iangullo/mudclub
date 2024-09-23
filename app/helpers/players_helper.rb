@@ -54,7 +54,7 @@ module PlayersHelper
 				row[:items] << {kind: "contact", phone: player.person&.phone, device: device}
 				row[:items] << icon_field((player.all_pics? ? "Yes.svg" : "No.svg"), align: "center")
 				row[:items] << icon_field((player.active? ? "Yes.svg" : "No.svg"), align: "center")
-				row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s(style: 1), rdx: @rdx}) if u_manager?
+				row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s(style: 1), rdx: @rdx, confirm: true}) if team_manager?(team)
 			end
 			rows << row
 		}

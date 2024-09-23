@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
 	# Make these methods available to views and helpers
 	helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_coachid,	:u_manager?,
 								:u_personid, :u_player?, :u_playerid, :u_secretary?, :u_userid,
-								:user_in_club?, :club_manager?
+								:user_in_club?, :club_manager?, :team_manager?
 
 	# check if correct  access level exists. Basically checks if:
 	# "user is present AND (valid(role) OR valid(obj.condition))"
@@ -165,6 +165,11 @@ class ApplicationController < ActionController::Base
 	def switch_locale(&action)
 		locale   = (params[:locale] || current_user&.locale || I18n.default_locale)
 		I18n.with_locale(locale, &action)
+	end
+
+	# return whether the current user is a club_manager
+	def team_manager?(team = @team)
+		team&.has_coach(u_coachid) || club_manager?
 	end
 
 	# wrappers to access user attributes

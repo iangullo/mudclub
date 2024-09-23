@@ -392,11 +392,6 @@ class TeamsController < ApplicationController
 			@seasonid = @season&.id
 		end
 
-		# wrapper to determine whether the user can edit a team
-		def team_manager?
-			club_manager? || @team.has_coach(u_coachid)
-		end
-
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def team_params
 			params.require(:team).permit(

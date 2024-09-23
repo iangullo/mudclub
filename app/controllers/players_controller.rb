@@ -164,9 +164,14 @@ class PlayersController < ApplicationController
 	# DELETE /players/1.json
 	def destroy
 		# cannot destroy placeholder player (id ==0)
-		if @player && @player.id != 0 && club_manager?(@player.club)
+		if @player && @player.id != 0
 			p_name = @player.to_s(style: 1)
-			@player.destroy
+			if @teamid	# we're calling froma roster view --> remove from team roster
+				@team = Team.find(@teamid)
+				@team.players.delete(@player) if team_manager?
+			elsif club_manager?(@player.club)	# calling from a players index --> deactivate
+				@player.update(club_id: nil)
+			end
 			respond_to do |format|
 				a_desc = "#{I18n.t("player.deleted")} '#{p_name}'"
 				register_action(:deleted, a_desc)
