@@ -49,3 +49,4 @@ storage/.keep
 package-lock.json
 config/credentials.yml.enc
 config/secrets.yml
+package-lock.json
