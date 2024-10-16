@@ -36,12 +36,12 @@ module CoachesHelper
 		if editor
 			title << {kind: "normal", value: I18n.t("person.pics"), align: "center"}
 			title << {kind: "normal", value: I18n.t("status.active_a")}
-			title << button_field({kind: "add", url: new_coach_path(club_id: @clubid, rdx: 0), frame: "modal"})
+			title << button_field({kind: "add", url: new_coach_path(club_id: @clubid, rdx: @rdx), frame: "modal"})
 		end
 
 		rows = Array.new
 		coaches.each { |coach|
-			row = {url: coach_path(coach, rdx: 0), items: []}
+			row = {url: coach_path(coach, rdx: @rdx), items: []}
 			row[:items] << {kind: "normal", value: coach.to_s}
 			row[:items] << {kind: "contact", email: coach&.person&.email, phone: coach&.person&.phone, device: device}
 			if editor

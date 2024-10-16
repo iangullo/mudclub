@@ -23,7 +23,7 @@ module UsersHelper
 		res[3][0] = obj_status_field(@user)
 		if current_user == @user	# only allow current user to change his own password
 			res[3] <<	button_field(
-				{kind: "link", icon: "key.svg", label: I18n.t("action.change"), url: edit_user_registration_path, frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true},
+				{kind: "link", icon: "key.svg", label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true},
 				align: "right",
 				rows: 2
 			)
@@ -124,7 +124,7 @@ module UsersHelper
 	# prepare clear button only if there are actions to clear
 	def user_actions_clear_fields
 		return nil if @user.user_actions.empty?
-		return {kind: "clear", url: clear_actions_user_path, name: @user.s_name}
+		return {kind: "clear", url: clear_actions_user_path(rdx: @rdx), name: @user.s_name}
 	end
 
 	# return grid for @users GridComponent
@@ -136,11 +136,11 @@ module UsersHelper
 			{kind: "normal", value: I18n.t("person.contact"), align: "center"},
 			{kind: "normal", value: I18n.t("user.last_in"), align: "center"}
 		]
-		title << button_field({kind: "add", url: new_user_path, frame: "modal"}) if u_admin?
+		title << button_field({kind: "add", url: new_user_path(rdx: @rdx), frame: "modal"}) if u_admin?
 
 		rows = Array.new
 		@users.each { |user|
-			row = {url: user_path(user), items: []}
+			row = {url: user_path(user, rdx: @rdx), items: []}
 			row[:items] << icon_field((user.active? ? user.club.logo : "No.svg"))
 			row[:items] << {kind: "normal", value: user.s_name}
 			row[:items] += user_role_fields(user, grid: true)

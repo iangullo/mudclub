@@ -41,11 +41,11 @@ module LocationsHelper
 			{kind: "normal", value: I18n.t("kind.single"), align: "center"},
 			{kind: "normal", value: I18n.t("location.abbr")}
 		]
-		title << button_field({kind: "add", url: new_location_path(club_id: @club&.id), frame: "modal"}) if editor
+		title << button_field({kind: "add", url: new_location_path(club_id: @club&.id, rdx: @rdx), frame: "modal"}) if editor
 
 		rows = Array.new
 		locations.each { |loc|
-			url = editor ? location_path(loc, club_id: @clubid) : location_path(loc)
+			url = editor ? location_path(loc, club_id: @clubid, rdx: @rdx) : location_path(loc, rdx: @rdx)
 			row = {url:, frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: loc.name}
 			row[:items] << icon_field((loc.practice_court ? "training.svg" : "home.svg"), align: "center")

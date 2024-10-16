@@ -45,6 +45,7 @@ module SlotsHelper
 			{kind: "number-box", key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins"), mandatory: {min: 60}}
 		]
 		res.last << {kind: "hidden", key: :season_id, value: @season.id}
+		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		res
 	end
 
@@ -61,7 +62,7 @@ module SlotsHelper
 			fields << {kind: "hidden", key: :season_id, value: @seasonid}
 			res = [gap_field(size: 1)]
 		end
-		res << {kind: "search-box", url: club_slots_path(@clubid), fields:}
+		res << {kind: "search-box", url: club_slots_path(@clubid, rdx: @rdx), fields:}
 	end
 
 	# fields for individual slot views
@@ -73,7 +74,7 @@ module SlotsHelper
 			[icon_field("calendar.svg"), string_field(@slot.to_s, cols: 2)]
 		]
 		if u_manager?
-			res << [gap_field(cols: 2), button_field({kind: "delete", url: slot_path(@slot), name: @slot.to_s}, align: "right")]
+			res << [gap_field(cols: 2), button_field({kind: "delete", url: slot_path(@slot, rdx: @rdx), name: @slot.to_s}, align: "right")]
 		end
 		res
 	end

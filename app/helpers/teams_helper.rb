@@ -125,7 +125,7 @@ module TeamsHelper
         tcnt = []	# total players
       end
       if add_teams
-        title << button_field({ kind: "add", url: new_team_path(club_id: @clubid), frame: "modal" })
+        title << button_field({ kind: "add", url: new_team_path(club_id: @clubid, rdx: @rdx), frame: "modal" })
       end
       rows = Array.new
       teams.each { |team|
@@ -165,7 +165,7 @@ module TeamsHelper
         res.last << button_field({ kind: "jump", icon: "target.svg", url: targets_team_path(@team, rdx: @rdx), label: I18n.t("target.many") }, align: "center")
         res.last << button_field({ kind: "jump", icon: "teamplan.svg", url: plan_team_path(@team, rdx: @rdx), label: I18n.t("plan.abbr") }, align: "center")
       end
-      res.last << button_field({ kind: "jump", icon: "timetable.svg", url: slots_team_path, label: I18n.t("slot.many"), frame: "modal" }, align: "center")
+      res.last << button_field({ kind: "jump", icon: "timetable.svg", url: slots_team_path(rdx: @rdx), label: I18n.t("slot.many"), frame: "modal" }, align: "center")
     else
       res = [[]]
     end

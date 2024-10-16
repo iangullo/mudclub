@@ -79,7 +79,7 @@ module DrillsHelper
 
 	# return grid for @drills GridComponent
 	def drill_grid(drills: @drills)
-		track = {s_url: drills_path, s_filter: "drill_filters"}
+		track = {s_url: drills_path(rdx: @rdx), s_filter: "drill_filters"}
 		title = [
 			{kind: "normal", value: I18n.t("kind.single"), align: "center", sort: (session.dig('drill_filters', 'kind_id') == "kind_id"), order_by: "kind_id"},
 			{kind: "normal", value: I18n.t("season.abbr"), sort: (session.dig('drill_filters', 'season_id') == "season_id")},
@@ -91,7 +91,7 @@ module DrillsHelper
 			#{kind: "normal", value: I18n.t("task.many")}
 		] unless device=="mobile"
 
-		title << button_field({kind: "add", url: new_drill_path, frame: "_top"}) if u_manager? || u_coach?
+		title << button_field({kind: "add", url: new_drill_path(rdx: @rdx), frame: "_top"}) if u_manager? || u_coach?
 
 		{track:, title:, rows: drill_rows(drills:)}
 	end
@@ -211,7 +211,7 @@ module DrillsHelper
 		def drill_rows(drills:)
 			rows = Array.new
 			drills.each { |drill|
-				row = {url: drill_path(drill), items: []}
+				row = {url: drill_path(drill, rdx: @rdx), items: []}
 				row[:items] << {kind: "normal", value: drill.kind.name, align: "center"}
 				row[:items] << {kind: "normal", value: drill.season_string}
 				row[:items] << {kind: "normal", value: drill.name}

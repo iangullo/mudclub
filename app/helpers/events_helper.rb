@@ -215,7 +215,7 @@ module EventsHelper
 		tasks   = Array.new
 		@event.tasks.each { |task|
 			item = {}
-			item[:url]     = show_task_event_path(task_id: task.id)
+			item[:url]     = show_task_event_path(task_id: task.id, rdx: @rdx)
 			item[:turbo]   = "modal"
 			item[:head]    = task.headstring
 			item[:content] = FieldsComponent.new(fields: task_show_fields(task:, team: @event.team, title: nil))
@@ -304,7 +304,7 @@ module EventsHelper
 		# return a button field to copy event - if possible
 		def event_copy_button
 			if u_coach? or u_manager?
-				{kind: "action", icon: "copy.svg", label: I18n.t("action.copy"), url: copy_event_path(@event, rdx: @rdx, cal: @cal), frame: "modal"}
+				{kind: "action", icon: "copy.svg", label: I18n.t("action.copy"), url: copy_event_path(@event, rdx: @rdx, cal: @cal, rdx: @rdx), frame: "modal"}
 			end
 		end
 
