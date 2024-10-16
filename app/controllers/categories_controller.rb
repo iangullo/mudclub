@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of MudClub server sport categories
 class CategoriesController < ApplicationController
 	before_action :set_sport
 	before_action :set_category, only: %i[ show edit update destroy ]
@@ -143,6 +144,6 @@ class CategoriesController < ApplicationController
 
 		# Only allow a list of trusted parameters through.
 		def category_params
-			params.require(:category).permit(:age_group, :sex, :min_years, :max_years, :rules, :sport_id)
+			params.require(:category).permit(:age_group, :min_years, :max_years, :rdx, :rules, :sex, :sport_id)
 		end
 end

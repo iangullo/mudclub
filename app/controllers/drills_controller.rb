@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of drills/plays sotredin the server
 class DrillsController < ApplicationController
 	include Filterable
 	include PdfGenerator
@@ -198,6 +199,7 @@ class DrillsController < ApplicationController
 				:explanation,
 				:playbook,
 				:kind_id,
+				:rdx,
 				:season_id,
 				:skill_id,
 				skills: [],

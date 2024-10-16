@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of MudClub server sport divisions
 class DivisionsController < ApplicationController
 	before_action :set_sport
 	before_action :set_division, only: %i[ show edit update destroy ]
@@ -144,6 +145,6 @@ class DivisionsController < ApplicationController
 
 		# Only allow a list of trusted parameters through.
 		def division_params
-			params.require(:division).permit(:name, :sport_id)
+			params.require(:division).permit(:name, :rdx, :sport_id)
 		end
 end

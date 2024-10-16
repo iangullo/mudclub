@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of MudClub teams - belonging to a club
 class TeamsController < ApplicationController
 	include Filterable
 	before_action :set_team_context, only: [:index, :show, :roster, :slots, :edit, :edit_roster, :attendance, :targets, :edit_targets, :plan, :edit_plan, :new, :update, :destroy]

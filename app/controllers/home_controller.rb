@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of MudClub home page for users
 class HomeController < ApplicationController
 	def index
 		if current_user.present?

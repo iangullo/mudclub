@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of players -typically linked to a club
 class PlayersController < ApplicationController
 	include Filterable
 	before_action :set_player, only: [:show, :edit, :update, :destroy]

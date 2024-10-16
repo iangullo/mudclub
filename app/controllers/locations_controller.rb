@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of locations registered inmudclub - typicallylinekd to a club
 class LocationsController < ApplicationController
 	before_action :set_locations, only: [:index, :show, :edit, :new, :update, :destroy, :locations]
 
@@ -172,7 +173,8 @@ private
 			:club_id,
 			:name,
 			:gmaps_url,
-			:practice_court
+			:practice_court,
+			:rdx
 		)
 	end
 end

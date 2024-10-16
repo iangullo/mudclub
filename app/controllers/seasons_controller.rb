@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of MudClub server seasons
 class SeasonsController < ApplicationController
 	before_action :set_season, only: [:index, :show, :edit, :update, :destroy, :locations]
 

@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of training slots for clubs - timetables
 class SlotsController < ApplicationController
 	before_action :set_slot, only: [:show, :edit, :update, :destroy]
 
@@ -251,6 +252,7 @@ class SlotsController < ApplicationController
 				:hour,
 				:location_id,
 				:min,
+				:rdx,
 				:season_id,
 				:start,
 				:team_id,

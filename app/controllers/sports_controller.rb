@@ -16,7 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# Managament on MudClub sports
+# Managament of MudClub server sports
 class SportsController < ApplicationController
 	before_action :set_sport
 
@@ -31,7 +31,7 @@ class SportsController < ApplicationController
 		end
 	end
 
-	# View club details
+	# View sport details
 	def show
 		if @sport && check_access(roles: [:admin])
 			@fields = create_fields(helpers.sports_show_fields)
@@ -79,7 +79,7 @@ class SportsController < ApplicationController
 		end
 	end
 
-	# Remove a club
+	# Remove a sport
 	def destroy
 		if @sport && check_access(roles: [:admin])
 		else
@@ -87,7 +87,7 @@ class SportsController < ApplicationController
 		end
 	end
 
-	# View club details
+	# View sport rules
 	def rules
 		if check_access(roles: [:admin])
 			@title  = create_fields(helpers.sport_rules_title(I18n.t("sport.rules")))
@@ -104,14 +104,14 @@ class SportsController < ApplicationController
 			@sport  = Sport.fetch(params[:id].presence)
 		end
 
-		# prepare a form to edit/create a Category
+		# prepare a form to edit/create a Sport
 		def prepare_form(title:)
 			@fields = create_fields(helpers.sports_form_fields(title:))
 			@submit = create_submit(retlnk: :back)
 		end
 
 		# Only allow a list of trusted parameters through.
-		def category_params
-			params.require(:sport).permit(:name, :retlnk)
+		def sport_params
+			params.require(:sport).permit(:name , :rdx, :retlnk)
 		end
 end

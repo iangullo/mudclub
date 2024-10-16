@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of MudClub server users
 class UsersController < ApplicationController
 	include Filterable
 	before_action :set_user, only: [:show, :edit, :update, :destroy, :actions, :clear_actions]

@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of MudClub events (training sessions, matches, rest days)
 class EventsController < ApplicationController
 	include Filterable
 	include PdfGenerator

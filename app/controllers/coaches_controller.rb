@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Managament of MudClub coaches
 class CoachesController < ApplicationController
 	include Filterable
 	before_action :set_coach, only: [:show, :edit, :update, :destroy]
