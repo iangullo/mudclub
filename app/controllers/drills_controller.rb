@@ -53,7 +53,7 @@ class DrillsController < ApplicationController
 					@title = create_fields(title)
 					@explain = create_fields(helpers.drill_show_explain)
 					submit   = edit_drill_path(@drill, rdx: @rdx) if (@drill.coach_id == u_coachid) || (u_manager? && u_clubid == @drill.coach.club_id)
-					@submit  = create_submit(close: "back", retlnk: base_link(drills_path(rdx: @rdx)), submit:)
+					@submit  = create_submit(close: "back", retlnk: base_lnk(drills_path(rdx: @rdx)), submit:)
 					render :show
 				end
 			end

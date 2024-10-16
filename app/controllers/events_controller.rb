@@ -72,7 +72,7 @@ class EventsController < ApplicationController
 							@fields  = create_fields(helpers.training_show_fields)
 						end
 						submit  = edit_event_path(season_id: @seasonid, rdx: @rdx, cal: @cal) if editor
-						@submit = create_submit(close: "back", retlnk: base_link(anchor_lnk), submit:)
+						@submit = create_submit(close: "back", retlnk: base_lnk(anchor_lnk), submit:)
 					end
 				end
 			end
