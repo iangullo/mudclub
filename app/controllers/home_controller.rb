@@ -34,7 +34,7 @@ class HomeController < ApplicationController
 				teams   = helpers.team_grid(teams: current_user.team_list)
 				@grid   = create_grid(teams) if teams
 			elsif u_admin? # manage server
-				@fields = create_fields(helpers.home_admin_fields)
+				redirect_to home_server_path
 			end
 		end
 
@@ -73,6 +73,12 @@ class HomeController < ApplicationController
 			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	def server
+		if u_admin? # manage server
+			@fields = create_fields(helpers.home_admin_fields)
 		end
 	end
 end

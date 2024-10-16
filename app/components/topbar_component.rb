@@ -218,7 +218,7 @@ class TopbarComponent < ApplicationComponent
 
 	# menu to manage server application
 	def server_menu(user)
-		menu_link(label: I18n.t("server.single"), url: '/', kind: "nav")
+		menu_link(label: I18n.t("server.single"), url: '/home/server', kind: "nav")
 	end
 
 	# menu to manage sports

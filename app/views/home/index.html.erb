@@ -1,7 +1,6 @@
 <% if current_user.present? %>
 	<div id="home-logged-in">
-		<%= render @fields if @fields %>
-		<%= render @grid if @grid %>
+		<%= render "shared/g_index" %>
 	</div>
 <% else %>
 	<div id="home-logged-out" class="align-middle">

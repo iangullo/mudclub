@@ -1,5 +1,5 @@
 <div id="generic-index">
-	<%= render @title %>
+	<%= render @title if @title %>
 	<%= render @fields if @fields %>
 	<% if @grid %>
 		<%= turbo_frame_tag "search-results" do %>
