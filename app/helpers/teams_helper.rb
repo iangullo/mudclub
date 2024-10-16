@@ -129,7 +129,7 @@ module TeamsHelper
       end
       rows = Array.new
       teams.each { |team|
-        url = (user_in_club? ? team_path(team, rdx: @rdx) : request.path)
+        url = (u_clubid == team.club_id ? team_path(team, rdx: @rdx) : request.path)
         row = { url:, items: [] }
         row[:items] << { kind: "normal", value: team.season.name, align: "center" } if (@rdx == 1 || @player || @coach)
         row[:items] << { kind: "normal", value: team.name }

@@ -30,6 +30,7 @@ module LocationsHelper
 			{kind: "label-checkbox", key: :practice_court, label: I18n.t("location.train")}
 		]
 		res.last << {kind: "hidden", key: :club_id, value: @clubid} if @clubid
+		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
 		res
 	end
 

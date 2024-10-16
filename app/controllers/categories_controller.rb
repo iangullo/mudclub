@@ -47,7 +47,7 @@ class CategoriesController < ApplicationController
 	def new
 		if check_access(roles: [:admin])
 			@category = @sport.categories.build
-			prepare_form(title: I18n.t("category.new"))
+			prepare_form("new")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -56,7 +56,7 @@ class CategoriesController < ApplicationController
 	# GET /categories/1/edit
 	def edit
 		if @category && check_access(roles: [:admin])
-			prepare_form(title: I18n.t("category.edit"))
+			prepare_form("edit")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -74,7 +74,7 @@ class CategoriesController < ApplicationController
 					format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 					format.json { render :show, status: :created, location: sport_path(@sport.id) }
 				else
-					prepare_form(title: I18n.t("category.new"))
+					prepare_form("new")
 					format.html { render :new, status: :unprocessable_entity }
 					format.json { render json: @category.errors, status: :unprocessable_entity }
 				end
@@ -96,7 +96,7 @@ class CategoriesController < ApplicationController
 						format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: sport_path(@sport.id) }
 					else
-						prepare_form(title: I18n.t("category.edit"))
+						prepare_form("edit")
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @category.errors, status: :unprocessable_entity }
 					end
@@ -127,6 +127,12 @@ class CategoriesController < ApplicationController
 	end
 
 	private
+		# prepare a form to edit/create a Category
+		def prepare_form(action)
+			@fields = create_fields(helpers.category_form_fields(title: I18n.t("category.#{action}")))
+			@submit = create_submit
+		end
+
 		# Use callbacks to share common setup or constraints between actions.
 		def set_sport
 			@sport = Sport.fetch(params[:sport_id])
@@ -136,13 +142,7 @@ class CategoriesController < ApplicationController
 			@category = Category.find(params[:id])
 		end
 
-		# prepare a form to edit/create a Category
-		def prepare_form(title:)
-			@fields = create_fields(helpers.category_form_fields(title:))
-			@submit = create_submit
-		end
-
-		# Only allow a list of trusted parameters through.
+			# Only allow a list of trusted parameters through.
 		def category_params
 			params.require(:category).permit(:age_group, :min_years, :max_years, :rdx, :rules, :sex, :sport_id)
 		end

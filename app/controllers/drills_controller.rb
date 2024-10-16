@@ -31,7 +31,7 @@ class DrillsController < ApplicationController
 			@drills = filter!(Drill)	# Apply filters
 			page = paginate(@drills, 1.6)	# paginate results
 			grid = helpers.drill_grid(drills: page)
-			create_index(title:, grid:, page:, retlnk: "/")
+			create_index(title:, grid:, page:, retlnk: base_lnk("/"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -52,8 +52,8 @@ class DrillsController < ApplicationController
 				format.html do
 					@title = create_fields(title)
 					@explain = create_fields(helpers.drill_show_explain)
-					submit   = edit_drill_path(@drill) if (@drill.coach_id == u_coachid) || (u_manager? && u_clubid == @drill.coach.club_id)
-					@submit  = create_submit(close: "back", retlnk: drills_path, submit:)
+					submit   = edit_drill_path(@drill, rdx: @rdx) if (@drill.coach_id == u_coachid) || (u_manager? && u_clubid == @drill.coach.club_id)
+					@submit  = create_submit(close: "back", retlnk: base_link(drills_path(rdx: @rdx)), submit:)
 					render :show
 				end
 			end
@@ -66,7 +66,7 @@ class DrillsController < ApplicationController
 	def new
 		if check_access(roles: [:manager, :coach])
 			@drill = Drill.new
-			prepare_form(title: I18n.t("drill.new"))
+			prepare_form("new")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -75,7 +75,7 @@ class DrillsController < ApplicationController
 	# GET /drills/1/edit
 	def edit
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
-			prepare_form(title: I18n.t("drill.edit"))
+			prepare_form("edit")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -88,12 +88,13 @@ class DrillsController < ApplicationController
 				@drill = Drill.new
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.save
+					retlnk = cru_return
 					a_desc = "#{I18n.t("drill.created")} '#{@drill.name}'"
 					register_action(:created, a_desc, url: drill_path(@drill, rdx: 2))
-					format.html { redirect_to drill_path(@drill), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: @drill }
+					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: retlnk }
 				else
-					prepare_form(title: I18n.t("drill.new"))
+					prepare_form("new")
 					format.html { render :new }
 					format.json { render json: @drill.errors, status: :unprocessable_entity }
 				end
@@ -107,21 +108,22 @@ class DrillsController < ApplicationController
 	def update
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
 			respond_to do |format|
+				retlnk = cru_return
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.modified?
 					if @drill.save
 						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
 						register_action(:updated, a_desc, url: drill_path(@drill, rdx: 2))
-						format.html { redirect_to drill_path(@drill), status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :show, status: :ok, location: @drill }
+						format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :ok, location: retlnk }
 					else
-						prepare_form(title: I18n.t("drill.edit"))
+						prepare_form("edit")
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @drill.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to drill_path, notice: no_data_notice, data: {turbo_action: "replace"}}
-					format.json { render :show, status: :ok, location: drill_path }
+					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :show, status: :ok, location: retlnk }
 				end
 			end
 		else
@@ -137,7 +139,7 @@ class DrillsController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("drill.deleted")} '#{d_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to drills_path, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to drills_path(rdx: @rdx), notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
@@ -157,6 +159,11 @@ class DrillsController < ApplicationController
 	end
 
 	private
+		# wrapper to set return link for CRUD operations
+		def cru_return
+			drill_path(@drill, rdx: @rdx)
+		end
+
 		# pdf export of @drill content
 		def drill_to_pdf(header)
 			footer = "#{I18n.t('drill.author')}: #{@drill.coach.person.email}"
@@ -171,8 +178,8 @@ class DrillsController < ApplicationController
 		end
 
 		# prepare a drill form calling helpers to get the right FieldComponents
-		def prepare_form(title:)
-			@title    = create_fields(helpers.drill_form_title(title:))
+		def prepare_form(action)
+			@title    = create_fields(helpers.drill_form_title(title: I18n.t("drill.#{action}")))
 			@playbook = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
 			@formdata = create_fields(helpers.drill_form_data)
 			@explain  = create_fields(helpers.drill_form_explain)
@@ -181,7 +188,7 @@ class DrillsController < ApplicationController
 			s_size    = 10
 			@skills.each { |skill| s_size = skill.length if skill.length > s_size }
 			@s_size   = s_size - 3
-			@submit   = create_submit(retlnk: :back)
+			@submit   = create_submit(retlnk: (action == "new" ? drills_path(rdx: @rdx) : cru_return))
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

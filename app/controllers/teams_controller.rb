@@ -35,11 +35,12 @@ class TeamsController < ApplicationController
 					response.headers['Content-Disposition'] = "attachment; filename=#{f_name}"
 				end
 				format.html do
-					title  = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
-					page   = paginate(@teams)	# paginate results
-					grid   = helpers.team_grid(teams: page, add_teams: u_manager?)
-					retlnk = @clubid ? club_path(@clubid) : (u_admin? ? clubs_path : "/")
-					submit = {kind: "export", url: club_teams_path(@clubid, format: :xlsx, season_id: @seasonid), working: false} if user_in_club? && (u_manager? || u_secretary?)
+					title   = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
+					page    = paginate(@teams)	# paginate results
+					grid    = helpers.team_grid(teams: page, add_teams: u_manager?)
+					zerolnk = @clubid ? club_path(@clubid, rdx: @rdx) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
+					retlnk  = base_lnk(zerolnk)
+					submit  = {kind: "export", url: club_teams_path(@clubid, format: :xlsx, season_id: @seasonid), working: false} if user_in_club? && (u_manager? || u_secretary?)
 					create_index(title:, grid:, page:, retlnk:, submit:)
 					render :index
 				end
@@ -72,7 +73,8 @@ class TeamsController < ApplicationController
 				@calendar  = CalendarComponent.new(anchor:, start_date:, obj: @team, user: current_user)
 				submit     = nil
 			end
-			@submit = create_submit(close: "back", retlnk: get_retlnk, submit:, frame: (submit ? "modal" : nil))
+			zerolnk = club_teams_path(club_id: @clubid, season_id: @seasonid, rdx: @rdx)
+			@submit = create_submit(close: "back", retlnk: base_lnk(zerolnk), submit:, frame: (submit ? "modal" : nil))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -111,7 +113,7 @@ class TeamsController < ApplicationController
 				@team = Team.build(team_params)
 				if @team.save
 					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
-					c_path = (user_in_club? ? team_path(@team, rdx: 0) : club_teams_path(@clubid))
+					c_path = (user_in_club? ? cru_return : club_teams_path(@clubid, rdx: @rdx))
 					register_action(:created, a_desc, url: team_path(@team, rdx: 2))
 					format.html { redirect_to c_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: c_path }
@@ -134,13 +136,13 @@ class TeamsController < ApplicationController
 		if @team && team_manager?
 			respond_to do |format|
 				n_notice = no_data_notice(trail: @team.to_s)
-				retlnk   = prepare_update_redirect
+				retlnk   = cru_return
 				if params[:team]
 					@team.rebuild(params[:team])
 					if @team.modified?
 						if @team.save
 							a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
-							register_action(:updated, a_desc, url: team_path(rdx: 1))
+							register_action(:updated, a_desc, url: team_path(rdx: 2))
 							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 							format.json { redirect_to retlnk, status: :created, location: retlnk }
 						else
@@ -297,16 +299,23 @@ class TeamsController < ApplicationController
 	end
 
 	private
-		# retrieve targets for the team
-		def global_targets(breakdown=false)
-			targets = @team.team_targets.global
-			if breakdown
-				@t_d_gen = filter(targets, 0, 2)
-				@t_d_ind = filter(targets, 1, 2)
-				@t_d_col = filter(targets, 2, 2)
-				@t_o_gen = filter(targets, 0, 1)
-				@t_o_ind = filter(targets, 1, 1)
-				@t_o_col = filter(targets, 2, 1)
+		# wrapper to set return link for create && update operations
+		def cru_return
+			if param_passed(:team, :player_ids)	# roster view
+				return roster_team_path(rdx: @rdx)
+			elsif param_passed(:team, :team_targets_attributes)	# targets or plan
+				first_target = team_params[:team_targets_attributes].to_h.first
+				if first_target
+					if first_target[1]["month"] == "0"	# global team targets
+						return targets_team_path(rdx: @rdx)
+					else	# team monthly targets
+						return plan_team_path(rdx: @rdx)
+					end
+				else	# base team view
+					return team_path(rdx: @rdx)
+				end
+			else	# team view also
+				team_path(rdx: @rdx)
 			end
 		end
 
@@ -339,18 +348,17 @@ class TeamsController < ApplicationController
 			return res
 		end
 
-		# defines correct retlnk based on params received
-		# only called by index/show
-		def get_retlnk
-			case @rdx&.to_i
-			when 0, nil	# it's related to a club season team
-				return club_teams_path(club_id: @clubid, season_id: @seasonid, rdx: 0)
-			when 1	# return home_path if needed
-				return user_path(current_user, rdx: 1)
-			when 2	# return to log_path
-				return home_log_path
+		# retrieve targets for the team
+		def global_targets(breakdown=false)
+			targets = @team.team_targets.global
+			if breakdown
+				@t_d_gen = filter(targets, 0, 2)
+				@t_d_ind = filter(targets, 1, 2)
+				@t_d_col = filter(targets, 2, 2)
+				@t_o_gen = filter(targets, 0, 1)
+				@t_o_ind = filter(targets, 1, 1)
+				@t_o_col = filter(targets, 2, 1)
 			end
-			return "/"	# root
 		end
 
 		# retrieve monthly targets for the team
@@ -358,26 +366,6 @@ class TeamsController < ApplicationController
 			@months = @team.season.months(true)
 			@targets = Array.new
 			@months.each { |m| @targets << fetch_targets(m)	}
-		end
-
-		# set the right redirect for update depending on params received
-		def prepare_update_redirect
-			if param_passed(:team, :player_ids)
-				return roster_team_path(rdx: @rdx)
-			elsif param_passed(:team, :team_targets_attributes)
-				first_target = team_params[:team_targets_attributes].to_h.first
-				if first_target
-					if first_target[1]["month"] == "0"
-						return targets_team_path(rdx: @rdx)
-					else
-						return plan_team_path(rdx: @rdx)
-					end
-				else
-					return team_path(rdx: @rdx)
-				end
-			else
-				team_path(rdx: @rdx)
-			end
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

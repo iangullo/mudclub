@@ -28,7 +28,7 @@ class SeasonsController < ApplicationController
 			page  = paginate(@seasons)	# paginate results
 			title = helpers.season_title_fields(icon: "mudclub.svg", title: I18n.t("season.many"))
 			grid  = helpers.season_grid(seasons: page)
-			create_index(title:, grid:, page:, retlnk: "/")
+			create_index(title:, grid:, page:, retlnk: base_lnk("/"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -38,7 +38,7 @@ class SeasonsController < ApplicationController
 	def show
 		if @season && check_access(roles: [:admin])
 			@fields = create_fields(helpers.season_fields)
-			@submit = create_submit(close: "back", retlnk: seasons_path, submit: edit_season_path, frame: "modal")
+			@submit = create_submit(close: "back", retlnk: base_lnk(seasons_path(rdx: @rdx)), submit: edit_season_path(rdx: @rdx), frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -47,7 +47,7 @@ class SeasonsController < ApplicationController
 	# GET /seasons/1/edit
 	def edit
 		if @season && check_access(roles: [:admin])
-			prepare_form(title: I18n.t("season.edit"))
+			prepare_form("edit")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -57,7 +57,7 @@ class SeasonsController < ApplicationController
 	def new
 		if check_access(roles: [:admin])
 			@season = Season.new(start_date: Date.today, end_date: Date.today)
-			prepare_form(title: I18n.t("season.new"))
+			prepare_form("new")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -71,11 +71,12 @@ class SeasonsController < ApplicationController
 			respond_to do |format|
 				if @season.save
 					a_desc = "#{I18n.t("season.created")} '#{@season.name}'"
-					register_action(:created, a_desc, url: seasons_path)
-					format.html { redirect_to seasons_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: seasons_path }
+					retlnk = crud_return
+					register_action(:created, a_desc, url: season_path(@season, rdx: 2))
+					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+					format.json { render :index, status: :created, location: retlnk }
 				else
-					prepare_form(title: I18n.t("season.new"))
+					prepare_form("new")
 					format.html { render :new }
 					format.json { render json: @season.errors, status: :unprocessable_entity }
 				end
@@ -92,20 +93,21 @@ class SeasonsController < ApplicationController
 			respond_to do |format|
 				check_locations
 				@season.rebuild(season_params)
+				retlnk = crud_return
 				if @season.changed?
 					if @season.save
 						a_desc = "#{I18n.t("season.updated")} '#{@season.name}'"
-						register_action(:updated, a_desc, url: season_path(@season))
-						format.html { redirect_to season_path(@season), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-						format.json { render :index, status: :created, location: seasons_path}
+						register_action(:updated, a_desc, url: season_path(@season, rdx: 2))
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :created, location: retlnk}
 					else
-						prepare_form(title: I18n.t("season.edit"))
+						prepare_form("edit")
 						format.html { render :edit }
 						format.json { render json: @season.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to seasons_path, notice: no_data_notice, data: {turbo_action: "replace"} }
-					format.json { render :index, status: :unprocessable_entity, location: seasons_path }
+					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"} }
+					format.json { render :show, status: :unprocessable_entity, location: retlnk }
 				end
 			end
 		else
@@ -123,7 +125,7 @@ class SeasonsController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("season.deleted")} '#{s_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to seasons_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
@@ -143,11 +145,9 @@ class SeasonsController < ApplicationController
 			end
 		end
 
-		# defines correct retlnk based on params received
-		def get_retlnk
-			return home_log_path if @rdx==2	# return to log_path
-			return season_path(@season) if @season
-			return seasons_path
+		# wrapper to set return link for CRUD operations
+		def crud_return
+			seasons_path(rdx: @rdx)
 		end
 
 		def set_season
@@ -156,8 +156,8 @@ class SeasonsController < ApplicationController
 		end
 
 		# prepare fields for new/edit season
-		def prepare_form(title:)
-			@fields = create_fields(helpers.season_form_fields(title:))
+		def prepare_form(action)
+			@fields = create_fields(helpers.season_form_fields(title: I18n.t("season.#{action}")))
 			@submit = create_submit
 		end
 

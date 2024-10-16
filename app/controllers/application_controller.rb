@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Core shared controller methods
 class ApplicationController < ActionController::Base
 	before_action :set_context
 	around_action :switch_locale
@@ -74,6 +75,20 @@ class ApplicationController < ActionController::Base
 	# Create a submit component
 	def create_submit(close: "close", submit: "save", retlnk: nil, frame: nil)
 		SubmitComponent.new(close:, submit:, retlnk:, frame:)
+	end
+
+	# defines correct retlnk for show/index pages based on
+	# controller context and zerolnk, optonally passed as param
+	def base_lnk(zerolnk = "/")
+		case @rdx&.to_i
+		when 0, nil	# return to zerolnk, typically provided by controller
+			return zerolnk
+		when 1	# return to users home_path
+			return user_path(current_user, rdx: 1)
+		when 2	# return to log_path
+			return home_log_path
+		end
+		return "/"	# root
 	end
 
 	# ensure @season matches the calling context.
@@ -169,7 +184,7 @@ class ApplicationController < ActionController::Base
 
 	# return whether the current user is a club_manager
 	def team_manager?(team = @team)
-		team&.has_coach(u_coachid) || club_manager?
+		team&.has_coach(u_coachid) || club_manager?(team&.club_id)
 	end
 
 	# wrappers to access user attributes

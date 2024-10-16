@@ -25,10 +25,10 @@ class LocationsController < ApplicationController
 	def index
 		if check_access(roles: [:admin, :manager, :secretary])
 			title  = helpers.location_title_fields(title: I18n.t("location.many"))
-			title << helpers.location_search_bar(search_in: club_locations_path)
+			title << helpers.location_search_bar(search_in: club_locations_path(rdx: @rdx))
 			page   = paginate(@locations)	# paginate results
 			grid   = helpers.location_grid(locations: page)
-			create_index(title:, grid:, page:, retlnk: club_path(@club))
+			create_index(title:, grid:, page:, retlnk: base_lnk(club_path(@club, rdx: @rdx)))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -39,7 +39,7 @@ class LocationsController < ApplicationController
 	def show
 		if @location && user_signed_in?	# basically all users can see this
 			@fields = create_fields(helpers.location_show_fields)
-			submit  = edit_location_path(@location) if user_in_club? && check_access(roles: [:manager, :secretary])
+			submit  = edit_location_path(@location, rdx: @rdx) if user_in_club? && check_access(roles: [:manager, :secretary])
 			@submit = create_submit(submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -49,7 +49,7 @@ class LocationsController < ApplicationController
 	# GET /locations/1/edit
 	def edit
 		if @location && user_in_club? && check_access(roles: [:manager, :secretary])
-			prepare_form(title: I18n.t("location.edit"))
+			prepare_form("edit")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -59,7 +59,7 @@ class LocationsController < ApplicationController
 	def new
 		if user_in_club? && check_access(roles: [:manager, :secretary])
 			@location = Location.new unless @location
-			prepare_form(title: I18n.t("location.new"))
+			prepare_form("new")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -75,14 +75,14 @@ class LocationsController < ApplicationController
 				@location.rebuild(location_params) # rebuild @location
 				a_desc    = "#{I18n.t("location.created")} #{@club&.nick} => '#{@location.name}'"
 				u_notice  = helpers.flash_message(a_desc, "success")
-				retlnk    = club_locations_path(@club)
 				if @location.id!=nil || @location.save # location existed or saved
+					retlnk = crud_return(@club.id)
 					@club.locations |= [@location] if @club
 					register_action(:created, a_desc, url: location_path(@location), modal: true)
 					format.html { redirect_to retlnk, notice: u_notice, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :created, location: retlnk }
 				else
-					prepare_form(title: I18n.t("location.new"))
+					prepare_form("new")
 					format.html { render :new }
 					format.json { render json: @location.errors, status: :unprocessable_entity }
 				end
@@ -98,7 +98,7 @@ class LocationsController < ApplicationController
 			respond_to do |format|
 				@location.rebuild(location_params)
 				@club  = Club.find_by_id(@clubid)
-				retlnk = club_locations_path(@clubid)
+				retlnk = crud_return(@clubid)
 				if @location.id!=nil  # we have location to save
 					a_desc = "#{I18n.t("location.updated")} '#{@location.name}'"
 					if @location.changed?
@@ -137,7 +137,7 @@ class LocationsController < ApplicationController
 				@club  = Club.find_by_id(@clubid)
 				l_name = @location.name
 				a_desc = "#{I18n.t("location.deleted")} #{@club&.nick} => '#{l_name}'"
-				retlnk = club_locations_path(@clubid)
+				retlnk = crud_return(@clubid)
 				register_action(:deleted, a_desc)
 				@club.locations.delete(@location)
 				format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
@@ -149,6 +149,17 @@ class LocationsController < ApplicationController
 	end
 
 private
+	# wrapper to set return link for CRUD operations
+	def crud_return(clubid)
+		club_locations_path(clubid, rdx: @rdx)
+	end
+
+	# prepare ViewComponents for a Location edit/new form
+	def prepare_form(action)
+		@fields = create_fields(helpers.location_form_fields(title: I18n.t("location.#{action}")))
+		@submit = create_submit
+	end
+
 	# ensure internal variables are well defined
 	def set_locations
 		club_id = @clubid || @club&.id || p_clubid
@@ -158,12 +169,6 @@ private
 			@location = Location.find_by_id(params[:id]) unless @location&.id==params[:id]
 		end
 		@locations = Location.search(club_id: @clubid, name: params[:name].presence).order(:name)
-	end
-
-	# prepare ViewComponents for a Location edit/new form
-	def prepare_form(title:)
-		@fields = create_fields(helpers.location_form_fields(title:))
-		@submit = create_submit
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.

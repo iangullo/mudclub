@@ -28,7 +28,7 @@ class ClubsController < ApplicationController
 			title   = helpers.club_title_fields(title:, icon: "rivals.svg")
 			title << [{kind: "search-text", key: :search, value: params[:search] || session.dig('club_filters', 'search'), url: clubs_path, size: 10}]
 			grid    = helpers.club_grid(clubs: page)
-			retlnk  = u_clubid ? club_path(u_clubid) : "/"
+			retlnk  = base_lnk(u_clubid ? club_path(u_clubid) : "/")
 			create_index(title:, grid:, page:, retlnk:)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -44,7 +44,7 @@ class ClubsController < ApplicationController
 				@grid   = create_fields(helpers.event_list_grid(obj: Season.latest))
 			else	# off return to  the user's club
 				close  = "back"
-				retlnk = clubs_path
+				retlnk = base_lnk(clubs_path)
 			end
 			submit  = edit_club_path(@club, rdx: @rdx) if u_admin? || club_manager?(@club)
 			@submit = create_submit(close:, retlnk:, submit:, frame: "modal")

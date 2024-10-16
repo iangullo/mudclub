@@ -36,10 +36,10 @@ class CoachesController < ApplicationController
 				format.html do
 					page   = paginate(@coaches)	# paginate results
 					title  = helpers.person_title_fields(title: I18n.t("coach.many"), icon: "coach.svg")
-					title << [{kind: "search-text", key: :search, value: search, url: club_coaches_path(@clubid)}]
+					title << [{kind: "search-text", key: :search, value: search, url: club_coaches_path(@clubid, rdx: @rdx)}]
 					grid   = helpers.coach_grid(coaches: page)
 					submit = {kind: "export", url: club_coaches_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?
-					create_index(title:, grid:, page:, retlnk: club_path(@clubid), submit:)
+					create_index(title:, grid:, page:, retlnk: base_lnk(club_path(@clubid, rdx: @rdx)), submit:)
 					render :index
 				end
 			end
@@ -54,7 +54,7 @@ class CoachesController < ApplicationController
 		if @coach && (check_access(obj: @coach) || check_access(roles: [:manager, :secretary], obj: @coach.club, both: true))
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
-			retlnk  = get_retlnk
+			retlnk  = base_lnk(anchor_lnk)
 			submit  = edit_coach_path(@coach, club_id: @clubid, team_id: p_teamid, user: p_userid, rdx: @rdx) if (u_manager? || u_secretary? || u_coachid == @coach.id)
 			@submit = create_submit(close: "back", retlnk:, submit:, frame: "modal")
 		else
@@ -67,7 +67,7 @@ class CoachesController < ApplicationController
 		if user_in_club? && check_access(roles: [:manager, :secretary])
 			@coach = Coach.new(club_id: @clubid)
 			@coach.build_person
-			prepare_form(title: I18n.t("coach.new"))
+			prepare_form("new")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -76,7 +76,7 @@ class CoachesController < ApplicationController
 	# GET /coaches/1/edit
 	def edit
 		if @coach && (check_access(obj: @coach) || check_access(roles: [:manager, :secretary], obj: @coach.club, both: true))
-			prepare_form(title: I18n.t("coach.edit"))
+			prepare_form("edit")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -91,19 +91,20 @@ class CoachesController < ApplicationController
 				@coach.rebuild(coach_params)	# rebuild coach
 				if @coach.id == nil then	# it's a new coach
 					if @coach.paranoid_create # coach saved to database
+						retlnk = cru_return
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.created")} '#{@coach.s_name}'"
 						register_action(:created, a_desc, url: coach_path(@coach, rdx: 2))
-						format.html { redirect_to coach_path(@coach, rdx: 0), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :show, status: :created, location: coach_path(@coach, rdx: 0) }
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :created, location: retlnk }
 					else
-						prepare_form(title: I18n.t("coach.new"))
+						prepare_form("new")
 						format.html { render :new }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
 				else	# duplicate coach
-					format.html { redirect_to coach_path(@coach, rdx: 0), notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
-					format.json { render :show,  :created, location: coach_path(@coach) }
+					format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("coach.duplicate")} '#{@coach.s_name}'"), data: {turbo_action: "replace"}}
+					format.json { render :show,  :created, location: cru_return }
 				end
 			end
 		else
@@ -115,7 +116,7 @@ class CoachesController < ApplicationController
 	# PATCH/PUT /coaches/1.json
 	def update
 		if @coach && (check_access(obj: @coach) || check_access(roles: [:manager, :secretary], obj: Club.find(@clubid), both: true))
-			r_path = coach_path(@coach, rdx: @rdx)
+			retlnk = cru_return
 			respond_to do |format|
 				@coach.rebuild(coach_params)
 				if @coach.modified?	# coach has been edited
@@ -123,16 +124,16 @@ class CoachesController < ApplicationController
 						@coach.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("coach.updated")} '#{@coach.s_name}'"
 						register_action(:updated, a_desc, url: coach_path(@coach, rdx: 2))
-						format.html { redirect_to r_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :show, status: :ok, location: r_path }
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.json { render :show, status: :ok, location: retlnk }
 					else
-						prepare_form(title: I18n.t("coach.edit"))
+						prepare_form("edit")
 						format.html { render :edit }
 						format.json { render json: @coach.errors, status: :unprocessable_entity }
 					end
 				else	# no changes made
-					format.html { redirect_to r_path, notice: no_data_notice, data: {turbo_action: "replace"}}
-					format.json { render :show, status: :ok, location: r_path }
+					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.json { render :show, status: :ok, location: retlnk }
 				end
 			end
 		else
@@ -172,20 +173,20 @@ class CoachesController < ApplicationController
 	end
 
 	private
-		# defines correct retlnk based on params received
-		def get_retlnk
+		# defines correct retlnk for player show based on params received
+		def anchor_lnk
 			return team_path(id: p_teamid, user: current_user, rdx: @rdx) if p_teamid && current_user
-			case @rdx&.to_i
-			when 0, nil;	return (@clubid ? club_coaches_path(@clubid, rdx: 0) : u_path)
-			when 1; return u_path
-			when 2; return home_log_path
-			else; return "/"
-			end
+			return (@clubid ? club_coaches_path(@clubid, rdx: 0) : u_path)
+		end
+
+		# common return link for create/update operations
+		def cru_return
+			coach_path(@coach, rdx: @rdx)
 		end
 
 		# prepare form FieldComponents
-		def prepare_form(title:)
-			@title    = create_fields(helpers.person_form_title(@coach.person, title:, icon: @coach.picture))
+		def prepare_form(action)
+			@title    = create_fields(helpers.person_form_title(@coach.person, title: I18n.t("coach.#{action}"), icon: @coach.picture))
 			@c_fields = create_fields(helpers.coach_form_fields(team_id: p_teamid, user: p_userid))
 			@p_fields = create_fields(helpers.person_form_fields(@coach.person))
 			@submit   = create_submit

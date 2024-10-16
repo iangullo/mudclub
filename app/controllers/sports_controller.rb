@@ -25,7 +25,7 @@ class SportsController < ApplicationController
 		if check_access(roles: [:admin])
 			title = helpers.home_admin_title(title: I18n.t("sport.many"))
 			grid  = helpers.sports_grid
-			create_index(title:, grid:, retlnk: "/")
+			create_index(title:, grid:, retlnk: base_lnk("/"))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -35,7 +35,7 @@ class SportsController < ApplicationController
 	def show
 		if @sport && check_access(roles: [:admin])
 			@fields = create_fields(helpers.sports_show_fields)
-			@submit = create_submit(close: "back", submit: nil, retlnk: :back)
+			@submit = create_submit(close: "back", submit: nil, retlnk: base_lnk(sports_path(rdx: @rdx)))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -64,7 +64,7 @@ class SportsController < ApplicationController
 	# Cannot create new sports yet
 	def create
 		if check_access(roles: [:admin])
-			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
+			redirect_to cru_return, data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -73,7 +73,7 @@ class SportsController < ApplicationController
 	# Cannot update Sports yet
 	def update
 		if @sport && check_access(roles: [:admin])
-			redirect_to sport_path(@sport.id), data: {turbo_action: "replace"}
+			redirect_to cru_return, data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -82,6 +82,7 @@ class SportsController < ApplicationController
 	# Remove a sport
 	def destroy
 		if @sport && check_access(roles: [:admin])
+			redirect_to sports_path(rdx: @rdx), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -99,15 +100,20 @@ class SportsController < ApplicationController
 	end
 
 	private
-		# Use callbacks to share common setup or constraints between actions.
-		def set_sport
-			@sport  = Sport.fetch(params[:id].presence)
+		# wrapper to set return link for create && update operations
+		def cru_return
+			sport_path(@sport.id, rdx: @rdx)
 		end
 
 		# prepare a form to edit/create a Sport
-		def prepare_form(title:)
-			@fields = create_fields(helpers.sports_form_fields(title:))
-			@submit = create_submit(retlnk: :back)
+		def prepare_form(action)
+			@fields = create_fields(helpers.sports_form_fields(title: I18n.t("sport.#{action}")))
+			@submit = create_submit(retlnk: base_lnk("/"))
+		end
+
+		# Use callbacks to share common setup or constraints between actions.
+		def set_sport
+			@sport  = Sport.fetch(params[:id].presence)
 		end
 
 		# Only allow a list of trusted parameters through.

@@ -34,11 +34,12 @@ class PlayersController < ApplicationController
 				end
 				format.html do
 					title  = helpers.person_title_fields(title: I18n.t("player.many"), icon: "player.svg", size: "50x50")
-					title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid)}]
+					title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid, rdx: @rdx)}]
 					page   = paginate(@players)	# paginate results
 					grid   = helpers.player_grid(players: page)
 					submit = {kind: "export", url: club_players_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?
-					create_index(title:, grid:, page:, retlnk: club_path(@clubid), submit:)
+					retlnk = base_lnk(club_path(@clubid, rdx: @rdx))
+					create_index(title:, grid:, page:, retlnk:, submit:)
 					render :index
 				end
 			end
@@ -54,7 +55,7 @@ class PlayersController < ApplicationController
 			@fields = create_fields(helpers.player_show_fields(team: Team.find_by_id(@teamid)))
 			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
 			submit  = edit_player_path(@player, team_id: @teamid, rdx: @rdx)
-			@submit = create_submit(close: "back", retlnk: get_retlnk, submit:, frame: "modal")
+			@submit = create_submit(close: "back", retlnk: base_lnk(crud_return), submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -66,7 +67,7 @@ class PlayersController < ApplicationController
 			get_player_context
 			@player = Player.new(club_id: u_clubid)
 			@player.build_person
-			prepare_form(title: I18n.t("player.new"))
+			prepare_form("new")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -75,7 +76,7 @@ class PlayersController < ApplicationController
 	# GET /players/1/edit
 	def edit
 		if @player && (player_manager? || check_access(obj: @player))
-			prepare_form(title: I18n.t("player.edit"))
+			prepare_form("edit")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -99,7 +100,7 @@ class PlayersController < ApplicationController
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :created, location: retlnk }
 					else
-						prepare_form(title: I18n.t("player.new"))
+						prepare_form("new")
 						format.html { render :new }
 						format.json { render json: @player.errors, status: :unprocessable_entity }
 					end
@@ -130,13 +131,13 @@ class PlayersController < ApplicationController
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
 						format.json { render :show, status: :ok, location: retlnk}
 					else
-						prepare_form(title: I18n.t("player.edit"))
+						prepare_form("edit")
 						format.html { render :edit }
 						format.json { render json: @player.errors, status: :unprocessable_entity }
 					end
 				else
 					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
-					format.json { render :show, status: :ok, location: r_path }
+					format.json { render :show, status: :ok, location: retlnk }
 				end
 			end
 		else
@@ -155,7 +156,7 @@ class PlayersController < ApplicationController
 			else
 				a_desc = "#{I18n.t("player.import")}: #{I18n.t("status.no_file")}"
 			end
-			redirect_to players_path, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"}
+			redirect_to players_path(rdx: @rdx), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"}
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -168,15 +169,17 @@ class PlayersController < ApplicationController
 		if @player && @player.id != 0
 			p_name = @player.to_s(style: 1)
 			if @teamid	# we're calling froma roster view --> remove from team roster
+				act   = "removed"
 				@team = Team.find(@teamid)
 				@team.players.delete(@player) if team_manager?
 			elsif club_manager?(@player.club)	# calling from a players index --> deactivate
+				act   = "deactivated"
 				@player.update(club_id: nil)
 			end
 			respond_to do |format|
-				a_desc = "#{I18n.t("player.deleted")} '#{p_name}'"
-				register_action(:deleted, a_desc)
-				format.html { redirect_to get_retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				a_desc = "#{I18n.t("player.#{act}")} '#{p_name}'"
+				register_action(:deleted, a_desc, url: player_path(@player, rdx: 2))
+				format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
 				format.json { head :no_content }
 			end
 		else
@@ -185,19 +188,17 @@ class PlayersController < ApplicationController
 	end
 
 	private
-		# prepare playyer action context
+		# wrapper to set return link for CRUD operations
+		def crud_return
+			return roster_team_path(id: @teamid, rdx: @rdx) if @teamid
+			return club_players_path(u_clubid, search: @player.s_name, rdx: @rdx) if @player
+			return (@clubid ? club_players_path(@clubid, rdx: @rdx) : u_path)
+		end
+
+		# prepare player action context
 		def get_player_context
 			@teamid = p_teamid
 			@clubid = @player&.club_id
-		end
-
-		# defines correct retlnk based on params received
-		# should be called only by index/show
-		def get_retlnk
-			return home_log_path if @rdx&.to_i== 2	# return to log_path
-			return roster_team_path(id: @teamid, rdx: @rdx) if @teamid
-			return club_players_path(u_clubid, search: @player.s_name, rdx: 0) if @player
-			return (@clubid ? club_players_path(@clubid, rdx: 0) : u_path)
 		end
 
 		# link a player to a team
@@ -214,8 +215,8 @@ class PlayersController < ApplicationController
 		end
 
 		# Prepare a player form
-		def prepare_form(title:)
-			@title    = create_fields(helpers.person_form_title(@player.person, icon: @player.picture, title:, sex: true))
+		def prepare_form(action)
+			@title    = create_fields(helpers.person_form_title(@player.person, icon: @player.picture, title: I18n.t("player.#{action}"), sex: true))
 			@j_fields = create_fields(helpers.player_form_fields)
 			@p_fields = create_fields(helpers.person_form_fields(@player.person))
 			@parents  = create_fields(helpers.player_form_parents) if @player.person.age < 18

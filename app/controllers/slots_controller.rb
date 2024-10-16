@@ -31,7 +31,7 @@ class SlotsController < ApplicationController
 			title     << helpers.slot_search_bar(u_manager? || u_secretary?)
 			@fields    = create_fields(title)
 			week_view if @location
-			@btn_add   = create_button({kind: "add", url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @seasonid), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
+			@btn_add   = create_button({kind: "add", url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @seasonid, rdx: @rdx), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
 			@submit    = create_submit(close: "back", submit: nil, retlnk: club_path(@club, rdx: @rdx))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -43,7 +43,7 @@ class SlotsController < ApplicationController
 		if @slot && check_access(obj: @slot.team.club)
 			@title   = create_fields(helpers.slot_title_fields(title: @slot.team.to_s, subtitle: @slot.team.season.name))
 			@fields  = create_fields(helpers.slot_show_fields)
-			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot) : nil, frame: u_manager? ? "modal" : nil)
+			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot, rdx: @rdx) : nil, frame: u_manager? ? "modal" : nil)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -55,7 +55,7 @@ class SlotsController < ApplicationController
 		if check_access(obj: @club)
 			set_location
 			@slot = Slot.new(season_id: @season.id, location_id: @location.id, wday: 1, start: Time.new(2021,8,30,17,00), duration: 90, team_id: 0)
-			prepare_form(title: I18n.t("slot.new"))
+			prepare_form("new")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -64,7 +64,7 @@ class SlotsController < ApplicationController
 	# GET /clubs/x/slots/1/edit
 	def edit
 		if @slot && check_access(obj: @slot.team.club)
-			prepare_form(title: I18n.t("slot.edit"))
+			prepare_form("edit")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -76,20 +76,19 @@ class SlotsController < ApplicationController
 			@slot = Slot.new(start: Time.new(2021,8,30,17,00)) unless @slot
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
-				retlnk = club_slots_path(@clubid, season_id: @seasonid, location_id: @slot.location_id)
 				if @slot.changed?
 					if @slot.save # try to store
 						a_desc = "#{I18n.t("slot.created")} '#{@slot.to_s}'"
-						register_action(:created, a_desc, url: slot_path(@slot), modal: true)
-						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						register_action(:created, a_desc, url: slot_path(@slot, rdx: 2), modal: true)
+						format.html { redirect_to crud_return(@clubid), notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :created, location: @slot }
 					else
-						prepare_form(title: I18n.t("slot.new"))
+						prepare_form("new")
 						format.html { render :new, status: :unprocessable_entity }
 						format.json { render json: @slot.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"} }
+					format.html { redirect_to club_slots_path(rdx: @rdx), notice: no_data_notice, data: {turbo_action: "replace"} }
 					format.json { render :index, status: :unprocessable_entity, location: retlnk }
 				end
 			end
@@ -103,7 +102,7 @@ class SlotsController < ApplicationController
 		if @slot && check_access(obj: @slot.team.club)
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
-				retlnk = club_slots_path(@slot.team.club, season_id: @seasonid, location_id: @slot.location_id)
+				retlnk = crud_return(@slot.team.club_id)
 				if @slot.changed?
 					if @slot.save
 						a_desc = "#{I18n.t("slot.updated")} '#{@slot.to_s}'"
@@ -111,7 +110,7 @@ class SlotsController < ApplicationController
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
 						format.json { render :index, status: :ok, location: @slot }
 					else
-						prepare_form(title: I18n.t("slot.edit"))
+						prepare_form("edit")
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @slot.errors, status: :unprocessable_entity }
 					end
@@ -129,7 +128,7 @@ class SlotsController < ApplicationController
 	def destroy
 		if @slot && check_access(obj: @slot.team.club)
 			s_name = @slot.to_s
-			retlnk = club_slots_path(@slot.team.club, season_id: @seasonid, location_id: @slot.location_id)
+			retlnk = crud_return(@slot.team.club_id)
 			@slot.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("slot.deleted")} '#{s_name}'"
@@ -143,6 +142,11 @@ class SlotsController < ApplicationController
 	end
 
 	private
+		# wrapper to set return link for CRUD operations
+		def crud_return(clubid)
+			club_slots_path(clubid, season_id: @seasonid, location_id: @slot.location_id, rdx: @rdx)
+		end
+
 		# Create fresh time_table slices for each timetable row
 		def create_slices
 			slices  = []
@@ -190,8 +194,8 @@ class SlotsController < ApplicationController
 		end
 
 		# prepare fields to renfeer edit/new slot form
-		def prepare_form(title:)
-			@fields = create_fields(helpers.slot_form_fields(title:))
+		def prepare_form(action)
+			@fields = create_fields(helpers.slot_form_fields(title: I18n.t("slot.#{action}")))
 			@submit = create_submit
 		end
 

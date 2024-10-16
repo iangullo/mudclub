@@ -251,6 +251,7 @@ en:
   player:
     abbr: "Play."
     created: "Created player: "
+    deactivated: "Inactive player: "
     deleted: "Deleted player: "
     duplicate: "Duplicate player: "
     edit: "Edit Player"
@@ -259,7 +260,8 @@ en:
     many: "Players"
     new: "Create Player"
     number: "#"
-    playing: "Jugando"
+    playing: "Playing"
+    removed: "Removed player: "
     single: "Player"
     updated: "Updated player: "
   question:

@@ -251,6 +251,7 @@ es:
   player:
     abbr: "Jug."
     created: "Jug. creado: "
+    deactivated: "Jug. inactivo: "
     deleted: "Jug. borrado: "
     duplicate: "Jug. duplicado: "
     edit: "Editar Jugador/a"
@@ -259,7 +260,8 @@ es:
     many: "Jugadores"
     new: "Crear Jugador/a"
     number: "#"
-    playing: "Playing"
+    playing: "Jugando"
+    removed: "Jug. quitado: "
     single: "Jugador/a"
     updated: "Jug. guardado: "
   question:
