@@ -71,7 +71,8 @@ module UsersHelper
 			res = [
 				[
 					icon_field(@user.club&.logo || "mudclub.svg", tip: @user.club&.nick || I18n.t("club.none"), tipid: "uclub"),
-					{kind: "string", align: "center", value: I18n.t("role.#{@user.role}")}
+					{kind: "string", align: "center", value: I18n.t("role.#{@user.role}")},
+					{kind: "hidden", key: :club_id, value: @user.club_id}
 				]
 			]
 		end
