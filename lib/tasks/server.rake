@@ -3,10 +3,11 @@ namespace :server do
   SERVER_VER  = `cat VERSION`
   BACKUP_DIR  = "#{Rails.root}/backup/"
   SERVER_DIR  = "#{Rails.root}/"
+  EXCL_FILES  = "--exclude='backup' --exclude='node_modules' --exclude='tmp/*' --exclude='log/*' --exclude='.bash_history'"
   desc "Makes a backup of the MudClub server filesystem"
   task :backup do
     puts "MudClub server: backup (#{SERVER_DIR} => #{BACKUP_DIR})"
-    system "rsync -aPv #{SERVER_DIR} #{BACKUP_DIR} --exclude='backup' --exclude='node_modules' --exclude='tmp/*'"
+    system "rsync -aPv #{SERVER_DIR} #{BACKUP_DIR} #{EXCL_FILES}"
   end
 
   task :status do
@@ -19,6 +20,8 @@ namespace :server do
   end
 
   task :restore do
+    puts "MudClub server: restore (#{BACKUP_DIR} => #{SERVER_DIR})"
+    system "rsync -aPv #{BACKUP_DIR} #{SERVER_DIR}  #{EXCL_FILES}"
   end
 
   private
