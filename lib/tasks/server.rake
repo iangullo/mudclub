@@ -26,11 +26,11 @@ namespace :server do
 
   private
     def server_status
-      pidfile = File.join(Rails.root, "tmp", "pids", "server.pid")
-      pid     = File.read(pidfile).to_i
-      return "RUNNING (#{pid})"
       begin
         Process.getpgid pid
+        pidfile = File.join(Rails.root, "tmp", "pids", "server.pid")
+        pid     = File.read(pidfile).to_i
+        return "RUNNING (#{pid})"
       rescue Errno::ESRCH
         return "STOPPED"
       end
