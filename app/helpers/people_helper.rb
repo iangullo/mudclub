@@ -45,13 +45,26 @@ module PeopleHelper
 	end
 
 	# return FieldsComponent @fields for forms
-	def person_form_title(person, icon: person&.picture, title:, cols: 2, sex: nil)
-		res = person_title_fields(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
-		res << [{kind: "text-box", key: :name, value: person&.name, placeholder: I18n.t("person.name"), cols: 2, mandatory: {length: 2}}]
-		res << [{kind: "text-box", key: :surname, value: person&.surname, placeholder: I18n.t("person.surname"), cols: 2, mandatory: {length: 2}}]
-		res << (sex ? [{kind: "label-checkbox", label: I18n.t("sex.female_a"), key: :female, value: person&.female, align: "left"}] : [])
-		res.last << icon_field("calendar.svg")
-		res.last << {kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: person&.player_id?}
+	def person_form_title(person, icon: person&.picture, title:, cols: 2, license: nil)
+		res = person_title_fields(title:, icon:, rows: 4, cols:, form: true)
+		res << [
+			{kind: "text-box", key: :name, value: person&.name, placeholder: I18n.t("person.name"), cols: 2, mandatory: {length: 2}},
+			gap_field,
+			{kind: "label", value: I18n.t("sex.female_a"), align: "center"}
+		]
+		res << [
+			{kind: "text-box", key: :surname, value: person&.surname, placeholder: I18n.t("person.surname"), cols: 2, mandatory: {length: 2}},
+			gap_field,
+			{kind: "label-checkbox", key: :female, value: person&.female, align: "center"}
+		]
+		res << [
+			icon_field("calendar.svg"),
+			{kind: "date-box", key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: person&.player_id?}
+		]
+		if license
+			res.last << gap_field
+			res.last << {kind: "label", value: I18n.t("team.license")}
+		end
 		res
 	end
 
@@ -76,8 +89,9 @@ module PeopleHelper
 		res << [{kind: "label", value: person&.nick&.presence || person&.name, cols:}]
 		res << [{kind: "label", value: person&.surname, cols:}]
 		res << [gap_field(size: 0), {kind: "string", value: person&.birthstring}]
-		res << [{kind: "contact", email: person&.email, phone: person&.phone, device: device, align: "center"}]
+		res << [gap_field(size: 0)]
 		res.last << idpic_field(person) if person&.coach_id? || person&.player_id?
+		res.last << {kind: "contact", email: person&.email, phone: person&.phone, device: device, align: "center"}
 		res << [
 			icon_field("home.svg", iclass: "align-top"),
 			{kind: "string", value: simple_format("#{person&.address}"), align: "left", cols: 2}

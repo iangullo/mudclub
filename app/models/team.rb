@@ -25,10 +25,11 @@ class Team < ApplicationRecord
 	belongs_to :sport
 	has_and_belongs_to_many :players
 	has_and_belongs_to_many :coaches
+	has_many :events, dependent: :destroy
 	has_one :homecourt
 	has_one :rules, through: :category
 	has_many :slots, dependent: :destroy
-	has_many :events, dependent: :destroy
+	has_many :team_licenses, dependent: :destroy
 	has_many :team_targets, dependent: :destroy
 	has_many :targets, through: :team_targets
 	accepts_nested_attributes_for :coaches

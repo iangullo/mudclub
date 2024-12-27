@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_26_052013) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_31_063150) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -307,6 +307,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_26_052013) do
     t.index ["event_id"], name: "index_tasks_on_event_id"
   end
 
+  create_table "team_licenses", force: :cascade do |t|
+    t.bigint "team_id", null: false
+    t.bigint "person_id", null: false
+    t.integer "kind"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id"], name: "index_team_licenses_on_person_id"
+    t.index ["team_id"], name: "index_team_licenses_on_team_id"
+  end
+
   create_table "team_targets", force: :cascade do |t|
     t.bigint "team_id", null: false
     t.bigint "target_id", null: false
@@ -414,6 +424,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_26_052013) do
   add_foreign_key "stats", "players"
   add_foreign_key "tasks", "drills"
   add_foreign_key "tasks", "events"
+  add_foreign_key "team_licenses", "people"
+  add_foreign_key "team_licenses", "teams"
   add_foreign_key "team_targets", "targets"
   add_foreign_key "team_targets", "teams"
   add_foreign_key "teams", "categories"

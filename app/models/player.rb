@@ -68,6 +68,15 @@ class Player < ApplicationRecord
 		self.person.female
 	end
 
+	# return if player has a license to compete with a team
+	def has_license?(team_id)
+		TeamLicense.find_by(team_id:, person_id: self.person_id, kind: :player)
+	end
+
+	def license
+		return false
+	end
+
 	# extended modified to acount for changed parents or avatar
 	def modified?
 		super || @attachment_changed || @parent_changed

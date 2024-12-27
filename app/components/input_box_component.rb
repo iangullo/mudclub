@@ -76,7 +76,7 @@ class InputBoxComponent < ApplicationComponent
 			kind_mappings = {
 				"image-box" => { class: "group flex relative w-75 h-100 overflow-hidden justify-center align-middle rounded border-gray-300 border-1" },
 				"number-box" => { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] },
-				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" },
+				"label-checkbox" => { class: "align-middle w-5 h-5 m-1 rounded bg-gray-200 text-blue-700" },
 				"radio-button" => { class: "m-1" },
 				"rich-text-area" => { class: "trix-content" },
 				"text-area" => {class: "text-base"},

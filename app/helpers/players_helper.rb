@@ -19,15 +19,18 @@
 module PlayersHelper
 	# return player part of FieldsComponent for Player forms
 	def player_form_fields
-		res = obj_club_selector(@player) + [
-			gap_field(size: 5),
-			{kind: "label", value: I18n.t("player.number")},
-			{kind: "number-box", key: :number, min: 0, max: 99, size: 3, value: @player.number},
-	 ]
-	 res << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
-	 res << {kind: "hidden", key: :team_id, value: @teamid} if @teamid
-	 [res]
- end
+		res = [
+			{kind: "label", value: I18n.t("player.number"), align: "right", class: "text-right font-semibold"},
+			{kind: "number-box", key: :number, min: 0, max: 99, size: 1, value: @player.number}
+		] + obj_club_selector(@player)
+		if @teamid
+			res << gap_field
+			res << {kind: "label-checkbox", key: :license, value: @player.has_license?(@teamid), align: "center"}
+		end
+		res << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
+		res << {kind: "hidden", key: :team_id, value: @teamid} if @teamid
+		[res]
+	end
 
  # nested form to add/edit player parents
 	def player_form_parents
@@ -52,9 +55,14 @@ module PlayersHelper
 			row[:items] << {kind: "normal", value: player.person&.age, align: "center"}
 			if manage
 				row[:items] << {kind: "contact", phone: player.person&.phone, device: device}
-				row[:items] << icon_field((player.all_pics? ? "Yes.svg" : "No.svg"), align: "center")
-				row[:items] << icon_field((player.active? ? "Yes.svg" : "No.svg"), align: "center")
-				row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s(style: 1), rdx: @rdx, confirm: true}) if team_manager?(team)
+				if team_manager?(team)
+					licenses = TeamLicense.where(team_id: team.id, kind: :player)
+					row[:items] << icon_field((licenses.find_by(person_id: player.person_id) ? "Yes.svg" : "No.svg"), align: "center")
+				else
+					row[:items] << icon_field((player.active? ? "Yes.svg" : "No.svg"), align: "center")
+				end
+				row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s(style: 1), rdx: @rdx, confirm: true})
+			else
 			end
 			rows << row
 		}
@@ -65,32 +73,7 @@ module PlayersHelper
 	def player_show_fields(team: nil)
 		res = person_show_fields(@player.person, title: I18n.t("player.single"), icon: @player.picture, cols: 3)
 		res[3][0] = obj_status_field(@player)
-=begin	# COmmentingn out - not a good layout as of now
-		if team
-			att = @player.attendance(team:)
-			res << [
-				icon_field("team.svg"),
-				{kind: "text", value: team.to_s}
-			]
-			res << [{kind: "icon-label", icon: "attendance.svg", label:  I18n.t("calendar.attendance"), cols: 3, align: "left"}]
-			res << [
-				{kind: "label", value: I18n.t("match.many"), align: "right"},
-				{kind: "text", value: att[:matches]}
-			]
-			res << [
-				{kind: "label", value: I18n.t("calendar.week"), align: "right"},
-				{kind: "text", value: att[:last7].to_s + "%"}
-			] if att[:last7]
-			res << [
-				{kind: "label", value: I18n.t("calendar.month"), align: "right"},
-				{kind: "text", value: att[:last30].to_s + "%"}
-			] if att[:last30]
-			res << [
-				{kind: "label", value: I18n.t("season.abbr"), align: "right"},
-				{kind: "text", value: att[:avg].to_s + "%"}
-			] if att[:avg]
-		end
-=end
+		res[4][0] = obj_license_field(team.id, @player.person_id, :player) if team
 		unless @player.person.age > 18 || @player.parents.empty?
 			res << [{kind: "label", value: "#{I18n.t("parent.many")}:", cols: 2}]
 			@player.parents.each { |parent|
@@ -114,8 +97,11 @@ module PlayersHelper
 			]
 			if manage
 				title << {kind: "normal", value: I18n.t("person.phone_a"), align: "center"}
-				title << {kind: "normal", value: I18n.t("person.pics"), align: "center"}
-				title << {kind: "normal", value: I18n.t("status.active_a"), align: "center"}
+				if team_manager?(team)
+					title << {kind: "normal", value: I18n.t("team.license"), align: "center"}
+				else
+					title << {kind: "normal", value: I18n.t("status.active_a"), align: "center"}
+				end
 				title << button_field({kind: "add", url: new_player_path(team_id: team&.id, rdx: @rdx), frame: "modal"})
 			end
 			return title

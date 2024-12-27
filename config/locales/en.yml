@@ -413,6 +413,8 @@ en:
     deleted: "Deleted team: "
     many: "Teams"
     edit: "Edit Team"
+    license: "License"
+    license_a: "Lic."
     new: "Create Team"
     single: "Team"
     home: "Homecourt:"

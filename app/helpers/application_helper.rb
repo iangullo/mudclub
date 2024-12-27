@@ -76,6 +76,16 @@ module ApplicationHelper
 		]
 	end
 
+	# field to use in views/forms for team players/coaches/delegates
+	def obj_license_field(team_id, person_id, kind, form = false)
+		lic = TeamLicense.find_by(team_id:, person_id:, kind:)
+		if form
+			{kind: "label-checkbox", label: I18n.t("team.license_a"), key: :license, value: lic.present?, align: "left"}
+		else
+			{kind: "icon-label", icon: (lic ? "Yes.svg" : "No.svg"), label: I18n.t("team.license_a"), align: "center", right: true}
+		end
+	end
+
 	# standardised generator of "active" label for user/player/coach
 	def obj_status_field(obj)
 		if obj&.active?

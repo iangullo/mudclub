@@ -413,6 +413,8 @@ es:
     deleted: "Equipo borrado: "
     many: "Equipos"
     edit: "Editar Equipo"
+    license: "Licencia"
+    license_a: "Lic."
     new: "Crear Equipo"
     single: "Equipo"
     home: "Local"

@@ -184,7 +184,7 @@ class ApplicationController < ActionController::Base
 
 	# return whether the current user is a club_manager
 	def team_manager?(team = @team)
-		team&.has_coach(u_coachid) || club_manager?(team&.club_id)
+		team && (team&.has_coach(u_coachid) || club_manager?(team&.club_id))
 	end
 
 	# wrappers to access user attributes

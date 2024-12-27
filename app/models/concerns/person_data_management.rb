@@ -185,6 +185,7 @@ module PersonDataManagement
 
 		# scrub data from object prior to destroying
 		def scrub_person(forget: nil)
+			self.licenses.delete_all
 			self.avatar.purge if self.try(:avatar)&.attached?
 			unless self.is_a?(Person)	# need to unlink
 				per = self.person
