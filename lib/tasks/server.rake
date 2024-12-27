@@ -31,7 +31,7 @@ namespace :server do
         pid     = File.read(pidfile).to_i
         Process.getpgid pid
         return "RUNNING (#{pid})"
-      rescue Errno::ESRCH
+      rescue
         return "STOPPED"
       end
     end
