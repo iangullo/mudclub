@@ -37,16 +37,13 @@
 /public/packs
 /public/packs-test
 /node_modules
-/yarn-error.log
+yarn-error.log
 yarn-debug.log*
 *.yarn-integrity
 *.lock
-yarn.lock
 .git-credentials
-Gemfile.lock
 .vscode/settings.json
 storage/.keep
 package-lock.json
 config/credentials.yml.enc
 config/secrets.yml
-package-lock.json
