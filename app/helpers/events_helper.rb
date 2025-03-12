@@ -470,7 +470,7 @@ module EventsHelper
 		def new_event_button(obj:, clubevent: nil)
 			if clubevent	# paste season event button
 				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, club_id: @clubid, team_id: 0, season_id: obj&.id}, rdx: @rdx), frame: "modal"}) if u_manager? && obj==Season.latest
-			elsif obj.class == Team && obj.has_coach(u_coachid) # new team event
+			elsif obj.class == Team && team_manager?(obj) # new team event
 				button = {kind: "add", name: "add-event", options: []}
 				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id}, rdx: @rdx), data: {turbo_frame: :modal}}
 				button[:options] << {label: I18n.t("match.single"), url: new_event_path(event: {kind: :match, team_id: obj.id}, rdx: @rdx), data: {turbo_frame: :modal}}

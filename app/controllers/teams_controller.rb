@@ -37,7 +37,7 @@ class TeamsController < ApplicationController
 				format.html do
 					title   = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
 					page    = paginate(@teams)	# paginate results
-					grid    = helpers.team_grid(teams: page, add_teams: u_manager?)
+					grid    = helpers.team_grid(teams: page, add_teams: club_manager?(@club))
 					zerolnk = @clubid ? club_path(@clubid, rdx: @rdx) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
 					retlnk  = base_lnk(zerolnk)
 					submit  = {kind: "export", url: club_teams_path(@clubid, format: :xlsx, season_id: @seasonid), working: false} if user_in_club? && (u_manager? || u_secretary?)
@@ -53,7 +53,7 @@ class TeamsController < ApplicationController
 	# GET /teams/1
 	# GET /teams/1.json
 	def show
-		if @team && user_in_club? && check_access(roles: [:coach, :manager, :secretary], obj: @team)
+		if @team && user_in_club? && check_access(roles: [:coach, :manager, :secretary])
 			@sport   = @team.sport.specific
 			title    = helpers.team_title_fields(title: @team.nick)
 			w_l = @team.win_loss
@@ -66,7 +66,7 @@ class TeamsController < ApplicationController
 			if u_manager? || u_coach?
 				@links = create_fields(helpers.team_links)
 				@grid  = create_fields(helpers.event_list_grid(obj: @team))
-				submit = edit_team_path(rdx: @rdx) if team_manager?
+				submit = edit_team_path(@team, rdx: @rdx) if team_manager?
 			else
 				start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
 				anchor     = {url: team_events_path(@team), rdx: @rdx}
@@ -107,9 +107,9 @@ class TeamsController < ApplicationController
 	# POST /teams
 	# POST /teams.json
 	def create
-		if u_manager?
+		@club = Club.find(@clubid)
+		if club_manager?(@club)
 			respond_to do |format|
-				@club = Club.find(@clubid)
 				@team = Team.build(team_params)
 				if @team.save
 					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
@@ -302,20 +302,20 @@ class TeamsController < ApplicationController
 		# wrapper to set return link for create && update operations
 		def cru_return
 			if param_passed(:team, :player_ids)	# roster view
-				return roster_team_path(rdx: @rdx)
+				return roster_team_path(@team, rdx: @rdx)
 			elsif param_passed(:team, :team_targets_attributes)	# targets or plan
 				first_target = team_params[:team_targets_attributes].to_h.first
 				if first_target
 					if first_target[1]["month"] == "0"	# global team targets
-						return targets_team_path(rdx: @rdx)
+						return targets_team_path(@team, rdx: @rdx)
 					else	# team monthly targets
-						return plan_team_path(rdx: @rdx)
+						return plan_team_path(@team, rdx: @rdx)
 					end
 				else	# base team view
-					return team_path(rdx: @rdx)
+					return team_path(@team, rdx: @rdx)
 				end
 			else	# team view also
-				team_path(rdx: @rdx)
+				team_path(@team, rdx: @rdx)
 			end
 		end
 

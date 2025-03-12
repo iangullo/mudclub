@@ -90,7 +90,7 @@ class EventsController < ApplicationController
 			@sport  = @event.team.sport&.specific
 			retlnk  = anchor_lnk
 			if @event
-				if @event.rest? || @event.team.has_coach(u_coachid)
+				if @event.rest? || team_manager?(@event.team)
 					prepare_event_form(new: true)
 				else
 					redirect_to(retlnk, data: {turbo_action: "replace"})
@@ -105,7 +105,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/edit
 	def edit
-		if @event && event_manager?
+		if event_manager?
 			prepare_event_form(new: false)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -141,7 +141,7 @@ class EventsController < ApplicationController
 
 	# PATCH/PUT /events/1 or /events/1.json
 	def update
-		if @event && event_manager?
+		if event_manager?
 			respond_to do |format|
 				e_data  = event_params
 				url     = event_path(@event, rdx: @rdx)
@@ -200,7 +200,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/attendance
 	def attendance
-		if @event && event_manager?
+		if event_manager?
 			@title  = create_fields(helpers.event_attendance_title)
 			@fields = create_fields(helpers.event_attendance_form_fields)
 			@submit = create_submit(retlnk: event_path(@event, rdx: @rdx))
@@ -228,7 +228,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/add_task
 	def add_task
-		if @event && event_manager?
+		if event_manager?
 			prepare_task_form("add", retlnk: edit_event_path(@event), search_in: add_task_event_path(@event))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -237,7 +237,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/edit_task
 	def edit_task
-		if @event && event_manager?
+		if event_manager?
 			prepare_task_form("edit", retlnk: edit_event_path(@event), search_in: edit_task_event_path(@event), task_id: true)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -269,7 +269,7 @@ class EventsController < ApplicationController
 	# GET /events/1/player_stats?player_id=X
 	def player_stats
 		@player = Player.real.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
-		if @event && (event_manager? || check_access(obj: @player))
+		if event_manager? || (@event && check_access(obj: @player))
 			unless @event.rest?	# not keeing stats for holidays ;)
 				if @event.has_player(@player&.id)	# we do have a player
 					@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
@@ -287,7 +287,7 @@ class EventsController < ApplicationController
 
 	# GET /events/1/edit_player_stats?player_id=X
 	def edit_player_stats
-		if @event && (event_manager? || check_access(obj: @player))
+		if event_manager? || (@event && check_access(obj: @player))
 			unless @event.rest?	# not keeing stats for holidays ;)
 				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
 				if @player&.id.to_i > 0	# we do have a player
@@ -374,7 +374,7 @@ class EventsController < ApplicationController
 
 		# wrapper to determine whether the user can modify the event.
 		def event_manager?
-			club_manager?(@event&.team&.club) || @event&.team&.has_coach(u_coachid)
+			@event && (club_manager?(@event&.team&.club) || @event&.team&.has_coach(u_coachid))
 		end
 
 		# pdf export of @event content
