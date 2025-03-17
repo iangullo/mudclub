@@ -39,7 +39,7 @@ module DrillsHelper
 
 	# returng FieldComponent to edit drill explanation
 	def drill_form_explain
-		[[{kind: "rich-text-area", key: :explanation, align: "left"}]]
+		[[{kind: "rich-text-area", key: :step_explanation, align: "left"}]]
 	end
 
 	# return title FieldComponent definition for edit/new
@@ -148,7 +148,7 @@ module DrillsHelper
 
 	# return title FieldComponent definition for drill show
 	def drill_show_explain
-		[[{kind: "action-text", value: @drill.explanation.body.to_s}]]
+		[[{kind: "action-text", value: @drill.step_explanation&.body&.to_s}]]
 	end
 
 	# return tail Field Component definition for drill show
