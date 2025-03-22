@@ -36,13 +36,13 @@ class Target < ApplicationRecord
 	}
 	self.inheritance_column = "not_sti"
 
-	enum aspect: {
+	enum :aspect, {
 		general: 0,
 		individual: 1,
 		collective: 2,
 		strategy: 3
 	}
-	enum focus: {
+	enum :focus, {
 		physical: 0,
 		offense: 1,
 		defense: 2

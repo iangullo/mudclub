@@ -24,7 +24,7 @@ class UserAction < ApplicationRecord
 	scope :latest, -> { order(updated_at: :desc).first(10) }
 	self.inheritance_column = "not_sti"
 
-	enum kind: {
+	enum :kind, {
 		enter: 0,
 		exit: 1,
 		created: 2,
