@@ -376,6 +376,10 @@ es:
     no_data: "Sin datos que guardar"
     no_file: "Cargar archivo..."
     saved: "guardado."
+  step:
+    single: "Paso"
+    many: "Pasos"
+    default: "<paso>" 
   target:
     single: "Objetivo"
     many: "Objetivos"
