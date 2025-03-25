@@ -29,6 +29,7 @@ gem "sprockets-rails"
 
 # Use PostgreSQL as the database for Active Record
 gem "pg"
+gem "pg_search", "~> 2.3"
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", "~> 6.0"
@@ -86,7 +87,7 @@ end
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
-  gem "webdrivers"
+#  gem "webdrivers"
 end
 
 #component & styling
@@ -106,18 +107,20 @@ gem 'phonelib'
 gem 'devise'
 gem 'devise-i18n'
 
+# Charts
 gem "chartkick", "~> 4.2"
 
+# Version control for Drills
 gem "paper_trail", "~> 14.0"
 
+# Handle reordering of lists
 gem "acts_as_list", "~> 1.1"
 
-gem "pg_search", "~> 2.3"
 
+# Paging of content in views
 gem "kaminari", "~> 1.2"
 
+# PDF generation
 gem "prawn", "~> 2.5"
-
 gem "prawn-html", "~> 0.7.1"
-
 gem "prawn-table", "~> 0.2.2"

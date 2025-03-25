@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -18,6 +18,8 @@
 #
 # Core shared controller methods
 class ApplicationController < ActionController::Base
+	# Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
+	allow_browser versions: :modern
 	before_action :set_context
 	around_action :switch_locale
 	# Make these methods available to views and helpers
