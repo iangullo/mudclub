@@ -1,8 +1,8 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the Affero GNU General Public License as published
+# it under the terms of the GNU Affero General Public License as published
 # by the Free Software Foundation, either version 3 of the License, or any
 # later version.
 #
@@ -86,7 +86,7 @@ module PeopleHelper
 	end
 
 	# return icon and top of FieldsComponent
-	def person_title_fields(title:, icon: "person.svg", rows: 2, cols: nil, size: "75x100", _class: "w-75 h-100 rounded align-top m-1", form: nil)
+	def person_title_fields(title:, icon: "person.svg", rows: 2, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
 		title_start(icon:, title:, rows:, cols:, size:, _class: _class, form:)
 	end
 

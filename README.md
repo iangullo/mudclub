@@ -6,7 +6,7 @@ A first attempt at an automated installer - working for Linux systems only at th
 
 DEPENDENCIES
 ==
-* Ruby v3 / Rails 7
+* Ruby v3 / Rails 8
 * PostgreSQL v13+ with unaccent extension.
 * Node.js v16+
 * Local storage of attachments & files.
