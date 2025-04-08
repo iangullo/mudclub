@@ -32,7 +32,7 @@
 class GridComponent < ApplicationComponent
 	attr_writer :form
 
-	def initialize(grid:, form: nil, controller: nil, align: "center")
+	def initialize(grid, form: nil, controller: nil, align: "center")
 		if controller	# add stimulus controller and data
 			@controller = controller
 			@data       = grid[:data].merge(action: "change->#{controller}#update")
@@ -91,10 +91,10 @@ class GridComponent < ApplicationComponent
 				when "gap"
 					item[:value] = "&nbsp;"
 				when "button"
-					item[:value] = ButtonComponent.new(button: item[:button])
+					item[:value] = ButtonComponent.new(**item[:button])
 					item[:class] = "bg-white"
 				when "dropdown"
-					item[:value] = DropdownComponent.new(button: item[:button])
+					item[:value] = DropdownComponent.new(item[:button])
 					item[:class] = "bg-white"
 				end
 				item[:align] = "left" unless item[:align]
@@ -118,7 +118,7 @@ class GridComponent < ApplicationComponent
 						item[:class] ||= "border px py"
 					when "button"
 						item[:class] ||= "bg-white" unless item[:button][:kind]==:location
-						item[:value]   = ButtonComponent.new(button: item[:button])
+						item[:value]   = ButtonComponent.new(**item[:button])
 					when "bottom"
 						item[:align] ||= "center"
 						item[:class]   = "text-indigo-900 font-semibold"
@@ -175,7 +175,7 @@ class GridComponent < ApplicationComponent
 				when "normal"
 					link_to(item[:value].to_s, url, data:)
 				when "number-box"
-					render(InputBoxComponent.new(field: item, form: @form))
+					render(InputBoxComponent.new(item, form: @form))
 				else
 					render(item[:value])
 				end

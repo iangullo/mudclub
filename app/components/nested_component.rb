@@ -37,8 +37,8 @@ class NestedComponent < ApplicationComponent
 		@row     = row
 		@filter  = n_filter(filter:)
 		@order   = order ? order.to_sym : nil
-		@btn_del = ButtonComponent.new(button: {kind: :remove})
-		@btn_add = ButtonComponent.new(button: btn_add) if btn_add
+		@btn_del = ButtonComponent.new(kind: :remove)
+		@btn_add = ButtonComponent.new(**btn_add) if btn_add
 	end
 
 	# filter collection of objects using filter hash

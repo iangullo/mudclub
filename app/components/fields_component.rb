@@ -48,7 +48,7 @@
 # => "time-box": :hour & :mins (field names)
 # => "title": :value (bold text of title in orange colour)
 class FieldsComponent < ApplicationComponent
-	def initialize(fields:, form: nil)
+	def initialize(fields, form: nil)
 		@fields = parse(fields)
 		@form   = form
 	end
@@ -83,19 +83,19 @@ class FieldsComponent < ApplicationComponent
 			row.each do |item|
 				case item[:kind]	# need to adapt to each fields "kind"
 				when "accordion"
-					item[:value] = AccordionComponent.new(accordion: item)
+					item[:value] = AccordionComponent.new(**item)
 				when "button"	# item[:button] has to contain the button definition
-					item[:value] = ButtonComponent.new(button: item[:button])
+					item[:value] = ButtonComponent.new(**item[:button])
 				when "contact"
 					set_contact(item)
 				when "dropdown"	# item[:button] has to contain the button definition
-					item[:value] = DropdownComponent.new(button: item[:button])
+					item[:value] = DropdownComponent.new(item[:button])
 				when "header-icon", "icon", "icon-label"
 					set_icon(item)
 				when "label-checkbox"
 					item[:class] ||= "align-middle"
 				when /^(search-.+)$/
-					item[:value] = SearchBoxComponent.new(search: item)
+					item[:value] = SearchBoxComponent.new(item)
 				when "nested-form"
 					item[:btn_add] ||= {kind: "add-nested"}
 				when "gap", "label", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
@@ -122,11 +122,11 @@ class FieldsComponent < ApplicationComponent
 			when /^(accordion|button|contact|dropdown|search-.+)$/
 				render field[:value]
 			when /^(select-.+|.+box|.+-area|hidden|radio.+|upload)$/
-				render InputBoxComponent.new(field:, form: @form)
+				render InputBoxComponent.new(field, form: @form)
 			when "gap"
 				("&nbsp;" * field[:size]).html_safe
 			when "grid"
-				render GridComponent.new(grid: field[:value], form: @form)
+				render GridComponent.new(field[:value], form: @form)
 			when "header-icon", "icon", "icon-label"
 				render_image_field(field)
 			when "lines"

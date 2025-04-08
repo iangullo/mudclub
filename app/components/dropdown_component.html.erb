@@ -28,7 +28,7 @@
 			<% if option[:options] %>
 				<% option[:id]  = "btn#{option[:name]}" %>
 				<% option[:sub] = true %>
-				<%= render DropdownComponent.new(button: option) %>
+				<%= render DropdownComponent.new(option) %>
 			<% else %>
 				<%= link_to option[:url], data: option[:data] do %>
 					<%= image_tag(option[:icon], size: option[:size] ? option[:size] : "25x25") if option[:icon] %><%= option[:label] if option[:label] %>

@@ -43,7 +43,7 @@ class InputBoxComponent < ApplicationComponent
 	DEFAULT_BOX_SIZE = { "image-box" => "50x50", "number-box" => 5, "time-box" => 5, "default" => 20 }
 	attr_writer :form, :session
 
-	def initialize(field:, form: nil, session: nil)
+	def initialize(field, form: nil, session: nil)
 		@i_class = DEF_INPUT_CLASS.dup
 		@form    = form	# set form, if passed
 		@session = session

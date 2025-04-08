@@ -17,8 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 # ButtonComponent - ViewComponent to manage regular buttons used in views
-# button is hash with following fields:
-# (kind: , max_h: 6, icon: nil, label: nil, url: nil, turbo: nil)
+# button is a mudsplat with following fields:
+# kind:, max_h: 6, icon: nil, label: nil, url: nil, turbo: nil
 # kinds of button:
 # => :action: perform a specific controller action
 # => :add: new item button
@@ -44,10 +44,10 @@
 # => :whatsapp: open whatsapp chat
 # frozen_string_literal: true
 class ButtonComponent < ApplicationComponent
-	def initialize(button:)
-		validate(button)
-		@button = button
-		parse(button)
+	def initialize(**attrs)
+		validate(attrs)
+		@button = attrs
+		parse_button
 	end
 
 	# generate html content
@@ -106,7 +106,7 @@ class ButtonComponent < ApplicationComponent
 	end
 
 	# determine class of item depending on kind
-	def parse(button)
+	def parse_button
 		set_icon
 		set_bclass
 		set_dclass
@@ -267,13 +267,13 @@ class ButtonComponent < ApplicationComponent
 		@button[:data]      = res unless res.empty?
 	end
 
-	# validate the button hash received is well defined
-	def validate(button)
+	# validate the button attributes received are well defined
+	def validate(attrs)
 		required_keys = [:kind] # Add other keys that are required
-		required_keys << :url if [:add, :back, :edit, :export, :delete, :forward, :jump, :link, :menu].include?(button[:kind])
+		required_keys << :url if [:add, :back, :edit, :export, :delete, :forward, :jump, :link, :menu].include?(attrs[:kind])
 		required_keys.each do |key|
-			unless button.key?(key)
-				raise ArgumentError, "Button hash is missing the required key: #{key}"
+			unless attrs.key?(key)
+				raise ArgumentError, "Button attributes are missing the required key: #{key}"
 			end	
 		end
 	end

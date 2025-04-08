@@ -27,7 +27,7 @@ class SubmitComponent < ApplicationComponent
 		when :cancel
 			cframe = frame
 		end
-		@close = ButtonComponent.new(button: {kind: close, label:, url: retlnk, frame: cframe}) if close
+		@close = ButtonComponent.new(kind: close, label:, url: retlnk, frame: cframe) if close
 		if submit.class == Hash
 			b_submit = submit
 		elsif submit == :save # save button
@@ -35,7 +35,7 @@ class SubmitComponent < ApplicationComponent
 		elsif submit # edit button with link in "submit"
 			b_submit = {kind: :edit, url: submit, frame:}
 		end
-		@submit = ButtonComponent.new(button: b_submit) if b_submit
+		@submit = ButtonComponent.new(**b_submit) if b_submit
 	end
 
 	def call	# render HTML

@@ -95,11 +95,11 @@ class TopbarComponent < ApplicationComponent
 			options << menu_link(label: I18n.t("server.about"), url: '/home/about', kind: "modal", class: @profcls)
 			res = menu_drop("profile", options:)
 			res.merge!({icon: user.picture, class: @profcls, i_class: "rounded", size: "30x30"})
-			DropdownComponent.new(button: res)
+			DropdownComponent.new(res)
 		else
 			res = {kind: :menu, label: I18n.t("action.login"), url: @profile[:login][:url], class: @profile[:closed][:class]}
 			res.merge!({icon: @profile[:closed][:icon], name: "profile", i_class: @logincls})
-			ButtonComponent.new(button: res)
+			ButtonComponent.new(**res)
 		end
 	end
 
@@ -141,7 +141,7 @@ class TopbarComponent < ApplicationComponent
 			content_tag(:div, class: "hidden sm:block sm:ml-6 flex space-x-4 text-base text-gray-300", aria_label: "Navigation buttons") do
 				@menu_tabs.map do |tab|
 					if tab[:options].present?
-						render(DropdownComponent.new(button: tab))
+						render(DropdownComponent.new(tab))
 					else
 						link_to(tab[:label], tab[:url], class: @tabcls, data: { turbo_frame: "_top", turbo_action: "replace" })
 					end
@@ -172,7 +172,7 @@ class TopbarComponent < ApplicationComponent
 			end
 			options << h_opt
 		end
-		DropdownComponent.new(button: menu_drop("hamburger", ham: true, options:))
+		DropdownComponent.new(menu_drop("hamburger", ham: true, options:))
 	end
 
 	# right hand profile menu
