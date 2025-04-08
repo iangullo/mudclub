@@ -16,7 +16,7 @@
 		<!-- App NavBar goes here -->
 		<%= render @topbar %>
 		<div class="mt-15 p-4">
-			<%= render FlashComponent.new(notice:) if notice %>
+			<%= render FlashComponent.new(notice) if notice %>
 			<!-- App content goes here -->
 			<main class="mb-auto h-auto overflow-y-auto">
 				<%= turbo_frame_tag "modal" %>

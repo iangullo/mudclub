@@ -218,7 +218,7 @@ module EventsHelper
 			item[:url]     = show_task_event_path(task_id: task.id, rdx: @rdx)
 			item[:turbo]   = "modal"
 			item[:head]    = task.headstring
-			item[:content] = FieldsComponent.new(fields: task_show_fields(task:, team: @event.team, title: nil))
+			item[:content] = FieldsComponent.new(task_show_fields(task:, team: @event.team, title: nil))
 			tasks << item
 		}
 		tasks
