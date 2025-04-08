@@ -173,7 +173,7 @@ class ApplicationController < ActionController::Base
 		@clublogo = club&.logo || "mudclub.svg"
 		@clubname = club&.nick || "MudClub"
 		@favicon  = user_favicon(club)
-		@topbar   = TopbarComponent.new(user:, logo: @clublogo, nick: @clubname, home: u_path, login: new_user_session_path, logout: destroy_user_session_path)
+		@topbar   = TopbarComponent.new(user:, logo: @clublogo, nick: @clubname, home: u_path, logout: destroy_user_session_path)
 	end
 
 	# switch app locale

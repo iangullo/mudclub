@@ -20,7 +20,7 @@
 
 # TopbarComponent - dynamic display of application top bar as ViewComponent
 class TopbarComponent < ApplicationComponent
-	def initialize(user:, logo:, nick:, home:, login:, logout:)
+	def initialize(user:, logo:, nick:, home:, logout:)
 		@clublogo  = logo
 		@clubname  = nick
 		@tabcls    = 'hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap rounded ml-2 px-2 py-2 rounded-md font-semibold'
@@ -28,7 +28,7 @@ class TopbarComponent < ApplicationComponent
 		@profcls   = 'align-middle rounded-full min-h-8 min-w-8 align-middle hover:bg-blue-700 hover:ring-4 hover:ring-blue-200 focus:ring-4 focus:ring-blue-200'
 		@logincls  = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
 		@u_logged  = user&.present?
-		load_menus(user:, home:, login:, logout:)
+		load_menus(user:, home:, logout:)
 	end
 
 	def call	# render HTML content
@@ -37,7 +37,7 @@ class TopbarComponent < ApplicationComponent
 				content_tag(:div, class: "relative flex items-center justify-between h-16") do
 					concat(render_mobile_menu)
 					concat(render_large_menu)
-					concat(render_profile_dropdown)
+					concat(render_profile_dropdown) if @prof_tab
 				end
 			end
 		end
@@ -45,9 +45,9 @@ class TopbarComponent < ApplicationComponent
 
 	private
 	# load menu buttons
-	def load_menus(user:, home:, login:, logout:)
+	def load_menus(user:, home:, logout:)
 		I18n.locale = (user&.locale || I18n.default_locale).to_sym
-		@profile    = set_profile(user:, home:, login:, logout:)
+		@profile    = set_profile(user:, home:, logout:)
 		if user.present?
 			@menu_tabs  = menu_tabs(user)
 			@ham_menu   = set_hamburger_menu
@@ -96,10 +96,6 @@ class TopbarComponent < ApplicationComponent
 			res = menu_drop("profile", options:)
 			res.merge!({icon: user.picture, class: @profcls, i_class: "rounded", size: "30x30"})
 			DropdownComponent.new(res)
-		else
-			res = {kind: :menu, label: I18n.t("action.login"), url: @profile[:login][:url], class: @profile[:closed][:class]}
-			res.merge!({icon: @profile[:closed][:icon], name: "profile", i_class: @logincls})
-			ButtonComponent.new(**res)
 		end
 	end
 
@@ -176,14 +172,11 @@ class TopbarComponent < ApplicationComponent
 	end
 
 	# right hand profile menu
-	def set_profile(user:, home:, login:, logout:)
+	def set_profile(user:, home:, logout:)
 		res  = {
 			profile: menu_link(label: I18n.t("user.profile"), url: home, kind: "modal"),
-			login: menu_link(label: I18n.t("action.login"), url: login),
-			logout: menu_link(label: I18n.t("action.logout"), url: logout, kind: "delete"),
-			closed: {icon: "login.svg", url: login, class: @logincls}
+			logout: menu_link(label: I18n.t("action.logout"), url: logout, kind: "delete")
 		}
-		res[:open] = {icon: user.picture, url: login, class: @logincls} if user.present?
 		res
 	end
 
@@ -218,17 +211,14 @@ class TopbarComponent < ApplicationComponent
 
 	# menu to manage server application
 	def server_menu(user)
-		menu_link(label: I18n.t("server.single"), url: '/home/server', kind: "nav")
-	end
-
-	# menu to manage sports
-	def sport_menu
-		options = []
-		Sport.all.each do |sport|
-			s_path = "/sports/#{sport.id}"
-			options << menu_link(label: sport.to_s, url: "#{s_path}")
-		end
-		menu_drop("sports", label: I18n.t("sport.many"), options:)
+		options = [
+			menu_link(label: I18n.t("season.many"), url: "/seasons"),
+			menu_link(label: I18n.t("sport.many"), url: "/sports"),
+			menu_link(label: I18n.t("club.many"), url: "/clubs"),
+			menu_link(label: I18n.t("user.many"), url: "/users"),
+			menu_link(label: I18n.t("server.log"), url: "/home/log")
+		]
+		menu_drop("server", label: I18n.t("server.single"), options:)
 	end
 
 	def team_menu(user)
