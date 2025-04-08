@@ -23,16 +23,7 @@ class UserAction < ApplicationRecord
 	scope :by_kind, -> (kind) { (kind and kind.to_i>0) ? where(kind: kind.to_i) : where("kind>1").order(updated_at: :desc) }
 	scope :latest, -> { order(updated_at: :desc).first(10) }
 	self.inheritance_column = "not_sti"
-
-	enum kind: {
-		enter: 0,
-		exit: 1,
-		created: 2,
-		updated: 3,
-		deleted: 4,
-		imported: 5,
-		exported: 6
-	}
+	enum :kind, %i(enter exit created updated deleted imported exported)
 
 	# return a standardised string for this user_action datetime
 	def date_time

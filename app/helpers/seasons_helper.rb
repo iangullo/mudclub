@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -37,14 +37,14 @@ module SeasonsHelper
 		title = [
 			{kind: "normal", value: I18n.t("season.single"), align: "center"},
 			{kind: "normal", value: I18n.t("team.many"), align: "center"},
-			button_field({kind: "add", url: new_season_path(rdx: @rdx), frame: "modal"})
+			button_field({kind: :add, url: new_season_path(rdx: @rdx), frame: "modal"})
 		]
 		rows = Array.new
 		seasons.each { |season|
 			row = {url: season_path(season, rdx: @rdx), items: [], frame: "modal"}
 			row[:items] << {kind: "normal", value: season.name, align: "center"}
 			row[:items] << {kind: "normal", value: season.teams.count, align: "center"} 
-			row[:items] << button_field({kind: "delete", url: row[:url], name: season.to_s})
+			row[:items] << button_field({kind: :delete, url: row[:url], name: season.to_s})
 			rows << row
 		}
 		{title:, rows:}

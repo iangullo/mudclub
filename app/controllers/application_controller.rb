@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -66,14 +66,14 @@ class ApplicationController < ActionController::Base
 		@grid   = create_grid(grid)
 		@page   = page
 		if (retlnk || submit)
-			@submit = create_submit(close: "back", retlnk:, submit:)
+			@submit = create_submit(close: :back, retlnk:, submit:)
 		else
-			@submit = create_submit(close: "close", submit: nil)
+			@submit = create_submit(close: :close, submit: nil)
 		end
 	end
 
 	# Create a submit component
-	def create_submit(close: "close", submit: "save", retlnk: nil, frame: nil)
+	def create_submit(close: :close, submit: :save, retlnk: nil, frame: nil)
 		SubmitComponent.new(close:, submit:, retlnk:, frame:)
 	end
 

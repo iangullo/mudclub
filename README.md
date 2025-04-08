@@ -6,7 +6,7 @@ A first attempt at an automated installer - working for Linux systems only at th
 
 DEPENDENCIES
 ==
-* Ruby v3 / Rails 7
+* Ruby v3 / Rails 8
 * PostgreSQL v13+ with unaccent extension.
 * Node.js v16+
 * Local storage of attachments & files.
@@ -18,7 +18,6 @@ LICENSE
 TODO
 ==
 * Improve management of statistics associated to events - excel export/import.
-* Some UI polishing.
-* Management dashboard for the server
+* Professional UI polishing.
 * Service redundancy: webserver, database & storage
 * Proper admin dashboard for the service - including backup/restore

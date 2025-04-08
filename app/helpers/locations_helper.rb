@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -42,7 +42,7 @@ module LocationsHelper
 			{kind: "normal", value: I18n.t("kind.single"), align: "center"},
 			{kind: "normal", value: I18n.t("location.abbr")}
 		]
-		title << button_field({kind: "add", url: new_location_path(club_id: @club&.id, rdx: @rdx), frame: "modal"}) if editor
+		title << button_field({kind: :add, url: new_location_path(club_id: @club&.id, rdx: @rdx), frame: "modal"}) if editor
 
 		rows = Array.new
 		locations.each { |loc|
@@ -51,11 +51,11 @@ module LocationsHelper
 			row[:items] << {kind: "normal", value: loc.name}
 			row[:items] << icon_field((loc.practice_court ? "training.svg" : "home.svg"), align: "center")
 			if loc.gmaps_url
-				row[:items] << button_field({kind: "location", icon: "gmaps.svg", align: "center", url: loc.gmaps_url}, align: "center")
+				row[:items] << button_field({kind: :location, icon: "gmaps.svg", align: "center", url: loc.gmaps_url}, align: "center")
 			else
 				row[:items] << {kind: "normal", value: ""}
 			end
-			row[:items] << button_field({kind: "delete", url:, name: loc.name}) if editor
+			row[:items] << button_field({kind: :delete, url:, name: loc.name}) if editor
 			rows << row
 		}
 		{title:, rows:}
@@ -74,7 +74,7 @@ module LocationsHelper
 	def location_show_fields
 		res = location_title_fields(title: @location.name)
 		if @location.gmaps_url.present?
-			res << [button_field({kind: "location", icon: "gmaps.svg", url: @location.gmaps_url, label: I18n.t("location.see")})]
+			res << [button_field({kind: :location, icon: "gmaps.svg", url: @location.gmaps_url, label: I18n.t("location.see")})]
 		else
 			res << [{kind: "text", value: I18n.t("location.none")}]
 		end

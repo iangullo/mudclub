@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -117,7 +117,7 @@ class GridComponent < ApplicationComponent
 					when "normal", "lines", "icon", "location", "text"
 						item[:class] ||= "border px py"
 					when "button"
-						item[:class] ||= "bg-white" unless item[:button][:kind]=="location"
+						item[:class] ||= "bg-white" unless item[:button][:kind]==:location
 						item[:value]   = ButtonComponent.new(button: item[:button])
 					when "bottom"
 						item[:align] ||= "center"

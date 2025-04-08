@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -96,7 +96,7 @@ module ApplicationHelper
 	# common button to export to PDF
 	def pdf_button(url)
 		button_field({
-				kind: "link",
+				kind: :link,
 				icon: "pdf.svg",
 				size: "20x20",
 				url:

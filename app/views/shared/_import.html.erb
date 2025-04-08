@@ -1,6 +1,6 @@
 <% if import_path %>
 	<% bfile   = FieldsComponent.new(fields: [[{kind: "upload", key: :file, label: I18n.t("action.select")}]]) %>
-	<% bimport = ButtonComponent.new(button: {kind: "import", working: false}) %>
+	<% bimport = ButtonComponent.new(button: {kind: :import, working: false}) %>
 	<div id="import" class="mt-3">
 		<%= form_with url: import_path, local: true do |form| %>
       <% bfile.form = form %>

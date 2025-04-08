@@ -44,7 +44,7 @@ class UsersController < ApplicationController
 			@title = create_fields(helpers.user_show_fields)
 			@role  = create_fields(helpers.user_role_fields(@user))
 			@grid  = create_grid(helpers.team_grid(teams: @user.team_list))
-			close  = (@rdx == 1 ? nil : "back")
+			close  = (@rdx == 1 ? nil : :back)
 			retlnk = base_lnk(users_path(rdx: @rdx))
 			submit  = edit_user_path(@user, rdx: @rdx) if u_admin? || @rdx == 1
 			@submit = create_submit(close:, retlnk:, submit:, frame: "modal")

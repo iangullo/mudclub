@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -23,14 +23,14 @@ module PeopleHelper
 				icon_field("user.svg"),
 				{kind: "text-box", key: :nick, size: 8, value: person&.nick, placeholder: I18n.t("person.nick")},
 				gap_field,
-				icon_field("phone.svg"),
+				icon_field("call.svg"),
 				{kind: "text-box", key: :phone, size: 12, value: person&.phone, placeholder: I18n.t("person.phone")}
 			],
 			[
 				icon_field("id_front.svg"),
 				{kind: "text-box", key: :dni, size: 8, value: person&.dni, placeholder: I18n.t("person.pid")},
 				gap_field,
-				icon_field("at.svg"),
+				icon_field("email.svg"),
 				{kind: "email-box", key: :email, value: person&.email, placeholder: I18n.t("person.email"), mandatory: mandatory_email ? {length: 7} : nil}
 			]
 		]
@@ -58,13 +58,13 @@ module PeopleHelper
 	# return title for @people GridComponent
 	def person_grid
 		title = [{kind: "normal", value: I18n.t("person.name")}]
-		title << button_field({kind: "add", url: new_person_path, frame: "modal"}) if u_admin?
+		title << button_field({kind: :add, url: new_person_path, frame: "modal"}) if u_admin?
 
 		rows = Array.new
 		@people.each { |person|
 			row = {url: person_path(person), frame: "modal", items: []}
 			row[:items] << {kind: "normal", value: person.to_s}
-			row[:items] << button_field({kind: "delete", url: row[:url], name: person.to_s}) if u_admin?
+			row[:items] << button_field({kind: :delete, url: row[:url], name: person.to_s}) if u_admin?
 			rows << row
 		}
 		{title: title, rows: rows}
@@ -86,7 +86,7 @@ module PeopleHelper
 	end
 
 	# return icon and top of FieldsComponent
-	def person_title_fields(title:, icon: "person.svg", rows: 2, cols: nil, size: "75x100", _class: "w-75 h-100 rounded align-top m-1", form: nil)
+	def person_title_fields(title:, icon: "person.svg", rows: 2, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
 		title_start(icon:, title:, rows:, cols:, size:, _class: _class, form:)
 	end
 

@@ -68,7 +68,7 @@ class CalendarComponent < ApplicationComponent
 			c_url += "&event[rdx]=#{@rdx}" if @rdx
 			cname  = "add_btn_#{i}_#{j}"
 			if clubevent # new Club event
-				return ButtonComponent.new(button: {kind: "add", name: cname, url: c_url + "&event[kind]=rest&event[team_id]=0", frame: "modal"})
+				return ButtonComponent.new(button: {kind: :add, name: cname, url: c_url + "&event[kind]=rest&event[team_id]=0", frame: "modal"})
 			elsif obj.try(:has_coach, @user.person.coach_id) # new team event
 				c_url  = c_url + "&event[team_id]=#{obj.id}"
 				button = {kind: "add", name: cname, options: []}
@@ -185,7 +185,7 @@ class CalendarComponent < ApplicationComponent
 				c_date = @cells[1][1][:date]
 				return nil if c_date <= @s_date	# we have reached beginning of season
 			end
-			ButtonComponent.new(button: {kind: "back", label: "", url: anchor_url(@start_date - 1.month)})
+			ButtonComponent.new(button: {kind: :back, label: "", url: anchor_url(@start_date - 1.month)})
 		end
 
 		# define the first valid calendar date for the parent object (team/Club)
@@ -205,6 +205,6 @@ class CalendarComponent < ApplicationComponent
 				c_date = @cells.last.last[:date]
 				return nil if c_date >= @e_date	# we have reached end of season
 			end
-			ButtonComponent.new(button: {kind: "forward", label: "", url: anchor_url(@start_date + 1.month)})
+			ButtonComponent.new(button: {kind: :forward, label: "", url: anchor_url(@start_date + 1.month)})
 		end
 end

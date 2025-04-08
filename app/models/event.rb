@@ -50,12 +50,7 @@ class Event < ApplicationRecord
 	scope :matches, -> { where("kind = 2").order(:start_time) }
 	scope :non_training, -> { where("kind=2 or (kind=0 and team_id=0)").order(:start_time) }
 	self.inheritance_column = "not_sti"
-
-	enum kind: {
-				 rest: 0,
-				 train: 1,
-				 match: 2,
-			 }
+	enum :kind, %i(rest train match)
 
 	def date_string
 		cad = self.start_time.year.to_s

@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -21,13 +21,13 @@ module SportsHelper
 	# sports page for admins
 	def sports_grid
 		title = [{kind: "normal", value: I18n.t("sport.single")}, {kind: "normal", value: I18n.t("team.many")}]
-		#title << button_field({kind: "add", url: new_sport(rdx: @rdx), frame: "modal"})
+		#title << button_field({kind: :add, url: new_sport(rdx: @rdx), frame: "modal"})
 		rows = Array.new
 		Sport.all.each { |sport|
 			row = {url: sport_path(sport, rdx: @rdx), items: []}
 			row[:items] << {kind: "normal", value: sport.to_s, align: "center"}
 			row[:items] << {kind: "normal", value: sport.teams.count, align: "center"}
-			#row[:items] << button_field({kind: "delete", url: row[:url], name: sport.to_s})
+			#row[:items] << button_field({kind: :delete, url: row[:url], name: sport.to_s})
 			rows << row
 		}
 		{title: title, rows: rows}
@@ -42,11 +42,11 @@ module SportsHelper
 			],
 			[{kind: "subtitle", value: @sport.to_s}],
 			[
-				button_field({kind: "jump", icon: "rules.svg", url: rules_sport_path(@sport, rdx: @rdx), label: I18n.t("sport.rules"), frame: "modal"}, align: "center"),
-				button_field({kind: "jump", icon: "category.svg", url: sport_categories_path(@sport, rdx: @rdx), label: I18n.t("category.many"), frame: "modal"}, align: "center")
+				button_field({kind: :jump, icon: "rules.svg", url: rules_sport_path(@sport, rdx: @rdx), label: I18n.t("sport.rules"), frame: "modal"}, align: "center"),
+				button_field({kind: :jump, icon: "category.svg", url: sport_categories_path(@sport, rdx: @rdx), label: I18n.t("category.many"), frame: "modal"}, align: "center")
 			],
 			[
-				button_field({kind: "jump", icon: "division.svg", url: sport_divisions_path(@sport, rdx: @rdx), label: I18n.t("division.many"), frame: "modal"}, align: "center")
+				button_field({kind: :jump, icon: "division.svg", url: sport_divisions_path(@sport, rdx: @rdx), label: I18n.t("division.many"), frame: "modal"}, align: "center")
 			]
 		]
 		res

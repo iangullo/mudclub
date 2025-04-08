@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -151,7 +151,7 @@ class ClubsController < ApplicationController
 		def get_retlnk
 			case @rdx&.to_i
 			when nil, 0; return club_path(u_clubid)
-			when 1; return u_path
+			when 1; return team_id ? team_path(team_id, rdx: @rdx) : u_path
 			when 2; return home_log_path
 			end
 		end

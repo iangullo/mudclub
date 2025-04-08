@@ -28,7 +28,7 @@ class User < ApplicationRecord
 	has_one_attached :avatar
 	has_many :user_actions, dependent: :destroy
 	scope :real, -> { where("id>0") }
-	enum role: [:user, :player, :coach, :manager, :admin, :secretary]
+	enum :role, %i(user player coach manager admin secretary)
 	after_initialize :set_default_role, :if => :new_record?
 	accepts_nested_attributes_for :person, update_only: true
 	self.inheritance_column = "not_sti"

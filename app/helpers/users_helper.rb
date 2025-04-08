@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -23,7 +23,7 @@ module UsersHelper
 		res[3][0] = obj_status_field(@user)
 		if current_user == @user	# only allow current user to change his own password
 			res[3] <<	button_field(
-				{kind: "link", icon: "key.svg", label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true},
+				{kind: :link, icon: "key.svg", label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true},
 				align: "right",
 				rows: 2
 			)
@@ -51,7 +51,7 @@ module UsersHelper
 		res << gap_field
 		unless @user.user_actions.empty?
 			res <<	button_field(
-				{kind: "link", icon: user_actions_icon, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal"},
+				{kind: :link, icon: user_actions_icon, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal"},
 			)
 		end
 		[res]
@@ -137,7 +137,7 @@ module UsersHelper
 			{kind: "normal", value: I18n.t("person.contact"), align: "center"},
 			{kind: "normal", value: I18n.t("user.last_in"), align: "center"}
 		]
-		title << button_field({kind: "add", url: new_user_path(rdx: @rdx), frame: "modal"}) if u_admin?
+		title << button_field({kind: :add, url: new_user_path(rdx: @rdx), frame: "modal"}) if u_admin?
 
 		rows = Array.new
 		@users.each { |user|
@@ -147,7 +147,7 @@ module UsersHelper
 			row[:items] += user_role_fields(user, grid: true)
 			row[:items] << {kind: "contact", phone: user.person.phone, email: user.person.email}
 			row[:items] << {kind: "normal", value: user.last_sign_in_at&.to_date, align: "center"}
-			row[:items] << button_field({kind: "delete", url: row[:url], name: user.s_name}) if u_admin? and user.id!=current_user.id
+			row[:items] << button_field({kind: :delete, url: row[:url], name: user.s_name}) if u_admin? and user.id!=current_user.id
 			rows << row
 		}
 		{title:, rows:}

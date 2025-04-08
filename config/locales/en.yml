@@ -52,6 +52,7 @@
 en:
   action:
     admin: "Manage"
+    back: "Return"
     backup: "Backup"
     cancel: "Cancel"
     change: "Change"
@@ -69,7 +70,6 @@ en:
     logout: "Log-out"
     previous: "<<"
     restore: "Recuperar"
-    return: "Return"
     save: "Save"
     search: "Search"
     select: "Select"

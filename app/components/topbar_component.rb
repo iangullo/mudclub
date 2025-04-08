@@ -97,7 +97,7 @@ class TopbarComponent < ApplicationComponent
 			res.merge!({icon: user.picture, class: @profcls, i_class: "rounded", size: "30x30"})
 			DropdownComponent.new(button: res)
 		else
-			res = {kind: "menu", label: I18n.t("action.login"), url: @profile[:login][:url], class: @profile[:closed][:class]}
+			res = {kind: :menu, label: I18n.t("action.login"), url: @profile[:login][:url], class: @profile[:closed][:class]}
 			res.merge!({icon: @profile[:closed][:icon], name: "profile", i_class: @logincls})
 			ButtonComponent.new(button: res)
 		end

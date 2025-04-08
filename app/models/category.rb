@@ -22,7 +22,7 @@ class Category < ApplicationRecord
 	has_many :teams
 	scope :real, -> { where("id>0").order(min_years: :desc) }
 	scope :for_sport, -> (sport_id) { (sport_id and sport_id.to_i>0) ? where(sport_id: sport_id.to_i).order(min_years: :desc) : where("sport_id>0").order(min_years: :desc) }
-	enum sex: { male: 'male', female: 'female', mixed: 'mixed' }
+	enum :sex, { male: 'male', female: 'female', mixed: 'mixed' }
 
 	def to_s
 		self.id==0 ? I18n.t("scope.none") : self.name

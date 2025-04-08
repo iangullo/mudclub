@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -28,7 +28,7 @@ module HomeHelper
 		res   = title_start(icon: "mudclub.svg", title: "MudClub #{VERSION}")
 		res << [{kind: "string", value: build, class: "text-sm text-gray-500"}]
 		res << [
-			button_field({kind: "link", label: I18n.t("server.about"), url: "https://github.com/iangullo/mudclub/wiki", tab: true}, cols: 2)
+			button_field({kind: :link, label: I18n.t("server.about"), url: "https://github.com/iangullo/mudclub/wiki", tab: true}, cols: 2)
 		]
 	end
 		# fields for "about MudClub.." view
@@ -57,13 +57,13 @@ module HomeHelper
 	def home_admin_fields(subtitle: I18n.t("action.admin"))
 		res = title_start(icon: "mudclub.svg", title: "MudClub", subtitle:, cols: 3)
 		res << [
-			button_field({kind: "jump", icon: "sport.svg", url: sports_path(rdx: 0), label: I18n.t("sport.many")}, align: "center"),
-			button_field({kind: "jump", icon: "calendar.svg", url: seasons_path(rdx: 0), label: I18n.t("season.many")}, align: "center"),
-			button_field({kind: "jump", icon: "rivals.svg", url: clubs_path(rdx: 0), label: I18n.t("club.many")}, align: "center"),
+			button_field({kind: :jump, icon: "sport.svg", url: sports_path(rdx: 0), label: I18n.t("sport.many")}, align: "center"),
+			button_field({kind: :jump, icon: "calendar.svg", url: seasons_path(rdx: 0), label: I18n.t("season.many")}, align: "center"),
+			button_field({kind: :jump, icon: "rivals.svg", url: clubs_path(rdx: 0), label: I18n.t("club.many")}, align: "center"),
 		]
 		res << [
-			button_field({kind: "jump", icon: "user.svg", url: users_path(rdx: 0), label: I18n.t("user.many")}, align: "center"),
-			button_field({kind: "jump", icon: "user_actions.svg", url: home_log_path(rdx: 0), label: I18n.t("user.actions")}, align: "center")
+			button_field({kind: :jump, icon: "user.svg", url: users_path(rdx: 0), label: I18n.t("user.many")}, align: "center"),
+			button_field({kind: :jump, icon: "user_actions.svg", url: home_log_path(rdx: 0), label: I18n.t("user.actions")}, align: "center")
 		]
 
 	end

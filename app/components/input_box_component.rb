@@ -82,7 +82,7 @@ class InputBoxComponent < ApplicationComponent
 				"text-area" => {class: "text-base"},
 				"text-box" => { class: "overflow-hidden overflow-ellipsis" },
 				"time-box" => { class: "text-right" },
-				"upload" => { class: "align-middle px py", i_class: "inline-flex items-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm whitespace-nowrap px-1 py-1 m-1 max-h-6 max-w-6 align-center" }
+				"upload" => { class: "align-middle px py", i_class: "inline-flex items-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm px-1 py m-1 justify-center" }
 			}
 			
 			mapping = kind_mappings[@fdata[:kind]]
