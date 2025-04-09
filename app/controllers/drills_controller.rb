@@ -171,7 +171,7 @@ class DrillsController < ApplicationController
 			pdf_label_text(label: I18n.t("drill.desc"), text: @drill.description) if @drill.description.present?
 			pdf_label_text(label: I18n.t("target.many"), text: @drill.print_targets(array: false))
 			pdf_separator_line
-			pdf_rich_text(@drill.step_explanation) if @drill&.step_explanation&.present?
+			pdf_rich_text(@drill.explanation) if @drill&.explanation&.present?
 			pdf_separator_line
 			pdf_label_text(label: I18n.t("skill.many"), text: @drill.print_skills)
 			pdf
@@ -193,7 +193,7 @@ class DrillsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_drill
-			@drill = Drill.includes(:skills,:targets,:steps).find_by_id(params[:id]) unless @drill&.id==params[:id]
+			@drill = Drill.includes(:skills,:targets).with_rich_text_explanation.find_by_id(params[:id]) unless @drill&.id==params[:id]
 		end
 
 		# Only allow a list of trusted parameters through.
@@ -203,7 +203,7 @@ class DrillsController < ApplicationController
 				:material,
 				:description,
 				:coach_id,
-				:step_explanation,
+				:explanation,
 				:playbook,
 				:kind_id,
 				:rdx,

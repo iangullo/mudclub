@@ -30,7 +30,6 @@ class Drill < ApplicationRecord
 	accepts_nested_attributes_for :drill_targets, reject_if: :all_blank, allow_destroy: true
 	has_one_attached :playbook
 	has_rich_text :explanation
-	has_many :steps, dependent: :destroy
 	pg_search_scope :search_by_name,
 		against: [:name, :description],
 		ignoring: :accents,
@@ -43,23 +42,12 @@ class Drill < ApplicationRecord
 	self.inheritance_column = "not_sti"
 	validates :name, presence: true
 	FILTER_PARAMS = %i[name kind_id season_id skill column direction].freeze
-
-	# temporary wrappers to access :explanation as Step 1 :explanation
-	def step_explanation(order=1)
-		steps.find_by(order:)&.explanation
-	end
-
-	def step_explanation=(value, order=1)
-		step = steps.find_or_initialize_by(order:)
-		step.explanation = value
-		step.save!
-	end
 	
 	# check if drill (or associations) has changed
 	def modified?
 		res = self.changed?
 		unless res
-			res = self.step_explanation.changed?
+			res = self.explanation.changed?
 			unless res
 				res = self.skills.any?(&:saved_changes?)
 				unless res
@@ -109,7 +97,7 @@ class Drill < ApplicationRecord
 		self.material    = f_data[:material]
 		self.coach_id    = f_data[:coach_id]
 		self.kind_id     = Kind.fetch(f_data[:kind_id]&.strip).id
-		self.step_explanation = f_data[:step_explanation]
+		self.explanation = f_data[:explanation]
 		self.playbook    = f_data[:playbook]
 		self.check_skills(f_data[:skills_attributes]) if f_data[:skills_attributes]
 		self.check_targets(f_data[:drill_targets_attributes]) if f_data[:drill_targets_attributes]

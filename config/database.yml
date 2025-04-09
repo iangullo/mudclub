@@ -33,8 +33,8 @@
 # gem "pg"
 #
 default: &default
-  host: <%= ENV.fetch('DB_HOST', 'localhost') %>
   adapter: postgresql
+  host: <%= ENV.fetch('DB_HOST', 'localhost') %>
   username: <%= ENV.fetch('DB_USERNAME','mudclub') %>
   password: <%= ENV.fetch('DB_PASSWORD', 'EtClausi') %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
@@ -54,7 +54,7 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: <%= ENV.fetch('DB_NAME', 'mudclub') %>
+    database: <%= ENV.fetch('DB_NAME', 'mudclub_production') %>
   cache:
     <<: *default
     database: mudclub_cache
