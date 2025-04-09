@@ -18,7 +18,7 @@
 #
 # Managament of MudClub server seasons
 class SeasonsController < ApplicationController
-	before_action :set_season, only: [:index, :show, :edit, :update, :destroy, :locations]
+	before_action :set_season, only: [:index, :show, :edit, :update, :destroy]
 
 	# GET /seasons
 	# GET /seasons.json

@@ -70,7 +70,8 @@ en:
     logout: "Log-out"
     previous: "<<"
     remember: "Remember"
-    restore: "Recuperar"
+    restore: "Restore"
+    return: "Return"
     save: "Save"
     search: "Search"
     select: "Select"
@@ -377,6 +378,10 @@ en:
     no_data: "No data to save"
     no_file: "Load file..."
     saved: "saved."
+  step:
+    single: "Step"
+    many: "Steps"
+    default: "<step>" 
   target:
     single: "Target"
     many: "Targets"

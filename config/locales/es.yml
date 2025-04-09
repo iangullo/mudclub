@@ -70,7 +70,8 @@ es:
     logout: "Salir"
     previous: "<<"
     remember: "Recordar"
-    restore: "Restore"
+    restore: "Recuperar"
+    return: "Volver"
     save: "Guardar"
     search: "Buscar"
     select: "Seleccionar"
@@ -377,6 +378,10 @@ es:
     no_data: "Sin datos que guardar"
     no_file: "Cargar archivo..."
     saved: "guardado."
+  step:
+    single: "Paso"
+    many: "Pasos"
+    default: "<paso>" 
   target:
     single: "Objetivo"
     many: "Objetivos"
