@@ -90,16 +90,16 @@ gem 'devise-i18n'
 # Show charts
 gem "chartkick", "~> 4.2"
 
-# track changes
+# Version control for Drills
 gem "paper_trail", "~> 14.0"
 
-# reordering of table views
+# Handle reordering of lists
 gem "acts_as_list", "~> 1.1"
 
-# pageing content
+# Paging of content in views
 gem "kaminari", "~> 1.2"
 
-# PDF exporting
+# PDF generation
 gem "prawn", "~> 2.5"
 gem "prawn-html", "~> 0.7.1"
 gem "prawn-table", "~> 0.2.2"
