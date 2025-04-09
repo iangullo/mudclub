@@ -93,7 +93,7 @@ class FieldsComponent < ApplicationComponent
 				when "header-icon", "icon", "icon-label"
 					set_icon(item)
 				when "label-checkbox"
-					item[:class] ||= "align-middle"
+					item[:class] ||= " align-middle rounded-md"
 				when /^(search-.+)$/
 					item[:value] = SearchBoxComponent.new(item)
 				when "nested-form"
