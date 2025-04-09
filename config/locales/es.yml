@@ -69,6 +69,7 @@ es:
     login: "Entrar"
     logout: "Salir"
     previous: "<<"
+    remember: "Recordar"
     restore: "Restore"
     save: "Guardar"
     search: "Buscar"
