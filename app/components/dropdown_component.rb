@@ -22,21 +22,10 @@
 #  They have an :options array with :url,:icon:label
 #  If :append is set, button with icon will be appended inline after a label.
 class DropdownComponent < ApplicationComponent
-	def initialize(button:)
+	def initialize(button)
 		@button = parse(button)
 	end
-=begin
-	def call
-		if @button[:append]
-			content_tag(:div, class: "inline-flex items-center") do
-				concat(@button[:label].to_s)
-				concat(render_button)
-			end
-		else
-			concat(render_button)
-		end
-	end
-=end
+
 	def render?
 		@button.present?
 	end
@@ -86,7 +75,7 @@ class DropdownComponent < ApplicationComponent
 							if option[:options]
 								option[:id] = "btn#{option[:name]}"
 								option[:sub] = true
-								render(DropdownComponent.new(button: option))
+								render(DropdownComponent.new(option))
 							else
 								link_to(option[:url], data: option[:data]) do
 									image_tag(option[:icon], size: option[:size] ? option[:size] : "25x25") if option[:icon]

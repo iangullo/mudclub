@@ -19,8 +19,8 @@
 # frozen_string_literal: true
 
 # AccordionComponent - ViewComponent to render an accordion of
-# content. Receives accordion: as starting point:
-# => accordion: a Hash with the follwing fields (at least)
+# content. Receives **attrs as starting point, containing (at
+# least):
 #			* title: (string of accordion title to print)
 #			* h_class: Tailwind class for accordion header row
 #			* i_class: Tailwind classes to use with each object header
@@ -37,10 +37,12 @@ class AccordionComponent < ApplicationComponent
 	I_CLASS = "flex justify-between items-center p-1 w-full bg-gray-100 text-left text-gray-700 rounded-md hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200"
 	O_CLASS = "py px-2 rounded-lg border-2 border-indigo-900 hidden"
 
-	def initialize(accordion:)
-		@accordion = accordion
-		i = 1
-		@accordion[:objects].each do |obj|
+	def initialize(**attrs)
+		@title = :title
+		@tail  = :tail
+		i      = 1
+		@objects = :objects
+		@objects.each do |obj|
 			obj[:head_id] = "accordion-collapse-heading-" + i.to_s
 			obj[:body_id] = "accordion-collapse-body-" + i.to_s
 			i = i +1
@@ -50,9 +52,9 @@ class AccordionComponent < ApplicationComponent
 	# render the component
 	def call
     content_tag(:div, id: "accordion-collapse", data: { accordion: "collapse" }) do
-			content_tag(:h2, @accordion[:title], class: H_CLASS) +
-			@accordion[:objects].map { |obj| accordion_object(obj) }.join.html_safe +
-			content_tag(:div, @accordion[:tail], class: T_CLASS) if @accordion[:tail].present?
+			content_tag(:h2, @title, class: H_CLASS) +
+			@objects.map { |obj| accordion_object(obj) }.join.html_safe +
+			content_tag(:div, @tail, class: T_CLASS) if @tail.present?
 		end
 	end
 

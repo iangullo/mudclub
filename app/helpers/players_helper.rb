@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -54,7 +54,7 @@ module PlayersHelper
 				row[:items] << {kind: "contact", phone: player.person&.phone, device: device}
 				row[:items] << icon_field((player.all_pics? ? "Yes.svg" : "No.svg"), align: "center")
 				row[:items] << icon_field((player.active? ? "Yes.svg" : "No.svg"), align: "center")
-				row[:items] << button_field({kind: "delete", url: row[:url], name: player.to_s(style: 1), rdx: @rdx, confirm: true}) if team_manager?(team)
+				row[:items] << button_field({kind: :delete, url: row[:url], name: player.to_s(style: 1), rdx: @rdx, confirm: true}) if team_manager?(team)
 			end
 			rows << row
 		}
@@ -116,7 +116,7 @@ module PlayersHelper
 				title << {kind: "normal", value: I18n.t("person.phone_a"), align: "center"}
 				title << {kind: "normal", value: I18n.t("person.pics"), align: "center"}
 				title << {kind: "normal", value: I18n.t("status.active_a"), align: "center"}
-				title << button_field({kind: "add", url: new_player_path(team_id: team&.id, rdx: @rdx), frame: "modal"})
+				title << button_field({kind: :add, url: new_player_path(team_id: team&.id, rdx: @rdx), frame: "modal"})
 			end
 			return title
 		end

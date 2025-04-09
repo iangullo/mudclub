@@ -101,7 +101,10 @@
 
 		<!-- Custom button to trigger file input -->
 		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" data-action="click->upload#selectFile" data-upload-target="button">
-			<%= image_tag(@fdata[:icon], size: "25x25") if @fdata[:icon] %>&nbsp;<%=@fdata[:label]%>
+			<% if @fdata[:icon] %>
+			<%= image_tag(@fdata[:icon], size: "25x25", class: "max-h-6 max-w-6") %>&nbsp;
+			<% end %>
+			<%=@fdata[:label]%>
 		</button>
 
 		<!-- Display selected file name -->

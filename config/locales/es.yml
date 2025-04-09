@@ -52,6 +52,7 @@
 es:
   action:
     admin: "Administrar"
+    back: "Volver"
     backup: "Backup"
     cancel: "Cancelar"
     change: "Cambiar"
@@ -68,6 +69,7 @@ es:
     login: "Entrar"
     logout: "Salir"
     previous: "<<"
+    remember: "Recordar"
     restore: "Recuperar"
     return: "Volver"
     save: "Guardar"

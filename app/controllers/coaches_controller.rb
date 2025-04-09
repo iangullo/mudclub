@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -38,7 +38,7 @@ class CoachesController < ApplicationController
 					title  = helpers.person_title_fields(title: I18n.t("coach.many"), icon: "coach.svg")
 					title << [{kind: "search-text", key: :search, value: search, url: club_coaches_path(@clubid, rdx: @rdx)}]
 					grid   = helpers.coach_grid(coaches: page)
-					submit = {kind: "export", url: club_coaches_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?
+					submit = {kind: :export, url: club_coaches_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?
 					create_index(title:, grid:, page:, retlnk: base_lnk(club_path(@clubid, rdx: @rdx)), submit:)
 					render :index
 				end
@@ -54,9 +54,9 @@ class CoachesController < ApplicationController
 		if @coach && (check_access(obj: @coach) || check_access(roles: [:manager, :secretary], obj: @coach.club, both: true))
 			@fields = create_fields(helpers.coach_show_fields)
 			@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
-			retlnk  = base_lnk(anchor_lnk)
+			retlnk  = anchor_lnk
 			submit  = edit_coach_path(@coach, club_id: @clubid, team_id: p_teamid, user: p_userid, rdx: @rdx) if (u_manager? || u_secretary? || u_coachid == @coach.id)
-			@submit = create_submit(close: "back", retlnk:, submit:, frame: "modal")
+			@submit = create_submit(close: :back, retlnk:, submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

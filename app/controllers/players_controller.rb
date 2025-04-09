@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -37,7 +37,7 @@ class PlayersController < ApplicationController
 					title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid, rdx: @rdx)}]
 					page   = paginate(@players)	# paginate results
 					grid   = helpers.player_grid(players: page)
-					submit = {kind: "export", url: club_players_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?
+					submit = {kind: :export, url: club_players_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?
 					retlnk = base_lnk(club_path(@clubid, rdx: @rdx))
 					create_index(title:, grid:, page:, retlnk:, submit:)
 					render :index
@@ -55,7 +55,7 @@ class PlayersController < ApplicationController
 			@fields = create_fields(helpers.player_show_fields(team: Team.find_by_id(@teamid)))
 			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
 			submit  = edit_player_path(@player, team_id: @teamid, rdx: @rdx)
-			@submit = create_submit(close: "back", retlnk: base_lnk(crud_return), submit:, frame: "modal")
+			@submit = create_submit(close: :back, retlnk: crud_return, submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

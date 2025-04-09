@@ -91,7 +91,7 @@ module DrillsHelper
 			#{kind: "normal", value: I18n.t("task.many")}
 		] unless device=="mobile"
 
-		title << button_field({kind: "add", url: new_drill_path(rdx: @rdx), frame: "_top"}) if u_manager? || u_coach?
+		title << button_field({kind: :add, url: new_drill_path(rdx: @rdx), frame: "_top"}) if u_manager? || u_coach?
 
 		{track:, title:, rows: drill_rows(drills:)}
 	end
@@ -115,7 +115,7 @@ module DrillsHelper
 		res = drill_title_fields(title: I18n.t("drill.single"), subtitle: @drill.name)
 		if @drill.playbook.attached?
 			res.first << button_field({
-				kind: "link",
+				kind: :link,
 				align: "right",
 				icon: "playbook.png",
 				size: "20x20",
@@ -163,7 +163,7 @@ module DrillsHelper
 			res.last << gap_field(rows: 2)
 			res.last << button_field(
 				{
-					kind: "link",
+					kind: :link,
 					icon: "drill_versions.svg",
 					label: I18n.t("version.many"),
 					url: versions_drill_path,
@@ -220,7 +220,7 @@ module DrillsHelper
 					row[:items] << {kind: "lines", value: drill.print_targets}
 				end
 				#row[:items] << {kind: "normal", value: Task.where(drill_id: drill.id).count, align: "center"}
-				row[:items] << button_field({kind: "delete", url: row[:url], name: drill.name}) if u_manager?
+				row[:items] << button_field({kind: :delete, url: row[:url], name: drill.name}) if u_manager?
 				rows << row
 			}
 			rows

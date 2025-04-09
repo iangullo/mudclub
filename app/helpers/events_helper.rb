@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -218,7 +218,7 @@ module EventsHelper
 			item[:url]     = show_task_event_path(task_id: task.id, rdx: @rdx)
 			item[:turbo]   = "modal"
 			item[:head]    = task.headstring
-			item[:content] = FieldsComponent.new(fields: task_show_fields(task:, team: @event.team, title: nil))
+			item[:content] = FieldsComponent.new(task_show_fields(task:, team: @event.team, title: nil))
 			tasks << item
 		}
 		tasks
@@ -313,14 +313,14 @@ module EventsHelper
 			calendurl = clubevent ? club_events_path(@clubid, season_id: @season&.id, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
 			toprow = [	#  top row above the grid
 				button_field(
-					{kind: "link", icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: calendurl},
+					{kind: :link, icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: calendurl},
 					class: "align-middle text-indigo-900"
 				)
 			]
 			toprow += [	# team events--> add a team_attendance button
 				gap_field,
 				button_field(
-					{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(@team, rdx: @rdx), align: "right", frame: "modal"},
+					{kind: :link, icon: "attendance.svg", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(@team, rdx: @rdx), align: "right", frame: "modal"},
 					class: "align-middle text-indigo-900"
 				)
 			] unless clubevent
@@ -339,7 +339,7 @@ module EventsHelper
 						n_row = event.match? ? {kind: "normal", value: row_f.to_s, cols: 1} : {kind: "normal", value: event.to_s, cols: 4}
 						row[:items] << n_row
 					end
-					row[:items] << button_field({kind: "delete", url: row[:url], name: event.to_s}) if u_manager? or (event.team_id>0 and event.team.has_coach(u_coachid))
+					row[:items] << button_field({kind: :delete, url: row[:url], name: event.to_s}) if u_manager? or (event.team_id>0 and event.team.has_coach(u_coachid))
 					rows << row
 				end
 			end
@@ -395,14 +395,14 @@ module EventsHelper
 				]
 			else
 				if @event.location.gmaps_url
-					res.last << button_field({kind: "location", icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}, cols: 2)
+					res.last << button_field({kind: :location, icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}, cols: 2)
 				end
 				if u_manager? || @event.team.has_coach(u_coachid)
 					res <<[
 						gap_field(size: 1),
 						{kind: "side-cell", value: I18n.t("match.single"), align: "left", cols: 2},
 						button_field(
-							{kind: "link", icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
+							{kind: :link, icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
@@ -436,7 +436,7 @@ module EventsHelper
 					res << [
 						gap_field(size:1, cols: 6),
 						button_field(
-							{kind: "link", icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
+							{kind: :link, icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
@@ -469,7 +469,7 @@ module EventsHelper
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, clubevent: nil)
 			if clubevent	# paste season event button
-				return button_field({kind: "add", url: new_event_path(event: {kind: :rest, club_id: @clubid, team_id: 0, season_id: obj&.id}, rdx: @rdx), frame: "modal"}) if u_manager? && obj==Season.latest
+				return button_field({kind: :add, url: new_event_path(event: {kind: :rest, club_id: @clubid, team_id: 0, season_id: obj&.id}, rdx: @rdx), frame: "modal"}) if u_manager? && obj==Season.latest
 			elsif obj.class == Team && team_manager?(obj) # new team event
 				button = {kind: "add", name: "add-event", options: []}
 				button[:options] << {label: I18n.t("train.single"), url: new_event_path(event: {kind: :train, team_id: obj.id}, rdx: @rdx), data: {turbo_frame: :modal}}

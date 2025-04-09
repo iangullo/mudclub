@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -31,8 +31,8 @@ class SlotsController < ApplicationController
 			title     << helpers.slot_search_bar(u_manager? || u_secretary?)
 			@fields    = create_fields(title)
 			week_view if @location
-			@btn_add   = create_button({kind: "add", url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @seasonid, rdx: @rdx), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
-			@submit    = create_submit(close: "back", submit: nil, retlnk: club_path(@club, rdx: @rdx))
+			@btn_add   = create_button({kind: :add, url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @seasonid, rdx: @rdx), frame: "modal"}) if (u_manager? && !(@season.teams.empty?))
+			@submit    = create_submit(close: :back, submit: nil, retlnk: club_path(@club, rdx: @rdx))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

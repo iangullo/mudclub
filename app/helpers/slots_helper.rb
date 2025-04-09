@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -74,7 +74,7 @@ module SlotsHelper
 			[icon_field("calendar.svg"), string_field(@slot.to_s, cols: 2)]
 		]
 		if u_manager?
-			res << [gap_field(cols: 2), button_field({kind: "delete", url: slot_path(@slot, rdx: @rdx), name: @slot.to_s}, align: "right")]
+			res << [gap_field(cols: 2), button_field({kind: :delete, url: slot_path(@slot, rdx: @rdx), name: @slot.to_s}, align: "right")]
 		end
 		res
 	end

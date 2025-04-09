@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -54,7 +54,7 @@ class HomeController < ApplicationController
 				actions = UserAction.where(user_id: u_club.users.pluck(:id)).order(updated_at: :desc)
 			end
 			title = helpers.home_admin_title(icon: "user_actions.svg", title: I18n.t("server.log"))
-			title.last << helpers.button_field({kind: "clear", url: home_clear_path}) unless actions.empty?
+			title.last << helpers.button_field({kind: :clear, url: home_clear_path}) unless actions.empty?
 			page  = paginate(actions)	# paginate results
 			grid  = helpers.home_actions_grid(actions: page)
 			create_index(title:, grid:, page:, retlnk: "/")

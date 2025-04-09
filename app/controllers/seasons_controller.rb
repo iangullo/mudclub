@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -38,7 +38,7 @@ class SeasonsController < ApplicationController
 	def show
 		if @season && check_access(roles: [:admin])
 			@fields = create_fields(helpers.season_fields)
-			@submit = create_submit(close: "back", retlnk: base_lnk(seasons_path(rdx: @rdx)), submit: edit_season_path(rdx: @rdx), frame: "modal")
+			@submit = create_submit(close: :back, retlnk: base_lnk(seasons_path(rdx: @rdx)), submit: edit_season_path(rdx: @rdx), frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

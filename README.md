@@ -18,7 +18,6 @@ LICENSE
 TODO
 ==
 * Improve management of statistics associated to events - excel export/import.
-* Some UI polishing.
-* Management dashboard for the server
+* Professional UI polishing.
 * Service redundancy: webserver, database & storage
 * Proper admin dashboard for the service - including backup/restore

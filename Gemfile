@@ -17,13 +17,14 @@
 # contact email - iangullo@gmail.com.
 #
 source "https://rubygems.org"
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.2"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use PostgreSQL as the database for Active Record
-gem "pg", "~> 1.5"
+gem "pg"
 gem "pg_search", "~> 2.3"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", "~> 6.0"
@@ -44,20 +45,11 @@ gem "jbuilder"
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
-# Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
-gem "solid_cache"
-gem "solid_queue"
-gem "solid_cable"
-
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem "thruster", require: false
-
-# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-gem "image_processing", "~> 1.2"
-gem "ruby-vips"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -75,13 +67,11 @@ group :development do
   gem "web-console"
 end
 
-group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
-  gem "capybara"
-  gem "selenium-webdriver"
-end
+# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
+gem "image_processing", "~> 1.2"
+gem "ruby-vips"
 
-#component & styling
+# component & styling
 gem "view_component"
 
 # Added to import/export XLS files
@@ -97,14 +87,14 @@ gem 'phonelib'
 gem 'devise'
 gem 'devise-i18n'
 
-# Charts
-gem "chartkick"
+# Show charts
+gem "chartkick", "~> 4.2"
 
 # Version control for Drills
-gem "paper_trail"
+gem "paper_trail", "~> 14.0"
 
 # Handle reordering of lists
-gem "acts_as_list"
+gem "acts_as_list", "~> 1.1"
 
 # Paging of content in views
 gem "kaminari", "~> 1.2"

@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1">
 		<%= csrf_meta_tags %>
 		<%= csp_meta_tag %>
-		<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
 		<%= stylesheet_link_tag "application", media: "all", "data-turbo-track": "reload" %>
 		<%= javascript_importmap_tags %>
 		<link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
@@ -16,7 +16,7 @@
 		<!-- App NavBar goes here -->
 		<%= render @topbar %>
 		<div class="mt-15 p-4">
-			<%= render FlashComponent.new(notice:) if notice %>
+			<%= render FlashComponent.new(notice) if notice %>
 			<!-- App content goes here -->
 			<main class="mb-auto h-auto overflow-y-auto">
 				<%= turbo_frame_tag "modal" %>

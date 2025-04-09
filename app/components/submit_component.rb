@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -20,24 +20,22 @@
 
 # SubmitComponent - ViewComponent to standardise form submissions/cancellations
 class SubmitComponent < ApplicationComponent
-	def initialize(close: "close", submit: nil, retlnk: nil, frame: nil)
+	def initialize(close: :close, submit: nil, retlnk: nil, frame: nil)
 		case close
-		when "close"
-			b_close = {kind: "close", label: (submit=="save" ? I18n.t("action.cancel"): I18n.t("action.close")), url: retlnk}
-		when "cancel"
-			b_close = {kind: "cancel", label: I18n.t("action.cancel"), url: retlnk, frame:}
-		when "back"
-			b_close = {kind: "back", label: I18n.t("action.return"), url: retlnk}
+		when :close
+			label  = (submit == :save ? I18n.t("action.cancel"): I18n.t("action.close"))
+		when :cancel
+			cframe = frame
 		end
-		@close = ButtonComponent.new(button: b_close) if b_close
-		if submit.class==Hash
+		@close = ButtonComponent.new(kind: close, label:, url: retlnk, frame: cframe) if close
+		if submit.class == Hash
 			b_submit = submit
-		elsif submit == "save" # save button
-			b_submit = {kind: "save", label: I18n.t("action.save")}
+		elsif submit == :save # save button
+			b_submit = {kind: :save}
 		elsif submit # edit button with link in "submit"
-			b_submit = {kind: "edit", label: I18n.t("action.edit"), url: submit, frame:}
+			b_submit = {kind: :edit, url: submit, frame:}
 		end
-		@submit = ButtonComponent.new(button: b_submit) if b_submit
+		@submit = ButtonComponent.new(**b_submit) if b_submit
 	end
 
 	def call	# render HTML

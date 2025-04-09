@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -20,7 +20,7 @@
 class EventsController < ApplicationController
 	include Filterable
 	include PdfGenerator
-	before_action :set_event, only: %i[ show edit add_task show_task edit_task task_drill player_stats edit_player_stats load_chart attendance copy update destroy ]
+	before_action :set_event, only: %i[ show edit add_task show_task edit_task player_stats edit_player_stats load_chart attendance copy update destroy ]
 
 	# GET /events or /events.json
 	def index
@@ -35,7 +35,7 @@ class EventsController < ApplicationController
 			@title     = create_fields(helpers.event_index_title(team:, season:))
 			@calendar  = CalendarComponent.new(anchor:, obj: (team || club), start_date:, user: current_user, create_url: new_event_path)
 			zerolnk    = (team ? team_path(team, rdx: @rdx) : club_path(@clubid, season_id: season&.id, rdx: @rdx))
-			@submit    = create_submit(close: "back", submit: nil, retlnk: base_lnk(zerolnk))
+			@submit    = create_submit(close: :back, submit: nil, retlnk: base_lnk(zerolnk))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -72,7 +72,7 @@ class EventsController < ApplicationController
 							@fields  = create_fields(helpers.training_show_fields)
 						end
 						submit  = edit_event_path(season_id: @seasonid, rdx: @rdx, cal: @cal) if editor
-						@submit = create_submit(close: "back", retlnk: base_lnk(anchor_lnk), submit:)
+						@submit = create_submit(close: :back, retlnk: base_lnk(anchor_lnk), submit:)
 					end
 				end
 			end
@@ -250,7 +250,7 @@ class EventsController < ApplicationController
 			@task   = Task.find(params[:task_id])
 			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
 			submit  = edit_task_event_path(task_id: @task.id) if event_manager?
-			@submit = create_submit(close: "back", retlnk: :back, submit:)
+			@submit = create_submit(close: :back, retlnk: :back, submit:)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -484,10 +484,10 @@ class EventsController < ApplicationController
 				unless @event.rest?
 					r_lnk = event_path(@event, rdx: @rdx, cal: @cal)
 					if @event.train?
-						@btn_add = create_button({kind: "add", label: I18n.t("task.add"), url: add_task_event_path(rdx: @rdx)}) if (u_manager? || @event.team.has_coach(u_coachid))
+						@btn_add = create_button({kind: :add, label: I18n.t("task.add"), url: add_task_event_path(rdx: @rdx)}) if (u_manager? || @event.team.has_coach(u_coachid))
 						@drills  = @event.drill_list
 					end
-					@submit = create_submit(close: "back", retlnk: r_lnk)
+					@submit = create_submit(close: :back, retlnk: r_lnk)
 				end
 			end
 			@submit ||= create_submit(retlnk: @retlnk)

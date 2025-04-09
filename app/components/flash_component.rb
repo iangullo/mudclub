@@ -20,7 +20,7 @@
 
 # FlashComponent - manage flash notifications
 class FlashComponent < ApplicationComponent
-	def initialize(notice:)
+	def initialize(notice)
 		@count  = @count ? @count + 1 : 1
 		@notice = notice.class==String ? notice : notice["message"]
 		@kind   = notice.class==String ? "info" : notice["kind"]

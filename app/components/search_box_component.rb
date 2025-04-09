@@ -38,7 +38,7 @@ class SearchBoxComponent < ApplicationComponent
 	L_CLASS = "absolute text-md font-semibold text-gray-700 duration-300 transform -translate-y-4 scale-75 top-2 origin-[0] bg-transparent px-0 peer-focus:px-0 peer-focus:text-blue-700 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-0"
 	S_CLASS = "inline-flex align-middle hover:bg-gray-300 rounded-md"
 
-	def initialize(search:)
+	def initialize(search)
 		labels    = false
 		@s_url    = search[:url]
 		@s_filter = search[:filter].presence

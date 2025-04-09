@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -40,7 +40,7 @@ class TeamsController < ApplicationController
 					grid    = helpers.team_grid(teams: page, add_teams: club_manager?(@club))
 					zerolnk = @clubid ? club_path(@clubid, rdx: @rdx) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
 					retlnk  = base_lnk(zerolnk)
-					submit  = {kind: "export", url: club_teams_path(@clubid, format: :xlsx, season_id: @seasonid), working: false} if user_in_club? && (u_manager? || u_secretary?)
+					submit  = {kind: :export, url: club_teams_path(@clubid, format: :xlsx, season_id: @seasonid), working: false} if user_in_club? && (u_manager? || u_secretary?)
 					create_index(title:, grid:, page:, retlnk:, submit:)
 					render :index
 				end
@@ -74,7 +74,7 @@ class TeamsController < ApplicationController
 				submit     = nil
 			end
 			zerolnk = club_teams_path(club_id: @clubid, season_id: @seasonid, rdx: @rdx)
-			@submit = create_submit(close: "back", retlnk: base_lnk(zerolnk), submit:, frame: (submit ? "modal" : nil))
+			@submit = create_submit(close: :back, retlnk: base_lnk(zerolnk), submit:, frame: (submit ? "modal" : nil))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -194,7 +194,7 @@ class TeamsController < ApplicationController
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.player_grid(team: @team, players: players.order(:number)))
 			submit  = edit_roster_team_path(rdx: @rdx) if team_manager?
-			@submit = create_submit(close: "back", retlnk: team_path(rdx: @rdx), submit:)
+			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit:)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -206,7 +206,7 @@ class TeamsController < ApplicationController
 			title = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster_edit"), align: "left"}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "cancel", retlnk: roster_team_path(rdx: @rdx))
+			@submit = create_submit(close: :cancel, retlnk: roster_team_path(rdx: @rdx))
 			@eligible_players = @team.eligible_players
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -232,7 +232,7 @@ class TeamsController < ApplicationController
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.many"), align: "left"}]
 			@title  = create_fields(title)
 			edit    = edit_targets_team_path(rdx: @rdx) if team_manager?
-			@submit = create_submit(close: "back", retlnk: team_path(rdx: @rdx), submit: edit)
+			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -247,7 +247,7 @@ class TeamsController < ApplicationController
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.edit"), align: "left"}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "cancel", retlnk: targets_team_path(rdx: @rdx))
+			@submit = create_submit(close: :cancel, retlnk: targets_team_path(rdx: @rdx))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -261,7 +261,7 @@ class TeamsController < ApplicationController
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.single"), align: "left"}]
 			@title = create_fields(title)
 			edit    = edit_plan_team_path(rdx: @rdx) if team_manager?
-			@submit = create_submit(close: "back", retlnk: team_path(rdx: @rdx), submit: edit)
+			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end
@@ -275,7 +275,7 @@ class TeamsController < ApplicationController
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.edit"), align: "left"}]
 			@title  = create_fields(title)
-			@submit = create_submit(close: "cancel", retlnk: plan_team_path(rdx: @rdx))
+			@submit = create_submit(close: :cancel, retlnk: plan_team_path(rdx: @rdx))
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

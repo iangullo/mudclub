@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -41,7 +41,7 @@ module CategoriesHelper
 
 	# return FieldsComponent @title for forms
 	def category_form_fields(title:)
-		@submit = SubmitComponent.new(submit: "save")
+		@submit = SubmitComponent.new(submit: :save)
 		res     = category_title_fields(title:, rows: 3, cols: 5)
 		res << [
 			{kind: "text-box", key: :age_group, value: @category.age_group, placeholder: I18n.t("category.single"), size: 10, cols: 3, mandatory: {length: 3}},
@@ -69,7 +69,7 @@ module CategoriesHelper
 			{kind: "normal", value: I18n.t("stat.min")},
 			{kind: "normal", value: I18n.t("stat.max")}
 		]
-		title <<  button_field({kind: "add", url: new_sport_category_path(@sport, rdx: @rdx), frame: "modal"}) if u_admin?
+		title <<  button_field({kind: :add, url: new_sport_category_path(@sport, rdx: @rdx), frame: "modal"}) if u_admin?
 
 		rows = Array.new
 		@categories.each { |cat|
@@ -78,13 +78,9 @@ module CategoriesHelper
 			row[:items] << {kind: "normal", value: I18n.t("sex.#{cat.sex}_a")}
 			row[:items] << {kind: "normal", value: cat.min_years, align: "right"}
 			row[:items] << {kind: "normal", value: cat.max_years, align: "right"}
-			row[:items] << button_field({kind: "delete", url: sport_category_path(@sport, cat, rdx: @rdx), name: cat.name}) if u_admin?
+			row[:items] << button_field({kind: :delete, url: sport_category_path(@sport, cat, rdx: @rdx), name: cat.name}) if u_admin?
 			rows << row
 		}
 		{title: title, rows: rows}
-	end
-
-	def category_return
-
 	end
 end

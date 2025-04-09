@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -36,7 +36,7 @@ module CoachesHelper
 		if editor
 			title << {kind: "normal", value: I18n.t("person.pics"), align: "center"}
 			title << {kind: "normal", value: I18n.t("status.active_a")}
-			title << button_field({kind: "add", url: new_coach_path(club_id: @clubid, rdx: @rdx), frame: "modal"})
+			title << button_field({kind: :add, url: new_coach_path(club_id: @clubid, rdx: @rdx), frame: "modal"})
 		end
 
 		rows = Array.new
@@ -47,7 +47,7 @@ module CoachesHelper
 			if editor
 				row[:items] << icon_field(coach.all_pics? ? "Yes.svg" : "No.svg", align: "center") 
 				row[:items] << icon_field(coach.active? ? "Yes.svg" : "No.svg", align: "center")
-				row[:items] << button_field({kind: "delete", url: row[:url], name: coach.to_s})
+				row[:items] << button_field({kind: :delete, url: row[:url], name: coach.to_s})
 			end
 			rows << row
 		}

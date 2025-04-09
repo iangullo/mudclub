@@ -35,18 +35,8 @@ class Target < ApplicationRecord
 		.distinct
 	}
 	self.inheritance_column = "not_sti"
-
-	enum :aspect, {
-		general: 0,
-		individual: 1,
-		collective: 2,
-		strategy: 3
-	}
-	enum :focus, {
-		physical: 0,
-		offense: 1,
-		defense: 2
-	}
+	enum :aspect, %i(general individual collective strategy)
+	enum :focus, %i(physical offense defense)
 
 	# return array of aspect strings & values for select boxes
 	def self.aspects

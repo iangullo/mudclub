@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -22,6 +22,6 @@
 include Turbo::FramesHelper
 class ModalComponent < ApplicationComponent
 	def initialize(simple: nil)
-		@close = ButtonComponent.new(button: {kind: "close", label: I18n.t("action.close")}) if simple
+		@close = ButtonComponent.new(kind: :close, label: I18n.t("action.close")) if simple
 	end
 end

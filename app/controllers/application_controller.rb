@@ -48,17 +48,17 @@ class ApplicationController < ActionController::Base
 
 	# return a ButtonComponent object from a definition hash
 	def create_button(button)
-		button ? ButtonComponent.new(button:) : nil
+		button ? ButtonComponent.new(**button) : nil
 	end
 
 	# return FieldsComponent object from a fields array
 	def create_fields(fields)
-		fields ? FieldsComponent.new(fields:) : nil
+		fields ? FieldsComponent.new(fields) : nil
 	end
 
 	# return GridComponent object from a grid hash
 	def create_grid(grid, controller: nil, align: nil)
-		grid ? GridComponent.new(grid:, controller:, align:) : nil
+		grid ? GridComponent.new(grid, controller:, align:) : nil
 	end
 
 	# prepare typical controller index page variables
@@ -68,14 +68,14 @@ class ApplicationController < ActionController::Base
 		@grid   = create_grid(grid)
 		@page   = page
 		if (retlnk || submit)
-			@submit = create_submit(close: "back", retlnk:, submit:)
+			@submit = create_submit(close: :back, retlnk:, submit:)
 		else
-			@submit = create_submit(close: "close", submit: nil)
+			@submit = create_submit(close: :close, submit: nil)
 		end
 	end
 
 	# Create a submit component
-	def create_submit(close: "close", submit: "save", retlnk: nil, frame: nil)
+	def create_submit(close: :close, submit: :save, retlnk: nil, frame: nil)
 		SubmitComponent.new(close:, submit:, retlnk:, frame:)
 	end
 
@@ -175,7 +175,7 @@ class ApplicationController < ActionController::Base
 		@clublogo = club&.logo || "mudclub.svg"
 		@clubname = club&.nick || "MudClub"
 		@favicon  = user_favicon(club)
-		@topbar   = TopbarComponent.new(user:, logo: @clublogo, nick: @clubname, home: u_path, login: new_user_session_path, logout: destroy_user_session_path)
+		@topbar   = TopbarComponent.new(user:, logo: @clublogo, nick: @clubname, home: u_path, logout: destroy_user_session_path)
 	end
 
 	# switch app locale

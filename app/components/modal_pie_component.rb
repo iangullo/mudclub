@@ -28,7 +28,7 @@ class ModalPieComponent < ApplicationComponent
 
 	def call	# render as HTML
 		render ModalComponent.new(simple: true) do
-			render FieldsComponent.new(fields: @pie_header)
+			render FieldsComponent.new(@pie_header)
 			pie_chart(@chart_data, title: @chart_title, legend: "bottom")
 		end
 	end

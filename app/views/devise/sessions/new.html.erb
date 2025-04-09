@@ -1,10 +1,10 @@
 <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-	<%= render FieldsComponent.new(form: f, fields:
+	<%= render FieldsComponent.new(
 		[
 			[{kind: "side-cell", value: t("action.login"), align: "center", cols: 5}],
 			[
 				{kind: "header-icon", value: "user.svg", rows: 2},
-				{kind: "icon", value: "at.svg"},
+				{kind: "icon", value: "email.svg"},
 				{kind: "email-box", key: :email, autocomplete: "email", cols: 3}
 			],
 			[
@@ -15,9 +15,10 @@
 				gap_field(size: 1, cols: 2),
 				{kind: "label-checkbox", label: t("action.remember"), key: :remember_me, right: true},
 				gap_field,
-				{kind: "button", button: {kind: "login", label: t("action.login"), confirm: I18n.t("question.login"), align: "right"}}
+				{kind: "button", button: {kind: :login, label: t("action.login"), confirm: I18n.t("question.login"), align: "right"}}
 			]
-		])
-	%>
+		],
+		form: f
+	) %>
 	<div class="text-right text-sm"><%= render "devise/shared/links" %></div>
 <% end %>
