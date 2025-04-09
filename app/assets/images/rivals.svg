@@ -22,8 +22,29 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <cc:license
+           rdf:resource="http://artlibre.org/licence/lal" />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Iván González Angullo</dc:title>
+          </cc:Agent>
+        </dc:creator>
       </cc:Work>
+      <cc:License
+         rdf:about="http://artlibre.org/licence/lal">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
   <defs
@@ -42,10 +63,10 @@
      id="namedview4"
      showgrid="false"
      inkscape:zoom="2.3004674"
-     inkscape:cx="163.01035"
-     inkscape:cy="89.112325"
+     inkscape:cx="163.66239"
+     inkscape:cy="89.112326"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="g10"
      inkscape:showpageshadow="2"
@@ -214,16 +235,18 @@
          id="path929-7-2"
          sodipodi:nodetypes="csccccccccccccccccccccccccccccccccccc" />
     </g>
-    <text
-       xml:space="preserve"
-       style="font-weight:bold;font-size:86.2812px;font-family:FreeMono;-inkscape-font-specification:'FreeMono Bold';fill:#000000;stroke-width:4.04444"
-       x="15.811905"
-       y="121.50987"
-       id="text3214"><tspan
-         sodipodi:role="line"
-         id="tspan3212"
-         x="15.811905"
-         y="121.50987"
-         style="stroke-width:4.04444;fill:#000000">VS</tspan></text>
+    <g
+       aria-label="VS"
+       id="text3214"
+       style="font-weight:bold;font-size:74.6667px;font-family:FreeMono;-inkscape-font-specification:'FreeMono Bold';stroke-width:3.17794">
+      <path
+         d="M 43.515636,122.1719 27.255211,78.20313 q -0.875,-2.406252 -1.640625,-3.354169 -0.729167,-0.984375 -2.22396,-1.421875 L 20.072916,72.406252 20,70.838543 q 3.609376,0.145833 8.458337,0.145833 4.921877,0 10.17188,-0.145833 l 0.145833,1.567709 -3.427085,0.984375 q -0.729167,0.182292 -1.057292,0.546876 -0.328125,0.328125 -0.328125,0.984375 0,0.729167 0.364584,1.968751 0.401041,1.203126 1.09375,3.135418 L 47.197929,112.83856 59.99481,80.062505 q 0.765626,-2.005209 1.203126,-3.208334 0.4375,-1.239584 0.4375,-1.968751 0,-0.656251 -0.364583,-0.947917 -0.328125,-0.328126 -1.020834,-0.510417 l -3.390627,-0.911459 -0.07292,-1.677084 q 3.97396,0.145833 8.020837,0.145833 4.046877,0 7.765628,-0.145833 l 0.145834,1.567709 -3.682294,1.166667 q -1.276042,0.364584 -1.932292,1.239584 -0.65625,0.838542 -1.750001,3.390627 l -18.192717,43.6771 z"
+         style="font-family:Constantia;-inkscape-font-specification:'Constantia Bold'"
+         id="path496" />
+      <path
+         d="m 97.546912,74.156253 q -3.828126,-1.276043 -7.036461,-1.276043 -4.812503,0 -7.692712,2.333335 -2.843752,2.333334 -2.843752,6.489586 0,2.369793 0.984376,4.156252 1.020834,1.786459 2.697918,3.135418 1.713542,1.348959 3.864585,2.406252 2.151043,1.057292 4.447919,2.078126 2.515626,1.09375 4.885419,2.333334 2.369793,1.203126 4.265626,2.843751 1.93229,1.640626 3.0625,3.937506 1.16667,2.29687 1.16667,5.35937 0,7.25522 -5.10417,11.08334 -5.06771,3.82813 -14.072923,3.82813 -5.796878,0 -12.83334,-1.96875 l -0.21875,-0.29167 1.78646,-12.39584 1.640625,-0.25521 2.552085,10.35418 q 3.864585,1.53125 7.911462,1.53125 5.432294,0 8.458337,-2.40626 3.062502,-2.40625 3.062502,-6.85416 0,-2.33334 -0.984376,-4.08334 -0.984375,-1.78646 -2.661459,-3.0625 -1.640626,-1.27604 -3.75521,-2.29688 -2.114585,-1.05729 -4.375002,-2.078124 -2.552085,-1.09375 -4.958336,-2.369793 -2.406251,-1.276042 -4.375002,-2.953126 -1.932293,-1.713542 -3.09896,-4.156252 -1.166667,-2.479168 -1.166667,-5.760419 0,-6.598962 4.921877,-10.208339 4.958336,-3.609376 13.125006,-3.609376 5.76042,0 12.067711,1.348959 l 0.25521,0.255208 -2.15104,11.375006 -1.458335,0.255208 z"
+         style="font-family:Constantia;-inkscape-font-specification:'Constantia Bold'"
+         id="path498" />
+    </g>
   </g>
 </svg>
