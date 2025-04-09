@@ -75,7 +75,7 @@ class TopbarComponent < ApplicationComponent
 		@menu_tabs = []
 		if user.admin?
 			@menu_tabs << server_menu(user)
-			@logourl = {url: @cluburl, data: {turbo_action: "replace"}} if user.is_manager?
+			@logourl = {url: @cluburl, data: {turbo_action: "replace"}}
 		elsif user.is_manager?
 			@menu_tabs += manager_menu
 		end
@@ -200,7 +200,6 @@ class TopbarComponent < ApplicationComponent
 	def team_menu(user)
 		u_teams = user.team_list
 		s_teams = []
-		return s_teams if (user.admin? && u_teams.empty?)
 		t_url = "/clubs/#{user.club_id}/teams"
 		slast = Season.latest
 		u_teams.each {|team| s_teams << team if team.season == slast}

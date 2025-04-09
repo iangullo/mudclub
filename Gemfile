@@ -88,18 +88,19 @@ gem 'devise'
 gem 'devise-i18n'
 
 # Show charts
-gem "chartkick", "~> 4.2"
+gem "chartkick"
 
 # Version control for Drills
-gem "paper_trail", "~> 14.0"
+gem "paper_trail"
 
 # Handle reordering of lists
-gem "acts_as_list", "~> 1.1"
+gem "acts_as_list"
 
 # Paging of content in views
-gem "kaminari", "~> 1.2"
+gem "kaminari"
 
 # PDF generation
-gem "prawn", "~> 2.5"
-gem "prawn-html", "~> 0.7.1"
-gem "prawn-table", "~> 0.2.2"
+gem "ostruct"
+gem "prawn"
+gem "prawn-html"
+gem "prawn-table"
