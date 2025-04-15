@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -29,7 +29,7 @@
 #			order: attribute to order by the nested elements.
 #			btn_add: definition of button to add new elements.
 class NestedComponent < ApplicationComponent
-	def initialize(model:, key:, form:, child:, row:, filter: nil, order: nil, btn_add: {kind: :add_nested})
+	def initialize(model:, key:, form:, child:, row:, filter: nil, order: nil)
 		@model   = model
 		@form    = form
 		@child   = child
@@ -38,7 +38,7 @@ class NestedComponent < ApplicationComponent
 		@filter  = n_filter(filter:)
 		@order   = order ? order.to_sym : nil
 		@btn_del = ButtonComponent.new(kind: :remove)
-		@btn_add = ButtonComponent.new(**btn_add) if btn_add
+		@btn_add = ButtonComponent.new(kind: :add_nested)
 	end
 
 	# filter collection of objects using filter hash

@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -96,8 +96,6 @@ class FieldsComponent < ApplicationComponent
 					item[:class] ||= " align-middle rounded-md"
 				when /^(search-.+)$/
 					item[:value] = SearchBoxComponent.new(item)
-				when "nested-form"
-					item[:btn_add] ||= {kind: "add-nested"}
 				when "gap", "label", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
 					set_text_field(item)
 				when /^(select-.+|.+-box|.+-area)$/
@@ -132,7 +130,7 @@ class FieldsComponent < ApplicationComponent
 			when "lines"
 				field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
 			when "nested-form"
-				render NestedComponent.new(model: field[:model], key: field[:key], form: @form, child: field[:child], row: field[:row], filter: field[:filter], btn_add: field[:btn_add])
+				render NestedComponent.new(model: field[:model], key: field[:key], form: @form, child: field[:child], row: field[:row], filter: field[:filter])
 			when "person-type"
 				render_role_icons(field[:icons])
 			else
