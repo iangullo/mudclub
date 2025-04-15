@@ -17,8 +17,10 @@
 # contact email - iangullo@gmail.com.
 #
 class Drill < ApplicationRecord
+	FILTER_PARAMS = %i[name kind_id season_id skill column direction].freeze
 	before_destroy :unlink
-	has_paper_trail on: [:create, :update]
+	has_paper_trail on: [ :create, :update ]
+	belongs_to :sport
 	belongs_to :coach
 	belongs_to :kind
 	has_and_belongs_to_many :skills
@@ -32,29 +34,33 @@ class Drill < ApplicationRecord
 	has_rich_text :explanation
 	has_many :steps, dependent: :destroy
 	pg_search_scope :search_by_name,
-		against: [:name, :description],
+		against: [ :name, :description ],
 		ignoring: :accents,
-		using: { tsearch: {prefix: true} }
+		using: { tsearch: { prefix: true } }
 	scope :real, -> { where("id>0") }
-	scope :by_name, -> (name) { name.present? ? search_by_name(name) : all }
-	scope :by_kind, -> (kind_id) { (kind_id.to_i > 0) ? where(kind_id: kind_id.to_i) : all }
-	scope :by_season, -> (season) { season.present? ? where(updated_at: season.start_date..season.end_date).distinct : all	}
-	scope :by_skill, -> (skill) { skill.present? ? where(id: Drill.joins(:skills).merge(Skill.search(skill)).pluck(:id)).distinct : all	}
+	scope :by_name, ->(name) { name.present? ? search_by_name(name) : all }
+	scope :by_kind, ->(kind_id) { (kind_id.to_i > 0) ? where(kind_id: kind_id.to_i) : all }
+	scope :by_season, ->(season) { season.present? ? where(updated_at: season.start_date..season.end_date).distinct : all	}
+	scope :by_skill, ->(skill) { skill.present? ? where(id: Drill.joins(:skills).merge(Skill.search(skill)).pluck(:id)).distinct : all	}
 	self.inheritance_column = "not_sti"
 	validates :name, presence: true
-	FILTER_PARAMS = %i[name kind_id season_id skill column direction].freeze
+
+	# wrapper to return valid court modes for drill
+	def court_modes
+		self.sport.court_modes
+	end
 
 	# temporary wrappers to access :explanation as Step 1 :explanation
-	def step_explanation(order=1)
+	def step_explanation(order = 1)
 		steps.find_by(order:)&.explanation
 	end
 
-	def step_explanation=(value, order=1)
+	def step_explanation=(value, order = 1)
 		step = steps.find_or_initialize_by(order:)
 		step.explanation = value
 		step.save!
 	end
-	
+
 	# check if drill (or associations) has changed
 	def modified?
 		res = self.changed?
@@ -69,7 +75,7 @@ class Drill < ApplicationRecord
 		end
 		res
 	end
-	
+
 	# A longer string with kind included
 	def nice_string
 		cad = self.kind_id ? (self.kind.name + " | ") : ""
@@ -81,7 +87,7 @@ class Drill < ApplicationRecord
 	def print_skills
 		print_names(self.skills)
 	end
-	
+
 	# Array of print strings for associated targets
 	def print_targets(array: true)
 		zero = !array
@@ -94,13 +100,13 @@ class Drill < ApplicationRecord
 					zero = false
 					cad  = tgt.to_s
 				else
-					cad += "\n\t#{tgt.to_s}"
+					cad += "\n\t#{tgt}"
 				end
 			end
 		end
-		return cad
+		cad
 	end
-	
+
 	# build new @drill from raw input hash given by form submital submittal
 	# return nil if unsuccessful
 	def rebuild(f_data)
@@ -115,13 +121,13 @@ class Drill < ApplicationRecord
 		self.check_targets(f_data[:drill_targets_attributes]) if f_data[:drill_targets_attributes]
 		self
 	end
-	
+
 	# return the season of last update for a Drill.
 	def season_string
 		season = Season.where("start_date <= ? and end_date >= ?", self.updated_at, self.updated_at).distinct.first
 		season&.name
 	end
-	
+
 	# Apply a Filter to Drills using params received from a controller.
 	def self.filter(filters)
 		if filters.present?
@@ -131,18 +137,18 @@ class Drill < ApplicationRecord
 			season = Season.find(filters["season_id"]&.presence) if filters["season_id"]&.present?
 			if name || kind || skill || season
 				res = Drill.by_name(name).by_kind(kind).by_skill(skill).by_season(season)
-				filters['column'] ? res.order("#{filters['column']} #{filters['direction']}") : res.order(:name)
+				filters["column"] ? res.order("#{filters['column']} #{filters['direction']}") : res.order(:name)
 			else
 				res = Drill.none
 			end
 		else
 			res = Drill.all
 		end
-		return res
+		res
 	end
 
 	# search all drills for specific subsets
-	def self.search(search=nil)
+	def self.search(search = nil)
 		if search.present?
 			s_type = "name"
 			res    = Drill.all
@@ -178,28 +184,28 @@ class Drill < ApplicationRecord
 	end
 
 	# filter drills by kind
-	def self.search_kind(res=Drill.all, s_k)
+	def self.search_kind(res = Drill.all, s_k)
 		res = res.where(kind_id: Kind.search(s_k)).distinct
 	end
 
 	# filter by name/description
-	def self.search_name(res=Drill.all, s_n)
+	def self.search_name(res = Drill.all, s_n)
 		res = res.search_by_name(s_n)
 	end
 
 	# filter drills by season
-	def self.search_season(res=Drill.all, s_s)
+	def self.search_season(res = Drill.all, s_s)
 		season = Season.search(s_s)&.updated_at
 		res = season ? res.where(updated_at: season.start_date..season.end_date).distinct : res
 	end
 
 	# filter for fundamentals
-	def self.search_skill(res=Drill.all, s_s)
+	def self.search_skill(res = Drill.all, s_s)
 		res = res.joins(:skills).where(skills: Skill.search(s_s)).distinct
 	end
 
 	# filter for targets
-	def self.search_target(res=Drill.all, s_t)
+	def self.search_target(res = Drill.all, s_t)
 		res = res.joins(:targets).where(targets: Target.fetch(nil, s_t)).distinct
 	end
 
@@ -209,8 +215,8 @@ class Drill < ApplicationRecord
 		def check_skills(s_array)
 			a_skills = Array.new	# array to include only non-duplicates
 			s_array.each { |s| # first pass
-				#s[1][:name] = s[1][:name].mb_chars.titleize
-				a_skills << s[1] #unless a_skills.detect { |a| a[:name] == s[1][:name] }
+				# s[1][:name] = s[1][:name].mb_chars.titleize
+				a_skills << s[1] # unless a_skills.detect { |a| a[:name] == s[1][:name] }
 			}
 			a_skills.each { |s| # second pass - manage associations
 				sk = Skill.fetch(s)

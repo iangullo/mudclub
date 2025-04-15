@@ -151,7 +151,8 @@ class ButtonComponent < ApplicationComponent
 			@button[:url]  = @button[:web] ? "https://web.whatsapp.com/" : "whatsapp://"
 			@button[:url] += @button[:url] + "send?phone=#{@button[:value].delete(' ')}"
 		end
-		@button[:label] ||= I18n.t("action.#{@button[:kind].to_s}") unless [:add, :add_nested, :call, :delete, :email, :remove, :link,:whatsapp].include?(@button[:kind])		@button[:icon]  ||= "#{@button[:kind]}.svg" unless @button[:kind] == :link
+		@button[:label] ||= I18n.t("action.#{@button[:kind].to_s}") unless [:add, :add_nested, :call, :delete, :email, :remove, :link, :whatsapp].include?(@button[:kind])
+		@button[:icon]  ||= "#{@button[:kind]}.svg" unless @button[:kind] == :link
 		@button[:size]  ||= "25x25"
 	end
 
@@ -161,8 +162,8 @@ class ButtonComponent < ApplicationComponent
 		b_start += " #{@button[:b_class]}" if @button[:b_class]
 		@button[:name] ||= @button[:kind].to_s
 		case @button[:kind]
-		when :add, :add_nested
-			@button[:action] ||= "nested-form#add" if @button[:kind]==:add_nested
+		when :add_nested
+			@button[:action] ||= "nested-form#add"
 		when :cancel, :clear, :save, :import, :export, :login, :back, :forward
 			b_start += " font-bold"
 		when :close

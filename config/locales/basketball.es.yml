@@ -51,6 +51,10 @@
 es:
   sport:
     basketball:
+      court:
+        full: "Pista entera"
+        half_def: "Defensa"
+        half_off: "Ataque"
       name: "Baloncesto"
       outings:
         first: "Prim."

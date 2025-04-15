@@ -51,6 +51,10 @@
 en:
   sport:
     basketball:
+      court:
+        full: "Full court"
+        half_def: "Defense"
+        half_off: "Offense"
       name: "Basketball"
       outings:
         first: "First"

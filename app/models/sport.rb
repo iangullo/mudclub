@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -18,6 +18,7 @@
 #
 # simple class to have configurable Sports linked to the Club
 class Sport < ApplicationRecord
+	ERR_NEED_SPECIFIC = "Must implement in Specific Sport object"
 	has_many :categories, dependent: :nullify
 	has_many :divisions, dependent: :nullify
 	has_many :teams, dependent: :nullify
@@ -25,55 +26,60 @@ class Sport < ApplicationRecord
 	# Wrappers to define FieldComponents for views
 	# METHODS MUST BE DEFINED IN SPORT-SPECIFIC OBJECTS!!
 	# ========================================
+	# return possible court designs for drills/plays
+	def court_modes
+		self.specific.court_modes
+	end
+
 	# fields to display match information - not title
 	def match_show_fields(event, home: nil)
-		raise "Must implement in Specific Sport object"
+		raise ERR_NEED_SPECIFIC
 	end
 
 	# fields to edit a match
 	def match_form_fields(event, new: false)
-		raise "Must implement in Specific Sport object"
+		raise ERR_NEED_SPECIFIC
 	end
 
 	# return period limitations for a match of this sport
 	# depends on rules applied
 	def match_outings(a_rules)
-		raise "Must implement in Specific Sport object"
+		raise ERR_NEED_SPECIFIC
 	end
 
 	# grid to show/edit player outings for a match
 	def outings_grid(event, outings, edit: false, home: nil, log: nil)
-		raise "Must implement in Specific Sport object"
+		raise ERR_NEED_SPECIFIC
 	end
 
 	# grid to show/edit player stats for a match
 	def stats_grid(event, edit: false, home: nil, log: nil)
-		raise "Must implement in Specific Sport object"
+		raise ERR_NEED_SPECIFIC
 	end
 
 	# fields to display player's stats for training
 	def player_training_stats_fields(event, player_id:)
-		raise "Must implement in Specific Sport object"
+		raise ERR_NEED_SPECIFIC
 	end
 
 	# fields to track player training stats
 	def player_training_stats_form_fields(event, player_id:)
-		raise "Must implement in Specific Sport object"
+		raise ERR_NEED_SPECIFIC
 	end
 
 	# fields to show rules limits
 	def rules_limits_fields
-		raise "Must implement in Specific Sport object"
+		raise ERR_NEED_SPECIFIC
 	end
 
 	# default applicable rules for a category
 	def default_rules(category)
-		raise "Must implement in Specific Sport object"
+		raise ERR_NEED_SPECIFIC
 	end
 
 	# return rules that may apply to the Sport
 	def rules_options
-		raise "Must implement in Specific Sport object"
+		raise ERR_NEED_SPECIFIC
 	end
 	# ========================================
 	# END OF SPORT-SPECIFIC METHODS
@@ -176,11 +182,11 @@ class Sport < ApplicationRecord
 	# {period1: {ours:, opps:}, period2: (etc.), tot: {ours:, opps:}}
 	def match_score(event_id)
 		s_stats  = get_event_scoring_stats(event_id)
-		t_score  = {ours: 0, opps: 0}	# (period: 0 => t_score)
+		t_score  = { ours: 0, opps: 0 }	# (period: 0 => t_score)
 		score    = {}
 		unless s_stats&.empty?
 			r_tot = false
-			self.periods.each_pair do |per, val|	#period==set if scoring by sets
+			self.periods.each_pair do |per, val|	# period==set if scoring by sets
 				r_tot = read_score(val, s_stats, score, t_score)
 			end
 		end
@@ -209,7 +215,7 @@ class Sport < ApplicationRecord
 	end
 
 	# attempts to fetch the specific opbject from an id
-	def self.fetch(sport_id=nil)
+	def self.fetch(sport_id = nil)
 		sport = Sport.find(sport_id) if sport_id
 		sport = Sport.first unless sport
 		sport&.specific
@@ -222,8 +228,8 @@ class Sport < ApplicationRecord
 		end
 
 		# return label field for a stat
-		def stat_label_field(label, abbr=true)
-			{kind: "side-cell", value:label, align: "middle", class: "border px py"}
+		def stat_label_field(label, abbr = true)
+			{ kind: "side-cell", value: label, align: "middle", class: "border px py" }
 		end
 
 		# generic wrapper to update a stat value
@@ -235,13 +241,9 @@ class Sport < ApplicationRecord
 		end
 
 		# sum total value of a specific stat
-		# if concept included in stat_group array
-		def sum_stats(stats, stat_group)
-			res = 0
-			stats.each do |stat|
-				res += stat.value if stat_group.include?(stat.concept)
-			end
-			res
+		# if concept included in a concept_map hash
+		def sum_stats(stats, concept_map)
+			stats.sum { |stat| concept_map.value?(stat.concept) ? stat.value : 0 }
 		end
 
 		# wrappers to return the symbols of specific rules/periods/stats
@@ -277,7 +279,7 @@ class Sport < ApplicationRecord
 			p_for = get_period_score(period:, player_id: 0, stats:)
 			p_opp = get_period_score(period:, player_id: -1, stats:)
 			if p_for && p_opp	# we have a score for this period
-				score[period] = {ours: p_for, opps: p_opp}	# load it to the hash
+				score[period] = { ours: p_for, opps: p_opp }	# load it to the hash
 				unless r_tot	# if we already read the totals, this is unnecessary
 					if self.scoring[:sets]	# different handling for sets
 						(p_for > p_opp) ? (t_score[:ours] += 1) : (t_score[:opps] += 1)
@@ -321,9 +323,9 @@ class Sport < ApplicationRecord
 		# Retrieve/Create a stat from a form {key: val} hash
 		def parse_form_stat(event_id, keyarg, value)
 			player_id = case keyarg[0]	# player_id part
-				when "ours" then 0
-				when "opps" then -1
-				else keyarg[0].to_i
+			when "ours" then 0
+			when "opps" then -1
+			else keyarg[0].to_i
 			end
 			period     = (keyarg[1].match?(/^(\d+)$/)	? keyarg[1].to_i : self.periods[keyarg[1]])
 			concept    = keyarg[2].to_i
@@ -350,6 +352,6 @@ class Sport < ApplicationRecord
 					end
 				end
 			end
-			return updated
+			updated
 		end
 end
