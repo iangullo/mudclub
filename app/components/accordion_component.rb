@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -37,11 +37,11 @@ class AccordionComponent < ApplicationComponent
 	I_CLASS = "flex justify-between items-center p-1 w-full bg-gray-100 text-left text-gray-700 rounded-md hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200"
 	O_CLASS = "py px-2 rounded-lg border-2 border-indigo-900 hidden"
 
-	def initialize(**attrs)
-		@title = :title
-		@tail  = :tail
+	def initialize(title:, tail: nil, objects: [])
+		@title = title
+		@tail  = tail
 		i      = 1
-		@objects = :objects
+		@objects = objects
 		@objects.each do |obj|
 			obj[:head_id] = "accordion-collapse-heading-" + i.to_s
 			obj[:body_id] = "accordion-collapse-body-" + i.to_s
