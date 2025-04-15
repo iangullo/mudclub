@@ -83,7 +83,7 @@ class FieldsComponent < ApplicationComponent
 			row.each do |item|
 				case item[:kind]	# need to adapt to each fields "kind"
 				when "accordion"
-					item[:value] = AccordionComponent.new(**item)
+					item[:value] = AccordionComponent.new(title: item[:title], tail: item[:tail], objects: item[:objects])
 				when "button"	# item[:button] has to contain the button definition
 					item[:value] = ButtonComponent.new(**item[:button])
 				when "contact"
