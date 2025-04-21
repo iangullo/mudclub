@@ -18,7 +18,7 @@
 #
 # ButtonComponent - ViewComponent to manage regular buttons used in views
 # button is a mudsplat with following fields:
-# kind:, max_h: 6, icon: nil, label: nil, url: nil, turbo: nil
+# kind:, max_h: 6, icon: nil, label: nil, url: nil, turbo: nil, title: nil (provides tooltips)
 # kinds of button:
 # => :action: perform a specific controller action
 # => :add: new item button
@@ -41,6 +41,7 @@
 # => :menu: menu button
 # => :remove: remove item from nested form or sortable list
 # => :save: save form
+# => :stimulus: trigger for stimulus action
 # => :whatsapp: open whatsapp chat
 # frozen_string_literal: true
 class ButtonComponent < ApplicationComponent
@@ -62,7 +63,7 @@ class ButtonComponent < ApplicationComponent
 						button_content
 					end
 				else
-					button_tag(class: @button[:b_class], type: @button[:type], data: @button[:data]) do
+					button_tag(class: @button[:b_class], type: @button[:type], title: @button[:title], data: @button[:data]) do
 						button_content
 					end
 				end
@@ -151,7 +152,7 @@ class ButtonComponent < ApplicationComponent
 			@button[:url]  = @button[:web] ? "https://web.whatsapp.com/" : "whatsapp://"
 			@button[:url] += @button[:url] + "send?phone=#{@button[:value].delete(' ')}"
 		end
-		@button[:label] ||= I18n.t("action.#{@button[:kind].to_s}") unless [:add, :add_nested, :call, :delete, :email, :remove, :link, :whatsapp].include?(@button[:kind])
+		@button[:label] ||= I18n.t("action.#{@button[:kind].to_s}") if [:back, :cancel, :clear, :edit, :export, :import, :save].include?(@button[:kind])
 		@button[:icon]  ||= "#{@button[:kind]}.svg" unless @button[:kind] == :link
 		@button[:size]  ||= "25x25"
 	end
@@ -189,7 +190,7 @@ class ButtonComponent < ApplicationComponent
 			when :location, :whatsapp
 				@button[:tab]     = true
 				@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-			when :action, :back, :call, :cancel, :clear, :close, :edit, :email, :export, :forward, :import, :login, :save
+			when :action, :back, :call, :cancel, :clear, :close, :edit, :email, :export, :forward, :import, :login, :save, :stimulus
 				b_colour += " font-bold"
 			else
 				@button[:d_class] += " font-semibold"
@@ -202,7 +203,7 @@ class ButtonComponent < ApplicationComponent
 	# set the i_class for the button div
 	def set_iclass
 		case @button[:kind]
-		when :add, :delete, :link, :location
+		when :add, :delete, :link, :location, :stimulus
 			@button[:i_class] = "max-h-6 min-h-4 align-middle"
 		when :add_nested, :remove
 			@button[:i_class] = "max-h-5 min-h-4 align-middle"
@@ -230,7 +231,7 @@ class ButtonComponent < ApplicationComponent
 			light = "blue-700"
 			text  = "gray-200"
 			high  = "white"
-		when :action, :call, :email, :whatsapp
+		when :action, :call, :email, :whatsapp, :stimulus
 			wait  = "gray-100"
 			light = "gray-300"
 			text  = "gray-700"
@@ -249,7 +250,7 @@ class ButtonComponent < ApplicationComponent
 	# set the turbo data frame if required
 	def set_data
 		res = @button[:data] ? @button[:data] : {}
-		res[:turbo_frame]   = @button[:frame] ? @button[:frame] : "_top"
+		res[:turbo_frame]   = (@button[:frame] ? @button[:frame] : "_top") unless @button[:kind] == :stimulus
 		res[:turbo_action]  = "replace" if @button[:replace]
 #		res[:turbo_confirm] = @button[:confirm] if @button[:confirm]
 		res[:turbo_method]  = :delete.to_sym if @button[:kind]==:delete
