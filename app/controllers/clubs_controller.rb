@@ -43,7 +43,7 @@ class ClubsController < ApplicationController
 			if (user_in_club?)	# my own club: show events
 				@grid   = create_fields(helpers.event_list_grid(obj: Season.latest))
 			else	# off return to  the user's club
-				close  = "back"
+				close  = :back
 				retlnk = base_lnk(clubs_path)
 			end
 			submit  = edit_club_path(@club, rdx: @rdx) if u_admin? || club_manager?(@club)
