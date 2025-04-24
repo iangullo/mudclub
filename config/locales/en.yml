@@ -143,7 +143,6 @@ en:
     desc: "Description"
     desc_a: "Descrip."
     edit: "Edit Drill"
-    expl: "explanation"
     many: "Drills"
     material: "Material"
     name: "Name"
@@ -379,9 +378,13 @@ en:
     no_file: "Load file..."
     saved: "saved."
   step:
-    single: "Step"
+    default: "<step>"
+    diagram: "Diagram"
+    edit: "Edit step"
+    edit_diagram: "Edit diagram"
+    explanation: "explanation"
     many: "Steps"
-    default: "<step>" 
+    single: "Step"
   target:
     single: "Target"
     many: "Targets"

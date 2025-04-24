@@ -44,6 +44,16 @@ class BasketballSport < Sport
     return COURT_MODES
   end
 
+	# image to use for a court
+	def court_image(court)
+		"#{self.name}/court/#{court}.svg"
+	end
+
+	# human name of a specific court
+	def court_name(court)
+		I18n.t("sport.#{self.name}.court.#{court}")
+	end
+  
   # return parent object
   def generic
     self.becomes(Sport)

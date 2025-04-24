@@ -37,16 +37,16 @@ module SportsHelper
 	def sports_show_fields
 		res = [
 			[
-				{kind: "header-icon", value: "sport.svg"},
+				{kind: "header-icon", value: "sport/sport.svg"},
 				{kind: "title", value: I18n.t("sport.single")}
 			],
 			[{kind: "subtitle", value: @sport.to_s}],
 			[
-				button_field({kind: :jump, icon: "rules.svg", url: rules_sport_path(@sport, rdx: @rdx), label: I18n.t("sport.rules"), frame: "modal"}, align: "center"),
-				button_field({kind: :jump, icon: "category.svg", url: sport_categories_path(@sport, rdx: @rdx), label: I18n.t("category.many"), frame: "modal"}, align: "center")
+				button_field({kind: :jump, icon: "sport/rules.svg", url: rules_sport_path(@sport, rdx: @rdx), label: I18n.t("sport.rules"), frame: "modal"}, align: "center"),
+				button_field({kind: :jump, icon: "sport/#{@sport.name}/category.svg", url: sport_categories_path(@sport, rdx: @rdx), label: I18n.t("category.many"), frame: "modal"}, align: "center")
 			],
 			[
-				button_field({kind: :jump, icon: "division.svg", url: sport_divisions_path(@sport, rdx: @rdx), label: I18n.t("division.many"), frame: "modal"}, align: "center")
+				button_field({kind: :jump, icon: "sport/#{@sport.name}/division.svg", url: sport_divisions_path(@sport, rdx: @rdx), label: I18n.t("division.many"), frame: "modal"}, align: "center")
 			]
 		]
 		res
@@ -56,7 +56,7 @@ module SportsHelper
 	def sports_form_fields(title:)
 		res = [
 			[
-				{kind: "header-icon", value: "category.svg"},
+				{kind: "header-icon", value: "sport/#{@sport.name}/category.svg"},
 				{kind: "title", value: title, cols: 2}
 			],
 			[
@@ -71,7 +71,7 @@ module SportsHelper
 	def sport_rules_title(title)
 		[
 			[
-				{kind: "header-icon", value: "rules.svg"},
+				{kind: "header-icon", value: "sport/rules.svg"},
 				{kind: "title", value: title}
 			],
 			[{kind: "subtitle", value: @sport.to_s}]

@@ -19,7 +19,7 @@
 module CategoriesHelper
  	# return icon and top of FieldsComponent
  	def category_title_fields(title:, rows: 2, cols: nil)
-		title_start(icon: "category.svg", title:, rows:, cols:)
+		title_start(icon: "sport/#{@sport.name}/category.svg", title:, rows:, cols:)
 	end
 
 	# FieldComponents for category.show
@@ -55,7 +55,7 @@ module CategoriesHelper
 			{kind: "number-box", key: :max_years, min: 6, size: 3, value: @category.max_years, mandatory: {max: 99}}
 		]
 		res << [
-			icon_field("rules.svg"),
+			icon_field("sport/rules.svg"),
 			{kind: "select-box", key: :rules, options: @sport.rules_options, value: @category.rules ? @category.rules : @sport.try(:default_rules), cols: 4}
 		]
 		res

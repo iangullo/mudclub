@@ -4,9 +4,9 @@
 <svg
    version="1.1"
    id="svg2"
-   width="1095"
-   height="1024"
-   viewBox="0 0 1095 1024"
+   width="1244"
+   height="1174"
+   viewBox="0 0 1244 1174"
    sodipodi:docname="basketball_half_off.svg"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -26,12 +26,12 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="0.34350586"
-     inkscape:cx="-40.756219"
-     inkscape:cy="886.44776"
+     inkscape:cx="164.48045"
+     inkscape:cy="748.16773"
      inkscape:window-width="1920"
      inkscape:window-height="1011"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="g3245" />
   <g
@@ -56,22 +56,17 @@
              id="rect345"
              width="1020"
              height="1091"
-             x="-1022"
-             y="2"
+             x="-947"
+             y="77"
              transform="scale(-1,1)" />
           <path
              style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-             d="m 3.4497,679.65345 c 52.81789,0 128.84579,-45.82759 128.84579,-133.128 0,-70.02384 -54.73478,-129.51355 -128.84579,-130.872"
+             d="m -71.5503,754.65345 c 52.81789,0 128.84579,-45.82759 128.84579,-133.128 0,-70.02384 -54.73478,-129.51355 -128.84579,-130.872"
              id="path1087-7"
              sodipodi:nodetypes="ccc" />
-          <path
-             style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-             d="M 928.93108,548.50982 H 913.70742"
-             id="path1923"
-             sodipodi:nodetypes="cc" />
           <g
              id="g3271"
-             transform="matrix(-1,0,0,1,1024,0)">
+             transform="matrix(-1,0,0,1,949,75)">
             <rect
                style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
                id="rect345-3"

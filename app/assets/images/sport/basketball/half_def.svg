@@ -4,10 +4,10 @@
 <svg
    version="1.1"
    id="svg2"
-   width="1095"
-   height="1024"
-   viewBox="0 0 1095 1024"
-   sodipodi:docname="basketball_court_half.svg"
+   width="1245"
+   height="1174"
+   viewBox="0 0 1245 1174"
+   sodipodi:docname="basketball_half_def.svg"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -26,7 +26,7 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="0.34350586"
-     inkscape:cx="-39.30064"
+     inkscape:cx="-33.478323"
      inkscape:cy="884.99218"
      inkscape:window-width="1920"
      inkscape:window-height="1011"
@@ -56,20 +56,16 @@
              id="rect345"
              width="1020"
              height="1091"
-             x="2"
-             y="2" />
+             x="-73"
+             y="77" />
           <path
              style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-             d="m 1020.5503,679.65345 c -52.81789,0 -128.84579,-45.82759 -128.84579,-133.128 0,-70.02384 54.73478,-129.51355 128.84579,-130.872"
+             d="m 945.5503,754.65345 c -52.81789,0 -128.84579,-45.82759 -128.84579,-133.128 0,-70.02384 54.73478,-129.51355 128.84579,-130.872"
              id="path1087-7"
              sodipodi:nodetypes="ccc" />
-          <path
-             style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-             d="M 95.068924,548.50982 H 110.29258"
-             id="path1923"
-             sodipodi:nodetypes="cc" />
           <g
-             id="g3271">
+             id="g3271"
+             transform="translate(-75,75)">
             <rect
                style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
                id="rect345-3"

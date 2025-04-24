@@ -31,6 +31,16 @@ class Sport < ApplicationRecord
 		self.specific.court_modes
 	end
 
+	# image to use for a court
+	def court_image(court)
+		self.specific.court_image(court)
+	end
+
+	# human name of a specific court
+	def court_name(court)
+		self.specific.court_name(court)
+	end
+
 	# fields to display match information - not title
 	def match_show_fields(event, home: nil)
 		raise ERR_NEED_SPECIFIC

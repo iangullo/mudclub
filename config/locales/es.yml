@@ -143,7 +143,6 @@ es:
     desc: "Descripción"
     desc_a: "Descrip."
     edit: "Editar Ejercicio"
-    expl: "Explicación"
     many: "Ejercicios"
     material: "Material"
     name: "Nombre"
@@ -379,9 +378,13 @@ es:
     no_file: "Cargar archivo..."
     saved: "guardado."
   step:
-    single: "Paso"
-    many: "Pasos"
     default: "<paso>" 
+    diagram: "Gráfico"
+    edit: "Editar paso"
+    edit_diagram: "Editar gráfico"
+    explanation: "Explicación"
+    many: "Pasos"
+    single: "Paso"
   target:
     single: "Objetivo"
     many: "Objetivos"

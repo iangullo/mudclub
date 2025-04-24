@@ -19,11 +19,11 @@
 module DivisionsHelper
 	# return icon and top of FieldsComponent
 	def division_title_fields(title:, subtitle: nil, cols: nil)
-		title_start(icon: "division.svg", title:, subtitle:, cols:)
+		title_start(icon: "sport/#{@sport.name}/division.svg", title:, subtitle:, cols:)
 	end
 
 	# return FieldsComponent @fields for forms
-	def division_form_fields(title:, subtitle:)
+	def division_form_fields(title:, subtitle: nil)
 		res = division_title_fields(title:, subtitle:, cols: 3)
 		res << [{kind: "text-box", key: :name, value: @division.name, placeholder: I18n.t("division.name"),cols: 3, mandatory: {length: 3}}]
 	end
