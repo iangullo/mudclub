@@ -74,7 +74,7 @@ class InputBoxComponent < ApplicationComponent
 		# offload some initial setting of field data
 		def set_box_attributes
 			kind_mappings = {
-				"image-box" => { class: "group flex relative w-75 h-100 overflow-hidden justify-center align-middle rounded border-gray-300 border-1" },
+				"image-box" => { class: "group flex relative overflow-hidden justify-center align-middle rounded border-gray-300 border-1" },
 				"number-box" => { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] },
 				"label-checkbox" => { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" },
 				"radio-button" => { class: "m-1" },
@@ -99,6 +99,9 @@ class InputBoxComponent < ApplicationComponent
 				@i_data = @fdata[:h_data]
 			when "image-box"
 				@i_data = {action: "change->imagebox#handleFileChange", imagebox_target: "imageFile"}
+				@width  = ensure_px((@fdata[:width] || 75).to_s)
+				@height = ensure_px((@fdata[:height] || 100).to_s)
+				@fdata[:class] += " w-full h-full"
 			when "radio-button"
 				@i_data = @fdata[:r_data]
 			when "text-box"
@@ -139,5 +142,9 @@ class InputBoxComponent < ApplicationComponent
 				end
 				@fdata[:size] ||= box_size - 3
 			end
+		end
+
+		def ensure_px(val)
+			val.ends_with?("px") ? val : "#{val}px"
 		end
 end

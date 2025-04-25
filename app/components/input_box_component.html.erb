@@ -9,8 +9,8 @@
 	<style>
 		/* Style the container with fixed dimensions */
 		#imageboxContainer {
-			width: 75px;
-			height: 100px;
+			max-width: <%= @width %>;
+			max-height: <%= @height %>;
 			border: 1px solid gray;
 			overflow: hidden;
 			position: relative;
@@ -20,22 +20,21 @@
 		}
 
 		#imageSnapshot {
-			max-width: 75px;
-			max-height: 100px;
-			object-fit: cover;
+			max-width: <%= @width %>;
+			max-height: <%= @height %>;
 		}
-</style>
+	</style>
 	<div id="imageboxContainer" data-controller="imagebox" class="group flex rounded relative">
 		<!-- Image element to display snapshots (loaded initially) -->
-		<%= image_tag @fdata[:value], id: "imageSnapshot", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
+		<%= image_tag @fdata[:value], id: "imageSnapshot", class: "object-cover w-full h-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
 
 		<!-- Overlay for the camera icon -->
 		<div class="overlay absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" data-action="click->imagebox#openFileDialog" >
-			<span class="camera-icon text-4xl">📷</span>
+			<span class="camera-icon text-4xl pointer-events-none">📷</span>
 		</div>
 
 		<!-- Hidden input for file upload -->
-		<%= @form.file_field @fdata[:key], id: "imageFile", direct_upload: true, class: "hidden", style: "display:none;", data: @i_data %>
+		<%= @form.file_field @fdata[:key], id: "imageFile", direct_upload: true, class: "hidden", data: @i_data %>
 	</div>
 <% when "label-checkbox" %>
 	<div class='inline-flex align-middle'>
@@ -97,7 +96,7 @@
 <% when "upload" %>
 	<div id="upload-file" class="inline-flex items-center" data-controller="upload">
 		<!-- Hidden input for file upload -->
-		<%= @form.file_field(@fdata[:key], id: "upload-btn-#{@fdata[:key]}", direct_upload: true, class: "hidden", style: "display:none;", data: @i_data) %>
+		<%= @form.file_field(@fdata[:key], id: "upload-btn-#{@fdata[:key]}", direct_upload: true, class: "hidden", data: @i_data) %>
 
 		<!-- Custom button to trigger file input -->
 		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" data-action="click->upload#selectFile" data-upload-target="button">

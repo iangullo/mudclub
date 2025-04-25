@@ -52,7 +52,7 @@ es:
   sport:
     basketball:
       court:
-        full: "Pista entera"
+        full: "Pista completa"
         half_def: "Media pista (defensa)"
         half_off: "Media pista (ataque)"
       name: "Baloncesto"

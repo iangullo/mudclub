@@ -70,6 +70,7 @@ es:
     logout: "Salir"
     previous: "<<"
     remember: "Recordar"
+    remove: "Eliminar"
     restore: "Recuperar"
     return: "Volver"
     save: "Guardar"

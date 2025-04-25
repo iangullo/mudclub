@@ -70,6 +70,7 @@ en:
     logout: "Log-out"
     previous: "<<"
     remember: "Remember"
+    remove: "Remove"
     restore: "Restore"
     return: "Return"
     save: "Save"
