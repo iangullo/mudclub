@@ -24,7 +24,7 @@
 			max-height: <%= @height %>;
 		}
 	</style>
-	<div id="imageboxContainer" data-controller="imagebox" class="group flex rounded relative">
+	<div id="imageboxContainer" data-controller="imagebox" class="group flex rounded relative m-1">
 		<!-- Image element to display snapshots (loaded initially) -->
 		<%= image_tag @fdata[:value], id: "imageSnapshot", class: "object-cover w-full h-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
 

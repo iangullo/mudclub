@@ -108,11 +108,11 @@ class FieldsComponent < ApplicationComponent
 					set_icon(item)
 				when "label_checkbox"
 					item[:class] ||= " align-middle rounded-md"
-				when /^(search-.+)$/
+				when /^(search_.+)$/
 					item[:value] = SearchBoxComponent.new(item)
 				when "gap", "label", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
 					set_text_field(item)
-				when /^(select-.+|.+-box|.+-area)$/
+				when /^(select_.+|.+box|.+_area)$/
 					item[:class] ||= "align-top"
 				when "separator"
 					item[:stroke] ||= "solid"
@@ -133,9 +133,9 @@ class FieldsComponent < ApplicationComponent
 	def render_field(field)
 		tablecell_tag(field) do
 			case field[:kind].to_s
-			when /^(accordion|button|contact|diagram_editor|dropdown|search-.+)$/
+			when /^(accordion|button|contact|diagram_editor|dropdown|search_.+)$/
 				render field[:value]
-			when /^(select-.+|.+box|.+-area|hidden|radio.+|upload)$/
+			when /^(select_.+|.+box|.+_area|hidden|radio.+|upload)$/
 				render InputBoxComponent.new(field, form: @form)
 			when "gap"
 				("&nbsp;" * field[:size]).html_safe
