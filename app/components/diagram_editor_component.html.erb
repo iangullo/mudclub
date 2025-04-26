@@ -1,0 +1,136 @@
+<% console %>
+<defs>
+	<marker id="arrowhead-solid" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+		<polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+	</marker>
+	<marker id="arrowhead-hollow" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+		<polygon points="0 0, 10 3.5, 0 7" fill="white" stroke="black" stroke-width="1"/>
+	</marker>
+</defs>
+
+<!-- Diagram editor component template -->
+<div
+	data-controller="diagram-editor"
+	data-diagram-editor-court-value="<%= @court %>"
+	data-diagram-editor-court-map-value="<%= court_paths.to_json %>">
+
+	<div class="m-2 inline-flex flex-shrink-0"> <!-- Editor buttons -->
+		<div class="mt-1">
+			<select data-action="change->diagram-editor#switchCourt" class="border rounded p-1">
+				<% @courts.each_pair do |court, val| %>
+					<option value="<%= court %>"<%= selected(court).html_safe %>>
+						<%= val[:name] %>
+					</option>
+				<% end %>
+			</select>
+		</div>
+
+		<div>
+			<button type="button" data-action="click->diagram-editor#addAttacker" title="Añadir atacante" class="p-1 border rounded hover:bg-gray-100">
+				<%= image_tag("sport/diagram/attacker.svg", size:"25x25") %>
+			</button>
+
+			<button type="button" data-action="click->diagram-editor#addDefender" title="Añadir defensor" class="p-1 border rounded hover:bg-gray-100">
+				<%= image_tag("sport/diagram/defender.svg", size:"25x25") %>
+			</button>
+
+			<button type="button" data-action="click->diagram-editor#addBall" title="Añadir balón" class="p-1 border rounded hover:bg-gray-100">
+				<svg viewBox="0 0 50 50" class="w-6 h-6"><circle cx="25" cy="25" r="10" fill="black" /></svg>
+			</button>
+
+			<button type="button" data-action="click->diagram-editor#addCone" title="Añadir cono" class="p-1 border rounded hover:bg-gray-100">
+				<%= image_tag("sport/diagram/cone.svg", size:"25x25") %>
+			</button>
+
+			<!-- Tiro -->
+			<button 
+				type="button" 
+				title="Trazar tiro" 
+				data-action="diagram-editor#startDrawShot"
+				class="p-1 border rounded hover:bg-gray-100"
+			>
+				<!-- Flecha hueca doble trazo -->
+				<svg viewBox="0 0 24 24" class="w-6 h-6">
+					<path d="M2,12 L20,12" stroke="black" stroke-width="2" stroke-dasharray="4 2"/>
+					<path d="M18,10 L20,12 L18,14" fill="none" stroke="black" stroke-width="2"/>
+				</svg>
+			</button>
+
+			<!-- Pase -->
+			<button 
+				type="button" 
+				title="Trazar pase" 
+				data-action="diagram-editor#startDrawPass"
+				class="p-1 border rounded hover:bg-gray-100"
+			>
+				<!-- Flecha sólida trazo único -->
+				<svg viewBox="0 0 24 24" class="w-6 h-6">
+					<path d="M2,12 L20,12" stroke="black" stroke-width="2"/>
+					<path d="M18,10 L20,12 L18,14" fill="black"/>
+				</svg>
+			</button>
+
+			<!-- Movimiento sin balón -->
+			<button 
+				type="button" 
+				title="Movimiento sin balón" 
+				data-action="diagram-editor#startDrawMoveNoBall"
+				class="p-1 border rounded hover:bg-gray-100"
+			>
+				<!-- Curva suave con trazo sólido -->
+				<svg viewBox="0 0 24 24" class="w-6 h-6">
+					<path d="M2,16 Q12,4 22,16" fill="none" stroke="black" stroke-width="2"/>
+				</svg>
+			</button>
+
+			<!-- Movimiento con balón -->
+			<button 
+				type="button" 
+				title="Movimiento con balón" 
+				data-action="diagram-editor#startDrawMoveWithBall"
+				class="p-1 border rounded hover:bg-gray-100"
+			>
+				<!-- Línea ondulada -->
+				<svg viewBox="0 0 24 24" class="w-6 h-6">
+					<path d="M2,16 C6,4 12,28 22,16" fill="none" stroke="black" stroke-width="2" stroke-linejoin="round"/>
+				</svg>
+			</button>
+			<button
+				type="button"
+				data-action="diagram-editor#deleteSelected"
+				class="p-1 border rounded hover:bg-red-100 disabled:opacity-50 disabled:bg-gray-200 disabled:cursor-not-allowed"
+				data-diagram-editor-target="deleteButton"
+				disabled
+			>
+				<!-- Icono de papelera -->
+				<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M10 7V4a1 1 0 011-1h2a1 1 0 011 1v3" />
+				</svg>
+			</button>
+		</div>
+	</div>
+
+	<div class="max-w-[90vw] max-h-[80vh] w-full h-auto overflow-hidden border">	 <!-- Canvas and edited content to save later -->
+		<svg
+			id="diagram-canvas"
+			xmlns="http://www.w3.org/2000/svg"
+			class="w-full h-auto"
+			viewBox="0 0 1000 800"
+			preserveAspectRatio="xMidYMid meet"
+			data-diagram-editor-target="canvas">
+			<image
+				href="<%= image_path(court_image(@court)) %>"
+				x="0" y="0"
+				width="100%" height="100%"
+				preserveAspectRatio="xMidYMid slice"
+				/>
+
+			<% if @svg_data.present? %>
+				<%= raw @svg_data %>
+			<% end %>
+		</svg>
+	</div>
+	<%= hidden_field_tag "step[diagram_svg]", "", data: { diagram_editor_target: "output" } %>
+	<%= hidden_field_tag "step[court]", @court, data: { diagram_editor_target: "courtField" } %>
+</div>

@@ -23,11 +23,11 @@ class FlashComponent < ApplicationComponent
 	def initialize(notice)
 		@count  = @count ? @count + 1 : 1
 		@notice = notice.class==String ? notice : notice["message"]
-		@kind   = notice.class==String ? "info" : notice["kind"]
+		@kind   = notice.class==String ? :info : notice[:kind]
 		case @kind
-		when "error"
+		when :error
 			color = "red"
-		when "success"
+		when :success
 			color = "indigo"
 		else
 			color = "gray"

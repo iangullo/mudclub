@@ -59,7 +59,7 @@ class ButtonComponent < ApplicationComponent
 			content_tag(:div, class: "relative") do
 				if @button[:url]
 					target = "_blank" if @button[:tab]
-					link_to(@button[:url], target:, class: @button[:b_class], data: @button[:data]) do
+					link_to(@button[:url], target:, class: @button[:b_class], title: @button[:title], data: @button[:data]) do
 						button_content
 					end
 				else
@@ -174,8 +174,8 @@ class ButtonComponent < ApplicationComponent
 			@button[:action] ||= "nested-form#remove"
 		end
 		@button[:flip]    ||= true if [:save,:import].include? @button[:kind]
-		@button[:type]      = "submit" if @button[:kind] =~ /^(save|import|login)$/
-		@button[:replace]   = true if @button[:kind] =~ /^(cancel|close|save|back)$/
+		@button[:type]      = "submit" if @button[:kind].to_s =~ /^(save|import|login)$/
+		@button[:replace]   = true if @button[:kind].to_s =~ /^(cancel|close|save|back)$/
 		@button[:b_class] ||= b_start + (@button[:kind]!= :jump ? " m-1 inline-flex align-middle" : "")
 	end
 

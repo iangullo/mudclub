@@ -71,7 +71,7 @@ class CalendarComponent < ApplicationComponent
 				return ButtonComponent.new(kind: :add, name: cname, url: c_url + "&event[kind]=rest&event[team_id]=0", frame: "modal")
 			elsif obj.try(:has_coach, @user.person.coach_id) # new team event
 				c_url  = c_url + "&event[team_id]=#{obj.id}"
-				button = {kind: "add", name: cname, options: []}
+				button = {kind: :add, name: cname, options: []}
 				button[:options] << {label: I18n.t("train.single"), url: c_url + "&event[kind]=train", data: {turbo_frame: :modal}}
 				button[:options] << {label: I18n.t("match.single"), url: c_url + "&event[kind]=match", data: {turbo_frame: :modal}}
 				button[:options] << {label: I18n.t("rest.single"), url: c_url + "&event[kind]=rest", data: {turbo_frame: :modal}}
@@ -93,8 +93,8 @@ class CalendarComponent < ApplicationComponent
 			c_event        = {id: event.id}
 			c_event[:url]  = "/events/#{event[:id]}/?cal=true"
 			c_event[:url] += "&rdx=#{@rdx}" if @rdx
-			case event.kind
-			when "match"
+			case event.kind.to_sym
+			when :match
 				sc = event.total_score	# our team first
 				c_event[:icon] = "match.svg"
 				c_event[:home] = event.home? ? sc[:ours] : sc[:opps]
@@ -106,7 +106,7 @@ class CalendarComponent < ApplicationComponent
 				else
 					b_color = "yellow"
 				end
-			when "train"
+			when :train
 				c_event[:icon]  = "training.svg"
 				c_event[:label] = event.to_s
 				if event.has_player(@user.player&.id)
@@ -114,7 +114,7 @@ class CalendarComponent < ApplicationComponent
 					c_event[:data] = {turbo_frame: "modal"}
 				end
 				b_color         = "blue"
-			when "rest"
+			when :rest
 				c_event[:icon]  = "rest.svg"
 				c_event[:label] = event.to_s
 				c_event[:data]  = {turbo_frame: "modal"}

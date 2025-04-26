@@ -25,11 +25,16 @@ class Step < ApplicationRecord
   validates :order, presence: true, numericality: { only_integer: true }
 
   def court
-    "#{self.drill.sport.name}_#{self.drill.court_mode}"
+    self.drill.court_mode
   end
 
+  
   def has_diagram?
     diagram.attached? || diagram_svg.present?
+  end
+  
+  def image
+    diagram_svg.presence || diagram.attachment
   end
 
   def kind
@@ -49,7 +54,20 @@ class Step < ApplicationRecord
     self[:diagram_svg].presence
   end
 
+  # head string for accoerdions
+  def headstring
+    "##{self.order}"
+  end
+
   def sport
     "basketball" # should be self.drill.sport in future
   end
+
+
+	# a list of passed steps fo bind to a related object
+	def self.passed(s_array)
+		a_steps = Array.new	# array to include only non-duplicates
+		s_array.each { |step| a_steps << step[1] }
+		return a_steps
+	end
 end

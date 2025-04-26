@@ -59,7 +59,7 @@ class TeamsController < ApplicationController
 			w_l = @team.win_loss
 			if w_l[:won] > 0 || w_l[:lost] > 0
 				wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
-				title << [helpers.gap_field, {kind: "text", value: wlstr}]
+				title << [helpers.gap_field, {kind: :text, value: wlstr}]
 			end
 			@title   = create_fields(title)
 			@coaches = create_fields(helpers.team_coaches)
@@ -189,7 +189,8 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [:manager, :coach, :secretary], obj: @club, both: true)
 			title   = helpers.team_title_fields(title: @team.nick)
 			players = @team.players
-			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster"), align: "left"}, {kind: "string", value: "(#{players.count} #{I18n.t("player.abbr")})"}]
+			title << icon_subtitle("player.svg", I18n.t("team.roster"))
+			title.last << { kind: :string, value: "(#{players.count} #{I18n.t("player.abbr")})" }
 			@title  = create_fields(title)
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.player_grid(team: @team, players: players.order(:number)))
@@ -204,7 +205,7 @@ class TeamsController < ApplicationController
 	def edit_roster
 		if @team && team_manager?
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster_edit"), align: "left"}]
+			title << icon_subtitle("player.svg", I18n.t("team.roster.edit"))
 			@title  = create_fields(title)
 			@submit = create_submit(close: :cancel, retlnk: roster_team_path(rdx: @rdx))
 			@eligible_players = @team.eligible_players
@@ -229,7 +230,7 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [:coach, :manager], obj: @club, both: true)
 			global_targets(true)	# get & breakdown global targets
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.many"), align: "left"}]
+			title << icon_subtitle("target.svg", I18n.t("target.many"))
 			@title  = create_fields(title)
 			edit    = edit_targets_team_path(rdx: @rdx) if team_manager?
 			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
@@ -245,7 +246,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			global_targets(false)	# get global targets
 			title   = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.edit"), align: "left"}]
+			title << icon_subtitle("target.svg", I18n.t("target.edit"))
 			@title  = create_fields(title)
 			@submit = create_submit(close: :cancel, retlnk: targets_team_path(rdx: @rdx))
 		else
@@ -258,7 +259,7 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [:coach, :manager], obj: @club, both: true)
 			plan_targets
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.single"), align: "left"}]
+			title << icon_subtitle("teamplan.svg", I18n.t("plan.single"))
 			@title = create_fields(title)
 			edit    = edit_plan_team_path(rdx: @rdx) if team_manager?
 			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
@@ -273,7 +274,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			plan_targets
 			title   = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.edit"), align: "left"}]
+			title << icon_subtitle("teamplan.svg", I18n.t("plan.edit"))
 			@title  = create_fields(title)
 			@submit = create_submit(close: :cancel, retlnk: plan_team_path(rdx: @rdx))
 		else
@@ -285,7 +286,7 @@ class TeamsController < ApplicationController
 	def attendance
 		if @team && check_access(roles: [:coach, :manager, :secretary], obj: @club, both: true)
 			title  = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("calendar.attendance"), align: "left"}]
+			title << icon_subtitle("attendance.svg", I18n.t("calendar.attendance"))
 			@title = create_fields(title)
 			a_data = helpers.team_attendance_grid
 			if a_data
@@ -359,6 +360,14 @@ class TeamsController < ApplicationController
 				@t_o_ind = filter(targets, 1, 1)
 				@t_o_col = filter(targets, 2, 1)
 			end
+		end
+
+		# reused across differnet views
+		def icon_subtitle(icon, label)
+			[
+				helpers.icon_field(icon, size: "30x30"),
+				{kind: :side_cell, value: label, align: "left"}
+			]
 		end
 
 		# retrieve monthly targets for the team

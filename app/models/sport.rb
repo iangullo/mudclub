@@ -239,7 +239,7 @@ class Sport < ApplicationRecord
 
 		# return label field for a stat
 		def stat_label_field(label, abbr = true)
-			{ kind: "side-cell", value: label, align: "middle", class: "border px py" }
+			{ kind: :side_cell, value: label, align: "middle", class: "border px py" }
 		end
 
 		# generic wrapper to update a stat value

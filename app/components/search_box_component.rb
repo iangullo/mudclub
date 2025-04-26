@@ -43,7 +43,7 @@ class SearchBoxComponent < ApplicationComponent
 		@s_url    = search[:url]
 		@s_filter = search[:filter].presence
 		@s_action = {action: "input->search-form#search"}
-		if search[:kind] == "search-box"	# we'll get an array of search_fields
+		if search[:kind] == :search_box	# we'll get an array of search_fields
 			@fields = search[:fields]
 		else	# we need to create our array of search_fields with a single one
 			@fields = [{kind: search[:kind], key: search[:key].to_sym, label: search[:label], options: search[:options], value: search[:value]}]
@@ -51,7 +51,7 @@ class SearchBoxComponent < ApplicationComponent
 		@fields.each  do |field|	# parse placeholders & labels
 			labels = true if field[:label].present?
 			field[:size]        ||= 17
-			field[:placeholder] ||= I18n.t("action.search") if field[:kind]=="search-text"
+			field[:placeholder] ||= I18n.t("action.search") if field[:kind] == :search_text
 		end
 		@i_class  = I_CLASS << (labels ? "mt-3" : "align-middle")
 		@i_class  = @i_class.join(" ")
@@ -75,13 +75,13 @@ class SearchBoxComponent < ApplicationComponent
 						content_tag(:label, field[:label], for: field[:key], class: L_CLASS)
 					end
 					case field[:kind]
-					when "search-text"
+					when :search_text
 						fsearch.text_field(field[:key], placeholder: field[:placeholder], value: field[:value], size: field[:size], class: @i_class, data: @s_action)
-					when "search-select"
+					when :search_select
 						fsearch.select(field[:key], options_for_select(field[:options], session.dig(field[:key].to_sym) || field[:value]), { include_blank: field[:blank] || t("scope.all") }, class: @i_class)
-					when "search-collection"
+					when :search_collection
 						fsearch.collection_select(field[:key], field[:options], :id, :name, { selected: params[field[:key].to_sym].presence || field[:value] }, class: @i_class)
-					when "hidden"
+					when :hidden
 						fsearch.hidden_field(field[:key].to_sym, value: field[:value])
 					end
 				end

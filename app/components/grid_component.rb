@@ -84,16 +84,16 @@ class GridComponent < ApplicationComponent
 			res = Array.new
 			title.each { |item|
 				case item[:kind]
-				when "normal"
+				when :normal
 					item[:class] = "font-semibold border px py"
-				when "inverse"
+				when :inverse
 					item[:class] = "font-semibold bg-white text-indigo-900 border px py"
-				when "gap"
+				when :gap
 					item[:value] = "&nbsp;"
-				when "button"
+				when :button
 					item[:value] = ButtonComponent.new(**item[:button])
 					item[:class] = "bg-white"
-				when "dropdown"
+				when :dropdown
 					item[:value] = DropdownComponent.new(item[:button])
 					item[:class] = "bg-white"
 				end
@@ -111,26 +111,26 @@ class GridComponent < ApplicationComponent
 				row[:data][:turbo_frame] = (row[:frame]=="modal" ? "modal" : "_top") if row[:url]
 				row[:data]["#{@controller}-target"] = "player" if @controller
 				row[:classes] ||= []
-			 	row[:classes]  += ["hover:text-white", "hover:bg-blue-700"] unless row[:name]=="bottom"
+			 	row[:classes]  += ["hover:text-white", "hover:bg-blue-700"] unless row[:name]==:bottom
 					row[:items].each { |item|
 					case item[:kind]
-					when "normal", "lines", "icon", "location", "text"
+					when :normal, :lines, :icon, :location, :text
 						item[:class] ||= "border px py"
-					when "button"
-						item[:class] ||= "bg-white" unless item[:button][:kind]==:location
+					when :button
+						item[:class] ||= "bg-white" unless item[:button][:kind] == :location
 						item[:value]   = ButtonComponent.new(**item[:button])
-					when "bottom"
+					when :bottom
 						item[:align] ||= "center"
 						item[:class]   = "text-indigo-900 font-semibold"
-					when "checkbox-q"
+					when :checkbox_q
 						@rowcue      ||= true if @controller
 						item[:align]   = "center"
 						item[:class] ||= "border px py"
-					when "contact"
+					when :contact
 						item[:align]   = "center"
 						item[:class] ||= "border px py"
 						item[:value]   = ContactComponent.new(email: item[:email], phone: item[:phone], device: item[:device])
-					when "percentage"
+					when :percentage
 						item[:align] ||= "center"
 						item[:class] ||= "font-semibold border px py"
 						if item[:value] # not nil
@@ -164,17 +164,17 @@ class GridComponent < ApplicationComponent
 		def render_cell(item, url, data)
 			tablecell_tag(item) do
 				case item[:kind]
-				when "bottom", "gap", "percentage", "text"
+				when :bottom, :gap, :percentage, :text
 					item[:value]
-				when "checkbox-q"
+				when :checkbox_q
 					render_checkbox(item)
-				when "icon"
+				when :icon
 					render_icon(item, url, data)
-				when "lines"
+				when :lines
 					item[:value].map { |cad| link_to(cad, url, data:) }.join("<br>").html_safe
-				when "normal"
+				when :normal
 					link_to(item[:value].to_s, url, data:)
-				when "number-box"
+				when :number_box
 					render(InputBoxComponent.new(item, form: @form))
 				else
 					render(item[:value])
@@ -203,12 +203,12 @@ class GridComponent < ApplicationComponent
 					@title.map do |item|
 						tablecell_tag(item, tag: :th) do
 							case item[:kind]
-							when "normal", "inverse", "gap"
+							when :normal, :inverse, :gap
 								concat(render_sort_indicator(item))
 								concat(render_order_link(item))
-							when "lines"
+							when :lines
 								concat(item[:value].map { |line| line_tag(line) }.join.html_safe)
-							when "dropdown", "button"
+							when :dropdown, :button
 								concat(render(item[:value]))
 							end
 						end

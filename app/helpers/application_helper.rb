@@ -19,7 +19,7 @@
 module ApplicationHelper
 	# standardised FieldsComponent button field wrapper
 	def button_field(button, cols: nil, rows: nil, align: nil, class: nil)
-		{kind: "button", button: button, cols:, rows:, align:, class:}
+		{kind: :button, button: button, cols:, rows:, align:, class:}
 	end
 
 	# return an html bulletized string from info
@@ -32,7 +32,7 @@ module ApplicationHelper
 
 	# return definition of copyright field
 	def copyright_field
-		{kind: "string", value: raw("&copy; 2024 iangullo@gmail.com"), align: "right", class: "text-sm text-gray-500"}
+		{kind: :string, value: raw("&copy; 2025 iangullo@gmail.com"), align: "right", class: "text-sm text-gray-500"}
 	end
 
 	# return device type
@@ -45,34 +45,34 @@ module ApplicationHelper
 	
 	# file upload button
 	def form_file_field(label:, key:, value:, cols: nil)
-		[[{kind: "upload", label:, key:, value:, cols:}]]
+		[[{kind: :upload, label:, key:, value:, cols:}]]
 	end
 
 	# standardised message wrapper
-	def flash_message(message, kind="info")
-		res = {message: message, kind: kind}
+	def flash_message(message, kind = :info)
+		res = {message:, kind:}
 	end
 
 	# standardised gap row field definition
 	def gap_field(size: nil, cols: nil, rows: nil)
-		{kind: "gap", size:, cols:, rows:}
+		{kind: :gap, size:, cols:, rows:}
 	end
 	
 	# standardised icon field definitions
 	def icon_field(icon_name, align: nil, iclass: nil, cols: nil, rows: nil, size: nil, tip: nil, tipid: nil)
-		{kind: "icon", value: icon_name, align:, class: iclass, cols:, rows:, size:, tip:, tipid:}
+		{kind: :icon, value: icon_name, align:, class: iclass, cols:, rows:, size:, tip:, tipid:}
 	end
 
 	# standardised gap row field definition
 	def gap_row(size: 1, cols: 1, _class: "text-xs")
-		[{kind: "gap", size:, cols:, class: _class}]
+		[{kind: :gap, size:, cols:, class: _class}]
 	end
 
 	# Field to use in forms to select club of a user/player/coach/team
 	def obj_club_selector(obj)
 		res = [
-			{kind: "icon", value: "mudclub.svg", tip: I18n.t("club.single"), tipid: "uclub"},
-			{kind: "select-box", align: "left", key: :club_id, options: current_user.club_list, value: obj.club_id, cols: 4},
+			{kind: :icon, value: "mudclub.svg", title: I18n.t("club.single")},
+			{kind: :select_box, align: "left", key: :club_id, options: current_user.club_list, value: obj.club_id, cols: 4},
 		]
 	end
 
@@ -87,9 +87,9 @@ module ApplicationHelper
 			else
 				""
 			end
-			return {kind: "icon-label", icon: obj.club.logo, label:, align: "center"}
+			return {kind: :icon_label, icon: obj.club.logo, title: obj.club.nick, label:, align: "center"}
 		else
-			return {kind: "string", value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center"}
+			return {kind: :string, value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center"}
 		end
 	end
 
@@ -118,18 +118,18 @@ module ApplicationHelper
 
 	# wrapper for hidden:field definitions
 	def string_field(value, align: nil, cols: nil, rows: nil)
-		{kind: "string", value:, align:, cols:, rows:}
+		{kind: :string, value:, align:, cols:, rows:}
 	end
 	
 	# generic title start FieldsComponent for views
 	def title_start(icon:, title:, subtitle: nil, size: nil, rows: nil, cols: nil, _class: nil, form: nil)
-		kind = form ? "image-box" : "header-icon"
+		kind = form ? :image_box : :header_icon
 		key  = form ? "avatar" : nil
 		res  = [[
 			{kind:, key:, value: icon, size:, rows:, class: _class},
-			{kind: "title", value: title, cols:}
+			{kind: :title, value: title, cols:}
 		]]
-		res << [{kind: "subtitle", value: subtitle}] if subtitle
+		res << [{kind: :subtitle, value: subtitle}] if subtitle
 		res
 	end
 end

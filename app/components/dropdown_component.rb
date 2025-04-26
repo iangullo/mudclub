@@ -96,7 +96,7 @@ class DropdownComponent < ApplicationComponent
 	end
 
 	def set_class(button)
-		case button[:kind]
+		case button[:kind].to_s
 		when /^(add.*)$/
 			set_add_class(button)
 		when "link"

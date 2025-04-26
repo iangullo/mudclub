@@ -43,7 +43,11 @@ Rails.application.routes.draw do
 		end
 	end
 	resources :drills do
-		get 'versions', on: :member
+		member do
+			get :versions
+			get   :edit_diagram   # /drills/:id/edit_diagram?step_id=X
+			patch :update_diagram # /drills/:id/update_diagram?step_id=X
+		end
 	end
 	resources :events, except: [:index] do
 		member do
@@ -61,7 +65,7 @@ Rails.application.routes.draw do
 	resources :players, except: [:index] do
 		collection do
 			post :import
-  	end
+		end
 	end
 	resources :seasons
 	resources :slots, except: [:index]

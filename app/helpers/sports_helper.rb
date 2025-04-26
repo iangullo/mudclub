@@ -20,13 +20,13 @@
 module SportsHelper
 	# sports page for admins
 	def sports_grid
-		title = [{kind: "normal", value: I18n.t("sport.single")}, {kind: "normal", value: I18n.t("team.many")}]
+		title = [{kind: :normal, value: I18n.t("sport.single")}, {kind: :normal, value: I18n.t("team.many")}]
 		#title << button_field({kind: :add, url: new_sport(rdx: @rdx), frame: "modal"})
 		rows = Array.new
 		Sport.all.each { |sport|
 			row = {url: sport_path(sport, rdx: @rdx), items: []}
-			row[:items] << {kind: "normal", value: sport.to_s, align: "center"}
-			row[:items] << {kind: "normal", value: sport.teams.count, align: "center"}
+			row[:items] << {kind: :normal, value: sport.to_s, align: "center"}
+			row[:items] << {kind: :normal, value: sport.teams.count, align: "center"}
 			#row[:items] << button_field({kind: :delete, url: row[:url], name: sport.to_s})
 			rows << row
 		}
@@ -37,10 +37,10 @@ module SportsHelper
 	def sports_show_fields
 		res = [
 			[
-				{kind: "header-icon", value: "sport/sport.svg"},
-				{kind: "title", value: I18n.t("sport.single")}
+				{kind: :header_icon, value: "sport/sport.svg"},
+				{kind: :title, value: I18n.t("sport.single")}
 			],
-			[{kind: "subtitle", value: @sport.to_s}],
+			[{kind: :subtitle, value: @sport.to_s}],
 			[
 				button_field({kind: :jump, icon: "sport/rules.svg", url: rules_sport_path(@sport, rdx: @rdx), label: I18n.t("sport.rules"), frame: "modal"}, align: "center"),
 				button_field({kind: :jump, icon: "sport/#{@sport.name}/category.svg", url: sport_categories_path(@sport, rdx: @rdx), label: I18n.t("category.many"), frame: "modal"}, align: "center")
@@ -56,14 +56,14 @@ module SportsHelper
 	def sports_form_fields(title:)
 		res = [
 			[
-				{kind: "header-icon", value: "sport/#{@sport.name}/category.svg"},
-				{kind: "title", value: title, cols: 2}
+				{kind: :header_icon, value: "sport/#{@sport.name}/category.svg"},
+				{kind: :title, value: title, cols: 2}
 			],
 			[
-				{kind: "label", value: @sport.to_s, mandatory: {length: 3}}
+				{kind: :label, value: @sport.to_s, mandatory: {length: 3}}
 			]
 		]
-		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
+		res.last << {kind: :hidden, key: :rdx, value: @rdx} if @rdx
 		res
 	end
 
@@ -71,10 +71,10 @@ module SportsHelper
 	def sport_rules_title(title)
 		[
 			[
-				{kind: "header-icon", value: "sport/rules.svg"},
-				{kind: "title", value: title}
+				{kind: :header_icon, value: "sport/rules.svg"},
+				{kind: :title, value: title}
 			],
-			[{kind: "subtitle", value: @sport.to_s}]
+			[{kind: :subtitle, value: @sport.to_s}]
 		]
 	end
 

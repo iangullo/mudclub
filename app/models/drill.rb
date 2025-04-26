@@ -33,6 +33,7 @@ class Drill < ApplicationRecord
 	has_one_attached :playbook
 	has_rich_text :explanation
 	has_many :steps, dependent: :destroy
+	accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
 	pg_search_scope :search_by_name,
 		against: [ :name, :description ],
 		ignoring: :accents,
@@ -45,27 +46,20 @@ class Drill < ApplicationRecord
 	self.inheritance_column = "not_sti"
 	validates :name, presence: true
 
-	# wrapper to return valid court modes for drill
-	def court_modes
-		self.sport.court_modes
+	# wrappers to return image file and name fo sefl court_mode
+	def court_image
+		self.sport.court_image(self.court_mode)
 	end
 
-	# temporary wrappers to access :explanation as Step 1 :explanation
-	def step_explanation(order = 1)
-		steps.find_by(order:)&.explanation
-	end
-
-	def step_explanation=(value, order = 1)
-		step = steps.find_or_initialize_by(order:)
-		step.explanation = value
-		step.save!
+	def court_name
+		self.sport.court_name(self.court_mode)
 	end
 
 	# check if drill (or associations) has changed
 	def modified?
 		res = self.changed?
 		unless res
-			res = self.step_explanation.changed?
+			res = self.steps.any?(&:saved_changes?)
 			unless res
 				res = self.skills.any?(&:saved_changes?)
 				unless res
@@ -82,6 +76,7 @@ class Drill < ApplicationRecord
 		cad = cad + (self.name ? self.name : I18n.t("drill.default"))
 		cad
 	end
+
 
 	# Array of print strings for associated skills
 	def print_skills
@@ -114,9 +109,10 @@ class Drill < ApplicationRecord
 		self.description = f_data[:description]
 		self.material    = f_data[:material]
 		self.coach_id    = f_data[:coach_id]
+		self.court_mode  = f_data[:court_mode]
 		self.kind_id     = Kind.fetch(f_data[:kind_id]&.strip).id
-		self.step_explanation = f_data[:step_explanation]
 		self.playbook    = f_data[:playbook]
+		self.check_steps(f_data[:steps_attributes]) if f_data[:steps_attributes]
 		self.check_skills(f_data[:skills_attributes]) if f_data[:skills_attributes]
 		self.check_targets(f_data[:drill_targets_attributes]) if f_data[:drill_targets_attributes]
 		self
@@ -126,6 +122,17 @@ class Drill < ApplicationRecord
 	def season_string
 		season = Season.where("start_date <= ? and end_date >= ?", self.updated_at, self.updated_at).distinct.first
 		season&.name
+	end
+
+	# temporary wrappers to access :explanation as Step 1 :explanation
+	def step_explanation(order = 1)
+		steps.find_by(order:)&.explanation
+	end
+
+	def step_explanation=(value, order = 1)
+		step = steps.find_or_initialize_by(order:)
+		step.explanation = value
+		step.save!
 	end
 
 	# Apply a Filter to Drills using params received from a controller.
@@ -225,6 +232,26 @@ class Drill < ApplicationRecord
 				else	# add to collection
 					sk = Skill.create(concept: s[:concept].strip) unless sk
 					self.skills << sk unless self.skills.include?(sk)
+				end
+			}
+		end
+
+		# checks skills array received and manages adding/removing
+		# from the drill collection - remove duplicates from list
+		def check_steps(s_array)
+			a_steps = Step.passed(s_array) # array to include only non-duplicates
+			order   = 1
+			a_steps.each { |s| # second pass - manage associations
+				st = Step.find_by_id(s[:id].to_i) || Step.new(drill_id: self.id, order: s[:order].presence)
+				if s[:_destroy] == "1"
+					self.steps.delete(s[:id].to_i)
+					st.delete if st&.persisted?
+				else	# add to collection
+					st.diagram = s[:diagram] if s[:diagram].presence
+					st.diagram_svg = s[:diagram_svg] if s[:diagram_svg].presence
+					st.explanation = s[:explanation] if s[:explanation].presence
+					st.save
+					self.steps << st unless self.steps.include?(st)
 				end
 			}
 		end

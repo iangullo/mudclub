@@ -2,13 +2,13 @@
 <div class="inline-flex items-center">
 	<%= @button[:label] %>
 <% end %>
-<button id="<%= @button[:id] %>" class="<%= @button[:b_class] %>" type="button" data-dropdown-toggle="<%= @button[:name] %>" data-dropdown-placement="<%= @button[:place] %>" data-dropdown-offset-distance=10 data-dropdown-offset-skidding=10>
+<button id="<%= @button[:id] %>" class="<%= @button[:b_class] %>" type="button" title="<%= @button[:title] %>" data-dropdown-toggle="<%= @button[:name] %>" data-dropdown-placement="<%= @button[:place] %>" data-dropdown-offset-distance=10 data-dropdown-offset-skidding=10>
 	<% if @button[:ham] %>
 	<svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
 	</svg>
 	<% elsif @button[:icon] %>
-	<%=image_tag(@button[:icon], size: @button[:size] ? @button[:size] : "25x25", class: @button[:i_class])%>
+	<%= image_tag(@button[:icon], size: @button[:size] ? @button[:size] : "25x25", class: @button[:i_class]) %>
 	<% end %>
 	<% if @button[:label] && !@button[:append] %>
 	<div class="inline-flex items-center">
@@ -21,10 +21,10 @@
 	</div>
 	<% end %>
 </button>
-<div id="<%=@button[:name]%>" class="<%=@button[:d_class]%>">
+<div id="<%= @button[:name]%>" class="<%=@button[:d_class] %>">
 	<ul aria-labelledby="<%=@button[:id]%>">
 		<% @button[:options].each do |option| %>
-		<li class="<%=@button[:o_class]%>">
+		<li class="<%= @button[:o_class] %>">
 			<% if option[:options] %>
 				<% option[:id]  = "btn#{option[:name]}" %>
 				<% option[:sub] = true %>

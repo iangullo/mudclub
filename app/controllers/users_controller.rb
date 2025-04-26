@@ -29,7 +29,7 @@ class UsersController < ApplicationController
 			@users = User.search(search, current_user)
 			page   = paginate(@users)	# paginate results
 			title  = helpers.person_title_fields(title: I18n.t("user.many"), icon: "user.svg", size: "50x50")
-			title << [{kind: "search-text", key: :search, value: search, url: users_path(rdx: @rdx)}]
+			title << [{kind: :search_text, key: :search, value: search, url: users_path(rdx: @rdx)}]
 			grid   = helpers.user_grid(users: @u_page)
 			create_index(title:, grid:, page:, retlnk: base_lnk("/"))
 		else

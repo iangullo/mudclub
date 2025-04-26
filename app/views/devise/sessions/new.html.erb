@@ -1,21 +1,21 @@
 <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
 	<%= render FieldsComponent.new(
 		[
-			[{kind: "side-cell", value: t("action.login"), align: "center", cols: 5}],
+			[{kind: :side_cell, value: I18n.t("action.login"), align: "center", cols: 5}],
 			[
-				{kind: "header-icon", value: "user.svg", rows: 2},
-				{kind: "icon", value: "email.svg"},
-				{kind: "email-box", key: :email, autocomplete: "email", cols: 3}
+				{kind: :header_icon, value: "user.svg", rows: 2},
+				{kind: :icon, value: "email.svg"},
+				{kind: :email-box:, key: :email, autocomplete: I18n.t("person.email"), cols: 3}
 			],
 			[
-				{kind: "icon", value: "key.svg"},
-				{kind: "password-box", key: :password, autocomplete: "password", cols: 3}
+				{kind: :icon, value: "key.svg"},
+				{kind: :password_box, key: :password, autocomplete: I18n.t("password.single"), cols: 3}
 			],
 			[
 				gap_field(size: 1, cols: 2),
-				{kind: "label-checkbox", label: t("action.remember"), key: :remember_me, right: true},
+				{kind: :label_checkbox, label: I18n.t("action.remember"), key: :remember_me, right: true},
 				gap_field,
-				{kind: "button", button: {kind: :login, label: t("action.login"), confirm: I18n.t("question.login"), align: "right"}}
+				{kind: :button, button: {kind: :login, label: I18n.t("action.login"), confirm: I18n.t("question.login"), align: "right"}}
 			]
 		],
 		form: f

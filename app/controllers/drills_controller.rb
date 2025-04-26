@@ -21,6 +21,7 @@ class DrillsController < ApplicationController
 	include Filterable
 	include PdfGenerator
 	before_action :set_drill, only: [:show, :edit, :update, :destroy, :versions]
+	before_action :set_step, only: [:edit_diagram, :update_diagram]
 	before_action :set_paper_trail_whodunnit
 
 	# GET /drills or /drills.json
@@ -42,8 +43,9 @@ class DrillsController < ApplicationController
 		if @drill && check_access(roles: [:manager, :coach])
 			respond_to do |format|
 				@intro = create_fields(helpers.drill_show_intro)
+				@steps = create_fields(helpers.drill_show_steps)
 				@tail  = create_fields(helpers.drill_show_tail)
-				title  = helpers.drill_show_title(title: I18n.t("drill.single"))
+				title  = helpers.drill_show_title(title: @drill.name)
 				format.pdf do
 					response.headers['Content-Disposition'] = "attachment; filename=drill.pdf"
 					pdf = drill_to_pdf(title)
@@ -51,7 +53,6 @@ class DrillsController < ApplicationController
 				end
 				format.html do
 					@title = create_fields(title)
-					@explain = create_fields(helpers.drill_show_explain)
 					submit   = edit_drill_path(@drill, rdx: @rdx) if (@drill.coach_id == u_coachid) || (u_manager? && u_clubid == @drill.coach.club_id)
 					@submit  = create_submit(close: :back, retlnk: base_lnk(drills_path(rdx: @rdx)), submit:)
 					render :show
@@ -65,7 +66,7 @@ class DrillsController < ApplicationController
 	# GET /drills/new
 	def new
 		if check_access(roles: [:manager, :coach])
-			@drill = Drill.new
+			@drill = Drill.new(sport_id: 1)  # will have to change this to pass from controller
 			prepare_form("new")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -147,6 +148,35 @@ class DrillsController < ApplicationController
 		end
 	end
 
+	# GET /drills/1/edit_diagram?step_id=X
+	def edit_diagram
+		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
+			if (@step = set_step)
+				@title   = create_fields(helpers.drill_title_fields(title: @drill.name, subtitle: I18n.t("step.edit_diagram") + " ##{@step.order}"))
+				@diagram = @step.diagram_svg
+				@editor  = helpers.drill_form_diagram
+				@submit  = create_submit(frame: "modal", retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
+			else
+				redirect_to edit_drill(@drill), data: {turbo_action: "replace"}
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# PATCH /drills/1/edit_diagram?step_id=X
+	# Recibe el SVG serializado y actualiza el paso
+	def update_diagram
+		if @step&.update(diagram_svg: params.dig(:step, :diagram_svg))
+			respond_to do |format|
+				format.turbo_stream
+				format.html { redirect_to edit_drill_path(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
+			end
+		else
+			render :edit_diagram, status: :unprocessable_entity
+		end
+	end
+
 	# GET /drills/1/versions
 	def versions
 		if check_access(roles: [:manager, :coach])
@@ -179,21 +209,34 @@ class DrillsController < ApplicationController
 
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(action)
-			@title    = create_fields(helpers.drill_form_title(title: I18n.t("drill.#{action}")))
-			@playbook = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
-			@formdata = create_fields(helpers.drill_form_data)
-			@explain  = create_fields(helpers.drill_form_explain)
-			@formtail = create_fields(helpers.drill_form_tail)
-			@skills   = Skill.list
-			s_size    = 10
+			@title     = create_fields(helpers.drill_form_title(title: I18n.t("drill.#{action}")))
+			@playbook  = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
+			@formdata  = create_fields(helpers.drill_form_data)
+			@formsteps = create_fields(helpers.drill_form_steps)
+			@formtail  = create_fields(helpers.drill_form_tail)
+			@skills    = Skill.list
+			s_size     = 10
 			@skills.each { |skill| s_size = skill.length if skill.length > s_size }
-			@s_size   = s_size - 3
-			@submit   = create_submit(retlnk: (action == "new" ? drills_path(rdx: @rdx) : cru_return))
+			@s_size    = s_size - 3
+			@submit    = create_submit(retlnk: (action == "new" ? drills_path(rdx: @rdx) : cru_return))
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_drill
 			@drill = Drill.includes(:skills,:targets,:steps).find_by_id(params[:id]) unless @drill&.id==params[:id]
+		end
+
+		# retrieve or cretae a drill step from params received
+		def set_step
+			if (@drill = Drill.find_by_id(params[:id].presence&.to_i)) && (step_id = params[:step_id].presence&.to_i)
+				if step_id == 0 # it is a recently created step, not yet persisted
+					@step = Step.create(drill_id: @drill.id, order: params[:order].to_i)
+				else	# step was already persisted in database	
+					@step = Step.find_by_id(step_id)
+				end
+			else
+				return nil
+			end
 		end
 
 		# Only allow a list of trusted parameters through.
@@ -203,16 +246,19 @@ class DrillsController < ApplicationController
 				:material,
 				:description,
 				:coach_id,
+				:court_mode,
 				:step_explanation,
 				:playbook,
 				:kind_id,
 				:rdx,
 				:season_id,
 				:skill_id,
+				:step_id,
 				skills: [],
 				target_ids: [],
 				skill_ids: [],
 				skills_attributes: [:id, :concept, :_destroy],
+				steps_attributes: [:id, :order, :diagram, :explanation, :_destroy],
 				drill_targets_attributes: [
 					:id,
 					:priority,

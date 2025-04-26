@@ -34,7 +34,7 @@ class PlayersController < ApplicationController
 				end
 				format.html do
 					title  = helpers.person_title_fields(title: I18n.t("player.many"), icon: "player.svg", size: "50x50")
-					title << [{kind: "search-text", key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid, rdx: @rdx)}]
+					title << [{kind: :search_text, key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid, rdx: @rdx)}]
 					page   = paginate(@players)	# paginate results
 					grid   = helpers.player_grid(players: page)
 					submit = {kind: :export, url: club_players_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?

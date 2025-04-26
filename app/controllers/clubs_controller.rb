@@ -26,7 +26,7 @@ class ClubsController < ApplicationController
 			page    = paginate(@clubs)
 			title   = I18n.t("club.#{u_manager? ? 'rivals': '.many'}")
 			title   = helpers.club_title_fields(title:, icon: "rivals.svg")
-			title << [{kind: "search-text", key: :search, value: params[:search] || session.dig('club_filters', 'search'), url: clubs_path, size: 10}]
+			title << [{kind: :search_text, key: :search, value: params[:search] || session.dig('club_filters', 'search'), url: clubs_path, size: 10}]
 			grid    = helpers.club_grid(clubs: page)
 			retlnk  = base_lnk(u_clubid ? club_path(u_clubid) : "/")
 			create_index(title:, grid:, page:, retlnk:)

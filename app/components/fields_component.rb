@@ -18,35 +18,47 @@
 #
 # frozen_string_literal: true
 
-# FieldsComponent - ViewComponent to render rows of fields as table cells in a view
-# managing different kinds of content for each field:
-# => "button": a specific ButtonComponent - passed as argument item[:button]
-# => "contact": mailto:, tel: and whatsapp: buttons for a person
-# => "date-box": :key (field name), :value (date_field), :s_year (start_year)
-# => "email-box": :key (field name), :value (email_field), :size (box size)
-# => "gap": :size (count of &nbsp; to separate content)
-# => "header-icon": :value (name of icon file in assets)
-# => "hidden": :a hidden link for the form
-# => "icon": :value (name of icon file in assets)
-# => "icon-label": :icon (name of icon file), :label (added text)
-# => "label": :value (semibold text string)
-# => "label-checkbox": :key (attribute of checkbox), :value (added text)
-# => "number-box": :key (field name), :value (number_field), size:
-# => "password-box": :key (field name), :value (password_field)
-# => "person-type": icons (& tips) for type of person in the database
-# => "rich-text-area": :key (field name)
-# => "select-box": :key (field name), :options (array of valid options), :value (form, select)
-# => "select-collection": :key (field name), :collection, :value (form, select)
-# => "search-text": :url (search_in), :value
-# => "search-select": :key (search field), :url (search_in), :options, :value
-# => "search-collection": :key (search field), :url (search_in), :options, :value
-# => "search-box": :key (search field), :url (search_in), :options
-# => "string": :value (regular text string)
-# => "subtitle": :value (bold text of title)
-# => "text-area": :key (field name), :value (text_field), :size (box size), lines: number of lines
-# => "text-box": :key (field name), :value (text_field), :size (box size)
-# => "time-box": :hour & :mins (field names)
-# => "title": :value (bold text of title in orange colour)
+# FieldsComponent - ViewComponent to compose rows of content fields as table
+#		cells in a view managing different kinds of content for each field:
+# => :accordion: a collapsible accordion element
+# => :button: a specific ButtonComponent - passed as argument item[:button]
+# => :contact: mailto:, tel: and whatsapp: buttons for a person
+# => :date_box: :key (field name), :value (date_field), :s_year (start_year)
+# => :dropdown: a DropdownComponent - passed as argument to the menu generator
+# => :diagram_editor: :diagram (diagram we are editing), :aux_ids (optional aray of hidden id fields if needed)
+# => :email_box: :key (field name), :value (email_field), :size (box size)
+# => :gap: :size (count of &nbsp; to separate content)
+# => :grid: :value (GridComponent definition), :form (optional)
+# => :header_icon: :value (name of icon file in assets)
+# => :hidden: :a hidden link for the form
+# => :icon: :value (name of icon file in assets)
+# => :icon_label: :icon (name of icon file), :label (added text)
+# => :image: :value (load an image file)
+# => :label: :value (semibold text string)
+# => :label_checkbox: :key (attribute of checkbox), :value (added text)
+# => :lines: :value (array of text lines to be shown)
+# => :number_box: :key (field name), :value (number_field), size:
+# => :nested_form: :model, :key, :form: :child, :row, :filter to define a NestedFormComponent
+# => :password_box: :key (field name), :value (password_field)
+# => :person_type: icons (& tips) for type of person in the database
+# => :rich_text_area: :key (field name)
+# => :select_box: :key (field name), :options (array of valid options), :value (form, select)
+# => :select_collection: :key (field name), :collection, :value (form, select)
+# => :search_text: :url (search_in), :value
+# => :search_select: :key (search field), :url (search_in), :options, :value
+# => :search_collection: :key (search field), :url (search_in), :options, :value
+# => :search_box: :key (search field), :url (search_in), :options
+# => :separator: separator line (kind: :dashed, :solid, :dotted, rounded: )
+# => :side_cell: :value (content stiyled like a GridComponent side_cell)
+# => :string: :value (regular text string)
+# => :subtitle: :value (bold text of title)
+# => :svg: :value (raw svg content to show)
+# => :text_area: :key (field name), :value (text_field), :size (box size), lines: number of lines
+# => :text_box: :key (field name), :value (text_field), :size (box size)
+# => :time_box: :hour & :mins (field names)
+# => :title: :value (bold text of title in orange colour)
+# => :top_cell: :value (content stiyled like a GridComponent top_cell)
+# => :upload: :label, :key (form binding for content), :value (file already assigned)
 class FieldsComponent < ApplicationComponent
 	def initialize(fields, form: nil)
 		@fields = parse(fields)
@@ -81,18 +93,20 @@ class FieldsComponent < ApplicationComponent
 		fields.each do |row|
 			res << [] # new row n header
 			row.each do |item|
-				case item[:kind]	# need to adapt to each fields "kind"
+				case item[:kind].to_s	# need to adapt to each fields "kind"
 				when "accordion"
 					item[:value] = AccordionComponent.new(title: item[:title], tail: item[:tail], objects: item[:objects])
 				when "button"	# item[:button] has to contain the button definition
 					item[:value] = ButtonComponent.new(**item[:button])
 				when "contact"
 					set_contact(item)
+				when "diagram_editor"
+					item[:value] = DiagramEditorComponent.new(item[:step])
 				when "dropdown"	# item[:button] has to contain the button definition
 					item[:value] = DropdownComponent.new(item[:button])
-				when "header-icon", "icon", "icon-label"
+				when /^(.*icon.*)$/
 					set_icon(item)
-				when "label-checkbox"
+				when "label_checkbox"
 					item[:class] ||= " align-middle rounded-md"
 				when /^(search-.+)$/
 					item[:value] = SearchBoxComponent.new(item)
@@ -100,10 +114,12 @@ class FieldsComponent < ApplicationComponent
 					set_text_field(item)
 				when /^(select-.+|.+-box|.+-area)$/
 					item[:class] ||= "align-top"
-				when "person-type"
+				when "separator"
+					item[:stroke] ||= "solid"
+				when "person_type"
 					set_person_type(item)
 				else
-					item[:i_class] = "rounded p-0" unless item[:kind]=="gap"
+					item[:i_class] = "rounded p-0" unless item[:kind] == :gap
 				end
 				item[:align] ||= "left"
 #				item[:class] = (item[:class].present? ? item[:class] + " " : "") + "border px py"
@@ -116,8 +132,8 @@ class FieldsComponent < ApplicationComponent
 	# wrapper to render a specific field
 	def render_field(field)
 		tablecell_tag(field) do
-			case field[:kind]
-			when /^(accordion|button|contact|dropdown|search-.+)$/
+			case field[:kind].to_s
+			when /^(accordion|button|contact|diagram_editor|dropdown|search-.+)$/
 				render field[:value]
 			when /^(select-.+|.+box|.+-area|hidden|radio.+|upload)$/
 				render InputBoxComponent.new(field, form: @form)
@@ -125,13 +141,17 @@ class FieldsComponent < ApplicationComponent
 				("&nbsp;" * field[:size]).html_safe
 			when "grid"
 				render GridComponent.new(field[:value], form: @form)
-			when "header-icon", "icon", "icon-label"
+			when /^(.*icon.*|image)$/
 				render_image_field(field)
 			when "lines"
 				field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
-			when "nested-form"
+			when "nested_form"
 				render NestedComponent.new(model: field[:model], key: field[:key], form: @form, child: field[:child], row: field[:row], filter: field[:filter])
-			when "person-type"
+			when "separator"
+				("<hr class=\"#{field[:stroke]}\"").html_safe
+			when "svg"
+				render field[:value]
+			when "person_type"
 				render_role_icons(field[:icons])
 			else
 				if field[:dclass]
@@ -192,14 +212,14 @@ class FieldsComponent < ApplicationComponent
 
 	# used for all icon/image fields - except for "image-box"
 	def set_icon(item)
-		if item[:kind]=="header-icon"
+		if item[:kind] == :header_icon
 			i_size         = "50x50"
 			item[:align]   = "center"
-			item[:class] ||= "align-center"
+			item[:class] ||= "align-center mr-1"
 			item[:rows]    = 2 unless item[:rows]
 		else
 			i_size = "25x25"
-			if item[:label] && item[:kind]!="icon-label"
+			if item[:label] && item[:kind] != :icon_label
 				item[:class] ||= "align-top inline-flex"
 			else
 				item[:align] ||= "right"
@@ -211,23 +231,23 @@ class FieldsComponent < ApplicationComponent
 	# used for all text-like fields - except for inputboxes, of course
 	def set_text_field(item)
 		case item[:kind]
-		when "gap"
+		when :gap
 			item[:size]  ||= 4
-		when "label"
+		when :label
 			l_cls          = "inline-flex align-top font-semibold"
 			item[:class]   = item[:class] ? "#{item[:class]} #{l_cls}" : l_cls
-		when "lines"
+		when :lines
 			item[:class] ||= "align-top border px py"
-		when "side-cell"
+		when :side_cell
 			item[:align] ||= "right"
 			item[:class]   = "align-center font-semibold text-indigo-900"
-		when "string"
+		when :string
 			item[:class] ||= "align-top"
-		when "subtitle"
+		when :subtitle
 			item[:class]   = "align-top font-bold"
-		when "title"
+		when :title
 			item[:class]   = "align-top font-bold text-yellow-600"
-		when "top-cell"
+		when :top_cell
 			item[:class]   = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
 		end
 	end

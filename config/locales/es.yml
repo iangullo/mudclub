@@ -205,15 +205,16 @@ es:
     single: "Tutor"
     many: "Tutores"
   password:
-    single: "Contraseña"
     blank_abort: "(dejar en blanco si no quiere cambiarla)"
     change: "Cambiar Contraseña"
     confirm: "Confirmar contraseña"
     confirm_label: "(*) confirmar contraseña"
     confirm_wait: "Esperando confirmación de: "
+    forgotten: "¿Contraseña ovidada?"
     min_chars: "Longitud mínima: "
     new: "Nueva contraseña"
     old: "Contraseña actual"
+    single: "Contraseña"
   person:
     address: "Domicilio"
     age: "Edad"

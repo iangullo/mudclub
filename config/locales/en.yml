@@ -205,15 +205,16 @@ en:
     single: "Parent"
     many: "Parents"
   password:
-    single: "Password"
     blank_abort: "(leave blank to avoid changing it)"
     change: "Change password"
     confirm: "Confirm Password"
     confirm_label: "(*) confirm password"
     confirm_wait: "Awaiting confirmation from: "
+    forgotten: "Forgot your password?"
     min_chars: "Minimum length: "
     new: "New password"
     old: "Current password"
+    single: "Password"
   person:
     address: "Home address"
     age: "Age"
