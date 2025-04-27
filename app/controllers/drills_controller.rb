@@ -151,13 +151,13 @@ class DrillsController < ApplicationController
 	# GET /drills/1/edit_diagram?step_id=X
 	def edit_diagram
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
-			if (@step = set_step)
+			if @step
 				@title   = create_fields(helpers.drill_title_fields(title: @drill.name, subtitle: I18n.t("step.edit_diagram") + " ##{@step.order}"))
 				@diagram = @step.diagram_svg
 				@editor  = helpers.drill_form_diagram
 				@submit  = create_submit(frame: "modal", retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
 			else
-				redirect_to edit_drill(@drill), data: {turbo_action: "replace"}
+				redirect_to edit_drill_path(@drill), data: {turbo_action: "replace"}
 			end
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
@@ -226,10 +226,11 @@ class DrillsController < ApplicationController
 			@drill = Drill.includes(:skills,:targets,:steps).find_by_id(params[:id]) unless @drill&.id==params[:id]
 		end
 
-		# retrieve or cretae a drill step from params received
+		# retrieve or create a drill step from params received
 		def set_step
-			if (@drill = Drill.find_by_id(params[:id].presence&.to_i)) && (step_id = params[:step_id].presence&.to_i)
-				if step_id == 0 # it is a recently created step, not yet persisted
+			if (@drill = Drill.find_by_id(params[:id].presence&.to_i))
+				step_id = (params[:step_id].presence || @drill.steps.find_by(order: params[:order]&.presence.to_i).id)&.to_i
+				if step_id == 0	# it is a recently created step, not yet persisted
 					@step = Step.create(drill_id: @drill.id, order: params[:order].to_i)
 				else	# step was already persisted in database	
 					@step = Step.find_by_id(step_id)

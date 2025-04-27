@@ -140,8 +140,8 @@ export default class extends Controller {
   addCone() {
     const { width, height } = this.currentViewBox();
     // Tamaño del cono: base 3% del ancho, altura 5% del alto
-    const base = width * 0.02;
-    const heightC = height * 0.03;
+    const base = width * 0.03;
+    const heightC = height * 0.05;
     const x0 = width * 0.2;
     const y0 = height * 0.3;
   

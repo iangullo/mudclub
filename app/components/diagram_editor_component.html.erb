@@ -27,11 +27,11 @@
 
 		<div>
 			<button type="button" data-action="click->diagram-editor#addAttacker" title="Añadir atacante" class="p-1 border rounded hover:bg-gray-100">
-				<%= image_tag("sport/diagram/attacker.svg", size:"25x25") %>
+				<%= image_tag("sport/#{@sportname}/attacker.svg", size:"25x25") %>
 			</button>
 
 			<button type="button" data-action="click->diagram-editor#addDefender" title="Añadir defensor" class="p-1 border rounded hover:bg-gray-100">
-				<%= image_tag("sport/diagram/defender.svg", size:"25x25") %>
+				<%= image_tag("sport/#{@sportname}/defender.svg", size:"25x25") %>
 			</button>
 
 			<button type="button" data-action="click->diagram-editor#addBall" title="Añadir balón" class="p-1 border rounded hover:bg-gray-100">
@@ -39,7 +39,7 @@
 			</button>
 
 			<button type="button" data-action="click->diagram-editor#addCone" title="Añadir cono" class="p-1 border rounded hover:bg-gray-100">
-				<%= image_tag("sport/diagram/cone.svg", size:"25x25") %>
+				<%= image_tag("sport/#{@sportname}/cone.svg", size:"25x25") %>
 			</button>
 
 			<!-- Tiro -->

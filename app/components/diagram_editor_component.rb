@@ -26,12 +26,14 @@ class DiagramEditorComponent < ApplicationComponent
 		@svg_data   = step.diagram_svg.presence
 		@courts     = prepare_courts(step)
 		@court      = step.court || :full # could also be stored
-		@b_attacker = editor_button(icon: "attacker.svg", action: "click->diagram-editor#addAttacker")
-		@b_defender = editor_button(icon: "defender.svg", action: "click->diagram-editor#addDefender")
-		@b_ball     = editor_button(icon: "ball.svg", action: "click->diagram-editor#addBall")
-		@b_cone     = editor_button(icon: "cone.svg", action: "click->diagram-editor#addCone")
-	end
-
+		@sportname  = step.drill.sport.name
+=begin
+		@b_attacker = editor_button("attacker", "click->diagram-editor#addAttacker")
+		@b_defender = editor_button("defender", "click->diagram-editor#addDefender")
+		@b_ball     = editor_button("ball.svg", "click->diagram-editor#addBall")
+		@b_cone     = editor_button("cone.svg", "click->diagram-editor#addCone")
+=end
+	end	
 	def court_image(court)
 		@courts[court.to_sym][:image]
 	end
@@ -66,8 +68,10 @@ class DiagramEditorComponent < ApplicationComponent
 	end
 
 	private
-		def editor_button(icon:, action:)
-			ButtonComponent.new(kind: :stimulus, title: action, icon:, data: {action:})
+		def editor_button(object, action)
+			icon  = "sport/#{@sportname}/#{object}.svg"
+			title = I18n.t("sport.#{@sportname}/objects/#{object}")
+			ButtonComponent.new(kind: :stimulus, title:, icon:, data: { action: })
 		end
 
 		def prepare_courts(step)

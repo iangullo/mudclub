@@ -175,7 +175,7 @@ module DrillsHelper
 			[{kind: :label, value: I18n.t("step.many"), cols: 3}],
 			[{kind: :separator, cols: 3}]
 		] unless @drill.steps.empty?
-		@drill.steps.each do |step|
+		@drill.steps.order(:order).each do |step|
 			text = step.explanation.present?
 			diag = step.image.present?
 			if text || diag

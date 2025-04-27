@@ -32,7 +32,7 @@
 						<%= raw(step.diagram_svg) if step.diagram_svg.present? %>
 					</svg>
 					<div class="overlay rounded absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" >
-						<%= link_to edit_diagram_drill_path(step_id: step&.id&.to_i, order_id: step&.order&.to_i), title: I18n.t("step.edit_diagram"), data: {turbo_frame: "modal"} do%>
+						<%= link_to edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram"), data: {turbo_frame: "modal"} do %>
 							<%= image_tag("edit.svg", size: "50x50")  %>
 						<% end %>
 					</div>
