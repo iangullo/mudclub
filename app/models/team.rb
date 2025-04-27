@@ -236,6 +236,7 @@ class Team < ApplicationRecord
 			:division_id,
 			:homecourt_id,
 			:name,
+			:nick,
 			:season_id,
 			:sport_id,
 			coach_ids: []

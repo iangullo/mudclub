@@ -110,19 +110,24 @@ class TeamsController < ApplicationController
 		@club = Club.find(@clubid)
 		if club_manager?(@club)
 			respond_to do |format|
-				@team = Team.build(team_params)
-				if @team.save
-					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
-					c_path = (user_in_club? ? cru_return : club_teams_path(@clubid, rdx: @rdx))
-					register_action(:created, a_desc, url: team_path(@team, rdx: 2))
-					format.html { redirect_to c_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: c_path }
-				else
-					@eligible_coaches = Coach.active
-					@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
-					@submit = create_submit
-					format.html { render :new }
-					format.json { render json: @team.errors, status: :unprocessable_entity }
+				if team_params
+					@team = Team.build(team_params)
+					if @team.save
+						a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
+						c_path = (user_in_club? ? cru_return : club_teams_path(@clubid, rdx: @rdx))
+						register_action(:created, a_desc, url: team_path(@team, rdx: 2))
+						format.html { redirect_to c_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :created, location: c_path }
+					else
+						@eligible_coaches = Coach.active
+						@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
+						@submit = create_submit
+						format.html { render :new }
+						format.json { render json: @team.errors, status: :unprocessable_entity }
+					end
+				else	# no data to save...
+					format.html { redirect_to retlnk, notice: n_notice, data: {turbo_action: "replace"} }
+					format.json { redirect_to retlnk, status: :ok, location: retlnk }
 				end
 			end
 		else
