@@ -26,7 +26,7 @@ class TeamsController < ApplicationController
 	def index
 		if check_access(roles: [:admin, :manager, :coach, :secretary])
 			@club  = Club.find_by_id(@clubid)
-			@teams = @club.teams.where(season_id: @seasonid).order(:category_id, :name)
+			@teams = filter!(Team).order(:category_id, :name)
 			respond_to do |format|
 				format.xlsx do
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
@@ -84,7 +84,7 @@ class TeamsController < ApplicationController
 	def new
 		if u_manager?
 			@eligible_coaches = @club.coaches
-			@team   = Team.new(club_id: @club.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
+			@team   = Team.new(club_id: @club.id, sport_id: Sport.first.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
 			@submit = create_submit(retlnk: club_teams_path(@clubid, rdx: 0))
 		else
@@ -137,8 +137,8 @@ class TeamsController < ApplicationController
 			respond_to do |format|
 				n_notice = no_data_notice(trail: @team.to_s)
 				retlnk   = cru_return
-				if params[:team]
-					@team.rebuild(params[:team])
+				if team_params
+					@team.rebuild(team_params)
 					if @team.modified?
 						if @team.save
 							a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
@@ -385,7 +385,7 @@ class TeamsController < ApplicationController
 				@clubid = @team&.club&.id
 			end
 			@club     = Club.find(@clubid)
-			s_id      = @team&.season&.id || p_seasonid || session.dig('team_filters', 'season_id')
+			s_id      = @team&.season&.id || session.dig('team_filters', 'season_id') || p_seasonid
 			@season   = Season.search(s_id) unless (s_id == @season&.id)
 			@seasonid = @season&.id
 		end
@@ -399,6 +399,7 @@ class TeamsController < ApplicationController
 				:coaches,
 				:division_id,
 				:homecourt_id,
+				:name,
 				:nick,
 				:players,
 				:rdx,

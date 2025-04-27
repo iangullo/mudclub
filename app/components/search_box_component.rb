@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -58,39 +58,48 @@ class SearchBoxComponent < ApplicationComponent
 	end
 
 	def call
-    content_tag(:div, id: 'search-box', class: D_CLASS) do
-      form_with(url: @s_url, method: :get, data: { controller: "search-form", search_form_fsearch_target: 'fsearch', turbo_frame: 'search-results' }) do |fsearch|
-        render_fields(fsearch) +
-          hidden_filter_field(fsearch) +
-          submit_button
-      end
-    end
-  end
+		tag.div(id: 'search-box', class: D_CLASS) { search_form }
+	end
 
-  private
-		def render_fields(fsearch)
-			@fields.map do |field|
-				content_tag(:div, class: F_CLASS) do
-					if field[:label].present?
-						content_tag(:label, field[:label], for: field[:key], class: L_CLASS)
-					end
-					case field[:kind]
-					when :search_text
-						fsearch.text_field(field[:key], placeholder: field[:placeholder], value: field[:value], size: field[:size], class: @i_class, data: @s_action)
-					when :search_select
-						fsearch.select(field[:key], options_for_select(field[:options], session.dig(field[:key].to_sym) || field[:value]), { include_blank: field[:blank] || t("scope.all") }, class: @i_class)
-					when :search_collection
-						fsearch.collection_select(field[:key], field[:options], :id, :name, { selected: params[field[:key].to_sym].presence || field[:value] }, class: @i_class)
-					when :hidden
-						fsearch.hidden_field(field[:key].to_sym, value: field[:value])
-					end
-				end
-			end.join.html_safe
+	private		
+		def field_tag(fsearch, field)
+			tag.div(class: F_CLASS) do
+				safe_join([
+					field[:label].present? ? tag.label(field[:label], for: field[:key], class: L_CLASS) : nil,
+					input_field(fsearch, field)
+				].compact)
+			end
 		end
-
+		
 		def hidden_filter_field(fsearch)
 			if @s_filter.present?
 				fsearch.hidden_field(@s_filter[:key].to_sym, value: @s_filter[:value])
+			end
+		end
+		
+		def input_field(fsearch, field)
+			case field[:kind]
+			when :search_text
+				fsearch.text_field(field[:key], placeholder: field[:placeholder], value: field[:value], size: field[:size], class: @i_class, data: @s_action)
+			when :search_select
+				fsearch.select(field[:key], options_for_select(field[:options], session.dig(field[:key].to_sym) || field[:value]), { include_blank: field[:blank] || t("scope.all") }, class: @i_class)
+			when :search_collection
+				fsearch.collection_select(field[:key], field[:options], :id, :name, { selected: params[field[:key].to_sym].presence || field[:value] }, class: @i_class)
+			when :hidden
+				fsearch.hidden_field(field[:key], value: field[:value])
+			end
+		end	
+
+		def render_fields(fsearch)
+			@fields.map { |field| field_tag(fsearch, field) }
+		end
+
+		def search_form
+			form_with(url: @s_url, method: :get, data: { controller: "search-form", search_form_fsearch_target: "fsearch", turbo_frame: "search-results" }) do |fsearch|
+				safe_join(
+					render_fields(fsearch) +
+					[hidden_filter_field(fsearch), submit_button]
+				)
 			end
 		end
 

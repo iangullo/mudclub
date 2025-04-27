@@ -89,11 +89,11 @@ module TeamsHelper
 			{ kind: :hidden, key: :sport_id, value: (@sport&.id || 1) },	# will need to break this up for multi-sports in future
 		]
 		res << [
-			icon_field("category.svg"),
+			icon_field("sport/#{@team.sport.name}/category.svg"),
 			{ kind: :select_collection, key: :category_id, options: Category.real, value: @team.category_id },
 		]
 		res << [
-			icon_field("division.svg"),
+			icon_field("sport/#{@team.sport.name}/division.svg"),
 			{ kind: :select_collection, key: :division_id, options: Division.real, value: @team.division_id },
 		]
 		res << [
@@ -126,7 +126,7 @@ module TeamsHelper
 				tcnt = []	# total players
 			end
 			if add_teams
-				title << button_field({ kind: :add, url: new_team_path(club_id: @clubid, rdx: @rdx), frame: "modal" })
+				title << button_field({ kind: :add, url: new_team_path(club_id: @clubid, season_id: @seasonid, rdx: @rdx), frame: "modal" })
 			end
 			rows = Array.new
 			teams.each { |team|
