@@ -21,7 +21,7 @@ class DrillsController < ApplicationController
 	include Filterable
 	include PdfGenerator
 	before_action :set_drill, only: [:show, :edit, :update, :destroy, :versions]
-	before_action :set_step, only: [:edit_diagram, :update_diagram]
+	before_action :set_step, only: [:edit_diagram, :load_diagram, :update_diagram]
 	before_action :set_paper_trail_whodunnit
 
 	# GET /drills or /drills.json
@@ -148,7 +148,7 @@ class DrillsController < ApplicationController
 		end
 	end
 
-	# GET /drills/1/edit_diagram?step_id=X
+	# GET /drills/1/edit_diagram?step_id=X&order=Y
 	def edit_diagram
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
 			if @step
@@ -156,6 +156,21 @@ class DrillsController < ApplicationController
 				@diagram = @step.diagram_svg
 				@editor  = helpers.drill_form_diagram
 				@submit  = create_submit(frame: "modal", retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
+			else
+				redirect_to edit_drill_path(@drill), data: {turbo_action: "replace"}
+			end
+		else
+			redirect_to "/", data: {turbo_action: "replace"}
+		end
+	end
+
+	# GET /drills/1/edit_diagram?step_id=X&order=Y
+	def load_diagram
+		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
+			if @step
+				@title   = create_fields(helpers.drill_title_fields(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
+				@loader  = create_fields(helpers.drill_form_diagram_file)
+				@submit  = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
 			else
 				redirect_to edit_drill_path(@drill), data: {turbo_action: "replace"}
 			end
@@ -229,10 +244,10 @@ class DrillsController < ApplicationController
 		# retrieve or create a drill step from params received
 		def set_step
 			if (@drill = Drill.find_by_id(params[:id].presence&.to_i))
-				step_id = (params[:step_id].presence || @drill.steps.find_by(order: params[:order]&.presence.to_i).id)&.to_i
-				if step_id == 0	# it is a recently created step, not yet persisted
+				step_id = (params[:step_id].presence || @drill.steps.find_by(order: params[:order]&.presence.to_i)&.id).to_i
+				if step_id == 0		# it is a recently created step, not yet persisted
 					@step = Step.create(drill_id: @drill.id, order: params[:order].to_i)
-				else	# step was already persisted in database	
+				else	# step was already persisted in database
 					@step = Step.find_by_id(step_id)
 				end
 			else

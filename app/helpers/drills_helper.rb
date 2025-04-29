@@ -37,19 +37,42 @@ module DrillsHelper
 		]
 	end
 
+	# Definition of fields for modal editing of step diagrams
+	def drill_form_diagram
+		DiagramEditorComponent.new(@step)
+	end
+
+	# dropdown button definition to create a new Event
+	def drill_form_diagram_button(step, form: nil)
+		if step.class == Step # new step diagram
+			if step.diagram.attached?
+				return InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "250", height: "250"}, form:)
+			elsif step.diagram_svg.present?
+				return ButtonComponent.new(kind: :edit, url: edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram"), label: "", size: "50x50", frame: "modal", i_class: "max-h-10 max-w-10 m-1")
+			else
+				button = {kind: :add, name: "add-diagram", options: []}
+				button[:options] << {label: I18n.t("sport.edit.diagram"), url: edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: {turbo_frame: :modal}}
+				button[:options] << {label: I18n.t("status.no_file"), url: load_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: {turbo_frame: :modal}}
+				return DropdownComponent.new(button)
+			end
+		else
+			return nil
+		end
+	end
+
 	# returng FieldComponent to edit drill explanation
 	def drill_form_explain
 		[[{kind: :rich_text_area, key: :step_explanation, align: "left"}]]
 	end
 
 	# return title FieldComponent definition for edit/new
-	def drill_form_playbook(playbook:)
-		[[{kind: :upload, icon: "playbook.png", label: "Playbook", key: :playbook, value: playbook.filename}]]
+	def drill_form_diagram_file
+		[[{kind: :image_box, key: :diagram, value: @step.diagram.filename || @step.drill.court_image, width: "300", height: "300"}]]
 	end
 
-	# Definition of fields for modal editing of step diagrams
-	def drill_form_diagram
-		DiagramEditorComponent.new(@step)
+	# return title FieldComponent definition for edit/new
+	def drill_form_playbook(playbook:)
+		[[{kind: :upload, icon: "playbook.png", label: "Playbook", key: :playbook, value: playbook.filename}]]
 	end
 
 	# return title FieldComponent definition for drill steps form
@@ -164,7 +187,7 @@ module DrillsHelper
 		]
 	end
 
-	# return title FieldComponent definition for drill show
+	# return title FieldComponent definition for drill show - DEPRECATED
 	def drill_show_explain
 		[[{kind: :action_text, value: @drill.step_explanation&.body&.to_s}]]
 	end
@@ -182,8 +205,14 @@ module DrillsHelper
 				cols = 2 if text ^ diag	# take 2 columns to show content
 				item = [{kind: :label, value: step.order, align: "center"}]
 				if diag
-					img  = step.diagram&.attachment&.blob || @drill.court_image
-					item << {kind: :image, value: img, class: "w-auto h-auto align-top", cols:}
+					item << {
+						kind: :image,
+						value: step.diagram&.attachment&.blob || @drill.court_image,
+						align: "left",
+						class: "w-1/3 h-auto",
+						i_class: cols ?  "w-1/3 h-auto" : nil,
+						cols:
+					}
 				end
 				item << {kind: :action_text, value: step.explanation&.body&.to_s, align: "top", cols:} if text
 				res << item

@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -38,8 +38,8 @@ class Team < ApplicationRecord
 	accepts_nested_attributes_for :team_targets
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
-	scope :for_season, -> (s_id) { (s_id&.to_i > 0) ? where(season_id: s_id.to_i) : all }
-	scope :for_club, ->(c_id) { (c_id&.to_i > 0) ? where(club_id: c_id.to_i) : all }
+	scope :for_season, -> (s_id) { (s_id.to_i > 0) ? where(season_id: s_id.to_i) : all }
+	scope :for_club, ->(c_id) { (c_id.to_i > 0) ? where(club_id: c_id.to_i) : all }
 	FILTER_PARAMS = %i[club_id season_id].freeze
 
 	# get attendance data for a team in the season

@@ -204,11 +204,11 @@ class ButtonComponent < ApplicationComponent
 	def set_iclass
 		case @button[:kind]
 		when :add, :delete, :link, :location, :stimulus
-			@button[:i_class] = "max-h-6 min-h-4 align-middle"
+			@button[:i_class] ||= "max-h-6 min-h-4 align-middle"
 		when :add_nested, :remove
-			@button[:i_class] = "max-h-5 min-h-4 align-middle"
+			@button[:i_class] ||= "max-h-5 min-h-4 align-middle"
 		when  :back, :call, :cancel, :clear, :close, :edit, :email, :export, :forward, :import, :save, :whatsapp
-			@button[:i_class] = "max-h-7 min-h-5 align-middle"
+			@button[:i_class] ||= "max-h-7 min-h-5 align-middle"
 		end
 	end
 

@@ -1,28 +1,27 @@
 <% if form.object %>
 	<% step = form.object %>
-	<% icls = "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0" %>
+	<% icls = "rounded border-gray-200 py" %>
   <div class="inline-flex w-full space-x-4 items-start">
     <!-- 1. Step order -->
-		<div class="w-8 text-center font-semibold flex-shrink-0">
+		<div class="w-8 text-right font-semibold flex-shrink-0">
       <%= step.order %>
     </div>
 		
 		<!-- 2. Hidden fields to process steps -->
 		<%= form.hidden_field :id, value: step.id %>
-		<%= form.hidden_field :order, value: step.order || 1 %>
 
 		<!-- 3. Diagram can be a PNG or inline SVG -->
-		<div class="relative w-1/3 group <%= icls %>">
+		<div class="relative w-1/3 max-h-1/3 group <%= icls %>">
 			<% if step.diagram.attached? %>		
 				<!-- 3a. Show attached diagram if it is available -->
-       	<%= render InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "300", height: "300"}, form:) %>
+       	<%= render InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "w-full", height: "h-full"}, form:) %>
 			<% else %>
 				<!-- 3b. No attachment, load SVG canvas and possible :svg_diagram content -->
-				<div class="flex items-center justify-center w-full h-full text-gray-400">
+				<div class="flex relative items-center justify-center w-full h-full text-gray-400 m-1">
 					<svg xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 400 400" stroke="currentColor"
+						viewBox="0 0 600 600" stroke="currentColor"
 						preserveAspectRatio="xMidYMid meet"
-						class="w-full h-auto"
+						class="w-full h-full"
 						data-diagram-editor-target="canvas">
 						<!-- Background accoriding to drill court_mode -->
 						<image href="<%= image_path(@drill.court_image) %>"
@@ -34,6 +33,11 @@
 					<div class="overlay rounded absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" >
 						<%= link_to edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram"), data: {turbo_frame: "modal"} do %>
 							<%= image_tag("edit.svg", size: "50x50")  %>
+						<% end %>
+						<% unless step.diagram_svg.present? %>
+							<%= link_to load_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.load_diagram"), data: {turbo_frame: "modal"} do %>
+								<%= image_tag("add.svg", size: "50x50")  %>
+							<% end %>
 						<% end %>
 					</div>
 				</div>

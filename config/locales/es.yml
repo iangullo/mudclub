@@ -385,6 +385,7 @@ es:
     edit: "Editar paso"
     edit_diagram: "Editar gráfico"
     explanation: "Explicación"
+    load_diagram: "Cargar gráfico"
     many: "Pasos"
     single: "Paso"
   target:

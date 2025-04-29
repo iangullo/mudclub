@@ -385,6 +385,7 @@ en:
     edit: "Edit step"
     edit_diagram: "Edit diagram"
     explanation: "explanation"
+    load_diagram: "Load diagram"
     many: "Steps"
     single: "Step"
   target:

@@ -45,7 +45,8 @@ Rails.application.routes.draw do
 	resources :drills do
 		member do
 			get :versions
-			get   :edit_diagram   # /drills/:id/edit_diagram?step_id=X
+			get :edit_diagram	# /drills/:id/edit_diagram?step_id=X&order=Y
+			get :load_diagram # /drills/:id/load_diagram?step_id=X&order=Y
 			patch :update_diagram # /drills/:id/update_diagram?step_id=X
 		end
 	end

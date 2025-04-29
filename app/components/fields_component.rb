@@ -104,7 +104,7 @@ class FieldsComponent < ApplicationComponent
 					item[:value] = DiagramEditorComponent.new(item[:step])
 				when "dropdown"	# item[:button] has to contain the button definition
 					item[:value] = DropdownComponent.new(item[:button])
-				when /^(.*icon.*)$/
+				when /^(.*icon.*|image)$/
 					set_icon(item)
 				when "label_checkbox"
 					item[:class] ||= " align-middle rounded-md"
@@ -173,7 +173,7 @@ class FieldsComponent < ApplicationComponent
 		if item[:tip]
 			html += "<button data-tooltip-target=\"tooltip-#{item[:tipid]}\" data-tooltip-placement=\"bottom\" type=\"button\">"
 		end
-		html += image_tag(item[:value] || item[:icon], size: item[:size], class: item[:class])
+		html += image_tag(item[:value] || item[:icon], size: item[:size], class: item[:i_class])
 		if item[:tip]
 			html += "</button>"
 			html += "<div id=\"tooltip-#{item[:tipid]}\" role=\"tooltip\" class=\"absolute z-20 invisible inline-block px-1 py-1 text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip\">"
@@ -212,20 +212,23 @@ class FieldsComponent < ApplicationComponent
 
 	# used for all icon/image fields - except for "image-box"
 	def set_icon(item)
-		if item[:kind] == :header_icon
-			i_size         = "50x50"
-			item[:align]   = "center"
-			item[:class] ||= "align-center mr-1"
-			item[:rows]    = 2 unless item[:rows]
-		else
-			i_size = "25x25"
-			if item[:label] && item[:kind] != :icon_label
+		case item[:kind]
+		when :header_icon
+			item[:size]    ||= "50x50"
+			item[:align]     = "center"
+			item[:class]   ||= "align-top"
+			item[:i_class] ||= "max-w-75 max-h-100 rounded align-top m-1"
+			item[:rows]      = 2 unless item[:rows]
+		when :icon, :icon_label
+			item[:size]  ||= "25x25"
+			if item[:label] && item[:kind] == :icon
 				item[:class] ||= "align-top inline-flex"
 			else
 				item[:align] ||= "right"
 			end
+		when :image
+			item[:i_class] ||= "rounded align-top m-1"
 		end
-		item[:size] = i_size unless item[:size]
 	end
 
 	# used for all text-like fields - except for inputboxes, of course
