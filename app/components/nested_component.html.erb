@@ -2,7 +2,7 @@
 	<template data-nested-form-target="template">
 		<% @form.fields_for @key, @child, child_index: 'NEW_RECORD' do |ff| %>
 			<div class="nested-form-wrapper" data-new-record="<%= ff.object.new_record? %>">
-				<div class="inline-flex">
+				<div class="inline-flex w-full">
 					<%= render @row, form: ff %>
 					<%= render @btn_del %>
 					<%= ff.hidden_field :id %>
@@ -21,7 +21,7 @@
 		<% end %>
 		<% if ff.object and ff_show %>
 			<div class="nested-form-wrapper" data-new-record="<%= ff.object.new_record? %>">
-				<div class="inline-flex">
+				<div class="inline-flex w-full">
 					<%= render @row, form: ff %>
 					<%= ff.hidden_field :id %>
 					<%= render @btn_del %>

@@ -6,27 +6,9 @@
 <% when :hidden %>
 	<%= @form.hidden_field(@fdata[:key].to_sym, value: @fdata[:value], data: @i_data) %>
 <% when :image_box %>
-	<style>
-		/* Style the container with fixed dimensions */
-		#imageboxContainer {
-			max-width: <%= @width %>;
-			max-height: <%= @height %>;
-			border: 1px solid gray;
-			overflow: hidden;
-			position: relative;
-			display: flex; /* Use flexbox */
-			justify-content: center; /* Center horizontally */
-			align-items: center; /* Center vertically */
-		}
-
-		#imageSnapshot {
-			max-width: <%= @width %>;
-			max-height: <%= @height %>;
-		}
-	</style>
-	<div id="imageboxContainer" data-controller="imagebox" class="group flex rounded relative m-1">
+	<div id="imageboxContainer" data-controller="imagebox" class="<%= @width %> <%= @height %> group flex rounded relative overflow-hidden justify-center items-center m-1">
 		<!-- Image element to display snapshots (loaded initially) -->
-		<%= image_tag @fdata[:value], id: "imageSnapshot", class: "object-cover w-full h-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
+		<%= image_tag @fdata[:value], id: "imageSnapshot", class: "object-cover w-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
 
 		<!-- Overlay for the camera icon -->
 		<div class="overlay absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" data-action="click->imagebox#openFileDialog" >

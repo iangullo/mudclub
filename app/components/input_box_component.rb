@@ -99,9 +99,9 @@ class InputBoxComponent < ApplicationComponent
 				@i_data = @fdata[:h_data]
 			when :image_box
 				@i_data = {action: "change->imagebox#handleFileChange", imagebox_target: "imageFile"}
-				@width  = ensure_px((@fdata[:width] || 75).to_s)
-				@height = ensure_px((@fdata[:height] || 100).to_s)
-				@fdata[:class] += " w-full h-full"
+				@width  = "w-#{@fdata[:width]}" #ensure_px((@fdata[:width] || 75).to_s)
+				@height = "h-#{@fdata[:height]}" #ensure_px((@fdata[:height] || 100).to_s)
+				@fdata[:class] += " w-full"
 			when :radio_button
 				@i_data = @fdata[:r_data]
 			when :text_box

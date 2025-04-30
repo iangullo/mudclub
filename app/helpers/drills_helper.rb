@@ -209,7 +209,7 @@ module DrillsHelper
 						kind: :image,
 						value: step.diagram&.attachment&.blob || @drill.court_image,
 						align: "left",
-						class: "w-1/3 h-auto",
+						class: "w-1/3 h-auto align-top",
 						i_class: cols ?  "w-1/3 h-auto" : nil,
 						cols:
 					}

@@ -1,27 +1,27 @@
 <% if form.object %>
 	<% step = form.object %>
-	<% icls = "rounded border-gray-200 py" %>
-  <div class="inline-flex w-full space-x-4 items-start">
-    <!-- 1. Step order -->
+	<% icls = "rounded border-gray-200" %>
+	<div class="inline-flex w-full space-x-4 items-start">
+		<!-- 1. Step order -->
 		<div class="w-8 text-right font-semibold flex-shrink-0">
-      <%= step.order %>
-    </div>
+			<%= step.order %>
+		</div>
 		
 		<!-- 2. Hidden fields to process steps -->
 		<%= form.hidden_field :id, value: step.id %>
 
 		<!-- 3. Diagram can be a PNG or inline SVG -->
-		<div class="relative w-1/3 max-h-1/3 group <%= icls %>">
+		<div class="relative w-1/3 group <%= icls %>">
 			<% if step.diagram.attached? %>		
 				<!-- 3a. Show attached diagram if it is available -->
-       	<%= render InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "w-full", height: "h-full"}, form:) %>
+			 	<%= render InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "full", height: "auto"}, form:) %>
 			<% else %>
 				<!-- 3b. No attachment, load SVG canvas and possible :svg_diagram content -->
-				<div class="flex relative items-center justify-center w-full h-full text-gray-400 m-1">
+				<div class="w-full flex text-gray-400 m-1">
 					<svg xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 600 600" stroke="currentColor"
+						viewBox="0 0 1000 1000" stroke="currentColor"
 						preserveAspectRatio="xMidYMid meet"
-						class="w-full h-full"
+						class="w-full"
 						data-diagram-editor-target="canvas">
 						<!-- Background accoriding to drill court_mode -->
 						<image href="<%= image_path(@drill.court_image) %>"
@@ -42,9 +42,9 @@
 					</div>
 				</div>
 			<% end %>
-    </div>
+		</div>
 
-    <!-- 5. Explanation -->
+		<!-- 5. Explanation -->
 		<div class="<%= icls %>">
 			<%= render InputBoxComponent.new({kind: :rich_text_area, key: :explanation}, form:) %>
 		</div>
