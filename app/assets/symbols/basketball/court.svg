@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+	<symbol id="full.default" viewBox="0 0 2244 1291">
+		<!-- Full court box -->
+		<rect x="100" y="100" width="2044" height="1091" fill="var(--symbol-fill, #ffffff)" stroke="var(--symbol-stroke, #000000)" stroke-width="4"/>
+		<line x1="1122" y1="100" x2="1122" y2="1191" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
+		<circle cx="1122" cy="645.5" r="132.5" fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
+		<!-- Left zone -->
+		<rect x="100" y="467" width="424" height="360" fill="#f2f2f2" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
+		<path d="M 524,827 C 577,827 653,781 653,694 C 653,624 598,565 524,563" fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
+		<circle cx="220" cy="645.5" r="9.5" fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
+		<!-- Right zone -->
+		<rect x="1724" y="467" width="424" height="360" fill="#f2f2f2" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
+		<path d="M 1724,827 C 1671,827 1595,781 1595,694 C 1595,624 1650,565 1724,563" fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
+		<circle cx="2028" cy="645.5" r="9.5" fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
+	</symbol>
+	<symbol id="half.default" viewBox="0 0 1345 1274">
+		<rect
+			x="77"
+			y="77"
+			width="1124"
+			height="1195"
+			fill="var(--symbol-fill, #ffffff)"
+			stroke="var(--symbol-stroke, #000000)"
+			stroke-width="4"
+			id="court" />
+		<rect
+			style="fill:#f2f2f2;fill-opacity:1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+			stroke="var(--symbol-stroke, #000000)"
+			id="zone"
+			width="360"
+			height="424"
+			x="457"
+			y="846" />
+		<path
+			style="fill:none;fill-opacity:1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+			stroke="var(--symbol-stroke, #000000)"
+			d="M 769,841.4998 C 769,788.6819 723.17241,712.654 635.872,712.654 565.84816,712.654 506.35845,767.3888 505,841.4998"
+			id="freethrow-bulb" />
+		<path
+			style="fill:none;fill-opacity:1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+			stroke="var(--symbol-stroke, #000000)"
+			d="M 769,76.5 C 769,129.31789 723.17241,205.34579 635.872,205.34579 565.84816,205.34579 506.35845,150.61101 505,76.5"
+			id="backcourt-semi" />
+		<path
+			style="fill:none;fill-opacity:1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+			stroke="var(--symbol-stroke, #000000)"
+			d="m 542.335,1180.9198 v -40.4719 c 0,0 9.07312,-83.1939 94.6425,-83.3547 85.56938,-0.1608 94.19758,84.9609 94.19758,84.9609 l 0.49041,38.8828"
+			id="nocharge-zone" />
+		<path
+			style="fill:none;fill-opacity:1;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+			stroke="var(--symbol-stroke, #000000)"
+			d="m 574.13819,1174.8679 h 127.69434 v -0.4443 0"
+			id="backboard" />
+		<circle
+			style="fill:none;fill-opacity:1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+			stroke="var(--symbol-stroke, #000000)"
+			id="hoop"
+			cx="637"
+			cy="1140"
+			r="15" />
+		<path
+			style="fill:none;fill-opacity:1;stroke-width:3.00021;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+			stroke="var(--symbol-stroke, #000000)"
+			d="m 155.24261,1268.4134 v -206.7091 c 0,0 43.95652,-405.88269 480.9999,-406.70398 437.04289,-0.82127 480.01029,414.90758 480.01029,414.90758 l 2.5048,198.5923"
+			id="three-point-line" />
+	</symbol>
+	<symbol id="half_def.default" viewBox="0 0 1345 1274">
+		<use href="#half.default">
+	</symbol>
+	<symbol id="half_off.default" viewBox="0 0 1345 1274">
+		<use href="#half.default" transform="rotate(180, 672.5, 637)" />
+	</symbol>
+</svg>  

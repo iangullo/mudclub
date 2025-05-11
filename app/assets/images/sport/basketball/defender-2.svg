@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="128"
+   height="128"
+   viewBox="0 0 33.87 33.87"
+   version="1.1"
+   id="svg8"
+   xmlns="http://www.w3.org/2000/svg">
+   <text xml:space="preserve"
+      style="font-weight:bold; font-size:12px; font-family:Arial, sans-serif; fill:curentColor; stroke:curentColor; stroke-width:1; stroke-linecap:round; stroke-linejoin:round"
+      x="-8" y="31">
+      <tspan id="label">X</tspan>
+    </text>
+    <circle cx="16.94" cy="14.2875" r="6.5" style="fill:currentColor;stroke:none;stroke-width:2" />
+    <path
+       style="fill:none;stroke:currentColor;stroke-width:4.23333;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       d="m 4.2333333,21.166667 c 0,-9.698465 25.1380627,-9.904847 25.4000007,0"
+       id="arms"/>
+</svg>

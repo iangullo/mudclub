@@ -25,7 +25,7 @@
 # => :contact: mailto:, tel: and whatsapp: buttons for a person
 # => :date_box: :key (field name), :value (date_field), :s_year (start_year)
 # => :dropdown: a DropdownComponent - passed as argument to the menu generator
-# => :diagram_editor: :diagram (diagram we are editing), :aux_ids (optional aray of hidden id fields if needed)
+# => :diagram: data (diagram SVG data we are editing), :court_image (optional path to canvas court image)
 # => :email_box: :key (field name), :value (email_field), :size (box size)
 # => :gap: :size (count of &nbsp; to separate content)
 # => :grid: :value (GridComponent definition), :form (optional)
@@ -53,6 +53,7 @@
 # => :string: :value (regular text string)
 # => :subtitle: :value (bold text of title)
 # => :svg: :value (raw svg content to show)
+# => :symbol: :value (svg symbol to be rendered)
 # => :text_area: :key (field name), :value (text_field), :size (box size), lines: number of lines
 # => :text_box: :key (field name), :value (text_field), :size (box size)
 # => :time_box: :hour & :mins (field names)
@@ -100,8 +101,8 @@ class FieldsComponent < ApplicationComponent
 					item[:value] = ButtonComponent.new(**item[:button])
 				when "contact"
 					set_contact(item)
-				when "diagram_editor"
-					item[:value] = DiagramEditorComponent.new(item[:step])
+				when "diagram"
+					item[:value] = DiagramComponent.new(canvas: item[:canvas], svgdata: item[:svgdata], css: item[:css])
 				when "dropdown"	# item[:button] has to contain the button definition
 					item[:value] = DropdownComponent.new(item[:button])
 				when /^(.*icon.*|image)$/
@@ -112,12 +113,12 @@ class FieldsComponent < ApplicationComponent
 					item[:value] = SearchBoxComponent.new(item)
 				when "gap", "label", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
 					set_text_field(item)
+				when "person_type"
+					set_person_type(item)
 				when /^(select_.+|.+box|.+_area)$/
 					item[:class] ||= "align-top"
 				when "separator"
 					item[:stroke] ||= "solid"
-				when "person_type"
-					set_person_type(item)
 				else
 					item[:i_class] = "rounded p-0" unless item[:kind] == :gap
 				end
@@ -133,7 +134,7 @@ class FieldsComponent < ApplicationComponent
 	def render_field(field)
 		tablecell_tag(field) do
 			case field[:kind].to_s
-			when /^(accordion|button|contact|diagram_editor|dropdown|search_.+)$/
+			when /^(accordion|button|contact|diagram.*|dropdown|search_.+|svg)$/
 				render field[:value]
 			when /^(select_.+|.+box|.+_area|hidden|radio.+|upload)$/
 				render InputBoxComponent.new(field, form: @form)
@@ -149,10 +150,10 @@ class FieldsComponent < ApplicationComponent
 				render NestedComponent.new(model: field[:model], key: field[:key], form: @form, child: field[:child], row: field[:row], filter: field[:filter])
 			when "separator"
 				("<hr class=\"#{field[:stroke]}\"").html_safe
-			when "svg"
-				render field[:value]
 			when "person_type"
 				render_role_icons(field[:icons])
+			when "symbol"
+				render SymbolComponent.new(item[:value], css: item[:i_class], label: item[:label], view_box: item[:view_box])
 			else
 				if field[:dclass]
 					concat((field[:value].tap { |value| break "<div class=\"#{field[:dclass]}\">#{value}</div>"}.html_safe))

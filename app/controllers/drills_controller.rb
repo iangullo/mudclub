@@ -153,7 +153,6 @@ class DrillsController < ApplicationController
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
 			if @step
 				@title   = create_fields(helpers.drill_title_fields(title: @drill.name, subtitle: I18n.t("step.edit_diagram") + " ##{@step.order}"))
-				@diagram = @step.diagram_svg
 				@editor  = helpers.drill_form_diagram
 				@submit  = create_submit(frame: "modal", retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
 			else
@@ -179,16 +178,19 @@ class DrillsController < ApplicationController
 		end
 	end
 
-	# PATCH /drills/1/edit_diagram?step_id=X
+	# PATCH /drills/1/update_diagram?step_id=X
 	# Recibe el SVG serializado y actualiza el paso
 	def update_diagram
-		if @step&.update(diagram_svg: params.dig(:step, :diagram_svg))
+		raw_data    = params.dig(:drill, :svgdata)&.strip
+		parsed_data = raw_data.present? ? JSON.parse(raw_data) : nil
+		binding.break
+		if @step&.update(svgdata: parsed_data)
 			respond_to do |format|
 				format.turbo_stream
 				format.html { redirect_to edit_drill_path(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
 			end
 		else
-			render :edit_diagram, status: :unprocessable_entity
+			redirect_to edit_diagram_drill_path(id: params[:id]), status: :unprocessable_entity
 		end
 	end
 
@@ -225,6 +227,7 @@ class DrillsController < ApplicationController
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(action)
 			@title     = create_fields(helpers.drill_form_title(title: I18n.t("drill.#{action}")))
+			@canvas    = @drill.court_symbol
 			@playbook  = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
 			@formdata  = create_fields(helpers.drill_form_data)
 			@formsteps = create_fields(helpers.drill_form_steps)
@@ -250,6 +253,7 @@ class DrillsController < ApplicationController
 				else	# step was already persisted in database
 					@step = Step.find_by_id(step_id)
 				end
+				@canvas = @drill.court_symbol
 			else
 				return nil
 			end
@@ -263,6 +267,7 @@ class DrillsController < ApplicationController
 				:description,
 				:coach_id,
 				:court_mode,
+				:svgdata,
 				:step_explanation,
 				:playbook,
 				:kind_id,
@@ -274,7 +279,7 @@ class DrillsController < ApplicationController
 				target_ids: [],
 				skill_ids: [],
 				skills_attributes: [:id, :concept, :_destroy],
-				steps_attributes: [:id, :order, :diagram, :explanation, :_destroy],
+				steps_attributes: [:id, :order, :diagram, :svgdata, :explanation, :_destroy],
 				drill_targets_attributes: [
 					:id,
 					:priority,

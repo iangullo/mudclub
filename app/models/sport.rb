@@ -31,11 +31,6 @@ class Sport < ApplicationRecord
 		self.specific.court_modes
 	end
 
-	# image to use for a court
-	def court_image(court)
-		self.specific.court_image(court)
-	end
-
 	# human name of a specific court
 	def court_name(court)
 		self.specific.court_name(court)
@@ -115,7 +110,7 @@ class Sport < ApplicationRecord
 	def settings=(value)
 		super(value&.to_h)
 	end
-
+	
 	# Getter method for accessing the Sport rules mapping
 	# as key=>value pairs (enum-like)
 	def rules
@@ -222,6 +217,11 @@ class Sport < ApplicationRecord
 		end
 
 		update_stats(event, f_stats)
+	end
+
+	# retrieve an SVG symbol from the registry
+	def symbol(concept, variant = "default", type: :object)
+		try_symbol("sport",concept, variant, type)
 	end
 
 	# attempts to fetch the specific opbject from an id
@@ -363,5 +363,10 @@ class Sport < ApplicationRecord
 				end
 			end
 			updated
+		end
+	
+	protected
+		def try_symbol(namespace, concept, variant, type)
+			SymbolRegistry.new(namespace).find_symbol(concept, variant, type: type)
 		end
 end

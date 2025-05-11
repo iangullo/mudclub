@@ -1,0 +1,13 @@
+# config/symbol_map.yml
+# Stores configuration of paths to search for symbols
+common:
+  icon:   "common/icon.svg"
+  button: "common/button.svg"
+sport:
+  icon:   "sport/icon.svg"
+  object: "sport/object.svg"
+  court:  "sport/court.svg"
+basketball:
+  icon:   "basketball/icon.svg"
+  object: "basketball/object.svg"
+  court:  "basketball/court.svg"

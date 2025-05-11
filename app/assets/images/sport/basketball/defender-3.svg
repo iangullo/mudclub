@@ -24,10 +24,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1076165"
-     inkscape:cx="12.639754"
-     inkscape:cy="24.376669"
+     inkscape:cx="-42.884879"
+     inkscape:cy="126.39754"
      inkscape:document-units="px"
-     inkscape:current-layer="g1549"
+     inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="false"
      units="px"
@@ -55,32 +55,23 @@
      inkscape:label="Capa 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <path
+       style="fill:#cccccc;stroke:#000000;stroke-width:2.11667;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+       d="M 16.933333,1.5875 1.5875,31.75 h 30.691667 z"
+       id="path1160"
+       sodipodi:nodetypes="cccc" />
     <g
        id="g844" />
-      <g
-         id="g1549"
-         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
-         transform="translate(-1.5316851e-5)">
-         <path
-            style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:2.11667;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-            d="M 1.5875,1.5875 H 6.3500001 L 22.225016,29.104167 h -4.233334 z"
-            id="path1422"
-            sodipodi:nodetypes="ccccc" />
-         <path
-            style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:2.11666;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-            d="M 22.225016,1.5874956 17.991682,1.5875 1.5874254,29.104007 6.3500001,29.103902 Z"
-            id="path1422-3"
-            sodipodi:nodetypes="ccccc" />
-      </g>
-      <text
-         xml:space="preserve"
-         style="font-weight:bold;font-size:17.9813px;font-family:Arial, sans-serif;fill:#000000;stroke:#000000;stroke-width:0.899064;stroke-linecap:round;stroke-linejoin:round"
-         text-anchor="middle"
-         x="45.537632"
-         y="32.887962"
-         id="text450"><tspan
-            sodipodi:role="line"
-            id="label">n</tspan>
-      </text>
+    <text
+       xml:space="preserve"
+       style="font-weight:bold; font-size:20px; font-family:Arial, sans-serif; fill:#000000; stroke:#000000; stroke-width:1; stroke-linecap:round; stroke-linejoin:round"
+       text-anchor="middle"
+       x="8.5"
+       y="29"
+       id="text450">
+       <tspan
+         sodipodi:role="line"
+         id="label">X</tspan>
+    </text>
   </g>
 </svg>

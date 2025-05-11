@@ -172,6 +172,8 @@ class ButtonComponent < ApplicationComponent
 			b_start += " font-bold"
 		when :remove
 			@button[:action] ||= "nested-form#remove"
+		when :stimulus
+			@button[:type] = "button"
 		end
 		@button[:flip]    ||= true if [:save,:import].include? @button[:kind]
 		@button[:type]      = "submit" if @button[:kind].to_s =~ /^(save|import|login)$/
@@ -250,7 +252,11 @@ class ButtonComponent < ApplicationComponent
 	# set the turbo data frame if required
 	def set_data
 		res = @button[:data] ? @button[:data] : {}
-		res[:turbo_frame]   = (@button[:frame] ? @button[:frame] : "_top") unless @button[:kind] == :stimulus
+		if @button[:kind] == :stimulus
+			res[:active_class]= "bg-blue-600 text-white ring ring-blue-300"
+		else
+			res[:turbo_frame] = (@button[:frame] ? @button[:frame] : "_top")
+		end
 		res[:turbo_action]  = "replace" if @button[:replace]
 #		res[:turbo_confirm] = @button[:confirm] if @button[:confirm]
 		res[:turbo_method]  = :delete.to_sym if @button[:kind]==:delete

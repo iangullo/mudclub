@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Manage Drill/Plays in the model
 class Drill < ApplicationRecord
 	FILTER_PARAMS = %i[name kind_id season_id skill column direction].freeze
 	before_destroy :unlink
@@ -46,11 +47,12 @@ class Drill < ApplicationRecord
 	self.inheritance_column = "not_sti"
 	validates :name, presence: true
 
-	# wrappers to return image file and name fo sefl court_mode
-	def court_image
-		self.sport.court_image(self.court_mode)
+	# wrapper to return image file to self court_mode
+	def court_symbol
+		self.sport.symbol(self.court_mode, type: :court)
 	end
 
+	# human name of a specific :court
 	def court_name
 		self.sport.court_name(self.court_mode)
 	end

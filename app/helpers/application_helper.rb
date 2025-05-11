@@ -116,7 +116,7 @@ module ApplicationHelper
 		doc.to_html.html_safe
 	end
 
-	# wrapper for hidden:field definitions
+	# wrapper for :string field definitions
 	def string_field(value, align: nil, cols: nil, rows: nil)
 		{kind: :string, value:, align:, cols:, rows:}
 	end

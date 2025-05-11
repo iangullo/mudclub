@@ -18,23 +18,12 @@
 			<% else %>
 				<!-- 3b. No attachment, load SVG canvas and possible :svg_diagram content -->
 				<div class="w-full flex text-gray-400 m-1">
-					<svg xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 1000 1000" stroke="currentColor"
-						preserveAspectRatio="xMidYMid meet"
-						class="w-full"
-						data-diagram-editor-target="canvas">
-						<!-- Background accoriding to drill court_mode -->
-						<image href="<%= image_path(@drill.court_image) %>"
-							x="0" y="0" width="100%" height="100%"
-							preserveAspectRatio="xMidYMid slice" />
-						<!-- custom SVG content if it exists -->
-						<%= raw(step.diagram_svg) if step.diagram_svg.present? %>
-					</svg>
+					<%= render DiagramComponent.new(canvas: @canvas, svgdata: step.svgdata, css: "w-full") %>
 					<div class="overlay rounded absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" >
 						<%= link_to edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram"), data: {turbo_frame: "modal"} do %>
 							<%= image_tag("edit.svg", size: "50x50")  %>
 						<% end %>
-						<% unless step.diagram_svg.present? %>
+						<% unless step.svgdata.present? %>
 							<%= link_to load_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.load_diagram"), data: {turbo_frame: "modal"} do %>
 								<%= image_tag("add.svg", size: "50x50")  %>
 							<% end %>

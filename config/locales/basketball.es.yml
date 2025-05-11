@@ -58,6 +58,8 @@ es:
       name: "Baloncesto"
       objects:
         attacker: "Atacante"
+        ball: "Balón"
+        coach: "Entrenador"
         cone: "Cono"
         defender: "Defensa"
         dribble: "Movimiento con balón"

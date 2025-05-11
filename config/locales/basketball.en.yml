@@ -58,6 +58,8 @@ en:
       name: "Basketball"
       objects:
         attacker: "Attacker"
+        ball: "Ball"
+        coach: "Coach"
         cone: "Cone"
         defender: "Defender"
         dribble: "Dribble"
