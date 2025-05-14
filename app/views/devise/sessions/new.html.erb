@@ -3,12 +3,12 @@
 		[
 			[{kind: :side_cell, value: I18n.t("action.login"), align: "center", cols: 5}],
 			[
-				{kind: :header_icon, value: "user.svg", rows: 2},
-				{kind: :icon, value: "email.svg"},
+				{kind: :header_icon, symbol: symbol_hash("user"), rows: 2},
+				symbol_field("email", type: :button),
 				{kind: :email-box:, key: :email, autocomplete: I18n.t("person.email"), cols: 3}
 			],
 			[
-				{kind: :icon, value: "key.svg"},
+				symbol_field("key"),
 				{kind: :password_box, key: :password, autocomplete: I18n.t("password.single"), cols: 3}
 			],
 			[

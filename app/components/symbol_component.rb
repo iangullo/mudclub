@@ -19,21 +19,28 @@
 
 # Manage SVG Symbols for views & buttons
 class SymbolComponent < ApplicationComponent
-	def initialize(symbol:, css: nil, label: nil, view_box: nil, **)
-		@content  = symbol.children.to_xml
+	def initialize(namespace: "common", type: :icon, concept:, variant: "default", css: nil, label: nil, size: nil, view_box: nil)
+		@symbol   = SymbolRegistry.fetch(namespace:, type:, concept:, variant:)
 		@css      = css
-		@view_box = view_box || symbol["viewBox"]
 		@label    = label
+		@view_box = view_box || @symbol["viewBox"] || "0 0 128 128"
+		if size.present?
+			@width  = size.split("x")[0]
+			@height = size.split("x")[1]
+		end
 	end
 
 	def call
+		return unless @symbol
 		content_tag(
 			:svg,
-			raw(@content),
+			raw(@symbol.children.to_xml),
 			viewBox: @view_box,
 			xmlns: 'http://www.w3.org/2000/svg',
 			preserveAspectRatio: 'xMidYMid meet',
-			class: @css || 'w-full h-auto'
+			class: @css,
+			width: @width,
+			height: @height,
 			aria: { label: @label }
 		)
 	end
