@@ -48,8 +48,9 @@ module HomeHelper
 
 	# title fields for admin pages
 	def home_admin_title(icon: "mudclub.svg", title: current_user.to_s)
+		header = icon.is_a?(Hash) ? {kind: :header_icon, symbol: icon} : {kind: :header_icon, icon:}
 		[
-			[{kind: :header_icon, value: icon}, {kind: :title, value: "MudClub - #{I18n.t("action.admin")}"}],
+			[header, {kind: :title, value: "MudClub - #{I18n.t("action.admin")}"}],
 			[{kind: :string, value: title}]
 		]
 	end
@@ -57,13 +58,13 @@ module HomeHelper
 	def home_admin_fields(subtitle: I18n.t("action.admin"))
 		res = title_start(icon: "mudclub.svg", title: "MudClub", subtitle:, cols: 3)
 		res << [
-			button_field({kind: :jump, icon: "sport.svg", url: sports_path(rdx: 0), label: I18n.t("sport.many")}, align: "center"),
-			button_field({kind: :jump, icon: "calendar.svg", url: seasons_path(rdx: 0), label: I18n.t("season.many")}, align: "center"),
-			button_field({kind: :jump, icon: "rivals.svg", url: clubs_path(rdx: 0), label: I18n.t("club.many")}, align: "center"),
+			button_field({kind: :jump, symbol: symbol_hash("icon", namespace: "sport"), url: sports_path(rdx: 0), label: I18n.t("sport.many")}, align: "center"),
+			button_field({kind: :jump, symbol: "calendar", url: seasons_path(rdx: 0), label: I18n.t("season.many")}, align: "center"),
+			button_field({kind: :jump, symbol: "rivals", url: clubs_path(rdx: 0), label: I18n.t("club.many")}, align: "center"),
 		]
 		res << [
-			button_field({kind: :jump, icon: "user.svg", url: users_path(rdx: 0), label: I18n.t("user.many")}, align: "center"),
-			button_field({kind: :jump, icon: "user_actions.svg", url: home_log_path(rdx: 0), label: I18n.t("user.actions")}, align: "center")
+			button_field({kind: :jump, symbol: "user", url: users_path(rdx: 0), label: I18n.t("user.many")}, align: "center"),
+			button_field({kind: :jump, symbol: "actions", url: home_log_path(rdx: 0), label: I18n.t("user.actions")}, align: "center")
 		]
 
 	end
@@ -83,11 +84,28 @@ module HomeHelper
 			frm = action.modal ? "modal" : "_top"
 			row = {url:, frame: frm, items: []}
 			row[:items] << {kind: :normal, value: action.date_time}
-			row[:items] << icon_field((action.user.active? ? action.user.club.logo : "No.svg"), align: "center")
+			row[:items] << (action.user.active? ? icon_field(action.user.club.logo, align: "center") : symbol_field("no", align: "center"))
 			row[:items] << {kind: :normal, value: action.user.s_name}
 			row[:items] << {kind: :normal, value: action.description}
 			rows << row
 		}
 		{title:, rows:}
+	end
+
+	# user login fields
+	def home_closed_fields
+		[
+			[
+				symbol_field("user", size: "30x30", align: "center"),
+				button_field(home_login_button, rows: 2)
+			],
+			[
+				{kind: :text, value: I18n.t("status.closed"), align: "center"},
+			]
+		]
+	end
+
+	def home_login_button
+		{kind: "jump", url: new_user_session_path, data: {turbo_frame: "_top"}, symbol: symbol_hash("login", type: "button"), class: "m-2", d_class: "rounded bg-blue-900 hover:bg-blue-700 max-h-8 min-h-6"}
 	end
 end

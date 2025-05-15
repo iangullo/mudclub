@@ -52,8 +52,8 @@ module PlayersHelper
 			row[:items] << {kind: :normal, value: player.person&.age, align: "center"}
 			if manage
 				row[:items] << {kind: :contact, phone: player.person&.phone, device: device}
-				row[:items] << icon_field((player.all_pics? ? "Yes.svg" : "No.svg"), align: "center")
-				row[:items] << icon_field((player.active? ? "Yes.svg" : "No.svg"), align: "center")
+				row[:items] << symbol_field((player.all_pics? ? "yes" : "no"), align: "center", class: "border")
+				row[:items] << symbol_field((player.active? ? "yes" : "no"), align: "center", class: "border")
 				row[:items] << button_field({kind: :delete, url: row[:url], name: player.to_s(style: 1), rdx: @rdx, confirm: true}) if team_manager?(team)
 			end
 			rows << row
@@ -69,10 +69,10 @@ module PlayersHelper
 		if team
 			att = @player.attendance(team:)
 			res << [
-				icon_field("team.svg"),
+				symbol_field("team"),
 				{kind: :text, value: team.to_s}
 			]
-			res << [{kind: :icon_label, icon: "attendance.svg", label:  I18n.t("calendar.attendance"), cols: 3, align: "left"}]
+			res << [{kind: :icon_label, symbol: "attendance", label:  I18n.t("calendar.attendance"), cols: 3, align: "left"}]
 			res << [
 				{kind: :label, value: I18n.t("match.many"), align: "right"},
 				{kind: :text, value: att[:matches]}

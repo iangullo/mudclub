@@ -61,7 +61,7 @@ module TeamsHelper
 		g_row = gap_row(cols: 2)
 		coaches = [g_row]
 		unless (c_count = @team.coaches.count) == 0 # only create if there are coaches
-			c_icon = icon_field("coach.svg", tip: I18n.t("coach.many"), align: "right", iclass: "align-top", size: "30x30", rows: c_count)
+			c_icon = symbol_field("coach", namespace: "sport", tip: I18n.t("coach.many"), align: "right", css: "align-top", size: "30x30", rows: c_count)
 			c_first = true
 			@team.coaches.each do |coach|
 				if u_manager? || u_secretary?
@@ -83,26 +83,26 @@ module TeamsHelper
 		res = team_title_fields(title:, cols:, edit: true)
 		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
 		res << [
-			icon_field("user.svg", align: "right"),
+			symbol_field("user", align: "right"),
 			{ kind: :text_box, key: :nick, value: @team.nick, placeholder: I18n.t("team.single"), mandatory: { length: 3 } },
 			{ kind: :hidden, key: :club_id, value: @clubid },
 			{ kind: :hidden, key: :sport_id, value: (@sport&.id || 1) },	# will need to break this up for multi-sports in future
 		]
 		res << [
-			icon_field("sport/#{@team.sport.name}/category.svg"),
+			symbol_field("category", namespace: "sport"),
 			{ kind: :select_collection, key: :category_id, options: Category.real, value: @team.category_id },
 		]
 		res << [
-			icon_field("sport/#{@team.sport.name}/division.svg"),
+			symbol_field("division", namespace: "sport"),
 			{ kind: :select_collection, key: :division_id, options: Division.real, value: @team.division_id },
 		]
 		res << [
-			icon_field("home.svg"),
+			symbol_field("home"),
 			{ kind: :select_collection, key: :homecourt_id, options: Location.search(club_id: @clubid).home, value: @team.homecourt_id },
 		]
 		unless @eligible_coaches.empty?
 			res << [
-				icon_field("coach.svg"),
+				symbol_field("coach", namespace: "sport"),
 				{ kind: :label, value: I18n.t("coach.many"), class: "align-center" },
 			]
 			res << [gap_field, { kind: :select_checkboxes, key: :coach_ids, options: @eligible_coaches }]
@@ -160,13 +160,13 @@ module TeamsHelper
 	def team_links
 		if (u_manager? || u_coach? || u_secretary?)
 			res = [[
-				button_field({ kind: :jump, icon: "player.svg", url: roster_team_path(@team, rdx: @rdx), label: I18n.t("team.roster") }, align: "center"),
+				button_field({ kind: :jump, symbol: symbol_hash("player", namespace: @team&.sport&.name), url: roster_team_path(@team, rdx: @rdx), label: I18n.t("team.roster") }, align: "center"),
 			]]
 			if u_manager? || u_coach?
-				res.last << button_field({ kind: :jump, icon: "target.svg", url: targets_team_path(@team, rdx: @rdx), label: I18n.t("target.many") }, align: "center")
-				res.last << button_field({ kind: :jump, icon: "teamplan.svg", url: plan_team_path(@team, rdx: @rdx), label: I18n.t("plan.abbr") }, align: "center")
+				res.last << button_field({ kind: :jump, symbol: "target", url: targets_team_path(@team, rdx: @rdx), label: I18n.t("target.many") }, align: "center")
+				res.last << button_field({ kind: :jump, symbol: "plan", url: plan_team_path(@team, rdx: @rdx), label: I18n.t("plan.abbr") }, align: "center")
 			end
-			res.last << button_field({ kind: :jump, icon: "timetable.svg", url: slots_team_path(rdx: @rdx), label: I18n.t("slot.many"), frame: "modal" }, align: "center")
+			res.last << button_field({ kind: :jump, symbol: "timetable", url: slots_team_path(rdx: @rdx), label: I18n.t("slot.many"), frame: "modal" }, align: "center")
 		else
 			res = [[]]
 		end
@@ -177,19 +177,19 @@ module TeamsHelper
 	def team_slots_fields
 		res = [[
 			gap_field,
-			{ kind: :icon, value: "timetable.svg", size: "30x30" },
+			symbol_field("timetable", size: "30x30"),
 			{ kind: :side_cell, value: I18n.t("slot.many"), align: "left" }
 		]]
 		@team.slots.order(:wday).each do |slot|
 			res << [gap_field(size: 1), gap_field(size: 1), string_field(slot.to_s)]
 		end
-		res << [gap_field(size: 1), { kind: :icon_label, icon: "location.svg", label: @team.slots.first.court, cols: 2 }]
+		res << [gap_field(size: 1), { kind: :icon_label, symbol: "location", label: @team.slots.first.court, cols: 2 }]
 	end
 
 	# return FieldComponent for team view title
 	def team_title_fields(title:, cols: nil, search: nil, edit: nil)
 		clubid = @club&.id || @clubid || u_clubid
-		res = title_start(icon: ((u_clubid != clubid) ? @club&.logo : "team.svg"), title:, cols:)
+		res = title_start(icon: ((u_clubid != clubid) ? @club&.logo : symbol_hash("team")), title:, cols:)
 		if search
 			s_id = @team&.season_id || @season&.id || session.dig("team_filters", "season_id")
 			res << [{ kind: :search_collection, key: :season_id, options: Season.real.order(start_date: :desc), value: s_id }]
@@ -197,7 +197,7 @@ module TeamsHelper
 		elsif edit and u_manager?
 			res << [{ kind: :text_box, key: :name, value: @team.name, placeholder: I18n.t("team.single"), mandatory: { length: 3 } }]
 			res << [
-				icon_field("calendar.svg", align: "right"),
+				symbol_field("calendar", align: "right"),
 				{ kind: :select_collection, key: :season_id, options: Season.real, value: @team.season_id },
 			]
 			res.last.first[:filter] = { key: :club_id, value: clubid }

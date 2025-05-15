@@ -19,7 +19,7 @@
 module ApplicationHelper
 	# standardised FieldsComponent button field wrapper
 	def button_field(button, cols: nil, rows: nil, align: nil, class: nil)
-		{kind: :button, button: button, cols:, rows:, align:, class:}
+		{kind: :button, button:, cols:, rows:, align:, class:}
 	end
 
 	# return an html bulletized string from info
@@ -42,7 +42,7 @@ module ApplicationHelper
 		return "mobile" if agent =~ /Mobile/
 		return "desktop"
 	end
-	
+
 	# file upload button
 	def form_file_field(label:, key:, value:, cols: nil)
 		[[{kind: :upload, label:, key:, value:, cols:}]]
@@ -57,10 +57,10 @@ module ApplicationHelper
 	def gap_field(size: nil, cols: nil, rows: nil)
 		{kind: :gap, size:, cols:, rows:}
 	end
-	
+
 	# standardised icon field definitions
-	def icon_field(icon_name, align: nil, iclass: nil, cols: nil, rows: nil, size: nil, tip: nil, tipid: nil)
-		{kind: :icon, value: icon_name, align:, class: iclass, cols:, rows:, size:, tip:, tipid:}
+	def icon_field(icon, align: nil, iclass: nil, cols: nil, rows: nil, size: nil, tip: nil, tipid: nil)
+		{kind: :icon, icon:, align:, class: iclass, cols:, rows:, size:, tip:, tipid:}
 	end
 
 	# standardised gap row field definition
@@ -71,7 +71,7 @@ module ApplicationHelper
 	# Field to use in forms to select club of a user/player/coach/team
 	def obj_club_selector(obj)
 		res = [
-			{kind: :icon, value: "mudclub.svg", tip: I18n.t("club.single"), tipid: "club_selector"},
+			{kind: :icon, icon: "mudclub.svg", tip: I18n.t("club.single"), tipid: "club_selector"},
 			{kind: :select_box, align: "left", key: :club_id, options: current_user.club_list, value: obj.club_id, cols: 4},
 		]
 	end
@@ -97,12 +97,16 @@ module ApplicationHelper
 	def pdf_button(url)
 		button_field({
 				kind: :link,
-				icon: "pdf.svg",
-				size: "20x20",
+				symbol: symbol_hash("pdf", size: "20x20"),
 				url:
 			},
 			align: "center"
 		)
+	end
+
+	# wrapper for :string field definitions
+	def string_field(value, align: nil, cols: nil, rows: nil)
+		{kind: :string, value:, align:, cols:, rows:}
 	end
 
 	# iconize an svg
@@ -116,19 +120,35 @@ module ApplicationHelper
 		doc.to_html.html_safe
 	end
 
-	# wrapper for :string field definitions
-	def string_field(value, align: nil, cols: nil, rows: nil)
-		{kind: :string, value:, align:, cols:, rows:}
+	# standardised symbol field definitions
+	def symbol_field(concept, namespace: "common", type: "icon", variant: "default", align: nil, class: nil, css: nil, cols: nil, rows: nil, size: "25x25", tip: nil, tipid: nil)
+		{ kind: :symbol,
+			symbol: symbol_hash(concept, namespace:, type:, variant:, css:, size:),
+			align:,
+			cols:,
+			rows:,
+			tip:,
+			tipid:,
+			class:
+		}
 	end
-	
+
+	# prepare SVG symbol hash from the received fields
+	def symbol_hash(concept, namespace: "common", type: "icon", variant: "default", css: nil, size: nil)
+		{namespace:, type:, concept:, variant:, css:, size:}
+	end
+
 	# generic title start FieldsComponent for views
 	def title_start(icon:, title:, subtitle: nil, size: nil, rows: nil, cols: nil, _class: nil, form: nil)
 		kind = form ? :image_box : :header_icon
 		key  = form ? "avatar" : nil
-		res  = [[
-			{kind:, key:, value: icon, size:, rows:, class: _class},
-			{kind: :title, value: title, cols:}
-		]]
+		img  = {kind:, key:, size:, rows:, class: _class}
+		if icon.is_a? Hash
+			img[:symbol] = icon
+		else
+			img[:icon] = icon
+		end
+		res  = [[ img, {kind: :title, value: title, cols:} ]]
 		res << [{kind: :subtitle, value: subtitle}] if subtitle
 		res
 	end

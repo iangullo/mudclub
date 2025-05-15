@@ -45,20 +45,20 @@ module ClubsHelper
 		if user_in_club?	# user's club
 			res = [
 				[
-					button_field({kind: :jump, icon: "player.svg", url: club_players_path(@club, rdx: 0), label: I18n.t("player.many")}, align: "center"),
-					button_field({kind: :jump, icon: "coach.svg", url: club_coaches_path(@club, rdx: 0), label: I18n.t("coach.many")}, align: "center"),
-					button_field({kind: :jump, icon: "team.svg", url: club_teams_path(@club, rdx: 0), label: I18n.t("team.many")}, align: "center")
+					button_field({kind: :jump, symbol: symbol_hash("player", namespace: "sport"), url: club_players_path(@club, rdx: 0), label: I18n.t("player.many")}, align: "center"),
+					button_field({kind: :jump, symbol: symbol_hash("coach", namespace: "sport"), url: club_coaches_path(@club, rdx: 0), label: I18n.t("coach.many")}, align: "center"),
+					button_field({kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: I18n.t("team.many")}, align: "center")
 				],
 				[
-					button_field({kind: :jump, icon: "rivals.svg", url: clubs_path(rdx: 0), label: I18n.t("club.rivals")}, align: "center"),
-					button_field({kind: :jump, icon: "location.svg", url: club_locations_path(@club, rdx: 0), label: I18n.t("location.many")}, align: "center"),
-					button_field({kind: :jump, icon: "timetable.svg", url: club_slots_path(@club, rdx: 0), label: I18n.t("slot.many")}, align: "center")
+					button_field({kind: :jump, symbol: "rivals", url: clubs_path(rdx: 0), label: I18n.t("club.rivals")}, align: "center"),
+					button_field({kind: :jump, symbol: "location", url: club_locations_path(@club, rdx: 0), label: I18n.t("location.many")}, align: "center"),
+					button_field({kind: :jump, symbol: "timetable", url: club_slots_path(@club, rdx: 0), label: I18n.t("slot.many")}, align: "center")
 				]
 			]
 		else
 			res = [[
-				button_field({kind: :jump, icon: "team.svg", url: club_teams_path(@club, rdx: 0), label: I18n.t("team.many")}, align: "center"),
-				button_field({kind: :jump, icon: "location.svg", url: club_locations_path(@club, rdx: 0), label: I18n.t("location.many")}, align: "center")
+				button_field({kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: I18n.t("team.many")}, align: "center"),
+				button_field({kind: :jump, symbol: "location", url: club_locations_path(@club, rdx: 0), label: I18n.t("location.many")}, align: "center")
 			]]
 		end
 		res
@@ -81,25 +81,25 @@ module ClubsHelper
 
 	# return Club FieldsComponent @fields for forms
 	def club_form_fields(cols: 5)
-		iclass = "align-top mr-1"
+		css = "align-top mr-1"
 		res = [[
-			icon_field("website.svg", iclass:),
+			symbol_field("website", css:),
 			{kind: :text_box, key: :website, value: @club.website, placeholder: I18n.t("club.website"), size: 31, cols:}
 		]]
 		res << [	# locale/country settings
-			icon_field("call.svg", iclass:),
+			symbol_field("call", css:),
 			{kind: :text_box, key: :phone, size: 12, value: @club.phone, placeholder: I18n.t("person.phone")},
-			icon_field("flag.svg", tip: I18n.t("locale.country"), tipid: "ctry"),
+			symbol_field("flag", tip: I18n.t("locale.country"), tipid: "ctry", css:),
 			{kind: :text_box, align: "left", key: :country, value: @club.country, placeholder: "US", size: 2, mandatory: {length: 2}},
-			icon_field("locale.png", tip: I18n.t("locale.lang"), tipid: "lang"),
+			symbol_field("locale", tip: I18n.t("locale.lang"), tipid: "lang", css:),
 			{kind: :select_box, align: "left", key: :locale, options: User.locale_list, value: @club.locale},
 		]
 		res << [
-			icon_field("email.svg", iclass:),
+			symbol_field("email", type: :button, css:	),
 			{kind: :email_box, key: :email, value: @club.email, placeholder: I18n.t("person.email"), size: 34, cols:}
 		]
 		res << [
-			icon_field("home.svg", iclass:),
+			symbol_field("home", css:),
 			{kind: :text_area, key: :address, size: 34, cols:, lines: 3, value: @club.address, placeholder: I18n.t("person.address")},
 		]
 	end

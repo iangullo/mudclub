@@ -67,7 +67,7 @@ module DrillsHelper
 
 	# return title FieldComponent definition for edit/new
 	def drill_form_playbook(playbook:)
-		[[{kind: :upload, icon: "playbook.png", label: "Playbook", key: :playbook, value: playbook.filename}]]
+		[[{kind: :upload, symbol: drill_symbol("playbook", size:"20x20"), label: "Playbook", key: :playbook, value: playbook.filename}]]
 	end
 
 	# return title FieldComponent definition for drill steps form
@@ -154,8 +154,7 @@ module DrillsHelper
 			res.first << button_field({
 				kind: :link,
 				align: "right",
-				icon: "playbook.png",
-				size: "20x20",
+				symbol: drill_symbol("playbook", size: "20x20"),
 				url: rails_blob_path(@drill.playbook, disposition: "attachment"),
 				label: "Playbook"
 			})
@@ -235,7 +234,7 @@ module DrillsHelper
 			res.last << button_field(
 				{
 					kind: :link,
-					icon: "drill_versions.svg",
+					symbol: drill_symbol(variant: "versions"),
 					label: I18n.t("version.many"),
 					url: versions_drill_path,
 					frame: "modal"
@@ -251,12 +250,12 @@ module DrillsHelper
 
 	# return icon and top of FieldsComponent
 	def drill_title_fields(title:, subtitle: nil, rows: nil, cols: nil)
-		title_start(icon: "drill.svg", title:, subtitle:, rows:, cols:)
+		title_start(icon: drill_symbol, title:, subtitle:, rows:, cols:)
 	end
 
 	# return title FieldComponent definition for drill show
 	def drill_versions_title
-		title_start(icon: "drill.svg", title: @drill.name, subtitle: I18n.t("version.many"))
+		title_start(icon: drill_symbol(variant: "versions"), title: @drill.name, subtitle: I18n.t("version.many"))
 	end
 
 	# create table for drill versions
@@ -302,6 +301,10 @@ module DrillsHelper
 			@drill.sport.court_modes.map do |court|
 				[ @drill.sport.court_name(court), court ]
 			end
+		end
+
+		def drill_symbol(concept = "drill", variant: "default", size: nil)
+			symbol_hash(concept, namespace: @drill&.sport&.name || "sport", variant:, size:)
 		end
 
 		# return a short definition of version changes

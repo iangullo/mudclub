@@ -19,7 +19,7 @@
 module SlotsHelper
 	# return icon and top of FieldsComponent
 	def slot_title_fields(title:, subtitle: nil)
-		icon = "timetable.svg"
+		icon = symbol_hash("timetable")
 		res  = title_start(icon: , title:, subtitle:)
 		res
 	end
@@ -28,20 +28,20 @@ module SlotsHelper
 	def slot_form_fields(title:)
 		res = slot_title_fields(title:, subtitle: @season&.name)
 		res << [
-			icon_field("team.svg"),
+			symbol_field("team"),
 			{kind: :select_collection, key: :team_id, options: @club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2}
 		]
 		res << [
-			icon_field("location.svg"),
+			symbol_field("location"),
 			{kind: :select_collection, key: :location_id, options: @locations, value: @slot.location_id, cols: 2}
 		]
 		res << [
-			icon_field("calendar.svg"),
+			symbol_field("calendar"),
 			{kind: :select_box, key: :wday, value: @slot.wday, options: weekdays},
 			{kind: :time_box, hour: @slot.hour, mins: @slot.min, mandatory: true}
 		]
 		res << [
-			icon_field("clock.svg"),
+			symbol_field("clock"),
 			{kind: :number_box, key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins"), mandatory: {min: 60}}
 		]
 		res.last << {kind: :hidden, key: :season_id, value: @season.id}
@@ -68,10 +68,10 @@ module SlotsHelper
 	# fields for individual slot views
 	def slot_show_fields
 		res = [
-			[icon_field("category.svg"), string_field(@slot.team.category.name, cols: 2)],
-			[icon_field("division.svg"), string_field(@slot.team.division.name, cols: 2)],
-			[icon_field("location.svg"), string_field(@slot.court, cols: 2)],
-			[icon_field("calendar.svg"), string_field(@slot.to_s, cols: 2)]
+			[symbol_field("category", namespace: "sport"), string_field(@slot.team.category.name, cols: 2)],
+			[symbol_field("division", namespace: "sport"), string_field(@slot.team.division.name, cols: 2)],
+			[symbol_field("location"), string_field(@slot.court, cols: 2)],
+			[symbol_field("calendar"), string_field(@slot.to_s, cols: 2)]
 		]
 		if u_manager?
 			res << [gap_field(cols: 2), button_field({kind: :delete, url: slot_path(@slot, rdx: @rdx), name: @slot.to_s}, align: "right")]

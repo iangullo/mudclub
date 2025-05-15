@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -28,7 +28,7 @@ class UsersController < ApplicationController
 			search = (params[:search].presence || session.dig('user_filters', 'search'))
 			@users = User.search(search, current_user)
 			page   = paginate(@users)	# paginate results
-			title  = helpers.person_title_fields(title: I18n.t("user.many"), icon: "user.svg", size: "50x50")
+			title  = helpers.person_title_fields(title: I18n.t("user.many"), icon: {concept: "user", size: "50x50"})
 			title << [{kind: :search_text, key: :search, value: search, url: users_path(rdx: @rdx)}]
 			grid   = helpers.user_grid(users: @u_page)
 			create_index(title:, grid:, page:, retlnk: base_lnk("/"))
@@ -44,10 +44,9 @@ class UsersController < ApplicationController
 			@title = create_fields(helpers.user_show_fields)
 			@role  = create_fields(helpers.user_role_fields(@user))
 			@grid  = create_grid(helpers.team_grid(teams: @user.team_list))
-			close  = (@rdx == 1 ? nil : :back)
-			retlnk = base_lnk(users_path(rdx: @rdx))
+			retlnk = (@rdx == 1 ? :back : base_lnk(users_path(rdx: @rdx)))
 			submit  = edit_user_path(@user, rdx: @rdx) if u_admin? || @rdx == 1
-			@submit = create_submit(close:, retlnk:, submit:, frame: "modal")
+			@submit = create_submit(close: :back, retlnk:, submit:, frame: "modal")
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

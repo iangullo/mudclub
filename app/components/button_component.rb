@@ -16,6 +16,8 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# frozen_string_literal: true
+#
 # ButtonComponent - ViewComponent to manage regular buttons used in views
 # button is a mudsplat with following fields:
 # kind:, max_h: 6, icon: nil, label: nil, url: nil, turbo: nil, title: nil (provides tooltips)
@@ -43,7 +45,7 @@
 # => :save: save form
 # => :stimulus: trigger for stimulus action
 # => :whatsapp: open whatsapp chat
-# frozen_string_literal: true
+# ButtonComponent - ViewComponent to manage regular buttons used in views
 class ButtonComponent < ApplicationComponent
 	def initialize(**attrs)
 		validate(attrs)
@@ -81,15 +83,15 @@ class ButtonComponent < ApplicationComponent
 		c_class = "#{(@button[:kind] == :jump) ? '' : 'inline-flex '}items-center"
 		content_tag(:div, class: c_class) do
 			if @button[:flip]	# flip order - label first
-				concat(@button[:label]) if @button[:label]
-				if @button[:icon]
-					concat("&nbsp;".html_safe) if @button[:label]
-					concat(image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]))
+				concat(@button[:label].presence) if @button[:label].present?
+				if has_icon?
+					concat("&nbsp;".html_safe) if @button[:label].present?
+					concat(render_image(@button))
 				end
 			else
-				concat(image_tag(@button[:icon], size: @button[:size], class: @button[:i_class])) if @button[:icon]
+				concat(render_image(@button)) if has_icon?
 				if @button[:label]
-					concat("&nbsp;".html_safe) if @button[:icon]
+					concat("&nbsp;".html_safe) if has_icon?
 					concat(@button[:label])
 				end
 			end
@@ -106,21 +108,25 @@ class ButtonComponent < ApplicationComponent
 		end
 	end
 
+	# returns true if we ahve an icon or a symbol defined
+	def has_icon?
+		@button[:icon].present? || @button[:symbol].present?
+	end
+
 	# determine class of item depending on kind
 	def parse_button
-		set_icon
+		hashify_symbol(@button)
 		set_bclass
 		set_dclass
 		set_iclass
 		set_data
+		set_icon
 		@button[:align] ||= "center"
 	end
-
+	
 	# determine button icon depending on kind
 	def set_icon
 		case @button[:kind]
-		when :add, :add_nested
-			@button[:icon]  ||= "add.svg"
 		when :back
 			@button[:turbo]   = "_top"
 		when :call
@@ -152,9 +158,13 @@ class ButtonComponent < ApplicationComponent
 			@button[:url]  = @button[:web] ? "https://web.whatsapp.com/" : "whatsapp://"
 			@button[:url] += @button[:url] + "send?phone=#{@button[:value].delete(' ')}"
 		end
-		@button[:label] ||= I18n.t("action.#{@button[:kind].to_s}") if [:back, :cancel, :clear, :edit, :export, :import, :save].include?(@button[:kind])
-		@button[:icon]  ||= "#{@button[:kind]}.svg" unless @button[:kind] == :link
-		@button[:size]  ||= "25x25"
+		@button[:label]  ||= I18n.t("action.#{@button[:kind].to_s}") if [:back, :cancel, :clear, :edit, :export, :import, :save].include?(@button[:kind])
+		@button[:size]   ||= "25x25"
+		@button[:symbol] ||= {type: :button, concept: @button[:kind].to_s} unless @button[:icon] || @button[:kind] == :link
+		if @button[:symbol]
+			@button[:symbol][:size] ||= @button[:size]
+			@button[:symbol][:css]  ||= @button[:i_class]
+		end
 	end
 
 	# set the @button class depending on button type
@@ -191,7 +201,7 @@ class ButtonComponent < ApplicationComponent
 				@button[:d_class] = @button[:d_class] + " m-1 text-sm"
 			when :location, :whatsapp
 				@button[:tab]     = true
-				@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
+				@button[:d_class] = @button[:d_class] + " text-sm" if has_icon?
 			when :action, :back, :call, :cancel, :clear, :close, :edit, :email, :export, :forward, :import, :login, :save, :stimulus
 				b_colour += " font-bold"
 			else
@@ -202,7 +212,7 @@ class ButtonComponent < ApplicationComponent
 		@button[:d_class] += " hover-div" if @button[:type] == "submit"
 	end
 
-	# set the i_class for the button div
+	# set the inner css for the button div
 	def set_iclass
 		case @button[:kind]
 		when :add, :delete, :link, :location, :stimulus
@@ -281,7 +291,7 @@ class ButtonComponent < ApplicationComponent
 		required_keys.each do |key|
 			unless attrs.key?(key)
 				raise ArgumentError, "Button attributes are missing the required key: #{key}"
-			end	
+			end
 		end
 	end
 end

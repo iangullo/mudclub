@@ -96,9 +96,9 @@ class CalendarComponent < ApplicationComponent
 			case event.kind.to_sym
 			when :match
 				sc = event.total_score	# our team first
-				c_event[:icon] = "match.svg"
-				c_event[:home] = event.home? ? sc[:ours] : sc[:opps]
-				c_event[:away] = event.home? ? sc[:opps] : sc[:ours]
+				c_event[:symbol] = {concept: "match", namespace: event&.team&.sport&.name || "sport"}
+				c_event[:home]   = event.home? ? sc[:ours] : sc[:opps]
+				c_event[:away]   = event.home? ? sc[:opps] : sc[:ours]
 				if sc[:ours][:points] > sc[:opps][:points]
 					b_color = "green"
 				elsif sc[:ours][:points] < sc[:opps][:points]
@@ -107,18 +107,18 @@ class CalendarComponent < ApplicationComponent
 					b_color = "yellow"
 				end
 			when :train
-				c_event[:icon]  = "training.svg"
-				c_event[:label] = event.to_s
+				c_event[:symbol] = {concept: "training", namespace: "sport"}
+				c_event[:label]  = event.to_s
 				if event.has_player(@user.player&.id)
 					c_event[:url]  = "/events/#{event[:id]}/player_stats?retlnk=#{@anchor}"
 					c_event[:data] = {turbo_frame: "modal"}
 				end
 				b_color         = "blue"
 			when :rest
-				c_event[:icon]  = "rest.svg"
-				c_event[:label] = event.to_s
-				c_event[:data]  = {turbo_frame: "modal"}
-				b_color         = "gray"
+				c_event[:symbol] =  {concept: "rest", namespace: "sport"}
+				c_event[:label]  = event.to_s
+				c_event[:data]   = {turbo_frame: "modal"}
+				b_color          = "gray"
 			end
 			c_event[:b_class] = "bg-#{b_color}-300 rounded-lg border px py hover:text-white hover:bg-#{b_color}-700 text-sm"
 			c_event[:t_class] = "bg-#{b_color}-700 rounded-lg invisible inline-block font-light border border-gray-200 border shadow-sm m-2 text-white text-sm z-10"

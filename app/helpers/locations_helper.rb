@@ -22,11 +22,11 @@ module LocationsHelper
 		res = location_title_fields(title:)
 		res << [{kind: :text_box, key: :name, value: @location.name, placeholder: I18n.t("location.default"), mandatory: {length:3}}]
 		res << [
-			icon_field("gmaps.svg"),
+			symbol_field("gmaps"),
 			{kind: :text_box, key: :gmaps_url, value: @location.gmaps_url, placeholder: I18n.t("location.gmaps")}
 		]
 		res << [
-			icon_field("training.svg"),
+			symbol_field("training", namespace: "sport"),
 			{kind: :label_checkbox, key: :practice_court, label: I18n.t("location.train")}
 		]
 		res.last << {kind: :hidden, key: :club_id, value: @clubid} if @clubid
@@ -49,9 +49,9 @@ module LocationsHelper
 			url = editor ? location_path(loc, club_id: @clubid, rdx: @rdx) : location_path(loc, rdx: @rdx)
 			row = {url:, frame: "modal", items: []}
 			row[:items] << {kind: :normal, value: loc.name}
-			row[:items] << icon_field((loc.practice_court ? "training.svg" : "home.svg"), align: "center")
+			row[:items] << (loc.practice_court ? symbol_field("training", namespace: "sport", align: "center") : symbol_field("home", align: "center"))
 			if loc.gmaps_url
-				row[:items] << button_field({kind: :location, icon: "gmaps.svg", align: "center", url: loc.gmaps_url}, align: "center")
+				row[:items] << button_field({kind: :location, symbol: "gmaps", align: "center", url: loc.gmaps_url}, align: "center")
 			else
 				row[:items] << {kind: :normal, value: ""}
 			end
@@ -74,17 +74,17 @@ module LocationsHelper
 	def location_show_fields
 		res = location_title_fields(title: @location.name)
 		if @location.gmaps_url.present?
-			res << [button_field({kind: :location, icon: "gmaps.svg", url: @location.gmaps_url, label: I18n.t("location.see")})]
+			res << [button_field({kind: :location, symbol: "gmaps", url: @location.gmaps_url, label: I18n.t("location.see")})]
 		else
 			res << [{kind: :text, value: I18n.t("location.none")}]
 		end
-		res << [icon_field((@location.practice_court ? "training.svg" : "home.svg"))]
+		res << [(loc.practice_court ? symbol_field("training", namespace: "sport") : symbol_field("home"))]
 	end
 
 	# return icon and top of FieldsComponent
 	def location_title_fields(title:)
 		clubid = @club&.id || @clubid || u_clubid
-		icon   =  ((u_clubid != clubid) ? @club&.logo : "location.svg")
+		icon   =  ((u_clubid != clubid) ? @club&.logo : symbol_hash("location"))
 		title_start(icon:, title:)
 	end
 end

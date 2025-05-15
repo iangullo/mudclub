@@ -19,7 +19,7 @@
 module EventsHelper
 	# FieldComponents for event attendance
 	def event_attendance_title
-		res = title_start(icon: "attendance.svg", title: @event.team.nick, subtitle: @event.team.category.name)
+		res = title_start(icon: symbol_hash("attendance"), title: @event.team.nick, subtitle: @event.team.category.name)
 		res[0] << gap_field
 		res[1] << gap_field
 		event_top_right_fields(res:)
@@ -96,7 +96,7 @@ module EventsHelper
 	def event_index_title(team: nil, season: nil)
 		title    = (team ? team.nick : (season ? season.name : I18n.t("calendar.label")))
 		subtitle = (team ? team.category.name : I18n.t("scope.all"))
-		res      = title_start(icon: "calendar.svg", title:, subtitle:)
+		res      = title_start(icon: symbol_hash("calendar"), title:, subtitle:)
 		res     += [[gap_field(size: 1), string_field(team.division.name + " (#{team.season.name})")]] if team
 		res
 	end
@@ -137,10 +137,10 @@ module EventsHelper
 		if teams	# we are going to prepare a copy of the event
 			t_id = @event.team ? @event.team.id : teams.first.id
 			copy = true
-			res  = title_start(icon: @event.pic, title: @event.title(copy: true), rows: @event.rest? ? 3 : nil, cols:)
+			res  = title_start(icon: @event.symbol, title: @event.title(copy: true), rows: @event.rest? ? 3 : nil, cols:)
 			res << [{kind: :select_collection, key: :team_id, options: teams, value: t_id, cols: cols}]
 		else
-			res = title_start(icon: @event.pic, title: @event.title(show: true), rows: @event.rest? ? 3 : nil, cols:)
+			res = title_start(icon: @event.symbol, title: @event.title(show: true), rows: @event.rest? ? 3 : nil, cols:)
 			res.last << gap_field
 			case @event.kind.to_sym
 			when :rest then rest_title(res:, cols:, form:)
@@ -228,10 +228,10 @@ module EventsHelper
 	def task_show_fields(task:, team:, title: true)
 		res = []
 		res << [
-			icon_field("drill.svg", size: "30x30", align: "center"),
+			symbol_field("drill", namespace: task&.drill&.sport&.name || "sport", size: "30x30", align: "center"),
 			{kind: :label, value: task.drill.name},
 			gap_field,
-			{kind: :icon_label, icon: "clock.svg", label: task.s_dur}
+			{kind: :icon_label, symbol: "clock", label: task.s_dur}
 		] if title
 		res << [{kind: :action_text, value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation.body.to_s}]
 		if task.remarks?
@@ -304,7 +304,7 @@ module EventsHelper
 		# return a button field to copy event - if possible
 		def event_copy_button
 			if u_coach? or u_manager?
-				{kind: :action, icon: "copy.svg", label: I18n.t("action.copy"), url: copy_event_path(@event, cal: @cal, rdx: @rdx), frame: "modal"}
+				{kind: :action, symbol: symbol_hash("copy", type: :button), label: I18n.t("action.copy"), url: copy_event_path(@event, cal: @cal, rdx: @rdx), frame: "modal"}
 			end
 		end
 
@@ -313,14 +313,14 @@ module EventsHelper
 			calendurl = clubevent ? club_events_path(@clubid, season_id: @season&.id, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
 			toprow = [	#  top row above the grid
 				button_field(
-					{kind: :link, icon: "calendar.svg", label: I18n.t("calendar.label"), size: "30x30", url: calendurl},
+					{kind: :link, symbol: "calendar", label: I18n.t("calendar.label"), size: "30x30", url: calendurl},
 					class: "align-middle text-indigo-900"
 				)
 			]
 			toprow += [	# team events--> add a team_attendance button
 				gap_field,
 				button_field(
-					{kind: :link, icon: "attendance.svg", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(@team, rdx: @rdx), align: "right", frame: "modal"},
+					{kind: :link, symbol: "attendance", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(@team, rdx: @rdx), align: "right", frame: "modal"},
 					class: "align-middle text-indigo-900"
 				)
 			] unless clubevent
@@ -349,10 +349,10 @@ module EventsHelper
 		# complete event title with top-right corner elements
 		def event_top_right_fields(res:, form: nil, copy: false)
 			if form # top right corner of title
-				res[0] << icon_field("calendar.svg")
+				res[0] << symbol_field("calendar")
 				res[0] << {kind: :date_box, key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date}
 				unless @event.rest? # add start_time inputs
-					res[1] << icon_field("clock.svg")
+					res[1] << symbol_field("clock")
 					res[1] << {kind: :time_box, key: :hour, hour: @event.hour, mins: @event.min, mandatory: true}
 				end
 				res.last << {kind: :hidden, key: :team_id, value: @event.team_id} unless copy
@@ -360,10 +360,10 @@ module EventsHelper
 				res.last << {kind: :hidden, key: :rdx, value: @rdx} if @rdx
 				res.last << {kind: :hidden, key: :kind, value: @event.kind}
 			else
-				res[0] << icon_field("calendar.svg", tip: I18n.t("calendar.date"), tipid: "caldate")
+				res[0] << symbol_field("calendar", tip: I18n.t("calendar.date"), tipid: "caldate")
 				res[0] << {kind: :string, value: @event.date_string}
 				unless @event.rest?
-					res[1] << icon_field("clock.svg", tip: I18n.t("calendar.time"), tipid: "caltime")
+					res[1] << symbol_field("clock", tip: I18n.t("calendar.time"), tipid: "caltime")
 					res[1] << {kind: :string, value: @event.time_string}
 				end
 			end
@@ -389,20 +389,20 @@ module EventsHelper
 					{kind: :side_cell, value: I18n.t("match.single"), align: "left", cols: 2},
 				]
 				res << [
-					icon_field("location.svg"),
+					symbol_field("location"),
 					{kind: :select_collection, key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'", cols: 6},
 					{kind: :hidden, key: :homecourt_id, value: @event.team.homecourt_id, h_data: {match_location_target: "homeCourtId"}}
 				]
 			else
 				if @event.location.gmaps_url
-					res.last << button_field({kind: :location, icon: "gmaps.svg", url: @event.location.gmaps_url, label: @event.location.name}, cols: 2)
+					res.last << button_field({kind: :location, symbol: "gmaps", url: @event.location.gmaps_url, label: @event.location.name}, cols: 2)
 				end
 				if u_manager? || @event.team.has_coach(u_coachid)
 					res <<[
 						gap_field(size: 1),
 						{kind: :side_cell, value: I18n.t("match.single"), align: "left", cols: 2},
 						button_field(
-							{kind: :link, icon: "attendance.svg", label: I18n.t("match.roster"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
+							{kind: :link, symbol: "attendance", label: I18n.t("match.roster"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
@@ -436,7 +436,7 @@ module EventsHelper
 					res << [
 						gap_field(size:1, cols: 6),
 						button_field(
-							{kind: :link, icon: "attendance.svg", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
+							{kind: :link, symbol: "attendance", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx), frame: "modal"},
 							align: "left",
 							cols: 2
 						)
@@ -456,7 +456,7 @@ module EventsHelper
 		# return the dropdown element to access workload charts
 		def workload_button(cols: 2, rows: 1, align: "center")
 			res = { kind: :dropdown, align:, cols:, rows:,
-				button: {kind: :link, icon: "pie.svg", label: I18n.t("train.workload"), name: "show-chart",
+				button: {kind: :link, symbol: "pie", label: I18n.t("train.workload"), name: "show-chart",
 					options: [
 						{label: I18n.t("kind.single"), url: load_chart_event_path(name: "kind"), data: {turbo_frame: :modal}},
 						#{label: I18n.t("target.many"), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal}},

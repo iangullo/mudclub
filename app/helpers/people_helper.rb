@@ -20,17 +20,17 @@ module PeopleHelper
 	def person_form_fields(person, mandatory_email: nil)
 		res = [
 			[
-				icon_field("user.svg"),
+				symbol_field("user"),
 				{kind: :text_box, key: :nick, size: 8, value: person&.nick, placeholder: I18n.t("person.nick")},
 				gap_field,
-				icon_field("call.svg"),
+				symbol_field("call"),
 				{kind: :text_box, key: :phone, size: 12, value: person&.phone, placeholder: I18n.t("person.phone")}
 			],
 			[
-				icon_field("id_front.svg"),
+				symbol_field("id_front"),
 				{kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: I18n.t("person.pid")},
 				gap_field,
-				icon_field("email.svg"),
+				symbol_field("email", type: :button),
 				{kind: :email_box, key: :email, value: person&.email, placeholder: I18n.t("person.email"), mandatory: mandatory_email ? {length: 7} : nil}
 			]
 		]
@@ -39,7 +39,7 @@ module PeopleHelper
 			res << [gap_field(size: 1), idpic_field(person, idpic: "id_back", align: "left", cols: 4)]
 		end
 		res << [
-			icon_field("home.svg", iclass: "align-top"),
+			symbol_field("home"),
 			{kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: I18n.t("person.address")},
 		]
 	end
@@ -50,7 +50,7 @@ module PeopleHelper
 		res << [{kind: :text_box, key: :name, value: person&.name, placeholder: I18n.t("person.name"), cols: 2, mandatory: {length: 2}}]
 		res << [{kind: :text_box, key: :surname, value: person&.surname, placeholder: I18n.t("person.surname"), cols: 2, mandatory: {length: 2}}]
 		res << (sex ? [{kind: :label_checkbox, label: I18n.t("sex.female_a"), key: :female, value: person&.female, align: "left"}] : [])
-		res.last << icon_field("calendar.svg")
+		res.last << symbol_field("calendar")
 		res.last << {kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: person&.player_id?}
 		res
 	end
@@ -79,14 +79,14 @@ module PeopleHelper
 		res << [{kind: :contact, email: person&.email, phone: person&.phone, device: device, align: "center"}]
 		res.last << idpic_field(person) if person&.coach_id? || person&.player_id?
 		res << [
-			icon_field("home.svg", iclass: "align-top"),
+			symbol_field("home", css: "align-top"),
 			{kind: :string, value: simple_format("#{person&.address}"), align: "left", cols: 2}
 		] if person&.address&.present?
 		res
 	end
 
 	# return icon and top of FieldsComponent
-	def person_title_fields(title:, icon: "person.svg", rows: 2, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
+	def person_title_fields(title:, icon: symbol_hash("person"), rows: 2, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
 		title_start(icon:, title:, rows:, cols:, size:, _class: _class, form:)
 	end
 
@@ -105,19 +105,19 @@ module PeopleHelper
 		# standardised field with icons for player/coach id pics
 		def idpic_field(person, idpic: nil, cols: nil, align: "center")
 			if idpic	# it is an editor field
-				{kind: :upload, icon: "#{idpic}.svg", label: I18n.t("person.#{idpic}"), key: idpic, value: person&.send(idpic)&.filename, cols:}
+				{kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2"), label: I18n.t("person.#{idpic}"), key: idpic, value: person&.send(idpic)&.filename, cols:}
 			else
-				pitip = person&.idpic_content
-				icon  = pitip[:icon]
-				label = pitip[:label]
-				tip   = pitip[:tip]
+				pitip  = person&.idpic_content
+				symbol = pitip[:symbol]
+				label  = pitip[:label]
+				tip    = pitip[:tip]
 				if pitip[:found] && u_manager?	# dropdown menu
-					button = {kind: :link, name: "id-pics", icon:, label:, append: true, options: []}		
+					button = {kind: :link, name: "id-pics", symbol:, label:, append: true, options: []}		
 					button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
 					button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
 					{kind: :dropdown, button:, class: "bg-white"}
 				else
-					{kind: :icon_label, icon:, label:, right: true, tip:, align: "left"}
+					{kind: :icon_label, symbol:, label:, right: true, tip:, align: "left"}
 				end
 			end
 		end

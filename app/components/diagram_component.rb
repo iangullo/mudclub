@@ -64,17 +64,17 @@ class DiagramComponent < ApplicationComponent
 		# unified button creator for editor actions
 		def action_button(btn, line_shape: nil, line_style: nil, line_ending: nil)
 			if btn[:object] == "delete"
-				title = I18n.t("action.remove")
-				icon  = "delete.svg"
-				bcls  = "p-1 border rounded hover:bg-red-100 disabled:opacity-50 disabled:bg-gray-200 disabled:cursor-not-allowed"
-				data  =  {action: "click->diagram-editor##{btn[:action]}", diagram_editor_target: "deleteButton"}
+				title  = I18n.t("action.remove")
+				symbol = {concept: "delete", type: :button}
+				bcls   = "p-1 border rounded hover:bg-red-100 disabled:opacity-50 disabled:bg-gray-200 disabled:cursor-not-allowed"
+				data   = { action: "click->diagram-editor##{btn[:action]}", diagram_editor_target: "deleteButton" }
 			else
-				title = I18n.t("sport.#{@sport}.objects.#{btn[:object]}")
-				icon  = "sport/#{@sport}/#{btn[:object]}.svg"
-				bcls  = "p-1 border rounded hover:bg-gray-100"
-				data  =  {action: "click->diagram-editor##{btn[:action]}", line_shape:, line_style:, line_ending: }
+				title  = I18n.t("sport.#{@sport}.objects.#{btn[:object]}")
+				symbol = {concept: btn[:object], namespace: @sport.name, type: :object}
+				bcls   = "p-1 border rounded hover:bg-gray-100"
+				data   = { action: "click->diagram-editor##{btn[:action]}", line_shape:, line_style:, line_ending: }
 			end
-			ButtonComponent.new(kind: :stimulus, icon:, title:, class: bcls, data:)
+			ButtonComponent.new(kind: :stimulus, symbol:, title:, class: bcls, data:)
 		end
 
 		def canvas_url

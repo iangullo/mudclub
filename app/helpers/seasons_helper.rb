@@ -67,7 +67,7 @@ module SeasonsHelper
 
 
 	# return icon and top of HeaderComponent
-	def season_title_fields(icon: "calendar.svg", title:, cols: nil)
+	def season_title_fields(icon: symbol_hash("calendar"), title:, cols: nil)
 		title_start(icon:, title:, cols:)
 	end
 end

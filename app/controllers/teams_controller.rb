@@ -26,7 +26,7 @@ class TeamsController < ApplicationController
 	def index
 		if check_access(roles: [:admin, :manager, :coach, :secretary])
 			@club  = Club.find_by_id(@clubid)
-			@teams = filter!(Team).order(:category_id, :name)
+			@teams = filter!(Team).order(:category_id, :name).where(club_id: @clubid)
 			respond_to do |format|
 				format.xlsx do
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
@@ -194,7 +194,7 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [:manager, :coach, :secretary], obj: @club, both: true)
 			title   = helpers.team_title_fields(title: @team.nick)
 			players = @team.players
-			title << icon_subtitle("player.svg", I18n.t("team.roster"))
+			title << icon_subtitle("player", I18n.t("team.roster"), namespace: @team.sport.name)
 			title.last << { kind: :string, value: "(#{players.count} #{I18n.t("player.abbr")})" }
 			@title  = create_fields(title)
 			@title  = create_fields(title)
@@ -210,7 +210,7 @@ class TeamsController < ApplicationController
 	def edit_roster
 		if @team && team_manager?
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << icon_subtitle("player.svg", I18n.t("team.roster.edit"))
+			title << icon_subtitle("player", I18n.t("team.roster_edit"), namespace: @team.sport.name)
 			@title  = create_fields(title)
 			@submit = create_submit(close: :cancel, retlnk: roster_team_path(rdx: @rdx))
 			@eligible_players = @team.eligible_players
@@ -235,7 +235,7 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [:coach, :manager], obj: @club, both: true)
 			global_targets(true)	# get & breakdown global targets
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << icon_subtitle("target.svg", I18n.t("target.many"))
+			title << icon_subtitle("target", I18n.t("target.many"))
 			@title  = create_fields(title)
 			edit    = edit_targets_team_path(rdx: @rdx) if team_manager?
 			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
@@ -251,7 +251,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			global_targets(false)	# get global targets
 			title   = helpers.team_title_fields(title: @team.to_s)
-			title << icon_subtitle("target.svg", I18n.t("target.edit"))
+			title << icon_subtitle("target", I18n.t("target.edit"))
 			@title  = create_fields(title)
 			@submit = create_submit(close: :cancel, retlnk: targets_team_path(rdx: @rdx))
 		else
@@ -264,7 +264,7 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [:coach, :manager], obj: @club, both: true)
 			plan_targets
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << icon_subtitle("teamplan.svg", I18n.t("plan.single"))
+			title << icon_subtitle("plan", I18n.t("plan.single"))
 			@title = create_fields(title)
 			edit    = edit_plan_team_path(rdx: @rdx) if team_manager?
 			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
@@ -279,7 +279,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			plan_targets
 			title   = helpers.team_title_fields(title: @team.to_s)
-			title << icon_subtitle("teamplan.svg", I18n.t("plan.edit"))
+			title << icon_subtitle("plan", I18n.t("plan.edit"))
 			@title  = create_fields(title)
 			@submit = create_submit(close: :cancel, retlnk: plan_team_path(rdx: @rdx))
 		else
@@ -291,7 +291,7 @@ class TeamsController < ApplicationController
 	def attendance
 		if @team && check_access(roles: [:coach, :manager, :secretary], obj: @club, both: true)
 			title  = helpers.team_title_fields(title: @team.to_s)
-			title << icon_subtitle("attendance.svg", I18n.t("calendar.attendance"))
+			title << icon_subtitle("attendance", I18n.t("calendar.attendance"))
 			@title = create_fields(title)
 			a_data = helpers.team_attendance_grid
 			if a_data
@@ -368,9 +368,9 @@ class TeamsController < ApplicationController
 		end
 
 		# reused across differnet views
-		def icon_subtitle(icon, label)
+		def icon_subtitle(icon, label, namespace: "common")
 			[
-				helpers.icon_field(icon, size: "30x30"),
+				helpers.symbol_field(icon, size: "30x30", namespace:, align: "right", css: "mr-1"),
 				{kind: :side_cell, value: label, align: "left"}
 			]
 		end

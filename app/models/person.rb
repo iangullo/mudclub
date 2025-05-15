@@ -65,15 +65,15 @@ class Person < ApplicationRecord
 	def idpic_content
 		label = self.dni
 		if self.idpics_attached?
-			found = true
-			icon  = "id_front.svg"
-			tip   = I18n.t("person.pics_found")
+			found  = true
+			symbol = {concept: "id_front"}
+			tip    = I18n.t("person.pics_found")
 		else
-			found = self.id_front.attached? || self.id_back.attached?
-			icon  = "id_front-no.svg"
-			tip   = I18n.t("person.pics_missing")
+			found  = self.id_front.attached? || self.id_back.attached?
+			symbol = {concept: "id_front", variant: "none"}
+			tip    = I18n.t("person.pics_missing")
 		end
-		{found:, icon:, label:, tip:}
+		{found:, symbol:, label:, tip:}
 	end
 
 	# checks whether a Person has attached id pictures (front && back)

@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -28,7 +28,7 @@
 class ContactComponent < ApplicationComponent
 	def initialize(website: nil, email:, phone:, device:)
 		@email   = ButtonComponent.new(kind: :email, value: email) if email.presence
-		@website = ButtonComponent.new(kind: :link, icon: "website.svg", url: website, tab: true) if website.presence
+		@website = ButtonComponent.new(kind: :link, symbol: {concept: "website", type: :icon}, url: website, tab: true) if website.presence
 		if phone.presence
 			@call     = ButtonComponent.new(kind: :call, value: phone) if device == "mobile"
 			@whatsapp = ButtonComponent.new(kind: :whatsapp, value: phone, web: (device=="desktop"))

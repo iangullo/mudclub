@@ -6,7 +6,7 @@
 	</div>
 	<div class="float-right">
 		<%= form.number_field :duration, value: form.object.duration, min: 1, max: 90, size: 3, class: f_cls + " px-0 text-right", style: "background-color: transparent; border: indigo-100;" %>
-		<%= render ButtonComponent.new(kind: :edit, align: "right", url: edit_task_event_path(task_id: form.object.id)) %>
+		<%= render ButtonComponent.new(kind: :edit, label: "", align: "right", url: edit_task_event_path(task_id: form.object.id)) %>
 		<%= render ButtonComponent.new(kind: :remove, action: 'click->sortable#remove', frame: 'sortable-list', data: {target: 'sortable.item', id: form.object.id ,prevent_default: true}) %>
 	</div>
 <% end %>

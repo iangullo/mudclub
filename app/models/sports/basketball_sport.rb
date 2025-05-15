@@ -48,7 +48,7 @@ class BasketballSport < Sport
 	def court_name(court)
 		I18n.t("sport.#{self.name}.court.#{court}")
 	end
-	
+
 	# return parent object
 	def generic
 		self.becomes(Sport)
@@ -209,9 +209,9 @@ class BasketballSport < Sport
 	end
 
 	# retrieve an SVG symbol from the registry
-  def symbol(concept, variant = "default", type: :object)
-    try_symbol(self.name.downcase, concept, variant, type) || super
-  end
+	def symbol(concept, type: :object, variant: "default")
+		try_symbol(concept, namespace: self.name, type:, variant:) || super
+	end
 
 	private
 		# generic creation of stats if inexistent in database

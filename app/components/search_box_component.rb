@@ -61,7 +61,7 @@ class SearchBoxComponent < ApplicationComponent
 		tag.div(id: 'search-box', class: D_CLASS) { search_form }
 	end
 
-	private		
+	private
 		def field_tag(fsearch, field)
 			tag.div(class: F_CLASS) do
 				safe_join([
@@ -70,13 +70,13 @@ class SearchBoxComponent < ApplicationComponent
 				].compact)
 			end
 		end
-		
+
 		def hidden_filter_field(fsearch)
 			if @s_filter.present?
 				fsearch.hidden_field(@s_filter[:key].to_sym, value: @s_filter[:value])
 			end
 		end
-		
+
 		def input_field(fsearch, field)
 			case field[:kind]
 			when :search_text
@@ -88,7 +88,7 @@ class SearchBoxComponent < ApplicationComponent
 			when :hidden
 				fsearch.hidden_field(field[:key], value: field[:value])
 			end
-		end	
+		end
 
 		def render_fields(fsearch)
 			@fields.map { |field| field_tag(fsearch, field) }
@@ -105,7 +105,14 @@ class SearchBoxComponent < ApplicationComponent
 
 		def submit_button
 			content_tag(:div, class: S_CLASS) do
-				image_submit_tag("search.svg", height: 25, alt: t("action.search"), class: "align-middle m-1")
+				tag.button(type: "submit", class: "p-1 align-middle", aria: { label: t("action.search") }) do
+					render SymbolComponent.new(
+						type: :button,
+						concept: "search",
+						size: "25x25",
+						label: t("action.search")
+					)
+				end
 			end
 		end
 end

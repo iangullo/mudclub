@@ -31,7 +31,7 @@
 # => :grid: :value (GridComponent definition), :form (optional)
 # => :header_icon: :value (name of icon file in assets)
 # => :hidden: :a hidden link for the form
-# => :icon: :value (name of icon file in assets)
+# => :icon: :icon (name of icon file in assets)
 # => :icon_label: :icon (name of icon file), :label (added text)
 # => :image: :value (load an image file)
 # => :label: :value (semibold text string)
@@ -119,6 +119,9 @@ class FieldsComponent < ApplicationComponent
 					item[:class] ||= "align-top"
 				when "separator"
 					item[:stroke] ||= "solid"
+				when "symbol"
+					hashify_symbol(item)
+					item[:value]  = SymbolComponent.new(**item[:symbol])
 				else
 					item[:i_class] = "rounded p-0" unless item[:kind] == :gap
 				end
@@ -142,7 +145,7 @@ class FieldsComponent < ApplicationComponent
 				("&nbsp;" * field[:size]).html_safe
 			when "grid"
 				render GridComponent.new(field[:value], form: @form)
-			when /^(.*icon.*|image)$/
+			when /^(.*icon.*|image|symbol)$/
 				render_image_field(field)
 			when "lines"
 				field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
@@ -152,8 +155,6 @@ class FieldsComponent < ApplicationComponent
 				("<hr class=\"#{field[:stroke]}\"").html_safe
 			when "person_type"
 				render_role_icons(field[:icons])
-			when "symbol"
-				render SymbolComponent.new(item[:value], css: item[:i_class], label: item[:label], view_box: item[:view_box])
 			else
 				if field[:dclass]
 					concat((field[:value].tap { |value| break "<div class=\"#{field[:dclass]}\">#{value}</div>"}.html_safe))
@@ -171,16 +172,7 @@ class FieldsComponent < ApplicationComponent
 			html += "<div class=\"inline-flex items-center\">"
 			html += "#{item[:label]}&nbsp;" if item[:right]
 		end
-		if item[:tip]
-			html += "<button data-tooltip-target=\"tooltip-#{item[:tipid]}\" data-tooltip-placement=\"bottom\" type=\"button\">"
-		end
-		html += image_tag(item[:value] || item[:icon], size: item[:size], class: item[:i_class])
-		if item[:tip]
-			html += "</button>"
-			html += "<div id=\"tooltip-#{item[:tipid]}\" role=\"tooltip\" class=\"absolute z-20 invisible inline-block px-1 py-1 text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip\">"
-			html += item[:tip]
-			html += "</div>"
-		end
+		html += render_image(item)
 		if item[:label]
 			html += "&nbsp;#{item[:label]}" unless item[:right]
 			html += "</div>"
@@ -188,21 +180,10 @@ class FieldsComponent < ApplicationComponent
 		html.html_safe
 	end
 
-	# render the icons/tooltips for rols attached to a user
+	# render the icons/tooltips for roles attached to a user
 	def render_role_icons(icons)
 		icons.map do |icon|
-			html = ""
-			if icon[:tip]
-				html += "<button data-tooltip-target=\"tooltip-#{icon[:tipid]}\" data-tooltip-placement=\"bottom\" type=\"button\">"
-			end
-			html += image_tag(icon[:img], size: "25x25")
-			if icon[:tip]
-				html += "</button>"
-				html += "<div id=\"tooltip-#{icon[:tipid]}\" role=\"tooltip\" class=\"absolute z-10 invisible inline-block px py text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip\">"
-				html += icon[:tip]
-				html += "</div>"
-			end
-			html
+			render_image_field(icon)
 		end.join.html_safe
 	end
 	
@@ -215,11 +196,11 @@ class FieldsComponent < ApplicationComponent
 	def set_icon(item)
 		case item[:kind]
 		when :header_icon
-			item[:size]    ||= "50x50"
-			item[:align]     = "center"
-			item[:class]   ||= "align-top"
-			item[:i_class] ||= "max-w-75 max-h-100 rounded align-top m-1"
-			item[:rows]      = 2 unless item[:rows]
+			item[:size]  ||= "50x50"
+			item[:align]   = "center"
+			item[:class] ||= "align-top"
+			item[:css]   ||= "max-w-75 max-h-100 rounded align-top m-1"
+			item[:rows]    = 2 unless item[:rows]
 		when :icon, :icon_label
 			item[:size]  ||= "25x25"
 			if item[:label] && item[:kind] == :icon
@@ -228,7 +209,15 @@ class FieldsComponent < ApplicationComponent
 				item[:align] ||= "right"
 			end
 		when :image
-			item[:i_class] ||= "rounded align-top m-1"
+			item[:css] ||= "rounded align-top m-1"
+		end
+		if item[:symbol].present?	# symbol definition
+			hashify_symbol(item)	# ensure it is a hash
+			item[:symbol][:css]  ||= item[:css]
+			item[:symbol][:size] ||= item[:size]
+			item[:value]           = SymbolComponent.new(**item[:symbol])
+		else
+			item[:i_class] ||= item[:css]
 		end
 	end
 
@@ -259,8 +248,13 @@ class FieldsComponent < ApplicationComponent
 	# set icons for a person-type
 	def set_person_type(item)
 		item[:icons] = []
-		item[:icons] << {img: "user.svg", tip: I18n.t("role.user"), tipid: "puser"} if item[:user]
-		item[:icons] << {img: "player.svg", tip: I18n.t("role.player"), tipid: "pplayer"} if item[:player]
-		item[:icons] << {img: "coach.svg", tip: I18n.t("role.coach"), tipid: "pcoach"} if item[:coach]
+		item[:icons] << role_symbol("user") if item[:user]
+		item[:icons] << role_symbol("player") if item[:player]
+		item[:icons] << role_symbol("coach") if item[:coach]
+	end
+
+	# wrapper for role_symbols
+	def role_symbol(role)
+		{symbol: true, value: SymbolComponent.new(role), size: "25x25", tip: I18n.t("role.#{role}"), tipid: "p#{role}"}
 	end
 end

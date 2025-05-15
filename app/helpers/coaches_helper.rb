@@ -45,8 +45,8 @@ module CoachesHelper
 			row[:items] << {kind: :normal, value: coach.to_s}
 			row[:items] << {kind: :contact, email: coach&.person&.email, phone: coach&.person&.phone, device: device}
 			if editor
-				row[:items] << icon_field(coach.all_pics? ? "Yes.svg" : "No.svg", align: "center") 
-				row[:items] << icon_field(coach.active? ? "Yes.svg" : "No.svg", align: "center")
+				row[:items] << symbol_field(coach.all_pics? ? "yes" : "no", align: "center") 
+				row[:items] << symbol_field(coach.active? ? "yes" : "no", align: "center")
 				row[:items] << button_field({kind: :delete, url: row[:url], name: coach.to_s})
 			end
 			rows << row

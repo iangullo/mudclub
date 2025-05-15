@@ -18,7 +18,7 @@
 #
 # Managament of locations registered inmudclub - typicallylinekd to a club
 class LocationsController < ApplicationController
-	before_action :set_locations, only: [:index, :show, :edit, :new, :update, :destroy, :locations]
+	before_action :set_locations, only: [:index, :show, :edit, :new, :update, :destroy]
 
 	# GET /club/x/locations
 	# GET /club/x/locations.json

@@ -183,7 +183,6 @@ class DrillsController < ApplicationController
 	def update_diagram
 		raw_data    = params.dig(:drill, :svgdata)&.strip
 		parsed_data = raw_data.present? ? JSON.parse(raw_data) : nil
-		binding.break
 		if @step&.update(svgdata: parsed_data)
 			respond_to do |format|
 				format.turbo_stream

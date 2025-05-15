@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
+# Core shared component functions
 class ApplicationComponent < ViewComponent::Base
 	def initialize(tag: nil, classes: nil, **options)
 		@tag = tag
@@ -27,7 +28,8 @@ class ApplicationComponent < ViewComponent::Base
 	def call
 		content_tag(@tag, content, class: @classes, **@options) if @tag
 	end
-
+	
+	private
 	# handle errors gracefully
 	def handle_error(error)
 		# Log the error for debugging purposes
@@ -35,6 +37,34 @@ class ApplicationComponent < ViewComponent::Base
 		
 		# Render a fallback message or component
 		content_tag(:div, "An error occurred while rendering this button.", class: "error-message")
+	end
+
+	# ensure symbol is converted to a proper symbol hash, if needed.
+	def hashify_symbol(item)
+		item[:symbol] = {concept: item[:symbol], type: "icon", namespace: "common", variant: "default"} if item[:symbol].presence.is_a? String
+	end
+
+	# unfied renderer for icon/symbol images
+	def render_image(img, size: nil)
+		return if img.blank? || !img.is_a?(Hash)
+		html = ""
+		if img[:tip]
+			html += "<button data-tooltip-target=\"tooltip-#{img[:tipid]}\" data-tooltip-placement=\"bottom\" type=\"button\">"
+		end
+		if img[:symbol]
+			img[:symbol][:size] ||= size if size.present?
+			html += render(SymbolComponent.new(**img[:symbol]))
+		else
+			img[:size] ||= size if size.present?
+			html += image_tag(img[:value] || img[:icon], size: img[:size].presence || "25x25", class: img[:i_class])
+		end
+		if img[:tip]
+			html += "</button>"
+			html += "<div id=\"tooltip-#{img[:tipid]}\" role=\"tooltip\" class=\"absolute z-20 invisible inline-block px-1 py-1 text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip\">"
+			html += img[:tip]
+			html += "</div>"
+		end
+		html.html_safe
 	end
 
 	# wrappers to generate different field tags - self-explanatory

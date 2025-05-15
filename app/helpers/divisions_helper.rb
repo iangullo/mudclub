@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -19,7 +19,7 @@
 module DivisionsHelper
 	# return icon and top of FieldsComponent
 	def division_title_fields(title:, subtitle: nil, cols: nil)
-		title_start(icon: "sport/#{@sport.name}/division.svg", title:, subtitle:, cols:)
+		title_start(icon: symbol_hash("division", namespace: "sport"), title:, subtitle:, cols:)
 	end
 
 	# return FieldsComponent @fields for forms

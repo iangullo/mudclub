@@ -136,19 +136,22 @@ class Event < ApplicationRecord
 		res
 	end
 
-	# return name of assocatied icon
-	def pic
+	# return name of assocatied symbol
+	def symbol
 		case self.kind.to_sym
 		when :train
-			res = "training.svg"
+			concept = "training"
 		when :match
-			res = "match.svg"
+			namespace = self&.team&.sport&.name || "sport"
+			concept = "match"
 		when :rest
-			res = "rest.svg"
+			concept   = "rest"
 		else
-			res = "team.svg"
+			concept = "team"
+			namespace = "common"
 		end
-		res
+		namespace ||= "sport"
+		{concept:, namespace:}
 	end
 
 	# return strings fro associated targets

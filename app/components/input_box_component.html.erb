@@ -6,9 +6,27 @@
 <% when :hidden %>
 	<%= @form.hidden_field(@fdata[:key].to_sym, value: @fdata[:value], data: @i_data) %>
 <% when :image_box %>
-	<div id="imageboxContainer" data-controller="imagebox" class="<%= @width %> <%= @height %> group flex rounded relative overflow-hidden justify-center items-center m-1">
+	<style>
+		/* Style the container with fixed dimensions */
+		#imageboxContainer {
+			max-width: <%= @width %>;
+			max-height: <%= @height %>;
+			border: 1px solid gray;
+			overflow: hidden;
+			position: relative;
+			display: flex; /* Use flexbox */
+			justify-content: center; /* Center horizontally */
+			align-items: center; /* Center vertically */
+		}
+
+		#imageSnapshot {
+			max-width: <%= @width %>;
+			max-height: <%= @height %>;
+		}
+	</style>
+	<div id="imageboxContainer" data-controller="imagebox" class="group flex rounded relative">
 		<!-- Image element to display snapshots (loaded initially) -->
-		<%= image_tag @fdata[:value], id: "imageSnapshot", class: "object-cover w-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
+		<%= image_tag @fdata[:icon], id: "imageSnapshot", class: "object-cover w-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
 
 		<!-- Overlay for the camera icon -->
 		<div class="overlay absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" data-action="click->imagebox#openFileDialog" >
@@ -82,10 +100,8 @@
 
 		<!-- Custom button to trigger file input -->
 		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" data-action="click->upload#selectFile" data-upload-target="button">
-			<% if @fdata[:icon] %>
-			<%= image_tag(@fdata[:icon], size: "25x25", class: "max-h-6 max-w-6") %>&nbsp;
-			<% end %>
-			<%=@fdata[:label]%>
+			<%= render_image(@fdata, size: "25x25") if (@fdata[:icon].present? || @fdata[:symbol].present?) %>
+			<%= @fdata[:label] %>
 		</button>
 
 		<!-- Display selected file name -->

@@ -89,7 +89,7 @@ class GridComponent < ApplicationComponent
 				when :inverse
 					item[:class] = "font-semibold bg-white text-indigo-900 border px py"
 				when :gap
-					item[:value] = "&nbsp;"
+					item[:value] = "&nbsp;".html_safe
 				when :button
 					item[:value] = ButtonComponent.new(**item[:button])
 					item[:class] = "bg-white"
@@ -115,7 +115,8 @@ class GridComponent < ApplicationComponent
 					row[:items].each { |item|
 					case item[:kind]
 					when :normal, :lines, :icon, :location, :text
-						item[:class] ||= "border px py"
+						item[:class]         ||= "border px py"
+						item[:symbol][:size] ||= "25x25" if item[:symbol]
 					when :button
 						item[:class] ||= "bg-white" unless item[:button][:kind] == :location
 						item[:value]   = ButtonComponent.new(**item[:button])
@@ -154,13 +155,13 @@ class GridComponent < ApplicationComponent
 			}
 			rows
 		end
-		
+
 		def render_body
 			concat(content_tag(:tbody) do
 				@rows.map { |g_row| render_row(g_row) }.join.html_safe
 			end)
 		end
-		
+
 		def render_cell(item, url, data)
 			tablecell_tag(item) do
 				case item[:kind]
@@ -168,7 +169,7 @@ class GridComponent < ApplicationComponent
 					item[:value]
 				when :checkbox_q
 					render_checkbox(item)
-				when :icon
+				when :icon, :symbol
 					render_icon(item, url, data)
 				when :lines
 					item[:value].map { |cad| link_to(cad, url, data:) }.join("<br>").html_safe
@@ -181,7 +182,7 @@ class GridComponent < ApplicationComponent
 				end
 			end
 		end
-		
+
 		def render_checkbox(item)
 			content_tag(:div, class: "align-middle") do
 				check_box(item[:key], "#{item[:player_id]}_#{item[:q]}", {
@@ -219,7 +220,7 @@ class GridComponent < ApplicationComponent
 
 		def render_icon(item, url, data)
 			link_to(url, data:) do
-				image_tag(item[:value], size: "25x25")
+				render_image(item, size: "25x25")
 			end
 		end
 
@@ -230,7 +231,7 @@ class GridComponent < ApplicationComponent
 				item[:value]
 			end
 		end
-		
+
 		def render_row(g_row)
 			tablerow_tag(data: g_row[:data], classes: g_row[:classes]) do
 				g_row[:items].map { |item| render_cell(item, g_row[:url], g_row[:data]) }.join.html_safe
