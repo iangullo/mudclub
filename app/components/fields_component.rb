@@ -25,7 +25,7 @@
 # => :contact: mailto:, tel: and whatsapp: buttons for a person
 # => :date_box: :key (field name), :value (date_field), :s_year (start_year)
 # => :dropdown: a DropdownComponent - passed as argument to the menu generator
-# => :diagram: data (diagram SVG data we are editing), :court_image (optional path to canvas court image)
+# => :diagram: svgdata (diagram SVG data we are editing), :court (symbol for court background image)
 # => :email_box: :key (field name), :value (email_field), :size (box size)
 # => :gap: :size (count of &nbsp; to separate content)
 # => :grid: :value (GridComponent definition), :form (optional)
@@ -102,11 +102,11 @@ class FieldsComponent < ApplicationComponent
 				when "contact"
 					set_contact(item)
 				when "diagram"
-					item[:value] = DiagramComponent.new(canvas: item[:canvas], svgdata: item[:svgdata], css: item[:css])
+					item[:value] = DiagramComponent.new(court: item[:court], svgdata: item[:svgdata], css: item[:css])
 				when "dropdown"	# item[:button] has to contain the button definition
 					item[:value] = DropdownComponent.new(item[:button])
 				when /^(.*icon.*|image)$/
-					set_icon(item)
+					set_image(item)
 				when "label_checkbox"
 					item[:class] ||= " align-middle rounded-md"
 				when /^(search_.+)$/
@@ -192,8 +192,8 @@ class FieldsComponent < ApplicationComponent
 		item[:value] = ContactComponent.new(website: item[:website], email: item[:email], phone: item[:phone], device: item[:device])
 	end
 
-	# used for all icon/image fields - except for "image-box"
-	def set_icon(item)
+	# used for all icon/image fields - except for :image_box
+	def set_image(item)
 		case item[:kind]
 		when :header_icon
 			item[:size]  ||= "50x50"

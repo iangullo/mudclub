@@ -55,8 +55,8 @@ class ApplicationComponent < ViewComponent::Base
 			img[:symbol][:size] ||= size if size.present?
 			html += render(SymbolComponent.new(**img[:symbol]))
 		else
-			img[:size] ||= size if size.present?
-			html += image_tag(img[:value] || img[:icon], size: img[:size].presence || "25x25", class: img[:i_class])
+			img[:size] ||= img[:icon].present? ? "25x25" : size.presence
+			html += image_tag(img[:value] || img[:icon], size: img[:size], class: img[:i_class])
 		end
 		if img[:tip]
 			html += "</button>"

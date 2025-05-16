@@ -140,13 +140,18 @@ module ApplicationHelper
 
 	# generic title start FieldsComponent for views
 	def title_start(icon:, title:, subtitle: nil, size: nil, rows: nil, cols: nil, _class: nil, form: nil)
-		kind = form ? :image_box : :header_icon
-		key  = form ? "avatar" : nil
-		img  = {kind:, key:, size:, rows:, class: _class}
-		if icon.is_a? Hash
-			img[:symbol] = icon
+		img  = {size:, rows:, class: _class}
+		if form
+			img[:kind]  = :image_box
+			img[:key]   = "avatar"
+			img[:value] = icon
 		else
-			img[:icon] = icon
+			img[:kind]  = :header_icon
+			if icon.is_a? Hash
+				img[:symbol] = icon
+			else
+				img[:icon] = icon
+			end
 		end
 		res  = [[ img, {kind: :title, value: title, cols:} ]]
 		res << [{kind: :subtitle, value: subtitle}] if subtitle

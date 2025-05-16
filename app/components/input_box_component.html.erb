@@ -26,7 +26,7 @@
 	</style>
 	<div id="imageboxContainer" data-controller="imagebox" class="group flex rounded relative">
 		<!-- Image element to display snapshots (loaded initially) -->
-		<%= image_tag @fdata[:icon], id: "imageSnapshot", class: "object-cover w-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
+		<%= image_tag @fdata[:value], id: "imageSnapshot", class: "object-cover w-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
 
 		<!-- Overlay for the camera icon -->
 		<div class="overlay absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" data-action="click->imagebox#openFileDialog" >
