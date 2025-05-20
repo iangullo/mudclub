@@ -160,10 +160,10 @@ class ButtonComponent < ApplicationComponent
 		end
 		@button[:label]  ||= I18n.t("action.#{@button[:kind].to_s}") if [:back, :cancel, :clear, :edit, :export, :import, :save].include?(@button[:kind])
 		@button[:size]   ||= "25x25"
-		@button[:symbol] ||= {type: :button, concept: @button[:kind].to_s} unless @button[:icon] || @button[:kind] == :link
+		@button[:symbol] ||= {concept: @button[:kind].to_s, options: {type: :button}} unless @button[:icon] || @button[:kind] == :link
 		if @button[:symbol]
-			@button[:symbol][:size] ||= @button[:size]
-			@button[:symbol][:css]  ||= @button[:i_class]
+			@button[:symbol][:options][:size] ||= @button[:size]
+			@button[:symbol][:options][:css]  ||= @button[:i_class]
 		end
 	end
 

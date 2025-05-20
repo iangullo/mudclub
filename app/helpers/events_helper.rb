@@ -228,7 +228,7 @@ module EventsHelper
 	def task_show_fields(task:, team:, title: true)
 		res = []
 		res << [
-			symbol_field("drill", namespace: task&.drill&.sport&.name || "sport", size: "30x30", align: "center"),
+			symbol_field("drill", {namespace: task&.drill&.sport&.name || "sport", size: "30x30"}, align: "center"),
 			{kind: :label, value: task.drill.name},
 			gap_field,
 			{kind: :icon_label, symbol: "clock", label: task.s_dur}

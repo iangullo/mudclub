@@ -83,23 +83,23 @@ module ClubsHelper
 	def club_form_fields(cols: 5)
 		css = "align-top mr-1"
 		res = [[
-			symbol_field("website", css:),
+			symbol_field("website", {css:}),
 			{kind: :text_box, key: :website, value: @club.website, placeholder: I18n.t("club.website"), size: 31, cols:}
 		]]
 		res << [	# locale/country settings
-			symbol_field("call", css:),
+			symbol_field("call", {css:}),
 			{kind: :text_box, key: :phone, size: 12, value: @club.phone, placeholder: I18n.t("person.phone")},
-			symbol_field("flag", tip: I18n.t("locale.country"), tipid: "ctry", css:),
+			symbol_field("flag", {css:}, tip: I18n.t("locale.country"), tipid: "ctry"),
 			{kind: :text_box, align: "left", key: :country, value: @club.country, placeholder: "US", size: 2, mandatory: {length: 2}},
-			symbol_field("locale", tip: I18n.t("locale.lang"), tipid: "lang", css:),
+			symbol_field("locale", {css:}, tip: I18n.t("locale.lang"), tipid: "lang"),
 			{kind: :select_box, align: "left", key: :locale, options: User.locale_list, value: @club.locale},
 		]
 		res << [
-			symbol_field("email", type: :button, css:	),
+			symbol_field("email", {type: :button, css:}	),
 			{kind: :email_box, key: :email, value: @club.email, placeholder: I18n.t("person.email"), size: 34, cols:}
 		]
 		res << [
-			symbol_field("home", css:),
+			symbol_field("home", {css:}),
 			{kind: :text_area, key: :address, size: 34, cols:, lines: 3, value: @club.address, placeholder: I18n.t("person.address")},
 		]
 	end

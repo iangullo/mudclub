@@ -16,8 +16,8 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# Serve SVG symbols to objects from the application
 # lib/symbols/symbol_registry.rb
+# Serve SVG symbols to objects from the application
 require "set"
 
 class SymbolRegistry
@@ -51,7 +51,7 @@ class SymbolRegistry
 
 	# Fetch a symbol by concept/variant/type from the cache or file
 	def find_symbol(concept, variant = "default", type: :icon)
-		id = symbol_id(concept, variant)
+		id = SymbolRegistry.symbol_id(concept, variant)
 
 		self.class.symbol_cache[@namespace][id] ||= begin
 			doc = load_svg(type.to_s)
@@ -87,14 +87,25 @@ class SymbolRegistry
 		end
 	end
 
+	# Compose a symbol ID from concept and variant
+	def self.symbol_id(concept, variant = "default")
+		"#{concept}.#{variant}"
+	end
+
 	private
 
 	# Load and cache SVG file contents (parsed as Nokogiri XML)
 	def load_svg(type)
 		path = svg_path(type)
 		return unless path&.exist?
-
-		self.class.doc_cache[@namespace][path.to_s] ||= Nokogiri::XML(File.read(path))
+	
+		self.class.doc_cache[@namespace][path.to_s] ||= begin
+			content = File.read(path)
+			Nokogiri::XML(content)
+		rescue StandardError => e
+			Rails.logger.warn "Failed to load SVG file #{path}: #{e.message}"
+			nil
+		end
 	end
 
 	# Resolve <use> references recursively by inlining referenced symbols
@@ -130,10 +141,6 @@ class SymbolRegistry
 		end
 	end
 
-	# Compose a symbol ID from concept and variant
-	def symbol_id(concept, variant = "default")
-		"#{concept}.#{variant}"
-	end
 
 	# Compute the full path to the SVG file for a given type
 	def svg_path(type)

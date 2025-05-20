@@ -121,7 +121,7 @@ class FieldsComponent < ApplicationComponent
 					item[:stroke] ||= "solid"
 				when "symbol"
 					hashify_symbol(item)
-					item[:value]  = SymbolComponent.new(**item[:symbol])
+					item[:value]  = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
 				else
 					item[:i_class] = "rounded p-0" unless item[:kind] == :gap
 				end
@@ -213,9 +213,9 @@ class FieldsComponent < ApplicationComponent
 		end
 		if item[:symbol].present?	# symbol definition
 			hashify_symbol(item)	# ensure it is a hash
-			item[:symbol][:css]  ||= item[:css]
-			item[:symbol][:size] ||= item[:size]
-			item[:value]           = SymbolComponent.new(**item[:symbol])
+			item[:symbol][:options][:css]  ||= item[:css]
+			item[:symbol][:options][:size] ||= item[:size]
+			item[:value] = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
 		else
 			item[:i_class] ||= item[:css]
 		end
@@ -255,6 +255,6 @@ class FieldsComponent < ApplicationComponent
 
 	# wrapper for role_symbols
 	def role_symbol(role)
-		{symbol: true, value: SymbolComponent.new(role), size: "25x25", tip: I18n.t("role.#{role}"), tipid: "p#{role}"}
+		{symbol: true, value: SymbolComponent.new(role, size: "25x25"), tip: I18n.t("role.#{role}"), tipid: "p#{role}"}
 	end
 end

@@ -25,7 +25,7 @@ module SportsHelper
 		rows = Array.new
 		Sport.all.each { |sport|
 			row = {url: sport_path(sport, rdx: @rdx), items: []}
-			row[:items] << symbol_field("icon", namespace: sport&.name, size: "20x20", align: "center")
+			row[:items] << symbol_field("icon", {namespace: sport&.name, size: "20x20"}, align: "center")
 			row[:items] << {kind: :normal, value: sport.to_s, align: "center"}
 			row[:items] << {kind: :normal, value: sport.teams.count, align: "center"}
 			#row[:items] << button_field({kind: :delete, url: row[:url], name: sport.to_s})

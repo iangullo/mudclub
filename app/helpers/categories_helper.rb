@@ -55,7 +55,7 @@ module CategoriesHelper
 			{kind: :number_box, key: :max_years, min: 6, size: 3, value: @category.max_years, mandatory: {max: 99}}
 		]
 		res << [
-			symbol_field("rules", namespace: "sport"),
+			symbol_field("rules", {namespace: "sport"}),
 			{kind: :select_box, key: :rules, options: @sport.rules_options, value: @category.rules ? @category.rules : @sport.try(:default_rules), cols: 4}
 		]
 		res

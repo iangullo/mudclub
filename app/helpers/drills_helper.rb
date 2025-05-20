@@ -39,7 +39,7 @@ module DrillsHelper
 
 	# Definition of fields for modal editing of step diagrams
 	def drill_form_diagram(form = nil)
-		DiagramComponent.new(canvas: @canvas, svgdata: @step&.svgdata, form:)
+		DiagramComponent.new(court: @court, svgdata: @step&.svgdata, form:)
 	end
 
 	# dropdown button definition to create a new Event
@@ -67,7 +67,7 @@ module DrillsHelper
 
 	# return title FieldComponent definition for edit/new
 	def drill_form_playbook(playbook:)
-		[[{kind: :upload, symbol: drill_symbol("playbook", size:"20x20"), label: "Playbook", key: :playbook, value: playbook.filename}]]
+		[[{kind: :upload, symbol: drill_symbol("drill", variant: "playbook", size: "20x20"), label: "Playbook", key: :playbook, value: playbook.filename}]]
 	end
 
 	# return title FieldComponent definition for drill steps form
@@ -154,7 +154,7 @@ module DrillsHelper
 			res.first << button_field({
 				kind: :link,
 				align: "right",
-				symbol: drill_symbol("playbook", size: "20x20"),
+				symbol: drill_symbol("drill", variant: "playbook", size: "20x20"),
 				url: rails_blob_path(@drill.playbook, disposition: "attachment"),
 				label: "Playbook"
 			})
@@ -192,31 +192,33 @@ module DrillsHelper
 			[{kind: :label, value: I18n.t("step.many"), cols: 3}],
 			[{kind: :separator, cols: 3}]
 		] unless @drill.steps.empty?
-		canvas = @drill.court_symbol
+		@court = @drill.court_symbol
+		split  = false
+		@drill.steps.order(:order).each { |step| split = true if step.has_text? && (step.has_image? || step.has_svg?) }
+		icols  = 2 unless split
+		wsplit = "w-#{split ? '1-3' : 'full'}"
 		@drill.steps.order(:order).each do |step|
-			text = step.has_text?
-			diag = step.has_image? || step.has_svg?
-			if text || diag
-				cols = 2 if text ^ diag	# take 2 columns to show content
-				item = [{kind: :label, value: step.order, align: "center"}]
-				if diag
-					field = {align: "left", cols:, class: "rounded align-top w-1/3"}
-					if step.has_image?
-						field[:kind]    = :image
-						field[:value]   = step.diagram.attachment
-						field[:i_class] = "m-1"
-					else	# svg content to show
-						field[:kind]    = :diagram
-						field[:canvas]  = canvas
-						field[:svgdata] = step.svgdata
-						field[:css] = "w-#{cols ? '1/3' : 'full'} m-1"
-					end
-					item << field
+			text  = step.has_text?
+			diag  = step.has_image? || step.has_svg?
+			tcols = 2 if text ^ diag
+			item  = [{kind: :label, value: step.order, align: "center"}]
+			if diag
+				field = {align: "left", cols: icols, class: "rounded align-top #{wsplit}"}
+				if step.has_image?
+					field[:kind]    = :image
+					field[:value]   = step.diagram.attachment
+					field[:i_class] = "m-1"
+				else	# svg content to show
+					field[:kind]    = :diagram
+					field[:court]   = @court
+					field[:svgdata] = step.svgdata
+					field[:css] = "w-full m-1"
 				end
-				item << {kind: :action_text, value: step.explanation&.body&.to_s, align: "top", cols:} if text
-				res << item
-				res << [{kind: :separator, cols: 3}]
+				item << field
 			end
+			item << {kind: :action_text, value: step.explanation&.body&.to_s, align: "top", cols: tcols} if text
+			res << item
+			res << [{kind: :separator, cols: 3}]
 		end
 		res
 	end

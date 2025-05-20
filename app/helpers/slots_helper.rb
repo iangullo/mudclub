@@ -68,8 +68,8 @@ module SlotsHelper
 	# fields for individual slot views
 	def slot_show_fields
 		res = [
-			[symbol_field("category", namespace: "sport"), string_field(@slot.team.category.name, cols: 2)],
-			[symbol_field("division", namespace: "sport"), string_field(@slot.team.division.name, cols: 2)],
+			[symbol_field("category", {namespace: "sport"}), string_field(@slot.team.category.name, cols: 2)],
+			[symbol_field("division", {namespace: "sport"}), string_field(@slot.team.division.name, cols: 2)],
 			[symbol_field("location"), string_field(@slot.court, cols: 2)],
 			[symbol_field("calendar"), string_field(@slot.to_s, cols: 2)]
 		]

@@ -96,7 +96,7 @@ module HomeHelper
 	def home_closed_fields
 		[
 			[
-				symbol_field("user", size: "30x30", align: "center"),
+				symbol_field("user", {size: "30x30"}, align: "center"),
 				button_field(home_login_button, rows: 2)
 			],
 			[

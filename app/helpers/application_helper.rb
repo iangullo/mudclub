@@ -120,22 +120,19 @@ module ApplicationHelper
 		doc.to_html.html_safe
 	end
 
-	# standardised symbol field definitions
-	def symbol_field(concept, namespace: "common", type: "icon", variant: "default", align: nil, class: nil, css: nil, cols: nil, rows: nil, size: "25x25", tip: nil, tipid: nil)
+	# standardised symbol field definitions.
+	# f_opts: expects field options align:, cols:, rows:, tip:, tipid:, class:
+	# s_opts are options for the symbol itself (namespace and such)
+	def symbol_field(concept, s_opts = {}, **f_opts)
 		{ kind: :symbol,
-			symbol: symbol_hash(concept, namespace:, type:, variant:, css:, size:),
-			align:,
-			cols:,
-			rows:,
-			tip:,
-			tipid:,
-			class:
+			symbol: symbol_hash(concept, **s_opts),
+			**f_opts
 		}
 	end
 
 	# prepare SVG symbol hash from the received fields
-	def symbol_hash(concept, namespace: "common", type: "icon", variant: "default", css: nil, size: nil)
-		{namespace:, type:, concept:, variant:, css:, size:}
+	def symbol_hash(concept, **options)
+		{concept:, options:}
 	end
 
 	# generic title start FieldsComponent for views

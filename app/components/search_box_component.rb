@@ -106,10 +106,8 @@ class SearchBoxComponent < ApplicationComponent
 		def submit_button
 			content_tag(:div, class: S_CLASS) do
 				tag.button(type: "submit", class: "p-1 align-middle", aria: { label: t("action.search") }) do
-					render SymbolComponent.new(
+					render SymbolComponent.new("search",
 						type: :button,
-						concept: "search",
-						size: "25x25",
 						label: t("action.search")
 					)
 				end

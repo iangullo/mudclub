@@ -41,7 +41,8 @@ class ApplicationComponent < ViewComponent::Base
 
 	# ensure symbol is converted to a proper symbol hash, if needed.
 	def hashify_symbol(item)
-		item[:symbol] = {concept: item[:symbol], type: "icon", namespace: "common", variant: "default"} if item[:symbol].presence.is_a? String
+		item[:symbol] = {concept: item[:symbol], options: {}} if item[:symbol].presence.is_a? String
+		item[:symbol][:options] ||= {} if item[:symbol]
 	end
 
 	# unfied renderer for icon/symbol images
@@ -52,8 +53,8 @@ class ApplicationComponent < ViewComponent::Base
 			html += "<button data-tooltip-target=\"tooltip-#{img[:tipid]}\" data-tooltip-placement=\"bottom\" type=\"button\">"
 		end
 		if img[:symbol]
-			img[:symbol][:size] ||= size if size.present?
-			html += render(SymbolComponent.new(**img[:symbol]))
+			img[:symbol][:options][:size] ||= size if size.present?
+			html += render(SymbolComponent.new(img[:symbol][:concept], **img[:symbol][:options]))
 		else
 			img[:size] ||= img[:icon].present? ? "25x25" : size.presence
 			html += image_tag(img[:value] || img[:icon], size: img[:size], class: img[:i_class])

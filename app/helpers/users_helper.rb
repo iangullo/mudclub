@@ -45,8 +45,8 @@ module UsersHelper
 		else
 			res << gap_field(size: 0)
 		end
-		res << (user.is_coach? ? symbol_field("coach", namespace: "sport", tip: I18n.t("role.coach"), tipid: "coach") : gap_field(size: 0))
-		res << (user.is_player? ? symbol_field("player", namespace: "sport", tip: I18n.t("role.player"), tipid: "play") : gap_field(size: 0))
+		res << (user.is_coach? ? symbol_field("coach", {namespace: "sport"}, tip: I18n.t("role.coach"), tipid: "coach") : gap_field(size: 0))
+		res << (user.is_player? ? symbol_field("player", {namespace: "sport"}, tip: I18n.t("role.player"), tipid: "play") : gap_field(size: 0))
 		return res if grid	# only interested in these 3 icons
 		res << gap_field
 		unless @user.user_actions.empty?

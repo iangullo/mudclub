@@ -6,8 +6,8 @@
    id="attacker"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:cc="http://creativecommons.org/ns#">
-  <g id="attacker.default" viewBox="0 0 33.87 33.87">
-    <ellipse class="player-fill" cx="16.93" cy="16.93" rx="14.82" ry="14.82" fill="white" stroke="black" stroke-width="2.12" />
+  <g id="attacker.default" viewBox="0 0 33.87 33.87" fill="var(--symbol-fill, #ffffff)" stroke="currentColor">
+		<circle cx="16.94" cy="16.94" r="15" stroke-width="2"/>
     <text x="16.93" y="24" text-anchor="middle" font-size="22" font-family="Arial, sans-serif" font-weight="bold" class="player-text" fill="black" stroke="black" stroke-width="1">
       <tspan id="label" x="16.93" y="24">?</tspan>
     </text>

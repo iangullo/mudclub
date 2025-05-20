@@ -61,7 +61,7 @@ module TeamsHelper
 		g_row = gap_row(cols: 2)
 		coaches = [g_row]
 		unless (c_count = @team.coaches.count) == 0 # only create if there are coaches
-			c_icon = symbol_field("coach", namespace: "sport", tip: I18n.t("coach.many"), align: "right", css: "align-top", size: "30x30", rows: c_count)
+			c_icon = symbol_field("coach", {namespace: "sport", size: "30x30"}, tip: I18n.t("coach.many"), align: "right", class: "align-top", rows: c_count)
 			c_first = true
 			@team.coaches.each do |coach|
 				if u_manager? || u_secretary?
@@ -89,11 +89,11 @@ module TeamsHelper
 			{ kind: :hidden, key: :sport_id, value: (@sport&.id || 1) },	# will need to break this up for multi-sports in future
 		]
 		res << [
-			symbol_field("category", namespace: "sport"),
+			symbol_field("category", {namespace: "sport"}),
 			{ kind: :select_collection, key: :category_id, options: Category.real, value: @team.category_id },
 		]
 		res << [
-			symbol_field("division", namespace: "sport"),
+			symbol_field("division", {namespace: "sport"}),
 			{ kind: :select_collection, key: :division_id, options: Division.real, value: @team.division_id },
 		]
 		res << [
@@ -102,7 +102,7 @@ module TeamsHelper
 		]
 		unless @eligible_coaches.empty?
 			res << [
-				symbol_field("coach", namespace: "sport"),
+				symbol_field("coach", {namespace: "sport"}),
 				{ kind: :label, value: I18n.t("coach.many"), class: "align-center" },
 			]
 			res << [gap_field, { kind: :select_checkboxes, key: :coach_ids, options: @eligible_coaches }]
@@ -177,7 +177,7 @@ module TeamsHelper
 	def team_slots_fields
 		res = [[
 			gap_field,
-			symbol_field("timetable", size: "30x30"),
+			symbol_field("timetable", {size: "30x30"}),
 			{ kind: :side_cell, value: I18n.t("slot.many"), align: "left" }
 		]]
 		@team.slots.order(:wday).each do |slot|

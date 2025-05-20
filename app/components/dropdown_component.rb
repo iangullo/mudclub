@@ -24,7 +24,7 @@
 class DropdownComponent < ApplicationComponent
 	def initialize(button)
 		@button = parse(button)
-		@button[:symbol][:css] = @button[:i_class] if @button[:symbol]
+		@button[:symbol][:options][:css] = @button[:i_class] if @button[:symbol]
 	end
 
 	def render?
@@ -94,7 +94,7 @@ class DropdownComponent < ApplicationComponent
 
 	def set_name(button)
 		button[:id]     = "#{button[:name]}-btn"
-		button[:symbol] = {concept:"add", size: "25x25"} if button[:name] =~ /^(add.*)$/
+		button[:symbol] = {concept:"add", options: {size: "25x25"}} if button[:name] =~ /^(add.*)$/
 	end
 
 	def set_class(button)

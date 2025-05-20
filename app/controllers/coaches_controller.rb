@@ -35,7 +35,7 @@ class CoachesController < ApplicationController
 				end
 				format.html do
 					page   = paginate(@coaches)	# paginate results
-					title  = helpers.person_title_fields(title: I18n.t("coach.many"), icon: {concept: "coach", namespace: "sport", size: "50x50"})
+					title  = helpers.person_title_fields(title: I18n.t("coach.many"), icon: {concept: "coach", options: {namespace: "sport", size: "50x50"}})
 					title << [{kind: :search_text, key: :search, value: search, url: club_coaches_path(@clubid, rdx: @rdx)}]
 					grid   = helpers.coach_grid(coaches: page)
 					submit = {kind: :export, url: club_coaches_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?

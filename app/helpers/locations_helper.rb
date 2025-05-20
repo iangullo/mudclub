@@ -26,7 +26,7 @@ module LocationsHelper
 			{kind: :text_box, key: :gmaps_url, value: @location.gmaps_url, placeholder: I18n.t("location.gmaps")}
 		]
 		res << [
-			symbol_field("training", namespace: "sport"),
+			symbol_field("training", {namespace: "sport"}),
 			{kind: :label_checkbox, key: :practice_court, label: I18n.t("location.train")}
 		]
 		res.last << {kind: :hidden, key: :club_id, value: @clubid} if @clubid
@@ -49,7 +49,7 @@ module LocationsHelper
 			url = editor ? location_path(loc, club_id: @clubid, rdx: @rdx) : location_path(loc, rdx: @rdx)
 			row = {url:, frame: "modal", items: []}
 			row[:items] << {kind: :normal, value: loc.name}
-			row[:items] << (loc.practice_court ? symbol_field("training", namespace: "sport", align: "center") : symbol_field("home", align: "center"))
+			row[:items] << (loc.practice_court ? symbol_field("training", {namespace: "sport"}, align: "center") : symbol_field("home", align: "center"))
 			if loc.gmaps_url
 				row[:items] << button_field({kind: :location, symbol: "gmaps", align: "center", url: loc.gmaps_url}, align: "center")
 			else
@@ -78,7 +78,7 @@ module LocationsHelper
 		else
 			res << [{kind: :text, value: I18n.t("location.none")}]
 		end
-		res << [(loc.practice_court ? symbol_field("training", namespace: "sport") : symbol_field("home"))]
+		res << [(loc.practice_court ? symbol_field("training", {namespace: "sport"}) : symbol_field("home"))]
 	end
 
 	# return icon and top of FieldsComponent
