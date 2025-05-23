@@ -1,5 +1,5 @@
 // app/javascript/controllers/helpers/svg_symbols.js
-import { createSVGElement, setAttributes } from "./svg_utils"
+import { createSVGElement, setAttributes } from "./svg_utils.js"
 
 function parseData(key, fallback = {}) {
   const el = document.getElementById("svg-data")
@@ -15,49 +15,54 @@ function parseData(key, fallback = {}) {
 // expected { id: "<symbol>...</symbol>", ... }
 const symbolsMap = parseData("symbols", {})
 
-export function getAvailableSymbols() {
-  return Object.keys(symbolsMap)
-}
-
-export function cloneSymbol(id, options = {}) {
-  const { x = 0, y = 0, label = "", transform = null } = options
-
-  if (!symbolExists(id)) {
-    console.warn(`SVG symbol with id "${id}" not found.`)
-    return null
-  }
-
-  const use = createSVGElement("use")
-  use.setAttribute("href", `#${id}`)
-  use.setAttribute("x", x)
-  use.setAttribute("y", y)
-  use.classList.add("object")
-  if (transform) use.setAttribute("transform", transform)
-
-  if (label) {
-    const group = createSVGElement("g")
-    group.classList.add("object")
-    group.appendChild(use)
-
-    const text = createSVGElement("text")
-    text.textContent = label
-    text.setAttribute("x", x)
-    text.setAttribute("y", y + 4)
-    text.setAttribute("text-anchor", "middle")
-    group.appendChild(text)
-
-    return group
-  }
-
-  return use
-}
-
-export function symbolExists(id) {
+function symbolExists(id) {
   return id in symbolsMap
 }
 
-export function getSymbolContent(id) {
-  return symbolsMap[id] || null
+function cloneSymbol(id, options = {}) {
+  const { x = 0, y = 0, label = "", transform = null } = options
+  
+  if (!symbolExists(symbolId)) {
+    console.warn(`SVG symbol with id "${symbolId}" not found.`)
+    return null
+  }
+  
+  const template = document.querySelector(`symbol#${symbolId}`)
+  // Clone the entire content of the <symbol>
+  const clone = template.cloneNode(true)
+  const group = clone.querySelector("g")
+  const element = group || clone
+
+  element.setAttribute("x", x)
+  element.setAttribute("y", y)
+  element.classList.add("object")
+  if (transform) element.setAttribute("transform", transform)
+
+  // If label is provided, find <tspan id="label"> and replace its text
+  if (label !== null) {
+    const labelSpan = element.querySelector('tspan#label')
+    if (labelSpan) {
+      labelSpan.textContent = label
+    } else {
+      console.warn(`Symbol #${symbolId} does not have a <tspan id="label">`)
+    }
+  }
+
+  // Return the <g> content (directly usable inside an <svg>)
+  return element.cloneNode(true)
+}
+
+// Add a cloned symbol to a target SVG element
+export function addSymbolToSVG(svg, symbolId, options = {}) {
+  const cloned = cloneSymbol(symbolId, options)
+  if (cloned) svg.appendChild(cloned)
+  return cloned
+}
+
+// Helper to get list of available symbol IDs
+export function listAvailableSymbols() {
+  const symbols = document.querySelectorAll("svg defs symbol")
+  return Array.from(symbols).map((symbol) => symbol.id)
 }
 
 // ✅ SERIALIZE símbol to JSON  (use or group with label)

@@ -1,5 +1,5 @@
 // ✅ app/javascript/controllers/helpers/svg_strokes.js
-import { distance, angleBetweenPoints } from "./svg_utils"
+import { distance, angleBetweenPoints } from "./svg_utils.js"
 
 // 🔧 Extracts SVG command segments from a path string
 function parsePathData(d) {

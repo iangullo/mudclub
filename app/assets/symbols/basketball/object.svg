@@ -6,7 +6,7 @@
 				d="M4.2333333,21.166667 C4.2333333,11.468202 29.371396,11.26182 29.633334,21.166667"
 				style="fill:none;stroke:currentColor;stroke-width:4.23333;stroke-linecap:round;stroke-linejoin:round" />
 			<text x="-8" y="31" style="font-weight:bold; font-size:12px; font-family:Arial, sans-serif; fill:currentColor; stroke:currentColor; stroke-width:1;">
-				<tspan>X</tspan>
+				<tspan id="label">X</tspan>
 			</text>
 		</g>
 	</symbol>
@@ -14,7 +14,7 @@
 		<g fill="var(--symbol-fill, #ffffff)" stroke="currentColor">
 			<circle cx="16.94" cy="16.94" r="15" stroke-width="2"/>
 			<text	x="16.93"	y="24" text-anchor="middle"	font-size="22" font-family="Arial, sans-serif" font-weight="bold"	fill="currentColor"	stroke="none">
-				<tspan x="16.93" y="24">?</tspan>
+				<tspan id="label">?</tspan>
 			</text>
 		</g>
 	</symbol>

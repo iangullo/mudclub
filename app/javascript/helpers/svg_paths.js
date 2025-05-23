@@ -1,6 +1,6 @@
 // ✅ app/javascript/controllers/helpers/svg_paths.js
-import { createSVGElement } from "./svg_utils"
-import { applyStrokeStyle } from "./svg_strokes"
+import { createSVGElement } from "./svg_utils.js"
+import { applyStrokeStyle } from "./svg_strokes.js"
 
 // Builds the "d" attribute for a path given its array of points and type
 export function buildPathD(points, { curved = false } = {}) {
@@ -20,17 +20,24 @@ export function buildSmoothCurveD(points) {
     // línea recta
     return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`
   } else if (points.length === 3) {
-    // curva cuadrática
+    // quadratic line
     const [p0, p1, p2] = points
     return `M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`
   } else {
-    // curva cúbica por segmentos
-    const [p0, ...rest] = points
-    let d = `M ${p0.x} ${p0.y}`
-    for (let i = 1; i + 2 < points.length; i += 3) {
+    // Cubic curve
+    for (let i = 1; i + 2 < rest.length; i += 3) {
       const [cp1, cp2, p] = rest.slice(i - 1, i + 2)
       d += ` C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${p.x} ${p.y}`
     }
+    // Optional fallback for leftover points
+    const leftover = rest.length % 3
+    if (leftover === 1) {
+      const last = rest.at(-1)
+      d += ` L ${last.x} ${last.y}`
+    } else if (leftover === 2) {
+      const [cp, end] = rest.slice(-2)
+      d += ` Q ${cp.x} ${cp.y}, ${end.x} ${end.y}`
+    }    
     return d
   }
 }
@@ -63,18 +70,16 @@ export function createPath(points, options = {}) {
 }
 
 // update an existing SVG path, with new "d" & styling
-export function updatePath(pathElement, points, options = {}) {
-  const {
-    curved = false,
-    strokeStyle = "solid",
-    strokeWidth = 2,
-    strokeColor = "black"
-  } = options
+export function updatePath(pathElement, points, options = {}, append = false) {
+  const currentPoints = JSON.parse(pathElement.dataset.points || "[]")
+  const newPoints = append ? [...currentPoints, ...points] : points
 
-  pathElement.setAttribute("d", buildPathD(points, { curved }))
-  applyStrokeStyle(pathElement, { strokeStyle, strokeWidth, strokeColor })
+  pathElement.setAttribute("d", buildPathD(newPoints, { curved: options.curved }))
+  applyStrokeStyle(pathElement, { ...options })
 
-  pathElement.dataset.points = JSON.stringify(points)
+  pathElement.dataset.points = JSON.stringify(newPoints)
+  pathElement.dataset.curved = options.curved ? "true" : "false"
+
   return pathElement
 }
 

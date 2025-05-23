@@ -76,8 +76,8 @@ class SymbolRegistry
 	end
 
 	# Fetch a symbol directly using class-level API
-	def self.fetch(namespace:, type: :object, concept:, variant: "default")
-		new(namespace).find_symbol(concept, variant, type: type)
+	def self.fetch(namespace: "common", type: :icon, concept:, variant: "default")
+		new(namespace).find_symbol(concept, variant, type:)
 	end
 
 	# Preload all namespaces defined in the config

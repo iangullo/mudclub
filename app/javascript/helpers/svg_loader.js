@@ -1,8 +1,13 @@
 // ✅ app/javascript/controllers/helpers/svg_loader.js
-import { deserializeSymbol } from "./svg_symbols"
-import { deserializePath } from "./svg_paths"
+import { deserializeSymbol } from "./svg_symbols.js"
+import { deserializePath } from "./svg_paths.js"
+import { ensureSVGMarkersLoaded } from "./svg_markers.js"
 
 let svgRoot = null
+const deserializers = {
+  path: deserializePath,
+  symbol: deserializeSymbol,
+}
 
 /**
  * Accessor to get the current active SVG root (if used externally).
@@ -53,17 +58,9 @@ function parseSVGElement(svgString) {
  * @returns {SVGElement | null}
  */
 export function loadSVGElement(data) {
-  if (!data || typeof data !== "object") return null
-
-  switch (data.type) {
-    case "symbol":
-      return deserializeSymbol(data)
-    case "path":
-      return deserializePath(data)
-    default:
-      console.warn(`Unrecognised SVG type: ${data.type}`)
-      return null
-  }
+  if (!data?.type) return null
+  const fn = deserializers[data.type]
+  return fn ? fn(data) : null
 }
 
 /**
@@ -107,6 +104,7 @@ export function loadDiagram(svg, { backgroundSvgContent, svgdata }, symbolNamesp
 
   // Clear current contents except defs
   const defs = svg.querySelector("defs")
+  ensureSVGMarkersLoaded
   svg.innerHTML = ""
   if (defs) svg.appendChild(defs)
 

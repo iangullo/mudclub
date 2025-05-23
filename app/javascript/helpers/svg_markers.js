@@ -1,20 +1,25 @@
 // ✅ app/javascript/controllers/helpers/svg_markers.js
-import { createSVGElement } from "./svg_utils"
+import { createSVGElement } from "./svg_utils.js"
+
+export function addMarker(markerFn) {
+  let svg = document.getElementById("svg-markers")
+  if (!svg) {
+    svg = createSVGElement("svg")
+    svg.setAttribute("id", "svg-markers")
+    svg.setAttribute("style", "display: none")
+    const defs = createSVGElement("defs")
+    svg.appendChild(defs)
+    document.body.appendChild(svg)
+  }
+
+  const defs = svg.querySelector("defs")
+  const marker = markerFn()
+  if (marker) defs.appendChild(marker)
+}
 
 export function ensureSVGMarkersLoaded() {
-  if (document.getElementById("svg-markers")) return
-
-  const svg = createSVGElement("svg")
-  svg.setAttribute("id", "svg-markers")
-  svg.setAttribute("style", "display: none")
-
-  const defs = createSVGElement("defs")
-
-  defs.appendChild(arrowheadMarker())
-  defs.appendChild(terminatorTMarker())
-
-  svg.appendChild(defs)
-  document.body.appendChild(svg)
+  addMarker(arrowheadMarker)
+  addMarker(terminatorTMarker)
 }
 
 function arrowheadMarker() {

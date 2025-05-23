@@ -47,7 +47,7 @@ class Drill < ApplicationRecord
 	self.inheritance_column = "not_sti"
 	validates :name, presence: true
 
-	# wrapper to return image file to self court_mode
+	# wrapper to return image symbol to self court_mode
 	def court_symbol
 		self.sport.symbol(self.court_mode, type: :court)
 	end

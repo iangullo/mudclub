@@ -16,7 +16,7 @@
 				<!-- 3a. Show attached diagram if it is available -->
 			 	<%= render InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "full", height: "auto"}, form:) %>
 			<% else %>
-				<!-- 3b. No attachment, load SVG canvas and possible :svg_diagram content -->
+				<!-- 3b. No attachment, load SVG court and possible :svg_diagram content -->
 				<div class="w-full flex text-gray-400 m-1">
 					<%= render DiagramComponent.new(court: @court, svgdata: step.svgdata) %>
 					<div class="overlay rounded absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" >

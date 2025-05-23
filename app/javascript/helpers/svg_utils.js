@@ -2,6 +2,7 @@
 export const SVG_NS = "http://www.w3.org/2000/svg"
 
 export function createSVGElement(tag) {
+  if (typeof tag !== "string") throw new TypeError("Expected tag to be a string")
   return document.createElementNS(SVG_NS, tag)
 }
 
@@ -19,7 +20,9 @@ export function isSVGElement(el) {
 
 export function setAttributes(el, attrs = {}) {
   for (const [key, value] of Object.entries(attrs)) {
-    el.setAttribute(key, value)
+    if (value !== null && value !== undefined) {
+      el.setAttribute(key, value)
+    }
   }
 }
 
@@ -27,5 +30,6 @@ export function getPointFromEvent(evt, svg) {
   const pt = svg.createSVGPoint()
   pt.x = evt.clientX
   pt.y = evt.clientY
-  return pt.matrixTransform(svg.getScreenCTM().inverse())
+  const ctm = svg.getScreenCTM()
+  return ctm ? pt.matrixTransform(ctm.inverse()) : { x: 0, y: 0 }
 }
