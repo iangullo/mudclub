@@ -78,7 +78,7 @@ module LocationsHelper
 		else
 			res << [{kind: :text, value: I18n.t("location.none")}]
 		end
-		res << [(loc.practice_court ? symbol_field("training", {namespace: "sport"}) : symbol_field("home"))]
+		res << [(@location.practice_court ? symbol_field("training", {namespace: "sport"}) : symbol_field("home"))]
 	end
 
 	# return icon and top of FieldsComponent
