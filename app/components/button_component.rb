@@ -199,6 +199,7 @@ class ButtonComponent < ApplicationComponent
 			case @button[:kind]
 			when :jump
 				@button[:d_class] = @button[:d_class] + " m-1 text-sm"
+				@button[:label]   = safe_join(["<br>".html_safe, @button[:label]]) if @button[:label]
 			when :location, :whatsapp
 				@button[:tab]     = true
 				@button[:d_class] = @button[:d_class] + " text-sm" if has_icon?
