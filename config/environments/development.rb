@@ -71,4 +71,8 @@ Rails.application.configure do
 	# config.generators.apply_rubocop_autocorrect_after_generate!
 	config.action_controller.default_url_options = { host: 'localhost', port: 3000 }
 	Rails.application.routes.default_url_options[:host] = 'localhost:3000'
+
+	# Add some debugging hooks
+	config.assets.debug = true
+	config.assets.quiet = true
 end

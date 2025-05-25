@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <g transform="matrix(1.05065 0 0 1.05066 3.078 -2.101)">
-    <circle cx="64" cy="52" r="49.5" fill="navy" stroke="#1a1a1a" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="64" cy="52" r="30" fill="#fff"/>
-    <circle cx="64" cy="52" r="15" fill="navy"/>
-    <path fill="#f86401" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.975" d="m63.267 52.973-36.653 14.94 14.07 3.416-37.235 44.046s3.106-1.188 6.211 1.01c3.105 2.2 2.03 5.957 2.03 5.957l37.235-44.046 5.71 13.305z"/>
-  </g>
-</svg>

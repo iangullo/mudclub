@@ -68,6 +68,19 @@ class ApplicationComponent < ViewComponent::Base
 		html.html_safe
 	end
 
+	# Return the value of a nested attribute accessed with flexible keys
+	# Accepts either multiple arguments or an array of fallback keys (symbol or string).
+	def safe_attr(opts, *keys)
+		keys.flatten.each do |key|
+			val = opts[key.to_s]
+			return val if val.present?
+
+			val = opts[key.to_sym]
+			return val if val.present?
+		end
+		nil
+	end
+
 	# wrappers to generate different field tags - self-explanatory
 	def table_tag(controller: nil, data: nil, classes: [], **table_options)
 		table_options[:class] = ["table-auto", *classes].join(' ')

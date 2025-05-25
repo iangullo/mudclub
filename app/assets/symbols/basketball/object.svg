@@ -22,11 +22,14 @@
 		<use href="#player.default" />
 	</symbol>
 	<symbol id="ball.default" viewBox="0 0 33.87 33.87">
-		<ellipse cx="16.93" cy="16.93" rx="8" ry="8" fill="var(--symbol-fill, #000000)" stroke="var(--symbol-stroke, #000000)" stroke-width="2"/>
+		<g fill="var(--symbol-fill, #000000)" stroke="var(--symbol-stroke, #000000)">
+			<circle cx="16.93" cy="16.93" r="8" stroke-width="2"/>
+		</g>
 	</symbol>
 	<symbol id="cone.default" viewBox="0 0 33.87 33.87">
-		<path d="M15.88 4.37L10.58 26.06 2.65 28.71 3.18 30.03h27.52l0.53-1.32-7.94-2.65-5.29-21.7z"
-			stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="var(--symbol-fill, #8B0000)" stroke="var(--symbol-stroke, #4B0000)" />
+		<g fill="var(--symbol-fill, #8B0000)" stroke="var(--symbol-stroke, #4B0000)">
+			<path d="M15.88 4.37L10.58 26.06 2.65 28.71 3.18 30.03h27.52l0.53-1.32-7.94-2.65-5.29-21.7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+		</g>
 	</symbol>
 	<symbol id="coach.default" viewBox="0 0 33.87 33.87">
 		<g fill="var(--symbol-fill, #000000)" stroke="var(--symbol-fill, #000000)">

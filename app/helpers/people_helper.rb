@@ -39,7 +39,7 @@ module PeopleHelper
 			res << [gap_field(size: 1), idpic_field(person, idpic: "id_back", align: "left", cols: 4)]
 		end
 		res << [
-			symbol_field("home", class: "align-top"),
+			symbol_field("home", {size: "25x25"}, class: "align-top"),
 			{kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: I18n.t("person.address")},
 		]
 	end
@@ -79,7 +79,7 @@ module PeopleHelper
 		res << [{kind: :contact, email: person&.email, phone: person&.phone, device: device, align: "center"}]
 		res.last << idpic_field(person) if person&.coach_id? || person&.player_id?
 		res << [
-			symbol_field("home", class: "align-top"),
+			symbol_field("home", {size: "25x25"}, class: "align-top", align: "right"),
 			{kind: :string, value: simple_format("#{person&.address}"), align: "left", cols: 2}
 		] if person&.address&.present?
 		res

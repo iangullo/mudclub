@@ -136,24 +136,6 @@ class Event < ApplicationRecord
 		res
 	end
 
-	# return name of assocatied symbol
-	def symbol
-		case self.kind.to_sym
-		when :train
-			concept = "training"
-		when :match
-			namespace = self&.team&.sport&.name || "sport"
-			concept = "match"
-		when :rest
-			concept   = "rest"
-		else
-			concept = "team"
-			namespace = "common"
-		end
-		namespace ||= "sport"
-		{concept:, namespace:}
-	end
-
 	# return strings fro associated targets
 	def print_targets(kind: nil)
 		cad = ""
@@ -188,6 +170,24 @@ class Event < ApplicationRecord
 	# wrappers to read/update event values
 	def start_date
 		self.start_time.to_date
+	end
+
+	# return name of assocatied symbol
+	def symbol
+		case self.kind.to_sym
+		when :train
+			concept = "training"
+		when :match
+			namespace = self&.team&.sport&.name || "sport"
+			concept = "match"
+		when :rest
+			concept   = "rest"
+		else
+			concept = "team"
+			namespace = "common"
+		end
+		namespace ||= "sport"
+		{concept:, options: {namespace:}}
 	end
 
 	def time_string(t_end = true)

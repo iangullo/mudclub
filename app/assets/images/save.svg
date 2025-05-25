@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <path fill="#82cc00" d="M128 64c0 35.303-28.697 64-64 64S0 99.303 0 64 28.697 0 64 0s64 28.697 64 64z"/>
-  <path fill="#3eb500" d="M64 0c35.303 0 64 28.697 64 64s-28.697 64-64 64"/>
-  <path fill="#5fbf02" d="M18.787 18.787c24.98-24.98 65.445-24.98 90.426 0 24.98 24.98 24.98 65.445 0 90.426"/>
-  <path fill="green" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="4.816" d="M87.797 106.751H40.204V72.945h47.592v33.805h18.956V38.946l-17.691-17.7H21.247v85.505h19.619"/>
-  <path fill="#dcdcdc" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.614" d="m88.102 21.246.207 19.011H40.724l-.208-19.01"/>
-  <path fill="#e3f4d7" d="M42.652 89.757V75.364h42.625v28.786H42.652z"/>
-  <text xml:space="preserve" x="-44.739" y="-17.364" fill="#8a916f" stroke-width=".189" font-family="sans-serif" font-size="7.549" font-weight="400" letter-spacing="0" style="line-height:1.25" transform="translate(115.893 114.249) scale(1.59539)" word-spacing="0"><tspan x="-44.739" y="-17.364">Save</tspan><tspan x="-44.739" y="-7.929">record</tspan></text>
-</svg>

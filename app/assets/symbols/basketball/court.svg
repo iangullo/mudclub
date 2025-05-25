@@ -1,73 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
-	<symbol id="full.default" viewBox="0 0 2244 1291">
-		<!-- Full court box -->
-		<rect x="100" y="100" width="2044" height="1091" fill="var(--symbol-fill, #ffffff)" stroke="var(--symbol-stroke, #000000)" stroke-width="4"/>
-		<line x1="1122" y1="100" x2="1122" y2="1191" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
-		<circle cx="1122" cy="645.5" r="132.5" fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
-		<!-- Left zone -->
-		<rect x="100" y="467" width="424" height="360" fill="#f2f2f2" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
-		<path d="M 524,827 C 577,827 653,781 653,694 C 653,624 598,565 524,563" fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
-		<circle cx="220" cy="645.5" r="9.5" fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
-		<!-- Right zone -->
-		<rect x="1724" y="467" width="424" height="360" fill="#f2f2f2" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
-		<path d="M 1724,827 C 1671,827 1595,781 1595,694 C 1595,624 1650,565 1724,563" fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
-		<circle cx="2028" cy="645.5" r="9.5" fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="3"/>
+	<symbol id="full.default" viewBox="0 0 3004 1704">
+		<g fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="4" style="stroke-linecap:round;stroke-linejoin:round">
+			<rect id="wrapper" x="0" y="0" width="3004" height="1704" fill="var(--symbol-fill, #ffffff)" stroke="none"/>
+			<rect id="court" x="100" y="100" width="2804" height="1504"/>
+			<path id="half-court-line" d="M1502 103v1498" />
+			<circle id="center" cx="1502" cy="852" r="178"/>
+			<rect id="zone-left" x="100" y="607" fill="#f2f2f2" width="580" height="486" />
+			<path id="freethrow-bulb-left" d="M684 1034.571c85.682 0 176-68.907 176-178s-88.53-176.397-176-178" />
+			<path id="no-charge-left" d="M217 979.571h42c17.803 0 57.791-7.004 83.892-32.666C368.992 921.242 382 889.46 382 856.57c0-32.89-14.33-70.261-45.691-96.202-31.36-25.94-68.93-26.798-77.309-26.798h-42" />
+			<path id="backboard-left" d="M215 771.571v170" stroke-width="10" />
+			<circle id="hoop-left" cx="257" cy="852"  r="23" />
+			<path id="three-point-left" d="M102 198.571h304c32.182 0 193.847 50.608 322 172 117.432 111.237 206.5 272.147 206.5 486 0 213.854-86.344 365.844-206.5 486-120.156 120.157-299.965 172-322 172H102" />
+			<rect id="zone-right" x="2324" y="607" fill="#f2f2f2" width="580" height="486" />
+			<path id="freethrow-bulb-right" d="M2320 1034.571c-85.682 0-176-68.906-176-178 0-109.093 88.53-176.396 176-178" />
+			<path id="no-charge-right" d="M2793.5 979.571h-42c-17.803 0-57.791-7.004-83.892-32.666-26.1-25.663-39.108-57.445-39.108-90.334 0-32.89 14.33-70.261 45.691-96.202 31.36-25.94 68.93-26.798 77.309-26.798h42" />
+			<path id="backboard-right" d="M2795.5 771.57v170.001" stroke-width="10" />
+			<circle id="hoop-right" cx="2750.4" cy="852"  r="23" />
+			<path id="three-point-right" d="M2902 198.571h-304c-32.182 0-193.847 50.607-322 172-117.432 111.237-206.5 272.146-206.5 486 0 213.854 86.344 365.844 206.5 486s299.965 172 322 172h304" />
+		</g>
 	</symbol>
-	<symbol id="half.default" viewBox="0 0 1345 1274">
-		<rect
-			x="77"
-			y="77"
-			width="1124"
-			height="1195"
-			fill="var(--symbol-fill, #ffffff)"
-			stroke="var(--symbol-stroke, #000000)"
-			stroke-width="4"
-			id="court" />
-		<rect
-			style="fill:#f2f2f2;fill-opacity:1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-			stroke="var(--symbol-stroke, #000000)"
-			id="zone"
-			width="360"
-			height="424"
-			x="457"
-			y="846" />
-		<path
-			style="fill:none;fill-opacity:1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-			stroke="var(--symbol-stroke, #000000)"
-			d="M 769,841.4998 C 769,788.6819 723.17241,712.654 635.872,712.654 565.84816,712.654 506.35845,767.3888 505,841.4998"
-			id="freethrow-bulb" />
-		<path
-			style="fill:none;fill-opacity:1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-			stroke="var(--symbol-stroke, #000000)"
-			d="M 769,76.5 C 769,129.31789 723.17241,205.34579 635.872,205.34579 565.84816,205.34579 506.35845,150.61101 505,76.5"
-			id="backcourt-semi" />
-		<path
-			style="fill:none;fill-opacity:1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-			stroke="var(--symbol-stroke, #000000)"
-			d="m 542.335,1180.9198 v -40.4719 c 0,0 9.07312,-83.1939 94.6425,-83.3547 85.56938,-0.1608 94.19758,84.9609 94.19758,84.9609 l 0.49041,38.8828"
-			id="nocharge-zone" />
-		<path
-			style="fill:none;fill-opacity:1;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-			stroke="var(--symbol-stroke, #000000)"
-			d="m 574.13819,1174.8679 h 127.69434 v -0.4443 0"
-			id="backboard" />
-		<circle
-			style="fill:none;fill-opacity:1;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-			stroke="var(--symbol-stroke, #000000)"
-			id="hoop"
-			cx="637"
-			cy="1140"
-			r="15" />
-		<path
-			style="fill:none;fill-opacity:1;stroke-width:3.00021;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-			stroke="var(--symbol-stroke, #000000)"
-			d="m 155.24261,1268.4134 v -206.7091 c 0,0 43.95652,-405.88269 480.9999,-406.70398 437.04289,-0.82127 480.01029,414.90758 480.01029,414.90758 l 2.5048,198.5923"
-			id="three-point-line" />
+	<symbol id="full.vertical" viewBox="0 0 3004 1704">
+		<use href="#full.default" transform="rotate(90, 1502, 802)" />
 	</symbol>
-	<symbol id="half_def.default" viewBox="0 0 1345 1274">
+	<symbol id="half.default" viewBox="0 0 1708 1608">
+		<g fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="4" style="stroke-linecap:round;stroke-linejoin:round">
+			<rect id="wrapper" x="0" y="0" width="1708" height="1608" fill="var(--symbol-fill, #ffffff)" stroke="none"/>
+			<rect id="court" x="102" y="102" width="1504" height="1404" stroke-width="4" />
+			<rect id="zone" x="611" y="926" fill="#f2f2f2" width="486" height="580" />
+			<path id="freethrow-bulb" d="M 1032,926 C 1032,840.31819 963.09311,750 854,750 744.90689,750 677.60331,838.53033 676,926" />
+			<path id="backcourt-semi" d="m 1032,104 c 0,91.22183 -75.12262,176 -178,176 -102.87738,0 -179.3806,-86.84591 -178,-176" />
+			<path id="nocharge-zone" d="m 977,1390 c 0,0 0,-28 0,-42 0,-17.8034 -7.00367,-57.7913 -32.66618,-83.8921 C 918.67131,1238.0071 886.88909,1225 854,1225 c -32.88909,0 -70.26123,14.3308 -96.20166,45.691 C 731.85791,1302.0512 731,1339.6215 731,1348 c 0,14 0,42 0,42" />
+			<path id="backboard" d="M 768.99987,1391.9601 H 939.00013" stroke-width="10" />
+			<circle id="hoop" cx="854" cy="1347.5" r="22.5" />
+			<path id="three-point-line" d="m 196,1506 v -304 c 0,-32.1823 50.60745,-193.8469 172,-322 111.2365,-117.43146 272.14625,-206.5 486,-206.5 213.8538,0 365.8438,86.34384 486,206.5 120.1562,120.1562 172,299.9649 172,322 v 304" />
+		</g>
+	</symbol>
+	<symbol id="half_def.default" viewBox="0 0 1708 1608">
 		<use href="#half.default">
 	</symbol>
-	<symbol id="half_off.default" viewBox="0 0 1345 1274">
-		<use href="#half.default" transform="rotate(180, 672.5, 637)" />
+	<symbol id="half_off.default" viewBox="0 0 1708 1608">
+		<use href="#half.default" transform="rotate(180, 854, 804)" />
 	</symbol>
 </svg>
