@@ -22,9 +22,17 @@
 #  They have an :options array with :url, optional :label, :icon/:symbol
 #  If :append is set, button with icon/symbol will be appended inline after a label.
 class DropdownComponent < ApplicationComponent
+	MIN_CLS  = %w[inline-flex items-center].freeze
+	BTN_CLS  = MIN_CLS + %w[whitespace-nowrap rounded-md].freeze
+	MENU_CLS = BTN_CLS + %w[p-2 font-semibold hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-200].freeze
+	DROP_CLS = %w[hidden z-10 overflow-hidden rounded-md bg-gray-100 text-left font-semibold].freeze
+	ITEM_CLS = %w[block m-0 p-2 rounded-md hover:bg-blue-700 hover:text-white no-underline].freeze
+	
 	def initialize(button)
 		@button = parse(button)
-		@button[:symbol][:options][:css] = @button[:i_class] if @button[:symbol]
+		if @button[:symbol] && @button[:symbol][:options]
+			@button[:symbol][:options][:css] = @button[:i_class]
+		end
 	end
 
 	def render?
@@ -91,13 +99,15 @@ class DropdownComponent < ApplicationComponent
 		end
 	end
 
-
 	def set_name(button)
-		button[:id]     = "#{button[:name]}-btn"
-		button[:symbol] = {concept:"add", options: {size: "25x25"}} if button[:name] =~ /^(add.*)$/
+		button[:id] = "#{button[:name]}-btn"
+		if button[:name] =~ /^(add.*)$/
+			button[:symbol] ||= {concept:"add", options: {css: "items-center"}}
+		end
 	end
 
 	def set_class(button)
+		button[:o_class] ||= ITEM_CLS.join(' ')
 		case button[:kind].to_s
 		when /^(add.*)$/
 			set_add_class(button)
@@ -109,23 +119,25 @@ class DropdownComponent < ApplicationComponent
 	end
 
 	def set_add_class(button)
-		button[:b_class] ||= "max-h-6 min-h-4 align-center rounded-md hover:bg-green-200 focus:bg-green-200 focus:ring-2 focus:ring-green-500"
-		button[:d_class] ||= "hidden rounded-md bg-gray-100 text-gray-500 text-left font-semibold overflow-hidden no-underline z-10"
-		button[:d_class] += " border border-green-500" if button[:border].present?
-		button[:o_class] ||= "rounded-md hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block m-0 pl-1 pr-1"
+		button[:b_class] ||= "min-h-4 items-center rounded-md hover:bg-green-200 focus:bg-green-200 focus:ring-2 focus:ring-green-500"
+		button[:d_class] ||= DROP_CLS.join(' ')
+		if button[:border]
+			button[:d_class] += " border border-green-500 m-2"
+		end
 	end
 
 	def set_link_class(button)
-		button[:b_class] ||= (button[:class] || "inline-flex align-center rounded-md bg-gray-100 hover:bg-gray-300 focus:ring-gray-300 focus:ring-2 focus:border-gray-300 font-semibold whitespace-nowrap px-1 py-1 m-1")
-		button[:b_class] += " text-sm" if (button[:icon] || button[:symbol]) && !button[:append]
-		button[:d_class] ||= "hidden rounded-md bg-gray-100 text-gray-500 text-left font-semibold overflow-hidden no-underline z-10"
+		button[:b_class] ||= (button[:class] || "inline-flex items-center rounded-md bg-gray-100 hover:bg-gray-300 focus:ring-gray-300 focus:ring-2 focus:border-gray-300 font-semibold whitespace-nowrap px-1 py-1 m-1")
+		if (button[:icon] || button[:symbol]) && !button[:append]
+			button[:b_class] += " text-sm"
+		end
+		button[:d_class] ||= DROP_CLS.join(' ')
 		button[:d_class] += " border border-gray-500" if button[:border].present?
-		button[:o_class] ||= "rounded-md hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block m-0 pl-1 pr-1"
 	end
 
 	def set_menu_class(button)
-		button[:b_class] ||= (button[:sub] ? "inline-flex items-center" : "rounded-md hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap rounded ml-2 px-2 py-2 font-semibold")
+		base = button[:sub] ? MIN_CLS : MENU_CLS
+		button[:b_class] ||= base.join(' ')
 		button[:d_class] ||= "hidden rounded-md bg-blue-900"
-		button[:o_class] ||= "rounded-md hover:bg-blue-700 hover:text-white whitespace-nowrap no-underline block m-0 pl-2 pr-2 py-2"
 	end
 end

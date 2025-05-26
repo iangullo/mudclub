@@ -19,57 +19,87 @@
 
 # Manage SVG Symbols for views & buttons
 class SymbolComponent < ApplicationComponent
-	attr_reader :namespace, :type, :concept, :variant
 
-	# options mudsplat expects: namespace:, type:, variant:, css:, label:, size:, view_box:, data: {}
+	# Initialize with a concept and various options.
+	# Options expected (mud-splat style): namespace:, type:, variant:, css:, label:, size:, view_box:, data: {}
 	def initialize(concept, **options)
-		@concept    = concept.to_s
+		@concept = concept.to_s
 		parse_options(options)
-		@symbol     = SymbolRegistry.fetch(namespace:, type:, concept:, variant:)
+		@symbol = SymbolRegistry.fetch(
+			namespace: @namespace,
+			type: @type,
+			concept: @concept,
+			variant: @variant
+		)
 		@view_box ||= @symbol&.[]("viewBox") || "0 0 128 128"
 	end
 
 	def call
 		return missing_svg unless @symbol
-		content_tag(
-			:svg,
-			raw(@symbol.children.to_xml),
-			viewBox: @view_box,
-			xmlns: 'http://www.w3.org/2000/svg',
-			preserveAspectRatio: 'xMidYMid meet',
+
+		apply_customizations
+
+		content = []
+		content << content_tag(:title, h(@data[:label].presence)) if @data[:label].present?
+		content << wrapped_symbol_content
+
+		svg_attrs = {
+			id: @data[:id],
 			class: @css,
-			width: @width,
-			height: @height,
-			aria: { label: @label },
-			role: "img",
-			data: @data
-		)
+			data: @data,
+			aria: (@data[:label].present? ? { label: @data[:label] } : nil),
+			role: 'img',
+			viewBox: @view_box,
+			preserveAspectRatio: 'xMidYMid meet'
+		}
+		
+		unless @group
+			svg_attrs.merge!({width: @width, height: @height, xmlns:'http://www.w3.org/2000/svg'})
+		end
+
+		tag_name = @group ? :g : :svg
+		content_tag(tag_name, safe_join(content), svg_attrs)
+	end
+
+	# accessor to read the symbol_viewbox in "standard" SVG format
+	def view_box
+		vb_attrs = @view_box.presence&.split(" ")
+		{
+			x: vb_attrs[0].presence || 0,
+			y: vb_attrs[1].presence || 0,
+			width: vb_attrs[2].presence || @width,
+			height: vb_attrs[3].presence || @height	
+		}
 	end
 
 	private
 
-	# set internal Symbol paremeters
-	def parse_options(options)
-		@namespace = options[:namespace]&.to_s || "common"
-		@type      = options[:type]&.to_sym || :icon
-		@variant   = options[:variant]&.to_s || "default"
-		@css       = options[:css].presence || default_class(@type)
-		@view_box  = options[:view_box].presence
-		@label     = options[:label].presence
-		@data      = {	# data-* for Stimulus + extra options
-			namespace: @namespace,
-			type: @type,
-			concept: @concept,
-			variant: @variant
-		}.merge(options[:data] || {})
-		@width, @height = parse_size(options[:size])
+	# Apply visual customizations on the @symbol object itself.
+	# If the symbol contains a <tspan> with id starting 'label', replace its content with @label and update text color if provided.
+	# If no such element exists, the label will only be reflected in the aria-label attribute for accessibility.
+	# Also updates fill and stroke colors on all elements unless explicitly set to 'none'.
+	def apply_customizations
+		apply_label if @data[:label].present?
+		apply_fill unless @data[:fill].blank?
+		apply_stroke unless @data[:stroke].blank?
 	end
 
-	def parse_size(size)
-		case size
-		when /^\d+x\d+$/ then size.split("x").map(&:to_i)
-		when /^\d+$/     then [size.to_i, size.to_i]
-		else [25, 25]
+	def apply_fill
+		@symbol.css("*").each do |el|
+			el["fill"] = @data[:fill] unless el["fill"] == "none"
+		end
+	end
+
+	def apply_label
+		@symbol.css("tspan[id^='label']").each do |el|
+			el.content = @data[:label].to_s
+			el["fill"] = @data[:text_color] if @data[:text_color]
+		end
+	end
+
+	def apply_stroke
+		@symbol.css("*").each do |el|
+			el["stroke"] = @data[:stroke] unless el["stroke"] == "none"
 		end
 	end
 
@@ -84,5 +114,56 @@ class SymbolComponent < ApplicationComponent
 
 	def missing_svg
 		content_tag(:svg, "", class: "invisible", "data-debug": "missing-symbol")
+	end
+
+	# Parse and set internal symbol parameters from options hash and data
+	def parse_options(options)
+		@css      = safe_attr(options, :css) || default_class(@type)
+		@data     = safe_attr(options, :data) || {}
+		@group    = safe_attr(options, :group) || false
+		@view_box = safe_attr(options, [:view_box, :viewBox]) || safe_attr(@data, [:view_box, :viewBox])
+		@wrap     = safe_attr(options, :wrap) || false
+
+		parse_symbol_id(options)
+
+		@width, @height = parse_size(options[:size])
+
+		@data[:kind]      ||= @type
+		@data[:symbol_id] ||= [@namespace, @type, @concept, @variant].join(".")
+
+		%i[id, fill label text_color transform stroke].each do |key|
+			@data[key] ||= safe_attr(options, key) || safe_attr(@data, key)
+		end
+	end
+
+	def parse_symbol_id(options)
+		symbol_id = safe_attr(@data, [:symbol_id, :symbolId]) || safe_attr(options, [:symbol_id, :symbolId])
+		if symbol_id.present? && symbol_id.count('.') == 3
+			@namespace, type_str, @concept, @variant = symbol_id.split(".")
+			@type = type_str.to_sym
+		else
+			@namespace = options[:namespace] || "common"
+			@type      = options[:type] || :icon
+			@variant   = options[:variant] || "default"
+		end
+	end
+
+	def parse_size(size)
+		case size
+		when /^\d+x\d+$/ then size.split("x").map(&:to_i)
+		when /^\d+$/ then [size.to_i, size.to_i]
+		else [25, 25]
+		end
+	rescue
+		[25, 25]
+	end
+
+	def wrapped_symbol_content
+		group_attrs = @data[:transform] ? { transform: @data[:transform] } : {}
+		if @wrap || group_attrs.present?
+			content_tag(:g, raw(@symbol.children.to_xml), group_attrs)
+		else
+			raw(@symbol.children.to_xml)
+		end
 	end
 end

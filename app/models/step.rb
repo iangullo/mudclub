@@ -16,109 +16,193 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# Handle Steps for Drills/Plays Steps to be able to attach several to a parent.
+# Handles Steps for Drills/Plays. Each step belongs to a parent drill.
 class Step < ApplicationRecord
 	belongs_to :drill
+	default_scope { order(:order) }
 
+	before_validation :set_default_order, on: :create
 	has_rich_text :explanation
 	has_one_attached :diagram
 
 	validate :svgdata_structure
 
-	# Determina el tipo de representación visual del paso
+	# Determines the visual representation type of the step
 	def representation_type
-		return :combo_image if has_text? && has_image? && !has_svg?
-		return :combo_svg   if has_text? && has_svg? && !has_image?
-		return :image       if has_image? && !has_text? && !has_svg?
-		return :svg         if has_svg? && !has_text? && !has_image?
-		return :text        if has_text? && !has_image? && !has_svg?
+		if has_text?
+			return :combo_image if has_image? && !has_svg?
+			return :combo_svg   if has_svg? && !has_image?
+			return :text        if !has_image? && !has_svg?
+		elsif has_image? && !has_svg?
+			return :image
+		elsif has_svg? && !has_image?
+			return :svg
+		end
+
 		:empty
 	end
 
-	# Verifica si hay contenido de texto enriquecido
+	# Checks whether rich text content is present
 	def has_text?
 		explanation&.body&.to_plain_text&.strip&.present?
 	end
 
-	# Verifica si hay imagen adjunta
+	# Checks whether attached image is present
 	def has_image?
 		diagram.attached?
 	end
 
-	# Verifica si hay datos SVG válidos
+	# Checks whether SVG symbols are present
 	def has_svg?
 		svgdata.present?
 	end
 
-	# Cabecera para usar en acordeones u otros identificadores visuales
+	# Returns a string identifier for use in accordions or visual selectors
 	def headstring
 		"##{order}"
 	end
 
-	# De momento se fuerza a 'basketball', pero puede evolucionar
+	# forcing use of 'basketball' as default, but open to change in future
 	def sport
 		drill.try(:sport) || "basketball"
 	end
 
-	# Extrae pasos pasados desde un array estructurado, sin duplicados
-	def self.passed(step_array)
-		step_array.map(&:last).uniq
+	# Extracts unique step hashes from the form parameters
+	def self.passed(step_params)
+		step_params.values.uniq
 	end
 
 	private
-	# Valildate SVG data structure
-	def svgdata_structure
-		unless svgdata.is_a?(Hash)
-			errors.add(:svgdata, "must be a hash")
-			return
+		# ensure a valid :order is set in the object
+		def set_default_order
+			self.order ||= (drill.steps.maximum(:order) || 0) + 1 if drill
 		end
-	
-		elements = svgdata[:elements] || svgdata["elements"]
-		unless elements.is_a?(Array)
-			errors.add(:svgdata, "must contain an elements array")
-			return
-		end
-	
-		elements.each_with_index do |element, index|
-			type = element[:type] || element["type"]
-			transform = element[:transform] || element["transform"]
-	
-			unless type && transform
-				errors.add(:svgdata, "element #{index} must have type and transform")
-				next
+
+		# Validates the structure of SVG data if present
+		def svgdata_structure
+			return if svgdata.blank?
+			unless svgdata.is_a?(Hash)
+				errors.add(:svgdata, "must be a hash")
+				return
 			end
-	
-			case type
-			when "object"
-				role  = element[:role] || element["role"]
-				label = element[:label] || element["label"]
-				unless label.nil? || label.is_a?(String)
-					errors.add(:svgdata, "object element #{index} must have a string label or nil")
+
+			validate_svg_objects(svgdata["objects"] || svgdata[:objects])
+			validate_svg_paths(svgdata["paths"] || svgdata[:paths])
+		end
+
+		def validate_objects(objects)
+			unless objects.is_a?(Array)
+				errors.add(:svgdata, "'objects' must be an array")
+				return
+			end
+
+			objects.each_with_index do |obj, index|
+				unless obj.is_a?(Hash)
+					errors.add(:svgdata, "object #{index} must be a hash")
+					next
 				end
-				unless role
-					errors.add(:svgdata, "object element #{index} must include a role")
+
+				id         = obj["id"]
+				symbol_id  = obj["symbol_id"]
+				position   = obj["position"]
+				transform  = obj["transform"]
+				label      = obj["label"]
+				fill       = obj["fill"]
+				stroke     = obj["stroke"]
+				text_color = obj["textColor"]
+
+				errors.add(:svgdata, "object #{index} must have a 'symbol_id'") unless symbol_id.is_a?(String)
+				errors.add(:svgdata, "object #{index} must have a 'position' as [x, y]") unless valid_xy?(position)
+
+				unless valid_svg_transform?(transform)
+					errors.add(:svgdata, "object #{index} 'transform' must be a valid SVG transform string if present")
 				end
-			when "bezier", "straight"
-				points = element[:points] || element["points"]
-				stroke = element[:stroke] || element["stroke"]
-				style = element[:style] || element["style"]
-				ending = element[:ending] || element["ending"]
-				unless points.is_a?(Array) && points.all? { |p| p.is_a?(Hash) && p.key?("x") && p.key?("y") }
-					errors.add(:svgdata, "path element #{index} must include an array of point hashes with x and y")
+
+				if label && !label.is_a?(String)
+					errors.add(:svgdata, "object #{index} 'label' must be a string if present")
 				end
-				unless stroke.is_a?(String)
-					errors.add(:svgdata, "path element #{index} must include a stroke as a string")
+
+				if fill && !fill.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+					errors.add(:svgdata, "object #{index} 'fill' must be a valid hex color")
 				end
-				unless style.is_a?(String)
-					errors.add(:svgdata, "path element #{index} must include a style as a string")
+
+				if stroke && !stroke.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+					errors.add(:svgdata, "object #{index} 'stroke' must be a valid hex color")
 				end
-				unless ending.nil? || ending.is_a?(String)
-					errors.add(:svgdata, "path element #{index} must have ending as a string or null")
+
+				if text_color && !text_color.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+					errors.add(:svgdata, "object #{index} 'textColor' must be a valid hex color")
 				end
-			else
-				errors.add(:svgdata, "unknown type '#{type}' at element #{index}")
 			end
 		end
-	end	
+
+		def validate_paths(paths)
+			return if paths.nil? # paths may be optional
+			unless paths.is_a?(Array)
+				errors.add(:svgdata, "'paths' must be an array")
+				return
+			end
+
+			allowed_strokes = %w[solid dashed wavy double]
+			allowed_endings = %w[arrow T]
+
+			paths.each_with_index do |path, index|
+				unless path.is_a?(Hash)
+					errors.add(:svgdata, "path #{index} must be a hash")
+					next
+				end
+
+				points = path["points"]
+				curved = path["curved"]
+				stroke = path["stroke"]
+				ending = path["ending"]
+				color  = path["color"]
+
+				unless points.is_a?(Array) && points.all? { |pt| valid_xy?(pt) }
+					errors.add(:svgdata, "path #{index} must include an array of [x, y] points")
+				end
+
+				unless curved.in?([true, false])
+					errors.add(:svgdata, "path #{index} must have 'curved' set to true or false")
+				end
+
+				unless stroke.is_a?(String) && allowed_strokes.include?(stroke)
+					errors.add(:svgdata, "path #{index} 'stroke' must be one of: #{allowed_strokes.join(', ')}")
+				end
+
+				if ending && !ending.in?(allowed_endings)
+					errors.add(:svgdata, "path #{index} 'ending' must be one of: #{allowed_endings.join(', ')} or omitted")
+				end
+
+				if color && !color.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+					errors.add(:svgdata, "path #{index} 'color' must be a valid hex color")
+				end
+			end
+		end
+
+		def valid_svg_transform?(transform)
+			return nil unless transform&.is_a?(String)
+			transform_regex = /
+				\A
+				(                               # allow multiple transform functions
+					(?:
+						translate\(\s*-?\d+(\.\d+)?(?:\s*,\s*-?\d+(\.\d+)?)?\s*\) |
+						scale\(\s*-?\d+(\.\d+)?(?:\s*,\s*-?\d+(\.\d+)?)?\s*\) |
+						rotate\(\s*-?\d+(\.\d+)?(?:\s*,\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?)?\s*\) |
+						skewX\(\s*-?\d+(\.\d+)?\s*\) |
+						skewY\(\s*-?\d+(\.\d+)?\s*\) |
+						matrix\(\s*-?\d+(\.\d+)?(?:\s*,\s*-?\d+(\.\d+)?){5}\s*\)
+					)
+					\s*
+				)+
+				\z
+			/x
+
+			!!transform.match(transform_regex)
+		end
+
+		def valid_xy?(pair)
+			pair.is_a?(Array) && pair.size == 2 &&
+				pair[0].is_a?(Numeric) && pair[1].is_a?(Numeric)
+		end
 end
-	

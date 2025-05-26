@@ -123,10 +123,20 @@ class SymbolRegistry
 			if referenced
 				resolve_use_tags(referenced, type: type, visited: visited)
 
-				referenced.children.each do |child|
-					use_tag.add_previous_sibling(child.dup)
+				# Wrap in <g> with transform from <use>, if any
+				group = Nokogiri::XML::Node.new("g", symbol.document)
+				transform_attr = use_tag["transform"]
+				group["transform"] = transform_attr if transform_attr
+
+				# Also copy fill/stroke/class if you want to be thorough:
+				%w[fill stroke class style].each do |attr|
+					group[attr] = use_tag[attr] if use_tag[attr]
 				end
-				use_tag.remove
+
+				referenced.children.each do |child|
+					group.add_child(child.dup)
+				end
+				use_tag.replace(group)
 			end
 		end
 	end

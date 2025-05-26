@@ -14,3 +14,6 @@
  *= require_self
  */
 /* app/assets/stylesheets/symbols.css */
+.text-fluid {
+  font-size: clamp(0.875rem, 2vw, 1.25rem);
+}

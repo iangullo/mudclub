@@ -48,11 +48,11 @@ module DrillsHelper
 			if step.diagram.attached?
 				return InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "250", height: "250"}, form:)
 			elsif step.diagram_svg.present?
-				return ButtonComponent.new(kind: :edit, url: edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram"), label: "", size: "50x50", frame: "modal", i_class: "max-h-10 max-w-10 m-1")
+				return ButtonComponent.new(kind: :edit, url: edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram"), label: "", size: "50x50", i_class: "max-h-10 max-w-10 m-1")
 			else
 				button = {kind: :add, name: "add-diagram", options: []}
-				button[:options] << {label: I18n.t("sport.edit.diagram"), url: edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: {turbo_frame: :modal}}
-				button[:options] << {label: I18n.t("status.no_file"), url: load_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: {turbo_frame: :modal}}
+				button[:options] << {label: I18n.t("sport.edit.diagram"), url: edit_diagram_drill_path(id: @drill.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: {turbo_frame: :modal}}
+				button[:options] << {label: I18n.t("status.no_file"), url: load_diagram_drill_path(id: @drill.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: {turbo_frame: :modal}}
 				return DropdownComponent.new(button)
 			end
 		else

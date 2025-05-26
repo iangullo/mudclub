@@ -18,14 +18,15 @@
 #
 module DivisionsHelper
 	# return icon and top of FieldsComponent
-	def division_title_fields(title:, subtitle: nil, cols: nil)
+	def division_title_fields(title:, subtitle: @sport&.to_s, cols: nil)
 		title_start(icon: symbol_hash("division", namespace: "sport"), title:, subtitle:, cols:)
 	end
 
 	# return FieldsComponent @fields for forms
-	def division_form_fields(title:, subtitle: nil)
-		res = division_title_fields(title:, subtitle:, cols: 3)
-		res << [{kind: :text_box, key: :name, value: @division.name, placeholder: I18n.t("division.name"),cols: 3, mandatory: {length: 3}}]
+	def division_form_fields(title:, subtitle: @sport&.to_s)
+		@submit = SubmitComponent.new(submit: :save)
+		res = division_title_fields(title:, subtitle:)
+		res << [gap_field, {kind: :text_box, key: :name, value: @division.name, placeholder: I18n.t("division.name")	, mandatory: {length: 3}}]
 	end
 
 	# return grid for @divisions GridComponent

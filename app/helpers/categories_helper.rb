@@ -18,8 +18,8 @@
 #
 module CategoriesHelper
  	# return icon and top of FieldsComponent
- 	def category_title_fields(title:, rows: 2, cols: nil)
-		title_start(icon: symbol_hash("category", namespace: "sport"), title:, rows:, cols:)
+ 	def category_title_fields(title:, subtitle: @sport&.to_s, rows: 2, cols: nil)
+		title_start(icon: symbol_hash("category", namespace: "sport"), title:, subtitle:, rows:, cols:)
 	end
 
 	# FieldComponents for category.show
