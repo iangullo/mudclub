@@ -11,16 +11,16 @@
 		<%= favicon_link_tag asset_path(@favicon), type: "image/svg" %>
 	</head>
 
-	<body class="text-base h-full w-full xl:text-lg sm:text-sm xs:text-sm">
-		<!-- App NavBar goes here -->
-		<%= render @topbar %>
-		<!-- Any notifications will go here -->
-		<%= render FlashComponent.new(notice) if notice %>
+	<body class="h-screen flex flex-col text-fluid">
+		<header class="flex-none sticky top-0 z-10 w-full h-15 bg-blue-900 text-gray-300 overflow-hidden">
+			<%= render @topbar %>
+			<%= render FlashComponent.new(notice) if notice %>
+		</header>
 
 		<!-- App content goes here -->
-			<main class="mb-auto w-full h-full overflow-y-auto">
+			<main class="flex-1 min-h-0 overflow-auto">
 				<%= turbo_frame_tag "modal" %>
-			  <div class="flex w-full h-full justify-center mt-2">
+			  <div class="flex w-full h-full justify-center items-start p-2">
 					<%= yield %>
 				</div>
 		</main>

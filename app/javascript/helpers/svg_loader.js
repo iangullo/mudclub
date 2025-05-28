@@ -1,61 +1,65 @@
-// ✅ app/javascript/controllers/helpers/svg_loader.js
-import { deserializeSymbol } from "./svg_symbols.js"
-import { deserializePath } from "./svg_paths.js"
-import { ensureSVGMarkersLoaded } from "./svg_markers.js"
+// app/javascript/controllers/helpers/svg_loader.js
+import { deserializeSymbol } from "helpers/svg_symbols"
+import { deserializePath } from "helpers/svg_paths"
+import { loadSvgMarkers } from "helpers/svg_markers"
+import { createSvgElement, getSvgScale } from "helpers/svg_utils"
 
 let svgRoot = null
+const DEBUG = false
+
 const deserializers = {
   path: deserializePath,
   symbol: deserializeSymbol,
 }
 
-/**
- * Accessor to get the current active SVG root (if used externally).
- */
 export function getSvgRoot() {
   return svgRoot
 }
 
 /**
- * Applies viewBox to ensure the court background fits the visible area.
- * @param {SVGSVGElement} svg - The main SVG container.
- * @param {SVGElement} background - The inserted background node (court).
+ * Adjusts the SVG viewBox to fit the court background bounding box exactly.
+ * This naturally scales all SVG children uniformly.
  */
-function zoomToFit(svg = svgRoot) {
-  const background = svg?.querySelector(".court-background")
-  if (!background || !background.getBBox) return
 
-  const bbox = background.getBBox()
-  if (!bbox || bbox.width === 0 || bbox.height === 0) return
-
-  svg.setAttribute("viewBox", `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`)
-  svg.setAttribute("preserveAspectRatio", "xMidYMid meet")
-}
-
-/**
- * Parses a raw SVG string and returns the corresponding SVG element.
- * @param {string} svgString - Raw SVG markup string.
- * @returns {SVGElement | null}
- */
-function parseSVGElement(svgString) {
-  if (!svgString || typeof svgString !== "string") return null
-
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(svgString, "image/svg+xml")
-  const svgElement = doc.documentElement
-
-  if (svgElement.nodeName !== "svg" && svgElement.nodeName !== "symbol") {
-    console.warn("Parsed SVG does not contain <svg> or <symbol> root")
-    return null
+export function zoomToFit(svg, img) {
+  if (!svg || !img) {
+    DEBUG && console.error("Invalid image dimensions.")
+    return
   }
-  return svgElement
+
+  // Get available size
+  const availableWidth = window.innerWidth - 20
+  const availableHeight = window.innerHeight - 250
+
+  const viewBox = svg.viewBox.baseVal
+  const aspectRatio = viewBox.width / viewBox.height
+
+  // Compute dimensions
+  let width = availableWidth
+  let height = width / aspectRatio
+
+  if (height > availableHeight) {
+    height = availableHeight
+    width = height * aspectRatio
+  }
+
+  // Apply styles directly to SVG
+  svg.style.width = `${width}px`
+  svg.style.height = `${height}px`
+
+  if (DEBUG) {
+    console.log(`limits: ${availableWidth} x ${availableHeight}`)
+    console.log(`new container: ${width} x ${height}`)
+  }
+
+  svg.setAttribute("width", width)
+  svg.setAttribute("height", height)
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet")
+  return getSvgScale(svg)
 }
 
 /**
- * Deserializes an SVG element from a JS object representation.
- * Delegates to specific deserializers based on type.
- * @param {Object} data - Object describing the SVG element.
- * @returns {SVGElement | null}
+ * Delegates deserialization to specific deserializers based on the element type.
  */
 export function loadSVGElement(data) {
   if (!data?.type) return null
@@ -64,74 +68,46 @@ export function loadSVGElement(data) {
 }
 
 /**
- * Inserts the court layout as a non-interactive background.
- * @param {SVGSVGElement} svg
- * @param {string} courtSymbolContent - Raw SVG <symbol> content for the court.
+ * Loads the full diagram (court + symbols/paths) into the SVG container.
+ * Preserves <defs>, loads markers, and sets viewBox to fit court background.
  */
-export function insertCourtBackground(svg, courtSymbolContent) {
-  const parsed = parseSVGElement(courtSymbolContent)
-  if (!parsed) {
-    console.warn("Court symbol parsing failed")
+export function loadDiagram(canvas, court, svgdata) {
+  if (!canvas) {
+    DEBUG && console.warn("Target SVG canvas is not provided")
     return
   }
 
-  const existing = svg.querySelector(".court-background")
-  if (existing) existing.remove()
-
-  const bg = parsed.cloneNode(true)
-  bg.classList.add("court-background")
-  bg.setAttribute("pointer-events", "none")
-
-  svg.insertBefore(bg, svg.firstChild)
-
-  // Adjust viewBox to fit background after rendering
-  requestAnimationFrame(() => zoomToFit(svg))
-}
-
-/**
- * Loads a diagram (background + elements) into a target SVG element.
- * This function sets the court background and appends deserialized elements.
- * Does NOT perform serialization - only deserialization and rendering.
- * @param {SVGSVGElement} svg - Target SVG container.
- * @param {Object} data - Diagram data: { backgroundSvgContent: string, svgdata: Array<Object> }
- * @param {string} symbolNamespace - Optional prefix for <use> references (e.g., '#', '/assets/symbols.svg#').
- */
-export function loadDiagram(svg, { backgroundSvgContent, svgdata }, symbolNamespace = "#") {
-  if (!svg) {
-    console.warn("Target SVG element is not provided")
-    return
+  if (DEBUG) {
+    console.log("canvas: ", canvas)
+    console.log("court: ", court)
+    console.log("svgdata: ", svgdata)
   }
 
-  // Clear current contents except defs
-  const defs = svg.querySelector("defs")
-  ensureSVGMarkersLoaded
-  svg.innerHTML = ""
-  if (defs) svg.appendChild(defs)
-
-  // Set global svgRoot reference
-  svgRoot = svg
-
-  // Insert the court background
-  if (backgroundSvgContent) {
-    insertCourtBackground(svg, backgroundSvgContent)
+  // load markers for arrows
+  let defs = canvas.querySelector("defs")
+  if (!defs) {
+    defs = createSvgElement("defs")
+    canvas.insertBefore(defs, canvas.firstChild)
   }
 
-  // Insert all SVG elements from svgdata
+  // Load shared markers
+  loadSvgMarkers(defs)
+
+  // SETUP SCALING for the court size --- How to store scaling dynamically?
+  requestAnimationFrame(() => {zoomToFit(canvas, court)})
+
+  // Insert all symbols and paths from svgdata
   if (Array.isArray(svgdata)) {
-    svgdata.filter(item => item?.type).forEach(item => {
+    svgdata.forEach(item => {
+      if (!item?.type) return
       const el = loadSVGElement(item)
-      if (el) {
-        // If element references symbols, fix href if needed
-        if (symbolNamespace && el.hasAttribute("href")) {
-          const href = el.getAttribute("href")
-          if (!href.startsWith("#") && !href.startsWith(symbolNamespace)) {
-            el.setAttribute("href", symbolNamespace + href)
-          }
-        }
-        svg.appendChild(el)
-      } else {
-        console.warn("Failed to load one SVG element in diagram")
+      if (!el) {
+        DEBUG && console.warn("Failed to deserialize SVG element", item)
+        return
       }
+
+      // Append element at top level (above background)
+      canvas.appendChild(el)
     })
   }
 }

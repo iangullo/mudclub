@@ -226,7 +226,7 @@ class DrillsController < ApplicationController
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(action)
 			@title     = create_fields(helpers.drill_form_title(title: I18n.t("drill.#{action}")))
-			@court     = @drill.court_symbol
+			@court     = @drill.court_mode
 			@playbook  = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
 			@formdata  = create_fields(helpers.drill_form_data)
 			@formsteps = create_fields(helpers.drill_form_steps)
@@ -252,7 +252,7 @@ class DrillsController < ApplicationController
 				else	# step was already persisted in database
 					@step = Step.find_by_id(step_id)
 				end
-				@court = @drill.court_symbol
+				@court = @drill.court_mode
 			else
 				return nil
 			end

@@ -1,6 +1,6 @@
 // ✅ app/javascript/controllers/helpers/svg_paths.js
-import { createSVGElement } from "./svg_utils.js"
-import { applyStrokeStyle } from "./svg_strokes.js"
+import { createSvgElement } from "helpers/svg_utils"
+import { applyStrokeStyle } from "helpers/svg_strokes"
 
 // Builds the "d" attribute for a path given its array of points and type
 export function buildPathD(points, { curved = false } = {}) {
@@ -56,12 +56,13 @@ export function getPointsFromPath(pathElement) {
 export function createPath(points, options = {}) {
   const {
     curved = false,
+    ending = "arrow",
     strokeStyle = "solid",
     strokeWidth = 2,
     strokeColor = "black"
   } = options
 
-  const path = createSVGElement("path")
+  const path = createSvgElement("path")
   path.setAttribute("d", buildPathD(points, { curved }))
   applyStrokeStyle(path, { strokeStyle, strokeWidth, strokeColor })
 
@@ -81,6 +82,32 @@ export function updatePath(pathElement, points, options = {}, append = false) {
   pathElement.dataset.curved = options.curved ? "true" : "false"
 
   return pathElement
+}
+
+export function prepareTempPath(points = [], options = {} ) {
+  const group = createGroup(points[0]?.x || 0, points[0]?.y || 0) // creates <g draggable>
+  group.dataset.type = "path"
+  group.dataset.curved = curved
+  group.dataset.stroke = stroke
+  group.dataset.ending = ending
+  group.classList.add(
+    "line-preview",
+    "opacity-50",
+    "stroke-gray-400",
+    "stroke-dashed",
+    "stroke-2",
+    "pointer-events-none"
+  )
+
+  const path = createSvgElement("path")
+  path.classList.add("preview-path")
+  group.appendChild(path)
+
+  const tempGroup = group
+  const tempPath = path
+
+  updatePath(group, points)
+  return group
 }
 
 function extractTermination(pathElement) {
@@ -108,7 +135,7 @@ export function serializePath(pathElement) {
 }
 
 export function deserializePath(data) {
-  const path = createSVGElement("path")
+  const path = createSvgElement("path")
   path.dataset.points = JSON.stringify(data.points)
   path.dataset.curved = data.curved ? "true" : "false"
   path.dataset.strokeStyle = data.strokeStyle

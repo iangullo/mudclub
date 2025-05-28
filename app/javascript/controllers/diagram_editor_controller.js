@@ -1,28 +1,19 @@
-// app/javascript/controllers/diagram_editor_controller.js
+// app/stimulus/controllers/diagram_editor_controller.js
+// Attempt at a responsive and dynamic diagram editor.
 import { Controller } from "@hotwired/stimulus"
-import {
-  cloneSVGElement,
-  createGroup,
-  createHandle,
-  createSVGElement,
-  deserializeGroup,
-  fetchSvgText,
-  parseSvg,
-  serializeGroup,
-  toSvgPoint,
-  updateLabel,
-  updatePath,
-  zoomToFit
-} from "helpers/svg_helper"
+import { getPointFromEvent, getInnerElement, setLogicalTransform, setVisualTransform } from "helpers/svg_utils"
+import { addSymbolToSVG, getObjectNumber, updateSymbol, serializeSymbol } from "helpers/svg_symbols"
+import { createPath, updatePath, prepareTempPath, serializePath } from "helpers/svg_paths"
+import { loadDiagram, zoomToFit } from "helpers/svg_loader"
+const DEBUG = true
 
 export default class extends Controller {
-  static targets = ["canvas", "output", "deleteButton"]
+  static targets = ["diagram", "court", "svgdata", "deleteButton"]
 
   // --- [1] editor startup functions ---
   connect() {
-    this.setCanvas()
     this.initialize()
-
+    loadDiagram(this.diagramTarget, this.courtTarget, this.svgdataTarget || [])
     // Initialize drawing state
     this.drawing = false
     this.drawPoints = []
@@ -38,25 +29,35 @@ export default class extends Controller {
     this.onPointerDown = this.onPointerDown.bind(this)
     this.onPointerMove = this.onPointerMove.bind(this)
     this.onPointerUp = this.onPointerUp.bind(this)
+    // First fit & save scale
+    requestAnimationFrame(() => {
+      this.scale = zoomToFit(this.diagramTarget, this.courtTarget)
+    })
 
+    // On resize, update scale
+    this.handleResize = () => {
+      this.scale = zoomToFit(this.diagramTarget, this.courtTarget)
+    }
     // Add listeners
-    this.canvasTarget.addEventListener('click', this.onClick)
-    this.canvasTarget.addEventListener('dblclick', this.onDblClick)
-    this.canvasTarget.addEventListener('pointerdown', this.onPointerDown)
+    this.diagramTarget.addEventListener('click', this.onClick)
+    this.diagramTarget.addEventListener('dblclick', this.onDblClick)
+    this.diagramTarget.addEventListener('pointerdown', this.onPointerDown)
+    window.addEventListener('resize', this.handleResize)
     window.addEventListener('pointermove', this.onPointerMove)
     window.addEventListener('pointerup', this.onPointerUp)
     window.addEventListener("keydown", this.onKeyDown.bind(this))
   }
 
   currentViewBox() {
-    const vb = this.canvasTarget.viewBox.baseVal
+    const vb = this.diagramTarget.viewBox.baseVal
     return { width: vb.width, height: vb.height }
   }
 
   disconnect() {
-    this.canvasTarget.removeEventListener('click', this.onClick)
-    this.canvasTarget.removeEventListener('dblclick', this.onDblClick)
-    this.canvasTarget.removeEventListener('pointerdown', this.onPointerDown)
+    this.diagramTarget.removeEventListener('click', this.onClick)
+    this.diagramTarget.removeEventListener('dblclick', this.onDblClick)
+    this.diagramTarget.removeEventListener('pointerdown', this.onPointerDown)
+    window.removeEventListener('resize', this.handleResize)
     window.removeEventListener('pointermove', this.onPointerMove)
     window.removeEventListener('pointerup', this.onPointerUp)
     window.removeEventListener('keydown', this.onKeyDown)
@@ -66,54 +67,6 @@ export default class extends Controller {
     this.mode = 'idle'
     this.attackerNumbers = new Set()
     this.defenderNumbers = new Set()
-    this.loadDiagram()
-  }
-
-  loadDiagram() {
-    const storedSvg = this.outputTarget.value
-    if (storedSvg) {
-      const items = JSON.parse(storedSvg)
-      items.forEach(item => {
-        const el = deserializeGroup(item, this.canvasTarget)
-        if (el) this.canvasTarget.appendChild(el)
-      })
-    }
-  }
-
-  serialize() {
-    const groups = Array.from(this.canvasTarget.querySelectorAll("g.draggable"))
-    const serialized = groups
-      .map(g => serializeGroup(g))
-      .filter(entry => entry !== null)
-
-    const viewBox = this.canvasTarget.getAttribute("viewBox") || null
-
-    const diagramData = {
-      viewBox,
-      elements: serialized
-    }
-
-    if (this.hasOutputTarget) {
-      this.outputTarget.value = JSON.stringify(diagramData)
-      //console.log("outputTarget: ", this.outputTarget)
-    }
-  }
-
-  setCanvas() {
-    const svg = this.canvasTarget
-    //console.log("canvasTarget:", svg)
-    const imageElement = svg.querySelector("image")
-    //console.log("imageElement:", imageElement)
-
-    if (!svg || !imageElement || !imageElement.hasAttribute("href")) return
-    const href = imageElement.getAttribute("href")
-    //console.log("canvas image href:", href)
-
-    const img = new Image()
-    img.onload = () => {
-      zoomToFit(svg, img)
-    }
-    img.src = href
   }
 
   // --- [2] SVG object creation ---
@@ -123,65 +76,35 @@ export default class extends Controller {
   addCone(event)     { this.addObject(event, "cone", null, 0.07) }
   addDefender(event) { this.addObject(event, "defender", this.defenderNumbers) }
 
-  addObject(event, type, set = null, scale = 0.06) {
+  addObject(event, kind, set = null) {
     const number = set ? this.findLowestFreeNumber(set) : null
     if (number) set.add(number)
 
     // Proceed to add the object with necessary attributes
-    this.createSvgObject({ event, type, scale, label: number })
+    return this.createSvgObject({ event, kind, label: number })
   }
 
   // mark it async so you can await
-  async createSvgObject({ event, type, scale = 0.05, label = null }) {
-    const { width, height } = this.currentViewBox()
-    const size = width * scale
-    const x0 = width * 0.2
-    const y0 = height * 0.3
-
+  createSvgObject({ event, kind, label = null }) {
     const button = event.currentTarget
-    console.warn("button content: ", button)
-    let inlineSvg
-
-    // 1) “Real” inline SVG?
-    const svgSourceEl = button.querySelector("svg")
-    if (svgSourceEl) {
-      inlineSvg = svgSourceEl
-    }
-
-    // 2) Otherwise, look for an <img> whose src is an SVG URL and fetch+parse it
-    if (!inlineSvg) {
-      const img = button.querySelector("img")
-      if (img && img.src && img.src.endsWith(".svg")) {
-        try {
-          const text = await fetchSvgText(img.src)
-          if (text) inlineSvg = parseSvg(text)
-        } catch (e) {
-          console.warn("Could not fetch/parse SVG from img.src", e)
-        }
-      }
-    }
-
-    // 3) If still nothing, bail out
-    if (!inlineSvg) {
-      console.warn("No inline <svg> and could not fetch an SVG to clone.")
+    const svg = button.querySelector("svg[data-symbol-id]")
+    const symbolId = svg?.dataset.symbolId
+    if (!symbolId) {
+      DEBUG && console.warn("button has not symbolId: ", button)
       return
     }
+    DEBUG && console.log("creating new: ", symbolId)
 
-    // Clone + size
-    console.warn("cloning inlineSvg: ", inlineSvg)
-    const clonedElement = cloneSVGElement(inlineSvg, size)
-    if (!clonedElement) return
-    if (label != null) updateLabel(clonedElement, label)
-    console.warn("clonedElement: ", clonedElement)
+    const { width, height } = this.currentViewBox()
+    const x0 = width * 0.2
+    const y0 = height * 0.3
+    const canvasHeight = this.diagramTarget.viewBox.baseVal.height
+    const desiredLogicalSize = canvasHeight * 0.07 // 7% of canvas height
 
-    // Wrap in draggable group
-    const group = createGroup(x0, y0)
-    group.dataset.type = "object"
-    group.dataset.role = type
-    group.dataset.label = label
-    group.appendChild(clonedElement)
-    this.canvasTarget.appendChild(group)
-    this.serialize()
+    // Since symbol original is ~33.87, this is the final rendered size:
+    const objectScale = desiredLogicalSize / 33.87
+
+    return addSymbolToSVG(this.diagramTarget, symbolId, {label: label, kind: kind, scale: objectScale, x: x0, y: y0})
   }
 
   findLowestFreeNumber(set) {
@@ -207,15 +130,14 @@ export default class extends Controller {
     const activeClass = button.dataset.activeClass || "bg-blue-600 text-white ring"
     button.classList.add(...activeClass.split(" "))
 
-    // Store metadata
-    this.lineShape = button.dataset.lineShape || "bezier"
-    this.lineStyle = button.dataset.lineStyle || "solid"
-    this.lineEnding = button.dataset.lineEnding || "arrow"  // default arrowhead endings
-    this.lineType   = button.dataset.object || "generic"
+    // prepare metadata
+    this.curve  = button.dataset.curve || true
+    this.stroke = button.dataset.stroke || "solid"
+    this.ending = button.dataset.ending || "arrow"  // default arrowhead endings
 
     // Initialize empty preview group for visual feedback
     this.points = []
-    this.prepareTempPathGroup([])
+    this.tempPath = prepareTempPath(this.points, button.dataset)  // setup  the temporary editable group
 
     this.mode = 'drawing'
     this.activeLineButton = button
@@ -228,11 +150,10 @@ export default class extends Controller {
     this.points = [...this.originalPoints]
 
     // Set existing points and styling on the preview path
-    this.lineShape  = group.dataset.pathType
-    this.lineStyle  = group.dataset.style
-    this.lineEnding = group.dataset.ending
-    this.lineType   = group.dataset.role
-    this.prepareTempPathGroup(this.points)  // setup  the temporary editable group
+    this.curve  = group.dataset.curve
+    this.stroke = group.dataset.stroke
+    this.ending = group.dataset.ending
+    this.tempPath = prepareTempPath(this.points, group.dataset)  // setup  the temporary editable group
     group.remove()  // Remove the original group from canvas (store it temporarily)
     this.showHandles()
   }
@@ -242,7 +163,7 @@ export default class extends Controller {
       // Revert to original points
       this.points = [...this.originalPoints]
       updatePath(this.editingGroup, this.points)
-      this.canvasTarget.appendChild(this.editingGroup)
+      this.diagramTarget.appendChild(this.editingGroup)
       this.tempGroup?.remove()
     } else {
       // Finalize the tempGroup by transferring styling and points to editingGroup
@@ -253,10 +174,9 @@ export default class extends Controller {
         this.editingGroup.dataset.pathType = this.lineShape
         this.editingGroup.dataset.type = this.lineStyle
         this.editingGroup.dataset.ending = this.lineEnding
-        this.editingGroup.dataset.role = this.lineType
-        this.canvasTarget.appendChild(this.editingGroup)
+        this.editingGroup.dataset.kind = this.lineType
+        this.diagramTarget.appendChild(this.editingGroup)
         this.tempGroup?.remove()
-        this.serialize()
       }
     }
 
@@ -269,23 +189,14 @@ export default class extends Controller {
     if (this.points.length < 2) return this.stopDrawing()
 
     if (this.tempGroup) {
-      const group = this.tempGroup
+      const newLine = createPath(this.points, {curve: this.curve, stroke: this.stroke, ending: this.ending})
+      this.diagramTarget.appendChild(newLine)
 
-      group.classList.remove("line-preview", "opacity-50", "pointer-events-none")
-      group.classList.add("line-group", "draggable")
-      group.dataset.points = JSON.stringify(this.points)
-      group.dataset.pathType = this.lineShape
-      group.dataset.type = this.lineStyle
-      group.dataset.ending = this.lineEnding
-      group.dataset.role = this.lineType
-
-      this.canvasTarget.appendChild(group)
       this.tempGroup = null
       this.tempPath = null
     }
 
     this.stopDrawing()
-    this.serialize()
   }
 
   stopDrawing() {
@@ -303,60 +214,58 @@ export default class extends Controller {
   // --- [5] Manage object selection & removal ---
   clearSelection() {
     if (this.selectedElement) {
-      console.log("clearSelection: ", this.selectedElement)
+      DEBUG && console.log("clearSelection: ", this.selectedElement)
       this.lowlightElement(this.selectedElement)
-      const prev = this.selectedElement.querySelector('.selection-indicator')
-      if (prev) prev.remove()
-        this.selectedElement = null
+      const indicator = this.selectedElement.querySelector('.selection-indicator')
+      if (indicator) indicator.remove()
+
+      this.selectedElement = null
     }
     this.deleteButtonTarget.disabled = true
   }
 
   deleteSelected() {
-    console.log("deleteSelected: ", this.selectedElement)
-    const selected = this.selectedElement
-    if (!selected) return
+    const wrapper = this.selectedElement
+    if (!wrapper) return
 
-    // Check the selected element itself first
-    let dataElement = selected
-    if (!dataElement.dataset.role && !dataElement.dataset.type) {
-      // If not present, search descendants
-      dataElement = selected.querySelector('[data-type], [data-role]')
+    const inner = getInnerElement(wrapper)
+    if (!inner) {
+      DEBUG && console.warn("No inner object to delete inside wrapper")
+      return
     }
 
-    console.log("dataElement: ", dataElement)
+    const kind = inner.getAttribute('kind') || inner.dataset.kind
+    DEBUG && console.warn("inner object:", inner)
 
-    if (dataElement) {
-      const type = dataElement.dataset.role || dataElement.dataset.type
-      const number = parseInt(dataElement.dataset.label)
-      console.log("type: ", type, "; number:", number)
-
-      if (type === "attacker") {
-        this.attackerNumbers.delete(number)
-        console.log("attackerNumbers: ", this.attackerNumbers)
-      } else if (type === "defender") {
-        this.defenderNumbers.delete(number)
-        console.log("defenderNumbers: ", this.defenderNumbers)
-      }
+    const number = getObjectNumber(inner)
+    DEBUG && console.warn("kind: ", kind, "number:", number)
+    if (kind === "attacker") {
+      this.attackerNumbers.delete(number)
+      DEBUG && console.log("attackerNumbers: ", this.attackerNumbers)
+    } else if (kind === "defender") {
+      this.defenderNumbers.delete(number)
+      DEBUG && console.log("defenderNumbers: ", this.attackerNumbers)
     }
 
-    this.selectedElement.classList.add('opacity-0', 'transition-opacity', 'duration-300')
+    wrapper.classList.add('opacity-0', 'transition-opacity', 'duration-300')
     setTimeout(() => {
-      this.selectedElement.remove()
+      wrapper.remove()
       this.selectedElement = null
       this.deleteButtonTarget.disabled = true
-      this.serialize()
     }, 300)
   }
 
   handleSelection(evt) {
-    const grp = evt.target.closest('g.draggable, path.draggable')
+    const wrapper = evt.target.closest('g.draggable-wrapper')
     this.clearSelection() // Deselect previous element, if any
-    if (grp) {  // Select the new group and highlight it
-      this.selectedElement = grp
+    if (wrapper) {  // Select the new group and highlight it
+      this.selectedElement = wrapper
+      this.highlightElement(wrapper)
       this.deleteButtonTarget.disabled = false
-      this.highlightElement(grp)
-      console.log("this.selectedElement: ", this.selectedElement)
+      if (DEBUG) {
+        console.log("Selected wrapper: ", wrapper)
+        console.log("Selected inner symbol/path: ", getInnerElement(wrapper))
+      }
     }
   }
 
@@ -402,36 +311,9 @@ export default class extends Controller {
     })
   }
 
-  prepareTempPathGroup(points = []) {
-    const group = createGroup(points[0]?.x || 0, points[0]?.y || 0) // creates <g draggable>
-    group.dataset.type = "path"
-    group.dataset.pathType = this.lineShape
-    group.dataset.style = this.lineStyle
-    group.dataset.ending = this.lineEnding
-    group.dataset.role = this.lineType
-    group.classList.add(
-      "line-preview",
-      "opacity-50",
-      "stroke-gray-400",
-      "stroke-dashed",
-      "stroke-2",
-      "pointer-events-none"
-    )
-
-    const path = createSVGElement("path")
-    path.classList.add("preview-path")
-    group.appendChild(path)
-
-    this.tempGroup = group
-    this.tempPath = path
-
-    updatePath(group, points)
-    this.canvasTarget.appendChild(group)
-  }
-
   onClick(evt) {
     if (this.isDrawing())  {
-      const pt = toSvgPoint(evt, this.canvasTarget)
+      const pt = getPointFromEvent(evt, this.diagramTarget)
       this.points.push(pt)
       updatePath(this.tempGroup, this.points)
     } else if (this.mode === 'editing') {
@@ -498,7 +380,7 @@ export default class extends Controller {
   onPointerUp(evt) {
     if (this.handleIndex !== null) {
       this.handleEnd() // Manage editing
-    } else if (this.draggedElement) {
+    } else if (this.draggedWrapper) {
       this.dragEnd(evt)   // Complete the object dragging
     }
   }
@@ -528,7 +410,7 @@ export default class extends Controller {
     // Create handles at each point along the path
     this.points.forEach((pt, index) => {
       const handle = createHandle(pt, index)  // Create a handle at the point
-      this.canvasTarget.appendChild(handle)  // Add the handle to the canvas
+      this.diagramTarget.appendChild(handle)  // Add the handle to the canvas
       this.handles.push(handle)  // Store the handle for later reference
     })
   }
@@ -537,7 +419,7 @@ export default class extends Controller {
     this.handles = []
     this.points.forEach((pt, index) => {
       const handle = createHandle(pt, index)
-      this.canvasTarget.appendChild(handle)
+      this.diagramTarget.appendChild(handle)
       this.handles.push(handle)
     })
   }
@@ -549,7 +431,7 @@ export default class extends Controller {
   }
 
   handleDrag(evt) {
-    const pt = toSvgPoint(evt, this.canvasTarget)
+    const pt = getPointFromEvent(evt, this.diagramTarget)
     this.points[this.handleIndex] = pt
     updatePath(this.editingGroup, this.points)
     this.updateHandles(this.handles, this.points)
@@ -574,27 +456,46 @@ export default class extends Controller {
 
   // Drag & select
   dragStart(evt) {
-    const t = evt.target.closest('g.draggable, path.draggable')
-    if (!t) return
-    this.draggedElement = t
-    const pt = toSvgPoint(evt, this.canvasTarget)
-    const baseTransform = t.transform.baseVal
-    const tr = baseTransform.numberOfItems ? baseTransform.consolidate() : null
-    const m = tr ? tr.matrix : this.canvasTarget.createSVGMatrix()
-    this.offset = { x: pt.x - m.e, y: pt.y - m.f }
+    const wrapper = evt.target.closest('g.draggable-wrapper')
+    if (!wrapper) return
+    this.draggedWrapper = wrapper
+
+    const inner = getInnerElement(wrapper)
+    if (!inner) return
+    this.draggedInner = inner
+
+    DEBUG && console.log("dragStart: ", wrapper.getAttribute("id"), "inner: ", inner.getAttribute("id"))
+    DEBUG && console.log("coordinates: [", inner.getAttribute("y"), ", ", inner.getAttribute("y"), "]")
     evt.preventDefault()
   }
 
   drag(evt) {
-    if (!this.draggedElement) return
-    const pt = toSvgPoint(evt, this.canvasTarget)
-    const x = pt.x - this.offset.x, y = pt.y - this.offset.y
-    this.draggedElement.setAttribute('transform', `translate(${x},${y})`)
+    if (!this.draggedInner) return
+
+    // Track current position using SVG coordinates
+    const pt = getPointFromEvent(evt, this.diagramTarget)
+    DEBUG && console.log("drag([", pt.x, ", ", pt.y, "])")
+
+    // Update logical position on inner <g>
+    this.draggedInner.dataset.x = pt.x
+    this.draggedInner.dataset.y = pt.y
+
+    // Re-apply visual transform (scale only) to wrapper
+    setVisualTransform(this.draggedWrapper, { x: pt.x, y: pt.y, scale: null })
     evt.preventDefault()
   }
 
   dragEnd() {
-    this.draggedElement = null
-    this.serialize()
+    if (this.draggedWrapper && this.draggedInner) {
+      const x = this.draggedInner.dataset.x
+      const y = this.draggedInner.dataset.y
+      DEBUG && console.log("dragEnd:", this.draggedWrapper.id, "coords:", x, y)
+    }
+    this.draggedWrapper = null
+    this.draggedInner = null
+  }
+
+  // --- [END] SERIALIZE CONTENT ---/
+  serialize() {
   }
 }

@@ -1,141 +1,180 @@
 // app/javascript/controllers/helpers/svg_symbols.js
-import { createSVGElement, setAttributes } from "./svg_utils.js"
+import {
+  createSvgElement,
+  generateId,
+  isSVGElement,
+  setAttributes,
+  setLabel,
+  setLogicalTransform,
+  setVisualTransform
+} from "helpers/svg_utils"
+const DEBUG = true
 
-function parseData(key, fallback = {}) {
-  const el = document.getElementById("svg-data")
-  if (!el || !el.dataset[key]) return fallback
-  try {
-    const data = JSON.parse(el.dataset[key])
-    return (data && typeof data === "object") ? data : fallback
-  } catch {
-    return fallback
-  }
-}
+function cloneSymbol(symbolId, options = {}) {
+  DEBUG && console.log("cloneSymbo(", symbolId,", options={", options, "}")
+  const templateSVG = document.querySelector(`#diagram-editor-buttons svg[data-symbol-id="${symbolId}"]`)
+  if (!templateSVG) return null
+  DEBUG && console.log("templateSVG: ", templateSVG)
 
-// expected { id: "<symbol>...</symbol>", ... }
-const symbolsMap = parseData("symbols", {})
+  // If you want the first <g> only (assuming symbols have one root <g>)
+  const templateGroup = templateSVG.querySelector("g")
+  if (!templateGroup) return null
 
-function symbolExists(id) {
-  return id in symbolsMap
-}
-
-function cloneSymbol(id, options = {}) {
-  const { x = 0, y = 0, label = "", transform = null } = options
+  // Clone the <g> itself
+  const clone = templateGroup.cloneNode(true)
+  clone.classList.add("draggable")
+  clone.setAttribute("draggable", "true")
+  const { id = generateId(), x = 0, y = 0, label = "", transform = null, kind = null, scale = 1 } = options
   
-  if (!symbolExists(symbolId)) {
-    console.warn(`SVG symbol with id "${symbolId}" not found.`)
-    return null
-  }
-  
-  const template = document.querySelector(`symbol#${symbolId}`)
-  // Clone the entire content of the <symbol>
-  const clone = template.cloneNode(true)
-  const group = clone.querySelector("g")
-  const element = group || clone
+  // ✅ Add dataset attributes for reliable serialization
+  const objectId = id
+  setAttributes(clone, {"id": objectId, "symbolId": symbolId, kind: kind, x: x, y: y})
+  setLabel(clone, label)
+  setLogicalTransform(clone, transform)
+  DEBUG && console.log("cloned Symbol: ", clone)
 
-  element.setAttribute("x", x)
-  element.setAttribute("y", y)
-  element.classList.add("object")
-  if (transform) element.setAttribute("transform", transform)
-
-  // If label is provided, find <tspan id="label"> and replace its text
-  if (label !== null) {
-    const labelSpan = element.querySelector('tspan#label')
-    if (labelSpan) {
-      labelSpan.textContent = label
-    } else {
-      console.warn(`Symbol #${symbolId} does not have a <tspan id="label">`)
-    }
-  }
-
-  // Return the <g> content (directly usable inside an <svg>)
-  return element.cloneNode(true)
+  // Prepare the outer wrapper <g> to apply visual scale only
+  const wrapper = createSvgElement("g")
+  wrapper.classList.add("draggable-wrapper") // if you want to style/debug
+  wrapper.setAttribute("id", `${id}-wrapper`)
+  setVisualTransform(wrapper, {x, y, scale})
+  wrapper.appendChild(clone)  // copy cloned symbol inside
+  DEBUG && console.log("Symbol wrapper: ", wrapper)
+  return wrapper
 }
 
 // Add a cloned symbol to a target SVG element
 export function addSymbolToSVG(svg, symbolId, options = {}) {
   const cloned = cloneSymbol(symbolId, options)
-  if (cloned) svg.appendChild(cloned)
-  return cloned
+  if (cloned) {
+    DEBUG && console.log("appending symbol: ", symbolId)
+    svg.appendChild(cloned)
+    return cloned
+  }
+  return null
 }
 
-// Helper to get list of available symbol IDs
-export function listAvailableSymbols() {
-  const symbols = document.querySelectorAll("svg defs symbol")
-  return Array.from(symbols).map((symbol) => symbol.id)
+// ✅ DESERIALIZE symbol from JSON
+export function deserializeSymbol(data) {
+  if (!data || !data.symbol_id) return null
+
+  const el = cloneSymbol(data.symbol_id, {
+    label: data.label || "",
+    transform: data.transform || "translate(0,0)",
+    id: data.id,
+    kind: data.kind,
+    size: data.size,
+    x: data.x || 0,
+    y: data.y || 0
+  })
+
+  if (!el) return null
+
+  // Optional styles
+  setAttributes(el, {
+    fill: data.fill,
+    stroke: data.stroke,
+  })
+
+  // Text color
+  if (data.textColor) {
+    const text = el.querySelector("text")
+    if (text) setAttributes(text, { fill: data.textColor })
+  }
+
+  return el
 }
 
 // ✅ SERIALIZE símbol to JSON  (use or group with label)
 export function serializeSymbol(el) {
-  const isGroup = el.tagName === "g"
-  const use = isGroup ? el.querySelector("use") : el
-  if (!use || !use.hasAttribute("href")) return null
+  if (!isSVGElement(el)) return null
 
-  const href = use.getAttribute("href") || use.getAttribute("xlink:href")
-  const id = href.replace(/^#/, "")
-
-  const x = parseFloat(use.getAttribute("x") || 0)
-  const y = parseFloat(use.getAttribute("y") || 0)
-  const transform = use.getAttribute("transform") || null
+  const symbolId = el.dataset.symbolId
+  if (!symbolId) return null
 
   const obj = {
-    tag: isGroup ? "g" : "use",
-    symbolId: id,
-    attrs: {
-      x,
-      y,
-      ...(transform && { transform }),
-      href: `#${id}`,
-    },
-    classList: Array.from(el.classList),
+    id: el.id || generateId(),
+    symbol_id: symbolId,
+    type: "object",
+    kind: el.getAttribute("kind"),
+    x: el.dataset.x || 0,
+    y: el.dataset.y || 0,
+    transform: el.getAttribute("transform") || "translate(0,0)",
   }
 
-  // Si tiene texto como label, añadirlo
-  if (isGroup) {
-    const text = el.querySelector("text")
-    if (text) {
-      obj.children = [
-        {
-          tag: "use",
-          attrs: {
-            x,
-            y,
-            href: `#${id}`,
-            ...(transform && { transform }),
-          },
-        },
-        {
-          tag: "text",
-          textContent: text.textContent,
-          attrs: {
-            x,
-            y: y + 4,
-            "text-anchor": "middle",
-          },
-        },
-      ]
-    }
+  if (el.hasAttribute("size")) obj.fill = el.getAttribute("size")
+  if (el.hasAttribute("fill")) obj.fill = el.getAttribute("fill")
+  if (el.hasAttribute("stroke")) obj.stroke = el.getAttribute("stroke")
+
+  const textEl = el.querySelector("text")
+  if (textEl) {
+    obj.label = textEl.textContent
+    if (textEl.hasAttribute("fill")) obj.textColor = textEl.getAttribute("fill")
   }
 
   return obj
 }
 
-// ✅ DESERIALIZE symbol from JSON
-export function deserializeSymbol(data) {
-  if (!data || !data.symbolId) return null
+export function updateSymbol(el, data = {}) {
+  if (!el || !(el instanceof SVGElement)) return null
 
-  const tag = data.tag || "use"
-  const el = createSVGElement(tag)
+  const before = serializeSymbol(el) // snapshot before changes
+  let changed = false
 
-  if (data.attrs) setAttributes(el, data.attrs)
-  if (data.classList) data.classList.forEach(cls => el.classList.add(cls))
-
-  if (data.children && Array.isArray(data.children)) {
-    for (const child of data.children) {
-      const childEl = deserializeSymbol(child)
-      if (childEl) el.appendChild(childEl)
+  // Label
+  if ("label" in data) {
+    const labelTspan = el.querySelector('tspan[id^="label"]')
+    if (labelTspan && labelTspan.textContent !== data.label) {
+      labelTspan.textContent = data.label
+      changed = true
     }
   }
 
-  return el
+  // Fill
+  if ("fill" in data && el.getAttribute("fill") !== data.fill) {
+    el.setAttribute("fill", data.fill)
+    changed = true
+  }
+
+  // Stroke
+  if ("stroke" in data && el.getAttribute("stroke") !== data.stroke) {
+    el.setAttribute("stroke", data.stroke)
+    changed = true
+  }
+
+  // Text color (inside <text>)
+  if ("textColor" in data) {
+    const text = el.querySelector("text")
+    if (text && text.getAttribute("fill") !== data.textColor) {
+      text.setAttribute("fill", data.textColor)
+      changed = true
+    }
+  }
+
+  // Handle transform directly
+  if ("transform" in data && el.getAttribute("transform") !== data.transform) {
+    el.setAttribute("transform", data.transform)
+    changed = true
+  }
+
+  // Optional handling of x/y -> transform
+  if (("x" in data && "y" in data) && !("transform" in data)) {
+    const generatedTransform = `translate(${data.x},${data.y})`
+    if (el.getAttribute("transform") !== generatedTransform) {
+      el.setAttribute("transform", generatedTransform)
+      changed = true
+    }
+  }
+
+  // Return undo info if changed
+  return changed ? { before, after: serializeSymbol(el) } : null
+}
+
+export function getObjectNumber(element) {
+  const label = element.querySelector('tspan#label')
+  if (label) {
+    const val = parseInt(label.textContent, 10)
+    return isNaN(val) ? null : val
+  }
+  return null
 }

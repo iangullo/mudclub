@@ -20,40 +20,54 @@
 # ViewComponent to render SVG diagrams for drill steps.
 # Can act as either display or editor depending on the presence of a form object.
 class DiagramComponent < ApplicationComponent
-	SHOW_SVG_CLASS = "w-full max-w-full block overflow-hidden"
-	EDIT_SVG_CLASS = "max-w-[90vw] max-h-[80vh] w-full overflow-hidden border"
+	SHOW_SVG_CLASS = "w-full h-full block overflow-auto"
+	EDIT_SVG_CLASS = "w-full h-full border"
+	EDITOR_BUTTONS = [
+		{ action: 'addCoach', object: 'coach' },
+		{ action: 'addAttacker', object: 'attacker' },
+		{ action: 'addDefender', object: 'defender' },
+		{ action: 'addBall', object: 'ball' },
+		{ action: 'addCone', object: 'cone' },
+		{ action: 'startDrawing', object: 'shot', path: {curved: false, stroke: "double", ending: "arrow"} },
+		{ action: 'startDrawing', object: 'pass', path: {curved: false, stroke: "dashed", ending: "arrow"} },
+		{ action: 'startDrawing', object: 'move', path: {curved: true, stroke: "solid", ending: "arrow"} },
+		{ action: 'startDrawing', object: 'dribble', path: {curved: true, stroke: "wavy", ending: "arrow"} },
+		{ action: 'deleteSelected', object: 'delete' }
+	].freeze
 
 	attr_writer :form # Allows assigning the form after initialization
 
-	def initialize(sport: "basketball", canvas:, svgdata:, css: nil, form: nil)
+	def initialize(sport: "basketball", court:, svgdata:, css: nil, form: nil)
 		@id       = "diagram-#{SecureRandom.hex(4)}"
-		@sport    = sport
-		@canvas   = canvas.presence
-		@svgdata  = svgdata.presence || {}
-		@svgclass = css.presence || SHOW_SVG_CLASS
-		@form     = form
+		@sport   = sport
+		@css     = css.presence || SHOW_SVG_CLASS
+		@court   = SymbolComponent.new(court, namespace: sport, type: :court, css:, group: true, data: {diagram_editor_target: "court"})
+		@svgdata = svgdata.presence || {}
+		@form    = form
 	end
-
+	
 	def call
 		vb = get_viewbox
 
 		svg_tag = content_tag :svg,
 			svg_body.html_safe,
-			class: @svgclass,
+			class: @css,
 			xmlns: "http://www.w3.org/2000/svg",
-			viewBox: "#{vb["x"]} #{vb["y"]} #{vb["width"]} #{vb["height"]}",
+			viewBox: "#{vb[:x]} #{vb[:y]} #{vb[:width]} #{vb[:height]}",
 			preserveAspectRatio: "xMidYMid meet",
 			width: "100%",
 			height: "100%",
 			data: svg_data_attributes
 
 		if editor?
-			content_tag :div, data: { controller: "diagram-editor" } do
+			content_tag :div, class: SHOW_SVG_CLASS, data: { controller: "diagram-editor" } do
 				safe_join(
-					[editor_buttons_container,
-					content_tag(:div, id: @id, class: EDIT_SVG_CLASS) {	svg_tag },
-					hidden_field_for_svgdata
-				])
+					[
+						editor_buttons_container,
+						content_tag(:div, class: EDIT_SVG_CLASS + " border rounded", id: @id) {svg_tag },
+						hidden_field_for_svgdata
+					]
+				)
 			end
 		else
 			svg_tag
@@ -62,27 +76,21 @@ class DiagramComponent < ApplicationComponent
 
 	private
 		# unified button creator for editor actions
-		def action_button(btn, line_shape: nil, line_style: nil, line_ending: nil)
+		def action_button(btn, path: nil)
 			if btn[:object] == "delete"
 				title  = I18n.t("action.remove")
-				symbol = {concept: "delete", type: :button}
-				bcls   = "p-1 border rounded hover:bg-red-100 disabled:opacity-50 disabled:bg-gray-200 disabled:cursor-not-allowed"
-				data   = { action: "click->diagram-editor##{btn[:action]}", diagram_editor_target: "deleteButton" }
+				symbol = {concept: "delete", options: {type: :button}}
+				bcls   = "hover:bg-red-100 disabled:opacity-50 disabled:bg-gray-200 disabled:cursor-not-allowed"
+				data   = { action: "click->diagram-editor##{btn[:action]}", disabled: false, diagram_editor_target: "deleteButton" }
 			else
 				title  = I18n.t("sport.#{@sport}.objects.#{btn[:object]}")
-				symbol = {concept: btn[:object], namespace: @sport.name, type: :object}
-				bcls   = "p-1 border rounded hover:bg-gray-100"
-				data   = { action: "click->diagram-editor##{btn[:action]}", line_shape:, line_style:, line_ending: }
+				symbol = {concept: btn[:object], options: {namespace: @sport, type: :object}}
+				symbol_id = [@sport, "object", btn[:object], "default"].join(".")
+				bcls   = "hover:bg-gray-100"
+				data   = { action: "click->diagram-editor##{btn[:action]}", path:, symbol_id: }
 			end
-			ButtonComponent.new(kind: :stimulus, symbol:, title:, class: bcls, data:)
-		end
-
-		def canvas_url
-			if @canvas.present?
-				return @canvas if @canvas =~ /\A(http|\/rails\/active_storage)/
-				return helpers.asset_path(@canvas)
-			end
-			helpers.asset_path("sport/#{@sport}/court_full.svg")
+			bcls = "m-1 rounded #{bcls}"
+			ButtonComponent.new(kind: :stimulus, symbol:, title:, d_class: bcls, data:)
 		end
 
 		def editor?
@@ -90,114 +98,108 @@ class DiagramComponent < ApplicationComponent
 		end
 
 		def editor_buttons
-			res = [
-				{ action: 'addCoach', object: 'coach' },
-				{ action: 'addAttacker', object: 'attacker' },
-				{ action: 'addDefender', object: 'defender' },
-				{ action: 'addBall', object: 'ball' },
-				{ action: 'addCone', object: 'cone' },
-				{ action: 'startDrawing', object: 'shot', line_shape: "straight", line_style: "double", line_ending: "arrow" },
-				{ action: 'startDrawing', object: 'pass', line_shape: "straight", line_style: "dashed", line_ending: "arrow" },
-				{ action: 'startDrawing', object: 'move', line_shape: "bezier", line_style: "solid", line_ending: "arrow" },
-				{ action: 'startDrawing', object: 'dribble', line_shape: "bezier", line_style: "wavy", line_ending: "arrow" },
-				{ action: 'deleteSelected', object: 'delete' },
-			].map do |btn|
-				render action_button(btn)
-			end
+			EDITOR_BUTTONS.map { |btn| render action_button(btn) }
 		end
 
 		def editor_buttons_container
-			content_tag :div, class: "m-2 inline-flex flex-shrink-0" do
+			content_tag :div, id: "diagram-editor-buttons", class: "flex-shrink-0 inline-flex mb-2" do
 				safe_join(editor_buttons)
 			end
 		end
 
+		def generate_path_d_from_points(points, curved)
+			return "" if points.empty?
+			return "" unless points.all? { |pt| pt.is_a?(Array) && pt.size == 2 }
+
+			if curved
+				# Bezier path (simplified for now — can refine later)
+				"M#{points[0][0]},#{points[0][1]} " +
+					points[1..].map { |(x, y)| "S#{x},#{y}" }.join(" ")
+			else
+				"M" + points.map { |x, y| "#{x},#{y}" }.join(" L")
+			end
+		end
+
 		def get_viewbox
-			@svgdata["viewBox"] || { "x" => 0, "y" => 0, "width" => 1000, "height" => 800 }
+			@court.view_box || svgdata["viewBox"] || { x: 0, y: 0, width: 1000, height: 800 }
 		end
 
 		def hidden_field_for_svgdata
 			return "" unless @form
-			@form.hidden_field :svgdata, value: @svgdata, data: { "diagram-editor-target": "output" }
+			@form.hidden_field :svgdata, value: @svgdata, data: { "diagram-editor-target": "svgdata" }
 		end
 
-		def render_canvas
-			return unless @canvas.present?
-			%(<image href="#{ERB::Util.html_escape(canvas_url)}"
-					x="0" y="0" width="100%" height="100%"
-					preserveAspectRatio="xMidYMid meet"
-					style="pointer-events: none; user-select: none;"/>)
+		def render_court
+			render(@court) if @court.present?
 		end
 
-		def render_element(item)
-			transform = item["transform"] || ""
-			x = item["x"]
-			y = item["y"]
-			case item["type"]
-			when "object"
-				label = ERB::Util.html_escape(item["label"] || "")
-				role = ERB::Util.html_escape(item["role"] || "")
-				content = item["content"] || ""
-		
-				<<~HTML
-					<g data-type="object" data-role="#{role}" data-label="#{label}" transform="#{transform}" x="#{x}" y="#{y}">
-						#{content}
-					</g>
-				HTML
-			when "path"
-				style = ERB::Util.html_escape(item["style"] || "solid")
-				stroke = ERB::Util.html_escape(item["stroke"] || "black")
-				ending = ERB::Util.html_escape(item["ending"] || "")
-				points = ERB::Util.html_escape(item["points"].to_json)
-				d = generate_path_d_from_points(item["points"] || [], item["style"] || "solid")
-		
-				<<~HTML
-					<g data-type="path" transform="#{transform}">
-						<path d="#{d}"
-									data-type="bezier"
-									data-style="#{style}"
-									data-ending="#{ending}"
-									data-stroke="#{stroke}"
-									data-points='#{points}'
-									fill="none"
-									stroke="#{stroke}" />
-					</g>
-				HTML
-		
-			when "group"
-				children = (item["elements"] || []).map { |child| render_element(child) }.join
-		
-				<<~HTML
-					<g transform="#{transform}">
-						#{children}
-					</g>
-				HTML
-		
-			else
-				Rails.logger.warn("DiagramRenderer: Unknown element type #{item["type"]}")
-				""
+		def render_svg_objects
+			(@svgdata["objects"] || []).map do |obj|	# need to handle position on the diagram!!
+				# Pass concept as the 3rd segment (concept) of the symbol_id, or fallback to nil
+				symbol_id = safe_attr(obj, :symbol_id)
+				concept = symbol_id&.split(".")[2] || safe_attr(obj, :concept)
+				options = {	# Build options expected by SymbolComponent
+					data: {
+						id:        safe_attr(obj, :id),
+						symbol_id: safe_attr(obj, :symbol_id),
+						fill:      safe_attr(obj, :fill),
+						label:     safe_attr(obj, :label),
+						stroke:    safe_attr(obj, :stroke),
+						text_color: safe_attr(obj, :textColor),
+						transform: safe_attr(obj, :transform)
+					}
+				}
+				render SymbolComponent.new(concept, **options)
 			end
-		rescue => e
-			Rails.logger.warn("DiagramRenderer error: #{e.message}")
-			""
-		end		
+		end
+
+		def render_svg_paths
+			(@svgdata["paths"] || []).map do |path|
+				stroke = path["stroke"] || "solid"
+				color  = path["color"] || "#000000"
+				ending = path["ending"]
+				curved = path["curved"]
+				points = path["points"] || []
+
+				d = generate_path_d_from_points(points, curved)
+
+				content_tag(:g, data: {
+					type: "path",
+					stroke: stroke,
+					ending: ending,
+					curved: curved,
+					color: color,
+					points: points.to_json
+				}) do
+					tag.path(
+						d: d,
+						stroke: color,
+						fill: "none",
+						data: {
+							type: "bezier"
+						}
+					)
+				end
+			end
+		end
 
 		def svg_attributes(hash)
 			hash.map { |k, v| "#{k}='#{v}'" }.join(" ")
 		end
 
 		def svg_body
-			canvas_img = render_canvas
-			elements = (@svgdata["elements"] || []).map { |item| render_element(item) }.join
-			[canvas_img, elements].compact.join
+			safe_join([
+				render_court,
+				render_svg_objects,
+				render_svg_paths
+			])
 		end
 
 		def svg_data_attributes
 			return {} unless editor?
 			{
-				"diagram-editor-target": "canvas",
-				"diagram-editor-svgdata-value": ERB::Util.json_escape(@svgdata.to_json),
-				"diagram-editor-sport-value": @sport
+				diagram_editor_target: "diagram",
+				diagram_editor_svgdata_value: @svgdata.to_json,
 			}
 		end
 end
