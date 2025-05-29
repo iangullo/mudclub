@@ -2,7 +2,7 @@
 // Attempt at a responsive and dynamic diagram editor.
 import { Controller } from "@hotwired/stimulus"
 import { getPointFromEvent, getInnerElement, setLogicalTransform, setVisualTransform } from "helpers/svg_utils"
-import { addSymbolToSVG, getObjectNumber, updateSymbol, serializeSymbol } from "helpers/svg_symbols"
+import { SYMBOL_SIZE, addSymbolToSVG, getObjectNumber, updateSymbol, serializeSymbol } from "helpers/svg_symbols"
 import { createPath, updatePath, prepareTempPath, serializePath } from "helpers/svg_paths"
 import { loadDiagram, zoomToFit } from "helpers/svg_loader"
 const DEBUG = true
@@ -29,6 +29,7 @@ export default class extends Controller {
     this.onPointerDown = this.onPointerDown.bind(this)
     this.onPointerMove = this.onPointerMove.bind(this)
     this.onPointerUp = this.onPointerUp.bind(this)
+
     // First fit & save scale
     requestAnimationFrame(() => {
       this.scale = zoomToFit(this.diagramTarget, this.courtTarget)
@@ -67,6 +68,8 @@ export default class extends Controller {
     this.mode = 'idle'
     this.attackerNumbers = new Set()
     this.defenderNumbers = new Set()
+    this.courtBox = this.courtTarget.getBBox()  // <- returns {x, y, width, height}
+    DEBUG && console.log("Court viewBox:", this.courtBox)
   }
 
   // --- [2] SVG object creation ---
@@ -84,7 +87,6 @@ export default class extends Controller {
     return this.createSvgObject({ event, kind, label: number })
   }
 
-  // mark it async so you can await
   createSvgObject({ event, kind, label = null }) {
     const button = event.currentTarget
     const svg = button.querySelector("svg[data-symbol-id]")
@@ -454,7 +456,7 @@ export default class extends Controller {
     })
   }
 
-  // Drag & select
+  // Dragging
   dragStart(evt) {
     const wrapper = evt.target.closest('g.draggable-wrapper')
     if (!wrapper) return
@@ -475,6 +477,15 @@ export default class extends Controller {
     // Track current position using SVG coordinates
     const pt = getPointFromEvent(evt, this.diagramTarget)
     DEBUG && console.log("drag([", pt.x, ", ", pt.y, "])")
+
+    const { x: minX, y: minY, width, height } = this.courtBox
+    const maxX = minX + width - 3*SYMBOL_SIZE
+    const maxY = minY + height - 3*SYMBOL_SIZE
+    // Bail out if outside allowed area (based on logical coords)
+    if (pt.x < minX || pt.x > maxX || pt.y < minY || pt.y > maxY) {
+      DEBUG && console.log("Blocked drag outside court:", pt.x, pt.y)
+      return
+    }
 
     // Update logical position on inner <g>
     this.draggedInner.dataset.x = pt.x

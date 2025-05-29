@@ -9,6 +9,7 @@ import {
   setVisualTransform
 } from "helpers/svg_utils"
 const DEBUG = true
+export const SYMBOL_SIZE = 33.87
 
 function cloneSymbol(symbolId, options = {}) {
   DEBUG && console.log("cloneSymbo(", symbolId,", options={", options, "}")
