@@ -192,7 +192,7 @@ module DrillsHelper
 			[{kind: :label, value: I18n.t("step.many"), cols: 3}],
 			[{kind: :separator, cols: 3}]
 		] unless @drill.steps.empty?
-		@court = @drill.court_symbol
+		@court = @drill.court_mode
 		split  = false
 		@drill.steps.order(:order).each { |step| split = true if step.has_text? && (step.has_image? || step.has_svg?) }
 		icols  = 2 unless split

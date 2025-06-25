@@ -1,26 +1,87 @@
-// app/javascript/controllers/helpers/svg_loader.js
-import { deserializeSymbol } from "helpers/svg_symbols"
-import { deserializePath } from "helpers/svg_paths"
-import { loadSvgMarkers } from "helpers/svg_markers"
-import { createSvgElement, getSvgScale } from "helpers/svg_utils"
+// app/javascript/helpers/svg_loader.js
+import { getSvgScale } from "helpers/svg_utils"
 
-let svgRoot = null
 const DEBUG = false
 
-const deserializers = {
-  path: deserializePath,
-  symbol: deserializeSymbol,
+/**
+ * Parses SVG content and tracks player numbers
+ * @param {SVGElement} svgContainer 
+ * @returns {{
+ *   attackers: Set<number>,
+ *   defenders: Set<number>,
+ * }}
+ */
+export function parseDiagramContent(svgContainer) {
+  const result = {
+    attackers: new Set(),
+    defenders: new Set()
+  }
+
+  if (!svgContainer) return result
+
+  // Look for wrapper elements containing attacker/defender symbols
+  const wrappers = svgContainer.querySelectorAll('g.wrapper[type="symbol"]')
+  DEBUG && console.log(`Found ${wrappers.length} symbol wrappers`)
+
+  wrappers.forEach(wrapper => {    // Find the inner element with the actual kind
+    const inner = wrapper.querySelector('[data-kind]')
+    if (!inner) {
+      DEBUG && console.log("Wrapper contains no inner element with data-kind", wrapper)
+      return
+    }
+
+    const kind = inner.dataset.kind
+    if (!['attacker', 'defender'].includes(kind)) {
+      DEBUG && console.log(`Skipping non-player symbol of kind ${kind}`)
+      return
+    }
+    DEBUG && console.log(`Found ${kind} ${inner.dataset.id}`)
+
+    // Get the number from the label
+    const number = parseInt(inner.textContent)
+    if (isNaN(number)) {
+      DEBUG && console.log(`Invalid number in label: ${label.textContent}`)
+      return
+    }
+
+    DEBUG && console.log(`Found ${kind} with number ${number}`)
+    result[kind === 'attacker' ? 'attackers' : 'defenders'].add(number)
+  })
+  
+  DEBUG && console.log('Parsed diagram content:', {
+    attackers: Array.from(result.attackers),
+    defenders: Array.from(result.defenders)
+  })
+
+  return result
 }
 
-export function getSvgRoot() {
-  return svgRoot
+/**
+ * Finds the lowest available number in a Set
+ * @param {Set<number>} numberSet 
+ * @returns {number}
+ */
+export function findLowestAvailableNumber(numberSet) {
+  let i = 1
+  while (numberSet.has(i)) i++
+  return i
 }
+
+/**
+ * Validates SVG structure meets minimum requirements
+ * @param {SVGElement} svgContainer 
+ * @returns {boolean}
+ */
+export function validateDiagram(svgContainer) {
+  if (!svgContainer?.querySelector) return false
+  return true
+}
+
 
 /**
  * Adjusts the SVG viewBox to fit the court background bounding box exactly.
  * This naturally scales all SVG children uniformly.
  */
-
 export function zoomToFit(svg, img) {
   if (!svg || !img) {
     DEBUG && console.error("Invalid image dimensions.")
@@ -56,58 +117,4 @@ export function zoomToFit(svg, img) {
   svg.setAttribute("height", height)
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet")
   return getSvgScale(svg)
-}
-
-/**
- * Delegates deserialization to specific deserializers based on the element type.
- */
-export function loadSVGElement(data) {
-  if (!data?.type) return null
-  const fn = deserializers[data.type]
-  return fn ? fn(data) : null
-}
-
-/**
- * Loads the full diagram (court + symbols/paths) into the SVG container.
- * Preserves <defs>, loads markers, and sets viewBox to fit court background.
- */
-export function loadDiagram(canvas, court, svgdata) {
-  if (!canvas) {
-    DEBUG && console.warn("Target SVG canvas is not provided")
-    return
-  }
-
-  if (DEBUG) {
-    console.log("canvas: ", canvas)
-    console.log("court: ", court)
-    console.log("svgdata: ", svgdata)
-  }
-
-  // load markers for arrows
-  let defs = canvas.querySelector("defs")
-  if (!defs) {
-    defs = createSvgElement("defs")
-    canvas.insertBefore(defs, canvas.firstChild)
-  }
-
-  // Load shared markers
-  loadSvgMarkers(defs)
-
-  // SETUP SCALING for the court size --- How to store scaling dynamically?
-  requestAnimationFrame(() => {zoomToFit(canvas, court)})
-
-  // Insert all symbols and paths from svgdata
-  if (Array.isArray(svgdata)) {
-    svgdata.forEach(item => {
-      if (!item?.type) return
-      const el = loadSVGElement(item)
-      if (!el) {
-        DEBUG && console.warn("Failed to deserialize SVG element", item)
-        return
-      }
-
-      // Append element at top level (above background)
-      canvas.appendChild(el)
-    })
-  }
 }

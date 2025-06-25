@@ -20,18 +20,20 @@
 # ViewComponent to render SVG diagrams for drill steps.
 # Can act as either display or editor depending on the presence of a form object.
 class DiagramComponent < ApplicationComponent
+	SYMBOL_SCALE   = 0.07
+	SYMBOL_SIZE    = 33.87
 	SHOW_SVG_CLASS = "w-full h-full block overflow-auto"
 	EDIT_SVG_CLASS = "w-full h-full border"
 	EDITOR_BUTTONS = [
-		{ action: 'addCoach', object: 'coach' },
-		{ action: 'addAttacker', object: 'attacker' },
-		{ action: 'addDefender', object: 'defender' },
+		{ action: 'addAttacker', object: 'attacker', options: {label: "?"} },
+		{ action: 'addDefender', object: 'defender', options: {label: "n"} },
 		{ action: 'addBall', object: 'ball' },
 		{ action: 'addCone', object: 'cone' },
-		{ action: 'startDrawing', object: 'shot', path: {curved: false, stroke: "double", ending: "arrow"} },
-		{ action: 'startDrawing', object: 'pass', path: {curved: false, stroke: "dashed", ending: "arrow"} },
-		{ action: 'startDrawing', object: 'move', path: {curved: true, stroke: "solid", ending: "arrow"} },
-		{ action: 'startDrawing', object: 'dribble', path: {curved: true, stroke: "wavy", ending: "arrow"} },
+		{ action: 'addCoach', object: 'coach' },
+		{ action: 'startDrawing', object: 'move', path: {curve: true, style: "solid", ending: "arrow"} },
+		{ action: 'startDrawing', object: 'dribble', path: {curve: true, style: "wavy", ending: "arrow"} },
+		{ action: 'startDrawing', object: 'pass', path: {curve: false, style: "dashed", ending: "arrow"} },
+		{ action: 'startDrawing', object: 'shot', path: {curve: false, style: "double", ending: "arrow"} },
 		{ action: 'deleteSelected', object: 'delete' }
 	].freeze
 
@@ -42,52 +44,55 @@ class DiagramComponent < ApplicationComponent
 		@sport   = sport
 		@css     = css.presence || SHOW_SVG_CLASS
 		@court   = SymbolComponent.new(court, namespace: sport, type: :court, css:, group: true, data: {diagram_editor_target: "court"})
+		@viewbox = get_viewbox
+		@symbolh = @viewbox[:height].to_i * SYMBOL_SCALE / SYMBOL_SIZE
 		@svgdata = svgdata.presence || {}
+
 		@form    = form
 	end
 	
 	def call
-		vb = get_viewbox
 
 		svg_tag = content_tag :svg,
 			svg_body.html_safe,
 			class: @css,
 			xmlns: "http://www.w3.org/2000/svg",
-			viewBox: "#{vb[:x]} #{vb[:y]} #{vb[:width]} #{vb[:height]}",
+			viewBox: "#{@viewbox[:x]} #{@viewbox[:y]} #{@viewbox[:width]} #{@viewbox[:height]}",
 			preserveAspectRatio: "xMidYMid meet",
 			width: "100%",
 			height: "100%",
 			data: svg_data_attributes
 
 		if editor?
-			content_tag :div, class: SHOW_SVG_CLASS, data: { controller: "diagram-editor" } do
-				safe_join(
-					[
-						editor_buttons_container,
-						content_tag(:div, class: EDIT_SVG_CLASS + " border rounded", id: @id) {svg_tag },
-						hidden_field_for_svgdata
-					]
-				)
-			end
+			safe_join(
+				[
+					editor_buttons_container,
+					content_tag(:div, class: EDIT_SVG_CLASS + " border rounded", id: @id) { svg_tag },
+					hidden_field_for_svgdata
+				]
+			)
 		else
-			svg_tag
+			safe_join([svg_tag, hidden_field_for_svgdata])
 		end
 	end
 
 	private
 		# unified button creator for editor actions
-		def action_button(btn, path: nil)
+		def action_button(btn)
 			if btn[:object] == "delete"
 				title  = I18n.t("action.remove")
 				symbol = {concept: "delete", options: {type: :button}}
 				bcls   = "hover:bg-red-100 disabled:opacity-50 disabled:bg-gray-200 disabled:cursor-not-allowed"
 				data   = { action: "click->diagram-editor##{btn[:action]}", disabled: false, diagram_editor_target: "deleteButton" }
 			else
-				title  = I18n.t("sport.#{@sport}.objects.#{btn[:object]}")
-				symbol = {concept: btn[:object], options: {namespace: @sport, type: :object}}
 				symbol_id = [@sport, "object", btn[:object], "default"].join(".")
+				title     = I18n.t("sport.#{@sport}.objects.#{btn[:object]}")
+				options   = {namespace: @sport, type: :object}
+				options.merge!(btn[:options]) if btn[:options]
+				symbol = {concept: btn[:object], options:}
 				bcls   = "hover:bg-gray-100"
-				data   = { action: "click->diagram-editor##{btn[:action]}", path:, symbol_id: }
+				data   = { action: "click->diagram-editor##{btn[:action]}", symbol_id: }
+				data.merge!(btn[:path]) if btn[:path]
 			end
 			bcls = "m-1 rounded #{bcls}"
 			ButtonComponent.new(kind: :stimulus, symbol:, title:, d_class: bcls, data:)
@@ -125,61 +130,91 @@ class DiagramComponent < ApplicationComponent
 		end
 
 		def hidden_field_for_svgdata
-			return "" unless @form
-			@form.hidden_field :svgdata, value: @svgdata, data: { "diagram-editor-target": "svgdata" }
+			return nil unless @form
+
+			svgdata = (@svgdata || {
+				"paths" => [],
+				"symbols" => [],
+				"viewBox" => { "width" => 1000, "height" => 600 } # Default values
+			}).to_json
+			target = { diagram_editor_target: "svgdata" }
+			@form.hidden_field :svgdata, value: svgdata, data: target
 		end
 
 		def render_court
 			render(@court) if @court.present?
 		end
 
-		def render_svg_objects
-			(@svgdata["objects"] || []).map do |obj|	# need to handle position on the diagram!!
-				# Pass concept as the 3rd segment (concept) of the symbol_id, or fallback to nil
-				symbol_id = safe_attr(obj, :symbol_id)
-				concept = symbol_id&.split(".")[2] || safe_attr(obj, :concept)
-				options = {	# Build options expected by SymbolComponent
-					data: {
-						id:        safe_attr(obj, :id),
-						symbol_id: safe_attr(obj, :symbol_id),
-						fill:      safe_attr(obj, :fill),
-						label:     safe_attr(obj, :label),
-						stroke:    safe_attr(obj, :stroke),
-						text_color: safe_attr(obj, :textColor),
-						transform: safe_attr(obj, :transform)
-					}
-				}
-				render SymbolComponent.new(concept, **options)
-			end
-		end
 
-		def render_svg_paths
+		def render_paths
+			pcnt = 0
 			(@svgdata["paths"] || []).map do |path|
-				stroke = path["stroke"] || "solid"
-				color  = path["color"] || "#000000"
+				id     = path["id"] || "path-#{pcnt}"
+				pcnt  += 1
+				curve  = path["curve"]
 				ending = path["ending"]
-				curved = path["curved"]
 				points = path["points"] || []
+				stroke = path["stroke"] || "#000000"
+				style  = path["style"] || "solid"
 
 				d = generate_path_d_from_points(points, curved)
 
 				content_tag(:g, data: {
+					id:,
 					type: "path",
-					stroke: stroke,
-					ending: ending,
-					curved: curved,
-					color: color,
+					curve:,
+					ending:,
+					stroke:,
+					style:,
 					points: points.to_json
 				}) do
 					tag.path(
-						d: d,
-						stroke: color,
+						d:,
+						stroke:,
 						fill: "none",
 						data: {
 							type: "bezier"
 						}
 					)
 				end
+			end
+		end
+
+		def render_symbol(scnt, symbol)
+			id        = symbol["id"] || "sym-#{scnt}"
+			symbol_id = symbol["symbol_id"] || "#{@sport}.object.#{symbol['kind']}.default"
+			x = symbol["x"] || 0
+			y = symbol["y"] || 0
+			options = {
+				namespace: @sport,
+				type: :symbol,
+				group: true,
+				data: {
+					id:,
+					kind: symbol["kind"],
+					symbol_id: symbol_id,
+					x:,
+					y:,
+					fill: symbol["fill"],
+					stroke: symbol["stroke"],
+					text_color: symbol["textColor"],
+					transform: "scale(#{@symbolh}) #{symbol['transform']}"
+				}.compact
+			}
+		
+			# Add visual attributes if present
+			[:fill, :stroke, :label, :textColor].each do |attr|
+				options[attr] = symbol[attr.to_s] if symbol[attr.to_s]
+			end
+
+			svg_wrapper(id, "symbol", render(SymbolComponent.new(symbol_id, **options)), x, y )
+		end
+
+		def render_symbols
+			scount = 0
+			(@svgdata["symbols"] || []).map do |symbol|
+				scount += 1
+				render_symbol(scount, symbol)
 			end
 		end
 
@@ -190,16 +225,23 @@ class DiagramComponent < ApplicationComponent
 		def svg_body
 			safe_join([
 				render_court,
-				render_svg_objects,
-				render_svg_paths
+				render_symbols,
+				render_paths
 			])
 		end
 
 		def svg_data_attributes
-			return {} unless editor?
-			{
-				diagram_editor_target: "diagram",
-				diagram_editor_svgdata_value: @svgdata.to_json,
-			}
+			{ diagram_editor_target: "diagram" }
+		end
+
+		def svg_wrapper(content_id, type, content_svg, x = 0, y = 0)
+			content_tag(:g,
+				content_svg,
+				class: "wrapper",
+				type:,
+				draggable: "true",
+				id: "#{content_id}-wrapper",
+				transform: "translate(#{x},#{y})"
+			)
 		end
 end

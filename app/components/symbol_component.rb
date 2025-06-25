@@ -39,8 +39,8 @@ class SymbolComponent < ApplicationComponent
 
 		apply_customizations
 
-		content = []
-		content << content_tag(:title, h(@data[:label].presence)) if @data[:label].present?
+		content  = []
+		content << content_tag(:title, h(@data[:title].presence)) if @data[:title].present?
 		content << wrapped_symbol_content
 
 		svg_attrs = {
@@ -80,26 +80,12 @@ class SymbolComponent < ApplicationComponent
 	# Also updates fill and stroke colors on all elements unless explicitly set to 'none'.
 	def apply_customizations
 		apply_label if @data[:label].present?
-		apply_fill unless @data[:fill].blank?
-		apply_stroke unless @data[:stroke].blank?
-	end
-
-	def apply_fill
-		@symbol.css("*").each do |el|
-			el["fill"] = @data[:fill] unless el["fill"] == "none"
-		end
 	end
 
 	def apply_label
 		@symbol.css("tspan[id^='label']").each do |el|
 			el.content = @data[:label].to_s
 			el["fill"] = @data[:text_color] if @data[:text_color]
-		end
-	end
-
-	def apply_stroke
-		@symbol.css("*").each do |el|
-			el["stroke"] = @data[:stroke] unless el["stroke"] == "none"
 		end
 	end
 
@@ -159,7 +145,7 @@ class SymbolComponent < ApplicationComponent
 	end
 
 	def wrapped_symbol_content
-		group_attrs = @data[:transform] ? { transform: @data[:transform] } : {}
+		group_attrs = @data[:transform] || @data[:x] ? {draggable: true, kind: "symbol", transform: @data[:transform], position: @data[:position]} : {}
 		if @wrap || group_attrs.present?
 			content_tag(:g, raw(@symbol.children.to_xml), group_attrs)
 		else

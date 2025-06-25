@@ -1,19 +1,129 @@
-// ✅ app/javascript/controllers/helpers/svg_paths.js
-import { createSvgElement } from "helpers/svg_utils"
-import { applyStrokeStyle } from "helpers/svg_strokes"
+// app/javascript/helpers/svg_paths.js
+import { createSvgElement, wrapContent } from "helpers/svg_utils"
+import { PATH_WIDTH, applyStrokeStyle } from "helpers/svg_strokes"
+import { applyMarker } from "helpers/svg_markers"
 
-// Builds the "d" attribute for a path given its array of points and type
-export function buildPathD(points, { curved = false } = {}) {
+const TEMP_COLOR = '#888888'
+const TEMP_OPACITY = 0.5
+const MIN_POINTS_FOR_CURVE = 3
+const DEBUG = false
+
+
+export function buildPathD(points, curve = false) {
   if (points.length === 0) return ""
-  if (curved) {
-    return buildSmoothCurveD(points)
+  if (curve) {
+    return buildCurvedPath(points)
   } else {
-    return points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ")
+    return buildStraightPath(points)
   }
 }
 
+export function createPath(points = [], options = {}) {
+  // Validate options
+  const validatedOptions = {
+    curve: !!options.curve,
+    style: ['solid', 'dashed', 'double', 'wavy'].includes(options.style) ? options.style : 'solid',
+    ending: ['arrow', 'tee'].includes(options.ending) ? options.ending : 'none',
+    color: options.color || '#000000',
+    scale: options.scale || 1
+  }
+
+  // Create path element
+  const pathElement = createSvgElement('path')
+  pathElement.setAttribute('stroke-width', PATH_WIDTH)
+  pathElement.setAttribute('fill', 'none')
+  pathElement.dataset.color  = color
+  pathElement.dataset.curve  = validatedOptions.curve.toString()
+  pathElement.dataset.style  = validatedOptions.style
+  pathElement.dataset.ending = validatedOptions.ending
+
+  // Create wrapper group
+  const pathGroup = createSvgElement('g')
+  pathGroup.classList.add('path-line')
+  pathGroup.dataset.type = 'path'
+  pathGroup.appendChild(pathElement)
+
+  // Store original points in dataset (like symbol coordinates)
+  pathGroup.dataset.points = JSON.stringify(points)
+  pathGroup.dataset.curve = options.curve ? 'true' : 'false'
+  pathGroup.dataset.style = options.style || 'solid'
+  pathGroup.dataset.ending = options.ending || 'arrow'
+  
+  // Initial positioning (similar to symbol positioning)
+  const firstPoint = points[0] || { x: 0, y: 0 }
+  const transform = {
+    x: firstPoint.x,
+    y: firstPoint.y,
+    scale: options.scale || 1
+  }
+
+  // Apply initial styling
+  updatePath(pathElement, points, {
+    ...options,
+    isPreview: options.isPreview || false
+  })
+
+  pathGroup.appendChild(pathElement)
+
+  /// Return wrapped content (identical to symbol approach)
+  return {
+    element: wrapContent(pathGroup, transform.x, transform.y, transform.scale),
+    update: (newPoints, updateOpts) => {
+      pathGroup.dataset.points = JSON.stringify(newPoints)
+      return updatePath(pathElement, newPoints, {
+        ...options,
+        ...updateOpts
+      })
+    },
+    finalize: () => {
+      pathElement.setAttribute('stroke', options.color || '#000')
+      pathElement.setAttribute('opacity', '1')
+      return pathGroup
+    }
+  }
+}
+
+export function updatePath(pathElement, points, options) {
+  if (!pathElement || points.length < 2) {
+    pathElement?.setAttribute('d', '')
+    return
+  }
+
+  // Apply transform through wrapper (like symbol transform)
+  const wrapper = pathElement.parentNode
+  if (wrapper && points.length > 0) {
+    const firstPoint = points[0]
+    wrapper.setAttribute('transform', `translate(${firstPoint.x}, ${firstPoint.y}) scale(${options.scale || 1})`)
+  }
+  
+  const pathData = buildPathD(points, options.curve)
+  pathElement.setAttribute('d', pathData)
+  
+  // Apply styling (identical to symbol styling approach)
+  pathElement.setAttribute('stroke', options.isPreview ? TEMP_COLOR : options.color || '#000')
+  pathElement.setAttribute('opacity', options.isPreview ? TEMP_OPACITY : '1')
+  applyStrokeStyle(pathElement, options)
+  applyMarker(pathElement, options.ending)
+}
+
+export function validatePath(data) {
+  return data && 
+    data.type === 'path' &&
+    Array.isArray(data.points) &&
+    data.points.every(p => typeof p.x === 'number' && typeof p.y === 'number') &&
+    typeof data.style === 'string' &&
+    typeof data.color === 'string' &&
+    typeof data.ending === 'string'
+}
+
+// Builds the "d" attribute for a path given its array of points and type
+function buildStraightPath(points) {
+  if (points.length === 0) return ""
+  return points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ")
+}
+
 // Build cubic or quadratic curve depending on number of points
-export function buildSmoothCurveD(points) {
+function buildCurvedPath(points) {
   if (points.length < 2) return ""
 
   if (points.length === 2) {
@@ -40,113 +150,4 @@ export function buildSmoothCurveD(points) {
     }    
     return d
   }
-}
-
-// Extract points (as array of { x, y }) from a "d" attribute
-export function getPointsFromPath(pathElement) {
-  const d = pathElement.getAttribute("d")
-  const segments = d.match(/[MLCQ][^MLCQ]+/g) || []
-  return segments.map(seg => {
-    const nums = seg.match(/[-\d.]+/g).map(Number)
-    return { x: nums.at(-2), y: nums.at(-1) }
-  })
-}
-
-// Creates a new path applying the correct style
-export function createPath(points, options = {}) {
-  const {
-    curved = false,
-    ending = "arrow",
-    strokeStyle = "solid",
-    strokeWidth = 2,
-    strokeColor = "black"
-  } = options
-
-  const path = createSvgElement("path")
-  path.setAttribute("d", buildPathD(points, { curved }))
-  applyStrokeStyle(path, { strokeStyle, strokeWidth, strokeColor })
-
-  path.dataset.points = JSON.stringify(points)
-  return path
-}
-
-// update an existing SVG path, with new "d" & styling
-export function updatePath(pathElement, points, options = {}, append = false) {
-  const currentPoints = JSON.parse(pathElement.dataset.points || "[]")
-  const newPoints = append ? [...currentPoints, ...points] : points
-
-  pathElement.setAttribute("d", buildPathD(newPoints, { curved: options.curved }))
-  applyStrokeStyle(pathElement, { ...options })
-
-  pathElement.dataset.points = JSON.stringify(newPoints)
-  pathElement.dataset.curved = options.curved ? "true" : "false"
-
-  return pathElement
-}
-
-export function prepareTempPath(points = [], options = {} ) {
-  const group = createGroup(points[0]?.x || 0, points[0]?.y || 0) // creates <g draggable>
-  group.dataset.type = "path"
-  group.dataset.curved = curved
-  group.dataset.stroke = stroke
-  group.dataset.ending = ending
-  group.classList.add(
-    "line-preview",
-    "opacity-50",
-    "stroke-gray-400",
-    "stroke-dashed",
-    "stroke-2",
-    "pointer-events-none"
-  )
-
-  const path = createSvgElement("path")
-  path.classList.add("preview-path")
-  group.appendChild(path)
-
-  const tempGroup = group
-  const tempPath = path
-
-  updatePath(group, points)
-  return group
-}
-
-function extractTermination(pathElement) {
-  const marker = pathElement.getAttribute("marker-end")
-  if (!marker) return "none"
-  if (marker.includes("arrowhead")) return "arrow"
-  if (marker.includes("terminator-T")) return "T"
-  return "none"
-}
-
-// SERIALIZE data from a path to save as JSON
-export function serializePath(pathElement) {
-  const points = JSON.parse(pathElement.dataset.points || "[]")
-  const curved = pathElement.dataset.curved === "true"
-
-  return {
-    type: "path",
-    points,
-    curved,
-    strokeStyle: pathElement.dataset.strokeStyle || "solid",
-    strokeWidth: parseFloat(pathElement.getAttribute("stroke-width")) || 2,
-    strokeColor: pathElement.getAttribute("stroke") || "black",
-    termination: extractTermination(pathElement),
-  }
-}
-
-export function deserializePath(data) {
-  const path = createSvgElement("path")
-  path.dataset.points = JSON.stringify(data.points)
-  path.dataset.curved = data.curved ? "true" : "false"
-  path.dataset.strokeStyle = data.strokeStyle
-
-  path.setAttribute("d", buildPathD(data.points, { curved: data.curved }))
-  applyStrokeStyle(path, {
-    strokeStyle: data.strokeStyle,
-    strokeWidth: data.strokeWidth,
-    strokeColor: data.strokeColor,
-    termination: data.termination
-  })
-
-  return path
 }

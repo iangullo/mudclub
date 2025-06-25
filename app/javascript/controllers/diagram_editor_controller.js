@@ -1,10 +1,12 @@
 // app/stimulus/controllers/diagram_editor_controller.js
 // Attempt at a responsive and dynamic diagram editor.
 import { Controller } from "@hotwired/stimulus"
-import { getPointFromEvent, getInnerElement, setLogicalTransform, setVisualTransform } from "helpers/svg_utils"
-import { SYMBOL_SIZE, addSymbolToSVG, getObjectNumber, updateSymbol, serializeSymbol } from "helpers/svg_symbols"
-import { createPath, updatePath, prepareTempPath, serializePath } from "helpers/svg_paths"
-import { loadDiagram, zoomToFit } from "helpers/svg_loader"
+import { parseDiagramContent, findLowestAvailableNumber, zoomToFit } from "helpers/svg_loader"
+import { createPath, updatePath } from "helpers/svg_paths"
+import { serializeDiagram } from "helpers/svg_serializer"
+import { SYMBOL_SIZE, createSymbol, getObjectNumber } from "helpers/svg_symbols"
+import { getPointFromEvent, getInnerElement, setVisualTransform } from "helpers/svg_utils"
+
 const DEBUG = true
 
 export default class extends Controller {
@@ -13,7 +15,7 @@ export default class extends Controller {
   // --- [1] editor startup functions ---
   connect() {
     this.initialize()
-    loadDiagram(this.diagramTarget, this.courtTarget, this.svgdataTarget || [])
+
     // Initialize drawing state
     this.drawing = false
     this.drawPoints = []
@@ -39,6 +41,7 @@ export default class extends Controller {
     this.handleResize = () => {
       this.scale = zoomToFit(this.diagramTarget, this.courtTarget)
     }
+    
     // Add listeners
     this.diagramTarget.addEventListener('click', this.onClick)
     this.diagramTarget.addEventListener('dblclick', this.onDblClick)
@@ -66,8 +69,9 @@ export default class extends Controller {
 
   initialize() {
     this.mode = 'idle'
-    this.attackerNumbers = new Set()
-    this.defenderNumbers = new Set()
+    const { attackers, defenders } = parseDiagramContent(this.diagramTarget)
+    this.attackerNumbers = attackers
+    this.defenderNumbers = defenders
     this.courtBox = this.courtTarget.getBBox()  // <- returns {x, y, width, height}
     DEBUG && console.log("Court viewBox:", this.courtBox)
   }
@@ -80,14 +84,6 @@ export default class extends Controller {
   addDefender(event) { this.addObject(event, "defender", this.defenderNumbers) }
 
   addObject(event, kind, set = null) {
-    const number = set ? this.findLowestFreeNumber(set) : null
-    if (number) set.add(number)
-
-    // Proceed to add the object with necessary attributes
-    return this.createSvgObject({ event, kind, label: number })
-  }
-
-  createSvgObject({ event, kind, label = null }) {
     const button = event.currentTarget
     const svg = button.querySelector("svg[data-symbol-id]")
     const symbolId = svg?.dataset.symbolId
@@ -95,26 +91,12 @@ export default class extends Controller {
       DEBUG && console.warn("button has not symbolId: ", button)
       return
     }
-    DEBUG && console.log("creating new: ", symbolId)
+    
+    const number = set ? findLowestAvailableNumber(set) : null
+    if (number) set.add(number)
 
-    const { width, height } = this.currentViewBox()
-    const x0 = width * 0.2
-    const y0 = height * 0.3
-    const canvasHeight = this.diagramTarget.viewBox.baseVal.height
-    const desiredLogicalSize = canvasHeight * 0.07 // 7% of canvas height
-
-    // Since symbol original is ~33.87, this is the final rendered size:
-    const objectScale = desiredLogicalSize / 33.87
-
-    return addSymbolToSVG(this.diagramTarget, symbolId, {label: label, kind: kind, scale: objectScale, x: x0, y: y0})
-  }
-
-  findLowestFreeNumber(set) {
-    let i = 1
-    while (set.has(i)) {
-      i++
-    }
-    return i
+    // Proceed to add the object with necessary attributes
+    return createSymbol(this.diagramTarget, symbolId, kind, number)
   }
 
   // --- [4] Line drawing functions ---
@@ -134,7 +116,7 @@ export default class extends Controller {
 
     // prepare metadata
     this.curve  = button.dataset.curve || true
-    this.stroke = button.dataset.stroke || "solid"
+    this.style  = button.dataset.style || "solid"
     this.ending = button.dataset.ending || "arrow"  // default arrowhead endings
 
     // Initialize empty preview group for visual feedback
@@ -153,7 +135,7 @@ export default class extends Controller {
 
     // Set existing points and styling on the preview path
     this.curve  = group.dataset.curve
-    this.stroke = group.dataset.stroke
+    this.style  = group.dataset.style
     this.ending = group.dataset.ending
     this.tempPath = prepareTempPath(this.points, group.dataset)  // setup  the temporary editable group
     group.remove()  // Remove the original group from canvas (store it temporarily)
@@ -191,7 +173,7 @@ export default class extends Controller {
     if (this.points.length < 2) return this.stopDrawing()
 
     if (this.tempGroup) {
-      const newLine = createPath(this.points, {curve: this.curve, stroke: this.stroke, ending: this.ending})
+      const newLine = createPath(this.points, {curve: this.curve, style: this.style, ending: this.ending})
       this.diagramTarget.appendChild(newLine)
 
       this.tempGroup = null
@@ -239,14 +221,14 @@ export default class extends Controller {
     const kind = inner.getAttribute('kind') || inner.dataset.kind
     DEBUG && console.warn("inner object:", inner)
 
-    const number = getObjectNumber(inner)
-    DEBUG && console.warn("kind: ", kind, "number:", number)
-    if (kind === "attacker") {
-      this.attackerNumbers.delete(number)
-      DEBUG && console.log("attackerNumbers: ", this.attackerNumbers)
-    } else if (kind === "defender") {
-      this.defenderNumbers.delete(number)
-      DEBUG && console.log("defenderNumbers: ", this.attackerNumbers)
+    if ((kind === "attacker") || (kind === "defender")) {
+      const number = getObjectNumber(inner)
+      if (number) {
+        DEBUG && console.log(`Removing ${kind} number ${number}`)
+        kind === 'attacker' 
+          ? this.attackerNumbers.delete(number)
+          : this.defenderNumbers.delete(number)
+      }
     }
 
     wrapper.classList.add('opacity-0', 'transition-opacity', 'duration-300')
@@ -258,15 +240,21 @@ export default class extends Controller {
   }
 
   handleSelection(evt) {
-    const wrapper = evt.target.closest('g.draggable-wrapper')
+    const wrapper = evt.target.closest('g.wrapper')
     this.clearSelection() // Deselect previous element, if any
+
     if (wrapper) {  // Select the new group and highlight it
       this.selectedElement = wrapper
       this.highlightElement(wrapper)
       this.deleteButtonTarget.disabled = false
+
       if (DEBUG) {
-        console.log("Selected wrapper: ", wrapper)
-        console.log("Selected inner symbol/path: ", getInnerElement(wrapper))
+        const inner = getInnerElement(wrapper)
+        console.log("Selected:", {
+          wrapper: wrapper.id,
+          kind: inner?.dataset.kind,
+          number: inner ? getObjectNumber(inner) : null
+        })
       }
     }
   }
@@ -458,7 +446,7 @@ export default class extends Controller {
 
   // Dragging
   dragStart(evt) {
-    const wrapper = evt.target.closest('g.draggable-wrapper')
+    const wrapper = evt.target.closest('g.wrapper')
     if (!wrapper) return
     this.draggedWrapper = wrapper
 
@@ -468,6 +456,7 @@ export default class extends Controller {
 
     DEBUG && console.log("dragStart: ", wrapper.getAttribute("id"), "inner: ", inner.getAttribute("id"))
     DEBUG && console.log("coordinates: [", inner.getAttribute("y"), ", ", inner.getAttribute("y"), "]")
+    document.body.style.cursor = 'grabbing'
     evt.preventDefault()
   }
 
@@ -497,6 +486,7 @@ export default class extends Controller {
   }
 
   dragEnd() {
+    document.body.style.cursor = ''
     if (this.draggedWrapper && this.draggedInner) {
       const x = this.draggedInner.dataset.x
       const y = this.draggedInner.dataset.y
@@ -508,5 +498,8 @@ export default class extends Controller {
 
   // --- [END] SERIALIZE CONTENT ---/
   serialize() {
+    const data = serializeDiagram(this.diagramTarget)
+    this.svgdataTarget.value = JSON.stringify(data)
+    DEBUG && console.log("Serialized data:", data)
   }
 }

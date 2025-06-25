@@ -86,52 +86,52 @@ class Step < ApplicationRecord
 				return
 			end
 
-			validate_svg_objects(svgdata["objects"] || svgdata[:objects])
-			validate_svg_paths(svgdata["paths"] || svgdata[:paths])
+			validate_symbols(svgdata["symbols"] || svgdata[:symbols])
+			validate_paths(svgdata["paths"] || svgdata[:paths])
 		end
 
-		def validate_objects(objects)
-			unless objects.is_a?(Array)
-				errors.add(:svgdata, "'objects' must be an array")
+		def validate_symbols(symbols)
+			unless symbols.is_a?(Array)
+				errors.add(:svgdata, "'symbols' must be an array")
 				return
 			end
 
-			objects.each_with_index do |obj, index|
-				unless obj.is_a?(Hash)
-					errors.add(:svgdata, "object #{index} must be a hash")
+			symbols.each_with_index do |sym, index|
+				unless sym.is_a?(Hash)
+					errors.add(:svgdata, "symbol #{index} must be a hash")
 					next
 				end
 
-				id         = obj["id"]
-				symbol_id  = obj["symbol_id"]
-				position   = obj["position"]
-				transform  = obj["transform"]
-				label      = obj["label"]
-				fill       = obj["fill"]
-				stroke     = obj["stroke"]
-				text_color = obj["textColor"]
+				id         = sym["id"]
+				symbol_id  = sym["symbol_id"]
+				position   = [sym["x"], sym["y"]]
+				transform  = sym["transform"]
+				label      = sym["label"]
+				fill       = sym["fill"]
+				stroke     = sym["stroke"]
+				text_color = sym["textColor"]
 
-				errors.add(:svgdata, "object #{index} must have a 'symbol_id'") unless symbol_id.is_a?(String)
-				errors.add(:svgdata, "object #{index} must have a 'position' as [x, y]") unless valid_xy?(position)
+				errors.add(:svgdata, "symbol #{index} must have a 'symbol_id'") unless symbol_id.is_a?(String)
+				errors.add(:svgdata, "symbol #{index} must have a 'position' as [x, y]") unless valid_xy?(position)
 
 				unless valid_svg_transform?(transform)
-					errors.add(:svgdata, "object #{index} 'transform' must be a valid SVG transform string if present")
+					errors.add(:svgdata, "symbol #{index} 'transform' must be a valid SVG transform string if present")
 				end
 
 				if label && !label.is_a?(String)
-					errors.add(:svgdata, "object #{index} 'label' must be a string if present")
+					errors.add(:svgdata, "symbol #{index} 'label' must be a string if present")
 				end
 
 				if fill && !fill.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
-					errors.add(:svgdata, "object #{index} 'fill' must be a valid hex color")
+					errors.add(:svgdata, "symbol #{index} 'fill' must be a valid hex color")
 				end
 
 				if stroke && !stroke.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
-					errors.add(:svgdata, "object #{index} 'stroke' must be a valid hex color")
+					errors.add(:svgdata, "symbol #{index} 'stroke' must be a valid hex color")
 				end
 
 				if text_color && !text_color.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
-					errors.add(:svgdata, "object #{index} 'textColor' must be a valid hex color")
+					errors.add(:svgdata, "symbol #{index} 'textColor' must be a valid hex color")
 				end
 			end
 		end
@@ -143,7 +143,7 @@ class Step < ApplicationRecord
 				return
 			end
 
-			allowed_strokes = %w[solid dashed wavy double]
+			allowed_styles = %w[solid dashed wavy double]
 			allowed_endings = %w[arrow T]
 
 			paths.each_with_index do |path, index|
@@ -152,35 +152,36 @@ class Step < ApplicationRecord
 					next
 				end
 
-				points = path["points"]
-				curved = path["curved"]
-				stroke = path["stroke"]
+				curve  = path["curve"]
 				ending = path["ending"]
-				color  = path["color"]
+				points = path["points"]
+				stroke = path["stroke"]
+				style  = path["style"]
 
 				unless points.is_a?(Array) && points.all? { |pt| valid_xy?(pt) }
 					errors.add(:svgdata, "path #{index} must include an array of [x, y] points")
 				end
 
-				unless curved.in?([true, false])
-					errors.add(:svgdata, "path #{index} must have 'curved' set to true or false")
+				unless curve.in?([true, false])
+					errors.add(:svgdata, "path #{index} must have 'curve' set to true or false")
 				end
 
-				unless stroke.is_a?(String) && allowed_strokes.include?(stroke)
-					errors.add(:svgdata, "path #{index} 'stroke' must be one of: #{allowed_strokes.join(', ')}")
+				unless style.is_a?(String) && allowed_styles.include?(stroke)
+					errors.add(:svgdata, "path #{index} 'style' must be one of: #{allowed_styles.join(', ')}")
 				end
 
 				if ending && !ending.in?(allowed_endings)
 					errors.add(:svgdata, "path #{index} 'ending' must be one of: #{allowed_endings.join(', ')} or omitted")
 				end
 
-				if color && !color.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
-					errors.add(:svgdata, "path #{index} 'color' must be a valid hex color")
+				if stroke && !stroke.match?(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+					errors.add(:svgdata, "path #{index} 'stroke' must be a valid hex color")
 				end
 			end
 		end
 
 		def valid_svg_transform?(transform)
+			return true if transform == nil
 			return nil unless transform&.is_a?(String)
 			transform_regex = /
 				\A

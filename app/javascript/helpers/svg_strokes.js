@@ -1,120 +1,110 @@
-// ✅ app/javascript/controllers/helpers/svg_strokes.js
-import { distance, angleBetweenPoints } from "helpers/svg_utils"
+// app/javascript/helpers/svg_strokes.js
+import { angleBetweenPoints, distance } from "helpers/svg_utils"
+const DASH_PATTERN = '12,8'
+export const PATH_WIDTH = 8
+const WAVE_FREQUENCY = 6
 
-// 🔧 Extracts SVG command segments from a path string
-function parsePathData(d) {
-  return d.match(/[MLCQ][^MLCQ]+/g) || []
+export function applyStrokeStyle(pathElement, options) {
+  // Clear previous styling
+  pathElement.removeAttribute('stroke-dasharray')
+  const originalD = pathElement.getAttribute('d') || ''
+  
+  // Store original path data if not already stored
+  if (!pathElement.dataset.originalD) {
+    pathElement.dataset.originalD = originalD
+  }
+
+  switch (options.style) {
+    case 'dashed':
+      pathElement.setAttribute('stroke-dasharray', DASH_PATTERN)
+      pathElement.setAttribute('d', pathElement.dataset.originalD)
+      break
+
+    case 'double':
+      pathElement.setAttribute('d', createDoublePath(pathElement.dataset.originalD, PATH_WIDTH * 1.2))
+      break
+
+    case 'wavy':
+      pathElement.setAttribute('d', createWavyPath(pathElement.dataset.originalD, PATH_WIDTH * 1.8, WAVE_FREQUENCY))
+      break
+
+    default:  // solid
+      pathElement.setAttribute('d', pathElement.dataset.originalD)
+      break
+  }
 }
 
-// 🔧 Extracts point coordinates from a command segment
-function extractPoint(segment) {
-  const nums = segment.match(/[-\d.]+/g).map(Number)
-  return { x: nums[0], y: nums[1] }
-}
+function createDoublePath(d, spacing) {
+  const commands = d.match(/[A-Z][^A-Z]*/gi) || []
+  const path1 = []
+  const path2 = []
 
-// ✅ Creates a parallel offset path (basic approximation)
-function applyDoubleStroke(d, options = {}) {
-  const offset = options.offset || 4
-  const segments = parsePathData(d)
-  const result = []
+  commands.forEach(cmd => {
+    const type = cmd[0]
+    const coords = cmd.slice(1).trim().split(/[\s,]+/).map(Number)
+    const newCoords1 = []
+    const newCoords2 = []
 
-  segments.forEach(seg => {
-    const { x, y } = extractPoint(seg)
-    result.push(`${seg[0]} ${x + offset} ${y + offset}`)
+    for (let i = 0; i < coords.length; i += 2) {
+      const x = coords[i]
+      const y = coords[i+1]
+
+      if (i > 0) {
+        const px = coords[i-2]
+        const py = coords[i-1]
+        const angle = angleBetweenPoints(px, py, x, y)
+        const offsetX = Math.cos(angle + Math.PI/2) * spacing/2
+        const offsetY = Math.sin(angle + Math.PI/2) * spacing/2
+
+        newCoords1.push(x + offsetX, y + offsetY)
+        newCoords2.push(x - offsetX, y - offsetY)
+      } else {
+        newCoords1.push(x + spacing/2, y + spacing/2)
+        newCoords2.push(x - spacing/2, y - spacing/2)
+      }
+    }
+
+    path1.push(`${type}${newCoords1.join(' ')}`)
+    path2.push(`${type}${newCoords2.join(' ')}`)
   })
 
-  return result.join(" ")
+  return `${path1.join(' ')} ${path2.reverse().join(' ')} Z`
 }
 
-// ✅ Applies a sinusoidal stroke with flat start and end
-function applyWavyStroke(d, amplitude = 4, step = 10, flatLength = 8) {
-  const segments = parsePathData(d)
-  const points = segments.map(extractPoint)
-  if (points.length < 2) return d
+function createWavyPath(d, amplitude) {
+  const commands = d.match(/[A-Z][^A-Z]*/gi) || []
+  const wavePoints = []
 
-  const waveD = []
+  commands.forEach(cmd => {
+    const type = cmd[0]
+    const coords = cmd.slice(1).trim().split(/[\s,]+/).map(Number)
 
-  for (let i = 0; i < points.length - 1; i++) {
-    const p1 = points[i]
-    const p2 = points[i + 1]
-    const dx = p2.x - p1.x
-    const dy = p2.y - p1.y
-    const dist = distance(p1.x, p1.y, p2.x, p2.y)
-    const angle = angleBetweenPoints(p1.x, p1.y, p2.x, p2.y)
+    for (let i = 0; i < coords.length; i += 2) {
+      const x = coords[i]
+      const y = coords[i+1]
 
-    for (let j = 0; j < dist; j += step) {
-      const t = j / dist
-      const baseX = p1.x + dx * t
-      const baseY = p1.y + dy * t
+      if (i > 0) {
+        const px = coords[i-2]
+        const py = coords[i-1]
+        const dist = distance(px, py, x, y)
+        const angle = angleBetweenPoints(px, py, x, y)
+        const steps = Math.max(3, Math.floor(dist / 10))
 
-      // Use sinusoidal offset except near the start/end
-      let offset = 0
-      if (j > flatLength && j < dist - flatLength) {
-        offset = amplitude * Math.sin(t * Math.PI * 2)
+        for (let s = 1; s <= steps; s++) {
+          const t = s / steps
+          const bx = px + (x - px) * t
+          const by = py + (y - py) * t
+          const offset = amplitude * Math.sin(t * Math.PI * 4) // 4 waves per segment
+          const wx = bx + offset * Math.cos(angle + Math.PI/2)
+          const wy = by + offset * Math.sin(angle + Math.PI/2)
+
+          wavePoints.push(`${s === 1 && i === 2 ? 'M' : 'L'} ${wx} ${wy}`)
+        }
+      } else {
+        wavePoints.push(`${type} ${x} ${y}`)
       }
-
-      const normalAngle = angle + Math.PI / 2
-      const x = baseX + offset * Math.cos(normalAngle)
-      const y = baseY + offset * Math.sin(normalAngle)
-
-      waveD.push(`${j === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`)
     }
-  }
+  })
 
-  return waveD.join(" ")
-}
-
-// ✅ Appends a marker (e.g. arrowhead or T) to a path
-function applyTermination(path, type = "arrow") {
-  switch (type) {
-    case "arrow":
-      path.setAttribute("marker-end", "url(#arrowhead)")
-      break
-    case "T":
-      path.setAttribute("marker-end", "url(#terminator-T)")
-      break
-    case "none":
-    default:
-      path.removeAttribute("marker-end")
-      break
-  }
-}
-
-// ✅ Applies a visual style to a given SVG path element
-export function applyStrokeStyle(path, options = {}) {
-  const {
-    strokeStyle = "solid",
-    strokeWidth = 2,
-    strokeColor = "black",
-    termination = "arrow"
-  } = options
-
-  path.setAttribute("stroke", strokeColor)
-  path.setAttribute("fill", "none")
-  path.setAttribute("stroke-width", strokeWidth)
-
-  const originalD = path.getAttribute("d")
-
-  switch (strokeStyle) {
-    case "dashed":
-      path.setAttribute("stroke-dasharray", "4 2")
-      break
-
-    case "double":
-      path.setAttribute("d", applyDoubleStroke(originalD, {
-        offset: strokeWidth * 1.5
-      }))
-      break
-
-    case "wavy":
-      path.setAttribute("d", applyWavyStroke(originalD, strokeWidth * 1.5))
-      break
-
-    case "solid":
-    default:
-      // No path alteration
-      break
-  }
-
-  applyTermination(path, termination)
+  return wavePoints.join(' ')
 }

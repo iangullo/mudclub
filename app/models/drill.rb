@@ -47,14 +47,14 @@ class Drill < ApplicationRecord
 	self.inheritance_column = "not_sti"
 	validates :name, presence: true
 
-	# wrapper to return image symbol to self court_mode
-	def court_symbol
-		self.sport.symbol(self.court_mode, type: :court)
-	end
-
 	# human name of a specific :court
 	def court_name
 		self.sport.court_name(self.court_mode)
+	end	# wrapper to return image symbol to self court_mode
+	
+	# wrapper to return image symbol to self court_mode
+	def court_symbol
+		self.sport.symbol(self.court_mode, type: :court)
 	end
 
 	# check if drill (or associations) has changed

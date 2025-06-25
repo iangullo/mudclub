@@ -181,15 +181,18 @@ class DrillsController < ApplicationController
 	# PATCH /drills/1/update_diagram?step_id=X
 	# Recibe el SVG serializado y actualiza el paso
 	def update_diagram
-		raw_data    = params.dig(:drill, :svgdata)&.strip
-		parsed_data = raw_data.present? ? JSON.parse(raw_data) : nil
-		if @step&.update(svgdata: parsed_data)
-			respond_to do |format|
-				format.turbo_stream
-				format.html { redirect_to edit_drill_path(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
+		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
+			raw_data    = drill_params[:svgdata]&.strip
+			parsed_data = raw_data.present? ? JSON.parse(raw_data) : nil
+			if parsed_data && @step&.update(svgdata: parsed_data)
+				respond_to do |format|
+					format.html { redirect_to edit_drill_path(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
+				end
+			else
+				redirect_to edit_diagram_drill_path(id: params[:id], notice: helpers.flash_message(I18n.t("status.no_data")), data: {turbo_action: "replace"}), status: :unprocessable_entity
 			end
 		else
-			redirect_to edit_diagram_drill_path(id: params[:id]), status: :unprocessable_entity
+			redirect_to "/", data: {turbo_action: "replace"}
 		end
 	end
 

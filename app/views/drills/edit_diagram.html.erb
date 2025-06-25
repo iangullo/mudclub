@@ -7,7 +7,8 @@
 			authenticity_token: true,
 			url: update_diagram_drill_path(@drill, step_id: @step.id),
 			method: :patch,
-			local: true do |form| %>
+			local: true,
+			data: {controller: "diagram-editor", diagram_target: "form", action: "submit->diagram-editor#serialize"} do |form| %>
 		<% @editor.form = form %>
 		<%= render @editor %>
 	</div>
