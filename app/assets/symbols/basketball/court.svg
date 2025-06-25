@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
 	<symbol id="full.default" viewBox="0 0 3004 1704">
-		<g fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="4" style="stroke-linecap:round;stroke-linejoin:round">
-			<rect id="wrapper" x="0" y="0" width="3004" height="1704" fill="var(--symbol-fill, #ffffff)" stroke="none"/>
+		<g fill="none" stroke="#000000" stroke-width="4" style="stroke-linecap:round;stroke-linejoin:round">
+			<rect id="wrapper" x="0" y="0" width="3004" height="1704" fill="#ffffff" stroke="none"/>
 			<rect id="court" x="100" y="100" width="2804" height="1504"/>
 			<path id="half-court-line" d="M1502 103v1498" />
 			<circle id="center" cx="1502" cy="852" r="178"/>
@@ -23,8 +23,8 @@
 		<use href="#full.default" transform="rotate(90, 1502, 802)" />
 	</symbol>
 	<symbol id="half.default" viewBox="0 0 1708 1608">
-		<g fill="none" stroke="var(--symbol-stroke, #000000)" stroke-width="4" style="stroke-linecap:round;stroke-linejoin:round">
-			<rect id="wrapper" x="0" y="0" width="1708" height="1608" fill="var(--symbol-fill, #ffffff)" stroke="none"/>
+		<g fill="none" stroke="#000000" stroke-width="4" style="stroke-linecap:round;stroke-linejoin:round">
+			<rect id="wrapper" x="0" y="0" width="1708" height="1608" fill="#ffffff" stroke="none"/>
 			<rect id="court" x="102" y="102" width="1504" height="1404" stroke-width="4" />
 			<rect id="zone" x="611" y="926" fill="#f2f2f2" width="486" height="580" />
 			<path id="freethrow-bulb" d="M 1032,926 C 1032,840.31819 963.09311,750 854,750 744.90689,750 677.60331,838.53033 676,926" />

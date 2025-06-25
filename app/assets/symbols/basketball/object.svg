@@ -1,19 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
 	<symbol id="player.default" viewBox="0 0 33.87 33.87">
-		<g>
-			<circle cx="16.94" cy="14.5" r="6.5" style="fill:currentColor;stroke:none;stroke-width:2" />
+		<g fill="#000000" stroke="#000000">
+			<circle cx="16.94" cy="14.5" r="6.5" stroke-width="2" />
 			<path
 				d="M4.2333333,21.166667 C4.2333333,11.468202 29.371396,11.26182 29.633334,21.166667"
-				style="fill:none;stroke:currentColor;stroke-width:4.23333;stroke-linecap:round;stroke-linejoin:round" />
-			<text x="-8" y="31" style="font-weight:bold; font-size:12px; font-family:Arial, sans-serif; fill:currentColor; stroke:currentColor; stroke-width:1;">
+				style="stroke-width:4;stroke-linecap:round;stroke-linejoin:round" />
+			<text x="-8" y="31" style="font-weight:bold; font-size:12px; font-family:Arial, sans-serif; stroke-width:1;">
 				<tspan id="label">X</tspan>
 			</text>
 		</g>
 	</symbol>
 	<symbol id="attacker.default" viewBox="0 0 33.87 33.87">
-		<g fill="var(--symbol-fill, #ffffff)" stroke="currentColor">
+		<g fill="#ffffff" stroke="#000000">
 			<circle cx="16.94" cy="16.94" r="15" stroke-width="2"/>
-			<text	x="16.93"	y="24" text-anchor="middle"	font-size="22" font-family="Arial, sans-serif" font-weight="bold"	fill="currentColor"	stroke="none">
+			<text	x="16.93"	y="24" text-anchor="middle"	font-size="22" font-family="Arial, sans-serif" font-weight="bold"	fill="#000000"	stroke="none">
 				<tspan id="label">?</tspan>
 			</text>
 		</g>
@@ -22,25 +22,25 @@
 		<use href="#player.default" />
 	</symbol>
 	<symbol id="ball.default" viewBox="0 0 33.87 33.87">
-		<g fill="var(--symbol-fill, #000000)" stroke="var(--symbol-stroke, #000000)">
-			<circle cx="16.93" cy="16.93" r="8" stroke-width="2"/>
+		<g>
+			<circle cx="16.93" cy="16.93" r="8" fill="#000000" stroke="#000000" stroke-width="2"/>
 		</g>
 	</symbol>
 	<symbol id="cone.default" viewBox="0 0 33.87 33.87">
-		<g fill="var(--symbol-fill, #8B0000)" stroke="var(--symbol-stroke, #4B0000)">
+		<g fill="#8B0000" stroke="#4B0000">
 			<path d="M15.88 4.37L10.58 26.06 2.65 28.71 3.18 30.03h27.52l0.53-1.32-7.94-2.65-5.29-21.7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 		</g>
 	</symbol>
 	<symbol id="coach.default" viewBox="0 0 33.87 33.87">
-		<g fill="var(--symbol-fill, #000000)" stroke="var(--symbol-fill, #000000)">
-			<circle class="coach-fill" cx="16.94" cy="16.94" r="15" stroke-width="2"/>
-			<text x="16.93" y="24" text-anchor="middle" font-size="22" font-family="Arial, sans-serif" font-weight="bold" fill="var(--symbol-fill, #ffffff)" stroke="none">
-				<tspan x="16.93" y="24">C</tspan>
+		<g fill="#000000" stroke="#000000">
+			<circle cx="16.94" cy="16.94" r="15" stroke-width="2"/>
+			<text x="16.93" y="25" text-anchor="middle" font-size="22" font-family="Arial, sans-serif" font-weight="bold" fill=" #ffffff" stroke="none">
+				<tspan>C</tspan>
 			</text>
 		</g>
 	</symbol>
 	<symbol id="defender.default" viewBox="0 0 33.87 33.87">
-		<g fill="var(--symbol-fill, #000000)" stroke="var(--symbol-fill, #000000)">
+		<g fill="#000000" stroke="#000000">
 			<path
 				d="M 1.5875,1.5875 H 6.35 L 22.225,29.104167 h -4.233334 z"
 				stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

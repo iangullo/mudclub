@@ -16,7 +16,7 @@
 			cy="16.93"
 			rx="14.82"
 			ry="14.82"
-			fill="var(--symbol-fill, #ffffff)"
+			fill="#ffffff"
 			stroke="currentColor"
 			stroke-width="2.12"
 		/>
@@ -37,10 +37,10 @@
 		<use href="#player.default" />
 	</symbol>
 	<symbol id="ball.default" viewBox="0 0 33.87 33.87">
-		<ellipse cx="16.93" cy="16.93" rx="14" ry="14" fill="var(--symbol-fill, #000000)" stroke="var(--symbol-stroke, #000000)" stroke-width="2"/>
+		<ellipse cx="16.93" cy="16.93" rx="14" ry="14" fill="#000000" stroke="#000000" stroke-width="2"/>
 	</symbol>
 	<symbol id="defender.default" viewBox="0 0 33.87 33.87">
-		<g transform="translate(0,0)" fill="var(--symbol-fill, #000000)" stroke="var(--symbol-fill, #000000)">
+		<g transform="translate(0,0)" fill="#000000" stroke="#000000">
 			<path
 				d="M 1.5875,1.5875 H 6.35 L 22.225,29.104167 h -4.233334 z"
 				stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -48,7 +48,7 @@
 				d="M 22.225,1.5875 H 17.991682 L 1.5875,29.104007 6.35,29.103902 Z"
 				stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 		</g>
-		<text x="16.93" y="32.5" text-anchor="middle" font-size="18" font-family="Arial, sans-serif" font-weight="bold" fill="var(--symbol-fill, #000000)" stroke="none">
+		<text x="16.93" y="32.5" text-anchor="middle" font-size="18" font-family="Arial, sans-serif" font-weight="bold" fill="#000000" stroke="none">
 			<tspan id="label">n</tspan>
 		</text>
 	</symbol>
@@ -57,11 +57,11 @@
 	</symbol>
 	<symbol id="cone.default" viewBox="0 0 33.87 33.87">
 		<path d="M15.88 4.37L10.58 26.06 2.65 28.71 3.18 30.03h27.52l0.53-1.32-7.94-2.65-5.29-21.7z"
-			stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="var(--symbol-fill, #8B0000)" stroke="var(--symbol-stroke, #4B0000)" />
+			stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#8B0000" stroke="#4B0000)" />
 	</symbol>
 	<symbol id="coach.default" viewBox="0 0 33.87 33.87">
-		<ellipse class="coach-fill" cx="16.93" cy="16.93" rx="14.82" ry="14.82" fill="var(--symbol-fill, #000000)" stroke="var(--symbol-fill, #000000)" stroke-width="2"/>
-		<text x="16.93" y="24" text-anchor="middle" font-size="21.3" font-family="Arial, sans-serif" font-weight="bold" fill="var(--symbol-fill, #ffffff)" stroke="none">
+		<ellipse class="coach-fill" cx="16.93" cy="16.93" rx="14.82" ry="14.82" fill="#000000" stroke="#000000" stroke-width="2"/>
+		<text x="16.93" y="24" text-anchor="middle" font-size="21.3" font-family="Arial, sans-serif" font-weight="bold" fill="#ffffff" stroke="none">
 			<tspan x="16.93" y="24">C</tspan>
 		</text>
 	</symbol>
