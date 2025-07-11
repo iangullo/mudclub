@@ -1,10 +1,12 @@
-// app/javascript/helpers/svg_strokes.js
+// app/javascript/helpers/svg_styless.js
 import { angleBetweenPoints, distance } from "helpers/svg_utils"
 const DASH_PATTERN = '12,8'
 export const PATH_WIDTH = 8
 const WAVE_FREQUENCY = 6
+const DEBUG = true
 
 export function applyStrokeStyle(pathElement, options) {
+  DEBUG && console.log("applyStrokeStyle ", pathElement, options)
   // Clear previous styling
   pathElement.removeAttribute('stroke-dasharray')
   const originalD = pathElement.getAttribute('d') || ''
@@ -19,15 +21,12 @@ export function applyStrokeStyle(pathElement, options) {
       pathElement.setAttribute('stroke-dasharray', DASH_PATTERN)
       pathElement.setAttribute('d', pathElement.dataset.originalD)
       break
-
     case 'double':
       pathElement.setAttribute('d', createDoublePath(pathElement.dataset.originalD, PATH_WIDTH * 1.2))
       break
-
     case 'wavy':
       pathElement.setAttribute('d', createWavyPath(pathElement.dataset.originalD, PATH_WIDTH * 1.8, WAVE_FREQUENCY))
       break
-
     default:  // solid
       pathElement.setAttribute('d', pathElement.dataset.originalD)
       break
