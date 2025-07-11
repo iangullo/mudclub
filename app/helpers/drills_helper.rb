@@ -188,20 +188,22 @@ module DrillsHelper
 
 	# return FieldComponent definition for drill steps view
 	def drill_show_steps
-		res = [
-			[{kind: :label, value: I18n.t("step.many"), cols: 3}],
+		many  = (@drill&.steps&.count&.to_i > 1)
+		rcols = many ? 3 : 2
+		res   = [
+			[{kind: :label, value: I18n.t("step.#{many ? 'many' : 'explanation'}"), cols: 3}],
 			[{kind: :separator, cols: 3}]
 		] unless @drill.steps.empty?
 		@court = @drill.court_mode
 		split  = false
 		@drill.steps.order(:order).each { |step| split = true if step.has_text? && (step.has_image? || step.has_svg?) }
 		icols  = 2 unless split
-		wsplit = "w-#{split ? '1-3' : 'full'}"
+		wsplit = "w-#{split ? (many ? '1-3' : '1-2') : 'full'}"
 		@drill.steps.order(:order).each do |step|
 			text  = step.has_text?
 			diag  = step.has_image? || step.has_svg?
-			tcols = 2 if text ^ diag
-			item  = [{kind: :label, value: step.order, align: "center"}]
+			tcols = 2 if many && (text ^ diag)
+			item  = many ? [{kind: :label, value: step.order, align: "center"}] : []
 			if diag
 				field = {align: "left", cols: icols, class: "rounded align-top #{wsplit}"}
 				if step.has_image?
