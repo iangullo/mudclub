@@ -1,20 +1,20 @@
 // app/javascript/helpers/svg_loader.js
-import { getSvgScale, isSVGElement } from "helpers/svg_utils"
+import { getSvgScale, isSVGElement, setAttributes } from "helpers/svg_utils"
 import { createSymbol } from "helpers/svg_symbols"
 import { createPath } from "helpers/svg_paths"
 
 const DEBUG = false
 
 // Loads SVG content to view/edit
-export function loadDiagramContent(container, data) {
+export function loadDiagramContent(container, data, isEditor = false) {
   const svgdata = JSON.parse(data) || '{}'
 
-  DEBUG && console.log('loadDiagramContent: ', container, svgdata)
+  DEBUG && console.log('loadDiagramContent: ', container, svgdata, isEditor)
   if (!isSVGElement(container)) return result
 
   // load paths & symbols
   loadPaths(container, svgdata?.paths)
-  return loadSymbols(container, svgdata?.symbols)
+  return loadSymbols(container, svgdata?.symbols, isEditor)
 }
 
 /**
@@ -42,18 +42,36 @@ export function validateDiagram(svgContainer) {
  * Adjusts the SVG viewBox to fit the court background bounding box exactly.
  * This naturally scales all SVG children uniformly.
  */
-export function zoomToFit(svg, img) {
-  if (!svg || !img) {
-    DEBUG && console.error("Invalid image dimensions.")
-    return
+export function zoomToFit(svg, court, isEditor = false) {
+  if (!svg || !court) {
+    DEBUG && console.error("zoomToFit: Invalid SVG or court element")
+    return 1
   }
 
-  // Get available size
-  const availableWidth = window.innerWidth - 20
-  const availableHeight = window.innerHeight - 250
-
-  const viewBox = svg.viewBox.baseVal
+  const viewBox = court.viewBox?.baseVal || court.getBBox()
   const aspectRatio = viewBox.width / viewBox.height
+  let availableWidth = viewBox.width
+  let availableHeight = viewBox.height
+  DEBUG && console.log(`initial limits: ${availableWidth} x ${availableHeight}`)
+  
+  if (isEditor) { // Get max available size
+    availableWidth = window.innerWidth - 20
+    availableHeight = window.innerHeight - 250
+    DEBUG && console.log(`editor limits: ${availableWidth} x ${availableHeight}`)
+
+  } else { // Get the container element (SVG's parent)
+    const container = svg.parentElement
+    if (!container) {
+      DEBUG && console.log("zoomToFit: SVG has no parent container");
+      return 1
+    }
+    DEBUG && console.log(`viewer container: ${container}`)
+    // Get container dimensions minus padding
+    availableWidth = container.clientwidth
+    availableHeight = container.clientHeight
+    DEBUG && console.log("viewer limits: ", availableWidth, " x ", availableHeight)
+  }
+
 
   // Compute dimensions
   let width = availableWidth
@@ -73,19 +91,15 @@ export function zoomToFit(svg, img) {
     console.log(`new container: ${width} x ${height}`)
   }
 
-  svg.setAttribute("width", width)
-  svg.setAttribute("height", height)
-  svg.setAttribute("preserveAspectRatio", "xMidYMid meet")
+  setAttributes(svg, {"width": width, "height": height, "preserveAspectRatio": "xMidYMid meet"})
   return getSvgScale(svg)
 }
 
 // Create symbols from symbol data
-function loadSymbols(svg, symbols) {
-  const height  = svg.getBBox().height
-  const result = {
-    attackers: new Set(),
-    defenders: new Set()
-  }
+function loadSymbols(svg, symbols, isEditor = false) {
+  const height = svg.getBBox().height
+  const result = isEditor ? { attackers: new Set(), defenders: new Set() } : true
+
   symbols.forEach(symbol => {
     DEBUG && console.log('Found symbol definition: ', symbol)
     const symbolGroup = createSymbol(symbol, height)
@@ -97,7 +111,9 @@ function loadSymbols(svg, symbols) {
       }
       
       DEBUG && console.log(`Found ${symbol.kind} with number ${number}`)
-      result[symbol.kind === 'attacker' ? 'attackers' : 'defenders'].add(number)
+      if (isEditor) {
+        result[symbol.kind === 'attacker' ? 'attackers' : 'defenders'].add(number)
+      }
     }
     svg.appendChild(symbolGroup)
   })

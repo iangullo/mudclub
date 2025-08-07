@@ -24,7 +24,7 @@ class DiagramComponent < ApplicationComponent
 	MARKER_DOUBLE  = MARKER_SIZE * 2
 	MARKER_HALF    = MARKER_SIZE / 2
 	SYMBOL_SIZE    = 33.87
-	SHOW_SVG_CLASS = "w-full h-full block overflow-auto"
+	SHOW_SVG_CLASS = "w-full h-auto border"
 	EDIT_SVG_CLASS = "w-full h-full border"
 	EDITOR_BUTTONS = [
 		{ action: 'addAttacker', object: 'attacker', options: {label: "?"} },
@@ -80,7 +80,9 @@ class DiagramComponent < ApplicationComponent
 				]
 			)
 		else
-			safe_join([svg_tag, hidden_field_for_svgdata])
+			content_tag(:div, class: @css, data: {controller: "diagram-renderer", diagram_renderer_svgdata_value: @svgdata}) do
+				svg_tag.html_safe
+			end
 		end
 	end
 
@@ -137,7 +139,7 @@ class DiagramComponent < ApplicationComponent
 		def render_court
 			symbol    =  @court[:name]
 			namespace =  @court[:sport]
-			data      = editor? ? {diagram_editor_target: "court"} : {diagram_viewer_target: "court"}
+			data      = editor? ? {diagram_editor_target: "court"} : {diagram_renderer_target: "court"}
 			court     = SymbolComponent.new(symbol, namespace:, type: :court, css: @css, group: true, data:)
 			@viewbox  = court.view_box
 			render court
@@ -173,7 +175,7 @@ class DiagramComponent < ApplicationComponent
 			if editor?
 				{ diagram_editor_target: "diagram" }
 			else
-				{ diagram_svgdata_value: @svgdata }
+				{ diagram_renderer_target: "diagram" }
 			end
 		end
 end

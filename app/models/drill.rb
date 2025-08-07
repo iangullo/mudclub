@@ -256,6 +256,11 @@ class Drill < ApplicationRecord
 					self.steps << st unless self.steps.include?(st)
 				end
 			}
+			i = 1
+			self.steps.order(:order).each do |step|	# ensure correct ordering
+				step.update! order: i
+				i += 1
+			end
 		end
 
 		# checks targets_attributes array received and manages adding/removing

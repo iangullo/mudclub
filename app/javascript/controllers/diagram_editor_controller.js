@@ -1,4 +1,5 @@
 // app/stimulus/controllers/diagram_editor_controller.js
+// Developed with significant help from DeepSeek
 // Attempt at a responsive and dynamic diagram editor.
 import { Controller } from "@hotwired/stimulus"
 import { loadDiagramContent, findLowestAvailableNumber, zoomToFit } from "helpers/svg_loader"
@@ -19,13 +20,13 @@ export default class extends Controller {
     this.setupEventListeners()
     this.resetDrawingState()
     requestAnimationFrame(() => {
-      this.scale = zoomToFit(this.diagramTarget, this.courtTarget)
+      this.scale = zoomToFit(this.diagramTarget, this.courtTarget, true)
     })
   }
   
   initialize() {
     this.mode = 'idle'   // 'idle', 'drawing', 'editing'
-    const { attackers, defenders } = loadDiagramContent(this.diagramTarget, this.svgdataTarget.value)
+    const { attackers, defenders } = loadDiagramContent(this.diagramTarget, this.svgdataTarget.value, true)
     this.attackerNumbers = attackers
     this.defenderNumbers = defenders
     this.selectedElement = null
@@ -35,7 +36,7 @@ export default class extends Controller {
 
   setupEventListeners() {
     this.handleResize = () => {
-      this.scale = zoomToFit(this.diagramTarget, this.courtTarget)
+      this.scale = zoomToFit(this.diagramTarget, this.courtTarget, true)
     }
 
     this.onClick = this.onClick.bind(this)

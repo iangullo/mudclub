@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -214,7 +214,7 @@ module DrillsHelper
 					field[:kind]    = :diagram
 					field[:court]   = @court
 					field[:svgdata] = step.svgdata
-					field[:css] = "w-full m-1"
+					field[:css] = "m-1"
 				end
 				item << field
 			end
