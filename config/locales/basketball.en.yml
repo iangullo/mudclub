@@ -65,8 +65,8 @@ en:
         dribble: "Dribble"
         move: "Move"
         pass: "Pass"
-        pick: "Pick"
-        hand_off: "Hand-off"
+        pick: "Pick/Screen"
+        handoff: "Hand-off"
         shot: "Shot"
       outings:
         first: "First"

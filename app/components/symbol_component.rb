@@ -61,6 +61,10 @@ class SymbolComponent < ApplicationComponent
 		content_tag(tag_name, safe_join(content), svg_attrs)
 	end
 
+	def full_id
+		"#{@namespace}.#{@type}.#{@concept}.#{@variant}"
+	end
+
 	# accessor to read the symbol_viewbox in "standard" SVG format
 	def view_box
 		vb_attrs = @view_box.presence&.split(" ")

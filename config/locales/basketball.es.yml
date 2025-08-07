@@ -65,8 +65,8 @@ es:
         dribble: "Movimiento con balón"
         move: "Movimiento sin balón"
         pass: "Pase"
-        pick: "Bloqueo"
-        hand_off: "Mano a mano"
+        pick: "Bloqueo/Pantalla"
+        handoff: "Mano a mano"
         shot: "Tiro"
       outings:
         first: "Prim."

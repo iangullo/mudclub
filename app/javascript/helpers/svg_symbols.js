@@ -2,26 +2,45 @@
 import {
   generateId,
   getLabel,
-  getViewBox,
   isSVGElement,
   setAttributes,
   setLabel,
-  setLogicalTransform,
+  updatePosition,
   wrapContent
 } from "helpers/svg_utils"
-const DEBUG = true
-const SYMBOL_SCALE = 0.07
 export const SYMBOL_SIZE = 33.87
+const SYMBOL_SCALE = 0.07
+const EPSILON = 0.01
+const DEBUG = false
 
 // put a new symbol on the canvas
-export function createSymbol(svg, symbolId, kind, label, x = null, y = null) {
-  DEBUG && console.log("creating new object {symbolId:", symbolId,", kind: ", kind, ", label: ", label, ", x: ",x, ", y:", y, "}")
-  const { width, height } = getViewBox(svg)
-  DEBUG && console.log("viewbox limits: [", width, " x ", height, "]")
-  const x0 = x || width * 0.2
-  const y0 = y || height * 0.3
+export function createSymbol(symbolData, svgHeight) {
+  DEBUG && console.log("createSymbol: ", symbolData, svgHeight)
+  const opts = validateSymbolData(symbolData)
+  const symbolDef = document.getElementById(opts.symbolId)
+  
+  if (!symbolDef) {
+    DEBUG && console.warn(`Symbol definition not found: ${opts.symbolId}`)
+    return null
+  }
 
-  return addSymbolToSVG(svg, symbolId, {label: label, kind: kind, x: x0, y: y0})
+  DEBUG && console.log("found symbol definition: ", symbolDef)
+
+  const symbolElement = symbolDef.querySelector('g').cloneNode(true)
+  setAttributes(symbolElement, {
+    id: opts.id,
+    draggable: true,
+    fill: opts.fill,
+    kind: opts.kind,
+    stroke: opts.stroke,
+    symbolId: opts.symbolId,
+  })
+
+  if (opts.label) setLabel(symbolElement, opts.label)
+  updateSymbolScale(symbolElement, svgHeight)
+  updatePosition(symbolElement, opts.x, opts.y)
+
+  return wrapContent(symbolElement, "symbol", false)
 }
 
 export function getObjectNumber(element) {
@@ -60,64 +79,62 @@ export function updateSymbol(el, data = {}) {
   return Object.keys(changes).length ? {before, after: serializeSymbol(el)} : null
 }
 
+// only used on symbol creation really
+function updateSymbolScale(symbol, svgHeight) {
+  DEBUG && console.log("applyScale(symbol:", symbol.id, ", svgHeight:", svgHeight, ")")
+  
+  // Get existing transform attribute
+  let transform = symbol.getAttribute("transform") || ""
+  
+  // Idempotency check - we avoid updating if we had similar scale already
+  const scaleMatch = transform.match(/scale\(([^)]+)\)/)
+  const currentScale = scaleMatch ? parseFloat(scaleMatch[1]) : null
+  const objScale = svgHeight * (SYMBOL_SCALE / SYMBOL_SIZE) // normalized scale for symbol
+  if (currentScale !== null && Math.abs(currentScale - objScale) < EPSILON) {
+    DEBUG && console.log("Scale already applied, skipping.")
+    return
+  }
+
+  let updated = false
+  // Replace existing scale if found
+  transform = transform.replace(/scale\([^)]+\)/, () => {
+    updated = true
+    return `scale(${objScale})`
+  })
+
+  // Append scale if none found
+  if (!updated) {
+    transform += ` scale(${objScale})`
+  }
+
+  // Clean up extra spaces
+  transform = transform.trim().replace(/\s+/g, " ")
+
+  symbol.setAttribute("transform", transform)
+  DEBUG && console.log("applied transform:", transform)
+}
+
 export function validateSymbol(data) {
   return data && 
     data.type === 'symbol' &&
+    typeof data.kind === 'string' &&
     typeof data.symbol_id === 'string' &&
     typeof data.x === 'number' && 
     typeof data.y === 'number' &&
     (data.label === undefined || typeof data.label === 'string')
 }
 
-// internal support functions
-function addSymbolToSVG(svg, symbolId, options = {}) {
-  const { x = 0, y = 0 } = options
- 
-  const clone = cloneSymbol(symbolId, options)
-  
-  if (clone) {
-    DEBUG && console.log("appending symbol: ", symbolId)
-    // Calculate proper scale for 7% of viewbox height
-    const viewBoxHeight = svg.viewBox.baseVal.height
-    const desiredHeight = viewBoxHeight * SYMBOL_SCALE
-    const objScale = desiredHeight / SYMBOL_SIZE // Original symbol size
-    // return wrapped content to manage scaling
-    const wrapper = wrapContent(clone, x, y, objScale, "symbol")
-
-    svg.appendChild(wrapper)
-    return wrapper
+// sanitize received options
+function validateSymbolData(options) {
+  return {
+    id: options.id || generateId('sym'),
+    kind: ['attacker', 'ball', 'coach', 'cone', 'defender'].includes(options.kind) ? options.kind : 'atacker',
+    fill: options.fill,
+    label: options.label || null,
+    stroke: options.stroke,
+    symbolId: options.symbol_id,
+    transform: options.transform || null,
+    x: options.x || 20,
+    y: options.y || 20
   }
-  return null
-}
-
-function cloneSymbol(symbolId, options = {}) {
-  DEBUG && console.log("cloneSymbol:", { symbolId, options })
-  
-  const { id = generateId(), label = "", kind = null } = options
-  const templateSVG = document.querySelector(`#diagram-editor-buttons svg[data-symbol-id="${symbolId}"]`)
-  
-  if (!templateSVG) {
-    DEBUG && console.warn(`Symbol template not found for ID: ${symbolId}`)
-    return null
-  }
-
-  const templateGroup = templateSVG.querySelector("g")
-  if (!templateGroup) {
-    DEBUG && console.warn(`No <g> element found in symbol template: ${symbolId}`)
-    return null
-  }
-
-  const clone = templateGroup.cloneNode(true)
-  setAttributes(clone, {
-    id,
-    "data-symbol-id": symbolId,
-    "data-kind": kind,
-    "data-x": options.x || 0,
-    "data-y": options.y || 0
-  })
-
-  if (label) setLabel(clone, label)
-  if (options.transform) setLogicalTransform(clone, options.transform)
-
-  return clone
 }

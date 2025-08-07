@@ -1,9 +1,15 @@
 // ✅ app/javascript/helpers/svg_utils.js
 export const SVG_NS = "http://www.w3.org/2000/svg"
+const EPSILON = 0.01
+const SELECTION_TOLERANCE = 0
 const DEBUG = false 
 
 export function angleBetweenPoints(x1, y1, x2, y2) {
   return Math.atan2(y2 - y1, x2 - x1)
+}
+
+export function averageAngles(a1, a2) {
+  return Math.atan2(Math.sin(a1) + Math.sin(a2), Math.cos(a1) + Math.cos(a2))
 }
 
 export function cssColorToHex(color) {
@@ -65,6 +71,38 @@ export function createSvgElement(tag) {
 
 export function distance(x1, y1, x2, y2) {
   return Math.hypot(x2 - x1, y2 - y1)
+}
+
+export function findElementNearPoint(diagram, point) {
+  // Get all selectable elements
+  const elements = Array.from(diagram.querySelectorAll('g.wrapper'))
+  let closestElement = null
+  let closestDistance = Infinity
+  
+  elements.forEach(el => {
+    let bbox = el.getBBox()
+    let distance = distanceToBBox(point, bbox)
+       
+    if (distance < closestDistance && distance <= SELECTION_TOLERANCE) {
+      closestDistance = distance
+      closestElement = el
+    }
+  })
+
+  return closestElement
+}
+
+// geometry helper method
+export function distanceToBBox(point, bbox) {
+  // Calculate closest point on bbox to the click point
+  const closestX = Math.max(bbox.x, Math.min(point.x, bbox.x + bbox.width))
+  const closestY = Math.max(bbox.y, Math.min(point.y, bbox.y + bbox.height))
+  
+  // Calculate distance to closest point
+  const dx = point.x - closestX
+  const dy = point.y - closestY
+  
+  return Math.sqrt(dx * dx + dy * dy)
 }
 
 export function generateId(prefix = "sym") {
@@ -131,7 +169,6 @@ export function getViewBox(el) {
   return { width: vb.width, height: vb.height }
 }
 
-
 export function isSVGElement(el) {
   return el instanceof SVGElement && el.namespaceURI === SVG_NS
 }
@@ -163,34 +200,48 @@ export function setLogicalTransform(el, transform) {
   else el.removeAttribute("transform")
 }
 
-// transforms for visual wrapper - NOT PERSISTED
-export function setVisualTransform(el, {x = 0, y = 0, scale = 1} = {}) {
-  const transforms = []
-  const oldTransform = el.getAttribute("transform")
-  let oldX = 0, oldY = 0, oldS = 1
-  if (oldTransform) {  // Get old visual transform (if any)
-    const oldTranslate = oldTransform.match(/translate\(([^,]+),\s*([^)]+)\)/)
-    const oldScale = oldTransform.match(/scale\(([^)]+)\)/)
-    oldX = oldTranslate ? parseFloat(oldTranslate[1]) : 0
-    oldY = oldTranslate ? parseFloat(oldTranslate[2]) : 0
-    oldS = oldScale ? parseFloat(oldScale[1]) : 1
+// updates element position
+export function updatePosition(el, x = 0, y = 0) {
+  DEBUG && console.log("updatePosition(el:", el.id, ", x:", x, ", y:", y, ")")
+  const oldTransform = el.getAttribute("transform") || ""
+  
+  let oldX = 0, oldY = 0
+  let updated = false
+
+  const newTransform = oldTransform.replace(/translate\(([^,]+),\s*([^)]+)\)/, (_, xMatch, yMatch) => {
+    oldX = parseFloat(xMatch)
+    oldY = parseFloat(yMatch)
+    updated = true
+
+    // Idempotency check
+    if (Math.abs(oldX - x) < EPSILON && Math.abs(oldY - y) < EPSILON) {
+      DEBUG && console.log("Position unchanged, skipping.")
+      return `translate(${oldX},${oldY})` // unchanged
+    }
+
+    setAttributes(el, {'data-x': x, 'data-y': y})
+    return `translate(${x},${y})`
+  })
+
+  let transformOut = newTransform
+
+  if (!updated) {
+    // No existing translate, so we append it
+    setAttributes(el, {'data-x': x, 'data-y': y})
+    transformOut = `translate(${x},${y}) ${oldTransform}`.trim()
   }
-  const newX = x !== 0 ? x : oldX
-  const newY = y !== 0 ? y : oldY
-  const newScale = scale !== null ? scale : oldS
-  if (newX || newY) transforms.push(`translate(${newX},${newY})`)
-  if (newScale !== 1) transforms.push(`scale(${newScale})`)
-  el.setAttribute("transform", transforms.join(" "))
-  DEBUG && console.log("applying transform: ", transforms)
+
+  el.setAttribute("transform", transformOut)
+  DEBUG && console.log("applied transform:", transformOut)
 }
 
 // Prepare the outer wrapper <g> to apply visual scale only
-export function wrapContent(content, x, y, scale, type) {
+export function wrapContent(content, type, x = 0, y = 0, draggable = true) {
+  DEBUG && console.log("wrapContent(type:", type,")")
   const wrapper = createGroup(x, y)
   wrapper.classList.add("wrapper") // if you want to style/debug
   const id = content.getAttribute("id")
-  setAttributes(wrapper, {draggable: true, id: `${id}-wrapper`, type: type})
-  setVisualTransform(wrapper, {x, y, scale})
+  setAttributes(wrapper, {draggable: draggable, id: `${id}-wrapper`, type: type})
   wrapper.appendChild(content)  // copy cloned symbol inside
   DEBUG && console.log("wrapContent: ", wrapper)
   return wrapper

@@ -1,109 +1,197 @@
-// app/javascript/helpers/svg_styless.js
-import { angleBetweenPoints, distance } from "helpers/svg_utils"
-const DASH_PATTERN = '12,8'
-export const PATH_WIDTH = 8
-const WAVE_FREQUENCY = 6
-const DEBUG = true
+// app/javascript/helpers/svg_styles.js
+import { angleBetweenPoints, averageAngles, createSvgElement, setAttributes } from "helpers/svg_utils"
+const DASH_PATTERN = '20 20'
+const PATH_WIDTH = 8
+const MARKER_LENGTH = 10
+const WAVE_AMPLITUDE = 10
+const WAVE_LENGTH = 40 // Fixed wavelength in pixels
+const DEBUG = false
 
-export function applyStrokeStyle(pathElement, options) {
-  DEBUG && console.log("applyStrokeStyle ", pathElement, options)
+export function applyPathStyle(pathElement, basePath, style) {
+  DEBUG && console.log("applyPathStyle: ", pathElement, style)
   // Clear previous styling
   pathElement.removeAttribute('stroke-dasharray')
-  const originalD = pathElement.getAttribute('d') || ''
+  setAttributes(pathElement, {'stroke-width': PATH_WIDTH, 'fill': 'none'})
   
-  // Store original path data if not already stored
-  if (!pathElement.dataset.originalD) {
-    pathElement.dataset.originalD = originalD
-  }
-
-  switch (options.style) {
+  switch (style) {
     case 'dashed':
-      pathElement.setAttribute('stroke-dasharray', DASH_PATTERN)
-      pathElement.setAttribute('d', pathElement.dataset.originalD)
+      setAttributes(pathElement, {'d': basePath, 'stroke-dasharray': DASH_PATTERN})
       break
     case 'double':
-      pathElement.setAttribute('d', createDoublePath(pathElement.dataset.originalD, PATH_WIDTH * 1.2))
+      createDoublePathGroup(pathElement, basePath)
       break
     case 'wavy':
-      pathElement.setAttribute('d', createWavyPath(pathElement.dataset.originalD, PATH_WIDTH * 1.8, WAVE_FREQUENCY))
+      pathElement.setAttribute('d', createWavyPath(basePath))
       break
     default:  // solid
-      pathElement.setAttribute('d', pathElement.dataset.originalD)
+      pathElement.setAttribute('d', basePath)
       break
   }
 }
 
-function createDoublePath(d, spacing) {
-  const commands = d.match(/[A-Z][^A-Z]*/gi) || []
-  const path1 = []
-  const path2 = []
+function createDoublePathGroup(pathElement, basePath) {
+  DEBUG && console.log("createDoublePath ", basePath)
+  const offset = PATH_WIDTH
+  const stroke = pathElement.getAttribute('stroke')
+  
+  // Remove any existing double paths
+  const parent = pathElement.parentElement
+  parent.querySelectorAll('.double-path').forEach(el => el.remove())
 
-  commands.forEach(cmd => {
-    const type = cmd[0]
-    const coords = cmd.slice(1).trim().split(/[\s,]+/).map(Number)
-    const newCoords1 = []
-    const newCoords2 = []
+  // Create parallel paths
+  const basePathTrimmed = trimPathEnd(basePath, MARKER_LENGTH)
+  const group = createSvgElement("g")
+  group.classList.add('double-path')
+  group.appendChild(createParallelPath(basePathTrimmed, offset, stroke))
+  group.appendChild(createParallelPath(basePathTrimmed, -offset, stroke))
 
-    for (let i = 0; i < coords.length; i += 2) {
-      const x = coords[i]
-      const y = coords[i+1]
+  // Add parallel paths and Hide the base path
+  parent.appendChild(group)
 
-      if (i > 0) {
-        const px = coords[i-2]
-        const py = coords[i-1]
-        const angle = angleBetweenPoints(px, py, x, y)
-        const offsetX = Math.cos(angle + Math.PI/2) * spacing/2
-        const offsetY = Math.sin(angle + Math.PI/2) * spacing/2
-
-        newCoords1.push(x + offsetX, y + offsetY)
-        newCoords2.push(x - offsetX, y - offsetY)
-      } else {
-        newCoords1.push(x + spacing/2, y + spacing/2)
-        newCoords2.push(x - spacing/2, y - spacing/2)
-      }
-    }
-
-    path1.push(`${type}${newCoords1.join(' ')}`)
-    path2.push(`${type}${newCoords2.join(' ')}`)
-  })
-
-  return `${path1.join(' ')} ${path2.reverse().join(' ')} Z`
+  // Make original path transparent but keep it for marker reference
+  pathElement.style.stroke = 'transparent'
+  pathElement.style.display = '' // Ensure it's visible
+  pathElement.setAttribute('d', basePath) // Maintain original path
 }
 
-function createWavyPath(d, amplitude) {
-  const commands = d.match(/[A-Z][^A-Z]*/gi) || []
-  const wavePoints = []
-
-  commands.forEach(cmd => {
-    const type = cmd[0]
-    const coords = cmd.slice(1).trim().split(/[\s,]+/).map(Number)
-
-    for (let i = 0; i < coords.length; i += 2) {
-      const x = coords[i]
-      const y = coords[i+1]
-
-      if (i > 0) {
-        const px = coords[i-2]
-        const py = coords[i-1]
-        const dist = distance(px, py, x, y)
-        const angle = angleBetweenPoints(px, py, x, y)
-        const steps = Math.max(3, Math.floor(dist / 10))
-
-        for (let s = 1; s <= steps; s++) {
-          const t = s / steps
-          const bx = px + (x - px) * t
-          const by = py + (y - py) * t
-          const offset = amplitude * Math.sin(t * Math.PI * 4) // 4 waves per segment
-          const wx = bx + offset * Math.cos(angle + Math.PI/2)
-          const wy = by + offset * Math.sin(angle + Math.PI/2)
-
-          wavePoints.push(`${s === 1 && i === 2 ? 'M' : 'L'} ${wx} ${wy}`)
-        }
-      } else {
-        wavePoints.push(`${type} ${x} ${y}`)
-      }
-    }
+function createParallelPath(basePath, offset, stroke) {
+  const pPath = createSvgElement('path')
+  setAttributes(pPath, {
+    'd': drawParallelPath(basePath, offset),
+    'fill': 'none',
+    'marker-end': 'none', // No markers on parallel paths
+    'stroke': stroke,
+    'stroke-width': PATH_WIDTH
   })
+  return pPath
+}
 
-  return wavePoints.join(' ')
+function drawParallelPath(basePath, offset) {
+  // Create a temporary path to measure and sample points
+  const tempPath = createSvgElement('path')
+  tempPath.setAttribute('d', basePath)
+  const totalLength = tempPath.getTotalLength()
+  
+  // If path has no length, return empty
+  if (totalLength === 0) return ""
+
+  // Calculate step size for sampling (smaller steps for better accuracy)
+  const step = Math.max(1, totalLength / 100)
+  const points = []
+
+  // Sample points along the path
+  for (let len = 0; len <= totalLength; len += step) {
+    points.push(tempPath.getPointAtLength(len))
+  }
+
+  // Ensure last point is included
+  if (points.length === 0 || points[points.length - 1].length < totalLength) {
+    points.push(tempPath.getPointAtLength(totalLength))
+  }
+
+  // Calculate offset points
+  const offsetPoints = []
+  for (let i = 0; i < points.length; i++) {
+    let {x, y} = points[i]
+    let angle
+       
+    if (i === 0) {  // First point - use angle to next point
+      const nextPoint = points[1]
+      angle = angleBetweenPoints(x, y, nextPoint.x, nextPoint.y)
+    } else if (i === points.length - 1) { // Last point - use angle from previous point
+      const prevPoint = points[i - 1]
+      angle = angleBetweenPoints(prevPoint.x, prevPoint.y, x, y)
+    } else {  // Middle point - use bisecting angle
+      const prevPoint = points[i - 1]
+      const nextPoint = points[i + 1]
+      const inAngle = angleBetweenPoints(prevPoint.x, prevPoint.y, x, y)
+      const outAngle = angleBetweenPoints(x, y, nextPoint.x, nextPoint.y)
+      angle = averageAngles(inAngle, outAngle)
+    }
+    
+    // Apply perpendicular offset
+    const offsetX = Math.cos(angle + Math.PI/2) * offset
+    const offsetY = Math.sin(angle + Math.PI/2) * offset
+    
+    offsetPoints.push({
+      x: x + offsetX,
+      y: y + offsetY,
+      type: i === 0 ? 'M' : 'L'
+    })
+  }
+  
+  // Build path string
+  return offsetPoints.map(p => `${p.type} ${p.x} ${p.y}`).join(' ')
+}
+
+function trimPathEnd(basePath, trimLength = MARKER_LENGTH) {
+  const temp = createSvgElement('path')
+  temp.setAttribute('d', basePath)
+  const total = temp.getTotalLength()
+
+  if (total <= trimLength) return basePath  // very short path
+
+  // Sample points until the near end
+  const trimmedPath = []
+  const step = Math.max(1, total / 100)
+
+  for (let len = 0; len <= total - trimLength; len += step) {
+    const pt = temp.getPointAtLength(len)
+    trimmedPath.push({ x: pt.x, y: pt.y })
+  }
+
+  return trimmedPath.map((pt, i) =>
+    `${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`
+  ).join(' ')
+}
+
+function createWavyPath(d, amplitude = WAVE_AMPLITUDE) {
+  DEBUG && console.log("createWavyPath ", d, amplitude)
+  // Create a temporary path to measure the actual geometry
+  const tempPath = createSvgElement('path')
+  tempPath.setAttribute('d', d)
+  const totalLength = tempPath.getTotalLength()
+  
+  // If path has no length, return empty
+  if (totalLength === 0) return ""
+
+  // Calculate where the straight segment should start
+  const straightStart = Math.max(0, totalLength - WAVE_LENGTH*1.5)
+  const points = []
+  
+  // Start with the first point
+  const startPoint = tempPath.getPointAtLength(0)
+  points.push(`M ${startPoint.x} ${startPoint.y}`)
+  
+  // Sample points along the actual path geometry
+  const step = WAVE_LENGTH / 10 // Sample every 1/10 wavelength
+  let currentLength = step
+  
+  while (currentLength <= totalLength) {
+    const point = tempPath.getPointAtLength(currentLength)
+    const nextPoint = tempPath.getPointAtLength(Math.min(currentLength + 1, totalLength))
+    
+    // Calculate tangent angle
+    const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x)
+    
+    // Calculate wave offset
+    let waveOffset = 0
+    if (currentLength < straightStart) {
+      const phase = currentLength * (2 * Math.PI) / WAVE_LENGTH
+      waveOffset = amplitude * Math.sin(phase)
+    }
+    
+    // Calculate perpendicular offset
+    const px = point.x + waveOffset * Math.cos(angle + Math.PI/2)
+    const py = point.y + waveOffset * Math.sin(angle + Math.PI/2)
+    
+    points.push(`${px} ${py}`)
+    currentLength += step
+  }
+  
+  // Ensure we include the exact endpoint
+  const endPoint = tempPath.getPointAtLength(totalLength)
+  points.push(`${endPoint.x} ${endPoint.y}`)
+  
+  return points.join(' L ')
 }

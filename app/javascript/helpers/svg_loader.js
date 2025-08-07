@@ -1,59 +1,20 @@
 // app/javascript/helpers/svg_loader.js
-import { getSvgScale } from "helpers/svg_utils"
+import { getSvgScale, isSVGElement } from "helpers/svg_utils"
+import { createSymbol } from "helpers/svg_symbols"
+import { createPath } from "helpers/svg_paths"
 
 const DEBUG = false
 
-/**
- * Parses SVG content and tracks player numbers
- * @param {SVGElement} svgContainer 
- * @returns {{
- *   attackers: Set<number>,
- *   defenders: Set<number>,
- * }}
- */
-export function parseDiagramContent(svgContainer) {
-  const result = {
-    attackers: new Set(),
-    defenders: new Set()
-  }
+// Loads SVG content to view/edit
+export function loadDiagramContent(container, data) {
+  const svgdata = JSON.parse(data) || '{}'
 
-  if (!svgContainer) return result
+  DEBUG && console.log('loadDiagramContent: ', container, svgdata)
+  if (!isSVGElement(container)) return result
 
-  // Look for wrapper elements containing attacker/defender symbols
-  const wrappers = svgContainer.querySelectorAll('g.wrapper[type="symbol"]')
-  DEBUG && console.log(`Found ${wrappers.length} symbol wrappers`)
-
-  wrappers.forEach(wrapper => {    // Find the inner element with the actual kind
-    const inner = wrapper.querySelector('[data-kind]')
-    if (!inner) {
-      DEBUG && console.log("Wrapper contains no inner element with data-kind", wrapper)
-      return
-    }
-
-    const kind = inner.dataset.kind
-    if (!['attacker', 'defender'].includes(kind)) {
-      DEBUG && console.log(`Skipping non-player symbol of kind ${kind}`)
-      return
-    }
-    DEBUG && console.log(`Found ${kind} ${inner.dataset.id}`)
-
-    // Get the number from the label
-    const number = parseInt(inner.textContent)
-    if (isNaN(number)) {
-      DEBUG && console.log(`Invalid number in label: ${label.textContent}`)
-      return
-    }
-
-    DEBUG && console.log(`Found ${kind} with number ${number}`)
-    result[kind === 'attacker' ? 'attackers' : 'defenders'].add(number)
-  })
-  
-  DEBUG && console.log('Parsed diagram content:', {
-    attackers: Array.from(result.attackers),
-    defenders: Array.from(result.defenders)
-  })
-
-  return result
+  // load paths & symbols
+  loadPaths(container, svgdata?.paths)
+  return loadSymbols(container, svgdata?.symbols)
 }
 
 /**
@@ -76,7 +37,6 @@ export function validateDiagram(svgContainer) {
   if (!svgContainer?.querySelector) return false
   return true
 }
-
 
 /**
  * Adjusts the SVG viewBox to fit the court background bounding box exactly.
@@ -117,4 +77,47 @@ export function zoomToFit(svg, img) {
   svg.setAttribute("height", height)
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet")
   return getSvgScale(svg)
+}
+
+// Create symbols from symbol data
+function loadSymbols(svg, symbols) {
+  const height  = svg.getBBox().height
+  const result = {
+    attackers: new Set(),
+    defenders: new Set()
+  }
+  symbols.forEach(symbol => {
+    DEBUG && console.log('Found symbol definition: ', symbol)
+    const symbolGroup = createSymbol(symbol, height)
+    if (['attacker', 'defender'].includes(symbol.kind)) {
+      const number = parseInt(symbol.label)
+      if (isNaN(number)) {
+        DEBUG && console.log(`Invalid number in label: ${label.textContent}`)
+        return
+      }
+      
+      DEBUG && console.log(`Found ${symbol.kind} with number ${number}`)
+      result[symbol.kind === 'attacker' ? 'attackers' : 'defenders'].add(number)
+    }
+    svg.appendChild(symbolGroup)
+  })
+  return result
+}
+
+// Create paths from path data
+function loadPaths(svg, paths) {
+    paths.forEach(path => {
+      DEBUG && console.log('Found path definition: ', path)
+      const pathGroup = createPath(path.points,
+        {
+          curve: path.curve === "true",
+          style: path.style,
+          ending: path.ending,
+          stroke: path.stroke,
+          transform: "",
+          isPreview: false
+        }
+      )
+      svg.appendChild(pathGroup)
+    })  
 }

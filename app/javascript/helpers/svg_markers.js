@@ -1,42 +1,23 @@
 // app/javascript/helpers/svg_markers.js
-import { createSvgElement } from "helpers/svg_utils"
+import { createSvgElement, setAttributes } from "helpers/svg_utils"
 
-const MARKER_SIZE = 10
-const MARKER_REF_X = 8
-const MARKER_REF_Y = 5
+const MARKER_SIZE = 5
+const MARKER_HALF = MARKER_SIZE / 2
+const MARKER_DOUBLE = MARKER_SIZE * 2
+const DEBUG = false
 
-export function applyMarker(pathElement, type) {
+export function applyMarker(pathElement, ending) {
+  DEBUG && console.log("applyMarker ", pathElement, ending)
+
   // Clear previous markers
   pathElement.removeAttribute('marker-end')
-
-  if (!type || type === 'none') return
-
-  const markerId = `marker-${type}`
-  let marker = document.getElementById(markerId)
-
+  if (!ending || ending === 'none') return
+  
+  let marker = document.getElementById(markerId(ending))
   if (!marker) {
-    marker = createSvgElement('marker')
-    marker.id = markerId
-    marker.setAttribute('markerWidth', MARKER_SIZE)
-    marker.setAttribute('markerHeight', MARKER_SIZE)
-    marker.setAttribute('refX', MARKER_REF_X)
-    marker.setAttribute('refY', MARKER_REF_Y)
-    marker.setAttribute('orient', 'auto')
-    marker.setAttribute('viewBox', `0 0 ${MARKER_SIZE} ${MARKER_SIZE}`)
-
-    const symbol = createSvgElement('path')
-    const strokeColor = pathElement.getAttribute('color') || '#000'
-    symbol.setAttribute('fill', strokeColor)
-    symbol.setAttribute('stroke', strokeColor)
-
-    if (type === 'arrow') {
-      symbol.setAttribute('d', `M0,0 L${MARKER_SIZE},${MARKER_SIZE/2} L0,${MARKER_SIZE} Z`)
-    } else {  // 'tee'
-      symbol.setAttribute('d', `M0,${MARKER_SIZE/2} L${MARKER_SIZE},${MARKER_SIZE/2} M${MARKER_SIZE/2},0 L${MARKER_SIZE/2},${MARKER_SIZE}`)
-      symbol.setAttribute('stroke-width', '2')
-    }
-
-    marker.appendChild(symbol)
+    const color = pathElement.getAttribute('color') || '#000'
+    marker = createMarkerElement(ending, color)
+  
     // Ensure defs exists
     let defs = document.querySelector('defs')
     if (!defs) {
@@ -44,52 +25,56 @@ export function applyMarker(pathElement, type) {
       document.querySelector('svg').prepend(defs)
     }
     defs.appendChild(marker)
+    DEBUG && console.log("appending marker defitinion: ", marker)
   }
-
-  pathElement.setAttribute('marker-end', `url(#${markerId})`)
+  if (marker) pathElement.setAttribute('marker-end', `url(#${markerId(ending)})`)
 }
 
-// --- Internal helpers ---
-function appendMarkerIfMissing(defs, markerFn) {
-  const marker = markerFn()
-  if (marker && !defs.querySelector(`#${marker.id}`)) {
-    defs.appendChild(marker)
+// internal functions
+function createMarkerElement(ending, color) {
+  const marker = createSvgElement('marker')
+  marker.id = markerId(ending)
+  setAttributes(marker, {'markerWidth': MARKER_SIZE, 'orient': 'auto'})
+  const symbol = createSvgElement('path')
+  setAttributes(symbol, {'fill': color, 'stroke': color})
+  marker.appendChild(symbol)
+  switch (ending) {
+    case 'arrow':
+      setupArrowMarker(marker)
+      break
+    case 'tee':
+      setupTeeMarker(marker)
+      break
+    default:
+      return null
   }
-}
 
-function arrowheadMarker() {
-  const marker = createSvgElement("marker")
-  marker.setAttribute("id", "arrowhead")
-  marker.setAttribute("viewBox", "0 0 10 10")
-  marker.setAttribute("refX", "8")
-  marker.setAttribute("refY", "5")
-  marker.setAttribute("markerWidth", "6")
-  marker.setAttribute("markerHeight", "6")
-  marker.setAttribute("orient", "auto-start-reverse")
-
-  const path = createSvgElement("path")
-  path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z")
-  path.setAttribute("class", "fill-current")
-
-  marker.appendChild(path)
   return marker
 }
 
-function terminatorTMarker() {
-  const marker = createSvgElement("marker")
-  marker.setAttribute("id", "terminator-T")
-  marker.setAttribute("viewBox", "0 0 10 10")
-  marker.setAttribute("refX", "5")
-  marker.setAttribute("refY", "5")
-  marker.setAttribute("markerWidth", "6")
-  marker.setAttribute("markerHeight", "6")
-  marker.setAttribute("orient", "auto")
+function markerId(ending) {
+  return `marker-${ending}`
+}
 
-  const path = createSvgElement("path")
-  path.setAttribute("d", "M 0 0 L 10 0")
-  path.setAttribute("class", "stroke-current")
-  path.setAttribute("stroke-width", "2")
+function setupArrowMarker(marker) {
+  setAttributes(marker, {
+    'markerHeight': MARKER_SIZE,
+    'refX': MARKER_SIZE,
+    'refY': MARKER_HALF,
+    'viewBox': `0 0 ${MARKER_SIZE} ${MARKER_SIZE}`
+  })
+  const symbol = marker.firstElementChild
+  symbol.setAttribute('d', `M0,0 L${MARKER_SIZE},${MARKER_HALF} L0,${MARKER_SIZE} Z`)
+}
 
-  marker.appendChild(path)
-  return marker
+function setupTeeMarker(marker) {
+  setAttributes(marker, {
+    'markerHeight': MARKER_DOUBLE,
+    'refX': MARKER_HALF,
+    'refY': MARKER_SIZE,
+    'viewBox': `0 0 ${MARKER_SIZE} ${MARKER_DOUBLE}`
+  })
+  const symbol = marker.firstElementChild
+  symbol.setAttribute('d', `M${-MARKER_SIZE},0 M${MARKER_HALF},0 V${MARKER_DOUBLE}`)
+  symbol.setAttribute('stroke-width', MARKER_HALF)
 }

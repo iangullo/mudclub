@@ -1,6 +1,6 @@
 // app/javascript/helpers/svg_serializer.js
-import { cssColorToHex, getViewBox, isSVGElement } from "helpers/svg_utils"
-const DEBUG = true
+import { cssColorToHex, generateId, getViewBox, isSVGElement } from "helpers/svg_utils"
+const DEBUG = false
 
 // Core element properties for each type
 const VALID_PROPERTIES = {
@@ -42,13 +42,17 @@ function serializePath(pathGroup) {
   const el = pathGroup?.querySelector('path')
   if (!isSVGElement(pathGroup) || !el) return null
 
+  DEBUG && console.warn(pathGroup.dataset.points)
+  const pathPoints = JSON.parse(pathGroup.dataset.points || '[]')
+  if (pathPoints.length < 2) return null  // if emtpy, do nothing
+
   const pathData = {
-    id: el.id || generateId,
-    curve: el.getAttribute('curve'),
-    ending: el.getAttribute('ending'),
-    points: JSON.parse(el.dataset.points || '[]'),
+    id: pathGroup.id || generateId('path'),
+    curve: pathGroup.dataset.curve,
+    ending: pathGroup.dataset.ending,
+    points: pathPoints,
     stroke: cssColorToHex(el.getAttribute('stroke')) || '#000000',
-    style: el.getAttribute('style')
+    style: pathGroup.dataset.style
   }
   DEBUG && console.log("serialized: ", pathData)
 
@@ -60,13 +64,14 @@ function serializeSymbol(el) {
 
   const textElement = el.querySelector('text')
   const symbolData = {
-    id: el.id || generateId,
-    kind: el.dataset.kind,
-    symbol_id: el.dataset.symbolId,
-    transform: el.getAttribute('transform') || null,
+    id: el.getAttribute('id') || generateId('sym'),
+    fill: el.getAttribute('fill'),
+    kind: el.getAttribute('kind'),
+    stroke: el.getAttribute('stroke'),
+    symbol_id: el.getAttribute('symbolId'),
     x: parseFloat(el.dataset.x) || 0,
     y: parseFloat(el.dataset.y) || 0,
-    label: el.dataset.label || 
+    label: el.getAttribute('label') || 
            textElement?.textContent?.trim() || 
            el.querySelector('tspan#label')?.textContent?.trim()
   }
