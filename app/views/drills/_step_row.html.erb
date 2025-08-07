@@ -1,41 +1,50 @@
 <% if form.object %>
 	<% step = form.object %>
 	<% icls = "rounded border-gray-200" %>
-	<div class="inline-flex w-full space-x-4 items-start">
-		<!-- 1. Step order -->
-		<div class="w-8 text-right font-semibold flex-shrink-0">
-			<%= step.order %>
-		</div>
-		
-		<!-- 2. Hidden fields to process steps -->
-		<%= form.hidden_field :id, value: step.id %>
-
-		<!-- 3. Diagram can be a PNG or inline SVG -->
-		<div class="relative w-1/3 group <%= icls %>">
-			<% if step.diagram.attached? %>		
-				<!-- 3a. Show attached diagram if it is available -->
-			 	<%= render InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "full", height: "auto"}, form:) %>
-			<% else %>
-				<!-- 3b. No attachment, load SVG court and possible :svg_diagram content -->
-				<div class="w-full flex text-gray-400 m-1">
-					<%= render DiagramComponent.new(court: @court, svgdata: step.svgdata) %>
-					<div class="overlay rounded absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" >
-						<%= link_to edit_diagram_drill_path(id: @drill&.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram") do %>
-							<%= image_tag("edit.svg", size: "50x50")  %>
-						<% end %>
-						<% unless step.svgdata.present? %>
-							<%= link_to load_diagram_drill_path(id: @drill&.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.load_diagram"), data: {turbo_frame: "modal"} do %>
-								<%= image_tag("add.svg", size: "50x50")  %>
-							<% end %>
+	<% has_diagram = step.diagram.attached? || step.svgdata.present? %>
+	<% has_explanation = step.explanation&.body&.to_s.present? %>
+	
+	<div class="step-wrapper">
+		<!-- Main step container -->
+		<div class="step-container">
+			<!-- Step order -->
+			<div class="step-order">
+				<%= step.order %>
+			</div>
+			
+			<!-- Hidden fields -->
+			<%= form.hidden_field :id, value: step.id %>
+			
+			<!-- Content area -->
+			<div class="step-content">
+				<% if has_diagram %>
+					<div class="step-diagram <%= icls %>">
+						<% if step.diagram.attached? %>		
+							<%= render InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "full", height: "auto"}, form:) %>
+						<% else %>
+							<div class="relative w-full group">
+								<%= render DiagramComponent.new(court: @court, svgdata: step.svgdata) %>
+								<div class="overlay rounded absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" >
+									<%= link_to edit_diagram_drill_path(id: @drill&.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram") do %>
+										<%= image_tag("edit.svg", size: "50x50")  %>
+									<% end %>
+									<% unless step.svgdata.present? %>
+										<%= link_to load_diagram_drill_path(id: @drill&.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.load_diagram"), data: {turbo_frame: "modal"} do %>
+											<%= image_tag("add.svg", size: "50x50")  %>
+										<% end %>
+									<% end %>
+								</div>
+							</div>
 						<% end %>
 					</div>
-				</div>
-			<% end %>
-		</div>
-
-		<!-- 5. Explanation -->
-		<div class="<%= icls %>">
-			<%= render InputBoxComponent.new({kind: :rich_text_area, key: :explanation}, form:) %>
+				<% end %>
+				
+				<% if has_explanation %>
+					<div class="step-explanation <%= icls %>">
+						<%= render InputBoxComponent.new({kind: :rich_text_area, key: :explanation}, form:) %>
+					</div>
+				<% end %>
+			</div>
 		</div>
 	</div>
 <% end %>

@@ -65,10 +65,10 @@ export function zoomToFit(svg, court, isEditor = false) {
       DEBUG && console.log("zoomToFit: SVG has no parent container");
       return 1
     }
-    DEBUG && console.log(`viewer container: ${container}`)
-    // Get container dimensions minus padding
-    availableWidth = container.clientwidth
-    availableHeight = container.clientHeight
+    DEBUG && console.log("viewer container: ", container)
+    const containerStyle = getComputedStyle(container)
+    availableWidth = parseFloat(containerStyle.width)
+    availableHeight = parseFloat(containerStyle.height)
     DEBUG && console.log("viewer limits: ", availableWidth, " x ", availableHeight)
   }
 
@@ -96,7 +96,7 @@ export function zoomToFit(svg, court, isEditor = false) {
 }
 
 // Create symbols from symbol data
-function loadSymbols(svg, symbols, isEditor = false) {
+function loadSymbols(svg, symbols = [], isEditor = false) {
   const height = svg.getBBox().height
   const result = isEditor ? { attackers: new Set(), defenders: new Set() } : true
 
@@ -121,7 +121,7 @@ function loadSymbols(svg, symbols, isEditor = false) {
 }
 
 // Create paths from path data
-function loadPaths(svg, paths) {
+function loadPaths(svg, paths = []) {
     paths.forEach(path => {
       DEBUG && console.log('Found path definition: ', path)
       const pathGroup = createPath(path.points,

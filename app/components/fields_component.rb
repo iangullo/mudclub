@@ -50,6 +50,7 @@
 # => :search_box: :key (search field), :url (search_in), :options
 # => :separator: separator line (kind: :dashed, :solid, :dotted, rounded: )
 # => :side_cell: :value (content stiyled like a GridComponent side_cell)
+# => :steps: :steps, :court (responsive rendering of drill steps)
 # => :string: :value (regular text string)
 # => :subtitle: :value (bold text of title)
 # => :svg: :value (raw svg content to show)
@@ -119,6 +120,8 @@ class FieldsComponent < ApplicationComponent
 					item[:class] ||= "align-top"
 				when "separator"
 					item[:stroke] ||= "solid"
+				when "steps"
+					item[:value] = StepsComponent.new(steps: item[:steps], court: item[:court])
 				when "symbol"
 					hashify_symbol(item)
 					item[:value]  = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
@@ -137,7 +140,7 @@ class FieldsComponent < ApplicationComponent
 	def render_field(field)
 		tablecell_tag(field) do
 			case field[:kind].to_s
-			when /^(accordion|button|contact|diagram.*|dropdown|search_.+|svg)$/
+			when /^(accordion|button|contact|diagram.*|dropdown|search_.+|steps|svg)$/
 				render field[:value]
 			when /^(select_.+|.+box|.+_area|hidden|radio.+|upload)$/
 				render InputBoxComponent.new(field, form: @form)

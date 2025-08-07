@@ -17,3 +17,100 @@
 .text-fluid {
   font-size: clamp(0.875rem, 2vw, 1.25rem);
 }
+
+/* Responsive steps layout */
+.responsive-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.step-wrapper {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.step-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.step-order {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1rem;
+  position: sticky;
+  top: 1rem;
+}
+
+
+/* Content area */
+.step-content {
+  display: grid;
+  gap: 1rem;
+}
+
+/* When both diagram and explanation are present */
+.step-content:has(.step-diagram):has(.step-explanation) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+}
+
+/* Diagram styling */
+.step-diagram {
+  position: relative;
+  max-width: 100%;
+}
+
+/* Explanation styling */
+.step-explanation {
+  min-height: 200px;
+}
+
+/* Overlay for diagram actions */
+.overlay {
+  transition: opacity 0.3s ease;
+}
+
+/* Responsive layout for narrow screens */
+@media (max-width: 768px) {
+  .step-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas: 
+      "header"
+      "content";
+  }
+  
+  .step-order {
+    grid-area: header;
+    justify-self: start;
+    margin-bottom: 0.5rem;
+  }
+  
+  .step-content {
+    grid-area: content;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  /* When both present, stack vertically */
+  .step-content:has(.step-diagram):has(.step-explanation) {
+    align-items: center;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+  
+  .step-diagram {
+    align-items: center;
+    justify-content: center;  
+    width: 100%;
+  }
+}

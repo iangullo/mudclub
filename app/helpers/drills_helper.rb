@@ -188,41 +188,10 @@ module DrillsHelper
 
 	# return FieldComponent definition for drill steps view
 	def drill_show_steps
-		many  = (@drill&.steps&.count&.to_i > 1)
-		rcols = many ? 3 : 2
-		res   = [
-			[{kind: :label, value: I18n.t("step.#{many ? 'many' : 'explanation'}"), cols: 3}],
-			[{kind: :separator, cols: 3}]
-		] unless @drill.steps.empty?
-		@court = @drill.court_mode
-		split  = false
-		@drill.steps.order(:order).each { |step| split = true if step.has_text? && (step.has_image? || step.has_svg?) }
-		icols  = 2 unless split
-		wsplit = "w-#{split ? (many ? '1-3' : '1-2') : 'full'}"
-		@drill.steps.order(:order).each do |step|
-			text  = step.has_text?
-			diag  = step.has_image? || step.has_svg?
-			tcols = 2 if many && (text ^ diag)
-			item  = many ? [{kind: :label, value: step.order, align: "center"}] : []
-			if diag
-				field = {align: "left", cols: icols, class: "rounded align-top #{wsplit}"}
-				if step.has_image?
-					field[:kind]    = :image
-					field[:value]   = step.diagram.attachment
-					field[:i_class] = "m-1"
-				else	# svg content to show
-					field[:kind]    = :diagram
-					field[:court]   = @court
-					field[:svgdata] = step.svgdata
-					field[:css] = "m-1"
-				end
-				item << field
-			end
-			item << {kind: :action_text, value: step.explanation&.body&.to_s, align: "top", cols: tcols} if text
-			res << item
-			res << [{kind: :separator, cols: 3}]
-		end
-		res
+		return [[]] if @drill.steps.empty?
+  
+		# return a special component
+		[[{kind: :steps, steps: @drill.steps, court: @drill.court_mode }]]
 	end
 
 	# return tail Field Component definition for drill show
