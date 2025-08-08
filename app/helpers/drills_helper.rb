@@ -75,7 +75,7 @@ module DrillsHelper
 		res = [
 			[ {kind: :label, value: I18n.t("step.many")} ],
 			[
-				{kind: :nested_form, model: "drill", key: "steps", child: Step.new(drill_id: @drill.id, order: @drill.steps.count+1), row: "step_row"}
+				{kind: :nested_form, model: "drill", key: "steps", child: Step.new(drill_id: @drill.id), row: "step_row"}
 			]
 		]
 		res

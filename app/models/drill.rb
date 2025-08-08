@@ -251,7 +251,7 @@ class Drill < ApplicationRecord
 				else	# add to collection
 					st.diagram = s[:diagram] if s[:diagram].presence
 					st.diagram_svg = s[:diagram_svg] if s[:diagram_svg].presence
-					st.explanation = s[:explanation] if s[:explanation].presence
+					st.explanation = s[:explanation].presence
 					st.save
 					self.steps << st unless self.steps.include?(st)
 				end

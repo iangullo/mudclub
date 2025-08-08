@@ -233,7 +233,12 @@ module EventsHelper
 			gap_field,
 			{kind: :icon_label, symbol: "clock", label: task.s_dur}
 		] if title
-		res << [{kind: :action_text, value: task.drill.explanation.empty? ? task.drill.description : task.drill.explanation.body.to_s}]
+		
+		if task.drill.steps.empty?
+			res << [{kind: :text, value: task.drill.description}]
+		else
+			res << [{kind: :steps, steps: task.drill.steps, court: task.drill.court_mode}]
+		end
 		if task.remarks?
 			res << [{kind: :label, value: I18n.t("task.remarks")}]
 			res << [{kind: :action_text, value: task.remarks.body.to_s, size: 28}]

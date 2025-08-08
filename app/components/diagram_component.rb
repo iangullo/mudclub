@@ -54,34 +54,35 @@ class DiagramComponent < ApplicationComponent
 	
 	def call
 		svg_content = safe_join([
-			render_symbols,
+			render_symbol_defs,
 			render_court
 		])
 
-
-		svg_tag = content_tag(:svg, svg_content.html_safe,
-			class: @css,
-			id: @id,
-			height: "100%",
-			width: "100%",
-			preserveAspectRatio: "xMidYMid meet",
-			viewBox: "#{@viewbox[:x]} #{@viewbox[:y]} #{@viewbox[:width]} #{@viewbox[:height]}",
-			xmlns: "http://www.w3.org/2000/svg",
-			'xmlns:xlink': "http://www.w3.org/1999/xlink",
-			data: svg_data_attributes
-		)
+		diagram_container = content_tag(:div, class: "diagram-container") do
+			content_tag(:svg, svg_content.html_safe,
+				class: @css,
+				id: @id,
+				height: "100%",
+				width: "100%",
+				preserveAspectRatio: "xMidYMid meet",
+				viewBox: "#{@viewbox[:x]} #{@viewbox[:y]} #{@viewbox[:width]} #{@viewbox[:height]}",
+				xmlns: "http://www.w3.org/2000/svg",
+				'xmlns:xlink': "http://www.w3.org/1999/xlink",
+				data: svg_data_attributes
+			)
+		end
 
 		if editor?
 			safe_join(
 				[
 					editor_buttons_container,
-          content_tag(:div, class: EDIT_SVG_CLASS + " border rounded", id: "#{@id}-container") { svg_tag },
-					hidden_field_for_svgdata
+					content_tag(:div, class: EDIT_SVG_CLASS + " border rounded", id: "#{@id}-container") { diagram_container },
+					hidden_editor_fields
 				]
 			)
 		else
 			content_tag(:div, class: @css, data: {controller: "diagram-renderer", diagram_renderer_svgdata_value: @svgdata}) do
-				svg_tag.html_safe
+				diagram_container.html_safe
 			end
 		end
 	end
@@ -126,14 +127,17 @@ class DiagramComponent < ApplicationComponent
 			@viewbox || @svgdata["viewBox"] || { x: 0, y: 0, width: 1000, height: 800 }
 		end
 		
-		def hidden_field_for_svgdata
+		def hidden_editor_fields
 			return nil unless @form
 
 			svgdata = (@svgdata || {
 				paths: [], symbols: [], "viewBox": { "width" => 1000, "height" => 600} # Default values
 			}).to_json
-			target = { diagram_editor_target: "svgdata" }
-			@form.hidden_field :svgdata, value: svgdata, data: target
+			safe_join([
+				@form.hidden_field(:step_id, value:@step&.id),
+				@form.hidden_field(:order, value:@step&.order),
+				@form.hidden_field(:svgdata, value: svgdata, data: {diagram_editor_target: "svgdata"})
+			])
 		end
 
 		def render_court
@@ -146,7 +150,7 @@ class DiagramComponent < ApplicationComponent
 		end
 
 		# Update the render_defs method to include symbols
-		def render_symbols
+		def render_symbol_defs
 			content_tag(:defs) do
 				safe_join([
 					symbol_definitions  # Add symbol definitions here

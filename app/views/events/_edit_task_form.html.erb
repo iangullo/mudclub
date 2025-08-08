@@ -9,7 +9,11 @@
 			<turbo-frame id="<%=f.field_id(:drill_id, :turbo_frame)%>" class="contents">
 				<div id="drill_description">
 					<% if @drill %>
-					<%= @drill.explanation.empty? ? @drill.description : @drill.explanation %>
+						<% if @drill.steps.empty? %>
+							<% @drill.description %>
+						<% else %>
+							<%= render StepsComponent.new(steps: @drill.steps, court: @drill.court_mode) %>
+						<% end %>
 					<% else %>
 					<%= t("drill.none") %>
 					<% end %>

@@ -7,7 +7,9 @@
 	<%= render @title %>
 	<%= render @playbook %>
 	<%= render @formdata %>
-	<%= render @formsteps %>
+	<div class="step-wrapper">
+		<%= render @formsteps %>
+	</div>
 	<%= render @formtail %>
 	<%= render @submit %>
 	<datalist id="skill_list">

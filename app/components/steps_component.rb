@@ -23,6 +23,7 @@ class StepsComponent < ApplicationComponent
 	def initialize(steps:, court:)
 		@steps = steps.order(:order)
 		@court = court
+		@split = check_splits
 		@many = @steps.count > 1
 	end
 
@@ -37,25 +38,26 @@ class StepsComponent < ApplicationComponent
 
 	private
 
+	def check_splits
+		@steps.each { |step| return true if step.has_text?}
+		return nil
+	end
+
 	def render_header
-		content_tag(:div, class: "step-header") do
-			FieldsComponent.new([
-				[{kind: :label, value: I18n.t("step.#{@many ? 'many' : 'explanation'}"), cols: 3}],
-				[{kind: :separator, cols: 3}]
-			]).render_in(view_context)
+		content_tag(:div, class: "label-field") do
+			concat(I18n.t("step.#{@many ? 'many' : 'explanation'}"))
 		end
 	end
 
 	def render_step(step)
 		content_tag(:div, class: "step-container") do
-			render_order(step)
-			content_tag(:div, class: "step-content") do
-				safe_join([
-					render_diagram(step),
-					render_explanation(step),
-					render_separator
-				])
-			end
+			safe_join([
+				render_order(step),
+				content_tag(:div, class: "step-content") do
+					safe_join([render_diagram(step), render_explanation(step)])
+				end,
+				content_tag(:hr, "", class: "rounded")
+			])
 		end
 	end
 
@@ -68,31 +70,23 @@ class StepsComponent < ApplicationComponent
 		return unless step.has_image? || step.has_svg?
 		content_tag(:div, class: "step-diagram") do
 			if step.has_image?
-				FieldsComponent.new([[
-					{kind: :image, value: step.diagram.attachment, i_class: "m-1"}
-				]]).render_in(view_context)
+				concat(render_image({value: step.diagram.attachment}))
 			else
-				FieldsComponent.new([[
-					{kind: :diagram, court: @court, svgdata: step.svgdata, css: "m-1"}
-				]]).render_in(view_context)
+				content_tag(:div, class: "diagram-container") do
+					DiagramComponent.new(
+						sport: step.sport.name,
+						court: @court,
+						svgdata: step.svgdata
+					).render_in(view_context)
+				end
 			end
 		end
 	end
 
 	def render_explanation(step)
-		return unless step.has_text?
+		return unless step.has_text? || @split
 		content_tag(:div, class: "step-explanation") do
-			FieldsComponent.new([[
-				{kind: :action_text, value: step.explanation&.body&.to_s, align: "top"}
-			]]).render_in(view_context)
-		end
-	end
-
-	def render_separator
-		content_tag(:div, class: "step-separator") do
-			FieldsComponent.new([[
-				{kind: :separator, cols: 3}
-			]]).render_in(view_context)
+			concat(step.explanation&.body&.to_s) if step.has_text?
 		end
 	end
 end

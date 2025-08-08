@@ -249,15 +249,16 @@ class DrillsController < ApplicationController
 		# retrieve or create a drill step from params received
 		def set_step
 			if (@drill = Drill.find_by_id(params[:id].presence&.to_i))
-				step_id = (params[:step_id].presence || @drill.steps.find_by(order: params[:order]&.presence.to_i)&.id).to_i
-				if step_id == 0		# it is a recently created step, not yet persisted
-					@step = Step.create(drill_id: @drill.id, order: params[:order].to_i)
-				else	# step was already persisted in database
-					@step = Step.find_by_id(step_id)
+				if params[:step_id].present?
+					@step = @drill.steps.find_by(id: params[:step_id])
+				else	# Find using :order or build new step
+					@step = @drill.steps.find_or_initialize_by(order: params[:order]&.to_i)
 				end
+				
+				# Handle temporary SVG data
+				@step.svgdata ||= JSON.parse(params[:svgdata]) if params[:svgdata].present?
+				
 				@court = @drill.court_mode
-			else
-				return nil
 			end
 		end
 
