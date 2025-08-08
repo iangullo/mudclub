@@ -24,7 +24,7 @@ class DiagramComponent < ApplicationComponent
 	MARKER_DOUBLE  = MARKER_SIZE * 2
 	MARKER_HALF    = MARKER_SIZE / 2
 	SYMBOL_SIZE    = 33.87
-	SHOW_SVG_CLASS = "w-full h-auto border"
+	SHOW_SVG_CLASS = "w-full h-auto"
 	EDIT_SVG_CLASS = "w-full h-full border"
 	EDITOR_BUTTONS = [
 		{ action: 'addAttacker', object: 'attacker', options: {label: "?"} },
@@ -53,36 +53,19 @@ class DiagramComponent < ApplicationComponent
 	end
 	
 	def call
-		svg_content = safe_join([
-			render_symbol_defs,
-			render_court
-		])
-
-		diagram_container = content_tag(:div, class: "diagram-container") do
-			content_tag(:svg, svg_content.html_safe,
-				class: @css,
-				id: @id,
-				height: "100%",
-				width: "100%",
-				preserveAspectRatio: "xMidYMid meet",
-				viewBox: "#{@viewbox[:x]} #{@viewbox[:y]} #{@viewbox[:width]} #{@viewbox[:height]}",
-				xmlns: "http://www.w3.org/2000/svg",
-				'xmlns:xlink': "http://www.w3.org/1999/xlink",
-				data: svg_data_attributes
-			)
-		end
+		svg_content = generate_diagram_content
 
 		if editor?
 			safe_join(
 				[
 					editor_buttons_container,
-					content_tag(:div, class: EDIT_SVG_CLASS + " border rounded", id: "#{@id}-container") { diagram_container },
+					content_tag(:div, class: EDIT_SVG_CLASS + " border rounded", id: "#{@id}-container") { svg_content },
 					hidden_editor_fields
 				]
 			)
 		else
 			content_tag(:div, class: @css, data: {controller: "diagram-renderer", diagram_renderer_svgdata_value: @svgdata}) do
-				diagram_container.html_safe
+				svg_content.html_safe
 			end
 		end
 	end
@@ -147,6 +130,24 @@ class DiagramComponent < ApplicationComponent
 			court     = SymbolComponent.new(symbol, namespace:, type: :court, css: @css, group: true, data:)
 			@viewbox  = court.view_box
 			render court
+		end
+
+		def generate_diagram_content
+			svg_start = safe_join([render_symbol_defs, render_court])
+			
+			content_tag(:div, class: "diagram-container", data: { loaded: "false" }) do
+				content_tag(:svg, svg_start.html_safe,
+					class: @css,
+					id: @id,
+					height: "100%",
+					width: "100%",
+					preserveAspectRatio: "xMidYMid meet",
+					viewBox: "#{@viewbox[:x]} #{@viewbox[:y]} #{@viewbox[:width]} #{@viewbox[:height]}",
+					xmlns: "http://www.w3.org/2000/svg",
+					'xmlns:xlink': "http://www.w3.org/1999/xlink",
+					data: svg_data_attributes
+				)
+			end
 		end
 
 		# Update the render_defs method to include symbols

@@ -13,10 +13,7 @@ export default class extends Controller {
       loadDiagramContent(this.diagramTarget, this.svgdataValue)
     }
 
-    // Optional: Fit diagram to container
-    requestAnimationFrame(() => {
-      zoomToFit(this.diagramTarget, this.courtTarget)
-    })
+    this.zoomAfterRender()
     this.setupEventListeners()
   }
 
@@ -32,4 +29,22 @@ export default class extends Controller {
     window.removeEventListener('resize', this.handleResize)
   }
 
+  zoomAfterRender() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const scale = zoomToFit(this.diagramTarget, this.courtTarget)
+        
+        // Additional centering logic
+        const container = this.diagramTarget.closest('.step-diagram')
+        if (container) {
+          const svgWidth = this.diagramTarget.clientWidth
+          const containerWidth = container.clientWidth
+          
+          if (svgWidth < containerWidth) {
+            this.diagramTarget.style.marginLeft = `${(containerWidth - svgWidth) / 2}px`
+          }
+        }
+      })
+    })
+  }
 }

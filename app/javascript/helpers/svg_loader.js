@@ -85,7 +85,9 @@ export function zoomToFit(svg, court, isEditor = false) {
   // Apply styles directly to SVG
   svg.style.width = `${width}px`
   svg.style.height = `${height}px`
-
+  svg.style.margin = '0 auto';
+  svg.style.display = 'block';
+  
   if (DEBUG) {
     console.log(`limits: ${availableWidth} x ${availableHeight}`)
     console.log(`new container: ${width} x ${height}`)

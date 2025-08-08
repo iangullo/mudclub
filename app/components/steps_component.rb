@@ -44,7 +44,7 @@ class StepsComponent < ApplicationComponent
 	end
 
 	def render_header
-		content_tag(:div, class: "label-field") do
+		content_tag(:div, class: "inline-flex font-semibold") do
 			concat(I18n.t("step.#{@many ? 'many' : 'explanation'}"))
 		end
 	end
@@ -55,8 +55,7 @@ class StepsComponent < ApplicationComponent
 				render_order(step),
 				content_tag(:div, class: "step-content") do
 					safe_join([render_diagram(step), render_explanation(step)])
-				end,
-				content_tag(:hr, "", class: "rounded")
+				end
 			])
 		end
 	end
@@ -72,13 +71,11 @@ class StepsComponent < ApplicationComponent
 			if step.has_image?
 				concat(render_image({value: step.diagram.attachment}))
 			else
-				content_tag(:div, class: "diagram-container") do
-					DiagramComponent.new(
-						sport: step.sport.name,
-						court: @court,
-						svgdata: step.svgdata
-					).render_in(view_context)
-				end
+				DiagramComponent.new(
+					sport: step.sport.name,
+					court: @court,
+					svgdata: step.svgdata
+				).render_in(view_context)
 			end
 		end
 	end

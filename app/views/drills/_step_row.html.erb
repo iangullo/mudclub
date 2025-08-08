@@ -1,9 +1,7 @@
 <% if form.object %>
 	<% step = form.object %>
-	<% icls = "rounded border-gray-200" %>
 	<% has_diagram = step.diagram.attached? || step.svgdata.present? %>
 	<% has_explanation = step.explanation&.body&.to_s.present? %>
-	
 	<div class="step-wrapper">
 		<!-- Main step container -->
 		<div class="step-container">
@@ -18,7 +16,7 @@
 			<!-- Content area -->
 			<div class="step-content">
 				<!-- 3. Diagram can be a PNG or inline SVG -->
-				<div class="step-diagram <%= icls %>">
+				<div class="step-diagram">
 					<% if step.diagram.attached? %>
 						<!-- 3a. Show attached diagram if it is available -->
 						<%= render InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "full", height: "auto"}, form:) %>
@@ -41,7 +39,7 @@
 				</div>
 				
 				<!-- 4. Explanation -->
-				<div class="step-explanation <%= icls %>">
+				<div class="step-explanation">
 					<%= render InputBoxComponent.new({kind: :rich_text_area, key: :explanation}, form:) %>
 				</div>
 			</div>

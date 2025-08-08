@@ -230,7 +230,7 @@ class FieldsComponent < ApplicationComponent
 		when :gap
 			item[:size]  ||= 4
 		when :label
-			l_cls          = "label-field"
+			l_cls          = "inline-flex font-semibold"
 			item[:class]   = item[:class] ? "#{item[:class]} #{l_cls}" : l_cls
 		when :lines
 			item[:class] ||= "align-top border px py"
