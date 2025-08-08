@@ -154,7 +154,7 @@ class DrillsController < ApplicationController
 			if @step
 				@title   = create_fields(helpers.drill_title_fields(title: @drill.name, subtitle: I18n.t("step.edit_diagram") + " ##{@step.order}"))
 				@editor  = helpers.drill_form_diagram
-				@submit  = create_submit(frame: "modal", retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
+				@submit  = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
 			else
 				redirect_to edit_drill_path(@drill), data: {turbo_action: "replace"}
 			end
