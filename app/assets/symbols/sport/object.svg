@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+	<symbol id="player.default" viewBox="0 0 33.87 33.87">
+		<g>
+			<circle cx="16.94" cy="14.2875" r="6.5" style="fill:currentColor;stroke:none;stroke-width:2" />
+			<path
+				d="M4.2333333,21.166667 C4.2333333,11.468202 29.371396,11.26182 29.633334,21.166667"
+				style="fill:none;stroke:currentColor;stroke-width:4.23333;stroke-linecap:round;stroke-linejoin:round" />
+		</g>
+		<text x="-8" y="31" style="font-weight:bold; font-size:12px; font-family:Arial, sans-serif; fill:currentColor; stroke:currentColor; stroke-width:1;">
+			<tspan>X</tspan>
+		</text>
+	</symbol>
+	<symbol id="attacker.default" viewBox="0 0 33.87 33.87">
+		<g>
+			<circle cx="16.94" cy="16.94" r="15" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+			<text x="16.93" y="16.93" text-anchor="middle" dominant-baseline="central" font-size="22" font-family="Arial, sans-serif" font-weight="bold" fill="#000000" stroke="none">
+				<tspan id="label">?</tspan>
+			</text>
+		</g>
+	</symbol>
+	<symbol id="attacker.offball" viewBox="0 0 33.87 33.87">
+		<g>
+			<text	x="16.93" y="16.93" text-anchor="middle"	dominant-baseline="central" font-size="31" font-family="Arial, sans-serif" font-weight="bold"	fill="#000000"	stroke="none">
+				<tspan id="label">?</tspan>
+			</text>
+		</g>
+	</symbol>
+	<symbol id="attacker.topview" viewBox="0 0 33.87 33.87">
+		<use href="#player.default" />
+	</symbol>
+	<symbol id="ball.default" viewBox="0 0 33.87 33.87">
+		<ellipse cx="16.93" cy="16.93" rx="14" ry="14" fill="#000000" stroke="#000000" stroke-width="2"/>
+	</symbol>
+	<symbol id="cone.default" viewBox="0 0 33.87 33.87">
+		<path d="M15.88 4.37L10.58 26.06 2.65 28.71 3.18 30.03h27.52l0.53-1.32-7.94-2.65-5.29-21.7z"
+			stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#8B0000" stroke="#4B0000)" />
+	</symbol>
+	<symbol id="coach.default" viewBox="0 0 33.87 33.87">
+		<g fill="#000000" stroke="#000000">
+			<circle cx="16.94" cy="16.94" r="15" stroke-width="2"/>
+			<text x="16.93" y="16.93" text-anchor="middle" dominant-baseline="central" font-size="24" font-family="Arial, sans-serif" font-weight="bold" fill="#ffffff" stroke="none">
+				<tspan>C</tspan>
+			</text>
+		</g>
+	</symbol>
+	<symbol id="defender.default" viewBox="0 0 33.87 33.87">
+		<g transform="translate(0,0)" fill="#000000" stroke="#000000">
+			<path
+				d="M 1.5875,1.5875 H 6.35 L 22.225,29.104167 h -4.233334 z"
+				stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+			<path
+				d="M 22.225,1.5875 H 17.991682 L 1.5875,29.104007 6.35,29.103902 Z"
+				stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+		</g>
+		<text x="16.93" y="32.5" text-anchor="middle" font-size="18" font-family="Arial, sans-serif" font-weight="bold" fill="#000000" stroke="none">
+			<tspan id="label">n</tspan>
+		</text>
+	</symbol>
+	<symbol id="defender.topview" viewBox="0 0 33.87 33.87">
+		<use href="#player.default" />
+	</symbol>
+	<symbol id="handoff.default" viewBox="0 0 33.87 33.87">
+		<g style="fill:none;stroke:#000;stroke-width:4">
+			<path d="M 14,2.9350003 V 30.935"/>
+			<path d="M 22,2.9350003 V 30.935"/>
+		</g>
+	</symbol>
+	<symbol id="move.default" viewBox="0 0 33.87 33.87">
+		<path style="fill:none;stroke:#000;stroke-width:3.175;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none" d="M3.704 16.933h22.688"/><path style="fill:#000;fill-opacity:1;stroke:none;stroke-width:7.9375;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none" d="m33.337 16.933-12.17-6.35v12.7z"/>
+	</symbol>
+	<symbol id="pass.default" viewBox="0 0 33.87 33.87">
+		<path style="fill:none;stroke:#000;stroke-width:3.175;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0" d="M2.117 16.933h2.645M10.054 16.933H12.7M17.992 16.933h2.645"/><path style="fill:#000;fill-opacity:1;stroke:none;stroke-width:7.9375;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none" d="m33.337 16.933-12.17-6.35v12.7z"/>
+	</symbol>
+	<symbol id="pick.default" viewBox="0 0 33.87 33.87">
+		<g fill="none" stroke="#000000">
+			<path style="stroke-width:3.175;stroke-linecap:round;stroke-linejoin:round" d="M3.704 16.933h22.688"/>
+			<path style="stroke-width:8;stroke-linejoin:bevel" d="M 26.392,2.9350003 V 30.935"/>
+		</g>
+	</symbol>
+	<symbol id="shot.default" viewBox="0 0 33.87 33.87">
+		<path style="fill:none;stroke:#000;stroke-width:3.70417;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none" d="M2.646 13.494H22.49M2.646 20.373H22.49"/>
+		<path style="fill:#000;fill-opacity:1;stroke:none;stroke-width:7.9375;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none" d="M33.337 16.933 21.167 9.26v15.346z"/>
+	</symbol>
+	</svg>

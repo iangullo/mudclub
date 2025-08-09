@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+	<symbol id="full.default" viewBox="0 0 3004 1704">
+		<g fill="none" stroke="#000000" stroke-width="4" style="stroke-linecap:round;stroke-linejoin:round">
+			<rect id="wrapper" x="0" y="0" width="3004" height="1704" fill="#ffffff" stroke="none"/>
+			<rect id="court" x="100" y="100" width="2804" height="1504"/>
+			<path id="half-court-line" d="M1502 103v1498" />
+			<circle id="center" cx="1502" cy="852" r="178"/>
+			<rect id="zone-left" x="100" y="607" fill="#f2f2f2" width="580" height="486" />
+			<path id="freethrow-bulb-left" d="M684 1034.571c85.682 0 176-68.907 176-178s-88.53-176.397-176-178" />
+			<path id="no-charge-left" d="M217 979.571h42c17.803 0 57.791-7.004 83.892-32.666C368.992 921.242 382 889.46 382 856.57c0-32.89-14.33-70.261-45.691-96.202-31.36-25.94-68.93-26.798-77.309-26.798h-42" />
+			<path id="backboard-left" d="M215 771.571v170" stroke-width="10" />
+			<circle id="hoop-left" cx="257" cy="852"  r="23" />
+			<path id="three-point-left" d="M102 198.571h304c32.182 0 193.847 50.608 322 172 117.432 111.237 206.5 272.147 206.5 486 0 213.854-86.344 365.844-206.5 486-120.156 120.157-299.965 172-322 172H102" />
+			<rect id="zone-right" x="2324" y="607" fill="#f2f2f2" width="580" height="486" />
+			<path id="freethrow-bulb-right" d="M2320 1034.571c-85.682 0-176-68.906-176-178 0-109.093 88.53-176.396 176-178" />
+			<path id="no-charge-right" d="M2793.5 979.571h-42c-17.803 0-57.791-7.004-83.892-32.666-26.1-25.663-39.108-57.445-39.108-90.334 0-32.89 14.33-70.261 45.691-96.202 31.36-25.94 68.93-26.798 77.309-26.798h42" />
+			<path id="backboard-right" d="M2795.5 771.57v170.001" stroke-width="10" />
+			<circle id="hoop-right" cx="2750.4" cy="852"  r="23" />
+			<path id="three-point-right" d="M2902 198.571h-304c-32.182 0-193.847 50.607-322 172-117.432 111.237-206.5 272.146-206.5 486 0 213.854 86.344 365.844 206.5 486s299.965 172 322 172h304" />
+		</g>
+	</symbol>
+	<symbol id="full.vertical" viewBox="0 0 3004 1704">
+		<use href="#full.default" transform="rotate(90, 1502, 802)" />
+	</symbol>
+	<symbol id="half.default" viewBox="0 0 1708 1608">
+		<g fill="none" stroke="#000000" stroke-width="4" style="stroke-linecap:round;stroke-linejoin:round">
+			<rect id="wrapper" x="0" y="0" width="1708" height="1608" fill="#ffffff" stroke="none"/>
+			<rect id="court" x="102" y="102" width="1504" height="1404" stroke-width="4" />
+			<rect id="zone" x="611" y="926" fill="#f2f2f2" width="486" height="580" />
+			<path id="freethrow-bulb" d="M 1032,926 C 1032,840.31819 963.09311,750 854,750 744.90689,750 677.60331,838.53033 676,926" />
+			<path id="backcourt-semi" d="m 1032,104 c 0,91.22183 -75.12262,176 -178,176 -102.87738,0 -179.3806,-86.84591 -178,-176" />
+			<path id="nocharge-zone" d="m 977,1390 c 0,0 0,-28 0,-42 0,-17.8034 -7.00367,-57.7913 -32.66618,-83.8921 C 918.67131,1238.0071 886.88909,1225 854,1225 c -32.88909,0 -70.26123,14.3308 -96.20166,45.691 C 731.85791,1302.0512 731,1339.6215 731,1348 c 0,14 0,42 0,42" />
+			<path id="backboard" d="M 768.99987,1391.9601 H 939.00013" stroke-width="10" />
+			<circle id="hoop" cx="854" cy="1347.5" r="22.5" />
+			<path id="three-point-line" d="m 196,1506 v -304 c 0,-32.1823 50.60745,-193.8469 172,-322 111.2365,-117.43146 272.14625,-206.5 486,-206.5 213.8538,0 365.8438,86.34384 486,206.5 120.1562,120.1562 172,299.9649 172,322 v 304" />
+		</g>
+	</symbol>
+	<symbol id="half_def.default" viewBox="0 0 1708 1608">
+		<use href="#half.default">
+	</symbol>
+	<symbol id="half_off.default" viewBox="0 0 1708 1608">
+		<use href="#half.default" transform="rotate(180, 854, 804)" />
+	</symbol>
+</svg>

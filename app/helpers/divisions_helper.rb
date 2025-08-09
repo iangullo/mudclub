@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -18,28 +18,29 @@
 #
 module DivisionsHelper
 	# return icon and top of FieldsComponent
-	def division_title_fields(title:, subtitle: nil, cols: nil)
-		title_start(icon: "division.svg", title:, subtitle:, cols:)
+	def division_title_fields(title:, subtitle: @sport&.to_s, cols: nil)
+		title_start(icon: symbol_hash("division", namespace: "sport"), title:, subtitle:, cols:)
 	end
 
 	# return FieldsComponent @fields for forms
-	def division_form_fields(title:, subtitle:)
-		res = division_title_fields(title:, subtitle:, cols: 3)
-		res << [{kind: "text-box", key: :name, value: @division.name, placeholder: I18n.t("division.name"),cols: 3, mandatory: {length: 3}}]
+	def division_form_fields(title:, subtitle: @sport&.to_s)
+		@submit = SubmitComponent.new(submit: :save)
+		res = division_title_fields(title:, subtitle:)
+		res << [gap_field, {kind: :text_box, key: :name, value: @division.name, placeholder: I18n.t("division.name")	, mandatory: {length: 3}}]
 	end
 
 	# return grid for @divisions GridComponent
 	def division_grid
-		title = [{kind: "normal", value: I18n.t("division.name")}]
+		title = [{kind: :normal, value: I18n.t("division.name")}]
 		title << button_field({kind: :add, url: new_sport_division_path(@sport, rdx: @rdx), frame: "modal"}) if u_admin?
 
 		rows = Array.new
 		@divisions.each { |div|
 			row = {url: edit_sport_division_path(@sport, div, rdx: @rdx), frame: "modal", items: []}
-			row[:items] << {kind: "normal", value: div.name}
+			row[:items] << {kind: :normal, value: div.name}
 			row[:items] << button_field({kind: :delete, url: sport_division_path(@sport, div, rdx: @rdx), name: div.name}) if u_admin?
 			rows << row
 		}
-		{title: title, rows: rows}
+		{title:, rows:}
 	end
 end

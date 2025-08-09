@@ -36,8 +36,9 @@ class HomeController < ApplicationController
 			elsif u_admin? # manage server
 				redirect_to home_server_path
 			end
+		else
+				@login_fields = create_fields(helpers.home_closed_fields)
 		end
-
 	end
 
 	def about
@@ -53,7 +54,7 @@ class HomeController < ApplicationController
 			else
 				actions = UserAction.where(user_id: u_club.users.pluck(:id)).order(updated_at: :desc)
 			end
-			title = helpers.home_admin_title(icon: "user_actions.svg", title: I18n.t("server.log"))
+			title = helpers.home_admin_title(icon: {concept: "actions", size: "50x50"}, title: I18n.t("server.log"))
 			title.last << helpers.button_field({kind: :clear, url: home_clear_path}) unless actions.empty?
 			page  = paginate(actions)	# paginate results
 			grid  = helpers.home_actions_grid(actions: page)

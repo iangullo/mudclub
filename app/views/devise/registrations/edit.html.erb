@@ -12,7 +12,7 @@
 			</tr><tr>
 				<td class="font-semibold"><%= I18n.t("password.change") %></td>
 			</tr><tr>
-				<td align="right" class="<%=i_cls%>"><%= image_tag "oldkey.svg", size: "25x25" %></td>
+				<td align="right" class="<%=i_cls%>"><%= render SymbolComponent.new("key", variant: "old", size: "25x25") %></td>
 				</td><td>
 					<%= f.password_field :current_password, autofocus: true, placeholder: I18n.t("password.old"), class: f_cls %>
 				</td>
@@ -20,7 +20,7 @@
 				<td></td>
 				<td class="text-sm"><i><%= I18n.t("password.blank_abort")%></i></td>
 			</tr><tr>
-				<td align="right" class="<%=i_cls%>"><%= image_tag "key.svg", size: "25x25" %></td>
+				<td align="right" class="<%=i_cls%>"><%= render SymbolComponent.new("key", size: "25x25") %></td>
 				<td>
 					<%= f.password_field :password, placeholder: I18n.t("password.new"), class: f_cls %>
 					<% if @minimum_password_length %>
@@ -29,7 +29,7 @@
 					<% end %>
 				</td>
 			</tr><tr>
-				<td align="right" class="<%=i_cls%>"><%= image_tag "key.svg", size: "25x25" %></td>
+				<td align="right" class="<%=i_cls%>"><%= render SymbolComponent.new("key", size: "25x25") %></td>
 				<td colspan="2"><%= f.password_field :password_confirmation, placeholder: I18n.t("password.confirm"), class: f_cls %></td>
 			</tr>
 		</table>

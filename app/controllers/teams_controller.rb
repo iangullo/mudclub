@@ -26,7 +26,7 @@ class TeamsController < ApplicationController
 	def index
 		if check_access(roles: [:admin, :manager, :coach, :secretary])
 			@club  = Club.find_by_id(@clubid)
-			@teams = @club.teams.where(season_id: @seasonid).order(:category_id, :name)
+			@teams = filter!(Team).real.order(:category_id, :name).where(club_id: @clubid)
 			respond_to do |format|
 				format.xlsx do
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
@@ -59,7 +59,7 @@ class TeamsController < ApplicationController
 			w_l = @team.win_loss
 			if w_l[:won] > 0 || w_l[:lost] > 0
 				wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
-				title << [helpers.gap_field, {kind: "text", value: wlstr}]
+				title << [helpers.gap_field, {kind: :text, value: wlstr}]
 			end
 			@title   = create_fields(title)
 			@coaches = create_fields(helpers.team_coaches)
@@ -84,7 +84,7 @@ class TeamsController < ApplicationController
 	def new
 		if u_manager?
 			@eligible_coaches = @club.coaches
-			@team   = Team.new(club_id: @club.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
+			@team   = Team.new(club_id: @club.id, sport_id: Sport.first.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
 			@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
 			@submit = create_submit(retlnk: club_teams_path(@clubid, rdx: 0))
 		else
@@ -110,19 +110,24 @@ class TeamsController < ApplicationController
 		@club = Club.find(@clubid)
 		if club_manager?(@club)
 			respond_to do |format|
-				@team = Team.build(team_params)
-				if @team.save
-					a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
-					c_path = (user_in_club? ? cru_return : club_teams_path(@clubid, rdx: @rdx))
-					register_action(:created, a_desc, url: team_path(@team, rdx: 2))
-					format.html { redirect_to c_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
-					format.json { render :index, status: :created, location: c_path }
-				else
-					@eligible_coaches = Coach.active
-					@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
-					@submit = create_submit
-					format.html { render :new }
-					format.json { render json: @team.errors, status: :unprocessable_entity }
+				if team_params
+					@team = Team.build(team_params)
+					if @team.save
+						a_desc = "#{I18n.t("team.created")} '#{@team.to_s}'"
+						c_path = (user_in_club? ? cru_return : club_teams_path(@clubid, rdx: @rdx))
+						register_action(:created, a_desc, url: team_path(@team, rdx: 2))
+						format.html { redirect_to c_path, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						format.json { render :index, status: :created, location: c_path }
+					else
+						@eligible_coaches = Coach.active
+						@fields = create_fields(helpers.team_form_fields(title: I18n.t("team.new")))
+						@submit = create_submit
+						format.html { render :new }
+						format.json { render json: @team.errors, status: :unprocessable_entity }
+					end
+				else	# no data to save...
+					format.html { redirect_to retlnk, notice: n_notice, data: {turbo_action: "replace"} }
+					format.json { redirect_to retlnk, status: :ok, location: retlnk }
 				end
 			end
 		else
@@ -137,8 +142,8 @@ class TeamsController < ApplicationController
 			respond_to do |format|
 				n_notice = no_data_notice(trail: @team.to_s)
 				retlnk   = cru_return
-				if params[:team]
-					@team.rebuild(params[:team])
+				if team_params
+					@team.rebuild(team_params)
 					if @team.modified?
 						if @team.save
 							a_desc = "#{I18n.t("team.updated")} '#{@team.to_s}'"
@@ -189,7 +194,8 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [:manager, :coach, :secretary], obj: @club, both: true)
 			title   = helpers.team_title_fields(title: @team.nick)
 			players = @team.players
-			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster"), align: "left"}, {kind: "string", value: "(#{players.count} #{I18n.t("player.abbr")})"}]
+			title << icon_subtitle("player", I18n.t("team.roster"), namespace: @team.sport.name)
+			title.last << { kind: :string, value: "(#{players.count} #{I18n.t("player.abbr")})" }
 			@title  = create_fields(title)
 			@title  = create_fields(title)
 			@grid   = create_grid(helpers.player_grid(team: @team, players: players.order(:number)))
@@ -204,7 +210,7 @@ class TeamsController < ApplicationController
 	def edit_roster
 		if @team && team_manager?
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "player.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("team.roster_edit"), align: "left"}]
+			title << icon_subtitle("player", I18n.t("team.roster_edit"), namespace: @team.sport.name)
 			@title  = create_fields(title)
 			@submit = create_submit(close: :cancel, retlnk: roster_team_path(rdx: @rdx))
 			@eligible_players = @team.eligible_players
@@ -229,7 +235,7 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [:coach, :manager], obj: @club, both: true)
 			global_targets(true)	# get & breakdown global targets
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.many"), align: "left"}]
+			title << icon_subtitle("target", I18n.t("target.many"))
 			@title  = create_fields(title)
 			edit    = edit_targets_team_path(rdx: @rdx) if team_manager?
 			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
@@ -245,7 +251,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			global_targets(false)	# get global targets
 			title   = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "target.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("target.edit"), align: "left"}]
+			title << icon_subtitle("target", I18n.t("target.edit"))
 			@title  = create_fields(title)
 			@submit = create_submit(close: :cancel, retlnk: targets_team_path(rdx: @rdx))
 		else
@@ -258,7 +264,7 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [:coach, :manager], obj: @club, both: true)
 			plan_targets
 			title = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.single"), align: "left"}]
+			title << icon_subtitle("plan", I18n.t("plan.single"))
 			@title = create_fields(title)
 			edit    = edit_plan_team_path(rdx: @rdx) if team_manager?
 			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
@@ -273,7 +279,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: {turbo_action: "replace"}) unless @team
 			plan_targets
 			title   = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "teamplan.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("plan.edit"), align: "left"}]
+			title << icon_subtitle("plan", I18n.t("plan.edit"))
 			@title  = create_fields(title)
 			@submit = create_submit(close: :cancel, retlnk: plan_team_path(rdx: @rdx))
 		else
@@ -285,7 +291,7 @@ class TeamsController < ApplicationController
 	def attendance
 		if @team && check_access(roles: [:coach, :manager, :secretary], obj: @club, both: true)
 			title  = helpers.team_title_fields(title: @team.to_s)
-			title << [{kind: "icon", value: "attendance.svg", size: "30x30"}, {kind: "side-cell", value: I18n.t("calendar.attendance"), align: "left"}]
+			title << icon_subtitle("attendance", I18n.t("calendar.attendance"))
 			@title = create_fields(title)
 			a_data = helpers.team_attendance_grid
 			if a_data
@@ -361,6 +367,14 @@ class TeamsController < ApplicationController
 			end
 		end
 
+		# reused across differnet views
+		def icon_subtitle(icon, label, namespace: "common")
+			[
+				helpers.symbol_field(icon, size: "30x30", namespace:, align: "right", css: "mr-1"),
+				{kind: :side_cell, value: label, align: "left"}
+			]
+		end
+
 		# retrieve monthly targets for the team
 		def plan_targets
 			@months = @team.season.months(true)
@@ -376,7 +390,7 @@ class TeamsController < ApplicationController
 				@clubid = @team&.club&.id
 			end
 			@club     = Club.find(@clubid)
-			s_id      = @team&.season&.id || p_seasonid || session.dig('team_filters', 'season_id')
+			s_id      = @team&.season&.id || session.dig('team_filters', 'season_id') || p_seasonid
 			@season   = Season.search(s_id) unless (s_id == @season&.id)
 			@seasonid = @season&.id
 		end
@@ -390,6 +404,7 @@ class TeamsController < ApplicationController
 				:coaches,
 				:division_id,
 				:homecourt_id,
+				:name,
 				:nick,
 				:players,
 				:rdx,

@@ -16,9 +16,11 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# frozen_string_literal: true
+#
 # ButtonComponent - ViewComponent to manage regular buttons used in views
 # button is a mudsplat with following fields:
-# kind:, max_h: 6, icon: nil, label: nil, url: nil, turbo: nil
+# kind:, max_h: 6, icon: nil, label: nil, url: nil, turbo: nil, title: nil (provides tooltips)
 # kinds of button:
 # => :action: perform a specific controller action
 # => :add: new item button
@@ -41,8 +43,9 @@
 # => :menu: menu button
 # => :remove: remove item from nested form or sortable list
 # => :save: save form
+# => :stimulus: trigger for stimulus action
 # => :whatsapp: open whatsapp chat
-# frozen_string_literal: true
+# ButtonComponent - ViewComponent to manage regular buttons used in views
 class ButtonComponent < ApplicationComponent
 	def initialize(**attrs)
 		validate(attrs)
@@ -58,11 +61,11 @@ class ButtonComponent < ApplicationComponent
 			content_tag(:div, class: "relative") do
 				if @button[:url]
 					target = "_blank" if @button[:tab]
-					link_to(@button[:url], target:, class: @button[:b_class], data: @button[:data]) do
+					link_to(@button[:url], target:, class: @button[:b_class], title: @button[:title], data: @button[:data]) do
 						button_content
 					end
 				else
-					button_tag(class: @button[:b_class], type: @button[:type], data: @button[:data]) do
+					button_tag(class: @button[:b_class], type: @button[:type], title: @button[:title], data: @button[:data]) do
 						button_content
 					end
 				end
@@ -80,15 +83,15 @@ class ButtonComponent < ApplicationComponent
 		c_class = "#{(@button[:kind] == :jump) ? '' : 'inline-flex '}items-center"
 		content_tag(:div, class: c_class) do
 			if @button[:flip]	# flip order - label first
-				concat(@button[:label]) if @button[:label]
-				if @button[:icon]
-					concat("&nbsp;".html_safe) if @button[:label]
-					concat(image_tag(@button[:icon], size: @button[:size], class: @button[:i_class]))
+				concat(@button[:label].presence) if @button[:label].present?
+				if has_icon?
+					concat("&nbsp;".html_safe) if @button[:label].present?
+					concat(render_image(@button))
 				end
 			else
-				concat(image_tag(@button[:icon], size: @button[:size], class: @button[:i_class])) if @button[:icon]
+				concat(render_image(@button)) if has_icon?
 				if @button[:label]
-					concat("&nbsp;".html_safe) if @button[:icon]
+					concat("&nbsp;".html_safe) if has_icon?
 					concat(@button[:label])
 				end
 			end
@@ -105,21 +108,25 @@ class ButtonComponent < ApplicationComponent
 		end
 	end
 
+	# returns true if we ahve an icon or a symbol defined
+	def has_icon?
+		@button[:icon].present? || @button[:symbol].present?
+	end
+
 	# determine class of item depending on kind
 	def parse_button
-		set_icon
+		hashify_symbol(@button)
 		set_bclass
 		set_dclass
 		set_iclass
 		set_data
+		set_icon
 		@button[:align] ||= "center"
 	end
-
+	
 	# determine button icon depending on kind
 	def set_icon
 		case @button[:kind]
-		when :add, :add_nested
-			@button[:icon]  ||= "add.svg"
 		when :back
 			@button[:turbo]   = "_top"
 		when :call
@@ -151,9 +158,13 @@ class ButtonComponent < ApplicationComponent
 			@button[:url]  = @button[:web] ? "https://web.whatsapp.com/" : "whatsapp://"
 			@button[:url] += @button[:url] + "send?phone=#{@button[:value].delete(' ')}"
 		end
-		@button[:label] ||= I18n.t("action.#{@button[:kind].to_s}") unless [:add, :add_nested, :call, :delete, :email, :remove, :link,:whatsapp].include?(@button[:kind])
-		@button[:icon]  ||= "#{@button[:kind]}.svg" unless @button[:kind] == :link
-		@button[:size]  ||= "25x25"
+		@button[:label]  ||= I18n.t("action.#{@button[:kind].to_s}") if [:back, :cancel, :clear, :edit, :export, :import, :save].include?(@button[:kind])
+		@button[:size]   ||= "25x25"
+		@button[:symbol] ||= {concept: @button[:kind].to_s, options: {type: :button}} unless @button[:icon] || @button[:kind] == :link
+		if @button[:symbol]
+			@button[:symbol][:options][:size] ||= @button[:size]
+			@button[:symbol][:options][:css]  ||= @button[:i_class]
+		end
 	end
 
 	# set the @button class depending on button type
@@ -162,8 +173,8 @@ class ButtonComponent < ApplicationComponent
 		b_start += " #{@button[:b_class]}" if @button[:b_class]
 		@button[:name] ||= @button[:kind].to_s
 		case @button[:kind]
-		when :add, :add_nested
-			@button[:action] ||= "nested-form#add" if @button[:kind]==:add_nested
+		when :add_nested
+			@button[:action] ||= "nested-form#add"
 		when :cancel, :clear, :save, :import, :export, :login, :back, :forward
 			b_start += " font-bold"
 		when :close
@@ -171,10 +182,12 @@ class ButtonComponent < ApplicationComponent
 			b_start += " font-bold"
 		when :remove
 			@button[:action] ||= "nested-form#remove"
+		when :stimulus
+			@button[:type] = "button"
 		end
 		@button[:flip]    ||= true if [:save,:import].include? @button[:kind]
-		@button[:type]      = "submit" if @button[:kind] =~ /^(save|import|login)$/
-		@button[:replace]   = true if @button[:kind] =~ /^(cancel|close|save|back)$/
+		@button[:type]      = "submit" if @button[:kind].to_s =~ /^(save|import|login)$/
+		@button[:replace]   = true if @button[:kind].to_s =~ /^(cancel|close|save|back)$/
 		@button[:b_class] ||= b_start + (@button[:kind]!= :jump ? " m-1 inline-flex align-middle" : "")
 	end
 
@@ -186,10 +199,11 @@ class ButtonComponent < ApplicationComponent
 			case @button[:kind]
 			when :jump
 				@button[:d_class] = @button[:d_class] + " m-1 text-sm"
+				@button[:label]   = safe_join(["<br>".html_safe, @button[:label]]) if @button[:label]
 			when :location, :whatsapp
 				@button[:tab]     = true
-				@button[:d_class] = @button[:d_class] + " text-sm" if @button[:icon]
-			when :action, :back, :call, :cancel, :clear, :close, :edit, :email, :export, :forward, :import, :login, :save
+				@button[:d_class] = @button[:d_class] + " text-sm" if has_icon?
+			when :action, :back, :call, :cancel, :clear, :close, :edit, :email, :export, :forward, :import, :login, :save, :stimulus
 				b_colour += " font-bold"
 			else
 				@button[:d_class] += " font-semibold"
@@ -199,15 +213,15 @@ class ButtonComponent < ApplicationComponent
 		@button[:d_class] += " hover-div" if @button[:type] == "submit"
 	end
 
-	# set the i_class for the button div
+	# set the inner css for the button div
 	def set_iclass
 		case @button[:kind]
-		when :add, :delete, :link, :location
-			@button[:i_class] = "max-h-6 min-h-4 align-middle"
+		when :add, :delete, :link, :location, :stimulus
+			@button[:i_class] ||= "max-h-6 min-h-4 align-middle"
 		when :add_nested, :remove
-			@button[:i_class] = "max-h-5 min-h-4 align-middle"
+			@button[:i_class] ||= "max-h-5 min-h-4 align-middle"
 		when  :back, :call, :cancel, :clear, :close, :edit, :email, :export, :forward, :import, :save, :whatsapp
-			@button[:i_class] = "max-h-7 min-h-5 align-middle"
+			@button[:i_class] ||= "max-h-7 min-h-5 align-middle"
 		end
 	end
 
@@ -230,7 +244,7 @@ class ButtonComponent < ApplicationComponent
 			light = "blue-700"
 			text  = "gray-200"
 			high  = "white"
-		when :action, :call, :email, :whatsapp
+		when :action, :call, :email, :whatsapp, :stimulus
 			wait  = "gray-100"
 			light = "gray-300"
 			text  = "gray-700"
@@ -249,7 +263,11 @@ class ButtonComponent < ApplicationComponent
 	# set the turbo data frame if required
 	def set_data
 		res = @button[:data] ? @button[:data] : {}
-		res[:turbo_frame]   = @button[:frame] ? @button[:frame] : "_top"
+		if @button[:kind] == :stimulus
+			res[:active_class]= "bg-blue-600 text-white ring ring-blue-300"
+		else
+			res[:turbo_frame] = (@button[:frame] ? @button[:frame] : "_top")
+		end
 		res[:turbo_action]  = "replace" if @button[:replace]
 #		res[:turbo_confirm] = @button[:confirm] if @button[:confirm]
 		res[:turbo_method]  = :delete.to_sym if @button[:kind]==:delete
@@ -274,7 +292,7 @@ class ButtonComponent < ApplicationComponent
 		required_keys.each do |key|
 			unless attrs.key?(key)
 				raise ArgumentError, "Button attributes are missing the required key: #{key}"
-			end	
+			end
 		end
 	end
 end

@@ -19,7 +19,7 @@
 module SlotsHelper
 	# return icon and top of FieldsComponent
 	def slot_title_fields(title:, subtitle: nil)
-		icon = "timetable.svg"
+		icon = symbol_hash("timetable")
 		res  = title_start(icon: , title:, subtitle:)
 		res
 	end
@@ -28,50 +28,50 @@ module SlotsHelper
 	def slot_form_fields(title:)
 		res = slot_title_fields(title:, subtitle: @season&.name)
 		res << [
-			icon_field("team.svg"),
-			{kind: "select-collection", key: :team_id, options: @club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2}
+			symbol_field("team"),
+			{kind: :select_collection, key: :team_id, options: @club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2}
 		]
 		res << [
-			icon_field("location.svg"),
-			{kind: "select-collection", key: :location_id, options: @locations, value: @slot.location_id, cols: 2}
+			symbol_field("location"),
+			{kind: :select_collection, key: :location_id, options: @locations, value: @slot.location_id, cols: 2}
 		]
 		res << [
-			icon_field("calendar.svg"),
-			{kind: "select-box", key: :wday, value: @slot.wday, options: weekdays},
-			{kind: "time-box", hour: @slot.hour, mins: @slot.min, mandatory: true}
+			symbol_field("calendar"),
+			{kind: :select_box, key: :wday, value: @slot.wday, options: weekdays},
+			{kind: :time_box, hour: @slot.hour, mins: @slot.min, mandatory: true}
 		]
 		res << [
-			icon_field("clock.svg"),
-			{kind: "number-box", key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins"), mandatory: {min: 60}}
+			symbol_field("clock"),
+			{kind: :number_box, key: :duration, min:60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins"), mandatory: {min: 60}}
 		]
-		res.last << {kind: "hidden", key: :season_id, value: @season.id}
-		res.last << {kind: "hidden", key: :rdx, value: @rdx} if @rdx
+		res.last << {kind: :hidden, key: :season_id, value: @season.id}
+		res.last << {kind: :hidden, key: :rdx, value: @rdx} if @rdx
 		res
 	end
 
 	# search bar for slots index
 	def slot_search_bar(full=false)
 		l_opts   = @locations.practice.select(:id, :name)
-		l_filter = {kind: "search-collection", key: :location_id, options: l_opts, value: @location.id}
-		fields   = [l_filter, {kind: "hidden", key: :club_id, value: @clubid}]
+		l_filter = {kind: :search_collection, key: :location_id, options: l_opts, value: @location.id}
+		fields   = [l_filter, {kind: :hidden, key: :club_id, value: @clubid}]
 		if full
-			s_filter = {kind: "search-collection", key: :season_id, options: Season.real, value: @season&.id}
+			s_filter = {kind: :search_collection, key: :season_id, options: Season.real, value: @season&.id}
 			fields = [s_filter] + fields
 			res = []
 		else
-			fields << {kind: "hidden", key: :season_id, value: @seasonid}
+			fields << {kind: :hidden, key: :season_id, value: @seasonid}
 			res = [gap_field(size: 1)]
 		end
-		res << {kind: "search-box", url: club_slots_path(@clubid, rdx: @rdx), fields:}
+		res << {kind: :search_box, url: club_slots_path(@clubid, rdx: @rdx), fields:}
 	end
 
 	# fields for individual slot views
 	def slot_show_fields
 		res = [
-			[icon_field("category.svg"), string_field(@slot.team.category.name, cols: 2)],
-			[icon_field("division.svg"), string_field(@slot.team.division.name, cols: 2)],
-			[icon_field("location.svg"), string_field(@slot.court, cols: 2)],
-			[icon_field("calendar.svg"), string_field(@slot.to_s, cols: 2)]
+			[symbol_field("category", {namespace: "sport"}), string_field(@slot.team.category.name, cols: 2)],
+			[symbol_field("division", {namespace: "sport"}), string_field(@slot.team.division.name, cols: 2)],
+			[symbol_field("location"), string_field(@slot.court, cols: 2)],
+			[symbol_field("calendar"), string_field(@slot.to_s, cols: 2)]
 		]
 		if u_manager?
 			res << [gap_field(cols: 2), button_field({kind: :delete, url: slot_path(@slot, rdx: @rdx), name: @slot.to_s}, align: "right")]

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_08_114007) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_14_042733) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -134,8 +134,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_08_114007) do
     t.bigint "kind_id", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "sport_id", default: 1
+    t.string "court_mode", default: "full"
     t.index ["coach_id"], name: "index_drills_on_coach_id"
     t.index ["kind_id"], name: "index_drills_on_kind_id"
+    t.index ["sport_id"], name: "index_drills_on_sport_id"
   end
 
   create_table "drills_skills", id: false, force: :cascade do |t|
@@ -405,6 +408,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_08_114007) do
   add_foreign_key "drill_targets", "targets"
   add_foreign_key "drills", "coaches"
   add_foreign_key "drills", "kinds"
+  add_foreign_key "drills", "sports"
   add_foreign_key "event_targets", "events"
   add_foreign_key "event_targets", "targets"
   add_foreign_key "events", "locations"

@@ -1,35 +1,11 @@
-<div id="<%=@model%>-<%=@key%>" data-controller="nested-form" data-nested_form_wrapper_selector_value=".nested-form-wrapper">
-	<template data-nested-form-target="template">
-		<% @form.fields_for @key, @child, child_index: 'NEW_RECORD' do |ff| %>
-			<div class="nested-form-wrapper" data-new-record="<%= ff.object.new_record? %>">
-				<div class="inline-flex">
-					<%= render @row, form: ff %>
-					<%= render @btn_del %>
-					<%= ff.hidden_field :id %>
-					<%= ff.hidden_field :_destroy %>
-				</div>
-			</div>
-		<% end %>
-	</template>
-	<% @form.fields_for @key, @form&.object&.send(@key)&.order(@order) do |ff| %>
-		<% ff.object = ff.object.first if ff.object.try(:size) %>
-		<% ff_show   = true %>
-		<% if @filter %>
-			<% @filter.each do |key, value| %>
-				<% ff_show = (ff_show and ff.object.send(key)==value) %>
-			<% end %>
-		<% end %>
-		<% if ff.object and ff_show %>
-			<div class="nested-form-wrapper" data-new-record="<%= ff.object.new_record? %>">
-				<div class="inline-flex">
-					<%= render @row, form: ff %>
-					<%= ff.hidden_field :id %>
-					<%= render @btn_del %>
-				</div>
-				<%= ff.hidden_field :_destroy %>
-			</div>
-		<% end %>
-	<% end %>
-	<div data-nested-form-target="target"></div>
-	<%= render @btn_add if  @btn_add %>
+<div id="<%= @model %>-<%= @key %>" data-controller="nested-form">
+  <template data-nested-form-target="template">
+    <%= prepare_template %>
+  </template>
+
+  <div data-nested-form-target="container">
+    <%= prepare_collection %>
+  </div>
+
+  <%= render @btn_add %>
 </div>

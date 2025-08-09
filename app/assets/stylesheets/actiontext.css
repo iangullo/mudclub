@@ -63,3 +63,6 @@
 .trix-button--icon-code,
 .trix-button--icon-quote,
 .trix-button--icon-strike { display:none; }
+.trix-button--icon-heading-1 {display: none;}
+/** care with file tools **/
+.trix-button-group--file-tools {display: none !important;}

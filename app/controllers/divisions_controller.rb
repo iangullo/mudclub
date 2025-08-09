@@ -27,7 +27,7 @@ class DivisionsController < ApplicationController
 			@divisions = Division.for_sport(@sport.id)
 			title = helpers.division_title_fields(title: I18n.t("division.many"))
 			grid  = helpers.division_grid
-			create_index(title:, grid:, retlnk: base_lnk(sport_path(@sport, rdx: @rdx)))
+			create_index(title:, grid:)
 		else
 			redirect_to "/", data: {turbo_action: "replace"}
 		end

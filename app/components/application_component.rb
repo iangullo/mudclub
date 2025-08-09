@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
+# Core shared component functions
 class ApplicationComponent < ViewComponent::Base
 	def initialize(tag: nil, classes: nil, **options)
 		@tag = tag
@@ -27,7 +28,8 @@ class ApplicationComponent < ViewComponent::Base
 	def call
 		content_tag(@tag, content, class: @classes, **@options) if @tag
 	end
-
+	
+	private
 	# handle errors gracefully
 	def handle_error(error)
 		# Log the error for debugging purposes
@@ -35,6 +37,48 @@ class ApplicationComponent < ViewComponent::Base
 		
 		# Render a fallback message or component
 		content_tag(:div, "An error occurred while rendering this button.", class: "error-message")
+	end
+
+	# ensure symbol is converted to a proper symbol hash, if needed.
+	def hashify_symbol(item)
+		item[:symbol] = {concept: item[:symbol], options: {}} if item[:symbol].presence.is_a? String
+		item[:symbol][:options] ||= {} if item[:symbol]
+	end
+
+	# unfied renderer for icon/symbol images
+	def render_image(img, size: nil)
+		return if img.blank? || !img.is_a?(Hash)
+		html = ""
+		if img[:tip]
+			html += "<button data-tooltip-target=\"tooltip-#{img[:tipid]}\" data-tooltip-placement=\"bottom\" type=\"button\">"
+		end
+		if img[:symbol]
+			img[:symbol][:options][:size] ||= size if size.present?
+			html += render(SymbolComponent.new(img[:symbol][:concept], **img[:symbol][:options]))
+		else
+			img[:size] ||= img[:icon].present? ? "25x25" : size.presence
+			html += image_tag(img[:value] || img[:icon], size: img[:size], class: img[:i_class])
+		end
+		if img[:tip]
+			html += "</button>"
+			html += "<div id=\"tooltip-#{img[:tipid]}\" role=\"tooltip\" class=\"absolute z-20 invisible inline-block px-1 py-1 text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip\">"
+			html += img[:tip]
+			html += "</div>"
+		end
+		html.html_safe
+	end
+
+	# Return the value of a nested attribute accessed with flexible keys
+	# Accepts either multiple arguments or an array of fallback keys (symbol or string).
+	def safe_attr(opts, *keys)
+		keys.flatten.each do |key|
+			val = opts[key.to_s]
+			return val if val.present?
+
+			val = opts[key.to_sym]
+			return val if val.present?
+		end
+		nil
 	end
 
 	# wrappers to generate different field tags - self-explanatory

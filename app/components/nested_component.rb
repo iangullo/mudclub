@@ -35,18 +35,55 @@ class NestedComponent < ApplicationComponent
 		@child   = child
 		@key     = key.to_sym
 		@row     = row
-		@filter  = n_filter(filter:)
+		@filter  = normalize_filter(filter)
 		@order   = order ? order.to_sym : nil
 		@btn_del = ButtonComponent.new(kind: :remove)
 		@btn_add = ButtonComponent.new(kind: :add_nested)
 	end
 
-	# filter collection of objects using filter hash
-	def n_filter(filter:)
-		if filter.class==Hash
-			return filter
-		else
-			return nil
+	private
+		# filter collection of objects using filter hash
+		def normalize_filter(filter)
+			filter.is_a?(Hash) ? filter : nil
 		end
-	end
+
+		def get_children
+			return nil unless @form
+	
+			children = @form.object.send(@key)
+			children = children.order(@order) if @order
+			children = children.select do |child|
+				@filter.nil? || @filter.all? { |k, v| child.send(k) == v }
+			end
+			return children
+		end
+
+		# prepare the placeholder template
+		def prepare_template
+			return view_context.capture do
+				@form.fields_for @key, @child, child_index: 'NEW_RECORD' do |ff|
+					render_row(ff)
+				end
+			end
+		end
+
+		def prepare_collection
+			return view_context.capture do
+				@form.fields_for @key, get_children do |ff|
+					render_row(ff)
+				end
+			end
+		end
+	
+		# This renders the row markup inline
+		def render_row(ff)
+			view_context.content_tag(:div, class: "flex w-full items-center", data: {nested_form_target: "item", new_record: ff.object.new_record?} ) do
+				view_context.safe_join([
+					render(@row, form: ff),
+					render(@btn_del),
+					ff.hidden_field(:id),
+					ff.hidden_field(:_destroy)
+				])
+			end
+		end
 end

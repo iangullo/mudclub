@@ -209,7 +209,7 @@ class EventsController < ApplicationController
 		end
 	end
 
-	# POST /events/1/copy
+	# GET /events/1/copy
 	def copy
 		if @event && (user_in_club? && check_access(roles: [:manager, :coach]))
 			@season = Season.latest
@@ -417,7 +417,7 @@ class EventsController < ApplicationController
 			teams = (u_manager? ? u_club.teams.for_season(@season.id) : current_user.coach.team_list(season_id: @season.id))
 			opts  = []
 			teams.each do |team|
-				opts << {id: team.id, name: team.nick}
+				opts << {id: team.id, name: team.name}
 			end
 			return opts
 		end

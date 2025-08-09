@@ -6,11 +6,16 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
 	static targets = [ "fsearch" ]
 
-	search() {
-		clearTimeout(this.timeout)
-		this.timeout = setTimeout(() => {
-      const form = document.querySelector(`[data-target="${this.identifier}.fsearch"]`);
-      form?.submit();
-		}, 200);
-	}
+  connect() {
+    this.timeout = null
+  }
+
+  search() {
+    if (!this.hasFsearchTarget) return
+
+    clearTimeout(this.timeout)
+    this.timeout = setTimeout(() => {
+      this.fsearchTarget.submit()
+    }, 200)
+  }
 }

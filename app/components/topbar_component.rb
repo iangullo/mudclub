@@ -32,12 +32,10 @@ class TopbarComponent < ApplicationComponent
 	end
 
 	def call	# render HTML content
-		content_tag(:nav, class: "sticky top-0 z-10 w-full h-15 bg-blue-900 text-gray-300", aria_label: "MudClub Topbar") do
-			content_tag(:div, class: "max-w-7xl mx-auto px-2 sm:px-6 lg:px-8") do
-				content_tag(:div, class: "relative flex items-center justify-between h-16") do
-					concat(render_large_menu)
-					concat(render_ham_menu) if @ham_menu
-				end
+		content_tag(:nav, class: "max-w-7xl mx-auto px-2 sm:px-6 lg:px-8") do
+			content_tag(:div, class: "relative flex items-center justify-between h-16") do
+				concat(render_large_menu)
+				concat(render_ham_menu) if @ham_menu
 			end
 		end
 	end
@@ -56,17 +54,17 @@ class TopbarComponent < ApplicationComponent
 
 	# wrapper to define a dropdown menu hash - :options returned as [] if received as nil
 	def menu_drop(name, label: nil, options: [], ham: nil)
-		{kind: "menu", name:, label:, options:, ham:}
+		{kind: :menu, name:, label:, options:, ham:}
 	end
 
-	def menu_link(label:, url:, class: "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap", kind: "normal")
+	def menu_link(label:, url:, class: "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap", kind: :normal)
 		case kind
-		when "normal"
+		when :normal
 			l_data = {turbo_action: "replace"}
-		when "modal"
+		when :modal
 			l_data = {turbo_frame: "modal"}
-		when "delete"
-			l_data = {turbo_method: :delete}
+		when :delete
+			l_data = {turbo_method: "delete"}
 		end
 		{kind:, label:, url:, class:, data: l_data }
 	end
@@ -191,7 +189,7 @@ class TopbarComponent < ApplicationComponent
 			menu_link(label: I18n.t("season.many"), url: "/seasons"),
 			menu_link(label: I18n.t("user.many"), url: "/users"),
 			log_menu,
-			menu_link(label: I18n.t("server.about"), url: "/home/about", kind: "modal")
+			menu_link(label: I18n.t("server.about"), url: "/home/about", kind: :modal)
 		]
 		menu_drop("server", label: I18n.t("server.single"), options:)
 	end
@@ -217,7 +215,7 @@ class TopbarComponent < ApplicationComponent
 	def user_menu(user, home, logout)
 		options  = [
 			menu_link(label: I18n.t("user.profile"), url: home),
-			menu_link(label: I18n.t("action.logout"), url: logout, kind: "delete"),
+			menu_link(label: I18n.t("action.logout"), url: logout, kind: :delete),
 		]
 		res = menu_drop("profile", label: user.person.nick.presence || user.person.name, options:)
 	end

@@ -1,18 +1,20 @@
 <%= form_with model: @drill, authenticity_token: true, data: {controller: "mandatory-fields", turbo_frame: "_top"} do |form| %>
-  <% @title.form    = form %>
-  <% @playbook.form = form %>
-  <% @formdata.form = form %>
-  <% @explain.form  = form %>
-  <% @formtail.form = form %>
-  <%= render @title %>
-  <%= render @playbook %>
-  <%= render @formdata %>
-  <%= render @explain %>
-  <%= render @formtail %>
-  <%= render @submit %>
-  <datalist id="skill_list">
-    <% Skill.list.each do |opt| %>
-    <option><%=opt%></option>
-    <% end %>
-  </datalist>
+	<% @title.form    = form %>
+	<% @playbook.form = form %>
+	<% @formdata.form = form %>
+	<% @formsteps.form = form %>
+	<% @formtail.form = form %>
+	<%= render @title %>
+	<%= render @playbook %>
+	<%= render @formdata %>
+	<div class="step-wrapper">
+		<%= render @formsteps %>
+	</div>
+	<%= render @formtail %>
+	<%= render @submit %>
+	<datalist id="skill_list">
+		<% Skill.list.each do |opt| %>
+		<option><%=opt%></option>
+		<% end %>
+	</datalist>
 <% end %>

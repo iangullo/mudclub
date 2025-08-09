@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -38,7 +38,9 @@ class Team < ApplicationRecord
 	accepts_nested_attributes_for :team_targets
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
-	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
+	scope :for_season, -> (s_id) { (s_id.to_i > 0) ? where(season_id: s_id.to_i) : all }
+	scope :for_club, ->(c_id) { (c_id.to_i > 0) ? where(club_id: c_id.to_i) : all }
+	FILTER_PARAMS = %i[club_id season_id].freeze
 
 	# get attendance data for a team in the season
 	# returns partial & serialised numbers for attendance: trainings [%]
@@ -234,11 +236,30 @@ class Team < ApplicationRecord
 			:division_id,
 			:homecourt_id,
 			:name,
+			:nick,
 			:season_id,
 			:sport_id,
 			coach_ids: []
 		)
 		Team.new(t_data)
+	end
+
+
+	# Apply a Filter to Teams using params received from a controller.
+	def self.filter(filters)
+		if filters.present?
+			clubid = filters["club_id"]&.to_i
+			season = filters["season_id"]&.presence
+			if clubid || season
+				res = Team.for_club(name).for_season(season)
+				filters["column"] ? res.order("#{filters['column']} #{filters['direction']}") : res.order(:name)
+			else
+				res = Team.all
+			end
+		else
+			res = Team.all
+		end
+		res
 	end
 
 	# Search teams for a club matching season
