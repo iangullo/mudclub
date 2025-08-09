@@ -2,8 +2,7 @@
   "name": "mudclub-server",
   "license": "AGPLV3",
   "dependencies": {
-    "flowbite": "^1.8.1",
-    "stimulus-rails-nested-form": "^4.0.0"
+    "flowbite": "^1.8.1"
   },
   "scripts": {},
   "devDependencies": {

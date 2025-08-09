@@ -28,7 +28,7 @@ class StepsComponent < ApplicationComponent
 	end
 
 	def call
-		content_tag(:div, class: "responsive-steps") do
+		content_tag(:div, class: "responsive-steps space-y-2 md:space-y-4") do
 			safe_join([
 				render_header,
 				@steps.map { |step| render_step(step) }
@@ -50,10 +50,10 @@ class StepsComponent < ApplicationComponent
 	end
 
 	def render_step(step)
-		content_tag(:div, class: "step-container") do
+		content_tag(:div, class: "step-container py-2 md:py-3") do
 			safe_join([
 				render_order(step),
-				content_tag(:div, class: "step-content") do
+				content_tag(:div, class: "step-content flex flex-col md:flex-row gap-3 md:gap-4") do
 					safe_join([render_diagram(step), render_explanation(step)])
 				end
 			])
@@ -67,7 +67,7 @@ class StepsComponent < ApplicationComponent
 
 	def render_diagram(step)
 		return unless step.has_image? || step.has_svg?
-		content_tag(:div, class: "step-diagram") do
+		content_tag(:div, class: "step-diagram flex justify-center max-w-full overflow-hidden") do
 			if step.has_image?
 				concat(render_image({value: step.diagram.attachment}))
 			else
@@ -82,7 +82,7 @@ class StepsComponent < ApplicationComponent
 
 	def render_explanation(step)
 		return unless step.has_text? || @split
-		content_tag(:div, class: "step-explanation") do
+		content_tag(:div, class: "step-explanation md:min-w-[50%]") do
 			concat(step.explanation&.body&.to_s) if step.has_text?
 		end
 	end

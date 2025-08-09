@@ -333,7 +333,7 @@ es:
   skill:
     single: "Fundamento"
     many: "Fundamentos"
-    default: "<fundamento>"
+    default: "<fundam.>"
     abbr: "Fundam."
   slot:
     created: "Horario creado: "

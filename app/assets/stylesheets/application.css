@@ -18,6 +18,14 @@
   font-size: clamp(0.875rem, 2vw, 1.25rem);
 }
 
+/* Fix nested form alignment */
+[data-nested-form-target="item"] {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+
 /* Unified Diagram Styles */
 .diagram-container {
   display: flex;
@@ -67,14 +75,10 @@
   padding-bottom: 0;
 }
 
-.step-diagram {
-  min-height: 300px; /* Fallback height */
+.step-diagram,
+.step-explanation {
   overflow: hidden;
   background: white;
-}
-
-.step-explanation {
-  padding: 1rem;
 }
 
 /* Fix overlay positioning */
@@ -101,13 +105,9 @@
 /* Responsive layout */
 @media (min-width: 768px) {
   .step-content {
+    display: flex;
     grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   }
-}
-
-/* Remove min-height constraints */
-.step-diagram, .step-explanation {
-  height: 100%;
 }
 
 .responsive-steps > .step-container:last-child,

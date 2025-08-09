@@ -263,7 +263,7 @@ module DrillsHelper
 					row[:items] << {kind: :lines, value: drill.print_targets}
 				end
 				#row[:items] << {kind: :normal, value: Task.where(drill_id: drill.id).count, align: "center"}
-				row[:items] << button_field({kind: :delete, url: row[:url], name: drill.name}) if u_manager?
+				row[:items] << button_field({kind: :delete, url: row[:url], name: drill.name}) if u_admin?
 				rows << row
 			}
 			rows
