@@ -54,7 +54,7 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: <%= ENV.fetch('DB_NAME', 'mudclub_production') %>
+    database: <%= ENV.fetch('DB_NAME', 'mudclub') %>
   cache:
     <<: *default
     database: mudclub_cache
