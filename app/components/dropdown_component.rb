@@ -26,7 +26,7 @@ class DropdownComponent < ApplicationComponent
 	BTN_CLS  = MIN_CLS + %w[whitespace-nowrap rounded-md].freeze
 	MENU_CLS = BTN_CLS + %w[p-2 font-semibold hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-200].freeze
 	DROP_CLS = %w[hidden z-10 overflow-hidden rounded-md bg-gray-200 text-gray-500 text-left font-semibold].freeze
-	ITEM_CLS = %w[block m-0 p-1 rounded-md hover:bg-blue-700 hover:text-white no-underline].freeze
+	ITEM_CLS = %w[block m-0 p-2 rounded-md hover:bg-blue-700 hover:text-white no-underline].freeze
 	
 	def initialize(button)
 		@button = parse(button)
