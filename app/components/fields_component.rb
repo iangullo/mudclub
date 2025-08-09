@@ -1,5 +1,6 @@
 # MudClub - Simple Rails app to manage a team sports club.
 # Copyright (C) 2025  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -97,6 +98,7 @@ class FieldsComponent < ApplicationComponent
 			row.each do |item|
 				case item[:kind].to_s	# need to adapt to each fields "kind"
 				when "accordion"
+					item[:value] = AccordionComponent.new(title: item[:title], tail: item[:tail], objects: item[:objects])
 					item[:value] = AccordionComponent.new(title: item[:title], tail: item[:tail], objects: item[:objects])
 				when "button"	# item[:button] has to contain the button definition
 					item[:value] = ButtonComponent.new(**item[:button])
