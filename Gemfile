@@ -52,19 +52,19 @@ gem "bootsnap", require: false
 gem "thruster", require: false
 
 group :development, :test do
-  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
+	# See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
+	gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
-  # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-  gem "brakeman", require: false
+	# Static analysis for security vulnerabilities [https://brakemanscanner.org/]
+	gem "brakeman", require: false
 
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
-  gem "rubocop-rails-omakase", require: false
+	# Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
+	gem "rubocop-rails-omakase", require: false
 end
 
 group :development do
-  # Use console on exceptions pages [https://github.com/rails/web-console]
-  gem "web-console"
+	# Use console on exceptions pages [https://github.com/rails/web-console]
+	gem "web-console"
 end
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
@@ -75,17 +75,17 @@ gem "ruby-vips"
 gem "view_component"
 
 # Added to import/export XLS files
-gem 'roo'
-gem 'caxlsx'
-gem 'caxlsx_rails'
-gem 'csv'
+gem "roo"
+gem "caxlsx"
+gem "caxlsx_rails"
+gem "csv"
 
 # Added to manage phone numbers
-gem 'phonelib'
+gem "phonelib"
 
 # Added Devise for user authentication
-gem 'devise'
-gem 'devise-i18n'
+gem "devise"
+gem "devise-i18n"
 
 # Show charts
 gem "chartkick"
