@@ -129,7 +129,7 @@ class FieldsComponent < ApplicationComponent
 					item[:i_class] = "rounded p-0" unless item[:kind] == :gap
 				end
 				item[:align] ||= "left"
-#				item[:class] = (item[:class].present? ? item[:class] + " " : "") + "border px py"
+				# item[:class] = (item[:class].present? ? item[:class] + " " : "") + "border px py"
 				res.last << item
 			end
 		end
@@ -160,7 +160,7 @@ class FieldsComponent < ApplicationComponent
 				render_role_icons(field[:icons])
 			else
 				if field[:dclass]
-					concat((field[:value].tap { |value| break "<div class=\"#{field[:dclass]}\">#{value}</div>"}.html_safe))
+					concat((field[:value].tap { |value| break "<div class=\"#{field[:dclass]}\">#{value}</div>" }.html_safe))
 				else
 					concat(field[:value])
 				end
@@ -258,6 +258,6 @@ class FieldsComponent < ApplicationComponent
 
 	# wrapper for role_symbols
 	def role_symbol(role)
-		{symbol: true, value: SymbolComponent.new(role, size: "25x25"), tip: I18n.t("role.#{role}"), tipid: "p#{role}"}
+		{ symbol: true, value: SymbolComponent.new(role, size: "25x25"), tip: I18n.t("role.#{role}"), tipid: "p#{role}" }
 	end
 end

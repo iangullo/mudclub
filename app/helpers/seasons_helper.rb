@@ -20,14 +20,14 @@ module SeasonsHelper
 	# return HeaderComponent @fields for forms
 	def season_form_fields(title:, cols: nil)
 		res = season_title_fields(title:, cols:)
-		res << [{kind: :subtitle, value: @season.name}]
+		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
-			{kind: :label, align: "right", value: I18n.t("calendar.start")},
-			{kind: :date_box, key: :start_date, s_year: 2020, value: @season.start_date}
+			{ kind: :label, align: "right", value: I18n.t("calendar.start") },
+			{ kind: :date_box, key: :start_date, s_year: 2020, value: @season.start_date }
 		]
 		res << [
-			{kind: :label, align: "right", value: I18n.t("calendar.end")},
-			{kind: :date_box, key: :end_date, s_year: 2020, value: @season.end_date}
+			{ kind: :label, align: "right", value: I18n.t("calendar.end") },
+			{ kind: :date_box, key: :end_date, s_year: 2020, value: @season.end_date }
 		]
 		res
 	end
@@ -35,32 +35,32 @@ module SeasonsHelper
 	# grid for mudclub seasons
 	def season_grid(seasons: @seasons)
 		title = [
-			{kind: :normal, value: I18n.t("season.single"), align: "center"},
-			{kind: :normal, value: I18n.t("team.many"), align: "center"},
-			button_field({kind: :add, url: new_season_path(rdx: @rdx), frame: "modal"})
+			{ kind: :normal, value: I18n.t("season.single"), align: "center" },
+			{ kind: :normal, value: I18n.t("team.many"), align: "center" },
+			button_field({ kind: :add, url: new_season_path(rdx: @rdx), frame: "modal" })
 		]
 		rows = Array.new
 		seasons.each { |season|
-			row = {url: season_path(season, rdx: @rdx), items: [], frame: "modal"}
-			row[:items] << {kind: :normal, value: season.name, align: "center"}
-			row[:items] << {kind: :normal, value: season.teams.count, align: "center"} 
-			row[:items] << button_field({kind: :delete, url: row[:url], name: season.to_s})
+			row = { url: season_path(season, rdx: @rdx), items: [], frame: "modal" }
+			row[:items] << { kind: :normal, value: season.name, align: "center" }
+			row[:items] << { kind: :normal, value: season.teams.count, align: "center" }
+			row[:items] << button_field({ kind: :delete, url: row[:url], name: season.to_s })
 			rows << row
 		}
-		{title:, rows:}
+		{ title:, rows: }
 	end
 
 	# return HeaderComponent @fields for forms
 	def season_fields(cols: nil)
 		res = season_title_fields(title: I18n.t("season.single"), cols:)
-		res << [{kind: :subtitle, value: @season.name}]
+		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
-			{kind: :label, align: "right", value: I18n.t("calendar.start")},
-			{kind: :text, value: @season.start_date}
+			{ kind: :label, align: "right", value: I18n.t("calendar.start") },
+			{ kind: :text, value: @season.start_date }
 		]
 		res << [
-			{kind: :label, align: "right", value: I18n.t("calendar.end")},
-			{kind: :text, value: @season.end_date}
+			{ kind: :label, align: "right", value: I18n.t("calendar.end") },
+			{ kind: :text, value: @season.end_date }
 		]
 		res
 	end

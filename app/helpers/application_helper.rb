@@ -19,7 +19,7 @@
 module ApplicationHelper
 	# standardised FieldsComponent button field wrapper
 	def button_field(button, cols: nil, rows: nil, align: nil, class: nil)
-		{kind: :button, button:, cols:, rows:, align:, class:}
+		{ kind: :button, button:, cols:, rows:, align:, class: }
 	end
 
 	# return an html bulletized string from info
@@ -32,7 +32,7 @@ module ApplicationHelper
 
 	# return definition of copyright field
 	def copyright_field
-		{kind: :string, value: raw("&copy; 2025 iangullo@gmail.com"), align: "right", class: "text-sm text-gray-500"}
+		{ kind: :string, value: raw("&copy; 2025 iangullo@gmail.com"), align: "right", class: "text-sm text-gray-500" }
 	end
 
 	# return device type
@@ -40,46 +40,46 @@ module ApplicationHelper
 		agent = request.user_agent
 		return "tablet" if agent =~ /(tablet|ipad)|(android(?!.*mobile))/i
 		return "mobile" if agent =~ /Mobile/
-		return "desktop"
+		"desktop"
 	end
 
 	# file upload button
 	def form_file_field(label:, key:, value:, cols: nil)
-		[[{kind: :upload, label:, key:, value:, cols:}]]
+		[ [ { kind: :upload, label:, key:, value:, cols: } ] ]
 	end
 
 	# standardised message wrapper
 	def flash_message(message, kind = :info)
-		res = {message:, kind:}
+		{ message:, kind: }
 	end
 
 	# standardised gap row field definition
 	def gap_field(size: nil, cols: nil, rows: nil)
-		{kind: :gap, size:, cols:, rows:}
+		{ kind: :gap, size:, cols:, rows: }
 	end
 
 	# standardised icon field definitions
 	def icon_field(icon, align: nil, iclass: nil, cols: nil, rows: nil, size: nil, tip: nil, tipid: nil)
-		{kind: :icon, icon:, align:, class: iclass, cols:, rows:, size:, tip:, tipid:}
+		{ kind: :icon, icon:, align:, class: iclass, cols:, rows:, size:, tip:, tipid: }
 	end
 
 	# standardised gap row field definition
 	def gap_row(size: 1, cols: 1, _class: "text-xs")
-		[{kind: :gap, size:, cols:, class: _class}]
+		[ { kind: :gap, size:, cols:, class: _class } ]
 	end
 
 	# Field to use in forms to select club of a user/player/coach/team
 	def obj_club_selector(obj)
-		res = [
-			{kind: :icon, icon: "mudclub.svg", tip: I18n.t("club.single"), tipid: "club_selector"},
-			{kind: :select_box, align: "left", key: :club_id, options: current_user.club_list, value: obj.club_id, cols: 4},
+		[
+			{ kind: :icon, icon: "mudclub.svg", tip: I18n.t("club.single"), tipid: "club_selector" },
+			{ kind: :select_box, align: "left", key: :club_id, options: current_user.club_list, value: obj.club_id, cols: 4 }
 		]
 	end
 
 	# standardised generator of "active" label for user/player/coach
 	def obj_status_field(obj)
 		if obj&.active?
-			label = case obj
+			case obj
 			when Coach
 				I18n.t("coach.abbr")
 			when Player
@@ -87,9 +87,9 @@ module ApplicationHelper
 			else
 				""
 			end
-			return icon_field(obj.club.logo, tip: obj.club.nick, tipid: "club_name", align: "center")
+			icon_field(obj.club.logo, tip: obj.club.nick, tipid: "club_name", align: "center")
 		else
-			return {kind: :string, value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center"}
+			{ kind: :string, value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center" }
 		end
 	end
 
@@ -106,16 +106,16 @@ module ApplicationHelper
 
 	# wrapper for :string field definitions
 	def string_field(value, align: nil, cols: nil, rows: nil)
-		{kind: :string, value:, align:, cols:, rows:}
+		{ kind: :string, value:, align:, cols:, rows: }
 	end
 
 	# iconize an svg
-	def svgicon(icon_name, options={})
-		file = File.read(Rails.root.join('app', 'assets', 'images', "#{icon_name}.svg"))
+	def svgicon(icon_name, options = {})
+		file = File.read(Rails.root.join("app", "assets", "images", "#{icon_name}.svg"))
 		doc = Nokogiri::HTML::DocumentFragment.parse file
-		svg = doc.at_css 'svg'
+		svg = doc.at_css "svg"
 
-		options.each {|attr, value| svg[attr.to_s] = value}
+		options.each { |attr, value| svg[attr.to_s] = value }
 
 		doc.to_html.html_safe
 	end
@@ -132,12 +132,13 @@ module ApplicationHelper
 
 	# prepare SVG symbol hash from the received fields
 	def symbol_hash(concept, **options)
-		{concept:, options:}
+		options[:type] ||= "icon"
+		{ concept:, options: }
 	end
 
 	# generic title start FieldsComponent for views
 	def title_start(icon:, title:, subtitle: nil, size: nil, rows: nil, cols: nil, _class: nil, form: nil)
-		img  = {size:, rows:, class: _class}
+		img  = { size:, rows:, class: _class }
 		if form
 			img[:kind]  = :image_box
 			img[:key]   = "avatar"
@@ -150,8 +151,8 @@ module ApplicationHelper
 				img[:icon] = icon
 			end
 		end
-		res  = [[ img, {kind: :title, value: title, cols:} ]]
-		res << [{kind: :subtitle, value: subtitle}] if subtitle
+		res  = [ [ img, { kind: :title, value: title, cols: } ] ]
+		res << [ { kind: :subtitle, value: subtitle } ] if subtitle
 		res
 	end
 end

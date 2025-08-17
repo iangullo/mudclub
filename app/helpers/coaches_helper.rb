@@ -20,44 +20,44 @@ module CoachesHelper
 	# return Coach-specific form fields
 	def coach_form_fields(team_id: nil, user: nil)
 		res = obj_club_selector(@coach)
-		res << {kind: :hidden, key: :team_id, value: team_id} if team_id
-		res << {kind: :hidden, key: :user, value: true} if user
-		res << {kind: :hidden, key: :rdx, value: @rdx} if @rdx
-		return [res]
+		res << { kind: :hidden, key: :team_id, value: team_id } if team_id
+		res << { kind: :hidden, key: :user, value: true } if user
+		res << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
+		[ res ]
 	end
 
 	# return grid for @coaches GridComponent
 	def coach_grid(coaches: @coaches)
 		editor = (u_manager? || u_secretary?)
 		title  = [
-			{kind: :normal, value: I18n.t("person.name")},
-			{kind: :normal, value: I18n.t("person.contact")}
+			{ kind: :normal, value: I18n.t("person.name") },
+			{ kind: :normal, value: I18n.t("person.contact") }
 		]
 		if editor
-			title << {kind: :normal, value: I18n.t("person.pics"), align: "center"}
-			title << {kind: :normal, value: I18n.t("status.active_a")}
-			title << button_field({kind: :add, url: new_coach_path(club_id: @clubid, rdx: @rdx), frame: "modal"})
+			title << { kind: :normal, value: I18n.t("person.pics"), align: "center" }
+			title << { kind: :normal, value: I18n.t("status.active_a") }
+			title << button_field({ kind: :add, url: new_coach_path(club_id: @clubid, rdx: @rdx), frame: "modal" })
 		end
 
 		rows = Array.new
 		coaches.each { |coach|
-			row = {url: coach_path(coach, rdx: @rdx), items: []}
-			row[:items] << {kind: :normal, value: coach.to_s}
-			row[:items] << {kind: :contact, email: coach&.person&.email, phone: coach&.person&.phone, device: device}
+			row = { url: coach_path(coach, rdx: @rdx), items: [] }
+			row[:items] << { kind: :normal, value: coach.to_s }
+			row[:items] << { kind: :contact, email: coach&.person&.email, phone: coach&.person&.phone, device: device }
 			if editor
-				row[:items] << symbol_field(coach.all_pics? ? "yes" : "no", align: "center") 
+				row[:items] << symbol_field(coach.all_pics? ? "yes" : "no", align: "center")
 				row[:items] << symbol_field(coach.active? ? "yes" : "no", align: "center")
-				row[:items] << button_field({kind: :delete, url: row[:url], name: coach.to_s})
+				row[:items] << button_field({ kind: :delete, url: row[:url], name: coach.to_s })
 			end
 			rows << row
 		}
-		{title:, rows:}
+		{ title:, rows: }
 	end
 
 	# FieldComponents to show a @coach
 	def coach_show_fields(team_id: nil, user: nil)
 		res = person_show_fields(@coach.person, title: I18n.t("coach.single"), icon: @coach.picture)
 		res[3][0] = obj_status_field(@coach)
-		res << [{kind: :side_cell, value: (I18n.t("team.many")), align: "left"}]
+		res << [ { kind: :side_cell, value: (I18n.t("team.many")), align: "left" } ]
 	end
 end

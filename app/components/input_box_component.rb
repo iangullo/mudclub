@@ -49,7 +49,7 @@ class InputBoxComponent < ApplicationComponent
 		@fdata   = field
 		@fdata[:align] ||= "left"
 		@fdata[:class] ||= "align-top"
-		@fdata[:fname]   = @fdata[:value].to_s.presence || I18n.t("status.no_file") if (@fdata[:kind] == :upload)
+		@fdata[:fname]   = @fdata[:value].to_s.presence || I18n.t("status.no_file") if @fdata[:kind] == :upload
 		set_box_size
 		set_box_attributes
 		set_box_data
@@ -67,7 +67,7 @@ class InputBoxComponent < ApplicationComponent
 			else
 				conditions << "length:1"
 			end
-			{condition: conditions.join(";"), identifier: unique_identifier("inputbox")}
+			{ condition: conditions.join(";"), identifier: unique_identifier("inputbox") }
 		end
 
 		# offload some initial setting of field data
@@ -78,15 +78,14 @@ class InputBoxComponent < ApplicationComponent
 				label_checkbox: { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" },
 				radio_button: { class: "m-1" },
 				rich_text_area: { class: "trix-content" },
-				text_area: {class: "text-base"},
+				text_area: { class: "text-base" },
 				text_box: { class: "overflow-hidden overflow-ellipsis" },
 				time_box: { class: "text-right" },
 				upload: { class: "align-middle px py", i_class: "inline-flex items-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm px-1 py m-1 justify-center" }
 			}
-			
+
 			mapping = kind_mappings[@fdata[:kind]]
 			return unless mapping
-			
 			@i_class << (mapping[:i_class] || mapping[:class])
 			@fdata.merge!(mapping.reject { |key, _| key == :class })
 		end
@@ -97,7 +96,7 @@ class InputBoxComponent < ApplicationComponent
 			when :hidden
 				@i_data = @fdata[:h_data]
 			when :image_box
-				@i_data = {action: "change->imagebox#handleFileChange", imagebox_target: "imageFile"}
+				@i_data = { action: "change->imagebox#handleFileChange", imagebox_target: "imageFile" }
 				@width  = ensure_px((@fdata[:width] || 75).to_s)
 				@height = ensure_px((@fdata[:height] || 100).to_s)
 				@fdata[:class] += " w-full"
@@ -106,19 +105,19 @@ class InputBoxComponent < ApplicationComponent
 			when :text_box
 				if @fdata[:options].present?
 					if @fdata[:options].is_a?(Hash)
-						@i_data  = {"data-optvalues" => @fdata[:options].values}
+						@i_data  = { "data-optvalues" => @fdata[:options].values }
 					else
 						@i_data  = @fdata[:o_data]
 					end
 				end
 			when :upload
 					@fdata[:css] = "max-h-6 min-h-4 h-5 m-1" if @fdata[:icon] || @fdata[:symbol]
-					@i_data = {upload_target: "fileInput"}
+					@i_data = { upload_target: "fileInput" }
 			end
 
 			if @fdata[:mandatory].present?
 				@i_data ||= {}
-				@i_data.merge!({mandatory_input: true, action: "mandatory#check"})
+				@i_data.merge!({ mandatory_input: true, action: "mandatory#check" })
 				@i_data.merge!(generate_condition(@fdata[:mandatory]))
 			end
 		end
@@ -129,13 +128,16 @@ class InputBoxComponent < ApplicationComponent
 				case @fdata[:kind]
 				when :image_box
 					@fdata[:size] = DEFAULT_BOX_SIZE[:image_box]
+					dimensions = @fdata[:size].split("x")
+					@width = ensure_px(dimensions[0])
+					@height = ensure_px(dimensions[1])
 				when :number_box, :time_box
 					box_size = DEFAULT_BOX_SIZE[@fdata[:kind]]
 				else
 					if @fdata[:options].present?
 						optnames = @fdata[:options].is_a?(Hash) ? @fdata[:options].keys : @fdata[:options]
 						longest  = optnames.map(&:to_s).max_by(&:length).length
-						box_size = [longest, 10].max
+						box_size = [ longest, 10 ].max
 					else
 						box_size ||= DEFAULT_BOX_SIZE[:default]
 					end

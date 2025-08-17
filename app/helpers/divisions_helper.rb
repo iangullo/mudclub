@@ -26,21 +26,21 @@ module DivisionsHelper
 	def division_form_fields(title:, subtitle: @sport&.to_s)
 		@submit = SubmitComponent.new(submit: :save)
 		res = division_title_fields(title:, subtitle:)
-		res << [gap_field, {kind: :text_box, key: :name, value: @division.name, placeholder: I18n.t("division.name")	, mandatory: {length: 3}}]
+		res << [ gap_field, { kind: :text_box, key: :name, value: @division.name, placeholder: I18n.t("division.name"), mandatory: { length: 3 } } ]
 	end
 
 	# return grid for @divisions GridComponent
 	def division_grid
-		title = [{kind: :normal, value: I18n.t("division.name")}]
-		title << button_field({kind: :add, url: new_sport_division_path(@sport, rdx: @rdx), frame: "modal"}) if u_admin?
+		title = [ { kind: :normal, value: I18n.t("division.name") } ]
+		title << button_field({ kind: :add, url: new_sport_division_path(@sport, rdx: @rdx), frame: "modal" }) if u_admin?
 
 		rows = Array.new
 		@divisions.each { |div|
-			row = {url: edit_sport_division_path(@sport, div, rdx: @rdx), frame: "modal", items: []}
-			row[:items] << {kind: :normal, value: div.name}
-			row[:items] << button_field({kind: :delete, url: sport_division_path(@sport, div, rdx: @rdx), name: div.name}) if u_admin?
+			row = { url: edit_sport_division_path(@sport, div, rdx: @rdx), frame: "modal", items: [] }
+			row[:items] << { kind: :normal, value: div.name }
+			row[:items] << button_field({ kind: :delete, url: sport_division_path(@sport, div, rdx: @rdx), name: div.name }) if u_admin?
 			rows << row
 		}
-		{title:, rows:}
+		{ title:, rows: }
 	end
 end

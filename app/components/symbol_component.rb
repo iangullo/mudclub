@@ -19,7 +19,6 @@
 
 # Manage SVG Symbols for views & buttons
 class SymbolComponent < ApplicationComponent
-
 	# Initialize with a concept and various options.
 	# Options expected (mud-splat style): namespace:, type:, variant:, css:, label:, size:, view_box:, data: {}
 	def initialize(concept, **options)
@@ -48,13 +47,13 @@ class SymbolComponent < ApplicationComponent
 			class: @css,
 			data: @data,
 			aria: (@data[:label].present? ? { label: @data[:label] } : nil),
-			role: 'img',
+			role: "img",
 			viewBox: @view_box,
-			preserveAspectRatio: 'xMidYMid meet'
+			preserveAspectRatio: "xMidYMid meet"
 		}
-		
+
 		unless @group
-			svg_attrs.merge!({width: @width, height: @height, xmlns:'http://www.w3.org/2000/svg'})
+			svg_attrs.merge!({ width: @width, height: @height, xmlns: "http://www.w3.org/2000/svg" })
 		end
 
 		tag_name = @group ? :g : :svg
@@ -72,7 +71,7 @@ class SymbolComponent < ApplicationComponent
 			x: vb_attrs[0].presence || 0,
 			y: vb_attrs[1].presence || 0,
 			width: vb_attrs[2].presence || @width,
-			height: vb_attrs[3].presence || @height	
+			height: vb_attrs[3].presence || @height
 		}
 	end
 
@@ -111,7 +110,7 @@ class SymbolComponent < ApplicationComponent
 		@css      = safe_attr(options, :css) || default_class(@type)
 		@data     = safe_attr(options, :data) || {}
 		@group    = safe_attr(options, :group) || false
-		@view_box = safe_attr(options, [:view_box, :viewBox]) || safe_attr(@data, [:view_box, :viewBox])
+		@view_box = safe_attr(options, [ :view_box, :viewBox ]) || safe_attr(@data, [ :view_box, :viewBox ])
 		@wrap     = safe_attr(options, :wrap) || false
 
 		parse_symbol_id(options)
@@ -119,7 +118,7 @@ class SymbolComponent < ApplicationComponent
 		@width, @height = parse_size(options[:size])
 
 		@data[:kind]      ||= @type
-		@data[:symbol_id] ||= [@namespace, @type, @concept, @variant].join(".")
+		@data[:symbol_id] ||= [ @namespace, @type, @concept, @variant ].join(".")
 
 		%i[id, fill label text_color transform stroke].each do |key|
 			@data[key] ||= safe_attr(options, key) || safe_attr(@data, key)
@@ -127,8 +126,8 @@ class SymbolComponent < ApplicationComponent
 	end
 
 	def parse_symbol_id(options)
-		symbol_id = safe_attr(@data, [:symbol_id, :symbolId]) || safe_attr(options, [:symbol_id, :symbolId])
-		if symbol_id.present? && symbol_id.count('.') == 3
+		symbol_id = safe_attr(@data, [ :symbol_id, :symbolId ]) || safe_attr(options, [ :symbol_id, :symbolId ])
+		if symbol_id.present? && symbol_id.count(".") == 3
 			@namespace, type_str, @concept, @variant = symbol_id.split(".")
 			@type = type_str.to_sym
 		else
@@ -141,15 +140,15 @@ class SymbolComponent < ApplicationComponent
 	def parse_size(size)
 		case size
 		when /^\d+x\d+$/ then size.split("x").map(&:to_i)
-		when /^\d+$/ then [size.to_i, size.to_i]
-		else [25, 25]
+		when /^\d+$/ then [ size.to_i, size.to_i ]
+		else [ 25, 25 ]
 		end
 	rescue
-		[25, 25]
+		[ 25, 25 ]
 	end
 
 	def wrapped_symbol_content
-		group_attrs = @data[:transform] || @data[:x] ? {draggable: true, kind: "symbol", transform: @data[:transform], position: @data[:position]} : {}
+		group_attrs = @data[:transform] || @data[:x] ? { draggable: true, kind: "symbol", transform: @data[:transform], position: @data[:position] } : {}
 		if @wrap || group_attrs.present?
 			content_tag(:g, raw(@symbol.children.to_xml), group_attrs)
 		else
