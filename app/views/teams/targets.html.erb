@@ -4,37 +4,25 @@
 		<tr>
 			<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t("target.focus.def") %></th>
 		</tr><tr>
-			<td colspan="2" class="border px py align-top">
-				<%= render "print_targets", targets: @t_d_gen %>
-			</td>
+			<%= render "print_targets", cols: "2", targets: @t_d_gen %>
 		</tr><tr>
 			<th class="bg-indigo-900 text-gray-300 border px py" align="left"><%= t("target.aspect.ind") %></th>
 			<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t("target.aspect.col") %></th>
 		</tr><tr>
-			<td class="border px py align-top">
-				<%= render "print_targets", targets: @t_d_ind %>
-			</td>
-			<td class="border px py align-top">
-				<%= render "print_targets", targets: @t_d_col %>
-			</td>
+			<%= render "print_targets", cols: "1", targets: @t_d_ind %>
+			<%= render "print_targets", cols: "1", targets: @t_d_col %>
 		</tr><tr>
 			<th colspan="2" class="border px py" align="center"><br></th>
 		</tr><tr>
 			<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t("target.focus.ofe") %></th>
 		</tr><tr>
-			<td colspan="2" class="border px py align-top">
-				<%= render "print_targets", targets: @t_o_gen %>
-			</td>
+			<%= render "print_targets", cols: "2", targets: @t_o_gen %>
 		</tr><tr>
 			<th class="bg-indigo-900 text-gray-300 border px py" align="left"><%= t("target.aspect.ind") %></th>
 			<th class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t("target.aspect.col") %></th>
 		</tr><tr>
-			<td class="border px py align-top">
-				<%= render "print_targets", targets: @t_o_ind %>
-			</td>
-			<td class="border px py align-top">
-				<%= render "print_targets", targets: @t_o_col %>
-			</td>
+			<%= render "print_targets", cols: "1", targets: @t_o_ind %>
+			<%= render "print_targets", cols: "1", targets: @t_o_col %>
 		</tr>
 	</table>
 	<%= render @submit %>
