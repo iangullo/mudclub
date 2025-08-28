@@ -4,7 +4,7 @@
 		<%= render "targets_form", form: form, event_targets: @event.def_targets, aspect: 0, focus: 2, label: t("target.focus.def_a") %>
 		<th align="left" class="bg-indigo-900 text-gray-300 align-center border px py"><%= t("train.duration") %></th>
 	</tr><tr>
-		<%= render "targets_form", form: form, event_targets: @event.off_targets, aspect: 0, focus: 1, label: t("target.focus.ofe_a") %>
+		<%= render "targets_form", form: form, event_targets: @event.off_targets, aspect: 0, focus: 1, label: t("target.focus.off_a") %>
 		<th align="center" class="border px py">
 			<%= form.number_field :duration, value: @event.duration, min: 60, max: 120, size: 3, step: 15, class: "rounded py-0 px-1 shadow-inner text-right border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700"%>
 		</th>

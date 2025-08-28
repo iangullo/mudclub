@@ -55,6 +55,7 @@
 # => :subtitle: :value (bold text of title)
 # => :svg: :value (raw svg content to show)
 # => :symbol: :value (svg symbol to be rendered)
+# => :targets: array of {text_, status} pairs
 # => :text_area: :key (field name), :value (text_field), :size (box size), lines: number of lines
 # => :text_box: :key (field name), :value (text_field), :size (box size)
 # => :time_box: :hour & :mins (field names)
@@ -158,6 +159,8 @@ class FieldsComponent < ApplicationComponent
 				("<hr class=\"#{field[:stroke]}\"").html_safe
 			when "person_type"
 				render_role_icons(field[:icons])
+			when "targets"
+				render_targets_field(field)
 			else
 				if field[:dclass]
 					concat((field[:value].tap { |value| break "<div class=\"#{field[:dclass]}\">#{value}</div>" }.html_safe))
@@ -188,6 +191,21 @@ class FieldsComponent < ApplicationComponent
 		icons.map do |icon|
 			render_image_field(icon)
 		end.join.html_safe
+	end
+
+	# Add this private method to FieldsComponent
+	def render_targets_field(field)
+		html = ""
+		last = field[:targets]&.last
+		field[:targets]&.each do |target|
+			html += "<div class=\"inline-flex items-center space-x-2 py-1\">"
+			html += render(TrafficLightComponent.new(status: target[:status])) unless @form
+			html += "<span>#{target[:text]}</span>"
+			html += render(InputBoxComponent.new({ kind: :number_box, max: 100, step: 1, value: target[:completion] })) if @form
+			html += "</div>"
+			html += "<br>" unless target == last
+		end
+		html.html_safe
 	end
 
 	# wrapper to keep a person's available contact details in a single field.

@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -51,6 +51,8 @@
 
 es:
   action:
+    add: "Añadir"
+    add_nested: "Añadir"
     admin: "Administrar"
     back: "Volver"
     backup: "Backup"
@@ -61,6 +63,7 @@ es:
     configure: "Configurar"
     copy: "Copiar"
     create: "Crear"
+    delete: "Borrar"
     edit: "Editar"
     export: "Exportar"
     filter: "Filtrar"
@@ -87,9 +90,26 @@ es:
     start: "Inicio"
     end: "Fin"
     attendance: "Asistencia"
-    monthnames: [Todos, Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre]
-    monthnames_a: [Todos, Ene, Feb, Mar, Abr, May, Jun, Jul, Ago, Sep, Oct, Nov, Dic]
-    daynames: [Todos, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
+    monthnames:
+      [
+        Todos,
+        Enero,
+        Febrero,
+        Marzo,
+        Abril,
+        Mayo,
+        Junio,
+        Julio,
+        Agosto,
+        Septiembre,
+        Octubre,
+        Noviembre,
+        Diciembre,
+      ]
+    monthnames_a:
+      [Todos, Ene, Feb, Mar, Abr, May, Jun, Jul, Ago, Sep, Oct, Nov, Dic]
+    daynames:
+      [Todos, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
     daynames_a: [Todos, Lun, Mar, Mié, Jue, Vie, Sáb, Dom]
   category:
     created: "Categoría creada: "
@@ -374,13 +394,19 @@ es:
     active_a: "Act."
     calculating: "Calculando"
     closed: "Cerrado"
+    completed: "Completado"
     empty: "Sin datos que mostrar"
+    good: "Buen progreso"
     inactive: "Inactivo"
+    in_progress: "Progresando"
     no_data: "Sin datos que guardar"
     no_file: "Cargar archivo..."
+    not_started: "Sin comenzar"
+    processing: "Procesando..."
     saved: "guardado."
+    starting: "Comenzando"
   step:
-    default: "<paso>" 
+    default: "<paso>"
     diagram: "Gráfico"
     edit: "Editar paso"
     edit_diagram: "Editar gráfico"
@@ -393,6 +419,7 @@ es:
     many: "Objetivos"
     edit: "Editar Objetivos"
     abbr: "Obj."
+    completion: "Completado (%)"
     default: "<objetivo>"
     aspect:
       gen: "General"
@@ -406,8 +433,8 @@ es:
       fit: "Físico"
       def: "Defensa"
       def_a: "Def."
-      ofe: "Ataque"
-      ofe_a: "Ofe."
+      off: "Ataque"
+      off_a: "Ofe."
   task:
     created: "Tarea creada: "
     updated: "Tarea guardada: "

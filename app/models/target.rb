@@ -67,7 +67,7 @@ class Target < ApplicationRecord
 	def self.kinds
 		res = Array.new
 		res << [ I18n.t("target.focus.fit"), 0 ]
-		res << [ I18n.t("target.focus.ofe"), 1 ]
+		res << [ I18n.t("target.focus.off"), 1 ]
 		res << [ I18n.t("target.focus.def"), 2 ]
 	end
 

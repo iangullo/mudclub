@@ -173,6 +173,21 @@ module TeamsHelper
 		res
 	end
 
+	# return team target fields to be shown
+	def team_targets_show_fields
+		[
+			[ topcell_field(I18n.t("target.focus.def"), cols: 2) ],
+			[ target_content(@t_d_gen, cols: 2) ],
+			[ topcell_field(I18n.t("target.aspect.ind")), topcell_field(I18n.t("target.aspect.col")) ],
+			[ target_content(@t_d_ind), target_content(@t_d_col) ],
+			gap_row(cols: 2),
+			[ topcell_field(I18n.t("target.focus.off"), cols: 2) ],
+			[ target_content(@t_o_gen, cols: 2) ],
+			[ topcell_field(I18n.t("target.aspect.ind")), topcell_field(I18n.t("target.aspect.col")) ],
+			[ target_content(@t_o_ind), target_content(@t_o_col) ]
+		]
+	end
+
 	# fields for team time-slots view
 	def team_slots_fields
 		res = [ [
@@ -211,4 +226,14 @@ module TeamsHelper
 		end
 		res
 	end
+
+	private
+		# return html multiline text for strings
+		def target_content(targets, cols: nil)
+			tgts = []
+			targets.each do |tgt|
+				tgts << { text: tgt.to_s, status: tgt.status }
+			end
+			{ kind: :targets, class: "border px py align-top", targets: tgts, cols: }
+		end
 end

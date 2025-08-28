@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
-#
+
 # ButtonComponent - ViewComponent to manage regular buttons used in views
 # button is a mudsplat with following fields:
 # kind:, max_h: 6, icon: nil, label: nil, url: nil, turbo: nil, title: nil (provides tooltips)
@@ -55,9 +55,9 @@ class ButtonComponent < ApplicationComponent
 
 	# generate html content
 	def call
-		d_data = {controller: @button[:controller].presence}
+		d_data = { controller: @button[:controller].presence }
 		d_data[:processing_working] = @button[:working] if @button[:working]
-		content_tag(:div, class: @button[:d_class], align: @button[:align], data: d_data) do
+		content_tag(:div, class: @button[:d_class], align: @button[:align], data: d_data, title: @button[:title]) do
 			content_tag(:div, class: "relative") do
 				if @button[:url]
 					target = "_blank" if @button[:tab]
@@ -95,7 +95,7 @@ class ButtonComponent < ApplicationComponent
 					concat(@button[:label])
 				end
 			end
-			concat(button_cue) if @button[:working]	#Processing visual cue element
+			concat(button_cue) if @button[:working]	# Processing visual cue element
 		end
 	rescue => e
 		handle_error(e)
@@ -104,7 +104,7 @@ class ButtonComponent < ApplicationComponent
 	# define the processing cue contetn to be pushed
 	def button_cue
 		content_tag(:div, class: "flex rounded-md overflow-hidden w-full h-full bg-gray-300 opacity-75 absolute top-0 left-0 hidden", data: { processing_target: "processingCue" }) do
-			image_tag('5-dots-fade.svg', class: "items-center align-center ml-3")
+			image_tag("5-dots-fade.svg", class: "items-center align-center ml-3", title: I18n.t("status.processing"))
 		end
 	end
 
@@ -123,7 +123,7 @@ class ButtonComponent < ApplicationComponent
 		set_icon
 		@button[:align] ||= "center"
 	end
-	
+
 	# determine button icon depending on kind
 	def set_icon
 		case @button[:kind]
@@ -158,9 +158,9 @@ class ButtonComponent < ApplicationComponent
 			@button[:url]  = @button[:web] ? "https://web.whatsapp.com/" : "whatsapp://"
 			@button[:url] += @button[:url] + "send?phone=#{@button[:value].delete(' ')}"
 		end
-		@button[:label]  ||= I18n.t("action.#{@button[:kind].to_s}") if [:back, :cancel, :clear, :edit, :export, :import, :save].include?(@button[:kind])
+		@button[:label]  ||= I18n.t("action.#{@button[:kind]}") if [ :back, :cancel, :clear, :edit, :export, :import, :save ].include?(@button[:kind])
 		@button[:size]   ||= "25x25"
-		@button[:symbol] ||= {concept: @button[:kind].to_s, options: {type: :button}} unless @button[:icon] || @button[:kind] == :link
+		@button[:symbol] ||= { concept: @button[:kind].to_s, options: { type: :button } } unless @button[:icon] || @button[:kind] == :link
 		if @button[:symbol]
 			@button[:symbol][:options][:size] ||= @button[:size]
 			@button[:symbol][:options][:css]  ||= @button[:i_class]
@@ -185,7 +185,8 @@ class ButtonComponent < ApplicationComponent
 		when :stimulus
 			@button[:type] = "button"
 		end
-		@button[:flip]    ||= true if [:save,:import].include? @button[:kind]
+		@button[:flip]    ||= true if [ :save, :import ].include? @button[:kind]
+		@button[:title]   ||= I18n.t("action.#{@button[:kind]}") if [ :add, :add_nested, :back, :cancel, :clear, :close, :delete, :export, :forward, :import, :login, :logout, :remove, :save ].include? @button[:kind]
 		@button[:type]      = "submit" if @button[:kind].to_s =~ /^(save|import|login)$/
 		@button[:replace]   = true if @button[:kind].to_s =~ /^(cancel|close|save|back)$/
 		@button[:b_class] ||= b_start + (@button[:kind]!= :jump ? " m-1 inline-flex align-middle" : "")
@@ -199,7 +200,7 @@ class ButtonComponent < ApplicationComponent
 			case @button[:kind]
 			when :jump
 				@button[:d_class] = @button[:d_class] + " m-1 text-sm"
-				@button[:label]   = safe_join(["<br>".html_safe, @button[:label]]) if @button[:label]
+				@button[:label]   = safe_join([ "<br>".html_safe, @button[:label] ]) if @button[:label]
 			when :location, :whatsapp
 				@button[:tab]     = true
 				@button[:d_class] = @button[:d_class] + " text-sm" if has_icon?
@@ -269,11 +270,11 @@ class ButtonComponent < ApplicationComponent
 			res[:turbo_frame] = (@button[:frame] ? @button[:frame] : "_top")
 		end
 		res[:turbo_action]  = "replace" if @button[:replace]
-#		res[:turbo_confirm] = @button[:confirm] if @button[:confirm]
+		#	res[:turbo_confirm] = @button[:confirm] if @button[:confirm] # rubocop:disable Layout/CommentIndentation
 		res[:turbo_method]  = :delete.to_sym if @button[:kind]==:delete
 		res[:action]        = @button[:action] if @button[:action]
 		res[:confirm]       = @button[:confirm] if @button[:confirm]
-		if (@button[:working] || @button[:type] == "submit")
+		if @button[:working] || @button[:type] == "submit"
 			unless @button[:working] == false
 				@button[:controller] = "processing"
 				@button[:working]  ||= true
@@ -287,8 +288,8 @@ class ButtonComponent < ApplicationComponent
 
 	# validate the button attributes received are well defined
 	def validate(attrs)
-		required_keys = [:kind] # Add other keys that are required
-		required_keys << :url if [:add, :back, :edit, :export, :delete, :forward, :jump, :link, :menu].include?(attrs[:kind])
+		required_keys = [ :kind ] # Add other keys that are required
+		required_keys << :url if [ :add, :back, :edit, :export, :delete, :forward, :jump, :link, :menu ].include?(attrs[:kind])
 		required_keys.each do |key|
 			unless attrs.key?(key)
 				raise ArgumentError, "Button attributes are missing the required key: #{key}"

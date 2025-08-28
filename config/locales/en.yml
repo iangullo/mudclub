@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -51,6 +51,8 @@
 
 en:
   action:
+    add: "Add"
+    add_nested: "Add new"
     admin: "Manage"
     back: "Return"
     backup: "Backup"
@@ -61,6 +63,7 @@ en:
     configure: "Configure"
     copy: "Copy"
     create: "Create"
+    delete: "Delete"
     edit: "Edit"
     export: "Export"
     filter: "Filter"
@@ -87,9 +90,26 @@ en:
     start: "Start"
     end: "End"
     attendance: "Attendance"
-    monthnames: [All, January, February, March, April, May, June, July, August, September, October, November, December]
-    monthnames_a: [All, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
-    daynames: [All, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
+    monthnames:
+      [
+        All,
+        January,
+        February,
+        March,
+        April,
+        May,
+        June,
+        July,
+        August,
+        September,
+        October,
+        November,
+        December,
+      ]
+    monthnames_a:
+      [All, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+    daynames:
+      [All, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
     daynames_a: [All, Mon, Tue, Wed, Thu, Fri, Sat, Sun]
   category:
     created: "Created category: "
@@ -374,11 +394,17 @@ en:
     active_a: "Act."
     calculating: "Calculating"
     closed: "Closed"
+    completed: "Completed"
     empty: "No data to show"
+    good: "Good progress"
     inactive: "Inactive"
+    in_progress: "In progress"
     no_data: "No data to save"
     no_file: "Load file..."
+    not_started: "Not started"
+    processing: "Processing..."
     saved: "saved."
+    starting: "Starting"
   step:
     default: "<step>"
     diagram: "Diagram"
@@ -393,6 +419,7 @@ en:
     many: "Targets"
     edit: "Edit Targets"
     abbr: "Tgt."
+    completion: "Completion (%)"
     default: "<target>"
     aspect:
       gen: "General"
@@ -406,8 +433,8 @@ en:
       fit: "Physical"
       def: "Defense"
       def_a: "Def."
-      ofe: "Offense"
-      ofe_a: "Off."
+      off: "Offense"
+      off_a: "Off."
   task:
     created: "Created task: "
     updated: "Updated task: "

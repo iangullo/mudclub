@@ -23,11 +23,11 @@ class TopbarComponent < ApplicationComponent
 	def initialize(user:, logo:, nick:, home:, logout:)
 		@clublogo  = logo
 		@clubname  = nick
-		@logourl   = {url: "/home/about", data: {turbo_frame: "modal"}}
-		@tabcls    = 'hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap px-2 py-2 rounded-md font-semibold'
+		@logourl   = { url: "/home/about", data: { turbo_frame: "modal" } }
+		@tabcls    = "hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap px-2 py-2 rounded-md font-semibold"
 		@srvcls    = "#{@tabcls} inline-flex items-center"
-		@lnkcls    = 'no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap'
-		@logincls  = 'login_button rounded hover:bg-blue-700 max-h-8 min-h-6'
+		@lnkcls    = "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap"
+		@logincls  = "login_button rounded hover:bg-blue-700 max-h-8 min-h-6"
 		load_menus(user, home, logout)
 	end
 
@@ -54,26 +54,26 @@ class TopbarComponent < ApplicationComponent
 
 	# wrapper to define a dropdown menu hash - :options returned as [] if received as nil
 	def menu_drop(name, label: nil, options: [], ham: nil)
-		{kind: :menu, name:, label:, options:, ham:}
+		{ kind: :menu, name:, label:, options:, ham:  }
 	end
 
 	def menu_link(label:, url:, class: "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap", kind: :normal)
 		case kind
 		when :normal
-			l_data = {turbo_action: "replace"}
+			l_data = { turbo_action: "replace" }
 		when :modal
-			l_data = {turbo_frame: "modal"}
+			l_data = { turbo_frame: "modal" }
 		when :delete
-			l_data = {turbo_method: "delete"}
+			l_data = { turbo_method: "delete" }
 		end
-		{kind:, label:, url:, class:, data: l_data }
+		{ kind:, label:, url:, class:, data: l_data }
 	end
 
 	def menu_tabs(user, home, logout)
 		@menu_tabs = []
 		if user.admin?
 			@menu_tabs << server_menu(user)
-			@logourl = {url: @cluburl, data: {turbo_action: "replace"}}
+			@logourl = { url: @cluburl, data: { turbo_action: "replace" } }
 		elsif user.is_manager?
 			@menu_tabs += manager_menu
 		end
@@ -150,7 +150,7 @@ class TopbarComponent < ApplicationComponent
 
 	# menu buttons for coaches
 	def coach_menu(user)
-		res = [ menu_link(label: I18n.t("drill.many"), url: '/drills') ]
+		res = [ menu_link(label: I18n.t("drill.many"), url: "/drills") ]
 		res << menu_link(label: I18n.t("player.many"), url: "/clubs/#{user.club_id}/players") unless user.is_manager?
 		res
 	end
@@ -168,7 +168,6 @@ class TopbarComponent < ApplicationComponent
 	end
 
 	def player_menu(user)
-#		[ coach_menu(user, pure=false) ] 
 	end
 
 	# menu buttons for club managers
@@ -184,7 +183,7 @@ class TopbarComponent < ApplicationComponent
 	# menu to manage server application
 	def server_menu(user)
 		options = [
-			#menu_link(label: I18n.t("sport.many"), url: "/sports"),
+			# menu_link(label: I18n.t("sport.many"), url: "/sports"),
 			menu_link(label: I18n.t("club.many"), url: "/clubs"),
 			menu_link(label: I18n.t("season.many"), url: "/seasons"),
 			menu_link(label: I18n.t("user.many"), url: "/users"),
@@ -200,23 +199,23 @@ class TopbarComponent < ApplicationComponent
 		s_teams = []
 		t_url = "/clubs/#{user.club_id}/teams"
 		slast = Season.latest
-		u_teams.each {|team| s_teams << team if team.season == slast}
+		u_teams.each { |team| s_teams << team if team.season == slast }
 		if s_teams.empty?
 			m_teams = menu_link(label: I18n.t("team.many"), url: t_url)
 		else
 			m_teams = menu_drop("teams", label: I18n.t("team.many"))
-			s_teams.each {|team| m_teams[:options] << menu_link(label: team.to_s, url: "/teams/#{team.id}")}
+			s_teams.each { |team| m_teams[:options] << menu_link(label: team.to_s, url: "/teams/#{team.id}") }
 			m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: t_url)
 		end
-		m_teams 
+		m_teams
 	end
 
 	# menu for user-specific options if loogged in
 	def user_menu(user, home, logout)
 		options  = [
 			menu_link(label: I18n.t("user.profile"), url: home),
-			menu_link(label: I18n.t("action.logout"), url: logout, kind: :delete),
+			menu_link(label: I18n.t("action.logout"), url: logout, kind: :delete)
 		]
-		res = menu_drop("profile", label: user.person.nick.presence || user.person.name, options:)
+		menu_drop("profile", label: user.person.nick.presence || user.person.name, options:)
 	end
 end

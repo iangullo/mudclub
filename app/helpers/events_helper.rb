@@ -297,7 +297,7 @@ module EventsHelper
 				{ kind: :lines, value: @event.def_targets, cols: 5 }
 			],
 			[
-				top_cell_field(I18n.t("target.focus.ofe_a")),
+				top_cell_field(I18n.t("target.focus.off_a")),
 				{ kind: :lines, value: @event.off_targets, cols: 5 }
 			]
 		]

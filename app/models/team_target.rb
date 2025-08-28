@@ -23,6 +23,7 @@ class TeamTarget < ApplicationRecord
 	scope :plan, -> { where("month>0") }
 	scope :monthly, ->(month) { where(month: month) }
 	accepts_nested_attributes_for :target, reject_if: :all_blank
+	validates :completion, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
 	self.inheritance_column = "not_sti"
 
 	def to_s
@@ -44,6 +45,18 @@ class TeamTarget < ApplicationRecord
 		self.target.focus_before_type_cast
 	end
 
+
+	# Traffic light status helper
+	def status
+		case completion
+		when 0 then :red
+		when 1..33 then :orange
+		when 34..66 then :yellow
+		when 67..90 then :lime
+		when 90..100 then :green
+		end
+	end
+
 	# Takes the input received from target_form (f_object)
 	# and either reads or creates a matching drill_target
 	def self.fetch(f_object)
@@ -59,6 +72,7 @@ class TeamTarget < ApplicationRecord
 		res.target   = tgt
 		res.priority = f_object[:priority].to_i
 		res.month    = f_object[:month].to_i
+		res.completion = f_object[:completion].to_i if f_object[:completion]
 		res
 	end
 
