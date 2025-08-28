@@ -149,7 +149,6 @@ module EventsHelper
 			end
 		end
 		event_top_right_fields(res:, form:, copy:)
-		# res << [{kind: :top_cell, value: "A"}, {kind: :top_cell, value: "B"}, {kind: :top_cell, value: "C"}, {kind: :top_cell, value: "D"}, {kind: :top_cell, value: "E"}, {kind: :top_cell, value: "F"}]
 		res
 	end
 
@@ -251,9 +250,9 @@ module EventsHelper
 		res  = (@rdx ? [ [ { kind: :hidden, key: :rdx, value: @rdx } ] ] : [ [] ])
 		res += [
 			[
-				{ kind: :top_cell, value: I18n.t("task.number") },
-				{ kind: :top_cell, value: I18n.t("drill.single") },
-				{ kind: :top_cell, value: I18n.t("task.duration") }
+				top_cell_field(I18n.t("task.number")),
+				top_cell_field(I18n.t("drill.single")),
+				top_cell_field(I18n.t("task.duration"))
 			],
 			[
 				{ kind: :side_cell, value: @task.order },
@@ -294,11 +293,11 @@ module EventsHelper
 		res = [
 			[
 				{ kind: :side_cell, value: I18n.t("target.abbr"), rows: 2 },
-				{ kind: :top_cell, value: I18n.t("target.focus.def_a") },
+				top_cell_field(I18n.t("target.focus.def_a")),
 				{ kind: :lines, value: @event.def_targets, cols: 5 }
 			],
 			[
-				{ kind: :top_cell, value: I18n.t("target.focus.ofe_a") },
+				top_cell_field(I18n.t("target.focus.ofe_a")),
 				{ kind: :lines, value: @event.off_targets, cols: 5 }
 			]
 		]

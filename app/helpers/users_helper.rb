@@ -110,8 +110,8 @@ module UsersHelper
 	# return user_actions GridComponent
 	def user_actions_table
 		res = [ [
-			{ kind: :top_cell, value: I18n.t("calendar.date"), align: "center" },
-			{ kind: :top_cell, value: I18n.t("drill.desc"), align: "center" }
+			top_cell_field(I18n.t("calendar.date")),
+			top_cell_field(I18n.t("drill.desc"))
 		] ]
 		@user.user_actions.order(updated_at: :desc).each { |u_act|
 			res << [

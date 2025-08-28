@@ -155,4 +155,9 @@ module ApplicationHelper
 		res << [ { kind: :subtitle, value: subtitle } ] if subtitle
 		res
 	end
+
+	# return a :top_cell field definition
+	def topcell_field(value, cols: nil, align: "center")
+		{ kind: :top_cell, cols:, align:, value: }
+	end
 end

@@ -234,9 +234,9 @@ module DrillsHelper
 	# create table for drill versions
 	def drill_versions_table
 		res = [ [
-			{ kind: :top_cell, value: I18n.t("calendar.date"), align: "center" },
-			{ kind: :top_cell, value: I18n.t("drill.author"), align: "center" },
-			{ kind: :top_cell, value: I18n.t("version.changes.many"), align: "center" }
+			top_cell_field(I18n.t("calendar.date")),
+			top_cell_field(I18n.t("drill.author")),
+			top_cell_field(I18n.t("version.changes.many"))
 		] ]
 		@drill.versions.each { |d_ver|
 			v_user = User.find_by(id: d_ver.whodunnit)

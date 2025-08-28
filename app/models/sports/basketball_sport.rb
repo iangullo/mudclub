@@ -285,10 +285,10 @@ class BasketballSport < Sport
 			res = [ [ { kind: :gap }, { kind: :side_cell, value: I18n.t("stat.many"), align: "middle", cols: 5 } ] ]
 			res << [
 				{ kind: :gap },
-				{ kind: :top_cell, value: I18n.t("#{SPORT_LBL}shot.many") },
-				{ kind: :top_cell, value: I18n.t("#{SPORT_LBL}shot.scored"), align: "middle" },
-				{ kind: :top_cell, value: "/", align: "middle" },
-				{ kind: :top_cell, value: I18n.t("#{SPORT_LBL}shot.attempt"), align: "middle" }
+				topcell(I18n.t("#{SPORT_LBL}shot.many")),
+				topcell(I18n.t("#{SPORT_LBL}shot.scored")),
+				topcell("/"),
+				topcell(I18n.t("#{SPORT_LBL}shot.attempt"))
 			]
 		end
 
@@ -343,28 +343,28 @@ class BasketballSport < Sport
 		def rules_limits_title_fields
 			[
 				[
-					{ kind: :top_cell, value: I18n.t("sport.rules"), rows: 3 },
-					{ kind: :top_cell, value: I18n.t("sport.period.many"), align: "center", cols: 4 },
-					{ kind: :top_cell, value: I18n.t("team.roster"), align: "center", cols: 2, rows: 2 },
-					{ kind: :top_cell, value: I18n.t("#{SPORT_LBL}outings.playing"), align: "center", cols: 2, rows: 2 },
-					{ kind: :top_cell, value: I18n.t("#{SPORT_LBL}outings.quarter"), align: "center", cols: 3, rows: 2 }
+					topcell(I18n.t("sport.rules"), rows: 3),
+					topcell(I18n.t("sport.period.many"), cols: 4),
+					topcell(I18n.t("team.roster"), cols: 2, rows: 2),
+					topcell(I18n.t("#{SPORT_LBL}outings.playing"), cols: 2, rows: 2),
+					topcell(I18n.t("#{SPORT_LBL}outings.quarter"), cols: 3, rows: 2)
 				],
 				[
-					{ kind: :top_cell, value: I18n.t("sport.period.regular"), align: "center", cols: 2 },	# periods
-					{ kind: :top_cell, value: I18n.t("sport.period.extra"), align: "center", cols: 2 }
+					topcell(I18n.t("sport.period.regular"), cols: 2),	# periods
+					topcell(I18n.t("sport.period.extra"), cols: 2)
 				],
 				[
-					{ kind: :top_cell, value: I18n.t("sport.period.qty") },	# regular
-					{ kind: :top_cell, value: I18n.t("sport.period.duration") },
-					{ kind: :top_cell, value: I18n.t("sport.period.qty") },	# extra
-					{ kind: :top_cell, value: I18n.t("sport.period.duration") },
-					{ kind: :top_cell, value: I18n.t("stat.max") },	# match roster
-					{ kind: :top_cell, value: I18n.t("stat.min") },
-					{ kind: :top_cell, value: I18n.t("stat.max") },	# match playing
-					{ kind: :top_cell, value: I18n.t("stat.min") },
-					{ kind: :top_cell, value: I18n.t("#{SPORT_LBL}outings.first") },	# outings
-					{ kind: :top_cell, value: I18n.t("stat.max") },	# in field
-					{ kind: :top_cell, value: I18n.t("stat.min") }
+					topcell(I18n.t("sport.period.qty")),	# regular
+					topcell(I18n.t("sport.period.duration")),
+					topcell(I18n.t("sport.period.qty")),	# extra
+					topcell(I18n.t("sport.period.duration")),
+					topcell(I18n.t("stat.max")),	# match roster
+					topcell(I18n.t("stat.min")),
+					topcell(I18n.t("stat.max")),	# match playing
+					topcell(I18n.t("stat.min")),
+					topcell(I18n.t("#{SPORT_LBL}outings.first")),	# outings
+					topcell(I18n.t("stat.max")),	# in field
+					topcell(I18n.t("stat.min"))
 				]
 			]
 		end
@@ -411,7 +411,7 @@ class BasketballSport < Sport
 				score   = self.match_score(event.id)
 				periods = self.periods
 				match_score_fields(event.home?, score, periods, t_pers, head, t_home, t_away, edit:)
-				head << { kind: :top_cell, value: I18n.t("stat.total_a"), align: "center" }
+				head << topcell(I18n.t("stat.total_a"))
 				team_period_score_fields(event.home?, :tot, t_home, t_away, score[:tot], edit:)
 			end
 			fields += [ head, t_home, t_away ]
@@ -459,6 +459,11 @@ class BasketballSport < Sport
 			end
 		end
 
+		# return a :top_cell field definition
+		def topcell(value, cols: nil, rows: nil, align: "center")
+			{ kind: :top_cell, cols:, rows:, align:, value: }
+		end
+
 		# fill head, t_home & t_away the fields for match score
 		def match_score_fields(home, score, periods, t_pers, head, t_home, t_away, edit: false)
 			rsc = { ours: 0, opps: 0 } # may not need to show overtime scores
@@ -469,11 +474,11 @@ class BasketballSport < Sport
 					rsc[:ours] += val[:ours]
 					rsc[:opps] += val[:opps]
 				end
-				head << { kind: :top_cell, value: I18n.t("#{SPORT_LBL}period.#{per}"), align: "center" }
+				head << topcell(I18n.t("#{SPORT_LBL}period.#{per}"))
 				team_period_score_fields(home, per, t_home, t_away, val, edit:)
 			end
 			if edit || (rsc[:ours] == rsc[:opps] && rsc[:ours] > 0)
-				head << { kind: :top_cell, value: I18n.t("#{SPORT_LBL}period.ot"), align: "center" }
+				head << topcell(I18n.t("#{SPORT_LBL}period.ot"))
 				team_period_score_fields(home, :ot, t_home, t_away, score[:ot], edit:)
 			end
 		end

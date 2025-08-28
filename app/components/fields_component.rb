@@ -112,7 +112,7 @@ class FieldsComponent < ApplicationComponent
 					item[:class] ||= " align-middle rounded-md"
 				when /^(search_.+)$/
 					item[:value] = SearchBoxComponent.new(item)
-				when "gap", "label", "lines", "side-cell", "string", "subtitle", "title", "top-cell"
+				when "gap", "label", "lines", "side_cell", "string", "subtitle", "title", "top_cell"
 					set_text_field(item)
 				when "person_type"
 					set_person_type(item)
