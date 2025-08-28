@@ -41,7 +41,7 @@ class BasketballSport < Sport
 
 	# return possible court designs for drills/plays
 	def court_modes
-		return COURT_MODES
+		COURT_MODES
 	end
 
 	# human name of a specific court
@@ -109,7 +109,7 @@ class BasketballSport < Sport
 				elsif q_val == 1
 					p_outings    += 1 if q <= data["first"]
 					q_players[q] += 1
-					row[:items] << { kind: :icon, value: "Yes.svg", class: "" }
+					row[:items] << { kind: :symbol, symbol: { concept: "yes", options: {} }, class: "" }
 				else
 					row[:items] << { kind: :gap, size: 1, class: "border px py" }
 				end
@@ -476,7 +476,7 @@ class BasketballSport < Sport
 				head << { kind: :top_cell, value: I18n.t("#{SPORT_LBL}period.ot"), align: "center" }
 				team_period_score_fields(home, :ot, t_home, t_away, score[:ot], edit:)
 			end
-	end
+		end
 
 		# return fields for stats view
 		def match_stats_header(edit: false)
