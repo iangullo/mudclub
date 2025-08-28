@@ -27,12 +27,12 @@
 							<div class="overlay rounded absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" >
 								<% if device != "mobile" %>
 									<%= link_to edit_diagram_drill_path(id: @drill&.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram") do %>
-										<%= image_tag("edit.svg", size: "50x50")  %>
+										<%= render SymbolComponent.new("edit", options: {size: "50x50"})  %>
 									<% end %>
 								<% end %>
 								<% unless step.svgdata.present? %>
 									<%= link_to load_diagram_drill_path(id: @drill&.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.load_diagram"), data: {turbo_frame: "modal"} do %>
-										<%= image_tag("add.svg", size: "50x50")  %>
+										<%= render SymbolComponent.new("add", options: {size: "50x50"})  %>
 									<% end %>
 								<% end %>
 							</div>

@@ -19,25 +19,25 @@
 # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 Rails.application.routes.draw do
 	root to: "home#index"
-	get 'home/about'
-	get 'home/log'
-	get 'home/clear'
-	get 'home/index'
-	get 'home/server'
-	devise_for :users, :skip => [:registrations]
+	get "home/about"
+	get "home/log"
+	get "home/clear"
+	get "home/index"
+	get "home/server"
+	devise_for :users, skip: [ :registrations ]
 	as :user do
-		get 'users/edit' => 'devise/registrations#edit', :as => 'edit_user_registration'
-		put 'users' => 'devise/registrations#update', :as => 'user_registration'
+		get "users/edit" => "devise/registrations#edit", :as => "edit_user_registration"
+		put "users" => "devise/registrations#update", :as => "user_registration"
 	end
 	resources :clubs do
-		get 'coaches', to: 'coaches#index'	# team event calendar
-		get 'events', to: 'events#index'	# team event calendar
-		get 'locations', to: 'locations#index'	# team event calendar
-		get 'players', to: 'players#index'	# team event calendar
-		get 'slots', to: 'slots#index'	# team event calendar
-		get 'teams', to: 'teams#index'	# team event calendar
+		get "coaches", to: "coaches#index"	# team event calendar
+		get "events", to: "events#index"	# team event calendar
+		get "locations", to: "locations#index"	# team event calendar
+		get "players", to: "players#index"	# team event calendar
+		get "slots", to: "slots#index"	# team event calendar
+		get "teams", to: "teams#index"	# team event calendar
 	end
-	resources :coaches, except: [:index] do
+	resources :coaches, except: [ :index ] do
 		collection do
 			post :import
 		end
@@ -50,46 +50,46 @@ Rails.application.routes.draw do
 			patch :update_diagram # /drills/:id/update_diagram?step_id=X
 		end
 	end
-	resources :events, except: [:index] do
+	resources :events, except: [ :index ] do
 		member do
-			get 'copy'
-			get 'load_chart'
-			get 'show_task'
-			get 'add_task'
-			get 'edit_task'
-			get 'attendance'
-			get 'player_stats'
-			get 'edit_player_stats'
+			get "copy"
+			get "load_chart"
+			get "show_task"
+			get "add_task"
+			get "edit_task"
+			get "attendance"
+			get "player_stats"
+			get "edit_player_stats"
 		end
 	end
-	resources :locations, except: [:index]
-	resources :players, except: [:index] do
+	resources :locations, except: [ :index ]
+	resources :players, except: [ :index ] do
 		collection do
 			post :import
 		end
 	end
 	resources :seasons
-	resources :slots, except: [:index]
+	resources :slots, except: [ :index ]
 	resources :sports do
-		get 'rules', on: :member
+		get "rules", on: :member
 		resources :categories
 		resources :divisions
 	end
-	resources :teams, except: [:index] do
-		get 'events', to: 'events#index'	# team event calendar
+	resources :teams, except: [ :index ] do
+		get "events", to: "events#index"	# team event calendar
 		member do
-			get 'attendance'
-			get 'plan'
-			get 'edit_plan'
-			get 'roster'
-			get 'edit_roster'
-			get 'slots'
-			get 'targets'
-			get 'edit_targets'
+			get "attendance"
+			get "plan"
+			get "edit_plan"
+			get "roster"
+			get "edit_roster"
+			get "slots"
+			get "targets"
+			get "edit_targets"
 		end
 	end
 	resources :users do
-		get 'actions', on: :member
-		get 'clear_actions', on: :member
+		get "actions", on: :member
+		get "clear_actions", on: :member
 	end
 end

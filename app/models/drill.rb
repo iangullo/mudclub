@@ -51,7 +51,7 @@ class Drill < ApplicationRecord
 	def court_name
 		self.sport.court_name(self.court_mode)
 	end	# wrapper to return image symbol to self court_mode
-	
+
 	# wrapper to return image symbol to self court_mode
 	def court_symbol
 		self.sport.symbol(self.court_mode, type: :court)
@@ -242,18 +242,20 @@ class Drill < ApplicationRecord
 		# from the drill collection - remove duplicates from list
 		def check_steps(s_array)
 			a_steps = Step.passed(s_array) # array to include only non-duplicates
-			order   = 1
 			a_steps.each { |s| # second pass - manage associations
-				st = Step.find_by_id(s[:id].to_i) || Step.new(drill_id: self.id, order: s[:order].presence)
+				st = Step.find_by_id(s[:id].to_i)
 				if s[:_destroy] == "1"
 					self.steps.delete(s[:id].to_i)
 					st.delete if st&.persisted?
-				else	# add to collection
+				elsif s[:svgdata].present? ||	s[:explanation].present? || s[:diagram].present?	# add to collection
+					st ||= Step.new(drill_id: self.id, order: s[:order].presence)
 					st.diagram = s[:diagram] if s[:diagram].presence
-					st.diagram_svg = s[:diagram_svg] if s[:diagram_svg].presence
+					st.svgdata = s[:svgdata] if s[:svgdata].presence
 					st.explanation = s[:explanation].presence
 					st.save
 					self.steps << st unless self.steps.include?(st)
+				elsif st	# empty step => delete it
+					st.delete
 				end
 			}
 			i = 1
@@ -285,7 +287,7 @@ class Drill < ApplicationRecord
 			aux = ""
 			obj_array.each { |obj|
 				aux = (i == 0) ? obj.concept : aux + "; " + obj.concept
-				i = i +1
+				i += 1
 			}
 			aux
 		end

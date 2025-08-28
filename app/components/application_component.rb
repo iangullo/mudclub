@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 # frozen_string_literal: true
+
 # Core shared component functions
 class ApplicationComponent < ViewComponent::Base
 	def initialize(tag: nil, classes: nil, **options)
@@ -28,20 +29,20 @@ class ApplicationComponent < ViewComponent::Base
 	def call
 		content_tag(@tag, content, class: @classes, **@options) if @tag
 	end
-	
+
 	private
 	# handle errors gracefully
 	def handle_error(error)
 		# Log the error for debugging purposes
 		Rails.logger.error("Error rendering button component: #{error.message}")
-		
+
 		# Render a fallback message or component
 		content_tag(:div, "An error occurred while rendering this button.", class: "error-message")
 	end
 
 	# ensure symbol is converted to a proper symbol hash, if needed.
 	def hashify_symbol(item)
-		item[:symbol] = {concept: item[:symbol], options: {}} if item[:symbol].presence.is_a? String
+		item[:symbol] = { concept: item[:symbol], options: {} } if item[:symbol].presence.is_a? String
 		item[:symbol][:options] ||= {} if item[:symbol]
 	end
 
@@ -83,12 +84,12 @@ class ApplicationComponent < ViewComponent::Base
 
 	# wrappers to generate different field tags - self-explanatory
 	def table_tag(controller: nil, data: nil, classes: [], **table_options)
-		table_options[:class] = ["table-auto", *classes].join(' ')
+		table_options[:class] = [ "table-auto", *classes ].join(" ")
 		if data.present?
 			table_options[:data] = data
 			table_options[:data][:controller] = controller if controller
 		elsif controller
-			table_options[:data] = {controller: controller }
+			table_options[:data] = { controller: controller }
 		end
 		content_tag(:table, table_options) do
 			yield
@@ -97,7 +98,7 @@ class ApplicationComponent < ViewComponent::Base
 
 	def tablerow_tag(data: nil, classes: [], **row_options)
 		row_options[:data]  = data if data.present?
-		row_options[:class] = classes.join(' ') unless classes.empty?
+		row_options[:class] = classes.join(" ") unless classes.empty?
 		content_tag(:tr, row_options) do
 			yield
 		end
@@ -116,7 +117,7 @@ class ApplicationComponent < ViewComponent::Base
 	end
 
 	# define a unique identifier for this Component
-	def unique_identifier(label="component")
+	def unique_identifier(label = "component")
 		"#{label}-#{SecureRandom.uuid}"
 	end
 end
