@@ -27,6 +27,9 @@ class SymbolRegistry
 		symbolize_names: false
 	).with_indifferent_access
 
+	# constants for missing symbol
+	MISSING_SYMBOL_ID = "missing.default"
+
 	def initialize(namespace)
 		@namespace = namespace.to_s
 		@paths = CONFIG[@namespace] || {}
@@ -50,20 +53,21 @@ class SymbolRegistry
 	end
 
 	# Fetch a symbol by concept/variant/type from the cache or file
+	# Returns missing symbol if not found
 	def find_symbol(concept, variant = "default", type: :icon)
 		id = SymbolRegistry.symbol_id(concept, variant)
 
-		self.class.symbol_cache[@namespace][id] ||= begin
-			doc = load_svg(type.to_s)
-			symbol = doc&.at_css("symbol[id='#{id}']")
-			resolve_use_tags(symbol, type: type, visited: Set.new) if symbol
-			symbol
-		end
+		# Try to find symbol in current namespace
+		symbol = fetch_symbol(@namespace, id, type)
+
+		# Fallback to missing symbol if not found
+		symbol || fetch_missing_symbol
 	end
 
-	# Check if a symbol exists
+	# Check if a symbol exists (doesn't use missing symbol fallback)
 	def symbol_exists?(concept, variant = "default", type: :icon)
-		!!find_symbol(concept, variant, type: type)
+		id = SymbolRegistry.symbol_id(concept, variant)
+		!!fetch_symbol(@namespace, id, type, check_only: true)
 	end
 
 	# Static caches: one for parsed SVGs, one for resolved symbols
@@ -94,18 +98,81 @@ class SymbolRegistry
 
 	private
 
-	# Load and cache SVG file contents (parsed as Nokogiri XML)
-	def load_svg(type)
-		path = svg_path(type)
-		return unless path&.exist?
-	
-		self.class.doc_cache[@namespace][path.to_s] ||= begin
+	# Fetch a symbol from a specific namespace with optional check-only mode
+	def fetch_symbol(namespace, id, type, check_only: false)
+		# Check cache first
+		return self.class.symbol_cache[namespace][id] if self.class.symbol_cache[namespace][id]
+
+		# Load from file if not in cache
+		doc = load_svg_for_namespace(namespace, type.to_s)
+		symbol = doc&.at_css("symbol[id='#{id}']")
+
+		if symbol && !check_only
+			resolve_use_tags(symbol, type: type, visited: Set.new)
+			self.class.symbol_cache[namespace][id] = symbol
+		end
+
+		symbol
+	end
+
+	# Fetch missing symbol (from common namespace by default)
+	def fetch_missing_symbol
+		fetch_symbol("common", MISSING_SYMBOL_ID, :icon) || create_default_missing_symbol
+	end
+
+	# Create a default missing symbol as fallback
+	def create_default_missing_symbol
+		doc = Nokogiri::XML::Document.new
+		symbol = Nokogiri::XML::Node.new("symbol", doc)
+		symbol["id"] = MISSING_SYMBOL_ID
+		symbol["viewBox"] = "0 0 24 24"
+
+		# Create a simple "missing" indicator (question mark in a circle)
+		circle = Nokogiri::XML::Node.new("circle", doc)
+		circle["cx"] = "12"
+		circle["cy"] = "12"
+		circle["r"] = "10"
+		circle["stroke"] = "currentColor"
+		circle["stroke-width"] = "2"
+		circle["fill"] = "none"
+
+		text = Nokogiri::XML::Node.new("text", doc)
+		text["x"] = "12"
+		text["y"] = "16"
+		text["text-anchor"] = "middle"
+		text["fill"] = "currentColor"
+		text["font-size"] = "12"
+		text["font-weight"] = "bold"
+		text.content = "?"
+
+		symbol.add_child(circle)
+		symbol.add_child(text)
+
+		# Cache the created symbol in common namespace
+		self.class.symbol_cache["common"][MISSING_SYMBOL_ID] = symbol
+		symbol
+	end
+
+	# Load SVG for a specific namespace
+	def load_svg_for_namespace(namespace, type)
+		paths = namespace == @namespace ? @paths : CONFIG[namespace]
+		return unless paths && paths[type]
+
+		path = Rails.root.join("app/assets/symbols", paths[type])
+		return unless path.exist?
+
+		self.class.doc_cache[namespace][path.to_s] ||= begin
 			content = File.read(path)
 			Nokogiri::XML(content)
 		rescue StandardError => e
 			Rails.logger.warn "Failed to load SVG file #{path}: #{e.message}"
 			nil
 		end
+	end
+
+	# Alias for backward compatibility
+	def load_svg(type)
+		load_svg_for_namespace(@namespace, type)
 	end
 
 	# Resolve <use> references recursively by inlining referenced symbols
@@ -118,7 +185,7 @@ class SymbolRegistry
 			next if visited.include?(ref_id)
 
 			visited.add(ref_id)
-			referenced = find_symbol_by_id(ref_id, type: type, visited: visited)
+			referenced = fetch_symbol(@namespace, ref_id, type)
 
 			if referenced
 				resolve_use_tags(referenced, type: type, visited: visited)
@@ -140,17 +207,6 @@ class SymbolRegistry
 			end
 		end
 	end
-
-	# Helper for resolving a symbol by ID, with cache and recursion
-	def find_symbol_by_id(id, type:, visited:)
-		self.class.symbol_cache[@namespace][id] ||= begin
-			doc = load_svg(type.to_s)
-			symbol = doc&.at_css("symbol[id='#{id}']")
-			resolve_use_tags(symbol, type: type, visited: visited) if symbol
-			symbol
-		end
-	end
-
 
 	# Compute the full path to the SVG file for a given type
 	def svg_path(type)

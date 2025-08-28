@@ -20,8 +20,8 @@ class Person < ApplicationRecord
 	include PersonDataManagement
 	include PgSearch::Model
 	before_destroy :unlink
-	before_save { self.name = self.name ? self.name.mb_chars.titleize : ""}
-	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : ""}
+	before_save { self.name = self.name ? self.name.mb_chars.titleize : "" }
+	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
 	belongs_to :coach, optional: true
 	belongs_to :player, optional: true
 	belongs_to :user, optional: true
@@ -33,9 +33,9 @@ class Person < ApplicationRecord
 	has_one_attached :id_front
 	has_one_attached :id_back
 	pg_search_scope :search,
-		against: [:nick, :name, :surname],
+		against: [ :nick, :name, :surname ],
 		ignoring: :accents,
-		using: { tsearch: {prefix: true} }
+		using: { tsearch: { prefix: true } }
 	scope :real, -> { where("id>0") }
 	scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
 	validates :email, uniqueness: { allow_nil: true }
@@ -66,14 +66,14 @@ class Person < ApplicationRecord
 		label = self.dni
 		if self.idpics_attached?
 			found  = true
-			symbol = {concept: "id_front"}
+			symbol = { concept: "id_front" }
 			tip    = I18n.t("person.pics_found")
 		else
 			found  = self.id_front.attached? || self.id_back.attached?
-			symbol = {concept: "id_front", variant: "none"}
+			symbol = { concept: "id_front", options: { variant: "none" } }
 			tip    = I18n.t("person.pics_missing")
 		end
-		{found:, symbol:, label:, tip:}
+		{ found:, symbol:, label:, tip: }
 	end
 
 	# checks whether a Person has attached id pictures (front && back)
@@ -124,18 +124,18 @@ class Person < ApplicationRecord
 		self.update_attachment("avatar", f_data[:avatar]) if f_data[:avatar].present?
 		self.update_attachment("id_front", f_data[:id_front]) if f_data[:id_front].present?
 		self.update_attachment("id_back", f_data[:id_back]) if f_data[:id_back].present?
-		return self
+		self
 	end
 
-	#short name for form viewing
+	# short name for form viewing
 	def s_name
 		res = "#{self.to_s(false)} #{self.surname&.split&.first}"
 		res.present? ? res : I18n.t("person.single")
 	end
 
-	def to_s(long=true)
+	def to_s(long = true)
 		aux = self.nick.presence || self.name.to_s
-		aux += " #{self.surname.to_s}" if long
+		aux += " #{self.surname}" if long
 		aux
 	end
 
@@ -146,13 +146,13 @@ class Person < ApplicationRecord
 		# Try to find by id if present
 		id = f_data[:id].presence.to_i
 		p_aux = Person.find_by(id:) if id > 0
-		
+
 		# Try to find by dni if present
-		p_aux = Person.find_by(dni: f_data[:dni]) if !p_aux && (dni = f_data[:dni].presence)
-		
+		p_aux = Person.find_by(dni: f_data[:dni]) if !p_aux && (f_data[:dni].presence)
+
 		# Try to find by email if present
-		p_aux = Person.find_by(email: f_data[:email]) if !p_aux && (email = f_data[:email].presence)
-		
+		p_aux = Person.find_by(email: f_data[:email]) if !p_aux && (f_data[:email].presence)
+
 		unless p_aux	# last resort: attempt to find by name+surname
 			name    = f_data[:name].presence
 			surname = f_data[:surname].presence
@@ -172,7 +172,7 @@ class Person < ApplicationRecord
 			if row.empty?	# stop parsing if row is empty
 				return
 			else
-				p = Person.fetch({name: row[2].value, surname: row[3].value})
+				p = Person.fetch({ name: row[2].value, surname: row[3].value })
 				if p.nil?
 					p = self.new(
 						name:      row[2].value.to_s.strip,

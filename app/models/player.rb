@@ -117,7 +117,7 @@ class Player < ApplicationRecord
 		end
 	end
 
-	#short name for form viewing
+	# short name for form viewing
 	def s_name
 		self.person&.s_name || I18n.t("player.single")
 	end
@@ -135,7 +135,7 @@ class Player < ApplicationRecord
 		when 3; name = self.person.to_s
 		end
 		num = "(##{self.number&.to_s || "__"})".rjust(5, " ")
-		return "#{num} #{name}"
+		"#{num} #{name}"
 	end
 
 	# atempt to fetch a Player using form input hash
@@ -166,7 +166,7 @@ class Player < ApplicationRecord
 						row[7],	# address
 						row[8],	# email
 						row[9], # phone
-						row[6],	# female
+						row[6]	# female
 					]
 				)
 				if j.person # only if person exists
@@ -177,11 +177,11 @@ class Player < ApplicationRecord
 		end
 	end
 
-	#Search field matching
+	# Search field matching
 	def self.search(search, user = nil)
 		if search.present?
 			if user&.is_manager? || user.secretary? # only players retired and belonging to the managers club
-				Player.real.where(club_id: [user.club.id, nil], person_id: Person.search(search).order(:birthday))
+				Player.real.where(club_id: [ user.club.id, nil ], person_id: Person.search(search).order(:birthday))
 			elsif user&.coach?
 				Player.real.where(club_id: user.club.id, person_id: Person.search(search).order(:birthday))
 			else

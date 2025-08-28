@@ -28,7 +28,7 @@ module PersonDataManagement
 	# Checks person is linked well
 	def bind_person(save_changes: false)
 		return false if self.is_a?(Person) || !self.id
-		p_obj = "#{self.class.name}[#{self.id.to_s}]"
+		p_obj = "#{self.class.name}[#{self.id}]"
 		Rails.logger.debug "Binding person ##{self&.person&.id} to #{p_obj}"
 
 		s_id = bind_field
@@ -50,12 +50,12 @@ module PersonDataManagement
 				raise ActiveRecord::Rollback, "Failed to save object after binding person"
 			end
 		end
-		return true
+		true
 	end
 
 	# Check to set default values.
 	def d_value(f_id)
-		d_src = self.is_a?(Person) ? self.try(f_id) : self.person.try(f_id)
+		self.is_a?(Person) ? self.try(f_id) : self.person.try(f_id)
 	end
 
 	# Attempts to fetch a Person-related object using the hash of fields
@@ -80,7 +80,7 @@ module PersonDataManagement
 	# imports person data from received excel row
 	# row is an array ordered as:
 	# [ dni, name, surname, nick, birthday, address, email, phone, female ]
-	def import_person_row(row, club=nil)
+	def import_person_row(row, club = nil)
 		p_data = {
 			dni:      self.read_field(row[0], d_value(:dni), I18n.t("person.pid")),
 			name:     self.read_field(row[1], d_value(:name), ""),
@@ -98,7 +98,7 @@ module PersonDataManagement
 	# check if Player/Coach/User (or Person) has changed
 	def modified?
 		res = self.id.nil? || self.changed? # object changed?
-		unless (res or self.is_a?(Person))	# changes in personal data?
+		unless res or self.is_a?(Person)	# changes in personal data?
 			res = self.person.modified?
 			if self.is_a?(Player) && !res	# player parents?
 				res = self.parents.any?(&:modified?)
@@ -113,20 +113,20 @@ module PersonDataManagement
 		begin
 			if self.save
 				Rails.logger.debug "Person saved successfully."
-				return true
+				true
 			else
 				Rails.logger.error "Person save failed: #{self.errors.full_messages.join(", ")}"
-				return false
+				false
 			end
 		rescue ActiveRecord::RecordNotUnique => e
 			Rails.logger.debug("RecordNotUnique error: #{e.message}")
 			Rails.logger.debug "Workaround attempt to save Person."
 			if self.save
 				Rails.logger.debug "Person saved successfully."
-				return true
+				true
 			else
 				Rails.logger.error "Person save failed: #{self.errors.full_messages.join(", ")}"
-				return false
+				false
 			end
 		end
 	end
@@ -176,10 +176,10 @@ module PersonDataManagement
 		# return which id_field to map against
 		def bind_field
 			case self
-			when Coach; return :coach_id
-			when Parent; return :parent_id
-			when Player; return :player_id
-			when User; return :user_id
+			when Coach; :coach_id
+			when Parent; :parent_id
+			when Player; :player_id
+			when User; :user_id
 			end
 		end
 

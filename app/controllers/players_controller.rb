@@ -19,7 +19,7 @@
 # Managament of players -typically linked to a club
 class PlayersController < ApplicationController
 	include Filterable
-	before_action :set_player, only: [:show, :edit, :update, :destroy]
+	before_action :set_player, only: [ :show, :edit, :update, :destroy ]
 
 	# GET /clubs/x/players
 	# GET /clubs/x/players.json
@@ -30,21 +30,21 @@ class PlayersController < ApplicationController
 				format.xlsx do
 					a_desc = "#{I18n.t("player.export")} 'players.xlsx'"
 					register_action(:exported, a_desc)
-					response.headers['Content-Disposition'] = "attachment; filename=players.xlsx"
+					response.headers["Content-Disposition"] = "attachment; filename=players.xlsx"
 				end
 				format.html do
-					title  = helpers.person_title_fields(title: I18n.t("player.many"), icon: {concept: "player", options: {namespace: "sport", size: "50x50"}})
-					title << [{kind: :search_text, key: :search, value: params[:search].presence || session.dig('coach_filters','search'), url: club_players_path(@clubid, rdx: @rdx)}]
+					title  = helpers.person_title_fields(title: I18n.t("player.many"), icon: { concept: "player", options: { namespace: "sport", size: "50x50" } })
+					title << [ { kind: :search_text, key: :search, value: params[:search].presence || session.dig("coach_filters", "search"), url: club_players_path(@clubid, rdx: @rdx) } ]
 					page   = paginate(@players)	# paginate results
 					grid   = helpers.player_grid(players: page)
-					submit = {kind: :export, url: club_players_path(@clubid, format: :xlsx), working: false} if u_manager? || u_secretary?
+					submit = { kind: :export, url: club_players_path(@clubid, format: :xlsx), working: false } if u_manager? || u_secretary?
 					retlnk = base_lnk(club_path(@clubid, rdx: @rdx))
 					create_index(title:, grid:, page:, retlnk:, submit:)
 					render :index
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -57,7 +57,7 @@ class PlayersController < ApplicationController
 			submit  = edit_player_path(@player, team_id: @teamid, rdx: @rdx)
 			@submit = create_submit(close: :back, retlnk: crud_return, submit:, frame: "modal")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -69,7 +69,7 @@ class PlayersController < ApplicationController
 			@player.build_person
 			prepare_form("new")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -78,7 +78,7 @@ class PlayersController < ApplicationController
 		if @player && (player_manager? || check_access(obj: @player))
 			prepare_form("edit")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -97,7 +97,7 @@ class PlayersController < ApplicationController
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.created")} '#{@player.to_s(style: 1)}'"
 						register_action(:created, a_desc, url: player_path(@player, rdx: 2))
-						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :show, status: :created, location: retlnk }
 					else
 						prepare_form("new")
@@ -107,12 +107,12 @@ class PlayersController < ApplicationController
 				else # player was already in the database
 					retlnk = player_path(@player, rdx: @rdx, team_id: @teamid)
 					link_team(@teamid)	# try to add it to the team roster
-					format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s(style: 1)}'"), data: {turbo_action: "replace"} }
+					format.html { redirect_to retlnk, notice: helpers.flash_message("#{I18n.t("player.duplicate")} '#{@player.to_s(style: 1)}'"), data: { turbo_action: "replace" } }
 					format.json { render :show, status: :duplicate, location: retlnk }
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -128,27 +128,27 @@ class PlayersController < ApplicationController
 						@player.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("player.updated")} '#{@player.to_s(style: 1)}'"
 						register_action(:updated, a_desc, url: player_path(@player, rdx: 2))
-						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
-						format.json { render :show, status: :ok, location: retlnk}
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+						format.json { render :show, status: :ok, location: retlnk }
 					else
 						prepare_form("edit")
 						format.html { render :edit }
 						format.json { render json: @player.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
 					format.json { render :show, status: :ok, location: retlnk }
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /players/import
 	# GET /players/import.json
 	def import
-		if check_access(roles: [:manager, :secretary])
+		if check_access(roles: [ :manager, :secretary ])
 			if params[:file].present?
 				Player.import(params[:file].presence)	# added to import excel
 				a_desc = "#{I18n.t("player.import")} '#{params[:file].original_filename}'"
@@ -156,9 +156,9 @@ class PlayersController < ApplicationController
 			else
 				a_desc = "#{I18n.t("player.import")}: #{I18n.t("status.no_file")}"
 			end
-			redirect_to players_path(rdx: @rdx), notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"}
+			redirect_to players_path(rdx: @rdx), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" }
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -179,11 +179,11 @@ class PlayersController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{I18n.t("player.#{act}")} '#{p_name}'"
 				register_action(:deleted, a_desc, url: player_path(@player, rdx: 2))
-				format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -192,7 +192,7 @@ class PlayersController < ApplicationController
 		def crud_return
 			return roster_team_path(id: @teamid, rdx: @rdx) if @teamid
 			return club_players_path(u_clubid, search: @player.s_name, rdx: @rdx) if @player
-			return (@clubid ? club_players_path(@clubid, rdx: @rdx) : u_path)
+			(@clubid ? club_players_path(@clubid, rdx: @rdx) : u_path)
 		end
 
 		# prepare player action context
@@ -211,7 +211,7 @@ class PlayersController < ApplicationController
 
 		# wrapper to check if a user can edit players
 		def player_manager?
-			((u_manager? || u_coach? || u_secretary?) && [nil, u_clubid].include?(@clubid))
+			((u_manager? || u_coach? || u_secretary?) && [ nil, u_clubid ].include?(@clubid))
 		end
 
 		# Prepare a player form
@@ -254,11 +254,11 @@ class PlayersController < ApplicationController
 					:phone,
 					:surname
 				],
-				teams_attributes: [:id, :_destroy],
+				teams_attributes: [ :id, :_destroy ],
 				parents_attributes: [
 					:id,
 					:_destroy,
-					person_attributes: [:id, :name, :surname, :email, :phone]
+					person_attributes: [ :id, :name, :surname, :email, :phone ]
 				]
 			)
 		end
