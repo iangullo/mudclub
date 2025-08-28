@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -19,11 +19,11 @@
 class UserAction < ApplicationRecord
 	belongs_to :user
 	scope :logs, -> { order(updated_at: :desc) }
-	scope :by_user, -> (user_id) { (user_id and user_id.to_i>0) ? where(user_ud: useer_id.to_i) : where("user_id>0").order(updated_at: :desc) }
-	scope :by_kind, -> (kind) { (kind and kind.to_i>0) ? where(kind: kind.to_i) : where("kind>1").order(updated_at: :desc) }
+	scope :by_user, ->(user_id) { (user_id and user_id.to_i>0) ? where(user_ud: useer_id.to_i) : where("user_id>0").order(updated_at: :desc) }
+	scope :by_kind, ->(kind) { (kind and kind.to_i>0) ? where(kind: kind.to_i) : where("kind>1").order(updated_at: :desc) }
 	scope :latest, -> { order(updated_at: :desc).first(10) }
 	self.inheritance_column = "not_sti"
-	enum :kind, %i(enter exit created updated deleted imported exported)
+	enum :kind, %i[enter exit created updated deleted imported exported]
 
 	# return a standardised string for this user_action datetime
 	def date_time
@@ -31,7 +31,7 @@ class UserAction < ApplicationRecord
 	end
 
 	# clear UserAction log - for all users if user is nil
-	def self.clear(user=nil)
+	def self.clear(user = nil)
 		actions = user ? UserAction.all : UserAction.by_user(user&.id)
 		actions.each { |act|
 			act.delete

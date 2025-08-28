@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -50,7 +50,7 @@ class Event < ApplicationRecord
 	scope :matches, -> { where("kind = 2").order(:start_time) }
 	scope :non_training, -> { where("kind=2 or (kind=0 and team_id=0)").order(:start_time) }
 	self.inheritance_column = "not_sti"
-	enum :kind, %i(rest train match)
+	enum :kind, %i[rest train match]
 
 	def date_string
 		cad = self.start_time.year.to_s
@@ -73,7 +73,7 @@ class Event < ApplicationRecord
 			e = Event.where(team_id: 0, start_time: self.start_time)  # is it general?
 			return false if e.first # don't display it!
 		end
-		return true
+		true
 	end
 
 	# return a collection of Drills associated with this event
@@ -187,7 +187,7 @@ class Event < ApplicationRecord
 			namespace = "common"
 		end
 		namespace ||= "sport"
-		{concept:, options: {namespace:}}
+		{ concept:, options: { namespace: } }
 	end
 
 	def time_string(t_end = true)
@@ -324,7 +324,7 @@ class Event < ApplicationRecord
 		else
 			res = nil
 		end
-		return res
+		res
 	end
 
 	# Search for a list of Events
@@ -332,22 +332,22 @@ class Event < ApplicationRecord
 	def self.search(s_data)
 		if (c_id = s_data[:club_id]&.to_i) && (s_id = s_data[:season_id]&.to_i)
 			club = Club.find_by_id(c_id)	# non-training club events
-			res = Event.where(team_id: club.teams.where(season_id: s_id).pluck(:id)).order(start_time: :asc)
+			Event.where(team_id: club.teams.where(season_id: s_id).pluck(:id)).order(start_time: :asc)
 		elsif (t_id = s_data[:team_id]&.to_i) # filter for the team received
 			s_name = s_data[:name].presence
 			if kind = s_data[:kind]&.to_sym # and kind
 				if s_name # and name
-					res = Event.where(kind: kind, team_id: t_id).search_by_name(s_name).order(:start_time)
+					Event.where(kind: kind, team_id: t_id).search_by_name(s_name).order(:start_time)
 				else # only team & kind
-					res = Event.where(kind: kind, team_id: t_id).order(:start_time)
+					Event.where(kind: kind, team_id: t_id).order(:start_time)
 				end
 			elsif s_name # team & name only
-				res = Event.where(team_id: t_id).search_by_name(s_name).order(:start_time)
+				Event.where(team_id: t_id).search_by_name(s_name).order(:start_time)
 			else # only team_id
-				res = Event.where(team_id: t_id).order(:start_time)
+				rEvent.where(team_id: t_id).order(:start_time)
 			end
 		else
-			res = Event.upcoming.order(:start_time)
+			Event.upcoming.order(:start_time)
 		end
 	end
 

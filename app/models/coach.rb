@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -57,7 +57,7 @@ class Coach < ApplicationRecord
 		end
 	end
 
-	#short name for form viewing
+	# short name for form viewing
 	def s_name
 		self.person&.s_name || I18n.t("coach.show")
 	end
@@ -101,11 +101,11 @@ class Coach < ApplicationRecord
 		end
 	end
 
-	#Search field matching
-	def self.search(search, user=nil)
+	# Search field matching
+	def self.search(search, user = nil)
 		if search.present?
 			if user&.is_manager? || user&.secretary?
-				Coach.real.where(club_id: [user.club_id, nil], person_id: Person.search(search).order(:birthday))
+				Coach.real.where(club_id: [ user.club_id, nil ], person_id: Person.search(search).order(:birthday))
 			elsif user&.coach?
 				Coach.real.where(club_id: user.club_id, person_id: Person.search(search).order(:birthday))
 			else

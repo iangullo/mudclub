@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -20,12 +20,12 @@ class Stat < ApplicationRecord
 	belongs_to :event
 	belongs_to :player  # id==0 => team stat; id==-1 => rival stat
 	scope :real, -> { where("id>0") }
-	scope :for_event, -> (e_id) { where(event_id: e_id) }
+	scope :for_event, ->(e_id) { where(event_id: e_id) }
 	scope :for_team, -> { where(player_id: 0) }
 	scope :for_rival, -> { where(player_id: -1) }
 	scope :for_players, -> { where("player_id>0") }
-	scope :for_player, -> (p_id) { where(player_id: p_id) }
-	scope :for_concept, -> (cval) { where(concept: cval) }
+	scope :for_player, ->(p_id) { where(player_id: p_id) }
+	scope :for_concept, ->(cval) { where(concept: cval) }
 	self.inheritance_column = "not_sti"
 
 	# wrappers to access value & concept fields
@@ -48,28 +48,28 @@ class Stat < ApplicationRecord
 		stats
 	end
 
- 	# filter stats by event
-	def self.by_event(event_id, stats=Stat.real)
-		stats.select {|stat| stat.event_id==event_id}
+	# filter stats by event
+	def self.by_event(event_id, stats = Stat.real)
+		stats.select { |stat| stat.event_id==event_id }
 	end
 
- 	# filter stats by period
-	 def self.by_period(period, stats=Stat.real)
-		stats.select {|stat| stat.period == period}
+	# filter stats by period
+	def self.by_period(period, stats = Stat.real)
+		stats.select { |stat| stat.period == period }
 	end
 
- 	# filter stats by player
-	def self.by_player(player_id, stats=Stat.for_players)
-		stats.select {|stat| stat.player_id == player_id}
+	# filter stats by player
+	def self.by_player(player_id, stats = Stat.for_players)
+		stats.select { |stat| stat.player_id == player_id }
 	end
 
- 	# filter stats by player
-	def self.by_concept(concept, stats=Stat.real)
-		stats.select {|stat| stat.concept == concept}
+	# filter stats by player
+	def self.by_concept(concept, stats = Stat.real)
+		stats.select { |stat| stat.concept == concept }
 	end
 
- 	# filter stats by quarter
-	def self.by_q(q, stats=Stat.for_players)
-		stats.select {|stat| stat[:concept]=="q#{q}"}
+	# filter stats by quarter
+	def self.by_q(q, stats = Stat.for_players)
+		stats.select { |stat| stat[:concept]=="q#{q}" }
 	end
 end

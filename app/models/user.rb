@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -22,14 +22,14 @@ class User < ApplicationRecord
 	# Include default devise modules. Others available are:
 	# :confirmable, :lockable, :timeoutable, :registerable and :omniauthable
 	devise :database_authenticatable, :recoverable,
-				 :rememberable, :trackable, :validatable
+				:rememberable, :trackable, :validatable
 	belongs_to :club, optional: true
 	has_one :person
 	has_one_attached :avatar
 	has_many :user_actions, dependent: :destroy
 	scope :real, -> { where("id>0") }
-	enum :role, %i(user player coach manager admin secretary)
-	after_initialize :set_default_role, :if => :new_record?
+	enum :role, %i[user player coach manager admin secretary]
+	after_initialize :set_default_role, if: :new_record?
 	accepts_nested_attributes_for :person, update_only: true
 	self.inheritance_column = "not_sti"
 
@@ -38,13 +38,13 @@ class User < ApplicationRecord
 	end
 
 	def club_list
-		res = [[I18n.t("status.inactive"), nil]]
+		res = [ [ I18n.t("status.inactive"), nil ] ]
 		if self.admin?
-			Club.all.each { |club| res << [club.nick, club.id]}
+			Club.all.each { |club| res << [ club.nick, club.id ] }
 		else
-			res << [self.club.nick ,self.club_id]
+			res << [ self.club.nick, self.club_id ]
 		end
-		return res
+		res
 	end
 
 	def coach
@@ -75,7 +75,7 @@ class User < ApplicationRecord
 	# return string with last date of user login
 	def last_login
 		res = self.last_sign_in_at&.to_date
-		return res ? res : I18n.t("user.never")
+		res ? res : I18n.t("user.never")
 	end
 
 	# wrappers for locale setting
@@ -125,7 +125,7 @@ class User < ApplicationRecord
 		end
 	end
 
-	#short name for form viewing
+	# short name for form viewing
 	def s_name
 		if self.person
 			self.person.nick.presence || self.person.s_name
@@ -153,7 +153,7 @@ class User < ApplicationRecord
 		c_teams = self.is_coach? ? self.coach.team_list : []
 		j_teams = self.is_player? ? self.player.team_list : []
 		p_teams = self.is_parent? ? self.person.parent.team_list : []
-		(c_teams + j_teams + p_teams).uniq.sort_by{ |team| team.season.start_date }.reverse
+		(c_teams + j_teams + p_teams).uniq.sort_by { |team| team.season.start_date }.reverse
 	end
 
 	# Just list person's full name
@@ -169,19 +169,19 @@ class User < ApplicationRecord
 	# list of possible user locales for select box configuration
 	def self.locale_list
 		I18n.available_locales.map do |locale|
-			[I18n.t("locale.#{locale}", locale:), locale]
+			[ I18n.t("locale.#{locale}", locale:), locale ]
 		end
 	end
 
 	# list of possible user roles for select box configuration
 	def self.role_list
 		User.roles.keys.map do |role|
-			[I18n.t("role.#{role}"),role]
+			[ I18n.t("role.#{role}"), role ]
 		end
 	end
 
-	#Search field matching
-	def self.search(search, user=nil)
+	# Search field matching
+	def self.search(search, user = nil)
 		if user.admin?
 			if search.present?
 				User.where(person_id: Person.search(search))

@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -22,9 +22,9 @@ class Slot < ApplicationRecord
 	belongs_to :season
 	belongs_to :team
 	scope :real, -> { where("id>0") }
-	scope :for_season, -> (s_id) { where("season_id = ?", s_id) }
-	scope :for_team, -> (t_id) { where("team_id = ?", t_id) }
-	scope :for_location, -> (l_id) { where("location_id = ?", l_id) }
+	scope :for_season, ->(s_id) { where("season_id = ?", s_id) }
+	scope :for_team, ->(t_id) { where("team_id = ?", t_id) }
+	scope :for_location, ->(l_id) { where("location_id = ?", l_id) }
 	self.inheritance_column = "not_sti"
 
 	# return if timetable row should be kept busy with this slot
@@ -32,11 +32,11 @@ class Slot < ApplicationRecord
 		if self.wday == wday
 			if t_hour.hour.between?(self.hour, self.ending.hour)
 				if t_hour.hour == self.hour
-					return ((t_hour.min >= self.start.min) and ((self.ending.hour > self.hour) or (t_hour.min < self.ending.min)))
+					((t_hour.min >= self.start.min) and ((self.ending.hour > self.hour) or (t_hour.min < self.ending.min)))
 				elsif t_hour.hour == self.ending.hour
-					return (t_hour.min < self.ending.min)
+					(t_hour.min < self.ending.min)
 				else
-					return true
+					true
 				end
 			end
 		end
@@ -70,8 +70,8 @@ class Slot < ApplicationRecord
 		self.start = self.start.change({ min: newmin })
 	end
 
-	#gives us the next Slot for this sequence
-	def next_date(from_date=Date.today)
+	# gives us the next Slot for this sequence
+	def next_date(from_date = Date.today)
 		from_date = from_date - 1.day
 		from_date.next_occurring(Date::DAYNAMES[self.wday].downcase.to_sym)
 	end
@@ -101,28 +101,28 @@ class Slot < ApplicationRecord
 				overlaps = 0
 				w_slots.each { |slot|	# check each potential slot
 					unless slot.id==self.id
-						overlaps = overlaps + 1 if slot.at_work?(wday,t_time)
+						overlaps = overlaps + 1 if slot.at_work?(wday, t_time)
 					end
 				}
 				o_count = overlaps if overlaps > o_count
 				t_time  = t_time + 15.minutes # scan more?
 			end
 		end
-		res = daycols - o_count
+		daycols - o_count
 	end
 
 	# number of timetable  rows required
 	# each row represents 15 minutes
 	def timerows(wday, t_hour)
 		if self.wday == wday
-			if (t_hour.hour == self.hour && t_hour.min == self.min)
+			if t_hour.hour == self.hour && t_hour.min == self.min
 				srows = self.duration/15.to_i
-				return srows
+				srows
 			end
 		end
 	end
 
-	def to_s(with_day=true)
+	def to_s(with_day = true)
 		t_string = self.timeslot_string(t_begin: self.start, t_end: self.ending)
 		return t_string unless with_day
 		self.weekday + " (#{t_string})"
@@ -133,19 +133,19 @@ class Slot < ApplicationRecord
 		UserAction.prune("/slots/#{self.id}")
 	end
 
-	def weekday(long=false)
+	def weekday(long = false)
 		long ? I18n.t("calendar.daynames")[self.wday] : I18n.t("calendar.daynames_a")[self.wday]
 	end
 
 	# filter slots that start at or end after start_time
-	def self.at_time(start_time, slots=Slot.real)
-		res = slots.select {|slot| slot.at_work?(slot.wday,start_time)}
+	def self.at_time(start_time, slots = Slot.real)
+		slots.select { |slot| slot.at_work?(slot.wday, start_time) }
 	end
 
 	# Find a slot matching slot form data
 	def self.fetch(s_data)
 		unless s_data.empty?
-			t = Time.new(2021,8,30,s_data[:hour].to_i+1,s_data[:min].to_i)
+			t = Time.new(2021, 8, 30, s_data[:hour].to_i+1, s_data[:min].to_i)
 			Slot.where(wday: s_data[:wday].to_i, start: t, team_id: s_data[:team_id].to_i).or(Slot.where(season_id: s_data[:season_id]&.to_i, wday: s_data[:wday].to_i, start: t, location_id: s_data[:location_id].to_i)).first
 		else
 			nil
@@ -156,11 +156,11 @@ class Slot < ApplicationRecord
 	# s_data is an array with either season_id+location_id or team_id
 	def self.search(s_data)
 		if s_data[:season_id].present?
-			 if s_data[:location_id].present?
-				 Slot.real.where(season_id: s_data[:season_id].to_i, location_id: s_data[:location_id].to_i).order(:start)
-			 else
-				 Slot.real.where(season_id: s_data[:season_id].to_i).order(:start)
-			 end
+			if s_data[:location_id].present?
+				Slot.real.where(season_id: s_data[:season_id].to_i, location_id: s_data[:location_id].to_i).order(:start)
+			else
+				Slot.real.where(season_id: s_data[:season_id].to_i).order(:start)
+			end
 		elsif s_data[:team_id].present?
 			if s_data[:location_id].present?
 				Slot.real.where(team_id: s_data[:team_id].to_i, location_id: s_data[:location_id].to_i).order(:start)
@@ -173,7 +173,7 @@ class Slot < ApplicationRecord
 	end
 
 	# filter slots by weekday
-	def self.by_wday(wday, slots=Slot.real)
-		slots.select {|slot| slot.wday==wday}
+	def self.by_wday(wday, slots = Slot.real)
+		slots.select { |slot| slot.wday==wday }
 	end
 end

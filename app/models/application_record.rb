@@ -21,9 +21,9 @@ class ApplicationRecord < ActiveRecord::Base
 	primary_abstract_class
 
 	# parse phone number using defined locale as p_country
-	def parse_phone(p_number, p_ctry=nil)
+	def parse_phone(p_number, p_ctry = nil)
 		ctry = p_ctry || Phonelib.default_country
-		Phonelib.parse(p_number.to_s.delete(' '), ctry).international.to_s
+		Phonelib.parse(p_number.to_s.delete(" "), ctry).international.to_s
 	end
 
 	# read new field value, keep old value if empty & possible
@@ -31,23 +31,23 @@ class ApplicationRecord < ActiveRecord::Base
 		if dat_value    # we read & assign
 			case dat_value.class
 			when "String"
-				read_field = dat_value
+				dat_value
 			when /Roo::/	# Roo excel CELL
-				read_field = dat_value.value.to_s
+				dat_value.value.to_s
 			else	# anything else: convert to string
-				read_field = dat_value.to_s
+				dat_value.to_s
 			end
 		else    # assign default if no old value exists
-			read_field = def_value unless old_value
+			def_value unless old_value
 		end
 	end
 
 	# return a 2 digit string for a number
 	def two_dig(num)
-		num.to_s.rjust(2,'0')
+		num.to_s.rjust(2, "0")
 	end
 
-		# starting / ending hours as string
+	# starting / ending hours as string
 	def timeslot_string(t_begin:, t_end: nil)
 		cad = two_dig(t_begin.hour) + ":" + two_dig(t_begin.min)
 		cad = cad + "-" + two_dig(t_end.hour) + ":" + two_dig(t_end.min) if t_end
@@ -61,7 +61,7 @@ class ApplicationRecord < ActiveRecord::Base
 	end
 
 	# def update object attachment
-	def update_attachment(field, new_file=nil)
+	def update_attachment(field, new_file = nil)
 		if self.respond_to?(field)
 			attachment = self.send(field)
 			if new_file

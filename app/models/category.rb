@@ -21,26 +21,26 @@ class Category < ApplicationRecord
 	belongs_to :sport
 	has_many :teams
 	scope :real, -> { where("id>0").order(min_years: :desc) }
-	scope :for_sport, -> (sport_id) { (sport_id and sport_id.to_i>0) ? where(sport_id: sport_id.to_i).order(min_years: :desc) : where("sport_id>0").order(min_years: :desc) }
-	enum :sex, { male: 'male', female: 'female', mixed: 'mixed' }
+	scope :for_sport, ->(sport_id) { (sport_id and sport_id.to_i>0) ? where(sport_id: sport_id.to_i).order(min_years: :desc) : where("sport_id>0").order(min_years: :desc) }
+	enum :sex, { male: "male", female: "female", mixed: "mixed" }
 
 	def to_s
 		self.id==0 ? I18n.t("scope.none") : self.name
 	end
 
 	def name
-		self.age_group.to_s + " " + I18n.t("sex.#{self.sex.to_s}_a")
+		self.age_group.to_s + " " + I18n.t("sex.#{self.sex}_a")
 	end
 
 	# calculate earliest valid birthday date depending on
 	# s_year (season year)
 	def youngest(s_year)
-		DateTime.new(s_year-self.min_years+1,1,1).to_date
+		DateTime.new(s_year-self.min_years+1, 1, 1).to_date
 	end
 
 	# same for latest valid birthdate
 	def oldest(s_year)
-		DateTime.new(s_year-self.max_years-1,12,31).to_date
+		DateTime.new(s_year-self.max_years-1, 12, 31).to_date
 	end
 
 	# default applicable rules
@@ -60,9 +60,9 @@ class Category < ApplicationRecord
 	# which options can be set for category sex
 	def self.sex_options
 		[
-			[I18n.t("sex.male"), "male"],
-			[I18n.t("sex.female"), "female"],
-			[I18n.t("sex.mixed"), "mixed"]
+			[ I18n.t("sex.male"), "male" ],
+			[ I18n.t("sex.female"), "female" ],
+			[ I18n.t("sex.mixed"), "mixed" ]
 		]
 	end
 

@@ -273,7 +273,7 @@ class Sport < ApplicationRecord
 		def get_event_scoring_stats(event_id)
 			# lets split by scoring system
 			concept = self.stats[self.scoring["points"]]
-			s_stats = Stat.fetch(event_id:, concept:, create: false)
+			Stat.fetch(event_id:, concept:, create: false)
 		end
 
 		# Scan period stats for the value of a score
@@ -312,7 +312,7 @@ class Sport < ApplicationRecord
 		# Include a stat in an event
 		def include_stat_in_event(event_id:, period: nil, player_id:, concept:)
 			c_val = concept.is_a?(Integer) ? concept : self.stats[concept.to_s]
-			nstat = Stat.fetch(event_id:, period:, player_id:, concept: c_val).first
+			Stat.fetch(event_id:, period:, player_id:, concept: c_val).first
 		end
 
 		# return a normalised time string for a "seconds" value

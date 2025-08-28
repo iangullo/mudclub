@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -37,7 +37,7 @@ class Parent < ApplicationRecord
 		self.rebuild_obj_person(f_data)
 	end
 
-	#short name for form viewing
+	# short name for form viewing
 	def s_name
 		self.person&.s_name || I18n.t("person.show")
 	end
@@ -46,7 +46,7 @@ class Parent < ApplicationRecord
 	def team_list
 		res = []
 		self.players.each { |player| res = (res + player.team_list).uniq }
-		res.sort_by{ |team| team.season.start_date }.reverse
+		res.sort_by { |team| team.season.start_date }.reverse
 	end
 
 	# Just list person's full name

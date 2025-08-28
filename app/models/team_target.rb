@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -21,7 +21,7 @@ class TeamTarget < ApplicationRecord
 	belongs_to :target
 	scope :global, -> { where(month: 0) }
 	scope :plan, -> { where("month>0") }
-	scope :monthly, -> (month) { where(month: month) }
+	scope :monthly, ->(month) { where(month: month) }
 	accepts_nested_attributes_for :target, reject_if: :all_blank
 	self.inheritance_column = "not_sti"
 
@@ -34,12 +34,12 @@ class TeamTarget < ApplicationRecord
 		cad = cad + self.target.concept
 	end
 
-	#wrapper to get aspect of associated Target
+	# wrapper to get aspect of associated Target
 	def aspect
 		self.target.aspect_before_type_cast
 	end
 
-	#wrapper to get focus of associated Target
+	# wrapper to get focus of associated Target
 	def focus
 		self.target.focus_before_type_cast
 	end
@@ -59,7 +59,7 @@ class TeamTarget < ApplicationRecord
 		res.target   = tgt
 		res.priority = f_object[:priority].to_i
 		res.month    = f_object[:month].to_i
-		return res
+		res
 	end
 
 	# ensure creation of associated target if required

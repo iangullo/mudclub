@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -46,7 +46,7 @@ class Season < ApplicationRecord
 		r = Array.new
 		while d < self.end_date
 			if long
-				r << [d.strftime("%B"), d.month]
+				r << [ d.strftime("%B"), d.month ]
 			else
 				r << { i: d.month, name: (long ? d.strftime("%B") : d.strftime("%^b")) }
 			end
@@ -90,10 +90,10 @@ class Season < ApplicationRecord
 	# return the latest season registered
 	def self.latest
 		# check past seasons
-		if (past_start = Season.where("start_date <= ?", Date.today).maximum('start_date'))
+		if (past_start = Season.where("start_date <= ?", Date.today).maximum("start_date"))
 			if (p_season = Season.where(start_date: past_start).first)
 				if p_season.end_date < Date.today
-					next_start = Season.where("start_date > ?", Date.today).minimum('start_date')
+					next_start = Season.where("start_date > ?", Date.today).minimum("start_date")
 					p_season   = Season.where(start_date: next_start).first
 				end
 			end
@@ -107,19 +107,19 @@ class Season < ApplicationRecord
 	def self.list
 		res = []
 		Season.real.order(start_date: :desc).each do |season|
-			res << [season.name, season.id]
+			res << [ season.name, season.id ]
 		end
-		return res
+		res
 	end
 
-	#Search field matching
+	# Search field matching
 	def self.search(search)
 		res   = (Season.find_by_id(search) || Season.search_date(search)) if search.present?
 		res ||= Season.latest
-		return (res || Season.real.last)
+		(res || Season.real.last)
 	end
 
-	#Search field matching
+	# Search field matching
 	def self.search_date(s_date)
 		res = nil
 		if s_date
@@ -130,6 +130,6 @@ class Season < ApplicationRecord
 				}
 			end
 		end
-		return res
+		res
 	end
 end

@@ -30,18 +30,18 @@ class Club < ApplicationRecord
 	has_many :users
 	has_one_attached :avatar
 	pg_search_scope :search_by_any,
-		against: [:nick, :name],
+		against: [ :nick, :name ],
 		ignoring: :accents,
-		using: { tsearch: {prefix: true} }
+		using: { tsearch: { prefix: true } }
 	pg_search_scope :search_by_any,
-		against: [:nick, :name],
+		against: [ :nick, :name ],
 		ignoring: :accents,
-		using: { tsearch: {prefix: true} }
+		using: { tsearch: { prefix: true } }
 	validates :email, uniqueness: { allow_nil: true }
 	validates :name, uniqueness: { allow_nil: true }
 	validates :nick, presence: true
 	validates :phone, uniqueness: { allow_nil: true }
-#	validates :settings, uniqueness: { allow_nil: true }
+	# validates :settings, uniqueness: { allow_nil: true }
 
 	# access setting for country
 	def country
@@ -76,8 +76,8 @@ class Club < ApplicationRecord
 		self.name     = f_data[:name] if f_data[:name].present?
 		self.nick     = f_data[:nick] if f_data[:nick].present?
 		self.phone    = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
-		self.settings["country"] = f_data["country"].presence || self.country || 'US'
-		self.settings["locale"]  = f_data["locale"].presence || self.locale || 'en'
+		self.settings["country"] = f_data["country"].presence || self.country || "US"
+		self.settings["locale"]  = f_data["locale"].presence || self.locale || "en"
 		self.settings["social"]  = f_data["social"].presence || self.social
 		self.settings["website"] = f_data["website"].presence || self.website
 		self.update_attachment("avatar", f_data[:avatar])
@@ -109,10 +109,10 @@ class Club < ApplicationRecord
 	end
 
 	# handle custom behaviour for creation of a club
-	def self.build(f_data=nil)
+	def self.build(f_data = nil)
 		club = Club.new(settings: {})
 		club.rebuild(f_data) if f_data.present?
-		return club
+		club
 	end
 
 	# finds a club in the database based on id, email, name & nick
@@ -138,29 +138,29 @@ class Club < ApplicationRecord
 			end
 		end
 		return c_aux unless create
-		return c_aux || Club.build(f_data)
+		c_aux || Club.build(f_data)
 	end
 
 	# used to list available clubs in selectors
 	def self.list
-		res = [[I18n.t("status.inactive"), -1]]
-		Club.real.each {|club| res << [club.nick,club.id]}
-		return res
+		res = [ [ I18n.t("status.inactive"), -1 ] ]
+		Club.real.each { |club| res << [ club.nick, club.id ] }
+		res
 	end
 
-	#Search field matching
-	def self.search(search, user=nil)
+	# Search field matching
+	def self.search(search, user = nil)
 		ucid = user&.club_id
 		if search.present?
-			return Club.where.not(id: [-1, ucid]).search_by_any(search).order(:nick) if user.is_manager?
+			return Club.where.not(id: [ -1, ucid ]).search_by_any(search).order(:nick) if user.is_manager?
 			return Club.search_by_any(search).order(:nick) if user.admin?
 		else
-			return Club.where.not(id: [-1, ucid]).order(:nick) if user.is_manager?
+			return Club.where.not(id: [ -1, ucid ]).order(:nick) if user.is_manager?
 			return Club.all.order(:nick) if user.admin?
 		end
-		return Club.none
+		Club.none
 	end
-	
+
 	private
 		# cleanup association of dependent objects
 		def unlink

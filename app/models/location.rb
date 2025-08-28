@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -28,7 +28,7 @@ class Location < ApplicationRecord
 	pg_search_scope :search_by_name,
 		against: :name,
 		ignoring: :accents,
-		using: { tsearch: {prefix: true} }
+		using: { tsearch: { prefix: true } }
 	self.inheritance_column = "not_sti"
 
 	def to_s
@@ -48,7 +48,7 @@ class Location < ApplicationRecord
 		end
 	end
 
-	#Search field matching
+	# Search field matching
 	def self.search(club_id: nil, season_id: nil, name: nil)
 		qry = (club_id ?  Location.where(id: ClubLocation.where(club_id:).pluck(:location_id)) : Location.real)
 		if season_id.present?
@@ -58,7 +58,7 @@ class Location < ApplicationRecord
 
 		qry.order(:name)
 	end
-		
+
 	# rebuild @location from raw hash returned by a form
 	def rebuild(f_data)
 		self.name           = f_data[:name]

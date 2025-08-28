@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -22,7 +22,7 @@ class Skill < ApplicationRecord
 	pg_search_scope :search,
 		against: :concept,
 		ignoring: :accents,
-		using: { tsearch: {prefix: true} }
+		using: { tsearch: { prefix: true } }
 	scope :orphans, -> { left_outer_joins(:drills).where("drills.id IS NULL OR drills.id = 0") }
 	self.inheritance_column = "not_sti"
 
@@ -34,13 +34,13 @@ class Skill < ApplicationRecord
 	# and either reads or returns nil
 	def self.fetch(f_object)
 		res = (f_object[:id] and f_object[:id].to_i>0) ? Skill.find_by(id: f_object[:id]) : Skill.search(f_object[:concept].strip).first
-		return res
+		res
 	end
 
 	# return an array with all available Skill names
 	def self.list
 		res  = []
-		Skill.real.order(:concept).each {|skill| res << skill.concept}
+		Skill.real.order(:concept).each { |skill| res << skill.concept }
 		res
 	end
 end

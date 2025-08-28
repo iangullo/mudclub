@@ -31,12 +31,12 @@ class EventTarget < ApplicationRecord
 		cad = cad + self.target.concept
 	end
 
-	#wrapper to get aspect of associated Target
+	# wrapper to get aspect of associated Target
 	def aspect
 		self.target.aspect_before_type_cast
 	end
 
-	#wrapper to get focus of associated Target
+	# wrapper to get focus of associated Target
 	def focus
 		self.target.focus_before_type_cast
 	end
@@ -54,7 +54,7 @@ class EventTarget < ApplicationRecord
 		tgt.aspect   = t[:aspect].length==1 ? t[:aspect].to_i : t[:aspect].to_sym
 		res.target   = tgt
 		res.priority = f_object[:priority].to_i
-		return res
+		res
 	end
 
 	# ensure creation of associated target if required

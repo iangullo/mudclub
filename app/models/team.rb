@@ -38,7 +38,7 @@ class Team < ApplicationRecord
 	accepts_nested_attributes_for :team_targets
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
-	scope :for_season, -> (s_id) { (s_id.to_i > 0) ? where(season_id: s_id.to_i) : all }
+	scope :for_season, ->(s_id) { (s_id.to_i > 0) ? where(season_id: s_id.to_i) : all }
 	scope :for_club, ->(c_id) { (c_id.to_i > 0) ? where(club_id: c_id.to_i) : all }
 	FILTER_PARAMS = %i[club_id season_id].freeze
 
@@ -47,15 +47,14 @@ class Team < ApplicationRecord
 	def attendance
 		t_players = self.players.count
 		return nil if t_players.zero?	# NO PLAYERS IN TEAM --> NO ATTENDANCE DATA
-		
+
 		d_morrow = Date.today + 1	# tomorrow
 		d_last7  = d_morrow - 8	# date limit for last 7 days
 		d_last30 = d_morrow - 31	# date limit for last 30 days
-		l_week   = {tot: 0, att: 0}
-		l_month  = {tot: 0, att: 0}
-		l_season = {tot: 0, att: 0}
-		sessions = {name: I18n.t("player.many"), avg: 0, data: {}}
-		s_avg    = 0
+		l_week   = { tot: 0, att: 0 }
+		l_month  = { tot: 0, att: 0 }
+		l_season = { tot: 0, att: 0 }
+		sessions = { name: I18n.t("player.many"), avg: 0, data: {} }
 		t_events = self.events.past.trainings.includes(:events_players)
 		t_att    = EventAttendance.for_team(self.id)
 		t_events.each do |event|
@@ -68,7 +67,7 @@ class Team < ApplicationRecord
 				if e_date.between?(d_last30, d_morrow)	# event in last month
 					l_month[:tot]  += t_players
 					l_month[:att]  += e_cnt
-					if (e_date > d_last7)	# event occurs in last 7 days
+					if e_date > d_last7	# event occurs in last 7 days
 						l_week[:att] += e_cnt
 						l_week[:tot] += t_players
 					end
@@ -83,11 +82,11 @@ class Team < ApplicationRecord
 	end
 
 	# collective target filtering methods
-	def collective_def(month=0)
+	def collective_def(month = 0)
 		search_targets(month, 2, 2)
 	end
 
-	def collective_off(month=0)
+	def collective_off(month = 0)
 		search_targets(month, 2, 1)
 	end
 
@@ -97,23 +96,23 @@ class Team < ApplicationRecord
 		aux = Player.active.joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
 		if aux
 			case self.category.sex
-				when "female"
-					aux = aux.female
-				when "male"
-					aux = aux.male
-				else
-					(aux + self.players).uniq
+			when "female"
+				aux = aux.female
+			when "male"
+				aux = aux.male
+			else
+				(aux + self.players).uniq
 			end
 		end
 		aux
 	end
 
 	# general Team target filtering methods
-	def general_def(month=0)
+	def general_def(month = 0)
 		search_targets(month, 0, 2)
 	end
 
-	def general_off(month=0)
+	def general_off(month = 0)
 		search_targets(month, 0, 1)
 	end
 
@@ -126,11 +125,11 @@ class Team < ApplicationRecord
 	end
 
 	# Individual skill target filtering methods
-	def individual_def(month=0)
+	def individual_def(month = 0)
 		search_targets(month, 1, 2)
 	end
 
-	def individual_off(month=0)
+	def individual_off(month = 0)
 		search_targets(month, 1, 1)
 	end
 
@@ -151,20 +150,20 @@ class Team < ApplicationRecord
 
 	# return next free training_slot
 	# after the last existing one in the calendar
-	def next_slot(last=nil)
+	def next_slot(last = nil)
 		d   = last ? last.start_time.to_date : Date.today	# last planned slot date
 		res = nil
 		self.slots.each { |slot|
 			s   = slot.next_date(d)
 			res = res ? (s < res.next_date(d) ? slot : res) : slot
 		}
-		return res
+		res
 	end
 
 	# Get a list of players that are not members but are authorised to play in this team
 	def optional_players
 		res = []
-		self.eligible_players.each {|player|
+		self.eligible_players.each { |player|
 			res << player unless player.teams.include?(self)
 		}
 		res.empty? ? nil : res
@@ -192,19 +191,19 @@ class Team < ApplicationRecord
 
 	# return list of potential rivals - used for text boxes - matching category & season
 	def rival_teams_info
-		self.rival_teams.map { |team| [team.nick, team.homecourt_id] }.to_h
+		self.rival_teams.map { |team| [ team.nick, team.homecourt_id ] }.to_h
 	end
 
 	# return team name in string format
 	def to_s(xls: false)
 		if xls
-			cad = self.category.to_s.gsub(/[\/|\\|?|*|:|\[|\]]/,"")[0, 27]
+			cad = self.category.to_s.gsub(/[\/|\\|?|*|:|\[|\]]/, "")[0, 27]
 			return cad += "_#{self.id.to_s.rjust(3, '0')}"
 		end
 		return I18n.t("scope.none") if self.id==0
 		return self.name if self.name.present?
 		return self.nick if self.nick.present?
-		return self.category.to_s
+		self.category.to_s
 	end
 
 	# Return upcoming events for the Team
@@ -214,7 +213,7 @@ class Team < ApplicationRecord
 
 	# return a hash with {won:, lost:} games
 	def win_loss
-		res     = {won: 0, lost: 0}
+		res     = { won: 0, lost: 0 }
 		matches = self.events.matches
 		matches.each do |m|
 			score = m.total_score # our team first
@@ -294,14 +293,14 @@ class Team < ApplicationRecord
 			p_array.each do |t|	# first pass
 				a_targets << Player.find(t.to_i) unless t.to_i==0
 			end
-		
+
 			a_targets.each do |t|	# second pass - manage associations
 				unless self.has_player(t.id)
-					self.players << t 
+					self.players << t
 					@modified = true
 				end
 			end
-			
+
 			self.players.each do |p|	# cleanup roster
 				unless a_targets.include?(p)
 					self.players.delete(p)
@@ -316,14 +315,14 @@ class Team < ApplicationRecord
 			c_array.each do |t|	# first pass
 				a_targets << Coach.find(t.to_i) unless t.to_i==0
 			end
-			
+
 			a_targets.each do |t|	# second pass - manage associations
 				unless self.has_coach(t.id)
 					self.coaches << t
 					@modified = true
 				end
 			end
-			
+
 			self.coaches.each do |c|	# cleanup coaches
 				unless a_targets.include?(c)
 					self.coaches.delete(c)
@@ -333,18 +332,18 @@ class Team < ApplicationRecord
 		end
 
 		# search team_targets based on target attributes
-		def search_targets(month=0, aspect=nil, focus=nil)
-			#puts "Plan.search(team: " + ", month: " + month.to_s + ", aspect: " + aspect.to_s + ", focus: " + focus.to_s + ")"
+		def search_targets(month = 0, aspect = nil, focus = nil)
+			# puts "Plan.search(team: " + ", month: " + month.to_s + ", aspect: " + aspect.to_s + ", focus: " + focus.to_s + ")"
 			tgt = self.team_targets.monthly(month)
 			res = Array.new
 			tgt.each do |p|
-				puts p.to_s
+				puts p
 				if aspect && focus
-					res.push p if ((p.target.aspect_before_type_cast == aspect) && (p.target.focus_before_type_cast == focus))
+					res.push p if (p.target.aspect_before_type_cast == aspect) && (p.target.focus_before_type_cast == focus)
 				elsif aspect
-					res.push p if (p.target.aspect_before_type_cast == aspect)
+					res.push p if p.target.aspect_before_type_cast == aspect
 				elsif focus
-					res.push p if (p.target.focus_before_type_cast == focus)
+					res.push p if p.target.focus_before_type_cast == focus
 				else
 					res.push p
 				end

@@ -1,5 +1,5 @@
 # MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# Copyright (C) 2025  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -31,8 +31,8 @@ class Task < ApplicationRecord
 		self.duration.to_s + "\'"
 	end
 
-	def headstring(order=true)
-		"#{order ? (self.order.to_s.rjust(2, "0") + " - ") : ""}#{self.to_s} (#{self.s_dur})"
+	def headstring(order = true)
+		"#{order ? (self.order.to_s.rjust(2, "0") + " - ") : ""}#{self} (#{self.s_dur})"
 	end
 
 	# Takes the input received from add/edit_task (f_object)
@@ -50,6 +50,6 @@ class Task < ApplicationRecord
 		res = Task.find_by(id: f_object[:id].to_i) if f_object[:id].present?
 		res = Task.new unless res
 		res.rebuild(f_object)
-		return res
+		res
 	end
 end
