@@ -50,21 +50,12 @@ class ApplicationComponent < ViewComponent::Base
 	def render_image(img, size: nil)
 		return if img.blank? || !img.is_a?(Hash)
 		html = ""
-		if img[:tip]
-			html += "<button data-tooltip-target=\"tooltip-#{img[:tipid]}\" data-tooltip-placement=\"bottom\" type=\"button\">"
-		end
 		if img[:symbol]
 			img[:symbol][:options][:size] ||= size if size.present?
 			html += render(SymbolComponent.new(img[:symbol][:concept], **img[:symbol][:options]))
 		else
 			img[:size] ||= img[:icon].present? ? "25x25" : size.presence
-			html += image_tag(img[:value] || img[:icon], size: img[:size], class: img[:i_class])
-		end
-		if img[:tip]
-			html += "</button>"
-			html += "<div id=\"tooltip-#{img[:tipid]}\" role=\"tooltip\" class=\"absolute z-20 invisible inline-block px-1 py-1 text-sm font-medium text-gray-100 bg-gray-700 rounded-md shadow-sm opacity-0 tooltip\">"
-			html += img[:tip]
-			html += "</div>"
+			html += image_tag(img[:value] || img[:icon], size: img[:size], class: img[:i_class], title: img[:title])
 		end
 		html.html_safe
 	end

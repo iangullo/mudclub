@@ -269,6 +269,9 @@ class FieldsComponent < ApplicationComponent
 	# set icons for a person-type
 	def set_person_type(item)
 		item[:icons] = []
+		item[:icons] << role_symbol("admin") if item[:admin]
+		item[:icons] << role_symbol("manager") if item[:manager]
+		item[:icons] << role_symbol("secretary") if item[:secretary]
 		item[:icons] << role_symbol("user") if item[:user]
 		item[:icons] << role_symbol("player") if item[:player]
 		item[:icons] << role_symbol("coach") if item[:coach]
@@ -276,6 +279,6 @@ class FieldsComponent < ApplicationComponent
 
 	# wrapper for role_symbols
 	def role_symbol(role)
-		{ symbol: true, value: SymbolComponent.new(role, size: "25x25"), tip: I18n.t("role.#{role}"), tipid: "p#{role}" }
+		{ symbol: true, value: SymbolComponent.new(role, size: "25x25", title: I18n.t("role.#{role}")) }
 	end
 end

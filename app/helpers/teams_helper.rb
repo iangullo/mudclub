@@ -61,7 +61,7 @@ module TeamsHelper
 		g_row = gap_row(cols: 2)
 		coaches = [ g_row ]
 		unless (c_count = @team.coaches.count) == 0 # only create if there are coaches
-			c_icon = symbol_field("coach", { namespace: "sport", size: "30x30" }, tip: I18n.t("coach.many"), align: "right", class: "align-top", rows: c_count)
+			c_icon = symbol_field("coach", { namespace: "sport", size: "30x30", title: I18n.t("coach.many") }, align: "right", class: "align-top", rows: c_count)
 			c_first = true
 			@team.coaches.each do |coach|
 				if u_manager? || u_secretary?

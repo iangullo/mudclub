@@ -27,21 +27,21 @@
 
 class ContactComponent < ApplicationComponent
 	def initialize(website: nil, email:, phone:, device:)
-		@email   = ButtonComponent.new(kind: :email, value: email) if email.presence
-		@website = ButtonComponent.new(kind: :link, symbol: {concept: "website", type: :icon}, url: website, tab: true) if website.presence
+		@email   = ButtonComponent.new(kind: :email, value: email, title: I18n.t("action.email")) if email.presence
+		@website = ButtonComponent.new(kind: :link, symbol: { concept: "website", type: :icon }, url: website, tab: true) if website.presence
 		if phone.presence
-			@call     = ButtonComponent.new(kind: :call, value: phone) if device == "mobile"
-			@whatsapp = ButtonComponent.new(kind: :whatsapp, value: phone, web: (device=="desktop"))
+			@call     = ButtonComponent.new(kind: :call, value: phone, title: I18n.t("action.call")) if device == "mobile"
+			@whatsapp = ButtonComponent.new(kind: :whatsapp, value: phone, title: I18n.t("action.chat"), web: (device=="desktop"))
 		end
 	end
 
 	def call	# render HTML
-    content_tag(:div, class: "inline-flex items-center text-xs") do
-      render_button(@website)
-      render_button(@email)
-      render_button(@call)
-      render_button(@whatsapp)
-    end
+		content_tag(:div, class: "inline-flex items-center text-xs") do
+			render_button(@website)
+			render_button(@email)
+			render_button(@call)
+			render_button(@whatsapp)
+		end
 	end
 
 	private

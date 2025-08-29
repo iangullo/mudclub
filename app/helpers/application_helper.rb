@@ -59,8 +59,8 @@ module ApplicationHelper
 	end
 
 	# standardised icon field definitions
-	def icon_field(icon, align: nil, iclass: nil, cols: nil, rows: nil, size: nil, tip: nil, tipid: nil)
-		{ kind: :icon, icon:, align:, class: iclass, cols:, rows:, size:, tip:, tipid: }
+	def icon_field(icon, align: nil, iclass: nil, cols: nil, rows: nil, size: nil, title: nil)
+		{ kind: :icon, icon:, align:, class: iclass, cols:, rows:, size:, title: }
 	end
 
 	# standardised gap row field definition
@@ -71,7 +71,7 @@ module ApplicationHelper
 	# Field to use in forms to select club of a user/player/coach/team
 	def obj_club_selector(obj)
 		[
-			{ kind: :icon, icon: "mudclub.svg", tip: I18n.t("club.single"), tipid: "club_selector" },
+			{ kind: :icon, icon: "mudclub.svg", title: I18n.t("club.single") },
 			{ kind: :select_box, align: "left", key: :club_id, options: current_user.club_list, value: obj.club_id, cols: 4 }
 		]
 	end
@@ -87,7 +87,7 @@ module ApplicationHelper
 			else
 				""
 			end
-			icon_field(obj.club.logo, tip: obj.club.nick, tipid: "club_name", align: "center")
+			icon_field(obj.club.logo, title: obj.club.nick, align: "center")
 		else
 			{ kind: :string, value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center" }
 		end
@@ -121,7 +121,7 @@ module ApplicationHelper
 	end
 
 	# standardised symbol field definitions.
-	# f_opts: expects field options align:, cols:, rows:, tip:, tipid:, class:
+	# f_opts: expects field options align:, cols:, rows:, class:
 	# s_opts are options for the symbol itself (namespace and such)
 	def symbol_field(concept, s_opts = {}, **f_opts)
 		{ kind: :symbol,

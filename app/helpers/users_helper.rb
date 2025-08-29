@@ -39,14 +39,16 @@ module UsersHelper
 		#	{kind: :string, value: "(#{@user.last_from})",cols: 3}
 		# ] if @user.last_sign_in_ip?
 		if user.admin?
-			res << symbol_field("key", tip: I18n.t("role.admin"), tipid: "adm")
+			res << symbol_field("website", { title: I18n.t("role.admin") })
 		elsif user.manager?
-			res << icon_field("mudclub.svg", tip: I18n.t("role.manager"), tipid: "mng")
+			res << symbol_field("key", { title: I18n.t("role.manager") })
+		elsif user.secretary?
+			res << symbol_field("edit", { title: I18n.t("role.secretary") })
 		else
 			res << gap_field(size: 0)
 		end
-		res << (user.is_coach? ? symbol_field("coach", { namespace: "sport" }, tip: I18n.t("role.coach"), tipid: "coach") : gap_field(size: 0))
-		res << (user.is_player? ? symbol_field("player", { namespace: "sport" }, tip: I18n.t("role.player"), tipid: "play") : gap_field(size: 0))
+		res << (user.is_coach? ? symbol_field("coach", { namespace: "sport", title: I18n.t("role.coach") }) : gap_field(size: 0))
+		res << (user.is_player? ? symbol_field("player", { namespace: "sport", title: I18n.t("role.player") }) : gap_field(size: 0))
 		return res if grid	# only interested in these 3 icons
 		res << gap_field
 		unless @user.user_actions.empty?
@@ -63,21 +65,21 @@ module UsersHelper
 			res = [
 				obj_club_selector(@user),
 				[
-					symbol_field("key", tip: I18n.t("user.profile"), tipid: "urole"),
+					symbol_field("key", { title: I18n.t("user.profile") }),
 					{ kind: :select_box, align: "left", key: :role, options: User.role_list, value: @user.role }
 				]
 			]
 		else
 			res = [
 				[
-					icon_field(@user.club&.logo || "mudclub.svg", tip: @user.club&.nick || I18n.t("club.none"), tipid: "uclub"),
+					icon_field(@user.club&.logo || "mudclub.svg", title: @user.club&.nick || I18n.t("club.none")),
 					{ kind: :string, align: "center", value: I18n.t("role.#{@user.role}") },
 					{ kind: :hidden, key: :club_id, value: @user.club_id }
 				]
 			]
 		end
 		res.last <<	gap_field
-		res.last << symbol_field("locale", tip: I18n.t("locale.lang"), tipid: "lang")
+		res.last << symbol_field("locale", { title: I18n.t("locale.lang") })
 		res.last << { kind: :select_box, align: "center", key: :locale, options: User.locale_list, value: @user.locale }
 		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
 		res

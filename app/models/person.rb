@@ -64,16 +64,15 @@ class Person < ApplicationRecord
 	# Person has attached id pictures (front && back)
 	def idpic_content
 		label = self.dni
+		symbol = { concept: "id_front", options: { title: I18n.t("person.pid") } }
 		if self.idpics_attached?
 			found  = true
-			symbol = { concept: "id_front" }
-			tip    = I18n.t("person.pics_found")
 		else
 			found  = self.id_front.attached? || self.id_back.attached?
-			symbol = { concept: "id_front", options: { variant: "none" } }
-			tip    = I18n.t("person.pics_missing")
+			symbol[:options][:title]  += " (#{I18n.t("person.pics_missing")})"
+			symbol[:options][:variant] = "none"
 		end
-		{ found:, symbol:, label:, tip: }
+		{ found:, symbol:, label: }
 	end
 
 	# checks whether a Person has attached id pictures (front && back)

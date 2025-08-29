@@ -27,7 +27,7 @@ class DropdownComponent < ApplicationComponent
 	MENU_CLS = BTN_CLS + %w[p-2 font-semibold hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-200].freeze
 	DROP_CLS = %w[hidden z-10 overflow-hidden rounded-md bg-gray-200 text-gray-500 text-left font-semibold].freeze
 	ITEM_CLS = %w[block m-0 p-2 rounded-md hover:bg-blue-700 hover:text-white no-underline].freeze
-	
+
 	def initialize(button)
 		@button = parse(button)
 		if @button[:symbol] && @button[:symbol][:options]
@@ -78,7 +78,7 @@ class DropdownComponent < ApplicationComponent
 					end
 				end
 			end
-			content_tag(:div, id: @button[:name], class: @button[:d_class]) do
+			content_tag(:div, id: @button[:name], class: @button[:d_class], title: @button[:title]) do
 				content_tag(:ul, aria: { labelledby: @button[:id] }) do
 					@button[:options]&.each do |option|
 						content_tag(:li, class: @button[:o_class]) do
@@ -89,7 +89,7 @@ class DropdownComponent < ApplicationComponent
 							else
 								link_to(option[:url], data: option[:data]) do
 									render_image(option) if option[:symbol]
-									option[:label] || ''.to_s
+									option[:label] || "".to_s
 								end
 							end
 						end
@@ -102,12 +102,13 @@ class DropdownComponent < ApplicationComponent
 	def set_name(button)
 		button[:id] = "#{button[:name]}-btn"
 		if button[:name] =~ /^(add.*)$/
-			button[:symbol] ||= {concept:"add", options: {css: "items-center"}}
+			button[:title]  ||= I18n.t("action.create")
+			button[:symbol] ||= { concept: "add", options: { css: "items-center" } }
 		end
 	end
 
 	def set_class(button)
-		button[:o_class] ||= ITEM_CLS.join(' ')
+		button[:o_class] ||= ITEM_CLS.join(" ")
 		case button[:kind].to_s
 		when /^(add.*)$/
 			set_add_class(button)
@@ -120,7 +121,7 @@ class DropdownComponent < ApplicationComponent
 
 	def set_add_class(button)
 		button[:b_class] ||= "min-h-4 items-center rounded-md hover:bg-green-200 focus:bg-green-200 focus:ring-2 focus:ring-green-500"
-		button[:d_class] ||= DROP_CLS.join(' ')
+		button[:d_class] ||= DROP_CLS.join(" ")
 		if button[:border]
 			button[:d_class] += " border border-green-500 m-2"
 		end
@@ -131,13 +132,13 @@ class DropdownComponent < ApplicationComponent
 		if (button[:icon] || button[:symbol]) && !button[:append]
 			button[:b_class] += " text-sm"
 		end
-		button[:d_class] ||= DROP_CLS.join(' ')
+		button[:d_class] ||= DROP_CLS.join(" ")
 		button[:d_class] += " border border-gray-500" if button[:border].present?
 	end
 
 	def set_menu_class(button)
 		base = button[:sub] ? MIN_CLS : MENU_CLS
-		button[:b_class] ||= base.join(' ')
+		button[:b_class] ||= base.join(" ")
 		button[:d_class] ||= "hidden rounded-md bg-blue-900"
 	end
 end

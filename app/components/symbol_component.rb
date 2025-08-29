@@ -39,7 +39,7 @@ class SymbolComponent < ApplicationComponent
 		apply_customizations
 
 		content  = []
-		content << content_tag(:title, h(@data[:title].presence)) if @data[:title].present?
+		content << content_tag(:title, h(@title)) if @title
 		content << wrapped_symbol_content
 
 		svg_attrs = {
@@ -110,6 +110,7 @@ class SymbolComponent < ApplicationComponent
 		@css      = safe_attr(options, :css) || default_class(@type)
 		@data     = safe_attr(options, :data) || {}
 		@group    = safe_attr(options, :group) || false
+		@title    = safe_attr(options, :title) || @data[:title].presence
 		@view_box = safe_attr(options, [ :view_box, :viewBox ]) || safe_attr(@data, [ :view_box, :viewBox ])
 		@wrap     = safe_attr(options, :wrap) || false
 

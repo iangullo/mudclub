@@ -89,9 +89,9 @@ module ClubsHelper
 		res << [	# locale/country settings
 			symbol_field("call", { css: }),
 			{ kind: :text_box, key: :phone, size: 12, value: @club.phone, placeholder: I18n.t("person.phone") },
-			symbol_field("flag", { css: }, tip: I18n.t("locale.country"), tipid: "ctry"),
+			symbol_field("flag", { css:, title: I18n.t("locale.country") }),
 			{ kind: :text_box, align: "left", key: :country, value: @club.country, placeholder: "US", size: 2, mandatory: { length: 2 } },
-			symbol_field("locale", { css: }, tip: I18n.t("locale.lang"), tipid: "lang"),
+			symbol_field("locale", { css:, title: I18n.t("locale.lang") }),
 			{ kind: :select_box, align: "left", key: :locale, options: User.locale_list, value: @club.locale }
 		]
 		res << [

@@ -20,17 +20,17 @@ module PeopleHelper
 	def person_form_fields(person, mandatory_email: nil)
 		res = [
 			[
-				symbol_field("user"),
+				symbol_field("user", { title: I18n.t("person.nick") }),
 				{ kind: :text_box, key: :nick, size: 8, value: person&.nick, placeholder: I18n.t("person.nick") },
 				gap_field,
-				symbol_field("call"),
+				symbol_field("call", { title: I18n.t("person.phone") }),
 				{ kind: :text_box, key: :phone, size: 12, value: person&.phone, placeholder: I18n.t("person.phone") }
 			],
 			[
-				symbol_field("id_front"),
+				symbol_field("id_front", { title: I18n.t("person.pid") }),
 				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: I18n.t("person.pid") },
 				gap_field,
-				symbol_field("email", { type: :button }),
+				symbol_field("email", { type: :button, title: I18n.t("person.email") }),
 				{ kind: :email_box, key: :email, value: person&.email, placeholder: I18n.t("person.email"), mandatory: mandatory_email ? { length: 7 } : nil }
 			]
 		]
@@ -39,7 +39,7 @@ module PeopleHelper
 			res << [ gap_field(size: 1), idpic_field(person, idpic: "id_back", align: "left", cols: 4) ]
 		end
 		res << [
-			symbol_field("home", { size: "25x25" }, class: "align-top"),
+			symbol_field("home", { size: "25x25", title: I18n.t("person.address") }, class: "align-top"),
 			{ kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: I18n.t("person.address") }
 		]
 	end
@@ -79,7 +79,7 @@ module PeopleHelper
 		res << [ { kind: :contact, email: person&.email, phone: person&.phone, device: device, align: "center" } ]
 		res.last << idpic_field(person) if person&.coach_id? || person&.player_id?
 		res << [
-			symbol_field("home", { size: "25x25" }, class: "align-top", align: "right"),
+			symbol_field("home", { size: "25x25", title: I18n.t("person.address") }, class: "align-top", align: "right"),
 			{ kind: :string, value: simple_format("#{person&.address}"), align: "left", cols: 2 }
 		] if person&.address&.present?
 		res
@@ -105,19 +105,18 @@ module PeopleHelper
 		# standardised field with icons for player/coach id pics
 		def idpic_field(person, idpic: nil, cols: nil, align: "center")
 			if idpic	# it is an editor field
-				{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2"), label: I18n.t("person.#{idpic}"), key: idpic, value: person&.send(idpic)&.filename, cols: }
+				{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: I18n.t("person.pid")), label: I18n.t("person.#{idpic}"), key: idpic, value: person&.send(idpic)&.filename, cols: }
 			else
-				pitip  = person&.idpic_content
-				symbol = pitip[:symbol]
-				label  = pitip[:label]
-				tip    = pitip[:tip]
-				if pitip[:found] && u_manager?	# dropdown menu
+				pidpic = person&.idpic_content
+				symbol = pidpic[:symbol]
+				label  = pidpic[:label]
+				if pidpic[:found] && u_manager?	# dropdown menu
 					button = { kind: :link, name: "id-pics", symbol:, label:, append: true, options: [] }
 					button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
 					button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
 					{ kind: :dropdown, button:, class: "bg-white" }
 				else
-					{ kind: :icon_label, symbol:, label:, right: true, tip:, align: "left" }
+					{ kind: :icon_label, symbol:, label:, right: true, align: "left" }
 				end
 			end
 		end

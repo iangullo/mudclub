@@ -364,10 +364,10 @@ module EventsHelper
 				res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
 				res.last << { kind: :hidden, key: :kind, value: @event.kind }
 			else
-				res[0] << symbol_field("calendar", tip: I18n.t("calendar.date"), tipid: "caldate")
+				res[0] << symbol_field("calendar", { title: I18n.t("calendar.date") })
 				res[0] << { kind: :string, value: @event.date_string }
 				unless @event.rest?
-					res[1] << symbol_field("clock", tip: I18n.t("calendar.time"), tipid: "caltime")
+					res[1] << symbol_field("clock", { title: I18n.t("calendar.time") })
 					res[1] << { kind: :string, value: @event.time_string }
 				end
 			end
