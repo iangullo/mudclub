@@ -39,6 +39,7 @@
 # => :lines: :value (array of text lines to be shown)
 # => :number_box: :key (field name), :value (number_field), size:
 # => :nested_form: :model, :key, :form: :child, :row, :filter to define a NestedFormComponent
+# => :partial: :partial (html.erb partial template), :locals (hash of local variables)
 # => :password_box: :key (field name), :value (password_field)
 # => :person_type: icons (& tips) for type of person in the database
 # => :rich_text_area: :key (field name)
@@ -115,6 +116,8 @@ class FieldsComponent < ApplicationComponent
 					item[:value] = SearchBoxComponent.new(item)
 				when "gap", "label", "lines", "side_cell", "string", "subtitle", "title", "top_cell"
 					set_text_field(item)
+				when "partial"
+					item[:content] = PartialComponent.new(partial: item[:partial], locals: item[:locals] || {})
 				when "person_type"
 					set_person_type(item)
 				when /^(select_.+|.+box|.+_area)$/
@@ -155,6 +158,8 @@ class FieldsComponent < ApplicationComponent
 				field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
 			when "nested_form"
 				render NestedComponent.new(model: field[:model], key: field[:key], form: @form, child: field[:child], row: field[:row], filter: field[:filter])
+			when "partial"
+				render field[:content]
 			when "separator"
 				("<hr class=\"#{field[:stroke]}\"").html_safe
 			when "person_type"

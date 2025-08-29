@@ -35,15 +35,15 @@ class ApplicationController < ActionController::Base
 			if both	# both conditions to apply
 				return (check_object(obj:) && check_role(roles:))
 			else	# either condition is sufficient
-				return (check_object(obj:) || check_role(roles:)) 
+				return (check_object(obj:) || check_role(roles:))
 			end
 		end
-		return false
+		false
 	end
 
 	# return whether the current user is a club_manager
 	def club_manager?(club = Club.find(@clubid))
-		check_access(roles: [:manager], obj: club, both: true)
+		check_access(roles: [ :manager ], obj: club, both: true)
 	end
 
 	# return a ButtonComponent object from a definition hash
@@ -67,7 +67,7 @@ class ApplicationController < ActionController::Base
 		@fields = create_fields(fields)
 		@grid   = create_grid(grid)
 		@page   = page
-		if (retlnk || submit)
+		if retlnk || submit
 			@submit = create_submit(close: :back, retlnk:, submit:)
 		else
 			@submit = create_submit(close: :close, submit: nil)
@@ -90,7 +90,7 @@ class ApplicationController < ActionController::Base
 		when 2	# return to log_path
 			return home_log_path
 		end
-		return "/"	# root
+		"/"	# root
 	end
 
 	# ensure @season matches the calling context.
@@ -100,7 +100,7 @@ class ApplicationController < ActionController::Base
 			@season   = Season.search(obj&.season_id)
 			@seasonid = @season&.id
 		end
-		return @season
+		@season
 	end
 
 	# check if a string is an integer
@@ -121,27 +121,27 @@ class ApplicationController < ActionController::Base
 	#		0: club/season view)
 	#		1: user home view
 	#		2: server logs view
-	def p_rdx(base=params[:controller])
+	def p_rdx(base = params[:controller])
 		get_param(base, :rdx)
 	end
-	
-	def p_log(base=params[:controller])
+
+	def p_log(base = params[:controller])
 		get_param(base, :log)
 	end
 
-	def p_clubid(base=params[:controller])
+	def p_clubid(base = params[:controller])
 		get_param(base, :club_id, objid: true)
 	end
 
-	def p_seasonid(base=params[:controller])
+	def p_seasonid(base = params[:controller])
 		get_param(base, :season_id, objid: true)
 	end
-	
-	def p_teamid(base=params[:controller])
+
+	def p_teamid(base = params[:controller])
 		get_param(base, :team_id, objid: true)
 	end
-	
-	def p_userid(base=params[:controller])
+
+	def p_userid(base = params[:controller])
 		get_param(base, :user_id, objid: true)
 	end
 
@@ -152,7 +152,7 @@ class ApplicationController < ActionController::Base
 			return nil unless current_hash[key].present?
 			current_hash = current_hash[key]
 		end
-		return current_hash
+		current_hash
 	end
 
 	# register a new user action
@@ -209,7 +209,7 @@ class ApplicationController < ActionController::Base
 	def u_coach?
 		current_user&.is_coach?
 	end
- 
+
 	def u_coachid
 		current_user&.person&.coach_id
 	end
@@ -252,7 +252,7 @@ class ApplicationController < ActionController::Base
 		d_hash = Date._parse(d_str)
 		return nil if d_hash&.size !=3
 		v_date = Date.valid_date?(d_hash[:year].to_i, d_hash[:month].to_i, d_hash[:month].to_i)
-		return v_date ? d_str : nil
+		v_date ? d_str : nil
 	end
 
 	private
@@ -276,47 +276,47 @@ class ApplicationController < ActionController::Base
 					return false
 				end
 			end
-			return false
+			false
 		end
 
 		# check object related access policy
 		def check_object(obj:)
 			case obj
 			when Category, Division, FalseClass, Location, Season
-				return true
+				true
 			when Coach
-				return (obj.id == u_coachid)
+				(obj.id == u_coachid)
 			when Club
-				return (obj.id == u_clubid)
+				(obj.id == u_clubid) # rubocop:disable Style/RedundantReturn
 			when Drill
-				return (obj.coach_id == u_coachid)
+				(obj.coach_id == u_coachid)
 			when Event
-				return (obj.team.has_coach(u_coachid) || obj.has_player(u_playerid))
+				(obj.team.has_coach(u_coachid) || obj.has_player(u_playerid))
 			when Person
-				return (obj.id == u_personid)
+				(obj.id == u_personid)
 			when Player
-				return (obj.id == u_playerid)
+				(obj.id == u_playerid)
 			when Team
-				return (obj.has_coach(u_coachid) || obj.has_player(u_playerid))
+				(obj.has_coach(u_coachid) || obj.has_player(u_playerid))
 			when User
-				return (obj.id == u_userid)
+				(obj.id == u_userid)
 			else # including NilClass
-				return u_admin?
+				u_admin?
 			end
 		end
 
 		# get a param either from base or from a sub-node
-		def get_param(base=params[:controller], key, objid: false)
+		def get_param(base = params[:controller], key, objid: false)
 			res = (param_passed(key) || param_passed(base, key) || param_passed(base.singularize, key))
 			return res unless objid
 			res.nil? ? nil :  res.to_i
 		end
 
 		# Calculate pagination parameters based on available screen space or other criteria
-		def paginate(data, lines=1)
+		def paginate(data, lines = 1)
 			drows = case helpers.device
-				when "desktop", "tablet"; 18
-				when "mobile"; 15
+				when "desktop", "tablet"; 18 # rubocop:disable Layout/CaseIndentation
+				when "mobile"; 15 # rubocop:disable Layout/CaseIndentation
 				else; 25
 			end
 			per_page = (drows/lines).round

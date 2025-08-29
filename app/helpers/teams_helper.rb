@@ -173,17 +173,38 @@ module TeamsHelper
 		res
 	end
 
+	# fields to edit team targets -- REQUIRES form to be passed!!
+	def team_targets_form_fields(form)
+		[
+			[ topcell_field(I18n.t("target.focus.def"), cols: 2) ],
+			[ targets_form_partial(form, focus: 2, cols: 2)	],
+			ind_col_toprow,
+			[
+				targets_form_partial(form, aspect: 1, focus: 2),
+				targets_form_partial(form, aspect: 2, focus: 2)
+			],
+			gap_row(),
+			[ topcell_field(I18n.t("target.focus.off"), cols: 2) ],
+			[ targets_form_partial(form, focus: 1, cols: 2)	],
+			ind_col_toprow,
+			[
+				targets_form_partial(form, aspect: 1, focus: 1),
+				targets_form_partial(form, aspect: 2, focus: 1)
+			]
+		]
+	end
+
 	# return team target fields to be shown
 	def team_targets_show_fields
 		[
 			[ topcell_field(I18n.t("target.focus.def"), cols: 2) ],
 			[ target_content(@t_d_gen, cols: 2) ],
-			[ topcell_field(I18n.t("target.aspect.ind")), topcell_field(I18n.t("target.aspect.col")) ],
+			ind_col_toprow,
 			[ target_content(@t_d_ind), target_content(@t_d_col) ],
 			gap_row(cols: 2),
 			[ topcell_field(I18n.t("target.focus.off"), cols: 2) ],
 			[ target_content(@t_o_gen, cols: 2) ],
-			[ topcell_field(I18n.t("target.aspect.ind")), topcell_field(I18n.t("target.aspect.col")) ],
+			ind_col_toprow,
 			[ target_content(@t_o_ind), target_content(@t_o_col) ]
 		]
 	end
@@ -228,12 +249,34 @@ module TeamsHelper
 	end
 
 	private
+		# common toprow for ind/col headers
+		def ind_col_toprow
+			[
+				topcell_field(I18n.t("target.aspect.ind_l")),
+				topcell_field(I18n.t("target.aspect.col_l"))
+			]
+		end
+
 		# return html multiline text for strings
-		def target_content(targets, cols: nil)
-			tgts = []
-			targets.each do |tgt|
-				tgts << { text: tgt.to_s, status: tgt.status }
+		def target_content(targets, edit: false, cols: nil)
+			tgts = targets.map do |tgt|
+				{
+					text: tgt.to_s,
+					status: edit ? nil : tgt.status,
+					completion: edit ? tgt.completion : nil
+				}
 			end
-			{ kind: :targets, class: "border px py align-top", targets: tgts, cols: }
+			{ kind: :targets, class: "border px py align-top", targets: tgts, cols: cols }
+		end
+
+		# target form partial wrapper
+		def targets_form_partial(form, month: 0, aspect: 0, focus: 0, cols: nil)
+			{
+				kind: :partial,
+				partial: "targets_form",
+				locals: { form:, month:, aspect:, focus: },
+				cols:,
+				class: "border px py align-top"
+			}
 		end
 end

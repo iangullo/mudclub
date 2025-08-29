@@ -31,9 +31,9 @@ class SubmitComponent < ApplicationComponent
 		if submit.class == Hash
 			b_submit = submit
 		elsif submit == :save # save button
-			b_submit = {kind: :save}
+			b_submit = { kind: :save }
 		elsif submit # edit button with link in "submit"
-			b_submit = {kind: :edit, url: submit, frame:}
+			b_submit = { kind: :edit, url: submit, frame: }
 		end
 		@submit = ButtonComponent.new(**b_submit) if b_submit
 	end

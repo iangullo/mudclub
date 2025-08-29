@@ -49,35 +49,35 @@ class NestedComponent < ApplicationComponent
 
 		def get_children
 			return nil unless @form
-	
+
 			children = @form.object.send(@key)
 			children = children.order(@order) if @order
 			children = children.select do |child|
 				@filter.nil? || @filter.all? { |k, v| child.send(k) == v }
 			end
-			return children
+			children
 		end
 
 		# prepare the placeholder template
 		def prepare_template
-			return view_context.capture do
-				@form.fields_for @key, @child, child_index: 'NEW_RECORD' do |ff|
+			view_context.capture do
+				@form.fields_for @key, @child, child_index: "NEW_RECORD" do |ff|
 					render_row(ff)
 				end
 			end
 		end
 
 		def prepare_collection
-			return view_context.capture do
+			view_context.capture do
 				@form.fields_for @key, get_children do |ff|
 					render_row(ff)
 				end
 			end
 		end
-	
+
 		# This renders the row markup inline
 		def render_row(ff)
-			view_context.content_tag(:div, class: "flex w-full items-center", data: {nested_form_target: "item", new_record: ff.object.new_record?} ) do
+			view_context.content_tag(:div, class: "flex w-full items-center", data: { nested_form_target: "item", new_record: ff.object.new_record? }) do
 				view_context.safe_join([
 					render(@row, form: ff),
 					render(@btn_del),

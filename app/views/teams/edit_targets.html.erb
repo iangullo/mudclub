@@ -1,55 +1,7 @@
 <div id="edit-targets">
 	<%= render @title %>
 	<%= form_with model: @team, data: {turbo_frame: "_top"} do |form| %>
-		<table>
-			<tr>
-				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t("target.focus.def") %></th>
-			</tr><tr>
-				<td colspan="2" class="border px py align-top">
-					<div id="defense-general">
-						<%= render "targets_form", form: form, month: 0, aspect: 0, focus: 2 %>
-					</div>
-				</td>
-			</tr><tr class="bg-indigo-900 text-gray-300">
-				<th class="border px py" align="left"><%= t("target.aspect.ind_l") %></th>
-				<th class="border px py" align="center"><%= t("target.aspect.col_l") %></th>
-			</tr><tr>
-				<td class="border px py align-top">
-					<div id="defense-individual">
-						<%= render "targets_form", form: form, month: 0, aspect: 1, focus: 2 %>
-					</div>
-				</td>
-				<td class="border px py align-top">
-					<div id="defense-collective">
-						<%= render "targets_form", form: form, month: 0, aspect: 2, focus: 2 %>
-					</div>
-				</td>
-			</tr><tr>
-				<th colspan="2" class="border px py" align="center"><br></th>
-			</tr><tr>
-				<th colspan="2" class="bg-indigo-900 text-gray-300 border px py" align="center"><%= t("target.focus.off") %></th>
-			</tr><tr>
-				<td colspan="2" class="border px py align-top">
-					<div id="offense-general">
-						<%= render "targets_form", form: form, month: 0, aspect: 0, focus: 1 %>
-					</div>
-				</td>
-			</tr><tr class="bg-indigo-900 text-gray-300">
-				<th class="border px py" align="left"><%= t("target.aspect.ind_l") %></th>
-				<th class="border px py" align="center"><%= t("target.aspect.col_l") %></th>
-			</tr><tr>
-				<td class="border px py align-top">
-					<div id="offense-individual">
-						<%= render "targets_form", form: form, month: 0, aspect: 1, focus: 1 %>
-					</div>
-				</td>
-				<td class="border px py align-top">
-					<div id="offense-collective">
-						<%= render "targets_form", form: form, month: 0, aspect: 2, focus: 1 %>
-					</div>
-				</td>
-			</tr>
-		</table>
+    <%= render FieldsComponent.new(team_targets_form_fields(form), form: form) %>
 		<%= form.hidden_field :rdx, value: @rdx if @rdx %>
 		<%= render @submit %>
 	<% end %>
