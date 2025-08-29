@@ -45,16 +45,18 @@ class AccordionComponent < ApplicationComponent
 		@objects.each do |obj|
 			obj[:head_id] = "accordion-collapse-heading-" + i.to_s
 			obj[:body_id] = "accordion-collapse-body-" + i.to_s
-			i = i +1
+			i += 1
 		end
 	end
 
 	# render the component
 	def call
-    content_tag(:div, id: "accordion-collapse", data: { accordion: "collapse" }) do
-			content_tag(:h2, @title, class: H_CLASS) +
-			@objects.map { |obj| accordion_object(obj) }.join.html_safe +
-			content_tag(:div, @tail, class: T_CLASS) if @tail.present?
+		content = []
+		content << content_tag(:h2, @title, class: H_CLASS) if @title.present?
+		@objects.map { |obj| content << accordion_object(obj) }
+		content << content_tag(:div, @tail, class: T_CLASS) if @tail.present?
+		content_tag(:div, id: "accordion-collapse", data: { accordion: "collapse" }) do
+			safe_join(content)
 		end
 	end
 

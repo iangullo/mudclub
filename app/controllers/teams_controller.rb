@@ -267,6 +267,7 @@ class TeamsController < ApplicationController
 			title << icon_subtitle("plan", I18n.t("plan.single"))
 			@title = create_fields(title)
 			edit    = edit_plan_team_path(rdx: @rdx) if team_manager?
+			@fields = create_fields(helpers.team_plan_accordion)
 			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }

@@ -433,11 +433,11 @@ es:
       col_a: "Col."
       col_l: "Tác. Colectiva"
     focus:
+      att: "Ataque"
+      att_a: "Ofe."
       fit: "Físico"
       def: "Defensa"
       def_a: "Def."
-      off: "Ataque"
-      off_a: "Ofe."
   task:
     created: "Tarea creada: "
     updated: "Tarea guardada: "

@@ -433,11 +433,11 @@ en:
       col_a: "Col."
       col_l: "Collective Tactic"
     focus:
+      att: "Offense"
+      att_a: "Off."
       fit: "Physical"
       def: "Defense"
       def_a: "Def."
-      off: "Offense"
-      off_a: "Off."
   task:
     created: "Created task: "
     updated: "Updated task: "

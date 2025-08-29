@@ -184,7 +184,7 @@ module TeamsHelper
 				targets_form_partial(form, aspect: 2, focus: 2)
 			],
 			gap_row(),
-			[ topcell_field(I18n.t("target.focus.off"), cols: 2) ],
+			[ topcell_field(I18n.t("target.focus.att"), cols: 2) ],
 			[ targets_form_partial(form, focus: 1, cols: 2)	],
 			ind_col_toprow,
 			[
@@ -202,11 +202,15 @@ module TeamsHelper
 			ind_col_toprow,
 			[ target_content(@t_d_ind), target_content(@t_d_col) ],
 			gap_row(cols: 2),
-			[ topcell_field(I18n.t("target.focus.off"), cols: 2) ],
+			[ topcell_field(I18n.t("target.focus.att"), cols: 2) ],
 			[ target_content(@t_o_gen, cols: 2) ],
 			ind_col_toprow,
 			[ target_content(@t_o_ind), target_content(@t_o_col) ]
 		]
+	end
+
+	def team_plan_accordion(form: nil)
+		[ [ { kind: :accordion, title: nil, objects: plan_accordion(form:) } ] ]
 	end
 
 	# fields for team time-slots view
@@ -258,15 +262,17 @@ module TeamsHelper
 		end
 
 		# return html multiline text for strings
-		def target_content(targets, edit: false, cols: nil)
-			tgts = targets.map do |tgt|
-				{
-					text: tgt.to_s,
-					status: edit ? nil : tgt.status,
-					completion: edit ? tgt.completion : nil
-				}
+		def target_content(targets, form: nil, cols: nil)
+			if form
+				tgt    = targets&.first
+				month  = tgt[:month] if tgt
+				aspect = tgt&.target&.aspect
+				focus  = tgt&.target&.focus
+				targets_form_partial(form, month:, aspect:, focus:, cols:)
+			else # just view
+				tgts = targets.map { |tgt| { text: tgt.to_s,	status: tgt.status } }
+				{ kind: :targets, class: "border px py align-top", targets: tgts, cols: }
 			end
-			{ kind: :targets, class: "border px py align-top", targets: tgts, cols: cols }
 		end
 
 		# target form partial wrapper
@@ -278,5 +284,39 @@ module TeamsHelper
 				cols:,
 				class: "border px py align-top"
 			}
+		end
+
+		# return accordion for team targets
+		def plan_accordion(form: nil)
+			plan = Array.new
+			@targets.each do |tgt|
+				item = {}
+				item[:url]     = "#"
+				item[:head]    = tgt[:month]
+				item[:content] = FieldsComponent.new(plan_month_fields(tgt, form:))
+				plan << item
+			end
+			plan
+		end
+
+		def plan_month_fields(targets, form:)
+			lcls = "text-indigo-900 font-semibold border px py"
+			[
+				[
+					gap_field,
+					{ kind: :text, value: I18n.t("target.focus.def"), align: "center", class: lcls },
+					{ kind: :text, value: I18n.t("target.focus.att"), align: "center", class: lcls }
+				],
+				[
+					{ kind: :side_cell, value: I18n.t("target.aspect.ind_a"), align: "center" },
+					target_content(targets[:t_d_ind], form:),
+					target_content(targets[:t_o_ind], form:)
+				],
+				[
+					{ kind: :side_cell, value: I18n.t("target.aspect.col_a"), align: "center" },
+					target_content(targets[:t_d_col], form:),
+					target_content(targets[:t_o_col], form:)
+				]
+			]
 		end
 end
