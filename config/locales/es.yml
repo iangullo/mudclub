@@ -149,6 +149,15 @@ es:
     new: "Crear Entrenador/a"
     single: "Entrenador/a"
     abbr: "Ent."
+  color:
+    black: "Negro"
+    blue: "Azul"
+    green: "Verde"
+    many: "Colores"
+    orange: "Naranja"
+    purple: "Morado"
+    red: "Rojo"
+    single: "Color"
   division:
     created: "Competición creada: "
     updated: "Competición guardada: "

@@ -11,11 +11,11 @@ const VALID_PROPERTIES = {
 export function serializeDiagram(diagramElement) {
   const symbols = []
   const paths = []
-  
+
   diagramElement.querySelectorAll('g.wrapper').forEach(wrapper => {
     const inner = wrapper.firstElementChild
     if (!inner) return
-    
+
     const type = wrapper.getAttribute("type")
     DEBUG && console.log("wrapper type: ", type)
 
@@ -23,7 +23,7 @@ export function serializeDiagram(diagramElement) {
       const data = serializeSymbol(inner)
       DEBUG && console.log("symbol: ", data)
       if (data) symbols.push(data)
-    } else if(type === "path") {
+    } else if (type === "path") {
       const data = serializePath(inner)
       DEBUG && console.log("path: ", data)
       if (data) paths.push(data)
@@ -43,8 +43,13 @@ function serializePath(pathGroup) {
   if (!isSVGElement(pathGroup) || !el) return null
 
   DEBUG && console.warn(pathGroup.dataset.points)
-  const pathPoints = JSON.parse(pathGroup.dataset.points || '[]')
-  if (pathPoints.length < 2) return null  // if emtpy, do nothing
+  let pathPoints = []
+  try {
+    pathPoints = JSON.parse(pathGroup.dataset.points || '[]')
+  } catch (e) {
+    console.error('Error parsing path points:', e)
+  }
+  if (pathPoints.length < 2) return null  // if empty, do nothing
 
   const pathData = {
     id: pathGroup.id || generateId('path'),
@@ -71,9 +76,9 @@ function serializeSymbol(el) {
     symbol_id: el.getAttribute('symbolId'),
     x: parseFloat(el.dataset.x) || 0,
     y: parseFloat(el.dataset.y) || 0,
-    label: el.getAttribute('label') || 
-           textElement?.textContent?.trim() || 
-           el.querySelector('tspan#label')?.textContent?.trim()
+    label: el.getAttribute('label') ||
+      textElement?.textContent?.trim() ||
+      el.querySelector('tspan#label')?.textContent?.trim()
   }
   DEBUG && console.log("serialized: ", symbolData)
   return symbolData

@@ -43,7 +43,7 @@ export function validateDiagram(svgContainer) {
  * This naturally scales all SVG children uniformly.
  */
 export function zoomToFit(svg, court, isEditor = false) {
-  if (!svg || !court) {
+  if (!svg || !court || !court.viewBox) {
     DEBUG && console.error("zoomToFit: Invalid SVG or court element")
     return 1
   }
@@ -53,7 +53,7 @@ export function zoomToFit(svg, court, isEditor = false) {
   let availableWidth = viewBox.width
   let availableHeight = viewBox.height
   DEBUG && console.log(`initial limits: ${availableWidth} x ${availableHeight}`)
-  
+
   if (isEditor) { // Get max available size
     availableWidth = window.innerWidth - 20
     availableHeight = window.innerHeight - 250
@@ -87,13 +87,13 @@ export function zoomToFit(svg, court, isEditor = false) {
   svg.style.height = `${height}px`
   svg.style.margin = '0 auto';
   svg.style.display = 'block';
-  
+
   if (DEBUG) {
     console.log(`limits: ${availableWidth} x ${availableHeight}`)
     console.log(`new container: ${width} x ${height}`)
   }
 
-  setAttributes(svg, {"width": width, "height": height, "preserveAspectRatio": "xMidYMid meet"})
+  setAttributes(svg, { "width": width, "height": height, "preserveAspectRatio": "xMidYMid meet" })
   return getSvgScale(svg)
 }
 
@@ -111,7 +111,7 @@ function loadSymbols(svg, symbols = [], isEditor = false) {
         DEBUG && console.log(`Invalid number in label: ${label.textContent}`)
         return
       }
-      
+
       DEBUG && console.log(`Found ${symbol.kind} with number ${number}`)
       if (isEditor) {
         result[symbol.kind === 'attacker' ? 'attackers' : 'defenders'].add(number)
@@ -124,18 +124,18 @@ function loadSymbols(svg, symbols = [], isEditor = false) {
 
 // Create paths from path data
 function loadPaths(svg, paths = []) {
-    paths.forEach(path => {
-      DEBUG && console.log('Found path definition: ', path)
-      const pathGroup = createPath(path.points,
-        {
-          curve: path.curve === "true",
-          style: path.style,
-          ending: path.ending,
-          stroke: path.stroke,
-          transform: "",
-          isPreview: false
-        }
-      )
-      svg.appendChild(pathGroup)
-    })  
+  paths.forEach(path => {
+    DEBUG && console.log('Found path definition: ', path)
+    const pathGroup = createPath(path.points,
+      {
+        curve: path.curve === "true",
+        style: path.style,
+        ending: path.ending,
+        stroke: path.stroke,
+        transform: "",
+        isPreview: false
+      }
+    )
+    svg.appendChild(pathGroup)
+  })
 }

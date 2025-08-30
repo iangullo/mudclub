@@ -149,6 +149,15 @@ en:
     new: "Create Coach"
     single: "Coach"
     abbr: "Coach"
+  color:
+    black: "Black"
+    blue: "Blue"
+    green: "Green"
+    many: "Colours"
+    orange: "Orange"
+    purple: "Purple"
+    red: "Red"
+    single: "Colour"
   division:
     created: "Created competition: "
     updated: "Updated competition: "

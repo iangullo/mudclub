@@ -2,7 +2,7 @@
 export const SVG_NS = "http://www.w3.org/2000/svg"
 const EPSILON = 0.01
 const SELECTION_TOLERANCE = 0
-const DEBUG = false 
+const DEBUG = false
 
 export function angleBetweenPoints(x1, y1, x2, y2) {
   return Math.atan2(y2 - y1, x2 - x1)
@@ -14,7 +14,7 @@ export function averageAngles(a1, a2) {
 
 export function cssColorToHex(color) {
   if (!color) return '#000000'
-  
+
   // If already hex format (3, 4, 6, or 8 digits)
   if (/^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(color)) {
     return color.toLowerCase() // normalize case
@@ -24,11 +24,11 @@ export function cssColorToHex(color) {
   const div = document.createElement('div')
   div.style.color = color
   document.body.appendChild(div)
-  
+
   try {
     const computed = window.getComputedStyle(div).color
     const rgbMatch = computed.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/)
-    
+
     if (rgbMatch) {
       const r = parseInt(rgbMatch[1]).toString(16).padStart(2, '0')
       const g = parseInt(rgbMatch[2]).toString(16).padStart(2, '0')
@@ -48,7 +48,6 @@ export function createGroup(x = 0, y = 0) {
   return createSvgElement("g")
 }
 
-// Update createHandle to include selection styling
 export function createHandle(point, index) {
   const handle = createSvgElement('circle')
   setAttributes(handle, {
@@ -69,8 +68,22 @@ export function createSvgElement(tag) {
   return document.createElementNS(SVG_NS, tag)
 }
 
+// distance between 2 SVG points
 export function distance(x1, y1, x2, y2) {
   return Math.hypot(x2 - x1, y2 - y1)
+}
+
+// geometry helper method
+export function distanceToBBox(point, bbox) {
+  // Calculate closest point on bbox to the click point
+  const closestX = Math.max(bbox.x, Math.min(point.x, bbox.x + bbox.width))
+  const closestY = Math.max(bbox.y, Math.min(point.y, bbox.y + bbox.height))
+
+  // Calculate distance to closest point
+  const dx = point.x - closestX
+  const dy = point.y - closestY
+
+  return Math.sqrt(dx * dx + dy * dy)
 }
 
 export function findElementNearPoint(diagram, point) {
@@ -78,11 +91,11 @@ export function findElementNearPoint(diagram, point) {
   const elements = Array.from(diagram.querySelectorAll('g.wrapper'))
   let closestElement = null
   let closestDistance = Infinity
-  
+
   elements.forEach(el => {
     let bbox = el.getBBox()
     let distance = distanceToBBox(point, bbox)
-       
+
     if (distance < closestDistance && distance <= SELECTION_TOLERANCE) {
       closestDistance = distance
       closestElement = el
@@ -92,19 +105,6 @@ export function findElementNearPoint(diagram, point) {
   return closestElement
 }
 
-// geometry helper method
-export function distanceToBBox(point, bbox) {
-  // Calculate closest point on bbox to the click point
-  const closestX = Math.max(bbox.x, Math.min(point.x, bbox.x + bbox.width))
-  const closestY = Math.max(bbox.y, Math.min(point.y, bbox.y + bbox.height))
-  
-  // Calculate distance to closest point
-  const dx = point.x - closestX
-  const dy = point.y - closestY
-  
-  return Math.sqrt(dx * dx + dy * dy)
-}
-
 export function generateId(prefix = "sym") {
   const rand = crypto.getRandomValues(new Uint32Array(2))
   return `${prefix}-${rand[0].toString(16)}${rand[1].toString(16)}`
@@ -112,30 +112,30 @@ export function generateId(prefix = "sym") {
 
 export function getInnerElement(wrapper) {
   if (!wrapper) return null
-  
+
   // Get the inner <g> element
   const group = wrapper.querySelector('g')
   if (group) return group
-    
+
   return null
 }
 
 // 🔍 Get label content consistently with setLabel behavior
 export function getLabel(el) {
   if (!el) return null
-  
+
   // First check the attribute (primary storage)
   const labelAttr = el.getAttribute("label")
   if (labelAttr !== null) {
     // Verify tspan matches if exists (debug only)
     const labelSpan = el.querySelector('tspan[id^="label"]')
     if (DEBUG && labelSpan && labelSpan.textContent !== labelAttr) {
-      console.warn(`Label mismatch in ${el.id}:`, 
-        {attribute: labelAttr, tspan: labelSpan.textContent})
+      console.warn(`Label mismatch in ${el.id}:`,
+        { attribute: labelAttr, tspan: labelSpan.textContent })
     }
     return labelAttr
   }
-  
+
   // Fallback to tspan content (legacy support)
   const labelSpan = el.querySelector('tspan[id^="label"]')
   return labelSpan?.textContent || null
@@ -169,8 +169,41 @@ export function getViewBox(el) {
   return { width: vb.width, height: vb.height }
 }
 
+export function highlightElement(el) {
+  if (el.tagName === 'path') {
+    // Store original styles
+    if (!el.dataset.originalStroke) el.dataset.originalStroke = el.style.stroke || ''
+    if (!el.dataset.originalStrokeWidth) el.dataset.originalStrokeWidth = el.style.strokeWidth || ''
+    if (!el.dataset.originalFill) el.dataset.originalFill = el.style.fill || ''
+    el.style.stroke = 'red' // Apply selection styles
+    el.style.strokeWidth = '4px'
+    el.style.fill = 'rgba(255, 0, 0, 0.2)'
+  } else if (el.tagName === 'g') {  // Store original filter/fill
+    if (!el.dataset.originalFilter) el.dataset.originalFilter = el.style.filter || ''
+    if (!el.dataset.originalFill) el.dataset.originalFill = el.style.fill || ''
+    el.style.filter = 'drop-shadow(0 0 10px rgba(255, 0, 0, 0.5))'
+    el.style.fill = 'rgba(255, 0, 0, 0.2)'
+  }
+}
+
 export function isSVGElement(el) {
   return el instanceof SVGElement && el.namespaceURI === SVG_NS
+}
+
+export function lowlightElement(el) {
+  if (el.tagName === 'path') {
+    el.style.stroke = el.dataset.originalStroke || ''
+    el.style.strokeWidth = el.dataset.originalStrokeWidth || ''
+    el.style.fill = el.dataset.originalFill || ''
+    delete el.dataset.originalStroke
+    delete el.dataset.originalStrokeWidth
+    delete el.dataset.originalFill
+  } else if (el.tagName === 'g') {
+    el.style.filter = el.dataset.originalFilter || ''
+    el.style.fill = el.dataset.originalFill || ''
+    delete el.dataset.originalFilter
+    delete el.dataset.originalFill
+  }
 }
 
 export function setAttributes(el, attrs = {}) {
@@ -204,7 +237,7 @@ export function setLogicalTransform(el, transform) {
 export function updatePosition(el, x = 0, y = 0) {
   DEBUG && console.log("updatePosition(el:", el.id, ", x:", x, ", y:", y, ")")
   const oldTransform = el.getAttribute("transform") || ""
-  
+
   let oldX = 0, oldY = 0
   let updated = false
 
@@ -219,7 +252,7 @@ export function updatePosition(el, x = 0, y = 0) {
       return `translate(${oldX},${oldY})` // unchanged
     }
 
-    setAttributes(el, {'data-x': x, 'data-y': y})
+    setAttributes(el, { 'data-x': x, 'data-y': y })
     return `translate(${x},${y})`
   })
 
@@ -227,7 +260,7 @@ export function updatePosition(el, x = 0, y = 0) {
 
   if (!updated) {
     // No existing translate, so we append it
-    setAttributes(el, {'data-x': x, 'data-y': y})
+    setAttributes(el, { 'data-x': x, 'data-y': y })
     transformOut = `translate(${x},${y}) ${oldTransform}`.trim()
   }
 
@@ -237,11 +270,11 @@ export function updatePosition(el, x = 0, y = 0) {
 
 // Prepare the outer wrapper <g> to apply visual scale only
 export function wrapContent(content, type, x = 0, y = 0, draggable = true) {
-  DEBUG && console.log("wrapContent(type:", type,")")
+  DEBUG && console.log("wrapContent(type:", type, ")")
   const wrapper = createGroup(x, y)
   wrapper.classList.add("wrapper") // if you want to style/debug
   const id = content.getAttribute("id")
-  setAttributes(wrapper, {draggable: draggable, id: `${id}-wrapper`, type: type})
+  setAttributes(wrapper, { draggable: draggable, id: `${id}-wrapper`, type: type })
   wrapper.appendChild(content)  // copy cloned symbol inside
   DEBUG && console.log("wrapContent: ", wrapper)
   return wrapper

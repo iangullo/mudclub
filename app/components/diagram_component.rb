@@ -27,18 +27,18 @@ class DiagramComponent < ApplicationComponent
 	SHOW_SVG_CLASS = "w-full h-auto"
 	EDIT_SVG_CLASS = "w-full h-full border"
 	EDITOR_BUTTONS = [
-		{ action: 'addAttacker', object: 'attacker', options: {label: "?"} },
-		{ action: 'addDefender', object: 'defender', options: {label: "n"} },
-		{ action: 'addBall', object: 'ball' },
-		{ action: 'addCone', object: 'cone' },
-		{ action: 'addCoach', object: 'coach' },
-		{ action: 'startDrawing', object: 'shot', path: {curve: false, style: "double", ending: "arrow"} },
-		{ action: 'startDrawing', object: 'pass', path: {curve: false, style: "dashed", ending: "arrow"} },
-		{ action: 'startDrawing', object: 'dribble', path: {curve: true, style: "wavy", ending: "arrow"} },
-		{ action: 'startDrawing', object: 'handoff', path: {curve: false, style: "double", ending: "none"} },
-		{ action: 'startDrawing', object: 'move', path: {curve: true, style: "solid", ending: "arrow"} },
-		{ action: 'startDrawing', object: 'pick', path: {curve: true, style: "solid", ending: "tee"} },
-		{ action: 'deleteSelected', object: 'delete' }
+		{ action: "addAttacker", object: "attacker", options: { label: "?" } },
+		{ action: "addDefender", object: "defender", options: { label: "n" } },
+		{ action: "addBall", object: "ball" },
+		{ action: "addCone", object: "cone" },
+		{ action: "addCoach", object: "coach" },
+		{ action: "startDrawing", object: "shot", path: { curve: false, style: "double", ending: "arrow" } },
+		{ action: "startDrawing", object: "pass", path: { curve: false, style: "dashed", ending: "arrow" } },
+		{ action: "startDrawing", object: "dribble", path: { curve: true, style: "wavy", ending: "arrow" } },
+		{ action: "startDrawing", object: "handoff", path: { curve: false, style: "double", ending: "none" } },
+		{ action: "startDrawing", object: "move", path: { curve: true, style: "solid", ending: "arrow" } },
+		{ action: "startDrawing", object: "pick", path: { curve: true, style: "solid", ending: "tee" } },
+		{ action: "deleteSelected", object: "delete" }
 	].freeze
 
 	attr_writer :form # Allows assigning the form after initialization
@@ -47,11 +47,11 @@ class DiagramComponent < ApplicationComponent
 		@id       = "diagram-#{SecureRandom.hex(4)}"
 		@sport   = sport
 		@css     = css.presence || SHOW_SVG_CLASS
-		@court   = {name: court, sport: sport}
+		@court   = { name: court, sport: sport }
 		@svgdata = svgdata.presence || {}
 		@form    = form
 	end
-	
+
 	def call
 		svg_content = generate_diagram_content
 
@@ -60,11 +60,12 @@ class DiagramComponent < ApplicationComponent
 				[
 					editor_buttons_container,
 					content_tag(:div, class: EDIT_SVG_CLASS + " border rounded", id: "#{@id}-container") { svg_content },
-					hidden_editor_fields
+					hidden_editor_fields,
+					color_menu	# contextual color selector
 				]
 			)
 		else
-			content_tag(:div, class: @css, data: {controller: "diagram-renderer", diagram_renderer_svgdata_value: @svgdata}) do
+			content_tag(:div, class: @css, data: { controller: "diagram-renderer", diagram_renderer_svgdata_value: @svgdata }) do
 				svg_content.html_safe
 			end
 		end
@@ -75,21 +76,59 @@ class DiagramComponent < ApplicationComponent
 		def action_button(btn)
 			if btn[:object] == "delete"
 				title  = I18n.t("action.remove")
-				symbol = {concept: "delete", options: {type: :button}}
+				symbol = { concept: "delete", options: { type: :button } }
 				bcls   = "hover:bg-red-100 disabled:opacity-50 disabled:bg-gray-200 disabled:cursor-not-allowed"
 				data   = { action: "click->diagram-editor##{btn[:action]}", disabled: false, diagram_editor_target: "deleteButton" }
 			else
-				symbol_id = [@sport, "object", btn[:object], "default"].join(".")
+				symbol_id = [ @sport, "object", btn[:object], "default" ].join(".")
 				title     = I18n.t("sport.#{@sport}.objects.#{btn[:object]}")
-				options   = {namespace: @sport, type: :object}
+				options   = { namespace: @sport, type: :object }
 				options.merge!(btn[:options]) if btn[:options]
-				symbol = {concept: btn[:object], options:}
+				symbol = { concept: btn[:object], options: }
 				bcls   = "hover:bg-gray-100"
 				data   = { action: "click->diagram-editor##{btn[:action]}", symbol_id: }
 				data.merge!(btn[:path]) if btn[:path]
 			end
 			bcls = "m-1 rounded #{bcls}"
 			ButtonComponent.new(kind: :stimulus, symbol:, title:, d_class: bcls, data:)
+		end
+
+		def color_menu
+			content_tag(:div, id: "contextual-menu",
+				class: "hidden absolute bg-white border border-gray-300 rounded shadow-lg z-50 p-2",
+				data: { diagram_editor_target: "colorMenu" }
+			) do
+				safe_join([
+					content_tag(:div, I18n.t("color.many"), class: "font-bold mb-2"),
+					content_tag(:div, class: "color-palette grid grid-cols-4 gap-1") do
+						safe_join([
+							color_option("#000000", "black"),
+							color_option("#FF0000", "red"),
+							color_option("#0000FF", "blue"),
+							color_option("#008000", "green"),
+							color_option("#FFA500", "orange"),
+							color_option("#800080", "purple")
+						])
+					end,
+					content_tag(:button, I18n.t("action.cancel"),
+						class: "mt-2 text-sm text-gray-600 hover:text-gray-800",
+						data: { action: "click->diagram-editor#hideColorMenu" }
+					)
+				])
+			end
+		end
+
+		def color_option(color_code, color_name)
+			content_tag(:button,
+				"",
+				class: "w-6 h-6 rounded border border-gray-300",
+				style: "background-color: #{color_code}",
+				title: I18n.t("color.#{color_name}"),
+				data: {
+					action: "click->diagram-editor#applyColor",
+					color: color_code
+				}
+			)
 		end
 
 		def editor?
@@ -109,32 +148,32 @@ class DiagramComponent < ApplicationComponent
 		def get_viewbox(court)
 			@viewbox || @svgdata["viewBox"] || { x: 0, y: 0, width: 1000, height: 800 }
 		end
-		
+
 		def hidden_editor_fields
 			return nil unless @form
 
 			svgdata = (@svgdata || {
-				paths: [], symbols: [], "viewBox": { "width" => 1000, "height" => 600} # Default values
+				paths: [], symbols: [], "viewBox": { "width" => 1000, "height" => 600 } # Default values
 			}).to_json
 			safe_join([
-				@form.hidden_field(:step_id, value:@step&.id),
-				@form.hidden_field(:order, value:@step&.order),
-				@form.hidden_field(:svgdata, value: svgdata, data: {diagram_editor_target: "svgdata"})
+				@form.hidden_field(:step_id, value: @step&.id),
+				@form.hidden_field(:order, value: @step&.order),
+				@form.hidden_field(:svgdata, value: svgdata, data: { diagram_editor_target: "svgdata" })
 			])
 		end
 
 		def render_court
 			symbol    =  @court[:name]
 			namespace =  @court[:sport]
-			data      = editor? ? {diagram_editor_target: "court"} : {diagram_renderer_target: "court"}
+			data      = editor? ? { diagram_editor_target: "court" } : { diagram_renderer_target: "court" }
 			court     = SymbolComponent.new(symbol, namespace:, type: :court, css: @css, group: true, data:)
 			@viewbox  = court.view_box
 			render court
 		end
 
 		def generate_diagram_content
-			svg_start = safe_join([render_symbol_defs, render_court])
-			
+			svg_start = safe_join([ render_symbol_defs, render_court ])
+
 			content_tag(:div, class: "diagram-container", data: { loaded: "false" }) do
 				content_tag(:svg, svg_start.html_safe,
 					class: @css,
@@ -162,17 +201,17 @@ class DiagramComponent < ApplicationComponent
 		# Add this method to generate symbol definitions
 		def symbol_definitions
 			# Get unique symbol IDs from "add" action buttons
-			symbol_ids = EDITOR_BUTTONS.select { |btn| 
-				btn[:action].start_with?('add') && btn[:object].present?
+			symbol_ids = EDITOR_BUTTONS.select { |btn|
+				btn[:action].start_with?("add") && btn[:object].present?
 			}.map { |btn| btn[:object] }.uniq
-			
+
 			safe_join(symbol_ids.map do |symbol_id|
 				# Render each symbol as a symbol definition
 				symbol = SymbolComponent.new(symbol_id, namespace: @sport, type: :object)
 				content_tag(:symbol, render(symbol),
 					id: symbol.full_id,
 					viewBox: "0 0 #{SYMBOL_SIZE} #{SYMBOL_SIZE}",
-    		)
+				)
 			end)
 		end
 
