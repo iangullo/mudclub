@@ -264,13 +264,9 @@ module TeamsHelper
 		# return html multiline text for strings
 		def target_content(targets, form: nil, cols: nil)
 			if form
-				tgt    = targets&.first
-				month  = tgt[:month] if tgt
-				aspect = tgt&.target&.aspect
-				focus  = tgt&.target&.focus
-				targets_form_partial(form, month:, aspect:, focus:, cols:)
+				targets_form_partial(form, month: targets[:month], aspect:targets[:aspect], focus: targets[:focus], cols:)
 			else # just view
-				tgts = targets.map { |tgt| { text: tgt.to_s,	status: tgt.status } }
+				tgts = targets[:tgts].map { |tgt| { text: tgt.to_s,	status: tgt.status } }
 				{ kind: :targets, class: "border px py align-top", targets: tgts, cols: }
 			end
 		end
@@ -289,18 +285,19 @@ module TeamsHelper
 		# return accordion for team targets
 		def plan_accordion(form: nil)
 			plan = Array.new
-			@targets.each do |tgt|
+			@targets.each do |tgts|
 				item = {}
 				item[:url]     = "#"
-				item[:head]    = tgt[:month]
-				item[:content] = FieldsComponent.new(plan_month_fields(tgt, form:))
+				item[:head]    = tgts[:month]
+				item[:content] = FieldsComponent.new(plan_month_fields(tgts, form:))
 				plan << item
 			end
 			plan
 		end
 
-		def plan_month_fields(targets, form:)
-			lcls = "text-indigo-900 font-semibold border px py"
+		def plan_month_fields(tgts, form:)
+			lcls  = "text-indigo-900 font-semibold border px py"
+			month = tgts[:i]
 			[
 				[
 					gap_field,
@@ -309,13 +306,13 @@ module TeamsHelper
 				],
 				[
 					{ kind: :side_cell, value: I18n.t("target.aspect.ind_a"), align: "center" },
-					target_content(targets[:t_d_ind], form:),
-					target_content(targets[:t_o_ind], form:)
+					target_content({ month:, aspect: 1, focus: 2, tgts: tgts[:t_d_ind] }, form:),
+					target_content({ month:, aspect: 1, focus: 1, tgts: tgts[:t_o_ind] }, form:),
 				],
 				[
 					{ kind: :side_cell, value: I18n.t("target.aspect.col_a"), align: "center" },
-					target_content(targets[:t_d_col], form:),
-					target_content(targets[:t_o_col], form:)
+					target_content({ month:, aspect: 2, focus: 2, tgts: tgts[:t_d_col] }, form:),
+					target_content({ month:, aspect: 2, focus: 1, tgts: tgts[:t_o_col] }, form:),
 				]
 			]
 		end

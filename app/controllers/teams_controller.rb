@@ -249,7 +249,7 @@ class TeamsController < ApplicationController
 	def edit_targets
 		if @team && team_manager?
 			redirect_to("/", data: { turbo_action: "replace" }) unless @team
-			global_targets(false)	# get global targets
+			global_targets(true)	# get global targets
 			title   = helpers.team_title_fields(title: @team.to_s)
 			title << icon_subtitle("target", I18n.t("target.edit"))
 			@title  = create_fields(title)
@@ -359,12 +359,14 @@ class TeamsController < ApplicationController
 		def global_targets(breakdown = false)
 			targets = @team.team_targets.global
 			if breakdown
-				@t_d_gen = filter(targets, 0, 2)
-				@t_d_ind = filter(targets, 1, 2)
-				@t_d_col = filter(targets, 2, 2)
-				@t_o_gen = filter(targets, 0, 1)
-				@t_o_ind = filter(targets, 1, 1)
-				@t_o_col = filter(targets, 2, 1)
+				@t_d_gen = { i: 0, aspect: 0, focus: 2, tgts: filter(targets, 0, 2) }
+				@t_d_ind = { i: 0, aspect: 1, focus: 2, tgts: filter(targets, 1, 2) }
+				@t_d_col = { i: 0, aspect: 2, focus: 2, tgts: filter(targets, 2, 2) }
+				@t_o_gen = { i: 0, aspect: 0, focus: 1, tgts: filter(targets, 0, 1) }
+				@t_o_ind = { i: 0, aspect: 1, focus: 1, tgts: filter(targets, 1, 1) }
+				@t_o_col = { i: 0, aspect: 2, focus: 1, tgts: filter(targets, 2, 1) }
+			else
+				@targets = targets
 			end
 		end
 
