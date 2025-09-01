@@ -1,7 +1,7 @@
 // app/javascript/helpers/svg_paths.js
 import { createGroup, createSvgElement, generateId, isSVGElement, setAttributes, wrapContent } from "helpers/svg_utils"
 import { applyPathStyle } from "helpers/svg_styles"
-import { applyMarker } from "helpers/svg_markers"
+import { applyMarkerColor, createMarker } from "helpers/svg_markers"
 
 export const MIN_POINTS_FOR_CURVE = 3
 const TEMP_COLOR = '#888888'
@@ -9,12 +9,19 @@ const TEMP_OPACITY = 0.5
 const DEBUG = false
 
 export function applyPathColor(pathElement, color) {
-  const path = pathElement.querySelector('path')
-  if (path) {
-    path.setAttribute('stroke', color)
-    path.style.stroke = color
+  pathElement.setAttribute('color', color)
+  pathElement.dataset.color = color
+  const mainPath = pathElement.querySelector('path')
+
+  if (pathElement.dataset.style === 'double') {  // color 2 "fake" paths...
+    const group = pathElement.querySelector('g.double-path')
+    group?.querySelectorAll('path').forEach(path => { path.style.stroke = color })
+  } else {
+    mainPath.style.stroke = color
   }
+  applyMarkerColor(mainPath, color)
 }
+
 
 export function createPath(points = [], options = {}) {
   DEBUG && console.log("createPath:", points, options)
@@ -28,6 +35,12 @@ export function createPath(points = [], options = {}) {
   pathGroup.setAttribute("id", pathId)
 
   pathGroup.appendChild(pathElement)
+
+  // Create a unique marker for this path if needed
+  if (vOpts.ending && vOpts.ending !== 'none') {
+    createMarker(pathGroup, vOpts.ending, vOpts.color);
+  }
+
   updatePath(pathGroup, svgPoints(points), vOpts)
 
   // Create wrapper group
@@ -35,7 +48,7 @@ export function createPath(points = [], options = {}) {
 }
 
 export function getPathPoints(pathElement) {
-  const inner = getInnerElement(pathElement) || pathElement
+  const inner = getInnerGroup(pathElement) || pathElement
   const pointsData = inner.getAttribute('data-points')
 
   if (!pointsData) return []
@@ -113,8 +126,8 @@ export function updatePath(pathGroup, points, options) {
   // Apply style-specific modifications
   applyPathStyle(pathElement, basePath, vOpts.style)
 
-  // Apply ending marker
-  applyMarker(pathElement, vOpts.ending)
+  // Update or create marker
+  applyPathColor(pathGroup, vOpts.color)
 }
 
 // internal support functions

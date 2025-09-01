@@ -1,13 +1,14 @@
 // app/javascript/helpers/svg_symbols.js
 import {
   generateId,
+  getInnerGroup,
   getLabel,
   isSVGElement,
   setAttributes,
   setLabel,
   updatePosition,
   wrapContent
-} from "helpers/svg_utils"
+} from 'helpers/svg_utils'
 export const SYMBOL_SIZE = 33.87
 const SYMBOL_SCALE = 0.07
 const EPSILON = 0.01
@@ -15,28 +16,28 @@ const DEBUG = false
 
 export function applySymbolColor(symbolElement, color) {
   const kind = symbolElement.getAttribute('kind')
+  const labelSpan = symbolElement.querySelector('tspan[id^="label"]')
 
-  // Apply to stroke and text
-  symbolElement.setAttribute('stroke', color)
-  symbolElement.style.stroke = color
+  if (labelSpan) { labelSpan.style.fill = color }
 
-  const textElement = symbolElement.querySelector('text')
-  if (textElement) {
-    symbolElement.setAttribute('textColor', color)
-    textElement.setAttribute('textColor', color)
-    textElement.style.textColor = color
-  }
-
-  // Defenders also need to fill symbol
-  if (kind === 'defender') {
-    symbolElement.setAttribute('fill', color)
-    symbolElement.style.fill = color
+  // some management for different kinds
+  switch (kind) {
+    case 'attacker':
+      symbolElement.setAttribute('stroke', color)
+      symbolElement.style.stroke = color
+      break
+    default:  // solid
+      symbolElement.style.stroke = color
+      symbolElement.setAttribute('stroke', color)
+      symbolElement.style.fill = color
+      symbolElement.setAttribute('fill', color)
+      break
   }
 }
 
 // put a new symbol on the canvas
 export function createSymbol(symbolData, svgHeight) {
-  DEBUG && console.log("createSymbol: ", symbolData, svgHeight)
+  DEBUG && console.log('createSymbol: ', symbolData, svgHeight)
   const opts = validateSymbolData(symbolData)
   const symbolDef = document.getElementById(opts.symbolId)
 
@@ -45,7 +46,7 @@ export function createSymbol(symbolData, svgHeight) {
     return null
   }
 
-  DEBUG && console.log("found symbol definition: ", symbolDef)
+  DEBUG && console.log('found symbol definition: ', symbolDef)
 
   const symbolElement = symbolDef.querySelector('g').cloneNode(true)
   setAttributes(symbolElement, {
@@ -57,11 +58,12 @@ export function createSymbol(symbolData, svgHeight) {
     symbolId: opts.symbolId,
   })
 
-  if (opts.label) setLabel(symbolElement, opts.label)
+  const tcolor = (opts.kind === 'defender') ? opts.fill : opts.stroke
+  if (opts.label) setLabel(symbolElement, opts.label, tcolor)
   updateSymbolScale(symbolElement, svgHeight)
   updatePosition(symbolElement, opts.x, opts.y)
 
-  return wrapContent(symbolElement, "symbol", false)
+  return wrapContent(symbolElement, 'symbol', false)
 }
 
 export function getObjectNumber(element) {
@@ -73,6 +75,23 @@ export function getObjectNumber(element) {
   return null
 }
 
+export function isPlayer(wrapper) {
+  const inner = getInnerGroup(wrapper)
+  if (!inner) {
+    DEBUG && console.warn('No inner object to delete inside wrapper')
+    return null
+  }
+
+  const kind = inner.getAttribute('kind') || inner.dataset.kind
+  DEBUG && console.log('inner object:', inner)
+
+  if ((kind === 'attacker') || (kind === 'defender')) {
+    return { kind: kind, number: getObjectNumber(inner) }
+  }
+
+  return null
+}
+
 export function updateSymbol(el, data = {}) {
   if (!isSVGElement(el)) return null
 
@@ -80,18 +99,17 @@ export function updateSymbol(el, data = {}) {
   const changes = {}
 
   // Handle label update
-  if ("label" in data && getLabel(el) !== data.label) {
+  if ('label' in data && getLabel(el) !== data.label) {
     setLabel(el, data.label)
     changes.label = data.label
   }
 
   // Handle styles
-  const styleAttrs = ["fill", "stroke", "textColor"]
+  const styleAttrs = ['fill', 'stroke']
   styleAttrs.forEach(attr => {
     if (attr in data) {
-      const target = attr === "textColor" ? el.querySelector("text") : el
-      if (target?.getAttribute(attr) !== data[attr]) {
-        target.setAttribute(attr, data[attr])
+      if (el?.getAttribute(attr) !== data[attr]) {
+        el.setAttribute(attr, data[attr])
         changes[attr] = data[attr]
       }
     }
@@ -112,17 +130,17 @@ export function validateSymbol(data) {
 
 // only used on symbol creation really
 function updateSymbolScale(symbol, svgHeight) {
-  DEBUG && console.log("applyScale(symbol:", symbol.id, ", svgHeight:", svgHeight, ")")
+  DEBUG && console.log('applyScale(symbol:', symbol.id, ', svgHeight:', svgHeight, ')')
 
   // Get existing transform attribute
-  let transform = symbol.getAttribute("transform") || ""
+  let transform = symbol.getAttribute('transform') || ''
 
   // Idempotency check - we avoid updating if we had similar scale already
   const scaleMatch = transform.match(/scale\(([^)]+)\)/)
   const currentScale = scaleMatch ? parseFloat(scaleMatch[1]) : null
   const objScale = svgHeight * (SYMBOL_SCALE / SYMBOL_SIZE) // normalized scale for symbol
   if (currentScale !== null && Math.abs(currentScale - objScale) < EPSILON) {
-    DEBUG && console.log("Scale already applied, skipping.")
+    DEBUG && console.log('Scale already applied, skipping.')
     return
   }
 
@@ -139,10 +157,10 @@ function updateSymbolScale(symbol, svgHeight) {
   }
 
   // Clean up extra spaces
-  transform = transform.trim().replace(/\s+/g, " ")
+  transform = transform.trim().replace(/\s+/g, ' ')
 
-  symbol.setAttribute("transform", transform)
-  DEBUG && console.log("applied transform:", transform)
+  symbol.setAttribute('transform', transform)
+  DEBUG && console.log('applied transform:', transform)
 }
 
 // sanitize received options

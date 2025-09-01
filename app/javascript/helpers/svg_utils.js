@@ -110,7 +110,7 @@ export function generateId(prefix = "sym") {
   return `${prefix}-${rand[0].toString(16)}${rand[1].toString(16)}`
 }
 
-export function getInnerElement(wrapper) {
+export function getInnerGroup(wrapper) {
   if (!wrapper) return null
 
   // Get the inner <g> element
@@ -215,12 +215,17 @@ export function setAttributes(el, attrs = {}) {
 }
 
 // 🔁 Update label content if present
-export function setLabel(el, label) {
+export function setLabel(el, label, color = null) {
   if (label !== null) {
     const labelSpan = el.querySelector('tspan[id^="label"]')
     if (labelSpan) {
       el.setAttribute("label", label)
       labelSpan.textContent = label
+      if (color) {
+        DEBUG && console.log(`changing label color to ${color}`)
+        labelSpan.setAttribute('fill', color)
+        labelSpan.style.fill = color
+      }
     } else {
       DEBUG && console.warn(`Could not fine a <tspan id="label">`)
     }

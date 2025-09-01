@@ -20,10 +20,10 @@
 # ViewComponent to render SVG diagrams for drill steps.
 # Can act as either display or editor depending on the presence of a form object.
 class DiagramComponent < ApplicationComponent
-	MARKER_SIZE    = 5
-	MARKER_DOUBLE  = MARKER_SIZE * 2
-	MARKER_HALF    = MARKER_SIZE / 2
-	SYMBOL_SIZE    = 33.87
+	MARKER_SIZE = 5
+	MARKER_DOUBLE = MARKER_SIZE * 2
+	MARKER_HALF = MARKER_SIZE / 2
+	SYMBOL_SIZE = 33.87
 	SHOW_SVG_CLASS = "w-full h-auto"
 	EDIT_SVG_CLASS = "w-full h-full border"
 	EDITOR_BUTTONS = [
@@ -38,18 +38,19 @@ class DiagramComponent < ApplicationComponent
 		{ action: "startDrawing", object: "handoff", path: { curve: false, style: "double", ending: "none" } },
 		{ action: "startDrawing", object: "move", path: { curve: true, style: "solid", ending: "arrow" } },
 		{ action: "startDrawing", object: "pick", path: { curve: true, style: "solid", ending: "tee" } },
+		{ action: "colorMenu", object: "color" },
 		{ action: "deleteSelected", object: "delete" }
 	].freeze
 
 	attr_writer :form # Allows assigning the form after initialization
 
 	def initialize(sport: "basketball", court:, svgdata:, css: nil, form: nil)
-		@id       = "diagram-#{SecureRandom.hex(4)}"
-		@sport   = sport
-		@css     = css.presence || SHOW_SVG_CLASS
-		@court   = { name: court, sport: sport }
+		@id = "diagram-#{SecureRandom.hex(4)}"
+		@sport = sport
+		@css = css.presence || SHOW_SVG_CLASS
+		@court = { name: court, sport: sport }
 		@svgdata = svgdata.presence || {}
-		@form    = form
+		@form = form
 	end
 
 	def call
@@ -72,154 +73,152 @@ class DiagramComponent < ApplicationComponent
 	end
 
 	private
-		# unified button creator for editor actions
-		def action_button(btn)
-			if btn[:object] == "delete"
-				title  = I18n.t("action.remove")
-				symbol = { concept: "delete", options: { type: :button } }
-				bcls   = "hover:bg-red-100 disabled:opacity-50 disabled:bg-gray-200 disabled:cursor-not-allowed"
-				data   = { action: "click->diagram-editor##{btn[:action]}", disabled: false, diagram_editor_target: "deleteButton" }
-			else
-				symbol_id = [ @sport, "object", btn[:object], "default" ].join(".")
-				title     = I18n.t("sport.#{@sport}.objects.#{btn[:object]}")
-				options   = { namespace: @sport, type: :object }
-				options.merge!(btn[:options]) if btn[:options]
-				symbol = { concept: btn[:object], options: }
-				bcls   = "hover:bg-gray-100"
-				data   = { action: "click->diagram-editor##{btn[:action]}", symbol_id: }
-				data.merge!(btn[:path]) if btn[:path]
-			end
-			bcls = "m-1 rounded #{bcls}"
-			ButtonComponent.new(kind: :stimulus, symbol:, title:, d_class: bcls, data:)
+
+	# unified button creator for editor actions
+	def action_button(btn)
+		cls = "m-1 rounded hover:bg-"
+		if btn[:object] == "delete"
+			title = I18n.t("action.remove")
+			symbol = { concept: "delete", options: { type: :button } }
+			bcls = "#{cls}red-100"
+			data = { action: "click->diagram-editor##{btn[:action]}", diagram_editor_target: "deleteButton", button_target: true }
+		elsif btn[:object] == "color"
+			title = I18n.t("color.many")
+			symbol = { concept: "color", options: { type: :button } }
+			bcls = "#{cls}gray-100"
+			data = { action: "click->diagram-editor##{btn[:action]}", diagram_editor_target: "colorButton", button_target: true }
+		else
+			symbol_id = [ @sport, "object", btn[:object], "default" ].join(".")
+			title = I18n.t("sport.#{@sport}.objects.#{btn[:object]}")
+			options = { namespace: @sport, type: :object }
+			options.merge!(btn[:options]) if btn[:options]
+			symbol = { concept: btn[:object], options: }
+			bcls = "#{cls}gray-100"
+			data = { action: "click->diagram-editor##{btn[:action]}", symbol_id: }
+			data.merge!(btn[:path]) if btn[:path]
 		end
+		ButtonComponent.new(kind: :stimulus, symbol:, title:, d_class: bcls, data:)
+	end
 
-		def color_menu
-			content_tag(:div, id: "contextual-menu",
-				class: "hidden absolute bg-white border border-gray-300 rounded shadow-lg z-50 p-2",
-				data: { diagram_editor_target: "colorMenu" }
-			) do
-				safe_join([
-					content_tag(:div, I18n.t("color.many"), class: "font-bold mb-2"),
-					content_tag(:div, class: "color-palette grid grid-cols-4 gap-1") do
-						safe_join([
-							color_option("#000000", "black"),
-							color_option("#FF0000", "red"),
-							color_option("#0000FF", "blue"),
-							color_option("#008000", "green"),
-							color_option("#FFA500", "orange"),
-							color_option("#800080", "purple")
-						])
-					end,
-					content_tag(:button, I18n.t("action.cancel"),
-						class: "mt-2 text-sm text-gray-600 hover:text-gray-800",
-						data: { action: "click->diagram-editor#hideColorMenu" }
-					)
-				])
-			end
-		end
-
-		def color_option(color_code, color_name)
-			content_tag(:button,
-				"",
-				class: "w-6 h-6 rounded border border-gray-300",
-				style: "background-color: #{color_code}",
-				title: I18n.t("color.#{color_name}"),
-				data: {
-					action: "click->diagram-editor#applyColor",
-					color: color_code
-				}
-			)
-		end
-
-		def editor?
-			@form.present?
-		end
-
-		def editor_buttons
-			EDITOR_BUTTONS.map { |btn| render action_button(btn) }
-		end
-
-		def editor_buttons_container
-			content_tag :div, id: "diagram-editor-buttons", class: "flex-shrink-0 inline-flex mb-2" do
-				safe_join(editor_buttons)
-			end
-		end
-
-		def get_viewbox(court)
-			@viewbox || @svgdata["viewBox"] || { x: 0, y: 0, width: 1000, height: 800 }
-		end
-
-		def hidden_editor_fields
-			return nil unless @form
-
-			svgdata = (@svgdata || {
-				paths: [], symbols: [], "viewBox": { "width" => 1000, "height" => 600 } # Default values
-			}).to_json
+	def color_menu
+		content_tag(:div, id: "color-menu",
+									class: "hidden absolute bg-white border border-gray-300 rounded shadow-lg z-50 p-2",
+									data: { diagram_editor_target: "colorMenu" }) do
 			safe_join([
-				@form.hidden_field(:step_id, value: @step&.id),
-				@form.hidden_field(:order, value: @step&.order),
-				@form.hidden_field(:svgdata, value: svgdata, data: { diagram_editor_target: "svgdata" })
+				content_tag(:div, I18n.t("color.many"), class: "font-bold mb-2"),
+				content_tag(:div, class: "color-palette grid grid-cols-4 gap-1") do
+					safe_join([
+						color_option("#000000", "black"),
+						color_option("#FF0000", "red"),
+						color_option("#0000FF", "blue"),
+						color_option("#008000", "green"),
+						color_option("#E86100", "orange"),
+						color_option("#800080", "purple")
+					])
+				end
 			])
 		end
+	end
 
-		def render_court
-			symbol    =  @court[:name]
-			namespace =  @court[:sport]
-			data      = editor? ? { diagram_editor_target: "court" } : { diagram_renderer_target: "court" }
-			court     = SymbolComponent.new(symbol, namespace:, type: :court, css: @css, group: true, data:)
-			@viewbox  = court.view_box
-			render court
+	def color_option(color_code, color_name)
+		content_tag(:button,
+								"",
+								class: "w-6 h-6 rounded border border-gray-300",
+								style: "background-color: #{color_code}",
+								title: I18n.t("color.#{color_name}"),
+								data: {
+									action: "click->diagram-editor#applyColor",
+									color: color_code
+								})
+	end
+
+	def editor?
+		@form.present?
+	end
+
+	def editor_buttons
+		EDITOR_BUTTONS.map { |btn| render action_button(btn) }
+	end
+
+	def editor_buttons_container
+		content_tag :div, id: "diagram-editor-buttons", class: "flex-shrink-0 inline-flex mb-2" do
+			safe_join(editor_buttons)
 		end
+	end
 
-		def generate_diagram_content
-			svg_start = safe_join([ render_symbol_defs, render_court ])
+	def get_viewbox(court)
+		@viewbox || @svgdata["viewBox"] || { x: 0, y: 0, width: 1000, height: 800 }
+	end
 
-			content_tag(:div, class: "diagram-container", data: { loaded: "false" }) do
-				content_tag(:svg, svg_start.html_safe,
-					class: @css,
-					id: @id,
-					height: "100%",
-					width: "100%",
-					preserveAspectRatio: "xMidYMid meet",
-					viewBox: "#{@viewbox[:x]} #{@viewbox[:y]} #{@viewbox[:width]} #{@viewbox[:height]}",
-					xmlns: "http://www.w3.org/2000/svg",
-					'xmlns:xlink': "http://www.w3.org/1999/xlink",
-					data: svg_data_attributes
-				)
-			end
+	def hidden_editor_fields
+		return nil unless @form
+
+		svgdata = (@svgdata || {
+			paths: [], symbols: [], "viewBox": { "width" => 1000, "height" => 600 } # Default values
+		}).to_json
+		safe_join([
+			@form.hidden_field(:step_id, value: @step&.id),
+			@form.hidden_field(:order, value: @step&.order),
+			@form.hidden_field(:svgdata, value: svgdata, data: { diagram_editor_target: "svgdata" })
+		])
+	end
+
+	def render_court
+		symbol = @court[:name]
+		namespace = @court[:sport]
+		data = editor? ? { diagram_editor_target: "court" } : { diagram_renderer_target: "court" }
+		court = SymbolComponent.new(symbol, namespace:, type: :court, css: @css, group: true, data:)
+		@viewbox = court.view_box
+		render court
+	end
+
+	def generate_diagram_content
+		svg_start = safe_join([ render_symbol_defs, render_court ])
+
+		content_tag(:div, class: "diagram-container", data: { loaded: "false" }) do
+			content_tag(:svg, svg_start.html_safe,
+									class: @css,
+									id: @id,
+									height: "100%",
+									width: "100%",
+									preserveAspectRatio: "xMidYMid meet",
+									viewBox: "#{@viewbox[:x]} #{@viewbox[:y]} #{@viewbox[:width]} #{@viewbox[:height]}",
+									xmlns: "http://www.w3.org/2000/svg",
+									'xmlns:xlink': "http://www.w3.org/1999/xlink",
+									data: svg_data_attributes)
 		end
+	end
 
-		# Update the render_defs method to include symbols
-		def render_symbol_defs
-			content_tag(:defs) do
-				safe_join([
-					symbol_definitions  # Add symbol definitions here
-				])
-			end
+	# Update the render_defs method to include symbols
+	def render_symbol_defs
+		content_tag(:defs) do
+			safe_join([
+				symbol_definitions  # Add symbol definitions here
+			])
 		end
+	end
 
-		# Add this method to generate symbol definitions
-		def symbol_definitions
-			# Get unique symbol IDs from "add" action buttons
-			symbol_ids = EDITOR_BUTTONS.select { |btn|
-				btn[:action].start_with?("add") && btn[:object].present?
-			}.map { |btn| btn[:object] }.uniq
+	# Add this method to generate symbol definitions
+	def symbol_definitions
+		# Get unique symbol IDs from "add" action buttons
+		symbol_ids = EDITOR_BUTTONS.select { |btn|
+			btn[:action].start_with?("add") && btn[:object].present?
+		}.map { |btn| btn[:object] }.uniq
 
-			safe_join(symbol_ids.map do |symbol_id|
-				# Render each symbol as a symbol definition
-				symbol = SymbolComponent.new(symbol_id, namespace: @sport, type: :object)
-				content_tag(:symbol, render(symbol),
-					id: symbol.full_id,
-					viewBox: "0 0 #{SYMBOL_SIZE} #{SYMBOL_SIZE}",
-				)
-			end)
+		safe_join(symbol_ids.map do |symbol_id|
+			# Render each symbol as a symbol definition
+			symbol = SymbolComponent.new(symbol_id, namespace: @sport, type: :object)
+			content_tag(:symbol, render(symbol),
+									id: symbol.full_id,
+									viewBox: "0 0 #{SYMBOL_SIZE} #{SYMBOL_SIZE}")
+		end)
+	end
+
+	def svg_data_attributes
+		if editor?
+			{ diagram_editor_target: "diagram" }
+		else
+			{ diagram_renderer_target: "diagram" }
 		end
-
-		def svg_data_attributes
-			if editor?
-				{ diagram_editor_target: "diagram" }
-			else
-				{ diagram_renderer_target: "diagram" }
-			end
-		end
+	end
 end

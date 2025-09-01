@@ -1,19 +1,19 @@
 // app/stimulus/controllers/diagram_editor_controller.js
 // Developed with significant help from DeepSeek
 // Attempt at a responsive and dynamic diagram editor.
-import { Controller } from "@hotwired/stimulus"
-import { loadDiagramContent, findLowestAvailableNumber, zoomToFit } from "helpers/svg_loader"
-import { applyPathColor, createPath, getPathPoints, updatePath, MIN_POINTS_FOR_CURVE } from "helpers/svg_paths"
-import { serializeDiagram } from "helpers/svg_serializer"
-import { applySymbolColor, createSymbol, getObjectNumber, SYMBOL_SIZE } from "helpers/svg_symbols"
-import { findElementNearPoint, getPointFromEvent, getInnerElement, highlightElement, lowlightElement, updatePosition } from "helpers/svg_utils"
+import { Controller } from '@hotwired/stimulus'
+import { loadDiagramContent, findLowestAvailableNumber, zoomToFit } from 'helpers/svg_loader'
+import { applyPathColor, createPath, updatePath, MIN_POINTS_FOR_CURVE } from 'helpers/svg_paths'
+import { serializeDiagram } from 'helpers/svg_serializer'
+import { applySymbolColor, createSymbol, getObjectNumber, isPlayer, SYMBOL_SIZE } from 'helpers/svg_symbols'
+import { findElementNearPoint, getPointFromEvent, getInnerGroup, highlightElement, lowlightElement, updatePosition } from 'helpers/svg_utils'
 
 const SYMBOL_PREVIEW_OPACITY = 0.7
 const SYMBOL_PLACEMENT_DURATION = 300
 const DEBUG = false
 
 export default class extends Controller {
-  static targets = ["diagram", "court", "svgdata", "deleteButton"]
+  static targets = ['diagram', 'court', 'svgdata', 'deleteButton', 'colorButton', 'colorMenu']
 
   // --- Initialization ---
   connect() {
@@ -50,6 +50,7 @@ export default class extends Controller {
     this.editingPath = null
     this.draggedPointIndex = null
     this.originalPoints = null
+    this.disableOptButtons()
   }
 
   // --- Binding/Unbinding of events ---
@@ -95,14 +96,14 @@ export default class extends Controller {
     if (!this.draggedInner) return
 
     const pt = getPointFromEvent(evt, this.diagramTarget)
-    DEBUG && console.log("drag([", pt.x, ", ", pt.y, "])")
+    DEBUG && console.log('drag([', pt.x, ', ', pt.y, '])')
 
     const { x: minX, y: minY, width, height } = this.courtBox
     const maxX = minX + width - 3 * SYMBOL_SIZE
     const maxY = minY + height - 3 * SYMBOL_SIZE
     // Bail out if outside allowed area (based on logical coords)
     if (pt.x < minX || pt.x > maxX || pt.y < minY || pt.y > maxY) {
-      DEBUG && console.log("Blocked drag outside court:", pt.x, pt.y)
+      DEBUG && console.log('Blocked drag outside court:', pt.x, pt.y)
       return
     }
 
@@ -116,7 +117,7 @@ export default class extends Controller {
     if (this.draggedWrapper && this.draggedInner) {
       const x = this.draggedInner.dataset.x
       const y = this.draggedInner.dataset.y
-      DEBUG && console.log("dragEnd:", this.draggedWrapper.id, "coords:", x, y)
+      DEBUG && console.log('dragEnd:', this.draggedWrapper.id, 'coords:', x, y)
     }
     this.draggedWrapper = null
     this.draggedInner = null
@@ -130,13 +131,13 @@ export default class extends Controller {
     this.draggedType = wrapper.getAttribute('type') || 'symbol'
     if (this.draggedType != 'symbol') return
 
-    const inner = getInnerElement(wrapper)
+    const inner = getInnerGroup(wrapper)
     if (!inner) return
     this.draggedInner = inner
 
     if (DEBUG) {
-      console.log("dragStart: ", wrapper.getAttribute("id"), "inner: ", inner.getAttribute("id"))
-      console.log("coordinates: [", inner.getAttribute("y"), ", ", inner.getAttribute("y"), "]")
+      console.log('dragStart: ', wrapper.getAttribute('id'), 'inner: ', inner.getAttribute('id'))
+      console.log('coordinates: [', inner.getAttribute('y'), ', ', inner.getAttribute('y'), ']')
     }
     document.body.style.cursor = 'grabbing'
     evt.preventDefault()
@@ -157,11 +158,11 @@ export default class extends Controller {
     if (wrapper) {
       this.selectedElement = wrapper
       highlightElement(wrapper)
-      this.deleteButtonTarget.disabled = false
+      this.enableOptButtons()
 
       if (DEBUG) {
-        const inner = getInnerElement(wrapper)
-        console.log("Selected:", {
+        const inner = getInnerGroup(wrapper)
+        console.log('Selected:', {
           wrapper: wrapper.id,
           kind: inner?.dataset.kind,
           number: inner ? getObjectNumber(inner) : null
@@ -195,6 +196,7 @@ export default class extends Controller {
           this.stopDrawing() // discard changes
         } else {  //idle mode -- deselect selected object
           this.clearSelection()
+          this.hideColorMenu()
         }
         break
       case 'Delete':
@@ -227,18 +229,18 @@ export default class extends Controller {
   }
 
   // --- SVG symbol management ---
-  addAttacker(event) { this.addObject(event, "attacker", this.attackerNumbers) }
-  addBall(event) { this.addObject(event, "ball") }
-  addCoach(event) { this.addObject(event, "coach") }
-  addCone(event) { this.addObject(event, "cone", null, 0.07) }
-  addDefender(event) { this.addObject(event, "defender", this.defenderNumbers) }
+  addAttacker(evt) { this.addObject(evt, 'attacker', this.attackerNumbers) }
+  addBall(evt) { this.addObject(evt, 'ball') }
+  addCoach(evt) { this.addObject(evt, 'coach') }
+  addCone(evt) { this.addObject(evt, 'cone', null, 0.07) }
+  addDefender(evt) { this.addObject(evt, 'defender', this.defenderNumbers) }
 
-  addObject(event, kind, set = null) {
-    const button = event.currentTarget
-    const svg = button.querySelector("svg[data-symbol-id]")
+  addObject(evt, kind, set = null) {
+    const button = evt.currentTarget
+    const svg = button.querySelector('svg[data-symbol-id]')
     const symbolId = svg?.dataset.symbolId
     if (!symbolId) {
-      DEBUG && console.warn("button has not symbolId: ", button)
+      DEBUG && console.warn('button has no symbolId: ', button)
       return
     }
 
@@ -282,11 +284,11 @@ export default class extends Controller {
     this.diagramTarget.addEventListener('pointerleave', this.cancelPlacement)
   }
 
-  handlePlacementMove = (event) => {
+  handlePlacementMove = (evt) => {
     if (!this.placementSymbol) return
 
-    const point = getPointFromEvent(event, this.diagramTarget)
-    const inner = getInnerElement(this.placementSymbol)
+    const point = getPointFromEvent(evt, this.diagramTarget)
+    const inner = getInnerGroup(this.placementSymbol)
 
     if (inner) {
       // Update position with smooth transition
@@ -295,11 +297,11 @@ export default class extends Controller {
     }
   }
 
-  handlePlacementClick = (event) => {
+  handlePlacementClick = (evt) => {
     if (!this.placementSymbol) return
 
-    const point = getPointFromEvent(event, this.diagramTarget)
-    const inner = getInnerElement(this.placementSymbol)
+    const point = getPointFromEvent(evt, this.diagramTarget)
+    const inner = getInnerGroup(this.placementSymbol)
 
     if (inner) {
       // Apply final styles
@@ -345,31 +347,22 @@ export default class extends Controller {
   }
 
   deleteSymbolCounter(wrapper) {
-    DEBUG && console.warn("deleteSymbolCounter(", wrapper, ")")
-    const inner = getInnerElement(wrapper)
-    if (!inner) {
-      DEBUG && console.warn("No inner object to delete inside wrapper")
-      return
-    }
-
-    const kind = inner.getAttribute('kind') || inner.dataset.kind
-    DEBUG && console.log("inner object:", inner)
-
-    if ((kind === "attacker") || (kind === "defender")) {
-      const number = getObjectNumber(inner)
-      if (number) {
-        DEBUG && console.log(`Removing ${kind} number ${number}`)
-        kind === 'attacker'
-          ? this.attackerNumbers.delete(number)
-          : this.defenderNumbers.delete(number)
-      }
+    DEBUG && console.warn('deleteSymbolCounter(', wrapper, ')')
+    const player = isPlayer(wrapper)
+    if (player) {
+      const kind = player.kind
+      const number = player.number
+      DEBUG && console.log(`Removing ${kind} number ${number}`)
+      kind === 'attacker'
+        ? this.attackerNumbers.delete(number)
+        : this.defenderNumbers.delete(number)
     }
   }
 
   // --- SVG path management ---
-  startDrawing(event) {
-    const button = event.currentTarget
-    DEBUG && console.log("startDrawing ", button)
+  startDrawing(evt) {
+    const button = evt.currentTarget
+    DEBUG && console.log('startDrawing ', button)
 
     if (this.mode === 'drawing') {
       const end_drawing = (this.activeDrawingButton === button)
@@ -389,7 +382,7 @@ export default class extends Controller {
       isPreview: true,
       scale: this.scale
     }
-    DEBUG && console.log("drawingParams ", this.drawingParams)
+    DEBUG && console.log('drawingParams ', this.drawingParams)
     this.tempPath = createPath(this.drawingPoints, this.drawingParams)
     this.diagramTarget.appendChild(this.tempPath)
 
@@ -397,10 +390,10 @@ export default class extends Controller {
     this.tempPathGroup = this.tempPath.querySelector('g')
   }
 
-  addDrawingPoint(event) {
+  addDrawingPoint(evt) {
     if (this.mode !== 'drawing') return
     this.drawingParams.scale = this.scale
-    const point = getPointFromEvent(event, this.diagramTarget)
+    const point = getPointFromEvent(evt, this.diagramTarget)
 
     // Skip duplicate points (within 1px tolerance)
     if (this.drawingPoints.length > 2) {
@@ -410,12 +403,12 @@ export default class extends Controller {
       const distanceSquared = dx * dx + dy * dy
 
       if (distanceSquared < 1) {  // 1px² tolerance
-        DEBUG && console.log("Skipping duplicate point", point)
+        DEBUG && console.log('Skipping duplicate point', point)
         return
       }
     }
 
-    DEBUG && console.log("addDrawingPoint ", point)
+    DEBUG && console.log('addDrawingPoint ', point)
     this.drawingPoints.push(point)
 
     // Update the path with the new fixed point
@@ -426,18 +419,18 @@ export default class extends Controller {
     }
   }
 
-  trackDrawingPointer(event) {
+  trackDrawingPointer(evt) {
     if (this.mode !== 'drawing' || this.drawingPoints.length === 0) return
 
     requestAnimationFrame(() => {
-      this.currentPoint = getPointFromEvent(event, this.diagramTarget)
+      this.currentPoint = getPointFromEvent(evt, this.diagramTarget)
       const tempPoints = [...this.drawingPoints, this.currentPoint]
       updatePath(this.tempPathGroup, tempPoints, this.drawingParams)
     })
   }
 
   finalizeDrawing() {
-    DEBUG && console.log("finalizeDrawing()")
+    DEBUG && console.log('finalizeDrawing()')
     if (this.mode !== 'drawing') return
     if (this.drawingPoints.length < 2 || (this.drawingParams.curve && this.drawingPoints.length < MIN_POINTS_FOR_CURVE)) {
       return this.stopDrawing()
@@ -450,7 +443,7 @@ export default class extends Controller {
   }
 
   stopDrawing() {
-    DEBUG && console.log("stopDrawing()")
+    DEBUG && console.log('stopDrawing()')
     this.currentPoint = null
     this.resetDrawingState()
     if (this.tempPath) {
@@ -461,7 +454,7 @@ export default class extends Controller {
   }
 
   resetDrawingState(mode = 'idle') {
-    DEBUG && console.log("resetDrawingState()")
+    DEBUG && console.log('resetDrawingState()')
     this.unhighlightButton(this.activeDrawingButton)
     this.drawingPoints = []
     this.drawingParams = {}
@@ -472,26 +465,26 @@ export default class extends Controller {
   // --- SVG object selection & removal ---
   clearSelection() {
     if (this.selectedElement) {
-      DEBUG && console.log("clearSelection: ", this.selectedElement)
+      DEBUG && console.log('clearSelection: ', this.selectedElement)
       lowlightElement(this.selectedElement)
       const indicator = this.selectedElement.querySelector('.selection-indicator')
       if (indicator) indicator.remove()
 
       this.selectedElement = null
     }
-    this.deleteButtonTarget.disabled = true
+    this.disableOptButtons()
   }
 
   deleteSelected() {
     const wrapper = this.selectedElement
     if (!wrapper) return
 
+    this.disableOptButtons()
     this.deleteSymbolCounter(wrapper)
     wrapper.classList.add('opacity-0', 'transition-opacity', 'duration-300')
     setTimeout(() => {
       wrapper.remove()
       this.selectedElement = null
-      this.deleteButtonTarget.disabled = true
     }, 300)
   }
 
@@ -503,16 +496,54 @@ export default class extends Controller {
   clearActiveLineButtons() {
     const buttons = this.element.querySelectorAll("[data-action*='startDrawing']")
     buttons.forEach(btn => {
-      const activeClass = btn.dataset.activeClass || ""
-      btn.classList.remove(...activeClass.split(" "))
+      const activeClass = btn.dataset.activeClass || ''
+      btn.classList.remove(...activeClass.split(' '))
     })
   }
 
+  disableButton(buttonTarget) {
+    const button = this.getButtonElement(buttonTarget)
+    if (button) {
+      button.disabled = true
+      button.classList.add('opacity-50', 'cursor-not-allowed')
+    }
+  }
+
+  disableOptButtons() {
+    this.disableButton(this.deleteButtonTarget)
+    this.disableButton(this.colorButtonTarget)
+  }
+
+  enableButton(buttonTarget) {
+    const button = this.getButtonElement(buttonTarget)
+    if (button) {
+      button.disabled = false
+      button.classList.remove('opacity-50', 'cursor-not-allowed')
+    }
+  }
+
+  enableOptButtons() {
+    DEBUG && console.log('showOptButtons()')
+    this.enableButton(this.deleteButtonTarget)
+    const type = this.selectedElement.getAttribute('type')
+    if (type === 'path' || type === 'symbol') {
+      this.enableButton(this.colorButtonTarget)
+    }
+  }
+
+  getButtonElement(target) {
+    // If the target is already a button, return it
+    if (target.tagName === 'BUTTON') return target
+
+    // Otherwise, look for a button within the target
+    return target.querySelector('button')
+  }
+
   highlightButton(button) {
-    DEBUG && console.log("highlighButton()")
+    DEBUG && console.log('highlighButton()')
     if (!button) return
-    const activeClass = button.dataset.activeClass || "bg-blue-400 text-white ring"
-    button.classList.add(...activeClass.split(" "))
+    const activeClass = button.dataset.activeClass || 'bg-blue-400 text-white ring'
+    button.classList.add(...activeClass.split(' '))
   }
 
   isDrawing() {
@@ -524,16 +555,69 @@ export default class extends Controller {
   }
 
   unhighlightButton(button) {
-    DEBUG && console.log("unhighlighButton()")
+    DEBUG && console.log('unhighlighButton()')
     if (!button) return
-    const activeClass = button.dataset.activeClass || ""
-    button.classList.remove(...activeClass.split(" "))
+    const activeClass = button.dataset.activeClass || ''
+    button.classList.remove(...activeClass.split(' '))
+  }
+
+  // --- COLOR MANAGEMENT ---/
+  applyColor(evt) {
+    evt.preventDefault()
+    evt.stopPropagation()
+
+    const color = evt.currentTarget.dataset.color
+    if (!this.selectedElement || !color) return
+
+    // Apply color to the selected element
+    const inner = getInnerGroup(this.selectedElement)
+    if (inner) {
+      // Check if it's a path or symbol
+      if (this.selectedElement.getAttribute('type') === 'path') {
+        applyPathColor(inner, color)
+      } else {
+        applySymbolColor(inner, color)
+      }
+    }
+
+    // Hide the menu after selection
+    this.hideColorMenu()
+  }
+
+  colorMenu(evt) {
+    evt.preventDefault()
+    evt.stopPropagation()
+
+    // Position the menu near the color button
+    const rect = this.colorButtonTarget.getBoundingClientRect()
+    this.colorMenuTarget.style.top = `${rect.bottom + window.scrollY}px`
+    this.colorMenuTarget.style.left = `${rect.left + window.scrollX}px`
+
+    // Show the menu
+    this.colorMenuTarget.classList.remove('hidden')
+
+    // Add event listeners to handle clicks outside and Escape key
+    this.boundHideColorMenu = this.hideColorMenu.bind(this)
+    document.addEventListener('click', this.boundHideColorMenu)
+  }
+
+  hideColorMenu(evt) {
+    // Don't hide if clicking on the color button or menu itself
+    if (evt && (
+      this.colorButtonTarget.contains(evt.target) ||
+      this.colorMenuTarget.contains(evt.target)
+    )) {
+      return
+    }
+
+    this.colorMenuTarget.classList.add('hidden')
+    document.removeEventListener('click', this.boundHideColorMenu)
   }
 
   // --- [END] SERIALIZE CONTENT ---/
   serialize() {
     const data = serializeDiagram(this.diagramTarget)
     this.svgdataTarget.value = JSON.stringify(data)
-    DEBUG && console.log("Serialized data:", data)
+    DEBUG && console.log('Serialized data:', data)
   }
 }

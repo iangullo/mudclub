@@ -19,7 +19,7 @@ export function loadDiagramContent(container, data, isEditor = false) {
 
 /**
  * Finds the lowest available number in a Set
- * @param {Set<number>} numberSet 
+ * @param {Set<number>} numberSet
  * @returns {number}
  */
 export function findLowestAvailableNumber(numberSet) {
@@ -30,7 +30,7 @@ export function findLowestAvailableNumber(numberSet) {
 
 /**
  * Validates SVG structure meets minimum requirements
- * @param {SVGElement} svgContainer 
+ * @param {SVGElement} svgContainer
  * @returns {boolean}
  */
 export function validateDiagram(svgContainer) {
@@ -131,7 +131,7 @@ function loadPaths(svg, paths = []) {
         curve: path.curve === "true",
         style: path.style,
         ending: path.ending,
-        stroke: path.stroke,
+        color: path.color,
         transform: "",
         isPreview: false
       }

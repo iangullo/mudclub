@@ -1,10 +1,10 @@
 // app/javascript/helpers/svg_serializer.js
-import { cssColorToHex, generateId, getViewBox, isSVGElement } from "helpers/svg_utils"
+import { generateId, getViewBox, isSVGElement } from "helpers/svg_utils"
 const DEBUG = false
 
 // Core element properties for each type
 const VALID_PROPERTIES = {
-  symbol: ['x', 'y', 'label', 'kind', 'fill', 'stroke', 'textColor', 'transform'],
+  symbol: ['x', 'y', 'label', 'kind', 'fill', 'stroke', 'transform'],
   path: ['points', 'curve', 'ending', 'style', 'stroke', 'transform']
 }
 
@@ -39,6 +39,7 @@ export function serializeDiagram(diagramElement) {
 }
 
 function serializePath(pathGroup) {
+  DEBUG && console.log("serializePath", pathGroup)
   const el = pathGroup?.querySelector('path')
   if (!isSVGElement(pathGroup) || !el) return null
 
@@ -56,7 +57,7 @@ function serializePath(pathGroup) {
     curve: pathGroup.dataset.curve,
     ending: pathGroup.dataset.ending,
     points: pathPoints,
-    stroke: cssColorToHex(el.getAttribute('stroke')) || '#000000',
+    color: pathGroup.dataset.color || '#000000',
     style: pathGroup.dataset.style
   }
   DEBUG && console.log("serialized: ", pathData)
