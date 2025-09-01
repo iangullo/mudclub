@@ -242,12 +242,13 @@ class Drill < ApplicationRecord
 		# from the drill collection - remove duplicates from list
 		def check_steps(s_array)
 			a_steps = Step.passed(s_array) # array to include only non-duplicates
+			binding.break
 			a_steps.each { |s| # second pass - manage associations
 				st = Step.find_by_id(s[:id].to_i)
 				if s[:_destroy] == "1"
 					self.steps.delete(s[:id].to_i)
 					st.delete if st&.persisted?
-				elsif s[:svgdata].present? ||	s[:explanation].present? || s[:diagram].present?	# add to collection
+				elsif s[:explanation].present? || st[:svgdata].present? || st[:explanation].present? || st[:diagram].present?	# add to collection
 					st ||= Step.new(drill_id: self.id, order: s[:order].presence)
 					st.diagram = s[:diagram] if s[:diagram].presence
 					st.svgdata = s[:svgdata] if s[:svgdata].presence
