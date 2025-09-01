@@ -20,13 +20,13 @@
 class DrillsController < ApplicationController
 	include Filterable
 	include PdfGenerator
-	before_action :set_drill, only: [:show, :edit, :update, :destroy, :versions]
-	before_action :set_step, only: [:edit_diagram, :load_diagram, :update_diagram]
+	before_action :set_drill, only: [ :show, :edit, :update, :destroy, :versions ]
+	before_action :set_step, only: [ :edit_diagram, :load_diagram, :update_diagram ]
 	before_action :set_paper_trail_whodunnit
 
 	# GET /drills or /drills.json
 	def index
-		if check_access(roles: [:manager, :coach])
+		if check_access(roles: [ :manager, :coach ])
 			title   = helpers.drill_title_fields(title: I18n.t("drill.many"))
 			title  << helpers.drill_search_bar(search_in: drills_path)
 			@drills = filter!(Drill)	# Apply filters
@@ -34,20 +34,20 @@ class DrillsController < ApplicationController
 			grid = helpers.drill_grid(drills: page)
 			create_index(title:, grid:, page:, retlnk: base_lnk("/"))
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /drills/1 or /drills/1.json
 	def show
-		if @drill && check_access(roles: [:manager, :coach])
+		if @drill && check_access(roles: [ :manager, :coach ])
 			respond_to do |format|
 				@intro = create_fields(helpers.drill_show_intro)
 				@steps = create_fields(helpers.drill_show_steps)
 				@tail  = create_fields(helpers.drill_show_tail)
 				title  = helpers.drill_show_title(title: @drill.name)
 				format.pdf do
-					response.headers['Content-Disposition'] = "attachment; filename=drill.pdf"
+					response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
 					pdf = drill_to_pdf(title)
 					send_data pdf.render(filename: "#{@drill.name}.pdf", type: "application/pdf")
 				end
@@ -59,17 +59,17 @@ class DrillsController < ApplicationController
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /drills/new
 	def new
-		if check_access(roles: [:manager, :coach])
+		if check_access(roles: [ :manager, :coach ])
 			@drill = Drill.new(sport_id: 1)  # will have to change this to pass from controller
 			prepare_form("new")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -78,13 +78,13 @@ class DrillsController < ApplicationController
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
 			prepare_form("edit")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# POST /drills or /drills.json
 	def create
-		if check_access(roles: [:manager, :coach])
+		if check_access(roles: [ :manager, :coach ])
 			respond_to do |format|
 				@drill = Drill.new
 				@drill.rebuild(drill_params)	# rebuild drill
@@ -92,7 +92,7 @@ class DrillsController < ApplicationController
 					retlnk = cru_return
 					a_desc = "#{I18n.t("drill.created")} '#{@drill.name}'"
 					register_action(:created, a_desc, url: drill_path(@drill, rdx: 2))
-					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :index, status: :created, location: retlnk }
 				else
 					prepare_form("new")
@@ -101,7 +101,7 @@ class DrillsController < ApplicationController
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -115,7 +115,7 @@ class DrillsController < ApplicationController
 					if @drill.save
 						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
 						register_action(:updated, a_desc, url: drill_path(@drill, rdx: 2))
-						format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :show, status: :ok, location: retlnk }
 					else
 						prepare_form("edit")
@@ -123,28 +123,28 @@ class DrillsController < ApplicationController
 						format.json { render json: @drill.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
+					format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
 					format.json { render :show, status: :ok, location: retlnk }
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
-		if @drill && check_access(roles: [:admin])
+		if @drill && check_access(roles: [ :admin ])
 			d_name = @drill.name
 			@drill.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("drill.deleted")} '#{d_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to drills_path(rdx: @rdx), notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to drills_path(rdx: @rdx), notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -156,10 +156,10 @@ class DrillsController < ApplicationController
 				@editor  = helpers.drill_form_diagram
 				@submit  = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
 			else
-				redirect_to edit_drill_path(@drill), data: {turbo_action: "replace"}
+				redirect_to edit_drill_path(@drill), data: { turbo_action: "replace" }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -171,10 +171,10 @@ class DrillsController < ApplicationController
 				@loader  = create_fields(helpers.drill_form_diagram_file)
 				@submit  = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
 			else
-				redirect_to edit_drill_path(@drill), data: {turbo_action: "replace"}
+				redirect_to edit_drill_path(@drill), data: { turbo_action: "replace" }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -189,21 +189,21 @@ class DrillsController < ApplicationController
 					format.html { redirect_to edit_drill_path(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
 				end
 			else
-				redirect_to edit_diagram_drill_path(id: params[:id], notice: helpers.flash_message(I18n.t("status.no_data")), data: {turbo_action: "replace"}), status: :unprocessable_entity
+				redirect_to edit_diagram_drill_path(id: params[:id], notice: helpers.flash_message(I18n.t("status.no_data")), data: { turbo_action: "replace" }), status: :unprocessable_entity
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /drills/1/versions
 	def versions
-		if check_access(roles: [:manager, :coach])
+		if check_access(roles: [ :manager, :coach ])
 			@title   = create_fields(helpers.drill_versions_title)
 			@table   = create_fields(helpers.drill_versions_table)
 			@submit  = create_submit(submit: nil)
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -243,7 +243,7 @@ class DrillsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_drill
-			@drill = Drill.includes(:skills,:targets,:steps).find_by_id(params[:id]) unless @drill&.id==params[:id]
+			@drill = Drill.includes(:skills, :targets, :steps).find_by_id(params[:id]) unless @drill&.id==params[:id]
 		end
 
 		# retrieve or create a drill step from params received
@@ -254,10 +254,10 @@ class DrillsController < ApplicationController
 				else	# Find using :order or build new step
 					@step = @drill.steps.find_or_initialize_by(order: params[:order]&.to_i)
 				end
-				
+
 				# Handle temporary SVG data
 				@step.svgdata ||= JSON.parse(params[:svgdata]) if params[:svgdata].present?
-				
+
 				@court = @drill.court_mode
 			end
 		end
@@ -281,15 +281,15 @@ class DrillsController < ApplicationController
 				skills: [],
 				target_ids: [],
 				skill_ids: [],
-				skills_attributes: [:id, :concept, :_destroy],
-				steps_attributes: [:id, :order, :diagram, :svgdata, :explanation, :_destroy],
+				skills_attributes: [ :id, :concept, :_destroy ],
+				steps_attributes: [ :id, :order, :diagram, :svgdata, :explanation, :_destroy ],
 				drill_targets_attributes: [
 					:id,
 					:priority,
 					:drill_id,
 					:target_id,
 					:_destroy,
-					target_attributes: [:id, :aspect, :focus, :concept]
+					target_attributes: [ :id, :aspect, :focus, :concept ]
 				]
 			)
 		end

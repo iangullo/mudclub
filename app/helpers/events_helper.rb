@@ -250,9 +250,9 @@ module EventsHelper
 		res  = (@rdx ? [ [ { kind: :hidden, key: :rdx, value: @rdx } ] ] : [ [] ])
 		res += [
 			[
-				top_cell_field(I18n.t("task.number")),
-				top_cell_field(I18n.t("drill.single")),
-				top_cell_field(I18n.t("task.duration"))
+				topcell_field(I18n.t("task.number")),
+				topcell_field(I18n.t("drill.single")),
+				topcell_field(I18n.t("task.duration"))
 			],
 			[
 				{ kind: :side_cell, value: @task.order },
@@ -293,11 +293,11 @@ module EventsHelper
 		res = [
 			[
 				{ kind: :side_cell, value: I18n.t("target.abbr"), rows: 2 },
-				top_cell_field(I18n.t("target.focus.def_a")),
+				topcell_field(I18n.t("target.focus.def_a")),
 				{ kind: :lines, value: @event.def_targets, cols: 5 }
 			],
 			[
-				top_cell_field(I18n.t("target.focus.att_a")),
+				topcell_field(I18n.t("target.focus.att_a")),
 				{ kind: :lines, value: @event.off_targets, cols: 5 }
 			]
 		]

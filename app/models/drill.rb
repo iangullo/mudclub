@@ -123,7 +123,7 @@ class Drill < ApplicationRecord
 	# return the season of last update for a Drill.
 	def season_string
 		season = Season.where("start_date <= ? and end_date >= ?", self.updated_at, self.updated_at).distinct.first
-		season&.name
+		season&.name || Season.last&.name
 	end
 
 	# temporary wrappers to access :explanation as Step 1 :explanation
@@ -242,7 +242,6 @@ class Drill < ApplicationRecord
 		# from the drill collection - remove duplicates from list
 		def check_steps(s_array)
 			a_steps = Step.passed(s_array) # array to include only non-duplicates
-			binding.break
 			a_steps.each { |s| # second pass - manage associations
 				st = Step.find_by_id(s[:id].to_i)
 				if s[:_destroy] == "1"
