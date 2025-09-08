@@ -1,7 +1,6 @@
 // ✅ app/javascript/helpers/svg_utils.js
 export const SVG_NS = "http://www.w3.org/2000/svg"
 const EPSILON = 0.01
-const SELECTION_TOLERANCE = 0
 const DEBUG = false
 
 export function angleBetweenPoints(x1, y1, x2, y2) {
@@ -12,8 +11,14 @@ export function averageAngles(a1, a2) {
   return Math.atan2(Math.sin(a1) + Math.sin(a2), Math.cos(a1) + Math.cos(a2))
 }
 
-export function createGroup(x = 0, y = 0) {
-  return createSvgElement("g")
+export function createWrapper(type, id = null, content = null) {
+  const wrapper = createSvgElement("g")
+  wrapper.classList.add("wrapper") // if you want to style/debug
+  setAttributes(wrapper, { id: id || generateId(type), type: type })
+  if (isSVGElement(content)) {
+    wrapper.appendChild(content)  // copy cloned symbol inside
+  }
+  return wrapper
 }
 
 export function createSvgElement(tag) {
@@ -52,22 +57,23 @@ export function distanceToBBox(point, bbox) {
   return Math.sqrt(dx * dx + dy * dy)
 }
 
-export function findNearbyObject(diagram, evt) {
+export function findNearbyObject(svg, evt) {
   let closestWrapper = null
 
   // First try exact element under pointer
   closestWrapper = evt.target.closest('g.wrapper')
-  const point = getPointFromEvent(evt, diagram)
+  const point = getPointFromEvent(evt, svg)
 
   if (!closestWrapper) { // Get all selectable elements
-    const elements = Array.from(diagram.querySelectorAll('g.wrapper'))
+    const elements = Array.from(svg.querySelectorAll('g.wrapper'))
     let closestDistance = Infinity
+    const dynamicTolerance = 0
 
     elements.forEach(el => {
       let bbox = el.getBBox()
       let distance = distanceToBBox(point, bbox)
 
-      if (distance < closestDistance && distance <= SELECTION_TOLERANCE) {
+      if (distance < closestDistance && distance <= dynamicTolerance) {
         closestDistance = distance
         closestWrapper = el
       }
@@ -79,16 +85,6 @@ export function findNearbyObject(diagram, evt) {
 export function generateId(prefix = "sym") {
   const rand = crypto.getRandomValues(new Uint32Array(2))
   return `${prefix}-${rand[0].toString(16)}${rand[1].toString(16)}`
-}
-
-export function getInnerGroup(wrapper) {
-  if (!wrapper) return null
-
-  // Get the inner <g> element
-  const group = wrapper.querySelector('g')
-  if (group) return group
-
-  return null
 }
 
 // 🔍 Get label content consistently with setLabel behavior
@@ -151,9 +147,7 @@ export function highlightElement(el) {
     el.style.fill = 'rgba(255, 0, 0, 0.2)'
   } else if (el.tagName === 'g') {  // Store original filter/fill
     if (!el.dataset.originalFilter) el.dataset.originalFilter = el.style.filter || ''
-    if (!el.dataset.originalFill) el.dataset.originalFill = el.style.fill || ''
     el.style.filter = 'drop-shadow(0 0 10px rgba(255, 0, 0, 0.5))'
-    el.style.fill = 'rgba(255, 0, 0, 0.2)'
   }
 }
 
@@ -244,14 +238,3 @@ export function updatePosition(el, x = 0, y = 0) {
   DEBUG && console.log("applied transform:", transformOut)
 }
 
-// Prepare the outer wrapper <g> to apply visual scale only
-export function wrapContent(content, type, x = 0, y = 0, draggable = true) {
-  DEBUG && console.log("wrapContent(type:", type, ")")
-  const wrapper = createGroup(x, y)
-  wrapper.classList.add("wrapper") // if you want to style/debug
-  const id = content.getAttribute("id")
-  setAttributes(wrapper, { draggable: draggable, id: `${id}-wrapper`, type: type })
-  wrapper.appendChild(content)  // copy cloned symbol inside
-  DEBUG && console.log("wrapContent: ", wrapper)
-  return wrapper
-}

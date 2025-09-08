@@ -14,19 +14,16 @@ export function serializeDiagram(diagramElement) {
 
   diagramElement.querySelectorAll('g.wrapper').forEach(wrapper => {
     DEBUG && console.log("wrapper: ", wrapper)
-    const inner = wrapper.firstElementChild
-    if (!inner) return
 
     const type = wrapper.getAttribute("type")
-    DEBUG && console.log("wrapper type: ", type)
-    DEBUG && console.log("inner: ", inner)
+    DEBUG && console.log("object type: ", type)
 
     if (type === "symbol") {
-      const data = serializeSymbol(inner)
+      const data = serializeSymbol(wrapper)
       DEBUG && console.log("symbol: ", data)
       if (data) symbols.push(data)
     } else if (type === "path") {
-      const data = serializePath(inner)
+      const data = serializePath(wrapper)
       DEBUG && console.log("path: ", data)
       if (data) paths.push(data)
     }
@@ -40,28 +37,26 @@ export function serializeDiagram(diagramElement) {
   }
 }
 
-function serializePath(pathGroup) {
-  DEBUG && console.log("serializePath", pathGroup)
-  // const el = pathGroup?.querySelector('path')
-  // if (!isSVGElement(pathGroup) || !el) return null
-  if (!isSVGElement(pathGroup)) return null
+function serializePath(el) {
+  DEBUG && console.log("serializePath", el)
+  if (!isSVGElement(el)) return null
 
-  DEBUG && console.warn(pathGroup.dataset.points)
+  DEBUG && console.warn(el.dataset.points)
   let pathPoints = []
   try {
-    pathPoints = JSON.parse(pathGroup.dataset.points || '[]')
+    pathPoints = JSON.parse(el.dataset.points || '[]')
   } catch (e) {
     console.error('Error parsing path points:', e)
   }
   if (pathPoints.length < 2) return null  // if empty, do nothing
 
   const pathData = {
-    id: pathGroup.id || generateId('path'),
-    curve: pathGroup.dataset.curve,
-    ending: pathGroup.dataset.ending,
+    id: el.id || generateId('path'),
+    curve: el.dataset.curve,
+    ending: el.dataset.ending,
     points: pathPoints,
-    color: pathGroup.dataset.color || '#000000',
-    style: pathGroup.dataset.style
+    color: el.dataset.color || '#000000',
+    style: el.dataset.style
   }
   DEBUG && console.log("serialized: ", pathData)
 

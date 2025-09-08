@@ -1,36 +1,37 @@
 // app/javascript/helpers/svg_symbols.js
 import {
   generateId,
-  getInnerGroup,
   getLabel,
   isSVGElement,
   setAttributes,
   setLabel,
-  updatePosition,
-  wrapContent
+  updatePosition
 } from 'helpers/svg_utils'
 export const SYMBOL_SIZE = 33.87
 const SYMBOL_SCALE = 0.07
 const EPSILON = 0.01
 const DEBUG = false
 
-export function applySymbolColor(symbolElement, color) {
-  const kind = symbolElement.getAttribute('kind')
-  const labelSpan = symbolElement.querySelector('tspan[id^="label"]')
+export function applySymbolColor(symbolGroup, color) {
+  DEBUG && console.log('applySymbolColor(', symbolGroup.getAttribute('id'), `, ${color})`)
+  if (!(isSVGElement(symbolGroup))) return null
+  if (symbolGroup.style.stroke === color) return null
 
+  const kind = symbolGroup.getAttribute('kind')
+  const labelSpan = symbolGroup.querySelector('tspan[id^="label"]')
   if (labelSpan) { labelSpan.style.fill = color }
 
   // some management for different kinds
   switch (kind) {
     case 'attacker':
-      symbolElement.setAttribute('stroke', color)
-      symbolElement.style.stroke = color
+      symbolGroup.setAttribute('stroke', color)
+      symbolGroup.style.stroke = color
       break
     default:  // solid
-      symbolElement.style.stroke = color
-      symbolElement.setAttribute('stroke', color)
-      symbolElement.style.fill = color
-      symbolElement.setAttribute('fill', color)
+      symbolGroup.style.stroke = color
+      symbolGroup.setAttribute('stroke', color)
+      symbolGroup.style.fill = color
+      symbolGroup.setAttribute('fill', color)
       break
   }
 }
@@ -48,23 +49,24 @@ export function createSymbol(symbolData, svgHeight) {
 
   DEBUG && console.log('found symbol definition: ', symbolDef)
 
-  const symbolElement = symbolDef.querySelector('g').cloneNode(true)
-  setAttributes(symbolElement, {
+  const symbolGroup = symbolDef.querySelector('g').cloneNode(true)
+  symbolGroup.classList.add("wrapper")
+  setAttributes(symbolGroup, {
     id: opts.id,
     draggable: true,
     fill: opts.fill,
     kind: opts.kind,
     stroke: opts.stroke,
     symbolId: opts.symbolId,
+    type: 'symbol'
   })
 
   const tcolor = (opts.kind === 'defender') ? opts.fill : opts.stroke
-  if (opts.label) setLabel(symbolElement, opts.label, tcolor)
-  symbolElement.classList.add("symbol")
-  updateSymbolScale(symbolElement, svgHeight)
-  updatePosition(symbolElement, opts.x, opts.y)
+  if (opts.label) setLabel(symbolGroup, opts.label, tcolor)
+  updateSymbolScale(symbolGroup, svgHeight)
+  updatePosition(symbolGroup, opts.x, opts.y)
 
-  return wrapContent(symbolElement, 'symbol', false)
+  return symbolGroup
 }
 
 export function getObjectNumber(element) {
@@ -76,18 +78,12 @@ export function getObjectNumber(element) {
   return null
 }
 
-export function isPlayer(wrapper) {
-  const inner = getInnerGroup(wrapper)
-  if (!inner) {
-    DEBUG && console.warn('No inner object to delete inside wrapper')
-    return null
-  }
-
-  const kind = inner.getAttribute('kind') || inner.dataset.kind
-  DEBUG && console.log('inner object:', inner)
+export function isPlayer(symbol) {
+  const kind = symbol.dataset.kind || symbol.getAttribute('kind')
+  DEBUG && console.log('symbol object:', symbol)
 
   if ((kind === 'attacker') || (kind === 'defender')) {
-    return { kind: kind, number: getObjectNumber(inner) }
+    return { kind: kind, number: getObjectNumber(symbol) }
   }
 
   return null

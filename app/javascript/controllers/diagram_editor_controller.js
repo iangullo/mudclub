@@ -7,7 +7,7 @@ import { loadDiagramContent, findLowestAvailableNumber, zoomToFit } from 'helper
 import { applyPathColor, createPath, getPathOptions, getPathPoints, setPathEditMode, updatePath, MIN_POINTS_FOR_CURVE } from 'helpers/svg_paths'
 import { serializeDiagram } from 'helpers/svg_serializer'
 import { applySymbolColor, createSymbol, getObjectNumber, isPlayer, SYMBOL_SIZE } from 'helpers/svg_symbols'
-import { debounce, findNearbyObject, getPointFromEvent, getInnerGroup, highlightElement, lowlightElement, updatePosition } from 'helpers/svg_utils'
+import { debounce, findNearbyObject, getPointFromEvent, highlightElement, lowlightElement, updatePosition } from 'helpers/svg_utils'
 
 const MODE = {
   DRAW: 'draw',
@@ -199,10 +199,13 @@ export default class extends Controller {
       case MODE.IDLE:
         this.handleSelection(evt)
       case MODE.SELECT:
-        if (evt.target.closest('g.wrapper') === this.selectedObject) {
+        const wrapId = evt.target.closest('g.wrapper')?.getAttribute('id')
+        const oSelId = this.selectedObject?.getAttribute('id')
+        if (wrapId === oSelId) {
           this.startDrag(evt)
         } else {
-          this.clearSelection()
+          this.handleSelection(evt)
+          if (this.selectedObject) { this.startDrag(evt) }
         }
         break
       case MODE.PLACE:
@@ -258,7 +261,7 @@ export default class extends Controller {
 
   // Dragging of symbols/points
   dragObject(evt) {
-    if (!this.draggedInner) return
+    if (!this.draggedObject) return
 
     const pt = getPointFromEvent(evt, this.diagramTarget)
     DEBUG === 'events' && console.log('dragObject([', pt.x, ', ', pt.y, '])')
@@ -272,8 +275,8 @@ export default class extends Controller {
       return
     }
 
-    // Update logical position on inner <g>
-    updatePosition(this.draggedInner, pt.x, pt.y)
+    // Update logical position of the object nner <g>
+    updatePosition(this.draggedObject, pt.x, pt.y)
     evt.preventDefault()
   }
 
@@ -296,18 +299,14 @@ export default class extends Controller {
   }
 
   startDrag(evt) {
-    const wrapper = evt.target.closest('g.wrapper')
+    const wrapper = findNearbyObject(this.diagramTarget, evt)
     if (!wrapper) return
 
-    this.draggedWrapper = wrapper
+    this.draggedObject = wrapper
     this.draggedType = wrapper.getAttribute('type') || 'symbol'
     if (this.draggedType != 'symbol') return
 
-    const inner = getInnerGroup(wrapper)
-    if (!inner) return
-    this.draggedInner = inner
-
-    DEBUG && console.log(`startDrag: ${wrapper.getAttribute('id')}, inner: ${inner.getAttribute('id')}`)
+    DEBUG && console.log(`startDrag(objecId: ${wrapper.getAttribute('id')})`)
 
     document.body.style.cursor = 'grabbing'
     evt.preventDefault()
@@ -316,13 +315,12 @@ export default class extends Controller {
 
   stopDrag() {
     document.body.style.cursor = ''
-    if (this.draggedWrapper && this.draggedInner) {
-      const x = this.draggedInner.dataset.x
-      const y = this.draggedInner.dataset.y
-      DEBUG && console.log('stopDrag:', this.draggedWrapper.id, 'coords:', x, y)
+    if (this.draggedObject) {
+      const x = this.draggedObject.dataset.x
+      const y = this.draggedObject.dataset.y
+      DEBUG && console.log('stopDrag:', this.draggedObject.id, 'coords:', x, y)
     }
-    this.draggedWrapper = null
-    this.draggedInner = null
+    this.draggedObject = null
     this.mode = MODE.SELECT
 
   }
@@ -398,39 +396,32 @@ export default class extends Controller {
   handlePlacementMove(evt) {
     if (!this.placementSymbol) return
 
+    // Update position with smooth transition
     const point = getPointFromEvent(evt, this.diagramTarget)
-    const inner = getInnerGroup(this.placementSymbol)
-
-    if (inner) {
-      // Update position with smooth transition
-      inner.style.transition = 'transform 0.1s ease-out'
-      updatePosition(inner, point.x, point.y)
-    }
+    this.placementSymbol.style.transition = 'transform 0.1s ease-out'
+    updatePosition(this.placementSymbol, point.x, point.y)
   }
 
   stopSymbolPlacement(evt) {
     if (!this.placementSymbol) return
 
     const point = getPointFromEvent(evt, this.diagramTarget)
-    const inner = getInnerGroup(this.placementSymbol)
 
-    if (inner) {
-      // Apply final styles
-      this.placementSymbol.style.opacity = '1'
-      this.placementSymbol.style.transition = `opacity ${SYMBOL_PLACEMENT_DURATION}ms ease-out`
-      this.placementSymbol.classList.remove('placement-preview')
+    // Apply final styles
+    this.placementSymbol.style.opacity = '1'
+    this.placementSymbol.style.transition = `opacity ${SYMBOL_PLACEMENT_DURATION}ms ease-out`
+    this.placementSymbol.classList.remove('placement-preview')
 
-      // Add pulse animation
-      this.placementSymbol.classList.add('pulse-animation')
-      setTimeout(() => {
-        if (this.placementSymbol) {
-          this.placementSymbol.classList.remove('pulse-animation')
-        }
-      }, 1000)
+    // Add pulse animation
+    this.placementSymbol.classList.add('pulse-animation')
+    setTimeout(() => {
+      if (this.placementSymbol) {
+        this.placementSymbol.classList.remove('pulse-animation')
+      }
+    }, 1000)
 
-      // Clear placement state
-      this.cleanupPlacementMode()
-    }
+    // Clear placement state
+    this.cleanupPlacementMode()
   }
 
   cancelPlacement() {
@@ -493,7 +484,7 @@ export default class extends Controller {
     if (!this.drawingParams.curve && this.tempPoints.length === 2) {
       this.stopDrawing()
     } else if (this.tempPoints.length >= 2) {
-      updatePath(this.tempPathGroup, this.tempPoints)
+      updatePath(this.tempPath, this.tempPoints)
     }
   }
 
@@ -541,9 +532,6 @@ export default class extends Controller {
     DEBUG && console.log('drawingParams ', this.drawingParams)
     this.tempPath = createPath(this.tempPoints, this.drawingParams)
     this.diagramTarget.appendChild(this.tempPath)
-
-    // Store reference to the actual path element
-    this.tempPathGroup = getInnerGroup(this.tempPath)
   }
 
   stopDrawing() {
@@ -555,7 +543,7 @@ export default class extends Controller {
 
     this.drawingParams.isPreview = false
     this.drawingParams.color = this.activeDrawingButton.dataset.color || '#000000'  // re-set color
-    updatePath(this.tempPathGroup, this.tempPoints, this.drawingParams)
+    updatePath(this.tempPath, this.tempPoints, this.drawingParams)
     this.resetDrawingState()
   }
 
@@ -563,7 +551,7 @@ export default class extends Controller {
     DEBUG && console.log('startEditingPath()')
     this.clearSelection()
     disableButtons(this.allButtons)
-    this.tempPath = getInnerGroup(pathWrapper)
+    this.tempPath = pathWrapper
     // Store original attributes for potential cancellation
     this.originalPoints = this.tempPath.getAttribute('data-points')
     this.tempPoints = getPathPoints(this.tempPath)
@@ -601,7 +589,7 @@ export default class extends Controller {
     this.trackAnimationFrame = requestAnimationFrame(() => {
       this.currentPoint = getPointFromEvent(evt, this.diagramTarget)
       const tempPoints = [...this.tempPoints, this.currentPoint]
-      updatePath(this.tempPathGroup, tempPoints)
+      updatePath(this.tempPath, tempPoints)
     })
   }
 
@@ -632,21 +620,15 @@ export default class extends Controller {
     this.mode = MODE.IDLE
   }
 
-  getSelectionTolerance() {
-    return SELECTION_TOLERANCE / this.scale
-  }
-
   handleSelection(evt) {
     DEBUG && console.log(`handleSelection(mode==${this.mode})`)
     switch (this.mode) {
-      case MODE.EDIT:
-        // manage selection of path point dragging
-        break
       case MODE.IDLE:
         this.selectObject(evt)
         break
       case MODE.SELECT:
         this.clearSelection()
+        this.selectObject(evt)
       default:
         return
     }
@@ -661,11 +643,10 @@ export default class extends Controller {
       enableButtons(this.selectedButtons)
 
       if (DEBUG) {
-        const inner = getInnerGroup(wrapper)
         console.log('Selected:', {
           wrapper: wrapper.id,
-          kind: inner?.dataset.kind,
-          number: inner ? getObjectNumber(inner) : null
+          kind: wrapper.dataset.kind,
+          number: getObjectNumber(wrapper)
         })
       }
       this.mode = MODE.SELECT
@@ -688,13 +669,12 @@ export default class extends Controller {
     if (!this.selectedObject || !color) return
 
     // Apply color to the selected element
-    const inner = getInnerGroup(this.selectedObject)
-    if (inner) {
+    if (this.selectedObject) {
       // Check if it's a path or symbol
       if (this.selectedObject.getAttribute('type') === 'path') {
-        applyPathColor(inner, color)
+        applyPathColor(this.selectedObject, color)
       } else {
-        applySymbolColor(inner, color)
+        applySymbolColor(this.selectedObject, color)
       }
     }
 
