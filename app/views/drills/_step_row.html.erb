@@ -9,10 +9,10 @@
 			<div class="step-order">
 				<%= step.order %>
 			</div>
-			
+
 			<!-- Hidden fields -->
 			<%= form.hidden_field :id, value: step.id %>
-			
+
 			<!-- Content area -->
 			<div class="step-content">
 				<!-- 3. Diagram can be a PNG or inline SVG -->
@@ -25,11 +25,11 @@
 						<div class="relative w-full group">
 							<%= render DiagramComponent.new(court: @court, svgdata: step.svgdata) %>
 							<div class="overlay rounded absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" >
-								<% if device != "mobile" %>
+								<% # if device != "mobile" %>
 									<%= link_to edit_diagram_drill_path(id: @drill&.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram") do %>
 										<%= render SymbolComponent.new("edit", options: {size: "50x50"})  %>
 									<% end %>
-								<% end %>
+								<% #end %>
 								<% unless step.svgdata.present? %>
 									<%= link_to load_diagram_drill_path(id: @drill&.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.load_diagram"), data: {turbo_frame: "modal"} do %>
 										<%= render SymbolComponent.new("add", options: {size: "50x50"})  %>
@@ -39,7 +39,7 @@
 						</div>
 					<% end %>
 				</div>
-				
+
 				<!-- 4. Explanation -->
 				<div class="step-explanation">
 					<%= render InputBoxComponent.new({kind: :rich_text_area, key: :explanation}, form:) %>
