@@ -7,15 +7,19 @@ const WAVE_AMPLITUDE = 10
 const WAVE_LENGTH = 40 // Fixed wavelength in pixels
 const DEBUG = false
 
-export function applyPathStyle(pathElement, basePath, style) {
-  DEBUG && console.log("applyPathStyle: ", pathElement, style)
+export function applyPathStyle(pathGroup, basePath, style) {
+  DEBUG && console.log(`applyPathStyle(${pathGroup.id}, currentStyle: ${pathGroup.dataset.currentStyle} => ${style})`)
+  const currentStyle = pathGroup.dataset.currentStyle
+  if (currentStyle === style) return // Skip if no change
+
   // Clear previous styling
+  const pathElement = pathGroup.querySelector('path')
   pathElement.removeAttribute('stroke-dasharray')
-  setAttributes(pathElement, {'stroke-width': PATH_WIDTH, 'fill': 'none'})
-  
+  setAttributes(pathElement, { 'stroke-width': PATH_WIDTH, 'fill': 'none' })
+
   switch (style) {
     case 'dashed':
-      setAttributes(pathElement, {'d': basePath, 'stroke-dasharray': DASH_PATTERN})
+      setAttributes(pathElement, { 'd': basePath, 'stroke-dasharray': DASH_PATTERN })
       break
     case 'double':
       createDoublePathGroup(pathElement, basePath)
@@ -27,13 +31,14 @@ export function applyPathStyle(pathElement, basePath, style) {
       pathElement.setAttribute('d', basePath)
       break
   }
+  pathElement.dataset.currentStyle = style // Store applied style
 }
 
 function createDoublePathGroup(pathElement, basePath) {
   DEBUG && console.log("createDoublePath ", basePath)
   const offset = PATH_WIDTH
   const stroke = pathElement.getAttribute('stroke')
-  
+
   // Remove any existing double paths
   const parent = pathElement.parentElement
   parent.querySelectorAll('.double-path').forEach(el => el.remove())
@@ -71,7 +76,7 @@ function drawParallelPath(basePath, offset) {
   const tempPath = createSvgElement('path')
   tempPath.setAttribute('d', basePath)
   const totalLength = tempPath.getTotalLength()
-  
+
   // If path has no length, return empty
   if (totalLength === 0) return ""
 
@@ -92,9 +97,9 @@ function drawParallelPath(basePath, offset) {
   // Calculate offset points
   const offsetPoints = []
   for (let i = 0; i < points.length; i++) {
-    let {x, y} = points[i]
+    let { x, y } = points[i]
     let angle
-       
+
     if (i === 0) {  // First point - use angle to next point
       const nextPoint = points[1]
       angle = angleBetweenPoints(x, y, nextPoint.x, nextPoint.y)
@@ -108,18 +113,18 @@ function drawParallelPath(basePath, offset) {
       const outAngle = angleBetweenPoints(x, y, nextPoint.x, nextPoint.y)
       angle = averageAngles(inAngle, outAngle)
     }
-    
+
     // Apply perpendicular offset
-    const offsetX = Math.cos(angle + Math.PI/2) * offset
-    const offsetY = Math.sin(angle + Math.PI/2) * offset
-    
+    const offsetX = Math.cos(angle + Math.PI / 2) * offset
+    const offsetY = Math.sin(angle + Math.PI / 2) * offset
+
     offsetPoints.push({
       x: x + offsetX,
       y: y + offsetY,
       type: i === 0 ? 'M' : 'L'
     })
   }
-  
+
   // Build path string
   return offsetPoints.map(p => `${p.type} ${p.x} ${p.y}`).join(' ')
 }
@@ -151,47 +156,47 @@ function createWavyPath(d, amplitude = WAVE_AMPLITUDE) {
   const tempPath = createSvgElement('path')
   tempPath.setAttribute('d', d)
   const totalLength = tempPath.getTotalLength()
-  
+
   // If path has no length, return empty
   if (totalLength === 0) return ""
 
   // Calculate where the straight segment should start
-  const straightStart = Math.max(0, totalLength - WAVE_LENGTH*1.5)
+  const straightStart = Math.max(0, totalLength - WAVE_LENGTH * 1.5)
   const points = []
-  
+
   // Start with the first point
   const startPoint = tempPath.getPointAtLength(0)
   points.push(`M ${startPoint.x} ${startPoint.y}`)
-  
+
   // Sample points along the actual path geometry
   const step = WAVE_LENGTH / 10 // Sample every 1/10 wavelength
   let currentLength = step
-  
+
   while (currentLength <= totalLength) {
     const point = tempPath.getPointAtLength(currentLength)
     const nextPoint = tempPath.getPointAtLength(Math.min(currentLength + 1, totalLength))
-    
+
     // Calculate tangent angle
     const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x)
-    
+
     // Calculate wave offset
     let waveOffset = 0
     if (currentLength < straightStart) {
       const phase = currentLength * (2 * Math.PI) / WAVE_LENGTH
       waveOffset = amplitude * Math.sin(phase)
     }
-    
+
     // Calculate perpendicular offset
-    const px = point.x + waveOffset * Math.cos(angle + Math.PI/2)
-    const py = point.y + waveOffset * Math.sin(angle + Math.PI/2)
-    
+    const px = point.x + waveOffset * Math.cos(angle + Math.PI / 2)
+    const py = point.y + waveOffset * Math.sin(angle + Math.PI / 2)
+
     points.push(`${px} ${py}`)
     currentLength += step
   }
-  
+
   // Ensure we include the exact endpoint
   const endPoint = tempPath.getPointAtLength(totalLength)
   points.push(`${endPoint.x} ${endPoint.y}`)
-  
+
   return points.join(' L ')
 }

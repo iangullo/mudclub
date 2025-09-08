@@ -12,60 +12,26 @@ export function averageAngles(a1, a2) {
   return Math.atan2(Math.sin(a1) + Math.sin(a2), Math.cos(a1) + Math.cos(a2))
 }
 
-export function cssColorToHex(color) {
-  if (!color) return '#000000'
-
-  // If already hex format (3, 4, 6, or 8 digits)
-  if (/^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(color)) {
-    return color.toLowerCase() // normalize case
-  }
-
-  // Handle CSS variables and color names
-  const div = document.createElement('div')
-  div.style.color = color
-  document.body.appendChild(div)
-
-  try {
-    const computed = window.getComputedStyle(div).color
-    const rgbMatch = computed.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/)
-
-    if (rgbMatch) {
-      const r = parseInt(rgbMatch[1]).toString(16).padStart(2, '0')
-      const g = parseInt(rgbMatch[2]).toString(16).padStart(2, '0')
-      const b = parseInt(rgbMatch[3]).toString(16).padStart(2, '0')
-      return `#${r}${g}${b}`
-    }
-  } catch (e) {
-    console.warn('Could not convert color:', color, e)
-  } finally {
-    document.body.removeChild(div)
-  }
-
-  return '#000000' // Fallback
-}
-
 export function createGroup(x = 0, y = 0) {
   return createSvgElement("g")
-}
-
-export function createHandle(point, index) {
-  const handle = createSvgElement('circle')
-  setAttributes(handle, {
-    class: 'handle selection-indicator',
-    'data-point-index': index,
-    cx: point.x,
-    cy: point.y,
-    r: 6,
-    fill: 'white',
-    stroke: 'red',
-    'stroke-width': 2
-  })
-  return handle
 }
 
 export function createSvgElement(tag) {
   if (typeof tag !== "string") throw new TypeError("Expected tag to be a string")
   return document.createElementNS(SVG_NS, tag)
+}
+
+// Debounce utility function
+export function debounce(func, wait) {
+  let timeout
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout)
+      func(...args)
+    };
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
 }
 
 // distance between 2 SVG points
@@ -86,23 +52,28 @@ export function distanceToBBox(point, bbox) {
   return Math.sqrt(dx * dx + dy * dy)
 }
 
-export function findElementNearPoint(diagram, point) {
-  // Get all selectable elements
-  const elements = Array.from(diagram.querySelectorAll('g.wrapper'))
-  let closestElement = null
-  let closestDistance = Infinity
+export function findNearbyObject(diagram, evt) {
+  let closestWrapper = null
 
-  elements.forEach(el => {
-    let bbox = el.getBBox()
-    let distance = distanceToBBox(point, bbox)
+  // First try exact element under pointer
+  closestWrapper = evt.target.closest('g.wrapper')
+  const point = getPointFromEvent(evt, diagram)
 
-    if (distance < closestDistance && distance <= SELECTION_TOLERANCE) {
-      closestDistance = distance
-      closestElement = el
-    }
-  })
+  if (!closestWrapper) { // Get all selectable elements
+    const elements = Array.from(diagram.querySelectorAll('g.wrapper'))
+    let closestDistance = Infinity
 
-  return closestElement
+    elements.forEach(el => {
+      let bbox = el.getBBox()
+      let distance = distanceToBBox(point, bbox)
+
+      if (distance < closestDistance && distance <= SELECTION_TOLERANCE) {
+        closestDistance = distance
+        closestWrapper = el
+      }
+    })
+  }
+  return closestWrapper
 }
 
 export function generateId(prefix = "sym") {

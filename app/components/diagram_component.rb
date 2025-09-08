@@ -38,7 +38,7 @@ class DiagramComponent < ApplicationComponent
 		{ action: "startDrawing", object: "handoff", path: { curve: false, style: "double", ending: "none" } },
 		{ action: "startDrawing", object: "move", path: { curve: true, style: "solid", ending: "arrow" } },
 		{ action: "startDrawing", object: "pick", path: { curve: true, style: "solid", ending: "tee" } },
-		{ action: "colorMenu", object: "color" },
+		{ action: "showColorMenu", object: "color" },
 		{ action: "deleteSelected", object: "delete" }
 	].freeze
 
@@ -81,12 +81,12 @@ class DiagramComponent < ApplicationComponent
 			title = I18n.t("action.remove")
 			symbol = { concept: "delete", options: { type: :button } }
 			bcls = "#{cls}red-100"
-			data = { action: "click->diagram-editor##{btn[:action]}", diagram_editor_target: "deleteButton", button_target: true }
+			data = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
 		elsif btn[:object] == "color"
 			title = I18n.t("color.many")
 			symbol = { concept: "color", options: { type: :button } }
 			bcls = "#{cls}gray-100"
-			data = { action: "click->diagram-editor##{btn[:action]}", diagram_editor_target: "colorButton", button_target: true }
+			data = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
 		else
 			symbol_id = [ @sport, "object", btn[:object], "default" ].join(".")
 			title = I18n.t("sport.#{@sport}.objects.#{btn[:object]}")
@@ -97,6 +97,7 @@ class DiagramComponent < ApplicationComponent
 			data = { action: "click->diagram-editor##{btn[:action]}", symbol_id: }
 			data.merge!(btn[:path]) if btn[:path]
 		end
+		data[:diagram_editor_target] = "#{btn[:object]}Button"
 		ButtonComponent.new(kind: :stimulus, symbol:, title:, d_class: bcls, data:)
 	end
 

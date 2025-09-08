@@ -274,6 +274,7 @@ class DrillsController < ApplicationController
 				:step_explanation,
 				:playbook,
 				:kind_id,
+				:order,
 				:rdx,
 				:season_id,
 				:skill_id,

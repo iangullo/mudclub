@@ -60,6 +60,7 @@ export function createSymbol(symbolData, svgHeight) {
 
   const tcolor = (opts.kind === 'defender') ? opts.fill : opts.stroke
   if (opts.label) setLabel(symbolElement, opts.label, tcolor)
+  symbolElement.classList.add("symbol")
   updateSymbolScale(symbolElement, svgHeight)
   updatePosition(symbolElement, opts.x, opts.y)
 

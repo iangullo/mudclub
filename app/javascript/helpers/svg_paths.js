@@ -9,7 +9,7 @@ const TEMP_OPACITY = 0.5
 const DEBUG = false
 
 export function applyPathColor(pathElement, color) {
-  pathElement.setAttribute('color', color)
+  DEBUG && console.log('applyPathColor()', pathElement, color)
   pathElement.dataset.color = color
   const mainPath = pathElement.querySelector('path')
 
@@ -22,7 +22,6 @@ export function applyPathColor(pathElement, color) {
   applyMarkerColor(mainPath, color)
 }
 
-
 export function createPath(points = [], options = {}) {
   DEBUG && console.log("createPath:", points, options)
 
@@ -33,7 +32,7 @@ export function createPath(points = [], options = {}) {
   // Create inner group
   const pathGroup = createGroup()
   pathGroup.setAttribute("id", pathId)
-
+  pathGroup.classList.add("path")
   pathGroup.appendChild(pathElement)
 
   // Create a unique marker for this path if needed
@@ -48,9 +47,8 @@ export function createPath(points = [], options = {}) {
 }
 
 export function getPathPoints(pathElement) {
-  const inner = getInnerGroup(pathElement) || pathElement
+  const inner = pathElement
   const pointsData = inner.getAttribute('data-points')
-
   if (!pointsData) return []
 
   try {
@@ -61,76 +59,88 @@ export function getPathPoints(pathElement) {
   }
 }
 
-export function hideControlPoints(pathElement) {
-  const controlPoints = pathElement.querySelector('.control-points')
-  if (controlPoints) {
-    controlPoints.style.display = 'none'
-  }
-}
-
-export function showControlPoints(pathElement) {
-  const controlPoints = pathElement.querySelector('.control-points')
-  if (controlPoints) {
-    controlPoints.style.display = 'block'
-  }
-}
-
-export function updateControlPointsPosition(pathElement, points) {
-  const controlPoints = pathElement.querySelectorAll('.control-point')
-  controlPoints.forEach((controlPoint, index) => {
-    if (index < points.length) {
-      const point = points[index]
-      const circle = controlPoint.querySelector('.control-point-handle')
-      const hitArea = controlPoint.querySelector('.control-point-hit-area')
-      const text = controlPoint.querySelector('.control-point-index')
-
-      if (circle) circle.setAttribute('cx', point.x)
-      if (circle) circle.setAttribute('cy', point.y)
-      if (hitArea) hitArea.setAttribute('cx', point.x)
-      if (hitArea) hitArea.setAttribute('cy', point.y)
-      if (text) text.setAttribute('x', point.x)
-      if (text) text.setAttribute('y', point.y - 15)
+export function getPathOptions(pathElement) {
+  if (pathElement) {
+    return {
+      curve: pathElement.dataset.curve === 'true',
+      style: pathElement.dataset.style,
+      ending: pathElement.dataset.ending,
+      isPreview: pathElement.dataset.isPreview === 'true',
+      color: pathElement.dataset.color
     }
-  })
+  } else {
+    return null
+  }
 }
 
-export function updatePath(pathGroup, points, options) {
-  if (!isSVGElement(pathGroup)) return null
-  const pArray = points.map(p => [p.x, p.y])
-  const pathElement = pathGroup.querySelector('path')
-  const vOpts = validateOptions(options)
+export function setPathEditMode(pathGroup, isEditable, options = getPathOptions(pathGroup)) {
+  DEBUG && console.warn(`setPathEditMode(${isEditable})`)
+  if (!pathGroup) return
 
+  const points = getPathPoints(pathGroup)
+  options.isPreview = isEditable
+  if (isEditable) {
+    pathGroup.classList.add('editing')
+    addControlPoints(pathGroup, points)
+  } else {
+    pathGroup.classList.remove('editing')
+    removeControlPoints(pathGroup)
+  }
+  updatePath(pathGroup, points, options)
+}
+
+export function updatePath(pathGroup, points, options = getPathOptions(pathGroup)) {
   if (DEBUG) {
     console.log("updatePath ", pathGroup)
-    console.log("options: ", vOpts)
+    console.log("options: ", options)
     console.log("points: ", points)
   }
 
-  // Update stored properties
-  setAttributes(pathGroup, {
-    'data-curve': vOpts.curve,
-    'data-ending': vOpts.ending,
-    'data-isPreview': vOpts.isPreview,
-    'data-points': JSON.stringify(pArray),
-    'data-style': vOpts.style,
-  })
+  if (!isSVGElement(pathGroup)) return null
+  const pathElement = pathGroup.querySelector('path')
+  if (!isSVGElement(pathElement)) return null
 
-  setAttributes(pathElement, {
-    'stroke': vOpts.color,
-    'opacity': vOpts.opacity
-  })
+  const pArray = JSON.stringify(points.map(p => [p.x, p.y]))
+  const chgPts = (pArray !== getPathPoints(pathGroup))
+  const vOpts = validateOptions(options)
+  const chgOpts = (vOpts !== getPathOptions(pathGroup))
+  if (!(chgOpts || chgPts)) return null // nothing to update
+
+  if (chgOpts) {  // Update stored properties
+    setAttributes(pathGroup, {
+      'data-curve': vOpts.curve,
+      'data-ending': vOpts.ending,
+      'data-points': pArray,
+      'data-style': vOpts.style,
+    })
+  }
 
   // Rebuild base path
-  const basePath = buildBasePath(points, vOpts.curve)
-
-  // Apply style-specific modifications
-  applyPathStyle(pathElement, basePath, vOpts.style)
+  if (chgPts) { // re-draw path element applying style
+    const basePath = buildBasePath(points, vOpts.curve)
+    applyPathStyle(pathGroup, basePath, vOpts.style)
+  }
 
   // Update or create marker
-  applyPathColor(pathGroup, vOpts.color)
+  if (vOpts.color !== pathGroup.dataset.color) {
+    setAttributes(pathElement, {
+      'stroke': vOpts.color,
+      'opacity': vOpts.opacity
+    })
+    applyPathColor(pathGroup, vOpts.color)
+  }
 }
 
 // internal support functions
+
+// Add control points to path
+function addControlPoints(pathGroup, points) {
+  DEBUG && console.log(`addControlPoints(${pathGroup.id})`, points)
+  points.forEach((point, index) => {
+    const handle = createPointHandle(point, index)
+    pathGroup.appendChild(handle)
+  })
+}
 
 // Build base path without styling
 function buildBasePath(points, curve = false) {
@@ -180,6 +190,27 @@ function buildCurvedPath(points) {
   return `${d} S ${cp1x} ${cp1y}, ${last.x} ${last.y}`
 }
 
+function createPointHandle(point, index) {
+  const handle = createSvgElement('circle')
+  setAttributes(handle, {
+    class: 'control-point',
+    'data-index': index,
+    cx: point.x,
+    cy: point.y,
+    r: 20,
+    fill: '#ff4444',
+    stroke: 'none',
+    style: 'cursor: move' // Hidden by default
+  })
+  return handle
+}
+
+// remove control points - stoped editing a path
+function removeControlPoints(pathGroup) {
+  const points = pathGroup.querySelectorAll('.control-point')
+  points.forEach(point => point.remove())
+}
+
 // converts an array o [x,y] pairs to svgpoints
 function svgPoints(point_array) {
   const svgpoints = []
@@ -189,9 +220,16 @@ function svgPoints(point_array) {
 
 // sanitize received options
 function validateOptions(options) {
-  const isPreview = options.isPreview || false
-  const color = isPreview ? TEMP_COLOR : (options.color || '#000000')
-  const opacity = isPreview ? TEMP_OPACITY : 1
+  DEBUG && console.log('validateOptions()', options)
+  let color = '#000000'
+  let opacity = 1
+  const isPreview = (options.isPreview || options.isPreview === 'true')
+  if (isPreview) {
+    color = TEMP_COLOR
+    opacity = TEMP_OPACITY
+  } else {
+    color = options.color || '#000000'
+  }
 
   return {
     curve: !!options.curve,

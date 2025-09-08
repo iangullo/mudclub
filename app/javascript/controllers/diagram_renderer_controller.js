@@ -2,6 +2,7 @@
 // Developed with significant help from DeepSeek
 import { Controller } from "@hotwired/stimulus"
 import { loadDiagramContent, zoomToFit } from "helpers/svg_loader"
+import { debounce } from "helpers/svg_utils"
 
 export default class extends Controller {
   static targets = ["diagram", "court"]
@@ -18,9 +19,9 @@ export default class extends Controller {
   }
 
   setupEventListeners() {
-    this.handleResize = () => {
+    this.handleResize = debounce(() => {
       this.scale = zoomToFit(this.diagramTarget, this.courtTarget)
-    }
+    }, 250)
 
     window.addEventListener('resize', this.handleResize)
   }
@@ -33,13 +34,13 @@ export default class extends Controller {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const scale = zoomToFit(this.diagramTarget, this.courtTarget)
-        
+
         // Additional centering logic
         const container = this.diagramTarget.closest('.step-diagram')
         if (container) {
           const svgWidth = this.diagramTarget.clientWidth
           const containerWidth = container.clientWidth
-          
+
           if (svgWidth < containerWidth) {
             this.diagramTarget.style.marginLeft = `${(containerWidth - svgWidth) / 2}px`
           }

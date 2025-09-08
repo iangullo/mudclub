@@ -2,26 +2,38 @@
 // Developed with significant help from DeepSeek
 // Attempt at a responsive and dynamic diagram editor.
 import { Controller } from '@hotwired/stimulus'
+import { disableButtons, enableButtons, highlightButton, lowlightButton } from 'helpers/svg_buttons'
 import { loadDiagramContent, findLowestAvailableNumber, zoomToFit } from 'helpers/svg_loader'
-import { applyPathColor, createPath, updatePath, MIN_POINTS_FOR_CURVE } from 'helpers/svg_paths'
+import { applyPathColor, createPath, getPathOptions, getPathPoints, setPathEditMode, updatePath, MIN_POINTS_FOR_CURVE } from 'helpers/svg_paths'
 import { serializeDiagram } from 'helpers/svg_serializer'
 import { applySymbolColor, createSymbol, getObjectNumber, isPlayer, SYMBOL_SIZE } from 'helpers/svg_symbols'
-import { findElementNearPoint, getPointFromEvent, getInnerGroup, highlightElement, lowlightElement, updatePosition } from 'helpers/svg_utils'
+import { debounce, findNearbyObject, getPointFromEvent, getInnerGroup, highlightElement, lowlightElement, updatePosition } from 'helpers/svg_utils'
 
+const MODE = {
+  DRAW: 'draw',
+  DRAG: 'drag',
+  DRAG_POINT: 'drag_point',
+  EDIT: 'edit',
+  IDLE: 'idle',
+  PLACE: 'place',
+  SELECT: 'select'
+}
 const SYMBOL_PREVIEW_OPACITY = 0.7
 const SYMBOL_PLACEMENT_DURATION = 300
 const DEBUG = false
 
 export default class extends Controller {
-  static targets = ['diagram', 'court', 'svgdata', 'deleteButton', 'colorButton', 'colorMenu']
+  static targets = ['diagram', 'court', 'svgdata', 'colorMenu', // content
+    'attackerButton', 'ballButton', 'coachButton', 'colorButton', // buttons
+    'coneButton', 'defenderButton', 'deleteButton', 'dribbleButton',
+    'handoffButton', 'moveButton', 'passButton', 'pickButton', 'shotButton'
+  ]
 
   // --- Initialization ---
   connect() {
     this.setupEventListeners()
     this.resetDrawingState()
-    requestAnimationFrame(() => {
-      this.scale = zoomToFit(this.diagramTarget, this.courtTarget, true)
-    })
+    this.zoomAfterRender()
   }
 
   disconnect() {
@@ -31,10 +43,10 @@ export default class extends Controller {
 
   initialize() {
     this.initializeState()
-    this.initializeDiagramContent()
+    this.initializeDiagram()
   }
 
-  initializeDiagramContent() {
+  initializeDiagram() {
     const { attackers, defenders } = loadDiagramContent(this.diagramTarget, this.svgdataTarget.value, true)
     this.attackerNumbers = attackers
     this.defenderNumbers = defenders
@@ -42,15 +54,31 @@ export default class extends Controller {
   }
 
   initializeState() {
-    this.mode = 'idle'
-    this.selectedElement = null
+    this.selectedObject = null
     this.draggedElement = null
     this.colorMenuElement = null
-    this.editingPathPoints = false
-    this.editingPath = null
-    this.draggedPointIndex = null
-    this.originalPoints = null
-    this.disableOptButtons()
+    this.tempPath = null
+    this.draggedPoint = null
+    this.draggedPointIndex = -1
+    this.draggedPath = null
+
+    // button groups
+    this.allButtons = [
+      this.attackerButtonTarget, this.ballButtonTarget, this.coachButtonTarget,
+      this.colorButtonTarget, this.coneButtonTarget, this.defenderButtonTarget,
+      this.deleteButtonTarget, this.dribbleButtonTarget, this.handoffButtonTarget,
+      this.moveButtonTarget, this.passButtonTarget, this.pickButtonTarget,
+      this.shotButtonTarget
+    ]
+    this.idleButtons = [
+      this.attackerButtonTarget, this.ballButtonTarget, this.coachButtonTarget,
+      this.coneButtonTarget, this.defenderButtonTarget, this.dribbleButtonTarget,
+      this.handoffButtonTarget, this.moveButtonTarget, this.passButtonTarget,
+      this.pickButtonTarget, this.shotButtonTarget
+    ]
+    this.selectedButtons = [this.deleteButtonTarget, this.colorButtonTarget]
+    disableButtons(this.selectedButtons)
+    this.mode = MODE.IDLE
   }
 
   // --- Binding/Unbinding of events ---
@@ -60,50 +88,187 @@ export default class extends Controller {
   }
 
   bindWindowEvents() {
-    this.handleResize = () => {
+    this.handleResize = debounce(() => {
       this.scale = zoomToFit(this.diagramTarget, this.courtTarget, true)
-    }
+    }, 250)
 
     window.addEventListener('resize', this.handleResize)
-    window.addEventListener('pointermove', this.onPointerMove.bind(this))
-    window.addEventListener('pointerup', this.onPointerUp.bind(this))
     window.addEventListener('keydown', this.onKeyDown.bind(this))
   }
 
   bindDiagramEvents() {
-    this.diagramTarget.addEventListener('click', this.onClick.bind(this))
-    this.diagramTarget.addEventListener('dblclick', this.onDblClick.bind(this))
     this.diagramTarget.addEventListener('pointerdown', this.onPointerDown.bind(this))
+    this.diagramTarget.addEventListener('pointerleave', this.onPointerLeave.bind(this))
+    this.diagramTarget.addEventListener('pointermove', this.onPointerMove.bind(this))
+    this.diagramTarget.addEventListener('pointerup', this.onPointerUp.bind(this))
+    this.diagramTarget.addEventListener('dblclick', this.onDblClick.bind(this))
   }
 
   unbindWindowEvents() {
     window.removeEventListener('resize', this.handleResize)
-    window.removeEventListener('pointermove', this.onPointerMove)
-    window.removeEventListener('pointerup', this.onPointerUp)
     window.removeEventListener('keydown', this.onKeyDown)
   }
 
   unbindDiagramEvents() {
-    this.diagramTarget.removeEventListener('click', this.onClick)
     this.diagramTarget.removeEventListener('dblclick', this.onDblClick)
     this.diagramTarget.removeEventListener('pointerdown', this.onPointerDown)
+    this.diagramTarget.removeEventListener('pointerleave', this.onPointerLeave)
+    this.diagramTarget.removeEventListener('pointermove', this.onPointerMove)
+    this.diagramTarget.removeEventListener('pointerup', this.onPointerUp)
+  }
+
+  // --- Editor mode changes ---
+  exitMode() {
+    switch (this.mode) {
+      case MODE.DRAG:
+        this.stopDrag()
+        break
+      case MODE.DRAG_POINT:
+        this.stopDragPoint()
+        break
+      case MODE.DRAW:
+        this.cancelDrawing() // discard changes
+        break
+      case MODE.EDIT:
+        this.stopEditingPath(true) // Cancel path editing
+        break
+      case MODE.PLACE:
+        this.cancelPlacement()
+        break
+      case MODE.SELECT:
+        this.clearSelection()
+        this.hideColorMenu()
+        break
+      default:  //idle mode -- deselect selected object
+        return
+    }
   }
 
   // --- Event Management ---
+  onDblClick(evt) {
+    DEBUG === 'events' && console.log(`onDblClick(mode=${this.mode}]`)
+    switch (this.mode) {
+      case MODE.DRAW:
+        this.stopDrawing()
+        break
+      case MODE.EDIT:
+        this.stopEditingPath(false) // Finalize changes
+        break
+      case MODE.IDLE:
+        this.handleSelection(evt)
+      case MODE.SELECT:
+        // Check if we're clicking on a path
+        if ((this.selectedObject?.getAttribute('type') === 'path')) {
+          this.startEditingPath(this.selectedObject)
+        }
+        return
+    }
+  }
+
+  onKeyDown(evt) {
+    DEBUG === 'events' && console.log(`onKeyDown(${evt.key}, mode=${this.mode}]`)
+    switch (evt.key) {
+      case 'Escape':
+        this.exitMode()
+        break
+      case 'Delete':
+        switch (this.mode) {
+          case MODE.SELECT:
+            this.deleteSelected()
+            break
+          case MODE.PLACE:
+            this.cancelPlacement()
+            break
+        }
+      default:
+        return
+    }
+  }
+
+  onPointerDown(evt) {
+    DEBUG === 'events' && console.log(`onPointerDown(mode=${this.mode}]`)
+    switch (this.mode) {
+      case MODE.DRAW:
+        this.addDrawingPoint(evt)
+        break
+      case MODE.EDIT:
+        if (evt.target.classList.contains('control-point')) {
+          this.startDragPoint(evt)
+        }
+        break
+      case MODE.IDLE:
+        this.handleSelection(evt)
+      case MODE.SELECT:
+        if (evt.target.closest('g.wrapper') === this.selectedObject) {
+          this.startDrag(evt)
+        } else {
+          this.clearSelection()
+        }
+        break
+      case MODE.PLACE:
+        this.stopSymbolPlacement(evt)
+        break
+      default:
+        return
+    }
+  }
+
+  onPointerUp(evt) {
+    DEBUG === 'events' && console.log(`onPointerUp(mode=${this.mode}]`)
+    switch (this.mode) {
+      case MODE.DRAG:
+        this.stopDrag(evt)   // Complete the object dragging
+        break
+      case MODE.DRAG_POINT:
+        this.stopDragPoint(evt)  // Add this case
+        break
+      default:
+        return
+    }
+  }
+
+  onPointerLeave() {
+    DEBUG === 'events' && console.log(`onPointerLeave(mode=${this.mode}]`)
+    switch (this.mode) {
+      case MODE.PLACE:
+        this.cancelPlacement()
+        break
+      default:
+        return
+    }
+  }
+
+  onPointerMove(evt) {
+    DEBUG === 'deep' && console.log(`onPointerMove(mode=${this.mode}]`)
+    switch (this.mode) {
+      case MODE.DRAW:
+        this.trackDrawingPointer(evt)
+        break
+      case MODE.DRAG:
+        this.dragObject(evt)  // Move a regular object
+        break
+      case MODE.DRAG_POINT:
+        this.dragPoint(evt)  // Add this case
+        break
+      case MODE.PLACE:
+        this.handlePlacementMove(evt)
+        break
+    }
+  }
 
   // Dragging of symbols/points
-  drag(evt) {
+  dragObject(evt) {
     if (!this.draggedInner) return
 
     const pt = getPointFromEvent(evt, this.diagramTarget)
-    DEBUG && console.log('drag([', pt.x, ', ', pt.y, '])')
+    DEBUG === 'events' && console.log('dragObject([', pt.x, ', ', pt.y, '])')
 
     const { x: minX, y: minY, width, height } = this.courtBox
     const maxX = minX + width - 3 * SYMBOL_SIZE
     const maxY = minY + height - 3 * SYMBOL_SIZE
     // Bail out if outside allowed area (based on logical coords)
     if (pt.x < minX || pt.x > maxX || pt.y < minY || pt.y > maxY) {
-      DEBUG && console.log('Blocked drag outside court:', pt.x, pt.y)
+      DEBUG && console.warn('Blocked drag outside court:', pt.x, pt.y)
       return
     }
 
@@ -112,18 +277,25 @@ export default class extends Controller {
     evt.preventDefault()
   }
 
-  dragEnd() {
-    document.body.style.cursor = ''
-    if (this.draggedWrapper && this.draggedInner) {
-      const x = this.draggedInner.dataset.x
-      const y = this.draggedInner.dataset.y
-      DEBUG && console.log('dragEnd:', this.draggedWrapper.id, 'coords:', x, y)
-    }
-    this.draggedWrapper = null
-    this.draggedInner = null
+  dragPoint(evt) {
+    if (!this.draggedPoint) return
+    const pt = getPointFromEvent(evt, this.diagramTarget)
+    DEBUG && console.log('dragPoint(', this.draggedPoint, ' => ', pt, ')')
+
+    // Update the point position
+    this.tempPoints[this.draggedPointIndex] = pt
+
+    // Update the visual point position
+    this.draggedPoint.setAttribute('cx', pt.x)
+    this.draggedPoint.setAttribute('cy', pt.y)
+
+    // Update the path using the same method as when drawing
+    updatePath(this.tempPath, this.tempPoints)
+
+    evt.preventDefault()
   }
 
-  dragStart(evt) {
+  startDrag(evt) {
     const wrapper = evt.target.closest('g.wrapper')
     if (!wrapper) return
 
@@ -135,107 +307,53 @@ export default class extends Controller {
     if (!inner) return
     this.draggedInner = inner
 
-    if (DEBUG) {
-      console.log('dragStart: ', wrapper.getAttribute('id'), 'inner: ', inner.getAttribute('id'))
-      console.log('coordinates: [', inner.getAttribute('y'), ', ', inner.getAttribute('y'), ']')
-    }
+    DEBUG && console.log(`startDrag: ${wrapper.getAttribute('id')}, inner: ${inner.getAttribute('id')}`)
+
     document.body.style.cursor = 'grabbing'
     evt.preventDefault()
+    this.mode = MODE.DRAG
   }
 
-  // Selection of objects
-  handleSelection(evt) {
-    this.clearSelection() // Deselect previous element, if any
-    const point = getPointFromEvent(evt, this.diagramTarget)
-
-    // First try exact element under pointer
-    let wrapper = evt.target.closest('g.wrapper')
-
-    if (!wrapper) {  // Select the new group and highlight it
-      wrapper = findElementNearPoint(this.diagramTarget, point)
+  stopDrag() {
+    document.body.style.cursor = ''
+    if (this.draggedWrapper && this.draggedInner) {
+      const x = this.draggedInner.dataset.x
+      const y = this.draggedInner.dataset.y
+      DEBUG && console.log('stopDrag:', this.draggedWrapper.id, 'coords:', x, y)
     }
-
-    if (wrapper) {
-      this.selectedElement = wrapper
-      highlightElement(wrapper)
-      this.enableOptButtons()
-
-      if (DEBUG) {
-        const inner = getInnerGroup(wrapper)
-        console.log('Selected:', {
-          wrapper: wrapper.id,
-          kind: inner?.dataset.kind,
-          number: inner ? getObjectNumber(inner) : null
-        })
-      }
-    }
-  }
-
-  // pointer actions
-  onClick(evt) {
-    if (this.isDrawing()) {
-      this.addDrawingPoint(evt)
-    } else {
-      this.handleSelection(evt)
-    }
-  }
-
-  onDblClick(evt) {
-    const target = evt.target
-
-    if (this.isDrawing()) {
-      this.finalizeDrawing()
-      return
-    }
-  }
-
-  onKeyDown(evt) {
-    switch (evt.key) {
-      case 'Escape':
-        if (this.isDrawing()) {
-          this.stopDrawing() // discard changes
-        } else {  //idle mode -- deselect selected object
-          this.clearSelection()
-          this.hideColorMenu()
-        }
-        break
-      case 'Delete':
-        this.deleteSelected()
-      default:
-        return
-
-    }
+    this.draggedWrapper = null
+    this.draggedInner = null
+    this.mode = MODE.SELECT
 
   }
 
-  onPointerDown(evt) {
-    if (this.isIdle) {
-      this.dragStart(evt)
-    }
+  startDragPoint(evt) {
+    if (!this.tempPath) return
+    const controlPoint = evt.target
+    DEBUG && console.log('this.startDragPoint(controlPoint: ', controlPoint, ')')
+
+    this.draggedPoint = controlPoint
+    this.draggedPointIndex = parseInt(controlPoint.getAttribute('data-index'))
+    controlPoint.style.cursor = 'grabbing'
+    evt.preventDefault()
+    this.mode = MODE.DRAG_POINT
   }
 
-  onPointerMove(evt) {
-    if (this.isDrawing()) {
-      this.trackDrawingPointer(evt)
-    } else if (this.isIdle && this.draggedWrapper) {
-      this.drag(evt)  // Move a regular object
-    }
-  }
-
-  onPointerUp(evt) {
-    if (this.isIdle && this.draggedWrapper) {
-      this.dragEnd(evt)   // Complete the object dragging
-    }
+  stopDragPoint() {
+    document.body.style.cursor = ''
+    this.draggedPoint = null
+    this.draggedPointIndex = -1
+    this.mode = MODE.EDIT
   }
 
   // --- SVG symbol management ---
-  addAttacker(evt) { this.addObject(evt, 'attacker', this.attackerNumbers) }
-  addBall(evt) { this.addObject(evt, 'ball') }
-  addCoach(evt) { this.addObject(evt, 'coach') }
-  addCone(evt) { this.addObject(evt, 'cone', null, 0.07) }
-  addDefender(evt) { this.addObject(evt, 'defender', this.defenderNumbers) }
+  addAttacker(evt) { this.addSymbol(evt, 'attacker', this.attackerNumbers) }
+  addBall(evt) { this.addSymbol(evt, 'ball') }
+  addCoach(evt) { this.addSymbol(evt, 'coach') }
+  addCone(evt) { this.addSymbol(evt, 'cone', null, 0.07) }
+  addDefender(evt) { this.addSymbol(evt, 'defender', this.defenderNumbers) }
 
-  addObject(evt, kind, set = null) {
+  addSymbol(evt, kind, set = null) {
     const button = evt.currentTarget
     const svg = button.querySelector('svg[data-symbol-id]')
     const symbolId = svg?.dataset.symbolId
@@ -245,13 +363,10 @@ export default class extends Controller {
     }
 
     // Enter symbol placement mode
-    this.enterSymbolPlacementMode(symbolId, kind, set)
+    this.startSymbolPlacement(symbolId, kind, set)
   }
 
-  enterSymbolPlacementMode(symbolId, kind, set) {
-    // Clear any existing placement
-    this.cancelPlacement()
-
+  startSymbolPlacement(symbolId, kind, set) {
     const number = set ? findLowestAvailableNumber(set) : null
     if (number) set.add(number)
     // Create preview symbol
@@ -265,26 +380,22 @@ export default class extends Controller {
     } else if (kind === 'defender') {
       this.defenderNumbers.add(number)
     }
+
     // Style preview symbol
+    document.body.style.cursor = 'grabbing'
     this.placementSymbol.style.opacity = SYMBOL_PREVIEW_OPACITY
-    this.placementSymbol.style.cursor = 'grabbing'
     this.placementSymbol.classList.add('placement-preview')
 
     // Add to diagram
     this.diagramTarget.appendChild(this.placementSymbol)
 
     // Set placement mode
-    this.mode = 'placing'
     this.placementKind = kind
     this.placementSet = set
-
-    // Add temporary move listener
-    this.diagramTarget.addEventListener('pointermove', this.handlePlacementMove)
-    this.diagramTarget.addEventListener('click', this.handlePlacementClick)
-    this.diagramTarget.addEventListener('pointerleave', this.cancelPlacement)
+    this.mode = MODE.PLACE
   }
 
-  handlePlacementMove = (evt) => {
+  handlePlacementMove(evt) {
     if (!this.placementSymbol) return
 
     const point = getPointFromEvent(evt, this.diagramTarget)
@@ -297,7 +408,7 @@ export default class extends Controller {
     }
   }
 
-  handlePlacementClick = (evt) => {
+  stopSymbolPlacement(evt) {
     if (!this.placementSymbol) return
 
     const point = getPointFromEvent(evt, this.diagramTarget)
@@ -322,28 +433,25 @@ export default class extends Controller {
     }
   }
 
-  cancelPlacement = () => {
-    if (this.placementSymbol) {
-      this.placementSymbol.classList.add('fade-out')
-      setTimeout(() => {
-        if (this.placementSymbol && this.placementSymbol.parentNode) {
-          this.deleteSymbolCounter(this.placementSymbol)
-          this.placementSymbol.parentNode.removeChild(this.placementSymbol)
-        }
-        this.cleanupPlacementMode()
-      }, SYMBOL_PLACEMENT_DURATION)
-    }
+  cancelPlacement() {
+    if (!this.placementSymbol) return
+
+    this.placementSymbol.classList.add('fade-out')
+    setTimeout(() => {
+      if (this.placementSymbol && this.placementSymbol.parentNode) {
+        this.deleteSymbolCounter(this.placementSymbol)
+        this.placementSymbol.parentNode.removeChild(this.placementSymbol)
+      }
+      this.cleanupPlacementMode()
+    }, 0)
   }
 
   cleanupPlacementMode() {
-    this.diagramTarget.removeEventListener('pointermove', this.handlePlacementMove)
-    this.diagramTarget.removeEventListener('click', this.handlePlacementClick)
-    this.diagramTarget.removeEventListener('pointerleave', this.cancelPlacement)
-
+    document.body.style.cursor = ''
     this.placementSymbol = null
     this.placementKind = null
     this.placementSet = null
-    this.mode = 'idle'
+    this.mode = MODE.IDLE
   }
 
   deleteSymbolCounter(wrapper) {
@@ -360,44 +468,14 @@ export default class extends Controller {
   }
 
   // --- SVG path management ---
-  startDrawing(evt) {
-    const button = evt.currentTarget
-    DEBUG && console.log('startDrawing ', button)
-
-    if (this.mode === 'drawing') {
-      const end_drawing = (this.activeDrawingButton === button)
-      this.stopDrawing()
-      if (end_drawing) return
-
-    }
-
-    this.resetDrawingState('drawing')
-    this.activeDrawingButton = button
-    this.highlightButton(button)
-
-    this.drawingParams = {
-      curve: button.dataset.curve === 'true',
-      style: button.dataset.style || 'solid',
-      ending: button.dataset.ending || 'none',
-      isPreview: true,
-      scale: this.scale
-    }
-    DEBUG && console.log('drawingParams ', this.drawingParams)
-    this.tempPath = createPath(this.drawingPoints, this.drawingParams)
-    this.diagramTarget.appendChild(this.tempPath)
-
-    // Store reference to the actual path element
-    this.tempPathGroup = this.tempPath.querySelector('g')
-  }
-
   addDrawingPoint(evt) {
-    if (this.mode !== 'drawing') return
+    if (this.mode !== MODE.DRAW) return
     this.drawingParams.scale = this.scale
     const point = getPointFromEvent(evt, this.diagramTarget)
 
     // Skip duplicate points (within 1px tolerance)
-    if (this.drawingPoints.length > 2) {
-      const lastPoint = this.drawingPoints[this.drawingPoints.length - 1]
+    if (this.tempPoints.length > 2) {
+      const lastPoint = this.tempPoints[this.tempPoints.length - 1]
       const dx = point.x - lastPoint.x
       const dy = point.y - lastPoint.y
       const distanceSquared = dx * dx + dy * dy
@@ -408,42 +486,19 @@ export default class extends Controller {
       }
     }
 
-    DEBUG && console.log('addDrawingPoint ', point)
-    this.drawingPoints.push(point)
+    DEBUG && console.log('addDrawingPoint()', point,)
+    this.tempPoints.push(point)
 
     // Update the path with the new fixed point
-    if (!this.drawingParams.curve && this.drawingPoints.length === 2) {
-      this.finalizeDrawing()
-    } else if (this.drawingPoints.length >= 2) {
-      updatePath(this.tempPathGroup, this.drawingPoints, this.drawingParams)
+    if (!this.drawingParams.curve && this.tempPoints.length === 2) {
+      this.stopDrawing()
+    } else if (this.tempPoints.length >= 2) {
+      updatePath(this.tempPathGroup, this.tempPoints)
     }
   }
 
-  trackDrawingPointer(evt) {
-    if (this.mode !== 'drawing' || this.drawingPoints.length === 0) return
-
-    requestAnimationFrame(() => {
-      this.currentPoint = getPointFromEvent(evt, this.diagramTarget)
-      const tempPoints = [...this.drawingPoints, this.currentPoint]
-      updatePath(this.tempPathGroup, tempPoints, this.drawingParams)
-    })
-  }
-
-  finalizeDrawing() {
-    DEBUG && console.log('finalizeDrawing()')
-    if (this.mode !== 'drawing') return
-    if (this.drawingPoints.length < 2 || (this.drawingParams.curve && this.drawingPoints.length < MIN_POINTS_FOR_CURVE)) {
-      return this.stopDrawing()
-    }
-
-    this.drawingParams.color = this.activeDrawingButton.dataset.color || '#000000'  // re-set color
-    this.drawingParams.isPreview = false
-    updatePath(this.tempPathGroup, this.drawingPoints, this.drawingParams)
-    this.resetDrawingState()
-  }
-
-  stopDrawing() {
-    DEBUG && console.log('stopDrawing()')
+  cancelDrawing() {
+    DEBUG && console.log('cancelDrawing()')
     this.currentPoint = null
     this.resetDrawingState()
     if (this.tempPath) {
@@ -453,112 +508,175 @@ export default class extends Controller {
     this.activeDrawingButton = null
   }
 
-  resetDrawingState(mode = 'idle') {
-    DEBUG && console.log('resetDrawingState()')
-    this.unhighlightButton(this.activeDrawingButton)
-    this.drawingPoints = []
+  resetDrawingState(mode = MODE.IDLE) {
+    DEBUG && console.log(`resetDrawingState(${mode})`)
+    lowlightButton(this.activeDrawingButton)
+    this.tempPoints = []
     this.drawingParams = {}
     this.currentPoint = null
     this.mode = mode
   }
 
+  startDrawing(evt) {
+    const button = evt.currentTarget
+    DEBUG && console.log('startDrawing ', button)
+
+    if (this.mode === MODE.DRAW) {
+      const end_drawing = (this.activeDrawingButton === button)
+      this.cancelDrawing()
+      if (end_drawing) return
+    }
+
+    this.resetDrawingState(MODE.DRAW)
+    this.activeDrawingButton = button
+    highlightButton(button)
+
+    this.drawingParams = {
+      curve: button.dataset.curve === 'true',
+      style: button.dataset.style || 'solid',
+      ending: button.dataset.ending || 'none',
+      isPreview: true,
+      scale: this.scale
+    }
+    DEBUG && console.log('drawingParams ', this.drawingParams)
+    this.tempPath = createPath(this.tempPoints, this.drawingParams)
+    this.diagramTarget.appendChild(this.tempPath)
+
+    // Store reference to the actual path element
+    this.tempPathGroup = getInnerGroup(this.tempPath)
+  }
+
+  stopDrawing() {
+    DEBUG && console.log('stopDrawing()')
+    if (this.mode !== MODE.DRAW) return
+    if (this.tempPoints.length < 2 || (this.drawingParams.curve && this.tempPoints.length < MIN_POINTS_FOR_CURVE)) {
+      return this.cancelDrawing()
+    }
+
+    this.drawingParams.isPreview = false
+    this.drawingParams.color = this.activeDrawingButton.dataset.color || '#000000'  // re-set color
+    updatePath(this.tempPathGroup, this.tempPoints, this.drawingParams)
+    this.resetDrawingState()
+  }
+
+  startEditingPath(pathWrapper) {
+    DEBUG && console.log('startEditingPath()')
+    this.clearSelection()
+    disableButtons(this.allButtons)
+    this.tempPath = getInnerGroup(pathWrapper)
+    // Store original attributes for potential cancellation
+    this.originalPoints = this.tempPath.getAttribute('data-points')
+    this.tempPoints = getPathPoints(this.tempPath)
+    DEBUG && console.log('originalPoints: ', this.originalPoints)
+    this.originalOptions = getPathOptions(this.tempPath)
+    DEBUG && console.log('originalOptions: ', this.originalOptions)
+
+    // Create and show control points using existing utility functions
+    setPathEditMode(this.tempPath, true)
+    this.mode = MODE.EDIT
+  }
+
+  stopEditingPath(cancel) {
+    DEBUG && console.log(`stopEditingPath(cancel: ${cancel})`)
+    if (this.mode !== MODE.EDIT) return
+
+    if (cancel) { this.tempPath.setAttribute('data-points', this.originalPoints) }
+    setPathEditMode(this.tempPath, false, this.originalOptions)
+
+    // Reset state
+    this.tempPath = null
+    this.tempPoints = null
+    this.originalOptions = null
+    this.originalPoints = null
+    enableButtons(this.idleButtons)
+    this.mode = MODE.IDLE
+  }
+
+  trackDrawingPointer(evt) {
+    if (this.mode !== MODE.DRAW || this.tempPoints.length === 0) return
+
+    // Throttle with requestAnimationFrame
+    if (this.trackAnimationFrame) cancelAnimationFrame(this.trackAnimationFrame)
+
+    this.trackAnimationFrame = requestAnimationFrame(() => {
+      this.currentPoint = getPointFromEvent(evt, this.diagramTarget)
+      const tempPoints = [...this.tempPoints, this.currentPoint]
+      updatePath(this.tempPathGroup, tempPoints)
+    })
+  }
+
   // --- SVG object selection & removal ---
   clearSelection() {
-    if (this.selectedElement) {
-      DEBUG && console.log('clearSelection: ', this.selectedElement)
-      lowlightElement(this.selectedElement)
-      const indicator = this.selectedElement.querySelector('.selection-indicator')
+    DEBUG && console.log('clearSelection: ', this.selectedObject)
+    if (this.selectedObject) {
+      lowlightElement(this.selectedObject)
+      const indicator = this.selectedObject.querySelector('.selection-indicator')
       if (indicator) indicator.remove()
-
-      this.selectedElement = null
+      this.selectedObject = null
+      disableButtons(this.selectedButtons)
+      this.mode = MODE.IDLE
     }
-    this.disableOptButtons()
   }
 
   deleteSelected() {
-    const wrapper = this.selectedElement
+    const wrapper = this.selectedObject
     if (!wrapper) return
 
-    this.disableOptButtons()
+    disableButtons(this.selectedButtons)
     this.deleteSymbolCounter(wrapper)
     wrapper.classList.add('opacity-0', 'transition-opacity', 'duration-300')
     setTimeout(() => {
       wrapper.remove()
-      this.selectedElement = null
+      this.selectedObject = null
     }, 300)
+    this.mode = MODE.IDLE
   }
 
   getSelectionTolerance() {
     return SELECTION_TOLERANCE / this.scale
   }
 
-  // --- Auxiliary diagram helpers ---
-  clearActiveLineButtons() {
-    const buttons = this.element.querySelectorAll("[data-action*='startDrawing']")
-    buttons.forEach(btn => {
-      const activeClass = btn.dataset.activeClass || ''
-      btn.classList.remove(...activeClass.split(' '))
+  handleSelection(evt) {
+    DEBUG && console.log(`handleSelection(mode==${this.mode})`)
+    switch (this.mode) {
+      case MODE.EDIT:
+        // manage selection of path point dragging
+        break
+      case MODE.IDLE:
+        this.selectObject(evt)
+        break
+      case MODE.SELECT:
+        this.clearSelection()
+      default:
+        return
+    }
+  }
+
+  selectObject(evt) {
+    // Find nearby object
+    let wrapper = findNearbyObject(this.diagramTarget, evt)
+    if (wrapper) {
+      this.selectedObject = wrapper
+      highlightElement(wrapper)
+      enableButtons(this.selectedButtons)
+
+      if (DEBUG) {
+        const inner = getInnerGroup(wrapper)
+        console.log('Selected:', {
+          wrapper: wrapper.id,
+          kind: inner?.dataset.kind,
+          number: inner ? getObjectNumber(inner) : null
+        })
+      }
+      this.mode = MODE.SELECT
+    }
+  }
+
+  // --- dynamic scaling ---
+  zoomAfterRender() {
+    requestAnimationFrame(() => {
+      this.scale = zoomToFit(this.diagramTarget, this.courtTarget, true)
     })
-  }
-
-  disableButton(buttonTarget) {
-    const button = this.getButtonElement(buttonTarget)
-    if (button) {
-      button.disabled = true
-      button.classList.add('opacity-50', 'cursor-not-allowed')
-    }
-  }
-
-  disableOptButtons() {
-    this.disableButton(this.deleteButtonTarget)
-    this.disableButton(this.colorButtonTarget)
-  }
-
-  enableButton(buttonTarget) {
-    const button = this.getButtonElement(buttonTarget)
-    if (button) {
-      button.disabled = false
-      button.classList.remove('opacity-50', 'cursor-not-allowed')
-    }
-  }
-
-  enableOptButtons() {
-    DEBUG && console.log('showOptButtons()')
-    this.enableButton(this.deleteButtonTarget)
-    const type = this.selectedElement.getAttribute('type')
-    if (type === 'path' || type === 'symbol') {
-      this.enableButton(this.colorButtonTarget)
-    }
-  }
-
-  getButtonElement(target) {
-    // If the target is already a button, return it
-    if (target.tagName === 'BUTTON') return target
-
-    // Otherwise, look for a button within the target
-    return target.querySelector('button')
-  }
-
-  highlightButton(button) {
-    DEBUG && console.log('highlighButton()')
-    if (!button) return
-    const activeClass = button.dataset.activeClass || 'bg-blue-400 text-white ring'
-    button.classList.add(...activeClass.split(' '))
-  }
-
-  isDrawing() {
-    return this.mode === 'drawing'
-  }
-
-  isIdle() {
-    return this.mode === 'idle'
-  }
-
-  unhighlightButton(button) {
-    DEBUG && console.log('unhighlighButton()')
-    if (!button) return
-    const activeClass = button.dataset.activeClass || ''
-    button.classList.remove(...activeClass.split(' '))
   }
 
   // --- COLOR MANAGEMENT ---/
@@ -567,13 +685,13 @@ export default class extends Controller {
     evt.stopPropagation()
 
     const color = evt.currentTarget.dataset.color
-    if (!this.selectedElement || !color) return
+    if (!this.selectedObject || !color) return
 
     // Apply color to the selected element
-    const inner = getInnerGroup(this.selectedElement)
+    const inner = getInnerGroup(this.selectedObject)
     if (inner) {
       // Check if it's a path or symbol
-      if (this.selectedElement.getAttribute('type') === 'path') {
+      if (this.selectedObject.getAttribute('type') === 'path') {
         applyPathColor(inner, color)
       } else {
         applySymbolColor(inner, color)
@@ -584,7 +702,21 @@ export default class extends Controller {
     this.hideColorMenu()
   }
 
-  colorMenu(evt) {
+  hideColorMenu(evt) {
+    // Don't hide if clicking on the color button or menu itself
+    if (evt && (
+      this.colorButtonTarget.contains(evt.target) ||
+      this.colorMenuTarget.contains(evt.target)
+    )) {
+      return
+    }
+
+    this.colorMenuTarget.classList.add('hidden')
+    document.removeEventListener('click', this.boundHideColorMenu)
+    this.boundHideColorMenu = null // Clear reference
+  }
+
+  showColorMenu(evt) {
     evt.preventDefault()
     evt.stopPropagation()
 
@@ -601,23 +733,14 @@ export default class extends Controller {
     document.addEventListener('click', this.boundHideColorMenu)
   }
 
-  hideColorMenu(evt) {
-    // Don't hide if clicking on the color button or menu itself
-    if (evt && (
-      this.colorButtonTarget.contains(evt.target) ||
-      this.colorMenuTarget.contains(evt.target)
-    )) {
-      return
-    }
-
-    this.colorMenuTarget.classList.add('hidden')
-    document.removeEventListener('click', this.boundHideColorMenu)
-  }
-
   // --- [END] SERIALIZE CONTENT ---/
   serialize() {
-    const data = serializeDiagram(this.diagramTarget)
-    this.svgdataTarget.value = JSON.stringify(data)
-    DEBUG && console.log('Serialized data:', data)
+    try {
+      const data = serializeDiagram(this.diagramTarget)
+      this.svgdataTarget.value = JSON.stringify(data)
+      DEBUG && console.log('Serialized data:', data)
+    } catch (error) {
+      console.error('Error serializing diagram:', error)
+    }
   }
 }

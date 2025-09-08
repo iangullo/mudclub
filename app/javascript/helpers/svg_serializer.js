@@ -13,11 +13,13 @@ export function serializeDiagram(diagramElement) {
   const paths = []
 
   diagramElement.querySelectorAll('g.wrapper').forEach(wrapper => {
+    DEBUG && console.log("wrapper: ", wrapper)
     const inner = wrapper.firstElementChild
     if (!inner) return
 
     const type = wrapper.getAttribute("type")
     DEBUG && console.log("wrapper type: ", type)
+    DEBUG && console.log("inner: ", inner)
 
     if (type === "symbol") {
       const data = serializeSymbol(inner)
@@ -40,8 +42,9 @@ export function serializeDiagram(diagramElement) {
 
 function serializePath(pathGroup) {
   DEBUG && console.log("serializePath", pathGroup)
-  const el = pathGroup?.querySelector('path')
-  if (!isSVGElement(pathGroup) || !el) return null
+  // const el = pathGroup?.querySelector('path')
+  // if (!isSVGElement(pathGroup) || !el) return null
+  if (!isSVGElement(pathGroup)) return null
 
   DEBUG && console.warn(pathGroup.dataset.points)
   let pathPoints = []
