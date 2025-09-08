@@ -102,6 +102,10 @@ export default class extends Controller {
     this.diagramTarget.addEventListener('pointermove', this.onPointerMove.bind(this))
     this.diagramTarget.addEventListener('pointerup', this.onPointerUp.bind(this))
     this.diagramTarget.addEventListener('dblclick', this.onDblClick.bind(this))
+    this.diagramTarget.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false })
+    this.diagramTarget.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false })
+    this.diagramTarget.addEventListener('touchend', this.onTouchEnd.bind(this))
+    this.diagramTarget.addEventListener('touchcancel', this.onTouchCancel.bind(this))
   }
 
   unbindWindowEvents() {
@@ -115,13 +119,17 @@ export default class extends Controller {
     this.diagramTarget.removeEventListener('pointerleave', this.onPointerLeave)
     this.diagramTarget.removeEventListener('pointermove', this.onPointerMove)
     this.diagramTarget.removeEventListener('pointerup', this.onPointerUp)
+    this.diagramTarget.removeEventListener('touchstart', this.onTouchStart)
+    this.diagramTarget.removeEventListener('touchmove', this.onTouchMove)
+    this.diagramTarget.removeEventListener('touchend', this.onTouchEnd)
+    this.diagramTarget.removeEventListener('touchcancel', this.onTouchCancel)
   }
 
   // --- Editor mode changes ---
   exitMode() {
     switch (this.mode) {
       case MODE.DRAG:
-        this.stopDrag()
+        this.stopDragObject()
         break
       case MODE.DRAG_POINT:
         this.stopDragPoint()
@@ -202,10 +210,10 @@ export default class extends Controller {
         const wrapId = evt.target.closest('g.wrapper')?.getAttribute('id')
         const oSelId = this.selectedObject?.getAttribute('id')
         if (wrapId === oSelId) {
-          this.startDrag(evt)
+          this.startDragObject(evt)
         } else {
           this.handleSelection(evt)
-          if (this.selectedObject) { this.startDrag(evt) }
+          if (this.selectedObject) { this.startDragObject(evt) }
         }
         break
       case MODE.PLACE:
@@ -220,7 +228,7 @@ export default class extends Controller {
     DEBUG === 'events' && console.log(`onPointerUp(mode=${this.mode}]`)
     switch (this.mode) {
       case MODE.DRAG:
-        this.stopDrag(evt)   // Complete the object dragging
+        this.stopDragObject(evt)   // Complete the object dragging
         break
       case MODE.DRAG_POINT:
         this.stopDragPoint(evt)  // Add this case
@@ -256,6 +264,54 @@ export default class extends Controller {
       case MODE.PLACE:
         this.handlePlacementMove(evt)
         break
+    }
+  }
+
+  // touch-based event management
+  onTouchStart(evt) {
+    if (evt.touches.length !== 1) return // Only handle single touch
+    evt.preventDefault() // Prevent scrolling and browser handling
+
+    // Convert to pointer event structure
+    const pointerEvt = this.convertTouchToPointer(evt, 'pointerdown')
+    this.onPointerDown(pointerEvt)
+  }
+
+  onTouchMove(evt) {
+    if (evt.touches.length !== 1) return
+    evt.preventDefault()
+
+    const pointerEvt = this.convertTouchToPointer(evt, 'pointermove')
+    this.onPointerMove(pointerEvt)
+  }
+
+  onTouchEnd(evt) {
+    if (evt.touches.length > 0) return // Still other touches active
+    evt.preventDefault()
+
+    const pointerEvt = this.convertTouchToPointer(evt, 'pointerup')
+    this.onPointerUp(pointerEvt)
+  }
+
+  onTouchCancel(evt) {
+    evt.preventDefault()
+    // Treat as end of touch
+    const pointerEvt = this.convertTouchToPointer(evt, 'pointerup')
+    this.onPointerUp(pointerEvt)
+  }
+
+  // Helper to convert touch event to pointer-like event
+  convertTouchToPointer(touchEvt, type) {
+    const touch = touchEvt.touches[0] || touchEvt.changedTouches[0]
+    return {
+      type: type,
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+      target: touchEvt.target,
+      preventDefault: () => touchEvt.preventDefault(),
+      stopPropagation: () => touchEvt.stopPropagation(),
+      // Add other properties that your handlers might need
+      currentTarget: touchEvt.currentTarget
     }
   }
 
@@ -298,7 +354,7 @@ export default class extends Controller {
     evt.preventDefault()
   }
 
-  startDrag(evt) {
+  startDragObject(evt) {
     const wrapper = findNearbyObject(this.diagramTarget, evt)
     if (!wrapper) return
 
@@ -313,12 +369,12 @@ export default class extends Controller {
     this.mode = MODE.DRAG
   }
 
-  stopDrag() {
+  stopDragObject() {
     document.body.style.cursor = ''
     if (this.draggedObject) {
       const x = this.draggedObject.dataset.x
       const y = this.draggedObject.dataset.y
-      DEBUG && console.log('stopDrag:', this.draggedObject.id, 'coords:', x, y)
+      DEBUG && console.log('stopDragObject:', this.draggedObject.id, 'coords:', x, y)
     }
     this.draggedObject = null
     this.mode = MODE.SELECT
@@ -623,12 +679,11 @@ export default class extends Controller {
   handleSelection(evt) {
     DEBUG && console.log(`handleSelection(mode==${this.mode})`)
     switch (this.mode) {
+      case MODE.SELECT:
+        this.clearSelection()
       case MODE.IDLE:
         this.selectObject(evt)
         break
-      case MODE.SELECT:
-        this.clearSelection()
-        this.selectObject(evt)
       default:
         return
     }

@@ -45,15 +45,11 @@ export function distance(x1, y1, x2, y2) {
 }
 
 // geometry helper method
-export function distanceToBBox(point, bbox) {
-  // Calculate closest point on bbox to the click point
-  const closestX = Math.max(bbox.x, Math.min(point.x, bbox.x + bbox.width))
-  const closestY = Math.max(bbox.y, Math.min(point.y, bbox.y + bbox.height))
+export function distanceToElement(point, element) {
+  const rect = element.getBoundingClientRect()
 
-  // Calculate distance to closest point
-  const dx = point.x - closestX
-  const dy = point.y - closestY
-
+  const dx = Math.max(rect.left - point.x, 0, point.x - rect.right)
+  const dy = Math.max(rect.top - point.y, 0, point.y - rect.bottom)
   return Math.sqrt(dx * dx + dy * dy)
 }
 
@@ -62,18 +58,17 @@ export function findNearbyObject(svg, evt) {
 
   // First try exact element under pointer
   closestWrapper = evt.target.closest('g.wrapper')
-  const point = getPointFromEvent(evt, svg)
 
   if (!closestWrapper) { // Get all selectable elements
+    const tolerance = 10
+    const point = { x: evt.clientX, y: evt.clientY }
+
     const elements = Array.from(svg.querySelectorAll('g.wrapper'))
     let closestDistance = Infinity
-    const dynamicTolerance = 0
 
     elements.forEach(el => {
-      let bbox = el.getBBox()
-      let distance = distanceToBBox(point, bbox)
-
-      if (distance < closestDistance && distance <= dynamicTolerance) {
+      let distance = distanceToElement(point, el)
+      if (distance < closestDistance && distance <= tolerance) {
         closestDistance = distance
         closestWrapper = el
       }

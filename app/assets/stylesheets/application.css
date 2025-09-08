@@ -31,14 +31,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none
 }
 
 .diagram-container svg {
-  position: relative; /* Change from absolute to relative */
+  position: relative;
   max-width: 100%;
   height: auto;
   top: unset;
   left: unset;
+}
+
+.control-point,
+.handle,
+.symbol {
+  touch-action: none;
 }
 
 /* Unified Step Styles */
@@ -47,8 +56,8 @@
   grid-template-columns: auto 1fr;
   gap: 1rem;
   align-items: start;
-  padding-bottom: 0; /* Remove bottom padding */
-  margin-bottom: 1rem; /* Reduce margin */
+  padding-bottom: 0;
+  margin-bottom: 1rem;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -110,7 +119,7 @@
   }
 }
 
-.responsive-steps > .step-container:last-child,
+.responsive-steps>.step-container:last-child,
 .step-container:last-child {
   margin-bottom: 0;
   padding-bottom: 0;
@@ -118,5 +127,5 @@
 }
 
 .step-content hr.rounded {
-  display: none; /* Remove separator lines */
+  display: none;
 }
