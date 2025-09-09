@@ -26,8 +26,8 @@ module CoachesHelper
 		[ res ]
 	end
 
-	# return grid for @coaches GridComponent
-	def coach_grid(coaches: @coaches)
+	# return table for @coaches TableComponent
+	def coach_table(coaches: @coaches)
 		editor = (u_manager? || u_secretary?)
 		title  = [
 			{ kind: :normal, value: I18n.t("person.name") },

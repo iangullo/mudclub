@@ -1,9 +1,9 @@
 <div id="generic-index">
 	<%= render @title if @title %>
 	<%= render @fields if @fields %>
-	<% if @grid %>
+	<% if @table %>
 		<%= turbo_frame_tag "search-results" do %>
-			<%= render @grid %>
+			<%= render @table %>
 			<%= paginate @page if @page %>
 		<% end %>
 	<% end %>

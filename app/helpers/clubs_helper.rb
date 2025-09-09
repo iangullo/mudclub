@@ -17,8 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 module ClubsHelper
-	# return title for @clubs GridComponent
-	def club_grid(clubs: @clubs)
+	# return @clubs TableComponent
+	def club_table(clubs: @clubs)
 		title = [
 			{ kind: :normal, value: I18n.t("club.logo") },
 			{ kind: :normal, value: I18n.t("person.name") },

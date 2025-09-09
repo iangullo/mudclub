@@ -56,16 +56,16 @@ class ApplicationController < ActionController::Base
 		fields ? FieldsComponent.new(fields) : nil
 	end
 
-	# return GridComponent object from a grid hash
-	def create_grid(grid, controller: nil, align: nil)
-		grid ? GridComponent.new(grid, controller:, align:) : nil
+	# return TableComponent object from a table hash
+	def create_table(table, controller: nil, align: nil)
+		table ? TableComponent.new(table, controller:, align:) : nil
 	end
 
 	# prepare typical controller index page variables
-	def create_index(title:, fields: nil, grid: nil, page: nil, retlnk: nil, submit: nil)
+	def create_index(title:, fields: nil, table: nil, page: nil, retlnk: nil, submit: nil)
 		@title  = create_fields(title)
 		@fields = create_fields(fields)
-		@grid   = create_grid(grid)
+		@table  = create_table(table)
 		@page   = page
 		if retlnk || submit
 			@submit = create_submit(close: :back, retlnk:, submit:)

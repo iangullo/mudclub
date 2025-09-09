@@ -19,62 +19,62 @@
 # Managament of MudClub server users
 class UsersController < ApplicationController
 	include Filterable
-	before_action :set_user, only: [:show, :edit, :update, :destroy, :actions, :clear_actions]
+	before_action :set_user, only: [ :show, :edit, :update, :destroy, :actions, :clear_actions ]
 
 	# GET /users
 	# GET /users.json
 	def index
-		if check_access(roles: [:admin])
-			search = (params[:search].presence || session.dig('user_filters', 'search'))
+		if check_access(roles: [ :admin ])
+			search = (params[:search].presence || session.dig("user_filters", "search"))
 			@users = User.search(search, current_user)
 			page   = paginate(@users)	# paginate results
-			title  = helpers.person_title_fields(title: I18n.t("user.many"), icon: {concept: "user", options: {size: "50x50"}})
-			title << [{kind: :search_text, key: :search, value: search, url: users_path(rdx: @rdx)}]
-			grid   = helpers.user_grid(users: @u_page)
-			create_index(title:, grid:, page:, retlnk: base_lnk("/"))
+			title  = helpers.person_title_fields(title: I18n.t("user.many"), icon: { concept: "user", options: { size: "50x50" } })
+			title << [ { kind: :search_text, key: :search, value: search, url: users_path(rdx: @rdx) } ]
+			table  = helpers.user_table(users: @u_page)
+			create_index(title:, table:, page:, retlnk: base_lnk("/"))
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /users/1
 	# GET /users/1.json
 	def show
-		if @user && check_access(roles: [:admin], obj: @user)
+		if @user && check_access(roles: [ :admin ], obj: @user)
 			@title = create_fields(helpers.user_show_fields)
 			@role  = create_fields(helpers.user_role_fields(@user))
-			@grid  = create_grid(helpers.team_grid(teams: @user.team_list))
+			@table = create_table(helpers.team_table(teams: @user.team_list))
 			retlnk = (@rdx == 1 ? :back : base_lnk(users_path(rdx: @rdx)))
 			submit  = edit_user_path(@user, rdx: @rdx) if u_admin? || @rdx == 1
 			@submit = create_submit(close: :back, retlnk:, submit:, frame: "modal")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /users/new
 	def new
-		if check_access(roles: [:admin])
+		if check_access(roles: [ :admin ])
 			@user = User.new(locale: current_user.locale)
 			@user.build_person
 			prepare_form(create: true)
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /users/1/edit
 	def edit
-		if @user && check_access(roles: [:admin], obj: @user)
+		if @user && check_access(roles: [ :admin ], obj: @user)
 			prepare_form
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# POST /users.json
 	def create
-		if check_access(roles: [:admin])
+		if check_access(roles: [ :admin ])
 			respond_to do |format|
 				@user = User.new
 				@user.rebuild(user_params)	# build user
@@ -84,28 +84,28 @@ class UsersController < ApplicationController
 						userview = cru_return
 						a_desc   = "#{I18n.t("user.created")} '#{@user.s_name}'"
 						register_action(:created, a_desc, url: user_path(@user, rdx: 2))
-						format.html { redirect_to userview, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :show, status: :created, location: userview }
 					else
 						prepare_form(create: true)
-						format.html { render :new, notice: helpers.flash_message("#{@user.errors}","error") }
+						format.html { render :new, notice: helpers.flash_message("#{@user.errors}", "error") }
 						format.json { render json: @user.errors, status: :unprocessable_entity }
 					end
 				else	# no changes to be made
 					notice = (@user.persisted? ? "#{I18n.t("user.no_data")} '#{@user.s_name}'" : @user.errors)
-					format.html { redirect_to users_path(rdx: @rdx), notice: helpers.flash_message(notice), data: {turbo_action: "replace"}}
+					format.html { redirect_to users_path(rdx: @rdx), notice: helpers.flash_message(notice), data: { turbo_action: "replace" } }
 					format.json { render :index,  :created, location: }
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# PATCH/PUT /users/1
 	# PATCH/PUT /users/1.json
 	def update
-		if @user && check_access(roles: [:admin], obj: @user)
+		if @user && check_access(roles: [ :admin ], obj: @user)
 			respond_to do |format|
 				if params[:user][:password].blank? or params[:user][:password_confirmation].blank?
 					params[:user].delete(:password)
@@ -118,7 +118,7 @@ class UsersController < ApplicationController
 						@user.bind_person(save_changes: true) # ensure binding is correct
 						a_desc = "#{I18n.t("user.updated")} '#{@user.s_name}'"
 						register_action(:updated, a_desc, url: user_path(@user, rdx: 2))
-						format.html { redirect_to userview, notice: helpers.flash_message(a_desc,"success"), data: {turbo_action: "replace"} }
+						format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :show, status: :ok, location: userview }
 					else
 						prepare_form
@@ -126,55 +126,54 @@ class UsersController < ApplicationController
 						format.json { render json: @user.errors, status: :unprocessable_entity }
 					end
 				else	# no changes made
-					format.html { redirect_to userview, notice: no_data_notice, data: {turbo_action: "replace"} }
+					format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
 					format.json { render :show, status: :ok, location: userview }
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# DELETE /users/1
 	# DELETE /users/1.json
 	def destroy
-		if @user && check_access(roles: [:admin])
-			uname = @user.s_name
+		if @user && check_access(roles: [ :admin ])
 			@user.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("user.deleted")} '#{@user.s_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to users_path(rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to users_path(rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# modal view of User Action log
 	def actions
-		if @user && check_access(roles: [:admin], obj: @user)
+		if @user && check_access(roles: [ :admin ], obj: @user)
 			@title  = create_fields(helpers.user_actions_title)
 			@actions= create_fields(helpers.user_actions_table)
 			@submit = create_submit(submit: helpers.user_actions_clear_fields, frame: "modal")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# forget user_actions when reviewed
 	def clear_actions
-		if @user && check_access(roles: [:admin])
+		if @user && check_access(roles: [ :admin ])
 			UserAction.clear(@user)
 			respond_to do |format|
 				a_desc = "#{I18n.t("user.cleared")} '#{@user.s_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to cru_return, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to cru_return, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -199,7 +198,7 @@ class UsersController < ApplicationController
 		# Use callbacks to share common setup or constraints between actions.
 		def set_user
 			@user = (User.find_by_id(params[:id]) unless @user&.id==params[:id]) || current_user
-			@rdx  = 1 if (@user&.id.to_i == current_user&.id)
+			@rdx  = 1 if @user&.id.to_i == current_user&.id
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

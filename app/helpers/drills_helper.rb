@@ -114,8 +114,8 @@ module DrillsHelper
 		]
 	end
 
-	# return grid for @drills GridComponent
-	def drill_grid(drills: @drills)
+	# return table for @drills TableComponent
+	def drill_table(drills: @drills)
 		track = { s_url: drills_path(rdx: @rdx), s_filter: "drill_filters" }
 		title = [
 			{ kind: :normal, value: I18n.t("kind.single"), align: "center", sort: (session.dig("drill_filters", "kind_id") == "kind_id"), order_by: "kind_id" },
@@ -250,7 +250,7 @@ module DrillsHelper
 	end
 
 	private
-		# get the grid rows for @drills
+		# get the table rows for @drills
 		def drill_rows(drills:)
 			rows = Array.new
 			drills.each { |drill|

@@ -52,13 +52,13 @@ class Sport < ApplicationRecord
 		raise ERR_NEED_SPECIFIC
 	end
 
-	# grid to show/edit player outings for a match
-	def outings_grid(event, outings, edit: false, home: nil, log: nil)
+	# table to show/edit player outings for a match
+	def outings_table(event, outings, edit: false, home: nil, log: nil)
 		raise ERR_NEED_SPECIFIC
 	end
 
-	# grid to show/edit player stats for a match
-	def stats_grid(event, edit: false, home: nil, log: nil)
+	# table to show/edit player stats for a match
+	def stats_table(event, edit: false, home: nil, log: nil)
 		raise ERR_NEED_SPECIFIC
 	end
 

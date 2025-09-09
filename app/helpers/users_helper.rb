@@ -32,7 +32,7 @@ module UsersHelper
 	end
 
 	# Fieldcomponents to display user roles
-	def user_role_fields(user = current_user, grid: false)
+	def user_role_fields(user = current_user, table: false)
 		res =[]
 		# res << [		# removing cause IP registered is always local - from NGINX
 		#	gap_field(size: 1},
@@ -49,7 +49,7 @@ module UsersHelper
 		end
 		res << (user.is_coach? ? symbol_field("coach", { namespace: "sport", title: I18n.t("role.coach") }) : gap_field(size: 0))
 		res << (user.is_player? ? symbol_field("player", { namespace: "sport", title: I18n.t("role.player") }) : gap_field(size: 0))
-		return res if grid	# only interested in these 3 icons
+		return res if table	# only interested in these 3 icons
 		res << gap_field
 		unless @user.user_actions.empty?
 			res <<	button_field(
@@ -103,13 +103,13 @@ module UsersHelper
 		]
 	end
 
-	# return user_actions GridComponent
+	# return user_actions TableComponent
 	def user_actions_title
 		res  = person_title_fields(title: @user.person.s_name, icon: user_actions_symbol, rows: 4)
 		res << [ { kind: :subtitle, value: I18n.t("user.actions") } ]
 	end
 
-	# return user_actions GridComponent
+	# return user_actions TableComponent
 	def user_actions_table
 		res = [ [
 			top_cell_field(I18n.t("calendar.date")),
@@ -130,8 +130,8 @@ module UsersHelper
 		{ kind: :clear, url: clear_actions_user_path(rdx: @rdx), name: @user.s_name }
 	end
 
-	# return grid for @users GridComponent
-	def user_grid(users: @users)
+	# return table for @users TableComponent
+	def user_table(users: @users)
 		title = [
 			{ kind: :normal, value: I18n.t("club.single") },
 			{ kind: :normal, value: I18n.t("person.name") },
@@ -146,7 +146,7 @@ module UsersHelper
 			row = { url: user_path(user, rdx: @rdx), items: [] }
 			row[:items] << (user.active? ? icon_field(user.club.logo) : symbol_field("no"))
 			row[:items] << { kind: :normal, value: user.s_name }
-			row[:items] += user_role_fields(user, grid: true)
+			row[:items] += user_role_fields(user, table: true)
 			row[:items] << { kind: :contact, phone: user.person.phone, email: user.person.email }
 			row[:items] << { kind: :normal, value: user.last_sign_in_at&.to_date, align: "center" }
 			row[:items] << button_field({ kind: :delete, url: row[:url], name: user.s_name }) if u_admin? and user.id!=current_user.id

@@ -29,8 +29,8 @@ module DivisionsHelper
 		res << [ gap_field, { kind: :text_box, key: :name, value: @division.name, placeholder: I18n.t("division.name"), mandatory: { length: 3 } } ]
 	end
 
-	# return grid for @divisions GridComponent
-	def division_grid
+	# return table for @divisions TableComponent
+	def division_table
 		title = [ { kind: :normal, value: I18n.t("division.name") } ]
 		title << button_field({ kind: :add, url: new_sport_division_path(@sport, rdx: @rdx), frame: "modal" }) if u_admin?
 

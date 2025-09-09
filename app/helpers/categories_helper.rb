@@ -61,8 +61,8 @@ module CategoriesHelper
 		res
 	end
 
-	# return header for @categories GridComponent
-	def category_grid
+	# return header for @categories tableComponent
+	def category_table
 		title = [
 			{ kind: :normal, value: I18n.t("category.name") },
 			{ kind: :normal, value: I18n.t("sex.label") },

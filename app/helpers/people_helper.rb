@@ -55,8 +55,8 @@ module PeopleHelper
 		res
 	end
 
-	# return title for @people GridComponent
-	def person_grid
+	# return title for @people TableComponent
+	def person_table
 		title = [ { kind: :normal, value: I18n.t("person.name") } ]
 		title << button_field({ kind: :add, url: new_person_path, frame: "modal" }) if u_admin?
 

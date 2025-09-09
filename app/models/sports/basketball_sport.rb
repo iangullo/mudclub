@@ -78,8 +78,8 @@ class BasketballSport < Sport
 		outings
 	end
 
-	# grid to show/edit player outings for a match
-	def outings_grid(event, outings, edit: false, rdx: nil)
+	# table to show/edit player outings for a match
+	def outings_table(event, outings, edit: false, rdx: nil)
 		title = [ { kind: :normal, value: I18n.t("player.number"), align: "center" }, { kind: :normal, value: I18n.t("person.name") } ]
 		rows  = []
 		kind  = (edit ? :text : :normal)
@@ -127,8 +127,8 @@ class BasketballSport < Sport
 		{ title:, rows:, data: }
 	end
 
-	# grid to show/edit player stats for a match
-	def stats_grid(event, edit: false, rdx: nil)
+	# table to show/edit player stats for a match
+	def stats_table(event, edit: false, rdx: nil)
 		head = match_stats_header(edit:)
 		rows = []
 		e_stats = event.stats

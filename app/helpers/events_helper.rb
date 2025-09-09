@@ -101,9 +101,9 @@ module EventsHelper
 		res
 	end
 
-	# A Field Component with top link + grid for events. obj is the parent oject (season/team)
+	# A Field Component with top link + table for events. obj is the parent oject (season/team)
 	# if it's a season, we need to reference everything to the userclub
-	def event_list_grid(obj:)
+	def event_list_table(obj:)
 		if clubevent = (obj.class==Season)	# global club event ?
 			season_id = obj.id
 			events    = @club.upcoming_events
@@ -119,7 +119,7 @@ module EventsHelper
 		rows    = event_rows(events:, season_id:)
 		btn_add = new_event_button(obj:, clubevent:)
 		title << btn_add if btn_add
-		[ event_list_toprow(clubevent:), [ { kind: :grid, value: { title:, rows: }, cols: 3 } ] ]
+		[ event_list_toprow(clubevent:), [ { kind: :table, value: { title:, rows: }, cols: 3 } ] ]
 	end
 
 	# fields to display player's stats for an event
@@ -196,17 +196,17 @@ module EventsHelper
 		match_fields(edit: true, new:)
 	end
 
-	# player grid for a match
-	def match_roster_grid(edit: false)
+	# player table for a match
+	def match_roster_table(edit: false)
 		a_rules = @sport.rules.key(@event.team.category.rules)
 		if (outings = @sport.match_outings(a_rules))
-			grid = @sport.outings_grid(@event, outings, edit:, rdx: @rdx)
+			table = @sport.outings_table(@event, outings, edit:, rdx: @rdx)
 			stim = "outings"
 		else
-			grid = @sport.stats_grid(@event, edit:, rdx: @rdx)
+			table = @sport.stats_table(@event, edit:, rdx: @rdx)
 			stim = nil
 		end
-		{ data: grid, controller: stim }
+		{ data: table, controller: stim }
 	end
 
 	# return accordion for event tasks
@@ -312,10 +312,10 @@ module EventsHelper
 			end
 		end
 
-		# define the toprow for an events list (just above the grid itself)
+		# define the toprow for an events list (just above the table itself)
 		def event_list_toprow(clubevent:)
 			calendurl = clubevent ? club_events_path(@clubid, season_id: @season&.id, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
-			toprow = [	#  top row above the grid
+			toprow = [	#  top row above the table
 				button_field(
 					{ kind: :link, symbol: "calendar", label: I18n.t("calendar.label"), size: "30x30", url: calendurl },
 					class: "align-middle text-indigo-900"
@@ -331,7 +331,7 @@ module EventsHelper
 			toprow
 		end
 
-		# return GridComponent @rows for events passed
+		# return TableComponent @rows for events passed
 		def event_rows(events:, season_id:)
 			rows  = Array.new
 			events&.each do |event|

@@ -24,33 +24,33 @@ class EventsController < ApplicationController
 
 	# GET /events or /events.json
 	def index
-		if user_in_club? || check_access(roles: [:admin])
+		if user_in_club? || check_access(roles: [ :admin ])
 			get_event_context
 			start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
 			club       = Club.find_by_id(@clubid)
 			team       = Team.find_by_id(@teamid) if @teamid
 			season     = Season.find_by_id(@seasonid) || team&.season
 			url        = (team ? team_events_path(team, start_date:) : club_events_path(@clubid, season_id: season&.id, start_date:))
-			anchor     = {url:, rdx: @rdx}
+			anchor     = { url:, rdx: @rdx }
 			@title     = create_fields(helpers.event_index_title(team:, season:))
 			@calendar  = CalendarComponent.new(anchor:, obj: (team || club), start_date:, user: current_user, create_url: new_event_path)
 			zerolnk    = (team ? team_path(team, rdx: @rdx) : club_path(@clubid, season_id: season&.id, rdx: @rdx))
 			@submit    = create_submit(close: :back, submit: nil, retlnk: base_lnk(zerolnk))
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /events/1 or /events/1.json
 	def show
-		if user_in_club? && @event && check_access(roles: [:manager, :coach], obj: @event.team)
+		if user_in_club? && @event && check_access(roles: [ :manager, :coach ], obj: @event.team)
 			respond_to do |format|
 				title = helpers.event_title_fields(cols: @event.train? ? 3 : nil)
 				format.pdf do
 					if u_manager? || u_coach?
-						response.headers['Content-Disposition'] = "attachment; filename=drill.pdf"
+						response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
 						pdf = event_to_pdf(title)
-						send_data pdf.render(filename: "#{@event.to_s}.pdf", type: "application/pdf")
+						send_data pdf.render(filename: "#{@event}.pdf", type: "application/pdf")
 					end
 				end
 				format.html do
@@ -61,12 +61,12 @@ class EventsController < ApplicationController
 						submit  = edit_event_path(season_id: @seasonid, cal: @cal) if editor
 						@submit = create_submit(submit:, frame: "modal")
 					elsif @event.train? && @event.team.has_player(player_id)	# we want to check player stats for a training session
-						redirect_to player_stats_event_path(@event, player_id:, rdx: @rdx, cal: @cal), data: {turbo_action: "replace"}
+						redirect_to player_stats_event_path(@event, player_id:, rdx: @rdx, cal: @cal), data: { turbo_action: "replace" }
 					else	# gotta be a coach or manager
 						if @event.match?
 							@fields = create_fields(helpers.match_show_fields)
-							grid    = helpers.match_roster_grid
-							@grid   = create_grid(grid[:data], controller: grid[:controller])
+							table   = helpers.match_roster_table
+							@table  = create_table(table[:data], controller: table[:controller])
 						else
 							@targets = create_fields(helpers.training_target_fields)
 							@fields  = create_fields(helpers.training_show_fields)
@@ -77,7 +77,7 @@ class EventsController < ApplicationController
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -93,13 +93,13 @@ class EventsController < ApplicationController
 				if @event.rest? || team_manager?(@event.team)
 					prepare_event_form(new: true)
 				else
-					redirect_to(retlnk, data: {turbo_action: "replace"})
+					redirect_to(retlnk, data: { turbo_action: "replace" })
 				end
 			else
-				redirect_to(retlnk, data: {turbo_action: "replace"})
+				redirect_to(retlnk, data: { turbo_action: "replace" })
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -108,7 +108,7 @@ class EventsController < ApplicationController
 		if event_manager?
 			prepare_event_form(new: false)
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -126,8 +126,8 @@ class EventsController < ApplicationController
 					c_notice = helpers.event_create_notice
 					modal    = @event.rest?
 					register_action(:created, c_notice[:message], url: event_path(@event, rdx: 2), modal:)
-					format.html { redirect_to @retlnk, notice: c_notice, data: {turbo_action: "replace"} }
-					format.json { render :show, status: :created, location: @retlnk}
+					format.html { redirect_to @retlnk, notice: c_notice, data: { turbo_action: "replace" } }
+					format.json { render :show, status: :created, location: @retlnk }
 				else
 					prepare_event_form(new: true)
 					format.html { render :new, status: :unprocessable_entity }
@@ -135,7 +135,7 @@ class EventsController < ApplicationController
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -144,8 +144,6 @@ class EventsController < ApplicationController
 		if event_manager?
 			respond_to do |format|
 				e_data  = event_params
-				url     = event_path(@event, rdx: @rdx)
-				modal   = @event.rest?
 				@player = Player.find_by_id(e_data[:player_id].presence)
 				@event.rebuild(e_data)
 				cru_return(e_data)
@@ -159,7 +157,7 @@ class EventsController < ApplicationController
 					if @event.modified?	# do we need to save?
 						if @event.save
 							changed = true
-							@retlnk = event_path(@event, rdx: @rdx, cal: @cal)	
+							@retlnk = event_path(@event, rdx: @rdx, cal: @cal)
 							@event.tasks.reload if e_data[:tasks_attributes] # a training session
 						else
 							prepare_event_form(new: false)	# continue editing, it did not work
@@ -172,11 +170,11 @@ class EventsController < ApplicationController
 				end
 				@notice = helpers.event_update_notice(@notice, changed:)
 				register_action(:updated, @notice[:message], url: event_path(rdx: 2)) if changed && !e_data[:task].present?
-				format.html { redirect_to @retlnk, notice: @notice, data: {turbo_action: "replace"}}
+				format.html { redirect_to @retlnk, notice: @notice, data: { turbo_action: "replace" } }
 				format.json { render @retview, status: :ok, location: @retlnk }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -190,11 +188,11 @@ class EventsController < ApplicationController
 				next_act = team.id > 0 ? :show : :index
 				a_desc   = helpers.event_delete_notice
 				register_action(:deleted, a_desc[:message])
-				format.html { redirect_to next_url, action: next_act.to_sym, status: :see_other, notice: a_desc, data: {turbo_action: "replace"} }
+				format.html { redirect_to next_url, action: next_act.to_sym, status: :see_other, notice: a_desc, data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -205,13 +203,13 @@ class EventsController < ApplicationController
 			@fields = create_fields(helpers.event_attendance_form_fields)
 			@submit = create_submit(retlnk: event_path(@event, rdx: @rdx))
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /events/1/copy
 	def copy
-		if @event && (user_in_club? && check_access(roles: [:manager, :coach]))
+		if @event && (user_in_club? && check_access(roles: [ :manager, :coach ]))
 			@season = Season.latest
 			@teams  = get_teams
 			if @teams	# we have some teams we can copy to
@@ -219,10 +217,10 @@ class EventsController < ApplicationController
 				@submit = create_submit
 			else
 				notice  = helpers.flash_message("#{I18n.t("team.none")} ", "info")
-				redirect_to event_path(@event, rdx: @rdx), notice:, data: {turbo_action: "replace"}
+				redirect_to event_path(@event, rdx: @rdx), notice:, data: { turbo_action: "replace" }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -231,7 +229,7 @@ class EventsController < ApplicationController
 		if event_manager?
 			prepare_task_form("add", retlnk: edit_event_path(@event), search_in: add_task_event_path(@event))
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -240,29 +238,29 @@ class EventsController < ApplicationController
 		if event_manager?
 			prepare_task_form("edit", retlnk: edit_event_path(@event), search_in: edit_task_event_path(@event), task_id: true)
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /events/1/show_task
 	def show_task
-		if @event && (user_in_club? && check_access(roles: [:manager, :coach]))
+		if @event && (user_in_club? && check_access(roles: [ :manager, :coach ]))
 			@task   = Task.find(params[:task_id])
 			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
 			submit  = edit_task_event_path(task_id: @task.id) if event_manager?
 			@submit = create_submit(close: :back, retlnk: :back, submit:)
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /events/1/load_chart
 	def load_chart
-		if @event && (user_in_club? && check_access(roles: [:manager, :coach]))
+		if @event && (user_in_club? && check_access(roles: [ :manager, :coach ]))
 			header = helpers.event_title_fields(cols: @event.train? ? 3 : nil, chart: true)
 			@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -275,13 +273,13 @@ class EventsController < ApplicationController
 					@title  = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
 					@fields = create_fields(helpers.event_player_stats_fields)
 					editor  = (u_manager? || @event.team.has_coach(u_coachid) || @event.team.has_player(u_playerid))
-					@submit = create_submit(submit: @player ? edit_player_stats_event_path(@event, player_id: u_playerid) : nil, frame: "modal")
+					@submit = create_submit(submit: editor ? edit_player_stats_event_path(@event, player_id: u_playerid) : nil, frame: "modal")
 				else
-					redirect_to team_path(@event.team, rdx: @rdx), data: {turbo_action: "replace"}
+					redirect_to team_path(@event.team, rdx: @rdx), data: { turbo_action: "replace" }
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -295,11 +293,11 @@ class EventsController < ApplicationController
 					@fields = create_fields(helpers.event_edit_player_stats_fields)
 					@submit = create_submit
 				else
-					redirect_to team_path(@event.team, rdx: @rdx), data: {turbo_action: "replace"}
+					redirect_to team_path(@event.team, rdx: @rdx), data: { turbo_action: "replace" }
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -308,7 +306,7 @@ class EventsController < ApplicationController
 		def check_attendance(p_array)
 			changed   = nil	# first pass
 			attendees = Array.new	# array to include all player_ids
-			p_array.each {|p| attendees <<  Player.find(p.to_i) unless (p=="" or p.to_i==0)}
+			p_array.each { |p| attendees <<  Player.find(p.to_i) unless p=="" or p.to_i==0 }
 
 			attendees.each do |player|	# second pass - manage associations
 				unless @event.has_player(player.id)
@@ -323,7 +321,7 @@ class EventsController < ApplicationController
 					@event.players.delete(player)
 				end
 			end
-			return changed
+			changed
 		end
 
 		# check stats - a single player updating an event
@@ -382,8 +380,8 @@ class EventsController < ApplicationController
 			p_title = header.take(2)
 			p_title[0][1][:cols] = 1
 			p_title[1][0][:cols] = 1
-			footer = "#{@event.team.to_s} #{@event.date_string}"
-			pdf    = pdf_create(header: p_title, footer:)#, full_width: true)
+			footer = "#{@event.team} #{@event.date_string}"
+			pdf    = pdf_create(header: p_title, footer:)# , full_width: true)
 			if @event.kind == "train"
 				pdf_label_text(label: I18n.t("target.many"), text: @event.print_targets)
 				pdf_separator_line(style: "empty")
@@ -417,9 +415,9 @@ class EventsController < ApplicationController
 			teams = (u_manager? ? u_club.teams.for_season(@season.id) : current_user.coach.team_list(season_id: @season.id))
 			opts  = []
 			teams.each do |team|
-				opts << {id: team.id, name: team.name}
+				opts << { id: team.id, name: team.name }
 			end
-			return opts
+			opts
 		end
 
 		# determine the right retlnk for a show/new operation
@@ -428,11 +426,11 @@ class EventsController < ApplicationController
 				sdate = @event.start_date
 				return team_events_path(@event.team_id, start_date: sdate, cal: true, rdx: @rdx) if @event&.team_id > 0	# coming froma team calendar event view
 				return season_events_path(@event.team.season_id, start_date: sdate, cal: true, rdx: @rdx) if @seasonid	# it's a season calendar
-				return "/"	# failsafe
+				"/"	# failsafe
 			else	# return to regular parent view
 				return team_path(id: @teamid, rdx: @rdx) if @teamid
 				return club_path(id: @clubid, season_id: @seasonid, rdx: @rdx) if @seasonid && @clubid
-				return "/"
+				"/"
 			end
 		end
 
@@ -442,7 +440,7 @@ class EventsController < ApplicationController
 				t_param = event_params[:task]
 			elsif params[:task] # comes from a dynamic refresh
 				tmp     = params[:task][:drill_id]&.split("|")
-				t_param = {drill_id: tmp[0], task_id: tmp[1]}
+				t_param = { drill_id: tmp[0], task_id: tmp[1] }
 			else
 				t_param = params
 			end
@@ -476,15 +474,15 @@ class EventsController < ApplicationController
 			if @event.match?
 				@fields  = create_fields(helpers.match_form_fields(new:))
 				unless new
-					grid  = helpers.match_roster_grid(edit: true)
-					@grid = create_grid(grid[:data], controller: grid[:controller])
+					table  = helpers.match_roster_table(edit: true)
+					@table = create_table(table[:data], controller: table[:controller])
 				end
 			end
 			unless new # editing
 				unless @event.rest?
 					r_lnk = event_path(@event, rdx: @rdx, cal: @cal)
 					if @event.train?
-						@btn_add = create_button({kind: :add, label: I18n.t("task.add"), url: add_task_event_path(rdx: @rdx)}) if (u_manager? || @event.team.has_coach(u_coachid))
+						@btn_add = create_button({ kind: :add, label: I18n.t("task.add"), url: add_task_event_path(rdx: @rdx) }) if u_manager? || @event.team.has_coach(u_coachid)
 						@drills  = @event.drill_list
 					end
 					@submit = create_submit(close: :back, retlnk: r_lnk)
@@ -521,9 +519,9 @@ class EventsController < ApplicationController
 				e_copy.save unless e_copy.id	# save if it's a new event
 				e_copy.duration = @event.duration
 				e_copy.targets.delete_all
-				@event.targets.each {|target| e_copy.targets << target.dup}	# copy targets
+				@event.targets.each { |target| e_copy.targets << target.dup }	# copy targets
 				e_copy.tasks.delete_all
-				@event.tasks.each {|task| e_copy.tasks << task.dup}	# copy tasks
+				@event.tasks.each { |task| e_copy.tasks << task.dup }	# copy tasks
 				@event          = e_copy
 			end
 		end
@@ -562,11 +560,11 @@ class EventsController < ApplicationController
 					:team_id,
 					:season_id,
 					outings: {},
-					event_targets_attributes: [:id, :priority, :event_id, :target_id, :_destroy, target_attributes: [:id, :focus, :aspect, :concept]],
+					event_targets_attributes: [ :id, :priority, :event_id, :target_id, :_destroy, target_attributes: [ :id, :focus, :aspect, :concept ] ],
 					player_ids: [],
 					stats_attributes: [],
-					task: [:id, :task_id, :order, :drill_id, :duration, :remarks, :retlnk],
-					tasks_attributes: [:id, :order, :drill_id, :duration, :remarks, :_destroy]
+					task: [ :id, :task_id, :order, :drill_id, :duration, :remarks, :retlnk ],
+					tasks_attributes: [ :id, :order, :drill_id, :duration, :remarks, :_destroy ]
 				)
 		end
 end

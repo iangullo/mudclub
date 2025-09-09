@@ -18,8 +18,8 @@
 #
 # frozen_string_literal: true
 
-# GridComponent - manage data grids as ViewComponent
-# Each grid has two parts:
+# TableComponent - manage data tables as ViewComponent
+# Each table has two parts:
 #   => title items:
 #      => kind: :normal | :inverse | :gap | :button
 #      => value: associated text
@@ -29,27 +29,27 @@
 # optional:
 #   => form: form object (if needed)
 #   => controller: stimulus controller for dynamic view updates
-class GridComponent < ApplicationComponent
+class TableComponent < ApplicationComponent
 	attr_writer :form
 
-	def initialize(grid, form: nil, controller: nil, align: "center")
+	def initialize(table, form: nil, controller: nil, align: "center")
 		if controller	# add stimulus controller and data
 			@controller = controller
-			@data       = grid[:data].merge(action: "change->#{controller}#update")
+			@data       = table[:data].merge(action: "change->#{controller}#update")
 		end
 		@align  = align || "center"
 		@form   = form
-		@title  = parse_title(grid[:title])
-		@rows   = parse_rows(grid[:rows])
-		if grid[:track]
-			@s_url  = grid[:track][:s_url]
-			@s_filt = grid[:track][:s_filter]
+		@title  = parse_title(table[:title])
+		@rows   = parse_rows(table[:rows])
+		if table[:track]
+			@s_url  = table[:track][:s_url]
+			@s_filt = table[:track][:s_filter]
 		end
 	end
 
 	def build_order_link(column:, label:)
 		ord_lnk = "?column=#{column}&direction="
-		if column == session.dig(@s_filt, 'column')
+		if column == session.dig(@s_filt, "column")
 			link_to(label, @s_url + ord_lnk + next_direction)
 		else
 			link_to(label, @s_url + ord_lnk + "#{column}&direction=asc")
@@ -76,7 +76,7 @@ class GridComponent < ApplicationComponent
 	private
 		# track the ordering direction for trackable columns
 		def next_direction
-			session[@s_filt]['direction'] == 'asc' ? 'desc' : 'asc'
+			session[@s_filt]["direction"] == "asc" ? "desc" : "asc"
 		end
 
 		# parse header definition to set correct objects
@@ -111,7 +111,7 @@ class GridComponent < ApplicationComponent
 				row[:data][:turbo_frame] = (row[:frame]=="modal" ? "modal" : "_top") if row[:url]
 				row[:data]["#{@controller}-target"] = "player" if @controller
 				row[:classes] ||= []
-			 	row[:classes]  += ["hover:text-white", "hover:bg-blue-700"] unless row[:name]==:bottom
+				row[:classes]  += [ "hover:text-white", "hover:bg-blue-700" ] unless row[:name]==:bottom
 					row[:items].each { |item|
 					case item[:kind]
 					when :normal, :lines, :icon, :location, :text
@@ -189,7 +189,7 @@ class GridComponent < ApplicationComponent
 					checked: item[:value] == 1,
 					class: "rounded bg-gray-200 text-blue-700",
 					data: {
-						target: "grid.checkbox",
+						target: "table.checkbox",
 						rowId: item[:player_id],
 						columnId: item[:q]
 					}
@@ -197,7 +197,7 @@ class GridComponent < ApplicationComponent
 			end
 		end
 
-		# render the GridComponent header
+		# render the TableComponent header
 		def render_header
 			content_tag(:thead, class: "bg-indigo-900 text-gray-300") do
 				content_tag(:tr) do

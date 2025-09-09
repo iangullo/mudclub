@@ -21,18 +21,17 @@ class HomeController < ApplicationController
 	def index
 		if current_user.present?
 			if u_manager? || u_secretary?	# manage host club
-				redirect_to club_path(u_clubid), data: {turbo_action: "replace"}
+				redirect_to club_path(u_clubid), data: { turbo_action: "replace" }
 			elsif u_coach?
 				@coach  = current_user.coach
 				@fields = create_fields(helpers.coach_show_fields)
-				@grid   = create_grid(helpers.team_grid(teams: @coach.team_list))
+				@table  = create_table(helpers.team_table(teams: @coach.team_list))
 			elsif u_player?
-				start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
 				@player = current_user.player
 				title   = helpers.player_show_fields
 				@fields = create_fields(title)
-				teams   = helpers.team_grid(teams: current_user.team_list)
-				@grid   = create_grid(teams) if teams
+				teams   = helpers.team_table(teams: current_user.team_list)
+				@table  = create_table(teams) if teams
 			elsif u_admin? # manage server
 				redirect_to home_server_path
 			end
@@ -48,32 +47,32 @@ class HomeController < ApplicationController
 	end
 
 	def log
-		if check_access(roles: [:admin, :manager])
+		if check_access(roles: [ :admin, :manager ])
 			if u_admin?
 				actions = UserAction.logs
 			else
 				actions = UserAction.where(user_id: u_club.users.pluck(:id)).order(updated_at: :desc)
 			end
-			title = helpers.home_admin_title(icon: {concept: "actions", size: "50x50"}, title: I18n.t("server.log"))
-			title.last << helpers.button_field({kind: :clear, url: home_clear_path}) unless actions.empty?
+			title = helpers.home_admin_title(icon: { concept: "actions", size: "50x50" }, title: I18n.t("server.log"))
+			title.last << helpers.button_field({ kind: :clear, url: home_clear_path }) unless actions.empty?
 			page  = paginate(actions)	# paginate results
-			grid  = helpers.home_actions_grid(actions: page)
-			create_index(title:, grid:, page:, retlnk: "/")
+			table = helpers.home_actions_table(actions: page)
+			create_index(title:, table:, page:, retlnk: "/")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	def clear
-		if check_access(roles: [:admin])
+		if check_access(roles: [ :admin ])
 			UserAction.clear
 			respond_to do |format|
 				a_desc = I18n.t("user.cleared")
-				format.html { redirect_to home_log_path, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to home_log_path, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 

@@ -8,9 +8,9 @@
 				<%= form.fields_for :stats, Stat.new do |ff| %>
 					<% @fields.form = ff %>
 					<%= render @fields %>
-					<% if @grid %>
-						<% @grid.form = ff %>
-						<%= render @grid %>
+					<% if @table %>
+						<% @table.form = ff %>
+						<%= render @table %>
 					<% end %>
 				<% end %>
 			<% end %>

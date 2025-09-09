@@ -18,19 +18,19 @@
 #
 # Managament of locations registered inmudclub - typicallylinekd to a club
 class LocationsController < ApplicationController
-	before_action :set_locations, only: [:index, :show, :edit, :new, :update, :destroy]
+	before_action :set_locations, only: [ :index, :show, :edit, :new, :update, :destroy ]
 
 	# GET /club/x/locations
 	# GET /club/x/locations.json
 	def index
-		if check_access(roles: [:admin, :manager, :secretary])
+		if check_access(roles: [ :admin, :manager, :secretary ])
 			title  = helpers.location_title_fields(title: I18n.t("location.many"))
 			title << helpers.location_search_bar(search_in: club_locations_path(rdx: @rdx))
 			page   = paginate(@locations)	# paginate results
-			grid   = helpers.location_grid(locations: page)
-			create_index(title:, grid:, page:, retlnk: base_lnk(club_path(@club, rdx: @rdx)))
+			table  = helpers.location_table(locations: page)
+			create_index(title:, table:, page:, retlnk: base_lnk(club_path(@club, rdx: @rdx)))
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -39,29 +39,29 @@ class LocationsController < ApplicationController
 	def show
 		if @location && user_signed_in?	# basically all users can see this
 			@fields = create_fields(helpers.location_show_fields)
-			submit  = edit_location_path(@location, rdx: @rdx) if user_in_club? && check_access(roles: [:manager, :secretary])
+			submit  = edit_location_path(@location, rdx: @rdx) if user_in_club? && check_access(roles: [ :manager, :secretary ])
 			@submit = create_submit(submit:, frame: "modal")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /locations/1/edit
 	def edit
-		if @location && user_in_club? && check_access(roles: [:manager, :secretary])
+		if @location && user_in_club? && check_access(roles: [ :manager, :secretary ])
 			prepare_form("edit")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /locations/new
 	def new
-		if user_in_club? && check_access(roles: [:manager, :secretary])
+		if user_in_club? && check_access(roles: [ :manager, :secretary ])
 			@location = Location.new unless @location
 			prepare_form("new")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
@@ -69,7 +69,7 @@ class LocationsController < ApplicationController
 	# POST /locations.json
 	def create
 		@club = Club.find_by_id(@clubid)
-		if user_in_club? && check_access(roles: [:manager, :secretary])
+		if user_in_club? && check_access(roles: [ :manager, :secretary ])
 			respond_to do |format|
 				@location = Location.new
 				@location.rebuild(location_params) # rebuild @location
@@ -77,9 +77,9 @@ class LocationsController < ApplicationController
 				u_notice  = helpers.flash_message(a_desc, "success")
 				if @location.id!=nil || @location.save # location existed or saved
 					retlnk = crud_return(@club.id)
-					@club.locations |= [@location] if @club
+					@club.locations |= [ @location ] if @club
 					register_action(:created, a_desc, url: location_path(@location), modal: true)
-					format.html { redirect_to retlnk, notice: u_notice, data: {turbo_action: "replace"} }
+					format.html { redirect_to retlnk, notice: u_notice, data: { turbo_action: "replace" } }
 					format.json { render :index, status: :created, location: retlnk }
 				else
 					prepare_form("new")
@@ -88,13 +88,13 @@ class LocationsController < ApplicationController
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# PATCH/PUT /locations/1 or /locations/1.json
 	def update
-		if @location && user_in_club? && check_access(roles: [:manager, :secretary])
+		if @location && user_in_club? && check_access(roles: [ :manager, :secretary ])
 			respond_to do |format|
 				@location.rebuild(location_params)
 				@club  = Club.find_by_id(@clubid)
@@ -104,18 +104,18 @@ class LocationsController < ApplicationController
 					if @location.changed?
 						if @location.save  # try to save
 							register_action(:updated, a_desc, url: location_path(@location, rdx: 2), modal: true)
-							@club.locations |= [@location]
-							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+							@club.locations |= [ @location ]
+							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 							format.json { render :index, status: :created, location: retlnk }
 						else
-							format.html { redirect_to edit_location_path(@location), data: {turbo_action: "replace"} }
+							format.html { redirect_to edit_location_path(@location), data: { turbo_action: "replace" } }
 							format.json { render json: @location.errors, status: :unprocessable_entity }
 						end
 					elsif @club&.locations&.exclude?(@location)
-						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						@club.locations << @location
 					else
-						format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"} }
+						format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
 						format.json { render :index, status: :unprocessable_entity, location: retlnk }
 					end
 				else
@@ -125,14 +125,14 @@ class LocationsController < ApplicationController
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# DELETE /locations/1
 	# DELETE /locations/1.json
 	def destroy
-		if @location && user_in_club? && check_access(roles: [:manager, :secretary])
+		if @location && user_in_club? && check_access(roles: [ :manager, :secretary ])
 			respond_to do |format|
 				@club  = Club.find_by_id(@clubid)
 				l_name = @location.name
@@ -140,11 +140,11 @@ class LocationsController < ApplicationController
 				retlnk = crud_return(@clubid)
 				register_action(:deleted, a_desc)
 				@club.locations.delete(@location)
-				format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { render :index, status: :created, location: retlnk }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 

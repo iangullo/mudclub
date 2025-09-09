@@ -38,15 +38,15 @@ class FlashComponent < ApplicationComponent
 
 	# render component
 	def call
-    content_tag(:div, class: "absolute float-right top-12 right-2 p-2 m-2") do
-      content_tag(:div, id: "alert-#{@count}", class: @d_class, role: "alert", data: { dismiss_duration: 300 }) do
-        concat @notice
+		content_tag(:div, class: "absolute float-right top-12 right-2 p-2 m-2") do
+			content_tag(:div, id: "alert-#{@count}", class: @d_class, role: "alert", data: { dismiss_duration: 300 }) do
+				concat @notice
 				concat dismiss_button
-      end
-    end
+			end
+		end
 	end
 
-  private
+	private
 		# dismiss button for Flash notices
 		def dismiss_button
 			content_tag(:button, type: "button", class: @b_class, "data-dismiss-target": "#alert-#{@count}", "aria-label": "Close") do

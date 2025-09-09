@@ -68,8 +68,8 @@ module HomeHelper
 		]
 	end
 
-	# user action log grid
-	def home_actions_grid(actions:, retlnk: nil)
+	# user action log table
+	def home_actions_table(actions:, retlnk: nil)
 		title = [
 			{ kind: :normal, value: I18n.t("calendar.date"), align: "center" },
 			{ kind: :normal, value: I18n.t("club.single") },

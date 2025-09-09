@@ -37,11 +37,11 @@ class TeamsController < ApplicationController
 				format.html do
 					title   = helpers.team_title_fields(title: I18n.t("team.many"), search: true)
 					page    = paginate(@teams)	# paginate results
-					grid    = helpers.team_grid(teams: page, add_teams: club_manager?(@club))
+					table   = helpers.team_table(teams: page, add_teams: club_manager?(@club))
 					zerolnk = @clubid ? club_path(@clubid, rdx: @rdx) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
 					retlnk  = base_lnk(zerolnk)
 					submit  = { kind: :export, url: club_teams_path(@clubid, format: :xlsx, season_id: @seasonid), working: false } if user_in_club? && (u_manager? || u_secretary?)
-					create_index(title:, grid:, page:, retlnk:, submit:)
+					create_index(title:, table:, page:, retlnk:, submit:)
 					render :index
 				end
 			end
@@ -65,7 +65,7 @@ class TeamsController < ApplicationController
 			@coaches = create_fields(helpers.team_coaches)
 			if u_manager? || u_coach?
 				@links = create_fields(helpers.team_links)
-				@grid  = create_fields(helpers.event_list_grid(obj: @team))
+				@table = create_fields(helpers.event_list_table(obj: @team))
 				submit = edit_team_path(@team, rdx: @rdx) if team_manager?
 			else
 				start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
@@ -197,8 +197,7 @@ class TeamsController < ApplicationController
 			title << icon_subtitle("player", I18n.t("team.roster"), namespace: @team.sport.name)
 			title.last << { kind: :string, value: "(#{players.count} #{I18n.t("player.abbr")})" }
 			@title  = create_fields(title)
-			@title  = create_fields(title)
-			@grid   = create_grid(helpers.player_grid(team: @team, players: players.order(:number)))
+			@table  = create_table(helpers.player_table(team: @team, players: players.order(:number)))
 			submit  = edit_roster_team_path(rdx: @rdx) if team_manager?
 			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit:)
 		else
@@ -294,9 +293,9 @@ class TeamsController < ApplicationController
 			title  = helpers.team_title_fields(title: @team.to_s)
 			title << icon_subtitle("attendance", I18n.t("calendar.attendance"))
 			@title = create_fields(title)
-			a_data = helpers.team_attendance_grid
+			a_data = helpers.team_attendance_table
 			if a_data
-				@grid = create_grid({ title: a_data[:title], rows: a_data[:rows] })
+				@table = create_table({ title: a_data[:title], rows: a_data[:rows] })
 				@att_data = [ a_data[:chart] ] if a_data
 			end
 			@submit = create_submit(submit: nil)

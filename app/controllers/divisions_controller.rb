@@ -23,49 +23,49 @@ class DivisionsController < ApplicationController
 
 	# GET /divisions or /divisions.json
 	def index
-		if check_access(roles: [:admin])
+		if check_access(roles: [ :admin ])
 			@divisions = Division.for_sport(@sport.id)
 			title = helpers.division_title_fields(title: I18n.t("division.many"))
-			grid  = helpers.division_grid
-			create_index(title:, grid:)
+			table = helpers.division_table
+			create_index(title:, table:)
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /divisions/1 or /divisions/1.json
 	def show
-		if @division && check_access(roles: [:admin])
+		if @division && check_access(roles: [ :admin ])
 			fields  = helpers.division_title_fields(title: I18n.t("division.single"), subtitle: @division.name)
 			@fields = create_fields(fields)
 			@submit = create_submit(submit: u_manager? ? edit_sport_division_path(@sport, @division, rdx: @rdx) : nil)
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /divisions/new
 	def new
-		if check_access(roles: [:admin])
+		if check_access(roles: [ :admin ])
 			@division = @sport.divisions.build
 			prepare_form("new")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /divisions/1/edit
 	def edit
-		if @division && check_access(roles: [:admin])
+		if @division && check_access(roles: [ :admin ])
 			prepare_form("edit")
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# POST /divisions or /divisions.json
 	def create
-		if check_access(roles: [:admin])
+		if check_access(roles: [ :admin ])
 			@division = Division.new(sport_id: @sport.id)
 			respond_to do |format|
 				@division.rebuild(division_params)
@@ -73,7 +73,7 @@ class DivisionsController < ApplicationController
 					a_desc = "#{I18n.t("division.created")} '#{@division.name}'"
 					retlnk = crud_return
 					register_action(:created, a_desc, url: sport_division_path(@sport, @division, rdx: 2), modal: true)
-					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :index, status: :created, location: retlnk }
 				else
 					prepare_form("new")
@@ -82,13 +82,13 @@ class DivisionsController < ApplicationController
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# PATCH/PUT /divisions/1 or /divisions/1.json
 	def update
-		if @division && check_access(roles: [:admin])
+		if @division && check_access(roles: [ :admin ])
 			respond_to do |format|
 				retlnk = crud_return
 				@division.rebuild(division_params)
@@ -96,7 +96,7 @@ class DivisionsController < ApplicationController
 					if @division.save
 						a_desc = "#{I18n.t("division.updated")} '#{@division.name}'"
 						register_action(:updated, a_desc, url: sport_division_path(@sport, @division, rdx: 2), modal: true)
-						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: {turbo_action: "replace"} }
+						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :created, location: retlnk }
 					else
 						prepare_form("new")
@@ -104,28 +104,28 @@ class DivisionsController < ApplicationController
 						format.json { render json: @division.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to retlnk, notice: no_data_notice, data: {turbo_action: "replace"}}
-					format.json { render :index, status: :ok, location: retlnk}
+					format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
+					format.json { render :index, status: :ok, location: retlnk }
 				end
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# DELETE /divisions/1 or /divisions/1.json
 	def destroy
-		if @division && check_access(roles: [:admin])
+		if @division && check_access(roles: [ :admin ])
 			d_name = @division.name
 			@division.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("division.deleted")} '#{d_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: {turbo_action: "replace"} }
+				format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else
-			redirect_to "/", data: {turbo_action: "replace"}
+			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 

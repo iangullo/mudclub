@@ -19,7 +19,7 @@
 # View helpers for MudClub sports
 module SportsHelper
 	# sports page for admins
-	def sports_grid
+	def sports_table
 		title = [ { kind: :gap }, { kind: :normal, value: I18n.t("sport.single") }, { kind: :normal, value: I18n.t("team.many") } ]
 		# title << button_field({kind: :add, url: new_sport(rdx: @rdx), frame: "modal"})
 		rows = Array.new

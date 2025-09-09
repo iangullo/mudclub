@@ -28,7 +28,6 @@
 # => :diagram: svgdata (diagram SVG data we are editing), :court (symbol for court background image)
 # => :email_box: :key (field name), :value (email_field), :size (box size)
 # => :gap: :size (count of &nbsp; to separate content)
-# => :grid: :value (GridComponent definition), :form (optional)
 # => :header_icon: :value (name of icon file in assets)
 # => :hidden: :a hidden link for the form
 # => :icon: :icon (name of icon file in assets)
@@ -50,18 +49,19 @@
 # => :search_collection: :key (search field), :url (search_in), :options, :value
 # => :search_box: :key (search field), :url (search_in), :options
 # => :separator: separator line (kind: :dashed, :solid, :dotted, rounded: )
-# => :side_cell: :value (content stiyled like a GridComponent side_cell)
+# => :side_cell: :value (content stiyled like a TableComponent side_cell)
 # => :steps: :steps, :court (responsive rendering of drill steps)
 # => :string: :value (regular text string)
 # => :subtitle: :value (bold text of title)
 # => :svg: :value (raw svg content to show)
 # => :symbol: :value (svg symbol to be rendered)
+# => :table: :value (TableComponent definition), :form (optional)
 # => :targets: array of {text_, status} pairs
 # => :text_area: :key (field name), :value (text_field), :size (box size), lines: number of lines
 # => :text_box: :key (field name), :value (text_field), :size (box size)
 # => :time_box: :hour & :mins (field names)
 # => :title: :value (bold text of title in orange colour)
-# => :top_cell: :value (content stiyled like a GridComponent top_cell)
+# => :top_cell: :value (content styled like a TableComponent top_cell)
 # => :upload: :label, :key (form binding for content), :value (file already assigned)
 class FieldsComponent < ApplicationComponent
 	def initialize(fields, form: nil)
@@ -150,8 +150,6 @@ class FieldsComponent < ApplicationComponent
 				render InputBoxComponent.new(field, form: @form)
 			when "gap"
 				("&nbsp;" * field[:size]).html_safe
-			when "grid"
-				render GridComponent.new(field[:value], form: @form)
 			when /^(.*icon.*|image|symbol)$/
 				render_image_field(field)
 			when "lines"
@@ -160,10 +158,12 @@ class FieldsComponent < ApplicationComponent
 				render NestedComponent.new(model: field[:model], key: field[:key], form: @form, child: field[:child], row: field[:row], filter: field[:filter])
 			when "partial"
 				render field[:content]
-			when "separator"
-				("<hr class=\"#{field[:stroke]}\"").html_safe
 			when "person_type"
 				render_role_icons(field[:icons])
+			when "separator"
+				("<hr class=\"#{field[:stroke]}\"").html_safe
+			when "table"
+				render TableComponent.new(field[:value], form: @form)
 			when "targets"
 				render_targets_field(field)
 			else

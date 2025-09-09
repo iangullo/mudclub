@@ -34,8 +34,8 @@ module LocationsHelper
 		res
 	end
 
-	# return grid for @locations GridComponent
-	def location_grid(locations: @locations)
+	# return table for @locations TableComponent
+	def location_table(locations: @locations)
 		editor = u_admin? || (u_clubid == @clubid && (u_manager? || u_secretary?))
 		title  = [
 			{ kind: :normal, value: I18n.t("location.name") },

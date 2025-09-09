@@ -17,8 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 module TeamsHelper
-	# A Field Component with grid for team attendance. obj is the parent object (player/team)
-	def team_attendance_grid
+	# A Field Component with table for team attendance. obj is the parent object (player/team)
+	def team_attendance_table
 		# Check that the offline job has produced attendance data
 		if (t_att = @team&.attendance)
 			title = [
@@ -110,8 +110,8 @@ module TeamsHelper
 		res
 	end
 
-	# return a GridComponent for the teams given
-	def team_grid(teams: @teams, add_teams: false)
+	# return a TableComponent for the teams given
+	def team_table(teams: @teams, add_teams: false)
 		if teams
 			pcount = (device != "mobile" && (u_admin? || (user_in_club? && (u_manager? || u_secretary?))))
 			title = ((@rdx == 1 || @player || @coach) ? [ { kind: :normal, value: I18n.t("season.abbr") } ] : [])
@@ -264,7 +264,7 @@ module TeamsHelper
 		# return html multiline text for strings
 		def target_content(targets, form: nil, cols: nil)
 			if form
-				targets_form_partial(form, month: targets[:month], aspect:targets[:aspect], focus: targets[:focus], cols:)
+				targets_form_partial(form, month: targets[:month], aspect: targets[:aspect], focus: targets[:focus], cols:)
 			else # just view
 				tgts = targets[:tgts].map { |tgt| { text: tgt.to_s,	status: tgt.status } }
 				{ kind: :targets, class: "border px py align-top", targets: tgts, cols: }
@@ -307,12 +307,12 @@ module TeamsHelper
 				[
 					{ kind: :side_cell, value: I18n.t("target.aspect.ind_a"), align: "center" },
 					target_content({ month:, aspect: 1, focus: 2, tgts: tgts[:t_d_ind] }, form:),
-					target_content({ month:, aspect: 1, focus: 1, tgts: tgts[:t_o_ind] }, form:),
+					target_content({ month:, aspect: 1, focus: 1, tgts: tgts[:t_o_ind] }, form:)
 				],
 				[
 					{ kind: :side_cell, value: I18n.t("target.aspect.col_a"), align: "center" },
 					target_content({ month:, aspect: 2, focus: 2, tgts: tgts[:t_d_col] }, form:),
-					target_content({ month:, aspect: 2, focus: 1, tgts: tgts[:t_o_col] }, form:),
+					target_content({ month:, aspect: 2, focus: 1, tgts: tgts[:t_o_col] }, form:)
 				]
 			]
 		end

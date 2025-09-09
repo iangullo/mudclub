@@ -38,12 +38,12 @@ module PlayersHelper
 		res
 	end
 
-	# return grid fields for players with team indicating
+	# return table fields for players with team indicating
 	# => nil: for players index
 	# => Team: for team roster views
-	def player_grid(players:, team: nil)
+	def player_table(players:, team: nil)
 		manage  = u_manager? || u_secretary? || team&.has_coach(u_coachid)
-		title   = player_grid_title(team:, manage:)
+		title   = player_table_title(team:, manage:)
 		rows    = Array.new
 		players.each { | player|
 			row = { url: player_path(player, team_id: team&.id, rdx: @rdx), items: [] }
@@ -105,8 +105,8 @@ module PlayersHelper
 	end
 
 	private
-		# title for a player grid
-		def player_grid_title(team:, manage: false)
+		# title for a player table
+		def player_table_title(team:, manage: false)
 			title  = [
 				{ kind: :normal, value: I18n.t("player.number"), align: "center" },
 				{ kind: :normal, value: I18n.t("person.name") },

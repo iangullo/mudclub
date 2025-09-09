@@ -32,8 +32,8 @@ module SeasonsHelper
 		res
 	end
 
-	# grid for mudclub seasons
-	def season_grid(seasons: @seasons)
+	# table for mudclub seasons
+	def season_table(seasons: @seasons)
 		title = [
 			{ kind: :normal, value: I18n.t("season.single"), align: "center" },
 			{ kind: :normal, value: I18n.t("team.many"), align: "center" },

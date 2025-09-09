@@ -1,9 +1,9 @@
 <%= render ModalComponent.new do %>
 	<div id="team-attendance">
 		<%= render @title %>
-		<% if @grid # there's data to show %>
+		<% if @table # there's data to show %>
 			<%= line_chart @att_data, legend: false %>
-			<%= render @grid %>
+			<%= render @table %>
 		<% else %>
 			<div class="font-semibold items-center text-center text-gray-500 text-sm mt-6"><%= t("status.empty") %></div>
 		<% end %>

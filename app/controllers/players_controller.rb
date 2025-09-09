@@ -36,10 +36,10 @@ class PlayersController < ApplicationController
 					title  = helpers.person_title_fields(title: I18n.t("player.many"), icon: { concept: "player", options: { namespace: "sport", size: "50x50" } })
 					title << [ { kind: :search_text, key: :search, value: params[:search].presence || session.dig("coach_filters", "search"), url: club_players_path(@clubid, rdx: @rdx) } ]
 					page   = paginate(@players)	# paginate results
-					grid   = helpers.player_grid(players: page)
+					table  = helpers.player_table(players: page)
 					submit = { kind: :export, url: club_players_path(@clubid, format: :xlsx), working: false } if u_manager? || u_secretary?
 					retlnk = base_lnk(club_path(@clubid, rdx: @rdx))
-					create_index(title:, grid:, page:, retlnk:, submit:)
+					create_index(title:, table:, page:, retlnk:, submit:)
 					render :index
 				end
 			end
@@ -53,7 +53,7 @@ class PlayersController < ApplicationController
 	def show
 		if @player && (player_manager? || check_access(obj: @player))
 			@fields = create_fields(helpers.player_show_fields(team: Team.find_by_id(@teamid)))
-			@grid   = create_grid(helpers.team_grid(teams: @player.team_list))
+			@table  = create_table(helpers.team_table(teams: @player.team_list))
 			submit  = edit_player_path(@player, team_id: @teamid, rdx: @rdx)
 			@submit = create_submit(close: :back, retlnk: crud_return, submit:, frame: "modal")
 		else
