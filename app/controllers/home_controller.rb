@@ -78,6 +78,7 @@ class HomeController < ApplicationController
 
 	def server
 		if u_admin? # manage server
+			@title  = create_fields(helpers.title_start(icon: "mudclub.svg", title: "MudClub", subtitle: I18n.t("action.admin"), cols: 3))
 			@fields = create_fields(helpers.home_admin_fields)
 		end
 	end

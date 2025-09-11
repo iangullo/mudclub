@@ -16,13 +16,26 @@
 			<%= render @topbar %>
 			<%= render FlashComponent.new(notice) if notice %>
 		</header>
+		<div class="flex sticky top-16 justify-center bg-white text-black border-b border-gray-300">
+			<%= render @title if @title %>
+		</div>
 
 		<!-- App content goes here -->
-		<main class="flex-1 min-h-0 overflow-auto">
+		<main class="flex-1 min-h-0 overflow-auto mt-2">
 			<%= turbo_frame_tag "modal" %>
-			<div class="flex w-full h-full justify-center items-start p-2">
+			<div class="flex w-full h-full justify-center items-start">
 				<%= yield %>
 			</div>
 		</main>
+
+		<!-- Conditional footer content -->
+		<footer class="flex-none sticky bottom-0 bg-white border-t border-gray-300">
+		  <div class="max-w-7xl mx-auto">
+		  	<%= render @footer if @footer %>
+			<div class="text-center text-xs text-gray-500 mb-2">
+				<a href="<%= home_about_path %>" data-turbo-frame= "modal">MudClub © iangullo (<%= Time.current.year %>)</a>
+			</div>
+		  </div>
+		</footer>
 	</body>
 </html>

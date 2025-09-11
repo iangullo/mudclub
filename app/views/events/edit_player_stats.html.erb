@@ -1,6 +1,6 @@
 <%= render ModalComponent.new do %>
 	<%= form_for @event, data: {turbo_frame: "_top"} do |form| %>
-		<%= render @title %>
+		<%= render @fstart %>
 		<% if @event.match? %>
 			<strong><%= @event.to_s %></strong>
 			<br>

@@ -167,7 +167,7 @@ class DrillsController < ApplicationController
 	def load_diagram
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
 			if @step
-				@title   = create_fields(helpers.drill_title_fields(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
+				@fields  = create_fields(helpers.drill_title_fields(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
 				@loader  = create_fields(helpers.drill_form_diagram_file)
 				@submit  = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
 			else
@@ -199,7 +199,7 @@ class DrillsController < ApplicationController
 	# GET /drills/1/versions
 	def versions
 		if check_access(roles: [ :manager, :coach ])
-			@title   = create_fields(helpers.drill_versions_title)
+			@mtitle  = create_fields(helpers.drill_versions_title)
 			@table   = create_fields(helpers.drill_versions_table)
 			@submit  = create_submit(submit: nil)
 		else
@@ -228,7 +228,7 @@ class DrillsController < ApplicationController
 
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(action)
-			@title     = create_fields(helpers.drill_form_title(title: I18n.t("drill.#{action}")))
+			@fields    = create_fields(helpers.drill_form_title(title: I18n.t("drill.#{action}")))
 			@court     = @drill.court_mode
 			@playbook  = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
 			@formdata  = create_fields(helpers.drill_form_data)

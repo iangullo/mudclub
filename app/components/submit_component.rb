@@ -39,9 +39,9 @@ class SubmitComponent < ApplicationComponent
 	end
 
 	def call	# render HTML
-		content_tag(:div, class: "inline-flex align-middle flow-root mt-3 mb-1") do
-			render_button(@close, "float-left mr-3 ml-1") if @close.present?
-			render_button(@submit, "float-right ml-3 mr-1") if @submit.present?
+		content_tag(:div, class: "inline-flex align-middle flow-root mt-2 mb-1") do
+			render_button(@close, "float-left mr-4 ml-1") if @close.present?
+			render_button(@submit, "float-right ml-4 mr-1") if @submit.present?
 		end
 	end
 

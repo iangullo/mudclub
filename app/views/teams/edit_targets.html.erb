@@ -1,5 +1,4 @@
 <div id="edit-targets">
-	<%= render @title %>
 	<%= form_with model: @team, data: {turbo_frame: "_top"} do |form| %>
     <%= render FieldsComponent.new(team_targets_form_fields(form), form: form) %>
 		<%= form.hidden_field :rdx, value: @rdx if @rdx %>

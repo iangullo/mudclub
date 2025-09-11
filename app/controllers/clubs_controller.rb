@@ -158,7 +158,7 @@ class ClubsController < ApplicationController
 
 		# prepare a form to edit/create a club
 		def prepare_form(title:)
-			@title  = create_fields(helpers.club_form_title(title:))
+			@mtitle = create_fields(helpers.club_form_title(title:))
 			@fields = create_fields(helpers.club_form_fields)
 			@submit = create_submit
 		end

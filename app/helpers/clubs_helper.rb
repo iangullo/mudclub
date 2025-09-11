@@ -43,18 +43,21 @@ module ClubsHelper
 	# FieldComponent fields for club links
 	def club_links
 		if user_in_club?	# user's club
-			res = [
-				[
+			res = []
+			if club_manager? || u_secretary?
+				res << [
 					button_field({ kind: :jump, symbol: symbol_hash("player", namespace: "sport"), url: club_players_path(@club, rdx: 0), label: I18n.t("player.many") }, align: "center"),
 					button_field({ kind: :jump, symbol: symbol_hash("coach", namespace: "sport"), url: club_coaches_path(@club, rdx: 0), label: I18n.t("coach.many") }, align: "center"),
 					button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: I18n.t("team.many") }, align: "center")
-				],
-				[
-					button_field({ kind: :jump, symbol: "rivals", url: clubs_path(rdx: 0), label: I18n.t("club.rivals") }, align: "center"),
-					button_field({ kind: :jump, symbol: "location", url: club_locations_path(@club, rdx: 0), label: I18n.t("location.many") }, align: "center"),
-					button_field({ kind: :jump, symbol: "timetable", url: club_slots_path(@club, rdx: 0), label: I18n.t("slot.many") }, align: "center")
 				]
-			]
+				res << [
+					button_field({ kind: :jump, symbol: "rivals", url: clubs_path(rdx: 0), label: I18n.t("club.rivals") }, align: "center")
+				]
+			else
+				res << []
+			end
+			res.last <<	button_field({ kind: :jump, symbol: "location", url: club_locations_path(@club, rdx: 0), label: I18n.t("location.many") }, align: "center")
+			res.last << button_field({ kind: :jump, symbol: "timetable", url: club_slots_path(@club, rdx: 0), label: I18n.t("slot.many") }, align: "center")
 		else
 			res = [ [
 				button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: I18n.t("team.many") }, align: "center"),

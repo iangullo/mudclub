@@ -1,8 +1,8 @@
 <%= render ModalComponent.new do %>
 	<%= form_for @club, authenticity_token: true, data: {controller: "mandatory-fields", turbo_frame: "_top"} do |form| %>
-		<% @title.form = form %>
+		<% @mtitle.form = form %>
 		<% @fields.form = form %>
-		<%= render @title %>
+		<%= render @mtitle %>
 		<%= render @fields %>
 		<%= render @submit %>
 	<% end %>

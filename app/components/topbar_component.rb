@@ -23,7 +23,7 @@ class TopbarComponent < ApplicationComponent
 	def initialize(user:, logo:, nick:, home:, logout:)
 		@clublogo  = logo
 		@clubname  = nick
-		@logourl   = { url: "/home/about", data: { turbo_frame: "modal" } }
+		@logourl   = { url: "/", data: { turbo_frame: "replace" } }
 		@tabcls    = "hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap px-2 py-2 rounded-md font-semibold"
 		@srvcls    = "#{@tabcls} inline-flex items-center"
 		@lnkcls    = "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap"
@@ -162,7 +162,6 @@ class TopbarComponent < ApplicationComponent
 	# menu buttons for club managers
 	def manager_menu
 		[
-			menu_link(label: I18n.t("club.single"), url: @cluburl),
 			log_menu
 		]
 	end
@@ -187,8 +186,7 @@ class TopbarComponent < ApplicationComponent
 			menu_link(label: I18n.t("club.many"), url: "/clubs"),
 			menu_link(label: I18n.t("season.many"), url: "/seasons"),
 			menu_link(label: I18n.t("user.many"), url: "/users"),
-			log_menu,
-			menu_link(label: I18n.t("server.about"), url: "/home/about", kind: :modal)
+			log_menu
 		]
 		menu_drop("server", label: I18n.t("server.single"), options:)
 	end

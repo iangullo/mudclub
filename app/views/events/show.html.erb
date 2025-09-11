@@ -1,10 +1,5 @@
 <div id="event-show">
 	<% unless @event.rest? %>
-		<% if @title %>
-		<div id="event-show-title">
-			<%= render @title %>
-		</div>
-		<% end %>
 		<div id="event-show-fields">
 			<%= render @targets if @targets %>
 			<%= render @fields %>

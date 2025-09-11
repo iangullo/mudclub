@@ -1,16 +1,10 @@
-<div>
-	<div>
-		<%= render @title %>
-	</div>
-	<div>
-		<%= form_with model: @drill,
-			authenticity_token: true,
-			url: update_diagram_drill_path(@drill, step_id: @step.id, order: @step.order),
-			method: :patch,
-			local: true,
-			data: {controller: "diagram-editor", diagram_editor_target: "form", action: "submit->diagram-editor#serialize"} do |form| %>
-		<% @editor.form = form %>
-		<%= render @editor %>
-	</div>
+<%= form_with model: @drill,
+	authenticity_token: true,
+	url: update_diagram_drill_path(@drill, step_id: @step.id, order: @step.order),
+	method: :patch,
+	local: true,
+	data: {controller: "diagram-editor", diagram_editor_target: "form", action: "submit->diagram-editor#serialize"} do |form| %>
+	<% @editor.form = form %>
+	<%= render @editor %>
 	<%= render @submit %>
 <% end %>

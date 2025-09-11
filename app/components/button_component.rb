@@ -81,19 +81,14 @@ class ButtonComponent < ApplicationComponent
 	# label-icon content for the button
 	def button_content
 		c_class = "#{(@button[:kind] == :jump) ? '' : 'inline-flex '}items-center"
+		l_class = "hidden sm:inline"
 		content_tag(:div, class: c_class) do
 			if @button[:flip]	# flip order - label first
-				concat(@button[:label].presence) if @button[:label].present?
-				if has_icon?
-					concat("&nbsp;".html_safe) if @button[:label].present?
-					concat(render_image(@button))
-				end
+				concat(content_tag(:span, @button[:label].presence, class: "#{l_class} mr-1")) if @button[:label].present?
+				concat(render_image(@button)) if has_icon?
 			else
 				concat(render_image(@button)) if has_icon?
-				if @button[:label]
-					concat("&nbsp;".html_safe) if has_icon?
-					concat(@button[:label])
-				end
+				concat(content_tag(:span, @button[:label].presence, class: "#{l_class} ml-1")) if @button[:label].present?
 			end
 			concat(button_cue) if @button[:working]	# Processing visual cue element
 		end
@@ -186,7 +181,14 @@ class ButtonComponent < ApplicationComponent
 			@button[:type] = "button"
 		end
 		@button[:flip]    ||= true if [ :save, :import ].include? @button[:kind]
-		@button[:title]   ||= I18n.t("action.#{@button[:kind]}") if [ :add, :add_nested, :back, :cancel, :clear, :close, :delete, :export, :forward, :import, :login, :logout, :remove, :save ].include? @button[:kind]
+		unless @button[:title]
+			case @button[:kind]
+			when :add, :add_nested, :back, :cancel, :clear, :close, :delete, :export, :forward, :import, :login, :logout, :remove, :save
+				@button[:title] = I18n.t("action.#{@button[:kind]}")
+			else
+				@button[:title] = @button[:label]
+			end
+		end
 		@button[:type]      = "submit" if @button[:kind].to_s =~ /^(save|import|login)$/
 		@button[:replace]   = true if @button[:kind].to_s =~ /^(cancel|close|save|back)$/
 		@button[:b_class] ||= b_start + (@button[:kind]!= :jump ? " m-1 inline-flex align-middle" : "")

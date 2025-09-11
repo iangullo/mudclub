@@ -2,9 +2,9 @@
 	<%= form_for @user, authenticity_token: true, data: {controller: "mandatory-fields", turbo_frame: "_top"} do |form| %>
 		<% @role.form     = form %>
 		<%= form.fields_for :person do |f| %>
-			<% @title.form    = f %>
+			<% @mtitle.form    = f %>
 			<% @p_fields.form = f %>
-			<%= render @title %>
+			<%= render @mtitle %>
 			<%= render @role %>
 			<%= render @p_fields %>
 			<% if @k_fields %>

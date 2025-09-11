@@ -1,6 +1,6 @@
 <%= form_with model: event, authenticity_token: true, data: event_form_data_options(event, title) do |form| %>
-	<% @title.form = form %>
-	<%= render @title %>
+	<% @mtitle.form = mtitle %>
+	<%= render @mtitle %>
 	<% if @event.id || @event.train?%>
 		<div id="edit-event-data">
 			<%= render('edit_session', form: form, title: title) if @event.train? %>

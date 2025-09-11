@@ -1,10 +1,10 @@
 <%= form_with model: @drill, authenticity_token: true, data: {controller: "mandatory-fields", turbo_frame: "_top"} do |form| %>
-	<% @title.form    = form %>
+	<% @fields.form   = form %>
 	<% @playbook.form = form %>
 	<% @formdata.form = form %>
 	<% @formsteps.form = form %>
 	<% @formtail.form = form %>
-	<%= render @title %>
+	<%= render @fields %>
 	<%= render @playbook %>
 	<%= render @formdata %>
 	<div class="step-wrapper">

@@ -1,6 +1,6 @@
 <%= render ModalComponent.new do %>
 	<div id="team-attendance">
-		<%= render @title %>
+		<%= render @mtitle %>
 		<% if @table # there's data to show %>
 			<%= line_chart @att_data, legend: false %>
 			<%= render @table %>

@@ -55,16 +55,17 @@ module HomeHelper
 		]
 	end
 
-	def home_admin_fields(subtitle: I18n.t("action.admin"))
-		res = title_start(icon: "mudclub.svg", title: "MudClub", subtitle:, cols: 3)
-		res << [
-			button_field({ kind: :jump, symbol: symbol_hash("icon", namespace: "sport"), url: sports_path(rdx: 0), label: I18n.t("sport.many") }, align: "center"),
-			button_field({ kind: :jump, symbol: "calendar", url: seasons_path(rdx: 0), label: I18n.t("season.many") }, align: "center"),
-			button_field({ kind: :jump, symbol: "rivals", url: clubs_path(rdx: 0), label: I18n.t("club.many") }, align: "center")
-		]
-		res << [
-			button_field({ kind: :jump, symbol: "user", url: users_path(rdx: 0), label: I18n.t("user.many") }, align: "center"),
-			button_field({ kind: :jump, symbol: "actions", url: home_log_path(rdx: 0), label: I18n.t("user.actions") }, align: "center")
+	def home_admin_fields
+		[
+			[
+				button_field({ kind: :jump, symbol: symbol_hash("icon", namespace: "sport"), url: sports_path(rdx: 0), label: I18n.t("sport.many") }, align: "center"),
+				button_field({ kind: :jump, symbol: "calendar", url: seasons_path(rdx: 0), label: I18n.t("season.many") }, align: "center"),
+				button_field({ kind: :jump, symbol: "rivals", url: clubs_path(rdx: 0), label: I18n.t("club.many") }, align: "center")
+			],
+			[
+				button_field({ kind: :jump, symbol: "user", url: users_path(rdx: 0), label: I18n.t("user.many") }, align: "center"),
+				button_field({ kind: :jump, symbol: "actions", url: home_log_path(rdx: 0), label: I18n.t("user.actions") }, align: "center")
+			]
 		]
 	end
 
