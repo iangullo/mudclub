@@ -42,11 +42,11 @@ class SearchBoxComponent < ApplicationComponent
 		labels    = false
 		@s_url    = search[:url]
 		@s_filter = search[:filter].presence
-		@s_action = {action: "input->search-form#search"}
+		@s_action = { action: "input->search-form#search" }
 		if search[:kind] == :search_box	# we'll get an array of search_fields
 			@fields = search[:fields]
 		else	# we need to create our array of search_fields with a single one
-			@fields = [{kind: search[:kind], key: search[:key].to_sym, label: search[:label], options: search[:options], value: search[:value]}]
+			@fields = [ { kind: search[:kind], key: search[:key].to_sym, label: search[:label], options: search[:options], value: search[:value] } ]
 		end
 		@fields.each  do |field|	# parse placeholders & labels
 			labels = true if field[:label].present?
@@ -58,7 +58,7 @@ class SearchBoxComponent < ApplicationComponent
 	end
 
 	def call
-		tag.div(id: 'search-box', class: D_CLASS) { search_form }
+		tag.div(id: "search-box", class: D_CLASS) { search_form }
 	end
 
 	private
@@ -98,7 +98,7 @@ class SearchBoxComponent < ApplicationComponent
 			form_with(url: @s_url, method: :get, data: { controller: "search-form", search_form_fsearch_target: "fsearch", turbo_frame: "search-results" }) do |fsearch|
 				safe_join(
 					render_fields(fsearch) +
-					[hidden_filter_field(fsearch), submit_button]
+					[ hidden_filter_field(fsearch), submit_button ]
 				)
 			end
 		end

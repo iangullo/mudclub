@@ -41,7 +41,7 @@ class HomeController < ApplicationController
 	end
 
 	def about
-		@title  = create_fields(helpers.home_about_title)
+		@mtitle = create_fields(helpers.home_about_title)
 		@fields = create_fields(helpers.home_about_fields)
 		@submit = create_submit(submit: nil)
 	end
