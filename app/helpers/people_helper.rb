@@ -44,7 +44,7 @@ module PeopleHelper
 		]
 	end
 
-	# return GridComponent @fields for forms
+	# return defintion @fields for forms
 	def person_form_title(person, icon: person&.picture, title:, cols: 2, sex: nil)
 		res = person_title(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
 		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: I18n.t("person.name"), cols: 2, mandatory: { length: 2 } } ]
@@ -101,7 +101,7 @@ module PeopleHelper
 		]
 	end
 
-	# GridComponent definition to show title of a person view
+	# fields definition to show title of a person view
 	def person_show_title(person, kind: nil, rows: 3, cols: nil)
 		pobj   = kind ? person.person : person
 		title  = I18n.t("#{kind}.single")
@@ -119,7 +119,7 @@ module PeopleHelper
 		fields
 	end
 
-	# return icon and top of GridComponent
+	# return icon and top of fields definition
 	def person_title(icon: symbol_hash("person"), title:, subtitle: nil, rows: 3, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
 		title_start(icon:, title:, subtitle:, rows:, cols:, size:, _class: _class, form:)
 	end

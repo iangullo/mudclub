@@ -470,7 +470,7 @@ class EventsController < ApplicationController
 
 		# prepare new/edit event form
 		def prepare_event_form(new: nil)
-			@title  = create_fields(helpers.event_title(form: true, cols: @event.match? ? 2 : nil))
+			@ftitle = create_fields(helpers.event_title(form: true, cols: @event.match? ? 2 : nil))
 			if @event.match?
 				@fields  = create_fields(helpers.match_form(new:))
 				unless new

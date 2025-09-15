@@ -289,7 +289,7 @@ module TeamsHelper
 				item = {}
 				item[:url]     = "#"
 				item[:head]    = tgts[:month]
-				item[:content] = GridComponent.new(plan_month(tgts, form:))
+				item[:content] = FieldsComponent.new(plan_month(tgts, form:))
 				plan << item
 			end
 			plan

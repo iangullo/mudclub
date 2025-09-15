@@ -17,14 +17,14 @@
 # contact email - iangullo@gmail.com.
 #
 module SlotsHelper
-	# return icon and top of GridComponent
+	# return icon and top of definition
 	def slot_title(title:, subtitle: nil)
 		icon = symbol_hash("timetable")
 		res  = title_start(icon:, title:, subtitle:)
 		res
 	end
 
-	# return GridComponent @fields for forms
+	# return definition @fields for forms
 	def slot_form(title:)
 		res = slot_title(title:, subtitle: @season&.name)
 		res << [

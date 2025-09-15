@@ -74,14 +74,14 @@ module ClubsHelper
 		res << [ { kind: :contact, website: @club.website, phone: @club.phone, email: @club.email, device: device } ]
 	end
 
-	# return Club GridComponent @fields for forms
+	# return Club fields definition @fields for forms
 	def club_form_title(title:, cols: 2)
 		res = club_title(title:, icon: @club.logo, rows: 3, cols:, form: true)
 		res << [ { kind: :text_box, key: :nick, value: @club.nick, placeholder: I18n.t("person.name"), cols:, mandatory: { length: 3 } } ]
 		res << [ { kind: :text_box, key: :name, value: @club.name, size: 27, placeholder: I18n.t("club.entity"), cols:, mandatory: { length: 3 } } ]
 	end
 
-	# return Club GridComponent @fields for forms
+	# return Club definition @fields for forms
 	def club_form(cols: 5)
 		css = "align-top"
 		[
@@ -108,7 +108,7 @@ module ClubsHelper
 		]
 	end
 
-	# return icon and top of GridComponent
+	# return icon and top of fields definition
 	def club_title(title:, subtitle: nil, icon: "mudclub.svg", rows: 2, cols: nil, form: nil)
 		size = (icon.is_a?(Hash) && icon[:concept] == "rivals") ? nil : "75x100"
 		title_start(icon:, title:, subtitle:, size:, rows:, cols:, form:)

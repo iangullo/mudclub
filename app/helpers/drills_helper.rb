@@ -221,7 +221,7 @@ module DrillsHelper
 		]
 	end
 
-	# return icon and top of GridComponent
+	# return icon and top of fields definition
 	def drill_title(title:, subtitle: nil, rows: nil, cols: nil)
 		title_start(icon: drill_symbol, title:, subtitle:, rows:, cols:)
 	end

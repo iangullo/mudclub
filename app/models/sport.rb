@@ -36,12 +36,12 @@ class Sport < ApplicationRecord
 		self.specific.court_name(court)
 	end
 
-	# GridComponent fields to display match information - not title
+	# fields to display match information - not title
 	def match_show(event, home: nil)
 		raise ERR_NEED_SPECIFIC
 	end
 
-	# GridComponent fields to edit a match
+	# fields to edit a match
 	def match_form(event, new: false)
 		raise ERR_NEED_SPECIFIC
 	end
@@ -219,7 +219,7 @@ class Sport < ApplicationRecord
 		update_stats(event, f_stats)
 	end
 
-	# prepare a SVG symbol field definition GridComponent
+	# prepare a SVG symbol field definition
 	def symbol(concept, type: :icon, variant: "default")
 		try_symbol(concept, namespace: "sport", type:, variant:)
 	end

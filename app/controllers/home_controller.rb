@@ -36,7 +36,7 @@ class HomeController < ApplicationController
 				redirect_to home_server_path
 			end
 		else
-				@login_fields = create_fields(helpers.home_closed)
+			@login_fields = create_fields(helpers.home_closed)
 		end
 	end
 

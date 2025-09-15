@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 module ApplicationHelper
-	# standardised GridComponent button field wrapper
+	# standardised defintion button field wrapper
 	def button_field(button, cols: nil, rows: nil, align: nil, class: nil)
 		{ kind: :button, button:, cols:, rows:, align:, class: }
 	end
@@ -145,7 +145,7 @@ module ApplicationHelper
 		options
 	end
 
-	# generic title start GridComponent for views
+	# generic title start defintion for views
 	def title_start(icon:, title:, subtitle: nil, size: nil, rows: nil, cols: nil, _class: nil, form: nil)
 		img  = { size:, rows:, class: _class }
 		if form

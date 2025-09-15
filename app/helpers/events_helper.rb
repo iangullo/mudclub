@@ -92,7 +92,7 @@ module EventsHelper
 		end
 	end
 
-	# return icon and top of GridComponent
+	# return icon and top of fields definition
 	def event_index_title(team: nil, season: nil)
 		title    = (team ? team.nick : (season ? season.name : I18n.t("calendar.label")))
 		subtitle = (team ? team.category.name : I18n.t("scope.all"))
@@ -127,12 +127,12 @@ module EventsHelper
 		@sport.player_training_stats_show(@event, player_id: @player.id)
 	end
 
-	# return icon and top of GridComponent for Tasks
+	# return icon and top of fields definition for Tasks
 	def event_task_title(subtitle:)
 		event_title(subtitle:, chart: true)
 	end
 
-	# return icon and top of GridComponent
+	# return icon and top of fields definition
 	def event_title(subtitle: nil, form: nil, cols: nil, chart: nil, teams: nil)
 		if teams	# we are going to prepare a copy of the event
 			t_id = @event.team ? @event.team.id : teams.first.id
@@ -191,7 +191,7 @@ module EventsHelper
 		match_fields(edit: false)
 	end
 
-	# return GridComponent for match form
+	# return fields definition for match form
 	def match_form(new: false)
 		match_fields(edit: true, new:)
 	end
@@ -217,7 +217,7 @@ module EventsHelper
 			item[:url]     = show_task_event_path(task_id: task.id, rdx: @rdx)
 			item[:turbo]   = "modal"
 			item[:head]    = task.headstring
-			item[:content] = GridComponent.new(task_show(task:, team: @event.team, title: nil))
+			item[:content] = FieldsComponent.new(task_show(task:, team: @event.team, title: nil))
 			tasks << item
 		}
 		tasks
@@ -283,7 +283,7 @@ module EventsHelper
 		]
 	end
 
-	# return GridComponent @fields for show_training
+	# return definition @fields for show_training
 	def training_show
 		[ [ { kind: :accordion, title: I18n.t("task.many"),	tail: "#{I18n.t("stat.total")}: #{@event.work_duration}", objects: task_accordion } ] ]
 	end

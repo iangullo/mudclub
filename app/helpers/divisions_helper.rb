@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 module DivisionsHelper
-	# return icon and top of GridComponent
+	# return icon and top of fields definition
 	def division_title(title:, subtitle: @sport&.to_s, cols: nil)
 		title_start(icon: symbol_hash("division", namespace: "sport"), title:, subtitle:, rows: 2, cols:)
 	end
@@ -26,7 +26,7 @@ module DivisionsHelper
 		division_title(title: I18n.t("division.single"), subtitle: @division.name)
 	end
 
-	# return GridComponent @fields for forms
+	# return definition @fields for forms
 	def division_form(action)
 		@submit = SubmitComponent.new(submit: :save)
 		res = division_title(title: I18n.t("division.#{action}"))

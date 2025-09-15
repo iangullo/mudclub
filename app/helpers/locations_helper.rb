@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 module LocationsHelper
-	# return GridComponent @title for forms
+	# return fields definition @title for forms
 	def location_form(title:)
 		res = location_title(title:)
 		res << [ { kind: :text_box, key: :name, value: @location.name, placeholder: I18n.t("location.default"), mandatory: { length: 3 } } ]
@@ -81,7 +81,7 @@ module LocationsHelper
 		res << [ (@location.practice_court ? symbol_field("training", { namespace: "sport" }) : symbol_field("home")) ]
 	end
 
-	# return icon and top of GridComponent
+	# return icon and top of fields definition
 	def location_title(title:)
 		clubid = @club&.id || @clubid || u_clubid
 		icon   =  ((u_clubid != clubid) ? @club&.logo : symbol_hash("location"))
