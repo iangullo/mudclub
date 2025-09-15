@@ -221,8 +221,8 @@ class TeamsController < ApplicationController
 	# GET /teams/1/slots
 	def slots
 		if @team && user_in_club?
-			mtitle  = helpers.team_title(title: @team.to_s)
-			@mtitle  = create_fields(mtitle)
+			title   = helpers.team_title(title: @team.to_s)
+			@title   = create_fields(title)
 			@fields = create_fields(helpers.team_slots) unless @team.slots.empty?
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -233,9 +233,9 @@ class TeamsController < ApplicationController
 	def targets
 		if @team && check_access(roles: [ :coach, :manager ], obj: @club, both: true)
 			global_targets(true)	# get & breakdown global targets
-			mtitle  = helpers.team_title(title: @team.to_s)
-			mtitle << icon_subtitle("target", I18n.t("target.many"))
-			@mtitle = create_fields(mtitle)
+			title   = helpers.team_title(title: @team.to_s)
+			title  << icon_subtitle("target", I18n.t("target.many"))
+			@title  = create_fields(title)
 			edit    = edit_targets_team_path(rdx: @rdx) if team_manager?
 			@fields = create_fields(helpers.team_targets_show)
 			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
@@ -290,9 +290,9 @@ class TeamsController < ApplicationController
 	# GET /teams/1/attendance
 	def attendance
 		if @team && check_access(roles: [ :coach, :manager, :secretary ], obj: @club, both: true)
-			mtitle = helpers.team_title(title: @team.to_s)
-			mtitle << icon_subtitle("attendance", I18n.t("calendar.attendance"))
-			@mtitle = create_fields(title)
+			title  = helpers.team_title(title: @team.to_s)
+			title  << icon_subtitle("attendance", I18n.t("calendar.attendance"))
+			@title  = create_fields(title)
 			a_data  = helpers.team_attendance_table
 			if a_data
 				@table = create_table({ title: a_data[:title], rows: a_data[:rows] })

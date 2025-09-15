@@ -91,7 +91,7 @@ class SportsController < ApplicationController
 	# View sport rules
 	def rules
 		if check_access(roles: [ :admin ])
-			@mtitle = create_fields(helpers.sport_rules_title(I18n.t("sport.rules")))
+			@title  = create_fields(helpers.sport_rules_title(I18n.t("sport.rules")))
 			@fields = create_fields(helpers.sports_rules)
 			@submit = create_submit(submit: nil)
 		else

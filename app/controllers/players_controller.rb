@@ -217,7 +217,7 @@ class PlayersController < ApplicationController
 
 		# Prepare a player form
 		def prepare_form(action)
-			@mtitle   = create_fields(helpers.person_form_title(@player.person, icon: @player.picture, title: I18n.t("player.#{action}"), sex: true))
+			@title    = create_fields(helpers.person_form_title(@player.person, icon: @player.picture, title: I18n.t("player.#{action}"), sex: true))
 			@j_fields = create_fields(helpers.player_form)
 			@p_fields = create_fields(helpers.person_form(@player.person))
 			@parents  = create_fields(helpers.player_form_parents) if @player.person.age < 18

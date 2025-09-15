@@ -153,7 +153,7 @@ class UsersController < ApplicationController
 	# modal view of User Action log
 	def actions
 		if @user && check_access(roles: [ :admin ], obj: @user)
-			@mtitle = create_fields(helpers.user_actions_title)
+			@title  = create_fields(helpers.user_actions_title)
 			@actions= create_fields(helpers.user_actions_table)
 			@submit = create_submit(submit: helpers.user_actions_clear, frame: "modal")
 		else
@@ -184,8 +184,8 @@ class UsersController < ApplicationController
 
 		# Prepare user form
 		def prepare_form(create: nil, rdx: @rdx)
-			mtitle    = I18n.t("user.#{(create ? "new" : "edit")}")
-			@mtitle   = create_fields(helpers.person_form_title(@user.person, title: mtitle, icon: @user.picture))
+			title     = I18n.t("user.#{(create ? "new" : "edit")}")
+			@title    = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
 			@role     = create_fields(helpers.user_form_role)
 			@p_fields = create_fields(helpers.person_form(@user.person, mandatory_email: true))
 			if create

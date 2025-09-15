@@ -199,7 +199,7 @@ class EventsController < ApplicationController
 	# GET /events/1/attendance
 	def attendance
 		if event_manager?
-			@mtitle = create_fields(helpers.event_attendance_title)
+			@title  = create_fields(helpers.event_attendance_title)
 			@fields = create_fields(helpers.event_attendance_form)
 			@submit = create_submit(retlnk: event_path(@event, rdx: @rdx))
 		else
@@ -270,7 +270,7 @@ class EventsController < ApplicationController
 		if event_manager? || (@event && check_access(obj: @player))
 			unless @event.rest?	# not keeing stats for holidays ;)
 				if @event.has_player(@player&.id)	# we do have a player
-					@mtitle = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
+					@title  = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
 					@fields = create_fields(helpers.event_player_stats)
 					editor  = (u_manager? || @event.team.has_coach(u_coachid) || @event.team.has_player(u_playerid))
 					@submit = create_submit(submit: editor ? edit_player_stats_event_path(@event, player_id: u_playerid) : nil, frame: "modal")
@@ -289,7 +289,7 @@ class EventsController < ApplicationController
 			unless @event.rest?	# not keeing stats for holidays ;)
 				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
 				if @player&.id.to_i > 0	# we do have a player
-					@mtitle = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
+					@title  = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
 					@fields = create_fields(helpers.event_edit_player_stats)
 					@submit = create_submit
 				else
@@ -470,7 +470,7 @@ class EventsController < ApplicationController
 
 		# prepare new/edit event form
 		def prepare_event_form(new: nil)
-			@mtitle = create_fields(helpers.event_title(form: true, cols: @event.match? ? 2 : nil))
+			@title  = create_fields(helpers.event_title(form: true, cols: @event.match? ? 2 : nil))
 			if @event.match?
 				@fields  = create_fields(helpers.match_form(new:))
 				unless new
@@ -495,9 +495,9 @@ class EventsController < ApplicationController
 		def prepare_task_form(action, retlnk:, search_in:, task_id: nil)
 			get_task(load_drills: true) # get the right @task/@drill
 			scratch      = task_id.nil?
-			mtitle       = helpers.event_task_title(subtitle: I18n.t("task.#{action}"))
-			mtitle       << helpers.drill_search_bar(search_in:, task_id: @task.id, scratch:, cols: 4)
-			@mtitle      = create_fields(mtitle)
+			title        = helpers.event_task_title(subtitle: I18n.t("task.#{action}"))
+			title        << helpers.drill_search_bar(search_in:, task_id: @task.id, scratch:, cols: 4)
+			@title       = create_fields(title)
 			@fields      = create_fields(helpers.task_form(search_in:))
 			@description = helpers.task_form_description
 			@remarks     = create_fields(helpers.task_form_remarks)

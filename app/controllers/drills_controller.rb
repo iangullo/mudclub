@@ -199,7 +199,7 @@ class DrillsController < ApplicationController
 	# GET /drills/1/versions
 	def versions
 		if check_access(roles: [ :manager, :coach ])
-			@mtitle  = create_fields(helpers.drill_versions_title)
+			@title   = create_fields(helpers.drill_versions_title)
 			@table   = create_fields(helpers.drill_versions_table)
 			@submit  = create_submit(submit: nil)
 		else
