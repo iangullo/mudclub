@@ -19,16 +19,17 @@
 # frozen_string_literal: true
 
 # GridComponent - ViewComponent to compose responsive flexbox grids with
-#		different kinds of content for each field to be shown received as an
+#		different kinds of content for each item to be shown received as an
 #		array of rows and content type hashes:
 # => :accordion: a collapsible accordion element
 # => :button: a specific ButtonComponent - passed as argument item[:button]
 # => :contact: mailto:, tel: and whatsapp: buttons for a person
-# => :date_box: :key (field name), :value (date_field), :s_year (start_year)
+# => :date_box: :key (item name), :value (date_field), :s_year (start_year)
 # => :dropdown: a DropdownComponent - passed as argument to the menu generator
 # => :diagram: svgdata (diagram SVG data we are editing), :court (symbol for court background image)
-# => :email_box: :key (field name), :value (email_field), :size (box size)
+# => :email_box: :key (item name), :value (email_field), :size (box size)
 # => :gap: :size (count of &nbsp; to separate content)
+# => :grid: :flow, :items (recursive GridComponent)
 # => :header_icon: :value (name of icon file in assets)
 # => :hidden: :a hidden link for the form
 # => :icon: :icon (name of icon file in assets)
@@ -37,18 +38,18 @@
 # => :label: :value (semibold text string)
 # => :label_checkbox: :key (attribute of checkbox), :value (added text)
 # => :lines: :value (array of text lines to be shown)
-# => :number_box: :key (field name), :value (number_field), size:
+# => :number_box: :key (item name), :value (number_field), size:
 # => :nested_form: :model, :key, :form: :child, :row, :filter to define a NestedFormComponent
 # => :partial: :partial (html.erb partial template), :locals (hash of local variables)
-# => :password_box: :key (field name), :value (password_field)
+# => :password_box: :key (item name), :value (password_field)
 # => :person_type: icons (& tips) for type of person in the database
-# => :rich_text_area: :key (field name)
-# => :select_box: :key (field name), :options (array of valid options), :value (form, select)
-# => :select_collection: :key (field name), :collection, :value (form, select)
+# => :rich_text_area: :key (item name)
+# => :select_box: :key (item name), :options (array of valid options), :value (form, select)
+# => :select_collection: :key (item name), :collection, :value (form, select)
 # => :search_text: :url (search_in), :value
-# => :search_select: :key (search field), :url (search_in), :options, :value
-# => :search_collection: :key (search field), :url (search_in), :options, :value
-# => :search_box: :key (search field), :url (search_in), :options
+# => :search_select: :key (search item), :url (search_in), :options, :value
+# => :search_collection: :key (search item), :url (search_in), :options, :value
+# => :search_box: :key (search item), :url (search_in), :options
 # => :separator: separator line (kind: :dashed, :solid, :dotted, rounded: )
 # => :side_cell: :value (content stiyled like a TableComponent side_cell)
 # => :steps: :steps, :court (responsive rendering of drill steps)
@@ -58,24 +59,24 @@
 # => :symbol: :value (svg symbol to be rendered)
 # => :table: :value (TableComponent definition), :form (optional)
 # => :targets: array of {text_, status} pairs
-# => :text_area: :key (field name), :value (text_field), :size (box size), lines: number of lines
-# => :text_box: :key (field name), :value (text_field), :size (box size)
-# => :time_box: :hour & :mins (field names)
+# => :text_area: :key (item name), :value (text_field), :size (box size), lines: number of lines
+# => :text_box: :key (item name), :value (text_field), :size (box size)
+# => :time_box: :hour & :mins (item names)
 # => :title: :value (bold text of title in orange colour)
 # => :top_cell: :value (content styled like a TableComponent top_cell)
 # => :upload: :label, :key (form binding for content), :value (file already assigned)
 class GridComponent < ApplicationComponent
-	def initialize(fields, form: nil)
-		@fields = parse(fields)
-		@form   = form
+	def initialize(rows, flow: :rows, form: nil)
+		@rows  = parse_rows(rows)
+		@form  = form
 	end
 
 	# render to html
 	def call
-		table_tag do
-			@fields.map do |row|
-				tablerow_tag do
-					row.map { |field| render_field(field) }.join.html_safe
+		grid_container_tag do
+			@rows.map do |row|
+				grid_row_tag do
+					row.map { |item| render_item(item) }.join.html_safe
 				end
 			end.join.html_safe
 		end
@@ -84,101 +85,145 @@ class GridComponent < ApplicationComponent
 	# wrapper to define the component's @form - whe required.
 	def form=(formobj)
 		@form = formobj
+		@items.each do |col|
+			col.each do |item|
+				item[:content].form = formobj if item[:content]&.respond_to?(:form)
+			end
+		end
 	end
 
 	def render?
-		@fields.present?
+		@rows.present?
 	end
 
 	private
-	# parse all specified fields to set the correct rendering
-	# parmeters for each.
-	def parse(fields)
-		res = Array.new
-		fields.each do |row|
+	# wrappers to generate different html tags - self-explanatory
+	def grid_container_tag(&block)
+		g_class  = "min-w-max grid grid-cols-1 gap-2 md:gap-0"
+		content_tag(:div, class: g_class, &block)
+	end
+
+	def grid_row_tag(&block)
+		r_class  = "grid grid-cols-#{@cols} gap-1 md:gap-2 p-1"
+		content_tag(:div, class: r_class, &block)
+	end
+
+	def grid_item_tag(item, &block)
+		content_tag(:div, class: item[:class], data: item[:data], &block)
+	end
+
+	def grid_item_align(align)
+		case align.to_sym
+		when :center, :middle
+			"justify-center"
+		when :right, :end
+			"justify-end"
+		else
+			"justify-start"
+		end
+	end
+
+	def grid_item_css(item)
+		c_class  = item[:class].to_s.split(" ")
+		c_class << grid_item_align(item[:align]) if item[:align].present?
+		c_class << "col-span-#{item[:cols]}" if item[:cols].present?
+		c_class << "row-span-#{item[:rows]}" if item[:rows].present? && item[:kind] != :table
+		item[:class] = c_class.join(" ") if c_class.present?
+	end
+
+	# parse one specific item to prepare it for rendering
+	def parse_item(item)
+		case item[:kind].to_s	# need to adapt to each items "kind"
+		when "accordion"
+			item[:content] = AccordionComponent.new(title: item[:title], tail: item[:tail], objects: item[:objects])
+		when "button"	# item[:button] has to contain the button definition
+			item[:content] = ButtonComponent.new(**item[:button])
+		when "contact"
+			set_contact(item)
+		when "diagram"
+			item[:content] = DiagramComponent.new(court: item[:court], svgdata: item[:svgdata], css: item[:css])
+		when "dropdown"	# item[:button] has to contain the button definition
+			item[:content] = DropdownComponent.new(item[:button])
+		when /^(.*icon.*|image)$/
+			set_image(item)
+		when "label_checkbox"
+			item[:class] ||= " align-middle rounded-md"
+		when /^(search_.+)$/
+			item[:content] = SearchBoxComponent.new(item)
+		when "gap", "label", "lines", "side_cell", "string", "subtitle", "title", "top_cell"
+			set_text_item(item)
+		when "partial"
+			item[:content] = PartialComponent.new(partial: item[:partial], locals: item[:locals] || {})
+		when /^(select_.+|.+box|.+_area)$/
+			item[:class] ||= "align-top"
+		when "separator"
+			item[:stroke] ||= "solid"
+		when "steps"
+			item[:content] = StepsComponent.new(steps: item[:steps], court: item[:court])
+		when "symbol"
+			hashify_symbol(item)
+			item[:content] = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
+		else
+			item[:i_class] = "rounded p-0" unless item[:kind] == :gap
+		end
+		grid_item_css(item)
+		item
+	end
+
+	# parse all specified items to set the correct rendering
+	def parse_rows(rows)
+		res  = Array.new
+		@cols = 1
+		rows.map do |row|
 			res << [] # new row n header
-			row.each do |item|
-				case item[:kind].to_s	# need to adapt to each fields "kind"
-				when "accordion"
-					item[:value] = AccordionComponent.new(title: item[:title], tail: item[:tail], objects: item[:objects])
-				when "button"	# item[:button] has to contain the button definition
-					item[:value] = ButtonComponent.new(**item[:button])
-				when "contact"
-					set_contact(item)
-				when "diagram"
-					item[:value] = DiagramComponent.new(court: item[:court], svgdata: item[:svgdata], css: item[:css])
-				when "dropdown"	# item[:button] has to contain the button definition
-					item[:value] = DropdownComponent.new(item[:button])
-				when /^(.*icon.*|image)$/
-					set_image(item)
-				when "label_checkbox"
-					item[:class] ||= " align-middle rounded-md"
-				when /^(search_.+)$/
-					item[:value] = SearchBoxComponent.new(item)
-				when "gap", "label", "lines", "side_cell", "string", "subtitle", "title", "top_cell"
-					set_text_field(item)
-				when "partial"
-					item[:content] = PartialComponent.new(partial: item[:partial], locals: item[:locals] || {})
-				when "person_type"
-					set_person_type(item)
-				when /^(select_.+|.+box|.+_area)$/
-					item[:class] ||= "align-top"
-				when "separator"
-					item[:stroke] ||= "solid"
-				when "steps"
-					item[:value] = StepsComponent.new(steps: item[:steps], court: item[:court])
-				when "symbol"
-					hashify_symbol(item)
-					item[:value]  = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
-				else
-					item[:i_class] = "rounded p-0" unless item[:kind] == :gap
-				end
-				item[:align] ||= "left"
-				# item[:class] = (item[:class].present? ? item[:class] + " " : "") + "border px py"
+			rcols = 0
+			row.map do |item|
+				@cols = 1
+				item  = parse_item(item)
+				rcols += 1
 				res.last << item
 			end
+			@cols = rcols if rcols > @cols
 		end
 		res
 	end
 
-	# wrapper to render a specific field
-	def render_field(field)
-		tablecell_tag(field) do
-			case field[:kind].to_s
-			when /^(accordion|button|contact|diagram.*|dropdown|search_.+|steps|svg)$/
-				render field[:value]
+	# wrapper to render a specific item
+	def render_item(item)
+		grid_item_tag(item) do
+			case item[:kind].to_s
+			when /^(accordion|button|contact|diagram.*|dropdown|search_.+|partial|steps|svg|symbol)$/
+				render item[:content]
 			when /^(select_.+|.+box|.+_area|hidden|radio.+|upload)$/
-				render InputBoxComponent.new(field, form: @form)
+				render InputBoxComponent.new(item, form: @form)
 			when "gap"
-				("&nbsp;" * field[:size]).html_safe
-			when /^(.*icon.*|image|symbol)$/
-				render_image_field(field)
+				("&nbsp;" * item[:size]).html_safe
+			when /^(.*icon.*|image)$/
+				render_image_item(item)
 			when "lines"
-				field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
+				item[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
 			when "nested_form"
-				render NestedComponent.new(model: field[:model], key: field[:key], form: @form, child: field[:child], row: field[:row], filter: field[:filter])
-			when "partial"
-				render field[:content]
-			when "person_type"
-				render_role_icons(field[:icons])
+				render NestedComponent.new(model: item[:model], key: item[:key], form: @form, child: item[:child], row: item[:row], filter: item[:filter])
+			when "roles"
+				item[:symbols].each { |symbol| concat(render_image(symbol)) }
 			when "separator"
-				("<hr class=\"#{field[:stroke]}\"").html_safe
+				("<hr class=\"#{item[:stroke]}\"").html_safe
 			when "table"
-				render TableComponent.new(field[:value], form: @form)
+				render TableComponent.new(item[:value], controller: item[:controller], align: item[:align], form: @form)
 			when "targets"
-				render_targets_field(field)
+				render_targets_item(item)
 			else
-				if field[:dclass]
-					concat((field[:value].tap { |value| break "<div class=\"#{field[:dclass]}\">#{value}</div>" }.html_safe))
+				if item[:dclass]
+					concat((item[:value].tap { |value| break "<div class=\"#{item[:dclass]}\">#{value}</div>" }.html_safe))
 				else
-					concat(field[:value])
+					concat(item[:value])
 				end
 			end
 		end
 	end
 
-	# render an image field
-	def render_image_field(item)
+	# render an image item
+	def render_image_item(item)
 		html = ""
 		if item[:label]
 			html += "<div class=\"inline-flex items-center\">"
@@ -192,18 +237,11 @@ class GridComponent < ApplicationComponent
 		html.html_safe
 	end
 
-	# render the icons/tooltips for roles attached to a user
-	def render_role_icons(icons)
-		icons.map do |icon|
-			render_image_field(icon)
-		end.join.html_safe
-	end
-
-	# Add this private method to FieldsComponent
-	def render_targets_field(field)
+	# Add this private method to GridComponent
+	def render_targets_item(item)
 		html = ""
-		last = field[:targets]&.last
-		field[:targets]&.each do |target|
+		last = item[:targets]&.last
+		item[:targets]&.each do |target|
 			html += "<div class=\"inline-flex items-center space-x-2 py-1\">"
 			html += render(TrafficLightComponent.new(status: target[:status])) unless @form
 			html += "<span>#{target[:text]}</span>"
@@ -214,12 +252,7 @@ class GridComponent < ApplicationComponent
 		html.html_safe
 	end
 
-	# wrapper to keep a person's available contact details in a single field.
-	def set_contact(item)
-		item[:value] = ContactComponent.new(website: item[:website], email: item[:email], phone: item[:phone], device: item[:device])
-	end
-
-	# used for all icon/image fields - except for :image_box
+	# used for all icon/image items - except for :image_box
 	def set_image(item)
 		case item[:kind]
 		when :header_icon
@@ -248,8 +281,8 @@ class GridComponent < ApplicationComponent
 		end
 	end
 
-	# used for all text-like fields - except for inputboxes, of course
-	def set_text_field(item)
+	# used for all text-like items - except for inputboxes, of course
+	def set_text_item(item)
 		case item[:kind]
 		when :gap
 			item[:size]  ||= 4
@@ -270,21 +303,5 @@ class GridComponent < ApplicationComponent
 		when :top_cell
 			item[:class]   = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
 		end
-	end
-
-	# set icons for a person-type
-	def set_person_type(item)
-		item[:icons] = []
-		item[:icons] << role_symbol("admin") if item[:admin]
-		item[:icons] << role_symbol("manager") if item[:manager]
-		item[:icons] << role_symbol("secretary") if item[:secretary]
-		item[:icons] << role_symbol("user") if item[:user]
-		item[:icons] << role_symbol("player") if item[:player]
-		item[:icons] << role_symbol("coach") if item[:coach]
-	end
-
-	# wrapper for role_symbols
-	def role_symbol(role)
-		{ symbol: true, value: SymbolComponent.new(role, size: "25x25", title: I18n.t("role.#{role}")) }
 	end
 end

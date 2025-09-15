@@ -103,7 +103,7 @@ class FieldsComponent < ApplicationComponent
 				when "button"	# item[:button] has to contain the button definition
 					item[:content] = ButtonComponent.new(**item[:button])
 				when "contact"
-					set_contact(item)
+					item[:content] = ContactComponent.new(website: item[:website], email: item[:email], phone: item[:phone], device: item[:device])
 				when "diagram"
 					item[:content] = DiagramComponent.new(court: item[:court], svgdata: item[:svgdata], css: item[:css])
 				when "dropdown"	# item[:button] has to contain the button definition
@@ -200,11 +200,6 @@ class FieldsComponent < ApplicationComponent
 			html += "<br>" unless target == last
 		end
 		html.html_safe
-	end
-
-	# wrapper to keep a person's available contact details in a single field.
-	def set_contact(item)
-		item[:content] = ContactComponent.new(website: item[:website], email: item[:email], phone: item[:phone], device: item[:device])
 	end
 
 	# used for all icon/image fields - except for :image_box
