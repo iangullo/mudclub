@@ -79,8 +79,8 @@ module TeamsHelper
 	end
 
 	# return HeaderComponent @fields for forms
-	def team_form_fields(title:, cols: nil)
-		res = team_title_fields(title:, cols:, edit: true)
+	def team_form(title:, cols: nil)
+		res = team_title(title:, cols:, edit: true)
 		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
 		res << [
 			symbol_field("user", align: "right"),
@@ -174,7 +174,7 @@ module TeamsHelper
 	end
 
 	# fields to edit team targets -- REQUIRES form to be passed!!
-	def team_targets_form_fields(form)
+	def team_targets_form(form)
 		[
 			[ topcell_field(I18n.t("target.focus.def"), cols: 2) ],
 			[ targets_form_partial(form, focus: 2, cols: 2)	],
@@ -195,7 +195,7 @@ module TeamsHelper
 	end
 
 	# return team target fields to be shown
-	def team_targets_show_fields
+	def team_targets_show
 		[
 			[ topcell_field(I18n.t("target.focus.def"), cols: 2) ],
 			[ target_content(@t_d_gen, cols: 2) ],
@@ -214,7 +214,7 @@ module TeamsHelper
 	end
 
 	# fields for team time-slots view
-	def team_slots_fields
+	def team_slots
 		res = [ [
 			gap_field,
 			symbol_field("timetable", { size: "30x30" }),
@@ -227,7 +227,7 @@ module TeamsHelper
 	end
 
 	# return FieldComponent for team view title
-	def team_title_fields(title:, cols: nil, search: nil, edit: nil)
+	def team_title(title:, cols: nil, search: nil, edit: nil)
 		clubid = @club&.id || @clubid || u_clubid
 		res = title_start(icon: ((u_clubid != clubid) ? @club&.logo : symbol_hash("team")), title:, cols:)
 		if search
@@ -289,13 +289,13 @@ module TeamsHelper
 				item = {}
 				item[:url]     = "#"
 				item[:head]    = tgts[:month]
-				item[:content] = FieldsComponent.new(plan_month_fields(tgts, form:))
+				item[:content] = GridComponent.new(plan_month(tgts, form:))
 				plan << item
 			end
 			plan
 		end
 
-		def plan_month_fields(tgts, form:)
+		def plan_month(tgts, form:)
 			lcls  = "text-indigo-900 font-semibold border px py"
 			month = tgts[:i]
 			[

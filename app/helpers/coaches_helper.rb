@@ -18,7 +18,7 @@
 #
 module CoachesHelper
 	# return Coach-specific form fields
-	def coach_form_fields(team_id: nil, user: nil)
+	def coach_form(team_id: nil, user: nil)
 		res = obj_club_selector(@coach)
 		res << { kind: :hidden, key: :team_id, value: team_id } if team_id
 		res << { kind: :hidden, key: :user, value: true } if user
@@ -55,9 +55,17 @@ module CoachesHelper
 	end
 
 	# FieldComponents to show a @coach
-	def coach_show_fields(team_id: nil, user: nil)
-		res = person_show_fields(@coach.person, title: I18n.t("coach.single"), icon: @coach.picture)
-		res[3][0] = obj_status_field(@coach)
-		res << [ { kind: :side_cell, value: (I18n.t("team.many")), align: "left" } ]
+	def coach_title(team_id: nil)
+		person_show_title(@coach, kind: :coach)
+	end
+
+	# FieldComponents to show a @coach
+	def coach_show(team_id: nil, user: nil)
+		res = club_manager? || u_coachid == @coach.id ? person_show(@coach.person) : [ [] ]
+		unless @coach.teams.empty?
+			res << [ { kind: :side_cell, value: (I18n.t("team.many")), align: "left" } ]
+			res << [ { kind: :table, **team_table(teams: @coach.team_list) } ]
+		end
+		res
 	end
 end

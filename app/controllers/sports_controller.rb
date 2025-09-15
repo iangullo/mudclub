@@ -23,7 +23,7 @@ class SportsController < ApplicationController
 	# Sport index for mudclub admins
 	def index
 		if check_access(roles: [ :admin ])
-			title = helpers.home_admin_title(title: I18n.t("sport.many"))
+			title = helpers.home_admin_title(subtitle: I18n.t("sport.many"))
 			table = helpers.sports_table
 			create_index(title:, table:, retlnk: base_lnk("/"))
 		else
@@ -34,7 +34,7 @@ class SportsController < ApplicationController
 	# View sport details
 	def show
 		if @sport && check_access(roles: [ :admin ])
-			@fields = create_fields(helpers.sports_show_fields)
+			@fields = create_fields(helpers.sports_show)
 			@submit = create_submit(close: :back, submit: nil, retlnk: base_lnk(sports_path(rdx: @rdx)))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -54,7 +54,7 @@ class SportsController < ApplicationController
 	def edit
 		if @sport && check_access(roles: [ :admin ])
 			redirect_to sport_path(@sport.id), data: { turbo_action: "replace" }
-	#			@fields = create_fields(helpers.sports_form_fields(title: I18n.t("sport.edit"))) # rubocop:disable Layout/CommentIndentation
+	#			@fields = create(helpers.sports_form(title: I18n.t("sport.edit"))) # rubocop:disable Layout/CommentIndentation
   #			@submit = create_submit # rubocop:disable Layout/IndentationStyle
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -92,7 +92,7 @@ class SportsController < ApplicationController
 	def rules
 		if check_access(roles: [ :admin ])
 			@mtitle = create_fields(helpers.sport_rules_title(I18n.t("sport.rules")))
-			@fields = create_fields(helpers.sports_rules_fields)
+			@fields = create_fields(helpers.sports_rules)
 			@submit = create_submit(submit: nil)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -107,7 +107,7 @@ class SportsController < ApplicationController
 
 		# prepare a form to edit/create a Sport
 		def prepare_form(action)
-			@fields = create_fields(helpers.sports_form_fields(title: I18n.t("sport.#{action}")))
+			@fields = create_fields(helpers.sports_form(title: I18n.t("sport.#{action}")))
 			@submit = create_submit(retlnk: base_lnk("/"))
 		end
 

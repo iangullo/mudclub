@@ -43,7 +43,11 @@ class ApplicationComponent < ViewComponent::Base
 	# ensure symbol is converted to a proper symbol hash, if needed.
 	def hashify_symbol(item)
 		item[:symbol] = { concept: item[:symbol], options: {} } if item[:symbol].presence.is_a? String
-		item[:symbol][:options] ||= {} if item[:symbol]
+		if item[:symbol]
+			item[:symbol][:options] ||= {}
+			item[:symbol][:options][:css]  ||= item[:css]
+			item[:symbol][:options][:size] ||= item[:size]
+		end
 	end
 
 	# unfied renderer for icon/symbol images

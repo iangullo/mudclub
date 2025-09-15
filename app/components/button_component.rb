@@ -61,11 +61,11 @@ class ButtonComponent < ApplicationComponent
 			content_tag(:div, class: "relative") do
 				if @button[:url]
 					target = "_blank" if @button[:tab]
-					link_to(@button[:url], target:, class: @button[:b_class], title: @button[:title], data: @button[:data]) do
+					link_to(@button[:url], target:, class: @button[:b_class], data: @button[:data]) do
 						button_content
 					end
 				else
-					button_tag(class: @button[:b_class], type: @button[:type], title: @button[:title], data: @button[:data]) do
+					button_tag(class: @button[:b_class], type: @button[:type], data: @button[:data]) do
 						button_content
 					end
 				end
@@ -183,7 +183,7 @@ class ButtonComponent < ApplicationComponent
 		@button[:flip]    ||= true if [ :save, :import ].include? @button[:kind]
 		unless @button[:title]
 			case @button[:kind]
-			when :add, :add_nested, :back, :cancel, :clear, :close, :delete, :export, :forward, :import, :login, :logout, :remove, :save
+			when :add, :add_nested, :back, :cancel, :clear, :close, :delete, :edit, :email, :export, :forward, :import, :login, :logout, :remove, :save
 				@button[:title] = I18n.t("action.#{@button[:kind]}")
 			else
 				@button[:title] = @button[:label]

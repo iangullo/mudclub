@@ -17,9 +17,9 @@
 # contact email - iangullo@gmail.com.
 #
 module LocationsHelper
-	# return FieldsComponent @title for forms
-	def location_form_fields(title:)
-		res = location_title_fields(title:)
+	# return GridComponent @title for forms
+	def location_form(title:)
+		res = location_title(title:)
 		res << [ { kind: :text_box, key: :name, value: @location.name, placeholder: I18n.t("location.default"), mandatory: { length: 3 } } ]
 		res << [
 			symbol_field("gmaps"),
@@ -71,8 +71,8 @@ module LocationsHelper
 		[ { kind: :search_box, url: search_in, fields:, cols: 2 } ]
 	end
 
-	def location_show_fields
-		res = location_title_fields(title: @location.name)
+	def location_show
+		res = location_title(title: @location.name)
 		if @location.gmaps_url.present?
 			res << [ button_field({ kind: :location, symbol: "gmaps", url: @location.gmaps_url, label: I18n.t("location.see") }) ]
 		else
@@ -81,8 +81,8 @@ module LocationsHelper
 		res << [ (@location.practice_court ? symbol_field("training", { namespace: "sport" }) : symbol_field("home")) ]
 	end
 
-	# return icon and top of FieldsComponent
-	def location_title_fields(title:)
+	# return icon and top of GridComponent
+	def location_title(title:)
 		clubid = @club&.id || @clubid || u_clubid
 		icon   =  ((u_clubid != clubid) ? @club&.logo : symbol_hash("location"))
 		title_start(icon:, title:)

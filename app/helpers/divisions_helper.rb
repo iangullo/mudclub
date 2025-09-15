@@ -17,15 +17,19 @@
 # contact email - iangullo@gmail.com.
 #
 module DivisionsHelper
-	# return icon and top of FieldsComponent
-	def division_title_fields(title:, subtitle: @sport&.to_s, cols: nil)
-		title_start(icon: symbol_hash("division", namespace: "sport"), title:, subtitle:, cols:)
+	# return icon and top of GridComponent
+	def division_title(title:, subtitle: @sport&.to_s, cols: nil)
+		title_start(icon: symbol_hash("division", namespace: "sport"), title:, subtitle:, rows: 2, cols:)
 	end
 
-	# return FieldsComponent @fields for forms
-	def division_form_fields(title:, subtitle: @sport&.to_s)
+	def division_show
+		division_title(title: I18n.t("division.single"), subtitle: @division.name)
+	end
+
+	# return GridComponent @fields for forms
+	def division_form(action)
 		@submit = SubmitComponent.new(submit: :save)
-		res = division_title_fields(title:, subtitle:)
+		res = division_title(title: I18n.t("division.#{action}"))
 		res << [ gap_field, { kind: :text_box, key: :name, value: @division.name, placeholder: I18n.t("division.name"), mandatory: { length: 3 } } ]
 	end
 
@@ -35,12 +39,12 @@ module DivisionsHelper
 		title << button_field({ kind: :add, url: new_sport_division_path(@sport, rdx: @rdx), frame: "modal" }) if u_admin?
 
 		rows = Array.new
-		@divisions.each { |div|
+		@divisions.each do |div|
 			row = { url: edit_sport_division_path(@sport, div, rdx: @rdx), frame: "modal", items: [] }
 			row[:items] << { kind: :normal, value: div.name }
 			row[:items] << button_field({ kind: :delete, url: sport_division_path(@sport, div, rdx: @rdx), name: div.name }) if u_admin?
 			rows << row
-		}
-		{ title:, rows: }
+		end
+		table_field(title:, rows:, align: :center)
 	end
 end

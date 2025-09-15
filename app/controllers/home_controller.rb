@@ -24,11 +24,11 @@ class HomeController < ApplicationController
 				redirect_to club_path(u_clubid), data: { turbo_action: "replace" }
 			elsif u_coach?
 				@coach  = current_user.coach
-				@fields = create_fields(helpers.coach_show_fields)
+				@fields = create_fields(helpers.coach_show)
 				@table  = create_table(helpers.team_table(teams: @coach.team_list))
 			elsif u_player?
 				@player = current_user.player
-				title   = helpers.player_show_fields
+				title   = helpers.player_show
 				@fields = create_fields(title)
 				teams   = helpers.team_table(teams: current_user.team_list)
 				@table  = create_table(teams) if teams
@@ -36,13 +36,13 @@ class HomeController < ApplicationController
 				redirect_to home_server_path
 			end
 		else
-				@login_fields = create_fields(helpers.home_closed_fields)
+				@login_fields = create_fields(helpers.home_closed)
 		end
 	end
 
 	def about
 		@mtitle = create_fields(helpers.home_about_title)
-		@fields = create_fields(helpers.home_about_fields)
+		@fields = create_fields(helpers.home_about)
 		@submit = create_submit(submit: nil)
 	end
 
@@ -53,7 +53,7 @@ class HomeController < ApplicationController
 			else
 				actions = UserAction.where(user_id: u_club.users.pluck(:id)).order(updated_at: :desc)
 			end
-			title = helpers.home_admin_title(icon: { concept: "actions", size: "50x50" }, title: I18n.t("server.log"))
+			title = helpers.home_admin_title(icon: { concept: "actions", size: "50x50" }, subtitle: I18n.t("server.log"))
 			title.last << helpers.button_field({ kind: :clear, url: home_clear_path }) unless actions.empty?
 			page  = paginate(actions)	# paginate results
 			table = helpers.home_actions_table(actions: page)
@@ -78,8 +78,8 @@ class HomeController < ApplicationController
 
 	def server
 		if u_admin? # manage server
-			@title  = create_fields(helpers.title_start(icon: "mudclub.svg", title: "MudClub", subtitle: I18n.t("action.admin"), cols: 3))
-			@fields = create_fields(helpers.home_admin_fields)
+			@title  = create_fields(helpers.home_admin_title(subtitle: I18n.t("server.single")))
+			@fields = create_fields(helpers.home_admin)
 		end
 	end
 end

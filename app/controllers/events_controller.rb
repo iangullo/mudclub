@@ -45,7 +45,7 @@ class EventsController < ApplicationController
 	def show
 		if user_in_club? && @event && check_access(roles: [ :manager, :coach ], obj: @event.team)
 			respond_to do |format|
-				title = helpers.event_title_fields(cols: @event.train? ? 3 : nil)
+				title = helpers.event_title(cols: @event.train? ? 3 : nil)
 				format.pdf do
 					if u_manager? || u_coach?
 						response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
@@ -64,12 +64,12 @@ class EventsController < ApplicationController
 						redirect_to player_stats_event_path(@event, player_id:, rdx: @rdx, cal: @cal), data: { turbo_action: "replace" }
 					else	# gotta be a coach or manager
 						if @event.match?
-							@fields = create_fields(helpers.match_show_fields)
+							@fields = create_fields(helpers.match_show)
 							table   = helpers.match_roster_table
 							@table  = create_table(table[:data], controller: table[:controller])
 						else
-							@targets = create_fields(helpers.training_target_fields)
-							@fields  = create_fields(helpers.training_show_fields)
+							@targets = create_fields(helpers.training_target)
+							@fields  = create_fields(helpers.training_show)
 						end
 						submit  = edit_event_path(season_id: @seasonid, rdx: @rdx, cal: @cal) if editor
 						@submit = create_submit(close: :back, retlnk: base_lnk(anchor_lnk), submit:)
@@ -200,7 +200,7 @@ class EventsController < ApplicationController
 	def attendance
 		if event_manager?
 			@mtitle = create_fields(helpers.event_attendance_title)
-			@fields = create_fields(helpers.event_attendance_form_fields)
+			@fields = create_fields(helpers.event_attendance_form)
 			@submit = create_submit(retlnk: event_path(@event, rdx: @rdx))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -213,7 +213,7 @@ class EventsController < ApplicationController
 			@season = Season.latest
 			@teams  = get_teams
 			if @teams	# we have some teams we can copy to
-				@fields = create_fields(helpers.event_copy_fields)
+				@fields = create_fields(helpers.event_copy)
 				@submit = create_submit
 			else
 				notice  = helpers.flash_message("#{I18n.t("team.none")} ", "info")
@@ -246,7 +246,7 @@ class EventsController < ApplicationController
 	def show_task
 		if @event && (user_in_club? && check_access(roles: [ :manager, :coach ]))
 			@task   = Task.find(params[:task_id])
-			@fields = create_fields(helpers.task_show_fields(task: @task, team: @event.team))
+			@fields = create_fields(helpers.task_show(task: @task, team: @event.team))
 			submit  = edit_task_event_path(task_id: @task.id) if event_manager?
 			@submit = create_submit(close: :back, retlnk: :back, submit:)
 		else
@@ -257,7 +257,7 @@ class EventsController < ApplicationController
 	# GET /events/1/load_chart
 	def load_chart
 		if @event && (user_in_club? && check_access(roles: [ :manager, :coach ]))
-			header = helpers.event_title_fields(cols: @event.train? ? 3 : nil, chart: true)
+			header = helpers.event_title(cols: @event.train? ? 3 : nil, chart: true)
 			@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -270,8 +270,8 @@ class EventsController < ApplicationController
 		if event_manager? || (@event && check_access(obj: @player))
 			unless @event.rest?	# not keeing stats for holidays ;)
 				if @event.has_player(@player&.id)	# we do have a player
-					@mtitle = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
-					@fields = create_fields(helpers.event_player_stats_fields)
+					@mtitle = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
+					@fields = create_fields(helpers.event_player_stats)
 					editor  = (u_manager? || @event.team.has_coach(u_coachid) || @event.team.has_player(u_playerid))
 					@submit = create_submit(submit: editor ? edit_player_stats_event_path(@event, player_id: u_playerid) : nil, frame: "modal")
 				else
@@ -289,8 +289,8 @@ class EventsController < ApplicationController
 			unless @event.rest?	# not keeing stats for holidays ;)
 				@player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
 				if @player&.id.to_i > 0	# we do have a player
-					@mtitle = create_fields(helpers.event_title_fields(cols: @event.train? ? 3 : nil))
-					@fields = create_fields(helpers.event_edit_player_stats_fields)
+					@mtitle = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
+					@fields = create_fields(helpers.event_edit_player_stats)
 					@submit = create_submit
 				else
 					redirect_to team_path(@event.team, rdx: @rdx), data: { turbo_action: "replace" }
@@ -470,9 +470,9 @@ class EventsController < ApplicationController
 
 		# prepare new/edit event form
 		def prepare_event_form(new: nil)
-			@mtitle = create_fields(helpers.event_title_fields(form: true, cols: @event.match? ? 2 : nil))
+			@mtitle = create_fields(helpers.event_title(form: true, cols: @event.match? ? 2 : nil))
 			if @event.match?
-				@fields  = create_fields(helpers.match_form_fields(new:))
+				@fields  = create_fields(helpers.match_form(new:))
 				unless new
 					table  = helpers.match_roster_table(edit: true)
 					@table = create_table(table[:data], controller: table[:controller])
@@ -498,7 +498,7 @@ class EventsController < ApplicationController
 			mtitle       = helpers.event_task_title(subtitle: I18n.t("task.#{action}"))
 			mtitle       << helpers.drill_search_bar(search_in:, task_id: @task.id, scratch:, cols: 4)
 			@mtitle      = create_fields(mtitle)
-			@fields      = create_fields(helpers.task_form_fields(search_in:))
+			@fields      = create_fields(helpers.task_form(search_in:))
 			@description = helpers.task_form_description
 			@remarks     = create_fields(helpers.task_form_remarks)
 			@submit      = create_submit(retlnk: :back)

@@ -17,8 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 module PlayersHelper
-	# return player part of FieldsComponent for Player forms
-	def player_form_fields
+	# return player part of GridComponent for Player forms
+	def player_form
 		res = obj_club_selector(@player) + [
 			gap_field(size: 5),
 			{ kind: :label, value: I18n.t("player.number") },
@@ -61,36 +61,9 @@ module PlayersHelper
 		{ title:, rows: }
 	end
 
-	# FieldsComponent fields to show for a player
-	def player_show_fields(team: nil)
-		res = person_show_fields(@player.person, title: I18n.t("player.single"), icon: @player.picture, cols: 3)
-		res[3][0] = obj_status_field(@player)
-=begin	# COmmentingn out - not a good layout as of now
-		if team
-			att = @player.attendance(team:)
-			res << [
-				symbol_field("team"),
-				{kind: :text, value: team.to_s}
-			]
-			res << [{kind: :icon_label, symbol: "attendance", label:  I18n.t("calendar.attendance"), cols: 3, align: "left"}]
-			res << [
-				{kind: :label, value: I18n.t("match.many"), align: "right"},
-				{kind: :text, value: att[:matches]}
-			]
-			res << [
-				{kind: :label, value: I18n.t("calendar.week"), align: "right"},
-				{kind: :text, value: att[:last7].to_s + "%"}
-			] if att[:last7]
-			res << [
-				{kind: :label, value: I18n.t("calendar.month"), align: "right"},
-				{kind: :text, value: att[:last30].to_s + "%"}
-			] if att[:last30]
-			res << [
-				{kind: :label, value: I18n.t("season.abbr"), align: "right"},
-				{kind: :text, value: att[:avg].to_s + "%"}
-			] if att[:avg]
-		end
-=end
+	# GridComponent fields to show for a player
+	def player_show(team: nil)
+		res = [ [] ]
 		unless @player.person.age > 18 || @player.parents.empty?
 			res << [ { kind: :label, value: "#{I18n.t("parent.many")}:", cols: 2 } ]
 			@player.parents.each { |parent|
@@ -102,6 +75,12 @@ module PlayersHelper
 		end
 		res << [ { kind: :subtitle, value: "#{I18n.t("team.many")}:" } ]
 		res
+	end
+
+
+	# FieldComponents to show a @player
+	def player_title
+		person_show_title(@player, kind: :player)
 	end
 
 	private

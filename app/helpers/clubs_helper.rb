@@ -69,46 +69,48 @@ module ClubsHelper
 
 	# FieldComponent fields to show a club
 	def club_show_title(rows: 3, cols: 2)
-		res = club_title_fields(title: @club.nick, icon: @club.logo, rows:, cols:)
+		res = club_title(title: @club.nick, icon: @club.logo, rows:, cols:)
 		res << [ { kind: :string, value: @club.name, cols: } ]
 		res << [ { kind: :contact, website: @club.website, phone: @club.phone, email: @club.email, device: device } ]
-		res
 	end
 
-	# return Club FieldsComponent @fields for forms
+	# return Club GridComponent @fields for forms
 	def club_form_title(title:, cols: 2)
-		res = club_title_fields(title:, icon: @club.logo, rows: 3, cols:, form: true)
+		res = club_title(title:, icon: @club.logo, rows: 3, cols:, form: true)
 		res << [ { kind: :text_box, key: :nick, value: @club.nick, placeholder: I18n.t("person.name"), cols:, mandatory: { length: 3 } } ]
 		res << [ { kind: :text_box, key: :name, value: @club.name, size: 27, placeholder: I18n.t("club.entity"), cols:, mandatory: { length: 3 } } ]
 	end
 
-	# return Club FieldsComponent @fields for forms
-	def club_form_fields(cols: 5)
-		css = "align-top mr-1"
-		res = [ [
-			symbol_field("website", { css: }),
-			{ kind: :text_box, key: :website, value: @club.website, placeholder: I18n.t("club.website"), size: 31, cols: }
-		] ]
-		res << [	# locale/country settings
-			symbol_field("call", { css: }),
-			{ kind: :text_box, key: :phone, size: 12, value: @club.phone, placeholder: I18n.t("person.phone") },
-			symbol_field("flag", { css:, title: I18n.t("locale.country") }),
-			{ kind: :text_box, align: "left", key: :country, value: @club.country, placeholder: "US", size: 2, mandatory: { length: 2 } },
-			symbol_field("locale", { css:, title: I18n.t("locale.lang") }),
-			{ kind: :select_box, align: "left", key: :locale, options: User.locale_list, value: @club.locale }
-		]
-		res << [
-			symbol_field("email", { type: :button, css: }),
-			{ kind: :email_box, key: :email, value: @club.email, placeholder: I18n.t("person.email"), size: 34, cols: }
-		]
-		res << [
-			symbol_field("home", { css: }),
-			{ kind: :text_area, key: :address, size: 34, cols:, lines: 3, value: @club.address, placeholder: I18n.t("person.address") }
+	# return Club GridComponent @fields for forms
+	def club_form(cols: 5)
+		css = "align-top"
+		[
+			[
+				symbol_field("website", { css: }),
+				{ kind: :text_box, key: :website, value: @club.website, placeholder: I18n.t("club.website"), size: 33, cols: }
+			],
+			[
+				symbol_field("call", { css: }),
+				{ kind: :text_box, key: :phone, size: 12, value: @club.phone, placeholder: I18n.t("person.phone") },
+				symbol_field("locale", { css:, title: I18n.t("locale.lang") }),
+				{ kind: :text_box, align: "left", key: :country, value: @club.country, placeholder: "US", size: 2, mandatory: { length: 2 } },
+				symbol_field("flag", { css:, title: I18n.t("locale.country") }),
+				{ kind: :select_box, align: "left", key: :locale, options: User.locale_list, value: @club.locale }
+			],
+			[
+				symbol_field("email", { type: :button, css: }),
+				{ kind: :email_box, key: :email, value: @club.email, placeholder: I18n.t("person.email"), size: 33, cols: }
+			],
+			[
+				symbol_field("home", { css: }),
+				{ kind: :text_area, key: :address, size: 30, cols:, lines: 3, value: @club.address, placeholder: I18n.t("person.address") }
+			]
 		]
 	end
 
-	# return icon and top of FieldsComponent
-	def club_title_fields(title:, subtitle: nil, icon: "mudclub.svg", rows: 2, cols: nil, form: nil)
-		title_start(icon:, title:, subtitle:, rows:, cols:, form:)
+	# return icon and top of GridComponent
+	def club_title(title:, subtitle: nil, icon: "mudclub.svg", rows: 2, cols: nil, form: nil)
+		size = (icon.is_a?(Hash) && icon[:concept] == "rivals") ? nil : "75x100"
+		title_start(icon:, title:, subtitle:, size:, rows:, cols:, form:)
 	end
 end

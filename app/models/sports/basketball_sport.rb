@@ -55,12 +55,12 @@ class BasketballSport < Sport
 	end
 
 	# fields to display match information - not title
-	def match_show_fields(event)
+	def match_show(event)
 		match_fields(event)
 	end
 
 	# fields to edit a match
-	def match_form_fields(event, new: false)
+	def match_form(event, new: false)
 		match_fields(event, edit: true, new:)
 	end
 
@@ -143,7 +143,7 @@ class BasketballSport < Sport
 	end
 
 	# fields to display player's stats for training
-	def player_training_stats_fields(event, player_id:)
+	def player_training_stats_show(event, player_id:)
 		stats = Stat.fetch(event_id: event.id, period: 0, player_id:, create: false)
 		res   = player_training_stats_header
 		res << show_shooting_data(s_label("ft"), stats, :ftm, :fta)
@@ -156,7 +156,7 @@ class BasketballSport < Sport
 	end
 
 	# fields to track player training stats
-	def player_training_stats_form_fields(event, player_id:)
+	def player_training_stats_form(event, player_id:)
 		key   = "#{player_id}_0_"
 		stats = Stat.fetch(event_id: event.id, player_id:)
 		res   = player_training_stats_header
@@ -168,12 +168,12 @@ class BasketballSport < Sport
 	end
 
 	# fields to show rules limits
-	def rules_limits_fields
-		res    = rules_limits_title_fields
+	def rules_limits
+		res    = rules_limits_title
 		rules  = self.rules
 		limits = self.limits
 		rules.each_key do |rule|
-			res << rules_limits_row_fields(rule, limits[rule])
+			res << rules_limits_row(rule, limits[rule])
 		end
 		res
 	end
@@ -308,7 +308,7 @@ class BasketballSport < Sport
 			pcol  = taken == 0 ? "gray-300" : (pctg < 20 ? "red-900": (pctg < 50 ? "yellow-700" : (pctg < 70 ? "gray-700" : "green-700")))
 			[
 				{ kind: :gap },
-				stat_label_field(label),
+				stat_label(label),
 				{ kind: :string, value: made, class: "border px py", align: "right" },
 				{ kind: :label, value: "/" },
 				{ kind: :string, value: taken, class: "border px py", align: "right" },
@@ -332,7 +332,7 @@ class BasketballSport < Sport
 			v_taken = Stat.fetch(concept: k_taken, stats:).first&.value.to_i
 			[
 				{ kind: :gap },
-				stat_label_field(label),
+				stat_label(label),
 				{ kind: :number_box, key: "#{key}#{k_made}", value: v_made, class: "shots-made border px py", align: "right" },
 				{ kind: :label, value: "/" },
 				{ kind: :number_box, key: "#{key}#{k_taken}", value: v_taken, class: "shots-taken border px py", align: "right" }
@@ -340,7 +340,7 @@ class BasketballSport < Sport
 		end
 
 		# fields to show the sport rules limits title
-		def rules_limits_title_fields
+		def rules_limits_title
 			[
 				[
 					topcell(I18n.t("sport.rules"), rows: 3),
@@ -370,7 +370,7 @@ class BasketballSport < Sport
 		end
 
 		# fields for a row of rules limits
-		def rules_limits_row_fields(rule, limit)
+		def rules_limits_row(rule, limit)
 			g_cls  = "border"
 			n_cls  = "#{g_cls} text-center"
 			r_per  = limit["periods"]
@@ -394,13 +394,13 @@ class BasketballSport < Sport
 			]
 		end
 
-		# generic match_fields generator for show or edit
+		# generic match fields generator for show or edit
 		def match_fields(event, edit: false, new: false)
 			t_pers  = self.match_periods(event.team.category.rules)
 			t_cols  = t_pers + (edit ? 3 : 2)
 			head    = edit ? [ { kind: :side_cell, value: I18n.t("team.home_a"), cols: 2, align: "left" } ] : [ { kind: :gap, size: 1 } ]
-			t_home  = team_name_fields(event, home: event.home?, edit:)
-			t_away  = team_name_fields(event, home: !event.home?, edit:)
+			t_home  = team_name(event, home: event.home?, edit:)
+			t_away  = team_name(event, home: !event.home?, edit:)
 			if new
 				fields = [ [] ]
 				head   = [ { kind: :gap, size: 2 } ] + head
@@ -412,7 +412,7 @@ class BasketballSport < Sport
 				periods = self.periods
 				match_score_fields(event.home?, score, periods, t_pers, head, t_home, t_away, edit:)
 				head << topcell(I18n.t("stat.total_a"))
-				team_period_score_fields(event.home?, :tot, t_home, t_away, score[:tot], edit:)
+				team_period_score(event.home?, :tot, t_home, t_away, score[:tot], edit:)
 			end
 			fields += [ head, t_home, t_away ]
 			unless new
@@ -423,7 +423,7 @@ class BasketballSport < Sport
 		end
 
 		# fields for home team in a match
-		def team_name_fields(event, home:, edit: false)
+		def team_name(event, home:, edit: false)
 			if edit
 				action = "change->match-location#selectHomeCourt"
 				rivals = event.team.rival_teams_info
@@ -444,7 +444,7 @@ class BasketballSport < Sport
 		end
 
 		# add fields to team period scores
-		def team_period_score_fields(home, period, t_home, t_away, val, edit: false)
+		def team_period_score(home, period, t_home, t_away, val, edit: false)
 			p_home = (val ? (home ? val[:ours] : val[:opps]) : 0)
 			p_away = (val ? (home ? val[:opps] : val[:ours]) : 0)
 			k_tail = "_#{period}_1"
@@ -475,11 +475,11 @@ class BasketballSport < Sport
 					rsc[:opps] += val[:opps]
 				end
 				head << topcell(I18n.t("#{SPORT_LBL}period.#{per}"))
-				team_period_score_fields(home, per, t_home, t_away, val, edit:)
+				team_period_score(home, per, t_home, t_away, val, edit:)
 			end
 			if edit || (rsc[:ours] == rsc[:opps] && rsc[:ours] > 0)
 				head << topcell(I18n.t("#{SPORT_LBL}period.ot"))
-				team_period_score_fields(home, :ot, t_home, t_away, score[:ot], edit:)
+				team_period_score(home, :ot, t_home, t_away, score[:ot], edit:)
 			end
 		end
 
@@ -519,28 +519,28 @@ class BasketballSport < Sport
 				tbox
 			]
 			# show points only when not editing
-			fields <<	match_stats_field(key, stats, 2, edit:) unless edit
+			fields <<	match_stats(key, stats, 2, edit:) unless edit
 			fields +=	[
-				match_stats_field(key, stats, 4, edit:),	# ftm
+				match_stats(key, stats, 4, edit:),	# ftm
 				{ kind: :normal, value: "/" },
-				match_stats_field(key, stats, 3, edit:),	# fta
-				match_stats_field(key, stats, 8, edit:),	# t2a
+				match_stats(key, stats, 3, edit:),	# fta
+				match_stats(key, stats, 8, edit:),	# t2a
 				{ kind: :normal, value: "/" },
-				match_stats_field(key, stats, 7, edit:),	# t2m
-				match_stats_field(key, stats, 14, edit:),	# t3a
+				match_stats(key, stats, 7, edit:),	# t2m
+				match_stats(key, stats, 14, edit:),	# t3a
 				{ kind: :normal, value: "/" },
-				match_stats_field(key, stats, 13, edit:),	# t3m
-				match_stats_field(key, stats, 17, edit:),	# trb
-				match_stats_field(key, stats, 18, edit:),	# ast
-				match_stats_field(key, stats, 19, edit:),	# stl
-				match_stats_field(key, stats, 21, edit:),	# blk
-				match_stats_field(key, stats, 20, edit:),	# to
-				match_stats_field(key, stats, 23, edit:)	# fouls
+				match_stats(key, stats, 13, edit:),	# t3m
+				match_stats(key, stats, 17, edit:),	# trb
+				match_stats(key, stats, 18, edit:),	# ast
+				match_stats(key, stats, 19, edit:),	# stl
+				match_stats(key, stats, 21, edit:),	# blk
+				match_stats(key, stats, 20, edit:),	# to
+				match_stats(key, stats, 23, edit:)	# fouls
 			]
 		end
 
 		# return a match_stats field for edit/view
-		def match_stats_field(key, stats, concept, edit: false)
+		def match_stats(key, stats, concept, edit: false)
 			key   = "#{key}#{concept}"
 			value = Stat.fetch(concept:, stats:, create: false).first&.value.to_i
 			if edit

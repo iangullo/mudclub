@@ -25,7 +25,7 @@ class CategoriesController < ApplicationController
 	def index
 		if check_access(roles: [ :admin ])
 			@categories = Category.for_sport(@sport.id)
-			title = helpers.category_title_fields(title: I18n.t("category.many"))
+			title = helpers.category_title(title: I18n.t("category.many"))
 			table = helpers.category_table
 			create_index(title:, table:)
 		else
@@ -36,7 +36,7 @@ class CategoriesController < ApplicationController
 	# GET /categories/1 or /categories/1.json
 	def show
 		if @category && check_access(roles: [ :admin ])
-			@fields = create_fields(helpers.category_show_fields)
+			@fields = create_fields(helpers.category_show)
 			@submit = create_submit(submit: current_user.admin? ? edit_sport_category_path(@sport, @category) : nil)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -129,7 +129,7 @@ class CategoriesController < ApplicationController
 	private
 		# prepare a form to edit/create a Category
 		def prepare_form(action)
-			@fields = create_fields(helpers.category_form_fields(title: I18n.t("category.#{action}")))
+			@fields = create_fields(helpers.category_form(title: I18n.t("category.#{action}")))
 			@submit = create_submit
 		end
 

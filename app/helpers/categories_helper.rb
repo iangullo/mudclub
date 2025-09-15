@@ -17,51 +17,60 @@
 # contact email - iangullo@gmail.com.
 #
 module CategoriesHelper
-	# return icon and top of FieldsComponent
-	def category_title_fields(title:, subtitle: @sport&.to_s, rows: 2, cols: nil)
+	# return icon and top of a view
+	def category_title(title:, subtitle: @sport&.to_s, rows: 2, cols: nil)
 		title_start(icon: symbol_hash("category", namespace: "sport"), title:, subtitle:, rows:, cols:)
 	end
 
-	# FieldComponents for category.show
-	def category_show_fields
-		res = category_title_fields(title: I18n.t("category.single"), cols: 5, rows: 5)
-		res << [
-			{ kind: :subtitle, value: @category.age_group, cols: 3 },
-			{ kind: :subtitle, value: @category.sex, cols: 2 }
-		]
-		res << [
-			{ kind: :label, value: I18n.t("stat.min") },
-			{ kind: :string, value: @category.min_years },
-			gap_field,
-			{ kind: :label, value: I18n.t("stat.max") },
-			{ kind: :string, value: @category.max_years }
-		]
-		res
-	end
-
-	# return FieldsComponent @title for forms
-	def category_form_fields(title:)
-		@submit = SubmitComponent.new(submit: :save)
-		res     = category_title_fields(title:, rows: 3, cols: 5)
-		res << [
-			{ kind: :text_box, key: :age_group, value: @category.age_group, placeholder: I18n.t("category.single"), size: 10, cols: 3, mandatory: { length: 3 } },
-			{ kind: :select_box, key: :sex, options: Category.sex_options, value: @category.sex, cols: 2 }
-		]
-		res << [
-			{ kind: :label, value: I18n.t("stat.min") },
-			{ kind: :number_box, key: :min_years, min: 5, size: 3, value: @category.min_years, mandatory: { min: 5 } },
-			gap_field(size: 5),
-			{ kind: :label, value: I18n.t("stat.max") },
-			{ kind: :number_box, key: :max_years, min: 6, size: 3, value: @category.max_years, mandatory: { max: 99 } }
-		]
-		res << [
-			symbol_field("rules", { namespace: "sport" }),
-			{ kind: :select_box, key: :rules, options: @sport.rules_options, value: @category.rules ? @category.rules : @sport.try(:default_rules), cols: 4 }
+	# Field definitions for category.show
+	def category_show
+		res = category_title(title: I18n.t("category.single"), subtitle: @category.name, cols: 4)
+		res += [
+			[
+				gap_field(size: 1),
+				{ kind: :subtitle, value: @category.age_group, cols: 2 },
+				{ kind: :subtitle, value: @category.sex, cols: 2 }
+			],
+			[
+				gap_field(size: 1),
+				{ kind: :label, value: I18n.t("stat.min"), align: "right" },
+				{ kind: :string, value: @category.min_years },
+				{ kind: :label, value: I18n.t("stat.max") },
+				{ kind: :string, value: @category.max_years }
+			],
+			[
+				symbol_field("rules", { namespace: "sport" }, align: :right),
+				{ kind: :string, value: @category.sport.specific.rules_options[@category.rules].first, cols: 4 }
+			]
 		]
 		res
 	end
 
-	# return header for @categories tableComponent
+	# return field definitions for forms
+	def category_form(title:)
+		res = category_title(title:, cols: 4)
+		res += [
+			[
+				gap_field(size: 1),
+				{ kind: :text_box, key: :age_group, value: @category.age_group, placeholder: I18n.t("category.single"), size: 10, cols: 2, mandatory: { length: 3 } },
+				{ kind: :select_box, key: :sex, options: Category.sex_options, value: @category.sex, cols: 2 }
+			],
+			[
+				{ kind: :label, value: I18n.t("stat.min"), align: :right },
+				{ kind: :number_box, key: :min_years, min: 5, size: 3, value: @category.min_years, mandatory: { min: 5 }, align: :left },
+				{ kind: :label, value: I18n.t("stat.max"), align: :right },
+				{ kind: :number_box, key: :max_years, min: 6, size: 3, value: @category.max_years, mandatory: { max: 99 } },
+				gap_field(size: 1)
+			],
+			[
+				symbol_field("rules", { namespace: "sport" }, align: :right),
+				{ kind: :select_box, key: :rules, options: @sport.rules_options, value: @category.rules ? @category.rules : @sport.try(:default_rules), cols: 4 }
+			]
+		]
+		res
+	end
+
+	# return header for @categories TableComponent
 	def category_table
 		title = [
 			{ kind: :normal, value: I18n.t("category.name") },

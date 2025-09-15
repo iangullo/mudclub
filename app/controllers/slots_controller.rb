@@ -27,7 +27,7 @@ class SlotsController < ApplicationController
 		if check_access(obj: @club)
 			@locations = Location.search(club_id: @clubid).practice.order(name: :asc)
 			@location  = Location.find_by_id(params[:location_id]) || @locations.first
-			title      = helpers.slot_title_fields(title: I18n.t("slot.many"))
+			title      = helpers.slot_title(title: I18n.t("slot.many"))
 			title     << helpers.slot_search_bar(u_manager? || u_secretary?)
 			@fields    = create_fields(title)
 			week_view if @location
@@ -41,8 +41,8 @@ class SlotsController < ApplicationController
 	# GET /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def show
 		if @slot && check_access(obj: @slot.team.club)
-			@mtitle  = create_fields(helpers.slot_title_fields(title: @slot.team.to_s, subtitle: @slot.team.season.name))
-			@fields  = create_fields(helpers.slot_show_fields)
+			@mtitle  = create_fields(helpers.slot_title(title: @slot.team.to_s, subtitle: @slot.team.season.name))
+			@fields  = create_fields(helpers.slot_show)
 			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot, rdx: @rdx) : nil, frame: u_manager? ? "modal" : nil)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -193,7 +193,7 @@ class SlotsController < ApplicationController
 
 		# prepare fields to renfeer edit/new slot form
 		def prepare_form(action)
-			@fields = create_fields(helpers.slot_form_fields(title: I18n.t("slot.#{action}")))
+			@fields = create_fields(helpers.slot_form(title: I18n.t("slot.#{action}")))
 			@submit = create_submit
 		end
 

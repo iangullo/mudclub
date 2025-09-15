@@ -35,7 +35,7 @@ class CoachesController < ApplicationController
 				end
 				format.html do
 					page   = paginate(@coaches)	# paginate results
-					title  = helpers.person_title_fields(title: I18n.t("coach.many"), icon: { concept: "coach", options: { namespace: "sport", size: "50x50" } })
+					title  = helpers.person_title(title: I18n.t("coach.many"), icon: { concept: "coach", options: { namespace: "sport", size: "50x50" } })
 					title << [ { kind: :search_text, key: :search, value: search, url: club_coaches_path(@clubid, rdx: @rdx) } ]
 					table  = helpers.coach_table(coaches: page)
 					submit = { kind: :export, url: club_coaches_path(@clubid, format: :xlsx), working: false } if u_manager? || u_secretary?
@@ -52,8 +52,8 @@ class CoachesController < ApplicationController
 	# GET /coaches/1.json
 	def show
 		if @coach && (check_access(obj: @coach) || check_access(roles: [ :manager, :secretary ], obj: @coach.club, both: true))
-			@fields = create_fields(helpers.coach_show_fields)
-			@table   = create_table(helpers.team_table(teams: @coach.team_list))
+			@title  = create_fields(helpers.coach_title)
+			@fields = create_fields(helpers.coach_show)
 			retlnk  = anchor_lnk
 			submit  = edit_coach_path(@coach, club_id: @clubid, team_id: p_teamid, user: p_userid, rdx: @rdx) if u_manager? || u_secretary? || u_coachid == @coach.id
 			@submit = create_submit(close: :back, retlnk:, submit:, frame: "modal")
@@ -187,8 +187,8 @@ class CoachesController < ApplicationController
 		# prepare form FieldComponents
 		def prepare_form(action)
 			@title    = create_fields(helpers.person_form_title(@coach.person, title: I18n.t("coach.#{action}"), icon: @coach.picture))
-			@c_fields = create_fields(helpers.coach_form_fields(team_id: p_teamid, user: p_userid))
-			@p_fields = create_fields(helpers.person_form_fields(@coach.person))
+			@c_fields = create_fields(helpers.coach_form(team_id: p_teamid, user: p_userid))
+			@p_fields = create_fields(helpers.person_form(@coach.person))
 			@submit   = create_submit
 		end
 

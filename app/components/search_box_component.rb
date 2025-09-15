@@ -43,9 +43,9 @@ class SearchBoxComponent < ApplicationComponent
 		@s_url    = search[:url]
 		@s_filter = search[:filter].presence
 		@s_action = { action: "input->search-form#search" }
-		if search[:kind] == :search_box	# we'll get an array of search_fields
+		if search[:kind] == :search_box	# we'll get an array of search fields
 			@fields = search[:fields]
-		else	# we need to create our array of search_fields with a single one
+		else	# we need to create our array of search fields with a single one
 			@fields = [ { kind: search[:kind], key: search[:key].to_sym, label: search[:label], options: search[:options], value: search[:value] } ]
 		end
 		@fields.each  do |field|	# parse placeholders & labels
@@ -58,7 +58,12 @@ class SearchBoxComponent < ApplicationComponent
 	end
 
 	def call
-		tag.div(id: "search-box", class: D_CLASS) { search_form }
+		form_with(url: @s_url, method: :get, data: { controller: "search-form", search_form_fsearch_target: "fsearch", turbo_frame: "search-results" }) do |fsearch|
+			tag.div(id: "search-box", class: D_CLASS) do
+				render_search_fields(fsearch)	# First column for fields
+				render_submit_button	# Second column for the button
+			end
+		end
 	end
 
 	private
@@ -82,7 +87,7 @@ class SearchBoxComponent < ApplicationComponent
 			when :search_text
 				fsearch.text_field(field[:key], placeholder: field[:placeholder], value: field[:value], size: field[:size], class: @i_class, data: @s_action)
 			when :search_select
-				fsearch.select(field[:key], options_for_select(field[:options], session.dig(field[:key].to_sym) || field[:value]), { include_blank: field[:blank] || t("scope.all") }, class: @i_class)
+				fsearch.select(field[:key], options_for_select(field[:options], session.dig(field[:key].to_sym) || field[:value]), { include_blank: field[:blank] || field[:placeholder] }, class: @i_class)
 			when :search_collection
 				fsearch.collection_select(field[:key], field[:options], :id, :name, { selected: params[field[:key].to_sym].presence || field[:value] }, class: @i_class)
 			when :hidden
@@ -94,23 +99,20 @@ class SearchBoxComponent < ApplicationComponent
 			@fields.map { |field| field_tag(fsearch, field) }
 		end
 
-		def search_form
-			form_with(url: @s_url, method: :get, data: { controller: "search-form", search_form_fsearch_target: "fsearch", turbo_frame: "search-results" }) do |fsearch|
-				safe_join(
-					render_fields(fsearch) +
-					[ hidden_filter_field(fsearch), submit_button ]
-				)
-			end
+		def render_search_fields(fsearch)
+			concat(tag.div(class: "flex flex-wrap m-1") do
+				safe_join(render_fields(fsearch) + [ hidden_filter_field(fsearch) ])
+			end)
 		end
 
-		def submit_button
-			content_tag(:div, class: S_CLASS) do
+		def render_submit_button
+			concat(content_tag(:div, class: S_CLASS) do
 				tag.button(type: "submit", class: "p-1 align-middle", aria: { label: t("action.search") }) do
 					render SymbolComponent.new("search",
 						type: :button,
 						label: t("action.search")
 					)
 				end
-			end
+			end)
 		end
 end

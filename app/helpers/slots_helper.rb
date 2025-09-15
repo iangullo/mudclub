@@ -17,16 +17,16 @@
 # contact email - iangullo@gmail.com.
 #
 module SlotsHelper
-	# return icon and top of FieldsComponent
-	def slot_title_fields(title:, subtitle: nil)
+	# return icon and top of GridComponent
+	def slot_title(title:, subtitle: nil)
 		icon = symbol_hash("timetable")
 		res  = title_start(icon:, title:, subtitle:)
 		res
 	end
 
-	# return FieldsComponent @fields for forms
-	def slot_form_fields(title:)
-		res = slot_title_fields(title:, subtitle: @season&.name)
+	# return GridComponent @fields for forms
+	def slot_form(title:)
+		res = slot_title(title:, subtitle: @season&.name)
 		res << [
 			symbol_field("team"),
 			{ kind: :select_collection, key: :team_id, options: @club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2 }
@@ -66,7 +66,7 @@ module SlotsHelper
 	end
 
 	# fields for individual slot views
-	def slot_show_fields
+	def slot_show
 		res = [
 			[ symbol_field("category", { namespace: "sport" }), string_field(@slot.team.category.name, cols: 2) ],
 			[ symbol_field("division", { namespace: "sport" }), string_field(@slot.team.division.name, cols: 2) ],

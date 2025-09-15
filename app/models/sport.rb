@@ -36,13 +36,13 @@ class Sport < ApplicationRecord
 		self.specific.court_name(court)
 	end
 
-	# fields to display match information - not title
-	def match_show_fields(event, home: nil)
+	# GridComponent fields to display match information - not title
+	def match_show(event, home: nil)
 		raise ERR_NEED_SPECIFIC
 	end
 
-	# fields to edit a match
-	def match_form_fields(event, new: false)
+	# GridComponent fields to edit a match
+	def match_form(event, new: false)
 		raise ERR_NEED_SPECIFIC
 	end
 
@@ -63,17 +63,17 @@ class Sport < ApplicationRecord
 	end
 
 	# fields to display player's stats for training
-	def player_training_stats_fields(event, player_id:)
+	def player_training_stats_show(event, player_id:)
 		raise ERR_NEED_SPECIFIC
 	end
 
 	# fields to track player training stats
-	def player_training_stats_form_fields(event, player_id:)
+	def player_training_stats_form(event, player_id:)
 		raise ERR_NEED_SPECIFIC
 	end
 
 	# fields to show rules limits
-	def rules_limits_fields
+	def rules_limits
 		raise ERR_NEED_SPECIFIC
 	end
 
@@ -219,7 +219,7 @@ class Sport < ApplicationRecord
 		update_stats(event, f_stats)
 	end
 
-	# prepare a SVG symbol field definition FieldsComponent
+	# prepare a SVG symbol field definition GridComponent
 	def symbol(concept, type: :icon, variant: "default")
 		try_symbol(concept, namespace: "sport", type:, variant:)
 	end
@@ -238,7 +238,7 @@ class Sport < ApplicationRecord
 		end
 
 		# return label field for a stat
-		def stat_label_field(label, abbr = true)
+		def stat_label(label, abbr = true)
 			{ kind: :side_cell, value: label, align: "middle", class: "border px py" }
 		end
 

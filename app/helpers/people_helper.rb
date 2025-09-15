@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 module PeopleHelper
-	def person_form_fields(person, mandatory_email: nil)
+	def person_form(person, mandatory_email: nil)
 		res = [
 			[
 				symbol_field("user", { title: I18n.t("person.nick") }),
@@ -35,8 +35,8 @@ module PeopleHelper
 			]
 		]
 		if person&.coach_id? || person&.player_id?
-			res << [ gap_field(size: 1), idpic_field(person, idpic: "id_front", align: "left", cols: 4) ]
-			res << [ gap_field(size: 1), idpic_field(person, idpic: "id_back", align: "left", cols: 4) ]
+			res << [ gap_field(size: 1), person_idpic(person, idpic: "id_front", align: "left", cols: 4) ]
+			res << [ gap_field(size: 1), person_idpic(person, idpic: "id_back", align: "left", cols: 4) ]
 		end
 		res << [
 			symbol_field("home", { size: "25x25", title: I18n.t("person.address") }, class: "align-top"),
@@ -44,15 +44,35 @@ module PeopleHelper
 		]
 	end
 
-	# return FieldsComponent @fields for forms
+	# return GridComponent @fields for forms
 	def person_form_title(person, icon: person&.picture, title:, cols: 2, sex: nil)
-		res = person_title_fields(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
+		res = person_title(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
 		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: I18n.t("person.name"), cols: 2, mandatory: { length: 2 } } ]
 		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: I18n.t("person.surname"), cols: 2, mandatory: { length: 2 } } ]
 		res << (sex ? [ { kind: :label_checkbox, label: I18n.t("sex.female_a"), key: :female, value: person&.female, align: "left" } ] : [])
 		res.last << symbol_field("calendar")
 		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: person&.player_id? }
 		res
+	end
+
+	# wrapper to manage return of suitable Field for dni Person fields
+	# standardised field with icons for player/coach id pics
+	def person_idpic(person, idpic: nil, cols: nil, align: "center")
+		if idpic	# it is an editor field
+			{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: I18n.t("person.pid")), label: I18n.t("person.#{idpic}"), key: idpic, value: person&.send(idpic)&.filename, cols: }
+		else
+			pidpic = person&.idpic_content
+			symbol = pidpic[:symbol]
+			label  = pidpic[:label]
+			if pidpic[:found] && u_manager?	# dropdown menu
+				button = { kind: :link, name: "id-pics", symbol:, label:, append: true, options: [] }
+				button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
+				button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
+				{ kind: :dropdown, button:, class: "bg-white", cols: }
+			else
+				{ kind: :icon_label, symbol:, label:, right: true, align: "left", cols: }
+			end
+		end
 	end
 
 	# return title for @people TableComponent
@@ -71,23 +91,37 @@ module PeopleHelper
 	end
 
 	# FieldComponent fields to show a person
-	def person_show_fields(person, title: I18n.t("person.single"), icon: person&.picture, rows: 3, cols: 2)
-		res = person_title_fields(title:, icon:, rows:, cols:)
-		res << [ { kind: :label, value: person&.nick&.presence || person&.name, cols: } ]
-		res << [ { kind: :label, value: person&.surname, cols: } ]
-		res << [ gap_field(size: 0), { kind: :string, value: person&.birthstring } ]
-		res << [ { kind: :contact, email: person&.email, phone: person&.phone, device: device, align: "center" } ]
-		res.last << idpic_field(person) if person&.coach_id? || person&.player_id?
-		res << [
+	def person_show(person, title: I18n.t("person.single"), icon: person&.picture)
+		return [ [] ]  unless person&.address&.present?
+		[
+			[
 			symbol_field("home", { size: "25x25", title: I18n.t("person.address") }, class: "align-top", align: "right"),
-			{ kind: :string, value: simple_format("#{person&.address}"), align: "left", cols: 2 }
-		] if person&.address&.present?
-		res
+			{ kind: :string, value: simple_format("#{person&.address}"), align: "left" }
+			]
+		]
 	end
 
-	# return icon and top of FieldsComponent
-	def person_title_fields(title:, icon: symbol_hash("person"), rows: 2, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
-		title_start(icon:, title:, rows:, cols:, size:, _class: _class, form:)
+	# GridComponent definition to show title of a person view
+	def person_show_title(person, kind: nil, rows: 3, cols: nil)
+		pobj   = kind ? person.person : person
+		title  = I18n.t("#{kind}.single")
+		icon   = person.picture
+		fields = person_title(icon:, title:, subtitle: pobj&.nick&.presence || pobj&.name, rows:, cols:)
+		fields += [
+			[ { kind: :label, value: pobj&.surname, cols: } ],
+			[ gap_field, { kind: :string, value: pobj&.birthstring } ],
+			[ { kind: :contact, email: pobj&.email, phone: pobj&.phone, device: device, align: "center" } ]
+		]
+		if kind
+			fields[3][0] = obj_status_field(person)
+			fields[4] <<  person_idpic(pobj)
+		end
+		fields
+	end
+
+	# return icon and top of GridComponent
+	def person_title(icon: symbol_hash("person"), title:, subtitle: nil, rows: 3, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
+		title_start(icon:, title:, subtitle:, rows:, cols:, size:, _class: _class, form:)
 	end
 
 	private
@@ -99,25 +133,5 @@ module PeopleHelper
 				url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
 				d_class: "inline-flex items-center"
 			}
-		end
-
-		# wrapper to manage return of suitable Field for dni Person fields
-		# standardised field with icons for player/coach id pics
-		def idpic_field(person, idpic: nil, cols: nil, align: "center")
-			if idpic	# it is an editor field
-				{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: I18n.t("person.pid")), label: I18n.t("person.#{idpic}"), key: idpic, value: person&.send(idpic)&.filename, cols: }
-			else
-				pidpic = person&.idpic_content
-				symbol = pidpic[:symbol]
-				label  = pidpic[:label]
-				if pidpic[:found] && u_manager?	# dropdown menu
-					button = { kind: :link, name: "id-pics", symbol:, label:, append: true, options: [] }
-					button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
-					button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
-					{ kind: :dropdown, button:, class: "bg-white" }
-				else
-					{ kind: :icon_label, symbol:, label:, right: true, align: "left" }
-				end
-			end
 		end
 end

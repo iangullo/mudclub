@@ -24,7 +24,7 @@ class LocationsController < ApplicationController
 	# GET /club/x/locations.json
 	def index
 		if check_access(roles: [ :admin, :manager, :secretary ])
-			title  = helpers.location_title_fields(title: I18n.t("location.many"))
+			title  = helpers.location_title(title: I18n.t("location.many"))
 			title << helpers.location_search_bar(search_in: club_locations_path(rdx: @rdx))
 			page   = paginate(@locations)	# paginate results
 			table  = helpers.location_table(locations: page)
@@ -38,8 +38,8 @@ class LocationsController < ApplicationController
 	# GET /locations/1.json
 	def show
 		if @location && user_signed_in?	# basically all users can see this
-			@fields = create_fields(helpers.location_show_fields)
-			submit  = edit_location_path(@location, rdx: @rdx) if user_in_club? && check_access(roles: [ :manager, :secretary ])
+			@fields = create_fields(helpers.location_show)
+			submit  = edit_location_path(@location, rdx: @rdx) if location_editor?
 			@submit = create_submit(submit:, frame: "modal")
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -48,7 +48,7 @@ class LocationsController < ApplicationController
 
 	# GET /locations/1/edit
 	def edit
-		if @location && user_in_club? && check_access(roles: [ :manager, :secretary ])
+		if @location && location_editor?
 			prepare_form("edit")
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -57,7 +57,7 @@ class LocationsController < ApplicationController
 
 	# GET /locations/new
 	def new
-		if user_in_club? && check_access(roles: [ :manager, :secretary ])
+		if  u_admin? || location_editor?
 			@location = Location.new unless @location
 			prepare_form("new")
 		else
@@ -69,7 +69,7 @@ class LocationsController < ApplicationController
 	# POST /locations.json
 	def create
 		@club = Club.find_by_id(@clubid)
-		if user_in_club? && check_access(roles: [ :manager, :secretary ])
+		if location_editor?
 			respond_to do |format|
 				@location = Location.new
 				@location.rebuild(location_params) # rebuild @location
@@ -94,7 +94,7 @@ class LocationsController < ApplicationController
 
 	# PATCH/PUT /locations/1 or /locations/1.json
 	def update
-		if @location && user_in_club? && check_access(roles: [ :manager, :secretary ])
+		if @location && location_editor?
 			respond_to do |format|
 				@location.rebuild(location_params)
 				@club  = Club.find_by_id(@clubid)
@@ -154,9 +154,13 @@ private
 		club_locations_path(clubid, rdx: @rdx)
 	end
 
+	def location_editor?
+		(u_admin? || user_in_club? && check_access(roles: [ :manager, :secretary ]))
+	end
+
 	# prepare ViewComponents for a Location edit/new form
 	def prepare_form(action)
-		@fields = create_fields(helpers.location_form_fields(title: I18n.t("location.#{action}")))
+		@fields = create_fields(helpers.location_form(title: I18n.t("location.#{action}")))
 		@submit = create_submit
 	end
 

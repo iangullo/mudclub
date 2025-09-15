@@ -28,7 +28,7 @@ class UsersController < ApplicationController
 			search = (params[:search].presence || session.dig("user_filters", "search"))
 			@users = User.search(search, current_user)
 			page   = paginate(@users)	# paginate results
-			title  = helpers.person_title_fields(title: I18n.t("user.many"), icon: { concept: "user", options: { size: "50x50" } })
+			title  = helpers.person_title(title: I18n.t("user.many"), icon: { concept: "user", options: { size: "50x50" } })
 			title << [ { kind: :search_text, key: :search, value: search, url: users_path(rdx: @rdx) } ]
 			table  = helpers.user_table(users: @u_page)
 			create_index(title:, table:, page:, retlnk: base_lnk("/"))
@@ -41,8 +41,7 @@ class UsersController < ApplicationController
 	# GET /users/1.json
 	def show
 		if @user && check_access(roles: [ :admin ], obj: @user)
-			@title = create_fields(helpers.user_show_fields)
-			@role  = create_fields(helpers.user_role_fields(@user))
+			@title = create_fields(helpers.user_show)
 			@table = create_table(helpers.team_table(teams: @user.team_list))
 			retlnk = (@rdx == 1 ? :back : base_lnk(users_path(rdx: @rdx)))
 			submit  = edit_user_path(@user, rdx: @rdx) if u_admin? || @rdx == 1
@@ -156,7 +155,7 @@ class UsersController < ApplicationController
 		if @user && check_access(roles: [ :admin ], obj: @user)
 			@mtitle = create_fields(helpers.user_actions_title)
 			@actions= create_fields(helpers.user_actions_table)
-			@submit = create_submit(submit: helpers.user_actions_clear_fields, frame: "modal")
+			@submit = create_submit(submit: helpers.user_actions_clear, frame: "modal")
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -188,9 +187,9 @@ class UsersController < ApplicationController
 			mtitle    = I18n.t("user.#{(create ? "new" : "edit")}")
 			@mtitle   = create_fields(helpers.person_form_title(@user.person, title: mtitle, icon: @user.picture))
 			@role     = create_fields(helpers.user_form_role)
-			@p_fields = create_fields(helpers.person_form_fields(@user.person, mandatory_email: true))
+			@p_fields = create_fields(helpers.person_form(@user.person, mandatory_email: true))
 			if create
-				@k_fields = create_fields(helpers.user_form_pass)
+				@k = create_fields(helpers.user_form_pass)
 			end
 			@submit = create_submit
 		end

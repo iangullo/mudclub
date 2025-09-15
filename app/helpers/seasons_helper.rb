@@ -18,8 +18,8 @@
 #
 module SeasonsHelper
 	# return HeaderComponent @fields for forms
-	def season_form_fields(title:, cols: nil)
-		res = season_title_fields(title:, cols:)
+	def season_form(title:, cols: nil)
+		res = season_title(title:, cols:)
 		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
 			{ kind: :label, align: "right", value: I18n.t("calendar.start") },
@@ -51,8 +51,8 @@ module SeasonsHelper
 	end
 
 	# return HeaderComponent @fields for forms
-	def season_fields(cols: nil)
-		res = season_title_fields(title: I18n.t("season.single"), cols:)
+	def season(cols: nil)
+		res = season_title(title: I18n.t("season.single"), cols:)
 		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
 			{ kind: :label, align: "right", value: I18n.t("calendar.start") },
@@ -67,7 +67,7 @@ module SeasonsHelper
 
 
 	# return icon and top of HeaderComponent
-	def season_title_fields(icon: symbol_hash("calendar"), title:, cols: nil)
+	def season_title(icon: symbol_hash("calendar"), title:, cols: nil)
 		title_start(icon:, title:, cols:)
 	end
 end

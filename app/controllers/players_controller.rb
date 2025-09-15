@@ -33,7 +33,7 @@ class PlayersController < ApplicationController
 					response.headers["Content-Disposition"] = "attachment; filename=players.xlsx"
 				end
 				format.html do
-					title  = helpers.person_title_fields(title: I18n.t("player.many"), icon: { concept: "player", options: { namespace: "sport", size: "50x50" } })
+					title  = helpers.person_title(title: I18n.t("player.many"), icon: { concept: "player", options: { namespace: "sport", size: "50x50" } })
 					title << [ { kind: :search_text, key: :search, value: params[:search].presence || session.dig("coach_filters", "search"), url: club_players_path(@clubid, rdx: @rdx) } ]
 					page   = paginate(@players)	# paginate results
 					table  = helpers.player_table(players: page)
@@ -52,7 +52,8 @@ class PlayersController < ApplicationController
 	# GET /players/1.json
 	def show
 		if @player && (player_manager? || check_access(obj: @player))
-			@fields = create_fields(helpers.player_show_fields(team: Team.find_by_id(@teamid)))
+			@title  = create_fields(helpers.player_title)
+			@fields = create_fields(helpers.player_show(team: Team.find_by_id(@teamid)))
 			@table  = create_table(helpers.team_table(teams: @player.team_list))
 			submit  = edit_player_path(@player, team_id: @teamid, rdx: @rdx)
 			@submit = create_submit(close: :back, retlnk: crud_return, submit:, frame: "modal")
@@ -217,8 +218,8 @@ class PlayersController < ApplicationController
 		# Prepare a player form
 		def prepare_form(action)
 			@mtitle   = create_fields(helpers.person_form_title(@player.person, icon: @player.picture, title: I18n.t("player.#{action}"), sex: true))
-			@j_fields = create_fields(helpers.player_form_fields)
-			@p_fields = create_fields(helpers.person_form_fields(@player.person))
+			@j_fields = create_fields(helpers.player_form)
+			@p_fields = create_fields(helpers.person_form(@player.person))
 			@parents  = create_fields(helpers.player_form_parents) if @player.person.age < 18
 			@submit   = create_submit
 		end

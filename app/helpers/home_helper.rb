@@ -18,21 +18,22 @@
 #
 module HomeHelper
 	# default title FieldComponents for home page
-	def home_title_fields(icon: current_user.picture, title: current_user.s_name, subtitle: nil)
+	def home_title(icon: current_user.picture, title: current_user.s_name, subtitle: nil)
 		title_start(icon:, title:, subtitle:, _class: "rounded-full")
 	end
 
-	# fields for "about MudClub.." view
+	# title for "about MudClub.." view
 	def home_about_title
 		build = "(#{I18n.t("server.build")}#{BUILD})"
 		res   = title_start(icon: "mudclub.svg", title: "MudClub #{VERSION}")
-		res << [ { kind: :string, value: build, class: "text-sm text-gray-500" } ]
-		res << [
-			button_field({ kind: :link, label: I18n.t("server.about"), url: "https://github.com/iangullo/mudclub/wiki", tab: true }, cols: 2)
+		res  += [
+			[ { kind: :string, value: build, class: "text-sm text-gray-500" } ],
+			[ button_field({ kind: :link, label: I18n.t("server.about"), url: "https://github.com/iangullo/mudclub/wiki", tab: true }, cols: 2) ]
 		]
 	end
+
 	# fields for "about MudClub.." view
-	def home_about_fields
+	def home_about
 		[
 			[ { kind: :string, value: I18n.t("server.info-1") } ],
 			[ { kind: :string, value: I18n.t("server.info-2") } ],
@@ -42,20 +43,16 @@ module HomeHelper
 			[ { kind: :string, value: bulletize(I18n.t("server.info-6")) } ],
 			gap_row,
 			[ copyright_field ],
-			[ { kind: :string, value: I18n.t("server.published"), align: "right", class: "text-sm text-gray-500" } ]
+			[ { kind: :string, value: I18n.t("server.published"), align: "right", class: "text-xs text-gray-500" } ]
 		]
 	end
 
 	# title fields for admin pages
-	def home_admin_title(icon: "mudclub.svg", title: current_user.to_s)
-		header = icon.is_a?(Hash) ? { kind: :header_icon, symbol: icon } : { kind: :header_icon, icon: }
-		[
-			[ header, { kind: :title, value: "MudClub - #{I18n.t("action.admin")}" } ],
-			[ { kind: :string, value: title } ]
-		]
+	def home_admin_title(icon: "mudclub.svg", subtitle: current_user.to_s)
+		title_start(icon:, title: "MudClub - #{I18n.t("action.admin")}", subtitle:, rows: 2, _class: "rounded-full")
 	end
 
-	def home_admin_fields
+	def home_admin
 		[
 			[
 				button_field({ kind: :jump, symbol: symbol_hash("icon", namespace: "sport"), url: sports_path(rdx: 0), label: I18n.t("sport.many") }, align: "center"),
@@ -93,7 +90,7 @@ module HomeHelper
 	end
 
 	# user login fields
-	def home_closed_fields
+	def home_closed
 		[
 			[
 				symbol_field("user", { size: "30x30" }, align: "center"),

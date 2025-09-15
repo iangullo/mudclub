@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 module ApplicationHelper
-	# standardised FieldsComponent button field wrapper
+	# standardised GridComponent button field wrapper
 	def button_field(button, cols: nil, rows: nil, align: nil, class: nil)
 		{ kind: :button, button:, cols:, rows:, align:, class: }
 	end
@@ -32,7 +32,7 @@ module ApplicationHelper
 
 	# return definition of copyright field
 	def copyright_field
-		{ kind: :string, value: raw("&copy; 2025 iangullo@gmail.com"), align: "right", class: "text-sm text-gray-500" }
+		{ kind: :string, value: raw("&copy; 2025 iangullo@gmail.com"), align: "right", class: "text-xs text-gray-500" }
 	end
 
 	# return device type
@@ -56,6 +56,10 @@ module ApplicationHelper
 	# standardised gap row field definition
 	def gap_field(size: nil, cols: nil, rows: nil)
 		{ kind: :gap, size:, cols:, rows: }
+	end
+
+	def grid_field(items, form: nil, cols: 1)
+		{ kind: :grid, items:, form:, cols: }
 	end
 
 	# standardised icon field definitions
@@ -132,11 +136,16 @@ module ApplicationHelper
 
 	# prepare SVG symbol hash from the received fields
 	def symbol_hash(concept, **options)
-		options[:type] ||= "icon"
+		options[:type] ||= :icon
 		{ concept:, options: }
 	end
 
-	# generic title start FieldsComponent for views
+	def table_field(**options)
+		options[:kind] ||= :table
+		options
+	end
+
+	# generic title start GridComponent for views
 	def title_start(icon:, title:, subtitle: nil, size: nil, rows: nil, cols: nil, _class: nil, form: nil)
 		img  = { size:, rows:, class: _class }
 		if form
@@ -152,7 +161,7 @@ module ApplicationHelper
 			end
 		end
 		res  = [ [ img, { kind: :title, value: title, cols: } ] ]
-		res << [ { kind: :subtitle, value: subtitle } ] if subtitle
+		res << [ { kind: :subtitle, value: subtitle, cols: } ] if subtitle
 		res
 	end
 

@@ -22,13 +22,13 @@ module EventsHelper
 		res = title_start(icon: symbol_hash("attendance"), title: @event.team.nick, subtitle: @event.team.category.name)
 		res[0] << gap_field
 		res[1] << gap_field
-		event_top_right_fields(res:)
+		event_top_right(res:)
 		res << [ gap_field(size: 0), string_field(@event.team.division.name + " (#{@event.team.season.name})", cols: 5, align: "left") ]
 		res << gap_row(cols: 6)
 	end
 
 	# FieldComponents to show an attendance form
-	def event_attendance_form_fields
+	def event_attendance_form
 		res = [ [
 			gap_field(size: 2),
 			{ kind: :side_cell, value: I18n.t(@event.match? ? "match.roster" : "calendar.attendance"), align: "left" }
@@ -43,8 +43,8 @@ module EventsHelper
 	end
 
 	# return a fields to show a copy event form
-	def event_copy_fields
-		res = event_title_fields(form: true, teams: @teams)
+	def event_copy
+		res = event_title(form: true, teams: @teams)
 		res.last << { kind: :hidden, key: :copy, value: true }
 		res.last << { kind: :hidden, key: :duration, value: @event.duration }
 		res.last << { kind: :hidden, key: :id, value: @event.id }
@@ -79,8 +79,8 @@ module EventsHelper
 	end
 
 	# fields to display player's edit stats form for an event
-	def event_edit_player_stats_fields
-		@sport.player_training_stats_form_fields(@event, player_id: @player.id)
+	def event_edit_player_stats
+		@sport.player_training_stats_form(@event, player_id: @player.id)
 	end
 
 
@@ -92,7 +92,7 @@ module EventsHelper
 		end
 	end
 
-	# return icon and top of FieldsComponent
+	# return icon and top of GridComponent
 	def event_index_title(team: nil, season: nil)
 		title    = (team ? team.nick : (season ? season.name : I18n.t("calendar.label")))
 		subtitle = (team ? team.category.name : I18n.t("scope.all"))
@@ -123,17 +123,17 @@ module EventsHelper
 	end
 
 	# fields to display player's stats for an event
-	def event_player_stats_fields
-		@sport.player_training_stats_fields(@event, player_id: @player.id)
+	def event_player_stats
+		@sport.player_training_stats_show(@event, player_id: @player.id)
 	end
 
-	# return icon and top of FieldsComponent for Tasks
+	# return icon and top of GridComponent for Tasks
 	def event_task_title(subtitle:)
-		event_title_fields(subtitle:, chart: true)
+		event_title(subtitle:, chart: true)
 	end
 
-	# return icon and top of FieldsComponent
-	def event_title_fields(subtitle: nil, form: nil, cols: nil, chart: nil, teams: nil)
+	# return icon and top of GridComponent
+	def event_title(subtitle: nil, form: nil, cols: nil, chart: nil, teams: nil)
 		if teams	# we are going to prepare a copy of the event
 			t_id = @event.team ? @event.team.id : teams.first.id
 			copy = true
@@ -148,7 +148,7 @@ module EventsHelper
 			when :train then train_title(res:, cols:, form:, subtitle:, chart:)
 			end
 		end
-		event_top_right_fields(res:, form:, copy:)
+		event_top_right(res:, form:, copy:)
 		res
 	end
 
@@ -187,12 +187,12 @@ module EventsHelper
 	end
 
 	# FieldComponents to show a match
-	def match_show_fields
+	def match_show
 		match_fields(edit: false)
 	end
 
-	# return FieldsComponent for match form
-	def match_form_fields(new: false)
+	# return GridComponent for match form
+	def match_form(new: false)
 		match_fields(edit: true, new:)
 	end
 
@@ -217,14 +217,14 @@ module EventsHelper
 			item[:url]     = show_task_event_path(task_id: task.id, rdx: @rdx)
 			item[:turbo]   = "modal"
 			item[:head]    = task.headstring
-			item[:content] = FieldsComponent.new(task_show_fields(task:, team: @event.team, title: nil))
+			item[:content] = GridComponent.new(task_show(task:, team: @event.team, title: nil))
 			tasks << item
 		}
 		tasks
 	end
 
 	# fields to show in task views
-	def task_show_fields(task:, team:, title: true)
+	def task_show(task:, team:, title: true)
 		res = []
 		res << [
 			symbol_field("drill", { namespace: task&.drill&.sport&.name || "sport", size: "30x30" }, align: "center"),
@@ -246,7 +246,7 @@ module EventsHelper
 	end
 
 	# data fields for task edit/add views
-	def task_form_fields(search_in:)
+	def task_form(search_in:)
 		res  = (@rdx ? [ [ { kind: :hidden, key: :rdx, value: @rdx } ] ] : [ [] ])
 		res += [
 			[
@@ -283,13 +283,13 @@ module EventsHelper
 		]
 	end
 
-	# return FieldsComponent @fields for show_training
-	def training_show_fields
+	# return GridComponent @fields for show_training
+	def training_show
 		[ [ { kind: :accordion, title: I18n.t("task.many"),	tail: "#{I18n.t("stat.total")}: #{@event.work_duration}", objects: task_accordion } ] ]
 	end
 
 	# fields for training sesssion targets
-	def training_target_fields
+	def training_target
 		res = [
 			[
 				{ kind: :side_cell, value: I18n.t("target.abbr"), rows: 2 },
@@ -351,7 +351,7 @@ module EventsHelper
 		end
 
 		# complete event title with top-right corner elements
-		def event_top_right_fields(res:, form: nil, copy: false)
+		def event_top_right(res:, form: nil, copy: false)
 			if form # top right corner of title
 				res[0] << symbol_field("calendar")
 				res[0] << { kind: :date_box, key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date }
@@ -376,9 +376,9 @@ module EventsHelper
 		# serves for both match_show and match_edit
 		def match_fields(edit:, new: false)
 			if edit
-				@sport.match_form_fields(@event, new:)
+				@sport.match_form(@event, new:)
 			else
-				@sport.match_show_fields(@event)
+				@sport.match_show(@event)
 			end
 		end
 

@@ -56,6 +56,11 @@ class ApplicationController < ActionController::Base
 		fields ? FieldsComponent.new(fields) : nil
 	end
 
+	# return GridComponent object from a fields array
+	def create_grid(fields)
+		fields ? GridComponent.new(fields) : nil
+	end
+
 	# return TableComponent object from a table hash
 	def create_table(table, controller: nil, align: nil)
 		table ? TableComponent.new(table, controller:, align:) : nil

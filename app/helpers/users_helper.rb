@@ -18,9 +18,10 @@
 #
 module UsersHelper
 	# fields to show when looking a user profile
-	def user_show_fields
-		res       = person_show_fields(@user.person, title: I18n.t("user.single"), icon: @user.picture, rows: 3)
-		res[3][0] = obj_status_field(@user)
+	def user_show
+		res = person_show_title(@user, kind: :user)
+		res[4].pop
+		res[4] += user_roles(@user)
 		if current_user == @user	# only allow current user to change his own password
 			res[3] <<	button_field(
 				{ kind: :link, symbol: "key", label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true },
@@ -32,31 +33,27 @@ module UsersHelper
 	end
 
 	# Fieldcomponents to display user roles
-	def user_role_fields(user = current_user, table: false)
-		res =[]
-		# res << [		# removing cause IP registered is always local - from NGINX
-		#	gap_field(size: 1},
-		#	{kind: :string, value: "(#{@user.last_from})",cols: 3}
-		# ] if @user.last_sign_in_ip?
+	def user_roles(user = current_user, table: false)
+		roles =[]
 		if user.admin?
-			res << symbol_field("website", { title: I18n.t("role.admin") })
+			roles << symbol_field("website", { title: I18n.t("role.admin") })
 		elsif user.manager?
-			res << symbol_field("key", { title: I18n.t("role.manager") })
+			roles << symbol_field("key", { title: I18n.t("role.manager") })
 		elsif user.secretary?
-			res << symbol_field("edit", { title: I18n.t("role.secretary") })
-		else
-			res << gap_field(size: 0)
+			roles << symbol_field("edit", { title: I18n.t("role.secretary") })
 		end
-		res << (user.is_coach? ? symbol_field("coach", { namespace: "sport", title: I18n.t("role.coach") }) : gap_field(size: 0))
-		res << (user.is_player? ? symbol_field("player", { namespace: "sport", title: I18n.t("role.player") }) : gap_field(size: 0))
+		roles << symbol_field("coach", { namespace: "sport", title: I18n.t("role.coach") }) if user.is_coach?
+		roles << symbol_field("player", { namespace: "sport", title: I18n.t("role.player") }) if user.is_player?
+		res = [ { kind: :roles, symbols: roles, align: :center } ]
 		return res if table	# only interested in these 3 icons
-		res << gap_field
+		res.first[:align] = :left
 		unless @user.user_actions.empty?
-			res <<	button_field(
-				{ kind: :link, symbol: user_actions_symbol, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal" },
+			res << gap_field
+			res << button_field(
+				{ kind: :link, symbol: user_actions_symbol, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal" }
 			)
 		end
-		[ res ]
+		res
 	end
 
 	# return FieldComponents for form user role
@@ -105,7 +102,7 @@ module UsersHelper
 
 	# return user_actions TableComponent
 	def user_actions_title
-		res  = person_title_fields(title: @user.person.s_name, icon: user_actions_symbol, rows: 4)
+		res  = person_title(title: @user.person.s_name, icon: user_actions_symbol, rows: 4)
 		res << [ { kind: :subtitle, value: I18n.t("user.actions") } ]
 	end
 
@@ -125,7 +122,7 @@ module UsersHelper
 	end
 
 	# prepare clear button only if there are actions to clear
-	def user_actions_clear_fields
+	def user_actions_clear
 		return nil if @user.user_actions.empty?
 		{ kind: :clear, url: clear_actions_user_path(rdx: @rdx), name: @user.s_name }
 	end
@@ -135,7 +132,7 @@ module UsersHelper
 		title = [
 			{ kind: :normal, value: I18n.t("club.single") },
 			{ kind: :normal, value: I18n.t("person.name") },
-			{ kind: :normal, value: I18n.t("user.profile"), align: "center", cols: 3 },
+			{ kind: :normal, value: I18n.t("user.profile"), align: "center" },
 			{ kind: :normal, value: I18n.t("person.contact"), align: "center" },
 			{ kind: :normal, value: I18n.t("user.last_in"), align: "center" }
 		]
@@ -146,13 +143,13 @@ module UsersHelper
 			row = { url: user_path(user, rdx: @rdx), items: [] }
 			row[:items] << (user.active? ? icon_field(user.club.logo) : symbol_field("no"))
 			row[:items] << { kind: :normal, value: user.s_name }
-			row[:items] += user_role_fields(user, table: true)
+			row[:items] << user_roles(user, table: true).first
 			row[:items] << { kind: :contact, phone: user.person.phone, email: user.person.email }
 			row[:items] << { kind: :normal, value: user.last_sign_in_at&.to_date, align: "center" }
 			row[:items] << button_field({ kind: :delete, url: row[:url], name: user.s_name }) if u_admin? and user.id!=current_user.id
 			rows << row
 		}
-		{ title:, rows: }
+		{ title:, rows:, align: :center }
 	end
 
 	private

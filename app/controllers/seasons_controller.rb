@@ -26,7 +26,7 @@ class SeasonsController < ApplicationController
 		if check_access(roles: [ :admin ])
 			@seasons = Season.real
 			page  = paginate(@seasons)	# paginate results
-			title = helpers.season_title_fields(icon: "mudclub.svg", title: I18n.t("season.many"))
+			title = helpers.season_title(icon: "mudclub.svg", title: I18n.t("season.many"))
 			table = helpers.season_table(seasons: page)
 			create_index(title:, table:, page:, retlnk: base_lnk("/"))
 		else
@@ -37,7 +37,7 @@ class SeasonsController < ApplicationController
 	# GET /seasons/1
 	def show
 		if @season && check_access(roles: [ :admin ])
-			@fields = create_fields(helpers.season_fields)
+			@fields = create_fields(helpers.season)
 			@submit = create_submit(close: :back, retlnk: base_lnk(seasons_path(rdx: @rdx)), submit: edit_season_path(rdx: @rdx), frame: "modal")
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -157,7 +157,7 @@ class SeasonsController < ApplicationController
 
 		# prepare fields for new/edit season
 		def prepare_form(action)
-			@fields = create_fields(helpers.season_form_fields(title: I18n.t("season.#{action}")))
+			@fields = create_fields(helpers.season_form(title: I18n.t("season.#{action}")))
 			@submit = create_submit
 		end
 

@@ -177,6 +177,8 @@ class TableComponent < ApplicationComponent
 					link_to(item[:value].to_s, url, data:)
 				when :number_box
 					render(InputBoxComponent.new(item, form: @form))
+				when :roles
+					item[:symbols].each { |symbol| concat(render_image(symbol)) }
 				else
 					render(item[:value])
 				end

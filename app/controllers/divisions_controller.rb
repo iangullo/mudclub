@@ -25,7 +25,7 @@ class DivisionsController < ApplicationController
 	def index
 		if check_access(roles: [ :admin ])
 			@divisions = Division.for_sport(@sport.id)
-			title = helpers.division_title_fields(title: I18n.t("division.many"))
+			title = helpers.division_title(title: I18n.t("division.many"))
 			table = helpers.division_table
 			create_index(title:, table:)
 		else
@@ -36,8 +36,7 @@ class DivisionsController < ApplicationController
 	# GET /divisions/1 or /divisions/1.json
 	def show
 		if @division && check_access(roles: [ :admin ])
-			fields  = helpers.division_title_fields(title: I18n.t("division.single"), subtitle: @division.name)
-			@fields = create_fields(fields)
+			@fields = create_fields(helpers.division_show)
 			@submit = create_submit(submit: u_manager? ? edit_sport_division_path(@sport, @division, rdx: @rdx) : nil)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -137,7 +136,7 @@ class DivisionsController < ApplicationController
 
 		# prepare elements to edit/create a new division
 		def prepare_form(action)
-			@fields = create_fields(helpers.division_form_fields(title: I18n.t("division.#{action}")))
+			@fields = create_fields(helpers.division_form(action))
 			@submit = create_submit
 		end
 

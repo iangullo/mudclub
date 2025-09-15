@@ -27,7 +27,7 @@ class DrillsController < ApplicationController
 	# GET /drills or /drills.json
 	def index
 		if check_access(roles: [ :manager, :coach ])
-			title   = helpers.drill_title_fields(title: I18n.t("drill.many"))
+			title   = helpers.drill_title(title: I18n.t("drill.many"))
 			title  << helpers.drill_search_bar(search_in: drills_path)
 			@drills = filter!(Drill)	# Apply filters
 			page  = paginate(@drills, 1.6)	# paginate results
@@ -152,7 +152,7 @@ class DrillsController < ApplicationController
 	def edit_diagram
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
 			if @step
-				@title   = create_fields(helpers.drill_title_fields(title: @drill.name, subtitle: I18n.t("step.edit_diagram") + " ##{@step.order}"))
+				@title   = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.edit_diagram") + " ##{@step.order}"))
 				@editor  = helpers.drill_form_diagram
 				@submit  = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
 			else
@@ -167,7 +167,7 @@ class DrillsController < ApplicationController
 	def load_diagram
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
 			if @step
-				@fields  = create_fields(helpers.drill_title_fields(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
+				@fields  = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
 				@loader  = create_fields(helpers.drill_form_diagram_file)
 				@submit  = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
 			else

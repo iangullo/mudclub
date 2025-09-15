@@ -71,7 +71,7 @@ class AccordionComponent < ApplicationComponent
 					end
 				end +
 				content_tag(:div, class: O_CLASS, id: obj[:body_id], aria: { labelledby: obj[:head_id] }) do
-					if obj[:content].class == FieldsComponent
+					if [ GridComponent, FieldsComponent ].include?(obj[:content].class)
 						render(obj[:content])
 					else
 						obj[:content]

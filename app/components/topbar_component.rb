@@ -73,7 +73,7 @@ class TopbarComponent < ApplicationComponent
 		@menu_tabs = []
 		if user.admin?
 			@menu_tabs << server_menu(user)
-			@logourl = { url: @cluburl, data: { turbo_action: "replace" } }
+			@logourl = { url: "/", data: { turbo_action: "replace" } }
 		elsif user.is_manager?
 			@menu_tabs += manager_menu
 		end

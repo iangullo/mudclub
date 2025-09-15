@@ -99,36 +99,34 @@ class FieldsComponent < ApplicationComponent
 			row.each do |item|
 				case item[:kind].to_s	# need to adapt to each fields "kind"
 				when "accordion"
-					item[:value] = AccordionComponent.new(title: item[:title], tail: item[:tail], objects: item[:objects])
+					item[:content] = AccordionComponent.new(title: item[:title], tail: item[:tail], objects: item[:objects])
 				when "button"	# item[:button] has to contain the button definition
-					item[:value] = ButtonComponent.new(**item[:button])
+					item[:content] = ButtonComponent.new(**item[:button])
 				when "contact"
 					set_contact(item)
 				when "diagram"
-					item[:value] = DiagramComponent.new(court: item[:court], svgdata: item[:svgdata], css: item[:css])
+					item[:content] = DiagramComponent.new(court: item[:court], svgdata: item[:svgdata], css: item[:css])
 				when "dropdown"	# item[:button] has to contain the button definition
-					item[:value] = DropdownComponent.new(item[:button])
+					item[:content] = DropdownComponent.new(item[:button])
 				when /^(.*icon.*|image)$/
 					set_image(item)
 				when "label_checkbox"
 					item[:class] ||= " align-middle rounded-md"
 				when /^(search_.+)$/
-					item[:value] = SearchBoxComponent.new(item)
+					item[:content] = SearchBoxComponent.new(item)
 				when "gap", "label", "lines", "side_cell", "string", "subtitle", "title", "top_cell"
 					set_text_field(item)
 				when "partial"
 					item[:content] = PartialComponent.new(partial: item[:partial], locals: item[:locals] || {})
-				when "person_type"
-					set_person_type(item)
 				when /^(select_.+|.+box|.+_area)$/
 					item[:class] ||= "align-top"
 				when "separator"
 					item[:stroke] ||= "solid"
 				when "steps"
-					item[:value] = StepsComponent.new(steps: item[:steps], court: item[:court])
+					item[:content] = StepsComponent.new(steps: item[:steps], court: item[:court])
 				when "symbol"
 					hashify_symbol(item)
-					item[:value]  = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
+					item[:content] = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
 				else
 					item[:i_class] = "rounded p-0" unless item[:kind] == :gap
 				end
@@ -144,26 +142,24 @@ class FieldsComponent < ApplicationComponent
 	def render_field(field)
 		tablecell_tag(field) do
 			case field[:kind].to_s
-			when /^(accordion|button|contact|diagram.*|dropdown|search_.+|steps|svg)$/
-				render field[:value]
+			when /^(accordion|button|contact|diagram.*|dropdown|search_.+|partial|steps|svg|symbol)$/
+				render field[:content]
 			when /^(select_.+|.+box|.+_area|hidden|radio.+|upload)$/
 				render InputBoxComponent.new(field, form: @form)
 			when "gap"
 				("&nbsp;" * field[:size]).html_safe
-			when /^(.*icon.*|image|symbol)$/
+			when /^(.*icon.*|image)$/
 				render_image_field(field)
 			when "lines"
 				field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
 			when "nested_form"
 				render NestedComponent.new(model: field[:model], key: field[:key], form: @form, child: field[:child], row: field[:row], filter: field[:filter])
-			when "partial"
-				render field[:content]
-			when "person_type"
-				render_role_icons(field[:icons])
+			when "roles"
+				field[:symbols].each { |symbol| concat(render_image(symbol)) }
 			when "separator"
 				("<hr class=\"#{field[:stroke]}\"").html_safe
 			when "table"
-				render TableComponent.new(field[:value], form: @form)
+				render TableComponent.new(field[:value], controller: field[:controller], align: field[:align], form: @form)
 			when "targets"
 				render_targets_field(field)
 			else
@@ -191,13 +187,6 @@ class FieldsComponent < ApplicationComponent
 		html.html_safe
 	end
 
-	# render the icons/tooltips for roles attached to a user
-	def render_role_icons(icons)
-		icons.map do |icon|
-			render_image_field(icon)
-		end.join.html_safe
-	end
-
 	# Add this private method to FieldsComponent
 	def render_targets_field(field)
 		html = ""
@@ -215,7 +204,7 @@ class FieldsComponent < ApplicationComponent
 
 	# wrapper to keep a person's available contact details in a single field.
 	def set_contact(item)
-		item[:value] = ContactComponent.new(website: item[:website], email: item[:email], phone: item[:phone], device: item[:device])
+		item[:content] = ContactComponent.new(website: item[:website], email: item[:email], phone: item[:phone], device: item[:device])
 	end
 
 	# used for all icon/image fields - except for :image_box
@@ -239,9 +228,7 @@ class FieldsComponent < ApplicationComponent
 		end
 		if item[:symbol].present?	# symbol definition
 			hashify_symbol(item)	# ensure it is a hash
-			item[:symbol][:options][:css]  ||= item[:css]
-			item[:symbol][:options][:size] ||= item[:size]
-			item[:value] = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
+			item[:content] = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
 		else
 			item[:i_class] ||= item[:css]
 		end
@@ -269,21 +256,5 @@ class FieldsComponent < ApplicationComponent
 		when :top_cell
 			item[:class]   = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
 		end
-	end
-
-	# set icons for a person-type
-	def set_person_type(item)
-		item[:icons] = []
-		item[:icons] << role_symbol("admin") if item[:admin]
-		item[:icons] << role_symbol("manager") if item[:manager]
-		item[:icons] << role_symbol("secretary") if item[:secretary]
-		item[:icons] << role_symbol("user") if item[:user]
-		item[:icons] << role_symbol("player") if item[:player]
-		item[:icons] << role_symbol("coach") if item[:coach]
-	end
-
-	# wrapper for role_symbols
-	def role_symbol(role)
-		{ symbol: true, value: SymbolComponent.new(role, size: "25x25", title: I18n.t("role.#{role}")) }
 	end
 end

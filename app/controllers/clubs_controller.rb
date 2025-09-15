@@ -25,7 +25,7 @@ class ClubsController < ApplicationController
 			@clubs  = Club.search(params[:search], current_user)
 			page    = paginate(@clubs)
 			title   = I18n.t("club.#{u_manager? ? 'rivals': '.many'}")
-			title   = helpers.club_title_fields(title:, icon: { concept: "rivals" })
+			title   = helpers.club_title(title:, icon: { concept: "rivals" })
 			title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10 } ]
 			table   = helpers.club_table(clubs: page)
 			retlnk  = base_lnk(u_clubid ? club_path(u_clubid) : "/")
@@ -159,7 +159,7 @@ class ClubsController < ApplicationController
 		# prepare a form to edit/create a club
 		def prepare_form(title:)
 			@mtitle = create_fields(helpers.club_form_title(title:))
-			@fields = create_fields(helpers.club_form_fields)
+			@fields = create_fields(helpers.club_form)
 			@submit = create_submit
 		end
 

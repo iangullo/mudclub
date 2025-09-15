@@ -104,7 +104,7 @@ module DrillsHelper
 
 	# return title FieldComponent definition for edit/new
 	def drill_form_title(title:)
-		res = drill_title_fields(title:)
+		res = drill_title(title:)
 		res << [ { kind: :text_box, key: :name, placeholder: I18n.t("drill.default"), value: @drill.name, mandatory: { length: 3 }, cols: 3 } ]
 		res << [
 			gap_field,
@@ -138,7 +138,7 @@ module DrillsHelper
 		session.delete("drill_filters") if scratch
 		skind  = Task.find_by(id: task_id)&.drill&.kind_id || session.dig("drill_filters", "kind_id")
 		fields = [
-			{ kind: :search_select, key: :kind_id, blank: "#{I18n.t("kind.single")}:", value: skind, options: Kind.real.pluck(:name, :id) },
+			{ kind: :search_select, key: :kind_id, blank: "#{I18n.t("kind.single")}", value: skind, options: Kind.real.pluck(:name, :id) },
 			{ kind: :search_select, key: :season_id, placeholder: I18n.t("season.single"), value: session.dig("drill_filters", "season_id"), options: Season.list },
 			{ kind: :search_text, key: :name, placeholder: I18n.t("drill.name"), value: session.dig("drill_filters", "name"), size: 10 },
 			{ kind: :search_text, key: :skill, placeholder: I18n.t("skill.single"), size: 14, value: session.dig("drill_filters", "skill") }
@@ -149,7 +149,7 @@ module DrillsHelper
 
 	# return title FieldComponent definition for drill show
 	def drill_show_title(title: I18n.t("drill.single"))
-		res = drill_title_fields(title:, subtitle: "#{@drill.kind.name} - #{@drill.court_name}")
+		res = drill_title(title:, subtitle: "#{@drill.kind.name} - #{@drill.court_name}")
 		if @drill.playbook.attached?
 			res.first << button_field({
 				kind: :link,
@@ -221,8 +221,8 @@ module DrillsHelper
 		]
 	end
 
-	# return icon and top of FieldsComponent
-	def drill_title_fields(title:, subtitle: nil, rows: nil, cols: nil)
+	# return icon and top of GridComponent
+	def drill_title(title:, subtitle: nil, rows: nil, cols: nil)
 		title_start(icon: drill_symbol, title:, subtitle:, rows:, cols:)
 	end
 
