@@ -25,7 +25,7 @@
 		<!-- App content goes here -->
 		<main class="flex-1 min-h-0 overflow-auto">
 			<%= turbo_frame_tag "modal" %>
-			<div class="flex w-full h-full justify-center items-start">
+			<div class="flex-wrap ml-2 mr-2 w-full h-full justify-center items-start">
 				<%= yield %>
 		  		<%= render @footer if @footer %>
 			</div>

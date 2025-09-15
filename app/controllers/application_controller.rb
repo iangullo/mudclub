@@ -68,8 +68,8 @@ class ApplicationController < ActionController::Base
 
 	# prepare typical controller index page variables
 	def create_index(title:, fields: nil, table: nil, page: nil, retlnk: nil, submit: nil)
-		@title  = create_grid(title)
-		@fields = create_grid(fields)
+		@title  = create_fields(title)
+		@fields = create_fields(fields)
 		@table  = create_table(table)
 		@page   = page
 		if retlnk || submit

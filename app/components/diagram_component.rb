@@ -142,7 +142,7 @@ class DiagramComponent < ApplicationComponent
 	end
 
 	def editor_buttons_container
-		content_tag :div, id: "diagram-editor-buttons", class: "flex-shrink-0 inline-flex mb-2" do
+		content_tag :div, id: "diagram-editor-buttons", class: "flex-shrink-0 inline-flex flex-wrap m-1" do
 			safe_join(editor_buttons)
 		end
 	end
