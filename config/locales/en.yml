@@ -246,6 +246,7 @@ en:
     min_chars: "Minimum length: "
     new: "New password"
     old: "Current password"
+    reset: "Send password reset details"
     single: "Password"
   person:
     address: "Home address"
@@ -350,7 +351,7 @@ en:
     info-5: "Training: planning, drills, plays, sessions."
     info-6: "Matches: outings/stats & results."
     log: "Logs"
-    published: "Published under GNU CPLv3 license"
+    published: "Published under GNU Affero GPLv3 license"
     single: "Server"
     website: "MudClub wiki"
   sex:

@@ -246,6 +246,7 @@ es:
     min_chars: "Longitud mínima: "
     new: "Nueva contraseña"
     old: "Contraseña actual"
+    reset: "Reiniciar contraseña"
     single: "Contraseña"
   person:
     address: "Domicilio"
@@ -349,7 +350,7 @@ es:
     info-4: "Equipos: plantillas, objetivos, calendario, etc."
     info-5: "Entrenamiento: planificación, tareas y sesiones."
     info-6: "Partidos: convocatorias, estadísticas y resultados."
-    published: "Publicado con licencia GNU GPLv3"
+    published: "Publicado con licencia GNU Affero GPLv3"
     log: "Registros"
     single: "Servidor"
     website: "MudClub wiki"
