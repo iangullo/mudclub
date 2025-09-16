@@ -25,7 +25,7 @@ module HomeHelper
 	# title for "about MudClub.." view
 	def home_about_title
 		build = "(#{I18n.t("server.build")}#{BUILD})"
-		res   = title_start(icon: "mudclub.svg", title: "MudClub #{VERSION}")
+		res   = title_start(icon: "mudclub.svg", title: home_about_version)
 		res  += [
 			[ { kind: :string, value: build, class: "text-sm text-gray-500" } ],
 			[ button_field({ kind: :link, label: I18n.t("server.about"), url: "https://github.com/iangullo/mudclub/wiki", tab: true }, cols: 2) ]
@@ -45,6 +45,10 @@ module HomeHelper
 			[ copyright_field ],
 			[ { kind: :string, value: I18n.t("server.published"), align: "right", class: "text-xs text-gray-500" } ]
 		]
+	end
+
+	def home_about_version
+		"MudClub #{VERSION}"
 	end
 
 	# title fields for admin pages

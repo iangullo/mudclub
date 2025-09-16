@@ -80,15 +80,15 @@ class ButtonComponent < ApplicationComponent
 	private
 	# label-icon content for the button
 	def button_content
-		c_class = "#{(@button[:kind] == :jump) ? '' : 'inline-flex '}items-center"
-		l_class = "hidden sm:inline"
+		c_class = "#{(@button[:kind] == :jump) ? '' : 'inline-flex '}items-center "
+		l_class = [ :jump, :link ].include?(@button[:kind]) ? "" : "hidden sm:inline "
 		content_tag(:div, class: c_class) do
 			if @button[:flip]	# flip order - label first
-				concat(content_tag(:span, @button[:label].presence, class: "#{l_class} mr-1")) if @button[:label].present?
+				concat(content_tag(:span, @button[:label].presence, class: "#{l_class}mr-1")) if @button[:label].present?
 				concat(render_image(@button)) if has_icon?
 			else
 				concat(render_image(@button)) if has_icon?
-				concat(content_tag(:span, @button[:label].presence, class: "#{l_class} ml-1")) if @button[:label].present?
+				concat(content_tag(:span, @button[:label].presence, class: "#{l_class}ml-1")) if @button[:label].present?
 			end
 			concat(button_cue) if @button[:working]	# Processing visual cue element
 		end

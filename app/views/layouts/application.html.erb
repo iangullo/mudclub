@@ -35,7 +35,7 @@
 		<footer class="flex-none sticky bottom-0 bg-white border-t border-gray-300">
 		  <div class="max-w-7xl mx-auto">
 			<div class="text-center text-xs text-gray-500">
-				<a href="<%= home_about_path %>" data-turbo-frame= "modal">MudClub © iangullo (<%= Time.current.year %>)</a>
+				<a href="<%= home_about_path %>" data-turbo-frame= "modal"><%= "#{home_about_version} © iangullo (#{Time.current.year})" %></a>
 			</div>
 		  </div>
 		</footer>
