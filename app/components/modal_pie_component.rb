@@ -20,6 +20,9 @@
 
 # ModalPieComponent - specific Modal ViewComponent for pie charts
 class ModalPieComponent < ApplicationComponent
+		# Include Chartkick helpers
+		include Chartkick::Helper
+
 	def initialize(header:, chart: {})
 		@pie_header  = header
 		@chart_title = chart[:title]
