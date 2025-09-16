@@ -83,8 +83,22 @@
 		<a href='<%= @fdata[:url] %>' hidden data-search-params-target='anchor' data-select-load-target='click' data-turbo-frame='<%= @form.field_id(@fdata[:key], :turbo_frame) %>'>GetDrill</a>
 	</fieldset>
 <% when :text_area %>
-	<%= @form.text_area(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], cols: @fdata[:size], rows: @fdata[:lines], class: @i_class, data: @i_data) %>
+	<% if @fdata[:label] # add wrapper div and label%>
+	<div class="flex flex-col md:flex-row">
+		<label class='font-semibold mr-2 align-top'><%= @fdata[:label] %></label>
+		<div class="px-2">
+	<% end %>
+		<%= @form.text_area(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], cols: @fdata[:size], rows: @fdata[:lines], class: @i_class, data: @i_data) %>
+	<% if @fdata[:label] %>
+		</div>
+	</div>
+	<% end %>
 <% when :text_box %>
+	<% if @fdata[:label] # add wrapper div and label%>
+	<div class="flex flex-col md:flex-row">
+		<label class='font-semibold'><%= @fdata[:label] %></label>
+		<div class="px-2">
+	<% end %>
 	<% if @fdata[:options] # autosearch text input %>
 		<%= @form.text_field(@fdata[:key], list: "#{@fdata[:key]}_list", value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class, data: @i_data) %>
 		<datalist id="<%=@fdata[:key]%>_list">
@@ -94,6 +108,10 @@
 		</datalist>
 	<% else # regular text box%>
 		<%= @form.text_field(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], size: @fdata[:size], rows: @fdata[:rows], class: @i_class, data: @i_data) %>
+	<% end %>
+	<% if @fdata[:label] %>
+		</div>
+	</div>
 	<% end %>
 <% when :time_box %>
 	<%= @form.number_field(:hour, value: @fdata[:hour], in: 9..22, size: @fdata[:size] || 3, class: @i_class, data: @i_data.merge({condition: "min:6"})) %>

@@ -27,12 +27,10 @@ module DrillsHelper
 				{ kind: :nested_form, model: "drill", key: "drill_targets", child: DrillTarget.new(priority: @drill.drill_targets.count+1), row: "target_row", cols: 2 }
 			],
 			[
-				{ kind: :label, value: I18n.t("drill.material"), align: "right" },
-				{ kind: :text_box, key: :material, size: 36, value: @drill.material }
+				{ kind: :text_box, key: :material, size: 40, value: @drill.material, label: I18n.t("drill.material") }
 			],
 			[
-				{ kind: :label, value: I18n.t("drill.desc_a"), align: "right" },
-				{ kind: :text_area, key: :description, size: 36, lines: 2, value: @drill.description, mandatory: { length: 7 } }
+				{ kind: :text_area, key: :description, size: 40, lines: 2, value: @drill.description, mandatory: { length: 7 }, label:  I18n.t("drill.desc_a") }
 			]
 		]
 	end
