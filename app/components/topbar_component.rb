@@ -80,9 +80,9 @@ class TopbarComponent < ApplicationComponent
 		@menu_tabs << team_menu(user)
 		if user.secretary?
 			@menu_tabs += secretary_menu
-		elsif user.is_coach? && user.coach.active?
+		elsif user.is_coach? && user.coach&.active?
 			@menu_tabs += coach_menu(user)
-		elsif user.is_player? && user.coach.active?
+		elsif user.is_player? && user.player&.active?
 			@menu_tabs << player_menu(user)
 		end
 		@menu_tabs << user_menu(user, home, logout)
@@ -114,10 +114,12 @@ class TopbarComponent < ApplicationComponent
 	def render_tabs
 		content_tag(:div, class: "hidden sm:block sm:ml-6 flex space-x-4 text-base text-gray-300", aria_label: "Navigation buttons") do
 			@menu_tabs.map do |tab|
-				if tab[:options].present?
-					render(DropdownComponent.new(tab))
-				else
-					link_to(tab[:label], tab[:url], class: @tabcls, data: { turbo_frame: "_top", turbo_action: "replace" })
+				if tab
+					if tab[:options].present?
+						render(DropdownComponent.new(tab))
+					else
+						link_to(tab[:label], tab[:url], class: @tabcls, data: { turbo_frame: "_top", turbo_action: "replace" })
+					end
 				end
 			end.join.html_safe
 		end
@@ -126,26 +128,28 @@ class TopbarComponent < ApplicationComponent
 	def set_hamburger_menu
 		options = []
 		@menu_tabs.each do |m_opt|
-			h_opt = m_opt.deep_dup
-		if h_opt[:options]
-			h_opt[:sub]  = true
-			h_opt[:name] = "h_#{h_opt[:name]}"
-			h_opt[:options]&.each do |s_opt|	# 2nd level menus
-				if s_opt[:options]
-					s_opt[:sub]  = true
-					s_opt[:name] = "h_#{s_opt[:name]}"
-					s_opt[:options]&.each do |t_opt| # 3rd level
-						if t_opt[:options]
-							t_opt[:sub]  = true
-							t_opt[:name]  = "h_#{t_opt[:name]}"
+			if m_opt
+				h_opt = m_opt.deep_dup
+				if h_opt[:options]
+					h_opt[:sub]  = true
+					h_opt[:name] = "h_#{h_opt[:name]}"
+					h_opt[:options]&.each do |s_opt|	# 2nd level menus
+						if s_opt[:options]
+							s_opt[:sub]  = true
+							s_opt[:name] = "h_#{s_opt[:name]}"
+							s_opt[:options]&.each do |t_opt| # 3rd level
+								if t_opt[:options]
+									t_opt[:sub]  = true
+									t_opt[:name]  = "h_#{t_opt[:name]}"
+								end
+							end
 						end
 					end
 				end
+				options << h_opt if h_opt
 			end
 		end
-			options << h_opt
-		end
-		DropdownComponent.new(menu_drop("hamburger", ham: true, options:))
+		DropdownComponent.new(menu_drop("hamburger", ham: true, options:)) unless options.empty?
 	end
 
 	# menu buttons for coaches
@@ -182,7 +186,7 @@ class TopbarComponent < ApplicationComponent
 	# menu to manage server application
 	def server_menu(user)
 		options = [
-			# menu_link(label: I18n.t("sport.many"), url: "/sports"),
+			menu_link(label: I18n.t("sport.many"), url: "/sports"),
 			menu_link(label: I18n.t("club.many"), url: "/clubs"),
 			menu_link(label: I18n.t("season.many"), url: "/seasons"),
 			menu_link(label: I18n.t("user.many"), url: "/users"),

@@ -189,7 +189,7 @@ class UsersController < ApplicationController
 			@role     = create_fields(helpers.user_form_role)
 			@p_fields = create_fields(helpers.person_form(@user.person, mandatory_email: true))
 			if create
-				@k = create_fields(helpers.user_form_pass)
+				@k_fields = create_fields(helpers.user_form_pass)
 			end
 			@submit = create_submit
 		end

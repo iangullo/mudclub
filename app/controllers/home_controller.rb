@@ -22,16 +22,16 @@ class HomeController < ApplicationController
 		if current_user.present?
 			if u_manager? || u_secretary?	# manage host club
 				redirect_to club_path(u_clubid), data: { turbo_action: "replace" }
-			elsif u_coach?
-				@coach  = current_user.coach
-				@fields = create_fields(helpers.coach_show)
-				@table  = create_table(helpers.team_table(teams: @coach.team_list))
-			elsif u_player?
-				@player = current_user.player
-				title   = helpers.player_show
-				@fields = create_fields(title)
-				teams   = helpers.team_table(teams: current_user.team_list)
-				@table  = create_table(teams) if teams
+			elsif u_coach? || u_player?
+				if u_coach?
+					@coach = current_user.coach
+					title  = helpers.coach_title
+				elsif u_player?
+					@player = current_user.player
+					title   = helpers.player_title
+				end
+				@title = create_fields(title)
+				@table = create_table(helpers.team_table(teams: current_user.team_list))
 			elsif u_admin? # manage server
 				redirect_to home_server_path
 			end

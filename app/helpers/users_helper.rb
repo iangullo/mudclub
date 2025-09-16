@@ -102,15 +102,15 @@ module UsersHelper
 
 	# return user_actions TableComponent
 	def user_actions_title
-		res  = person_title(title: @user.person.s_name, icon: user_actions_symbol, rows: 4)
+		res  = title_start(title: @user.person.s_name, icon: user_actions_symbol)
 		res << [ { kind: :subtitle, value: I18n.t("user.actions") } ]
 	end
 
 	# return user_actions TableComponent
 	def user_actions_table
 		res = [ [
-			top_cell_field(I18n.t("calendar.date")),
-			top_cell_field(I18n.t("drill.desc"))
+			topcell_field(I18n.t("calendar.date")),
+			topcell_field(I18n.t("drill.desc"))
 		] ]
 		@user.user_actions.order(updated_at: :desc).each { |u_act|
 			res << [
