@@ -28,7 +28,7 @@ module DrillsHelper
 			],
 			[
 				{ kind: :label, value: I18n.t("drill.material"), align: "right" },
-				{ kind: :text_box, key: :material, size: 40, value: @drill.material }
+				{ kind: :text_box, key: :material, size: 36, value: @drill.material }
 			],
 			[
 				{ kind: :label, value: I18n.t("drill.desc_a"), align: "right" },
@@ -87,17 +87,20 @@ module DrillsHelper
 		author  = (@drill.coach_id.to_i > 0 ? @drill.coach_id : (u_coachid || coaches.first))
 		res = [
 			[
-				{ kind: :label, value: I18n.t("skill.abbr"), align: "right" },
+				{ kind: :label, value: "#{I18n.t('skill.many')}:" },
+				gap_field,
+				{ kind: :label, value: "#{I18n.t('drill.author')}:" }
+			],
+			[
 				{ kind: :nested_form, model: "drill", key: "skills", child: Skill.new, row: "skill_row" },
-				gap_field(size: 4),
-				{ kind: :label, value: I18n.t("drill.author") + ": ", align: "right" }
+				gap_field
 			]
 		]
 		if coaches.size > 1
-			res.last << { kind: :select_collection, key: :coach_id, options: coaches, value: author }
+			res.first << { kind: :select_collection, key: :coach_id, options: coaches, value: author }
 		else
-			res.last << { kind: :text, value: coaches.first.name, class: "inline-flex" }
-			res.last << { kind: :hidden, key: :coach_id, value: coaches.first.id }
+			res.first << { kind: :text, value: coaches.first.name, class: "ml-2" }
+			res.first << { kind: :hidden, key: :coach_id, value: coaches.first.id }
 		end
 		res
 	end
