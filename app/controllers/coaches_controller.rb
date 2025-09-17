@@ -54,6 +54,7 @@ class CoachesController < ApplicationController
 		if @coach && (check_access(obj: @coach) || check_access(roles: [ :manager, :secretary ], obj: @coach.club, both: true))
 			@title  = create_fields(helpers.coach_title)
 			@fields = create_fields(helpers.coach_show)
+			@table  = create_table(helpers.team_table(teams: @coach.team_list))
 			retlnk  = anchor_lnk
 			submit  = edit_coach_path(@coach, club_id: @clubid, team_id: p_teamid, user: p_userid, rdx: @rdx) if u_manager? || u_secretary? || u_coachid == @coach.id
 			@submit = create_submit(close: :back, retlnk:, submit:, frame: "modal")
