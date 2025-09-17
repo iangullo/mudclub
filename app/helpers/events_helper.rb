@@ -359,7 +359,7 @@ module EventsHelper
 					res[1] << symbol_field("clock")
 					res[1] << { kind: :time_box, key: :hour, hour: @event.hour, mins: @event.min, mandatory: true }
 				end
-				h_fields = event_form_hidden_fields(copy ? @event.team_id : nil)
+				h_fields = event_form_hidden_fields(copy ? nil : @event&.team_id)
 				h_fields << { kind: :hidden, key: :kind, value: @event.kind }
 				res << h_fields
 			else
@@ -401,7 +401,7 @@ module EventsHelper
 					{ kind: :side_cell, value: I18n.t("match.single"), align: "left", cols: 2 }
 				]
 				res << [
-					symbol_field("location"),
+					symbol_field("location", { title: I18n.t("location.single") }, align: :right),
 					{ kind: :select_collection, key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'", cols: 6 },
 					{ kind: :hidden, key: :homecourt_id, value: @event.team.homecourt_id, h_data: { match_location_target: "homeCourtId" } }
 				]

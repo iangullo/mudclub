@@ -545,6 +545,8 @@ class EventsController < ApplicationController
 					:end_time,
 					:name,
 					:kind,
+					:home,
+					:homecourt_id,
 					:hour,
 					:kind_id,
 					:location_id,
