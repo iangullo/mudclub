@@ -66,7 +66,7 @@ class EventsController < ApplicationController
 						if @event.match?
 							@fields = create_fields(helpers.match_show)
 							table   = helpers.match_roster_table
-							@table  = create_table(table[:data], controller: table[:controller])
+							@table  = create_table(table)
 						else
 							@targets = create_fields(helpers.training_target)
 							@fields  = create_fields(helpers.training_show)
@@ -475,7 +475,7 @@ class EventsController < ApplicationController
 				@fields  = create_fields(helpers.match_form(new:))
 				unless new
 					table  = helpers.match_roster_table(edit: true)
-					@table = create_table(table[:data], controller: table[:controller])
+					@table = create_table(table)
 				end
 			end
 			unless new # editing

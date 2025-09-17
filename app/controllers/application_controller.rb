@@ -56,8 +56,8 @@ class ApplicationController < ActionController::Base
 		fields ? FieldsComponent.new(fields) : nil
 	end
 	# return TableComponent object from a table hash
-	def create_table(table, controller: nil, align: nil)
-		table ? TableComponent.new(table, controller:, align:) : nil
+	def create_table(table, align: nil)
+		table ? TableComponent.new(table, align:) : nil
 	end
 
 	# prepare typical controller index page variables

@@ -32,11 +32,10 @@
 class TableComponent < ApplicationComponent
 	attr_writer :form
 
-	def initialize(table, form: nil, controller: nil, align: "center")
-		if controller	# add stimulus controller and data
-			@controller = controller
-			@data       = table[:data].merge(action: "change->#{controller}#update")
-		end
+	def initialize(table, form: nil, align: "center")
+		@data = table[:data]
+		@controller = table[:controller]
+		@data.merge(action: "change->#{controller}#update") if @controller
 		@align  = align || "center"
 		@form   = form
 		@title  = parse_title(table[:title])

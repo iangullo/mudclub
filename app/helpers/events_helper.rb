@@ -201,12 +201,11 @@ module EventsHelper
 		a_rules = @sport.rules.key(@event.team.category.rules)
 		if (outings = @sport.match_outings(a_rules))
 			table = @sport.outings_table(@event, outings, edit:, rdx: @rdx)
-			stim = "outings"
+			table[:controller] = "outings"
 		else
 			table = @sport.stats_table(@event, edit:, rdx: @rdx)
-			stim = nil
 		end
-		{ data: table, controller: stim }
+		table
 	end
 
 	# return accordion for event tasks

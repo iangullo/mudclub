@@ -165,7 +165,7 @@ class FieldItemComponent < ApplicationComponent
 		when "separator"
 			("<hr class=\"#{@field[:stroke]}\"").html_safe
 		when "table"
-			render TableComponent.new(@field[:value], controller: @field[:controller], align: @field[:align], form: @form)
+			render TableComponent.new(@field[:value], align: @field[:align], form: @form)
 		when "targets"
 			render_targets_field
 		else
