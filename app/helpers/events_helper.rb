@@ -247,7 +247,7 @@ module EventsHelper
 
 	# data fields for task edit/add views
 	def task_form(search_in:)
-		res  = (@rdx ? [ [ { kind: :hidden, key: :rdx, value: @rdx } ] ] : [ [] ])
+		res  = [ event_form_hidden_fields(@event.team_id) ]
 		res += [
 			[
 				topcell_field(I18n.t("task.number")),
@@ -359,10 +359,9 @@ module EventsHelper
 					res[1] << symbol_field("clock")
 					res[1] << { kind: :time_box, key: :hour, hour: @event.hour, mins: @event.min, mandatory: true }
 				end
-				res.last << { kind: :hidden, key: :team_id, value: @event.team_id } unless copy
-				res.last << { kind: :hidden, key: :cal, value: @cal } if @cal
-				res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
-				res.last << { kind: :hidden, key: :kind, value: @event.kind }
+				h_fields = event_form_hidden_fields(copy ? @event.team_id : nil)
+				h_fields << { kind: :hidden, key: :kind, value: @event.kind }
+				res << h_fields
 			else
 				res[0] << symbol_field("calendar", { title: I18n.t("calendar.date") })
 				res[0] << { kind: :string, value: @event.date_string }
@@ -371,6 +370,15 @@ module EventsHelper
 					res[1] << { kind: :string, value: @event.time_string }
 				end
 			end
+		end
+
+		def event_form_hidden_fields(teamid)
+			res = []
+			res << { kind: :hidden, key: :team_id, value: teamid } if teamid
+			res << { kind: :hidden, key: :cal, value: @cal } if @cal
+			res << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
+			res << { kind: :hidden, key: :kind, value: @event.kind } if @event
+			res
 		end
 
 		# serves for both match_show and match_edit
@@ -406,7 +414,7 @@ module EventsHelper
 						gap_field(size: 1),
 						{ kind: :side_cell, value: I18n.t("match.single"), align: "left", cols: 2 },
 						button_field(
-							{ kind: :link, symbol: "attendance", label: I18n.t("match.roster"), url: attendance_event_path(rdx: @rdx), frame: "modal" },
+							{ kind: :link, symbol: "attendance", label: I18n.t("match.roster"), url: attendance_event_path(rdx: @rdx, cal: @cal), frame: "modal" },
 							align: "left",
 							cols: 2
 						)
@@ -439,7 +447,7 @@ module EventsHelper
 					res << [
 						gap_field(size: 1, cols: 6),
 						button_field(
-							{ kind: :link, symbol: "attendance", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx), frame: "modal" },
+							{ kind: :link, symbol: "attendance", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx, cal: @cal), frame: "modal" },
 							align: "left",
 							cols: 2
 						)

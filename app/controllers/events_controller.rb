@@ -201,7 +201,7 @@ class EventsController < ApplicationController
 		if event_manager?
 			@title  = create_fields(helpers.event_attendance_title)
 			@fields = create_fields(helpers.event_attendance_form)
-			@submit = create_submit(retlnk: event_path(@event, rdx: @rdx))
+			@submit = create_submit(retlnk: event_path(@event, rdx: @rdx, cal: @cal))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -349,11 +349,11 @@ class EventsController < ApplicationController
 				@retlnk  = edit_event_path(@event, rdx: @rdx, cal: @cal)
 			elsif params[:event].present?
 				@retview = :show
-				if @cal || @event.rest? #--> Calendar view
+				if @event.rest? #--> Calendar view
 					if @event.team_id.to_i > 0 # team events
-						@retlnk = team_events_path(@event.team, start_date: @event.start_date, rdx: @rdx, cal: true)
+						@retlnk = team_events_path(@event.team, start_date: @event.start_date, rdx: @rdx, cal: @cal)
 					else
-						@retlnk = season_events_path(@event.start_date, start_date: @event.start_date, rdx: @rdx, cal: true)
+						@retlnk = season_events_path(@event.start_date, start_date: @event.start_date, rdx: @rdx, cal: @cal)
 					end
 				else
 					@retlnk = event_path(@event, rdx: @rdx, cal: @cal) unless @event.rest?
