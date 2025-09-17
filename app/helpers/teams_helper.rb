@@ -64,7 +64,7 @@ module TeamsHelper
 			c_icon = symbol_field("coach", { namespace: "sport", size: "30x30", title: I18n.t("coach.many") }, align: "right", class: "align-top", rows: c_count)
 			c_first = true
 			@team.coaches.each do |coach|
-				if u_manager? || u_secretary?
+				if coach.active? && (u_manager? || u_secretary?)
 					c_start = button_field({ kind: :link, label: coach.s_name, url: coach_path(coach, team_id: @team.id, rdx: @rdx), b_class: "items-center", d_class: "text-left" })
 				else
 					c_start = { kind: :string, value: coach.s_name, class: "align-middle text-left" }

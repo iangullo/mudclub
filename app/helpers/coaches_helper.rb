@@ -64,7 +64,7 @@ module CoachesHelper
 		res = club_manager? || u_coachid == @coach.id ? person_show(@coach.person) : [ [] ]
 		unless @coach.teams.empty?
 			res << [ { kind: :side_cell, value: (I18n.t("team.many")), align: "left" } ]
-			res << [ { kind: :table, **team_table(teams: @coach.team_list) } ]
+			res << [ { kind: :table, value: team_table(teams: @coach.team_list) } ]
 		end
 		res
 	end
