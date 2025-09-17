@@ -180,10 +180,9 @@ class Player < ApplicationRecord
 	# Search field matching
 	def self.search(search, user = nil)
 		if search.present?
-			if user&.is_manager? || user.secretary? # only players retired and belonging to the managers club
+			# only players retired and belonging to the managers club
+			if user&.is_manager? || user.secretary? || user&.coach?
 				Player.real.where(club_id: [ user.club.id, nil ], person_id: Person.search(search).order(:birthday))
-			elsif user&.coach?
-				Player.real.where(club_id: user.club.id, person_id: Person.search(search).order(:birthday))
 			else
 				Player.none
 			end
