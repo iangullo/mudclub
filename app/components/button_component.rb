@@ -151,7 +151,7 @@ class ButtonComponent < ApplicationComponent
 			@button[:confirm] = I18n.t("question.save_chng")
 		when :whatsapp
 			@button[:url]  = @button[:web] ? "https://web.whatsapp.com/" : "whatsapp://"
-			@button[:url] += @button[:url] + "send?phone=#{@button[:value].delete(' ')}"
+			@button[:url] += "send?phone=#{@button[:value].delete(' ')}"
 		end
 		@button[:label]  ||= I18n.t("action.#{@button[:kind]}") if [ :back, :cancel, :clear, :edit, :export, :import, :save ].include?(@button[:kind])
 		@button[:size]   ||= "25x25"
