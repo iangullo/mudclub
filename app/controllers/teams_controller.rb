@@ -392,7 +392,7 @@ class TeamsController < ApplicationController
 				@clubid = @team&.club&.id
 			end
 			@club     = Club.find(@clubid)
-			s_id      = @team&.season&.id || session.dig("team_filters", "season_id") || p_seasonid
+			s_id      = @team&.season&.id || session.dig("team_filters", "season_id") || p_seasonid || Season.last.id
 			@season   = Season.search(s_id) unless s_id == @season&.id
 			@seasonid = @season&.id
 		end
