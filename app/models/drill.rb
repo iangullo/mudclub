@@ -61,7 +61,10 @@ class Drill < ApplicationRecord
 	def modified?
 		res = self.changed?
 		unless res
-			res = self.steps.any?(&:saved_changes?)
+			res = self.steps.any? do |step|
+				step.saved_changes? ||
+				(step.versions.exists? && step.versions.last.created_at > (self.updated_at || Time.at(0)))
+			end
 			unless res
 				res = self.skills.any?(&:saved_changes?)
 				unless res

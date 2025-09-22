@@ -18,7 +18,8 @@
 #
 # Handles Steps for Drills/Plays. Each step belongs to a parent drill.
 class Step < ApplicationRecord
-	belongs_to :drill
+	belongs_to :drill, touch: true
+	has_paper_trail
 	default_scope { order(:order) }
 
 	after_initialize :initialize_new_step, if: :new_record?
