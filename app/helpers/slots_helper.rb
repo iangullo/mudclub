@@ -17,6 +17,18 @@
 # contact email - iangullo@gmail.com.
 #
 module SlotsHelper
+	def render_chunk_cell(chunk, slice)
+		base_classes = "text-center"
+
+		if chunk[:slot]
+			render_slot_chunk(chunk, base_classes)
+		elsif chunk[:gap]
+			render_gap_chunk(chunk, slice, base_classes)
+		else
+			render_empty_chunk(chunk, slice, base_classes)
+		end
+	end
+
 	# return icon and top of definition
 	def slot_title(title:, subtitle: nil)
 		icon = symbol_hash("timetable")
@@ -80,6 +92,60 @@ module SlotsHelper
 	end
 
 	private
+		def render_slot_chunk(chunk, base_classes)
+			slot = chunk[:slot]
+			classes = "#{base_classes} bg-blue-300 align-center rounded-lg hover:text-white hover:bg-blue-700 cursor-pointer border border-blue-500"
+			lclass  = "text-xs"
+
+			content_tag(:td,
+				class: classes,
+				rowspan: chunk[:rows],
+				colspan: chunk[:cols],
+				data: { controller: "hover", action: "click->modal#open" }) do
+				link_to(slot_path(slot),
+								class: "block p-1",
+								data: { turbo_frame: "modal" }) do
+					safe_join([
+						content_tag(:div, slot.team.to_s, class: "font-semibold #{lclass} md:text-sm"),
+						(slot.team.to_s != slot.team.category.to_s ?
+							content_tag(:div, slot.team.category.to_s, class: lclass) : nil),
+						content_tag(:div, slot.team.division.to_s, class: lclass),
+						content_tag(:div, slot.to_s(false), class: lclass)
+					].compact)
+				end
+			end
+		end
+
+		def render_gap_chunk(chunk, slice, base_classes)
+			content_tag(:td,
+				class: base_classes,
+				rowspan: chunk[:rows],
+				colspan: chunk[:cols]) do
+				if chunk[:wday] && slice[:time]
+					safe_join([
+						content_tag(:div, chunk[:wday], class: "font-medium hidden md:block"),
+						content_tag(:div, "#{slice[:time].strftime('%H:%M')}", class: "text-xs")
+					])
+				else
+					content_tag(:span, "", class: "text-xs")
+				end
+			end
+		end
+
+		def render_empty_chunk(chunk, slice, base_classes)
+			content_tag(:td,
+				class: base_classes,
+				rowspan: chunk[:rows],
+				colspan: chunk[:cols]) do
+				if chunk[:wday] && slice[:time]
+					content_tag(:div, "#{chunk[:wday]} #{slice[:time].strftime('%H:%M')}",
+										class: "text-xs text-gray-300")
+				else
+					content_tag(:span, "", class: "text-xs")
+				end
+			end
+		end
+
 		# returns an array with weekday names and their id
 		def weekdays
 			res =[]

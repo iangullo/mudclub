@@ -1,41 +1,27 @@
-<div id="slots-index">
-	<div id="slots-table">
+<div id="slots-index" class="max-w-full">
+	<div id="slots-table" class="overflow-auto max-h-96 md:max-h-screen relative">
 		<% if @season and @location %>
-		<table class="table-auto border-separate">
-			<thead>
+      	<table class="min-w-max border-separate">
+        	<thead>
 				<tr>
-					<th align="center">
+					<th class="text-center sticky left-0 min-w-16 bg-white">
 						<%= render @btn_add if @btn_add %>
 					</th>
 					<% 1.upto(5) do |i| %>
-						<th align="center" class="bg-indigo-900 text-gray-300 align-center" colspan=<%=@d_cols[i][:cols].to_s%>><%= @d_cols[i][:name] %></th>
+						<th class="bg-indigo-900 text-gray-300 text-center min-w-32" colspan=<%=@d_cols[i][:cols].to_s%>><%= @d_cols[i][:name] %></th>
 					<% end %>
 				</tr>
 			</thead>
 			<tbody>
 				<% @slices.each do |slice| %>
-				<tr>
-					<td align="center" class="align-top text-sm">
-						<%= slice[:label] if slice[:time] %>
+				<tr class="border-b border-gray-300">
+					<% if slice[:label] %>
+					<td rowspan="4" class="text-center align-top text-xs md:text-sm bg-white sticky left-0 z-10 min-w-16 whitespace-nowrap">
+						<%= slice[:label] %>
 					</td>
+					<% end %>
 					<% slice[:chunks].each do |chunk| %>
-						<% if chunk[:slot] %>
-							<td align="center" class="bg-blue-300 rounded-lg border px py hover:text-white hover:bg-blue-700" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>>
-								<%= link_to(slot_path(chunk[:slot]), class: "hover:text-white hover:bg-blue-700", data: {turbo_frame: "modal"}) do %>
-									<% stitle = chunk[:slot].team.to_s %>
-									<%= stitle %>
-									<% if stitle != chunk[:slot].team.category.to_s %>
-										<div class="text-xs"><%= chunk[:slot].team.category.to_s %></div>
-									<% end %>
-									<div class="text-xs"><%=chunk[:slot].team.division.to_s%></div>
-									<div class="text-xs"><%=chunk[:slot].to_s(false)%></div>
-								<% end %>
-							</td>
-						<% elsif chunk[:gap] %>
-						<td class="text-xs" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>><%=chunk[:wday] ? "#{chunk[:wday]} #{slice[:time].hour.to_s}:#{slice[:time].min.to_s}" : ""%></td>
-						<% else %>
-						<td class="text-xs" rowspan=<%=chunk[:rows].to_s%> colspan=<%=chunk[:cols].to_s%>><%=chunk[:wday] ? "#{chunk[:wday]} #{slice[:time].hour.to_s}:#{slice[:time].min.to_s}" : ""%></td>
-						<% end %>
+					<%= render_chunk_cell(chunk, slice) %>
 					<% end %>
 				</tr>
 				<% end %>
