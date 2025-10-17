@@ -35,7 +35,7 @@ class TableComponent < ApplicationComponent
 	def initialize(table, form: nil, align: "center")
 		@data = table[:data]
 		@controller = table[:controller]
-		@data.merge(action: "change->#{controller}#update") if @controller
+		@data.merge(action: "change->#{@controller}#update") if @controller
 		@align  = align || "center"
 		@form   = form
 		@title  = parse_title(table[:title])
