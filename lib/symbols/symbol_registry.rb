@@ -215,4 +215,32 @@ class SymbolRegistry
 
 		Rails.root.join("app/assets/symbols", rel_path)
 	end
+
+	# -- Utility methods for converting symbols to image data URLs --
+
+	# Convert a Nokogiri <symbol> node into a standalone <svg> string and encode as data URL
+	def self.image_data_url(symbol_node, width: 128, height: 128)
+		return nil unless symbol_node.is_a?(Nokogiri::XML::Node)
+
+		view_box = symbol_node["viewBox"] || "0 0 #{width} #{height}"
+
+		svg_markup = <<~SVG
+			<svg xmlns="http://www.w3.org/2000/svg"
+					viewBox="#{view_box}"
+					width="#{width}"
+					height="#{height}"
+					preserveAspectRatio="xMidYMid meet">
+				#{symbol_node.children.to_xml}
+			</svg>
+		SVG
+
+		encoded = Base64.strict_encode64(svg_markup.strip)
+		"data:image/svg+xml;base64,#{encoded}"
+	end
+
+	# Fetch a symbol from the registry and return its encoded data URL
+	def self.to_image_data(namespace: "common", type: :icon, concept:, variant: "default", width: 128, height: 128)
+		symbol_node = fetch(namespace:, type:, concept:, variant:)
+		image_data_url(symbol_node, width:, height:)
+	end
 end

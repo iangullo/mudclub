@@ -64,6 +64,12 @@ class SymbolComponent < ApplicationComponent
 		"#{@namespace}.#{@type}.#{@concept}.#{@variant}"
 	end
 
+	def to_img
+		svg_markup = call.to_s.strip
+		encoded = Base64.strict_encode64(svg_markup)
+		"data:image/svg+xml;base64,#{encoded}"
+	end
+
 	# accessor to read the symbol_viewbox in "standard" SVG format
 	def view_box
 		vb_attrs = @view_box.presence&.split(" ")
