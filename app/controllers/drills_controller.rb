@@ -167,9 +167,9 @@ class DrillsController < ApplicationController
 	def load_diagram
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
 			if @step
-				@fields  = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
-				@loader  = create_fields(helpers.drill_form_diagram_file)
-				@submit  = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
+				@title  = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
+				@loader = create_fields(helpers.drill_form_diagram_file(@step))
+				@submit = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
 			else
 				redirect_to edit_drill_path(@drill), data: { turbo_action: "replace" }
 			end
@@ -182,9 +182,16 @@ class DrillsController < ApplicationController
 	# Recibe el SVG serializado y actualiza el paso
 	def update_diagram
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
-			raw_data    = drill_params[:svgdata]&.strip
-			parsed_data = raw_data.present? ? JSON.parse(raw_data) : nil
-			if parsed_data && @step&.update(svgdata: parsed_data)
+			diagfile = drill_params.dig(:steps_attributes, :diagram).presence
+			if diagfile	# loading an image file
+				updated_diag = @step&.update(diagram: diagfile)
+			else	# updating an svg diagram
+				raw_data     = drill_params[:svgdata]&.strip unless diagfile
+				parsed_data  = raw_data.present? ? JSON.parse(raw_data) : nil
+				updated_diag = parsed_data && @step&.update(svgdata: parsed_data)
+			end
+
+			if updated_diag
 				respond_to do |format|
 					format.html { redirect_to edit_drill_path(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
 				end

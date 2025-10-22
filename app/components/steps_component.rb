@@ -39,8 +39,8 @@ class StepsComponent < ApplicationComponent
 	private
 
 	def check_splits
-		@steps.each { |step| return true if step.has_text?}
-		return nil
+		@steps.each { |step| return true if step.has_text? }
+		nil
 	end
 
 	def render_header
@@ -54,7 +54,7 @@ class StepsComponent < ApplicationComponent
 			safe_join([
 				render_order(step),
 				content_tag(:div, class: "step-content flex flex-col md:flex-row gap-3 md:gap-4") do
-					safe_join([render_diagram(step), render_explanation(step)])
+					safe_join([ render_diagram(step), render_explanation(step) ])
 				end
 			])
 		end
@@ -66,10 +66,11 @@ class StepsComponent < ApplicationComponent
 	end
 
 	def render_diagram(step)
-		return unless step.has_image? || step.has_svg?
-		content_tag(:div, class: "step-diagram flex justify-center max-w-full overflow-hidden") do
+		return if step.has_text? && !(step.has_image? || step.has_svg?)
+		width = step.has_text? ? "1/2" : "full"
+		content_tag(:div, class: "step-diagram flex justify-center w-full md:w-#{width} h-auto overflow-x-auto") do
 			if step.has_image?
-				concat(render_image({value: step.diagram.attachment}))
+				concat(render_image({ value: step.diagram.attachment }))
 			else
 				DiagramComponent.new(
 					sport: step.sport.name,

@@ -58,6 +58,11 @@ module DrillsHelper
 		end
 	end
 
+	def drill_form_diagram_file(step, form: nil)
+		value = step.diagram.value || @drill.court_img
+		[ [ { kind: :image_box, key: :diagram, width: "640", height: "auto", value: } ] ]
+	end
+
 	# returng FieldComponent to edit drill explanation
 	def drill_form_explain
 		[ [ { kind: :rich_text_area, key: :step_explanation, align: "left" } ] ]

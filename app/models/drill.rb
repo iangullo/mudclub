@@ -52,9 +52,14 @@ class Drill < ApplicationRecord
 		self.sport.court_name(self.court_mode)
 	end	# wrapper to return image symbol to self court_mode
 
+	# wrapper to return renderable image to self court_mode
+	def court_img
+		SymbolRegistry.image_data_url(self.court_symbol, width: "640", height: "auto")
+	end
+
 	# wrapper to return image symbol to self court_mode
 	def court_symbol
-		self.sport.symbol(self.court_mode, type: :court)
+		self.sport.specific.symbol(self.court_mode, type: :court)
 	end
 
 	# check if drill (or associations) has changed
@@ -225,62 +230,89 @@ class Drill < ApplicationRecord
 		# checks skills array received and manages adding/removing
 		# from the drill collection - remove duplicates from list
 		def check_skills(s_array)
+			# Extract and deduplicate input hashes
 			a_skills = Array.new	# array to include only non-duplicates
-			s_array.each { |s| # first pass
+			s_array.each do |s| # first pass
 				# s[1][:name] = s[1][:name].mb_chars.titleize
 				a_skills << s[1] # unless a_skills.detect { |a| a[:name] == s[1][:name] }
-			}
-			a_skills.each { |s| # second pass - manage associations
-				sk = Skill.fetch(s)
-				if s[:_destroy] == "1"
-					self.skills.delete(sk)
-				else	# add to collection
-					sk = Skill.create(concept: s[:concept].strip) unless sk
-					self.skills << sk unless self.skills.include?(sk)
+			end
+
+			Skill.transaction do
+				a_skills.each do |attrs|
+					skill = Skill.fetch(attrs)
+					if attrs[:_destroy] == "1"
+						# Safely remove from association (triggers callbacks if dependent: :destroy is set)
+						self.skills.destroy(skill) if self.skills.include?(skill)
+					else
+						concept = attrs[:concept].to_s.strip
+						next if concept.blank? # ignore empty concepts
+						skill = Skill.create(concept:) unless skill
+						self.skills << skill unless self.skills.include?(skill)
+					end
 				end
-			}
+			end
 		end
 
 		# checks skills array received and manages adding/removing
 		# from the drill collection - remove duplicates from list
 		def check_steps(s_array)
-			a_steps = Step.passed(s_array) # array to include only non-duplicates
-			a_steps.each { |s| # second pass - manage associations
-				st = Step.find_by_id(s[:id].to_i)
-				if s[:_destroy] == "1"
-					self.steps.delete(s[:id].to_i)
-					st.delete if st&.persisted?
-				elsif s[:explanation].present? || st[:svgdata].present? || st[:explanation].present? || st[:diagram].present?	# add to collection
-					st ||= Step.new(drill_id: self.id, order: s[:order].presence)
-					st.diagram = s[:diagram] if s[:diagram].presence
-					st.svgdata = s[:svgdata] if s[:svgdata].presence
-					st.explanation = s[:explanation].presence
-					st.save
-					self.steps << st unless self.steps.include?(st)
-				elsif st	# empty step => delete it
-					st.delete
+			a_steps = Step.passed(s_array) # remove duplicates, your custom method
+
+			Step.transaction do
+				a_steps.each do |attrs|
+					id = attrs[:id].to_i if attrs[:id].present?
+					step = id ? Step.find_by(id: id) : nil
+
+					if attrs[:_destroy] == "1"
+						step&.destroy!
+						next
+					end
+
+					# Find or build a step
+					step ||= self.steps.build(order: attrs[:order].presence) if attrs[:order].presence
+					step.diagram = attrs[:diagram].presence if attrs[:diagram].presence
+					step.svgdata = attrs[:svgdata].presence if attrs[:svgdata].presence
+					step.explanation = attrs[:explanation].presence
+					step.save!	# unless step.persisted?
+					self.steps << step unless self.steps.include?(step)
 				end
-			}
-			i = 1
-			self.steps.order(:order).each do |step|	# ensure correct ordering
-				step.update! order: i
-				i += 1
+
+				# Reorder steps sequentially
+				self.steps.order(:order).each.with_index(1) do |step, index|
+					step.update_column(:order, index) unless step.order == index
+				end
 			end
 		end
 
 		# checks targets_attributes array received and manages adding/removing
-		# from the target collection - remove duplicates from list
+		# from the target collection - remove duplicates from list # rubocop:disable Layout/CommentIndentation
 		def check_targets(t_array)
-			a_targets = Target.passed(t_array)
-			priority  = 1
-			a_targets.each do |t| # second pass - manage associations
-				if t[:_destroy] == "1"	# remove drill_target
-					self.targets.delete(t[:target_attributes][:id].to_i)
-				else
-					dt = DrillTarget.fetch(t)
-					dt.update(priority:)
+			a_targets = Target.passed(t_array) # deduplicated input
+
+			DrillTarget.transaction do
+				priority = 1
+
+				a_targets.each do |t|
+					target_id = t.dig(:target_attributes, :id)&.to_i
+					destroy_flag = t[:_destroy] == "1"
+
+					if destroy_flag && target_id.present?
+						# Remove and destroy the drill_target link
+						drill_target = drill_targets.find_by(target_id: target_id)
+						drill_target&.destroy!
+						next
+					end
+
+					# Skip empty or invalid entries
+					next unless t.dig(:target_attributes, :concept).present?
+
+					# Fetch or build drill_target (assuming `DrillTarget.fetch` finds or builds properly)
+					drill_target = DrillTarget.fetch(t)
+					drill_target.priority = priority
+					drill_target.drill = self
+					drill_target.save!
+
 					priority += 1
-					self.drill_targets ? self.drill_targets << dt : self.drill_targets |= dt
 				end
 			end
 		end

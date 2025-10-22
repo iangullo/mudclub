@@ -17,13 +17,13 @@
 			<!-- Content area -->
 			<div class="step-content">
 				<!-- 3. Diagram can be a PNG or inline SVG -->
-				<div class="step-diagram">
+				<div class="step-diagram w-full md:w-1/2 h-auto">
 					<% if step.diagram.attached? %>
 						<!-- 3a. Show attached diagram if it is available -->
 						<%= render InputBoxComponent.new({kind: :image_box, value: step.diagram, width: "full", height: "auto"}, form:) %>
 					<% else %>
 						<!-- 3b. No attachment, load SVG court and possible :svg_diagram content -->
-						<div class="relative w-full group">
+						<div class="relative group">
 							<%= render DiagramComponent.new(court: @court, svgdata: step.svgdata) %>
 							<div class="overlay rounded absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" >
 								<% # if device != "mobile" %>
@@ -42,7 +42,7 @@
 				</div>
 
 				<!-- 4. Explanation -->
-				<div class="step-explanation">
+				<div class="step-explanation ml-1">
 					<%= render InputBoxComponent.new({kind: :rich_text_area, key: :explanation}, form:) %>
 				</div>
 			</div>

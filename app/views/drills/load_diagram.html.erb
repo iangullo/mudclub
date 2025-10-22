@@ -1,13 +1,17 @@
 <%= render ModalComponent.new do %>
-	<%= render @fields %>
+	<%= render @title %>
 	<%= form_with model: @drill,
 				authenticity_token: true,
-				class: "w-auto h-auto",
+				class: "w-auto h-full",
 				url: update_diagram_drill_path(@drill, step_id: @step.id),
 				method: :patch,
 				local: true do |form| %>
-		<% @loader.form = form %>
-		<%= render @loader %>
+		<%= form.fields_for :steps_attributes, @step do |ff| %>
+			<% @loader.form = ff %>
+			<%= ff.hidden_field(:id, value: @step.id) %>
+			<%= ff.hidden_field(:order, value: @step.order) %>
+			<%= render @loader %>
+		<% end %>
 		<%= render @submit %>
 	<% end %>
 	</div>
