@@ -86,7 +86,7 @@
 	<% if @fdata[:label] # add wrapper div and label%>
 	<div class="flex flex-col md:flex-row">
 		<label class='font-semibold mr-2 align-top'><%= @fdata[:label] %></label>
-		<div class="px-2">
+		<div class="px">
 	<% end %>
 		<%= @form.text_area(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], cols: @fdata[:size], rows: @fdata[:lines], class: @i_class, data: @i_data) %>
 	<% if @fdata[:label] %>

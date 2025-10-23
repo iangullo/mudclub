@@ -5,10 +5,8 @@ const PATH_WIDTH = 8
 const MARKER_LENGTH = 10
 const WAVE_AMPLITUDE = 10
 const WAVE_LENGTH = 40 // Fixed wavelength in pixels
-const DEBUG = false
 
 export function applyPathStyle(pathGroup, basePath, style) {
-  DEBUG && console.log(`applyPathStyle(${pathGroup.id}, currentStyle: ${pathGroup.dataset.currentStyle} => ${style})`)
   const currentStyle = pathGroup.dataset.currentStyle
   if (currentStyle === style) return // Skip if no change
 
@@ -35,7 +33,6 @@ export function applyPathStyle(pathGroup, basePath, style) {
 }
 
 function createDoublePathGroup(pathElement, basePath) {
-  DEBUG && console.log("createDoublePath ", basePath)
   const offset = PATH_WIDTH
   const stroke = pathElement.getAttribute('stroke')
 
@@ -151,7 +148,6 @@ function trimPathEnd(basePath, trimLength = MARKER_LENGTH) {
 }
 
 function createWavyPath(d, amplitude = WAVE_AMPLITUDE) {
-  DEBUG && console.log("createWavyPath ", d, amplitude)
   // Create a temporary path to measure the actual geometry
   const tempPath = createSvgElement('path')
   tempPath.setAttribute('d', d)

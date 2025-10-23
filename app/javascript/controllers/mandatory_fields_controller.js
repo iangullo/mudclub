@@ -9,22 +9,22 @@ export default class extends Controller {
     //console.log('Connecting mandatory-fields controller...');
     // Find the submit button within the form
     this.submitButton = this.element.querySelector('button[type="submit"]');
-    
+
     // Find the hover div (assumed to be within the form element)
     this.hoverDiv = this.element.querySelector(".hover-div");
 
-    
+
     // Get all mandatory fields
     this.mandatoryFields = Array.from(this.element.querySelectorAll('[data-mandatory-input="true"]'));
 
     // Initial overall validity state
     this.allValid = true;
-    
+
     // Add input event listeners to all mandatory fields
     this.mandatoryFields.forEach(field => {
       field.addEventListener('input', () => this.checkField(field));
       //console.log('Mandatory field: ', field);
-      
+
       // Initial validation of each field
       if (!this.validateField(field)) {
         this.allValid = false;
@@ -38,7 +38,7 @@ export default class extends Controller {
   checkField(field) {
     // Validate the individual field
     const isValid = this.validateField(field);
-    
+
     // Update the overall validity state based on the changed field
     if (isValid) {
       this.allValid = this.mandatoryFields.every(f => this.validateField(f));
@@ -62,9 +62,9 @@ export default class extends Controller {
     // Update field styles based on validation result
     if (isValid) {
       field.classList.add("border-gray-200", "focus:ring-blue-700");
-      field.classList.remove("border-red-500", "focus:ring-red-500");
+      field.classList.remove("border-red-500", "border-2", "focus:ring-red-500");
     } else {
-      field.classList.add("border-red-500", "focus:ring-red-500");
+      field.classList.add("border-red-500", "border-2", "focus:ring-red-500");
       field.classList.remove("border-gray-200", "focus:ring-blue-700");
     }
     return isValid;

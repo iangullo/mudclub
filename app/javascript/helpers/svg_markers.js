@@ -4,7 +4,6 @@ import { createSvgElement, generateId, setAttributes } from "helpers/svg_utils"
 const MARKER_SIZE = 5
 const MARKER_HALF = MARKER_SIZE / 2
 const MARKER_DOUBLE = MARKER_SIZE * 2
-const DEBUG = false
 
 export function applyMarkerColor(pathElement, color) {
   const markerEnd = pathElement.getAttribute('marker-end')
@@ -24,7 +23,6 @@ export function applyMarkerColor(pathElement, color) {
 }
 
 export function createMarker(pathGroup, ending, color) {
-  DEBUG && console.log("createMarker ", pathGroup, ending, color)
   const basePath = pathGroup.querySelector('path')
   if (!basePath) return
 

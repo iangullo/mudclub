@@ -1,6 +1,5 @@
 // app/javascript/helpers/svg_serializer.js
 import { generateId, getViewBox, isSVGElement } from "helpers/svg_utils"
-const DEBUG = false
 
 // Core element properties for each type
 const VALID_PROPERTIES = {
@@ -13,23 +12,17 @@ export function serializeDiagram(diagramElement) {
   const paths = []
 
   diagramElement.querySelectorAll('g.wrapper').forEach(wrapper => {
-    DEBUG && console.log("wrapper: ", wrapper)
-
     const type = wrapper.getAttribute("type")
-    DEBUG && console.log("object type: ", type)
 
     if (type === "symbol") {
       const data = serializeSymbol(wrapper)
-      DEBUG && console.log("symbol: ", data)
       if (data) symbols.push(data)
     } else if (type === "path") {
       const data = serializePath(wrapper)
-      DEBUG && console.log("path: ", data)
       if (data) paths.push(data)
     }
   })
-  DEBUG && console.log("symbols: ", symbols)
-  DEBUG && console.log("paths: ", paths)
+
   return {
     viewBox: getViewBox(diagramElement),
     symbols: symbols,
@@ -38,10 +31,8 @@ export function serializeDiagram(diagramElement) {
 }
 
 function serializePath(el) {
-  DEBUG && console.log("serializePath", el)
   if (!isSVGElement(el)) return null
 
-  DEBUG && console.warn(el.dataset.points)
   let pathPoints = []
   try {
     pathPoints = JSON.parse(el.dataset.points || '[]')
@@ -58,7 +49,6 @@ function serializePath(el) {
     color: el.dataset.color || '#000000',
     style: el.dataset.style
   }
-  DEBUG && console.log("serialized: ", pathData)
 
   return pathData
 }
@@ -79,6 +69,5 @@ function serializeSymbol(el) {
       textElement?.textContent?.trim() ||
       el.querySelector('tspan#label')?.textContent?.trim()
   }
-  DEBUG && console.log("serialized: ", symbolData)
   return symbolData
 }

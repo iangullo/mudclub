@@ -1,7 +1,6 @@
 // ✅ app/javascript/helpers/svg_utils.js
 export const SVG_NS = "http://www.w3.org/2000/svg"
 const EPSILON = 0.01
-const DEBUG = false
 
 export function angleBetweenPoints(x1, y1, x2, y2) {
   return Math.atan2(y2 - y1, x2 - x1)
@@ -88,15 +87,7 @@ export function getLabel(el) {
 
   // First check the attribute (primary storage)
   const labelAttr = el.getAttribute("label")
-  if (labelAttr !== null) {
-    // Verify tspan matches if exists (debug only)
-    const labelSpan = el.querySelector('tspan[id^="label"]')
-    if (DEBUG && labelSpan && labelSpan.textContent !== labelAttr) {
-      console.warn(`Label mismatch in ${el.id}:`,
-        { attribute: labelAttr, tspan: labelSpan.textContent })
-    }
-    return labelAttr
-  }
+  if (labelAttr !== null) { return labelAttr }
 
   // Fallback to tspan content (legacy support)
   const labelSpan = el.querySelector('tspan[id^="label"]')
@@ -182,12 +173,9 @@ export function setLabel(el, label, color = null) {
       el.setAttribute("label", label)
       labelSpan.textContent = label
       if (color) {
-        DEBUG && console.log(`changing label color to ${color}`)
         labelSpan.setAttribute('fill', color)
         labelSpan.style.fill = color
       }
-    } else {
-      DEBUG && console.warn(`Could not fine a <tspan id="label">`)
     }
   }
 }
@@ -200,7 +188,6 @@ export function setLogicalTransform(el, transform) {
 
 // updates element position
 export function updatePosition(el, x = 0, y = 0) {
-  DEBUG && console.log("updatePosition(el:", el.id, ", x:", x, ", y:", y, ")")
   const oldTransform = el.getAttribute("transform") || ""
 
   let oldX = 0, oldY = 0
@@ -213,7 +200,6 @@ export function updatePosition(el, x = 0, y = 0) {
 
     // Idempotency check
     if (Math.abs(oldX - x) < EPSILON && Math.abs(oldY - y) < EPSILON) {
-      DEBUG && console.log("Position unchanged, skipping.")
       return `translate(${oldX},${oldY})` // unchanged
     }
 
@@ -230,6 +216,5 @@ export function updatePosition(el, x = 0, y = 0) {
   }
 
   el.setAttribute("transform", transformOut)
-  DEBUG && console.log("applied transform:", transformOut)
 }
 

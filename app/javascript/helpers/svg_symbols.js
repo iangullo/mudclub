@@ -10,10 +10,8 @@ import {
 export const SYMBOL_SIZE = 33.87
 const SYMBOL_SCALE = 0.07
 const EPSILON = 0.01
-const DEBUG = false
 
 export function applySymbolColor(symbolGroup, color) {
-  DEBUG && console.log('applySymbolColor(', symbolGroup.getAttribute('id'), `, ${color})`)
   if (!(isSVGElement(symbolGroup))) return null
   if (symbolGroup.style.stroke === color) return null
 
@@ -38,16 +36,10 @@ export function applySymbolColor(symbolGroup, color) {
 
 // put a new symbol on the canvas
 export function createSymbol(symbolData, svgHeight) {
-  DEBUG && console.log('createSymbol: ', symbolData, svgHeight)
   const opts = validateSymbolData(symbolData)
   const symbolDef = document.getElementById(opts.symbolId)
 
-  if (!symbolDef) {
-    DEBUG && console.warn(`Symbol definition not found: ${opts.symbolId}`)
-    return null
-  }
-
-  DEBUG && console.log('found symbol definition: ', symbolDef)
+  if (!symbolDef) { return null }
 
   const symbolGroup = symbolDef.querySelector('g').cloneNode(true)
   symbolGroup.classList.add("wrapper")
@@ -80,7 +72,6 @@ export function getObjectNumber(element) {
 
 export function isPlayer(symbol) {
   const kind = symbol.dataset.kind || symbol.getAttribute('kind')
-  DEBUG && console.log('symbol object:', symbol)
 
   if ((kind === 'attacker') || (kind === 'defender')) {
     return { kind: kind, number: getObjectNumber(symbol) }
@@ -127,8 +118,6 @@ export function validateSymbol(data) {
 
 // only used on symbol creation really
 function updateSymbolScale(symbol, svgHeight) {
-  DEBUG && console.log('applyScale(symbol:', symbol.id, ', svgHeight:', svgHeight, ')')
-
   // Get existing transform attribute
   let transform = symbol.getAttribute('transform') || ''
 
@@ -137,7 +126,6 @@ function updateSymbolScale(symbol, svgHeight) {
   const currentScale = scaleMatch ? parseFloat(scaleMatch[1]) : null
   const objScale = svgHeight * (SYMBOL_SCALE / SYMBOL_SIZE) // normalized scale for symbol
   if (currentScale !== null && Math.abs(currentScale - objScale) < EPSILON) {
-    DEBUG && console.log('Scale already applied, skipping.')
     return
   }
 
@@ -157,7 +145,6 @@ function updateSymbolScale(symbol, svgHeight) {
   transform = transform.trim().replace(/\s+/g, ' ')
 
   symbol.setAttribute('transform', transform)
-  DEBUG && console.log('applied transform:', transform)
 }
 
 // sanitize received options

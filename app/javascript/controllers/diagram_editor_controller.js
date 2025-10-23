@@ -20,7 +20,6 @@ const MODE = {
 }
 const SYMBOL_PREVIEW_OPACITY = 0.7
 const SYMBOL_PLACEMENT_DURATION = 300
-const DEBUG = false
 
 export default class extends Controller {
   static targets = ['diagram', 'court', 'svgdata', 'colorMenu', // content
@@ -154,7 +153,6 @@ export default class extends Controller {
 
   // --- Event Management ---
   onDblClick(evt) {
-    DEBUG === 'events' && console.log(`onDblClick(mode=${this.mode}]`)
     switch (this.mode) {
       case MODE.DRAW:
         this.stopDrawing()
@@ -174,7 +172,6 @@ export default class extends Controller {
   }
 
   onKeyDown(evt) {
-    DEBUG === 'events' && console.log(`onKeyDown(${evt.key}, mode=${this.mode}]`)
     switch (evt.key) {
       case 'Escape':
         this.exitMode()
@@ -194,7 +191,6 @@ export default class extends Controller {
   }
 
   onPointerDown(evt) {
-    DEBUG === 'events' && console.log(`onPointerDown(mode=${this.mode}]`)
     switch (this.mode) {
       case MODE.DRAW:
         this.addDrawingPoint(evt)
@@ -225,7 +221,6 @@ export default class extends Controller {
   }
 
   onPointerUp(evt) {
-    DEBUG === 'events' && console.log(`onPointerUp(mode=${this.mode}]`)
     switch (this.mode) {
       case MODE.DRAG:
         this.stopDragObject(evt)   // Complete the object dragging
@@ -239,7 +234,6 @@ export default class extends Controller {
   }
 
   onPointerLeave() {
-    DEBUG === 'events' && console.log(`onPointerLeave(mode=${this.mode}]`)
     switch (this.mode) {
       case MODE.PLACE:
         this.cancelPlacement()
@@ -250,7 +244,6 @@ export default class extends Controller {
   }
 
   onPointerMove(evt) {
-    DEBUG === 'deep' && console.log(`onPointerMove(mode=${this.mode}]`)
     switch (this.mode) {
       case MODE.DRAW:
         this.trackDrawingPointer(evt)
@@ -320,16 +313,12 @@ export default class extends Controller {
     if (!this.draggedObject) return
 
     const pt = getPointFromEvent(evt, this.diagramTarget)
-    DEBUG === 'events' && console.log('dragObject([', pt.x, ', ', pt.y, '])')
 
     const { x: minX, y: minY, width, height } = this.courtBox
     const maxX = minX + width - 3 * SYMBOL_SIZE
     const maxY = minY + height - 3 * SYMBOL_SIZE
     // Bail out if outside allowed area (based on logical coords)
-    if (pt.x < minX || pt.x > maxX || pt.y < minY || pt.y > maxY) {
-      DEBUG && console.warn('Blocked drag outside court:', pt.x, pt.y)
-      return
-    }
+    if (pt.x < minX || pt.x > maxX || pt.y < minY || pt.y > maxY) { return }
 
     // Update logical position of the object nner <g>
     updatePosition(this.draggedObject, pt.x, pt.y)
@@ -339,7 +328,6 @@ export default class extends Controller {
   dragPoint(evt) {
     if (!this.draggedPoint) return
     const pt = getPointFromEvent(evt, this.diagramTarget)
-    DEBUG && console.log('dragPoint(', this.draggedPoint, ' => ', pt, ')')
 
     // Update the point position
     this.tempPoints[this.draggedPointIndex] = pt
@@ -362,8 +350,6 @@ export default class extends Controller {
     this.draggedType = wrapper.getAttribute('type') || 'symbol'
     if (this.draggedType != 'symbol') return
 
-    DEBUG && console.log(`startDrag(objecId: ${wrapper.getAttribute('id')})`)
-
     document.body.style.cursor = 'grabbing'
     evt.preventDefault()
     this.mode = MODE.DRAG
@@ -374,7 +360,6 @@ export default class extends Controller {
     if (this.draggedObject) {
       const x = this.draggedObject.dataset.x
       const y = this.draggedObject.dataset.y
-      DEBUG && console.log('stopDragObject:', this.draggedObject.id, 'coords:', x, y)
     }
     this.draggedObject = null
     this.mode = MODE.SELECT
@@ -384,7 +369,6 @@ export default class extends Controller {
   startDragPoint(evt) {
     if (!this.tempPath) return
     const controlPoint = evt.target
-    DEBUG && console.log('this.startDragPoint(controlPoint: ', controlPoint, ')')
 
     this.draggedPoint = controlPoint
     this.draggedPointIndex = parseInt(controlPoint.getAttribute('data-index'))
@@ -411,10 +395,7 @@ export default class extends Controller {
     const button = evt.currentTarget
     const svg = button.querySelector('svg[data-symbol-id]')
     const symbolId = svg?.dataset.symbolId
-    if (!symbolId) {
-      DEBUG && console.warn('button has no symbolId: ', button)
-      return
-    }
+    if (!symbolId) { return }
 
     // Enter symbol placement mode
     this.startSymbolPlacement(symbolId, kind, set)
@@ -502,12 +483,10 @@ export default class extends Controller {
   }
 
   deleteSymbolCounter(wrapper) {
-    DEBUG && console.warn('deleteSymbolCounter(', wrapper, ')')
     const player = isPlayer(wrapper)
     if (player) {
       const kind = player.kind
       const number = player.number
-      DEBUG && console.log(`Removing ${kind} number ${number}`)
       kind === 'attacker'
         ? this.attackerNumbers.delete(number)
         : this.defenderNumbers.delete(number)
@@ -528,12 +507,10 @@ export default class extends Controller {
       const distanceSquared = dx * dx + dy * dy
 
       if (distanceSquared < 1) {  // 1px² tolerance
-        DEBUG && console.log('Skipping duplicate point', point)
         return
       }
     }
 
-    DEBUG && console.log('addDrawingPoint()', point,)
     this.tempPoints.push(point)
 
     // Update the path with the new fixed point
@@ -545,7 +522,6 @@ export default class extends Controller {
   }
 
   cancelDrawing() {
-    DEBUG && console.log('cancelDrawing()')
     this.currentPoint = null
     this.resetDrawingState()
     if (this.tempPath) {
@@ -556,7 +532,6 @@ export default class extends Controller {
   }
 
   resetDrawingState(mode = MODE.IDLE) {
-    DEBUG && console.log(`resetDrawingState(${mode})`)
     lowlightButton(this.activeDrawingButton)
     this.tempPoints = []
     this.drawingParams = {}
@@ -566,7 +541,6 @@ export default class extends Controller {
 
   startDrawing(evt) {
     const button = evt.currentTarget
-    DEBUG && console.log('startDrawing ', button)
 
     if (this.mode === MODE.DRAW) {
       const end_drawing = (this.activeDrawingButton === button)
@@ -585,13 +559,11 @@ export default class extends Controller {
       isPreview: true,
       scale: this.scale
     }
-    DEBUG && console.log('drawingParams ', this.drawingParams)
     this.tempPath = createPath(this.tempPoints, this.drawingParams)
     this.diagramTarget.appendChild(this.tempPath)
   }
 
   stopDrawing() {
-    DEBUG && console.log('stopDrawing()')
     if (this.mode !== MODE.DRAW) return
     if (this.tempPoints.length < 2 || (this.drawingParams.curve && this.tempPoints.length < MIN_POINTS_FOR_CURVE)) {
       return this.cancelDrawing()
@@ -604,16 +576,13 @@ export default class extends Controller {
   }
 
   startEditingPath(pathWrapper) {
-    DEBUG && console.log('startEditingPath()')
     this.clearSelection()
     disableButtons(this.allButtons)
     this.tempPath = pathWrapper
     // Store original attributes for potential cancellation
     this.originalPoints = this.tempPath.getAttribute('data-points')
     this.tempPoints = getPathPoints(this.tempPath)
-    DEBUG && console.log('originalPoints: ', this.originalPoints)
     this.originalOptions = getPathOptions(this.tempPath)
-    DEBUG && console.log('originalOptions: ', this.originalOptions)
 
     // Create and show control points using existing utility functions
     setPathEditMode(this.tempPath, true)
@@ -621,7 +590,6 @@ export default class extends Controller {
   }
 
   stopEditingPath(cancel) {
-    DEBUG && console.log(`stopEditingPath(cancel: ${cancel})`)
     if (this.mode !== MODE.EDIT) return
 
     if (cancel) { this.tempPath.setAttribute('data-points', this.originalPoints) }
@@ -651,7 +619,6 @@ export default class extends Controller {
 
   // --- SVG object selection & removal ---
   clearSelection() {
-    DEBUG && console.log('clearSelection: ', this.selectedObject)
     if (this.selectedObject) {
       lowlightElement(this.selectedObject)
       const indicator = this.selectedObject.querySelector('.selection-indicator')
@@ -677,7 +644,6 @@ export default class extends Controller {
   }
 
   handleSelection(evt) {
-    DEBUG && console.log(`handleSelection(mode==${this.mode})`)
     switch (this.mode) {
       case MODE.SELECT:
         this.clearSelection()
@@ -696,14 +662,6 @@ export default class extends Controller {
       this.selectedObject = wrapper
       highlightElement(wrapper)
       enableButtons(this.selectedButtons)
-
-      if (DEBUG) {
-        console.log('Selected:', {
-          wrapper: wrapper.id,
-          kind: wrapper.dataset.kind,
-          number: getObjectNumber(wrapper)
-        })
-      }
       this.mode = MODE.SELECT
     }
   }
@@ -773,7 +731,6 @@ export default class extends Controller {
     try {
       const data = serializeDiagram(this.diagramTarget)
       this.svgdataTarget.value = JSON.stringify(data)
-      DEBUG && console.log('Serialized data:', data)
     } catch (error) {
       console.error('Error serializing diagram:', error)
     }

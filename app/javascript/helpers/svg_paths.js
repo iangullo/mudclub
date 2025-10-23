@@ -6,11 +6,9 @@ import { applyMarkerColor, createMarker } from "helpers/svg_markers"
 export const MIN_POINTS_FOR_CURVE = 3
 const TEMP_COLOR = '#888888'
 const TEMP_OPACITY = 0.5
-const DEBUG = false
 
 export function applyPathColor(pathGroup, color) {
   if (!(isSVGElement(pathGroup))) return null
-  DEBUG && console.log(`applyPathColor(${pathGroup.id}, ${color})`)
   pathGroup.dataset.color = color
   const basePath = pathGroup.querySelector('path')
 
@@ -24,8 +22,6 @@ export function applyPathColor(pathGroup, color) {
 }
 
 export function createPath(points = [], options = {}) {
-  DEBUG && console.log("createPath(points:", points, ", options: ", options, ")")
-
   const vOpts = validateOptions(options)
   const basePath = createSvgElement('path')
 
@@ -68,7 +64,6 @@ export function getPathOptions(pathGroup) {
 }
 
 export function setPathEditMode(pathGroup, isEditable, options = getPathOptions(pathGroup)) {
-  DEBUG && console.warn(`setPathEditMode(${pathGroup.id}, ${isEditable})`)
   if (!(isSVGElement(pathGroup))) return null
 
   const points = getPathPoints(pathGroup)
@@ -84,12 +79,6 @@ export function setPathEditMode(pathGroup, isEditable, options = getPathOptions(
 }
 
 export function updatePath(pathGroup, points, options = getPathOptions(pathGroup)) {
-  if (DEBUG) {
-    console.log("updatePath ", pathGroup.dataset.id)
-    console.log("options: ", options)
-    console.log("points: ", points)
-  }
-
   if (!isSVGElement(pathGroup)) return null
   const basePath = pathGroup.querySelector('path')
   if (!isSVGElement(basePath)) return null
@@ -101,7 +90,6 @@ export function updatePath(pathGroup, points, options = getPathOptions(pathGroup
   if (!(chgOpts || chgPts)) return null // nothing to update
 
   if (chgOpts) {  // Update stored properties
-    DEBUG && console.log('pathGroup.dataset: ', pathGroup.dataset, ' => ', vOpts)
     pathGroup.dataset.isPreview = vOpts.isPreview
     setAttributes(pathGroup, {
       'data-curve': vOpts.curve,
@@ -113,14 +101,12 @@ export function updatePath(pathGroup, points, options = getPathOptions(pathGroup
 
   // Rebuild base path
   if (chgPts) { // re-draw path element applying style
-    DEBUG && console.log('pathGroup.dataset.points => ', points)
     const basePath = buildBasePath(points, vOpts.curve)
     applyPathStyle(pathGroup, basePath, vOpts.style)
   }
 
   // Update or create marker
   if (vOpts.color !== pathGroup.dataset.color) {
-    DEBUG && console.log('pathGroup.dataset.color => ', vOpts.color)
     setAttributes(basePath, { // CHECK IF CAN BE REMOVED
       'stroke': vOpts.color,
       'opacity': vOpts.opacity
@@ -133,7 +119,6 @@ export function updatePath(pathGroup, points, options = getPathOptions(pathGroup
 
 // Add control points to path
 function addControlPoints(pathGroup, points) {
-  DEBUG && console.log(`addControlPoints(${pathGroup.id})`, points)
   points.forEach((point, index) => {
     const handle = createPointHandle(point, index)
     pathGroup.appendChild(handle)
@@ -142,7 +127,6 @@ function addControlPoints(pathGroup, points) {
 
 // Build base path without styling
 function buildBasePath(points, curve = false) {
-  DEBUG && console.log("buildBasePath:", points, curve)
   if (points.length < 2) return ""
   return curve ? buildCurvedPath(points) : buildStraightPath(points)
 }
@@ -218,7 +202,6 @@ function svgPoints(point_array) {
 
 // sanitize received options
 function validateOptions(options) {
-  DEBUG && console.log('validateOptions()', options)
   let color = '#000000'
   let opacity = 1
   const isPreview = (options.isPreview || options.isPreview === 'true')
