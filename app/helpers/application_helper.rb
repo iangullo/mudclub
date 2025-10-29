@@ -83,15 +83,10 @@ module ApplicationHelper
 	# standardised generator of "active" label for user/player/coach
 	def obj_status_field(obj)
 		if obj&.active?
-			case obj
-			when Coach
-				I18n.t("coach.abbr")
-			when Player
-				I18n.t("player.number") + @player.number.to_s
-			else
-				""
-			end
-			icon_field(obj.club.logo, title: obj.club.nick, align: "center")
+			icon  = obj.club.logo
+			title = obj.club.nick,
+			label = I18n.t("player.number") + obj.number.to_s if obj.is_a?(Player)
+			{ kind: :icon_label, icon:, title:, label:, align: "center" }
 		else
 			{ kind: :string, value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center" }
 		end
