@@ -81,7 +81,7 @@ export function zoomToFit(svg, court, isEditor = false) {
 
 // Create symbols from symbol data
 function loadSymbols(svg, symbols = [], isEditor = false) {
-  const height = svg.getBBox().height
+  const height = svg.viewBox.baseVal.height
   const result = isEditor ? { attackers: new Set(), defenders: new Set() } : true
 
   symbols.forEach(symbol => {
