@@ -132,7 +132,7 @@ class BasketballSport < Sport
 		head = match_stats_header(edit:)
 		rows = []
 		e_stats = event.stats
-		event.players.each do |player|
+		event.players.order(:number).each do |player|
 			p_stats   = Stat.fetch(player_id: player.id, period: 0, stats: e_stats, create: false)
 			row       = { items: [] }
 			row[:url] = "/players/#{player.id}?event_id=#{event.id}&rdx=#{rdx}" unless edit
