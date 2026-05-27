@@ -227,9 +227,12 @@ class DrillsController < ApplicationController
 			pdf_label_text(label: I18n.t("drill.desc"), text: @drill.description) if @drill.description.present?
 			pdf_label_text(label: I18n.t("target.many"), text: @drill.print_targets(array: false))
 			pdf_separator_line
-			pdf_rich_text(@drill.step_explanation) if @drill&.step_explanation&.present?
-			pdf_separator_line
 			pdf_label_text(label: I18n.t("skill.many"), text: @drill.print_skills)
+			pdf_separator_line
+			@drill.steps.each do |step|
+				pdf_rich_text(step.explanation) if @drill&.step_explanation&.present?
+				pdf_separator_line
+			end
 			pdf
 		end
 

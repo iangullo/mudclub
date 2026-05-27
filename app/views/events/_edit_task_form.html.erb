@@ -1,12 +1,14 @@
-<div id="edit-task-form">
+<div id="edit-task-form"  class="diagram-container">
 	<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+		<div id="drill_selector">
 		<%= form.fields_for @task do |f| %>
 			<%= turbo_frame_tag "search-results" do %>
 				<% @fields.form = f %>
 				<%= render @fields %>
 			<% end %>
+		</div>
+		<div id="drill_description">
 			<turbo-frame id="<%=f.field_id(:drill_id, :turbo_frame)%>" class="contents">
-				<div id="drill_description">
 					<% if @drill %>
 						<% if @drill.steps.empty? %>
 							<% @drill.description %>
@@ -16,10 +18,10 @@
 					<% else %>
 					<%= t("drill.none") %>
 					<% end %>
-				</div>
 			</turbo-frame>
 			<% @remarks.form = f %>
 			<%= render @remarks if @drill %>
+		</div>
 		<% end %>
 		<%= render @submit %>
 	<% end %>
