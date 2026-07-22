@@ -37,24 +37,34 @@ module Mudclub
 
 		# Configuration for the application, engines, and railties goes here.
 
-		# Add all subdirectories of app/models to the load path
-		config.autoload_paths += Dir[Rails.root.join("app/models/*")]
-		config.eager_load_paths += Dir[Rails.root.join("app/models/*")]
-		config.autoload_paths += Dir[Rails.root.join("app/sports/*")]
-		config.eager_load_paths += Dir[Rails.root.join("app/sports/*")]
+		#
+		# Domain folders
+		#
+		DOMAINS = %w[
+			calendar
+			core
+			organization
+			participation
+			people
+			training
+		].freeze
 
-		# Add controllers subdirectories too
-		config.autoload_paths += Dir[Rails.root.join("app/controllers/*")]
-		config.eager_load_paths += Dir[Rails.root.join("app/controllers/*")]
+		DOMAINS.each do |domain|
+			%w[models controllers].each do |root|
+				path = Rails.root.join("app", root, domain)
 
-		# Allow views to be loaded from subdirectories (future-proof)
-		# This won't break anything now, and will work when you move views later
-		config.paths["app/views"] << "app/views/core"
-		config.paths["app/views"] << "app/views/people"
-		config.paths["app/views"] << "app/views/organization"
-		config.paths["app/views"] << "app/views/calendar"
-		config.paths["app/views"] << "app/views/training"
-		config.paths["app/views"] << "app/views/participation"
+				config.autoload_paths << path
+				config.eager_load_paths << path
+			end
+		end
+
+		#
+		# Sports extensions
+		#
+		Dir[Rails.root.join("app/sports/*")].each do |path|
+			config.autoload_paths << path
+			config.eager_load_paths << path
+		end
 
 		# These settings can be overridden in specific environments using the files
 		# in config/environments, which are processed later.
