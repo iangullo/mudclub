@@ -1,7 +1,7 @@
 # MudClub Domain Workbook
 ## 20. Registration & Admissions
 
-Version: 1.0
+Version: 1.1
 Status: Approved
 
 ---
@@ -59,7 +59,7 @@ MudClub 2.0 proposes separating these concepts explicitly.
 
 ---
 
-# Identity versus Membership
+# People versus Membership
 
 Registration is not Membership.
 
@@ -165,7 +165,7 @@ Membership begins afterwards.
 # Relationships
 
 ```
-Identity
+People
 
 ↓
 
@@ -252,7 +252,7 @@ Should transferring between clubs reuse the Registration workflow or follow a de
 
 Registration should become an independent domain concept within the Core module.
 
-Admissions will likely be implemented through Application Services coordinating Registration, Identity and Membership.
+Admissions will likely be implemented through Application Services coordinating Registration, People and Membership.
 
 No Membership should be created directly.
 
@@ -284,7 +284,7 @@ Architecture Handbook
 
 Workbook
 
-- 10 Identity
+- 10 People
 
 Next Chapter
 

@@ -1,7 +1,7 @@
 # MudClub Architecture Handbook
 ## 07. Module Boundaries
 
-Version: 1.0
+Version: 1.1
 Status: Approved
 
 ---
@@ -37,16 +37,20 @@ These concerns must remain independent.
 # Architectural Overview
 
 ```
-                    Core
-        (Identity • Participation • Organisation)
-
-        ┌──────────┼──────────┐
-        │          │          │
-   Coaching   Competition   Registrations
-        │          │          │
-        ├──────────┼──────────┤
-        │          │          │
- Communications  Finance  Facilities
+Core
+   │
+   ├───────────────┐
+   │               │
+People      Organization
+   │               │
+   └──────┬────────┘
+          │
+   Participation
+          │
+          │
+     Calendar
+      /     \
+Training  Competition
 ```
 
 Core provides the shared organisational concepts used throughout the platform.

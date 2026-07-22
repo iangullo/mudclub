@@ -1,7 +1,7 @@
 # MudClub Domain Workbook
 ## 05. Domain Overview
 
-Version: 1.0
+Version: 1.1
 Status: Approved
 
 ---
@@ -30,7 +30,7 @@ This domain answers:
 
 It includes:
 
-Identity
+People
 
 ↓
 
@@ -80,7 +80,7 @@ Assignments connect both worlds.
 
                Organisation
 
-Identity
+People
 
 ↓
 
@@ -118,7 +118,7 @@ Each chapter answers one business question.
 
 | Chapter      | Question                                            |
 | ------------ | --------------------------------------------------- |
-| Identity     | Who exists?                                         |
+| People     | Who exists?                                         |
 | Registration | Who wishes to join?                                 |
 | Membership   | Who belongs to the club?                            |
 | Assignment   | What responsibilities does each member hold?        |
@@ -134,7 +134,7 @@ Each chapter answers one business question.
 Rather than being isolated entities, the concepts form a progression.
 
 ```
-Identity
+People
 
 ↓
 
@@ -216,7 +216,7 @@ This illustrates that the workbook models both static concepts and the processes
 
 The following principles underpin the domain model.
 
-## Identity is permanent.
+## People is permanent.
 
 People and organisations exist independently of participation.
 
@@ -252,7 +252,7 @@ The domain concepts naturally align with MudClub's future modular architecture.
 
 | Domain         | Principal Concepts                             |
 | -------------- | ---------------------------------------------- |
-| Core           | Identity, Registration, Membership, Assignment |
+| Core           | People, Registration, Membership, Assignment |
 | Competition    | Season, Team, Competition                      |
 | Coaching       | Training, Sessions, Drills, Plays              |
 | Administration | Finance, Communications, Documents             |
@@ -268,7 +268,7 @@ The recommended reading order is:
 
 ↓
 
-10 Identity
+10 People
 
 ↓
 
@@ -318,5 +318,5 @@ Architecture Handbook
 - 07 Module Boundaries
 
 Workbook
-- 10 Identity
+- 10 People
 - 90 Annual Club Cycle (future)

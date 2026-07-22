@@ -1,7 +1,7 @@
 # MudClub Domain Workbook
 ## 30. Membership
 
-Version: 1.0
+Version: 1.1
 Status: Approved
 
 ---
@@ -75,9 +75,9 @@ MudClub 2.0 proposes modelling Membership explicitly.
 
 ---
 
-# Membership versus Identity
+# Membership versus People
 
-Identity answers:
+People answers:
 
 > Who exists?
 
@@ -85,7 +85,7 @@ Membership answers:
 
 > To which organisation does this identity belong?
 
-Identity remains stable.
+People remains stable.
 
 Membership evolves throughout time.
 
@@ -180,7 +180,7 @@ Historical memberships remain valuable organisational knowledge.
 # Relationships
 
 ```
-Identity
+People
 
 ↓
 
@@ -211,12 +211,12 @@ Membership becomes the foundation upon which participation is built.
 
 Examples include:
 
-- Membership always belongs to one Identity.
+- Membership always belongs to one People.
 - Membership always belongs to one Club.
 - Membership may only originate from an Admissions decision.
 - Historical memberships should never be deleted.
 - Membership status must always be explicit.
-- A Membership cannot exist without an associated Identity.
+- A Membership cannot exist without an associated People.
 
 Business-specific constraints (such as whether simultaneous memberships in multiple clubs are permitted) should remain configurable according to organisational policy.
 
@@ -295,7 +295,7 @@ Membership represents belonging.
 
 It is the central commitment within the MudClub domain.
 
-Identity tells us who exists.
+People tells us who exists.
 
 Registration tells us who wishes to join.
 
@@ -314,7 +314,7 @@ Architecture Handbook
 
 Workbook
 
-- 10 Identity
+- 10 People
 - 20 Registration & Admissions
 
 Next Chapter

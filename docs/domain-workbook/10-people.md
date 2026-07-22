@@ -1,26 +1,26 @@
 # MudClub Domain Workbook
-## 10. Identity
+## 10. People
 
-Version: 1.0
+Version: 1.1
 Status: Approved
 
 ---
 
 # Purpose
 
-Identity forms the foundation of the MudClub domain.
+People forms the foundation of the MudClub domain.
 
 Before a person can become a member, a coach can lead a team, or a club can participate in a competition, the system must first know **who or what exists**.
 
-Identity is concerned with recognising entities independently of the relationships they may establish throughout their lifetime.
+People is concerned with recognising entities independently of the relationships they may establish throughout their lifetime.
 
-Identity answers one fundamental question:
+People answers one fundamental question:
 
 > **Who (or what) exists?**
 
-Identity owns information whose meaning does not depend upon participation.
+People owns information whose meaning does not depend upon participation.
 
-Identity survives across multiple Memberships, Seasons and Assignments.
+People survives across multiple Memberships, Seasons and Assignments.
 
 Participation, responsibilities and activities are deliberately excluded from this chapter.
 
@@ -46,7 +46,7 @@ A sports hall remains the same facility regardless of who books it.
 
 A club remains the same organisation regardless of the teams it fields each sporting period.
 
-Identity therefore exists independently from participation.
+People therefore exists independently from participation.
 
 ---
 
@@ -71,7 +71,7 @@ Others remain under discussion.
 
 # Design Principles
 
-Identity should be:
+People should be:
 
 - stable;
 - unique;
@@ -79,13 +79,13 @@ Identity should be:
 - independent of permissions;
 - independent of sporting disciplines.
 
-Identity should change infrequently.
+People should change infrequently.
 
 Relationships surrounding that identity are expected to evolve.
 
 ---
 
-# Identity Concepts
+# People Concepts
 
 ## Person
 
@@ -248,11 +248,11 @@ It seems reasonable to evolve the current Location model and use it to store bot
 
 ---
 
-# Identity versus Participation
+# People versus Participation
 
 One of the principal architectural decisions of MudClub is the separation between identity and participation.
 
-Identity answers:
+People answers:
 
 > Who exists?
 
@@ -284,14 +284,14 @@ Each concept introduces a new business relationship without changing the underly
 
 # Business Responsibilities
 
-Identity owns:
+People owns:
 
 - recognition;
 - contact information;
 - permanent characteristics;
 - stable identifiers.
 
-Identity deliberately avoids owning:
+People deliberately avoids owning:
 
 - memberships;
 - registrations;
@@ -303,7 +303,7 @@ Identity deliberately avoids owning:
 
 # Lifecycle
 
-Identity evolves slowly.
+People evolves slowly.
 
 Typical lifecycle:
 
@@ -329,7 +329,7 @@ Unlike participation, identity rarely possesses complex business workflows.
 
 # Relationships
 
-Identity provides the foundation upon which the remainder of the platform is built.
+People provides the foundation upon which the remainder of the platform is built.
 
 Typical relationships include:
 
@@ -374,7 +374,7 @@ Examples include:
 
 # Possible Implementation
 
-Identity will probably become one of the Core bounded contexts.
+People will probably become one of the Core bounded contexts.
 
 Candidate models include:
 
@@ -390,13 +390,13 @@ The implementation should preserve Rails conventions while expressing the domain
 
 # Initial Conclusions
 
-Identity is intentionally small.
+People is intentionally small.
 
 Its purpose is not to describe participation.
 
 Its purpose is to provide a stable foundation upon which participation can be modelled.
 
-As the workbook evolves, Identity should remain one of the least volatile areas of the domain.
+As the workbook evolves, People should remain one of the least volatile areas of the domain.
 
 ---
 

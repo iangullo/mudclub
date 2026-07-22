@@ -52,7 +52,7 @@ module Mudclub
 		config.paths["app/views"] << "app/views/core"
 		config.paths["app/views"] << "app/views/people"
 		config.paths["app/views"] << "app/views/organization"
-		config.paths["app/views"] << "app/views/activities"
+		config.paths["app/views"] << "app/views/calendar"
 		config.paths["app/views"] << "app/views/training"
 		config.paths["app/views"] << "app/views/participation"
 

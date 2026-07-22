@@ -32,7 +32,7 @@ Technology exists to support the domain rather than define it.
 
 MudClub is fundamentally a platform for modelling the participation of people within amateur sports organisations.
 
-Identity, relationships and activities are more important than isolated entities.
+People, relationships and activities are more important than isolated entities.
 
 Whenever uncertainty exists, architectural decisions should strengthen the representation of participation.
 

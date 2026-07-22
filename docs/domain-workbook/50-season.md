@@ -1,7 +1,7 @@
 # MudClub Domain Workbook
 ## 60. Sporting Period (Season)
 
-Version: 0.2
+Version: 0.3
 Status: Mature Draft
 
 ---
@@ -50,7 +50,7 @@ MudClub 2.0 seeks to associate Sporting Periods with each Sporting Programme, al
 
 ---
 
-# Sporting Period Identity
+# Sporting Period People
 
 Typical attributes include:
 

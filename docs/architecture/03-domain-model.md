@@ -97,9 +97,9 @@ The architecture should preserve this evolution rather than simply representing 
 
 ---
 
-# Identity and Participation
+# People and Participation
 
-Identity and participation are distinct concepts.
+People and participation are distinct concepts.
 
 A Person represents identity.
 
@@ -274,7 +274,7 @@ The domain model should continue evolving as additional modules are introduced.
 
 The MudClub domain is centred upon participation rather than isolated entities.
 
-Identity, organisational relationships, sporting activities and time together define how clubs operate.
+People, organisational relationships, sporting activities and time together define how clubs operate.
 
 Understanding these concepts and their relationships is essential for maintaining a coherent architecture as the platform grows.
 

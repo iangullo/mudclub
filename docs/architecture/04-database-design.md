@@ -244,7 +244,7 @@ Refactoring should prioritise conceptual improvements over structural reorganisa
 
 The MudClub database should faithfully represent the participation of people within amateur sports organisations.
 
-Identity, relationships and history are considered first-class concepts.
+People, relationships and history are considered first-class concepts.
 
 The persistence model exists to support the domain rather than define it.
 

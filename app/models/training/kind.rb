@@ -16,6 +16,10 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# TODO:
+# Legacy catalog used by Drill autocompletion.
+# Will eventually migrate to Training::Catalog::DrillKinds.
+#
 class Kind < ApplicationRecord
 	has_many :drills
 	before_save { self.name = self.name.mb_chars.titleize }

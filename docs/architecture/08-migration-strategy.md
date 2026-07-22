@@ -1,7 +1,7 @@
 # MudClub Architecture Handbook
 ## 08. Migration Strategy
 
-Version: 1.1
+Version: 1.2
 Status: Approved
 
 ---
@@ -19,16 +19,20 @@ MudClub 2.0 should emerge through a sequence of controlled refactorings that pre
 # Migration Principles
 The migration of modules will be broadly aligned with this dependency graph where any future additional modules use the services provided by these main modules.
 ```
-                    Core
-      (Identity + Accounts + Participation)
-                     │
-      ┌──────────────┼──────────────┐
-      ▼              ▼              ▼
-  Coaching      Competition     Scheduling
-      │              │              │
-      └──────────────┼──────────────┘
-                     ▼
-             Cross-cutting Services
+Core
+   │
+   ├───────────────┐
+   │               │
+People      Organization
+   │               │
+   └──────┬────────┘
+          │
+   Participation
+          │
+          │
+     Calendar
+      /     \
+Training  Competition
 ```
 
 ## Introduce before replacing
@@ -93,10 +97,10 @@ Objectives:
 - Review every Core model.
 - Classify models into bounded contexts.
 - Identify responsibilities to migrate.
-- Validate the Identity and Accounts domains.
+- Validate the People and Accounts domains.
 
 Deliverables:
-- Identity review
+- People review
 - Accounts review
 - Coaching profile review
 - Facility review

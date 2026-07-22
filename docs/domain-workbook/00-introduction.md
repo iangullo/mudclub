@@ -148,7 +148,7 @@ The workbook currently explores the Core domain of MudClub and its relationship 
 
 Current chapters include:
 
-- Identity
+- People
 - Registration
 - Membership
 - Assignment

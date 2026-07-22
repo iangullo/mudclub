@@ -1,7 +1,7 @@
 # MudClub Domain Workbook
 ## 40. Assignment
 
-Version: 1.0
+Version: 1.1
 Status: Approved
 
 ---
@@ -175,7 +175,7 @@ A Membership may accumulate many Assignments throughout its lifetime.
 # Relationships
 
 ```
-Identity
+People
 
 ↓
 
