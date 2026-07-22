@@ -1,0 +1,174 @@
+# config/locales/en/training.yml
+# Training domain: Team, Drill, Skill, Step, Target, Task, Stat, Plan
+en:
+  drill:
+    # Attributes
+    author: "Author"
+    default: "<New Drill>"
+    desc: "Description"
+    desc_a: "Descrip."
+    material: "Material"
+    name: "Name"
+    none: "No task selected"
+    single: "Drill"
+
+    # CRUD
+    created: "Created drill: "
+    deleted: "Deleted drill: "
+    updated: "Updated drill: "
+
+    # UI
+    edit: "Edit Drill"
+    many: "Drills"
+    new: "Create Drill"
+
+  kind:
+    # Attributes
+    default: "<type>"
+    single: "Type"
+
+  plan:
+    # Attributes
+    abbr: "Plan"
+    single: "Team-plan"
+
+    # UI
+    edit: "Edit Team-plan"
+    new: "Create Team-plan"
+
+  skill:
+    # Attributes
+    abbr: "Skill"
+    default: "<skill>"
+    single: "Skill"
+
+    # UI
+    many: "Skills"
+
+  stat:
+    # Attributes
+    average: "Average"
+    average_a: "Avg."
+    max: "Max."
+    min: "Min."
+    number_a: "Num."
+    single: "Stat"
+    total: "Total"
+    total_a: "Tot."
+
+    # CRUD
+    updated: "Updated stats"
+
+    # UI
+    many: "Stats"
+
+  step:
+    # Attributes
+    default: "<step>"
+    diagram: "Diagram"
+    explanation: "Explanation"
+    single: "Step"
+
+    # UI
+    edit: "Edit step"
+    edit_diagram: "Edit diagram"
+    load_diagram: "Load diagram"
+    many: "Steps"
+
+  target:
+    # Attributes
+    abbr: "Tgt."
+    completion: "Completion (%)"
+    default: "<target>"
+    single: "Target"
+    aspect:
+      gen: "General"
+      ind: "Individual"
+      ind_a: "Ind."
+      ind_l: "Individual Skill"
+      col: "Collective"
+      col_a: "Col."
+      col_l: "Collective Tactic"
+    focus:
+      att: "Offense"
+      att_a: "Off."
+      def: "Defense"
+      def_a: "Def."
+      fit: "Physical"
+
+    # UI
+    edit: "Edit Targets"
+    many: "Targets"
+
+  task:
+    # Attributes
+    duration: "Dur."
+    number: "#"
+    remarks: "Remarks"
+    single: "Task"
+
+    # CRUD
+    created: "Created task: "
+    deleted: "Deleted task: "
+    updated: "Updated task: "
+
+    # UI
+    add: "Add Task"
+    edit: "Edit Task"
+    many: "Tasks"
+
+  team:
+    # Attributes
+    home: "Homecourt:"
+    home_a: "Home"
+    name: "Name"
+    none: "No teams"
+    single: "Team"
+
+    # CRUD
+    created: "Created team: "
+    deleted: "Deleted team: "
+    updated: "Updated team: "
+
+    # UI
+    edit: "Edit Team"
+    many: "Teams"
+    new: "Create Team"
+    roster: "Roster"
+    roster_edit: "Edit Roster"
+    roster_opt: "Additional players"
+
+  train:
+    # Attributes
+    duration: "Dur."
+    single: "Session"
+    workload: "Workload"
+    workload_by: "Workload by"
+
+    # CRUD
+    att_check: "Checked attendance: "
+    created: "Created session: "
+    deleted: "Deleted session: "
+    updated: "Updated session: "
+
+    # UI
+    edit: "Edit session"
+    many: "Training sessions"
+    new: "Create session"
+
+  version:
+    # Attributes
+    author: "author"
+    changes: "Changes"
+    description: "description"
+    explanation: "explanation"
+    kind: "type"
+    material: "material"
+    name: "name"
+    single: "Version"
+    skills: "skills"
+    targets: "targets"
+    unknown: "Unknown"
+
+    # UI
+    many: "Versions"

@@ -1,0 +1,133 @@
+# config/locales/es/core.yml
+# Core domain: User, Location, Sport, Season, Role, Server, Password
+es:
+  location:
+    # Attributes
+    abbr: "Ubic."
+    default: "<nueva ubicación>"
+    gmaps: "Enlace Google Maps"
+    name: "Nombre"
+    none: "(sin ubicación)"
+    see: "(ver ubicación)"
+    train: "Pista de entrenamiento"
+    train_a: "Pista"
+
+    # CRUD
+    created: "Ubicación creada: "
+    deleted: "Ubicación eliminada: "
+    duplicate: "Ubicación duplicada: "
+    updated: "Ubicación actualizada: "
+
+    # UI
+    edit: "Editar Ubicación"
+    many: "Ubicaciones"
+    new: "Crear Ubicación"
+    single: "Ubicación"
+
+  password:
+    # Attributes
+    blank_abort: "(dejar en blanco para no cambiarla)"
+    confirm: "Confirmar Contraseña"
+    confirm_label: "(*) confirmar contraseña"
+    confirm_wait: "Esperando confirmación de: "
+    min_chars: "Longitud mínima: "
+    new: "Nueva contraseña"
+    old: "Contraseña actual"
+    single: "Contraseña"
+
+    # UI
+    change: "Cambiar contraseña"
+    forgotten: "¿Olvidaste tu contraseña?"
+    reset: "Enviar instrucciones para restablecer"
+
+  role:
+    # Roles
+    admin: "Administrador/a"
+    admin_a: "Adm."
+    coach: "Entrenador/a"
+    coach_a: "Entren."
+    manager: "Gerente"
+    manager_a: "Ger."
+    player: "Jugador/a"
+    player_a: "Jug."
+    secretary: "Secretario/a"
+    secretary_a: "Secr."
+    user: "Usuario/a"
+    user_a: "Us."
+
+  season:
+    # Attributes
+    abbr: "Temp."
+    locations: "Pistas de la temporada"
+
+    # CRUD
+    created: "Temporada creada: "
+    deleted: "Temporada eliminada: "
+    updated: "Temporada actualizada: "
+
+    # UI
+    edit: "Editar Temporada"
+    many: "Temporadas"
+    new: "Crear Temporada"
+    single: "Temporada"
+
+  server:
+    # Info
+    about: "Acerca de ..."
+    build: "Versión #"
+    info-1: "Aplicación web de código abierto para gestionar tu"
+    info-2: "club deportivo:"
+    info-3: "Temporadas: horarios, entrenadores/as y deportistas."
+    info-4: "Equipos: plantillas, objetivos, eventos, etc."
+    info-5: "Entrenamiento: planificación, ejercicios, sesiones."
+    info-6: "Partidos: convocatorias/estadísticas y resultados."
+    published: "Publicado bajo licencia GNU Affero GPLv3"
+    single: "Servidor"
+    website: "Wiki de MudClub"
+
+    # UI
+    log: "Registros"
+
+  sport:
+    # Attributes
+    abbr: "Deporte"
+    period:
+      duration: "Duración"
+      extra: "Extra"
+      many: "Períodos"
+      qty: "Cant."
+      regular: "Regular"
+      single: "Período"
+    rules: "Reglas"
+
+    # CRUD
+    created: "Deporte creado: "
+    deleted: "Deporte eliminado: "
+    updated: "Deporte actualizado: "
+
+    # UI
+    edit: "Editar deporte"
+    many: "Deportes"
+    new: "Crear deporte"
+    single: "Deporte"
+
+  user:
+    # Attributes
+    last_in: "Último acceso"
+    never: "(nunca conectado)"
+    no_email: "¡el correo electrónico es obligatorio!"
+    profile: "Perfil"
+    single: "Usuario/a"
+
+    # CRUD
+    cleared: "Acciones eliminadas: "
+    created: "Usuario/a creado/a: "
+    deleted: "Usuario/a eliminado/a: "
+    duplicate: "Duplicado: "
+    updated: "Usuario/a actualizado/a: "
+
+    # UI
+    actions: "Acciones"
+    edit: "Editar Usuario/a"
+    many: "Usuarios/as"
+    new: "Crear Usuario/a"

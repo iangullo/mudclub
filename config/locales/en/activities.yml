@@ -1,0 +1,87 @@
+# config/locales/en/activities.yml
+# Activities domain: Event, Slot, Match, Calendar
+en:
+  calendar:
+    # Attributes
+    date: "Date"
+    daynames:
+      [All, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
+    daynames_a: [All, Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+    end: "End"
+    label: "Calendar"
+    mins: "mins."
+    month: "Month"
+    monthnames:
+      [
+        All,
+        January,
+        February,
+        March,
+        April,
+        May,
+        June,
+        July,
+        August,
+        September,
+        October,
+        November,
+        December,
+      ]
+    monthnames_a:
+      [All, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+    start: "Start"
+    time: "Time"
+    week: "Week"
+    year: "Year"
+
+    # UI
+    attendance: "Attendance"
+
+  event:
+    # Attributes
+    single: "Event"
+
+    # UI
+    many: "Events"
+
+  match:
+    # Attributes
+    default_rival: "<Opponent>"
+    home: "Local"
+    lost: "L"
+    rival: "Opponent"
+    roster: "Active players"
+    single: "Match"
+    won: "W"
+
+    # CRUD
+    att_check: "Player list: "
+    created: "Created match: "
+    deleted: "Deleted match: "
+    updated: "Updated match: "
+
+    # UI
+    many: "Matches"
+
+  rest:
+    # CRUD
+    created: "Holiday created: "
+    deleted: "Holiday deleted: "
+    updated: "Holiday updated: "
+
+    # UI
+    single: "Holiday"
+
+  slot:
+    # Attributes
+    single: "Timeslot"
+
+    # CRUD
+    created: "Created timeslot: "
+    deleted: "Deleted timeslot: "
+    updated: "Updated timeslot: "
+
+    # UI
+    edit: "Edit Timeslot"
+    many: "Timetable"
+    new: "Create Timeslot"

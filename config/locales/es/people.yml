@@ -1,0 +1,57 @@
+# config/locales/es/people.yml
+# People domain: Person, Parent
+es:
+  parent:
+    # Attributes
+    single: "Madre/Padre"
+
+    # UI
+    many: "Madres/Padres"
+
+  person:
+    # Attributes
+    address: "Dirección"
+    age: "Edad"
+    bday: "Fecha de nacimiento"
+    bday_a: "F. Nac."
+    contact: "Contacto"
+    email: "correo electrónico"
+    id_back: "DNI reverso"
+    id_front: "DNI anverso"
+    name: "Nombre"
+    name_a: "Nombre"
+    nick: "Apodo"
+    phone: "Teléfono"
+    phone_a: "Telf."
+    pics: "Fotos"
+    pics_found: "Fotos disponibles"
+    pics_missing: "Fotos faltantes"
+    pid: "DNI #"
+    pid_a: "DNI"
+    single: "Persona"
+    surname: "Apellidos"
+    surname_a: "Apell."
+
+    # CRUD
+    created: "Persona creada: "
+    deleted: "Persona eliminada: "
+    duplicate: "Persona duplicada: "
+    updated: "Persona actualizada: "
+
+    # UI
+    edit: "Editar Persona"
+    export: "Personas exportadas"
+    import: "Personas importadas"
+    many: "Personas"
+    new: "Crear Persona"
+
+  sex:
+    # Attributes
+    abr: "Sexo"
+    female: "Femenino"
+    female_a: "Fem."
+    label: "Sexo"
+    male: "Masculino"
+    male_a: "Mas."
+    mixed: "Mixto"
+    mixed_a: "Mixto"

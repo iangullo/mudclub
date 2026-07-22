@@ -1,0 +1,109 @@
+# config/locales/es/shared.yml
+# Shared translations (actions, helpers, views, status, locale, color)
+es:
+  action:
+    # Actions
+    add: "Añadir"
+    add_nested: "Añadir nuevo/a"
+    admin: "Gestionar"
+    back: "Volver"
+    backup: "Copia de seguridad"
+    call: "Llamar"
+    cancel: "Cancelar"
+    change: "Cambiar"
+    chat: "Chatear en WhatsApp"
+    clear: "Limpiar"
+    close: "Cerrar"
+    configure: "Configurar"
+    copy: "Copiar"
+    create: "Crear"
+    delete: "Eliminar"
+    edit: "Editar"
+    email: "Enviar correo"
+    export: "Exportar"
+    filter: "Filtrar"
+    import: "Importar"
+    login: "Iniciar sesión"
+    logout: "Cerrar sesión"
+    next: ">>"
+    previous: "<<"
+    remember: "Recordar"
+    remove: "Quitar"
+    restore: "Restaurar"
+    return: "Volver"
+    save: "Guardar"
+    search: "Buscar"
+    select: "Seleccionar"
+
+  color:
+    # Colors
+    black: "Negro"
+    blue: "Azul"
+    green: "Verde"
+    orange: "Naranja"
+    purple: "Morado"
+    red: "Rojo"
+    single: "Color"
+
+    # UI
+    many: "Colores"
+
+  helpers:
+    page_entries_info:
+      one_page:
+        display_entries:
+          zero: "No se encontraron %{entry_name}"
+          one: "Mostrando <b>1</b> %{entry_name}"
+          other: "Mostrando <b>todas las %{count}</b> %{entry_name}"
+      more_pages:
+        display_entries: "Mostrando %{entry_name} <b>%{first}–%{last}</b> de <b>%{total}</b>"
+
+  locale:
+    # Locales
+    country: "País"
+    en: "Inglés"
+    es: "Español"
+    lang: "Idioma"
+
+  question:
+    # Questions
+    active: "¿Activo/a?"
+    camera: "¿Usar cámara?"
+    clear: "Limpiar acciones para "
+    delete: "Eliminar "
+    female: "¿Femenino?"
+    import: "¿Importar archivo?"
+    login: "¿Abrir sesión?"
+    save: "Guardar "
+    save_chng: "¿Guardar cambios?"
+
+  scope:
+    # Scopes
+    all: "Todos/as"
+    none: "Ninguno/a"
+
+  status:
+    # Statuses
+    active: "Activo/a"
+    active_a: "Act."
+    calculating: "Calculando"
+    closed: "Cerrado/a"
+    completed: "Completado/a"
+    empty: "Sin datos para mostrar"
+    good: "Buen progreso"
+    inactive: "Inactivo/a"
+    in_progress: "En progreso"
+    no_data: "Sin datos para guardar"
+    no_file: "Cargar archivo..."
+    not_started: "No iniciado/a"
+    processing: "Procesando..."
+    saved: "guardado/a."
+    starting: "Iniciando"
+
+  views:
+    pagination:
+      first: "&laquo;"
+      last: "&raquo;"
+      next: "&rsaquo;"
+      previous: "&lsaquo;"
+      truncate: "&hellip;"

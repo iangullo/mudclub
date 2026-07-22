@@ -1,0 +1,133 @@
+# config/locales/en/core.yml
+# Core domain: User, Location, Sport, Season, Role, Server, Password
+en:
+  location:
+    # Attributes
+    abbr: "Loc."
+    default: "<new location.>"
+    gmaps: "Google Maps link"
+    name: "Name"
+    none: "(no location)"
+    see: "(see location)"
+    train: "Training Court"
+    train_a: "T.Court."
+
+    # CRUD
+    created: "Created location: "
+    deleted: "Deleted location: "
+    duplicate: "Duplicate Location: "
+    updated: "Updated location: "
+
+    # UI
+    edit: "Edit Location"
+    many: "Locations"
+    new: "Create Location"
+    single: "Location"
+
+  password:
+    # Attributes
+    blank_abort: "(leave blank to avoid changing it)"
+    confirm: "Confirm Password"
+    confirm_label: "(*) confirm password"
+    confirm_wait: "Awaiting confirmation from: "
+    min_chars: "Minimum length: "
+    new: "New password"
+    old: "Current password"
+    single: "Password"
+
+    # UI
+    change: "Change password"
+    forgotten: "Forgot your password?"
+    reset: "Send password reset details"
+
+  role:
+    # Roles
+    admin: "Admin"
+    admin_a: "Adm."
+    coach: "Coach"
+    coach_a: "Coach"
+    manager: "Manager"
+    manager_a: "Mngr."
+    player: "Player"
+    player_a: "Play."
+    secretary: "Secretary"
+    secretary_a: "Sec."
+    user: "User"
+    user_a: "User"
+
+  season:
+    # Attributes
+    abbr: "Seas."
+    locations: "Season Courts"
+
+    # CRUD
+    created: "Created season: "
+    deleted: "Deleted season: "
+    updated: "Updated season: "
+
+    # UI
+    edit: "Edit Season"
+    many: "Seasons"
+    new: "Create Season"
+    single: "Season"
+
+  server:
+    # Info
+    about: "About ..."
+    build: "Build #"
+    info-1: "Open-source web application to manage your"
+    info-2: "sports club:"
+    info-3: "Seasons: timeslots, coaches & athletes."
+    info-4: "Teams: rosters, targets, events, etc."
+    info-5: "Training: planning, drills, plays, sessions."
+    info-6: "Matches: outings/stats & results."
+    published: "Published under GNU Affero GPLv3 license"
+    single: "Server"
+    website: "MudClub wiki"
+
+    # UI
+    log: "Logs"
+
+  sport:
+    # Attributes
+    abbr: "Sport"
+    period:
+      duration: "Dur."
+      extra: "Extra"
+      many: "Periods"
+      qty: "Q."
+      regular: "Regular"
+      single: "Period"
+    rules: "Rules"
+
+    # CRUD
+    created: "Created sport: "
+    deleted: "Deleted sport: "
+    updated: "Updated sport: "
+
+    # UI
+    edit: "Edit sport"
+    many: "Sports"
+    new: "Create sport"
+    single: "Sport"
+
+  user:
+    # Attributes
+    last_in: "Last login"
+    never: "(never logged)"
+    no_email: "e-mail is required!"
+    profile: "Profile"
+    single: "User"
+
+    # CRUD
+    cleared: "Actions cleared: "
+    created: "Created user: "
+    deleted: "Deleted user: "
+    duplicate: "Duplicate: "
+    updated: "Updated user: "
+
+    # UI
+    actions: "Actions"
+    edit: "Edit User"
+    many: "Users"
+    new: "Create User"

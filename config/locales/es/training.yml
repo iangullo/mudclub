@@ -1,0 +1,174 @@
+# config/locales/es/training.yml
+# Training domain: Team, Drill, Skill, Step, Target, Task, Stat, Plan
+es:
+  drill:
+    # Attributes
+    author: "Autor/a"
+    default: "<Nuevo Ejercicio>"
+    desc: "Descripción"
+    desc_a: "Descr."
+    material: "Material"
+    name: "Nombre"
+    none: "Ninguna tarea seleccionada"
+    single: "Ejercicio"
+
+    # CRUD
+    created: "Ejercicio creado: "
+    deleted: "Ejercicio eliminado: "
+    updated: "Ejercicio actualizado: "
+
+    # UI
+    edit: "Editar Ejercicio"
+    many: "Ejercicios"
+    new: "Crear Ejercicio"
+
+  kind:
+    # Attributes
+    default: "<tipo>"
+    single: "Tipo"
+
+  plan:
+    # Attributes
+    abbr: "Plan"
+    single: "Plan de equipo"
+
+    # UI
+    edit: "Editar Plan de equipo"
+    new: "Crear Plan de equipo"
+
+  skill:
+    # Attributes
+    abbr: "Habilidad"
+    default: "<habilidad>"
+    single: "Habilidad"
+
+    # UI
+    many: "Habilidades"
+
+  stat:
+    # Attributes
+    average: "Promedio"
+    average_a: "Prom."
+    max: "Máx."
+    min: "Mín."
+    number_a: "Núm."
+    single: "Estadística"
+    total: "Total"
+    total_a: "Tot."
+
+    # CRUD
+    updated: "Estadísticas actualizadas"
+
+    # UI
+    many: "Estadísticas"
+
+  step:
+    # Attributes
+    default: "<paso>"
+    diagram: "Diagrama"
+    explanation: "Explicación"
+    single: "Paso"
+
+    # UI
+    edit: "Editar paso"
+    edit_diagram: "Editar diagrama"
+    load_diagram: "Cargar diagrama"
+    many: "Pasos"
+
+  target:
+    # Attributes
+    abbr: "Obj."
+    completion: "Completado (%)"
+    default: "<objetivo>"
+    single: "Objetivo"
+    aspect:
+      gen: "General"
+      ind: "Individual"
+      ind_a: "Ind."
+      ind_l: "Habilidad Individual"
+      col: "Colectivo"
+      col_a: "Col."
+      col_l: "Táctica Colectiva"
+    focus:
+      att: "Ataque"
+      att_a: "At."
+      def: "Defensa"
+      def_a: "Def."
+      fit: "Físico"
+
+    # UI
+    edit: "Editar Objetivos"
+    many: "Objetivos"
+
+  task:
+    # Attributes
+    duration: "Dur."
+    number: "#"
+    remarks: "Observaciones"
+    single: "Tarea"
+
+    # CRUD
+    created: "Tarea creada: "
+    deleted: "Tarea eliminada: "
+    updated: "Tarea actualizada: "
+
+    # UI
+    add: "Añadir Tarea"
+    edit: "Editar Tarea"
+    many: "Tareas"
+
+  team:
+    # Attributes
+    home: "Pista local:"
+    home_a: "Local"
+    name: "Nombre"
+    none: "Sin equipos"
+    single: "Equipo"
+
+    # CRUD
+    created: "Equipo creado: "
+    deleted: "Equipo eliminado: "
+    updated: "Equipo actualizado: "
+
+    # UI
+    edit: "Editar Equipo"
+    many: "Equipos"
+    new: "Crear Equipo"
+    roster: "Plantilla"
+    roster_edit: "Editar Plantilla"
+    roster_opt: "Jugadores/as adicionales"
+
+  train:
+    # Attributes
+    duration: "Dur."
+    single: "Sesión"
+    workload: "Carga de trabajo"
+    workload_by: "Carga por"
+
+    # CRUD
+    att_check: "Asistencia verificada: "
+    created: "Sesión creada: "
+    deleted: "Sesión eliminada: "
+    updated: "Sesión actualizada: "
+
+    # UI
+    edit: "Editar sesión"
+    many: "Sesiones de entrenamiento"
+    new: "Crear sesión"
+
+  version:
+    # Attributes
+    author: "autor/a"
+    changes: "Cambios"
+    description: "descripción"
+    explanation: "explicación"
+    kind: "tipo"
+    material: "material"
+    name: "nombre"
+    single: "Versión"
+    skills: "habilidades"
+    targets: "objetivos"
+    unknown: "Desconocido"
+
+    # UI
+    many: "Versiones"

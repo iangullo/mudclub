@@ -1,0 +1,86 @@
+# config/locales/es/activities.yml
+# Activities domain: Event, Slot, Match, Calendar
+es:
+  calendar:
+    # Attributes
+    date: "Fecha"
+    daynames: [Todo, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
+    daynames_a: [Todo, Lun, Mar, Mié, Jue, Vie, Sáb, Dom]
+    end: "Fin"
+    label: "Calendario"
+    mins: "min."
+    month: "Mes"
+    monthnames:
+      [
+        Todo,
+        Enero,
+        Febrero,
+        Marzo,
+        Abril,
+        Mayo,
+        Junio,
+        Julio,
+        Agosto,
+        Septiembre,
+        Octubre,
+        Noviembre,
+        Diciembre,
+      ]
+    monthnames_a:
+      [Todo, Ene, Feb, Mar, Abr, May, Jun, Jul, Ago, Sep, Oct, Nov, Dic]
+    start: "Inicio"
+    time: "Hora"
+    week: "Semana"
+    year: "Año"
+
+    # UI
+    attendance: "Asistencia"
+
+  event:
+    # Attributes
+    single: "Evento"
+
+    # UI
+    many: "Eventos"
+
+  match:
+    # Attributes
+    default_rival: "<Rival>"
+    home: "Local"
+    lost: "D"
+    rival: "Rival"
+    roster: "Jugadores/as activos/as"
+    single: "Partido"
+    won: "G"
+
+    # CRUD
+    att_check: "Lista de jugadores/as: "
+    created: "Partido creado: "
+    deleted: "Partido eliminado: "
+    updated: "Partido actualizado: "
+
+    # UI
+    many: "Partidos"
+
+  rest:
+    # CRUD
+    created: "Descanso creado: "
+    deleted: "Descanso eliminado: "
+    updated: "Descanso actualizado: "
+
+    # UI
+    single: "Descanso"
+
+  slot:
+    # Attributes
+    single: "Horario"
+
+    # CRUD
+    created: "Horario creado: "
+    deleted: "Horario eliminado: "
+    updated: "Horario actualizado: "
+
+    # UI
+    edit: "Editar Horario"
+    many: "Horarios"
+    new: "Crear Horario"

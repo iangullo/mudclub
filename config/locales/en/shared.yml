@@ -1,0 +1,109 @@
+# config/locales/en/shared.yml
+# Shared translations (actions, helpers, views, status, locale, color)
+en:
+  action:
+    # Actions
+    add: "Add"
+    add_nested: "Add new"
+    admin: "Manage"
+    back: "Return"
+    backup: "Backup"
+    call: "Call"
+    cancel: "Cancel"
+    change: "Change"
+    chat: "Chat in WhatsApp"
+    clear: "Clear"
+    close: "Close"
+    configure: "Configure"
+    copy: "Copy"
+    create: "Create"
+    delete: "Delete"
+    edit: "Edit"
+    email: "Send e-mail"
+    export: "Export"
+    filter: "Filter"
+    import: "Import"
+    login: "Log-in"
+    logout: "Log-out"
+    next: ">>"
+    previous: "<<"
+    remember: "Remember"
+    remove: "Remove"
+    restore: "Restore"
+    return: "Return"
+    save: "Save"
+    search: "Search"
+    select: "Select"
+
+  color:
+    # Colors
+    black: "Black"
+    blue: "Blue"
+    green: "Green"
+    orange: "Orange"
+    purple: "Purple"
+    red: "Red"
+    single: "Colour"
+
+    # UI
+    many: "Colours"
+
+  helpers:
+    page_entries_info:
+      one_page:
+        display_entries:
+          zero: "No %{entry_name} found"
+          one: "Displaying <b>1</b> %{entry_name}"
+          other: "Displaying <b>all %{count}</b> %{entry_name}"
+      more_pages:
+        display_entries: "Displaying %{entry_name} <b>%{first}–%{last}</b> of <b>%{total}</b>"
+
+  locale:
+    # Locales
+    country: "Country"
+    en: "English"
+    es: "Spanish"
+    lang: "Language"
+
+  question:
+    # Questions
+    active: "Active?"
+    camera: "Use Camera?"
+    clear: "Clear actions for "
+    delete: "Delete "
+    female: "Female?"
+    import: "Import file?"
+    login: "Open session?"
+    save: "Save "
+    save_chng: "Save Changes?"
+
+  scope:
+    # Scopes
+    all: "All"
+    none: "None"
+
+  status:
+    # Statuses
+    active: "Active"
+    active_a: "Act."
+    calculating: "Calculating"
+    closed: "Closed"
+    completed: "Completed"
+    empty: "No data to show"
+    good: "Good progress"
+    inactive: "Inactive"
+    in_progress: "In progress"
+    no_data: "No data to save"
+    no_file: "Load file..."
+    not_started: "Not started"
+    processing: "Processing..."
+    saved: "saved."
+    starting: "Starting"
+
+  views:
+    pagination:
+      first: "&laquo;"
+      last: "&raquo;"
+      next: "&rsaquo;"
+      previous: "&lsaquo;"
+      truncate: "&hellip;"

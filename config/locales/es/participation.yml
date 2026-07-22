@@ -1,0 +1,42 @@
+# config/locales/es/participation.yml
+# Participation domain: Coach, Player
+es:
+  coach:
+    # Attributes
+    abbr: "Entren."
+    single: "Entrenador/a"
+
+    # CRUD
+    created: "Entrenador/a creado/a: "
+    deleted: "Entrenador/a eliminado/a: "
+    duplicate: "Entrenador/a duplicado/a: "
+    updated: "Entrenador/a actualizado/a: "
+
+    # UI
+    edit: "Editar Entrenador/a"
+    export: "Entrenadores/as exportados/as"
+    import: "Entrenadores/as importados/as"
+    many: "Entrenadores/as"
+    new: "Crear Entrenador/a"
+
+  player:
+    # Attributes
+    abbr: "Jug."
+    number: "#"
+    playing: "Jugando"
+    single: "Jugador/a"
+
+    # CRUD
+    created: "Jugador/a creado/a: "
+    deactivated: "Jugador/a inactivo/a: "
+    deleted: "Jugador/a eliminado/a: "
+    duplicate: "Jugador/a duplicado/a: "
+    removed: "Jugador/a eliminado/a: "
+    updated: "Jugador/a actualizado/a: "
+
+    # UI
+    edit: "Editar Jugador/a"
+    export: "Jugadores/as exportados/as"
+    import: "Jugadores/as importados/as"
+    many: "Jugadores/as"
+    new: "Crear Jugador/a"

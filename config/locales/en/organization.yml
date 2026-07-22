@@ -1,0 +1,54 @@
+# config/locales/en/organization.yml
+# Organization domain: Club, Category, Division
+en:
+  category:
+    # Attributes
+    name: "Name"
+    single: "Category"
+
+    # CRUD
+    created: "Created category: "
+    deleted: "Deleted category: "
+    updated: "Updated category: "
+
+    # UI
+    edit: "Edit Category"
+    many: "Categories"
+    new: "Create Category"
+
+  club:
+    # Attributes
+    entity: "Legal entity"
+    logo: "Logo"
+    name: "Name"
+    none: "No club"
+    single: "Club"
+    website: "Website"
+
+    # CRUD
+    created: "Created club: "
+    deleted: "Deleted club: "
+    duplicate: "Duplicate club: "
+    updated: "Updated club: "
+
+    # UI
+    edit: "Edit Club"
+    many: "Clubs"
+    new: "Edit Club"
+    rivals: "Rival Clubs"
+
+  division:
+    # Attributes
+    abbr: "Comp."
+    name: "Name"
+    single: "Competition"
+
+    # CRUD
+    created: "Created competition: "
+    deleted: "Deleted competition: "
+    updated: "Updated competition: "
+
+    # UI
+    edit: "Edit Competition"
+    many: "Competitions"
+    new: "Create Competition"

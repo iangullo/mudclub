@@ -1,0 +1,42 @@
+# config/locales/en/participation.yml
+# Participation domain: Coach, Player
+en:
+  coach:
+    # Attributes
+    abbr: "Coach"
+    single: "Coach"
+
+    # CRUD
+    created: "Created coach: "
+    deleted: "Deleted coach: "
+    duplicate: "Duplicate coach: "
+    updated: "Updated coach: "
+
+    # UI
+    edit: "Edit Coach"
+    export: "Exported coaches"
+    import: "Imported coaches"
+    many: "Coaches"
+    new: "Create Coach"
+
+  player:
+    # Attributes
+    abbr: "Play."
+    number: "#"
+    playing: "Playing"
+    single: "Player"
+
+    # CRUD
+    created: "Created player: "
+    deactivated: "Inactive player: "
+    deleted: "Deleted player: "
+    duplicate: "Duplicate player: "
+    removed: "Removed player: "
+    updated: "Updated player: "
+
+    # UI
+    edit: "Edit Player"
+    export: "Exported players"
+    import: "Imported players"
+    many: "Players"
+    new: "Create Player"

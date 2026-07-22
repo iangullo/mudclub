@@ -1,10 +1,14 @@
 # config/initializers/locale.rb
 
 # Where the I18n library should search for translation files
-I18n.load_path += Dir[Rails.root.join('lib', 'locale', '*.{rb,yml}')]
+I18n.load_path += Dir[
+	Rails.root.join("lib", "locale", "*.{rb,yml}"),
+	Rails.root.join("config/locales/**/*.{rb,yml}"),
+	Rails.root.join("app/sports/**/*.yml")
+]
 
 # Permitted locales available for the application
-I18n.available_locales = [:es, :en]
+I18n.available_locales = [ :es, :en ]
 
 # Set default locale to something other than :en
 I18n.default_locale = :es

@@ -40,6 +40,8 @@ module Mudclub
 		# Add all subdirectories of app/models to the load path
 		config.autoload_paths += Dir[Rails.root.join("app/models/*")]
 		config.eager_load_paths += Dir[Rails.root.join("app/models/*")]
+		config.autoload_paths += Dir[Rails.root.join("app/sports/*")]
+		config.eager_load_paths += Dir[Rails.root.join("app/sports/*")]
 
 		# Add controllers subdirectories too
 		config.autoload_paths += Dir[Rails.root.join("app/controllers/*")]
