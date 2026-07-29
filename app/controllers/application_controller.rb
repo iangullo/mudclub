@@ -43,7 +43,7 @@ class ApplicationController < ActionController::Base
 
 	# return whether the current user is a club_manager
 	def club_manager?(club = Club.find(@clubid))
-		check_access(roles: [ :manager ], obj: club, both: true)
+		check_access(roles: [ :admin, :manager ], obj: club, both: true)
 	end
 
 	# return a ButtonComponent object from a definition hash
@@ -273,19 +273,17 @@ class ApplicationController < ActionController::Base
 			roles&.each do |rol|	# ok as if any of roles is found
 				case rol
 				when :admin
-					u_admin?
+					return true if u_admin?
 				when :manager
-					u_manager?
+					return true if u_manager?
 				when :coach
-					u_coach?
-				when :player
-					u_player?
+					return true if u_coach?
+				when :player, u_athlete?
+					return true if u_athlete?
 				when :secretary
-					u_secretary?
+					return true if u_secretary?
 				when :user
-					user_signed_in?  # it's a user alright
-				else
-					return false
+					return true if user_signed_in?  # it's a user alright
 				end
 			end
 			false
