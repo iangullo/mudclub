@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Person < ApplicationRecord
+	localized_as "people.person"
+
 	include PersonDataManagement
 	include PgSearch::Model
 	before_destroy :unlink

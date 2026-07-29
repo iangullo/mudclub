@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Catalog::Scopes < Catalog::Base
+	domain "core"
+
 	CATALOG = {
 
 		none: {

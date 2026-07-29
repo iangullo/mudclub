@@ -1,0 +1,241 @@
+# config/locales/organization/es.yml
+# Dominio de organización
+#
+# Clubes y su estructura organizativa.
+#
+# Incluye clubes, categorías de competición, divisiones,
+# relaciones club-deporte y catálogos organizativos.
+es:
+  organization:
+    label:
+      single: Organización
+      plural: Organizaciones
+
+    short:
+      single: Org.
+      plural: Orgs.
+
+    club:
+      label:
+        single: Club
+        plural: Clubes
+
+      short:
+        single: Club
+        plural: Clubes
+
+      fields:
+        name:
+          label: Nombre
+
+        entity:
+          label: Entidad legal
+          short: Ent.
+
+        logo:
+          label: Logotipo
+          short: Logo
+
+        website:
+          label: Sitio web
+          short: Web
+
+      messages:
+        created: Club creado.
+        updated: Club actualizado.
+        deleted: Club eliminado.
+        duplicated: El club ya existe.
+
+    category:
+      label:
+        single: Categoría
+        plural: Categorías
+
+      short:
+        single: Cat.
+        plural: Cats.
+
+      fields:
+        age_group:
+          label: Grupo de edad
+          short: Edades
+
+        sex:
+          label: Sexo
+          short: Sexo
+
+        min_years:
+          label: Edad mínima
+          short: Edad mín.
+
+        max_years:
+          label: Edad máxima
+          short: Edad máx.
+
+        rules:
+          label: Reglas
+          short: Reglas
+
+        sport:
+          label: Deporte
+          short: Deporte
+
+      messages:
+        created: Categoría creada.
+        updated: Categoría actualizada.
+        deleted: Categoría eliminada.
+        duplicated: La categoría ya existe.
+
+    division:
+      label:
+        single: División
+        plural: Divisiones
+
+      short:
+        single: Div.
+        plural: Divs.
+
+      fields:
+        name:
+          label: Nombre
+
+        sport:
+          label: Deporte
+
+      messages:
+        created: División creada.
+        updated: División actualizada.
+        deleted: División eliminada.
+        duplicated: La división ya existe.
+
+    entities:
+      label:
+        single: Entidad legal
+        plural: Entidades legales
+
+      short:
+        single: Entidad
+        plural: Entidades
+
+      values:
+        club:
+          label: Club deportivo
+          plural: Clubes deportivos
+
+        federation:
+          label: Federación
+          plural: Federaciones
+
+        municipality:
+          label: Municipio
+          plural: Municipios
+
+        school:
+          label: Escuela
+          plural: Escuelas
+
+        company:
+          label: Empresa
+          plural: Empresas
+
+        association:
+          label: Asociación
+          plural: Asociaciones
+
+        other:
+          label: Otro
+          plural: Otros
+
+    club_location:
+      label:
+        single: Ubicación del club
+        plural: Ubicaciones de clubes
+
+      fields:
+        club:
+          label: Club
+          short: Club
+
+        location:
+          label: Ubicación
+          short: Ubic.
+
+    club_sport:
+      label:
+        single: Deporte del club
+        plural: Deportes del club
+
+      fields:
+        club:
+          label: Club
+          short: Club
+
+        sport:
+          label: Deporte
+          short: Deporte
+
+  # -----------------------------------------------------------------------------
+  # OBSOLETO
+  #
+  # Claves de compatibilidad preservadas durante la migración de locales v2.
+  #
+  # Buscar:
+  #
+  #   t("action.
+  #   t("status.
+  #   t("question.
+  #   ...
+  #
+  # Eliminar esta sección una vez que no queden referencias.
+  # -----------------------------------------------------------------------------
+  category:
+    # Atributos
+    name: "Nombre"
+    single: "Categoría"
+
+    # CRUD
+    created: "Categoría creada: "
+    deleted: "Categoría eliminada: "
+    updated: "Categoría actualizada: "
+
+    # UI
+    edit: "Editar Categoría"
+    many: "Categorías"
+    new: "Crear Categoría"
+
+  club:
+    # Atributos
+    entity: "Entidad legal"
+    logo: "Logotipo"
+    name: "Nombre"
+    none: "Ningún club"
+    single: "Club"
+    website: "Sitio web"
+
+    # CRUD
+    created: "Club creado: "
+    deleted: "Club eliminado: "
+    duplicate: "Duplicar club: "
+    updated: "Club actualizado: "
+
+    # UI
+    edit: "Editar Club"
+    many: "Clubes"
+    new: "Editar Club"
+    rivals: "Clubes rivales"
+
+  division:
+    # Atributos
+    abbr: "Comp."
+    name: "Nombre"
+    single: "Competición"
+
+    # CRUD
+    created: "Competición creada: "
+    deleted: "Competición eliminada: "
+    updated: "Competición actualizada: "
+
+    # UI
+    edit: "Editar Competición"
+    many: "Competiciones"
+    new: "Crear Competición"

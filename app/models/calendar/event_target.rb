@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class EventTarget < ApplicationRecord
+	localized_as "training.target"
+
 	belongs_to :event
 	belongs_to :target
 	accepts_nested_attributes_for :target, reject_if: :all_blank

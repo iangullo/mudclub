@@ -78,18 +78,18 @@ class DiagramComponent < ApplicationComponent
 	def action_button(btn)
 		cls = "m-1 rounded hover:bg-"
 		if btn[:object] == "delete"
-			title = I18n.t("action.remove")
+			title = I18n.t("shared.action.values.remove.label.single")
 			symbol = { concept: "delete", options: { type: :button } }
 			bcls = "#{cls}red-100"
 			data = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
 		elsif btn[:object] == "color"
-			title = I18n.t("color.many")
+			title = I18n.t("shared.color.label.many")
 			symbol = { concept: "color", options: { type: :button } }
 			bcls = "#{cls}gray-100"
 			data = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
 		else
 			symbol_id = [ @sport, "object", btn[:object], "default" ].join(".")
-			title = I18n.t("sport.#{@sport}.objects.#{btn[:object]}")
+			title = I18n.t("sport.#{@sport}.objects.values.#{btn[:object]}.label")
 			options = { namespace: @sport, type: :object }
 			options.merge!(btn[:options]) if btn[:options]
 			symbol = { concept: btn[:object], options: }
@@ -106,7 +106,7 @@ class DiagramComponent < ApplicationComponent
 									class: "hidden absolute bg-white border border-gray-300 rounded shadow-lg z-50 p-2",
 									data: { diagram_editor_target: "colorMenu" }) do
 			safe_join([
-				content_tag(:div, I18n.t("color.many"), class: "font-bold mb-2"),
+				content_tag(:div, I18n.t("shared.color.label.many"), class: "font-bold mb-2"),
 				content_tag(:div, class: "color-palette grid grid-cols-4 gap-1") do
 					safe_join([
 						color_option("#000000", "black"),
@@ -126,7 +126,7 @@ class DiagramComponent < ApplicationComponent
 								"",
 								class: "w-6 h-6 rounded border border-gray-300",
 								style: "background-color: #{color_code}",
-								title: I18n.t("color.#{color_name}"),
+								title: I18n.t("shared.color.values.#{color_name}.label.single"),
 								data: {
 									action: "click->diagram-editor#applyColor",
 									color: color_code

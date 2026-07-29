@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Event < ApplicationRecord
+	localized_as "calendar.event"
+
 	after_initialize :set_changed_flag
 	before_destroy :unlink
 	attr_accessor :event_changed

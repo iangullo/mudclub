@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class UserAction < ApplicationRecord
+	localized_as "core.user_action"
+
 	belongs_to :user
 	scope :logs, -> { order(updated_at: :desc) }
 	scope :by_user, ->(user_id) { (user_id and user_id.to_i>0) ? where(user_ud: useer_id.to_i) : where("user_id>0").order(updated_at: :desc) }

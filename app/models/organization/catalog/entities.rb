@@ -22,6 +22,8 @@
 # Defines the canonical entities recognised by MudClub.
 #
 class Catalog::Entities < Catalog::Base
+	domain "organization"
+
 	CATALOG = {
 
 		club: {
@@ -31,79 +33,6 @@ class Catalog::Entities < Catalog::Base
 			lifecycle: :immutable,
 			description:
 				"Sports organisation managed by MudClub."
-		},
-
-		person: {
-			id: 20,
-			namespace: :core,
-			scope: :club,
-			lifecycle: :anonymisable,
-			description:
-				"Individual registered within a club."
-		},
-
-		user: {
-			id: 30,
-			namespace: :core,
-			scope: :global,
-			lifecycle: :archivable,
-			description:
-				"Authentication account used to access MudClub."
-		},
-
-		role: {
-			id: 40,
-			namespace: :core,
-			scope: :club,
-			lifecycle: :archivable,
-			description:
-				"Operational responsibility defined by a club."
-		},
-
-		sport: {
-			id: 50,
-			namespace: :core,
-			scope: :club,
-			lifecycle: :immutable,
-			description:
-				"Sport practised by a club."
-		},
-
-		season: {
-			id: 60,
-			namespace: :core,
-			scope: :club,
-			lifecycle: :archivable,
-			description:
-				"Time period grouping sporting activities."
-		},
-
-		team: {
-			id: 70,
-			namespace: :competition,
-			scope: :club,
-			lifecycle: :archivable,
-			description:
-				"Sporting team participating in activities or competitions."
-		},
-
-		membership: {
-			id: 80,
-			namespace: :participation,
-			scope: :club,
-			lifecycle: :archivable,
-			description:
-				"Relationship between a person and a club."
-		},
-
-		assignment: {
-			id: 90,
-			namespace: :participation,
-			scope: :team,
-			lifecycle: :archivable,
-			description:
-				"Operational responsibility exercised by a member."
 		}
-
 	}.freeze
 end

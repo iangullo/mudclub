@@ -1,0 +1,418 @@
+# config/locales/calendar/es.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Dominio de calendario
+#
+# Traducciones canónicas para el dominio de calendario.
+#
+# El calendario proporciona servicios de planificación compartidos por el resto
+# de la aplicación. Los dominios (Entrenamiento, Competición, Comunicación, ...)
+# planifican sus propias actividades a través de eventos de calendario.
+#
+# Las claves de compatibilidad heredadas se conservan al final de este archivo
+# durante la migración a la versión v2 y no deben utilizarse en código nuevo.
+# -----------------------------------------------------------------------------
+
+es:
+  calendar:
+    label:
+      single: Calendario
+      plural: Calendarios
+
+    short:
+      single: Cal.
+      plural: Cals.
+
+    fields:
+      date:
+        label: Fecha
+        short: Fecha
+
+      time:
+        label: Hora
+        short: Hora
+
+      week:
+        label: Semana
+        short: Sem.
+
+      month:
+        label: Mes
+        short: Mes
+
+      year:
+        label: Año
+        short: Año
+
+    months:
+      label:
+        single: Mes
+        plural: Meses
+
+      short:
+        single: Mes
+        plural: Meses
+
+      values:
+        january:
+          label: Enero
+          short: Ene
+
+        february:
+          label: Febrero
+          short: Feb
+
+        march:
+          label: Marzo
+          short: Mar
+
+        april:
+          label: Abril
+          short: Abr
+
+        may:
+          label: Mayo
+          short: May
+
+        june:
+          label: Junio
+          short: Jun
+
+        july:
+          label: Julio
+          short: Jul
+
+        august:
+          label: Agosto
+          short: Ago
+
+        september:
+          label: Septiembre
+          short: Sep
+
+        october:
+          label: Octubre
+          short: Oct
+
+        november:
+          label: Noviembre
+          short: Nov
+
+        december:
+          label: Diciembre
+          short: Dic
+
+    weekdays:
+      label:
+        single: Día de la semana
+        plural: Días de la semana
+
+      short:
+        single: Día
+        plural: Días
+
+      values:
+        monday:
+          label: Lunes
+          short: Lun
+
+        tuesday:
+          label: Martes
+          short: Mar
+
+        wednesday:
+          label: Miércoles
+          short: Mié
+
+        thursday:
+          label: Jueves
+          short: Jue
+
+        friday:
+          label: Viernes
+          short: Vie
+
+        saturday:
+          label: Sábado
+          short: Sáb
+
+        sunday:
+          label: Domingo
+          short: Dom
+
+    event_kinds:
+      label:
+        single: Tipo de evento
+        plural: Tipos de evento
+
+      short:
+        single: Tipo
+        plural: Tipos
+
+      values:
+        holiday:
+          label: Festivo
+          short: Fest.
+
+        training:
+          label: Entrenamiento
+          short: Entr.
+
+        competition:
+          label: Competición
+          short: Comp.
+
+        match:
+          label: Partido
+          short: Part.
+
+        meeting:
+          label: Reunión
+          short: Reu.
+
+        social:
+          label: Evento social
+          short: Soc.
+
+        other:
+          label: Otro
+          short: Otro
+
+    attendance_statuses:
+      label:
+        single: Estado de asistencia
+        plural: Estados de asistencia
+
+      short:
+        single: Estado
+        plural: Estados
+
+      values:
+        present:
+          label: Presente
+
+        absent:
+          label: Ausente
+
+        excused:
+          label: Justificado
+
+        late:
+          label: Retraso
+
+        unknown:
+          label: Desconocido
+
+    recurrence_kinds:
+      label:
+        single: Recurrencia
+        plural: Recurrencias
+        short: Rec.
+
+      values:
+        none:
+          label: Ninguna
+        daily:
+          label: Diaria
+        weekly:
+          label: Semanal
+        monthly:
+          label: Mensual
+        yearly:
+          label: Anual
+
+    slot:
+      label:
+        single: Franja horaria
+        plural: Franjas horarias
+
+      short:
+        single: Franja
+        plural: Franjas
+
+      fields:
+        starts_on:
+          label: Comienza
+          short: Inicio
+
+        ends_on:
+          label: Finaliza
+          short: Fin
+
+        duration:
+          label: Duración
+          short: Dur.
+
+      messages:
+        created: Franja horaria creada.
+
+        updated: Franja horaria actualizada.
+
+        deleted: Franja horaria eliminada.
+
+    event:
+      label:
+        single: Evento
+        plural: Eventos
+
+      short:
+        single: Evento
+        plural: Eventos
+
+      fields:
+        title:
+          label: Título
+
+        description:
+          label: Descripción
+
+        starts_on:
+          label: Comienza
+
+        ends_on:
+          label: Finaliza
+
+        slot:
+          label: Franja horaria
+
+        kind:
+          label: Tipo de evento
+
+        metadata:
+          label: Metadatos
+
+      messages:
+        created: Evento creado.
+
+        updated: Evento actualizado.
+
+        deleted: Evento eliminado.
+
+    attendance:
+      label:
+        single: Asistencia
+        plural: Asistencias
+
+      short:
+        single: Asist.
+        plural: Asists.
+
+      fields:
+        person:
+          label: Persona
+
+        event:
+          label: Evento
+
+        status:
+          label: Estado
+
+        notes:
+          label: Notas
+
+      messages:
+        created: Asistencia registrada.
+
+        updated: Asistencia actualizada.
+
+        deleted: Asistencia eliminada.
+
+    # -----------------------------------------------------------------------------
+    # OBSOLETO
+    #
+    # Claves de compatibilidad conservadas para migración hacia v2.
+    #
+    # Buscar:
+    #
+    #   t("calendar.
+    #   t("event.
+    #   t("slot.
+    #   t("match.
+    #   t("rest.
+    #
+    # Eliminar una vez migradas todas las referencias.
+    # -----------------------------------------------------------------------------
+    date: "Fecha"
+    daynames:
+      [Todos, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
+
+    daynames_a: [Todos, Lun, Mar, Mié, Jue, Vie, Sáb, Dom]
+
+    end: "Fin"
+
+    mins: "min."
+
+    monthnames:
+      [
+        Todos,
+        Enero,
+        Febrero,
+        Marzo,
+        Abril,
+        Mayo,
+        Junio,
+        Julio,
+        Agosto,
+        Septiembre,
+        Octubre,
+        Noviembre,
+        Diciembre,
+      ]
+
+    monthnames_a:
+      [Todos, Ene, Feb, Mar, Abr, May, Jun, Jul, Ago, Sep, Oct, Nov, Dic]
+
+    start: "Inicio"
+
+    time: "Hora"
+
+    week: "Semana"
+
+    year: "Año"
+
+  event:
+    single: "Evento"
+    many: "Eventos"
+
+  slot:
+    single: "Franja horaria"
+
+    created: "Franja horaria creada: "
+    updated: "Franja horaria actualizada: "
+    deleted: "Franja horaria eliminada: "
+
+    edit: "Editar franja horaria"
+    many: "Horario"
+    new: "Crear franja horaria"
+
+  # -----------------------------------------------------------------------------
+  # Compatibilidad con v1.x
+  # Reemplazado por Calendar::EventKinds[:match]
+  # -----------------------------------------------------------------------------
+  match:
+    default_rival: "<Rival>"
+    home: "Local"
+    lost: "P"
+    rival: "Rival"
+    roster: "Jugadores activos"
+    single: "Partido"
+    won: "G"
+
+    att_check: "Lista de jugadores: "
+    created: "Partido creado: "
+    deleted: "Partido eliminado: "
+    updated: "Partido actualizado: "
+
+    many: "Partidos"
+
+  # -----------------------------------------------------------------------------
+  # Compatibilidad con v1.x
+  # Reemplazado por Calendar::EventKinds[:holiday]
+  # -----------------------------------------------------------------------------
+  rest:
+    created: "Festivo creado: "
+    deleted: "Festivo eliminado: "
+    updated: "Festivo actualizado: "
+
+    single: "Festivo"

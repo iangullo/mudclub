@@ -31,7 +31,7 @@ module EventsHelper
 	def event_attendance_form
 		res = [ [
 			gap_field(size: 2),
-			{ kind: :side_cell, value: I18n.t(@event.match? ? "match.roster" : "calendar.attendance"), align: "left" }
+			{ kind: :side_cell, value: I18n.t(@event.match? ? "match.roster" : "calendar.attendance.label.single"), align: "left" }
 		] ]
 		res << [
 			gap_field(size: 2),
@@ -94,7 +94,7 @@ module EventsHelper
 
 	# return icon and top of fields definition
 	def event_index_title(team: nil, season: nil)
-		title    = (team ? team.nick : (season ? season.name : I18n.t("calendar.label")))
+		title    = (team ? team.nick : (season ? season.name : I18n.t("calendar.label.single")))
 		subtitle = (team ? team.category.name : I18n.t("scope.all"))
 		res      = title_start(icon: symbol_hash("calendar"), title:, subtitle:)
 		res     += [ [ gap_field(size: 1), string_field(team.division.name + " (#{team.season.name})") ] ] if team
@@ -316,14 +316,14 @@ module EventsHelper
 			calendurl = clubevent ? club_events_path(@clubid, season_id: @season&.id, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
 			toprow = [	#  top row above the table
 				button_field(
-					{ kind: :link, symbol: "calendar", label: I18n.t("calendar.label"), size: "30x30", url: calendurl },
+					{ kind: :link, symbol: "calendar", label: I18n.t("calendar.label.single"), size: "30x30", url: calendurl },
 					class: "align-middle text-indigo-900"
 				)
 			]
 			toprow += [	# team events--> add a team_attendance button
 				gap_field,
 				button_field(
-					{ kind: :link, symbol: "attendance", label: I18n.t("calendar.attendance"), flip: true, size: "30x30", url: attendance_team_path(@team, rdx: @rdx), align: "right", frame: "modal" },
+					{ kind: :link, symbol: "attendance", label: I18n.t("calendar.attendance.label.single"), flip: true, size: "30x30", url: attendance_team_path(@team, rdx: @rdx), align: "right", frame: "modal" },
 					class: "align-middle text-indigo-900"
 				)
 			] unless clubevent
@@ -446,7 +446,7 @@ module EventsHelper
 					res << [
 						gap_field(size: 1, cols: 6),
 						button_field(
-							{ kind: :link, symbol: "attendance", label: I18n.t("calendar.attendance"), url: attendance_event_path(rdx: @rdx, cal: @cal), frame: "modal" },
+							{ kind: :link, symbol: "attendance", label: I18n.t("calendar.attendance.label.single"), url: attendance_event_path(rdx: @rdx, cal: @cal), frame: "modal" },
 							align: "left",
 							cols: 2
 						)

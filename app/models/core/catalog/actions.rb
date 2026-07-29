@@ -24,6 +24,8 @@
 # Actions are linked to entities & scopes.
 #
 class Catalog::Actions < Catalog::Base
+	domain "core"
+
 	CATALOG = {
 
 		view: {

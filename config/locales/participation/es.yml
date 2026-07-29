@@ -1,0 +1,284 @@
+# config/locales/participation/es.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Dominio de participación
+#
+# Traducciones canónicas para membresías, asignaciones y sus catálogos.
+#
+# Las claves de compatibilidad heredadas se conservan al final de este archivo
+# durante la migración v2 y no deben usarse en código nuevo.
+# -----------------------------------------------------------------------------
+
+es:
+  participation:
+    membership:
+      label:
+        single: Membresía
+        plural: Membresías
+
+      short:
+        single: Mbr.
+        plural: Mbrs.
+
+      fields:
+        number:
+          label: Número de membresía
+          short: "Nº"
+
+        kind:
+          label: Tipo de membresía
+          short: Tipo
+
+        person:
+          label: Persona
+
+        club:
+          label: Club
+
+        joined_on:
+          label: Fecha de ingreso
+
+        left_on:
+          label: Fecha de baja
+
+        active:
+          label: Activa
+
+        primary:
+          label: Principal
+
+        notes:
+          label: Notas
+
+      messages:
+        created: Membresía creada.
+        updated: Membresía actualizada.
+        deleted: Membresía eliminada.
+
+    assignment:
+      label:
+        single: Asignación
+        plural: Asignaciones
+
+      short:
+        single: Asg.
+        plural: Asgs.
+
+      fields:
+        membership:
+          label: Membresía
+
+        kind:
+          label: Tipo de asignación
+
+        starts_on:
+          label: Inicio
+
+        ends_on:
+          label: Fin
+
+        team:
+          label: Equipo
+
+        shirt_number:
+          label: Número de camiseta
+          short: Camiseta Nº
+
+        squad_number:
+          label: Número de plantilla
+          short: Plantilla Nº
+
+        notes:
+          label: Notas
+
+      messages:
+        created: Asignación creada.
+        updated: Asignación actualizada.
+        deleted: Asignación eliminada.
+
+    membership_kinds:
+      label:
+        single: Tipo de membresía
+        plural: Tipos de membresía
+
+      short:
+        single: Tipo
+        plural: Tipos
+
+      values:
+        athlete:
+          label:
+            single: Deportista
+            plural: Deportistas
+
+          short:
+            single: Dep.
+            plural: Deps.
+
+          hint: Persona miembro que participa como deportista.
+
+        coach:
+          label:
+            single: Entrenador
+            plural: Entrenadores
+
+          short:
+            single: Ent.
+            plural: Ents.
+
+          hint: Persona miembro que participa como entrenador.
+
+        volunteer:
+          label:
+            single: Voluntario
+            plural: Voluntarios
+
+          short:
+            single: Vol.
+            plural: Vols.
+
+          hint: Persona miembro que participa como voluntario.
+
+        board_member:
+          label:
+            single: Miembro de junta directiva
+            plural: Miembros de junta directiva
+
+          short:
+            single: JD
+            plural: JDs
+
+          hint: Persona miembro que participa como miembro de junta directiva.
+
+        club_manager:
+          label:
+            single: Gestor de club
+            plural: Gestores de club
+
+          short:
+            single: G.Club
+            plural: Gs.Club
+
+          hint: Persona miembro que participa como gestor de club.
+
+    assignment_kinds:
+      label:
+        single: Tipo de asignación
+        plural: Tipos de asignación
+
+      short:
+        single: Asignación
+        plural: Asignaciones
+
+      values:
+        athlete:
+          label: Deportista
+
+        captain:
+          label: Capitán
+
+        head_coach:
+          label: Entrenador principal
+
+        assistant_coach:
+          label: Entrenador asistente
+
+        coaching_coordinator:
+          label: Coordinador de entrenadores
+
+        team_manager:
+          label: Director de equipo
+
+        team_delegate:
+          label: Delegado de equipo
+
+        home_delegate:
+          label: Delegado local
+
+        photographer:
+          label: Fotógrafo
+
+        community_manager:
+          label: Gestor de comunidad
+
+        webmaster:
+          label: Webmaster
+
+        club_manager:
+          label: Gestor de club
+
+        president:
+          label: Presidente
+
+        vice_president:
+          label: Vicepresidente
+
+        secretary:
+          label: Secretario
+
+        treasurer:
+          label: Tesorero
+
+  # ---------------------------------------------------------------------------
+  # OBSOLETO
+  #
+  # Claves de compatibilidad preservadas durante la migración v2.
+  #
+  # Buscar:
+  #
+  #   t("coach.
+  #   t("player.
+  #
+  # Eliminar una vez que todas las llamadas se hayan migrado.
+  # ---------------------------------------------------------------------------
+
+  coach:
+    abbr: "Ent."
+
+    single: "Entrenador"
+    many: "Entrenadores"
+
+    created: "Entrenador creado: "
+    updated: "Entrenador actualizado: "
+    deleted: "Entrenador eliminado: "
+    duplicate: "Duplicar entrenador: "
+
+    edit: "Editar Entrenador"
+    new: "Crear Entrenador"
+
+    export: "Entrenadores exportados"
+    import: "Entrenadores importados"
+
+    label:
+      single: "%{t('coach.single')}"
+      plural: "%{t('coach.many')}"
+      short: "%{t('coach.abbr')}"
+
+  player:
+    abbr: "Jug."
+
+    single: "Jugador"
+    many: "Jugadores"
+
+    number: "Nº"
+    playing: "Jugando"
+
+    created: "Jugador creado: "
+    updated: "Jugador actualizado: "
+    deleted: "Jugador eliminado: "
+    duplicate: "Duplicar jugador: "
+
+    deactivated: "Jugador inactivo: "
+    removed: "Jugador retirado: "
+
+    edit: "Editar Jugador"
+    new: "Crear Jugador"
+
+    export: "Jugadores exportados"
+    import: "Jugadores importados"
+
+    label:
+      single: "%{t('player.single')}"
+      plural: "%{t('player.many')}"
+      short: "%{t('player.abbr')}"

@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Target < ApplicationRecord
+	localized_as "training.team"
+
 	has_many :team_targets
 	has_many :teams, through: :team_targets
 	has_many :drill_targets

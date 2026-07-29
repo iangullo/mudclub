@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class TeamTarget < ApplicationRecord
+	localized_as "training.target"
+
 	belongs_to :team
 	belongs_to :target
 	scope :global, -> { where(month: 0) }

@@ -344,7 +344,7 @@ class EventsController < ApplicationController
 		# establish redirection & notice for based on update kind
 		def cru_return(e_data)
 			if e_data[:task].present?
-				@notice  = I18n.t("task.updated")
+				@notice  = I18n.t("training.task.messages.updated")
 				@retview = :edit
 				@retlnk  = edit_event_path(@event, rdx: @rdx, cal: @cal)
 			elsif params[:event].present?
@@ -363,7 +363,7 @@ class EventsController < ApplicationController
 				elsif	e_data[:player_ids].present?	# players to partcipate
 					@notice = I18n.t("#{@event.kind}.att_check")
 				elsif params[:event][:stats_attributes].present? || params[:outings].present?	# updated stats/outings
-					@notice = I18n.t("stat.updated")
+					@notice = I18n.t("training.stat.messages.updated")
 				else
 					@notice = I18n.t("status.no_data")
 				end
@@ -383,7 +383,7 @@ class EventsController < ApplicationController
 			footer = "#{@event.team} #{@event.date_string}"
 			pdf    = pdf_create(header: p_title, footer:)# , full_width: true)
 			if @event.kind == "train"
-				pdf_label_text(label: I18n.t("target.many"), text: @event.print_targets)
+				pdf_label_text(label: I18n.t("training.target.label.many"), text: @event.print_targets)
 				pdf_separator_line(style: "empty")
 				@event.tasks.each do |task|
 					pdf_subtitle(task.headstring)
@@ -392,12 +392,12 @@ class EventsController < ApplicationController
 					pdf_separator_line(style: "empty")
 				end
 				pdf_new_page
-				pdf_subtitle(I18n.t("calendar.attendance"))
+				pdf_subtitle(I18n.t("calendar.attendance.label.single"))
 				@event.team.players.order(:number).each do |player|
 					pdf_label_text(label: player.to_s(style: 3), text: "_")
 				end
 				pdf_separator_line(style: "empty")
-				pdf_subtitle(I18n.t("task.remarks"))
+				pdf_subtitle(I18n.t("training.task.remarks.label"))
 			end
 			pdf
 		end

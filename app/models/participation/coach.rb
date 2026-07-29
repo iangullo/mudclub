@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Coach < ApplicationRecord
+	localized_as "coach"
+
 	include PersonDataManagement
 	before_destroy :unlink
 	belongs_to :club, optional: true

@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Skill < ApplicationRecord
+	localized_as "training.skill"
+
 	has_and_belongs_to_many :drills
 	scope :real, -> { where("id>0").order(:concept) }
 	pg_search_scope :search,

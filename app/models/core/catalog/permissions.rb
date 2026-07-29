@@ -22,6 +22,8 @@
 # Define the premissions applicable to the MudClub Core module
 #
 class Catalog::Permissions < Catalog::Base
+	domain "core"
+
 	CATALOG = {
 
 		#
@@ -56,21 +58,21 @@ class Catalog::Permissions < Catalog::Base
 		},
 
 		manage_people: {
-			id: 40,
+			id: 50,
 			scope: :club,
 			description:
 				"Create and maintain people records."
 		},
 
 		view_roles: {
-			id: 50,
+			id: 60,
 			scope: :club,
 			description:
 				"View operational roles."
 		},
 
 		manage_roles: {
-			id: 60,
+			id: 70,
 			scope: :club,
 			description:
 				"Define operational roles."

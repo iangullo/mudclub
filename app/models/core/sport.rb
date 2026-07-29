@@ -16,357 +16,453 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# simple class to have configurable Sports linked to the Club
+#
+# Generic Sport model.
+#
+# Sports persist configurable data shared by all clubs while delegating
+# behaviour to their corresponding Specific Sport implementation.
+#
 class Sport < ApplicationRecord
-	ERR_NEED_SPECIFIC = "Must implement in Specific Sport object"
+	localized_as "core.sport"
+	CATALOGS = {}.freeze
+
+	#
+	# --------------------------------------------------------------------------
+	# Associations
+	# --------------------------------------------------------------------------
+	#
+
 	has_many :categories, dependent: :nullify
-	has_many :divisions, dependent: :nullify
-	has_many :teams, dependent: :nullify
+	has_many :divisions,  dependent: :nullify
+	has_many :teams,      dependent: :nullify
 
-	# Wrappers to define FieldComponents for views
-	# METHODS MUST BE DEFINED IN SPORT-SPECIFIC OBJECTS!!
-	# ========================================
-	# return possible court designs for drills/plays
-	def court_modes
-		self.specific.court_modes
-	end
+	#
+	# --------------------------------------------------------------------------
+	# Identity
+	# --------------------------------------------------------------------------
+	#
 
-	# human name of a specific court
-	def court_name(court)
-		self.specific.court_name(court)
-	end
-
-	# fields to display match information - not title
-	def match_show(event, home: nil)
-		raise ERR_NEED_SPECIFIC
-	end
-
-	# fields to edit a match
-	def match_form(event, new: false)
-		raise ERR_NEED_SPECIFIC
-	end
-
-	# return period limitations for a match of this sport
-	# depends on rules applied
-	def match_outings(a_rules)
-		raise ERR_NEED_SPECIFIC
-	end
-
-	# table to show/edit player outings for a match
-	def outings_table(event, outings, edit: false, home: nil, log: nil)
-		raise ERR_NEED_SPECIFIC
-	end
-
-	# table to show/edit player stats for a match
-	def stats_table(event, edit: false, home: nil, log: nil)
-		raise ERR_NEED_SPECIFIC
-	end
-
-	# fields to display player's stats for training
-	def player_training_stats_show(event, player_id:)
-		raise ERR_NEED_SPECIFIC
-	end
-
-	# fields to track player training stats
-	def player_training_stats_form(event, player_id:)
-		raise ERR_NEED_SPECIFIC
-	end
-
-	# fields to show rules limits
-	def rules_limits
-		raise ERR_NEED_SPECIFIC
-	end
-
-	# default applicable rules for a category
-	def default_rules(category)
-		raise ERR_NEED_SPECIFIC
-	end
-
-	# return rules that may apply to the Sport
-	def rules_options
-		raise ERR_NEED_SPECIFIC
-	end
-	# ========================================
-	# END OF SPORT-SPECIFIC METHODS
-
-	# multi-language string for sport name
 	def to_s
-		I18n.t("sport.#{self.name.downcase}.name")
+		label
 	end
 
-	# retrieve the adequate sport-specific object
+	#
+	# Consistent helper for abstract methods.
+	#
+	def not_implemented!
+		raise NotImplementedError,
+					"#{self.class.name} must implement #{caller_locations(1, 1).first.label}"
+	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Specific Sport implementation
+	# --------------------------------------------------------------------------
+	#
+
+	#
+	# Returns the runtime implementation for this sport.
+	#
+	# Example:
+	#
+	#   Sport(name: "Basketball").specific
+	#   => Basketball.new(id: ...)
+	#
 	def specific
-		obj_cname = self.name.camelize # + "Sport"
-		obj_class = obj_cname.constantize
-		obj_class.new(id: self.id)
+		instance_of?(Sport) ? specific_instance : self
 	end
 
-	# Getter method for accessing the settings hash
+	#
+	# Returns the specific implementation for a stored sport.
+	#
+	def self.fetch(id = nil)
+		(id ? find(id) : first)&.specific
+	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Generic Sport API
+	#
+	# These methods define the public interface every sport must expose.
+	# Implementations belong to the corresponding Specific Sport.
+	# --------------------------------------------------------------------------
+	#
+
+	#
+	# Catalog lookup.
+	#
+	def catalog(name)
+		self.class::CATALOGS.fetch(name.to_sym)
+	end
+
+	#
+	# Symbol lookup.
+	#
+	# Generic because all sports use the SymbolRegistry.
+	#
+	def symbol(concept, type: :icon, variant: "default")
+		try_symbol(concept,
+							namespace: "sport",
+							type:,
+							variant:)
+	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Canonical sport definitions
+	# --------------------------------------------------------------------------
+	#
+
+	def rules
+		catalog(:rules)
+	end
+
+	def periods
+		catalog(:periods)
+	end
+
+	def statistics
+		catalog(:statistics)
+	end
+
+	def court_modes
+		catalog(:court_modes)
+	end
+
+	def objects
+		catalog(:objects)
+	end
+
+	def limits
+		settings.fetch(:limits, {})
+	end
+
+	def scoring
+		settings.fetch(:scoring, {})
+	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Sport behaviour
+	# --------------------------------------------------------------------------
+	#
+
+	def court_name(court)
+		delegate_to_specific(:court_name, court)
+	end
+
+	def match_show(event, home: nil)
+		delegate_to_specific(:match_show, event, home:)
+	end
+
+	def match_form(event, new: false)
+		delegate_to_specific(:match_form, event, new:)
+	end
+
+	def match_outings(rule)
+		delegate_to_specific(:match_outings, rule)
+	end
+
+	def match_periods(rule)
+		delegate_to_specific(:match_periods, rule)
+	end
+
+	def outings_table(event, outings, edit: false, home: nil, log: nil)
+		delegate_to_specific(
+			:outings_table,
+			event,
+			outings,
+			edit:,
+			home:,
+			log:
+		)
+	end
+
+	def stats_table(event, edit: false, home: nil, log: nil)
+		delegate_to_specific(
+			:stats_table,
+			event,
+			edit:,
+			home:,
+			log:
+		)
+	end
+
+	def player_training_stats_show(event, player_id:)
+		delegate_to_specific(
+			:player_training_stats_show,
+			event,
+			player_id:
+		)
+	end
+
+	def player_training_stats_form(event, player_id:)
+		delegate_to_specific(
+			:player_training_stats_form,
+			event,
+			player_id:
+		)
+	end
+
+	def rules_limits
+		delegate_to_specific(:rules_limits)
+	end
+
+	def default_rules(category)
+		delegate_to_specific(:default_rules, category)
+	end
+
+	def rules_options
+		catalog(:rules).options
+	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Persistent configuration
+	#
+	# Catalogs provide canonical metadata.
+	# Settings provide persistent overrides.
+	# --------------------------------------------------------------------------
+	#
+	def generic_settings
+		{
+			rules: catalog(:rules).enum,
+			periods: catalog(:periods).enum,
+			stats: catalog(:statistics).enum,
+			scoring: {},
+			limits: {}
+			}
+	end
+
 	def settings
-		super&.symbolize_keys || {}
+		super&.deep_symbolize_keys || {}
 	end
 
-	# Setter method for updating the settings hash
 	def settings=(value)
 		super(value&.to_h)
 	end
 
-	# Getter method for accessing the Sport rules mapping
-	# as key=>value pairs (enum-like)
-	def rules
-		settings&.fetch(:rules, {})
+	def limits_for(rule)
+		key =
+			case rule
+			when Symbol
+				rule
+			when Integer
+				catalog(:rules).entry(rule).key
+			else
+				rule.to_sym
+			end
+
+		limits[key]
 	end
 
-	# Setter method for updating the rules mapping
-	# as key=>value pairs (enum-like)
-	def rules=(value)
-		set_setting(:rules, value)
+	#
+	# --------------------------------------------------------------------------
+	# Generic helpers
+	# --------------------------------------------------------------------------
+	#
+
+	#
+	# Formats a duration expressed in seconds.
+	#
+	def time_string(seconds)
+		count  = seconds.to_i
+		parts  = []
+
+		if (hours = count / 3600).positive?
+			parts << "#{hours}º"
+			count -= hours * 3600
+		end
+
+		if (minutes = count / 60).positive?
+			parts << "#{minutes}'"
+			count -= minutes * 60
+		end
+
+		parts << "#{count}\""
+
+		parts.join
 	end
 
-	# Getter method for accessing the Sport limits for matches
-	# will vary with sport and categories
-	# if any of them are nil, they will be ignored
-	# {rules(int): {roster: {max:, min:}, playing: {max:, min:}, periods: {regular:, extra:}, outings: {first:, max:, min:}, duration: {regular:, extra:}}}
-	def limits
-		settings&.fetch(:limits, {})
+	# --------------------------------------------------------------------------
+	# Statistics helpers
+	# --------------------------------------------------------------------------
+	def stat_field(prefix, stats, stat, edit: false)
+		value = stat_value(stats, stat)
+
+		unless edit
+			{
+				kind:  :normal,
+				value: format_stat_value(stat, stat_value(stats, stat)),
+				align: "right"
+			}
+		else
+			{
+				kind:  :number_box,
+				key:   "#{prefix}#{stat.id}",
+				value:,
+				min: stat[:minimum],
+				max: stat[:maximum],
+				size: stat[:size],
+				units: stat[:units],
+				step: stat[:step]
+			}.compact
+		end
 	end
 
-	# Setter method for updating the scoring mapping
-	# {rules(int): {roster: {max:, min:}, playing: {max:, min:}, periods: {regular:, extra:}, outings: {first:, max:, min:}, duration: {regular:, extra:}}}
-	def limits=(value)
-		set_setting(:limits, value)
+	def stat_value(stats, stat)
+		Stat.fetch(
+			concept: stat.id,
+			stats:,
+			create: false
+		).first&.value.to_i
 	end
 
-	# Getter method for accessing the Sport scoring. Should
-	# identify specific Stats concepts to calculate scoring
-	# if any of them are nil, they will be ignored
-	# value = {sets: true/false, points: :points_concept}
-	def scoring
-		settings&.fetch(:scoring, {})
-	end
-
-	# Setter method for updating the scoring mapping
-	# value = {sets: true/false, points: :points_concept}
-	def scoring=(value)
-		set_setting(:scoring, value)
-	end
-
-	# Getter method for accessing the stat mapping
-	# as key=>value pairs
-	def stats
-		settings&.fetch(:stats, {})
-	end
-
-	# Setter method for updating the stat mapping
-	# as key=>value pairs
-	def stats=(value)
-		set_setting(:stats, value)
-	end
-
-	# are competition fixtures split in periods?
-	# as concept=>value pairs (enum-like)
-	def periods
-		settings&.fetch(:periods, {})
-	end
-
-	# Setter method for updating the periods mapping
-	# as concept=>value pairs (enum-like)
-	def periods=(value)
-		set_setting(:periods, value)
-	end
-
-	# return quantity of match periods
-	# based on whith rules apply
-	def match_periods(rules)
-		a_rules = self.rules.key(rules)
-		periods = self.limits[a_rules]["periods"]
-		periods ? periods["regular"] : 1
-	end
+	#
+	# --------------------------------------------------------------------------
+	# Compatibility layer
+	#
+	# Deprecated wrappers preserved during the MudClub 2.0 migration.
+	# These methods should gradually migrate into the corresponding
+	# Specific Sport implementations.
+	# --------------------------------------------------------------------------
+	#
 
 	# returns the full score of a match (object of Event class)
 	# {period1: {ours:, opps:}, period2: (etc.), tot: {ours:, opps:}}
 	def match_score(event_id)
-		s_stats  = get_event_scoring_stats(event_id)
-		t_score  = { ours: 0, opps: 0 }	# (period: 0 => t_score)
-		score    = {}
-		unless s_stats&.empty?
-			r_tot = false
-			self.periods.each_pair do |per, val|	# period==set if scoring by sets
-				r_tot = read_score(val, s_stats, score, t_score)
-			end
+		stats  = scoring_stats(event_id)
+		return {} if stats.blank?
+
+		score  = {}
+		total = initial_total_score
+
+		catalog(:periods).each do |period|
+			read_period_score(period:, stats:, score:, total:)
 		end
-		score[:tot] = t_score unless r_tot	# add total unless read
+
+		score[:tot] ||= total
+
 		score
 	end
 
-	# parse received stats hash from a form submission.
-	# be in the form of an array of {key: value} pairs
-	def parse_stats(event, stats_data)
-		f_stats = []	# pass one: fetch all stats
-		stats_data.each_pair do |key, val|
-			keyarg = key.split("_")
-			if keyarg.size == 1 # it's and event field, not a stat
-				if keyarg[0] == "name"
-					event.update(name: val)
-				elsif keyarg[0] == "home"
-					event.update(home: (val == "true"))
-				end
-			else
-				f_stats << parse_form_stat(event.id, keyarg, val.to_i)
-			end
-		end
-
-		update_stats(event, f_stats)
+	def parse_stats(...)
+		delegate_to_specific(:parse_stats, ...)
 	end
 
-	# prepare a SVG symbol field definition
-	def symbol(concept, type: :icon, variant: "default")
-		try_symbol(concept, namespace: "sport", type:, variant:)
+	def update_stats(...)
+		delegate_to_specific(:update_stats, ...)
 	end
 
-	# attempts to fetch the specific opbject from an id
-	def self.fetch(sport_id = nil)
-		sport = Sport.find(sport_id) if sport_id
-		sport = Sport.first unless sport
-		sport&.specific
+	def update_stat(...)
+		delegate_to_specific(:update_stat, ...)
+	end
+
+	def include_stat_in_event(...)
+		delegate_to_specific(:include_stat_in_event, ...)
+	end
+
+	def rules_key(...)
+		delegate_to_specific(:rules_key, ...)
+	end
+
+	def period_key(...)
+		delegate_to_specific(:period_key, ...)
+	end
+
+	def stat_key(...)
+		delegate_to_specific(:stat_key, ...)
 	end
 
 	private
-		# generic setting method to be used for all setters
-		def set_setting(key, value)
-			self.settings = settings.merge(key => value)
+
+		def catalog_enum(name)
+			catalog(name).enum
 		end
 
-		# return label field for a stat
-		def stat_label(label, abbr = true)
-			{ kind: :side_cell, value: label, align: "middle", class: "border px py" }
+		#
+		# Centralized delegation helper.
+		#
+		def delegate_to_specific(method, ...)
+			specific.public_send(method, ...)
 		end
 
-		# generic wrapper to update a stat value
-		def update_stat(event_id:, period:, player_id:, concept:, stats: nil)
-			s_val = Stat.fetch(event_id:, period:, player_id:, concept:, stats:).first
-			s_val[:value] = value
-			s_val.save
-			Event.find(event_id).events << s_val unless s_val.id	# add to event stats if needed
+		def specific_instance
+			klass = name.to_s.camelize.safe_constantize
+
+			raise NameError,
+						"Sport '#{name}' has no implementation class." unless klass
+
+			klass.find(id)
 		end
 
-		# sum total value of a specific stat
-		# if concept included in a concept_map hash
-		def sum_stats(stats, concept_map)
-			stats.sum { |stat| concept_map.value?(stat.concept) ? stat.value : 0 }
+		def initial_total_score
+			{ ours: 0, opps: 0 }
 		end
 
-		# wrappers to return the symbols of specific rules/periods/stats
-		def rules_key(concept)
-			self.rules.key(concept).to_sym
+		def period_score(period_id:, player_id:, stats:)
+			Stat.fetch(period: period_id, player_id:, stats:, create: false).first&.value
 		end
 
-		def period_key(concept)
-			self.periods.key(concept).to_sym
+		def read_period_score(period:, stats:, score:, total:)
+			ours = period_score(period_id: period.id, player_id: 0, stats:)
+			opps = period_score(period_id: period.id, player_id: -1, stats:)
+			return unless ours && opps
+
+			score[period.key] = { ours: ours, opps: opps }
+			return if period.key == :tot
+
+			accumulate_score(total:, ours:, opps:)
 		end
 
-		def stat_key(concept)
-			self.stats.key(concept).to_sym
+		def set_period_score(event_id:, period_id:, player_id:, value:)
+			update_stat(
+				event_id:,
+				period_id:,
+				player_id:,
+				concept: statistics.enum[scoring[:points]],
+				value:
+			)
 		end
 
-		# Retrieve event scoring stats for an event of the sport
-		def get_event_scoring_stats(event_id)
-			# lets split by scoring system
-			concept = self.stats[self.scoring["points"]]
+		def scoring_stats(event_id)
+			concept = statistics.enum[scoring[:points]]
+
 			Stat.fetch(event_id:, concept:, create: false)
 		end
 
-		# Scan period stats for the value of a score
-		# for a specific period & team
-		def get_period_score(period:, player_id:, stats:)
-			s_val = Stat.fetch(period:, player_id:, stats:, create: false).first
-			s_val&.value
-		end
-
-		# load score for a period from the stats
-		def read_score(period, stats, score, total)
-			r_tot = (period == 0)	# get all points/games
-			p_for = get_period_score(period:, player_id: 0, stats:)
-			p_opp = get_period_score(period:, player_id: -1, stats:)
-			if p_for && p_opp	# we have a score for this period
-				score[period] = { ours: p_for, opps: p_opp }	# load it to the hash
-				unless r_tot	# if we already read the totals, this is unnecessary
-					if self.scoring[:sets]	# different handling for sets
-						(p_for > p_opp) ? (t_score[:ours] += 1) : (t_score[:opps] += 1)
-					else # just add the points to the total
-						total[:ours] += p_for
-						total[:opps] += p_opp
-					end
-				end
+		def format_stat_value(stat, value)
+			case stat[:format]
+			when :time
+				time_string(value)
+			else
+				value
 			end
-			r_tot	# did we just read a total?
-		end
-
-		# Scan period stats for the value of a score
-		# for a specific period & team
-		def set_period_score(event_id:, period:, player_id:, value:, stats:)
-			concept = self.scoring[:points]	# lets split by scoring system
-			update_stat(event_id:, period:, player_id:, concept:, stats: nil)
-		end
-
-		# Include a stat in an event
-		def include_stat_in_event(event_id:, period: nil, player_id:, concept:)
-			c_val = concept.is_a?(Integer) ? concept : self.stats[concept.to_s]
-			Stat.fetch(event_id:, period:, player_id:, concept: c_val).first
-		end
-
-		# return a normalised time string for a "seconds" value
-		def time_string(seconds)
-			tstr = ""
-			count = seconds.to_i
-			if (hours = (count / 3600).to_i) > 0
-				tstr += "#{hours}º"
-				count = (count - (hours * 3600)).to_i
-			end
-			if (mins = (count / 60).to_i) > 0
-				tstr += "#{mins}'"
-				count  = (count - (mins * 60)).to_i
-			end
-			tstr += "#{count}\""
-		end
-
-		# Retrieve/Create a stat from a form {key: val} hash
-		def parse_form_stat(event_id, keyarg, value)
-			player_id = case keyarg[0]	# player_id part
-			when "ours" then 0
-			when "opps" then -1
-			else keyarg[0].to_i
-			end
-			period     = (keyarg[1].match?(/^(\d+)$/)	? keyarg[1].to_i : self.periods[keyarg[1]])
-			concept    = keyarg[2].to_i
-			stat       = Stat.fetch(event_id:, player_id:, period:, concept:, create: false).first
-			stat     ||= Stat.new(event_id:, player_id:, period:, concept:)
-			stat.value = value.to_i
-			stat
-		end
-
-		# bulk update of stats
-		def update_stats(event, f_stats)
-			updated = nil
-			Stat.transaction do
-				f_stats.each do |stat|	# bind stats
-					if stat.concept # if they have a valid concept
-						if stat.changed?
-							stat.save
-							updated ||= true
-						end
-						unless event.stats.include?(stat)
-							event.stats << stat
-							updated ||= true
-						end
-					end
-				end
-			end
-			updated
 		end
 
 	protected
+
+		#
+		# Updates one setting while preserving the remaining configuration.
+		#
+		def set_setting(key, value)
+			self.settings = settings.merge(key.to_sym => value)
+		end
+
+		# to update score totals
+		def accumulate_score(...)
+			not_implemented!
+		end
+
+		#
+		# Generic SymbolRegistry wrapper.
+		#
 		def try_symbol(concept, namespace:, type:, variant:)
-			SymbolRegistry.fetch(namespace:, type:, concept:, variant:)
+			SymbolRegistry.fetch(
+				namespace:,
+				type:,
+				concept:,
+				variant:
+			)
 		end
 end

@@ -77,8 +77,12 @@ class ApplicationRecord < ActiveRecord::Base
 		end
 	end
 
-	# helper to build translation keys for models
+	# definition / access to localization scopes
+	def self.localized_as(scope)
+		@i18n_scope = scope
+	end
+
 	def self.i18n_scope
-		model_name.i18n_key
+		@i18n_scope
 	end
 end

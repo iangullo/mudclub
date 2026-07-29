@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Stat < ApplicationRecord
+	localized_as "training.stat"
+
 	belongs_to :event
 	belongs_to :player  # id==0 => team stat; id==-1 => rival stat
 	scope :real, -> { where("id>0") }

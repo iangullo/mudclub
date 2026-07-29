@@ -1,0 +1,1018 @@
+# -----------------------------------------------------------------------------
+# Shared user interface vocabulary
+# -----------------------------------------------------------------------------
+#
+# Generic user-interface concepts reused throughout MudClub.
+#
+# This file intentionally excludes business-domain terminology, which belongs
+# to its corresponding domain locale file.
+#
+# -----------------------------------------------------------------------------
+en:
+  shared:
+    #
+    # Generic actions
+    #
+    action:
+      label:
+        single: Action
+        plural: Actions
+
+      short:
+        single: Act.
+        plural: Acts.
+
+      values:
+        add:
+          label:
+            single: Add
+
+        add_nested:
+          label:
+            single: Add new
+
+          short:
+            single: Add
+
+        administration:
+          label:
+            single: Administration
+
+          short:
+            single: Admin.
+
+        back:
+          label:
+            single: Back
+
+        backup:
+          label:
+            single: Backup
+            plural: Backups
+
+        call:
+          label:
+            single: Call
+            plural: Calls
+
+        cancel:
+          label:
+            single: Cancel
+
+        change:
+          label:
+            single: Change
+            plural: Changes
+
+        chat:
+          label:
+            single: WhatsApp
+
+          short:
+            single: Chat
+
+        clear:
+          label:
+            single: Clear
+
+        close:
+          label:
+            single: Close
+
+        configure:
+          label:
+            single: Configure
+
+          short:
+            single: Config.
+
+        copy:
+          label:
+            single: Copy
+            plural: Copies
+
+        create:
+          label:
+            single: Create
+
+        delete:
+          label:
+            single: Delete
+
+        download:
+          label:
+            single: Download
+            plural: Downloads
+
+          short:
+            single: Down.
+
+        duplicate:
+          label:
+            single: Duplicate
+
+          short:
+            single: Dup.
+
+        edit:
+          label:
+            single: Edit
+
+        export:
+          label:
+            single: Export
+            plural: Exports
+
+        filter:
+          label:
+            single: Filter
+            plural: Filters
+
+        import:
+          label:
+            single: Import
+            plural: Imports
+
+        login:
+          label:
+            single: Sign in
+
+        logout:
+          label:
+            single: Sign out
+
+        move:
+          label:
+            single: Move
+            plural: Moves
+
+        next:
+          label:
+            single: Next
+
+          short:
+            single: ">>"
+
+        previous:
+          label:
+            single: Previous
+
+          short:
+            single: "<<"
+
+        preview:
+          label:
+            single: Preview
+            plural: Previews
+
+          short:
+            single: Prev.
+
+        print:
+          label:
+            single: Print
+            plural: Prints
+
+        refresh:
+          label:
+            single: Refresh
+
+        remove:
+          label:
+            single: Remove
+
+        rename:
+          label:
+            single: Rename
+
+        restore:
+          label:
+            single: Restore
+
+        save:
+          label:
+            single: Save
+
+        search:
+          label:
+            single: Search
+            plural: Searches
+
+        select:
+          label:
+            single: Select
+
+        share:
+          label:
+            single: Share
+            plural: Shares
+
+        upload:
+          label:
+            single: Upload
+            plural: Uploads
+
+          short:
+            single: Up.
+
+    #
+    # Configurable parameters
+    #
+    settings:
+      label:
+        single: Settings
+        plural: Settings
+
+      short:
+        single: Config.
+        plural: Config.
+
+    #
+    # Generic status
+    #
+    status:
+      label:
+        single: Status
+        plural: Statuses
+
+      short:
+        single: St.
+        plural: Sts.
+
+      values:
+        active:
+          label:
+            single: Active
+
+          short:
+            single: Act.
+
+        archived:
+          label:
+            single: Archived
+
+          short:
+            single: Arch.
+
+        calculating:
+          label:
+            single: Calculating
+
+          short:
+            single: Calc.
+
+        cancelled:
+          label:
+            single: Cancelled
+
+          short:
+            single: Canc.
+
+        closed:
+          label:
+            single: Closed
+
+        completed:
+          label:
+            single: Completed
+
+          short:
+            single: Done
+
+        disabled:
+          label:
+            single: Disabled
+
+          short:
+            single: Dis.
+
+        draft:
+          label:
+            single: Draft
+
+        empty:
+          label:
+            single: No data available
+
+          short:
+            single: Empty
+
+        enabled:
+          label:
+            single: Enabled
+
+          short:
+            single: En.
+
+        error:
+          label:
+            single: Error
+
+        failed:
+          label:
+            single: Failed
+
+          short:
+            single: Fail.
+
+        inactive:
+          label:
+            single: Inactive
+
+          short:
+            single: Inact.
+
+        loading:
+          label:
+            single: Loading...
+
+          short:
+            single: Load.
+
+        pending:
+          label:
+            single: Pending
+
+          short:
+            single: Pend.
+
+        processing:
+          label:
+            single: Processing...
+
+          short:
+            single: Proc.
+
+        published:
+          label:
+            single: Published
+
+          short:
+            single: Pub.
+
+        ready:
+          label:
+            single: Ready
+
+        rejected:
+          label:
+            single: Rejected
+
+          short:
+            single: Rej.
+
+        saved:
+          label:
+            single: Saved
+
+        starting:
+          label:
+            single: Starting
+
+          short:
+            single: Start
+
+        unavailable:
+          label:
+            single: Unavailable
+
+          short:
+            single: Unav.
+
+        warning:
+          label:
+            single: Warning
+
+          short:
+            single: Warn.
+
+    #
+    # Generic questions
+    #
+    question:
+      label:
+        single: Question
+        plural: Questions
+
+      short:
+        single: Q.
+        plural: Qs.
+
+      values:
+        active:
+          label:
+            single: Active?
+
+        camera:
+          label:
+            single: Use camera?
+
+        delete:
+          label:
+            single: Delete?
+
+        discard_changes:
+          label:
+            single: Discard changes?
+
+        female:
+          label:
+            single: Female?
+
+        import:
+          label:
+            single: Import file?
+
+        login:
+          label:
+            single: Sign in?
+
+        logout:
+          label:
+            single: Sign out?
+
+        overwrite:
+          label:
+            single: Overwrite existing data?
+
+        remove:
+          label:
+            single: Remove?
+
+        restore:
+          label:
+            single: Restore?
+
+        save:
+          label:
+            single: Save?
+
+        save_changes:
+          label:
+            single: Save changes?
+
+    #
+    # Generic selections
+    #
+    selection:
+      label:
+        single: Selection
+        plural: Selections
+
+      short:
+        single: Sel.
+        plural: Sels.
+
+      values:
+        all:
+          label:
+            single: All
+
+        automatic:
+          label:
+            single: Automatic
+
+          short:
+            single: Auto.
+
+        current:
+          label:
+            single: Current
+
+          short:
+            single: Curr.
+
+        default:
+          label:
+            single: Default
+
+          short:
+            single: Def.
+
+        featured:
+          label:
+            single: Featured
+
+          short:
+            single: Feat.
+
+        multiple:
+          label:
+            single: Multiple
+
+          short:
+            single: Multi.
+
+        none:
+          label:
+            single: None
+
+        optional:
+          label:
+            single: Optional
+
+          short:
+            single: Opt.
+
+        other:
+          label:
+            single: Other
+
+        required:
+          label:
+            single: Required
+
+          short:
+            single: Req.
+
+        selected:
+          label:
+            single: Selected
+
+          short:
+            single: Sel.
+
+        unknown:
+          label:
+            single: Unknown
+
+    #
+    # Boolean values
+    #
+    boolean:
+      label:
+        single: Boolean
+        plural: Booleans
+
+      short:
+        single: Bool.
+        plural: Bools.
+
+      values:
+        "true":
+          label:
+            single: "Yes"
+
+          short:
+            single: "Y"
+
+        "false":
+          label:
+            single: "No"
+
+          short:
+            single: "N"
+
+    #
+    # Locale
+    #
+    locale:
+      label:
+        single: Locale
+        plural: Locales
+
+      short:
+        single: Loc.
+        plural: Locs.
+
+      fields:
+        language:
+          label:
+            single: Language
+
+          short:
+            single: Lang.
+
+        country:
+          label:
+            single: Country
+
+          short:
+            single: Ctry.
+
+      values:
+        en:
+          label:
+            single: English
+
+          short:
+            single: EN
+
+        es:
+          label:
+            single: Spanish
+
+          short:
+            single: ES
+
+        fr:
+          label:
+            single: French
+
+          short:
+            single: FR
+
+        pt:
+          label:
+            single: Portuguese
+
+          short:
+            single: PO
+
+    #
+    # Colours
+    #
+    color:
+      label:
+        single: Colour
+        plural: Colours
+
+      short:
+        single: Col.
+        plural: Cols.
+
+      values:
+        black:
+          label:
+            single: Black
+
+        blue:
+          label:
+            single: Blue
+
+        brown:
+          label:
+            single: Brown
+
+        gold:
+          label:
+            single: Gold
+
+        green:
+          label:
+            single: Green
+
+        grey:
+          label:
+            single: Grey
+
+        orange:
+          label:
+            single: Orange
+
+        pink:
+          label:
+            single: Pink
+
+        purple:
+          label:
+            single: Purple
+
+        red:
+          label:
+            single: Red
+
+        silver:
+          label:
+            single: Silver
+
+        white:
+          label:
+            single: White
+
+        yellow:
+          label:
+            single: Yellow
+
+    #
+    # Generic field labels
+    #
+    fields:
+      active:
+        label:
+          single: Active
+
+      address:
+        label:
+          single: Address
+
+      biography:
+        label:
+          single: Biography
+
+        short:
+          single: Bio
+
+      code:
+        label:
+          single: Code
+
+      color:
+        label:
+          single: Colour
+
+      country:
+        label:
+          single: Country
+
+      created_at:
+        label:
+          single: Created
+
+        short:
+          single: Created
+
+      created_by:
+        label:
+          single: Created by
+
+      date:
+        label:
+          single: Date
+
+      description:
+        label:
+          single: Description
+
+        short:
+          single: Desc.
+
+      duration:
+        label:
+          single: Duration
+
+        short:
+          single: Dur.
+
+      email:
+        label:
+          single: Email
+
+      enabled:
+        label:
+          single: Enabled
+
+      ends_on:
+        label:
+          single: Ends
+
+        short:
+          single: End
+
+      identifier:
+        label:
+          single: Identifier
+
+        short:
+          single: ID
+
+      image:
+        label:
+          single: Image
+
+      language:
+        label:
+          single: Language
+
+        short:
+          single: Lang.
+
+      location:
+        label:
+          single: Location
+
+        short:
+          single: Loc.
+
+      name:
+        label:
+          single: Name
+
+      notes:
+        label:
+          single: Notes
+
+      number:
+        label:
+          single: Number
+
+        short:
+          single: "#"
+
+      order:
+        label:
+          single: Order
+
+      phone:
+        label:
+          single: Phone
+
+        short:
+          single: Tel.
+
+      position:
+        label:
+          single: Position
+
+        short:
+          single: Pos.
+
+      postcode:
+        label:
+          single: Postal code
+
+        short:
+          single: ZIP
+
+      priority:
+        label:
+          single: Priority
+
+      reference:
+        label:
+          single: Reference
+
+        short:
+          single: Ref.
+
+      remarks:
+        label:
+          single: Remarks
+
+        short:
+          single: Rem.
+
+      settings:
+        label:
+          single: Settings
+
+      starts_on:
+        label:
+          single: Starts
+
+        short:
+          single: Start
+
+      state:
+        label:
+          single: State
+
+      street:
+        label:
+          single: Street
+
+      title:
+        label:
+          single: Title
+
+      type:
+        label:
+          single: Type
+
+      updated_at:
+        label:
+          single: Updated
+
+      updated_by:
+        label:
+          single: Updated by
+
+      url:
+        label:
+          single: URL
+
+      version:
+        label:
+          single: Version
+
+        short:
+          single: Ver.
+
+      website:
+        label:
+          single: Website
+
+        short:
+          single: Web
+
+  # -----------------------------------------------------------------------------
+  # DEPRECATED
+  #
+  # Compatibility keys preserved during the v2 locale migration.
+  #
+  # Search for:
+  #
+  #   t("action.
+  #   t("status.
+  #   t("question.
+  #   ...
+  #
+  # Remove this section once no references remain.
+  # -----------------------------------------------------------------------------
+
+  # Actions
+  action:
+    add: "Add"
+    add_nested: "Add new"
+    admin: "Manage"
+    back: "Return"
+    backup: "Backup"
+    call: "Call"
+    cancel: "Cancel"
+    change: "Change"
+    chat: "Chat in WhatsApp"
+    clear: "Clear"
+    close: "Close"
+    configure: "Configure"
+    copy: "Copy"
+    create: "Create"
+    delete: "Delete"
+    edit: "Edit"
+    email: "Send e-mail"
+    export: "Export"
+    filter: "Filter"
+    import: "Import"
+    login: "Log-in"
+    logout: "Log-out"
+    next: ">>"
+    previous: "<<"
+    remember: "Remember"
+    remove: "Remove"
+    restore: "Restore"
+    return: "Return"
+    save: "Save"
+    search: "Search"
+    select: "Select"
+
+  # Colors
+  color:
+    black: "Black"
+    blue: "Blue"
+    green: "Green"
+    orange: "Orange"
+    purple: "Purple"
+    red: "Red"
+    single: "Colour"
+
+    # UI
+    many: "Colours"
+
+  helpers:
+    page_entries_info:
+      one_page:
+        display_entries:
+          zero: "No %{entry_name} found"
+          one: "Displaying <b>1</b> %{entry_name}"
+          other: "Displaying <b>all %{count}</b> %{entry_name}"
+      more_pages:
+        display_entries: "Displaying %{entry_name} <b>%{first}–%{last}</b> of <b>%{total}</b>"
+
+  # Locales
+  locale:
+    country: "Country"
+    en: "English"
+    es: "Spanish"
+    lang: "Language"
+
+  # Questions
+  question:
+    active: "Active?"
+    camera: "Use Camera?"
+    clear: "Clear actions for "
+    delete: "Delete "
+    female: "Female?"
+    import: "Import file?"
+    login: "Open session?"
+    save: "Save "
+    save_chng: "Save Changes?"
+
+  # Scopes
+  scope:
+    all: "All"
+    none: "None"
+
+  # Statuses
+  status:
+    active: "Active"
+    active_a: "Act."
+    calculating: "Calculating"
+    closed: "Closed"
+    completed: "Completed"
+    empty: "No data to show"
+    good: "Good progress"
+    inactive: "Inactive"
+    in_progress: "In progress"
+    no_data: "No data to save"
+    no_file: "Load file..."
+    not_started: "Not started"
+    processing: "Processing..."
+    saved: "saved."
+    starting: "Starting"
+
+  views:
+    pagination:
+      first: "&laquo;"
+      last: "&raquo;"
+      next: "&rsaquo;"
+      previous: "&lsaquo;"
+      truncate: "&hellip;"

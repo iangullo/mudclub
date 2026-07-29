@@ -17,19 +17,21 @@
 # contact email - iangullo@gmail.com.
 #
 #
-# Catalog::PositionKinds
+# Catalog::AssignmentKinds
 #
-# Defines the canonical positions recognised by MudClub.
+# Defines the canonical assigments recognised by MudClub.
 #
-# Positions describe the function a member performs within either a Club
+# Assingments describe the function a member performs within either a Club
 # or a Team. They are shared across the application and referenced by
-# Position records, which allow each Club to enable the positions it
+# Assignment records, which allow each Club to enable the assignment kinds it
 # wishes to use.
 #
-# Additional metadata classifies each position according to the module
+# Additional metadata classifies each AssingmentKind according to the module
 # owning it and the scope in which it may be assigned.
 #
-class Catalog::PositionKinds < Catalog::Base
+class Catalog::AssignmentKinds < Catalog::Base
+	domain "participation"
+
 	CATALOG = {
 
 		#
@@ -38,14 +40,14 @@ class Catalog::PositionKinds < Catalog::Base
 
 		athlete: {
 			id: 0,
-			required_membership: :athlete,
+			membership_kind: :athlete,
 			scope: :team,
 			description: "Regular member of a team."
 		},
 
 		captain: {
 			id: 10,
-			required_membership: :athlete,
+			membership_kind: :athlete,
 			scope: :team,
 			description: "Captain of a team."
 		},
@@ -56,21 +58,21 @@ class Catalog::PositionKinds < Catalog::Base
 
 		head_coach: {
 			id: 20,
-			required_membership: :coach,
+			membership_kind: :coach,
 			scope: :team,
 			description: "Head coach of a team."
 		},
 
 		assistant_coach: {
 			id: 21,
-			required_membership: :coach,
+			membership_kind: :coach,
 			scope: :team,
 			description: "Assistant coach of a team."
 		},
 
 		coaching_coordinator: {
 			id: 22,
-			required_membership: :coach,
+			membership_kind: :coach,
 			scope: :club,
 			description: "Coordinates the club's sporting methodology and supervises team coaches."
 		},
@@ -81,49 +83,49 @@ class Catalog::PositionKinds < Catalog::Base
 
 		team_manager: {
 			id: 30,
-			required_membership: [ :volunteer, :board_member ],
+			membership_kind: [ :volunteer, :board_member ],
 			scope: :team,
 			description: "Administrative manager of a team."
 		},
 
 		team_delegate: {
 			id: 31,
-			required_membership: :volunteer,
+			membership_kind: :volunteer,
 			scope: :team,
 			description: "Represents the team before competition organisers and officials."
 		},
 
 		home_delegate: {
 			id: 32,
-			required_membership: :volunteer,
+			membership_kind: :volunteer,
 			scope: :team,
 			description: "Coordinates the organisation of home fixtures and assists match officials."
 		},
 
 		photographer: {
 			id: 33,
-			required_membership: [ :volunteer, :board_member ],
+			membership_kind: [ :volunteer, :board_member ],
 			scope: :club,
 			description: "Club photographer."
 		},
 
 		community_manager: {
 			id: 34,
-			required_membership: :volunteer,
+			membership_kind: :volunteer,
 			scope: :club,
 			description: "Handle social media interaction."
 		},
 
 		webmaster: {
 			id: 35,
-			required_membership: :volunteer,
+			membership_kind: :volunteer,
 			scope: :club,
 			description: "Manage club website."
 		},
 
 		club_manager: {
 			id: 36,
-			required_membership: :club_manager,
+			membership_kind: :club_manager,
 			scope: :club,
 			description: "Club operational manager."
 		},
@@ -134,28 +136,28 @@ class Catalog::PositionKinds < Catalog::Base
 
 		president: {
 			id: 40,
-			required_membership: :board_member,
+			membership_kind: :board_member,
 			scope: :club,
 			description: "President of the club."
 		},
 
 		vice_president: {
 			id: 41,
-			required_membership: :board_member,
+			membership_kind: :board_member,
 			scope: :club,
 			description: "Vice-president of the club."
 		},
 
 		secretary: {
 			id: 42,
-			required_membership: :board_member,
+			membership_kind: :board_member,
 			scope: :club,
 			description: "Secretary of the club."
 		},
 
 		treasurer: {
 			id: 43,
-			required_membership: :board_member,
+			membership_kind: :board_member,
 			scope: :club,
 			description: "Treasurer of the club."
 		}

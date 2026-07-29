@@ -1,0 +1,284 @@
+# config/locales/participation/en.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Participation domain
+#
+# Canonical translations for memberships, assignments and their catalogs.
+#
+# Legacy compatibility keys are preserved at the end of this file during the
+# v2 migration and should not be used in new code.
+# -----------------------------------------------------------------------------
+
+en:
+  participation:
+    membership:
+      label:
+        single: Membership
+        plural: Memberships
+
+      short:
+        single: Mbr.
+        plural: Mbrs.
+
+      fields:
+        number:
+          label: Membership number
+          short: "#"
+
+        kind:
+          label: Membership kind
+          short: Kind
+
+        person:
+          label: Person
+
+        club:
+          label: Club
+
+        joined_on:
+          label: Joined on
+
+        left_on:
+          label: Left on
+
+        active:
+          label: Active
+
+        primary:
+          label: Primary
+
+        notes:
+          label: Notes
+
+      messages:
+        created: Membership created.
+        updated: Membership updated.
+        deleted: Membership deleted.
+
+    assignment:
+      label:
+        single: Assignment
+        plural: Assignments
+
+      short:
+        single: Asg.
+        plural: Asgs.
+
+      fields:
+        membership:
+          label: Membership
+
+        kind:
+          label: Assignment kind
+
+        starts_on:
+          label: Starts
+
+        ends_on:
+          label: Ends
+
+        team:
+          label: Team
+
+        shirt_number:
+          label: Shirt number
+          short: Shirt #
+
+        squad_number:
+          label: Squad number
+          short: Squad #
+
+        notes:
+          label: Notes
+
+      messages:
+        created: Assignment created.
+        updated: Assignment updated.
+        deleted: Assignment deleted.
+
+    membership_kinds:
+      label:
+        single: Membership kind
+        plural: Membership kinds
+
+      short:
+        single: Kind
+        plural: Kinds
+
+      values:
+        athlete:
+          label:
+            single: Athlete
+            plural: Athletes
+
+          short:
+            single: Ath.
+            plural: Aths.
+
+          hint: Member participating as an athlete.
+
+        coach:
+          label:
+            single: Coach
+            plural: Coaches
+
+          short:
+            single: C.
+            plural: Cs.
+
+          hint: Member participating as a coach.
+
+        volunteer:
+          label:
+            single: Volunteer
+            plural: Volunteers
+
+          short:
+            single: Vol.
+            plural: Vols.
+
+          hint: Member participating as a volunteer.
+
+        board_member:
+          label:
+            single: Board member
+            plural: Board members
+
+          short:
+            single: BM
+            plural: BMs
+
+          hint: Member participating as a board member
+
+        club_manager:
+          label:
+            single: Club manager
+            plural: Club managers
+
+          short:
+            single: C.Mgr.
+            plural: C.Mgrs.
+
+          hint: Member participating as a club manager
+
+    assignment_kinds:
+      label:
+        single: Assignment kind
+        plural: Assignment kinds
+
+      short:
+        single: Assignment
+        plural: Assignments
+
+      values:
+        athlete:
+          label: Athlete
+
+        captain:
+          label: Captain
+
+        head_coach:
+          label: Head coach
+
+        assistant_coach:
+          label: Assistant coach
+
+        coaching_coordinator:
+          label: Coaching coordinator
+
+        team_manager:
+          label: Team manager
+
+        team_delegate:
+          label: Team delegate
+
+        home_delegate:
+          label: Home delegate
+
+        photographer:
+          label: Photographer
+
+        community_manager:
+          label: Community manager
+
+        webmaster:
+          label: Webmaster
+
+        club_manager:
+          label: Club manager
+
+        president:
+          label: President
+
+        vice_president:
+          label: Vice-president
+
+        secretary:
+          label: Secretary
+
+        treasurer:
+          label: Treasurer
+
+  # ---------------------------------------------------------------------------
+  # DEPRECATED
+  #
+  # Compatibility keys preserved during the v2 migration.
+  #
+  # Search for:
+  #
+  #   t("coach.
+  #   t("player.
+  #
+  # Remove once all callers have migrated.
+  # ---------------------------------------------------------------------------
+
+  coach:
+    abbr: "Coach"
+
+    single: "Coach"
+    many: "Coaches"
+
+    created: "Created coach: "
+    updated: "Updated coach: "
+    deleted: "Deleted coach: "
+    duplicate: "Duplicate coach: "
+
+    edit: "Edit Coach"
+    new: "Create Coach"
+
+    export: "Exported coaches"
+    import: "Imported coaches"
+
+    label:
+      single: "%{t('coach.single')}"
+      plural: "%{t('coach.many')}"
+      short: "%{t('coach.abbr')}"
+
+  player:
+    abbr: "Play."
+
+    single: "Player"
+    many: "Players"
+
+    number: "#"
+    playing: "Playing"
+
+    created: "Created player: "
+    updated: "Updated player: "
+    deleted: "Deleted player: "
+    duplicate: "Duplicate player: "
+
+    deactivated: "Inactive player: "
+    removed: "Removed player: "
+
+    edit: "Edit Player"
+    new: "Create Player"
+
+    export: "Exported players"
+    import: "Imported players"
+
+    label:
+      single: "%{t('player.single')}"
+      plural: "%{t('player.many')}"
+      short: "%{t('player.abbr')}"

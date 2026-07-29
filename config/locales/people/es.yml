@@ -1,0 +1,244 @@
+# config/locales/people/es.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Dominio de personas
+#
+# Traducciones canónicas para personas y conceptos relacionados.
+#
+# Las claves de compatibilidad heredadas se conservan al final de este archivo
+# durante la migración v2 y no deben usarse en código nuevo.
+# -----------------------------------------------------------------------------
+
+es:
+  people:
+    person:
+      label:
+        single: Persona
+        plural: Personas
+
+      short:
+        single: Persona
+        plural: Personas
+
+      fields:
+        name:
+          label: Nombre
+          short: Nom.
+
+        surname:
+          label: Apellido
+          short: Apell.
+
+        nickname:
+          label: Apodo
+          short: Apodo
+
+        birthday:
+          label: Fecha de nacimiento
+          short: F.Nac.
+
+        age:
+          label: Edad
+
+        sex:
+          label: Sexo
+
+        national_id:
+          label: Documento de identidad
+          short: DNI
+
+        email:
+          label: Correo electrónico
+
+        phone:
+          label: Teléfono
+          short: Tel.
+
+        address:
+          label: Domicilio
+          short: Dir.
+
+        biography:
+          label: Biografía
+          short: Bio
+
+        photo:
+          label: Fotografía
+          short: Foto
+
+        id_front:
+          label: Documento de identidad (anverso)
+          short: Anv.
+
+        id_back:
+          label: Documento de identidad (reverso)
+          short: Rev.
+
+      messages:
+        created: Persona creada.
+        updated: Persona actualizada.
+        deleted: Persona eliminada.
+        duplicated: La persona ya existe.
+
+    parent:
+      label:
+        single: Familiar
+        plural: Familiares
+
+      short:
+        single: Familiar
+        plural: Familiares
+
+    sex:
+      label:
+        single: Sexo
+        plural: Sexos
+
+      short:
+        single: Sexo
+        plural: Sexos
+
+      values:
+        female:
+          label:
+            single: Femenino
+            plural: Femeninos
+
+          short:
+            single: Fem.
+            plural: Fem.
+
+        male:
+          label:
+            single: Masculino
+            plural: Masculinos
+
+          short:
+            single: Masc.
+            plural: Masc.
+
+        mixed:
+          label:
+            single: Mixto
+            plural: Mixtos
+
+          short:
+            single: Mixto
+            plural: Mixtos
+
+    relationship_kinds:
+      label:
+        single: Relación
+        plural: Relaciones
+
+      values:
+        parent:
+          label:
+            single: Familiar
+            plural: Familiares
+        father:
+          label:
+            single: Padre
+            plural: Padres
+        mother:
+          label:
+            single: Madre
+            plural: Madres
+        guardian:
+          label:
+            single: Tutor
+            plural: Tutores
+        legal_representative:
+          label:
+            single: Representante legal
+            plural: Representantes legales
+        child:
+          label:
+            single: Hijo
+            plural: Hijos
+        sibling:
+          label:
+            single: Hermano
+            plural: Hermanos
+        grandparent:
+          label:
+            single: Abuelo
+            plural: Abuelos
+        grandchild:
+          label:
+            single: Nieto
+            plural: Nietos
+        spouse:
+          label:
+            single: Cónyuge
+            plural: Cónyuges
+        partner:
+          label:
+            single: Pareja
+            plural: Parejas
+        emergency_contact:
+          label:
+            single: Contacto de emergencia
+            plural: Contactos de emergencia
+
+  person:
+    address: "Domicilio"
+
+    age: "Edad"
+
+    bday: "Fecha de nacimiento"
+    bday_a: "F.Nac."
+
+    contact: "Contacto"
+
+    email: "e-mail"
+
+    id_back: "Reverso DNI"
+    id_front: "Anverso DNI"
+
+    name: "Nombre"
+    name_a: "Nombre"
+
+    nick: "Apodo"
+
+    phone: "Teléfono"
+    phone_a: "Telf."
+
+    pics: "Fotos"
+    pics_found: "Fotos disponibles"
+    pics_missing: "Fotos faltantes"
+
+    pid: "DNI Nº"
+    pid_a: "DNI"
+
+    single: "Persona"
+    many: "Personas"
+
+    surname: "Apellido"
+    surname_a: "Apell."
+
+    created: "Persona creada: "
+    updated: "Persona actualizada: "
+    deleted: "Persona eliminada: "
+    duplicate: "Duplicar persona: "
+
+    edit: "Editar Persona"
+    new: "Crear Persona"
+
+    export: "Personas exportadas"
+    import: "Personas importadas"
+
+  sex:
+    abr: "Sexo"
+
+    label: "Sexo"
+
+    female: "Femenino"
+    female_a: "Fem."
+
+    male: "Masculino"
+    male_a: "Masc."
+
+    mixed: "Mixto"
+    mixed_a: "Mixto"

@@ -19,6 +19,8 @@
 # Club: manage information about sports clubs - the hosting one and rivals
 #
 class Club < ApplicationRecord
+	localized_as "organization.club"
+
 	before_destroy :unlink
 	has_many :club_locations, dependent: :destroy
 	has_many :locations, through: :club_locations

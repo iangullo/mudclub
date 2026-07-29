@@ -16,43 +16,52 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# Manage Basketball rules / stats, etc.
+# Extension of the Sport class to Manage Basketball as a MudClub sport
 class Basketball < Sport
-	SPORT_LBL = "sport.basketball."
-	COURT_MODES = [ :half_def, :half_off, :full ]
-	ATTEMPTS  = { fta: 3, fga: 5, tza: 9, t3a: 7, t2a: 11, tma: 13 }.freeze
-	SCORED    = { ftm: 4, fgm: 6, tzm: 8, t3m: 10, t2m: 12, tmm: 14 }.freeze
+	SPORT_LBL = "sport.basketball"
+	localized_as SPORT_LBL
 
-	# Setup the basic settings
+	#
+	# --------------------------------------------------------------------------
+	# Initialization
+	# --------------------------------------------------------------------------
 	def initialize(*args)
 		super(*args)
 		self.name = "basketball"
-		basketball_settings
-	end
-
-	# basketball settings
-	def basketball_settings
-		self.basketball_rules if self.rules.empty?
-		self.basketball_scoring if self.scoring.empty?
-		self.basketball_periods if self.periods.empty?
-		self.basketball_limits if self.limits.empty?
-		self.basketball_stats if self.stats.empty?
-	end
-
-	# return possible court designs for drills/plays
-	def court_modes
-		COURT_MODES
-	end
-
-	# human name of a specific court
-	def court_name(court)
-		I18n.t("sport.#{self.name}.court.#{court}")
+		self.settings = basketball_settings if settings.blank?
 	end
 
 	# return parent object
 	def generic
 		self.becomes(Sport)
 	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Catalogs
+	# --------------------------------------------------------------------------
+	CATALOGS = {
+		court_modes: Catalog::Basketball::CourtModes,
+		objects: Catalog::Basketball::Objects,
+		periods: Catalog::Basketball::Periods,
+		rules: Catalog::Basketball::Rules,
+		statistics: Catalog::Basketball::Statistics
+	}.freeze
+
+	#
+	# --------------------------------------------------------------------------
+	# Default configuration
+	# --------------------------------------------------------------------------
+
+	# return possible court designs for drills/plays
+	def court_modes
+		catalog(:court_modes).enum
+	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Match metadata
+	# --------------------------------------------------------------------------
 
 	# fields to display match information - not title
 	def match_show(event)
@@ -66,17 +75,53 @@ class Basketball < Sport
 
 	# return period limitations for a match of this sport
 	# depends on rules applied
-	def match_outings(a_rules)
-		s_limits = self.limits[a_rules.to_s] if self.rules[a_rules]
-		p_total  = s_limits["periods"]["regular"]
-		if (outings = s_limits["outings"])
-			p_first  = s_limits["outings"]["first"]
-			p_min    = s_limits["outings"]["min"]
-			p_max    = s_limits["outings"]["max"]
-			outings = { total: p_total, first: p_first, min: p_min, max: p_max }
-		end
-		outings
+	def match_outings(rule)
+		config = limits_for(rule)
+		return nil unless config
+
+		outings = config[:outings] || config["outings"]
+		return nil unless outings
+
+		periods = config[:periods] || config["periods"]
+
+		{
+			total: periods[:regular] || periods["regular"],
+			first: outings[:first] || outings["first"],
+			min:   outings[:min] || outings["min"],
+			max:   outings[:max] || outings["max"]
+		}
 	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Rule helpers
+	# --------------------------------------------------------------------------
+
+	# default applicable rules for a category
+	def default_rules(category)
+		case category.age
+		when 0..8   then rules[:u8]
+		when 9..10  then rules[:u10]
+		when 11..12 then rules[:u12]
+		when 13..14 then rules[:u14]
+		else             rules[:fiba]
+		end
+	end
+
+	# fields to show rules limits
+	def rules_limits
+		res    = rules_limits_title
+		limits = self.limits
+		rules.enum.each_key do |rule|
+			res << rules_limits_row(rule, limits[rule])
+		end
+		res
+	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Tables
+	# --------------------------------------------------------------------------
 
 	# table to show/edit player outings for a match
 	def outings_table(event, outings, edit: false, rdx: nil)
@@ -84,14 +129,14 @@ class Basketball < Sport
 		rows  = []
 		kind  = (edit ? :text : :normal)
 		e_stats    = event.stats
-		rules      = self.rules.key(event.team.category.rules)
-		data       = self.limits[rules]["outings"]
-		data[:tot] = self.limits[rules]["periods"]["regular"]
-		data[:act] = self.limits[rules]["playing"]["max"]
+		t_rules    = self.rules.key(event.team.category.rules)
+		data       = self.limits[t_rules][:outings]
+		data[:tot] = self.limits[t_rules][:periods][:regular]
+		data[:act] = self.limits[t_rules][:playing][:max]
 		if periods
 			q_players = {}
 			1.upto(outings[:total]) do |i|
-				title << { kind: :normal, value: I18n.t("#{SPORT_LBL}period.q#{i}") }
+				title << { kind: :normal, value: I18n.t("#{SPORT_LBL}.periods.values.q#{i}.short") }
 				q_players[i] = 0
 			end
 		end
@@ -107,14 +152,14 @@ class Basketball < Sport
 				if edit
 					row[:items] << { kind: :checkbox_q, key: :outings, player_id: player.id, q: "q#{q}", value: q_val, align: "center", data: { columnId: "q#{q}" } }
 				elsif q_val == 1
-					p_outings    += 1 if q <= data["first"]
+					p_outings    += 1 if q <= data[:first]
 					q_players[q] += 1
 					row[:items] << { kind: :symbol, symbol: { concept: "yes", options: {} }, class: "" }
 				else
 					row[:items] << { kind: :gap, size: 1, class: "border px py" }
 				end
 			end
-			row[:classes] = (p_outings < data["min"]) || (p_outings > data["max"]) ? [ "border", "px", "py", "bg-red-300" ] : []
+			row[:classes] = (p_outings < data[:min]) || (p_outings > data[:max]) ? [ "border", "px", "py", "bg-red-300" ] : []
 			rows << row
 		end
 		unless edit
@@ -142,6 +187,11 @@ class Basketball < Sport
 		{ title: head, rows: rows }
 	end
 
+	#
+	# --------------------------------------------------------------------------
+	# Training
+	# --------------------------------------------------------------------------
+
 	# fields to display player's stats for training
 	def player_training_stats_show(event, player_id:)
 		stats = Stat.fetch(event_id: event.id, period: 0, player_id:, create: false)
@@ -167,38 +217,19 @@ class Basketball < Sport
 		res
 	end
 
-	# fields to show rules limits
-	def rules_limits
-		res    = rules_limits_title
-		rules  = self.rules
-		limits = self.limits
-		rules.each_key do |rule|
-			res << rules_limits_row(rule, limits[rule])
-		end
-		res
+	#
+	# --------------------------------------------------------------------------
+	# Symbols
+	# --------------------------------------------------------------------------
+
+	# retrieve an SVG symbol from the registry
+	def symbol(concept, type: :object, variant: "default")
+		try_symbol(concept, namespace: self.name, type:, variant:) || super
 	end
 
-	# default applicable rules for a category
-	def default_rules(category)
-		case category.max_years
-		when 13	then 1	# U14
-		when 11	then 2	# U12
-		when 9	then 3	# U10
-		when 7	then 4	# U8
-		else 0	# fiba (0) or 3x3 (6)
-		end
-	end
-
-	# return rules that may apply to BASKETBALL:
-	def rules_options
-		[
-			[ I18n.t("#{SPORT_LBL}rules.fiba"), 0 ],
-			[ I18n.t("#{SPORT_LBL}rules.u14"), 1 ],
-			[ I18n.t("#{SPORT_LBL}rules.u12"), 2 ],
-			[ I18n.t("#{SPORT_LBL}rules.u10"), 3 ],
-			[ I18n.t("#{SPORT_LBL}rules.u8"), 4 ],
-			[ I18n.t("#{SPORT_LBL}rules.three"), 5 ]
-		]
+	# human name of a specific court
+	def court_name(court)
+		I18n.t("sport.#{self.name}.court.#{court}")
 	end
 
 	# Some pre-processing of stats_data
@@ -208,53 +239,18 @@ class Basketball < Sport
 		super(event, stats_data)
 	end
 
-	# retrieve an SVG symbol from the registry
-	def symbol(concept, type: :object, variant: "default")
-		try_symbol(concept, namespace: self.name, type:, variant:) || super
-	end
-
+	#
+	# --------------------------------------------------------------------------
+	# Internal helpers
+	# --------------------------------------------------------------------------
 	private
-		# generic creation of stats if inexistent in database
-		def basketball_stats
-			self.stats = {
-				sec: 0, # seconds played/trained
-				pts: 1, # points
-				pta: 2,	# total points shot
-				fta: 3, # Free Throws
-				ftm: 4,
-				fga: 5,	# field goals
-				fgm: 6,
-				t2a: 7, # Two point shots
-				t2m: 8,
-				tza: 9,	# shots near basket
-				tzm: 10,
-				tma: 11, # mid-range shots
-				tmm: 12,
-				t3a: 13, # Three point shots
-				t3m: 14,
-				drb: 15, # defensive rebounds
-				orb: 16, # offensive rebounds
-				trb: 17,
-				ast: 18,  # assists
-				stl: 19,  # steals
-				to: 20, # turnovers
-				blk: 21,  # blocks
-				bla: 22,  # blocks against
-				pfc: 23,  # fouls committed
-				pfr: 24,  # fouls received
-				q1: 25, # outing in each quarter
-				q2: 26,
-				q3: 27,
-				q4: 28,
-				q5: 29,
-				q6: 30,
-				ot: 31
-			}
-		end
-
-		# category rulesets
-		def basketball_rules
-			self.rules = { fiba: 0, u14: 1, u12: 2, u10: 3, u8: 4, three: 5 }
+		# basketball settings
+		# TODO: review after last Sport change
+		def basketball_settings
+			generic_settings.deep_merge(
+				scoring: basketball_scoring,
+				limits: basketball_limits
+			)
 		end
 
 		# set default limits applicable to rules
@@ -267,17 +263,12 @@ class Basketball < Sport
 			limits[:u10]   = { roster: { max: 16, min: 5 }, playing: { max: 5, min: 2 }, outings: { first: 3, max: 2, min: 1 }, periods: { regular: 4, extra: 10 }, duration: { regular: 600, extra: 300 } }
 			limits[:u8]    = { roster: { max: 16, min: 5 }, playing: { max: 4, min: 2 }, outings: { first: 3, max: 2, min: 1 }, periods: { regular: 4, extra: 10 }, duration: { regular: 480, extra: 300 } }
 			limits[:three] = { roster: { max: 5, min: 3 }, playing: { max: 3, min: 2 }, periods: { regular: 1, extra: 10 }, duration: { regular: 420, extra: 180 } }
-			self.limits = limits
-		end
-
-		# generic periods definition
-		def basketball_periods
-			self.periods = { tot: 0, q1: 1, q2: 2, q3: 3, q4: 4, q5: 5, q6: 6, ot: 7 }
+			limits
 		end
 
 		# generic setting method to be used for all setters
 		def basketball_scoring
-			self.scoring = { sets: false, points: :pts }
+			{ sets: false, points: :pts }
 		end
 
 		# header fields to show player training_stats
@@ -285,17 +276,17 @@ class Basketball < Sport
 			res = [ [ { kind: :gap }, { kind: :side_cell, value: I18n.t("stat.many"), align: "middle", cols: 5 } ] ]
 			res << [
 				{ kind: :gap },
-				topcell(I18n.t("#{SPORT_LBL}shot.many")),
-				topcell(I18n.t("#{SPORT_LBL}shot.scored")),
+				topcell(I18n.t("#{SPORT_LBL}.shot.many")),
+				topcell(I18n.t("#{SPORT_LBL}.shot.scored")),
 				topcell("/"),
-				topcell(I18n.t("#{SPORT_LBL}shot.attempt"))
+				topcell(I18n.t("#{SPORT_LBL}.shot.attempt"))
 			]
 		end
 
 		# return label for a Baskeball stat
-		def s_label(label, abbr: true)
-			tail = abbr ? ".abbr" : ".many"
-			I18n.t("#{SPORT_LBL}stat.#{label}#{tail}", default: label.to_s.humanize)
+		def s_label(stat, short: true)
+			tail = short ? ".short" : ".label"
+			I18n.t("#{SPORT_LBL}.statistics.values.#{stat}#{tail}", default: label.to_s.humanize)
 		end
 
 		# standardised shooting data fields
@@ -341,30 +332,34 @@ class Basketball < Sport
 
 		# fields to show the sport rules limits title
 		def rules_limits_title
+			k_max = "training.stat.fields.maximum.short"
+			k_min = "training.stat.fields.minimum.short"
+			k_dur = "core.sport.period.fields.duration.short"
+
 			[
 				[
-					topcell(I18n.t("sport.rules"), rows: 3),
-					topcell(I18n.t("sport.period.many"), cols: 4),
-					topcell(I18n.t("team.roster"), cols: 2, rows: 2),
-					topcell(I18n.t("#{SPORT_LBL}outings.playing"), cols: 2, rows: 2),
-					topcell(I18n.t("#{SPORT_LBL}outings.quarter"), cols: 3, rows: 2)
+					topcell(I18n.t("core.sport.fields.rules.label.single"), rows: 3),
+					topcell(I18n.t("#{SPORT_LBL}.periods.label.many"), cols: 4),
+					topcell(I18n.t("training.team.fields.roster.label"), cols: 2, rows: 2),
+					topcell(I18n.t("#{SPORT_LBL}.outings.playing"), cols: 2, rows: 2),
+					topcell(I18n.t("#{SPORT_LBL}.outings.quarter"), cols: 3, rows: 2)
 				],
 				[
-					topcell(I18n.t("sport.period.regular"), cols: 2),	# periods
-					topcell(I18n.t("sport.period.extra"), cols: 2)
+					topcell(I18n.t("core.sport.period.fields.regular.label.single"), cols: 2),	# periods
+					topcell(I18n.t("core.sport.period.fields.extra.label.single"), cols: 2)
 				],
 				[
-					topcell(I18n.t("sport.period.qty")),	# regular
-					topcell(I18n.t("sport.period.duration")),
-					topcell(I18n.t("sport.period.qty")),	# extra
-					topcell(I18n.t("sport.period.duration")),
-					topcell(I18n.t("stat.max")),	# match roster
-					topcell(I18n.t("stat.min")),
-					topcell(I18n.t("stat.max")),	# match playing
-					topcell(I18n.t("stat.min")),
-					topcell(I18n.t("#{SPORT_LBL}outings.first")),	# outings
-					topcell(I18n.t("stat.max")),	# in field
-					topcell(I18n.t("stat.min"))
+					topcell(I18n.t("#{SPORT_LBL}.periods.label.short")),	# regular
+					topcell(I18n.t(k_dur)),
+					topcell(I18n.t("#{SPORT_LBL}.periods.values.ot.short")),	# extra
+					topcell(I18n.t(k_dur)),
+					topcell(I18n.t(k_max)),	# match roster
+					topcell(I18n.t(k_min)),
+					topcell(I18n.t(k_max)),	# match playing
+					topcell(I18n.t(k_min)),
+					topcell(I18n.t("#{SPORT_LBL}.outings.first")),	# outings
+					topcell(I18n.t(k_max)),	# in field
+					topcell(I18n.t(k_min))
 				]
 			]
 		end
@@ -373,24 +368,24 @@ class Basketball < Sport
 		def rules_limits_row(rule, limit)
 			g_cls  = "border"
 			n_cls  = "#{g_cls} text-center"
-			r_per  = limit["periods"]
-			r_dur  = limit["duration"]
-			r_ros  = limit["roster"]
-			r_play = limit["playing"]
-			r_out  = limit["outings"] ? limit["outings"] : { "first" => "N/A", "min" => "N/A", "max" => "N/A" }
+			r_per  = limit[:periods]
+			r_dur  = limit[:duration]
+			r_ros  = limit[:roster]
+			r_play = limit[:playing]
+			r_out  = limit[:outings] ? limit[:outings] : { "first" => "N/A", "min" => "N/A", "max" => "N/A" }
 			[
-				{ kind: :normal, value: I18n.t("#{SPORT_LBL}rules.#{rule}"), class: g_cls },
-				{ kind: :normal, value: r_per["regular"], class: n_cls },
-				{ kind: :normal, value: r_dur["regular"]/60, class: n_cls },
-				{ kind: :normal, value: r_per["extra"], class: n_cls },
-				{ kind: :normal, value: r_dur["extra"]/60, class: n_cls },
-				{ kind: :normal, value: r_ros["max"], class: n_cls },
-				{ kind: :normal, value: r_ros["min"], class: n_cls },
-				{ kind: :normal, value: r_play["max"], class: n_cls },
-				{ kind: :normal, value: r_play["min"], class: n_cls },
-				{ kind: :normal, value: r_out["first"], class: n_cls },
-				{ kind: :normal, value: r_out["max"], class: n_cls },
-				{ kind: :normal, value: r_out["min"], class: n_cls }
+				{ kind: :normal, value: I18n.t("#{SPORT_LBL}.rules.values.#{rule}.short"), class: g_cls },
+				{ kind: :normal, value: r_per[:regular], class: n_cls },
+				{ kind: :normal, value: r_dur[:regular]/60, class: n_cls },
+				{ kind: :normal, value: r_per[:extra], class: n_cls },
+				{ kind: :normal, value: r_dur[:extra]/60, class: n_cls },
+				{ kind: :normal, value: r_ros[:max], class: n_cls },
+				{ kind: :normal, value: r_ros[:min], class: n_cls },
+				{ kind: :normal, value: r_play[:max], class: n_cls },
+				{ kind: :normal, value: r_play[:min], class: n_cls },
+				{ kind: :normal, value: r_out[:first], class: n_cls },
+				{ kind: :normal, value: r_out[:max], class: n_cls },
+				{ kind: :normal, value: r_out[:min], class: n_cls }
 			]
 		end
 
@@ -420,6 +415,16 @@ class Basketball < Sport
 				fields << [ { kind: :side_cell, value: I18n.t("player.many"), align: "left", cols: t_cols } ]
 			end
 			fields
+		end
+
+		def match_periods(rule)
+			config = limits_for(rule)
+			return nil unless config
+
+			periods = config[:periods] || config["periods"]
+			return nil unless periods
+
+			periods[:regular] || periods["regular"]
 		end
 
 		# fields for home team in a match
@@ -474,11 +479,11 @@ class Basketball < Sport
 					rsc[:ours] += val[:ours]
 					rsc[:opps] += val[:opps]
 				end
-				head << topcell(I18n.t("#{SPORT_LBL}period.#{per}"))
+				head << topcell(I18n.t("#{SPORT_LBL}.periods.values.#{per}.short"))
 				team_period_score(home, per, t_home, t_away, val, edit:)
 			end
 			if edit || (rsc[:ours] == rsc[:opps] && rsc[:ours] > 0)
-				head << topcell(I18n.t("#{SPORT_LBL}period.ot"))
+				head << topcell(I18n.t("#{SPORT_LBL}.periods.values.ot.short"))
 				team_period_score(home, :ot, t_home, t_away, score[:ot], edit:)
 			end
 		end
@@ -492,9 +497,9 @@ class Basketball < Sport
 			]
 			fields <<	{ kind: :normal, value: s_label(:pts), align: "center" } unless edit
 			fields += [
-				{ kind: :normal, value: s_label(:ft), cols: 3, align: "center" },
 				{ kind: :normal, value: s_label(:t2), cols: 3, align: "center" },
 				{ kind: :normal, value: s_label(:t3), cols: 3, align: "center" },
+				{ kind: :normal, value: s_label(:ft), cols: 3, align: "center" },
 				{ kind: :normal, value: s_label(:trb), align: "center" },
 				{ kind: :normal, value: s_label(:ast), align: "center" },
 				{ kind: :normal, value: s_label(:stl), align: "center" },
@@ -506,48 +511,34 @@ class Basketball < Sport
 
 		# row fields for a player's stats
 		def match_stats_row(player, stats, edit: false)
-			key  = "#{player.id}_0_"
-			secs = Stat.fetch(concept: 0, stats:, create: false).first&.value.to_i
-			if edit
-				tbox = { kind: :number_box, key: "#{key}0", max: 5400, min: 0, size: 3, value: secs, units: "\"" }
-			else
-				tbox = { kind: :normal, value: self.time_string(secs), align: "right" }
-			end
+			prefix  = "#{player.id}_0_"
+
 			fields = [
 				{ kind: :normal, value: player.number, align: "center" },
 				{ kind: :normal, value: player.s_name },
-				tbox
+				stat_field(prefix, stats, statistics.fetch(:sec), edit:)
 			]
-			# show points only when not editing
-			fields <<	match_stats(key, stats, 2, edit:) unless edit
-			fields +=	[
-				match_stats(key, stats, 4, edit:),	# ftm
-				{ kind: :normal, value: "/" },
-				match_stats(key, stats, 3, edit:),	# fta
-				match_stats(key, stats, 8, edit:),	# t2a
-				{ kind: :normal, value: "/" },
-				match_stats(key, stats, 7, edit:),	# t2m
-				match_stats(key, stats, 14, edit:),	# t3a
-				{ kind: :normal, value: "/" },
-				match_stats(key, stats, 13, edit:),	# t3m
-				match_stats(key, stats, 17, edit:),	# trb
-				match_stats(key, stats, 18, edit:),	# ast
-				match_stats(key, stats, 19, edit:),	# stl
-				match_stats(key, stats, 21, edit:),	# blk
-				match_stats(key, stats, 20, edit:),	# to
-				match_stats(key, stats, 23, edit:)	# fouls
-			]
-		end
 
-		# return a match_stats field for edit/view
-		def match_stats(key, stats, concept, edit: false)
-			key   = "#{key}#{concept}"
-			value = Stat.fetch(concept:, stats:, create: false).first&.value.to_i
-			if edit
-				{ kind: :number_box, key:, value:, class: "hover:text-blue-900" }
-			else
-				{ kind: :normal, value:, align: "right" }
-			end
+			# show points only when not editing
+			fields << stat_field(prefix, stats, statistics.fetch(:pts), edit:) unless edit
+
+			fields +=	[
+				stat_field(prefix, stats, statistics.fetch(:t2m), edit:),	# 2P shots
+				{ kind: :normal, value: "/" },
+				stat_field(prefix, stats, statistics.fetch(:t2a), edit:),
+				stat_field(prefix, stats, statistics.fetch(:t3m), edit:),	# 3P shots
+				{ kind: :normal, value: "/" },
+				stat_field(prefix, stats, statistics.fetch(:t3a), edit:),
+				stat_field(prefix, stats, statistics.fetch(:ftm), edit:),	# free throws
+				{ kind: :normal, value: "/" },
+				stat_field(prefix, stats, statistics.fetch(:fta), edit:),
+				stat_field(prefix, stats, statistics.fetch(:trb), edit:),	# rebounds
+				stat_field(prefix, stats, statistics.fetch(:ast), edit:),	# ast
+				stat_field(prefix, stats, statistics.fetch(:stl), edit:),	# stl
+				stat_field(prefix, stats, statistics.fetch(:blk), edit:),	# blk
+				stat_field(prefix, stats, statistics.fetch(:to), edit:),	# to
+				stat_field(prefix, stats, statistics.fetch(:pfc), edit:)	# fouls
+			]
 		end
 
 		# parse a player's stats from a form input
@@ -581,5 +572,11 @@ class Basketball < Sport
 			stats["#{kplay}6"] = pstat[:fgm]
 			stats["#{kplay}7"] = pstat[:t2a]
 			stats["#{kplay}8"] = pstat[:t2m]
+		end
+
+		# Scoring acumulator for Basketball
+		def accumulate_score(total:, ours:, opps:)
+			total[:ours] += ours
+			total[:opps] += opps
 		end
 end

@@ -27,6 +27,8 @@
 # contact, legal authority or notification preferences.
 #
 class Catalog::RelationshipKinds < Catalog::Base
+	domain "people"
+
 	CATALOG = {
 
 		#

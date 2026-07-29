@@ -21,6 +21,8 @@
 # Defines the canonical lifecycles for MudClub Core objects.
 #
 class Catalog::Lifecycles < Catalog::Base
+	domain "core"
+
 	CATALOG = {
 
 		immutable: {

@@ -16,7 +16,16 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# Legacy attendance model.
+#
+# Associates Players with Events.
+#
+# This model will eventually be replaced by a People/Participation-based
+# attendance model once the Participation domain has been completed.
+#
 class EventAttendance < ApplicationRecord
+	localized_as "calendar.attendance"
+
 	self.table_name = "events_players"
 	belongs_to :event
 	belongs_to :player

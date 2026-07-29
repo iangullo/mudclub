@@ -1,5 +1,5 @@
 # MudClub - The open source Rails platform to manage amateur sports clubs.
-# Copyright (C) 2026  Iván González Angullo
+# Copyright (C) 2026 Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -8,11 +8,11 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 # contact email - iangullo@gmail.com.
 #
@@ -21,11 +21,14 @@
 #
 # Catalog::Entry
 #
-# Immutable entry belonging to a Catalog.
+# Immutable value object representing a single entry of a Catalog.
 #
-# Entries expose the metadata associated with a catalog key and provide
-# object-oriented access to it.
+# Entries expose their metadata through dynamically generated readers
+# and boolean predicates while delegating all localisation to their
+# owning catalog.
 #
+# frozen_string_literal: true
+
 class Catalog::Entry
 	include Comparable
 
@@ -36,13 +39,17 @@ class Catalog::Entry
 		@key = key.to_sym
 		@metadata = attributes.deep_symbolize_keys.freeze
 
-		define_attribute_readers
-
 		freeze
 	end
 
+	#
+	# --------------------------------------------------------------------------
+	# Metadata
+	# --------------------------------------------------------------------------
+	#
+
 	def id
-		@metadata[:id]
+		alias? ? catalog.resolve(key).id : @metadata[:id]
 	end
 
 	def metadata
@@ -55,13 +62,75 @@ class Catalog::Entry
 		@metadata[attribute.to_sym]
 	end
 
-	def fetch(attribute)
-		@metadata.fetch(attribute.to_sym)
+	def fetch(attribute, default = nil, &block)
+		@metadata.fetch(attribute.to_sym, default, &block)
 	end
 
-	def include?(attribute)
+	def key?(attribute)
 		@metadata.key?(attribute.to_sym)
 	end
+
+	alias include? key?
+
+	#
+	# --------------------------------------------------------------------------
+	# Localization
+	# --------------------------------------------------------------------------
+	#
+
+	def label
+		catalog.label(key)
+	end
+
+	def short
+		catalog.short(key)
+	end
+
+	def hint
+		catalog.hint(key)
+	end
+
+	def description
+		catalog.description(key)
+	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Helpers
+	# --------------------------------------------------------------------------
+	#
+
+	def alias?
+		include?(:alias_of)
+	end
+
+	def canonical?
+		!alias?
+	end
+
+	def deprecated
+		!!self[:deprecated]
+	end
+
+	alias deprecated? deprecated
+
+	def aliases
+		Array(self[:aliases])
+	end
+
+	def tags
+		Array(self[:tags])
+	end
+
+	def dig(*keys)
+		@metadata.dig(*keys)
+	end
+
+	#
+	# --------------------------------------------------------------------------
+	# Comparable
+	# --------------------------------------------------------------------------
+	#
 
 	def <=>(other)
 		id <=> other.id
@@ -82,14 +151,4 @@ class Catalog::Entry
 	def hash
 		[ catalog, key ].hash
 	end
-
-	private
-
-		def define_attribute_readers
-			@metadata.each_key do |attribute|
-				define_singleton_method(attribute) do
-					@metadata[attribute]
-				end
-			end
-		end
 end

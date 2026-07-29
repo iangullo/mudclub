@@ -26,6 +26,8 @@
 # characteristics.
 #
 class Catalog::Modules < Catalog::Base
+	domain "core"
+
 	CATALOG = {
 
 		core: {

@@ -1,0 +1,351 @@
+# Spanish Locale strings for MudClub basketball
+# -----------------------------------------------------------------------------
+# Basketball
+# -----------------------------------------------------------------------------
+#
+# Basketball-specific terminology and catalogs.
+#
+# This file overrides the generic Sport vocabulary where appropriate and
+# provides the catalog entries required by the Basketball implementation.
+#
+# -----------------------------------------------------------------------------
+
+es:
+  sport:
+    basketball:
+      # -----------------------------------------------------------------------
+      # Sport identity
+      # -----------------------------------------------------------------------
+
+      label:
+        single: Baloncesto
+        plural: Baloncesto
+
+      short:
+        single: BB
+        plural: BB
+
+      # -----------------------------------------------------------------------
+      # Basketball terminology
+      # -----------------------------------------------------------------------
+
+      terms:
+        athlete:
+          label:
+            single: Jugador
+            plural: Jugadores
+
+          short:
+            single: Jug.
+            plural: Jugs.
+
+        coach:
+          label:
+            single: Entrenador
+            plural: Entrenadores
+
+        team:
+          label:
+            single: Equipo
+            plural: Equipos
+
+        period:
+          label:
+            single: Cuarto
+            plural: Cuartos
+
+          short:
+            single: C.
+            plural: Cs.
+
+      # -----------------------------------------------------------------------
+      # Rules
+      # -----------------------------------------------------------------------
+
+      rules:
+        values:
+          fiba:
+            label: FIBA
+            short: FIBA
+            description: Reglas oficiales de competición FIBA.
+
+          u14:
+            label: Infantil
+            short: Inf.
+            description: Competición Infantil.
+
+          u12:
+            label: Minibasket
+            short: Mini
+            description: Competición Minibasket.
+
+          u10:
+            label: Premini
+            short: Pre.
+            description: Competición Premini
+
+          u8:
+            label: Babybasket
+            short: Baby
+            description: Iniciación al baloncesto.
+
+          three:
+            label: 3×3
+            short: 3×3
+            description: Baloncesto 3x3.
+
+      # -----------------------------------------------------------------------
+      # Periods
+      # -----------------------------------------------------------------------
+
+      periods:
+        label:
+          single: Periodo
+          many: Periodos
+          short: Q
+
+        values:
+          tot:
+            label: Partido completo
+            short: TOT
+
+          q1:
+            label: Primer cuarto
+            short: Q1
+
+          q2:
+            label: Segundo cuarto
+            short: Q2
+
+          q3:
+            label: Tercer cuarto
+            short: Q3
+
+          q4:
+            label: Cuarto cuarto
+            short: Q4
+
+          q5:
+            label: Quinto cuarto
+            short: Q5
+
+          q6:
+            label: Sexto cuarto
+            short: Q6
+
+          ot:
+            label: Prórroga
+            short: PR
+
+      # -----------------------------------------------------------------------
+      # Court layouts
+      # -----------------------------------------------------------------------
+
+      court_modes:
+        values:
+          full:
+            label: Pista completa
+            short: Completa
+
+          half_off:
+            label: Media pista ofensiva
+            short: Of.
+
+          half_def:
+            label: Media pista defensiva
+            short: Def.
+
+      # -----------------------------------------------------------------------
+      # Diagram objects
+      # -----------------------------------------------------------------------
+
+      objects:
+        values:
+          attacker:
+            label: Atacante
+
+          defender:
+            label: Defensor
+
+          coach:
+            label: Entrenador
+
+          cone:
+            label: Cono
+
+          ball:
+            label: Balón
+
+          move:
+            label: Movimiento
+
+          pass:
+            label: Pase
+
+          dribble:
+            label: Bote
+
+          shot:
+            label: Tiro
+
+          pick:
+            label: Bloqueo
+
+          handoff:
+            label: Mano a mano
+
+      # -----------------------------------------------------------------------
+      # Statistics
+      # -----------------------------------------------------------------------
+
+      statistics:
+        values:
+          sec:
+            label: Tiempo
+            short: T.
+            description: Tiempo total de juego.
+
+          pts:
+            label: Puntos
+            short: PTS
+            description: Puntos totales anotados.
+
+          pta:
+            label: Tiros intentados
+            short: TIA
+
+          ft:
+            label: Tiros Libres
+            short: TL
+
+          fta:
+            label: Tiros libres intentados
+            short: TLI
+
+          ftm:
+            label: Tiros libres anotados
+            short: TLA
+
+          fg:
+            label: Tiros de campo
+            short: TC
+
+          fga:
+            label: Tiros de campo intentados
+            short: TCI
+
+          fgm:
+            label: Tiros de campo anotados
+            short: TCA
+
+          t2:
+            label: Tiros de 2
+            short: 2P
+
+          t2a:
+            label: Intentos de dos puntos
+            short: T2I
+
+          t2m:
+            label: Canastas de dos puntos
+            short: T2A
+
+          tz:
+            label: Tiros en la zona
+            short: TZ
+
+          tza:
+            label: Intentos desde cerca
+            short: TCI
+
+          tzm:
+            label: Canastas desde cerca
+            short: TCA
+
+          tm:
+            label: Tiros de media distancia
+            short: TM
+
+          tma:
+            label: Intentos de media distancia
+            short: TMI
+
+          tmm:
+            label: Canastas de media distancia
+            short: TMA
+
+          t3:
+            label: Tiros de 3
+            short: 3P
+
+          t3a:
+            label: Intentos de tres puntos
+            short: T3I
+
+          t3m:
+            label: Canastas de tres puntos
+            short: T3A
+
+          orb:
+            label: Rebotes ofensivos
+            short: RBO
+
+          drb:
+            label: Rebotes defensivos
+            short: RBD
+
+          trb:
+            label: Rebotes totales
+            short: REB
+
+          ast:
+            label: Asistencias
+            short: AST
+
+          stl:
+            label: Robos
+            short: ROB
+
+          to:
+            label: Pérdidas
+            short: PER
+
+          blk:
+            label: Tapones
+            short: TAP
+
+          bla:
+            label: Tiros taponados
+            short: TTA
+
+          pfc:
+            label: Faltas cometidas
+            short: FC
+
+          pfr:
+            label: Faltas recibidas
+            short: FR
+
+      outings:
+        first: Primero
+        playing: En pista
+        quarter: Rotaciones de jugadores
+
+      # -----------------------------------------------------------------------
+      # DEPRECATED
+      #
+      # Compatibility keys preserved during the MudClub 2.0 migration.
+      # Remove once legacy views, helpers and JavaScript have been updated.
+      # -----------------------------------------------------------------------
+
+      name: Baloncesto
+
+      court:
+        full: Pista completa
+        half_off: Media pista (ataque)
+        half_def: Media pista (defensa)
+
+      shot:
+        many: Tiros
+        attempt: Int.
+        scored: Anot.

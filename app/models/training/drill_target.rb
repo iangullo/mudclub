@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class DrillTarget < ApplicationRecord
+	localized_as "training.target"
+
 	belongs_to :target
 	belongs_to :drill
 	accepts_nested_attributes_for :target, reject_if: :all_blank

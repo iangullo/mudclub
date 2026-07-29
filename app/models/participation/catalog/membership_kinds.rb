@@ -22,19 +22,21 @@
 #
 # Membership kinds describe why a person belongs to a club.
 #
-# Each kind declares the organisational namespaces in which members
+# Each kind declares the organisational modules in which members
 # of that kind normally participate. Members may simultaneously hold
 # multiple memberships, allowing them to contribute across several
 # organisational domains.
 #
 class Catalog::MembershipKinds < Catalog::Base
+	domain "participation"
+
 	CATALOG = {
 
 		athlete: {
 			id: 0,
 			scope: :club,
 
-			namespaces: [
+			modules: [
 				:coaching,
 				:competition
 			],
@@ -47,7 +49,7 @@ class Catalog::MembershipKinds < Catalog::Base
 			id: 10,
 			scope: :club,
 
-			namespaces: [
+			modules: [
 				:coaching,
 				:competition
 			],
@@ -60,7 +62,7 @@ class Catalog::MembershipKinds < Catalog::Base
 			id: 20,
 			scope: :club,
 
-			namespaces: [
+			modules: [
 				:communications,
 				:events,
 				:operations
@@ -74,7 +76,7 @@ class Catalog::MembershipKinds < Catalog::Base
 			id: 30,
 			scope: :club,
 
-			namespaces: [
+			modules: [
 				:core,
 				:finance,
 				:communications,
@@ -88,7 +90,7 @@ class Catalog::MembershipKinds < Catalog::Base
 		club_manager: {
 			id: 40,
 			scope: :club,
-			namespaces: [
+			modules: [
 				:core,
 				:operations
 			],

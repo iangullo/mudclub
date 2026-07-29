@@ -1,39 +1,36 @@
 # MudClub - The open source Rails platform to manage amateur sports clubs.
-# Copyright (C) 2026  Iván González Angullo
+# Copyright (C) 2026 Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
 # by the Free Software Foundation, either version 3 of the License, or any
 # later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#
-# contact email - iangullo@gmail.com.
-#
 # frozen_string_literal: true
 
 #
 # Catalog::Base
 #
-# Base class for immutable application catalogs.
+# Base class for all immutable MudClub catalogs.
 #
-# Subclasses define a CATALOG constant containing the metadata for each
-# entry. Entries are built lazily and exposed as immutable objects.
+# Catalogs expose immutable Catalog::Entry objects together with querying,
+# localisation and Rails enum compatibility.
 #
+# frozen_string_literal: true
+
 class Catalog::Base
 	include Enumerable
 	include Localizable
 
 	class << self
 		#
-		# Public API
+		# ------------------------------------------------------------------------
+		# Repository
+		# ------------------------------------------------------------------------
 		#
+		def domain(scope)
+			@domain = scope
+		end
 
 		def size
 			ensure_built!
@@ -49,8 +46,6 @@ class Catalog::Base
 			@entries
 		end
 
-		alias definitions entries
-
 		def keys
 			ensure_built!
 			@keys
@@ -61,8 +56,18 @@ class Catalog::Base
 			@values
 		end
 
+		def first
+			ensure_built!
+			@values.first
+		end
+
+		def last
+			ensure_built!
+			@values.last
+		end
+
 		#
-		# Rails enum helper.
+		# Rails enum compatibility.
 		#
 		def enum
 			ensure_built!
@@ -72,12 +77,25 @@ class Catalog::Base
 		#
 		# Reverse lookup.
 		#
-		def keys_by_id
+		def entry(id)
 			ensure_built!
-			@keys_by_id
+			@entries_by_id.fetch(id)
 		end
 
-		alias ids keys_by_id
+		def key(id)
+			ensure_built!
+			@keys_by_id.fetch(id)
+		end
+
+		def id(key)
+			resolve(key).id
+		end
+
+		#
+		# ------------------------------------------------------------------------
+		# Lookup
+		# ------------------------------------------------------------------------
+		#
 
 		def [](key)
 			fetch(key)
@@ -93,63 +111,96 @@ class Catalog::Base
 			@entries.key?(key.to_sym)
 		end
 
-		def id(key)
-			fetch(key).id
-		end
-
-		def key(id)
-			ensure_built!
-			@keys_by_id.fetch(id)
-		end
-
-		def each(&block)
-			ensure_built!
-			@entries.each_value(&block)
-		end
-
-		def where(**criteria)
-			ensure_built!
-
-			@entries.select do |_key, entry|
-				criteria.all? do |attribute, expected|
-					actual = entry.public_send(attribute)
-
-					if expected.is_a?(Array)
-						expected.include?(actual)
-					elsif actual.is_a?(Array)
-						Array(expected).all? { |value| actual.include?(value) }
-					else
-						actual == expected
-					end
-				end
-			end
-		end
-
-		def find_by(**criteria)
-			where(**criteria).values.first
-		end
-
-		def matches?(key, **criteria)
+		#
+		# Returns the canonical entry.
+		#
+		def resolve(key)
 			entry = fetch(key)
 
-			criteria.all? do |attribute, expected|
-				actual = entry.public_send(attribute)
+			entry = fetch(entry.alias_of) while entry.alias?
 
-				if actual.is_a?(Array)
-					Array(expected).all? { |value| actual.include?(value) }
-				else
-					actual == expected
+			entry
+		end
+
+		#
+		# Enumerable
+		#
+		def each(&block)
+			ensure_built!
+			@values.each(&block)
+		end
+
+		#
+		# ------------------------------------------------------------------------
+		# Queries
+		# ------------------------------------------------------------------------
+		#
+
+		def where(include_deprecated: false, **criteria)
+			ensure_built!
+
+			criteria[:deprecated] = false unless include_deprecated
+
+			@values.select do |entry|
+				criteria.all? do |attribute, expected|
+					matches_attribute?(
+						entry.public_send(attribute),
+						expected
+					)
 				end
 			end
 		end
 
-
-		def self.i18n_scope
-			@i18n_scope ||= "catalog.#{name.demodulize.underscore}"
+		def canonical(...)
+			where(...).select(&:canonical?)
 		end
 
-		def self.i18n_members_scope
+		def find_by(...)
+			where(...).first
+		end
+
+		def options(...)
+			canonical(...).map do |entry|
+				[ entry.label, entry.id ]
+			end
+		end
+
+		#
+		# ------------------------------------------------------------------------
+		# Localizable
+		# ------------------------------------------------------------------------
+		#
+
+		def i18n_scope
+			@i18n_scope ||= "#{@domain}.#{name.demodulize.underscore}"
+		end
+
+		def i18n_members_scope
 			:values
+		end
+
+		def label(key = nil)
+			return super() unless key
+
+			translate_member(key, :label)
+		end
+
+		def short(key = nil)
+			return super() unless key
+
+			translate_member(key, :short)
+		end
+
+		def hint(key = nil)
+			return super() unless key
+
+			translate_member(key, :hint)
+		end
+
+		def description(key = nil)
+			return super() unless key
+
+			translate_member(key, :description)
 		end
 
 		private
@@ -171,24 +222,57 @@ class Catalog::Base
 							Catalog::Entry.new(
 								catalog: self,
 								key: key,
-								attributes: metadata
+								attributes: metadata.deep_dup
 							)
 					end.freeze
 
 				@keys = @entries.keys.freeze
 
-				@values = @entries.values.freeze
+				@values =
+					@entries.values.sort.freeze
 
 				@enum =
-					@entries.transform_values(&:id).freeze
+					@entries
+						.reject { |_k, e| e.alias? }
+						.transform_values(&:id)
+						.freeze
+
+				@entries_by_id =
+					@entries
+						.reject { |_k, e| e.alias? }
+						.each_with_object({}) do |(_, entry), hash|
+							hash[entry.id] = entry
+						end
+						.freeze
 
 				@keys_by_id =
-					@entries.each_with_object({}) do |(key, entry), hash|
-						raise ArgumentError,
-							"Duplicate catalog id #{entry.id}" if hash.key?(entry.id)
+					@entries
+						.reject { |_k, e| e.alias? }
+						.each_with_object({}) do |(key, entry), hash|
+							raise ArgumentError,
+										"Duplicate catalog id #{entry.id}" if hash.key?(entry.id)
 
-						hash[entry.id] = key
-					end.freeze
+							hash[entry.id] = key
+						end
+						.freeze
+			end
+
+			def matches_attribute?(actual, expected)
+				if expected.is_a?(Array)
+					expected.include?(actual)
+
+				elsif actual.is_a?(Array)
+					Array(expected).all? do |value|
+						actual.include?(value)
+					end
+
+				else
+					actual == expected
+				end
+			end
+
+			def translate_member(member, kind)
+				I18n.t("#{i18n_scope}.#{i18n_members_scope}.#{member}.#{kind}")
 			end
 	end
 end

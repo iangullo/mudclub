@@ -18,6 +18,8 @@
 #
 # Manage Drill/Plays in the model
 class Drill < ApplicationRecord
+	localized_as "training.target"
+
 	FILTER_PARAMS = %i[name kind_id season_id skill column direction].freeze
 	before_destroy :unlink
 	has_paper_trail on: [ :create, :update ]

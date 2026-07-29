@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Task < ApplicationRecord
+	localized_as "training.task"
+
 	belongs_to :event
 	belongs_to :drill
 	has_rich_text :remarks

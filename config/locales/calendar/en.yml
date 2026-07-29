@@ -1,0 +1,418 @@
+# config/locales/calendar/en.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Calendar domain
+#
+# Canonical translations for the Calendar domain.
+#
+# Calendar provides scheduling services shared by the rest of the application.
+# Business domains (Training, Competition, Communication, etc.) schedule
+# their own activities through calendar events.
+#
+# Legacy compatibility keys are preserved at the end of this file during the
+# v2 migration and should not be used in new code.
+# -----------------------------------------------------------------------------
+
+en:
+  calendar:
+    label:
+      single: Calendar
+      plural: Calendars
+
+    short:
+      single: Cal.
+      plural: Cals.
+
+    fields:
+      date:
+        label: Date
+        short: Date
+
+      time:
+        label: Time
+        short: Time
+
+      week:
+        label: Week
+        short: Wk.
+
+      month:
+        label: Month
+        short: Mon.
+
+      year:
+        label: Year
+        short: Yr.
+
+    months:
+      label:
+        single: Month
+        plural: Months
+
+      short:
+        single: Mon.
+        plural: Mons.
+
+      values:
+        january:
+          label: January
+          short: Jan
+
+        february:
+          label: February
+          short: Feb
+
+        march:
+          label: March
+          short: Mar
+
+        april:
+          label: April
+          short: Apr
+
+        may:
+          label: May
+          short: May
+
+        june:
+          label: June
+          short: Jun
+
+        july:
+          label: July
+          short: Jul
+
+        august:
+          label: August
+          short: Aug
+
+        september:
+          label: September
+          short: Sep
+
+        october:
+          label: October
+          short: Oct
+
+        november:
+          label: November
+          short: Nov
+
+        december:
+          label: December
+          short: Dec
+
+    weekdays:
+      label:
+        single: Weekday
+        plural: Weekdays
+
+      short:
+        single: Day
+        plural: Days
+
+      values:
+        monday:
+          label: Monday
+          short: Mon
+
+        tuesday:
+          label: Tuesday
+          short: Tue
+
+        wednesday:
+          label: Wednesday
+          short: Wed
+
+        thursday:
+          label: Thursday
+          short: Thu
+
+        friday:
+          label: Friday
+          short: Fri
+
+        saturday:
+          label: Saturday
+          short: Sat
+
+        sunday:
+          label: Sunday
+          short: Sun
+
+    event_kinds:
+      label:
+        single: Event kind
+        plural: Event kinds
+
+      short:
+        single: Kind
+        plural: Kinds
+
+      values:
+        holiday:
+          label: Holiday
+          short: Hol.
+
+        training:
+          label: Training
+          short: Train
+
+        match:
+          label: Match
+          short: Match
+
+        competition:
+          label: Competition
+          short: Comp.
+
+        meeting:
+          label: Meeting
+          short: Meet
+
+        social:
+          label: Social event
+          short: Soc.
+
+        other:
+          label: Other
+          short: Other
+
+    attendance_statuses:
+      label:
+        single: Attendance status
+        plural: Attendance statuses
+
+      short:
+        single: Status
+        plural: Statuses
+
+      values:
+        present:
+          label: Present
+
+        absent:
+          label: Absent
+
+        excused:
+          label: Excused
+
+        late:
+          label: Late
+
+        unknown:
+          label: Unknown
+
+    recurrence_kinds:
+      label:
+        single: Recurrence
+        plural: Recurrences
+        short: Rec.
+
+      values:
+        none:
+          label: None
+        daily:
+          label: Daily
+        weekly:
+          label: Weekly
+        monthly:
+          label: Monthly
+        yearly:
+          label: Yearly
+
+    slot:
+      label:
+        single: Time slot
+        plural: Time slots
+
+      short:
+        single: Slot
+        plural: Slots
+
+      fields:
+        starts_on:
+          label: Starts
+          short: Start
+
+        ends_on:
+          label: Ends
+          short: End
+
+        duration:
+          label: Duration
+          short: Dur.
+
+      messages:
+        created: Time slot created.
+
+        updated: Time slot updated.
+
+        deleted: Time slot deleted.
+
+    event:
+      label:
+        single: Event
+        plural: Events
+
+      short:
+        single: Event
+        plural: Events
+
+      fields:
+        title:
+          label: Title
+
+        description:
+          label: Description
+
+        starts_on:
+          label: Starts
+
+        ends_on:
+          label: Ends
+
+        slot:
+          label: Time slot
+
+        kind:
+          label: Event kind
+
+        metadata:
+          label: Metadata
+
+      messages:
+        created: Event created.
+
+        updated: Event updated.
+
+        deleted: Event deleted.
+
+    attendance:
+      label:
+        single: Attendance
+        plural: Attendances
+
+      short:
+        single: Attend.
+        plural: Attend.
+
+      fields:
+        person:
+          label: Person
+
+        event:
+          label: Event
+
+        status:
+          label: Status
+
+        notes:
+          label: Notes
+
+      messages:
+        created: Attendance recorded.
+
+        updated: Attendance updated.
+
+        deleted: Attendance removed.
+
+    # -----------------------------------------------------------------------------
+    # DEPRECATED
+    #
+    # Compatibility keys preserved during the v2 locale migration.
+    #
+    # Search for:
+    #
+    #   t("calendar.
+    #   t("event.
+    #   t("slot.
+    #   t("match.
+    #   t("rest.
+    #
+    # Remove once all callers have migrated.
+    # -----------------------------------------------------------------------------
+    date: "Date"
+    daynames:
+      [All, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
+
+    daynames_a: [All, Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+
+    end: "End"
+
+    mins: "mins."
+
+    monthnames:
+      [
+        All,
+        January,
+        February,
+        March,
+        April,
+        May,
+        June,
+        July,
+        August,
+        September,
+        October,
+        November,
+        December,
+      ]
+
+    monthnames_a:
+      [All, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+
+    start: "Start"
+
+    time: "Time"
+
+    week: "Week"
+
+    year: "Year"
+
+  event:
+    single: "Event"
+    many: "Events"
+
+  slot:
+    single: "Timeslot"
+
+    created: "Created timeslot: "
+    updated: "Updated timeslot: "
+    deleted: "Deleted timeslot: "
+
+    edit: "Edit Timeslot"
+    many: "Timetable"
+    new: "Create Timeslot"
+
+  # -----------------------------------------------------------------------------
+  # Legacy compatibility.
+  # Replaced by Calendar::EventKinds[:competition]
+  # -----------------------------------------------------------------------------
+  match:
+    default_rival: "<Opponent>"
+    home: "Local"
+    lost: "L"
+    rival: "Opponent"
+    roster: "Active players"
+    single: "Match"
+    won: "W"
+
+    att_check: "Player list: "
+    created: "Created match: "
+    deleted: "Deleted match: "
+    updated: "Updated match: "
+
+    many: "Matches"
+
+  # -----------------------------------------------------------------------------
+  # Legacy compatibility.
+  # Replaced by Calendar::EventKinds[:holiday]
+  # -----------------------------------------------------------------------------
+  rest:
+    created: "Holiday created: "
+    deleted: "Holiday deleted: "
+    updated: "Holiday updated: "
+
+    single: "Holiday"

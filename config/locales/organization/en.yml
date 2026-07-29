@@ -1,0 +1,241 @@
+# config/locales/organization/en.yml
+# Organization domain
+#
+# Clubs and their organizational structure.
+#
+# Includes clubs, competition categories, divisions,
+# club-sport relationships and organizational catalogs.en:
+en:
+  organization:
+    label:
+      single: Organization
+      plural: Organizations
+
+    short:
+      single: Org.
+      plural: Orgs.
+
+    club:
+      label:
+        single: Club
+        plural: Clubs
+
+      short:
+        single: Club
+        plural: Clubs
+
+      fields:
+        name:
+          label: Name
+
+        entity:
+          label: Legal entity
+          short: Ent.
+
+        logo:
+          label: Logo
+          short: Logo
+
+        website:
+          label: Website
+          short: Web
+
+      messages:
+        created: Club created.
+        updated: Club updated.
+        deleted: Club deleted.
+        duplicated: Club already exists.
+
+    category:
+      label:
+        single: Category
+        plural: Categories
+
+      short:
+        single: Cat.
+        plural: Cats.
+
+      fields:
+        age_group:
+          label: Age group
+          short: Ages
+
+        sex:
+          label: Sex
+          short: Sex
+
+        min_years:
+          label: Minimum age
+          short: Min. age
+
+        max_years:
+          label: Maximum age
+          short: Max. age
+
+        rules:
+          label: Rules
+          short: Rules
+
+        sport:
+          label: Sport
+          short: Sport
+
+      messages:
+        created: Category created.
+        updated: Category updated.
+        deleted: Category deleted.
+        duplicated: Category already exists.
+
+    division:
+      label:
+        single: Division
+        plural: Divisions
+
+      short:
+        single: Div.
+        plural: Divs.
+
+      fields:
+        name:
+          label: Name
+
+        sport:
+          label: Sport
+
+      messages:
+        created: Division created.
+        updated: Division updated.
+        deleted: Division deleted.
+        duplicated: Division already exists.
+
+    entities:
+      label:
+        single: Legal entity
+        plural: Legal entities
+
+      short:
+        single: Entity
+        plural: Entities
+
+      values:
+        club:
+          label: Sports club
+          plural: Sports clubs
+
+        federation:
+          label: Federation
+          plural: Federations
+
+        municipality:
+          label: Municipality
+          plural: Municipalities
+
+        school:
+          label: School
+          plural: Schools
+
+        company:
+          label: Company
+          plural: Companies
+
+        association:
+          label: Association
+          plural: Associations
+
+        other:
+          label: Other
+          plural: Others
+
+    club_location:
+      label:
+        single: Club location
+        plural: Club locations
+
+      fields:
+        club:
+          label: Club
+          short: Club
+
+        location:
+          label: Location
+          short: Loc.
+
+    club_sport:
+      label:
+        single: Club sport
+        plural: Club sports
+
+      fields:
+        club:
+          label: Club
+          short: Club
+
+        sport:
+          label: Sport
+          short: Sport
+
+  # -----------------------------------------------------------------------------
+  # DEPRECATED
+  #
+  # Compatibility keys preserved during the v2 locale migration.
+  #
+  # Search for:
+  #
+  #   t("action.
+  #   t("status.
+  #   t("question.
+  #   ...
+  #
+  # Remove this section once no references remain.
+  # -----------------------------------------------------------------------------
+  category:
+    # Attributes
+    name: "Name"
+    single: "Category"
+
+    # CRUD
+    created: "Created category: "
+    deleted: "Deleted category: "
+    updated: "Updated category: "
+
+    # UI
+    edit: "Edit Category"
+    many: "Categories"
+    new: "Create Category"
+
+  club:
+    # Attributes
+    entity: "Legal entity"
+    logo: "Logo"
+    name: "Name"
+    none: "No club"
+    single: "Club"
+    website: "Website"
+
+    # CRUD
+    created: "Created club: "
+    deleted: "Deleted club: "
+    duplicate: "Duplicate club: "
+    updated: "Updated club: "
+
+    # UI
+    edit: "Edit Club"
+    many: "Clubs"
+    new: "Edit Club"
+    rivals: "Rival Clubs"
+
+  division:
+    # Attributes
+    abbr: "Comp."
+    name: "Name"
+    single: "Competition"
+
+    # CRUD
+    created: "Created competition: "
+    deleted: "Deleted competition: "
+    updated: "Updated competition: "
+
+    # UI
+    edit: "Edit Competition"
+    many: "Competitions"
+    new: "Create Competition"

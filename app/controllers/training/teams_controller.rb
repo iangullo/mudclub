@@ -291,7 +291,7 @@ class TeamsController < ApplicationController
 	def attendance
 		if @team && check_access(roles: [ :coach, :manager, :secretary ], obj: @club, both: true)
 			title  = helpers.team_title(title: @team.to_s)
-			title  << icon_subtitle("attendance", I18n.t("calendar.attendance"))
+			title  << icon_subtitle("attendance", I18n.t("calendar.attendance.label.single"))
 			@title  = create_fields(title)
 			a_data  = helpers.team_attendance_table
 			if a_data

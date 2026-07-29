@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class User < ApplicationRecord
+	localized_as("core.user")
+
 	include PersonDataManagement
 	before_destroy :unlink
 	# Include default devise modules. Others available are:

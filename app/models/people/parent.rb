@@ -18,6 +18,8 @@
 #
 # Manage parents of underage players
 class Parent < ApplicationRecord
+	localized_as "people.parent"
+
 	include PersonDataManagement
 	before_destroy :unlink
 	belongs_to :person

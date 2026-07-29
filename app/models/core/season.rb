@@ -18,6 +18,8 @@
 #
 # Class to manage club seasons
 class Season < ApplicationRecord
+	localized_as "core.season"
+
 	before_destroy :unlink
 	has_many :slots, dependent: :destroy
 	has_many :teams, dependent: :destroy

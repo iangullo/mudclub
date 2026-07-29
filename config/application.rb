@@ -40,18 +40,17 @@ module Mudclub
 		#
 		# Domain folders
 		#
-		DOMAINS = %w[
-			calendar
-			core
-			organization
-			participation
-			people
-			training
-		].freeze
+		MODELS = Rails.root.join("app", "models")
+		CONTROLLERS = Rails.root.join("app", "controllers")
+		IGNORED_ROOTS = %w[ catalog concerns ].freeze
 
-		DOMAINS.each do |domain|
-			%w[models controllers].each do |root|
-				path = Rails.root.join("app", root, domain)
+		[ MODELS, CONTROLLERS ].each do |base|
+			Dir.children(base).sort.each do |entry|
+				next if IGNORED_ROOTS.include?(entry)
+
+				path = base.join(entry)
+
+				next unless path.directory?
 
 				config.autoload_paths << path
 				config.eager_load_paths << path
@@ -59,9 +58,23 @@ module Mudclub
 		end
 
 		#
-		# Sports extensions
+		# Sport extensions
 		#
-		Dir[Rails.root.join("app/sports/*")].each do |path|
+		# Each sport is a lightweight extension containing:
+		#
+		#   basketball/
+		#     basketball.rb
+		#     catalog/
+		#     symbols/
+		#     locales/
+		#
+		# Zeitwerk will automatically discover nested folders (catalog, etc.).
+		#
+		SPORTS = Rails.root.join("app", "sports")
+		Dir.children(SPORTS).sort.each do |sport|
+			path = SPORTS.join(sport)
+			next unless path.directory?
+
 			config.autoload_paths << path
 			config.eager_load_paths << path
 		end
@@ -71,6 +84,6 @@ module Mudclub
 		#
 		# config.time_zone = "Central Time (US & Canada)"
 		# config.eager_load_paths << Rails.root.join("extras")
-		[ Symbol, Date, Time, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone ]
+		# [ Symbol, Date, Time, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone ]
 	end
 end

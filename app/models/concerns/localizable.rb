@@ -16,112 +16,244 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# frozen_string_literal: true
+
 #
 # Localizable
 #
-# Provides a common API for localized labels and UI strings.
+# Shared localization API for models, catalogs and other domain objects.
 #
 # Classes including this concern must implement:
 #
-#   translation_scope
+#   i18n_scope
 #
-# and may override:
+# and may optionally override:
 #
-#   translation_values_scope
+#   i18n_members_scope
 #
-# Example:
+# Examples
 #
 #   Person.label
-#   Person.short
 #   Person.label(:name)
-#   Person.short(:name)
+#   Person.label(:name, :short)
+#   Person.label(:name, :plural)
+#   Person.label(:name, :short, :plural)
 #
-#   Catalog::Modules.label
-#   Catalog::Modules.label(:training)
-#   Catalog::Modules.short(:training)
+#   Catalog::Months.label(:january)
+#   Catalog::Months.label(:january, :short)
 #
 module Localizable
-	# extend ActiveSupport::Concern
+	extend ActiveSupport::Concern
+
+	#
+	# Available presentation styles.
+	#
+	TEXT_VARIANTS = {
+		label: {
+			lookup: :label,
+			fallback: nil
+		},
+		short: {
+			lookup: :short,
+			fallback: :label
+		},
+		hint: {
+			lookup: :hint,
+			fallback: :description
+		},
+		description: {
+			lookup: :description,
+			fallback: :label
+		},
+		tooltip: {
+			lookup: :tooltip,
+			fallback: :hint
+		}
+	}.freeze
+
+	#
+	# Supported grammatical forms.
+	#
+	GRAMMATICAL_FORMS = %i[
+		single
+		plural
+	].freeze
+
+	#
+	# Supported grammatical genders.
+	#
+	# Included from the beginning to avoid future API changes.
+	#
+	GRAMMATICAL_GENDERS = %i[
+		neutral
+		masculine
+		feminine
+	].freeze
+
+	#
+	# Instance helper.
+	#
+	# Delegates localization requests to the class.
+	#
+	def label(...)
+		self.class.label(...)
+	end
 
 	class_methods do
 		#
-		# Must return the root I18n scope for the class.
-		#
-		# Examples:
-		#
-		#   "people.person"
-		#   "participation.membership"
-		#   "catalog.modules"
+		# Root I18n scope.
 		#
 		def i18n_scope
 			raise NotImplementedError,
-						"#{name} must implement .translation_scope"
+						"#{name} must implement .i18n_scope"
 		end
 
 		#
-		# Second-level scope used for members of the class.
+		# Scope used for translatable members.
 		#
-		# Models normally use "fields".
-		# Catalogs normally use "values".
+		# Models typically use:
+		#
+		#   fields
+		#
+		# Catalogs typically use:
+		#
+		#   values
 		#
 		def i18n_members_scope
 			:fields
 		end
 
 		#
-		# Class label.
+		# Human-readable localized text.
 		#
-		def label(member = nil)
-			translate(:label, member)
-		end
+		# Examples:
+		#
+		#   label
+		#   label(form: :plural)
+		#   label(variant: :short)
+		#
+		#   label(:name)
+		#   label(:name, style: :short)
+		#   label(:name, form: :plural)
+		#   label(:president, gender: :feminine)
+		#
+		def label(member = nil, variant: :label, form: :single, gender: :neutral)
+			unless TEXT_VARIANTS.key?(variant)
+				raise ArgumentError,
+							"Unknown label style: #{style.inspect}"
+			end
 
-		#
-		# Short label.
-		#
-		def short(member = nil)
-			translate(:short, member)
-		end
+			unless GRAMMATICAL_FORMS.include?(form)
+				raise ArgumentError,
+							"Unknown grammatical form: #{form.inspect}"
+			end
 
-		#
-		# Optional description.
-		#
-		def description(member = nil)
-			translate(:description, member)
-		end
+			unless GRAMMATICAL_GENDERS.include?(gender)
+				raise ArgumentError,
+							"Unknown grammatical gender: #{gender.inspect}"
+			end
 
-		#
-		# Optional placeholder.
-		#
-		def placeholder(member = nil)
-			translate(:placeholder, member)
-		end
+			base = i18n_scope
 
-		#
-		# Generic translation lookup.
-		#
-		def translate(kind, member = nil)
-			key =
-				if member.nil?
-					"#{translation_scope}.#{kind}"
-				else
-					"#{translation_scope}.#{translation_values_scope}.#{member}.#{kind}"
-				end
+			if member
+				base += ".#{i18n_members_scope}.#{member}"
+			end
 
-			I18n.t(
-				key,
-				default: translation_default(kind, member)
-			)
+			build_lookup_chain(variant, form, gender).each do |path|
+				value = I18n.t("#{base}.#{path}", default: nil)
+
+				return value if value.present?
+			end
+
+			default_label(member)
 		end
 
 		private
 
-			def translation_default(kind, member)
-				return name.demodulize.humanize if member.nil? && kind == :label
+			#
+			# Parse requested localization options.
+			#
+			def parse_label_options(*options)
+				style =
+					options & TEXT_VARIANTS.keys
 
-				return member.to_s.humanize if member.present? && kind == :label
+				raise ArgumentError,
+							"Multiple text styles specified." if style.size > 1
 
-				if %i[short description placeholder].include?(kind)
-					translate(:label, member)
+				style = style.first || :label
+
+				form =
+					options & GRAMMATICAL_FORMS
+
+				raise ArgumentError,
+							"Multiple grammatical forms specified." if form.size > 1
+
+				form = form.first || :single
+
+				gender =
+					options & GRAMMATICAL_GENDERS
+
+				raise ArgumentError,
+							"Multiple grammatical genders specified." if gender.size > 1
+
+				gender = gender.first || :neutral
+
+				unknown =
+					options -
+					TEXT_VARIANTS.keys -
+					GRAMMATICAL_FORMS -
+					GRAMMATICAL_GENDERS
+
+				unless unknown.empty?
+					raise ArgumentError,
+								"Unknown localization options: #{unknown.join(', ')}"
+				end
+
+				[ style, form, gender ]
+			end
+
+			#
+			# Build lookup sequence.
+			#
+			def build_lookup_chain(style, form, gender)
+				chain = []
+
+				current = style
+
+				while current
+
+					lookup = TEXT_VARIANTS.fetch(current)[:lookup]
+
+					#
+					# Most specific
+					#
+					chain << "#{lookup}.#{form}.#{gender}"
+
+					#
+					# Without gender
+					#
+					chain << "#{lookup}.#{form}"
+
+					#
+					# Plain
+					#
+					chain << lookup.to_s
+
+					current = TEXT_VARIANTS.fetch(current)[:fallback]
+
+				end
+
+				chain.uniq
+			end
+
+			#
+			# Last-resort fallback.
+			#
+			def default_label(member)
+				if member
+					member.to_s.humanize
+				else
+					name.demodulize.titleize
 				end
 			end
 	end

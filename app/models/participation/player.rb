@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Player < ApplicationRecord
+	localized_as "player"
+
 	include PersonDataManagement
 	attr_accessor :parent_changed
 	after_initialize :set_changes_flag

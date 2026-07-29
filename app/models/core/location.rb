@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Location < ApplicationRecord
+	localized_as "core.location"
+
 	before_destroy :unlink
 	scope :practice, -> { where("practice_court = true") }
 	scope :home, -> { where("id > 0 and practice_court = false") }

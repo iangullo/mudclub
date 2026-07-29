@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Category < ApplicationRecord
+	localized_as "organization.category"
+
 	before_destroy :unlink
 	belongs_to :sport
 	has_many :teams

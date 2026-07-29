@@ -24,7 +24,7 @@ module TeamsHelper
 			title = [
 				{ kind: :normal, value: I18n.t("player.number"), align: "center" },
 				{ kind: :normal, value: I18n.t("person.name") },
-				{ kind: :normal, value: I18n.t("calendar.week"), align: "center" }, { kind: :normal, value: I18n.t("calendar.month"), align: "center" },
+				{ kind: :normal, value: I18n.t("calendar.week"), align: "center" }, { kind: :normal, value: I18n.t("calendar.month.label.single"), align: "center" },
 				{ kind: :normal, value: I18n.t("season.abbr"), align: "center" }, { kind: :normal, value: I18n.t("match.many") }
 			]
 			rows = Array.new

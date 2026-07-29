@@ -1,0 +1,585 @@
+# config/locales/training/es.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Dominio de entrenamiento
+#
+# Traducciones canónicas para el dominio de Entrenamiento.
+#
+# El dominio de entrenamiento gestiona el conocimiento deportivo del club:
+# equipos, sesiones, ejercicios, tareas, objetivos, habilidades y conceptos
+# relacionados.
+#
+# Las claves de compatibilidad heredadas se conservan al final de este archivo
+# durante la migración v2 y no deben usarse en código nuevo.
+# -----------------------------------------------------------------------------
+
+es:
+  training:
+    team:
+      label:
+        single: Equipo
+        plural: Equipos
+
+      short:
+        single: Equipo
+        plural: Equipos
+
+      fields:
+        name:
+          label: Nombre
+
+        sport:
+          label: Deporte
+
+        category:
+          label: Categoría
+
+        division:
+          label: Competición
+
+        facility:
+          label: Instalación local
+
+        roster:
+          label: Plantilla
+
+      messages:
+        created: Equipo creado.
+
+        updated: Equipo actualizado.
+
+        deleted: Equipo eliminado.
+
+    session:
+      label:
+        single: Sesión de entrenamiento
+        plural: Sesiones de entrenamiento
+
+      short:
+        single: Sesión
+        plural: Sesiones
+
+      fields:
+        title:
+          label: Título
+
+        starts_on:
+          label: Inicio
+
+        ends_on:
+          label: Fin
+
+        duration:
+          label: Duración
+
+        workload:
+          label: Carga de trabajo
+
+        workload_by:
+          label: Carga de trabajo por
+
+        plan:
+          label: Plan de entrenamiento
+
+      messages:
+        created: Sesión de entrenamiento creada.
+
+        updated: Sesión de entrenamiento actualizada.
+
+        deleted: Sesión de entrenamiento eliminada.
+
+        attendance_checked: Asistencia verificada.
+
+    plan:
+      label:
+        single: Plan de entrenamiento
+        plural: Planes de entrenamiento
+
+      short:
+        single: Plan
+        plural: Planes
+
+      fields:
+        name:
+          label: Nombre
+
+        description:
+          label: Descripción
+
+        team:
+          label: Equipo
+
+      messages:
+        created: Plan de entrenamiento creado.
+
+        updated: Plan de entrenamiento actualizado.
+
+        deleted: Plan de entrenamiento eliminado.
+
+    drill:
+      label:
+        single: Ejercicio
+        plural: Ejercicios
+
+      short:
+        single: Ejercicio
+        plural: Ejercicios
+
+      fields:
+        name:
+          label: Nombre
+
+        description:
+          label: Descripción
+
+        author:
+          label: Autor
+
+        kind:
+          label: Categoría de ejercicio
+
+        material:
+          label: Material
+
+        sport:
+          label: Deporte
+
+        court_mode:
+          label: Disposición de campo
+
+      messages:
+        created: Ejercicio creado.
+
+        updated: Ejercicio actualizado.
+
+        deleted: Ejercicio eliminado.
+
+    kind:
+      label:
+        single: Categoría de ejercicio
+        plural: Categorías de ejercicio
+
+      short:
+        single: Categoría
+        plural: Categorías
+
+      fields:
+        name:
+          label: Nombre
+
+      messages:
+        created: Categoría de ejercicio creada.
+
+        updated: Categoría de ejercicio actualizada.
+
+        deleted: Categoría de ejercicio eliminada.
+
+    task:
+      label:
+        single: Tarea
+        plural: Tareas
+
+      short:
+        single: Tarea
+        plural: Tareas
+
+      fields:
+        drill:
+          label: Ejercicio
+
+        order:
+          label: Orden
+
+        duration:
+          label: Duración
+
+        remarks:
+          label: Observaciones
+
+      messages:
+        created: Tarea creada.
+
+        updated: Tarea actualizada.
+
+        deleted: Tarea eliminada.
+
+    step:
+      label:
+        single: Paso
+        plural: Pasos
+
+      short:
+        single: Paso
+        plural: Pasos
+
+      fields:
+        order:
+          label: Orden
+
+        explanation:
+          label: Explicación
+
+        diagram:
+          label: Diagrama
+
+      messages:
+        created: Paso creado.
+
+        updated: Paso actualizado.
+
+        deleted: Paso eliminado.
+
+    version:
+      label:
+        single: Versión
+        plural: Versiones
+
+      short:
+        single: Ver.
+        plural: Vers.
+
+      fields:
+        author:
+          label: Autor
+
+        name:
+          label: Nombre
+
+        description:
+          label: Descripción
+
+        explanation:
+          label: Explicación
+
+        material:
+          label: Material
+
+        kind:
+          label: Categoría de ejercicio
+
+        skills:
+          label: Habilidades
+
+        targets:
+          label: Objetivos
+
+        changes:
+          label: Cambios
+
+      messages:
+        created: Versión creada.
+
+        updated: Versión actualizada.
+
+        deleted: Versión eliminada.
+
+    skill:
+      label:
+        single: Habilidad
+        plural: Habilidades
+
+      short:
+        single: Habilidad
+        plural: Habilidades
+
+      fields:
+        name:
+          label: Nombre
+
+        description:
+          label: Descripción
+
+      messages:
+        created: Habilidad creada.
+
+        updated: Habilidad actualizada.
+
+        deleted: Habilidad eliminada.
+
+    target:
+      label:
+        single: Objetivo
+        plural: Objetivos
+
+      short:
+        single: Objetivo
+        plural: Objetivos
+
+      fields:
+        concept:
+          label: Concepto
+
+        aspect:
+          label: Aspecto
+
+        focus:
+          label: Enfoque
+
+      aspect:
+        label:
+          single: Aspecto
+          plural: Aspectos
+
+        short:
+          single: Aspecto
+          plural: Aspectos
+
+        values:
+          general:
+            label: General
+            short: Gral.
+
+          individual:
+            label: Individual
+            short: Ind.
+
+            hint: Desarrollo técnico individual.
+
+          collective:
+            label: Colectivo
+            short: Col.
+
+            hint: Desarrollo táctico colectivo.
+
+      focus:
+        label:
+          single: Enfoque
+          plural: Áreas de enfoque
+
+        short:
+          single: Enfoque
+          plural: Enfoques
+
+        values:
+          offense:
+            label: Ataque
+            short: Atq.
+
+          defense:
+            label: Defensa
+            short: Def.
+
+          physical:
+            label: Físico
+
+      messages:
+        created: Objetivo creado.
+
+        updated: Objetivo actualizado.
+
+        deleted: Objetivo eliminado.
+
+    stat:
+      label:
+        single: Estadística
+        plural: Estadísticas
+
+      short:
+        single: Estad.
+        plural: Estad.
+
+      fields:
+        name:
+          label: Nombre
+
+        average:
+          label: Media
+          short: Med.
+
+        minimum:
+          label: Mínimo
+          short: Mín.
+
+        maximum:
+          label: Máximo
+          short: Máx.
+
+        total:
+          label: Total
+          short: Tot.
+
+        number:
+          label: Número
+          short: Núm.
+
+      messages:
+        updated: Estadísticas actualizadas.
+
+    # -------------------------------------------------------------------------
+    # OBSOLETO
+    #
+    # Claves de compatibilidad preservadas durante la migración MudClub 1.x → 2.0.
+    #
+    # Buscar:
+    #
+    #   t("team.")
+    #   t("train.")
+    #   t("drill.")
+    #   t("kind.")
+    #   t("plan.")
+    #   t("task.")
+    #   t("target.")
+    #   t("step.")
+    #   t("skill.")
+    #   t("version.")
+    #   t("stat.")
+    #
+    # Eliminar una vez que todas las llamadas se hayan migrado.
+    # -------------------------------------------------------------------------
+
+  drill:
+    author: "Autor"
+    default: "<Nuevo Ejercicio>"
+    desc: "Descripción"
+    desc_a: "Descrip."
+    material: "Material"
+    name: "Nombre"
+    none: "Ninguna tarea seleccionada"
+    single: "Ejercicio"
+
+    created: "Ejercicio creado: "
+    deleted: "Ejercicio eliminado: "
+    updated: "Ejercicio actualizado: "
+
+    edit: "Editar Ejercicio"
+    many: "Ejercicios"
+    new: "Crear Ejercicio"
+
+  kind:
+    default: "<tipo>"
+    single: "Tipo"
+
+  plan:
+    abbr: "Plan"
+    single: "Plan de equipo"
+
+    edit: "Editar Plan de equipo"
+    new: "Crear Plan de equipo"
+
+  skill:
+    abbr: "Habilidad"
+    default: "<habilidad>"
+    single: "Habilidad"
+
+    many: "Habilidades"
+
+  stat:
+    average: "Media"
+    average_a: "Med."
+    max: "Máx."
+    min: "Mín."
+    number_a: "Núm."
+    single: "Estad."
+    total: "Total"
+    total_a: "Tot."
+
+    updated: "Estadísticas actualizadas"
+
+    many: "Estadísticas"
+
+  step:
+    default: "<paso>"
+    diagram: "Diagrama"
+    explanation: "Explicación"
+    single: "Paso"
+
+    edit: "Editar paso"
+    edit_diagram: "Editar diagrama"
+    load_diagram: "Cargar diagrama"
+    many: "Pasos"
+
+  target:
+    abbr: "Obj."
+    completion: "Finalización (%)"
+    default: "<objetivo>"
+    single: "Objetivo"
+
+    aspect:
+      gen: "General"
+
+      ind: "Individual"
+      ind_a: "Ind."
+      ind_l: "Habilidad individual"
+
+      col: "Colectivo"
+      col_a: "Col."
+      col_l: "Táctica colectiva"
+
+    focus:
+      att: "Ataque"
+      att_a: "Atq."
+
+      def: "Defensa"
+      def_a: "Def."
+
+      fit: "Físico"
+
+    edit: "Editar Objetivos"
+    many: "Objetivos"
+
+  task:
+    duration: "Dur."
+    number: "Nº"
+    remarks: "Observaciones"
+    single: "Tarea"
+
+    created: "Tarea creada: "
+    deleted: "Tarea eliminada: "
+    updated: "Tarea actualizada: "
+
+    add: "Añadir Tarea"
+    edit: "Editar Tarea"
+    many: "Tareas"
+
+  team:
+    home: "Campo local:"
+    home_a: "Local"
+
+    name: "Nombre"
+    none: "Ningún equipo"
+    single: "Equipo"
+
+    created: "Equipo creado: "
+    deleted: "Equipo eliminado: "
+    updated: "Equipo actualizado: "
+
+    edit: "Editar Equipo"
+    many: "Equipos"
+    new: "Crear Equipo"
+
+    roster: "Plantilla"
+    roster_edit: "Editar Plantilla"
+    roster_opt: "Jugadores adicionales"
+
+  train:
+    duration: "Dur."
+    single: "Sesión"
+
+    workload: "Carga de trabajo"
+    workload_by: "Carga de trabajo por"
+
+    att_check: "Asistencia verificada: "
+
+    created: "Sesión creada: "
+    deleted: "Sesión eliminada: "
+    updated: "Sesión actualizada: "
+
+    edit: "Editar sesión"
+    many: "Sesiones de entrenamiento"
+    new: "Crear sesión"
+
+  version:
+    author: "autor"
+    changes: "Cambios"
+    description: "descripción"
+    explanation: "explicación"
+    kind: "tipo"
+    material: "material"
+    name: "nombre"
+    single: "Versión"
+    skills: "habilidades"
+    targets: "objetivos"
+    unknown: "Desconocido"
+
+    many: "Versiones"

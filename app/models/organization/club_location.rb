@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class ClubLocation < ApplicationRecord
+	localized_as "organization.club_location"
+
 	belongs_to :club
 	belongs_to :location
 end

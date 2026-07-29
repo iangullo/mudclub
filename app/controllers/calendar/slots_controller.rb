@@ -27,7 +27,7 @@ class SlotsController < ApplicationController
 		if check_access(obj: @club)
 			@locations = Location.search(club_id: @clubid).practice.order(name: :asc)
 			@location  = Location.find_by_id(params[:location_id]) || @locations.first
-			title      = helpers.slot_title(title: I18n.t("slot.many"))
+			title      = helpers.slot_title(title: I18n.t("calendar.slot.label.many"))
 			title     << helpers.slot_search_bar(u_manager? || u_secretary?)
 			@title    = create_fields(title)
 			week_view if @location
@@ -78,7 +78,7 @@ class SlotsController < ApplicationController
 				@slot.rebuild(slot_params) # rebuild @slot
 				if @slot.changed?
 					if @slot.save # try to store
-						a_desc = "#{I18n.t("slot.created")} '#{@slot}'"
+						a_desc = "#{I18n.t("calendar.slot.messages.created")} '#{@slot}'"
 						register_action(:created, a_desc, url: slot_path(@slot, rdx: 2), modal: true)
 						format.html { redirect_to crud_return(@clubid), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :created, location: @slot }
@@ -105,7 +105,7 @@ class SlotsController < ApplicationController
 				retlnk = crud_return(@slot.team.club_id)
 				if @slot.changed?
 					if @slot.save
-						a_desc = "#{I18n.t("slot.updated")} '#{@slot}'"
+						a_desc = "#{I18n.t("calendar.slot.messages.updated")} '#{@slot}'"
 						register_action(:updated, a_desc, url: slot_path(@slot), modal: true)
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :ok, location: @slot }
@@ -131,7 +131,7 @@ class SlotsController < ApplicationController
 			retlnk = crud_return(@slot.team.club_id)
 			@slot.destroy
 			respond_to do |format|
-				a_desc = "#{I18n.t("slot.deleted")} '#{s_name}'"
+				a_desc = "#{I18n.t("calendar.slot.messages.deleted")} '#{s_name}'"
 				register_action(:deleted, a_desc)
 				format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
@@ -191,7 +191,7 @@ class SlotsController < ApplicationController
 			res
 		end
 
-		# prepare fields to renfeer edit/new slot form
+		# prepare fields to render edit/new slot form
 		def prepare_form(action)
 			@fields = create_fields(helpers.slot_form(title: I18n.t("slot.#{action}")))
 			@submit = create_submit

@@ -21,6 +21,8 @@
 # Will eventually migrate to Training::Catalog::DrillKinds.
 #
 class Kind < ApplicationRecord
+	localized_as "training.kind"
+
 	has_many :drills
 	before_save { self.name = self.name.mb_chars.titleize }
 	scope :real, -> { where("id>0").order(:name) }

@@ -17,6 +17,8 @@
 # contact email - iangullo@gmail.com.
 #
 class Slot < ApplicationRecord
+	localized_as "calendar.slot"
+
 	before_destroy :unlink
 	belongs_to :location
 	belongs_to :season
