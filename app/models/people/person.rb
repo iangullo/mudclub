@@ -31,6 +31,7 @@ class Person < ApplicationRecord
 	accepts_nested_attributes_for :coach
 	accepts_nested_attributes_for :player
 	accepts_nested_attributes_for :user
+	has_many :memberships
 	has_one_attached :avatar
 	has_one_attached :id_front
 	has_one_attached :id_back

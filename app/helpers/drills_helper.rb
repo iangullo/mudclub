@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -277,9 +277,7 @@ module DrillsHelper
 
 		# list of possible court types for select box configuration
 		def drill_court_list
-			@drill.sport.court_modes.map do |court|
-				[ @drill.sport.court_name(court), court ]
-			end
+			@drill.sport.specific.court_modes.options
 		end
 
 		def drill_symbol(concept = "drill", variant: "default", size: nil)

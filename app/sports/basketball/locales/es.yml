@@ -148,11 +148,11 @@ es:
             short: Completa
 
           half_off:
-            label: Media pista ofensiva
+            label: Media pista (ataque)
             short: Of.
 
           half_def:
-            label: Media pista defensiva
+            label: Media pista (defensa)
             short: Def.
 
       # -----------------------------------------------------------------------
