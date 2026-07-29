@@ -12,6 +12,9 @@
 
 en:
   participation:
+    label: Participation
+    short: Partic.
+
     membership:
       label:
         single: Membership

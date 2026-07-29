@@ -188,7 +188,18 @@ class ApplicationController < ActionController::Base
 		team&.has_coach(u_coachid) || club_manager?(team&.club)
 	end
 
-	# wrappers to access user attributes
+	#
+	# ------------------------------------------------------------------
+	# Legacy role wrappers.
+	#
+	# These wrappers expose the MudClub 1.x User.role API.
+	#
+	# New controllers should use policies and Person participation
+	# instead of calling these methods directly.
+	#
+	# Remove in MudClub 2.1.
+	# ------------------------------------------------------------------
+	#
 	def u_admin?
 		current_user&.admin?
 	end
@@ -217,16 +228,18 @@ class ApplicationController < ActionController::Base
 		current_user&.person&.id
 	end
 
-	def u_player?
-		current_user&.is_player?
+	def u_athlete?
+		current_user&.is_player?	# change later to person.athlete?
 	end
+
+	alias u_player? u_athlete? # deprecate usage of player
 
 	def u_playerid
 		current_user&.person&.player_id
 	end
 
 	def u_secretary?
-		current_user&.secretary?
+		current_user&.secretary?	# needs thought, secretary is now an assignment
 	end
 
 	def u_userid
@@ -260,17 +273,17 @@ class ApplicationController < ActionController::Base
 			roles&.each do |rol|	# ok as if any of roles is found
 				case rol
 				when :admin
-					return true if u_admin?
+					u_admin?
 				when :manager
-					return true if u_manager?
+					u_manager?
 				when :coach
-					return true if u_coach?
+					u_coach?
 				when :player
-					return true if u_player?
+					u_player?
 				when :secretary
-					return true if u_secretary?
+					u_secretary?
 				when :user
-					return true if user_signed_in?  # it's a user alright
+					user_signed_in?  # it's a user alright
 				else
 					return false
 				end

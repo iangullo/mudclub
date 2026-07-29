@@ -37,6 +37,7 @@ Rails.application.routes.draw do
 		get "slots", to: "slots#index"	# team event calendar
 		get "teams", to: "teams#index"	# team event calendar
 	end
+	resources :people
 	resources :coaches, except: [ :index ] do
 		collection do
 			post :import

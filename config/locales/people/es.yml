@@ -12,6 +12,10 @@
 
 es:
   people:
+    messages:
+      exported: Personas exportadas
+      imported: Personas importadas
+
     person:
       label:
         single: Persona
@@ -27,7 +31,7 @@ es:
           short: Nom.
 
         surname:
-          label: Apellido
+          label: Apellidos
           short: Apell.
 
         nickname:
@@ -69,11 +73,11 @@ es:
 
         id_front:
           label: Documento de identidad (anverso)
-          short: Anv.
+          short: Anverso DNI
 
         id_back:
           label: Documento de identidad (reverso)
-          short: Rev.
+          short: Reverso DNI
 
       messages:
         created: Persona creada.
@@ -89,6 +93,11 @@ es:
       short:
         single: Familiar
         plural: Familiares
+
+    contact:
+      single: Contacto
+      many: Contactos
+      short: Cont.
 
     sex:
       label:

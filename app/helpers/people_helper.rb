@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -18,20 +18,26 @@
 #
 module PeopleHelper
 	def person_form(person, mandatory_email: nil)
+		l_nick  = "people.person.fields.nickname.label"
+		l_phone = "people.person.fields.phone.label"
+		l_pid   = "people.person.fields.national_id.label"
+		l_email = "people.person.fields.email.label"
+		l_addr  = "people.person.fields.address.label"
+
 		res = [
 			[
-				symbol_field("user", { title: I18n.t("person.nick") }),
-				{ kind: :text_box, key: :nick, size: 8, value: person&.nick, placeholder: I18n.t("person.nick") },
+				symbol_field("user", { title: I18n.t(l_nick) }),
+				{ kind: :text_box, key: :nick, size: 8, value: person&.nick, placeholder: I18n.t(l_nick) },
 				gap_field,
-				symbol_field("call", { title: I18n.t("person.phone") }),
-				{ kind: :text_box, key: :phone, size: 12, value: person&.phone, placeholder: I18n.t("person.phone") }
+				symbol_field("call", { title: I18n.t(l_phone) }),
+				{ kind: :text_box, key: :phone, size: 12, value: person&.phone, placeholder: I18n.t(l_phone) }
 			],
 			[
-				symbol_field("id_front", { title: I18n.t("person.pid") }),
-				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: I18n.t("person.pid") },
+				symbol_field("id_front", { title: I18n.t(l_pid) }),
+				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: I18n.t(l_pid) },
 				gap_field,
-				symbol_field("email", { type: :button, title: I18n.t("person.email") }),
-				{ kind: :email_box, key: :email, value: person&.email, placeholder: I18n.t("person.email"), mandatory: mandatory_email ? { length: 7 } : nil }
+				symbol_field("email", { type: :button, title: I18n.t(l_email) }),
+				{ kind: :email_box, key: :email, value: person&.email, placeholder: I18n.t(l_email), mandatory: mandatory_email ? { length: 7 } : nil }
 			]
 		]
 		if person&.coach_id? || person&.player_id?
@@ -39,17 +45,17 @@ module PeopleHelper
 			res << [ gap_field(size: 1), person_idpic(person, idpic: "id_back", align: "left", cols: 4) ]
 		end
 		res << [
-			symbol_field("home", { size: "25x25", title: I18n.t("person.address") }, class: "align-top"),
-			{ kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: I18n.t("person.address") }
+			symbol_field("home", { size: "25x25", title: I18n.t(l_addr) }, class: "align-top"),
+			{ kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: I18n.t(l_addr) }
 		]
 	end
 
 	# return defintion @fields for forms
 	def person_form_title(person, icon: person&.picture, title:, cols: 2, sex: nil)
 		res = person_title(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
-		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: I18n.t("person.name"), cols: 2, mandatory: { length: 2 } } ]
-		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: I18n.t("person.surname"), cols: 2, mandatory: { length: 2 } } ]
-		res << (sex ? [ { kind: :label_checkbox, label: I18n.t("sex.female_a"), key: :female, value: person&.female, align: "left" } ] : [])
+		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: I18n.t("people.person.fields.name.label"), cols: 2, mandatory: { length: 2 } } ]
+		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: I18n.t("people.person.fields.surname.label"), cols: 2, mandatory: { length: 2 } } ]
+		res << (sex ? [ { kind: :label_checkbox, label: I18n.t("people.sex.values.female.short.single"), key: :female, value: person&.female, align: "left" } ] : [])
 		res.last << symbol_field("calendar")
 		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: person&.player_id? }
 		res
@@ -59,7 +65,7 @@ module PeopleHelper
 	# standardised field with icons for player/coach id pics
 	def person_idpic(person, idpic: nil, cols: nil, align: "center")
 		if idpic	# it is an editor field
-			{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: I18n.t("person.pid")), label: I18n.t("person.#{idpic}"), key: idpic, value: person&.send(idpic)&.filename, cols: }
+			{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: I18n.t("people.person.fields.#{idpic}.label")), label: I18n.t("people.person.fields.#{idpic}.short"), key: idpic, value: person&.send(idpic)&.filename, cols: }
 		else
 			pidpic = person&.idpic_content
 			symbol = pidpic[:symbol]
@@ -76,12 +82,14 @@ module PeopleHelper
 	end
 
 	# return title for @people TableComponent
-	def person_table
-		title = [ { kind: :normal, value: I18n.t("person.name") } ]
+	def people_table(people:)
+		title = [
+			{ kind: :normal, value: I18n.t("people.person.label.single") }
+		]
 		title << button_field({ kind: :add, url: new_person_path, frame: "modal" }) if u_admin?
 
 		rows = Array.new
-		@people.each { |person|
+		people.each { |person|
 			row = { url: person_path(person), frame: "modal", items: [] }
 			row[:items] << { kind: :normal, value: person.to_s }
 			row[:items] << button_field({ kind: :delete, url: row[:url], name: person.to_s }) if u_admin?
@@ -91,12 +99,11 @@ module PeopleHelper
 	end
 
 	# FieldComponent fields to show a person
-	def person_show(person, title: I18n.t("person.single"), icon: person&.picture)
-		return [ [] ]  unless person&.address&.present?
+	def person_show_fields(person, title: Person.label, icon: person&.picture)
 		[
 			[
-			symbol_field("home", { size: "25x25", title: I18n.t("person.address") }, class: "align-top", align: "right"),
-			{ kind: :string, value: simple_format("#{person&.address}"), align: "left" }
+			symbol_field("home", { size: "25x25", title: I18n.t("person.fields.address.label") }, class: "align-top", align: "right"),
+			{ kind: :string, value: simple_format("#{@person&.address}"), align: "left" }
 			]
 		]
 	end
@@ -104,7 +111,7 @@ module PeopleHelper
 	# fields definition to show title of a person view
 	def person_show_title(person, kind: nil, rows: 3, cols: nil)
 		pobj   = kind ? person.person : person
-		title  = I18n.t("#{kind}.single")
+		title  = pobj.label
 		icon   = person.picture
 		fields = person_title(icon:, title:, subtitle: pobj&.nick&.presence || pobj&.name, rows:, cols:)
 		fields += [
@@ -129,7 +136,7 @@ module PeopleHelper
 		def idpic_button(person, idpic)
 			{
 				kind: :link,
-				label: I18n.t("person.#{idpic}"),
+				label: I18n.t("people.person.fields.#{idpic}.short"),
 				url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
 				d_class: "inline-flex items-center"
 			}

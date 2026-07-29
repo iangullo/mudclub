@@ -12,6 +12,10 @@
 
 en:
   people:
+    messages:
+      exported: Exported people
+      imported: Imported people
+
     person:
       label:
         single: Person
@@ -89,6 +93,11 @@ en:
       short:
         single: Parent
         plural: Parents
+
+    contact:
+      single: Contact
+      many: Contacts
+      short: Cont.
 
     sex:
       label:

@@ -12,6 +12,9 @@
 
 es:
   participation:
+    label: Participación
+    short: Partic.
+
     membership:
       label:
         single: Membresía
