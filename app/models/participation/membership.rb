@@ -30,6 +30,8 @@
 # the historical relationship between clubs and people.
 #
 class Membership < ApplicationRecord
+	localized_as "membership"
+
 	belongs_to :person
 	belongs_to :club
 
@@ -58,7 +60,18 @@ class Membership < ApplicationRecord
 						:joined_on,
 						presence: true
 
-	scope :current, -> { where(left_on: nil) }
+	scope :current, -> {
+		where("joined_on <= ?", Date.current)
+			.where("left_on IS NULL OR left_on >= ?", Date.current).where(status: :active)
+	}
+
+	scope :open, -> { where(left_on: nil) }
+
+	scope :historical, -> { where.not(left_on: nil) }
+
+	scope :of_kind, ->(kind) { where(kind:) }
+
+	scope :for_club, ->(club) { where(club:) }
 
 	delegate :email,
 					:name,
@@ -73,72 +86,40 @@ class Membership < ApplicationRecord
 	# Predicates
 	#
 
-	def active?
-		left_on.nil? && status_active?
+	def current?(date = Date.current)
+		active? &&
+			joined_on <= date &&
+			(left_on.nil? || left_on >= date)
 	end
 
-	def terminated?
-		left_on.present?
+	def started?
+		joined_on.present?
 	end
 
-	#
-	# Assignment helpers
-	#
-
-	def current_assignments
-		assignments.where(ends_on: nil)
+	def open?
+		left_on.nil?
 	end
 
-	def assigned_role?(role:, team: nil, on: Date.current)
-		assignments
-			.where(role:, team:)
-			.where("starts_on <= ?", on)
-			.where("ends_on IS NULL OR ends_on >= ?", on)
-			.exists?
+	def duration
+		return nil unless joined_on
+
+		(left_on || Date.current) - joined_on
 	end
 
-	def available_roles(team: nil)
-		roles = club.roles.select do |role|
-			role.required_membership == kind.to_sym
-		end
+	def overlaps?(other)
+		return false unless person == other.person
+		return false unless club_id == other.club_id
+		return false unless kind == other.kind
 
-		roles.select do |role|
-			team.present? ? role.team_scope? : role.club_scope?
-		end
+		end_a = left_on || Date::Infinity.new
+		end_b = other.left_on || Date::Infinity.new
+
+		joined_on <= end_b &&
+			other.joined_on <= end_a
 	end
 
-	#
-	# Lifecycle
-	#
-
-	def assign_role(role:, team: nil, starts_on: Date.current)
-		errors.clear
-
-		return unless validate_assignment(
-			role:,
-			team:
-		)
-
-		assignments.create!(
-			role: role,
-			team: team,
-			starts_on: starts_on
-		)
-	end
-
-	def remove_role(role:, team: nil, ends_on: Date.current)
-		assignment =
-			current_assignments.find_by(
-				role: role,
-				team: team
-			)
-
-		unless assignment
-			errors.add(:base, :assignment_not_found)
-			return
-		end
-
-		assignment.terminate!(ends_on)
+	def date_range
+		"#{joined_on} – #{left_on || I18n.t('shared.status.values.active.label.single')}"
 	end
 
 	def terminate!(date = Date.current)
@@ -147,59 +128,7 @@ class Membership < ApplicationRecord
 				assignment.terminate!(date)
 			end
 
-			update!(left_on: date)
+			update!(left_on: date, status: :terminated)
 		end
 	end
-
-	def self.kinds
-		Catalog::MembershipKinds
-	end
-
-	protected
-
-		def label_key
-			"participation.membership.kinds.#{kind}"
-		end
-
-	private
-
-		def validate_assignment(role:, team:)
-			unless active?
-				errors.add(:base, :membership_inactive)
-				return false
-			end
-
-			unless role.club == club
-				errors.add(:base, :role_from_other_club)
-				return false
-			end
-
-			unless role.requires_membership?(kind)
-				errors.add(:base, :invalid_membership_kind)
-				return false
-			end
-
-			if role.club_scope?
-
-				if team.present?
-					errors.add(:team, :must_be_blank)
-					return false
-				end
-
-			else
-
-				if team.blank?
-					errors.add(:team, :blank)
-					return false
-				end
-
-			end
-
-			if assigned?(role:, team:)
-				errors.add(:base, :already_assigned)
-				return false
-			end
-
-			true
-		end
 end
