@@ -20,9 +20,9 @@ module ClubsHelper
 	# return @clubs TableComponent
 	def club_table(clubs: @clubs)
 		title = [
-			{ kind: :normal, value: I18n.t("club.logo") },
-			{ kind: :normal, value: I18n.t("person.name") },
-			{ kind: :normal, value: I18n.t("person.contact") }
+			{ kind: :normal, value: Club.attr(:logo) },
+			{ kind: :normal, value: Person.attr(:name) },
+			{ kind: :normal, value: I18n.t("people.contact.label") }
 		]
 		title << button_field({ kind: :add, url: new_club_path, frame: "modal" }) if u_admin?
 
@@ -48,20 +48,20 @@ module ClubsHelper
 				res << [
 					button_field({ kind: :jump, symbol: symbol_hash("player", namespace: "sport"), url: club_players_path(@club, rdx: 0), label: I18n.t("player.many") }, align: "center"),
 					button_field({ kind: :jump, symbol: symbol_hash("coach", namespace: "sport"), url: club_coaches_path(@club, rdx: 0), label: I18n.t("coach.many") }, align: "center"),
-					button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: I18n.t("team.many") }, align: "center")
+					button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: Team.label(:plural) }, align: "center")
 				]
 				res << [
-					button_field({ kind: :jump, symbol: "rivals", url: clubs_path(rdx: 0), label: I18n.t("club.rivals") }, align: "center")
+					button_field({ kind: :jump, symbol: "rivals", url: clubs_path(rdx: 0), label: Club.t_path(:label, :rivals) }, align: "center")
 				]
 			else
 				res << []
 			end
-			res.last <<	button_field({ kind: :jump, symbol: "location", url: club_locations_path(@club, rdx: 0), label: I18n.t("location.many") }, align: "center")
-			res.last << button_field({ kind: :jump, symbol: "timetable", url: club_slots_path(@club, rdx: 0), label: I18n.t("slot.many") }, align: "center")
+			res.last <<	button_field({ kind: :jump, symbol: "location", url: club_locations_path(@club, rdx: 0), label: Location.label(:plural) }, align: "center")
+			res.last << button_field({ kind: :jump, symbol: "timetable", url: club_slots_path(@club, rdx: 0), label: Slot.label(:plural) }, align: "center")
 		else
 			res = [ [
-				button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: I18n.t("team.many") }, align: "center"),
-				button_field({ kind: :jump, symbol: "location", url: club_locations_path(@club, rdx: 0), label: I18n.t("location.many") }, align: "center")
+				button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: Team.label(:plural) }, align: "center"),
+				button_field({ kind: :jump, symbol: "location", url: club_locations_path(@club, rdx: 0), label: Location.label(:plural) }, align: "center")
 			] ]
 		end
 		res
@@ -77,8 +77,8 @@ module ClubsHelper
 	# return Club fields definition @fields for forms
 	def club_form_title(title:, cols: 2)
 		res = club_title(title:, icon: @club.logo, rows: 3, cols:, form: true)
-		res << [ { kind: :text_box, key: :nick, value: @club.nick, placeholder: I18n.t("person.name"), cols:, mandatory: { length: 3 } } ]
-		res << [ { kind: :text_box, key: :name, value: @club.name, size: 27, placeholder: I18n.t("club.entity"), cols:, mandatory: { length: 3 } } ]
+		res << [ { kind: :text_box, key: :nick, value: @club.nick, placeholder: @club.attr(:name), cols:, mandatory: { length: 3 } } ]
+		res << [ { kind: :text_box, key: :name, value: @club.name, size: 27, placeholder: @club.attr(:entity), cols:, mandatory: { length: 3 } } ]
 	end
 
 	# return Club definition @fields for forms
@@ -87,23 +87,23 @@ module ClubsHelper
 		[
 			[
 				symbol_field("website", { css: }),
-				{ kind: :text_box, key: :website, value: @club.website, placeholder: I18n.t("club.website"), size: 33, cols: }
+				{ kind: :text_box, key: :website, value: @club.website, placeholder: Club.attr(:website), size: 33, cols: }
 			],
 			[
 				symbol_field("call", { css: }),
-				{ kind: :text_box, key: :phone, size: 12, value: @club.phone, placeholder: I18n.t("person.phone") },
-				symbol_field("locale", { css:, title: I18n.t("locale.lang") }),
+				{ kind: :text_box, key: :phone, size: 12, value: @club.phone, placeholder: @club.attr(:phone) },
+				symbol_field("locale", { css:, title: I18n.t("shared.fields.language") }),
 				{ kind: :text_box, align: "left", key: :country, value: @club.country, placeholder: "US", size: 2, mandatory: { length: 2 } },
-				symbol_field("flag", { css:, title: I18n.t("locale.country") }),
+				symbol_field("flag", { css:, title: I18n.t("shared.fields.country") }),
 				{ kind: :select_box, align: "left", key: :locale, options: User.locale_list, value: @club.locale }
 			],
 			[
 				symbol_field("email", { type: :button, css: }),
-				{ kind: :email_box, key: :email, value: @club.email, placeholder: I18n.t("person.email"), size: 33, cols: }
+				{ kind: :email_box, key: :email, value: @club.email, placeholder: @club.attr(:email), size: 33, cols: }
 			],
 			[
 				symbol_field("home", { css: }),
-				{ kind: :text_area, key: :address, size: 30, cols:, lines: 3, value: @club.address, placeholder: I18n.t("person.address") }
+				{ kind: :text_area, key: :address, size: 30, cols:, lines: 3, value: @club.address, placeholder: Person.attr(:address) }
 			]
 		]
 	end

@@ -12,187 +12,101 @@
 
 en:
   people:
+    label: "People"
+    short: "People"
+
     messages:
-      exported: Exported people
-      imported: Imported people
+      exported: "Exported people"
+      imported: "Imported people"
 
     person:
-      label:
-        single: Person
-        plural: People
-
-      short:
-        single: Person
-        plural: People
-
+      label: "Person"
+      short: "Person"
       fields:
-        name:
-          label: Name
-          short: Name
-
-        surname:
-          label: Surname
-          short: Surn.
-
-        nickname:
-          label: Nickname
-          short: Nick.
-
-        birthday:
-          label: Birth date
-          short: DoB
-
-        age:
-          label: Age
-
-        sex:
-          label: Sex
-
-        national_id:
-          label: National ID
-          short: ID
-
-        email:
-          label: Email
-
-        phone:
-          label: Phone
-          short: Tel.
-
-        address:
-          label: Home address
-          short: Addr.
-
-        biography:
-          label: Biography
-          short: Bio.
-
-        photograph:
-          label: Photograph
-          short: Pic.
-
-        id_front:
-          label: Identity document (front)
-          short: ID front
-
-        id_back:
-          label: Identity document (back)
-          short: ID back
-
+        name: "Name"
+        name_short: "Name"
+        surname: "Surname"
+        surname_short: "Surn."
+        nickname: "Nickname"
+        nickname_short: "Nick."
+        birthday: "Birth date"
+        birthday_short: "DoB"
+        age: "Age"
+        sex: "Sex"
+        national_id: "National ID"
+        national_id_short: "ID"
+        email: "e-mail"
+        email_short: "email"
+        phone: "Phone"
+        phone_short: "Tel."
+        address: "Home address"
+        address_short: "Addr."
+        biography: "Biography"
+        biography_short: "Bio."
+        photograph: "Photograph"
+        photograph_short: "Pic."
+        photographs: "Photographs"
+        photographs_short: "Pics."
+        id_front: "Identity document (front)"
+        id_front_short: "ID front"
+        id_back: "Identity document (back)"
+        id_back_short: "ID back"
       messages:
-        created: Person created.
-        updated: Person updated.
-        deleted: Person deleted.
-        duplicated: Person already exists.
+        created: "Person created."
+        updated: "Person updated."
+        deleted: "Person deleted."
+        duplicated: "Person already exists."
 
     parent:
-      label:
-        single: Parent
-        plural: Parents
-
-      short:
-        single: Parent
-        plural: Parents
+      label: "Parent"
+      short: "Parent"
 
     contact:
-      single: Contact
-      many: Contacts
-      short: Cont.
+      label: "Contact"
+      short: "Cont."
 
     sex:
-      label:
-        single: Sex
-        plural: Sexes
-
-      short:
-        single: Sex
-        plural: Sexes
-
+      label: "Sex"
+      short: "Sex"
       values:
-        female:
-          label:
-            single: Female
-            plural: Females
-
-          short:
-            single: Fem.
-            plural: Fem.
-
-        male:
-          label:
-            single: Male
-            plural: Males
-
-          short:
-            single: Male
-            plural: Male
-
-        mixed:
-          label:
-            single: Mixed
-            plural: Mixed
-
-          short:
-            single: Mixed
-            plural: Mixed
+        female: "Female"
+        female_short: "Fem."
+        male: "Male"
+        male_short: "Male"
+        mixed: "Mixed"
+        mixed_short: "Mixed"
 
     relationship_kinds:
-      label:
-        single: Relationship
-        plural: Relationships
-
+      label: "Relationship"
+      short: "Rel."
       values:
-        parent:
-          label:
-            single: Parent
-            plural: Parents
-        father:
-          label:
-            single: Father
-            plural: Fathers
-        mother:
-          label:
-            single: Mother
-            plural: Mothers
-        guardian:
-          label:
-            single: Guardian
-            plural: Guardians
-        legal_resperesentative:
-          label:
-            single: Legal Representative
-            plural: Legal Representatives
-        child:
-          label:
-            single: Child
-            plural: Children
-        sibling:
-          label:
-            single: Sibling
-            plural: Siblings
-        grandparent:
-          label:
-            single: Grandparent
-            plural: Grandparents
-        grandchild:
-          label:
-            single: Grandchild
-            plural: Grandchildren
-        spouse:
-          label:
-            single: Spouse
-            plural: Spouses
-        partner:
-          label:
-            single: Partner
-            plural: Partners
-        emergency_contact:
-          label:
-            single: Emergency contact
-            plural: Emergency contacts
+        parent: "Parent"
+        parent_plural: "Parents"
+        father: "Father"
+        father_plural: "Fathers"
+        mother: "Mother"
+        mother_plural: "Mothers"
+        guardian: "Guardian"
+        guardian_plural: "Guardians"
+        legal_representative: "Legal Representative"
+        legal_representative_plural: "Legal Representatives"
+        child: "Child"
+        child_plural: "Children"
+        sibling: "Sibling"
+        sibling_plural: "Siblings"
+        grandparent: "Grandparent"
+        grandparent_plural: "Grandparents"
+        grandchild: "Grandchild"
+        grandchild_plural: "Grandchildren"
+        spouse: "Spouse"
+        spouse_plural: "Spouses"
+        partner: "Partner"
+        partner_plural: "Partners"
+        emergency_contact: "Emergency contact"
+        emergency_contact_plural: "Emergency contacts"
 
   # ---------------------------------------------------------------------------
-  # DEPRECATED
+  # DEPRECATED - DO NOT MODIFY
   #
   # Compatibility keys preserved during the v2 migration.
   #

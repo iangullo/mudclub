@@ -12,583 +12,180 @@
 es:
   core:
     application:
-      label:
-        single: MudClub
-        plural: MudClub
-
-      short:
-        single: MudClub
-        plural: MudClub
-
+      label: "MudClub"
+      short: "MudClub"
       fields:
-        version:
-          label:
-            single: Versión
-
-          short:
-            single: v
-
-        build:
-          label:
-            single: Compilación
-
-        website:
-          label:
-            single: Sitio web
-
-          short:
-            single: Web
-
-        license:
-          label:
-            single: Licencia
-
+        version: "Versión"
+        version_short: "v"
+        build: "Compilación"
+        website: "Sitio web"
+        website_short: "Web"
+        license: "Licencia"
       messages:
-        about:
-          label:
-            single: Acerca de...
-
-        published:
-          label:
-            single: Publicado bajo licencia GNU Affero GPL v3
+        about: "Acerca de..."
+        published: "Publicado bajo licencia GNU Affero GPL v3"
 
     modules:
-      label:
-        single: Módulo
-        plural: Módulos
-
-      short:
-        single: Mód.
-        plural: Móds.
-
-      values:
-        core:
-          label:
-            single: Núcleo
-
-        calendar:
-          label:
-            single: Calendario
-
-        people:
-          label:
-            single: Personas
-
-        organization:
-          label:
-            single: Organización
-
-        participation:
-          label:
-            single: Participación
-
-        training:
-          label:
-            single: Entrenamiento
-
-        competition:
-          label:
-            single: Competición
-
-        communication:
-          label:
-            single: Comunicación
-
-        finance:
-          label:
-            single: Finanzas
+      core: "Núcleo"
+      calendar: "Calendario"
+      people: "Personas"
+      organization: "Organización"
+      participation: "Participación"
+      training: "Entrenamiento"
+      competition: "Competición"
+      communication: "Comunicación"
+      finance: "Finanzas"
 
     actions:
-      label:
-        single: Acción
-        plural: Acciones
-
-      short:
-        single: Acc.
-        plural: Accs.
-
-      values:
-        view:
-          label:
-            single: Ver
-
-          description:
-            single: Ver información.
-
-        create:
-          label:
-            single: Crear
-
-          description:
-            single: Crear nuevos registros.
-
-        update:
-          label:
-            single: Actualizar
-
-          description:
-            single: Modificar registros existentes.
-
-        delete:
-          label:
-            single: Eliminar
-
-          description:
-            single: Eliminar registros.
-
-        manage:
-          label:
-            single: Gestionar
-
-          description:
-            single: Control administrativo completo.
-
-        assign:
-          label:
-            single: Asignar
-
-          description:
-            single: Asignar personas o recursos.
-
-        approve:
-          label:
-            single: Aprobar
-
-          description:
-            single: Aprobar flujos de trabajo o solicitudes.
-
-        publish:
-          label:
-            single: Publicar
-
-          description:
-            single: Publicar información.
-
-        export:
-          label:
-            single: Exportar
-
-          description:
-            single: Exportar datos.
+      view: "Ver"
+      view_desc: "Ver información."
+      create: "Crear"
+      create_desc: "Crear nuevos registros."
+      update: "Actualizar"
+      update_desc: "Modificar registros existentes."
+      delete: "Eliminar"
+      delete_desc: "Eliminar registros."
+      manage: "Gestionar"
+      manage_desc: "Control administrativo completo."
+      assign: "Asignar"
+      assign_desc: "Asignar personas o recursos."
+      approve: "Aprobar"
+      approve_desc: "Aprobar flujos de trabajo o solicitudes."
+      publish: "Publicar"
+      publish_desc: "Publicar información."
+      export: "Exportar"
+      export_desc: "Exportar datos."
 
     lifecycles:
-      label:
-        single: Ciclo de vida
-        plural: Ciclos de vida
-
-      short:
-        single: Ciclo
-        plural: Ciclos
-
-      values:
-        immutable:
-          label:
-            single: Inmutable
-
-        archivable:
-          label:
-            single: Archivable
-
-        anonymisable:
-          label:
-            single: Anonimizable
-
-        disposable:
-          label:
-            single: Desechable
+      immutable: "Inmutable"
+      archivable: "Archivable"
+      anonymisable: "Anonimizable"
+      disposable: "Desechable"
 
     permissions:
-      label:
-        single: Permiso
-        plural: Permisos
-
-      short:
-        single: Perm.
-        plural: Perms.
-
-      values:
-        view_club:
-          label:
-            single: Ver club
-
-          description:
-            single: Ver información y configuración del club.
-
-        manage_club:
-          label:
-            single: Gestionar club
-
-          description:
-            single: Gestionar información y configuración del club.
-
-        view_people:
-          label:
-            single: Ver personas
-
-          description:
-            single: Ver información personal de los miembros del club.
-
-        contact_people:
-          label:
-            single: Contactar personas
-
-          description:
-            single: Contactar personas mediante los servicios de comunicación proporcionados por MudClub.
-
-        manage_people:
-          label:
-            single: Gestionar personas
-
-          description:
-            single: Crear y mantener registros de personas.
-
-        view_roles:
-          label:
-            single: Ver roles operativos
-
-          description:
-            single: Ver roles operativos.
-
-        manage_roles:
-          label:
-            single: Gestionar roles operativos
-
-          description:
-            single: Definir roles operativos.
-
-        view_system:
-          label:
-            single: Ver sistema
-
-          description:
-            single: Ver configuración y estado del sistema.
-
-        manage_system:
-          label:
-            single: Gestionar sistema
-
-          description:
-            single: Administrar la instalación de MudClub.
-
-        manage_users:
-          label:
-            single: Gestionar usuarios
-
-          description:
-            single: Gestionar cuentas de usuario de MudClub.
+      view_club: "Ver club"
+      view_club_desc: "Ver información y configuración del club."
+      manage_club: "Gestionar club"
+      manage_club_desc: "Gestionar información y configuración del club."
+      view_people: "Ver personas"
+      view_people_desc: "Ver información personal de los miembros del club."
+      contact_people: "Contactar personas"
+      contact_people_desc: "Contactar personas mediante los servicios de comunicación proporcionados por MudClub."
+      manage_people: "Gestionar personas"
+      manage_people_desc: "Crear y mantener registros de personas."
+      view_roles: "Ver roles operativos"
+      view_roles_desc: "Ver roles operativos."
+      manage_roles: "Gestionar roles operativos"
+      manage_roles_desc: "Definir roles operativos."
+      view_system: "Ver sistema"
+      view_system_desc: "Ver configuración y estado del sistema."
+      manage_system: "Gestionar sistema"
+      manage_system_desc: "Administrar la instalación de MudClub."
+      manage_users: "Gestionar usuarios"
+      manage_users_desc: "Gestionar cuentas de usuario de MudClub."
 
     scopes:
-      label:
-        single: Ámbito
-        plural: Ámbitos
-
-      short:
-        single: Ámbito
-        plural: Ámbitos
-
-      values:
-        none:
-          label:
-            single: Niguno
-
-        team:
-          label:
-            single: Equipo
-
-        club:
-          label:
-            single: Club
-
-        global:
-          label:
-            single: Global
+      none: "Ninguno"
+      team: "Equipo"
+      club: "Club"
+      global: "Global"
 
     user:
-      label:
-        single: Usuario
-        plural: Usuarios
-
-      short:
-        single: Usuario
-        plural: Usuarios
-
+      label: "Usuario"
+      short: "Usuario"
       fields:
-        profile:
-          label:
-            single: Perfil
-
-          short:
-            single: Perf.
-
-        email:
-          label:
-            single: Correo electrónico
-
-          short:
-            single: E-mail
-
-        person:
-          label:
-            single: Persona
-
-          short:
-            single: Persona
-
-        club:
-          label:
-            single: Club
-
-          short:
-            single: Club
-
-        settings:
-          label:
-            single: Configuración
-
-          short:
-            single: Config.
-
-        last_login:
-          label:
-            single: Último acceso
-
-          short:
-            single: Último
-
+        profile: "Perfil"
+        profile_short: "Perf."
+        email: "Correo electrónico"
+        email_short: "E-mail"
+        person: "Persona"
+        person_short: "Persona"
+        club: "Club"
+        club_short: "Club"
+        settings: "Configuración"
+        settings_short: "Config."
+        last_login: "Último acceso"
+        last_login_short: "Último"
       messages:
-        created:
-          label:
-            single: Usuario creado.
-
-        updated:
-          label:
-            single: Usuario actualizado.
-
-        deleted:
-          label:
-            single: Usuario eliminado.
-
-        duplicated:
-          label:
-            single: Usuario duplicado.
-
-        actions_cleared:
-          label:
-            single: Acciones de usuario eliminadas.
-
+        created: "Usuario creado."
+        updated: "Usuario actualizado."
+        deleted: "Usuario eliminado."
+        duplicated: "Usuario duplicado."
+        actions_cleared: "Acciones de usuario eliminadas."
       values:
-        never_logged:
-          label:
-            single: Nunca ha iniciado sesión
+        never_logged: "Nunca ha iniciado sesión"
 
     user_action:
-      label:
-        single: Acción de usuario
-        plural: Acciones de usuario
-
-      short:
-        single: Acción
-        plural: Acciones
-
+      label: "Acción de usuario"
+      short: "Acción"
       fields:
-        action:
-          label:
-            single: Acción
-
-        user:
-          label:
-            single: Usuario
-
-        object:
-          label:
-            single: Objeto
-
-        object_type:
-          label:
-            single: Tipo de objeto
-
-          short:
-            single: Tipo
-
-        object_id:
-          label:
-            single: ID del objeto
-
-          short:
-            single: ID
-
-        controller:
-          label:
-            single: Controlador
-
-        request:
-          label:
-            single: Solicitud
-
-        ip_address:
-          label:
-            single: Dirección IP
-
-          short:
-            single: IP
-
-        user_agent:
-          label:
-            single: Agente de usuario
-
-          short:
-            single: Agente
-
-        occurred_at:
-          label:
-            single: Fecha y hora
-
-          short:
-            single: Hora
-
+        action: "Acción"
+        user: "Usuario"
+        object: "Objeto"
+        object_type: "Tipo de objeto"
+        object_type_short: "Tipo"
+        object_id: "ID del objeto"
+        object_id_short: "ID"
+        controller: "Controlador"
+        request: "Solicitud"
+        ip_address: "Dirección IP"
+        ip_address_short: "IP"
+        user_agent: "Agente de usuario"
+        user_agent_short: "Agente"
+        occurred_at: "Fecha y hora"
+        occurred_at_short: "Hora"
       messages:
-        cleared:
-          label:
-            single: Acciones de usuario eliminadas.
-
-        exported:
-          label:
-            single: Acciones de usuario exportadas.
+        cleared: "Acciones de usuario eliminadas."
+        exported: "Acciones de usuario exportadas."
 
     location:
-      label:
-        single: Ubicación
-        plural: Ubicaciones
-
-      short:
-        single: Ubic.
-        plural: Ubics.
-
+      label: "Ubicación"
+      short: "Ubic."
       fields:
-        name:
-          label:
-            single: Nombre
-
-        google_maps:
-          label:
-            single: Google Maps
-
-          short:
-            single: GPS
-
-        training_court:
-          label:
-            single: Pista de entrenamiento
-
-          short:
-            single: Pista
-
+        name: "Nombre"
+        google_maps: "Google Maps"
+        google_maps_short: "GPS"
+        training_court: "Pista de entrenamiento"
+        training_court_short: "Pista"
       messages:
-        created:
-          label:
-            single: Ubicación creada.
-
-        updated:
-          label:
-            single: Ubicación actualizada.
-
-        deleted:
-          label:
-            single: Ubicación eliminada.
-
-        duplicated:
-          label:
-            single: Ubicación duplicada.
+        created: "Ubicación creada."
+        updated: "Ubicación actualizada."
+        deleted: "Ubicación eliminada."
+        duplicated: "Ubicación duplicada."
 
     season:
-      label:
-        single: Temporada
-        plural: Temporadas
-
-      short:
-        single: Temp.
-        plural: Temps.
-
+      label: "Temporada"
+      short: "Temp."
       fields:
-        locations:
-          label:
-            single: Ubicaciones
-
+        locations: "Ubicaciones"
       messages:
-        created:
-          label:
-            single: Temporada creada.
-
-        updated:
-          label:
-            single: Temporada actualizada.
-
-        deleted:
-          label:
-            single: Temporada eliminada.
+        created: "Temporada creada."
+        updated: "Temporada actualizada."
+        deleted: "Temporada eliminada."
 
     sport:
-      label:
-        single: Deporte
-        plural: Deportes
-
-      short:
-        single: Deporte
-        plural: Deportes
-
+      label: "Deporte"
+      short: "Dep."
       fields:
-        rules:
-          label:
-            single: Reglas
-
+        rules: "Reglas"
       period:
-        label:
-          single: Período
-          plural: Períodos
-
-        short:
-          single: Per.
-          plural: Pers.
-
-        fields:
-          duration:
-            label: Duración
-            short: Dur.
-
-          quantity:
-            label:
-              single: Cantidad
-
-            short:
-              single: Cant.
-
-          regular:
-            label:
-              single: Regular
-
-          extra:
-            label:
-              single: Extra
-
+        label: "Período"
+        short: "Per."
+        duration: "Duración"
+        duration_short: "Dur."
+        quantity: "Cantidad"
+        quantity_short: "Cant."
+        regular: "Regular"
+        extra: "Extra"
       messages:
-        created:
-          label:
-            single: Deporte creado.
+        created: "Deporte creado."
+        updated: "Deporte actualizado."
+        deleted: "Deporte eliminado."
 
-        updated:
-          label:
-            single: Deporte actualizado.
-
-        deleted:
-          label:
-            single: Deporte eliminado.
-
-  #
   # -----------------------------------------------------------------------------
   # OBSOLETO
   #
-  # Claves de compatibilidad conservadas durante la migración de configuración
-  # regional v2.
+  # Claves de compatibilidad para la migración de 1.x a v2
   #
   # Buscar:
   #

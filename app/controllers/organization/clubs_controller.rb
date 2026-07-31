@@ -24,7 +24,7 @@ class ClubsController < ApplicationController
 		if check_access(roles: [ :admin, :manager ])
 			@clubs  = Club.search(params[:search], current_user)
 			page    = paginate(@clubs)
-			title   = I18n.t("club.#{u_manager? ? 'rivals': '.many'}")
+			title   = u_manager? ? Club.t_path(:label, :rivals) : Club.label(:plural)
 			title   = helpers.club_title(title:, icon: { concept: "rivals" })
 			title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10 } ]
 			table   = helpers.club_table(clubs: page)
@@ -60,7 +60,7 @@ class ClubsController < ApplicationController
 			locale  = m_club&.locale || "en"
 			country = m_club&.country || "US"
 			@club   = Club.new(settings: { locale:, country: })
-			prepare_form(title: I18n.t("club.new"))
+			prepare_form(title: @club.t_path(:actions, :create))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -69,7 +69,7 @@ class ClubsController < ApplicationController
 	# GET /clubs/1/edit
 	def edit
 		if @club && (u_admin? || club_manager?(@club))
-			prepare_form(title: I18n.t("club.edit"))
+			prepare_form(title: @club.t_path(:actions, :edit))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -83,17 +83,17 @@ class ClubsController < ApplicationController
 				@club.rebuild(club_params)
 				if @club.id == nil then	# it's a new club
 					if @club.save # club saved to database
-						a_desc = "#{I18n.t("club.created")} '#{@club.nick}'"
+						a_desc = "#{@club.msg(:created)} '#{@club.nick}'"
 						register_action(:created, a_desc, url: club_path(@club, rdx: 2))
 						format.html { redirect_to club_path(@club, rdx: 0), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :show, status: :created, location: club_path(@club, rdx: 0) }
 					else
-						prepare_form(title: I18n.t("club.new"))
+						prepare_form(title: @club.t_path(:actions, :create))
 						format.html { render :new, status: :unprocessable_entity }
 						format.json { render json: @club.errors, status: :unprocessable_entity }
 					end
 				else	# duplicate club
-					format.html { redirect_to club_path(@club, rdx: 0), notice: helpers.flash_message("#{I18n.t("club.duplicate")} '#{@club.nick}'"), data: { turbo_action: "replace" } }
+					format.html { redirect_to club_path(@club, rdx: 0), notice: helpers.flash_message("#{@club.msg(:duplicated)} '#{@club.nick}'"), data: { turbo_action: "replace" } }
 					format.json { render :index, :created, location: club_path(@club, rdx: 0) }
 				end
 			end
@@ -110,12 +110,12 @@ class ClubsController < ApplicationController
 				@club.rebuild(club_params)
 				if @club.modified?# club has been edited
 					if @club.save
-						a_desc = "#{I18n.t("club.updated")} '#{@club.nick}'"
+						a_desc = "#{@club.msg(:updated)} '#{@club.nick}'"
 						register_action(:updated, a_desc, url: club_path(@club, rdx: 2))
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :show, status: :ok, location: retlnk }
 					else
-						prepare_form(title: I18n.t("club.edit"))
+						prepare_form(title: @club.t_path(:actions, :edit))
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @club.errors, status: :unprocessable_entity }
 					end
@@ -136,7 +136,7 @@ class ClubsController < ApplicationController
 			c_name = @club.name
 			@club.destroy
 			respond_to do |format|
-				a_desc = "#{I18n.t("club.deleted")} '#{c_name}'"
+				a_desc = "#{@club.msg(:deleted)} '#{c_name}'"
 				register_action(:deleted, a_desc)
 				format.html { redirect_to clubs_path(rdx: 0), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }

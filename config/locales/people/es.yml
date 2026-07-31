@@ -12,184 +12,116 @@
 
 es:
   people:
+    label: "Personas"
+    short: "Personas"
+
     messages:
-      exported: Personas exportadas
-      imported: Personas importadas
+      exported: "Personas exportadas"
+      imported: "Personas importadas"
 
     person:
-      label:
-        single: Persona
-        plural: Personas
-
-      short:
-        single: Persona
-        plural: Personas
-
+      label: "Persona"
+      short: "Persona"
       fields:
-        name:
-          label: Nombre
-          short: Nom.
-
-        surname:
-          label: Apellidos
-          short: Apell.
-
-        nickname:
-          label: Apodo
-          short: Apodo
-
-        birthday:
-          label: Fecha de nacimiento
-          short: F.Nac.
-
-        age:
-          label: Edad
-
-        sex:
-          label: Sexo
-
-        national_id:
-          label: Documento de identidad
-          short: DNI
-
-        email:
-          label: Correo electrónico
-
-        phone:
-          label: Teléfono
-          short: Tel.
-
-        address:
-          label: Domicilio
-          short: Dir.
-
-        biography:
-          label: Biografía
-          short: Bio
-
-        photo:
-          label: Fotografía
-          short: Foto
-
-        id_front:
-          label: Documento de identidad (anverso)
-          short: Anverso DNI
-
-        id_back:
-          label: Documento de identidad (reverso)
-          short: Reverso DNI
-
+        name: "Nombre"
+        name_short: "Nom."
+        surname: "Apellido"
+        surname_short: "Apell."
+        nickname: "Apodo"
+        nickname_short: "Nick"
+        birthday: "Fecha de nacimiento"
+        birthday_short: "F.Nac."
+        age: "Edad"
+        sex: "Sexo"
+        national_id: "Documento de identidad"
+        national_id_short: "DNI"
+        email: "Correo electrónico"
+        email_short: "email"
+        phone: "Teléfono"
+        phone_short: "Telf."
+        address: "Domicilio"
+        address_short: "Domic."
+        biography: "Biografía"
+        biography_short: "Bio."
+        photograph: "Fotografía"
+        photograph_short: "Foto"
+        photographs: "Fotografías"
+        photographs_short: "Fotos"
+        id_front: "Documento de identidad (anverso)"
+        id_front_short: "DNI anv."
+        id_back: "Documento de identidad (reverso)"
+        id_back_short: "DNI rev."
       messages:
-        created: Persona creada.
-        updated: Persona actualizada.
-        deleted: Persona eliminada.
-        duplicated: La persona ya existe.
+        created: "Persona creada."
+        updated: "Persona actualizada."
+        deleted: "Persona eliminada."
+        duplicated: "La persona ya existe."
 
     parent:
-      label:
-        single: Familiar
-        plural: Familiares
-
-      short:
-        single: Familiar
-        plural: Familiares
+      label: "Familiar"
+      short: "Familiar"
 
     contact:
-      single: Contacto
-      many: Contactos
-      short: Cont.
+      label: "Contacto"
+      short: "Cont."
 
     sex:
-      label:
-        single: Sexo
-        plural: Sexos
-
-      short:
-        single: Sexo
-        plural: Sexos
-
+      label: "Sexo"
+      short: "Sexo"
       values:
-        female:
-          label:
-            single: Femenino
-            plural: Femeninos
-
-          short:
-            single: Fem.
-            plural: Fem.
-
-        male:
-          label:
-            single: Masculino
-            plural: Masculinos
-
-          short:
-            single: Masc.
-            plural: Masc.
-
-        mixed:
-          label:
-            single: Mixto
-            plural: Mixtos
-
-          short:
-            single: Mixto
-            plural: Mixtos
+        female: "Femenino"
+        female_short: "Fem."
+        male: "Masculino"
+        male_short: "Masc."
+        mixed: "Mixto"
+        mixed_short: "Mixto"
 
     relationship_kinds:
-      label:
-        single: Relación
-        plural: Relaciones
-
+      label: "Relación"
+      short: "Rel."
       values:
-        parent:
-          label:
-            single: Familiar
-            plural: Familiares
-        father:
-          label:
-            single: Padre
-            plural: Padres
-        mother:
-          label:
-            single: Madre
-            plural: Madres
-        guardian:
-          label:
-            single: Tutor
-            plural: Tutores
-        legal_representative:
-          label:
-            single: Representante legal
-            plural: Representantes legales
-        child:
-          label:
-            single: Hijo
-            plural: Hijos
-        sibling:
-          label:
-            single: Hermano
-            plural: Hermanos
-        grandparent:
-          label:
-            single: Abuelo
-            plural: Abuelos
-        grandchild:
-          label:
-            single: Nieto
-            plural: Nietos
-        spouse:
-          label:
-            single: Cónyuge
-            plural: Cónyuges
-        partner:
-          label:
-            single: Pareja
-            plural: Parejas
-        emergency_contact:
-          label:
-            single: Contacto de emergencia
-            plural: Contactos de emergencia
+        parent: "Familiar"
+        parent_plural: "Familiares"
+        father: "Padre"
+        father_plural: "Padres"
+        mother: "Madre"
+        mother_plural: "Madres"
+        guardian: "Tutor"
+        guardian_plural: "Tutores"
+        legal_representative: "Representante legal"
+        legal_representative_plural: "Representantes legales"
+        child: "Hijo"
+        child_plural: "Hijos"
+        sibling: "Hermano"
+        sibling_plural: "Hermanos"
+        grandparent: "Abuelo"
+        grandparent_plural: "Abuelos"
+        grandchild: "Nieto"
+        grandchild_plural: "Nietos"
+        spouse: "Cónyuge"
+        spouse_plural: "Cónyuges"
+        partner: "Pareja"
+        partner_plural: "Parejas"
+        emergency_contact: "Contacto de emergencia"
+        emergency_contact_plural: "Contactos de emergencia"
+
+  # ---------------------------------------------------------------------------
+  # OBSOLETO - NO MODIFICAR
+  #
+  # Claves de compatibilidad conservadas durante la migración v2.
+  #
+  # Buscar:
+  #
+  #   t("person.
+  #   t("parent.
+  #   t("sex.
+  #
+  # Eliminar una vez que todas las referencias se hayan migrado.
+  # ---------------------------------------------------------------------------
+
+  parent:
+    single: "Familiar"
+    many: "Familiares"
 
   person:
     address: "Domicilio"

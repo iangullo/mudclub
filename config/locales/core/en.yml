@@ -12,579 +12,178 @@
 en:
   core:
     application:
-      label:
-        single: MudClub
-        plural: MudClub
-
-      short:
-        single: MudClub
-        plural: MudClub
-
+      label: "MudClub"
+      short: "MudClub"
       fields:
-        version:
-          label:
-            single: Version
-
-          short:
-            single: v
-
-        build:
-          label:
-            single: Build
-
-        website:
-          label:
-            single: Website
-
-          short:
-            single: Web
-
-        license:
-          label:
-            single: License
-
+        version: "Version"
+        version_short: "v"
+        build: "Build"
+        website: "Website"
+        website_short: "Web"
+        license: "License"
       messages:
-        about:
-          label:
-            single: About...
-
-        published:
-          label:
-            single: Published under GNU Affero GPL v3 licence
+        about: "About..."
+        published: "Published under GNU Affero GPL v3 licence"
 
     modules:
-      label:
-        single: Module
-        plural: Modules
-
-      short:
-        single: Mod.
-        plural: Mods.
-
-      values:
-        core:
-          label:
-            single: Core
-
-        calendar:
-          label:
-            single: Calendar
-
-        people:
-          label:
-            single: People
-
-        organization:
-          label:
-            single: Organization
-
-        participation:
-          label:
-            single: Participation
-
-        training:
-          label:
-            single: Training
-
-        competition:
-          label:
-            single: Competition
-
-        communication:
-          label:
-            single: Communication
-
-        finance:
-          label:
-            single: Finance
+      core: "Core"
+      calendar: "Calendar"
+      people: "People"
+      organization: "Organization"
+      participation: "Participation"
+      training: "Training"
+      competition: "Competition"
+      communication: "Communication"
+      finance: "Finance"
 
     actions:
-      label:
-        single: Action
-        plural: Actions
-
-      short:
-        single: Act.
-        plural: Acts.
-
-      values:
-        view:
-          label:
-            single: View
-
-          description:
-            single: View information.
-
-        create:
-          label:
-            single: Create
-
-          description:
-            single: Create new records.
-
-        update:
-          label:
-            single: Update
-
-          description:
-            single: Modify existing records.
-
-        delete:
-          label:
-            single: Delete
-
-          description:
-            single: Delete records.
-
-        manage:
-          label:
-            single: Manage
-
-          description:
-            single: Full administrative control.
-
-        assign:
-          label:
-            single: Assign
-
-          description:
-            single: Assign people or resources.
-
-        approve:
-          label:
-            single: Approve
-
-          description:
-            single: Approve workflows or requests.
-
-        publish:
-          label:
-            single: Publish
-
-          description:
-            single: Publish information.
-
-        export:
-          label:
-            single: Export
-
-          description:
-            single: Export data.
+      view: "View"
+      view_desc: "View information."
+      create: "Create"
+      create_desc: "Create new records."
+      update: "Update"
+      update_desc: "Modify existing records."
+      delete: "Delete"
+      delete_desc: "Delete records."
+      manage: "Manage"
+      manage_desc: "Full administrative control."
+      assign: "Assign"
+      assign_desc: "Assign people or resources."
+      approve: "Approve"
+      approve_desc: "Approve workflows or requests."
+      publish: "Publish"
+      publish_desc: "Publish information."
+      export: "Export"
+      export_desc: "Export data."
 
     lifecycles:
-      label:
-        single: Lifecycle
-        plural: Lifecycles
-
-      short:
-        single: Life.
-        plural: Lifecycles
-
-      values:
-        immutable:
-          label:
-            single: Immutable
-
-        archivable:
-          label:
-            single: Archivable
-
-        anonymisable:
-          label:
-            single: Anonymisable
-
-        disposable:
-          label:
-            single: Disposable
+      immutable: "Immutable"
+      archivable: "Archivable"
+      anonymisable: "Anonymisable"
+      disposable: "Disposable"
 
     permissions:
-      label:
-        single: Permission
-        plural: Permissions
-
-      short:
-        single: Perm.
-        plural: Perms.
-
-      values:
-        view_club:
-          label:
-            single: View club
-
-          description:
-            single: View club information and configuration.
-
-        manage_club:
-          label:
-            single: Manage club
-
-          description:
-            single: Manage club information and configuration.
-
-        view_people:
-          label:
-            single: View people
-
-          description:
-            single: View personal information of club members.
-
-        contact_people:
-          label:
-            single: Contact people
-
-          description:
-            single: Contact people using the communication services provided by MudClub.
-
-        manage_people:
-          label:
-            single: Manage people
-
-          description:
-            single: Create and maintain people records.
-
-        view_roles:
-          label:
-            single: View operational roles
-
-          description:
-            single: View operational roles.
-
-        manage_roles:
-          label:
-            single: Manage operational roles
-
-          description:
-            single: Define operational roles.
-
-        view_system:
-          label:
-            single: View system
-
-          description:
-            single: View system-wide configuration and status.
-
-        manage_system:
-          label:
-            single: Manage system
-
-          description:
-            single: Administer the MudClub installation.
-
-        manage_users:
-          label:
-            single: Manage users
-
-          description:
-            single: Manage MudClub user accounts.
+      view_club: "View club"
+      view_club_desc: "View club information and configuration."
+      manage_club: "Manage club"
+      manage_club_desc: "Manage club information and configuration."
+      view_people: "View people"
+      view_people_desc: "View personal information of club members."
+      contact_people: "Contact people"
+      contact_people_desc: "Contact people using the communication services provided by MudClub."
+      manage_people: "Manage people"
+      manage_people_desc: "Create and maintain people records."
+      view_roles: "View operational roles"
+      view_roles_desc: "View operational roles."
+      manage_roles: "Manage operational roles"
+      manage_roles_desc: "Define operational roles."
+      view_system: "View system"
+      view_system_desc: "View system-wide configuration and status."
+      manage_system: "Manage system"
+      manage_system_desc: "Administer the MudClub installation."
+      manage_users: "Manage users"
+      manage_users_desc: "Manage MudClub user accounts."
 
     scopes:
-      label:
-        single: Scope
-        plural: Scopes
-
-      short:
-        single: Scope
-        plural: Scopes
-
-      values:
-        none:
-          label:
-            single: None
-
-        team:
-          label:
-            single: Team
-
-        club:
-          label:
-            single: Club
-
-        global:
-          label:
-            single: Global
+      none: "None"
+      team: "Team"
+      club: "Club"
+      global: "Global"
 
     user:
-      label:
-        single: User
-        plural: Users
-
-      short:
-        single: User
-        plural: Users
-
+      label: "User"
+      short: "User"
       fields:
-        profile:
-          label:
-            single: Profile
-
-          short:
-            single: Prof.
-
-        email:
-          label:
-            single: Email
-
-          short:
-            single: E-mail
-
-        person:
-          label:
-            single: Person
-
-          short:
-            single: Person
-
-        club:
-          label:
-            single: Club
-
-          short:
-            single: Club
-
-        settings:
-          label:
-            single: Settings
-
-          short:
-            single: Config.
-
-        last_login:
-          label:
-            single: Last login
-
-          short:
-            single: Last
-
+        profile: "Profile"
+        profile_short: "Prof."
+        email: "Email"
+        email_short: "E-mail"
+        person: "Person"
+        person_short: "Person"
+        club: "Club"
+        club_short: "Club"
+        settings: "Settings"
+        settings_short: "Config."
+        last_login: "Last login"
+        last_login_short: "Last"
       messages:
-        created:
-          label:
-            single: User created.
-
-        updated:
-          label:
-            single: User updated.
-
-        deleted:
-          label:
-            single: User deleted.
-
-        duplicated:
-          label:
-            single: Duplicate user.
-
-        actions_cleared:
-          label:
-            single: User actions cleared.
-
+        created: "User created."
+        updated: "User updated."
+        deleted: "User deleted."
+        duplicated: "Duplicate user."
+        actions_cleared: "User actions cleared."
       values:
-        never_logged:
-          label:
-            single: Never logged in
+        never_logged: "Never logged in"
 
     user_action:
-      label:
-        single: User action
-        plural: User actions
-
-      short:
-        single: Action
-        plural: Actions
-
+      label: "User action"
+      short: "Action"
       fields:
-        action:
-          label:
-            single: Action
-
-        user:
-          label:
-            single: User
-
-        object:
-          label:
-            single: Object
-
-        object_type:
-          label:
-            single: Object type
-
-          short:
-            single: Type
-
-        object_id:
-          label:
-            single: Object ID
-
-          short:
-            single: ID
-
-        controller:
-          label:
-            single: Controller
-
-        request:
-          label:
-            single: Request
-
-        ip_address:
-          label:
-            single: IP address
-
-          short:
-            single: IP
-
-        user_agent:
-          label:
-            single: User agent
-
-          short:
-            single: Agent
-
-        occurred_at:
-          label:
-            single: Timestamp
-
-          short:
-            single: Time
-
+        action: "Action"
+        user: "User"
+        object: "Object"
+        object_type: "Object type"
+        object_type_short: "Type"
+        object_id: "Object ID"
+        object_id_short: "ID"
+        controller: "Controller"
+        request: "Request"
+        ip_address: "IP address"
+        ip_address_short: "IP"
+        user_agent: "User agent"
+        user_agent_short: "Agent"
+        occurred_at: "Timestamp"
+        occurred_at_short: "Time"
       messages:
-        cleared:
-          label:
-            single: User actions cleared.
-
-        exported:
-          label:
-            single: User actions exported.
+        cleared: "User actions cleared."
+        exported: "User actions exported."
 
     location:
-      label:
-        single: Location
-        plural: Locations
-
-      short:
-        single: Loc.
-        plural: Locs.
-
+      label: "Location"
+      short: "Loc."
       fields:
-        name:
-          label:
-            single: Name
-
-        google_maps:
-          label:
-            single: Google Maps
-
-          short:
-            single: GPS
-
-        training_court:
-          label:
-            single: Training court
-
-          short:
-            single: Court
-
+        name: "Name"
+        google_maps: "Google Maps"
+        google_maps_short: "GPS"
+        training_court: "Training court"
+        training_court_short: "Court"
       messages:
-        created:
-          label:
-            single: Location created.
-
-        updated:
-          label:
-            single: Location updated.
-
-        deleted:
-          label:
-            single: Location deleted.
-
-        duplicated:
-          label:
-            single: Duplicate location.
+        created: "Location created."
+        updated: "Location updated."
+        deleted: "Location deleted."
+        duplicated: "Duplicate location."
 
     season:
-      label:
-        single: Season
-        plural: Seasons
-
-      short:
-        single: Seas.
-        plural: Seas.
-
+      label: "Season"
+      short: "Seas."
       fields:
-        locations:
-          label:
-            single: Locations
-
+        locations: "Locations"
       messages:
-        created:
-          label:
-            single: Season created.
-
-        updated:
-          label:
-            single: Season updated.
-
-        deleted:
-          label:
-            single: Season deleted.
+        created: "Season created."
+        updated: "Season updated."
+        deleted: "Season deleted."
 
     sport:
-      label:
-        single: Sport
-        plural: Sports
-
-      short:
-        single: Sport
-        plural: Sports
-
+      label: "Sport"
+      short: "Sport"
       fields:
-        rules:
-          label:
-            single: Rules
-
+        rules: "Rules"
       period:
-        label:
-          single: Period
-          plural: Periods
-
-        short:
-          single: Per.
-          plural: Pers.
-
-        fields:
-          duration:
-            label: Duration
-            short: Dur.
-
-          quantity:
-            label:
-              single: Quantity
-
-            short:
-              single: Qty.
-
-          regular:
-            label:
-              single: Regular
-
-          extra:
-            label:
-              single: Extra
-
+        label: "Period"
+        short: "Per."
+        duration: "Duration"
+        duration_short: "Dur."
+        quantity: "Quantity"
+        quantity_short: "Qty."
+        regular: "Regular"
+        extra: "Extra"
       messages:
-        created:
-          label:
-            single: Sport created.
-
-        updated:
-          label:
-            single: Sport updated.
-
-        deleted:
-          label:
-            single: Sport deleted.
+        created: "Sport created."
+        updated: "Sport updated."
+        deleted: "Sport deleted."
 
   # -----------------------------------------------------------------------------
-  # DEPRECATED
+  # DEPRECATED - DO NOT MODIFY
   #
   # Compatibility keys preserved during the v2 locale migration.
   #

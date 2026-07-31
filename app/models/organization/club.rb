@@ -97,7 +97,7 @@ class Club < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		self.name || I18n.t("club.single")
+		self.name || label
 	end
 
 	# Get collection of upcoming events for the club
@@ -145,7 +145,7 @@ class Club < ApplicationRecord
 
 	# used to list available clubs in selectors
 	def self.list
-		res = [ [ I18n.t("status.inactive"), -1 ] ]
+		res = [ [ I18n.t("shared.statuses.inactive"), -1 ] ]
 		Club.real.each { |club| res << [ club.nick, club.id ] }
 		res
 	end

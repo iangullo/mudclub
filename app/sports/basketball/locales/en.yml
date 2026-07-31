@@ -13,339 +13,162 @@
 en:
   sport:
     basketball:
-      # -----------------------------------------------------------------------
-      # Sport identity
-      # -----------------------------------------------------------------------
-
-      label:
-        single: Basketball
-        plural: Basketball
-
-      short:
-        single: BB
-        plural: BB
-
-      # -----------------------------------------------------------------------
-      # Basketball terminology
-      # -----------------------------------------------------------------------
+      label: "Basketball"
+      short: "BB"
 
       terms:
-        athlete:
-          label:
-            single: Player
-            plural: Players
-
-          short:
-            single: Play.
-            plural: Plays.
-
-        coach:
-          label:
-            single: Coach
-            plural: Coaches
-
-        team:
-          label:
-            single: Team
-            plural: Teams
-
-        period:
-          label:
-            single: Quarter
-            plural: Quarters
-
-          short:
-            single: Qtr.
-            plural: Qtrs.
-
-      # -----------------------------------------------------------------------
-      # Rules
-      # -----------------------------------------------------------------------
+        athlete: "Player"
+        athlete_short: "Play."
+        coach: "Coach"
+        team: "Team"
+        period: "Quarter"
+        period_short: "Qtr."
 
       rules:
-        values:
-          fiba:
-            label: FIBA
-            short: FIBA
-            description: Official FIBA competition rules.
-
-          u14:
-            label: U14
-            short: U14
-            description: Under-14 competition.
-
-          u12:
-            label: U12
-            short: U12
-            description: Under-12 competition.
-
-          u10:
-            label: U10
-            short: U10
-            description: Under-10 competition.
-
-          u8:
-            label: U8
-            short: U8
-            description: Under-8 competition.
-
-          three:
-            label: 3×3
-            short: 3×3
-            description: Three-on-three basketball.
-
-      # -----------------------------------------------------------------------
-      # Periods
-      # -----------------------------------------------------------------------
+        fiba: "FIBA"
+        fiba_short: "FIBA"
+        fiba_desc: "Official FIBA competition rules."
+        u14: "U14"
+        u14_short: "U14"
+        u14_desc: "Under-14 competition."
+        u12: "U12"
+        u12_short: "U12"
+        u12_desc: "Under-12 competition."
+        u10: "U10"
+        u10_short: "U10"
+        u10_desc: "Under-10 competition."
+        u8: "U8"
+        u8_short: "U8"
+        u8_desc: "Under-8 competition."
+        three: "3×3"
+        three_short: "3×3"
+        three_desc: "Three-on-three basketball."
 
       periods:
-        label:
-          single: Period
-          many: Periods
-          short: Q
-
+        label: "Period"
+        short: "Q"
         values:
-          tot:
-            label: Complete game
-            short: TOT
-
-          q1:
-            label: First quarter
-            short: Q1
-
-          q2:
-            label: Second quarter
-            short: Q2
-
-          q3:
-            label: Third quarter
-            short: Q3
-
-          q4:
-            label: Fourth quarter
-            short: Q4
-
-          q5:
-            label: Fifth quarter
-            short: Q5
-
-          q6:
-            label: Sixth quarter
-            short: Q6
-
-          ot:
-            label: Overtime
-            short: OT
-
-      # -----------------------------------------------------------------------
-      # Court layouts
-      # -----------------------------------------------------------------------
+          tot: "Complete game"
+          tot_short: "TOT"
+          q1: "First quarter"
+          q1_short: "Q1"
+          q2: "Second quarter"
+          q2_short: "Q2"
+          q3: "Third quarter"
+          q3_short: "Q3"
+          q4: "Fourth quarter"
+          q4_short: "Q4"
+          q5: "Fifth quarter"
+          q5_short: "Q5"
+          q6: "Sixth quarter"
+          q6_short: "Q6"
+          ot: "Overtime"
+          ot_short: "OT"
 
       court_modes:
-        values:
-          full:
-            label: Full court
-            short: Full
-
-          half_off:
-            label: Offensive half court
-            short: Off.
-
-          half_def:
-            label: Defensive half court
-            short: Def.
-
-      # -----------------------------------------------------------------------
-      # Diagram objects
-      # -----------------------------------------------------------------------
+        full: "Full court"
+        full_short: "Full"
+        half_off: "Offensive half court"
+        half_off_short: "Off."
+        half_def: "Defensive half court"
+        half_def_short: "Def."
 
       objects:
-        values:
-          attacker:
-            label: Attacker
-
-          defender:
-            label: Defender
-
-          coach:
-            label: Coach
-
-          cone:
-            label: Cone
-
-          ball:
-            label: Ball
-
-          move:
-            label: Move
-
-          pass:
-            label: Pass
-
-          dribble:
-            label: Dribble
-
-          shot:
-            label: Shot
-
-          pick:
-            label: Pick/Screen
-
-          handoff:
-            label: Hand-off
-
-      # -----------------------------------------------------------------------
-      # Statistics
-      # -----------------------------------------------------------------------
+        attacker: "Attacker"
+        defender: "Defender"
+        coach: "Coach"
+        cone: "Cone"
+        ball: "Ball"
+        move: "Move"
+        pass: "Pass"
+        dribble: "Dribble"
+        shot: "Shot"
+        pick: "Pick/Screen"
+        handoff: "Hand-off"
 
       statistics:
-        values:
-          sec:
-            label: Time
-            short: T.
-            description: Total playing time.
-
-          pts:
-            label: Points
-            short: PTS
-            description: Total points scored.
-
-          pta:
-            label: Points attempted
-            short: PTA
-
-          ft:
-            label: Free throws
-            short: FT
-
-          fta:
-            label: Free throws attempted
-            short: FTA
-
-          ftm:
-            label: Free throws made
-            short: FTM
-
-          fg:
-            label: Field goals
-            short: FG
-
-          fga:
-            label: Field goals attempted
-            short: FGA
-
-          fgm:
-            label: Field goals made
-            short: FGM
-
-          t2:
-            label: 2P shots
-            short: 2P
-
-          t2a:
-            label: Two-point attempts
-            short: 2PA
-
-          t2m:
-            label: Two-point made
-            short: 2PM
-
-          tz:
-            label: Shots near basket
-            short: ZP
-
-          tza:
-            label: Close-range attempts
-            short: ZA
-
-          tzm:
-            label: Close-range made
-            short: ZM
-
-          tm:
-            label: Mid-range shots
-            short: MR
-
-          tma:
-            label: Mid-range attempts
-            short: MRA
-
-          tmm:
-            label: Mid-range made
-            short: MRM
-
-          t3:
-            label: 3P shots
-            short: 3P
-
-          t3a:
-            label: Three-point attempts
-            short: 3PA
-
-          t3m:
-            label: Three-point made
-            short: 3PM
-
-          orb:
-            label: Offensive rebounds
-            short: ORB
-
-          drb:
-            label: Defensive rebounds
-            short: DRB
-
-          trb:
-            label: Total rebounds
-            short: REB
-
-          ast:
-            label: Assists
-            short: AST
-
-          stl:
-            label: Steals
-            short: STL
-
-          to:
-            label: Turnovers
-            short: TO
-
-          blk:
-            label: Blocks
-            short: BLK
-
-          bla:
-            label: Shots blocked
-            short: BLA
-
-          pfc:
-            label: Fouls committed
-            short: FC
-
-          pfr:
-            label: Fouls received
-            short: FR
+        sec: "Time"
+        sec_short: "T."
+        sec_desc: "Total playing time."
+        pts: "Points"
+        pts_short: "PTS"
+        pts_desc: "Total points scored."
+        pta: "Points attempted"
+        pta_short: "PTA"
+        ft: "Free throws"
+        ft_short: "FT"
+        fta: "Free throws attempted"
+        fta_short: "FTA"
+        ftm: "Free throws made"
+        ftm_short: "FTM"
+        fg: "Field goals"
+        fg_short: "FG"
+        fga: "Field goals attempted"
+        fga_short: "FGA"
+        fgm: "Field goals made"
+        fgm_short: "FGM"
+        t2: "2P shots"
+        t2_short: "2P"
+        t2a: "Two-point attempts"
+        t2a_short: "2PA"
+        t2m: "Two-point made"
+        t2m_short: "2PM"
+        tz: "Shots near basket"
+        tz_short: "ZP"
+        tza: "Close-range attempts"
+        tza_short: "ZA"
+        tzm: "Close-range made"
+        tzm_short: "ZM"
+        tm: "Mid-range shots"
+        tm_short: "MR"
+        tma: "Mid-range attempts"
+        tma_short: "MRA"
+        tmm: "Mid-range made"
+        tmm_short: "MRM"
+        t3: "3P shots"
+        t3_short: "3P"
+        t3a: "Three-point attempts"
+        t3a_short: "3PA"
+        t3m: "Three-point made"
+        t3m_short: "3PM"
+        orb: "Offensive rebounds"
+        orb_short: "ORB"
+        drb: "Defensive rebounds"
+        drb_short: "DRB"
+        trb: "Total rebounds"
+        trb_short: "REB"
+        ast: "Assists"
+        ast_short: "AST"
+        stl: "Steals"
+        stl_short: "STL"
+        to: "Turnovers"
+        to_short: "TO"
+        blk: "Blocks"
+        blk_short: "BLK"
+        bla: "Shots blocked"
+        bla_short: "BLA"
+        pfc: "Fouls committed"
+        pfc_short: "FC"
+        pfr: "Fouls received"
+        pfr_short: "FR"
 
       outings:
-        first: First
-        playing: On court
-        quarter: Player outings
+        first: "First"
+        playing: "On court"
+        quarter: "Player outings"
 
-      # -----------------------------------------------------------------------
-      # DEPRECATED
+      # -----------------------------------------------------------------------------
+      # DEPRECATED - DO NOT MODIFY
       #
       # Compatibility keys preserved during the MudClub 2.0 migration.
       # Remove once legacy views, helpers and JavaScript have been updated.
-      # -----------------------------------------------------------------------
-
-      name: Basketball
-
+      # -----------------------------------------------------------------------------
+      name: "Basketball"
       court:
-        full: Full court
-        half_off: Half court (offense)
-        half_def: Half court (defense)
-
+        full: "Full court"
+        half_off: "Half court (offense)"
+        half_def: "Half court (defense)"
       shot:
-        many: Shots
-        attempt: A.
-        scored: M.
+        many: "Shots"
+        attempt: "A."
+        scored: "M."

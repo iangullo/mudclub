@@ -16,310 +16,154 @@
 
 en:
   calendar:
-    label:
-      single: Calendar
-      plural: Calendars
-
-    short:
-      single: Cal.
-      plural: Cals.
+    label: "Calendar"
+    short: "Cal."
 
     fields:
-      date:
-        label: Date
-        short: Date
-
-      time:
-        label: Time
-        short: Time
-
-      week:
-        label: Week
-        short: Wk.
-
-      month:
-        label: Month
-        short: Mon.
-
-      year:
-        label: Year
-        short: Yr.
+      date: "Date"
+      date_short: "Date"
+      time: "Time"
+      time_short: "Time"
+      week: "Week"
+      week_short: "Wk."
+      month: "Month"
+      month_short: "Mon."
+      year: "Year"
+      year_short: "Yr."
 
     months:
-      label:
-        single: Month
-        plural: Months
-
-      short:
-        single: Mon.
-        plural: Mons.
-
+      label: "Month"
+      short: "Mon."
       values:
-        january:
-          label: January
-          short: Jan
-
-        february:
-          label: February
-          short: Feb
-
-        march:
-          label: March
-          short: Mar
-
-        april:
-          label: April
-          short: Apr
-
-        may:
-          label: May
-          short: May
-
-        june:
-          label: June
-          short: Jun
-
-        july:
-          label: July
-          short: Jul
-
-        august:
-          label: August
-          short: Aug
-
-        september:
-          label: September
-          short: Sep
-
-        october:
-          label: October
-          short: Oct
-
-        november:
-          label: November
-          short: Nov
-
-        december:
-          label: December
-          short: Dec
+        january: "January"
+        january_short: "Jan"
+        february: "February"
+        february_short: "Feb"
+        march: "March"
+        march_short: "Mar"
+        april: "April"
+        april_short: "Apr"
+        may: "May"
+        may_short: "May"
+        june: "June"
+        june_short: "Jun"
+        july: "July"
+        july_short: "Jul"
+        august: "August"
+        august_short: "Aug"
+        september: "September"
+        september_short: "Sep"
+        october: "October"
+        october_short: "Oct"
+        november: "November"
+        november_short: "Nov"
+        december: "December"
+        december_short: "Dec"
 
     weekdays:
-      label:
-        single: Weekday
-        plural: Weekdays
-
-      short:
-        single: Day
-        plural: Days
-
+      label: "Weekday"
+      short: "Day"
       values:
-        monday:
-          label: Monday
-          short: Mon
-
-        tuesday:
-          label: Tuesday
-          short: Tue
-
-        wednesday:
-          label: Wednesday
-          short: Wed
-
-        thursday:
-          label: Thursday
-          short: Thu
-
-        friday:
-          label: Friday
-          short: Fri
-
-        saturday:
-          label: Saturday
-          short: Sat
-
-        sunday:
-          label: Sunday
-          short: Sun
+        monday: "Monday"
+        monday_short: "Mon"
+        tuesday: "Tuesday"
+        tuesday_short: "Tue"
+        wednesday: "Wednesday"
+        wednesday_short: "Wed"
+        thursday: "Thursday"
+        thursday_short: "Thu"
+        friday: "Friday"
+        friday_short: "Fri"
+        saturday: "Saturday"
+        saturday_short: "Sat"
+        sunday: "Sunday"
+        sunday_short: "Sun"
 
     event_kinds:
-      label:
-        single: Event kind
-        plural: Event kinds
-
-      short:
-        single: Kind
-        plural: Kinds
-
+      label: "Event kind"
+      short: "Kind"
       values:
-        holiday:
-          label: Holiday
-          short: Hol.
-
-        training:
-          label: Training
-          short: Train
-
-        match:
-          label: Match
-          short: Match
-
-        competition:
-          label: Competition
-          short: Comp.
-
-        meeting:
-          label: Meeting
-          short: Meet
-
-        social:
-          label: Social event
-          short: Soc.
-
-        other:
-          label: Other
-          short: Other
+        holiday: "Holiday"
+        holiday_short: "Hol."
+        training: "Training"
+        training_short: "Train"
+        match: "Match"
+        match_short: "Match"
+        competition: "Competition"
+        competition_short: "Comp."
+        meeting: "Meeting"
+        meeting_short: "Meet"
+        social: "Social event"
+        social_short: "Soc."
+        other: "Other"
+        other_short: "Other"
 
     attendance_statuses:
-      label:
-        single: Attendance status
-        plural: Attendance statuses
-
-      short:
-        single: Status
-        plural: Statuses
-
+      label: "Attendance status"
+      short: "Status"
       values:
-        present:
-          label: Present
-
-        absent:
-          label: Absent
-
-        excused:
-          label: Excused
-
-        late:
-          label: Late
-
-        unknown:
-          label: Unknown
+        present: "Present"
+        absent: "Absent"
+        excused: "Excused"
+        late: "Late"
+        unknown: "Unknown"
 
     recurrence_kinds:
-      label:
-        single: Recurrence
-        plural: Recurrences
-        short: Rec.
-
+      label: "Recurrence"
+      short: "Rec."
       values:
-        none:
-          label: None
-        daily:
-          label: Daily
-        weekly:
-          label: Weekly
-        monthly:
-          label: Monthly
-        yearly:
-          label: Yearly
+        none: "None"
+        daily: "Daily"
+        weekly: "Weekly"
+        monthly: "Monthly"
+        yearly: "Yearly"
 
     slot:
-      label:
-        single: Time slot
-        plural: Time slots
-
-      short:
-        single: Slot
-        plural: Slots
-
+      label: "Time slot"
+      short: "Slot"
       fields:
-        starts_on:
-          label: Starts
-          short: Start
-
-        ends_on:
-          label: Ends
-          short: End
-
-        duration:
-          label: Duration
-          short: Dur.
-
+        starts_on: "Starts"
+        starts_on_short: "Start"
+        ends_on: "Ends"
+        ends_on_short: "End"
+        duration: "Duration"
+        duration_short: "Dur."
       messages:
-        created: Time slot created.
-
-        updated: Time slot updated.
-
-        deleted: Time slot deleted.
+        created: "Time slot created."
+        updated: "Time slot updated."
+        deleted: "Time slot deleted."
 
     event:
-      label:
-        single: Event
-        plural: Events
-
-      short:
-        single: Event
-        plural: Events
-
+      label: "Event"
+      short: "Event"
       fields:
-        title:
-          label: Title
-
-        description:
-          label: Description
-
-        starts_on:
-          label: Starts
-
-        ends_on:
-          label: Ends
-
-        slot:
-          label: Time slot
-
-        kind:
-          label: Event kind
-
-        metadata:
-          label: Metadata
-
+        title: "Title"
+        description: "Description"
+        starts_on: "Starts"
+        ends_on: "Ends"
+        slot: "Time slot"
+        kind: "Event kind"
+        metadata: "Metadata"
       messages:
-        created: Event created.
-
-        updated: Event updated.
-
-        deleted: Event deleted.
+        created: "Event created."
+        updated: "Event updated."
+        deleted: "Event deleted."
 
     attendance:
-      label:
-        single: Attendance
-        plural: Attendances
-
-      short:
-        single: Attend.
-        plural: Attend.
-
+      label: "Attendance"
+      short: "Attend."
       fields:
-        person:
-          label: Person
-
-        event:
-          label: Event
-
-        status:
-          label: Status
-
-        notes:
-          label: Notes
-
+        person: "Person"
+        event: "Event"
+        status: "Status"
+        notes: "Notes"
       messages:
-        created: Attendance recorded.
-
-        updated: Attendance updated.
-
-        deleted: Attendance removed.
+        created: "Attendance recorded."
+        updated: "Attendance updated."
+        deleted: "Attendance removed."
 
     # -----------------------------------------------------------------------------
-    # DEPRECATED
+    # DEPRECATED - DO NOT MODIFY
     #
     # Compatibility keys preserved during the v2 locale migration.
     #

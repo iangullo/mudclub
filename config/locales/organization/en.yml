@@ -4,187 +4,123 @@
 # Clubs and their organizational structure.
 #
 # Includes clubs, competition categories, divisions,
-# club-sport relationships and organizational catalogs.en:
+# club-sport relationships and organizational catalogs.
+# -----------------------------------------------------------------------------
 en:
   organization:
-    label:
-      single: Organization
-      plural: Organizations
-
-    short:
-      single: Org.
-      plural: Orgs.
+    label: "Organization"
+    short: "Org."
 
     club:
       label:
-        single: Club
-        plural: Clubs
-
-      short:
-        single: Club
-        plural: Clubs
-
+        single: "Club"
+        short: "Club"
+        plural: "Clubs"
+        rivals: "Rival Clubs"
+      actions:
+        create: "Create Club"
+        edit: "Edit Club"
+        delete: "Delete Club"
       fields:
-        name:
-          label: Name
-
-        entity:
-          label: Legal entity
-          short: Ent.
-
-        logo:
-          label: Logo
-          short: Logo
-
-        website:
-          label: Website
-          short: Web
-
+        name: "Name"
+        entity: "Legal entity"
+        entity_short: "Ent."
+        email: "e-mail"
+        logo: "Logo"
+        logo_short: "Logo"
+        website: "Website"
+        website_short: "Web"
       messages:
-        created: Club created.
-        updated: Club updated.
-        deleted: Club deleted.
-        duplicated: Club already exists.
+        created: "Club created."
+        updated: "Club updated."
+        deleted: "Club deleted."
+        duplicated: "Club already exists."
 
     category:
-      label:
-        single: Category
-        plural: Categories
-
-      short:
-        single: Cat.
-        plural: Cats.
-
+      label: "Category"
+      short: "Cat."
+      actions:
+        create: "Create Category"
+        edit: "Edit Category"
+        delete: "Delete Category"
       fields:
-        age_group:
-          label: Age group
-          short: Ages
-
-        sex:
-          label: Sex
-          short: Sex
-
-        min_years:
-          label: Minimum age
-          short: Min. age
-
-        max_years:
-          label: Maximum age
-          short: Max. age
-
-        rules:
-          label: Rules
-          short: Rules
-
-        sport:
-          label: Sport
-          short: Sport
-
+        age_group: "Age group"
+        age_group_short: "Ages"
+        sex: "Sex"
+        sex_short: "Sex"
+        min_years: "Minimum age"
+        min_years_short: "Min. age"
+        max_years: "Maximum age"
+        max_years_short: "Max. age"
+        rules: "Rules"
+        rules_short: "Rules"
+        sport: "Sport"
+        sport_short: "Sport"
       messages:
-        created: Category created.
-        updated: Category updated.
-        deleted: Category deleted.
-        duplicated: Category already exists.
+        created: "Category created."
+        updated: "Category updated."
+        deleted: "Category deleted."
+        duplicated: "Category already exists."
 
     division:
-      label:
-        single: Division
-        plural: Divisions
-
-      short:
-        single: Div.
-        plural: Divs.
-
+      label: "Division"
+      short: "Div."
       fields:
-        name:
-          label: Name
-
-        sport:
-          label: Sport
-
+        name: "Name"
+        sport: "Sport"
       messages:
-        created: Division created.
-        updated: Division updated.
-        deleted: Division deleted.
-        duplicated: Division already exists.
+        created: "Division created."
+        updated: "Division updated."
+        deleted: "Division deleted."
+        duplicated: "Division already exists."
 
     entities:
-      label:
-        single: Legal entity
-        plural: Legal entities
-
-      short:
-        single: Entity
-        plural: Entities
-
+      label: "Legal entity"
+      short: "Entity"
       values:
-        club:
-          label: Sports club
-          plural: Sports clubs
-
-        federation:
-          label: Federation
-          plural: Federations
-
-        municipality:
-          label: Municipality
-          plural: Municipalities
-
-        school:
-          label: School
-          plural: Schools
-
-        company:
-          label: Company
-          plural: Companies
-
-        association:
-          label: Association
-          plural: Associations
-
-        other:
-          label: Other
-          plural: Others
+        club: "Sports club"
+        club_plural: "Sports clubs"
+        federation: "Federation"
+        federation_plural: "Federations"
+        municipality: "Municipality"
+        municipality_plural: "Municipalities"
+        school: "School"
+        school_plural: "Schools"
+        company: "Company"
+        company_plural: "Companies"
+        association: "Association"
+        association_plural: "Associations"
+        other: "Other"
+        other_plural: "Others"
 
     club_location:
-      label:
-        single: Club location
-        plural: Club locations
-
+      label: "Club location"
+      short: "Club loc."
       fields:
-        club:
-          label: Club
-          short: Club
-
-        location:
-          label: Location
-          short: Loc.
+        club: "Club"
+        club_short: "Club"
+        location: "Location"
+        location_short: "Loc."
 
     club_sport:
-      label:
-        single: Club sport
-        plural: Club sports
-
+      label: "Club sport"
+      short: "Club sport"
       fields:
-        club:
-          label: Club
-          short: Club
-
-        sport:
-          label: Sport
-          short: Sport
+        club: "Club"
+        club_short: "Club"
+        sport: "Sport"
+        sport_short: "Sport"
 
   # -----------------------------------------------------------------------------
-  # DEPRECATED
+  # DEPRECATED - DO NOT MODIFY
   #
   # Compatibility keys preserved during the v2 locale migration.
   #
   # Search for:
   #
-  #   t("action.
-  #   t("status.
-  #   t("question.
-  #   ...
+  #   t("category.
+  #   t("club.
+  #   t("division.
   #
   # Remove this section once no references remain.
   # -----------------------------------------------------------------------------
@@ -221,7 +157,7 @@ en:
     # UI
     edit: "Edit Club"
     many: "Clubs"
-    new: "Edit Club"
+    new: "Create Club"
     rivals: "Rival Clubs"
 
   division:

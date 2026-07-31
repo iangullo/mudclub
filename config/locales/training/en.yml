@@ -15,417 +15,216 @@
 
 en:
   training:
+    label: "Training"
+    short: "Train."
+
     team:
-      label:
-        single: Team
-        plural: Teams
-
-      short:
-        single: Team
-        plural: Teams
-
+      label: "Team"
+      short: "Team"
       fields:
-        name:
-          label: Name
-
-        sport:
-          label: Sport
-
-        category:
-          label: Category
-
-        division:
-          label: Competition
-
-        facility:
-          label: Home facility
-
-        roster:
-          label: Roster
-
+        name: "Name"
+        sport: "Sport"
+        category: "Category"
+        division: "Competition"
+        facility: "Home facility"
+        roster: "Roster"
       messages:
-        created: Team created.
-
-        updated: Team updated.
-
-        deleted: Team deleted.
+        created: "Team created."
+        updated: "Team updated."
+        deleted: "Team deleted."
 
     session:
-      label:
-        single: Training session
-        plural: Training sessions
-
-      short:
-        single: Session
-        plural: Sessions
-
+      label: "Training session"
+      short: "Session"
       fields:
-        title:
-          label: Title
-
-        starts_on:
-          label: Starts
-
-        ends_on:
-          label: Ends
-
-        duration:
-          label: Duration
-
-        workload:
-          label: Workload
-
-        workload_by:
-          label: Workload by
-
-        plan:
-          label: Training plan
-
+        title: "Title"
+        starts_on: "Starts"
+        ends_on: "Ends"
+        duration: "Duration"
+        duration_short: "Dur."
+        workload: "Workload"
+        workload_short: "Workload"
+        workload_by: "Workload by"
+        plan: "Training plan"
       messages:
-        created: Training session created.
-
-        updated: Training session updated.
-
-        deleted: Training session deleted.
-
-        attendance_checked: Attendance checked.
+        created: "Training session created."
+        updated: "Training session updated."
+        deleted: "Training session deleted."
+        attendance_checked: "Attendance checked."
 
     plan:
-      label:
-        single: Training plan
-        plural: Training plans
-
-      short:
-        single: Plan
-        plural: Plans
-
+      label: "Training plan"
+      short: "Plan"
       fields:
-        name:
-          label: Name
-
-        description:
-          label: Description
-
-        team:
-          label: Team
-
+        name: "Name"
+        description: "Description"
+        description_short: "Desc."
+        team: "Team"
       messages:
-        created: Training plan created.
-
-        updated: Training plan updated.
-
-        deleted: Training plan deleted.
+        created: "Training plan created."
+        updated: "Training plan updated."
+        deleted: "Training plan deleted."
 
     drill:
-      label:
-        single: Drill
-        plural: Drills
-
-      short:
-        single: Drill
-        plural: Drills
-
+      label: "Drill"
+      short: "Drill"
       fields:
-        name:
-          label: Name
-
-        description:
-          label: Description
-
-        author:
-          label: Author
-
-        kind:
-          label: Drill category
-
-        material:
-          label: Material
-
-        sport:
-          label: Sport
-
-        court_mode:
-          label: Court layout
-
+        name: "Name"
+        description: "Description"
+        description_short: "Desc."
+        author: "Author"
+        kind: "Drill category"
+        material: "Material"
+        sport: "Sport"
+        court_mode: "Court layout"
+        court_mode_short: "Layout"
       messages:
-        created: Drill created.
+        created: "Drill created."
+        updated: "Drill updated."
+        deleted: "Drill deleted."
 
-        updated: Drill updated.
-
-        deleted: Drill deleted.
-
-    kind:
-      label:
-        single: Drill category
-        plural: Drill categories
-
-      short:
-        single: Category
-        plural: Categories
-
+    drill_kind:
+      label: "Drill category"
+      short: "Category"
       fields:
-        name:
-          label: Name
-
+        name: "Name"
       messages:
-        created: Drill category created.
-
-        updated: Drill category updated.
-
-        deleted: Drill category deleted.
+        created: "Drill category created."
+        updated: "Drill category updated."
+        deleted: "Drill category deleted."
 
     task:
-      label:
-        single: Task
-        plural: Tasks
-
-      short:
-        single: Task
-        plural: Tasks
-
+      label: "Task"
+      short: "Task"
       fields:
-        drill:
-          label: Drill
-
-        order:
-          label: Order
-
-        duration:
-          label: Duration
-
-        remarks:
-          label: Remarks
-
+        drill: "Drill"
+        order: "Order"
+        duration: "Duration"
+        duration_short: "Dur."
+        remarks: "Remarks"
+        remarks_short: "Rem."
       messages:
-        created: Task created.
-
-        updated: Task updated.
-
-        deleted: Task deleted.
+        created: "Task created."
+        updated: "Task updated."
+        deleted: "Task deleted."
 
     step:
-      label:
-        single: Step
-        plural: Steps
-
-      short:
-        single: Step
-        plural: Steps
-
+      label: "Step"
+      short: "Step"
       fields:
-        order:
-          label: Order
-
-        explanation:
-          label: Explanation
-
-        diagram:
-          label: Diagram
-
+        order: "Order"
+        explanation: "Explanation"
+        explanation_short: "Expl."
+        diagram: "Diagram"
       messages:
-        created: Step created.
-
-        updated: Step updated.
-
-        deleted: Step deleted.
+        created: "Step created."
+        updated: "Step updated."
+        deleted: "Step deleted."
 
     version:
-      label:
-        single: Version
-        plural: Versions
-
-      short:
-        single: Ver.
-        plural: Vers.
-
+      label: "Version"
+      short: "Ver."
       fields:
-        author:
-          label: Author
-
-        name:
-          label: Name
-
-        description:
-          label: Description
-
-        explanation:
-          label: Explanation
-
-        material:
-          label: Material
-
-        kind:
-          label: Drill category
-
-        skills:
-          label: Skills
-
-        targets:
-          label: Targets
-
-        changes:
-          label: Changes
-
+        author: "Author"
+        name: "Name"
+        description: "Description"
+        description_short: "Desc."
+        explanation: "Explanation"
+        explanation_short: "Expl."
+        material: "Material"
+        kind: "Drill category"
+        skills: "Skills"
+        targets: "Targets"
+        changes: "Changes"
       messages:
-        created: Version created.
-
-        updated: Version updated.
-
-        deleted: Version deleted.
+        created: "Version created."
+        updated: "Version updated."
+        deleted: "Version deleted."
 
     skill:
-      label:
-        single: Skill
-        plural: Skills
-
-      short:
-        single: Skill
-        plural: Skills
-
+      label: "Skill"
+      short: "Skill"
       fields:
-        name:
-          label: Name
-
-        description:
-          label: Description
-
+        name: "Name"
+        description: "Description"
+        description_short: "Desc."
       messages:
-        created: Skill created.
-
-        updated: Skill updated.
-
-        deleted: Skill deleted.
+        created: "Skill created."
+        updated: "Skill updated."
+        deleted: "Skill deleted."
 
     target:
-      label:
-        single: Target
-        plural: Targets
-
-      short:
-        single: Target
-        plural: Targets
-
+      label: "Target"
+      short: "Target"
       fields:
-        concept:
-          label: Concept
-
-        aspect:
-          label: Aspect
-
-        focus:
-          label: Focus
-
+        concept: "Concept"
+        aspect: "Aspect"
+        focus: "Focus"
       aspect:
-        label:
-          single: Aspect
-          plural: Aspects
-
-        short:
-          single: Aspect
-          plural: Aspects
-
+        label: "Aspect"
+        short: "Aspect"
         values:
-          general:
-            label: General
-            short: Gen.
-
-          individual:
-            label: Individual
-            short: Ind.
-
-            hint: Individual technical development.
-
-          collective:
-            label: Collective
-            short: Col.
-
-            hint: Collective tactical development.
-
+          general: "General"
+          general_short: "Gen."
+          individual: "Individual"
+          individual_short: "Ind."
+          individual_hint: "Individual technical development."
+          collective: "Collective"
+          collective_short: "Col."
+          collective_hint: "Collective tactical development."
       focus:
-        label:
-          single: Focus
-          plural: Focus areas
-
-        short:
-          single: Focus
-          plural: Focus
-
+        label: "Focus"
+        short: "Focus"
         values:
-          offense:
-            label: Offense
-            short: Off.
-
-          defense:
-            label: Defense
-            short: Def.
-
-          physical:
-            label: Physical
-
+          offense: "Offense"
+          offense_short: "Off."
+          defense: "Defense"
+          defense_short: "Def."
+          physical: "Physical"
       messages:
-        created: Target created.
-
-        updated: Target updated.
-
-        deleted: Target deleted.
+        created: "Target created."
+        updated: "Target updated."
+        deleted: "Target deleted."
 
     stat:
-      label:
-        single: Statistic
-        plural: Statistics
-
-      short:
-        single: Stat.
-        plural: Stats.
-
+      label: "Statistic"
+      short: "Stat."
       fields:
-        name:
-          label: Name
-
-        average:
-          label: Average
-          short: Avg.
-
-        minimum:
-          label: Minimum
-          short: Min.
-
-        maximum:
-          label: Maximum
-          short: Max.
-
-        total:
-          label: Total
-          short: Tot.
-
-        number:
-          label: Number
-          short: Num.
-
+        name: "Name"
+        average: "Average"
+        average_short: "Avg."
+        minimum: "Minimum"
+        minimum_short: "Min."
+        maximum: "Maximum"
+        maximum_short: "Max."
+        total: "Total"
+        total_short: "Tot."
+        number: "Number"
+        number_short: "Num."
       messages:
-        updated: Statistics updated.
+        updated: "Statistics updated."
 
-    # -------------------------------------------------------------------------
-    # DEPRECATED
-    #
-    # Compatibility keys preserved during the MudClub 1.x → 2.0 migration.
-    #
-    # Search for:
-    #
-    #   t("team.")
-    #   t("train.")
-    #   t("drill.")
-    #   t("kind.")
-    #   t("plan.")
-    #   t("task.")
-    #   t("target.")
-    #   t("step.")
-    #   t("skill.")
-    #   t("version.")
-    #   t("stat.")
-    #
-    # Remove once all callers have migrated.
-    # -------------------------------------------------------------------------
+  # -------------------------------------------------------------------------
+  # DEPRECATED - DO NOT MODIFY
+  #
+  # Compatibility keys preserved during the MudClub 1.x → 2.0 migration.
+  #
+  # Search for:
+  #
+  #   t("team.")
+  #   t("train.")
+  #   t("drill.")
+  #   t("kind.")
+  #   t("plan.")
+  #   t("task.")
+  #   t("target.")
+  #   t("step.")
+  #   t("skill.")
+  #   t("version.")
+  #   t("stat.")
+  #
+  # Remove once all callers have migrated.
+  # -------------------------------------------------------------------------
 
   drill:
     author: "Author"

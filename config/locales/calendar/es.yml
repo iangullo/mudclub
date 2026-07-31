@@ -4,324 +4,168 @@
 #
 # Dominio de calendario
 #
-# Traducciones canónicas para el dominio de calendario.
+# Traducciones canónicas para el dominio de Calendario.
 #
-# El calendario proporciona servicios de planificación compartidos por el resto
-# de la aplicación. Los dominios (Entrenamiento, Competición, Comunicación, ...)
-# planifican sus propias actividades a través de eventos de calendario.
+# El calendario proporciona servicios de programación compartidos por el resto
+# de la aplicación. Los dominios de negocio (Entrenamiento, Competición,
+# Comunicación, etc.) programan sus propias actividades a través de eventos.
 #
 # Las claves de compatibilidad heredadas se conservan al final de este archivo
-# durante la migración a la versión v2 y no deben utilizarse en código nuevo.
+# durante la migración v2 y no deben usarse en código nuevo.
 # -----------------------------------------------------------------------------
 
 es:
   calendar:
-    label:
-      single: Calendario
-      plural: Calendarios
-
-    short:
-      single: Cal.
-      plural: Cals.
+    label: "Calendario"
+    short: "Cal."
 
     fields:
-      date:
-        label: Fecha
-        short: Fecha
-
-      time:
-        label: Hora
-        short: Hora
-
-      week:
-        label: Semana
-        short: Sem.
-
-      month:
-        label: Mes
-        short: Mes
-
-      year:
-        label: Año
-        short: Año
+      date: "Fecha"
+      date_short: "Fecha"
+      time: "Hora"
+      time_short: "Hora"
+      week: "Semana"
+      week_short: "Sem."
+      month: "Mes"
+      month_short: "Mes"
+      year: "Año"
+      year_short: "Año"
 
     months:
-      label:
-        single: Mes
-        plural: Meses
-
-      short:
-        single: Mes
-        plural: Meses
-
+      label: "Mes"
+      short: "Mes"
       values:
-        january:
-          label: Enero
-          short: Ene
-
-        february:
-          label: Febrero
-          short: Feb
-
-        march:
-          label: Marzo
-          short: Mar
-
-        april:
-          label: Abril
-          short: Abr
-
-        may:
-          label: Mayo
-          short: May
-
-        june:
-          label: Junio
-          short: Jun
-
-        july:
-          label: Julio
-          short: Jul
-
-        august:
-          label: Agosto
-          short: Ago
-
-        september:
-          label: Septiembre
-          short: Sep
-
-        october:
-          label: Octubre
-          short: Oct
-
-        november:
-          label: Noviembre
-          short: Nov
-
-        december:
-          label: Diciembre
-          short: Dic
+        january: "Enero"
+        january_short: "Ene"
+        february: "Febrero"
+        february_short: "Feb"
+        march: "Marzo"
+        march_short: "Mar"
+        april: "Abril"
+        april_short: "Abr"
+        may: "Mayo"
+        may_short: "May"
+        june: "Junio"
+        june_short: "Jun"
+        july: "Julio"
+        july_short: "Jul"
+        august: "Agosto"
+        august_short: "Ago"
+        september: "Septiembre"
+        september_short: "Sep"
+        october: "Octubre"
+        october_short: "Oct"
+        november: "Noviembre"
+        november_short: "Nov"
+        december: "Diciembre"
+        december_short: "Dic"
 
     weekdays:
-      label:
-        single: Día de la semana
-        plural: Días de la semana
-
-      short:
-        single: Día
-        plural: Días
-
+      label: "Día de la semana"
+      short: "Día"
       values:
-        monday:
-          label: Lunes
-          short: Lun
-
-        tuesday:
-          label: Martes
-          short: Mar
-
-        wednesday:
-          label: Miércoles
-          short: Mié
-
-        thursday:
-          label: Jueves
-          short: Jue
-
-        friday:
-          label: Viernes
-          short: Vie
-
-        saturday:
-          label: Sábado
-          short: Sáb
-
-        sunday:
-          label: Domingo
-          short: Dom
+        monday: "Lunes"
+        monday_short: "Lun"
+        tuesday: "Martes"
+        tuesday_short: "Mar"
+        wednesday: "Miércoles"
+        wednesday_short: "Mié"
+        thursday: "Jueves"
+        thursday_short: "Jue"
+        friday: "Viernes"
+        friday_short: "Vie"
+        saturday: "Sábado"
+        saturday_short: "Sáb"
+        sunday: "Domingo"
+        sunday_short: "Dom"
 
     event_kinds:
-      label:
-        single: Tipo de evento
-        plural: Tipos de evento
-
-      short:
-        single: Tipo
-        plural: Tipos
-
+      label: "Tipo de evento"
+      short: "Tipo"
       values:
-        holiday:
-          label: Festivo
-          short: Fest.
-
-        training:
-          label: Entrenamiento
-          short: Entr.
-
-        competition:
-          label: Competición
-          short: Comp.
-
-        match:
-          label: Partido
-          short: Part.
-
-        meeting:
-          label: Reunión
-          short: Reu.
-
-        social:
-          label: Evento social
-          short: Soc.
-
-        other:
-          label: Otro
-          short: Otro
+        holiday: "Festivo"
+        holiday_short: "Fest."
+        training: "Entrenamiento"
+        training_short: "Entren."
+        match: "Partido"
+        match_short: "Part."
+        competition: "Competición"
+        competition_short: "Comp."
+        meeting: "Reunión"
+        meeting_short: "Reun."
+        social: "Evento social"
+        social_short: "Soc."
+        other: "Otro"
+        other_short: "Otro"
 
     attendance_statuses:
-      label:
-        single: Estado de asistencia
-        plural: Estados de asistencia
-
-      short:
-        single: Estado
-        plural: Estados
-
+      label: "Estado de asistencia"
+      short: "Estado"
       values:
-        present:
-          label: Presente
-
-        absent:
-          label: Ausente
-
-        excused:
-          label: Justificado
-
-        late:
-          label: Retraso
-
-        unknown:
-          label: Desconocido
+        present: "Presente"
+        absent: "Ausente"
+        excused: "Justificado"
+        late: "Llegada tarde"
+        unknown: "Desconocido"
 
     recurrence_kinds:
-      label:
-        single: Recurrencia
-        plural: Recurrencias
-        short: Rec.
-
+      label: "Repetición"
+      short: "Rep."
       values:
-        none:
-          label: Ninguna
-        daily:
-          label: Diaria
-        weekly:
-          label: Semanal
-        monthly:
-          label: Mensual
-        yearly:
-          label: Anual
+        none: "Ninguna"
+        daily: "Diaria"
+        weekly: "Semanal"
+        monthly: "Mensual"
+        yearly: "Anual"
 
     slot:
-      label:
-        single: Franja horaria
-        plural: Franjas horarias
-
-      short:
-        single: Franja
-        plural: Franjas
-
+      label: "Franja horaria"
+      short: "Franja"
       fields:
-        starts_on:
-          label: Comienza
-          short: Inicio
-
-        ends_on:
-          label: Finaliza
-          short: Fin
-
-        duration:
-          label: Duración
-          short: Dur.
-
+        starts_on: "Inicio"
+        starts_on_short: "Inicio"
+        ends_on: "Fin"
+        ends_on_short: "Fin"
+        duration: "Duración"
+        duration_short: "Dur."
       messages:
-        created: Franja horaria creada.
-
-        updated: Franja horaria actualizada.
-
-        deleted: Franja horaria eliminada.
+        created: "Franja horaria creada."
+        updated: "Franja horaria actualizada."
+        deleted: "Franja horaria eliminada."
 
     event:
-      label:
-        single: Evento
-        plural: Eventos
-
-      short:
-        single: Evento
-        plural: Eventos
-
+      label: "Evento"
+      short: "Evento"
       fields:
-        title:
-          label: Título
-
-        description:
-          label: Descripción
-
-        starts_on:
-          label: Comienza
-
-        ends_on:
-          label: Finaliza
-
-        slot:
-          label: Franja horaria
-
-        kind:
-          label: Tipo de evento
-
-        metadata:
-          label: Metadatos
-
+        title: "Título"
+        description: "Descripción"
+        starts_on: "Inicio"
+        ends_on: "Fin"
+        slot: "Franja horaria"
+        kind: "Tipo de evento"
+        metadata: "Metadatos"
       messages:
-        created: Evento creado.
-
-        updated: Evento actualizado.
-
-        deleted: Evento eliminado.
+        created: "Evento creado."
+        updated: "Evento actualizado."
+        deleted: "Evento eliminado."
 
     attendance:
-      label:
-        single: Asistencia
-        plural: Asistencias
-
-      short:
-        single: Asist.
-        plural: Asists.
-
+      label: "Asistencia"
+      short: "Asist."
       fields:
-        person:
-          label: Persona
-
-        event:
-          label: Evento
-
-        status:
-          label: Estado
-
-        notes:
-          label: Notas
-
+        person: "Persona"
+        event: "Evento"
+        status: "Estado"
+        notes: "Notas"
       messages:
-        created: Asistencia registrada.
-
-        updated: Asistencia actualizada.
-
-        deleted: Asistencia eliminada.
+        created: "Asistencia registrada."
+        updated: "Asistencia actualizada."
+        deleted: "Asistencia eliminada."
 
     # -----------------------------------------------------------------------------
-    # OBSOLETO
+    # OBSOLETO - NO MODIFICAR
     #
-    # Claves de compatibilidad conservadas para migración hacia v2.
+    # Claves de compatibilidad conservadas durante la migración v2.
     #
     # Buscar:
     #
@@ -331,7 +175,7 @@ es:
     #   t("match.
     #   t("rest.
     #
-    # Eliminar una vez migradas todas las referencias.
+    # Eliminar una vez que todas las referencias se hayan migrado.
     # -----------------------------------------------------------------------------
     date: "Fecha"
     daynames:
@@ -382,13 +226,13 @@ es:
     updated: "Franja horaria actualizada: "
     deleted: "Franja horaria eliminada: "
 
-    edit: "Editar franja horaria"
+    edit: "Editar Franja horaria"
     many: "Horario"
-    new: "Crear franja horaria"
+    new: "Crear Franja horaria"
 
   # -----------------------------------------------------------------------------
-  # Compatibilidad con v1.x
-  # Reemplazado por Calendar::EventKinds[:match]
+  # Compatibilidad heredada.
+  # Reemplazado por Calendar::EventKinds[:competition]
   # -----------------------------------------------------------------------------
   match:
     default_rival: "<Rival>"
@@ -407,7 +251,7 @@ es:
     many: "Partidos"
 
   # -----------------------------------------------------------------------------
-  # Compatibilidad con v1.x
+  # Compatibilidad heredada.
   # Reemplazado por Calendar::EventKinds[:holiday]
   # -----------------------------------------------------------------------------
   rest:

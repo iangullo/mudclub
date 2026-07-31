@@ -23,7 +23,7 @@
 # at Club level or within a Team.
 #
 class Assignment < ApplicationRecord
-	localized_as "assignment"
+	localized_as "participation.assignment"
 
 	belongs_to :membership
 	belongs_to :team, optional: true

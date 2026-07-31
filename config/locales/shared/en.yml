@@ -13,890 +13,253 @@ en:
     #
     # Generic actions
     #
-    action:
-      label:
-        single: Action
-        plural: Actions
-
-      short:
-        single: Act.
-        plural: Acts.
-
-      values:
-        add:
-          label:
-            single: Add
-
-        add_nested:
-          label:
-            single: Add new
-
-          short:
-            single: Add
-
-        administration:
-          label:
-            single: Administration
-
-          short:
-            single: Admin.
-
-        back:
-          label:
-            single: Back
-
-        backup:
-          label:
-            single: Backup
-            plural: Backups
-
-        call:
-          label:
-            single: Call
-            plural: Calls
-
-        cancel:
-          label:
-            single: Cancel
-
-        change:
-          label:
-            single: Change
-            plural: Changes
-
-        chat:
-          label:
-            single: WhatsApp
-
-          short:
-            single: Chat
-
-        clear:
-          label:
-            single: Clear
-
-        close:
-          label:
-            single: Close
-
-        configure:
-          label:
-            single: Configure
-
-          short:
-            single: Config.
-
-        copy:
-          label:
-            single: Copy
-            plural: Copies
-
-        create:
-          label:
-            single: Create
-
-        delete:
-          label:
-            single: Delete
-
-        download:
-          label:
-            single: Download
-            plural: Downloads
-
-          short:
-            single: Down.
-
-        duplicate:
-          label:
-            single: Duplicate
-
-          short:
-            single: Dup.
-
-        edit:
-          label:
-            single: Edit
-
-        export:
-          label:
-            single: Export
-            plural: Exports
-
-        filter:
-          label:
-            single: Filter
-            plural: Filters
-
-        import:
-          label:
-            single: Import
-            plural: Imports
-
-        login:
-          label:
-            single: Sign in
-
-        logout:
-          label:
-            single: Sign out
-
-        move:
-          label:
-            single: Move
-            plural: Moves
-
-        next:
-          label:
-            single: Next
-
-          short:
-            single: ">>"
-
-        previous:
-          label:
-            single: Previous
-
-          short:
-            single: "<<"
-
-        preview:
-          label:
-            single: Preview
-            plural: Previews
-
-          short:
-            single: Prev.
-
-        print:
-          label:
-            single: Print
-            plural: Prints
-
-        refresh:
-          label:
-            single: Refresh
-
-        remove:
-          label:
-            single: Remove
-
-        rename:
-          label:
-            single: Rename
-
-        restore:
-          label:
-            single: Restore
-
-        save:
-          label:
-            single: Save
-
-        search:
-          label:
-            single: Search
-            plural: Searches
-
-        select:
-          label:
-            single: Select
-
-        share:
-          label:
-            single: Share
-            plural: Shares
-
-        upload:
-          label:
-            single: Upload
-            plural: Uploads
-
-          short:
-            single: Up.
+    actions:
+      add: "Add"
+      add_short: "Add"
+      add_nested: "Add new"
+      add_nested_short: "Add"
+      administration: "Administration"
+      administration_short: "Admin."
+      back: "Back"
+      backup: "Backup"
+      call: "Call"
+      cancel: "Cancel"
+      change: "Change"
+      chat: "WhatsApp"
+      chat_short: "Chat"
+      clear: "Clear"
+      close: "Close"
+      configure: "Configure"
+      configure_short: "Config."
+      copy: "Copy"
+      create: "Create"
+      delete: "Delete"
+      download: "Download"
+      download_short: "Down."
+      duplicate: "Duplicate"
+      duplicate_short: "Dup."
+      edit: "Edit"
+      export: "Export"
+      filter: "Filter"
+      import: "Import"
+      login: "Sign in"
+      logout: "Sign out"
+      move: "Move"
+      next: "Next"
+      next_short: ">>"
+      previous: "Previous"
+      previous_short: "<<"
+      preview: "Preview"
+      preview_short: "Prev."
+      print: "Print"
+      refresh: "Refresh"
+      remove: "Remove"
+      rename: "Rename"
+      restore: "Restore"
+      save: "Save"
+      search: "Search"
+      select: "Select"
+      share: "Share"
+      upload: "Upload"
+      upload_short: "Up."
 
     #
     # Configurable parameters
     #
-    settings:
-      label:
-        single: Settings
-        plural: Settings
-
-      short:
-        single: Config.
-        plural: Config.
+    settings: "Settings"
+    settings_short: "Config."
 
     #
-    # Generic status
+    # Generic statuses
     #
-    status:
-      label:
-        single: Status
-        plural: Statuses
-
-      short:
-        single: St.
-        plural: Sts.
-
-      values:
-        active:
-          label:
-            single: Active
-
-          short:
-            single: Act.
-
-        archived:
-          label:
-            single: Archived
-
-          short:
-            single: Arch.
-
-        calculating:
-          label:
-            single: Calculating
-
-          short:
-            single: Calc.
-
-        cancelled:
-          label:
-            single: Cancelled
-
-          short:
-            single: Canc.
-
-        closed:
-          label:
-            single: Closed
-
-        completed:
-          label:
-            single: Completed
-
-          short:
-            single: Done
-
-        disabled:
-          label:
-            single: Disabled
-
-          short:
-            single: Dis.
-
-        draft:
-          label:
-            single: Draft
-
-        empty:
-          label:
-            single: No data available
-
-          short:
-            single: Empty
-
-        enabled:
-          label:
-            single: Enabled
-
-          short:
-            single: En.
-
-        error:
-          label:
-            single: Error
-
-        failed:
-          label:
-            single: Failed
-
-          short:
-            single: Fail.
-
-        inactive:
-          label:
-            single: Inactive
-
-          short:
-            single: Inact.
-
-        loading:
-          label:
-            single: Loading...
-
-          short:
-            single: Load.
-
-        pending:
-          label:
-            single: Pending
-
-          short:
-            single: Pend.
-
-        processing:
-          label:
-            single: Processing...
-
-          short:
-            single: Proc.
-
-        published:
-          label:
-            single: Published
-
-          short:
-            single: Pub.
-
-        ready:
-          label:
-            single: Ready
-
-        rejected:
-          label:
-            single: Rejected
-
-          short:
-            single: Rej.
-
-        saved:
-          label:
-            single: Saved
-
-        starting:
-          label:
-            single: Starting
-
-          short:
-            single: Start
-
-        unavailable:
-          label:
-            single: Unavailable
-
-          short:
-            single: Unav.
-
-        warning:
-          label:
-            single: Warning
-
-          short:
-            single: Warn.
+    statuses:
+      active: "Active"
+      active_short: "Act."
+      archived: "Archived"
+      archived_short: "Arch."
+      calculating: "Calculating"
+      calculating_short: "Calc."
+      cancelled: "Cancelled"
+      cancelled_short: "Canc."
+      closed: "Closed"
+      completed: "Completed"
+      completed_short: "Done"
+      disabled: "Disabled"
+      disabled_short: "Dis."
+      draft: "Draft"
+      empty: "No data available"
+      empty_short: "Empty"
+      enabled: "Enabled"
+      enabled_short: "En."
+      error: "Error"
+      failed: "Failed"
+      failed_short: "Fail."
+      inactive: "Inactive"
+      inactive_short: "Inact."
+      loading: "Loading..."
+      loading_short: "Load."
+      pending: "Pending"
+      pending_short: "Pend."
+      processing: "Processing..."
+      processing_short: "Proc."
+      published: "Published"
+      published_short: "Pub."
+      ready: "Ready"
+      rejected: "Rejected"
+      rejected_short: "Rej."
+      saved: "Saved"
+      starting: "Starting"
+      starting_short: "Start"
+      unavailable: "Unavailable"
+      unavailable_short: "Unav."
+      warning: "Warning"
+      warning_short: "Warn."
 
     #
     # Generic questions
     #
-    question:
-      label:
-        single: Question
-        plural: Questions
-
-      short:
-        single: Q.
-        plural: Qs.
-
-      values:
-        active:
-          label:
-            single: Active?
-
-        camera:
-          label:
-            single: Use camera?
-
-        delete:
-          label:
-            single: Delete?
-
-        discard_changes:
-          label:
-            single: Discard changes?
-
-        female:
-          label:
-            single: Female?
-
-        import:
-          label:
-            single: Import file?
-
-        login:
-          label:
-            single: Sign in?
-
-        logout:
-          label:
-            single: Sign out?
-
-        overwrite:
-          label:
-            single: Overwrite existing data?
-
-        remove:
-          label:
-            single: Remove?
-
-        restore:
-          label:
-            single: Restore?
-
-        save:
-          label:
-            single: Save?
-
-        save_changes:
-          label:
-            single: Save changes?
+    questions:
+      active: "Active?"
+      camera: "Use camera?"
+      delete: "Delete?"
+      discard_changes: "Discard changes?"
+      female: "Female?"
+      import: "Import file?"
+      login: "Sign in?"
+      logout: "Sign out?"
+      overwrite: "Overwrite existing data?"
+      remove: "Remove?"
+      restore: "Restore?"
+      save: "Save?"
+      save_changes: "Save changes?"
 
     #
     # Generic selections
     #
-    selection:
-      label:
-        single: Selection
-        plural: Selections
-
-      short:
-        single: Sel.
-        plural: Sels.
-
-      values:
-        all:
-          label:
-            single: All
-
-        automatic:
-          label:
-            single: Automatic
-
-          short:
-            single: Auto.
-
-        current:
-          label:
-            single: Current
-
-          short:
-            single: Curr.
-
-        default:
-          label:
-            single: Default
-
-          short:
-            single: Def.
-
-        featured:
-          label:
-            single: Featured
-
-          short:
-            single: Feat.
-
-        multiple:
-          label:
-            single: Multiple
-
-          short:
-            single: Multi.
-
-        none:
-          label:
-            single: None
-
-        optional:
-          label:
-            single: Optional
-
-          short:
-            single: Opt.
-
-        other:
-          label:
-            single: Other
-
-        required:
-          label:
-            single: Required
-
-          short:
-            single: Req.
-
-        selected:
-          label:
-            single: Selected
-
-          short:
-            single: Sel.
-
-        unknown:
-          label:
-            single: Unknown
+    selections:
+      all: "All"
+      automatic: "Automatic"
+      automatic_short: "Auto."
+      current: "Current"
+      current_short: "Curr."
+      default: "Default"
+      default_short: "Def."
+      featured: "Featured"
+      featured_short: "Feat."
+      multiple: "Multiple"
+      multiple_short: "Multi."
+      none: "None"
+      optional: "Optional"
+      optional_short: "Opt."
+      other: "Other"
+      required: "Required"
+      required_short: "Req."
+      selected: "Selected"
+      selected_short: "Sel."
+      unknown: "Unknown"
 
     #
     # Boolean values
     #
-    boolean:
-      label:
-        single: Boolean
-        plural: Booleans
-
-      short:
-        single: Bool.
-        plural: Bools.
-
-      values:
-        "true":
-          label:
-            single: "Yes"
-
-          short:
-            single: "Y"
-
-        "false":
-          label:
-            single: "No"
-
-          short:
-            single: "N"
+    booleans:
+      true: "Yes"
+      true_short: "Y"
+      false: "No"
+      false_short: "N"
 
     #
-    # Locale
+    # Locale names
     #
-    locale:
-      label:
-        single: Locale
-        plural: Locales
-
-      short:
-        single: Loc.
-        plural: Locs.
-
-      fields:
-        language:
-          label:
-            single: Language
-
-          short:
-            single: Lang.
-
-        country:
-          label:
-            single: Country
-
-          short:
-            single: Ctry.
-
-      values:
-        en:
-          label:
-            single: English
-
-          short:
-            single: EN
-
-        es:
-          label:
-            single: Spanish
-
-          short:
-            single: ES
-
-        fr:
-          label:
-            single: French
-
-          short:
-            single: FR
-
-        pt:
-          label:
-            single: Portuguese
-
-          short:
-            single: PO
+    locales:
+      en: "English"
+      en_short: "EN"
+      es: "Spanish"
+      es_short: "ES"
+      fr: "French"
+      fr_short: "FR"
+      pt: "Portuguese"
+      pt_short: "PO"
 
     #
     # Colours
     #
-    color:
-      label:
-        single: Colour
-        plural: Colours
-
-      short:
-        single: Col.
-        plural: Cols.
-
-      values:
-        black:
-          label:
-            single: Black
-
-        blue:
-          label:
-            single: Blue
-
-        brown:
-          label:
-            single: Brown
-
-        gold:
-          label:
-            single: Gold
-
-        green:
-          label:
-            single: Green
-
-        grey:
-          label:
-            single: Grey
-
-        orange:
-          label:
-            single: Orange
-
-        pink:
-          label:
-            single: Pink
-
-        purple:
-          label:
-            single: Purple
-
-        red:
-          label:
-            single: Red
-
-        silver:
-          label:
-            single: Silver
-
-        white:
-          label:
-            single: White
-
-        yellow:
-          label:
-            single: Yellow
+    colors:
+      black: "Black"
+      blue: "Blue"
+      brown: "Brown"
+      gold: "Gold"
+      green: "Green"
+      grey: "Grey"
+      orange: "Orange"
+      pink: "Pink"
+      purple: "Purple"
+      red: "Red"
+      silver: "Silver"
+      white: "White"
+      yellow: "Yellow"
 
     #
     # Generic field labels
     #
     fields:
-      active:
-        label:
-          single: Active
-
-      address:
-        label:
-          single: Address
-
-      biography:
-        label:
-          single: Biography
-
-        short:
-          single: Bio
-
-      code:
-        label:
-          single: Code
-
-      color:
-        label:
-          single: Colour
-
-      country:
-        label:
-          single: Country
-
-      created_at:
-        label:
-          single: Created
-
-        short:
-          single: Created
-
-      created_by:
-        label:
-          single: Created by
-
-      date:
-        label:
-          single: Date
-
-      description:
-        label:
-          single: Description
-
-        short:
-          single: Desc.
-
-      duration:
-        label:
-          single: Duration
-
-        short:
-          single: Dur.
-
-      email:
-        label:
-          single: Email
-
-      enabled:
-        label:
-          single: Enabled
-
-      ends_on:
-        label:
-          single: Ends
-
-        short:
-          single: End
-
-      identifier:
-        label:
-          single: Identifier
-
-        short:
-          single: ID
-
-      image:
-        label:
-          single: Image
-
-      language:
-        label:
-          single: Language
-
-        short:
-          single: Lang.
-
-      location:
-        label:
-          single: Location
-
-        short:
-          single: Loc.
-
-      name:
-        label:
-          single: Name
-
-      notes:
-        label:
-          single: Notes
-
-      number:
-        label:
-          single: Number
-
-        short:
-          single: "#"
-
-      order:
-        label:
-          single: Order
-
-      phone:
-        label:
-          single: Phone
-
-        short:
-          single: Tel.
-
-      position:
-        label:
-          single: Position
-
-        short:
-          single: Pos.
-
-      postcode:
-        label:
-          single: Postal code
-
-        short:
-          single: ZIP
-
-      priority:
-        label:
-          single: Priority
-
-      reference:
-        label:
-          single: Reference
-
-        short:
-          single: Ref.
-
-      remarks:
-        label:
-          single: Remarks
-
-        short:
-          single: Rem.
-
-      settings:
-        label:
-          single: Settings
-
-      starts_on:
-        label:
-          single: Starts
-
-        short:
-          single: Start
-
-      state:
-        label:
-          single: State
-
-      street:
-        label:
-          single: Street
-
-      title:
-        label:
-          single: Title
-
-      type:
-        label:
-          single: Type
-
-      updated_at:
-        label:
-          single: Updated
-
-      updated_by:
-        label:
-          single: Updated by
-
-      url:
-        label:
-          single: URL
-
-      version:
-        label:
-          single: Version
-
-        short:
-          single: Ver.
-
-      website:
-        label:
-          single: Website
-
-        short:
-          single: Web
+      active: "Active"
+      address: "Address"
+      biography: "Biography"
+      biography_short: "Bio"
+      code: "Code"
+      color: "Colour"
+      country: "Country"
+      created_at: "Created"
+      created_by: "Created by"
+      date: "Date"
+      description: "Description"
+      description_short: "Desc."
+      duration: "Duration"
+      duration_short: "Dur."
+      email: "Email"
+      enabled: "Enabled"
+      ends_on: "Ends"
+      ends_on_short: "End"
+      identifier: "Identifier"
+      identifier_short: "ID"
+      image: "Image"
+      language: "Language"
+      language_short: "Lang."
+      location: "Location"
+      location_short: "Loc."
+      name: "Name"
+      notes: "Notes"
+      number: "Number"
+      number_short: "#"
+      order: "Order"
+      phone: "Phone"
+      phone_short: "Tel."
+      position: "Position"
+      position_short: "Pos."
+      postcode: "Postal code"
+      postcode_short: "ZIP"
+      priority: "Priority"
+      reference: "Reference"
+      reference_short: "Ref."
+      remarks: "Remarks"
+      remarks_short: "Rem."
+      settings: "Settings"
+      starts_on: "Starts"
+      starts_on_short: "Start"
+      state: "State"
+      street: "Street"
+      title: "Title"
+      type: "Type"
+      updated_at: "Updated"
+      updated_by: "Updated by"
+      url: "URL"
+      version: "Version"
+      version_short: "Ver."
+      website: "Website"
+      website_short: "Web"
 
   # -----------------------------------------------------------------------------
-  # DEPRECATED
+  # DEPRECATED - DO NOT MODIFY
   #
   # Compatibility keys preserved during the v2 locale migration.
   #

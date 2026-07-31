@@ -12,219 +12,121 @@
 
 es:
   participation:
-    label: Participación
-    short: Partic.
-
+    label: "Participación"
+    short: "Partic."
     membership:
       label:
-        single: Membresía
-        plural: Membresías
-
-      short:
-        single: Mbr.
-        plural: Mbrs.
-
+        single: "Integrante"
+        plural: "Integrantes"
+        short: "Int."
+      action:
+        create: "Crear integrante"
+        edit: "Editar integrante"
+        terminate: "Dar de baja"
+        delete: "Borrar integrante"
       fields:
-        number:
-          label: Número de membresía
-          short: "Nº"
-
-        kind:
-          label: Tipo de membresía
-          short: Tipo
-
-        person:
-          label: Persona
-
-        club:
-          label: Club
-
-        joined_on:
-          label: Fecha de ingreso
-
-        left_on:
-          label: Fecha de baja
-
-        active:
-          label: Activa
-
-        primary:
-          label: Principal
-
-        notes:
-          label: Notas
-
+        number: "Número de integrante"
+        number_short: "Nº"
+        kind: "Tipo de integrante"
+        kind_short: "Tipo"
+        person: "Persona"
+        club: "Club"
+        joined_on: "Fecha de ingreso"
+        left_on: "Fecha de baja"
+        active: "Activo/a"
+        primary: "Principal"
+        notes: "Notas"
       messages:
-        created: Membresía creada.
-        updated: Membresía actualizada.
-        deleted: Membresía eliminada.
+        created: "Integrante creado/a."
+        updated: "Integrante actualizado/a."
+        terminated: "Integrante dado de baja."
+        deleted: "Integrante eliminado/a."
 
     assignment:
       label:
-        single: Asignación
-        plural: Asignaciones
-
-      short:
-        single: Asg.
-        plural: Asgs.
-
+        single: "Asignación"
+        plural: "Asignaciones"
+        short: "Asig."
+      action:
+        create: "Asignar"
+        edit: "Editar asignación"
+        terminate: "Dar de baja"
+        delete: "Borrar asignación"
       fields:
-        membership:
-          label: Membresía
-
-        kind:
-          label: Tipo de asignación
-
-        starts_on:
-          label: Inicio
-
-        ends_on:
-          label: Fin
-
-        team:
-          label: Equipo
-
-        shirt_number:
-          label: Número de camiseta
-          short: Camiseta Nº
-
-        squad_number:
-          label: Número de plantilla
-          short: Plantilla Nº
-
-        notes:
-          label: Notas
-
+        membership: "Integrante"
+        kind: "Tipo de asignación"
+        starts_on: "Inicio"
+        ends_on: "Fin"
+        team: "Equipo"
+        shirt_number: "Número de camiseta"
+        shirt_number_short: "Camiseta Nº"
+        squad_number: "Número de plantilla"
+        squad_number_short: "Plantilla Nº"
+        notes: "Notas"
       messages:
-        created: Asignación creada.
-        updated: Asignación actualizada.
-        deleted: Asignación eliminada.
+        created: "Asignación creada."
+        updated: "Asignación actualizada."
+        terminated: "Baja efectiva."
+        deleted: "Asignación eliminada."
 
     membership_kinds:
-      label:
-        single: Tipo de membresía
-        plural: Tipos de membresía
-
-      short:
-        single: Tipo
-        plural: Tipos
-
+      label: "Tipo de integrante"
+      short: "Tipo"
       values:
         athlete:
-          label:
-            single: Deportista
-            plural: Deportistas
-
-          short:
-            single: Dep.
-            plural: Deps.
-
-          hint: Persona miembro que participa como deportista.
-
+          label: "Deportista"
+          label_plural: "Deportistas"
+          short: "Dep."
+          short_plural: "Deps."
+          hint: "Persona que participa como deportista."
         coach:
-          label:
-            single: Entrenador
-            plural: Entrenadores
-
-          short:
-            single: Ent.
-            plural: Ents.
-
-          hint: Persona miembro que participa como entrenador.
-
+          label: "Entrenador"
+          label_plural: "Entrenadores"
+          short: "Ent."
+          short_plural: "Ents."
+          hint: "Persona que participa como entrenador."
         volunteer:
-          label:
-            single: Voluntario
-            plural: Voluntarios
-
-          short:
-            single: Vol.
-            plural: Vols.
-
-          hint: Persona miembro que participa como voluntario.
-
+          label: "Voluntario"
+          label_plural: "Voluntarios"
+          short: "Vol."
+          short_plural: "Vols."
+          hint: "Persona que participa como voluntario."
         board_member:
-          label:
-            single: Miembro de junta directiva
-            plural: Miembros de junta directiva
-
-          short:
-            single: JD
-            plural: JDs
-
-          hint: Persona miembro que participa como miembro de junta directiva.
-
+          label: "Miembro de junta directiva"
+          label_plural: "Miembros de junta directiva"
+          short: "JD"
+          short_plural: "JDs"
+          hint: "Persona que participa como miembro de junta directiva."
         club_manager:
-          label:
-            single: Gestor de club
-            plural: Gestores de club
-
-          short:
-            single: G.Club
-            plural: Gs.Club
-
-          hint: Persona miembro que participa como gestor de club.
+          label: "Gestor de club"
+          label_plural: "Gestores de club"
+          short: "G.Club"
+          short_plural: "Gs.Club"
+          hint: "Persona que participa como gestor de club."
 
     assignment_kinds:
-      label:
-        single: Tipo de asignación
-        plural: Tipos de asignación
-
-      short:
-        single: Asignación
-        plural: Asignaciones
-
+      label: "Tipo de asignación"
+      short: "Asign."
       values:
-        athlete:
-          label: Deportista
-
-        captain:
-          label: Capitán
-
-        head_coach:
-          label: Entrenador principal
-
-        assistant_coach:
-          label: Entrenador asistente
-
-        coaching_coordinator:
-          label: Coordinador de entrenadores
-
-        team_manager:
-          label: Director de equipo
-
-        team_delegate:
-          label: Delegado de equipo
-
-        home_delegate:
-          label: Delegado local
-
-        photographer:
-          label: Fotógrafo
-
-        community_manager:
-          label: Gestor de comunidad
-
-        webmaster:
-          label: Webmaster
-
-        club_manager:
-          label: Gestor de club
-
-        president:
-          label: Presidente
-
-        vice_president:
-          label: Vicepresidente
-
-        secretary:
-          label: Secretario
-
-        treasurer:
-          label: Tesorero
+        athlete: "Deportista"
+        captain: "Capitán"
+        head_coach: "Entrenador principal"
+        assistant_coach: "Entrenador asistente"
+        coaching_coordinator: "Coordinador de entrenadores"
+        team_manager: "Director de equipo"
+        team_delegate: "Delegado de equipo"
+        home_delegate: "Delegado local"
+        photographer: "Fotógrafo"
+        community_manager: "Gestor de comunidad"
+        webmaster: "Webmaster"
+        club_manager: "Gestor de club"
+        president: "Presidente"
+        vice_president: "Vicepresidente"
+        secretary: "Secretario"
+        treasurer: "Tesorero"
 
   # ---------------------------------------------------------------------------
-  # OBSOLETO
+  # OBSOLETO - NO MODIFICAR
   #
   # Claves de compatibilidad preservadas durante la migración v2.
   #

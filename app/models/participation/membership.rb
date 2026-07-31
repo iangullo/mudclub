@@ -30,7 +30,7 @@
 # the historical relationship between clubs and people.
 #
 class Membership < ApplicationRecord
-	localized_as "membership"
+	localized_as "participation.membership"
 
 	belongs_to :person
 	belongs_to :club

@@ -7,902 +7,259 @@
 # Evita intencionadamente la terminología de dominio de negocio, que pertenece
 # a los archivos de configuración regional correspondientes (people, etc.)
 #
-# Las traducciones de compatibilidad de Rails (helpers, paginación, fechas...)
-# permanecen en este archivo hasta que se refactoricen explícitamente.
-#
 # -----------------------------------------------------------------------------
 es:
   shared:
     #
     # Acciones genéricas
     #
-    action:
-      label:
-        single: Acción
-        plural: Acciones
-
-      short:
-        single: Acc.
-        plural: Accs.
-
-      values:
-        add:
-          label:
-            single: Añadir
-
-        add_nested:
-          label:
-            single: Añadir nuevo
-
-          short:
-            single: Añadir
-
-        administration:
-          label:
-            single: Administración
-
-          short:
-            single: Admin.
-
-        back:
-          label:
-            single: Volver
-
-        backup:
-          label:
-            single: Copia de seguridad
-            plural: Copias de seguridad
-
-        call:
-          label:
-            single: Llamada
-            plural: Llamadas
-
-        cancel:
-          label:
-            single: Cancelar
-
-        change:
-          label:
-            single: Cambiar
-            plural: Cambios
-
-        chat:
-          label:
-            single: WhatsApp
-
-          short:
-            single: Chat
-
-        clear:
-          label:
-            single: Limpiar
-
-        close:
-          label:
-            single: Cerrar
-
-        configure:
-          label:
-            single: Configurar
-
-          short:
-            single: Config.
-
-        copy:
-          label:
-            single: Copiar
-            plural: Copias
-
-        create:
-          label:
-            single: Crear
-
-        delete:
-          label:
-            single: Eliminar
-
-        download:
-          label:
-            single: Descargar
-            plural: Descargas
-
-          short:
-            single: Desc.
-
-        duplicate:
-          label:
-            single: Duplicar
-
-          short:
-            single: Dup.
-
-        edit:
-          label:
-            single: Editar
-
-        export:
-          label:
-            single: Exportar
-            plural: Exportaciones
-
-        filter:
-          label:
-            single: Filtrar
-            plural: Filtros
-
-        import:
-          label:
-            single: Importar
-            plural: Importaciones
-
-        login:
-          label:
-            single: Iniciar sesión
-
-        logout:
-          label:
-            single: Cerrar sesión
-
-        move:
-          label:
-            single: Mover
-            plural: Movimientos
-
-        next:
-          label:
-            single: Siguiente
-
-          short:
-            single: ">>"
-
-        previous:
-          label:
-            single: Anterior
-
-          short:
-            single: "<<"
-
-        preview:
-          label:
-            single: Vista previa
-            plural: Vistas previas
-
-          short:
-            single: Vista
-
-        print:
-          label:
-            single: Imprimir
-            plural: Impresiones
-
-        refresh:
-          label:
-            single: Actualizar
-
-        remove:
-          label:
-            single: Eliminar
-
-        rename:
-          label:
-            single: Renombrar
-
-        restore:
-          label:
-            single: Restaurar
-
-        save:
-          label:
-            single: Guardar
-
-        search:
-          label:
-            single: Buscar
-            plural: Búsquedas
-
-        select:
-          label:
-            single: Seleccionar
-
-        share:
-          label:
-            single: Compartir
-            plural: Comparticiones
-
-        upload:
-          label:
-            single: Subir
-            plural: Subidas
-
-          short:
-            single: Sub.
+    actions:
+      add: "Añadir"
+      add_short: "Añadir"
+      add_nested: "Añadir nuevo"
+      add_nested_short: "Añadir"
+      administration: "Administración"
+      administration_short: "Admin."
+      back: "Volver"
+      backup: "Copia de seguridad"
+      call: "Llamada"
+      cancel: "Cancelar"
+      change: "Cambiar"
+      chat: "WhatsApp"
+      chat_short: "Chat"
+      clear: "Limpiar"
+      close: "Cerrar"
+      configure: "Configurar"
+      configure_short: "Config."
+      copy: "Copiar"
+      create: "Crear"
+      delete: "Eliminar"
+      download: "Descargar"
+      download_short: "Desc."
+      duplicate: "Duplicar"
+      duplicate_short: "Dup."
+      edit: "Editar"
+      export: "Exportar"
+      filter: "Filtrar"
+      import: "Importar"
+      login: "Iniciar sesión"
+      logout: "Cerrar sesión"
+      move: "Mover"
+      next: "Siguiente"
+      next_short: ">>"
+      previous: "Anterior"
+      previous_short: "<<"
+      preview: "Vista previa"
+      preview_short: "Vista"
+      print: "Imprimir"
+      refresh: "Actualizar"
+      remove: "Eliminar"
+      rename: "Renombrar"
+      restore: "Restaurar"
+      save: "Guardar"
+      search: "Buscar"
+      select: "Seleccionar"
+      share: "Compartir"
+      upload: "Subir"
+      upload_short: "Sub."
 
     #
-    # Configuraciones
+    # Configuración
     #
-    settings:
-      label:
-        single: Configuración
-        plural: Configuraciones
-
-      short:
-        single: Config.
-        plural: Config.
+    settings: "Configuración"
+    settings_short: "Config."
 
     #
     # Estados genéricos
     #
-    status:
-      label:
-        single: Estado
-        plural: Estados
-
-      short:
-        single: Est.
-        plural: Ests.
-
-      values:
-        active:
-          label:
-            single: Activo
-
-          short:
-            single: Act.
-
-        archived:
-          label:
-            single: Archivado
-
-          short:
-            single: Arch.
-
-        calculating:
-          label:
-            single: Calculando
-
-          short:
-            single: Calc.
-
-        cancelled:
-          label:
-            single: Cancelado
-
-          short:
-            single: Canc.
-
-        closed:
-          label:
-            single: Cerrado
-
-        completed:
-          label:
-            single: Completado
-
-          short:
-            single: Hecho
-
-        disabled:
-          label:
-            single: Deshabilitado
-
-          short:
-            single: Desh.
-
-        draft:
-          label:
-            single: Borrador
-
-        empty:
-          label:
-            single: Sin datos disponibles
-
-          short:
-            single: Vacío
-
-        enabled:
-          label:
-            single: Habilitado
-
-          short:
-            single: Hab.
-
-        error:
-          label:
-            single: Error
-
-        failed:
-          label:
-            single: Fallido
-
-          short:
-            single: Fall.
-
-        inactive:
-          label:
-            single: Inactivo
-
-          short:
-            single: Inact.
-
-        loading:
-          label:
-            single: Cargando...
-
-          short:
-            single: Carg.
-
-        pending:
-          label:
-            single: Pendiente
-
-          short:
-            single: Pend.
-
-        processing:
-          label:
-            single: Procesando...
-
-          short:
-            single: Proc.
-
-        published:
-          label:
-            single: Publicado
-
-          short:
-            single: Publ.
-
-        ready:
-          label:
-            single: Listo
-
-        rejected:
-          label:
-            single: Rechazado
-
-          short:
-            single: Rech.
-
-        saved:
-          label:
-            single: Guardado
-
-        starting:
-          label:
-            single: Iniciando
-
-          short:
-            single: Inicio
-
-        unavailable:
-          label:
-            single: No disponible
-
-          short:
-            single: No disp.
-
-        warning:
-          label:
-            single: Advertencia
-
-          short:
-            single: Adv.
+    statuses:
+      active: "Activo"
+      active_short: "Act."
+      archived: "Archivado"
+      archived_short: "Arch."
+      calculating: "Calculando"
+      calculating_short: "Calc."
+      cancelled: "Cancelado"
+      cancelled_short: "Canc."
+      closed: "Cerrado"
+      completed: "Completado"
+      completed_short: "Hecho"
+      disabled: "Deshabilitado"
+      disabled_short: "Desh."
+      draft: "Borrador"
+      empty: "Sin datos disponibles"
+      empty_short: "Vacío"
+      enabled: "Habilitado"
+      enabled_short: "Hab."
+      error: "Error"
+      failed: "Fallido"
+      failed_short: "Fall."
+      inactive: "Inactivo"
+      inactive_short: "Inact."
+      loading: "Cargando..."
+      loading_short: "Carg."
+      pending: "Pendiente"
+      pending_short: "Pend."
+      processing: "Procesando..."
+      processing_short: "Proc."
+      published: "Publicado"
+      published_short: "Publ."
+      ready: "Listo"
+      rejected: "Rechazado"
+      rejected_short: "Rech."
+      saved: "Guardado"
+      starting: "Iniciando"
+      starting_short: "Inicio"
+      unavailable: "No disponible"
+      unavailable_short: "No disp."
+      warning: "Advertencia"
+      warning_short: "Adv."
 
     #
     # Preguntas genéricas
     #
-    question:
-      label:
-        single: Pregunta
-        plural: Preguntas
-
-      short:
-        single: Preg.
-        plural: Pregs.
-
-      values:
-        active:
-          label:
-            single: ¿Activo?
-
-        camera:
-          label:
-            single: ¿Usar cámara?
-
-        delete:
-          label:
-            single: ¿Eliminar?
-
-        discard_changes:
-          label:
-            single: ¿Descartar cambios?
-
-        female:
-          label:
-            single: ¿Femenino?
-
-        import:
-          label:
-            single: ¿Importar archivo?
-
-        login:
-          label:
-            single: ¿Iniciar sesión?
-
-        logout:
-          label:
-            single: ¿Cerrar sesión?
-
-        overwrite:
-          label:
-            single: ¿Sobrescribir datos existentes?
-
-        remove:
-          label:
-            single: ¿Eliminar?
-
-        restore:
-          label:
-            single: ¿Restaurar?
-
-        save:
-          label:
-            single: ¿Guardar?
-
-        save_changes:
-          label:
-            single: ¿Guardar cambios?
+    questions:
+      active: "¿Activo?"
+      camera: "¿Usar cámara?"
+      delete: "¿Eliminar?"
+      discard_changes: "¿Descartar cambios?"
+      female: "¿Femenino?"
+      import: "¿Importar archivo?"
+      login: "¿Iniciar sesión?"
+      logout: "¿Cerrar sesión?"
+      overwrite: "¿Sobrescribir datos existentes?"
+      remove: "¿Eliminar?"
+      restore: "¿Restaurar?"
+      save: "¿Guardar?"
+      save_changes: "¿Guardar cambios?"
 
     #
     # Selecciones genéricas
     #
-    selection:
-      label:
-        single: Selección
-        plural: Selecciones
-
-      short:
-        single: Sel.
-        plural: Sels.
-
-      values:
-        all:
-          label:
-            single: Todos
-
-        automatic:
-          label:
-            single: Automático
-
-          short:
-            single: Auto.
-
-        current:
-          label:
-            single: Actual
-
-          short:
-            single: Act.
-
-        default:
-          label:
-            single: Predeterminado
-
-          short:
-            single: Pred.
-
-        featured:
-          label:
-            single: Destacado
-
-          short:
-            single: Dest.
-
-        multiple:
-          label:
-            single: Múltiple
-
-          short:
-            single: Mult.
-
-        none:
-          label:
-            single: Ninguno
-
-        optional:
-          label:
-            single: Opcional
-
-          short:
-            single: Opc.
-
-        other:
-          label:
-            single: Otro
-
-        required:
-          label:
-            single: Obligatorio
-
-          short:
-            single: Obl.
-
-        selected:
-          label:
-            single: Seleccionado
-
-          short:
-            single: Sel.
-
-        unknown:
-          label:
-            single: Desconocido
+    selections:
+      all: "Todos"
+      automatic: "Automático"
+      automatic_short: "Auto."
+      current: "Actual"
+      current_short: "Act."
+      default: "Predeterminado"
+      default_short: "Pred."
+      featured: "Destacado"
+      featured_short: "Dest."
+      multiple: "Múltiple"
+      multiple_short: "Mult."
+      none: "Ninguno"
+      optional: "Opcional"
+      optional_short: "Opc."
+      other: "Otro"
+      required: "Obligatorio"
+      required_short: "Obl."
+      selected: "Seleccionado"
+      selected_short: "Sel."
+      unknown: "Desconocido"
 
     #
     # Valores booleanos
     #
-    boolean:
-      label:
-        single: Booleano
-        plural: Booleanos
-
-      short:
-        single: Bool.
-        plural: Bools.
-
-      values:
-        "true":
-          label:
-            single: "Sí"
-
-          short:
-            single: "S"
-
-        "false":
-          label:
-            single: "No"
-
-          short:
-            single: "N"
+    booleans:
+      true: "Sí"
+      true_short: "S"
+      false: "No"
+      false_short: "N"
 
     #
-    # Configuración regional
+    # Nombres de idiomas
     #
-    locale:
-      label:
-        single: Configuración regional
-        plural: Configuraciones regionales
-
-      short:
-        single: Reg.
-        plural: Regs.
-
-      fields:
-        language:
-          label:
-            single: Idioma
-
-          short:
-            single: Idioma
-
-        country:
-          label:
-            single: País
-
-          short:
-            single: País
-
-      values:
-        en:
-          label:
-            single: Inglés
-
-          short:
-            single: EN
-
-        es:
-          label:
-            single: Español
-
-          short:
-            single: ES
-
-        fr:
-          label:
-            single: Francés
-
-          short:
-            single: FR
-
-        pt:
-          label:
-            single: Portugués
-
-          short:
-            single: PT
+    locales:
+      en: "Inglés"
+      en_short: "EN"
+      es: "Español"
+      es_short: "ES"
+      fr: "Francés"
+      fr_short: "FR"
+      pt: "Portugués"
+      pt_short: "PT"
 
     #
     # Colores
     #
-    color:
-      label:
-        single: Color
-        plural: Colores
-
-      short:
-        single: Col.
-        plural: Cols.
-
-      values:
-        black:
-          label:
-            single: Negro
-
-        blue:
-          label:
-            single: Azul
-
-        brown:
-          label:
-            single: Marrón
-
-        gold:
-          label:
-            single: Dorado
-
-        green:
-          label:
-            single: Verde
-
-        grey:
-          label:
-            single: Gris
-
-        orange:
-          label:
-            single: Naranja
-
-        pink:
-          label:
-            single: Rosa
-
-        purple:
-          label:
-            single: Morado
-
-        red:
-          label:
-            single: Rojo
-
-        silver:
-          label:
-            single: Plateado
-
-        white:
-          label:
-            single: Blanco
-
-        yellow:
-          label:
-            single: Amarillo
+    colors:
+      black: "Negro"
+      blue: "Azul"
+      brown: "Marrón"
+      gold: "Dorado"
+      green: "Verde"
+      grey: "Gris"
+      orange: "Naranja"
+      pink: "Rosa"
+      purple: "Morado"
+      red: "Rojo"
+      silver: "Plateado"
+      white: "Blanco"
+      yellow: "Amarillo"
 
     #
     # Etiquetas de campos genéricos
     #
     fields:
-      active:
-        label:
-          single: Activo
+      active: "Activo"
+      address: "Dirección"
+      biography: "Biografía"
+      biography_short: "Bio"
+      code: "Código"
+      color: "Color"
+      country: "País"
+      created_at: "Creado"
+      created_by: "Creado por"
+      date: "Fecha"
+      description: "Descripción"
+      description_short: "Desc."
+      duration: "Duración"
+      duration_short: "Dur."
+      email: "Correo electrónico"
+      enabled: "Habilitado"
+      ends_on: "Finaliza"
+      ends_on_short: "Fin"
+      identifier: "Identificador"
+      identifier_short: "ID"
+      image: "Imagen"
+      language: "Idioma"
+      language_short: "Idioma"
+      location: "Ubicación"
+      location_short: "Ubic."
+      name: "Nombre"
+      notes: "Notas"
+      number: "Número"
+      number_short: "Nº"
+      order: "Orden"
+      phone: "Teléfono"
+      phone_short: "Telf."
+      position: "Posición"
+      position_short: "Pos."
+      postcode: "Código postal"
+      postcode_short: "CP"
+      priority: "Prioridad"
+      reference: "Referencia"
+      reference_short: "Ref."
+      remarks: "Observaciones"
+      remarks_short: "Obs."
+      settings: "Configuración"
+      starts_on: "Inicia"
+      starts_on_short: "Inicio"
+      state: "Estado"
+      street: "Calle"
+      title: "Título"
+      type: "Tipo"
+      updated_at: "Actualizado"
+      updated_by: "Actualizado por"
+      url: "URL"
+      version: "Versión"
+      version_short: "Ver."
+      website: "Sitio web"
+      website_short: "Web"
 
-      address:
-        label:
-          single: Dirección
-
-      biography:
-        label:
-          single: Biografía
-
-        short:
-          single: Bio
-
-      code:
-        label:
-          single: Código
-
-      color:
-        label:
-          single: Color
-
-      country:
-        label:
-          single: País
-
-      created_at:
-        label:
-          single: Creado
-
-        short:
-          single: Creado
-
-      created_by:
-        label:
-          single: Creado por
-
-      date:
-        label:
-          single: Fecha
-
-      description:
-        label:
-          single: Descripción
-
-        short:
-          single: Desc.
-
-      duration:
-        label:
-          single: Duración
-
-        short:
-          single: Dur.
-
-      email:
-        label:
-          single: Correo electrónico
-
-        short:
-          single: e-mail
-
-      enabled:
-        label:
-          single: Habilitado
-
-      ends_on:
-        label:
-          single: Finaliza
-
-        short:
-          single: Fin
-
-      identifier:
-        label:
-          single: Identificador
-
-        short:
-          single: ID
-
-      image:
-        label:
-          single: Imagen
-
-      language:
-        label:
-          single: Idioma
-
-        short:
-          single: Idioma
-
-      location:
-        label:
-          single: Ubicación
-
-        short:
-          single: Ubic.
-
-      name:
-        label:
-          single: Nombre
-
-      notes:
-        label:
-          single: Notas
-
-      number:
-        label:
-          single: Número
-
-        short:
-          single: "Nº"
-
-      order:
-        label:
-          single: Orden
-
-      phone:
-        label:
-          single: Teléfono
-
-        short:
-          single: Telf.
-
-      position:
-        label:
-          single: Posición
-
-        short:
-          single: Pos.
-
-      postcode:
-        label:
-          single: Código postal
-
-        short:
-          single: CP
-
-      priority:
-        label:
-          single: Prioridad
-
-      reference:
-        label:
-          single: Referencia
-
-        short:
-          single: Ref.
-
-      remarks:
-        label:
-          single: Observaciones
-
-        short:
-          single: Obs.
-
-      settings:
-        label:
-          single: Configuración
-
-      starts_on:
-        label:
-          single: Inicia
-
-        short:
-          single: Inicio
-
-      state:
-        label:
-          single: Estado
-
-      street:
-        label:
-          single: Calle
-
-      title:
-        label:
-          single: Título
-
-      type:
-        label:
-          single: Tipo
-
-      updated_at:
-        label:
-          single: Actualizado
-
-      updated_by:
-        label:
-          single: Actualizado por
-
-      url:
-        label:
-          single: URL
-
-      version:
-        label:
-          single: Versión
-
-        short:
-          single: Ver.
-
-      website:
-        label:
-          single: Sitio web
-
-        short:
-          single: Web
-  #
   # -----------------------------------------------------------------------------
-  # DEPRECATED
+  # DEPRECATED - NO MODIFICAR
   #
   # Compatibility keys preserved during the v2 locale migration.
   #

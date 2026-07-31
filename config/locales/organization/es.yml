@@ -5,188 +5,129 @@
 #
 # Incluye clubes, categorías de competición, divisiones,
 # relaciones club-deporte y catálogos organizativos.
+# -----------------------------------------------------------------------------
 es:
   organization:
-    label:
-      single: Organización
-      plural: Organizaciones
-
-    short:
-      single: Org.
-      plural: Orgs.
+    label: "Organización"
+    short: "Org."
 
     club:
       label:
-        single: Club
-        plural: Clubes
-
-      short:
-        single: Club
-        plural: Clubes
-
+        single: "Club"
+        short: "Club"
+        plural: "Clubes"
+        rivals: "Clubes rivales"
+      actions:
+        create: "Crear Club"
+        edit: "Editar Club"
+        delete: "Borrar Club"
       fields:
-        name:
-          label: Nombre
+        name: "Nombre"
+        entity: "Entidad legal"
+        entity_short: "Ent."
+        email: "e-mail"
 
-        entity:
-          label: Entidad legal
-          short: Ent.
-
-        logo:
-          label: Logotipo
-          short: Logo
-
-        website:
-          label: Sitio web
-          short: Web
-
+        logo: "Logotipo"
+        logo_short: "Logo"
+        website: "Sitio web"
+        website_short: "Web"
       messages:
-        created: Club creado.
-        updated: Club actualizado.
-        deleted: Club eliminado.
-        duplicated: El club ya existe.
+        created: "Club creado."
+        updated: "Club actualizado."
+        deleted: "Club eliminado."
+        duplicated: "El club ya existe."
 
     category:
-      label:
-        single: Categoría
-        plural: Categorías
-
-      short:
-        single: Cat.
-        plural: Cats.
-
+      label: "Categoría"
+      short: "Cat."
+      actions:
+        create: "Crear Categoría"
+        edit: "Editar Categoría"
+        delete: "Borrar Categoría"
       fields:
-        age_group:
-          label: Grupo de edad
-          short: Edades
-
-        sex:
-          label: Sexo
-          short: Sexo
-
-        min_years:
-          label: Edad mínima
-          short: Edad mín.
-
-        max_years:
-          label: Edad máxima
-          short: Edad máx.
-
-        rules:
-          label: Reglas
-          short: Reglas
-
-        sport:
-          label: Deporte
-          short: Deporte
-
+        age_group: "Grupo de edad"
+        age_group_short: "Edades"
+        sex: "Sexo"
+        sex_short: "Sexo"
+        min_years: "Edad mínima"
+        min_years_short: "Edad mín."
+        max_years: "Edad máxima"
+        max_years_short: "Edad máx."
+        rules: "Reglas"
+        rules_short: "Reglas"
+        sport: "Deporte"
+        sport_short: "Deporte"
       messages:
-        created: Categoría creada.
-        updated: Categoría actualizada.
-        deleted: Categoría eliminada.
-        duplicated: La categoría ya existe.
+        created: "Categoría creada."
+        updated: "Categoría actualizada."
+        deleted: "Categoría eliminada."
+        duplicated: "La categoría ya existe."
 
     division:
-      label:
-        single: División
-        plural: Divisiones
-
-      short:
-        single: Div.
-        plural: Divs.
-
+      label: "Competición"
+      short: "Div."
+      actions:
+        create: "Crear Competición"
+        edit: "Editar Competición"
+        delete: "Borrar Competición"
       fields:
-        name:
-          label: Nombre
-
-        sport:
-          label: Deporte
-
+        name: "Nombre"
+        sport: "Deporte"
       messages:
-        created: División creada.
-        updated: División actualizada.
-        deleted: División eliminada.
-        duplicated: La división ya existe.
+        created: "Competición creada."
+        updated: "Competición actualizada."
+        deleted: "Competición eliminada."
+        duplicated: "La división ya existe."
 
     entities:
-      label:
-        single: Entidad legal
-        plural: Entidades legales
-
-      short:
-        single: Entidad
-        plural: Entidades
-
+      label: "Entidad legal"
+      short: "Entidad"
       values:
-        club:
-          label: Club deportivo
-          plural: Clubes deportivos
-
-        federation:
-          label: Federación
-          plural: Federaciones
-
-        municipality:
-          label: Municipio
-          plural: Municipios
-
-        school:
-          label: Escuela
-          plural: Escuelas
-
-        company:
-          label: Empresa
-          plural: Empresas
-
-        association:
-          label: Asociación
-          plural: Asociaciones
-
-        other:
-          label: Otro
-          plural: Otros
+        club: "Club deportivo"
+        club_plural: "Clubes deportivos"
+        federation: "Federación"
+        federation_plural: "Federaciones"
+        municipality: "Municipio"
+        municipality_plural: "Municipios"
+        school: "Escuela"
+        school_plural: "Escuelas"
+        company: "Empresa"
+        company_plural: "Empresas"
+        association: "Asociación"
+        association_plural: "Asociaciones"
+        other: "Otro"
+        other_plural: "Otros"
 
     club_location:
-      label:
-        single: Ubicación del club
-        plural: Ubicaciones de clubes
-
+      label: "Ubicación del club"
+      short: "Ubic. club"
       fields:
-        club:
-          label: Club
-          short: Club
-
-        location:
-          label: Ubicación
-          short: Ubic.
+        club: "Club"
+        club_short: "Club"
+        location: "Ubicación"
+        location_short: "Ubic."
 
     club_sport:
-      label:
-        single: Deporte del club
-        plural: Deportes del club
-
+      label: "Deporte del club"
+      short: "Deporte club"
       fields:
-        club:
-          label: Club
-          short: Club
-
-        sport:
-          label: Deporte
-          short: Deporte
+        club: "Club"
+        club_short: "Club"
+        sport: "Deporte"
+        sport_short: "Deporte"
 
   # -----------------------------------------------------------------------------
-  # OBSOLETO
+  # OBSOLETO - NO MODIFICAR
   #
-  # Claves de compatibilidad preservadas durante la migración de locales v2.
+  # Claves de compatibilidad para la migración de configuración regional a v2.
   #
   # Buscar:
   #
-  #   t("action.
-  #   t("status.
-  #   t("question.
-  #   ...
+  #   t("category.
+  #   t("club.
+  #   t("division.
   #
-  # Eliminar esta sección una vez que no queden referencias.
+  # Eliminar esta sección una vez migradas todas las referencias.
   # -----------------------------------------------------------------------------
   category:
     # Atributos
@@ -221,7 +162,7 @@ es:
     # UI
     edit: "Editar Club"
     many: "Clubes"
-    new: "Editar Club"
+    new: "Crear Club"
     rivals: "Clubes rivales"
 
   division:
