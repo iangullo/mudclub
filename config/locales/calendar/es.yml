@@ -119,8 +119,12 @@ es:
         yearly: "Anual"
 
     slot:
-      label: "Franja horaria"
-      short: "Franja"
+      label: "Horario"
+      plural: "Horarios"
+      short: "Hora."
+      actions:
+        create: "Crear horario"
+        edit: "Editar horario"
       fields:
         starts_on: "Inicio"
         starts_on_short: "Inicio"
@@ -129,9 +133,9 @@ es:
         duration: "Duración"
         duration_short: "Dur."
       messages:
-        created: "Franja horaria creada."
-        updated: "Franja horaria actualizada."
-        deleted: "Franja horaria eliminada."
+        created: "Horario creada."
+        updated: "Horario actualizado."
+        deleted: "Horario eliminado."
 
     event:
       label: "Evento"

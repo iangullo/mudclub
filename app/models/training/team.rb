@@ -208,6 +208,11 @@ class Team < ApplicationRecord
 		self.category.to_s
 	end
 
+	# return a sport-specific term
+	def term(*parts)
+		self.sport.term(parts)
+	end
+
 	# Return upcoming events for the Team
 	def upcoming_events
 		self.events.non_training.short_term

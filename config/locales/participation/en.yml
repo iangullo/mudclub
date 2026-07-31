@@ -60,9 +60,9 @@ en:
         ends_on: "Ends"
         team: "Team"
         shirt_number: "Shirt number"
-        shirt_number_short: "Shirt #"
+        shirt_number_short: "#"
         squad_number: "Squad number"
-        squad_number_short: "Squad #"
+        squad_number_short: "#"
         notes: "Notes"
       messages:
         created: "Assignment created."

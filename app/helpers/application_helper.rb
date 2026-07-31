@@ -75,7 +75,7 @@ module ApplicationHelper
 	# Field to use in forms to select club of a user/player/coach/team
 	def obj_club_selector(obj)
 		[
-			{ kind: :icon, icon: "mudclub.svg", title: I18n.t("club.single") },
+			{ kind: :icon, icon: "mudclub.svg", title: ("club.single") },
 			{ kind: :select_box, align: "left", key: :club_id, options: current_user.club_list, value: obj.club_id, cols: 4 }
 		]
 	end
@@ -85,10 +85,10 @@ module ApplicationHelper
 		if obj&.active?
 			icon  = obj.club.logo
 			title = obj.club.nick,
-			label = I18n.t("player.number") + obj.number.to_s if obj.is_a?(Player)
+			label = Assignment.attr(:number_short) + obj.number.to_s if obj.is_a?(Player)
 			{ kind: :icon_label, icon:, title:, label:, align: "center" }
 		else
-			{ kind: :string, value: "(#{I18n.t("status.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center" }
+			{ kind: :string, value: "(#{I18n.t("shared.statuses.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center" }
 		end
 	end
 

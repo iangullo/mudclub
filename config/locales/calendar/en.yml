@@ -120,7 +120,11 @@ en:
 
     slot:
       label: "Time slot"
+      plural: "Time table"
       short: "Slot"
+      actions:
+        create: "Create timeslot"
+        edit: "Edit timeslot"
       fields:
         starts_on: "Starts"
         starts_on_short: "Start"

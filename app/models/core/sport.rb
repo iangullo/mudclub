@@ -318,6 +318,18 @@ class Sport < ApplicationRecord
 		).first&.value.to_i
 	end
 
+
+	# return a sport-specific term
+	def term(*parts)
+		key = "sport.#{name}.terms."
+		if parts.first.is_a?(String)
+			key += parts.join(".")
+		else
+			key += "#{parts.join(".")}"
+		end
+		specific.t_path(key)
+	end
+
 	#
 	# --------------------------------------------------------------------------
 	# Compatibility layer

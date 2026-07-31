@@ -45,6 +45,11 @@ class Club < ApplicationRecord
 	validates :phone, uniqueness: { allow_nil: true }
 	# validates :settings, uniqueness: { allow_nil: true }
 
+	# Self termed club for use with policies
+	def club
+		self
+	end
+
 	# access setting for country
 	def country
 		self.settings["country"].presence
@@ -99,6 +104,12 @@ class Club < ApplicationRecord
 	def to_s
 		self.name || label
 	end
+
+	# return a sport-specific term
+	def term(*parts)
+		self.sports.first.term(parts)
+	end
+
 
 	# Get collection of upcoming events for the club
 	def upcoming_events

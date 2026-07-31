@@ -24,7 +24,7 @@ module CategoriesHelper
 
 	# Field definitions for category.show
 	def category_show
-		res = category_title(title: I18n.t("category.single"), subtitle: @category.name, cols: 4)
+		res = category_title(title: Category.label, subtitle: @category.name, cols: 4)
 		res += [
 			[
 				gap_field(size: 1),
@@ -33,9 +33,9 @@ module CategoriesHelper
 			],
 			[
 				gap_field(size: 1),
-				{ kind: :label, value: I18n.t("stat.min"), align: "right" },
+				{ kind: :label, value: I18n.t("shared.stats.min_short"), align: "right" },
 				{ kind: :string, value: @category.min_years },
-				{ kind: :label, value: I18n.t("stat.max") },
+				{ kind: :label, value: I18n.t("shared.stats.max_short") },
 				{ kind: :string, value: @category.max_years }
 			],
 			[
@@ -52,13 +52,13 @@ module CategoriesHelper
 		res += [
 			[
 				gap_field(size: 1),
-				{ kind: :text_box, key: :age_group, value: @category.age_group, placeholder: I18n.t("category.single"), size: 10, cols: 2, mandatory: { length: 3 } },
+				{ kind: :text_box, key: :age_group, value: @category.age_group, placeholder: @category.label, size: 10, cols: 2, mandatory: { length: 3 } },
 				{ kind: :select_box, key: :sex, options: Category.sex_options, value: @category.sex, cols: 2 }
 			],
 			[
-				{ kind: :label, value: I18n.t("stat.min"), align: :right },
+				{ kind: :label, value: I18n.t("shared.stats.min_short"), align: :right },
 				{ kind: :number_box, key: :min_years, min: 5, size: 3, value: @category.min_years, mandatory: { min: 5 }, align: :left },
-				{ kind: :label, value: I18n.t("stat.max"), align: :right },
+				{ kind: :label, value: I18n.t("shared.stats.max_short"), align: :right },
 				{ kind: :number_box, key: :max_years, min: 6, size: 3, value: @category.max_years, mandatory: { max: 99 } },
 				gap_field(size: 1)
 			],
@@ -73,10 +73,10 @@ module CategoriesHelper
 	# return header for @categories TableComponent
 	def category_table
 		title = [
-			{ kind: :normal, value: I18n.t("category.name") },
-			{ kind: :normal, value: I18n.t("sex.label") },
-			{ kind: :normal, value: I18n.t("stat.min") },
-			{ kind: :normal, value: I18n.t("stat.max") }
+			{ kind: :normal, value: Category.attr(:name) },
+			{ kind: :normal, value: Person.attr(:sex) },
+			{ kind: :normal, value: I18n.t("shared.stats.min_short") },
+			{ kind: :normal, value: I18n.t("shared.stats.max_short") }
 		]
 		title <<  button_field({ kind: :add, url: new_sport_category_path(@sport, rdx: @rdx), frame: "modal" }) if u_admin?
 
@@ -84,7 +84,7 @@ module CategoriesHelper
 		@categories.each { |cat|
 			row = { url: edit_sport_category_path(@sport, cat, rdx: @rdx), frame: "modal", items: [] }
 			row[:items] << { kind: :normal, value: cat.age_group }
-			row[:items] << { kind: :normal, value: I18n.t("sex.#{cat.sex}_a") }
+			row[:items] << { kind: :normal, value: I18n.t("people.sex.values.#{cat.sex}_short") }
 			row[:items] << { kind: :normal, value: cat.min_years, align: "right" }
 			row[:items] << { kind: :normal, value: cat.max_years, align: "right" }
 			row[:items] << button_field({ kind: :delete, url: sport_category_path(@sport, cat, rdx: @rdx), name: cat.name }) if u_admin?

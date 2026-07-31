@@ -46,8 +46,8 @@ module ClubsHelper
 			res = []
 			if club_manager? || u_secretary?
 				res << [
-					button_field({ kind: :jump, symbol: symbol_hash("player", namespace: "sport"), url: club_players_path(@club, rdx: 0), label: I18n.t("player.many") }, align: "center"),
-					button_field({ kind: :jump, symbol: symbol_hash("coach", namespace: "sport"), url: club_coaches_path(@club, rdx: 0), label: I18n.t("coach.many") }, align: "center"),
+					button_field({ kind: :jump, symbol: symbol_hash("player", namespace: "sport"), url: club_players_path(@club, rdx: 0), label: @club.term(:athletes) }, align: "center"),
+					button_field({ kind: :jump, symbol: symbol_hash("coach", namespace: "sport"), url: club_coaches_path(@club, rdx: 0), label:  @club.term(:coaches) }, align: "center"),
 					button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: Team.label(:plural) }, align: "center")
 				]
 				res << [

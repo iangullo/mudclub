@@ -258,6 +258,19 @@ en:
       website: "Website"
       website_short: "Web"
 
+    #
+    # Generic stat labels
+    #
+    stats:
+      total: "Total"
+      total_short: "Tot."
+      max: "Maximum"
+      max_short: "Max."
+      min: "Minimum"
+      min_short: "Min."
+      avg: "Average"
+      avg_short: "Avg."
+
   # -----------------------------------------------------------------------------
   # DEPRECATED - DO NOT MODIFY
   #

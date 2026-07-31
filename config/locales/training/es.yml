@@ -66,15 +66,19 @@ es:
         deleted: "Plan de entrenamiento eliminado."
 
     drill:
-      label: "Ejercicio"
-      short: "Ejerc."
+      label:
+        single: "Ejercicio"
+        plural: "Ejercicios"
+        short: "Ejerc."
       fields:
         name: "Nombre"
         description: "Descripción"
         description_short: "Desc."
         author: "Autor"
         kind: "Categoría de ejercicio"
+        kind_short: "Tipo"
         material: "Material"
+        material_short: "Mat."
         sport: "Deporte"
         court_mode: "Disposición de campo"
         court_mode_short: "Disposición"
@@ -94,8 +98,10 @@ es:
         deleted: "Categoría de ejercicio eliminada."
 
     task:
-      label: "Tarea"
-      short: "Tarea"
+      label:
+        single: "Tarea"
+        plural: "Tareas"
+        short: "Tarea"
       fields:
         drill: "Ejercicio"
         order: "Orden"
@@ -109,8 +115,14 @@ es:
         deleted: "Tarea eliminada."
 
     step:
-      label: "Paso"
-      short: "Paso"
+      label:
+        single: "Paso"
+        plural: "Pasos"
+        short: "Paso"
+      actions:
+        edit: "Editar paso"
+        edit_diagram: "Editar diagrama"
+        load_diagram: "Cargar diagrama"
       fields:
         order: "Orden"
         explanation: "Explicación"
@@ -142,8 +154,10 @@ es:
         deleted: "Versión eliminada."
 
     skill:
-      label: "Habilidad"
-      short: "Habilidad"
+      label:
+        single: "Habilidad"
+        plural: "Habilidades"
+        short: "Hab."
       fields:
         name: "Nombre"
         description: "Descripción"
@@ -154,8 +168,12 @@ es:
         deleted: "Habilidad eliminada."
 
     target:
-      label: "Objetivo"
-      short: "Obj."
+      label:
+        single: "Objetivo"
+        plural: "Objetivos"
+        short: "Obj."
+      actions:
+        edit: "Editar Objetivos"
       fields:
         concept: "Concepto"
         aspect: "Aspecto"

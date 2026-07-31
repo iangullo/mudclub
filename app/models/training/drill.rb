@@ -18,7 +18,7 @@
 #
 # Manage Drill/Plays in the model
 class Drill < ApplicationRecord
-	localized_as "training.target"
+	localized_as "training.drill"
 
 	FILTER_PARAMS = %i[name kind_id season_id skill column direction].freeze
 	before_destroy :unlink

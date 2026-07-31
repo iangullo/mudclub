@@ -44,6 +44,7 @@ en:
         edit: "Edit Category"
         delete: "Delete Category"
       fields:
+        name: "Name"
         age_group: "Age group"
         age_group_short: "Ages"
         sex: "Sex"

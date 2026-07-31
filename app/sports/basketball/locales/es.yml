@@ -18,8 +18,10 @@ es:
 
       terms:
         athlete: "Jugador"
+        athletes: "Jugadores"
         athlete_short: "Jug."
         coach: "Entrenador"
+        coaches: "Entrenadores"
         team: "Equipo"
         period: "Cuarto"
         period_short: "C."
@@ -151,6 +153,12 @@ es:
         pfc_short: "FC"
         pfr: "Faltas recibidas"
         pfr_short: "FR"
+
+      skill:
+        label:
+          single: "Fundamento"
+          plural: "Fundamentos"
+          short: "Fund."
 
       outings:
         first: "Primero"

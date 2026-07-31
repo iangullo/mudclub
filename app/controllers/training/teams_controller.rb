@@ -35,7 +35,7 @@ class TeamsController < ApplicationController
 					response.headers["Content-Disposition"] = "attachment; filename=#{f_name}"
 				end
 				format.html do
-					title   = helpers.team_title(title: I18n.t("team.many"), search: true)
+					title   = helpers.team_title(title: Team.label(:plural), search: true)
 					page    = paginate(@teams)	# paginate results
 					table   = helpers.team_table(teams: page, add_teams: club_manager?(@club))
 					zerolnk = @clubid ? club_path(@clubid, rdx: @rdx) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
@@ -113,7 +113,7 @@ class TeamsController < ApplicationController
 				if team_params
 					@team = Team.build(team_params)
 					if @team.save
-						a_desc = "#{I18n.t("team.created")} '#{@team}'"
+						a_desc = "#{Team.msg(:created)} '#{@team}'"
 						c_path = (user_in_club? ? cru_return : club_teams_path(@clubid, rdx: @rdx))
 						register_action(:created, a_desc, url: team_path(@team, rdx: 2))
 						format.html { redirect_to c_path, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
@@ -146,7 +146,7 @@ class TeamsController < ApplicationController
 					@team.rebuild(team_params)
 					if @team.modified?
 						if @team.save
-							a_desc = "#{I18n.t("team.updated")} '#{@team}'"
+							a_desc = "#{Team.msg(:updated)} '#{@team}'"
 							register_action(:updated, a_desc, url: team_path(rdx: 2))
 							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 							format.json { redirect_to retlnk, status: :created, location: retlnk }
@@ -179,7 +179,7 @@ class TeamsController < ApplicationController
 			t_name = @team.to_s
 			@team.destroy
 			respond_to do |format|
-				a_desc = "#{I18n.t("team.deleted")} '#{t_name}'"
+				a_desc = "#{Team.msg(:deleted)} '#{t_name}'"
 				register_action(:deleted, a_desc)
 				format.html { redirect_to club_teams_path(@clubid, rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
@@ -194,8 +194,8 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [ :manager, :coach, :secretary ], obj: @club, both: true)
 			title   = helpers.team_title(title: @team.nick)
 			players = @team.players
-			title << icon_subtitle("player", I18n.t("team.roster"), namespace: @team.sport.name)
-			title.last << { kind: :string, value: "(#{players.count} #{I18n.t("player.abbr")})" }
+			title << icon_subtitle("player", Team.attr(:roster), namespace: @team.sport.name)
+			title.last << { kind: :string, value: "(#{players.count} #{@team.term(:athlete_short)})" }
 			@title  = create_fields(title)
 			@table  = create_table(helpers.player_table(team: @team, players: players.order(:number)))
 			submit  = edit_roster_team_path(rdx: @rdx) if team_manager?
@@ -234,7 +234,7 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [ :coach, :manager ], obj: @club, both: true)
 			global_targets(true)	# get & breakdown global targets
 			title   = helpers.team_title(title: @team.to_s)
-			title  << icon_subtitle("target", I18n.t("target.many"))
+			title  << icon_subtitle("target", Target.label(:plural))
 			@title  = create_fields(title)
 			edit    = edit_targets_team_path(rdx: @rdx) if team_manager?
 			@fields = create_fields(helpers.team_targets_show)
@@ -250,7 +250,7 @@ class TeamsController < ApplicationController
 			redirect_to("/", data: { turbo_action: "replace" }) unless @team
 			global_targets(true)	# get global targets
 			title   = helpers.team_title(title: @team.to_s)
-			title << icon_subtitle("target", I18n.t("target.edit"))
+			title << icon_subtitle("target", Target.t_path(:actions, :edit))
 			@title  = create_fields(title)
 			@submit = create_submit(close: :cancel, retlnk: targets_team_path(rdx: @rdx))
 		else
@@ -263,7 +263,7 @@ class TeamsController < ApplicationController
 		if @team && check_access(roles: [ :coach, :manager ], obj: @club, both: true)
 			plan_targets
 			title = helpers.team_title(title: @team.to_s)
-			title << icon_subtitle("plan", I18n.t("plan.single"))
+			title << icon_subtitle("plan", I18n.t("training.plan.label"))
 			@title = create_fields(title)
 			edit    = edit_plan_team_path(rdx: @rdx) if team_manager?
 			@fields = create_fields(helpers.team_plan_accordion)
@@ -291,7 +291,7 @@ class TeamsController < ApplicationController
 	def attendance
 		if @team && check_access(roles: [ :coach, :manager, :secretary ], obj: @club, both: true)
 			title  = helpers.team_title(title: @team.to_s)
-			title  << icon_subtitle("attendance", I18n.t("calendar.attendance.label.single"))
+			title  << icon_subtitle("attendance", I18n.t("calendar.attendance.label"))
 			@title  = create_fields(title)
 			a_data  = helpers.team_attendance_table
 			if a_data

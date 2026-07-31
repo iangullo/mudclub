@@ -27,6 +27,30 @@ class ApplicationController < ActionController::Base
 								:u_personid, :u_player?, :u_playerid, :u_secretary?, :u_userid,
 								:user_in_club?, :club_manager?, :team_manager?
 
+
+	# NEW authorization poolicy management approach.
+	def check_policy!(policy_class, record: nil, **context)
+		policy =
+			if record
+				policy_class.new(current_user, record)
+			else
+				policy_class.new(current_user, **context)
+			end
+
+		method = "#{action_name}?"
+
+		unless policy.respond_to?(method)
+			raise NotImplementedError,
+						"#{policy_class}##{method} not implemented"
+		end
+
+		deny_access unless policy.public_send(method)
+
+		policy
+	end
+
+	# DEPRECATED access control mechanism
+	# TODO: migrate to policy base authorization instead
 	# check if correct  access level exists. Basically checks if:
 	# "user is present AND (valid(role) OR valid(obj.condition))"
 	# optionally, check that clubid matches.

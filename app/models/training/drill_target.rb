@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class DrillTarget < ApplicationRecord
-	localized_as "training.target"
+	localized_as "training.drill_target"
 
 	belongs_to :target
 	belongs_to :drill

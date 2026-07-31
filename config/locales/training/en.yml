@@ -74,7 +74,9 @@ en:
         description_short: "Desc."
         author: "Author"
         kind: "Drill category"
+        kind_short: "Kind"
         material: "Material"
+        material_short: "Mat."
         sport: "Sport"
         court_mode: "Court layout"
         court_mode_short: "Layout"
@@ -94,8 +96,10 @@ en:
         deleted: "Drill category deleted."
 
     task:
-      label: "Task"
-      short: "Task"
+      label:
+        single: "Task"
+        plural: "Tasks"
+        short: "Task"
       fields:
         drill: "Drill"
         order: "Order"
@@ -109,8 +113,14 @@ en:
         deleted: "Task deleted."
 
     step:
-      label: "Step"
-      short: "Step"
+      label:
+        single: "Step"
+        plural: "Steps"
+        short: "Step"
+      actions:
+        edit: "Edit step"
+        edit_diagram: "Edit diagram"
+        load_diagram: "Load diagram"
       fields:
         order: "Order"
         explanation: "Explanation"
@@ -142,8 +152,10 @@ en:
         deleted: "Version deleted."
 
     skill:
-      label: "Skill"
-      short: "Skill"
+      label:
+        single: "Skill"
+        plural: "Skills"
+        short: "Skill"
       fields:
         name: "Name"
         description: "Description"
@@ -154,8 +166,12 @@ en:
         deleted: "Skill deleted."
 
     target:
-      label: "Target"
-      short: "Target"
+      label:
+        single: "Target"
+        plural: "Targets"
+        short: "Target"
+      actions:
+        edit: "Edit Targets"
       fields:
         concept: "Concept"
         aspect: "Aspect"

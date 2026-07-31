@@ -23,19 +23,19 @@ module DivisionsHelper
 	end
 
 	def division_show
-		division_title(title: I18n.t("division.single"), subtitle: @division.name)
+		division_title(title: Division.label, subtitle: @division.name)
 	end
 
 	# return definition @fields for forms
 	def division_form(action)
 		@submit = SubmitComponent.new(submit: :save)
-		res = division_title(title: I18n.t("division.#{action}"))
-		res << [ gap_field, { kind: :text_box, key: :name, value: @division.name, placeholder: I18n.t("division.name"), mandatory: { length: 3 } } ]
+		res = division_title(title: Division.t_path(:actions, action))
+		res << [ gap_field, { kind: :text_box, key: :name, value: @division.name, placeholder: @division.attr(:name), mandatory: { length: 3 } } ]
 	end
 
 	# return table for @divisions TableComponent
 	def division_table
-		title = [ { kind: :normal, value: I18n.t("division.name") } ]
+		title = [ { kind: :normal, value: Division.attr(:name) } ]
 		title << button_field({ kind: :add, url: new_sport_division_path(@sport, rdx: @rdx), frame: "modal" }) if u_admin?
 
 		rows = Array.new

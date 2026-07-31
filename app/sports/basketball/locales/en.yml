@@ -18,8 +18,10 @@ en:
 
       terms:
         athlete: "Player"
+        athletes: "Players"
         athlete_short: "Play."
         coach: "Coach"
+        coaches: "Coaches"
         team: "Team"
         period: "Quarter"
         period_short: "Qtr."
@@ -151,6 +153,12 @@ en:
         pfc_short: "FC"
         pfr: "Fouls received"
         pfr_short: "FR"
+
+      skill:
+        label:
+          single: "Skill"
+          plural: "Skills"
+          short: "Skill"
 
       outings:
         first: "First"

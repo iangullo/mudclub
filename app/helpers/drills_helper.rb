@@ -21,16 +21,16 @@ module DrillsHelper
 	def drill_form_data
 		[
 			[
-				{ kind: :label, value: I18n.t("target.many"), align: "right" }
+				{ kind: :label, value: Target.label(:plural), align: "right" }
 			],
 			[
 				{ kind: :nested_form, model: "drill", key: "drill_targets", child: DrillTarget.new(priority: @drill.drill_targets.count+1), row: "target_row", cols: 2 }
 			],
 			[
-				{ kind: :text_box, key: :material, size: 40, value: @drill.material, label: I18n.t("drill.material") }
+				{ kind: :text_box, key: :material, size: 40, value: @drill.material, label: @drill.attr(:material) }
 			],
 			[
-				{ kind: :text_area, key: :description, size: 40, lines: 2, value: @drill.description, mandatory: { length: 7 }, label:  I18n.t("drill.desc_a") }
+				{ kind: :text_area, key: :description, size: 40, lines: 2, value: @drill.description, mandatory: { length: 7 }, label:  @drill.attr(:description_short) }
 			]
 		]
 	end
@@ -46,10 +46,10 @@ module DrillsHelper
 			if step.diagram.attached?
 				InputBoxComponent.new({ kind: :image_box, value: step.diagram, width: "250", height: "250" }, form:)
 			elsif step.diagram_svg.present?
-				ButtonComponent.new(kind: :edit, url: edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram"), label: "", size: "50x50", i_class: "max-h-10 max-w-10 m-1")
+				ButtonComponent.new(kind: :edit, url: edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: Step.t_path(:actions, :edit_diagram), label: "", size: "50x50", i_class: "max-h-10 max-w-10 m-1")
 			else
 				button = { kind: :add, name: "add-diagram", options: [] }
-				button[:options] << { label: I18n.t("sport.edit.diagram"), url: edit_diagram_drill_path(id: @drill.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: { turbo_frame: :modal } }
+				button[:options] << { label: Step.t_path(:actions, :edit_diagram), url: edit_diagram_drill_path(id: @drill.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: { turbo_frame: :modal } }
 				button[:options] << { label: I18n.t("status.no_file"), url: load_diagram_drill_path(id: @drill.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: { turbo_frame: :modal } }
 				DropdownComponent.new(button)
 			end
@@ -76,7 +76,7 @@ module DrillsHelper
 	# return title FieldComponent definition for drill steps form
 	def drill_form_steps
 		res = [
-			[ { kind: :label, value: I18n.t("step.many") } ],
+			[ { kind: :label, value: Step.label(:plural) } ],
 			[
 				{ kind: :nested_form, model: "drill", key: "steps", child: Step.new(drill_id: @drill.id), row: "step_row" }
 			]
@@ -90,9 +90,9 @@ module DrillsHelper
 		author  = (@drill.coach_id.to_i > 0 ? @drill.coach_id : (u_coachid || coaches.first))
 		res = [
 			[
-				{ kind: :label, value: "#{I18n.t('skill.many')}:" },
+				{ kind: :label, value: "#{Skill.label(:plural)}:" },
 				gap_field,
-				{ kind: :label, value: "#{I18n.t('drill.author')}:" }
+				{ kind: :label, value: "#{Drill.attr(:author)}:" }
 			],
 			[
 				{ kind: :nested_form, model: "drill", key: "skills", child: Skill.new, row: "skill_row" },

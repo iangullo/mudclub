@@ -44,24 +44,24 @@ es:
 
     assignment:
       label:
-        single: "Asignación"
-        plural: "Asignaciones"
-        short: "Asig."
+        single: "Inscripción"
+        plural: "Inscripciones"
+        short: "Insc."
       action:
-        create: "Asignar"
-        edit: "Editar asignación"
-        terminate: "Dar de baja"
-        delete: "Borrar asignación"
+        create: "Inscribir"
+        edit: "Editar inscripción"
+        terminate: "Cancelar inscripción"
+        delete: "Borrar inscripción"
       fields:
         membership: "Integrante"
-        kind: "Tipo de asignación"
+        kind: "Tipo de inscripción"
         starts_on: "Inicio"
         ends_on: "Fin"
         team: "Equipo"
         shirt_number: "Número de camiseta"
-        shirt_number_short: "Camiseta Nº"
+        shirt_number_short: "Nº"
         squad_number: "Número de plantilla"
-        squad_number_short: "Plantilla Nº"
+        squad_number_short: "Nº"
         notes: "Notas"
       messages:
         created: "Asignación creada."
