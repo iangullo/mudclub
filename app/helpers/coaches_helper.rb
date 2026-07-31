@@ -61,7 +61,7 @@ module CoachesHelper
 
 	# FieldComponents to show a @coach
 	def coach_show(team_id: nil, user: nil)
-		res = club_manager? || u_coachid == @coach.id ? person_show(@coach.person) : [ [] ]
+		res = club_manager? || u_coachid == @coach.id ? person_show_fields(@coach.person) : [ [] ]
 		unless @coach.teams.empty?
 			res << [ { kind: :side_cell, value: (I18n.t("team.many")) } ]
 		end
