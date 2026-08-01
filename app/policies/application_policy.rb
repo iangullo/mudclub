@@ -23,58 +23,153 @@ class ApplicationPolicy
 	end
 
 	private
-
-	def actor_person
-		@actor&.person
-	end
-
-	def actor_club
-		@actor&.club
-	end
-
-	def same_person?(object)
-		actor_person&.id == object&.person&.id
-	end
-
-	def same_club?(object)
-		actor_club&.id == object&.club&.id
-	end
-
-	def admin?
-		@actor&.admin?
-	end
-
-	def memberships_for(club = actor_club)
-		return Membership.none unless club && actor_person
-
-		actor_person.memberships.current.for_club(club)
-	end
-
-	def has_membership?(kind, club = actor_club)
-		memberships_for(club).of_kind(kind).exists?
-	end
-
-	[
-		:athlete,
-		:coach,
-		:secretary,
-		:club_manager,
-		:board_member,
-		:volunteer
-	].each do |kind|
-		define_method("#{kind}?") do |club = actor_club|
-			has_membership?(kind, club)
+		#------------------------
+		# Identity
+		#------------------------
+		def actor_person
+			@actor&.person
 		end
-	end
 
-	def allowed?(condition)
-		admin? || condition
-	end
+		def actor_club
+			@actor&.club
+		end
 
-	def can_manage_club?(club)
-		return true if admin?
-		return false unless same_club?(club)
+		def same_person?(object)
+			actor_person&.id == object&.person&.id
+		end
 
-		secretary?(club) || club_manager?(club)
-	end
+		def same_club?(object)
+			actor_club&.id == object&.club&.id
+		end
+
+		def admin?
+			@actor&.admin?
+		end
+
+		#------------------------
+		# Membership checking
+		#------------------------
+		def memberships_for(club = actor_club)
+			return Membership.none unless club && actor_person
+
+			actor_person.memberships.current.for_club(club)
+		end
+
+		def has_membership?(kinds, club = actor_club)
+			memberships_for(club)
+				.of_kind(Array(kinds))
+				.exists?
+		end
+
+		[
+			:athlete,
+			:coach,
+			:secretary,
+			:club_manager,
+			:board_member,
+			:volunteer
+		].each do |kind|
+			define_method("#{kind}?") do |club = actor_club|
+				has_membership?(kind, club)
+			end
+		end
+
+		#------------------------
+		# Assingment checking
+		#------------------------
+		def assignments_for(club = actor_club)
+			return Assignment.none unless club && actor_person
+
+			Assignment
+				.joins(:membership)
+				.where(memberships: {
+					person_id: actor_person.id,
+					club_id: club.id
+				})
+				.current
+		end
+
+		def has_assignment?(kinds, club = actor_club)
+			assignments_for(club)
+				.of_kind(Array(kinds))
+				.exists?
+		end
+
+		def has_club_assignment?(kinds, club = actor_club)
+			assignments_for(club)
+				.club_level
+				.of_kind(Array(kinds))
+				.exists?
+		end
+
+		def has_team_assignment?(kinds, team)
+			assignments_for(team.club)
+				.where(team:)
+				.of_kind(Array(kinds))
+				.exists?
+		end
+
+		#------------------------
+		# Business capabilities
+		#------------------------
+		def allowed?(condition)
+			admin? || condition
+		end
+
+		def manages_club?(club)
+			has_club_assignment?(
+				[
+					:president,
+					:vice_president,
+					:secretary,
+					:club_manager
+				],
+				club
+			)
+		end
+
+		def manages_board?(club)
+			has_club_assignment?(
+				[
+					:president,
+					:vice_president
+				],
+				club
+			)
+		end
+
+		def manages_athletes?(club)
+			has_club_assignment?(
+				[ :club_manager, :coaching_coordinator ],
+				club
+			)
+		end
+
+		def manages_coaches?(club)
+			has_club_assignment?(
+				[ :club_manager, :coaching_coordinator ],
+				club
+			)
+		end
+
+		def manages_team?(team)
+			has_team_assignment?(
+				[
+					:head_coach,
+					:assistant_coach,
+					:team_manager
+				],
+				team
+			)
+		end
+
+		def coaches_team?(team)
+			has_team_assignment?(
+				[
+					:head_coach,
+					:assistant_coach
+				],
+				team
+			)
+		end
 end

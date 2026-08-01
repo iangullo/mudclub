@@ -21,8 +21,8 @@
 class MembershipPolicy < ApplicationPolicy
 	def initialize(actor, record: nil, kind: nil, club: nil)
 		super(actor, record:)
-		@target_kind = kind.presence || @record&.kind
-		@target_club = club.presence || @record&.club
+		@target_kind = @record&.kind || kind.presence
+		@target_club = @record&.club || club.presence
 	end
 
 	#
@@ -38,7 +38,7 @@ class MembershipPolicy < ApplicationPolicy
 
 	def show?
 		allowed?(
-			own_membership? || (
+			same_person?(@record) || (
 				same_club?(@record) &&
 				can_view_kind?(@target_kind)
 			)
@@ -54,55 +54,63 @@ class MembershipPolicy < ApplicationPolicy
 
 	def create?
 		allowed?(
-			same_club?(@record) &&
-			can_manage_kind?(@kind)
+			same_club?(@target_club) &&
+			can_manage_kind?(@target_kind)
 		)
 	end
 
-	[ :edit?, :update?, :terminate? ].each do |action|
-		define_method("#{action}?") do
-			allowed?(
-				same_club?(@record) &&
-				can_manage_kind?(@kind)
-			)
-		end
+	def update?
+		allowed?(
+			same_club?(@record) &&
+			can_manage_kind?(@target_kind)
+		)
 	end
+
+	alias edit?      update?
+	alias terminate? update?
 
 	private
-	def own_membership?
-		same_person?(@record)
-	end
+		def can_view_kind?(kind)
+			return false unless kind
 
-	def can_view_kind?(kind)
-		return false unless kind
+			case kind.to_sym
+			when :athlete
+				coach? || manages_club?(@target_club)
 
-		case kind.to_sym
-		when :athlete, :coach
-			coach? || secretary? || club_manager? || board_member?
+			when :coach
+				coach? ||
+				manages_coaches?(@target_club) ||
+				manages_club?(@target_club)
 
-		when :volunteer
-			secretary? || club_manager? || board_member?
+			when :volunteer
+				manages_club?(@target_club)
 
-		when :board_member, :club_manager
-			board_member?
+			when :board_member, :club_manager
+				manages_club?(@target_club)
 
-		else
-			false
+			else
+				false
+			end
 		end
-	end
 
-	def can_manage_kind?(kind)
-		return false unless kind
+		def can_manage_kind?(kind)
+			return false unless kind
 
-		case kind.to_sym
-		when :athlete, :coach, :volunteer
-			secretary? || club_manager?
+			case kind.to_sym
+			when :athlete
+				manages_athletes?(@target_club)
 
-		when :board_member, :club_manager
-			board_member?
+			when :coach
+				manages_coaches?(@target_club)
 
-		else
-			false
+			when :volunteer
+				manages_club?(@target_club)
+
+			when :board_member, :club_manager
+				manages_board?(@target_club)
+
+			else
+				false
+			end
 		end
-	end
 end

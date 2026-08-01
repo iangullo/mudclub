@@ -58,11 +58,11 @@ class Assignment < ApplicationRecord
 		where(ends_on: nil)
 	}
 
-	scope :current, -> {
-		today = Date.current
+	scope :of_kind, ->(kind) { where(kind:) }
 
+	scope :current, ->(date = Date.current) {
 		where("starts_on <= ?", today)
-			.where("ends_on IS NULL OR ends_on >= ?", today)
+			.where("ends_on IS NULL OR ends_on >= ?", date)
 	}
 
 	scope :club_level, -> {

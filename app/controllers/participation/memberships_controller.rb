@@ -72,17 +72,12 @@ class MembershipsController < ApplicationController
 			@kind = @member&.kind
 		end
 
-		# wrapper to check if a user can edit memberships
-		def athlete_manager?
-			((u_manager? || u_coach? || u_secretary?) && [ nil, u_clubid ].include?(@clubid))
-		end
-
 		# Prepare a member form
 		def prepare_form(action)
-			@title    = create_fields(helpers.person_form_title(@member.person, icon: @member.picture, title: I18n.t("member.#{action}"), sex: true))
-			# @m_fields = create_fields(helpers.membership_form) # pending creation
-			@p_fields = create_fields(helpers.person_form(@member.person))
-			# @parents  = create_fields(helpers.player_form_parents) if @member.person.age < 18 # pending creation
+			@title    = create_fields(helpers.person_form_title(@member.person, icon: @member.picture, title: Membership.t_path(:action, action.to_sym), sex: true))
+			@m_fields = create_fields(helpers.membership_form) # pending creation
+			@p_fields = create_fields(helpers.person_form(@member.person))	# existing in helpers/people_helper
+			@parents  = create_fields(helpers.player_form_parents) if @member.person.age < 18 # pending review
 			@submit   = create_submit
 		end
 
