@@ -262,15 +262,20 @@ es:
     # Generic stat labels
     #
     stats:
-      total: "Total"
-      total_short: "Tot."
+      avg: "Promedio"
+      avg_short: "Med."
+      duration: Duración
+      duration_short: Dur.
       max: "Máximo"
       max_short: "Máx."
       min: "Mínimo"
       min_short: "Mín."
-      avg: "Promedio"
-      avg_short: "Med."
-
+      number: Número
+      number_short: Nº
+      qty: Cantidad
+      qty_short: Cant.
+      total: "Total"
+      total_short: "Tot."
   # -----------------------------------------------------------------------------
   # DEPRECATED - NO MODIFICAR
   #

@@ -60,18 +60,44 @@ class Membership < ApplicationRecord
 						:joined_on,
 						presence: true
 
+	# -------------------------------------------------------------------------
+	# Time scopes
+	# -------------------------------------------------------------------------
+
 	scope :current, -> {
 		where("joined_on <= ?", Date.current)
-			.where("left_on IS NULL OR left_on >= ?", Date.current).where(status: :active)
+			.where("left_on IS NULL OR left_on >= ?", Date.current)
+			.where(status: :active)
 	}
 
 	scope :open, -> { where(left_on: nil) }
 
 	scope :historical, -> { where.not(left_on: nil) }
 
-	scope :of_kind, ->(kind) { where(kind:) }
+	# -------------------------------------------------------------------------
+	# Business scopes
+	# -------------------------------------------------------------------------
 
-	scope :for_club, ->(club) { where(club:) }
+	scope :for_club, ->(club) {
+		club.present? ? where(club:) : all
+	}
+
+	scope :of_kind, ->(kind) {
+		kind.present? ? where(kind:) : all
+	}
+
+	# -------------------------------------------------------------------------
+	# Text search scope
+	# -------------------------------------------------------------------------
+
+	scope :search_text, ->(text) {
+		if text.present?
+			joins(:person)
+				.where(person_id: Person.search(text))
+		else
+			all
+		end
+	}
 
 	delegate :email,
 					:name,
@@ -130,5 +156,16 @@ class Membership < ApplicationRecord
 
 			update!(left_on: date, status: :terminated)
 		end
+	end
+
+	# -------------------------------------------------------------------------
+	# Controller façade method
+	# -------------------------------------------------------------------------
+
+	def self.search(search: nil, user:, club:, kind: nil)
+		current
+			.for_club(club)
+			.of_kind(kind)
+			.search_text(search)
 	end
 end

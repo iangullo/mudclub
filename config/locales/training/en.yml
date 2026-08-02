@@ -15,210 +15,209 @@
 
 en:
   training:
-    label: "Training"
-    short: "Train."
+    label: Training
+    short: Train.
 
     team:
-      label: "Team"
-      short: "Team"
+      label: Team
+      plural: Teams
+      short: Team
       fields:
-        name: "Name"
-        sport: "Sport"
-        category: "Category"
-        division: "Competition"
-        facility: "Home facility"
-        roster: "Roster"
+        name: Name
+        sport: Sport
+        category: Category
+        division: Competition
+        facility: Home facility
+        roster: Roster
       messages:
-        created: "Team created."
-        updated: "Team updated."
-        deleted: "Team deleted."
+        created: Team created.
+        updated: Team updated.
+        deleted: Team deleted.
 
     session:
-      label: "Training session"
-      short: "Session"
+      single: Session
+      plural: Sessions
+      short: Session
+      hint: Training session
       fields:
-        title: "Title"
-        starts_on: "Starts"
-        ends_on: "Ends"
-        duration: "Duration"
-        duration_short: "Dur."
-        workload: "Workload"
-        workload_short: "Workload"
-        workload_by: "Workload by"
-        plan: "Training plan"
+        title: Title
+        starts_on: Starts
+        ends_on: Ends
+        duration: Duration
+        duration_short: Dur.
+        workload: Workload
+        workload_short: Workload
+        workload_by: Workload by
+        plan: Training plan
       messages:
-        created: "Training session created."
-        updated: "Training session updated."
-        deleted: "Training session deleted."
-        attendance_checked: "Attendance checked."
+        created: Training session created.
+        updated: Training session updated.
+        deleted: Training session deleted.
+        attendance_checked: Attendance checked.
 
     plan:
-      label: "Training plan"
-      short: "Plan"
+      label:
+        single: Plan
+        plural: Plans
+        short: Plan
+        hint: Training plan
       fields:
-        name: "Name"
-        description: "Description"
-        description_short: "Desc."
-        team: "Team"
+        name: Name
+        description: Description
+        description_short: Desc.
+        team: Team
       messages:
-        created: "Training plan created."
-        updated: "Training plan updated."
-        deleted: "Training plan deleted."
+        created: Training plan created.
+        updated: Training plan updated.
+        deleted: Training plan deleted.
 
     drill:
-      label: "Drill"
-      short: "Drill"
+      label:
+        single: Drill
+        plural: Drills
+        short: Drill
       fields:
-        name: "Name"
-        description: "Description"
-        description_short: "Desc."
-        author: "Author"
-        kind: "Drill category"
-        kind_short: "Kind"
-        material: "Material"
-        material_short: "Mat."
-        sport: "Sport"
-        court_mode: "Court layout"
-        court_mode_short: "Layout"
+        name: Name
+        description: Description
+        description_short: Desc.
+        author: Author
+        kind: Drill category
+        kind_short: Kind
+        material: Material
+        material_short: Mat.
+        sport: Sport
+        court_mode: Court layout
+        court_mode_short: Layout
       messages:
-        created: "Drill created."
-        updated: "Drill updated."
-        deleted: "Drill deleted."
+        created: Drill created.
+        updated: Drill updated.
+        deleted: Drill deleted.
 
     drill_kind:
-      label: "Drill category"
-      short: "Category"
+      single: Kind
+      plural: Kinds
+      short: Kind
+      hint: Drill category
       fields:
-        name: "Name"
+        name: Name
       messages:
-        created: "Drill category created."
-        updated: "Drill category updated."
-        deleted: "Drill category deleted."
+        created: Drill category created.
+        updated: Drill category updated.
+        deleted: Drill category deleted.
 
     task:
       label:
-        single: "Task"
-        plural: "Tasks"
-        short: "Task"
+        single: Task
+        plural: Tasks
+        short: Task
       fields:
-        drill: "Drill"
-        order: "Order"
-        duration: "Duration"
-        duration_short: "Dur."
-        remarks: "Remarks"
-        remarks_short: "Rem."
+        drill: Drill
+        order: Order
+        duration: Duration
+        duration_short: Dur.
+        remarks: Remarks
+        remarks_short: Rem.
       messages:
-        created: "Task created."
-        updated: "Task updated."
-        deleted: "Task deleted."
+        created: Task created.
+        updated: Task updated.
+        deleted: Task deleted.
 
     step:
       label:
-        single: "Step"
-        plural: "Steps"
-        short: "Step"
+        single: Step
+        plural: Steps
+        short: Step
       actions:
-        edit: "Edit step"
-        edit_diagram: "Edit diagram"
-        load_diagram: "Load diagram"
+        edit: Edit step
+        edit_diagram: Edit diagram
+        load_diagram: Load diagram
       fields:
-        order: "Order"
-        explanation: "Explanation"
-        explanation_short: "Expl."
-        diagram: "Diagram"
+        order: Order
+        explanation: Explanation
+        explanation_short: Expl.
+        diagram: Diagram
       messages:
-        created: "Step created."
-        updated: "Step updated."
-        deleted: "Step deleted."
+        created: Step created.
+        updated: Step updated.
+        deleted: Step deleted.
 
     version:
-      label: "Version"
-      short: "Ver."
+      label: Version
+      short: Ver.
       fields:
-        author: "Author"
-        name: "Name"
-        description: "Description"
-        description_short: "Desc."
-        explanation: "Explanation"
-        explanation_short: "Expl."
-        material: "Material"
-        kind: "Drill category"
-        skills: "Skills"
-        targets: "Targets"
-        changes: "Changes"
+        author: Author
+        name: Name
+        description: Description
+        description_short: Desc.
+        explanation: Explanation
+        explanation_short: Expl.
+        material: Material
+        kind: Drill category
+        skills: Skills
+        targets: Targets
+        changes: Changes
       messages:
-        created: "Version created."
-        updated: "Version updated."
-        deleted: "Version deleted."
+        created: Version created.
+        updated: Version updated.
+        deleted: Version deleted.
 
     skill:
       label:
-        single: "Skill"
-        plural: "Skills"
-        short: "Skill"
+        single: Skill
+        plural: Skills
+        short: Skill
       fields:
-        name: "Name"
-        description: "Description"
-        description_short: "Desc."
+        name: Name
+        description: Description
+        description_short: Desc.
       messages:
-        created: "Skill created."
-        updated: "Skill updated."
-        deleted: "Skill deleted."
+        created: Skill created.
+        updated: Skill updated.
+        deleted: Skill deleted.
 
     target:
       label:
-        single: "Target"
-        plural: "Targets"
-        short: "Target"
+        single: Target
+        plural: Targets
+        short: Target
       actions:
-        edit: "Edit Targets"
+        edit: Edit Targets
       fields:
-        concept: "Concept"
-        aspect: "Aspect"
-        focus: "Focus"
+        concept: Concept
+        aspect: Aspect
+        focus: Focus
       aspect:
-        label: "Aspect"
-        short: "Aspect"
+        label: Aspect
+        short: Aspect
         values:
-          general: "General"
-          general_short: "Gen."
-          individual: "Individual"
-          individual_short: "Ind."
-          individual_hint: "Individual technical development."
-          collective: "Collective"
-          collective_short: "Col."
-          collective_hint: "Collective tactical development."
+          general: General
+          general_short: Gen.
+          individual: Individual
+          individual_short: Ind.
+          individual_hint: Individual technical development.
+          collective: Collective
+          collective_short: Col.
+          collective_hint: Collective tactical development.
       focus:
-        label: "Focus"
-        short: "Focus"
+        label: Focus
+        short: Focus
         values:
-          offense: "Offense"
-          offense_short: "Off."
-          defense: "Defense"
-          defense_short: "Def."
-          physical: "Physical"
+          offense: Offense
+          offense_short: Off.
+          defense: Defense
+          defense_short: Def.
+          physical: Physical
       messages:
-        created: "Target created."
-        updated: "Target updated."
-        deleted: "Target deleted."
+        created: Target created.
+        updated: Target updated.
+        deleted: Target deleted.
 
-    stat:
-      label: "Statistic"
-      short: "Stat."
-      fields:
-        name: "Name"
-        average: "Average"
-        average_short: "Avg."
-        minimum: "Minimum"
-        minimum_short: "Min."
-        maximum: "Maximum"
-        maximum_short: "Max."
-        total: "Total"
-        total_short: "Tot."
-        number: "Number"
-        number_short: "Num."
+    stats:
+      single: Statistic
+      plural: Statistics
+      short: Stat.
       messages:
-        updated: "Statistics updated."
+        updated: Statistics updated.
 
   # -------------------------------------------------------------------------
   # DEPRECATED - DO NOT MODIFY
@@ -227,173 +226,173 @@ en:
   #
   # Search for:
   #
-  #   t("team.")
-  #   t("train.")
-  #   t("drill.")
-  #   t("kind.")
-  #   t("plan.")
-  #   t("task.")
-  #   t("target.")
-  #   t("step.")
-  #   t("skill.")
-  #   t("version.")
-  #   t("stat.")
+  #   t(team.)
+  #   t(train.)
+  #   t(drill.)
+  #   t(kind.)
+  #   t(plan.)
+  #   t(task.)
+  #   t(target.)
+  #   t(step.)
+  #   t(skill.)
+  #   t(version.)
+  #   t(stat.)
   #
   # Remove once all callers have migrated.
   # -------------------------------------------------------------------------
 
   drill:
-    author: "Author"
-    default: "<New Drill>"
-    desc: "Description"
-    desc_a: "Descrip."
-    material: "Material"
-    name: "Name"
-    none: "No task selected"
-    single: "Drill"
+    author: Author
+    default: <New Drill>
+    desc: Description
+    desc_a: Descrip.
+    material: Material
+    name: Name
+    none: No task selected
+    single: Drill
 
-    created: "Created drill: "
-    deleted: "Deleted drill: "
-    updated: "Updated drill: "
+    created: "Created drill:"
+    deleted: "Deleted drill:"
+    updated: "Updated drill:"
 
-    edit: "Edit Drill"
-    many: "Drills"
-    new: "Create Drill"
+    edit: Edit Drill
+    many: Drills
+    new: Create Drill
 
   kind:
-    default: "<type>"
-    single: "Type"
+    default: <type>
+    single: Type
 
   plan:
-    abbr: "Plan"
-    single: "Team-plan"
+    abbr: Plan
+    single: Team-plan
 
-    edit: "Edit Team-plan"
-    new: "Create Team-plan"
+    edit: Edit Team-plan
+    new: Create Team-plan
 
   skill:
-    abbr: "Skill"
-    default: "<skill>"
-    single: "Skill"
+    abbr: Skill
+    default: <skill>
+    single: Skill
 
-    many: "Skills"
+    many: Skills
 
   stat:
-    average: "Average"
-    average_a: "Avg."
-    max: "Max."
-    min: "Min."
-    number_a: "Num."
-    single: "Stat"
-    total: "Total"
-    total_a: "Tot."
+    average: Average
+    average_a: Avg.
+    max: Max.
+    min: Min.
+    number_a: Num.
+    single: Stat
+    total: Total
+    total_a: Tot.
 
-    updated: "Updated stats"
+    updated: Updated stats
 
-    many: "Stats"
+    many: Stats
 
   step:
-    default: "<step>"
-    diagram: "Diagram"
-    explanation: "Explanation"
-    single: "Step"
+    default: <step>
+    diagram: Diagram
+    explanation: Explanation
+    single: Step
 
-    edit: "Edit step"
-    edit_diagram: "Edit diagram"
-    load_diagram: "Load diagram"
-    many: "Steps"
+    edit: Edit step
+    edit_diagram: Edit diagram
+    load_diagram: Load diagram
+    many: Steps
 
   target:
-    abbr: "Tgt."
-    completion: "Completion (%)"
-    default: "<target>"
-    single: "Target"
+    abbr: Tgt.
+    completion: Completion (%)
+    default: <target>
+    single: Target
 
     aspect:
-      gen: "General"
+      gen: General
 
-      ind: "Individual"
-      ind_a: "Ind."
-      ind_l: "Individual Skill"
+      ind: Individual
+      ind_a: Ind.
+      ind_l: Individual Skill
 
-      col: "Collective"
-      col_a: "Col."
-      col_l: "Collective Tactic"
+      col: Collective
+      col_a: Col.
+      col_l: Collective Tactic
 
     focus:
-      att: "Offense"
-      att_a: "Off."
+      att: Offense
+      att_a: Off.
 
-      def: "Defense"
-      def_a: "Def."
+      def: Defense
+      def_a: Def.
 
-      fit: "Physical"
+      fit: Physical
 
-    edit: "Edit Targets"
-    many: "Targets"
+    edit: Edit Targets
+    many: Targets
 
   task:
-    duration: "Dur."
-    number: "#"
-    remarks: "Remarks"
-    single: "Task"
+    duration: Dur.
+    number: #
+    remarks: Remarks
+    single: Task
 
-    created: "Created task: "
-    deleted: "Deleted task: "
-    updated: "Updated task: "
+    created: "Created task:"
+    deleted: "Deleted task:"
+    updated: "Updated task:"
 
-    add: "Add Task"
-    edit: "Edit Task"
-    many: "Tasks"
+    add: Add Task
+    edit: Edit Task
+    many: Tasks
 
   team:
     home: "Homecourt:"
-    home_a: "Home"
+    home_a: Home
 
-    name: "Name"
-    none: "No teams"
-    single: "Team"
+    name: Name
+    none: No teams
+    single: Team
 
-    created: "Created team: "
-    deleted: "Deleted team: "
-    updated: "Updated team: "
+    created: "Created team:"
+    deleted: "Deleted team:"
+    updated: "Updated team:"
 
-    edit: "Edit Team"
-    many: "Teams"
-    new: "Create Team"
+    edit: Edit Team
+    many: Teams
+    new: Create Team
 
-    roster: "Roster"
-    roster_edit: "Edit Roster"
-    roster_opt: "Additional players"
+    roster: Roster
+    roster_edit: Edit Roster
+    roster_opt: Additional players
 
   train:
-    duration: "Dur."
-    single: "Session"
+    duration: Dur.
+    single: Session
 
-    workload: "Workload"
-    workload_by: "Workload by"
+    workload: Workload
+    workload_by: Workload by
 
-    att_check: "Checked attendance: "
+    att_check: "Checked attendance:"
 
-    created: "Created session: "
-    deleted: "Deleted session: "
-    updated: "Updated session: "
+    created: "Created session:"
+    deleted: "Deleted session:"
+    updated: "Updated session:"
 
-    edit: "Edit session"
-    many: "Training sessions"
-    new: "Create session"
+    edit: Edit session
+    many: Training sessions
+    new: Create session
 
   version:
-    author: "author"
-    changes: "Changes"
-    description: "description"
-    explanation: "explanation"
-    kind: "type"
-    material: "material"
-    name: "name"
-    single: "Version"
-    skills: "skills"
-    targets: "targets"
-    unknown: "Unknown"
+    author: author
+    changes: Changes
+    description: description
+    explanation: explanation
+    kind: type
+    material: material
+    name: name
+    single: Version
+    skills: skills
+    targets: targets
+    unknown: Unknown
 
-    many: "Versions"
+    many: Versions

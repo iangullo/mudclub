@@ -36,13 +36,7 @@ Rails.application.routes.draw do
 		get "players", to: "players#index"	# club players DEPRECATED
 		get "slots", to: "slots#index"	# club slots
 		get "teams", to: "teams#index"	# club teams
-		resources :members, controller: "memberships", only: [ :index, :show, :edit, :update ] do
-			collection do
-				get :athletes
-				get :coaches
-				get :board
-			end
-		end
+		resources :members, controller: "memberships", only: [ :index, :show, :new, :create, :edit, :update ]
 	end
 	resources :people
 	resources :coaches, except: [ :index ] do

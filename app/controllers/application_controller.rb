@@ -28,7 +28,7 @@ class ApplicationController < ActionController::Base
 								:user_in_club?, :club_manager?, :team_manager?
 
 
-	# NEW authorization poolicy management approach.
+	# NEW authorization policy management approach.
 	def check_policy!(policy_class, record: nil, **context)
 		policy =
 			if record

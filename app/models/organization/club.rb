@@ -105,12 +105,6 @@ class Club < ApplicationRecord
 		self.name || label
 	end
 
-	# return a sport-specific term
-	def term(*parts)
-		self.sports.first.term(parts)
-	end
-
-
 	# Get collection of upcoming events for the club
 	def upcoming_events
 		Event.non_training.short_term.where(team_id: self.teams.pluck(:id)).order(start_time: :asc)

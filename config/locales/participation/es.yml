@@ -12,118 +12,114 @@
 
 es:
   participation:
-    label: "Participación"
-    short: "Partic."
+    label: Participación
+    short: Partic.
+
     membership:
       label:
-        single: "Integrante"
-        plural: "Integrantes"
-        short: "Int."
+        single: Integrante
+        plural: Integrantes
+        short: Int.
       action:
-        create: "Crear integrante"
-        edit: "Editar integrante"
-        terminate: "Dar de baja"
-        delete: "Borrar integrante"
+        create: Crear integrante
+        edit: Editar integrante
+        terminate: Dar de baja
+        delete: Borrar integrante
       fields:
-        number: "Número de integrante"
-        number_short: "Nº"
-        kind: "Tipo de integrante"
-        kind_short: "Tipo"
-        person: "Persona"
-        club: "Club"
-        joined_on: "Fecha de ingreso"
-        left_on: "Fecha de baja"
-        active: "Activo/a"
-        primary: "Principal"
-        notes: "Notas"
+        number: Número de integrante
+        number_short: Nº
+        kind: Tipo de integrante
+        kind_short: Tipo
+        person: Persona
+        club: Club
+        joined_on: Fecha de ingreso
+        left_on: Fecha de baja
+        active: Activo/a
+        primary: Principal
+        notes: Notas
       messages:
-        created: "Integrante creado/a."
-        updated: "Integrante actualizado/a."
-        terminated: "Integrante dado de baja."
-        deleted: "Integrante eliminado/a."
+        created: Integrante creado/a.
+        updated: Integrante actualizado/a.
+        terminated: Integrante dado de baja.
+        deleted: Integrante eliminado/a.
 
     assignment:
       label:
-        single: "Inscripción"
-        plural: "Inscripciones"
-        short: "Insc."
+        single: Inscripción
+        plural: Inscripciones
+        short: Insc.
       action:
-        create: "Inscribir"
-        edit: "Editar inscripción"
-        terminate: "Cancelar inscripción"
-        delete: "Borrar inscripción"
+        create: Inscribir
+        edit: Editar inscripción
+        terminate: Cancelar inscripción
+        delete: Borrar inscripción
       fields:
-        membership: "Integrante"
-        kind: "Tipo de inscripción"
-        starts_on: "Inicio"
-        ends_on: "Fin"
-        team: "Equipo"
-        shirt_number: "Número de camiseta"
-        shirt_number_short: "Nº"
-        squad_number: "Número de plantilla"
-        squad_number_short: "Nº"
-        notes: "Notas"
+        membership: Integrante
+        kind: Tipo de inscripción
+        starts_on: Inicio
+        ends_on: Fin
+        team: Equipo
+        shirt_number: Número de camiseta
+        shirt_number_short: Nº
+        squad_number: Número de plantilla
+        squad_number_short: Nº
+        notes: Notas
       messages:
-        created: "Asignación creada."
-        updated: "Asignación actualizada."
-        terminated: "Baja efectiva."
-        deleted: "Asignación eliminada."
+        created: Asignación creada.
+        updated: Asignación actualizada.
+        terminated: Baja efectiva.
+        deleted: Asignación eliminada.
 
     membership_kinds:
-      label: "Tipo de integrante"
-      short: "Tipo"
+      label: Tipo de integrante
+      short: Tipo
       values:
         athlete:
-          label: "Deportista"
-          label_plural: "Deportistas"
-          short: "Dep."
-          short_plural: "Deps."
-          hint: "Persona que participa como deportista."
+          single: Deportista
+          plural: Deportistas
+          short: Dep.
+          hint: Persona que participa como deportista.
         coach:
-          label: "Entrenador"
-          label_plural: "Entrenadores"
-          short: "Ent."
-          short_plural: "Ents."
-          hint: "Persona que participa como entrenador."
+          single: Entrenador
+          plural: Entrenadores
+          short: Ent.
+          hint: Persona que participa como entrenador.
         volunteer:
-          label: "Voluntario"
-          label_plural: "Voluntarios"
-          short: "Vol."
-          short_plural: "Vols."
-          hint: "Persona que participa como voluntario."
+          single: Voluntario
+          plural: Voluntarios
+          short: Vol.
+          hint: Persona que participa como voluntario.
         board_member:
-          label: "Miembro de junta directiva"
-          label_plural: "Miembros de junta directiva"
-          short: "JD"
-          short_plural: "JDs"
-          hint: "Persona que participa como miembro de junta directiva."
+          single: Miembro de junta directiva
+          plural: Junta Directiva
+          short: JD
+          hint: Persona que participa como miembro de junta directiva.
         club_manager:
-          label: "Gestor de club"
-          label_plural: "Gestores de club"
-          short: "G.Club"
-          short_plural: "Gs.Club"
-          hint: "Persona que participa como gestor de club."
+          single: Gestor de club
+          plural: Gestores de club
+          short: G.Club
+          hint: Persona que participa como gestor de club.
 
     assignment_kinds:
-      label: "Tipo de asignación"
-      short: "Asign."
+      label: Tipo de asignación
+      short: Tipo
       values:
-        athlete: "Deportista"
-        captain: "Capitán"
-        head_coach: "Entrenador principal"
-        assistant_coach: "Entrenador asistente"
-        coaching_coordinator: "Coordinador de entrenadores"
-        team_manager: "Director de equipo"
-        team_delegate: "Delegado de equipo"
-        home_delegate: "Delegado local"
-        photographer: "Fotógrafo"
-        community_manager: "Gestor de comunidad"
-        webmaster: "Webmaster"
-        club_manager: "Gestor de club"
-        president: "Presidente"
-        vice_president: "Vicepresidente"
-        secretary: "Secretario"
-        treasurer: "Tesorero"
+        athlete: Deportista
+        captain: Capitán
+        head_coach: Entrenador principal
+        assistant_coach: Entrenador asistente
+        coaching_coordinator: Coordinador de entrenadores
+        team_manager: Director de equipo
+        team_delegate: Delegado de equipo
+        home_delegate: Delegado local
+        photographer: Fotógrafo
+        community_manager: Gestor de comunidad
+        webmaster: Webmaster
+        club_manager: Gestor de club
+        president: Presidente
+        vice_president: Vicepresidente
+        secretary: Secretario
+        treasurer: Tesorero
 
   # ---------------------------------------------------------------------------
   # OBSOLETO - NO MODIFICAR
@@ -132,28 +128,28 @@ es:
   #
   # Buscar:
   #
-  #   t("coach.
-  #   t("player.
+  #   t(coach.
+  #   t(player.
   #
   # Eliminar una vez que todas las llamadas se hayan migrado.
   # ---------------------------------------------------------------------------
 
   coach:
-    abbr: "Ent."
+    abbr: Ent.
 
-    single: "Entrenador"
-    many: "Entrenadores"
+    single: Entrenador
+    many: Entrenadores
 
     created: "Entrenador creado: "
     updated: "Entrenador actualizado: "
     deleted: "Entrenador eliminado: "
     duplicate: "Duplicar entrenador: "
 
-    edit: "Editar Entrenador"
-    new: "Crear Entrenador"
+    edit: Editar Entrenador
+    new: Crear Entrenador
 
-    export: "Entrenadores exportados"
-    import: "Entrenadores importados"
+    export: Entrenadores exportados
+    import: Entrenadores importados
 
     label:
       single: "%{t('coach.single')}"
@@ -161,13 +157,13 @@ es:
       short: "%{t('coach.abbr')}"
 
   player:
-    abbr: "Jug."
+    abbr: Jug.
 
-    single: "Jugador"
-    many: "Jugadores"
+    single: Jugador
+    many: Jugadores
 
-    number: "Nº"
-    playing: "Jugando"
+    number: Nº
+    playing: Jugando
 
     created: "Jugador creado: "
     updated: "Jugador actualizado: "
@@ -177,11 +173,11 @@ es:
     deactivated: "Jugador inactivo: "
     removed: "Jugador retirado: "
 
-    edit: "Editar Jugador"
-    new: "Crear Jugador"
+    edit: Editar Jugador
+    new: Crear Jugador
 
-    export: "Jugadores exportados"
-    import: "Jugadores importados"
+    export: Jugadores exportados
+    import: Jugadores importados
 
     label:
       single: "%{t('player.single')}"

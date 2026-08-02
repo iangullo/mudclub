@@ -66,6 +66,25 @@ class Catalog::Base
 			@values.last
 		end
 
+		# --------------------------------------------------------------------------
+		# Normalize an external value into a canonical catalog key.
+		# --------------------------------------------------------------------------
+		#
+		# Examples
+		#
+		#   normalize(:athlete)         # => :athlete
+		#   normalize("athletes")       # => :athlete
+		#   normalize("Board Members")  # => :board_member
+		#   normalize(nil)              # => nil
+		#
+		def normalize(value)
+			value
+				&.to_s
+				&.parameterize(separator: "_")
+				&.singularize
+				&.to_sym
+		end
+
 		#
 		# Rails enum compatibility.
 		#
@@ -103,12 +122,12 @@ class Catalog::Base
 
 		def fetch(key)
 			ensure_built!
-			@entries.fetch(key.to_sym)
+			@entries.fetch(normalize(key))
 		end
 
 		def include?(key)
 			ensure_built!
-			@entries.key?(key.to_sym)
+			@entries.key?(normalize(key))
 		end
 
 		#
@@ -179,30 +198,6 @@ class Catalog::Base
 			:values
 		end
 
-		def label(key = nil)
-			return super() unless key
-
-			translate_member(key, :label)
-		end
-
-		def short(key = nil)
-			return super() unless key
-
-			translate_member(key, :short)
-		end
-
-		def hint(key = nil)
-			return super() unless key
-
-			translate_member(key, :hint)
-		end
-
-		def description(key = nil)
-			return super() unless key
-
-			translate_member(key, :description)
-		end
-
 		private
 
 			def built?
@@ -269,10 +264,6 @@ class Catalog::Base
 				else
 					actual == expected
 				end
-			end
-
-			def translate_member(member, kind)
-				I18n.t("#{i18n_scope}.#{i18n_members_scope}.#{member}.#{kind}")
 			end
 	end
 end

@@ -20,7 +20,7 @@
 module SportsHelper
 	# sports page for admins
 	def sports_table
-		title = [ { kind: :normal }, { kind: :normal, value: I18n.t("sport.single") }, { kind: :normal, value: I18n.t("team.many") } ]
+		title = [ { kind: :normal }, { kind: :normal, value: Sport.label }, { kind: :normal, value: Team.label(:plural) } ]
 		# title << button_field({kind: :add, url: new_sport(rdx: @rdx), frame: "modal"})
 		rows = Array.new
 		Sport.all.each { |sport|
@@ -36,11 +36,11 @@ module SportsHelper
 
 	# show sport & related objects
 	def sports_show
-		res = title_start(icon: symbol_hash("icon", namespace: @sport.name), title: I18n.t("sport.single"), subtitle: @sport.to_s)
+		res = title_start(icon: symbol_hash("icon", namespace: @sport.name), title: @sport.label, subtitle: @sport.to_s)
 		res << [
-			button_field({ kind: :jump, symbol: sport_symbol("rules"), url: rules_sport_path(@sport, rdx: @rdx), label: I18n.t("sport.rules"), frame: "modal" }, align: "center"),
-			button_field({ kind: :jump, symbol: sport_symbol("category"), url: sport_categories_path(@sport, rdx: @rdx), label: I18n.t("category.many"), frame: "modal" }, align: "center"),
-			button_field({ kind: :jump, symbol: sport_symbol("division"), url: sport_divisions_path(@sport, rdx: @rdx), label: I18n.t("division.many"), frame: "modal" }, align: "center")
+			button_field({ kind: :jump, symbol: sport_symbol("rules"), url: rules_sport_path(@sport, rdx: @rdx), label: Sport.attr(:rules), frame: "modal" }, align: "center"),
+			button_field({ kind: :jump, symbol: sport_symbol("category"), url: sport_categories_path(@sport, rdx: @rdx), label: Category.label(:plural), frame: "modal" }, align: "center"),
+			button_field({ kind: :jump, symbol: sport_symbol("division"), url: sport_divisions_path(@sport, rdx: @rdx), label: Division.label(:plural), frame: "modal" }, align: "center")
 		]
 		res
 	end

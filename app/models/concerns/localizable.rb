@@ -1,23 +1,5 @@
 # MudClub - The open source Rails platform to manage amateur sports clubs.
-# Copyright (C) 2026  Iván González Angullo
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the Affero GNU General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or any
-# later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#
-# contact email - iangullo@gmail.com.
-#
-# frozen_string_literal: true
-
 # frozen_string_literal: true
 
 #
@@ -25,281 +7,371 @@
 #
 # Shared localization API for models, catalogs and other domain objects.
 #
-# Classes including this concern must set their i18n_scope using:
+# Classes including this concern declare their locale scope with:
 #
 #   localized_as :organization, :club
 #
-# Examples:
+# Examples
 #
-#   Club.label                         # => "Club"
-#   Club.label(:plural)                # => "Clubs"   (uses label.plural or label_plural)
-#   Club.label(:short)                 # => "Club"    (uses short or short)
+#   Club.label
+#   Club.label(:plural)
+#   Club.label(:short)
 #
-#   Club.attr(:name)                   # => "Name"
-#   Club.attr(:name, :short)           # => "Name"    (uses name_short or name.short)
+#   Club.attr(:name)
+#   Club.msg(:created)
+#   Club.val(:athlete)
 #
-#   Club.msg(:created)                 # => "Club created."
-#
-#   Club.val(:athlete)                 # => "Athlete"
-#   Club.val(:athlete, :plural)        # => "Athletes"
-#   Club.val(:athlete, :short)         # => "Ath."
+#   Club.term(:athlete)
+#   Club.term(:athlete, form: :plural)
+#   Club.term(:coach, variant: :short)
 #
 module Localizable
 	extend ActiveSupport::Concern
 
-	#
-	# Available presentation variants.
-	#
+	#--------------------------------------------------------------------------
+	# Translation conventions
+	#--------------------------------------------------------------------------
+
 	VARIANT_SUFFIXES = {
-		label: nil,
-		short: "_short",
-		hint: "_hint",
+		label:       nil,
+		short:       "_short",
+		hint:        "_hint",
 		description: "_description",
-		tooltip: "_tooltip"
+		tooltip:     "_tooltip"
 	}.freeze
 
-	GRAMMATICAL_FORMS = %i[single plural].freeze
-	TEXT_VARIANTS = %i[label short hint description tooltip].freeze
+	GRAMMATICAL_FORMS = %i[
+		single
+		plural
+	].freeze
+
+	TEXT_VARIANTS = %i[
+		label
+		short
+		hint
+		description
+		tooltip
+	].freeze
+
+	#--------------------------------------------------------------------------
+	# Configuration
+	#--------------------------------------------------------------------------
 
 	included do
-		class_attribute :_i18n_scope, instance_accessor: false, default: nil
-		class_attribute :_i18n_members_scope, instance_accessor: false, default: :fields
+		class_attribute :_i18n_scope,
+										instance_accessor: false,
+										default: nil
+
+		class_attribute :_i18n_key_scope,
+										instance_accessor: false,
+										default: :fields
 	end
 
-	# Instance helpers
-	def label(...) = self.class.label(...)
-	def attr(...) = self.class.attr(...)
-	def msg(...) = self.class.msg(...)
-	def val(...) = self.class.val(...)
-	def t_path(...) = self.class.t_path(...)
+	#--------------------------------------------------------------------------
+	# Instance convenience wrappers
+	#--------------------------------------------------------------------------
+
+	TRANSLATION_HELPERS = %i[
+		label
+		term
+		attr
+		msg
+		val
+		t_path
+	].freeze
+
+	TRANSLATION_HELPERS.each do |helper|
+		define_method(helper) do |*args, **kwargs, &block|
+			self.class.public_send(helper, *args, **kwargs, &block)
+		end
+	end
+
+	#--------------------------------------------------------------------------
+	# Class API
+	#--------------------------------------------------------------------------
 
 	class_methods do
-		# -------------------------------------------------------------------------
-		# Scope configuration
-		# -------------------------------------------------------------------------
-
+		#
+		# Declares the locale scope used by this class.
+		#
+		# Example:
+		#
+		#   localized_as :identity, :person
+		#
 		def localized_as(*parts)
 			self._i18n_scope = parts.flatten.compact.join(".")
 		end
 
+		#
+		# Declares which subsection key helpers
+		# (label(:...), attr, msg, val...) should default to.
+		#
+		def key_scope(scope)
+			self._i18n_key_scope = scope.to_sym
+		end
+
+		#
+		# Returns the configured locale scope.
+		#
 		def i18n_scope
 			return _i18n_scope if _i18n_scope.present?
+
 			raise NotImplementedError,
-						"#{name} must set its i18n_scope using localized_as or by overriding .i18n_scope"
+						"#{name} must declare localized_as(...) or override .i18n_scope"
 		end
 
-		def i18n_members_scope
-			_i18n_members_scope || :fields
+		#
+		# Default subsection for key lookups.
+		#
+		def i18n_key_scope
+			_i18n_key_scope || :fields
 		end
 
-		def members_scope(scope)
-			self._i18n_members_scope = scope
+		#--------------------------------------------------------------------------
+		# Public translation API
+		#--------------------------------------------------------------------------
+
+		#
+		# Generic label resolver.
+		#
+		# Examples
+		#
+		#   Club.label
+		#   Club.label(:plural)
+		#   Club.label(:short)
+		#
+		#   Club.label(:name)
+		#   Club.label(:name, scope: :fields)
+		#
+		def label(key = nil, **options)
+			args = normalize_translation_arguments(key, **options)
+
+			if args[:key]
+				translate_key_label(**args)
+			else
+				translate_class_label(**args)
+			end
 		end
 
-		# -------------------------------------------------------------------------
-		# Core translation method
-		# -------------------------------------------------------------------------
-
 		#
-		# Translate a member (field, message, value) with flexible key resolution.
+		# Resolves terminology that may be overridden by
+		# Club settings or Sport locale.
 		#
-		# Tries:
-		#   1. Flat suffix: "#{base}_#{suffix}"
-		#   2. Nested key:  "#{base}.#{suffix}"
-		#   3. Base key:    "#{base}"
+		# Examples
 		#
-		def translate_member(section, member, variant: :label, form: :single)
-			base_key = "#{i18n_scope}.#{section}.#{member}"
-
-			# Build the suffix for this combination
-			suffix = ""
-			suffix += "_plural" if form == :plural
-			if variant != :label
-				variant_suffix = VARIANT_SUFFIXES[variant]
-				suffix += variant_suffix if variant_suffix
-			end
-
-			# Generate possible keys in order of preference
-			candidates = []
-
-			# 1. Flat suffix (e.g., "label_plural")
-			if suffix.present?
-				candidates << "#{base_key}#{suffix}"
-			end
-
-			# 2. Nested suffix (e.g., "label.plural")
-			if suffix.present?
-				key_part = suffix.sub(/^_/, "")  # remove leading underscore
-				candidates << "#{base_key}.#{key_part}"
-			end
-
-			# 3. Base key (no suffix)
-			candidates << base_key
-
-			# Try each candidate
-			candidates.uniq.each do |key|
-				value = I18n.t(key, default: nil)
-				return value if value.present?
-			end
-
-			# Final fallback
-			fallback_to_humanize(member, variant, form)
-		end
-
-		# -------------------------------------------------------------------------
-		# Flexible label method
-		# -------------------------------------------------------------------------
+		#   Club.term(:athlete)
+		#   Club.term(:athlete, form: :plural)
+		#   Club.term(:coach, variant: :short)
 		#
-		# Supports:
-		#   - Class label: label
-		#   - Plural form: label(:plural) or label(form: :plural)
-		#   - Short form:  label(:short)  or label(variant: :short)
-		#   - Scoped lookup: label(:name, scope: :fields)
-		#
-		def label(member = nil, scope: nil, variant: :label, form: :single, gender: :neutral)
-			# -----------------------------------------------------------------------
-			# Shorthand
-			# -----------------------------------------------------------------------
+		def term(key, shorthand = nil, variant: :label, form: :single, club: nil, sport: nil, fallback: nil, **options)
+			args = normalize_translation_arguments(key, shorthand, **options)
 
-			if member.is_a?(Symbol)
-				if GRAMMATICAL_FORMS.include?(member)
-					form = member
-					member = nil
-				elsif TEXT_VARIANTS.include?(member)
-					variant = member
-					member = nil
-				end
-			end
-
-			# -----------------------------------------------------------------------
-			# Class label
-			# -----------------------------------------------------------------------
-
-			if member.nil?
-				base_key   = "#{i18n_scope}.label"
-				candidates = []
-
-				suffix = +""
-
-				suffix << "_plural" if form == :plural
-
-				if variant != :label
-					variant_suffix = VARIANT_SUFFIXES[variant]
-					suffix << variant_suffix if variant_suffix
+			override_scope =
+				if sport
+					sport.i18n_scope
+				elsif i18n_scope.start_with?("sport.")
+					i18n_scope
 				end
 
-				#
-				# Preferred lookups
-				#
-
-				if suffix.present?
-					# Flat style:
-					#   participation.membership.label_plural_short
-					candidates << "#{base_key}#{suffix}"
-
-					# Nested style:
-					#   participation.membership.label.plural_short
-					candidates << "#{base_key}.#{suffix.delete_prefix('_')}"
-				else
-					# Default grammatical form
-					#   participation.membership.label.single
-					candidates << "#{base_key}.#{form}"
-				end
-
-				#
-				# Legacy / hash fallback
-				#
-
-				candidates << base_key
-
-				candidates.uniq.each do |key|
-					value = I18n.t(key, default: nil)
-
-					next if value.blank?
-
-					# Hash fallback (legacy locale structure)
-					if value.is_a?(Hash)
-						candidate =
-							value[form] ||
-							value[form.to_s] ||
-							value[:single] ||
-							value["single"]
-
-						return candidate if candidate.present?
-					else
-						return value
-					end
-				end
-
-				#
-				# Final fallback
-				#
-
-				return name.demodulize.titleize
-			end
-
-			# -----------------------------------------------------------------------
-			# Member lookup
-			# -----------------------------------------------------------------------
-
-			section =
-				case scope
-				when :attribute, :field, :fields then :fields
-				when :message, :messages          then :messages
-				when :value, :values              then :values
-				else
-					i18n_members_scope
-				end
-
-			translate_member(
-				section,
-				member,
-				variant:,
-				form:
+			Vocabulary.term(
+				args[:key],
+				form: args[:form],
+				variant: args[:variant],
+				override_scope:,
+				club:,
+				fallback:
 			)
 		end
 
-		# -------------------------------------------------------------------------
-		# Convenience shortcuts
-		# -------------------------------------------------------------------------
+		#
+		# Convenience wrappers
+		#
+		TRANSLATION_SECTIONS = { attr: :fields, msg: :messages, val: :values }.freeze
 
-		def attr(member, variant = :label)
-			translate_member(:fields, member, variant: variant)
-		end
-
-		def msg(member, variant = :label)
-			translate_member(:messages, member, variant: variant)
-		end
-
-		def val(member, variant = :label, form: :single)
-			translate_member(:values, member, variant: variant, form: form)
-		end
-
-		def t_path(*parts)
-			# If the first part is a string, treat as absolute (join all parts).
-			# If the first part is a symbol, treat as relative to i18n_scope.
-			if parts.first.is_a?(String)
-				key = parts.join(".")
-			else
-				key = "#{i18n_scope}.#{parts.join(".")}"
+		TRANSLATION_SECTIONS.each do |method_name, scope|
+			define_method(method_name) do |key, shorthand = nil, **options|
+				args = normalize_translation_arguments(key, shorthand, **options)
+				translate_key_label(
+					key: args[:key],
+					scope:,
+					variant: args[:variant],
+					form: args[:form]
+				)
 			end
-			I18n.t(key)
+		end
+
+		#
+		# Flexible translation path.
+		#
+		# Relative:
+		#
+		#   Person.t_path(:fields, :name)
+		#
+		# Absolute:
+		#
+		#   Person.t_path("identity.person.fields.name")
+		#
+		def t_path(*parts, **options)
+			key =
+				if parts.first.is_a?(String)
+					parts.join(".")
+				else
+					"#{i18n_scope}.#{parts.join('.')}"
+				end
+
+			I18n.t(key, **options)
 		end
 
 		private
 
-			def fallback_to_humanize(member, variant, form)
-				base = member.to_s.humanize
-				base = base.pluralize if form == :plural
+		#--------------------------------------------------------------------------
+		# Label argument normalization
+		#--------------------------------------------------------------------------
 
-				return base if variant == :label || variant == :short
+		def normalize_translation_arguments(key = nil, shorthand = nil, scope: nil, variant: :label, form: :single, gender: :neutral, **options)
+			if key.is_a?(Symbol)
+				if GRAMMATICAL_FORMS.include?(key)
+					form = key
+					key = nil
 
-				case variant
-				when :hint then "#{base} hint"
-				when :description then "#{base} description"
-				when :tooltip then "#{base} tooltip"
-				else base
+				elsif TEXT_VARIANTS.include?(key)
+					variant = key
+					key = nil
 				end
 			end
+
+			#
+			# val(:athlete, :plural)
+			#
+			if shorthand
+				if GRAMMATICAL_FORMS.include?(shorthand)
+					form = shorthand
+
+				elsif TEXT_VARIANTS.include?(shorthand)
+					variant = shorthand
+				end
+			end
+
+			{ key:, scope:, variant:, form:, gender:, **options }
+		end
+
+		#--------------------------------------------------------------------------
+		# Candidate string keys generation
+		#--------------------------------------------------------------------------
+		def build_candidates(base_key, variant:, form:)
+			suffix = +""
+
+			suffix << "_plural" if form == :plural
+
+			if variant != :label
+				variant_suffix = VARIANT_SUFFIXES[variant]
+				suffix << variant_suffix if variant_suffix
+			end
+
+			candidates = []
+
+			if suffix.present?
+				candidates << "#{base_key}#{suffix}"
+				candidates << "#{base_key}.#{suffix.delete_prefix('_')}"
+			else
+				candidates << "#{base_key}.#{form}"
+			end
+
+			candidates << "#{base_key}.label"
+			candidates << base_key
+
+			candidates.uniq
+		end
+
+		#--------------------------------------------------------------------------
+		# Class labels
+		#--------------------------------------------------------------------------
+
+		def translate_class_label(variant:, form:, **)
+			lookup_candidates(
+				build_candidates("#{i18n_scope}.label", variant:, form:),
+				fallback: name.demodulize.titleize
+			)
+		end
+
+		#--------------------------------------------------------------------------
+		# key labels
+		#--------------------------------------------------------------------------
+
+		def translate_key_label(key:, scope:, variant:, form:, **)
+			section =
+				case scope
+				when :attribute, :field, :fields
+					:fields
+
+				when :message, :messages
+					:messages
+
+				when :value, :values
+					:values
+
+				else
+					i18n_key_scope
+				end
+
+			base_key = "#{i18n_scope}.#{section}.#{key}"
+
+			lookup_candidates(
+				build_candidates(base_key, variant:, form:),
+				fallback: fallback_to_humanize(key, variant, form)
+			)
+		end
+
+		#--------------------------------------------------------------------------
+		# Lookup helpers
+		#--------------------------------------------------------------------------
+		def lookup_candidates(candidates, fallback:)
+			candidates.each do |key|
+				value = I18n.t(key, default: nil)
+
+				next if value.blank?
+
+				extracted = extract_translation(value)
+
+				return extracted if extracted.present?
+			end
+
+			fallback
+		end
+
+		def extract_translation(value)
+			return value unless value.is_a?(Hash)
+
+			value[:single] ||
+				value["single"] ||
+				value[:label] ||
+				value["label"]
+		end
+
+		#--------------------------------------------------------------------------
+		# Fallback
+		#--------------------------------------------------------------------------
+
+		def fallback_to_humanize(key, variant, form)
+			text = key.to_s.humanize
+
+			text = text.pluralize if form == :plural
+
+			return text if %i[label short].include?(variant)
+
+			case variant
+			when :hint
+				"#{text} hint"
+
+			when :description
+				"#{text} description"
+
+			when :tooltip
+				"#{text} tooltip"
+
+			else
+				text
+			end
+		end
 	end
 end

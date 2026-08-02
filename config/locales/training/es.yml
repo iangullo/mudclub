@@ -15,212 +15,212 @@
 
 es:
   training:
-    label: "Entrenamiento"
-    short: "Entren."
+    label: Entrenamiento
+    short: Entren.
 
     team:
-      label: "Equipo"
-      short: "Equipo"
+      label:
+        single: Equipo
+        plural: Equipos
+        short: Equipo
       fields:
-        name: "Nombre"
-        sport: "Deporte"
-        category: "Categoría"
-        division: "Competición"
-        facility: "Instalación local"
-        roster: "Plantilla"
+        name: Nombre
+        sport: Deporte
+        category: Categoría
+        division: Competición
+        facility: Instalación local
+        roster: Plantilla
       messages:
-        created: "Equipo creado."
-        updated: "Equipo actualizado."
-        deleted: "Equipo eliminado."
+        created: Equipo creado.
+        updated: Equipo actualizado.
+        deleted: Equipo eliminado.
 
     session:
-      label: "Sesión de entrenamiento"
-      short: "Sesión"
+      label:
+        single: Sesión
+        plural: Sesiones
+        short: Sesión
+        hint: Sesión de entrenamiento
       fields:
-        title: "Título"
-        starts_on: "Inicio"
-        ends_on: "Fin"
-        duration: "Duración"
-        duration_short: "Dur."
-        workload: "Carga de trabajo"
-        workload_short: "Carga"
-        workload_by: "Carga de trabajo por"
-        plan: "Plan de entrenamiento"
+        title: Título
+        starts_on: Inicio
+        ends_on: Fin
+        duration: Duración
+        duration_short: Dur.
+        workload: Carga de trabajo
+        workload_short: Carga
+        workload_by: Carga de trabajo por
+        plan: Plan de entrenamiento
       messages:
-        created: "Sesión de entrenamiento creada."
-        updated: "Sesión de entrenamiento actualizada."
-        deleted: "Sesión de entrenamiento eliminada."
-        attendance_checked: "Asistencia verificada."
+        created: Sesión de entrenamiento creada.
+        updated: Sesión de entrenamiento actualizada.
+        deleted: Sesión de entrenamiento eliminada.
+        attendance_checked: Asistencia verificada.
 
     plan:
-      label: "Plan de entrenamiento"
-      short: "Plan"
+      label:
+        single: Plan
+        plural: Planes
+        short: Plan
+        hint: Plan de entrenamiento
       fields:
-        name: "Nombre"
-        description: "Descripción"
-        description_short: "Desc."
-        team: "Equipo"
+        name: Nombre
+        description: Descripción
+        description_short: Desc.
+        team: Equipo
       messages:
-        created: "Plan de entrenamiento creado."
-        updated: "Plan de entrenamiento actualizado."
-        deleted: "Plan de entrenamiento eliminado."
+        created: Plan de entrenamiento creado.
+        updated: Plan de entrenamiento actualizado.
+        deleted: Plan de entrenamiento eliminado.
 
     drill:
       label:
-        single: "Ejercicio"
-        plural: "Ejercicios"
-        short: "Ejerc."
+        single: Ejercicio
+        plural: Ejercicios
+        short: Ejerc.
       fields:
-        name: "Nombre"
-        description: "Descripción"
-        description_short: "Desc."
-        author: "Autor"
-        kind: "Categoría de ejercicio"
-        kind_short: "Tipo"
-        material: "Material"
-        material_short: "Mat."
-        sport: "Deporte"
-        court_mode: "Disposición de campo"
-        court_mode_short: "Disposición"
+        name: Nombre
+        description: Descripción
+        description_short: Desc.
+        author: Autor
+        kind: Categoría de ejercicio
+        kind_short: Tipo
+        material: Material
+        material_short: Mat.
+        sport: Deporte
+        court_mode: Disposición de campo
+        court_mode_short: Disposición
       messages:
-        created: "Ejercicio creado."
-        updated: "Ejercicio actualizado."
-        deleted: "Ejercicio eliminado."
+        created: Ejercicio creado.
+        updated: Ejercicio actualizado.
+        deleted: Ejercicio eliminado.
 
     drill_kind:
-      label: "Categoría de ejercicio"
-      short: "Categoría"
+      label:
+        single: Tipo
+        plural: Tipos
+        short: Tipo
+        hint: Tipo de ejercicio
       fields:
-        name: "Nombre"
+        name: Nombre
       messages:
-        created: "Categoría de ejercicio creada."
-        updated: "Categoría de ejercicio actualizada."
-        deleted: "Categoría de ejercicio eliminada."
+        created: Categoría de ejercicio creada.
+        updated: Categoría de ejercicio actualizada.
+        deleted: Categoría de ejercicio eliminada.
 
     task:
       label:
-        single: "Tarea"
-        plural: "Tareas"
-        short: "Tarea"
+        single: Tarea
+        plural: Tareas
+        short: Tarea
       fields:
-        drill: "Ejercicio"
-        order: "Orden"
-        duration: "Duración"
-        duration_short: "Dur."
-        remarks: "Observaciones"
-        remarks_short: "Obs."
+        drill: Ejercicio
+        order: Orden
+        duration: Duración
+        duration_short: Dur.
+        remarks: Observaciones
+        remarks_short: Obs.
       messages:
-        created: "Tarea creada."
-        updated: "Tarea actualizada."
-        deleted: "Tarea eliminada."
+        created: Tarea creada.
+        updated: Tarea actualizada.
+        deleted: Tarea eliminada.
 
     step:
       label:
-        single: "Paso"
-        plural: "Pasos"
-        short: "Paso"
+        single: Paso
+        plural: Pasos
+        short: Paso
       actions:
-        edit: "Editar paso"
-        edit_diagram: "Editar diagrama"
-        load_diagram: "Cargar diagrama"
+        edit: Editar paso
+        edit_diagram: Editar diagrama
+        load_diagram: Cargar diagrama
       fields:
-        order: "Orden"
-        explanation: "Explicación"
-        explanation_short: "Expl."
-        diagram: "Diagrama"
+        order: Orden
+        explanation: Explicación
+        explanation_short: Expl.
+        diagram: Diagrama
       messages:
-        created: "Paso creado."
-        updated: "Paso actualizado."
-        deleted: "Paso eliminado."
+        created: Paso creado.
+        updated: Paso actualizado.
+        deleted: Paso eliminado.
 
     version:
-      label: "Versión"
-      short: "Ver."
+      label: Versión
+      short: Ver.
       fields:
-        author: "Autor"
-        name: "Nombre"
-        description: "Descripción"
-        description_short: "Desc."
-        explanation: "Explicación"
-        explanation_short: "Expl."
-        material: "Material"
-        kind: "Categoría de ejercicio"
-        skills: "Habilidades"
-        targets: "Objetivos"
-        changes: "Cambios"
+        author: Autor
+        name: Nombre
+        description: Descripción
+        description_short: Desc.
+        explanation: Explicación
+        explanation_short: Expl.
+        material: Material
+        kind: Categoría de ejercicio
+        skills: Habilidades
+        targets: Objetivos
+        changes: Cambios
       messages:
-        created: "Versión creada."
-        updated: "Versión actualizada."
-        deleted: "Versión eliminada."
+        created: Versión creada.
+        updated: Versión actualizada.
+        deleted: Versión eliminada.
 
     skill:
       label:
-        single: "Habilidad"
-        plural: "Habilidades"
-        short: "Hab."
+        single: Habilidad
+        plural: Habilidades
+        short: Hab.
       fields:
-        name: "Nombre"
-        description: "Descripción"
-        description_short: "Desc."
+        name: Nombre
+        description: Descripción
+        description_short: Desc.
       messages:
-        created: "Habilidad creada."
-        updated: "Habilidad actualizada."
-        deleted: "Habilidad eliminada."
+        created: Habilidad creada.
+        updated: Habilidad actualizada.
+        deleted: Habilidad eliminada.
 
     target:
       label:
-        single: "Objetivo"
-        plural: "Objetivos"
-        short: "Obj."
+        single: Objetivo
+        plural: Objetivos
+        short: Obj.
       actions:
-        edit: "Editar Objetivos"
+        edit: Editar Objetivos
       fields:
-        concept: "Concepto"
-        aspect: "Aspecto"
-        focus: "Enfoque"
+        concept: Concepto
+        aspect: Aspecto
+        focus: Enfoque
       aspect:
-        label: "Aspecto"
-        short: "Aspecto"
+        label: Aspecto
+        short: Aspecto
         values:
-          general: "General"
-          general_short: "Gral."
-          individual: "Individual"
-          individual_short: "Ind."
-          individual_hint: "Desarrollo técnico individual."
-          collective: "Colectivo"
-          collective_short: "Col."
-          collective_hint: "Desarrollo táctico colectivo."
+          general: General
+          general_short: Gral.
+          individual: Individual
+          individual_short: Ind.
+          individual_hint: Desarrollo técnico individual.
+          collective: Colectivo
+          collective_short: Col.
+          collective_hint: Desarrollo táctico colectivo.
       focus:
-        label: "Enfoque"
-        short: "Enfoque"
+        label: Enfoque
+        short: Enfoque
         values:
-          offense: "Ataque"
-          offense_short: "Atq."
-          defense: "Defensa"
-          defense_short: "Def."
-          physical: "Físico"
+          offense: Ataque
+          offense_short: Atq.
+          defense: Defensa
+          defense_short: Def.
+          physical: Físico
       messages:
-        created: "Objetivo creado."
-        updated: "Objetivo actualizado."
-        deleted: "Objetivo eliminado."
+        created: Objetivo creado.
+        updated: Objetivo actualizado.
+        deleted: Objetivo eliminado.
 
-    stat:
-      label: "Estadística"
-      short: "Estad."
-      fields:
-        name: "Nombre"
-        average: "Media"
-        average_short: "Med."
-        minimum: "Mínimo"
-        minimum_short: "Mín."
-        maximum: "Máximo"
-        maximum_short: "Máx."
-        total: "Total"
-        total_short: "Tot."
-        number: "Número"
-        number_short: "Núm."
+    stats:
+      single: Estadística
+      plural: Estadísticas
+      short: Estad.
       messages:
-        updated: "Estadísticas actualizadas."
+        updated: Estadísticas actualizadas.
 
   # -------------------------------------------------------------------------
   # OBSOLETO - NO MODIFICAR
@@ -229,173 +229,173 @@ es:
   #
   # Buscar:
   #
-  #   t("team.")
-  #   t("train.")
-  #   t("drill.")
-  #   t("kind.")
-  #   t("plan.")
-  #   t("task.")
-  #   t("target.")
-  #   t("step.")
-  #   t("skill.")
-  #   t("version.")
-  #   t("stat.")
+  #   t(team.)
+  #   t(train.)
+  #   t(drill.)
+  #   t(kind.)
+  #   t(plan.)
+  #   t(task.)
+  #   t(target.)
+  #   t(step.)
+  #   t(skill.)
+  #   t(version.)
+  #   t(stat.)
   #
   # Eliminar una vez que todas las referencias se hayan migrado.
   # -------------------------------------------------------------------------
 
   drill:
-    author: "Autor"
-    default: "<Nuevo Ejercicio>"
-    desc: "Descripción"
-    desc_a: "Descrip."
-    material: "Material"
-    name: "Nombre"
-    none: "Ninguna tarea seleccionada"
-    single: "Ejercicio"
+    author: Autor
+    default: <Nuevo Ejercicio>
+    desc: Descripción
+    desc_a: Descrip.
+    material: Material
+    name: Nombre
+    none: Ninguna tarea seleccionada
+    single: Ejercicio
 
-    created: "Ejercicio creado: "
-    deleted: "Ejercicio eliminado: "
-    updated: "Ejercicio actualizado: "
+    created: "Ejercicio creado:"
+    deleted: "Ejercicio eliminado:"
+    updated: "Ejercicio actualizado:"
 
-    edit: "Editar Ejercicio"
-    many: "Ejercicios"
-    new: "Crear Ejercicio"
+    edit: Editar Ejercicio
+    many: Ejercicios
+    new: Crear Ejercicio
 
   kind:
-    default: "<tipo>"
-    single: "Tipo"
+    default: <tipo>
+    single: Tipo
 
   plan:
-    abbr: "Plan"
-    single: "Plan de equipo"
+    abbr: Plan
+    single: Plan de equipo
 
-    edit: "Editar Plan de equipo"
-    new: "Crear Plan de equipo"
+    edit: Editar Plan de equipo
+    new: Crear Plan de equipo
 
   skill:
-    abbr: "Habilidad"
-    default: "<habilidad>"
-    single: "Habilidad"
+    abbr: Habilidad
+    default: <habilidad>
+    single: Habilidad
 
-    many: "Habilidades"
+    many: Habilidades
 
   stat:
-    average: "Media"
-    average_a: "Med."
-    max: "Máx."
-    min: "Mín."
-    number_a: "Núm."
-    single: "Estad."
-    total: "Total"
-    total_a: "Tot."
+    average: Media
+    average_a: Med.
+    max: Máx.
+    min: Mín.
+    number_a: Núm.
+    single: Estad.
+    total: Total
+    total_a: Tot.
 
-    updated: "Estadísticas actualizadas"
+    updated: Estadísticas actualizadas
 
-    many: "Estadísticas"
+    many: Estadísticas
 
   step:
-    default: "<paso>"
-    diagram: "Diagrama"
-    explanation: "Explicación"
-    single: "Paso"
+    default: <paso>
+    diagram: Diagrama
+    explanation: Explicación
+    single: Paso
 
-    edit: "Editar paso"
-    edit_diagram: "Editar diagrama"
-    load_diagram: "Cargar diagrama"
-    many: "Pasos"
+    edit: Editar paso
+    edit_diagram: Editar diagrama
+    load_diagram: Cargar diagrama
+    many: Pasos
 
   target:
-    abbr: "Obj."
-    completion: "Finalización (%)"
-    default: "<objetivo>"
-    single: "Objetivo"
+    abbr: Obj.
+    completion: Finalización (%)
+    default: <objetivo>
+    single: Objetivo
 
     aspect:
-      gen: "General"
+      gen: General
 
-      ind: "Individual"
-      ind_a: "Ind."
-      ind_l: "Habilidad individual"
+      ind: Individual
+      ind_a: Ind.
+      ind_l: Habilidad individual
 
-      col: "Colectivo"
-      col_a: "Col."
-      col_l: "Táctica colectiva"
+      col: Colectivo
+      col_a: Col.
+      col_l: Táctica colectiva
 
     focus:
-      att: "Ataque"
-      att_a: "Atq."
+      att: Ataque
+      att_a: Atq.
 
-      def: "Defensa"
-      def_a: "Def."
+      def: Defensa
+      def_a: Def.
 
-      fit: "Físico"
+      fit: Físico
 
-    edit: "Editar Objetivos"
-    many: "Objetivos"
+    edit: Editar Objetivos
+    many: Objetivos
 
   task:
-    duration: "Dur."
-    number: "Nº"
-    remarks: "Observaciones"
-    single: "Tarea"
+    duration: Dur.
+    number: Nº
+    remarks: Observaciones
+    single: Tarea
 
-    created: "Tarea creada: "
-    deleted: "Tarea eliminada: "
-    updated: "Tarea actualizada: "
+    created: "Tarea creada:"
+    deleted: "Tarea eliminada:"
+    updated: "Tarea actualizada:"
 
-    add: "Añadir Tarea"
-    edit: "Editar Tarea"
-    many: "Tareas"
+    add: Añadir Tarea
+    edit: Editar Tarea
+    many: Tareas
 
   team:
     home: "Campo local:"
-    home_a: "Local"
+    home_a: Local
 
-    name: "Nombre"
-    none: "Ningún equipo"
-    single: "Equipo"
+    name: Nombre
+    none: Ningún equipo
+    single: Equipo
 
-    created: "Equipo creado: "
-    deleted: "Equipo eliminado: "
-    updated: "Equipo actualizado: "
+    created: "Equipo creado:"
+    deleted: "Equipo eliminado:"
+    updated: "Equipo actualizado:"
 
-    edit: "Editar Equipo"
-    many: "Equipos"
-    new: "Crear Equipo"
+    edit: Editar Equipo
+    many: Equipos
+    new: Crear Equipo
 
-    roster: "Plantilla"
-    roster_edit: "Editar Plantilla"
-    roster_opt: "Jugadores adicionales"
+    roster: Plantilla
+    roster_edit: Editar Plantilla
+    roster_opt: Jugadores adicionales
 
   train:
-    duration: "Dur."
-    single: "Sesión"
+    duration: Dur.
+    single: Sesión
 
-    workload: "Carga de trabajo"
-    workload_by: "Carga de trabajo por"
+    workload: Carga de trabajo
+    workload_by: Carga de trabajo por
 
-    att_check: "Asistencia verificada: "
+    att_check: "Asistencia verificada:"
 
-    created: "Sesión creada: "
-    deleted: "Sesión eliminada: "
-    updated: "Sesión actualizada: "
+    created: "Sesión creada:"
+    deleted: "Sesión eliminada:"
+    updated: "Sesión actualizada:"
 
-    edit: "Editar sesión"
-    many: "Sesiones de entrenamiento"
-    new: "Crear sesión"
+    edit: Editar sesión
+    many: Sesiones de entrenamiento
+    new: Crear sesión
 
   version:
-    author: "autor"
-    changes: "Cambios"
-    description: "descripción"
-    explanation: "explicación"
-    kind: "tipo"
-    material: "material"
-    name: "nombre"
-    single: "Versión"
-    skills: "habilidades"
-    targets: "objetivos"
-    unknown: "Desconocido"
+    author: autor
+    changes: Cambios
+    description: descripción
+    explanation: explicación
+    kind: tipo
+    material: material
+    name: nombre
+    single: Versión
+    skills: habilidades
+    targets: objetivos
+    unknown: Desconocido
 
-    many: "Versiones"
+    many: Versiones

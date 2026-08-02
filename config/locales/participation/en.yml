@@ -12,119 +12,114 @@
 
 en:
   participation:
-    label: "Participation"
-    short: "Partic."
+    label: Participation
+    short: Partic.
 
     membership:
       label:
-        single: "Membership"
-        plural: "Memberships"
-        short: "Mbr."
+        single: Membership
+        plural: Memberships
+        short: Mbr.
       action:
-        create: "Create membership"
-        edit: "Edit membership"
-        terminate: "Terminate membership"
-        delete: "Delete membership"
+        create: Create membership
+        edit: Edit membership
+        terminate: Terminate membership
+        delete: Delete membership
       fields:
-        number: "Membership number"
-        number_short: "#"
-        kind: "Membership kind"
-        kind_short: "Kind"
-        person: "Person"
-        club: "Club"
-        joined_on: "Joined on"
-        left_on: "Left on"
-        active: "Active"
-        primary: "Primary"
-        notes: "Notes"
+        number: Membership number
+        number_short: #
+        kind: Membership kind
+        kind_short: Kind
+        person: Person
+        club: Club
+        joined_on: Joined on
+        left_on: Left on
+        active: Active
+        primary: Primary
+        notes: Notes
       messages:
-        created: "Membership created."
-        updated: "Membership updated."
-        terminated: "Membership terminated."
-        deleted: "Membership deleted."
+        created: Membership created.
+        updated: Membership updated.
+        terminated: Membership terminated.
+        deleted: Membership deleted.
 
     assignment:
       label:
-        single: "Assignment"
-        plural: "Assignments"
-        short: "Assig."
+        single: Assignment
+        plural: Assignments
+        short: Assig.
       action:
-        create: "Assign"
-        edit: "Editar assignment"
-        terminate: "Terminate assignment"
-        delete: "Delete assignment"
+        create: Assign
+        edit: Editar assignment
+        terminate: Terminate assignment
+        delete: Delete assignment
       fields:
-        membership: "Membership"
-        kind: "Assignment kind"
-        starts_on: "Starts"
-        ends_on: "Ends"
-        team: "Team"
-        shirt_number: "Shirt number"
-        shirt_number_short: "#"
-        squad_number: "Squad number"
-        squad_number_short: "#"
-        notes: "Notes"
+        membership: Membership
+        kind: Assignment kind
+        starts_on: Starts
+        ends_on: Ends
+        team: Team
+        shirt_number: Shirt number
+        shirt_number_short: #
+        squad_number: Squad number
+        squad_number_short: #
+        notes: Notes
       messages:
-        created: "Assignment created."
-        updated: "Assignment updated."
-        terminated: "Assignment terminated."
-        deleted: "Assignment deleted."
+        created: Assignment created.
+        updated: Assignment updated.
+        terminated: Assignment terminated.
+        deleted: Assignment deleted.
 
     membership_kinds:
-      label: "Membership kind"
-      short: "Mbr."
+      label: Membership kind
+      short: Mbr.
       values:
         athlete:
-          label: "Athlete"
-          label_plural: "Athletes"
-          short: "Ath."
-          short_plural: "Aths."
-          hint: "Member participating as an athlete."
+          single: Athlete
+          plural: Athletes
+          short: Ath.
+          hint: Member participating as an athlete.
         coach:
-          label: "Coach"
-          label_plural: "Coaches"
-          short: "C."
-          short_plural: "Cs."
-          hint: "Member participating as a coach."
+          single: Coach
+          plural: Coaches
+          short: C.
+          hint: Member participating as a coach.
         volunteer:
-          label: "Volunteer"
-          label_plural: "Volunteers"
-          short: "Vol."
-          short_plural: "Vols."
-          hint: "Member participating as a volunteer."
+          single: Volunteer
+          plural: Volunteers
+          short: Vol.
+          hint: Member participating as a volunteer.
         board_member:
-          label: "Board member"
-          label_plural: "Board members"
-          short: "BM"
-          short_plural: "BMs"
-          hint: "Member participating as a board member."
+          single: Board member
+          plural: Board members
+          short: BM
+          hint: Member participating as a board member.
         club_manager:
-          label: "Club manager"
-          label_plural: "Club managers"
-          short: "C.Mgr."
-          short_plural: "C.Mgrs."
-          hint: "Member participating as a club manager."
+          single: Club manager
+          plural: Club managers
+          short: C.Mgr.
+          hint: Member participating as a club manager.
 
     assignment_kinds:
-      label: "Assignment kind"
-      short: "Assign."
+      label: Assignment kind
+      short: Kind
       values:
-        athlete: "Athlete"
-        captain: "Captain"
-        head_coach: "Head coach"
-        assistant_coach: "Assistant coach"
-        coaching_coordinator: "Coaching coordinator"
-        team_manager: "Team manager"
-        team_delegate: "Team delegate"
-        home_delegate: "Home delegate"
-        photographer: "Photographer"
-        community_manager: "Community manager"
-        webmaster: "Webmaster"
-        club_manager: "Club manager"
-        president: "President"
-        vice_president: "Vice-president"
-        secretary: "Secretary"
-        treasurer: "Treasurer"
+        athlete: Athlete
+        captain: Captain
+        head_coach: Head coach
+        assistant_coach: Assistant coach
+        coaching_coordinator: Coaching coordinator
+        team_manager: Team manager
+        team_delegate: Team delegate
+        home_delegate: Home delegate
+        photographer: Photographer
+        community_manager: Community manager
+        webmaster: Webmaster
+        club_manager: Club manager
+        president: President
+        vice_president: Vice-president
+        secretary: Secretary
+        treasurer: Treasurer
 
   # ---------------------------------------------------------------------------
   # DEPRECATED - DO NOT MODIFY
@@ -133,28 +128,28 @@ en:
   #
   # Search for:
   #
-  #   t("coach.
-  #   t("player.
+  #   t(coach.
+  #   t(player.
   #
   # Remove once all callers have migrated.
   # ---------------------------------------------------------------------------
 
   coach:
-    abbr: "Coach"
+    abbr: Coach
 
-    single: "Coach"
-    many: "Coaches"
+    single: Coach
+    many: Coaches
 
-    created: "Created coach: "
-    updated: "Updated coach: "
-    deleted: "Deleted coach: "
-    duplicate: "Duplicate coach: "
+    created: "Created coach:"
+    updated: "Updated coach:"
+    deleted: "Deleted coach:"
+    duplicate: "Duplicate coach:"
 
-    edit: "Edit Coach"
-    new: "Create Coach"
+    edit: Edit Coach
+    new: Create Coach
 
-    export: "Exported coaches"
-    import: "Imported coaches"
+    export: Exported coaches
+    import: Imported coaches
 
     label:
       single: "%{t('coach.single')}"
@@ -162,27 +157,27 @@ en:
       short: "%{t('coach.abbr')}"
 
   player:
-    abbr: "Play."
+    abbr: Play.
 
-    single: "Player"
-    many: "Players"
+    single: Player
+    many: Players
 
-    number: "#"
-    playing: "Playing"
+    number: #
+    playing: Playing
 
-    created: "Created player: "
-    updated: "Updated player: "
-    deleted: "Deleted player: "
-    duplicate: "Duplicate player: "
+    created: "Created player:"
+    updated: "Updated player:"
+    deleted: "Deleted player:"
+    duplicate: "Duplicate player:"
 
-    deactivated: "Inactive player: "
-    removed: "Removed player: "
+    deactivated: "Inactive player:"
+    removed: "Removed player:"
 
-    edit: "Edit Player"
-    new: "Create Player"
+    edit: Edit Player
+    new: Create Player
 
-    export: "Exported players"
-    import: "Imported players"
+    export: Exported players
+    import: Imported players
 
     label:
       single: "%{t('player.single')}"

@@ -12,175 +12,239 @@
 en:
   core:
     application:
-      label: "MudClub"
-      short: "MudClub"
+      label: MudClub
+      short: MudClub
       fields:
-        version: "Version"
-        version_short: "v"
-        build: "Build"
-        website: "Website"
-        website_short: "Web"
-        license: "License"
+        version: Version
+        version_short: v
+        build: Build
+        website: Website
+        website_short: Web
+        license: License
       messages:
-        about: "About..."
-        published: "Published under GNU Affero GPL v3 licence"
+        about: About...
+        published: Published under GNU Affero GPL v3 licence
 
     modules:
-      core: "Core"
-      calendar: "Calendar"
-      people: "People"
-      organization: "Organization"
-      participation: "Participation"
-      training: "Training"
-      competition: "Competition"
-      communication: "Communication"
-      finance: "Finance"
+      core: Core
+      calendar: Calendar
+      people: People
+      organization: Organization
+      participation: Participation
+      training: Training
+      competition: Competition
+      communication: Communication
+      finance: Finance
 
     actions:
-      view: "View"
-      view_desc: "View information."
-      create: "Create"
-      create_desc: "Create new records."
-      update: "Update"
-      update_desc: "Modify existing records."
-      delete: "Delete"
-      delete_desc: "Delete records."
-      manage: "Manage"
-      manage_desc: "Full administrative control."
-      assign: "Assign"
-      assign_desc: "Assign people or resources."
-      approve: "Approve"
-      approve_desc: "Approve workflows or requests."
-      publish: "Publish"
-      publish_desc: "Publish information."
-      export: "Export"
-      export_desc: "Export data."
+      view: View
+      view_desc: View information.
+      create: Create
+      create_desc: Create new records.
+      update: Update
+      update_desc: Modify existing records.
+      delete: Delete
+      delete_desc: Delete records.
+      manage: Manage
+      manage_desc: Full administrative control.
+      assign: Assign
+      assign_desc: Assign people or resources.
+      approve: Approve
+      approve_desc: Approve workflows or requests.
+      publish: Publish
+      publish_desc: Publish information.
+      export: Export
+      export_desc: Export data.
 
     lifecycles:
-      immutable: "Immutable"
-      archivable: "Archivable"
-      anonymisable: "Anonymisable"
-      disposable: "Disposable"
+      immutable: Immutable
+      archivable: Archivable
+      anonymisable: Anonymisable
+      disposable: Disposable
 
     permissions:
-      view_club: "View club"
-      view_club_desc: "View club information and configuration."
-      manage_club: "Manage club"
-      manage_club_desc: "Manage club information and configuration."
-      view_people: "View people"
-      view_people_desc: "View personal information of club members."
-      contact_people: "Contact people"
-      contact_people_desc: "Contact people using the communication services provided by MudClub."
-      manage_people: "Manage people"
-      manage_people_desc: "Create and maintain people records."
-      view_roles: "View operational roles"
-      view_roles_desc: "View operational roles."
-      manage_roles: "Manage operational roles"
-      manage_roles_desc: "Define operational roles."
-      view_system: "View system"
-      view_system_desc: "View system-wide configuration and status."
-      manage_system: "Manage system"
-      manage_system_desc: "Administer the MudClub installation."
-      manage_users: "Manage users"
-      manage_users_desc: "Manage MudClub user accounts."
+      view_club: View club
+      view_club_desc: View club information and configuration.
+      manage_club: Manage club
+      manage_club_desc: Manage club information and configuration.
+      view_people: View people
+      view_people_desc: View personal information of club members.
+      contact_people: Contact people
+      contact_people_desc: Contact people using the communication services provided by MudClub.
+      manage_people: Manage people
+      manage_people_desc: Create and maintain people records.
+      view_roles: View operational roles
+      view_roles_desc: View operational roles.
+      manage_roles: Manage operational roles
+      manage_roles_desc: Define operational roles.
+      view_system: View system
+      view_system_desc: View system-wide configuration and status.
+      manage_system: Manage system
+      manage_system_desc: Administer the MudClub installation.
+      manage_users: Manage users
+      manage_users_desc: Manage MudClub user accounts.
 
     scopes:
-      none: "None"
-      team: "Team"
-      club: "Club"
-      global: "Global"
+      none: None
+      team: Team
+      club: Club
+      global: Global
 
     user:
-      label: "User"
-      short: "User"
+      label: User
+      short: User
       fields:
-        profile: "Profile"
-        profile_short: "Prof."
-        email: "Email"
-        email_short: "E-mail"
-        person: "Person"
-        person_short: "Person"
-        club: "Club"
-        club_short: "Club"
-        settings: "Settings"
-        settings_short: "Config."
-        last_login: "Last login"
-        last_login_short: "Last"
+        profile: Profile
+        profile_short: Prof.
+        email: Email
+        email_short: E-mail
+        person: Person
+        person_short: Person
+        club: Club
+        club_short: Club
+        settings: Settings
+        settings_short: Config.
+        last_login: Last login
+        last_login_short: Last
       messages:
-        created: "User created."
-        updated: "User updated."
-        deleted: "User deleted."
-        duplicated: "Duplicate user."
-        actions_cleared: "User actions cleared."
+        created: User created.
+        updated: User updated.
+        deleted: User deleted.
+        duplicated: Duplicate user.
+        actions_cleared: User actions cleared.
       values:
-        never_logged: "Never logged in"
+        never_logged: Never logged in
 
     user_action:
-      label: "User action"
-      short: "Action"
+      label: User action
+      short: Action
       fields:
-        action: "Action"
-        user: "User"
-        object: "Object"
-        object_type: "Object type"
-        object_type_short: "Type"
-        object_id: "Object ID"
-        object_id_short: "ID"
-        controller: "Controller"
-        request: "Request"
-        ip_address: "IP address"
-        ip_address_short: "IP"
-        user_agent: "User agent"
-        user_agent_short: "Agent"
-        occurred_at: "Timestamp"
-        occurred_at_short: "Time"
+        action: Action
+        user: User
+        object: Object
+        object_type: Object type
+        object_type_short: Type
+        object_id: Object ID
+        object_id_short: ID
+        controller: Controller
+        request: Request
+        ip_address: IP address
+        ip_address_short: IP
+        user_agent: User agent
+        user_agent_short: Agent
+        occurred_at: Timestamp
+        occurred_at_short: Time
       messages:
-        cleared: "User actions cleared."
-        exported: "User actions exported."
+        cleared: User actions cleared.
+        exported: User actions exported.
 
     location:
-      label: "Location"
-      short: "Loc."
+      label: Location
+      short: Loc.
       fields:
-        name: "Name"
-        google_maps: "Google Maps"
-        google_maps_short: "GPS"
-        training_court: "Training court"
-        training_court_short: "Court"
+        name: Name
+        google_maps: Google Maps
+        google_maps_short: GPS
+        training_court: Training court
+        training_court_short: Court
       messages:
-        created: "Location created."
-        updated: "Location updated."
-        deleted: "Location deleted."
-        duplicated: "Duplicate location."
+        created: Location created.
+        updated: Location updated.
+        deleted: Location deleted.
+        duplicated: Duplicate location.
 
     season:
-      label: "Season"
-      short: "Seas."
+      label: Season
+      short: Seas.
       fields:
-        locations: "Locations"
+        locations: Locations
       messages:
-        created: "Season created."
-        updated: "Season updated."
-        deleted: "Season deleted."
+        created: Season created.
+        updated: Season updated.
+        deleted: Season deleted.
 
     sport:
-      label: "Sport"
-      short: "Sport"
+      label: Sport
+      short: Sport
       fields:
-        rules: "Rules"
-      period:
-        label: "Period"
-        short: "Per."
-        duration: "Duration"
-        duration_short: "Dur."
-        quantity: "Quantity"
-        quantity_short: "Qty."
-        regular: "Regular"
-        extra: "Extra"
+        rules: Rules
+        home: Home
+        default_rival: <Rival>
+
+      terms:
+        athlete:
+          single: Athlete
+          plural: Athletes
+          short: Ath.
+        coach:
+          single: Coach
+          plural: Coaches
+          short: Coach
+        team:
+          single: Team
+          plural: Teams
+          short: Team
+        competition:
+          single: Competition
+          plural: Competitions
+          short: Comp.
+        match:
+          single: Match
+          plural: Matches
+          short: Match
+        victory:
+          single: Victory
+          plural: Victories
+          short: W
+        defeat:
+          single: Loss
+          plural: Losses
+          short: L
+        session:
+          single: Training session
+          plural: Training sessions
+          short: Sess.
+        skill:
+          single: Skill
+          plural: Skills
+          short: Skill
+        position:
+          single: Position
+          plural: Positions
+          short: Pos.
+        role:
+          single: Role
+          plural: Roles
+          short: Role
+        season:
+          single: Season
+          plural: Seasons
+          short: Seas.
+        category:
+          single: Category
+          plural: Categories
+          short: Cat.
+        event:
+          single: Event
+          plural: Events
+          short: Event
+        official:
+          single: Official
+          plural: Officials
+          short: Off.
+        field_of_play:
+          single: Field of play
+          plural: Fields of play
+          short: FoP
+        period:
+          single: Period
+          plural: Periods
+          short: Per.
+
       messages:
-        created: "Sport created."
-        updated: "Sport updated."
-        deleted: "Sport deleted."
+        created: Sport created.
+        updated: Sport updated.
+        deleted: Sport deleted.
 
   # -----------------------------------------------------------------------------
   # DEPRECATED - DO NOT MODIFY
@@ -189,90 +253,90 @@ en:
   #
   # Search for:
   #
-  #   t("location.
-  #   t("password.
-  #   t("season.
-  #   t("sport.
-  #   t("user.
-  #   t("server.
-  #   t("role.
+  #   t(location.
+  #   t(password.
+  #   t(season.
+  #   t(sport.
+  #   t(user.
+  #   t(server.
+  #   t(role.
   #
   # Remove this section once all references have been migrated.
   # -----------------------------------------------------------------------------
   location:
     # Attributes
-    abbr: "Loc."
-    default: "<new location.>"
-    gmaps: "Google Maps link"
-    name: "Name"
-    none: "(no location)"
-    see: "(see location)"
-    train: "Training Court"
-    train_a: "T.Court."
+    abbr: Loc.
+    default: <new location.>
+    gmaps: Google Maps link
+    name: Name
+    none: (no location)
+    see: (see location)
+    train: Training Court
+    train_a: T.Court.
 
     # CRUD
-    created: "Created location: "
-    deleted: "Deleted location: "
-    duplicate: "Duplicate Location: "
-    updated: "Updated location: "
+    created: "Created location:"
+    deleted: "Deleted location:"
+    duplicate: "Duplicate Location:"
+    updated: "Updated location:"
 
     # UI
-    edit: "Edit Location"
-    many: "Locations"
-    new: "Create Location"
-    single: "Location"
+    edit: Edit Location
+    many: Locations
+    new: Create Location
+    single: Location
 
   password:
     # Attributes
-    blank_abort: "(leave blank to avoid changing it)"
-    confirm: "Confirm Password"
-    confirm_label: "(*) confirm password"
-    confirm_wait: "Awaiting confirmation from: "
-    min_chars: "Minimum length: "
-    new: "New password"
-    old: "Current password"
-    single: "Password"
+    blank_abort: (leave blank to avoid changing it)
+    confirm: Confirm Password
+    confirm_label: (*) confirm password
+    confirm_wait: "Awaiting confirmation from:"
+    min_chars: "Minimum length:"
+    new: New password
+    old: Current password
+    single: Password
 
     # UI
-    change: "Change password"
-    forgotten: "Forgot your password?"
-    reset: "Send password reset details"
+    change: Change password
+    forgotten: Forgot your password?
+    reset: Send password reset details
 
   role:
     # Roles
-    admin: "Admin"
-    admin_a: "Adm."
-    coach: "Coach"
-    coach_a: "Coach"
-    manager: "Manager"
-    manager_a: "Mngr."
-    player: "Player"
-    player_a: "Play."
-    secretary: "Secretary"
-    secretary_a: "Sec."
-    user: "User"
-    user_a: "User"
+    admin: Admin
+    admin_a: Adm.
+    coach: Coach
+    coach_a: Coach
+    manager: Manager
+    manager_a: Mngr.
+    player: Player
+    player_a: Play.
+    secretary: Secretary
+    secretary_a: Sec.
+    user: User
+    user_a: User
 
   season:
     # Attributes
-    abbr: "Seas."
-    locations: "Season Courts"
+    abbr: Seas.
+    locations: Season Courts
 
     # CRUD
-    created: "Created season: "
-    deleted: "Deleted season: "
-    updated: "Updated season: "
+    created: "Created season:"
+    deleted: "Deleted season:"
+    updated: "Updated season:"
 
     # UI
-    edit: "Edit Season"
-    many: "Seasons"
-    new: "Create Season"
-    single: "Season"
+    edit: Edit Season
+    many: Seasons
+    new: Create Season
+    single: Season
 
   server:
     # Info
-    about: "About ..."
-    build: "Build #"
+    about: About ...
+    build: Build #
     info-1: "Open-source web application to manage your"
     info-2: "sports club:"
     info-3: "Seasons: timeslots, coaches & athletes."
@@ -280,52 +344,52 @@ en:
     info-5: "Training: planning, drills, plays, sessions."
     info-6: "Matches: outings/stats & results."
     published: "Published under GNU Affero GPLv3 license"
-    single: "Server"
-    website: "MudClub wiki"
+    single: Server
+    website: MudClub wiki
 
     # UI
-    log: "Logs"
+    log: Logs
 
   sport:
     # Attributes
-    abbr: "Sport"
+    abbr: Sport
     period:
-      duration: "Dur."
-      extra: "Extra"
-      many: "Periods"
-      qty: "Q."
-      regular: "Regular"
-      single: "Period"
-    rules: "Rules"
+      duration: Dur.
+      extra: Extra
+      many: Periods
+      qty: Q.
+      regular: Regular
+      single: Period
+    rules: Rules
 
     # CRUD
-    created: "Created sport: "
-    deleted: "Deleted sport: "
-    updated: "Updated sport: "
+    created: "Created sport:"
+    deleted: "Deleted sport:"
+    updated: "Updated sport:"
 
     # UI
-    edit: "Edit sport"
-    many: "Sports"
-    new: "Create sport"
-    single: "Sport"
+    edit: Edit sport
+    many: Sports
+    new: Create sport
+    single: Sport
 
   user:
     # Attributes
-    last_in: "Last login"
-    never: "(never logged)"
-    no_email: "e-mail is required!"
-    profile: "Profile"
-    single: "User"
+    last_in: Last login
+    never: (never logged)
+    no_email: e-mail is required!
+    profile: Profile
+    single: User
 
     # CRUD
-    cleared: "Actions cleared: "
-    created: "Created user: "
-    deleted: "Deleted user: "
-    duplicate: "Duplicate: "
-    updated: "Updated user: "
+    cleared: "Actions cleared:"
+    created: "Created user:"
+    deleted: "Deleted user:"
+    duplicate: "Duplicate:"
+    updated: "Updated user:"
 
     # UI
-    actions: "Actions"
-    edit: "Edit User"
-    many: "Users"
-    new: "Create User"
+    actions: Actions
+    edit: Edit User
+    many: Users
+    new: Create User

@@ -240,7 +240,7 @@ en:
   # -----------------------------------------------------------------------------
   match:
     default_rival: "<Opponent>"
-    home: "Local"
+    home: "Home"
     lost: "L"
     rival: "Opponent"
     roster: "Active players"

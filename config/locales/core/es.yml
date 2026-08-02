@@ -12,175 +12,239 @@
 es:
   core:
     application:
-      label: "MudClub"
-      short: "MudClub"
+      label: MudClub
+      short: MudClub
       fields:
-        version: "Versión"
-        version_short: "v"
-        build: "Compilación"
-        website: "Sitio web"
-        website_short: "Web"
-        license: "Licencia"
+        version: Versión
+        version_short: v
+        build: Compilación
+        website: Sitio web
+        website_short: Web
+        license: Licencia
       messages:
-        about: "Acerca de..."
-        published: "Publicado bajo licencia GNU Affero GPL v3"
+        about: Acerca de...
+        published: Publicado bajo licencia GNU Affero GPL v3
 
     modules:
-      core: "Núcleo"
-      calendar: "Calendario"
-      people: "Personas"
-      organization: "Organización"
-      participation: "Participación"
-      training: "Entrenamiento"
-      competition: "Competición"
-      communication: "Comunicación"
-      finance: "Finanzas"
+      core: Núcleo
+      calendar: Calendario
+      people: Personas
+      organization: Organización
+      participation: Participación
+      training: Entrenamiento
+      competition: Competición
+      communication: Comunicación
+      finance: Finanzas
 
     actions:
-      view: "Ver"
-      view_desc: "Ver información."
-      create: "Crear"
-      create_desc: "Crear nuevos registros."
-      update: "Actualizar"
-      update_desc: "Modificar registros existentes."
-      delete: "Eliminar"
-      delete_desc: "Eliminar registros."
-      manage: "Gestionar"
-      manage_desc: "Control administrativo completo."
-      assign: "Asignar"
-      assign_desc: "Asignar personas o recursos."
-      approve: "Aprobar"
-      approve_desc: "Aprobar flujos de trabajo o solicitudes."
-      publish: "Publicar"
-      publish_desc: "Publicar información."
-      export: "Exportar"
-      export_desc: "Exportar datos."
+      view: Ver
+      view_desc: Ver información.
+      create: Crear
+      create_desc: Crear nuevos registros.
+      update: Actualizar
+      update_desc: Modificar registros existentes.
+      delete: Eliminar
+      delete_desc: Eliminar registros.
+      manage: Gestionar
+      manage_desc: Control administrativo completo.
+      assign: Asignar
+      assign_desc: Asignar personas o recursos.
+      approve: Aprobar
+      approve_desc: Aprobar flujos de trabajo o solicitudes.
+      publish: Publicar
+      publish_desc: Publicar información.
+      export: Exportar
+      export_desc: Exportar datos.
 
     lifecycles:
-      immutable: "Inmutable"
-      archivable: "Archivable"
-      anonymisable: "Anonimizable"
-      disposable: "Desechable"
+      immutable: Inmutable
+      archivable: Archivable
+      anonymisable: Anonimizable
+      disposable: Desechable
 
     permissions:
-      view_club: "Ver club"
-      view_club_desc: "Ver información y configuración del club."
-      manage_club: "Gestionar club"
-      manage_club_desc: "Gestionar información y configuración del club."
-      view_people: "Ver personas"
-      view_people_desc: "Ver información personal de los miembros del club."
-      contact_people: "Contactar personas"
-      contact_people_desc: "Contactar personas mediante los servicios de comunicación proporcionados por MudClub."
-      manage_people: "Gestionar personas"
-      manage_people_desc: "Crear y mantener registros de personas."
-      view_roles: "Ver roles operativos"
-      view_roles_desc: "Ver roles operativos."
-      manage_roles: "Gestionar roles operativos"
-      manage_roles_desc: "Definir roles operativos."
-      view_system: "Ver sistema"
-      view_system_desc: "Ver configuración y estado del sistema."
-      manage_system: "Gestionar sistema"
-      manage_system_desc: "Administrar la instalación de MudClub."
-      manage_users: "Gestionar usuarios"
-      manage_users_desc: "Gestionar cuentas de usuario de MudClub."
+      view_club: Ver club
+      view_club_desc: Ver información y configuración del club.
+      manage_club: Gestionar club
+      manage_club_desc: Gestionar información y configuración del club.
+      view_people: Ver personas
+      view_people_desc: Ver información personal de los miembros del club.
+      contact_people: Contactar personas
+      contact_people_desc: Contactar personas mediante los servicios de comunicación proporcionados por MudClub.
+      manage_people: Gestionar personas
+      manage_people_desc: Crear y mantener registros de personas.
+      view_roles: Ver roles operativos
+      view_roles_desc: Ver roles operativos.
+      manage_roles: Gestionar roles operativos
+      manage_roles_desc: Definir roles operativos.
+      view_system: Ver sistema
+      view_system_desc: Ver configuración y estado del sistema.
+      manage_system: Gestionar sistema
+      manage_system_desc: Administrar la instalación de MudClub.
+      manage_users: Gestionar usuarios
+      manage_users_desc: Gestionar cuentas de usuario de MudClub.
 
     scopes:
-      none: "Ninguno"
-      team: "Equipo"
-      club: "Club"
-      global: "Global"
+      none: Ninguno
+      team: Equipo
+      club: Club
+      global: Global
 
     user:
-      label: "Usuario"
-      short: "Usuario"
+      label: Usuario
+      short: Usuario
       fields:
-        profile: "Perfil"
-        profile_short: "Perf."
-        email: "Correo electrónico"
-        email_short: "E-mail"
-        person: "Persona"
-        person_short: "Persona"
-        club: "Club"
-        club_short: "Club"
-        settings: "Configuración"
-        settings_short: "Config."
-        last_login: "Último acceso"
-        last_login_short: "Último"
+        profile: Perfil
+        profile_short: Perf.
+        email: Correo electrónico
+        email_short: E-mail
+        person: Persona
+        person_short: Persona
+        club: Club
+        club_short: Club
+        settings: Configuración
+        settings_short: Config.
+        last_login: Último acceso
+        last_login_short: Último
       messages:
-        created: "Usuario creado."
-        updated: "Usuario actualizado."
-        deleted: "Usuario eliminado."
-        duplicated: "Usuario duplicado."
-        actions_cleared: "Acciones de usuario eliminadas."
+        created: Usuario creado.
+        updated: Usuario actualizado.
+        deleted: Usuario eliminado.
+        duplicated: Usuario duplicado.
+        actions_cleared: Acciones de usuario eliminadas.
       values:
-        never_logged: "Nunca ha iniciado sesión"
+        never_logged: Nunca ha iniciado sesión
 
     user_action:
-      label: "Acción de usuario"
-      short: "Acción"
+      label: Acción de usuario
+      short: Acción
       fields:
-        action: "Acción"
-        user: "Usuario"
-        object: "Objeto"
-        object_type: "Tipo de objeto"
-        object_type_short: "Tipo"
-        object_id: "ID del objeto"
-        object_id_short: "ID"
-        controller: "Controlador"
-        request: "Solicitud"
-        ip_address: "Dirección IP"
-        ip_address_short: "IP"
-        user_agent: "Agente de usuario"
-        user_agent_short: "Agente"
-        occurred_at: "Fecha y hora"
-        occurred_at_short: "Hora"
+        action: Acción
+        user: Usuario
+        object: Objeto
+        object_type: Tipo de objeto
+        object_type_short: Tipo
+        object_id: ID del objeto
+        object_id_short: ID
+        controller: Controlador
+        request: Solicitud
+        ip_address: Dirección IP
+        ip_address_short: IP
+        user_agent: Agente de usuario
+        user_agent_short: Agente
+        occurred_at: Fecha y hora
+        occurred_at_short: Hora
       messages:
-        cleared: "Acciones de usuario eliminadas."
-        exported: "Acciones de usuario exportadas."
+        cleared: Acciones de usuario eliminadas.
+        exported: Acciones de usuario exportadas.
 
     location:
-      label: "Ubicación"
-      short: "Ubic."
+      label: Ubicación
+      short: Ubic.
       fields:
-        name: "Nombre"
-        google_maps: "Google Maps"
-        google_maps_short: "GPS"
-        training_court: "Pista de entrenamiento"
-        training_court_short: "Pista"
+        name: Nombre
+        google_maps: Google Maps
+        google_maps_short: GPS
+        training_court: Pista de entrenamiento
+        training_court_short: Pista
       messages:
-        created: "Ubicación creada."
-        updated: "Ubicación actualizada."
-        deleted: "Ubicación eliminada."
-        duplicated: "Ubicación duplicada."
+        created: Ubicación creada.
+        updated: Ubicación actualizada.
+        deleted: Ubicación eliminada.
+        duplicated: Ubicación duplicada.
 
     season:
-      label: "Temporada"
-      short: "Temp."
+      label: Temporada
+      short: Temp.
       fields:
-        locations: "Ubicaciones"
+        locations: Ubicaciones
       messages:
-        created: "Temporada creada."
-        updated: "Temporada actualizada."
-        deleted: "Temporada eliminada."
+        created: Temporada creada.
+        updated: Temporada actualizada.
+        deleted: Temporada eliminada.
 
     sport:
-      label: "Deporte"
-      short: "Dep."
+      label: Deporte
+      short: Dep.
       fields:
-        rules: "Reglas"
-      period:
-        label: "Período"
-        short: "Per."
-        duration: "Duración"
-        duration_short: "Dur."
-        quantity: "Cantidad"
-        quantity_short: "Cant."
-        regular: "Regular"
-        extra: "Extra"
+        rules: Reglas
+        home: Local
+        default_rival: <Opponent>
+
+      terms:
+        athlete:
+          single: Deportista
+          plural: Deportistas
+          short: Dep.
+        coach:
+          single: Entrenador
+          plural: Entrenadores
+          short: Ent.
+        team:
+          single: Equipo
+          plural: Equipos
+          short: Equipo
+        competition:
+          single: Competición
+          plural: Competiciones
+          short: Comp.
+        match:
+          single: Partido
+          plural: Partidos
+          short: Part.
+        victory:
+          single: Victoria
+          plural: Victorias
+          short: V
+        defeat:
+          single: Derrota
+          plural: Derrotas
+          short: D
+        session:
+          single: Sesión de entrenamiento
+          plural: Sesiones de entrenamiento
+          short: Ses.
+        skill:
+          single: Habilidad
+          plural: Habilidades
+          short: Hab.
+        position:
+          single: Posición
+          plural: Posiciones
+          short: Pos.
+        role:
+          single: Rol
+          plural: Roles
+          short: Rol
+        season:
+          single: Temporada
+          plural: Temporadas
+          short: Temp.
+        category:
+          single: Categoría
+          plural: Categorías
+          short: Cat.
+        event:
+          single: Evento
+          plural: Eventos
+          short: Eve.
+        official:
+          single: Oficial
+          plural: Oficiales
+          short: Ofi.
+        field_of_play:
+          single: Terreno de juego
+          plural: Terrenos de juego
+          short: Ter.
+        period:
+          single: Periodo
+          plural: Periodos
+          short: Per.
+
       messages:
-        created: "Deporte creado."
-        updated: "Deporte actualizado."
-        deleted: "Deporte eliminado."
+        created: Deporte creado.
+        updated: Deporte actualizado.
+        deleted: Deporte eliminado.
 
   # -----------------------------------------------------------------------------
   # OBSOLETO
@@ -189,143 +253,143 @@ es:
   #
   # Buscar:
   #
-  #   t("location.
-  #   t("password.
-  #   t("season.
-  #   t("sport.
-  #   t("user.
-  #   t("server.
-  #   t("role.
+  #   t(location.
+  #   t(password.
+  #   t(season.
+  #   t(sport.
+  #   t(user.
+  #   t(server.
+  #   t(role.
   #
   # Eliminar esta sección una vez migradas todas las referencias.
   # -----------------------------------------------------------------------------
   location:
     # Atributos
-    abbr: "Ubic."
-    default: "<nueva ubicación.>"
-    gmaps: "Enlace de Google Maps"
-    name: "Nombre"
-    none: "(sin ubicación)"
-    see: "(ver ubicación)"
-    train: "Pista de entrenamiento"
-    train_a: "Pista ent."
+    abbr: Ubic.
+    default: <nueva ubicación.>
+    gmaps: Enlace de Google Maps
+    name: Nombre
+    none: (sin ubicación)
+    see: (ver ubicación)
+    train: Pista de entrenamiento
+    train_a: Pista ent.
 
     # CRUD
-    created: "Ubicación creada: "
-    deleted: "Ubicación eliminada: "
-    duplicate: "Duplicar ubicación: "
-    updated: "Ubicación actualizada: "
+    created: "Ubicación creada:"
+    deleted: "Ubicación eliminada:"
+    duplicate: "Duplicar ubicación:"
+    updated: "Ubicación actualizada:"
 
     # UI
-    edit: "Editar ubicación"
-    many: "Ubicaciones"
-    new: "Crear ubicación"
-    single: "Ubicación"
+    edit: Editar ubicación
+    many: Ubicaciones
+    new: Crear ubicación
+    single: Ubicación
 
   password:
     # Atributos
-    blank_abort: "(dejar en blanco para no cambiarla)"
-    confirm: "Confirmar contraseña"
-    confirm_label: "(*) confirmar contraseña"
-    confirm_wait: "Pendiente de confirmación de: "
-    min_chars: "Longitud mínima: "
-    new: "Nueva contraseña"
-    old: "Contraseña actual"
-    single: "Contraseña"
+    blank_abort: (dejar en blanco para no cambiarla)
+    confirm: Confirmar contraseña
+    confirm_label: (*) confirmar contraseña
+    confirm_wait: "Pendiente de confirmación de:"
+    min_chars: "Longitud mínima:"
+    new: Nueva contraseña
+    old: Contraseña actual
+    single: Contraseña
 
     # UI
-    change: "Cambiar contraseña"
-    forgotten: "¿Olvidó su contraseña?"
-    reset: "Enviar detalles para restablecer contraseña"
+    change: Cambiar contraseña
+    forgotten: ¿Olvidó su contraseña?
+    reset: Enviar detalles para restablecer contraseña
 
   role:
     # Roles
-    admin: "Administrador"
-    admin_a: "Admin."
-    coach: "Entrenador"
-    coach_a: "Entren."
-    manager: "Gerente"
-    manager_a: "Gerent."
-    player: "Jugador"
-    player_a: "Jug."
-    secretary: "Secretario"
-    secretary_a: "Secr."
-    user: "Usuario"
-    user_a: "Usuar."
+    admin: Administrador
+    admin_a: Admin.
+    coach: Entrenador
+    coach_a: Entren.
+    manager: Gerente
+    manager_a: Gerent.
+    player: Jugador
+    player_a: Jug.
+    secretary: Secretario
+    secretary_a: Secr.
+    user: Usuario
+    user_a: Usuar.
 
   season:
     # Atributos
-    abbr: "Temp."
-    locations: "Pistas de la temporada"
+    abbr: Temp.
+    locations: Pistas de la temporada
 
     # CRUD
-    created: "Temporada creada: "
-    deleted: "Temporada eliminada: "
-    updated: "Temporada actualizada: "
+    created: "Temporada creada:"
+    deleted: "Temporada eliminada:"
+    updated: "Temporada actualizada:"
 
     # UI
-    edit: "Editar temporada"
-    many: "Temporadas"
-    new: "Crear temporada"
-    single: "Temporada"
+    edit: Editar temporada
+    many: Temporadas
+    new: Crear temporada
+    single: Temporada
 
   server:
     # Información
-    about: "Acerca de ..."
-    build: "Compilación nº"
-    info-1: "Aplicación web de código abierto para gestionar su"
+    about: Acerca de ...
+    build: Compilación nº
+    info-1: Aplicación web de código abierto para gestionar su
     info-2: "club deportivo:"
     info-3: "Temporadas: franjas horarias, entrenadores y deportistas."
     info-4: "Equipos: plantillas, objetivos, eventos, etc."
     info-5: "Entrenamiento: planificación, ejercicios, jugadas, sesiones."
     info-6: "Partidos: desplazamientos/estadísticas y resultados."
-    published: "Publicado bajo licencia GNU Affero GPLv3"
-    single: "Servidor"
-    website: "Wiki de MudClub"
+    published: Publicado bajo licencia GNU Affero GPLv3
+    single: Servidor
+    website: Wiki de MudClub
 
     # UI
-    log: "Registros"
+    log: Registros
 
   sport:
     # Atributos
-    abbr: "Deporte"
+    abbr: Deporte
     period:
-      duration: "Duración"
-      extra: "Extra"
-      many: "Períodos"
-      qty: "Cant."
-      regular: "Regular"
-      single: "Período"
-    rules: "Reglas"
+      duration: Duración
+      extra: Extra
+      many: Períodos
+      qty: Cant.
+      regular: Regular
+      single: Período
+    rules: Reglas
 
     # CRUD
-    created: "Deporte creado: "
-    deleted: "Deporte eliminado: "
-    updated: "Deporte actualizado: "
+    created: "Deporte creado:"
+    deleted: "Deporte eliminado:"
+    updated: "Deporte actualizado:"
 
     # UI
-    edit: "Editar deporte"
-    many: "Deportes"
-    new: "Crear deporte"
-    single: "Deporte"
+    edit: Editar deporte
+    many: Deportes
+    new: Crear deporte
+    single: Deporte
 
   user:
     # Atributos
-    last_in: "Último acceso"
-    never: "(nunca ha iniciado sesión)"
-    no_email: "¡el correo electrónico es obligatorio!"
-    profile: "Perfil"
-    single: "Usuario"
+    last_in: Último acceso
+    never: (nunca ha iniciado sesión)
+    no_email: ¡el correo electrónico es obligatorio!
+    profile: Perfil
+    single: Usuario
 
     # CRUD
-    cleared: "Acciones eliminadas: "
-    created: "Usuario creado: "
-    deleted: "Usuario eliminado: "
-    duplicate: "Duplicar: "
-    updated: "Usuario actualizado: "
+    cleared: "Acciones eliminadas:"
+    created: "Usuario creado:"
+    deleted: "Usuario eliminado:"
+    duplicate: "Duplicar:"
+    updated: "Usuario actualizado:"
 
     # UI
-    actions: "Acciones"
-    edit: "Editar usuario"
-    many: "Usuarios"
-    new: "Crear usuario"
+    actions: Acciones
+    edit: Editar usuario
+    many: Usuarios
+    new: Crear usuario

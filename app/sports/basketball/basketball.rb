@@ -18,8 +18,7 @@
 #
 # Extension of the Sport class to Manage Basketball as a MudClub sport
 class Basketball < Sport
-	SPORT_LBL = "sport.basketball"
-	localized_as SPORT_LBL
+	localized_as "sport.basketball"
 
 	#
 	# --------------------------------------------------------------------------
@@ -126,8 +125,8 @@ class Basketball < Sport
 	# table to show/edit player outings for a match
 	def outings_table(event, outings, edit: false, rdx: nil)
 		title = [
-			{ kind: :normal, value: I18n.t("participation.assignment.fields.shirt_number.short"), align: "center" },
-			{ kind: :normal, value: I18n.t("people.person.fields.name.label") }
+			{ kind: :normal, value: Assignment.attr(:shirt_number_short), align: "center" },
+			{ kind: :normal, value: Person.attr(:name) }
 		]
 		rows  = []
 		kind  = (edit ? :text : :normal)
@@ -139,7 +138,7 @@ class Basketball < Sport
 		if periods
 			q_players = {}
 			1.upto(outings[:total]) do |i|
-				title << { kind: :normal, value: I18n.t("#{SPORT_LBL}.periods.values.q#{i}.short") }
+				title << { kind: :normal, value: t_path(:periods, :values, "q#{i}_short".to_sym) }
 				q_players[i] = 0
 			end
 		end
@@ -204,7 +203,7 @@ class Basketball < Sport
 		res << show_shooting_data(s_label("tm"), stats, :tmm, :tma)
 		res << show_shooting_data(s_label("t3"), stats, :t3m, :t3a)
 		get_shooting_totals(event.id, player_id, stats)
-		res << show_shooting_data(I18n.t("training.stat.fields.total.short"), stats, :fgm, :fga)
+		res << show_shooting_data(t_path("shared.stats.total_short"), stats, :fgm, :fga)
 		res
 	end
 
@@ -286,20 +285,20 @@ class Basketball < Sport
 
 		# header fields to show player training_stats
 		def player_training_stats_header
-			res = [ [ { kind: :gap }, { kind: :side_cell, value: I18n.t("training.stat.label.plural"), align: "middle", cols: 5 } ] ]
+			res = [ [ { kind: :gap }, { kind: :side_cell, value: t_path("training.stats.plural"), align: "middle", cols: 5 } ] ]
 			res << [
 				{ kind: :gap },
-				topcell(I18n.t("#{SPORT_LBL}.shot.many")),
-				topcell(I18n.t("#{SPORT_LBL}.shot.scored")),
+				topcell(t_path(:shot, :many)),
+				topcell(t_path(:shot, :scored)),
 				topcell("/"),
-				topcell(I18n.t("#{SPORT_LBL}.shot.attempt"))
+				topcell(t_path(:shot, :attempt))
 			]
 		end
 
 		# return label for a Baskeball stat
 		def s_label(stat, short: true)
-			tail = short ? ".short" : ".label"
-			I18n.t("#{SPORT_LBL}.statistics.values.#{stat}#{tail}", default: label.to_s.humanize)
+			tail = short ? "_short" : ""
+			t_path(:stats, "#{stat}#{tail}".to_sym)
 		end
 
 		# standardised shooting data fields
@@ -345,34 +344,34 @@ class Basketball < Sport
 
 		# fields to show the sport rules limits title
 		def rules_limits_title
-			k_max = "training.stat.fields.maximum.short"
-			k_min = "training.stat.fields.minimum.short"
-			k_dur = "core.sport.period.fields.duration.short"
+			k_max = t_path("shared.stats.max_short")
+			k_min = t_path("shared.stats.min_short")
+			k_dur = t_path("shared.stats.qty_short")
 
 			[
 				[
-					topcell(I18n.t("core.sport.fields.rules.label.single"), rows: 3),
-					topcell(I18n.t("#{SPORT_LBL}.periods.label.many"), cols: 4),
-					topcell(I18n.t("training.team.fields.roster.label"), cols: 2, rows: 2),
-					topcell(I18n.t("#{SPORT_LBL}.outings.playing"), cols: 2, rows: 2),
-					topcell(I18n.t("#{SPORT_LBL}.outings.quarter"), cols: 3, rows: 2)
+					topcell(attr(:rules), rows: 3),
+					topcell(term(:period, :plural), cols: 4),
+					topcell(Team.attr(:roster), cols: 2, rows: 2),
+					topcell(t_path(:outings, :playing), cols: 2, rows: 2),
+					topcell(t_path(:outings, :quarter), cols: 3, rows: 2)
 				],
 				[
-					topcell(I18n.t("core.sport.period.fields.regular.label.single"), cols: 2),	# periods
-					topcell(I18n.t("core.sport.period.fields.extra.label.single"), cols: 2)
+					topcell(t_path(:periods, :regular), cols: 2),	# periods
+					topcell(t_path(:periods, :extra), cols: 2)
 				],
 				[
-					topcell(I18n.t("#{SPORT_LBL}.periods.label.short")),	# regular
-					topcell(I18n.t(k_dur)),
-					topcell(I18n.t("#{SPORT_LBL}.periods.values.ot.short")),	# extra
-					topcell(I18n.t(k_dur)),
-					topcell(I18n.t(k_max)),	# match roster
-					topcell(I18n.t(k_min)),
-					topcell(I18n.t(k_max)),	# match playing
-					topcell(I18n.t(k_min)),
-					topcell(I18n.t("#{SPORT_LBL}.outings.first")),	# outings
-					topcell(I18n.t(k_max)),	# in field
-					topcell(I18n.t(k_min))
+					topcell(term(:period, :short)),	# regular
+					topcell(k_dur),
+					topcell(t_path(:periods, :values, :ot_short)),	# extra
+					topcell(k_dur),
+					topcell(k_max),	# match roster
+					topcell(k_min),
+					topcell(k_max),	# match playing
+					topcell(k_min),
+					topcell(t_path(:outings, :first)),	# outings
+					topcell(k_max),	# in field
+					topcell(k_min)
 				]
 			]
 		end
@@ -387,7 +386,7 @@ class Basketball < Sport
 			r_play = limit[:playing]
 			r_out  = limit[:outings] ? limit[:outings] : { "first" => "N/A", "min" => "N/A", "max" => "N/A" }
 			[
-				{ kind: :normal, value: I18n.t("#{SPORT_LBL}.rules.values.#{rule}.short"), class: g_cls },
+				{ kind: :normal, value: t_path(:rules, "#{rule}_short".to_sym), class: g_cls },
 				{ kind: :normal, value: r_per[:regular], class: n_cls },
 				{ kind: :normal, value: r_dur[:regular]/60, class: n_cls },
 				{ kind: :normal, value: r_per[:extra], class: n_cls },
@@ -406,7 +405,7 @@ class Basketball < Sport
 		def match_fields(event, edit: false, new: false)
 			t_pers  = self.match_periods(event.team.category.rules)
 			t_cols  = t_pers + (edit ? 3 : 2)
-			head    = edit ? [ { kind: :side_cell, value: I18n.t("match.home"), cols: 2, align: "left" } ] : [ { kind: :gap, size: 1 } ]
+			head    = edit ? [ { kind: :side_cell, value: Sport.attr(:home), cols: 2, align: "left" } ] : [ { kind: :gap, size: 1 } ]
 			t_home  = team_name(event, home: event.home?, edit:)
 			t_away  = team_name(event, home: !event.home?, edit:)
 			if new
@@ -419,13 +418,13 @@ class Basketball < Sport
 				score   = self.match_score(event.id)
 				periods = self.periods
 				match_score_fields(event.home?, score, periods, t_pers, head, t_home, t_away, edit:)
-				head << topcell(I18n.t("training.stat.fields.total.short"))
+				head << topcell(t_path("shared.stats.total_short"))
 				team_period_score(event.home?, :tot, t_home, t_away, score[:tot], edit:)
 			end
 			fields += [ head, t_home, t_away ]
 			unless new
 				fields << [ { kind: :gap, size: 1, cols: t_pers + 3, class: "text-xs" } ]
-				fields << [ { kind: :side_cell, value: I18n.t("#{SPORT_LBL}.terms.athlete.label.plural"), align: "left", cols: t_cols } ]
+				fields << [ { kind: :side_cell, value: term(:athlete, :plural), align: "left", cols: t_cols } ]
 			end
 			fields
 		end
@@ -453,7 +452,7 @@ class Basketball < Sport
 				else
 					[
 						{ kind: :radio_button, key: :home, value: false, checked: !event.home, align: "right", r_data: { action: } },
-						{ kind: :text_box, key: :name, value: event.name, placeholder: I18n.t("match.default_rival"), options: rivals.keys, size: 12, o_data: { action:, homecourts: rivals.values, match_location_target: "rivalName" } }
+						{ kind: :text_box, key: :name, value: event.name, placeholder: Sport.attr(:default_rival), options: rivals.keys, size: 12, o_data: { action:, homecourts: rivals.values, match_location_target: "rivalName" } }
 					]
 				end
 			else	# show
@@ -492,11 +491,11 @@ class Basketball < Sport
 					rsc[:ours] += val[:ours]
 					rsc[:opps] += val[:opps]
 				end
-				head << topcell(I18n.t("#{SPORT_LBL}.periods.values.#{per}.short"))
+				head << topcell(t_path(:periods, :values, "#{per}_short".to_sym))
 				team_period_score(home, per, t_home, t_away, val, edit:)
 			end
 			if edit || (rsc[:ours] == rsc[:opps] && rsc[:ours] > 0)
-				head << topcell(I18n.t("#{SPORT_LBL}.periods.values.ot.short"))
+				head << topcell(t_path(:periods, :values, :ot_short))
 				team_period_score(home, :ot, t_home, t_away, score[:ot], edit:)
 			end
 		end
@@ -504,8 +503,8 @@ class Basketball < Sport
 		# return fields for stats view
 		def match_stats_header(edit: false)
 			fields = [
-				{ kind: :normal, value: I18n.t("participation.assignment.fields.shirt_number.short"), align: "center" },
-				{ kind: :normal, value: I18n.t("people.person.fields.name.label") },
+				{ kind: :normal, value: t_path("participation.assignment.fields.shirt_number_short"), align: "center" },
+				{ kind: :normal, value: Person.attr(:name) },
 				{ kind: :normal, value: s_label(:sec), align: "center" }
 			]
 			fields <<	{ kind: :normal, value: s_label(:pts), align: "center" } unless edit

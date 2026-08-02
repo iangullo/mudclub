@@ -246,7 +246,7 @@
 			</g>
 		</g>
 	</symbol>
-	<symbol id="player.default" viewBox="0 0 128 128">
+	<symbol id="athlete.default" viewBox="0 0 128 128">
 		<circle
 			 r="10.333761"
 			 cy="21"
@@ -281,6 +281,9 @@
 			 id="path890-2-1"
 			 d="m 64.276718,69.982395 c 7.223563,-1.70615 22.46325,-9.730902 22.189536,-12.890293 -0.273714,-3.159392 -2.515867,-2.279783 -6.227478,-0.81785 -3.711611,1.461933 -13.997189,6.605201 -13.997189,6.605201 L 62.568121,49.317691 c -0.739025,-7.943338 -7.978814,-10.671866 -10.331266,-1.431677 0,0 -0.693252,2.602471 1.241242,6.540847 3.078164,6.266739 9.487656,15.049293 10.798621,15.555536 z"
 			 style="fill:#ffccaa;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+	</symbol>
+	<symbol id="player.default" viewBox="0 0 128 128">
+		<use href="#athlete.default" />
 	</symbol>
 	<symbol id="rules.default" viewBox="0 0 128 128">
 		<g

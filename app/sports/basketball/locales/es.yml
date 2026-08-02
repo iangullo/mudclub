@@ -13,157 +13,172 @@
 es:
   sport:
     basketball:
-      label: "Baloncesto"
-      short: "Basket"
+      label: Baloncesto
+      short: Basket
 
       terms:
-        athlete: "Jugador"
-        athletes: "Jugadores"
-        athlete_short: "Jug."
-        coach: "Entrenador"
-        coaches: "Entrenadores"
-        team: "Equipo"
-        period: "Cuarto"
-        period_short: "C."
+        athlete:
+          single: Jugador
+          plural: Jugadores
+          short: Jug.
+        skill:
+          single: Fundamento
+          plural: Fundamentos
+          short: Fund.
+        field_of_play:
+          single: Pista
+          plural: Pistas
+          short: P.
+        period:
+          single: Cuarto
+          plural: Cuartos
+          short: Q.
+        overtime:
+          single: Prórroga
+          plural: Prórrogas
+          short: Pró.
 
       rules:
-        fiba: "FIBA"
-        fiba_short: "FIBA"
-        fiba_desc: "Reglas oficiales de competición FIBA."
-        u14: "Infantil"
-        u14_short: "Inf."
-        u14_desc: "Competición Infantil."
-        u12: "Minibasket"
-        u12_short: "Mini"
-        u12_desc: "Competición Minibasket."
-        u10: "Premini"
-        u10_short: "Pre."
-        u10_desc: "Competición Premini"
-        u8: "Babybasket"
-        u8_short: "Baby"
-        u8_desc: "Iniciación al baloncesto."
-        three: "3×3"
-        three_short: "3×3"
-        three_desc: "Baloncesto 3x3."
+        fiba: FIBA
+        fiba_short: FIBA
+        fiba_desc: Reglas oficiales de competición FIBA.
+        u14: Infantil
+        u14_short: Inf.
+        u14_desc: Competición Infantil.
+        u12: Minibasket
+        u12_short: Mini
+        u12_desc: Competición Minibasket.
+        u10: Premini
+        u10_short: Pre.
+        u10_desc: Competición Premini
+        u8: Babybasket
+        u8_short: Baby
+        u8_desc: Iniciación al baloncesto.
+        three: 3×3
+        three_short: 3×3
+        three_desc: Baloncesto 3x3.
 
       periods:
-        label: "Periodo"
-        short: "Q"
+        label: Periodo
+        plural: Periodos
+        short: Q
+        regular: Normal
+        extra: Extra
         values:
-          tot: "Partido completo"
-          tot_short: "TOT"
-          q1: "Primer cuarto"
-          q1_short: "Q1"
-          q2: "Segundo cuarto"
-          q2_short: "Q2"
-          q3: "Tercer cuarto"
-          q3_short: "Q3"
-          q4: "Cuarto cuarto"
-          q4_short: "Q4"
-          q5: "Quinto cuarto"
-          q5_short: "Q5"
-          q6: "Sexto cuarto"
-          q6_short: "Q6"
-          ot: "Prórroga"
-          ot_short: "PR"
+          tot: Partido completo
+          tot_short: TOT
+          q1: Primer cuarto
+          q1_short: Q1
+          q2: Segundo cuarto
+          q2_short: Q2
+          q3: Tercer cuarto
+          q3_short: Q3
+          q4: Cuarto cuarto
+          q4_short: Q4
+          q5: Quinto cuarto
+          q5_short: Q5
+          q6: Sexto cuarto
+          q6_short: Q6
+          ot: Prórroga
+          ot_short: PR
 
       court_modes:
-        full: "Pista completa"
-        full_short: "Completa"
-        half_off: "Media pista (ataque)"
-        half_off_short: "Of."
-        half_def: "Media pista (defensa)"
-        half_def_short: "Def."
+        full: Pista completa
+        full_short: Completa
+        half_off: Media pista (ataque)
+        half_off_short: Of.
+        half_def: Media pista (defensa)
+        half_def_short: Def.
 
       objects:
-        attacker: "Atacante"
-        defender: "Defensor"
-        coach: "Entrenador"
-        cone: "Cono"
-        ball: "Balón"
-        move: "Movimiento"
-        pass: "Pase"
-        dribble: "Bote"
-        shot: "Tiro"
-        pick: "Bloqueo"
-        handoff: "Mano a mano"
+        attacker: Atacante
+        defender: Defensor
+        coach: Entrenador
+        cone: Cono
+        ball: Balón
+        move: Movimiento
+        pass: Pase
+        dribble: Bote
+        shot: Tiro
+        pick: Bloqueo
+        handoff: Mano a mano
 
-      statistics:
-        sec: "Tiempo"
-        sec_short: "T."
-        sec_desc: "Tiempo total de juego."
-        pts: "Puntos"
-        pts_short: "PTS"
-        pts_desc: "Puntos totales anotados."
-        pta: "Tiros intentados"
-        pta_short: "TIA"
-        ft: "Tiros Libres"
-        ft_short: "TL"
-        fta: "Tiros libres intentados"
-        fta_short: "TLI"
-        ftm: "Tiros libres anotados"
-        ftm_short: "TLA"
-        fg: "Tiros de campo"
-        fg_short: "TC"
-        fga: "Tiros de campo intentados"
-        fga_short: "TCI"
-        fgm: "Tiros de campo anotados"
-        fgm_short: "TCA"
-        t2: "Tiros de 2"
-        t2_short: "2P"
-        t2a: "Intentos de dos puntos"
-        t2a_short: "T2I"
-        t2m: "Canastas de dos puntos"
-        t2m_short: "T2A"
-        tz: "Tiros en la zona"
-        tz_short: "TZ"
-        tza: "Intentos desde cerca"
-        tza_short: "TCI"
-        tzm: "Canastas desde cerca"
-        tzm_short: "TCA"
-        tm: "Tiros de media distancia"
-        tm_short: "TM"
-        tma: "Intentos de media distancia"
-        tma_short: "TMI"
-        tmm: "Canastas de media distancia"
-        tmm_short: "TMA"
-        t3: "Tiros de 3"
-        t3_short: "3P"
-        t3a: "Intentos de tres puntos"
-        t3a_short: "T3I"
-        t3m: "Canastas de tres puntos"
-        t3m_short: "T3A"
-        orb: "Rebotes ofensivos"
-        orb_short: "RBO"
-        drb: "Rebotes defensivos"
-        drb_short: "RBD"
-        trb: "Rebotes totales"
-        trb_short: "REB"
-        ast: "Asistencias"
-        ast_short: "AST"
-        stl: "Robos"
-        stl_short: "ROB"
-        to: "Pérdidas"
-        to_short: "PER"
-        blk: "Tapones"
-        blk_short: "TAP"
-        bla: "Tiros taponados"
-        bla_short: "TTA"
-        pfc: "Faltas cometidas"
-        pfc_short: "FC"
-        pfr: "Faltas recibidas"
-        pfr_short: "FR"
+      stats:
+        sec: Tiempo
+        sec_short: T.
+        sec_desc: Tiempo total de juego.
+        pts: Puntos
+        pts_short: PTS
+        pts_desc: Puntos totales anotados.
+        pta: Tiros intentados
+        pta_short: TIA
+        ft: Tiros Libres
+        ft_short: TL
+        fta: Tiros libres intentados
+        fta_short: TLI
+        ftm: Tiros libres anotados
+        ftm_short: TLA
+        fg: Tiros de campo
+        fg_short: TC
+        fga: Tiros de campo intentados
+        fga_short: TCI
+        fgm: Tiros de campo anotados
+        fgm_short: TCA
+        t2: Tiros de 2
+        t2_short: 2P
+        t2a: Intentos de dos puntos
+        t2a_short: T2I
+        t2m: Canastas de dos puntos
+        t2m_short: T2A
+        tz: Tiros en la zona
+        tz_short: TZ
+        tza: Intentos desde cerca
+        tza_short: TCI
+        tzm: Canastas desde cerca
+        tzm_short: TCA
+        tm: Tiros de media distancia
+        tm_short: TM
+        tma: Intentos de media distancia
+        tma_short: TMI
+        tmm: Canastas de media distancia
+        tmm_short: TMA
+        t3: Tiros de 3
+        t3_short: 3P
+        t3a: Intentos de tres puntos
+        t3a_short: T3I
+        t3m: Canastas de tres puntos
+        t3m_short: T3A
+        orb: Rebotes ofensivos
+        orb_short: RBO
+        drb: Rebotes defensivos
+        drb_short: RBD
+        trb: Rebotes totales
+        trb_short: REB
+        ast: Asistencias
+        ast_short: AST
+        stl: Robos
+        stl_short: ROB
+        to: Pérdidas
+        to_short: PER
+        blk: Tapones
+        blk_short: TAP
+        bla: Tiros taponados
+        bla_short: TTA
+        pfc: Faltas cometidas
+        pfc_short: FC
+        pfr: Faltas recibidas
+        pfr_short: FR
 
       skill:
         label:
-          single: "Fundamento"
-          plural: "Fundamentos"
-          short: "Fund."
+          single: Fundamento
+          plural: Fundamentos
+          short: Fund.
 
       outings:
-        first: "Primero"
-        playing: "En pista"
-        quarter: "Rotaciones de jugadores"
+        first: Primero
+        playing: En pista
+        quarter: Rotaciones de jugadores
 
       # -----------------------------------------------------------------------------
       # DEPRECATED - NO MODIFICAR
@@ -171,12 +186,12 @@ es:
       # Compatibility keys preserved during the MudClub 2.0 migration.
       # Remove once legacy views, helpers and JavaScript have been updated.
       # -----------------------------------------------------------------------------
-      name: "Baloncesto"
+      name: Baloncesto
       court:
-        full: "Pista completa"
-        half_off: "Media pista (ataque)"
-        half_def: "Media pista (defensa)"
+        full: Pista completa
+        half_off: Media pista (ataque)
+        half_def: Media pista (defensa)
       shot:
-        many: "Tiros"
-        attempt: "Int."
-        scored: "Anot."
+        many: Tiros
+        attempt: Int.
+        scored: Anot.
