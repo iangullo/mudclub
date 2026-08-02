@@ -55,9 +55,9 @@
 	  	<text x="64" y="105" text-anchor="middle" font-size="112px" font-family="Arial, sans-serif" font-weight="bold" fill="#141414ff" stroke="none">
     		<tspan id="label">?</tspan>
   		</text>
-  	<path
-     style="fill:none;stroke:#ff0000;stroke-width:16;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     d="M 118,10 10,118" />
+		<path
+		style="fill:none;stroke:#ff0000;stroke-width:16;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+		d="M 118,10 10,118" />
 	</symbol>
 	<symbol id="no.default" viewBox="0 0 128 128">
 		<rect style="fill:#d40000;stroke-width:8;stroke-linecap:round;stroke-linejoin:round" width="120" height="120" x="4" y="4" rx="20" ry="20"/><path fill="#fff" d="m79.3 63.98 30.745-30.774c4.042-4.047 5.633-11.67.96-16.35-4.674-4.677-12.31-3.063-16.333.963L63.929 48.594 33.185 17.819c-4.111-4.116-11.718-5.581-16.333-.962-4.614 4.62-3.145 12.24.962 16.35L48.557 63.98S27.554 85.014 17.814 94.754c-4.106 4.105-5.532 11.779-.961 16.35 4.57 4.57 12.041 3.329 16.332-.962A99348.14 99348.14 0 0 0 63.93 79.367l30.743 30.775c3.53 3.533 11.197 6.093 16.333.962 5.136-5.132 2.895-12.49-.96-16.35z" style="fill:#fff;stroke:none;stroke-width:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"/>
@@ -99,7 +99,36 @@
 		<use href="#website.default" />
 	</symbol>
 	<symbol id="manager.default" viewBox="0 0 128 128">
-		<use href="#key.default" />
+		<!-- Head -->
+		<circle cx="64" cy="25" r="10" fill="#ffccaa" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Hair -->
+		<path d="M 54,25 C 54,15 74,15 74,25" fill="#333333" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Shirt & Collar -->
+		<path d="M 56,45 L 64,52 L 72,45" fill="none" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Tie (using the athlete's accent color) -->
+		<path d="M 60,45 L 68,45 L 66,72 L 62,72 Z" fill="#d45500" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Suit Jacket -->
+		<path d="M 44,45 L 84,45 L 90,85 L 38,85 Z" fill="#2c3e50" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Trousers -->
+		<path d="M 46,85 L 42,115 L 50,115 L 54,85" fill="#34495e" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<path d="M 82,85 L 78,115 L 70,115 L 74,85" fill="#34495e" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Shoes -->
+		<path d="M 38,115 L 54,115 L 52,122 L 40,122 Z" fill="#111111" stroke="#000000" stroke-width="1.5" />
+		<path d="M 66,115 L 82,115 L 84,122 L 68,122 Z" fill="#111111" stroke="#000000" stroke-width="1.5" />
+
+		<!-- Left Arm (holding clipboard) -->
+		<path d="M 44,50 L 25,70" fill="none" stroke="#2c3e50" stroke-width="8" stroke-linecap="round" />
+		<circle cx="25" cy="70" r="4" fill="#ffccaa" stroke="#000000" stroke-width="1.5" />
+		<!-- Clipboard -->
+		<rect x="15" y="72" width="20" height="30" rx="2" fill="#ecf0f1" stroke="#000000" stroke-width="1.5" />
+		<rect x="22" y="67" width="6" height="5" fill="#333333" stroke="#000000" stroke-width="1" />
+		<line x1="19" y1="80" x2="31" y2="80" stroke="#000000" stroke-width="1.5" />
+		<line x1="19" y1="85" x2="31" y2="85" stroke="#000000" stroke-width="1.5" />
+		<line x1="19" y1="90" x2="31" y2="90" stroke="#000000" stroke-width="1.5" />
+
+		<!-- Right Arm (pointing / directing) -->
+		<path d="M 84,50 L 105,45" fill="none" stroke="#2c3e50" stroke-width="8" stroke-linecap="round" />
+		<circle cx="105" cy="45" r="4" fill="#ffccaa" stroke="#000000" stroke-width="1.5" />
 	</symbol>
 	<symbol id="secretary.default" viewBox="0 0 128 128">
 		<use href="#edit.default" />
@@ -183,11 +212,84 @@
 			ry="3.3845601"
 			transform="rotate(91.862443)" />
 	</symbol>
-	<symbol id="board_member.default" viewBox="0 0 33.87 33.87">
-		<use href="#manager.default" />
+	<symbol id="board_member.default" viewBox="0 0 128 128">
+		<!-- Podium (drawn behind the person) -->
+		<path d="M 25,80 L 103,80 L 90,128 L 38,128 Z" fill="#8B4513" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Podium top edge -->
+		<rect x="25" y="75" width="78" height="5" fill="#A0522D" stroke="#000000" stroke-width="1.5" />
+		<!-- Nameplate -->
+		<rect x="44" y="88" width="40" height="10" rx="2" fill="#ecf0f1" stroke="#000000" stroke-width="1.5" />
+		<line x1="50" y1="93" x2="78" y2="93" stroke="#000000" stroke-width="1.5" />
+
+		<!-- Board Member Figure (upper body visible above podium) -->
+		<!-- Head -->
+		<circle cx="64" cy="25" r="10" fill="#ffccaa" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Grey hair (seniority / experience) -->
+		<path d="M 54,25 C 54,14 74,14 74,25" fill="#888888" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Glasses -->
+		<circle cx="57" cy="25" r="5" fill="none" stroke="#000000" stroke-width="2" />
+		<circle cx="71" cy="25" r="5" fill="none" stroke="#000000" stroke-width="2" />
+		<line x1="62" y1="25" x2="66" y2="25" stroke="#000000" stroke-width="2" />
+
+		<!-- Suit Shoulders -->
+		<path d="M 38,45 L 90,45 L 96,80 L 32,80 Z" fill="#000080" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Shirt Collar -->
+		<path d="M 55,45 L 64,52 L 73,45" fill="none" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Tie -->
+		<path d="M 59,45 L 69,45 L 67,75 L 61,75 Z" fill="#800000" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
+
+		<!-- Arms & Hands resting on the podium -->
+		<line x1="42" y1="60" x2="48" y2="78" stroke="#000080" stroke-width="6" stroke-linecap="round" />
+		<line x1="86" y1="60" x2="80" y2="78" stroke="#000080" stroke-width="6" stroke-linecap="round" />
+		<ellipse cx="48" cy="78" rx="8" ry="5" fill="#ffccaa" stroke="#000000" stroke-width="1.5" />
+		<ellipse cx="80" cy="78" rx="8" ry="5" fill="#ffccaa" stroke="#000000" stroke-width="1.5" />
 	</symbol>
-	<symbol id="volunteer.default" viewBox="0 0 33.87 33.87">
-		<use href="#person.default" />
+	<symbol id="volunteer.default" viewBox="0 0 128 128">
+		<!-- Head -->
+		<circle cx="64" cy="25" r="10" fill="#ffccaa" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Hair -->
+		<path d="M 54,25 C 54,15 74,15 74,25" fill="#4a2c2a" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<!-- Smile -->
+		<path d="M 60,29 Q 64,33 68,29" fill="none" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+
+		<!-- Base Shirt -->
+		<path d="M 44,45 L 84,45 L 90,85 L 38,85 Z" fill="#ffffff" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+
+		<!-- Volunteer Vest (Bright Yellow) -->
+		<path d="M 48,45 L 80,45 L 88,85 L 40,85 Z" fill="#f1c40f" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+
+		<!-- Vest Reflective Stripes -->
+		<path d="M 52,50 L 76,50" fill="none" stroke="#f39c12" stroke-width="2" stroke-linecap="round" />
+		<path d="M 50,70 L 78,70" fill="none" stroke="#f39c12" stroke-width="2" stroke-linecap="round" />
+
+		<!-- Volunteer Name Tag -->
+		<rect x="52" y="52" width="16" height="8" rx="1" fill="#ffffff" stroke="#000000" stroke-width="1" />
+		<circle cx="60" cy="56" r="2" fill="#e74c3c" />
+
+		<!-- Heart Logo on Vest -->
+		<path d="M 64,62 A 3.5,3.5 0 0 1 71,62 A 3.5,3.5 0 0 1 78,62 Q 78,69 71,74 Q 64,69 64,62 Z" fill="#e74c3c" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
+
+		<!-- Pants -->
+		<path d="M 46,85 L 42,115 L 50,115 L 54,85" fill="#2c3e50" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+		<path d="M 82,85 L 78,115 L 70,115 L 74,85" fill="#2c3e50" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+
+		<!-- Shoes -->
+		<path d="M 38,115 L 54,115 L 52,122 L 40,122 Z" fill="#111111" stroke="#000000" stroke-width="1.5" />
+		<path d="M 66,115 L 82,115 L 84,122 L 68,122 Z" fill="#111111" stroke="#000000" stroke-width="1.5" />
+
+		<!-- Left Arm (Holding a Heart) -->
+		<path d="M 44,52 L 25,65" fill="none" stroke="#f1c40f" stroke-width="8" stroke-linecap="round" />
+		<circle cx="25" cy="65" r="4" fill="#ffccaa" stroke="#000000" stroke-width="1.5" />
+		<!-- Heart held in left hand -->
+		<path d="M 15,72 A 4,4 0 0 1 25,72 A 4,4 0 0 1 35,72 Q 35,80 25,86 Q 15,80 15,72 Z" fill="#e74c3c" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+
+		<!-- Right Arm (Waving) -->
+		<path d="M 84,52 L 104,35" fill="none" stroke="#f1c40f" stroke-width="8" stroke-linecap="round" />
+		<circle cx="104" cy="35" r="4" fill="#ffccaa" stroke="#000000" stroke-width="1.5" />
+		<!-- Waving Fingers -->
+		<path d="M 107,32 L 112,28" fill="none" stroke="#ffccaa" stroke-width="2.5" stroke-linecap="round" />
+		<path d="M 108,35 L 114,32" fill="none" stroke="#ffccaa" stroke-width="2.5" stroke-linecap="round" />
+		<path d="M 108,38 L 113,36" fill="none" stroke="#ffccaa" stroke-width="2.5" stroke-linecap="round" />
 	</symbol>
 	<symbol id="yes.default" viewBox="0 0 128 128">
 		<path style="fill:none;stroke:green;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1" d="m32 74 22 34s12.32-37.145 22-54c5.445-9.481 20-26 20-26"/>
