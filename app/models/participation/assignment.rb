@@ -61,7 +61,7 @@ class Assignment < ApplicationRecord
 	scope :of_kind, ->(kind) { where(kind:) }
 
 	scope :current, ->(date = Date.current) {
-		where("starts_on <= ?", today)
+		where("starts_on <= ?", date)
 			.where("ends_on IS NULL OR ends_on >= ?", date)
 	}
 

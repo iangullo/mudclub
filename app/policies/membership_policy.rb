@@ -69,6 +69,13 @@ class MembershipPolicy < ApplicationPolicy
 	alias edit?      update?
 	alias terminate? update?
 
+	def history?
+		allowed?(
+			same_club?(@target_club) &&
+			can_view_history?(@target_kind)
+		)
+	end
+
 	private
 		def can_view_kind?(kind)
 			return false unless kind
@@ -109,6 +116,20 @@ class MembershipPolicy < ApplicationPolicy
 			when :board_member, :club_manager
 				manages_board?(@target_club)
 
+			else
+				false
+			end
+		end
+
+		def can_view_history?(kind)
+			return false unless kind
+
+			case kind.to_sym
+			when :athlete then manages_athletes?(@target_club)
+			when :coach then manages_coaches?(@target_club)
+			when :volunteer then manages_club?(@target_club)
+			when :board_member, :club_manager
+				manages_board?(@target_club)
 			else
 				false
 			end

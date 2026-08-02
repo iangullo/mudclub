@@ -98,7 +98,7 @@
 	<symbol id="admin.default" viewBox="0 0 128 128">
 		<use href="#website.default" />
 	</symbol>
-	<symbol id="manager.default" viewBox="0 0 128 128">
+	<symbol id="club_manager.default" viewBox="0 0 128 128">
 		<!-- Head -->
 		<circle cx="64" cy="25" r="10" fill="#ffccaa" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
 		<!-- Hair -->
@@ -293,5 +293,33 @@
 	</symbol>
 	<symbol id="yes.default" viewBox="0 0 128 128">
 		<path style="fill:none;stroke:green;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1" d="m32 74 22 34s12.32-37.145 22-54c5.445-9.481 20-26 20-26"/>
+	</symbol>
+	<symbol id="status.pending" viewBox="0 0 128 128">
+		<circle cx="64" cy="64" r="50" fill="#f39c12" stroke="#000000" stroke-width="4" />
+		<path fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+				d="M 64,40 v 24 l 16,16" />
+		<circle cx="64" cy="64" r="6" fill="#ffffff" />
+	</symbol>
+
+	<!-- ========== ACTIVE (Checkmark in Circle) ========== -->
+	<symbol id="status.active" viewBox="0 0 128 128">
+		<circle cx="64" cy="64" r="50" fill="#2ecc71" stroke="#000000" stroke-width="4" />
+		<path fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"
+				d="M 40,68 l 16,16 l 32,-32" />
+	</symbol>
+
+	<!-- ========== SUSPENDED (Pause / Warning Triangle) ========== -->
+	<symbol id="status.suspended" viewBox="0 0 128 128">
+		<circle cx="64" cy="64" r="50" fill="#f1c40f" stroke="#000000" stroke-width="4" />
+		<!-- Two vertical pause bars -->
+		<rect x="48" y="44" width="10" height="40" rx="3" fill="#ffffff" stroke="#000000" stroke-width="2" />
+		<rect x="70" y="44" width="10" height="40" rx="3" fill="#ffffff" stroke="#000000" stroke-width="2" />
+	</symbol>
+
+	<!-- ========== TERMINATED (Cross / X) ========== -->
+	<symbol id="status.terminated" viewBox="0 0 128 128">
+		<circle cx="64" cy="64" r="50" fill="#e74c3c" stroke="#000000" stroke-width="4" />
+		<path fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"
+				d="M 44,44 L 84,84 M 84,44 L 44,84" />
 	</symbol>
 </svg>

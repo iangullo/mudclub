@@ -25,14 +25,14 @@ class ApplicationController < ActionController::Base
 	# Make these methods available to views and helpers
 	helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_coachid,	:u_manager?,
 								:u_personid, :u_player?, :u_playerid, :u_secretary?, :u_userid,
-								:user_in_club?, :club_manager?, :team_manager?
+								:user_in_club?, :club_manager?, :team_manager?, :date_string
 
 
 	# NEW authorization policy management approach.
 	def check_policy!(policy_class, record: nil, **context)
 		policy =
 			if record
-				policy_class.new(current_user, record)
+				policy_class.new(current_user, record:)
 			else
 				policy_class.new(current_user, **context)
 			end
@@ -210,6 +210,16 @@ class ApplicationController < ActionController::Base
 	# return whether the current user is a club_manager
 	def team_manager?(team = @team)
 		team&.has_coach(u_coachid) || club_manager?(team&.club)
+	end
+
+	# Standard string format for date values
+	def date_string(date)
+		case date
+		when Date, Time, DateTime
+			date&.strftime("%d/%m/%Y")
+		else
+			"ERR: No date"
+		end
 	end
 
 	#

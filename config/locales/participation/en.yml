@@ -33,9 +33,13 @@ en:
         person: Person
         club: Club
         joined_on: Joined on
+        joined_on_short: Joined
         left_on: Left on
+        left_on_short: Left
         active: Active
+        active_short: Act.
         primary: Primary
+        primary_short: Main
         notes: Notes
       messages:
         created: Membership created.
@@ -56,6 +60,7 @@ en:
       fields:
         membership: Membership
         kind: Assignment kind
+        kind_short: Kind
         starts_on: Starts
         ends_on: Ends
         team: Team

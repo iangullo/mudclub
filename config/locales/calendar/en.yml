@@ -30,6 +30,8 @@ en:
       month_short: "Mon."
       year: "Year"
       year_short: "Yr."
+      since: "Since"
+      until: "Until"
 
     months:
       label: "Month"

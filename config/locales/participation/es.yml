@@ -33,9 +33,13 @@ es:
         person: Persona
         club: Club
         joined_on: Fecha de ingreso
+        joined_on_short: Alta
         left_on: Fecha de baja
+        left_on_short: Baja
         active: Activo/a
+        active_short: Act.
         primary: Principal
+        primary_short: Princ.
         notes: Notas
       messages:
         created: Integrante creado/a.
@@ -56,6 +60,7 @@ es:
       fields:
         membership: Integrante
         kind: Tipo de inscripción
+        kind_short: Tipo
         starts_on: Inicio
         ends_on: Fin
         team: Equipo

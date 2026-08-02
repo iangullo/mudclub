@@ -30,6 +30,8 @@ es:
       month_short: "Mes"
       year: "Año"
       year_short: "Año"
+      since: "Desde"
+      until: "Hasta"
 
     months:
       label: "Mes"

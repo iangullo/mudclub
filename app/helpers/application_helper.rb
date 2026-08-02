@@ -84,7 +84,7 @@ module ApplicationHelper
 	def obj_status_field(obj)
 		if obj&.active?
 			icon  = obj.club.logo
-			title = obj.club.nick,
+			title = obj.club.nick
 			label = Assignment.attr(:number_short) + obj.number.to_s if obj.is_a?(Player)
 			{ kind: :icon_label, icon:, title:, label:, align: "center" }
 		else

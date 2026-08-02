@@ -33,6 +33,8 @@ en:
         birthday_short: "DoB"
         age: "Age"
         sex: "Sex"
+        contact: "Contact"
+        contact_short: "Cont."
         national_id: "National ID"
         national_id_short: "ID"
         email: "e-mail"
@@ -43,10 +45,10 @@ en:
         address_short: "Addr."
         biography: "Biography"
         biography_short: "Bio."
-        photograph: "Photograph"
-        photograph_short: "Pic."
-        photographs: "Photographs"
-        photographs_short: "Pics."
+        photo: "Photograph"
+        photo_short: "Pic."
+        photos: "Photographs"
+        photos_short: "Pics."
         id_front: "Identity document (front)"
         id_front_short: "ID front"
         id_back: "Identity document (back)"
@@ -60,10 +62,6 @@ en:
     parent:
       label: "Parent"
       short: "Parent"
-
-    contact:
-      label: "Contact"
-      short: "Cont."
 
     sex:
       label: "Sex"

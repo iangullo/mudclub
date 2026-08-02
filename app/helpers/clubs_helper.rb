@@ -46,11 +46,12 @@ module ClubsHelper
 			res = []
 			if club_manager? || u_secretary?
 				res << [
-					button_field({ kind: :jump, symbol: symbol_hash("player", namespace: "sport"), url: club_players_path(@club, rdx: 0), label: Sport.term(:athlete, :plural) }, align: "center"),
-					button_field({ kind: :jump, symbol: symbol_hash("coach", namespace: "sport"), url: club_coaches_path(@club, rdx: 0), label:  Sport.term(:coach, :plural) }, align: "center"),
-					button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: Team.label(:plural) }, align: "center")
+					button_field({ kind: :jump, symbol: symbol_hash(:board_member, namespace: "common"), url: club_members_path(@club, kind: :board_members, rdx: 0), label: Catalog::MembershipKinds.val(:board_member, :plural) }, align: "center"),
+					button_field({ kind: :jump, symbol: symbol_hash(:athlete, namespace: "common"), url: club_members_path(@club, kind: :athletes, rdx: 0), label: Sport.term(:athlete, :plural) }, align: "center"),
+					button_field({ kind: :jump, symbol: symbol_hash(:coach, namespace: "common"), url: club_members_path(@club, kind: :coaches, rdx: 0), label:  Sport.term(:coach, :plural) }, align: "center")
 				]
 				res << [
+					button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: Team.label(:plural) }, align: "center"),
 					button_field({ kind: :jump, symbol: "rivals", url: clubs_path(rdx: 0), label: Club.t_path(:label, :rivals) }, align: "center")
 				]
 			else

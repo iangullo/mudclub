@@ -17,6 +17,10 @@
 # contact email - iangullo@gmail.com.
 #
 module PeopleHelper
+	def person_name_field(person)
+		{ kind: :normal, value: person.to_s }
+	end
+
 	def person_form(person, mandatory_email: nil)
 		l_nick  = "people.person.fields.nickname.label"
 		l_phone = "people.person.fields.phone.label"
@@ -109,19 +113,25 @@ module PeopleHelper
 	end
 
 	# fields definition to show title of a person view
-	def person_show_title(person, kind: nil, rows: 3, cols: nil)
-		pobj   = kind ? person.person : person
-		title  = pobj.label
-		icon   = person.picture
-		fields = person_title(icon:, title:, subtitle: pobj&.nick&.presence || pobj&.name, rows:, cols:)
+	def person_show_title(pobj, title: nil, kind: nil, rows: 3, cols: nil)
+		owned  = !pobj.is_a?(Person)
+		person = owned ? pobj.person : pobj
+
+		icon     = pobj.picture
+		title  ||= pobj.label
+		subtitle = person&.nick&.presence || person&.name
+
+		fields = person_title(icon:, title:, subtitle:, rows:, cols:)
 		fields += [
-			[ { kind: :label, value: pobj&.surname, cols: } ],
-			[ gap_field, { kind: :string, value: pobj&.birthstring } ],
-			[ { kind: :contact, email: pobj&.email, phone: pobj&.phone, device: device, align: "center" } ]
+			[ { kind: :label, value: person&.surname, cols: } ],
+			[
+				{ kind: :contact, email: person&.email, phone: pobj&.phone, device: device, align: "center" },
+				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: }
+			],
+			[ gap_field,  person_idpic(person) ]
 		]
-		if kind
-			fields[3][0] = obj_status_field(person)
-			fields[4] <<  person_idpic(pobj)
+		if owned
+			fields[4][0] = obj_status_field(pobj)
 		end
 		fields
 	end

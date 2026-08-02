@@ -33,6 +33,8 @@ es:
         birthday_short: "F.Nac."
         age: "Edad"
         sex: "Sexo"
+        contact: Contacto
+        contact_short: Cont.
         national_id: "Documento de identidad"
         national_id_short: "DNI"
         email: "Correo electrónico"
@@ -43,10 +45,10 @@ es:
         address_short: "Domic."
         biography: "Biografía"
         biography_short: "Bio."
-        photograph: "Fotografía"
-        photograph_short: "Foto"
-        photographs: "Fotografías"
-        photographs_short: "Fotos"
+        photo: "Fotografía"
+        photo_short: "Foto"
+        photos: "Fotografías"
+        photos_short: "Fotos"
         id_front: "Documento de identidad (anverso)"
         id_front_short: "DNI anv."
         id_back: "Documento de identidad (reverso)"
@@ -60,10 +62,6 @@ es:
     parent:
       label: "Familiar"
       short: "Familiar"
-
-    contact:
-      label: "Contacto"
-      short: "Cont."
 
     sex:
       label: "Sexo"

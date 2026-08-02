@@ -1,9 +1,12 @@
-<div class="content">
-	<%= render @fields %>
-	<% if @table %>
-		<div class="flex justify-center">
-			<%= render @table %>
-		</div>
-	<% end %>
+<%= render ModalComponent.new do %>
+	<%= render @title %>
+	<div class="flex justify-center">
+		<%= render @fields %>
+		<% if @table %>
+			<div class="flex justify-center">
+				<%= render @table %>
+			</div>
+		<% end %>
+	</div>
 	<%= render @submit %>
-</div>
+<% end %>

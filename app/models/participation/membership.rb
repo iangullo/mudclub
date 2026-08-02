@@ -103,6 +103,8 @@ class Membership < ApplicationRecord
 					:name,
 					:nick,
 					:phone,
+					:picture,
+					:s_name,
 					:surname,
 					:to_s,
 					to: :person,
@@ -113,10 +115,12 @@ class Membership < ApplicationRecord
 	#
 
 	def current?(date = Date.current)
-		active? &&
+		status.to_sym != :terminated &&
 			joined_on <= date &&
 			(left_on.nil? || left_on >= date)
 	end
+
+	alias active? current?
 
 	def started?
 		joined_on.present?
@@ -162,10 +166,11 @@ class Membership < ApplicationRecord
 	# Controller façade method
 	# -------------------------------------------------------------------------
 
-	def self.search(search: nil, user:, club:, kind: nil)
-		current
-			.for_club(club)
-			.of_kind(kind)
-			.search_text(search)
+	def self.search(search: nil, club:, kind: nil, history: false)
+		scope = for_club(club)
+		scope = scope.current unless history
+		scope = scope.of_kind(kind) if kind.present?
+		scope = scope.search_text(search) if search.present?
+		scope
 	end
 end
