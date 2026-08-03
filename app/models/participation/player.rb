@@ -40,6 +40,15 @@ class Player < ApplicationRecord
 	self.inheritance_column = "not_sti"
 	FILTER_PARAMS = %i[search].freeze
 
+	delegate :email,
+					:name,
+					:nick,
+					:phone,
+					:surname,
+					:to_s,
+					to: :person,
+					allow_nil: true
+
 	# returns whether the object is bound to a real club
 	def active?
 		self.club_id.present?
@@ -68,6 +77,10 @@ class Player < ApplicationRecord
 
 	def female
 		self.person.female
+	end
+
+	def label
+		I18n.t("player.single")
 	end
 
 	# extended modified to acount for changed parents or avatar

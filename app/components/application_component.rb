@@ -59,7 +59,19 @@ class ApplicationComponent < ViewComponent::Base
 			html += render(SymbolComponent.new(img[:symbol][:concept], **img[:symbol][:options]))
 		else
 			img[:size] ||= img[:icon].present? ? "25x25" : size.presence
-			html += image_tag(img[:value] || img[:icon], size: img[:size], class: img[:i_class], title: img[:title])
+			if img[:value]
+				html += image_tag(img[:value] || img[:icon], size: img[:size], class: img[:i_class], title: img[:title])
+			else
+				html += render(
+					SymbolComponent.new(:missing,
+						**{
+							size: img[:size],
+							css: img[:i_class],
+							title: img[:title] || I18n.t("shared.messages.img_missing")
+						}
+					)
+				)
+			end
 		end
 		html.html_safe
 	end

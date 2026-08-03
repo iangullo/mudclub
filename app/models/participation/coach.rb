@@ -31,9 +31,22 @@ class Coach < ApplicationRecord
 	scope :real, -> { where("id>0") }
 	self.inheritance_column = "not_sti"
 
+	delegate :email,
+					:name,
+					:nick,
+					:phone,
+					:surname,
+					:to_s,
+					to: :person,
+					allow_nil: true
+
 	# returns whether the object is bound to a real club
 	def active?
 		self.club_id.present?
+	end
+
+	def label
+		I18n.t("coach.single")
 	end
 
 	# extended modified to account for changed avatar

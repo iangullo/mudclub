@@ -70,6 +70,12 @@ en:
     settings_short: "Config."
 
     #
+    # Generic messages
+    #
+    messages:
+      img_missing: "Image not found"
+
+    #
     # Generic statuses
     #
     statuses:

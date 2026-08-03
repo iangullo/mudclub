@@ -85,7 +85,7 @@ module ApplicationHelper
 		if obj&.active?
 			icon  = obj.club.logo
 			title = obj.club.nick
-			label = Assignment.attr(:number_short) + obj.number.to_s if obj.is_a?(Player)
+			label = Assignment.attr(:shirt_number_short) + obj.number.to_s if obj.is_a?(Player)
 			{ kind: :icon_label, icon:, title:, label:, align: "center" }
 		else
 			{ kind: :string, value: "(#{I18n.t("shared.statuses.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center" }
