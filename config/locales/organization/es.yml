@@ -26,9 +26,9 @@ es:
         entity: "Entidad legal"
         entity_short: "Ent."
         email: "e-mail"
-
         logo: "Logotipo"
         logo_short: "Logo"
+        none: "Sin club"
         website: "Sitio web"
         website_short: "Web"
       messages:

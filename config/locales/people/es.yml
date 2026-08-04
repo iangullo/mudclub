@@ -12,96 +12,94 @@
 
 es:
   people:
-    label: "Personas"
-    short: "Personas"
+    label: Personas
+    short: Personas
 
     messages:
-      exported: "Personas exportadas"
-      imported: "Personas importadas"
+      exported: Personas exportadas
+      imported: Personas importadas
 
     person:
-      label: "Persona"
-      short: "Persona"
+      label:
+        single: Persona
+        plural: Personas
+        short: Pers.
       fields:
-        name: "Nombre"
-        name_short: "Nom."
-        surname: "Apellido"
-        surname_short: "Apell."
-        nickname: "Apodo"
-        nickname_short: "Nick"
-        birthday: "Fecha de nacimiento"
-        birthday_short: "F.Nac."
-        age: "Edad"
-        sex: "Sexo"
+        name: Nombre
+        name_short: Nom.
+        surname: Apellido
+        surname_short: Apell.
+        nickname: Apodo
+        nickname_short: Nick
+        birthday: Fecha de nacimiento
+        birthday_short: F.Nac.
+        age: Edad
+        sex: Sexo
         contact: Contacto
         contact_short: Cont.
-        national_id: "Documento de identidad"
-        national_id_short: "DNI"
-        email: "Correo electrónico"
-        email_short: "email"
-        phone: "Teléfono"
-        phone_short: "Telf."
-        address: "Domicilio"
-        address_short: "Domic."
-        biography: "Biografía"
-        biography_short: "Bio."
-        photo: "Fotografía"
-        photo_short: "Foto"
-        photos: "Fotografías"
-        photos_short: "Fotos"
-        id_front: "Documento de identidad (anverso)"
-        id_front_short: "DNI anv."
-        id_back: "Documento de identidad (reverso)"
-        id_back_short: "DNI rev."
+        national_id: Documento de identidad
+        national_id_short: DNI
+        email: Correo electrónico
+        email_short: email
+        phone: Teléfono
+        phone_short: Telf.
+        address: Domicilio
+        address_short: Domic.
+        biography: Biografía
+        biography_short: Bio.
+        photo: Fotografía
+        photo_short: Foto
+        photos: Fotografías
+        photos_short: Fotos
+        id_front: Documento de identidad (anverso)
+        id_front_short: Anverso
+        id_back: Documento de identidad (reverso)
+        id_back_short: Reverso
+      sex:
+        female: Femenino
+        female_short: Fem.
+        male: Masculino
+        male_short: Masc.
+        mixed: Mixto
+        mixed_short: Mixto
       messages:
-        created: "Persona creada."
-        updated: "Persona actualizada."
-        deleted: "Persona eliminada."
-        duplicated: "La persona ya existe."
+        created: Persona creada.
+        updated: Persona actualizada.
+        deleted: Persona eliminada.
+        duplicated: La persona ya existe.
 
     parent:
-      label: "Familiar"
-      short: "Familiar"
+      label: Familiar
+      short: Familiar
 
-    sex:
-      label: "Sexo"
-      short: "Sexo"
+    relationship:
+      label: Relación
+      short: Rel.
       values:
-        female: "Femenino"
-        female_short: "Fem."
-        male: "Masculino"
-        male_short: "Masc."
-        mixed: "Mixto"
-        mixed_short: "Mixto"
-
-    relationship_kinds:
-      label: "Relación"
-      short: "Rel."
-      values:
-        parent: "Familiar"
-        parent_plural: "Familiares"
-        father: "Padre"
-        father_plural: "Padres"
-        mother: "Madre"
-        mother_plural: "Madres"
-        guardian: "Tutor"
-        guardian_plural: "Tutores"
-        legal_representative: "Representante legal"
-        legal_representative_plural: "Representantes legales"
-        child: "Hijo"
-        child_plural: "Hijos"
-        sibling: "Hermano"
-        sibling_plural: "Hermanos"
-        grandparent: "Abuelo"
-        grandparent_plural: "Abuelos"
-        grandchild: "Nieto"
-        grandchild_plural: "Nietos"
-        spouse: "Cónyuge"
-        spouse_plural: "Cónyuges"
-        partner: "Pareja"
-        partner_plural: "Parejas"
-        emergency_contact: "Contacto de emergencia"
-        emergency_contact_plural: "Contactos de emergencia"
+        parent: Familiar
+        parent_plural: Familiares
+        father: Padre
+        father_plural: Padres
+        mother: Madre
+        mother_plural: Madres
+        guardian: Tutor
+        guardian_plural: Tutores
+        legal_representative: Rep. legal
+        legal_representative_plural: Rep. legales
+        child: Hijo
+        child_plural: Hijos
+        sibling: Hermano
+        sibling_plural: Hermanos
+        grandparent: Abuelo
+        grandparent_plural: Abuelos
+        grandchild: Nieto
+        grandchild_plural: Nietos
+        spouse: Cónyuge
+        spouse_plural: Cónyuges
+        partner: Pareja
+        partner_plural: Parejas
+        emergency_contact: Cont. emergencia
+        emergency_contact_plural: Conts. emergencia
 
   # ---------------------------------------------------------------------------
   # OBSOLETO - NO MODIFICAR
@@ -110,74 +108,74 @@ es:
   #
   # Buscar:
   #
-  #   t("person.
-  #   t("parent.
-  #   t("sex.
+  #   t(person.
+  #   t(parent.
+  #   t(sex.
   #
   # Eliminar una vez que todas las referencias se hayan migrado.
   # ---------------------------------------------------------------------------
 
   parent:
-    single: "Familiar"
-    many: "Familiares"
+    single: Familiar
+    many: Familiares
 
   person:
-    address: "Domicilio"
+    address: Domicilio
 
-    age: "Edad"
+    age: Edad
 
-    bday: "Fecha de nacimiento"
-    bday_a: "F.Nac."
+    bday: Fecha de nacimiento
+    bday_a: F.Nac.
 
-    contact: "Contacto"
+    contact: Contacto
 
-    email: "e-mail"
+    email: e-mail
 
-    id_back: "Reverso DNI"
-    id_front: "Anverso DNI"
+    id_back: Reverso
+    id_front: Anverso
 
-    name: "Nombre"
-    name_a: "Nombre"
+    name: Nombre
+    name_a: Nombre
 
-    nick: "Apodo"
+    nick: Apodo
 
-    phone: "Teléfono"
-    phone_a: "Telf."
+    phone: Teléfono
+    phone_a: Telf.
 
-    pics: "Fotos"
-    pics_found: "Fotos disponibles"
-    pics_missing: "Fotos faltantes"
+    pics: Fotos
+    pics_found: Fotos disponibles
+    pics_missing: Fotos faltantes
 
-    pid: "DNI Nº"
-    pid_a: "DNI"
+    pid: DNI Nº
+    pid_a: DNI
 
-    single: "Persona"
-    many: "Personas"
+    single: Persona
+    many: Personas
 
-    surname: "Apellido"
-    surname_a: "Apell."
+    surname: Apellido
+    surname_a: Apell.
 
     created: "Persona creada: "
     updated: "Persona actualizada: "
     deleted: "Persona eliminada: "
-    duplicate: "Duplicar persona: "
+    duplicate: "Persona duplicada: "
 
-    edit: "Editar Persona"
-    new: "Crear Persona"
+    edit: Editar Persona
+    new: Crear Persona
 
-    export: "Personas exportadas"
-    import: "Personas importadas"
+    export: Personas exportadas
+    import: Personas importadas
 
   sex:
-    abr: "Sexo"
+    abr: Sexo
 
-    label: "Sexo"
+    label: Sexo
 
-    female: "Femenino"
-    female_a: "Fem."
+    female: Femenino
+    female_a: Fem.
 
-    male: "Masculino"
-    male_a: "Masc."
+    male: Masculino
+    male_a: Masc.
 
-    mixed: "Mixto"
-    mixed_a: "Mixto"
+    mixed: Mixto
+    mixed_a: Mixto

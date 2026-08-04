@@ -72,23 +72,54 @@ module ApplicationHelper
 		[ { kind: :gap, size:, cols:, class: _class } ]
 	end
 
-	# Field to use in forms to select club of a user/player/coach/team
-	def obj_club_selector(obj)
-		[
-			{ kind: :icon, icon: "mudclub.svg", title: ("club.single") },
-			{ kind: :select_box, align: "left", key: :club_id, options: current_user.club_list, value: obj.club_id, cols: 4 }
-		]
-	end
-
-	# standardised generator of "active" label for user/player/coach
-	def obj_status_field(obj)
-		if obj&.active?
+	# standardised generator of club member field for user/player/coach
+	def obj_club_field(obj, align: "center")
+		if obj&.club
 			icon  = obj.club.logo
 			title = obj.club.nick
 			label = Assignment.attr(:shirt_number_short) + obj.number.to_s if obj.is_a?(Player)
-			{ kind: :icon_label, icon:, title:, label:, align: "center" }
+			{ kind: :icon_label, icon:, title:, label:, align: }
 		else
-			{ kind: :string, value: "(#{I18n.t("shared.statuses.inactive")})",	dclass: "font-semibold text-gray-500 justify-center",	align: "center" }
+			{ kind: :string, value: "(#{Club.attr(:none)})",	dclass: "font-semibold text-gray-500 justify-center",	align: }
+		end
+	end
+
+	# Field to use in forms to select club of a user/player/coach/team
+	def obj_club_selector(obj, align: "center")
+		[
+			{ kind: :icon, icon: "mudclub.svg", title: ("club.single"), align: },
+			{ kind: :select_box, key: :club_id, options: current_user.club_list, value: obj.club_id, cols: 4, align: }
+		]
+	end
+
+	# object kind field - obj class must implement picture/kind_label
+	def obj_kind_field(obj, align: "center", class: nil)
+		concept = obj.kind_image
+		title   = obj.kind_label(:hint)
+
+		symbol_field(concept, { title: }, align:, class:)
+	end
+
+	# object status field - obj class expected to have Partipatory included
+	def obj_status_field(obj, text: false, f_opts: nil)
+		concept = :status
+		variant = obj.status
+		label   = obj.status_label
+		s_date  = date_string(
+			case obj.status
+			when :active then obj.starts_on
+			when :terminated then obj.ends_on
+			else
+				obj.updated_at
+			end
+		)
+
+		if text
+			title = s_date
+			{ kind: :icon_label, symbol: symbol_hash(concept, variant:, title:), label:, **f_opts }
+		else
+			title = "(#{s_date})"
+			symbol_field(concept, { variant:, title: "#{label}\n#{title}" }, **f_opts)
 		end
 	end
 

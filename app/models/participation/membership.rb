@@ -31,6 +31,8 @@
 #
 class Membership < ApplicationRecord
 	localized_as "participation.membership"
+	include Auditable
+	include Participatory
 
 	belongs_to :person
 	belongs_to :club
@@ -39,20 +41,13 @@ class Membership < ApplicationRecord
 	has_many :assignments,
 					dependent: :restrict_with_exception
 
+	# attachment of notes to be handled
+	has_rich_text :notes
+
 	# Membership kinds identify the reason why a person belongs to a club.
 	# Operational responsibilities are modelled through Participation::Assignment.
 	enum :kind,
 			Catalog::MembershipKinds.enum,
-			prefix: true
-
-	# Status of the membership
-	enum :status,
-			{
-				pending: 0,
-				active: 1,
-				suspended: 2,
-				terminated: 3
-			},
 			prefix: true
 
 	validates :kind,
@@ -103,10 +98,10 @@ class Membership < ApplicationRecord
 					:name,
 					:nick,
 					:phone,
-					:picture,
-					:s_name,
 					:surname,
 					:to_s,
+					:birthday,
+					:female,
 					to: :person,
 					allow_nil: true
 
@@ -114,26 +109,26 @@ class Membership < ApplicationRecord
 	# Predicates
 	#
 
-	def current?(date = Date.current)
-		status.to_sym != :terminated &&
-			joined_on <= date &&
-			(left_on.nil? || left_on >= date)
+	# short name for form viewing
+	def s_name
+		person&.s_name || Catalog::MembershipKinds.val(kind)
 	end
 
-	alias active? current?
+	# personal photo or membership kind symbol
+	def picture
+		return person.avatar if person.avatar
 
-	def started?
-		joined_on.present?
+		# if no attached avatar, return the symbol name
+		# to be rendered as: symbol_field(symbol)
+		kind_image
 	end
 
-	def open?
-		left_on.nil?
+	def kind_image
+		Catalog::MembershipKinds.normalize(kind) || :person
 	end
 
-	def duration
-		return nil unless joined_on
-
-		(left_on || Date.current) - joined_on
+	def kind_label(...)
+		Catalog::MembershipKinds.val(kind, ...)
 	end
 
 	def overlaps?(other)
@@ -148,10 +143,6 @@ class Membership < ApplicationRecord
 			other.joined_on <= end_a
 	end
 
-	def date_range
-		"#{joined_on} – #{left_on || I18n.t('shared.status.values.active.label.single')}"
-	end
-
 	def terminate!(date = Date.current)
 		transaction do
 			current_assignments.find_each do |assignment|
@@ -163,8 +154,17 @@ class Membership < ApplicationRecord
 	end
 
 	# -------------------------------------------------------------------------
-	# Controller façade method
+	# Controller façade methods
 	# -------------------------------------------------------------------------
+
+	# accessors for Participatory date names
+	def starts_on
+		joined_on
+	end
+
+	def ends_on
+		left_on
+	end
 
 	def self.search(search: nil, club:, kind: nil, history: false)
 		scope = for_club(club)
@@ -172,5 +172,14 @@ class Membership < ApplicationRecord
 		scope = scope.of_kind(kind) if kind.present?
 		scope = scope.search_text(search) if search.present?
 		scope
+	end
+
+
+	def self.kind_image(kind)
+		Catalog::MembershipKinds.normalize(kind) || :person
+	end
+
+	def self.kind_label(kind, ...)
+		Catalog::MembershipKinds.val(kind, ...)
 	end
 end

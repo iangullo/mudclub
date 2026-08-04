@@ -28,6 +28,7 @@ en:
         email: "e-mail"
         logo: "Logo"
         logo_short: "Logo"
+        none: "No club"
         website: "Website"
         website_short: "Web"
       messages:

@@ -47,6 +47,7 @@ class InputBoxComponent < ApplicationComponent
 		@form    = form	# set form, if passed
 		@session = session
 		@fdata   = field
+		sanitize_image! if @fdata[:kind] == :image_box
 		@fdata[:align] ||= "left"
 		@fdata[:class] ||= "align-top"
 		@fdata[:fname]   = @fdata[:value].to_s.presence || I18n.t("status.no_file") if @fdata[:kind] == :upload
@@ -147,5 +148,23 @@ class InputBoxComponent < ApplicationComponent
 
 		def ensure_px(val)
 			val.ends_with?("px") ? val : "#{val}px"
+		end
+
+		def sanitize_image!
+			return if valid_attachment?(@fdata[:value])
+			@fdata[:value] = nil
+		end
+
+		def valid_attachment?(attachment)
+			return false unless attachment.respond_to?(:attached?)
+			return false unless attachment.attached?
+
+			attachment.blob.present?
+
+			true
+		rescue ActiveStorage::FileNotFoundError,
+					ActiveStorage::IntegrityError,
+					ActiveRecord::RecordNotFound
+			false
 		end
 end

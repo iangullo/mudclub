@@ -43,24 +43,26 @@ class MembershipsController < ApplicationController
 
 		title  = prepare_index_title
 		page   = paginate(@members)	# paginate results
-		table  = helpers.members_table(members: page)
-		retlnk = base_lnk(club_path(@clubid, rdx: @rdx))
+		table  = helpers.memberships_table(members: page)
+		retlnk = base_lnk(club_path(@club, rdx: @rdx))
 		create_index(title:, table:, page:, retlnk:)
 	end
 
-	# GET /memberships/1
-	# GET /memberships/1.json
+	# GET /members/1
+	# GET /members/1.json
 	def show
 		@membership_policy = check_policy!(MembershipPolicy, record: @member)
-		@title  = create_fields(helpers.person_show_title(@member, title: Catalog::MembershipKinds.val(@member.kind)))
-		@fields = create_fields(helpers.member_show_fields(@member))
+		@title  = create_fields(helpers.person_show_participation_title(@member))
+		@fields = create_fields(helpers.membership_show_fields(@member))
+		@table  = create_table(helpers.assignments_table(assignments: @member.assignments))
 		submit  = edit_club_member_path(@member, rdx: @rdx) if @membership_policy.update?
-		@submit = create_submit(close: :close, submit:, frame: "modal")
+		@submit = create_submit(close: :back, retlnk: crud_return, submit:, frame: "modal")
 	end
 
-	# GET /memberships/new
+	# GET /members/new
 	def new
 		@membership_policy = check_policy!(MembershipPolicy, club: @club, kind: @kind)
+		prepare_form(:new)
 	end
 
 	# POST /memberships
@@ -69,19 +71,20 @@ class MembershipsController < ApplicationController
 		@membership_policy = check_policy!(MembershipPolicy, club: @club, kind: @kind)
 	end
 
-	# GET /memberships/1/edit
+	# GET /members/1/edit
 	def edit
 		@membership_policy = check_policy!(MembershipPolicy, record: @member)
+		prepare_form(:edit)
 	end
 
-	# PATCH/PUT /memberships/1
-	# PATCH/PUT /memberships/1.json
+	# PATCH/PUT /members/1
+	# PATCH/PUT /members/1.json
 	def update
 		@membership_policy = check_policy!(MembershipPolicy, record: @member)
 	end
 
-	# DELETE /memberships/1
-	# DELETE /memberships/1.json
+	# DELETE /members/1
+	# DELETE /members/1.json
 	def terminate
 		@membership_policy = check_policy!(MembershipPolicy, record: @member)
 	end
@@ -90,12 +93,12 @@ class MembershipsController < ApplicationController
 		# wrapper to set return link for CRUD operations
 		def crud_return
 			return club_members_path(kind: @member.kind, search: @member.s_name, rdx: @rdx) if @member
-			(@clubid ? club_members_path(@clubid, kind: @kind, rdx: @rdx) : u_path)
+			(@club ? club_members_path(@club, kind: @kind, rdx: @rdx) : u_path)
 		end
 
 		# prepare member action context
-		def get_member_context
-			@clubid = @member&.club_id
+		def get_membership_context
+			@club = @member&.club
 			@kind = @member&.kind
 		end
 
@@ -115,7 +118,7 @@ class MembershipsController < ApplicationController
 			title << [
 				{
 					kind: :search_box,
-					url: club_members_path(@clubid, kind: @kind, rdx: @rdx),
+					url: club_members_path(@club, kind: @kind, rdx: @rdx),
 					fields:
 				}
 			]
@@ -123,17 +126,17 @@ class MembershipsController < ApplicationController
 
 		# Prepare a member form
 		def prepare_form(action)
-			@title    = create_fields(helpers.person_form_title(@member.person, icon: @member.picture, title: Membership.t_path(:action, action.to_sym), sex: true))
-			@m_fields = create_fields(helpers.membership_form) # pending creation
-			@p_fields = create_fields(helpers.person_form(@member.person))	# existing in helpers/people_helper
-			@parents  = create_fields(helpers.player_form_parents) if @member.person.age < 18 # pending review
+			@title    = create_fields(helpers.membership_form_title(@member, action))
+			@m_fields = create_fields(helpers.membership_form_fields(@member))
+			@p_fields = create_fields(helpers.person_form(@member.person))
+			@contacts = create_fields(helpers.person_contacts_form(@member.person))
 			@submit   = create_submit
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_member
 			@member = Membership.find_by_id(params[:id]) unless @member&.id==params[:id]
-			get_member_context
+			get_membership_context
 		end
 
 		def get_context

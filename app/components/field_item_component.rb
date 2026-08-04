@@ -248,11 +248,11 @@ class FieldItemComponent < ApplicationComponent
 			field[:align] ||= "right"
 			field[:class]   = "align-center font-semibold text-indigo-900"
 		when :string
-			field[:class] ||= "align-top"
+			field[:class] ||= "align-center"
 		when :subtitle
-			field[:class]   = "align-top font-bold"
+			field[:class]   = "align-center font-bold"
 		when :title
-			field[:class]   = "align-top font-bold text-yellow-600"
+			field[:class]   = "align-center font-bold text-yellow-600"
 		when :top_cell
 			field[:class]   = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
 		end

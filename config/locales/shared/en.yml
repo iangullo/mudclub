@@ -14,274 +14,278 @@ en:
     # Generic actions
     #
     actions:
-      add: "Add"
-      add_short: "Add"
-      add_nested: "Add new"
-      add_nested_short: "Add"
-      administration: "Administration"
-      administration_short: "Admin."
-      back: "Back"
-      backup: "Backup"
-      call: "Call"
-      cancel: "Cancel"
-      change: "Change"
-      chat: "WhatsApp"
-      chat_short: "Chat"
-      clear: "Clear"
-      close: "Close"
-      configure: "Configure"
-      configure_short: "Config."
-      copy: "Copy"
-      create: "Create"
-      delete: "Delete"
-      download: "Download"
-      download_short: "Down."
-      duplicate: "Duplicate"
-      duplicate_short: "Dup."
-      edit: "Edit"
-      export: "Export"
-      filter: "Filter"
-      import: "Import"
-      login: "Sign in"
-      logout: "Sign out"
-      move: "Move"
-      next: "Next"
+      add: Add
+      add_short: Add
+      add_nested: Add new
+      add_nested_short: Add
+      administration: Administration
+      administration_short: Admin.
+      back: Back
+      backup: Backup
+      call: Call
+      cancel: Cancel
+      change: Change
+      chat: WhatsApp
+      chat_short: Chat
+      clear: Clear
+      close: Close
+      configure: Configure
+      configure_short: Config.
+      copy: Copy
+      create: Create
+      delete: Delete
+      download: Download
+      download_short: Down.
+      duplicate: Duplicate
+      duplicate_short: Dup.
+      edit: Edit
+      export: Export
+      filter: Filter
+      import: Import
+      login: Sign in
+      logout: Sign out
+      move: Move
+      next: Next
       next_short: ">>"
-      previous: "Previous"
+      previous: Previous
       previous_short: "<<"
-      preview: "Preview"
-      preview_short: "Prev."
-      print: "Print"
-      refresh: "Refresh"
-      remove: "Remove"
-      rename: "Rename"
-      restore: "Restore"
-      save: "Save"
-      search: "Search"
-      select: "Select"
-      share: "Share"
-      upload: "Upload"
-      upload_short: "Up."
+      preview: Preview
+      preview_short: Prev.
+      print: Print
+      refresh: Refresh
+      remove: Remove
+      rename: Rename
+      restore: Restore
+      save: Save
+      search: Search
+      select: Select
+      share: Share
+      upload: Upload
+      upload_short: Up.
 
     #
     # Configurable parameters
     #
-    settings: "Settings"
-    settings_short: "Config."
+    settings: Settings
+    settings_short: Config.
 
     #
     # Generic messages
     #
     messages:
-      img_missing: "Image not found"
+      img_missing: Image not found
 
     #
     # Generic statuses
     #
     statuses:
-      active: "Active"
-      active_short: "Act."
-      archived: "Archived"
-      archived_short: "Arch."
-      calculating: "Calculating"
-      calculating_short: "Calc."
-      cancelled: "Cancelled"
-      cancelled_short: "Canc."
-      closed: "Closed"
-      completed: "Completed"
-      completed_short: "Done"
-      disabled: "Disabled"
-      disabled_short: "Dis."
-      draft: "Draft"
-      empty: "No data available"
-      empty_short: "Empty"
-      enabled: "Enabled"
-      enabled_short: "En."
-      error: "Error"
-      failed: "Failed"
-      failed_short: "Fail."
-      inactive: "Inactive"
-      inactive_short: "Inact."
-      loading: "Loading..."
-      loading_short: "Load."
-      pending: "Pending"
-      pending_short: "Pend."
-      processing: "Processing..."
-      processing_short: "Proc."
-      published: "Published"
-      published_short: "Pub."
-      ready: "Ready"
-      rejected: "Rejected"
-      rejected_short: "Rej."
-      saved: "Saved"
-      starting: "Starting"
-      starting_short: "Start"
-      unavailable: "Unavailable"
-      unavailable_short: "Unav."
-      warning: "Warning"
-      warning_short: "Warn."
+      active: Active
+      active_short: Act.
+      archived: Archived
+      archived_short: Arch.
+      calculating: Calculating
+      calculating_short: Calc.
+      cancelled: Cancelled
+      cancelled_short: Canc.
+      closed: Closed
+      completed: Completed
+      completed_short: Done
+      disabled: Disabled
+      disabled_short: Dis.
+      draft: Draft
+      empty: No data available
+      empty_short: Empty
+      enabled: Enabled
+      enabled_short: En.
+      error: Error
+      failed: Failed
+      failed_short: Fail.
+      inactive: Inactive
+      inactive_short: Inact.
+      loading: Loading...
+      loading_short: Load.
+      pending: Pending
+      pending_short: Pend.
+      processing: Processing...
+      processing_short: Proc.
+      published: Published
+      published_short: Pub.
+      ready: Ready
+      rejected: Rejected
+      rejected_short: Rej.
+      suspended: Suspended
+      suspended_short: Susp.
+      saved: Saved
+      starting: Starting
+      starting_short: Start
+      terminated: Terminated
+      terminated_short: Term.
+      unavailable: Unavailable
+      unavailable_short: Unav.
+      warning: Warning
+      warning_short: Warn.
 
     #
     # Generic questions
     #
     questions:
-      active: "Active?"
-      camera: "Use camera?"
-      delete: "Delete?"
-      discard_changes: "Discard changes?"
-      female: "Female?"
-      import: "Import file?"
-      login: "Sign in?"
-      logout: "Sign out?"
-      overwrite: "Overwrite existing data?"
-      remove: "Remove?"
-      restore: "Restore?"
-      save: "Save?"
-      save_changes: "Save changes?"
+      active: Active?
+      camera: Use camera?
+      delete: Delete?
+      discard_changes: Discard changes?
+      female: Female?
+      import: Import file?
+      login: Sign in?
+      logout: Sign out?
+      overwrite: Overwrite existing data?
+      remove: Remove?
+      restore: Restore?
+      save: Save?
+      save_changes: Save changes?
 
     #
     # Generic selections
     #
     selections:
-      all: "All"
-      automatic: "Automatic"
-      automatic_short: "Auto."
-      current: "Current"
-      current_short: "Curr."
-      default: "Default"
-      default_short: "Def."
-      featured: "Featured"
-      featured_short: "Feat."
-      multiple: "Multiple"
-      multiple_short: "Multi."
-      none: "None"
-      optional: "Optional"
-      optional_short: "Opt."
-      other: "Other"
-      required: "Required"
-      required_short: "Req."
-      selected: "Selected"
-      selected_short: "Sel."
-      unknown: "Unknown"
+      all: All
+      automatic: Automatic
+      automatic_short: Auto.
+      current: Current
+      current_short: Curr.
+      default: Default
+      default_short: Def.
+      featured: Featured
+      featured_short: Feat.
+      multiple: Multiple
+      multiple_short: Multi.
+      none: None
+      optional: Optional
+      optional_short: Opt.
+      other: Other
+      required: Required
+      required_short: Req.
+      selected: Selected
+      selected_short: Sel.
+      unknown: Unknown
 
     #
     # Boolean values
     #
     booleans:
-      true: "Yes"
+      "true": "Yes"
       true_short: "Y"
-      false: "No"
+      "false": "No"
       false_short: "N"
 
     #
     # Locale names
     #
     locales:
-      en: "English"
-      en_short: "EN"
-      es: "Spanish"
-      es_short: "ES"
-      fr: "French"
-      fr_short: "FR"
-      pt: "Portuguese"
-      pt_short: "PO"
+      en: English
+      en_short: EN
+      es: Spanish
+      es_short: ES
+      fr: French
+      fr_short: FR
+      pt: Portuguese
+      pt_short: PO
 
     #
     # Colours
     #
     colors:
-      black: "Black"
-      blue: "Blue"
-      brown: "Brown"
-      gold: "Gold"
-      green: "Green"
-      grey: "Grey"
-      orange: "Orange"
-      pink: "Pink"
-      purple: "Purple"
-      red: "Red"
-      silver: "Silver"
-      white: "White"
-      yellow: "Yellow"
+      black: Black
+      blue: Blue
+      brown: Brown
+      gold: Gold
+      green: Green
+      grey: Grey
+      orange: Orange
+      pink: Pink
+      purple: Purple
+      red: Red
+      silver: Silver
+      white: White
+      yellow: Yellow
 
     #
     # Generic field labels
     #
     fields:
-      active: "Active"
-      address: "Address"
-      biography: "Biography"
-      biography_short: "Bio"
-      code: "Code"
-      color: "Colour"
-      country: "Country"
-      created_at: "Created"
-      created_by: "Created by"
-      date: "Date"
-      description: "Description"
-      description_short: "Desc."
-      duration: "Duration"
-      duration_short: "Dur."
-      email: "Email"
-      enabled: "Enabled"
-      ends_on: "Ends"
-      ends_on_short: "End"
-      identifier: "Identifier"
-      identifier_short: "ID"
-      image: "Image"
-      language: "Language"
-      language_short: "Lang."
-      location: "Location"
-      location_short: "Loc."
-      name: "Name"
-      notes: "Notes"
-      number: "Number"
-      number_short: "#"
-      order: "Order"
-      phone: "Phone"
-      phone_short: "Tel."
-      position: "Position"
-      position_short: "Pos."
-      postcode: "Postal code"
-      postcode_short: "ZIP"
-      priority: "Priority"
-      reference: "Reference"
-      reference_short: "Ref."
-      remarks: "Remarks"
-      remarks_short: "Rem."
-      settings: "Settings"
-      starts_on: "Starts"
-      starts_on_short: "Start"
-      state: "State"
-      street: "Street"
-      title: "Title"
-      type: "Type"
-      updated_at: "Updated"
-      updated_by: "Updated by"
-      url: "URL"
-      version: "Version"
-      version_short: "Ver."
-      website: "Website"
-      website_short: "Web"
+      active: Active
+      address: Address
+      biography: Biography
+      biography_short: Bio
+      code: Code
+      color: Colour
+      country: Country
+      created_at: Created
+      created_by: Created by
+      date: Date
+      description: Description
+      description_short: Desc.
+      duration: Duration
+      duration_short: Dur.
+      email: Email
+      enabled: Enabled
+      ends_on: Ends
+      ends_on_short: End
+      identifier: Identifier
+      identifier_short: ID
+      image: Image
+      language: Language
+      language_short: Lang.
+      location: Location
+      location_short: Loc.
+      name: Name
+      notes: Notes
+      number: Number
+      number_short: #
+      order: Order
+      phone: Phone
+      phone_short: Tel.
+      position: Position
+      position_short: Pos.
+      postcode: Postal code
+      postcode_short: ZIP
+      priority: Priority
+      reference: Reference
+      reference_short: Ref.
+      remarks: Remarks
+      remarks_short: Rem.
+      settings: Settings
+      starts_on: Starts
+      starts_on_short: Start
+      state: State
+      street: Street
+      title: Title
+      type: Type
+      updated_at: Updated
+      updated_by: Updated by
+      url: URL
+      version: Version
+      version_short: Ver.
+      website: Website
+      website_short: Web
 
     #
     # Generic stat labels
     #
     stats:
-      avg: "Average"
-      avg_short: "Avg."
+      avg: Average
+      avg_short: Avg.
       duration: Duration
       duration_short: Dur.
-      max: "Maximum"
-      max_short: "Max."
-      min: "Minimum"
-      min_short: "Min."
+      max: Maximum
+      max_short: Max.
+      min: Minimum
+      min_short: Min.
       number: Number
-      number_short: "#"
+      number_short: #
       qty: Quantity
       qty_short: Qty.
-      total: "Total"
-      total_short: "Tot."
+      total: Total
+      total_short: Tot.
 
   # -----------------------------------------------------------------------------
   # DEPRECATED - DO NOT MODIFY
@@ -290,9 +294,9 @@ en:
   #
   # Search for:
   #
-  #   t("action.
-  #   t("status.
-  #   t("question.
+  #   t(action.
+  #   t(status.
+  #   t(question.
   #   ...
   #
   # Remove this section once no references remain.
@@ -300,50 +304,50 @@ en:
 
   # Actions
   action:
-    add: "Add"
-    add_nested: "Add new"
-    admin: "Manage"
-    back: "Return"
-    backup: "Backup"
-    call: "Call"
-    cancel: "Cancel"
-    change: "Change"
-    chat: "Chat in WhatsApp"
-    clear: "Clear"
-    close: "Close"
-    configure: "Configure"
-    copy: "Copy"
-    create: "Create"
-    delete: "Delete"
-    edit: "Edit"
-    email: "Send e-mail"
-    export: "Export"
-    filter: "Filter"
-    import: "Import"
-    login: "Log-in"
-    logout: "Log-out"
+    add: Add
+    add_nested: Add new
+    admin: Manage
+    back: Return
+    backup: Backup
+    call: Call
+    cancel: Cancel
+    change: Change
+    chat: Chat in WhatsApp
+    clear: Clear
+    close: Close
+    configure: Configure
+    copy: Copy
+    create: Create
+    delete: Delete
+    edit: Edit
+    email: Send e-mail
+    export: Export
+    filter: Filter
+    import: Import
+    login: Log-in
+    logout: Log-out
     next: ">>"
-    previous: "<<"
-    remember: "Remember"
-    remove: "Remove"
-    restore: "Restore"
-    return: "Return"
-    save: "Save"
-    search: "Search"
-    select: "Select"
+    previous: <<
+    remember: Remember
+    remove: Remove
+    restore: Restore
+    return: Return
+    save: Save
+    search: Search
+    select: Select
 
   # Colors
   color:
-    black: "Black"
-    blue: "Blue"
-    green: "Green"
-    orange: "Orange"
-    purple: "Purple"
-    red: "Red"
-    single: "Colour"
+    black: Black
+    blue: Blue
+    green: Green
+    orange: Orange
+    purple: Purple
+    red: Red
+    single: Colour
 
     # UI
-    many: "Colours"
+    many: Colours
 
   helpers:
     page_entries_info:
@@ -357,45 +361,45 @@ en:
 
   # Locales
   locale:
-    country: "Country"
-    en: "English"
-    es: "Spanish"
-    lang: "Language"
+    country: Country
+    en: English
+    es: Spanish
+    lang: Language
 
   # Questions
   question:
-    active: "Active?"
-    camera: "Use Camera?"
-    clear: "Clear actions for "
-    delete: "Delete "
-    female: "Female?"
-    import: "Import file?"
-    login: "Open session?"
-    save: "Save "
-    save_chng: "Save Changes?"
+    active: Active?
+    camera: Use Camera?
+    clear: Clear actions for
+    delete: Delete
+    female: Female?
+    import: Import file?
+    login: Open session?
+    save: Save
+    save_chng: Save Changes?
 
   # Scopes
   scope:
-    all: "All"
-    none: "None"
+    all: All
+    none: None
 
   # Statuses
   status:
-    active: "Active"
-    active_a: "Act."
-    calculating: "Calculating"
-    closed: "Closed"
-    completed: "Completed"
-    empty: "No data to show"
-    good: "Good progress"
-    inactive: "Inactive"
-    in_progress: "In progress"
-    no_data: "No data to save"
-    no_file: "Load file..."
-    not_started: "Not started"
-    processing: "Processing..."
-    saved: "saved."
-    starting: "Starting"
+    active: Active
+    active_a: Act.
+    calculating: Calculating
+    closed: Closed
+    completed: Completed
+    empty: No data to show
+    good: Good progress
+    inactive: Inactive
+    in_progress: In progress
+    no_data: No data to save
+    no_file: Load file...
+    not_started: Not started
+    processing: Processing...
+    saved: saved.
+    starting: Starting
 
   views:
     pagination:

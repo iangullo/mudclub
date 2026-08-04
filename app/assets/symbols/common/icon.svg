@@ -212,6 +212,15 @@
 			ry="3.3845601"
 			transform="rotate(91.862443)" />
 	</symbol>
+	<symbol id="head_coach.default" viewBox="0 0 128 128">
+		<use href="#coach.default" />
+	</symbol>
+	<symbol id="assistant_coach.default" viewBox="0 0 128 128">
+		<use href="#coach.default" />
+	</symbol>
+	<symbol id="coaching_coordinator.default" viewBox="0 0 128 128">
+		<use href="#coach.default" />
+	</symbol>
 	<symbol id="board_member.default" viewBox="0 0 128 128">
 		<!-- Podium (drawn behind the person) -->
 		<path d="M 25,80 L 103,80 L 90,128 L 38,128 Z" fill="#8B4513" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -243,6 +252,15 @@
 		<line x1="86" y1="60" x2="80" y2="78" stroke="#000080" stroke-width="6" stroke-linecap="round" />
 		<ellipse cx="48" cy="78" rx="8" ry="5" fill="#ffccaa" stroke="#000000" stroke-width="1.5" />
 		<ellipse cx="80" cy="78" rx="8" ry="5" fill="#ffccaa" stroke="#000000" stroke-width="1.5" />
+	</symbol>
+	<symbol id="president.default" viewBox="0 0 128 128">
+		<use href="#board_member.default" />
+	</symbol>
+	<symbol id="vice_president.default" viewBox="0 0 128 128">
+		<use href="#board_member.default" />
+	</symbol>
+	<symbol id="treasurer.default" viewBox="0 0 128 128">
+		<use href="#board_member.default" />
 	</symbol>
 	<symbol id="volunteer.default" viewBox="0 0 128 128">
 		<!-- Head -->

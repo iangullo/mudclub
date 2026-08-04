@@ -24,14 +24,23 @@ class Person < ApplicationRecord
 	before_destroy :unlink
 	before_save { self.name = self.name ? self.name.mb_chars.titleize : "" }
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
-	belongs_to :coach, optional: true
-	belongs_to :player, optional: true
-	belongs_to :user, optional: true
-	belongs_to :parent, optional: true
-	accepts_nested_attributes_for :coach
-	accepts_nested_attributes_for :player
-	accepts_nested_attributes_for :user
+	belongs_to :coach, optional: true	# DEPRECATED
+	belongs_to :player, optional: true	# DEPRECATED
+	belongs_to :user, optional: true	# DEPRECATED
+	belongs_to :parent, optional: true	# DEPRECATED
+	accepts_nested_attributes_for :coach	# DEPRECATED
+	accepts_nested_attributes_for :player	# DEPRECATED
+	accepts_nested_attributes_for :user	# DEPRECATED
 	has_many :memberships
+	has_many :relationships,
+					class_name: "Relationship",
+					dependent: :destroy
+	accepts_nested_attributes_for :relationships, allow_destroy: true
+
+	has_many :inverse_relationships,
+					class_name: "Relationship",
+					foreign_key: :related_person_id,
+					dependent: :destroy
 	has_one_attached :avatar
 	has_one_attached :id_front
 	has_one_attached :id_back

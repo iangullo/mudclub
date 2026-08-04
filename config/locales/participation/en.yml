@@ -36,10 +36,8 @@ en:
         joined_on_short: Joined
         left_on: Left on
         left_on_short: Left
-        active: Active
-        active_short: Act.
-        primary: Primary
-        primary_short: Main
+        status: Status
+        status_short: Stat.
         notes: Notes
       messages:
         created: Membership created.
@@ -63,6 +61,7 @@ en:
         kind_short: Kind
         starts_on: Starts
         ends_on: Ends
+        role: Role
         team: Team
         shirt_number: Shirt number
         shirt_number_short: #

@@ -36,10 +36,8 @@ es:
         joined_on_short: Alta
         left_on: Fecha de baja
         left_on_short: Baja
-        active: Activo/a
-        active_short: Act.
-        primary: Principal
-        primary_short: Princ.
+        status: Estado
+        status_short: Est.
         notes: Notas
       messages:
         created: Integrante creado/a.
@@ -63,6 +61,7 @@ es:
         kind_short: Tipo
         starts_on: Inicio
         ends_on: Fin
+        role: Cargo
         team: Equipo
         shirt_number: Número de camiseta
         shirt_number_short: Nº

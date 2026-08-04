@@ -28,8 +28,13 @@
 	</style>
 	<div id="imageboxContainer" data-controller="imagebox" class="group flex rounded relative">
 		<!-- Image element to display snapshots (loaded initially) -->
-		<%= image_tag @fdata[:value], id: "imageSnapshot", class: "object-cover w-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
-
+		<% if @fdata[:value].present? %>
+			<%= image_tag @fdata[:value], id: "imageSnapshot", class: "object-cover w-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
+		<% else %>
+			<div class="flex justify-center items-center w-full h-full" data-action="click->imagebox#openFileDialog" data-imagebox-target="selectedImage">
+		      <%= render SymbolComponent.new(:missing, size: @fdata[:size], css: "w-full h-full") %>
+    		</div>
+		<% end %>
 		<!-- Overlay for the camera icon -->
 		<div class="overlay absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" data-action="click->imagebox#openFileDialog" >
 			<span class="camera-icon text-4xl pointer-events-none">📷</span>

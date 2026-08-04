@@ -24,9 +24,20 @@
 #
 class Assignment < ApplicationRecord
 	localized_as "participation.assignment"
+	include Auditable
+	include Participatory
 
 	belongs_to :membership
 	belongs_to :team, optional: true
+
+	# attachment of notes to be handled
+	has_rich_text :notes
+
+	# Membership kinds identify the reason why a person belongs to a club.
+	# Operational responsibilities are modelled through Participation::Assignment.
+	enum :kind,
+			Catalog::AssignmentKinds.enum,
+			prefix: true
 
 	#
 	# Convenient delegation
@@ -34,14 +45,13 @@ class Assignment < ApplicationRecord
 
 	delegate :club,
 					:person,
-					to: :membership
-
-	delegate :name,
+					:name,
 					:surname,
 					:email,
 					:phone,
 					:to_s,
-					to: :person
+					:female,
+					to: :membership
 
 	#
 	# Validations
@@ -73,25 +83,31 @@ class Assignment < ApplicationRecord
 		where.not(team_id: nil)
 	}
 
-	# Status of the assignment
-	enum :status,
-			{
-				pending: 0,
-				active: 1,
-				suspended: 2,
-				terminated: 3
-			},
-			prefix: true
+	# short name for form viewing
+	def s_name
+		person&.s_name || Catalog::AssignmentKinds.val(kind)
+	end
+
+	# personal photo or membership kind symbol
+	def picture
+		return person.avatar if person.avatar
+
+		# if no attached avatar, return the symbol name
+		# to be rendered as: symbol_field(symbol)
+		kind_image
+	end
+
+	def kind_image
+		Catalog::AssignmentKinds.normalize(kind) || :person
+	end
+
+	def kind_label(...)
+		Catalog::AssignmentKinds.val(kind, ...)
+	end
 
 	#
 	# Behaviour
 	#
-
-	def current?
-		starts_on <= Date.current &&
-			(ends_on.nil? || ends_on >= Date.current)
-	end
-
 	def club_assignment?
 		team.nil?
 	end
@@ -101,6 +117,6 @@ class Assignment < ApplicationRecord
 	end
 
 	def terminate!(date = Date.current)
-		update!(ends_on: date)
+		update!(ends_on: date, status: :terminated)
 	end
 end

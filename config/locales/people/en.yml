@@ -12,96 +12,96 @@
 
 en:
   people:
-    label: "People"
-    short: "People"
+    label: People
+    short: People
 
     messages:
-      exported: "Exported people"
-      imported: "Imported people"
+      exported: Exported people
+      imported: Imported people
 
     person:
-      label: "Person"
-      short: "Person"
+      label:
+        single: Person
+        plural: People
+        short: Pers.
       fields:
-        name: "Name"
-        name_short: "Name"
-        surname: "Surname"
-        surname_short: "Surn."
-        nickname: "Nickname"
-        nickname_short: "Nick."
-        birthday: "Birth date"
-        birthday_short: "DoB"
-        age: "Age"
-        sex: "Sex"
-        contact: "Contact"
-        contact_short: "Cont."
-        national_id: "National ID"
-        national_id_short: "ID"
-        email: "e-mail"
-        email_short: "email"
-        phone: "Phone"
-        phone_short: "Tel."
-        address: "Home address"
-        address_short: "Addr."
-        biography: "Biography"
-        biography_short: "Bio."
-        photo: "Photograph"
-        photo_short: "Pic."
-        photos: "Photographs"
-        photos_short: "Pics."
-        id_front: "Identity document (front)"
-        id_front_short: "ID front"
-        id_back: "Identity document (back)"
-        id_back_short: "ID back"
+        name: Name
+        name_short: Name
+        surname: Surname
+        surname_short: Surn.
+        nickname: Nickname
+        nickname_short: Nick.
+        birthday: Birth date
+        birthday_short: DoB
+        age: Age
+        sex: Sex
+        contact: Contact
+        contact_short: Cont.
+        national_id: National ID
+        national_id_short: ID
+        email: e-mail
+        email_short: email
+        phone: Phone
+        phone_short: Tel.
+        address: Home address
+        address_short: Addr.
+        biography: Biography
+        biography_short: Bio.
+        photo: Photograph
+        photo_short: Pic.
+        photos: Photographs
+        photos_short: Pics.
+        id_front: Identity document (front)
+        id_front_short: ID front
+        id_back: Identity document (back)
+        id_back_short: ID back
+      sex:
+        female: Female
+        female_short: Fem.
+        male: Male
+        male_short: Male
+        mixed: Mixed
+        mixed_short: Mixed
       messages:
-        created: "Person created."
-        updated: "Person updated."
-        deleted: "Person deleted."
-        duplicated: "Person already exists."
+        created: Person created.
+        updated: Person updated.
+        deleted: Person deleted.
+        duplicated: Person already exists.
 
     parent:
-      label: "Parent"
-      short: "Parent"
+      label:
+        single: Parent
+        plural: Parents
+        short: Parent
 
-    sex:
-      label: "Sex"
-      short: "Sex"
+    relationship:
+      label: Relationship
+      short: Rel.
       values:
-        female: "Female"
-        female_short: "Fem."
-        male: "Male"
-        male_short: "Male"
-        mixed: "Mixed"
-        mixed_short: "Mixed"
-
-    relationship_kinds:
-      label: "Relationship"
-      short: "Rel."
-      values:
-        parent: "Parent"
-        parent_plural: "Parents"
-        father: "Father"
-        father_plural: "Fathers"
-        mother: "Mother"
-        mother_plural: "Mothers"
-        guardian: "Guardian"
-        guardian_plural: "Guardians"
-        legal_representative: "Legal Representative"
-        legal_representative_plural: "Legal Representatives"
-        child: "Child"
-        child_plural: "Children"
-        sibling: "Sibling"
-        sibling_plural: "Siblings"
-        grandparent: "Grandparent"
-        grandparent_plural: "Grandparents"
-        grandchild: "Grandchild"
-        grandchild_plural: "Grandchildren"
-        spouse: "Spouse"
-        spouse_plural: "Spouses"
-        partner: "Partner"
-        partner_plural: "Partners"
-        emergency_contact: "Emergency contact"
-        emergency_contact_plural: "Emergency contacts"
+        parent: Parent
+        parent_plural: Parents
+        father: Father
+        father_plural: Fathers
+        mother: Mother
+        mother_plural: Mothers
+        guardian: Guardian
+        guardian_plural: Guardians
+        legal_representative: Legal Rep.
+        legal_representative_plural: Legal Reps.
+        child: Child
+        child_plural: Children
+        sibling: Sibling
+        sibling_plural: Siblings
+        grandparent: Grandparent
+        grandparent_plural: Grandparents
+        grandchild: Grandchild
+        grandchild_plural: Grandchildren
+        spouse: Spouse
+        spouse_plural: Spouses
+        partner: Partner
+        partner_plural: Partners
+        emergency_contact: Emergency cont.
+        emergency_contact_plural: Emergency conts.
 
   # ---------------------------------------------------------------------------
   # DEPRECATED - DO NOT MODIFY
@@ -110,74 +110,74 @@ en:
   #
   # Search for:
   #
-  #   t("person.
-  #   t("parent.
-  #   t("sex.
+  #   t(person.
+  #   t(parent.
+  #   t(sex.
   #
   # Remove once all callers have migrated.
   # ---------------------------------------------------------------------------
 
   parent:
-    single: "Parent"
-    many: "Parents"
+    single: Parent
+    many: Parents
 
   person:
-    address: "Home address"
+    address: Home address
 
-    age: "Age"
+    age: Age
 
-    bday: "Birthdate"
-    bday_a: "DoB"
+    bday: Birthdate
+    bday_a: DoB
 
-    contact: "Contact"
+    contact: Contact
 
-    email: "e-mail"
+    email: e-mail
 
-    id_back: "ID back"
-    id_front: "ID front"
+    id_back: ID back
+    id_front: ID front
 
-    name: "Name"
-    name_a: "Name"
+    name: Name
+    name_a: Name
 
-    nick: "Nickname"
+    nick: Nickname
 
-    phone: "Phone"
-    phone_a: "Tel."
+    phone: Phone
+    phone_a: Tel.
 
-    pics: "Pics."
-    pics_found: "Pics available"
-    pics_missing: "Missing pics"
+    pics: Pics.
+    pics_found: Pics available
+    pics_missing: Missing pics
 
-    pid: "ID #"
-    pid_a: "ID"
+    pid: ID #
+    pid_a: ID
 
-    single: "Person"
-    many: "People"
+    single: Person
+    many: People
 
-    surname: "Surname"
-    surname_a: "Surn."
+    surname: Surname
+    surname_a: Surn.
 
     created: "Created person: "
     updated: "Updated person: "
     deleted: "Deleted person: "
     duplicate: "Duplicate person: "
 
-    edit: "Edit Person"
-    new: "Create Person"
+    edit: Edit Person
+    new: Create Person
 
-    export: "Exported people"
-    import: "Imported people"
+    export: Exported people
+    import: Imported people
 
   sex:
-    abr: "Sex"
+    abr: Sex
 
-    label: "Sex"
+    label: Sex
 
-    female: "Female"
-    female_a: "Fem."
+    female: Female
+    female_a: Fem.
 
-    male: "Male"
-    male_a: "Male"
+    male: Male
+    male_a: Male
 
-    mixed: "Mixed"
-    mixed_a: "Mixed"
+    mixed: Mixed
+    mixed_a: Mixed

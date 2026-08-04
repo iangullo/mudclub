@@ -1,11 +1,22 @@
 <%= render ModalComponent.new do %>
-	<%= form_for @member, authenticity_token: true, data:{controller: "mandatory-fields", turbo_frame: "_top"} do |form| %>
+	<%= form_for(
+			@member,
+			url: membership_form_path,
+			authenticity_token: true,
+			data: {controller: "mandatory-fields", turbo_frame: "_top"}
+		) do |form| %>
 		<%= form.fields_for :person do |f| %>
 			<% @title.form    = f %>
-			<% @fields.form = f %>
+			<% @p_fields.form = f %>
 			<%= render @title %>
-			<%= render @fields %>
+			<%= render @p_fields %>
+			<% if @contacts %>
+				<% @contacts.form = f %>
+				<%= render @contacts %>
+			<% end %>
 		<% end %>
+		<% @m_fields.form = form %>
+		<%= render @m_fields %>
 		<%= render @submit %>
 	<% end %>
 <% end %>

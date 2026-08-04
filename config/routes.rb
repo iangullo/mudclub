@@ -30,15 +30,26 @@ Rails.application.routes.draw do
 		put "users" => "devise/registrations#update", :as => "user_registration"
 	end
 	resources :clubs do
-		get "coaches", to: "coaches#index"	# club coaches DEPRECATED
 		get "events", to: "events#index"	# club calendar
 		get "locations", to: "locations#index"	# club locations
-		get "players", to: "players#index"	# club players DEPRECATED
 		get "slots", to: "slots#index"	# club slots
-		get "teams", to: "teams#index"	# club teams
-		resources :members, controller: "memberships", only: [ :index, :show, :new, :create, :edit, :update ]
+		resources :assignments, only: [ :index, :new, :create ]
+		resources :members, controller: :memberships, only: [ :index, :show, :new, :create, :edit, :update ] do
+			resources :assignments, except: [ :index ]
+		end
+		resources :teams do
+			member do
+				get :roster
+				get :plan
+				get :attendance
+				get :targets
+				get :slots
+				get :events
+			end
+		end
 	end
-	resources :people
+
+	# resources :people
 	resources :coaches, except: [ :index ] do
 		collection do
 			post :import

@@ -184,6 +184,12 @@ class Catalog::Base
 			end
 		end
 
+		def selectable
+			entries.filter_map do |key, cfg|
+				key if cfg.fetch(:selectable, false)
+			end
+		end
+
 		#
 		# ------------------------------------------------------------------------
 		# Localizable

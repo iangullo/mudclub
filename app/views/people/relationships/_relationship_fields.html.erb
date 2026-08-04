@@ -1,0 +1,76 @@
+<%# app/views/people/relationships/_relationship_fields.html.erb %>
+
+<% if form.object %>
+	<% f_cls = "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0 px-1" %>
+
+	<table class="w-full">
+		<tr>
+			<td class="font-semibold whitespace-nowrap">
+				<%= Relationship.attr(:kind) %>
+			</td>
+			<td colspan="3">
+				<%= form.select(:kind, Relationship.kind_list, {}, class: f_cls) %>
+				<%= form.hidden_field :id %>
+			</td>
+		</tr>
+
+		<%= form.fields_for :related_person do |f| %>
+
+			<tr>
+				<td colspan="2">
+					<%= f.text_field(
+							:name,
+							placeholder: Person.attr(:name),
+							size: 15,
+							class: f_cls
+					) %>
+				</td>
+
+				<td colspan="2">
+					<%= f.text_field(
+							:surname,
+							placeholder: Person.attr(:surname),
+							size: 18,
+							class: f_cls
+					) %>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<%= render SymbolComponent.new("call") %>
+				</td>
+
+				<td>
+					<%= f.text_field(
+							:phone,
+							placeholder: Person.attr(:phone),
+							size: 12,
+							class: f_cls
+					) %>
+				</td>
+
+				<td>
+					<%= render SymbolComponent.new("email") %>
+				</td>
+
+				<td>
+					<%= f.text_field(
+							:email,
+							placeholder: Person.attr(:email),
+							size: 18,
+							class: f_cls
+					) %>
+				</td>
+			</tr>
+
+			<tr>
+				<td colspan="4">
+					<div class="w-full border-b border-gray-200"></div>
+					<%= f.hidden_field :id %>
+				</td>
+			</tr>
+
+		<% end %>
+	</table>
+<% end %>

@@ -14,274 +14,278 @@ es:
     # Acciones genéricas
     #
     actions:
-      add: "Añadir"
-      add_short: "Añadir"
-      add_nested: "Añadir nuevo"
-      add_nested_short: "Añadir"
-      administration: "Administración"
-      administration_short: "Admin."
-      back: "Volver"
-      backup: "Copia de seguridad"
-      call: "Llamada"
-      cancel: "Cancelar"
-      change: "Cambiar"
-      chat: "WhatsApp"
-      chat_short: "Chat"
-      clear: "Limpiar"
-      close: "Cerrar"
-      configure: "Configurar"
-      configure_short: "Config."
-      copy: "Copiar"
-      create: "Crear"
-      delete: "Eliminar"
-      download: "Descargar"
-      download_short: "Desc."
-      duplicate: "Duplicar"
-      duplicate_short: "Dup."
-      edit: "Editar"
-      export: "Exportar"
-      filter: "Filtrar"
-      import: "Importar"
-      login: "Iniciar sesión"
-      logout: "Cerrar sesión"
-      move: "Mover"
-      next: "Siguiente"
+      add: Añadir
+      add_short: Añadir
+      add_nested: Añadir nuevo
+      add_nested_short: Añadir
+      administration: Administración
+      administration_short: Admin.
+      back: Volver
+      backup: Copia de seguridad
+      call: Llamada
+      cancel: Cancelar
+      change: Cambiar
+      chat: WhatsApp
+      chat_short: Chat
+      clear: Limpiar
+      close: Cerrar
+      configure: Configurar
+      configure_short: Config.
+      copy: Copiar
+      create: Crear
+      delete: Eliminar
+      download: Descargar
+      download_short: Desc.
+      duplicate: Duplicar
+      duplicate_short: Dup.
+      edit: Editar
+      export: Exportar
+      filter: Filtrar
+      import: Importar
+      login: Iniciar sesión
+      logout: Cerrar sesión
+      move: Mover
+      next: Siguiente
       next_short: ">>"
-      previous: "Anterior"
+      previous: Anterior
       previous_short: "<<"
-      preview: "Vista previa"
-      preview_short: "Vista"
-      print: "Imprimir"
-      refresh: "Actualizar"
-      remove: "Eliminar"
-      rename: "Renombrar"
-      restore: "Restaurar"
-      save: "Guardar"
-      search: "Buscar"
-      select: "Seleccionar"
-      share: "Compartir"
-      upload: "Subir"
-      upload_short: "Sub."
+      preview: Vista previa
+      preview_short: Vista
+      print: Imprimir
+      refresh: Actualizar
+      remove: Eliminar
+      rename: Renombrar
+      restore: Restaurar
+      save: Guardar
+      search: Buscar
+      select: Seleccionar
+      share: Compartir
+      upload: Subir
+      upload_short: Sub.
 
     #
     # Configuración
     #
-    settings: "Configuración"
-    settings_short: "Config."
+    settings: Configuración
+    settings_short: Config.
 
     #
     # Generic messages
     #
     messages:
-      img_missing: "Image not found"
+      img_missing: Image not found
 
     #
     # Estados genéricos
     #
     statuses:
-      active: "Activo"
-      active_short: "Act."
-      archived: "Archivado"
-      archived_short: "Arch."
-      calculating: "Calculando"
-      calculating_short: "Calc."
-      cancelled: "Cancelado"
-      cancelled_short: "Canc."
-      closed: "Cerrado"
-      completed: "Completado"
-      completed_short: "Hecho"
-      disabled: "Deshabilitado"
-      disabled_short: "Desh."
-      draft: "Borrador"
-      empty: "Sin datos disponibles"
-      empty_short: "Vacío"
-      enabled: "Habilitado"
-      enabled_short: "Hab."
-      error: "Error"
-      failed: "Fallido"
-      failed_short: "Fall."
-      inactive: "Inactivo"
-      inactive_short: "Inact."
-      loading: "Cargando..."
-      loading_short: "Carg."
-      pending: "Pendiente"
-      pending_short: "Pend."
-      processing: "Procesando..."
-      processing_short: "Proc."
-      published: "Publicado"
-      published_short: "Publ."
-      ready: "Listo"
-      rejected: "Rechazado"
-      rejected_short: "Rech."
-      saved: "Guardado"
-      starting: "Iniciando"
-      starting_short: "Inicio"
-      unavailable: "No disponible"
-      unavailable_short: "No disp."
-      warning: "Advertencia"
-      warning_short: "Adv."
+      active: Activo
+      active_short: Act.
+      archived: Archivado
+      archived_short: Arch.
+      calculating: Calculando
+      calculating_short: Calc.
+      cancelled: Cancelado
+      cancelled_short: Canc.
+      closed: Cerrado
+      completed: Completado
+      completed_short: Hecho
+      disabled: Deshabilitado
+      disabled_short: Desh.
+      draft: Borrador
+      empty: Sin datos disponibles
+      empty_short: Vacío
+      enabled: Habilitado
+      enabled_short: Hab.
+      error: Error
+      failed: Fallido
+      failed_short: Fall.
+      inactive: Inactivo
+      inactive_short: Inact.
+      loading: Cargando...
+      loading_short: Carg.
+      pending: Pendiente
+      pending_short: Pend.
+      processing: Procesando...
+      processing_short: Proc.
+      published: Publicado
+      published_short: Publ.
+      ready: Listo
+      rejected: Rechazado
+      rejected_short: Rech.
+      suspended: Suspendido
+      suspended_short: Susp.
+      saved: Guardado
+      starting: Iniciando
+      starting_short: Inicio
+      terminated: Terminado
+      terminated_short: Term.
+      unavailable: No disponible
+      unavailable_short: No disp.
+      warning: Advertencia
+      warning_short: Adv.
 
     #
     # Preguntas genéricas
     #
     questions:
-      active: "¿Activo?"
-      camera: "¿Usar cámara?"
-      delete: "¿Eliminar?"
-      discard_changes: "¿Descartar cambios?"
-      female: "¿Femenino?"
-      import: "¿Importar archivo?"
-      login: "¿Iniciar sesión?"
-      logout: "¿Cerrar sesión?"
-      overwrite: "¿Sobrescribir datos existentes?"
-      remove: "¿Eliminar?"
-      restore: "¿Restaurar?"
-      save: "¿Guardar?"
-      save_changes: "¿Guardar cambios?"
+      active: ¿Activo?
+      camera: ¿Usar cámara?
+      delete: ¿Eliminar?
+      discard_changes: ¿Descartar cambios?
+      female: ¿Femenino?
+      import: ¿Importar archivo?
+      login: ¿Iniciar sesión?
+      logout: ¿Cerrar sesión?
+      overwrite: ¿Sobrescribir datos existentes?
+      remove: ¿Eliminar?
+      restore: ¿Restaurar?
+      save: ¿Guardar?
+      save_changes: ¿Guardar cambios?
 
     #
     # Selecciones genéricas
     #
     selections:
-      all: "Todos"
-      automatic: "Automático"
-      automatic_short: "Auto."
-      current: "Actual"
-      current_short: "Act."
-      default: "Predeterminado"
-      default_short: "Pred."
-      featured: "Destacado"
-      featured_short: "Dest."
-      multiple: "Múltiple"
-      multiple_short: "Mult."
-      none: "Ninguno"
-      optional: "Opcional"
-      optional_short: "Opc."
-      other: "Otro"
-      required: "Obligatorio"
-      required_short: "Obl."
-      selected: "Seleccionado"
-      selected_short: "Sel."
-      unknown: "Desconocido"
+      all: Todos
+      automatic: Automático
+      automatic_short: Auto.
+      current: Actual
+      current_short: Act.
+      default: Predeterminado
+      default_short: Pred.
+      featured: Destacado
+      featured_short: Dest.
+      multiple: Múltiple
+      multiple_short: Mult.
+      none: Ninguno
+      optional: Opcional
+      optional_short: Opc.
+      other: Otro
+      required: Obligatorio
+      required_short: Obl.
+      selected: Seleccionado
+      selected_short: Sel.
+      unknown: Desconocido
 
     #
     # Valores booleanos
     #
     booleans:
-      true: "Sí"
-      true_short: "S"
-      false: "No"
+      "true": Sí
+      true_short: S
+      "false": "No"
       false_short: "N"
 
     #
     # Nombres de idiomas
     #
     locales:
-      en: "Inglés"
-      en_short: "EN"
-      es: "Español"
-      es_short: "ES"
-      fr: "Francés"
-      fr_short: "FR"
-      pt: "Portugués"
-      pt_short: "PT"
+      en: Inglés
+      en_short: EN
+      es: Español
+      es_short: ES
+      fr: Francés
+      fr_short: FR
+      pt: Portugués
+      pt_short: PT
 
     #
     # Colores
     #
     colors:
-      black: "Negro"
-      blue: "Azul"
-      brown: "Marrón"
-      gold: "Dorado"
-      green: "Verde"
-      grey: "Gris"
-      orange: "Naranja"
-      pink: "Rosa"
-      purple: "Morado"
-      red: "Rojo"
-      silver: "Plateado"
-      white: "Blanco"
-      yellow: "Amarillo"
+      black: Negro
+      blue: Azul
+      brown: Marrón
+      gold: Dorado
+      green: Verde
+      grey: Gris
+      orange: Naranja
+      pink: Rosa
+      purple: Morado
+      red: Rojo
+      silver: Plateado
+      white: Blanco
+      yellow: Amarillo
 
     #
     # Etiquetas de campos genéricos
     #
     fields:
-      active: "Activo"
-      address: "Dirección"
-      biography: "Biografía"
-      biography_short: "Bio"
-      code: "Código"
-      color: "Color"
-      country: "País"
-      created_at: "Creado"
-      created_by: "Creado por"
-      date: "Fecha"
-      description: "Descripción"
-      description_short: "Desc."
-      duration: "Duración"
-      duration_short: "Dur."
-      email: "Correo electrónico"
-      enabled: "Habilitado"
-      ends_on: "Finaliza"
-      ends_on_short: "Fin"
-      identifier: "Identificador"
-      identifier_short: "ID"
-      image: "Imagen"
-      language: "Idioma"
-      language_short: "Idioma"
-      location: "Ubicación"
-      location_short: "Ubic."
-      name: "Nombre"
-      notes: "Notas"
-      number: "Número"
-      number_short: "Nº"
-      order: "Orden"
-      phone: "Teléfono"
-      phone_short: "Telf."
-      position: "Posición"
-      position_short: "Pos."
-      postcode: "Código postal"
-      postcode_short: "CP"
-      priority: "Prioridad"
-      reference: "Referencia"
-      reference_short: "Ref."
-      remarks: "Observaciones"
-      remarks_short: "Obs."
-      settings: "Configuración"
-      starts_on: "Inicia"
-      starts_on_short: "Inicio"
-      state: "Estado"
-      street: "Calle"
-      title: "Título"
-      type: "Tipo"
-      updated_at: "Actualizado"
-      updated_by: "Actualizado por"
-      url: "URL"
-      version: "Versión"
-      version_short: "Ver."
-      website: "Sitio web"
-      website_short: "Web"
+      active: Activo
+      address: Dirección
+      biography: Biografía
+      biography_short: Bio
+      code: Código
+      color: Color
+      country: País
+      created_at: Creado
+      created_by: Creado por
+      date: Fecha
+      description: Descripción
+      description_short: Desc.
+      duration: Duración
+      duration_short: Dur.
+      email: Correo electrónico
+      enabled: Habilitado
+      ends_on: Finaliza
+      ends_on_short: Fin
+      identifier: Identificador
+      identifier_short: ID
+      image: Imagen
+      language: Idioma
+      language_short: Idioma
+      location: Ubicación
+      location_short: Ubic.
+      name: Nombre
+      notes: Notas
+      number: Número
+      number_short: Nº
+      order: Orden
+      phone: Teléfono
+      phone_short: Telf.
+      position: Posición
+      position_short: Pos.
+      postcode: Código postal
+      postcode_short: CP
+      priority: Prioridad
+      reference: Referencia
+      reference_short: Ref.
+      remarks: Observaciones
+      remarks_short: Obs.
+      settings: Configuración
+      starts_on: Inicia
+      starts_on_short: Inicio
+      state: Estado
+      street: Calle
+      title: Título
+      type: Tipo
+      updated_at: Actualizado
+      updated_by: Actualizado por
+      url: URL
+      version: Versión
+      version_short: Ver.
+      website: Sitio web
+      website_short: Web
 
     #
     # Generic stat labels
     #
     stats:
-      avg: "Promedio"
-      avg_short: "Med."
+      avg: Promedio
+      avg_short: Med.
       duration: Duración
       duration_short: Dur.
-      max: "Máximo"
-      max_short: "Máx."
-      min: "Mínimo"
-      min_short: "Mín."
+      max: Máximo
+      max_short: Máx.
+      min: Mínimo
+      min_short: Mín.
       number: Número
       number_short: Nº
       qty: Cantidad
       qty_short: Cant.
-      total: "Total"
-      total_short: "Tot."
+      total: Total
+      total_short: Tot.
   # -----------------------------------------------------------------------------
   # DEPRECATED - NO MODIFICAR
   #
@@ -289,9 +293,9 @@ es:
   #
   # Search for:
   #
-  #   t("action.
-  #   t("status.
-  #   t("question.
+  #   t(action.
+  #   t(status.
+  #   t(question.
   #   ...
   #
   # Remove this section once no references remain.
@@ -299,50 +303,50 @@ es:
 
   # Acciones
   action:
-    add: "Añadir"
-    add_nested: "Añadir nuevo"
-    admin: "Gestionar"
-    back: "Volver"
-    backup: "Copia de seguridad"
-    call: "Llamar"
-    cancel: "Cancelar"
-    change: "Cambiar"
-    chat: "Chatear en WhatsApp"
-    clear: "Limpiar"
-    close: "Cerrar"
-    configure: "Configurar"
-    copy: "Copiar"
-    create: "Crear"
-    delete: "Eliminar"
-    edit: "Editar"
-    email: "Enviar correo electrónico"
-    export: "Exportar"
-    filter: "Filtrar"
-    import: "Importar"
-    login: "Iniciar sesión"
-    logout: "Cerrar sesión"
+    add: Añadir
+    add_nested: Añadir nuevo
+    admin: Gestionar
+    back: Volver
+    backup: Copia de seguridad
+    call: Llamar
+    cancel: Cancelar
+    change: Cambiar
+    chat: Chatear en WhatsApp
+    clear: Limpiar
+    close: Cerrar
+    configure: Configurar
+    copy: Copiar
+    create: Crear
+    delete: Eliminar
+    edit: Editar
+    email: Enviar correo electrónico
+    export: Exportar
+    filter: Filtrar
+    import: Importar
+    login: Iniciar sesión
+    logout: Cerrar sesión
     next: ">>"
     previous: "<<"
-    remember: "Recordar"
-    remove: "Quitar"
-    restore: "Restaurar"
-    return: "Volver"
-    save: "Guardar"
-    search: "Buscar"
-    select: "Seleccionar"
+    remember: Recordar
+    remove: Quitar
+    restore: Restaurar
+    return: Volver
+    save: Guardar
+    search: Buscar
+    select: Seleccionar
 
   # Colores
   color:
-    black: "Negro"
-    blue: "Azul"
-    green: "Verde"
-    orange: "Naranja"
-    purple: "Morado"
-    red: "Rojo"
-    single: "Color"
+    black: Negro
+    blue: Azul
+    green: Verde
+    orange: Naranja
+    purple: Morado
+    red: Rojo
+    single: Color
 
     # Interfaz de usuario
-    many: "Colores"
+    many: Colores
 
   helpers:
     page_entries_info:
@@ -356,45 +360,45 @@ es:
 
   # Configuraciones regionales
   locale:
-    country: "País"
-    en: "Inglés"
-    es: "Español"
-    lang: "Idioma"
+    country: País
+    en: Inglés
+    es: Español
+    lang: Idioma
 
   # Preguntas
   question:
-    active: "¿Activo?"
-    camera: "¿Usar cámara?"
-    clear: "Limpiar acciones para "
-    delete: "Eliminar "
-    female: "¿Mujer?"
-    import: "¿Importar archivo?"
-    login: "¿Abrir sesión?"
-    save: "Guardar "
-    save_chng: "¿Guardar cambios?"
+    active: ¿Activo?
+    camera: ¿Usar cámara?
+    clear: Limpiar acciones para
+    delete: Eliminar
+    female: ¿Mujer?
+    import: ¿Importar archivo?
+    login: ¿Abrir sesión?
+    save: Guardar
+    save_chng: ¿Guardar cambios?
 
   # Ámbitos
   scope:
-    all: "Todos"
-    none: "Ninguno"
+    all: Todos
+    none: Ninguno
 
   # Estados
   status:
-    active: "Activo"
-    active_a: "Act."
-    calculating: "Calculando"
-    closed: "Cerrado"
-    completed: "Completado"
-    empty: "No hay datos que mostrar"
-    good: "Buen progreso"
-    inactive: "Inactivo"
-    in_progress: "En progreso"
-    no_data: "No hay datos que guardar"
-    no_file: "Cargar archivo..."
-    not_started: "No iniciado"
-    processing: "Procesando..."
-    saved: "guardado."
-    starting: "Iniciando"
+    active: Activo
+    active_a: Act.
+    calculating: Calculando
+    closed: Cerrado
+    completed: Completado
+    empty: No hay datos que mostrar
+    good: Buen progreso
+    inactive: Inactivo
+    in_progress: En progreso
+    no_data: No hay datos que guardar
+    no_file: Cargar archivo...
+    not_started: No iniciado
+    processing: Procesando...
+    saved: guardado.
+    starting: Iniciando
 
   views:
     pagination:

@@ -22,26 +22,26 @@ module PeopleHelper
 	end
 
 	def person_form(person, mandatory_email: nil)
-		l_nick  = "people.person.fields.nickname.label"
-		l_phone = "people.person.fields.phone.label"
-		l_pid   = "people.person.fields.national_id.label"
-		l_email = "people.person.fields.email.label"
-		l_addr  = "people.person.fields.address.label"
+		l_nick  = person.attr(:nickname)
+		l_phone = person.attr(:phone)
+		l_pid   = person.attr(:national_id)
+		l_email = person.attr(:email)
+		l_addr  = person.attr(:address)
 
 		res = [
 			[
-				symbol_field("user", { title: I18n.t(l_nick) }),
-				{ kind: :text_box, key: :nick, size: 8, value: person&.nick, placeholder: I18n.t(l_nick) },
+				symbol_field("user", { title: l_nick }),
+				{ kind: :text_box, key: :nick, size: 8, value: person&.nick, placeholder: l_nick },
 				gap_field,
-				symbol_field("call", { title: I18n.t(l_phone) }),
-				{ kind: :text_box, key: :phone, size: 12, value: person&.phone, placeholder: I18n.t(l_phone) }
+				symbol_field("call", { title: l_phone }),
+				{ kind: :text_box, key: :phone, size: 12, value: person&.phone, placeholder: l_phone }
 			],
 			[
-				symbol_field("id_front", { title: I18n.t(l_pid) }),
-				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: I18n.t(l_pid) },
+				symbol_field("id_front", { title: l_pid }),
+				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: l_pid },
 				gap_field,
-				symbol_field("email", { type: :button, title: I18n.t(l_email) }),
-				{ kind: :email_box, key: :email, value: person&.email, placeholder: I18n.t(l_email), mandatory: mandatory_email ? { length: 7 } : nil }
+				symbol_field("email", { type: :button, title: l_email }),
+				{ kind: :email_box, key: :email, value: person&.email, placeholder: l_email, mandatory: mandatory_email ? { length: 7 } : nil }
 			]
 		]
 		if person&.coach_id? || person&.player_id?
@@ -49,19 +49,37 @@ module PeopleHelper
 			res << [ gap_field(size: 1), person_idpic(person, idpic: "id_back", align: "left", cols: 4) ]
 		end
 		res << [
-			symbol_field("home", { size: "25x25", title: I18n.t(l_addr) }, class: "align-top"),
-			{ kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: I18n.t(l_addr) }
+			symbol_field("home", { size: "25x25", title: l_addr }, class: "align-top"),
+			{ kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: l_addr }
 		]
 	end
 
+	# nested form to add/edit person contacts
+	def person_contacts_form(person)
+		res = [ [ { kind: :label, value: I18n.t("parent.many") } ] ]
+		res << [
+			{
+				kind: :nested_form,
+				model: "person",
+				key: :relationships,
+				child: Relationship.build_for(person),
+				row: "people/relationships/relationship_fields",
+				cols: 2
+			}
+		]
+		res
+	end
+
 	# return defintion @fields for forms
-	def person_form_title(person, icon: person&.picture, title:, cols: 2, sex: nil)
+	def person_form_title(pobj, icon: person&.picture, title:, cols: 2, sex: nil)
+		person = pobj.person
 		res = person_title(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
-		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: I18n.t("people.person.fields.name.label"), cols: 2, mandatory: { length: 2 } } ]
-		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: I18n.t("people.person.fields.surname.label"), cols: 2, mandatory: { length: 2 } } ]
-		res << (sex ? [ { kind: :label_checkbox, label: I18n.t("people.sex.values.female.short.single"), key: :female, value: person&.female, align: "left" } ] : [])
+		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: person.attr(:name), cols: 2, mandatory: { length: 2 } } ]
+		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: person.attr(:surname), cols: 2, mandatory: { length: 2 } } ]
+		res << (sex ? [ { kind: :label_checkbox, label: person.t_path(:sex, :female_short), key: :female, value: person&.female, align: "left" } ] : [])
 		res.last << symbol_field("calendar")
-		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: person&.player_id? }
+		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
+		res = person_participation_fields(pobj, res) unless pobj.is_a?(Person)
 		res
 	end
 
@@ -69,7 +87,7 @@ module PeopleHelper
 	# standardised field with icons for player/coach id pics
 	def person_idpic(person, idpic: nil, cols: nil, align: "center")
 		if idpic	# it is an editor field
-			{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: I18n.t("people.person.fields.#{idpic}.label")), label: I18n.t("people.person.fields.#{idpic}.short"), key: idpic, value: person&.send(idpic)&.filename, cols: }
+			{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: person.attr(idpic)), label: person.attr(idpic, :short), key: idpic, value: person&.send(idpic)&.filename, cols: }
 		else
 			pidpic = person&.idpic_content
 			symbol = pidpic[:symbol]
@@ -112,6 +130,35 @@ module PeopleHelper
 		]
 	end
 
+	def person_show_participation_title(obj)
+		icon     = obj.picture
+		title    = obj.kind_label
+		subtitle = obj.to_s
+
+		fields = person_title(icon:, title:, subtitle:)
+		fields = person_participation_fields(obj, fields)
+
+		fields << [
+			{ kind: :string, value: date_string(obj&.birthday), class: "items-center" },
+			gap_field,
+			{ kind: :contact, email: obj&.email, phone: obj&.phone, device: device, align: "left", cols: 3 }
+		]
+	end
+
+	def person_participation_fields(obj, fields)
+		fields[0] += [
+			gap_field,
+			obj_club_field(obj, align: :left),
+			gap_field,
+			obj_kind_field(obj, align: :right)
+		]
+		fields[1] += [
+			gap_field,
+			obj_status_field(obj, text: true, f_opts: { align: :left, cols: 3 })
+		]
+		fields
+	end
+
 	# fields definition to show title of a person view
 	def person_show_title(pobj, title: nil, kind: nil, rows: 3, cols: nil)
 		owned  = !pobj.is_a?(Person)
@@ -125,13 +172,13 @@ module PeopleHelper
 		fields += [
 			[ { kind: :label, value: person&.surname, cols: } ],
 			[
-				{ kind: :contact, email: person&.email, phone: pobj&.phone, device: device, align: "center" },
-				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: }
+				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: },
+				{ kind: :contact, email: person&.email, phone: pobj&.phone, device: device, align: "center" }
 			],
 			[ gap_field,  person_idpic(person) ]
 		]
 		if owned
-			fields[4][0] = obj_status_field(pobj)
+			fields[4][0] = obj_club_field(pobj)
 		end
 		fields
 	end
@@ -146,7 +193,7 @@ module PeopleHelper
 		def idpic_button(person, idpic)
 			{
 				kind: :link,
-				label: I18n.t("people.person.fields.#{idpic}.short"),
+				label: person.attr(idpic.to_sym, :short),
 				url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
 				d_class: "inline-flex items-center"
 			}

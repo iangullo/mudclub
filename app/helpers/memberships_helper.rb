@@ -19,79 +19,78 @@
 # View helpers for MudClub Membership views
 module MembershipsHelper
 	# return title for @people TableComponent
-	def members_table(members:)
-		{ title: members_table_title, rows: members_table_rows(members) }
+	def memberships_table(members:)
+		{ title: memberships_table_title, rows: memberships_table_rows(members) }
 	end
 
-	def members_table_title
+	def memberships_table_title
 		title = [
 			{ kind: :normal, value: Membership.attr(:kind, :short) },
-			{ kind: :normal, value: Membership.label },
+			{ kind: :normal, value: @kind ? Membership.kind_label(@kind) : Membership.label },
 			{ kind: :normal, value: Membership.attr(:joined_on, :short) },
 			{ kind: :normal, value: Membership.attr(:status) }
 		]
-		# optional button to add new membership - shoudl be controlled by membership policy, not this old control...
+		# optional button to add new member - should be controlled by member policy, not this old control...
 		title << button_field({ kind: :add, url: new_club_member_path(@clubid), frame: "modal" }) if club_manager?
 	end
 
-	def members_table_rows(members)
+	def memberships_table_rows(members)
 			rows = Array.new
 			members.each { |member|
-				row = { url: club_member_path(@clubid, member), frame: "modal", items: [] }
+				row = { url: club_member_path(@clubid, member), items: [] }
 
-				row[:items] << membership_kind_field(member)
+				row[:items] << obj_kind_field(member, class: "border")
 				row[:items] << person_name_field(member)
 				row[:items] << { kind: :normal, value: member.joined_on }
-				row[:items] << membership_status_field(member, class: "align-top border")
+				row[:items] << obj_status_field(member, f_opts: { align: "center", class: "border" })
 				rows << row
 			}
 			rows
 	end
 
-	def membership_kind_field(member, align: "center", class: nil)
-		symbol =
-			Catalog::MembershipKinds.normalize(member.kind) || :person
+	def membership_details_fields(member)
+		fields = [
+			[
+				{ kind: :label, value: member.label, align: "center" },
+				gap_field,
+				{ kind: :label, value: "#{member.attr(:joined_on, :short)}: ", align: "left" },
+				{ kind: :string, value: date_string(member.joined_on), align: "left", class: "items-center" }
+			]
+		]
 
-		symbol_field(
-			symbol,
-			{ title: Catalog::MembershipKinds.val(member.kind, :hint) },
-			align:,
-			class:
-		)
+		if member.left_on
+			fields <<	[
+				gap_field(cols: 2),
+				{ kind: :label, value: "#{member.attr(:left_on, :short)}: ", align: "left" },
+				{ kind: :string, value: date_string(member.left_on), align: "left", class: "items-center" }
+			]
+		end
+		fields
 	end
 
-	def membership_status_field(member, align: "center", class: nil)
-		symbol_field(
-			"status",
-			{ variant: member.status, title: I18n.t("shared.statuses.#{member.status}") },
-			align:,
-			class:
-		)
-	end
-
-	def member_show_fields(member)
-		l_since = "#{I18n.t('calendar.fields.since')}: "
-		l_since +=
-			if member.joined_on
-				date_string(member.joined_on)
-			else
-				"(#{I18n.t("shared.statuses.pending")})"
-			end
-
-		l_until = "#{I18n.t('calendar.fields.until')}: "
-		l_until +=
-			if member.left_on
-				date_string(member.left_on)
-			else
-				"-"
-			end
-
+	def membership_show_fields(member)
 		[
 			[
-				membership_status_field(member),
-				{ kind: :string, value: l_since, cols: 3, align: "left" }
+				{ kind: :label, value: "#{member.attr(:notes)}: ", align: "right", class: "text-right" },
+				{ kind: :text_field, value: member.notes, align: "left" }
 			],
-			[ gap_field, { kind: :string, value: l_until, cols: 3, align: "left" } ]
+			[	{ kind: :label, value: "#{Assignment.label(:plural)}:" }	]
 		]
+	end
+
+	def membership_form_title(member, action)
+		person_form_title(member, icon: member.picture, title: Membership.t_path(:action, action.to_sym), sex: true)
+	end
+
+	def membership_form_fields(member)
+	[
+		[ { kind: :label, value: Membership.attr(:notes) } ],
+		[	{ kind: :rich_text_area, key: :notes, cols: 3 } ]
+	]
+	end
+
+	def membership_form_path
+		return club_members_path(@club, @member) if @member
+		club_members_path(@club)
 	end
 end

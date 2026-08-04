@@ -188,16 +188,16 @@ class ApplicationController < ActionController::Base
 	# set the action's context
 	def set_context
 		if user_signed_in?
-			club      = u_club
+			@club     = u_club
 			@clubid   = get_param(:club_id, objid: true) || u_clubid
 			@rdx      = p_rdx
 			@season   = Season.search(p_seasonid)
 			@seasonid = @season&.id
 			user      = current_user
 		end
-		@clublogo = club&.logo || "mudclub.svg"
-		@clubname = club&.nick || "MudClub"
-		@favicon  = user_favicon(club)
+		@clublogo = @club&.logo || "mudclub.svg"
+		@clubname = @club&.nick || "MudClub"
+		@favicon  = user_favicon(@club)
 		@topbar   = TopbarComponent.new(user:, logo: @clublogo, nick: @clubname, home: u_path, logout: destroy_user_session_path)
 	end
 
@@ -218,7 +218,7 @@ class ApplicationController < ActionController::Base
 		when Date, Time, DateTime
 			date&.strftime("%d/%m/%Y")
 		else
-			"ERR: No date"
+			""
 		end
 	end
 
