@@ -42,26 +42,39 @@ class NestedComponent < ApplicationComponent
 	end
 
 	private
+		# build placeholde child only once
+		def build_child
+			@child.respond_to?(:call) ? @child.call : @child
+		end
+
 		# filter collection of objects using filter hash
 		def normalize_filter(filter)
 			filter.is_a?(Hash) ? filter : nil
 		end
 
 		def get_children
-			return nil unless @form
+			Rails.logger.debug "FORM=#{@form.inspect}"
+			Rails.logger.debug "OBJECT=#{@form&.object.inspect}"
+			Rails.logger.debug "KEY=#{@key.inspect}"
 
-			children = @form.object.send(@key)
+			return [] unless @form
+
+			children = @form.object.public_send(@key)
 			children = children.order(@order) if @order
-			children = children.select do |child|
-				@filter.nil? || @filter.all? { |k, v| child.send(k) == v }
+
+			if @filter
+				children = children.select do |child|
+					@filter.all? { |k, v| child.public_send(k) == v }
+				end
 			end
+
 			children
 		end
 
 		# prepare the placeholder template
 		def prepare_template
 			view_context.capture do
-				@form.fields_for @key, @child, child_index: "NEW_RECORD" do |ff|
+				@form.fields_for @key, build_child, child_index: "NEW_RECORD" do |ff|
 					render_row(ff)
 				end
 			end
@@ -69,8 +82,16 @@ class NestedComponent < ApplicationComponent
 
 		def prepare_collection
 			view_context.capture do
-				@form.fields_for @key, get_children do |ff|
-					render_row(ff)
+				children = get_children
+
+				if children.blank?
+					@form.fields_for @key, build_child do |ff|
+						render_row(ff)
+					end
+				else
+					@form.fields_for @key, children do |ff|
+						render_row(ff)
+					end
 				end
 			end
 		end

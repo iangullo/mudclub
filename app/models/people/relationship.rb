@@ -47,7 +47,7 @@ class Relationship < ApplicationRecord
 
 	def self.build_for(person, kind: :parent)
 		relationship = new(person: person, kind: kind)
-		relationship.build_related_person unless relationship.related_person
+		relationship.build_related_person
 
 		relationship
 	end

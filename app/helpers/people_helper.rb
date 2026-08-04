@@ -62,7 +62,7 @@ module PeopleHelper
 				kind: :nested_form,
 				model: "person",
 				key: :relationships,
-				child: Relationship.build_for(person),
+				child: -> { Relationship.build_for(person) },
 				row: "people/relationships/relationship_fields",
 				cols: 2
 			}

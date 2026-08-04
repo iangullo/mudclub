@@ -5,7 +5,7 @@
 			authenticity_token: true,
 			data: {controller: "mandatory-fields", turbo_frame: "_top"}
 		) do |form| %>
-		<%= form.fields_for :person do |f| %>
+		<%= form.fields_for :person, @member.person do |f| %>
 			<% @title.form    = f %>
 			<% @p_fields.form = f %>
 			<%= render @title %>
