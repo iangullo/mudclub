@@ -34,8 +34,9 @@ class Membership < ApplicationRecord
 	include Auditable
 	include Participatory
 
-	belongs_to :person
 	belongs_to :club
+	belongs_to :person
+	accepts_nested_attributes_for :person
 
 	# A Club member can have multiple assignments over time or simultaneously.
 	has_many :assignments,
@@ -141,6 +142,21 @@ class Membership < ApplicationRecord
 
 		joined_on <= end_b &&
 			other.joined_on <= end_a
+	end
+
+	def rebuild(data)
+		assign_attributes(
+			club_id:   data[:club_id],
+			kind:      data[:kind],
+			status:    data[:status],
+			joined_on: data[:joined_on],
+			left_on:   data[:left_on],
+			notes:     data[:notes]
+		)
+
+		person.rebuild(data[:person_attributes]) if data[:person_attributes]
+
+		self
 	end
 
 	def terminate!(date = Date.current)

@@ -53,10 +53,6 @@ class NestedComponent < ApplicationComponent
 		end
 
 		def get_children
-			Rails.logger.debug "FORM=#{@form.inspect}"
-			Rails.logger.debug "OBJECT=#{@form&.object.inspect}"
-			Rails.logger.debug "KEY=#{@key.inspect}"
-
 			return [] unless @form
 
 			children = @form.object.public_send(@key)

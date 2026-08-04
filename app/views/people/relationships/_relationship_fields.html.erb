@@ -6,7 +6,7 @@
 	<table class="w-full">
 		<tr>
 			<td class="font-semibold whitespace-nowrap">
-				<%= Relationship.attr(:kind) %>
+				<%= render SymbolComponent.new(:person) %>
 			</td>
 			<td colspan="3">
 				<%= form.select(:kind, Relationship.kind_list, {}, class: f_cls) %>

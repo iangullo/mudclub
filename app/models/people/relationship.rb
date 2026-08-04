@@ -33,23 +33,60 @@ class Relationship < ApplicationRecord
 							scope: [ :related_person_id, :kind ],
 							conditions: -> { where(ends_on: nil) }
 						}
-	def to_s
-		related_person.to_s
+
+	before_validation :default_kind
+	validates :kind, presence: true
+
+	def inverse
+		Relationship.find_by(
+			person: related_person,
+			related_person: person
+		)
 	end
 
 	def inverse_kind
-		Catalog::RelationshipKinds[self.kind][:inverse]
+		Catalog::RelationshipKinds.inverse_of(kind)
 	end
 
 	def kind_label(...)
-		Catalog::RelationshipKinds.val(kind.to_sym, ...)
+		self.class.kind_label(kind, ...)
 	end
 
-	def self.build_for(person, kind: :parent)
-		relationship = new(person: person, kind: kind)
-		relationship.build_related_person
+	def rebuild(data)
+		self.kind = data[:kind]
 
-		relationship
+		person_data = data[:related_person_attributes] || {}
+
+		if related_person.nil?
+			self.related_person =
+				Person.search(person_data) ||
+				Person.new
+		end
+
+		related_person.rebuild(person_data)
+
+		self
+	end
+
+	def remove_inverse!
+		inverse&.destroy
+	end
+
+	def sync_inverse!
+		return unless person&.persisted?
+		return unless related_person&.persisted?
+
+		inverse_person = Relationship.find_or_initialize_by(
+			person: related_person,
+			related_person: person
+		)
+
+		inverse_person.kind      = inverse_kind
+		inverse_person.save!
+	end
+
+	def self.kind_label(kind, ...)
+		self.val(kind.to_sym, ...)
 	end
 
 	def self.kind_list
@@ -58,7 +95,10 @@ class Relationship < ApplicationRecord
 		end
 	end
 
-	def self.kind_label(kind, ...)
-		self.val(kind.to_sym, ...)
+	def self.build_for(person, kind: :parent)
+		relationship = new(person: person, kind: kind)
+		relationship.build_related_person
+
+		relationship
 	end
 end

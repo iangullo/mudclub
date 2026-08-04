@@ -90,7 +90,10 @@ module MembershipsHelper
 	end
 
 	def membership_form_path
-		return club_members_path(@club, @member) if @member
-		club_members_path(@club)
+		if @member&.persisted?
+			club_member_path(@club, @member)
+		else
+			club_members_path(@club)
+		end
 	end
 end

@@ -54,8 +54,8 @@ module PeopleHelper
 		]
 	end
 
-	# nested form to add/edit person contacts
-	def person_contacts_form(person)
+	# nested form to add/edit person relationships
+	def person_relationships_form(person)
 		res = [ [ { kind: :label, value: I18n.t("parent.many") } ] ]
 		res << [
 			{
@@ -79,7 +79,7 @@ module PeopleHelper
 		res << (sex ? [ { kind: :label_checkbox, label: person.t_path(:sex, :female_short), key: :female, value: person&.female, align: "left" } ] : [])
 		res.last << symbol_field("calendar")
 		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
-		res = person_participation_fields(pobj, res) unless pobj.is_a?(Person)
+		res = person_participation_fields(pobj, res, edit: true) unless pobj.is_a?(Person)
 		res
 	end
 
@@ -145,7 +145,7 @@ module PeopleHelper
 		]
 	end
 
-	def person_participation_fields(obj, fields)
+	def person_participation_fields(obj, fields, edit: false)
 		fields[0] += [
 			gap_field,
 			obj_club_field(obj, align: :left),

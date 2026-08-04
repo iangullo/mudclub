@@ -130,6 +130,8 @@ class Person < ApplicationRecord
 		self.update_attachment("avatar", f_data[:avatar]) if f_data[:avatar].present?
 		self.update_attachment("id_front", f_data[:id_front]) if f_data[:id_front].present?
 		self.update_attachment("id_back", f_data[:id_back]) if f_data[:id_back].present?
+
+		rebuild_relationships(f_data[:relationships_attributes]) if f_data[:relationships_attributes]
 		self
 	end
 
@@ -213,6 +215,23 @@ class Person < ApplicationRecord
 			if (dep = self.send(kind.to_sym))
 				self.update!("#{kind}_id".to_sym nil)
 				dep.destroy
+			end
+		end
+
+		def rebuild_relationships(data)
+			data.each_value do |attrs|
+				relationship =
+					if attrs[:id].present?
+						relationships.find(attrs[:id])
+					else
+						relationships.build
+					end
+
+				if ActiveModel::Type::Boolean.new.cast(attrs[:_destroy])
+					relationship.mark_for_destruction
+				else
+					relationship.rebuild(attrs)
+				end
 			end
 		end
 

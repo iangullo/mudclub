@@ -15,16 +15,12 @@ class CreatePersonRelationships < ActiveRecord::Migration[8.0]
 
 			t.integer :kind, null: false
 
-			t.date :starts_on
-			t.date :ends_on
-
 			t.timestamps
 		end
 
 		add_index :person_relationships,
 							[ :person_id, :related_person_id, :kind ],
 							unique: true,
-							where: "ends_on IS NULL",
 							name: "idx_unique_active_person_relationships"
 		infer_parents_from_legacy
 	end
@@ -68,7 +64,7 @@ class CreatePersonRelationships < ActiveRecord::Migration[8.0]
 	def create_relationship(person_id:, related_person_id:, kind:)
 		attrs = { person_id:, related_person_id:, kind: }
 
-		if RelationshipRecord.exists?(attrs.merge(ends_on: nil))
+		if RelationshipRecord.exists?(attrs)
 			@duplicates += 1
 		else
 			RelationshipRecord.create!(attrs)

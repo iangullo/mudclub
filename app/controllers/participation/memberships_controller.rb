@@ -81,6 +81,32 @@ class MembershipsController < ApplicationController
 	# PATCH/PUT /members/1.json
 	def update
 		@membership_policy = check_policy!(MembershipPolicy, record: @member)
+
+		respond_to do |format|
+			Membership.transaction do
+				@member.rebuild(membership_params)
+
+				if @member.save
+					@member.person.relationships.each(&:sync_inverse!)
+
+					format.html do
+						redirect_to club_membership_path(@club, @member, rdx: @rdx),
+												notice: Membership.t_path(:updated)
+					end
+
+					format.json { render :show, status: :ok, location: @member }
+				else
+					raise ActiveRecord::Rollback
+				end
+			end
+
+			unless @member.persisted? && @member.errors.empty?
+				prepare_form(:edit)
+
+				format.html { render :edit, status: :unprocessable_entity }
+				format.json { render json: @member.errors, status: :unprocessable_entity }
+			end
+		end
 	end
 
 	# DELETE /members/1
@@ -129,7 +155,7 @@ class MembershipsController < ApplicationController
 			@title    = create_fields(helpers.membership_form_title(@member, action))
 			@m_fields = create_fields(helpers.membership_form_fields(@member))
 			@p_fields = create_fields(helpers.person_form(@member.person))
-			@contacts = create_fields(helpers.person_contacts_form(@member.person))
+			@contacts = create_fields(helpers.person_relationships_form(@member.person))
 			@submit   = create_submit
 		end
 
@@ -146,13 +172,14 @@ class MembershipsController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def membership_params
-			params.require(:member).permit(
+			params.require(:membership).permit(
 				:id,
 				:club_id,
 				:person_id,
 				:joined_on,
 				:left_on,
 				:kind,
+				:status,
 				:rdx,
 				person_attributes: [
 					:id,
@@ -167,7 +194,25 @@ class MembershipsController < ApplicationController
 					:name,
 					:nick,
 					:phone,
-					:surname
+					:surname,
+
+					relationships_attributes: [
+						:id,
+						:kind,
+						:_destroy,
+
+						related_person_attributes: [
+							:id,
+							:name,
+							:surname,
+							:phone,
+							:email,
+							:birthday,
+							:dni,
+							:female,
+							:address
+						]
+					]
 				]
 			)
 		end

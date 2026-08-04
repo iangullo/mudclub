@@ -87,6 +87,7 @@ class Catalog::RelationshipKinds < Catalog::Base
 
 		child: {
 			id: 20,
+			selectable: true,
 			inverse: :parent,
 			description: "Child."
 		},
@@ -106,6 +107,7 @@ class Catalog::RelationshipKinds < Catalog::Base
 
 		grandchild: {
 			id: 23,
+			selectable: true,
 			inverse: :grandparent,
 			description: "Grandchild."
 		},
@@ -129,7 +131,6 @@ class Catalog::RelationshipKinds < Catalog::Base
 		emergency_contact: {
 			id: 30,
 			inverse: :emergency_contact_for,
-			selectable: true,
 			description: "Emergency contact."
 		},
 
@@ -139,4 +140,9 @@ class Catalog::RelationshipKinds < Catalog::Base
 			description: "Person for whom this is the emergency contact."
 		}
 	}.freeze
+
+	def self.inverse_of(key)
+		data = self[key]
+		data ? data[:inverse] : nil
+	end
 end
