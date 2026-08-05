@@ -56,6 +56,8 @@ class Membership < ApplicationRecord
 						:joined_on,
 						presence: true
 
+	validate :kind_cannot_change, on: :update
+
 	# -------------------------------------------------------------------------
 	# Time scopes
 	# -------------------------------------------------------------------------
@@ -95,14 +97,16 @@ class Membership < ApplicationRecord
 		end
 	}
 
-	delegate :email,
+	delegate :avatar,
+					:birthday,
+					:email,
+					:female,
 					:name,
 					:nick,
 					:phone,
+					:relationships,
 					:surname,
 					:to_s,
-					:birthday,
-					:female,
 					to: :person,
 					allow_nil: true
 
@@ -117,7 +121,7 @@ class Membership < ApplicationRecord
 
 	# personal photo or membership kind symbol
 	def picture
-		return person.avatar if person.avatar
+		return person.avatar if person.avatar.attached?
 
 		# if no attached avatar, return the symbol name
 		# to be rendered as: symbol_field(symbol)
@@ -133,6 +137,7 @@ class Membership < ApplicationRecord
 	end
 
 	def overlaps?(other)
+		return false unless other
 		return false unless person == other.person
 		return false unless club_id == other.club_id
 		return false unless kind == other.kind
@@ -144,29 +149,43 @@ class Membership < ApplicationRecord
 			other.joined_on <= end_a
 	end
 
+	def modified?
+		self.changed? ||
+			person.modified?
+	end
+
 	def rebuild(data)
-		assign_attributes(
-			club_id:   data[:club_id],
-			kind:      data[:kind],
-			status:    data[:status],
-			joined_on: data[:joined_on],
-			left_on:   data[:left_on],
-			notes:     data[:notes]
-		)
+		self.club_id   = data[:club_id]   if data.key?(:club_id)
+		self.kind      = data[:kind]      if data.key?(:kind)
+		self.status    = data[:status]    if data.key?(:status)
+		self.joined_on = data[:joined_on] if data.key?(:joined_on)
+		self.left_on   = data[:left_on]   if data.key?(:left_on)
+		self.notes     = data[:notes]     if data.key?(:notes)
 
 		person.rebuild(data[:person_attributes]) if data[:person_attributes]
 
 		self
 	end
 
+	def reinstate!(date = Date.current)
+		return false unless can_transition_to?(:active)
+
+		transition_to!(:active, :reinstate, date)
+	end
+
 	def terminate!(date = Date.current)
+		return false unless can_transition_to?(:terminated)
+
 		transaction do
-			current_assignments.find_each do |assignment|
+			# define well this scope for (:active & :suspended)
+			assignments.open.find_each do |assignment|
 				assignment.terminate!(date)
 			end
 
-			update!(left_on: date, status: :terminated)
+			transition_to!(:terminated, :terminate, date)
 		end
+
+		true
 	end
 
 	# -------------------------------------------------------------------------
@@ -178,8 +197,20 @@ class Membership < ApplicationRecord
 		joined_on
 	end
 
+	def starts_on=(date)
+		self.joined_on = date
+	end
+
 	def ends_on
 		left_on
+	end
+
+	def ends_on=(date)
+		self.left_on = date
+	end
+
+	def kind_cannot_change
+		errors.add(:kind, :readonly) if will_save_change_to_kind?
 	end
 
 	def self.search(search: nil, club:, kind: nil, history: false)
@@ -189,7 +220,6 @@ class Membership < ApplicationRecord
 		scope = scope.search_text(search) if search.present?
 		scope
 	end
-
 
 	def self.kind_image(kind)
 		Catalog::MembershipKinds.normalize(kind) || :person

@@ -5,14 +5,16 @@
 			authenticity_token: true,
 			data: {controller: "mandatory-fields", turbo_frame: "_top"}
 		) do |form| %>
-		<%= form.fields_for :person, @member.person do |f| %>
-			<% @title.form    = f %>
-			<% @p_fields.form = f %>
-			<%= render @title %>
-			<%= render @p_fields %>
-			<% if @contacts %>
-				<% @contacts.form = f %>
-				<%= render @contacts %>
+		<% if @p_fields %>
+			<%= form.fields_for :person, @member.person do |f| %>
+				<% @title.form    = f %>
+				<% @p_fields.form = f %>
+				<%= render @title %>
+				<%= render @p_fields %>
+				<% if @contacts %>
+					<% @contacts.form = f %>
+					<%= render @contacts %>
+				<% end %>
 			<% end %>
 		<% end %>
 		<% @m_fields.form = form %>

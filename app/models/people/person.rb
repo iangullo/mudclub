@@ -30,7 +30,7 @@ class Person < ApplicationRecord
 	belongs_to :parent, optional: true	# DEPRECATED
 	accepts_nested_attributes_for :coach	# DEPRECATED
 	accepts_nested_attributes_for :player	# DEPRECATED
-	accepts_nested_attributes_for :user	# DEPRECATED
+	accepts_nested_attributes_for :user
 	has_many :memberships
 	has_many :relationships,
 					class_name: "Relationship",
@@ -92,11 +92,20 @@ class Person < ApplicationRecord
 		self.avatar.attached? ? self.avatar : "mudclub.svg"
 	end
 
-	# extended modified to acount for changed parents or avatar
-	def modified?
-		self.changed? || @attachment_changed
+	def minor?
+		self.age < 18
 	end
 
+	# extended modified to acount for changed parents or avatar
+	def modified?
+		self.changed? ||
+			avatar.attachment_changes.present? ||
+			id_front.attachment_changes.present? ||
+			id_back.attachment_changes.present? ||
+			relationships.any?(&:modified?)
+	end
+
+	# DEPRECATED
 	# return if person is orphaned from any dependent objects
 	def orphan?
 		self&.id.to_i > 0 && (self.player_id.nil?) && (self.coach_id.nil?) && (self.user_id.nil?) && (self.parent_id.nil?)
@@ -113,26 +122,37 @@ class Person < ApplicationRecord
 	end
 
 	# rebuild Person data from raw input (as hash) given by a form submittal
-	def rebuild(f_data)
-		self.dni       = f_data[:dni].presence || self.dni
-		self.email     = f_data[:email].presence || self.email
-		self.name      = f_data[:name].presence || self.name
-		self.surname   = f_data[:surname].presence || self.surname
-		self.address   = f_data[:address].presence || self.address
-		self.birthday  = f_data[:birthday].presence || self.birthday
-		self.nick      = f_data[:nick].presence || self.nick
-		self.female    = to_boolean(f_data[:female])
-		self.phone     = parse_phone(f_data[:phone]) if f_data[:phone].presence
+	def rebuild(data)
+		self.dni       = data[:dni].presence			|| self.dni
+		self.email     = data[:email].presence		|| self.email
+		self.name      = data[:name].presence 		|| self.name
+		self.surname   = data[:surname].presence 	|| self.surname
+		self.address   = data[:address].presence 	|| self.address
+		self.birthday  = data[:birthday].presence || self.birthday
+		self.nick      = data[:nick].presence 		|| self.nick
+
+		self.female    = to_boolean(data[:female])
+		self.phone     = parse_phone(data[:phone]) 					if data[:phone].presence
+		self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
+		self.update_attachment("id_front", data[:id_front]) if data[:id_front].present?
+		self.update_attachment("id_back", data[:id_back]) 	if data[:id_back].present?
+
+		# DEPRECATED - REMOVE ONCE MEMBERSHIPS are complete
 		self.coach_id  = nil unless self.coach_id.to_i > 0
 		self.player_id = nil unless self.player_id.to_i > 0
 		self.parent_id = nil unless self.parent_id.to_i > 0
 		self.user_id   = nil unless self.user_id.to_i > 0
-		self.update_attachment("avatar", f_data[:avatar]) if f_data[:avatar].present?
-		self.update_attachment("id_front", f_data[:id_front]) if f_data[:id_front].present?
-		self.update_attachment("id_back", f_data[:id_back]) if f_data[:id_back].present?
 
-		rebuild_relationships(f_data[:relationships_attributes]) if f_data[:relationships_attributes]
+		rebuild_relationships(data[:relationships_attributes]) if data[:relationships_attributes]
+
 		self
+	end
+
+	# Return list of responsible adults related to this person
+	def responsible_adults
+		relationships.active.where(
+			kind: %i[parent father mother guardian legal_representative]
+		)
 	end
 
 	# short name for form viewing
@@ -150,27 +170,10 @@ class Person < ApplicationRecord
 	# finds a person in the database based on id, email, dni, name & surname
 	# returns: reloads person if it exists in the database already or
 	# 	   a freshly created person(id: nil) if it not found.
-	def self.fetch(f_data)
-		# Try to find by id if present
-		id = f_data[:id].presence.to_i
-		p_aux = Person.find_by(id:) if id > 0
-
-		# Try to find by dni if present
-		p_aux = Person.find_by(dni: f_data[:dni]) if !p_aux && (f_data[:dni].presence)
-
-		# Try to find by email if present
-		p_aux = Person.find_by(email: f_data[:email]) if !p_aux && (f_data[:email].presence)
-
-		unless p_aux	# last resort: attempt to find by name+surname
-			name    = f_data[:name].presence
-			surname = f_data[:surname].presence
-			if name and surname
-				p_aux = Person.where("unaccent(name) ILIKE unaccent(?) AND unaccent(surname) ILIKE unaccent(?)", name, surname).take
-			end
-		end
-		p_aux ||= Person.new
-		p_aux.rebuild(f_data)
-		p_aux
+	def self.fetch(data)
+		person = resolve(data)
+		person.rebuild(data)
+		person
 	end
 
 	# to import from excel
@@ -209,6 +212,69 @@ class Person < ApplicationRecord
 		end
 	end
 
+	#
+	# Resolve a person from a set of identifying attributes.
+	#
+	# Returns a hash with:
+	#   :person => existing or new Person
+	#   :status => :exact, :probable, :new, :ambiguous
+	#
+	def self.resolve(data)
+		data ||= {}
+
+		#
+		# 1. Explicit id
+		#
+		if data[:id].present?
+			person = Person.find_by(id: data[:id])
+
+			return { person:, status: :exact } if person
+		end
+
+		#
+		# 2. Strong unique identifiers
+		#
+		if data[:dni].present?
+			people = Person.where(dni: data[:dni])
+
+			return resolve_candidates(people)
+		end
+
+		if data[:email].present?
+			people = Person.where(email: data[:email])
+
+			return resolve_candidates(people)
+		end
+
+		if data[:phone].present?
+			phone = parse_phone(data[:phone])
+			people = Person.where(phone:)
+
+			return resolve_candidates(people)
+		end
+
+		#
+		# 3. Name + surname (weak match)
+		#
+		if data[:name].present? && data[:surname].present?
+			people = Person.where(
+				"unaccent(name) ILIKE unaccent(?) AND unaccent(surname) ILIKE unaccent(?)",
+				data[:name],
+				data[:surname]
+			)
+
+			return resolve_candidates(people, probable: true)
+		end
+
+		#
+		# 4. Nothing useful
+		#
+		{
+			person: Person.new,
+			status: :new
+		}
+	end
+
 	private
 		# called by unlink using either :coach, :player or :user as arguments
 		def gen_unlink(kind)
@@ -229,9 +295,10 @@ class Person < ApplicationRecord
 
 				if ActiveModel::Type::Boolean.new.cast(attrs[:_destroy])
 					relationship.mark_for_destruction
-				else
-					relationship.rebuild(attrs)
+					next
 				end
+
+				relationship.rebuild(self, attrs)
 			end
 		end
 
@@ -243,5 +310,18 @@ class Person < ApplicationRecord
 			gen_unlink(:user) if self.user_id
 			gen_unlink(:parent) if self.parent_id
 			UserAction.prune("/people/#{self.id}")
+		end
+
+		def self.resolve_candidates(scope, probable: false)
+			case scope.count
+			when 0
+				{ person: Person.new, status: :new }
+
+			when 1
+				{ person: scope.first, status: probable ? :probable : :exact }
+
+			else
+				{ person: nil, status: :ambiguous }
+			end
 		end
 end

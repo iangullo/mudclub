@@ -25,6 +25,7 @@ en:
         edit: Edit membership
         terminate: Terminate membership
         delete: Delete membership
+        change_status: Modify status
       fields:
         number: Membership number
         number_short: #
@@ -41,6 +42,7 @@ en:
         notes: Notes
       messages:
         created: Membership created.
+        no_change: No changes to membership.
         updated: Membership updated.
         terminated: Membership terminated.
         deleted: Membership deleted.

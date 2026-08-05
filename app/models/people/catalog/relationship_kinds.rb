@@ -145,4 +145,8 @@ class Catalog::RelationshipKinds < Catalog::Base
 		data = self[key]
 		data ? data[:inverse] : nil
 	end
+
+	def self.selectable?(kind)
+		CATALOG[kind.to_sym][:selectable] == true
+	end
 end

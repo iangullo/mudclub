@@ -52,7 +52,15 @@ class MembershipsController < ApplicationController
 	# GET /members/1.json
 	def show
 		@membership_policy = check_policy!(MembershipPolicy, record: @member)
-		@title  = create_fields(helpers.person_show_participation_title(@member))
+		status = @membership_policy.edit?
+
+		@title = create_fields(
+			helpers.person_show_participation_title(
+				@member,
+				status_url: edit_club_member_path(@member, status:),
+				just_icon: false
+			)
+		)
 		@fields = create_fields(helpers.membership_show_fields(@member))
 		@table  = create_table(helpers.assignments_table(assignments: @member.assignments))
 		submit  = edit_club_member_path(@member, rdx: @rdx) if @membership_policy.update?
@@ -86,16 +94,22 @@ class MembershipsController < ApplicationController
 			Membership.transaction do
 				@member.rebuild(membership_params)
 
+				notice = Membership.msg(@member.modified? ? :updated : :no_change)
 				if @member.save
-					@member.person.relationships.each(&:sync_inverse!)
-
 					format.html do
-						redirect_to club_membership_path(@club, @member, rdx: @rdx),
-												notice: Membership.t_path(:updated)
+						redirect_to club_member_path(@club, @member, rdx: @rdx), notice:
 					end
 
 					format.json { render :show, status: :ok, location: @member }
 				else
+					Rails.logger.debug @member.errors.full_messages
+
+					Rails.logger.debug @member.person.errors.full_messages
+
+					@member.person.relationships.each do |r|
+						Rails.logger.debug r.errors.full_messages
+						Rails.logger.debug r.related_person.errors.full_messages if r.related_person
+					end
 					raise ActiveRecord::Rollback
 				end
 			end
@@ -152,10 +166,18 @@ class MembershipsController < ApplicationController
 
 		# Prepare a member form
 		def prepare_form(action)
-			@title    = create_fields(helpers.membership_form_title(@member, action))
-			@m_fields = create_fields(helpers.membership_form_fields(@member))
-			@p_fields = create_fields(helpers.person_form(@member.person))
-			@contacts = create_fields(helpers.person_relationships_form(@member.person))
+			action = :change_status if action == :edit && params[:status].present?
+
+			if action == :change_status
+				m_fields = helpers.obj_status_form_fields(@member)
+			else
+				@title    = create_fields(helpers.membership_form_title(@member, action))
+				m_fields  = helpers.membership_form_fields(@member)
+				@p_fields = create_fields(helpers.person_form(@member.person))
+				@contacts = create_fields(helpers.person_relationships_form(@member.person))
+			end
+
+			@m_fields = create_fields(m_fields)
 			@submit   = create_submit
 		end
 
@@ -180,6 +202,7 @@ class MembershipsController < ApplicationController
 				:left_on,
 				:kind,
 				:status,
+				:notes,
 				:rdx,
 				person_attributes: [
 					:id,

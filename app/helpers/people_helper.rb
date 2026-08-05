@@ -79,11 +79,11 @@ module PeopleHelper
 		res << (sex ? [ { kind: :label_checkbox, label: person.t_path(:sex, :female_short), key: :female, value: person&.female, align: "left" } ] : [])
 		res.last << symbol_field("calendar")
 		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
-		res = person_participation_fields(pobj, res, edit: true) unless pobj.is_a?(Person)
+		res = person_participation_fields(pobj, res, just_icon: false) unless pobj.is_a?(Person)
 		res
 	end
 
-	# wrapper to manage return of suitable Field for dni Person fields
+	# wrapper to manage return of suitable Field for id Person fields
 	# standardised field with icons for player/coach id pics
 	def person_idpic(person, idpic: nil, cols: nil, align: "center")
 		if idpic	# it is an editor field
@@ -130,13 +130,13 @@ module PeopleHelper
 		]
 	end
 
-	def person_show_participation_title(obj)
+	def person_show_participation_title(obj, title: nil, status_url: nil, just_icon: true, cols: nil)
 		icon     = obj.picture
-		title    = obj.kind_label
+		title  ||= obj.kind_label
 		subtitle = obj.to_s
 
-		fields = person_title(icon:, title:, subtitle:)
-		fields = person_participation_fields(obj, fields)
+		fields = person_title(icon:, title:, subtitle:, cols:)
+		fields = person_participation_fields(obj, fields, status_url:, just_icon:)
 
 		fields << [
 			{ kind: :string, value: date_string(obj&.birthday), class: "items-center" },
@@ -145,7 +145,7 @@ module PeopleHelper
 		]
 	end
 
-	def person_participation_fields(obj, fields, edit: false)
+	def person_participation_fields(obj, fields, status_url: nil, just_icon: true)
 		fields[0] += [
 			gap_field,
 			obj_club_field(obj, align: :left),
@@ -154,7 +154,7 @@ module PeopleHelper
 		]
 		fields[1] += [
 			gap_field,
-			obj_status_field(obj, text: true, f_opts: { align: :left, cols: 3 })
+			obj_status_field(obj, status_url:, just_icon:, f_opts: { align: :left, cols: 3 })
 		]
 		fields
 	end

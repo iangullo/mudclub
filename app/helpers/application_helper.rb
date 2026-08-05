@@ -101,10 +101,10 @@ module ApplicationHelper
 	end
 
 	# object status field - obj class expected to have Partipatory included
-	def obj_status_field(obj, text: false, f_opts: nil)
+	def obj_status_field(obj, f_opts: nil, status_url: nil, just_icon: true)
 		concept = :status
 		variant = obj.status
-		label   = obj.status_label
+		label   = obj.status_label(:short)
 		s_date  = date_string(
 			case obj.status
 			when :active then obj.starts_on
@@ -114,13 +114,27 @@ module ApplicationHelper
 			end
 		)
 
-		if text
-			title = s_date
-			{ kind: :icon_label, symbol: symbol_hash(concept, variant:, title:), label:, **f_opts }
-		else
+		if status_url
+			button_field({ kind: :action, symbol: symbol_hash(concept, variant:), label:, url: status_url, frame: :modal }, **f_opts)
+		elsif just_icon
 			title = "(#{s_date})"
 			symbol_field(concept, { variant:, title: "#{label}\n#{title}" }, **f_opts)
+		else
+			title = s_date
+			{ kind: :icon_label, symbol: symbol_hash(concept, variant:, title:), label:, **f_opts }
 		end
+	end
+
+	def obj_status_form_fields(obj)
+		fields = person_show_participation_title(
+				@member,
+				title: @member.t_path(:action, :change_status),
+				cols: 2
+			)
+		fields.pop
+		fields << [
+			{ kind: :select_box, key: :status, options: obj.status_list, cols: 3 }
+		]
 	end
 
 	# common button to export to PDF

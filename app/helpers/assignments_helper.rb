@@ -48,34 +48,19 @@ module AssignmentsHelper
 			rows
 	end
 
-	def assignment_show_title(assignment)
-		icon     = assignment.picture
-		title    = assignment.kind_label
-		subtitle = assignment.to_s
-
-		fields  = person_title(icon:, title:, subtitle:, cols: 2)
-
-		fields << [
-			{ kind: :contact, email: assignment&.email, phone: assignment&.phone, device: device, align: "center" },
-			{ kind: :string, value: date_string(assignment&.birthday), class: "items-center" },
-			gap_field,
-			assignment_status_field(assignment)
-		]
-	end
-
 	def assignment_show_fields(assignment)
 		[
 			[
 				{ kind: :label, value: "#{assignment.attr(:status)}: ", align: "left" },
 				gap_field,
-				{ kind: :label, value: "#{assignment.attr(:joined_on, :short)}: ", align: "left" },
-				{ kind: :string, value: date_string(assignment.joined_on), cols: 3, align: "left", class: "items-center" }
+				{ kind: :label, value: "#{assignment.attr(:starts_on, :short)}: ", align: "left" },
+				{ kind: :string, value: date_string(assignment.starts_on), cols: 3, align: "left", class: "items-center" }
 			],
 			[
 				{ kind: :string, value: assignment.status_label, align: "center" },
 				gap_field,
-				{ kind: :label, value: "#{assignment.attr(:left_on, :short)}: ", align: "left" },
-				{ kind: :string, value: date_string(assignment.left_on), cols: 3, align: "left", class: "items-center" }
+				{ kind: :label, value: "#{assignment.attr(:ends_on, :short)}: ", align: "left" },
+				{ kind: :string, value: date_string(assignment.ends_on), cols: 3, align: "left", class: "items-center" }
 			],
 			[
 				{ kind: :label, value: "#{assignment.attr(:notes)}: ", align: "left" },
@@ -87,16 +72,16 @@ module AssignmentsHelper
 	def assignment_section_assignment_fields(assignment)
 		l_since = "#{I18n.t('calendar.fields.since')}: "
 		l_since +=
-			if assignment.joined_on
-				date_string(assignment.joined_on)
+			if assignment.starts_on
+				date_string(assignment.starts_on)
 			else
 				"(#{I18n.t("shared.statuses.pending")})"
 			end
 
 		l_until = "#{I18n.t('calendar.fields.until')}: "
 		l_until +=
-			if assignment.left_on
-				date_string(assignment.left_on)
+			if assignment.ends_on
+				date_string(assignment.ends_on)
 			else
 				"-"
 			end
@@ -110,7 +95,7 @@ module AssignmentsHelper
 	def assignment_path(assignment, from: :member)
 		case from
 		when :member
-			club_member_assignment_path(
+			club_member_assignments_path(
 				assignment.membership.club,
 				assignment.membership,
 				assignment,
@@ -118,17 +103,17 @@ module AssignmentsHelper
 			)
 
 		when :club
-			club_assignment_path(
+			club_assignments_path(
 				assignment.membership.club,
 				assignment,
 				rdx: @rdx
 			)
 
 		when :team
-			club_team_assignment_path(
+			club_member_assignments_path(
 				assignment.membership.club,
-				assignment.team,
 				assignment,
+				team_id: assignment.team.id,
 				rdx: @rdx
 			)
 		end
@@ -153,6 +138,34 @@ module AssignmentsHelper
 			new_club_assignment_path(
 				@club,
 				team_id: @team.id,
+				rdx: @rdx
+			)
+		end
+	end
+
+	def edit_assignment_path(assignment, from: :member, status: false)
+		case from
+		when :member
+			edit_club_member_assignment_path(
+				assignment.membership.club,
+				assignment.membership,
+				assignment,
+				rdx: @rdx
+			)
+
+		when :club
+			edit_club_assignment_path(
+				assignment.membership.club,
+				assignment,
+				rdx: @rdx
+			)
+
+		when :team
+			edit_club_member_assignment_path(
+				assignment.membership.club,
+				assignment.membership,
+				assignment,
+				team_id: assignment.team.id,
 				rdx: @rdx
 			)
 		end

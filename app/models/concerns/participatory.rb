@@ -33,12 +33,32 @@ module Participatory
 		}, prefix: true
 	end
 
+	STATUS_TRANSITIONS = {
+		pending:    %i[active],
+		active:     %i[suspended terminated],
+		suspended:  %i[active terminated],
+		terminated: [],
+		archived:   []
+	}.freeze
+
+	STATUS_ACTIONS = {
+		pending:    %i[activate],
+		active:     %i[suspend terminate],
+		suspended:  %i[reinstate terminate],
+		terminated: [],
+		archived:   []
+	}.freeze
+
+	#------------------------------------
+	# Status flag polling methods
+	#------------------------------------
 	def active?
 		status.to_sym == :active
 	end
 
 	def current?
-		starts_on <= Date.current &&
+		starts_on.present? &&
+			starts_on <= Date.current &&
 			(ends_on.nil? || ends_on >= Date.current) &&
 			active?
 	end
@@ -51,10 +71,17 @@ module Participatory
 		starts_on.present?
 	end
 
+	def suspended?
+		status.to_sym == :suspended
+	end
+
 	def terminated?
 		status.to_sym == :terminated
 	end
 
+	#------------------------------------
+	# Participation UI field methods
+	#------------------------------------
 	def duration
 		return nil unless starts_on
 
@@ -66,6 +93,98 @@ module Participatory
 	end
 
 	def status_label(variant = nil)
-		I18n.t("shared.statuses.#{status}#{variant}")
+		key  = "shared.statuses.#{status}"
+		key += "_#{variant}" if variant
+		I18n.t(key)
 	end
+
+	def status_list(variant = nil)
+		[ [ status_label, status ] ] +
+		available_statuses.map do |st|
+			[ I18n.t("shared.statuses.#{st}#{variant}"), st ]
+		end
+	end
+
+	#------------------------------------
+	# Status transition methods
+	#------------------------------------
+	def activate!(date = Date.current)
+		transition_to!(:active, :activate, date)
+	end
+
+	def reinstate!(date = Date.current)
+		return false unless can_transition_to?(:active)
+
+		raise NotImplementedError
+	end
+
+	def suspend!(date = Date.current)
+		transition_to!(:suspended, :suspend, date)
+	end
+
+	def terminate!(date = Date.current)
+		return false unless can_transition_to?(:terminated)
+
+		raise NotImplementedError
+	end
+
+	private
+		#------------------------------------
+		# Status transition condition check
+		#------------------------------------
+		def available_statuses
+			STATUS_TRANSITIONS.fetch(status.to_sym, [])
+		end
+
+		def can_transition_to?(target_status)
+			available_statuses.include?(target_status.to_sym)
+		end
+
+		#------------------------------------
+		# Unified state transition method
+		#------------------------------------
+		def transition_to!(target_status, action, date = Date.current)
+			return true if status.to_sym == target_status
+			return false unless can_transition_to?(target_status)
+
+			transaction do
+				old_status  = status.to_sym
+				self.status = target_status
+				apply_transition_date(action, date)
+
+				save!
+
+				record_status_change(action, from: old_status, to: target_status)
+				notify_status_change(action)
+			end
+
+			true
+		end
+
+		#------------------------------------
+		# Audit recording
+		#------------------------------------
+		def record_status_change(_action, from:, to:)
+			# TODO
+		end
+
+		#------------------------------------
+		# Member/Assignment notifications
+		#------------------------------------
+		def notify_status_change(_action)
+			# TODO
+		end
+
+
+		# Record status change date
+		def apply_transition_date(action, date)
+			case action
+			when :activate
+				self.starts_on ||= date
+				self.ends_on = nil
+
+			when :terminate
+				self.ends_on = date
+			end
+		end
 end

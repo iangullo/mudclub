@@ -74,12 +74,17 @@ module MembershipsHelper
 				{ kind: :label, value: "#{member.attr(:notes)}: ", align: "right", class: "text-right" },
 				{ kind: :text_field, value: member.notes, align: "left" }
 			],
-			[	{ kind: :label, value: "#{Assignment.label(:plural)}:" }	]
+			[	{ kind: :label, value: "#{Assignment.label(:plural)}:", cols: 2 }	]
 		]
 	end
 
 	def membership_form_title(member, action)
-		person_form_title(member, icon: member.picture, title: Membership.t_path(:action, action.to_sym), sex: true)
+		person_form_title(
+			member,
+			icon: member.picture,
+			title: Membership.t_path(:action, action.to_sym),
+			sex: true
+		)
 	end
 
 	def membership_form_fields(member)

@@ -25,6 +25,7 @@ es:
         edit: Editar integrante
         terminate: Dar de baja
         delete: Borrar integrante
+        change_status: Cambiar estado
       fields:
         number: Número de integrante
         number_short: Nº
@@ -41,6 +42,7 @@ es:
         notes: Notas
       messages:
         created: Integrante creado/a.
+        no_change: Integrante sin cambios.
         updated: Integrante actualizado/a.
         terminated: Integrante dado de baja.
         deleted: Integrante eliminado/a.

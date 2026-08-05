@@ -26,63 +26,72 @@ class Relationship < ApplicationRecord
 
 	enum :kind, Catalog::RelationshipKinds.enum
 
-	scope :active, -> { where(ends_on: nil) }
+	validates :person, presence: true
+	validates :related_person, presence: true
+	validates :kind, presence: true
+
+	validate :people_must_be_different
+	validate :compatible_people
 
 	validates :person_id,
 						uniqueness: {
-							scope: [ :related_person_id, :kind ],
-							conditions: -> { where(ends_on: nil) }
+							scope: [ :related_person_id, :kind ]
 						}
+	validate :related_person_must_be_valid
 
-	before_validation :default_kind
-	validates :kind, presence: true
-
-	def inverse
-		Relationship.find_by(
-			person: related_person,
-			related_person: person
-		)
+	def kind_for(viewer = nil)
+		viewer == related_person ? inverse_kind : kind.to_sym
 	end
 
 	def inverse_kind
-		Catalog::RelationshipKinds.inverse_of(kind)
+		Catalog::RelationshipKinds.inverse_of(kind.to_sym)
 	end
 
 	def kind_label(...)
-		self.class.kind_label(kind, ...)
+		self.class.kind_label(kind.to_sym, ...)
 	end
 
-	def rebuild(data)
-		self.kind = data[:kind]
+	def normalize!
+		return if kind.blank?
+		return if Catalog::RelationshipKinds.selectable?(kind.to_sym)
 
-		person_data = data[:related_person_attributes] || {}
+		self.person, self.related_person = related_person, person
+		self.kind = inverse_kind
+	end
 
-		if related_person.nil?
-			self.related_person =
-				Person.search(person_data) ||
-				Person.new
+	def modified?
+		self.changed?
+	end
+
+	def rebuild(person, data)
+		self.person  = person
+		self.kind    = data[:kind].to_sym if data.key?(:kind)
+		related_data = data[:related_person_attributes] || {}
+
+		result = Person.resolve(related_data)
+
+		case result[:status]
+		when :exact, :probable
+			self.related_person = result[:person]
+
+		when :new
+			self.related_person = result[:person]
+
+		when :ambiguous
+			errors.add(:related_person, :ambiguous)
+			return self
 		end
 
-		related_person.rebuild(person_data)
+		related_person.rebuild(related_data)
+		normalize!
 
 		self
 	end
 
-	def remove_inverse!
-		inverse&.destroy
-	end
-
-	def sync_inverse!
-		return unless person&.persisted?
-		return unless related_person&.persisted?
-
-		inverse_person = Relationship.find_or_initialize_by(
-			person: related_person,
-			related_person: person
-		)
-
-		inverse_person.kind      = inverse_kind
-		inverse_person.save!
+	def self.build_for(person, kind: :parent)
+		new(person:, kind:).tap do |relationship|
+			relationship.build_related_person
+		end
 	end
 
 	def self.kind_label(kind, ...)
@@ -95,10 +104,25 @@ class Relationship < ApplicationRecord
 		end
 	end
 
-	def self.build_for(person, kind: :parent)
-		relationship = new(person: person, kind: kind)
-		relationship.build_related_person
+	private
 
-		relationship
+	def people_must_be_different
+		return unless person && related_person
+
+		errors.add(:related_person, :same_person) if person == related_person
+	end
+
+	def compatible_people
+		nil unless person && related_person
+	end
+
+	def related_person_must_be_valid
+		return unless related_person
+
+		unless related_person.valid?
+			related_person.errors.each do |error|
+				errors.add(:related_person, error.full_message)
+			end
+		end
 	end
 end

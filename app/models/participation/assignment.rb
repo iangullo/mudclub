@@ -33,6 +33,9 @@ class Assignment < ApplicationRecord
 	# attachment of notes to be handled
 	has_rich_text :notes
 
+	# assignment-specific picture can be taken
+	has_one_attached :avatar
+
 	# Membership kinds identify the reason why a person belongs to a club.
 	# Operational responsibilities are modelled through Participation::Assignment.
 	enum :kind,
@@ -40,30 +43,30 @@ class Assignment < ApplicationRecord
 			prefix: true
 
 	#
-	# Convenient delegation
+	# Convenient delegations
 	#
-
-	delegate :club,
-					:person,
-					:name,
-					:surname,
+	delegate :club,	:club_id,
+					:person, :person_id,
+					:birthday,
 					:email,
-					:phone,
-					:to_s,
 					:female,
+					:name,
+					:nick,
+					:phone,
+					:relationships,
+					:surname,
+					:to_s,
 					to: :membership
 
 	#
 	# Validations
 	#
-
 	validates :starts_on, presence: true
 	validates :kind, presence: true
-
+	validate :team_required
 	#
 	# Scopes
 	#
-
 	scope :active, -> {
 		where(ends_on: nil)
 	}
@@ -75,12 +78,21 @@ class Assignment < ApplicationRecord
 			.where("ends_on IS NULL OR ends_on >= ?", date)
 	}
 
+	scope :open, -> { where(ends_on: nil) }
+
 	scope :club_level, -> {
 		where(team_id: nil)
 	}
 
 	scope :team_level, -> {
 		where.not(team_id: nil)
+	}
+
+	scope :search_text, ->(text) {
+		return all unless text.present?
+
+		joins(membership: :person)
+			.where(memberships: { person_id: Person.search(text) })
 	}
 
 	# short name for form viewing
@@ -90,11 +102,7 @@ class Assignment < ApplicationRecord
 
 	# personal photo or membership kind symbol
 	def picture
-		return person.avatar if person.avatar
-
-		# if no attached avatar, return the symbol name
-		# to be rendered as: symbol_field(symbol)
-		kind_image
+		avatar.attached? ? avatar : membership.picture
 	end
 
 	def kind_image
@@ -116,7 +124,54 @@ class Assignment < ApplicationRecord
 		team.present?
 	end
 
-	def terminate!(date = Date.current)
-		update!(ends_on: date, status: :terminated)
+	def belongs_to_team?(team)
+		team_id == team&.id
 	end
+
+	def modified?
+		self.changed? ||
+			avatar.attachment_changes.present? ||
+			person.modified?
+	end
+
+	def rebuild(data)
+		# only needed for new records
+		self.membership_id ||= data[:membership_id]   if data[:membership_id].present?
+
+		self.team_id   = data[:team_id]   if data.key?(:team_id)
+		self.kind      = data[:kind]      if data.key?(:kind)
+		self.status    = data[:status]    if data.key?(:status)
+		self.starts_on = data[:starts_on] if data.key?(:starts_on)
+		self.ends_on   = data[:ends_on]   if data.key?(:ends_on)
+		self.notes     = data[:notes]     if data.key?(:notes)
+
+		self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
+
+		membership.person.rebuild(data[:person_attributes]) if data[:person_attributes]
+		self
+	end
+
+	def reinstate!(date = Date.current)
+		return false unless can_transition_to?(:active)
+
+		transition_to!(:active, :reinstate, date)
+	end
+
+	def terminate!(date = Date.current)
+		return false unless can_transition_to?(:terminated)
+
+		transition_to!(:terminated, :terminate, date)
+	end
+
+	private
+		# validate coherent team defined for assignment
+		def team_required
+			if Catalog::AssignmentKinds.team_level?(kind) && team.blank?
+				errors.add(:team, :blank)
+			end
+
+			if Catalog::AssignmentKinds.club_level?(kind) && team.present?
+				errors.add(:team, :invalid)
+			end
+		end
 end

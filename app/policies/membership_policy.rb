@@ -61,7 +61,7 @@ class MembershipPolicy < ApplicationPolicy
 
 	def update?
 		allowed?(
-			same_club?(@record) &&
+			same_club?(@target_club) &&
 			can_manage_kind?(@target_kind)
 		)
 	end

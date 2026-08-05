@@ -52,9 +52,9 @@ class AssignmentsController < ApplicationController
 	# GET /assignments/1.json
 	def show
 		@assignment_policy = check_policy!(AssignmentPolicy, record: @assignment)
-		@title  = create_fields(helpers.assignment_show_title(@assignment))
+		@title  = create_fields(helpers.person_show_participation_title(@assignment, status_url: edit_assignment_path(status: true)))
 		@fields = create_fields(helpers.assignment_show_fields(@assignment))
-		submit  = edit_club_assignment_path(@assignment, rdx: @rdx) if @assignment_policy.update?
+		submit  = edit_club_member_assignment_path(@assignment, rdx: @rdx) if @assignment_policy.update?
 		@submit = create_submit(close: :back, retlnk: crud_return, submit:, frame: "modal")
 	end
 
