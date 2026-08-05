@@ -209,10 +209,6 @@ class Membership < ApplicationRecord
 		self.left_on = date
 	end
 
-	def kind_cannot_change
-		errors.add(:kind, :readonly) if will_save_change_to_kind?
-	end
-
 	def self.search(search: nil, club:, kind: nil, history: false)
 		scope = for_club(club)
 		scope = scope.current unless history
@@ -228,4 +224,9 @@ class Membership < ApplicationRecord
 	def self.kind_label(kind, ...)
 		Catalog::MembershipKinds.val(kind, ...)
 	end
+
+	private
+		def kind_cannot_change
+			errors.add(:kind, :readonly) if will_save_change_to_kind?
+		end
 end

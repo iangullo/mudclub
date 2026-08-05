@@ -163,6 +163,26 @@ class Assignment < ApplicationRecord
 		transition_to!(:terminated, :terminate, date)
 	end
 
+	# -------------------------------------------------------------------------
+	# Controller façade methods
+	# -------------------------------------------------------------------------
+	def self.search(club:, search: nil, member: nil, team: nil, kind: nil, history: false)
+		scope = team.present? ? where(team_id: team.id) : all
+		scope = scope.where(membership_id: member.id) if member.present?
+		scope = scope.of_kind(kind) if kind.present?
+		scope = scope.search_text(search) if search.present?
+		scope = scope.current unless history
+		scope
+	end
+
+	def self.kind_image(kind)
+		Catalog::AssignmentKinds.normalize(kind) || :person
+	end
+
+	def self.kind_label(kind, ...)
+		Catalog::AssignmentKinds.val(kind, ...)
+	end
+
 	private
 		# validate coherent team defined for assignment
 		def team_required

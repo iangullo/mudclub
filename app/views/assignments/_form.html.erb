@@ -1,0 +1,24 @@
+<%= render ModalComponent.new do %>
+	<%= form_for(
+			@assignment,
+			url: assignment_form_path,
+			authenticity_token: true,
+			data: {controller: "mandatory-fields", turbo_frame: "_top"}
+		) do |form| %>
+		<% if @p_fields %>
+			<%= form.fields_for :person, @assignment.person do |f| %>
+				<% @title.form    = f %>
+				<% @p_fields.form = f %>
+				<%= render @title %>
+				<%= render @p_fields %>
+				<% if @contacts %>
+					<% @contacts.form = f %>
+					<%= render @contacts %>
+				<% end %>
+			<% end %>
+		<% end %>
+		<% @m_fields.form = form %>
+		<%= render @m_fields %>
+		<%= render @submit %>
+	<% end %>
+<% end %>

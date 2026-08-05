@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# MudClub - Modular Rails application for managing sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -25,10 +25,17 @@ Rails.application.routes.draw do
 	get "home/index"
 	get "home/server"
 	devise_for :users, skip: [ :registrations ]
+
 	as :user do
 		get "users/edit" => "devise/registrations#edit", :as => "edit_user_registration"
 		put "users" => "devise/registrations#update", :as => "user_registration"
 	end
+
+	resources :users do
+		get "actions", on: :member
+		get "clear_actions", on: :member
+	end
+
 	resources :clubs do
 		get "events", to: "events#index"	# club calendar
 		get "locations", to: "locations#index"	# club locations
@@ -49,12 +56,7 @@ Rails.application.routes.draw do
 		end
 	end
 
-	# resources :people
-	resources :coaches, except: [ :index ] do
-		collection do
-			post :import
-		end
-	end
+	# Training domain routes
 	resources :drills do
 		member do
 			get :versions
@@ -63,31 +65,7 @@ Rails.application.routes.draw do
 			patch :update_diagram # /drills/:id/update_diagram?step_id=X
 		end
 	end
-	resources :events, except: [ :index ] do
-		member do
-			get "copy"
-			get "load_chart"
-			get "show_task"
-			get "add_task"
-			get "edit_task"
-			get "attendance"
-			get "player_stats"
-			get "edit_player_stats"
-		end
-	end
-	resources :locations, except: [ :index ]
-	resources :players, except: [ :index ] do
-		collection do
-			post :import
-		end
-	end
-	resources :seasons
-	resources :slots, except: [ :index ]
-	resources :sports do
-		get "rules", on: :member
-		resources :categories
-		resources :divisions
-	end
+
 	resources :teams, except: [ :index ] do
 		get "events", to: "events#index"	# team event calendar
 		member do
@@ -101,8 +79,43 @@ Rails.application.routes.draw do
 			get "edit_targets"
 		end
 	end
-	resources :users do
-		get "actions", on: :member
-		get "clear_actions", on: :member
+
+	resources :events, except: [ :index ] do
+		member do
+			get "copy"
+			get "load_chart"
+			get "show_task"
+			get "add_task"
+			get "edit_task"
+			get "attendance"
+			get "player_stats"
+			get "edit_player_stats"
+		end
+	end
+
+	resources :locations, except: [ :index ]
+
+	resources :seasons
+
+	resources :slots, except: [ :index ]
+
+	resources :sports do
+		get :rules, on: :member
+		resources :categories
+		resources :divisions
+	end
+
+	# DEPRECATED routes
+	# resources :people
+	resources :coaches, except: [ :index ] do
+		collection do
+			post :import
+		end
+	end
+
+	resources :players, except: [ :index ] do
+		collection do
+			post :import
+		end
 	end
 end
