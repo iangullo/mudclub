@@ -79,7 +79,7 @@ module PeopleHelper
 		res << (sex ? [ { kind: :label_checkbox, label: person.t_path(:sex, :female_short), key: :female, value: person&.female, align: "left" } ] : [])
 		res.last << symbol_field("calendar")
 		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
-		res = person_participation_fields(pobj, res, just_icon: false) unless pobj.is_a?(Person)
+		res = participation_fields(pobj, res, just_icon: false) unless pobj.is_a?(Person)
 		res
 	end
 
@@ -130,35 +130,6 @@ module PeopleHelper
 		]
 	end
 
-	def person_show_participation_title(obj, title: nil, status_url: nil, just_icon: true, cols: nil)
-		icon     = obj.picture
-		title  ||= obj.kind_label
-		subtitle = obj.to_s
-
-		fields = person_title(icon:, title:, subtitle:, cols:)
-		fields = person_participation_fields(obj, fields, status_url:, just_icon:)
-
-		fields << [
-			{ kind: :string, value: date_string(obj&.birthday), class: "items-center" },
-			gap_field,
-			{ kind: :contact, email: obj&.email, phone: obj&.phone, device: device, align: "left", cols: 3 }
-		]
-	end
-
-	def person_participation_fields(obj, fields, status_url: nil, just_icon: true)
-		fields[0] += [
-			gap_field,
-			obj_club_field(obj, align: :left),
-			gap_field,
-			obj_kind_field(obj, align: :right)
-		]
-		fields[1] += [
-			gap_field,
-			obj_status_field(obj, status_url:, just_icon:, f_opts: { align: :left, cols: 3 })
-		]
-		fields
-	end
-
 	# fields definition to show title of a person view
 	def person_show_title(pobj, title: nil, kind: nil, rows: 3, cols: nil)
 		owned  = !pobj.is_a?(Person)
@@ -178,7 +149,7 @@ module PeopleHelper
 			[ gap_field,  person_idpic(person) ]
 		]
 		if owned
-			fields[4][0] = obj_club_field(pobj)
+			fields[4][0] = participation_club_field(pobj)
 		end
 		fields
 	end
@@ -188,14 +159,13 @@ module PeopleHelper
 		title_start(icon:, title:, subtitle:, rows:, cols:, size:, _class: _class, form:)
 	end
 
-	private
-		# button to download an idpic
-		def idpic_button(person, idpic)
-			{
-				kind: :link,
-				label: person.attr(idpic.to_sym, :short),
-				url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
-				d_class: "inline-flex items-center"
-			}
-		end
+	# button to download an idpic
+	def idpic_button(person, idpic)
+		{
+			kind: :link,
+			label: person.attr(idpic.to_sym, :short),
+			url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
+			d_class: "inline-flex items-center"
+		}
+	end
 end

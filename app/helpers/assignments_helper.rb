@@ -39,10 +39,10 @@ module AssignmentsHelper
 			assignments.reorder(:starts_on).each { |assignment|
 				row = { url: assignment_path(assignment, from:), items: [] }
 
-				row[:items] << obj_kind_field(assignment, class: "border")
+				row[:items] << participation_kind_field(assignment, class: "border")
 				row[:items] << { kind: :normal, value: assignment.team_id ? assignment.team.to_s : assignment.member.club.nick }
 				row[:items] << { kind: :normal, value: assignment.starts_on }
-				row[:items] << obj_status_field(assignment, f_opts: { align: "center", class: "align-top border" })
+				row[:items] << participation_status_field(assignment, f_opts: { align: "center", class: "align-top border" })
 				rows << row
 			}
 			rows

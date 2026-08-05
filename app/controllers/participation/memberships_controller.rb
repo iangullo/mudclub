@@ -55,7 +55,7 @@ class MembershipsController < ApplicationController
 		status = @membership_policy.edit?
 
 		@title = create_fields(
-			helpers.person_show_participation_title(
+			helpers.participation_title(
 				@member,
 				status_url: edit_club_member_path(@member, status:),
 				just_icon: false
@@ -169,7 +169,7 @@ class MembershipsController < ApplicationController
 			action = :change_status if action == :edit && params[:status].present?
 
 			if action == :change_status
-				m_fields = helpers.obj_status_form_fields(@member)
+				m_fields = helpers.participation_status_form_fields(@member)
 			else
 				@title    = create_fields(helpers.membership_form_title(@member, action))
 				m_fields  = helpers.membership_form_fields(@member)

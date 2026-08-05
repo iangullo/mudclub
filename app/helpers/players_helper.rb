@@ -19,7 +19,7 @@
 module PlayersHelper
 	# return player part of definition for Player forms
 	def player_form
-		res = obj_club_selector(@player) + [
+		res = participation_club_selector(@player) + [
 			gap_field(size: 5),
 			{ kind: :label, value: I18n.t("player.number") },
 			{ kind: :number_box, key: :number, min: 0, max: 99, size: 3, value: @player.number }

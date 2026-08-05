@@ -60,7 +60,7 @@ module UsersHelper
 	def user_form_role
 		if u_admin?
 			res = [
-				obj_club_selector(@user),
+				participation_club_selector(@user),
 				[
 					symbol_field("key", { title: I18n.t("user.profile") }),
 					{ kind: :select_box, align: "left", key: :role, options: User.role_list, value: @user.role }

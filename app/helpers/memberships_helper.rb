@@ -39,10 +39,10 @@ module MembershipsHelper
 			members.each { |member|
 				row = { url: club_member_path(@clubid, member), items: [] }
 
-				row[:items] << obj_kind_field(member, class: "border")
+				row[:items] << participation_kind_field(member, class: "border")
 				row[:items] << person_name_field(member)
 				row[:items] << { kind: :normal, value: member.joined_on }
-				row[:items] << obj_status_field(member, f_opts: { align: "center", class: "border" })
+				row[:items] << participation_status_field(member, f_opts: { align: "center", class: "border" })
 				rows << row
 			}
 			rows

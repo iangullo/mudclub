@@ -19,7 +19,7 @@
 module CoachesHelper
 	# return Coach-specific form fields
 	def coach_form(team_id: nil, user: nil)
-		res = obj_club_selector(@coach)
+		res = participation_club_selector(@coach)
 		res << { kind: :hidden, key: :team_id, value: team_id } if team_id
 		res << { kind: :hidden, key: :user, value: true } if user
 		res << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
