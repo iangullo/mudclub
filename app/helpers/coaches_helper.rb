@@ -36,7 +36,7 @@ module CoachesHelper
 		if editor
 			title << { kind: :normal, value: I18n.t("person.pics"), align: "center" }
 			title << { kind: :normal, value: I18n.t("status.active_a") }
-			title << button_field({ kind: :add, url: new_coach_path(club_id: @clubid, rdx: @rdx), frame: "modal" })
+			title << button_field({ kind: :add, url: new_coach_path(club_id: @club.id, rdx: @rdx), frame: "modal" })
 		end
 
 		rows = Array.new

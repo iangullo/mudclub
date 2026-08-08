@@ -65,7 +65,7 @@ module SlotsHelper
 	def slot_search_bar(full = false)
 		l_opts   = @locations.practice.select(:id, :name)
 		l_filter = { kind: :search_collection, key: :location_id, options: l_opts, value: @location.id }
-		fields   = [ l_filter, { kind: :hidden, key: :club_id, value: @clubid } ]
+		fields   = [ l_filter, { kind: :hidden, key: :club_id, value: @club.id } ]
 		if full
 			s_filter = { kind: :search_collection, key: :season_id, options: Season.real, value: @season&.id }
 			fields = [ s_filter ] + fields
@@ -74,7 +74,7 @@ module SlotsHelper
 			fields << { kind: :hidden, key: :season_id, value: @seasonid }
 			res = [ gap_field(size: 1) ]
 		end
-		res << { kind: :search_box, url: club_slots_path(@clubid, rdx: @rdx), fields: }
+		res << { kind: :search_box, url: club_slots_path(@club, rdx: @rdx), fields: }
 	end
 
 	# fields for individual slot views

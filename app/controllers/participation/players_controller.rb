@@ -34,11 +34,11 @@ class PlayersController < ApplicationController
 				end
 				format.html do
 					title  = helpers.person_title(title: I18n.t("player.many"), icon: { concept: "player", options: { namespace: "sport", size: "50x50" } })
-					title << [ { kind: :search_text, key: :search, value: params[:search].presence || session.dig("coach_filters", "search"), url: club_players_path(@clubid, rdx: @rdx) } ]
+					title << [ { kind: :search_text, key: :search, value: params[:search].presence || session.dig("coach_filters", "search"), url: club_players_path(@club, rdx: @rdx) } ]
 					page   = paginate(@players)	# paginate results
 					table  = helpers.player_table(players: page)
-					submit = { kind: :export, url: club_players_path(@clubid, format: :xlsx), working: false } if u_manager? || u_secretary?
-					retlnk = base_lnk(club_path(@clubid, rdx: @rdx))
+					submit = { kind: :export, url: club_players_path(@club, format: :xlsx), working: false } if u_manager? || u_secretary?
+					retlnk = base_lnk(club_path(@club, rdx: @rdx))
 					create_index(title:, table:, page:, retlnk:, submit:)
 					render :index
 				end
@@ -193,13 +193,13 @@ class PlayersController < ApplicationController
 		def crud_return
 			return roster_team_path(id: @teamid, rdx: @rdx) if @teamid
 			return club_players_path(u_clubid, search: @player.s_name, rdx: @rdx) if @player
-			(@clubid ? club_players_path(@clubid, rdx: @rdx) : u_path)
+			(@club ? club_players_path(@club, rdx: @rdx) : u_path)
 		end
 
 		# prepare player action context
 		def get_player_context
 			@teamid = p_teamid
-			@clubid = @player&.club_id
+			@club   = @player&.club
 		end
 
 		# link a player to a team
@@ -212,7 +212,7 @@ class PlayersController < ApplicationController
 
 		# wrapper to check if a user can edit players
 		def player_manager?
-			((u_manager? || u_coach? || u_secretary?) && [ nil, u_clubid ].include?(@clubid))
+			((u_manager? || u_coach? || u_secretary?) && [ nil, u_clubid ].include?(@club.id))
 		end
 
 		# Prepare a player form

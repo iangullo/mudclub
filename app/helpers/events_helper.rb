@@ -313,7 +313,7 @@ module EventsHelper
 
 		# define the toprow for an events list (just above the table itself)
 		def event_list_toprow(clubevent:)
-			calendurl = clubevent ? club_events_path(@clubid, season_id: @season&.id, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
+			calendurl = clubevent ? club_events_path(@club, season_id: @season&.id, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
 			toprow = [	#  top row above the table
 				button_field(
 					{ kind: :link, symbol: "calendar", label: I18n.t("calendar.label"), size: "30x30", url: calendurl },
@@ -479,7 +479,7 @@ module EventsHelper
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, clubevent: nil)
 			if clubevent	# paste season event button
-				button_field({ kind: :add, url: new_event_path(event: { kind: :rest, club_id: @clubid, team_id: 0, season_id: obj&.id }, rdx: @rdx), frame: "modal" }) if u_manager? && obj==Season.latest
+				button_field({ kind: :add, url: new_event_path(event: { kind: :rest, club_id: @club.id, team_id: 0, season_id: obj&.id }, rdx: @rdx), frame: "modal" }) if u_manager? && obj==Season.latest
 			elsif obj.class == Team && team_manager?(obj) # new team event
 				button = { kind: :add, name: "add-event", options: [] }
 				button[:options] << { label: I18n.t("train.single"), url: new_event_path(event: { kind: :train, team_id: obj.id }, rdx: @rdx), data: { turbo_frame: :modal } }

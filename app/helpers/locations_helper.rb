@@ -29,14 +29,14 @@ module LocationsHelper
 			symbol_field("training", { namespace: "sport" }),
 			{ kind: :label_checkbox, key: :practice_court, label: I18n.t("location.train") }
 		]
-		res.last << { kind: :hidden, key: :club_id, value: @clubid } if @clubid
+		res.last << { kind: :hidden, key: :club_id, value: @club.id } if @club
 		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
 		res
 	end
 
 	# return table for @locations TableComponent
 	def location_table(locations: @locations)
-		editor = u_admin? || (u_clubid == @clubid && (u_manager? || u_secretary?))
+		editor = u_admin? || (u_club == @club && (u_manager? || u_secretary?))
 		title  = [
 			{ kind: :normal, value: I18n.t("location.name") },
 			{ kind: :normal, value: I18n.t("kind.single"), align: "center" },
@@ -46,7 +46,7 @@ module LocationsHelper
 
 		rows = Array.new
 		locations.each { |loc|
-			url = editor ? location_path(loc, club_id: @clubid, rdx: @rdx) : location_path(loc, rdx: @rdx)
+			url = editor ? location_path(loc, club_id: @club.id, rdx: @rdx) : location_path(loc, rdx: @rdx)
 			row = { url:, frame: "modal", items: [] }
 			row[:items] << { kind: :normal, value: loc.name }
 			row[:items] << (loc.practice_court ? symbol_field("training", { namespace: "sport" }, align: "center") : symbol_field("home", align: "center"))
@@ -66,7 +66,7 @@ module LocationsHelper
 		session.delete("location_filters") if scratch
 		fields = [
 			{ kind: :search_text, key: :name, placeholder: I18n.t("location.name"), value: (params[:name].presence || session.dig("location_filters", "name")), size: 10 },
-			{ kind: :hidden, key: :club_id, value: @clubid }
+			{ kind: :hidden, key: :club_id, value: @club.id }
 		]
 		[ { kind: :search_box, url: search_in, fields:, cols: 2 } ]
 	end
@@ -83,7 +83,7 @@ module LocationsHelper
 
 	# return icon and top of fields definition
 	def location_title(title:)
-		clubid = @club&.id || @clubid || u_clubid
+		clubid = @club&.id || u_clubid
 		icon   =  ((u_clubid != clubid) ? @club&.logo : symbol_hash("location"))
 		title_start(icon:, title:)
 	end

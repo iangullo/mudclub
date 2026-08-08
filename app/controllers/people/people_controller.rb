@@ -38,7 +38,7 @@ class PeopleController < ApplicationController
 					title  = helpers.person_title(title: Person.label(form: :plural), icon: { concept: "person", options: { namespace: "common", size: "50x50" } })
 					title << [ { kind: :search_text, key: :search, value: search, url: people_path(rdx: @rdx) } ]
 					table  = helpers.people_table(people: page)
-					submit = { kind: :export, url: people_path(@clubid, format: :xlsx), working: false } if u_admin?
+					submit = { kind: :export, url: people_path(club_id: @club.id, format: :xlsx), working: false } if u_admin?
 					create_index(title:, table:, page:, retlnk: base_lnk(people_path(rdx: @rdx)), submit:)
 					render :index
 				end
@@ -54,7 +54,7 @@ class PeopleController < ApplicationController
 		if @person && (check_access(obj: @person) || check_access(roles: [ :admin ]))
 			@title  = create_fields(helpers.person_show_title(@person))
 			@fields = create_fields(helpers.person_show_fields(@person))
-			submit  = edit_person_path(@person, club_id: @clubid, team_id: p_teamid, user: p_userid, rdx: @rdx) if u_manager? || u_secretary? || u_personid == @person.id
+			submit  = edit_person_path(@person, club_id: @club.id, team_id: p_teamid, user: p_userid, rdx: @rdx) if u_manager? || u_secretary? || u_personid == @person.id
 			@submit = create_submit(close: :close, submit:, frame: "modal")
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -85,7 +85,7 @@ class PeopleController < ApplicationController
 	def create
 		if check_access(roles: [ :admin ])
 			respond_to do |format|
-				@person = person.new(club_id: @clubid)
+				@person = person.new(club_id: @club.id)
 				@person.rebuild(person_params)	# rebuild person
 				if @person.id == nil then	# it's a new person
 					if @person.paranoid_create # person saved to database

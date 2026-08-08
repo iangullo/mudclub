@@ -31,13 +31,13 @@ module MembershipsHelper
 			{ kind: :normal, value: Membership.attr(:status) }
 		]
 		# optional button to add new member - should be controlled by member policy, not this old control...
-		title << button_field({ kind: :add, url: new_club_member_path(@clubid), frame: "modal" }) if club_manager?
+		title << button_field({ kind: :add, url: new_club_member_path(@club), frame: "modal" }) if club_manager?
 	end
 
 	def memberships_table_rows(members)
 			rows = Array.new
 			members.each { |member|
-				row = { url: club_member_path(@clubid, member), items: [] }
+				row = { url: club_member_path(@club, member), items: [] }
 
 				row[:items] << participation_kind_field(member, class: "border")
 				row[:items] << person_name_field(member)

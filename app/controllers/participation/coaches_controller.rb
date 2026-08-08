@@ -36,10 +36,10 @@ class CoachesController < ApplicationController
 				format.html do
 					page   = paginate(@coaches)	# paginate results
 					title  = helpers.person_title(title: I18n.t("coach.many"), icon: { concept: "coach", options: { namespace: "sport", size: "50x50" } })
-					title << [ { kind: :search_text, key: :search, value: search, url: club_coaches_path(@clubid, rdx: @rdx) } ]
+					title << [ { kind: :search_text, key: :search, value: search, url: club_coaches_path(@club, rdx: @rdx) } ]
 					table  = helpers.coach_table(coaches: page)
-					submit = { kind: :export, url: club_coaches_path(@clubid, format: :xlsx), working: false } if u_manager? || u_secretary?
-					create_index(title:, table:, page:, retlnk: base_lnk(club_path(@clubid, rdx: @rdx)), submit:)
+					submit = { kind: :export, url: club_coaches_path(@club, format: :xlsx), working: false } if u_manager? || u_secretary?
+					create_index(title:, table:, page:, retlnk: base_lnk(club_path(@club, rdx: @rdx)), submit:)
 					render :index
 				end
 			end
@@ -56,7 +56,7 @@ class CoachesController < ApplicationController
 			@fields = create_fields(helpers.coach_show)
 			@table  = create_table(helpers.team_table(teams: @coach.team_list))
 			retlnk  = anchor_lnk
-			submit  = edit_coach_path(@coach, club_id: @clubid, team_id: p_teamid, user: p_userid, rdx: @rdx) if u_manager? || u_secretary? || u_coachid == @coach.id
+			submit  = edit_coach_path(@coach, club_id: @club.id, team_id: p_teamid, user: p_userid, rdx: @rdx) if u_manager? || u_secretary? || u_coachid == @coach.id
 			@submit = create_submit(close: :back, retlnk:, submit:, frame: "modal")
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -66,7 +66,7 @@ class CoachesController < ApplicationController
 	# GET /coaches/new
 	def new
 		if user_in_club? && check_access(roles: [ :manager, :secretary ])
-			@coach = Coach.new(club_id: @clubid)
+			@coach = Coach.new(club_id: @club.id)
 			@coach.build_person
 			prepare_form("new")
 		else
@@ -88,7 +88,7 @@ class CoachesController < ApplicationController
 	def create
 		if user_in_club? && check_access(roles: [ :manager, :secretary ])
 			respond_to do |format|
-				@coach = Coach.new(club_id: @clubid)
+				@coach = Coach.new(club_id: @club.id)
 				@coach.rebuild(coach_params)	# rebuild coach
 				if @coach.id == nil then	# it's a new coach
 					if @coach.paranoid_create # coach saved to database
@@ -116,7 +116,7 @@ class CoachesController < ApplicationController
 	# PATCH/PUT /coaches/1
 	# PATCH/PUT /coaches/1.json
 	def update
-		if @coach && (check_access(obj: @coach) || check_access(roles: [ :manager, :secretary ], obj: Club.find(@clubid), both: true))
+		if @coach && (check_access(obj: @coach) || check_access(roles: [ :manager, :secretary ], obj: @club, both: true))
 			retlnk = cru_return
 			respond_to do |format|
 				@coach.rebuild(coach_params)
@@ -145,7 +145,7 @@ class CoachesController < ApplicationController
 	# GET /coaches/import
 	# GET /coaches/import.json
 	def import
-		if check_access(roles: [ :manager, :secretary ], obj: Club.find(@clubid), both: true)
+		if check_access(roles: [ :manager, :secretary ], obj: @club, both: true)
 			Coach.import(params[:file], u_clubid)	# added to import excel
 			a_desc = "#{I18n.t("coach.import")} '#{params[:file].original_filename}'"
 			register_action(:imported, a_desc, url: coaches_path(rdx: 2))
@@ -177,7 +177,7 @@ class CoachesController < ApplicationController
 		# defines correct retlnk for player show based on params received
 		def anchor_lnk
 			return team_path(id: p_teamid, user: current_user, rdx: @rdx) if p_teamid && current_user
-			(@clubid ? club_coaches_path(@clubid, rdx: 0) : u_path)
+			(@club ? club_coaches_path(@club, rdx: 0) : u_path)
 		end
 
 		# common return link for create/update operations

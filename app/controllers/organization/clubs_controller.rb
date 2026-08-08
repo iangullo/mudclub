@@ -132,7 +132,7 @@ class ClubsController < ApplicationController
 	# DELETE /clubs/1 or /clubs/1.json
 	def destroy
 		# cannot destroy user's club
-		if @club && (check_access(roles: [ :admin ]) && (@clubid != u_clubid))
+		if @club && (check_access(roles: [ :admin ]) && (@club.id != u_clubid))
 			c_name = @club.name
 			@club.destroy
 			respond_to do |format|
@@ -164,9 +164,8 @@ class ClubsController < ApplicationController
 		end
 
 		def set_club
-			c_id    = get_param(:id, objid: true) || @clubid
-			@club   = Club.find_by_id(c_id)
-			@clubid = @club.id
+			c_id  = get_param(:id, objid: true) || @club.id
+			@club = Club.find_by_id(c_id)
 		end
 
 		# Only allow a list of trusted parameters through.

@@ -68,7 +68,6 @@ class LocationsController < ApplicationController
 	# POST /locations
 	# POST /locations.json
 	def create
-		@club = Club.find_by_id(@clubid)
 		if location_editor?
 			respond_to do |format|
 				@location = Location.new
@@ -97,8 +96,7 @@ class LocationsController < ApplicationController
 		if @location && location_editor?
 			respond_to do |format|
 				@location.rebuild(location_params)
-				@club  = Club.find_by_id(@clubid)
-				retlnk = crud_return(@clubid)
+				retlnk = crud_return(@club.id)
 				if @location.id!=nil  # we have location to save
 					a_desc = "#{I18n.t("location.updated")} '#{@location.name}'"
 					if @location.changed?
@@ -134,10 +132,9 @@ class LocationsController < ApplicationController
 	def destroy
 		if @location && user_in_club? && check_access(roles: [ :manager, :secretary ])
 			respond_to do |format|
-				@club  = Club.find_by_id(@clubid)
 				l_name = @location.name
 				a_desc = "#{I18n.t("location.deleted")} #{@club&.nick} => '#{l_name}'"
-				retlnk = crud_return(@clubid)
+				retlnk = crud_return(@club.id)
 				register_action(:deleted, a_desc)
 				@club.locations.delete(@location)
 				format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
@@ -166,13 +163,12 @@ private
 
 	# ensure internal variables are well defined
 	def set_locations
-		club_id = @clubid || @club&.id || p_clubid
+		club_id = @club&.id || p_clubid
 		@club   = Club.find_by_id(club_id)
-		@clubid = @club&.id
 		if params[:id].present?
 			@location = Location.find_by_id(params[:id]) unless @location&.id==params[:id]
 		end
-		@locations = Location.search(club_id: @clubid, name: params[:name].presence).order(:name)
+		@locations = Location.search(club_id: @club.id, name: params[:name].presence).order(:name)
 	end
 
 	# Never trust parameters from the scary internet, only allow the white list through.

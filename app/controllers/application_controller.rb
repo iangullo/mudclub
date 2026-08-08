@@ -20,7 +20,7 @@
 class ApplicationController < ActionController::Base
 	# Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
 	allow_browser versions: :modern
-	before_action :set_context
+	before_action :set_application_context
 	around_action :switch_locale
 	# Make these methods available to views and helpers
 	helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_coachid,	:u_manager?,
@@ -186,7 +186,7 @@ class ApplicationController < ActionController::Base
 	end
 
 	# set the action's context
-	def set_context
+	def set_application_context
 		if user_signed_in?
 			@club     = u_club
 			@clubid   = get_param(:club_id, objid: true) || u_clubid
