@@ -27,14 +27,13 @@ class EventsController < ApplicationController
 		if user_in_club? || check_access(roles: [ :admin ])
 			get_event_context
 			start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
-			club       = Club.find_by_id(@clubid)
-			team       = Team.find_by_id(@teamid) if @teamid
-			season     = Season.find_by_id(@seasonid) || team&.season
-			url        = (team ? team_events_path(team, start_date:) : club_events_path(@clubid, season_id: season&.id, start_date:))
+			team       = Team.find_by_id(params[:team_id]) if params[:team_id].present?
+			season     = @season || team&.season
+			url        = (team ? team_events_path(team, start_date:) : club_events_path(@club, season_id: season&.id, start_date:))
 			anchor     = { url:, rdx: @rdx }
 			@title     = create_fields(helpers.event_index_title(team:, season:))
 			@calendar  = CalendarComponent.new(anchor:, obj: (team || club), start_date:, user: current_user, create_url: new_event_path)
-			zerolnk    = (team ? team_path(team, rdx: @rdx) : club_path(@clubid, season_id: season&.id, rdx: @rdx))
+			zerolnk    = (team ? club_team_path(@club, team, rdx: @rdx) : club_path(@club, season_id: season&.id, rdx: @rdx))
 			@submit    = create_submit(close: :back, submit: nil, retlnk: base_lnk(zerolnk))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -58,7 +57,7 @@ class EventsController < ApplicationController
 					@title    = create_fields(title)
 					player_id = params[:player_id].presence || u_playerid
 					if @event.rest?
-						submit  = edit_event_path(season_id: @seasonid, cal: @cal) if editor
+						submit  = edit_event_path(season_id: @season.id, cal: @cal) if editor
 						@submit = create_submit(submit:, frame: "modal")
 					elsif @event.train? && @event.team.has_player(player_id)	# we want to check player stats for a training session
 						redirect_to player_stats_event_path(@event, player_id:, rdx: @rdx, cal: @cal), data: { turbo_action: "replace" }
@@ -71,7 +70,7 @@ class EventsController < ApplicationController
 							@targets = create_fields(helpers.training_target)
 							@fields  = create_fields(helpers.training_show)
 						end
-						submit  = edit_event_path(season_id: @seasonid, rdx: @rdx, cal: @cal) if editor
+						submit  = edit_event_path(season_id: @season.id, rdx: @rdx, cal: @cal) if editor
 						@submit = create_submit(close: :back, retlnk: base_lnk(anchor_lnk), submit:)
 					end
 				end
@@ -84,9 +83,9 @@ class EventsController < ApplicationController
 	# GET /events/new
 	def new
 		get_event_context
-		if club_manager? || Team.find(@teamid)&.has_coach(u_coachid)
+		if club_manager? || @team&.has_coach(u_coachid)
 			@event  = Event.prepare(event_params)
-			@season = (@event.team_id == 0) ? Season.search(@seasonid) : @event.team.season
+			@season = @event.team.season unless @event.team_id == 0
 			@sport  = @event.team.sport&.specific
 			retlnk  = anchor_lnk
 			if @event
@@ -404,10 +403,8 @@ class EventsController < ApplicationController
 
 		# try to establish where we've been called from...
 		def get_event_context
-			@cal      = get_param(:cal)
-			@seasonid = p_seasonid
-			@teamid   = p_teamid
-			@teamid ||= @event&.team_id if @event&.team_id.to_i > 0
+			@cal  = get_param(:cal)
+			@team = @event&.team if @event&.team_id.to_i > 0
 		end
 
 		# return array of valid team options for a selector
@@ -425,11 +422,11 @@ class EventsController < ApplicationController
 			if @cal && @event	# return to a calendar view
 				sdate = @event.start_date
 				return team_events_path(@event.team_id, start_date: sdate, cal: true, rdx: @rdx) if @event&.team_id > 0	# coming froma team calendar event view
-				return season_events_path(@event.team.season_id, start_date: sdate, cal: true, rdx: @rdx) if @seasonid	# it's a season calendar
+				return season_events_path(@event.team.season_id, start_date: sdate, cal: true, rdx: @rdx) if @season	# it's a season calendar
 				"/"	# failsafe
 			else	# return to regular parent view
-				return team_path(id: @teamid, rdx: @rdx) if @teamid
-				return club_path(id: @clubid, season_id: @seasonid, rdx: @rdx) if @seasonid && @clubid
+				return club_team_path(@club, @team, rdx: @rdx) if @team
+				return club_path(@club, season_id: @season.id, rdx: @rdx) if @season && @club
 				"/"
 			end
 		end

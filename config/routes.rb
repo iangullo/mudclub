@@ -18,6 +18,9 @@
 #
 # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 Rails.application.routes.draw do
+	#-------------------------------------
+	# Core service routes
+	#-------------------------------------
 	root to: "home#index"
 	get "home/about"
 	get "home/log"
@@ -36,27 +39,51 @@ Rails.application.routes.draw do
 		get "clear_actions", on: :member
 	end
 
+	resources :sports do
+		get :rules, on: :member
+		resources :categories
+		resources :divisions
+	end
+
+	#-------------------------------------
+	# Clubs are the main organizational units
+	#-------------------------------------
 	resources :clubs do
-		get "events", to: "events#index"	# club calendar
-		get "locations", to: "locations#index"	# club locations
-		get "slots", to: "slots#index"	# club slots
-		resources :assignments, only: [ :index, :new, :create ]
-		resources :members, controller: :memberships, only: [ :index, :show, :new, :create, :edit, :update ] do
-			resources :assignments, except: [ :index ]
+		get :events, to: "events#index"	# club calendar
+		get :locations, to: "locations#index"	# club locations
+		get :slots, to: "slots#index"	# club slots
+
+		# Administrative
+		resources :members, controller: :memberships,
+							only: %i[ index show new create edit update ] do
+			resources :assignments, only: %i[ show edit update ] do
+				member do
+					get :edit_status
+					patch :update_status
+				end
+			end
 		end
+
+		# Club operational roles
+		resources :assignments, only: %i[index new create]
+
+		# Club teams
 		resources :teams do
 			member do
-				get :roster
-				get :plan
+				resource :targets, only: %i[show edit update]
+				resource :plan, only: %i[show edit update]
 				get :attendance
-				get :targets
 				get :slots
 				get :events
 			end
+
+			resources :assignments, path: :roster, only: %i[index new create]
 		end
 	end
 
+	#-------------------------------------
 	# Training domain routes
+	#-------------------------------------
 	resources :drills do
 		member do
 			get :versions
@@ -67,19 +94,15 @@ Rails.application.routes.draw do
 	end
 
 	resources :teams, except: [ :index ] do
-		get "events", to: "events#index"	# team event calendar
 		member do
-			get "attendance"
-			get "plan"
-			get "edit_plan"
 			get "roster"
 			get "edit_roster"
-			get "slots"
-			get "targets"
-			get "edit_targets"
 		end
 	end
 
+	#-------------------------------------
+	# Pending re-arrangement with 2.0 philosophy
+	#-------------------------------------
 	resources :events, except: [ :index ] do
 		member do
 			get "copy"
@@ -98,12 +121,6 @@ Rails.application.routes.draw do
 	resources :seasons
 
 	resources :slots, except: [ :index ]
-
-	resources :sports do
-		get :rules, on: :member
-		resources :categories
-		resources :divisions
-	end
 
 	# DEPRECATED routes
 	# resources :people

@@ -25,8 +25,7 @@ class TeamsController < ApplicationController
 	# GET /club/x/teams.json
 	def index
 		if check_access(roles: [ :admin, :manager, :coach, :secretary ])
-			@club  = Club.find_by_id(@clubid)
-			@teams = Team.real.order(:category_id, :name).where(club_id: @clubid, season_id: @seasonid)
+			@teams = Team.real.order(:category_id, :name).where(club_id: @club&.id, season_id: @@season&.id)
 			respond_to do |format|
 				format.xlsx do
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
@@ -38,9 +37,9 @@ class TeamsController < ApplicationController
 					title   = helpers.team_title(title: Team.label(:plural), search: true)
 					page    = paginate(@teams)	# paginate results
 					table   = helpers.team_table(teams: page, add_teams: club_manager?(@club))
-					zerolnk = @clubid ? club_path(@clubid, rdx: @rdx) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
+					zerolnk = @club ? club_path(@club, rdx: @rdx) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
 					retlnk  = base_lnk(zerolnk)
-					submit  = { kind: :export, url: club_teams_path(@clubid, format: :xlsx, season_id: @seasonid), working: false } if user_in_club? && (u_manager? || u_secretary?)
+					submit  = { kind: :export, url: club_teams_path(@club, format: :xlsx, season_id: @season.id), working: false } if user_in_club? && (u_manager? || u_secretary?)
 					create_index(title:, table:, page:, retlnk:, submit:)
 					render :index
 				end
@@ -73,7 +72,7 @@ class TeamsController < ApplicationController
 				@calendar  = CalendarComponent.new(anchor:, start_date:, obj: @team, user: current_user)
 				submit     = nil
 			end
-			zerolnk = club_teams_path(club_id: @clubid, season_id: @seasonid, rdx: @rdx)
+			zerolnk = club_teams_path(club_id: @club&.id, season_id: @@season&.id, rdx: @rdx)
 			@submit = create_submit(close: :back, retlnk: base_lnk(zerolnk), submit:, frame: (submit ? "modal" : nil))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -86,7 +85,7 @@ class TeamsController < ApplicationController
 			@eligible_coaches = @club.coaches
 			@team   = Team.new(club_id: @club.id, sport_id: Sport.first.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
 			@fields = create_fields(helpers.team_form(title: I18n.t("team.new")))
-			@submit = create_submit(retlnk: club_teams_path(@clubid, rdx: 0))
+			@submit = create_submit(retlnk: club_teams_path(@club&.id, rdx: 0))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -107,14 +106,13 @@ class TeamsController < ApplicationController
 	# POST /teams
 	# POST /teams.json
 	def create
-		@club = Club.find(@clubid)
 		if club_manager?(@club)
 			respond_to do |format|
 				if team_params
 					@team = Team.build(team_params)
 					if @team.save
 						a_desc = "#{Team.msg(:created)} '#{@team}'"
-						c_path = (user_in_club? ? cru_return : club_teams_path(@clubid, rdx: @rdx))
+						c_path = (user_in_club? ? cru_return : club_teams_path(@club&.id, rdx: @rdx))
 						register_action(:created, a_desc, url: team_path(@team, rdx: 2))
 						format.html { redirect_to c_path, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :created, location: c_path }
@@ -181,7 +179,7 @@ class TeamsController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{Team.msg(:deleted)} '#{t_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to club_teams_path(@clubid, rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+				format.html { redirect_to club_teams_path(@club&.id, rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else
@@ -389,12 +387,12 @@ class TeamsController < ApplicationController
 			if (t_id = (params[:id].presence || p_teamid))
 				@team   = Team.find_by_id(t_id)
 				@teamid = @team&.id
-				@clubid = @team&.club&.id
+				@club&.id = @team&.club&.id
 			end
-			@club     = Club.find(@clubid) if @clubid
+			@club     = Club.find(@club&.id) if @club&.id
 			s_id      = @team&.season&.id || p_seasonid || session.dig("team_filters", "season_id")
 			@season   = Season.search(s_id) unless s_id == @season&.id
-			@seasonid = @season&.id
+			@@season&.id = @season&.id
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

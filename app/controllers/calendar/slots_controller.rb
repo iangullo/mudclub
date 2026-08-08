@@ -23,15 +23,15 @@ class SlotsController < ApplicationController
 
 	# GET /clubs/x/slots or /clubs/x/slots.json
 	def index
-		@club = Club.find_by_id(@clubid)
+		@club = Club.find_by_id(@club&.id)
 		if check_access(obj: @club)
-			@locations = Location.search(club_id: @clubid).practice.order(name: :asc)
+			@locations = Location.search(club_id: @club&.id).practice.order(name: :asc)
 			@location  = Location.find_by_id(params[:location_id]) || @locations.first
 			title      = helpers.slot_title(title: I18n.t("calendar.slot.label.many"))
 			title     << helpers.slot_search_bar(u_manager? || u_secretary?)
 			@title    = create_fields(title)
 			week_view if @location
-			@btn_add   = create_button({ kind: :add, url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @seasonid, rdx: @rdx), frame: "modal" }) if u_manager? && !(@season.teams.empty?)
+			@btn_add   = create_button({ kind: :add, url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @season.id, rdx: @rdx), frame: "modal" }) if u_manager? && !(@season.teams.empty?)
 			@submit    = create_submit(close: :back, submit: nil, retlnk: club_path(@club, rdx: @rdx))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -51,7 +51,7 @@ class SlotsController < ApplicationController
 
 	# GET /clubs/x/slots/new
 	def new
-		@club = Club.find_by_id(@clubid)
+		@club = Club.find_by_id(@club&.id)
 		if check_access(obj: @club)
 			set_location
 			@slot = Slot.new(season_id: @season.id, location_id: @location.id, wday: 1, start: Time.new(2021, 8, 30, 17, 00), duration: 90, team_id: 0)
@@ -80,7 +80,7 @@ class SlotsController < ApplicationController
 					if @slot.save # try to store
 						a_desc = "#{I18n.t("calendar.slot.messages.created")} '#{@slot}'"
 						register_action(:created, a_desc, url: slot_path(@slot, rdx: 2), modal: true)
-						format.html { redirect_to crud_return(@clubid), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+						format.html { redirect_to crud_return(@club&.id), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :created, location: @slot }
 					else
 						prepare_form("new")
@@ -144,7 +144,7 @@ class SlotsController < ApplicationController
 	private
 		# wrapper to set return link for CRUD operations
 		def crud_return(clubid)
-			club_slots_path(clubid, season_id: @seasonid, location_id: @slot.location_id, rdx: @rdx)
+			club_slots_path(clubid, season_id: @season.id, location_id: @slot.location_id, rdx: @rdx)
 		end
 
 		# Create fresh time_table slices for each timetable row
@@ -199,7 +199,7 @@ class SlotsController < ApplicationController
 
 		# prepare valid locations for the slots view
 		def set_location
-			@locations = Location.search(club_id: @clubid).practice.order(name: :asc)
+			@locations = Location.search(club_id: @club&.id).practice.order(name: :asc)
 			loc_id     = get_param(:location_id, objid: true) || @locations.first.id
 			@location  = @slot&.location || Location.find_by_id(loc_id)
 		end
@@ -237,9 +237,8 @@ class SlotsController < ApplicationController
 		end
 
 		def set_slot
-			@slot = Slot.find_by_id(params[:id].presence) unless @slot&.id == params[:id].presence.to_i
-			@club = @slot&.team&.club
-			@clubid = @club.id
+			@slot   = Slot.find_by_id(params[:id].presence) unless @slot&.id == params[:id].presence.to_i
+			@club   = @slot&.team&.club
 			@season = @slot&.team&.season
 			set_location
 		end

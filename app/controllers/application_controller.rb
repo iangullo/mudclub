@@ -188,17 +188,22 @@ class ApplicationController < ActionController::Base
 	# set the action's context
 	def set_application_context
 		if user_signed_in?
-			@club     = u_club
-			@clubid   = get_param(:club_id, objid: true) || u_clubid
-			@rdx      = p_rdx
-			@season   = Season.search(p_seasonid)
-			@seasonid = @season&.id
-			user      = current_user
+			@club   = u_club
+			@rdx    = p_rdx
+			@season = Season.search(p_seasonid)
+			user    = current_user
 		end
 		@clublogo = @club&.logo || "mudclub.svg"
 		@clubname = @club&.nick || "MudClub"
 		@favicon  = user_favicon(@club)
-		@topbar   = TopbarComponent.new(user:, logo: @clublogo, nick: @clubname, home: u_path, logout: destroy_user_session_path)
+		@topbar   =
+			TopbarComponent.new(
+				user: current_user,
+				logo: @clublogo,
+				nick: @clubname,
+				home: u_path,
+				logout: destroy_user_session_path
+			)
 	end
 
 	# switch app locale
