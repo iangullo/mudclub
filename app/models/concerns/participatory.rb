@@ -93,15 +93,29 @@ module Participatory
 	end
 
 	def status_label(variant = nil)
-		key  = "shared.statuses.#{status}"
-		key += "_#{variant}" if variant
-		I18n.t(key)
+		status_string(self.status, variant)
 	end
 
 	def status_list(variant = nil)
 		[ [ status_label, status ] ] +
 		available_statuses.map do |st|
-			[ I18n.t("shared.statuses.#{st}#{variant}"), st ]
+			[ status_string(st, variant), st ]
+		end
+	end
+
+	class_methods do
+		def status_options(include_blank: false, variant: :plural)
+			options = statuses.keys.map do |status|
+				[ status_string(status, variant), status ]
+			end
+
+			include_blank ? [ [ "", nil ] ] + options : options
+		end
+
+		def status_string(status, variant = nil)
+			key  = "shared.statuses.#{status}"
+			key += "_#{variant}" if variant
+			I18n.t(key)
 		end
 	end
 
@@ -128,6 +142,30 @@ module Participatory
 		raise NotImplementedError
 	end
 
+	#------------------------------------
+	# Person resolution & data rebuilding
+	#------------------------------------
+	def resolve_person(person_attributes)
+		return unless person_attributes
+
+		if new_record? || person.nil?
+			resolution = Person.resolve(person_attributes)
+
+			case resolution[:status]
+			when :ambiguous
+				errors.add(:base, Person.msg(:ambiguous))
+				return false
+
+			when :new, :probable, :exact
+				self.person = resolution[:person]
+			end
+		end
+
+		person.rebuild(person_attributes)
+
+		true
+	end
+
 	private
 		#------------------------------------
 		# Status transition condition check
@@ -138,6 +176,12 @@ module Participatory
 
 		def can_transition_to?(target_status)
 			available_statuses.include?(target_status.to_sym)
+		end
+
+		def status_string(status, variant = nil)
+			key  = "shared.statuses.#{status}"
+			key += "_#{variant}" if variant
+			I18n.t(key)
 		end
 
 		#------------------------------------
@@ -174,7 +218,6 @@ module Participatory
 		def notify_status_change(_action)
 			# TODO
 		end
-
 
 		# Record status change date
 		def apply_transition_date(action, date)

@@ -80,45 +80,57 @@ es:
     #
     statuses:
       active: Activo
+      active_plural: Activos
       active_short: Act.
       archived: Archivado
+      archived_plural: Archivados
       archived_short: Arch.
       calculating: Calculando
       calculating_short: Calc.
       cancelled: Cancelado
+      cancelled_plural: Cancelados
       cancelled_short: Canc.
       closed: Cerrado
       completed: Completado
       completed_short: Hecho
       disabled: Deshabilitado
+      disabled_plural: Deshabilitados
       disabled_short: Desh.
       draft: Borrador
+      draft_plural: Borradores
       empty: Sin datos disponibles
       empty_short: Vacío
       enabled: Habilitado
+      enabled_plural: Habilitados
       enabled_short: Hab.
       error: Error
       failed: Fallido
       failed_short: Fall.
       inactive: Inactivo
+      inactive_plural: Inactivos
       inactive_short: Inact.
       loading: Cargando...
       loading_short: Carg.
       pending: Pendiente
+      pending_plural: Pendientes
       pending_short: Pend.
       processing: Procesando...
       processing_short: Proc.
       published: Publicado
+      published_plural: Publicados
       published_short: Publ.
       ready: Listo
       rejected: Rechazado
+      rejected_plural: Rechazados
       rejected_short: Rech.
       suspended: Suspendido
+      suspended_plural: Suspendidos
       suspended_short: Susp.
       saved: Guardado
       starting: Iniciando
       starting_short: Inicio
       terminated: Terminado
+      terminated_plural: Terminados
       terminated_short: Term.
       unavailable: No disponible
       unavailable_short: No disp.

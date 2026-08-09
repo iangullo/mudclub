@@ -63,6 +63,7 @@ en:
         mixed: Mixed
         mixed_short: Mixed
       messages:
+        ambiguous: Multiple people matching information.
         created: Person created.
         updated: Person updated.
         deleted: Person deleted.

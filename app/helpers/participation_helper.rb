@@ -11,6 +11,20 @@
 #
 # Helper shared by Participation context views
 module ParticipationHelper
+	def participation_search_bar(obj, search_url:, title: nil, scratch: nil, cols: nil)
+		search_filters = "#{obj.to_s.downcase}_filters"
+		session.delete(search_filters) if scratch
+		s_stat = params[:status].presence || @status
+		# s_kind = params[:kind].presence || @kind
+		fields = [
+			{ kind: :search_text, key: :search, placeholder: title, value: params[:search].presence || session.dig("#{@kind}_filters", "search"), size: 10 },
+			{ kind: :search_select, key: :status, value: s_stat, blank: obj.attr(:status), options: obj.status_options },
+			{ kind: :hidden, key: :kind, value: @kind }
+			# { kind: :search_select, key: :kind, value: obj.kind, blank: obj.attr(:kind), options: obj.kind_list }
+		]
+		[ { kind: :search_box, url: search_url, fields:, cols: } ]
+	end
+
 	def participation_title(obj, title: nil, status_url: nil, just_icon: true, cols: nil)
 		icon     = obj.picture
 		title  ||= obj.kind_label
@@ -124,13 +138,13 @@ module ParticipationHelper
 		end
 	end
 
-	def participation_index_path(origin: participation_origin, club: @club, team: @team, membership_kind: nil)
+	def participation_index_path(origin: participation_origin, club: @club, team: @team, kind: nil)
 		case origin
 		when :team
 			club_team_roster_path(club, team, rdx: @rdx)
 
 		else
-			club_assignments_path(club, membership_kind:, rdx: @rdx)
+			club_assignments_path(club, kind:, rdx: @rdx)
 		end
 	end
 end

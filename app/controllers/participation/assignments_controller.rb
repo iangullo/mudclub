@@ -18,7 +18,6 @@
 #
 # Handle Assignment views - always accessed by a assignment, club or team
 class AssignmentsController < ApplicationController
-	include Filterable
 	before_action :load_participation_context
 	before_action :load_assignment_kind
 	before_action :set_assignment, only: [ :show, :edit, :update, :terminate ]
@@ -66,7 +65,7 @@ class AssignmentsController < ApplicationController
 	# GET /assignments/new
 	def new
 		@assignment_policy = check_policy!(AssignmentPolicy, club: @club, kind: @kind)
-		prepare_form(:new)
+		prepare_form(:create)
 	end
 
 	# POST /assignments
@@ -75,13 +74,9 @@ class AssignmentsController < ApplicationController
 		@assignment_policy = check_policy!(AssignmentPolicy, club: @club, kind: @kind)
 		respond_to do |format|
 			Assignment.transaction do
-				@assignment = Assignment.new(
-												club_id: @club&.id,
-												team_id: @team&.id,
-												membership_id: @member&.id,
-												kind: @kind
-											)
+				@assignment = Assignment.new(club: @club, team: @team, membership: @member, kind: @kind)
 				@assignment.rebuild(assignment_params)
+				@assignment.starts_on = Date.today
 
 				if @assignment.save
 					format.html do
@@ -96,7 +91,7 @@ class AssignmentsController < ApplicationController
 			end
 
 			unless @assignment.persisted? && @assignment.errors.empty?
-				prepare_form(:new)
+				prepare_form(:create)
 
 				format.html { render :edit, status: :unprocessable_entity }
 				format.json { render json: @assignment.errors, status: :unprocessable_entity }
@@ -166,29 +161,19 @@ class AssignmentsController < ApplicationController
 				concept = :person
 			end
 			title = helpers.person_title(title:, icon: { concept:, options: { namespace: "common", size: "50x50" } })
-			fields = [
-				{ kind: :search_text, key: :search, placeholder: title, value: params[:search].presence || session.dig("#{@kind}_filters", "search"), size: 10 },
-				{ kind: :hidden, key: :kind, value: @kind }
-			]
-			title << [
-				{
-					kind: :search_box,
-					url: helper.participation_index_path(@club, kind: @kind, rdx: @rdx),
-					fields:
-				}
-			]
+			title << helpers.participation_search_bar(Assignment, search_url: helpers.participation_index_path(kind: @kind))
 		end
 
 		# Prepare a assignment form
 		def prepare_form(action)
-			status_edit = action == :edit && params[:status].present?
+			status_edit = action == :edit && to_boolean(params[:status])
 
 			if status_edit
 				a_fields = helpers.participation_status_form_fields(@assignment)
 			else
 				@title    = create_fields(helpers.assignment_form_title(@assignment, action))
-				a_fields  = create_fields(helpers.assignment_form)
-				@p_fields = create_fields(helpers.person_form(@assignment.person))
+				a_fields  = helpers.assignment_form_fields(@assignment)
+				@p_fields = create_fields(helpers.person_form_fields(@assignment.person))
 				@contacts = create_fields(helpers.person_relationships_form(@assignment.person))
 			end
 

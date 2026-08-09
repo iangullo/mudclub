@@ -31,7 +31,7 @@ module MembershipsHelper
 			{ kind: :normal, value: Membership.attr(:status) }
 		]
 		# optional button to add new member - should be controlled by member policy, not this old control...
-		title << button_field({ kind: :add, url: new_club_member_path(@club), frame: "modal" }) if club_manager?
+		title << button_field({ kind: :add, url: new_club_member_path(@club, kind: @kind), frame: "modal" }) if club_manager?
 	end
 
 	def memberships_table_rows(members)
@@ -90,7 +90,10 @@ module MembershipsHelper
 	def membership_form_fields(member)
 	[
 		[ { kind: :label, value: Membership.attr(:notes) } ],
-		[	{ kind: :rich_text_area, key: :notes, cols: 3 } ]
+		[
+			{ kind: :rich_text_area, key: :notes, cols: 3 },
+			{ kind: :hidden, key: :kind, value: member.kind }
+		]
 	]
 	end
 

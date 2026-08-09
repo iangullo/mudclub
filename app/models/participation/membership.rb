@@ -121,7 +121,7 @@ class Membership < ApplicationRecord
 
 	# personal photo or membership kind symbol
 	def picture
-		return person.avatar if person.avatar.attached?
+		return person.avatar if person&.avatar&.attached?
 
 		# if no attached avatar, return the symbol name
 		# to be rendered as: symbol_field(symbol)
@@ -162,7 +162,7 @@ class Membership < ApplicationRecord
 		self.left_on   = data[:left_on]   if data.key?(:left_on)
 		self.notes     = data[:notes]     if data.key?(:notes)
 
-		person.rebuild(data[:person_attributes]) if data[:person_attributes]
+		return self unless resolve_person(data[:person_attributes])
 
 		self
 	end
@@ -209,11 +209,16 @@ class Membership < ApplicationRecord
 		self.left_on = date
 	end
 
-	def self.search(search: nil, club:, kind: nil, history: false)
+	def self.search(club:, search: nil, status: nil, kind: nil, history: false)
 		scope = for_club(club)
-		scope = scope.current unless history
 		scope = scope.of_kind(kind) if kind.present?
 		scope = scope.search_text(search) if search.present?
+		if status
+			scope = scope.where(status:)
+		else
+			scope.current unless history
+		end
+
 		scope
 	end
 
@@ -223,6 +228,12 @@ class Membership < ApplicationRecord
 
 	def self.kind_label(kind, ...)
 		Catalog::MembershipKinds.val(kind, ...)
+	end
+
+	def self.kind_list
+		Catalog::MembershipKinds.selectable.map do |kind|
+			[ self.val(kind), kind ]
+		end
 	end
 
 	private

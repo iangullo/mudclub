@@ -63,6 +63,7 @@ es:
         mixed: Mixto
         mixed_short: Mixto
       messages:
+        ambiguous: Varias personas coinciden con la información.
         created: Persona creada.
         updated: Persona actualizada.
         deleted: Persona eliminada.

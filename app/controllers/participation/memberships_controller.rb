@@ -18,7 +18,6 @@
 #
 # Handle Membership views - always linked to a club
 class MembershipsController < ApplicationController
-	include Filterable
 	before_action :load_participation_context
 	before_action :load_membership_kind
 	before_action :set_member, only: [ :show, :edit, :update, :terminate ]
@@ -33,11 +32,12 @@ class MembershipsController < ApplicationController
 		)
 
 		search  = params[:search].presence
-		history = search &&  @membership_policy.history?
+		history = (search || status) &&  @membership_policy.history?
 		@members =
 			Membership.search(
 				club: @club,
 				kind: @kind,
+				status: @status,
 				search:,
 				history:
 			)
@@ -71,7 +71,9 @@ class MembershipsController < ApplicationController
 	# GET /members/new
 	def new
 		@membership_policy = check_policy!(MembershipPolicy, club: @club, kind: @kind)
-		prepare_form(:new)
+		@member = Membership.new(club: @club, kind: @kind)
+		@member.build_person
+		prepare_form(:create)
 	end
 
 	# POST /memberships
@@ -82,6 +84,7 @@ class MembershipsController < ApplicationController
 			Membership.transaction do
 				@member = Membership.new(club: @club, kind: @kind)
 				@member.rebuild(membership_params)
+				@member.starts_on = Date.today
 
 				if @member.save
 					format.html do
@@ -96,7 +99,7 @@ class MembershipsController < ApplicationController
 			end
 
 			unless @member.persisted? && @member.errors.empty?
-				prepare_form(:new)
+				prepare_form(:create)
 
 				format.html { render :edit, status: :unprocessable_entity }
 				format.json { render json: @member.errors, status: :unprocessable_entity }
@@ -171,29 +174,19 @@ class MembershipsController < ApplicationController
 				concept = :person
 			end
 			title = helpers.person_title(title:, icon: { concept:, options: { namespace: "common", size: "50x50" } })
-			fields = [
-				{ kind: :search_text, key: :search, placeholder: title, value: params[:search].presence || session.dig("#{@kind}_filters", "search"), size: 10 },
-				{ kind: :hidden, key: :kind, value: @kind }
-			]
-			title << [
-				{
-					kind: :search_box,
-					url: club_members_path(@club, kind: @kind, rdx: @rdx),
-					fields:
-				}
-			]
+			title << helpers.participation_search_bar(Membership, search_url: club_members_path(@club))
 		end
 
 		# Prepare a member form
 		def prepare_form(action)
-			status_edit = action == :edit && params[:status].present?
+			status_edit = action == :edit && to_boolean(params[:status])
 
 			if status_edit
 				m_fields = helpers.participation_status_form_fields(@member)
 			else
 				@title    = create_fields(helpers.membership_form_title(@member, action))
 				m_fields  = helpers.membership_form_fields(@member)
-				@p_fields = create_fields(helpers.person_form(@member.person))
+				@p_fields = create_fields(helpers.person_form_fields(@member.person))
 				@contacts = create_fields(helpers.person_relationships_form(@member.person))
 			end
 

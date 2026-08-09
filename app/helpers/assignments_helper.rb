@@ -78,22 +78,20 @@ module AssignmentsHelper
 		]
 	end
 
-	def assignment_show_path(assignment)
-		club_member_assignment_path(
-			assignment.club,
-			assignment.membership,
-			assignment,
-			rdx: @rdx
-		)
-	end
-
-	def assignment_form_title(assignment, action)
-		person_form_title(
-			assignment,
-			icon: assignment.picture,
-			title: Membership.t_path(:action, action.to_sym),
-			sex: true
-		)
+	def assignment_form_title(assignment, action, title: nil)
+		title  = Assignment.t_path(:action, action.to_sym)
+		header = person_form_title(
+				assignment,
+				icon: assignment.picture,
+				title:,
+				sex: true
+			)
+		header[0].pop
+		header[2] += [
+			gap_field,
+			{ kind: :label, value: "Fistro Diodenarl", cols: 3 }
+		]
+		header
 	end
 
 	def assignment_form_fields(assignment)
@@ -105,6 +103,15 @@ module AssignmentsHelper
 				{ kind: :hidden, key: :membership_id, value: assignment.membership_id }
 			]
 		]
+	end
+
+	def assignment_show_path(assignment)
+		club_member_assignment_path(
+			assignment.club,
+			assignment.membership,
+			assignment,
+			rdx: @rdx
+		)
 	end
 
 	def assignment_edit_path(assignment, status: false)

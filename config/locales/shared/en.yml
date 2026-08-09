@@ -80,45 +80,58 @@ en:
     #
     statuses:
       active: Active
+      active_plural: Active
       active_short: Act.
       archived: Archived
+      archived_plural: Archived
       archived_short: Arch.
       calculating: Calculating
       calculating_short: Calc.
       cancelled: Cancelled
+      cancelled_plural: Cancelled
       cancelled_short: Canc.
       closed: Closed
+      closed_plural: Closed
       completed: Completed
       completed_short: Done
       disabled: Disabled
+      disabled_plural: Disabled
       disabled_short: Dis.
       draft: Draft
+      draft_plural: Draft
       empty: No data available
       empty_short: Empty
       enabled: Enabled
+      enabled_plural: Enabled
       enabled_short: En.
       error: Error
       failed: Failed
       failed_short: Fail.
       inactive: Inactive
+      inactive_plural: Inactive
       inactive_short: Inact.
       loading: Loading...
       loading_short: Load.
       pending: Pending
+      pending_plural: Pending
       pending_short: Pend.
       processing: Processing...
       processing_short: Proc.
       published: Published
+      published:plural: Published
       published_short: Pub.
       ready: Ready
       rejected: Rejected
+      rejected_plural: Rejected
       rejected_short: Rej.
       suspended: Suspended
+      suspended_plural: Suspended
       suspended_short: Susp.
       saved: Saved
       starting: Starting
       starting_short: Start
       terminated: Terminated
+      terminated_plural: Terminated
       terminated_short: Term.
       unavailable: Unavailable
       unavailable_short: Unav.

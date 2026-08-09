@@ -27,6 +27,8 @@ class Assignment < ApplicationRecord
 	include Auditable
 	include Participatory
 
+	attr_writer :starts_on
+
 	belongs_to :membership
 	belongs_to :team, optional: true
 
@@ -102,7 +104,11 @@ class Assignment < ApplicationRecord
 
 	# personal photo or membership kind symbol
 	def picture
-		avatar.attached? ? avatar : membership.picture
+		return person.avatar if person&.avatar&.attached?
+
+		# if no attached avatar, return the symbol name
+		# to be rendered as: symbol_field(symbol)
+		kind_image
 	end
 
 	def kind_image
@@ -147,7 +153,8 @@ class Assignment < ApplicationRecord
 
 		self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
 
-		person.rebuild(data[:person_attributes]) if data[:person_attributes]
+		return self unless resolve_person(data[:person_attributes])
+
 		self
 	end
 
@@ -166,12 +173,16 @@ class Assignment < ApplicationRecord
 	# -------------------------------------------------------------------------
 	# Controller façade methods
 	# -------------------------------------------------------------------------
-	def self.search(club:, search: nil, member: nil, team: nil, kind: nil, history: false)
+	def self.search(club:, search: nil, status: nil, member: nil, team: nil, kind: nil, history: false)
 		scope = team.present? ? where(team_id: team.id) : all
 		scope = scope.where(membership_id: member.id) if member.present?
 		scope = scope.of_kind(kind) if kind.present?
 		scope = scope.search_text(search) if search.present?
-		scope = scope.current unless history
+		if status
+			scope = scope.where(status:)
+		else
+			scope.current unless history
+		end
 		scope
 	end
 
@@ -181,6 +192,12 @@ class Assignment < ApplicationRecord
 
 	def self.kind_label(kind, ...)
 		Catalog::AssignmentKinds.val(kind, ...)
+	end
+
+	def self.kind_list
+		Catalog::AssignmentKinds.selectable.map do |kind|
+			[ self.val(kind), kind ]
+		end
 	end
 
 	private

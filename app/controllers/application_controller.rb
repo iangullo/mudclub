@@ -213,6 +213,7 @@ class ApplicationController < ActionController::Base
 	def load_participation_context
 		@team   = @club.teams.find(params[:team_id]) if params[:team_id].present?
 		@member = @club.memberships.find(params[:member_id]) if params[:member_id].present?
+		@status = params[:status].presence
 	end
 
 	# switch app locale
