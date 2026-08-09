@@ -30,7 +30,7 @@ class TeamsController < ApplicationController
 				format.xlsx do
 					f_name = "#{@season.name(safe: true)}-players.xlsx"
 					a_desc = "#{I18n.t("player.export")} '#{f_name}'"
-					register_action(:exported, a_desc, url: teams_path(rdx: 2))
+					register_action(:exported, a_desc, url: club_teams_path(@club, rdx: 2))
 					response.headers["Content-Disposition"] = "attachment; filename=#{f_name}"
 				end
 				format.html do
@@ -65,14 +65,14 @@ class TeamsController < ApplicationController
 			if u_manager? || u_coach?
 				@links = create_fields(helpers.team_links)
 				@table = create_fields(helpers.event_list_table(obj: @team))
-				submit = edit_team_path(@team, rdx: @rdx) if team_manager?
+				submit = edit_club_team_path(@club, @team, rdx: @rdx) if team_manager?
 			else
 				start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
-				anchor     = { url: team_events_path(@team), rdx: @rdx }
+				anchor     = { url: events_club_team_path(@club, @team), rdx: @rdx }
 				@calendar  = CalendarComponent.new(anchor:, start_date:, obj: @team, user: current_user)
 				submit     = nil
 			end
-			zerolnk = club_teams_path(club_id: @club&.id, season_id: @@season&.id, rdx: @rdx)
+			zerolnk = club_teams_path(@club, season_id: @season&.id, rdx: @rdx)
 			@submit = create_submit(close: :back, retlnk: base_lnk(zerolnk), submit:, frame: (submit ? "modal" : nil))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -85,7 +85,7 @@ class TeamsController < ApplicationController
 			@eligible_coaches = @club.coaches
 			@team   = Team.new(club_id: @club.id, sport_id: Sport.first.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
 			@fields = create_fields(helpers.team_form(title: I18n.t("team.new")))
-			@submit = create_submit(retlnk: club_teams_path(@club&.id, rdx: 0))
+			@submit = create_submit(retlnk: club_teams_path(@club, rdx: 0))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -112,8 +112,8 @@ class TeamsController < ApplicationController
 					@team = Team.build(team_params)
 					if @team.save
 						a_desc = "#{Team.msg(:created)} '#{@team}'"
-						c_path = (user_in_club? ? cru_return : club_teams_path(@club&.id, rdx: @rdx))
-						register_action(:created, a_desc, url: team_path(@team, rdx: 2))
+						c_path = (user_in_club? ? cru_return : club_teams_path(@club, rdx: @rdx))
+						register_action(:created, a_desc, url: club_team_path(@club, @team, rdx: 2))
 						format.html { redirect_to c_path, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :created, location: c_path }
 					else
@@ -145,7 +145,7 @@ class TeamsController < ApplicationController
 					if @team.modified?
 						if @team.save
 							a_desc = "#{Team.msg(:updated)} '#{@team}'"
-							register_action(:updated, a_desc, url: team_path(rdx: 2))
+							register_action(:updated, a_desc, url: club_team_path(@club, @team, rdx: 2))
 							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 							format.json { redirect_to retlnk, status: :created, location: retlnk }
 						else
@@ -179,7 +179,7 @@ class TeamsController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{Team.msg(:deleted)} '#{t_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to club_teams_path(@club&.id, rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+				format.html { redirect_to club_teams_path(@club, rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else
@@ -196,8 +196,8 @@ class TeamsController < ApplicationController
 			title.last << { kind: :string, value: "(#{players.count} #{@team.term(:athlete_short)})" }
 			@title  = create_fields(title)
 			@table  = create_table(helpers.player_table(team: @team, players: players.order(:number)))
-			submit  = edit_roster_team_path(rdx: @rdx) if team_manager?
-			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit:)
+			submit  = edit_roster_club_team_path(@club, @team, rdx: @rdx) if team_manager?
+			@submit = create_submit(close: :back, retlnk: club_team_path(@club, @team, rdx: @rdx), submit:)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -209,7 +209,7 @@ class TeamsController < ApplicationController
 			title = helpers.team_title(title: @team.to_s)
 			title << icon_subtitle("player", I18n.t("team.roster_edit"), namespace: @team.sport.name)
 			@title  = create_fields(title)
-			@submit = create_submit(close: :cancel, retlnk: roster_team_path(rdx: @rdx))
+			@submit = create_submit(close: :cancel, retlnk: roster_club_team_path(@club, @team, rdx: @rdx))
 			@eligible_players = @team.eligible_players
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -234,9 +234,9 @@ class TeamsController < ApplicationController
 			title   = helpers.team_title(title: @team.to_s)
 			title  << icon_subtitle("target", Target.label(:plural))
 			@title  = create_fields(title)
-			edit    = edit_targets_team_path(rdx: @rdx) if team_manager?
+			edit    = edit_targets_club_team_path(@club, @team, rdx: @rdx) if team_manager?
 			@fields = create_fields(helpers.team_targets_show)
-			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
+			@submit = create_submit(close: :back, retlnk: club_team_path(@club, @team, rdx: @rdx), submit: edit)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -250,7 +250,7 @@ class TeamsController < ApplicationController
 			title   = helpers.team_title(title: @team.to_s)
 			title << icon_subtitle("target", Target.t_path(:actions, :edit))
 			@title  = create_fields(title)
-			@submit = create_submit(close: :cancel, retlnk: targets_team_path(rdx: @rdx))
+			@submit = create_submit(close: :cancel, retlnk: targets_club_team_path(@club, @team, rdx: @rdx))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -263,9 +263,9 @@ class TeamsController < ApplicationController
 			title = helpers.team_title(title: @team.to_s)
 			title << icon_subtitle("plan", I18n.t("training.plan.label"))
 			@title = create_fields(title)
-			edit    = edit_plan_team_path(rdx: @rdx) if team_manager?
+			edit    = edit_plan_club_team_path(@club, @team, rdx: @rdx) if team_manager?
 			@fields = create_fields(helpers.team_plan_accordion)
-			@submit = create_submit(close: :back, retlnk: team_path(rdx: @rdx), submit: edit)
+			@submit = create_submit(close: :back, retlnk: club_team_path(@club, @team, rdx: @rdx), submit: edit)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -279,7 +279,7 @@ class TeamsController < ApplicationController
 			title   = helpers.team_title(title: @team.to_s)
 			title << icon_subtitle("plan", I18n.t("plan.edit"))
 			@title  = create_fields(title)
-			@submit = create_submit(close: :cancel, retlnk: plan_team_path(rdx: @rdx))
+			@submit = create_submit(close: :cancel, retlnk: plan_club_team_path(@club, @team, rdx: @rdx))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -306,20 +306,20 @@ class TeamsController < ApplicationController
 		# wrapper to set return link for create && update operations
 		def cru_return
 			if param_passed(:team, :player_ids)	# roster view
-				roster_team_path(@team, rdx: @rdx)
+				roster_club_team_path(@club, @team, rdx: @rdx)
 			elsif param_passed(:team, :team_targets_attributes)	# targets or plan
 				first_target = team_params[:team_targets_attributes].to_h.first
 				if first_target
 					if first_target[1]["month"] == "0"	# global team targets
-						targets_team_path(@team, rdx: @rdx)
+						targets_club_team_path(@club, @team, rdx: @rdx)
 					else	# team monthly targets
-						plan_team_path(@team, rdx: @rdx)
+						plan_club_team_path(@club, @team, rdx: @rdx)
 					end
 				else	# base team view
-					team_path(@team, rdx: @rdx)
+					club_team_path(@club, @team, rdx: @rdx)
 				end
 			else	# team view also
-				team_path(@team, rdx: @rdx)
+				club_team_path(@club, @team, rdx: @rdx)
 			end
 		end
 

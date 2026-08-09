@@ -130,7 +130,7 @@ module TeamsHelper
 			end
 			rows = Array.new
 			teams.each { |team|
-				url = (u_clubid == team.club_id ? team_path(team, rdx: @rdx) : request.path)
+				url = (u_clubid == team.club_id ? club_team_path(team.club, team, rdx: @rdx) : request.path)
 				row = { url:, items: [] }
 				row[:items] << { kind: :normal, value: team.season.name, align: "center" } if @rdx == 1 || @player || @coach
 				row[:items] << { kind: :normal, value: team.name }
@@ -160,13 +160,13 @@ module TeamsHelper
 	def team_links
 		if u_manager? || u_coach? || u_secretary?
 			res = [ [
-				button_field({ kind: :jump, symbol: symbol_hash("player", namespace: @team&.sport&.name), url: roster_team_path(@team, rdx: @rdx), label: I18n.t("team.roster") }, align: "center")
+				button_field({ kind: :jump, symbol: symbol_hash("player", namespace: @team&.sport&.name), url: roster_club_team_path(@club, @team, rdx: @rdx), label: I18n.t("team.roster") }, align: "center")
 			] ]
 			if u_manager? || u_coach?
-				res.last << button_field({ kind: :jump, symbol: "target", url: targets_team_path(@team, rdx: @rdx), label: I18n.t("target.many") }, align: "center")
-				res.last << button_field({ kind: :jump, symbol: "plan", url: plan_team_path(@team, rdx: @rdx), label: I18n.t("plan.abbr") }, align: "center")
+				res.last << button_field({ kind: :jump, symbol: "target", url: targets_club_team_path(@club, @team, rdx: @rdx), label: I18n.t("target.many") }, align: "center")
+				res.last << button_field({ kind: :jump, symbol: "plan", url: plan_club_team_path(@club, @team, rdx: @rdx), label: I18n.t("plan.abbr") }, align: "center")
 			end
-			res.last << button_field({ kind: :jump, symbol: "timetable", url: slots_team_path(rdx: @rdx), label: I18n.t("slot.many"), frame: "modal" }, align: "center")
+			res.last << button_field({ kind: :jump, symbol: "timetable", url: slots_club_team_path(@club, @team, rdx: @rdx), label: I18n.t("slot.many"), frame: "modal" }, align: "center")
 		else
 			res = [ [] ]
 		end
