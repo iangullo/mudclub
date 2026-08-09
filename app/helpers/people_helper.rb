@@ -21,12 +21,12 @@ module PeopleHelper
 		{ kind: :normal, value: person.to_s }
 	end
 
-	def person_form(person, mandatory_email: nil)
-		l_nick  = person.attr(:nickname)
-		l_phone = person.attr(:phone)
-		l_pid   = person.attr(:national_id)
-		l_email = person.attr(:email)
-		l_addr  = person.attr(:address)
+	def person_form_fields(person, mandatory_email: nil)
+		l_nick  = Person.attr(:nickname)
+		l_phone = Person.attr(:phone)
+		l_pid   = Person.attr(:national_id)
+		l_email = Person.attr(:email)
+		l_addr  = Person.attr(:address)
 
 		res = [
 			[
@@ -38,7 +38,7 @@ module PeopleHelper
 			],
 			[
 				symbol_field("id_front", { title: l_pid }),
-				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: l_pid },
+				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: l_pid, mandatory: { length: 8 } },
 				gap_field,
 				symbol_field("email", { type: :button, title: l_email }),
 				{ kind: :email_box, key: :email, value: person&.email, placeholder: l_email, mandatory: mandatory_email ? { length: 7 } : nil }
@@ -56,7 +56,7 @@ module PeopleHelper
 
 	# nested form to add/edit person relationships
 	def person_relationships_form(person)
-		res = [ [ { kind: :label, value: I18n.t("parent.many") } ] ]
+		res = [ [ { kind: :label, value: Relationship.label(:plural) } ] ]
 		res << [
 			{
 				kind: :nested_form,
@@ -74,9 +74,9 @@ module PeopleHelper
 	def person_form_title(pobj, icon: person&.picture, title:, cols: 2, sex: nil)
 		person = pobj.person
 		res = person_title(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
-		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: person.attr(:name), cols: 2, mandatory: { length: 2 } } ]
-		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: person.attr(:surname), cols: 2, mandatory: { length: 2 } } ]
-		res << (sex ? [ { kind: :label_checkbox, label: person.t_path(:sex, :female_short), key: :female, value: person&.female, align: "left" } ] : [])
+		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: Person.attr(:name), cols: 2, mandatory: { length: 2 } } ]
+		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: Person.attr(:surname), cols: 2, mandatory: { length: 2 } } ]
+		res << (sex ? [ { kind: :label_checkbox, label: Person.t_path(:sex, :female_short), key: :female, value: person&.female, align: "left" } ] : [])
 		res.last << symbol_field("calendar")
 		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
 		res = participation_fields(pobj, res, just_icon: false) unless pobj.is_a?(Person)
@@ -87,7 +87,7 @@ module PeopleHelper
 	# standardised field with icons for player/coach id pics
 	def person_idpic(person, idpic: nil, cols: nil, align: "center")
 		if idpic	# it is an editor field
-			{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: person.attr(idpic)), label: person.attr(idpic, :short), key: idpic, value: person&.send(idpic)&.filename, cols: }
+			{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: Person.attr(idpic)), label: Person.attr(idpic, :short), key: idpic, value: person&.send(idpic)&.filename, cols: }
 		else
 			pidpic = person&.idpic_content
 			symbol = pidpic[:symbol]
@@ -163,7 +163,7 @@ module PeopleHelper
 	def idpic_button(person, idpic)
 		{
 			kind: :link,
-			label: person.attr(idpic.to_sym, :short),
+			label: Person.attr(idpic.to_sym, :short),
 			url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
 			d_class: "inline-flex items-center"
 		}

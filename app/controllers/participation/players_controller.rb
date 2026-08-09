@@ -219,7 +219,7 @@ class PlayersController < ApplicationController
 		def prepare_form(action)
 			@title    = create_fields(helpers.person_form_title(@player.person, icon: @player.picture, title: I18n.t("player.#{action}"), sex: true))
 			@j_fields = create_fields(helpers.player_form)
-			@p_fields = create_fields(helpers.person_form(@player.person))
+			@p_fields = create_fields(helpers.person_form_fields(@player.person))
 			@parents  = create_fields(helpers.player_form_parents) if @player.person.age < 18
 			@submit   = create_submit
 		end

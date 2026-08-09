@@ -130,6 +130,12 @@ class ApplicationController < ActionController::Base
 		cad.to_i.to_s == cad
 	end
 
+	# parse a value to determine if its true
+	def to_boolean(value)
+		val = value.presence
+		(val&.to_s == "true" || val.to_i == 1)
+	end
+
 	# standard message for actions that had no data to change
 	def no_data_notice(trail: nil)
 		cad = I18n.t("status.no_data")

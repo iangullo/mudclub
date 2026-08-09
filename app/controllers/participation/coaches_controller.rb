@@ -189,7 +189,7 @@ class CoachesController < ApplicationController
 		def prepare_form(action)
 			@title    = create_fields(helpers.person_form_title(@coach.person, title: I18n.t("coach.#{action}"), icon: @coach.picture))
 			@c_fields = create_fields(helpers.coach_form(team_id: p_teamid, user: p_userid))
-			@p_fields = create_fields(helpers.person_form(@coach.person))
+			@p_fields = create_fields(helpers.person_form_fields(@coach.person))
 			@submit   = create_submit
 		end
 

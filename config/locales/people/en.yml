@@ -75,8 +75,10 @@ en:
         short: Parent
 
     relationship:
-      label: Relationship
-      short: Rel.
+      label:
+        single: Relationship
+        plural: Relationships
+        short: Rel.
       values:
         parent: Parent
         parent_plural: Parents

@@ -187,7 +187,7 @@ class UsersController < ApplicationController
 			title     = I18n.t("user.#{(create ? "new" : "edit")}")
 			@title    = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
 			@role     = create_fields(helpers.user_form_role)
-			@p_fields = create_fields(helpers.person_form(@user.person, mandatory_email: true))
+			@p_fields = create_fields(helpers.person_form_fields(@user.person, mandatory_email: true))
 			if create
 				@k_fields = create_fields(helpers.user_form_pass)
 			end

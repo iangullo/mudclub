@@ -80,14 +80,8 @@ class NestedComponent < ApplicationComponent
 			view_context.capture do
 				children = get_children
 
-				if children.blank?
-					@form.fields_for @key, build_child do |ff|
-						render_row(ff)
-					end
-				else
-					@form.fields_for @key, children do |ff|
-						render_row(ff)
-					end
+				@form.fields_for @key, children do |ff|
+					render_row(ff)
 				end
 			end
 		end

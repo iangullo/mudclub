@@ -73,8 +73,10 @@ es:
       short: Familiar
 
     relationship:
-      label: Relación
-      short: Rel.
+      label:
+        single: Relación
+        plural: Relaciones
+        short: Rel.
       values:
         parent: Familiar
         parent_plural: Familiares

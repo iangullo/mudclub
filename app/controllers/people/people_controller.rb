@@ -178,7 +178,7 @@ class PeopleController < ApplicationController
 		# prepare form FieldComponents
 		def prepare_form(action)
 			@title    = create_fields(helpers.person_form_title(@person.person, title: I18n.t("person.#{action}"), icon: @person.picture))
-			@fields = create_fields(helpers.person_form(@person.person))
+			@fields = create_fields(helpers.person_form_fields(@person.person))
 			@submit   = create_submit
 		end
 
