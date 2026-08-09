@@ -95,18 +95,20 @@ class ApplicationPolicy
 				.exists?
 		end
 
-		def has_club_assignment?(kinds, club = actor_club)
-			assignments_for(club)
-				.club_level
-				.of_kind(Array(kinds))
-				.exists?
+		def has_club_assignment?(club = actor_club, kinds = nil)
+			scope = assignments_for(club).club_level
+
+			scope = scope.of_kind(Array(kinds)) if kinds.present?
+
+			scope.exists?
 		end
 
-		def has_team_assignment?(kinds, team)
-			assignments_for(team.club)
-				.where(team:)
-				.of_kind(Array(kinds))
-				.exists?
+		def has_team_assignment?(team, kinds = nil)
+			scope = assignments_for(team.club).where(team:)
+
+			scope = scope.of_kind(Array(kinds)) if kinds.present?
+
+			scope.exists?
 		end
 
 		#------------------------
@@ -118,58 +120,58 @@ class ApplicationPolicy
 
 		def manages_club?(club)
 			has_club_assignment?(
+				club,
 				[
 					:president,
 					:vice_president,
 					:secretary,
 					:club_manager
-				],
-				club
+				]
 			)
 		end
 
 		def manages_board?(club)
 			has_club_assignment?(
+				club,
 				[
 					:president,
 					:vice_president
-				],
-				club
+				]
 			)
 		end
 
 		def manages_athletes?(club)
 			has_club_assignment?(
-				[ :club_manager, :coaching_coordinator ],
-				club
+				club,
+				[ :club_manager, :coaching_coordinator ]
 			)
 		end
 
 		def manages_coaches?(club)
 			has_club_assignment?(
-				[ :club_manager, :coaching_coordinator ],
-				club
+				club,
+				[ :club_manager, :coaching_coordinator ]
 			)
 		end
 
 		def manages_team?(team)
 			has_team_assignment?(
+				team,
 				[
 					:head_coach,
 					:assistant_coach,
 					:team_manager
-				],
-				team
+				]
 			)
 		end
 
 		def coaches_team?(team)
 			has_team_assignment?(
+				team,
 				[
 					:head_coach,
 					:assistant_coach
-				],
-				team
+				]
 			)
 		end
 end
