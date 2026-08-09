@@ -46,6 +46,7 @@ es:
         updated: Integrante actualizado/a.
         terminated: Integrante dado de baja.
         deleted: Integrante eliminado/a.
+        cannot_terminate: ¡No se pudo dar de baja!
 
     assignment:
       label:
@@ -75,6 +76,7 @@ es:
         updated: Asignación actualizada.
         terminated: Baja efectiva.
         deleted: Asignación eliminada.
+        cannot_terminate: ¡No se pudo dar de baja!
 
     membership_kinds:
       label: Tipo de integrante

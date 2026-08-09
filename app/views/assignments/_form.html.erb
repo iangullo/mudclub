@@ -1,7 +1,7 @@
 <%= render ModalComponent.new do %>
 	<%= form_for(
 			@assignment,
-			url: assignment_form_path,
+			url: assignment_return_path(@assignment),
 			authenticity_token: true,
 			data: {controller: "mandatory-fields", turbo_frame: "_top"}
 		) do |form| %>
@@ -17,8 +17,8 @@
 				<% end %>
 			<% end %>
 		<% end %>
-		<% @m_fields.form = form %>
-		<%= render @m_fields %>
+		<% @a_fields.form = form %>
+		<%= render @a_fields %>
 		<%= render @submit %>
 	<% end %>
 <% end %>

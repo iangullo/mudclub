@@ -30,6 +30,12 @@ class Club < ApplicationRecord
 	has_many :players
 	has_many :teams
 	has_many :users
+	has_many :memberships,
+					dependent: :restrict_with_error,
+					inverse_of: :club
+	has_many :assignments,
+					through: :memberships,
+					dependent: :restrict_with_error
 	has_one_attached :avatar
 	pg_search_scope :search_by_any,
 		against: [ :nick, :name ],
@@ -58,6 +64,16 @@ class Club < ApplicationRecord
 	# list all club events for a season
 	def events
 		Event.non_training.where(team_id: self.teams.pluck(:id)).order(start_time: :asc)
+	end
+
+	# checks if a person has active duties assigned with club
+	def has_assignment_for?(person)
+		return false unless person
+
+		assignments.current
+			.joins(:membership)
+			.where(memberships: { person_id: person.id })
+			.exists?
 	end
 
 	# access setting for country

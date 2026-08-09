@@ -54,30 +54,29 @@ Rails.application.routes.draw do
 		get :slots, to: "slots#index"	# club slots
 
 		# Administrative
-		resources :members, controller: :memberships,
-							only: %i[ index show new create edit update ] do
-			resources :assignments, only: %i[ show edit update ] do
-				member do
-					get :edit_status
-					patch :update_status
-				end
-			end
+		resources :members, controller: :memberships, except: :destroy do
+			resources :assignments, only: %i[show edit update]
 		end
 
 		# Club operational roles
-		resources :assignments, only: %i[index new create]
+		resources :assignments, only: %i[index new create],
+							param: :membership_kind
 
 		# Club teams
 		resources :teams do
+			resources :assignments, only: %i[new create]
+			# resource :volunteers, only: %i[new create]
 			member do
-				resource :targets, only: %i[show edit update]
-				resource :plan, only: %i[show edit update]
 				get :attendance
-				get :slots
 				get :events
+				get :plan
+				get :edit_plan
+				get :roster
+				get :edit_roster
+				get :slots
+				get :targets
+				get :edit_targets
 			end
-
-			resources :assignments, path: :roster, only: %i[index new create]
 		end
 	end
 
@@ -90,13 +89,6 @@ Rails.application.routes.draw do
 			get :edit_diagram	# /drills/:id/edit_diagram?step_id=X&order=Y
 			get :load_diagram # /drills/:id/load_diagram?step_id=X&order=Y
 			patch :update_diagram # /drills/:id/update_diagram?step_id=X
-		end
-	end
-
-	resources :teams, except: [ :index ] do
-		member do
-			get "roster"
-			get "edit_roster"
 		end
 	end
 

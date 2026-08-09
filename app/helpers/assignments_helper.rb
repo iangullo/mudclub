@@ -18,29 +18,38 @@
 #
 # View helpers for MudClub Assignment views
 module AssignmentsHelper
-	# return Assingments table - context -aware for :member, :team or :club scopes
-	def assignments_table(assignments:, show_from: :member, new_from: :member)
-		{ title: assignments_table_title(from: new_from), rows: assignments_table_rows(assignments, from: show_from) }
+	def assignment_context(assignment)
+		{
+			club: assignment.club,
+			member: assignment.membership,
+			team: assignment.team,
+			membership_kind: Catalog::AssignmentKinds.membership_kind(assignment.kind)
+		}
 	end
 
-	def assignments_table_title(from:)
+	# return Assingments table - context -aware for :member, :team or :club scopes
+	def assignments_table(assignments)
+		{ title: assignments_table_title, rows: assignments_table_rows(assignments) }
+	end
+
+	def assignments_table_title
 		title = [
 			{ kind: :normal, value: Assignment.attr(:kind, :short) },
-			{ kind: :normal, value: Assignment.attr((from == :club) ? :role : :team) },
+			{ kind: :normal, value: Assignment.attr(@team ? :team : :role) },
 			{ kind: :normal, value: Assignment.attr(:starts_on, :short) },
 			{ kind: :normal, value: Assignment.attr(:status) }
 		]
 		# optional button to add new Assignment - shoudl be controlled by Assignment policy, not this old control...
-		title << button_field({ kind: :add, url: new_assignment_path(from:), frame: "modal" }) if club_manager?
+		title << button_field({ kind: :add, url: assignment_new_path, frame: "modal" }) if club_manager?
 	end
 
-	def assignments_table_rows(assignments, from:)
+	def assignments_table_rows(assignments)
 			rows = Array.new
 			assignments.reorder(:starts_on).each { |assignment|
-				row = { url: assignment_path(assignment, from:), items: [] }
+				row = { url: assignment_show_path(assignment), items: [], frame: :modal }
 
 				row[:items] << participation_kind_field(assignment, class: "border")
-				row[:items] << { kind: :normal, value: assignment.team_id ? assignment.team.to_s : assignment.member.club.nick }
+				row[:items] << { kind: :normal, value: assignment.team_id ? assignment.team.to_s : assignment.membership.club.nick }
 				row[:items] << { kind: :normal, value: assignment.starts_on }
 				row[:items] << participation_status_field(assignment, f_opts: { align: "center", class: "align-top border" })
 				rows << row
@@ -69,105 +78,61 @@ module AssignmentsHelper
 		]
 	end
 
-	def assignment_section_assignment_fields(assignment)
-		l_since = "#{I18n.t('calendar.fields.since')}: "
-		l_since +=
-			if assignment.starts_on
-				date_string(assignment.starts_on)
-			else
-				"(#{I18n.t("shared.statuses.pending")})"
-			end
+	def assignment_show_path(assignment)
+		club_member_assignment_path(
+			assignment.club,
+			assignment.membership,
+			assignment,
+			rdx: @rdx
+		)
+	end
 
-		l_until = "#{I18n.t('calendar.fields.until')}: "
-		l_until +=
-			if assignment.ends_on
-				date_string(assignment.ends_on)
-			else
-				"-"
-			end
+	def assignment_form_title(assignment, action)
+		person_form_title(
+			assignment,
+			icon: assignment.picture,
+			title: Membership.t_path(:action, action.to_sym),
+			sex: true
+		)
+	end
 
+	def assignment_form_fields(assignment)
 		[
-			[	{ kind: :string, value: l_since, cols: 3, align: "left" }	],
-			[ { kind: :string, value: l_until, cols: 3, align: "left" } ]
+			[ { kind: :label, value: Membership.attr(:notes) } ],
+			[
+				{ kind: :rich_text_area, key: :notes, cols: 3 },
+				{ kind: :hidden, key: :kind, value: assignment.kind },
+				{ kind: :hidden, key: :membership_id, value: assignment.membership_id }
+			]
 		]
 	end
 
-	def assignment_path(assignment, from: :member)
-		case from
-		when :member
-			club_member_assignments_path(
-				assignment.membership.club,
-				assignment.membership,
-				assignment,
-				rdx: @rdx
-			)
+	def assignment_edit_path(assignment, status: false)
+		edit_club_member_assignment_path(
+			assignment.club,
+			assignment.membership,
+			assignment,
+			status:,
+			rdx: @rdx
+		)
+	end
+
+	def assignment_new_path(origin: participation_origin, club: @club, team: @team, membership_kind: nil)
+		case origin
+		when :team
+			new_club_team_assignment_path(club, team, membership_kind:, rdx: @rdx)
 
 		when :club
-			club_assignments_path(
-				assignment.membership.club,
-				assignment,
-				rdx: @rdx
-			)
-
-		when :team
-			club_member_assignments_path(
-				assignment.membership.club,
-				assignment,
-				team_id: assignment.team.id,
-				rdx: @rdx
-			)
+			new_club_assignment_path(club, membership_kind:, rdx: @rdx)
 		end
 	end
 
-	def new_assignment_path(from:)
-		case from
-		when :club
-			new_club_assignment_path(
-				@club,
-				rdx: @rdx
-			)
-
-		when :member
-			new_club_member_assignment_path(
-				@club,
-				@member,
-				rdx: @rdx
-			)
-
-		when :team
-			new_club_assignment_path(
-				@club,
-				team_id: @team.id,
-				rdx: @rdx
-			)
-		end
-	end
-
-	def edit_assignment_path(assignment, from: :member, status: false)
-		case from
-		when :member
-			edit_club_member_assignment_path(
-				assignment.membership.club,
-				assignment.membership,
-				assignment,
-				rdx: @rdx
-			)
-
-		when :club
-			edit_club_assignment_path(
-				assignment.membership.club,
-				assignment,
-				rdx: @rdx
-			)
-
-		when :team
-			edit_club_member_assignment_path(
-				assignment.membership.club,
-				assignment.membership,
-				assignment,
-				team_id: assignment.team.id,
-				rdx: @rdx
-			)
-		end
+	def assignment_return_path(assignment, origin: participation_origin)
+		participation_index_path(
+			origin:,
+			club: assignment.club,
+			team: assignment.team,
+			membership_kind: Catalog::AssignmentKinds.membership_kind(assignment.kind),
+		)
 	end
 end

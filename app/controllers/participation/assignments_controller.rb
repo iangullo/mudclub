@@ -19,17 +19,14 @@
 # Handle Assignment views - always accessed by a assignment, club or team
 class AssignmentsController < ApplicationController
 	include Filterable
+	before_action :load_participation_context
+	before_action :load_assignment_kind
 	before_action :set_assignment, only: [ :show, :edit, :update, :terminate ]
 
 	# GET /clubs/x/assignments
 	# GET /clubs/x/assignments.json
 	def index
-		get_context
-		@assignment_policy = check_policy!(
-			AssignmentPolicy,
-			kind: @kind,
-			club: @club
-		)
+		@assignment_policy = check_policy!(AssignmentPolicy, kind: @kind, club: @club, team: @team)
 
 		search  = params[:search].presence
 		history = search &&  @assignment_policy.history?
@@ -44,7 +41,7 @@ class AssignmentsController < ApplicationController
 		title  = prepare_index_title
 		page   = paginate(@assignments)	# paginate results
 		table  = helpers.assignments_table(assignments: page)
-		retlnk = base_lnk(club_path(@clubid, rdx: @rdx))
+		retlnk = helpers.assignments_base_path
 		create_index(title:, table:, page:, retlnk:)
 	end
 
@@ -52,52 +49,113 @@ class AssignmentsController < ApplicationController
 	# GET /assignments/1.json
 	def show
 		@assignment_policy = check_policy!(AssignmentPolicy, record: @assignment)
-		@title  = create_fields(helpers.participation_title(@assignment, status_url: helpers.edit_assignment_path(status: true, from: @from)))
+		status = @assignment_policy.edit?
+
+		@title  = create_fields(
+			helpers.participation_title(
+				@assignment,
+				status_url: helpers.assignment_edit_path(@assignment, status:),
+				just_icon: false
+			)
+		)
 		@fields = create_fields(helpers.assignment_show_fields(@assignment))
-		submit  = edit_club_member_assignment_path(@assignment, rdx: @rdx) if @assignment_policy.update?
-		@submit = create_submit(close: :back, retlnk: crud_return, submit:, frame: "modal")
+		submit  = helpers.assignment_edit_path(@assignment) if @assignment_policy.update?
+		@submit = create_submit(submit:, frame: :modal)
 	end
 
 	# GET /assignments/new
 	def new
 		@assignment_policy = check_policy!(AssignmentPolicy, club: @club, kind: @kind)
+		prepare_form(:new)
 	end
 
 	# POST /assignments
 	# POST /assignments.json
 	def create
 		@assignment_policy = check_policy!(AssignmentPolicy, club: @club, kind: @kind)
+		respond_to do |format|
+			Assignment.transaction do
+				@assignment = Assignment.new(
+												club_id: @club&.id,
+												team_id: @team&.id,
+												membership_id: @member&.id,
+												kind: @kind
+											)
+				@assignment.rebuild(assignment_params)
+
+				if @assignment.save
+					format.html do
+						redirect_to helpers.assignment_return_path(@assignment), notice: Assignment.msg(:created)
+					end
+
+					format.json { render :show, status: :ok, location: helpers.assignment_return_path(@assignment) }
+				else
+					log_assignment_errors
+					raise ActiveRecord::Rollback
+				end
+			end
+
+			unless @assignment.persisted? && @assignment.errors.empty?
+				prepare_form(:new)
+
+				format.html { render :edit, status: :unprocessable_entity }
+				format.json { render json: @assignment.errors, status: :unprocessable_entity }
+			end
+		end
 	end
 
 	# GET /assignments/1/edit
 	def edit
 		@assignment_policy = check_policy!(AssignmentPolicy, record: @assignment)
+		prepare_form(:edit)
 	end
 
 	# PATCH/PUT /assignments/1
 	# PATCH/PUT /assignments/1.json
 	def update
 		@assignment_policy = check_policy!(AssignmentPolicy, record: @assignment)
+
+		respond_to do |format|
+			Assignment.transaction do
+				@assignment.rebuild(assignment_params)
+
+				notice = Assignment.msg(@assignment.modified? ? :updated : :no_change)
+				if @assignment.save
+					format.html do
+						redirect_to helpers.assignment_return_path(@assignment), notice:
+					end
+
+					format.json { render :show, status: :ok, location: @assignment }
+				else
+					log_assignment_errors
+					raise ActiveRecord::Rollback
+				end
+			end
+
+			unless @assignment.persisted? && @assignment.errors.empty?
+				prepare_form(:edit)
+
+				format.html { render :edit, status: :unprocessable_entity }
+				format.json { render json: @assignment.errors, status: :unprocessable_entity }
+			end
+		end
 	end
 
 	# DELETE /assignments/1
 	# DELETE /assignments/1.json
 	def terminate
-		@assignment_policy = check_policy!(AssignmentPolicy, record: @assignment)
+		authorize @assignment
+
+		if @assignment.terminate!
+			redirect_to helpers.assignment_return_path(@assignment),
+									notice: Assignment.msg(:terminated)
+		else
+			redirect_back fallback_location: helpers.assignment_return_path(@assignment),
+										alert: Assignment.msg(:cannot_terminate)
+		end
 	end
 
 	private
-		# wrapper to set return link for CRUD operations
-		def crud_return
-			return club_assignments_path(kind: @assignment.kind, search: @assignment.s_name, rdx: @rdx) if @assignment
-			(@clubid ? club_assignments_path(@clubid, kind: @kind, rdx: @rdx) : u_path)
-		end
-
-		# prepare assignment action context
-		def get_assignment_context
-			@clubid = @assignment&.club_id
-			@kind = @assignment&.kind
-		end
 
 		def prepare_index_title
 			if @kind
@@ -115,7 +173,7 @@ class AssignmentsController < ApplicationController
 			title << [
 				{
 					kind: :search_box,
-					url: club_assignments_path(@clubid, kind: @kind, rdx: @rdx),
+					url: helper.participation_index_path(@club, kind: @kind, rdx: @rdx),
 					fields:
 				}
 			]
@@ -123,30 +181,55 @@ class AssignmentsController < ApplicationController
 
 		# Prepare a assignment form
 		def prepare_form(action)
-			@title    = create_fields(helpers.person_form_title(@assignment.person, icon: @assignment.picture, title: Assignment.t_path(:action, action.to_sym), sex: true))
-			@a_fields = create_fields(helpers.assignment_form) # pending creation
-			@p_fields = create_fields(helpers.person_form(@assignment.person))	# existing in helpers/people_helper
-			@parents  = create_fields(helpers.people_form_parents) if @assignment.person.age < 18 # pending review
+			status_edit = action == :edit && params[:status].present?
+
+			if status_edit
+				a_fields = helpers.participation_status_form_fields(@assignment)
+			else
+				@title    = create_fields(helpers.assignment_form_title(@assignment, action))
+				a_fields  = create_fields(helpers.assignment_form)
+				@p_fields = create_fields(helpers.person_form(@assignment.person))
+				@contacts = create_fields(helpers.person_relationships_form(@assignment.person))
+			end
+
+			@a_fields = create_fields(a_fields)
 			@submit   = create_submit
+		end
+
+		def log_assignment_errors
+			Rails.logger.debug @assignment.errors.full_messages
+			Rails.logger.debug @assignment.person.errors.full_messages
+
+			@assignment.person.relationships.each do |r|
+				Rails.logger.debug r.errors.full_messages
+				Rails.logger.debug r.related_person.errors.full_messages if r.related_person
+			end
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_assignment
-			@assignment = Assignment.find_by_id(params[:id]) unless @assignment&.id==params[:id]
-			get_assignment_context
+			@assignment = Assignment.find(params[:id])
+
+			@kind = @assignment.kind
+
+			@club = @assignment.club
+			raise ActiveRecord::RecordNotFound if params[:club_id]   && @club.id != params[:club_id].to_i
+
+			@team = @assignment.team
+			raise ActiveRecord::RecordNotFound if params[:team_id]   && @team&.id != params[:team_id].to_i
+
+			@member = @assignment.membership
+			raise ActiveRecord::RecordNotFound if params[:member_id] && @member.id != params[:member_id]
 		end
 
-		def get_context
-			@club = Club.find(params[:club_id].presence) if params[:club_id].present?
-			@kind = Catalog::AssignmentKinds.normalize(params[:kind])
+		def load_assignment_kind
+			@kind ||= Catalog::AssignmentKinds.normalize(params[:kind])
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def assignment_params
 			params.require(:assignment).permit(
-				:id,
-				:club_id,
-				:person_id,
+				:membership_id,
 				:joined_on,
 				:left_on,
 				:kind,

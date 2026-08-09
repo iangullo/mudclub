@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -116,6 +116,16 @@ class Team < ApplicationRecord
 
 	def general_off(month = 0)
 		search_targets(month, 0, 1)
+	end
+
+	# checks if a person has active duties assigned with team
+	def has_assignment_for?(person)
+		return false unless person
+
+		assignments.current
+			.joins(:membership)
+			.where(memberships: { person_id: person.id })
+			.exists?
 	end
 
 	def has_coach(c_id)

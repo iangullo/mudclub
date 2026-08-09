@@ -86,14 +86,14 @@ es:
         guardian_plural: Tutores
         legal_representative: Rep. legal
         legal_representative_plural: Rep. legales
-        child: Hijo
-        child_plural: Hijos
-        sibling: Hermano
-        sibling_plural: Hermanos
-        grandparent: Abuelo
-        grandparent_plural: Abuelos
-        grandchild: Nieto
-        grandchild_plural: Nietos
+        child: Hijo/a
+        child_plural: Hijos/as
+        sibling: Hermano/a
+        sibling_plural: Hermanos/as
+        grandparent: Abuelo/a
+        grandparent_plural: Abuelos/as
+        grandchild: Nieto/a
+        grandchild_plural: Nietos/as
         spouse: Cónyuge
         spouse_plural: Cónyuges
         partner: Pareja

@@ -46,6 +46,7 @@ en:
         updated: Membership updated.
         terminated: Membership terminated.
         deleted: Membership deleted.
+        cannot_terminate: Membership cannot be terminated!
 
     assignment:
       label:
@@ -75,6 +76,7 @@ en:
         updated: Assignment updated.
         terminated: Assignment terminated.
         deleted: Assignment deleted.
+        cannot_terminate: Assignment cannot be terminated!
 
     membership_kinds:
       label: Membership kind

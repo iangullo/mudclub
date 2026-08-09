@@ -19,10 +19,11 @@
 class AssignmentPolicy < ApplicationPolicy
 	def initialize(actor, record: nil, kind: nil, member: nil, team: nil, club: nil)
 		super(actor, record:)
-		@target_kind   = @record&.kind || kind.presence
-		@target_member = @record&.membership || member.presence
-		@target_team   = @record&.team || team.presence
-		@target_club   = @target_team&.club || club.presence
+
+		@target_kind   = @record&.kind || kind
+		@target_member = @record&.membership || member
+		@target_team   = @record&.team || team
+		@target_club   = @target_team&.club || @record&.club || club
 	end
 
 	def index?
@@ -34,8 +35,10 @@ class AssignmentPolicy < ApplicationPolicy
 
 	def show?
 		allowed?(
-			same_person?(@record) || (
-				same_club?(@record) &&
+			same_person?(@record) ||
+			shared_assignment_context?(@actor) ||
+			(
+				same_club?(@target_club) &&
 				can_view_kind?(@target_kind)
 			)
 		)
@@ -52,12 +55,14 @@ class AssignmentPolicy < ApplicationPolicy
 
 	def update?
 		allowed?(
-			same_club?(@record) &&
+			same_club?(@target_club) &&
 			can_manage_kind?(@target_kind)
 		)
 	end
 
-	alias edit?      update?
+	alias edit? update?
+	alias update_status? update?
+	alias edit_status? update?
 	alias terminate? update?
 
 	def history?
@@ -68,29 +73,53 @@ class AssignmentPolicy < ApplicationPolicy
 	end
 
 	private
+
 		def can_view_kind?(kind)
 			return false unless kind
 
-			case kind.to_sym
-			when :athlete, :captain
+			if Catalog::AssignmentKinds.team_level?(kind)
+				can_view_team_assignment?(kind)
+			else
+				can_view_club_assignment?(kind)
+			end
+		end
+
+		def can_manage_kind?(kind)
+			return false unless kind
+
+			if Catalog::AssignmentKinds.team_level?(kind)
+				can_manage_team_assignment?(kind)
+			else
+				can_manage_club_assignment?(kind)
+			end
+		end
+
+		def can_view_team_assignment?(kind)
+			case Catalog::AssignmentKinds.membership_kind(kind)
+			when :athlete, :volunteer
 				coach? ||
 				manages_athletes?(@target_club) ||
 				manages_team?(@target_team)
 
-			when :head_coach,	:assistant_coach, :team_manager,
-				:team_delegate, :home_delegate
+			when :coach
 				coach? ||
 				manages_coaches?(@target_club) ||
 				manages_team?(@target_team)
 
-			when :coaching_coordinator
-				coach? ||
-				manages_coaches?(@target_club)
+			else
+				false
+			end
+		end
 
-			when :photographer, :community_manager, :webmaster, :club_manager
+		def can_manage_team_assignment?(kind)
+			case Catalog::AssignmentKinds.membership_kind(kind)
+			when :athlete, :volunteer
+				coaches_team?(@target_team) ||
+				manages_athletes?(@target_club) ||
 				manages_club?(@target_club)
 
-			when :president, :vice_president, :secretary, :treasurer
+			when :coach
+				manages_coaches?(@target_club) ||
 				manages_club?(@target_club)
 
 			else
@@ -98,29 +127,25 @@ class AssignmentPolicy < ApplicationPolicy
 			end
 		end
 
-		def can_manage_kind?(kind)
-			return false unless kind
-
-			case kind.to_sym
-			when :athlete, :captain
-				coaches_team?(@target_team) ||
-				manages_athletes?(@target_club) ||
+		def can_view_club_assignment?(kind)
+			case Catalog::AssignmentKinds.scope_of(kind)
+			when :club
 				manages_club?(@target_club)
 
-			when :team_manager
+			when :board
+				manages_board?(@target_club)
+
+			else
+				false
+			end
+		end
+
+		def can_manage_club_assignment?(kind)
+			case Catalog::AssignmentKinds.scope_of(kind)
+			when :club
 				manages_club?(@target_club)
 
-			when :head_coach, :coaching_coordinator
-				manages_coaches?(@target_club)
-
-			when :assistant_coach, :team_delegate, :home_delegate
-				manages_club?(@target_club) ||
-				manages_team?(@target_team)
-
-			when :photographer, :community_manager, :webmaster
-				manages_club?(@target_club)
-
-			when :club_manager, :president, :vice_president, :secretary, :treasurer
+			when :board
 				manages_board?(@target_club)
 
 			else
@@ -129,16 +154,17 @@ class AssignmentPolicy < ApplicationPolicy
 		end
 
 		def can_view_history?(kind)
-			return false unless kind
+			can_view_kind?(kind)
+		end
 
-			case kind.to_sym
-			when :athlete then manages_athletes?(@target_club)
-			when :coach then manages_coaches?(@target_club)
-			when :volunteer then manages_club?(@target_club)
-			when :board_member, :club_manager
-				manages_board?(@target_club)
+		# Collaboration permission
+		def shared_assignment_context?(actor)
+			return false unless actor.person
+
+			if @target_team
+				@target_team.has_assignment_for?(actor.person)
 			else
-				false
+				@target_club&.has_assignment_for?(actor.person)
 			end
 		end
 end

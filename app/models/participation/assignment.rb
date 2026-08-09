@@ -147,7 +147,7 @@ class Assignment < ApplicationRecord
 
 		self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
 
-		membership.person.rebuild(data[:person_attributes]) if data[:person_attributes]
+		person.rebuild(data[:person_attributes]) if data[:person_attributes]
 		self
 	end
 

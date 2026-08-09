@@ -66,7 +66,7 @@ class ApplicationController < ActionController::Base
 	end
 
 	# return whether the current user is a club_manager
-	def club_manager?(club = Club.find(@clubid))
+	def club_manager?(club = @club)
 		check_access(roles: [ :admin, :manager ], obj: club, both: true)
 	end
 
@@ -120,8 +120,7 @@ class ApplicationController < ActionController::Base
 	# :obj is an object that has a :season_id link
 	def get_season(obj: nil)
 		unless @season&.id != obj&.season_id&.to_i
-			@season   = Season.search(obj&.season_id)
-			@seasonid = @season&.id
+			@season = Season.search(obj&.season_id)
 		end
 		@season
 	end
@@ -191,7 +190,6 @@ class ApplicationController < ActionController::Base
 			@club   = u_club
 			@rdx    = p_rdx
 			@season = Season.search(p_seasonid)
-			user    = current_user
 		end
 		@clublogo = @club&.logo || "mudclub.svg"
 		@clubname = @club&.nick || "MudClub"
@@ -204,6 +202,11 @@ class ApplicationController < ActionController::Base
 				home: u_path,
 				logout: destroy_user_session_path
 			)
+	end
+
+	def load_participation_context
+		@team   = @club.teams.find(params[:team_id]) if params[:team_id].present?
+		@member = @club.memberships.find(params[:member_id]) if params[:member_id].present?
 	end
 
 	# switch app locale
@@ -290,11 +293,10 @@ class ApplicationController < ActionController::Base
 		user_signed_in? ? user_path(current_user, rdx: 1) : "/"
 	end
 
-	# Check whether the user's club ID is the same as @clubid
-	# @return [Boolean] - True if the current_user's club ID matches @clubid, otherwise false
+	# Check whether the user's club is the same as @club
 	def user_in_club?
-		return false unless @clubid
-		@clubid == u_clubid
+		return false unless @club
+		@club == u_club
 	end
 
 	# check if a string is a valid date

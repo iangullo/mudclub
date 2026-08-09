@@ -163,4 +163,24 @@ class Catalog::AssignmentKinds < Catalog::Base
 		}
 
 	}.freeze
+
+	def self.scope_of(kind)
+		fetch(kind)&.dig(:scope)&.to_sym
+	end
+
+	def self.club_level?(kind)
+		scope_of(kind) == :club
+	end
+
+	def self.team_level?(kind)
+		scope_of(kind) == :team
+	end
+
+	def self.membership_kind(kind)
+		fetch(kind)&.dig(:membership)&.to_sym
+	end
+
+	def self.allowed_for_membership?(assignment_kind, membership_kind)
+		membership_kind(assignment_kind).include?(membership_kind.to_sym)
+	end
 end

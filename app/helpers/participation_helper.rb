@@ -104,4 +104,33 @@ module ParticipationHelper
 			{ kind: :select_box, key: :status, options: obj.status_list, cols: 3 }
 		]
 	end
+
+	def participation_origin
+		return :team if @team
+		return :club if @club
+		:member if @member
+	end
+
+	def participation_base_path(origin: participation_origin, club: @club, team: @team, member: @member)
+		case origin
+		when :team
+			club_team_path(club, team, rdx: @rdx)
+
+		when :member
+			club_member_path(club, member, rdx: @rdx)
+
+		when :club
+			club_path(club, rdx: @rdx)
+		end
+	end
+
+	def participation_index_path(origin: participation_origin, club: @club, team: @team, membership_kind: nil)
+		case origin
+		when :team
+			club_team_roster_path(club, team, rdx: @rdx)
+
+		else
+			club_assignments_path(club, membership_kind:, rdx: @rdx)
+		end
+	end
 end

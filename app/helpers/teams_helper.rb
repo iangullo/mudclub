@@ -85,7 +85,7 @@ module TeamsHelper
 		res << [
 			symbol_field("user", align: "right"),
 			{ kind: :text_box, key: :nick, value: @team.nick, placeholder: I18n.t("team.single"), mandatory: { length: 3 } },
-			{ kind: :hidden, key: :club_id, value: @clubid },
+			{ kind: :hidden, key: :club_id, value: @club.id },
 			{ kind: :hidden, key: :sport_id, value: (@sport&.id || 1) }	# will need to break this up for multi-sports in future
 		]
 		res << [
@@ -98,7 +98,7 @@ module TeamsHelper
 		]
 		res << [
 			symbol_field("home", {}, align: "right"),
-			{ kind: :select_collection, key: :homecourt_id, options: Location.search(club_id: @clubid).home, value: @team.homecourt_id }
+			{ kind: :select_collection, key: :homecourt_id, options: Location.search(club_id: @club.id).home, value: @team.homecourt_id }
 		]
 		unless @eligible_coaches.empty?
 			res << [
@@ -126,7 +126,7 @@ module TeamsHelper
 				tcnt = []	# total players
 			end
 			if add_teams
-				title << button_field({ kind: :add, url: new_team_path(club_id: @clubid, season_id: @seasonid, rdx: @rdx), frame: "modal" })
+				title << button_field({ kind: :add, url: new_club_team_path(@club, season_id: @seasonid, rdx: @rdx), frame: "modal" })
 			end
 			rows = Array.new
 			teams.each { |team|
@@ -228,7 +228,7 @@ module TeamsHelper
 
 	# return FieldComponent for team view title
 	def team_title(title:, cols: nil, search: nil, edit: nil)
-		clubid = @club&.id || @clubid || u_clubid
+		clubid = @club&.id || u_clubid
 		res = title_start(icon: ((u_clubid != clubid) ? @club&.logo : symbol_hash("team")), title:, cols:)
 		if search
 			s_id = @team&.season_id || @season&.id || session.dig("team_filters", "season_id")

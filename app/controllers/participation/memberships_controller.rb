@@ -19,12 +19,13 @@
 # Handle Membership views - always linked to a club
 class MembershipsController < ApplicationController
 	include Filterable
+	before_action :load_participation_context
+	before_action :load_membership_kind
 	before_action :set_member, only: [ :show, :edit, :update, :terminate ]
 
 	# GET /clubs/x/memberships
 	# GET /clubs/x/memberships.json
 	def index
-		get_context
 		@membership_policy = check_policy!(
 			MembershipPolicy,
 			kind: @kind,
@@ -62,9 +63,9 @@ class MembershipsController < ApplicationController
 			)
 		)
 		@fields = create_fields(helpers.membership_show_fields(@member))
-		@table  = create_table(helpers.assignments_table(assignments: @member.assignments))
+		@table  = create_table(helpers.assignments_table(@member.assignments))
 		submit  = edit_club_member_path(@member, rdx: @rdx) if @membership_policy.update?
-		@submit = create_submit(close: :back, retlnk: crud_return, submit:, frame: "modal")
+		@submit = create_submit(close: :back, retlnk: post_save_path, submit:, frame: "modal")
 	end
 
 	# GET /members/new
@@ -77,6 +78,30 @@ class MembershipsController < ApplicationController
 	# POST /memberships.json
 	def create
 		@membership_policy = check_policy!(MembershipPolicy, club: @club, kind: @kind)
+		respond_to do |format|
+			Membership.transaction do
+				@member = Membership.new(club: @club, kind: @kind)
+				@member.rebuild(membership_params)
+
+				if @member.save
+					format.html do
+						redirect_to post_save_path, notice: Membership.msg(:created)
+					end
+
+					format.json { render :show, status: :ok, location: post_save_path }
+				else
+					log_membership_errors
+					raise ActiveRecord::Rollback
+				end
+			end
+
+			unless @member.persisted? && @member.errors.empty?
+				prepare_form(:new)
+
+				format.html { render :edit, status: :unprocessable_entity }
+				format.json { render json: @member.errors, status: :unprocessable_entity }
+			end
+		end
 	end
 
 	# GET /members/1/edit
@@ -102,14 +127,7 @@ class MembershipsController < ApplicationController
 
 					format.json { render :show, status: :ok, location: @member }
 				else
-					Rails.logger.debug @member.errors.full_messages
-
-					Rails.logger.debug @member.person.errors.full_messages
-
-					@member.person.relationships.each do |r|
-						Rails.logger.debug r.errors.full_messages
-						Rails.logger.debug r.related_person.errors.full_messages if r.related_person
-					end
+					log_membership_errors
 					raise ActiveRecord::Rollback
 				end
 			end
@@ -126,20 +144,22 @@ class MembershipsController < ApplicationController
 	# DELETE /members/1
 	# DELETE /members/1.json
 	def terminate
-		@membership_policy = check_policy!(MembershipPolicy, record: @member)
+		authorize @member
+
+		if @member.terminate!
+			redirect_to post_save_path,
+									notice: Membership.msg(:terminated)
+		else
+			redirect_back fallback_location: post_save_path,
+										alert: Membership.msg(:cannot_terminate)
+		end
 	end
 
 	private
 		# wrapper to set return link for CRUD operations
-		def crud_return
+		def post_save_path
 			return club_members_path(kind: @member.kind, search: @member.s_name, rdx: @rdx) if @member
 			(@club ? club_members_path(@club, kind: @kind, rdx: @rdx) : u_path)
-		end
-
-		# prepare member action context
-		def get_membership_context
-			@club = @member&.club
-			@kind = @member&.kind
 		end
 
 		def prepare_index_title
@@ -166,9 +186,9 @@ class MembershipsController < ApplicationController
 
 		# Prepare a member form
 		def prepare_form(action)
-			action = :change_status if action == :edit && params[:status].present?
+			status_edit = action == :edit && params[:status].present?
 
-			if action == :change_status
+			if status_edit
 				m_fields = helpers.participation_status_form_fields(@member)
 			else
 				@title    = create_fields(helpers.membership_form_title(@member, action))
@@ -181,22 +201,31 @@ class MembershipsController < ApplicationController
 			@submit   = create_submit
 		end
 
+		def log_membership_errors
+			Rails.logger.debug @member.errors.full_messages
+
+			Rails.logger.debug @member.person.errors.full_messages
+
+			@member.person.relationships.each do |r|
+				Rails.logger.debug r.errors.full_messages
+				Rails.logger.debug r.related_person.errors.full_messages if r.related_person
+			end
+		end
+
 		# Use callbacks to share common setup or constraints between actions.
 		def set_member
 			@member = Membership.find_by_id(params[:id]) unless @member&.id==params[:id]
-			get_membership_context
+			@club   = @member&.club
+			@kind   = @member&.kind
 		end
 
-		def get_context
-			@club = Club.find(params[:club_id].presence) if params[:club_id].present?
+		def load_membership_kind
 			@kind = Catalog::MembershipKinds.normalize(params[:kind])
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def membership_params
 			params.require(:membership).permit(
-				:id,
-				:club_id,
 				:person_id,
 				:joined_on,
 				:left_on,
