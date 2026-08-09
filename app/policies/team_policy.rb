@@ -19,106 +19,133 @@
 # app/policies/team_policy.rb
 
 class TeamPolicy < ApplicationPolicy
-	def initialize(actor, record: nil, club: nil)
-		super(actor, record:)
-
-		@record      = record
-		@target_club = club || @record&.club
-	end
-
-	#
-	# CRUD
-	#
+	#------------------------------------
+	# Teams index
+	#------------------------------------
 	def index?
-		allowed?(has_club_assignment?(@target_club))
+		allowed?(same_club?(@club))
 	end
 
+	#------------------------------------
+	# Team object
+	#------------------------------------
 	def show?
-		allowed?(team_member?)
+		allowed?(same_club?(@record))
 	end
 
 	def create?
-		allowed?(manages_club?(@target_club))
+		allowed?(manages_club?(@record.club))
 	end
 
 	def update?
-		allowed?(manages_club?(@target_club))
+		allowed?(
+			manages_club?(@record.club) ||
+			manages_team?(@record)
+		)
 	end
 
 	def destroy?
-		allowed?(manages_club?(@target_club))
+		allowed?(manages_club?(@record.club))
 	end
 
-	#
-	# Team pages
-	#
+	#------------------------------------
+	# General Team information
+	#------------------------------------
 	def roster?
-		allowed?(team_member?)
+		allowed?(
+			team_member? ||
+			coaches_club?(@record.club) ||
+			manages_club?(@record.club)
+		)
 	end
 
 	def attendance?
-		allowed?(team_member?)
+		allowed?(
+			team_staff? ||
+			coaches_club?(@record.club) ||
+			manages_club?(@record.club)
+		)
 	end
 
 	def events?
-		allowed?(team_member?)
-	end
-
-	def plan?
-		allowed?(team_member?)
-	end
-
-	def targets?
-		allowed?(team_member?)
+		allowed?(
+			team_member? ||
+			coaches_club?(@record.club) ||
+			manages_club?(@record.club)
+		)
 	end
 
 	def slots?
-		allowed?(team_member?)
+		allowed?(same_club?(@record))
 	end
 
-	#
+	#------------------------------------
+	# Team coaching
+	#------------------------------------
+	def plan?
+		allowed?(
+			coaches_club?(@record.club) ||
+			manages_club?(@record.club)
+		)
+	end
+
+	def edit_plan?
+		allowed?(
+			coaches_team?(@record) ||
+			manages_club?(@record.club)
+		)
+	end
+
+	def targets?
+		allowed?(
+			coaches_club?(@record.club) ||
+			manages_club?(@record.club)
+		)
+	end
+
+	def edit_targets?
+		allowed?(
+			coaches_team?(@record) ||
+			manages_club?(@record.club)
+		)
+	end
+
+	#------------------------------------
 	# Team management
-	#
+	#------------------------------------
 	def edit_roster?
 		allowed?(manages_roster?)
 	end
 
-	def edit_plan?
-		allowed?(coaches_team_here?)
-	end
-
-	def edit_targets?
-		allowed?(coaches_team_here?)
-	end
-
 	private
 
-		#
 		# Membership in current team
-		#
 		def team_member?
 			has_team_assignment?(@record)
 		end
 
-		#
 		# Coaching roles in current team
-		#
-		def coaches_team_here?
-			coaches_team?(@record)
+		def team_staff?
+			coaches_team?(@record) ||
+				has_team_assignment?(@record, :team_manager)
 		end
 
-		#
-		# Management roles in current team
-		#
-		def manages_team_here?
-			manages_team?(@record)
+		# has an active coaching assingment
+		def coaches_club?(club)
+			has_club_assignment?(
+				club,
+				[
+					:coaching_coordinator,
+					:head_coach,
+					:assistant_coach
+				]
+			)
 		end
 
-		#
 		# Who may change the roster?
-		#
 		def manages_roster?
-			manages_athletes?(@target_club) ||
-			manages_team_here?
+			manages_club?(@record.club) ||
+				has_club_assignment?(@record.club, :coaching_coordinator) ||
+				has_team_assignment?(@record, :head_coach)
 		end
 end

@@ -159,7 +159,6 @@ class ApplicationPolicy
 				team,
 				[
 					:head_coach,
-					:assistant_coach,
 					:team_manager
 				]
 			)
