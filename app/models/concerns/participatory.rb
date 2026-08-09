@@ -93,13 +93,13 @@ module Participatory
 	end
 
 	def status_label(variant = nil)
-		status_string(self.status, variant)
+		self.class.status_string(self.status, variant)
 	end
 
 	def status_list(variant = nil)
 		[ [ status_label, status ] ] +
 		available_statuses.map do |st|
-			[ status_string(st, variant), st ]
+			[ self.class.status_string(st, variant), st ]
 		end
 	end
 
@@ -176,12 +176,6 @@ module Participatory
 
 		def can_transition_to?(target_status)
 			available_statuses.include?(target_status.to_sym)
-		end
-
-		def status_string(status, variant = nil)
-			key  = "shared.statuses.#{status}"
-			key += "_#{variant}" if variant
-			I18n.t(key)
 		end
 
 		#------------------------------------
