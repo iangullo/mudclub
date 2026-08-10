@@ -25,30 +25,56 @@ class Team < ApplicationRecord
 	belongs_to :division
 	belongs_to :season
 	belongs_to :sport
-	has_and_belongs_to_many :players
-	has_and_belongs_to_many :coaches
 	has_one :homecourt
 	has_one :rules, through: :category
+	has_many :assignments, dependent: :destroy
+	has_many :memberships, through: :assignments
+	has_many :people, through: :memberships
 	has_many :slots, dependent: :destroy
 	has_many :events, dependent: :destroy
 	has_many :team_targets, dependent: :destroy
 	has_many :targets, through: :team_targets
-	accepts_nested_attributes_for :coaches
-	accepts_nested_attributes_for :players
 	accepts_nested_attributes_for :events
 	accepts_nested_attributes_for :targets
 	accepts_nested_attributes_for :team_targets
+
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
 	default_scope { order(category_id: :asc) }
 	scope :real, -> { where("id>0") }
 	scope :for_season, ->(s_id) { (s_id.to_i > 0) ? where(season_id: s_id.to_i) : all }
 	scope :for_club, ->(c_id) { (c_id.to_i > 0) ? where(club_id: c_id.to_i) : all }
 	FILTER_PARAMS = %i[club_id season_id].freeze
 
+	#-------------------------------------
+	# Team's people
+	#-------------------------------------
+	def members(current: false)
+		current ?
+			assignments.current :
+			assignments
+	end
+
+	def athletes(current: false)
+		members(current:).of_membership_kind(:athlete)
+	end
+
+	alias players athletes
+
+	def coaches(current: false)
+		members(current:).of_membership_kind(:coach)
+	end
+
+	def volunteers(current: false)
+		members(current:).of_membership_kind(:volunteer)
+	end
+
 	# get attendance data for a team in the season
 	# returns partial & serialised numbers for attendance: trainings [%]
 	def attendance
-		t_players = self.players.count
-		return nil if t_players.zero?	# NO PLAYERS IN TEAM --> NO ATTENDANCE DATA
+		t_athletes = athletes(current: true).count
+		return nil if t_athletes.zero?	# NO PLAYERS IN TEAM --> NO ATTENDANCE DATA
 
 		d_morrow = Date.today + 1	# tomorrow
 		d_last7  = d_morrow - 8	# date limit for last 7 days
@@ -63,15 +89,15 @@ class Team < ApplicationRecord
 			if event.train?
 				e_cnt           = t_att.for_event(event.id).count
 				e_date          = event.start_date
-				l_season[:tot] += t_players
+				l_season[:tot] += t_athletes
 				l_season[:att] += e_cnt
 				sessions[:avg] += e_cnt
 				if e_date.between?(d_last30, d_morrow)	# event in last month
-					l_month[:tot]  += t_players
+					l_month[:tot]  += t_athletes
 					l_month[:att]  += e_cnt
 					if e_date > d_last7	# event occurs in last 7 days
 						l_week[:att] += e_cnt
-						l_week[:tot] += t_players
+						l_week[:tot] += t_athletes
 					end
 				end
 				sessions[:data][e_date] = e_cnt # add to sessions
@@ -92,10 +118,10 @@ class Team < ApplicationRecord
 		search_targets(month, 2, 1)
 	end
 
-	# Get a list of players that are valid to play in this team
-	def eligible_players
+	# Get a list of athletes that are valid to play in this team
+	def eligible_athletes
 		s_year = self.season.start_year
-		aux = Player.active.joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
+		aux = athletes(current: true).joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
 		if aux
 			case self.category.sex
 			when "female"
@@ -103,11 +129,13 @@ class Team < ApplicationRecord
 			when "male"
 				aux = aux.male
 			else
-				(aux + self.players).uniq
+				(aux + athletes).uniq
 			end
 		end
 		aux
 	end
+
+	alias eligible_players eligible_athletes
 
 	# general Team target filtering methods
 	def general_def(month = 0)
@@ -119,6 +147,7 @@ class Team < ApplicationRecord
 	end
 
 	# checks if a person has active duties assigned with team
+	# used by Policy
 	def has_assignment_for?(person)
 		return false unless person
 
@@ -149,12 +178,9 @@ class Team < ApplicationRecord
 	def modified?
 		res = self.changed? || @modified
 		unless res
-			res = self.players.any?(&:saved_changes?)
+			res = assignments.any?(&:saved_changes?)
 			unless res
 				res = self.team_targets.any?(&:saved_changes?)
-				unless res
-					res = self.coaches.any?(&:saved_changes?)
-				end
 			end
 		end
 		res
@@ -172,13 +198,11 @@ class Team < ApplicationRecord
 		res
 	end
 
-	# Get a list of players that are not members but are authorised to play in this team
-	def optional_players
-		res = []
-		self.eligible_players.each { |player|
-			res << player unless player.teams.include?(self)
-		}
-		res.empty? ? nil : res
+	# Get a list of athletes that are not members but are authorised to play in this team
+	def optional_athletes
+		eligible_athletes.where.not(
+			id: athletes(current: true).select(:membership_id)
+		)
 	end
 
 	# rebuild Teamm from raw hash returned by a form
@@ -192,8 +216,7 @@ class Team < ApplicationRecord
 		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
 		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
 		check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
-		check_players(f_data[:player_ids]) if f_data[:player_ids]
-		check_coaches(f_data[:coach_ids]) if f_data[:coach_ids]
+		# TODO need to synchronise assingments!!
 	end
 
 	# return potential rival teams - matching category & season
@@ -254,8 +277,7 @@ class Team < ApplicationRecord
 			:name,
 			:nick,
 			:season_id,
-			:sport_id,
-			coach_ids: []
+			:sport_id
 		)
 		Team.new(t_data)
 	end
@@ -304,50 +326,6 @@ class Team < ApplicationRecord
 			end
 		end
 
-		# ensure we get the right players
-		def check_players(p_array)
-			a_targets = Array.new	# array to include all targets
-			p_array.each do |t|	# first pass
-				a_targets << Player.find(t.to_i) unless t.to_i==0
-			end
-
-			a_targets.each do |t|	# second pass - manage associations
-				unless self.has_player(t.id)
-					self.players << t
-					@modified = true
-				end
-			end
-
-			self.players.each do |p|	# cleanup roster
-				unless a_targets.include?(p)
-					self.players.delete(p)
-					@modified = true
-				end
-			end
-		end
-
-		# ensure we get the right players
-		def check_coaches(c_array)
-			a_targets = Array.new	# array to include all targets
-			c_array.each do |t|	# first pass
-				a_targets << Coach.find(t.to_i) unless t.to_i==0
-			end
-
-			a_targets.each do |t|	# second pass - manage associations
-				unless self.has_coach(t.id)
-					self.coaches << t
-					@modified = true
-				end
-			end
-
-			self.coaches.each do |c|	# cleanup coaches
-				unless a_targets.include?(c)
-					self.coaches.delete(c)
-					@modified = true
-				end
-			end
-		end
-
 		# search team_targets based on target attributes
 		def search_targets(month = 0, aspect = nil, focus = nil)
 			# puts "Plan.search(team: " + ", month: " + month.to_s + ", aspect: " + aspect.to_s + ", focus: " + focus.to_s + ")"
@@ -370,8 +348,7 @@ class Team < ApplicationRecord
 
 		# unlink dependents properly, if deleting team
 		def unlink
-			self.players.delete_all
-			self.coaches.delete_all
+			# TODO: Maybe remove assignments??
 			UserAction.prune("/teams/#{self.id}")
 		end
 end

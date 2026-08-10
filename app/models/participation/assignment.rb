@@ -44,9 +44,9 @@ class Assignment < ApplicationRecord
 			Catalog::AssignmentKinds.enum,
 			prefix: true
 
-	#
+	#-------------------------------------
 	# Convenient delegations
-	#
+	#-------------------------------------
 	delegate :club,	:club_id,
 					:person, :person_id,
 					:birthday,
@@ -60,27 +60,19 @@ class Assignment < ApplicationRecord
 					:to_s,
 					to: :membership
 
-	#
+	#-------------------------------------
 	# Validations
-	#
+	#-------------------------------------
 	validates :starts_on, presence: true
 	validates :kind, presence: true
 	validate :team_required
-	#
+
+	#-------------------------------------
 	# Scopes
-	#
+	#-------------------------------------
 	scope :active, -> {
 		where(ends_on: nil)
 	}
-
-	scope :of_kind, ->(kind) { where(kind:) }
-
-	scope :current, ->(date = Date.current) {
-		where("starts_on <= ?", date)
-			.where("ends_on IS NULL OR ends_on >= ?", date)
-	}
-
-	scope :open, -> { where(ends_on: nil) }
 
 	scope :club_level, -> {
 		where(team_id: nil)
@@ -90,12 +82,31 @@ class Assignment < ApplicationRecord
 		where.not(team_id: nil)
 	}
 
+	scope :for_club, ->(club) {
+		joins(:membership).where(memberships: { club_id: club.id })
+	}
+
+	scope :for_team, ->(team) {	for_club(team.club).where(team: team) }
+
+	scope :of_kind, ->(kind) { where(kind:) }
+
+	scope :of_membership_kind, ->(kind) {
+		joins(:membership).merge(Membership.of_kind(kind))
+	}
+
 	scope :search_text, ->(text) {
 		return all unless text.present?
 
 		joins(membership: :person)
 			.where(memberships: { person_id: Person.search(text) })
 	}
+
+	scope :current, ->(date = Date.current) {
+		where("starts_on <= ?", date)
+			.where("ends_on IS NULL OR ends_on >= ?", date)
+	}
+
+	scope :open, -> { where(ends_on: nil) }
 
 	# short name for form viewing
 	def s_name
@@ -119,9 +130,9 @@ class Assignment < ApplicationRecord
 		Catalog::AssignmentKinds.val(kind, ...)
 	end
 
-	#
+	#-------------------------------------
 	# Behaviour
-	#
+	#-------------------------------------
 	def club_assignment?
 		team.nil?
 	end
@@ -173,10 +184,11 @@ class Assignment < ApplicationRecord
 	# -------------------------------------------------------------------------
 	# Controller façade methods
 	# -------------------------------------------------------------------------
-	def self.search(club:, search: nil, status: nil, member: nil, team: nil, kind: nil, history: false)
-		scope = team.present? ? where(team_id: team.id) : all
-		scope = scope.where(membership_id: member.id) if member.present?
-		scope = scope.of_kind(kind) if kind.present?
+	def self.search(club:, search: nil, status: nil, member: nil, team: nil, assignment_kind: nil, membership_kind: nil, history: false)
+		scope = team.present? ? for_team(team) : for_club(club)
+		scope = scope.where(membership: member) if member.present?
+		scope = scope.of_kind(assignment_kind) if assignment_kind.present?
+		scope = scope.of_membership_kind(membership_kind) if membership_kind.present?
 		scope = scope.search_text(search) if search.present?
 		if status
 			scope = scope.where(status:)
