@@ -23,204 +23,195 @@
 # at Club level or within a Team.
 #
 class Assignment < ApplicationRecord
-	localized_as "participation.assignment"
-	include Auditable
-	include Participatory
+  localized_as "participation.assignment"
+  include Auditable
+  include Participatory
 
-	attr_writer :starts_on
+  attr_writer :starts_on
 
-	belongs_to :membership
-	belongs_to :team, optional: true
+  belongs_to :membership
+  belongs_to :team, optional: true
 
-	# attachment of notes to be handled
-	has_rich_text :notes
+  # attachment of notes to be handled
+  has_rich_text :notes
 
-	# assignment-specific picture can be taken
-	has_one_attached :avatar
+  # assignment-specific picture can be taken
+  has_one_attached :avatar
 
-	# Membership kinds identify the reason why a person belongs to a club.
-	# Operational responsibilities are modelled through Participation::Assignment.
-	enum :kind,
-			Catalog::AssignmentKinds.enum,
-			prefix: true
+  # Membership kinds identify the reason why a person belongs to a club.
+  # Operational responsibilities are modelled through Participation::Assignment.
+  enum :kind,
+      Catalog::AssignmentKinds.enum,
+      prefix: true
 
-	#-------------------------------------
-	# Convenient delegations
-	#-------------------------------------
-	delegate :club,	:club_id,
-					:person, :person_id,
-					:birthday,
-					:email,
-					:female,
-					:name,
-					:nick,
-					:phone,
-					:relationships,
-					:surname,
-					:to_s,
-					to: :membership
+  #-------------------------------------
+  # Convenient delegations
+  #-------------------------------------
+  delegate :club,	:club_id,
+          :person, :person_id,
+          :birthday,
+          :email,
+          :female,
+          :name,
+          :nick,
+          :phone,
+          :relationships,
+          :surname,
+          :to_s,
+          to: :membership
 
-	#-------------------------------------
-	# Validations
-	#-------------------------------------
-	validates :starts_on, presence: true
-	validates :kind, presence: true
-	validate :team_required
+  #-------------------------------------
+  # Validations
+  #-------------------------------------
+  validates :starts_on, presence: true
+  validates :kind, presence: true
+  validate :team_required
 
-	#-------------------------------------
-	# Scopes
-	#-------------------------------------
-	scope :active, -> {
-		where(ends_on: nil)
-	}
+  #-------------------------------------
+  # Scopes
+  #-------------------------------------
+  scope :active, -> { where(ends_on: nil) }
 
-	scope :club_level, -> {
-		where(team_id: nil)
-	}
+  scope :of_kind, ->(kind) { where(kind:) }
 
-	scope :team_level, -> {
-		where.not(team_id: nil)
-	}
+  scope :current, ->(date = Date.current) {
+    where("starts_on <= ?", date)
+      .where("ends_on IS NULL OR ends_on >= ?", date)
+  }
 
-	scope :for_club, ->(club) {
-		joins(:membership).where(memberships: { club_id: club.id })
-	}
+  scope :open, -> { where(ends_on: nil) }
 
-	scope :for_team, ->(team) {	for_club(team.club).where(team: team) }
+  scope :club_level, -> {
+    where(team_id: nil)
+  }
 
-	scope :of_kind, ->(kind) { where(kind:) }
+  scope :for_club, ->(club) {
+    joins(:membership).where(memberships: { club_id: club.id })
+  }
 
-	scope :of_membership_kind, ->(kind) {
-		joins(:membership).merge(Membership.of_kind(kind))
-	}
+  scope :for_team, ->(team) {	for_club(team.club).where(team: team) }
 
-	scope :search_text, ->(text) {
-		return all unless text.present?
+  scope :of_kind, ->(kind) { where(kind:) }
 
-		joins(membership: :person)
-			.where(memberships: { person_id: Person.search(text) })
-	}
+  scope :of_membership_kind, ->(kind) {
+    joins(:membership).merge(Membership.of_kind(kind))
+  }
 
-	scope :current, ->(date = Date.current) {
-		where("starts_on <= ?", date)
-			.where("ends_on IS NULL OR ends_on >= ?", date)
-	}
+  scope :search_text, ->(text) {
+    return all unless text.present?
 
-	scope :open, -> { where(ends_on: nil) }
+    joins(membership: :person)
+      .where(memberships: { person_id: Person.search(text) })
+  }
 
-	# short name for form viewing
-	def s_name
-		person&.s_name || Catalog::AssignmentKinds.val(kind)
-	end
+  # short name for form viewing
+  def s_name
+    person&.s_name || Catalog::AssignmentKinds.val(kind)
+  end
 
-	# personal photo or membership kind symbol
-	def picture
-		return person.avatar if person&.avatar&.attached?
+  # personal photo or membership kind symbol
+  def picture
+    avatar.attached? ? avatar : membership.picture
+  end
 
-		# if no attached avatar, return the symbol name
-		# to be rendered as: symbol_field(symbol)
-		kind_image
-	end
+  def kind_image
+    Catalog::AssignmentKinds.normalize(kind) || :person
+  end
 
-	def kind_image
-		Catalog::AssignmentKinds.normalize(kind) || :person
-	end
+  def kind_label(...)
+    Catalog::AssignmentKinds.val(kind, ...)
+  end
 
-	def kind_label(...)
-		Catalog::AssignmentKinds.val(kind, ...)
-	end
+  #-------------------------------------
+  # Behaviour
+  #-------------------------------------
+  def club_assignment?
+    team.nil?
+  end
 
-	#-------------------------------------
-	# Behaviour
-	#-------------------------------------
-	def club_assignment?
-		team.nil?
-	end
+  def team_assignment?
+    team.present?
+  end
 
-	def team_assignment?
-		team.present?
-	end
+  def belongs_to_team?(team)
+    team_id == team&.id
+  end
 
-	def belongs_to_team?(team)
-		team_id == team&.id
-	end
+  def modified?
+    self.changed? ||
+      avatar.attachment_changes.present? ||
+      person.modified?
+  end
 
-	def modified?
-		self.changed? ||
-			avatar.attachment_changes.present? ||
-			person.modified?
-	end
+  def rebuild(data)
+    # only needed for new records
+    self.membership_id ||= data[:membership_id]   if data[:membership_id].present?
 
-	def rebuild(data)
-		# only needed for new records
-		self.membership_id ||= data[:membership_id]   if data[:membership_id].present?
+    self.team_id   = data[:team_id]   if data.key?(:team_id)
+    self.kind      = data[:kind]      if data.key?(:kind)
+    self.status    = data[:status]    if data.key?(:status)
+    self.starts_on = data[:starts_on] if data.key?(:starts_on)
+    self.ends_on   = data[:ends_on]   if data.key?(:ends_on)
+    self.notes     = data[:notes]     if data.key?(:notes)
 
-		self.team_id   = data[:team_id]   if data.key?(:team_id)
-		self.kind      = data[:kind]      if data.key?(:kind)
-		self.status    = data[:status]    if data.key?(:status)
-		self.starts_on = data[:starts_on] if data.key?(:starts_on)
-		self.ends_on   = data[:ends_on]   if data.key?(:ends_on)
-		self.notes     = data[:notes]     if data.key?(:notes)
+    self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
 
-		self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
+    membership.person.rebuild(data[:person_attributes]) if data[:person_attributes]
+    self
+  end
 
-		return self unless resolve_person(data[:person_attributes])
+  def reinstate!(date = Date.current)
+    return false unless can_transition_to?(:active)
 
-		self
-	end
+    transition_to!(:active, :reinstate, date)
+  end
 
-	def reinstate!(date = Date.current)
-		return false unless can_transition_to?(:active)
+  def terminate!(date = Date.current)
+    return false unless can_transition_to?(:terminated)
 
-		transition_to!(:active, :reinstate, date)
-	end
+    transition_to!(:terminated, :terminate, date)
+  end
 
-	def terminate!(date = Date.current)
-		return false unless can_transition_to?(:terminated)
+  # -------------------------------------------------------------------------
+  # Controller façade methods
+  # -------------------------------------------------------------------------
+  def self.search(club:, search: nil, status: nil, member: nil, team: nil, assignment_kind: nil, membership_kind: nil, history: false)
+    scope = team.present? ? for_team(team) : for_club(club)
+    scope = scope.where(membership: member) if member.present?
+    scope = scope.of_kind(assignment_kind) if assignment_kind.present?
+    scope = scope.of_membership_kind(membership_kind) if membership_kind.present?
+    scope = scope.search_text(search) if search.present?
+    if status
+      scope = scope.where(status:)
+    else
+      scope.current unless history
+    end
+    scope
+  end
 
-		transition_to!(:terminated, :terminate, date)
-	end
+  def self.kind_image(kind)
+    Catalog::AssignmentKinds.normalize(kind) || :person
+  end
 
-	# -------------------------------------------------------------------------
-	# Controller façade methods
-	# -------------------------------------------------------------------------
-	def self.search(club:, search: nil, status: nil, member: nil, team: nil, assignment_kind: nil, membership_kind: nil, history: false)
-		scope = team.present? ? for_team(team) : for_club(club)
-		scope = scope.where(membership: member) if member.present?
-		scope = scope.of_kind(assignment_kind) if assignment_kind.present?
-		scope = scope.of_membership_kind(membership_kind) if membership_kind.present?
-		scope = scope.search_text(search) if search.present?
-		if status
-			scope = scope.where(status:)
-		else
-			scope.current unless history
-		end
-		scope
-	end
+  def self.kind_label(kind, ...)
+    Catalog::AssignmentKinds.val(kind, ...)
+  end
 
-	def self.kind_image(kind)
-		Catalog::AssignmentKinds.normalize(kind) || :person
-	end
+  def self.kind_list
+    Catalog::AssignmentKinds.selectable.map do |kind|
+      [ self.val(kind), kind ]
+    end
+  end
 
-	def self.kind_label(kind, ...)
-		Catalog::AssignmentKinds.val(kind, ...)
-	end
+  private
+    # validate coherent team defined for assignment
+    def team_required
+      if Catalog::AssignmentKinds.team_level?(kind) && team.blank?
+        errors.add(:team, :blank)
+      end
 
-	def self.kind_list
-		Catalog::AssignmentKinds.selectable.map do |kind|
-			[ self.val(kind), kind ]
-		end
-	end
-
-	private
-		# validate coherent team defined for assignment
-		def team_required
-			if Catalog::AssignmentKinds.team_level?(kind) && team.blank?
-				errors.add(:team, :blank)
-			end
-
-			if Catalog::AssignmentKinds.club_level?(kind) && team.present?
-				errors.add(:team, :invalid)
-			end
-		end
+      if Catalog::AssignmentKinds.club_level?(kind) && team.present?
+        errors.add(:team, :invalid)
+      end
+    end
 end
