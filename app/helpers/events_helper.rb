@@ -313,7 +313,7 @@ module EventsHelper
 
     # define the toprow for an events list (just above the table itself)
     def event_list_toprow(clubevent:)
-      calendurl = clubevent ? club_events_path(@club, season_id: @season&.id, rdx: @rdx) : team_events_path(@team, rdx: @rdx)
+      calendurl = clubevent ? club_events_path(@club, season_id: @season&.id, rdx: @rdx) : club_team_events_path(@team.club, @team, rdx: @rdx)
       toprow = [	#  top row above the table
         button_field(
           { kind: :link, symbol: "calendar", label: I18n.t("calendar.label"), size: "30x30", url: calendurl },
@@ -323,7 +323,7 @@ module EventsHelper
       toprow += [	# team events--> add a team_attendance button
         gap_field,
         button_field(
-          { kind: :link, symbol: "attendance", label: I18n.t("calendar.attendance.label"), flip: true, size: "30x30", url: attendance_team_path(@team, rdx: @rdx), align: "right", frame: "modal" },
+          { kind: :link, symbol: "attendance", label: I18n.t("calendar.attendance.label"), flip: true, size: "30x30", url: attendance_club_team_path(@team.club, @team, rdx: @rdx), align: "right", frame: "modal" },
           class: "align-middle text-indigo-900"
         )
       ] unless clubevent

@@ -57,6 +57,7 @@ class Assignment < ApplicationRecord
           :phone,
           :relationships,
           :surname,
+          :s_name,
           :to_s,
           to: :membership
 

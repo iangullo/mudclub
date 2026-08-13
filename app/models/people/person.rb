@@ -181,6 +181,12 @@ class Person < ApplicationRecord
     )
   end
 
+  def to_s(long = true)
+    aux = self.nick.presence || self.name.to_s
+    aux += " #{self.surname}" if long
+    aux
+  end
+
   # short name for form viewing
   def s_name
     res = "#{self.to_s(false)} #{self.surname&.split&.first}"

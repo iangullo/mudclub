@@ -25,7 +25,7 @@ class TeamsController < ApplicationController
   # GET /club/x/teams.json
   def index
     if check_access(roles: [ :admin, :manager, :coach, :secretary ])
-      @teams = Team.real.order(:category_id, :name).where(club_id: @club&.id, season_id: @@season&.id)
+      @teams = Team.real.order(:category_id, :name).where(club_id: @club&.id, season_id: @season&.id)
       respond_to do |format|
         format.xlsx do
           f_name = "#{@season.name(safe: true)}-players.xlsx"
@@ -392,7 +392,7 @@ class TeamsController < ApplicationController
       @club     = Club.find(@club&.id) if @club&.id
       s_id      = @team&.season&.id || p_seasonid || session.dig("team_filters", "season_id")
       @season   = Season.search(s_id) unless s_id == @season&.id
-      @@season&.id = @season&.id
+      @seasonid = @season&.id
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

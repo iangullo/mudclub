@@ -32,14 +32,19 @@ class Event < ApplicationRecord
   #-------------------------------------
   # Object relationships
   #-------------------------------------
-  belongs_to :team
+  belongs_to :club
+  belongs_to :team, optional: true
   belongs_to :location
+
   has_many :event_targets, dependent: :destroy
   has_many :targets, through: :event_targets
   has_many :tasks, -> { order(order: :asc).includes(:drill).with_rich_text_remarks }, dependent: :destroy
   has_many :stats, dependent: :destroy
-  has_many :attendances
+  has_many :attendances, dependent: :destroy
+
+  # no HABTM players in the final 2.0 interface
   has_and_belongs_to_many :players	# DEPRECATED
+
   accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :tasks, reject_if: :all_blank, allow_destroy: true

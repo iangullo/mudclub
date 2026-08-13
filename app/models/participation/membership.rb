@@ -107,6 +107,7 @@ class Membership < ApplicationRecord
           :phone,
           :relationships,
           :surname,
+          :s_name,
           :to_s,
           to: :person,
           allow_nil: true
