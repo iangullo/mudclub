@@ -70,19 +70,16 @@ class Assignment < ApplicationRecord
   #-------------------------------------
   # Scopes
   #-------------------------------------
-  scope :active, -> { where(ends_on: nil) }
-
-  scope :of_kind, ->(kind) { where(kind:) }
-
-  scope :current, ->(date = Date.current) {
-    where("starts_on <= ?", date)
-      .where("ends_on IS NULL OR ends_on >= ?", date)
+  scope :active, -> {
+    where(ends_on: nil)
   }
-
-  scope :open, -> { where(ends_on: nil) }
 
   scope :club_level, -> {
     where(team_id: nil)
+  }
+
+  scope :team_level, -> {
+    where.not(team_id: nil)
   }
 
   scope :for_club, ->(club) {
@@ -104,6 +101,13 @@ class Assignment < ApplicationRecord
       .where(memberships: { person_id: Person.search(text) })
   }
 
+  scope :current, ->(date = Date.current) {
+    where("starts_on <= ?", date)
+      .where("ends_on IS NULL OR ends_on >= ?", date)
+  }
+
+  scope :open, -> { where(ends_on: nil) }
+
   # short name for form viewing
   def s_name
     person&.s_name || Catalog::AssignmentKinds.val(kind)
@@ -111,7 +115,11 @@ class Assignment < ApplicationRecord
 
   # personal photo or membership kind symbol
   def picture
-    avatar.attached? ? avatar : membership.picture
+    return person.avatar if person&.avatar&.attached?
+
+    # if no attached avatar, return the symbol name
+    # to be rendered as: symbol_field(symbol)
+    kind_image
   end
 
   def kind_image
@@ -156,7 +164,8 @@ class Assignment < ApplicationRecord
 
     self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
 
-    membership.person.rebuild(data[:person_attributes]) if data[:person_attributes]
+    return self unless resolve_person(data[:person_attributes])
+
     self
   end
 
