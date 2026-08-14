@@ -16,157 +16,159 @@
 
 en:
   calendar:
-    label: "Calendar"
-    short: "Cal."
+    label: Calendar
+    short: Cal.
 
     fields:
-      date: "Date"
-      date_short: "Date"
-      time: "Time"
-      time_short: "Time"
-      week: "Week"
-      week_short: "Wk."
-      month: "Month"
-      month_short: "Mon."
-      year: "Year"
-      year_short: "Yr."
-      since: "Since"
-      until: "Until"
+      date: Date
+      date_short: Date
+      time: Time
+      time_short: Time
+      week: Week
+      week_short: Wk.
+      month: Month
+      month_short: Mon.
+      year: Year
+      year_short: Yr.
+      since: Since
+      until: Until
 
     months:
-      label: "Month"
-      short: "Mon."
+      label: Month
+      short: Mon.
       values:
-        january: "January"
-        january_short: "Jan"
-        february: "February"
-        february_short: "Feb"
-        march: "March"
-        march_short: "Mar"
-        april: "April"
-        april_short: "Apr"
-        may: "May"
-        may_short: "May"
-        june: "June"
-        june_short: "Jun"
-        july: "July"
-        july_short: "Jul"
-        august: "August"
-        august_short: "Aug"
-        september: "September"
-        september_short: "Sep"
-        october: "October"
-        october_short: "Oct"
-        november: "November"
-        november_short: "Nov"
-        december: "December"
-        december_short: "Dec"
+        january: January
+        january_short: Jan
+        february: February
+        february_short: Feb
+        march: March
+        march_short: Mar
+        april: April
+        april_short: Apr
+        may: May
+        may_short: May
+        june: June
+        june_short: Jun
+        july: July
+        july_short: Jul
+        august: August
+        august_short: Aug
+        september: September
+        september_short: Sep
+        october: October
+        october_short: Oct
+        november: November
+        november_short: Nov
+        december: December
+        december_short: Dec
 
     weekdays:
-      label: "Weekday"
-      short: "Day"
+      label: Weekday
+      short: Day
       values:
-        monday: "Monday"
-        monday_short: "Mon"
-        tuesday: "Tuesday"
-        tuesday_short: "Tue"
-        wednesday: "Wednesday"
-        wednesday_short: "Wed"
-        thursday: "Thursday"
-        thursday_short: "Thu"
-        friday: "Friday"
-        friday_short: "Fri"
-        saturday: "Saturday"
-        saturday_short: "Sat"
-        sunday: "Sunday"
-        sunday_short: "Sun"
+        monday: Monday
+        monday_short: Mon
+        tuesday: Tuesday
+        tuesday_short: Tue
+        wednesday: Wednesday
+        wednesday_short: Wed
+        thursday: Thursday
+        thursday_short: Thu
+        friday: Friday
+        friday_short: Fri
+        saturday: Saturday
+        saturday_short: Sat
+        sunday: Sunday
+        sunday_short: Sun
 
     event_kinds:
-      label: "Event kind"
-      short: "Kind"
+      label: Event kind
+      short: Kind
       values:
-        holiday: "Holiday"
-        holiday_short: "Hol."
-        training: "Training"
-        training_short: "Train"
-        match: "Match"
-        match_short: "Match"
-        competition: "Competition"
-        competition_short: "Comp."
-        meeting: "Meeting"
-        meeting_short: "Meet"
-        social: "Social event"
-        social_short: "Soc."
-        other: "Other"
-        other_short: "Other"
+        holiday: Holiday
+        holiday_short: Hol.
+        training: Training
+        training_short: Train
+        match: Match
+        match_short: Match
+        competition: Competition
+        competition_short: Comp.
+        meeting: Meeting
+        meeting_short: Meet
+        rest: Rest
+        rest_short: Rest
+        social: Social event
+        social_short: Soc.
+        other: Other
+        other_short: Other
 
     attendance_statuses:
-      label: "Attendance status"
-      short: "Status"
+      label: Attendance status
+      short: Status
       values:
-        present: "Present"
-        absent: "Absent"
-        excused: "Excused"
-        late: "Late"
-        unknown: "Unknown"
+        present: Present
+        absent: Absent
+        excused: Excused
+        late: Late
+        unknown: Unknown
 
     recurrence_kinds:
-      label: "Recurrence"
-      short: "Rec."
+      label: Recurrence
+      short: Rec.
       values:
-        none: "None"
-        daily: "Daily"
-        weekly: "Weekly"
-        monthly: "Monthly"
-        yearly: "Yearly"
+        none: None
+        daily: Daily
+        weekly: Weekly
+        monthly: Monthly
+        yearly: Yearly
 
     slot:
-      label: "Time slot"
-      plural: "Time table"
-      short: "Slot"
+      label: Time slot
+      plural: Time table
+      short: Slot
       actions:
-        create: "Create timeslot"
-        edit: "Edit timeslot"
+        create: Create timeslot
+        edit: Edit timeslot
       fields:
-        starts_on: "Starts"
-        starts_on_short: "Start"
-        ends_on: "Ends"
-        ends_on_short: "End"
-        duration: "Duration"
-        duration_short: "Dur."
+        starts_on: Starts
+        starts_on_short: Start
+        ends_on: Ends
+        ends_on_short: End
+        duration: Duration
+        duration_short: Dur.
       messages:
-        created: "Time slot created."
-        updated: "Time slot updated."
-        deleted: "Time slot deleted."
+        created: Time slot created.
+        updated: Time slot updated.
+        deleted: Time slot deleted.
 
     event:
-      label: "Event"
-      short: "Event"
+      label: Event
+      short: Event
       fields:
-        title: "Title"
-        description: "Description"
-        starts_on: "Starts"
-        ends_on: "Ends"
-        slot: "Time slot"
-        kind: "Event kind"
-        metadata: "Metadata"
+        title: Title
+        description: Description
+        starts_on: Starts
+        ends_on: Ends
+        slot: Time slot
+        kind: Event kind
+        metadata: Metadata
       messages:
-        created: "Event created."
-        updated: "Event updated."
-        deleted: "Event deleted."
+        created: Event created.
+        updated: Event updated.
+        deleted: Event deleted.
 
     attendance:
-      label: "Attendance"
-      short: "Attend."
+      label: Attendance
+      short: Attend.
       fields:
-        person: "Person"
-        event: "Event"
-        status: "Status"
-        notes: "Notes"
+        person: Person
+        event: Event
+        status: Status
+        notes: Notes
       messages:
-        created: "Attendance recorded."
-        updated: "Attendance updated."
-        deleted: "Attendance removed."
+        created: Attendance recorded.
+        updated: Attendance updated.
+        deleted: Attendance removed.
 
     # -----------------------------------------------------------------------------
     # DEPRECATED - DO NOT MODIFY
@@ -175,23 +177,23 @@ en:
     #
     # Search for:
     #
-    #   t("calendar.
-    #   t("event.
-    #   t("slot.
-    #   t("match.
-    #   t("rest.
+    #   t(calendar.
+    #   t(event.
+    #   t(slot.
+    #   t(match.
+    #   t(rest.
     #
     # Remove once all callers have migrated.
     # -----------------------------------------------------------------------------
-    date: "Date"
+    date: Date
     daynames:
       [All, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
 
     daynames_a: [All, Mon, Tue, Wed, Thu, Fri, Sat, Sun]
 
-    end: "End"
+    end: End
 
-    mins: "mins."
+    mins: mins.
 
     monthnames:
       [
@@ -213,56 +215,56 @@ en:
     monthnames_a:
       [All, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
 
-    start: "Start"
+    start: Start
 
-    time: "Time"
+    time: Time
 
-    week: "Week"
+    week: Week
 
-    year: "Year"
+    year: Year
 
   event:
-    single: "Event"
-    many: "Events"
+    single: Event
+    many: Events
 
   slot:
-    single: "Timeslot"
+    single: Timeslot
 
-    created: "Created timeslot: "
-    updated: "Updated timeslot: "
-    deleted: "Deleted timeslot: "
+    created: Created timeslot: 
+    updated: Updated timeslot: 
+    deleted: Deleted timeslot: 
 
-    edit: "Edit Timeslot"
-    many: "Timetable"
-    new: "Create Timeslot"
+    edit: Edit Timeslot
+    many: Timetable
+    new: Create Timeslot
 
   # -----------------------------------------------------------------------------
   # Legacy compatibility.
   # Replaced by Calendar::EventKinds[:competition]
   # -----------------------------------------------------------------------------
   match:
-    default_rival: "<Opponent>"
-    home: "Home"
-    lost: "L"
-    rival: "Opponent"
-    roster: "Active players"
-    single: "Match"
-    won: "W"
+    default_rival: <Opponent>
+    home: Home
+    lost: L
+    rival: Opponent
+    roster: Active players
+    single: Match
+    won: W
 
-    att_check: "Player list: "
-    created: "Created match: "
-    deleted: "Deleted match: "
-    updated: "Updated match: "
+    att_check: Player list: 
+    created: Created match: 
+    deleted: Deleted match: 
+    updated: Updated match: 
 
-    many: "Matches"
+    many: Matches
 
   # -----------------------------------------------------------------------------
   # Legacy compatibility.
   # Replaced by Calendar::EventKinds[:holiday]
   # -----------------------------------------------------------------------------
   rest:
-    created: "Holiday created: "
-    deleted: "Holiday deleted: "
-    updated: "Holiday updated: "
+    created: Holiday created: 
+    deleted: Holiday deleted: 
+    updated: Holiday updated: 
 
-    single: "Holiday"
+    single: Holiday

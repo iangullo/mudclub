@@ -16,157 +16,159 @@
 
 es:
   calendar:
-    label: "Calendario"
-    short: "Cal."
+    label: Calendario
+    short: Cal.
 
     fields:
-      date: "Fecha"
-      date_short: "Fecha"
-      time: "Hora"
-      time_short: "Hora"
-      week: "Semana"
-      week_short: "Sem."
-      month: "Mes"
-      month_short: "Mes"
-      year: "Año"
-      year_short: "Año"
-      since: "Desde"
-      until: "Hasta"
+      date: Fecha
+      date_short: Fecha
+      time: Hora
+      time_short: Hora
+      week: Semana
+      week_short: Sem.
+      month: Mes
+      month_short: Mes
+      year: Año
+      year_short: Año
+      since: Desde
+      until: Hasta
 
     months:
-      label: "Mes"
-      short: "Mes"
+      label: Mes
+      short: Mes
       values:
-        january: "Enero"
-        january_short: "Ene"
-        february: "Febrero"
-        february_short: "Feb"
-        march: "Marzo"
-        march_short: "Mar"
-        april: "Abril"
-        april_short: "Abr"
-        may: "Mayo"
-        may_short: "May"
-        june: "Junio"
-        june_short: "Jun"
-        july: "Julio"
-        july_short: "Jul"
-        august: "Agosto"
-        august_short: "Ago"
-        september: "Septiembre"
-        september_short: "Sep"
-        october: "Octubre"
-        october_short: "Oct"
-        november: "Noviembre"
-        november_short: "Nov"
-        december: "Diciembre"
-        december_short: "Dic"
+        january: Enero
+        january_short: Ene
+        february: Febrero
+        february_short: Feb
+        march: Marzo
+        march_short: Mar
+        april: Abril
+        april_short: Abr
+        may: Mayo
+        may_short: May
+        june: Junio
+        june_short: Jun
+        july: Julio
+        july_short: Jul
+        august: Agosto
+        august_short: Ago
+        september: Septiembre
+        september_short: Sep
+        october: Octubre
+        october_short: Oct
+        november: Noviembre
+        november_short: Nov
+        december: Diciembre
+        december_short: Dic
 
     weekdays:
-      label: "Día de la semana"
-      short: "Día"
+      label: Día de la semana
+      short: Día
       values:
-        monday: "Lunes"
-        monday_short: "Lun"
-        tuesday: "Martes"
-        tuesday_short: "Mar"
-        wednesday: "Miércoles"
-        wednesday_short: "Mié"
-        thursday: "Jueves"
-        thursday_short: "Jue"
-        friday: "Viernes"
-        friday_short: "Vie"
-        saturday: "Sábado"
-        saturday_short: "Sáb"
-        sunday: "Domingo"
-        sunday_short: "Dom"
+        monday: Lunes
+        monday_short: Lun
+        tuesday: Martes
+        tuesday_short: Mar
+        wednesday: Miércoles
+        wednesday_short: Mié
+        thursday: Jueves
+        thursday_short: Jue
+        friday: Viernes
+        friday_short: Vie
+        saturday: Sábado
+        saturday_short: Sáb
+        sunday: Domingo
+        sunday_short: Dom
 
     event_kinds:
-      label: "Tipo de evento"
-      short: "Tipo"
+      label: Tipo de evento
+      short: Tipo
       values:
-        holiday: "Festivo"
-        holiday_short: "Fest."
-        training: "Entrenamiento"
-        training_short: "Entren."
-        match: "Partido"
-        match_short: "Part."
-        competition: "Competición"
-        competition_short: "Comp."
-        meeting: "Reunión"
-        meeting_short: "Reun."
-        social: "Evento social"
-        social_short: "Soc."
-        other: "Otro"
-        other_short: "Otro"
+        holiday: Festivo
+        holiday_short: Fest.
+        training: Entrenamiento
+        training_short: Entren.
+        match: Partido
+        match_short: Part.
+        competition: Competición
+        competition_short: Comp.
+        meeting: Reunión
+        meeting_short: Reun.
+        rest: Descanso
+        rest_short: Desc.
+        social: Evento social
+        social_short: Soc.
+        other: Otro
+        other_short: Otro
 
     attendance_statuses:
-      label: "Estado de asistencia"
-      short: "Estado"
+      label: Estado de asistencia
+      short: Estado
       values:
-        present: "Presente"
-        absent: "Ausente"
-        excused: "Justificado"
-        late: "Llegada tarde"
-        unknown: "Desconocido"
+        present: Presente
+        absent: Ausente
+        excused: Justificado
+        late: Llegada tarde
+        unknown: Desconocido
 
     recurrence_kinds:
-      label: "Repetición"
-      short: "Rep."
+      label: Repetición
+      short: Rep.
       values:
-        none: "Ninguna"
-        daily: "Diaria"
-        weekly: "Semanal"
-        monthly: "Mensual"
-        yearly: "Anual"
+        none: Ninguna
+        daily: Diaria
+        weekly: Semanal
+        monthly: Mensual
+        yearly: Anual
 
     slot:
-      label: "Horario"
-      plural: "Horarios"
-      short: "Hora."
+      label: Horario
+      plural: Horarios
+      short: Hora.
       actions:
-        create: "Crear horario"
-        edit: "Editar horario"
+        create: Crear horario
+        edit: Editar horario
       fields:
-        starts_on: "Inicio"
-        starts_on_short: "Inicio"
-        ends_on: "Fin"
-        ends_on_short: "Fin"
-        duration: "Duración"
-        duration_short: "Dur."
+        starts_on: Inicio
+        starts_on_short: Inicio
+        ends_on: Fin
+        ends_on_short: Fin
+        duration: Duración
+        duration_short: Dur.
       messages:
-        created: "Horario creada."
-        updated: "Horario actualizado."
-        deleted: "Horario eliminado."
+        created: Horario creada.
+        updated: Horario actualizado.
+        deleted: Horario eliminado.
 
     event:
-      label: "Evento"
-      short: "Evento"
+      label: Evento
+      short: Evento
       fields:
-        title: "Título"
-        description: "Descripción"
-        starts_on: "Inicio"
-        ends_on: "Fin"
-        slot: "Franja horaria"
-        kind: "Tipo de evento"
-        metadata: "Metadatos"
+        title: Título
+        description: Descripción
+        starts_on: Inicio
+        ends_on: Fin
+        slot: Franja horaria
+        kind: Tipo de evento
+        metadata: Metadatos
       messages:
-        created: "Evento creado."
-        updated: "Evento actualizado."
-        deleted: "Evento eliminado."
+        created: Evento creado.
+        updated: Evento actualizado.
+        deleted: Evento eliminado.
 
     attendance:
-      label: "Asistencia"
-      short: "Asist."
+      label: Asistencia
+      short: Asist.
       fields:
-        person: "Persona"
-        event: "Evento"
-        status: "Estado"
-        notes: "Notas"
+        person: Persona
+        event: Evento
+        status: Estado
+        notes: Notas
       messages:
-        created: "Asistencia registrada."
-        updated: "Asistencia actualizada."
-        deleted: "Asistencia eliminada."
+        created: Asistencia registrada.
+        updated: Asistencia actualizada.
+        deleted: Asistencia eliminada.
 
     # -----------------------------------------------------------------------------
     # OBSOLETO - NO MODIFICAR
@@ -175,23 +177,23 @@ es:
     #
     # Buscar:
     #
-    #   t("calendar.
-    #   t("event.
-    #   t("slot.
-    #   t("match.
-    #   t("rest.
+    #   t(calendar.
+    #   t(event.
+    #   t(slot.
+    #   t(match.
+    #   t(rest.
     #
     # Eliminar una vez que todas las referencias se hayan migrado.
     # -----------------------------------------------------------------------------
-    date: "Fecha"
+    date: Fecha
     daynames:
       [Todos, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
 
     daynames_a: [Todos, Lun, Mar, Mié, Jue, Vie, Sáb, Dom]
 
-    end: "Fin"
+    end: Fin
 
-    mins: "min."
+    mins: min.
 
     monthnames:
       [
@@ -213,56 +215,56 @@ es:
     monthnames_a:
       [Todos, Ene, Feb, Mar, Abr, May, Jun, Jul, Ago, Sep, Oct, Nov, Dic]
 
-    start: "Inicio"
+    start: Inicio
 
-    time: "Hora"
+    time: Hora
 
-    week: "Semana"
+    week: Semana
 
-    year: "Año"
+    year: Año
 
   event:
-    single: "Evento"
-    many: "Eventos"
+    single: Evento
+    many: Eventos
 
   slot:
-    single: "Franja horaria"
+    single: Franja horaria
 
-    created: "Franja horaria creada: "
-    updated: "Franja horaria actualizada: "
-    deleted: "Franja horaria eliminada: "
+    created: Franja horaria creada: 
+    updated: Franja horaria actualizada: 
+    deleted: Franja horaria eliminada: 
 
-    edit: "Editar Franja horaria"
-    many: "Horario"
-    new: "Crear Franja horaria"
+    edit: Editar Franja horaria
+    many: Horario
+    new: Crear Franja horaria
 
   # -----------------------------------------------------------------------------
   # Compatibilidad heredada.
   # Reemplazado por Calendar::EventKinds[:competition]
   # -----------------------------------------------------------------------------
   match:
-    default_rival: "<Rival>"
-    home: "Local"
-    lost: "P"
-    rival: "Rival"
-    roster: "Jugadores activos"
-    single: "Partido"
-    won: "G"
+    default_rival: <Rival>
+    home: Local
+    lost: P
+    rival: Rival
+    roster: Jugadores activos
+    single: Partido
+    won: G
 
-    att_check: "Lista de jugadores: "
-    created: "Partido creado: "
-    deleted: "Partido eliminado: "
-    updated: "Partido actualizado: "
+    att_check: Lista de jugadores: 
+    created: Partido creado: 
+    deleted: Partido eliminado: 
+    updated: Partido actualizado: 
 
-    many: "Partidos"
+    many: Partidos
 
   # -----------------------------------------------------------------------------
   # Compatibilidad heredada.
   # Reemplazado por Calendar::EventKinds[:holiday]
   # -----------------------------------------------------------------------------
   rest:
-    created: "Festivo creado: "
-    deleted: "Festivo eliminado: "
-    updated: "Festivo actualizado: "
+    created: Festivo creado: 
+    deleted: Festivo eliminado: 
+    updated: Festivo actualizado: 
 
-    single: "Festivo"
+    single: Festivo

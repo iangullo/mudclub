@@ -51,72 +51,70 @@ class Event < ApplicationRecord
   accepts_nested_attributes_for :stats, reject_if: :all_blank, allow_destroy: true
 
   #-------------------------------------
+  # Data validations
+  #-------------------------------------
+  validate :team_in_same_club
+
+  #-------------------------------------
   # ActiveRecord scopes
   #-------------------------------------
   pg_search_scope :search_by_name,
                   against: :name,
                   ignoring: :accents,
                   using: { tsearch: { prefix: true } }
-  scope :last7, -> { where("start_time > ? and end_time < ?", Date.today - 7, Date.today + 1).order(:start_time) }
-  scope :last30, -> { where("start_time > ? and end_time < ?", Date.today - 30, Date.today + 1).order(:start_time) }
-  scope :this_week, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_week, Time.now.at_end_of_week).order(:start_time) }
-  scope :this_month, -> { where("start_time > ? and end_time < ?", Time.now.at_beginning_of_month, Time.now.at_end_of_month).order(:start_time) }
-  scope :this_season, -> { where("end_time < ?", Time.now).order(:start_time) }
-  scope :short_term, -> { where("start_time > ? and end_time < ?", Time.now - 1.day.to_i, Time.now + 1.week.to_i).order(:start_time) }
-  scope :past, -> { where("start_time < ?", Time.now).order(:start_time) }
-  scope :upcoming, -> { where("start_time > ?", Time.now).order(:start_time) }
-  scope :for_season, ->(season) { where("start_time > ? and end_time < ?", season.start_date, season.end_date).order(:start_time) }
-  scope :normal, -> { where("kind > 0").order(:start_time) }
-  scope :holidays, -> { where("kind = 0").order(:start_time) }
-  scope :trainings, -> { where("kind = 1").order(:start_time) }
-  scope :matches, -> { where("kind = 2").order(:start_time) }
-  scope :non_training, -> { where("kind=2 or (kind=0 and team_id=0)").order(:start_time) }
+
+  scope :chronological, -> { order(:start_time) }
+  scope :between, ->(from, to) { where(start_time: from..to) }
+  scope :of_kind, ->(kind) { where(kind:) }
+  scope :for_club, ->(club) { where(club:) }
+  scope :for_team, ->(team) { where(team:) }
+  scope :for_season, ->(season) { between(season.start_date, season.end_date) }
+  scope :club_events, -> { where(team_id: nil) }
+  scope :team_events, -> { where.not(team_id: nil) }
+  scope :past, -> { where("start_time < ?", Time.current) }
+  scope :upcoming, -> { where("start_time > ?", Time.current) }
+
+  scope :last7, -> { between(Date.today - 7, Date.today + 1) }
+  scope :last30, -> { between(Date.today - 30, Date.today + 1) }
+  scope :this_week, -> { between(Time.current.at_beginning_of_week, Time.current.at_end_of_week) }
+  scope :this_month, -> { between(Time.current.at_beginning_of_month, Time.current.at_end_of_month) }
+  scope :this_season, -> { where("end_time < ?", Time.current) }
+  scope :short_term, -> { between(Time.current - 1.day.to_i, Time.current + 1.week.to_i) }
+  scope :for_season, ->(season) { between(season.start_date, season.end_date) }
+  scope :normal,    -> { where("kind > 0") }
+  scope :matches,   -> { where(kind: :match) }
+  scope :trainings, -> { where(kind: :train) }
+  scope :holidays,  -> { where(kind: :rest) }
+  scope :non_training, -> { where("kind=2 or (kind=0 and team_id=0)") }
 
   #-------------------------------------
-  # Object methods
+  # Event model Generic API
   #-------------------------------------
+
+  # show this event?
+  def display?
+    return true unless rest?
+    return true if team.present?
+
+    true
+  end
+
   def date_string
     cad = self.start_time.year.to_s
     cad = cad + "/" + two_dig(self.start_date.month)
     cad = cad + "/" + two_dig(self.start_date.day)
   end
 
-  # return list of defensive targets
-  def def_targets
-    res = Array.new
-    self.event_targets.each { |tev|
-      res << tev if tev.target.defense?
-    }
-    res
-  end
-
-  # show this event?
-  def display?
-    if self.rest? and self.team_id > 0 # we have a team rest?
-      e = Event.where(team_id: 0, start_time: self.start_time)  # is it general?
-      return false if e.first # don't display it!
-    end
-    true
-  end
-
-  # return a collection of Drills associated with this event
-  def drill_list
-    res = Array.new
-    self.tasks.each { |tsk| res.push(tsk.drill) }
-    res.uniq
-  end
-
   def duration
-    ((self.end_time - self.start_time) / 60).to_i
+    return 0 unless start_time && end_time
+
+    ((end_time - start_time) / 60).to_i
   end
 
-  def duration=(newduration)
-    self.end_time = self.start_time + newduration.minutes
-  end
+  def duration=(minutes)
+    return if start_time.blank?
 
-  # check if player is in this event
-  def has_player(p_id)
-    self.players.find_index { |p| p[:id] == p_id }
+    self.end_time = start_time + minutes.to_i.minutes
   end
 
   def hour
@@ -135,7 +133,7 @@ class Event < ApplicationRecord
     self.start_time = self.start_time.change({ min: newmin })
   end
 
-  # check if drill (or associations) has changed
+  # check if event (or associations) has changed
   def modified?
     res = self.changed? || @event_changed
     unless res
@@ -150,23 +148,12 @@ class Event < ApplicationRecord
     res
   end
 
-  # return list of offensive targets
-  def off_targets
-    res = Array.new
-    self.event_targets.each { |tev|
-      res << tev if tev.target.offense?
-    }
-    res
+  def start_date
+    self.start_time.to_date
   end
 
-  # return strings fro associated targets
-  def print_targets(kind: nil)
-    cad = ""
-    self.targets.each do |target|
-      cad += "\n\t" unless cad == ""
-      cad += target.concept
-    end
-    cad
+  def time_string(t_end = true)
+    timeslot_string(t_begin: self.start_time, t_end: ((self.train? and t_end) ? self.end_time : nil))
   end
 
   # rebuild Event using raw hash from a form submittal
@@ -176,8 +163,6 @@ class Event < ApplicationRecord
     self.min = f_data[:min].to_i if f_data[:min]
     self.duration = f_data[:duration].to_i if f_data[:duration]
     self.name = f_data[:name] if f_data[:name]
-    self.p_for = f_data[:p_for].to_i if f_data[:p_for]
-    self.p_opp = f_data[:p_opp].to_i if f_data[:p_opp]
     self.location_id = f_data[:location_id].to_i if f_data[:location_id]
     self.home = f_data[:home] if f_data[:home]
     check_stats(s_data) if s_data # manage stats if provided
@@ -185,15 +170,30 @@ class Event < ApplicationRecord
     check_tasks(f_data[:tasks_attributes]) if f_data[:tasks_attributes]
   end
 
-  # string with duration and minutes indication (')
-  def s_dur
-    self.duration.to_s + "\'"
+  # prepare default values for an event
+  def prepare_defaults(start_date: nil)
+    date = start_date.present? ? Date.parse(start_date) : Date.current
+
+    case kind.to_sym
+    when :rest
+      prepare_rest(date)
+
+    when :train
+      prepare_training(date)
+
+    when :match
+      prepare_match(date)
+    end
   end
 
-  # wrappers to read/update event values
-  def start_date
-    self.start_time.to_date
+  # DEPRECATED: legacy Player compatibility.
+  def has_player(p_id)
+    self.players.find_index { |p| p[:id] == p_id }
   end
+
+  #-------------------------------------
+  # Event presentation helpers
+  #-------------------------------------
 
   # return name of assocatied symbol
   def symbol
@@ -211,10 +211,6 @@ class Event < ApplicationRecord
     end
     namespace ||= "sport"
     { concept:, options: { namespace: } }
-  end
-
-  def time_string(t_end = true)
-    timeslot_string(t_begin: self.start_time, t_end: ((self.train? and t_end) ? self.end_time : nil))
   end
 
   # return event title depending on kind & data
@@ -281,6 +277,60 @@ class Event < ApplicationRecord
     res
   end
 
+  #-------------------------------------
+  # Training events
+  #-------------------------------------
+
+  # return list of defensive targets
+  def def_targets
+    res = Array.new
+    self.event_targets.each { |tev|
+      res << tev if tev.target.defense?
+    }
+    res
+  end
+
+  # return list of offensive targets
+  def off_targets
+    res = Array.new
+    self.event_targets.each { |tev|
+      res << tev if tev.target.offense?
+    }
+    res
+  end
+
+  # return strings fro associated targets
+  def print_targets(kind: nil)
+    cad = ""
+    self.targets.each do |target|
+      cad += "\n\t" unless cad == ""
+      cad += target.concept
+    end
+    cad
+  end
+
+  # return a collection of Drills associated with this event
+  def drill_list
+    res = Array.new
+    self.tasks.each { |tsk| res.push(tsk.drill) }
+    res.uniq
+  end
+
+  # string with duration and minutes indication (')
+  def s_dur
+    self.duration.to_s + "\'"
+  end
+
+  def work_duration
+    res = 0
+    self.tasks.each { |tsk| res = res + tsk.duration }
+    res.to_s + "\'"
+  end
+
+  #-------------------------------------
+  # Competition events
+  #-------------------------------------
+
   # Scores accessor modes:
   # places  our team first
   def total_score
@@ -288,12 +338,6 @@ class Event < ApplicationRecord
     our_s = { team: self.team.to_s, points: score[:tot][:ours] }
     opp_s = { team: self.name, points: score[:tot][:opps] }
     { ours: our_s, opps: opp_s }
-  end
-
-  def work_duration
-    res = 0
-    self.tasks.each { |tsk| res = res + tsk.duration }
-    res.to_s + "\'"
   end
 
   #-------------------------------------
@@ -311,74 +355,93 @@ class Event < ApplicationRecord
   end
 
   # prepare a new Event using data provided
-  def self.prepare(s_data)
-    team = Team.find(s_data[:team_id] ? s_data[:team_id].to_i : 0)
-    res = Event.new(team_id: team.id, kind: s_data[:kind].to_sym)
-    s_date = s_data[:start_date] ? Date.parse(s_data[:start_date]) : nil
-    c_date = s_date ? s_date : Date.current
-    case res.kind.to_sym  # depending on event kind
-    when :rest
-      res.name = I18n.t("rest.single")
-      res.start_time = c_date
-      res.duration = 1440
-      res.location_id = 0
-    when :train
-      res.name = I18n.t("train.single")
-      last = team.events.trainings.last
-      slot = team.next_slot(last)
-      if slot
-        s_date = s_date ? s_date : slot.next_date
-        res.start_time = (s_date + slot.hour.hours + slot.min.minutes).to_datetime
-        res.duration = slot.duration
-        res.location_id = slot.location_id
-      else
-        res.start_time = (c_date + 16.hours + 0.minutes).to_datetime
-        res.duration = 60
-        res.location_id = 0
-      end
-    when :match
-      last = team.events.matches.last
-      last = Event.new(start_time: Time.now) unless last
-      if s_date
-        starting = s_date + last.hour.hours + ((last.min / 15).round * 5).minutes
-      else
-        starting = last ? (last.start_time + 7.days) : (Date.today.next_occurring(Date::DAYNAMES[0].downcase.to_sym) + 10.hours)
-      end
-      res.name = nil
-      res.start_time = starting
-      res.duration = 120
-      res.location_id = team.homecourt_id
-    else
-      res = nil
-    end
-    res
+  def self.prepare(data)
+    club = Club.find_by(id: data[:club_id])
+    return nil unless club
+
+    team = Team.find_by(id: data[:team_id])
+    return nil if team && team.club != club
+
+    event = new(club:, team:, kind: data[:kind])
+    event.prepare_defaults(start_date: data[:start_date])
+
+    event
   end
 
   # Search for a list of Events
   # s_data is an array with either club_id+season_id+kind+name or team_id+kind+name
-  def self.search(s_data)
-    if (c_id = s_data[:club_id]&.to_i) && (s_id = s_data[:season_id]&.to_i)
-      club = Club.find_by_id(c_id)	# non-training club events
-      Event.where(team_id: club.teams.where(season_id: s_id).pluck(:id)).order(start_time: :asc)
-    elsif (t_id = s_data[:team_id]&.to_i) # filter for the team received
-      s_name = s_data[:name].presence
-      if kind = s_data[:kind]&.to_sym # and kind
-        if s_name # and name
-          Event.where(kind: kind, team_id: t_id).search_by_name(s_name).order(:start_time)
-        else # only team & kind
-          Event.where(kind: kind, team_id: t_id).order(:start_time)
-        end
-      elsif s_name # team & name only
-        Event.where(team_id: t_id).search_by_name(s_name).order(:start_time)
-      else # only team_id
-        rEvent.where(team_id: t_id).order(:start_time)
+  def self.search(params = {})
+    events =
+      if params[:team_id].present?
+        team = Team.find_by(id: params[:team_id])
+        return none unless team
+        for_team(team)
+      elsif params[:club_id].present?
+        club = Club.find_by(id: params[:club_id])
+        return none unless club
+        for_club(club)
+      else
+        upcoming
       end
-    else
-      Event.upcoming.order(:start_time)
+
+    if params[:season_id].present?
+      season = Season.find_by(id: params[:season_id])
+      events = events.for_season(season) if season
     end
+
+    events = events.of_kind(params[:kind]) if params[:kind].present?
+    events = events.search_by_name(params[:name]) if params[:name].present?
+
+    events.chronological
   end
 
   private
+
+  # Default values for a rest Event
+  def prepare_rest(date)
+    self.name = I18n.t("event_kinds.values.rest")
+    self.start_time = date
+    self.duration = 1440
+    self.location_id = 0
+  end
+
+  def prepare_training(date)
+    return unless team
+
+    self.name = I18n.t("event_kinds.values.training")
+
+    slot = team.next_slot(team.events.trainings.last)
+
+    if slot
+      training_date =  slot.next_date || date
+
+      self.start_time =
+        (training_date + slot.hour.hours + slot.min.minutes).to_datetime
+
+      self.duration = slot.duration
+      self.location_id = slot.location_id
+    else
+      self.start_time = (date + 16.hours).to_datetime
+      self.duration = 60
+      self.location_id = 0
+    end
+  end
+
+  def prepare_match(date)
+    return unless team
+
+    last = team.events.matches.last || Event.new(start_time: Time.current)
+
+    self.start_time =
+      if last
+        last.start_time + 7.days
+      else
+        date + last.hour.hours + ((last.min / 15).round * 5).minutes
+      end
+
+    self.duration = 120
+    self.location_id = team.homecourt_id
+  end
 
   # check stats added to event
   def check_stats(s_data)
@@ -444,10 +507,10 @@ class Event < ApplicationRecord
   def unlink
     case self.kind.to_sym
     when :rest
-      if self.team_id == 0 # clean off copies
+      unless self.team_id # clean off copies
         season = Season.search_date(self.start_date)
         if season # we have a season for this event
-          season.teams.real.each { |team| # delete event from all teams
+          club.teams.for_season(season.id).each { |team| # delete event from all teams
             e_copy = Event.holidays.where(team_id: team.id, name: self.name, start_time: self.start_time).first
             e_copy.delete if e_copy # delete linked event
           }
@@ -457,5 +520,12 @@ class Event < ApplicationRecord
       self.players.delete_all
     end
     UserAction.prune("/events/#{self.id}")
+  end
+
+  def team_in_same_club
+    return if team.blank?
+    return if team.club_id == club_id
+
+    errors.add(:team, :invalid)
   end
 end
