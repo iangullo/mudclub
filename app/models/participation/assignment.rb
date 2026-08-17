@@ -27,8 +27,6 @@ class Assignment < ApplicationRecord
   include Auditable
   include Participatory
 
-  attr_writer :starts_on
-
   belongs_to :membership
   belongs_to :team, optional: true
 

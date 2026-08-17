@@ -242,4 +242,21 @@ class Membership < ApplicationRecord
     def kind_cannot_change
       errors.add(:kind, :readonly) if will_save_change_to_kind?
     end
+
+    def ensure_legacy_record!
+      legacy_class =
+        if kind == :coach
+          Coach
+        elsif kind == :athlete
+          Player
+        else
+          nil
+        end
+
+      return true unless legacy_class
+
+      return true if legacy_class.find_by(person_id: person.id).first
+
+      legacy_class.create!(club_id: club.id, person_id: person.id)
+    end
 end

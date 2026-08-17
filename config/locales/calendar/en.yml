@@ -230,9 +230,9 @@ en:
   slot:
     single: Timeslot
 
-    created: Created timeslot: 
-    updated: Updated timeslot: 
-    deleted: Deleted timeslot: 
+    created: "Created timeslot: "
+    updated: "Updated timeslot: "
+    deleted: "Deleted timeslot: "
 
     edit: Edit Timeslot
     many: Timetable
@@ -251,10 +251,10 @@ en:
     single: Match
     won: W
 
-    att_check: Player list: 
-    created: Created match: 
-    deleted: Deleted match: 
-    updated: Updated match: 
+    att_check: "Player list: "
+    created: "Created match: "
+    deleted: "Deleted match: "
+    updated: "Updated match: "
 
     many: Matches
 
@@ -263,8 +263,8 @@ en:
   # Replaced by Calendar::EventKinds[:holiday]
   # -----------------------------------------------------------------------------
   rest:
-    created: Holiday created: 
-    deleted: Holiday deleted: 
-    updated: Holiday updated: 
+    created: "Holiday created: "
+    deleted: "Holiday deleted: "
+    updated: "Holiday updated: "
 
     single: Holiday

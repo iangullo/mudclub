@@ -230,9 +230,9 @@ es:
   slot:
     single: Franja horaria
 
-    created: Franja horaria creada: 
-    updated: Franja horaria actualizada: 
-    deleted: Franja horaria eliminada: 
+    created: "Franja horaria creada: "
+    updated: "Franja horaria actualizada: "
+    deleted: "Franja horaria eliminada: "
 
     edit: Editar Franja horaria
     many: Horario
@@ -251,10 +251,10 @@ es:
     single: Partido
     won: G
 
-    att_check: Lista de jugadores: 
-    created: Partido creado: 
-    deleted: Partido eliminado: 
-    updated: Partido actualizado: 
+    att_check: "Lista de jugadores: "
+    created: "Partido creado: "
+    deleted: "Partido eliminado: "
+    updated: "Partido actualizado: "
 
     many: Partidos
 
@@ -263,8 +263,8 @@ es:
   # Reemplazado por Calendar::EventKinds[:holiday]
   # -----------------------------------------------------------------------------
   rest:
-    created: Festivo creado: 
-    deleted: Festivo eliminado: 
-    updated: Festivo actualizado: 
+    created: "Festivo creado: "
+    deleted: "Festivo eliminado: "
+    updated: "Festivo actualizado: "
 
     single: Festivo
