@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published by
@@ -52,19 +52,19 @@ gem "bootsnap", require: false
 gem "thruster", require: false
 
 group :development, :test do
-	# See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-	gem "debug", platforms: %i[ mri mswin mswin64 ], require: "debug/prelude"
+  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
+  gem "debug", platforms: %i[ mri mswin mswin64 ], require: "debug/prelude"
 
-	# Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-	gem "brakeman", require: false
+  # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
+  gem "brakeman", require: false
 
-	# Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
-	gem "rubocop-rails-omakase", require: false
+  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
+  gem "rubocop-rails-omakase", require: false
 end
 
 group :development do
-	# Use console on exceptions pages [https://github.com/rails/web-console]
-	gem "web-console"
+  # Use console on exceptions pages [https://github.com/rails/web-console]
+  gem "web-console"
 end
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
