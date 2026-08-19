@@ -118,6 +118,7 @@ es:
         order: Orden
         duration: Duración
         duration_short: Dur.
+        number: Nº
         remarks: Observaciones
         remarks_short: Obs.
       messages:
@@ -196,9 +197,11 @@ es:
           general: General
           general_short: Gral.
           individual: Individual
+          individual_long: Habilidad individual
           individual_short: Ind.
           individual_hint: Desarrollo técnico individual.
           collective: Colectivo
+          individual_long: Táctica colectiva
           collective_short: Col.
           collective_hint: Desarrollo táctico colectivo.
       focus:
@@ -210,6 +213,7 @@ es:
           defense: Defensa
           defense_short: Def.
           physical: Físico
+          physical_short: Fís.
       messages:
         created: Objetivo creado.
         updated: Objetivo actualizado.
@@ -384,6 +388,22 @@ es:
     edit: Editar sesión
     many: Sesiones de entrenamiento
     new: Crear sesión
+
+  match:
+    default_rival: <Rival>
+    home: Local
+    lost: D
+    rival: Rival
+    roster: Jugadores activos
+    single: Partido
+    won: V
+
+    att_check: "Lista de jugadores: "
+    created: "Partido creado: "
+    deleted: "Partido eliminado: "
+    updated: "Partido actualizado: "
+
+    many: Partidos
 
   version:
     author: autor

@@ -154,8 +154,10 @@ es:
         duplicated: Ubicación duplicada.
 
     season:
-      label: Temporada
-      short: Temp.
+      label:
+        single: Temporada
+        plural: Temporadas
+        short: Temp.
       fields:
         locations: Ubicaciones
       messages:
@@ -168,8 +170,6 @@ es:
       short: Dep.
       fields:
         rules: Reglas
-        home: Local
-        default_rival: <Opponent>
 
       terms:
         athlete:
@@ -192,6 +192,10 @@ es:
           single: Partido
           plural: Partidos
           short: Part.
+          home: Local
+          won: G
+          lost: P
+          roster: Convocatoria
         victory:
           single: Victoria
           plural: Victorias
@@ -212,6 +216,11 @@ es:
           single: Posición
           plural: Posiciones
           short: Pos.
+        rival:
+          single: Rival
+          plural: Rivales
+          short: Riv.
+          default: <Rival>
         role:
           single: Rol
           plural: Roles

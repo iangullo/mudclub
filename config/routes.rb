@@ -49,9 +49,8 @@ Rails.application.routes.draw do
   # Clubs are the main organizational units
   #-------------------------------------
   resources :clubs do
-    get :events, to: "events#index"	# club calendar
-    get :locations, to: "locations#index"	# club locations
-    get :slots, to: "slots#index"	# club slots
+    # Facilities available to the club
+    get :locations, to: "locations#index"
 
     # Administrative
     resources :members, controller: :memberships, except: :destroy do
@@ -62,20 +61,35 @@ Rails.application.routes.draw do
     resources :assignments, only: %i[index new create],
               param: :membership_kind
 
+    # Calendar objects
+    resources :slots
+    resources :events
+
     # Club teams
     resources :teams do
-      resources :assignments, only: %i[new create]
+      resources :assignments, only: %i[show new edit create update]
       # resource :volunteers, only: %i[new create]
-      resource :events
-      member do
+
+      # Team-specific actions
+      get :attendance
+      get :plan
+      get :edit_plan
+      get :roster
+      get :edit_roster
+      get :slots
+      get :targets
+      get :edit_targets
+
+      # Team calendar
+      resources :events do
         get :attendance
-        get :plan
-        get :edit_plan
-        get :roster
-        get :edit_roster
-        get :slots
-        get :targets
-        get :edit_targets
+        get :copy
+        get :load_chart
+        get :player_stats
+        get :edit_player_stats
+        get :show_task
+        get :add_task
+        get :edit_task
       end
     end
   end
@@ -92,27 +106,9 @@ Rails.application.routes.draw do
     end
   end
 
-  #-------------------------------------
-  # Pending re-arrangement with 2.0 philosophy
-  #-------------------------------------
-  resources :events, except: [ :index ] do
-    member do
-      get "copy"
-      get "load_chart"
-      get "show_task"
-      get "add_task"
-      get "edit_task"
-      get "attendance"
-      get "player_stats"
-      get "edit_player_stats"
-    end
-  end
-
   resources :locations, except: [ :index ]
 
   resources :seasons
-
-  resources :slots, except: [ :index ]
 
   # DEPRECATED routes
   # resources :people

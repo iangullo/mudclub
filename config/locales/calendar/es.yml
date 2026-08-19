@@ -84,7 +84,7 @@ es:
     event_kinds:
       label: Tipo de evento
       short: Tipo
-      values:
+      values: &event_kind_values  # anchor
         holiday: Festivo
         holiday_short: Fest.
         training: Entrenamiento
@@ -152,6 +152,7 @@ es:
         slot: Franja horaria
         kind: Tipo de evento
         metadata: Metadatos
+      kind: *event_kind_values  # referencia
       messages:
         created: Evento creado.
         updated: Evento actualizado.
@@ -237,26 +238,6 @@ es:
     edit: Editar Franja horaria
     many: Horario
     new: Crear Franja horaria
-
-  # -----------------------------------------------------------------------------
-  # Compatibilidad heredada.
-  # Reemplazado por Calendar::EventKinds[:competition]
-  # -----------------------------------------------------------------------------
-  match:
-    default_rival: <Rival>
-    home: Local
-    lost: P
-    rival: Rival
-    roster: Jugadores activos
-    single: Partido
-    won: G
-
-    att_check: "Lista de jugadores: "
-    created: "Partido creado: "
-    deleted: "Partido eliminado: "
-    updated: "Partido actualizado: "
-
-    many: Partidos
 
   # -----------------------------------------------------------------------------
   # Compatibilidad heredada.

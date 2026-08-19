@@ -84,7 +84,7 @@ en:
     event_kinds:
       label: Event kind
       short: Kind
-      values:
+      values: &event_kind_values  # anchor
         holiday: Holiday
         holiday_short: Hol.
         training: Training
@@ -152,6 +152,7 @@ en:
         slot: Time slot
         kind: Event kind
         metadata: Metadata
+      kind: *event_kind_values  # reference
       messages:
         created: Event created.
         updated: Event updated.
@@ -237,26 +238,6 @@ en:
     edit: Edit Timeslot
     many: Timetable
     new: Create Timeslot
-
-  # -----------------------------------------------------------------------------
-  # Legacy compatibility.
-  # Replaced by Calendar::EventKinds[:competition]
-  # -----------------------------------------------------------------------------
-  match:
-    default_rival: <Opponent>
-    home: Home
-    lost: L
-    rival: Opponent
-    roster: Active players
-    single: Match
-    won: W
-
-    att_check: "Player list: "
-    created: "Created match: "
-    deleted: "Deleted match: "
-    updated: "Updated match: "
-
-    many: Matches
 
   # -----------------------------------------------------------------------------
   # Legacy compatibility.

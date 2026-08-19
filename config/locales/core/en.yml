@@ -154,8 +154,10 @@ en:
         duplicated: Duplicate location.
 
     season:
-      label: Season
-      short: Seas.
+      label:
+        single: Season
+        plural: Seasons
+        short: Seas.
       fields:
         locations: Locations
       messages:
@@ -168,8 +170,6 @@ en:
       short: Sport
       fields:
         rules: Rules
-        home: Home
-        default_rival: <Rival>
 
       terms:
         athlete:
@@ -192,6 +192,10 @@ en:
           single: Match
           plural: Matches
           short: Match
+          home: Home
+          won: W
+          lost: L
+          roster: Roster
         victory:
           single: Victory
           plural: Victories
@@ -212,6 +216,11 @@ en:
           single: Position
           plural: Positions
           short: Pos.
+        rival:
+          single: Opponent
+          plural: Opponents
+          short: Opp.
+          default: <Opponent>
         role:
           single: Role
           plural: Roles

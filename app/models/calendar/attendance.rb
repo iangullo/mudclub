@@ -16,50 +16,70 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# Legacy attendance model.
+# Associates Assignments with Events.
 #
-# Associates Athletes with Events.
+# This model replaces the legacy EventsPlayers driven model
 #
-# This model will eventually be replaced by a People/Participation-based
-# attendance model once the Participation domain has been completed.
-#
-class EventAttendance < ApplicationRecord
+class Attendance < ApplicationRecord
   localized_as "calendar.attendance"
 
-  self.table_name = "events_players"
+  #-------------------------------------
+  # Associations
+  #-------------------------------------
   belongs_to :event
-  belongs_to :player
-  scope :for_event, ->(event_id) { where(event_id:) }
-  scope :for_player, ->(player_id) { where(player_id:) }
-  scope :for_team, ->(team_id) { joins(:event).where("team_id = #{team_id}") }
-  scope :matches, -> { joins(:event).where(events: { kind: Event.kinds[:match] }) }
-  scope :trainings, -> { joins(:event).where(events: { kind: Event.kinds[:train] }) }
-  scope :last7, -> { joins(:event).where("start_time > ? and end_time < ?", Date.today-7, Date.today+1).order(:start_time) }
-  scope :last30, -> { joins(:event).where("start_time > ? and end_time < ?", Date.today-30, Date.today+1).order(:start_time) }
-  self.inheritance_column = "not_sti"
+  belongs_to :assignment
 
-  # Count total attendance for an event. 'e_att' can be either an event_id and
-  # query the database for the count, or a collection of EventAttendance objs.
-  # to sum.
-  def self.count(e_att)
-    case e_att
-    when Integer
-      EventAttendance.where(event_id: e_att).count
-    else
-      e_att.count
+  # Delegations for convenience
+  delegate :person, :team, :club, to: :assignment, allow_nil: true
+  delegate :name, :s_name, to: :person, allow_nil: true, prefix: true
+
+  #-------------------------------------
+  # Enums
+  #-------------------------------------
+  enum :status, %i[unknown present absent excused late], default: :unknown
+
+  #-------------------------------------
+  # Validations
+  #-------------------------------------
+  validates :event, :assignment, presence: true
+  validates :assignment_id, uniqueness: { scope: :event_id }
+
+  #-------------------------------------
+  # Scopes
+  #-------------------------------------
+  scope :for_event, ->(event) { where(event_id: event.id) }
+  scope :for_team, ->(team) { joins(:event).where(events: { team_id: team.id }) }
+  scope :for_assignment, ->(assignment) { where(assignment_id: assignment.id) }
+  scope :for_membership_kind, ->(kind) {
+    joins(assignment: :membership)
+      .where(memberships: { kind: })
+  }
+  scope :for_role, ->(kind) { for_membership_kind(kind) }
+  scope :matches, -> { joins(:event).merge(Event.matches.chronological) }
+  scope :trainings, -> { joins(:event).merge(Event.trainings.chronological) }
+  scope :last7, -> { joins(:event).merge(Event.last7.chronological) }
+  scope :last30, -> { joins(:event).merge(Event.last30.chronological) }
+  scope :present, -> { where(status: :present) }
+  scope :absent, -> { where(status: :absent) }
+  scope :late, -> { where(status: :late) }
+  scope :excused, -> { where(status: :excused) }
+
+  #-------------------------------------
+  # Class methods
+  #-------------------------------------
+  def self.count_by_event(event, role: nil)
+    scope = where(event_id: event.id)
+    scope = scope.for_role(role) if role
+    scope.count
+  end
+
+  def self.fetch(event, assignment, create: false)
+    find_or_initialize_by(event_id: event.id, assignment_id: assignment.id).tap do |record|
+      record.save if create && record.new_record?
     end
   end
 
-  # fetch (or create) an EventAttendance object for event_id and player_id
-  def self.fetch(event_id, player_id, create: false)
-    res   = EventAttendance.find_by(event_id:, player_id:)
-    res ||= EventAttendance.new(event_id:, player_id:) if create
-    res
-  end
-
-  # prepare an EventAttendance object to record  attendance of event_id and player_id
-  def self.prepare(event_id, player_id)
-    res = self.fetch(event_id, player_id, create: true)
-    res
+  def self.prepare(event, assignment)
+    fetch(event, assignment, create: true)
   end
 end
