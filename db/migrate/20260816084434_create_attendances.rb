@@ -1,6 +1,6 @@
-class CreateEventAttendances < ActiveRecord::Migration[8.0]
+class CreateAttendances < ActiveRecord::Migration[8.0]
   def up
-    create_table :event_attendances do |t|
+    create_table :attendances do |t|
       t.references :event,      null: false, foreign_key: true
       t.references :assignment, null: false, foreign_key: true, type: :uuid
       t.integer :status, null: false, default: 0
@@ -9,7 +9,7 @@ class CreateEventAttendances < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :event_attendances,
+    add_index :attendances,
               [ :event_id, :assignment_id ],
               unique: true
 
@@ -17,7 +17,7 @@ class CreateEventAttendances < ActiveRecord::Migration[8.0]
   end
 
   def down
-    drop_table :event_attendances
+    drop_table :attendances
   end
 
   private
@@ -27,7 +27,7 @@ class CreateEventAttendances < ActiveRecord::Migration[8.0]
         athlete_kind = Catalog::MembershipKinds[:athlete].id
 
         execute <<~SQL
-          INSERT INTO event_attendances
+          INSERT INTO attendances
             (event_id, assignment_id, status, created_at, updated_at)
           SELECT
             ep.event_id,
