@@ -99,6 +99,11 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
 
       create_team_assignment(membership, team, athlete_kind.id, player.number)
     end
+
+    # --- SAFETY NET: catch any remaining pairs that still lack an assignment ---
+    say_with_time "Catching missing athlete assignments" do
+      catch_missing_athlete_assignments
+    end
   end
 
   # ---- Shared helpers ----
@@ -183,5 +188,44 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
       ends_on: ends_on,
       settings: settings
     )
+  end
+
+  def catch_missing_athlete_assignments
+    membership_athlete_kind = Catalog::MembershipKinds[:athlete].id
+
+    missing_pairs = execute(<<~SQL)
+      SELECT
+        p.id AS player_id,
+        e.team_id,
+        MIN(DATE(e.start_time)) AS earliest_event,
+        MAX(DATE(e.start_time)) AS latest_event
+      FROM events_players ep
+      JOIN players p ON p.id = ep.player_id
+      JOIN events e ON e.id = ep.event_id
+      WHERE e.team_id IS NOT NULL
+        AND NOT EXISTS (
+          SELECT 1
+          FROM assignments a
+          JOIN memberships m ON m.id = a.membership_id
+          WHERE m.person_id = p.person_id
+            AND m.club_id = e.club_id
+            AND m.kind = #{membership_athlete_kind}
+            AND a.team_id = e.team_id
+        )
+      GROUP BY p.id, e.team_id
+    SQL
+
+    say "Found #{missing_pairs.count} missing athlete assignments to create."
+
+    missing_pairs.each do |row|
+      player = Player.find(row['player_id'])
+      team = Team.find(row['team_id'])
+      membership = find_or_create_membership(player, team, :athlete)
+      next unless membership
+
+      create_team_assignment(membership, team, Catalog::AssignmentKinds.fetch(:athlete).id, player.number)
+    end
+
+    say "Created #{missing_pairs.count} missing athlete assignments."
   end
 end
