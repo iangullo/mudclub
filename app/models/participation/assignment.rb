@@ -46,8 +46,9 @@ class Assignment < ApplicationRecord
   #-------------------------------------
   # Convenient delegations
   #-------------------------------------
-  delegate :club,	:club_id,
-          :person, :person_id,
+  delegate :club,
+          :person,
+          :age,
           :birthday,
           :email,
           :female,
@@ -107,7 +108,7 @@ class Assignment < ApplicationRecord
   scope :open, -> { where(ends_on: nil) }
   scope :female, -> { joins(:person).where("female = true") }
   scope :male, -> { joins(:person).where("female = false") }
-  scope :by_number, -> { order(Arel.sql("NULLIF(settings->>'jersey_number', '')::int NULLS LAST")) }
+  scope :by_number, -> { order(Arel.sql("NULLIF(settings->>'number', '')::int NULLS LAST")) }
 
   # short name for form viewing
   def s_name
@@ -169,6 +170,12 @@ class Assignment < ApplicationRecord
   #-------------------------------------
   def age
     person&.age
+  end
+
+  def all_pics?
+    (avatar&.attached? || person&.avatar&.attached?) &&
+      person&.id_front.attached? &&
+      person&.id_back.attached?
   end
 
   def female?

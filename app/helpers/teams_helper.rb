@@ -105,9 +105,22 @@ module TeamsHelper
     res
   end
 
+  # roster table view
+  def team_roster_table(athletes = @athletes)
+    title = team_roster_title
+
+    rows  = Array.new
+    athletes.each do |athlete|
+      rows << team_roster_row(athlete)
+    end
+
+    { title:, rows: }
+  end
+
   # return a TableComponent for the teams given
-  def team_table(teams: @teams, add_teams: false)
+  def team_table(teams: @teams)
     if teams
+      add_teams = @team_policy.create?
       pcount = (device != "mobile" && (u_admin? || (user_in_club? && (u_manager? || u_secretary?))))
       title = ((@rdx == 1 || @player || @coach) ? [ { kind: :normal, value: Season.label(:short) } ] : [])
       title << { kind: :normal, value: Team.label }
@@ -155,7 +168,7 @@ module TeamsHelper
   def team_links
     if u_manager? || u_coach? || u_secretary?
       res = [ [
-        button_field({ kind: :jump, symbol: symbol_hash("player", namespace: @team&.sport&.name), url: club_team_roster_path(@club, @team, rdx: @rdx), label: Team.fld(:roster) }, align: "center")
+        button_field({ kind: :jump, symbol: symbol_hash("player", namespace: @team&.sport&.name), url: club_team_roster_path(@club, @team, rdx: @rdx), label: Team.term(:roster) }, align: "center")
       ] ]
       if u_manager? || u_coach?
         res.last << button_field({ kind: :jump, symbol: "target", url: club_team_targets_path(@club, @team, rdx: @rdx), label: Target.label(:plural) }, align: "center")
@@ -278,26 +291,32 @@ module TeamsHelper
     end
 
     # team roster table helpers
-    def team_roster_header
-      [
-        { kind: :normal, value: Membership.fld(:number_short), align: "center" },
+    def team_roster_title
+      title = [
+        { kind: :normal, value: Assignment.fld(:number), align: "center" },
         { kind: :normal, value: Person.fld(:name) },
-        { kind: :normal, value: I18n.t("calendar.fields.week"), align: "center" }, { kind: :normal, value: I18n.t("calendar.fields.month"), align: "center" },
-        { kind: :normal, value: Season.label(:short), align: "center" }, { kind: :normal, value: @team.term(:match, :plural) }
+        { kind: :normal, value: Person.fld(:age), align: "center" },
+        { kind: :normal, value: Person.fld(:phone_short), align: "center" },
+        { kind: :normal, value: Person.fld(:photos_short), align: "center" },
+        { kind: :normal, value: Assignment.fld(:status_short) }
       ]
+
+      title << button_field({ kind: :add, url: new_assignment_path, frame: "modal" }) if @team_policy.edit_roster?
+
+      title
     end
 
-    def team_roster_row(athlete, manage: nil)
-      row = { url: club_team_assignment_path(athlete.club, athlete.team, athlete, rdx: @rdx), frame: :modal, items: [] }
-      row[:items] << { kind: :normal, value: athlete.number, align: "center" }
-      row[:items] << { kind: :normal, value: athlete.s_name }
-      row[:items] << { kind: :normal, value: athlete.person&.age, align: "center" }
-      if manage
-        row[:items] << { kind: :contact, phone: athlete.person&.phone, device: device }
-        row[:items] << symbol_field((athlete.all_pics? ? "yes" : "no"), align: "center", class: "border")
-        row[:items] << symbol_field((athlete.active? ? "yes" : "no"), align: "center", class: "border")
-        row[:items] << button_field({ kind: :delete, url: row[:url], name: athlete.to_s, rdx: @rdx, confirm: true }) if team_manager?(team)
-      end
+    def team_roster_row(athlete)
+      row = { url: assignment_path(athlete), frame: :modal, items: [] }
+      row[:items] += [
+        { kind: :normal, value: athlete.number, align: :center },
+        { kind: :normal, value: athlete.to_s(style: 0) },
+        { kind: :normal, value: athlete.age, align: :center },
+        { kind: :contact, phone: athlete.phone, device: device },
+        symbol_field((athlete.all_pics? ? :yes : :no), align: :center, class: "border"),
+        participation_status_field(athlete, f_opts: { align: :center, class: "align-top border" })
+      ]
+      row
     end
 
     # return accordion for team targets

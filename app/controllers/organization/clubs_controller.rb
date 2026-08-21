@@ -17,177 +17,177 @@
 # contact email - iangullo@gmail.com.
 #
 class ClubsController < ApplicationController
-	before_action :set_club, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_club, only: [ :show, :edit, :update, :destroy ]
 
-	# GET /clubs or /clubs.json
-	def index
-		if check_access(roles: [ :admin, :manager ])
-			@clubs  = Club.search(params[:search], current_user)
-			page    = paginate(@clubs)
-			title   = u_manager? ? Club.t_path(:label, :rivals) : Club.label(:plural)
-			title   = helpers.club_title(title:, icon: { concept: "rivals" })
-			title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10 } ]
-			table   = helpers.club_table(clubs: page)
-			retlnk  = base_lnk(u_clubid ? club_path(u_clubid) : "/")
-			create_index(title:, table:, page:, retlnk:)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
-	end
+  # GET /clubs or /clubs.json
+  def index
+    if check_access(roles: [ :admin, :manager ])
+      @clubs  = Club.search(params[:search], current_user)
+      page    = paginate(@clubs)
+      title   = u_manager? ? Club.fld(:rivals) : Club.label(:plural)
+      title   = helpers.club_title(title:, icon: { concept: "rivals" })
+      title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10 } ]
+      table   = helpers.club_table(clubs: page)
+      retlnk  = base_lnk(u_clubid ? club_path(u_clubid) : "/")
+      create_index(title:, table:, page:, retlnk:)
+    else
+      redirect_to "/", data: { turbo_action: "replace" }
+    end
+  end
 
-	# GET /clubs/1 or /clubs/1.json
-	def show
-		if @club && check_access(roles: [ :admin, :manager, :secretary ])
-			@title  = create_fields(helpers.club_show_title)
-			@links  = create_fields(helpers.club_links)
-			if user_in_club?	# my own club: show events
-				@table = create_fields(helpers.event_list_table(obj: Season.latest))
-			else	# off return to  the user's club
-				close  = :back
-				retlnk = base_lnk(clubs_path)
-			end
-			submit  = edit_club_path(@club, rdx: @rdx) if u_admin? || club_manager?(@club)
-			@submit = create_submit(close:, retlnk:, submit:, frame: "modal")
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
-	end
+  # GET /clubs/1 or /clubs/1.json
+  def show
+    if @club && check_access(roles: [ :admin, :manager, :secretary ])
+      @title  = create_fields(helpers.club_show_title)
+      @links  = create_fields(helpers.club_links)
+      if user_in_club?	# my own club: show events
+        @table = create_fields(helpers.event_list_table(obj: Season.latest))
+      else	# off return to  the user's club
+        close  = :back
+        retlnk = base_lnk(clubs_path)
+      end
+      submit  = edit_club_path(@club, rdx: @rdx) if u_admin? || club_manager?(@club)
+      @submit = create_submit(close:, retlnk:, submit:, frame: "modal")
+    else
+      redirect_to "/", data: { turbo_action: "replace" }
+    end
+  end
 
-	# GET /clubs/new
-	def new
-		if check_access(roles: [ :admin ])
-			m_club  = u_club
-			locale  = m_club&.locale || "en"
-			country = m_club&.country || "US"
-			@club   = Club.new(settings: { locale:, country: })
-			prepare_form(title: @club.t_path(:actions, :create))
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
-	end
+  # GET /clubs/new
+  def new
+    if check_access(roles: [ :admin ])
+      m_club  = u_club
+      locale  = m_club&.locale || "en"
+      country = m_club&.country || "US"
+      @club   = Club.new(settings: { locale:, country: })
+      prepare_form(title: @club.act(:create))
+    else
+      redirect_to "/", data: { turbo_action: "replace" }
+    end
+  end
 
-	# GET /clubs/1/edit
-	def edit
-		if @club && (u_admin? || club_manager?(@club))
-			prepare_form(title: @club.t_path(:actions, :edit))
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
-	end
+  # GET /clubs/1/edit
+  def edit
+    if @club && (u_admin? || club_manager?(@club))
+      prepare_form(title: @club.act(:edit))
+    else
+      redirect_to "/", data: { turbo_action: "replace" }
+    end
+  end
 
-	# POST /clubs or /clubs.json
-	def create
-		if check_access(roles: [ :admin ])
-			respond_to do |format|
-				@club = Club.fetch(club_params, create: true)
-				@club.rebuild(club_params)
-				if @club.id == nil then	# it's a new club
-					if @club.save # club saved to database
-						a_desc = "#{@club.msg(:created)} '#{@club.nick}'"
-						register_action(:created, a_desc, url: club_path(@club, rdx: 2))
-						format.html { redirect_to club_path(@club, rdx: 0), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :show, status: :created, location: club_path(@club, rdx: 0) }
-					else
-						prepare_form(title: @club.t_path(:actions, :create))
-						format.html { render :new, status: :unprocessable_entity }
-						format.json { render json: @club.errors, status: :unprocessable_entity }
-					end
-				else	# duplicate club
-					format.html { redirect_to club_path(@club, rdx: 0), notice: helpers.flash_message("#{@club.msg(:duplicated)} '#{@club.nick}'"), data: { turbo_action: "replace" } }
-					format.json { render :index, :created, location: club_path(@club, rdx: 0) }
-				end
-			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
-	end
+  # POST /clubs or /clubs.json
+  def create
+    if check_access(roles: [ :admin ])
+      respond_to do |format|
+        @club = Club.fetch(club_params, create: true)
+        @club.rebuild(club_params)
+        if @club.id == nil then	# it's a new club
+          if @club.save # club saved to database
+            a_desc = "#{@club.msg(:created)} '#{@club.nick}'"
+            register_action(:created, a_desc, url: club_path(@club, rdx: 2))
+            format.html { redirect_to club_path(@club, rdx: 0), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+            format.json { render :show, status: :created, location: club_path(@club, rdx: 0) }
+          else
+            prepare_form(title: @club.act(:create))
+            format.html { render :new, status: :unprocessable_entity }
+            format.json { render json: @club.errors, status: :unprocessable_entity }
+          end
+        else	# duplicate club
+          format.html { redirect_to club_path(@club, rdx: 0), notice: helpers.flash_message("#{@club.msg(:duplicated)} '#{@club.nick}'"), data: { turbo_action: "replace" } }
+          format.json { render :index, :created, location: club_path(@club, rdx: 0) }
+        end
+      end
+    else
+      redirect_to "/", data: { turbo_action: "replace" }
+    end
+  end
 
-	# PATCH/PUT /clubs/1 or /clubs/1.json
-	def update
-		if @club && (u_admin? || club_manager?(@club))
-			respond_to do |format|
-				retlnk = club_path(@club, rdx: @rdx)
-				@club.rebuild(club_params)
-				if @club.modified?# club has been edited
-					if @club.save
-						a_desc = "#{@club.msg(:updated)} '#{@club.nick}'"
-						register_action(:updated, a_desc, url: club_path(@club, rdx: 2))
-						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :show, status: :ok, location: retlnk }
-					else
-						prepare_form(title: @club.t_path(:actions, :edit))
-						format.html { render :edit, status: :unprocessable_entity }
-						format.json { render json: @club.errors, status: :unprocessable_entity }
-					end
-				else
-					format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
-					format.json { render :show, status: :ok, location: retlnk }
-				end
-			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
-	end
+  # PATCH/PUT /clubs/1 or /clubs/1.json
+  def update
+    if @club && (u_admin? || club_manager?(@club))
+      respond_to do |format|
+        retlnk = club_path(@club, rdx: @rdx)
+        @club.rebuild(club_params)
+        if @club.modified?# club has been edited
+          if @club.save
+            a_desc = "#{@club.msg(:updated)} '#{@club.nick}'"
+            register_action(:updated, a_desc, url: club_path(@club, rdx: 2))
+            format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+            format.json { render :show, status: :ok, location: retlnk }
+          else
+            prepare_form(title: @club.act(:edit))
+            format.html { render :edit, status: :unprocessable_entity }
+            format.json { render json: @club.errors, status: :unprocessable_entity }
+          end
+        else
+          format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
+          format.json { render :show, status: :ok, location: retlnk }
+        end
+      end
+    else
+      redirect_to "/", data: { turbo_action: "replace" }
+    end
+  end
 
-	# DELETE /clubs/1 or /clubs/1.json
-	def destroy
-		# cannot destroy user's club
-		if @club && (check_access(roles: [ :admin ]) && (@club.id != u_clubid))
-			c_name = @club.name
-			@club.destroy
-			respond_to do |format|
-				a_desc = "#{@club.msg(:deleted)} '#{c_name}'"
-				register_action(:deleted, a_desc)
-				format.html { redirect_to clubs_path(rdx: 0), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
-				format.json { head :no_content }
-			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
-	end
+  # DELETE /clubs/1 or /clubs/1.json
+  def destroy
+    # cannot destroy user's club
+    if @club && (check_access(roles: [ :admin ]) && (@club.id != u_clubid))
+      c_name = @club.name
+      @club.destroy
+      respond_to do |format|
+        a_desc = "#{@club.msg(:deleted)} '#{c_name}'"
+        register_action(:deleted, a_desc)
+        format.html { redirect_to clubs_path(rdx: 0), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+        format.json { head :no_content }
+      end
+    else
+      redirect_to "/", data: { turbo_action: "replace" }
+    end
+  end
 
-	private
-		# retrurn the correct retlnk based on role, rdx
-		def get_retlnk
-			case @rdx&.to_i
-			when nil, 0; club_path(u_clubid)
-			when 1; team_id ? team_path(team_id, rdx: @rdx) : u_path
-			when 2; home_log_path
-			end
-		end
+  private
+    # retrurn the correct retlnk based on role, rdx
+    def get_retlnk
+      case @rdx&.to_i
+      when nil, 0; club_path(u_clubid)
+      when 1; team_id ? team_path(team_id, rdx: @rdx) : u_path
+      when 2; home_log_path
+      end
+    end
 
-		# prepare a form to edit/create a club
-		def prepare_form(title:)
-			@title  = create_fields(helpers.club_form_title(title:))
-			@fields = create_fields(helpers.club_form)
-			@submit = create_submit
-		end
+    # prepare a form to edit/create a club
+    def prepare_form(title:)
+      @title  = create_fields(helpers.club_form_title(title:))
+      @fields = create_fields(helpers.club_form)
+      @submit = create_submit
+    end
 
-		def set_club
-			c_id  = get_param(:id, objid: true) || @club.id
-			@club = Club.find_by_id(c_id)
-		end
+    def set_club
+      c_id  = get_param(:id, objid: true) || @club.id
+      @club = Club.find_by_id(c_id)
+    end
 
-		# Only allow a list of trusted parameters through.
-		def club_params
-			params.require(:club).permit(
-				:id,
-				:address,
-				:avatar,
-				:country,
-				:email,
-				:locale,
-				:name,
-				:nick,
-				:phone,
-				:rdx,
-				:website,
-				social: [
-					facebook: {},
-					google: {},
-					instagram: {},
-					twitter: {}
-				]
-			)
-		end
+    # Only allow a list of trusted parameters through.
+    def club_params
+      params.require(:club).permit(
+        :id,
+        :address,
+        :avatar,
+        :country,
+        :email,
+        :locale,
+        :name,
+        :nick,
+        :phone,
+        :rdx,
+        :website,
+        social: [
+          facebook: {},
+          google: {},
+          instagram: {},
+          twitter: {}
+        ]
+      )
+    end
 end

@@ -68,6 +68,8 @@ en:
         team: Team
         number: Jersey number
         number_short: "#"
+        status: Status
+        status_short: Stat.
         notes: Notes
       messages:
         created: Assignment created.

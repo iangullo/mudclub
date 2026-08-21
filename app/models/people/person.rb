@@ -24,14 +24,10 @@ class Person < ApplicationRecord
   before_destroy :unlink
   before_save { self.name = self.name ? self.name.mb_chars.titleize : "" }
   before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
+
   #-------------------------------------
   # Object relationships
   #-------------------------------------
-  belongs_to :coach, optional: true	# DEPRECATED
-  accepts_nested_attributes_for :coach	# DEPRECATED
-  belongs_to :player, optional: true	# DEPRECATED
-  accepts_nested_attributes_for :player	# DEPRECATED
-  belongs_to :parent, optional: true	# DEPRECATED
   belongs_to :user, optional: true
   accepts_nested_attributes_for :user
   has_many :memberships
@@ -57,17 +53,6 @@ class Person < ApplicationRecord
     using: { tsearch: { prefix: true } }
   scope :real, -> { where("id>0") }
   scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
-  scope :for_category, ->(category, season) {
-    where(
-      birthday: category.oldest(season.start_year)...category.youngest(season.start_year)
-    ).yield_self do |scope|
-      case category.sex
-      when "female" then scope.female
-      when "male"   then scope.male
-      else scope
-      end
-    end
-  }
 
   #-------------------------------------
   # Data validations
@@ -176,7 +161,8 @@ class Person < ApplicationRecord
 
   # Return list of responsible adults related to this person
   def responsible_adults
-    relationships.active.where(
+    return [ self ] if age>18
+    relationships.where(
       kind: %i[parent father mother guardian legal_representative]
     )
   end

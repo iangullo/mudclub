@@ -51,18 +51,18 @@ module ClubsHelper
           button_field({ kind: :jump, symbol: symbol_hash(:coach, namespace: "common"), url: club_members_path(@club, kind: :coaches, rdx: 0), label:  Sport.term(:coach, :plural) }, align: "center")
         ]
         res << [
-          button_field({ kind: :jump, symbol: "team", url: club_teams_path(rdx: 0), label: Team.label(:plural) }, align: "center"),
-          button_field({ kind: :jump, symbol: "rivals", url: clubs_path(rdx: 0), label: Club.t_path(:label, :rivals) }, align: "center")
+          button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: Team.label(:plural) }, align: "center"),
+          button_field({ kind: :jump, symbol: "rivals", url: clubs_path(@club, rdx: 0), label: Club.fld(:rivals) }, align: "center")
         ]
       else
         res << []
       end
-      res.last <<	button_field({ kind: :jump, symbol: "location", url: club_locations_path(rdx: 0), label: Location.label(:plural) }, align: "center")
-      res.last << button_field({ kind: :jump, symbol: "timetable", url: club_slots_path(rdx: 0), label: Slot.label(:plural) }, align: "center")
+      res.last <<	button_field({ kind: :jump, symbol: "location", url: club_locations_path(@club, rdx: 0), label: Location.label(:plural) }, align: "center")
+      res.last << button_field({ kind: :jump, symbol: "timetable", url: club_slots_path(@club, rdx: 0), label: Slot.label(:plural) }, align: "center")
     else
       res = [ [
-        button_field({ kind: :jump, symbol: "team", url: club_teams_path(rdx: 0), label: Team.label(:plural) }, align: "center"),
-        button_field({ kind: :jump, symbol: "location", url: club_locations_path(rdx: 0), label: Location.label(:plural) }, align: "center")
+        button_field({ kind: :jump, symbol: "team", url: club_teams_path(@club, rdx: 0), label: Team.label(:plural) }, align: "center"),
+        button_field({ kind: :jump, symbol: "location", url: club_locations_path(@club, rdx: 0), label: Location.label(:plural) }, align: "center")
       ] ]
     end
     res

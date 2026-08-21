@@ -18,21 +18,64 @@ en:
     label: Training
     short: Train.
 
-    team:
-      label: Team
-      plural: Teams
-      short: Team
+    drill:
+      label:
+        single: Drill
+        plural: Drills
+        short: Drill
+      actions:
+        edit: Edit Drill
+        new: Create Drill
       fields:
         name: Name
+        description: Description
+        description_short: Desc.
+        author: Author
+        kind: Drill category
+        kind_short: Kind
+        material: Material
+        material_short: Mat.
         sport: Sport
-        category: Category
-        division: Competition
-        facility: Home facility
-        roster: Roster
+        court_mode: Court layout
+        court_mode_short: Layout
+      values:
+        none: No drill selected
+        default: <New Drill>
+
       messages:
-        created: Team created.
-        updated: Team updated.
-        deleted: Team deleted.
+        created: Drill created.
+        updated: Drill updated.
+        deleted: Drill deleted.
+
+    drill_kind:
+      single: Kind
+      plural: Kinds
+      short: Kind
+      hint: Drill kind
+      fields:
+        name: Name
+      values:
+        default: <kind>
+      messages:
+        created: Drill kind created.
+        updated: Drill kind updated.
+        deleted: Drill kind deleted.
+
+    plan:
+      label:
+        single: Plan
+        plural: Plans
+        short: Plan
+        hint: Training plan
+      fields:
+        name: Name
+        description: Description
+        description_short: Desc.
+        team: Team
+      messages:
+        created: Training plan created.
+        updated: Training plan updated.
+        deleted: Training plan deleted.
 
     session:
       single: Session
@@ -55,73 +98,28 @@ en:
         deleted: Training session deleted.
         attendance_checked: Attendance checked.
 
-    plan:
+    stats:
+      single: Statistic
+      plural: Statistics
+      short: Stat.
+      messages:
+        updated: Statistics updated.
+
+    skill:
       label:
-        single: Plan
-        plural: Plans
-        short: Plan
-        hint: Training plan
+        single: Skill
+        plural: Skills
+        short: Skill
       fields:
         name: Name
         description: Description
         description_short: Desc.
-        team: Team
+      values:
+        default: <skill>
       messages:
-        created: Training plan created.
-        updated: Training plan updated.
-        deleted: Training plan deleted.
-
-    drill:
-      label:
-        single: Drill
-        plural: Drills
-        short: Drill
-      fields:
-        name: Name
-        description: Description
-        description_short: Desc.
-        author: Author
-        kind: Drill category
-        kind_short: Kind
-        material: Material
-        material_short: Mat.
-        sport: Sport
-        court_mode: Court layout
-        court_mode_short: Layout
-      messages:
-        created: Drill created.
-        updated: Drill updated.
-        deleted: Drill deleted.
-
-    drill_kind:
-      single: Kind
-      plural: Kinds
-      short: Kind
-      hint: Drill category
-      fields:
-        name: Name
-      messages:
-        created: Drill category created.
-        updated: Drill category updated.
-        deleted: Drill category deleted.
-
-    task:
-      label:
-        single: Task
-        plural: Tasks
-        short: Task
-      fields:
-        drill: Drill
-        order: Order
-        duration: Duration
-        duration_short: Dur.
-        number: #
-        remarks: Remarks
-        remarks_short: Rem.
-      messages:
-        created: Task created.
-        updated: Task updated.
-        deleted: Task deleted.
+        created: Skill created.
+        updated: Skill updated.
+        deleted: Skill deleted.
 
     step:
       label:
@@ -137,56 +135,27 @@ en:
         explanation: Explanation
         explanation_short: Expl.
         diagram: Diagram
+      values:
+        default: <step>
       messages:
         created: Step created.
         updated: Step updated.
         deleted: Step deleted.
 
-    version:
-      label: Version
-      short: Ver.
-      fields:
-        author: Author
-        name: Name
-        description: Description
-        description_short: Desc.
-        explanation: Explanation
-        explanation_short: Expl.
-        material: Material
-        kind: Drill category
-        skills: Skills
-        targets: Targets
-        changes: Changes
-      messages:
-        created: Version created.
-        updated: Version updated.
-        deleted: Version deleted.
-
-    skill:
-      label:
-        single: Skill
-        plural: Skills
-        short: Skill
-      fields:
-        name: Name
-        description: Description
-        description_short: Desc.
-      messages:
-        created: Skill created.
-        updated: Skill updated.
-        deleted: Skill deleted.
-
     target:
       label:
         single: Target
         plural: Targets
-        short: Target
+        short: Tgt.
       actions:
         edit: Edit Targets
       fields:
         concept: Concept
         aspect: Aspect
         focus: Focus
+        completion: Completion (%)
+      values:
+        default: <target>
       aspect:
         label: Aspect
         short: Aspect
@@ -216,12 +185,64 @@ en:
         updated: Target updated.
         deleted: Target deleted.
 
-    stats:
-      single: Statistic
-      plural: Statistics
-      short: Stat.
+    team:
+      label: Team
+      plural: Teams
+      short: Team
+      fields:
+        name: Name
+        sport: Sport
+        category: Category
+        division: Competition
+        facility: Home facility
+        roster: Roster
       messages:
-        updated: Statistics updated.
+        created: Team created.
+        updated: Team updated.
+        deleted: Team deleted.
+
+    task:
+      label:
+        single: Task
+        plural: Tasks
+        short: Task
+      actions:
+        add: Add Task
+        edit: Edit Task
+      fields:
+        drill: Drill
+        order: Order
+        duration: Duration
+        duration_short: Dur.
+        number: #
+        remarks: Remarks
+        remarks_short: Rem.
+      messages:
+        created: Task created.
+        updated: Task updated.
+        deleted: Task deleted.
+
+    version:
+      label:
+        single: Version
+        plural: Versions
+        short: Ver.
+      fields:
+        author: Author
+        name: Name
+        description: Description
+        description_short: Desc.
+        explanation: Explanation
+        explanation_short: Expl.
+        material: Material
+        kind: Drill category
+        skills: Skills
+        targets: Targets
+        changes: Changes
+      messages:
+        created: Version created.
+        updated: Version updated.
+        deleted: Version deleted.
 
   # -------------------------------------------------------------------------
   # DEPRECATED - DO NOT MODIFY

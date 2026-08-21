@@ -29,7 +29,7 @@ module DivisionsHelper
   # return definition @fields for forms
   def division_form(action)
     @submit = SubmitComponent.new(submit: :save)
-    res = division_title(title: Division.t_path(:actions, action))
+    res = division_title(title: Division.act(action.to_sym))
     res << [ gap_field, { kind: :text_box, key: :name, value: @division.name, placeholder: @division.fld(:name), mandatory: { length: 3 } } ]
   end
 

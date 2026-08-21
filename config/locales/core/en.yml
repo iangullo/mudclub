@@ -91,8 +91,10 @@ en:
       global: Global
 
     user:
-      label: User
-      short: User
+      label:
+        single: User
+        plural: Users
+        short: User
       fields:
         profile: Profile
         profile_short: Prof.
@@ -139,14 +141,21 @@ en:
         exported: User actions exported.
 
     location:
-      label: Location
-      short: Loc.
+      label:
+        single: Location
+        plural: Locations
+        short: Loc.
+      actions:
+        see: (see location)
       fields:
         name: Name
         google_maps: Google Maps
         google_maps_short: GPS
         training_court: Training court
         training_court_short: Court
+      values:
+        default: <new locations>
+        none: (no location)
       messages:
         created: Location created.
         updated: Location updated.
@@ -166,11 +175,12 @@ en:
         deleted: Season deleted.
 
     sport:
-      label: Sport
-      short: Sport
+      label:
+        single: Sport
+        plural: Sports
+        short: Sport
       fields:
         rules: Rules
-
       terms:
         athlete:
           single: Athlete
@@ -225,6 +235,7 @@ en:
           single: Role
           plural: Roles
           short: Role
+        roster: Roster
         season:
           single: Season
           plural: Seasons
@@ -249,7 +260,6 @@ en:
           single: Period
           plural: Periods
           short: Per.
-
       messages:
         created: Sport created.
         updated: Sport updated.

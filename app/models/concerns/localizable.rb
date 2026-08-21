@@ -93,6 +93,7 @@ module Localizable
 
   TRANSLATION_HELPERS = %i[
     label
+    act
     term
     fld
     msg
@@ -206,7 +207,7 @@ module Localizable
     #
     # Convenience wrappers
     #
-    TRANSLATION_SECTIONS = { fld: :fields, msg: :messages, val: :values }.freeze
+    TRANSLATION_SECTIONS = { act: :actions, fld: :fields, msg: :messages, val: :values }.freeze
 
     TRANSLATION_SECTIONS.each do |method_name, scope|
       define_method(method_name) do |key, shorthand = nil, **options|
@@ -329,6 +330,9 @@ module Localizable
 
         when :value, :values
           :values
+
+        when :action, :actions
+          :actions
 
         else
           i18n_key_scope

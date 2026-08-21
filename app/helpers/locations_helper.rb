@@ -20,7 +20,7 @@ module LocationsHelper
   # return fields definition @title for forms
   def location_form(title:)
     res = location_title(title:)
-    res << [ { kind: :text_box, key: :name, value: @location.name, placeholder: I18n.t("location.default"), mandatory: { length: 3 } } ]
+    res << [ { kind: :text_box, key: :name, value: @location.name, placeholder: Location.val(:default), mandatory: { length: 3 } } ]
     res << [
       symbol_field("gmaps"),
       { kind: :text_box, key: :gmaps_url, value: @location.gmaps_url, placeholder: I18n.t("location.gmaps") }

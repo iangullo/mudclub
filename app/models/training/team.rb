@@ -119,16 +119,27 @@ class Team < ApplicationRecord
   #-------------------------------------
 
   # Get a list of athletes that are valid to play in this team
-  def eligible_athletes(include_assigned: true)
-    scope = club.memberships
-                .current
-                .of_kind(:athlete)
-                .includes(:person)
+  def eligible_athletes(exclude_assigned: false)
+    s_year = season.start_year
 
-    scope = scope.merge(Person.for_category(category, season)) # age/sex
+    scope = club.memberships.current.
+      of_kind(:athlete).
+      joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
 
-    unless include_assigned
-      scope = scope.where.not(id: athletes(current: true).select(:membership_id))
+    case category.sex
+    when "female"
+      scope = scope.where(people: { female: true })
+    when "male"
+      scope = scope.where(people: { female: false })
+    end
+
+    # Optionally exclude athletes already assigned to this team
+    if exclude_assigned
+      assigned_person_ids = assignments
+                              .joins(membership: :person)
+                              .where(kind: :athlete)
+                              .pluck("people.id")
+      scope = scope.where.not(person_id: assigned_person_ids) if assigned_person_ids.any?
     end
 
     scope

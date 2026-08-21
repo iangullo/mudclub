@@ -99,6 +99,7 @@ class Membership < ApplicationRecord
   }
 
   delegate :avatar,
+          :age,
           :birthday,
           :email,
           :female,
@@ -209,6 +210,17 @@ class Membership < ApplicationRecord
 
   def ends_on=(date)
     self.left_on = date
+  end
+
+  # (jersey) number of assignments (if avaiable)
+  def number
+    assignments.current.of_kind(:athlete).first&.number
+  end
+
+  # Returns all teams this membership is (or has been) assigned to.
+  def teams(historical: false)
+    scope = Team.joins(:assignments).where(assignments: { membership_id: id }).distinct
+    historical ? scope : scope.merge(Assignment.current)
   end
 
   def self.search(club:, search: nil, status: nil, kind: nil, history: false)

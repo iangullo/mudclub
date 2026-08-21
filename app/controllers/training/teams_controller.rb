@@ -24,296 +24,268 @@ class TeamsController < ApplicationController
   # GET /club/x/teams
   # GET /club/x/teams.json
   def index
-    if check_access(roles: [ :admin, :manager, :coach, :secretary ])
-      @teams = Team.real.order(:category_id, :name).where(club_id: @club&.id, season_id: @season&.id)
-      respond_to do |format|
-        format.xlsx do
-          f_name = "#{@season.name(safe: true)}-players.xlsx"
-          a_desc = "#{I18n.t("player.export")} '#{f_name}'"
-          register_action(:exported, a_desc, url: club_teams_path(@club, rdx: 2))
-          response.headers["Content-Disposition"] = "attachment; filename=#{f_name}"
-        end
-        format.html do
-          title   = helpers.team_title(title: Team.label(:plural), search: true)
-          page    = paginate(@teams)	# paginate results
-          table   = helpers.team_table(teams: page, add_teams: club_manager?(@club))
-          zerolnk = @club ? club_path(@club, rdx: @rdx) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
-          retlnk  = base_lnk(zerolnk)
-          submit  = { kind: :export, url: club_teams_path(@club, format: :xlsx, season_id: @season.id), working: false } if user_in_club? && (u_manager? || u_secretary?)
-          create_index(title:, table:, page:, retlnk:, submit:)
-          render :index
-        end
+    @team_policy = check_policy!(TeamPolicy, club: @club)
+
+    @teams = Team.for_club(@club&.id).for_season(@season&.id).ordered
+    respond_to do |format|
+      format.xlsx do
+        f_name = "#{@season.name(safe: true)}-athletes.xlsx"
+        a_desc = "#{I18n.t("player.export")} '#{f_name}'"
+        register_action(:exported, a_desc, url: club_teams_path(rdx: 2))
+        response.headers["Content-Disposition"] = "attachment; filename=#{f_name}"
       end
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
+      format.html do
+        title   = helpers.team_title(title: Team.label(:plural), search: true)
+        page    = paginate(@teams)	# paginate results
+        table   = helpers.team_table(teams: page)
+        zerolnk = @club ? club_path(@club, rdx: @rdx) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
+        retlnk  = base_lnk(zerolnk)
+        submit  = { kind: :export, url: club_teams_path(@club, format: :xlsx, season_id: @season.id), working: false } if user_in_club? && (u_manager? || u_secretary?)
+        create_index(title:, table:, page:, retlnk:, submit:)
+        render :index
+      end
     end
   end
 
-  # GET /teams/1
-  # GET /teams/1.json
+  # GET /club/x/teams/1
+  # GET /club/x/teams/1.json
   def show
-    if @team && user_in_club? && check_access(roles: [ :coach, :manager, :secretary ])
-      @sport   = @team.sport.specific
-      title    = helpers.team_title(title: @team.nick)
-      w_l = @team.win_loss
-      if w_l[:won] > 0 || w_l[:lost] > 0
-        wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
-        title << [ helpers.gap_field, { kind: :text, value: wlstr } ]
-      end
-      @title   = create_fields(title)
-      @coaches = create_fields(helpers.team_coaches)
-      if u_manager? || u_coach?
-        @links = create_fields(helpers.team_links)
-        @table = create_fields(helpers.event_list_table(obj: @team))
-        submit = edit_club_team_path(@club, @team, rdx: @rdx) if team_manager?
-      else
-        start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
-        anchor     = { url: events_club_team_path(@club, @team), rdx: @rdx }
-        @calendar  = CalendarComponent.new(anchor:, start_date:, obj: @team, user: current_user)
-        submit     = nil
-      end
-      zerolnk = club_teams_path(@club, season_id: @season&.id, rdx: @rdx)
-      @submit = create_submit(close: :back, retlnk: base_lnk(zerolnk), submit:, frame: (submit ? "modal" : nil))
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    @sport   = @team.sport.specific
+    title    = helpers.team_title(title: @team.nick)
+    w_l = @team.win_loss
+    if w_l[:won] > 0 || w_l[:lost] > 0
+      wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
+      title << [ helpers.gap_field, { kind: :text, value: wlstr } ]
     end
+    @title   = create_fields(title)
+    @coaches = create_fields(helpers.team_coaches)
+    if u_manager? || u_coach?
+      @links = create_fields(helpers.team_links)
+      @table = create_fields(helpers.event_list_table(obj: @team))
+      submit = edit_club_team_path(@club, @team, rdx: @rdx) if @team_policy.edit?
+    else
+      start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
+      anchor     = { url: club_team_events_path(@club, @team), rdx: @rdx }
+      @calendar  = CalendarComponent.new(anchor:, start_date:, obj: @team, user: current_user)
+      submit     = nil
+    end
+    zerolnk = club_teams_path(@club, season_id: @season&.id, rdx: @rdx)
+    @submit = create_submit(close: :back, retlnk: base_lnk(zerolnk), submit:, frame: (submit ? "modal" : nil))
   end
 
-  # GET /teams/new - can only be called from a teams index
+  # GET /club/x/teams/new - can only be called from a teams index
   def new
-    if u_manager?
-      @eligible_coaches = @club.coaches
-      @team   = Team.new(club_id: @club.id, sport_id: Sport.first.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
-      @fields = create_fields(helpers.team_form(title: I18n.t("team.new")))
-      @submit = create_submit(retlnk: club_teams_path(@club, rdx: 0))
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
-    end
+    @team_policy = check_policy!(TeamPolicy, club: @club)
+
+    @eligible_coaches = @club.coaches
+    @team   = Team.new(club: @club, sport_id: @club.sports.first&.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
+    @fields = create_fields(helpers.team_form(title: I18n.t("team.new")))
+    @submit = create_submit(retlnk: club_teams_path(@club, rdx: 0))
   end
 
-  # GET /teams/1/edit
+  # GET /club/x/teams/1/edit
   def edit
-    if @team && team_manager?
-      @eligible_coaches = @club.coaches
-      @sport  = @team.sport.specific
-      @fields = create_fields(helpers.team_form(title: I18n.t("team.edit")))
-      @submit = create_submit
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    @eligible_coaches = @club.coaches
+    @sport  = @team.sport.specific
+    @fields = create_fields(helpers.team_form(title: I18n.t("team.edit")))
+    @submit = create_submit
+  end
+
+  # POST /club/x/teams
+  # POST /club/x/teams.json
+  def create
+    @team_policy = check_policy!(TeamPolicy, club: @club)
+
+    respond_to do |format|
+      retlnk = cru_return
+      if team_params
+        @team = Team.build(team_params)
+        if @team.save
+          a_desc = "#{Team.msg(:created)} '#{@team}'"
+          c_path = (user_in_club? ? retlnk : club_teams_path(@club, rdx: @rdx))
+          register_action(:created, a_desc, url: club_team_path(@club, @team, rdx: 2))
+          format.html { redirect_to c_path, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+          format.json { render :index, status: :created, location: c_path }
+        else
+          @eligible_coaches = Coach.active
+          @fields = create_fields(helpers.team_form(title: I18n.t("team.new")))
+          @submit = create_submit
+          format.html { render :new }
+          format.json { render json: @team.errors, status: :unprocessable_entity }
+        end
+      else	# no data to save...
+        format.html { redirect_to retlnk, notice: n_notice, data: { turbo_action: "replace" } }
+        format.json { redirect_to retlnk, status: :ok, location: retlnk }
+      end
     end
   end
 
-  # POST /teams
-  # POST /teams.json
-  def create
-    if club_manager?(@club)
-      respond_to do |format|
-        if team_params
-          @team = Team.build(team_params)
+  # PATCH/PUT /club/x/teams/1
+  # PATCH/PUT /club/x/teams/1.json
+  def update
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    respond_to do |format|
+      n_notice = no_data_notice(trail: @team.to_s)
+      retlnk   = cru_return
+      if team_params
+        @team.rebuild(team_params)
+        if @team.modified?
           if @team.save
-            a_desc = "#{Team.msg(:created)} '#{@team}'"
-            c_path = (user_in_club? ? cru_return : club_teams_path(@club, rdx: @rdx))
-            register_action(:created, a_desc, url: club_team_path(@club, @team, rdx: 2))
-            format.html { redirect_to c_path, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-            format.json { render :index, status: :created, location: c_path }
+            a_desc = "#{Team.msg(:updated)} '#{@team}'"
+            register_action(:updated, a_desc, url: club_team_path(@club, @team, rdx: 2))
+            format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+            format.json { redirect_to retlnk, status: :created, location: retlnk }
           else
             @eligible_coaches = Coach.active
-            @fields = create_fields(helpers.team_form(title: I18n.t("team.new")))
+            @fields = create_fields(helpers.team_form(title: I18n.t("team.edit")))
             @submit = create_submit
-            format.html { render :new }
+            format.html { render :edit, data: { "turbo-frame": "replace" }, notice: helpers.flash_message(@team.errors, "error") }
             format.json { render json: @team.errors, status: :unprocessable_entity }
           end
         else	# no data to save...
           format.html { redirect_to retlnk, notice: n_notice, data: { turbo_action: "replace" } }
-          format.json { redirect_to retlnk, status: :ok, location: retlnk }
+          format.json { render json: @team.errors, status: :unprocessable_entity }
         end
+      else	# no data to save...
+        format.html { redirect_to retlnk, notice: n_notice, data: { turbo_action: "replace" } }
+        format.json { redirect_to retlnk, status: :ok, location: retlnk }
       end
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
     end
   end
 
-  # PATCH/PUT /teams/1
-  # PATCH/PUT /teams/1.json
-  def update
-    if @team && team_manager?
-      respond_to do |format|
-        n_notice = no_data_notice(trail: @team.to_s)
-        retlnk   = cru_return
-        if team_params
-          @team.rebuild(team_params)
-          if @team.modified?
-            if @team.save
-              a_desc = "#{Team.msg(:updated)} '#{@team}'"
-              register_action(:updated, a_desc, url: club_team_path(@club, @team, rdx: 2))
-              format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-              format.json { redirect_to retlnk, status: :created, location: retlnk }
-            else
-              @eligible_coaches = Coach.active
-              @fields = create_fields(helpers.team_form(title: I18n.t("team.edit")))
-              @submit = create_submit
-              format.html { render :edit, data: { "turbo-frame": "replace" }, notice: helpers.flash_message(@team.errors, "error") }
-              format.json { render json: @team.errors, status: :unprocessable_entity }
-            end
-          else	# no data to save...
-            format.html { redirect_to retlnk, notice: n_notice, data: { turbo_action: "replace" } }
-            format.json { render json: @team.errors, status: :unprocessable_entity }
-          end
-        else	# no data to save...
-          format.html { redirect_to retlnk, notice: n_notice, data: { turbo_action: "replace" } }
-          format.json { redirect_to retlnk, status: :ok, location: retlnk }
-        end
-      end
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
-    end
-  end
-
-  # DELETE /teams/1
-  # DELETE /teams/1.json
+  # DELETE /club/x/teams/1
+  # DELETE /club/x/teams/1.json
   def destroy
     # cannot destroy placeholder teams (id: 0 || -1)
-    if @team && @team&.id&.to_i > 0 && club_manager?
-      t_name = @team.to_s
-      @team.destroy
-      respond_to do |format|
-        a_desc = "#{Team.msg(:deleted)} '#{t_name}'"
-        register_action(:deleted, a_desc)
-        format.html { redirect_to club_teams_path(@club, rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
-        format.json { head :no_content }
-      end
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+    t_name = @team.to_s
+    @team.destroy
+    respond_to do |format|
+      a_desc = "#{Team.msg(:deleted)} '#{t_name}'"
+      register_action(:deleted, a_desc)
+      format.html { redirect_to club_teams_path(@club, rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+      format.json { head :no_content }
     end
   end
 
-  # GET /teams/1/roster
+  # GET /club/x/teams/1/roster
   def roster
-    if @team && check_access(roles: [ :manager, :coach, :secretary ], obj: @club, both: true)
-      title   = helpers.team_title(title: @team.nick)
-      players = @team.players
-      title << icon_subtitle("player", Team.attr(:roster), namespace: @team.sport.name)
-      title.last << { kind: :string, value: "(#{players.count} #{@team.term(:athlete_short)})" }
-      @title  = create_fields(title)
-      @table  = create_table(helpers.player_table(team: @team, players: players.order(:number)))
-      submit  = edit_roster_club_team_path(@club, @team, rdx: @rdx) if team_manager?
-      @submit = create_submit(close: :back, retlnk: club_team_path(@club, @team, rdx: @rdx), submit:)
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
-    end
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    title = helpers.team_title(title: @team.nick)
+    title << icon_subtitle(:player, Team.term(:roster), namespace: @team.sport.name)
+
+    @athletes = @team.athletes.by_number
+    title.last << { kind: :string, value: "(#{@athletes.count} #{@team.term(:athlete, :short)})" }
+    @title  = create_fields(title)
+
+    @table  = create_table(helpers.team_roster_table(@athletes))
+
+    submit  = club_team_edit_roster_path(@club, @team, rdx: @rdx) if @team_policy.edit_roster?
+    @submit = create_submit(close: :back, retlnk: club_team_path(@club, @team, rdx: @rdx), submit:)
   end
 
-  # GET /teams/1/edit_roster
+  # GET /club/x/teams/1/edit_roster
   def edit_roster
-    if @team && team_manager?
-      title = helpers.team_title(title: @team.to_s)
-      title << icon_subtitle("player", I18n.t("team.roster_edit"), namespace: @team.sport.name)
-      @title  = create_fields(title)
-      @submit = create_submit(close: :cancel, retlnk: roster_club_team_path(@club, @team, rdx: @rdx))
-      @eligible_players = @team.eligible_players
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
-    end
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    title = helpers.team_title(title: @team.to_s)
+    title << icon_subtitle("player", I18n.t("team.roster_edit"), namespace: @team.sport.name)
+    @title  = create_fields(title)
+    @submit = create_submit(close: :cancel, retlnk: club_team_roster_path(@club, @team, rdx: @rdx))
+    @eligible_athletes = @team.eligible_athletes
   end
 
-  # GET /teams/1/slots
+  # GET /club/x/teams/1/slots
   def slots
-    if @team && user_in_club?
-      title   = helpers.team_title(title: @team.to_s)
-      @title   = create_fields(title)
-      @fields = create_fields(helpers.team_slots) unless @team.slots.empty?
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
-    end
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    title   = helpers.team_title(title: @team.to_s)
+    @title   = create_fields(title)
+    @fields = create_fields(helpers.team_slots) unless @team.slots.empty?
   end
 
-  # GET /teams/1/targets
+  # GET /club/x/teams/1/targets
   def targets
-    if @team && check_access(roles: [ :coach, :manager ], obj: @club, both: true)
-      global_targets(true)	# get & breakdown global targets
-      title   = helpers.team_title(title: @team.to_s)
-      title  << icon_subtitle("target", Target.label(:plural))
-      @title  = create_fields(title)
-      edit    = edit_targets_club_team_path(@club, @team, rdx: @rdx) if team_manager?
-      @fields = create_fields(helpers.team_targets_show)
-      @submit = create_submit(close: :back, retlnk: club_team_path(@club, @team, rdx: @rdx), submit: edit)
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
-    end
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    global_targets(true)	# get & breakdown global targets
+    title   = helpers.team_title(title: @team.to_s)
+    title  << icon_subtitle("target", Target.label(:plural))
+    @title  = create_fields(title)
+    edit    = club_team_edit_targets_path(@club, @team, rdx: @rdx) if @team_policy.edit_targets?
+    @fields = create_fields(helpers.team_targets_show)
+    @submit = create_submit(close: :back, retlnk: club_team_path(@club, @team, rdx: @rdx), submit: edit)
   end
 
-  # GET /teams/1/edit_targets
+  # GET /club/x/teams/1/edit_targets
   def edit_targets
-    if @team && team_manager?
-      redirect_to("/", data: { turbo_action: "replace" }) unless @team
-      global_targets(true)	# get global targets
-      title   = helpers.team_title(title: @team.to_s)
-      title << icon_subtitle("target", Target.t_path(:actions, :edit))
-      @title  = create_fields(title)
-      @submit = create_submit(close: :cancel, retlnk: targets_club_team_path(@club, @team, rdx: @rdx))
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
-    end
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    global_targets(true)	# get global targets
+    title   = helpers.team_title(title: @team.to_s)
+    title << icon_subtitle("target", Target.act(:edit))
+    @title  = create_fields(title)
+    @submit = create_submit(close: :cancel, retlnk: club_team_targets_path(@club, @team, rdx: @rdx))
   end
 
-  # GET /teams/1/edit_targets
+  # GET /club/x/teams/1/edit_targets
   def plan
-    if @team && check_access(roles: [ :coach, :manager ], obj: @club, both: true)
-      plan_targets
-      title = helpers.team_title(title: @team.to_s)
-      title << icon_subtitle("plan", I18n.t("training.plan.label"))
-      @title = create_fields(title)
-      edit    = edit_plan_club_team_path(@club, @team, rdx: @rdx) if team_manager?
-      @fields = create_fields(helpers.team_plan_accordion)
-      @submit = create_submit(close: :back, retlnk: club_team_path(@club, @team, rdx: @rdx), submit: edit)
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
-    end
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    plan_targets
+    title = helpers.team_title(title: @team.to_s)
+    title << icon_subtitle("plan", I18n.t("training.plan.label"))
+    @title = create_fields(title)
+    edit    = club_team_edit_plan_path(@club, @team, rdx: @rdx) if team_manager?
+    @fields = create_fields(helpers.team_plan_accordion)
+    @submit = create_submit(close: :back, retlnk: club_team_path(@club, @team, rdx: @rdx), submit: edit)
   end
 
-  # GET /teams/1/edit_plan
+  # GET /club/x/teams/1/edit_plan
   def edit_plan
-    if @team && team_manager?
-      redirect_to("/", data: { turbo_action: "replace" }) unless @team
-      plan_targets
-      title   = helpers.team_title(title: @team.to_s)
-      title << icon_subtitle("plan", I18n.t("plan.edit"))
-      @title  = create_fields(title)
-      @submit = create_submit(close: :cancel, retlnk: plan_club_team_path(@club, @team, rdx: @rdx))
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
-    end
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    redirect_to("/", data: { turbo_action: "replace" }) unless @team
+    plan_targets
+    title   = helpers.team_title(title: @team.to_s)
+    title << icon_subtitle("plan", I18n.t("plan.edit"))
+    @title  = create_fields(title)
+    @submit = create_submit(close: :cancel, retlnk: club_team_plan_path(@club, @team, rdx: @rdx))
   end
 
-  # GET /teams/1/attendance
+  # GET /club/x/teams/1/attendance
   def attendance
-    if @team && check_access(roles: [ :coach, :manager, :secretary ], obj: @club, both: true)
-      title  = helpers.team_title(title: @team.to_s)
-      title  << icon_subtitle("attendance", I18n.t("calendar.attendance.label"))
-      @title  = create_fields(title)
-      a_data  = helpers.team_attendance_table
-      if a_data
-        @table = create_table({ title: a_data[:title], rows: a_data[:rows] })
-        @att_data = [ a_data[:chart] ] if a_data
-      end
-      @submit = create_submit(submit: nil)
-    else
-      redirect_to "/", data: { turbo_action: "replace" }
+    @team_policy = check_policy!(TeamPolicy, record: @team)
+
+    title  = helpers.team_title(title: @team.to_s)
+    title  << icon_subtitle("attendance", I18n.t("calendar.attendance.label"))
+    @title  = create_fields(title)
+    a_data  = helpers.team_attendance_table
+    if a_data
+      @table = create_table({ title: a_data[:title], rows: a_data[:rows] })
+      @att_data = [ a_data[:chart] ] if a_data
     end
+    @submit = create_submit(submit: nil)
   end
 
   private
     # wrapper to set return link for create && update operations
     def cru_return
       if param_passed(:team, :player_ids)	# roster view
-        roster_club_team_path(@club, @team, rdx: @rdx)
+        club_team_roster_path(@club, @team, rdx: @rdx)
       elsif param_passed(:team, :team_targets_attributes)	# targets or plan
         first_target = team_params[:team_targets_attributes].to_h.first
         if first_target
           if first_target[1]["month"] == "0"	# global team targets
-            targets_club_team_path(@club, @team, rdx: @rdx)
+            club_team_targets_path(@club, @team, rdx: @rdx)
           else	# team monthly targets
-            plan_club_team_path(@club, @team, rdx: @rdx)
+            club_team_plan_path(@club, @team, rdx: @rdx)
           end
         else	# base team view
           club_team_path(@club, @team, rdx: @rdx)
@@ -367,7 +339,7 @@ class TeamsController < ApplicationController
       end
     end
 
-    # reused across differnet views
+    # reused across different views
     def icon_subtitle(icon, label, namespace: "common")
       [
         helpers.symbol_field(icon, { namespace: }, size: "30x30", align: "right", css: "mr-1"),
@@ -385,14 +357,12 @@ class TeamsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_team_context
       if (t_id = (params[:id].presence || p_teamid))
-        @team   = Team.find_by_id(t_id)
-        @teamid = @team&.id
-        @club&.id = @team&.club&.id
+        @team = Team.find_by_id(t_id)
+        @club = @team&.club if @team
       end
-      @club     = Club.find(@club&.id) if @club&.id
-      s_id      = @team&.season&.id || p_seasonid || session.dig("team_filters", "season_id")
-      @season   = Season.search(s_id) unless s_id == @season&.id
-      @seasonid = @season&.id
+      @club ||= Club.find(p_clubid) if p_clubid
+      s_id    = @team&.season&.id || p_seasonid || session.dig("team_filters", "season_id")
+      @season = Season.search(s_id) unless s_id == @season&.id
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
@@ -406,7 +376,7 @@ class TeamsController < ApplicationController
         :homecourt_id,
         :name,
         :nick,
-        :players,
+        :athletes,
         :rdx,
         :rules,
         :season_id,

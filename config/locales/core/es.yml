@@ -91,8 +91,10 @@ es:
       global: Global
 
     user:
-      label: Usuario
-      short: Usuario
+      label:
+        single: Usuario
+        plural: Usuarios
+        short: Usuario
       fields:
         profile: Perfil
         profile_short: Perf.
@@ -139,14 +141,21 @@ es:
         exported: Acciones de usuario exportadas.
 
     location:
-      label: Ubicación
-      short: Ubic.
+      label:
+        single: Ubicación
+        plural: Ubicacionnes
+        short: Ubic.
+      actions:
+        see: (ver ubicación)
       fields:
         name: Nombre
         google_maps: Google Maps
         google_maps_short: GPS
         training_court: Pista de entrenamiento
         training_court_short: Pista
+      values:
+        default: <nueva ubicación.>
+        none: (sin ubicación)
       messages:
         created: Ubicación creada.
         updated: Ubicación actualizada.
@@ -166,11 +175,12 @@ es:
         deleted: Temporada eliminada.
 
     sport:
-      label: Deporte
-      short: Dep.
+      label:
+        single: Deporte
+        plural: Deportes
+        short: Dep.
       fields:
         rules: Reglas
-
       terms:
         athlete:
           single: Deportista
@@ -225,6 +235,7 @@ es:
           single: Rol
           plural: Roles
           short: Rol
+        roster: Plantilla
         season:
           single: Temporada
           plural: Temporadas
@@ -249,7 +260,6 @@ es:
           single: Periodo
           plural: Periodos
           short: Per.
-
       messages:
         created: Deporte creado.
         updated: Deporte actualizado.

@@ -1,20 +1,20 @@
 <div id="team-edit-roster">
-	<%= form_with model: @team, data: {turbo_frame: "_top"} do |form| %>
+	<%= form_with model: [@team.club, @team], data: {turbo_frame: "_top"} do |form| %>
 		<div id="edit-roster-form-data">
 			<table>
 				<tr class="bg-indigo-900 text-gray-300">
-					<th class="border px py" align="center"><%= t("player.number") %></th>
-					<th class="border px py" align="left"><%= t("person.name") %></th>
-					<th class="border px py" align="center"><%= t("person.age") %></th>
+					<th class="border px py" align="center"><%= Assignment.fld(:number, :short) %></th>
+					<th class="border px py" align="left"><%= Person.fld(:name) %></th>
+					<th class="border px py" align="center"><%= Person.fld(:age) %></th>
 				</tr>
 				<div id="player-selection">
-					<%= form.collection_check_boxes :player_ids, @eligible_players, :id, :to_s do |player| %>
+					<%= form.collection_check_boxes :assignment_ids, @eligible_athletes, :id, :to_s do |athlete| %>
 						<tr>
 							<div class="collection-check-box">
-								<td align="center" class="rounded border"><%= player.object.number %></td>
-								<td class="rounded border"><%= player.object.to_s %></td>
-								<td align="center" class="rounded border"><%= player.object.person.age %></td>
-								<td class="rounded border"><%= player.check_box({class: "rounded bg-gray-200 text-blue-700"}) %></td>
+								<td align="center" class="rounded border"><%= athlete.object.number %></td>
+								<td class="rounded border"><%= athlete.object.to_s %></td>
+								<td align="center" class="rounded border"><%= athlete.object.age %></td>
+								<td class="rounded border"><%= athlete.check_box({class: "rounded bg-gray-200 text-blue-700"}) %></td>
 							</div>
 						</tr>
 					<% end %>

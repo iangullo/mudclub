@@ -46,10 +46,10 @@ module DrillsHelper
       if step.diagram.attached?
         InputBoxComponent.new({ kind: :image_box, value: step.diagram, width: "250", height: "250" }, form:)
       elsif step.diagram_svg.present?
-        ButtonComponent.new(kind: :edit, url: edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: Step.t_path(:actions, :edit_diagram), label: "", size: "50x50", i_class: "max-h-10 max-w-10 m-1")
+        ButtonComponent.new(kind: :edit, url: edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: Step.act(:edit_diagram), label: "", size: "50x50", i_class: "max-h-10 max-w-10 m-1")
       else
         button = { kind: :add, name: "add-diagram", options: [] }
-        button[:options] << { label: Step.t_path(:actions, :edit_diagram), url: edit_diagram_drill_path(id: @drill.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: { turbo_frame: :modal } }
+        button[:options] << { label: Step.act(:edit_diagram), url: edit_diagram_drill_path(id: @drill.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: { turbo_frame: :modal } }
         button[:options] << { label: I18n.t("status.no_file"), url: load_diagram_drill_path(id: @drill.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: { turbo_frame: :modal } }
         DropdownComponent.new(button)
       end
@@ -111,7 +111,7 @@ module DrillsHelper
   # return title FieldComponent definition for edit/new
   def drill_form_title(title:)
     res = drill_title(title:)
-    res << [ { kind: :text_box, key: :name, placeholder: I18n.t("drill.default"), value: @drill.name, mandatory: { length: 3 }, cols: 3 } ]
+    res << [ { kind: :text_box, key: :name, placeholder: Drill.val(:default), value: @drill.name, mandatory: { length: 3 }, cols: 3 } ]
     res << [
       gap_field,
       { kind: :text_box, key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: I18n.t("kind.default"), mandatory: { length: 3 } },

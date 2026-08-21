@@ -16,7 +16,6 @@ en:
         single: "Club"
         short: "Club"
         plural: "Clubs"
-        rivals: "Rival Clubs"
       actions:
         create: "Create Club"
         edit: "Edit Club"
@@ -29,6 +28,7 @@ en:
         logo: "Logo"
         logo_short: "Logo"
         none: "No club"
+        rivals: "Rival Clubs"
         website: "Website"
         website_short: "Web"
       messages:

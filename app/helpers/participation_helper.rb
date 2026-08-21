@@ -112,7 +112,7 @@ module ParticipationHelper
   def participation_status_form_fields(obj)
     fields = participation_title(
         @member,
-        title: @member.t_path(:action, :change_status),
+        title: @member.act(:change_status),
         cols: 2
       )
     fields.pop

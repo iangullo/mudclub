@@ -19,6 +19,12 @@
 # app/policies/team_policy.rb
 
 class TeamPolicy < ApplicationPolicy
+  def initialize(actor, record: @team, club: @club)
+    super(actor, record:)
+
+    @target_club = @record&.club || club
+  end
+
   #------------------------------------
   # Teams index
   #------------------------------------
@@ -34,12 +40,12 @@ class TeamPolicy < ApplicationPolicy
   end
 
   def create?
-    allowed?(manages_club?(@record.club))
+    allowed?(manages_club?(@target_club))
   end
 
   def update?
     allowed?(
-      manages_club?(@record.club) ||
+      manages_club?(@target_club) ||
       manages_team?(@record)
     )
   end
@@ -47,7 +53,7 @@ class TeamPolicy < ApplicationPolicy
   alias edit? update?
 
   def destroy?
-    allowed?(manages_club?(@record.club))
+    allowed?(manages_club?(@target_club))
   end
 
   #------------------------------------
@@ -56,24 +62,24 @@ class TeamPolicy < ApplicationPolicy
   def roster?
     allowed?(
       team_member? ||
-      coaches_club?(@record.club) ||
-      manages_club?(@record.club)
+      coaches_club?(@target_club) ||
+      manages_club?(@target_club)
     )
   end
 
   def attendance?
     allowed?(
       team_staff? ||
-      coaches_club?(@record.club) ||
-      manages_club?(@record.club)
+      coaches_club?(@target_club) ||
+      manages_club?(@target_club)
     )
   end
 
   def events?
     allowed?(
       team_member? ||
-      coaches_club?(@record.club) ||
-      manages_club?(@record.club)
+      coaches_club?(@target_club) ||
+      manages_club?(@target_club)
     )
   end
 
@@ -86,29 +92,29 @@ class TeamPolicy < ApplicationPolicy
   #------------------------------------
   def plan?
     allowed?(
-      coaches_club?(@record.club) ||
-      manages_club?(@record.club)
+      coaches_club?(@target_club) ||
+      manages_club?(@target_club)
     )
   end
 
   def edit_plan?
     allowed?(
       coaches_team?(@record) ||
-      manages_club?(@record.club)
+      manages_club?(@target_club)
     )
   end
 
   def targets?
     allowed?(
-      coaches_club?(@record.club) ||
-      manages_club?(@record.club)
+      coaches_club?(@target_club) ||
+      manages_club?(@target_club)
     )
   end
 
   def edit_targets?
     allowed?(
       coaches_team?(@record) ||
-      manages_club?(@record.club)
+      manages_club?(@target_club)
     )
   end
 
@@ -146,8 +152,8 @@ class TeamPolicy < ApplicationPolicy
 
     # Who may change the roster?
     def manages_roster?
-      manages_club?(@record.club) ||
-        has_club_assignment?(@record.club, :coaching_coordinator) ||
+      manages_club?(@target_club) ||
+        has_club_assignment?(@target_club, :coaching_coordinator) ||
         has_team_assignment?(@record, :head_coach)
     end
 end

@@ -5,12 +5,12 @@
 			<strong><%= @event.to_s %></strong>
 			<br>
 		<% end %>
-		<%= (@player || current_user.player).to_s(style: 2) %>
+		<%= @athlete.to_s(style: 2) %>
 		<%= form.fields_for :stats, Stat.new do |ff| %>
 			<% @fields.form = ff %>
 			<%= render @fields %>
 		<% end %>
-		<%= form.hidden_field :player_id, value: (@player&.id || current_user.u_playerid) %>
+		<%= form.hidden_field :athlete_id, value: @athlete&.id %>
 		<%= render @submit %>
 	<% end %>
 <% end %>

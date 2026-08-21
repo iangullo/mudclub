@@ -4,7 +4,7 @@
 		<strong><%= @event.to_s %></strong>
 		<br>
 	<% end %>
-	<%= (@player || current_user.player).to_s(style: 2) %>
+	<%= @athlete.to_s(style: 2) %>
 	<%= render @fields %>
 	<%= render @submit %>
 <% end %>

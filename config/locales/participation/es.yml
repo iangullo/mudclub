@@ -68,6 +68,8 @@ es:
         team: Equipo
         number: Dorsal
         number_short: Nº
+        status: Estado
+        status_short: Est.
         notes: Notas
       messages:
         created: Asignación creada.

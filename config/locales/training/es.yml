@@ -18,22 +18,64 @@ es:
     label: Entrenamiento
     short: Entren.
 
-    team:
+    drill:
       label:
-        single: Equipo
-        plural: Equipos
-        short: Equipo
+        single: Ejercicio
+        plural: Ejercicios
+        short: Ejerc.
+      actions:
+        edit: Editar Ejercicio
+        new: Crear Ejercicio
       fields:
         name: Nombre
+        description: Descripción
+        description_short: Desc.
+        author: Autor
+        kind: Categoría de ejercicio
+        kind_short: Tipo
+        material: Material
+        material_short: Mat.
         sport: Deporte
-        category: Categoría
-        division: Competición
-        facility: Instalación local
-        roster: Plantilla
+        court_mode: Disposición de campo
+        court_mode_short: Disposición
+      values:
+        none: Ningún ejercicio seleccionado
+        default: <Nuevo Ejercicio>
       messages:
-        created: Equipo creado.
-        updated: Equipo actualizado.
-        deleted: Equipo eliminado.
+        created: Ejercicio creado.
+        updated: Ejercicio actualizado.
+        deleted: Ejercicio eliminado.
+
+    drill_kind:
+      label:
+        single: Tipo
+        plural: Tipos
+        short: Tipo
+        hint: Tipo de ejercicio
+      fields:
+        name: Nombre
+      values:
+        default: <tipo>
+      messages:
+        created: Tipo de ejercicio creado.
+        updated: Tipo de ejercicio actualizado.
+        deleted: Tipo de ejercicio eliminado.
+
+    plan:
+      label:
+        single: Plan
+        plural: Planes
+        short: Plan
+        hint: Plan de entrenamiento
+      fields:
+        name: Nombre
+        description: Descripción
+        description_short: Desc.
+        team: Equipo
+      messages:
+        created: Plan de entrenamiento creado.
+        updated: Plan de entrenamiento actualizado.
+        deleted: Plan de entrenamiento eliminado.
 
     session:
       label:
@@ -57,74 +99,28 @@ es:
         deleted: Sesión de entrenamiento eliminada.
         attendance_checked: Asistencia verificada.
 
-    plan:
+    skill:
       label:
-        single: Plan
-        plural: Planes
-        short: Plan
-        hint: Plan de entrenamiento
+        single: Habilidad
+        plural: Habilidades
+        short: Hab.
       fields:
         name: Nombre
         description: Descripción
         description_short: Desc.
-        team: Equipo
+      values:
+        default: <habilidad>
       messages:
-        created: Plan de entrenamiento creado.
-        updated: Plan de entrenamiento actualizado.
-        deleted: Plan de entrenamiento eliminado.
+        created: Habilidad creada.
+        updated: Habilidad actualizada.
+        deleted: Habilidad eliminada.
 
-    drill:
-      label:
-        single: Ejercicio
-        plural: Ejercicios
-        short: Ejerc.
-      fields:
-        name: Nombre
-        description: Descripción
-        description_short: Desc.
-        author: Autor
-        kind: Categoría de ejercicio
-        kind_short: Tipo
-        material: Material
-        material_short: Mat.
-        sport: Deporte
-        court_mode: Disposición de campo
-        court_mode_short: Disposición
+    stats:
+      single: Estadística
+      plural: Estadísticas
+      short: Estad.
       messages:
-        created: Ejercicio creado.
-        updated: Ejercicio actualizado.
-        deleted: Ejercicio eliminado.
-
-    drill_kind:
-      label:
-        single: Tipo
-        plural: Tipos
-        short: Tipo
-        hint: Tipo de ejercicio
-      fields:
-        name: Nombre
-      messages:
-        created: Categoría de ejercicio creada.
-        updated: Categoría de ejercicio actualizada.
-        deleted: Categoría de ejercicio eliminada.
-
-    task:
-      label:
-        single: Tarea
-        plural: Tareas
-        short: Tarea
-      fields:
-        drill: Ejercicio
-        order: Orden
-        duration: Duración
-        duration_short: Dur.
-        number: Nº
-        remarks: Observaciones
-        remarks_short: Obs.
-      messages:
-        created: Tarea creada.
-        updated: Tarea actualizada.
-        deleted: Tarea eliminada.
+        updated: Estadísticas actualizadas.
 
     step:
       label:
@@ -140,44 +136,12 @@ es:
         explanation: Explicación
         explanation_short: Expl.
         diagram: Diagrama
+      values:
+        default: <paso>
       messages:
         created: Paso creado.
         updated: Paso actualizado.
         deleted: Paso eliminado.
-
-    version:
-      label: Versión
-      short: Ver.
-      fields:
-        author: Autor
-        name: Nombre
-        description: Descripción
-        description_short: Desc.
-        explanation: Explicación
-        explanation_short: Expl.
-        material: Material
-        kind: Categoría de ejercicio
-        skills: Habilidades
-        targets: Objetivos
-        changes: Cambios
-      messages:
-        created: Versión creada.
-        updated: Versión actualizada.
-        deleted: Versión eliminada.
-
-    skill:
-      label:
-        single: Habilidad
-        plural: Habilidades
-        short: Hab.
-      fields:
-        name: Nombre
-        description: Descripción
-        description_short: Desc.
-      messages:
-        created: Habilidad creada.
-        updated: Habilidad actualizada.
-        deleted: Habilidad eliminada.
 
     target:
       label:
@@ -190,6 +154,9 @@ es:
         concept: Concepto
         aspect: Aspecto
         focus: Enfoque
+        completion: Finalización (%)
+      values:
+        default: <objetivo>
       aspect:
         label: Aspecto
         short: Aspecto
@@ -205,8 +172,9 @@ es:
           collective_short: Col.
           collective_hint: Desarrollo táctico colectivo.
       focus:
-        label: Enfoque
-        short: Enfoque
+        label:
+          single: Enfoque
+          sshort: Enfoque
         values:
           offense: Ataque
           offense_short: Atq.
@@ -219,12 +187,65 @@ es:
         updated: Objetivo actualizado.
         deleted: Objetivo eliminado.
 
-    stats:
-      single: Estadística
-      plural: Estadísticas
-      short: Estad.
+    team:
+      label:
+        single: Equipo
+        plural: Equipos
+        short: Equipo
+      fields:
+        name: Nombre
+        sport: Deporte
+        category: Categoría
+        division: Competición
+        facility: Instalación local
+        roster: Plantilla
       messages:
-        updated: Estadísticas actualizadas.
+        created: Equipo creado.
+        updated: Equipo actualizado.
+        deleted: Equipo eliminado.
+
+    task:
+      label:
+        single: Tarea
+        plural: Tareas
+        short: Tarea
+      actions:
+        add: Añadir Tarea
+        edit: Editar Tarea
+      fields:
+        drill: Ejercicio
+        order: Orden
+        duration: Duración
+        duration_short: Dur.
+        number: Nº
+        remarks: Observaciones
+        remarks_short: Obs.
+      messages:
+        created: Tarea creada.
+        updated: Tarea actualizada.
+        deleted: Tarea eliminada.
+
+    version:
+      label:
+        single: Versión
+        plural: Versiones
+        short: Ver.
+      fields:
+        author: Autor
+        name: Nombre
+        description: Descripción
+        description_short: Desc.
+        explanation: Explicación
+        explanation_short: Expl.
+        material: Material
+        kind: Tipo
+        skills: Habilidades
+        targets: Objetivos
+        changes: Cambios
+      messages:
+        created: Versión creada.
+        updated: Versión actualizada.
+        deleted: Versión eliminada.
 
   # -------------------------------------------------------------------------
   # OBSOLETO - NO MODIFICAR

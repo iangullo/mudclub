@@ -24,10 +24,17 @@ module MembershipsHelper
   end
 
   def memberships_table_title
-    title = [
-      { kind: :normal, value: Membership.fld(:kind, :short) },
-      { kind: :normal, value: @kind ? Membership.kind_label(@kind) : Membership.label },
-      { kind: :normal, value: Membership.fld(:joined_on, :short) },
+    title = @kind == :athlete ?
+      [
+        { kind: :normal, value: Person.fld(:name) },
+        { kind: :normal, value: Person.fld(:age) }
+      ] :
+      [
+        { kind: :normal, value: Membership.fld(:kind, :short) },
+        { kind: :normal, value: @kind ? Membership.kind_label(@kind) : Membership.label },
+        { kind: :normal, value: Membership.fld(:joined_on, :short) }
+      ]
+    title += [
       { kind: :normal, value: Membership.fld(:status) }
     ]
     # optional button to add new member - should be controlled by member policy, not this old control...
@@ -38,10 +45,11 @@ module MembershipsHelper
       rows = Array.new
       members.each { |member|
         row = { url: club_member_path(@club, member), items: [] }
-
-        row[:items] << participation_kind_field(member, class: "border")
+        row[:items] << participation_kind_field(member, class: "border") unless @kind == :athlete
         row[:items] << person_name_field(member)
-        row[:items] << { kind: :normal, value: member.joined_on }
+        row[:items] << (@kind == :athlete ?
+          { kind: :normal, value: member.age, align: :center } :
+          { kind: :normal, value: member.joined_on })
         row[:items] << participation_status_field(member, f_opts: { align: "center", class: "border" })
         rows << row
       }
@@ -82,7 +90,7 @@ module MembershipsHelper
     person_form_title(
       member,
       icon: member.picture,
-      title: Membership.t_path(:action, action.to_sym),
+      title: Membership.act(action.to_sym),
       sex: true
     )
   end

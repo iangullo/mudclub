@@ -6,7 +6,7 @@
 	<%= form.fields_for :target do |f| %>
 		<%= f.select :aspect, Target.aspects, {selected: f.object.aspect ? f.object.aspect_before_type_cast : 0}, class: f_cls + " px-1" %>
 		<%= f.select :focus, Target.kinds, {selected: f.object.focus ? f.object.focus_before_type_cast : 0}, class: f_cls + " px-1" %>
-		<%= f.text_field :concept, placeholder: t("target.default"), class: f_cls + " px-1", size: 20 %>
+		<%= f.text_field :concept, placeholder: Target.val(:default), class: f_cls + " px-1", size: 20 %>
 		<hr>
 	<% end %>
 	</div>

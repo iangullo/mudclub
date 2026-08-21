@@ -20,7 +20,7 @@
 class EventsController < ApplicationController
   include Filterable
   include PdfGenerator
-  before_action :set_event, only: %i[ show edit add_task show_task edit_task player_stats edit_player_stats load_chart attendance copy update destroy ]
+  before_action :set_event, only: %i[ show edit add_task show_task edit_task athlete_stats edit_athlete_stats load_chart attendance copy update destroy ]
 
   # GET /events or /events.json
   def index
@@ -53,14 +53,14 @@ class EventsController < ApplicationController
           end
         end
         format.html do
-          editor    = event_manager?
-          @title    = create_fields(title)
-          player_id = params[:player_id].presence || u_playerid
+          editor = event_manager?
+          @title = create_fields(title)
+          person = Person.find(params[:athlete_id].presence) || u_person
           if @event.rest?
             submit  = edit_event_path(season_id: @season.id, cal: @cal) if editor
             @submit = create_submit(submit:, frame: "modal")
-          elsif @event.train? && @event.team.has_player(player_id)	# we want to check player stats for a training session
-            redirect_to player_stats_event_path(@event, player_id:, rdx: @rdx, cal: @cal), data: { turbo_action: "replace" }
+          elsif @event.train? && @event.team.has_athlete?(person)	# we want to check athlete stats for a training session
+            redirect_to club_team_event_athlete_stats_path(@event.club, @event.team, @event, athlete_id:, rdx: @rdx, cal: @cal), data: { turbo_action: "replace" }
           else	# gotta be a coach or manager
             if @event.match?
               @fields = create_fields(helpers.match_show)
@@ -142,12 +142,12 @@ class EventsController < ApplicationController
   def update
     if event_manager?
       respond_to do |format|
-        e_data  = event_params
-        @player = Player.find_by_id(e_data[:player_id].presence)
+        e_data   = event_params
+        @athlete = Assignment.find_by_id(e_data[:athlete_id].presence)
         @event.rebuild(e_data)
         cru_return(e_data)
-        if e_data[:player_ids].present?	# updated attendance
-          changed = check_attendance(e_data[:player_ids])
+        if e_data[:athlete_ids].present?	# updated attendance
+          changed = check_attendance(e_data[:athlete_ids])
         elsif e_data[:task].present? # updated task from edit_task_form
           changed = check_task(e_data[:task])
           @notice = @notice + @task.to_s if changed
@@ -179,7 +179,7 @@ class EventsController < ApplicationController
 
   # DELETE /events/1 or /events/1.json
   def destroy
-    if @event && (club_manager? || @event&.team&.has_coach?(u_personid))
+    if @event && (club_manager? || @event&.team&.has_coach?(u_person))
       team   = @event.team
       @event.destroy
       respond_to do |format|
@@ -263,16 +263,16 @@ class EventsController < ApplicationController
     end
   end
 
-  # GET /events/1/player_stats?player_id=X
-  def player_stats
-    @player = Player.real.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
-    if event_manager? || (@event && check_access(obj: @player))
+  # GET /events/1/athlete_stats?athlete_id=X
+  def athlete_stats
+    @athlete = Assignment.find_by_id(params[:athlete_id]).person || u_person
+    if event_manager? || (@event && check_access(obj: @athlete))
       unless @event.rest?	# not keeing stats for holidays ;)
-        if @event.has_athlete?(u_personid)	# we do have a player
+        if @event.has_athlete?(u_person)	# we do have an athlete
           @title  = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
-          @fields = create_fields(helpers.event_player_stats)
-          editor  = (u_manager? || @event.team.has_coach?(u_personid) || @event.team.has_athlete?(u_personid))
-          @submit = create_submit(submit: editor ? edit_player_stats_event_path(@event, player_id: u_playerid) : nil, frame: "modal")
+          @fields = create_fields(helpers.event_athlete_stats)
+          editor  = (u_manager? || @event.team.has_coach?(u_person) || @event.team.has_athlete?(@athlete))
+          @submit = create_submit(submit: editor ? club_team_event_edit_athlete_stats_path(@event.club, @event.team, @event, athlete_id: @athlete.id) : nil, frame: "modal")
         else
           redirect_to team_path(@event.team, rdx: @rdx), data: { turbo_action: "replace" }
         end
@@ -282,17 +282,17 @@ class EventsController < ApplicationController
     end
   end
 
-  # GET /events/1/edit_player_stats?player_id=X
-  def edit_player_stats
-    if event_manager? || (@event && check_access(obj: @player))
+  # GET /events/1/edit_athlete_stats?athlete_id=X
+  def edit_athlete_stats
+    if event_manager? || (@event && check_access(obj: @athlete))
       unless @event.rest?	# not keeing stats for holidays ;)
-        @player = Player.find_by_id(params[:player_id] ? params[:player_id] : u_playerid)
-        if @player&.id.to_i > 0	# we do have a player
+        @athlete = Assignment.find_by_id(params[:athlete_id]).person || u_person
+        if @athlete	# we do have an athlete
           @title  = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
-          @fields = create_fields(helpers.event_edit_player_stats)
+          @fields = create_fields(helpers.event_edit_athlete_stats)
           @submit = create_submit
         else
-          redirect_to team_path(@event.team, rdx: @rdx), data: { turbo_action: "replace" }
+          redirect_to club_team_path(@event.club, @event.team, rdx: @rdx), data: { turbo_action: "replace" }
         end
       end
     else
@@ -301,29 +301,62 @@ class EventsController < ApplicationController
   end
 
   private
-    # check attendance
-    def check_attendance(p_array)
-      changed   = nil	# first pass
-      attendees = Array.new	# array to include all player_ids
-      p_array.each { |p| attendees <<  Player.find(p.to_i) unless p=="" or p.to_i==0 }
+    # Update attendance for an event based on a list of assignment IDs.
+    # @param assignment_ids [Array<String, Integer>] list of assignment IDs
+    # @return [Boolean] true if any changes were made
+    def check_attendance(assignment_ids)
+      team = @event.team
+      return false if team.nil?   # cannot process attendance without a team
 
-      attendees.each do |player|	# second pass - manage associations
-        unless @event.has_player?(player.person_id)
-          changed ||= true
-          @event.players << player
+      # Convert input to a set of person_ids (skip blanks and invalid assignments)
+      person_ids = assigment_ids.filter_map do |pid|
+        next if pid.blank? || pid.to_i == 0
+        athlete = Assignment.find_by(id: pid.to_i)
+        athlete&.person_id
+      end.compact.to_set
+
+      changed = false
+      event_date = @event.start_time.to_date
+
+      # 1. Process each person in the list → mark as present
+      person_ids.each do |person_id|
+        assignment = find_active_assignment(person_id, team, event_date)
+        next unless assignment
+
+        attendance = @event.attendances.find_or_initialize_by(assignment: assignment)
+        if attendance.status != :present
+          attendance.status = :present
+          attendance.save!
+          changed = true
         end
       end
 
-      @event.players.each do |player|	# cleanup removed attendances
-        unless attendees.include?(player)
-          changed ||= true
-          @event.players.delete(player)
+      # 2. Mark any existing attendances as absent if person is not in the list
+      @event.attendances.includes(assignment: { membership: :person }).each do |attendance|
+        person_id = attendance.assignment.membership.person_id
+        unless person_ids.include?(person_id)
+          if attendance.status != :absent
+            attendance.status = :absent
+            attendance.save!
+            changed = true
+          end
         end
       end
+
       changed
     end
 
-    # check stats - a single player updating an event
+    # Find the active athlete assignment for a person on a specific team on a given date.
+    def find_active_assignment(person_id, team, date)
+      Assignment.joins(:membership)
+                .where(memberships: { person_id: person_id, club_id: team.club_id, kind: :athlete })
+                .where(team: team)
+                .where("starts_on <= ?", date)
+                .where("ends_on IS NULL OR ends_on >= ?", date)
+                .first
+    end
+
+    # check stats - a single athlete updating an event
     def check_stats(stats)
       @sport.parse_stats(@event, stats) if stats	# lets_ check them
     end
@@ -359,7 +392,7 @@ class EventsController < ApplicationController
         end
         if @event.modified?
           @notice = I18n.t("#{@event.kind}.updated")
-        elsif	e_data[:player_ids].present?	# players to partcipate
+        elsif	e_data[:athlete_ids].present?	# assignments to participate
           @notice = I18n.t("#{@event.kind}.att_check")
         elsif params[:event][:stats_attributes].present? || params[:outings].present?	# updated stats/outings
           @notice = I18n.t("training.stat.messages.updated")
@@ -371,7 +404,7 @@ class EventsController < ApplicationController
 
     # wrapper to determine whether the user can modify the event.
     def event_manager?
-      @event && (club_manager?(@event&.team&.club) || @event&.team&.has_coach?(u_personid))
+      @event && (club_manager?(@event&.team&.club) || @event&.team&.has_coach?(u_person))
     end
 
     # pdf export of @event content
@@ -392,8 +425,8 @@ class EventsController < ApplicationController
         end
         pdf_new_page
         pdf_subtitle(I18n.t("calendar.attendance.label.single"))
-        @event.team.players.order(:number).each do |player|
-          pdf_label_text(label: player.to_s(style: 3), text: "_")
+        @event.team.athletes.by_number.each do |athlete|
+          pdf_label_text(label: athlete.to_s(style: 3), text: "_")
         end
         pdf_separator_line(style: "empty")
         pdf_subtitle(I18n.t("training.task.remarks.label"))
@@ -479,7 +512,7 @@ class EventsController < ApplicationController
         unless @event.rest?
           r_lnk = event_path(@event, rdx: @rdx, cal: @cal)
           if @event.train?
-            @btn_add = create_button({ kind: :add, label: I18n.t("task.add"), url: add_task_event_path(rdx: @rdx) }) if u_manager? || @event.team.has_coach?(u_personid)
+            @btn_add = create_button({ kind: :add, label: I18n.t("task.add"), url: add_task_event_path(rdx: @rdx) }) if u_manager? || @event.team.has_coach?(u_person)
             @drills  = @event.drill_list
           end
           @submit = create_submit(close: :back, retlnk: r_lnk)
@@ -550,7 +583,7 @@ class EventsController < ApplicationController
           :min,
           :p_for,
           :p_opp,
-          :player_id,
+          :athlete_id,
           :rdx,
           :start_date,
           :start_time,
@@ -560,7 +593,7 @@ class EventsController < ApplicationController
           :season_id,
           outings: {},
           event_targets_attributes: [ :id, :priority, :event_id, :target_id, :_destroy, target_attributes: [ :id, :focus, :aspect, :concept ] ],
-          player_ids: [],
+          assignment_ids: [],
           stats_attributes: [],
           task: [ :id, :task_id, :order, :drill_id, :duration, :remarks, :retlnk ],
           tasks_attributes: [ :id, :order, :drill_id, :duration, :remarks, :_destroy ]
