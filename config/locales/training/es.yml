@@ -197,11 +197,11 @@ es:
           general: General
           general_short: Gral.
           individual: Individual
-          individual_long: Habilidad individual
+          individual_long: Técnica individual
           individual_short: Ind.
           individual_hint: Desarrollo técnico individual.
           collective: Colectivo
-          individual_long: Táctica colectiva
+          collective_long: Táctica colectiva
           collective_short: Col.
           collective_hint: Desarrollo táctico colectivo.
       focus:

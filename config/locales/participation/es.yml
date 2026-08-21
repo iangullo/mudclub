@@ -66,10 +66,8 @@ es:
         ends_on: Fin
         role: Cargo
         team: Equipo
-        shirt_number: Número de camiseta
-        shirt_number_short: Nº
-        squad_number: Número de plantilla
-        squad_number_short: Nº
+        number: Dorsal
+        number_short: Nº
         notes: Notas
       messages:
         created: Asignación creada.

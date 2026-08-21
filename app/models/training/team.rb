@@ -30,8 +30,6 @@ class Team < ApplicationRecord
   belongs_to :season
   belongs_to :sport
   has_many :assignments, dependent: :destroy
-  has_and_belongs_to_many :players  # DEPRECATED
-  has_and_belongs_to_many :coaches  # DEPRECATED
   has_one :homecourt
   has_one :rules, through: :category
   has_many :slots, dependent: :destroy
@@ -71,7 +69,7 @@ class Team < ApplicationRecord
 
   # return a sport-specific term
   def term(*parts)
-    self.sport.term(parts)
+    self.sport.specific.term(*parts)
   end
 
   #-------------------------------------
@@ -84,10 +82,12 @@ class Team < ApplicationRecord
       assignments
   end
 
-  def has_member?(membership, assignment_kind = nil)
-    scope = assignments.current.where(membership:)
+  def has_assignment_for?(person, kind: nil, current: false)
+    scope = members(current:)
+      .joins(:membership)
+      .where(memberships: { person_id: person&.id })
 
-    scope = scope.of_kind(assignment_kind) if kind.present?
+    scope = scope.of_kind(kind) if kind.present?
 
     scope.exists?
   end
@@ -96,12 +96,10 @@ class Team < ApplicationRecord
     members(current:).of_membership_kind(:athlete)
   end
 
-  alias players athletes # DEPRECATED
-
-  def has_athlete?(person_id)
+  def has_athlete?(person)
     athletes(current: true)
       .joins(:membership)
-      .where(memberships: { person_id: })
+      .where(memberships: { person_id: person&.id })
       .exists?
   end
 
@@ -109,10 +107,10 @@ class Team < ApplicationRecord
     members(current:).of_membership_kind(:coach)
   end
 
-  def has_coach?(person_id)
+  def has_coach?(person)
     coaches(current: true)
       .joins(:membership)
-      .where(memberships: { person_id: })
+      .where(memberships: { person_id: person&.id })
       .exists?
   end
 
@@ -190,7 +188,7 @@ class Team < ApplicationRecord
     l_season = { tot: 0, att: 0 }
     sessions = { name: sport.specific.term(:athlete, :plural), avg: 0, data: {} }
     t_events = self.events.past.trainings.includes(:events_athletes)
-    t_att    = EventAttendance.for_team(self.id)
+    t_att    = Attendance.for_team(self)
     t_events.each do |event|
       if event.train?
         e_cnt           = t_att.for_event(event.id).count

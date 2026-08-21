@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
   around_action :switch_locale
   # Make these methods available to views and helpers
   helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_coachid,	:u_manager?,
-                :u_personid, :u_player?, :u_playerid, :u_secretary?, :u_userid,
+                :u_person, :u_player?, :u_playerid, :u_secretary?, :u_userid,
                 :user_in_club?, :club_manager?, :team_manager?, :date_string
 
 
@@ -224,7 +224,7 @@ class ApplicationController < ActionController::Base
 
   # return whether the current user is a club_manager
   def team_manager?(team = @team)
-    team&.has_coach?(u_personid) || club_manager?(team&.club)
+    team&.has_coach?(u_person) || club_manager?(team&.club)
   end
 
   # Standard string format for date values
@@ -273,8 +273,8 @@ class ApplicationController < ActionController::Base
     current_user&.person&.coach_id
   end
 
-  def u_personid
-    current_user&.person&.id
+  def u_person
+    current_user&.person
   end
 
   def u_athlete?
@@ -349,13 +349,13 @@ class ApplicationController < ActionController::Base
       when Drill
         (obj.coach_id == u_coachid)
       when Event
-        (obj.team&.has_coach?(u_personid) || obj.has_athlete?(u_personid))
+        (obj.team&.has_coach?(u_person) || obj.has_athlete?(u_person))
       when Person
-        (obj.id == u_personid)
+        (obj.id == u_person.id)
       when Player
         (obj.id == u_playerid)
       when Team
-        (obj.has_coach?(u_personid) || obj.has_athlete?(u_personid))
+        (obj.has_coach?(u_person) || obj.has_athlete?(u_person))
       when User
         (obj.id == u_userid)
       else # including NilClass

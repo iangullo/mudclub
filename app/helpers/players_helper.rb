@@ -42,7 +42,7 @@ module PlayersHelper
   # => nil: for players index
   # => Team: for team roster views
   def player_table(players:, team: nil)
-    manage  = u_manager? || u_secretary? || team&.has_coach?(u_personid)
+    manage  = u_manager? || u_secretary? || team&.has_coach?(u_person)
     title   = player_table_title(team:, manage:)
     rows    = Array.new
     players.each { | player|

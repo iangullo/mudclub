@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -17,144 +17,144 @@
 # contact email - iangullo@gmail.com.
 #
 module UsersHelper
-	# fields to show when looking a user profile
-	def user_show
-		res = person_show_title(@user, kind: :user)
-		res[4].pop
-		res[4] += user_roles(@user)
-		if current_user == @user	# only allow current user to change his own password
-			res[3] <<	button_field(
-				{ kind: :link, symbol: "key", label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true },
-				align: "right",
-				rows: 2
-			)
-		end
-		res
-	end
+  # fields to show when looking a user profile
+  def user_show
+    res = person_show_title(@user, kind: :user)
+    res[4].pop
+    res[4] += user_roles(@user)
+    if current_user == @user	# only allow current user to change his own password
+      res[3] <<	button_field(
+        { kind: :link, symbol: "key", label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: "modal", d_class: "inline-flex align-middle m-1 text-sm", flip: true },
+        align: "right",
+        rows: 2
+      )
+    end
+    res
+  end
 
-	# Fieldcomponents to display user roles
-	def user_roles(user = current_user, table: false)
-		roles =[]
-		if user.admin?
-			roles << symbol_field("website", { title: I18n.t("role.admin") })
-		elsif user.manager?
-			roles << symbol_field("key", { title: I18n.t("role.manager") })
-		elsif user.secretary?
-			roles << symbol_field("edit", { title: I18n.t("role.secretary") })
-		end
-		roles << symbol_field("coach", { namespace: "sport", title: I18n.t("role.coach") }) if user.is_coach?
-		roles << symbol_field("player", { namespace: "sport", title: I18n.t("role.player") }) if user.is_player?
-		res = [ { kind: :roles, symbols: roles, align: :center } ]
-		return res if table	# only interested in these 3 icons
-		res.first[:align] = :left
-		unless @user.user_actions.empty?
-			res << gap_field
-			res << button_field(
-				{ kind: :link, symbol: user_actions_symbol, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal" }
-			)
-		end
-		res
-	end
+  # Fieldcomponents to display user roles
+  def user_roles(user = current_user, table: false)
+    roles =[]
+    if user.admin?
+      roles << symbol_field("website", { title: I18n.t("role.admin") })
+    elsif user.manager?
+      roles << symbol_field("key", { title: I18n.t("role.manager") })
+    elsif user.secretary?
+      roles << symbol_field("edit", { title: I18n.t("role.secretary") })
+    end
+    roles << symbol_field("coach", { namespace: "sport", title: I18n.t("role.coach") }) if user.is_coach?
+    roles << symbol_field("player", { namespace: "sport", title: I18n.t("role.player") }) if user.is_player?
+    res = [ { kind: :roles, symbols: roles, align: :center } ]
+    return res if table	# only interested in these 3 icons
+    res.first[:align] = :left
+    unless @user.user_actions.empty?
+      res << gap_field
+      res << button_field(
+        { kind: :link, symbol: user_actions_symbol, url: actions_user_path, label: I18n.t("user.actions"), frame: "modal" }
+      )
+    end
+    res
+  end
 
-	# return FieldComponents for form user role
-	def user_form_role
-		if u_admin?
-			res = [
-				participation_club_selector(@user),
-				[
-					symbol_field("key", { title: I18n.t("user.profile") }),
-					{ kind: :select_box, align: "left", key: :role, options: User.role_list, value: @user.role }
-				]
-			]
-		else
-			res = [
-				[
-					icon_field(@user.club&.logo || "mudclub.svg", title: @user.club&.nick || I18n.t("club.none")),
-					{ kind: :string, align: "center", value: I18n.t("role.#{@user.role}") },
-					{ kind: :hidden, key: :club_id, value: @user.club_id }
-				]
-			]
-		end
-		res.last <<	gap_field
-		res.last << symbol_field("locale", { title: I18n.t("locale.lang") })
-		res.last << { kind: :select_box, align: "center", key: :locale, options: User.locale_list, value: @user.locale }
-		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
-		res
-	end
+  # return FieldComponents for form user role
+  def user_form_role
+    if u_admin?
+      res = [
+        participation_club_selector(@user),
+        [
+          symbol_field("key", { title: I18n.t("user.profile") }),
+          { kind: :select_box, align: "left", key: :role, options: User.role_list, value: @user.role }
+        ]
+      ]
+    else
+      res = [
+        [
+          icon_field(@user.club&.logo || "mudclub.svg", title: @user.club&.nick || I18n.t("club.none")),
+          { kind: :string, align: "center", value: I18n.t("role.#{@user.role}") },
+          { kind: :hidden, key: :club_id, value: @user.club_id }
+        ]
+      ]
+    end
+    res.last <<	gap_field
+    res.last << symbol_field("locale", { title: I18n.t("locale.lang") })
+    res.last << { kind: :select_box, align: "center", key: :locale, options: User.locale_list, value: @user.locale }
+    res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
+    res
+  end
 
-	# return FieldComponents for form user personal data
-	def user_form_pass
-		[
-			[
-				symbol_field("key"),
-				{ kind: :password_box, key: :password, placeholder: I18n.t("password.single"), mandatory: { length: 8 } }
-			],
-			[
-				symbol_field("key"),
-				{ kind: :password_box, key: :password_confirmation, placeholder: I18n.t("password.confirm"), mandatory: { length: 8 } }
-			],
-			[
-				gap_field,
-				{ kind: :text, value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs" }
-			]
-		]
-	end
+  # return FieldComponents for form user personal data
+  def user_form_pass
+    [
+      [
+        symbol_field("key"),
+        { kind: :password_box, key: :password, placeholder: I18n.t("password.single"), mandatory: { length: 8 } }
+      ],
+      [
+        symbol_field("key"),
+        { kind: :password_box, key: :password_confirmation, placeholder: I18n.t("password.confirm"), mandatory: { length: 8 } }
+      ],
+      [
+        gap_field,
+        { kind: :text, value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs" }
+      ]
+    ]
+  end
 
-	# return user_actions TableComponent
-	def user_actions_title
-		res  = title_start(title: @user.person.s_name, icon: user_actions_symbol)
-		res << [ { kind: :subtitle, value: I18n.t("user.actions") } ]
-	end
+  # return user_actions TableComponent
+  def user_actions_title
+    res  = title_start(title: @user.person.s_name, icon: user_actions_symbol)
+    res << [ { kind: :subtitle, value: I18n.t("user.actions") } ]
+  end
 
-	# return user_actions TableComponent
-	def user_actions_table
-		res = [ [
-			topcell_field(I18n.t("calendar.date")),
-			topcell_field(I18n.t("drill.desc"))
-		] ]
-		@user.user_actions.order(updated_at: :desc).each { |u_act|
-			res << [
-				{ kind: :string, value: u_act.date_time, class: "border px py" },
-				{ kind: :string, value: u_act.description, class: "border px py" }
-			]
-		}
-		res
-	end
+  # return user_actions TableComponent
+  def user_actions_table
+    res = [ [
+      topcell_field(I18n.t("calendar.date")),
+      topcell_field(I18n.t("drill.desc"))
+    ] ]
+    @user.user_actions.order(updated_at: :desc).each { |u_act|
+      res << [
+        { kind: :string, value: u_act.date_time, class: "border px py" },
+        { kind: :string, value: u_act.description, class: "border px py" }
+      ]
+    }
+    res
+  end
 
-	# prepare clear button only if there are actions to clear
-	def user_actions_clear
-		return nil if @user.user_actions.empty?
-		{ kind: :clear, url: clear_actions_user_path(rdx: @rdx), name: @user.s_name }
-	end
+  # prepare clear button only if there are actions to clear
+  def user_actions_clear
+    return nil if @user.user_actions.empty?
+    { kind: :clear, url: clear_actions_user_path(rdx: @rdx), name: @user.s_name }
+  end
 
-	# return table for @users TableComponent
-	def user_table(users: @users)
-		title = [
-			{ kind: :normal, value: I18n.t("club.single") },
-			{ kind: :normal, value: I18n.t("person.name") },
-			{ kind: :normal, value: I18n.t("user.profile"), align: "center" },
-			{ kind: :normal, value: I18n.t("person.contact"), align: "center" },
-			{ kind: :normal, value: I18n.t("user.last_in"), align: "center" }
-		]
-		title << button_field({ kind: :add, url: new_user_path(rdx: @rdx), frame: "modal" }) if u_admin?
+  # return table for @users TableComponent
+  def user_table(users: @users)
+    title = [
+      { kind: :normal, value: I18n.t("club.single") },
+      { kind: :normal, value: I18n.t("person.name") },
+      { kind: :normal, value: I18n.t("user.profile"), align: "center" },
+      { kind: :normal, value: I18n.t("person.contact"), align: "center" },
+      { kind: :normal, value: I18n.t("user.last_in"), align: "center" }
+    ]
+    title << button_field({ kind: :add, url: new_user_path(rdx: @rdx), frame: "modal" }) if u_admin?
 
-		rows = Array.new
-		@users.each { |user|
-			row = { url: user_path(user, rdx: @rdx), items: [] }
-			row[:items] << (user.active? ? icon_field(user.club.logo) : symbol_field("no"))
-			row[:items] << { kind: :normal, value: user.s_name }
-			row[:items] << user_roles(user, table: true).first
-			row[:items] << { kind: :contact, phone: user.person.phone, email: user.person.email }
-			row[:items] << { kind: :normal, value: user.last_sign_in_at&.to_date, align: "center" }
-			row[:items] << button_field({ kind: :delete, url: row[:url], name: user.s_name }) if u_admin? and user.id!=current_user.id
-			rows << row
-		}
-		{ title:, rows:, align: :center }
-	end
+    rows = Array.new
+    @users.each { |user|
+      row = { url: user_path(user, rdx: @rdx), items: [] }
+      row[:items] << (user.active? ? icon_field(user.club.logo) : symbol_field("no"))
+      row[:items] << { kind: :normal, value: user.s_name }
+      row[:items] << user_roles(user, table: true).first
+      row[:items] << { kind: :contact, phone: user.person.phone, email: user.person.email }
+      row[:items] << { kind: :normal, value: user.last_sign_in_at&.to_date, align: "center" }
+      row[:items] << button_field({ kind: :delete, url: row[:url], name: user.s_name }) if u_admin? and user.id!=current_user.id
+      rows << row
+    }
+    { title:, rows:, align: :center }
+  end
 
-	private
-		# tails actions_symbol to mark if log is quite full
-		def user_actions_symbol
-			symbol_hash("actions", variant: @user.user_actions.count>10 ? "full" : "default")
-		end
+  private
+    # tails actions_symbol to mark if log is quite full
+    def user_actions_symbol
+      symbol_hash("actions", variant: @user.user_actions.count>10 ? "full" : "default")
+    end
 end

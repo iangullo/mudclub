@@ -33,7 +33,7 @@
 #   Club.label(:plural)
 #   Club.label(:short)
 #
-#   Club.attr(:name)
+#   Club.fld(:name)
 #   Club.msg(:created)
 #   Club.val(:athlete)
 #
@@ -94,7 +94,7 @@ module Localizable
   TRANSLATION_HELPERS = %i[
     label
     term
-    attr
+    fld
     msg
     val
     t_path
@@ -124,7 +124,7 @@ module Localizable
 
     #
     # Declares which subsection key helpers
-    # (label(:...), attr, msg, val...) should default to.
+    # (label(:...), fld, msg, val...) should default to.
     #
     def key_scope(scope)
       self._i18n_key_scope = scope.to_sym
@@ -206,7 +206,7 @@ module Localizable
     #
     # Convenience wrappers
     #
-    TRANSLATION_SECTIONS = { attr: :fields, msg: :messages, val: :values }.freeze
+    TRANSLATION_SECTIONS = { fld: :fields, msg: :messages, val: :values }.freeze
 
     TRANSLATION_SECTIONS.each do |method_name, scope|
       define_method(method_name) do |key, shorthand = nil, **options|

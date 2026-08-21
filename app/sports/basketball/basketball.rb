@@ -125,8 +125,8 @@ class Basketball < Sport
   # table to show/edit player outings for a match
   def outings_table(event, outings, edit: false, rdx: nil)
     title = [
-      { kind: :normal, value: Assignment.attr(:shirt_number_short), align: "center" },
-      { kind: :normal, value: Person.attr(:name) }
+      { kind: :normal, value: Assignment.fld(:shirt_number_short), align: "center" },
+      { kind: :normal, value: Person.fld(:name) }
     ]
     rows  = []
     kind  = (edit ? :text : :normal)
@@ -350,9 +350,9 @@ class Basketball < Sport
 
       [
         [
-          topcell(attr(:rules), rows: 3),
+          topcell(field(:rules), rows: 3),
           topcell(term(:period, :plural), cols: 4),
-          topcell(Team.attr(:roster), cols: 2, rows: 2),
+          topcell(Team.fld(:roster), cols: 2, rows: 2),
           topcell(t_path(:outings, :playing), cols: 2, rows: 2),
           topcell(t_path(:outings, :quarter), cols: 3, rows: 2)
         ],
@@ -504,7 +504,7 @@ class Basketball < Sport
     def match_stats_header(edit: false)
       fields = [
         { kind: :normal, value: t_path("participation.assignment.fields.shirt_number_short"), align: "center" },
-        { kind: :normal, value: Person.attr(:name) },
+        { kind: :normal, value: Person.fld(:name) },
         { kind: :normal, value: s_label(:sec), align: "center" }
       ]
       fields <<	{ kind: :normal, value: s_label(:pts), align: "center" } unless edit

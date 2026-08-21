@@ -66,10 +66,8 @@ en:
         ends_on: Ends
         role: Role
         team: Team
-        shirt_number: Shirt number
-        shirt_number_short: #
-        squad_number: Squad number
-        squad_number_short: #
+        number: Jersey number
+        number_short: "#"
         notes: Notes
       messages:
         created: Assignment created.

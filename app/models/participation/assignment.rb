@@ -29,6 +29,7 @@ class Assignment < ApplicationRecord
 
   belongs_to :membership
   belongs_to :team, optional: true
+  has_many :attendances
 
   # attachment of notes to be handled
   has_rich_text :notes
@@ -55,8 +56,6 @@ class Assignment < ApplicationRecord
           :phone,
           :relationships,
           :surname,
-          :s_name,
-          :to_s,
           to: :membership
 
   #-------------------------------------
@@ -106,14 +105,21 @@ class Assignment < ApplicationRecord
   }
 
   scope :open, -> { where(ends_on: nil) }
+  scope :female, -> { joins(:person).where("female = true") }
+  scope :male, -> { joins(:person).where("female = false") }
+  scope :by_number, -> { order(Arel.sql("NULLIF(settings->>'jersey_number', '')::int NULLS LAST")) }
 
   # short name for form viewing
   def s_name
-    person&.s_name || Catalog::AssignmentKinds.val(kind)
+    person&.s_name || membership.kind_label
   end
 
+  #-------------------------------------
+  # General Assignment methods
+  #-------------------------------------
   # personal photo or membership kind symbol
   def picture
+    return avatar if avatar&.attached?
     return person.avatar if person&.avatar&.attached?
 
     # if no attached avatar, return the symbol name
@@ -130,7 +136,94 @@ class Assignment < ApplicationRecord
   end
 
   #-------------------------------------
-  # Behaviour
+  # Attendance helpers
+  #-------------------------------------
+  # Is this assingment present in an event?
+  def present?(event_id)
+    attendances.include?(event_id)
+  end
+
+  # get attendance data for player over the period specified by "during"
+  # returns attendance inthe form of:
+  # matches played and session attendance [%] for week, month and season
+  def attendance
+    t_events   = team.events.normal.past.includes(:players)
+    t_sessions = t_events.trainings
+    l_week     = { tot: t_sessions.last7.size, att: 0 }
+    l_month    = { tot: t_sessions.last30.size, att: 0 }
+    l_season   = { tot: t_sessions.count, att: 0 }
+    p_att      = Attendance.for_assignment(self).includes(:event)
+    matches    = p_att.matches.size
+    t_att      = p_att.trainings
+    l_season[:att] = t_att.size
+    l_week[:att] = t_att.last7.size
+    l_month[:att] = t_att.last30.size
+    att_week = l_week[:tot] > 0 ? (l_week[:att] * 100 / l_week[:tot]).to_i : nil
+    att_month = l_month[:tot] > 0 ? (l_month[:att] * 100 / l_month[:tot]).to_i : nil
+    att_total = l_season[:tot] > 0 ? (100 * l_season[:att] / l_season[:tot]).to_i : nil
+    { matches:, last7: att_week, last30: att_month, avg: att_total }
+  end
+
+  #-------------------------------------
+  # Back-ported methods to replace Player/Coach accesses
+  #-------------------------------------
+  def age
+    person&.age
+  end
+
+  def female?
+    person&.female?
+  end
+
+  # Return email/phone of player or of the associated tutors if underage players
+  def p_email
+    email = ""
+    if age < 18
+      person.responsible_adults.each { |par| email += "#{par.person.email.presence}\n" if par.person.email.present? }
+    end
+    email += email.to_s
+  end
+
+  def p_phone
+    phone = ""
+    if age < 18
+      person.responsible_adults.each { |par| phone += "#{par.person.phone.presence}\n" if par.person.phone.present? }
+    end
+    phone += phone.to_s
+  end
+
+  # Return person.to_s or player name and jersey number
+  def to_s(style: 2)
+    if membership.kind == "athlete"
+      case style
+      when 0; return self.s_name
+      when 1; return self.person.to_s
+      when 2; name = self.s_name
+      when 3; name = self.person.to_s
+      end
+      num = "(##{number || "__"})".rjust(5, " ")
+      return "#{num} #{name}"
+    end
+
+    person&.to_s || membership.kind_label
+  end
+
+  # String with number, name & age
+  def num_name_age
+    "#{number.to_s.rjust(7, " ")}-#{self} (#{age})"
+  end
+
+  def number
+    settings["number"].presence
+  end
+
+  def number=(value)
+    self.settings ||= {}
+    settings["number"] = value.to_i
+  end
+
+  #-------------------------------------
+  # Status transitions & definitions
   #-------------------------------------
   def club_assignment?
     team.nil?
@@ -152,7 +245,7 @@ class Assignment < ApplicationRecord
 
   def rebuild(data)
     # only needed for new records
-    self.membership_id ||= data[:membership_id]   if data[:membership_id].present?
+    self.membership_id ||= data[:membership_id] if data[:membership_id].present?
 
     self.team_id   = data[:team_id]   if data.key?(:team_id)
     self.kind      = data[:kind]      if data.key?(:kind)
@@ -160,8 +253,9 @@ class Assignment < ApplicationRecord
     self.starts_on = data[:starts_on] if data.key?(:starts_on)
     self.ends_on   = data[:ends_on]   if data.key?(:ends_on)
     self.notes     = data[:notes]     if data.key?(:notes)
+    self.number    = data[:number]    if data.key?(:number) # only for athletes
 
-    self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
+    self.update_attachment("avatar", data[:avatar])	if data[:avatar].present?
 
     return self unless resolve_person(data[:person_attributes])
 

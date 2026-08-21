@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -17,57 +17,57 @@
 # contact email - iangullo@gmail.com.
 #
 module SeasonsHelper
-	# return HeaderComponent @fields for forms
-	def season_form(title:, cols: nil)
-		res = season_title(title:, cols:)
-		res << [ { kind: :subtitle, value: @season.name } ]
-		res << [
-			{ kind: :label, align: "right", value: I18n.t("calendar.start") },
-			{ kind: :date_box, key: :start_date, s_year: 2020, value: @season.start_date }
-		]
-		res << [
-			{ kind: :label, align: "right", value: I18n.t("calendar.end") },
-			{ kind: :date_box, key: :end_date, s_year: 2020, value: @season.end_date }
-		]
-		res
-	end
+  # return HeaderComponent @fields for forms
+  def season_form(title:, cols: nil)
+    res = season_title(title:, cols:)
+    res << [ { kind: :subtitle, value: @season.name } ]
+    res << [
+      { kind: :label, align: "right", value: I18n.t("calendar.start") },
+      { kind: :date_box, key: :start_date, s_year: 2020, value: @season.start_date }
+    ]
+    res << [
+      { kind: :label, align: "right", value: I18n.t("calendar.end") },
+      { kind: :date_box, key: :end_date, s_year: 2020, value: @season.end_date }
+    ]
+    res
+  end
 
-	# table for mudclub seasons
-	def season_table(seasons: @seasons)
-		title = [
-			{ kind: :normal, value: I18n.t("season.single"), align: "center" },
-			{ kind: :normal, value: I18n.t("team.many"), align: "center" },
-			button_field({ kind: :add, url: new_season_path(rdx: @rdx), frame: "modal" })
-		]
-		rows = Array.new
-		seasons.each { |season|
-			row = { url: season_path(season, rdx: @rdx), items: [], frame: "modal" }
-			row[:items] << { kind: :normal, value: season.name, align: "center" }
-			row[:items] << { kind: :normal, value: season.teams.count, align: "center" }
-			row[:items] << button_field({ kind: :delete, url: row[:url], name: season.to_s })
-			rows << row
-		}
-		{ title:, rows: }
-	end
+  # table for mudclub seasons
+  def season_table(seasons: @seasons)
+    title = [
+      { kind: :normal, value: Season.label, align: "center" },
+      { kind: :normal, value: Team.label, align: "center" },
+      button_field({ kind: :add, url: new_season_path(rdx: @rdx), frame: "modal" })
+    ]
+    rows = Array.new
+    seasons.each { |season|
+      row = { url: season_path(season, rdx: @rdx), items: [], frame: "modal" }
+      row[:items] << { kind: :normal, value: season.name, align: "center" }
+      row[:items] << { kind: :normal, value: season.teams.count, align: "center" }
+      row[:items] << button_field({ kind: :delete, url: row[:url], name: season.to_s })
+      rows << row
+    }
+    { title:, rows: }
+  end
 
-	# return HeaderComponent @fields for forms
-	def season(cols: nil)
-		res = season_title(title: I18n.t("season.single"), cols:)
-		res << [ { kind: :subtitle, value: @season.name } ]
-		res << [
-			{ kind: :label, align: "right", value: I18n.t("calendar.start") },
-			{ kind: :text, value: @season.start_date }
-		]
-		res << [
-			{ kind: :label, align: "right", value: I18n.t("calendar.end") },
-			{ kind: :text, value: @season.end_date }
-		]
-		res
-	end
+  # return HeaderComponent @fields for forms
+  def season(cols: nil)
+    res = season_title(title: @season.label, cols:)
+    res << [ { kind: :subtitle, value: @season.name } ]
+    res << [
+      { kind: :label, align: "right", value: I18n.t("calendar.start") },
+      { kind: :text, value: @season.start_date }
+    ]
+    res << [
+      { kind: :label, align: "right", value: I18n.t("calendar.end") },
+      { kind: :text, value: @season.end_date }
+    ]
+    res
+  end
 
 
-	# return icon and top of HeaderComponent
-	def season_title(icon: symbol_hash("calendar"), title:, cols: nil)
-		title_start(icon:, title:, cols:)
-	end
+  # return icon and top of HeaderComponent
+  def season_title(icon: symbol_hash("calendar"), title:, cols: nil)
+    title_start(icon:, title:, cols:)
+  end
 end

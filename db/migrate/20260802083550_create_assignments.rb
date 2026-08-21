@@ -53,59 +53,85 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
   # ---- Team assignments (coaches & athletes) ----
   def infer_team_assignments
     # --- Coaches ---
-    Coach.real.find_each do |coach|
-      coach.teams.joins(:season).order("seasons.start_date ASC").each do |team|
-        # Determine if head or assistant (first in team.coaches order)
-        coach_list = team.coaches.order(:id)
-        position = coach_list.index(coach)
-        kind = position == 0 ? :head_coach : :assistant_coach
-        assignment_kind = Catalog::AssignmentKinds.fetch(kind)
-
-        membership = find_or_create_membership(coach, team, :coach)
-        next unless membership
-
-        create_team_assignment(membership, team, assignment_kind.id)
-      end
+    coaches = Coach.real
+    puts "\n📌 Processing #{coaches.count} coaches..."
+    c_count  = 0
+    c_teams  = 0
+    assigned = 0
+    coaches.find_each do |coach|
+      c_count += 1
+      c_teams += coach.teams.count
+      assigned += infer_coach_assignments(coach)
     end
+    puts "✅ Processed #{c_count} coaches..."
+    puts "\tTeams => #{c_teams}; Assigned => #{assigned}"
+
 
     # --- Athletes ---
-    # Build a set of all (player_id, team_id) pairs (current + historical)
-    player_team_pairs = Set.new
-
-    # Current
-    Player.joins(:teams).pluck("players.id", "teams.id").each do |p_id, t_id|
-      player_team_pairs.add([ p_id, t_id ])
+    puts "\n📌 Processing #{Player.real.count} athletes..."
+    assigned = 0
+    athlete_kind  = Catalog::AssignmentKinds.fetch(:athlete)
+    athlete_pairs = ActiveRecord::Base.logger.silence do
+      ActiveRecord::Base.connection.select_all(athlete_pairs_sql).to_a
     end
 
-    # Historical (from events_players)
-    Event.joins(:events_players)
-         .where.not(team_id: nil)
-         .pluck("events_players.player_id", :team_id)
-         .each do |p_id, t_id|
-      player_team_pairs.add([ p_id, t_id ])
+    athlete_pairs.each do |pair|
+      assigned += 1 if infer_athlete_assignment(pair, athlete_kind)
     end
-
-    athlete_kind = Catalog::AssignmentKinds.fetch(:athlete)
-
-    player_team_pairs.each do |player_id, team_id|
-      player = Player.find_by(id: player_id)
-      next unless player
-
-      team = Team.find_by(id: team_id)
-      next unless team&.season
-
-      membership = find_or_create_membership(player, team, :athlete)
-      next unless membership
-
-      create_team_assignment(membership, team, athlete_kind.id, player.number)
-    end
-
-    # --- SAFETY NET: catch any remaining pairs that still lack an assignment ---
-    say_with_time "Catching missing athlete assignments" do
-      catch_missing_athlete_assignments
-    end
+    puts "✅ Processed #{athlete_pairs.count} athlete assignments..."
+    puts "\tAssigned => #{assigned}"
   end
 
+  def infer_coach_assignments(coach)
+    assigned = 0
+    coach.teams.joins(:season).order("seasons.start_date ASC").each do |team|
+      # Determine if head or assistant (first in team.coaches order)
+      kind = team.coaches.empty? ? :head_coach : :assistant_coach
+      assignment_kind = Catalog::AssignmentKinds.fetch(kind)
+
+      membership = find_or_create_membership(coach, team, :coach)
+      next unless membership
+
+      if create_team_assignment(membership, team, assignment_kind.id)
+        assigned += 1
+      end
+    end
+    # puts "#{assigned} teams assigned."
+    assigned
+  end
+
+  # Get all distinct player-team pairs via SQL UNION
+  def athlete_pairs_sql
+    <<~SQL
+      SELECT DISTINCT player_id, team_id
+      FROM (
+        SELECT players.id AS player_id, teams.id AS team_id
+        FROM players
+        JOIN players_teams ON players_teams.player_id = players.id
+        JOIN teams ON teams.id = players_teams.team_id
+
+        UNION
+
+        SELECT events_players.player_id, events.team_id
+        FROM events_players
+        JOIN events ON events.id = events_players.event_id
+        WHERE events.team_id IS NOT NULL
+      ) AS all_pairs
+    SQL
+  end
+
+  def infer_athlete_assignment(athlete, kind)
+    player = Player.find_by(id: athlete['player_id'].to_i)
+    return nil unless player
+
+    team = Team.find_by(id: athlete['team_id'].to_i)
+    return nil unless team
+
+    membership = find_or_create_membership(player, team, :athlete)
+    return nil unless membership
+
+    create_team_assignment(membership, team, kind.id, player.number)
+  end
   # ---- Shared helpers ----
   def find_or_create_membership(member, team, kind)
     person = member.person
@@ -164,7 +190,7 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
     assignment.save!
   end
 
-  def create_team_assignment(membership, team, kind_id, jersey_number = nil)
+  def create_team_assignment(membership, team, kind_id, number = nil)
     # Avoid duplicates
     existing = Assignment.find_by(
       membership: membership,
@@ -177,7 +203,7 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
     ends_on = nil if ends_on.present? && ends_on > Date.current
 
     settings = {}
-    settings[:jersey_number] = jersey_number if jersey_number.present?
+    settings[:number] = number if number.present?
 
     Assignment.create!(
       membership: membership,
@@ -188,44 +214,5 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
       ends_on: ends_on,
       settings: settings
     )
-  end
-
-  def catch_missing_athlete_assignments
-    membership_athlete_kind = Catalog::MembershipKinds[:athlete].id
-
-    missing_pairs = execute(<<~SQL)
-      SELECT
-        p.id AS player_id,
-        e.team_id,
-        MIN(DATE(e.start_time)) AS earliest_event,
-        MAX(DATE(e.start_time)) AS latest_event
-      FROM events_players ep
-      JOIN players p ON p.id = ep.player_id
-      JOIN events e ON e.id = ep.event_id
-      WHERE e.team_id IS NOT NULL
-        AND NOT EXISTS (
-          SELECT 1
-          FROM assignments a
-          JOIN memberships m ON m.id = a.membership_id
-          WHERE m.person_id = p.person_id
-            AND m.club_id = e.club_id
-            AND m.kind = #{membership_athlete_kind}
-            AND a.team_id = e.team_id
-        )
-      GROUP BY p.id, e.team_id
-    SQL
-
-    say "Found #{missing_pairs.count} missing athlete assignments to create."
-
-    missing_pairs.each do |row|
-      player = Player.find(row['player_id'])
-      team = Team.find(row['team_id'])
-      membership = find_or_create_membership(player, team, :athlete)
-      next unless membership
-
-      create_team_assignment(membership, team, Catalog::AssignmentKinds.fetch(:athlete).id, player.number)
-    end
-
-    say "Created #{missing_pairs.count} missing athlete assignments."
   end
 end
