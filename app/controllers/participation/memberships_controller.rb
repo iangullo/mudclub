@@ -161,7 +161,7 @@ class MembershipsController < ApplicationController
   private
     # wrapper to set return link for CRUD operations
     def post_save_path
-      return club_members_path(kind: @member.kind, search: @member.s_name, rdx: @rdx) if @member
+      return club_members_path(kind: @member.kind, search: params[:search].presence, rdx: @rdx) if @member
       (@club ? club_members_path(@club, kind: @kind, rdx: @rdx) : u_path)
     end
 

@@ -50,14 +50,14 @@ class AssignmentsController < ApplicationController
     @assignment_policy = check_policy!(AssignmentPolicy, record: @assignment)
     status = @assignment_policy.edit?
 
-    @title  = create_fields(
+    fields  =
       helpers.participation_title(
         @assignment,
         status_url: helpers.edit_assignment_path(status:),
         just_icon: false
-      )
-    )
-    @fields = create_fields(helpers.assignment_show_fields)
+      ) + helpers.assignment_show_fields
+
+    @fields = create_fields(fields)
     submit  = helpers.edit_assignment_path if @assignment_policy.update?
     @submit = create_submit(submit:, frame: :modal)
   end

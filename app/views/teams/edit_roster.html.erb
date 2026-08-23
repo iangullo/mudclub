@@ -8,7 +8,7 @@
 					<th class="border px py" align="center"><%= Person.fld(:age) %></th>
 				</tr>
 				<div id="player-selection">
-					<%= form.collection_check_boxes :assignment_ids, @eligible_athletes, :id, :to_s do |athlete| %>
+					<%= form.collection_check_boxes :athlete_ids, @eligible_athletes, :id, :to_s do |athlete| %>
 						<tr>
 							<div class="collection-check-box">
 								<td align="center" class="rounded border"><%= athlete.object.number %></td>

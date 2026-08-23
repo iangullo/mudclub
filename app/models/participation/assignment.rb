@@ -104,6 +104,7 @@ class Assignment < ApplicationRecord
     where("starts_on <= ?", date)
       .where("ends_on IS NULL OR ends_on >= ?", date)
   }
+  scope :terminated, -> { where(status: :terminated) }
 
   scope :open, -> { where(ends_on: nil) }
   scope :female, -> { joins(:person).where("female = true") }

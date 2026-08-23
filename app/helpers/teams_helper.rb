@@ -79,7 +79,7 @@ module TeamsHelper
     res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
     res << [
       symbol_field("user", align: "right"),
-      { kind: :text_box, key: :nick, value: @team.nick, placeholder: @tean.label, mandatory: { length: 3 } },
+      { kind: :text_box, key: :nick, value: @team.nick, placeholder: @team.label, mandatory: { length: 3 } },
       { kind: :hidden, key: :club_id, value: @club.id },
       { kind: :hidden, key: :sport_id, value: (@sport&.id || 1) }	# will need to break this up for multi-sports in future
     ]

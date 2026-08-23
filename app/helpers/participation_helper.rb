@@ -140,13 +140,19 @@ module ParticipationHelper
     end
   end
 
-  def participation_index_path(origin: participation_origin, club: @club, team: @team, kind: nil)
+  def participation_index_path(
+    origin: participation_origin,
+    club: @club,
+    team: @team,
+    kind: nil,
+    search: nil
+    )
     case origin
     when :team
-      club_team_roster_path(club, team, rdx: @rdx)
+      club_team_roster_path(club, team, search:, rdx: @rdx)
 
     else
-      club_assignments_path(club, kind:, rdx: @rdx)
+      club_assignments_path(club, kind:, search:, rdx: @rdx)
     end
   end
 end

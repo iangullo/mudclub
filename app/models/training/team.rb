@@ -30,6 +30,7 @@ class Team < ApplicationRecord
   belongs_to :season
   belongs_to :sport
   has_many :assignments, dependent: :destroy
+  has_many :members, through: :assignments, source: :membership
   has_one :homecourt
   has_one :rules, through: :category
   has_many :slots, dependent: :destroy
@@ -96,6 +97,10 @@ class Team < ApplicationRecord
     members(current:).of_membership_kind(:athlete)
   end
 
+  def athlete_ids(current: true)
+    athletes.pluck(:membership_id)
+  end
+
   def has_athlete?(person)
     athletes(current: true)
       .joins(:membership)
@@ -105,6 +110,10 @@ class Team < ApplicationRecord
 
   def coaches(current: false)
     members(current:).of_membership_kind(:coach)
+  end
+
+  def coach_ids(current: true)
+    coaches.pluck(:membership_id)
   end
 
   def has_coach?(person)
@@ -285,7 +294,8 @@ class Team < ApplicationRecord
     self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
     self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
     check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
-    check_assignments(f_data[:team_assignments_attributes]) if f_data[:team_assignments_attributes]
+    sync_coaches(f_data[:coach_ids]) if f_data[:coach_ids]
+    sync_roster(f_data[:athlete_ids]) if f_data[:athlete_ids]
   end
 
   # check if drill (or associations) has changed
@@ -341,50 +351,82 @@ class Team < ApplicationRecord
 
   private
     #-------------------------------------
-    # Rebuild team assignments from form data
+    # Team Assignment management
     #-------------------------------------
-    def check_assignments(data)
-      desired = desired_assignments(data)
 
-      ensure_assignments(desired)
-      remove_assignments(desired)
-      synchronize_legacy_associations
-    end
+    # Coach sync with head/assistant logic
+    def sync_coaches(coach_ids)
+      desired   = normalize_uuids(coach_ids)
+      current   = current_membership_ids([ :head_coach, :assistant_coach ])
+      to_add    = desired - current
+      to_remove = current - desired
 
-    def desired_assignments(data)
-      Array(data).filter_map do |row|
-        membership_id = row[:membership_id].presence
-        kind          = row[:kind].presence
+      # Remove first so head/assistant logic works on the remaining
+      remove_assignments([ :head_coach, :assistant_coach ], to_remove)
 
-        next unless membership_id && kind
-        next unless club.memberships.exists?(id: membership_id)
-
-        [ membership_id, kind.to_sym ]
-      end.uniq
-    end
-
-
-    def ensure_assignments(desired)
-      desired.each do |membership_id, kind|
-        next if assignments.current.exists?(membership_id:, kind:)
-
-        assignments.create!(
-          membership_id:,
-          kind:,
-          starts_on: Date.current
-        )
-
+      to_add.each do |membership_id|
+        head_exists = assignments.current.where(kind: :head_coach).exists?
+        coach_kind  = head_exists ? :assistant_coach : :head_coach
+        activate_member(membership_id, coach_kind)
         @modified = true
       end
     end
 
-    def remove_assignments(desired)
-      desired = desired.to_set
+    def sync_roster(athlete_ids)
+      kind      = :athlete
+      desired   = normalize_uuids(athlete_ids)
+      current   = current_membership_ids(kind)
+      to_add    = desired - current
+      to_remove = current - desired
 
-      assignments.current.find_each do |assignment|
-        next if desired.include?([ assignment.membership_id, assignment.kind.to_sym ])
+      ensure_assignments(to_add, kind)
+      remove_assignments(to_remove, kind)
+    end
 
-        assignment.update!(status: :terminated, ends_on: Date.current)
+    # Normalize UUIDs: convert to string, remove blanks
+    def normalize_uuids(uuids)
+      uuids.to_a.filter_map { |uuid| uuid.to_s.presence }.uniq
+    end
+
+    # Helpers for current membership IDs
+    def current_membership_ids(kinds)
+      kinds = Array(kinds)
+      assignments.current.where(kind: kinds).pluck(:membership_id).map(&:to_s)
+    end
+
+    def ensure_assignments(membership_ids, kind)
+      membership_ids.each do |membership_id|
+        binding.break
+        next unless membership_id.present?
+
+        activate_member(membership_id, kind)
+        @modified = true
+      end
+    end
+
+    def activate_member(membership_id, kind)
+      terminated = assignments.terminated.find_by(membership_id:, kind:)
+      if terminated
+        terminated.reinstate!
+      else
+        Assignment.create!(
+          membership_id:,
+          team_id: self.id,
+          kind:,
+          starts_on: Date.current,
+          status: :active
+         )
+      end
+    end
+
+    # Remove assignments (terminate) – supports single or array of kinds
+    def remove_assignments(membership_ids, kinds)
+      return if membership_ids.empty?
+
+      assignments.current
+        .where(membership_id: membership_ids, kind: kinds)
+        .find_each do |assignment|
+        assignment.terminate!
         @modified = true
       end
     end

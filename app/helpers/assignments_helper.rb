@@ -61,23 +61,20 @@ module AssignmentsHelper
   end
 
   def assignment_show_fields(assignment = @assignment)
-    [
+    fields = [
       [
-        { kind: :label, value: "#{assignment.fld(:status)}: ", align: "left" },
-        gap_field,
-        { kind: :label, value: "#{assignment.fld(:starts_on, :short)}: ", align: "left" },
-        { kind: :string, value: date_string(assignment.starts_on), cols: 3, align: "left", class: "items-center" }
-      ],
-      [
-        { kind: :string, value: assignment.status_label, align: "center" },
-        gap_field,
-        { kind: :label, value: "#{assignment.fld(:ends_on, :short)}: ", align: "left" },
-        { kind: :string, value: date_string(assignment.ends_on), cols: 3, align: "left", class: "items-center" }
-      ],
-      [
-        { kind: :label, value: "#{assignment.fld(:notes)}: ", align: "left" },
-        { kind: :text_field, value: assignment.notes, align: "left" }
+        { kind: :label, value: "#{assignment.fld(:starts_on, :short)}: ", align: :right },
+        { kind: :string, value: date_string(assignment.starts_on), cols: 3, align: :left, class: "items-center" }
       ]
+    ]
+    fields <<  [
+      { kind: :label, value: "#{assignment.fld(:ends_on, :short)}: ", align: :right },
+      { kind: :string, value: date_string(assignment.ends_on), cols: 3, align: :left, class: "items-center" }
+    ] if assignment.ends_on
+
+    fields << [
+      { kind: :label, value: "#{assignment.fld(:notes)}: ", align: :right },
+      { kind: :text_field, value: assignment.notes, align: :left }
     ]
   end
 
@@ -92,7 +89,7 @@ module AssignmentsHelper
     header[0].pop
     header[2] += [
       gap_field,
-      { kind: :label, value: "Fistro Diodenarl", cols: 3 }
+      { kind: :string, value: "RoleSelector?", cols: 3 }
     ]
     header
   end
@@ -131,7 +128,8 @@ module AssignmentsHelper
       origin:,
       club: assignment.club,
       team: assignment.team,
-      membership_kind: Catalog::AssignmentKinds.membership_kind(assignment.kind),
+      kind: Catalog::AssignmentKinds.membership_kind(assignment.kind),
+      search: params[:search].presence
     )
   end
 end
