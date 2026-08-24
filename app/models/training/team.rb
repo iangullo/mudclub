@@ -109,7 +109,7 @@ class Team < ApplicationRecord
   end
 
   def coaches(current: false)
-    members(current:).of_membership_kind(:coach)
+    members(current:).of_membership_kind(:coach).order(:kind)
   end
 
   def coach_ids(current: true)
@@ -362,7 +362,7 @@ class Team < ApplicationRecord
       to_remove = current - desired
 
       # Remove first so head/assistant logic works on the remaining
-      remove_assignments([ :head_coach, :assistant_coach ], to_remove)
+      remove_assignments(to_remove, [ :head_coach, :assistant_coach ])
 
       to_add.each do |membership_id|
         head_exists = assignments.current.where(kind: :head_coach).exists?
@@ -370,17 +370,21 @@ class Team < ApplicationRecord
         activate_member(membership_id, coach_kind)
         @modified = true
       end
+
+      # must have at least one head_coach
+      coaches.current.first.update!(kind: :head_coach) unless
+        assignments.current.where(kind: :head_coach).exists?
     end
 
     def sync_roster(athlete_ids)
-      kind      = :athlete
+      kinds     = [ :athlete, :captain ]
       desired   = normalize_uuids(athlete_ids)
-      current   = current_membership_ids(kind)
+      current   = current_membership_ids(kinds)
       to_add    = desired - current
       to_remove = current - desired
 
-      ensure_assignments(to_add, kind)
-      remove_assignments(to_remove, kind)
+      ensure_assignments(to_add, :athlete)
+      remove_assignments(to_remove, kinds)
     end
 
     # Normalize UUIDs: convert to string, remove blanks
@@ -396,9 +400,7 @@ class Team < ApplicationRecord
 
     def ensure_assignments(membership_ids, kind)
       membership_ids.each do |membership_id|
-        binding.break
         next unless membership_id.present?
-
         activate_member(membership_id, kind)
         @modified = true
       end
@@ -409,11 +411,10 @@ class Team < ApplicationRecord
       if terminated
         terminated.reinstate!
       else
-        Assignment.create!(
+        assignments.create!(
           membership_id:,
-          team_id: self.id,
           kind:,
-          starts_on: Date.current,
+          starts_on: [ Date.current, season.start_date ].max,
           status: :active
          )
       end
@@ -422,13 +423,13 @@ class Team < ApplicationRecord
     # Remove assignments (terminate) – supports single or array of kinds
     def remove_assignments(membership_ids, kinds)
       return if membership_ids.empty?
-
+      kinds = Array(kinds)
       assignments.current
         .where(membership_id: membership_ids, kind: kinds)
         .find_each do |assignment|
-        assignment.terminate!
-        @modified = true
-      end
+          assignment.terminate!
+          @modified = true
+        end
     end
 
     #-------------------------------------

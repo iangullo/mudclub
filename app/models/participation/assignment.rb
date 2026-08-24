@@ -100,13 +100,13 @@ class Assignment < ApplicationRecord
       .where(memberships: { person_id: Person.search(text) })
   }
 
-  scope :current, ->(date = Date.current) {
+  scope :on_date, ->(date = Date.current) {
     where("starts_on <= ?", date)
       .where("ends_on IS NULL OR ends_on >= ?", date)
   }
   scope :terminated, -> { where(status: :terminated) }
 
-  scope :open, -> { where(ends_on: nil) }
+  scope :current, -> { where(status: [ :active, :suspended ]) }
   scope :female, -> { joins(:person).where("female = true") }
   scope :male, -> { joins(:person).where("female = false") }
   scope :by_number, -> { order(Arel.sql("NULLIF(settings->>'number', '')::int NULLS LAST")) }

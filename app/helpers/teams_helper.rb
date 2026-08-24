@@ -58,7 +58,7 @@ module TeamsHelper
     unless (c_count = @team.coaches.count) == 0 # only create if there are coaches
       c_icon = symbol_field("coach", { namespace: "sport", size: "30x30", title: @team.term(:coach, :plural) }, align: "right", class: "align-top", rows: c_count)
       c_first = true
-      @team.coaches.each do |coach|
+      @team.coaches.current.each do |coach|
         if @team_policy.show?
           c_start = button_field({ kind: :link, label: coach.s_name, url: club_team_assignment_path(@club, @team, coach, rdx: @rdx), frame: :modal, b_class: "items-center", d_class: "text-left" })
         else

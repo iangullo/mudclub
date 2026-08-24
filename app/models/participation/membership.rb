@@ -63,13 +63,12 @@ class Membership < ApplicationRecord
   # Time scopes
   # -------------------------------------------------------------------------
 
-  scope :current, -> {
-    where("joined_on <= ?", Date.current)
-      .where("left_on IS NULL OR left_on >= ?", Date.current)
-      .where(status: :active)
+  scope :on_date, ->(date = Date.current) {
+    where("joined_on <= ?", date)
+      .where("left_on IS NULL OR left_on >= ?", date)
   }
 
-  scope :open, -> { where(left_on: nil) }
+  scope :current, -> { where(status: [ :active, :suspended ]) }
 
   scope :historical, -> { where.not(left_on: nil) }
 
