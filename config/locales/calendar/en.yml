@@ -166,6 +166,8 @@ en:
         event: Event
         status: Status
         notes: Notes
+        weekly: Sem.
+        monthly: Mes
       messages:
         created: Attendance recorded.
         updated: Attendance updated.

@@ -166,6 +166,8 @@ es:
         event: Evento
         status: Estado
         notes: Notas
+        weekly: Sem.
+        monthly: Mes
       messages:
         created: Asistencia registrada.
         updated: Asistencia actualizada.

@@ -66,8 +66,8 @@ class Event < ApplicationRecord
   scope :chronological, -> { order(:start_time) }
   scope :between, ->(from, to) { where(start_time: from..to) }
   scope :of_kind, ->(kind) { where(kind:) }
-  scope :for_club, ->(club) { where(club:) }
-  scope :for_team, ->(team) { where(team:) }
+  scope :for_club, ->(club) { where(club:).chronological }
+  scope :for_team, ->(team) { where(team:).chronological }
   scope :for_season, ->(season) { between(season.start_date, season.end_date) }
   scope :club_events, -> { where(team_id: nil) }
   scope :team_events, -> { where.not(team_id: nil) }

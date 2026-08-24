@@ -21,11 +21,19 @@ module TeamsHelper
   def team_attendance_table
     # Check that the offline job has produced attendance data
     if (t_att = @team&.attendance)
-      title = team_roster_title
+      title =       title = [
+        { kind: :normal, value: Assignment.fld(:number), align: "center" },
+        { kind: :normal, value: Person.fld(:name) },
+        { kind: :normal, value: Attendance.fld(:weekly) },
+        { kind: :normal, value: Attendance.fld(:monthly) },
+        { kind: :normal, value: Season.label(:short) },
+        { kind: :normal, value: @team.term(:match, :short) }
+      ]
+
       rows  = Array.new
       m_tot = []
-      @team.athletes.order(:number).each do |athlete|
-        p_att = athlete.person.player.attendance(team: @team)
+      @team.athletes.by_number.each do |athlete|
+        p_att = athlete.attendance
         row = { url: club_team_assignment_path(@club, @team, athlete, rdx: @rdx), frame: :modal, items: [] }
         row[:items] << { kind: :normal, value: athlete.number, align: "center" }
         row[:items] << { kind: :normal, value: athlete.s_name }
@@ -39,11 +47,11 @@ module TeamsHelper
       rows << {
         items: [
           { kind: :bottom, value: nil },
-          { kind: :bottom, align: "right", value: I18n.t("shared.stats.avg") },
-          { kind: :percentage, value: t_att[:sessions][:week], align: "right" },
-          { kind: :percentage, value: t_att[:sessions][:month], align: "right" },
-          { kind: :percentage, value: t_att[:sessions][:avg], align: "right" },
-          { kind: :normal, value: m_tot.sum / m_tot.size, align: "center" }
+          { kind: :bottom, align: :right, value: I18n.t("shared.stats.avg") },
+          { kind: :percentage, value: t_att[:sessions][:week], align: :right },
+          { kind: :percentage, value: t_att[:sessions][:month], align: :right },
+          { kind: :percentage, value: t_att[:sessions][:avg], align: :right },
+          { kind: :normal, value: m_tot.sum / m_tot.size, align: :center }
         ]
       }
       return { title:, rows:, chart: t_att[:sessions] }

@@ -197,7 +197,7 @@ class Team < ApplicationRecord
   # get attendance data for a team in the season
   # returns partial & serialised numbers for attendance: trainings [%]
   def attendance
-    t_athletes = self.athletes(current: true).count
+    t_athletes = self.athletes.count
     return nil if t_athletes.zero?	# NO ATHLETES IN TEAM --> NO ATTENDANCE DATA
 
     d_morrow = Date.today + 1	# tomorrow
@@ -207,11 +207,11 @@ class Team < ApplicationRecord
     l_month  = { tot: 0, att: 0 }
     l_season = { tot: 0, att: 0 }
     sessions = { name: sport.specific.term(:athlete, :plural), avg: 0, data: {} }
-    t_events = self.events.past.trainings.includes(:events_athletes)
+    t_events = self.events.past.trainings.includes(:attendances)
     t_att    = Attendance.for_team(self)
     t_events.each do |event|
       if event.train?
-        e_cnt           = t_att.for_event(event.id).count
+        e_cnt           = t_att.for_event(event).count
         e_date          = event.start_date
         l_season[:tot] += t_athletes
         l_season[:att] += e_cnt
