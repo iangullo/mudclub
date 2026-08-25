@@ -1,4 +1,4 @@
-<%= form_with model: event, authenticity_token: true, data: event_form_data_options(event, title) do |form| %>
+<%= form_with model: resource_route(event), authenticity_token: true, data: event_form_data_options(event, title) do |form| %>
 	<% @ftitle.form = form %>
 	<%= render @ftitle %>
 	<% if @event.id || @event.train?%>

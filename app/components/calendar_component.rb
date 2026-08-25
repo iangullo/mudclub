@@ -69,7 +69,7 @@ class CalendarComponent < ApplicationComponent
       cname  = "add_btn_#{i}_#{j}"
       if clubevent # new Club event
         ButtonComponent.new(kind: :add, name: cname, url: c_url + "&event[kind]=rest&event[team_id]=0", frame: "modal")
-      elsif obj.try(:has_coach?, @user.person_id) # new team event
+      elsif obj.try(:has_coach?, @user.person) # new team event
         c_url  = c_url + "&event[team_id]=#{obj.id}"
         button = { kind: :add, name: cname, options: [] }
         button[:options] << { label: I18n.t("train.single"), url: c_url + "&event[kind]=train", data: { turbo_frame: :modal } }
@@ -91,8 +91,7 @@ class CalendarComponent < ApplicationComponent
     # determine event_color & url depending on event kind and parameters
     def c_event_init(event:)
       c_event        = { id: event.id }
-      c_event[:url]  = "/events/#{event[:id]}/?cal=true"
-      c_event[:url] += "&rdx=#{@rdx}" if @rdx
+      c_event[:url]  = event_path(event)
       case event.kind.to_sym
       when :match
         sc = event.total_score	# our team first
@@ -109,7 +108,7 @@ class CalendarComponent < ApplicationComponent
       when :train
         c_event[:symbol] = { concept: "training", options: { namespace: "sport" } }
         c_event[:label]  = event.to_s
-        if event.has_athlete?(@user.person_id)
+        if event.has_athlete?(@user.person)
           c_event[:url]  = "/events/#{event[:id]}/player_stats?retlnk=#{@anchor}"
           c_event[:data] = { turbo_frame: "modal" }
         end
@@ -141,6 +140,15 @@ class CalendarComponent < ApplicationComponent
         @cells[i] = row	# add row
       end
       @cells
+    end
+
+    # polymorphic event path route calculator
+    def event_path(event = @event)
+      lnk  = "/clubs/#{event.club_id}"
+      lnk += "/teams/#{event.team_id}" if event.team_id?
+      lnk += "/events/#{event.id}?cal=true"
+      lnk += "&rdx=#{@rdx}" if @rdx
+      lnk
     end
 
     # returns cell for a specific date

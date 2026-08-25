@@ -49,7 +49,7 @@ module RoutingHelper
   # ------------------------------------------------------------
   # Specific path helpers with optional `rdx` parameter
   # ------------------------------------------------------------
-  def path_for(record, action: nil, rdx: nil)
+  def path_for(record, action: nil, rdx: @rdx)
     base = resource_route(record)
     options = { rdx: rdx }.compact
 

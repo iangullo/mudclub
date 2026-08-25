@@ -69,17 +69,9 @@ class Assignment < ApplicationRecord
   #-------------------------------------
   # Scopes
   #-------------------------------------
-  scope :active, -> {
-    where(ends_on: nil)
-  }
-
-  scope :club_level, -> {
-    where(team_id: nil)
-  }
-
-  scope :team_level, -> {
-    where.not(team_id: nil)
-  }
+  scope :active, -> { where(ends_on: nil) }
+  scope :club_level, -> { where(team_id: nil) }
+  scope :team_level, -> { where.not(team_id: nil) }
 
   scope :for_club, ->(club) {
     joins(:membership).where(memberships: { club_id: club.id })

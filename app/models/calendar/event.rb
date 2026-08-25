@@ -186,9 +186,46 @@ class Event < ApplicationRecord
     end
   end
 
-  # DEPRECATED: legacy Player compatibility.
+  # returns list of active athlete ids
+  def attendee_ids(kind = nil)
+    scope = case kind
+    when :athlete
+      team ? team.athletes.by_number : club.athletes.by_number
+    when :coach
+      coaches
+    else
+      team ? team.members : club.members
+    end
+    scope.joins(:attendances).where(attendances: { status: :present }).pluck(:id)
+  end
+
+  def athlete_ids
+    attendee_ids(:athlete)
+  end
+
+  def coach_ids
+    attendee_ids(:coach)
+  end
+
+  # Checks if a person (by person_id) has an attendance record for this event.
+  # Only makes sense for team events; for club events, returns false.
+  def has_athlete?(person_id, status: :present)
+    return false unless team.present?
+
+    scope = attendances
+              .joins(assignment: :membership)
+              .merge(Assignment.of_membership_kind(:athlete).for_team(team))
+              .where(memberships: { person_id: })
+
+    scope = scope.where(attendances: { status: }) if status.present?
+    scope.exists?
+  end
+
+  # Legacy compatibility – accepts a Player id.
+  # DEPRECATED: use has_athlete?(person_id) instead.
   def has_player(p_id)
-    self.players.find_index { |p| p[:id] == p_id }
+    player = Player.find_by(id: player_id)
+    player && has_athlete?(player.person_id)
   end
 
   #-------------------------------------
@@ -356,10 +393,10 @@ class Event < ApplicationRecord
 
   # prepare a new Event using data provided
   def self.prepare(data)
-    club = Club.find_by(id: data[:club_id])
-    return nil unless club
-
     team = Team.find_by(id: data[:team_id])
+    club = team&.club || Club.find_by(id: data[:club_id])
+
+    return nil unless club
     return nil if team && team.club != club
 
     event = new(club:, team:, kind: data[:kind])

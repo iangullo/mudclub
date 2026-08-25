@@ -1,5 +1,5 @@
 <div id="edit-task-form"  class="diagram-container">
-	<%= form_with model: @event, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+	<%= form_with model: resource_route(@event), authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
 		<div id="drill_selector">
 		<%= form.fields_for @task do |f| %>
 			<%= turbo_frame_tag "search-results" do %>

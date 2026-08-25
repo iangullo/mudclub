@@ -59,10 +59,11 @@ class Attendance < ApplicationRecord
   scope :trainings, -> { joins(:event).merge(Event.trainings.chronological) }
   scope :last7, -> { joins(:event).merge(Event.last7.chronological) }
   scope :last30, -> { joins(:event).merge(Event.last30.chronological) }
-  scope :present, -> { where(status: :present) }
-  scope :absent, -> { where(status: :absent) }
-  scope :late, -> { where(status: :late) }
-  scope :excused, -> { where(status: :excused) }
+  scope :with_status, ->(status) { where(status:) if status.present? }
+  scope :present, -> { with_status(:present) }
+  scope :absent, -> { with_status(:absent) }
+  scope :late, -> { with_status(:late) }
+  scope :excused, -> { with_status(:excused) }
 
   #-------------------------------------
   # Class methods

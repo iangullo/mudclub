@@ -19,11 +19,11 @@
 module EventsHelper
   # FieldComponents for event attendance
   def event_attendance_title
-    res = title_start(icon: symbol_hash("attendance"), title: @event.team.nick, subtitle: @event.team.category.name)
+    res = title_start(icon: symbol_hash("attendance"), title: @team.nick, subtitle: @team.category.name)
     res[0] << gap_field
     res[1] << gap_field
     event_top_right(res:)
-    res << [ gap_field(size: 0), string_field(@event.team.division.name + " (#{@event.team.season.name})", cols: 5, align: "left") ]
+    res << [ gap_field(size: 0), string_field(@team.division.name + " (#{@team.season.name})", cols: 5, align: "left") ]
     res << gap_row(cols: 6)
   end
 
@@ -35,7 +35,7 @@ module EventsHelper
     ] ]
     res << [
       gap_field(size: 2),
-      { kind: :select_checkboxes, key: :athlete_ids, options: @event.team.athletes.by_number }
+      { kind: :select_checkboxes, key: :athlete_ids, options: @team.athletes.active.by_number }
     ]
     res << [ { kind: :hidden, key: :rdx, value: @rdx } ] if @rdx
     res << [ { kind: :hidden, key: :team_id, value: @teamid } ] if @teamid
@@ -135,7 +135,7 @@ module EventsHelper
   # return icon and top of fields definition
   def event_title(subtitle: nil, form: nil, cols: nil, chart: nil, teams: nil)
     if teams	# we are going to prepare a copy of the event
-      t_id = @event.team ? @event.team.id : teams.first.id
+      t_id = @team ? @team.id : teams.first.id
       copy = true
       res  = title_start(icon: @event.symbol, title: @event.title(copy: true), rows: @event.rest? ? 3 : nil, cols:)
       res << [ { kind: :select_collection, key: :team_id, options: teams, value: t_id, cols: cols } ]
@@ -198,7 +198,7 @@ module EventsHelper
 
   # athlete table for a match
   def match_roster_table(edit: false)
-    a_rules = @sport.rules.key(@event.team.category.rules)
+    a_rules = @sport.rules.key(@team.category.rules)
     if (outings = @sport.match_outings(a_rules))
       table = @sport.outings_table(@event, outings, edit:, rdx: @rdx)
       table[:controller] = "outings"
@@ -216,7 +216,7 @@ module EventsHelper
       item[:url]     = club_team_event_show_task_path(@team.club, @team, @event, task, rdx: @rdx)
       item[:turbo]   = "modal"
       item[:head]    = task.headstring
-      item[:content] = FieldsComponent.new(task_show(task:, team: @event.team, title: nil))
+      item[:content] = FieldsComponent.new(task_show(task:, team: @team, title: nil))
       tasks << item
     }
     tasks
@@ -335,9 +335,7 @@ module EventsHelper
       rows  = Array.new
       events&.each do |event|
         unless season_id && event.rest? && event.team_id > 0 # show only general holidays in season events view
-          url = event.team ?
-            club_team_event_path(event.team.club, event.team, event, season_id:, rdx: @rdx) :
-            club_event_path(event.club, event, season_id:, rdx: @rdx)
+          url = event_path
           row = { url:, frame: (event.rest? ? "modal": "_top"), items: [] }
           row[:items] << { kind: :normal, value: event.date_string, align: "center" }
           row[:items] << { kind: :normal, value: event.time_string(false), align: "center" }
@@ -356,7 +354,7 @@ module EventsHelper
     def event_top_right(res:, form: nil, copy: false)
       if form # top right corner of title
         res[0] << symbol_field("calendar")
-        res[0] << { kind: :date_box, key: :start_date, s_year: @event.team_id > 0 ? @event.team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @event.team.season.end_year : nil, value: @event.start_date }
+        res[0] << { kind: :date_box, key: :start_date, s_year: @event.team_id > 0 ? @team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @team.season.end_year : nil, value: @event.start_date }
         unless @event.rest? # add start_time inputs
           res[1] << symbol_field("clock")
           res[1] << { kind: :time_box, key: :hour, hour: @event.hour, mins: @event.min, mandatory: true }
@@ -394,8 +392,8 @@ module EventsHelper
 
     # complete event title for matches
     def match_title(res:, cols:, form:)
-      res << [ { kind: :subtitle, value: @event.team.category.name }, gap_field ]
-      res << [ gap_field(size: 1),	string_field(@event.team.division.name + " (#{@event.team.season.name})"), gap_field ]
+      res << [ { kind: :subtitle, value: @team.category.name }, gap_field ]
+      res << [ gap_field(size: 1),	string_field(@team.division.name + " (#{@team.season.name})"), gap_field ]
       if form
         res[0][1][:cols] = nil
         res << [
@@ -405,18 +403,18 @@ module EventsHelper
         res << [
           symbol_field("location", { title: ILocation.label }, align: :right),
           { kind: :select_collection, key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'", cols: 6 },
-          { kind: :hidden, key: :homecourt_id, value: @event.team.homecourt_id, h_data: { match_location_target: "homeCourtId" } }
+          { kind: :hidden, key: :homecourt_id, value: @team.homecourt_id, h_data: { match_location_target: "homeCourtId" } }
         ]
       else
         if @event.location.gmaps_url
           res.last << button_field({ kind: :location, symbol: "gmaps", url: @event.location.gmaps_url, label: @event.location.name }, cols: 2)
         end
-        if u_manager? || @event.team.has_coach?(u_person)
+        if u_manager? || @team.has_coach?(u_person)
           res << [
             gap_field(size: 1),
-            { kind: :side_cell, value: @event.team.term(:match), align: "left", cols: 2 },
+            { kind: :side_cell, value: @team.term(:match), align: "left", cols: 2 },
             button_field(
-              { kind: :link, symbol: "attendance", label: @event.team.term(:match, :roster), url: club_team_event_attendance_path(@event.team.club, @event.team, @event, rdx: @rdx, cal: @cal), frame: "modal" },
+              { kind: :link, symbol: "attendance", label: @team.term(:match, :roster), url: club_team_event_attendance_path(@club, @team, @event, rdx: @rdx, cal: @cal), frame: "modal" },
               align: "left",
               cols: 2
             )
@@ -428,28 +426,27 @@ module EventsHelper
 
     # complete event_title for train events
     def train_title(res:, cols:, form:, subtitle: nil, chart: nil, rdx: @rdx)
-      res << [ { kind: :subtitle, value: @event.team.category.name, cols: } ]
+      res << [ { kind: :subtitle, value: @team.category.name, cols: } ]
       unless chart
         if form
           res.last << gap_field
-          res << [ gap_field(size: 1), string_field(@event.team.division.name + " (#{@event.team.season.name})", cols: 2) ]
+          res << [ gap_field(size: 1), string_field(@team.division.name + " (#{@team.season.name})", cols: 2) ]
           res.last << workload_button(align: "left", cols: 2, rows: 2) if @event.id
           res << [ gap_field(size: 1), { kind: :side_cell, value: @event.t_path(:kind, :training), cols: 2, align: "left" } ]
           res << gap_row(cols: 8)
         elsif (u_manager? || u_coach?) && @event.id
           res.first[1][:cols] = 4	# modify cols to avoid issues with show
-          res.last << pdf_button(club_team_event_path(@event.team.club, @event.team, @event, format: :pdf))
+          res.last << pdf_button(club_team_event_path(@club, @team, @event, format: :pdf))
           res.last << gap_field
           res << [
-            button_field(event_copy_button, align: "left", class: "align-top", rows: 2),
-            string_field(@event.team.division.name + " (#{@event.team.season.name})", cols: 5, align: "left"),
-            workload_button(align: "left", cols: 2, rows: 2)
+            button_field(event_copy_button, align: :left, class: "align-top", rows: 2),
+            string_field(@team.division.name + " (#{@team.season.name})", cols: 5, align: "left"),
+            workload_button(align: :left, rows: 1)
           ]
-          res << [ { kind: :side_cell, value: @event.t_path(:kind, :training), align: "left", cols: 5, class: "align-top" } ]
           res << [
-            gap_field(size: 1, cols: 6),
+            { kind: :side_cell, value: @event.t_path(:kind, :training), align: "left", cols: 5, class: "align-top" },
             button_field(
-              { kind: :link, symbol: "attendance", label: Attendance.label, url: club_team_event_attendance_path(@event.team.club, @event.team, @event, rdx: @rdx, cal: @cal), frame: "modal" },
+              { kind: :link, symbol: "attendance", label: Attendance.label, url: club_team_event_attendance_path(@club, @team, @event, rdx: @rdx, cal: @cal), frame: "modal" },
               align: "left",
               cols: 2
             )
@@ -467,13 +464,13 @@ module EventsHelper
     end
 
     # return the dropdown element to access workload charts
-    def workload_button(cols: 2, rows: 1, align: "center")
-      { kind: :dropdown, align:, cols:, rows:,
-        button: { kind: :link, symbol: "pie", label: I18n.t("training.sesion.fields.workload"), name: "show-chart",
+    def workload_button(cols: 2, rows: 1, align: :center, class: "align-top")
+      { kind: :dropdown, align:, class:, cols:, rows:,
+        button: { kind: :link, symbol: "pie", label: I18n.t("training.session.fields.workload_short"), name: "show-chart",
           options: [
-            { label: Drill.fld(:kind, :short), url: club_team_event_load_chart_path(@event.team.club, @event.team, @event, name: "kind"), data: { turbo_frame: :modal } },
+            { label: Drill.fld(:kind, :short), url: club_team_event_load_chart_path(@club, @team, @event, name: "kind"), data: { turbo_frame: :modal } },
             # {label: Target.label(:plural), url: load_chart_event_path(name: "target"), data: {turbo_frame: :modal}},
-            { label: @sport ? Sport.term(:skill) : Skill.label, url: club_team_event_load_chart_path(@event.team.club, @event.team, @event, name: "skill"), data: { turbo_frame: :modal } }
+            { label: @sport ? Sport.term(:skill) : Skill.label, url: club_team_event_load_chart_path(@club, @team, @event, name: "skill"), data: { turbo_frame: :modal } }
           ]
         }
       }

@@ -29,11 +29,11 @@ class EventsController < ApplicationController
       start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
       team       = Team.find_by_id(params[:team_id]) if params[:team_id].present?
       season     = @season || team&.season
-      url        = (team ? team_events_path(team, start_date:) : club_events_path(@club, season_id: season&.id, start_date:))
+      url        = events_path(season:, start_date:)
       anchor     = { url:, rdx: @rdx }
       @title     = create_fields(helpers.event_index_title(team:, season:))
       @calendar  = CalendarComponent.new(anchor:, obj: (team || club), start_date:, user: current_user, create_url: new_event_path)
-      zerolnk    = (team ? club_team_path(@club, team, rdx: @rdx) : club_path(@club, season_id: season&.id, rdx: @rdx))
+      zerolnk    = (team ? club_team_path(team.club, team, rdx: @rdx) : club_path(@club, season_id: season&.id, rdx: @rdx))
       @submit    = create_submit(close: :back, submit: nil, retlnk: base_lnk(zerolnk))
     else
       redirect_to "/", data: { turbo_action: "replace" }
@@ -55,9 +55,9 @@ class EventsController < ApplicationController
         format.html do
           editor = event_manager?
           @title = create_fields(title)
-          person = Person.find(params[:athlete_id].presence) || u_person
+          person = Person.find_by_id(params[:athlete_id].presence) || u_person
           if @event.rest?
-            submit  = edit_event_path(season_id: @season.id, cal: @cal) if editor
+            submit  = edit_event_path if editor
             @submit = create_submit(submit:, frame: "modal")
           elsif @event.train? && @event.team.has_athlete?(person)	# we want to check athlete stats for a training session
             redirect_to club_team_event_athlete_stats_path(@event.club, @event.team, @event, athlete_id:, rdx: @rdx, cal: @cal), data: { turbo_action: "replace" }
@@ -70,7 +70,7 @@ class EventsController < ApplicationController
               @targets = create_fields(helpers.training_target)
               @fields  = create_fields(helpers.training_show)
             end
-            submit  = edit_event_path(season_id: @season.id, rdx: @rdx, cal: @cal) if editor
+            submit  = edit_event_path if editor
             @submit = create_submit(close: :back, retlnk: base_lnk(anchor_lnk), submit:)
           end
         end
@@ -124,7 +124,7 @@ class EventsController < ApplicationController
           link_holidays
           c_notice = helpers.event_create_notice
           modal    = @event.rest?
-          register_action(:created, c_notice[:message], url: event_path(@event, rdx: 2), modal:)
+          register_action(:created, c_notice[:message], url: event_path(rdx: 2), modal:)
           format.html { redirect_to @retlnk, notice: c_notice, data: { turbo_action: "replace" } }
           format.json { render :show, status: :created, location: @retlnk }
         else
@@ -156,7 +156,7 @@ class EventsController < ApplicationController
           if @event.modified?	# do we need to save?
             if @event.save
               changed = true
-              @retlnk = event_path(@event, rdx: @rdx, cal: @cal)
+              @retlnk = event_path
               @event.tasks.reload if e_data[:tasks_attributes] # a training session
             else
               prepare_event_form(new: false)	# continue editing, it did not work
@@ -180,10 +180,11 @@ class EventsController < ApplicationController
   # DELETE /events/1 or /events/1.json
   def destroy
     if @event && (club_manager? || @event&.team&.has_coach?(u_person))
-      team   = @event.team
+      team       = @event.team
+      start_date = @event.start_date
       @event.destroy
       respond_to do |format|
-        next_url = team.id > 0 ? team : events_path
+        next_url = team.id > 0 ? team : events_path(start_date:)
         next_act = team.id > 0 ? :show : :index
         a_desc   = helpers.event_delete_notice
         register_action(:deleted, a_desc[:message])
@@ -200,7 +201,7 @@ class EventsController < ApplicationController
     if event_manager?
       @title  = create_fields(helpers.event_attendance_title)
       @fields = create_fields(helpers.event_attendance_form)
-      @submit = create_submit(retlnk: event_path(@event, rdx: @rdx, cal: @cal))
+      @submit = create_submit(retlnk: event_path)
     else
       redirect_to "/", data: { turbo_action: "replace" }
     end
@@ -216,7 +217,7 @@ class EventsController < ApplicationController
         @submit = create_submit
       else
         notice  = helpers.flash_message("#{I18n.t("team.none")} ", "info")
-        redirect_to event_path(@event, rdx: @rdx), notice:, data: { turbo_action: "replace" }
+        redirect_to event_path, notice:, data: { turbo_action: "replace" }
       end
     else
       redirect_to "/", data: { turbo_action: "replace" }
@@ -226,7 +227,7 @@ class EventsController < ApplicationController
   # GET /events/1/add_task
   def add_task
     if event_manager?
-      prepare_task_form("add", retlnk: edit_event_path(@event), search_in: add_task_event_path(@event))
+      prepare_task_form("add", retlnk: edit_event_path, search_in: add_event_task_path)
     else
       redirect_to "/", data: { turbo_action: "replace" }
     end
@@ -235,7 +236,7 @@ class EventsController < ApplicationController
   # GET /events/1/edit_task
   def edit_task
     if event_manager?
-      prepare_task_form("edit", retlnk: edit_event_path(@event), search_in: edit_task_event_path(@event), task_id: true)
+      prepare_task_form("edit", retlnk: edit_event_path, search_in: edit_event_task_path, task_id: true)
     else
       redirect_to "/", data: { turbo_action: "replace" }
     end
@@ -265,16 +266,16 @@ class EventsController < ApplicationController
 
   # GET /events/1/athlete_stats?athlete_id=X
   def athlete_stats
-    @athlete = Assignment.find_by_id(params[:athlete_id]).person || u_person
+    @athlete = Assignment.find_by_id(params[:athlete_id])&.person || u_person
     if event_manager? || (@event && check_access(obj: @athlete))
       unless @event.rest?	# not keeing stats for holidays ;)
-        if @event.has_athlete?(u_person)	# we do have an athlete
+        if @event.has_athlete?(@athlete)	# we do have an athlete
           @title  = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
           @fields = create_fields(helpers.event_athlete_stats)
           editor  = (u_manager? || @event.team.has_coach?(u_person) || @event.team.has_athlete?(@athlete))
           @submit = create_submit(submit: editor ? club_team_event_edit_athlete_stats_path(@event.club, @event.team, @event, athlete_id: @athlete.id) : nil, frame: "modal")
         else
-          redirect_to team_path(@event.team, rdx: @rdx), data: { turbo_action: "replace" }
+          redirect_to club_team_path(@club, @team, rdx: @rdx), data: { turbo_action: "replace" }
         end
       end
     else
@@ -292,7 +293,7 @@ class EventsController < ApplicationController
           @fields = create_fields(helpers.event_edit_athlete_stats)
           @submit = create_submit
         else
-          redirect_to club_team_path(@event.club, @event.team, rdx: @rdx), data: { turbo_action: "replace" }
+          redirect_to club_team_path(@club, @team, rdx: @rdx), data: { turbo_action: "replace" }
         end
       end
     else
@@ -301,18 +302,55 @@ class EventsController < ApplicationController
   end
 
   private
+    # context driven routing methods
+    def events_path(start_date:, season: nil)
+      @team ?
+        club_team_events_path(@club, @team, start_date:, rdx: @rdx) :
+        club_events_path(@club, season_id: season&.id, start_date:, rdx: @rdx)
+    end
+
+    def event_path(rdx: @rdx)
+      @team ?
+        club_team_event_path(@club, @team, @event, cal: @cal, rdx:) :
+        club_event_path(@club, @event, cal: @cal, rdx:)
+    end
+
+    def new_event_path
+      @team ?
+        new_club_team_event_path(@club, @team, cal: @cal, rdx: @rdx) :
+        new_club_event_path(@club, cal: @cal, rdx: @rdx)
+    end
+
+    def edit_event_path
+      @team ?
+        edit_club_team_event_path(@club, @team, @event, season_id: @season&.id, cal: @cal, rdx: @rdx) :
+        edit_club_event_path(@club, @event, season_id: @season&.id, cal: @cal, rdx: @rdx)
+    end
+
+    def edit_event_task_path(task: @task)
+      @team ?
+        club_team_event_edit_task_path(@club, @team, @event, @task, cal: @cal, rdx: @rdx) :
+        club_event_edit_task_path(@club, @event, task, cal: @cal, rdx: @rdx)
+    end
+
+    def add_event_task_path
+      @team ?
+      club_team_event_add_task_path(@club, @team, @event, cal: @cal, rdx: @rdx) :
+      club_event_add_task_path(@club, @event, cal: @cal, rdx: @rdx)
+    end
+
     # Update attendance for an event based on a list of assignment IDs.
     # @param assignment_ids [Array<String, Integer>] list of assignment IDs
     # @return [Boolean] true if any changes were made
-    def check_attendance(assignment_ids)
+    def check_attendance(athlete_ids)
       team = @event.team
       return false if team.nil?   # cannot process attendance without a team
 
       # Convert input to a set of person_ids (skip blanks and invalid assignments)
-      person_ids = assigment_ids.filter_map do |pid|
-        next if pid.blank? || pid.to_i == 0
-        athlete = Assignment.find_by(id: pid.to_i)
-        athlete&.person_id
+      person_ids = athlete_ids.filter_map do |pid|
+        next if pid.blank?
+        athlete = Assignment.find_by(id: pid.to_s)
+        athlete&.person.id
       end.compact.to_set
 
       changed = false
@@ -320,7 +358,7 @@ class EventsController < ApplicationController
 
       # 1. Process each person in the list → mark as present
       person_ids.each do |person_id|
-        assignment = find_active_assignment(person_id, team, event_date)
+        assignment = find_active_athlete(person_id, team, event_date)
         next unless assignment
 
         attendance = @event.attendances.find_or_initialize_by(assignment: assignment)
@@ -347,7 +385,7 @@ class EventsController < ApplicationController
     end
 
     # Find the active athlete assignment for a person on a specific team on a given date.
-    def find_active_assignment(person_id, team, date)
+    def find_active_athlete(person_id, team, date)
       Assignment.joins(:membership)
                 .where(memberships: { person_id: person_id, club_id: team.club_id, kind: :athlete })
                 .where(team: team)
@@ -378,18 +416,15 @@ class EventsController < ApplicationController
       if e_data[:task].present?
         @notice  = I18n.t("training.task.messages.updated")
         @retview = :edit
-        @retlnk  = edit_event_path(@event, rdx: @rdx, cal: @cal)
+        @retlnk  = edit_event_path
       elsif params[:event].present?
         @retview = :show
         if @event.rest? #--> Calendar view
-          if @event.team_id.to_i > 0 # team events
-            @retlnk = team_events_path(@event.team, start_date: @event.start_date, rdx: @rdx, cal: @cal)
-          else
-            @retlnk = season_events_path(@event.start_date, start_date: @event.start_date, rdx: @rdx, cal: @cal)
-          end
+          @retlnk = events_path(start_date: @event.start_date)
         else
-          @retlnk = event_path(@event, rdx: @rdx, cal: @cal) unless @event.rest?
+          @retlnk = event_path unless @event.rest?
         end
+
         if @event.modified?
           @notice = I18n.t("#{@event.kind}.updated")
         elsif	e_data[:athlete_ids].present?	# assignments to participate
@@ -436,8 +471,14 @@ class EventsController < ApplicationController
 
     # try to establish where we've been called from...
     def get_event_context
-      @cal  = get_param(:cal)
-      @team = @event&.team if @event&.team_id.to_i > 0
+      @cal = get_param(:cal)
+      if @event&.team
+        @team = @event.team
+        @club = @event.team.club
+      else
+        @team = Team.find(get_param(:team_id))
+        @club = @team ? @team.club : @event&.club || @club
+      end
     end
 
     # return array of valid team options for a selector
@@ -454,9 +495,7 @@ class EventsController < ApplicationController
     def anchor_lnk
       if @cal && @event	# return to a calendar view
         sdate = @event.start_date
-        return team_events_path(@event.team_id, start_date: sdate, cal: true, rdx: @rdx) if @event&.team_id > 0	# coming froma team calendar event view
-        return season_events_path(@event.team.season_id, start_date: sdate, cal: true, rdx: @rdx) if @season	# it's a season calendar
-        "/"	# failsafe
+        events_path(season: @event.team.season, start_date: sdate)
       else	# return to regular parent view
         return club_team_path(@club, @team, rdx: @rdx) if @team
         return club_path(@club, season_id: @season.id, rdx: @rdx) if @season && @club
@@ -510,9 +549,9 @@ class EventsController < ApplicationController
       end
       unless new # editing
         unless @event.rest?
-          r_lnk = event_path(@event, rdx: @rdx, cal: @cal)
+          r_lnk = event_path
           if @event.train?
-            @btn_add = create_button({ kind: :add, label: I18n.t("task.add"), url: add_task_event_path(rdx: @rdx) }) if u_manager? || @event.team.has_coach?(u_person)
+            @btn_add = create_button({ kind: :add, label: I18n.t("task.add"), url: add_event_task_path }) if u_manager? || @event.team.has_coach?(u_person)
             @drills  = @event.drill_list
           end
           @submit = create_submit(close: :back, retlnk: r_lnk)
@@ -558,7 +597,8 @@ class EventsController < ApplicationController
 
     # Use callbacks to share common setup or constraints between actions.
     def set_event
-      @event    = Event.find_by_id(params[:id])
+      eventid   = get_param(:id) || get_param(:event_id)
+      @event    = Event.find_by_id(eventid)
       @sport    = @event&.team&.sport&.specific
       get_event_context
     end
@@ -593,7 +633,7 @@ class EventsController < ApplicationController
           :season_id,
           outings: {},
           event_targets_attributes: [ :id, :priority, :event_id, :target_id, :_destroy, target_attributes: [ :id, :focus, :aspect, :concept ] ],
-          assignment_ids: [],
+          athlete_ids: [],
           stats_attributes: [],
           task: [ :id, :task_id, :order, :drill_id, :duration, :remarks, :retlnk ],
           tasks_attributes: [ :id, :order, :drill_id, :duration, :remarks, :_destroy ]
