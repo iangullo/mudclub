@@ -91,8 +91,9 @@ class SportsController < ApplicationController
 	# View sport rules
 	def rules
 		if check_access(roles: [ :admin ])
-			@title  = create_fields(helpers.sport_rules_title(I18n.t("sport.rules")))
-			@fields = create_fields(helpers.sports_rules)
+			fields  = helpers.sport_rules_title(@sport.generic.fld(:rules))
+			fields += helpers.sports_rules
+			@fields = create_fields(fields)
 			@submit = create_submit(submit: nil)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }

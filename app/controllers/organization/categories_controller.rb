@@ -25,7 +25,7 @@ class CategoriesController < ApplicationController
 	def index
 		if check_access(roles: [ :admin ])
 			@categories = Category.for_sport(@sport.id)
-			title = helpers.category_title(title: I18n.t("category.many"))
+			title = helpers.category_title(title: Category.label(:plural))
 			table = helpers.category_table
 			create_index(title:, table:)
 		else
@@ -47,7 +47,7 @@ class CategoriesController < ApplicationController
 	def new
 		if check_access(roles: [ :admin ])
 			@category = @sport.categories.build
-			prepare_form("new")
+			prepare_form(:create)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -56,7 +56,7 @@ class CategoriesController < ApplicationController
 	# GET /categories/1/edit
 	def edit
 		if @category && check_access(roles: [ :admin ])
-			prepare_form("edit")
+			prepare_form(:edit)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -69,7 +69,7 @@ class CategoriesController < ApplicationController
 			respond_to do |format|
 				@category.rebuild(category_params)
 				if @category.save
-					a_desc = "#{I18n.t("category.created")} '#{@category.name}'"
+					a_desc = "#{Category.msg(:created)} '#{@category.name}'"
 					register_action(:created, a_desc, url: sport_category_path(@sport, @category), modal: true)
 					format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :show, status: :created, location: sport_path(@sport.id) }
@@ -91,7 +91,7 @@ class CategoriesController < ApplicationController
 				@category.rebuild(category_params)
 				if @category.changed?
 					if @category.save
-						a_desc = "#{I18n.t("category.updated")} '#{@category.name}'"
+						a_desc = "#{Category.msg(:updated)} '#{@category.name}'"
 						register_action(:updated, a_desc, url: sport_category_path(@sport, @category), modal: true)
 						format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :show, status: :ok, location: sport_path(@sport.id) }
@@ -116,7 +116,7 @@ class CategoriesController < ApplicationController
 			c_name = @category.name
 			@category.destroy
 			respond_to do |format|
-				a_desc = "#{I18n.t("category.deleted")} '#{c_name}'"
+				a_desc = "#{Category.msg(:deleted)} '#{c_name}'"
 				register_action(:deleted, a_desc)
 				format.html { redirect_to sport_path(@sport.id), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
@@ -129,7 +129,7 @@ class CategoriesController < ApplicationController
 	private
 		# prepare a form to edit/create a Category
 		def prepare_form(action)
-			@fields = create_fields(helpers.category_form(title: I18n.t("category.#{action}")))
+			@fields = create_fields(helpers.category_form(title: Category.act(action)))
 			@submit = create_submit
 		end
 

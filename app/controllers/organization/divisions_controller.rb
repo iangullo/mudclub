@@ -25,7 +25,7 @@ class DivisionsController < ApplicationController
 	def index
 		if check_access(roles: [ :admin ])
 			@divisions = Division.for_sport(@sport.id)
-			title = helpers.division_title(title: I18n.t("division.many"))
+			title = helpers.division_title(title: Division.label(:plural))
 			table = helpers.division_table
 			create_index(title:, table:)
 		else
@@ -47,7 +47,7 @@ class DivisionsController < ApplicationController
 	def new
 		if check_access(roles: [ :admin ])
 			@division = @sport.divisions.build
-			prepare_form("new")
+			prepare_form(:create)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -56,7 +56,7 @@ class DivisionsController < ApplicationController
 	# GET /divisions/1/edit
 	def edit
 		if @division && check_access(roles: [ :admin ])
-			prepare_form("edit")
+			prepare_form(:edit)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -69,7 +69,7 @@ class DivisionsController < ApplicationController
 			respond_to do |format|
 				@division.rebuild(division_params)
 				if @division.save
-					a_desc = "#{I18n.t("division.created")} '#{@division.name}'"
+					a_desc = "#{Division.msg(:created)} '#{@division.name}'"
 					retlnk = crud_return
 					register_action(:created, a_desc, url: sport_division_path(@sport, @division, rdx: 2), modal: true)
 					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
@@ -93,7 +93,7 @@ class DivisionsController < ApplicationController
 				@division.rebuild(division_params)
 				if @division.changed?
 					if @division.save
-						a_desc = "#{I18n.t("division.updated")} '#{@division.name}'"
+						a_desc = "#{Division.msg(:updated)} '#{@division.name}'"
 						register_action(:updated, a_desc, url: sport_division_path(@sport, @division, rdx: 2), modal: true)
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :created, location: retlnk }
@@ -118,7 +118,7 @@ class DivisionsController < ApplicationController
 			d_name = @division.name
 			@division.destroy
 			respond_to do |format|
-				a_desc = "#{I18n.t("division.deleted")} '#{d_name}'"
+				a_desc = "#{Division.msg(:deleted)} '#{d_name}'"
 				register_action(:deleted, a_desc)
 				format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }

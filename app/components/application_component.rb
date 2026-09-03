@@ -40,9 +40,14 @@ class ApplicationComponent < ViewComponent::Base
 		content_tag(:div, "An error occurred while rendering this button.", class: "error-message")
 	end
 
+	# ensure symbol is correctly prepared
+	def symbol_definition?(symbol)
+		symbol&.is_a?(String) || symbol&.is_a?(Symbol)
+	end
+
 	# ensure symbol is converted to a proper symbol hash, if needed.
 	def hashify_symbol(item)
-		item[:symbol] = { concept: item[:symbol], options: {} } if item[:symbol].presence.is_a? String
+		item[:symbol] = { concept: item[:symbol], options: {} } if symbol_definition?(item[:symbol])
 		if item[:symbol]
 			item[:symbol][:options] ||= {}
 			item[:symbol][:options][:css]  ||= item[:css]
