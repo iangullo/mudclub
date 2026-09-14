@@ -31,7 +31,7 @@ module DocumentsHelper
 			{ kind: :normal, value: Document.fld(:title) },
 			{ kind: :normal, value: Document.fld(:active) }
 		]
-		title << button_field({ kind: :add, url: new_document_path, frame: :modal }) if editor
+		title << button_field({ kind: :add, url: new_path_for(@owner, :document), frame: :modal }) if editor
 
 		rows = Array.new
 		documents.each { |doc|

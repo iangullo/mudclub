@@ -479,12 +479,12 @@ module EventsHelper
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, clubevent: nil)
 			if clubevent	# paste season event button
-				button_field({ kind: :add, url: new_event_path(:rest), frame: :modal }) if u_manager? && obj==Season.latest
+				button_field({ kind: :add, url: new_path_for(@club, :event, kind: :rest), frame: :modal }) if u_manager? && obj==Season.latest
 			elsif obj.class == Team && team_manager?(obj) # new team event
 				button = { kind: :add, name: "add-event", options: [] }
-				button[:options] << { label: Event.t_path(:kind, :training), url: new_event_path(:train), data: { turbo_frame: :modal } }
-				button[:options] << { label: Event.t_path(:kind, :match), url: new_event_path(:match), data: { turbo_frame: :modal } }
-				button[:options] << { label: Event.t_path(:kind, :rest), url: new_event_path(:rest), data: { turbo_frame: :modal } }
+				button[:options] << { label: Event.t_path(:kind, :training), url: new_path_for(@team, :event, kind: :train), data: { turbo_frame: :modal } }
+				button[:options] << { label: Event.t_path(:kind, :match), url:  new_path_for(@team, :event, kind: :match), data: { turbo_frame: :modal } }
+				button[:options] << { label: Event.t_path(:kind, :rest), url:  new_path_for(@team, :event, kind: :rest), data: { turbo_frame: :modal } }
 				{ kind: :dropdown, button:, class: "bg-white" }
 			else
 				nil

@@ -45,7 +45,7 @@ class MembershipsController < ApplicationController
 		title  = prepare_index_title
 		page   = paginate(@members, 1.2)	# paginate results
 		table  = helpers.memberships_table(members: page)
-		retlnk = back_link(default: path_for(@club))
+		retlnk = path_for(@club)
 		create_index(title:, table:, page:, retlnk:)
 	end
 
@@ -62,10 +62,11 @@ class MembershipsController < ApplicationController
 				just_icon: false
 			)
 		)
+		@kind ||= @member.kind.to_sym
 		@fields = create_fields(helpers.membership_show_fields(@member))
-		@table  = create_table(helpers.assignments_table(@member.assignments))
+		@table  = create_table(helpers.assignment_history_table(@member))
 		submit  = edit_path_for(@member) if @policy.update?
-		@submit = create_submit(close: :back, retlnk: post_save_path, submit:, frame: "modal")
+		@submit = create_submit(close: :back, retlnk: post_save_path, submit:, frame: :modal)
 	end
 
 	# GET /members/new
@@ -161,8 +162,8 @@ class MembershipsController < ApplicationController
 	private
 		# wrapper to set return link for CRUD operations
 		def post_save_path
-			return club_members_path(kind: @member.kind, search: params[:search].presence, rdx: @rdx) if @member
-			(@club ? club_members_path(@club, kind: @kind, rdx: @rdx) : u_path)
+			return club_members_path(kind: @member.kind, search: params[:search].presence, status: params[:status].presence, rdx: @rdx) if @member
+			(@club ? club_members_path(@club, kind: @kind, status: params[:status].presence, rdx: @rdx) : u_path)
 		end
 
 		def prepare_index_title

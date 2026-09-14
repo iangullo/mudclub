@@ -20,40 +20,7 @@
 module MembershipsHelper
 	# return title for @people TableComponent
 	def memberships_table(members:)
-		{ title: memberships_table_title, rows: memberships_table_rows(members) }
-	end
-
-	def memberships_table_title
-		title = @kind == :athlete ?
-			[
-				{ kind: :normal, value: Person.fld(:name) },
-				{ kind: :normal, value: Person.fld(:age) }
-			] :
-			[
-				{ kind: :normal, value: Membership.fld(:kind, :short) },
-				{ kind: :normal, value: @kind ? Membership.kind_label(@kind) : Membership.label },
-				{ kind: :normal, value: Membership.fld(:joined_on, :short) }
-			]
-		title += [
-			{ kind: :normal, value: Membership.fld(:status) }
-		]
-		# optional button to add new member - should be controlled by member policy, not this old control...
-		title << button_field({ kind: :add, url: new_path_for(@club, :member, kind: @kind), frame: :modal }) if club_manager?
-	end
-
-	def memberships_table_rows(members)
-			rows = Array.new
-			members.each { |member|
-				row = { url: path_for(member), items: [] }
-				row[:items] << participation_kind_field(member, class: "border") unless @kind == :athlete
-				row[:items] << person_name_field(member)
-				row[:items] << (@kind == :athlete ?
-					{ kind: :normal, value: member.age, align: :center } :
-					{ kind: :normal, value: member.joined_on })
-				row[:items] << participation_status_field(member, f_opts: { align: "center", class: "border" })
-				rows << row
-			}
-			rows
+		participation_table(members.reorder(:joined_on), kind: @kind)
 	end
 
 	def membership_details_fields(member)

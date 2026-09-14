@@ -27,33 +27,15 @@ module AssignmentsHelper
 		}
 	end
 
-	# return Assingments table - context -aware for :member, :team or :club scopes
+	# return a User or Member assignment history table
+	def assignment_history_table(member)
+		kind = member.kind.to_sym
+		{ title: assignment_history_header(kind), rows: assignment_history_rows(member, kind) }
+	end
+
+	# return Assignments table
 	def assignments_table(assignments = @assignments)
-		{ title: assignments_table_title, rows: assignments_table_rows(assignments) }
-	end
-
-	def assignments_table_title(manage: false)
-			title = [
-				{ kind: :normal, value: Assignment.fld(:kind, :short) },
-				{ kind: :normal, value: Assignment.fld(@team ? :team : :role) },
-				{ kind: :normal, value: Assignment.fld(:starts_on, :short) },
-				{ kind: :normal, value: Assignment.fld(:status) }
-			]
-	end
-
-	def assignments_table_rows(assignments = @assignments)
-			rows = Array.new
-			assignments.reorder(:starts_on).each { |assignment|
-				row = { url: assignment_path(assignment), items: [], frame: :modal }
-				row[:items] = [
-					participation_kind_field(assignment, class: "border"),
-					{ kind: :normal, value: assignment.team_id ? assignment.team.to_s : assignment.membership.club.nick },
-					{ kind: :normal, value: assignment.starts_on },
-					participation_status_field(assignment, f_opts: { align: "center", class: "align-top border" })
-				]
-				rows << row
-			}
-			rows
+		participation_table(assignments.reorder(:starts_on), kind: @kind)
 	end
 
 	def assignment_show_fields(assignment = @assignment)
@@ -138,4 +120,51 @@ module AssignmentsHelper
 			club_path(@club, rdx: @rdx)
 		end
 	end
+
+	private
+
+		# p_class should be Membership or Assignment - maybe Registration in future
+		def assignment_history_header(kind)
+			case kind
+			when :athlete
+				header = [
+					{ kind: :normal, value: Assignment.fld(:number, :short) },
+					{ kind: :normal, value: Team.label }
+				]
+			when :coach
+				header = [
+					{ kind: :normal, value: Team.label },
+					{ kind: :normal, value: Assignment.fld(:role) }
+				]
+			else
+				header = [ { kind: :normal, value: Assignment.fld(:role) } ]
+			end
+
+			header += [
+				{ kind: :normal, value: Assignment.fld(:start_on, :short) },
+				{ kind: :normal, value: Assignment.fld(:status) }
+			]
+		end
+
+		def assignment_history_rows(object, kind)
+				rows  = Array.new
+				frame = :modal
+				object.assignments.order(:starts_on).reverse.each do |position|
+					row   = { url: path_for(position, kind:, status: params[:status].presence), items: [], frame: }
+					case kind
+					when :athlete
+						row[:items] << { kind: :normal, value: position.number }
+						row[:items] << { kind: :normal, value: position.team.name }
+					when :coach
+						row[:items] << { kind: :normal, value: position.team.name }
+						row[:items] << { kind: :normal, value: position.kind_label }
+					else
+						row[:items] << { kind: :normal, value: position.kind_label }
+					end
+					row[:items] << { kind: :normal, value: position.starts_on }
+					row[:items] << participation_status_field(position, f_opts: { align: :center, class: "border" })
+					rows << row
+				end
+				rows
+		end
 end

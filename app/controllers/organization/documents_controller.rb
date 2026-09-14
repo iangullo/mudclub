@@ -37,7 +37,7 @@ class DocumentsController < ApplicationController
 		create_index(
 			title:,
 			table:,
-			retlnk: helpers.document_owner_path
+			retlnk: path_for(@owner)
 		)
 	end
 

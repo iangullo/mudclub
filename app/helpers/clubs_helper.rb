@@ -44,11 +44,12 @@ module ClubsHelper
 	def club_links
 		if @policy.show_details?	# user's club
 			res = []
+			opt = { status: :active, rdx: 0 }
 			if @policy.manage_members?
 				res << [
-					button_field({ kind: :jump, symbol: :board_member, url: club_assignments_path(@club, kind: :board_members, rdx: 0), label: Catalog::MembershipKinds.val(:board_member, :plural) }, align: :center),
-					button_field({ kind: :jump, symbol: :athlete, url: club_members_path(@club, kind: :athletes, rdx: 0), label: Sport.term(:athlete, :plural) }, align: :center),
-					button_field({ kind: :jump, symbol: :coach, url: club_members_path(@club, kind: :coaches, rdx: 0), label:  Sport.term(:coach, :plural) }, align: :center),
+					button_field({ kind: :jump, symbol: :board_member, url: club_assignments_path(@club, kind: :board_members, **opt), label: Catalog::MembershipKinds.val(:board_member, :plural) }, align: :center),
+					button_field({ kind: :jump, symbol: :athlete, url: club_members_path(@club, kind: :athletes, **opt), label: Sport.term(:athlete, :plural) }, align: :center),
+					button_field({ kind: :jump, symbol: :coach, url: club_members_path(@club, kind: :coaches, **opt), label:  Sport.term(:coach, :plural) }, align: :center),
 					button_field({ kind: :jump, symbol: :document, url: club_documents_path(@club, rdx: 0), label: Document.label(:plural) }, align: :center)
 				]
 			end

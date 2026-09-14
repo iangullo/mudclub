@@ -121,6 +121,16 @@ module ParticipationHelper
 		]
 	end
 
+	# attempt at unified definition for Assignment/Membership tables
+	def participation_table(objects, kind: @kind)
+		p_class = objects&.first
+		o_class = p_class&.model_name&.singular_route_key.to_sym
+		{
+			title: participation_table_header(p_class, o_class, kind&.to_sym),
+			rows: participation_table_rows(o_class, objects, kind&.to_sym)
+		}
+	end
+
 	def participation_origin
 		return :team   if @team
 		return :member if @member
@@ -149,5 +159,47 @@ module ParticipationHelper
 			when :member then @member
 			when :club   then @club
 			end
+		end
+
+		# p_class should be Membership or Assignment - maybe Registration in future
+		def participation_table_header(p_class, o_class, kind)
+			header = kind ? [] : [ { kind: :normal, value: p_class.fld(:kind, :short) } ]
+			if kind == :board_member
+				header << { kind: :normal, value: Assignment.fld(:role) }
+			elsif kind == :athlete
+				header << { kind: :normal, value: Assignment.fld(:number, :short) }
+			end
+			header << { kind: :normal, value: Person.fld(:name) }
+			header << { kind: :normal, value: Person.fld(:age) } if [ :athlete, :coach ].include?(@kind)
+
+			header += [
+				{ kind: :normal, value: p_class.fld(:starts_on, :short) },
+				{ kind: :normal, value: p_class.fld(:status) }
+			]
+			header << button_field({ kind: :add, url: new_path_for(@club, o_class, kind: @kind), frame: :modal }) if @policy.new?
+		end
+
+		def participation_table_rows(o_class, objects, kind)
+				rows  = Array.new
+				frame = :modal if o_class == :assignment
+				objects.each { |object|
+					m_obj = (o_class == :member ? object : object&.membership)
+					a_obj = (o_class == :assignment ? object : object&.assignments&.last)
+					row   = { url: path_for(object, kind: @kind, status: params[:status].presence), items: [], frame: }
+					case kind
+					when :athlete
+						row[:items] << { kind: :normal, value: a_obj.number }
+					when :board_member
+						row[:items] << { kind: :normal, value: a_obj.kind_label }
+					when nil
+						row[:items] << participation_kind_field(object, class: "border")
+					end
+					row[:items] << { kind: :normal, value: object.s_name }
+					row[:items] << { kind: :normal, value: object.age, align: :center } if [ :athlete, :coach ].include?(m_obj.kind.to_sym)
+					row[:items] << { kind: :normal, value: object.starts_on }
+					row[:items] << participation_status_field(object, f_opts: { align: :center, class: "border" })
+					rows << row
+				}
+				rows
 		end
 end
