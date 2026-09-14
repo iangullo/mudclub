@@ -53,8 +53,8 @@ class DrillsController < ApplicationController
 				end
 				format.html do
 					@title = create_fields(title)
-					submit   = edit_drill_path(@drill, rdx: @rdx) if (@drill.coach_id == u_coachid) || (u_manager? && u_clubid == @drill.coach.club_id)
-					@submit  = create_submit(close: :back, retlnk: base_lnk(drills_path(rdx: @rdx)), submit:)
+					submit   = edit_path_for(@drill) if (@drill.coach_id == u_coachid) || (u_manager? && u_clubid == @drill.coach.club_id)
+					@submit  = create_submit(close: :back, retlnk: back_link(default: drills_path(rdx: @rdx)), submit:)
 					render :show
 				end
 			end
@@ -89,9 +89,9 @@ class DrillsController < ApplicationController
 				@drill = Drill.new
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.save
-					retlnk = cru_return
+					retlnk = path_for(@drill)
 					a_desc = "#{I18n.t("drill.created")} '#{@drill.name}'"
-					register_action(:created, a_desc, url: drill_path(@drill, rdx: 2))
+					register_action(:created, a_desc, url: path_for(@drill, rdx: 2))
 					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :index, status: :created, location: retlnk }
 				else
@@ -109,12 +109,12 @@ class DrillsController < ApplicationController
 	def update
 		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
 			respond_to do |format|
-				retlnk = cru_return
+				retlnk = path_for(@drill)
 				@drill.rebuild(drill_params)	# rebuild drill
 				if @drill.modified?
 					if @drill.save
 						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
-						register_action(:updated, a_desc, url: drill_path(@drill, rdx: 2))
+						register_action(:updated, a_desc, url: path_for(@drill, rdx: 2))
 						format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :show, status: :ok, location: retlnk }
 					else
@@ -154,9 +154,9 @@ class DrillsController < ApplicationController
 			if @step
 				@title   = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.edit_diagram") + " ##{@step.order}"))
 				@editor  = helpers.drill_form_diagram
-				@submit  = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
+				@submit  = create_submit(retlnk: edit_path_for(@drill), frame: :modal)
 			else
-				redirect_to edit_drill_path(@drill), data: { turbo_action: "replace" }
+				redirect_to edit_path_for(@drill), data: { turbo_action: "replace" }
 			end
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -169,9 +169,9 @@ class DrillsController < ApplicationController
 			if @step
 				@title  = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
 				@loader = create_fields(helpers.drill_form_diagram_file(@step))
-				@submit = create_submit(retlnk: edit_drill_path(drill_id: @drill.id, rdx: @rdx), frame: "modal")
+				@submit = create_submit(retlnk: edit_path_for(@drill), frame: :modal)
 			else
-				redirect_to edit_drill_path(@drill), data: { turbo_action: "replace" }
+				redirect_to edit_path_for(@drill), data: { turbo_action: "replace" }
 			end
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -193,10 +193,10 @@ class DrillsController < ApplicationController
 
 			if updated_diag
 				respond_to do |format|
-					format.html { redirect_to edit_drill_path(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
+					format.html { redirect_to edit_path_for(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
 				end
 			else
-				redirect_to edit_diagram_drill_path(id: params[:id], notice: helpers.flash_message(I18n.t("status.no_data")), data: { turbo_action: "replace" }), status: :unprocessable_entity
+				redirect_to path_for(@drill, action: edit_diagram, notice: helpers.flash_message(I18n.t("status.no_data")), data: { turbo_action: "replace" }), status: :unprocessable_entity
 			end
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
@@ -215,11 +215,6 @@ class DrillsController < ApplicationController
 	end
 
 	private
-		# wrapper to set return link for CRUD operations
-		def cru_return
-			drill_path(@drill, rdx: @rdx)
-		end
-
 		# pdf export of @drill content
 		def drill_to_pdf(header)
 			footer = "#{I18n.t('drill.author')}: #{@drill.coach.person.email}"
@@ -248,7 +243,7 @@ class DrillsController < ApplicationController
 			s_size     = 10
 			@skills.each { |skill| s_size = skill.length if skill.length > s_size }
 			@s_size    = s_size - 3
-			@submit    = create_submit(retlnk: (action == "new" ? drills_path(rdx: @rdx) : cru_return))
+			@submit    = create_submit(retlnk: (action == "new" ? drills_path(rdx: @rdx) : path_for(@drill)))
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

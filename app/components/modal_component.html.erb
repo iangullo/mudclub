@@ -1,26 +1,25 @@
 <%= turbo_frame_tag "modal" do %>
-	<%= tag.div data: { controller: "turbo-modal",
-										turbo_modal_target: "modal",
-										action: "turbo:submit-end->turbo-modal#submitEnd" },
-										class: "animated fadeIn fixed z-20 inset-0 mt-0 overflow-auto bg-gray-500 bg-opacity-75 flex items-center justify-center" do %>
-		<!-- Modal Container -->
-		<div class="animated fadeIn fixed z-30 inset-0 mt-0 overflow-auto bg-gray-500 bg-opacity-75 flex items-center justify-center">
+	<!-- Modal Container -->
+	<%= tag.div data: { controller: "turbo-modal", turbo_modal_target: "modal", action: "turbo:submit-end->turbo-modal#submitEnd" },
+				class: "fixed inset-0 z-20 flex bg-gray-500 bg-opacity-75 justify-center" do %>
+		<!-- Modal Outer Container -->
+		<div class="fixed z-30 top-10 bottom-0 m-2 flex items-start justify-center overflow-auto">
 			<!-- Modal Inner Container -->
-			<div modal-target="body" class="flex rounded-lg relative mb-auto inset-y-16 mt-3 object-cover overflow-auto shadow">
+			<div modal-target="body"
+			class="bg-white rounded-lg shadow-xl flex flex-col"
+			style="width: <%= @width %>; height: <%= @height %>; max-width: 100%; max-height: 100%;">
 				<!-- Modal Card -->
-				<div class="bg-white rounded-lg shadow m-2">
-					<div class="p-3">
-						<%= turbo_frame_tag "modal-body" do %>
-							<%= content %>
-							<% if @close %>
-								<div class="flow-root mt-3">
-									<div class="float-left ml-3">
-										<%= render @close %>
-									</div>
+				<div class="overflow-auto p-3">
+					<%= turbo_frame_tag "modal-body" do %>
+						<%= content %>
+						<% if @close %>
+							<div class="flow-root mt-3">
+								<div class="float-left ml-3">
+									<%= render @close %>
 								</div>
-							<% end %>
+							</div>
 						<% end %>
-					</div>
+					<% end %>
 				</div>
 			</div>
 		</div>

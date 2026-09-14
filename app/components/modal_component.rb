@@ -21,7 +21,7 @@
 # ModalComponent - minimal standard ViewComponent for Modal views
 include Turbo::FramesHelper
 class ModalComponent < ApplicationComponent
-	def initialize(simple: nil)
+	def initialize(simple: nil, height: "90%", width: "90%")
 		@close = ButtonComponent.new(kind: :close, label: I18n.t("action.close")) if simple
 	end
 end

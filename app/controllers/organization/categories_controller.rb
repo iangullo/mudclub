@@ -37,7 +37,7 @@ class CategoriesController < ApplicationController
 	def show
 		if @category && check_access(roles: [ :admin ])
 			@fields = create_fields(helpers.category_show)
-			@submit = create_submit(submit: current_user.admin? ? edit_sport_category_path(@sport, @category) : nil)
+			@submit = create_submit(submit: current_user.admin? ? edit_path_for(@category, owner: @sport) : nil)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -70,9 +70,9 @@ class CategoriesController < ApplicationController
 				@category.rebuild(category_params)
 				if @category.save
 					a_desc = "#{Category.msg(:created)} '#{@category.name}'"
-					register_action(:created, a_desc, url: sport_category_path(@sport, @category), modal: true)
-					format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-					format.json { render :show, status: :created, location: sport_path(@sport.id) }
+					register_action(:created, a_desc, url: path_for(@category, owner: @sport), modal: true)
+					format.html { redirect_to path_for(@sport), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :show, status: :created, location: path_for(@sport) }
 				else
 					prepare_form("new")
 					format.html { render :new, status: :unprocessable_entity }
@@ -92,17 +92,17 @@ class CategoriesController < ApplicationController
 				if @category.changed?
 					if @category.save
 						a_desc = "#{Category.msg(:updated)} '#{@category.name}'"
-						register_action(:updated, a_desc, url: sport_category_path(@sport, @category), modal: true)
-						format.html { redirect_to sport_path(@sport.id), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :show, status: :ok, location: sport_path(@sport.id) }
+						register_action(:updated, a_desc, url: path_for(@category, owner: @sport), modal: true)
+						format.html { redirect_to path_for(@sport), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+						format.json { render :show, status: :ok, location: path_for(@sport) }
 					else
 						prepare_form("edit")
 						format.html { render :edit, status: :unprocessable_entity }
 						format.json { render json: @category.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to sport_path(@sport.id), notice: no_data_notice, data: { turbo_action: "replace" } }
-					format.json { render :index, status: :ok, location: sport_path(@sport.id) }
+					format.html { redirect_to path_for(@sport), notice: no_data_notice, data: { turbo_action: "replace" } }
+					format.json { render :index, status: :ok, location: path_for(@sport) }
 				end
 			end
 		else
@@ -118,7 +118,7 @@ class CategoriesController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{Category.msg(:deleted)} '#{c_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to sport_path(@sport.id), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+				format.html { redirect_to path_for(@sport), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else

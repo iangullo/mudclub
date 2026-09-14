@@ -31,8 +31,8 @@ class SlotsController < ApplicationController
 			title     << helpers.slot_search_bar(u_manager? || u_secretary?)
 			@title    = create_fields(title)
 			week_view if @location
-			@btn_add   = create_button({ kind: :add, url: new_slot_path(club_id: @club.id, location_id: @location&.id, season_id: @season.id, rdx: @rdx), frame: "modal" }) if u_manager? && !(@season.teams.empty?)
-			@submit    = create_submit(close: :back, submit: nil, retlnk: club_path(@club, rdx: @rdx))
+			@btn_add   = create_button({ kind: :add, url: new_path_for(@club, :slot, location_id: @location&.id, season_id: @season.id), frame: :modal }) if u_manager? && !(@season.teams.empty?)
+			@submit    = create_submit(close: :back, submit: nil, retlnk: path_for(@club))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -43,7 +43,7 @@ class SlotsController < ApplicationController
 		if @slot && check_access(obj: @slot.team.club)
 			@title   = create_fields(helpers.slot_title(title: @slot.team.to_s, subtitle: @slot.team.season.name))
 			@fields  = create_fields(helpers.slot_show)
-			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot, rdx: @rdx) : nil, frame: u_manager? ? "modal" : nil)
+			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot, rdx: @rdx) : nil, frame: u_manager? ? :modal : nil)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -79,7 +79,7 @@ class SlotsController < ApplicationController
 				if @slot.changed?
 					if @slot.save # try to store
 						a_desc = "#{I18n.t("calendar.slot.messages.created")} '#{@slot}'"
-						register_action(:created, a_desc, url: slot_path(@slot, rdx: 2), modal: true)
+						register_action(:created, a_desc, url: path_for(@slot), modal: true)
 						format.html { redirect_to crud_return(@club&.id), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :created, location: @slot }
 					else

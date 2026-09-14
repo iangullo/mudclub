@@ -74,6 +74,7 @@ es:
     #
     messages:
       img_missing: Image not found
+      access_denied: Acceso denegado
 
     #
     # Estados genéricos

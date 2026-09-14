@@ -125,7 +125,7 @@
 <% when :upload %>
 	<div id="upload-file" class="inline-flex items-center" data-controller="upload">
 		<!-- Hidden input for file upload -->
-		<%= @form.file_field(@fdata[:key], id: "upload-btn-#{@fdata[:key]}", direct_upload: true, class: "hidden", data: @i_data) %>
+		<%= @form.file_field(@fdata[:key], id: "upload-btn-#{@fdata[:key]}", direct_upload: true, class: "hidden", data: @i_data, accept: @fdata[:accept]) %>
 
 		<!-- Custom button to trigger file input -->
 		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" data-action="click->upload#selectFile" data-upload-target="button">

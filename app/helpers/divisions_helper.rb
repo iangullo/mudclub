@@ -17,34 +17,34 @@
 # contact email - iangullo@gmail.com.
 #
 module DivisionsHelper
-  # return icon and top of fields definition
-  def division_title(title:, subtitle: @sport&.to_s, cols: nil)
-    title_start(icon: symbol_hash("division", namespace: "sport"), title:, subtitle:, rows: 2, cols:)
-  end
+	# return icon and top of fields definition
+	def division_title(title:, subtitle: @sport&.to_s, cols: nil)
+		title_start(icon: symbol_hash("division", namespace: "sport"), title:, subtitle:, rows: 2, cols:)
+	end
 
-  def division_show
-    division_title(title: Division.label, subtitle: @division.name)
-  end
+	def division_show
+		division_title(title: Division.label, subtitle: @division.name)
+	end
 
-  # return definition @fields for forms
-  def division_form(action)
-    @submit = SubmitComponent.new(submit: :save)
-    res = division_title(title: Division.act(action.to_sym))
-    res << [ gap_field, { kind: :text_box, key: :name, value: @division.name, placeholder: @division.fld(:name), mandatory: { length: 3 } } ]
-  end
+	# return definition @fields for forms
+	def division_form(action)
+		@submit = SubmitComponent.new(submit: :save)
+		res = division_title(title: Division.act(action.to_sym))
+		res << [ gap_field, { kind: :text_box, key: :name, value: @division.name, placeholder: @division.fld(:name), mandatory: { length: 3 } } ]
+	end
 
-  # return table for @divisions TableComponent
-  def division_table
-    title = [ { kind: :normal, value: Division.fld(:name) } ]
-    title << button_field({ kind: :add, url: new_sport_division_path(@sport, rdx: @rdx), frame: "modal" }) if u_admin?
+	# return table for @divisions TableComponent
+	def division_table
+		title = [ { kind: :normal, value: Division.fld(:name) } ]
+		title << button_field({ kind: :add, url: new_path_far(@sport, :division), frame: :modal }) if u_admin?
 
-    rows = Array.new
-    @divisions.each do |div|
-      row = { url: edit_sport_division_path(@sport, div, rdx: @rdx), frame: "modal", items: [] }
-      row[:items] << { kind: :normal, value: div.name }
-      row[:items] << button_field({ kind: :delete, url: sport_division_path(@sport, div, rdx: @rdx), name: div.name }) if u_admin?
-      rows << row
-    end
-    table_field(title:, rows:, align: :center)
-  end
+		rows = Array.new
+		@divisions.each do |div|
+			row = { url: edit_path_for(div, owner: @sport), frame: :modal, items: [] }
+			row[:items] << { kind: :normal, value: div.name }
+			row[:items] << button_field({ kind: :delete, url: path_for(div, owner: @sport, rdx: @rdx), name: div.name }) if u_admin?
+			rows << row
+		end
+		table_field(title:, rows:, align: :center)
+	end
 end

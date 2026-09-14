@@ -36,6 +36,7 @@ en:
         material: Material
         material_short: Mat.
         sport: Sport
+        sport_short: Sport
         court_mode: Court layout
         court_mode_short: Layout
       values:

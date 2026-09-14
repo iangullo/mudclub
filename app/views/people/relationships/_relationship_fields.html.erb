@@ -20,7 +20,7 @@
 				<td colspan="2">
 					<%= f.text_field(
 							:name,
-							placeholder: Person.attr(:name),
+							placeholder: Person.fld(:name),
 							size: 12,
 							class: f_cls
 					) %>
@@ -28,7 +28,7 @@
 				<td colspan="2">
 					<%= f.text_field(
 							:surname,
-							placeholder: Person.attr(:surname),
+							placeholder: Person.fld(:surname),
 							size: 18,
 							class: "#{f_cls} ml-2"
 					) %>
@@ -37,13 +37,13 @@
 
 			<tr>
 				<td>
-					<%= render SymbolComponent.new(:id_front, title: Person.attr(:national_id)) %>
+					<%= render SymbolComponent.new(:id_front, title: Person.fld(:national_id)) %>
 				</td>
 
 				<td>
 					<%= f.text_field(
 							:dni,
-							placeholder: Person.attr(:national_id),
+							placeholder: Person.fld(:national_id, :short),
 							size: 8,
 							class: f_cls
 					) %>
@@ -57,7 +57,7 @@
 				<td>
 					<%= f.text_field(
 							:phone,
-							placeholder: Person.attr(:phone),
+							placeholder: Person.fld(:phone),
 							size: 12,
 							class: f_cls
 					) %>

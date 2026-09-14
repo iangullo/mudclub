@@ -25,10 +25,10 @@ class LocationsController < ApplicationController
 	def index
 		if check_access(roles: [ :admin, :manager, :secretary ])
 			title  = helpers.location_title(title: I18n.t("location.many"))
-			title << helpers.location_search_bar(search_in: club_locations_path(rdx: @rdx))
+			title << helpers.location_search_bar(search_in: crud_return)
 			page   = paginate(@locations)	# paginate results
 			table  = helpers.location_table(locations: page)
-			create_index(title:, table:, page:, retlnk: base_lnk(club_path(@club, rdx: @rdx)))
+			create_index(title:, table:, page:, retlnk: back_link(default: path_for(@club)))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -39,8 +39,8 @@ class LocationsController < ApplicationController
 	def show
 		if @location && user_signed_in?	# basically all users can see this
 			@fields = create_fields(helpers.location_show)
-			submit  = edit_location_path(@location, rdx: @rdx) if location_editor?
-			@submit = create_submit(submit:, frame: "modal")
+			submit  = edit_path_for(@location) if location_editor?
+			@submit = create_submit(submit:, frame: :modal)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -75,9 +75,9 @@ class LocationsController < ApplicationController
 				a_desc    = "#{I18n.t("location.created")} #{@club&.nick} => '#{@location.name}'"
 				u_notice  = helpers.flash_message(a_desc, "success")
 				if @location.id!=nil || @location.save # location existed or saved
-					retlnk = crud_return(@club.id)
+					retlnk = crud_return
 					@club.locations |= [ @location ] if @club
-					register_action(:created, a_desc, url: location_path(@location), modal: true)
+					register_action(:created, a_desc, url: path_for(@location), modal: true)
 					format.html { redirect_to retlnk, notice: u_notice, data: { turbo_action: "replace" } }
 					format.json { render :index, status: :created, location: retlnk }
 				else
@@ -96,17 +96,17 @@ class LocationsController < ApplicationController
 		if @location && location_editor?
 			respond_to do |format|
 				@location.rebuild(location_params)
-				retlnk = crud_return(@club.id)
+				retlnk = crud_return
 				if @location.id!=nil  # we have location to save
 					a_desc = "#{I18n.t("location.updated")} '#{@location.name}'"
 					if @location.changed?
 						if @location.save  # try to save
-							register_action(:updated, a_desc, url: location_path(@location, rdx: 2), modal: true)
+							register_action(:updated, a_desc, url: path_for(@location, rdx: 2), modal: true)
 							@club.locations |= [ @location ]
 							format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 							format.json { render :index, status: :created, location: retlnk }
 						else
-							format.html { redirect_to edit_location_path(@location), data: { turbo_action: "replace" } }
+							format.html { redirect_to edit_path_for(@location), data: { turbo_action: "replace" } }
 							format.json { render json: @location.errors, status: :unprocessable_entity }
 						end
 					elsif @club&.locations&.exclude?(@location)
@@ -134,7 +134,7 @@ class LocationsController < ApplicationController
 			respond_to do |format|
 				l_name = @location.name
 				a_desc = "#{I18n.t("location.deleted")} #{@club&.nick} => '#{l_name}'"
-				retlnk = crud_return(@club.id)
+				retlnk = crud_return
 				register_action(:deleted, a_desc)
 				@club.locations.delete(@location)
 				format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
@@ -147,8 +147,8 @@ class LocationsController < ApplicationController
 
 private
 	# wrapper to set return link for CRUD operations
-	def crud_return(clubid)
-		club_locations_path(clubid, rdx: @rdx)
+	def crud_return(club = @club)
+		club_locations_path(club, rdx: @rdx)
 	end
 
 	def location_editor?

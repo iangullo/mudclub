@@ -42,6 +42,7 @@ class Catalog::AssignmentKinds < Catalog::Base
 			id: 0,
 			membership: :athlete,
 			scope: :team,
+			selectable: true,
 			description: "Regular member of a team."
 		},
 
@@ -123,43 +124,55 @@ class Catalog::AssignmentKinds < Catalog::Base
 			description: "Manage club website."
 		},
 
-		club_manager: {
-			id: 36,
-			membership: :club_manager,
-			scope: :club,
-			description: "Club operational manager."
-		},
-
 		#
 		# Board
 		#
-
-		president: {
+		board_member: {
 			id: 40,
 			membership: :board_member,
 			scope: :club,
+			selectable: true,
+			description: "Regular member of the board."
+		},
+
+		president: {
+			id: 41,
+			membership: :board_member,
+			scope: :club,
+			selectable: true,
 			description: "President of the club."
 		},
 
 		vice_president: {
-			id: 41,
+			id: 42,
 			membership: :board_member,
 			scope: :club,
+			selectable: true,
 			description: "Vice-president of the club."
 		},
 
 		secretary: {
-			id: 42,
+			id: 43,
 			membership: :board_member,
 			scope: :club,
+			selectable: true,
 			description: "Secretary of the club."
 		},
 
 		treasurer: {
-			id: 43,
+			id: 44,
 			membership: :board_member,
 			scope: :club,
+			selectable: true,
 			description: "Treasurer of the club."
+		},
+
+		club_manager: {
+			id: 45,
+			membership: :club_manager,
+			selectable: true,
+			scope: :club,
+			description: "Club operational manager."
 		}
 
 	}.freeze

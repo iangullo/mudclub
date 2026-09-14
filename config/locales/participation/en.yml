@@ -53,9 +53,9 @@ en:
         single: Assignment
         plural: Assignments
         short: Assig.
-      action:
+      actions:
         create: Assign
-        edit: Editar assignment
+        edit: Edit assignment
         terminate: Terminate assignment
         delete: Delete assignment
       fields:

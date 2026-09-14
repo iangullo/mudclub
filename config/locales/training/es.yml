@@ -36,6 +36,7 @@ es:
         material: Material
         material_short: Mat.
         sport: Deporte
+        sport_short: Dep.
         court_mode: Disposición de campo
         court_mode_short: Disposición
       values:

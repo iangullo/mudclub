@@ -18,109 +18,138 @@
 #
 # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 Rails.application.routes.draw do
-  #-------------------------------------
-  # Core service routes
-  #-------------------------------------
-  root to: "home#index"
-  get "home/about"
-  get "home/log"
-  get "home/clear"
-  get "home/index"
-  get "home/server"
-  devise_for :users, skip: [ :registrations ]
+	#-------------------------------------
+	# Core service routes
+	#-------------------------------------
+	root to: "home#index"
+	get "home/about"
+	get "home/log"
+	get "home/clear"
+	get "home/index"
+	get "home/server"
+	devise_for :users, skip: [ :registrations ]
 
-  as :user do
-    get "users/edit" => "devise/registrations#edit", :as => "edit_user_registration"
-    put "users" => "devise/registrations#update", :as => "user_registration"
-  end
+	as :user do
+		get "users/edit" => "devise/registrations#edit", :as => "edit_user_registration"
+		put "users" => "devise/registrations#update", :as => "user_registration"
+	end
 
-  resources :users do
-    get "actions", on: :member
-    get "clear_actions", on: :member
-  end
+	resources :users do
+		get "actions", on: :member
+		get "clear_actions", on: :member
+		resources :documents do
+			member do
+				patch :activate
+			end
+		end
+	end
 
-  resources :sports do
-    get :rules, on: :member
-    resources :categories
-    resources :divisions
-  end
+	resources :sports do
+		get :rules, on: :member
+		resources :categories
+		resources :divisions
+	end
 
-  #-------------------------------------
-  # Clubs are the main organizational units
-  #-------------------------------------
-  resources :clubs do
-    # Facilities available to the club
-    get :locations, to: "locations#index"
+	#-------------------------------------
+	# Clubs are the main organizational units
+	#-------------------------------------
+	resources :clubs do
+		# Facilities available to the club
+		get :locations, to: "locations#index"
 
-    # Administrative
-    resources :members, controller: :memberships, except: :destroy do
-      resources :assignments, only: %i[show edit update]
-    end
+		# Club documentation
+		resources :documents do
+			member do
+				patch :activate
+			end
+		end
 
-    # Club operational roles
-    resources :assignments, only: %i[index new create],
-              param: :membership_kind
+		# Club participation
+		resources :registrations do
+			member do
+				patch :submit
+				patch :begin_review
+				patch :request_information
+				patch :approve
+				patch :reject
+				patch :cancel
+			end
+			resources :documents do
+				member do
+					patch :activate
+				end
+			end
+		end
 
-    # Calendar objects
-    resources :slots
-    resources :events
+		resources :members, controller: :memberships, except: :destroy do
+			resources :assignments, only: %i[show edit update]
+		end
 
-    # Club teams
-    resources :teams do
-      resources :assignments, only: %i[show new edit create update]
-      # resource :volunteers, only: %i[new create]
+		resources :assignments, only: %i[index new create],
+							param: :membership_kind
 
-      # Team-specific actions
-      get :attendance
-      get :plan
-      get :edit_plan
-      get :roster
-      get :edit_roster
-      get :slots
-      get :targets
-      get :edit_targets
+		# Calendar objects
+		resources :slots
+		resources :events
 
-      # Team calendar
-      resources :events do
-        get :attendance
-        get :copy
-        get :load_chart
-        get :player_stats
-        get :edit_player_stats
-        get :show_task
-        get :add_task
-        get :edit_task
-      end
-    end
-  end
+		# Club teams
+		resources :teams do
+			resources :assignments, only: %i[show new edit create update]
+			# resource :volunteers, only: %i[new create]
 
-  #-------------------------------------
-  # Training domain routes
-  #-------------------------------------
-  resources :drills do
-    member do
-      get :versions
-      get :edit_diagram	# /drills/:id/edit_diagram?step_id=X&order=Y
-      get :load_diagram # /drills/:id/load_diagram?step_id=X&order=Y
-      patch :update_diagram # /drills/:id/update_diagram?step_id=X
-    end
-  end
+			# Team-specific actions
+			get :attendance
+			get :plan
+			get :edit_plan
+			get :roster
+			get :edit_roster
+			get :slots
+			get :targets
+			get :edit_targets
 
-  resources :locations, except: [ :index ]
+			# Team calendar
+			resources :events do
+				member do
+					get :attendance
+					get :copy
+					get :load_chart
+					get :player_stats
+					get :edit_player_stats
+					get :show_task
+					get :add_task
+					get :edit_task
+				end
+			end
+		end
+	end
 
-  resources :seasons
+	#-------------------------------------
+	# Training domain routes
+	#-------------------------------------
+	resources :drills do
+		member do
+			get :versions
+			get :edit_diagram	# /drills/:id/edit_diagram?step_id=X&order=Y
+			get :load_diagram # /drills/:id/load_diagram?step_id=X&order=Y
+			patch :update_diagram # /drills/:id/update_diagram?step_id=X
+		end
+	end
 
-  # DEPRECATED routes
-  # resources :people
-  resources :coaches, except: [ :index ] do
-    collection do
-      post :import
-    end
-  end
+	resources :locations, except: [ :index ]
 
-  resources :players, except: [ :index ] do
-    collection do
-      post :import
-    end
-  end
+	resources :seasons
+
+	# DEPRECATED routes
+	# resources :people
+	resources :coaches, except: [ :index ] do
+		collection do
+			post :import
+		end
+	end
+
+	resources :players, except: [ :index ] do
+		collection do
+			post :import
+		end
+	end
 end

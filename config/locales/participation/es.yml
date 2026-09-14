@@ -20,7 +20,7 @@ es:
         single: Integrante
         plural: Integrantes
         short: Int.
-      action:
+      actions:
         create: Crear integrante
         edit: Editar integrante
         terminate: Dar de baja
@@ -53,7 +53,7 @@ es:
         single: Inscripción
         plural: Inscripciones
         short: Insc.
-      action:
+      actions:
         create: Inscribir
         edit: Editar inscripción
         terminate: Cancelar inscripción

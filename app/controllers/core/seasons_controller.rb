@@ -38,7 +38,7 @@ class SeasonsController < ApplicationController
 	def show
 		if @season && check_access(roles: [ :admin ])
 			@fields = create_fields(helpers.season)
-			@submit = create_submit(close: :back, retlnk: base_lnk(seasons_path(rdx: @rdx)), submit: edit_season_path(rdx: @rdx), frame: "modal")
+			@submit = create_submit(close: :back, retlnk: back_link(default: seasons_path(rdx: @rdx)), submit: edit_path_for(@season), frame: :modal)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -72,7 +72,7 @@ class SeasonsController < ApplicationController
 				if @season.save
 					a_desc = "#{I18n.t("season.created")} '#{@season.name}'"
 					retlnk = crud_return
-					register_action(:created, a_desc, url: season_path(@season, rdx: 2))
+					register_action(:created, a_desc, url: path_for(@season, rdx: 2))
 					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :index, status: :created, location: retlnk }
 				else
@@ -97,7 +97,7 @@ class SeasonsController < ApplicationController
 				if @season.changed?
 					if @season.save
 						a_desc = "#{I18n.t("season.updated")} '#{@season.name}'"
-						register_action(:updated, a_desc, url: season_path(@season, rdx: 2))
+						register_action(:updated, a_desc, url: path_for(@season, rdx: 2))
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :show, status: :created, location: retlnk }
 					else

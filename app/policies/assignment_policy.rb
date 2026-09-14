@@ -76,8 +76,7 @@ class AssignmentPolicy < ApplicationPolicy
 
 		def can_view_kind?(kind)
 			return false unless kind
-
-			if Catalog::AssignmentKinds.team_level?(kind)
+			if @target_team	&& Catalog::AssignmentKinds.team_level?(kind)
 				can_view_team_assignment?(kind)
 			else
 				can_view_club_assignment?(kind)

@@ -1,163 +1,166 @@
 class CreateMemberships < ActiveRecord::Migration[8.0]
-  def up
-    create_table :memberships, id: :uuid do |t|
-      t.references :person, null: false, foreign_key: true
-      t.references :club,   null: false, foreign_key: true
-      t.integer :kind,   null: false
-      t.integer :status, null: false, default: 0
-      t.date :joined_on, null: false
-      t.date :left_on
-      t.timestamps
-    end
+	def up
+		create_table :memberships, id: :uuid do |t|
+			t.references :person, null: false, foreign_key: true
+			t.references :club,   null: false, foreign_key: true
+			t.integer :kind,   null: false
+			t.integer :status, null: false, default: 0
+			t.jsonb :settings, default: {}
+			t.date :joined_on, null: false
+			t.date :left_on
+			t.timestamps
+		end
 
-    add_index :memberships,
-              [ :person_id, :club_id, :kind ],
-              unique: true,
-              where: "left_on IS NULL",
-              name: "idx_unique_active_memberships"
-    add_index :memberships, :status
-    add_index :memberships, :kind
+		add_index :memberships,
+							[ :person_id, :club_id, :kind ],
+							unique: true,
+							where: "left_on IS NULL",
+							name: "idx_unique_active_memberships"
+		add_index :memberships, :status
+		add_index :memberships, :kind
 
-    # ------------------------------------------------------------
-    # 1. Club‑level memberships from User records (simple)
-    # ------------------------------------------------------------
-    infer_club_memberships
+		# ------------------------------------------------------------
+		# 1. Club‑level memberships from User records (simple)
+		# ------------------------------------------------------------
+		infer_club_memberships
 
-    # ------------------------------------------------------------
-    # 2. Team‑level memberships (coaches & athletes) – using the
-    #    same robust logic as our rake tasks.
-    # ------------------------------------------------------------
-    infer_team_memberships(:coach)
-    infer_team_memberships(:athlete)
-  end
+		# ------------------------------------------------------------
+		# 2. Team‑level memberships (coaches & athletes) – using the
+		#    same robust logic as our rake tasks.
+		# ------------------------------------------------------------
+		infer_team_memberships(:coach)
+		infer_team_memberships(:athlete)
+	end
 
-  def down
-    drop_table :memberships
-  end
+	def down
+		drop_table :memberships
+	end
 
-  private
+	private
 
-  # ---- Club memberships ----
-  def infer_club_memberships
-    User.real.each do |user|
-      next unless user.club_id
+	# ---- Club memberships ----
+	def infer_club_memberships
+		User.real.each do |user|
+			next unless user.club_id
 
-      kind =
-        case user.role.to_sym
-        when :secretary then :board_member
-        when :manager   then :club_manager
-        when :admin     then user.is_coach? ? :club_manager : nil
-        else nil
-        end
-      next unless kind
+			kind =
+				case user.role.to_sym
+				when :secretary then :board_member
+				when :manager   then :club_manager
+				when :admin     then user.is_coach? ? :club_manager : nil
+				else nil
+				end
+			next unless kind
 
-      membership = start_membership(
-        person_id: user.person_id,
-        kind: kind,
-        club_id: user.club_id,
-        joined_on: user.created_at,
-        left_on: user.active? ? nil : user.updated_at
-      )
-      Membership.create!(membership)
+			membership = start_membership(
+				person_id: user.person_id,
+				kind:,
+				club_id: user.club_id,
+				joined_on: user.created_at,
+				left_on: user.active? ? nil : user.updated_at
+			)
+			Membership.create!(membership)
 
-      # Admin also gets a board membership
-      if user.admin?
-        membership[:kind] = :board_member
-        Membership.create!(membership)
-      end
-    end
-  end
+			# Admin also gets a board membership
+			if user.admin?
+				membership[:kind] = :board_member
+				Membership.create!(membership)
+			end
+		end
+	end
 
-  # ---- Team memberships (coaches & athletes) ----
-  def infer_team_memberships(kind)
-    member_class = kind == :coach ? Coach : Player
+	# ---- Team memberships (coaches & athletes) ----
+	def infer_team_memberships(kind)
+		jersey_nums  = []  # athlete historical jersey numbers
+		settings     = {}
+		member_class = kind == :coach ? Coach : Player
+		member_class.real.find_each do |member|
+			# Gather all team IDs this member was ever associated with
+			current_team_ids = member.teams.pluck(:id)
+			historical_team_ids = []
 
-    member_class.real.find_each do |member|
-      # Gather all team IDs this member was ever associated with
-      current_team_ids = member.teams.pluck(:id)
-      historical_team_ids = []
+			if kind == :athlete
+				# Athletes: also get teams from events_players
+				historical_team_ids = Event.joins(:events_players)
+																	.where(events_players: { player_id: member.id })
+																	.where.not(team_id: nil)
+																	.pluck(:team_id)
+																	.uniq
+			end
 
-      if kind == :athlete
-        # Athletes: also get teams from events_players
-        historical_team_ids = Event.joins(:events_players)
-                                   .where(events_players: { player_id: member.id })
-                                   .where.not(team_id: nil)
-                                   .pluck(:team_id)
-                                   .uniq
-      end
+			all_team_ids = (current_team_ids + historical_team_ids).uniq
+			next if all_team_ids.empty?
 
-      all_team_ids = (current_team_ids + historical_team_ids).uniq
-      next if all_team_ids.empty?
+			# Process teams in chronological order (by season start)
+			teams = Team.where(id: all_team_ids)
+									.joins(:season)
+									.order("seasons.start_date ASC")
 
-      # Process teams in chronological order (by season start)
-      teams = Team.where(id: all_team_ids)
-                  .joins(:season)
-                  .order("seasons.start_date ASC")
+			membership = nil  # will hold the current membership hash
 
-      membership = nil  # will hold the current membership hash
+			teams.each do |team|
+				season = team.season
+				next unless season
 
-      teams.each do |team|
-        season = team.season
-        next unless season
+				if kind == :athlete
+					jersey_nums << member&.number if member&.number&.present?
+					settings[:preferred_numbers] = jersey_nums.uniq
+				end
 
-        if membership.nil?
-          # Start a new membership
-          membership = start_membership(
-            person_id: member.person_id,
-            kind: kind,
-            club_id: team.club_id,
-            joined_on: season.start_date,
-            left_on: season.end_date
-          )
-        else
-          # Check if this team belongs to the same club and is contiguous
-          if membership[:club_id] == team.club_id &&
-             contiguous_period?(membership[:left_on], season.start_date)
-            # Extend the existing membership
-            membership[:left_on] = season.end_date if season.end_date > membership[:left_on]
-          else
-            # Close the previous membership and start a new one
-            membership[:status] = :terminated
-            Membership.create!(membership)
+				if membership.nil?
 
-            membership = start_membership(
-              person_id: member.person_id,
-              kind: kind,
-              club_id: team.club_id,
-              joined_on: season.start_date,
-              left_on: season.end_date
-            )
-          end
-        end
-      end
+					# Start a new membership
+					membership = start_membership(
+						person_id: member.person_id,
+						kind:,
+						club_id: team.club_id,
+						joined_on: season.start_date,
+						left_on: season.end_date,
+						settings:
+					)
+				else
+					# Check if this team belongs to the same club and is contiguous
+					if membership[:club_id] == team.club_id &&
+						contiguous_period?(membership[:left_on], season.start_date)
+						# Extend the existing membership
+						membership[:left_on] = season.end_date if season.end_date > membership[:left_on]
+					else
+						# Close the previous membership and start a new one
+						membership[:status] = :terminated
+						Membership.create!(membership)
 
-      # Finalise the last membership
-      if membership
-        if member.active? && member.club_id == membership[:club_id]
-          membership[:left_on] = nil
-          membership[:status] = :active
-        else
-          membership[:status] = :terminated
-        end
-        Membership.create!(membership)
-      end
-    end
-  end
+						membership = start_membership(
+							person_id: member.person_id,
+							kind:,
+							club_id: team.club_id,
+							joined_on: season.start_date,
+							left_on: season.end_date,
+							settings:
+						)
+					end
+				end
+			end
 
-  # ---- Helpers ----
-  def start_membership(person_id:, kind:, club_id:, joined_on:, left_on:)
-    {
-      person_id: person_id,
-      kind: kind,
-      club_id: club_id,
-      joined_on: joined_on,
-      left_on: left_on,
-      status: :active
-    }
-  end
+			# Finalise the last membership
+			if membership
+				if member.active? && member.club_id == membership[:club_id]
+					membership[:left_on] = nil
+					membership[:status] = :active
+				else
+					membership[:status] = :terminated
+				end
+				Membership.create!(membership)
+			end
+		end
+	end
 
-  def contiguous_period?(previous_end, next_start)
-    return false unless previous_end && next_start
-    next_start <= previous_end + 90.days
-  end
+	# ---- Helpers ----
+	def start_membership(person_id:, kind:, club_id:, joined_on:, left_on:, settings: nil)
+		{ person_id:, kind:, club_id:, joined_on:, left_on:, settings:, status: :active  }
+	end
+
+	def contiguous_period?(previous_end, next_start)
+		return false unless previous_end && next_start
+		next_start <= previous_end + 90.days
+	end
 end

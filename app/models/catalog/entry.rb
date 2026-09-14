@@ -27,8 +27,6 @@
 # and boolean predicates while delegating all localisation to their
 # owning catalog.
 #
-# frozen_string_literal: true
-
 class Catalog::Entry
 	include Comparable
 
@@ -70,6 +68,18 @@ class Catalog::Entry
 		@metadata.key?(attribute.to_sym)
 	end
 
+	def attribute(name)
+		@metadata[name.to_sym]
+	end
+
+	def method_missing(name, *)
+		return attribute(name) if @metadata.key?(name.to_sym)
+		super
+	end
+
+	def respond_to_missing?(name, *)
+		@metadata.key?(name.to_sym) || super
+	end
 	alias include? key?
 
 	#

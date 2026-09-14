@@ -99,9 +99,7 @@ class Relationship < ApplicationRecord
 	end
 
 	def self.kind_list
-		Catalog::RelationshipKinds.selectable.map do |kind|
-			[ self.val(kind), kind ]
-		end
+		Catalog::RelationshipKinds.option_list(selectable: true)
 	end
 
 	private

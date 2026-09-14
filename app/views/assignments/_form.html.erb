@@ -7,9 +7,9 @@
 		) do |form| %>
 		<% if @p_fields %>
 			<%= form.fields_for :person, @assignment.person do |f| %>
-				<% @title.form    = f %>
+				<% @p_header.form = f %>
 				<% @p_fields.form = f %>
-				<%= render @title %>
+				<%= render @p_header %>
 				<%= render @p_fields %>
 				<% if @contacts %>
 					<% @contacts.form = f %>

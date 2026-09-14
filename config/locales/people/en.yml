@@ -80,6 +80,10 @@ en:
         single: Relationship
         plural: Relationships
         short: Rel.
+    relationship_kinds:
+      label:
+        single: Relationship kind
+        short: Rel. Kind
       values:
         parent: Parent
         parent_plural: Parents

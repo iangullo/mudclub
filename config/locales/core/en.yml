@@ -56,6 +56,53 @@ en:
       export: Export
       export_desc: Export data.
 
+    documents:
+      label:
+        single: Document
+        plural: Documents
+        short: Doc.
+      actions:
+        create: Create document
+        edit: Edit document
+        delete: Delete document
+      fields:
+        kind: Kind
+        name: Name
+        title: Title
+        file: File
+        summary: Summary
+        remarks: Remarks
+        verified: Verified
+        verified_short: Ver.
+        active: Active
+        active_short: Act.
+      messages:
+        created: Created document
+        updated: Updated document
+        deleted: Deleted document
+        unchanged: No changes to document
+
+    document_kinds:
+      label:
+        single: Document kind
+        short: Kind
+      values:
+        photo: Photo
+        form: Form
+        id_front: ID (front)
+        id_back: ID (back)
+        medical_certificate: Med. cert.
+        insurance: Insurance
+        payment_details: Payment terms
+        coaching_certificate: Coaching cert.
+        athlete_terms: Athlete terms
+        coach_contract: Coaching contract
+        volunteer_agreement: Volunteer agreement
+        privacy_policy: Privacy policy
+        club_rules: Club rules
+        parental_authorization: Parental authorization
+        other: Other
+
     lifecycles:
       immutable: Immutable
       archivable: Archivable
@@ -149,13 +196,15 @@ en:
         see: (see location)
       fields:
         name: Name
+        kind: Kind
         google_maps: Google Maps
         google_maps_short: GPS
         training_court: Training court
-        training_court_short: Court
+        training_court_short: T.Court.
       values:
         default: <new locations>
         none: (no location)
+        see: (see location)
       messages:
         created: Location created.
         updated: Location updated.

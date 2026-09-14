@@ -74,6 +74,7 @@ en:
     #
     messages:
       img_missing: Image not found
+      access_denied: Access denied
 
     #
     # Generic statuses

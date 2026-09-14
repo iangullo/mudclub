@@ -35,7 +35,7 @@ class SportsController < ApplicationController
 	def show
 		if @sport && check_access(roles: [ :admin ])
 			@fields = create_fields(helpers.sports_show)
-			@submit = create_submit(close: :back, submit: nil, retlnk: base_lnk(sports_path(rdx: @rdx)))
+			@submit = create_submit(close: :back, submit: nil, retlnk: back_link(default: sports_path(rdx: @rdx)))
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -44,7 +44,7 @@ class SportsController < ApplicationController
 	# Cannot create new sports yet
 	def new
 		if check_access(roles: [ :admin ])
-			redirect_to sport_path(@sport.id), data: { turbo_action: "replace" }
+			redirect_to path_for(@sport), data: { turbo_action: "replace" }
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -53,7 +53,7 @@ class SportsController < ApplicationController
 	# Cannot edit Sports yet
 	def edit
 		if @sport && check_access(roles: [ :admin ])
-			redirect_to sport_path(@sport.id), data: { turbo_action: "replace" }
+			redirect_to path_for(@sport), data: { turbo_action: "replace" }
 	#			@fields = create(helpers.sports_form(title: I18n.t("sport.edit"))) # rubocop:disable Layout/CommentIndentation
   #			@submit = create_submit # rubocop:disable Layout/IndentationStyle
 		else
@@ -64,7 +64,7 @@ class SportsController < ApplicationController
 	# Cannot create new sports yet
 	def create
 		if check_access(roles: [ :admin ])
-			redirect_to cru_return, data: { turbo_action: "replace" }
+			redirect_to path_for(@sport), data: { turbo_action: "replace" }
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -73,7 +73,7 @@ class SportsController < ApplicationController
 	# Cannot update Sports yet
 	def update
 		if @sport && check_access(roles: [ :admin ])
-			redirect_to cru_return, data: { turbo_action: "replace" }
+			redirect_to path_for(@sport), data: { turbo_action: "replace" }
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -101,11 +101,6 @@ class SportsController < ApplicationController
 	end
 
 	private
-		# wrapper to set return link for create && update operations
-		def cru_return
-			sport_path(@sport.id, rdx: @rdx)
-		end
-
 		# prepare a form to edit/create a Sport
 		def prepare_form(action)
 			@fields = create_fields(helpers.sports_form(title: I18n.t("sport.#{action}")))

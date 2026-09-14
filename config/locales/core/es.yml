@@ -56,6 +56,53 @@ es:
       export: Exportar
       export_desc: Exportar datos.
 
+    documents:
+      label:
+        single: Documento
+        plural: Documentos
+        short: Doc.
+      actions:
+        create: Crear documento
+        edit: Editar documento
+        delete: Borrar documento
+      fields:
+        kind: Tipo
+        name: Nombre
+        title: Título
+        file: Archivo
+        summary: Resumen
+        remarks: Notas
+        verified: Verificado
+        verified_short: Ver.
+        active: Activo
+        active_short: Act.
+      messages:
+        created: Documento creado
+        updated: Documento actualizado
+        deleted: Documento borrado
+        unchanged: Documento sin cambios
+
+    document_kinds:
+      label:
+        single: Tipo de documento
+        short: Kind
+      values:
+        photo: Foto
+        form: Formulario
+        id_front: DNI (anverso)
+        id_back: DNI (reverso)
+        medical_certificate: Cert. med.
+        insurance: Seguro
+        payment_details: Modo de Pago
+        coaching_certificate: Título entren.
+        athlete_terms: Normas deportistas
+        coach_contract: Contrato entrenador
+        volunteer_agreement: Acuerdo voluntario
+        privacy_policy: Política de privacidad
+        club_rules: Normas del club
+        parental_authorization: Autorización menores
+        other: Other
+
     lifecycles:
       immutable: Inmutable
       archivable: Archivable
@@ -149,13 +196,15 @@ es:
         see: (ver ubicación)
       fields:
         name: Nombre
+        kind: Tipo
         google_maps: Google Maps
         google_maps_short: GPS
         training_court: Pista de entrenamiento
-        training_court_short: Pista
+        training_court_short: P.Entr.
       values:
         default: <nueva ubicación.>
         none: (sin ubicación)
+        see: (ver ubicación)
       messages:
         created: Ubicación creada.
         updated: Ubicación actualizada.

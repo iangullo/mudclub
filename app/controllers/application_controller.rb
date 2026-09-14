@@ -18,377 +18,429 @@
 #
 # Core shared controller methods
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
-  before_action :set_application_context
-  around_action :switch_locale
-  # Make these methods available to views and helpers
-  helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_coachid,	:u_manager?,
-                :u_person, :u_player?, :u_playerid, :u_secretary?, :u_userid,
-                :user_in_club?, :club_manager?, :team_manager?, :date_string
+	include RoutingHelper
 
+	# Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
+	allow_browser versions: :modern
+	before_action :set_application_context
+	around_action :switch_locale
 
-  # NEW authorization policy management approach.
-  def check_policy!(policy_class, record: nil, **context)
-    policy =
-      if record
-        policy_class.new(current_user, record:)
-      else
-        policy_class.new(current_user, **context)
-      end
+	# simplify calls to routing definitions
+	helper RoutingHelper
 
-    method = "#{action_name}?"
+	# Make these methods available to views and helpers
+	helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_coachid,	:u_manager?,
+								:u_person, :u_player?, :u_playerid, :u_secretary?, :u_userid,
+								:user_in_club?, :club_manager?, :team_manager?, :date_string
 
-    unless policy.respond_to?(method)
-      raise NotImplementedError,
-            "#{policy_class}##{method} not implemented"
-    end
+	# NEW authorization policy management approach.
+	def check_policy!(policy_class, record: nil, **context)
+		policy =
+			if record
+				policy_class.new(current_user, record:)
+			else
+				policy_class.new(current_user, **context)
+			end
 
-    deny_access unless policy.public_send(method)
+		method = "#{action_name}?"
 
-    policy
-  end
+		unless policy.respond_to?(method)
+			raise NotImplementedError,
+						"#{policy_class}##{method} not implemented"
+		end
 
-  # DEPRECATED access control mechanism
-  # TODO: migrate to policy base authorization instead
-  # check if correct  access level exists. Basically checks if:
-  # "user is present AND (valid(role) OR valid(obj.condition))"
-  # optionally, check that clubid matches.
-  def check_access(roles: nil, obj: nil, both: false)
-    if current_user.present?	# no access if no user logged in
-      if both	# both conditions to apply
-        return (check_object(obj:) && check_role(roles:))
-      else	# either condition is sufficient
-        return (check_object(obj:) || check_role(roles:))
-      end
-    end
-    false
-  end
+		deny_access unless policy.public_send(method)
 
-  # return whether the current user is a club_manager
-  def club_manager?(club = @club)
-    check_access(roles: [ :admin, :manager ], obj: club, both: true)
-  end
+		policy
+	end
 
-  # return a ButtonComponent object from a definition hash
-  def create_button(button)
-    button ? ButtonComponent.new(**button) : nil
-  end
+	# DEPRECATED access control mechanism
+	# TODO: migrate to policy base authorization instead
+	# check if correct  access level exists. Basically checks if:
+	# "user is present AND (valid(role) OR valid(obj.condition))"
+	# optionally, check that clubid matches.
+	def check_access(roles: nil, obj: nil, both: false)
+		if current_user.present?	# no access if no user logged in
+			if both	# both conditions to apply
+				return (check_object(obj:) && check_role(roles:))
+			else	# either condition is sufficient
+				return (check_object(obj:) || check_role(roles:))
+			end
+		end
+		false
+	end
 
-  # return FieldsComponent object from a fields array
-  def create_fields(fields)
-    fields ? FieldsComponent.new(fields) : nil
-  end
-  # return TableComponent object from a table hash
-  def create_table(table, align: nil)
-    table ? TableComponent.new(table, align:) : nil
-  end
+	# return whether the current user is a club_manager
+	def club_manager?(club = @club)
+		check_access(roles: [ :admin, :manager ], obj: club, both: true)
+	end
 
-  # prepare typical controller index page variables
-  def create_index(title:, fields: nil, table: nil, page: nil, retlnk: nil, submit: nil)
-    @title  = create_fields(title)
-    @fields = create_fields(fields)
-    @table  = create_table(table)
-    @page   = page
-    if retlnk || submit
-      @submit = create_submit(close: :back, retlnk:, submit:)
-    else
-      @submit = create_submit(close: :close, submit: nil)
-    end
-  end
+	# return a ButtonComponent object from a definition hash
+	def create_button(button)
+		button ? ButtonComponent.new(**button) : nil
+	end
 
-  # Create a submit component
-  def create_submit(close: :close, submit: :save, retlnk: nil, frame: nil)
-    SubmitComponent.new(close:, submit:, retlnk:, frame:)
-  end
+	# return FieldsComponent object from a fields array
+	def create_fields(fields)
+		fields ? FieldsComponent.new(fields) : nil
+	end
+	# return TableComponent object from a table hash
+	def create_table(table, align: nil)
+		table ? TableComponent.new(table, align:) : nil
+	end
 
-  # defines correct retlnk for show/index pages based on
-  # controller context and zerolnk, optonally passed as param
-  def base_lnk(zerolnk = "/")
-    case @rdx&.to_i
-    when 0, nil	# return to zerolnk, typically provided by controller
-      return zerolnk
-    when 1	# return to users home_path
-      return user_path(current_user, rdx: 1)
-    when 2	# return to log_path
-      return home_log_path
-    end
-    "/"	# root
-  end
+	# prepare typical controller index page variables
+	def create_index(title:, fields: nil, table: nil, page: nil, retlnk: nil, submit: nil)
+		@title  = create_fields(title)
+		@fields = create_fields(fields)
+		@table  = create_table(table)
+		@page   = page
+		if retlnk || submit
+			@submit = create_submit(close: :back, retlnk:, submit:)
+		else
+			@submit = create_submit(close: :close, submit: nil)
+		end
+	end
 
-  # ensure @season matches the calling context.
-  # :obj is an object that has a :season_id link
-  def get_season(obj: nil)
-    unless @season&.id != obj&.season_id&.to_i
-      @season = Season.search(obj&.season_id)
-    end
-    @season
-  end
+	# Create a submit component
+	def create_submit(close: :close, submit: :save, retlnk: nil, frame: nil)
+		SubmitComponent.new(close:, submit:, retlnk:, frame:)
+	end
 
-  # check if a string is an integer
-  def is_integer(cad)
-    cad.to_i.to_s == cad
-  end
+	# Where to send the user after a state-changing action.
+	# Consumes session[:return_to] if present, else falls back to `default`.
+	def post_action_return_path(default)
+		session.delete(:return_to).presence || default
+	end
 
-  # parse a value to determine if its true
-  def to_boolean(value)
-    val = value.presence
-    (val&.to_s == "true" || val.to_i == 1)
-  end
+	# Where the user came from, for a "Back" link.
+	# Only trusts same-origin referers; falls back to `default` otherwise.
+	def back_link(default: root_path)
+		ref = request.referer
+		return default unless ref
+		uri = URI.parse(ref)
+		return default unless uri.host.nil? || uri.host == request.host
+		ref
+	rescue URI::InvalidURIError
+		default
+	end
 
-  # standard message for actions that had no data to change
-  def no_data_notice(trail: nil)
-    cad = I18n.t("status.no_data")
-    cad = "#{cad} (#{trail})" if trail
-    helpers.flash_message(cad, "info")
-  end
+	# Optional: only if views ever call these directly.
+	# helper_method :back_link
 
-  # wrappers to manage navigation routing specifiers
-  # rdx (radix) arguemnt specifies base url for this view
-  #		nil=>toplevel
-  #		0: club/season view)
-  #		1: user home view
-  #		2: server logs view
-  def p_rdx(base = params[:controller])
-    get_param(base, :rdx)
-  end
+	# defines correct retlnk for show/index pages based on
+	# controller context and zerolnk, optonally passed as param
+	# DEPRECATED!!
+	# TODO: replace with new semantics in all controllers
+	def base_lnk(zerolnk = "/")
+		case @rdx&.to_i
+		when 0, nil	# return to zerolnk, typically provided by controller
+			return zerolnk
+		when 1	# return to users home_path
+			return user_path(current_user, rdx: 1)
+		when 2	# return to log_path
+			return home_log_path
+		end
+		"/"	# root
+	end
 
-  def p_log(base = params[:controller])
-    get_param(base, :log)
-  end
+	# ensure @season matches the calling context.
+	# :obj is an object that has a :season_id link
+	def get_season(obj: nil)
+		unless @season&.id != obj&.season_id&.to_i
+			@season = Season.search(obj&.season_id)
+		end
+		@season
+	end
 
-  def p_clubid(base = params[:controller])
-    get_param(base, :club_id, objid: true)
-  end
+	# check if a string is an integer
+	def is_integer(cad)
+		cad.to_i.to_s == cad
+	end
 
-  def p_seasonid(base = params[:controller])
-    get_param(base, :season_id, objid: true)
-  end
+	# parse a value to determine if its true
+	def to_boolean(value)
+		val = value.presence
+		(val&.to_s == "true" || val.to_i == 1)
+	end
 
-  def p_teamid(base = params[:controller])
-    get_param(base, :team_id, objid: true)
-  end
+	# standard message for actions that had no data to change
+	def no_data_notice(trail: nil)
+		cad = I18n.t("status.no_data")
+		cad = "#{cad} (#{trail})" if trail
+		helpers.flash_message(cad, "info")
+	end
 
-  def p_userid(base = params[:controller])
-    get_param(base, :user_id, objid: true)
-  end
+	# wrappers to manage navigation routing specifiers
+	# rdx (radix) arguemnt specifies base url for this view
+	#		nil=>toplevel
+	#		0: club/season view)
+	#		1: user home view
+	#		2: server logs view
+	def p_rdx(base = params[:controller])
+		get_param(base, :rdx)
+	end
 
-  # check if some specific params are passed
-  def param_passed(*keys)
-    current_hash = params
-    keys.each do |key|
-      return nil unless current_hash[key].present?
-      current_hash = current_hash[key]
-    end
-    current_hash
-  end
+	def p_log(base = params[:controller])
+		get_param(base, :log)
+	end
 
-  # register a new user action
-  def register_action(kind, description, url: nil, modal: nil)
-    u_act = UserAction.new(user_id: current_user.id, kind:, description:, url:, modal:)
-    current_user.user_actions << u_act
-    u_act.save
-  end
+	def p_clubid(base = params[:controller])
+		get_param(base, :club_id, objid: true)
+	end
 
-  # set the action's context
-  def set_application_context
-    if user_signed_in?
-      @club   = u_club
-      @rdx    = p_rdx
-      @season = Season.search(p_seasonid)
-    end
-    @clublogo = @club&.logo || "mudclub.svg"
-    @clubname = @club&.nick || "MudClub"
-    @favicon  = user_favicon(@club)
-    @topbar   =
-      TopbarComponent.new(
-        user: current_user,
-        logo: @clublogo,
-        nick: @clubname,
-        home: u_path,
-        logout: destroy_user_session_path
-      )
-  end
+	def p_seasonid(base = params[:controller])
+		get_param(base, :season_id, objid: true)
+	end
 
-  def load_participation_context
-    @team   = @club.teams.find(params[:team_id]) if params[:team_id].present?
-    @member = @club.memberships.find(params[:member_id]) if params[:member_id].present?
-    @status = params[:status].presence
-  end
+	def p_teamid(base = params[:controller])
+		get_param(base, :team_id, objid: true)
+	end
 
-  # switch app locale
-  def switch_locale(&action)
-    locale   = (params[:locale] || current_user&.locale || I18n.default_locale)
-    I18n.with_locale(locale, &action)
-  end
+	def p_userid(base = params[:controller])
+		get_param(base, :user_id, objid: true)
+	end
 
-  # return whether the current user is a club_manager
-  def team_manager?(team = @team)
-    team&.has_coach?(u_person) || club_manager?(team&.club)
-  end
+	# check if some specific params are passed
+	def param_passed(*keys)
+		current_hash = params
+		keys.each do |key|
+			return nil unless current_hash[key].present?
+			current_hash = current_hash[key]
+		end
+		current_hash
+	end
 
-  # Standard string format for date values
-  def date_string(date)
-    case date
-    when Date, Time, DateTime
-      date&.strftime("%d/%m/%Y")
-    else
-      ""
-    end
-  end
+	# register a new user action
+	def register_action(kind, description, url: nil, modal: nil)
+		u_act = UserAction.new(user_id: current_user.id, kind:, description:, url:, modal:)
+		current_user.user_actions << u_act
+		u_act.save
+	end
 
-  #
-  # ------------------------------------------------------------------
-  # Legacy role wrappers.
-  #
-  # These wrappers expose the MudClub 1.x User.role API.
-  #
-  # New controllers should use policies and Person participation
-  # instead of calling these methods directly.
-  #
-  # Remove in MudClub 2.1.
-  # ------------------------------------------------------------------
-  #
-  def u_admin?
-    current_user&.admin?
-  end
+	# set the action's context
+	def set_application_context
+		if user_signed_in?
+			@club   = u_club
+			@rdx    = p_rdx
+			@season = Season.search(p_seasonid)
+		end
+		@clublogo = @club&.logo || "mudclub.svg"
+		@clubname = @club&.nick || "MudClub"
+		@favicon  = user_favicon(@club)
+		@topbar   =
+			TopbarComponent.new(
+				user: current_user,
+				logo: @clublogo,
+				nick: @clubname,
+				home: u_path,
+				logout: destroy_user_session_path
+			)
+	end
 
-  def u_manager?
-    current_user&.is_manager?
-  end
+	def load_participation_context
+		@team   = @club.teams.find(params[:team_id]) if params[:team_id].present?
+		@member = @club.memberships.find(params[:member_id]) if params[:member_id].present?
+		@status = params[:status].presence
+	end
 
-  def u_club
-    current_user&.club
-  end
+	# switch app locale
+	def switch_locale(&action)
+		locale   = (params[:locale] || current_user&.locale || I18n.default_locale)
+		I18n.with_locale(locale, &action)
+	end
 
-  def u_clubid
-    current_user&.club_id
-  end
+	# return whether the current user is a club_manager
+	def team_manager?(team = @team)
+		team&.has_coach?(u_person) || club_manager?(team&.club)
+	end
 
-  def u_coach?
-    current_user&.is_coach?
-  end
+	# Standard string format for date values
+	def date_string(date)
+		case date
+		when Date, Time, DateTime
+			date&.strftime("%d/%m/%Y")
+		else
+			""
+		end
+	end
 
-  def u_coachid
-    current_user&.person&.coach_id
-  end
+	#
+	# ------------------------------------------------------------------
+	# Legacy role wrappers.
+	#
+	# These wrappers expose the MudClub 1.x User.role API.
+	#
+	# New controllers should use policies and Person participation
+	# instead of calling these methods directly.
+	#
+	# Remove in MudClub 2.1.
+	# ------------------------------------------------------------------
+	#
+	def u_admin?
+		current_user&.admin?
+	end
 
-  def u_person
-    current_user&.person
-  end
+	def u_manager?
+		current_user&.is_manager?
+	end
 
-  def u_athlete?
-    current_user&.is_player?	# change later to person.athlete?
-  end
+	def u_club
+		current_user&.club
+	end
 
-  alias u_player? u_athlete? # deprecate usage of player
+	def u_clubid
+		current_user&.club_id
+	end
 
-  def u_playerid
-    current_user&.person&.player_id
-  end
+	def u_coach?
+		current_user&.is_coach?
+	end
 
-  def u_secretary?
-    current_user&.secretary?	# needs thought, secretary is now an assignment
-  end
+	def u_coachid
+		current_user&.person&.coach_id
+	end
 
-  def u_userid
-    current_user&.id
-  end
+	def u_person
+		current_user&.person
+	end
 
-  # wrapper to manage return links home path
-  def u_path
-    user_signed_in? ? user_path(current_user, rdx: 1) : "/"
-  end
+	def u_athlete?
+		current_user&.is_player?	# change later to person.athlete?
+	end
 
-  # Check whether the user's club is the same as @club
-  def user_in_club?
-    return false unless @club
-    @club == u_club
-  end
+	alias u_player? u_athlete? # deprecate usage of player
 
-  # check if a string is a valid date
-  def valid_date(v_string)
-    return nil if (d_str = v_string&.last(10))&.length != 10
-    d_hash = Date._parse(d_str)
-    return nil if d_hash&.size !=3
-    v_date = Date.valid_date?(d_hash[:year].to_i, d_hash[:month].to_i, d_hash[:month].to_i)
-    v_date ? d_str : nil
-  end
+	def u_playerid
+		current_user&.person&.player_id
+	end
 
-  private
-    # check if current user satisfies access policy
-    def check_role(roles:)
-      roles&.each do |rol|	# ok as if any of roles is found
-        case rol
-        when :admin
-          return true if u_admin?
-        when :manager
-          return true if u_manager?
-        when :coach
-          return true if u_coach?
-        when :player, u_athlete?
-          return true if u_athlete?
-        when :secretary
-          return true if u_secretary?
-        when :user
-          return true if user_signed_in?  # it's a user alright
-        end
-      end
-      false
-    end
+	def u_secretary?
+		current_user&.secretary?	# needs thought, secretary is now an assignment
+	end
 
-    # check object related access policy
-    def check_object(obj:)
-      case obj
-      when Category, Division, FalseClass, Location, Season
-        true
-      when Coach
-        (obj.id == u_coachid)
-      when Club
-        (obj.id == u_clubid) # rubocop:disable Style/RedundantReturn
-      when Drill
-        (obj.coach_id == u_coachid)
-      when Event
-        (obj.team&.has_coach?(u_person) || obj.has_athlete?(u_person))
-      when Person
-        (obj.id == u_person.id)
-      when Player
-        (obj.id == u_playerid)
-      when Team
-        (obj.has_coach?(u_person) || obj.has_athlete?(u_person))
-      when User
-        (obj.id == u_userid)
-      else # including NilClass
-        u_admin?
-      end
-    end
+	def u_userid
+		current_user&.id
+	end
 
-    # get a param either from base or from a sub-node
-    def get_param(base = params[:controller], key, objid: false)
-      res = (param_passed(key) || param_passed(base, key) || param_passed(base.singularize, key))
-      return res unless objid
-      res.nil? ? nil :  res.to_i
-    end
+	# wrapper to manage return links home path
+	def u_path
+		user_signed_in? ? user_path(current_user, rdx: 1) : "/"
+	end
 
-    # Calculate pagination parameters based on available screen space or other criteria
-    def paginate(data, lines = 1)
-      drows = case helpers.device
-        when "desktop", "tablet"; 18 # rubocop:disable Layout/CaseIndentation
-        when "mobile"; 15 # rubocop:disable Layout/CaseIndentation
-        else; 25
-      end
-      per_page = (drows/lines).round
-      current_page = params[:page] || 1
+	# Check whether the user's club is the same as @club
+	def user_in_club?
+		return false unless @club
+		@club == u_club
+	end
 
-      data.page(current_page).per(per_page)
-    end
+	# check if a string is a valid date
+	def valid_date(v_string)
+		return nil if (d_str = v_string&.last(10))&.length != 10
+		d_hash = Date._parse(d_str)
+		return nil if d_hash&.size !=3
+		v_date = Date.valid_date?(d_hash[:year].to_i, d_hash[:month].to_i, d_hash[:month].to_i)
+		v_date ? d_str : nil
+	end
 
-    # determine the app favicon based on user favicon
-    def user_favicon(club)
-      if club&.avatar&.attached?
-        url_for(club.avatar)
-      else
-        "mudclub.svg"
-      end
-    end
+	private
+		# check if current user satisfies access policy
+		def check_role(roles:)
+			roles&.each do |rol|	# ok as if any of roles is found
+				case rol
+				when :admin
+					return true if u_admin?
+				when :manager
+					return true if u_manager?
+				when :coach
+					return true if u_coach?
+				when :player, u_athlete?
+					return true if u_athlete?
+				when :secretary
+					return true if u_secretary?
+				when :user
+					return true if user_signed_in?  # it's a user alright
+				end
+			end
+			false
+		end
+
+		# check object related access policy
+		def check_object(obj:)
+			case obj
+			when Category, Division, FalseClass, Location, Season
+				true
+			when Coach
+				(obj.id == u_coachid)
+			when Club
+				(obj.id == u_clubid) # rubocop:disable Style/RedundantReturn
+			when Drill
+				(obj.coach_id == u_coachid)
+			when Event
+				(obj.team&.has_coach?(u_person) || obj.has_athlete?(u_person))
+			when Person
+				(obj.id == u_person.id)
+			when Player
+				(obj.id == u_playerid)
+			when Team
+				(obj.has_coach?(u_person) || obj.has_athlete?(u_person))
+			when User
+				(obj.id == u_userid)
+			else # including NilClass
+				u_admin?
+			end
+		end
+
+		def deny_access(message = I18n.t("shared.messages.access_denied"))
+			respond_to do |format|
+				format.html do
+					redirect_back(
+						fallback_location: "/",
+						alert: message,
+						status: :see_other
+					)
+				end
+
+				format.turbo_stream do
+					redirect_back(
+						fallback_location: "/",
+						alert: message,
+						status: :see_other
+					)
+				end
+
+				format.json do
+					render json: { error: message }, status: :forbidden
+				end
+			end
+		end
+
+		# get a param either from base or from a sub-node
+		def get_param(base = params[:controller], key, objid: false)
+			res = (param_passed(key) || param_passed(base, key) || param_passed(base.singularize, key))
+			return res unless objid
+			res.nil? ? nil :  res.to_i
+		end
+
+		# Calculate pagination parameters based on available screen space or other criteria
+		def paginate(data, lines = 1)
+			drows = case helpers.device
+				when "desktop", "tablet"; 18 # rubocop:disable Layout/CaseIndentation
+				when "mobile"; 15 # rubocop:disable Layout/CaseIndentation
+				else; 25
+			end
+			per_page = (drows/lines).round
+			current_page = params[:page] || 1
+
+			data.page(current_page).per(per_page)
+		end
+
+		# determine the app favicon based on user favicon
+		def user_favicon(club)
+			if club&.avatar&.attached?
+				url_for(club.avatar)
+			else
+				"mudclub.svg"
+			end
+		end
 end

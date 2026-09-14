@@ -37,7 +37,7 @@ class DivisionsController < ApplicationController
 	def show
 		if @division && check_access(roles: [ :admin ])
 			@fields = create_fields(helpers.division_show)
-			@submit = create_submit(submit: u_manager? ? edit_sport_division_path(@sport, @division, rdx: @rdx) : nil)
+			@submit = create_submit(submit: u_manager? ? edit_path_for(@division, owner: @sport) : nil)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -70,8 +70,8 @@ class DivisionsController < ApplicationController
 				@division.rebuild(division_params)
 				if @division.save
 					a_desc = "#{Division.msg(:created)} '#{@division.name}'"
-					retlnk = crud_return
-					register_action(:created, a_desc, url: sport_division_path(@sport, @division, rdx: 2), modal: true)
+					retlnk = path_for(@sport)
+					register_action(:created, a_desc, url: path_for(@division, owner: @sport, rdx: 2), modal: true)
 					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :index, status: :created, location: retlnk }
 				else
@@ -89,12 +89,12 @@ class DivisionsController < ApplicationController
 	def update
 		if @division && check_access(roles: [ :admin ])
 			respond_to do |format|
-				retlnk = crud_return
+				retlnk = path_for(@sport)
 				@division.rebuild(division_params)
 				if @division.changed?
 					if @division.save
 						a_desc = "#{Division.msg(:updated)} '#{@division.name}'"
-						register_action(:updated, a_desc, url: sport_division_path(@sport, @division, rdx: 2), modal: true)
+						register_action(:updated, a_desc, url: path_for(@division, owner: @sport, rdx: 2), modal: true)
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :created, location: retlnk }
 					else
@@ -120,7 +120,7 @@ class DivisionsController < ApplicationController
 			respond_to do |format|
 				a_desc = "#{Division.msg(:deleted)} '#{d_name}'"
 				register_action(:deleted, a_desc)
-				format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+				format.html { redirect_to path_for(@sport), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 				format.json { head :no_content }
 			end
 		else
@@ -129,11 +129,6 @@ class DivisionsController < ApplicationController
 	end
 
 	private
-		# wrapper to set return link for CRUD operations
-		def crud_return
-			sport_path(@sport, rdx: @rdx)
-		end
-
 		# prepare elements to edit/create a new division
 		def prepare_form(action)
 			@fields = create_fields(helpers.division_form(action))

@@ -13,9 +13,9 @@ es:
 
     club:
       label:
-        single: "Club"
-        short: "Club"
-        plural: "Clubes"
+        single: Club
+        plural: Clubes
+        short: Club
       actions:
         create: "Crear Club"
         edit: "Editar Club"
@@ -38,8 +38,10 @@ es:
         duplicated: "El club ya existe."
 
     category:
-      label: "Categoría"
-      short: "Cat."
+      label:
+        single: Categoría
+        plural: Categorías
+        short: Cat.
       actions:
         create: "Crear Categoría"
         edit: "Editar Categoría"
@@ -65,8 +67,10 @@ es:
         duplicated: "La categoría ya existe."
 
     division:
-      label: "Competición"
-      short: "Div."
+      label:
+        single: Competición
+        plural: Competiciones
+        short: Comp.
       actions:
         create: "Crear Competición"
         edit: "Editar Competición"
@@ -116,68 +120,3 @@ es:
         club_short: "Club"
         sport: "Deporte"
         sport_short: "Deporte"
-
-  # -----------------------------------------------------------------------------
-  # OBSOLETO - NO MODIFICAR
-  #
-  # Claves de compatibilidad para la migración de configuración regional a v2.
-  #
-  # Buscar:
-  #
-  #   t("category.
-  #   t("club.
-  #   t("division.
-  #
-  # Eliminar esta sección una vez migradas todas las referencias.
-  # -----------------------------------------------------------------------------
-  category:
-    # Atributos
-    name: "Nombre"
-    single: "Categoría"
-
-    # CRUD
-    created: "Categoría creada: "
-    deleted: "Categoría eliminada: "
-    updated: "Categoría actualizada: "
-
-    # UI
-    edit: "Editar Categoría"
-    many: "Categorías"
-    new: "Crear Categoría"
-
-  club:
-    # Atributos
-    entity: "Entidad legal"
-    logo: "Logotipo"
-    name: "Nombre"
-    none: "Ningún club"
-    single: "Club"
-    website: "Sitio web"
-
-    # CRUD
-    created: "Club creado: "
-    deleted: "Club eliminado: "
-    duplicate: "Duplicar club: "
-    updated: "Club actualizado: "
-
-    # UI
-    edit: "Editar Club"
-    many: "Clubes"
-    new: "Crear Club"
-    rivals: "Clubes rivales"
-
-  division:
-    # Atributos
-    abbr: "Comp."
-    name: "Nombre"
-    single: "Competición"
-
-    # CRUD
-    created: "Competición creada: "
-    deleted: "Competición eliminada: "
-    updated: "Competición actualizada: "
-
-    # UI
-    edit: "Editar Competición"
-    many: "Competiciones"
-    new: "Crear Competición"

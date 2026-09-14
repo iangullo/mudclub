@@ -17,264 +17,268 @@
 # contact email - iangullo@gmail.com.
 #
 class Person < ApplicationRecord
-  localized_as "people.person"
+	localized_as "people.person"
 
-  include PersonDataManagement
-  include PgSearch::Model
-  before_destroy :unlink
-  before_save { self.name = self.name ? self.name.mb_chars.titleize : "" }
-  before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
+	include PersonDataManagement
+	include PgSearch::Model
+	before_destroy :unlink
+	before_save { self.name = self.name ? self.name.mb_chars.titleize : "" }
+	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
 
-  #-------------------------------------
-  # Object relationships
-  #-------------------------------------
-  belongs_to :user, optional: true
-  accepts_nested_attributes_for :user
-  has_many :memberships
-  has_many :relationships,
-          class_name: "Relationship",
-          dependent: :destroy
-  accepts_nested_attributes_for :relationships, allow_destroy: true
+	#-------------------------------------
+	# Object relationships
+	#-------------------------------------
+	belongs_to :user, optional: true
+	accepts_nested_attributes_for :user
+	has_many :memberships
+	has_many :relationships,
+					class_name: "Relationship",
+					dependent: :destroy
+	accepts_nested_attributes_for :relationships, allow_destroy: true
 
-  has_many :inverse_relationships,
-          class_name: "Relationship",
-          foreign_key: :related_person_id,
-          dependent: :destroy
-  has_one_attached :avatar
-  has_one_attached :id_front
-  has_one_attached :id_back
+	has_many :inverse_relationships,
+					class_name: "Relationship",
+					foreign_key: :related_person_id,
+					dependent: :destroy
 
-  #-------------------------------------
-  # Person Scopes
-  #-------------------------------------
-  pg_search_scope :search,
-    against: [ :nick, :name, :surname ],
-    ignoring: :accents,
-    using: { tsearch: { prefix: true } }
-  scope :real, -> { where("id>0") }
-  scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
+	has_many :documents, dependent: :destroy
+	accepts_nested_attributes_for :documents
 
-  #-------------------------------------
-  # Data validations
-  #-------------------------------------
-  validates :email, uniqueness: { allow_nil: true }
-  validates :dni, uniqueness: { allow_nil: true }
-  validates :phone, uniqueness: { allow_nil: true }
-  validates :name, :surname, presence: true
-  self.inheritance_column = "not_sti"
+	has_one_attached :avatar
+	has_one_attached :id_front
+	has_one_attached :id_back
+
+	#-------------------------------------
+	# Person Scopes
+	#-------------------------------------
+	pg_search_scope :search,
+		against: [ :nick, :name, :surname ],
+		ignoring: :accents,
+		using: { tsearch: { prefix: true } }
+	scope :real, -> { where("id>0") }
+	scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
+
+	#-------------------------------------
+	# Data validations
+	#-------------------------------------
+	validates :email, uniqueness: { allow_nil: true }
+	validates :dni, uniqueness: { allow_nil: true }
+	validates :phone, uniqueness: { allow_nil: true }
+	validates :name, :surname, presence: true
+	self.inheritance_column = "not_sti"
 
 
-  #-------------------------------------
-  # Object methods
-  #-------------------------------------
-  # calculate age
-  def age
-    if self.birthday
-      now = Time.now.utc.to_date
-      bday=self.birthday
-      now.year - bday.year - ((now.month > bday.month || (now.month == bday.month && now.day >= bday.day)) ? 0 : 1)
-    else
-      0
-    end
-  end
+	#-------------------------------------
+	# Object methods
+	#-------------------------------------
+	# calculate age
+	def age
+		if self.birthday
+			now = Time.now.utc.to_date
+			bday=self.birthday
+			now.year - bday.year - ((now.month > bday.month || (now.month == bday.month && now.day >= bday.day)) ? 0 : 1)
+		else
+			0
+		end
+	end
 
-  # returns a hash of icon & label to mark whether a
-  # Person has attached id pictures (front && back)
-  def idpic_content
-    label = self.dni
-    symbol = { concept: "id_front", options: { title: I18n.t("person.pid") } }
-    if self.idpics_attached?
-      found  = true
-    else
-      found  = self.id_front.attached? || self.id_back.attached?
-      symbol[:options][:title]  += " (#{I18n.t("person.pics_missing")})"
-      symbol[:options][:variant] = "none"
-    end
-    { found:, symbol:, label: }
-  end
+	# returns a hash of icon & label to mark whether a
+	# Person has attached id pictures (front && back)
+	def idpic_content
+		label = self.dni
+		symbol = { concept: "id_front", options: { title: I18n.t("person.pid") } }
+		if self.idpics_attached?
+			found  = true
+		else
+			found  = self.id_front.attached? || self.id_back.attached?
+			symbol[:options][:title]  += " (#{I18n.t("person.pics_missing")})"
+			symbol[:options][:variant] = "none"
+		end
+		{ found:, symbol:, label: }
+	end
 
-  # checks whether a Person has attached id pictures (front && back)
-  def idpics_attached?
-    self.id_front.attached? && self.id_back.attached?
-  end
+	# checks whether a Person has attached id pictures (front && back)
+	def idpics_attached?
+		self.id_front.attached? && self.id_back.attached?
+	end
 
-  # used for clublogo (Person(id: 0)) - DEPRECATED
-  def logo
-    self.avatar.attached? ? self.avatar : "mudclub.svg"
-  end
+	# used for clublogo (Person(id: 0)) - DEPRECATED
+	def logo
+		self.avatar.attached? ? self.avatar : "mudclub.svg"
+	end
 
-  def minor?
-    self.age < 18
-  end
+	def minor?
+		self.age < 18
+	end
 
-  # extended modified to acount for changed parents or avatar
-  def modified?
-    self.changed? ||
-      avatar.attachment_changes.present? ||
-      id_front.attachment_changes.present? ||
-      id_back.attachment_changes.present? ||
-      relationships.any?(&:modified?)
-  end
+	# extended modified to acount for changed parents or avatar
+	def modified?
+		self.changed? ||
+			avatar.attachment_changes.present? ||
+			id_front.attachment_changes.present? ||
+			id_back.attachment_changes.present? ||
+			relationships.any?(&:modified?)
+	end
 
-  # DEPRECATED
-  # return if person is orphaned from any dependent objects
-  def orphan?
-    self&.id.to_i > 0 && (self.player_id.nil?) && (self.coach_id.nil?) && (self.user_id.nil?) && (self.parent_id.nil?)
-  end
+	# DEPRECATED
+	# return if person is orphaned from any dependent objects
+	def orphan?
+		self&.id.to_i > 0 && (self.player_id.nil?) && (self.coach_id.nil?) && (self.user_id.nil?) && (self.parent_id.nil?)
+	end
 
-  # hopefully return self...
-  def person
-    self
-  end
+	# hopefully return self...
+	def person
+		self
+	end
 
-  # personal logo
-  def picture
-    self.avatar.attached? ? self.avatar : "person.svg"
-  end
+	# personal logo
+	def picture
+		self.avatar.attached? ? self.avatar : "person.svg"
+	end
 
-  # rebuild Person data from raw input (as hash) given by a form submittal
-  def rebuild(data)
-    self.dni       = data[:dni].presence			|| self.dni
-    self.email     = data[:email].presence		|| self.email
-    self.name      = data[:name].presence 		|| self.name
-    self.surname   = data[:surname].presence 	|| self.surname
-    self.address   = data[:address].presence 	|| self.address
-    self.birthday  = data[:birthday].presence || self.birthday
-    self.nick      = data[:nick].presence 		|| self.nick
+	# rebuild Person data from raw input (as hash) given by a form submittal
+	def rebuild(data)
+		self.dni       = data[:dni].presence			|| self.dni
+		self.email     = data[:email].presence		|| self.email
+		self.name      = data[:name].presence 		|| self.name
+		self.surname   = data[:surname].presence 	|| self.surname
+		self.address   = data[:address].presence 	|| self.address
+		self.birthday  = data[:birthday].presence || self.birthday
+		self.nick      = data[:nick].presence 		|| self.nick
 
-    self.female    = to_boolean(data[:female])
-    self.phone     = parse_phone(data[:phone]) 					if data[:phone].presence
-    self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
-    self.update_attachment("id_front", data[:id_front]) if data[:id_front].present?
-    self.update_attachment("id_back", data[:id_back]) 	if data[:id_back].present?
+		self.female    = to_boolean(data[:female])
+		self.phone     = parse_phone(data[:phone]) 					if data[:phone].presence
+		self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
+		self.update_attachment("id_front", data[:id_front]) if data[:id_front].present?
+		self.update_attachment("id_back", data[:id_back]) 	if data[:id_back].present?
 
-    # DEPRECATED - REMOVE ONCE MEMBERSHIPS are complete
-    self.coach_id  = nil unless self.coach_id.to_i > 0
-    self.player_id = nil unless self.player_id.to_i > 0
-    self.parent_id = nil unless self.parent_id.to_i > 0
-    self.user_id   = nil unless self.user_id.to_i > 0
+		# DEPRECATED - REMOVE ONCE MEMBERSHIPS are complete
+		self.coach_id  = nil unless self.coach_id.to_i > 0
+		self.player_id = nil unless self.player_id.to_i > 0
+		self.parent_id = nil unless self.parent_id.to_i > 0
+		self.user_id   = nil unless self.user_id.to_i > 0
 
-    rebuild_relationships(data[:relationships_attributes]) if data[:relationships_attributes]
+		rebuild_relationships(data[:relationships_attributes]) if data[:relationships_attributes]
 
-    self
-  end
+		self
+	end
 
-  # Return list of responsible adults related to this person
-  def responsible_adults
-    return [ self ] if age>18
-    relationships.where(
-      kind: %i[parent father mother guardian legal_representative]
-    )
-  end
+	# Return list of responsible adults related to this person
+	def responsible_adults
+		return [ self ] if age>18
+		relationships.where(
+			kind: %i[parent father mother guardian legal_representative]
+		)
+	end
 
-  def to_s(long = true)
-    aux = self.nick.presence || self.name.to_s
-    aux += " #{self.surname}" if long
-    aux
-  end
+	def to_s(long = true)
+		aux = self.nick.presence || self.name.to_s
+		aux += " #{self.surname}" if long
+		aux
+	end
 
-  # short name for form viewing
-  def s_name
-    res = "#{self.to_s(false)} #{self.surname&.split&.first}"
-    res.present? ? res : I18n.t("person.single")
-  end
+	# short name for form viewing
+	def s_name
+		res = "#{self.to_s(false)} #{self.surname&.split&.first}"
+		res.present? ? res : I18n.t("person.single")
+	end
 
-  #
-  # Resolve a Person from identifying attributes.
-  #
-  # Returns:
-  #   {
-  #     person:     Person | nil,
-  #     status:     :exact | :probable | :new | :ambiguous,
-  #     matched_by: Symbol | nil
-  #   }
-  #
-  def self.resolve(data)
-    data ||= {}
+	#
+	# Resolve a Person from identifying attributes.
+	#
+	# Returns:
+	#   {
+	#     person:     Person | nil,
+	#     status:     :exact | :probable | :new | :ambiguous,
+	#     matched_by: Symbol | nil
+	#   }
+	#
+	def self.resolve(data)
+		data ||= {}
 
-    #
-    # 1. Explicit id
-    #
-    if data[:id].present?
-      person = find_by(id: data[:id])
-      return {
-        person:,
-        status: :exact,
-        matched_by: :id
-      } if person
-    end
+		#
+		# 1. Explicit id
+		#
+		if data[:id].present?
+			person = find_by(id: data[:id])
+			return {
+				person:,
+				status: :exact,
+				matched_by: :id
+			} if person
+		end
 
-    #
-    # 2. Strong identifiers
-    #
-    {
-      dni:   data[:dni],
-      email: data[:email],
-      phone: data[:phone].present? ? parse_phone(data[:phone]) : nil
-    }.each do |field, value|
-      next if value.blank?
+		#
+		# 2. Strong identifiers
+		#
+		{
+			dni:   data[:dni],
+			email: data[:email],
+			phone: data[:phone].present? ? parse_phone(data[:phone]) : nil
+		}.each do |field, value|
+			next if value.blank?
 
-      result = resolve_candidates(
-        where(field => value),
-        matched_by: field
-      )
+			result = resolve_candidates(
+				where(field => value),
+				matched_by: field
+			)
 
-      return result unless result[:status] == :new
-    end
+			return result unless result[:status] == :new
+		end
 
-    #
-    # 3. Weak identification
-    #
-    if data[:name].present? && data[:surname].present?
-      result = resolve_candidates(
-        search("#{data[:name]} #{data[:surname]}"),
-        probable: true,
-        matched_by: :name
-      )
+		#
+		# 3. Weak identification
+		#
+		if data[:name].present? && data[:surname].present?
+			result = resolve_candidates(
+				search("#{data[:name]} #{data[:surname]}"),
+				probable: true,
+				matched_by: :name
+			)
 
-      return result unless result[:status] == :new
-    end
+			return result unless result[:status] == :new
+		end
 
-    #
-    # 4. Nothing matched
-    #
-    {
-      person: Person.new,
-      status: :new,
-      matched_by: nil
-    }
-  end
+		#
+		# 4. Nothing matched
+		#
+		{
+			person: Person.new,
+			status: :new,
+			matched_by: nil
+		}
+	end
 
-  private
-    # called by unlink using either :coach, :player or :user as arguments
-    def gen_unlink(kind)
-      if (dep = self.send(kind.to_sym))
-        self.update!("#{kind}_id".to_sym nil)
-        dep.destroy
-      end
-    end
+	private
+		# called by unlink using either :coach, :player or :user as arguments
+		def gen_unlink(kind)
+			if (dep = self.send(kind.to_sym))
+				self.update!("#{kind}_id".to_sym nil)
+				dep.destroy
+			end
+		end
 
-    # called by unlink using either :coach, :player or :user as arguments
-    # DEPRECATED
-    def gen_unlink(kind)
-      if (dep = self.send(kind.to_sym))
-        self.update!("#{kind}_id".to_sym nil)
-        dep.destroy
-      end
-    end
+		# called by unlink using either :coach, :player or :user as arguments
+		# DEPRECATED
+		def gen_unlink(kind)
+			if (dep = self.send(kind.to_sym))
+				self.update!("#{kind}_id".to_sym nil)
+				dep.destroy
+			end
+		end
 
-    def self.resolve_candidates(scope, probable: false, matched_by:)
-      people = scope.to_a
+		def self.resolve_candidates(scope, probable: false, matched_by:)
+			people = scope.to_a
 
-      case people.size
-      when 0
-        { person: Person.new, status: :new, matched_by: nil }
+			case people.size
+			when 0
+				{ person: Person.new, status: :new, matched_by: nil }
 
-      when 1
-        { person: people.first, status: probable ? :probable : :exact, matched_by: }
+			when 1
+				{ person: people.first, status: probable ? :probable : :exact, matched_by: }
 
-      else
-        { person: nil, status: :ambiguous, matched_by: }
-      end
-    end
+			else
+				{ person: nil, status: :ambiguous, matched_by: }
+			end
+		end
 end

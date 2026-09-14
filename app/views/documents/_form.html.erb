@@ -1,0 +1,7 @@
+<%= render ModalComponent.new do %>
+	<%= form_for document_form_target, authenticity_token: true, data: {controller: "mandatory-fields", turbo_frame: "_top"} do |form| %>
+		<% @fields.form = form %>
+		<%= render @fields %>
+		<%= render @submit %>
+	<% end %>
+<% end %>

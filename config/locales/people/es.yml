@@ -38,7 +38,7 @@ es:
         contact: Contacto
         contact_short: Cont.
         national_id: Documento de identidad
-        national_id_short: DNI
+        national_id_short: DNI/NIE
         email: Correo electrónico
         email_short: email
         phone: Teléfono
@@ -78,6 +78,10 @@ es:
         single: Relación
         plural: Relaciones
         short: Rel.
+    relationship_kinds:
+      label:
+        single: Tipo de relación
+        short: Tipo Rel.
       values:
         parent: Familiar
         parent_plural: Familiares

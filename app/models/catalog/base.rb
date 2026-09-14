@@ -16,8 +16,6 @@
 # Catalogs expose immutable Catalog::Entry objects together with querying,
 # localisation and Rails enum compatibility.
 #
-# frozen_string_literal: true
-
 class Catalog::Base
 	include Enumerable
 	include Localizable
@@ -158,14 +156,11 @@ class Catalog::Base
 		def where(include_deprecated: false, **criteria)
 			ensure_built!
 
-			criteria[:deprecated] = false unless include_deprecated
+			criteria[:deprecated] = nil unless include_deprecated
 
 			@values.select do |entry|
 				criteria.all? do |attribute, expected|
-					matches_attribute?(
-						entry.public_send(attribute),
-						expected
-					)
+					matches_attribute?(entry[attribute], expected)
 				end
 			end
 		end
@@ -178,15 +173,9 @@ class Catalog::Base
 			where(...).first
 		end
 
-		def options(...)
-			canonical(...).map do |entry|
-				[ entry.label, entry.id ]
-			end
-		end
-
-		def selectable
-			entries.filter_map do |key, cfg|
-				key if cfg.fetch(:selectable, false)
+		def option_list(**criteria)
+			where(**criteria).map do |entry|
+				[ val(entry.key), entry.key ]
 			end
 		end
 

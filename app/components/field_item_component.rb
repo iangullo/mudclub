@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -160,6 +160,8 @@ class FieldItemComponent < ApplicationComponent
 			@field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
 		when "nested_form"
 			render NestedComponent.new(model: @field[:model], key: @field[:key], form: @form, child: @field[:child], row: @field[:row], filter: @field[:filter])
+		when "pdf"
+			render PdfComponent.new(file: @field[:value], height: @field[:height], width: @field[:width], zoom: @field[:zoom], css:    @field[:css])
 		when "roles"
 			@field[:symbols].each { |symbol| concat(render_image(symbol)) }
 		when "separator"
