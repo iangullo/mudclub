@@ -28,7 +28,7 @@ class SeasonsController < ApplicationController
 			page  = paginate(@seasons)	# paginate results
 			title = helpers.season_title(icon: "mudclub.svg", title: I18n.t("season.many"))
 			table = helpers.season_table(seasons: page)
-			create_index(title:, table:, page:, retlnk: base_lnk("/"))
+			create_index(title:, table:, page:, retlnk: back_link)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end

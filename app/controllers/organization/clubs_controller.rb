@@ -43,7 +43,7 @@ class ClubsController < ApplicationController
 			@table = create_fields(helpers.event_list_table(obj: Season.latest))
 		else	# off return to  the user's club
 			close  = :back
-			retlnk = base_lnk(clubs_path)
+			retlnk = back_link(default: clubs_path)
 		end
 		submit  = edit_path_for(@club) if u_admin? || club_manager?(@club)
 		@submit = create_submit(close:, retlnk:, submit:, frame: :modal)

@@ -25,7 +25,7 @@ class SportsController < ApplicationController
 		if check_access(roles: [ :admin ])
 			title = helpers.home_admin_title(subtitle: I18n.t("sport.many"))
 			table = helpers.sports_table
-			create_index(title:, table:, retlnk: base_lnk("/"))
+			create_index(title:, table:, retlnk: back_link)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -104,7 +104,7 @@ class SportsController < ApplicationController
 		# prepare a form to edit/create a Sport
 		def prepare_form(action)
 			@fields = create_fields(helpers.sports_form(title: I18n.t("sport.#{action}")))
-			@submit = create_submit(retlnk: base_lnk("/"))
+			@submit = create_submit(retlnk: back_link)
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

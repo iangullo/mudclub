@@ -116,13 +116,22 @@ class ApplicationController < ActionController::Base
 	# Where the user came from, for a "Back" link.
 	# Only trusts same-origin referers; falls back to `default` otherwise.
 	def back_link(default: root_path)
+		case @rdx&.to_i
+		when 0, nil	# return to zerolnk, typically provided by controller
+			zerolnk = default
+		when 1	# return to users home_path
+			zerolnk = user_path(current_user, rdx: 1)
+		when 2	# return to log_path
+			zerolnk = home_log_path
+		end
+
 		ref = request.referer
-		return default unless ref
+		return zerolnk unless ref
 		uri = URI.parse(ref)
-		return default unless uri.host.nil? || uri.host == request.host
+		return zerolnk unless uri.host.nil? || uri.host == request.host
 		ref
 	rescue URI::InvalidURIError
-		default
+		root_path
 	end
 
 	# Optional: only if views ever call these directly.

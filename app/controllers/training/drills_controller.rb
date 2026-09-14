@@ -32,7 +32,7 @@ class DrillsController < ApplicationController
 			@drills = filter!(Drill)	# Apply filters
 			page  = paginate(@drills, 1.6)	# paginate results
 			table = helpers.drill_table(drills: page)
-			create_index(title:, table:, page:, retlnk: base_lnk("/"))
+			create_index(title:, table:, page:, retlnk: back_link)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
