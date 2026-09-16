@@ -55,7 +55,7 @@ Rails.application.routes.draw do
 	#-------------------------------------
 	resources :clubs do
 		# Facilities available to the club
-		get :locations, to: "locations#index"
+		resources :locations
 
 		# Club documentation
 		resources :documents do
@@ -134,8 +134,6 @@ Rails.application.routes.draw do
 			patch :update_diagram # /drills/:id/update_diagram?step_id=X
 		end
 	end
-
-	resources :locations, except: [ :index ]
 
 	resources :seasons
 

@@ -29,7 +29,7 @@ module RoutingHelper
 
 		case record
 
-		when Category, Division
+		when Category, Division, Location
 			[ owner, record ]
 
 		when Document

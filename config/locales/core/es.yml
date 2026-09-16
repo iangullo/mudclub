@@ -190,7 +190,7 @@ es:
     location:
       label:
         single: Ubicación
-        plural: Ubicacionnes
+        plural: Ubicaciones
         short: Ubic.
       actions:
         see: (ver ubicación)

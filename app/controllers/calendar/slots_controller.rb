@@ -43,7 +43,7 @@ class SlotsController < ApplicationController
 		if @slot && check_access(obj: @slot.team.club)
 			@title   = create_fields(helpers.slot_title(title: @slot.team.to_s, subtitle: @slot.team.season.name))
 			@fields  = create_fields(helpers.slot_show)
-			@submit  = create_submit(submit: u_manager? ? edit_slot_path(@slot, rdx: @rdx) : nil, frame: u_manager? ? :modal : nil)
+			@submit  = create_submit(submit: u_manager? ? edit_path_for(@slot) : nil, frame: u_manager? ? :modal : nil)
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
@@ -80,7 +80,7 @@ class SlotsController < ApplicationController
 					if @slot.save # try to store
 						a_desc = "#{I18n.t("calendar.slot.messages.created")} '#{@slot}'"
 						register_action(:created, a_desc, url: path_for(@slot), modal: true)
-						format.html { redirect_to crud_return(@club&.id), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+						format.html { redirect_to crud_return, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :created, location: @slot }
 					else
 						prepare_form("new")
@@ -88,12 +88,12 @@ class SlotsController < ApplicationController
 						format.json { render json: @slot.errors, status: :unprocessable_entity }
 					end
 				else
-					format.html { redirect_to club_slots_path(rdx: @rdx), notice: no_data_notice, data: { turbo_action: "replace" } }
+					format.html { redirect_to return_path_for(@slot), notice: no_data_notice, data: { turbo_action: "replace" } }
 					format.json { render :index, status: :unprocessable_entity, location: retlnk }
 				end
 			end
 		else
-			redirect_to slots_path, data: { turbo_action: "replace" }
+			redirect_to club_slots_path, data: { turbo_action: "replace" }
 		end
 	end
 
@@ -102,11 +102,11 @@ class SlotsController < ApplicationController
 		if @slot && check_access(obj: @slot.team.club)
 			respond_to do |format|
 				@slot.rebuild(slot_params) # rebuild @slot
-				retlnk = crud_return(@slot.team.club_id)
+				retlnk = crud_return
 				if @slot.changed?
 					if @slot.save
 						a_desc = "#{I18n.t("calendar.slot.messages.updated")} '#{@slot}'"
-						register_action(:updated, a_desc, url: slot_path(@slot), modal: true)
+						register_action(:updated, a_desc, url: path_for(@slot, rdx: 2), modal: true)
 						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :index, status: :ok, location: @slot }
 					else
@@ -128,7 +128,7 @@ class SlotsController < ApplicationController
 	def destroy
 		if @slot && check_access(obj: @slot.team.club)
 			s_name = @slot.to_s
-			retlnk = crud_return(@slot.team.club_id)
+			retlnk = crud_return
 			@slot.destroy
 			respond_to do |format|
 				a_desc = "#{I18n.t("calendar.slot.messages.deleted")} '#{s_name}'"
@@ -143,8 +143,8 @@ class SlotsController < ApplicationController
 
 	private
 		# wrapper to set return link for CRUD operations
-		def crud_return(clubid)
-			club_slots_path(clubid, season_id: @season.id, location_id: @slot.location_id, rdx: @rdx)
+		def crud_return
+			return_path_for(@slot, season_id: @season&.id, location_id: @slot.location_id)
 		end
 
 		# Create fresh time_table slices for each timetable row

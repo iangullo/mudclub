@@ -46,7 +46,7 @@ module LocationsHelper
 
 		rows = Array.new
 		locations.each { |loc|
-			url = editor ? path_for(loc, club: @club) : path_for(loc)
+			url = path_for(loc)
 			row = { url:, frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: loc.name }
 			row[:items] << (loc.practice_court ? symbol_field("training", { namespace: "sport" }, align: :center) : symbol_field("home", align: :center))
