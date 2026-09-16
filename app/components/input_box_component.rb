@@ -112,12 +112,14 @@ class InputBoxComponent < ApplicationComponent
 				end
 			when :upload
 					@fdata[:css] = "max-h-6 min-h-4 h-5 m-1" if @fdata[:icon] || @fdata[:symbol]
-					@i_data = { upload_target: "fileInput" }
+					@i_data = { upload_target: "fileInput", action: "change->upload#displayName" }
 			end
 
 			if @fdata[:mandatory].present?
 				@i_data ||= {}
-				@i_data.merge!({ mandatory_input: true, action: "mandatory#check" })
+				existing = @i_data[:action].to_s
+				merged   = [ existing, "mandatory#check" ].reject(&:blank?).join(" ")
+				@i_data.merge!({ mandatory_input: true, action: merged })
 				@i_data.merge!(generate_condition(@fdata[:mandatory]))
 			end
 		end

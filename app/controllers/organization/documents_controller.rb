@@ -53,8 +53,7 @@ class DocumentsController < ApplicationController
 	end
 
 	def create
-		@policy = check_policy!(DocumentPolicy, owner: @owner)
-		binding.break
+		@policy   = check_policy!(DocumentPolicy, owner: @owner)
 		@document = @owner.documents.new(document_params)
 		if @document.save
 			redirect_to return_path_for(@document),
@@ -72,6 +71,7 @@ class DocumentsController < ApplicationController
 
 	def update
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
+		@document.assign_attributes(document_params)
 		respond_to do |format|
 			if @document.modified?
 				if @document.save

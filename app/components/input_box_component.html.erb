@@ -128,7 +128,7 @@
 		<%= @form.file_field(@fdata[:key], id: "upload-btn-#{@fdata[:key]}", direct_upload: true, class: "hidden", data: @i_data, accept: @fdata[:accept]) %>
 
 		<!-- Custom button to trigger file input -->
-		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" data-action="click->upload#selectFile" data-upload-target="button">
+		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" data-action="click->upload#selectFile">
 			<%= render_image(@fdata, size: "25x25") if (@fdata[:icon].present? || @fdata[:symbol].present?) %>
 			<%= @fdata[:label] %>
 		</button>

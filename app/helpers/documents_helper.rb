@@ -96,7 +96,7 @@ module DocumentsHelper
 				{ kind: :text_area, key: :summary, value: @document.summary }
 			],
 			[
-				{ kind: :upload, symbol: symbol_hash(:document), label: Document.fld(:file), key: :file, value: @document.file.filename, accept:, cols: 3 }
+				{ kind: :upload, symbol: symbol_hash(:document), label: Document.fld(:file), key: :file, value: @document.file&.filename, accept:, cols: 3 }
 			],
 			[
 				{ kind: :label, value: Document.fld(:remarks), align: :right },

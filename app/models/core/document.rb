@@ -92,7 +92,7 @@ class Document < ApplicationRecord
 	end
 
 	def modified?
-		changed? || file.attachment_changes.present?
+		changed? || !!file.changed?
 	end
 
 	def self.kind_label(kind, ...)
