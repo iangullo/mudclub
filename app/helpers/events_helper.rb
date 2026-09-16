@@ -323,7 +323,7 @@ module EventsHelper
 			toprow += [	# team events--> add a team_attendance button
 				gap_field,
 				button_field(
-					{ kind: :link, symbol: :attendance, label: Attendance.label, flip: true, size: "30x30", url: event_attendance_path, align: :right, frame: :modal },
+					{ kind: :link, symbol: :attendance, label: Attendance.label, flip: true, size: "30x30", url: club_team_attendance_path(@club, @team), align: :right, frame: :modal },
 					class: "align-middle text-indigo-900"
 				)
 			] unless clubevent

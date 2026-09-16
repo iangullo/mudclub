@@ -35,4 +35,8 @@ class Catalog::Entities < Catalog::Base
 				"Sports organisation managed by MudClub."
 		}
 	}.freeze
+
+	def self.normalize(value)
+		super(value)&.to_s&.singularize&.to_sym
+	end
 end

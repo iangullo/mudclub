@@ -99,4 +99,8 @@ class Catalog::MembershipKinds < Catalog::Base
 		}
 
 	}.freeze
+
+	def self.normalize(value)
+		super(value)&.to_s&.singularize&.to_sym
+	end
 end

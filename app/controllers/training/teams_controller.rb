@@ -263,9 +263,9 @@ class TeamsController < ApplicationController
 	def attendance
 		@policy = check_policy!(TeamPolicy, record: @team)
 
-		title  = helpers.team_title(title: @team.to_s)
-		title  << icon_subtitle("attendance", I18n.t("calendar.attendance.label"))
-		@title  = create_fields(title)
+		fields  = helpers.team_title(title: @team.to_s)
+		fields << icon_subtitle("attendance", I18n.t("calendar.attendance.label"))
+		@fields = create_fields(fields)
 		a_data  = helpers.team_attendance_table
 		if a_data
 			@table = create_table({ title: a_data[:title], rows: a_data[:rows] })

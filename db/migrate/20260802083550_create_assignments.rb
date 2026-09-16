@@ -5,11 +5,13 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
 			t.references :team, foreign_key: true
 			t.integer :kind,   null: false
 			t.integer :status, null: false, default: 0
+			t.string :number
 			t.jsonb :settings, default: {}
 			t.date :starts_on, null: false
 			t.date :ends_on
 			t.timestamps
 		end
+		add_index :assignments, [ :team_id, :number ]
 
 		# Club‑level assignments (from User records)
 		infer_club_assignments
@@ -46,7 +48,7 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
 												.first
 			next unless membership
 
-			create_club_assignment(membership, assignment_kind.id, membership.joined_on)
+			create_club_assignment(membership, assignment_kind.key, membership.joined_on)
 		end
 	end
 
@@ -87,12 +89,12 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
 		coach.teams.joins(:season).order("seasons.start_date ASC").each do |team|
 			# Determine if head or assistant (first in team.coaches order)
 			kind = team.coaches.empty? ? :head_coach : :assistant_coach
-			assignment_kind = Catalog::AssignmentKinds.fetch(kind)
+			assignment_kind = Catalog::AssignmentKinds.fetch(kind).key
 
 			membership = find_or_create_membership(coach, team, :coach)
 			next unless membership
 
-			if create_team_assignment(membership, team, assignment_kind.id)
+			if create_team_assignment(membership, team, assignment_kind)
 				assigned += 1
 			end
 		end
@@ -130,7 +132,7 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
 		membership = find_or_create_membership(player, team, :athlete)
 		return nil unless membership
 
-		create_team_assignment(membership, team, kind.id, player.number)
+		create_team_assignment(membership, team, kind.key, player.number&.to_s)
 	end
 
 	# ---- Shared helpers ----
@@ -178,11 +180,11 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
 		)
 	end
 
-	def create_club_assignment(membership, kind_id, starts_on)
+	def create_club_assignment(membership, kind, starts_on)
 		assignment = Assignment.new(
 			membership: membership,
 			team: nil,
-			kind: kind_id,
+			kind:,
 			status: :active,
 			starts_on: starts_on,
 			ends_on: nil,
@@ -191,29 +193,24 @@ class CreateAssignments < ActiveRecord::Migration[8.0]
 		assignment.save!
 	end
 
-	def create_team_assignment(membership, team, kind_id, number = nil)
+	def create_team_assignment(membership, team, kind, number = nil)
 		# Avoid duplicates
-		existing = Assignment.find_by(
-			membership: membership,
-			team: team,
-			kind: kind_id
-		)
+		existing = Assignment.find_by(membership:, team:, kind:)
 		return if existing
 
 		ends_on = team.season.end_date
 		ends_on = nil if ends_on.present? && ends_on > Date.current
-
-		settings = {}
-		settings[:number] = number if number.present?
+		number  = number.last(2) if number	# sanitize to numbers below 100
 
 		Assignment.create!(
-			membership: membership,
-			team: team,
-			kind: kind_id,
+			membership:,
+			team:,
+			kind:,
+			number:,
+			settings: {},
 			status: ends_on ? :terminated : :active,
 			starts_on: team.season.start_date,
-			ends_on: ends_on,
-			settings: settings
+			ends_on:
 		)
 	end
 end

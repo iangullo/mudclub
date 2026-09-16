@@ -39,7 +39,7 @@ module DocumentsHelper
 			row = { url:, frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: doc.kind_label }
 			row[:items] << { kind: :normal, value: doc.title }
-			row[:items] << symbol_field(doc.active? ? :yes : :no, align: :center)
+			row[:items] << symbol_field(doc.active? ? :yes : :no, align: :center, class: "border px py")
 			row[:items] << button_field({ kind: :delete, url:, name: doc.title, confirm: true }) if editor
 			rows << row
 		}

@@ -177,6 +177,10 @@ class Catalog::AssignmentKinds < Catalog::Base
 
 	}.freeze
 
+	def self.normalize(value)
+		super(value)&.to_s&.singularize&.to_sym
+	end
+
 	def self.scope_of(kind)
 		fetch(kind)&.dig(:scope)&.to_sym
 	end

@@ -62,8 +62,9 @@ class Assignment < ApplicationRecord
 	#-------------------------------------
 	# Validations
 	#-------------------------------------
-	validates :starts_on, presence: true
 	validates :kind, presence: true
+	validates :number, format: { with: /\A\d{1,2}\z/ }, allow_nil: true
+	validates :starts_on, presence: true
 	validate :team_required
 
 	#-------------------------------------
@@ -101,16 +102,23 @@ class Assignment < ApplicationRecord
 	scope :current, -> { where(status: [ :active, :suspended ]) }
 	scope :female, -> { joins(:person).where("female = true") }
 	scope :male, -> { joins(:person).where("female = false") }
-	scope :by_number, -> { order(Arel.sql("NULLIF(settings->>'number', '')::int NULLS LAST")) }
-
-	# short name for form viewing
-	def s_name
-		person&.s_name || membership.kind_label
-	end
+	scope :by_number, -> { order(Arel.sql("CAST(number AS INTEGER) NULLS LAST")) }
 
 	#-------------------------------------
 	# General Assignment methods
 	#-------------------------------------
+	def assigned_to
+		team ? team :	membership.club
+	end
+
+	def kind_image
+		Catalog::AssignmentKinds.normalize(kind) || :person
+	end
+
+	def kind_label(...)
+		Catalog::AssignmentKinds.val(kind, ...)
+	end
+
 	# personal photo or membership kind symbol
 	def picture
 		return avatar if avatar&.attached?
@@ -121,12 +129,9 @@ class Assignment < ApplicationRecord
 		kind_image
 	end
 
-	def kind_image
-		Catalog::AssignmentKinds.normalize(kind) || :person
-	end
-
-	def kind_label(...)
-		Catalog::AssignmentKinds.val(kind, ...)
+	# short name for form viewing
+	def s_name
+		person&.s_name || membership.kind_label
 	end
 
 	#-------------------------------------
@@ -211,15 +216,6 @@ class Assignment < ApplicationRecord
 	# String with number, name & age
 	def num_name_age
 		"#{number.to_s.rjust(7, " ")}-#{self} (#{age})"
-	end
-
-	def number
-		settings["number"].presence
-	end
-
-	def number=(value)
-		self.settings ||= {}
-		settings["number"] = value.to_i
 	end
 
 	#-------------------------------------

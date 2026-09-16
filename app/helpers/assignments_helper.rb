@@ -150,7 +150,7 @@ module AssignmentsHelper
 				rows  = Array.new
 				frame = :modal
 				object.assignments.order(:starts_on).reverse.each do |position|
-					row   = { url: path_for(position, kind:, status: params[:status].presence), items: [], frame: }
+					row   = { url: path_for(position.assigned_to, kind:, status: params[:status].presence), items: [], frame: }
 					case kind
 					when :athlete
 						row[:items] << { kind: :normal, value: position.number }

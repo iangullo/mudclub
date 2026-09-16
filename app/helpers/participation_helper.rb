@@ -123,6 +123,7 @@ module ParticipationHelper
 
 	# attempt at unified definition for Assignment/Membership tables
 	def participation_table(objects, kind: @kind)
+		return nil if objects == nil || objects.empty?
 		p_class = objects&.first
 		o_class = p_class&.model_name&.singular_route_key.to_sym
 		{
@@ -192,12 +193,12 @@ module ParticipationHelper
 					when :board_member
 						row[:items] << { kind: :normal, value: a_obj.kind_label }
 					when nil
-						row[:items] << participation_kind_field(object, class: "border")
+						row[:items] << participation_kind_field(object, class: "border px py")
 					end
 					row[:items] << { kind: :normal, value: object.s_name }
 					row[:items] << { kind: :normal, value: object.age, align: :center } if [ :athlete, :coach ].include?(m_obj.kind.to_sym)
 					row[:items] << { kind: :normal, value: object.starts_on }
-					row[:items] << participation_status_field(object, f_opts: { align: :center, class: "border" })
+					row[:items] << participation_status_field(object, f_opts: { align: :center, class: "border px py" })
 					rows << row
 				}
 				rows

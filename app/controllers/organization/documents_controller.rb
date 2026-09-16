@@ -44,7 +44,7 @@ class DocumentsController < ApplicationController
 	def show
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
 		@fields = create_fields(helpers.document_show)
-		@submit = create_submit(submit: helpers.edit_document_path, frame: :modal)
+		@submit = create_submit(submit: edit_path_for(@document), frame: :modal)
 	end
 
 	def new
@@ -129,7 +129,7 @@ class DocumentsController < ApplicationController
 
 		# Helper method to prepare form for creating or editing documents
 		def prepare_form(action)
-			@document ||= @owner.documents.new
+			@document ||= @owner.documents.new(kind: Document.kind_list(@owner).first[1])
 			fields  = helpers.document_form_fields(Document.act(action))
 			@fields = create_fields(fields)
 			@submit = create_submit

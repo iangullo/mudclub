@@ -34,7 +34,7 @@ module TeamsHelper
 			m_tot = []
 			@team.athletes.by_number.each do |athlete|
 				p_att = athlete.attendance
-				row = { url: club_team_assignment_path(@club, @team, athlete, rdx: @rdx), frame: :modal, items: [] }
+				row = { url: path_for(athlete), frame: :modal, items: [] }
 				row[:items] << { kind: :normal, value: athlete.number, align: :center }
 				row[:items] << { kind: :normal, value: athlete.s_name }
 				row[:items] << { kind: :percentage, value: p_att[:last7], align: "right" }
@@ -68,7 +68,7 @@ module TeamsHelper
 			c_first = true
 			@team.coaches.current.each do |coach|
 				if @policy.show?
-					c_start = button_field({ kind: :link, label: coach.s_name, url: club_team_assignment_path(@club, @team, coach, rdx: @rdx), frame: :modal, b_class: "items-center", d_class: "text-left" })
+					c_start = button_field({ kind: :link, label: coach.s_name, url: path_for(coach), frame: :modal, b_class: "items-center", d_class: "text-left" })
 				else
 					c_start = { kind: :string, value: coach.s_name, class: "align-middle text-left" }
 				end
@@ -146,7 +146,7 @@ module TeamsHelper
 			end
 			rows = Array.new
 			teams.each { |team|
-				url = (u_clubid == team.club_id ? club_team_path(team.club, team, rdx: @rdx) : request.path)
+				url = (u_clubid == team.club_id ? path_for(team) : request.path)
 				row = { url:, items: [] }
 				row[:items] << { kind: :normal, value: team.season.name, align: :center } if @rdx == 1 || @player || @coach
 				row[:items] << { kind: :normal, value: team.name }
@@ -301,7 +301,7 @@ module TeamsHelper
 		# team roster table helpers
 		def team_roster_title
 			title = [
-				{ kind: :normal, value: Assignment.fld(:number), align: :center },
+				{ kind: :normal, value: Assignment.fld(:number, :short), align: :center },
 				{ kind: :normal, value: Person.fld(:name) },
 				{ kind: :normal, value: Person.fld(:age), align: :center },
 				{ kind: :normal, value: Person.fld(:phone_short), align: :center },
@@ -322,7 +322,7 @@ module TeamsHelper
 		end
 
 		def team_roster_row(athlete)
-			row = { url: assignment_path(athlete), frame: :modal, items: [] }
+			row = { url: path_for(athlete), frame: :modal, items: [] }
 			row[:items] += [
 				{ kind: :normal, value: athlete.number, align: :center },
 				{ kind: :normal, value: athlete.to_s(style: 0) },

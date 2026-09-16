@@ -71,15 +71,14 @@ class Catalog::Base
 		# Examples
 		#
 		#   normalize(:athlete)         # => :athlete
-		#   normalize("athletes")       # => :athlete
-		#   normalize("Board Members")  # => :board_member
+		#   normalize("athlete")       # => :athlete
+		#   normalize("Board Member")  # => :board_member
 		#   normalize(nil)              # => nil
-		#
+		# N.B. removed singularization. Add - if needed - in specific Catalogs
 		def normalize(value)
 			value
 				&.to_s
 				&.parameterize(separator: "_")
-				&.singularize
 				&.to_sym
 		end
 
