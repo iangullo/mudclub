@@ -29,7 +29,7 @@ module RoutingHelper
 
 		case record
 
-		when Category, Division, Location
+		when Category, Division
 			[ owner, record ]
 
 		when Document
@@ -43,7 +43,10 @@ module RoutingHelper
 				raise ArgumentError, "Unsupported document owner #{owner.inspect}"
 			end
 
-		when Registration, Membership, Slot, Team
+		when Location, Slot
+			[ club, record ]
+
+		when Registration, Membership, Team
 			[ record.club, record ]
 
 		when Assignment
