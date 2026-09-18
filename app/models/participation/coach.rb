@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# FROZEN: legacy 1.x model. Read-only compatibility shim until 2.x migration completes. See docs/migration.
 class Coach < ApplicationRecord
 	localized_as "coach"
 

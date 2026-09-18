@@ -44,6 +44,8 @@ Rails.application.routes.draw do
 		end
 	end
 
+	resources :seasons
+
 	resources :sports do
 		get :rules, on: :member
 		resources :categories
@@ -132,22 +134,6 @@ Rails.application.routes.draw do
 			get :edit_diagram	# /drills/:id/edit_diagram?step_id=X&order=Y
 			get :load_diagram # /drills/:id/load_diagram?step_id=X&order=Y
 			patch :update_diagram # /drills/:id/update_diagram?step_id=X
-		end
-	end
-
-	resources :seasons
-
-	# DEPRECATED routes
-	# resources :people
-	resources :coaches, except: [ :index ] do
-		collection do
-			post :import
-		end
-	end
-
-	resources :players, except: [ :index ] do
-		collection do
-			post :import
 		end
 	end
 end

@@ -149,4 +149,8 @@ class Catalog::RelationshipKinds < Catalog::Base
 	def self.selectable?(kind)
 		CATALOG[kind.to_sym][:selectable] == true
 	end
+
+	def self.normalize(value)
+		super(value)&.to_s&.singularize&.to_sym
+	end
 end
