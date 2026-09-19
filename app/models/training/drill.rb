@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 # Manage Drill/Plays in the model
+# TODO: ADAPT MODEL & CONTROLLER to 2.x membhership-driven domain
 class Drill < ApplicationRecord
 	localized_as "training.drill"
 

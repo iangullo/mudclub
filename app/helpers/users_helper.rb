@@ -43,7 +43,7 @@ module UsersHelper
 			roles << symbol_field("edit", { title: I18n.t("role.secretary") })
 		end
 		roles << symbol_field("coach", { namespace: "sport", title: I18n.t("role.coach") }) if user.is_coach?
-		roles << symbol_field("player", { namespace: "sport", title: I18n.t("role.player") }) if user.is_player?
+		roles << symbol_field("player", { namespace: "sport", title: I18n.t("role.player") }) if user.is_athlete?
 		res = [ { kind: :roles, symbols: roles, align: :center } ]
 		return res if table	# only interested in these 3 icons
 		res.first[:align] = :left

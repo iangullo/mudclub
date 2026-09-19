@@ -29,8 +29,8 @@ class ApplicationController < ActionController::Base
 	helper RoutingHelper
 
 	# Make these methods available to views and helpers
-	helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_coachid,	:u_manager?,
-								:u_person, :u_player?, :u_playerid, :u_secretary?, :u_userid,
+	helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_manager?,
+								:u_person, :u_athlete?, :u_secretary?, :u_userid,
 								:user_in_club?, :club_manager?, :team_manager?, :date_string
 
 	# NEW authorization policy management approach.
@@ -299,8 +299,8 @@ class ApplicationController < ActionController::Base
 		current_user&.is_coach?
 	end
 
-	def u_coachid
-		current_user&.person&.coach_id
+	def u_coach
+		current_user&.coach
 	end
 
 	def u_person
@@ -308,17 +308,15 @@ class ApplicationController < ActionController::Base
 	end
 
 	def u_athlete?
-		current_user&.is_player?	# change later to person.athlete?
+		current_user&.is_athlete?	# change later to person.athlete?
 	end
 
-	alias u_player? u_athlete? # deprecate usage of player
-
-	def u_playerid
-		current_user&.person&.player_id
+	def u_athlete
+		current_user&.athlete
 	end
 
 	def u_secretary?
-		current_user&.secretary?	# needs thought, secretary is now an assignment
+		current_user&.is_secretary?	# needs thought, secretary is now an assignment
 	end
 
 	def u_userid
@@ -373,17 +371,17 @@ class ApplicationController < ActionController::Base
 			when Category, Division, FalseClass, Location, Season
 				true
 			when Coach
-				(obj.id == u_coachid)
+				(obj.id == u_coach.id)
 			when Club
 				(obj.id == u_clubid) # rubocop:disable Style/RedundantReturn
 			when Drill
-				(obj.coach_id == u_coachid)
+				(obj.coach_id == u_coach.id)
 			when Event
 				(obj.team&.has_coach?(u_person) || obj.has_athlete?(u_person))
 			when Person
 				(obj.id == u_person.id)
 			when Player
-				(obj.id == u_playerid)
+				(obj.id == u_player.id)
 			when Team
 				(obj.has_coach?(u_person) || obj.has_athlete?(u_person))
 			when User

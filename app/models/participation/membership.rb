@@ -33,6 +33,7 @@ class Membership < ApplicationRecord
 	localized_as "participation.membership"
 	include Auditable
 	include Participatory
+	include PersonBearing
 	after_create :ensure_legacy_record!
 
 	belongs_to :club
@@ -149,11 +150,6 @@ class Membership < ApplicationRecord
 
 		joined_on <= end_b &&
 			other.joined_on <= end_a
-	end
-
-	def modified?
-		self.changed? ||
-			person.modified?
 	end
 
 	def rebuild(data)

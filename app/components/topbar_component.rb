@@ -80,9 +80,9 @@ class TopbarComponent < ApplicationComponent
 		@menu_tabs << team_menu(user)
 		if user.secretary?
 			@menu_tabs += secretary_menu
-		elsif user.is_coach? && user.coach&.active?
+		elsif user.is_coach?
 			@menu_tabs += coach_menu(user)
-		elsif user.is_player? && user.player&.active?
+		elsif user.is_athlete?
 			@menu_tabs << athlete_menu(user)
 		end
 		@menu_tabs << user_menu(user, home, logout)
@@ -197,7 +197,7 @@ class TopbarComponent < ApplicationComponent
 
 	# Menu for teams visible to the user
 	def team_menu(user)
-		u_teams = user.team_list
+		u_teams = user.teams
 		s_teams = []
 		t_url = "/clubs/#{user.club_id}/teams"
 		slast = Season.latest

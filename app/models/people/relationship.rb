@@ -26,6 +26,12 @@ class Relationship < ApplicationRecord
 
 	enum :kind, Catalog::RelationshipKinds.enum
 
+	scope :in_group, ->(group) {
+		kinds = Catalog::RelationshipKinds.with_group(group)
+		raise ArgumentError, "Unknown relationship group: #{group.inspect}" if kinds.empty?
+		where(kind: kinds)
+	}
+
 	validates :person, presence: true
 	validates :related_person, presence: true
 	validates :kind, presence: true
@@ -57,10 +63,6 @@ class Relationship < ApplicationRecord
 
 		self.person, self.related_person = related_person, person
 		self.kind = inverse_kind
-	end
-
-	def modified?
-		self.changed?
 	end
 
 	def rebuild(person, data)

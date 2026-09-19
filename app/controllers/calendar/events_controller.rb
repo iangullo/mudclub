@@ -83,7 +83,7 @@ class EventsController < ApplicationController
 	# GET /events/new
 	def new
 		get_event_context
-		if club_manager? || @team&.has_coach(u_coachid)
+		if club_manager? || @team&.has_coach?(u_person)
 			@event  = Event.prepare(event_params)
 			@season = @event.team.season unless @event.team_id == 0
 			@sport  = @event.team.sport&.specific

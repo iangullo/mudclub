@@ -39,6 +39,7 @@ class Catalog::RelationshipKinds < Catalog::Base
 			id: 0,
 			inverse: :child,
 			selectable: true,
+			groups: [ :parent, :responsible_adult ],
 			description: "Parent of another person."
 		},
 
@@ -46,6 +47,7 @@ class Catalog::RelationshipKinds < Catalog::Base
 			id: 1,
 			inverse: :child,
 			selectable: true,
+			groups: [ :parent, :responsible_adult ],
 			description: "Father of another person."
 		},
 
@@ -53,6 +55,7 @@ class Catalog::RelationshipKinds < Catalog::Base
 			id: 2,
 			inverse: :child,
 			selectable: true,
+			groups: [ :parent, :responsible_adult ],
 			description: "Mother of another person."
 		},
 
@@ -60,24 +63,28 @@ class Catalog::RelationshipKinds < Catalog::Base
 			id: 10,
 			inverse: :ward,
 			selectable: true,
+			groups: [ :guardian, :responsible_adult ],
 			description: "Legal or designated guardian."
 		},
 
 		ward: {
 			id: 31,
 			inverse: :guardian,
+			groups: [],
 			description: "Person under guardianship."
 		},
 
 		legal_representative: {
 			id: 11,
 			inverse: :represented_person,
+			groups: [ :guardian, :responsible_adult ],
 			description: "Legal representative."
 		},
 
 		represented_person: {
 			id: 32,
 			inverse: :legal_representative,
+			groups: [],
 			description: "Person represented legally."
 		},
 
@@ -87,14 +94,17 @@ class Catalog::RelationshipKinds < Catalog::Base
 
 		child: {
 			id: 20,
-			selectable: true,
+			selectable: false,
 			inverse: :parent,
+			groups: [],
 			description: "Child."
 		},
 
 		sibling: {
 			id: 21,
 			inverse: :sibling,
+			selectable: false,
+			groups: [],
 			description: "Sibling."
 		},
 
@@ -102,6 +112,7 @@ class Catalog::RelationshipKinds < Catalog::Base
 			id: 22,
 			inverse: :grandchild,
 			selectable: true,
+			groups: [ :responsible_adult ],
 			description: "Grandparent."
 		},
 
@@ -109,18 +120,21 @@ class Catalog::RelationshipKinds < Catalog::Base
 			id: 23,
 			selectable: true,
 			inverse: :grandparent,
+			groups: [],
 			description: "Grandchild."
 		},
 
 		spouse: {
 			id: 24,
 			inverse: :spouse,
+			groups: [],
 			description: "Spouse."
 		},
 
 		partner: {
 			id: 25,
 			inverse: :partner,
+			groups: [],
 			description: "Partner."
 		},
 
@@ -131,12 +145,14 @@ class Catalog::RelationshipKinds < Catalog::Base
 		emergency_contact: {
 			id: 30,
 			inverse: :emergency_contact_for,
+			groups: [],
 			description: "Emergency contact."
 		},
 
 		emergency_contact_for: {
 			id: 33,
 			inverse: :emergency_contact,
+			groups: [],
 			description: "Person for whom this is the emergency contact."
 		}
 	}.freeze
@@ -152,5 +168,25 @@ class Catalog::RelationshipKinds < Catalog::Base
 
 	def self.normalize(value)
 		super(value)&.to_s&.singularize&.to_sym
+	end
+
+	# Available groups in the catalog
+	def self.groups
+		CATALOG.values.flat_map { |data| Array(data[:groups]) }.uniq
+	end
+
+	# All groups this kind belongs to
+	def self.groups_of(kind)
+		Array(self[kind]&.dig(:groups))
+	end
+
+	# Is this kind part of the given group?
+	def self.in_group?(kind, group)
+		groups_of(kind).include?(group)
+	end
+
+	# All kinds tagged with this group
+	def self.with_group(group)
+		CATALOG.select { |_kind, data| Array(data[:groups]).include?(group) }.keys
 	end
 end

@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 # Manage parents of underage players
+# FROZEN: legacy 1.x model. Read-only compatibility shim until 2.x migration completes. See docs/migration.
 class Parent < ApplicationRecord
 	localized_as "people.parent"
 

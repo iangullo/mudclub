@@ -22,6 +22,12 @@ class ApplicationRecord < ActiveRecord::Base
 
 	primary_abstract_class
 
+	# Does this record have pending unsaved changes worth acting on?
+	# Override in subclasses and call `super` to add domain-specific sources.
+	def modified?
+		changed? || attachments_changed?
+	end
+
 	# parse phone number using defined locale as p_country
 	def parse_phone(p_number, p_ctry = nil)
 		ctry = p_ctry || Phonelib.default_country
@@ -71,7 +77,6 @@ class ApplicationRecord < ActiveRecord::Base
 				unless new_blob == attachment&.blob # Compare blob content
 					attachment.purge if attachment.attached?
 					attachment.attach(new_file)
-					@attachment_changed = true
 				end
 			end
 		end
@@ -85,4 +90,19 @@ class ApplicationRecord < ActiveRecord::Base
 	def self.i18n_scope
 		@i18n_scope
 	end
+
+	private
+
+		# True if any has_one_attached / has_many_attached on this class has a
+		# pending in-memory change. Uses only public API:
+		#   - attachment_reflections  (class_attribute, public)
+		#   - attachment              (public reader on Attached::One / ::Many)
+		#   - changed?                (public on the attachment AR record)
+		def attachments_changed?
+			self.class.attachment_reflections.each_key.any? do |name|
+				attached = public_send(name)
+				records  = attached.respond_to?(:attachments) ? attached.attachments : [ attached.attachment ]
+				records.any? { |a| a&.changed? }
+			end
+		end
 end

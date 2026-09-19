@@ -127,11 +127,6 @@ class Club < ApplicationRecord
 		self.avatar.attached? ? self.avatar : "mudclub.svg"
 	end
 
-	# extended modified to account for changed avatar
-	def modified?
-		self.changed? || @attachment_changed
-	end
-
 	# rebuild CLub data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)

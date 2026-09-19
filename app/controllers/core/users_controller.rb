@@ -42,7 +42,7 @@ class UsersController < ApplicationController
 	def show
 		if @user && check_access(roles: [ :admin ], obj: @user)
 			@title = create_fields(helpers.user_show)
-			@table = create_table(helpers.team_table(teams: @user.team_list))
+			@table = create_table(helpers.team_table(teams: @user.teams))
 			retlnk = (@rdx == 1 ? :back : back_link(default: return_path_for(@user)))
 			submit  = edit_path_for(@user) if u_admin? || @rdx == 1
 			@submit = create_submit(close: :back, retlnk:, submit:, frame: :modal)

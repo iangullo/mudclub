@@ -123,7 +123,7 @@ class Registration < ApplicationRecord
 	end
 
 	def modified?
-		changed? ||
+		super ||
 			documents.any?(&:modified?)
 	end
 

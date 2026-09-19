@@ -26,6 +26,7 @@ class Assignment < ApplicationRecord
 	localized_as "participation.assignment"
 	include Auditable
 	include Participatory
+	include PersonBearing
 
 	belongs_to :membership
 	belongs_to :team, optional: true
@@ -231,12 +232,6 @@ class Assignment < ApplicationRecord
 
 	def belongs_to_team?(team)
 		team_id == team&.id
-	end
-
-	def modified?
-		self.changed? ||
-			avatar.attachment_changes.present? ||
-			person.modified?
 	end
 
 	def rebuild(data)

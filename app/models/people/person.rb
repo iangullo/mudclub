@@ -19,7 +19,6 @@
 class Person < ApplicationRecord
 	localized_as "people.person"
 
-	include PersonDataManagement
 	include PgSearch::Model
 	before_destroy :unlink
 	before_save { self.name = self.name ? self.name.mb_chars.titleize : "" }
@@ -31,6 +30,7 @@ class Person < ApplicationRecord
 	belongs_to :user, optional: true
 	accepts_nested_attributes_for :user
 	has_many :memberships
+	has_many :assignments, through: :memberships
 	has_many :relationships,
 					class_name: "Relationship",
 					dependent: :destroy
@@ -67,6 +67,52 @@ class Person < ApplicationRecord
 	validates :name, :surname, presence: true
 	self.inheritance_column = "not_sti"
 
+	#-------------------------------------
+	# Indirect relationships API
+	#-------------------------------------
+	def clubs
+		Club.joins(:memberships).merge(memberships.current).distinct
+	end
+
+	def club_list
+		clubs.map { |c| [ c.nick, c.id ] }
+	end
+
+	def teams(club: nil, season: nil)
+		scope = memberships.current
+		scope = scope.for_club(club) if club
+
+		assignment_ids = Assignment.where(membership_id: scope.select(:id))
+												.current
+												.where.not(team_id: nil)
+												.select(:team_id)
+
+		teams = Team.where(id: assignment_ids)
+		teams = teams.where(season_id: season) if season
+		teams.includes(:season).order("seasons.start_date DESC").distinct
+	end
+
+	def team_list(club: nil)
+		teams(club:).includes(:season).sort_by { |t| t.season.start_date }.reverse
+	end
+
+	# Person has guardians (i.e. is a minor with responsible adults)
+	def has_guardians?
+		inverse_relationships.in_group(:responsible_adult).exists?
+	end
+
+	# Person is a guardian of others (i.e. is someone's parent/legal representative)
+	def is_responsible_adult?
+		relationships.in_group(:responsible_adult).exists?
+	end
+	alias is_parent? is_responsible_adult?
+
+	def is_athlete?(club = nil) = has_membership?(:athlete, club)
+	def is_coach?(club = nil)		= has_membership?(:coach, club)
+	def is_manager?(club)				= has_assignment?(:club_manager, club)
+	def is_president?(club)			= has_assignment?(:president, club)
+	def is_secretary?(club)			= has_assignment?(:secretary, club)
+	def is_treasurer?(club)			= has_assignment?(:treasurer, club)
 
 	#-------------------------------------
 	# Object methods
@@ -80,6 +126,10 @@ class Person < ApplicationRecord
 		else
 			0
 		end
+	end
+
+	def dependents
+		Person.where(id: relationships.in_group(:responsible_adult).select(:related_person_id))
 	end
 
 	# returns a hash of icon & label to mark whether a
@@ -111,19 +161,16 @@ class Person < ApplicationRecord
 		self.age < 18
 	end
 
-	# extended modified to acount for changed parents or avatar
+	# extended modified to check relationships
 	def modified?
-		self.changed? ||
-			avatar.attachment_changes.present? ||
-			id_front.attachment_changes.present? ||
-			id_back.attachment_changes.present? ||
+		super ||
 			relationships.any?(&:modified?)
 	end
 
-	# DEPRECATED
 	# return if person is orphaned from any dependent objects
 	def orphan?
-		self&.id.to_i > 0 && (self.player_id.nil?) && (self.coach_id.nil?) && (self.user_id.nil?) && (self.parent_id.nil?)
+		self&.id.to_i > 0 && memberships.empty? &&
+			player_id.nil? && coach_id.nil? && user_id.nil? && parent_id.nil? # DEPRECATED
 	end
 
 	# hopefully return self...
@@ -265,6 +312,29 @@ class Person < ApplicationRecord
 				self.update!("#{kind}_id".to_sym nil)
 				dep.destroy
 			end
+		end
+
+		def active_assignments(kind, club)
+			return nil unless club
+			assignments_in(club).find { |a| a.kind.to_sym == kind.to_sym }
+		end
+
+		def has_assignment?(kind, club)
+			active_assignments(kind, club).exists?
+		end
+
+		def active_memberships(kind, club = nil)
+			scope = memberships.of_kind(kind.to_sym).current
+			club ? scope.for_club(club) : scope
+		end
+
+		def has_membership?(kind, club = nil)
+			active_memberships(kind, club).exists?
+		end
+
+		def membership_of_kind_in(club, kind)
+			return nil unless club
+			memberships_in(club).find { |m| m.kind.to_sym == kind.to_sym }
 		end
 
 		def self.resolve_candidates(scope, probable: false, matched_by:)

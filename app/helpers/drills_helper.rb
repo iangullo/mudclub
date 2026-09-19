@@ -16,6 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# TODO: ADAPT MODEL & CONTROLLER to 2.x membhership-driven domain
 module DrillsHelper
 	# return title FieldComponent definition for edit/new
 	def drill_form_data
@@ -87,7 +88,7 @@ module DrillsHelper
 	# return title FieldComponent definition for edit/new
 	def drill_form_tail
 		coaches = (u_admin? ? Coach.real : (u_manager? ? u_club.coaches : [ current_user.coach ]))
-		author  = (@drill.coach_id.to_i > 0 ? @drill.coach_id : (u_coachid || coaches.first))
+		author  = (@drill.coach_id.to_i > 0 ? @drill.coach_id : (u_coach.id || coaches.first))
 		res = [
 			[
 				{ kind: :label, value: "#{Skill.label(:plural)}:" },

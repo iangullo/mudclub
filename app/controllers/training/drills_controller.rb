@@ -17,6 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 # Managament of drills/plays sotredin the server
+# TODO: ADAPT MODEL & CONTROLLER to 2.x membhership-driven domain
 class DrillsController < ApplicationController
 	include Filterable
 	include PdfGenerator
@@ -53,7 +54,7 @@ class DrillsController < ApplicationController
 				end
 				format.html do
 					@title = create_fields(title)
-					submit   = edit_path_for(@drill) if (@drill.coach_id == u_coachid) || (u_manager? && u_clubid == @drill.coach.club_id)
+					submit   = edit_path_for(@drill) if (@drill.coach_id == u_coach.id) || (u_manager? && u_club == @drill.coach.club)
 					@submit  = create_submit(close: :back, retlnk: back_link(default: drills_path(rdx: @rdx)), submit:)
 					render :show
 				end

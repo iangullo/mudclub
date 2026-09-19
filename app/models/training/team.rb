@@ -17,502 +17,461 @@
 # contact email - iangullo@gmail.com.
 #
 class Team < ApplicationRecord
-  localized_as "training.team"
-
-  before_destroy :unlink
-
-  #-------------------------------------
-  # Object relationships
-  #-------------------------------------
-  belongs_to :club
-  belongs_to :category
-  belongs_to :division
-  belongs_to :season
-  belongs_to :sport
-  has_many :assignments, dependent: :destroy
-  has_many :members, through: :assignments, source: :membership
-  has_one :homecourt
-  has_one :rules, through: :category
-  has_many :slots, dependent: :destroy
-  has_many :events, dependent: :destroy
-  has_many :team_targets, dependent: :destroy
-  has_many :targets, through: :team_targets
-  accepts_nested_attributes_for :assignments
-  accepts_nested_attributes_for :events
-  accepts_nested_attributes_for :targets
-  accepts_nested_attributes_for :team_targets
-
-  #-------------------------------------
-  # Class Scopes & filter fields
-  #-------------------------------------
-  scope :ordered, -> { order(category_id: :asc) }
-  scope :real, -> { where("id>0") }
-  scope :for_season, ->(season_id) { (season_id.to_i > 0) ? where(season_id: season_id.to_i) : all }
-  scope :for_club, ->(club_id) { (club_id.to_i > 0) ? where(club_id: club_id.to_i) : all }
-  FILTER_PARAMS = %i[club_id season_id].freeze
-
-
-  #-------------------------------------
-  # Team common strings
-  #-------------------------------------
-
-  # return team name in string format
-  def to_s(xls: false)
-    if xls
-      cad = self.category.to_s.gsub(/[\/|\\|?|*|:|\[|\]]/, "")[0, 27]
-      return cad += "_#{self.id.to_s.rjust(3, '0')}"
-    end
-    return I18n.t("scope.none") if self.id==0
-    return self.name if self.name.present?
-    return self.nick if self.nick.present?
-    self.category.to_s
-  end
-
-  # return a sport-specific term
-  def term(*parts)
-    self.sport.specific.term(*parts)
-  end
-
-  #-------------------------------------
-  # Team member accessors
-  #-------------------------------------
-
-  def members(current: false)
-    current ?
-      assignments.current :
-      assignments
-  end
-
-  def has_assignment_for?(person, kind: nil, current: false)
-    scope = members(current:)
-      .joins(:membership)
-      .where(memberships: { person_id: person&.id })
-
-    scope = scope.of_kind(kind) if kind.present?
-
-    scope.exists?
-  end
-
-  def athletes(current: false)
-    members(current:).of_membership_kind(:athlete)
-  end
-
-  def athlete_ids(current: true)
-    athletes.pluck(:membership_id)
-  end
-
-  def has_athlete?(person)
-    athletes(current: true)
-      .joins(:membership)
-      .where(memberships: { person_id: person&.id })
-      .exists?
-  end
-
-  def coaches(current: false)
-    members(current:).of_membership_kind(:coach).order(:kind)
-  end
-
-  def coach_ids(current: true)
-    coaches.pluck(:membership_id)
-  end
-
-  def has_coach?(person)
-    coaches(current: true)
-      .joins(:membership)
-      .where(memberships: { person_id: person&.id })
-      .exists?
-  end
-
-  #-------------------------------------
-  # Team eligbility
-  #-------------------------------------
-
-  # Get a list of athletes that are valid to play in this team
-  def eligible_athletes(exclude_assigned: false)
-    s_year = season.start_year
-
-    scope = club.memberships.current.
-      of_kind(:athlete).
-      joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
-
-    case category.sex
-    when "female"
-      scope = scope.where(people: { female: true })
-    when "male"
-      scope = scope.where(people: { female: false })
-    end
-
-    # Optionally exclude athletes already assigned to this team
-    if exclude_assigned
-      assigned_person_ids = assignments
-                              .joins(membership: :person)
-                              .where(kind: :athlete)
-                              .pluck("people.id")
-      scope = scope.where.not(person_id: assigned_person_ids) if assigned_person_ids.any?
-    end
-
-    scope
-  end
-
-  # Get a list of athletes that are not members but are authorised to play in this team
-  def optional_athletes
-    eligible_athletes(include_assigned: false)
-  end
-
-  #-------------------------------------
-  # Team target accessors & checks
-  #-------------------------------------
-
-  # collective target filtering methods
-  def collective_def(month = 0)
-    search_targets(month, 2, 2)
-  end
-
-  def collective_off(month = 0)
-    search_targets(month, 2, 1)
-  end
-
-  # general Team target filtering methods
-  def general_def(month = 0)
-    search_targets(month, 0, 2)
-  end
-
-  def general_off(month = 0)
-    search_targets(month, 0, 1)
-  end
-
-  # Individual skill target filtering methods
-  def individual_def(month = 0)
-    search_targets(month, 1, 2)
-  end
-
-  def individual_off(month = 0)
-    search_targets(month, 1, 1)
-  end
-
-  #-------------------------------------
-  # Training session helpers
-  #-------------------------------------
-
-  # get attendance data for a team in the season
-  # returns partial & serialised numbers for attendance: trainings [%]
-  def attendance
-    t_athletes = self.athletes.count
-    return nil if t_athletes.zero?	# NO ATHLETES IN TEAM --> NO ATTENDANCE DATA
-
-    d_morrow = Date.today + 1	# tomorrow
-    d_last7  = d_morrow - 8	# date limit for last 7 days
-    d_last30 = d_morrow - 31	# date limit for last 30 days
-    l_week   = { tot: 0, att: 0 }
-    l_month  = { tot: 0, att: 0 }
-    l_season = { tot: 0, att: 0 }
-    sessions = { name: sport.specific.term(:athlete, :plural), avg: 0, data: {} }
-    t_events = self.events.past.trainings.includes(:attendances)
-    t_att    = Attendance.for_team(self)
-    t_events.each do |event|
-      if event.train?
-        e_cnt           = t_att.for_event(event).count
-        e_date          = event.start_date
-        l_season[:tot] += t_athletes
-        l_season[:att] += e_cnt
-        sessions[:avg] += e_cnt
-        if e_date.between?(d_last30, d_morrow)	# event in last month
-          l_month[:tot]  += t_athletes
-          l_month[:att]  += e_cnt
-          if e_date > d_last7	# event occurs in last 7 days
-            l_week[:att] += e_cnt
-            l_week[:tot] += t_athletes
-          end
-        end
-        sessions[:data][e_date] = e_cnt # add to sessions
-      end
-    end
-    sessions[:week]  = l_week[:tot]>0 ? (100*l_week[:att]/l_week[:tot]).to_i : nil
-    sessions[:month] = l_month[:tot]>0 ? (100*l_month[:att]/l_month[:tot]).to_i : nil
-    sessions[:avg]   = l_season[:tot]>0 ? (100*l_season[:att]/l_season[:tot]).to_i : nil
-    { sessions: sessions }
-  end
-
-  # return next free training_slot
-  # after the last existing one in the calendar
-  def next_slot(last = nil)
-    d   = last ? last.start_time.to_date : Date.today	# last planned slot date
-    res = nil
-    self.slots.each { |slot|
-      s   = slot.next_date(d)
-      res = res ? (s < res.next_date(d) ? slot : res) : slot
-    }
-    res
-  end
-
-  #-------------------------------------
-  # Match/Competition helpers
-  #-------------------------------------
-
-  # return potential rival teams - matching category & season
-  def rival_teams
-    Team.where(sport_id: self.sport_id, season_id: self.season_id, category_id: self.category_id).where.not(club_id: self.club_id)
-  end
-
-  # return list of potential rivals - used for text boxes - matching category & season
-  def rival_teams_info
-    self.rival_teams.map { |team| [ team.nick, team.homecourt_id ] }.to_h
-  end
-
-  # Return upcoming events for the Team
-  def upcoming_events
-    self.events.non_training.short_term
-  end
-
-  # return a hash with {won:, lost:} games
-  def win_loss
-    res     = { won: 0, lost: 0 }
-    matches = self.events.matches
-    matches.each do |m|
-      score = m.total_score # our team first
-      if score[:ours][:points] > score[:opps][:points]
-        res[:won]  += 1
-      elsif score[:opps][:points] > score[:ours][:points]
-        res[:lost] += 1
-      end
-    end
-    res
-  end
-
-  #-------------------------------------
-  # Team builder/update methods
-  #-------------------------------------
-
-  # rebuild Teamm from raw hash returned by a form
-  def rebuild(f_data)
-    self.category_id  = f_data[:category_id].to_i if f_data[:category_id]
-    self.club_id      = f_data[:club_id].presence if f_data[:club_id].present?
-    self.division_id  = f_data[:division_id].to_i if f_data[:division_id]
-    self.homecourt_id = f_data[:homecourt_id].to_i if f_data[:homecourt_id]
-    self.name         = f_data[:name].presence if f_data[:name].present?
-    self.nick         = f_data[:nick].presence if f_data[:nick].present?
-    self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
-    self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
-    check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
-    sync_coaches(f_data[:coach_ids]) if f_data[:coach_ids]
-    sync_roster(f_data[:athlete_ids]) if f_data[:athlete_ids]
-  end
-
-  # check if drill (or associations) has changed
-  def modified?
-    changed? ||
-      @modified ||
-      assignments.any?(&:saved_changes?) ||
-      team_targets.any?(&:saved_changes?)
-  end
-
-  #-------------------------------------
-  # Team class-wide methods
-  #-------------------------------------
-
-  # Wrappper to handle creation of a new Team from params
-  # received from Teams form, discarding the optional arguments
-  def self.build(f_data)
-    t_data = f_data.permit(
-      :category_id,
-      :club_id,
-      :division_id,
-      :homecourt_id,
-      :name,
-      :nick,
-      :season_id,
-      :sport_id
-    )
-    Team.new(t_data)
-  end
-
-  # Apply a Filter to Teams using params received from a controller.
-  def self.filter(filters)
-    return all unless filters.present?
-
-    club_id  = filters["club_id"]&.to_i
-    season_id = filters["season_id"]&.presence
-
-    return all unless club_id || season_id
-
-    scope = for_club(club_id).for_season(season_id)
-
-    filters["column"] ?
-      scope.order("#{filters['column']} #{filters['direction']}") :
-      scope.order(:name)
-  end
-
-  # Search teams for a club matching season
-  def self.search(club_id:, season_id: nil)
-    scope = for_club(club_id)
-    scope = scope.for_season(season_id) if season_id.present?
-    scope.order(:category_id)
-  end
-
-  private
-    #-------------------------------------
-    # Team Assignment management
-    #-------------------------------------
-
-    # Coach sync with head/assistant logic
-    def sync_coaches(coach_ids)
-      desired   = normalize_uuids(coach_ids)
-      current   = current_membership_ids([ :head_coach, :assistant_coach ])
-      to_add    = desired - current
-      to_remove = current - desired
-
-      # Remove first so head/assistant logic works on the remaining
-      remove_assignments(to_remove, [ :head_coach, :assistant_coach ])
-
-      to_add.each do |membership_id|
-        head_exists = assignments.current.where(kind: :head_coach).exists?
-        coach_kind  = head_exists ? :assistant_coach : :head_coach
-        activate_member(membership_id, coach_kind)
-        @modified = true
-      end
-
-      # must have at least one head_coach
-      coaches.current.first.update!(kind: :head_coach) unless
-        assignments.current.where(kind: :head_coach).exists?
-    end
-
-    def sync_roster(athlete_ids)
-      kinds     = [ :athlete, :captain ]
-      desired   = normalize_uuids(athlete_ids)
-      current   = current_membership_ids(kinds)
-      to_add    = desired - current
-      to_remove = current - desired
-
-      ensure_assignments(to_add, :athlete)
-      remove_assignments(to_remove, kinds)
-    end
-
-    # Normalize UUIDs: convert to string, remove blanks
-    def normalize_uuids(uuids)
-      uuids.to_a.filter_map { |uuid| uuid.to_s.presence }.uniq
-    end
-
-    # Helpers for current membership IDs
-    def current_membership_ids(kinds)
-      kinds = Array(kinds)
-      assignments.current.where(kind: kinds).pluck(:membership_id).map(&:to_s)
-    end
-
-    def ensure_assignments(membership_ids, kind)
-      membership_ids.each do |membership_id|
-        next unless membership_id.present?
-        activate_member(membership_id, kind)
-        @modified = true
-      end
-    end
-
-    def activate_member(membership_id, kind)
-      terminated = assignments.terminated.find_by(membership_id:, kind:)
-      if terminated
-        terminated.reinstate!
-      else
-        assignments.create!(
-          membership_id:,
-          kind:,
-          starts_on: [ Date.current, season.start_date ].max,
-          status: :active
-         )
-      end
-    end
-
-    # Remove assignments (terminate) – supports single or array of kinds
-    def remove_assignments(membership_ids, kinds)
-      return if membership_ids.empty?
-      kinds = Array(kinds)
-      assignments.current
-        .where(membership_id: membership_ids, kind: kinds)
-        .find_each do |assignment|
-          assignment.terminate!
-          @modified = true
-        end
-    end
-
-    #-------------------------------------
-    # TEMPORARY COMPATIBILITY
-    # TODO: Remove after Player/Coach are unnecessary
-    #-------------------------------------
-    def synchronize_legacy_associations
-      sync_legacy_players
-      sync_legacy_coaches
-    end
-
-    def sync_legacy_players
-      desired_players = athletes(current: true)
-        .includes(membership: :person)
-        .filter_map { |assignment| assignment.membership.person.player }
-        .uniq
-
-      sync_legacy_collection(players, desired_players)
-    end
-
-    def synchronize_legacy_coaches
-      desired_coaches = coaches(current: true)
-        .includes(membership: :person)
-        .filter_map { |assignment| assignment.membership.person.coach }
-        .uniq
-
-      sync_legacy_collection(coaches, desired_coaches)
-    end
-
-    def sync_legacy_collection(association, desired)
-      current = association.to_a
-
-      (desired - current).each do |person|
-        association << person
-        @modified = true
-      end
-
-      (current - desired).each do |person|
-        association.delete(person)
-        @modified = true
-      end
-    end
-
-    #-------------------------------------
-    # Manage team targets from form data
-    #-------------------------------------
-
-    # ensure we get the right targets
-    def check_targets(t_array)
-      a_targets = Target.passed(t_array)
-      a_targets.each do |t| # second pass - manage associations
-        if t[:_destroy] == "1"	# remove team_target
-          TeamTarget.find(t[:id].to_i).delete
-          @modified = true
-        else	# ensure creation of team_targets
-          tt = TeamTarget.fetch(t)
-          tt.save unless tt.persisted?
-          @modified = true unless self.team_targets.include?(tt)
-          self.team_targets ? self.team_targets << tt : self.team_targets |= tt
-        end
-      end
-    end
-
-    # search team_targets based on target attributes
-    def search_targets(month = 0, aspect = nil, focus = nil)
-      tgt = self.team_targets.monthly(month)
-      res = Array.new
-      tgt.each do |p|
-        if aspect && focus
-          res.push p if (p.target.aspect_before_type_cast == aspect) && (p.target.focus_before_type_cast == focus)
-        elsif aspect
-          res.push p if p.target.aspect_before_type_cast == aspect
-        elsif focus
-          res.push p if p.target.focus_before_type_cast == focus
-        else
-          res.push p
-        end
-      end
-      res
-    end
-
-    # unlink dependents properly, if deleting team
-    def unlink
-      UserAction.prune("/clubs/#{self.club.id}/teams/#{self.id}")
-    end
+	localized_as "training.team"
+
+	before_destroy :unlink
+
+	#-------------------------------------
+	# Object relationships
+	#-------------------------------------
+	belongs_to :club
+	belongs_to :category
+	belongs_to :division
+	belongs_to :season
+	belongs_to :sport
+	has_many :assignments, dependent: :destroy
+	has_many :members, through: :assignments, source: :membership
+	has_one :homecourt
+	has_one :rules, through: :category
+	has_many :slots, dependent: :destroy
+	has_many :events, dependent: :destroy
+	has_many :team_targets, dependent: :destroy
+	has_many :targets, through: :team_targets
+	accepts_nested_attributes_for :assignments
+	accepts_nested_attributes_for :events
+	accepts_nested_attributes_for :targets
+	accepts_nested_attributes_for :team_targets
+
+	#-------------------------------------
+	# Class Scopes & filter fields
+	#-------------------------------------
+	scope :ordered, -> { order(category_id: :asc) }
+	scope :real, -> { where("id>0") }
+	scope :for_season, ->(season_id) { (season_id.to_i > 0) ? where(season_id: season_id.to_i) : all }
+	scope :for_club, ->(club_id) { (club_id.to_i > 0) ? where(club_id: club_id.to_i) : all }
+	FILTER_PARAMS = %i[club_id season_id].freeze
+
+
+	#-------------------------------------
+	# Team common strings
+	#-------------------------------------
+
+	# return team name in string format
+	def to_s(xls: false)
+		if xls
+			cad = self.category.to_s.gsub(/[\/|\\|?|*|:|\[|\]]/, "")[0, 27]
+			return cad += "_#{self.id.to_s.rjust(3, '0')}"
+		end
+		return I18n.t("scope.none") if self.id==0
+		return self.name if self.name.present?
+		return self.nick if self.nick.present?
+		self.category.to_s
+	end
+
+	# return a sport-specific term
+	def term(*parts)
+		self.sport.specific.term(*parts)
+	end
+
+	#-------------------------------------
+	# Team member accessors
+	#-------------------------------------
+
+	def members(current: false)
+		current ?
+			assignments.current :
+			assignments
+	end
+
+	def has_assignment_for?(person, kind: nil, current: false)
+		scope = members(current:)
+			.joins(:membership)
+			.where(memberships: { person_id: person&.id })
+
+		scope = scope.of_kind(kind) if kind.present?
+
+		scope.exists?
+	end
+
+	def athletes(current: false)
+		members(current:).of_membership_kind(:athlete)
+	end
+
+	def athlete_ids(current: true)
+		athletes.pluck(:membership_id)
+	end
+
+	def has_athlete?(person)
+		athletes(current: true)
+			.joins(:membership)
+			.where(memberships: { person_id: person&.id })
+			.exists?
+	end
+
+	def coaches(current: false)
+		members(current:).of_membership_kind(:coach).order(:kind)
+	end
+
+	def coach_ids(current: true)
+		coaches.pluck(:membership_id)
+	end
+
+	def has_coach?(person)
+		coaches(current: true)
+			.joins(:membership)
+			.where(memberships: { person_id: person&.id })
+			.exists?
+	end
+
+	#-------------------------------------
+	# Team eligbility
+	#-------------------------------------
+
+	# Get a list of athletes that are valid to play in this team
+	def eligible_athletes(exclude_assigned: false)
+		s_year = season.start_year
+
+		scope = club.memberships.current.
+			of_kind(:athlete).
+			joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
+
+		case category.sex
+		when "female"
+			scope = scope.where(people: { female: true })
+		when "male"
+			scope = scope.where(people: { female: false })
+		end
+
+		# Optionally exclude athletes already assigned to this team
+		if exclude_assigned
+			assigned_person_ids = assignments
+															.joins(membership: :person)
+															.where(kind: :athlete)
+															.pluck("people.id")
+			scope = scope.where.not(person_id: assigned_person_ids) if assigned_person_ids.any?
+		end
+
+		scope
+	end
+
+	# Get a list of athletes that are not members but are authorised to play in this team
+	def optional_athletes
+		eligible_athletes(include_assigned: false)
+	end
+
+	#-------------------------------------
+	# Team target accessors & checks
+	#-------------------------------------
+
+	# collective target filtering methods
+	def collective_def(month = 0)
+		search_targets(month, 2, 2)
+	end
+
+	def collective_off(month = 0)
+		search_targets(month, 2, 1)
+	end
+
+	# general Team target filtering methods
+	def general_def(month = 0)
+		search_targets(month, 0, 2)
+	end
+
+	def general_off(month = 0)
+		search_targets(month, 0, 1)
+	end
+
+	# Individual skill target filtering methods
+	def individual_def(month = 0)
+		search_targets(month, 1, 2)
+	end
+
+	def individual_off(month = 0)
+		search_targets(month, 1, 1)
+	end
+
+	#-------------------------------------
+	# Training session helpers
+	#-------------------------------------
+
+	# get attendance data for a team in the season
+	# returns partial & serialised numbers for attendance: trainings [%]
+	def attendance
+		t_athletes = self.athletes.count
+		return nil if t_athletes.zero?	# NO ATHLETES IN TEAM --> NO ATTENDANCE DATA
+
+		d_morrow = Date.today + 1	# tomorrow
+		d_last7  = d_morrow - 8	# date limit for last 7 days
+		d_last30 = d_morrow - 31	# date limit for last 30 days
+		l_week   = { tot: 0, att: 0 }
+		l_month  = { tot: 0, att: 0 }
+		l_season = { tot: 0, att: 0 }
+		sessions = { name: sport.specific.term(:athlete, :plural), avg: 0, data: {} }
+		t_events = self.events.past.trainings.includes(:attendances)
+		t_att    = Attendance.for_team(self)
+		t_events.each do |event|
+			if event.train?
+				e_cnt           = t_att.for_event(event).count
+				e_date          = event.start_date
+				l_season[:tot] += t_athletes
+				l_season[:att] += e_cnt
+				sessions[:avg] += e_cnt
+				if e_date.between?(d_last30, d_morrow)	# event in last month
+					l_month[:tot]  += t_athletes
+					l_month[:att]  += e_cnt
+					if e_date > d_last7	# event occurs in last 7 days
+						l_week[:att] += e_cnt
+						l_week[:tot] += t_athletes
+					end
+				end
+				sessions[:data][e_date] = e_cnt # add to sessions
+			end
+		end
+		sessions[:week]  = l_week[:tot]>0 ? (100*l_week[:att]/l_week[:tot]).to_i : nil
+		sessions[:month] = l_month[:tot]>0 ? (100*l_month[:att]/l_month[:tot]).to_i : nil
+		sessions[:avg]   = l_season[:tot]>0 ? (100*l_season[:att]/l_season[:tot]).to_i : nil
+		{ sessions: sessions }
+	end
+
+	# return next free training_slot
+	# after the last existing one in the calendar
+	def next_slot(last = nil)
+		d   = last ? last.start_time.to_date : Date.today	# last planned slot date
+		res = nil
+		self.slots.each { |slot|
+			s   = slot.next_date(d)
+			res = res ? (s < res.next_date(d) ? slot : res) : slot
+		}
+		res
+	end
+
+	#-------------------------------------
+	# Match/Competition helpers
+	#-------------------------------------
+
+	# return potential rival teams - matching category & season
+	def rival_teams
+		Team.where(sport_id: self.sport_id, season_id: self.season_id, category_id: self.category_id).where.not(club_id: self.club_id)
+	end
+
+	# return list of potential rivals - used for text boxes - matching category & season
+	def rival_teams_info
+		self.rival_teams.map { |team| [ team.nick, team.homecourt_id ] }.to_h
+	end
+
+	# Return upcoming events for the Team
+	def upcoming_events
+		self.events.non_training.short_term
+	end
+
+	# return a hash with {won:, lost:} games
+	def win_loss
+		res     = { won: 0, lost: 0 }
+		matches = self.events.matches
+		matches.each do |m|
+			score = m.total_score # our team first
+			if score[:ours][:points] > score[:opps][:points]
+				res[:won]  += 1
+			elsif score[:opps][:points] > score[:ours][:points]
+				res[:lost] += 1
+			end
+		end
+		res
+	end
+
+	#-------------------------------------
+	# Team builder/update methods
+	#-------------------------------------
+
+	# rebuild Teamm from raw hash returned by a form
+	def rebuild(f_data)
+		self.category_id  = f_data[:category_id].to_i if f_data[:category_id]
+		self.club_id      = f_data[:club_id].presence if f_data[:club_id].present?
+		self.division_id  = f_data[:division_id].to_i if f_data[:division_id]
+		self.homecourt_id = f_data[:homecourt_id].to_i if f_data[:homecourt_id]
+		self.name         = f_data[:name].presence if f_data[:name].present?
+		self.nick         = f_data[:nick].presence if f_data[:nick].present?
+		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
+		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
+		check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
+		sync_coaches(f_data[:coach_ids]) if f_data[:coach_ids]
+		sync_roster(f_data[:athlete_ids]) if f_data[:athlete_ids]
+	end
+
+	# check if drill (or associations) has changed
+	def modified?
+		changed? ||
+			@modified ||
+			assignments.any?(&:saved_changes?) ||
+			team_targets.any?(&:saved_changes?)
+	end
+
+	#-------------------------------------
+	# Team class-wide methods
+	#-------------------------------------
+
+	# Wrappper to handle creation of a new Team from params
+	# received from Teams form, discarding the optional arguments
+	def self.build(f_data)
+		t_data = f_data.permit(
+			:category_id,
+			:club_id,
+			:division_id,
+			:homecourt_id,
+			:name,
+			:nick,
+			:season_id,
+			:sport_id
+		)
+		Team.new(t_data)
+	end
+
+	# Apply a Filter to Teams using params received from a controller.
+	def self.filter(filters)
+		return all unless filters.present?
+
+		club_id  = filters["club_id"]&.to_i
+		season_id = filters["season_id"]&.presence
+
+		return all unless club_id || season_id
+
+		scope = for_club(club_id).for_season(season_id)
+
+		filters["column"] ?
+			scope.order("#{filters['column']} #{filters['direction']}") :
+			scope.order(:name)
+	end
+
+	# Search teams for a club matching season
+	def self.search(club_id:, season_id: nil)
+		scope = for_club(club_id)
+		scope = scope.for_season(season_id) if season_id.present?
+		scope.order(:category_id)
+	end
+
+	private
+		#-------------------------------------
+		# Team Assignment management
+		#-------------------------------------
+
+		# Coach sync with head/assistant logic
+		def sync_coaches(coach_ids)
+			desired   = normalize_uuids(coach_ids)
+			current   = current_membership_ids([ :head_coach, :assistant_coach ])
+			to_add    = desired - current
+			to_remove = current - desired
+
+			# Remove first so head/assistant logic works on the remaining
+			remove_assignments(to_remove, [ :head_coach, :assistant_coach ])
+
+			to_add.each do |membership_id|
+				head_exists = assignments.current.where(kind: :head_coach).exists?
+				coach_kind  = head_exists ? :assistant_coach : :head_coach
+				activate_member(membership_id, coach_kind)
+				@modified = true
+			end
+
+			# must have at least one head_coach
+			coaches.current.first.update!(kind: :head_coach) unless
+				assignments.current.where(kind: :head_coach).exists?
+		end
+
+		def sync_roster(athlete_ids)
+			kinds     = [ :athlete, :captain ]
+			desired   = normalize_uuids(athlete_ids)
+			current   = current_membership_ids(kinds)
+			to_add    = desired - current
+			to_remove = current - desired
+
+			ensure_assignments(to_add, :athlete)
+			remove_assignments(to_remove, kinds)
+		end
+
+		# Normalize UUIDs: convert to string, remove blanks
+		def normalize_uuids(uuids)
+			uuids.to_a.filter_map { |uuid| uuid.to_s.presence }.uniq
+		end
+
+		# Helpers for current membership IDs
+		def current_membership_ids(kinds)
+			kinds = Array(kinds)
+			assignments.current.where(kind: kinds).pluck(:membership_id).map(&:to_s)
+		end
+
+		def ensure_assignments(membership_ids, kind)
+			membership_ids.each do |membership_id|
+				next unless membership_id.present?
+				activate_member(membership_id, kind)
+				@modified = true
+			end
+		end
+
+		def activate_member(membership_id, kind)
+			terminated = assignments.terminated.find_by(membership_id:, kind:)
+			if terminated
+				terminated.reinstate!
+			else
+				assignments.create!(
+					membership_id:,
+					kind:,
+					starts_on: [ Date.current, season.start_date ].max,
+					status: :active
+				)
+			end
+		end
+
+		# Remove assignments (terminate) – supports single or array of kinds
+		def remove_assignments(membership_ids, kinds)
+			return if membership_ids.empty?
+			kinds = Array(kinds)
+			assignments.current
+				.where(membership_id: membership_ids, kind: kinds)
+				.find_each do |assignment|
+					assignment.terminate!
+					@modified = true
+				end
+		end
+
+		#-------------------------------------
+		# Manage team targets from form data
+		#-------------------------------------
+
+		# ensure we get the right targets
+		def check_targets(t_array)
+			a_targets = Target.passed(t_array)
+			a_targets.each do |t| # second pass - manage associations
+				if t[:_destroy] == "1"	# remove team_target
+					TeamTarget.find(t[:id].to_i).delete
+					@modified = true
+				else	# ensure creation of team_targets
+					tt = TeamTarget.fetch(t)
+					tt.save unless tt.persisted?
+					@modified = true unless self.team_targets.include?(tt)
+					self.team_targets ? self.team_targets << tt : self.team_targets |= tt
+				end
+			end
+		end
+
+		# search team_targets based on target attributes
+		def search_targets(month = 0, aspect = nil, focus = nil)
+			tgt = self.team_targets.monthly(month)
+			res = Array.new
+			tgt.each do |p|
+				if aspect && focus
+					res.push p if (p.target.aspect_before_type_cast == aspect) && (p.target.focus_before_type_cast == focus)
+				elsif aspect
+					res.push p if p.target.aspect_before_type_cast == aspect
+				elsif focus
+					res.push p if p.target.focus_before_type_cast == focus
+				else
+					res.push p
+				end
+			end
+			res
+		end
+
+		# unlink dependents properly, if deleting team
+		def unlink
+			UserAction.prune("/clubs/#{self.club.id}/teams/#{self.id}")
+		end
 end

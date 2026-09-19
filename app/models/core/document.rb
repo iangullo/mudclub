@@ -91,10 +91,6 @@ class Document < ApplicationRecord
 		Catalog::DocumentKinds.fetch(kind).file_type
 	end
 
-	def modified?
-		changed? || !!file.changed?
-	end
-
 	def self.kind_label(kind, ...)
 		Catalog::DocumentKinds.val(kind, ...)
 	end
