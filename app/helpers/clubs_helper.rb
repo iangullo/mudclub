@@ -47,7 +47,7 @@ module ClubsHelper
 			opt = { status: :active, rdx: 0 }
 			if @policy.manage_members?
 				res << [
-					button_field({ kind: :jump, symbol: :board_member, url: club_assignments_path(@club, kind: :board_members, **opt), label: Catalog::MembershipKinds.val(:board_member, :plural) }, align: :center),
+					button_field({ kind: :jump, symbol: :board_member, url: club_assignments_path(@club, kind: :board_members, **opt), label: Membership.kind_label(:board_member, :plural) }, align: :center),
 					button_field({ kind: :jump, symbol: :athlete, url: club_members_path(@club, kind: :athletes, **opt), label: Sport.term(:athlete, :plural) }, align: :center),
 					button_field({ kind: :jump, symbol: :coach, url: club_members_path(@club, kind: :coaches, **opt), label:  Sport.term(:coach, :plural) }, align: :center),
 					button_field({ kind: :jump, symbol: :document, url: club_documents_path(@club, rdx: 0), label: Document.label(:plural) }, align: :center)

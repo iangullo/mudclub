@@ -23,7 +23,7 @@ module AssignmentsHelper
 			club: assignment.club,
 			member: assignment.membership,
 			team: assignment.team,
-			membership_kind: Catalog::AssignmentKinds.membership_kind(assignment.kind)
+			membership_kind: Assignment.kind_catalog.membership_kind(assignment.kind)
 		}
 	end
 
@@ -106,7 +106,7 @@ module AssignmentsHelper
 			origin:,
 			club: assignment.club,
 			team: assignment.team,
-			kind: Catalog::AssignmentKinds.membership_kind(assignment.kind),
+			kind: Assignment.kind_catalog.membership_kind(assignment.kind),
 			search: params[:search].presence
 		)
 	end

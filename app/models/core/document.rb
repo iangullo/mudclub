@@ -25,33 +25,41 @@
 class Document < ApplicationRecord
 	localized_as "core.documents"
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
 	belongs_to :club, optional: true
 	belongs_to :person, optional: true
 	belongs_to :registration, optional: true
 
 	has_one_attached :file
 
-	enum :kind,
-			Catalog::DocumentKinds.enum,
-			prefix: true
-
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
 	validates :kind, presence: true
 	validates :file, presence: true
 	validate :single_owner
 
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include Kinded
+
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
 	scope :active, -> { where(active: true) }
 	scope :for_club, ->(club) { where(club:) }
 	scope :for_person, ->(registration) { where(person:) }
 	scope :for_registration, ->(registration) { where(registration:) }
-	scope :of_kind, ->(kind) { where(kind:) }
 	scope :current, -> { where(active: true) }
 
+	#-------------------------------------
+	# General API methods
+	#-------------------------------------
 	def current?
 		active?
-	end
-
-	def kind_label(...)
-		Catalog::DocumentKinds.val(kind, ...)
 	end
 
 	def club_document?
@@ -88,31 +96,24 @@ class Document < ApplicationRecord
 	end
 
 	def file_type
-		Catalog::DocumentKinds.fetch(kind).file_type
-	end
-
-	def self.kind_label(kind, ...)
-		Catalog::DocumentKinds.val(kind, ...)
+		kind_catalog.fetch(kind.to_sym).file_type
 	end
 
 	def self.kind_list(owner)
-		case owner
-		when Club
-			applies_to = :club
-		when Registration
-			applies_to = :registration
-		when Person, User
-			applies_to = :person
-		else
-			return []
-		end
-
-		Catalog::DocumentKinds.option_list(applies_to:)
+		kind_catalog.option_list(applies_to: applies_to_for(owner))
 	end
 
 	private
 		def single_owner
 			owners = [ club_id, registration_id, person_id ].compact
 			errors.add(:base, :invalid_owner) unless owners.size == 1
+		end
+
+		def self.applies_to_for(owner)
+			case owner
+			when Club					then :club
+			when Registration then :registration
+			when Person, User then :person
+			end
 		end
 end

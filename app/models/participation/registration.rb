@@ -22,8 +22,10 @@
 #
 class Registration < ApplicationRecord
 	localized_as "participation.registration"
-	include Auditable
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
 	belongs_to :club
 	belongs_to :requested_team, class_name: "Team", optional: true
 	has_many :documents, dependent: :destroy
@@ -31,45 +33,37 @@ class Registration < ApplicationRecord
 	accepts_nested_attributes_for :documents,
 															allow_destroy: true
 
-	enum :kind, Catalog::RegistrationKinds.enum, prefix: true
 	enum :status, Catalog::RegistrationStatuses.enum, prefix: true
 	enum :requester_kind, Catalog::RequesterKinds.enum, prefix: true
 
 	#-------------------------------------
 	# Validations
 	#-------------------------------------
-	validates :kind,
-						:status,
-						:requester_kind,
-						:club,
-						:candidate_name,
-						:candidate_surname,
+	validates :kind, :status, :requester_kind, :club,
+						:candidate_name, :candidate_surname,
 						presence: true
 
 	validate :team_required
+
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include Auditable
+	include Kinded
+
 
 	#-------------------------------------
 	# Scopes
 	#-------------------------------------
 	scope :for_club, ->(club) { where(club:) }
 	scope :for_team, ->(team) {	where(requested_team: team) }
-	scope :of_kind, ->(kind) { where(kind:) }
 	scope :pending, -> {
 		where(status: %i[submitted under_review awaiting_requester])
 	}
 
 	#-------------------------------------
-	# General Assignment methods
+	# General API methods
 	#-------------------------------------
-
-	def kind_image
-		Catalog::RegistrationKinds.normalize(kind) || :person
-	end
-
-	def kind_label(...)
-		Catalog::RegistrationKinds.val(kind, ...)
-	end
-
 	# registration identifier for views
 	def s_name
 		"##{id}"
@@ -145,22 +139,6 @@ class Registration < ApplicationRecord
 		allowed_transitions.include?(new_status.to_sym)
 	end
 
-	# -------------------------------------------------------------------------
-	# Controller façade methods
-	# -------------------------------------------------------------------------
-
-	def self.kind_image(kind)
-		Catalog::RegistrationKinds.normalize(kind) || :person
-	end
-
-	def self.kind_label(kind, ...)
-		Catalog::RegistrationKinds.val(kind, ...)
-	end
-
-	def self.kind_list
-		Catalog::RegistrationKinds.option_list(selectable: true)
-	end
-
 	private
 		def transition_to!(new_status)
 			allowed = Catalog::RegistrationStatuses
@@ -177,7 +155,7 @@ class Registration < ApplicationRecord
 
 		# validate coherent team defined for assignment
 		def team_required
-			return unless Catalog::MembershipKinds.fetch(kind)[:team_required]
+			return unless kind_catalog.fetch(kind)[:team_required]
 
 			errors.add(:requested_team, :blank) unless requested_team.present?
 		end

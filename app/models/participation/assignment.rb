@@ -24,10 +24,10 @@
 #
 class Assignment < ApplicationRecord
 	localized_as "participation.assignment"
-	include Auditable
-	include Participatory
-	include PersonBearing
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
 	belongs_to :membership
 	belongs_to :team, optional: true
 	has_many :attendances
@@ -38,28 +38,6 @@ class Assignment < ApplicationRecord
 	# assignment-specific picture can be taken
 	has_one_attached :avatar
 
-	# Membership kinds identify the reason why a person belongs to a club.
-	# Operational responsibilities are modelled through Participation::Assignment.
-	enum :kind,
-			Catalog::AssignmentKinds.enum,
-			prefix: true
-
-	#-------------------------------------
-	# Convenient delegations
-	#-------------------------------------
-	delegate :club,
-					:person,
-					:age,
-					:birthday,
-					:email,
-					:female,
-					:name,
-					:nick,
-					:phone,
-					:relationships,
-					:surname,
-					to: :membership
-
 	#-------------------------------------
 	# Validations
 	#-------------------------------------
@@ -69,11 +47,35 @@ class Assignment < ApplicationRecord
 	validate :team_required
 
 	#-------------------------------------
+	# Convenient delegations
+	#-------------------------------------
+	delegate :club, :person, :age, :birthday, :email, :female, :name, :nick,
+					:phone, :relationships, :surname,
+					to: :membership
+
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include Auditable
+	include Kinded
+	include Participatory
+	include PersonBearing
+
+	#-------------------------------------
 	# Scopes
 	#-------------------------------------
 	scope :active, -> { where(ends_on: nil) }
+	scope :on_date, ->(date = Date.current) {
+		where("starts_on <= ?", date)
+			.where("ends_on IS NULL OR ends_on >= ?", date)
+	}
+
 	scope :club_level, -> { where(team_id: nil) }
 	scope :team_level, -> { where.not(team_id: nil) }
+
+	scope :female, -> { joins(:person).where("female = true") }
+	scope :male, -> { joins(:person).where("female = false") }
+	scope :by_number, -> { order(Arel.sql("CAST(number AS INTEGER) NULLS LAST")) }
 
 	scope :for_club, ->(club) {
 		joins(:membership).where(memberships: { club_id: club.id })
@@ -81,12 +83,13 @@ class Assignment < ApplicationRecord
 
 	scope :for_team, ->(team) {	for_club(team.club).where(team: team) }
 
-	scope :of_kind, ->(kind) { where(kind:) }
-
 	scope :of_membership_kind, ->(kind) {
 		joins(:membership).merge(Membership.of_kind(kind))
 	}
 
+	# -------------------------------------------------------------------------
+	# Text search scope
+	# -------------------------------------------------------------------------
 	scope :search_text, ->(text) {
 		return all unless text.present?
 
@@ -94,30 +97,11 @@ class Assignment < ApplicationRecord
 			.where(memberships: { person_id: Person.search(text) })
 	}
 
-	scope :on_date, ->(date = Date.current) {
-		where("starts_on <= ?", date)
-			.where("ends_on IS NULL OR ends_on >= ?", date)
-	}
-	scope :terminated, -> { where(status: :terminated) }
-
-	scope :current, -> { where(status: [ :active, :suspended ]) }
-	scope :female, -> { joins(:person).where("female = true") }
-	scope :male, -> { joins(:person).where("female = false") }
-	scope :by_number, -> { order(Arel.sql("CAST(number AS INTEGER) NULLS LAST")) }
-
 	#-------------------------------------
-	# General Assignment methods
+	# General API methods
 	#-------------------------------------
 	def assigned_to
 		team ? team :	membership.club
-	end
-
-	def kind_image
-		Catalog::AssignmentKinds.normalize(kind) || :person
-	end
-
-	def kind_label(...)
-		Catalog::AssignmentKinds.val(kind, ...)
 	end
 
 	# personal photo or membership kind symbol
@@ -134,6 +118,8 @@ class Assignment < ApplicationRecord
 	def s_name
 		person&.s_name || membership.kind_label
 	end
+
+	def self.kind_list(scope: :team, **rest) = kind_catalog.option_list(scope:, **rest)
 
 	#-------------------------------------
 	# Attendance helpers
@@ -282,26 +268,14 @@ class Assignment < ApplicationRecord
 		scope
 	end
 
-	def self.kind_image(kind)
-		Catalog::AssignmentKinds.normalize(kind) || :person
-	end
-
-	def self.kind_label(kind, ...)
-		Catalog::AssignmentKinds.val(kind, ...)
-	end
-
-	def self.kind_list(scope: :team)
-		Catalog::AssignmentKinds.option_list(scope:)
-	end
-
 	private
 		# validate coherent team defined for assignment
 		def team_required
-			if Catalog::AssignmentKinds.team_level?(kind) && team.blank?
+			if kind_catalog.team_level?(kind) && team.blank?
 				errors.add(:team, :blank)
 			end
 
-			if Catalog::AssignmentKinds.club_level?(kind) && team.present?
+			if kind_catalog.club_level?(kind) && team.present?
 				errors.add(:team, :invalid)
 			end
 		end

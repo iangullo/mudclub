@@ -31,11 +31,10 @@
 #
 class Membership < ApplicationRecord
 	localized_as "participation.membership"
-	include Auditable
-	include Participatory
-	include PersonBearing
-	after_create :ensure_legacy_record!
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
 	belongs_to :club
 	belongs_to :person
 	accepts_nested_attributes_for :person
@@ -47,12 +46,9 @@ class Membership < ApplicationRecord
 	# attachment of notes to be handled
 	has_rich_text :notes
 
-	# Membership kinds identify the reason why a person belongs to a club.
-	# Operational responsibilities are modelled through Participation::Assignment.
-	enum :kind,
-			Catalog::MembershipKinds.enum,
-			prefix: true
-
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
 	validates :kind,
 						:status,
 						:joined_on,
@@ -60,66 +56,47 @@ class Membership < ApplicationRecord
 
 	validate :kind_cannot_change, on: :update
 
-	# -------------------------------------------------------------------------
-	# Time scopes
-	# -------------------------------------------------------------------------
+	#-------------------------------------
+	# Convenient delegations
+	#-------------------------------------
+	delegate :avatar, :age, :birthday, :email, :female, :name, :nick, :phone,
+					:relationships, :surname, :s_name, :to_s,
+					to: :person, allow_nil: true
 
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include Auditable
+	include Kinded
+	include Participatory
+	include PersonBearing
+
+	# -------------------------------------------------------------------------
+	# Scopes
+	# -------------------------------------------------------------------------
 	scope :on_date, ->(date = Date.current) {
 		where("joined_on <= ?", date)
 			.where("left_on IS NULL OR left_on >= ?", date)
 	}
-
-	scope :current, -> { where(status: [ :active, :suspended ]) }
-
 	scope :historical, -> { where.not(left_on: nil) }
 
-	# -------------------------------------------------------------------------
-	# Business scopes
-	# -------------------------------------------------------------------------
-
-	scope :for_club, ->(club) {
-		club.present? ? where(club:) : all
-	}
-
-	scope :of_kind, ->(kind) {
-		kind.present? ? where(kind:) : all
-	}
+	scope :for_club, ->(club) { club.present? ? where(club:) : all }
 
 	# -------------------------------------------------------------------------
 	# Text search scope
 	# -------------------------------------------------------------------------
 
 	scope :search_text, ->(text) {
-		if text.present?
-			joins(:person)
-				.where(person_id: Person.search(text))
-		else
-			all
-		end
+		return all unless text.present?
+		joins(:person).where(person_id: Person.search(text))
 	}
 
-	delegate :avatar,
-					:age,
-					:birthday,
-					:email,
-					:female,
-					:name,
-					:nick,
-					:phone,
-					:relationships,
-					:surname,
-					:s_name,
-					:to_s,
-					to: :person,
-					allow_nil: true
-
-	#
-	# Predicates
-	#
-
+	# -------------------------------------------------------------------------
+	# General API for Membership model
+	# -------------------------------------------------------------------------
 	# short name for form viewing
 	def s_name
-		person&.s_name || Catalog::MembershipKinds.val(kind)
+		person&.s_name || kind_catalog.val(kind)
 	end
 
 	# personal photo or membership kind symbol
@@ -129,14 +106,6 @@ class Membership < ApplicationRecord
 		# if no attached avatar, return the symbol name
 		# to be rendered as: symbol_field(symbol)
 		kind_image
-	end
-
-	def kind_image
-		Catalog::MembershipKinds.normalize(kind) || :person
-	end
-
-	def kind_label(...)
-		Catalog::MembershipKinds.val(kind, ...)
 	end
 
 	def overlaps?(other)
@@ -229,18 +198,6 @@ class Membership < ApplicationRecord
 		end
 
 		scope
-	end
-
-	def self.kind_image(kind)
-		Catalog::MembershipKinds.normalize(kind) || :person
-	end
-
-	def self.kind_label(kind, ...)
-		Catalog::MembershipKinds.val(kind, ...)
-	end
-
-	def self.kind_list
-		Catalog::MembershipKinds.option_list
 	end
 
 	# Routes use :member / :members

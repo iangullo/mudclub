@@ -20,18 +20,16 @@ class Relationship < ApplicationRecord
 	localized_as "people.relationship"
 	self.table_name = "person_relationships"
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
 	belongs_to :person
 	belongs_to :related_person, class_name: "Person"
 	accepts_nested_attributes_for :related_person
 
-	enum :kind, Catalog::RelationshipKinds.enum
-
-	scope :in_group, ->(group) {
-		kinds = Catalog::RelationshipKinds.with_group(group)
-		raise ArgumentError, "Unknown relationship group: #{group.inspect}" if kinds.empty?
-		where(kind: kinds)
-	}
-
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
 	validates :person, presence: true
 	validates :related_person, presence: true
 	validates :kind, presence: true
@@ -45,21 +43,34 @@ class Relationship < ApplicationRecord
 						}
 	validate :related_person_must_be_valid
 
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include Kinded
+
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :in_group, ->(group) {
+		kinds = kind_catalog.with_group(group)
+		raise ArgumentError, "Unknown relationship group: #{group.inspect}" if kinds.empty?
+		where(kind: kinds)
+	}
+
+	#-------------------------------------
+	# General API methods
+	#-------------------------------------
 	def kind_for(viewer = nil)
 		viewer == related_person ? inverse_kind : kind.to_sym
 	end
 
 	def inverse_kind
-		Catalog::RelationshipKinds.inverse_of(kind.to_sym)
-	end
-
-	def kind_label(...)
-		self.class.kind_label(kind.to_sym, ...)
+		kind_catalog.inverse_of(kind.to_sym)
 	end
 
 	def normalize!
 		return if kind.blank?
-		return if Catalog::RelationshipKinds.selectable?(kind.to_sym)
+		return if kind_catalog.selectable?(kind.to_sym)
 
 		self.person, self.related_person = related_person, person
 		self.kind = inverse_kind
@@ -96,13 +107,7 @@ class Relationship < ApplicationRecord
 		end
 	end
 
-	def self.kind_label(kind, ...)
-		self.val(kind.to_sym, ...)
-	end
-
-	def self.kind_list
-		Catalog::RelationshipKinds.option_list(selectable: true)
-	end
+	def self.kind_list(selectable: true, **rest) = kind_catalog.option_list(selectable:, **rest)
 
 	private
 

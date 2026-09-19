@@ -158,7 +158,7 @@ class AssignmentsController < ApplicationController
 
 		def prepare_index_title
 			if @kind
-				title = Catalog::AssignmentKinds.val(@kind, :plural)
+				title = Assignment.kind_label(@kind, :plural)
 				concept = @kind
 			else
 				title = Assignment.label(:plural)
@@ -212,7 +212,7 @@ class AssignmentsController < ApplicationController
 		end
 
 		def load_assignment_kind
-			@kind ||= Catalog::AssignmentKinds.normalize(params[:kind])
+			@kind ||= Assignment.kind_catalog.normalize(params[:kind])
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

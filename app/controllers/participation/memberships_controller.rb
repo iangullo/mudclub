@@ -168,7 +168,7 @@ class MembershipsController < ApplicationController
 
 		def prepare_index_title
 			if @kind
-				title = Catalog::MembershipKinds.val(@kind, :plural)
+				title = Membership.kind_label(@kind, :plural)
 				concept = @kind
 			else
 				title = Membership.label(:plural)
@@ -214,7 +214,7 @@ class MembershipsController < ApplicationController
 		end
 
 		def load_membership_kind
-			@kind = Catalog::MembershipKinds.normalize(params[:kind])
+			@kind = Membership.kind_catalog.normalize(params[:kind])
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

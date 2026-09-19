@@ -27,192 +27,170 @@ class DrillsController < ApplicationController
 
 	# GET /drills or /drills.json
 	def index
-		if check_access(roles: [ :manager, :coach ])
-			title   = helpers.drill_title(title: I18n.t("drill.many"))
-			title  << helpers.drill_search_bar(search_in: drills_path)
-			@drills = filter!(Drill)	# Apply filters
-			page  = paginate(@drills, 1.6)	# paginate results
-			table = helpers.drill_table(drills: page)
-			create_index(title:, table:, page:, retlnk: back_link)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(DrillPolicy)
+
+		title   = helpers.drill_title(title: I18n.t("drill.many"))
+		title  << helpers.drill_search_bar(search_in: drills_path)
+		@drills = filter!(Drill)	# Apply filters
+		page  = paginate(@drills, 1.6)	# paginate results
+		table = helpers.drill_table(drills: page)
+		create_index(title:, table:, page:, retlnk: back_link)
 	end
 
 	# GET /drills/1 or /drills/1.json
 	def show
-		if @drill && check_access(roles: [ :manager, :coach ])
-			respond_to do |format|
-				@intro = create_fields(helpers.drill_show_intro)
-				@steps = create_fields(helpers.drill_show_steps)
-				@tail  = create_fields(helpers.drill_show_tail)
-				title  = helpers.drill_show_title(title: @drill.name)
-				format.pdf do
-					response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
-					pdf = drill_to_pdf(title)
-					send_data pdf.render(filename: "#{@drill.name}.pdf", type: "application/pdf")
-				end
-				format.html do
-					@title = create_fields(title)
-					submit   = edit_path_for(@drill) if (@drill.coach_id == u_coach.id) || (u_manager? && u_club == @drill.coach.club)
-					@submit  = create_submit(close: :back, retlnk: back_link(default: drills_path(rdx: @rdx)), submit:)
-					render :show
-				end
+		@policy = check_policy!(DrillPolicy, record: @drill)
+
+		respond_to do |format|
+			@intro = create_fields(helpers.drill_show_intro)
+			@steps = create_fields(helpers.drill_show_steps)
+			@tail  = create_fields(helpers.drill_show_tail)
+			title  = helpers.drill_show_title(title: @drill.name)
+			format.pdf do
+				response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
+				pdf = drill_to_pdf(title)
+				send_data pdf.render(filename: "#{@drill.name}.pdf", type: "application/pdf")
 			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
+			format.html do
+				@title = create_fields(title)
+				submit   = edit_path_for(@drill) if @policy.edit?
+				@submit  = create_submit(close: :back, retlnk: back_link(default: drills_path(rdx: @rdx)), submit:)
+				render :show
+			end
 		end
 	end
 
 	# GET /drills/new
 	def new
-		if check_access(roles: [ :manager, :coach ])
-			@drill = Drill.new(sport_id: 1)  # will have to change this to pass from controller
-			prepare_form("new")
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(DrillPolicy)
+
+		@drill = Drill.new(sport_id: 1, author: u_person)
+		prepare_form("new")
 	end
 
 	# GET /drills/1/edit
 	def edit
-		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
-			prepare_form("edit")
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(DrillPolicy, record: @drill)
+
+		prepare_form("edit")
 	end
 
 	# POST /drills or /drills.json
 	def create
-		if check_access(roles: [ :manager, :coach ])
-			respond_to do |format|
-				@drill = Drill.new
-				@drill.rebuild(drill_params)	# rebuild drill
-				if @drill.save
-					retlnk = path_for(@drill)
-					a_desc = "#{I18n.t("drill.created")} '#{@drill.name}'"
-					register_action(:created, a_desc, url: path_for(@drill, rdx: 2))
-					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-					format.json { render :index, status: :created, location: retlnk }
-				else
-					prepare_form("new")
-					format.html { render :new }
-					format.json { render json: @drill.errors, status: :unprocessable_entity }
-				end
+		@policy = check_policy!(DrillPolicy)
+
+		respond_to do |format|
+			@drill = Drill.new
+			@drill.rebuild(drill_params)	# rebuild drill
+			if @drill.save
+				retlnk = path_for(@drill)
+				a_desc = "#{I18n.t("drill.created")} '#{@drill.name}'"
+				register_action(:created, a_desc, url: path_for(@drill, rdx: 2))
+				format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+				format.json { render :index, status: :created, location: retlnk }
+			else
+				prepare_form("new")
+				format.html { render :new }
+				format.json { render json: @drill.errors, status: :unprocessable_entity }
 			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# PATCH/PUT /drills/1 or /drills/1.json
 	def update
-		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
-			respond_to do |format|
-				retlnk = path_for(@drill)
-				@drill.rebuild(drill_params)	# rebuild drill
-				if @drill.modified?
-					if @drill.save
-						a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
-						register_action(:updated, a_desc, url: path_for(@drill, rdx: 2))
-						format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :show, status: :ok, location: retlnk }
-					else
-						prepare_form("edit")
-						format.html { render :edit, status: :unprocessable_entity }
-						format.json { render json: @drill.errors, status: :unprocessable_entity }
-					end
-				else
-					format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
+		@policy = check_policy!(DrillPolicy, record: @drill)
+
+		respond_to do |format|
+			retlnk = path_for(@drill)
+			@drill.rebuild(drill_params)	# rebuild drill
+			if @drill.modified?
+				if @drill.save
+					a_desc = "#{I18n.t("drill.updated")} '#{@drill.name}'"
+					register_action(:updated, a_desc, url: path_for(@drill, rdx: 2))
+					format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :show, status: :ok, location: retlnk }
+				else
+					prepare_form("edit")
+					format.html { render :edit, status: :unprocessable_entity }
+					format.json { render json: @drill.errors, status: :unprocessable_entity }
 				end
+			else
+				format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { render :show, status: :ok, location: retlnk }
 			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# DELETE /drills/1 or /drills/1.json
 	def destroy
-		if @drill && check_access(roles: [ :admin ])
-			d_name = @drill.name
-			@drill.destroy
-			respond_to do |format|
-				a_desc = "#{I18n.t("drill.deleted")} '#{d_name}'"
-				register_action(:deleted, a_desc)
-				format.html { redirect_to drills_path(rdx: @rdx), notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
-				format.json { head :no_content }
-			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
+		@policy = check_policy!(DrillPolicy, record: @drill)
+
+		d_name = @drill.name
+		@drill.destroy
+		respond_to do |format|
+			a_desc = "#{I18n.t("drill.deleted")} '#{d_name}'"
+			register_action(:deleted, a_desc)
+			format.html { redirect_to drills_path(rdx: @rdx), notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
 		end
 	end
 
 	# GET /drills/1/edit_diagram?step_id=X&order=Y
 	def edit_diagram
-		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
-			if @step
-				@title   = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.edit_diagram") + " ##{@step.order}"))
-				@editor  = helpers.drill_form_diagram
-				@submit  = create_submit(retlnk: edit_path_for(@drill), frame: :modal)
-			else
-				redirect_to edit_path_for(@drill), data: { turbo_action: "replace" }
-			end
+		@policy = check_policy!(DrillPolicy, record: @drill)
+
+		if @step
+			@title   = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.edit_diagram") + " ##{@step.order}"))
+			@editor  = helpers.drill_form_diagram
+			@submit  = create_submit(retlnk: edit_path_for(@drill), frame: :modal)
 		else
-			redirect_to "/", data: { turbo_action: "replace" }
+			redirect_to edit_path_for(@drill), data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /drills/1/edit_diagram?step_id=X&order=Y
 	def load_diagram
-		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
-			if @step
-				@title  = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
-				@loader = create_fields(helpers.drill_form_diagram_file(@step))
-				@submit = create_submit(retlnk: edit_path_for(@drill), frame: :modal)
-			else
-				redirect_to edit_path_for(@drill), data: { turbo_action: "replace" }
-			end
+		@policy = check_policy!(DrillPolicy, record: @drill)
+
+		if @step
+			@title  = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
+			@loader = create_fields(helpers.drill_form_diagram_file(@step))
+			@submit = create_submit(retlnk: edit_path_for(@drill), frame: :modal)
 		else
-			redirect_to "/", data: { turbo_action: "replace" }
+			redirect_to edit_path_for(@drill), data: { turbo_action: "replace" }
 		end
 	end
 
 	# PATCH /drills/1/update_diagram?step_id=X
 	# Recibe el SVG serializado y actualiza el paso
 	def update_diagram
-		if @drill && (check_access(obj: @drill) || club_manager?(@drill&.coach&.club))
-			diagfile = drill_params.dig(:steps_attributes, :diagram).presence
-			if diagfile	# loading an image file
-				updated_diag = @step&.update(diagram: diagfile)
-			else	# updating an svg diagram
-				raw_data     = drill_params[:svgdata]&.strip unless diagfile
-				parsed_data  = raw_data.present? ? JSON.parse(raw_data) : nil
-				updated_diag = parsed_data && @step&.update(svgdata: parsed_data)
-			end
+		@policy = check_policy!(DrillPolicy, record: @drill)
 
-			if updated_diag
-				respond_to do |format|
-					format.html { redirect_to edit_path_for(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
-				end
-			else
-				redirect_to path_for(@drill, action: edit_diagram, notice: helpers.flash_message(I18n.t("status.no_data")), data: { turbo_action: "replace" }), status: :unprocessable_entity
+		diagfile = drill_params.dig(:steps_attributes, :diagram).presence
+		if diagfile	# loading an image file
+			updated_diag = @step&.update(diagram: diagfile)
+		else	# updating an svg diagram
+			raw_data     = drill_params[:svgdata]&.strip unless diagfile
+			parsed_data  = raw_data.present? ? JSON.parse(raw_data) : nil
+			updated_diag = parsed_data && @step&.update(svgdata: parsed_data)
+		end
+
+		if updated_diag
+			respond_to do |format|
+				format.html { redirect_to edit_path_for(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
 			end
 		else
-			redirect_to "/", data: { turbo_action: "replace" }
+			redirect_to path_for(@drill, action: edit_diagram, notice: helpers.flash_message(I18n.t("status.no_data")), data: { turbo_action: "replace" }), status: :unprocessable_entity
 		end
 	end
 
 	# GET /drills/1/versions
 	def versions
-		if check_access(roles: [ :manager, :coach ])
-			@title   = create_fields(helpers.drill_versions_title)
-			@table   = create_fields(helpers.drill_versions_table)
-			@submit  = create_submit(submit: nil)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(DrillPolicy, record: @drill)
+
+		@title   = create_fields(helpers.drill_versions_title)
+		@table   = create_fields(helpers.drill_versions_table)
+		@submit  = create_submit(submit: nil)
 	end
 
 	private
@@ -274,7 +252,7 @@ class DrillsController < ApplicationController
 				:name,
 				:material,
 				:description,
-				:coach_id,
+				:author_id,
 				:court_mode,
 				:svgdata,
 				:step_explanation,

@@ -31,6 +31,9 @@ module Participatory
 			terminated: 3,
 			archived: 4
 		}, prefix: true
+
+		scope :current, -> { where(status: [ :active, :suspended ]) }
+		scope :terminated, -> { where(status: :terminated) }
 	end
 
 	STATUS_TRANSITIONS = {
@@ -90,6 +93,10 @@ module Participatory
 
 	def date_range
 		"#{starts_on} – #{ends_on || I18n.t('shared.statuses.active')}"
+	end
+
+	def kind_image
+		kind_catalog.kind_image(kind, default: :person)
 	end
 
 	def status_label(variant = nil)
