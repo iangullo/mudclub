@@ -23,121 +23,105 @@ class SlotsController < ApplicationController
 
 	# GET /clubs/x/slots or /clubs/x/slots.json
 	def index
-		@club = Club.find_by_id(@club&.id)
-		if check_access(obj: @club)
-			@locations = Location.search(club_id: @club&.id).practice.order(name: :asc)
-			@location  = Location.find_by_id(params[:location_id]) || @locations.first
-			title      = helpers.slot_title(title: I18n.t("calendar.slot.label.many"))
-			title     << helpers.slot_search_bar(u_manager? || u_secretary?)
-			@title    = create_fields(title)
-			week_view if @location
-			@btn_add   = create_button({ kind: :add, url: new_path_for(@club, :slot, location_id: @location&.id, season_id: @season.id), frame: :modal }) if u_manager? && !(@season.teams.empty?)
-			@submit    = create_submit(close: :back, submit: nil, retlnk: path_for(@club))
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SlotPolicy, club: @club)
+
+		@locations = Location.search(club_id: @club&.id).practice.order(name: :asc)
+		@location  = Location.find_by_id(params[:location_id]) || @locations.first
+		title      = helpers.slot_title(title: I18n.t("calendar.slot.label.many"))
+		title     << helpers.slot_search_bar(u_manager? || u_secretary?)
+		@title    = create_fields(title)
+		week_view if @location
+		@btn_add   = create_button({ kind: :add, url: new_path_for(@club, :slot, location_id: @location&.id, season_id: @season.id), frame: :modal }) if u_manager? && !(@season.teams.empty?)
+		@submit    = create_submit(close: :back, submit: nil, retlnk: path_for(@club))
 	end
 
 	# GET /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def show
-		if @slot && check_access(obj: @slot.team.club)
-			@title   = create_fields(helpers.slot_title(title: @slot.team.to_s, subtitle: @slot.team.season.name))
-			@fields  = create_fields(helpers.slot_show)
-			@submit  = create_submit(submit: u_manager? ? edit_path_for(@slot) : nil, frame: u_manager? ? :modal : nil)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SlotPolicy, club: @club, record: @slot)
+
+		@title   = create_fields(helpers.slot_title(title: @slot.team.to_s, subtitle: @slot.team.season.name))
+		@fields  = create_fields(helpers.slot_show)
+		@submit  = create_submit(submit: u_manager? ? edit_path_for(@slot) : nil, frame: u_manager? ? :modal : nil)
 	end
 
 	# GET /clubs/x/slots/new
 	def new
-		@club = Club.find_by_id(@club&.id)
-		if check_access(obj: @club)
-			set_location
-			@slot = Slot.new(season_id: @season.id, location_id: @location.id, wday: 1, start: Time.new(2021, 8, 30, 17, 00), duration: 90, team_id: 0)
-			prepare_form("new")
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SlotPolicy, club: @club)
+
+		set_location
+		@slot = Slot.new(season_id: @season.id, location_id: @location.id, wday: 1, start: Time.new(2021, 8, 30, 17, 00), duration: 90, team_id: 0)
+		prepare_form("new")
 	end
 
 	# GET /clubs/x/slots/1/edit
 	def edit
-		if @slot && check_access(obj: @slot.team.club)
-			prepare_form("edit")
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SlotPolicy, club: @club, record: @slot)
+
+		prepare_form("edit")
 	end
 
 	# POST /clubs/x/slots or /clubs/x/slots.json
 	def create
-		if check_access(roles: [ :manager ])
-			@slot = Slot.new(start: Time.new(2021, 8, 30, 17, 00)) unless @slot
-			respond_to do |format|
-				@slot.rebuild(slot_params) # rebuild @slot
-				if @slot.changed?
-					if @slot.save # try to store
-						a_desc = "#{I18n.t("calendar.slot.messages.created")} '#{@slot}'"
-						register_action(:created, a_desc, url: path_for(@slot), modal: true)
-						format.html { redirect_to crud_return, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :index, status: :created, location: @slot }
-					else
-						prepare_form("new")
-						format.html { render :new, status: :unprocessable_entity }
-						format.json { render json: @slot.errors, status: :unprocessable_entity }
-					end
+		@policy = check_policy!(SlotPolicy, club: @club)
+
+		@slot = Slot.new(start: Time.new(2021, 8, 30, 17, 00)) unless @slot
+		respond_to do |format|
+			@slot.rebuild(slot_params) # rebuild @slot
+			if @slot.changed?
+				if @slot.save # try to store
+					a_desc = "#{I18n.t("calendar.slot.messages.created")} '#{@slot}'"
+					register_action(:created, a_desc, url: path_for(@slot), modal: true)
+					format.html { redirect_to crud_return, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :index, status: :created, location: @slot }
 				else
-					format.html { redirect_to return_path_for(@slot), notice: no_data_notice, data: { turbo_action: "replace" } }
-					format.json { render :index, status: :unprocessable_entity, location: retlnk }
+					prepare_form("new")
+					format.html { render :new, status: :unprocessable_entity }
+					format.json { render json: @slot.errors, status: :unprocessable_entity }
 				end
+			else
+				format.html { redirect_to return_path_for(@slot), notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { render :index, status: :unprocessable_entity, location: retlnk }
 			end
-		else
-			redirect_to club_slots_path, data: { turbo_action: "replace" }
 		end
 	end
 
 	# PATCH/PUT /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def update
-		if @slot && check_access(obj: @slot.team.club)
-			respond_to do |format|
-				@slot.rebuild(slot_params) # rebuild @slot
-				retlnk = crud_return
-				if @slot.changed?
-					if @slot.save
-						a_desc = "#{I18n.t("calendar.slot.messages.updated")} '#{@slot}'"
-						register_action(:updated, a_desc, url: path_for(@slot, rdx: 2), modal: true)
-						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :index, status: :ok, location: @slot }
-					else
-						prepare_form("edit")
-						format.html { render :edit, status: :unprocessable_entity }
-						format.json { render json: @slot.errors, status: :unprocessable_entity }
-					end
+		@policy = check_policy!(SlotPolicy, club: @club, record: @slot)
+
+		respond_to do |format|
+			@slot.rebuild(slot_params) # rebuild @slot
+			retlnk = crud_return
+			if @slot.changed?
+				if @slot.save
+					a_desc = "#{I18n.t("calendar.slot.messages.updated")} '#{@slot}'"
+					register_action(:updated, a_desc, url: path_for(@slot, rdx: 2), modal: true)
+					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :index, status: :ok, location: @slot }
 				else
-					format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
-					format.json { render :index, status: :ok, location: retlnk }
+					prepare_form("edit")
+					format.html { render :edit, status: :unprocessable_entity }
+					format.json { render json: @slot.errors, status: :unprocessable_entity }
 				end
+			else
+				format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { render :index, status: :ok, location: retlnk }
 			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# DELETE /clubs/x/slots/1 or /clubs/x/slots/1.json
 	def destroy
-		if @slot && check_access(obj: @slot.team.club)
-			s_name = @slot.to_s
-			retlnk = crud_return
-			@slot.destroy
-			respond_to do |format|
-				a_desc = "#{I18n.t("calendar.slot.messages.deleted")} '#{s_name}'"
-				register_action(:deleted, a_desc)
-				format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
-				format.json { head :no_content }
-			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
+		@policy = check_policy!(SlotPolicy, club: @club, record: @slot)
+
+		s_name = @slot.to_s
+		retlnk = crud_return
+		@slot.destroy
+		respond_to do |format|
+			a_desc = "#{I18n.t("calendar.slot.messages.deleted")} '#{s_name}'"
+			register_action(:deleted, a_desc)
+			format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
 		end
 	end
 

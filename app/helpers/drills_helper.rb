@@ -88,7 +88,7 @@ module DrillsHelper
 	# return title FieldComponent definition for edit/new
 	def drill_form_tail
 		coaches = (u_admin? ? Coach.real : (u_manager? ? u_club.coaches : [ current_user.coach ]))
-		author  = (@drill.coach_id.to_i > 0 ? @drill.coach_id : (u_coach.id || coaches.first))
+		author  = @drill.author || u_person
 		res = [
 			[
 				{ kind: :label, value: "#{Skill.label(:plural)}:" },
@@ -101,10 +101,10 @@ module DrillsHelper
 			]
 		]
 		if coaches.size > 1
-			res.first << { kind: :select_collection, key: :coach_id, options: coaches, value: author }
+			res.first << { kind: :select_collection, key: :author_id, options: coaches, value: author }
 		else
 			res.first << { kind: :text, value: coaches.first.name, class: "ml-2" }
-			res.first << { kind: :hidden, key: :coach_id, value: coaches.first.id }
+			res.first << { kind: :hidden, key: :author_id, value: author.id }
 		end
 		res
 	end
@@ -127,15 +127,15 @@ module DrillsHelper
 		title = [
 			{ kind: :normal, value: Drill.fld(:kind, :short), align: "center", sort: (session.dig("drill_filters", "kind_id") == "kind_id"), order_by: "kind_id" },
 			{ kind: :normal, value: Season.label(:short), sort: (session.dig("drill_filters", "season_id") == "season_id") },
-			{ kind: :normal, value: Drill.field(:name), sort: (session.dig("drill_filters", "name") == "name"), order_by: "name" }
+			{ kind: :normal, value: Drill.fld(:name), sort: (session.dig("drill_filters", "name") == "name"), order_by: "name" }
 		]
 		title += [
-			{ kind: :normal, value: Drill.field(:author), align: "center", sort: (session.dig("drill_filters", "coach_id") == "coach_id"), order_by: "coach_id" },
+			{ kind: :normal, value: Drill.fld(:author), align: "center", sort: (session.dig("drill_filters", "author_id") == "author_id"), order_by: "author_id" },
 			{ kind: :normal, value: Target.label(:plural) }
 			# {kind: :normal, value: Task.label(:plural)}
 		] unless device=="mobile"
 
-		title << button_field({ kind: :add, url: new_drill_path(rdx: @rdx), frame: "_top" }) if u_manager? || u_coach?
+		title << button_field({ kind: :add, url: new_drill_path(rdx: @rdx), frame: "_top" }) if @policy.new?
 
 		{ track:, title:, rows: drill_rows(drills:) }
 	end
@@ -223,8 +223,8 @@ module DrillsHelper
 			)
 		end
 		res << [
-			{ kind: :label, value: I18n.t("drill.author") },
-			{ kind: :string, value: @drill.coach.s_name }
+			{ kind: :label, value: Drill.fld(:author) },
+			{ kind: :string, value: @drill.author.s_name }
 		]
 	end
 
@@ -242,7 +242,7 @@ module DrillsHelper
 	def drill_versions_table
 		res = [ [
 			topcell_field(I18n.t("calendar.date")),
-			topcell_field(I18n.t("drill.author")),
+			topcell_field(Drill.fld(:author)),
 			topcell_field(I18n.t("version.changes.many"))
 		] ]
 		@drill.versions.each { |d_ver|
@@ -270,7 +270,7 @@ module DrillsHelper
 					row[:items] << { kind: :lines, value: drill.print_targets }
 				end
 				# row[:items] << {kind: :normal, value: Task.where(drill_id: drill.id).count, align: "center"}
-				row[:items] << button_field({ kind: :delete, url: row[:url], name: drill.name }) if u_admin?
+				row[:items] << button_field({ kind: :delete, url: row[:url], name: drill.name }) if @policy.destroy?
 				rows << row
 			}
 			rows

@@ -50,4 +50,10 @@ class UserPolicy < ApplicationPolicy
 	def destroy?
 		admin? && !same_person?(@record)
 	end
+
+	#------------------------------------
+	# Other methods
+	#------------------------------------
+	alias actions? show?
+	def clear_actions? = allowed?(manages_person?(user.person))
 end

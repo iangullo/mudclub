@@ -20,9 +20,8 @@
 
 class MembershipPolicy < ApplicationPolicy
 	def initialize(actor, record: nil, kind: nil, club: nil)
-		super(actor, record:)
-		@target_kind = @record&.kind || kind.presence
-		@target_club = @record&.club || club.presence
+		super(actor, record:, club: record&.club || club)
+		@target_kind = @record&.kind || kind
 	end
 
 	#

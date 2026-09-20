@@ -18,12 +18,13 @@
 #
 class AssignmentPolicy < ApplicationPolicy
 	def initialize(actor, record: nil, kind: nil, member: nil, team: nil, club: nil)
-		super(actor, record:)
+		computed_team = record&.team || team
+
+		super(actor, record:, club: computed_team&.club || record&.club || club)
 
 		@target_kind   = @record&.kind || kind
 		@target_member = @record&.membership || member
-		@target_team   = @record&.team || team
-		@target_club   = @target_team&.club || @record&.club || club
+		@target_team   = computed_team
 	end
 
 	def index?
@@ -158,12 +159,9 @@ class AssignmentPolicy < ApplicationPolicy
 
 		# Collaboration permission
 		def shared_assignment_context?(actor)
-			return false unless actor.person
-
-			if @target_team
-				@target_team.has_assignment_for?(actor.person)
-			else
-				@target_club&.has_assignment_for?(actor.person)
-			end
+			return false unless actor_person
+			return has_team_assignment?(@target_team) if @target_team
+			return has_club_assignment?(@target_club) if @target_club
+			false
 		end
 end

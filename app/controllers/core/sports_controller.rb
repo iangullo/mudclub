@@ -22,82 +22,66 @@ class SportsController < ApplicationController
 
 	# Sport index for mudclub admins
 	def index
-		if check_access(roles: [ :admin ])
-			title = helpers.home_admin_title(subtitle: I18n.t("sport.many"))
-			table = helpers.sports_table
-			create_index(title:, table:, retlnk: back_link)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SportPolicy)
+
+		title = helpers.home_admin_title(subtitle: I18n.t("sport.many"))
+		table = helpers.sports_table
+		create_index(title:, table:, retlnk: back_link)
 	end
 
 	# View sport details
 	def show
-		if @sport && check_access(roles: [ :admin ])
-			@fields = create_fields(helpers.sports_show)
-			@submit = create_submit(close: :back, submit: nil, retlnk: back_link(default: sports_path(rdx: @rdx)))
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SportPolicy, record: @sport)
+
+		@fields = create_fields(helpers.sports_show)
+		@submit = create_submit(close: :back, submit: nil, retlnk: back_link(default: sports_path(rdx: @rdx)))
 	end
 
 	# Cannot create new sports yet
 	def new
-		if check_access(roles: [ :admin ])
-			redirect_to path_for(@sport), data: { turbo_action: "replace" }
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SportPolicy)
+
+		redirect_to path_for(@sport), data: { turbo_action: "replace" }
 	end
 
 	# Cannot edit Sports yet
 	def edit
-		if @sport && check_access(roles: [ :admin ])
-			redirect_to path_for(@sport), data: { turbo_action: "replace" }
-	#			@fields = create(helpers.sports_form(title: I18n.t("sport.edit"))) # rubocop:disable Layout/CommentIndentation
-  #			@submit = create_submit # rubocop:disable Layout/IndentationStyle
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SportPolicy, record: @sport)
+
+		redirect_to path_for(@sport), data: { turbo_action: "replace" }
+		# @fields = create(helpers.sports_form(title: I18n.t("sport.edit"))) # rubocop:disable Layout/CommentIndentation
+  	# @submit = create_submit # rubocop:disable Layout/IndentationStyle
 	end
 
 	# Cannot create new sports yet
 	def create
-		if check_access(roles: [ :admin ])
-			redirect_to path_for(@sport), data: { turbo_action: "replace" }
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SportPolicy)
+
+		redirect_to path_for(@sport), data: { turbo_action: "replace" }
 	end
 
 	# Cannot update Sports yet
 	def update
-		if @sport && check_access(roles: [ :admin ])
-			redirect_to path_for(@sport), data: { turbo_action: "replace" }
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SportPolicy, record: @sport)
+
+		redirect_to path_for(@sport), data: { turbo_action: "replace" }
 	end
 
-	# Remove a sport
+	# CANNOT Remove a sport yet
 	def destroy
-		if @sport && check_access(roles: [ :admin ])
-			redirect_to sports_path(rdx: @rdx), data: { turbo_action: "replace" }
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SportPolicy, record: @sport)
+
+		redirect_to sports_path(rdx: @rdx), data: { turbo_action: "replace" }
 	end
 
 	# View sport rules
 	def rules
-		if check_access(roles: [ :admin ])
-			fields  = helpers.sport_rules_title(@sport.generic.fld(:rules))
-			fields += helpers.sports_rules
-			@fields = create_fields(fields)
-			@submit = create_submit(submit: nil)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SportPolicy, record: @sport)
+
+		fields  = helpers.sport_rules_title(@sport.generic.fld(:rules))
+		fields += helpers.sports_rules
+		@fields = create_fields(fields)
+		@submit = create_submit(submit: nil)
 	end
 
 	private

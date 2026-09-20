@@ -23,108 +23,94 @@ class DivisionsController < ApplicationController
 
 	# GET /divisions or /divisions.json
 	def index
-		if check_access(roles: [ :admin ])
-			@divisions = Division.for_sport(@sport.id)
-			title = helpers.division_title(title: Division.label(:plural))
-			table = helpers.division_table
-			create_index(title:, table:)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(DivisionPolicy)
+
+		@divisions = Division.for_sport(@sport.id)
+		title = helpers.division_title(title: Division.label(:plural))
+		table = helpers.division_table
+		create_index(title:, table:)
 	end
 
 	# GET /divisions/1 or /divisions/1.json
 	def show
-		if @division && check_access(roles: [ :admin ])
-			@fields = create_fields(helpers.division_show)
-			@submit = create_submit(submit: u_manager? ? edit_path_for(@division, owner: @sport) : nil)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(DivisionPolicy, record: @division)
+
+		@fields = create_fields(helpers.division_show)
+		@submit = create_submit(submit: u_manager? ? edit_path_for(@division, owner: @sport) : nil)
 	end
 
 	# GET /divisions/new
 	def new
-		if check_access(roles: [ :admin ])
-			@division = @sport.divisions.build
-			prepare_form(:create)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(DivisionPolicy)
+
+		@division = @sport.divisions.build
+		prepare_form(:create)
 	end
 
 	# GET /divisions/1/edit
 	def edit
-		if @division && check_access(roles: [ :admin ])
-			prepare_form(:edit)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(DivisionPolicy, record: @division)
+
+		prepare_form(:edit)
 	end
 
 	# POST /divisions or /divisions.json
 	def create
-		if check_access(roles: [ :admin ])
-			@division = Division.new(sport_id: @sport.id)
-			respond_to do |format|
-				@division.rebuild(division_params)
-				if @division.save
-					a_desc = "#{Division.msg(:created)} '#{@division.name}'"
-					retlnk = path_for(@sport)
-					register_action(:created, a_desc, url: path_for(@division, owner: @sport, rdx: 2), modal: true)
-					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-					format.json { render :index, status: :created, location: retlnk }
-				else
-					prepare_form("new")
-					format.html { render :new, status: :unprocessable_entity }
-					format.json { render json: @division.errors, status: :unprocessable_entity }
-				end
+		@policy = check_policy!(DivisionPolicy)
+
+		@division = Division.new(sport_id: @sport.id)
+		respond_to do |format|
+			@division.rebuild(division_params)
+			if @division.save
+				a_desc = "#{Division.msg(:created)} '#{@division.name}'"
+				retlnk = path_for(@sport)
+				register_action(:created, a_desc, url: path_for(@division, owner: @sport, rdx: 2), modal: true)
+				format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+				format.json { render :index, status: :created, location: retlnk }
+			else
+				prepare_form("new")
+				format.html { render :new, status: :unprocessable_entity }
+				format.json { render json: @division.errors, status: :unprocessable_entity }
 			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# PATCH/PUT /divisions/1 or /divisions/1.json
 	def update
-		if @division && check_access(roles: [ :admin ])
-			respond_to do |format|
-				retlnk = path_for(@sport)
-				@division.rebuild(division_params)
-				if @division.changed?
-					if @division.save
-						a_desc = "#{Division.msg(:updated)} '#{@division.name}'"
-						register_action(:updated, a_desc, url: path_for(@division, owner: @sport, rdx: 2), modal: true)
-						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :index, status: :created, location: retlnk }
-					else
-						prepare_form("new")
-						format.html { render :edit, status: :unprocessable_entity }
-						format.json { render json: @division.errors, status: :unprocessable_entity }
-					end
+		@policy = check_policy!(DivisionPolicy, record: @division)
+
+		respond_to do |format|
+			retlnk = path_for(@sport)
+			@division.rebuild(division_params)
+			if @division.changed?
+				if @division.save
+					a_desc = "#{Division.msg(:updated)} '#{@division.name}'"
+					register_action(:updated, a_desc, url: path_for(@division, owner: @sport, rdx: 2), modal: true)
+					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :index, status: :created, location: retlnk }
 				else
-					format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
-					format.json { render :index, status: :ok, location: retlnk }
+					prepare_form("new")
+					format.html { render :edit, status: :unprocessable_entity }
+					format.json { render json: @division.errors, status: :unprocessable_entity }
 				end
+			else
+				format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { render :index, status: :ok, location: retlnk }
 			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# DELETE /divisions/1 or /divisions/1.json
 	def destroy
-		if @division && check_access(roles: [ :admin ])
-			d_name = @division.name
-			@division.destroy
-			respond_to do |format|
-				a_desc = "#{Division.msg(:deleted)} '#{d_name}'"
-				register_action(:deleted, a_desc)
-				format.html { redirect_to path_for(@sport), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
-				format.json { head :no_content }
-			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
+		@policy = check_policy!(DivisionPolicy, record: @division)
+
+		d_name = @division.name
+		@division.destroy
+		respond_to do |format|
+			a_desc = "#{Division.msg(:deleted)} '#{d_name}'"
+			register_action(:deleted, a_desc)
+			format.html { redirect_to path_for(@sport), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
 		end
 	end
 

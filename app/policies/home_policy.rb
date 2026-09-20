@@ -16,52 +16,33 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# app/policies/club_policy.rb
-class ClubPolicy < ApplicationPolicy
+# app/policies/home_policy.rb
+class HomePolicy < ApplicationPolicy
 	#------------------------------------
-	# Clubs index - admins or check rivals
+	# Slot index - timetable
 	#------------------------------------
 	def index?
+		true # routing handled in controller for now
+	end
+	alias about? index?
+
+	#------------------------------------
+	# custom rules
+	#------------------------------------
+	def log?
 		allowed?(manages_club?(target_club))
 	end
 
-	#------------------------------------
-	# CRUD
-	#------------------------------------
-
-	def show?
-		true
-	end
-
-	def show_details?
-		same_club?(@record)
-	end
-
-	def create?
+	def server?
 		admin?
 	end
-	alias new? create?
+	alias clear? server?
 
-	def update?
-		allowed?(manages_club?(@record))
-	end
-	alias edit? update?
-
-	def destroy?
-		admin? && !same_club?(@record)
+	def manages_club?
+		super(target_club)
 	end
 
-	#------------------------------------
-	# Administrative capabilities
-	#------------------------------------
-
-	def manage_members?
-		allowed?(manages_club?(@record))
+	def club_member?
+		same_club?(target_club)
 	end
-
-	alias manage_assignments?  manage_members?
-	alias manage_documents?    manage_members?
-	alias manage_events?       manage_members?
-	alias manage_registrations? manage_members?
-	alias manage_teams?        manage_members?
 end

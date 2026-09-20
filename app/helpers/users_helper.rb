@@ -136,7 +136,7 @@ module UsersHelper
 			{ kind: :normal, value: I18n.t("person.contact"), align: :center },
 			{ kind: :normal, value: I18n.t("user.last_in"), align: :center }
 		]
-		title << button_field({ kind: :add, url: new_user_path(rdx: @rdx), frame: :modal }) if u_admin?
+		title << button_field({ kind: :add, url: new_user_path(rdx: @rdx), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		@users.each { |user|
@@ -146,7 +146,7 @@ module UsersHelper
 			row[:items] << user_roles(user, table: true).first
 			row[:items] << { kind: :contact, phone: user.person.phone, email: user.person.email }
 			row[:items] << { kind: :normal, value: user.last_sign_in_at&.to_date, align: :center }
-			row[:items] << button_field({ kind: :delete, url: row[:url], name: user.s_name }) if u_admin? and user.id!=current_user.id
+			row[:items] << button_field({ kind: :delete, url: row[:url], name: user.s_name }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows:, align: :center }

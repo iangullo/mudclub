@@ -193,8 +193,16 @@ es:
         single: Equipo
         plural: Equipos
         short: Equipo
+      actions:
+        create: Crear equipo
+        edit: Editar equipo
+        delete: Borrar equipo
+        edit_plan: Editar planificación
+        edit_roster: Editar plantilla
       fields:
         name: Nombre
+        plan: Planificación
+        plan_short: Plan
         sport: Deporte
         category: Categoría
         division: Competición
@@ -204,6 +212,7 @@ es:
         created: Equipo creado.
         updated: Equipo actualizado.
         deleted: Equipo eliminado.
+        updated_plan: Planificación actualizada.
 
     task:
       label:

@@ -103,23 +103,6 @@ module PeopleHelper
 		end
 	end
 
-	# return title for @people TableComponent
-	def people_table(people:)
-		title = [
-			{ kind: :normal, value: I18n.t("people.person.label.single") }
-		]
-		title << button_field({ kind: :add, url: new_person_path, frame: "modal" }) if u_admin?
-
-		rows = Array.new
-		people.each { |person|
-			row = { url: person_path(person), frame: "modal", items: [] }
-			row[:items] << { kind: :normal, value: person.to_s }
-			row[:items] << button_field({ kind: :delete, url: row[:url], name: person.to_s }) if u_admin?
-			rows << row
-		}
-		{ title: title, rows: rows }
-	end
-
 	# FieldComponent fields to show a person
 	def person_show_fields(person, title: Person.label, icon: person&.picture)
 		[

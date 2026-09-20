@@ -21,17 +21,17 @@ module SportsHelper
 	# sports page for admins
 	def sports_table
 		title = [ { kind: :normal }, { kind: :normal, value: Sport.label }, { kind: :normal, value: Team.label(:plural) } ]
-		# title << button_field({kind: :add, url: new_sport(rdx: @rdx), frame: :modal})
+		# title << button_field({kind: :add, url: new_sport(rdx: @rdx), frame: :modal}) if @policy.new?
 		rows = Array.new
 		Sport.all.each { |sport|
 			row = { url: path_for(sport), items: [] }
 			row[:items] << symbol_field("icon", { namespace: sport&.name, size: "20x20" }, align: :center, class: "border p-1")
 			row[:items] << { kind: :normal, value: sport.to_s, align: :center }
 			row[:items] << { kind: :normal, value: sport.teams.count, align: :center }
-			# row[:items] << button_field({kind: :delete, url: row[:url], name: sport.to_s})
+			# row[:items] << button_field({kind: :delete, url: row[:url], name: sport.to_s}) if @policy.destroy?
 			rows << row
 		}
-		{ title: title, rows: rows }
+		{ title:, rows: }
 	end
 
 	# show sport & related objects

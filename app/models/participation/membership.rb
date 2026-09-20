@@ -46,6 +46,9 @@ class Membership < ApplicationRecord
 	# attachment of notes to be handled
 	has_rich_text :notes
 
+	# assignment-specific picture can be taken
+	has_one_attached :avatar
+
 	#-------------------------------------
 	# Validations
 	#-------------------------------------
@@ -97,15 +100,6 @@ class Membership < ApplicationRecord
 	# short name for form viewing
 	def s_name
 		person&.s_name || kind_catalog.val(kind)
-	end
-
-	# personal photo or membership kind symbol
-	def picture
-		return person.avatar if person&.avatar&.attached?
-
-		# if no attached avatar, return the symbol name
-		# to be rendered as: symbol_field(symbol)
-		kind_image
 	end
 
 	def overlaps?(other)

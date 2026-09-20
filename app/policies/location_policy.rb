@@ -16,13 +16,13 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# app/policies/club_policy.rb
-class ClubPolicy < ApplicationPolicy
+# app/policies/location_policy.rb
+class LocationPolicy < ApplicationPolicy
 	#------------------------------------
-	# Clubs index - admins or check rivals
+	# Division index - admins
 	#------------------------------------
 	def index?
-		allowed?(manages_club?(target_club))
+		location_manager?
 	end
 
 	#------------------------------------
@@ -30,38 +30,26 @@ class ClubPolicy < ApplicationPolicy
 	#------------------------------------
 
 	def show?
-		true
-	end
-
-	def show_details?
-		same_club?(@record)
+		@record && @actor.is_a?(User)
 	end
 
 	def create?
-		admin?
+		location_manager?
 	end
 	alias new? create?
 
 	def update?
-		allowed?(manages_club?(@record))
+		@record && location_manager?
 	end
 	alias edit? update?
 
 	def destroy?
-		admin? && !same_club?(@record)
+		@record && admin?
 	end
 
-	#------------------------------------
-	# Administrative capabilities
-	#------------------------------------
-
-	def manage_members?
-		allowed?(manages_club?(@record))
-	end
-
-	alias manage_assignments?  manage_members?
-	alias manage_documents?    manage_members?
-	alias manage_events?       manage_members?
-	alias manage_registrations? manage_members?
-	alias manage_teams?        manage_members?
+	private
+		def location_manager?
+			return admin? unless target_club
+			manages_club?(target_club)
+		end
 end

@@ -25,7 +25,10 @@ class Drill < ApplicationRecord
 	before_destroy :unlink
 	has_paper_trail on: [ :create, :update ]
 	belongs_to :sport
-	belongs_to :coach
+	# legacy — kept so old code paths still resolve during transition
+	belongs_to :coach, optional: :true
+	# new — the 2.x association
+	belongs_to :author, class_name: "Person", optional: true
 	belongs_to :kind
 	has_and_belongs_to_many :skills
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
@@ -67,20 +70,10 @@ class Drill < ApplicationRecord
 
 	# check if drill (or associations) has changed
 	def modified?
-		res = self.changed?
-		unless res
-			res = self.steps.any? do |step|
-				step.saved_changes? ||
-				(step.versions.exists? && step.versions.last.created_at > (self.updated_at || Time.at(0)))
-			end
-			unless res
-				res = self.skills.any?(&:saved_changes?)
-				unless res
-					res = self.drill_targets.any?(&:saved_changes?)
-				end
-			end
-		end
-		res
+		super ||
+			steps.any?(&:modified?) ||
+			skills.any?(&:modified?) ||
+			drill_targets.any?(&:modified?)
 	end
 
 	# A longer string with kind included
@@ -121,7 +114,7 @@ class Drill < ApplicationRecord
 		self.name        = f_data[:name]
 		self.description = f_data[:description]
 		self.material    = f_data[:material]
-		self.coach_id    = f_data[:coach_id]
+		self.author      = Person.find_by(id: f_data[:author_id]) || self.author
 		self.court_mode  = f_data[:court_mode]
 		self.kind_id     = Kind.fetch(f_data[:kind_id]&.strip).id
 		self.playbook    = f_data[:playbook]

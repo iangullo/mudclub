@@ -343,7 +343,7 @@ module EventsHelper
 						n_row = event.match? ? { kind: :normal, value: row_f.to_s, cols: 1 } : { kind: :normal, value: event.to_s, cols: 4 }
 						row[:items] << n_row
 					end
-					row[:items] << button_field({ kind: :delete, url: row[:url], name: event.to_s }) if u_manager? or (event.team_id>0 and event.team.has_coach?(u_person))
+					row[:items] << button_field({ kind: :delete, url: row[:url], name: event.to_s }) if @policy.destroy?
 					rows << row
 				end
 			end
@@ -479,8 +479,8 @@ module EventsHelper
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, clubevent: nil)
 			if clubevent	# paste season event button
-				button_field({ kind: :add, url: new_path_for(@club, :event, kind: :rest), frame: :modal }) if u_manager? && obj==Season.latest
-			elsif obj.class == Team && team_manager?(obj) # new team event
+				button_field({ kind: :add, url: new_path_for(@club, :event, kind: :rest), frame: :modal }) if @policy.new? && obj==Season.latest
+			elsif obj.is_a?(Team) && @policy.new? # new team event
 				button = { kind: :add, name: "add-event", options: [] }
 				button[:options] << { label: Event.t_path(:kind, :training), url: new_path_for(@team, :event, kind: :train), data: { turbo_frame: :modal } }
 				button[:options] << { label: Event.t_path(:kind, :match), url:  new_path_for(@team, :event, kind: :match), data: { turbo_frame: :modal } }

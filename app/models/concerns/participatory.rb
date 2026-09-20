@@ -95,8 +95,14 @@ module Participatory
 		"#{starts_on} – #{ends_on || I18n.t('shared.statuses.active')}"
 	end
 
-	def kind_image
-		kind_catalog.kind_image(kind, default: :person)
+	# personal photo or kind symbol
+	def picture
+		return avatar if avatar&.attached?
+		return person.avatar if person&.avatar&.attached?
+
+		# if no attached avatar, return the symbol name
+		# to be rendered as: symbol_field(symbol)
+		kind_image(default: :person)
 	end
 
 	def status_label(variant = nil)

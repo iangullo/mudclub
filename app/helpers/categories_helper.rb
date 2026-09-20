@@ -78,7 +78,7 @@ module CategoriesHelper
 			{ kind: :normal, value: I18n.t("shared.stats.min_short") },
 			{ kind: :normal, value: I18n.t("shared.stats.max_short") }
 		]
-		title <<  button_field({ kind: :add, url: new_path_for(@sport, :category), frame: :modal }) if u_admin?
+		title <<  button_field({ kind: :add, url: new_path_for(@sport, :category), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		@categories.each { |cat|
@@ -87,7 +87,7 @@ module CategoriesHelper
 			row[:items] << { kind: :normal, value: Person.t_path(:sex, "#{cat.sex}_short".to_sym) }
 			row[:items] << { kind: :normal, value: cat.min_years, align: :right }
 			row[:items] << { kind: :normal, value: cat.max_years, align: :right }
-			row[:items] << button_field({ kind: :delete, url: path_for(cat, owner: @sport), name: cat.name }) if u_admin?
+			row[:items] << button_field({ kind: :delete, url: path_for(cat, owner: @sport), name: cat.name }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows: }

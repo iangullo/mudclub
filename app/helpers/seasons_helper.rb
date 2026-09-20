@@ -36,17 +36,18 @@ module SeasonsHelper
 	def season_table(seasons: @seasons)
 		title = [
 			{ kind: :normal, value: Season.label, align: "center" },
-			{ kind: :normal, value: Team.label, align: "center" },
-			button_field({ kind: :add, url: new_season_path(rdx: @rdx), frame: :modal })
+			{ kind: :normal, value: Team.label, align: "center" }
 		]
+		title << button_field({ kind: :add, url: new_season_path(rdx: @rdx), frame: :modal }) if @policy.new?
+
 		rows = Array.new
-		seasons.each { |season|
+		seasons.each do |season|
 			row = { url: path_for(season), items: [], frame: :modal }
 			row[:items] << { kind: :normal, value: season.name, align: "center" }
 			row[:items] << { kind: :normal, value: season.teams.count, align: "center" }
-			row[:items] << button_field({ kind: :delete, url: row[:url], name: season.to_s })
+			row[:items] << button_field({ kind: :delete, url: row[:url], name: season.to_s }) if @policy.destroy?
 			rows << row
-		}
+		end
 		{ title:, rows: }
 	end
 

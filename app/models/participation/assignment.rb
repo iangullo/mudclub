@@ -104,16 +104,6 @@ class Assignment < ApplicationRecord
 		team ? team :	membership.club
 	end
 
-	# personal photo or membership kind symbol
-	def picture
-		return avatar if avatar&.attached?
-		return person.avatar if person&.avatar&.attached?
-
-		# if no attached avatar, return the symbol name
-		# to be rendered as: symbol_field(symbol)
-		kind_image
-	end
-
 	# short name for form viewing
 	def s_name
 		person&.s_name || membership.kind_label

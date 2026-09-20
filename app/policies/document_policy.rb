@@ -21,8 +21,8 @@ class DocumentPolicy < ApplicationPolicy
 	#------------------------------------
 	# Create right context
 	#------------------------------------
-	def initialize(actor, record: nil, owner: nil)
-		super(actor, record:)
+	def initialize(actor, record: nil, club: nil, owner: nil)
+		super(actor, record:, club:)
 		@owner = owner
 	end
 
@@ -30,36 +30,21 @@ class DocumentPolicy < ApplicationPolicy
 	#------------------------------------
 	# Documents index - Club managers or Registration requesters
 	#------------------------------------
-	def index?
-		manage_or_owner?
-	end
+	def index? = manage_or_owner?
 
 	#------------------------------------
 	# CRUD Operations
 	#------------------------------------
-	def show?
-		manage_or_owner?
-	end
+	def show? = manage_or_owner?
+	alias show_details? show?
 
-	def show_details?
-		manage_or_owner?
-	end
-
-	def create?
-		manage_or_owner?
-	end
-
+	def create? = manage_or_owner?
 	alias new? create?
 
-	def update?
-		manage_or_owner?
-	end
-
+	def update? = manage_or_owner?
 	alias edit? update?
 
-	def destroy?
-		manage_or_owner?
-	end
+	def destroy? = manage_or_owner?
 
 	private
 

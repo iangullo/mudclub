@@ -35,22 +35,15 @@ class ApplicationController < ActionController::Base
 
 	# NEW authorization policy management approach.
 	def check_policy!(policy_class, record: nil, **context)
-		policy =
-			if record
-				policy_class.new(current_user, record:)
-			else
-				policy_class.new(current_user, **context)
-			end
-
+		context[:club] ||= @club
+		policy = policy_class.new(current_user, record:, **context)
 		method = "#{action_name}?"
 
 		unless policy.respond_to?(method)
-			raise NotImplementedError,
-						"#{policy_class}##{method} not implemented"
+			raise NotImplementedError, "#{policy_class}##{method} not implemented"
 		end
 
 		deny_access unless policy.public_send(method)
-
 		policy
 	end
 

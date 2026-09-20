@@ -195,7 +195,7 @@ class TeamsController < ApplicationController
 		@policy = check_policy!(TeamPolicy, record: @team)
 
 		title = helpers.team_title(title: @team.to_s)
-		title << icon_subtitle("player", I18n.t("team.roster_edit"), namespace: @team.sport.name)
+		title << icon_subtitle(:player, Team.act(:edit_roster), namespace: @team.sport.name)
 		@title  = create_fields(title)
 		@submit = create_submit(close: :cancel, retlnk: club_team_roster_path(@club, @team, rdx: @rdx))
 		@eligible_athletes = @team.eligible_athletes
@@ -216,7 +216,7 @@ class TeamsController < ApplicationController
 
 		global_targets(true)	# get & breakdown global targets
 		title   = helpers.team_title(title: @team.to_s)
-		title  << icon_subtitle("target", Target.label(:plural))
+		title  << icon_subtitle(:target, Target.label(:plural))
 		@title  = create_fields(title)
 		edit    = club_team_edit_targets_path(@club, @team, rdx: @rdx) if @policy.edit_targets?
 		@fields = create_fields(helpers.team_targets_show)
@@ -229,7 +229,7 @@ class TeamsController < ApplicationController
 
 		global_targets(true)	# get global targets
 		title   = helpers.team_title(title: @team.to_s)
-		title << icon_subtitle("target", Target.act(:edit))
+		title << icon_subtitle(:target, Target.act(:edit))
 		@title  = create_fields(title)
 		@submit = create_submit(close: :cancel, retlnk: club_team_targets_path(@club, @team, rdx: @rdx))
 	end
@@ -240,7 +240,7 @@ class TeamsController < ApplicationController
 
 		plan_targets
 		title = helpers.team_title(title: @team.to_s)
-		title << icon_subtitle("plan", I18n.t("training.plan.label"))
+		title << icon_subtitle(:plan, Team.fld(:plan))
 		@title = create_fields(title)
 		edit    = club_team_edit_plan_path(@club, @team, rdx: @rdx) if team_manager?
 		@fields = create_fields(helpers.team_plan_accordion)
@@ -251,10 +251,9 @@ class TeamsController < ApplicationController
 	def edit_plan
 		@policy = check_policy!(TeamPolicy, record: @team)
 
-		redirect_to("/", data: { turbo_action: "replace" }) unless @team
 		plan_targets
 		title   = helpers.team_title(title: @team.to_s)
-		title << icon_subtitle("plan", I18n.t("plan.edit"))
+		title << icon_subtitle(:plan, Team.act(:edit_plan))
 		@title  = create_fields(title)
 		@submit = create_submit(close: :cancel, retlnk: club_team_plan_path(@club, @team, rdx: @rdx))
 	end
@@ -264,7 +263,7 @@ class TeamsController < ApplicationController
 		@policy = check_policy!(TeamPolicy, record: @team)
 
 		fields  = helpers.team_title(title: @team.to_s)
-		fields << icon_subtitle("attendance", I18n.t("calendar.attendance.label"))
+		fields << icon_subtitle(:attendance, I18n.t("calendar.attendance.label"))
 		@fields = create_fields(fields)
 		a_data  = helpers.team_attendance_table
 		if a_data

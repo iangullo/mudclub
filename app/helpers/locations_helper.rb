@@ -36,13 +36,12 @@ module LocationsHelper
 
 	# return table for @locations TableComponent
 	def location_table(locations: @locations)
-		editor = u_admin? || (u_club == @club && (u_manager? || u_secretary?))
 		title  = [
 			{ kind: :normal, value: Location.fld(:name) },
 			{ kind: :normal, value: Location.fld(:kind), align: :center },
 			{ kind: :normal, value: Location.label(:short) }
 		]
-		title << button_field({ kind: :add, url: new_path_for(@club, :location), frame: :modal }) if editor
+		title << button_field({ kind: :add, url: new_path_for(@club, :location), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		locations.each { |loc|
@@ -55,7 +54,7 @@ module LocationsHelper
 			else
 				row[:items] << { kind: :normal, value: "" }
 			end
-			row[:items] << button_field({ kind: :delete, url:, name: loc.name }) if editor
+			row[:items] << button_field({ kind: :delete, url:, name: loc.name }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows: }

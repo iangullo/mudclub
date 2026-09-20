@@ -187,11 +187,20 @@ en:
         deleted: Target deleted.
 
     team:
-      label: Team
-      plural: Teams
-      short: Team
+      label:
+        single: Team
+        plural: Teams
+        short: Team
+      actions:
+        create: Create team
+        edit: Edit team
+        delete: Delete team
+        edit_plan: Edit team plan
+        edit_roster: Edit roster
       fields:
         name: Name
+        plan: Team plan
+        plan_short: Plan
         sport: Sport
         category: Category
         division: Competition
@@ -201,6 +210,7 @@ en:
         created: Team created.
         updated: Team updated.
         deleted: Team deleted.
+        updated_plan: Updated team plan.
 
     task:
       label:

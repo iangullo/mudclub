@@ -52,7 +52,7 @@ module Kinded
 	end
 
 	def kind_catalog		= self.class.kind_catalog
-	def kind_image(...) = self.class.kind_image(kind, ...)
+	def kind_image(default: :missing, **rest) = self.class.kind_image(kind, default:, **rest)
 	def kind_label(...) = self.class.kind_label(kind, ...)
 	def kind_list		    = self.class.kind_list
 end

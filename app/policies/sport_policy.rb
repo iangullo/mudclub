@@ -16,13 +16,13 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# app/policies/club_policy.rb
-class ClubPolicy < ApplicationPolicy
+# app/policies/sport_policy.rb
+class SportPolicy < ApplicationPolicy
 	#------------------------------------
-	# Clubs index - admins or check rivals
+	# Season index - admins
 	#------------------------------------
 	def index?
-		allowed?(manages_club?(target_club))
+		admin?
 	end
 
 	#------------------------------------
@@ -30,11 +30,7 @@ class ClubPolicy < ApplicationPolicy
 	#------------------------------------
 
 	def show?
-		true
-	end
-
-	def show_details?
-		same_club?(@record)
+		@record && admin?
 	end
 
 	def create?
@@ -42,26 +38,20 @@ class ClubPolicy < ApplicationPolicy
 	end
 	alias new? create?
 
+	# Cannot edit Sports yet
 	def update?
-		allowed?(manages_club?(@record))
+		@record && admin?
 	end
 	alias edit? update?
 
 	def destroy?
-		admin? && !same_club?(@record)
+		@record && admin?
 	end
 
 	#------------------------------------
-	# Administrative capabilities
+	# Additional paths
 	#------------------------------------
-
-	def manage_members?
-		allowed?(manages_club?(@record))
+	def rules?
+		@record && admin?
 	end
-
-	alias manage_assignments?  manage_members?
-	alias manage_documents?    manage_members?
-	alias manage_events?       manage_members?
-	alias manage_registrations? manage_members?
-	alias manage_teams?        manage_members?
 end

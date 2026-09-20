@@ -70,6 +70,9 @@ class Person < ApplicationRecord
 	#-------------------------------------
 	# Indirect relationships API
 	#-------------------------------------
+	def member_of?(club)		 = memberships.current.for_club(club).exists?
+	def was_member_of?(club) = memberships.for_club(club).exists?
+
 	def clubs
 		Club.joins(:memberships).merge(memberships.current).distinct
 	end
@@ -107,12 +110,24 @@ class Person < ApplicationRecord
 	end
 	alias is_parent? is_responsible_adult?
 
-	def is_athlete?(club = nil) = has_membership?(:athlete, club)
-	def is_coach?(club = nil)		= has_membership?(:coach, club)
-	def is_manager?(club)				= has_assignment?(:club_manager, club)
-	def is_president?(club)			= has_assignment?(:president, club)
-	def is_secretary?(club)			= has_assignment?(:secretary, club)
-	def is_treasurer?(club)			= has_assignment?(:treasurer, club)
+	def has_membership?(kind, club = nil)
+		active_memberships(Array(kind), club).exists?
+	end
+
+	def is_athlete?(club = nil)		= has_membership?(:athlete, club)
+	def is_coach?(club = nil)			= has_membership?(:coach, club)
+	def is_volunteer?(club = nil)	= has_membership?(:volunteer, club)
+	def is_board_member?(club = nil) = has_membership?(:board_member, club)
+
+	def has_assignment?(kind, club)
+		active_assignments(Array(kind), club).exists?
+	end
+
+	def is_president?(club)				= has_assignment?(:president, club)
+	def is_vice_president?(club)	= has_assignment?(:vice_president, club)
+	def is_secretary?(club)				= has_assignment?(:secretary, club)
+	def is_treasurer?(club)				= has_assignment?(:treasurer, club)
+	def is_manager?(club)					= has_assignment?(:club_manager, club)
 
 	#-------------------------------------
 	# Object methods
@@ -314,27 +329,14 @@ class Person < ApplicationRecord
 			end
 		end
 
-		def active_assignments(kind, club)
-			return nil unless club
-			assignments_in(club).find { |a| a.kind.to_sym == kind.to_sym }
+		def active_assignments(kinds, club = nil)
+			return Assignment.none unless club.is_a?(Club)
+			assignments.for_club(club).of_kind(kinds).current
 		end
 
-		def has_assignment?(kind, club)
-			active_assignments(kind, club).exists?
-		end
-
-		def active_memberships(kind, club = nil)
-			scope = memberships.of_kind(kind.to_sym).current
-			club ? scope.for_club(club) : scope
-		end
-
-		def has_membership?(kind, club = nil)
-			active_memberships(kind, club).exists?
-		end
-
-		def membership_of_kind_in(club, kind)
-			return nil unless club
-			memberships_in(club).find { |m| m.kind.to_sym == kind.to_sym }
+		def active_memberships(kinds, club = nil)
+			scope = memberships.of_kind(kinds).current
+			club.is_a?(Club) ? scope.for_club(club) : scope
 		end
 
 		def self.resolve_candidates(scope, probable: false, matched_by:)

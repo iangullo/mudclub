@@ -23,113 +23,98 @@ class SeasonsController < ApplicationController
 	# GET /seasons
 	# GET /seasons.json
 	def index
-		if check_access(roles: [ :admin ])
-			@seasons = Season.real
-			page  = paginate(@seasons)	# paginate results
-			title = helpers.season_title(icon: "mudclub.svg", title: I18n.t("season.many"))
-			table = helpers.season_table(seasons: page)
-			create_index(title:, table:, page:, retlnk: back_link)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SeasonPolicy)
+
+		@seasons = Season.real
+		page  = paginate(@seasons)	# paginate results
+		title = helpers.season_title(icon: "mudclub.svg", title: I18n.t("season.many"))
+		table = helpers.season_table(seasons: page)
+		create_index(title:, table:, page:, retlnk: back_link)
 	end
 
 	# GET /seasons/1
 	def show
-		if @season && check_access(roles: [ :admin ])
-			@fields = create_fields(helpers.season)
-			@submit = create_submit(close: :back, retlnk: back_link(default: seasons_path(rdx: @rdx)), submit: edit_path_for(@season), frame: :modal)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SeasonPolicy, record: @season)
+
+		@fields = create_fields(helpers.season)
+		@submit = create_submit(close: :back, retlnk: back_link(default: seasons_path(rdx: @rdx)), submit: edit_path_for(@season), frame: :modal)
 	end
 
 	# GET /seasons/1/edit
 	def edit
-		if @season && check_access(roles: [ :admin ])
-			prepare_form("edit")
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SeasonPolicy, record: @season)
+
+		prepare_form("edit")
 	end
 
 	# GET /seasons/new
 	def new
-		if check_access(roles: [ :admin ])
-			@season = Season.new(start_date: Date.today, end_date: Date.today)
-			prepare_form("new")
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(SeasonPolicy)
+
+		@season = Season.new(start_date: Date.today, end_date: Date.today)
+		prepare_form("new")
 	end
 
 	# POST /seasons
 	# POST /seasons.json
 	def create
-		if check_access(roles: [ :admin ])
-			@season = Season.new(season_params)
-			respond_to do |format|
-				if @season.save
-					a_desc = "#{I18n.t("season.created")} '#{@season.name}'"
-					retlnk = crud_return
-					register_action(:created, a_desc, url: path_for(@season, rdx: 2))
-					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-					format.json { render :index, status: :created, location: retlnk }
-				else
-					prepare_form("new")
-					format.html { render :new }
-					format.json { render json: @season.errors, status: :unprocessable_entity }
-				end
+		@policy = check_policy!(SeasonPolicy)
+
+		@season = Season.new(season_params)
+		respond_to do |format|
+			if @season.save
+				a_desc = "#{I18n.t("season.created")} '#{@season.name}'"
+				retlnk = crud_return
+				register_action(:created, a_desc, url: path_for(@season, rdx: 2))
+				format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+				format.json { render :index, status: :created, location: retlnk }
+			else
+				prepare_form("new")
+				format.html { render :new }
+				format.json { render json: @season.errors, status: :unprocessable_entity }
 			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# PATCH/PUT /seasons/1
 	# PATCH/PUT /seasons/1.json
 	def update
-		if @season && check_access(roles: [ :admin ])
-			respond_to do |format|
-				check_locations
-				@season.rebuild(season_params)
-				retlnk = crud_return
-				if @season.changed?
-					if @season.save
-						a_desc = "#{I18n.t("season.updated")} '#{@season.name}'"
-						register_action(:updated, a_desc, url: path_for(@season, rdx: 2))
-						format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :show, status: :created, location: retlnk }
-					else
-						prepare_form("edit")
-						format.html { render :edit }
-						format.json { render json: @season.errors, status: :unprocessable_entity }
-					end
+		@policy = check_policy!(SeasonPolicy, record: @season)
+
+		respond_to do |format|
+			check_locations
+			@season.rebuild(season_params)
+			retlnk = crud_return
+			if @season.changed?
+				if @season.save
+					a_desc = "#{I18n.t("season.updated")} '#{@season.name}'"
+					register_action(:updated, a_desc, url: path_for(@season, rdx: 2))
+					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :show, status: :created, location: retlnk }
 				else
-					format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
-					format.json { render :show, status: :unprocessable_entity, location: retlnk }
+					prepare_form("edit")
+					format.html { render :edit }
+					format.json { render json: @season.errors, status: :unprocessable_entity }
 				end
+			else
+				format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { render :show, status: :unprocessable_entity, location: retlnk }
 			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# DELETE /seasons/1
 	# DELETE /seasons/1.json
 	def destroy
-		# cannot destroy placeholder season (id ==0)
-		if @season && @season.id != 0 && ccheck_access(roles: [ :admin ])
-			s_name = @season.name
-			@season.destroy
-			respond_to do |format|
-				a_desc = "#{I18n.t("season.deleted")} '#{s_name}'"
-				register_action(:deleted, a_desc)
-				format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
-				format.json { head :no_content }
-			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
+		@policy = check_policy!(SeasonPolicy, record: @season)
+
+		s_name = @season.name
+		@season.destroy
+		respond_to do |format|
+			a_desc = "#{I18n.t("season.deleted")} '#{s_name}'"
+			register_action(:deleted, a_desc)
+			format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
 		end
 	end
 

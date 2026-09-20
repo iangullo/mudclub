@@ -25,13 +25,12 @@ module DocumentsHelper
 
 	# return table for @documents TableComponent
 	def document_table(documents: @documents)
-		editor = @policy.edit?
 		title  = [
 			{ kind: :normal, value: Document.fld(:kind), align: :center },
 			{ kind: :normal, value: Document.fld(:title) },
 			{ kind: :normal, value: Document.fld(:active) }
 		]
-		title << button_field({ kind: :add, url: new_path_for(@owner, :document), frame: :modal }) if editor
+		title << button_field({ kind: :add, url: new_path_for(@owner, :document), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		documents.each { |doc|
@@ -40,7 +39,7 @@ module DocumentsHelper
 			row[:items] << { kind: :normal, value: doc.kind_label }
 			row[:items] << { kind: :normal, value: doc.title }
 			row[:items] << symbol_field(doc.active? ? :yes : :no, align: :center, class: "border px py")
-			row[:items] << button_field({ kind: :delete, url:, name: doc.title, confirm: true }) if editor
+			row[:items] << button_field({ kind: :delete, url:, name: doc.title, confirm: true }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows: }

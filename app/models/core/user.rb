@@ -58,12 +58,19 @@ class User < ApplicationRecord
 		system_admin? || person&.memberships&.current&.any?
 	end
 
+	def member_of?(club)
+		return true if system_admin?
+		person&.member_of?(club) || false
+	end
+
 	# ---------------------------------------------------------------------------
 	# Organizational roles — delegate to Person, which derives from Participation
 	# ---------------------------------------------------------------------------
-	delegate :is_athlete?, :is_coach?, :is_secretary?, :is_president?,
-					:clubs, :club_list, :teams, :team_list,
-					to: :person, allow_nil: true
+	delegate :was_member_of?, :clubs, :club_list, :teams, :team_list, :is_parent?,
+		:has_membership?, :is_athlete?, :is_coach?, :is_volunteer?, :is_board_member?,
+		:has_assignment?, :is_president?, :is_vice_president?, :is_treasurer?,
+											:is_manager?, :is_secretary?, :has_guardians?,
+		to: :person, allow_nil: true
 
 	# -------------------------------------------------------------------------
 	# User Predicates
@@ -79,7 +86,7 @@ class User < ApplicationRecord
 	end
 
 	def is_manager?
-		person.is_manager? || (admin? && is_coach?)
+		person.is_manager?(club) || (admin? && is_coach?)
 	end
 
 	def athlete

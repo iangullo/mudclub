@@ -128,8 +128,7 @@ module TeamsHelper
 	# return a TableComponent for the teams given
 	def team_table(teams: @teams)
 		if teams
-			add_teams = @policy.create?
-			pcount = (device != "mobile" && (u_admin? || (user_in_club? && (u_manager? || u_secretary?))))
+			pcount = (device != "mobile")
 			title = ((@rdx == 1 || @player || @coach) ? [ { kind: :normal, value: Season.label(:short) } ] : [])
 			title << { kind: :normal, value: Team.label }
 			unless device == "mobile"
@@ -141,9 +140,8 @@ module TeamsHelper
 				trow = { url: "#", items: [ gap_field(cols: 2), { kind: :bottom, value: I18n.t("shared.stats.total") } ] }
 				tcnt = []	# total athletes
 			end
-			if add_teams
-				title << button_field({ kind: :add, url: new_path_for(@club, :team, season_id: @season.id), frame: :modal })
-			end
+			title << button_field({ kind: :add, url: new_path_for(@club, :team, season_id: @season.id), frame: :modal }) if @policy.create?
+
 			rows = Array.new
 			teams.each { |team|
 				url = (u_clubid == team.club_id ? path_for(team) : request.path)
@@ -159,7 +157,7 @@ module TeamsHelper
 					tcnt += cnt
 					row[:items] << { kind: :normal, value: cnt.count, align: :center }
 				end
-				row[:items] << button_field({ kind: :delete, url: row[:url], name: team.to_s }) if add_teams
+				row[:items] << button_field({ kind: :delete, url: row[:url], name: team.to_s }) if @policy.destroy?
 				rows << row
 			}
 			if pcount
@@ -174,19 +172,14 @@ module TeamsHelper
 
 	# return jump links for a team
 	def team_links
-		if u_manager? || u_coach? || u_secretary?
-			res = [ [
-				button_field({ kind: :jump, symbol: symbol_hash("player", namespace: @team&.sport&.name), url: club_team_roster_path(@club, @team, rdx: @rdx), label: Team.term(:roster) }, align: :center)
-			] ]
-			if u_manager? || u_coach?
-				res.last << button_field({ kind: :jump, symbol: "target", url: club_team_targets_path(@club, @team, rdx: @rdx), label: Target.label(:plural) }, align: :center)
-				res.last << button_field({ kind: :jump, symbol: "plan", url: club_team_plan_path(@club, @team, rdx: @rdx), label: I18n.t("training.plan.label.short") }, align: :center)
-			end
-			res.last << button_field({ kind: :jump, symbol: "timetable", url: club_team_slots_path(@club, @team, rdx: @rdx), label: Slot.label(:plural), frame: :modal }, align: :center)
-		else
-			res = [ [] ]
-		end
-		res
+		links = []
+
+		links << button_field({ kind: :jump, symbol: symbol_hash(:player, namespace: @team&.sport&.name), url: club_team_roster_path(@club, @team, rdx: @rdx), label: Team.term(:roster) }, align: :center) if @policy.roster?
+		links << button_field({ kind: :jump, symbol: :target, url: club_team_targets_path(@club, @team, rdx: @rdx), label: Target.label(:plural) }, align: :center) if @policy.targets?
+		links << button_field({ kind: :jump, symbol: :plan, url: club_team_plan_path(@club, @team, rdx: @rdx), label: I18n.t("training.plan.label.short") }, align: :center) if @policy.plan?
+		links << button_field({ kind: :jump, symbol: :timetable, url: club_team_slots_path(@club, @team, rdx: @rdx), label: Slot.label(:plural), frame: :modal }, align: :center)
+
+		[ links ]
 	end
 
 	# fields to edit team targets -- REQUIRES form to be passed!!
@@ -233,7 +226,7 @@ module TeamsHelper
 	def team_slots
 		res = [ [
 			gap_field,
-			symbol_field("timetable", { size: "30x30" }),
+			symbol_field(:timetable, { size: "30x30" }),
 			{ kind: :side_cell, value: Slot.label(:plural), align: "left" }
 		] ]
 		@team.slots.order(:wday).each do |slot|
@@ -245,12 +238,12 @@ module TeamsHelper
 	# return FieldComponent for team view title
 	def team_title(title:, cols: nil, search: nil, edit: nil)
 		clubid = @club&.id || u_clubid
-		res = title_start(icon: ((u_clubid != clubid) ? @club&.logo : symbol_hash("team")), title:, cols:)
+		res = title_start(icon: ((u_clubid != clubid) ? @club&.logo : symbol_hash(:team)), title:, cols:)
 		if search
 			s_id = @team&.season_id || @season&.id || session.dig("team_filters", "season_id")
 			res << [ { kind: :search_collection, key: :season_id, options: Season.real.order(start_date: :desc), value: s_id } ]
 			res.last.first[:filter] = { key: :club_id, value: clubid }
-		elsif edit and u_manager?
+		elsif edit && @policy.edit?
 			res << [ { kind: :text_box, key: :name, value: @team.name, placeholder: @team.label, mandatory: { length: 3 } } ]
 			res << [
 				symbol_field("calendar", align: "right"),

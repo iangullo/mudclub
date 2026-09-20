@@ -24,155 +24,136 @@ class UsersController < ApplicationController
 	# GET /users
 	# GET /users.json
 	def index
-		if check_access(roles: [ :admin ])
-			search = (params[:search].presence || session.dig("user_filters", "search"))
-			@users = User.search(search, current_user)
-			page   = paginate(@users)	# paginate results
-			title  = helpers.person_title(title: User.label(:plural), icon: { concept: "user", options: { size: "50x50" } })
-			title << [ { kind: :search_text, key: :search, value: search, url: users_path(rdx: @rdx) } ]
-			table  = helpers.user_table(users: @u_page)
-			create_index(title:, table:, page:, retlnk: back_link)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(UserPolicy, club: @club)
+
+		search = (params[:search].presence || session.dig("user_filters", "search"))
+		@users = User.search(search, current_user)
+		page   = paginate(@users)	# paginate results
+		title  = helpers.person_title(title: User.label(:plural), icon: { concept: "user", options: { size: "50x50" } })
+		title << [ { kind: :search_text, key: :search, value: search, url: users_path(rdx: @rdx) } ]
+		table  = helpers.user_table(users: @u_page)
+		create_index(title:, table:, page:, retlnk: back_link)
 	end
 
 	# GET /users/1
 	# GET /users/1.json
 	def show
-		if @user && check_access(roles: [ :admin ], obj: @user)
-			@title = create_fields(helpers.user_show)
-			@table = create_table(helpers.team_table(teams: @user.teams))
-			retlnk = (@rdx == 1 ? :back : back_link(default: return_path_for(@user)))
-			submit  = edit_path_for(@user) if u_admin? || @rdx == 1
-			@submit = create_submit(close: :back, retlnk:, submit:, frame: :modal)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		@title = create_fields(helpers.user_show)
+		@table = create_table(helpers.team_table(teams: @user.teams))
+		retlnk = (@rdx == 1 ? :back : back_link(default: return_path_for(@user)))
+		submit  = edit_path_for(@user) if u_admin? || @rdx == 1
+		@submit = create_submit(close: :back, retlnk:, submit:, frame: :modal)
 	end
 
 	# GET /users/new
 	def new
-		if check_access(roles: [ :admin ])
-			@user = User.new(locale: current_user.locale)
-			@user.build_person
-			prepare_form(create: true)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(UserPolicy, club: @club)
+
+		@user = User.new(locale: current_user.locale)
+		@user.build_person
+		prepare_form(create: true)
 	end
 
 	# GET /users/1/edit
 	def edit
-		if @user && check_access(roles: [ :admin ], obj: @user)
-			prepare_form
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+		prepare_form
 	end
 
 	# POST /users.json
 	def create
-		if check_access(roles: [ :admin ])
-			respond_to do |format|
-				@user = User.new
-				@user.rebuild(user_params)	# build user
-				if @user.modified? then
-					if @user.email.presence && @user.paranoid_create
-						@user.bind_person(save_changes: true) # ensure binding is correct
-						userview = path_for(@user)
-						a_desc   = "#{User.msg(:created)} '#{@user.s_name}'"
-						register_action(:created, a_desc, url: path_for(@user, rdx: 2))
-						format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :show, status: :created, location: userview }
-					else
-						prepare_form(create: true)
-						format.html { render :new, notice: helpers.flash_message("#{@user.errors}", "error") }
-						format.json { render json: @user.errors, status: :unprocessable_entity }
-					end
-				else	# no changes to be made
-					notice = (@user.persisted? ? "#{I18n.t("user.no_data")} '#{@user.s_name}'" : @user.errors)
-					format.html { redirect_to users_path(rdx: @rdx), notice: helpers.flash_message(notice), data: { turbo_action: "replace" } }
-					format.json { render :index,  :created, location: }
+		@policy = check_policy!(UserPolicy, club: @club)
+
+		respond_to do |format|
+			@user = User.new
+			@user.rebuild(user_params)	# build user
+			if @user.modified? then
+				if @user.email.presence && @user.paranoid_create
+					@user.bind_person(save_changes: true) # ensure binding is correct
+					userview = path_for(@user)
+					a_desc   = "#{User.msg(:created)} '#{@user.s_name}'"
+					register_action(:created, a_desc, url: path_for(@user, rdx: 2))
+					format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :show, status: :created, location: userview }
+				else
+					prepare_form(create: true)
+					format.html { render :new, notice: helpers.flash_message("#{@user.errors}", "error") }
+					format.json { render json: @user.errors, status: :unprocessable_entity }
 				end
+			else	# no changes to be made
+				notice = (@user.persisted? ? "#{I18n.t("user.no_data")} '#{@user.s_name}'" : @user.errors)
+				format.html { redirect_to users_path(rdx: @rdx), notice: helpers.flash_message(notice), data: { turbo_action: "replace" } }
+				format.json { render :index,  :created, location: }
 			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# PATCH/PUT /users/1
 	# PATCH/PUT /users/1.json
 	def update
-		if @user && check_access(roles: [ :admin ], obj: @user)
-			respond_to do |format|
-				if params[:user][:password].blank? or params[:user][:password_confirmation].blank?
-					params[:user].delete(:password)
-					params[:user].delete(:password_confirmation)
-				end
-				@user.rebuild(user_params)	# rebuild user
-				userview = path_for(@user)
-				if @user.modified?
-					if @user.email.presence && @user.save
-						@user.bind_person(save_changes: true) # ensure binding is correct
-						a_desc = "#{User.msg(:updated)} '#{@user.s_name}'"
-						register_action(:updated, a_desc, url: path_for(@user, rdx: 2))
-						format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :show, status: :ok, location: userview }
-					else
-						prepare_form
-						format.html { render :edit }
-						format.json { render json: @user.errors, status: :unprocessable_entity }
-					end
-				else	# no changes made
-					format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
-					format.json { render :show, status: :ok, location: userview }
-				end
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		respond_to do |format|
+			if params[:user][:password].blank? or params[:user][:password_confirmation].blank?
+				params[:user].delete(:password)
+				params[:user].delete(:password_confirmation)
 			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
+			@user.rebuild(user_params)	# rebuild user
+			userview = path_for(@user)
+			if @user.modified?
+				if @user.email.presence && @user.save
+					@user.bind_person(save_changes: true) # ensure binding is correct
+					a_desc = "#{User.msg(:updated)} '#{@user.s_name}'"
+					register_action(:updated, a_desc, url: path_for(@user, rdx: 2))
+					format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :show, status: :ok, location: userview }
+				else
+					prepare_form
+					format.html { render :edit }
+					format.json { render json: @user.errors, status: :unprocessable_entity }
+				end
+			else	# no changes made
+				format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { render :show, status: :ok, location: userview }
+			end
 		end
 	end
 
 	# DELETE /users/1
 	# DELETE /users/1.json
 	def destroy
-		if @user && check_access(roles: [ :admin ])
-			@user.destroy
-			respond_to do |format|
-				a_desc = "#{User.msg(:deleted)} '#{@user.s_name}'"
-				register_action(:deleted, a_desc)
-				format.html { redirect_to users_path(rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
-				format.json { head :no_content }
-			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		@user.destroy
+		respond_to do |format|
+			a_desc = "#{User.msg(:deleted)} '#{@user.s_name}'"
+			register_action(:deleted, a_desc)
+			format.html { redirect_to users_path(rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
 		end
 	end
 
 	# modal view of User Action log
 	def actions
-		if @user && check_access(roles: [ :admin ], obj: @user)
-			@title  = create_fields(helpers.user_actions_title)
-			@actions= create_fields(helpers.user_actions_table)
-			@submit = create_submit(submit: helpers.user_actions_clear, frame: :modal)
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
-		end
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		@title  = create_fields(helpers.user_actions_title)
+		@actions= create_fields(helpers.user_actions_table)
+		@submit = create_submit(submit: helpers.user_actions_clear, frame: :modal)
 	end
 
 	# forget user_actions when reviewed
 	def clear_actions
-		if @user && check_access(roles: [ :admin ])
-			UserAction.clear(@user)
-			respond_to do |format|
-				a_desc = "#{I18n.t("user.cleared")} '#{@user.s_name}'"
-				register_action(:deleted, a_desc)
-				format.html { redirect_to path_for(@user), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
-				format.json { head :no_content }
-			end
-		else
-			redirect_to "/", data: { turbo_action: "replace" }
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		UserAction.clear(@user)
+		respond_to do |format|
+			a_desc = "#{I18n.t("user.cleared")} '#{@user.s_name}'"
+			register_action(:deleted, a_desc)
+			format.html { redirect_to path_for(@user), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
 		end
 	end
 
