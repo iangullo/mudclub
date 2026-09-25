@@ -44,7 +44,7 @@ class EventsController < ApplicationController
 		respond_to do |format|
 			title = helpers.event_title(cols: @event.train? ? 3 : nil)
 			format.pdf do
-				if u_manager? || u_coach?
+				if @policy.export?
 					response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
 					pdf = event_to_pdf(title)
 					send_data pdf.render(filename: "#{@event}.pdf", type: "application/pdf")
@@ -218,7 +218,7 @@ class EventsController < ApplicationController
 
 		@task   = Task.find(params[:task_id])
 		@fields = create_fields(helpers.task_show(task: @task, team: @event.team))
-		submit  = edit_task_event_path(task_id: @task.id) if event_manager?
+		submit  = edit_task_event_path(task_id: @task.id) if @policy.edit_task?
 		@submit = create_submit(close: :back, retlnk: :back, submit:)
 	end
 
@@ -397,11 +397,6 @@ class EventsController < ApplicationController
 			end
 		end
 
-		# wrapper to determine whether the user can modify the event.
-		def event_manager?
-			@event && (club_manager?(@event&.team&.club) || @event&.team&.has_coach?(u_person))
-		end
-
 		# pdf export of @event content
 		def event_to_pdf(header)
 			p_title = header.take(2)
@@ -444,7 +439,9 @@ class EventsController < ApplicationController
 
 		# return array of valid team options for a selector
 		def get_teams
-			teams = (u_manager? ? u_club.teams.for_season(@season.id) : current_user.coach.team_list(season_id: @season.id))
+			teams = u_manager? ?
+				u_club&.teams&.for_season(@season) || [] :
+				current_user.team_list(season_id: @season.id)
 			opts  = []
 			teams.each do |team|
 				opts << { id: team.id, name: team.name }
@@ -511,7 +508,7 @@ class EventsController < ApplicationController
 				unless @event.rest?
 					r_lnk = event_path
 					if @event.train?
-						@btn_add = create_button({ kind: :add, label: I18n.t("task.add"), url: add_event_task_path }) if u_manager? || @event.team.has_coach?(u_person)
+						@btn_add = create_button({ kind: :add, label: Task.act(:add), url: add_event_task_path }) if @policy.create?
 						@drills  = @event.drill_list
 					end
 					@submit = create_submit(close: :back, retlnk: r_lnk)

@@ -16,8 +16,8 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# app/policies/season_policy.rb
-class SeasonPolicy < ApplicationPolicy
+# app/policies/category_policy.rb
+class CategoryPolicy < ApplicationPolicy
 	#------------------------------------
 	# Division index - admins
 	#------------------------------------

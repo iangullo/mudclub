@@ -18,22 +18,21 @@
 #
 # Handle Assignment views - always accessed by a assignment, club or team
 class AssignmentsController < ApplicationController
-	before_action :load_participation_context
-	before_action :load_assignment_kind
 	before_action :set_assignment, only: [ :show, :edit, :update, :terminate ]
+	before_action :load_assignment_kind
+	before_action :load_participation_context
 
 	# GET /clubs/x/assignments
 	# GET /clubs/x/assignments.json
 	def index
 		@policy = check_policy!(AssignmentPolicy, kind: @kind, club: @club, team: @team)
 
-		search  = params[:search].presence
-		history = search &&  @policy.history?
+		history = @search &&  @policy.history?
 		@assignments =
 			Assignment.search(
 				club: @club,
 				membership_kind: @kind,
-				search:,
+				search: @search,
 				history:
 			)
 
@@ -48,7 +47,7 @@ class AssignmentsController < ApplicationController
 	# GET /assignments/1.json
 	def show
 		@policy = check_policy!(AssignmentPolicy, record: @assignment)
-		status = @policy.edit?
+		@status = @policy.edit?
 
 		fields  =
 			helpers.participation_title(
@@ -66,8 +65,15 @@ class AssignmentsController < ApplicationController
 	# TODO: Work on this - it will be quite different...
 	def new
 		@policy = check_policy!(AssignmentPolicy, club: @club, team: @team, kind: @kind)
-		@assignment = Assignment.new(membership: @member, team: @team, kind: @kind)
-		@assignment.build_membership(club: @club)
+		@assignment = Assignment.new(team: @team, kind: @kind)
+
+		if @member
+			@assignment.membership = @member
+		else
+			membership_kind = Array(Catalog::AssignmentKinds.membership_kind(@kind)).first || :athlete
+			@assignment.build_membership(club: @club, kind: membership_kind, status: :active, joined_on: Date.current)
+			@assignment.membership.build_person
+		end
 		prepare_form(:create)
 	end
 
@@ -76,21 +82,26 @@ class AssignmentsController < ApplicationController
 	# TODO: Work on this - it will be quite different...
 	def create
 		@policy = check_policy!(AssignmentPolicy, club: @club, team: @team, kind: @kind)
+
 		respond_to do |format|
-			Assignment.transaction do
-				@assignment = Assignment.new(membership: @member, team: @team, kind: @kind)
-				@assignment.rebuild(assignment_params)
-				@assignment.starts_on = Date.today
+			@assignment = Assignment.new(team: @team, kind: @kind)
+			membership  = @member || prepared_membership
+			if membership
+				Assignment.transaction do
+					@assignment.membership = membership
+					@assignment.rebuild(assignment_params)
+					@assignment.starts_on ||= Date.current
 
-				if @assignment.save
-					format.html do
-						redirect_to helpers.assignment_return_path, notice: Assignment.msg(:created)
+					if @assignment.save
+						format.html do
+							redirect_to helpers.assignment_return_path, notice: Assignment.msg(:created)
+						end
+
+						format.json { render :show, status: :ok, location: helpers.assignment_return_path }
+					else
+						log_assignment_errors
+						raise ActiveRecord::Rollback
 					end
-
-					format.json { render :show, status: :ok, location: helpers.assignment_return_path }
-				else
-					log_assignment_errors
-					raise ActiveRecord::Rollback
 				end
 			end
 
@@ -176,6 +187,7 @@ class AssignmentsController < ApplicationController
 				a_fields = helpers.participation_status_form_fields(@assignment)
 			else
 				a_fields  = helpers.assignment_form_fields(@assignment)
+				@kind_f   = create_fields(helpers.assignment_form_kind_fields(@assignment))
 				@p_header = create_fields(helpers.assignment_form_title(@assignment, action))
 				@p_fields = create_fields(helpers.person_form_fields(@assignment.person))
 				@contacts = create_fields(helpers.person_relationships_form(@assignment.person))
@@ -197,46 +209,69 @@ class AssignmentsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_assignment
-			@assignment = Assignment.find(params[:id])
+			@assignment = Assignment.includes(:membership, :team).find(params[:id])
 
-			@kind = @assignment.kind
-
-			@club = @assignment.club
-			raise ActiveRecord::RecordNotFound if params[:club_id]   && @club.id != params[:club_id].to_i
-
-			@team = @assignment.team
-			raise ActiveRecord::RecordNotFound if params[:team_id]   && @team&.id != params[:team_id].to_i
-
+			@kind   = @assignment.kind
 			@member = @assignment.membership
-			raise ActiveRecord::RecordNotFound if params[:member_id] && @member.id != params[:member_id]
+			assert_param_matches!(:member_id, @member)
+
+			@club   = @assignment.club
+			assert_param_matches!(:club_id, @club)
+
+			@team   = @assignment.team
+			assert_param_matches!(:team_id, @team)
 		end
 
 		def load_assignment_kind
-			@kind ||= Assignment.kind_catalog.normalize(params[:kind])
+			return true if @kind
+			p_kind = (params[:kind].presence || assignment_params[:kind].presence)
+								&.singularize&.to_sym
+			@kind  = Assignment.kind_catalog.normalize(p_kind)
+		end
+
+		# Flow B: no pre-existing member. Resolve the person from params, then
+		# reuse their current membership in this club if one exists.
+		def prepared_membership
+			person = resolve_person_for_create
+			return nil unless person
+
+			kind = @kind || :athlete
+
+			person.memberships.for_club(@club).of_kind(kind).current.first ||
+			person.memberships.build(
+				club:      @club,
+				kind:      kind,
+				status:    :active,
+				joined_on: Date.current
+			)
+		end
+
+		def resolve_person_for_create
+			attrs = assignment_params[:person_attributes]
+			return Person.new if attrs.blank?
+
+			result = Person.resolve(attrs)
+			return nil if result[:status] == :ambiguous
+
+			result[:person] || Person.new
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def assignment_params
-			params.require(:assignment).permit(
-				:membership_id,
-				:joined_on,
-				:left_on,
-				:kind,
-				:rdx,
+			@assignment_params ||= params.require(:assignment).permit(
+				:kind, :membership_id, :team_id, :starts_on, :ends_on,
+				:number, :notes, :avatar, :status, :rdx,
 				person_attributes: [
-					:id,
-					:address,
-					:avatar,
-					:birthday,
-					:dni,
-					:email,
-					:female,
-					:id_back,
-					:id_front,
-					:name,
-					:nick,
-					:phone,
-					:surname
+					:id, :name, :nick, :surname,
+					:dni, :id_back, :id_front, :female,
+					:birthday, :address, :email, :phone,
+
+					relationships_attributes: [
+						:id, :kind, :_destroy,
+						related_person_attributes: [
+							:id, :dni, :name, :surname, :email, :phone
+						]
+					]
 				]
 			)
 		end

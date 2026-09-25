@@ -65,7 +65,6 @@ class Club < ApplicationRecord
 	validates :phone, uniqueness: { allow_nil: true }
 	# validates :settings, uniqueness: { allow_nil: true }
 
-
 	#-------------------------------------
 	# Class method API
 	#-------------------------------------
@@ -95,6 +94,16 @@ class Club < ApplicationRecord
 	# Coach members pertaining to the club
 	def coaches(current: true)
 		self.members(kind: :coach, current:)
+	end
+
+	def coach_list
+		list = []
+		Person.where(id: coaches.pluck(:person_id))
+			.sort_by { |p| p.s_name.to_s.downcase }
+			.each do |coach|
+				list << { id: coach.id, name: coach.s_name }
+			end
+		list
 	end
 
 	# access setting for country
@@ -212,13 +221,13 @@ class Club < ApplicationRecord
 	end
 
 	# Search field matching
-	def self.search(search, user = nil)
-		ucid = user&.club_id
+	def self.search(search, user = nil, club = nil)
+		c_id = club&.id
 		if search.present?
-			return Club.where.not(id: [ -1, ucid ]).search_by_any(search).order(:nick) if user.is_manager?
+			return Club.where.not(id: [ -1, c_id ]).search_by_any(search).order(:nick) if user.is_manager?(club)
 			return Club.search_by_any(search).order(:nick) if user.admin?
 		else
-			return Club.where.not(id: [ -1, ucid ]).order(:nick) if user.is_manager?
+			return Club.where.not(id: [ -1, c_id ]).order(:nick) if user.is_manager?(club)
 			return Club.all.order(:nick) if user.admin?
 		end
 		Club.none

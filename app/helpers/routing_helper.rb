@@ -51,7 +51,7 @@ module RoutingHelper
 
 		when Assignment
 			record.team ? [ record.club, record.team, record ] :
-										[ record.club, record.membership, record ]
+										[ record.club, record ]
 
 		when Event
 			record.team ? [ record.club, record.team, record ] :
@@ -71,20 +71,24 @@ module RoutingHelper
 	# --------------------------------------------------------------------------
 	#
 	def path_for(record, action: nil, owner: @owner, club: @club, rdx: @rdx, **options)
+		options.merge!(rdx_options(rdx))
 		base   = resource_route(record, owner:, club:)
 		target = action ? [ action, *base ] : base
-		polymorphic_path(target, rdx: rdx, **options)
+		polymorphic_path(target, **options)
 	end
 
 	def edit_path_for(record, owner: @owner, club: @club, rdx: @rdx, **options)
-		path_for(record, owner:, club:, action: :edit, rdx:, **options)
+		options.merge!(rdx_options(rdx))
+		path_for(record, owner:, club:, action: :edit, **options)
 	end
 
 	def destroy_path_for(record, owner: @owner, club: @club, rdx: @rdx, **options)
-		path_for(record, owner:, club:, rdx:, **options)
+		options.merge!(rdx_options(rdx))
+		path_for(record, owner:, club:, **options)
 	end
 
 	def new_path_for(parent, child_symbol, owner: @owner, club: @club, rdx: @rdx, **options)
+		options.merge!(rdx_options(rdx))
 		polymorphic_path(
 			[ :new, *resource_route(parent, owner:, club:), child_symbol ],
 			rdx:,
@@ -99,15 +103,34 @@ module RoutingHelper
 	# Parent page for `record` — e.g. from a Document under a Club, the Club's show page.
 	# Returns nil for top-level resources (Club, Sport, User, Drill, Season).
 	def base_path(record, owner: @owner, club: @club, rdx: @rdx, **options)
+		options.merge!(rdx_options(rdx))
 		parents = parents_of(record, owner:, club:)
-		parents && polymorphic_path(parents, rdx:, **options)
+		parents && polymorphic_path(parents, **options)
 	end
 
 	# Collection index for `record`'s class, nested under the same parents as `path_for`.
 	# e.g. TeamEvent -> club_team_events_path; Membership -> club_members_path.
 	def return_path_for(record, owner: @owner, club: @club, rdx: @rdx, **options)
 		parents = parents_of(record, owner:, club:) || []
-		polymorphic_path([ *parents, collection_key_for(record) ], rdx:, **options)
+		opts    = options.merge(rdx_options(rdx))
+		case rdx&.to_i
+		when 0, nil
+			polymorphic_path([ *parents, collection_key_for(record) ], **opts)
+		when 1
+			user_path(current_user, **opts)
+		when 2
+			home_log_path(**opts)
+		when 3
+			if params[:member_id].present?
+				club_member_path(club:, **opts)
+			elsif params[:user_id].present?
+				user_path(params[:user_id], **opts)
+			else
+				polymorphic_path([ *parents, collection_key_for(record) ], **opts)
+			end
+		else
+			root_path
+		end
 	end
 
 	private
@@ -120,5 +143,17 @@ module RoutingHelper
 		def parents_of(record, owner:, club:)
 			chain = resource_route(record, owner:, club:)
 			chain.length < 2 ? nil : chain[0..-2]
+		end
+
+		def rdx_options(rdx = @rdx, kind: nil)
+			opts      = { rdx:, status: @status || params[:status].presence }
+			member_id = @member&.id || params[:member_id].presence
+			if member_id
+				opts[:kind]      = kind || @kind || params[:kind].presence
+				opts[:member_id] = member_id
+			elsif (user_id = @user&.id || params[:user_id].presence)
+				opts[:user_id] = user_id if user_id
+			end
+			opts
 		end
 end

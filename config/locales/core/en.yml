@@ -165,8 +165,10 @@ en:
         never_logged: Never logged in
 
     user_action:
-      label: User action
-      short: Action
+      label:
+        single: User action
+        plural: User actions
+        short: Actions
       fields:
         action: Action
         user: User
@@ -186,6 +188,21 @@ en:
       messages:
         cleared: User actions cleared.
         exported: User actions exported.
+
+    user_kinds:
+      label: User role
+      short: Role
+      values:
+        user:
+          single: User
+          plural: Users
+          short: User
+          hint: Regular MudClub user.
+        admin:
+          single: Admin
+          plural: Admins
+          short: Admin
+          hint: MudClub server administrator.
 
     location:
       label:

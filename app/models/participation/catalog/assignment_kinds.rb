@@ -61,6 +61,7 @@ class Catalog::AssignmentKinds < Catalog::Base
 			id: 20,
 			membership: :coach,
 			scope: :team,
+			selectable: true,
 			description: "Head coach of a team."
 		},
 
@@ -68,6 +69,7 @@ class Catalog::AssignmentKinds < Catalog::Base
 			id: 21,
 			membership: :coach,
 			scope: :team,
+			selectable: true,
 			description: "Assistant coach of a team."
 		},
 
@@ -75,6 +77,7 @@ class Catalog::AssignmentKinds < Catalog::Base
 			id: 22,
 			membership: :coach,
 			scope: :club,
+			selectable: true,
 			description: "Coordinates the club's sporting methodology and supervises team coaches."
 		},
 
@@ -93,6 +96,7 @@ class Catalog::AssignmentKinds < Catalog::Base
 			id: 31,
 			membership: :volunteer,
 			scope: :team,
+			selectable: true,
 			description: "Represents the team before competition organisers and officials."
 		},
 
@@ -100,6 +104,7 @@ class Catalog::AssignmentKinds < Catalog::Base
 			id: 32,
 			membership: :volunteer,
 			scope: :team,
+			selectable: true,
 			description: "Coordinates the organisation of home fixtures and assists match officials."
 		},
 
@@ -114,6 +119,7 @@ class Catalog::AssignmentKinds < Catalog::Base
 			id: 34,
 			membership: :volunteer,
 			scope: :club,
+			selectable: true,
 			description: "Handle social media interaction."
 		},
 
@@ -198,6 +204,7 @@ class Catalog::AssignmentKinds < Catalog::Base
 	end
 
 	def self.allowed_for_membership?(assignment_kind, membership_kind)
-		membership_kind(assignment_kind).include?(membership_kind.to_sym)
+		Array(membership_kind(assignment_kind)).map
+			.include?(membership_kind.to_sym)
 	end
 end

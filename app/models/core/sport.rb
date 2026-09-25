@@ -26,80 +26,61 @@ class Sport < ApplicationRecord
 	localized_as "core.sport"
 	CATALOGS = {}.freeze
 
-	#
 	# --------------------------------------------------------------------------
 	# Associations
 	# --------------------------------------------------------------------------
-	#
-
 	has_many :categories, dependent: :nullify
 	has_many :divisions,  dependent: :nullify
 	has_many :teams,      dependent: :nullify
 
-	#
 	# --------------------------------------------------------------------------
-	# Identity
+	# Common Sport API
 	# --------------------------------------------------------------------------
-	#
-
 	def to_s
 		specific&.label || name
 	end
 
-	#
+
 	# Consistent helper for abstract methods.
-	#
 	def not_implemented!
 		raise NotImplementedError,
 					"#{self.class.name} must implement #{caller_locations(1, 1).first.label}"
 	end
 
-	#
 	# --------------------------------------------------------------------------
 	# Specific Sport implementation
 	# --------------------------------------------------------------------------
-	#
 
-	#
 	# Returns the runtime implementation for this sport.
 	#
 	# Example:
 	#
 	#   Sport(name: "Basketball").specific
 	#   => Basketball.new(id: ...)
-	#
 	def specific
 		instance_of?(Sport) ? specific_instance : self
 	end
 
-	#
 	# Returns the specific implementation for a stored sport.
-	#
 	def self.fetch(id = nil)
 		(id ? find(id) : first)&.specific
 	end
 
-	#
 	# --------------------------------------------------------------------------
 	# Generic Sport API
 	#
 	# These methods define the public interface every sport must expose.
 	# Implementations belong to the corresponding Specific Sport.
 	# --------------------------------------------------------------------------
-	#
 
-	#
 	# Catalog lookup.
-	#
 	def catalog(name)
 		self.class::CATALOGS.fetch(name.to_sym)
 	end
 
-	#
 	# Symbol lookup.
 	#
 	# Generic because all sports use the SymbolRegistry.
-	#
 	def symbol(concept, type: :icon, variant: "default")
 		try_symbol(concept,
 							namespace: "sport",
@@ -107,11 +88,9 @@ class Sport < ApplicationRecord
 							variant:)
 	end
 
-	#
 	# --------------------------------------------------------------------------
 	# Canonical sport definitions
 	# --------------------------------------------------------------------------
-	#
 
 	def rules
 		catalog(:rules)
@@ -141,11 +120,9 @@ class Sport < ApplicationRecord
 		settings.fetch(:scoring, {})
 	end
 
-	#
 	# --------------------------------------------------------------------------
 	# Sport behaviour
 	# --------------------------------------------------------------------------
-	#
 
 	def court_name(court)
 		delegate_to_specific(:court_name, court)
@@ -216,14 +193,12 @@ class Sport < ApplicationRecord
 		catalog(:rules).options
 	end
 
-	#
 	# --------------------------------------------------------------------------
 	# Persistent configuration
 	#
 	# Catalogs provide canonical metadata.
 	# Settings provide persistent overrides.
 	# --------------------------------------------------------------------------
-	#
 	def generic_settings
 		{
 			rules: catalog(:rules).enum,
@@ -256,15 +231,11 @@ class Sport < ApplicationRecord
 		limits[key]
 	end
 
-	#
 	# --------------------------------------------------------------------------
 	# Generic helpers
 	# --------------------------------------------------------------------------
-	#
 
-	#
 	# Formats a duration expressed in seconds.
-	#
 	def time_string(seconds)
 		count  = seconds.to_i
 		parts  = []
@@ -318,7 +289,6 @@ class Sport < ApplicationRecord
 		).first&.value.to_i
 	end
 
-	#
 	# --------------------------------------------------------------------------
 	# Compatibility layer
 	#
@@ -326,16 +296,15 @@ class Sport < ApplicationRecord
 	# These methods should gradually migrate into the corresponding
 	# Specific Sport implementations.
 	# --------------------------------------------------------------------------
-	#
 
 	# returns the full score of a match (object of Event class)
 	# {period1: {ours:, opps:}, period2: (etc.), tot: {ours:, opps:}}
 	def match_score(event_id)
-		stats  = scoring_stats(event_id)
-		return {} if stats.blank?
-
 		score  = {}
 		total = initial_total_score
+
+		stats  = scoring_stats(event_id)
+		return { tot: total } if stats.blank?
 
 		catalog(:periods).each do |period|
 			read_period_score(period:, stats:, score:, total:)
@@ -380,9 +349,7 @@ class Sport < ApplicationRecord
 			catalog(name).enum
 		end
 
-		#
 		# Centralized delegation helper.
-		#
 		def delegate_to_specific(method, ...)
 			specific.public_send(method, ...)
 		end
@@ -442,9 +409,7 @@ class Sport < ApplicationRecord
 
 	protected
 
-		#
 		# Updates one setting while preserving the remaining configuration.
-		#
 		def set_setting(key, value)
 			self.settings = settings.merge(key.to_sym => value)
 		end
@@ -454,9 +419,7 @@ class Sport < ApplicationRecord
 			not_implemented!
 		end
 
-		#
 		# Generic SymbolRegistry wrapper.
-		#
 		def try_symbol(concept, namespace:, type:, variant:)
 			SymbolRegistry.fetch(
 				namespace:,

@@ -84,7 +84,7 @@ en:
     event_kinds:
       label: Event kind
       short: Kind
-      values: &event_kind_values  # anchor
+      values: &event_kind_values # anchor
         holiday: Holiday
         holiday_short: Hol.
         training: Training
@@ -123,9 +123,10 @@ en:
         yearly: Yearly
 
     slot:
-      label: Time slot
-      plural: Time table
-      short: Slot
+      label:
+        single: Time slot
+        plural: Time table
+        short: Slot
       actions:
         create: Create timeslot
         edit: Edit timeslot
@@ -152,7 +153,7 @@ en:
         slot: Time slot
         kind: Event kind
         metadata: Metadata
-      kind: *event_kind_values  # reference
+      kind: *event_kind_values # reference
       messages:
         created: Event created.
         updated: Event updated.

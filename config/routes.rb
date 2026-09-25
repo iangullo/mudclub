@@ -87,8 +87,7 @@ Rails.application.routes.draw do
 			resources :assignments, only: %i[show edit update]
 		end
 
-		resources :assignments, only: %i[index new create],
-							param: :membership_kind
+		resources :assignments, only: %i[index show edit update new create]
 
 		# Calendar objects
 		resources :slots
@@ -100,14 +99,16 @@ Rails.application.routes.draw do
 			# resource :volunteers, only: %i[new create]
 
 			# Team-specific actions
-			get :attendance
-			get :plan
-			get :edit_plan
-			get :roster
-			get :edit_roster
-			get :slots
-			get :targets
-			get :edit_targets
+			member do
+				get :attendance
+				get :plan
+				get :edit_plan
+				get :roster
+				get :edit_roster
+				get :slots
+				get :targets
+				get :edit_targets
+			end
 
 			# Team calendar
 			resources :events do

@@ -45,10 +45,10 @@ class Team < ApplicationRecord
 	#-------------------------------------
 	# Class Scopes & filter fields
 	#-------------------------------------
-	scope :ordered, -> { order(category_id: :asc) }
-	scope :real, -> { where("id>0") }
-	scope :for_season, ->(season_id) { (season_id.to_i > 0) ? where(season_id: season_id.to_i) : all }
-	scope :for_club, ->(club_id) { (club_id.to_i > 0) ? where(club_id: club_id.to_i) : all }
+	scope :ordered,		 -> { order(category_id: :asc) }
+	scope :real,			 -> { where("id>0") }
+	scope :for_season, ->(season) { filter_by_id(:season_id, season) }
+	scope :for_club,	 ->(club) { filter_by_id(:club_id, club)	}
 	FILTER_PARAMS = %i[club_id season_id].freeze
 
 
@@ -251,7 +251,7 @@ class Team < ApplicationRecord
 
 	# return potential rival teams - matching category & season
 	def rival_teams
-		Team.where(sport_id: self.sport_id, season_id: self.season_id, category_id: self.category_id).where.not(club_id: self.club_id)
+		Team.where(sport_id:, season_id:, category_id:).where.not(club_id:)
 	end
 
 	# return list of potential rivals - used for text boxes - matching category & season

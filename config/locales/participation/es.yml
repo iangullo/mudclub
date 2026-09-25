@@ -60,8 +60,8 @@ es:
         delete: Borrar inscripción
       fields:
         membership: Integrante
-        kind: Tipo de inscripción
-        kind_short: Tipo
+        kind: Rol asignado
+        kind_short: Puesto
         starts_on: Inicio
         ends_on: Fin
         role: Cargo
@@ -109,25 +109,47 @@ es:
           hint: Persona que participa como gestor de club.
 
     assignment_kinds:
-      label: Tipo de asignación
-      short: Tipo
+      label:
+        single: Rol asignado
+        plural: Roles asignados
+        short: Rol
       values:
         athlete: Deportista
+        athlete_plural: Deportistas
+        athlete_short: Dep.
         captain: Capitán
+        captain_short: Cap.
         head_coach: Entrenador principal
+        head_coach_short: P.Ent.
         assistant_coach: Entrenador asistente
+        assistant_coach_short: E.Ayte.
         coaching_coordinator: Coordinador de entrenadores
+        coaching_coordinator_short: Coord.
         team_manager: Director de equipo
+        team_manager_short: Dir.Eq.
         team_delegate: Delegado de equipo
+        team_delegate_short: Del.Eq.
         home_delegate: Delegado local
+        home_delegate_short: Del.Camp.
         photographer: Fotógrafo
+        photographer_short: Fotos
         community_manager: Gestor de comunidad
+        community_manager_short: Com.Mgr.
         webmaster: Webmaster
+        webmaster_short: Web.Mgr.
+        board_member: Vocal
+        board_member_plural: Junta Directiva
+        board_member_short: Vocal
         club_manager: Gestor de club
-        president: Presidente
-        vice_president: Vicepresidente
-        secretary: Secretario
-        treasurer: Tesorero
+        club_manager_short: Ger.
+        president: Presidencia
+        president_short: Pres.
+        vice_president: Vicepresidencia
+        vice_president_short: V.Pres.
+        secretary: Secretaría
+        secretary_short: Sec.
+        treasurer: Tesorería
+        treasurer_short: Tes.
 
   # ---------------------------------------------------------------------------
   # OBSOLETO - NO MODIFICAR

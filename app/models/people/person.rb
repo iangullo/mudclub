@@ -25,8 +25,9 @@ class Person < ApplicationRecord
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
 
 	#-------------------------------------
-	# Object relationships
+	# Class relationships
 	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	belongs_to :user, optional: true
 	accepts_nested_attributes_for :user
 	has_many :memberships
@@ -49,6 +50,14 @@ class Person < ApplicationRecord
 	has_one_attached :id_back
 
 	#-------------------------------------
+	# Validations
+	#-------------------------------------
+	validates :email, uniqueness: { allow_nil: true }
+	validates :dni, uniqueness: { allow_nil: true }
+	validates :phone, uniqueness: { allow_nil: true }
+	validates :name, :surname, presence: true
+
+	#-------------------------------------
 	# Person Scopes
 	#-------------------------------------
 	pg_search_scope :search,
@@ -57,15 +66,6 @@ class Person < ApplicationRecord
 		using: { tsearch: { prefix: true } }
 	scope :real, -> { where("id>0") }
 	scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
-
-	#-------------------------------------
-	# Data validations
-	#-------------------------------------
-	validates :email, uniqueness: { allow_nil: true }
-	validates :dni, uniqueness: { allow_nil: true }
-	validates :phone, uniqueness: { allow_nil: true }
-	validates :name, :surname, presence: true
-	self.inheritance_column = "not_sti"
 
 	#-------------------------------------
 	# Indirect relationships API
@@ -81,22 +81,22 @@ class Person < ApplicationRecord
 		clubs.map { |c| [ c.nick, c.id ] }
 	end
 
-	def teams(club: nil, season: nil)
-		scope = memberships.current
+	def teams(club: nil, season: nil, historical: false)
+		scope = person.memberships
+		scope = scope.current unless historical
 		scope = scope.for_club(club) if club
 
-		assignment_ids = Assignment.where(membership_id: scope.select(:id))
-												.current
-												.where.not(team_id: nil)
-												.select(:team_id)
+		assig = Assignment.team_level.where(membership: scope)
+		assig = assig.current unless historical
 
-		teams = Team.where(id: assignment_ids)
+		t_ids = assig.select(:team_id)
+		teams = Team.where(id: t_ids)
 		teams = teams.where(season_id: season) if season
 		teams.includes(:season).order("seasons.start_date DESC").distinct
 	end
 
-	def team_list(club: nil)
-		teams(club:).includes(:season).sort_by { |t| t.season.start_date }.reverse
+	def team_list(club: nil, season: nil, historical: false)
+		teams(club:, season:, historical:).includes(:season).sort_by { |t| t.season.start_date }.reverse
 	end
 
 	# Person has guardians (i.e. is a minor with responsible adults)
@@ -337,6 +337,35 @@ class Person < ApplicationRecord
 		def active_memberships(kinds, club = nil)
 			scope = memberships.of_kind(kinds).current
 			club.is_a?(Club) ? scope.for_club(club) : scope
+		end
+
+		def rebuild_relationships(r_data)
+			return nil if r_data.blank?
+
+			hash    = r_data.respond_to?(:to_unsafe_h) ? r_data.to_unsafe_h : r_data.to_h
+			entries = hash.values
+			return if entries.empty?
+
+			Relationship.transaction do
+				entries.each do |raw|
+					attrs = raw.deep_symbolize_keys
+					id    = attrs[:id].presence
+
+					# Rails sends _destroy as "1" / "true" / "0" / "false" as strings.
+					# Boolean cast normalizes all four.
+					if ActiveModel::Type::Boolean.new.cast(attrs[:_destroy])
+						relationships.where(id:).destroy_all if id.present?
+						next
+					end
+
+					relationship = id.present? ? relationships.find_by(id:) : relationships.build
+					relationship ||= relationships.build
+					relationship.rebuild(self, attrs)
+					relationship.errors.each do |error|
+						errors.add(:"relationships.#{error.attribute}", error.message)
+					end if relationship.invalid?
+				end
+			end
 		end
 
 		def self.resolve_candidates(scope, probable: false, matched_by:)

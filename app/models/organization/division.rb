@@ -18,13 +18,23 @@
 #
 class Division < ApplicationRecord
 	localized_as "organization.division"
-
 	before_destroy :unlink
+
+	#-------------------------------------
+	# Class relations
+	#-------------------------------------
 	belongs_to :sport
 	has_many :teams
-	scope :real, -> { where("id>0").order(:name) }
-	scope :for_sport, ->(sport_id) { (sport_id and sport_id.to_i>0) ? where(sport_id: sport_id.to_i).order(:name) : where("sport_id>0").order(:name) }
 
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :real,			-> { where("id>0").order(:name) }
+	scope :for_sport, ->(sport) { filter_by_id(:sport, sport).order(:name) }
+
+	# -------------------------------------
+	# General API
+	# -------------------------------------
 	def to_s
 		self.id==0 ? I18n.t("scope.none") : self.name
 	end

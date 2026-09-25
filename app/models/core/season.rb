@@ -19,14 +19,25 @@
 # Class to manage club seasons
 class Season < ApplicationRecord
 	localized_as "core.season"
-
 	before_destroy :unlink
+
+	#-------------------------------------
+	# Associations
+	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	has_many :slots, dependent: :destroy
 	has_many :teams, dependent: :destroy
-	scope :real, -> { where("id>0") }
-	self.inheritance_column = "not_sti"
 
-	# elgible locations to train / play
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :real, -> { where("id>0") }
+
+	#-------------------------------------
+	# General API
+	#-------------------------------------
+
+	# eligible locations to train / play
 	def eligible_locations
 		Location.real - self.locations
 	end

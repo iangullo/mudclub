@@ -60,8 +60,8 @@ en:
         delete: Delete assignment
       fields:
         membership: Membership
-        kind: Assignment kind
-        kind_short: Kind
+        kind: Assignment role
+        kind_short: Role
         starts_on: Starts
         ends_on: Ends
         role: Role
@@ -109,25 +109,47 @@ en:
           hint: Member participating as a club manager.
 
     assignment_kinds:
-      label: Assignment kind
-      short: Kind
+      label:
+        single: Assignment role
+        plural: Assignment roles
+        short: Role
       values:
         athlete: Athlete
+        athlete_plural: Athletes
+        athlete_short: Ath.
         captain: Captain
+        captain_short: Capt.
         head_coach: Head coach
+        head_coach_short: H.C.
         assistant_coach: Assistant coach
+        assistant_coach_short: Assistant coach
         coaching_coordinator: Coaching coordinator
+        coaching_coordinator_short: Coord.
         team_manager: Team manager
+        team_manager_short: T.Mgr.
         team_delegate: Team delegate
+        team_delegate_short: T.Del.
         home_delegate: Home delegate
+        home_delegate_short: H.Del.
         photographer: Photographer
+        photographer_short: Photos.
         community_manager: Community manager
+        community_manager_short: Com.Mgr.
         webmaster: Webmaster
+        webmaster_short: Web
+        board_member: Board member
+        board_members: Board members
+        board_member_short: B.Mem.
         club_manager: Club manager
+        club_manager_short: C.Mgr.
         president: President
+        president_short: Pres.
         vice_president: Vice-president
+        vice_president_short: V.P.
         secretary: Secretary
+        secretary_short: Sec.
         treasurer: Treasurer
+        treasurer_short: Treas.
 
   # ---------------------------------------------------------------------------
   # DEPRECATED - DO NOT MODIFY

@@ -19,11 +19,22 @@
 class Task < ApplicationRecord
 	localized_as "training.task"
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	belongs_to :event
 	belongs_to :drill
 	has_rich_text :remarks
-	self.inheritance_column = "not_sti"
+
+	# -------------------------------------
+	# Scopes
+	# -------------------------------------
 	acts_as_list column: :order, scope: :event
+
+	# -------------------------------------
+	# General API
+	# -------------------------------------
 
 	def to_s
 		self.drill ? self.drill.nice_string : I18n.t("drill.default")

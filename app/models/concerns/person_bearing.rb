@@ -20,6 +20,11 @@
 module PersonBearing
 	extend ActiveSupport::Concern
 
+	included do
+		belongs_to :person
+		accepts_nested_attributes_for :person
+	end
+
 	def modified?
 		super || person.modified?
 	end
@@ -28,7 +33,7 @@ module PersonBearing
 	# Person resolution & data rebuilding
 	#------------------------------------
 	def resolve_person(person_attributes)
-		return unless person_attributes
+		return nil if person_attributes.blank?
 
 		if new_record? || person.nil?
 			resolution = Person.resolve(person_attributes)
@@ -43,8 +48,8 @@ module PersonBearing
 			end
 		end
 
-		person.rebuild(person_attributes)
+		person&.rebuild(person_attributes)
 
-		true
+		true if person
 	end
 end

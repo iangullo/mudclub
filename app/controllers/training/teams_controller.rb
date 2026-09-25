@@ -40,7 +40,7 @@ class TeamsController < ApplicationController
 				table   = helpers.team_table(teams: page)
 				zerolnk = @club ? path_for(@club) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
 				retlnk  = back_link(default: zerolnk)
-				submit  = { kind: :export, url: club_teams_path(@club, format: :xlsx, season_id: @season.id), working: false } if user_in_club? && (u_manager? || u_secretary?)
+				submit  = { kind: :export, url: club_teams_path(@club, format: :xlsx, season_id: @season.id), working: false } if @policy.edit?
 				create_index(title:, table:, page:, retlnk:, submit:)
 				render :index
 			end
@@ -61,7 +61,7 @@ class TeamsController < ApplicationController
 		end
 		@title   = create_fields(title)
 		@coaches = create_fields(helpers.team_coaches)
-		if u_manager? || u_coach?
+		if @policy.view_details?
 			@links = create_fields(helpers.team_links)
 			@table = create_fields(helpers.event_list_table(obj: @team))
 			submit = edit_path_for(@team) if @policy.edit?
@@ -71,7 +71,7 @@ class TeamsController < ApplicationController
 			@calendar  = CalendarComponent.new(anchor:, start_date:, obj: @team, user: current_user)
 			submit     = nil
 		end
-		zerolnk = club_teams_path(@club, season_id: @season&.id, rdx: @rdx)
+		zerolnk = return_path_for(@team, season_id: @season&.id)
 		@submit = create_submit(close: :back, retlnk: back_link(default: zerolnk), submit:, frame: (submit ? :modal : nil))
 	end
 
@@ -186,7 +186,7 @@ class TeamsController < ApplicationController
 
 		@table  = create_table(helpers.team_roster_table(@athletes))
 
-		submit  = club_team_edit_roster_path(@club, @team, rdx: @rdx) if @policy.edit_roster?
+		submit  = path_for(@team, action: :edit_roster) if @policy.edit_roster?
 		@submit = create_submit(close: :back, retlnk: path_for(@team), submit:)
 	end
 
@@ -197,7 +197,7 @@ class TeamsController < ApplicationController
 		title = helpers.team_title(title: @team.to_s)
 		title << icon_subtitle(:player, Team.act(:edit_roster), namespace: @team.sport.name)
 		@title  = create_fields(title)
-		@submit = create_submit(close: :cancel, retlnk: club_team_roster_path(@club, @team, rdx: @rdx))
+		@submit = create_submit(close: :cancel, retlnk: path_for(@team, action: :roster))
 		@eligible_athletes = @team.eligible_athletes
 	end
 
@@ -218,7 +218,7 @@ class TeamsController < ApplicationController
 		title   = helpers.team_title(title: @team.to_s)
 		title  << icon_subtitle(:target, Target.label(:plural))
 		@title  = create_fields(title)
-		edit    = club_team_edit_targets_path(@club, @team, rdx: @rdx) if @policy.edit_targets?
+		edit    = path_for(@team, action: :edit_targets) if @policy.edit_targets?
 		@fields = create_fields(helpers.team_targets_show)
 		@submit = create_submit(close: :back, retlnk: path_for(@team), submit: edit)
 	end
@@ -231,7 +231,7 @@ class TeamsController < ApplicationController
 		title   = helpers.team_title(title: @team.to_s)
 		title << icon_subtitle(:target, Target.act(:edit))
 		@title  = create_fields(title)
-		@submit = create_submit(close: :cancel, retlnk: club_team_targets_path(@club, @team, rdx: @rdx))
+		@submit = create_submit(close: :cancel, retlnk: path_for(@team, action: :targets))
 	end
 
 	# GET /club/x/teams/1/edit_targets
@@ -242,7 +242,7 @@ class TeamsController < ApplicationController
 		title = helpers.team_title(title: @team.to_s)
 		title << icon_subtitle(:plan, Team.fld(:plan))
 		@title = create_fields(title)
-		edit    = club_team_edit_plan_path(@club, @team, rdx: @rdx) if team_manager?
+		edit    = path_for(@team, action: :edit_plan) if @policy.edit?
 		@fields = create_fields(helpers.team_plan_accordion)
 		@submit = create_submit(close: :back, retlnk: path_for(@team), submit: edit)
 	end
@@ -255,7 +255,7 @@ class TeamsController < ApplicationController
 		title   = helpers.team_title(title: @team.to_s)
 		title << icon_subtitle(:plan, Team.act(:edit_plan))
 		@title  = create_fields(title)
-		@submit = create_submit(close: :cancel, retlnk: club_team_plan_path(@club, @team, rdx: @rdx))
+		@submit = create_submit(close: :cancel, retlnk: path_for(@team, action: :plan))
 	end
 
 	# GET /club/x/teams/1/attendance
@@ -276,22 +276,19 @@ class TeamsController < ApplicationController
 	private
 		# wrapper to set return link for create && update operations
 		def cru_return
-			if param_passed(:team, :player_ids)	# roster view
-				club_team_roster_path(@club, @team, rdx: @rdx)
+			if param_passed(:team, :athlete_ids)	# roster view
+				action = :roster
 			elsif param_passed(:team, :team_targets_attributes)	# targets or plan
 				first_target = team_params[:team_targets_attributes].to_h.first
 				if first_target
 					if first_target[1]["month"] == "0"	# global team targets
-						club_team_targets_path(@club, @team, rdx: @rdx)
+						action = :targets
 					else	# team monthly targets
-						club_team_plan_path(@club, @team, rdx: @rdx)
+						action = :plan
 					end
-				else	# base team view
-					path_for(@team)
 				end
-			else	# team view also
-				path_for(@team)
 			end
+			path_for(@team, action:)
 		end
 
 		# get team targets for a specific month
@@ -366,7 +363,7 @@ class TeamsController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def team_params
-			params.require(:team).permit(
+			@team_params ||= params.require(:team).permit(
 				:id,
 				:name,
 				:nick,

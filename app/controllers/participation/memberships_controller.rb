@@ -18,27 +18,22 @@
 #
 # Handle Membership views - always linked to a club
 class MembershipsController < ApplicationController
-	before_action :load_participation_context
-	before_action :load_membership_kind
 	before_action :set_member, only: [ :show, :edit, :update, :terminate ]
+	before_action :load_membership_kind
+	before_action :load_participation_context
 
 	# GET /clubs/x/memberships
 	# GET /clubs/x/memberships.json
 	def index
-		@policy = check_policy!(
-			MembershipPolicy,
-			kind: @kind,
-			club: @club
-		)
+		@policy = check_policy!(MembershipPolicy, kind: @kind, club: @club)
 
-		search  = params[:search].presence
-		history = (search || status) &&  @policy.history?
+		history = (@search || @status) &&  @policy.history?
 		@members =
 			Membership.search(
 				club: @club,
 				kind: @kind,
 				status: @status,
-				search:,
+				search: @search,
 				history:
 			)
 
@@ -49,24 +44,26 @@ class MembershipsController < ApplicationController
 		create_index(title:, table:, page:, retlnk:)
 	end
 
-	# GET /members/1
-	# GET /members/1.json
+	# GET /members/x
+	# GET /members/x.json
 	def show
-		@policy = check_policy!(MembershipPolicy, record: @member)
-		status = @policy.edit?
-
+		@policy    = check_policy!(MembershipPolicy, record: @member)
+		@kind    ||= @member.kind.to_sym
+		status_url = edit_path_for(@member, status: true) if @policy.edit?
 		@title = create_fields(
 			helpers.participation_title(
 				@member,
-				status_url: edit_path_for(@member, status:),
+				status_url:,
 				just_icon: false
 			)
 		)
-		@kind ||= @member.kind.to_sym
+
 		@fields = create_fields(helpers.membership_show_fields(@member))
-		@table  = create_table(helpers.assignment_history_table(@member))
+		@roles  = @member.assignments.order(starts_on: :desc)
+		@page   = paginate(@roles, 1.2)	# paginate results
+		@table  = create_table(helpers.assignment_history_table(@kind, @page))
 		submit  = edit_path_for(@member) if @policy.update?
-		@submit = create_submit(close: :back, retlnk: post_save_path, submit:, frame: :modal)
+		@submit = create_submit(close: :back, retlnk: return_path_for(@member, search: @search), submit:)
 	end
 
 	# GET /members/new
@@ -85,7 +82,7 @@ class MembershipsController < ApplicationController
 			Membership.transaction do
 				@member = Membership.new(club: @club, kind: @kind)
 				@member.rebuild(membership_params)
-				@member.starts_on = Date.today
+				@member.starts_on = Date.current
 
 				if @member.save
 					format.html do
@@ -206,57 +203,35 @@ class MembershipsController < ApplicationController
 			end
 		end
 
-		# Use callbacks to share common setup or constraints between actions.
 		def set_member
-			@member = Membership.find_by_id(params[:id]) unless @member&.id==params[:id]
+			@member = Membership.find(params[:id])
 			@club   = @member&.club
-			@kind   = @member&.kind
+			assert_param_matches!(:club_id, @club)
+
+			@kind ||= @member.kind
 		end
 
 		def load_membership_kind
-			@kind = Membership.kind_catalog.normalize(params[:kind])
+			@status ||= params[:status].presence
+			return true if @kind
+			p_kind = (params[:kind].presence || membership_params[:kind].presence)
+								&.singularize&.to_sym
+			@kind  = Membership.kind_catalog.normalize(p_kind)
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def membership_params
-			params.require(:membership).permit(
-				:person_id,
-				:joined_on,
-				:left_on,
-				:kind,
-				:status,
-				:notes,
-				:rdx,
-				person_attributes: [
-					:id,
-					:address,
-					:avatar,
-					:birthday,
-					:dni,
-					:email,
-					:female,
-					:id_back,
-					:id_front,
-					:name,
-					:nick,
-					:phone,
-					:surname,
+			@membership_params ||= params.require(:membership).permit(
+				:person_id, :avatar, :joined_on, :left_on, :kind, :status, :notes, :rdx,
+				person: [
+					:id, :avatar, :name, :nick, :surname,
+					:dni, :id_back, :id_front, :female,
+					:birthday, :address, :email, :phone,
 
 					relationships_attributes: [
-						:id,
-						:kind,
-						:_destroy,
-
+						:id, :kind, :_destroy,
 						related_person_attributes: [
-							:id,
-							:name,
-							:surname,
-							:phone,
-							:email,
-							:birthday,
-							:dni,
-							:female,
-							:address
+							:id, :dni, :name, :surname, :email, :phone
 						]
 					]
 				]

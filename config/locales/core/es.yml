@@ -165,8 +165,10 @@ es:
         never_logged: Nunca ha iniciado sesión
 
     user_action:
-      label: Acción de usuario
-      short: Acción
+      label:
+        single: Acción de usuario
+        plural: Acciones de usuario
+        short: Acciones
       fields:
         action: Acción
         user: Usuario
@@ -186,6 +188,21 @@ es:
       messages:
         cleared: Acciones de usuario eliminadas.
         exported: Acciones de usuario exportadas.
+
+    user_kinds:
+      label: Tipo de usuario
+      short: Tipo
+      values:
+        user:
+          single: Normal
+          plural: Normales
+          short: Norm.
+          hint: Usuarios normales de MudClub.
+        admin:
+          single: Admin
+          plural: Admins
+          short: Admin
+          hint: Administra el servidor de MudClub.
 
     location:
       label:

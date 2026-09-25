@@ -51,7 +51,6 @@ class Registration < ApplicationRecord
 	include Auditable
 	include Kinded
 
-
 	#-------------------------------------
 	# Scopes
 	#-------------------------------------

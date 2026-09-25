@@ -4,6 +4,7 @@
 		<div class="flex justify-center">
 			<%= render @table %>
 		</div>
+		<%= paginate @page if @page %>
 	<% end %>
 	<%= render @submit %>
 </div>

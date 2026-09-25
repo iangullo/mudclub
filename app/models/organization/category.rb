@@ -19,13 +19,23 @@
 class Category < ApplicationRecord
 	localized_as "organization.category"
 
+	#-------------------------------------
+	# Class relations
+	#-------------------------------------
 	before_destroy :unlink
 	belongs_to :sport
 	has_many :teams
-	scope :real, -> { where("id>0").order(min_years: :desc) }
-	scope :for_sport, ->(sport_id) { (sport_id and sport_id.to_i>0) ? where(sport_id: sport_id.to_i).order(min_years: :desc) : where("sport_id>0").order(min_years: :desc) }
+
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :real,			-> { where("id>0").order(min_years: :desc) }
+	scope :for_sport, ->(sport) { filter_by_id(:sport_id, sport).order(min_years: :desc) }
 	enum :sex, { male: "male", female: "female", mixed: "mixed" }
 
+	# -------------------------------------
+	# General API
+	# -------------------------------------
 	def to_s
 		self.id==0 ? I18n.t("scope.none") : self.name
 	end

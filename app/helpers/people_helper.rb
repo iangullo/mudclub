@@ -92,7 +92,7 @@ module PeopleHelper
 			pidpic = person&.idpic_content
 			symbol = pidpic[:symbol]
 			label  = pidpic[:label]
-			if pidpic[:found] && u_manager?	# dropdown menu
+			if pidpic[:found] && @policy.update?	# dropdown menu
 				button = { kind: :link, name: "id-pics", symbol:, label:, append: true, options: [] }
 				button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
 				button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
@@ -127,7 +127,7 @@ module PeopleHelper
 			[ { kind: :label, value: person&.surname, cols: } ],
 			[
 				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: },
-				{ kind: :contact, email: person&.email, phone: pobj&.phone, device: device, align: "center" }
+				{ kind: :contact, email: person&.email, phone: pobj&.phone, device:, align: :left }
 			],
 			[ gap_field,  person_idpic(person) ]
 		]

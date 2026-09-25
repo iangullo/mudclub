@@ -22,7 +22,7 @@ class RegistrationPolicy < ApplicationPolicy
 	# Registrations index - only club managers
 	#------------------------------------
 	def index?
-		manages_club?(@club)
+		manages_club?(target_club)
 	end
 
 	#------------------------------------
@@ -30,12 +30,12 @@ class RegistrationPolicy < ApplicationPolicy
 	#------------------------------------
 
 	def show?
-		manages_club?(@club) ||
+		manages_club?(target_club) ||
 		same_person?(@record.requester)
 	end
 
 	def show_details?
-		manages_club?(@club) ||
+		manages_club?(target_club) ||
 		same_person?(@record.requester)
 	end
 
@@ -45,7 +45,7 @@ class RegistrationPolicy < ApplicationPolicy
 	alias new? create?
 
 	def update?
-		manages_club?(@club) ||
+		manages_club?(target_club) ||
 		same_person?(@record.requester)
 	end
 	alias edit? update?

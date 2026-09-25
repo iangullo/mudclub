@@ -18,30 +18,40 @@
 #
 class User < ApplicationRecord
 	localized_as("core.user")
-	include PersonBearing
-
 	before_destroy :unlink
 
 	# -------------------------------------------------------------------------
-	# Object associations
+	# Class relations
 	# -------------------------------------------------------------------------
+	self.inheritance_column = "not_sti"
 	# Include default devise modules. Others available are:
 	# :confirmable, :lockable, :timeoutable, :registerable and :omniauthable
 	devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable
 	belongs_to :club, optional: true
-	belongs_to :person
-	accepts_nested_attributes_for :person
 
 	has_one_attached :avatar
 	has_many :user_actions, dependent: :destroy
 
-	# -------------------------------------------------------------------------
-	# Scopes & definitions
-	# -------------------------------------------------------------------------
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include PersonBearing
+
+	# ---------------------------------------------------------------------------
+	# Delegate to Person, which derives from Participation
+	# ---------------------------------------------------------------------------
+	delegate :was_member_of?, :clubs, :club_list, :teams, :team_list, :is_parent?,
+		:has_membership?, :is_athlete?, :is_coach?, :is_volunteer?, :is_board_member?,
+		:has_assignment?, :is_president?, :is_vice_president?, :is_treasurer?,
+											:is_secretary?, :has_guardians?, # :is_manager? has local override
+		:phone, :email,
+		to: :person, allow_nil: true
+
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
 	scope :real, -> { where("id>0") }
 	enum :role, %i[user player coach manager admin secretary], default: :user
-
-	self.inheritance_column = "not_sti"
 
 	# ---------------------------------------------------------------------------
 	# System-level predicates (2.x)
@@ -63,41 +73,9 @@ class User < ApplicationRecord
 		person&.member_of?(club) || false
 	end
 
-	# ---------------------------------------------------------------------------
-	# Organizational roles — delegate to Person, which derives from Participation
-	# ---------------------------------------------------------------------------
-	delegate :was_member_of?, :clubs, :club_list, :teams, :team_list, :is_parent?,
-		:has_membership?, :is_athlete?, :is_coach?, :is_volunteer?, :is_board_member?,
-		:has_assignment?, :is_president?, :is_vice_president?, :is_treasurer?,
-											:is_manager?, :is_secretary?, :has_guardians?,
-		to: :person, allow_nil: true
-
-	# -------------------------------------------------------------------------
-	# User Predicates
-	# TODO: Re-design to manage club-less athletes/coaches
-	# -------------------------------------------------------------------------
-	def coach
-		return nil unless club
-		person.memberships
-					.current
-					.for_club(club)
-					.of_kind(:coach)
-					.first
+	def is_manager?(club)
+		person.is_manager?(club) || (admin? && is_coach?(club))
 	end
-
-	def is_manager?
-		person.is_manager?(club) || (admin? && is_coach?)
-	end
-
-	def athlete
-		return nil unless club
-		person.memberships
-					.current
-					.for_club(club)
-					.of_kind(:athlete)
-					.first
-	end
-	alias player athlete
 
 	# return last login IP
 	def last_from
@@ -160,7 +138,7 @@ class User < ApplicationRecord
 
 	# Just list person's full name
 	def to_s
-		self.person&.to_s || I18n.t("user.single")
+		self.person&.to_s || User.label
 	end
 
 	# atempt to fetch a User using form input hash
@@ -177,9 +155,16 @@ class User < ApplicationRecord
 
 	# list of possible user roles for select box configuration
 	def self.role_list
-		User.roles.keys.map do |role|
-			[ I18n.t("role.#{role}"), role ]
-		end
+		# REMOVED use of role enum to define Membership kinds
+		# User.roles.keys.map do |role|
+		#	[ I18n.t("role.#{role}"), role ]
+		# end
+		#
+		# REview this in future with a cAtalog, probably
+		[
+			[ I18n.t("core.user_kinds.values.user.single"), :user ],
+			[ I18n.t("core.user_kinds.values.admin.single"), :admin ]
+		]
 	end
 
 	# Search field matching
@@ -194,14 +179,6 @@ class User < ApplicationRecord
 			User.none
 		end
 	end
-
-	# ---------------------------------------------------------------------------
-	# Deprecated enum predicates
-	#
-	# These still reflect the stored column value (a legacy user with role=2
-	# returns true for #coach?), but they no longer represent a system-level
-	# concept. Callers must migrate to Participation queries.
-	# ---------------------------------------------------------------------------
 
 	private
 		# generic setting method to be used for all setters

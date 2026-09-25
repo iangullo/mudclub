@@ -19,14 +19,24 @@
 class UserAction < ApplicationRecord
 	localized_as "core.user_action"
 
-	belongs_to :user
-	scope :logs, -> { order(updated_at: :desc) }
-	scope :by_user, ->(user_id) { (user_id and user_id.to_i>0) ? where(user_ud: useer_id.to_i) : where("user_id>0").order(updated_at: :desc) }
-	scope :by_kind, ->(kind) { (kind and kind.to_i>0) ? where(kind: kind.to_i) : where("kind>1").order(updated_at: :desc) }
-	scope :latest, -> { order(updated_at: :desc).first(10) }
+	#-------------------------------------
+	# Associations
+	#-------------------------------------
 	self.inheritance_column = "not_sti"
+	belongs_to :user
+
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :logs, -> { order(updated_at: :desc) }
+	scope :by_user, ->(user) { filter_by_id(:user_id, user).order(updated_at: :desc) }
+	scope :by_kind, ->(kind) { filter_by_id(:kind_id, kind).order(updated_at: :desc) }
+	scope :latest, -> { order(updated_at: :desc).first(10) }
 	enum :kind, %i[enter exit created updated deleted imported exported]
 
+	#-------------------------------------
+	# General API
+	#-------------------------------------
 	# return a standardised string for this user_action datetime
 	def date_time
 		self.updated_at.localtime.strftime("%Y/%m/%d %H:%M")

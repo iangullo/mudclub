@@ -87,8 +87,11 @@ module DrillsHelper
 
 	# return title FieldComponent definition for edit/new
 	def drill_form_tail
-		coaches = (u_admin? ? Coach.real : (u_manager? ? u_club.coaches : [ current_user.coach ]))
-		author  = @drill.author || u_person
+		author  = @drill&.author || u_person
+		authors = (@policy.create? ? u_club&.coach_list : [])
+		auth_in = authors.pluck(:id).include?(author.id)
+		authors << { id: author.id, name: author.s_name } unless auth_in
+
 		res = [
 			[
 				{ kind: :label, value: "#{Skill.label(:plural)}:" },
@@ -100,10 +103,10 @@ module DrillsHelper
 				gap_field
 			]
 		]
-		if coaches.size > 1
-			res.first << { kind: :select_collection, key: :author_id, options: coaches, value: author }
+		if auth_in && authors.size > 1
+			res.first << { kind: :select_collection, key: :author_id, options: authors, value: author.id }
 		else
-			res.first << { kind: :text, value: coaches.first.name, class: "ml-2" }
+			res.first << { kind: :text, value: author.s_name, class: "ml-2" }
 			res.first << { kind: :hidden, key: :author_id, value: author.id }
 		end
 		res
@@ -209,7 +212,7 @@ module DrillsHelper
 				{ kind: :string, value: @drill.print_skills }
 			]
 		]
-		if @drill.versions.size > 1 and u_manager?
+		if @drill.versions.size > 1 and @policy.edit?
 			res.last << gap_field(rows: 2)
 			res.last << button_field(
 				{

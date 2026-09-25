@@ -23,6 +23,11 @@ class Drill < ApplicationRecord
 
 	FILTER_PARAMS = %i[name kind_id season_id skill column direction].freeze
 	before_destroy :unlink
+
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	has_paper_trail on: [ :create, :update ]
 	belongs_to :sport
 	# legacy — kept so old code paths still resolve during transition
@@ -41,18 +46,36 @@ class Drill < ApplicationRecord
 	has_rich_text :explanation
 	has_many :steps, dependent: :destroy
 	accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
+
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
+	validates :name, presence: true
+
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :real,			-> { where("id>0") }
+	scope :by_name,		->(name) { name.present? ? search_by_name(name) : all }
+	scope :by_kind,		->(kind) { filter_by_id(:kind_id, kind) }
+	scope :by_season, ->(season) {
+		return all unless season.is_a?(Season)
+		where(updated_at: season.start_date..season.end_date).distinct
+	}
+
+	scope :by_skill,	->(skill) {
+		return all unless skill.is_a?(Skill)
+		where(id: Drill.joins(:skills).merge(Skill.search(skill)).pluck(:id)).distinct
+	}
+
 	pg_search_scope :search_by_name,
 		against: [ :name, :description ],
 		ignoring: :accents,
 		using: { tsearch: { prefix: true } }
-	scope :real, -> { where("id>0") }
-	scope :by_name, ->(name) { name.present? ? search_by_name(name) : all }
-	scope :by_kind, ->(kind_id) { (kind_id.to_i > 0) ? where(kind_id: kind_id.to_i) : all }
-	scope :by_season, ->(season) { season.present? ? where(updated_at: season.start_date..season.end_date).distinct : all	}
-	scope :by_skill, ->(skill) { skill.present? ? where(id: Drill.joins(:skills).merge(Skill.search(skill)).pluck(:id)).distinct : all	}
-	self.inheritance_column = "not_sti"
-	validates :name, presence: true
 
+	#-------------------------------------
+	# General API methods
+	#-------------------------------------
 	# human name of a specific :court
 	def court_name
 		self.sport.court_name(self.court_mode)

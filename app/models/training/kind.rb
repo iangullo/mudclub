@@ -23,15 +23,24 @@
 class Kind < ApplicationRecord
 	localized_as "training.kind"
 
-	has_many :drills
 	before_save { self.name = self.name.mb_chars.titleize }
-	scope :real, -> { where("id>0").order(:name) }
+
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
+	self.inheritance_column = "not_sti"
+	has_many :drills
+
+	scope :real,		-> { where("id>0").order(:name) }
+	scope :orphans, -> { left_outer_joins(:drills).where("drills.id IS NULL OR drills.id = 0") }
 	pg_search_scope :search,
 		against: :name,
 		ignoring: :accents,
 		using: { tsearch: { prefix: true } }
-	scope :orphans, -> { left_outer_joins(:drills).where("drills.id IS NULL OR drills.id = 0") }
-	self.inheritance_column = "not_sti"
+
+	# -------------------------------------
+	# General API
+	# -------------------------------------
 
 	# Takes the input received from a skill_form (s_kind - string)
 	# and either reads or creates a matching Kind

@@ -29,9 +29,17 @@ class ApplicationController < ActionController::Base
 	helper RoutingHelper
 
 	# Make these methods available to views and helpers
-	helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_manager?,
-								:u_person, :u_athlete?, :u_secretary?, :u_userid,
-								:user_in_club?, :club_manager?, :team_manager?, :date_string
+	helper_method :u_admin?, :u_club, :u_manager?, :u_person,
+								:user_in_club?,	:date_string
+
+	# auxliary check for params that need matching values
+	def assert_param_matches!(param_name, value)
+		param = params[param_name]
+		return if param.blank?
+		return if value&.id&.to_s == param.to_s
+
+		raise ActiveRecord::RecordNotFound
+	end
 
 	# NEW authorization policy management approach.
 	def check_policy!(policy_class, record: nil, **context)
@@ -45,27 +53,6 @@ class ApplicationController < ActionController::Base
 
 		deny_access unless policy.public_send(method)
 		policy
-	end
-
-	# DEPRECATED access control mechanism
-	# TODO: migrate to policy base authorization instead
-	# check if correct  access level exists. Basically checks if:
-	# "user is present AND (valid(role) OR valid(obj.condition))"
-	# optionally, check that clubid matches.
-	def check_access(roles: nil, obj: nil, both: false)
-		if current_user.present?	# no access if no user logged in
-			if both	# both conditions to apply
-				return (check_object(obj:) && check_role(roles:))
-			else	# either condition is sufficient
-				return (check_object(obj:) || check_role(roles:))
-			end
-		end
-		false
-	end
-
-	# return whether the current user is a club_manager
-	def club_manager?(club = @club)
-		check_access(roles: [ :admin, :manager ], obj: club, both: true)
 	end
 
 	# return a ButtonComponent object from a definition hash
@@ -100,43 +87,23 @@ class ApplicationController < ActionController::Base
 		SubmitComponent.new(close:, submit:, retlnk:, frame:)
 	end
 
-	# Where to send the user after a state-changing action.
-	# Consumes session[:return_to] if present, else falls back to `default`.
-	def post_action_return_path(default)
-		session.delete(:return_to).presence || default
-	end
-
 	# Where the user came from, for a "Back" link.
 	# Only trusts same-origin referers; falls back to `default` otherwise.
 	def back_link(default: root_path)
 		case @rdx&.to_i
 		when 0, nil	# return to default, typically provided by controller
-			zerolnk = default
+			default
 		when 1	# return to users home_path
-			zerolnk = user_path(current_user, rdx: 1)
+			path_for(current_user)
 		when 2	# return to log_path
-			zerolnk = home_log_path
+			home_log_path
+		when 3
+			return path_for(Membership.find(params[:member_id])) unless params[:member_id].blank?
+			return path_for(User.find(params[:user_id])) unless params[:user_id].blank?
+			default
+		else
+			default
 		end
-		zerolnk
-	end
-
-	# Optional: only if views ever call these directly.
-	# helper_method :back_link
-
-	# defines correct retlnk for show/index pages based on
-	# controller context and zerolnk, optonally passed as param
-	# DEPRECATED!!
-	# TODO: replace with new semantics in all controllers
-	def base_lnk(zerolnk = "/")
-		case @rdx&.to_i
-		when 0, nil	# return to zerolnk, typically provided by controller
-			return zerolnk
-		when 1	# return to users home_path
-			return user_path(current_user, rdx: 1)
-		when 2	# return to log_path
-			return home_log_path
-		end
-		"/"	# root
 	end
 
 	# ensure @season matches the calling context.
@@ -220,14 +187,11 @@ class ApplicationController < ActionController::Base
 			@rdx    = p_rdx
 			@season = Season.search(p_seasonid)
 		end
-		@clublogo = @club&.logo || "mudclub.svg"
-		@clubname = @club&.nick || "MudClub"
 		@favicon  = user_favicon(@club)
 		@topbar   =
 			TopbarComponent.new(
 				user: current_user,
-				logo: @clublogo,
-				nick: @clubname,
+				club: @club,
 				home: u_path,
 				logout: destroy_user_session_path
 			)
@@ -235,19 +199,17 @@ class ApplicationController < ActionController::Base
 
 	def load_participation_context
 		@team   = @club.teams.find(params[:team_id]) if params[:team_id].present?
-		@member = @club.memberships.find(params[:member_id]) if params[:member_id].present?
-		@status = params[:status].presence
+		s_kind  = @kind || "participation"
+		@status = params[:status].presence ||
+							session.dig("#{s_kind}_filters", "status")
+		@search = params[:search].presence ||
+							session.dig("#{s_kind}_filters", "search")
 	end
 
 	# switch app locale
 	def switch_locale(&action)
 		locale   = (params[:locale] || current_user&.locale || I18n.default_locale)
 		I18n.with_locale(locale, &action)
-	end
-
-	# return whether the current user is a club_manager
-	def team_manager?(team = @team)
-		team&.has_coach?(u_person) || club_manager?(team&.club)
 	end
 
 	# Standard string format for date values
@@ -260,60 +222,24 @@ class ApplicationController < ActionController::Base
 		end
 	end
 
-	#
-	# ------------------------------------------------------------------
-	# Legacy role wrappers.
-	#
-	# These wrappers expose the MudClub 1.x User.role API.
-	#
-	# New controllers should use policies and Person participation
-	# instead of calling these methods directly.
-	#
-	# Remove in MudClub 2.1.
-	# ------------------------------------------------------------------
-	#
 	def u_admin?
 		current_user&.admin?
 	end
 
 	def u_manager?
-		current_user&.is_manager?
+		current_user&.is_manager?(@club)
 	end
 
 	def u_club
-		current_user&.club
-	end
-
-	def u_clubid
-		current_user&.club_id
-	end
-
-	def u_coach?
-		current_user&.is_coach?
-	end
-
-	def u_coach
-		current_user&.coach
+		return nil unless current_user
+		clubs = current_user.clubs
+		return clubs.first if clubs.size == 1
+		return @club if user_in_club?
+		nil
 	end
 
 	def u_person
 		current_user&.person
-	end
-
-	def u_athlete?
-		current_user&.is_athlete?	# change later to person.athlete?
-	end
-
-	def u_athlete
-		current_user&.athlete
-	end
-
-	def u_secretary?
-		current_user&.is_secretary?	# needs thought, secretary is now an assignment
-	end
-
-	def u_userid
-		current_user&.id
 	end
 
 	# wrapper to manage return links home path
@@ -322,9 +248,9 @@ class ApplicationController < ActionController::Base
 	end
 
 	# Check whether the user's club is the same as @club
-	def user_in_club?
-		return false unless @club
-		@club == u_club
+	def user_in_club?(club = @club)
+		return false unless club.is_a?(Club)
+		current_user.member_of?(club)
 	end
 
 	# check if a string is a valid date
@@ -337,52 +263,6 @@ class ApplicationController < ActionController::Base
 	end
 
 	private
-		# check if current user satisfies access policy
-		def check_role(roles:)
-			roles&.each do |rol|	# ok as if any of roles is found
-				case rol
-				when :admin
-					return true if u_admin?
-				when :manager
-					return true if u_manager?
-				when :coach
-					return true if u_coach?
-				when :player, u_athlete?
-					return true if u_athlete?
-				when :secretary
-					return true if u_secretary?
-				when :user
-					return true if user_signed_in?  # it's a user alright
-				end
-			end
-			false
-		end
-
-		# check object related access policy
-		def check_object(obj:)
-			case obj
-			when Category, Division, FalseClass, Location, Season
-				true
-			when Coach
-				(obj.id == u_coach.id)
-			when Club
-				(obj.id == u_clubid) # rubocop:disable Style/RedundantReturn
-			when Drill
-				(obj.coach_id == u_coach.id)
-			when Event
-				(obj.team&.has_coach?(u_person) || obj.has_athlete?(u_person))
-			when Person
-				(obj.id == u_person.id)
-			when Player
-				(obj.id == u_player.id)
-			when Team
-				(obj.has_coach?(u_person) || obj.has_athlete?(u_person))
-			when User
-				(obj.id == u_userid)
-			else # including NilClass
-				u_admin?
-			end
-		end
 
 		def deny_access(message = I18n.t("shared.messages.access_denied"))
 			respond_to do |format|

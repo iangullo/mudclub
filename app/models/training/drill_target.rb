@@ -19,11 +19,17 @@
 class DrillTarget < ApplicationRecord
 	localized_as "training.drill_target"
 
+	#-------------------------------------
+	# Class relations
+	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	belongs_to :target
 	belongs_to :drill
 	accepts_nested_attributes_for :target, reject_if: :all_blank
-	self.inheritance_column = "not_sti"
 
+	# -------------------------------------
+	# General API
+	# -------------------------------------
 	def to_s
 		if self.priority
 			cad = (self.priority > 0) ? "(" + self.priority.to_s + ") " : ""

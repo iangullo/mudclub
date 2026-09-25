@@ -23,13 +23,13 @@ class ClubsController < ApplicationController
 	def index
 		@policy = check_policy!(ClubPolicy)
 
-		@clubs  = Club.search(params[:search], current_user)
+		@clubs  = Club.search(params[:search], current_user, @club)
 		page    = paginate(@clubs)
 		title   = u_manager? ? Club.fld(:rivals) : Club.label(:plural)
 		title   = helpers.club_title(title:, icon: { concept: "rivals" })
 		title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10 } ]
 		table   = helpers.club_table(clubs: page)
-		retlnk  = back_link(default: path_for(u_club))
+		retlnk  = back_link(default: :back)
 		create_index(title:, table:, page:, retlnk:)
 	end
 
@@ -45,7 +45,7 @@ class ClubsController < ApplicationController
 			close  = :back
 			retlnk = back_link(default: clubs_path)
 		end
-		submit  = edit_path_for(@club) if u_admin? || club_manager?(@club)
+		submit  = edit_path_for(@club) if @policy.edit?
 		@submit = create_submit(close:, retlnk:, submit:, frame: :modal)
 	end
 
@@ -53,7 +53,7 @@ class ClubsController < ApplicationController
 	def new
 		@policy = check_policy!(ClubPolicy)
 
-		m_club  = u_club
+		m_club  = Club.first
 		locale  = m_club&.locale || "en"
 		country = m_club&.country || "US"
 		@club   = Club.new(settings: { locale:, country: })

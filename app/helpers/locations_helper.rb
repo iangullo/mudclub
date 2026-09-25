@@ -82,8 +82,7 @@ module LocationsHelper
 
 	# return icon and top of fields definition
 	def location_title(title:)
-		clubid = @club&.id || u_clubid
-		icon   =  ((u_clubid != clubid) ? @club&.logo : symbol_hash("location"))
+		icon   =  user_in_club? ? @club&.logo : symbol_hash("location")
 		title_start(icon:, title:)
 	end
 end

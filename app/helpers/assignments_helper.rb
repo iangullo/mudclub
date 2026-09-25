@@ -28,9 +28,9 @@ module AssignmentsHelper
 	end
 
 	# return a User or Member assignment history table
-	def assignment_history_table(member)
-		kind = member.kind.to_sym
-		{ title: assignment_history_header(kind), rows: assignment_history_rows(member, kind) }
+	def assignment_history_table(kind, positions)
+		kind = kind.to_sym
+		{ title: assignment_history_header(kind), rows: assignment_history_rows(kind, positions) }
 	end
 
 	# return Assignments table
@@ -57,18 +57,13 @@ module AssignmentsHelper
 	end
 
 	def assignment_form_title(assignment, action, title: nil)
-		title  = Assignment.act(action.to_sym)
+		title  = assignment.membership.kind_label
 		header = person_form_title(
 				assignment,
 				icon: assignment.picture,
 				title:,
 				sex: true
 			)
-		header[0].pop
-		header[2] += [
-			gap_field,
-			{ kind: :string, value: assignment.to_s, cols: 3 }
-		]
 		header
 	end
 
@@ -77,8 +72,21 @@ module AssignmentsHelper
 			[ { kind: :label, value: Membership.fld(:notes) } ],
 			[
 				{ kind: :rich_text_area, key: :notes, cols: 3 },
-				{ kind: :hidden, key: :kind, value: assignment.kind },
 				{ kind: :hidden, key: :membership_id, value: assignment.membership_id }
+			]
+		]
+	end
+
+	def assignment_form_kind_fields(assignment = @assignment)
+		m_kind  = (@member ? @member.kind : assignment.membership.kind)&.to_sym
+		m_scope = @team ? :team : :club
+		options = assignment.kind_options(scope: m_scope, membership: m_kind, selectable: true)
+		[
+			[
+				gap_field(size: 6),
+				{ kind: :label, value: Assignment.fld(:kind, :short) },
+				gap_field(size: 1),
+				{ kind: :select_collection, key: :kind, options:, value: assignment.kind&.to_sym }
 			]
 		]
 	end
@@ -88,25 +96,22 @@ module AssignmentsHelper
 		polymorphic_path([ :edit, *resource_route(assignment) ], options)
 	end
 
-	def new_assignment_path(origin: :club, club: @club, team: @team, membership_kind: nil)
+	def new_assignment_path(club: @club, team: @team, membership_kind: nil)
 		options = { rdx: @rdx, membership_kind: membership_kind }.compact
 
-		case origin
-		when :team
-			new_club_team_assignment_path(club, team, options)
-		when :club
+		if team.present?
+			new_club_team_assignment_path(team.club, team, options)
+		elsif club.present?
 			new_club_assignment_path(club, options)
 		else
-			raise ArgumentError, "Invalid origin: #{origin}"
+			raise ArgumentError, "Invalid scope to create assignment (club: #{club&.id}; team: #{team&.id}"
 		end
 	end
 
-	def assignment_return_path(assignment = @assignment, origin: participation_origin)
-		participation_index_path(
-			origin:,
-			club: assignment.club,
-			team: assignment.team,
-			kind: Assignment.kind_catalog.membership_kind(assignment.kind),
+	def assignment_return_path(assignment = @assignment)
+		return_path_for(
+			assignment,
+			kind: assignment.membership.kind,
 			search: params[:search].presence
 		)
 	end
@@ -146,11 +151,10 @@ module AssignmentsHelper
 			]
 		end
 
-		def assignment_history_rows(object, kind)
-				rows  = Array.new
-				frame = :modal
-				object.assignments.order(:starts_on).reverse.each do |position|
-					row   = { url: path_for(position.assigned_to, kind:, status: params[:status].presence), items: [], frame: }
+		def assignment_history_rows(kind, positions)
+				rows = Array.new
+				positions.each do |position|
+					row   = { url: path_for(position.assigned_to, rdx: 3), items: [] }
 					case kind
 					when :athlete
 						row[:items] << { kind: :normal, value: position.number }

@@ -128,8 +128,8 @@ module TeamsHelper
 	# return a TableComponent for the teams given
 	def team_table(teams: @teams)
 		if teams
-			pcount = (device != "mobile")
-			title = ((@rdx == 1 || @player || @coach) ? [ { kind: :normal, value: Season.label(:short) } ] : [])
+			pcount = !(@user || device == "mobile")
+			title = (@rdx == 1 || @user ? [ { kind: :normal, value: Season.label(:short) } ] : [])
 			title << { kind: :normal, value: Team.label }
 			unless device == "mobile"
 				title << { kind: :normal, value: Category.label }
@@ -140,13 +140,13 @@ module TeamsHelper
 				trow = { url: "#", items: [ gap_field(cols: 2), { kind: :bottom, value: I18n.t("shared.stats.total") } ] }
 				tcnt = []	# total athletes
 			end
-			title << button_field({ kind: :add, url: new_path_for(@club, :team, season_id: @season.id), frame: :modal }) if @policy.create?
+			title << button_field({ kind: :add, url: new_path_for(@club, :team, season_id: @season.id), frame: :modal }) if !@user && @club && @policy.create?
 
 			rows = Array.new
 			teams.each { |team|
-				url = (u_clubid == team.club_id ? path_for(team) : request.path)
+				url = user_in_club?(team.club) ? path_for(team) : request.path
 				row = { url:, items: [] }
-				row[:items] << { kind: :normal, value: team.season.name, align: :center } if @rdx == 1 || @player || @coach
+				row[:items] << { kind: :normal, value: team.season.name, align: :center } if @rdx == 1 || @user
 				row[:items] << { kind: :normal, value: team.name }
 				unless device == "mobile"
 					row[:items] << { kind: :normal, value: team.category.name, align: :center }
@@ -174,10 +174,10 @@ module TeamsHelper
 	def team_links
 		links = []
 
-		links << button_field({ kind: :jump, symbol: symbol_hash(:player, namespace: @team&.sport&.name), url: club_team_roster_path(@club, @team, rdx: @rdx), label: Team.term(:roster) }, align: :center) if @policy.roster?
-		links << button_field({ kind: :jump, symbol: :target, url: club_team_targets_path(@club, @team, rdx: @rdx), label: Target.label(:plural) }, align: :center) if @policy.targets?
-		links << button_field({ kind: :jump, symbol: :plan, url: club_team_plan_path(@club, @team, rdx: @rdx), label: I18n.t("training.plan.label.short") }, align: :center) if @policy.plan?
-		links << button_field({ kind: :jump, symbol: :timetable, url: club_team_slots_path(@club, @team, rdx: @rdx), label: Slot.label(:plural), frame: :modal }, align: :center)
+		links << button_field({ kind: :jump, symbol: symbol_hash(:athlete, namespace: @team&.sport&.name), url: path_for(@team, action: :roster), label: Team.term(:roster) }, align: :center) if @policy.roster?
+		links << button_field({ kind: :jump, symbol: :target, url: path_for(@team, action: :targets), label: Target.label(:plural) }, align: :center) if @policy.targets?
+		links << button_field({ kind: :jump, symbol: :plan, url: path_for(@team, action: :plan), label: Team.fld(:plan) }, align: :center) if @policy.plan?
+		links << button_field({ kind: :jump, symbol: :timetable, url: path_for(@team, action: :slots), label: Slot.label(:plural), frame: :modal }, align: :center)
 
 		[ links ]
 	end
@@ -237,8 +237,8 @@ module TeamsHelper
 
 	# return FieldComponent for team view title
 	def team_title(title:, cols: nil, search: nil, edit: nil)
-		clubid = @club&.id || u_clubid
-		res = title_start(icon: ((u_clubid != clubid) ? @club&.logo : symbol_hash(:team)), title:, cols:)
+		clubid = @club&.id || @team&.club.id
+		res = title_start(icon: (user_in_club?(@team&.club) ? @club&.logo : symbol_hash(:team)), title:, cols:)
 		if search
 			s_id = @team&.season_id || @season&.id || session.dig("team_filters", "season_id")
 			res << [ { kind: :search_collection, key: :season_id, options: Season.real.order(start_date: :desc), value: s_id } ]
@@ -255,8 +255,8 @@ module TeamsHelper
 				[ { kind: :label, value: @team.category.name } ],
 				[ gap_field(size: 0), { kind: :text, value: "#{@team.division.name} (#{@team.season.name})" } ]
 			]
-		else # player teams index
-			res << [ { kind: :subtitle, value: current_user.player.s_name } ]
+		else # user teams index
+			res << [ { kind: :subtitle, value: current_user.s_name } ]
 		end
 		res
 	end

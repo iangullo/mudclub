@@ -16,21 +16,19 @@ module ParticipationHelper
 	def participation_search_bar(obj, search_url:, title: nil, scratch: nil, cols: nil)
 		search_filters = "#{obj.to_s.downcase}_filters"
 		session.delete(search_filters) if scratch
-		s_stat = params[:status].presence || @status
-		# s_kind = params[:kind].presence || @kind
 		fields = [
-			{ kind: :search_text, key: :search, placeholder: title, value: params[:search].presence || session.dig("#{@kind}_filters", "search"), size: 10 },
-			{ kind: :search_select, key: :status, value: s_stat, blank: obj.fld(:status), options: obj.status_options },
+			{ kind: :search_text, key: :search, placeholder: title, value: @search, size: 10 },
+			{ kind: :search_select, key: :status, value: @status, blank: obj.fld(:status), options: obj.status_options },
 			{ kind: :hidden, key: :kind, value: @kind }
-			# { kind: :search_select, key: :kind, value: obj.kind, blank: obj.fld(:kind), options: obj.kind_list }
+			# { kind: :search_select, key: :kind, value: s_kind, blank: obj.fld(:kind), options: obj.kind_list }
 		]
 		[ { kind: :search_box, url: search_url, fields:, cols: } ]
 	end
 
 	def participation_title(obj, title: nil, status_url: nil, just_icon: true, cols: nil)
 		icon     = obj.picture
-		title  ||= obj.kind_label
-		subtitle = obj.to_s
+		title  ||= obj.to_s
+		subtitle = obj.kind_label
 
 		fields = person_title(icon:, title:, subtitle:, cols:)
 		fields = participation_fields(obj, fields, status_url:, just_icon:)
@@ -56,7 +54,7 @@ module ParticipationHelper
 		fields
 	end
 
-	# standardised generator of club member field for user/player/coach
+	# standardised generator of club member field for member/assignment
 	def participation_club_field(obj, align: "center")
 		if obj&.club
 			icon  = obj.club.logo
@@ -68,7 +66,7 @@ module ParticipationHelper
 		end
 	end
 
-	# Field to use in forms to select club of a user/player/coach/team
+	# Field to use in forms to select club of a assignment/coach/team
 	def participation_club_selector(obj, align: "center")
 		[
 			{ kind: :icon, icon: "mudclub.svg", title: ("club.single"), align: },
@@ -99,7 +97,8 @@ module ParticipationHelper
 		)
 
 		if status_url
-			button_field({ kind: :action, symbol: symbol_hash(concept, variant:), label:, url: status_url, frame: :modal }, **f_opts)
+			frame = :modal unless obj.kind.to_sym == :board_member
+			button_field({ kind: :action, symbol: symbol_hash(concept, variant:), label:, url: status_url, frame: }, **f_opts)
 		elsif just_icon
 			title = "(#{s_date})"
 			symbol_field(concept, { variant:, title: "#{label}\n#{title}" }, **f_opts)
@@ -178,15 +177,16 @@ module ParticipationHelper
 				{ kind: :normal, value: p_class.fld(:status) }
 			]
 			header << button_field({ kind: :add, url: new_path_for(@club, o_class, kind: @kind), frame: :modal }) if @policy.new?
+			header
 		end
 
 		def participation_table_rows(o_class, objects, kind)
-				rows  = Array.new
-				frame = :modal if o_class == :assignment
+				rows    = Array.new
+				frame   = :modal if o_class == :assignment
 				objects.each { |object|
 					m_obj = (o_class == :member ? object : object&.membership)
 					a_obj = (o_class == :assignment ? object : object&.assignments&.last)
-					row   = { url: path_for(object, kind: @kind, status: params[:status].presence), items: [], frame: }
+					row   = { url: path_for(object, rdx: 3), items: [], frame: }
 					case kind
 					when :athlete
 						row[:items] << { kind: :normal, value: a_obj.number }

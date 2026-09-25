@@ -19,6 +19,10 @@
 class Stat < ApplicationRecord
 	localized_as "training.stat"
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	belongs_to :event
 	belongs_to :player  # id==0 => team stat; id==-1 => rival stat
 	scope :real, -> { where("id>0") }
@@ -28,7 +32,10 @@ class Stat < ApplicationRecord
 	scope :for_players, -> { where("player_id>0") }
 	scope :for_player, ->(p_id) { where(player_id: p_id) }
 	scope :for_concept, ->(cval) { where(concept: cval) }
-	self.inheritance_column = "not_sti"
+
+	# -------------------------------------
+	# General API
+	# -------------------------------------
 
 	# wrappers to access value & concept fields
 	def concept

@@ -85,9 +85,7 @@ module SlotsHelper
 			[ symbol_field("location"), string_field(@slot.court, cols: 2) ],
 			[ symbol_field("calendar"), string_field(@slot.to_s, cols: 2) ]
 		]
-		if u_manager?
-			res << [ gap_field(cols: 2), button_field({ kind: :delete, url: path_for(@slot), name: @slot.to_s }, align: "right") ]
-		end
+		res << [ gap_field(cols: 2), button_field({ kind: :delete, url: path_for(@slot), name: @slot.to_s }, align: "right") ] if @policy.destroy?
 		res
 	end
 

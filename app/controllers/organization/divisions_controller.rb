@@ -36,7 +36,7 @@ class DivisionsController < ApplicationController
 		@policy = check_policy!(DivisionPolicy, record: @division)
 
 		@fields = create_fields(helpers.division_show)
-		@submit = create_submit(submit: u_manager? ? edit_path_for(@division, owner: @sport) : nil)
+		@submit = create_submit(submit: @policy.edit? ? edit_path_for(@division, owner: @sport) : nil)
 	end
 
 	# GET /divisions/new

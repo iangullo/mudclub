@@ -19,17 +19,29 @@
 # Handles Steps for Drills/Plays. Each step belongs to a parent drill.
 class Step < ApplicationRecord
 	localized_as "training.step"
-
-	belongs_to :drill, touch: true
-	has_paper_trail
-	default_scope { order(:order) }
-
 	after_initialize :initialize_new_step, if: :new_record?
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
+	belongs_to :drill, touch: true
+	has_paper_trail
 	has_rich_text :explanation
 	has_one_attached :diagram
 
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
 	validate :svgdata_structure
+
+	# -------------------------------------
+	# Scopes
+	# -------------------------------------
+	default_scope { order(:order) }
+
+	# -------------------------------------
+	# General API
+	# -------------------------------------
 
 	# Determines the visual representation type of the step
 	def representation_type

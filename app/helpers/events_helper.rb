@@ -306,8 +306,8 @@ module EventsHelper
 	private
 		# return a button field to copy event - if possible
 		def event_copy_button
-			if u_coach? or u_manager?
-				{ kind: :action, symbol: symbol_hash("copy", type: :button), label: I18n.t("shared.actions.copy"), url: copy_event_path, frame: :modal }
+			if @policy.copy?
+				{ kind: :action, symbol: symbol_hash(:copy, type: :button), label: I18n.t("shared.actions.copy"), url: copy_event_path, frame: :modal }
 			end
 		end
 
@@ -323,7 +323,7 @@ module EventsHelper
 			toprow += [	# team events--> add a team_attendance button
 				gap_field,
 				button_field(
-					{ kind: :link, symbol: :attendance, label: Attendance.label, flip: true, size: "30x30", url: club_team_attendance_path(@club, @team), align: :right, frame: :modal },
+					{ kind: :link, symbol: :attendance, label: Attendance.label, flip: true, size: "30x30", url: path_for(@team, action: :attendance), align: :right, frame: :modal },
 					class: "align-middle text-indigo-900"
 				)
 			] unless clubevent
@@ -409,7 +409,7 @@ module EventsHelper
 				if @event.location.gmaps_url
 					res.last << button_field({ kind: :location, symbol: :gmaps, url: @event.location.gmaps_url, label: @event.location.name }, cols: 2)
 				end
-				if u_manager? || @team.has_coach?(u_person)
+				if @policy.attendance?
 					res << [
 						gap_field(size: 1),
 						{ kind: :side_cell, value: @team.term(:match), align: :left, cols: 2 },
@@ -434,7 +434,7 @@ module EventsHelper
 					res.last << workload_button(align: :left, cols: 2, rows: 2) if @event.id
 					res << [ gap_field(size: 1), { kind: :side_cell, value: @event.t_path(:kind, :training), cols: 2, align: :left } ]
 					res << gap_row(cols: 8)
-				elsif (u_manager? || u_coach?) && @event.id
+				elsif @policy.export? && @event.id
 					res.first[1][:cols] = 4	# modify cols to avoid issues with show
 					res.last << pdf_button(club_team_event_path(@club, @team, @event, format: :pdf))
 					res.last << gap_field
@@ -451,7 +451,7 @@ module EventsHelper
 							cols: 2
 						)
 					]
-				elsif u_athlete?
+				elsif current_user.is_athlete?
 					res << [ gap_field, { kind: :label, value: current_user.to_s, cols: 3 } ]
 				end
 			end

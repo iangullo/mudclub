@@ -19,14 +19,22 @@
 class Skill < ApplicationRecord
 	localized_as "training.skill"
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	has_and_belongs_to_many :drills
-	scope :real, -> { where("id>0").order(:concept) }
+
+	scope :real,		-> { where("id>0").order(:concept) }
+	scope :orphans, -> { left_outer_joins(:drills).where("drills.id IS NULL OR drills.id = 0") }
 	pg_search_scope :search,
 		against: :concept,
 		ignoring: :accents,
 		using: { tsearch: { prefix: true } }
-	scope :orphans, -> { left_outer_joins(:drills).where("drills.id IS NULL OR drills.id = 0") }
-	self.inheritance_column = "not_sti"
+
+	# -------------------------------------
+	# General API
+	# -------------------------------------
 
 	def to_s
 		self.concept

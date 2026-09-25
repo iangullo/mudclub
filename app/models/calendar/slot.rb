@@ -18,17 +18,27 @@
 #
 class Slot < ApplicationRecord
 	localized_as "calendar.slot"
-
 	before_destroy :unlink
+
+	#-------------------------------------
+	# Associations
+	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	belongs_to :location
 	belongs_to :season
 	belongs_to :team
-	scope :real, -> { where("id>0") }
-	scope :for_season, ->(s_id) { where("season_id = ?", s_id) }
-	scope :for_team, ->(t_id) { where("team_id = ?", t_id) }
-	scope :for_location, ->(l_id) { where("location_id = ?", l_id) }
-	self.inheritance_column = "not_sti"
 
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :real, -> { where("id>0") }
+	scope :for_season,	 ->(season) { filter_by_id(:season_id, season) }
+	scope :for_team, 		 ->(team) { filter_by_id(:team_id, team) }
+	scope :for_location, ->(location) { filter_by_id(:location_id, location) }
+
+	#-------------------------------------
+	# General API
+	#-------------------------------------
 	# return if timetable row should be kept busy with this slot
 	def at_work?(wday, t_hour)
 		if self.wday == wday

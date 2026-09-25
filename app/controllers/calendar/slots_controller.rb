@@ -27,11 +27,11 @@ class SlotsController < ApplicationController
 
 		@locations = Location.search(club_id: @club&.id).practice.order(name: :asc)
 		@location  = Location.find_by_id(params[:location_id]) || @locations.first
-		title      = helpers.slot_title(title: I18n.t("calendar.slot.label.many"))
-		title     << helpers.slot_search_bar(u_manager? || u_secretary?)
+		title      = helpers.slot_title(title: Slot.label(:plural))
+		title     << helpers.slot_search_bar(true)
 		@title    = create_fields(title)
 		week_view if @location
-		@btn_add   = create_button({ kind: :add, url: new_path_for(@club, :slot, location_id: @location&.id, season_id: @season.id), frame: :modal }) if u_manager? && !(@season.teams.empty?)
+		@btn_add   = create_button({ kind: :add, url: new_path_for(@club, :slot, location_id: @location&.id, season_id: @season.id), frame: :modal }) if @policy.new?
 		@submit    = create_submit(close: :back, submit: nil, retlnk: path_for(@club))
 	end
 

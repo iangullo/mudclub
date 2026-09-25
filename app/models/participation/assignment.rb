@@ -49,8 +49,8 @@ class Assignment < ApplicationRecord
 	#-------------------------------------
 	# Convenient delegations
 	#-------------------------------------
-	delegate :club, :person, :age, :birthday, :email, :female, :name, :nick,
-					:phone, :relationships, :surname,
+	delegate :club, :person, :person_id, :age, :birthday, :female,
+					:name, :nick, :surname, :email, :phone, :relationships,
 					to: :membership
 
 	#-------------------------------------
@@ -59,7 +59,6 @@ class Assignment < ApplicationRecord
 	include Auditable
 	include Kinded
 	include Participatory
-	include PersonBearing
 
 	#-------------------------------------
 	# Scopes
@@ -73,18 +72,22 @@ class Assignment < ApplicationRecord
 	scope :club_level, -> { where(team_id: nil) }
 	scope :team_level, -> { where.not(team_id: nil) }
 
-	scope :female, -> { joins(:person).where("female = true") }
-	scope :male, -> { joins(:person).where("female = false") }
+	scope :female,		-> { joins(:person).where("female = true") }
+	scope :male,			-> { joins(:person).where("female = false") }
 	scope :by_number, -> { order(Arel.sql("CAST(number AS INTEGER) NULLS LAST")) }
 
 	scope :for_club, ->(club) {
-		joins(:membership).where(memberships: { club_id: club.id })
+		return none if club.blank?
+		joins(:membership).merge(Membership.for_club(club))
 	}
 
-	scope :for_team, ->(team) {	for_club(team.club).where(team: team) }
+	scope :for_team, ->(team) {
+		return none if team.blank?
+		for_club(team.club).filter_by_id(:team_id, team)
+	}
 
 	scope :of_membership_kind, ->(kind) {
-		joins(:membership).merge(Membership.of_kind(kind))
+		joins(:membership).where(membership: Membership.of_kind(kind))
 	}
 
 	# -------------------------------------------------------------------------
@@ -211,9 +214,12 @@ class Assignment < ApplicationRecord
 	end
 
 	def rebuild(data)
-		# only needed for new records
-		self.membership_id ||= data[:membership_id] if data[:membership_id].present?
+		if data[:person_attributes].present?
+			return self unless membership
+			return self unless membership.resolve_person(data[:person_attributes])
+		end
 
+		# --- assignment's own attributes ---
 		self.team_id   = data[:team_id]   if data.key?(:team_id)
 		self.kind      = data[:kind]      if data.key?(:kind)
 		self.status    = data[:status]    if data.key?(:status)
@@ -223,8 +229,6 @@ class Assignment < ApplicationRecord
 		self.number    = data[:number]    if data.key?(:number) # only for athletes
 
 		self.update_attachment("avatar", data[:avatar])	if data[:avatar].present?
-
-		return self unless resolve_person(data[:person_attributes])
 
 		self
 	end

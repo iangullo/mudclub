@@ -84,7 +84,7 @@ es:
     event_kinds:
       label: Tipo de evento
       short: Tipo
-      values: &event_kind_values  # anchor
+      values: &event_kind_values # anchor
         holiday: Festivo
         holiday_short: Fest.
         training: Entrenamiento
@@ -123,9 +123,10 @@ es:
         yearly: Anual
 
     slot:
-      label: Horario
-      plural: Horarios
-      short: Hora.
+      label:
+        single: Horario
+        plural: Horarios
+        short: Hora.
       actions:
         create: Crear horario
         edit: Editar horario
@@ -152,7 +153,7 @@ es:
         slot: Franja horaria
         kind: Tipo de evento
         metadata: Metadatos
-      kind: *event_kind_values  # referencia
+      kind: *event_kind_values # referencia
       messages:
         created: Evento creado.
         updated: Evento actualizado.

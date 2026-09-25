@@ -50,9 +50,9 @@ class Document < ApplicationRecord
 	# Scopes
 	#-------------------------------------
 	scope :active, -> { where(active: true) }
-	scope :for_club, ->(club) { where(club:) }
-	scope :for_person, ->(registration) { where(person:) }
-	scope :for_registration, ->(registration) { where(registration:) }
+	scope :for_club, ->(club) { filter_by_id(:club_id, club) }
+	scope :for_person, ->(person) { filter_by_id(:person_id, person) }
+	scope :for_registration, ->(registration) { filter_by_id(:registration_id, registration) }
 	scope :current, -> { where(active: true) }
 
 	#-------------------------------------

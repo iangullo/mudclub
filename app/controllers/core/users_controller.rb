@@ -40,10 +40,12 @@ class UsersController < ApplicationController
 	def show
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
-		@title = create_fields(helpers.user_show)
-		@table = create_table(helpers.team_table(teams: @user.teams))
-		retlnk = (@rdx == 1 ? :back : back_link(default: return_path_for(@user)))
-		submit  = edit_path_for(@user) if u_admin? || @rdx == 1
+		@title  = create_fields(helpers.user_show)
+		@roles  = @user.person.memberships.order(joined_on: :desc).order(left_on: :asc)
+		@page   = paginate(@roles, 1.2)	# paginate results
+		@table  = create_table(helpers.membership_history_table(@page))
+		retlnk  = back_link(default: return_path_for(@user))
+		submit  = edit_path_for(@user) if @policy.edit?
 		@submit = create_submit(close: :back, retlnk:, submit:, frame: :modal)
 	end
 
@@ -70,8 +72,7 @@ class UsersController < ApplicationController
 			@user = User.new
 			@user.rebuild(user_params)	# build user
 			if @user.modified? then
-				if @user.email.presence && @user.paranoid_create
-					@user.bind_person(save_changes: true) # ensure binding is correct
+				if @user.email.presence && @user.save
 					userview = path_for(@user)
 					a_desc   = "#{User.msg(:created)} '#{@user.s_name}'"
 					register_action(:created, a_desc, url: path_for(@user, rdx: 2))
@@ -104,7 +105,6 @@ class UsersController < ApplicationController
 			userview = path_for(@user)
 			if @user.modified?
 				if @user.email.presence && @user.save
-					@user.bind_person(save_changes: true) # ensure binding is correct
 					a_desc = "#{User.msg(:updated)} '#{@user.s_name}'"
 					register_action(:updated, a_desc, url: path_for(@user, rdx: 2))
 					format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
@@ -161,7 +161,7 @@ class UsersController < ApplicationController
 		# Prepare user form
 		def prepare_form(create: nil, rdx: @rdx)
 			title     = I18n.t("user.#{(create ? "new" : "edit")}")
-			@title    = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
+			@header   = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
 			@role     = create_fields(helpers.user_form_role)
 			@p_fields = create_fields(helpers.person_form_fields(@user.person, mandatory_email: true))
 			if create

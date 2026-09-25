@@ -21,66 +21,66 @@
 # This model replaces the legacy EventsPlayers driven model
 #
 class Attendance < ApplicationRecord
-  localized_as "calendar.attendance"
+	localized_as "calendar.attendance"
 
-  #-------------------------------------
-  # Associations
-  #-------------------------------------
-  belongs_to :event
-  belongs_to :assignment
+	#-------------------------------------
+	# Associations
+	#-------------------------------------
+	belongs_to :event
+	belongs_to :assignment
 
-  # Delegations for convenience
-  delegate :person, :team, :club, to: :assignment, allow_nil: true
-  delegate :name, :s_name, to: :person, allow_nil: true, prefix: true
+	# Delegations for convenience
+	delegate :person, :team, :club, to: :assignment, allow_nil: true
+	delegate :name, :s_name, to: :person, allow_nil: true, prefix: true
 
-  #-------------------------------------
-  # Enums
-  #-------------------------------------
-  enum :status, %i[unknown present absent excused late], default: :unknown
+	#-------------------------------------
+	# Enums
+	#-------------------------------------
+	enum :status, %i[unknown present absent excused late], default: :unknown
 
-  #-------------------------------------
-  # Validations
-  #-------------------------------------
-  validates :event, :assignment, presence: true
-  validates :assignment_id, uniqueness: { scope: :event_id }
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
+	validates :event, :assignment, presence: true
+	validates :assignment_id, uniqueness: { scope: :event_id }
 
-  #-------------------------------------
-  # Scopes
-  #-------------------------------------
-  scope :for_event, ->(event) { where(event_id: event.id) }
-  scope :for_team, ->(team) { joins(:event).where(events: { team_id: team.id }) }
-  scope :for_assignment, ->(assignment) { where(assignment_id: assignment.id) }
-  scope :for_membership_kind, ->(kind) {
-    joins(assignment: :membership)
-      .where(memberships: { kind: })
-  }
-  scope :for_role, ->(kind) { for_membership_kind(kind) }
-  scope :matches, -> { joins(:event).merge(Event.matches.chronological) }
-  scope :trainings, -> { joins(:event).merge(Event.trainings.chronological) }
-  scope :last7, -> { joins(:event).merge(Event.last7.chronological) }
-  scope :last30, -> { joins(:event).merge(Event.last30.chronological) }
-  scope :with_status, ->(status) { where(status:) if status.present? }
-  scope :present, -> { with_status(:present) }
-  scope :absent, -> { with_status(:absent) }
-  scope :late, -> { with_status(:late) }
-  scope :excused, -> { with_status(:excused) }
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :for_event, ->(event) { filter_by_id(:event_id, event) }
+	scope :for_team,  ->(team)  { joins(:event).merge(Event.for_team(team)) }
+	scope :for_assignment, ->(assignment) { filter_by_id(:assignment_id, assignment) }
+	scope :for_membership_kind, ->(kind) {
+		joins(assignment: :membership)
+			.where(memberships: { kind: })
+	}
+	scope :for_role,  ->(kind) { for_membership_kind(kind) }
+	scope :matches,   -> { joins(:event).merge(Event.matches.chronological) }
+	scope :trainings, -> { joins(:event).merge(Event.trainings.chronological) }
+	scope :last7,     -> { joins(:event).merge(Event.last7.chronological) }
+	scope :last30,    -> { joins(:event).merge(Event.last30.chronological) }
+	scope :with_status, ->(status) { where(status:) if status.present? }
+	scope :present, -> { with_status(:present) }
+	scope :absent,  -> { with_status(:absent) }
+	scope :late,    -> { with_status(:late) }
+	scope :excused, -> { with_status(:excused) }
 
-  #-------------------------------------
-  # Class methods
-  #-------------------------------------
-  def self.count_by_event(event, role: nil)
-    scope = where(event_id: event.id)
-    scope = scope.for_role(role) if role
-    scope.count
-  end
+	#-------------------------------------
+	# Class methods
+	#-------------------------------------
+	def self.count_by_event(event, role: nil)
+		scope = where(event_id: event.id)
+		scope = scope.for_role(role) if role
+		scope.count
+	end
 
-  def self.fetch(event, assignment, create: false)
-    find_or_initialize_by(event_id: event.id, assignment_id: assignment.id).tap do |record|
-      record.save if create && record.new_record?
-    end
-  end
+	def self.fetch(event, assignment, create: false)
+		find_or_initialize_by(event_id: event.id, assignment_id: assignment.id).tap do |record|
+			record.save if create && record.new_record?
+		end
+	end
 
-  def self.prepare(event, assignment)
-    fetch(event, assignment, create: true)
-  end
+	def self.prepare(event, assignment)
+		fetch(event, assignment, create: true)
+	end
 end

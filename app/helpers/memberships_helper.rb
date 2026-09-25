@@ -44,13 +44,13 @@ module MembershipsHelper
 	end
 
 	def membership_show_fields(member)
-		[
-			[
-				{ kind: :label, value: "#{member.fld(:notes)}: ", align: "right", class: "text-right" },
-				{ kind: :text_field, value: member.notes, align: "left" }
-			],
-			[	{ kind: :label, value: "#{Assignment.label(:plural)}:", cols: 2 }	]
-		]
+		m_fields = []
+		if member.notes?
+			m_fields << [ { kind: :label, value: "#{member.fld(:notes)}:", align: :right, class: "text-right" } ]
+			m_fields << [ { kind: :text_field, value: member.notes, align: :left } ]
+		end
+		m_fields <<	[	{ kind: :label, value: "#{Assignment.label(:plural)}:", cols: 2 }	]
+		m_fields
 	end
 
 	def membership_form_title(member, action)
@@ -79,4 +79,33 @@ module MembershipsHelper
 			club_members_path(@club)
 		end
 	end
+
+	def membership_history_table(memberships)
+		{ title: membership_history_header, rows: membership_history_rows(memberships), align: :center }
+	end
+
+	private
+
+		# p_class should be Membership or Assignment - maybe Registration in future
+		def membership_history_header
+			[
+				{ kind: :normal, value: Club.label(:short) },
+				{ kind: :normal, value: Membership.fld(:kind) },
+				{ kind: :normal, value: Membership.fld(:joined_on, :short), align: :center },
+				{ kind: :normal, value: Membership.fld(:status), align: :center }
+			]
+		end
+
+		def membership_history_rows(memberships)
+			rows = Array.new
+			memberships.each do |position|
+				row   = { url: path_for(position, rdx: 3), items: [] }
+				row[:items] << { kind: :icon, value: position.club.logo, title: position.club.nick, align: :center }
+				row[:items] << { kind: :normal, value: position.kind_label }
+				row[:items] << { kind: :normal, value: position.starts_on }
+				row[:items] << participation_status_field(position, f_opts: { align: :center, class: "border" })
+				rows << row
+			end
+			rows
+		end
 end

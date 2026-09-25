@@ -1,15 +1,16 @@
 <%= render ModalComponent.new do %>
-	<%= form_for(
-			@assignment,
-			url: assignment_return_path(@assignment),
+	<%= form_with( model: resource_route(@assignment),
 			authenticity_token: true,
 			data: {controller: "mandatory-fields", turbo_frame: "_top"}
 		) do |form| %>
+		<%= form.hidden_field :membership_id,  value: @member&.id %>
+		<% @kind_f.form = form if @kind_f %>
 		<% if @p_fields %>
-			<%= form.fields_for :person, @assignment.person do |f| %>
+			<%= form.fields_for :person_attributes, @assignment.person do |f| %>
 				<% @p_header.form = f %>
 				<% @p_fields.form = f %>
 				<%= render @p_header %>
+				<%= render @kind_f %>
 				<%= render @p_fields %>
 				<% if @contacts %>
 					<% @contacts.form = f %>

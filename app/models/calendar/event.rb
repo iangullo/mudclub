@@ -27,11 +27,11 @@ class Event < ApplicationRecord
 	#-------------------------------------
 	attr_accessor :event_changed
 	enum :kind, %i[rest train match]
-	self.inheritance_column = "not_sti"
 
 	#-------------------------------------
 	# Object relationships
 	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	belongs_to :club
 	belongs_to :team, optional: true
 	belongs_to :location
@@ -65,9 +65,9 @@ class Event < ApplicationRecord
 
 	scope :chronological, -> { order(:start_time) }
 	scope :between, ->(from, to) { where(start_time: from..to) }
-	scope :of_kind, ->(kind) { where(kind:) }
-	scope :for_club, ->(club) { where(club:).chronological }
-	scope :for_team, ->(team) { where(team:).chronological }
+	scope :of_kind, ->(kind) { filter_by_id(:kind_id, kind) }
+	scope :for_club, ->(club) { filter_by_id(:club_id, club).chronological }
+	scope :for_team, ->(team) { filter_by_id(:team_id, team).chronological }
 	scope :for_season, ->(season) { between(season.start_date, season.end_date) }
 	scope :club_events, -> { where(team_id: nil) }
 	scope :team_events, -> { where.not(team_id: nil) }

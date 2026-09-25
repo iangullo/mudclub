@@ -155,7 +155,7 @@ class Catalog::Base
 		def where(include_deprecated: false, **criteria)
 			ensure_built!
 
-			criteria[:deprecated] = nil unless include_deprecated
+			criteria[:deprecated] = nil if !include_deprecated && !criteria.key?(:deprecated)
 
 			@values.select do |entry|
 				criteria.all? do |attribute, expected|
@@ -175,6 +175,12 @@ class Catalog::Base
 		def option_list(**criteria)
 			where(**criteria).map do |entry|
 				[ val(entry.key), entry.key ]
+			end
+		end
+
+		def options(**criteria)
+			where(**criteria).map do |entry|
+				{ id: entry.key, name: val(entry.key) }
 			end
 		end
 
@@ -247,14 +253,12 @@ class Catalog::Base
 			end
 
 			def matches_attribute?(actual, expected)
-				if expected.is_a?(Array)
-					expected.include?(actual)
-
+				if expected.is_a?(Array) && actual.is_a?(Array)
+					(expected.map(&:to_sym) & actual.map(&:to_sym)).any?
+				elsif expected.is_a?(Array)
+					expected.map(&:to_sym).include?(actual.to_sym)
 				elsif actual.is_a?(Array)
-					Array(expected).all? do |value|
-						actual.include?(value)
-					end
-
+					actual.map(&:to_sym).include?(expected.to_sym)
 				else
 					actual == expected
 				end

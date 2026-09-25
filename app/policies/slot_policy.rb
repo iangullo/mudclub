@@ -34,6 +34,7 @@ class SlotPolicy < ApplicationPolicy
 	end
 
 	def create?
+		return false if Team.for_club(target_club).for_season(@season).empty?
 		allowed?(manages_club?(target_club))
 	end
 	alias new? create?

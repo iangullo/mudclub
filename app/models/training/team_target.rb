@@ -19,15 +19,26 @@
 class TeamTarget < ApplicationRecord
 	localized_as "training.target"
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	belongs_to :team
 	belongs_to :target
 	scope :global, -> { where(month: 0) }
 	scope :plan, -> { where("month>0") }
 	scope :monthly, ->(month) { where(month: month) }
 	accepts_nested_attributes_for :target, reject_if: :all_blank
-	validates :completion, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
-	self.inheritance_column = "not_sti"
 
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
+	validates :completion, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+
+
+	# -------------------------------------
+	# General API
+	# -------------------------------------
 	def to_s
 		if self.priority
 			cad = (self.priority > 0) ? "(" + self.priority.to_s + ") " : ""

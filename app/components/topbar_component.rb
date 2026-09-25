@@ -20,9 +20,14 @@
 
 # TopbarComponent - dynamic display of application top bar as ViewComponent
 class TopbarComponent < ApplicationComponent
-	def initialize(user:, logo:, nick:, home:, logout:)
-		@clublogo  = logo
-		@clubname  = nick
+	def initialize(user:, club:, home:, logout:)
+		if club.is_a?(Club)
+			@club    = club
+			@cluburl = "/clubs/#{club.id}"
+		end
+
+		@clublogo  = @club&.logo || "mudclub.svg"
+		@clubname  = @club&.nick || "MudClub"
 		@logourl   = { url: "/", data: { turbo_frame: "replace" } }
 		@tabcls    = "hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap px-2 py-2 rounded-md font-semibold"
 		@srvcls    = "#{@tabcls} inline-flex items-center"
@@ -46,7 +51,6 @@ class TopbarComponent < ApplicationComponent
 		@srv_menu = server_menu(user)
 		if (@u_logged = user&.present?)
 			I18n.locale = (user.locale || I18n.default_locale).to_sym
-			@cluburl   = "/clubs/#{user.club_id}"
 			@menu_tabs = menu_tabs(user, home, logout)
 			@ham_menu  = set_hamburger_menu
 		end
@@ -74,11 +78,11 @@ class TopbarComponent < ApplicationComponent
 		if user.admin?
 			@menu_tabs << server_menu(user)
 			@logourl = { url: "/", data: { turbo_action: "replace" } }
-		elsif user.is_manager?
+		elsif user.is_manager?(@club)
 			@menu_tabs += manager_menu
 		end
 		@menu_tabs << team_menu(user)
-		if user.secretary?
+		if user.is_secretary?(@club)
 			@menu_tabs += secretary_menu
 		elsif user.is_coach?
 			@menu_tabs += coach_menu(user)
@@ -154,9 +158,7 @@ class TopbarComponent < ApplicationComponent
 
 	# menu buttons for coaches
 	def coach_menu(user)
-		res = [ menu_link(label: Drill.label(:plural), url: "/drills") ]
-		res << menu_link(label: I18n.t("player.many"), url: "/clubs/#{user.club_id}/memberships/kind=athlete") unless user.is_manager?
-		res
+		[ menu_link(label: Drill.label(:plural), url: "/drills") ]
 	end
 
 	# menu entry to access logs
@@ -176,8 +178,8 @@ class TopbarComponent < ApplicationComponent
 	# menu buttons for club managers
 	def secretary_menu
 		[
-			menu_link(label: I18n.t("player.many"), url: "#{@cluburl}/memberships/kind=athlete"),
-			menu_link(label: I18n.t("coach.many"), url: "#{@cluburl}/memberships/kind=coach"),
+			menu_link(label: I18n.t("player.many"), url: "#{@cluburl}/memberships?kind=athlete"),
+			menu_link(label: I18n.t("coach.many"), url: "#{@cluburl}/memberships?kind=coach"),
 			menu_link(label: Slot.label(:plural), url: "#{@cluburl}/slots"),
 			menu_link(label: Location.label(:plural), url: "#{@cluburl}/locations")
 		]

@@ -19,16 +19,20 @@
 class Target < ApplicationRecord
 	localized_as "training.target"
 
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
 	has_many :team_targets
 	has_many :teams, through: :team_targets
 	has_many :drill_targets
 	has_many :drills, through: :drill_targets
 	has_many :event_targets
 	has_many :events, through: :event_targets
-	pg_search_scope :search_by_concept,
-		against: :concept,
-		ignoring: :accents,
-		using: { tsearch: { prefix: true } }
+
+	# -------------------------------------
+	# Scopes
+	# -------------------------------------
+	self.inheritance_column = "not_sti"
 	scope :orphans, lambda {
 		left_outer_joins(:teams, :events, :drills)
 		.where("(teams.id IS NULL OR teams.id = 0)")
@@ -36,9 +40,20 @@ class Target < ApplicationRecord
 		.where("(drills.id IS NULL OR drills.id = 0)")
 		.distinct
 	}
-	self.inheritance_column = "not_sti"
+	pg_search_scope :search_by_concept,
+		against: :concept,
+		ignoring: :accents,
+		using: { tsearch: { prefix: true } }
+
+	# -------------------------------------
+	# Target Enum definitions
+	# -------------------------------------
 	enum :aspect, %i[general individual collective strategy]
-	enum :focus, %i[physical offense defense]
+	enum :focus,	%i[physical offense defense]
+
+	# -------------------------------------
+	# General API
+	# -------------------------------------
 
 	# return array of aspect strings & values for select boxes
 	def self.aspects

@@ -20,13 +20,17 @@ module UsersHelper
 	# fields to show when looking a user profile
 	def user_show
 		res = person_show_title(@user, kind: :user)
-		res[4].pop
-		res[4] += user_roles(@user)
+		res.pop
+		res[3][0] = user_roles(@user)
+		unless @user.user_actions.empty?
+			res.last << button_field(
+				{ kind: :link, symbol: user_actions_symbol, url: actions_user_path, label: UserAction.label(:short), frame: :modal }
+			)
+		end
 		if current_user == @user	# only allow current user to change his own password
-			res[3] <<	button_field(
+			res[2] <<	button_field(
 				{ kind: :link, symbol: "key", label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: :modal, d_class: "inline-flex align-middle m-1 text-sm", flip: true },
-				align: "right",
-				rows: 2
+				align: "right"
 			)
 		end
 		res
@@ -35,24 +39,17 @@ module UsersHelper
 	# Fieldcomponents to display user roles
 	def user_roles(user = current_user, table: false)
 		roles =[]
-		if user.admin?
-			roles << symbol_field("website", { title: I18n.t("role.admin") })
-		elsif user.manager?
-			roles << symbol_field("key", { title: I18n.t("role.manager") })
-		elsif user.secretary?
-			roles << symbol_field("edit", { title: I18n.t("role.secretary") })
+
+		roles << symbol_field("website", { title: I18n.t("role.admin") }) if user.admin?
+		roles << symbol_field(:board_member, { title: Membership.kind_label(:board_member) }) if user.is_board_member?
+		roles << symbol_field(:coach, { namespace: "sport", title: Sport.term(:coach) }) if user.is_coach?
+		roles << symbol_field(:athlete, { namespace: "sport", title: Sport.term(:athlete) }) if user.is_athlete?
+		res = { kind: :roles, symbols: roles, align: :center }
+		if table	# only interested in these 3 icons
+			res[:class] = "border"
+			return [ res ]
 		end
-		roles << symbol_field("coach", { namespace: "sport", title: I18n.t("role.coach") }) if user.is_coach?
-		roles << symbol_field("player", { namespace: "sport", title: I18n.t("role.player") }) if user.is_athlete?
-		res = [ { kind: :roles, symbols: roles, align: :center } ]
-		return res if table	# only interested in these 3 icons
-		res.first[:align] = :left
-		unless @user.user_actions.empty?
-			res << gap_field
-			res << button_field(
-				{ kind: :link, symbol: user_actions_symbol, url: actions_user_path, label: I18n.t("user.actions"), frame: :modal }
-			)
-		end
+		res[:align] = :left
 		res
 	end
 
@@ -130,10 +127,10 @@ module UsersHelper
 	# return table for @users TableComponent
 	def user_table(users: @users)
 		title = [
-			{ kind: :normal, value: I18n.t("club.single") },
-			{ kind: :normal, value: I18n.t("person.name") },
-			{ kind: :normal, value: I18n.t("user.profile"), align: :center },
-			{ kind: :normal, value: I18n.t("person.contact"), align: :center },
+			{ kind: :normal, value: Club.label },
+			{ kind: :normal, value: Person.fld(:name) },
+			{ kind: :normal, value: User.fld(:profile), align: :center },
+			{ kind: :normal, value: Person.fld(:contact), align: :center },
 			{ kind: :normal, value: I18n.t("user.last_in"), align: :center }
 		]
 		title << button_field({ kind: :add, url: new_user_path(rdx: @rdx), frame: :modal }) if @policy.new?

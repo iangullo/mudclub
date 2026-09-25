@@ -95,4 +95,9 @@ class EventPolicy < ApplicationPolicy
 		return manages_team?(@target_team) if @target_team
 		manages_club?(target_club)
 	end
+
+	def export?
+		return true if @target_team && coaches_team?(@target_team)
+		manages_club?(@target_club)
+	end
 end

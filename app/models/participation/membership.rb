@@ -36,8 +36,6 @@ class Membership < ApplicationRecord
 	# Class relationships
 	#-------------------------------------
 	belongs_to :club
-	belongs_to :person
-	accepts_nested_attributes_for :person
 
 	# A Club member can have multiple assignments over time or simultaneously.
 	has_many :assignments,
@@ -60,19 +58,19 @@ class Membership < ApplicationRecord
 	validate :kind_cannot_change, on: :update
 
 	#-------------------------------------
-	# Convenient delegations
-	#-------------------------------------
-	delegate :avatar, :age, :birthday, :email, :female, :name, :nick, :phone,
-					:relationships, :surname, :s_name, :to_s,
-					to: :person, allow_nil: true
-
-	#-------------------------------------
 	# Included Modules
 	#-------------------------------------
 	include Auditable
 	include Kinded
 	include Participatory
 	include PersonBearing
+
+	#-------------------------------------
+	# Convenient delegations
+	#-------------------------------------
+	delegate :avatar, :age, :birthday, :email, :female, :name, :nick, :phone,
+					:relationships, :surname, :s_name, :to_s,
+					to: :person, allow_nil: true
 
 	# -------------------------------------------------------------------------
 	# Scopes
@@ -82,8 +80,10 @@ class Membership < ApplicationRecord
 			.where("left_on IS NULL OR left_on >= ?", date)
 	}
 	scope :historical, -> { where.not(left_on: nil) }
-
-	scope :for_club, ->(club) { club.present? ? where(club:) : all }
+	scope :for_club, ->(club) {
+		return none if club.blank?
+		filter_by_id(:club_id, club)
+	}
 
 	# -------------------------------------------------------------------------
 	# Text search scope
@@ -123,7 +123,9 @@ class Membership < ApplicationRecord
 		self.left_on   = data[:left_on]   if data.key?(:left_on)
 		self.notes     = data[:notes]     if data.key?(:notes)
 
-		return self unless resolve_person(data[:person_attributes])
+		if data[:person_attributes].present?
+			return self unless resolve_person(data[:person_attributes])
+		end
 
 		self
 	end

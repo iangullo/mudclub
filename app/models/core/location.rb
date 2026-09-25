@@ -18,11 +18,12 @@
 #
 class Location < ApplicationRecord
 	localized_as "core.location"
-
 	before_destroy :unlink
-	scope :practice, -> { where("practice_court = true") }
-	scope :home, -> { where("id > 0 and practice_court = false") }
-	scope :real, -> { where("id > 0") }
+
+	#-------------------------------------
+	# Associations
+	#-------------------------------------
+	self.inheritance_column = "not_sti"
 	has_many :club_locations, dependent: :destroy
 	has_many :clubs, through: :club_locations
 	has_many :events
@@ -31,8 +32,17 @@ class Location < ApplicationRecord
 		against: :name,
 		ignoring: :accents,
 		using: { tsearch: { prefix: true } }
-	self.inheritance_column = "not_sti"
 
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :practice, -> { where("practice_court = true") }
+	scope :home, -> { where("id > 0 and practice_court = false") }
+	scope :real, -> { where("id > 0") }
+
+	#-------------------------------------
+	# General API
+	#-------------------------------------
 	def to_s
 		self.id==0 ? I18n.t("location.none") : self.name
 	end
