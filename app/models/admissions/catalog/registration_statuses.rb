@@ -20,7 +20,7 @@
 # Catalog::RegistrationStatuses
 #
 class Catalog::RegistrationStatuses < Catalog::Base
-	domain "participation"
+	domain "admissions"
 
 	CATALOG = {
 

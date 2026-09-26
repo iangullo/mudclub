@@ -73,7 +73,7 @@ class Catalog::Modules < Catalog::Base
 		training: {
 			id: 50,
 			dependencies: [ :core, :participation, :calendar ],
-			optional: true,
+			optional: false,
 			description:
 				"Training sessions, drills, tasks, objectives and player development."
 		},
@@ -100,6 +100,14 @@ class Catalog::Modules < Catalog::Base
 			optional: true,
 			description:
 				"Fees, invoicing, payments and financial administration."
+		},
+
+		registration: {
+			id: 90,
+			dependencies: [ :core, :people, :organization, :participation ],
+			optional: true,
+			description:
+				"Handle participation requests."
 		}
 
 	}.freeze

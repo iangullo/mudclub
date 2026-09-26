@@ -1,0 +1,157 @@
+# config/locales/participation/en.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Admissions domain
+#
+# Canonical translations for Admission workflows and their catalogs.
+# -----------------------------------------------------------------------------
+
+en:
+  admissions:
+    label: Admissions
+    short: Admis.
+
+    registration:
+      label:
+        single: Registration
+        plural: Registrations
+        short: Reg.
+      action:
+        create: Create registration
+        create_short: Create
+        edit: Edit registration
+        edit_short: Edit
+        save_draft: Save draft
+        save_draft_short: Save
+        submit: Submit registration
+        submit_short: Submit
+        review: Review registration
+        review_short: Review
+        request_information: Request information
+        request_information_short: Request
+        approve: Approve registration
+        approve_short: Approve
+        cancel: Cancel registration
+        cancel_short: Cancel
+        reject: Reject registration
+        reject_short: Reject
+        archive: Archive registration
+        archive_short: Archive
+      fields:
+        kind: Kind
+        candidate: Candidate
+        requester: Requester
+        reviewer: Reviewer
+        status: Status
+        remarks: Remarks
+      messages:
+        draft_saved: Draft saved.
+        no_change: No changes to registration.
+        submitted: Submitted registration.
+        cancelled: Cancelled registration.
+        reviewed: Registration reviewed.
+        approved: Approved registration.
+        rejected: Rejected registration.
+        archived: Archived registration.
+
+    registration_kinds:
+      label:
+        single: Registration kind
+        short: Kind.
+      values:
+        athlete:
+          single: Athlete
+          plural: Athletes
+          short: Ath.
+          hint: Wishes to participate as an athlete.
+        coach:
+          single: Coach
+          plural: Coaches
+          short: C.
+          hint: Wishes to participate as a coach.
+        volunteer:
+          single: Volunteer
+          plural: Volunteers
+          short: Vol.
+          hint: Wishes to participate as a volunteer.
+        board_member:
+          single: Board member
+          plural: Board members
+          short: BM
+          hint: Wishes to participate as a board member.
+        club_manager:
+          single: Club manager
+          plural: Club managers
+          short: C.Mgr.
+          hint: Wishes to participate as a club manager.
+        user:
+          single: MudClub user
+          plural: MudClub Users
+          short: User
+          hint: Wishes to participate as a user.
+
+    registration_message:
+      label:
+        single: Message
+        plural: Messages
+        short: Msg.
+      actions:
+        edit: Edit message
+        edit_short: Edit
+        send: Send message
+        send_short: Send message
+        delete: Delete message
+        delete_short: Delete
+      fields:
+        sent: Sent
+        sent_short: Sent
+        author: Author
+        author_short: Auth.
+        body: Content
+        body_short: Cont.
+      messages:
+        updated: Message updated.
+        sent: Message sent.
+        deleted: Message deleted.
+
+    registration_statuses:
+      label:
+        single: Registration status
+        short: Status
+      values:
+        draft:
+          single: Draft
+          plural: Drafts
+          short: Draft
+          hint: Draft for registration request.
+        submitted:
+          single: Submitted
+          plural: Submitted
+          short: Submit.
+          hint: Registration request has been submitted.
+        under_review:
+          single: Reviewing
+          plural: Reviewing
+          short: Review
+          hint: Registration request under review.
+        awaiting_requester:
+          single: Awaiting requester
+          plural: Awaiting requesters
+          short: Waiting
+          hint: Registration request pending requester feedback.
+        cancelled:
+          single: Cancelled
+          plural: Cancelled
+          short: Canc.
+          hint: Cancelled registration request.
+        approved:
+          single: Approved
+          plural: Aproved
+          short: Appr.
+          hint: Approved registration request.
+        rejected:
+          single: Rejected
+          plural: Rejected
+          short: Rej.
+          hint: Rejected registration request.

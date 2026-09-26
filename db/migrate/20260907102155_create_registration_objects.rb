@@ -43,7 +43,7 @@ class CreateRegistrationObjects < ActiveRecord::Migration[8.0]
 			t.timestamps
 		end
 
-		# add refeernc4es for registrations in documents
+		# add references for registrations in documents
 		add_reference :documents, :registration, type: :uuid, foreign_key: true
 		add_index :documents, [ :registration_id, :kind ]
 

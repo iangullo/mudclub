@@ -20,7 +20,7 @@
 # Catalog::RegistrationActions
 #
 class Catalog::RegistrationActions < Catalog::Base
-	domain "participation"
+	domain "admissions"
 
 	CATALOG = {
 

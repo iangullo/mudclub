@@ -17,47 +17,29 @@
 # contact email - iangullo@gmail.com.
 #
 #
-# Catalog::RequesterKinds
+# Catalog::RegistrationMessageKinds
 #
-class Catalog::RequesterKinds < Catalog::Base
-	domain "participation"
+class Catalog::RegistrationMessageKinds < Catalog::Base
+	domain "admissions"
 
 	CATALOG = {
 
-		self: {
+		requester: {
 			id: 1,
 			can_edit_after_submission: true,
 			candidate_relationship_required: false
 		},
 
-		parent: {
+		reviewer: {
 			id: 10,
 			can_edit_after_submission: true,
 			candidate_relationship_required: true
 		},
 
-		guardian: {
+		system: {
 			id: 20,
 			can_edit_after_submission: true,
 			candidate_relationship_required: true
-		},
-
-		club_manager: {
-			id: 30,
-			can_edit_after_submission: true,
-			candidate_relationship_required: false
-		},
-
-		team_manager: {
-			id: 40,
-			can_edit_after_submission: true,
-			candidate_relationship_required: false
-		},
-
-		other: {
-			id: 50,
-			can_edit_after_submission: false,
-			candidate_relationship_required: false
 		}
 
 	}.freeze

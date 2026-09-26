@@ -20,7 +20,7 @@
 # Catalog::RegistrationKinds
 #
 class Catalog::RegistrationKinds < Catalog::Base
-	domain "participation"
+	domain "admissions"
 
 	CATALOG = {
 
