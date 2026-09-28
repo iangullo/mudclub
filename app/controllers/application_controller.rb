@@ -180,12 +180,23 @@ class ApplicationController < ActionController::Base
 		u_act.save
 	end
 
+	def require_module(name)
+		return if ServerSetting.module_enabled?(name)
+		deny_access(I18n.t("server.module_disabled"))
+	end
+
 	# set the action's context
 	def set_application_context
+		ServerSetting.current
+		@locale = (params[:locale] || current_user&.locale || ServerSetting.default_locale)
 		if user_signed_in?
 			@club   = u_club
 			@rdx    = p_rdx
 			@season = Season.search(p_seasonid)
+		else
+			# Fallback for anonymous (or club-less) visitors on public club pages
+			@club   = Club.find_by(slug: params[:club_id]) if params[:club_id].present?
+			@season = Season.latest
 		end
 		@favicon  = user_favicon(@club)
 		@topbar   =
@@ -193,7 +204,7 @@ class ApplicationController < ActionController::Base
 				user: current_user,
 				club: @club,
 				home: u_path,
-				logout: destroy_user_session_path
+				logout: current_user ? destroy_user_session_path : nil
 			)
 	end
 
@@ -208,8 +219,7 @@ class ApplicationController < ActionController::Base
 
 	# switch app locale
 	def switch_locale(&action)
-		locale   = (params[:locale] || current_user&.locale || I18n.default_locale)
-		I18n.with_locale(locale, &action)
+		I18n.with_locale(@locale, &action)
 	end
 
 	# Standard string format for date values
@@ -249,7 +259,7 @@ class ApplicationController < ActionController::Base
 
 	# Check whether the user's club is the same as @club
 	def user_in_club?(club = @club)
-		return false unless club.is_a?(Club)
+		return false unless current_user && club.is_a?(Club)
 		current_user.member_of?(club)
 	end
 

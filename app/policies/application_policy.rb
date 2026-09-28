@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class ApplicationPolicy
-	def initialize(actor, record: nil, club: nil)
+	def initialize(actor, record: nil, club: nil, token: nil)
 		if record && !record.is_a?(self.class.record_class)
 			raise ArgumentError,
 						"#{self.class} expected #{self.class.record_class}, got #{record.class}"
@@ -26,6 +26,7 @@ class ApplicationPolicy
 		@actor       = actor
 		@record      = record
 		@target_club = club
+		@token       = token
 		raise ArgumentError, "club must be a Club, got #{club.class}" if club && !club.is_a?(Club)
 	end
 
@@ -148,5 +149,26 @@ class ApplicationPolicy
 		def manages_person?(person)
 			return false unless person.is_a?(Person) && target_club
 			manages_club?(target_club) && person.member_of?(target_club)
+		end
+
+		# Was `@token` issued for `target` with the given purpose, and is it still valid?
+		# `target` defaults to @record. Pass `against:` when the token is scoped to
+		# a different record than the one under authorization (e.g. a message whose
+		# token authorizes the parent registration).
+		def token_matches?(purpose:, against: nil)
+			target = against || @record
+			return false unless @token && target
+
+			resolved = target.class.find_signed(@token, purpose:)
+			resolved.present? && resolved.id == target.id
+		rescue ActiveSupport::MessageVerifier::InvalidSignature
+			false
+		end
+
+		# True when the current request carries a valid requester token —
+		# regardless of whether a User is signed in. Used by policies that
+		# authorize both authenticated and anonymous actors.
+		def requester?
+			@actor.nil? && @token.present?
 		end
 end

@@ -102,7 +102,7 @@ class Catalog::Modules < Catalog::Base
 				"Fees, invoicing, payments and financial administration."
 		},
 
-		registration: {
+		admissions: {
 			id: 90,
 			dependencies: [ :core, :people, :organization, :participation ],
 			optional: true,

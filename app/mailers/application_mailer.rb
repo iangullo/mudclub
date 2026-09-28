@@ -17,6 +17,11 @@
 # contact email - iangullo@gmail.com.
 #
 class ApplicationMailer < ActionMailer::Base
-  default from: "admin@mudclub.org"
-  layout "mailer"
+	default from:     -> { ServerSetting.email_from || "admin@mudclub.org" },
+					reply_to: -> { ServerSetting.reply_to }
+	layout "mailer"
+
+	def signature
+		ServerSetting.email_signature
+	end
 end

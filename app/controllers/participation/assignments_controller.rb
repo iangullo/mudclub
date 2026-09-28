@@ -232,7 +232,7 @@ class AssignmentsController < ApplicationController
 		# Flow B: no pre-existing member. Resolve the person from params, then
 		# reuse their current membership in this club if one exists.
 		def prepared_membership
-			person = resolve_person_for_create
+			person = prepare_person_for_create
 			return nil unless person
 
 			kind = @kind || :athlete
@@ -246,7 +246,7 @@ class AssignmentsController < ApplicationController
 			)
 		end
 
-		def resolve_person_for_create
+		def prepare_person_for_create
 			attrs = assignment_params[:person_attributes]
 			return Person.new if attrs.blank?
 

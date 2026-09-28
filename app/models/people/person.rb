@@ -20,9 +20,9 @@ class Person < ApplicationRecord
 	localized_as "people.person"
 
 	include PgSearch::Model
-	before_destroy :unlink
-	before_save { self.name = self.name ? self.name.mb_chars.titleize : "" }
+	before_save { self.name    = self.name    ? self.name.mb_chars.titleize : "" }
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
+	after_commit :finalize_pending_merge
 
 	#-------------------------------------
 	# Class relationships
@@ -49,23 +49,33 @@ class Person < ApplicationRecord
 	has_one_attached :id_front
 	has_one_attached :id_back
 
+	belongs_to :merged_into,	# Useful for conflict management
+						class_name: "Person",
+						optional: true
+
+	has_many :merged_people,
+					class_name: "Person",
+					foreign_key: :merged_into_id,
+					dependent: :nullify
+
 	#-------------------------------------
 	# Validations
 	#-------------------------------------
-	validates :email, uniqueness: { allow_nil: true }
+	validate :cannot_merge_into_self
 	validates :dni, uniqueness: { allow_nil: true }
-	validates :phone, uniqueness: { allow_nil: true }
+	validates :email, uniqueness: { allow_nil: true }
 	validates :name, :surname, presence: true
+	validates :phone, uniqueness: { allow_nil: true }
 
 	#-------------------------------------
 	# Person Scopes
 	#-------------------------------------
-	pg_search_scope :search,
-		against: [ :nick, :name, :surname ],
-		ignoring: :accents,
-		using: { tsearch: { prefix: true } }
-	scope :real, -> { where("id>0") }
+	scope :current, -> { real.where(merged_into_id: nil) }
 	scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
+	scope :real, -> { active.where("id>0") }
+	scope :placeholder, -> { where(id: 0) }
+	pg_search_scope :search, against: [ :nick, :name, :surname ],
+									ignoring: :accents, using: { tsearch: { prefix: true } }
 
 	#-------------------------------------
 	# Indirect relationships API
@@ -132,6 +142,19 @@ class Person < ApplicationRecord
 	#-------------------------------------
 	# Object methods
 	#-------------------------------------
+
+	# absorb another duplicate person and mark it as merged
+	def absorb!(duplicate)
+		transaction do
+			raise ArgumentError if duplicate == self
+
+			merge_associations_from(duplicate)
+			merge_attributes_from(duplicate)
+			merge_attachments_from(duplicate)
+			@merged_person = duplicate
+		end
+	end
+
 	# calculate age
 	def age
 		if self.birthday
@@ -141,6 +164,32 @@ class Person < ApplicationRecord
 		else
 			0
 		end
+	end
+
+	# return the version of this person that is not marked
+	# to be purged
+	def canonical
+		merged_into ? merged_into.canonical : self
+	end
+
+	def canonical?
+		!placeholder? && !merged?
+	end
+
+	# check for duplicates in the database for unique data
+	def conflicts
+		conflicts = {}
+
+		unique_identifier_fields.each do |field|
+			value = public_send(field)
+			next if value.blank?
+
+			scope = Person.current.where(field => value).where.not(id: id)
+
+			conflicts[field] = scope.first if scope.exists?
+		end
+
+		conflicts
 	end
 
 	def dependents
@@ -172,6 +221,10 @@ class Person < ApplicationRecord
 		self.avatar.attached? ? self.avatar : "mudclub.svg"
 	end
 
+	def merged?
+		merged_into_id.present?
+	end
+
 	def minor?
 		self.age < 18
 	end
@@ -179,7 +232,7 @@ class Person < ApplicationRecord
 	# extended modified to check relationships
 	def modified?
 		super ||
-			relationships.any?(&:modified?)
+			relationships.any? { |r| r.modified? }
 	end
 
 	# return if person is orphaned from any dependent objects
@@ -196,6 +249,10 @@ class Person < ApplicationRecord
 	# personal logo
 	def picture
 		self.avatar.attached? ? self.avatar : "person.svg"
+	end
+
+	def placeholder?
+		id.zero?
 	end
 
 	# rebuild Person data from raw input (as hash) given by a form submittal
@@ -245,8 +302,7 @@ class Person < ApplicationRecord
 		res.present? ? res : I18n.t("person.single")
 	end
 
-	#
-	# Resolve a Person from identifying attributes.
+	# Try to match a Person from identifying attributes.
 	#
 	# Returns:
 	#   {
@@ -254,89 +310,125 @@ class Person < ApplicationRecord
 	#     status:     :exact | :probable | :new | :ambiguous,
 	#     matched_by: Symbol | nil
 	#   }
-	#
-	def self.resolve(data)
+	def self.match(data)
 		data ||= {}
 
-		#
-		# 1. Explicit id
-		#
-		if data[:id].present?
-			person = find_by(id: data[:id])
-			return {
-				person:,
-				status: :exact,
-				matched_by: :id
-			} if person
-		end
+		# 1. Strong identifiers
+		unique_identifier_fields(include_id: true).each do |field|
+			next if data[field].blank?
 
-		#
-		# 2. Strong identifiers
-		#
-		{
-			dni:   data[:dni],
-			email: data[:email],
-			phone: data[:phone].present? ? parse_phone(data[:phone]) : nil
-		}.each do |field, value|
-			next if value.blank?
-
-			result = resolve_candidates(
-				where(field => value),
-				matched_by: field
+			value =
+				case field
+				when :phone then parse_phone(data[:phone])
+				else data[field]
+				end
+			result = seek_candidates(
+				current.where(field => value), matched_by: field
 			)
 
-			return result unless result[:status] == :new
+			return result unless result[:status] == :none
 		end
 
-		#
-		# 3. Weak identification
-		#
+		# 2. Weak identification
 		if data[:name].present? && data[:surname].present?
-			result = resolve_candidates(
-				search("#{data[:name]} #{data[:surname]}"),
+			result = seek_candidates(
+				current.search("#{data[:name]} #{data[:surname]}"),
 				probable: true,
 				matched_by: :name
 			)
 
-			return result unless result[:status] == :new
+			return result unless result[:status] == :none
 		end
 
-		#
-		# 4. Nothing matched
-		#
+		# 3. Nothing matched
 		{
-			person: Person.new,
-			status: :new,
+			person: nil,
+			status: :none,
 			matched_by: nil
 		}
 	end
 
 	private
-		# called by unlink using either :coach, :player or :user as arguments
-		def gen_unlink(kind)
-			if (dep = self.send(kind.to_sym))
-				self.update!("#{kind}_id".to_sym nil)
-				dep.destroy
-			end
-		end
-
-		# called by unlink using either :coach, :player or :user as arguments
-		# DEPRECATED
-		def gen_unlink(kind)
-			if (dep = self.send(kind.to_sym))
-				self.update!("#{kind}_id".to_sym nil)
-				dep.destroy
-			end
-		end
-
-		def active_assignments(kinds, club = nil)
-			return Assignment.none unless club.is_a?(Club)
-			assignments.for_club(club).of_kind(kinds).current
-		end
-
 		def active_memberships(kinds, club = nil)
 			scope = memberships.of_kind(kinds).current
 			club.is_a?(Club) ? scope.for_club(club) : scope
+		end
+
+		def active_assignments(kinds, obj = nil)
+			scope = assignments.of_kind(kinds).current
+			case obj
+			when Club then scope.for_club(obj)
+			when Team then scope.for_team(obj)
+			else scope
+			end
+		end
+
+		def cannot_merge_into_self
+			errors.add(:merged_into, :invalid) if merged_into_id == id
+		end
+
+		def finalize_pending_merge
+			return unless @merged_person
+
+			@merged_person.update!(
+				merged_into: self,
+				nick: "[MERGED]",
+				email: nil,
+				phone: nil
+			)
+
+			@merged_person = nil
+		end
+
+		def merge_attachments_from(duplicate)
+			%i[avatar, id_front, id_back].each do |attachment|
+				merge_attachment(attachment, duplicate)
+			end
+		end
+
+		def merge_attachment(name, duplicate)
+			mine   = public_send(name)
+			theirs = duplicate.public_send(name)
+
+			return if mine.attached?
+			return unless theirs.attached?
+
+			mine.attach(theirs.blob)
+		end
+
+		def merge_attributes_from(duplicate)
+			mergeable = %i[
+				nick
+				name
+				surname
+				birthday
+				female
+				dni
+				email
+				phone
+				address
+			]
+
+			mergeable.each do |field|
+				current  = public_send(field)
+				incoming = duplicate.public_send(field)
+
+				next if incoming.blank?
+				next if current.present?
+
+				public_send("#{field}=", incoming)
+			end
+		end
+
+		def merge_associations_from(duplicate)
+			Membership.where(person: duplicate)
+				.update_all(person_id: id)
+			User.where(person: duplicate)
+				.update_all(person_id: id)
+			Relationship.where(person: duplicate)
+				.update_all(person_id: id)
+			Relationship.where(related_person: duplicate)
+				.update_all(related_person_id: id)
 		end
 
 		def rebuild_relationships(r_data)
@@ -368,18 +460,22 @@ class Person < ApplicationRecord
 			end
 		end
 
-		def self.resolve_candidates(scope, probable: false, matched_by:)
+		def self.seek_candidates(scope, probable: false, matched_by:)
 			people = scope.to_a
 
 			case people.size
 			when 0
-				{ person: Person.new, status: :new, matched_by: nil }
+				{ person: nil, status: :none, matched_by: nil }
 
 			when 1
 				{ person: people.first, status: probable ? :probable : :exact, matched_by: }
 
 			else
-				{ person: nil, status: :ambiguous, matched_by: }
+				{ person: nil, people:, status: :ambiguous, matched_by: }
 			end
+		end
+
+		def self.unique_identifier_fields(include_id: false)
+			include_id ? %i[id dni email phone] : %i[dni email phone]
 		end
 end

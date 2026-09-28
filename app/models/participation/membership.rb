@@ -124,7 +124,7 @@ class Membership < ApplicationRecord
 		self.notes     = data[:notes]     if data.key?(:notes)
 
 		if data[:person_attributes].present?
-			return self unless resolve_person(data[:person_attributes])
+			return self unless ensure_person(data[:person_attributes])
 		end
 
 		self

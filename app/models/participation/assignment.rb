@@ -215,8 +215,7 @@ class Assignment < ApplicationRecord
 
 	def rebuild(data)
 		if data[:person_attributes].present?
-			return self unless membership
-			return self unless membership.resolve_person(data[:person_attributes])
+			return self unless membership&.ensure_person(data[:person_attributes])
 		end
 
 		# --- assignment's own attributes ---

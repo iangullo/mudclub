@@ -5,9 +5,6 @@
 # Dominio principal (Core)
 #
 # Traducciones canónicas para el dominio principal.
-#
-# Las claves de compatibilidad heredadas se conservan al final de este archivo
-# durante la migración a la versión v2 y no deben utilizarse en código nuevo.
 # -----------------------------------------------------------------------------
 es:
   core:
@@ -26,15 +23,20 @@ es:
         published: Publicado bajo licencia GNU Affero GPL v3
 
     modules:
-      core: Núcleo
-      calendar: Calendario
-      people: Personas
-      organization: Organización
-      participation: Participación
-      training: Entrenamiento
-      competition: Competición
-      communication: Comunicación
-      finance: Finanzas
+      label:
+        single: Módulo
+        plural: Módulos
+      values:
+        core: Núcleo
+        calendar: Calendario
+        people: Personas
+        organization: Organización
+        participation: Participación
+        training: Entrenamiento
+        competition: Competición
+        communication: Comunicación
+        finance: Finanzas
+        admissions: Inscripciones
 
     actions:
       view: Ver
@@ -240,6 +242,105 @@ es:
         updated: Temporada actualizada.
         deleted: Temporada eliminada.
 
+    server:
+      label:
+        single: Servidor
+        plural: Servidores
+        short: Srv
+
+      actions:
+        edit: Editar Servidor
+        enable_module: Habilitar módulo
+        disable_module: Deshabilitar módulo
+        reset_defaults: Reiniciar Configuración
+        localization: Idioma
+        modules: Editar Módulos
+        public_pages: Páginas públicas
+
+      fields:
+        # Información
+        about: Acerca de ...
+        build: Compilación nº
+        info-1: "La plataforma de código abierto para gestionar"
+        info-2: "clubes deportivos amateur:"
+        info-3: "Clubes: integrantes, inscripciones, horarios."
+        info-4: "Equipos: plantillas, objetivos, eventos, etc."
+        info-5: "Entrenamiento: planificación, ejercicios, jugadas, sesiones."
+        info-6: "Partidos: desplazamientos/estadísticas y resultados."
+        published: Publicado bajo licencia GNU Affero GPLv3
+        single: Servidor
+        website: Wiki de MudClub
+        log: Registros
+
+        # Identidad
+        server_name: Nombre del servidor
+        server_name_hint: Aparece en la pestaña del navegador y en la barra superior cuando no hay club activo.
+        support_email: Correo de soporte
+        support_email_hint: Dirección de contacto principal. Se usa como respuesta en los correos salientes.
+
+        # Idioma
+        default_locale: Idioma por defecto
+        default_locale_hint: Se aplica a visitantes anónimos. Los usuarios registrados ven su preferencia.
+        available_locales: Idiomas disponibles
+        available_locales_hint: Idiomas que los usuarios pueden elegir. El idioma por defecto debe estar incluido.
+        time_zone: Zona horaria
+        time_zone_hint: Valor por defecto del servidor. Los usuarios pueden sobrescribirlo.
+        date_format: Formato de fecha
+        date_format_hint: Se aplica a las fechas en todo el servidor. El patrón se adapta al idioma activo.
+
+        # Módulos
+        modules: Módulos
+        modules_hint: Las funciones básicas están siempre activas. Los módulos opcionales pueden desactivarse.
+        disabled_modules: Módulos opcionales
+        disabled_modules_hint: Al desmarcar un módulo se desactivan también sus dependientes.
+
+        # Solicitudes
+        registrations_enabled: Permitir solicitudes de inscripción
+        registrations_enabled_hint: Interruptor global. Cada club puede rechazarlas individualmente.
+        registrations_require_terms: Requerir aceptación de términos
+        registrations_require_terms_hint: El solicitante debe aceptar los términos antes de enviar.
+        registrations_terms_url: URL de los términos del servicio
+        registrations_terms_url_hint: Enlazada desde el formulario de solicitud.
+        registrations_privacy_url: URL de la política de privacidad
+        registrations_privacy_url_hint: Enlazada desde el formulario de solicitud.
+
+        # Public pages
+        public_clubs_enabled: Habilitar páginas públicas de club
+        public_clubs_enabled_hint: Permite a los clubes publicar una vista general y aceptar visitantes anónimos.
+        public_directory_enabled: Publicar directorio de clubes
+        public_directory_enabled_hint: Lista los clubes participantes en la página de inicio.
+
+        # Email
+        email_from: Dirección del remitente
+        email_from_hint: Los correos1 salientes aparecen enviados desde esta dirección.
+        email_reply_to: Dirección de respuesta
+        email_reply_to_hint: Las respuestas se dirigen aquí en lugar de al remitente.
+        email_signature: Firma del correo
+        email_signature_hint: Añadida al final de los correos salientes. Texto plano o HTML simple.
+
+      formats:
+        default: Por defecto
+        short: Corto
+        long: Largo
+        numeric: Numérico
+
+      messages:
+        saved: Configuración del servidor actualizada.
+        no_change: No hay cambios que guardar.
+        reset: Configuración restablecida a los valores por defecto.
+
+      questions:
+        disable_module: Desactivar este módulo lo oculta de todos los usuarios. ¿Continuar?
+        enable_module: Activar módulo lo habilita para todos los usuarios. ¿Continuar?
+        reset_defaults: "¿Restablecer toda la configuración a los valores por defecto?"
+
+      module_hint:
+        requires: "Requiere: %{modules}"
+        disabled_by: "Desactivado por: %{modules}"
+        enables_with: "Se activará: %{modules}"
+        disables_with: "Se desactivará: %{modules}"
+        core_always_on: "Siempre activo"
+
     sport:
       label:
         single: Deporte
@@ -330,6 +431,19 @@ es:
         created: Deporte creado.
         updated: Deporte actualizado.
         deleted: Deporte eliminado.
+
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d %b"
+      long: "%d de %B de %Y"
+      numeric: "%d-%m-%Y"
+
+  time:
+    formats:
+      default: "%H:%M"
+      short: "%H:%M"
+      long: "%H:%M:%S"
 
   # -----------------------------------------------------------------------------
   # OBSOLETO

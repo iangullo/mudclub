@@ -1,3 +1,4 @@
+# MudClub - The open source Rails platform to manage amateur sports clubs.
 # Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,39 +16,8 @@
 #
 # contact email - iangullo@gmail.com.
 #
-#
-# Catalog::Lifecycles
-#
-# Defines the canonical lifecycles for MudClub Core objects.
-#
-class Catalog::Lifecycles < Catalog::Base
-	domain "core"
 
-	CATALOG = {
-
-		immutable: {
-			id: 0,
-			description:
-				"Records are permanent and may neither be archived, anonymised nor deleted."
-		},
-
-		archivable: {
-			id: 10,
-			description:
-				"Records may become inactive while preserving their complete history."
-		},
-
-		anonymisable: {
-			id: 20,
-			description:
-				"Personally identifiable information may be removed while preserving historical references."
-		},
-
-		disposable: {
-			id: 30,
-			description:
-				"Records may be permanently deleted when no longer required."
-		}
-
-	}.freeze
+# app/models/current.rb
+class Current < ActiveSupport::CurrentAttributes
+	attribute :server_settings
 end

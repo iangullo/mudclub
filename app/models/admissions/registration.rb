@@ -27,6 +27,7 @@ class Registration < ApplicationRecord
 	# Class relationships
 	#-------------------------------------
 	belongs_to :club
+	belongs_to :requester_person, class_name: "Person", optional: true
 	belongs_to :requested_team, class_name: "Team", optional: true
 	has_many :documents, dependent: :destroy
 	accepts_nested_attributes_for :documents, allow_destroy: true
@@ -60,7 +61,9 @@ class Registration < ApplicationRecord
 	scope :pending, -> {
 		where(status: %i[submitted under_review awaiting_requester])
 	}
-
+	scope :for_person, ->(person) {
+		person.present? ? where(requester_person: person) : none
+	}
 	#-------------------------------------
 	# General API methods
 	#-------------------------------------
@@ -136,6 +139,8 @@ class Registration < ApplicationRecord
 
 	def may_transition_to?(new_status)
 		allowed_transitions.include?(new_status.to_sym)
+	rescue KeyError
+		false
 	end
 
 	private

@@ -105,9 +105,10 @@ class User < ApplicationRecord
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
-		f_data[:person_attributes][:email] ||= f_data[:email]
-		return self unless resolve_person(f_data[:person_attributes])
-
+		if data[:person_attributes].present?
+			f_data[:person_attributes][:email] ||= f_data[:email]
+			return self unless ensure_person(data[:person_attributes])
+		end
 		self.club_id  = f_data[:club_id].presence
 		self.email    = self.person.email
 		self.role     = f_data[:role] || :user

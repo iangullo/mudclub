@@ -5,9 +5,6 @@
 # Core domain
 #
 # Canonical translations for the Core domain.
-#
-# Legacy compatibility keys are preserved at the end of this file during the
-# v2 migration and should not be used in new code.
 # -----------------------------------------------------------------------------
 en:
   core:
@@ -26,15 +23,20 @@ en:
         published: Published under GNU Affero GPL v3 licence
 
     modules:
-      core: Core
-      calendar: Calendar
-      people: People
-      organization: Organization
-      participation: Participation
-      training: Training
-      competition: Competition
-      communication: Communication
-      finance: Finance
+      label:
+        single: Module
+        plural: Modules
+      values:
+        core: Core
+        calendar: Calendar
+        people: People
+        organization: Organization
+        participation: Participation
+        training: Training
+        competition: Competition
+        communication: Communication
+        finance: Finance
+        admissions: Admissions
 
     actions:
       view: View
@@ -240,6 +242,110 @@ en:
         updated: Season updated.
         deleted: Season deleted.
 
+    server:
+      label:
+        single: Server
+        plural: Servers
+        short: Srv.
+
+      actions:
+        edit: Edit Server
+        enable_module: Enable module
+        disable_module: Disable module
+        reset_defaults: Reset Settings
+        localization: Localization
+        modules: Modules
+        registrations: Registrations
+        public_pages: Public pages
+
+      fields:
+        # Software description
+        about: About ...
+        build: Build #
+        info-1: "The open source Rails platform to manage"
+        info-2: "amateur sports clubs:"
+        info-3: "Clubs: members, admissions, time tables."
+        info-4: "Teams: rosters, targets, events, etc."
+        info-5: "Training: planning, drills, plays, sessions."
+        info-6: "Matches: outings/stats & results."
+        published: "Published under GNU Affero GPLv3 license"
+        website: MudClub wiki
+        log: Logs
+
+        # Identity
+        server_name: MudClub
+        server_name_hint: Shown in the browser tab and top bar when no club is active.
+        support_email: Support email
+        support_email_hint: Primary contact address. Used as reply-to on outgoing email.
+
+        # Localization
+        default_locale: Default language
+        default_locale_hint: Applied to anonymous visitors. Signed-in users see their own preference.
+        available_locales: Available languages
+        available_locales_hint: Languages users can choose from. The default must be one of them.
+        time_zone: Time zone
+        time_zone_hint: Server-wide default. Individual users may override.
+        date_format: Date format
+        date_format_hint: Applies to dates across the server. Patterns adapt to the active language.
+
+        # Modules
+        modules: Modules
+        modules_hint: Core features are always on. Optional modules can be disabled.
+        disabled_modules: Optional modules
+        disabled_modules_hint: Unchecking a module also disables anything that depends on it.
+
+        # Admission
+        registrations_enabled: Allow registration requests
+        registrations_enabled_hint: Server-wide switch. Individual clubs may still refuse.
+        registrations_require_terms: Require acceptance of terms
+        registrations_require_terms_hint: Requesters must accept the terms before submitting.
+        registrations_terms_url: Terms of service URL
+        registrations_terms_url_hint: Linked from the submission form.
+        registrations_privacy_url: Privacy policy URL
+        registrations_privacy_url_hint: Linked from the submission form.
+
+        # Public pages
+        public_clubs_enabled: Enable public club pages
+        public_clubs_enabled_hint: Allow clubs to publish an overview and accept anonymous visitors.
+        public_directory_enabled: Publish club directory
+        public_directory_enabled_hint: List participating clubs on the home page.
+
+        # Email
+        email_from: Sender address
+        email_from_hint: Outgoing mail appears to come from this address.
+        email_reply_to: Reply-to address
+        email_reply_to_hint: Replies are routed here instead of the sender address.
+        email_signature: Email signature
+        email_signature_hint: Appended to outgoing emails. Plain text or simple HTML.
+
+      # ─── Enum labels ─────────────────────────────────────────
+      # Used by selects and radio groups on the settings form.
+      formats:
+        default: Default
+        short: Short
+        long: Long
+        numeric: Numeric
+
+      # ─── Status / flash messages ─────────────────────────────
+      messages:
+        saved: Server settings updated.
+        no_change: No changes to save.
+        reset: Settings reset to defaults.
+
+      # ─── Confirmations ───────────────────────────────────────
+      questions:
+        disable_module: Disabling this module hides it from all users. Continue?
+        enable_module: Enabling this module exposes it to all users. Continue?
+        reset_defaults: Reset all settings to their defaults? This cannot be undone.
+
+      # ─── Module dependency hint ──────────────────────────────
+      module_hint:
+        requires: "Requires: %{modules}"
+        disabled_by: "Disabled by: %{modules}"
+        enables_with: "Will enable: %{modules}"
+        disables_with: "Will disable: %{modules}"
+        core_always_on: Always on
+
     sport:
       label:
         single: Sport
@@ -330,6 +436,19 @@ en:
         created: Sport created.
         updated: Sport updated.
         deleted: Sport deleted.
+
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d %b"
+      long: "%d %B %Y"
+      numeric: "%Y-%m-%d"
+
+  time:
+    formats:
+      default: "%H:%M"
+      short: "%H:%M"
+      long: "%H:%M:%S"
 
   # -----------------------------------------------------------------------------
   # DEPRECATED - DO NOT MODIFY

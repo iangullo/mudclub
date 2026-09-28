@@ -24,15 +24,17 @@ class TopbarComponent < ApplicationComponent
 		if club.is_a?(Club)
 			@club    = club
 			@cluburl = "/clubs/#{club.id}"
+			if user.present?
+				@clublogo = @club.logo
+				@clubname = @club.nick
+			end
 		end
-
-		@clublogo  = @club&.logo || "mudclub.svg"
-		@clubname  = @club&.nick || "MudClub"
-		@logourl   = { url: "/", data: { turbo_frame: "replace" } }
-		@tabcls    = "hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap px-2 py-2 rounded-md font-semibold"
-		@srvcls    = "#{@tabcls} inline-flex items-center"
-		@lnkcls    = "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap"
-		@logincls  = "login_button rounded hover:bg-blue-700 max-h-8 min-h-6"
+		@clublogo ||= ServerSetting.server_logo
+		@clubname ||= ServerSetting.server_name
+		@logourl  = { url: "/", data: { turbo_frame: "replace" } }
+		@tabcls   = "hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap px-2 py-2 rounded-md font-semibold"
+		@srvcls   = "#{@tabcls} inline-flex items-center"
+		@lnkcls   = "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap"
 		load_menus(user, home, logout)
 	end
 
@@ -48,12 +50,12 @@ class TopbarComponent < ApplicationComponent
 	private
 	# load menu buttons
 	def load_menus(user, home, logout)
-		@srv_menu = server_menu(user)
-		if (@u_logged = user&.present?)
-			I18n.locale = (user.locale || I18n.default_locale).to_sym
+		if user.present?
 			@menu_tabs = menu_tabs(user, home, logout)
-			@ham_menu  = set_hamburger_menu
+		else
+			@menu_tabs = anonymous_menu
 		end
+		@ham_menu  = set_hamburger_menu
 	end
 
 	# wrapper to define a dropdown menu hash - :options returned as [] if received as nil
@@ -76,8 +78,7 @@ class TopbarComponent < ApplicationComponent
 	def menu_tabs(user, home, logout)
 		@menu_tabs = []
 		if user.admin?
-			@menu_tabs << server_menu(user)
-			@logourl = { url: "/", data: { turbo_action: "replace" } }
+			@menu_tabs << server_menu
 		elsif user.is_manager?(@club)
 			@menu_tabs += manager_menu
 		end
@@ -156,6 +157,16 @@ class TopbarComponent < ApplicationComponent
 		DropdownComponent.new(menu_drop("hamburger", ham: true, options:)) unless options.empty?
 	end
 
+	def anonymous_menu
+		items = []
+#		if @club
+#			items << menu_link(label: Registration.act(:create, :short), url: public_new_registration_path(@club))
+#		end
+		logincls = "login_button rounded hover:bg-blue-700 max-h-8 min-h-6"
+		items << menu_link(label: I18n.t("action.login"), url: "/users/sign_in", class: logincls)
+		items
+	end
+
 	# menu buttons for coaches
 	def coach_menu(user)
 		[ menu_link(label: Drill.label(:plural), url: "/drills") ]
@@ -165,6 +176,7 @@ class TopbarComponent < ApplicationComponent
 	def log_menu
 		menu_link(label: I18n.t("server.log"), url: "/home/log")
 	end
+
 	# menu buttons for club managers
 	def manager_menu
 		[
@@ -186,7 +198,7 @@ class TopbarComponent < ApplicationComponent
 	end
 
 	# menu to manage server application
-	def server_menu(user)
+	def server_menu
 		options = [
 			menu_link(label: Sport.label(:plural), url: "/sports"),
 			menu_link(label: Club.label(:plural), url: "/clubs"),
@@ -214,12 +226,14 @@ class TopbarComponent < ApplicationComponent
 		m_teams
 	end
 
-	# menu for user-specific options if loogged in
+	# menu for user-specific options if logged in
 	def user_menu(user, home, logout)
-		options  = [
-			menu_link(label: I18n.t("user.profile"), url: home),
-			menu_link(label: I18n.t("action.logout"), url: logout, kind: :delete)
-		]
-		menu_drop("profile", label: user.person.nick.presence || user.person.name, options:)
+		if user.present?
+			options  = [
+				menu_link(label: I18n.t("user.profile"), url: home),
+				menu_link(label: I18n.t("action.logout"), url: logout, kind: :delete)
+			]
+			menu_drop("profile", label: user.person.nick.presence || user.person.name, options:)
+		end
 	end
 end

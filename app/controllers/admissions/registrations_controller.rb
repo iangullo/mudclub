@@ -27,9 +27,12 @@ class RegistrationsController < ApplicationController
 	def index
 		@policy = check_policy!(RegistrationPolicy, club: @club)
 
-		search  = params[:search].presence
 		@registrations =
-			Registration.search(club: @club, kind: @kind, status: @status, search:)
+			if @policy.registration_manager?
+				Registration.for_club(@club).order(created_at: :desc)
+			else
+				Registration.for_person(current_user.person).order(created_at: :desc)
+			end
 
 		title  = prepare_index_title(search)
 		page   = paginate(@registrations, 1.2)	# paginate results

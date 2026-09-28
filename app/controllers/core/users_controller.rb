@@ -73,6 +73,7 @@ class UsersController < ApplicationController
 			@user.rebuild(user_params)	# build user
 			if @user.modified? then
 				if @user.email.presence && @user.save
+					@user&.person&.update!(user_id: @user.id)
 					userview = path_for(@user)
 					a_desc   = "#{User.msg(:created)} '#{@user.s_name}'"
 					register_action(:created, a_desc, url: path_for(@user, rdx: 2))

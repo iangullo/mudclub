@@ -18,8 +18,8 @@ en:
         plural: Registrations
         short: Reg.
       action:
-        create: Create registration
-        create_short: Create
+        create: Apply to register
+        create_short: Register
         edit: Edit registration
         edit_short: Edit
         save_draft: Save draft
