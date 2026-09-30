@@ -24,6 +24,11 @@ es:
         single: Persona
         plural: Personas
         short: Pers.
+      actions:
+        create: Crear nueva persona
+        edit: Editar Persona
+        keep: No vincular
+        merge: Vincular persona
       fields:
         name: Nombre
         name_short: Nom.
@@ -68,6 +73,12 @@ es:
         updated: Persona actualizada.
         deleted: Persona eliminada.
         duplicated: La persona ya existe.
+        no_contact: (sin tfno. / e-mail)
+        no_id: (sin DNI/NIE o similar)
+      questions:
+        create: ¿Crear nueva persona?
+        merge: ¿Fusionar personas?
+        save: ¿Guardar persona?
 
     parent:
       label: Familiar
@@ -78,6 +89,7 @@ es:
         single: Relación
         plural: Relaciones
         short: Rel.
+
     relationship_kinds:
       label:
         single: Tipo de relación

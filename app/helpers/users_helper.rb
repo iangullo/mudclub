@@ -19,7 +19,7 @@
 module UsersHelper
 	# fields to show when looking a user profile
 	def user_show
-		res = person_show_title(@user, kind: :user)
+		res = person_show_title(@user)
 		res.pop
 		res[3][0] = user_roles(@user)
 		unless @user.user_actions.empty?

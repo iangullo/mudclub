@@ -318,6 +318,51 @@ class ApplicationController < ActionController::Base
 			data.page(current_page).per(per_page)
 		end
 
+		def prepare_person_bearing_merge(obj, candidates, attrs)
+			@header       = create_fields(helpers.person_show_title(obj, id_pic: false))
+			@merge_fields = create_fields(helpers.person_merge_fields(obj, candidates, attrs))
+			@submit       = create_submit
+		end
+
+		# merge person duplicates
+		def rebuild_or_merge_person(obj, attrs)
+			if attrs[:person_merge].present?	# pending merge to execute
+				case attrs[:person_merge]
+				when "__new__", "__keep__"
+					obj.person ||= Person.new
+				else
+					canonical = Person.find(attrs[:person_merge])
+					if canonical
+						canonical.absorb!(obj.person) if obj.person.persisted?
+						obj.person = canonical
+					end
+				end
+				obj.person.rebuild(attrs[:person_attributes])	# rebuild only person
+				obj.rebuild(attrs.except(:person_attributes))	# rebuild object separately
+				{ status: :ok, person: obj.person }
+			else
+				rebuild_person_bearing(obj, attrs)
+			end
+		end
+
+		def rebuild_person_bearing(obj, attrs)
+			resolution = obj.rebuild(attrs)
+
+			case resolution.status
+			when :ok
+				{ status: :ok, person: obj.person }
+
+			when :ambiguous
+				{ status: :offer_merge, candidates: resolution.people, reason: :ambiguous }
+
+			when :conflict
+				{ status: :offer_merge, candidates: resolution.conflicts.values, reason: :conflict }
+
+			else
+				{ status: :invalid, message: "Cannot process submitted data: #{attrs}" }
+			end
+		end
+
 		# determine the app favicon based on user favicon
 		def user_favicon(club)
 			if club&.avatar&.attached?

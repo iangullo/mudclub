@@ -83,12 +83,12 @@ class Relationship < ApplicationRecord
 
 		result = Person.resolve(related_data)
 
-		case result[:status]
+		case result.status
 		when :exact, :probable
-			self.related_person = result[:person]
+			self.related_person = result.person
 
 		when :new
-			self.related_person = result[:person]
+			self.related_person = result.person
 
 		when :ambiguous
 			errors.add(:related_person, :ambiguous)

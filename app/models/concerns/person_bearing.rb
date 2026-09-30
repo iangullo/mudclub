@@ -32,31 +32,27 @@ module PersonBearing
 	#------------------------------------
 	# Person resolution & data rebuilding
 	#------------------------------------
-	def ensure_person(person_attributes)
-		return nil if person_attributes.blank?
+	def resolve_person(attrs)
+		return PersonResolution(status: :missing) if attrs.blank?
 
-		resolved = resolve_person(person_attributes)
+		resolution = Person.resolve(attrs)
 
-		self.person = resolved if resolved && resolved != person
-		return false unless person
-
-		person.rebuild(person_attributes)
-	end
-
-	private
-		def resolve_person(person_attributes)
-			return if person_attributes.blank?
-
-			match = Person.match(person_attributes)
-
-			case match[:status]
-			when :ambiguous
-				errors.add(:base, Person.msg(:ambiguous))
-				false
-			when :probable, :exact
-				resolution[:person]
-			when :none
-				self.person ||= Person.new
-			end
+		case resolution.status
+		when :ambiguous
+			return resolution
+		when :exact, :probable
+			self.person = resolution.person if resolution.person != person
+		when :none
+			self.person ||= Person.new
 		end
+
+		person.rebuild(attrs)
+
+		conflicts = person.conflicts
+		if conflicts.present?
+			PersonResolution.new(status: :conflict, person:, conflicts:)
+		else
+			PersonResolution.new(status: :ok, person:, matched_by: resolution.matched_by)
+		end
+	end
 end

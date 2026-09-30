@@ -24,6 +24,11 @@ en:
         single: Person
         plural: People
         short: Pers.
+      actions:
+        create: Create new person
+        edit: Edit person
+        keep: Do not merge
+        merge: Merge person
       fields:
         name: Name
         name_short: Name
@@ -68,6 +73,12 @@ en:
         updated: Person updated.
         deleted: Person deleted.
         duplicated: Person already exists.
+        no_contact: (no contact details)
+        no_id: (no personal ID)
+      questions:
+        create: Create new person?
+        merge: Merge with person?
+        save: Save person?
 
     parent:
       label:
@@ -80,6 +91,7 @@ en:
         single: Relationship
         plural: Relationships
         short: Rel.
+
     relationship_kinds:
       label:
         single: Relationship kind

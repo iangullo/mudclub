@@ -24,6 +24,8 @@ class Person < ApplicationRecord
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
 	after_commit :finalize_pending_merge
 
+	UNIQUE_FIELDS = %i[dni email phone].freeze
+
 	#-------------------------------------
 	# Class relationships
 	#-------------------------------------
@@ -72,7 +74,7 @@ class Person < ApplicationRecord
 	#-------------------------------------
 	scope :current, -> { real.where(merged_into_id: nil) }
 	scope :lost, -> {	where("(player_id=0) and (coach_id=0) and (user_id=0) and (parent_id=0)") }
-	scope :real, -> { active.where("id>0") }
+	scope :real, -> { where("id>0") }
 	scope :placeholder, -> { where(id: 0) }
 	pg_search_scope :search, against: [ :nick, :name, :surname ],
 									ignoring: :accents, using: { tsearch: { prefix: true } }
@@ -148,9 +150,12 @@ class Person < ApplicationRecord
 		transaction do
 			raise ArgumentError if duplicate == self
 
-			merge_associations_from(duplicate)
 			merge_attributes_from(duplicate)
 			merge_attachments_from(duplicate)
+			merge_users_from(duplicate)
+			merge_relationships_from(duplicate)
+			merge_memberships_from(duplicate)
+
 			@merged_person = duplicate
 		end
 	end
@@ -180,7 +185,7 @@ class Person < ApplicationRecord
 	def conflicts
 		conflicts = {}
 
-		unique_identifier_fields.each do |field|
+		Person.unique_identifier_fields.each do |field|
 			value = public_send(field)
 			next if value.blank?
 
@@ -200,7 +205,7 @@ class Person < ApplicationRecord
 	# Person has attached id pictures (front && back)
 	def idpic_content
 		label = self.dni
-		symbol = { concept: "id_front", options: { title: I18n.t("person.pid") } }
+		symbol = { concept: "id_front", options: { title: Person.fld(:national_id) } }
 		if self.idpics_attached?
 			found  = true
 		else
@@ -279,7 +284,7 @@ class Person < ApplicationRecord
 
 		rebuild_relationships(data[:relationships_attributes]) if data[:relationships_attributes]
 
-		self
+		true
 	end
 
 	# Return list of responsible adults related to this person
@@ -302,7 +307,7 @@ class Person < ApplicationRecord
 		res.present? ? res : I18n.t("person.single")
 	end
 
-	# Try to match a Person from identifying attributes.
+	# Try to resolve a Person from identifying attributes.
 	#
 	# Returns:
 	#   {
@@ -310,11 +315,11 @@ class Person < ApplicationRecord
 	#     status:     :exact | :probable | :new | :ambiguous,
 	#     matched_by: Symbol | nil
 	#   }
-	def self.match(data)
+	def self.resolve(data)
 		data ||= {}
 
 		# 1. Strong identifiers
-		unique_identifier_fields(include_id: true).each do |field|
+		Person.unique_identifier_fields.each do |field|
 			next if data[field].blank?
 
 			value =
@@ -326,7 +331,7 @@ class Person < ApplicationRecord
 				current.where(field => value), matched_by: field
 			)
 
-			return result unless result[:status] == :none
+			return result unless result.none?
 		end
 
 		# 2. Weak identification
@@ -337,15 +342,11 @@ class Person < ApplicationRecord
 				matched_by: :name
 			)
 
-			return result unless result[:status] == :none
+			return result unless result.none?
 		end
 
-		# 3. Nothing matched
-		{
-			person: nil,
-			status: :none,
-			matched_by: nil
-		}
+		# 3. Nothing matching found
+		PersonResolution.new(status: :none)
 	end
 
 	private
@@ -397,17 +398,7 @@ class Person < ApplicationRecord
 		end
 
 		def merge_attributes_from(duplicate)
-			mergeable = %i[
-				nick
-				name
-				surname
-				birthday
-				female
-				dni
-				email
-				phone
-				address
-			]
+			mergeable = %i[nick name surname birthday female dni email phone address]
 
 			mergeable.each do |field|
 				current  = public_send(field)
@@ -416,15 +407,32 @@ class Person < ApplicationRecord
 				next if incoming.blank?
 				next if current.present?
 
+				duplicate.public_send("#{field}=", nil) if UNIQUE_FIELDS.include?(field)
 				public_send("#{field}=", incoming)
 			end
 		end
 
-		def merge_associations_from(duplicate)
-			Membership.where(person: duplicate)
-				.update_all(person_id: id)
-			User.where(person: duplicate)
-				.update_all(person_id: id)
+		def merge_memberships_from(duplicate)
+			duplicate.memberships.find_each do |membership|
+				existing = memberships.find_by(club_id: membership.club_id, kind: membership.kind)
+				if existing
+					existing.merge_from(membership)
+					membership.destroy!
+				else
+					membership.update!(person: self)
+				end
+			end
+		end
+
+		def merge_users_from(duplicate)
+			users = User.where(person: duplicate)
+			users.each do |user|
+				duplicate.update! user_id: nil
+				user.update(person: self)
+			end
+		end
+
+		def merge_relationships_from(duplicate)
 			Relationship.where(person: duplicate)
 				.update_all(person_id: id)
 			Relationship.where(related_person: duplicate)
@@ -465,13 +473,13 @@ class Person < ApplicationRecord
 
 			case people.size
 			when 0
-				{ person: nil, status: :none, matched_by: nil }
+				PersonResolution.new(status: :none)
 
 			when 1
-				{ person: people.first, status: probable ? :probable : :exact, matched_by: }
+				PersonResolution.new(status: probable ? :probable : :exact, person: people.first, matched_by:)
 
 			else
-				{ person: nil, people:, status: :ambiguous, matched_by: }
+				PersonResolution.new(status: :ambiguous, people:, matched_by:)
 			end
 		end
 

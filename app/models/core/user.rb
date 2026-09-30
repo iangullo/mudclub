@@ -104,18 +104,26 @@ class User < ApplicationRecord
 
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
-	def rebuild(f_data)
+	def rebuild(data)
+		# --- associated persons data ---
 		if data[:person_attributes].present?
-			f_data[:person_attributes][:email] ||= f_data[:email]
-			return self unless ensure_person(data[:person_attributes])
+			data[:person_attributes][:email] ||= data[:email]
+			resolution = resolve_person(data[:person_attributes])
+			return resolution unless resolution.ok?	# return ambiguous or conflicts
 		end
-		self.club_id  = f_data[:club_id].presence
-		self.email    = self.person.email
-		self.role     = f_data[:role] || :user
-		self.locale   = f_data[:locale] if f_data[:locale]
-		self.password = f_data[:password] if f_data[:password]
-		self.password_confirmation = f_data[:password_confirmation] if f_data[:password_confirmation]
-		self.update_attachment("avatar", f_data[:person_attributes][:avatar])
+
+		# --- actual user data ---
+		self.club_id  = data[:club_id].presence	# DEPRECATED
+		self.email    = person.email
+		self.role     = data[:role] || :user
+		self.locale   = data[:locale] if data[:locale]
+		if data[:password]
+			self.password              = data[:password]
+			self.password_confirmation = data[:password_confirmation]
+		end
+		update_attachment("avatar", data[:avatar])
+
+		PersonResolution.new(status: :ok, person:)
 	end
 
 	# short name for form viewing

@@ -144,6 +144,9 @@ en:
         single: User
         plural: Users
         short: User
+      actions:
+        edit: Edit user
+        create: Create user
       fields:
         profile: Profile
         profile_short: Prof.
@@ -163,8 +166,10 @@ en:
         deleted: User deleted.
         duplicated: Duplicate user.
         actions_cleared: User actions cleared.
+        no_email: e-mail is required!
       values:
-        never_logged: Never logged in
+        last_in: Last login
+        never: (never logged)
 
     user_action:
       label:

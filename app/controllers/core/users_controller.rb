@@ -58,38 +58,52 @@ class UsersController < ApplicationController
 		prepare_form(create: true)
 	end
 
-	# GET /users/1/edit
-	def edit
-		@policy = check_policy!(UserPolicy, record: @user, club: @club)
-		prepare_form
-	end
-
 	# POST /users.json
 	def create
 		@policy = check_policy!(UserPolicy, club: @club)
 
 		respond_to do |format|
-			@user = User.new
-			@user.rebuild(user_params)	# build user
-			if @user.modified? then
-				if @user.email.presence && @user.save
-					@user&.person&.update!(user_id: @user.id)
-					userview = path_for(@user)
-					a_desc   = "#{User.msg(:created)} '#{@user.s_name}'"
-					register_action(:created, a_desc, url: path_for(@user, rdx: 2))
-					format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-					format.json { render :show, status: :created, location: userview }
-				else
-					prepare_form(create: true)
-					format.html { render :new, notice: helpers.flash_message("#{@user.errors}", "error") }
-					format.json { render json: @user.errors, status: :unprocessable_entity }
+			if user_params[:password].blank? or user_params[:password_confirmation].blank?
+				params[:user].delete(:password)
+				params[:user].delete(:password_confirmation)
+				render_user_errors(:new, result)
+			else
+				@user  = User.new
+				result = rebuild_or_merge_person(@user, user_params)
+
+				case result[:status]
+				when :ok	# attempt to store
+					if @user.modified? then
+						if @user.email.presence && @user.save
+							@user&.person&.update!(user_id: @user.id)
+							userview = path_for(@user)
+							a_desc   = "#{User.msg(:created)} '#{@user.s_name}'"
+							register_action(:created, a_desc, url: path_for(@user, rdx: 2))
+							format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+							format.json { render :show, status: :created, location: userview }
+						else
+							prepare_form(create: true)
+							format.html { render :new, notice: helpers.flash_message("#{@user.errors}", "error") }
+							format.json { render json: @user.errors, status: :unprocessable_entity }
+						end
+					else	# no changes to be made
+						notice = (@user.persisted? ? "#{I18n.t("user.no_data")} '#{@user.s_name}'" : @user.errors)
+						format.html { redirect_to users_path(rdx: @rdx), notice: helpers.flash_message(notice), data: { turbo_action: "replace" } }
+						format.json { render :index,  :created, location: }
+					end
+				when :offer_merge
+					render_user_merge(result)
+				else	# invalid data
+					render_user_errors(:new, result)
 				end
-			else	# no changes to be made
-				notice = (@user.persisted? ? "#{I18n.t("user.no_data")} '#{@user.s_name}'" : @user.errors)
-				format.html { redirect_to users_path(rdx: @rdx), notice: helpers.flash_message(notice), data: { turbo_action: "replace" } }
-				format.json { render :index,  :created, location: }
 			end
 		end
+	end
+
+	# GET /users/1/edit
+	def edit
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+		prepare_form
 	end
 
 	# PATCH/PUT /users/1
@@ -98,26 +112,35 @@ class UsersController < ApplicationController
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
 		respond_to do |format|
-			if params[:user][:password].blank? or params[:user][:password_confirmation].blank?
+			if user_params[:password].blank? or user_params[:password_confirmation].blank?
 				params[:user].delete(:password)
 				params[:user].delete(:password_confirmation)
-			end
-			@user.rebuild(user_params)	# rebuild user
-			userview = path_for(@user)
-			if @user.modified?
-				if @user.email.presence && @user.save
-					a_desc = "#{User.msg(:updated)} '#{@user.s_name}'"
-					register_action(:updated, a_desc, url: path_for(@user, rdx: 2))
-					format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-					format.json { render :show, status: :ok, location: userview }
-				else
-					prepare_form
-					format.html { render :edit }
-					format.json { render json: @user.errors, status: :unprocessable_entity }
+				render_user_errors(:edit, result)
+			else
+				result = rebuild_or_merge_person(@user, user_params)
+				case result[:status]
+				when :ok	# attempt to store
+					userview = path_for(@user)
+					if @user.modified?
+					if @user.email.presence && @user.save
+						a_desc = "#{User.msg(:updated)} '#{@user.s_name}'"
+						register_action(:updated, a_desc, url: path_for(@user, rdx: 2))
+						format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+						format.json { render :show, status: :ok, location: userview }
+					else
+						prepare_form
+						format.html { render :edit }
+						format.json { render json: @user.errors, status: :unprocessable_entity }
+					end
+					else	# no changes made
+						format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
+						format.json { render :show, status: :ok, location: userview }
+					end
+				when :offer_merge
+					render_user_merge(result)
+				else	# invalid data
+					render_user_errors(:edit, result)
 				end
-			else	# no changes made
-				format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
-				format.json { render :show, status: :ok, location: userview }
 			end
 		end
 	end
@@ -161,7 +184,7 @@ class UsersController < ApplicationController
 	private
 		# Prepare user form
 		def prepare_form(create: nil, rdx: @rdx)
-			title     = I18n.t("user.#{(create ? "new" : "edit")}")
+			title     = User.act(create ? :create : :edit)
 			@header   = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
 			@role     = create_fields(helpers.user_form_role)
 			@p_fields = create_fields(helpers.person_form_fields(@user.person, mandatory_email: true))
@@ -169,6 +192,12 @@ class UsersController < ApplicationController
 				@k_fields = create_fields(helpers.user_form_pass)
 			end
 			@submit = create_submit
+		end
+
+		def render_user_errors(action, result)
+			prepare_form(create: action == :new)
+			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
+			format.json { render json: @user.errors, status: :unprocessable_entity }
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
@@ -179,8 +208,9 @@ class UsersController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def user_params
-			params.require(:user).permit(
+			@user_params ||= params.require(:user).permit(
 				:id,
+				:avatar,
 				:club_id,
 				:email,
 				:locale,
@@ -188,8 +218,8 @@ class UsersController < ApplicationController
 				:role,
 				:password,
 				:password_confirmation,
-				:avatar,
 				:person_id,
+				:person_merge,
 				person_attributes: [
 					:address,
 					:avatar,

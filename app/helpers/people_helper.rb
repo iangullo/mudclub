@@ -38,7 +38,7 @@ module PeopleHelper
 			],
 			[
 				symbol_field(:id_front, { title: l_pid }),
-				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: l_pid, mandatory: { length: 8 } },
+				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: l_pid },
 				gap_field,
 				symbol_field(:email, { type: :button, title: l_email }),
 				{ kind: :email_box, key: :email, value: person&.email, placeholder: l_email, mandatory: mandatory_email ? { length: 7 } : nil }
@@ -103,18 +103,45 @@ module PeopleHelper
 		end
 	end
 
+	def person_merge_fields(pobj, candidates, attrs)
+		pobj_fields = []
+		attrs.each { |key, value| pobj_fields << { kind: :hidden, key:, value: } }
+
+		merge_fields = [ pobj_fields ]	# FIELDS TO SHOW MERGE as a form?
+		merge_fields += [
+			gap_row,
+			[ { kind: :label, value: Person.msg(:ambiguous) } ]
+		]
+
+		lastopt = { value: lastopt, label: Person.act(:create) }
+		options = []
+		candidates.each do |candidate|
+			if candidate == pobj.person
+				lastopt = { value: "__keep__", label: Person.act(:keep) } if pobj.person.persisted?
+			else
+				options << { person: candidate, value: candidate.id, label: "#{candidate} (#{candidate.age})" }
+			end
+		end
+
+		options << lastopt
+
+		merge_fields << [
+			{ kind: :radio_group, key: :person_merge, value: lastopt[:value], options: }
+		]
+	end
+
 	# FieldComponent fields to show a person
 	def person_show_fields(person, title: Person.label, icon: person&.picture)
 		[
 			[
-			symbol_field("home", { size: "25x25", title: I18n.t("person.fields.address.label") }, class: "align-top", align: "right"),
+			symbol_field("home", { size: "25x25", title: Person.fld(:address) }, class: "align-top", align: "right"),
 			{ kind: :string, value: simple_format("#{@person&.address}"), align: "left" }
 			]
 		]
 	end
 
 	# fields definition to show title of a person view
-	def person_show_title(pobj, title: nil, kind: nil, rows: 3, cols: nil)
+	def person_show_title(pobj, title: nil, rows: 3, cols: nil, id_pic: true)
 		owned  = !pobj.is_a?(Person)
 		person = owned ? pobj.person : pobj
 
@@ -123,13 +150,22 @@ module PeopleHelper
 		subtitle = person&.nick&.presence || person&.name
 
 		fields = person_title(icon:, title:, subtitle:, rows:, cols:)
+
+		c_field = person&.email || pobj&.phone ?
+			{ kind: :contact, email: person&.email, phone: pobj&.phone, device:, align: :left } :
+			{ kind: :text, value: Person.msg(:no_contact) }
+
+		id_field = id_pic ?
+			person_idpic(person) :
+			{ kind: :string, value: pobj&.person&.dni || Person.msg(:no_id) }
+
 		fields += [
 			[ { kind: :label, value: person&.surname, cols: } ],
 			[
 				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: },
-				{ kind: :contact, email: person&.email, phone: pobj&.phone, device:, align: :left }
+				c_field
 			],
-			[ gap_field,  person_idpic(person) ]
+			[ gap_field, id_field ]
 		]
 		if owned
 			fields[4][0] = participation_club_field(pobj)

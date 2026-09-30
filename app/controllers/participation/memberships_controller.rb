@@ -49,13 +49,9 @@ class MembershipsController < ApplicationController
 	def show
 		@policy    = check_policy!(MembershipPolicy, record: @member)
 		@kind    ||= @member.kind.to_sym
-		status_url = edit_path_for(@member, status: true) if @policy.edit?
+		status_url = edit_path_for(@member, status: true, frame: :modal) if @policy.edit?
 		@title = create_fields(
-			helpers.participation_title(
-				@member,
-				status_url:,
-				just_icon: false
-			)
+			helpers.participation_title(@member, status_url:, just_icon: false)
 		)
 
 		@fields = create_fields(helpers.membership_show_fields(@member))
@@ -63,7 +59,7 @@ class MembershipsController < ApplicationController
 		@page   = paginate(@roles, 1.2)	# paginate results
 		@table  = create_table(helpers.assignment_history_table(@kind, @page))
 		submit  = edit_path_for(@member) if @policy.update?
-		@submit = create_submit(close: :back, retlnk: return_path_for(@member, search: @search), submit:)
+		@submit = create_submit(close: :back, retlnk: return_path_for(@member, search: @search), submit:, frame: :modal)
 	end
 
 	# GET /members/new
@@ -79,28 +75,31 @@ class MembershipsController < ApplicationController
 	def create
 		@policy = check_policy!(MembershipPolicy, club: @club, kind: @kind)
 		respond_to do |format|
-			Membership.transaction do
-				@member = Membership.new(club: @club, kind: @kind)
-				@member.rebuild(membership_params)
-				@member.starts_on = Date.current
+			@member = Membership.new(club: @club, kind: @kind)
+			result = rebuild_or_merge_person(@member, membership_params)
 
-				if @member.save
-					format.html do
-						redirect_to post_save_path, notice: Membership.msg(:created)
+			case result[:status]
+			when :ok	# just store
+				Membership.transaction do
+					@member.starts_on = Date.current
+
+					if @member.save
+						format.html do
+							redirect_to post_save_path, notice: Membership.msg(:created)
+						end
+
+						format.json { render :show, status: :ok, location: post_save_path }
+					else
+						log_membership_errors
+						raise ActiveRecord::Rollback
 					end
-
-					format.json { render :show, status: :ok, location: post_save_path }
-				else
-					log_membership_errors
-					raise ActiveRecord::Rollback
 				end
-			end
-
-			unless @member.persisted? && @member.errors.empty?
-				prepare_form(:create)
-
-				format.html { render :edit, status: :unprocessable_entity }
-				format.json { render json: @member.errors, status: :unprocessable_entity }
+				render_member_errors(:edit, result) unless @member.persisted? && @member.errors.empty?
+			when :offer_merge
+				prepare_person_bearing_merge(@member, result[:candidates], membership_params)
+				format.html { render :merge }
+			else	# invalid data
+				render_member_errors(:create, result)
 			end
 		end
 	end
@@ -117,27 +116,30 @@ class MembershipsController < ApplicationController
 		@policy = check_policy!(MembershipPolicy, record: @member)
 
 		respond_to do |format|
-			Membership.transaction do
-				@member.rebuild(membership_params)
+			result = rebuild_or_merge_person(@member, membership_params)
 
-				notice = Membership.msg(@member.modified? ? :updated : :no_change)
-				if @member.save
-					format.html do
-						redirect_to path_for(@member), notice:
+			case result[:status]
+			when :ok	# attempt to store
+				Membership.transaction do
+					notice = Membership.msg(@member.modified? ? :updated : :no_change)
+					if @member.save
+						format.html do
+							redirect_to path_for(@member), notice:
+						end
+
+						format.json { render :show, status: :ok, location: @member }
+					else
+						log_membership_errors
+						raise ActiveRecord::Rollback
 					end
-
-					format.json { render :show, status: :ok, location: @member }
-				else
-					log_membership_errors
-					raise ActiveRecord::Rollback
 				end
-			end
-
-			unless @member.persisted? && @member.errors.empty?
-				prepare_form(:edit)
-
-				format.html { render :edit, status: :unprocessable_entity }
-				format.json { render json: @member.errors, status: :unprocessable_entity }
+				render_member_errors(:edit, result) unless @member.persisted? && @member.errors.empty?
+			when :offer_merge
+				prepare_person_bearing_merge(@member, result[:candidates], membership_params)
+				format.html { render :merge, status: :unprocessable_entity }
+				format.json { render json: { status: :offer_merge }, status: :multiple_choices }
+			else	# invalid data
+				render_member_errors(:edit, result)
 			end
 		end
 	end
@@ -203,6 +205,12 @@ class MembershipsController < ApplicationController
 			end
 		end
 
+		def render_member_errors(action, result)
+			prepare_form(create: action == :new)
+			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
+			format.json { render json: @user.errors, status: :unprocessable_entity }
+		end
+
 		def set_member
 			@member = Membership.find(params[:id])
 			@club   = @member&.club
@@ -222,8 +230,9 @@ class MembershipsController < ApplicationController
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def membership_params
 			@membership_params ||= params.require(:membership).permit(
-				:person_id, :avatar, :joined_on, :left_on, :kind, :status, :notes, :rdx,
-				person: [
+				:person_id, :club_id, :joined_on, :left_on, :kind,
+				:notes, :avatar, :person_merge, :status, :rdx,
+				person_attributes: [
 					:id, :avatar, :name, :nick, :surname,
 					:dni, :id_back, :id_front, :female,
 					:birthday, :address, :email, :phone,

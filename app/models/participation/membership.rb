@@ -102,6 +102,33 @@ class Membership < ApplicationRecord
 		person&.s_name || kind_catalog.val(kind)
 	end
 
+	# merge fields and such from another membership
+	def merge_from(other)
+		return if other.club != club || other.kind != kind
+
+		avatar    = other.avatar if avatar.blank?
+		joined_on = other.joined_on if other.joined_on < joined_on
+		left_on   = other.left_on if other.left_on == nil || other.left_on > left_on
+		notes     = other.notes if notes.blank?
+		settings  = other.settings if settings.blank?
+		status    = :active if status != :active && left_on == nil
+
+		other.assignments.each do |assignment|
+			mine = assignments.where(team_id: assignment.team_id, kind: assignment.kind)
+			if mine
+				mine.avatar    = assignment.avatar if mine.avatar.blank?
+				mine.starts_on = assignment.starts_on if other.starts_on < mine.starts_on
+				mine.ends_on   = assignment.ends_on if other.ends_on == nil || other.ends_on > mine.ends_on
+				mine.number    = assignment.settings if mine.settings.blank?
+				mine.settings  = assignment.settings if mine.settings.blank?
+				mine.status    = :active if status != :active && mine.ends_on == nil
+				mine.save
+			else
+				assignment.update!(membership: self)
+			end
+		end
+	end
+
 	def overlaps?(other)
 		return false unless other
 		return false unless person == other.person
@@ -116,6 +143,13 @@ class Membership < ApplicationRecord
 	end
 
 	def rebuild(data)
+		# --- associated persons data ---
+		if data[:person_attributes].present?
+			resolution = resolve_person(data[:person_attributes])
+			return resolution unless resolution.ok?	# return ambiguous or conflicts
+		end
+
+		# --- memberships own attributes ---
 		self.club_id   = data[:club_id]   if data.key?(:club_id)
 		self.kind      = data[:kind]      if data.key?(:kind)
 		self.status    = data[:status]    if data.key?(:status)
@@ -123,11 +157,7 @@ class Membership < ApplicationRecord
 		self.left_on   = data[:left_on]   if data.key?(:left_on)
 		self.notes     = data[:notes]     if data.key?(:notes)
 
-		if data[:person_attributes].present?
-			return self unless ensure_person(data[:person_attributes])
-		end
-
-		self
+		PersonResolution.new(status: :ok, person:)
 	end
 
 	def reinstate!(date = Date.current)

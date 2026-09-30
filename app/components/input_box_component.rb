@@ -20,23 +20,25 @@
 
 # InputBoxComponent - ViewComponent to manage standardised form input boxes.
 # managing different kinds of input box:
-# => "date-box": :key (field name), :value (date_field), :s_year (start_year)
-# => "email-box": :key (field name), :value (email_field), :size (box size)
-# => "hidden": :key (field name), :value (number_field)
-# => "image-box": :key (attribute of image), :value (path to image), :size (optional)
-# => "number-box": :key (field name), :value (number_field), size:
-# => "label-checkbox": :key (attribute of checkbox), :value (added text)
-# => "number-box": :key (field name), :value (number_field), size:
-# => "password-box": :key (field name), :value (password_field)
-# => "rich-text-area": :key (field name)
-# => "text-area": :key (field name), :value (text_field), :size (box size), lines: number of lines
-# => "text-box": :key (field name), :value (text_field), :size (box size), :options (optional array of autocomplete options)
-# => "time-box": :hour & :min (field names)
-# => "select-box": :key (field name), :options (array of valid options), :value (form, select)
-# => "select-checkboxes": :key (field name), :collection, :value (form, select)
-# => "select-collection": :key (field name), :collection, :value (form, select)
-# => "select-load": :key (field name), :icon, :label, :value (form, select)
-# => "upload": Upload file input - hidden and linked to an 'upload' ButtonComponent
+# => :date_box - :key (field name), :value (date_field), :s_year (start_year)
+# => :email_box - :key (field name), :value (email_field), :size (box size)
+# => :hidden - :key (field name), :value (number_field)
+# => :image_box - :key (attribute of image), :value (path to image), :size (optional)
+# => :number_box - :key (field name), :value (number_field), size:
+# => :label_checkbox - :key (attribute of checkbox), :value (added text)
+# => :number_box -  :key (field name), :value (number_field), size:
+# => :password_box - :key (field name), :value (password_field)
+# => :radio_button - :key (field name), :value (field value)
+# => :radio_group - :key (field name), :value (selected value), :options (array of {value:, label:, hint:} options)
+# => :rich_text_area - :key (field name)
+# => :text_area - :key (field name), :value (text_field), :size (box size), lines: number of lines
+# => :text_box - :key (field name), :value (text_field), :size (box size), :options (optional array of autocomplete options)
+# => :time_box - :hour & :min (field names)
+# => :select_box - :key (field name), :options (array of valid options), :value (form, select)
+# => :select_checkboxes - :key (field name), :collection, :value (form, select)
+# => :select_collection - :key (field name), :collection, :value (form, select)
+# => :select_load - :key (field name), :icon, :label, :value (form, select)
+# => :upload - Upload file input - hidden and linked to an 'upload' ButtonComponent
 class InputBoxComponent < ApplicationComponent
 	DEF_INPUT_CLASS = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700".split(" ")
 	DEFAULT_BOX_SIZE = { image_box: "50x50", number_box: 5, time_box: 5, default: 20 }
@@ -78,6 +80,7 @@ class InputBoxComponent < ApplicationComponent
 				number_box: { class: "text-black text-right", min: @fdata[:min] || 0, max: @fdata[:max] || 99, step: @fdata[:step] },
 				label_checkbox: { class: "align-middle m-1 rounded bg-gray-200 text-blue-700" },
 				radio_button: { class: "m-1" },
+				radio_group: { class: "m-1" },
 				rich_text_area: { class: "trix-content" },
 				text_box: { class: "overflow-hidden overflow-ellipsis" },
 				time_box: { class: "text-right" },
@@ -100,7 +103,7 @@ class InputBoxComponent < ApplicationComponent
 				@width  = ensure_px((@fdata[:width] || 75).to_s)
 				@height = ensure_px((@fdata[:height] || 100).to_s)
 				@fdata[:class] += " w-full"
-			when :radio_button
+			when :radio_button, :radio_group
 				@i_data = @fdata[:r_data]
 			when :text_box
 				if @fdata[:options].present?

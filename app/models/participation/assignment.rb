@@ -214,8 +214,10 @@ class Assignment < ApplicationRecord
 	end
 
 	def rebuild(data)
+		# --- associated persons data (via membership) ---
 		if data[:person_attributes].present?
-			return self unless membership&.ensure_person(data[:person_attributes])
+			resolution = membership&.resolve_person(data[:person_attributes])
+			return resolution unless resolution.ok?	# return ambiguous or conflicts
 		end
 
 		# --- assignment's own attributes ---
@@ -229,7 +231,7 @@ class Assignment < ApplicationRecord
 
 		self.update_attachment("avatar", data[:avatar])	if data[:avatar].present?
 
-		self
+		PersonResolution.new(status: :ok, person:)
 	end
 
 	def reinstate!(date = Date.current)

@@ -89,27 +89,31 @@ class AssignmentsController < ApplicationController
 			if membership
 				Assignment.transaction do
 					@assignment.membership = membership
-					@assignment.rebuild(assignment_params)
-					@assignment.starts_on ||= Date.current
+					result = rebuild_or_merge_person(@assignment, assignment_params)
+					case result[:status]
+					when :ok
+						@assignment.starts_on ||= Date.current
+						if @assignment.save
+							format.html do
+								redirect_to helpers.assignment_return_path, notice: Assignment.msg(:created)
+							end
 
-					if @assignment.save
-						format.html do
-							redirect_to helpers.assignment_return_path, notice: Assignment.msg(:created)
+							format.json { render :show, status: :ok, location: helpers.assignment_return_path }
+						else
+							log_assignment_errors
+							raise ActiveRecord::Rollback
 						end
-
-						format.json { render :show, status: :ok, location: helpers.assignment_return_path }
-					else
-						log_assignment_errors
-						raise ActiveRecord::Rollback
+					when :offer_merge
+						prepare_person_bearing_merge(@assignment, result[:candidates], assignment_params)
+						format.html { render :merge, location: resource_route(@asignment) }
+					else	# invalid data
+						render_member_errors(:create, result)
 					end
 				end
 			end
 
 			unless @assignment.persisted? && @assignment.errors.empty?
-				prepare_form(:create)
-
-				format.html { render :edit, status: :unprocessable_entity }
-				format.json { render json: @assignment.errors, status: :unprocessable_entity }
+				render_assignment_errors(:create, result)
 			end
 		end
 	end
@@ -126,27 +130,30 @@ class AssignmentsController < ApplicationController
 		@policy = check_policy!(AssignmentPolicy, record: @assignment)
 
 		respond_to do |format|
-			Assignment.transaction do
-				@assignment.rebuild(assignment_params)
+			result = rebuild_or_merge_person(@assignment, assignment_params)
+			case result[:status]
+			when :ok	# just store
+				Assignment.transaction do
+					notice = Assignment.msg(@assignment.modified? ? :updated : :no_change)
+					if @assignment.save
+						format.html do
+							redirect_to helpers.assignment_return_path, notice:
+						end
 
-				notice = Assignment.msg(@assignment.modified? ? :updated : :no_change)
-				if @assignment.save
-					format.html do
-						redirect_to helpers.assignment_return_path, notice:
+						format.json { render :show, status: :ok, location: @assignment }
+					else
+						log_assignment_errors
+						raise ActiveRecord::Rollback
 					end
-
-					format.json { render :show, status: :ok, location: @assignment }
-				else
-					log_assignment_errors
-					raise ActiveRecord::Rollback
 				end
-			end
-
-			unless @assignment.persisted? && @assignment.errors.empty?
-				prepare_form(:edit)
-
-				format.html { render :edit, status: :unprocessable_entity }
-				format.json { render json: @assignment.errors, status: :unprocessable_entity }
+				unless @assignment.persisted? && @assignment.errors.empty?
+					render_assignment_errors(:edit, result)
+				end
+			when :offer_merge
+				prepare_person_bearing_merge(@assignment, result[:candidates], assignment_params)
+				format.html { render :merge, location: resource_route(@asignment) }
+			else
+				render_assignment_errors(:edit, result)
 			end
 		end
 	end
@@ -166,6 +173,16 @@ class AssignmentsController < ApplicationController
 	end
 
 	private
+
+		def log_assignment_errors
+			Rails.logger.debug @assignment.errors.full_messages
+			Rails.logger.debug @assignment.person.errors.full_messages
+
+			@assignment.person.relationships.each do |r|
+				Rails.logger.debug r.errors.full_messages
+				Rails.logger.debug r.related_person.errors.full_messages if r.related_person
+			end
+		end
 
 		def prepare_index_title
 			if @kind
@@ -197,14 +214,10 @@ class AssignmentsController < ApplicationController
 			@submit   = create_submit
 		end
 
-		def log_assignment_errors
-			Rails.logger.debug @assignment.errors.full_messages
-			Rails.logger.debug @assignment.person.errors.full_messages
-
-			@assignment.person.relationships.each do |r|
-				Rails.logger.debug r.errors.full_messages
-				Rails.logger.debug r.related_person.errors.full_messages if r.related_person
-			end
+		def render_assignment_errors(action, result)
+			prepare_form(create: action == :new)
+			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
+			format.json { render json: @user.errors, status: :unprocessable_entity }
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
@@ -260,7 +273,7 @@ class AssignmentsController < ApplicationController
 		def assignment_params
 			@assignment_params ||= params.require(:assignment).permit(
 				:kind, :membership_id, :team_id, :starts_on, :ends_on,
-				:number, :notes, :avatar, :status, :rdx,
+				:number, :notes, :avatar, :person_merge, :status, :rdx,
 				person_attributes: [
 					:id, :name, :nick, :surname,
 					:dni, :id_back, :id_front, :female,

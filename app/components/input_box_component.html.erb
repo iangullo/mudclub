@@ -60,6 +60,16 @@
 	<%= @form.password_field(@fdata[:key], placeholder: @fdata[:placeholder], class: @i_class, size: @fdata[:size], data: @i_data) %>
 <% when :radio_button %>
 	<%= @form.radio_button(@fdata[:key], @fdata[:value], checked: @fdata[:checked], class: @i_class, data: @i_data) %>
+<% when :radio_group %>
+	<% @fdata[:options].each do |option| %>
+		<div class="flex items-center gap-2 py-1">
+			<%= @form.radio_button(@fdata[:key],option[:value],checked: option[:value] == @fdata[:value],class: @i_class) %>
+			<div>
+				<label class="font-medium"><%= option[:label] %></label>
+				<% if option[:hint].present? %><div class="text-sm text-gray-500"><%= option[:hint] %></div><% end %>
+			</div>
+		</div>
+	<% end %>
 <% when :rich_text_area %>
 	<%= @form.rich_text_area(@fdata[:key], class: @i_class, data: @i_data) %>
 <% when :select_box %>

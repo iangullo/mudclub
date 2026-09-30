@@ -29,13 +29,18 @@ class ApplicationRecord < ActiveRecord::Base
 	end
 
 	# parse phone number using defined locale as p_country
-	def parse_phone(p_number, p_ctry = nil)
+	def self.parse_phone(p_number, p_ctry = nil)
 		ctry = p_ctry || Phonelib.default_country
 		Phonelib.parse(p_number.to_s.delete(" "), ctry).international.to_s
 	end
 
+	def parse_phone(p_number, p_ctry = nil)
+		self.class.parse_phone(p_number, p_ctry = nil)
+	end
+
+
 	# read new field value, keep old value if empty & possible
-	def read_field(dat_value, old_value, def_value)
+	def self.read_field(dat_value, old_value, def_value)
 		if dat_value    # we read & assign
 			case dat_value.class
 			when "String"
@@ -50,23 +55,42 @@ class ApplicationRecord < ActiveRecord::Base
 		end
 	end
 
+	def read_field(dat_value, old_value, def_value)
+		self.class.read_field(dat_value, old_value, def_value)
+	end
+
+
 	# return a 2 digit string for a number
-	def two_dig(num)
+	def self.two_dig(num)
 		num.to_s.rjust(2, "0")
 	end
 
+	def two_dig(num)
+		self.class.two_dig(num)
+	end
+
+
 	# starting / ending hours as string
-	def timeslot_string(t_begin:, t_end: nil)
+	def self.timeslot_string(t_begin:, t_end: nil)
 		cad = two_dig(t_begin.hour) + ":" + two_dig(t_begin.min)
 		cad = cad + "-" + two_dig(t_end.hour) + ":" + two_dig(t_end.min) if t_end
 		cad
 	end
 
+	def timeslot_string(t_begin:, t_end: nil)
+		self.class.timeslot_string(t_begin:, t_end: nil)
+	end
+
 	# parse a value to determine if its true
-	def to_boolean(value)
+	def self.to_boolean(value)
 		val = value.presence
 		(val.to_s == "true" || val.to_i == 1)
 	end
+
+	def to_boolean(value)
+		self.class.to_boolean(value)
+	end
+
 
 	# def update object attachment
 	def update_attachment(field, new_file = nil)
@@ -133,10 +157,23 @@ class ApplicationRecord < ActiveRecord::Base
 		def self.attachments_changed_on?(record)
 			return false unless record.class.respond_to?(:attachment_reflections)
 
-			record.class.attachment_reflections.each_key.any? do |name|
-				!!record.public_send(name).changed?
+			record.class.attachment_reflections.any? do |name, reflection|
+				# Look up the correct internal association name based on whether it is a :has_one or :has_many attachment macro
+				association_name  = "#{name}_attachment"
+				association_name += "s" unless reflection.macro == :has_one_attached
+				association       = record.association(association_name)
+
+				# Grab whatever records are currently loaded in the memory cache target
+				records = Array(association.target)
+
+				records.any? do |attachment_record|
+					attachment_record.new_record? ||
+						attachment_record.marked_for_destruction? ||
+						attachment_record.changed?
+				end
 			end
 		end
+
 
 		# True if any has_one_attached / has_many_attached on this class has a
 		# pending in-memory change. Uses only public API:

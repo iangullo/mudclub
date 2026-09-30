@@ -144,6 +144,9 @@ es:
         single: Usuario
         plural: Usuarios
         short: Usuario
+      actions:
+        edit: Editar usuario
+        create: Crear usario
       fields:
         profile: Perfil
         profile_short: Perf.
@@ -163,8 +166,10 @@ es:
         deleted: Usuario eliminado.
         duplicated: Usuario duplicado.
         actions_cleared: Acciones de usuario eliminadas.
+        no_email: ¡el correo electrónico es obligatorio!
       values:
-        never_logged: Nunca ha iniciado sesión
+        last_in: Último acceso
+        never_logged: (nunca ha iniciado sesión)
 
     user_action:
       label:
