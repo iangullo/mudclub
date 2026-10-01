@@ -1,7 +1,7 @@
 <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
 	<table>
 		<tr>
-			<th colspan="3" class="text-blue-900"><%= I18n.t("password.forgotten") %></th>
+			<th colspan="3" class="text-blue-900"><%= I18n.t("devise.messages.forgotten_password") %></th>
 		</tr>
 		<tr>
 			<td colspan="2">
@@ -10,13 +10,13 @@
 		</tr>
 		<tr>
 			<td class="p-1 items-center">
-				<%= render SymbolComponent.new("email") %>
+				<%= render SymbolComponent.new(:email) %>
 			</td>
 			<td>
-				<%= f.email_field :email, autofocus: true, placeholder: I18n.t("person.email"), autocomplete: "email", class: "rounded border shadow-inner p-0" %>
+				<%= f.email_field :email, autofocus: true, placeholder: I18n.t("devise.labels.default_email"), autocomplete: I18n.t("devise.labels.default_email"), class: "rounded border shadow-inner p-0" %>
 			</td>
 			<td>
-				<%= render ButtonComponent.new(kind: :login, title: I18n.t("password.reset"))%>
+				<%= render ButtonComponent.new(kind: :login, title: I18n.t("devise.actions.reset_password"))%>
 			</td>
 		</tr>
 	<% end %>

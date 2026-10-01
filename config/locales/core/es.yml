@@ -148,6 +148,8 @@ es:
         edit: Editar usuario
         create: Crear usario
       fields:
+        password: Contraseña
+        password_short: Clave
         profile: Perfil
         profile_short: Perf.
         email: Correo electrónico

@@ -20,6 +20,17 @@
 
 es:
   devise:
+    actions:
+      login: "Abrir sesión"
+      logout: "Cerrar sesión"
+      confirm: "Confirmar cuenta"
+      edit: "Editar cuenta"
+      change_password: "Cambiar contraseña"
+      recover_password: "Recuperar contraseña"
+      remember: "Recordar"
+      resend_confirm: "Re-enviar confirmación"
+      reset_password: "Reiniciar contraseña"
+      unlock: "Desbloquear cuenta"
     confirmations:
       confirmed: "Tu email ha sido confirmado."
       send_instructions: "Recibirás un email para confirmar el registro en unos minutos."
@@ -34,6 +45,15 @@ es:
       timeout: "La sesión ha expirado. Inicia sesión de nuevo para continuar."
       unauthenticated: "Debes iniciar sesión para continuar."
       unconfirmed: "Debes confirmar tu correo para continuar."
+    labels:
+      default_email: "usuario@servidor.net"
+      new_email: "Correo nuevo"
+      old_email: "Correo antiguo"
+      confirm_password: "Confirmar contraseña"
+      default_password: "<password>"
+      new_password: "Nueva contraseña"
+      old_password: "Contraseña antigua"
+      password_min_chars: "Minimum length:"
     mailer:
       confirmation_instructions:
         subject: "Instrucciones para confirmar la cuenta"
@@ -46,8 +66,24 @@ es:
       password_change:
         subject: "Cambio de contraseña"
     omniauth_callbacks:
-      failure: "No se pudo autenticar desde %{kind} porque \"%{reason}\"."
+      failure: 'No se pudo autenticar desde %{kind} porque "%{reason}".'
       success: "Cuenta autorizada desde %{kind}."
+    messages:
+      hello: ¡Hola
+      welcome: ¡Bienvenido
+      change_password_info: "Alguien ha solicitado un enlace para cambiar tu contraseña. Puedes hacerlo a través del siguiente enlace."
+      confirm_account: "Puedes confirmar tu cuenta siguiendo este enlace:"
+      confirm_login: "¿Abrir sesión?"
+      confirm_logout: "¿Cerrar sesión?"
+      confirmed_email: "Te informamos de que tu correo ha sido cambiado a"
+      ignore_request: "Si no lo has solicitado, puedes ignorar este correo."
+      locked_account: "Tu cuenta ha sido bloqueada por exceder el límite de intentos fallidos."
+      password_confirm_wait: "Pending confirmation of:"
+      password_forgotten: "Forgotten password?"
+      password_will_not_change: "Tu contraseña no cambiará hasta que crees una nueva."
+      resend_confirm: "Re-enviar instrucciones de confirmación"
+      unconfirmed_email: "Te informamos que to correo está siendo cambiada a"
+      unlock_account: "Sigue éste enlace para desbloquearla:"
     passwords:
       no_token: "Acceso a esta página limitado a email de reinicio de contraseña. Si es el caso, por favor comprueba la URL completa."
       send_instructions: "Recibirás un email con instrucciones para reiniciar tu contraseña en unos minutos."

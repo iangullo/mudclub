@@ -3,6 +3,17 @@
 
 en:
   devise:
+    actions:
+      login: "Sign in"
+      logout: "Sign out"
+      confirm: "Confirm account"
+      edit: "Edit account"
+      change_password: "Update password"
+      recover_password: "Password recovery"
+      remember: "Remember"
+      resend_confirm: "Resend confirmation"
+      reset_password: "Reset password"
+      unlock: "Unlock account"
     confirmations:
       confirmed: "Your email address has been successfully confirmed."
       send_instructions: "You will receive an email with instructions for how to confirm your email address in a few minutes."
@@ -17,6 +28,15 @@ en:
       timeout: "Your session expired. Please sign in again to continue."
       unauthenticated: "You need to sign in or sign up before continuing."
       unconfirmed: "You have to confirm your email address before continuing."
+    labels:
+      default_email: "user@server.net"
+      new_email: "New e-mail"
+      old_email: "Old e-mail"
+      confirm_password: "Confirm password"
+      default_password: "<password>"
+      new_password: "New password"
+      old_password: "Old password"
+      password_min_chars: "Longitud mínima:"
     mailer:
       confirmation_instructions:
         subject: "Confirmation instructions"
@@ -28,6 +48,21 @@ en:
         subject: "Email Changed"
       password_change:
         subject: "Password Changed"
+    messages:
+      hello: Hello
+      welcome: Welcome
+      change_password_info: "Someone requested a link to change your password. You can modify it following this link."
+      confirm_account: "You can confirm your account by following this link:"
+      confirm_login: "Sign in?"
+      confirm_logout: "Sign off?"
+      confirmed_email: "We're contacting you to notify you that your email has been changed to"
+      ignore_request: "If you did not request this, tou may ignore this message."
+      locked_account: "Your acount has been locked for exceeding the limit of unsuccessful attempts."
+      password_confirm_wait: "Pendiente de confirmación de:"
+      password_forgotten: "¿Olvidó su contraseña?"
+      password_will_not_change: "Your password will not change until you create a new one."
+      unconfirmed_email: "We're contacting you to notify you that your email is being changed to"
+      unlock_account: "Follow the link to unlock it:"
     omniauth_callbacks:
       failure: 'Could not authenticate you from %{kind} because "%{reason}".'
       success: "Successfully authenticated from %{kind} account."

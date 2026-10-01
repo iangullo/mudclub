@@ -148,6 +148,8 @@ en:
         edit: Edit user
         create: Create user
       fields:
+        password: Password
+        password_short: Pass
         profile: Profile
         profile_short: Prof.
         email: Email

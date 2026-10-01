@@ -10,31 +10,31 @@
 				</td>
 				<td class="text-blue-900 font-bold"><%= f.object.s_name %></td>
 			</tr><tr>
-				<td class="font-semibold"><%= I18n.t("password.change") %></td>
+				<td class="font-semibold"><%= I18n.t("devise.actions.change_password") %></td>
 			</tr><tr>
-				<td align="right" class="<%=i_cls%>"><%= render SymbolComponent.new("key", variant: "old", size: "25x25") %></td>
+				<td align="right" class="<%=i_cls%>"><%= render SymbolComponent.new(:key, variant: "old", size: "25x25") %></td>
 				</td><td>
-					<%= f.password_field :current_password, autofocus: true, placeholder: I18n.t("password.old"), class: f_cls %>
+					<%= f.password_field :current_password, autofocus: true, placeholder: I18n.t("devise.label.old_password"), class: f_cls %>
 				</td>
 			</tr><tr>
 				<td></td>
 				<td class="text-sm"><i><%= I18n.t("password.blank_abort")%></i></td>
 			</tr><tr>
-				<td align="right" class="<%=i_cls%>"><%= render SymbolComponent.new("key", size: "25x25") %></td>
+				<td align="right" class="<%=i_cls%>"><%= render SymbolComponent.new(:key, size: "25x25") %></td>
 				<td>
-					<%= f.password_field :password, placeholder: I18n.t("password.new"), class: f_cls %>
+					<%= f.password_field :password, placeholder: I18n.t("devise.labels.new_password"), class: f_cls %>
 					<% if @minimum_password_length %>
 						<br />
-						<i class="text-sm"><%= I18n.t("password.min_chars")%><%= @minimum_password_length %></i>
+						<i class="text-sm"><%= I18n.t("devise.labels.password_min_chars") %> <%= @minimum_password_length %></i>
 					<% end %>
 				</td>
 			</tr><tr>
 				<td align="right" class="<%=i_cls%>"><%= render SymbolComponent.new("key", size: "25x25") %></td>
-				<td colspan="2"><%= f.password_field :password_confirmation, placeholder: I18n.t("password.confirm"), class: f_cls %></td>
+				<td colspan="2"><%= f.password_field :password_confirmation, placeholder: I18n.t("devise.labels.password.confirm"), class: f_cls %></td>
 			</tr>
 		</table>
 		<% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-			<div><%= I18nt.("password.confirm_wait") + resource.unconfirmed_email %></div>
+			<div><%= I18n.t("devise.messages.password_confirm_wait") "#{resource.unconfirmed_email}" %></div>
 		<% end %>
 		<%= render SubmitComponent.new(submit: :save) %>
 	<% end %>
