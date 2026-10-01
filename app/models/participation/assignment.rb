@@ -107,6 +107,28 @@ class Assignment < ApplicationRecord
 		team ? team :	membership.club
 	end
 
+	# merge assignment from another one (same team, same club)
+	def merge_from(other)
+		return false unless other.membership.club_id == membership.club_id
+		return false unless other.team_id == team_id
+		return false unless other.kind == kind
+
+		self.avatar.attach(other.avatar.blob) if !avatar.attached? && other.avatar.attached?
+		self.starts_on = earliest_date(other.starts_on, starts_on)
+		self.ends_on   = latest_date(other.ends_on, ends_on)
+		self.notes     = other.notes if notes.blank?
+		self.number  ||= other.number
+		self.settings  = other.settings if settings.blank?
+		self.status    = :active if status != :active && ends_on == nil
+		other.attendances.each { |att| att.update!(assignment: self) }
+		other.reset!
+		save!
+
+		other.destroy!
+
+		true
+	end
+
 	# short name for form viewing
 	def s_name
 		person&.s_name || membership.kind_label

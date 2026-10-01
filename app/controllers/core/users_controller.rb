@@ -55,7 +55,7 @@ class UsersController < ApplicationController
 
 		@user = User.new(locale: current_user.locale)
 		@user.build_person
-		prepare_form(create: true)
+		prepare_form(:new)
 	end
 
 	# POST /users.json
@@ -82,9 +82,7 @@ class UsersController < ApplicationController
 							format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 							format.json { render :show, status: :created, location: userview }
 						else
-							prepare_form(create: true)
-							format.html { render :new, notice: helpers.flash_message("#{@user.errors}", "error") }
-							format.json { render json: @user.errors, status: :unprocessable_entity }
+							render_user_errors(:create, result)
 						end
 					else	# no changes to be made
 						notice = (@user.persisted? ? "#{I18n.t("user.no_data")} '#{@user.s_name}'" : @user.errors)
@@ -92,7 +90,7 @@ class UsersController < ApplicationController
 						format.json { render :index,  :created, location: }
 					end
 				when :offer_merge
-					render_user_merge(result)
+					handle_object_merge(format, @user, result[:candidates], user_params)
 				else	# invalid data
 					render_user_errors(:new, result)
 				end
@@ -103,7 +101,7 @@ class UsersController < ApplicationController
 	# GET /users/1/edit
 	def edit
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
-		prepare_form
+		prepare_form(:edit)
 	end
 
 	# PATCH/PUT /users/1
@@ -128,16 +126,14 @@ class UsersController < ApplicationController
 						format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 						format.json { render :show, status: :ok, location: userview }
 					else
-						prepare_form
-						format.html { render :edit }
-						format.json { render json: @user.errors, status: :unprocessable_entity }
+						render_user_errors(:edit, result)
 					end
 					else	# no changes made
 						format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
 						format.json { render :show, status: :ok, location: userview }
 					end
 				when :offer_merge
-					render_user_merge(result)
+					handle_object_merge(format, @user, result[:candidates], user_params)
 				else	# invalid data
 					render_user_errors(:edit, result)
 				end
@@ -183,19 +179,17 @@ class UsersController < ApplicationController
 
 	private
 		# Prepare user form
-		def prepare_form(create: nil, rdx: @rdx)
-			title     = User.act(create ? :create : :edit)
+		def prepare_form(action)
+			title     = User.act(action == :new ? :create : action)
 			@header   = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
 			@role     = create_fields(helpers.user_form_role)
 			@p_fields = create_fields(helpers.person_form_fields(@user.person, mandatory_email: true))
-			if create
-				@k_fields = create_fields(helpers.user_form_pass)
-			end
+			@k_fields = create_fields(helpers.user_form_pass) if action == :create
 			@submit = create_submit
 		end
 
 		def render_user_errors(action, result)
-			prepare_form(create: action == :new)
+			prepare_form(action)
 			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
 			format.json { render json: @user.errors, status: :unprocessable_entity }
 		end

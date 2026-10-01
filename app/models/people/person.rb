@@ -382,7 +382,7 @@ class Person < ApplicationRecord
 		end
 
 		def merge_attachments_from(duplicate)
-			%i[avatar, id_front, id_back].each do |attachment|
+			%i[avatar id_front id_back].each do |attachment|
 				merge_attachment(attachment, duplicate)
 			end
 		end
@@ -400,7 +400,8 @@ class Person < ApplicationRecord
 		def merge_attributes_from(duplicate)
 			mergeable = %i[nick name surname birthday female dni email phone address]
 
-			mergeable.each do |field|
+				self.avatar.attach(duplicate.avatar.blob) if !avatar.attached? && duplicate.avatar.attached?
+				mergeable.each do |field|
 				current  = public_send(field)
 				incoming = duplicate.public_send(field)
 
@@ -433,10 +434,14 @@ class Person < ApplicationRecord
 		end
 
 		def merge_relationships_from(duplicate)
-			Relationship.where(person: duplicate)
-				.update_all(person_id: id)
-			Relationship.where(related_person: duplicate)
-				.update_all(related_person_id: id)
+			duplicate.relationships.each do |relationship|
+				existing = relationships.find_by(related_person_id: relationship.related_person_id)
+				if relationship.kind == existing&.kind
+					relationship.destroy!
+				else
+					relationship.update!(person: self)
+				end
+			end
 		end
 
 		def rebuild_relationships(r_data)

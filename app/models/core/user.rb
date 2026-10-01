@@ -121,7 +121,7 @@ class User < ApplicationRecord
 			self.password              = data[:password]
 			self.password_confirmation = data[:password_confirmation]
 		end
-		update_attachment("avatar", data[:avatar])
+		update_attachment("avatar", data[:avatar]) if data[:avatar].present?
 
 		PersonResolution.new(status: :ok, person:)
 	end

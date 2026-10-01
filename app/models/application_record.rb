@@ -28,6 +28,16 @@ class ApplicationRecord < ActiveRecord::Base
 		changed? || attachments_changed? || rich_texts_changed?
 	end
 
+	# return the earliest date between 2 dates
+	def earliest_date(date1, date2)
+		compare_dates(date1, date2, latest: false)
+	end
+
+	# return the latest date between 2 dates
+	def latest_date(date1, date2)
+		compare_dates(date1, date2, latest: true)
+	end
+
 	# parse phone number using defined locale as p_country
 	def self.parse_phone(p_number, p_ctry = nil)
 		ctry = p_ctry || Phonelib.default_country
@@ -37,7 +47,6 @@ class ApplicationRecord < ActiveRecord::Base
 	def parse_phone(p_number, p_ctry = nil)
 		self.class.parse_phone(p_number, p_ctry = nil)
 	end
-
 
 	# read new field value, keep old value if empty & possible
 	def self.read_field(dat_value, old_value, def_value)
@@ -59,7 +68,6 @@ class ApplicationRecord < ActiveRecord::Base
 		self.class.read_field(dat_value, old_value, def_value)
 	end
 
-
 	# return a 2 digit string for a number
 	def self.two_dig(num)
 		num.to_s.rjust(2, "0")
@@ -68,7 +76,6 @@ class ApplicationRecord < ActiveRecord::Base
 	def two_dig(num)
 		self.class.two_dig(num)
 	end
-
 
 	# starting / ending hours as string
 	def self.timeslot_string(t_begin:, t_end: nil)
@@ -90,7 +97,6 @@ class ApplicationRecord < ActiveRecord::Base
 	def to_boolean(value)
 		self.class.to_boolean(value)
 	end
-
 
 	# def update object attachment
 	def update_attachment(field, new_file = nil)
@@ -174,7 +180,6 @@ class ApplicationRecord < ActiveRecord::Base
 			end
 		end
 
-
 		# True if any has_one_attached / has_many_attached on this class has a
 		# pending in-memory change. Uses only public API:
 		#   - attachment_reflections  (class_attribute, public)
@@ -182,6 +187,15 @@ class ApplicationRecord < ActiveRecord::Base
 		#   - changed?                (public on the attachment AR record)
 		def attachments_changed?
 			self.class.attachments_changed_on?(self)
+		end
+
+		def compare_dates(date1, date2, latest: true)
+			dates = []
+			dates << date1 if date1.is_a?(Date)
+			dates << date2 if date2.is_a?(Date)
+
+			return nil if dates.empty?
+			latest ? dates.max : dates.min
 		end
 
 		def rich_texts_changed?

@@ -1,8 +1,0 @@
-<%= render ModalComponent.new do %>
-	<%= form_for @user, authenticity_token: true, data: { turbo_frame: "_top" } do |form| %>
-		<%= render @header %>
-		<% @merge_fields.form = form %>
-		<% render @merge_fields %>
-		<%= render @submit %>
-	<% end %>
-<% end %>

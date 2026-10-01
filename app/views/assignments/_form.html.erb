@@ -1,7 +1,7 @@
 <%= render ModalComponent.new do %>
 	<%= form_with( model: resource_route(@assignment),
 			authenticity_token: true,
-			data: {controller: "mandatory-fields", turbo_frame: "_top"}
+			data: {controller: "mandatory-fields", turbo_frame: "modal"}
 		) do |form| %>
 		<%= form.hidden_field :membership_id,  value: @member&.id %>
 		<% @kind_f.form = form if @kind_f %>

@@ -74,7 +74,7 @@ class AssignmentsController < ApplicationController
 			@assignment.build_membership(club: @club, kind: membership_kind, status: :active, joined_on: Date.current)
 			@assignment.membership.build_person
 		end
-		prepare_form(:create)
+		prepare_form(:new)
 	end
 
 	# POST /assignments
@@ -104,8 +104,7 @@ class AssignmentsController < ApplicationController
 							raise ActiveRecord::Rollback
 						end
 					when :offer_merge
-						prepare_person_bearing_merge(@assignment, result[:candidates], assignment_params)
-						format.html { render :merge, location: resource_route(@asignment) }
+						handle_object_merge(format, @assignment, result[:candidates], assignment_params)
 					else	# invalid data
 						render_member_errors(:create, result)
 					end
@@ -150,8 +149,7 @@ class AssignmentsController < ApplicationController
 					render_assignment_errors(:edit, result)
 				end
 			when :offer_merge
-				prepare_person_bearing_merge(@assignment, result[:candidates], assignment_params)
-				format.html { render :merge, location: resource_route(@asignment) }
+				handle_object_merge(format, @assignment, result[:candidates], assignment_params)
 			else
 				render_assignment_errors(:edit, result)
 			end
@@ -215,7 +213,7 @@ class AssignmentsController < ApplicationController
 		end
 
 		def render_assignment_errors(action, result)
-			prepare_form(create: action == :new)
+			prepare_form(action == :new ? :create : action)
 			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
 			format.json { render json: @user.errors, status: :unprocessable_entity }
 		end

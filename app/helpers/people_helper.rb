@@ -17,8 +17,69 @@
 # contact email - iangullo@gmail.com.
 #
 module PeopleHelper
-	def person_name_field(person)
-		{ kind: :normal, value: person.to_s }
+	# Multipurpose person title definition
+	def person_title(icon: symbol_hash("person"), title:, subtitle: nil, rows: 3, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
+		title_start(icon:, title:, subtitle:, rows:, cols:, size:, _class: _class, form:)
+	end
+
+	#----------------------------------------------
+	# Field definitions for person show
+	#----------------------------------------------
+	def person_show_title(pobj, title: nil, rows: 3, cols: nil, id_pic: true)
+		owned  = !pobj.is_a?(Person)
+		person = owned ? pobj.person : pobj
+
+		icon     = pobj.picture
+		title  ||= pobj.label
+		subtitle = person&.nick&.presence || person&.name
+
+		fields = person_title(icon:, title:, subtitle:, rows:, cols:)
+
+		c_field = person&.email || pobj&.phone ?
+			{ kind: :contact, email: person&.email, phone: pobj&.phone, device:, align: :left } :
+			{ kind: :text, value: Person.msg(:no_contact) }
+
+		id_field = id_pic ?
+			person_idpic(person) :
+			{ kind: :string, value: pobj&.person&.dni || Person.msg(:no_id) }
+
+		fields += [
+			[ { kind: :label, value: person&.surname, cols: } ],
+			[
+				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: },
+				c_field
+			],
+			[ gap_field, id_field ]
+		]
+		if owned
+			fields[4][0] = participation_club_field(pobj)
+		end
+		fields
+	end
+
+	# FieldComponent fields to show a person
+	def person_show_fields(person, title: Person.label, icon: person&.picture)
+		[
+			[
+			symbol_field("home", { size: "25x25", title: Person.fld(:address) }, class: "align-top", align: "right"),
+			{ kind: :string, value: simple_format("#{@person&.address}"), align: "left" }
+			]
+		]
+	end
+
+	#----------------------------------------------
+	# Field definitions for person forms
+	#----------------------------------------------
+	def person_form_title(pobj, icon: person&.picture, title:, cols: 2, sex: nil)
+		person = pobj.person
+		res = person_title(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
+		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: Person.fld(:name), cols: 2, mandatory: { length: 2 } } ]
+		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: Person.fld(:surname), cols: 2, mandatory: { length: 2 } } ]
+		res << (sex ? [ { kind: :label_checkbox, label: Person.t_path(:sex, :female_short), key: :female, value: person&.female, align: "left" } ] : [])
+		res.last << symbol_field("calendar")
+		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
+		res = participation_fields(pobj, res, just_icon: false) unless pobj.is_a?(Person)
+		res
 	end
 
 	def person_form_fields(person, mandatory_email: nil)
@@ -70,44 +131,13 @@ module PeopleHelper
 		res
 	end
 
-	# return defintion @fields for forms
-	def person_form_title(pobj, icon: person&.picture, title:, cols: 2, sex: nil)
-		person = pobj.person
-		res = person_title(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
-		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: Person.fld(:name), cols: 2, mandatory: { length: 2 } } ]
-		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: Person.fld(:surname), cols: 2, mandatory: { length: 2 } } ]
-		res << (sex ? [ { kind: :label_checkbox, label: Person.t_path(:sex, :female_short), key: :female, value: person&.female, align: "left" } ] : [])
-		res.last << symbol_field("calendar")
-		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
-		res = participation_fields(pobj, res, just_icon: false) unless pobj.is_a?(Person)
-		res
-	end
-
-	# wrapper to manage return of suitable Field for id Person fields
-	# standardised field with icons for player/coach id pics
-	def person_idpic(person, idpic: nil, cols: nil, align: "center")
-		if idpic	# it is an editor field
-			{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: Person.fld(idpic)), label: Person.fld(idpic, :short), key: idpic, value: person&.send(idpic)&.filename, cols: }
-		else
-			pidpic = person&.idpic_content
-			symbol = pidpic[:symbol]
-			label  = pidpic[:label]
-			if pidpic[:found] && @policy.update?	# dropdown menu
-				button = { kind: :link, name: "id-pics", symbol:, label:, append: true, options: [] }
-				button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
-				button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
-				{ kind: :dropdown, button:, class: "bg-white", cols: }
-			else
-				{ kind: :icon_label, symbol:, label:, right: true, align: "left", cols: }
-			end
-		end
-	end
-
+	# nested form to add/edit person relationships
 	def person_merge_fields(pobj, candidates, attrs)
+		# Pass original form fields as hidden data to rebuild the object
 		pobj_fields = []
-		attrs.each { |key, value| pobj_fields << { kind: :hidden, key:, value: } }
+		hidden_field_definitions(attrs).each { |field| pobj_fields << field }
 
-		merge_fields = [ pobj_fields ]	# FIELDS TO SHOW MERGE as a form?
+		merge_fields = [ pobj_fields ]
 		merge_fields += [
 			gap_row,
 			[ { kind: :label, value: Person.msg(:ambiguous) } ]
@@ -130,61 +160,34 @@ module PeopleHelper
 		]
 	end
 
-	# FieldComponent fields to show a person
-	def person_show_fields(person, title: Person.label, icon: person&.picture)
-		[
-			[
-			symbol_field("home", { size: "25x25", title: Person.fld(:address) }, class: "align-top", align: "right"),
-			{ kind: :string, value: simple_format("#{@person&.address}"), align: "left" }
-			]
-		]
-	end
-
-	# fields definition to show title of a person view
-	def person_show_title(pobj, title: nil, rows: 3, cols: nil, id_pic: true)
-		owned  = !pobj.is_a?(Person)
-		person = owned ? pobj.person : pobj
-
-		icon     = pobj.picture
-		title  ||= pobj.label
-		subtitle = person&.nick&.presence || person&.name
-
-		fields = person_title(icon:, title:, subtitle:, rows:, cols:)
-
-		c_field = person&.email || pobj&.phone ?
-			{ kind: :contact, email: person&.email, phone: pobj&.phone, device:, align: :left } :
-			{ kind: :text, value: Person.msg(:no_contact) }
-
-		id_field = id_pic ?
-			person_idpic(person) :
-			{ kind: :string, value: pobj&.person&.dni || Person.msg(:no_id) }
-
-		fields += [
-			[ { kind: :label, value: person&.surname, cols: } ],
-			[
-				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: },
-				c_field
-			],
-			[ gap_field, id_field ]
-		]
-		if owned
-			fields[4][0] = participation_club_field(pobj)
+	private
+		# button to download an idpic
+		def idpic_button(person, idpic)
+			{
+				kind: :link,
+				label: Person.fld(idpic.to_sym, :short),
+				url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
+				d_class: "inline-flex items-center"
+			}
 		end
-		fields
-	end
 
-	# return icon and top of fields definition
-	def person_title(icon: symbol_hash("person"), title:, subtitle: nil, rows: 3, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
-		title_start(icon:, title:, subtitle:, rows:, cols:, size:, _class: _class, form:)
-	end
-
-	# button to download an idpic
-	def idpic_button(person, idpic)
-		{
-			kind: :link,
-			label: Person.fld(idpic.to_sym, :short),
-			url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
-			d_class: "inline-flex items-center"
-		}
-	end
+		# wrapper to manage return of suitable Field for id Person fields
+		# standardised field with icons for player/coach id pics
+		def person_idpic(person, idpic: nil, cols: nil, align: "center")
+			if idpic	# it is an editor field
+				{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: Person.fld(idpic)), label: Person.fld(idpic, :short), key: idpic, value: person&.send(idpic)&.filename, cols: }
+			else
+				pidpic = person&.idpic_content
+				symbol = pidpic[:symbol]
+				label  = pidpic[:label]
+				if pidpic[:found] && @policy.update?	# dropdown menu
+					button = { kind: :link, name: "id-pics", symbol:, label:, append: true, options: [] }
+					button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
+					button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
+					{ kind: :dropdown, button:, class: "bg-white", cols: }
+				else
+					{ kind: :icon_label, symbol:, label:, right: true, align: "left", cols: }
+				end
+			end
+		end
 end

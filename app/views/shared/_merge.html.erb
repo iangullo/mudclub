@@ -1,7 +1,7 @@
 <%= render ModalComponent.new do %>
-	<%= form_with( model: resource_route(@member),
+	<%= form_with( model: resource_route(record),
 			authenticity_token: true,
-			data: { turbo_frame: "modal" }) do |form| %>
+			data: { turbo_frame: :modal }) do |form| %>
 		<%= render @header %>
 		<% @merge_fields.form = form %>
 		<%= render @merge_fields %>

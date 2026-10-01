@@ -2,7 +2,7 @@
 	<%= form_with(
 		model: resource_route(@member),
 		authenticity_token: true,
-		data: {controller: "mandatory-fields", turbo_frame: "_top"}
+		data: {controller: "mandatory-fields", turbo_frame: "modal"}
 	) do |form| %>
 		<% if @p_fields %>
 			<%= form.fields_for :person, @member.person do |f| %>

@@ -67,7 +67,7 @@ class MembershipsController < ApplicationController
 		@policy = check_policy!(MembershipPolicy, club: @club, kind: @kind)
 		@member = Membership.new(club: @club, kind: @kind)
 		@member.build_person
-		prepare_form(:create)
+		prepare_form(:new)
 	end
 
 	# POST /memberships
@@ -96,8 +96,7 @@ class MembershipsController < ApplicationController
 				end
 				render_member_errors(:edit, result) unless @member.persisted? && @member.errors.empty?
 			when :offer_merge
-				prepare_person_bearing_merge(@member, result[:candidates], membership_params)
-				format.html { render :merge }
+				handle_object_merge(format, @member, result[:candidates], membership_params)
 			else	# invalid data
 				render_member_errors(:create, result)
 			end
@@ -123,10 +122,7 @@ class MembershipsController < ApplicationController
 				Membership.transaction do
 					notice = Membership.msg(@member.modified? ? :updated : :no_change)
 					if @member.save
-						format.html do
-							redirect_to path_for(@member), notice:
-						end
-
+						format.html { redirect_to path_for(@member), notice: }
 						format.json { render :show, status: :ok, location: @member }
 					else
 						log_membership_errors
@@ -135,9 +131,7 @@ class MembershipsController < ApplicationController
 				end
 				render_member_errors(:edit, result) unless @member.persisted? && @member.errors.empty?
 			when :offer_merge
-				prepare_person_bearing_merge(@member, result[:candidates], membership_params)
-				format.html { render :merge, status: :unprocessable_entity }
-				format.json { render json: { status: :offer_merge }, status: :multiple_choices }
+				handle_object_merge(format, @member, result[:candidates], membership_params)
 			else	# invalid data
 				render_member_errors(:edit, result)
 			end
@@ -206,7 +200,7 @@ class MembershipsController < ApplicationController
 		end
 
 		def render_member_errors(action, result)
-			prepare_form(create: action == :new)
+			prepare_form(action == :new ? :create : action)
 			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
 			format.json { render json: @user.errors, status: :unprocessable_entity }
 		end

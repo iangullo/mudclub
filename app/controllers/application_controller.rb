@@ -305,6 +305,30 @@ class ApplicationController < ActionController::Base
 			res.nil? ? nil :  res.to_i
 		end
 
+		# shared abstraction to handle object merge modal requests
+		# must be passed the response format, record, merge candidates
+		# and record_params
+		def handle_object_merge(format, record, candidates, attrs)
+			prepare_person_bearing_merge(record, candidates, attrs)
+
+			format.turbo_stream do
+				render turbo_stream:
+					turbo_stream.replace(
+						"modal",
+						partial: "shared/merge",
+						locals: { record: }
+					), status: :unprocessable_entity
+			end
+
+			format.html do
+				render partial: "shared/merge", locals: { record: }, status: :unprocessable_entity
+			end
+
+			format.json do
+				render json: { status: :offer_merge }, status: :multiple_choices
+			end
+		end
+
 		# Calculate pagination parameters based on available screen space or other criteria
 		def paginate(data, lines = 1)
 			drows = case helpers.device

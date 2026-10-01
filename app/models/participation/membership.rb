@@ -106,27 +106,29 @@ class Membership < ApplicationRecord
 	def merge_from(other)
 		return if other.club != club || other.kind != kind
 
-		avatar    = other.avatar if avatar.blank?
-		joined_on = other.joined_on if other.joined_on < joined_on
-		left_on   = other.left_on if other.left_on == nil || other.left_on > left_on
-		notes     = other.notes if notes.blank?
-		settings  = other.settings if settings.blank?
-		status    = :active if status != :active && left_on == nil
+		# merge membership properties...
+		self.avatar.attach(other.avatar.blob) if !avatar.attached? && other.avatar.attached?
+		self.joined_on = earliest_date(joined_on, other.joined_on)
+		self.left_on   = latest_date(left_on, other.left_on)
+		self.notes     = other.notes if notes.blank?
+		self.settings  = other.settings if settings.blank?
+		self.status    = :active if status != :active && left_on == nil
 
+		# merge assignments..
 		other.assignments.each do |assignment|
 			mine = assignments.where(team_id: assignment.team_id, kind: assignment.kind)
-			if mine
-				mine.avatar    = assignment.avatar if mine.avatar.blank?
-				mine.starts_on = assignment.starts_on if other.starts_on < mine.starts_on
-				mine.ends_on   = assignment.ends_on if other.ends_on == nil || other.ends_on > mine.ends_on
-				mine.number    = assignment.settings if mine.settings.blank?
-				mine.settings  = assignment.settings if mine.settings.blank?
-				mine.status    = :active if status != :active && mine.ends_on == nil
-				mine.save
-			else
+			if mine.none?
 				assignment.update!(membership: self)
+			else
+				mine.each { |candidate| candidate.merge_from(assignment) }
 			end
 		end
+
+		assignments.reset
+		other.assignments.reset
+		save!
+
+		true
 	end
 
 	def overlaps?(other)
@@ -156,6 +158,7 @@ class Membership < ApplicationRecord
 		self.joined_on = data[:joined_on] if data.key?(:joined_on)
 		self.left_on   = data[:left_on]   if data.key?(:left_on)
 		self.notes     = data[:notes]     if data.key?(:notes)
+		self.update_attachment("avatar", data[:avatar])	if data[:avatar].present?
 
 		PersonResolution.new(status: :ok, person:)
 	end
