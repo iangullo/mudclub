@@ -147,6 +147,8 @@ en:
       actions:
         edit: Edit user
         create: Create user
+        sign_in: Sign in
+        sign_out: Exit
       fields:
         password: Password
         password_short: Pass
@@ -276,6 +278,7 @@ en:
         info-5: "Training: planning, drills, plays, sessions."
         info-6: "Matches: outings/stats & results."
         published: "Published under GNU Affero GPLv3 license"
+        tagline: "The open source Rails platform to manage amateur sports clubs."
         website: MudClub wiki
         log: Logs
 

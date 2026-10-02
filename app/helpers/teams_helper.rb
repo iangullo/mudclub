@@ -170,6 +170,42 @@ module TeamsHelper
 		end
 	end
 
+	# return a TableComponent for the teams given
+	def public_team_table(teams: @teams)
+		if teams
+			title = [ { kind: :normal, value: Team.label } ]
+			unless device == "mobile"
+				title << { kind: :normal, value: Division.label }
+			end
+			title += [
+				{ kind: :normal, value: Person.fld(:age, :plural) },
+				{ kind: :normal, value: Team.term(:athlete, :short) }
+			]
+
+
+			rows = Array.new
+			teams.each { |team|
+				url = path_for(team, action: :slots)
+				row = { url:, frame: :modal, items: [] }
+				row[:items] << { kind: :normal, value: team.name }
+				unless device == "mobile"
+					row[:items] += [
+						{ kind: :normal, value: team.division.name, align: :center }
+					]
+				end
+				row[:items] += [
+					{ kind: :normal, value: team.category.birth_years, align: :center },
+					{ kind: :normal, value: team.athletes.count, align: :center }
+				]
+
+				rows << row
+			}
+			{ title:, rows: }
+		else
+			nil
+		end
+	end
+
 	# return jump links for a team
 	def team_links
 		links = []

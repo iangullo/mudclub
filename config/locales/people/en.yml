@@ -39,6 +39,7 @@ en:
         birthday: Birth date
         birthday_short: DoB
         age: Age
+        age_plural: Ages
         sex: Sex
         contact: Contact
         contact_short: Cont.

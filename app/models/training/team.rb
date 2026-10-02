@@ -45,7 +45,7 @@ class Team < ApplicationRecord
 	#-------------------------------------
 	# Class Scopes & filter fields
 	#-------------------------------------
-	scope :ordered,		 -> { order(category_id: :asc) }
+	scope :ordered,    -> { joins(:category).order("categories.min_years ASC, teams.name ASC") }
 	scope :real,			 -> { where("id>0") }
 	scope :for_season, ->(season) { filter_by_id(:season_id, season) }
 	scope :for_club,	 ->(club) { filter_by_id(:club_id, club)	}

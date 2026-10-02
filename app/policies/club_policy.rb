@@ -30,7 +30,7 @@ class ClubPolicy < ApplicationPolicy
 	#------------------------------------
 
 	def show?
-		true
+		@actor || target_club&.publicly_visible?
 	end
 
 	def show_details?

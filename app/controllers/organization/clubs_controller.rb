@@ -38,15 +38,24 @@ class ClubsController < ApplicationController
 		@policy = check_policy!(ClubPolicy, record: @club)
 
 		@title  = create_fields(helpers.club_show_title)
-		@links  = create_fields(helpers.club_links)
-		if user_in_club?	# my own club: show events
-			@table = create_fields(helpers.event_list_table(obj: Season.latest))
-		else	# off return to  the user's club
-			close  = :back
-			retlnk = back_link(default: clubs_path)
+		if current_user
+			@links  = create_fields(helpers.club_links)
+			if user_in_club?	# my own club: show events
+				@table = create_fields(helpers.event_list_table(obj: Season.latest))
+			else	# off return to  the user's club
+				close  = :back
+				retlnk = back_link(default: clubs_path)
+			end
+			submit  = edit_path_for(@club) if @policy.edit?
+		else # anonymous mode. policy will take care of access
+			close   = :back
+			retlnk  = root_path
+			teams   = @club.teams.for_season(Season.latest).ordered
+			page    = paginate(teams)
+			@fields = create_fields(helpers.club_public_fields)
+			@table  = create_table(helpers.public_team_table(teams: page))
 		end
-		submit  = edit_path_for(@club) if @policy.edit?
-		@submit = create_submit(close:, retlnk:, submit:, frame: :modal)
+		@submit = create_submit(close:, retlnk:, submit:)
 	end
 
 	# GET /clubs/new

@@ -36,21 +36,21 @@ class Club < ApplicationRecord
 
 	has_many :teams
 	has_many :users
-	has_many :memberships,
-					dependent: :restrict_with_error,
-					inverse_of: :club
-	has_many :assignments,
-					through: :memberships,
-					dependent: :restrict_with_error
+	has_many :memberships, dependent: :restrict_with_error, inverse_of: :club
+	has_many :assignments, through: :memberships, dependent: :restrict_with_error
 	has_one_attached :avatar
+
+	belongs_to :public_approved_by, class_name: "User", optional: true
 
 	#-------------------------------------
 	# Convenience Scopes
 	#-------------------------------------
-	pg_search_scope :search_by_any,
-		against: [ :nick, :name ],
-		ignoring: :accents,
-		using: { tsearch: { prefix: true } }
+	# A club shows publicly only when BOTH the server allows it AND the
+	# club itself opted in. The server gate is checked at the call site
+	# (policies, controllers) — this scope only says "which clubs have
+	# opted in and could be shown".
+	scope :public_visible, -> { where(public: true) }
+
 	pg_search_scope :search_by_any,
 		against: [ :nick, :name ],
 		ignoring: :accents,
@@ -76,6 +76,11 @@ class Club < ApplicationRecord
 	# club sports
 	def sports
 		ClubSport.where(club: self)
+	end
+
+	# Allows registering membership requests
+	def accepts_registrations?
+		publicly_visible? && ServerSetting.registrations_enabled?
 	end
 
 	# Athletes members pertaining to the club
@@ -136,6 +141,11 @@ class Club < ApplicationRecord
 		self.avatar.attached? ? self.avatar : "mudclub.svg"
 	end
 
+	# show a public page??
+	def publicly_visible?
+		public? && ServerSetting.public_clubs_enabled?
+	end
+
 	# rebuild CLub data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
@@ -144,16 +154,18 @@ class Club < ApplicationRecord
 		self.name     = f_data[:name] if f_data[:name].present?
 		self.nick     = f_data[:nick] if f_data[:nick].present?
 		self.phone    = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
-		self.settings["country"] = f_data["country"].presence || self.country || "US"
-		self.settings["locale"]  = f_data["locale"].presence || self.locale || "en"
-		self.settings["social"]  = f_data["social"].presence || self.social
-		self.settings["website"] = f_data["website"].presence || self.website
+		self.settings = settings.merge(
+			"country" => f_data["country"].presence || settings["country"] || "US",
+			"locale"  => f_data["locale"].presence  || settings["locale"]  || "en",
+			"social"  => f_data["social"].presence  || settings["social"],
+			"website" => f_data["website"].presence || settings["website"]
+		)
 		self.update_attachment("avatar", f_data[:avatar])
 	end
 
 	# return list of rivals for this club
 	def rivals
-		Club.real.where.not(id: self.id)
+		Club.where.not(id: self.id)
 	end
 
 	# access setting for country
@@ -216,21 +228,27 @@ class Club < ApplicationRecord
 	# used to list available clubs in selectors
 	def self.list
 		res = [ [ I18n.t("shared.statuses.inactive"), -1 ] ]
-		Club.real.each { |club| res << [ club.nick, club.id ] }
+		Club.each { |club| res << [ club.nick, club.id ] }
 		res
+	end
+
+	# Combined query: server allows public pages AND club opted in.
+	# Reads ServerSetting, which is memoized per request.
+	def self.publicly_listed
+		return none unless ServerSetting.public_clubs_enabled?
+		public_visible.order(:nick)
 	end
 
 	# Search field matching
 	def self.search(search, user = nil, club = nil)
-		c_id = club&.id
-		if search.present?
-			return Club.where.not(id: [ -1, c_id ]).search_by_any(search).order(:nick) if user.is_manager?(club)
-			return Club.search_by_any(search).order(:nick) if user.admin?
-		else
-			return Club.where.not(id: [ -1, c_id ]).order(:nick) if user.is_manager?(club)
-			return Club.all.order(:nick) if user.admin?
-		end
-		Club.none
+		return public_visible unless user
+
+		excluded = [ -1, club&.id ].compact
+
+		scope = user.admin? ? all : where.not(id: excluded)
+		scope = scope.search_by_any(search) if search.present?
+
+		scope.order(:nick)
 	end
 
 	private

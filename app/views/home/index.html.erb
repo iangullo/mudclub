@@ -1,7 +1,9 @@
-<% if current_user.present? %>
-	<div id="home-logged-in">
-		<%= render "shared/g_index" %>
-	</div>
-<% else %>
-	<%= render @login_fields %>
-<% end %>
+<div id="mudclub-home">
+    <p>
+        <%= ServerSetting.tagline %>
+    <p>
+        <%= render @fields if @fields %>
+    <hr>
+    <% if @table %><%= render @table %><% end %>
+    <%= render @submit if @submit %>
+</div>

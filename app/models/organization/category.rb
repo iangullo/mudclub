@@ -47,12 +47,17 @@ class Category < ApplicationRecord
 	# calculate earliest valid birthday date depending on
 	# s_year (season year)
 	def youngest(s_year)
-		DateTime.new(s_year-self.min_years+1, 1, 1).to_date
+		DateTime.new(s_year-self.min_years, 1, 1).to_date
 	end
 
 	# same for latest valid birthdate
 	def oldest(s_year)
-		DateTime.new(s_year-self.max_years-1, 12, 31).to_date
+		DateTime.new(s_year-self.max_years, 12, 31).to_date
+	end
+
+	def birth_years(s_year = Date.current.year)
+		return "> #{youngest(s_year).year}" if min_years == 18
+		"#{oldest(s_year).year} - #{youngest(s_year).year}"
 	end
 
 	# default applicable rules

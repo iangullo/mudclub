@@ -161,7 +161,7 @@ class ServerSetting < ApplicationRecord
 	end
 
 	def tagline
-		settings[:tagline] || "The open source Rails platform to manage amateur sports clubs."
+		settings[:tagline] || self.fld(:tagline)
 	end
 
 	def support_email

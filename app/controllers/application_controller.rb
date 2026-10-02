@@ -195,7 +195,7 @@ class ApplicationController < ActionController::Base
 			@season = Season.search(p_seasonid)
 		else
 			# Fallback for anonymous (or club-less) visitors on public club pages
-			@club   = Club.find_by(slug: params[:club_id]) if params[:club_id].present?
+			@club   = Club.find(params[:club_id]) if params[:club_id].present?
 			@season = Season.latest
 		end
 		@favicon  = user_favicon(@club)

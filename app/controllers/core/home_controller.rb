@@ -33,7 +33,15 @@ class HomeController < ApplicationController
 				end
 			redirect_to h_path, data: { turbo_action: "replace" }
 		else
-			@login_fields = create_fields(helpers.home_closed)
+			@clubs  = Club.publicly_listed
+			if @clubs.size == 1
+				redirect_to path_for(@clubs.first)
+			else
+				@fields = create_fields(helpers.home_anonymous_fields)
+				page    = paginate(@clubs)
+				@table  = create_table(helpers.club_table(clubs: page))
+			end
+
 		end
 	end
 

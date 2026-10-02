@@ -73,7 +73,10 @@ class TeamPolicy < ApplicationPolicy
 		)
 	end
 
-	def slots? = allowed?(same_club?(@record))
+	def slots?
+		allowed?(same_club?(@record)) ||
+		target_club&.publicly_visible?
+	end
 
 	#------------------------------------
 	# Team coaching

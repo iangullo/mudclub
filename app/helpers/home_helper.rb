@@ -17,11 +17,20 @@
 # contact email - iangullo@gmail.com.
 #
 module HomeHelper
-	# default title FieldComponents for home page
-	def home_title(icon: current_user.picture, title: current_user.s_name, subtitle: nil)
-		title_start(icon:, title:, subtitle:, _class: "rounded-full")
+	#---------------------------------------------------------
+	# fields for anonymous views
+	#---------------------------------------------------------
+	def home_anonymous_fields
+		[
+			[
+				{ kind: :label, value: Clubs.label(:plural) }
+			]
+		]
 	end
 
+	#---------------------------------------------------------
+	# fields for modal "about" view
+	#---------------------------------------------------------
 	# title for "about MudClub.." view
 	def home_about_title
 		build = "(#{I18n.t("server.build")}#{BUILD})"
@@ -51,6 +60,9 @@ module HomeHelper
 		"MudClub #{VERSION}"
 	end
 
+	#---------------------------------------------------------
+	# fields for "admin" pages
+	#---------------------------------------------------------
 	# title fields for admin pages
 	def home_admin_title(icon: "mudclub.svg", subtitle: current_user.to_s)
 		title_start(icon:, title: "MudClub - #{I18n.t("action.admin")}", subtitle:, rows: 2, _class: "rounded-full")
@@ -70,7 +82,9 @@ module HomeHelper
 		]
 	end
 
+	#---------------------------------------------------------
 	# user action log table
+	#---------------------------------------------------------
 	def home_actions_table(actions:, retlnk: nil)
 		title = [
 			{ kind: :normal, value: I18n.t("calendar.date"), align: "center" },
@@ -91,22 +105,5 @@ module HomeHelper
 			rows << row
 		}
 		{ title:, rows: }
-	end
-
-	# user login fields
-	def home_closed
-		[
-			[
-				symbol_field("user", { size: "30x30" }, align: "center"),
-				button_field(home_login_button, rows: 2)
-			],
-			[
-				{ kind: :text, value: I18n.t("status.closed"), align: "center" }
-			]
-		]
-	end
-
-	def home_login_button
-		{ kind: "jump", url: new_user_session_path, data: { turbo_frame: "_top" }, symbol: symbol_hash("login", type: "button"), class: "m-2", d_class: "rounded bg-blue-900 hover:bg-blue-700 max-h-8 min-h-6" }
 	end
 end

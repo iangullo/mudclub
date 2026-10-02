@@ -45,6 +45,6 @@ class CategoryPolicy < ApplicationPolicy
 
 	# cannot destroy placeholder season (id == 0)
 	def destroy?
-		@record&id&.to_i > 0 && admin?
+		@record&.id.to_i > 0 && admin?
 	end
 end

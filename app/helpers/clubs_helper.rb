@@ -17,6 +17,15 @@
 # contact email - iangullo@gmail.com.
 #
 module ClubsHelper
+	# public mode fields
+	def club_public_fields
+		[
+			[
+				{ kind: :label, value: "#{Team.label(:plural)} - #{@season.name}" }
+			]
+		]
+	end
+
 	# return @clubs TableComponent
 	def club_table(clubs: @clubs)
 		title = [

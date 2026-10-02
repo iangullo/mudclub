@@ -205,8 +205,8 @@ class TeamsController < ApplicationController
 	def slots
 		@policy = check_policy!(TeamPolicy, record: @team)
 
-		title   = helpers.team_title(title: @team.to_s)
-		@title   = create_fields(title)
+		header  = helpers.team_title(title: @team.to_s)
+		@header = create_fields(header)
 		@fields = create_fields(helpers.team_slots) unless @team.slots.empty?
 	end
 

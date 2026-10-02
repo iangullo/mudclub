@@ -42,7 +42,8 @@ class TopbarComponent < ApplicationComponent
 		content_tag(:nav, class: "max-w-7xl mx-auto px-2 sm:px-6 lg:px-8") do
 			content_tag(:div, class: "relative flex items-center justify-between h-16") do
 				concat(render_large_menu)
-				concat(render_ham_menu) if @ham_menu
+				concat(render_login_menu) if @login_menu
+				concat(render_ham_menu)		if @ham_menu
 			end
 		end
 	end
@@ -53,7 +54,7 @@ class TopbarComponent < ApplicationComponent
 		if user.present?
 			@menu_tabs = menu_tabs(user, home, logout)
 		else
-			@menu_tabs = anonymous_menu
+			@login_menu = anonymous_menu
 		end
 		@ham_menu  = set_hamburger_menu
 	end
@@ -116,6 +117,12 @@ class TopbarComponent < ApplicationComponent
 		end
 	end
 
+	def render_login_menu
+		content_tag(:div, class: "hidden sm:block absolute inset-y-0 right-0 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0", aria_label: "Login") do
+			link_to(@login_menu[:label], @login_menu[:url], class: @login_menu[:class], data: { turbo_frame: "_top", turbo_action: "replace" })
+		end
+	end
+
 	def render_tabs
 		content_tag(:div, class: "hidden sm:block sm:ml-6 flex space-x-4 text-base text-gray-300", aria_label: "Navigation buttons") do
 			@menu_tabs.map do |tab|
@@ -132,7 +139,7 @@ class TopbarComponent < ApplicationComponent
 
 	def set_hamburger_menu
 		options = []
-		@menu_tabs.each do |m_opt|
+		@menu_tabs&.each do |m_opt|
 			if m_opt
 				h_opt = m_opt.deep_dup
 				if h_opt[:options]
@@ -154,17 +161,12 @@ class TopbarComponent < ApplicationComponent
 				options << h_opt if h_opt
 			end
 		end
+		options << @sign_in if @sign_in
 		DropdownComponent.new(menu_drop("hamburger", ham: true, options:)) unless options.empty?
 	end
 
 	def anonymous_menu
-		items = []
-#		if @club
-#			items << menu_link(label: Registration.act(:create, :short), url: public_new_registration_path(@club))
-#		end
-		logincls = "login_button rounded hover:bg-blue-700 max-h-8 min-h-6"
-		items << menu_link(label: I18n.t("action.login"), url: "/users/sign_in", class: logincls)
-		items
+		@sign_in = menu_link(label: User.act(:sign_in), url: "/users/sign_in", class: @tabcls)
 	end
 
 	# menu buttons for coaches

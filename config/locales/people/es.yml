@@ -39,6 +39,7 @@ es:
         birthday: Fecha de nacimiento
         birthday_short: F.Nac.
         age: Edad
+        age_plural: Edades
         sex: Sexo
         contact: Contacto
         contact_short: Cont.
