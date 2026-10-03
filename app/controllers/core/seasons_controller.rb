@@ -27,9 +27,9 @@ class SeasonsController < ApplicationController
 
 		@seasons = Season.real
 		page  = paginate(@seasons)	# paginate results
-		title = helpers.season_title(icon: "mudclub.svg", title: I18n.t("season.many"))
+		title = helpers.season_title(icon: Server.server_logo, title: Season.label(:plural))
 		table = helpers.season_table(seasons: page)
-		create_index(title:, table:, page:, retlnk: back_link)
+		create_index(title:, table:, page:, retlnk: server_path)
 	end
 
 	# GET /seasons/1
@@ -63,7 +63,7 @@ class SeasonsController < ApplicationController
 		@season = Season.new(season_params)
 		respond_to do |format|
 			if @season.save
-				a_desc = "#{I18n.t("season.created")} '#{@season.name}'"
+				a_desc = "#{Season.msg(:created)} '#{@season.name}'"
 				retlnk = crud_return
 				register_action(:created, a_desc, url: path_for(@season, rdx: 2))
 				format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
@@ -87,7 +87,7 @@ class SeasonsController < ApplicationController
 			retlnk = crud_return
 			if @season.changed?
 				if @season.save
-					a_desc = "#{I18n.t("season.updated")} '#{@season.name}'"
+					a_desc = "#{Season.msg(:updated)} '#{@season.name}'"
 					register_action(:updated, a_desc, url: path_for(@season, rdx: 2))
 					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :show, status: :created, location: retlnk }
@@ -111,7 +111,7 @@ class SeasonsController < ApplicationController
 		s_name = @season.name
 		@season.destroy
 		respond_to do |format|
-			a_desc = "#{I18n.t("season.deleted")} '#{s_name}'"
+			a_desc = "#{Season.msg(:deleted)} '#{s_name}'"
 			register_action(:deleted, a_desc)
 			format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 			format.json { head :no_content }

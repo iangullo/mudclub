@@ -119,7 +119,7 @@ module RoutingHelper
 		when 1
 			user_path(current_user, **opts)
 		when 2
-			home_log_path(**opts)
+			log_server_path(**opts)
 		when 3
 			if params[:member_id].present?
 				club_member_path(club:, **opts)

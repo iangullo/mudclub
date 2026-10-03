@@ -16,10 +16,14 @@
 #
 # contact email - iangullo@gmail.com.
 
-# app/models/server_setting.rb
-class ServerSetting < ApplicationRecord
+# app/models/server.rb
+class Server < ApplicationRecord
 	localized_as "core.server"
+	self.table_name = "server_settings"
+
 	DATE_FORMATS = %i[default short long numeric].freeze
+	BOOLEAN_OPTS = %i[public_clubs_enabled public_directory_enabled].freeze
+	REGULAR_OPTS = %i[server_name support_email default_locale date_format].freeze
 
 	#-------------------------------------
 	# Validations
@@ -45,13 +49,60 @@ class ServerSetting < ApplicationRecord
 
 		# Mutators and predicates that take args also delegate.
 		delegate :module_enabled?, :enable_module!, :disable_module!,
-						:dependencies_of, :dependents_of,
+						:dependencies_of, :dependents_of, :date_formats,
+						:locale_list, :boolean_option_list, :admissions,
+						:public_clubs_enabled?, :public_directory_enabled?,
 						to: :current
 	end
 
 	#-------------------------------------
 	# General API methods
 	#-------------------------------------
+	def to_param = nil
+
+	def self.boolean_option_list
+		opts = []
+		optional_modules.each do |mod|
+			opts << [ I18n.t("core.modules.values.#{mod}"), mod ]
+		end
+
+		BOOLEAN_OPTS.each do |opt|
+			opts << [ Server.fld(opt), opt ]
+		end
+
+		opts
+	end
+
+	# list of possible user locales for select box configuration
+	def self.locale_list
+		opts = []
+		I18n.available_locales.each do |locale|
+			opts << [ I18n.t("locale.#{locale}", locale:), locale ]
+		end
+
+		opts
+	end
+
+	def self.date_formats
+		opts = []
+		DATE_FORMATS.each do |d_format|
+			opts << [ t_path(:formats, d_format), d_format ]
+		end
+
+		opts
+	end
+
+	def admissions
+		module_enabled?(:admissions) ? true : false
+	end
+
+	def public_clubs_enabled
+		public_clubs_enabled? ? true : false
+	end
+
+	def public_directory_enabled
+		public_directory_enabled? ?  true : false
+	end
 
 	# ─── Singleton ──────────────────────────────────────────────
 	def self.instance
@@ -69,6 +120,29 @@ class ServerSetting < ApplicationRecord
 	def self.reload!
 		@instance = nil
 		Current.server_settings = nil
+	end
+
+	def self.rebuild!(attrs)
+		self.transaction do
+			new_settings = instance.settings.dup
+			REGULAR_OPTS.each do |opt|
+				new_settings[opt.to_sym] = attrs[opt.to_s] if attrs[opt.to_s].present?
+			end
+
+			BOOLEAN_OPTS.each do |opt|
+				new_settings[opt.to_sym] = to_boolean(attrs[opt.to_s]) if attrs[opt.to_s].present?
+			end
+
+			if instance.update_settings!(new_settings)
+				optional_modules do |opt|
+					opt.to_boolean ? instance.enable_module!(opt) : instance.disable_module!(opt)
+				end
+				return true
+			end
+			false
+		end
+
+		false
 	end
 
 	# ─── Settings hash ──────────────────────────────────────────
@@ -216,6 +290,7 @@ class ServerSetting < ApplicationRecord
 	def public_directory_enabled?
 		settings.fetch(:public_directory_enabled, false) && public_clubs_enabled?
 	end
+	alias public_directory_enabled public_directory_enabled?
 
 	# ─── Email ──────────────────────────────────────────────────
 	def email_from

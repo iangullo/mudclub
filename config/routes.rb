@@ -22,11 +22,28 @@ Rails.application.routes.draw do
 	# Core service routes
 	#-------------------------------------
 	root to: "home#index"
-	get "home/about"
-	get "home/log"
-	get "home/clear"
 	get "home/index"
-	get "home/server"
+
+	#---------------------------------------------------------
+	# Server-related (i.e. not Club or User-specific )
+	#---------------------------------------------------------
+	resource :server, controller: :server, only: [ :show, :edit, :update ] do
+		get :about
+		get :log
+		get :clear_log
+	end
+
+	resources :seasons
+
+	resources :sports do
+		get :rules, on: :member
+		resources :categories
+		resources :divisions
+	end
+
+	#-------------------------------------
+	# User pages
+	#-------------------------------------
 	devise_for :users, skip: [ :registrations ]
 
 	as :user do
@@ -42,14 +59,6 @@ Rails.application.routes.draw do
 				patch :activate
 			end
 		end
-	end
-
-	resources :seasons
-
-	resources :sports do
-		get :rules, on: :member
-		resources :categories
-		resources :divisions
 	end
 
 	#-------------------------------------

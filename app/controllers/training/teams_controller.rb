@@ -42,7 +42,6 @@ class TeamsController < ApplicationController
 				retlnk  = back_link(default: zerolnk)
 				submit  = { kind: :export, url: club_teams_path(@club, format: :xlsx, season_id: @season.id), working: false } if @policy.edit?
 				create_index(title:, table:, page:, retlnk:, submit:)
-				render :index
 			end
 		end
 	end

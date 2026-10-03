@@ -80,7 +80,7 @@ class Club < ApplicationRecord
 
 	# Allows registering membership requests
 	def accepts_registrations?
-		publicly_visible? && ServerSetting.registrations_enabled?
+		publicly_visible? && Server.registrations_enabled?
 	end
 
 	# Athletes members pertaining to the club
@@ -143,7 +143,7 @@ class Club < ApplicationRecord
 
 	# show a public page??
 	def publicly_visible?
-		public? && ServerSetting.public_clubs_enabled?
+		public? && Server.public_clubs_enabled?
 	end
 
 	# rebuild CLub data from raw input hash given by a form submittal
@@ -233,9 +233,9 @@ class Club < ApplicationRecord
 	end
 
 	# Combined query: server allows public pages AND club opted in.
-	# Reads ServerSetting, which is memoized per request.
+	# Reads Server, which is memoized per request.
 	def self.publicly_listed
-		return none unless ServerSetting.public_clubs_enabled?
+		return none unless Server.public_clubs_enabled?
 		public_visible.order(:nick)
 	end
 

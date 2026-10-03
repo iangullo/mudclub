@@ -79,50 +79,44 @@ module ClubsHelper
 		res
 	end
 
-	# FieldComponent fields to show a club
-	def club_show_title(rows: 3, cols: 2)
-		res = club_title(title: @club.nick, icon: @club.logo, rows:, cols:)
-		res << [ { kind: :string, value: @club.name, cols: } ]
-		res << [ { kind: :contact, website: @club.website, phone: @club.phone, email: @club.email, device: device } ]
-	end
-
-	# return Club fields definition @fields for forms
-	def club_form_title(title:, cols: 2)
-		res = club_title(title:, icon: @club.logo, rows: 3, cols:, form: true)
-		res << [ { kind: :text_box, key: :nick, value: @club.nick, placeholder: @club.fld(:name), cols:, mandatory: { length: 3 } } ]
-		res << [ { kind: :text_box, key: :name, value: @club.name, size: 27, placeholder: @club.fld(:entity), cols:, mandatory: { length: 3 } } ]
-	end
-
 	# return Club definition @fields for forms
 	def club_form(cols: 5)
 		css = "align-top"
 		[
 			[
-				symbol_field("website", { css: }),
+				symbol_field(:website, { css: }),
 				{ kind: :text_box, key: :website, value: @club.website, placeholder: Club.fld(:website), size: 33, cols: }
 			],
 			[
-				symbol_field("call", { css: }),
+				symbol_field(:call, { css: }),
 				{ kind: :text_box, key: :phone, size: 12, value: @club.phone, placeholder: @club.fld(:phone) },
-				symbol_field("locale", { css:, title: I18n.t("shared.fields.language") }),
+				symbol_field(:locale, { css:, title: I18n.t("shared.fields.language") }),
 				{ kind: :text_box, align: "left", key: :country, value: @club.country, placeholder: "US", size: 2, mandatory: { length: 2 } },
-				symbol_field("flag", { css:, title: I18n.t("shared.fields.country") }),
+				symbol_field(:flag, { css:, title: I18n.t("shared.fields.country") }),
 				{ kind: :select_box, align: "left", key: :locale, options: User.locale_list, value: @club.locale }
 			],
 			[
-				symbol_field("email", { type: :button, css: }),
+				symbol_field(:email, { type: :button, css: }),
 				{ kind: :email_box, key: :email, value: @club.email, placeholder: @club.fld(:email), size: 33, cols: }
 			],
 			[
-				symbol_field("home", { css: }),
+				symbol_field(:home, { css: }),
 				{ kind: :text_area, key: :address, size: 30, cols:, lines: 3, value: @club.address, placeholder: Person.fld(:address) }
 			]
 		]
 	end
 
-	# return icon and top of fields definition
-	def club_title(title:, subtitle: nil, icon: "mudclub.svg", rows: 2, cols: nil, form: nil)
-		size = (icon.is_a?(Hash) && icon[:concept] == :rivals) ? nil : "75x100"
-		title_start(icon:, title:, subtitle:, size:, rows:, cols:, form:)
+	def club_header(icon: @club&.logo, title: @club&.nick, form: nil)
+		icon  ||= "mudclub.svg"
+		title ||= Club.label
+		size    = (icon.is_a?(Hash) && icon[:concept] == :rivals) ? nil : "75x100"
+		header  = title_start(icon:, title:, size:, rows: 3, cols: 2, form:)
+		if form
+			header << [ { kind: :text_box, key: :nick, value: @club.nick, placeholder: @club.fld(:name), cols:, mandatory: { length: 3 } } ]
+			header << [ { kind: :text_box, key: :name, value: @club.name, size: 27, placeholder: @club.fld(:entity), cols:, mandatory: { length: 3 } } ]
+		else
+			header << [ { kind: :string, value: @club.name, cols: 2 } ]
+			header << [ { kind: :contact, website: @club.website, phone: @club.phone, email: @club.email, device: device } ]
+		end
 	end
 end

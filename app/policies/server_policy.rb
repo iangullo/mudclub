@@ -16,20 +16,17 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# app/policies/home_policy.rb
-class HomePolicy < ApplicationPolicy
+# app/policies/server_policy.rb
+class ServerPolicy < ApplicationPolicy
 	#------------------------------------
-	# Slot index - timetable
+	# custom rules
 	#------------------------------------
-	def index?
-		true # routing handled in controller for now
+	def log?(club = target_club)
+		allowed?(manages_club?(club))
 	end
+	alias clear_log? log?
 
-	def club_member?(club = target_club)
-		super(club)
-	end
-
-	def manages_club?(club = target_club)
-		super(club)
-	end
+	def show?   = admin?
+	def edit?   = admin?
+	def update? = admin?
 end

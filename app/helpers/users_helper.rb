@@ -29,7 +29,7 @@ module UsersHelper
 		end
 		if current_user == @user	# only allow current user to change his own password
 			res[2] <<	button_field(
-				{ kind: :link, symbol: "key", label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: :modal, d_class: "inline-flex align-middle m-1 text-sm", flip: true },
+				{ kind: :link, symbol: :key, label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: :modal, d_class: "inline-flex align-middle m-1 text-sm", flip: true },
 				align: "right"
 			)
 		end
@@ -100,14 +100,14 @@ module UsersHelper
 	# return user_actions TableComponent
 	def user_actions_title
 		res  = title_start(title: @user.person.s_name, icon: user_actions_symbol)
-		res << [ { kind: :subtitle, value: I18n.t("user.actions") } ]
+		res << [ { kind: :subtitle, value: UserAction.label(:short) } ]
 	end
 
 	# return user_actions TableComponent
 	def user_actions_table
 		res = [ [
 			topcell_field(I18n.t("calendar.date")),
-			topcell_field(I18n.t("drill.desc"))
+			topcell_field(Drill.fld(:description))
 		] ]
 		@user.user_actions.order(updated_at: :desc).each { |u_act|
 			res << [

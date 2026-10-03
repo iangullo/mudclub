@@ -258,14 +258,15 @@ en:
         short: Srv.
 
       actions:
+        configure: Configure
         edit: Edit Server
         enable_module: Enable module
         disable_module: Disable module
-        reset_defaults: Reset Settings
         localization: Localization
         modules: Modules
-        registrations: Registrations
         public_pages: Public pages
+        registrations: Solicitudes
+        reset_defaults: Reset Settings
 
       fields:
         # Software description

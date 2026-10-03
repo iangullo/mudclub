@@ -24,9 +24,9 @@ class SportsController < ApplicationController
 	def index
 		@policy = check_policy!(SportPolicy)
 
-		title = helpers.home_admin_title(subtitle: I18n.t("sport.many"))
+		title = helpers.server_header(subtitle: Sport.label(:plural))
 		table = helpers.sports_table
-		create_index(title:, table:, retlnk: back_link)
+		create_index(title:, table:, retlnk: server_path)
 	end
 
 	# View sport details

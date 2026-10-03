@@ -78,6 +78,7 @@ class Catalog::Modules < Catalog::Base
 				"Training sessions, drills, tasks, objectives and player development."
 		},
 
+=begin	# FUTURE MODULES!!
 		competition: {
 			id: 60,
 			dependencies: [ :core, :participation, :calendar, :training ],
@@ -101,6 +102,7 @@ class Catalog::Modules < Catalog::Base
 			description:
 				"Fees, invoicing, payments and financial administration."
 		},
+=end
 
 		admissions: {
 			id: 90,

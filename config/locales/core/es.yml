@@ -258,13 +258,15 @@ es:
         short: Srv
 
       actions:
+        configure: Configurar
         edit: Editar Servidor
         enable_module: Habilitar módulo
         disable_module: Deshabilitar módulo
-        reset_defaults: Reiniciar Configuración
         localization: Idioma
         modules: Editar Módulos
         public_pages: Páginas públicas
+        registrations: Admissions
+        reset_defaults: Reiniciar Configuración
 
       fields:
         # Información

@@ -96,7 +96,7 @@ class ApplicationController < ActionController::Base
 		when 1	# return to users home_path
 			path_for(current_user)
 		when 2	# return to log_path
-			home_log_path
+			log_server_path
 		when 3
 			return path_for(Membership.find(params[:member_id])) unless params[:member_id].blank?
 			return path_for(User.find(params[:user_id])) unless params[:user_id].blank?
@@ -181,14 +181,14 @@ class ApplicationController < ActionController::Base
 	end
 
 	def require_module(name)
-		return if ServerSetting.module_enabled?(name)
+		return if Server.module_enabled?(name)
 		deny_access(I18n.t("server.module_disabled"))
 	end
 
 	# set the action's context
 	def set_application_context
-		ServerSetting.current
-		@locale = (params[:locale] || current_user&.locale || ServerSetting.default_locale)
+		Server.current
+		@locale = (params[:locale] || current_user&.locale || Server.default_locale)
 		if user_signed_in?
 			@club   = u_club
 			@rdx    = p_rdx

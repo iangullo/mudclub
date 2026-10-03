@@ -32,7 +32,7 @@ class UsersController < ApplicationController
 		title  = helpers.person_title(title: User.label(:plural), icon: { concept: "user", options: { size: "50x50" } })
 		title << [ { kind: :search_text, key: :search, value: search, url: users_path(rdx: @rdx) } ]
 		table  = helpers.user_table(users: @u_page)
-		create_index(title:, table:, page:, retlnk: back_link)
+		create_index(title:, table:, page:, retlnk: server_path)
 	end
 
 	# GET /users/1

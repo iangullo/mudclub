@@ -26,8 +26,8 @@ class ClubsController < ApplicationController
 		@clubs  = Club.search(params[:search], current_user, @club)
 		page    = paginate(@clubs)
 		title   = u_manager? ? Club.fld(:rivals) : Club.label(:plural)
-		title   = helpers.club_title(title:, icon: { concept: "rivals" })
-		title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10 } ]
+		title   = helpers.club_header(title:, icon: { concept: "rivals" })
+		title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10, cols: 3 } ]
 		table   = helpers.club_table(clubs: page)
 		retlnk  = back_link(default: :back)
 		create_index(title:, table:, page:, retlnk:)
@@ -37,7 +37,7 @@ class ClubsController < ApplicationController
 	def show
 		@policy = check_policy!(ClubPolicy, record: @club)
 
-		@title  = create_fields(helpers.club_show_title)
+		@title  = create_fields(helpers.club_header)
 		if current_user
 			@links  = create_fields(helpers.club_links)
 			if user_in_club?	# my own club: show events
@@ -55,7 +55,7 @@ class ClubsController < ApplicationController
 			@fields = create_fields(helpers.club_public_fields)
 			@table  = create_table(helpers.public_team_table(teams: page))
 		end
-		@submit = create_submit(close:, retlnk:, submit:)
+		@submit = create_submit(close:, retlnk:, submit:, frame: :modal)
 	end
 
 	# GET /clubs/new
@@ -143,7 +143,7 @@ class ClubsController < ApplicationController
 	private
 		# prepare a form to edit/create a club
 		def prepare_form(title:)
-			@title  = create_fields(helpers.club_form_title(title:))
+			@header = create_fields(helpers.club_header(title:))
 			@fields = create_fields(helpers.club_form)
 			@submit = create_submit
 		end

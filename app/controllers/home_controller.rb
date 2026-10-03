@@ -32,7 +32,7 @@ class HomeController < ApplicationController
 					path_for(current_user)
 				end
 			redirect_to h_path, data: { turbo_action: "replace" }
-		elsif Server.public_clubs_enabled?
+		elsif Server.public_clubs.enabled?
 			@clubs  = Club.publicly_listed
 			if @clubs.size == 1
 				redirect_to path_for(@clubs.first)

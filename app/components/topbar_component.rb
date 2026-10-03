@@ -29,8 +29,8 @@ class TopbarComponent < ApplicationComponent
 				@clubname = @club.nick
 			end
 		end
-		@clublogo ||= ServerSetting.server_logo
-		@clubname ||= ServerSetting.server_name
+		@clublogo ||= Server.server_logo
+		@clubname ||= Server.server_name
 		@logourl  = { url: "/", data: { turbo_frame: "replace" } }
 		@tabcls   = "hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap px-2 py-2 rounded-md font-semibold"
 		@srvcls   = "#{@tabcls} inline-flex items-center"
@@ -201,6 +201,7 @@ class TopbarComponent < ApplicationComponent
 
 	# menu to manage server application
 	def server_menu
+=begin
 		options = [
 			menu_link(label: Sport.label(:plural), url: "/sports"),
 			menu_link(label: Club.label(:plural), url: "/clubs"),
@@ -209,6 +210,8 @@ class TopbarComponent < ApplicationComponent
 			log_menu
 		]
 		menu_drop("server", label: I18n.t("server.single"), options:)
+=end
+		menu_link(label: Server.label, url: "/server")
 	end
 
 	# Menu for teams visible to the user
@@ -232,8 +235,8 @@ class TopbarComponent < ApplicationComponent
 	def user_menu(user, home, logout)
 		if user.present?
 			options  = [
-				menu_link(label: I18n.t("user.profile"), url: home),
-				menu_link(label: I18n.t("action.logout"), url: logout, kind: :delete)
+				menu_link(label: User.fld(:profile), url: home),
+				menu_link(label: User.act(:sign_out), url: logout, kind: :delete)
 			]
 			menu_drop("profile", label: user.person.nick.presence || user.person.name, options:)
 		end
