@@ -24,7 +24,7 @@ class RegistrationPolicy < ApplicationPolicy
 	def index?
 		return true if admin?
 		return false unless target_club
-		manages_club?(target_club)
+		Server.registrations_enabled? && manages_club?(target_club)
 	end
 
 	#------------------------------------
@@ -34,8 +34,8 @@ class RegistrationPolicy < ApplicationPolicy
 	#------------------------------------
 
 	def show?    = requester_can_view? || registration_manager?
-	def new?     = true
-	def create?  = true
+	def new?     = Server.registrations_enabled?
+	def create?  = Server.registrations_enabled?
 	def edit?    = requester_can_edit? || registration_manager?
 	def update?  = edit?
 	def destroy? = admin?

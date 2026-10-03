@@ -211,6 +211,8 @@ class Server < ApplicationRecord
 			dep && dep[:optional] && !module_enabled?(d)
 		end
 
+		update_settings!(registrations_enabled: true) if name == "admissions"
+
 		update_settings!(disabled_modules: disabled_modules - [ name ] - missing)
 		true
 	end
@@ -221,6 +223,7 @@ class Server < ApplicationRecord
 		return false unless entry && entry[:optional]
 
 		cascade = dependents_of(name)
+		update_settings!(registrations_enabled: false) if name == "admissions"
 		update_settings!(disabled_modules: (disabled_modules | [ name ] | cascade).uniq)
 		true
 	end

@@ -52,6 +52,14 @@ class ClubPolicy < ApplicationPolicy
 	end
 
 	#------------------------------------
+	# Club registration
+	#------------------------------------
+	def new_registration?
+		return false unless @record
+		@record.accepts_registrations?
+	end
+
+	#------------------------------------
 	# Administrative capabilities
 	#------------------------------------
 

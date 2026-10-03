@@ -28,7 +28,7 @@ module HomeHelper
 		]
 	end
 
-		# user login fields
+	# user login fields
 	def home_closed
 		[
 			[

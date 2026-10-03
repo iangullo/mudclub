@@ -118,6 +118,15 @@ class TeamPolicy < ApplicationPolicy
 		allowed?(coaches_team?(@record) || manages_club?(@record&.club))
 	end
 
+	#------------------------------------
+	# Team registration
+	#------------------------------------
+	def new_registration?
+		return false unless @record
+		return false if @record.season.end_date < Date.current
+		target_club.accepts_registrations?
+	end
+
 	private
 
 		# Membership in current team
