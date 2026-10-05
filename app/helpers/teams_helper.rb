@@ -21,7 +21,7 @@ module TeamsHelper
 	def team_attendance_table
 		# Check that the offline job has produced attendance data
 		if (t_att = @team&.attendance)
-			title =       title = [
+			title = [
 				{ kind: :normal, value: Assignment.fld(:number), align: :center },
 				{ kind: :normal, value: Person.fld(:name) },
 				{ kind: :normal, value: Attendance.fld(:weekly) },
@@ -37,9 +37,9 @@ module TeamsHelper
 				row = { url: path_for(athlete), frame: :modal, items: [] }
 				row[:items] << { kind: :normal, value: athlete.number, align: :center }
 				row[:items] << { kind: :normal, value: athlete.s_name }
-				row[:items] << { kind: :percentage, value: p_att[:last7], align: "right" }
-				row[:items] << { kind: :percentage, value: p_att[:last30], align: "right" }
-				row[:items] << { kind: :percentage, value: p_att[:avg], align: "right" }
+				row[:items] << { kind: :percentage, value: p_att[:last7], align: :right }
+				row[:items] << { kind: :percentage, value: p_att[:last30], align: :right }
+				row[:items] << { kind: :percentage, value: p_att[:avg], align: :right }
 				row[:items] << { kind: :normal, value: p_att[:matches], align: :center }
 				m_tot << p_att[:matches]
 				rows << row
@@ -64,7 +64,7 @@ module TeamsHelper
 		g_row = gap_row(cols: 2)
 		coaches = [ g_row ]
 		unless (c_count = @team.coaches.count) == 0 # only create if there are coaches
-			c_icon = symbol_field("coach", { namespace: "sport", size: "30x30", title: @team.term(:coach, :plural) }, align: "right", class: "align-top", rows: c_count)
+			c_icon = symbol_field(:coach, { namespace: "sport", size: "30x30", title: @team.term(:coach, :plural) }, align: :right, class: "align-top", rows: c_count)
 			c_first = true
 			@team.coaches.current.each do |coach|
 				if @policy.show?
@@ -82,30 +82,30 @@ module TeamsHelper
 	end
 
 	# return HeaderComponent @fields for forms
-	def team_form(title:, cols: nil)
-		res = team_title(title:, cols:, edit: true)
+	def team_form(action = :edit, cols: nil)
+		res = team_title(title: Team.act(action), cols:, edit: true)
 		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
 		res << [
-			symbol_field("user", align: "right"),
+			symbol_field(:user, align: :right),
 			{ kind: :text_box, key: :nick, value: @team.nick, placeholder: @team.label, mandatory: { length: 3 } },
 			{ kind: :hidden, key: :club_id, value: @club.id },
 			{ kind: :hidden, key: :sport_id, value: (@sport&.id || 1) }	# will need to break this up for multi-sports in future
 		]
 		res << [
-			symbol_field("category", { namespace: "sport" }, align: "right"),
+			symbol_field(:category, { namespace: "sport" }, align: :right),
 			{ kind: :select_collection, key: :category_id, options: Category.real, value: @team.category_id }
 		]
 		res << [
-			symbol_field("division", { namespace: "sport" }, align: "right"),
+			symbol_field(:division, { namespace: "sport" }, align: :right),
 			{ kind: :select_collection, key: :division_id, options: Division.real, value: @team.division_id }
 		]
 		res << [
-			symbol_field("home", {}, align: "right"),
+			symbol_field(:home, {}, align: :right),
 			{ kind: :select_collection, key: :homecourt_id, options: Location.search(club_id: @club.id).home, value: @team.homecourt_id }
 		]
 		unless @eligible_coaches.empty?
 			res << [
-				symbol_field("coach", { namespace: "sport" }, align: "right"),
+				symbol_field(:coach, { namespace: "sport" }, align: :right),
 				{ kind: :label, value: @team.term(:coach, :plural), class: "align-center" }
 			]
 			res << [ gap_field, { kind: :select_checkboxes, key: :coach_ids, options: @eligible_coaches } ]
@@ -185,7 +185,7 @@ module TeamsHelper
 
 			rows = Array.new
 			teams.each { |team|
-				url = path_for(team, action: :slots)
+				url = path_for(team, action: :slots, registration: @policy.accepts_registrations?)
 				row = { url:, frame: :modal, items: [] }
 				row[:items] << { kind: :normal, value: team.name }
 				unless device == "mobile"
@@ -274,7 +274,7 @@ module TeamsHelper
 	# return FieldComponent for team view title
 	def team_title(title:, cols: nil, search: nil, edit: nil)
 		clubid = @club&.id || @team&.club.id
-		res = title_start(icon: (user_in_club?(@team&.club) ? @club&.logo : symbol_hash(:team)), title:, cols:)
+		res    = title_start(icon: (user_in_club?(@team&.club) ? @club&.logo : symbol_hash(:team)), title:, cols:)
 		if search
 			s_id = @team&.season_id || @season&.id || session.dig("team_filters", "season_id")
 			res << [ { kind: :search_collection, key: :season_id, options: Season.real.order(start_date: :desc), value: s_id } ]
@@ -282,14 +282,18 @@ module TeamsHelper
 		elsif edit && @policy.edit?
 			res << [ { kind: :text_box, key: :name, value: @team.name, placeholder: @team.label, mandatory: { length: 3 } } ]
 			res << [
-				symbol_field("calendar", align: "right"),
+				symbol_field(:calendar, align: :right),
 				{ kind: :select_collection, key: :season_id, options: Season.real, value: @team.season_id }
 			]
 			res.last.first[:filter] = { key: :club_id, value: clubid }
 		elsif @team
-			res += [
+			variant = @team.accepts_registrations? ? :unlocked : :locked
+			res    += [
 				[ { kind: :label, value: @team.category.name } ],
-				[ gap_field(size: 0), { kind: :text, value: "#{@team.division.name} (#{@team.season.name})" } ]
+				[
+					symbol_field(:lock, { variant:, title: Registration.val(variant) }, align: :center),
+					{ kind: :text, value: "#{@team.division.name} (#{@team.season.name})" }
+				]
 			]
 		else # user teams index
 			res << [ { kind: :subtitle, value: current_user.s_name } ]

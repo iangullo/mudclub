@@ -46,8 +46,8 @@ module Kinded
 
 	class_methods do
 		def kind_catalog					= const_get(:KIND_CATALOG)
-		def kind_label(kind, ...) = kind_catalog.val(kind.to_sym, ...)
-		def kind_image(kind, default: :missing, **rest) = kind_catalog.normalize(kind.to_sym, **rest) || default
+		def kind_label(kind, ...) = kind_catalog.val(kind&.to_sym, ...)
+		def kind_image(kind, default: :missing, **rest) = kind_catalog.normalize(kind&.to_sym, **rest) || default
 		def kind_list(...)        = kind_catalog.option_list(...)
 		def kind_options(...)     = kind_catalog.options(...)
 	end

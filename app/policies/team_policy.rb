@@ -121,10 +121,9 @@ class TeamPolicy < ApplicationPolicy
 	#------------------------------------
 	# Team registration
 	#------------------------------------
-	def new_registration?
+	def accepts_registrations?
 		return false unless @record
-		return false if @record.season.end_date < Date.current
-		target_club.accepts_registrations?
+		@record.accepts_registrations?
 	end
 
 	private

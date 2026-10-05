@@ -54,6 +54,11 @@ en:
         approved: Approved registration.
         rejected: Rejected registration.
         archived: Archived registration.
+      values:
+        locked: Registrations closed
+        locked_short: Closed
+        unlocked: Registrations open
+        unlocked_short: Open
 
     registration_kinds:
       label:

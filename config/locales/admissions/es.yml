@@ -54,6 +54,11 @@ es:
         approved: Solicitud aprobada.
         rejected: Solicitud rechazada.
         archived: Solicitud archivada.
+      values:
+        locked: Inscripciones cerradas
+        locked_short: Cerrado
+        unlocked: Inscripciones abiertas
+        unlocked_short: Abierto
 
     registration_kinds:
       label:

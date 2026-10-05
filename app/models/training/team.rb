@@ -47,6 +47,7 @@ class Team < ApplicationRecord
 	#-------------------------------------
 	scope :ordered,    -> { joins(:category).order("categories.min_years ASC, teams.name ASC") }
 	scope :real,			 -> { where("id>0") }
+	scope :unlocked,	 -> { where(locked: false) }
 	scope :for_season, ->(season) { filter_by_id(:season_id, season) }
 	scope :for_club,	 ->(club) { filter_by_id(:club_id, club)	}
 	FILTER_PARAMS = %i[club_id season_id].freeze
@@ -126,6 +127,12 @@ class Team < ApplicationRecord
 	#-------------------------------------
 	# Team eligbility
 	#-------------------------------------
+
+	# Determine whether the team can accept registration requests?
+	def accepts_registrations?
+		return false if season.end_date < Date.current
+		club.accepts_registrations? && !locked
+	end
 
 	# Get a list of athletes that are valid to play in this team
 	def eligible_athletes(exclude_assigned: false)

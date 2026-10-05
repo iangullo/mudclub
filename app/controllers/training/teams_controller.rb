@@ -80,7 +80,7 @@ class TeamsController < ApplicationController
 
 		@eligible_coaches = @club.coaches
 		@team   = Team.new(club: @club, sport_id: @club.sports.first&.id, nick: @club.nick, season_id: (params[:season_id].presence&.to_i || Season.latest.id))
-		@fields = create_fields(helpers.team_form(title: I18n.t("team.new")))
+		@fields = create_fields(helpers.team_form(:create))
 		@submit = create_submit(retlnk: club_teams_path(@club, rdx: 0))
 	end
 
@@ -90,7 +90,7 @@ class TeamsController < ApplicationController
 
 		@eligible_coaches = @club.coaches
 		@sport  = @team.sport.specific
-		@fields = create_fields(helpers.team_form(title: I18n.t("team.edit")))
+		@fields = create_fields(helpers.team_form(:edit))
 		@submit = create_submit
 	end
 
@@ -111,7 +111,7 @@ class TeamsController < ApplicationController
 					format.json { render :index, status: :created, location: c_path }
 				else
 					@eligible_coaches = Coach.active
-					@fields = create_fields(helpers.team_form(title: I18n.t("team.new")))
+					@fields = create_fields(helpers.team_form(:create))
 					@submit = create_submit
 					format.html { render :new }
 					format.json { render json: @team.errors, status: :unprocessable_entity }
@@ -141,7 +141,7 @@ class TeamsController < ApplicationController
 						format.json { redirect_to retlnk, status: :created, location: retlnk }
 					else
 						@eligible_coaches = Coach.active
-						@fields = create_fields(helpers.team_form(title: I18n.t("team.edit")))
+						@fields = create_fields(helpers.team_form(:edit))
 						@submit = create_submit
 						format.html { render :edit, data: { "turbo-frame": "replace" }, notice: helpers.flash_message(@team.errors, "error") }
 						format.json { render json: @team.errors, status: :unprocessable_entity }
@@ -207,6 +207,14 @@ class TeamsController < ApplicationController
 		header  = helpers.team_title(title: @team.to_s)
 		@header = create_fields(header)
 		@fields = create_fields(helpers.team_slots) unless @team.slots.empty?
+		if current_user == nil && @policy.accepts_registrations?	# used to access registrations
+			submit  = {
+				kind: :edit,
+				label: Registration.act(:create_short),
+				url: new_club_registration_path(@club, team_id: @team.id)
+			}
+			@submit = create_submit(submit:, retlnk: club_path(@team.club), frame: :modal)
+		end
 	end
 
 	# GET /club/x/teams/1/targets
@@ -377,6 +385,7 @@ class TeamsController < ApplicationController
 				:team_targets,
 				:coaches,
 				:athletes,
+				:locked,
 				:rdx,
 				athlete_ids: [],
 				coach_ids: [],

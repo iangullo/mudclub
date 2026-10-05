@@ -50,10 +50,12 @@ class ClubsController < ApplicationController
 		else # anonymous mode. policy will take care of access
 			close   = :back
 			retlnk  = root_path
-			teams   = @club.teams.for_season(Season.latest).ordered
-			page    = paginate(teams)
-			@fields = create_fields(helpers.club_public_fields)
-			@table  = create_table(helpers.public_team_table(teams: page))
+			teams   = @club.teams.for_season(Season.latest).unlocked.ordered
+			unless teams.empty?
+				page    = paginate(teams)
+				@fields = create_fields(helpers.club_public_fields)
+				@table  = create_table(helpers.public_team_table(teams: page))
+			end
 		end
 		@submit = create_submit(close:, retlnk:, submit:, frame: :modal)
 	end

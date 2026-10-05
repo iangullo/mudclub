@@ -1,4 +1,5 @@
-<%= render ModalComponent.new(simple: true) do %>
+<%= render ModalComponent.new(simple: !@submit) do %>
 	<%= render @header %>
 	<%= render @fields if @fields %>
+	<%= render @submit if @submit %>
 <% end %>
