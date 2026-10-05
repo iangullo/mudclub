@@ -1,0 +1,24 @@
+<%= render ModalComponent.new do %>
+	<%= form_with(
+		model: resource_route(@registration),
+		authenticity_token: true,
+		data: {controller: "mandatory-fields", turbo_frame: "modal"}
+	) do |form| %>
+		<%= render @header %>
+		<% if @p_fields %>
+			<%= form.fields_for :person, @member.person do |f| %>
+				<% @p_header.form    = f %>
+				<% @p_fields.form = f %>
+				<%= render @p_header %>
+				<%= render @p_fields %>
+				<% if @contacts %>
+					<% @contacts.form = f %>
+					<%= render @contacts %>
+				<% end %>
+			<% end %>
+		<% end %>
+		<% @fields.form = form %>
+		<%= render @fields %>
+		<%= render @submit %>
+	<% end %>
+<% end %>

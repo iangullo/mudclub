@@ -80,6 +80,8 @@ en:
         create: Create new person?
         merge: Merge with person?
         save: Save person?
+      values:
+        email: user@server.com
 
     parent:
       label:

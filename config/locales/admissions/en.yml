@@ -19,7 +19,7 @@ en:
         short: Reg.
       action:
         create: Apply to register
-        create_short: Register
+        create_short: Apply
         edit: Edit registration
         edit_short: Edit
         save_draft: Save draft

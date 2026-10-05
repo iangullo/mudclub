@@ -17,9 +17,9 @@ es:
         single: Solicitud
         plural: Solicitudes
         short: Sol.
-      action:
-        create: Crear solicitud
-        create_short: Crear
+      actions:
+        create: Solicitar plaza
+        create_short: Solicitar
         edit: Editar solicitud
         edit_short: Editar
         save_draft: Guardar borrador

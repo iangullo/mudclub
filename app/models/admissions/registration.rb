@@ -72,8 +72,12 @@ class Registration < ApplicationRecord
 		"##{id}"
 	end
 
-	# Return person.to_s or player name and jersey number
 	def to_s
+		Registration.label
+	end
+
+	# Return person.to_s or player name and jersey number
+	def candidate_string
 		"#{candidate_name} #{candidate_surname}".presence || kind_label
 	end
 

@@ -45,9 +45,9 @@ class RegistrationsController < ApplicationController
 	# GET /registrations/1.json
 	def show
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
-		status = @policy.edit?
+		status  = @policy.edit?
 
-		@title = create_fields(
+		@header = create_fields(
 			helpers.participation_title(
 				@registration,
 				status_url: edit_path_for(@registration, status:),
@@ -57,15 +57,14 @@ class RegistrationsController < ApplicationController
 		@kind ||= @registration.kind.to_sym
 		@fields = create_fields(helpers.registration_show_fields(@registration))
 		@table  = create_table(helpers.registration_history_table(@registration))
-		submit  = edit_path_for(@registration) if @policy.update?
+		submit  = edit_path_for(@registration) if @policy.edit?
 		@submit = create_submit(close: :back, retlnk: base_path(@registration), submit:, frame: :modal)
 	end
 
 	# GET /registrations/new
 	def new
 		@policy = check_policy!(RegistrationPolicy, club: @club)
-		@registration = Registration.new(club: @club, kind: @kind)
-		@registration.build_person
+		@registration = Registration.new(club: @club, requested_team_id: @team&.id, kind: @kind)
 		prepare_form(:create)
 	end
 
@@ -166,24 +165,22 @@ class RegistrationsController < ApplicationController
 
 		# Prepare a registration form
 		def prepare_form(action)
-			status_edit = action == :edit && to_boolean(params[:status])
-
-			if status_edit
-				m_fields = helpers.participation_status_form_fields(@registration)
-			else
-				m_fields  = helpers.registration_form_fields(@registration)
-				@p_header = create_fields(helpers.registration_form_title(@registration, action))
-				@p_fields = create_fields(helpers.person_form_fields(@registration.person))
-				@contacts = create_fields(helpers.person_relationships_form(@registration.person))
+			@header = create_fields(helpers.registration_header(action:))
+			case action
+			when :create
+				fields = helpers.registration_form_fields(@registration, action:)
+			when :edit
+				fields = to_boolean(params[:status]) ?
+					helpers.registration_status_form_fields(@registration) :
+					helpers.registration_form_fields(@registration, action:)
 			end
 
-			@m_fields = create_fields(m_fields)
-			@submit   = create_submit
+			@fields = create_fields(fields)
+			@submit = create_submit
 		end
 
 		def log_registration_errors
 			Rails.logger.debug @registration.errors.full_messages
-
 			Rails.logger.debug @registration.person.errors.full_messages
 
 			@registration.person.relationships.each do |r|
@@ -206,46 +203,26 @@ class RegistrationsController < ApplicationController
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def registration_params
 			params.require(:registration).permit(
+				:club_id,
+				:team_id,
 				:person_id,
-				:joined_on,
-				:left_on,
 				:kind,
+				:settings,
 				:status,
-				:notes,
 				:rdx,
-				person_attributes: [
-					:id,
-					:address,
-					:avatar,
-					:birthday,
-					:dni,
-					:email,
-					:female,
-					:id_back,
-					:id_front,
-					:name,
-					:nick,
-					:phone,
-					:surname,
-
-					relationships_attributes: [
-						:id,
-						:kind,
-						:_destroy,
-
-						related_person_attributes: [
-							:id,
-							:name,
-							:surname,
-							:phone,
-							:email,
-							:birthday,
-							:dni,
-							:female,
-							:address
-						]
-					]
-				]
+				:token,
+				:candidate_name,
+				:candidate_surname,
+				:candidate_dni,
+				:candidate_female,
+				:candidate_birthday,
+				:candidate_relationship_required,
+				:candidate_phone,
+				:candidate_email,
+				:requester_kind,
+				:requester_name,
+				:requester_email,
+				:requester_phone,
 			)
 		end
 end

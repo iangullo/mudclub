@@ -76,7 +76,7 @@ module PeopleHelper
 		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: Person.fld(:name), cols: 2, mandatory: { length: 2 } } ]
 		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: Person.fld(:surname), cols: 2, mandatory: { length: 2 } } ]
 		res << (sex ? [ { kind: :label_checkbox, label: Person.t_path(:sex, :female_short), key: :female, value: person&.female, align: "left" } ] : [])
-		res.last << symbol_field("calendar")
+		res.last << symbol_field(:calendar)
 		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
 		res = participation_fields(pobj, res, just_icon: false) unless pobj.is_a?(Person)
 		res

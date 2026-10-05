@@ -80,6 +80,8 @@ es:
         create: ¿Crear nueva persona?
         merge: ¿Fusionar personas?
         save: ¿Guardar persona?
+      values:
+        email: usuario@servidor.com
 
     parent:
       label: Familiar
