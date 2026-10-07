@@ -1,0 +1,40 @@
+
+<% if form.object %>
+    <% f_cls = "rounded shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700 focus:border-blue-700 py-0 px-1" %>
+    <table class="w-full">
+        <tr>
+            <td class="font-semibold whitespace-nowrap">
+                <%= render SymbolComponent.new(:person) %>
+            </td><td colspan="3">
+                <%= form.select(:kind, Relationship.kind_list, {}, class: f_cls) %>
+                <%= form.hidden_field :id %>
+            </td>
+        </tr>
+        <%= form.fields_for :related_person do |f| %>
+        <tr>
+            <td colspan="2">
+                <%= f.text_field(:name, placeholder: Person.fld(:name), size: 12, class: f_cls ) %>
+            </td><td colspan="2">
+                <%= f.text_field(:surname, placeholder: Person.fld(:surname), size: 18, class: "#{f_cls} ml-2") %>
+            </td>
+        </tr><tr>
+            <td>
+                <%= render SymbolComponent.new(:id_front, title: Person.fld(:national_id)) %>
+            </td><td>
+                <%= f.text_field(:dni, placeholder: Person.fld(:national_id, :short), size: 8, class: f_cls) %>
+            </td><td>
+                <div class="ml-2">
+                    <%= render SymbolComponent.new("call") %>
+                </div>
+            </td><td>
+                <%= f.text_field(:phone, placeholder: Person.fld(:phone), size: 12, class: f_cls) %>
+    		</td>
+        </tr><tr>
+    		<td colspan="4">
+    		    <div class="w-full border-b border-gray-200"></div>
+                <%= f.hidden_field :id %>
+            </td>
+        </tr>
+        <% end %>
+    </table>
+<% end %>

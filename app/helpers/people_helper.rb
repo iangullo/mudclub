@@ -124,7 +124,7 @@ module PeopleHelper
 				model: "person",
 				key: :relationships,
 				child: -> { Relationship.build_for(person) },
-				row: "people/relationships/relationship_fields",
+				row: "shared/relationship_fields",
 				cols: 2
 			}
 		]
