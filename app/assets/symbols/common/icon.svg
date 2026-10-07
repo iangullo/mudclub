@@ -364,4 +364,32 @@
 		<path fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"
 				d="M 44,44 L 84,84 M 84,44 L 44,84" />
 	</symbol>
+
+	<symbol id="status.draft" viewBox="0 0 128 128">
+		<use href="#edit.default" />
+	</symbol>
+
+	<symbol id="status.submitted" viewBox="0 0 128 128">
+		<use href="#clock.default" />
+	</symbol>
+
+	<symbol id="status.under_review" viewBox="0 0 128 128">
+		<use href="#clock.default" />
+	</symbol>
+
+	<symbol id="status.awaiting_requester" viewBox="0 0 128 128">
+		<use href="#clock.default" />
+	</symbol>
+
+	<symbol id="status.cancelled" viewBox="0 0 128 128">
+		<use href="#cancel.default" />
+	</symbol>
+
+	<symbol id="status.approved" viewBox="0 0 128 128">
+		<use href="#yes.default" />
+	</symbol>
+
+	<symbol id="status.rejected" viewBox="0 0 128 128">
+		<use href="#no.default" />
+	</symbol>
 </svg>
