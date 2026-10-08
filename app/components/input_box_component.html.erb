@@ -49,7 +49,7 @@
 			<label class='font-medium'><%= @fdata[:label] %></label>
 			<%= @form.check_box(@fdata[:key], class: @i_class) %>
 		<% else %>
-			<%= @form.check_box(@fdata[:key], class: @i_class) %>
+			<%= @form.check_box(@fdata[:key], class: @i_class, data: @i_data) %>
 			<label class='font-medium'><%= @fdata[:label] %></label>
 		<% end %>
 	</div>

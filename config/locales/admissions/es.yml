@@ -41,6 +41,7 @@ es:
       fields:
         kind: Tipo
         candidate: Candidato/a
+        different_requester: Solicitud presentada por otra persona
         requester: Autor
         reviewer: Revisor
         status: Estado

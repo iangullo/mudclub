@@ -125,7 +125,7 @@ class Basketball < Sport
 	# table to show/edit player outings for a match
 	def outings_table(event, outings, edit: false, rdx: nil)
 		title = [
-			{ kind: :normal, value: Assignment.fld(:shirt_number_short), align: "center" },
+			{ kind: :normal, value: Assignment.fld(:shirt_number_short), align: :center },
 			{ kind: :normal, value: Person.fld(:name) }
 		]
 		rows  = []
@@ -147,12 +147,12 @@ class Basketball < Sport
 			p_stats    = Stat.fetch(player_id: player.id, stats: e_stats, create: false)
 			row        = { items: [] }
 			row[:url]  = "/players/#{player.id}?event_id=#{event.id}&rdx=#{rdx}" unless edit
-			row[:items] << { kind:, value: player.number.to_s, align: "center" }
+			row[:items] << { kind:, value: player.number.to_s, align: :center }
 			row[:items] << { kind:, value: player.s_name }
 			1.upto(outings[:total]) do |q|
 				q_val = Stat.fetch(period: q, stats: p_stats, create: false).first&.value.to_i
 				if edit
-					row[:items] << { kind: :checkbox_q, key: :outings, player_id: player.id, q: "q#{q}", value: q_val, align: "center", data: { columnId: "q#{q}" } }
+					row[:items] << { kind: :checkbox_q, key: :outings, player_id: player.id, q: "q#{q}", value: q_val, align: :center, data: { columnId: "q#{q}" } }
 				elsif q_val == 1
 					p_outings    += 1 if q <= data[:first]
 					q_players[q] += 1
@@ -312,10 +312,10 @@ class Basketball < Sport
 			[
 				{ kind: :gap },
 				stat_label(label),
-				{ kind: :string, value: made, class: "border px py", align: "right" },
+				{ kind: :string, value: made, class: "border px py", align: :right },
 				{ kind: :label, value: "/" },
-				{ kind: :string, value: taken, class: "border px py", align: "right" },
-				{ kind: :text, value: (taken == 0 ? pctg : "#{pctg}%"), class: "align-middle text-#{pcol}", align: "center" }
+				{ kind: :string, value: taken, class: "border px py", align: :right },
+				{ kind: :text, value: (taken == 0 ? pctg : "#{pctg}%"), class: "align-middle text-#{pcol}", align: :center }
 			]
 		end
 
@@ -336,9 +336,9 @@ class Basketball < Sport
 			[
 				{ kind: :gap },
 				stat_label(label),
-				{ kind: :number_box, key: "#{key}#{k_made}", value: v_made, class: "shots-made border px py", align: "right" },
+				{ kind: :number_box, key: "#{key}#{k_made}", value: v_made, class: "shots-made border px py", align: :right },
 				{ kind: :label, value: "/" },
-				{ kind: :number_box, key: "#{key}#{k_taken}", value: v_taken, class: "shots-taken border px py", align: "right" }
+				{ kind: :number_box, key: "#{key}#{k_taken}", value: v_taken, class: "shots-taken border px py", align: :right }
 			]
 		end
 
@@ -405,7 +405,7 @@ class Basketball < Sport
 		def match_fields(event, edit: false, new: false)
 			t_pers  = self.match_periods(event.team.category.rules)
 			t_cols  = t_pers + (edit ? 3 : 2)
-			head    = edit ? [ { kind: :side_cell, value: term(:match, :home), cols: 2, align: "left" } ] : [ { kind: :gap, size: 1 } ]
+			head    = edit ? [ { kind: :side_cell, value: term(:match, :home), cols: 2, align: :left } ] : [ { kind: :gap, size: 1 } ]
 			t_home  = team_name(event, home: event.home?, edit:)
 			t_away  = team_name(event, home: !event.home?, edit:)
 			if new
@@ -424,7 +424,7 @@ class Basketball < Sport
 			fields += [ head, t_home, t_away ]
 			unless new
 				fields << [ { kind: :gap, size: 1, cols: t_pers + 3, class: "text-xs" } ]
-				fields << [ { kind: :side_cell, value: term(:athlete, :plural), align: "left", cols: t_cols } ]
+				fields << [ { kind: :side_cell, value: term(:athlete, :plural), align: :left, cols: t_cols } ]
 			end
 			fields
 		end
@@ -446,17 +446,17 @@ class Basketball < Sport
 				rivals = event.team.rival_teams_info
 				if home
 					[
-						{ kind: :radio_button, key: :home, value: true, checked: event.home, align: "right", r_data: { action:, match_location_target: "homeRadio" } },
-						{ kind: :side_cell, align: "left", value: event.team.to_s }
+						{ kind: :radio_button, key: :home, value: true, checked: event.home, align: :right, data: { action:, match_location_target: "homeRadio" } },
+						{ kind: :side_cell, align: :left, value: event.team.to_s }
 					]
 				else
 					[
-						{ kind: :radio_button, key: :home, value: false, checked: !event.home, align: "right", r_data: { action: } },
-						{ kind: :text_box, key: :name, value: event.name, placeholder: term(:rival, :default), options: rivals.keys, size: 12, o_data: { action:, homecourts: rivals.values, match_location_target: "rivalName" } }
+						{ kind: :radio_button, key: :home, value: false, checked: !event.home, align: :right, data: { action: } },
+						{ kind: :text_box, key: :name, value: event.name, placeholder: term(:rival, :default), options: rivals.keys, size: 12, data: { action:, homecourts: rivals.values, match_location_target: "rivalName" } }
 					]
 				end
 			else	# show
-				[ { kind: :side_cell, value: (home ? event.team.to_s : event.name), align: "left" } ]
+				[ { kind: :side_cell, value: (home ? event.team.to_s : event.name), align: :left } ]
 			end
 		end
 
@@ -468,16 +468,16 @@ class Basketball < Sport
 			k_home = "#{(home ? 'ours' : 'opps')}#{k_tail}"
 			k_away = "#{(home ? 'opps' : 'ours')}#{k_tail}"
 			if edit
-				t_home << { kind: :number_box, key: k_home, min: 0, max: 200, size: 2, value: p_home, align: "center" }
-				t_away << { kind: :number_box, key: k_away, min: 0, max: 200, size: 2, value: p_away, align: "center" }
+				t_home << { kind: :number_box, key: k_home, min: 0, max: 200, size: 2, value: p_home, align: :center }
+				t_away << { kind: :number_box, key: k_away, min: 0, max: 200, size: 2, value: p_away, align: :center }
 			else
-				t_home << { kind: :normal, value: p_home, class: "text-center border px py", align: "right" }
-				t_away << { kind: :normal, value: p_away, class: "text-center border px py", align: "right" }
+				t_home << { kind: :normal, value: p_home, class: "text-center border px py", align: :right }
+				t_away << { kind: :normal, value: p_away, class: "text-center border px py", align: :right }
 			end
 		end
 
 		# return a :top_cell field definition
-		def topcell(value, cols: nil, rows: nil, align: "center")
+		def topcell(value, cols: nil, rows: nil, align: :center)
 			{ kind: :top_cell, cols:, rows:, align:, value: }
 		end
 
@@ -503,21 +503,21 @@ class Basketball < Sport
 		# return fields for stats view
 		def match_stats_header(edit: false)
 			fields = [
-				{ kind: :normal, value: t_path("participation.assignment.fields.shirt_number_short"), align: "center" },
+				{ kind: :normal, value: Assignment.fld(:number, :short), align: :center },
 				{ kind: :normal, value: Person.fld(:name) },
-				{ kind: :normal, value: s_label(:sec), align: "center" }
+				{ kind: :normal, value: s_label(:sec), align: :center }
 			]
-			fields <<	{ kind: :normal, value: s_label(:pts), align: "center" } unless edit
+			fields <<	{ kind: :normal, value: s_label(:pts), align: :center } unless edit
 			fields += [
-				{ kind: :normal, value: s_label(:t2), cols: 3, align: "center" },
-				{ kind: :normal, value: s_label(:t3), cols: 3, align: "center" },
-				{ kind: :normal, value: s_label(:ft), cols: 3, align: "center" },
-				{ kind: :normal, value: s_label(:trb), align: "center" },
-				{ kind: :normal, value: s_label(:ast), align: "center" },
-				{ kind: :normal, value: s_label(:stl), align: "center" },
-				{ kind: :normal, value: s_label(:blk), align: "center" },
-				{ kind: :normal, value: s_label(:to), align: "center" },
-				{ kind: :normal, value: s_label(:pfc), align: "center" }
+				{ kind: :normal, value: s_label(:t2), cols: 3, align: :center },
+				{ kind: :normal, value: s_label(:t3), cols: 3, align: :center },
+				{ kind: :normal, value: s_label(:ft), cols: 3, align: :center },
+				{ kind: :normal, value: s_label(:trb), align: :center },
+				{ kind: :normal, value: s_label(:ast), align: :center },
+				{ kind: :normal, value: s_label(:stl), align: :center },
+				{ kind: :normal, value: s_label(:blk), align: :center },
+				{ kind: :normal, value: s_label(:to), align: :center },
+				{ kind: :normal, value: s_label(:pfc), align: :center }
 			]
 		end
 
@@ -526,7 +526,7 @@ class Basketball < Sport
 			prefix  = "#{player.id}_0_"
 
 			fields = [
-				{ kind: :normal, value: player.number, align: "center" },
+				{ kind: :normal, value: player.number, align: :center },
 				{ kind: :normal, value: player.s_name },
 				stat_field(prefix, stats, statistics.fetch(:sec), edit:)
 			]

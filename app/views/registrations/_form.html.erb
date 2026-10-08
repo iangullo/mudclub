@@ -1,24 +1,44 @@
 <%= render ModalComponent.new do %>
 	<%= form_with(
 		model: resource_route(@registration),
-		authenticity_token: true,
-		data: {controller: "mandatory-fields", turbo_frame: "modal"}
+		data: {
+			controller: "mandatory-fields optional-fields",
+			turbo_frame: "modal"
+		},
+		authenticity_token: true
 	) do |form| %>
-		<%= render @header %>
-		<% if @p_fields %>
-			<%= form.fields_for :person, @member.person do |f| %>
-				<% @p_header.form    = f %>
-				<% @p_fields.form = f %>
-				<%= render @p_header %>
-				<%= render @p_fields %>
-				<% if @contacts %>
-					<% @contacts.form = f %>
-					<%= render @contacts %>
-				<% end %>
-			<% end %>
-		<% end %>
+    	<!-- Candidate -->
 		<% @fields.form = form %>
-		<%= render @fields %>
+		<%= form.fields_for :candidate, @registration.person do |f| %>
+			<% @p_header.form = f %>
+			<% @p_fields.form = f %>
+			<%= render @p_header %>
+			<%= render @p_fields %>
+			<%= render @fields %>
+		<% end %>
+
+		<% if @r_fields %>
+      	<!-- Switch -->
+		<div class="my-2">
+			<%= form.check_box(:different_requester,
+				data: {
+					optional_fields_target: "switch",
+					optional_target: "requester",
+					action: "change->optional-fields#toggle"
+				}
+				) %>
+
+			<%= label_tag(:different_requester,Registration.fld(:different_requester)) %>
+		</div>
+
+		<!-- Optional requester section -->
+		<div class="hidden" data-optional-fields-target="section" data-optional-name="requester">
+			<%= form.fields_for :requester, @registration.requester do |fr| %>
+			<% @r_fields.form = fr %>
+			<%= render @r_fields %>
+			<% end %>
+		</div>
+		<% end %>
 		<%= render @submit %>
 	<% end %>
 <% end %>

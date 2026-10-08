@@ -64,7 +64,8 @@ class RegistrationsController < ApplicationController
 	# GET /registrations/new
 	def new
 		@policy = check_policy!(RegistrationPolicy, club: @club)
-		@registration = Registration.new(club: @club, requested_team_id: @team&.id, kind: @kind)
+		@registration = Registration.new(club: @club, requested_team_id: @team&.id, kind: @kind, requester_kind: :self)
+		@registration.build_candidate
 		prepare_form(:create)
 	end
 
@@ -165,16 +166,18 @@ class RegistrationsController < ApplicationController
 
 		# Prepare a registration form
 		def prepare_form(action)
-			@header = create_fields(helpers.registration_header(action:))
+			@p_header = create_fields(helpers.registration_form_header(action:))
+			@p_fields = create_fields(helpers.person_form_fields(@registration.candidate, mandatory_email: true))
 			case action
 			when :create
-				fields = helpers.registration_form_fields(@registration, action:)
+				fields    = helpers.registration_form_fields(@registration.candidate, action:)
+				r_fields  = helpers.registration_requester_form_fields(@registration)
+				@r_fields = create_fields(r_fields)
 			when :edit
 				fields = to_boolean(params[:status]) ?
 					helpers.registration_status_form_fields(@registration) :
 					helpers.registration_form_fields(@registration, action:)
 			end
-
 			@fields = create_fields(fields)
 			@submit = create_submit
 		end
@@ -187,6 +190,16 @@ class RegistrationsController < ApplicationController
 				Rails.logger.debug r.errors.full_messages
 				Rails.logger.debug r.related_person.errors.full_messages if r.related_person
 			end
+		end
+
+		def prepare_person_for_create
+			attrs = registration_params[:person_attributes]
+			return Person.new if attrs.blank?
+
+			result = Person.resolve(attrs)
+			return nil if result[:status] == :ambiguous
+
+			result[:person] || Person.new
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
@@ -203,26 +216,32 @@ class RegistrationsController < ApplicationController
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def registration_params
 			params.require(:registration).permit(
-				:club_id,
-				:team_id,
-				:person_id,
-				:kind,
-				:settings,
-				:status,
-				:rdx,
-				:token,
-				:candidate_name,
-				:candidate_surname,
-				:candidate_dni,
-				:candidate_female,
-				:candidate_birthday,
-				:candidate_relationship_required,
-				:candidate_phone,
-				:candidate_email,
-				:requester_kind,
-				:requester_name,
-				:requester_email,
-				:requester_phone,
+				:token, :club_id, :team_id, :kind, :status,
+				:requester_kind, :reviewer_id, :person_merge, :rdx,
+				person_attributes: [
+					:id, :avatar, :name, :nick, :surname,
+					:dni, :id_back, :id_front, :female,
+					:birthday, :address, :email, :phone,
+
+					relationships_attributes: [
+						:id, :kind, :_destroy,
+						related_person_attributes: [
+							:id, :dni, :name, :surname, :email, :phone
+						]
+					]
+				],
+
+				requester_attributes: [
+					:id, :name, :surname, :dni, :address, :email, :phone
+				],
+
+				documents_attributes: [
+					:id, :kind, :title, :summary, :remarks, :file, :verified, :active
+				],
+
+				messages_attributes: [
+					:id, :author_kind, :author_assignment_id, :body, :visibility
+				]
 			)
 		end
 end

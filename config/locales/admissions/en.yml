@@ -41,6 +41,7 @@ en:
       fields:
         kind: Kind
         candidate: Candidate
+        different_requester: Application submitted by another person
         requester: Requester
         reviewer: Reviewer
         status: Status

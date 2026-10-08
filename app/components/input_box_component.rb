@@ -95,31 +95,25 @@ class InputBoxComponent < ApplicationComponent
 
 		# data atributes to pass on to controllers/forms
 		def set_box_data
+			@i_data = @fdata[:data].is_a?(Hash) ? @fdata[:data] :  {}
+
 			case @fdata[:kind]
-			when :hidden
-				@i_data = @fdata[:h_data]
 			when :image_box
-				@i_data = { action: "change->imagebox#handleFileChange", imagebox_target: "imageFile" }
+				@i_data.merge!({ action: "change->imagebox#handleFileChange", imagebox_target: "imageFile" })
 				@width  = ensure_px((@fdata[:width] || 75).to_s)
 				@height = ensure_px((@fdata[:height] || 100).to_s)
 				@fdata[:class] += " w-full"
-			when :radio_button, :radio_group
-				@i_data = @fdata[:r_data]
 			when :text_box
-				if @fdata[:options].present?
-					if @fdata[:options].is_a?(Hash)
-						@i_data  = { "data-optvalues" => @fdata[:options].values }
-					else
-						@i_data  = @fdata[:o_data]
-					end
+				if @fdata[:options].is_a?(Hash)
+					@i_data.merge!({ "data-optvalues" => @fdata[:options].values })
 				end
 			when :upload
-					@fdata[:css] = "max-h-6 min-h-4 h-5 m-1" if @fdata[:icon] || @fdata[:symbol]
-					@i_data = { upload_target: "fileInput", action: "change->upload#displayName" }
+				@fdata[:css] = "max-h-6 min-h-4 h-5 m-1" if @fdata[:icon] || @fdata[:symbol]
+				@i_data.merge!({ upload_target: "fileInput", action: "change->upload#displayName" })
+			else
 			end
 
 			if @fdata[:mandatory].present?
-				@i_data ||= {}
 				existing = @i_data[:action].to_s
 				merged   = [ existing, "mandatory#check" ].reject(&:blank?).join(" ")
 				@i_data.merge!({ mandatory_input: true, action: merged })

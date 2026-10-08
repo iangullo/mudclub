@@ -27,7 +27,11 @@ class Registration < ApplicationRecord
 	# Class relationships
 	#-------------------------------------
 	belongs_to :club
-	belongs_to :requester_person, class_name: "Person", optional: true
+	belongs_to :candidate, class_name: "AdmissionPerson"
+	accepts_nested_attributes_for :candidate
+	belongs_to :requester, class_name: "AdmissionPerson"
+	accepts_nested_attributes_for :requester
+
 	belongs_to :requested_team, class_name: "Team", optional: true
 	has_many :documents, dependent: :destroy
 	accepts_nested_attributes_for :documents, allow_destroy: true
@@ -39,19 +43,19 @@ class Registration < ApplicationRecord
 	enum :requester_kind, Catalog::RequesterKinds.enum, prefix: true
 
 	#-------------------------------------
-	# Validations
-	#-------------------------------------
-	validates :kind, :status, :requester_kind, :club,
-						:candidate_name, :candidate_surname,
-						presence: true
-
-	validate :team_required
-
-	#-------------------------------------
 	# Included Modules
 	#-------------------------------------
 	include Auditable
 	include Kinded
+
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
+	validates :kind, :status, :requester_kind, :club,
+						:person, :requester,
+						presence: true
+
+	validate :team_required
 
 	#-------------------------------------
 	# Scopes
@@ -61,24 +65,32 @@ class Registration < ApplicationRecord
 	scope :pending, -> {
 		where(status: %i[submitted under_review awaiting_requester])
 	}
-	scope :for_person, ->(person) {
-		person.present? ? where(requester_person: person) : none
+	scope :for_requester, ->(requester) {
+		requester.is_a?(Person) ? where(requester:) : none
 	}
+	scope :for_candidate, ->(candidate) {
+		candidate.is_a?(Person) ? where(candidate:) : none
+	}
+
 	#-------------------------------------
 	# General API methods
 	#-------------------------------------
+	def different_requester
+		candidate != requester
+	end
+
+	def person = candidate
+
 	# registration identifier for views
 	def s_name
 		"##{id}"
 	end
 
 	def to_s
-		Registration.label
+		persisted? ? s_name : Registration.label
 	end
 
-	# Return person.to_s or player name and jersey number
-	def candidate_string
-		"#{candidate_name} #{candidate_surname}".presence || kind_label
+	def self.rebuild(attrs)
 	end
 
 	#-------------------------------------
@@ -145,6 +157,11 @@ class Registration < ApplicationRecord
 		allowed_transitions.include?(new_status.to_sym)
 	rescue KeyError
 		false
+	end
+
+	def status_label(variant = :single)
+		status_key = "admissions.registration_statuses.values.#{status}.#{variant}"
+		I18n.t(status_key)
 	end
 
 	private

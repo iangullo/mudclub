@@ -30,7 +30,8 @@ module RegistrationsHelper
 		end
 		header = title_start(icon:, title:, subtitle:)
 		header << [
-			gap_field(size: 0), { kind: :label, value: Registration.act(action) }
+			symbol_field(:athlete, { title: registration.kind_label }, align: :center),
+			{ kind: :label, value: Registration.act(action) }
 		] if @team
 
 		header
@@ -41,55 +42,55 @@ module RegistrationsHelper
 		fields = [
 			[	gap_field(size: 0), { kind: :label, value: registration.s_name } ],
 			[]
-
 		]
 
 		fields
 	end
 
-	# fields to show when looking a user profile
+	def registration_form_header(registration = @registration, action: :edit)
+		header = person_form_title(
+				registration,
+				icon: registration.candidate,
+				title: registration.act(action),
+				sex: true
+			)
+		header
+	end
+
+	def registration_requester_form_fields(registration = @registration, action: :edit)
+		l_email   = Person.fld(:email)
+		l_phone   = Person.fld(:phone)
+		requester = registration.requester || AdmissionPerson.new
+		[
+			[
+				{ kind: :text_box, key: :name, value: requester.name, placeholder: Person.fld(:name), mandatory: { length: 2 }, size: 14, cols: 2 },
+				gap_field(size: 1),
+				{ kind: :text_box, key: :surname, value: requester.surname, placeholder: Person.fld(:surname), mandatory: { length: 2 }, size: 19, cols: 2 }
+			],
+			[
+				symbol_field(:call, { type: :button, title: l_phone }, class: "inline-flex"),
+				{ kind: :text_box, key: :email, value: requester.phone, placeholder: l_phone, mandatory: { length: 7 }, size: 12 },
+				gap_field(size: 1),
+				symbol_field(:email, { type: :button, title: l_email }, align: :right, class: "inline-flex"),
+				{ kind: :email_box, key: :email, value: requester.email, placeholder: l_email, mandatory: { length: 7 } }
+			]
+		]
+	end
+
 	def registration_form_fields(registration = @registration, action: :show)
 		fields  = [ gap_row(cols: 5) ]
 		fields += [
 			[
-				symbol_field(:athlete, { title: registration.kind_label }),
-				{ kind: :label, value: registration.kind_label, cols: 3 }
+				gap_field(size: 0),
+				{ kind: :string, value: "*Document management?", cols: 4 }
 			],
 			[
 				gap_field(size: 0),
-				{ kind: :text_box, key: :candidate_name, value: registration.candidate_name, placeholder: Person.fld(:name), mandatory: { length: 2 } },
-				gap_field(size: 1),
-				symbol_field(:calendar, { title: Person.fld(:birthday) }),
-				{ kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: registration.candidate_birthday, mandatory: true }
+				{ kind: :string, value: "*requester kind???", cols: 4 }
 			],
 			[
 				gap_field(size: 0),
-				{ kind: :text_box, key: :candidate_surname, value: registration.candidate_surname, placeholder: Person.fld(:surname), mandatory: { length: 2 } },
-				gap_field(size: 1),
-				symbol_field(:id_front, { title: Person.fld(:national_id) }),
-				{ kind: :text_box, key: :candidate_dni, size: 8, value: nil, placeholder: Person.fld(:national_id, :short) }
-			],
-			[
-				gap_field(size: 0),
-				{ kind: :label_checkbox, label: Person.t_path(:sex, :female), key: :female, value: registration.candidate_female, align: :left }
-			],
-			[
-				symbol_field(:person, { title: Registration.fld(:requester) }),
-				{ kind: :label, value: Registration.fld(:requester), cols: 4 }
-			],
-			[
-				gap_field(size: 0),
-				{ kind: :text_box, key: :requester_name, size: 38, value: registration.requester_name, placeholder: Person.fld(:name), mandatory: { length: 2 }, cols: 4 }
-			],
-			[
-				gap_field(size: 0)
-			],
-			[
-				gap_field(size: 0),
-				{ kind: :email_box, key: :requester_email, value: registration.requester_email, placeholder: Person.val(:email), mandatory: { length: 7 } },
-				gap_field(size: 1),
-				symbol_field(:call, { title: Person.fld(:phone) }),
-				{ kind: :text_box, key: :phone, size: 12, value: registration.requester_phone, placeholder: Person.fld(:phone) }
+				{ kind: :string, value: "Requester???", cols: 4 }
 			]
 		]
 

@@ -105,7 +105,7 @@ module PeopleHelper
 				{ kind: :email_box, key: :email, value: person&.email, placeholder: l_email, mandatory: mandatory_email ? { length: 7 } : nil }
 			]
 		]
-		if person&.coach_id? || person&.player_id?
+		if person.is_a?(AdmissionPerson) || person&.coach_id? || person&.player_id?
 			res << [ gap_field(size: 1), person_idpic(person, idpic: :id_front, align: :left, cols: 4) ]
 			res << [ gap_field(size: 1), person_idpic(person, idpic: :id_back, align: :left, cols: 4) ]
 		end

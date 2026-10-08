@@ -19,7 +19,6 @@
 class Person < ApplicationRecord
 	localized_as "people.person"
 
-	include PgSearch::Model
 	before_save { self.name    = self.name    ? self.name.mb_chars.titleize : "" }
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
 	after_commit :finalize_pending_merge
@@ -59,6 +58,12 @@ class Person < ApplicationRecord
 					class_name: "Person",
 					foreign_key: :merged_into_id,
 					dependent: :nullify
+
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include PgSearch::Model
+	include PersonData
 
 	#-------------------------------------
 	# Validations
@@ -160,17 +165,6 @@ class Person < ApplicationRecord
 		end
 	end
 
-	# calculate age
-	def age
-		if self.birthday
-			now = Time.now.utc.to_date
-			bday=self.birthday
-			now.year - bday.year - ((now.month > bday.month || (now.month == bday.month && now.day >= bday.day)) ? 0 : 1)
-		else
-			0
-		end
-	end
-
 	# return the version of this person that is not marked
 	# to be purged
 	def canonical
@@ -201,26 +195,6 @@ class Person < ApplicationRecord
 		Person.where(id: relationships.in_group(:responsible_adult).select(:related_person_id))
 	end
 
-	# returns a hash of icon & label to mark whether a
-	# Person has attached id pictures (front && back)
-	def idpic_content
-		label = self.dni
-		symbol = { concept: "id_front", options: { title: Person.fld(:national_id) } }
-		if self.idpics_attached?
-			found  = true
-		else
-			found  = self.id_front.attached? || self.id_back.attached?
-			symbol[:options][:title]  += " (#{I18n.t("person.pics_missing")})"
-			symbol[:options][:variant] = "none"
-		end
-		{ found:, symbol:, label: }
-	end
-
-	# checks whether a Person has attached id pictures (front && back)
-	def idpics_attached?
-		self.id_front.attached? && self.id_back.attached?
-	end
-
 	# used for clublogo (Person(id: 0)) - DEPRECATED
 	def logo
 		self.avatar.attached? ? self.avatar : "mudclub.svg"
@@ -228,10 +202,6 @@ class Person < ApplicationRecord
 
 	def merged?
 		merged_into_id.present?
-	end
-
-	def minor?
-		self.age < 18
 	end
 
 	# extended modified to check relationships
@@ -251,40 +221,8 @@ class Person < ApplicationRecord
 		self
 	end
 
-	# personal logo
-	def picture
-		self.avatar.attached? ? self.avatar : "person.svg"
-	end
-
 	def placeholder?
 		id.zero?
-	end
-
-	# rebuild Person data from raw input (as hash) given by a form submittal
-	def rebuild(data)
-		self.dni       = data[:dni].presence			|| self.dni
-		self.email     = data[:email].presence		|| self.email
-		self.name      = data[:name].presence 		|| self.name
-		self.surname   = data[:surname].presence 	|| self.surname
-		self.address   = data[:address].presence 	|| self.address
-		self.birthday  = data[:birthday].presence || self.birthday
-		self.nick      = data[:nick].presence 		|| self.nick
-
-		self.female    = to_boolean(data[:female])
-		self.phone     = parse_phone(data[:phone]) 					if data[:phone].presence
-		self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
-		self.update_attachment("id_front", data[:id_front]) if data[:id_front].present?
-		self.update_attachment("id_back", data[:id_back]) 	if data[:id_back].present?
-
-		# DEPRECATED - REMOVE ONCE MEMBERSHIPS are complete
-		self.coach_id  = nil unless self.coach_id.to_i > 0
-		self.player_id = nil unless self.player_id.to_i > 0
-		self.parent_id = nil unless self.parent_id.to_i > 0
-		self.user_id   = nil unless self.user_id.to_i > 0
-
-		rebuild_relationships(data[:relationships_attributes]) if data[:relationships_attributes]
-
-		true
 	end
 
 	# Return list of responsible adults related to this person
@@ -293,18 +231,6 @@ class Person < ApplicationRecord
 		relationships.where(
 			kind: %i[parent father mother guardian legal_representative]
 		)
-	end
-
-	def to_s(long = true)
-		aux = self.nick.presence || self.name.to_s
-		aux += " #{self.surname}" if long
-		aux
-	end
-
-	# short name for form viewing
-	def s_name
-		res = "#{self.to_s(false)} #{self.surname&.split&.first}"
-		res.present? ? res : I18n.t("person.single")
 	end
 
 	# Try to resolve a Person from identifying attributes.
@@ -408,8 +334,8 @@ class Person < ApplicationRecord
 				next if incoming.blank?
 				next if current.present?
 
-				duplicate.public_send("#{field}=", nil) if UNIQUE_FIELDS.include?(field)
 				public_send("#{field}=", incoming)
+				duplicate.public_send("#{field}=", nil) if UNIQUE_FIELDS.include?(field)
 			end
 		end
 
@@ -429,7 +355,7 @@ class Person < ApplicationRecord
 			users = User.where(person: duplicate)
 			users.each do |user|
 				duplicate.update! user_id: nil
-				user.update(person: self)
+				user.update!(person: self)
 			end
 		end
 
