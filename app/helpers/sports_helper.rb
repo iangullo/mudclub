@@ -49,7 +49,7 @@ module SportsHelper
 	def sports_form(title:)
 		res = title_start(icon: sport_symbol("category"), title:)
 		res << [
-				{ kind: :label, value: @sport.to_s, mandatory: { length: 3 } }
+				{ kind: :text_box, value: @sport.to_s, mandatory: { length: 3 } }
 			]
 		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
 		res

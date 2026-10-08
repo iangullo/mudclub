@@ -33,9 +33,9 @@ module CategoriesHelper
 			],
 			[
 				gap_field(size: 1),
-				{ kind: :label, value: I18n.t("shared.stats.min_short"), align: :right },
+				label_field(I18n.t("shared.stats.min_short"), align: :right),
 				{ kind: :string, value: @category.min_years },
-				{ kind: :label, value: I18n.t("shared.stats.max_short") },
+				label_field(I18n.t("shared.stats.max_short")),
 				{ kind: :string, value: @category.max_years }
 			],
 			[
@@ -56,9 +56,9 @@ module CategoriesHelper
 				{ kind: :select_box, key: :sex, options: Category.sex_options, value: @category.sex, cols: 2 }
 			],
 			[
-				{ kind: :label, value: I18n.t("shared.stats.min_short"), align: :right },
+				label_field(I18n.t("shared.stats.min_short"), align: :right),
 				{ kind: :number_box, key: :min_years, min: 5, size: 3, value: @category.min_years, mandatory: { min: 5 }, align: :left },
-				{ kind: :label, value: I18n.t("shared.stats.max_short"), align: :right },
+				label_field(I18n.t("shared.stats.max_short"), align: :right),
 				{ kind: :number_box, key: :max_years, min: 6, size: 3, value: @category.max_years, mandatory: { max: 99 } },
 				gap_field(size: 1)
 			],

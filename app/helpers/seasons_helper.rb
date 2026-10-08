@@ -22,11 +22,11 @@ module SeasonsHelper
 		res = season_title(title:, cols:)
 		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
-			{ kind: :label, align: :right, value: I18n.t("calendar.start") },
+			label_field(I18n.t("calendar.start"), align: :right),
 			{ kind: :date_box, key: :start_date, s_year: 2020, value: @season.start_date }
 		]
 		res << [
-			{ kind: :label, align: :right, value: I18n.t("calendar.end") },
+			label_field(I18n.t("calendar.end"), align: :right),
 			{ kind: :date_box, key: :end_date, s_year: 2020, value: @season.end_date }
 		]
 		res
@@ -58,11 +58,11 @@ module SeasonsHelper
 		res = season_title(title: @season.label, cols:)
 		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
-			{ kind: :label, align: :right, value: I18n.t("calendar.start") },
+			label_field(I18n.t("calendar.start"), align: :right),
 			{ kind: :text, value: @season.start_date }
 		]
 		res << [
-			{ kind: :label, align: :right, value: I18n.t("calendar.end") },
+			label_field(I18n.t("calendar.end"), align: :right),
 			{ kind: :text, value: @season.end_date }
 		]
 		res

@@ -106,7 +106,7 @@ module TeamsHelper
 		unless @eligible_coaches.empty?
 			res << [
 				symbol_field(:coach, { namespace: "sport" }, align: :right),
-				{ kind: :label, value: @team.term(:coach, :plural), class: "align-center" }
+				label_field(@team.term(:coach, :plural), class: "align-center")
 			]
 			res << [ gap_field, { kind: :select_checkboxes, key: :coach_ids, options: @eligible_coaches } ]
 		end
@@ -289,7 +289,7 @@ module TeamsHelper
 		elsif @team
 			variant = @team.accepts_registrations? ? :unlocked : :locked
 			res    += [
-				[ { kind: :label, value: @team.category.name } ],
+				[ label_field(@team.category.name) ],
 				[
 					symbol_field(:lock, { variant:, title: Registration.val(variant) }, align: :center),
 					{ kind: :text, value: "#{@team.division.name} (#{@team.season.name})" }

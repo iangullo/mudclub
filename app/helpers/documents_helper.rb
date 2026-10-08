@@ -54,7 +54,7 @@ module DocumentsHelper
 			]
 		]
 		if @document.summary.present?
-			res << [ { kind: :label, value: Document.fld(:summary), cols: 3 } ]
+			res << [ label_field(Document.fld(:summary), cols: 3) ]
 			res << [ { kind: :text, value: @document.summary, cols: 3 } ]
 		end
 
@@ -70,7 +70,7 @@ module DocumentsHelper
 		end
 
 		if @document.remarks.present?
-			res << [ { kind: :label, value: Document.fld(:remarks) } ]
+			res << [ label_field(Document.fld(:remarks)) ]
 			res << [ { kind: :text, value: @document.remarks, cols: 3 } ]
 		end
 
@@ -83,22 +83,22 @@ module DocumentsHelper
 		accept = @document.file_accept
 		res += [
 			[
-				{ kind: :label, value: Document.fld(:title) },
+				label_field(Document.fld(:title)),
 				{ kind: :text_box, key: :title, value: @document.title, placeholder: Document.fld(:title), mandatory: { length: 3 } }
 			],
 			[
-				{ kind: :label, value: Document.fld(:kind) },
+				label_field(Document.fld(:kind)),
 				{ kind: :select_box, align: :left, key: :kind, options: Document.kind_list(@owner), value: @document.kind }
 			],
 			[
-				{ kind: :label, value: Document.fld(:summary) },
+				label_field(Document.fld(:summary)),
 				{ kind: :text_area, key: :summary, value: @document.summary }
 			],
 			[
 				{ kind: :upload, symbol: symbol_hash(:document), label: Document.fld(:file), key: :file, value: @document.file&.filename, accept:, cols: 3 }
 			],
 			[
-				{ kind: :label, value: Document.fld(:remarks), align: :right },
+				label_field(Document.fld(:remarks), align: :right),
 				{ kind: :text_area, key: :remarks, value: @document.remarks }
 			]
 		]

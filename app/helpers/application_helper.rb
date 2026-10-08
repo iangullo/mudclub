@@ -96,6 +96,11 @@ module ApplicationHelper
 		{ kind: :icon, icon:, align:, class: iclass, cols:, rows:, size:, title: }
 	end
 
+	# regular label_field
+	def label_field(value, align: nil, cols: nil, class:)
+		{ kind: :label, value: value, align:, cols:, class: }
+	end
+
 	# standardised gap row field definition
 	def gap_row(size: 1, cols: 1, _class: "text-xs")
 		[ { kind: :gap, size:, cols:, class: _class } ]

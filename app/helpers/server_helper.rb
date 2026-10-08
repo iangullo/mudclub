@@ -66,7 +66,7 @@ module ServerHelper
 			gap_row,
 			[
 				gap_field(size: 2),
-				{ kind: :label, value: I18n.t("shared.settings"), cols: 4 }
+				label_field(I18n.t("shared.settings"), cols: 4)
 			]
 		]
 

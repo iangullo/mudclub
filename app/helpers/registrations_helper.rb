@@ -31,7 +31,7 @@ module RegistrationsHelper
 		header = title_start(icon:, title:, subtitle:)
 		header << [
 			symbol_field(:athlete, { title: registration.kind_label }, align: :center),
-			{ kind: :label, value: Registration.act(action) }
+			label_field(Registration.act(action))
 		] if @team
 
 		header
@@ -40,7 +40,7 @@ module RegistrationsHelper
 	# fields to show when looking a registration request
 	def registration_show_fields(registration = @registration)
 		fields = [
-			[	gap_field(size: 0), { kind: :label, value: registration.s_name } ],
+			[	gap_field(size: 0), label_field(registration.s_name) ],
 			[]
 		]
 
@@ -78,20 +78,8 @@ module RegistrationsHelper
 	end
 
 	def registration_form_fields(registration = @registration, action: :show)
-		fields  = [ gap_row(cols: 5) ]
-		fields += [
-			[
-				gap_field(size: 0),
-				{ kind: :string, value: "*Document management?", cols: 4 }
-			],
-			[
-				gap_field(size: 0),
-				{ kind: :string, value: "*requester kind???", cols: 4 }
-			],
-			[
-				gap_field(size: 0),
-				{ kind: :string, value: "Requester???", cols: 4 }
-			]
+		fields = [
+			[ label_field(Document.label(:plural), cols: 4) ]
 		]
 
 		fields

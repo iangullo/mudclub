@@ -227,7 +227,7 @@ module EventsHelper
 		res = []
 		res << [
 			symbol_field("drill", { namespace: task&.drill&.sport&.name || "sport", size: "30x30" }, align: :center),
-			{ kind: :label, value: task.drill.name },
+			label_field(task.drill.name),
 			gap_field,
 			{ kind: :icon_label, symbol: "clock", label: task.s_dur }
 		] if title
@@ -238,7 +238,7 @@ module EventsHelper
 			res << [ { kind: :steps, steps: task.drill.steps, court: task.drill.court_mode } ]
 		end
 		if task.remarks?
-			res << [ { kind: :label, value: I18n.t("task.remarks") } ]
+			res << [ label_field(Task.fld(:remarks)) ]
 			res << [ { kind: :action_text, value: task.remarks.body.to_s, size: 28 } ]
 		end
 		res
@@ -277,7 +277,7 @@ module EventsHelper
 	# fields to edit task remarks
 	def task_form_remarks
 		[
-			[ { kind: :label, value: Task.fld(:remarks) } ],
+			[ label_field(Task.fld(:remarks)) ],
 			[ { kind: :rich_text_area, key: :remarks, value: @task.remarks, size: 28 } ]
 		]
 	end
@@ -452,7 +452,7 @@ module EventsHelper
 						)
 					]
 				elsif current_user.is_athlete?
-					res << [ gap_field, { kind: :label, value: current_user.to_s, cols: 3 } ]
+					res << [ gap_field, label_field(current_user.to_s, cols: 3) ]
 				end
 			end
 		end
@@ -460,7 +460,7 @@ module EventsHelper
 		# complete event_title for rest events
 		def rest_title(team: nil, season: nil, res:, cols:, form:)
 			res << [ { kind: :subtitle, value: team&.nick || season&.name || "", cols: cols } ] if team or season
-			res << [ form ? { kind: :text_box, key: :name, value: @event.name, placeholder: Person.fld(:name) } : { kind: :label, value: @event.name } ]
+			res << [ form ? { kind: :text_box, key: :name, value: @event.name, placeholder: Person.fld(:name) } : label_field(@event.name) ]
 		end
 
 		# return the dropdown element to access workload charts

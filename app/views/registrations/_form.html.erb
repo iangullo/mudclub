@@ -34,8 +34,8 @@
 		<!-- Optional requester section -->
 		<div class="hidden" data-optional-fields-target="section" data-optional-name="requester">
 			<%= form.fields_for :requester, @registration.requester do |fr| %>
-			<% @r_fields.form = fr %>
-			<%= render @r_fields %>
+				<% @r_fields.form = fr %>
+				<%= render @r_fields %>
 			<% end %>
 		</div>
 		<% end %>

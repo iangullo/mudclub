@@ -65,7 +65,6 @@ class RegistrationsController < ApplicationController
 	def new
 		@policy = check_policy!(RegistrationPolicy, club: @club)
 		@registration = Registration.new(club: @club, requested_team_id: @team&.id, kind: @kind, requester_kind: :self)
-		@registration.build_candidate
 		prepare_form(:create)
 	end
 
@@ -166,10 +165,12 @@ class RegistrationsController < ApplicationController
 
 		# Prepare a registration form
 		def prepare_form(action)
+			@registration.build_requester unless @registration.requester
 			@p_header = create_fields(helpers.registration_form_header(action:))
 			@p_fields = create_fields(helpers.person_form_fields(@registration.candidate, mandatory_email: true))
 			case action
 			when :create
+				@registration.build_candidate unless @registration.candidate
 				fields    = helpers.registration_form_fields(@registration.candidate, action:)
 				r_fields  = helpers.registration_requester_form_fields(@registration)
 				@r_fields = create_fields(r_fields)

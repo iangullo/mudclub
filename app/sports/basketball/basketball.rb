@@ -313,7 +313,7 @@ class Basketball < Sport
 				{ kind: :gap },
 				stat_label(label),
 				{ kind: :string, value: made, class: "border px py", align: :right },
-				{ kind: :label, value: "/" },
+				label_field("/"),
 				{ kind: :string, value: taken, class: "border px py", align: :right },
 				{ kind: :text, value: (taken == 0 ? pctg : "#{pctg}%"), class: "align-middle text-#{pcol}", align: :center }
 			]
@@ -337,7 +337,7 @@ class Basketball < Sport
 				{ kind: :gap },
 				stat_label(label),
 				{ kind: :number_box, key: "#{key}#{k_made}", value: v_made, class: "shots-made border px py", align: :right },
-				{ kind: :label, value: "/" },
+				label_field("/"),
 				{ kind: :number_box, key: "#{key}#{k_taken}", value: v_taken, class: "shots-taken border px py", align: :right }
 			]
 		end

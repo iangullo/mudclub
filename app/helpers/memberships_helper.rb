@@ -26,18 +26,18 @@ module MembershipsHelper
 	def membership_details_fields(member)
 		fields = [
 			[
-				{ kind: :label, value: member.label, align: "center" },
+				label_field(member.label, align: :center),
 				gap_field,
-				{ kind: :label, value: "#{member.fld(:joined_on, :short)}: ", align: "left" },
-				{ kind: :string, value: date_string(member.joined_on), align: "left", class: "items-center" }
+				label_field("#{member.fld(:joined_on, :short)}: ", align: :left),
+				{ kind: :string, value: date_string(member.joined_on), align: :left, class: "items-center" }
 			]
 		]
 
 		if member.left_on
 			fields <<	[
 				gap_field(cols: 2),
-				{ kind: :label, value: "#{member.fld(:left_on, :short)}: ", align: "left" },
-				{ kind: :string, value: date_string(member.left_on), align: "left", class: "items-center" }
+				label_field("#{member.fld(:left_on, :short)}: ", align: :left),
+				{ kind: :string, value: date_string(member.left_on), align: :left, class: "items-center" }
 			]
 		end
 		fields
@@ -46,10 +46,10 @@ module MembershipsHelper
 	def membership_show_fields(member)
 		m_fields = []
 		if member.notes?
-			m_fields << [ { kind: :label, value: "#{member.fld(:notes)}:", align: :right, class: "text-right" } ]
+			m_fields << [ label_field("#{member.fld(:notes)}:", align: :right, class: "text-right") ]
 			m_fields << [ { kind: :text_field, value: member.notes, align: :left } ]
 		end
-		m_fields <<	[	{ kind: :label, value: "#{Assignment.label(:plural)}:", cols: 2 }	]
+		m_fields <<	[	label_field("#{Assignment.label(:plural)}:", cols: 2)	]
 		m_fields
 	end
 
@@ -64,7 +64,7 @@ module MembershipsHelper
 
 	def membership_form_fields(member)
 	[
-		[ { kind: :label, value: Membership.fld(:notes) } ],
+		[ label_field(Membership.fld(:notes)) ],
 		[
 			{ kind: :rich_text_area, key: :notes, cols: 3 },
 			{ kind: :hidden, key: :kind, value: member.kind }

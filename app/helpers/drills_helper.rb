@@ -21,9 +21,7 @@ module DrillsHelper
 	# return title FieldComponent definition for edit/new
 	def drill_form_data
 		[
-			[
-				{ kind: :label, value: Target.label(:plural), align: "right" }
-			],
+			[ label_field(Target.label(:plural), align: :right) ],
 			[
 				{ kind: :nested_form, model: "drill", key: "drill_targets", child: DrillTarget.new(priority: @drill.drill_targets.count+1), row: "target_row", cols: 2 }
 			],
@@ -77,7 +75,7 @@ module DrillsHelper
 	# return title FieldComponent definition for drill steps form
 	def drill_form_steps
 		res = [
-			[ { kind: :label, value: Step.label(:plural) } ],
+			[ label_field(Step.label(:plural)) ],
 			[
 				{ kind: :nested_form, model: "drill", key: "steps", child: Step.new(drill_id: @drill.id), row: "step_row" }
 			]
@@ -94,9 +92,9 @@ module DrillsHelper
 
 		res = [
 			[
-				{ kind: :label, value: "#{Skill.label(:plural)}:" },
+				label_field("#{Skill.label(:plural)}:"),
 				gap_field,
-				{ kind: :label, value: "#{Drill.fld(:author)}:" }
+				label_field("#{Drill.fld(:author)}:")
 			],
 			[
 				{ kind: :nested_form, model: "drill", key: "skills", child: Skill.new, row: "skill_row" },
@@ -177,16 +175,16 @@ module DrillsHelper
 	def drill_show_intro
 		res  = [
 			[
-				{ kind: :label, value: Target.label(:plural) },
+				label_field(Target.label(:plural)),
 				{ kind: :lines, class: "align-top", value: @drill.drill_targets }
 			]
 		]
 		res << [
-			{ kind: :label, value: Drill.fld(:material) },
+			label_field(Drill.fld(:material)),
 			{ kind: :string, value: @drill.material }
 		]
 		res << [
-			{ kind: :label, value: Drill.fld(:description_short) },
+			label_field(Drill.fld(:description_short)),
 			{ kind: :string, value: @drill.description }
 		]
 	end
@@ -208,7 +206,7 @@ module DrillsHelper
 	def drill_show_tail
 		res = [
 			[
-				{ kind: :label, value: I18n.t("skill.abbr") },
+				label_field(Skill.label(:short)),
 				{ kind: :string, value: @drill.print_skills }
 			]
 		]
@@ -226,7 +224,7 @@ module DrillsHelper
 			)
 		end
 		res << [
-			{ kind: :label, value: Drill.fld(:author) },
+			label_field(Drill.fld(:author)),
 			{ kind: :string, value: @drill.author.s_name }
 		]
 	end

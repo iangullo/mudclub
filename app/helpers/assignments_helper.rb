@@ -41,17 +41,17 @@ module AssignmentsHelper
 	def assignment_show_fields(assignment = @assignment)
 		fields = [
 			[
-				{ kind: :label, value: "#{assignment.fld(:starts_on, :short)}: ", align: :right },
+				label_field("#{assignment.fld(:starts_on, :short)}: ", align: :right),
 				{ kind: :string, value: date_string(assignment.starts_on), cols: 3, align: :left, class: "items-center" }
 			]
 		]
 		fields <<  [
-			{ kind: :label, value: "#{assignment.fld(:ends_on, :short)}: ", align: :right },
+			label_field("#{assignment.fld(:ends_on, :short)}: ", align: :right),
 			{ kind: :string, value: date_string(assignment.ends_on), cols: 3, align: :left, class: "items-center" }
 		] if assignment.ends_on
 
 		fields << [
-			{ kind: :label, value: "#{assignment.fld(:notes)}: ", align: :right },
+			label_field("#{assignment.fld(:notes)}: ", align: :right),
 			{ kind: :text_field, value: assignment.notes, align: :left }
 		]
 	end
@@ -69,7 +69,7 @@ module AssignmentsHelper
 
 	def assignment_form_fields(assignment = @assignment)
 		[
-			[ { kind: :label, value: Membership.fld(:notes) } ],
+			[ label_field(Membership.fld(:notes)) ],
 			[
 				{ kind: :rich_text_area, key: :notes, cols: 3 },
 				{ kind: :hidden, key: :membership_id, value: assignment.membership_id }
@@ -84,7 +84,7 @@ module AssignmentsHelper
 		[
 			[
 				gap_field(size: 6),
-				{ kind: :label, value: Assignment.fld(:kind, :short) },
+				label_field(Assignment.fld(:kind, :short)),
 				gap_field(size: 1),
 				{ kind: :select_collection, key: :kind, options:, value: assignment.kind&.to_sym }
 			]

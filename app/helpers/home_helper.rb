@@ -21,11 +21,7 @@ module HomeHelper
 	# fields for anonymous views
 	#---------------------------------------------------------
 	def home_anonymous_fields
-		[
-			[
-				{ kind: :label, value: Clubs.label(:plural) }
-			]
-		]
+		[ [ label_field(Clubs.label(:plural)) ] ]
 	end
 
 	# user login fields

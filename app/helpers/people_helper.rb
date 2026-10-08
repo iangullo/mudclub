@@ -44,7 +44,7 @@ module PeopleHelper
 			{ kind: :string, value: pobj&.person&.dni || Person.msg(:no_id) }
 
 		fields += [
-			[ { kind: :label, value: person&.surname, cols: } ],
+			[ label_field(person&.surname, cols:) ],
 			[
 				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: },
 				c_field
@@ -117,7 +117,7 @@ module PeopleHelper
 
 	# nested form to add/edit person relationships
 	def person_relationships_form(person)
-		res = [ [ { kind: :label, value: Relationship.label(:plural) } ] ]
+		res = [ [ label_field(Relationship.label(:plural)) ] ]
 		res << [
 			{
 				kind: :nested_form,
@@ -140,7 +140,7 @@ module PeopleHelper
 		merge_fields = [ pobj_fields ]
 		merge_fields += [
 			gap_row,
-			[ { kind: :label, value: Person.msg(:ambiguous) } ]
+			[ label_field(Person.msg(:ambiguous)) ]
 		]
 
 		lastopt = { value: lastopt, label: Person.act(:create) }
