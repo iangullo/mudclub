@@ -61,8 +61,8 @@ module PeopleHelper
 	def person_show_fields(person, title: Person.label, icon: person&.picture)
 		[
 			[
-			symbol_field("home", { size: "25x25", title: Person.fld(:address) }, class: "align-top", align: "right"),
-			{ kind: :string, value: simple_format("#{@person&.address}"), align: "left" }
+			symbol_field(:home, { size: "25x25", title: Person.fld(:address) }, class: "align-top", align: :right),
+			{ kind: :string, value: simple_format("#{@person&.address}"), align: :left }
 			]
 		]
 	end
@@ -70,14 +70,14 @@ module PeopleHelper
 	#----------------------------------------------
 	# Field definitions for person forms
 	#----------------------------------------------
-	def person_form_title(pobj, icon: person&.picture, title:, cols: 2, sex: nil)
+	def person_form_title(pobj, icon: person&.picture, title:, cols: 2, sex: nil, guardians: nil)
 		person = pobj.person
 		res = person_title(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
 		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: Person.fld(:name), cols: 2, mandatory: { length: 2 } } ]
 		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: Person.fld(:surname), cols: 2, mandatory: { length: 2 } } ]
-		res << (sex ? [ { kind: :label_checkbox, label: Person.t_path(:sex, :female_short), key: :female, value: person&.female, align: "left" } ] : [])
+		res << (sex ? [ { kind: :label_checkbox, label: Person.t_path(:sex, :female_short), key: :female, value: person&.female, align: :left } ] : [])
 		res.last << symbol_field(:calendar)
-		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
+		res.last << birthday_form_field(person, guardians:)
 		res = participation_fields(pobj, res, just_icon: false) unless pobj.is_a?(Person)
 		res
 	end
@@ -88,6 +88,7 @@ module PeopleHelper
 		l_pid   = Person.fld(:national_id, :short)
 		l_email = Person.fld(:email)
 		l_addr  = Person.fld(:address)
+		m_email = { length: 7 } if mandatory_email
 
 		res = [
 			[
@@ -102,7 +103,7 @@ module PeopleHelper
 				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: l_pid },
 				gap_field,
 				symbol_field(:email, { type: :button, title: l_email }),
-				{ kind: :email_box, key: :email, value: person&.email, placeholder: l_email, mandatory: mandatory_email ? { length: 7 } : nil }
+				{ kind: :email_box, key: :email, value: person&.email, placeholder: l_email, mandatory: m_email  }
 			]
 		]
 		if person.is_a?(AdmissionPerson) || person&.coach_id? || person&.player_id?
@@ -112,6 +113,30 @@ module PeopleHelper
 		res << [
 			symbol_field(:home, { size: "25x25", title: l_addr }, class: "align-top"),
 			{ kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: l_addr }
+		]
+	end
+
+	def person_contact_form_fields(person, required: false)
+		name    = { label: Person.fld(:name), mandatory: required ? { length: 2 } : nil }
+		surname = { label: Person.fld(:surname), mandatory: required ? { length: 2 } : nil  }
+		email   = { label: Person.fld(:email), mandatory: required ? { length: 7 } : nil  }
+		phone   = { label: Person.fld(:phone), mandatory: required ? { length: 7 } : nil  }
+
+		[
+			[
+				symbol_field(:person, class: "inline-flex"),
+				{ kind: :text_box, key: :name, value: person.name, placeholder: name[:label], mandatory: name[:mandatory], size: 14, cols: 2 },
+				gap_field(size: 1),
+				{ kind: :text_box, key: :surname, value: person.surname, placeholder: surname[:label], mandatory: surname[:mandatory], size: 19, cols: 2 }
+			],
+			[
+				gap_field(size: 0),
+				symbol_field(:call, { type: :button, title: phone[:label] }, class: "inline-flex"),
+				{ kind: :text_box, key: :email, value: person.phone, placeholder: phone[:label], mandatory: phone[:mandatory], size: 12 },
+				gap_field(size: 1),
+				symbol_field(:email, { type: :button, title: email[:label] }, align: :right, class: "inline-flex"),
+				{ kind: :email_box, key: :email, value: person.email, placeholder: email[:label], mandatory: email[:mandatory] }
+			]
 		]
 	end
 
@@ -161,6 +186,19 @@ module PeopleHelper
 	end
 
 	private
+		def birthday_form_field(person, guardians: false)
+			bday_fld = { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
+
+			bday_fld[:i_data] = {
+				optional_fields_target: "switch",
+				optional_target: "guardians",
+				optional_rule: "underage",
+				action: "change->optional-fields#toggle"
+			} if guardians
+
+			bday_fld
+		end
+
 		# button to download an idpic
 		def idpic_button(person, idpic)
 			{
@@ -173,7 +211,7 @@ module PeopleHelper
 
 		# wrapper to manage return of suitable Field for id Person fields
 		# standardised field with icons for player/coach id pics
-		def person_idpic(person, idpic: nil, cols: nil, align: "center")
+		def person_idpic(person, idpic: nil, cols: nil, align: :center)
 			if idpic	# it is an editor field
 				{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: Person.fld(idpic)), label: Person.fld(idpic, :short), key: idpic, value: person&.send(idpic)&.filename, cols: }
 			else
@@ -186,7 +224,7 @@ module PeopleHelper
 					button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
 					{ kind: :dropdown, button:, class: "bg-white", cols: }
 				else
-					{ kind: :icon_label, symbol:, label:, right: true, align: "left", cols: }
+					{ kind: :icon_label, symbol:, label:, right: true, align: :left, cols: }
 				end
 			end
 		end

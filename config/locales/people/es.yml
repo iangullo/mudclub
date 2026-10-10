@@ -32,7 +32,7 @@ es:
       fields:
         name: Nombre
         name_short: Nom.
-        surname: Apellido
+        surname: Apellidos
         surname_short: Apell.
         nickname: Apodo
         nickname_short: Nick

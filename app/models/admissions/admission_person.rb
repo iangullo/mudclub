@@ -23,8 +23,6 @@ class AdmissionPerson < ApplicationRecord
 	# Class relationships
 	#-------------------------------------
 	self.inheritance_column = "not_sti"
-	belongs_to :registration
-
 	has_one_attached :avatar
 	has_one_attached :id_front
 	has_one_attached :id_back

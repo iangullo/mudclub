@@ -44,7 +44,7 @@ module ParticipationHelper
 		fields[0] += [
 			gap_field,
 			participation_club_field(obj, align: :left),
-			gap_field,
+			gap_field(size: 1),
 			participation_kind_field(obj, align: :right)
 		]
 		fields[1] += [

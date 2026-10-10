@@ -95,8 +95,9 @@ es:
         id_back: DNI (reverso)
         medical_certificate: Cert. med.
         insurance: Seguro
-        payment_details: Modo de Pago
+        payment_terms: Instrucciones Pago
         coaching_certificate: Título entren.
+        athlete_form: Inscrip. deportista
         athlete_terms: Normas deportistas
         coach_contract: Contrato entrenador
         volunteer_agreement: Acuerdo voluntario

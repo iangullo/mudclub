@@ -1,6 +1,6 @@
 <% case @fdata[:kind] %>
 <% when :date_box %>
-	<%= @form.date_field(@fdata[:key], value: @fdata[:value], start_year: @fdata[:s_year], end_year: (@fdata[:e_year] || Time.now.year), class: @i_class, data: @i_data) %>
+	<%= @form.date_field(@fdata[:key], value: @fdata[:value], min: @fdata[:s_year] && "#{@fdata[:s_year]}-01-01", max: "#{@fdata[:e_year] || Time.now.year}-12-31", class: @i_class, data: @i_data) %>
 <% when :email_box %>
 	<%= @form.email_field(@fdata[:key], placeholder: @fdata[:placeholder], size: @fdata[:size], class: @i_class, data: @i_data) %>
 <% when :hidden %>

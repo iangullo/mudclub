@@ -59,7 +59,7 @@ module UsersHelper
 			res = [
 				participation_club_selector(@user),
 				[
-					symbol_field("key", { title: I18n.t("user.profile") }),
+					symbol_field(:key, { title: User.fld(:profile) }),
 					{ kind: :select_box, align: "left", key: :role, options: User.role_list, value: @user.role }
 				]
 			]
@@ -68,12 +68,12 @@ module UsersHelper
 				[
 					icon_field(@user.club&.logo || "mudclub.svg", title: @user.club&.nick || I18n.t("club.none")),
 					{ kind: :string, align: :center, value: I18n.t("role.#{@user.role}") },
-					{ kind: :hidden, key: :club_id, value: @user.club_id }
+					hidden_field(key: :club_id, value: @user.club_id)
 				]
 			]
 		end
 		res.last <<	gap_field
-		res.last << symbol_field("locale", { title: I18n.t("locale.lang") })
+		res.last << symbol_field(:locale, { title: I18n.t("locale.lang") })
 		res.last << { kind: :select_box, align: :center, key: :locale, options: User.locale_list, value: @user.locale }
 		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
 		res
@@ -83,11 +83,11 @@ module UsersHelper
 	def user_form_pass
 		[
 			[
-				symbol_field("key"),
+				symbol_field(:key),
 				{ kind: :password_box, key: :password, placeholder: I18n.t("password.single"), mandatory: { length: 8 } }
 			],
 			[
-				symbol_field("key"),
+				symbol_field(:key),
 				{ kind: :password_box, key: :password_confirmation, placeholder: I18n.t("password.confirm"), mandatory: { length: 8 } }
 			],
 			[
@@ -152,6 +152,6 @@ module UsersHelper
 	private
 		# tails actions_symbol to mark if log is quite full
 		def user_actions_symbol
-			symbol_hash("actions", variant: @user.user_actions.count>10 ? "full" : "default")
+			symbol_hash(:actions, variant: @user.user_actions.count>10 ? "full" : "default")
 		end
 end

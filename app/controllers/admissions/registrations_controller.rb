@@ -19,7 +19,7 @@
 # Handle Registration views - always linked to a club
 class RegistrationsController < ApplicationController
 	before_action :load_participation_context
-	before_action :load_registration_kind
+	before_action :load_registration_context
 	before_action :set_registration, only: [ :show, :edit, :update, :terminate ]
 
 	# GET /clubs/x/registrations
@@ -76,7 +76,6 @@ class RegistrationsController < ApplicationController
 			Registration.transaction do
 				@registration = Registration.new(club: @club, kind: @kind)
 				@registration.rebuild(registration_params)
-				@registration.starts_on = Date.today
 
 				if @registration.save
 					format.html do
@@ -165,81 +164,81 @@ class RegistrationsController < ApplicationController
 
 		# Prepare a registration form
 		def prepare_form(action)
-			@registration.build_requester unless @registration.requester
+			@registration.build_candidate unless @registration.candidate
 			@p_header = create_fields(helpers.registration_form_header(action:))
-			@p_fields = create_fields(helpers.person_form_fields(@registration.candidate, mandatory_email: true))
+			p_fields  = helpers.person_form_fields(@registration.candidate, mandatory_email: true)
+			p_fields[1].last[:mandatory][:unless] = [ "guardians", "requester" ]
+			@p_fields = create_fields(p_fields)
+
 			case action
 			when :create
-				@registration.build_candidate unless @registration.candidate
-				fields    = helpers.registration_form_fields(@registration.candidate, action:)
-				r_fields  = helpers.registration_requester_form_fields(@registration)
-				@r_fields = create_fields(r_fields)
+				@registration.build_requester
+				@r_fields = create_fields(helpers.registration_requester_form_fields(@registration))
+				fields    = helpers.registration_form_fields(@registration, action:)
 			when :edit
 				fields = to_boolean(params[:status]) ?
 					helpers.registration_status_form_fields(@registration) :
 					helpers.registration_form_fields(@registration, action:)
 			end
+
 			@fields = create_fields(fields)
+
+			@guardian1_fields = create_fields(
+				helpers.person_contact_form_fields(@registration.guardian1 || AdmissionPerson.new, required: true)
+			)
+			@guardian2_fields = create_fields(
+				helpers.person_contact_form_fields(@registration.guardian2 || AdmissionPerson.new)
+			)
 			@submit = create_submit
 		end
 
 		def log_registration_errors
 			Rails.logger.debug @registration.errors.full_messages
-			Rails.logger.debug @registration.person.errors.full_messages
-
-			@registration.person.relationships.each do |r|
-				Rails.logger.debug r.errors.full_messages
-				Rails.logger.debug r.related_person.errors.full_messages if r.related_person
-			end
+			Rails.logger.debug @registration.candidate.errors.full_messages
+			Rails.logger.debug @registration.requester&.errors&.full_messages
+			Rails.logger.debug @registration.guardian1&.errors&.full_messages
+			Rails.logger.debug @registration.guardian2&.errors&.full_messages
 		end
 
-		def prepare_person_for_create
-			attrs = registration_params[:person_attributes]
-			return Person.new if attrs.blank?
-
-			result = Person.resolve(attrs)
-			return nil if result[:status] == :ambiguous
-
-			result[:person] || Person.new
-		end
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_registration
 			@registration = Registration.find_by_id(params[:id]) unless @registration&.id==params[:id]
 			@club   = @registration&.club
+			@team   = @registration&.team
 			@kind   = @registration&.kind
 		end
 
-		def load_registration_kind
-			@kind = Registration.kind_catalog.normalize(params[:kind])
+		def load_registration_context
+			@kind ||= Registration.kind_catalog.normalize(params[:kind])
+			if params[:registration] && registration_params[:requested_team_id].present?
+				@team = Team.find(registration_params[:requested_team_id])
+			else
+				@team ||= Team.find(params[:team_id])
+			end
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def registration_params
 			params.require(:registration).permit(
-				:token, :club_id, :team_id, :kind, :status,
-				:requester_kind, :reviewer_id, :person_merge, :rdx,
-				person_attributes: [
+				:token, :club_id, :team_id, :kind, :requested_team_id, :status,
+				:remarks, :different_requester, :payment_terms, :requester_kind,
+				:reviewer_id, :rdx,
+
+				candidate_attributes: [
 					:id, :avatar, :name, :nick, :surname,
 					:dni, :id_back, :id_front, :female,
-					:birthday, :address, :email, :phone,
-
-					relationships_attributes: [
-						:id, :kind, :_destroy,
-						related_person_attributes: [
-							:id, :dni, :name, :surname, :email, :phone
-						]
-					]
+					:birthday, :address, :email, :phone
 				],
 
-				requester_attributes: [
-					:id, :name, :surname, :dni, :address, :email, :phone
-				],
-
+				guardian1_attributes: [ :id, :name, :surname, :email, :phone ],
+				guardian2_attributes: [ :id, :name, :surname, :email, :phone ],
+				requester_attributes: [ :id, :name, :surname, :email, :phone ],
+=begin
 				documents_attributes: [
 					:id, :kind, :title, :summary, :remarks, :file, :verified, :active
 				],
-
+=end
 				messages_attributes: [
 					:id, :author_kind, :author_assignment_id, :body, :visibility
 				]

@@ -119,6 +119,23 @@ Rails.application.routes.draw do
 				get :edit_targets
 			end
 
+			# Team registrations
+			resources :registrations do
+				member do
+					patch :submit
+					patch :begin_review
+					patch :request_information
+					patch :approve
+					patch :reject
+					patch :cancel
+				end
+				resources :documents do
+					member do
+						patch :activate
+					end
+				end
+			end
+
 			# Team calendar
 			resources :events do
 				member do

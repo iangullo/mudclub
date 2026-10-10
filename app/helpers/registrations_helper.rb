@@ -47,40 +47,46 @@ module RegistrationsHelper
 		fields
 	end
 
+	#
 	def registration_form_header(registration = @registration, action: :edit)
 		header = person_form_title(
-				registration,
-				icon: registration.candidate,
-				title: registration.act(action),
-				sex: true
-			)
+			registration,
+			icon: registration.candidate,
+			title: registration.act(action),
+			sex: true,
+			guardians: true
+		)
+		header[2] += [ gap_field(size: 0), label_field(@team.name, cols: 2) ] if @team
 		header
 	end
 
+	#
 	def registration_requester_form_fields(registration = @registration, action: :edit)
-		l_email   = Person.fld(:email)
-		l_phone   = Person.fld(:phone)
-		requester = registration.requester || AdmissionPerson.new
-		[
-			[
-				{ kind: :text_box, key: :name, value: requester.name, placeholder: Person.fld(:name), mandatory: { length: 2 }, size: 14, cols: 2 },
-				gap_field(size: 1),
-				{ kind: :text_box, key: :surname, value: requester.surname, placeholder: Person.fld(:surname), mandatory: { length: 2 }, size: 19, cols: 2 }
-			],
-			[
-				symbol_field(:call, { type: :button, title: l_phone }, class: "inline-flex"),
-				{ kind: :text_box, key: :email, value: requester.phone, placeholder: l_phone, mandatory: { length: 7 }, size: 12 },
-				gap_field(size: 1),
-				symbol_field(:email, { type: :button, title: l_email }, align: :right, class: "inline-flex"),
-				{ kind: :email_box, key: :email, value: requester.email, placeholder: l_email, mandatory: { length: 7 } }
-			]
-		]
+		person_contact_form_fields(registration.requester, required: true)
 	end
 
+	#
 	def registration_form_fields(registration = @registration, action: :show)
 		fields = [
-			[ label_field(Document.label(:plural), cols: 4) ]
+			[
+				label_field(registration.fld(:remarks), cols: 2),
+				{ kind: :hidden, key: :kind, value: registration.kind || @kind },
+				{ kind: :hidden, key: :requested_team_id, value: @team.id }
+			],
+			[ { kind: :text_area, key: :remarks, value: registration.remarks, size: 36, lines: 2, cols: 2 } ]
 		]
+
+		if doc = registration.club.payment_terms_template
+			return fields unless doc.file.attached?
+
+			payment_form = registration.payment_terms.attached? ? registration.payment_terms : nil
+			fields += [
+				[
+					button_field({ kind: :link, symbol: symbol_hash(:document, size: "25x25"), url: rails_blob_path(doc.file, disposition: "attachment"), label: doc.kind_label })
+				],
+				[ form_file_field(label: doc.kind_label, key: :payment_terms, value: payment_form, cols: 2) ]
+			]
+		end
 
 		fields
 	end

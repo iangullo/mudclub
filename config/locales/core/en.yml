@@ -95,8 +95,9 @@ en:
         id_back: ID (back)
         medical_certificate: Med. cert.
         insurance: Insurance
-        payment_details: Payment terms
+        payment_terms: Payment terms
         coaching_certificate: Coaching cert.
+        athlete_form: Athlete form
         athlete_terms: Athlete terms
         coach_contract: Coaching contract
         volunteer_agreement: Volunteer agreement

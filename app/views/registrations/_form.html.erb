@@ -3,13 +3,14 @@
 		model: resource_route(@registration),
 		data: {
 			controller: "mandatory-fields optional-fields",
+			action: "optional-fields:changed->mandatory-fields#refresh",
 			turbo_frame: "modal"
 		},
 		authenticity_token: true
 	) do |form| %>
     	<!-- Candidate -->
 		<% @fields.form = form %>
-		<%= form.fields_for :candidate, @registration.person do |f| %>
+		<%= form.fields_for :candidate, @registration.candidate || AdmissionPerson.new do |f| %>
 			<% @p_header.form = f %>
 			<% @p_fields.form = f %>
 			<%= render @p_header %>
@@ -17,27 +18,40 @@
 			<%= render @fields %>
 		<% end %>
 
-		<% if @r_fields %>
-      	<!-- Switch -->
-		<div class="my-2">
-			<%= form.check_box(:different_requester,
-				data: {
-					optional_fields_target: "switch",
-					optional_target: "requester",
-					action: "change->optional-fields#toggle"
-				}
-				) %>
-
-			<%= label_tag(:different_requester,Registration.fld(:different_requester)) %>
-		</div>
+		<!-- Optional guadians section -->
+		<div class="hidden" data-optional-fields-target="section" data-optional-name="guardians">
+			<%= render FieldsComponent.new([[label_field(Relationship.kind_label(:guardian, :plural))]]) %>
+			<%= form.fields_for :guardian1, (@registration.guardian1 || AdmissionPerson.new) do |g| %>
+				<% @guardian1_fields.form = g %>
+				<%= render @guardian1_fields %>
+			<% end %>
+			<br>
+			<%= form.fields_for :guardian2, (@registration.guardian2 || AdmissionPerson.new) do |g| %>
+				<% @guardian2_fields.form = g %>
+				<%= render @guardian2_fields %>
+			<% end %>
+  		</div>
 
 		<!-- Optional requester section -->
-		<div class="hidden" data-optional-fields-target="section" data-optional-name="requester">
-			<%= form.fields_for :requester, @registration.requester do |fr| %>
-				<% @r_fields.form = fr %>
-				<%= render @r_fields %>
-			<% end %>
-		</div>
+		<% if @r_fields %>
+			<div class="my-2">
+				<%= form.check_box(:different_requester,
+					data: {
+						optional_fields_target: "switch",
+						optional_target: "requester",
+						action: "change->optional-fields#toggle"
+					}
+					) %>
+
+				<%= label_tag(:different_requester, Registration.fld(:different_requester)) %>
+			</div>
+
+			<div class="hidden" data-optional-fields-target="section" data-optional-name="requester">
+				<%= form.fields_for :requester, @registration.requester || AdmissionPerson.new do |fr| %>
+					<% @r_fields.form = fr %>
+					<%= render @r_fields %>
+				<% end %>
+			</div>
 		<% end %>
 		<%= render @submit %>
 	<% end %>

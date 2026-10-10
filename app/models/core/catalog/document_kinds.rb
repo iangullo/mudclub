@@ -78,14 +78,16 @@ class Catalog::DocumentKinds < Catalog::Base
 		},
 
 		# -------------------------------------------------------------------
-		# Financial
+		# Financial - form templates and documents for financial purposes
 		# -------------------------------------------------------------------
 
-		payment_details: {
+		payment_terms: {
 			id: 50,
 			category: :financial,
-			applies_to: %i[person registration],
+			applies_to: %i[club],
 			file_type: :pdf,
+			versioned: :true,
+			requires_acceptance: false,
 			multiple: false
 		},
 
@@ -150,15 +152,14 @@ class Catalog::DocumentKinds < Catalog::Base
 			requires_acceptance: false
 		},
 
-		form: {
+		athlete_form: {
 			id: 150,
 			category: :legal,
 			applies_to: %i[club registration],
 			file_type: :pdf,
-			active_storage_name: :form,
+			active_storage_name: :athlete_form,
 			multiple: false
 		},
-
 
 		# -------------------------------------------------------------------
 		# Miscellaneous

@@ -211,7 +211,7 @@ class TeamsController < ApplicationController
 			submit  = {
 				kind: :edit,
 				label: Registration.act(:create_short),
-				url: new_club_registration_path(@club, team_id: @team.id, kind: :athlete)
+				url: new_path_for(@team, :registration, kind: :athlete)
 			}
 			@submit = create_submit(submit:, retlnk: club_path(@team.club), frame: :modal)
 		end

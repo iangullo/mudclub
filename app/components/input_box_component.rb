@@ -61,16 +61,36 @@ class InputBoxComponent < ApplicationComponent
 
 	private
 		# handle mandatory conditions to bind with stimulus controller
-		def generate_condition(mandatory)
+		def generate_condition(mandatory, kind: :text)
 			conditions = []
+
 			if mandatory.is_a?(Hash)
-				conditions << "length:#{mandatory[:length]}" if mandatory[:length]
-				conditions << "min:#{mandatory[:min]}" if mandatory[:min]
-				conditions << "max:#{mandatory[:max]}" if mandatory[:max]
-			else
-				conditions << "length:1"
+				case kind
+				when :date
+					conditions << "date_min:#{mandatory[:min]}" if mandatory[:min]
+					conditions << "date_max:#{mandatory[:max]}" if mandatory[:max]
+				else
+					conditions << "length:#{mandatory[:length]}" if mandatory[:length]
+					conditions << "min:#{mandatory[:min]}"       if mandatory[:min]
+					conditions << "max:#{mandatory[:max]}"       if mandatory[:max]
+				end
 			end
-			{ condition: conditions.join(";"), identifier: unique_identifier("inputbox") }
+
+			conditions << "presence" if conditions.empty? && mandatory
+
+			result = {
+				condition: conditions.join(";"),
+				identifier: unique_identifier("inputbox")
+			}
+
+			unless_ = mandatory[:unless] if mandatory.is_a?(Hash)
+			if unless_.present?
+				result[:mandatory_unless] = Array(unless_)
+					.map { |name| "[data-optional-name='#{name}']:not(.hidden)" }
+					.join(", ")
+			end
+
+			result
 		end
 
 		# offload some initial setting of field data
@@ -95,9 +115,11 @@ class InputBoxComponent < ApplicationComponent
 
 		# data atributes to pass on to controllers/forms
 		def set_box_data
-			@i_data = @fdata[:data].is_a?(Hash) ? @fdata[:data] :  {}
+			@i_data = @fdata[:i_data].is_a?(Hash) ? @fdata[:i_data] :  {}
 
 			case @fdata[:kind]
+			when :hidden
+				return
 			when :image_box
 				@i_data.merge!({ action: "change->imagebox#handleFileChange", imagebox_target: "imageFile" })
 				@width  = ensure_px((@fdata[:width] || 75).to_s)

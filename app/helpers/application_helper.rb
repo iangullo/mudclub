@@ -44,8 +44,8 @@ module ApplicationHelper
 	end
 
 	# file upload button
-	def form_file_field(label:, key:, value:, cols: nil)
-		[ [ { kind: :upload, label:, key:, value:, cols: } ] ]
+	def form_file_field(label:, key:, value:, **f_opts)
+		{ kind: :upload, label:, key:, value:, **f_opts }
 	end
 
 	# standardised message wrapper
@@ -97,8 +97,8 @@ module ApplicationHelper
 	end
 
 	# regular label_field
-	def label_field(value, align: nil, cols: nil, class:)
-		{ kind: :label, value: value, align:, cols:, class: }
+	def label_field(value, **opts)
+		{ kind: :label, value:, **opts }
 	end
 
 	# standardised gap row field definition

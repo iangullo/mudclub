@@ -141,6 +141,11 @@ class Club < ApplicationRecord
 		self.avatar.attached? ? self.avatar : "mudclub.svg"
 	end
 
+	# Return valid tempate document for payment terms
+	def payment_terms_template
+		template_for(:payment_terms)
+	end
+
 	# show a public page??
 	def publicly_visible?
 		public? && Server.public_clubs_enabled?
@@ -175,6 +180,11 @@ class Club < ApplicationRecord
 
 	def s_name
 		self.nick || self.to_s
+	end
+
+	# Returns the club's published template for a given document kind, or nil.
+	def template_for(kind)
+		documents.active.find_by(kind: kind)
 	end
 
 	# Just list person's full name

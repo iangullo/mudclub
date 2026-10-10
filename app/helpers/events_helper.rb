@@ -183,7 +183,7 @@ module EventsHelper
 				}
 			end
 		}
-		{ title: title, data: data }
+		{ title:, data: }
 	end
 
 	# FieldComponents to show a match
@@ -403,7 +403,7 @@ module EventsHelper
 				res << [
 					symbol_field("location", { title: ILocation.label }, align: :right),
 					{ kind: :select_collection, key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'", cols: 6 },
-					{ kind: :hidden, key: :homecourt_id, value: @team.homecourt_id, data: { match_location_target: "homeCourtId" } }
+					{ kind: :hidden, key: :homecourt_id, value: @team.homecourt_id, i_data: { match_location_target: "homeCourtId" } }
 				]
 			else
 				if @event.location.gmaps_url

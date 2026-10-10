@@ -46,16 +46,18 @@ module RoutingHelper
 		when Location, Slot
 			[ club, record ]
 
-		when Registration, Membership, Team
+		when Membership, Team
 			[ record.club, record ]
 
-		when Assignment
-			record.team ? [ record.club, record.team, record ] :
-										[ record.club, record ]
+		when Assignment, Event
+			record.team_id ?
+				[ record.club, record.team, record ] :
+				[ record.club, record ]
 
-		when Event
-			record.team ? [ record.club, record.team, record ] :
-										[ record.club, record ]
+		when Registration
+			record.requested_team_id ?
+				[ record.club, record.requested_team, record ] :
+				[ record.club, record ]
 
 		when Task
 			resource_route(record.event)
