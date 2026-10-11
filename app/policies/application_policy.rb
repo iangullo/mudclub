@@ -151,20 +151,6 @@ class ApplicationPolicy
 			manages_club?(target_club) && person.member_of?(target_club)
 		end
 
-		# Was `@token` issued for `target` with the given purpose, and is it still valid?
-		# `target` defaults to @record. Pass `against:` when the token is scoped to
-		# a different record than the one under authorization (e.g. a message whose
-		# token authorizes the parent registration).
-		def token_matches?(purpose:, against: nil)
-			target = against || @record
-			return false unless @token && target
-
-			resolved = target.class.find_signed(@token, purpose:)
-			resolved.present? && resolved.id == target.id
-		rescue ActiveSupport::MessageVerifier::InvalidSignature
-			false
-		end
-
 		# True when the current request carries a valid requester token —
 		# regardless of whether a User is signed in. Used by policies that
 		# authorize both authenticated and anonymous actors.

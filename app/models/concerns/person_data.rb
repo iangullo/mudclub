@@ -24,7 +24,7 @@ module PersonData
 	def age
 		if self.birthday
 			now  = Time.now.utc.to_date
-			bday =self.birthday
+			bday = self.birthday
 			now.year - bday.year - ((now.month > bday.month || (now.month == bday.month && now.day >= bday.day)) ? 0 : 1)
 		else
 			0
@@ -70,7 +70,7 @@ module PersonData
 		self.birthday  = data[:birthday].presence || self.birthday
 		self.nick      = data[:nick].presence 		|| self.nick
 
-		self.female    = to_boolean(data[:female])
+		self.female    = to_boolean(data[:female])          if data[:female].present?
 		self.phone     = parse_phone(data[:phone]) 					if data[:phone].presence
 		self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?
 		self.update_attachment("id_front", data[:id_front]) if data[:id_front].present?

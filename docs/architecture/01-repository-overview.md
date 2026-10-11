@@ -61,6 +61,7 @@ Examples include:
 - views;
 - components;
 - helpers;
+- policies;
 - jobs;
 - mailers.
 

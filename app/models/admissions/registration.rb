@@ -23,6 +23,11 @@
 class Registration < ApplicationRecord
 	localized_as "admissions.registration"
 
+	before_create :set_access_token_expiry
+
+	# Only registrations that are still in play for anonymous access.
+	ANONYMOUS_ACCESSIBLE_STATUSES = %w[draft submitted under_review awaiting_requester].freeze
+
 	#-------------------------------------
 	# Class relationships
 	#-------------------------------------
@@ -34,7 +39,7 @@ class Registration < ApplicationRecord
 	belongs_to :guardian1, class_name: "AdmissionPerson", optional: true
 	accepts_nested_attributes_for :guardian1, reject_if: :all_blank
 	belongs_to :guardian2, class_name: "AdmissionPerson", optional: true
-	accepts_nested_attributes_for :guardian2
+	accepts_nested_attributes_for :guardian2, reject_if: :all_blank
 	belongs_to :requested_team, class_name: "Team", optional: true
 	has_many :documents, dependent: :destroy
 	accepts_nested_attributes_for :documents, allow_destroy: true
@@ -44,6 +49,7 @@ class Registration < ApplicationRecord
 
 	# used to store uploaded payment_terms files
 	has_one_attached :payment_terms
+	has_secure_token :access_token, length: 32
 
 	enum :status, Catalog::RegistrationStatuses.enum, prefix: true
 	enum :requester_kind, Catalog::RequesterKinds.enum, prefix: true
@@ -77,6 +83,12 @@ class Registration < ApplicationRecord
 	}
 	scope :for_candidate, ->(candidate) {
 		candidate.is_a?(Person) ? where(candidate:) : none
+	}
+	scope :by_access_token, ->(t) {
+		return none if t.blank?
+		where(access_token: t)
+			.where(status: ANONYMOUS_ACCESSIBLE_STATUSES)
+			.where("access_token_expires_at IS NULL OR access_token_expires_at > ?", Time.current)
 	}
 
 	#-------------------------------------
@@ -116,14 +128,14 @@ class Registration < ApplicationRecord
 		self.requester = rebuild_adm_person(:requester, attrs)
 
 		# underage
-		if self.candidate.age < 18
+		if self.candidate.minor?
 			self.guardian1 = rebuild_adm_person(:guardian1, attrs)
 			return nil unless self.guardian1
 
 			self.guardian2 = rebuild_adm_person(:guardian2, attrs)
 			self.requester = self.guardian1 unless self.requester
 		else
-			self.requester ||= self.candidate
+			self.requester ||= self.candidate unless self.submitted_by_id
 		end
 
 		# requester_kind — constrained by the kind's `requester_allowed` list
@@ -144,6 +156,15 @@ class Registration < ApplicationRecord
 		self
 	end
 
+	def revoke_anonymous_access!
+		update_columns(access_token: nil, access_token_expires_at: nil)
+	end
+
+	def touch_anonymous_access!
+		return unless access_token.present?
+		update_column(:access_token_expires_at, 30.days.from_now)
+	end
+
 	#-------------------------------------
 	# Workflow
 	#-------------------------------------
@@ -154,30 +175,36 @@ class Registration < ApplicationRecord
 		end
 	end
 
-	def begin_review!
+	def review!
 		transition_to!(:under_review) do
 			self.reviewed_at ||= Time.current
 		end
 	end
 
 	def request_information!
-		transition_to!(:awaiting_requester)
+		transition_to!(:awaiting_requester) do
+			self.access_token_expires_at = 30.days.from_now
+		end
 	end
 
 	def approve!
 		transition_to!(:approved) do
 			self.reviewed_at ||= Time.current
+			revoke_anonymous_access!
 		end
 	end
 
 	def reject!
 		transition_to!(:rejected) do
 			self.reviewed_at ||= Time.current
+			revoke_anonymous_access!
 		end
 	end
 
 	def cancel!
-		transition_to!(:cancelled)
+		transition_to!(:cancelled) do
+			revoke_anonymous_access!
+		end
 	end
 
 	def complete?
@@ -241,6 +268,10 @@ class Registration < ApplicationRecord
 
 		def required_document_kinds
 			Array(kind_catalog.fetch(kind.to_sym)[:required_documents])
+		end
+
+		def set_access_token_expiry
+			self.access_token_expires_at ||= 30.days.from_now
 		end
 
 		def transition_to!(new_status)

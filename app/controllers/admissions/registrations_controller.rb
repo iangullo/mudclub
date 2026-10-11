@@ -20,7 +20,7 @@
 class RegistrationsController < ApplicationController
 	before_action :load_participation_context
 	before_action :load_registration_context
-	before_action :set_registration, only: [ :show, :edit, :update, :terminate ]
+	before_action :set_registration, except: :index
 
 	# GET /clubs/x/registrations
 	# GET /clubs/x/registrations.json
@@ -64,7 +64,7 @@ class RegistrationsController < ApplicationController
 	# GET /registrations/new
 	def new
 		@policy = check_policy!(RegistrationPolicy, club: @club)
-		@registration = Registration.new(club: @club, requested_team_id: @team&.id, kind: @kind, requester_kind: :self)
+		@registration = Registration.new(club: @club, requested_team_id: @team&.id, kind: @kind)
 		prepare_form(:create)
 	end
 
@@ -76,6 +76,7 @@ class RegistrationsController < ApplicationController
 			Registration.transaction do
 				@registration = Registration.new(club: @club, kind: @kind)
 				@registration.rebuild(registration_params)
+				@registration.submitted_by_id = current_user&.person_id if @registration.requester_kind.to_sym == :other
 
 				if @registration.save
 					format.html do
@@ -104,55 +105,52 @@ class RegistrationsController < ApplicationController
 		prepare_form(:edit)
 	end
 
-	# PATCH/PUT /registrations/1
-	# PATCH/PUT /registrations/1.json
 	def update
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
-
-		respond_to do |format|
-			Registration.transaction do
-				@registration.rebuild(registration_params)
-
-				notice = Registration.msg(@registration.modified? ? :updated : :no_change)
-				if @registration.save
-					format.html do
-						redirect_to path_for(@registration), notice:
-					end
-
-					format.json { render :show, status: :ok, location: @registration }
-				else
-					log_registration_errors
-					raise ActiveRecord::Rollback
-				end
-			end
-
-			unless @registration.persisted? && @registration.errors.empty?
-				prepare_form(:edit)
-
-				format.html { render :edit, status: :unprocessable_entity }
-				format.json { render json: @registration.errors, status: :unprocessable_entity }
-			end
-		end
 	end
 
-	# DELETE /registrations/1
-	# DELETE /registrations/1.json
-	def terminate
-		authorize @registration
+	# PATCH submit (or re-submit) a registration request
+	def submit
+		@policy = check_policy!(RegistrationPolicy, record: @registration)
+	end
 
-		if @registration.terminate!
-			redirect_to post_save_path,
-									notice: Registration.msg(:terminated)
-		else
-			redirect_back fallback_location: post_save_path,
-										alert: Registration.msg(:cannot_terminate)
-		end
+	# admin review to a registration request
+	def review
+		@policy = check_policy!(RegistrationPolicy, record: @registration)
+	end
+
+	# Ask requester to provide more information
+	def request_information
+		@policy = check_policy!(RegistrationPolicy, record: @registration)
+	end
+
+	# Approve the registration request
+	def approve
+		@policy = check_policy!(RegistrationPolicy, record: @registration)
+	end
+
+	# Reject the registration request
+	def reject
+		@policy = check_policy!(RegistrationPolicy, record: @registration)
+	end
+
+	# Cancel the registration request
+	def cancel
+		@policy = check_policy!(RegistrationPolicy, record: @registration)
 	end
 
 	private
+		def log_registration_errors
+			Rails.logger.debug @registration.errors.full_messages
+			Rails.logger.debug @registration.candidate.errors.full_messages
+			Rails.logger.debug @registration.requester&.errors&.full_messages
+			Rails.logger.debug @registration.guardian1&.errors&.full_messages
+			Rails.logger.debug @registration.guardian2&.errors&.full_messages
+		end
+
 		# wrapper to set return link for CRUD operations
 		def post_save_path
-			return_path_for(@registration)
+			return_path_for(@registration, token: @registration.access_token)
 		end
 
 		def prepare_index_title(search)
@@ -170,15 +168,18 @@ class RegistrationsController < ApplicationController
 			p_fields[1].last[:mandatory][:unless] = [ "guardians", "requester" ]
 			@p_fields = create_fields(p_fields)
 
+
 			case action
 			when :create
-				@registration.build_requester
-				@r_fields = create_fields(helpers.registration_requester_form_fields(@registration))
-				fields    = helpers.registration_form_fields(@registration, action:)
+				if current_user
+					@registration.submitted_by_id = current_user.person_id
+				else
+					@registration.build_requester
+					@r_fields = create_fields(helpers.registration_requester_form_fields(@registration))
+				end
+				fields = helpers.registration_form_fields(@registration, action:)
 			when :edit
-				fields = to_boolean(params[:status]) ?
-					helpers.registration_status_form_fields(@registration) :
-					helpers.registration_form_fields(@registration, action:)
+				fields = helpers.registration_form_fields(@registration, action:)
 			end
 
 			@fields = create_fields(fields)
@@ -189,31 +190,34 @@ class RegistrationsController < ApplicationController
 			@guardian2_fields = create_fields(
 				helpers.person_contact_form_fields(@registration.guardian2 || AdmissionPerson.new)
 			)
+
 			@submit = create_submit
 		end
 
-		def log_registration_errors
-			Rails.logger.debug @registration.errors.full_messages
-			Rails.logger.debug @registration.candidate.errors.full_messages
-			Rails.logger.debug @registration.requester&.errors&.full_messages
-			Rails.logger.debug @registration.guardian1&.errors&.full_messages
-			Rails.logger.debug @registration.guardian2&.errors&.full_messages
-		end
-
-
 		# Use callbacks to share common setup or constraints between actions.
 		def set_registration
-			@registration = Registration.find_by_id(params[:id]) unless @registration&.id==params[:id]
-			@club   = @registration&.club
-			@team   = @registration&.team
-			@kind   = @registration&.kind
+			@registration =
+				if @token.present?
+					Registration.by_access_token(@token).first
+				elsif params[:id].present?
+					Registration.find_by_id(params[:id]) unless @registration&.id==params[:id]
+				end
+
+				raise ActiveRecord::RecordNotFound unless @registration
+
+				@registration.touch_anonymous_access!
+
+				@club = @registration.club
+				@team = @registration.requested_team
+				@kind = @registration.kind
+				assert_param_matches!(:club_id, @club)
 		end
 
 		def load_registration_context
 			@kind ||= Registration.kind_catalog.normalize(params[:kind])
 			if params[:registration] && registration_params[:requested_team_id].present?
 				@team = Team.find(registration_params[:requested_team_id])
-			else
+			elsif params[:team_id].present?
 				@team ||= Team.find(params[:team_id])
 			end
 		end

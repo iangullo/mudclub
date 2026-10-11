@@ -43,7 +43,8 @@ class ApplicationController < ActionController::Base
 
 	# NEW authorization policy management approach.
 	def check_policy!(policy_class, record: nil, **context)
-		context[:club] ||= @club
+		context[:club]  ||= @club
+		context[:token] ||= @token
 		policy = policy_class.new(current_user, record:, **context)
 		method = "#{action_name}?"
 
@@ -180,6 +181,17 @@ class ApplicationController < ActionController::Base
 		u_act.save
 	end
 
+	def requester_token
+		return @requester_token if defined?(@requester_token)
+		@requester_token =
+			params[:token].presence ||
+			request.headers["X-Requester-Token"].presence
+	end
+
+	def requester_token?
+		requester_token.present?
+	end
+
 	def require_module(name)
 		return if Server.module_enabled?(name)
 		deny_access(I18n.t("server.module_disabled"))
@@ -187,6 +199,7 @@ class ApplicationController < ActionController::Base
 
 	# set the action's context
 	def set_application_context
+		@token = requester_token
 		Server.current
 		@locale = (params[:locale] || current_user&.locale || Server.default_locale)
 		if user_signed_in?
