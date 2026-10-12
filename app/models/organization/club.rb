@@ -78,6 +78,14 @@ class Club < ApplicationRecord
 		ClubSport.where(club: self)
 	end
 
+	def open_team_list
+		list = []
+		self.teams.for_season(Season.latest).unlocked.ordered.each do |team|
+			list << [ team.name, team.id ]
+		end
+		list
+	end
+
 	# Allows registering membership requests
 	def accepts_registrations?
 		publicly_visible? && Server.registrations_enabled?

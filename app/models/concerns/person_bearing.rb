@@ -30,6 +30,57 @@ module PersonBearing
 	end
 
 	#------------------------------------
+	# GDPR / LOPD Anonymization Orchestrator
+	#------------------------------------
+	def anonymize_person!
+		return unless person # Guard clause if no person is attached
+
+		self.class.transaction do
+			# 1. Clear personal data attachments linked to the current execution context
+			avatar.purge if respond_to?(:avatar) && avatar.attached?
+
+			# If this context contains assignment attachments down the graph
+			if respond_to?(:assignments)
+				assignments.each do |assignment|
+					assignment.avatar.purge if assignment.respond_to?(:avatar) && assignment.avatar.attached?
+				end
+			end
+
+			# 2. Context-Specific PII Scrubbing
+			case self
+			when User
+				# DISCONNECT: Nullify the person_id link on this User so the Person object is isolated
+				# before we modify anything else.
+				self.person.update!(user_id: nil)
+
+				# Scrub login credentials and tracking data
+				scrubbed_email = "deleted-user-#{id}@mudclub.local"
+
+				update(
+					email: scrubbed_email,
+					encrypted_password: SecureRandom.hex(32),
+					person_id: 0,
+					current_sign_in_ip: nil,
+					last_sign_in_ip: nil,
+					reset_password_token: nil,
+					settings: {} # Purge personalized configurations/preferences
+				)
+			when Membership
+				# Membership table does not host direct string PII fields,
+				# but settings metadata may store personalized attributes.
+				update!(settings: {})
+				# 3. Propagate down to the underlying shared Person model
+				# We decouple the person's unique email to match the User's if required,
+				# or set it to nil since Person allows null values.
+				person.anonymize!
+			end
+		end
+	rescue ActiveRecord::RecordInvalid => e
+		Rails.logger.error "[GDPR] Bearing Anonymization failure on #{self.class.name} ##{id}: #{e.message}"
+		raise e
+	end
+
+	#------------------------------------
 	# Person resolution & data rebuilding
 	#------------------------------------
 	def resolve_person(attrs)

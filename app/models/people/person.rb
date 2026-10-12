@@ -165,6 +165,31 @@ class Person < ApplicationRecord
 		end
 	end
 
+	# GDPR/LOPD compliance method - erase sensistive personal data
+	def anonymize!
+		# Purge core sensitive document files attached locally
+		id_front.purge if id_front.attached?
+		id_back.purge if id_back.attached?
+		avatar.purge if avatar.attached?
+
+		documents.destroy_all
+		relationships.destroy_all
+		inverse_relationships.destroy_all
+
+		# Reset structural references and unique string entities
+		update!(
+			dni: nil,
+			email: nil,
+			phone: nil,
+			name: "Anonymized-#{id}",
+			surname: "Person-#{id}",
+			nick: nil,
+			birthday: nil,
+			address: nil,
+			user_id: nil
+		)
+	end
+
 	# return the version of this person that is not marked
 	# to be purged
 	def canonical

@@ -34,6 +34,7 @@ module Participatory
 
 		scope :current, -> { where(status: [ :active, :suspended ]) }
 		scope :terminated, -> { where(status: :terminated) }
+		scope :archived, -> { where(status: :archived) }
 	end
 
 	STATUS_TRANSITIONS = {
@@ -48,7 +49,7 @@ module Participatory
 		pending:    %i[activate],
 		active:     %i[suspend terminate],
 		suspended:  %i[reinstate terminate],
-		terminated: [],
+		terminated: %i[archive_and_anonymize],
 		archived:   []
 	}.freeze
 
@@ -139,6 +140,21 @@ module Participatory
 		transition_to!(:active, :activate, date)
 	end
 
+	def archive_and_anonymize!(date = Date.current)
+		return false unless can_transition_to?(:archived)
+
+		transaction do
+			# 1. Complete the state engine transition to :archived
+			transition_success = transition_to!(:archived, :archive, date)
+			raise ActiveRecord::RecordInvalid, self unless transition_success
+
+			# 2. Trigger the underlying data-scrubbing pipeline from PersonBearing
+			# This safely sweeps up linked attachments, settings JSONBs, and Person fields
+			anonymize_person! if respond_to?(:anonymize_person!)
+		end
+		true
+	end
+
 	def reinstate!(date = Date.current)
 		return false unless can_transition_to?(:active)
 
@@ -156,20 +172,43 @@ module Participatory
 	end
 
 	private
-		#------------------------------------
+		# Record status change date
+		def apply_transition_date(action, date)
+			case action
+			when :activate
+				self.starts_on ||= date
+				self.ends_on = nil
+
+			when :terminate
+				self.ends_on = date
+
+			when :archive
+				# Lock down the terminal timeline boundary
+				self.ends_on ||= date
+			end
+		end
+
 		# Status transition condition check
-		#------------------------------------
 		def available_statuses
 			STATUS_TRANSITIONS.fetch(status.to_sym, [])
 		end
 
+		# Determine if record can move to a specific status
 		def can_transition_to?(target_status)
 			available_statuses.include?(target_status.to_sym)
 		end
 
-		#------------------------------------
+		# Member/Assignment notifications
+		def notify_status_change(_action)
+			# TODO
+		end
+
+		# Audit recording
+		def record_status_change(_action, from:, to:)
+			# TODO
+		end
+
 		# Unified state transition method
-		#------------------------------------
 		def transition_to!(target_status, action, date = Date.current)
 			return true if status.to_sym == target_status
 			return false unless can_transition_to?(target_status)
@@ -186,31 +225,5 @@ module Participatory
 			end
 
 			true
-		end
-
-		#------------------------------------
-		# Audit recording
-		#------------------------------------
-		def record_status_change(_action, from:, to:)
-			# TODO
-		end
-
-		#------------------------------------
-		# Member/Assignment notifications
-		#------------------------------------
-		def notify_status_change(_action)
-			# TODO
-		end
-
-		# Record status change date
-		def apply_transition_date(action, date)
-			case action
-			when :activate
-				self.starts_on ||= date
-				self.ends_on = nil
-
-			when :terminate
-				self.ends_on = date
-			end
 		end
 end

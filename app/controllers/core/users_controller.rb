@@ -146,12 +146,14 @@ class UsersController < ApplicationController
 	def destroy
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
-		@user.destroy
-		respond_to do |format|
-			a_desc = "#{User.msg(:deleted)} '#{@user.s_name}'"
-			register_action(:deleted, a_desc)
-			format.html { redirect_to users_path(rdx: @rdx), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
-			format.json { head :no_content }
+		a_desc = "#{User.msg(:deleted)} ##{@user.id}"
+		retlnk = (@user == current_user) ? root_path : users_path(rdx: @rdx)
+		if @user.destroy
+			respond_to do |format|
+				register_action(:deleted, a_desc)
+				format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+				format.json { head :no_content }
+			end
 		end
 	end
 

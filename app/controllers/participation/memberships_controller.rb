@@ -152,6 +152,21 @@ class MembershipsController < ApplicationController
 		end
 	end
 
+	# GDPR compliance - anonymize data
+	def anonymize
+		# Protect operations: Records must typically be flagged as terminated
+		# before final erasure processes can occur under the lifecycle rules.
+		if @membership.terminated?
+			if @membership.archive_and_anonymize!
+				redirect_to return_path_for(@membership), notice: t("memberships.anonymize.success")
+			else
+				redirect_to @membership, alert: t("memberships.anonymize.failed_execution")
+			end
+		else
+			redirect_to @membership, alert: t("memberships.anonymize.must_be_terminated_first")
+		end
+	end
+
 	private
 		# wrapper to set return link for CRUD operations
 		def post_save_path

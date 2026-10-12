@@ -94,6 +94,10 @@ Rails.application.routes.draw do
 
 		resources :members, controller: :memberships, except: :destroy do
 			resources :assignments, only: %i[show edit update]
+			member do
+				patch :terminate
+				patch :anonymize # Maps directly to the compliance pipeline
+			end
 		end
 
 		resources :assignments, only: %i[index show edit update new create]

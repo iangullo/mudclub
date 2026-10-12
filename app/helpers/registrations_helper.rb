@@ -49,15 +49,13 @@ module RegistrationsHelper
 
 	#
 	def registration_form_header(registration = @registration, action: :edit)
-		header = person_form_title(
+		person_form_title(
 			registration,
 			icon: registration.candidate,
 			title: registration.act(action),
 			sex: true,
 			guardians: true
 		)
-		header[2] += [ gap_field(size: 0), label_field(@team.name, cols: 2) ] if @team
-		header
 	end
 
 	#
@@ -67,13 +65,16 @@ module RegistrationsHelper
 
 	#
 	def registration_form_fields(registration = @registration, action: :show)
-		fields = [
-			[
-				label_field(registration.fld(:remarks), cols: 2),
-				{ kind: :hidden, key: :kind, value: registration.kind || @kind },
-				{ kind: :hidden, key: :requested_team_id, value: @team.id }
-			],
-			[ { kind: :text_area, key: :remarks, value: registration.remarks, size: 36, lines: 2, cols: 2 } ]
+		fields = []
+		fields << [
+			# TODO: SPAN OF FIRST FIELD IS WIDER THANB INTENDED FOR SOME UNKNOWN REASON
+			symbol_field(:team, { title: Team.label }, align: :right),
+			{ kind: :select_box, key: :requested_team_id, options: @team.club.open_team_list, value: @team },
+				{ kind: :hidden, key: :kind, value: registration.kind || @kind }
+		] if @team
+
+		fields += [
+			[ { kind: :text_area, key: :remarks, value: registration.remarks, placeholder: registration.fld(:remarks), size: 36, lines: 2, cols: 3 } ]
 		]
 
 		if doc = registration.club.payment_terms_template
@@ -82,9 +83,9 @@ module RegistrationsHelper
 			payment_form = registration.payment_terms.attached? ? registration.payment_terms : nil
 			fields += [
 				[
-					button_field({ kind: :link, symbol: symbol_hash(:document, size: "25x25"), url: rails_blob_path(doc.file, disposition: "attachment"), label: doc.kind_label })
+					button_field({ kind: :link, symbol: symbol_hash(:document, size: "25x25"), url: rails_blob_path(doc.file, disposition: "attachment"), label: doc.kind_label }, cols: 3)
 				],
-				[ form_file_field(label: doc.kind_label, key: :payment_terms, value: payment_form, cols: 2) ]
+				[ form_file_field(label: doc.kind_label, key: :payment_terms, value: payment_form, cols: 3) ]
 			]
 		end
 

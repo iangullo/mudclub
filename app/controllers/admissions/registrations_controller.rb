@@ -20,7 +20,7 @@
 class RegistrationsController < ApplicationController
 	before_action :load_participation_context
 	before_action :load_registration_context
-	before_action :set_registration, except: :index
+	before_action :set_registration, except: %i[index new create]
 
 	# GET /clubs/x/registrations
 	# GET /clubs/x/registrations.json

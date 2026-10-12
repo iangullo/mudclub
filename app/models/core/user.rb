@@ -198,5 +198,6 @@ class User < ApplicationRecord
 		# unlink dependent person
 		def unlink
 			UserAction.prune("/users/#{id}")
+			self.anonymize_person!
 		end
 end
