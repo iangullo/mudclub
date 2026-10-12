@@ -18,7 +18,7 @@
 			<%= render @fields %>
 		<% end %>
 
-		<!-- Optional guadians section -->
+		<!-- Optional guardians section -->
 		<div class="hidden" data-optional-fields-target="section" data-optional-name="guardians">
 			<%= render FieldsComponent.new([[label_field(Relationship.kind_label(:guardian, :plural))]]) %>
 			<%= form.fields_for :guardian1, (@registration.guardian1 || AdmissionPerson.new) do |g| %>

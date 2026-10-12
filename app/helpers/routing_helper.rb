@@ -73,24 +73,24 @@ module RoutingHelper
 	# --------------------------------------------------------------------------
 	#
 	def path_for(record, action: nil, owner: @owner, club: @club, rdx: @rdx, **options)
-		options.merge!(rdx_options(rdx))
+		options.merge!(routing_opts(rdx))
 		base   = resource_route(record, owner:, club:)
 		target = action ? [ action, *base ] : base
 		polymorphic_path(target, **options)
 	end
 
 	def edit_path_for(record, owner: @owner, club: @club, rdx: @rdx, **options)
-		options.merge!(rdx_options(rdx))
+		options.merge!(routing_opts(rdx))
 		path_for(record, owner:, club:, action: :edit, **options)
 	end
 
 	def destroy_path_for(record, owner: @owner, club: @club, rdx: @rdx, **options)
-		options.merge!(rdx_options(rdx))
+		options.merge!(routing_opts(rdx))
 		path_for(record, owner:, club:, **options)
 	end
 
 	def new_path_for(parent, child_symbol, owner: @owner, club: @club, rdx: @rdx, **options)
-		options.merge!(rdx_options(rdx))
+		options.merge!(routing_opts(rdx))
 		polymorphic_path(
 			[ :new, *resource_route(parent, owner:, club:), child_symbol ],
 			rdx:,
@@ -105,7 +105,7 @@ module RoutingHelper
 	# Parent page for `record` — e.g. from a Document under a Club, the Club's show page.
 	# Returns nil for top-level resources (Club, Sport, User, Drill, Season).
 	def base_path(record, owner: @owner, club: @club, rdx: @rdx, **options)
-		options.merge!(rdx_options(rdx))
+		options.merge!(routing_opts(rdx))
 		parents = parents_of(record, owner:, club:)
 		parents && polymorphic_path(parents, **options)
 	end
@@ -114,7 +114,7 @@ module RoutingHelper
 	# e.g. TeamEvent -> club_team_events_path; Membership -> club_members_path.
 	def return_path_for(record, owner: @owner, club: @club, rdx: @rdx, **options)
 		parents = parents_of(record, owner:, club:) || []
-		opts    = options.merge(rdx_options(rdx))
+		opts    = options.merge(routing_opts(rdx))
 		case rdx&.to_i
 		when 0, nil
 			polymorphic_path([ *parents, collection_key_for(record) ], **opts)
@@ -147,8 +147,8 @@ module RoutingHelper
 			chain.length < 2 ? nil : chain[0..-2]
 		end
 
-		def rdx_options(rdx = @rdx, kind: nil)
-			opts      = { rdx:, status: @status || params[:status].presence }
+		def routing_opts(rdx = @rdx, token = @token, kind: nil)
+			opts      = { rdx:, status: @status || params[:status].presence, token: }
 			member_id = @member&.id || params[:member_id].presence
 			if member_id
 				opts[:kind]      = kind || @kind || params[:kind].presence

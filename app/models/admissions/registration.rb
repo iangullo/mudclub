@@ -71,6 +71,13 @@ class Registration < ApplicationRecord
 #	validate :payment_terms_returned_when_required	# only for approve, not to create
 
 	#-------------------------------------
+	# Convenient delegations
+	#-------------------------------------
+	delegate :picture, :age, :birthday, :female,
+					:name, :nick, :surname, :email, :phone,
+					to: :candidate
+
+	#-------------------------------------
 	# Scopes
 	#-------------------------------------
 	scope :for_club, ->(club) { where(club:) }
@@ -94,21 +101,15 @@ class Registration < ApplicationRecord
 	#-------------------------------------
 	# General API methods
 	#-------------------------------------
-	def different_requester
-		return false unless persisted?
-		return false unless requester
-		candidate != requester
-	end
-
 	def person = candidate
 
 	# registration identifier for views
 	def s_name
-		"##{id}"
+		"#{Registration.label(:short)} (#{kind_label(:short)})"
 	end
 
 	def to_s
-		persisted? ? s_name : Registration.label
+		"#{Registration.label} (#{kind_label})"
 	end
 
 	# rebuild REGISTRATION data from raw input hash given by a form submittal
@@ -154,6 +155,34 @@ class Registration < ApplicationRecord
 		# payment terms return copy — attachment path, not a Document
 		update_attachment("payment_terms", attrs[:payment_terms])
 		self
+	end
+
+	def modified?
+		super ||
+			guardian1&.changed? ||
+			guardian2&.changed? ||
+			requester&.changed? ||
+			documents.any?(&:modified?)
+	end
+
+	# The requester is the candidate themselves (self-registration).
+	def requester_self?
+		requester_kind == "self" || requester.present? && requester == candidate
+	end
+
+	# The requester is one of the recorded guardians.
+	def requester_guardian?
+		requester.present? &&
+			(requester == guardian1 || requester == guardian2)
+	end
+
+	# The requester is neither candidate nor guardian — a genuine third party.
+	def requester_other?
+		requester.present? && !requester_self? && !requester_guardian?
+	end
+
+	def requester_separate?
+		requester.present? && requester != candidate
 	end
 
 	def revoke_anonymous_access!
@@ -211,11 +240,6 @@ class Registration < ApplicationRecord
 		required_document_kinds.all? { |kind| documents.kind(kind).exists? }
 	end
 
-	def modified?
-		super ||
-			documents.any?(&:modified?)
-	end
-
 	def editable_by_requester?
 		Catalog::RegistrationStatuses
 			.fetch(status.to_sym)[:editable_by_requester]
@@ -261,8 +285,7 @@ class Registration < ApplicationRecord
 			g_per = self.send(g_obj) || AdmissionPerson.new
 			return nil unless g_per.is_a?(AdmissionPerson)
 
-			g_per.rebuild (g_attrs)
-
+			g_per.rebuild(g_attrs)
 			g_per
 		end
 

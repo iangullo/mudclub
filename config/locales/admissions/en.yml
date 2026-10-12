@@ -14,29 +14,31 @@ en:
 
     registration:
       label:
-        single: Registration
-        plural: Registrations
-        short: Reg.
+        single: Application
+        plural: Applications
+        short: Appl.
       action:
         create: Apply to register
         create_short: Apply
-        edit: Edit registration
+        show: Application
+        show_short: Appl.
+        edit: Edit application
         edit_short: Edit
         save_draft: Save draft
         save_draft_short: Save
-        submit: Submit registration
+        submit: Submit application
         submit_short: Submit
-        review: Review registration
+        review: Review application
         review_short: Review
         request_information: Request information
         request_information_short: Request
-        approve: Approve registration
+        approve: Approve application
         approve_short: Approve
-        cancel: Cancel registration
+        cancel: Cancel application
         cancel_short: Cancel
-        reject: Reject registration
+        reject: Reject application
         reject_short: Reject
-        archive: Archive registration
+        archive: Archive application
         archive_short: Archive
       fields:
         kind: Kind
@@ -48,22 +50,22 @@ en:
         remarks: Remarks
       messages:
         draft_saved: Draft saved.
-        no_change: No changes to registration.
-        submitted: Submitted registration.
-        cancelled: Cancelled registration.
-        reviewed: Registration reviewed.
-        approved: Approved registration.
-        rejected: Rejected registration.
-        archived: Archived registration.
+        no_change: No changes to application.
+        submitted: Submitted application.
+        cancelled: Cancelled application.
+        reviewed: Application reviewed.
+        approved: Approved application.
+        rejected: Rejected application.
+        archived: Archived application.
       values:
-        locked: Registrations closed
+        locked: Applications closed
         locked_short: Closed
-        unlocked: Registrations open
+        unlocked: Applications open
         unlocked_short: Open
 
     registration_kinds:
       label:
-        single: Registration kind
+        single: Application kind
         short: Kind.
       values:
         athlete:
@@ -123,41 +125,41 @@ en:
 
     registration_statuses:
       label:
-        single: Registration status
+        single: Application status
         short: Status
       values:
         draft:
           single: Draft
           plural: Drafts
           short: Draft
-          hint: Draft for registration request.
+          hint: Draft for application request.
         submitted:
           single: Submitted
           plural: Submitted
           short: Submit.
-          hint: Registration request has been submitted.
+          hint: Application request has been submitted.
         under_review:
           single: Reviewing
           plural: Reviewing
           short: Review
-          hint: Registration request under review.
+          hint: Application request under review.
         awaiting_requester:
           single: Awaiting requester
           plural: Awaiting requesters
           short: Waiting
-          hint: Registration request pending requester feedback.
+          hint: Application request pending requester feedback.
         cancelled:
           single: Cancelled
           plural: Cancelled
           short: Canc.
-          hint: Cancelled registration request.
+          hint: Cancelled application request.
         approved:
           single: Approved
           plural: Aproved
           short: Appr.
-          hint: Approved registration request.
+          hint: Approved application request.
         rejected:
           single: Rejected
           plural: Rejected
           short: Rej.
-          hint: Rejected registration request.
+          hint: Rejected application request.

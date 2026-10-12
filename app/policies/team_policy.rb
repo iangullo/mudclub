@@ -19,8 +19,8 @@
 # app/policies/team_policy.rb
 
 class TeamPolicy < ApplicationPolicy
-	def initialize(actor, record: nil, club: nil)
-		super(actor, record:, club: @record&.club || club)
+	def initialize(actor, record: nil, club: nil, token: nil)
+		super(actor, record:, club: @record&.club || club, token:)
 	end
 
 	#------------------------------------

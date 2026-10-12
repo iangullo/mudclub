@@ -18,32 +18,42 @@
 #
 module RegistrationsHelper
 	def registration_header(registration = @registration, action: :show)
-		icon     = registration.club&.logo || "mudclub.svg"
+		icon     = registration.club&.logo
 		title    = registration.club&.nick || Server.server_name
-		case action
-		when :index
-			subtitle = Registration.label(:plural)
-		when :show
-			subtitle = "#{Registration.label} #{registration.s_name}"
-		else
-			subtitle = @team ? @team.to_s : Registration.act(action)
-		end
+		title   += " - #{Registration.label}"
+		subtitle = @team ?
+			"#{@team} - #{@team.season.name}" :
+			registration.kind_label
+
 		header = title_start(icon:, title:, subtitle:)
-		header << [
-			symbol_field(:athlete, { title: registration.kind_label }, align: :center),
-			label_field(Registration.act(action))
-		] if @team
+		header[1].last[:cols] = 3
+		header[0] += [
+			gap_field,
+			participation_status_field(registration)
+		]
 
 		header
 	end
 
 	# fields to show when looking a registration request
-	def registration_show_fields(registration = @registration)
-		fields = [
-			[	gap_field(size: 0), label_field(registration.s_name) ],
-			[]
-		]
+	def registration_show_header(registration = @registration)
+		fields = person_show_title(registration, title: Registration.fld(:candidate))
+		fields[3][1][:cols] = 2
+		fields[4][0] = gap_field
+		fields << [ label_field(Relationship.kind_label(:guardian, :plural), cols: 3) ] if registration.candidate.minor?
+		fields
+	end
 
+	def registration_show_fields(registration = @registration)
+		fields = []
+		unless registration.guardian1.blank?
+			fields += person_summary_fields(registration.guardian1, prepend_gap: true)
+			fields += person_summary_fields(registration.guardian2, prepend_gap: true) if registration.guardian2
+		end
+		unless registration.requester_kind == :self || registration.requester.blank? || registration.requester == registration.guardian1
+			fields << [ label_field(registration.fld(:requester), cols: 3) ]
+			fields += person_summary_fields(registration.requester, prepend_gap: true)
+		end
 		fields
 	end
 
@@ -70,7 +80,7 @@ module RegistrationsHelper
 			# TODO: SPAN OF FIRST FIELD IS WIDER THANB INTENDED FOR SOME UNKNOWN REASON
 			symbol_field(:team, { title: Team.label }, align: :right),
 			{ kind: :select_box, key: :requested_team_id, options: @team.club.open_team_list, value: @team },
-				{ kind: :hidden, key: :kind, value: registration.kind || @kind }
+			{ kind: :hidden, key: :kind, value: registration.kind || @kind }
 		] if @team
 
 		fields += [
@@ -106,6 +116,11 @@ module RegistrationsHelper
 
 	# return registration TableComponent definition
 	def registration_history_table(registration = @registration)
+		return if registration.messages.empty?
+
+		registration.messages.each do |msg|
+		end
+		{ title:, rows: }
 	end
 
 	private

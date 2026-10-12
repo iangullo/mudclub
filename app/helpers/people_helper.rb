@@ -33,12 +33,8 @@ module PeopleHelper
 		title  ||= pobj.label
 		subtitle = person&.nick&.presence || person&.name
 
-		fields = person_title(icon:, title:, subtitle:, rows:, cols:)
-
-		c_field = person&.email || pobj&.phone ?
-			{ kind: :contact, email: person&.email, phone: pobj&.phone, device:, align: :left } :
-			{ kind: :text, value: Person.msg(:no_contact) }
-
+		fields   = person_title(icon:, title:, subtitle:, rows:, cols:)
+		c_field  = person_contact_field(person)
 		id_field = id_pic ?
 			person_idpic(person) :
 			{ kind: :string, value: pobj&.person&.dni || Person.msg(:no_id) }
@@ -65,6 +61,27 @@ module PeopleHelper
 			{ kind: :string, value: simple_format("#{@person&.address}"), align: :left }
 			]
 		]
+	end
+
+	def person_summary_fields(person, prepend_gap: false)
+		fields = [
+			[
+				symbol_field(:person, class: "inline-flex"),
+				{ kind: :text, value: person.to_s }
+			],
+			[
+				gap_field(size: 0),
+				person_contact_field(person)
+			]
+		]
+
+		return fields unless prepend_gap
+
+		fields.each do |row|
+			row.unshift(gap_field)
+		end
+
+		fields
 	end
 
 	#----------------------------------------------
@@ -132,7 +149,7 @@ module PeopleHelper
 			[
 				gap_field(size: 0),
 				symbol_field(:call, { type: :button, title: phone[:label] }, class: "inline-flex"),
-				{ kind: :text_box, key: :email, value: person.phone, placeholder: phone[:label], mandatory: phone[:mandatory], size: 12 },
+				{ kind: :text_box, key: :phone, value: person.phone, placeholder: phone[:label], mandatory: phone[:mandatory], size: 12 },
 				gap_field(size: 1),
 				symbol_field(:email, { type: :button, title: email[:label] }, align: :right, class: "inline-flex"),
 				{ kind: :email_box, key: :email, value: person.email, placeholder: email[:label], mandatory: email[:mandatory] }
@@ -207,6 +224,13 @@ module PeopleHelper
 				url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
 				d_class: "inline-flex items-center"
 			}
+		end
+
+		# wrapper to return correct contact fiedl for a person
+		def person_contact_field(person)
+			person&.email || person&.phone ?
+				{ kind: :contact, email: person.email, phone: person.phone, device:, align: :left } :
+				{ kind: :text, value: Person.msg(:no_contact) }
 		end
 
 		# wrapper to manage return of suitable Field for id Person fields

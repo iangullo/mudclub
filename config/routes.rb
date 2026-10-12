@@ -124,7 +124,7 @@ Rails.application.routes.draw do
 			end
 
 			# Team registrations
-			resources :registrations, only: %i[show new create] do
+			resources :registrations, only: %i[index show new create edit update] do
 				member do
 					patch :submit
 					get :review

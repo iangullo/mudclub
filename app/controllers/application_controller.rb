@@ -286,29 +286,18 @@ class ApplicationController < ActionController::Base
 	end
 
 	private
+		class AccessDenied < StandardError; end
+
+		rescue_from AccessDenied do |e|
+			respond_to do |format|
+				format.html         { redirect_back fallback_location: "/", alert: e.message, status: :see_other }
+				format.turbo_stream { redirect_back fallback_location: "/", alert: e.message, status: :see_other }
+				format.json         { render json: { error: e.message }, status: :forbidden }
+			end
+		end
 
 		def deny_access(message = I18n.t("shared.messages.access_denied"))
-			respond_to do |format|
-				format.html do
-					redirect_back(
-						fallback_location: "/",
-						alert: message,
-						status: :see_other
-					)
-				end
-
-				format.turbo_stream do
-					redirect_back(
-						fallback_location: "/",
-						alert: message,
-						status: :see_other
-					)
-				end
-
-				format.json do
-					render json: { error: message }, status: :forbidden
-				end
-			end
+			raise AccessDenied, message
 		end
 
 		# get a param either from base or from a sub-node

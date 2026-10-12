@@ -44,21 +44,14 @@ class RegistrationsController < ApplicationController
 	# GET /registrations/1
 	# GET /registrations/1.json
 	def show
-		@policy = check_policy!(RegistrationPolicy, record: @registration)
-		status  = @policy.edit?
-
-		@header = create_fields(
-			helpers.participation_title(
-				@registration,
-				status_url: edit_path_for(@registration, status:),
-				just_icon: false
-			)
-		)
+		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
+		@title  = create_fields(helpers.registration_header)
 		@kind ||= @registration.kind.to_sym
+		@header = create_fields(helpers.registration_show_header(@registration))
 		@fields = create_fields(helpers.registration_show_fields(@registration))
 		@table  = create_table(helpers.registration_history_table(@registration))
-		submit  = edit_path_for(@registration) if @policy.edit?
-		@submit = create_submit(close: :back, retlnk: base_path(@registration), submit:, frame: :modal)
+		submit  = edit_path_for(@registration, frame: :modal) if @policy.edit?
+		@submit = create_submit(close: nil, retlnk: base_path(@registration), submit:, frame: :modal)
 	end
 
 	# GET /registrations/new
@@ -72,6 +65,7 @@ class RegistrationsController < ApplicationController
 	# POST /registrations.json
 	def create
 		@policy = check_policy!(RegistrationPolicy, club: @club)
+
 		respond_to do |format|
 			Registration.transaction do
 				@registration = Registration.new(club: @club, kind: @kind)
@@ -80,10 +74,10 @@ class RegistrationsController < ApplicationController
 
 				if @registration.save
 					format.html do
-						redirect_to post_save_path, notice: Registration.msg(:created)
+						redirect_to path_for(@registration), notice: Registration.msg(:created)
 					end
 
-					format.json { render :show, status: :ok, location: post_save_path }
+					format.json { render :show, status: :ok, location: path_for(@registration) }
 				else
 					log_registration_errors
 					raise ActiveRecord::Rollback
@@ -101,17 +95,37 @@ class RegistrationsController < ApplicationController
 
 	# GET /registrations/1/edit
 	def edit
-		@policy = check_policy!(RegistrationPolicy, record: @registration)
+		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
 		prepare_form(:edit)
 	end
 
 	def update
-		@policy = check_policy!(RegistrationPolicy, record: @registration)
+		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
+
+		respond_to do |format|
+			retlnk = path_for(@registration)
+
+			@registration.rebuild(registration_params)
+
+			if @registration.modified?
+				if @registration.save
+					format.html { redirect_to retlnk, notice: helpers.flash_message(@registration.msg(:updated), "success"), data: { turbo_action: "replace" } }
+					format.json { render :show, status: :ok, location: retlnk }
+				else
+					prepare_form(:edit)
+					format.html { render :edit, status: :unprocessable_entity }
+					format.json { render json: @registration.errors, status: :unprocessable_entity }
+				end
+			else
+				format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { render :show, status: :ok, location: retlnk }
+			end
+		end
 	end
 
 	# PATCH submit (or re-submit) a registration request
 	def submit
-		@policy = check_policy!(RegistrationPolicy, record: @registration)
+		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
 	end
 
 	# admin review to a registration request
@@ -136,7 +150,7 @@ class RegistrationsController < ApplicationController
 
 	# Cancel the registration request
 	def cancel
-		@policy = check_policy!(RegistrationPolicy, record: @registration)
+		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
 	end
 
 	private
@@ -146,11 +160,6 @@ class RegistrationsController < ApplicationController
 			Rails.logger.debug @registration.requester&.errors&.full_messages
 			Rails.logger.debug @registration.guardian1&.errors&.full_messages
 			Rails.logger.debug @registration.guardian2&.errors&.full_messages
-		end
-
-		# wrapper to set return link for CRUD operations
-		def post_save_path
-			return_path_for(@registration, token: @registration.access_token)
 		end
 
 		def prepare_index_title(search)
@@ -163,6 +172,7 @@ class RegistrationsController < ApplicationController
 		# Prepare a registration form
 		def prepare_form(action)
 			@registration.build_candidate unless @registration.candidate
+			@registration.candidate.female = true if @team&.category&.sex == "female"
 			@p_header = create_fields(helpers.registration_form_header(action:))
 			p_fields  = helpers.person_form_fields(@registration.candidate, mandatory_email: true)
 			p_fields[1].last[:mandatory][:unless] = [ "guardians", "requester" ]
@@ -171,15 +181,16 @@ class RegistrationsController < ApplicationController
 
 			case action
 			when :create
-				if current_user
-					@registration.submitted_by_id = current_user.person_id
-				else
-					@registration.build_requester
+				unless current_user
+					@registration.build_requester unless @registration.requester
 					@r_fields = create_fields(helpers.registration_requester_form_fields(@registration))
 				end
 				fields = helpers.registration_form_fields(@registration, action:)
 			when :edit
 				fields = helpers.registration_form_fields(@registration, action:)
+				if @registration.requester_other? && @registration.submitted_by_id == nil
+					@r_fields = create_fields(helpers.registration_requester_form_fields(@registration))
+				end
 			end
 
 			@fields = create_fields(fields)
@@ -206,10 +217,10 @@ class RegistrationsController < ApplicationController
 				raise ActiveRecord::RecordNotFound unless @registration
 
 				@registration.touch_anonymous_access!
-
-				@club = @registration.club
-				@team = @registration.requested_team
-				@kind = @registration.kind
+				@token ||= @registration.access_token
+				@club    = @registration.club
+				@team    = @registration.requested_team
+				@kind    = @registration.kind
 				assert_param_matches!(:club_id, @club)
 		end
 
@@ -224,10 +235,10 @@ class RegistrationsController < ApplicationController
 
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def registration_params
-			params.require(:registration).permit(
-				:token, :club_id, :team_id, :kind, :requested_team_id, :status,
-				:remarks, :different_requester, :payment_terms, :requester_kind,
-				:reviewer_id, :rdx,
+			@registration_params ||= params.require(:registration).permit(
+				:club_id, :team_id, :kind, :requested_team_id, :status,
+				:different_requester, :payment_terms, :requester_kind,
+				:remarks, :reviewer_id, :rdx,
 
 				candidate_attributes: [
 					:id, :avatar, :name, :nick, :surname,
