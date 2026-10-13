@@ -28,49 +28,42 @@ class Catalog::RegistrationStatuses < Catalog::Base
 			id: 1,
 			initial: true,
 			editable_by_requester: true,
-			transitions: %i[submitted cancelled]
-		},
-
-		submitted: {
-			id: 10,
-			review_open: true,
-			editable_by_requester: false,
-			transitions: %i[under_review cancelled]
+			transitions: %i[under_review]
 		},
 
 		under_review: {
-			id: 20,
+			id: 10,
 			review_open: true,
 			editable_by_requester: true,
 			transitions: %i[awaiting_requester approved rejected]
 		},
 
 		awaiting_requester: {
-			id: 30,
+			id: 20,
 			review_open: true,
 			editable_by_requester: true,
-			transitions: %i[under_review cancelled]
+			transitions: %i[under_review approved cancelled]
 		},
 
 		cancelled: {
-			id: 40,
+			id: 30,
 			terminal: true,
 			editable_by_requester: false,
-			transitions: %i[archived]
+			transitions: %i[]
 		},
 
 		approved: {
-			id: 50,
+			id: 40,
 			terminal: true,
 			editable_by_requester: false,
-			transitions: %i[archived]
+			transitions: %i[]
 		},
 
 		rejected: {
-			id: 60,
+			id: 50,
 			terminal: true,
 			editable_by_requester: false,
-			transitions: %i[archived]
+			transitions: %i[]
 		}
 
 	}.freeze

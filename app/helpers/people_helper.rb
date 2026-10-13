@@ -174,32 +174,16 @@ module PeopleHelper
 	end
 
 	# nested form to add/edit person relationships
-	def person_merge_fields(pobj, candidates, attrs)
-		# Pass original form fields as hidden data to rebuild the object
-		pobj_fields = []
-		hidden_field_definitions(attrs).each { |field| pobj_fields << field }
+	def person_merge_fields(pobj, candidates, attrs, current_person: :default)
+		current_person = pobj.person if current_person == :default
 
-		merge_fields = [ pobj_fields ]
-		merge_fields += [
-			gap_row,
-			[ label_field(Person.msg(:ambiguous)) ]
-		]
+		pobj_fields = hidden_field_definitions(attrs).to_a
 
-		lastopt = { value: lastopt, label: Person.act(:create) }
-		options = []
-		candidates.each do |candidate|
-			if candidate == pobj.person
-				lastopt = { value: "__keep__", label: Person.act(:keep) } if pobj.person.persisted?
-			else
-				options << { person: candidate, value: candidate.id, label: "#{candidate} (#{candidate.age})" }
-			end
-		end
-
-		options << lastopt
-
-		merge_fields << [
-			{ kind: :radio_group, key: :person_merge, value: lastopt[:value], options: }
-		]
+		merge_fields = []
+		merge_fields << pobj_fields if pobj_fields.any?
+		merge_fields << gap_row
+		merge_fields << [ label_field(Person.msg(:ambiguous)) ]
+		merge_fields << person_merge_radio(candidates, current_person:)
 	end
 
 	private
@@ -251,5 +235,17 @@ module PeopleHelper
 					{ kind: :icon_label, symbol:, label:, right: true, align: :left, cols: }
 				end
 			end
+		end
+
+		def person_merge_radio(candidates, current_person: nil)
+			options = candidates.map do |candidate|
+				{ value: candidate.id, label: "#{candidate} (#{candidate.age})" }
+			end
+
+			options << { value: "__keep__", label: Person.act(:keep) } if current_person&.persisted?
+			options << { value: "__new__", label: Person.act(:create) }
+
+			# Default to last option — the operator must actively choose to reuse other.
+			[ { kind: :radio_group, key: :person_merge, value: options.last[:value], options: } ]
 		end
 end

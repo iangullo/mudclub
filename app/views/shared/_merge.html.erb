@@ -1,7 +1,7 @@
+<% form_options = local_assigns[:form_url] ? { url: form_url, method: form_method } : { model: resource_route(record) } %>
+
 <%= render ModalComponent.new do %>
-	<%= form_with( model: resource_route(record),
-			authenticity_token: true,
-			data: { turbo_frame: :modal }) do |form| %>
+	<%= form_with( **form_options, authenticity_token: true, data: { turbo_frame: :modal }) do |form| %>
 		<%= render @header %>
 		<% @merge_fields.form = form %>
 		<%= render @merge_fields %>

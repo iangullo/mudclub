@@ -41,14 +41,14 @@ class RegistrationPolicy < ApplicationPolicy
 	#------------------------------------
 	# Submission transitions
 	#------------------------------------
-	def submit?
+	def send_for_review?
 		registration_manager? || (
 			requester_can_edit? &&
-			@record.may_transition_to?(:submitted)
+			@record.may_transition_to?(:under_review)
 		)
 	end
 
-	def review?              = registration_manager? && @record.may_transition_to?(:approve)
+	def review?              = registration_manager? && @record.review_open?
 	def request_information? = registration_manager? && @record.may_transition_to?(:awaiting_requester)
 	def approve?             = registration_manager? && @record.may_transition_to?(:approved)
 	def reject?              = registration_manager? && @record.may_transition_to?(:rejected)
@@ -59,9 +59,6 @@ class RegistrationPolicy < ApplicationPolicy
 			@record.may_transition_to?(:cancelled)
 		)
 	end
-
-	# Staff-only
-	def archive? = registration_manager? && @record.may_transition_to?(:archived)
 
 	private
 		# Authenticated member with a managing club assignment.

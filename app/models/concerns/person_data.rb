@@ -1,4 +1,4 @@
-# MudClub - Modular Rails application for managing sports clubs.
+# MudClub - The open source Rails platform to manage amateur sports clubs.
 # Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,15 @@
 # app/models/concerns/person_data.rb
 module PersonData
 	extend ActiveSupport::Concern
+
+	SCALAR_ATTRIBUTES = %i[name surname birthday female dni email phone nick address].freeze
+	ATTACHMENT_NAMES  = %i[avatar id_front id_back].freeze
+
+	included do
+		has_one_attached :avatar
+		has_one_attached :id_front
+		has_one_attached :id_back
+	end
 
 	# calculate age
 	def age
@@ -53,6 +62,20 @@ module PersonData
 	# checks whether a Person has attached id pictures (front && back)
 	def idpics_attached?
 		self.id_front.attached? && self.id_back.attached?
+	end
+
+	# Scalars only by default. Pass include_attachments: true to fold in
+	# the ActiveStorage blobs, keyed by attachment name, so the result can be
+	# fed to Person#rebuild and reattach the same files on the target record.
+	def person_attributes(include_attachments: false)
+		attrs = slice(*SCALAR_ATTRIBUTES).symbolize_keys
+		if include_attachments
+			ATTACHMENT_NAMES.each do |name|
+				att = public_send(name)
+				attrs[name] = att.blob if att.attached?
+			end
+		end
+		attrs
 	end
 
 	# personal image
@@ -91,5 +114,29 @@ module PersonData
 		aux = self.nick.presence || self.name.to_s
 		aux += " #{self.surname}" if long
 		aux
+	end
+
+	# GDPR/LOPD compliance method - erase sensistive personal data
+	def anonymize_data!
+		return if anonymized_at.present?
+
+		# Purge core sensitive document files attached locally
+		ATTACHMENT_NAMES.each do |name|
+			public_send(name).attachment&.destroy   # kills the join row, keeps the blob
+		end
+
+		# Reset structural references and unique string entities
+		update!(
+			dni: nil,
+			birthday: nil,
+			name: "Anonymized-#{SecureRandom.hex(3)}",
+			nick: nil,
+			surname: "Person-#{SecureRandom.hex(3)}",
+			female: nil,
+			email: nil,
+			phone: nil,
+			address: nil,
+			anonymized_at: Time.current
+		)
 	end
 end

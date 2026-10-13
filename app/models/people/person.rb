@@ -46,10 +46,6 @@ class Person < ApplicationRecord
 	has_many :documents, dependent: :destroy
 	accepts_nested_attributes_for :documents
 
-	has_one_attached :avatar
-	has_one_attached :id_front
-	has_one_attached :id_back
-
 	belongs_to :merged_into,	# Useful for conflict management
 						class_name: "Person",
 						optional: true
@@ -167,27 +163,13 @@ class Person < ApplicationRecord
 
 	# GDPR/LOPD compliance method - erase sensistive personal data
 	def anonymize!
-		# Purge core sensitive document files attached locally
-		id_front.purge if id_front.attached?
-		id_back.purge if id_back.attached?
-		avatar.purge if avatar.attached?
+		return if anonymized_at.present?
 
+		anonymize_data!
+		update!(user_id: nil)
 		documents.destroy_all
 		relationships.destroy_all
 		inverse_relationships.destroy_all
-
-		# Reset structural references and unique string entities
-		update!(
-			dni: nil,
-			email: nil,
-			phone: nil,
-			name: "Anonymized-#{id}",
-			surname: "Person-#{id}",
-			nick: nil,
-			birthday: nil,
-			address: nil,
-			user_id: nil
-		)
 	end
 
 	# return the version of this person that is not marked

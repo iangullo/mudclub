@@ -51,7 +51,7 @@ en:
       messages:
         draft_saved: Draft saved.
         no_change: No changes to application.
-        submitted: Submitted application.
+        sent_for_review: Submitted application.
         cancelled: Cancelled application.
         reviewed: Application reviewed.
         approved: Approved application.

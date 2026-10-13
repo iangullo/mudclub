@@ -29,7 +29,7 @@ class PersonResolution
 	end
 
 	def ok?
-		%i[exact probable ok].include?(status)
+		%i[exact ok].include?(status)
 	end
 
 	def exact?
@@ -41,7 +41,7 @@ class PersonResolution
 	end
 
 	def ambiguous?
-		status == :ambiguous
+		%i[ambiguous probable].include?(status)
 	end
 
 	def conflict?

@@ -20,6 +20,8 @@
 class ApplicationController < ActionController::Base
 	include RoutingHelper
 
+	DROWS_BY_DEVICE = { "desktop": 18, "tablet": 18, "mobile": 15 }.freeze
+
 	# Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
 	allow_browser versions: :modern
 	before_action :set_application_context
@@ -310,43 +312,28 @@ class ApplicationController < ActionController::Base
 		# shared abstraction to handle object merge modal requests
 		# must be passed the response format, record, merge candidates
 		# and record_params
-		def handle_object_merge(format, record, candidates, attrs)
-			prepare_person_bearing_merge(record, candidates, attrs)
+		def handle_object_merge(format, record, candidates, attrs, current_person: :default, form_url: nil, form_method: nil)
+			status  = :unprocessable_entity
+			partial = { partial: "shared/merge", locals: { record:, form_url:, form_method: }.compact }
+			prepare_person_bearing_merge(record, candidates, attrs, current_person:)
 
 			format.turbo_stream do
-				render turbo_stream:
-					turbo_stream.replace(
-						"modal",
-						partial: "shared/merge",
-						locals: { record: }
-					), status: :unprocessable_entity
+				render turbo_stream: turbo_stream.replace("modal", **partial), status:
 			end
-
-			format.html do
-				render partial: "shared/merge", locals: { record: }, status: :unprocessable_entity
-			end
-
-			format.json do
-				render json: { status: :offer_merge }, status: :multiple_choices
-			end
+			format.html { render(**partial, status:) }
+			format.json { render json: { status: :offer_merge }, status: :multiple_choices }
 		end
 
 		# Calculate pagination parameters based on available screen space or other criteria
 		def paginate(data, lines = 1)
-			drows = case helpers.device
-				when "desktop", "tablet"; 18 # rubocop:disable Layout/CaseIndentation
-				when "mobile"; 15 # rubocop:disable Layout/CaseIndentation
-				else; 25
-			end
+			drows    = DROWS_BY_DEVICE.fetch(helpers.device, 25)
 			per_page = (drows/lines).round
-			current_page = params[:page] || 1
-
-			data.page(current_page).per(per_page)
+			data.page(params[:page] || 1).per(per_page)
 		end
 
-		def prepare_person_bearing_merge(obj, candidates, attrs)
+		def prepare_person_bearing_merge(obj, candidates, attrs, current_person: :default)
 			@header       = create_fields(helpers.person_show_title(obj, id_pic: false))
-			@merge_fields = create_fields(helpers.person_merge_fields(obj, candidates, attrs))
+			@merge_fields = create_fields(helpers.person_merge_fields(obj, candidates, attrs, current_person:))
 			@submit       = create_submit
 		end
 

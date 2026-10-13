@@ -26,7 +26,8 @@ class Registration < ApplicationRecord
 	before_create :set_access_token_expiry
 
 	# Only registrations that are still in play for anonymous access.
-	ANONYMOUS_ACCESSIBLE_STATUSES = %w[draft submitted under_review awaiting_requester].freeze
+	ANONYMOUS_ACCESSIBLE_STATUSES = %w[draft under_review awaiting_requester].freeze
+	ACCESS_TOKEN_LIFETIME = 30.days
 
 	#-------------------------------------
 	# Class relationships
@@ -83,13 +84,7 @@ class Registration < ApplicationRecord
 	scope :for_club, ->(club) { where(club:) }
 	scope :for_team, ->(team) {	where(requested_team: team) }
 	scope :pending, -> {
-		where(status: %i[submitted under_review awaiting_requester])
-	}
-	scope :for_requester, ->(requester) {
-		requester.is_a?(Person) ? where(requester:) : none
-	}
-	scope :for_candidate, ->(candidate) {
-		candidate.is_a?(Person) ? where(candidate:) : none
+		where(status: %i[under_review awaiting_requester])
 	}
 	scope :by_access_token, ->(t) {
 		return none if t.blank?
@@ -101,6 +96,18 @@ class Registration < ApplicationRecord
 	#-------------------------------------
 	# General API methods
 	#-------------------------------------
+	# GPDR compliance
+	def anonymize!
+		return if anonymized_at.present?
+
+		candidate&.anonymize!
+		guardian1&.anonymize!
+		guardian2&.anonymize!
+		requester&.anonymize!
+		messages.update_all(body: nil)
+		update!(settings: {}, anonymized_at: Time.current)
+	end
+
 	def person = candidate
 
 	# registration identifier for views
@@ -191,49 +198,50 @@ class Registration < ApplicationRecord
 
 	def touch_anonymous_access!
 		return unless access_token.present?
-		update_column(:access_token_expires_at, 30.days.from_now)
+		update_column(:access_token_expires_at, ACCESS_TOKEN_LIFETIME.from_now)
 	end
 
 	#-------------------------------------
 	# Workflow
 	#-------------------------------------
 
-	def submit!
-		transition_to!(:submitted) do
-			self.submitted_at = Time.current
-		end
-	end
-
-	def review!
+	def send_for_review!
 		transition_to!(:under_review) do
-			self.reviewed_at ||= Time.current
+			self.sent_for_review_at ||= Time.current
 		end
 	end
 
 	def request_information!
 		transition_to!(:awaiting_requester) do
-			self.access_token_expires_at = 30.days.from_now
+			self.reviewed_at = Time.current
+			self.access_token_expires_at = ACCESS_TOKEN_LIFETIME.from_now
 		end
 	end
 
 	def approve!
 		transition_to!(:approved) do
-			self.reviewed_at ||= Time.current
+			self.reviewed_at = Time.current
 			revoke_anonymous_access!
 		end
 	end
 
 	def reject!
 		transition_to!(:rejected) do
-			self.reviewed_at ||= Time.current
+			self.reviewed_at = Time.current
 			revoke_anonymous_access!
+			anonymize!
 		end
 	end
 
 	def cancel!
 		transition_to!(:cancelled) do
 			revoke_anonymous_access!
+			anonymize!
 		end
+	end
+
+	def allowed_transitions
+		Catalog::RegistrationStatuses.fetch(status.to_sym)[:transitions] || []
 	end
 
 	def complete?
@@ -241,24 +249,23 @@ class Registration < ApplicationRecord
 	end
 
 	def editable_by_requester?
-		Catalog::RegistrationStatuses
-			.fetch(status.to_sym)[:editable_by_requester]
-	end
-
-	def terminal?
-		Catalog::RegistrationStatuses
-			.fetch(status.to_sym)[:terminal]
-	end
-
-	def allowed_transitions
-		Catalog::RegistrationStatuses
-			.fetch(status.to_sym)[:transitions]
+		Catalog::RegistrationStatuses.fetch(status.to_sym)[:editable_by_requester] || false
 	end
 
 	def may_transition_to?(new_status)
 		allowed_transitions.include?(new_status.to_sym)
 	rescue KeyError
 		false
+	end
+
+	def review_open?
+		Catalog::RegistrationStatuses.fetch(status.to_sym)[:review_open] == true
+	rescue KeyError
+		false
+	end
+
+	def terminal?
+		Catalog::RegistrationStatuses.fetch(status.to_sym)[:terminal] || false
 	end
 
 	def status_label(variant = :single)
@@ -294,7 +301,7 @@ class Registration < ApplicationRecord
 		end
 
 		def set_access_token_expiry
-			self.access_token_expires_at ||= 30.days.from_now
+			self.access_token_expires_at ||= ACCESS_TOKEN_LIFETIME.from_now
 		end
 
 		def transition_to!(new_status)

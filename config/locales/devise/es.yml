@@ -36,6 +36,7 @@ es:
       send_instructions: "Recibirás un email para confirmar el registro en unos minutos."
       send_paranoid_instructions: "Si tu cuenta existe en nuestra base de datos, recibirás un email para confirmar el registro en unos minutos."
     failure:
+      anonymized: "Esta cuenta ha sido anonimizada y ya no puede abrir sesiones."
       already_authenticated: "Sesión abierta."
       inactive: "Cuenta sin activar aún."
       invalid: "%{authentication_keys} o contraseña inválida."

@@ -31,7 +31,7 @@ class RegistrationsController < ApplicationController
 			if @policy.registration_manager?
 				Registration.for_club(@club).order(created_at: :desc)
 			else
-				Registration.for_person(current_user.person).order(created_at: :desc)
+				Registration.where(submitted_by_id: current_user.person_id).order(created_at: :desc)
 			end
 
 		title  = prepare_index_title(search)
@@ -123,34 +123,78 @@ class RegistrationsController < ApplicationController
 		end
 	end
 
-	# PATCH submit (or re-submit) a registration request
-	def submit
+	# PATCH send_for_review (or re-submit) a registration request
+	def send_for_review
 		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
+
+		respond_to do |format|
+			retlnk = path_for(@registration)
+			@registration.send_for_review!
+			format.html { redirect_to retlnk, notice: helpers.flash_message(@registration.msg(:sent_for_review), "success"), data: { turbo_action: "replace" } }
+			format.json { render :show, status: :ok, location: retlnk }
+		end
 	end
 
 	# admin review to a registration request
 	def review
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
+		respond_to do |format|
+			retlnk = path_for(@registration)
+			# TODO: prepare registration review form
+		end
 	end
 
 	# Ask requester to provide more information
 	def request_information
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
+
+		respond_to do |format|
+			retlnk = path_for(@registration)
+			@registration.request_information!
+			format.html { redirect_to retlnk, notice: helpers.flash_message(@registration.msg(:updated), "success"), data: { turbo_action: "replace" } }
+			format.json { render :show, status: :ok, location: retlnk }
+		end
 	end
 
 	# Approve the registration request
 	def approve
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
+
+		respond_to do |format|
+			retlnk = return_path_for(@registration)	# sure???
+			@registration.approve!
+			# TODO: create the required membership/usership/assignments
+			# 			notify approval to anonymous token holder or user that raised it
+			@registration.anonymize!
+			format.html { redirect_to retlnk, notice: helpers.flash_message(@registration.msg(:updated), "success"), data: { turbo_action: "replace" } }
+			format.json { render :show, status: :ok, location: retlnk }
+		end
 	end
 
 	# Reject the registration request
 	def reject
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
+
+		respond_to do |format|
+			retlnk = return_path_for(@registration)
+			@registration.reject!
+			# TODO: notify rejection to anonymous token holder or user that raised it
+			# 			redirect to-... where???
+			format.html { redirect_to retlnk, notice: Registration.msg(:rejected), data: { turbo_action: "replace" } }
+			format.json { render :index, status: :ok, location: retlnk }
+		end
 	end
 
 	# Cancel the registration request
 	def cancel
 		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
+
+		respond_to do |format|
+			retlnk = return_path_for(@registration)
+			@registration.cancel!
+			format.html { redirect_to retlnk, notice: Registration.msg(:deleted), data: { turbo_action: "replace" } }
+			format.json { render :index, status: :ok, location: retlnk }
+		end
 	end
 
 	private

@@ -56,6 +56,32 @@ class User < ApplicationRecord
 	# ---------------------------------------------------------------------------
 	# System-level predicates (2.x)
 	# ---------------------------------------------------------------------------
+
+	def active_for_authentication?	# Devise overrides
+		super && anonymized_at.nil?
+	end
+
+	def anonymize!	# GDPR compliance
+		return if anonymized_at.present?
+
+		person&.anonymize!
+		update_columns(
+			email:                "anonymized+#{SecureRandom.uuid}@invalid.local",
+			encrypted_password:   SecureRandom.hex(32),   # never matches a bcrypt hash
+			reset_password_token: nil,
+			remember_created_at:  nil,
+			current_sign_in_ip:   nil,
+			last_sign_in_ip:      nil,
+			settings:             {},
+			club_id:              nil,
+			anonymized_at:        Time.current
+		)
+	end
+
+	def inactive_message
+		anonymized_at.present? ? :anonymized : super
+	end
+
 	def system_admin?
 		admin?
 	end
@@ -65,6 +91,7 @@ class User < ApplicationRecord
 	end
 
 	def active?
+		return false if anonymized_at.present?
 		system_admin? || person&.memberships&.current&.any?
 	end
 
@@ -198,6 +225,9 @@ class User < ApplicationRecord
 		# unlink dependent person
 		def unlink
 			UserAction.prune("/users/#{id}")
-			self.anonymize_person!
+			if self.person
+				person&.update!(user_id: nil)
+				update!(person_id: 0)	# fake person record
+			end
 		end
 end

@@ -51,7 +51,7 @@ es:
       messages:
         draft_saved: Borrador guardado.
         no_change: Sin cambios en la solicitud.
-        submitted: Solicitud presentada.
+        sent_for_review: Solicitud presentada.
         cancelled: Solicitud cancelada.
         reviewed: Solicitud revisada.
         approved: Solicitud aprobada.

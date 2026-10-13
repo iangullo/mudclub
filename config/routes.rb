@@ -78,7 +78,7 @@ Rails.application.routes.draw do
 		# Club participation
 		resources :registrations, only: %i[index show new create] do
 			member do
-				patch :submit
+				patch :send_for_review
 				get :review
 				patch :request_information
 				patch :approve
@@ -126,7 +126,7 @@ Rails.application.routes.draw do
 			# Team registrations
 			resources :registrations, only: %i[index show new create edit update] do
 				member do
-					patch :submit
+					patch :send_for_review
 					get :review
 					patch :request_information
 					patch :approve

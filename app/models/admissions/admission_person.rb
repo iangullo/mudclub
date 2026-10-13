@@ -23,9 +23,6 @@ class AdmissionPerson < ApplicationRecord
 	# Class relationships
 	#-------------------------------------
 	self.inheritance_column = "not_sti"
-	has_one_attached :avatar
-	has_one_attached :id_front
-	has_one_attached :id_back
 
 	#-------------------------------------
 	# Included Modules
@@ -40,4 +37,13 @@ class AdmissionPerson < ApplicationRecord
 	#-------------------------------------
 	# Object API
 	#-------------------------------------
+
+	# GDPR/LOPD compliance method - erase sensistive personal data
+	def anonymize!
+		return if anonymized_at.present?
+
+		self.anonymize_data!
+		update_columns(remarks: nil)
+		messages.update_all(body: nil)
+	end
 end
