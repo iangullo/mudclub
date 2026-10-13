@@ -22,6 +22,8 @@ class RegistrationsController < ApplicationController
 	before_action :load_registration_context
 	before_action :set_registration, except: %i[index new create]
 
+	rescue_from ArgumentError, with: :registration_stale_transition
+
 	# GET /clubs/x/registrations
 	# GET /clubs/x/registrations.json
 	def index
@@ -45,6 +47,7 @@ class RegistrationsController < ApplicationController
 	# GET /registrations/1.json
 	def show
 		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
+
 		@title  = create_fields(helpers.registration_header)
 		@kind ||= @registration.kind.to_sym
 		@header = create_fields(helpers.registration_show_header(@registration))
@@ -57,6 +60,7 @@ class RegistrationsController < ApplicationController
 	# GET /registrations/new
 	def new
 		@policy = check_policy!(RegistrationPolicy, club: @club)
+
 		@registration = Registration.new(club: @club, requested_team_id: @team&.id, kind: @kind)
 		prepare_form(:create)
 	end
@@ -96,6 +100,7 @@ class RegistrationsController < ApplicationController
 	# GET /registrations/1/edit
 	def edit
 		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
+
 		prepare_form(:edit)
 	end
 
@@ -138,6 +143,7 @@ class RegistrationsController < ApplicationController
 	# admin review to a registration request
 	def review
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
+
 		respond_to do |format|
 			retlnk = path_for(@registration)
 			# TODO: prepare registration review form
@@ -160,14 +166,18 @@ class RegistrationsController < ApplicationController
 	def approve
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
 
+		approver = RegistrationApprover.new(@registration, actor: current_user)
+		prep     = approver.prepare
+
 		respond_to do |format|
-			retlnk = return_path_for(@registration)	# sure???
-			@registration.approve!
-			# TODO: create the required membership/usership/assignments
-			# 			notify approval to anonymous token holder or user that raised it
-			@registration.anonymize!
-			format.html { redirect_to retlnk, notice: helpers.flash_message(@registration.msg(:updated), "success"), data: { turbo_action: "replace" } }
-			format.json { render :show, status: :ok, location: retlnk }
+			dispatch_approval(format, approver, prep)
+			# Guard clauses to handle errors when Approval does not have a clean match
+			rescue RegistrationApprover::PersonMismatch => e
+				render_approval_error(format, "#{Person.msg(:mismatch)} - #{e.role}: #{e.fields.join(", ")}", :conflict)
+			rescue ActiveRecord::RecordNotFound => e
+				render_approval_error(format, Person.msg(:missing), :unprocessable_entity)
+			rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
+				render_approval_error(format, e.message, :unprocessable_entity)
 		end
 	end
 
@@ -192,12 +202,36 @@ class RegistrationsController < ApplicationController
 		respond_to do |format|
 			retlnk = return_path_for(@registration)
 			@registration.cancel!
-			format.html { redirect_to retlnk, notice: Registration.msg(:deleted), data: { turbo_action: "replace" } }
+			format.html { redirect_to retlnk, notice: Registration.msg(:cancelled), data: { turbo_action: "replace" } }
 			format.json { render :index, status: :ok, location: retlnk }
 		end
 	end
 
 	private
+		def chosen_merge_with
+			params[:person_merge] == "__new__" ? nil : params[:person_merge]
+		end
+
+		def commit_approval(format, approver, prep, merge_with)
+			result = approver.commit(prepared: prep[:prepared], guardians: prep[:guardians], merge_with:)
+			retlnk = path_for(@registration)
+			notice = "#{Registration.msg(:approved)} - #{result.person.s_name} (#{result.membership.kind_label})"
+			notice += " / #{result.assignment.team.name}" if result.assignment&.team
+
+			format.html { redirect_to retlnk, notice:, data: { turbo_action: "replace" } }
+			format.json { render :show, status: :ok, location: retlnk }
+		end
+
+		# Route to modal (ambiguous), auto-reuse (exact), or create (none), or
+		# second-request commit (operator chose a Person from the modal).
+		def dispatch_approval(format, approver, prep)
+			return commit_approval(format, approver, prep, chosen_merge_with) if params.key?(:person_merge)
+			return render_approval_merge(format, prep) if prep[:resolution].ambiguous?
+
+			merge_with = prep[:resolution].ok? ? prep[:resolution].person : nil
+			commit_approval(format, approver, prep, merge_with)
+		end
+
 		def log_registration_errors
 			Rails.logger.debug @registration.errors.full_messages
 			Rails.logger.debug @registration.candidate.errors.full_messages
@@ -222,31 +256,50 @@ class RegistrationsController < ApplicationController
 			p_fields[1].last[:mandatory][:unless] = [ "guardians", "requester" ]
 			@p_fields = create_fields(p_fields)
 
-
 			case action
 			when :create
 				unless current_user
 					@registration.build_requester unless @registration.requester
 					@r_fields = create_fields(helpers.registration_requester_form_fields(@registration))
 				end
-				fields = helpers.registration_form_fields(@registration, action:)
 			when :edit
-				fields = helpers.registration_form_fields(@registration, action:)
 				if @registration.requester_other? && @registration.submitted_by_id == nil
 					@r_fields = create_fields(helpers.registration_requester_form_fields(@registration))
 				end
 			end
 
-			@fields = create_fields(fields)
+			fields            = helpers.registration_form_fields(@registration, action:)
+			@fields           = create_fields(fields)
+			@guardian1_fields = prepare_guardian(@registration.guardian1, required: true)
+			@guardian2_fields = prepare_guardian(@registration.guardian2)
+			@submit           = create_submit
+		end
 
-			@guardian1_fields = create_fields(
-				helpers.person_contact_form_fields(@registration.guardian1 || AdmissionPerson.new, required: true)
+		def prepare_guardian(guardian, required: false)
+			create_fields(
+				helpers.person_contact_form_fields(guardian || AdmissionPerson.new)
 			)
-			@guardian2_fields = create_fields(
-				helpers.person_contact_form_fields(@registration.guardian2 || AdmissionPerson.new)
-			)
+		end
 
-			@submit = create_submit
+		def render_approval_merge(format, prep)
+			handle_object_merge(
+				format, @registration, prep[:resolution].candidates, {},
+				current_person: nil,
+				form_url:      approve_registration_path(@registration, token: @token),
+				form_method:   :patch
+			)
+		end
+
+		def render_approval_error(format, message, status)
+			format.html { redirect_to path_for(@registration), alert: message }
+			format.json { render json: { error: message }, status: status }
+		end
+
+		def registration_stale_transition(error)
+			respond_to do |format|
+				format.html { redirect_to path_for(@registration), alert: Registration.msg(:already_processed) }
+				format.json { render json: { error: error.message }, status: :conflict }
+			end
 		end
 
 		# Use callbacks to share common setup or constraints between actions.

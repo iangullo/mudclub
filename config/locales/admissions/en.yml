@@ -56,7 +56,7 @@ en:
         reviewed: Application reviewed.
         approved: Approved application.
         rejected: Rejected application.
-        archived: Archived application.
+        already_processed: Application already processed.
       values:
         locked: Applications closed
         locked_short: Closed

@@ -218,6 +218,10 @@ class Registration < ApplicationRecord
 		end
 	end
 
+	# Transitions to :approved but intentionally does NOT anonymize.
+	# Promotion consumes the candidate/guardian data — RegistrationApprover
+	# anonymizes after it has created the Person, Membership, Assignments,
+	# and Relationships. Calling this outside the approver leaves data intact.
 	def approve!
 		transition_to!(:approved) do
 			self.reviewed_at = Time.current
@@ -225,6 +229,8 @@ class Registration < ApplicationRecord
 		end
 	end
 
+	# Terminal rejection — no further consumers of the admission data,
+	# so we anonymize inline.
 	def reject!
 		transition_to!(:rejected) do
 			self.reviewed_at = Time.current
@@ -233,6 +239,7 @@ class Registration < ApplicationRecord
 		end
 	end
 
+	# Same reasoning as reject!.
 	def cancel!
 		transition_to!(:cancelled) do
 			revoke_anonymous_access!

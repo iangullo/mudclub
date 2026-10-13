@@ -71,11 +71,13 @@ es:
       messages:
         ambiguous: Varias personas coinciden con la información.
         created: Persona creada.
-        updated: Persona actualizada.
         deleted: Persona eliminada.
         duplicated: La persona ya existe.
         no_contact: (sin tfno. / e-mail)
+        mismatch: Persona no coincide.
+        missing: Persona falta.
         no_id: (sin DNI/NIE o similar)
+        updated: Persona actualizada.
       questions:
         create: ¿Crear nueva persona?
         merge: ¿Fusionar personas?

@@ -20,6 +20,10 @@
 class PersonResolution
 	attr_reader :status, :person, :people, :conflicts, :matched_by
 
+	# Fields compared when checking a resolved Person against source attrs.
+	# Only compared when populated on both sides.
+	VERIFIED_FIELDS = %i[name surname birthday dni].freeze
+
 	def initialize(status:, person: nil, people: [], conflicts: {}, matched_by: nil)
 		@status     = status
 		@person     = person.is_a?(Person) ? person : nil
@@ -28,6 +32,9 @@ class PersonResolution
 		@matched_by = matched_by
 	end
 
+	#------------------------------------
+	# Status accessors
+	#------------------------------------
 	def ok?
 		%i[exact ok].include?(status)
 	end
@@ -59,4 +66,34 @@ class PersonResolution
 	def candidates
 		people.presence || Array(person)
 	end
+
+	#------------------------------------
+	# Validating checks
+	#------------------------------------
+	# Field names where the resolved person disagrees with `attrs`.
+	# Comparison tolerates case, surrounding whitespace, and diacritics —
+	# mirrors the DB-level `unaccent` extension in Ruby.
+	def mismatches_against(attrs) = self.class.mismatches_against(attrs, person)
+	def matches?(attrs)           = mismatches_against(attrs).empty?
+	def clean?                    = conflicts.empty?
+
+	def self.mismatches_against(attrs, person)
+		return [] unless person
+
+		VERIFIED_FIELDS.select do |field|
+			given = attrs[field]
+			have  = person.public_send(field)
+			next false if given.blank? || have.blank?
+
+			normalize(given) != normalize(have)
+		end
+	end
+
+	private
+
+		def self.normalize(value)
+			return value.to_date.iso8601 if value.respond_to?(:to_date)
+
+			I18n.transliterate(value.to_s).strip.downcase.squeeze(" ")
+		end
 end

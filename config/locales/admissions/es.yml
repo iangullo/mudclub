@@ -56,7 +56,7 @@ es:
         reviewed: Solicitud revisada.
         approved: Solicitud aprobada.
         rejected: Solicitud rechazada.
-        archived: Solicitud archivada.
+        already_processed: Solicitud ya procesada.
       values:
         locked: Inscripciones cerradas
         locked_short: Cerrado

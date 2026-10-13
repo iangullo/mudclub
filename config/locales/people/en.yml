@@ -71,11 +71,13 @@ en:
       messages:
         ambiguous: Multiple people matching information.
         created: Person created.
-        updated: Person updated.
         deleted: Person deleted.
         duplicated: Person already exists.
-        no_contact: (no contact details)
+        mismatch: Person mismatch.
+        missing: Person missing.
+        no_contact: (no phone / e-mail)
         no_id: (no personal ID)
+        updated: Person updated.
       questions:
         create: Create new person?
         merge: Merge with person?
