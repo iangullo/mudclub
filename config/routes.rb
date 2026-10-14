@@ -162,4 +162,6 @@ Rails.application.routes.draw do
 			patch :update_diagram # /drills/:id/update_diagram?step_id=X
 		end
 	end
+
+	mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 end

@@ -1,0 +1,9 @@
+<%= t("mailers.shared.greeting", requester: @snapshot.requester) %>
+
+<% if @snapshot.team %>
+    <%= t(".body_with_team", candidate: @snapshot.candidate, kind: @snapshot.kind, club: @snapshot.club, team: @snapshot.team) %>
+<% else %>
+    <%= t(".body", candidate: @snapshot.candidate, kind: @snapshot.kind, club: @snapshot.club) %>
+<% end %>
+
+<%= t(".closing", club: @snapshot.club) %>

@@ -54,6 +54,16 @@ module ServerHelper
 				{ kind: :email_box, key: :support_email, value: Server.support_email, placeholder: Server.fld(:support_email), cols: 4 }
 			],
 			[
+				symbol_field(:email, { type: :button, css:, title: Server.fld(:email_from) }),
+				{ kind: :email_box, key: :email_from,
+					value: Server.email_from, placeholder: Server.support_email, cols: 4 }
+			],
+			[
+				symbol_field(:email, { type: :button, css:, title: Server.fld(:email_reply_to) }),
+				{ kind: :email_box, key: :email_reply_to,
+					value: Server.email_reply_to, placeholder: Server.support_email, cols: 4 }
+			],
+			[
 				symbol_field(:edit, { type: :button, css:, title: Server.fld(:email_signature) }),
 				{ kind: :text_area, key: :email_signature, value: Server.email_signature, placeholder: Server.fld(:email_signature), size: 27, cols: 4 }
 			],

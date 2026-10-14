@@ -86,6 +86,8 @@ class ServerController < ApplicationController
 		params.require(:server).permit(
 			:server_name,
 			:support_email,
+			:email_from,
+			:email_reply_to,
 			:email_signature,
 			:default_locale,
 			:date_format,

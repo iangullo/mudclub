@@ -154,6 +154,10 @@ class RegistrationsController < ApplicationController
 	def request_information
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
 
+		RegistrationNotifier.wrap(@registration, :information_requested, url: path_for(@registration, token: @token)) do
+			@registration.request_information!
+		end
+
 		respond_to do |format|
 			retlnk = path_for(@registration)
 			@registration.request_information!
@@ -185,11 +189,16 @@ class RegistrationsController < ApplicationController
 	def reject
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
 
+		RegistrationNotifier.wrap(
+			@registration, :rejected,
+			reason: params[:reason].presence || Registration.msg(:no_reason_given)
+		) do
+				@registration.reject!
+		end
+
 		respond_to do |format|
 			retlnk = return_path_for(@registration)
 			@registration.reject!
-			# TODO: notify rejection to anonymous token holder or user that raised it
-			# 			redirect to-... where???
 			format.html { redirect_to retlnk, notice: Registration.msg(:rejected), data: { turbo_action: "replace" } }
 			format.json { render :index, status: :ok, location: retlnk }
 		end
@@ -198,6 +207,10 @@ class RegistrationsController < ApplicationController
 	# Cancel the registration request
 	def cancel
 		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
+
+		RegistrationNotifier.wrap(@registration, :cancelled) do
+			@registration.cancel!
+		end
 
 		respond_to do |format|
 			retlnk = return_path_for(@registration)
@@ -213,7 +226,16 @@ class RegistrationsController < ApplicationController
 		end
 
 		def commit_approval(format, approver, prep, merge_with)
-			result = approver.commit(prepared: prep[:prepared], guardians: prep[:guardians], merge_with:)
+			result = nil
+
+			RegistrationNotifier.wrap(@registration, :approved) do
+				result = approver.commit(prepared: prep[:prepared],
+																guardians: prep[:guardians],
+																merge_with:)
+				{ membership: result.membership.kind_label,
+					team:       result.assignment&.team&.name }
+			end
+
 			retlnk = path_for(@registration)
 			notice = "#{Registration.msg(:approved)} - #{result.person.s_name} (#{result.membership.kind_label})"
 			notice += " / #{result.assignment.team.name}" if result.assignment&.team

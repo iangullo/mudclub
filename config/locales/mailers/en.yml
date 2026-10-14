@@ -1,0 +1,38 @@
+en:
+  mailers:
+    shared:
+      greeting: "Greetings, %{requester}:"
+      signature: "Regards"
+
+  registration_mailer:
+    created:
+      subject: "We have received your application — %{club}"
+      body: "We have received your application request to register %{candidate} as a %{kind}."
+      body_with_team: "We have received your application request to register %{candidate} as a %{kind} for %{team}."
+      action: "You may check the status of your application at: %{url}"
+      link: "this link"
+      closing: "We will update you with any changes via email."
+
+    information_requested:
+      subject: "Application review — %{club}"
+      body: "We have reviewed your application request for %{candidate}. Some additional information is required."
+      action: "You may check the status of your application at:"
+      link: "this link"
+      closing: "We will update you with any changes via email."
+
+    approved:
+      subject: "Membership confirmed — %{club}"
+      body: "Your application has been approved. %{candidate} is now a %{membership} member of %{club}."
+      body_with_team: "Your application has been approved. %{candidate} is now a %{membership} member of %{team} in %{club}."
+      closing: "Welcome to %{club}."
+
+    rejected:
+      subject: "Membership update — %{club}"
+      body: "After reviewing your application for %{candidate}, it has not been approved."
+      reason: "Reason: %{reason}"
+      closing: "If you have any doubts, reach out to %{club}."
+
+    cancelled:
+      subject: "Application cancelled — %{club}"
+      body: "Your application for %{candidate} has been cancelled."
+      closing: "If you did not cancel your application, reach out to %{support_email}."

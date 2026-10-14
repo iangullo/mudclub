@@ -23,7 +23,10 @@ class Server < ApplicationRecord
 
 	DATE_FORMATS = %i[default short long numeric].freeze
 	BOOLEAN_OPTS = %i[public_clubs_enabled public_directory_enabled].freeze
-	REGULAR_OPTS = %i[server_name support_email default_locale date_format].freeze
+	REGULAR_OPTS = %i[
+		server_name support_email default_locale date_format
+		email_signature email_from email_reply_to
+	].freeze
 
 	#-------------------------------------
 	# Validations
@@ -246,7 +249,8 @@ class Server < ApplicationRecord
 	end
 
 	def email_signature
-		settings[:email_signature]
+		settings[:email_signature].presence ||
+			[ server_name, support_email ].compact.join(" — ")
 	end
 
 	# ─── Localization ───────────────────────────────────────────

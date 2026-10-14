@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -17,11 +17,14 @@
 # contact email - iangullo@gmail.com.
 #
 class ApplicationMailer < ActionMailer::Base
-	default from:     -> { Server.email_from || "admin@mudclub.org" },
-					reply_to: -> { Server.reply_to }
+	default from:     -> { Server.email_from.presence || "noreply@mudclub.local" },
+					reply_to: -> { Server.email_reply_to.presence }
+
 	layout "mailer"
 
-	def signature
-		Server.email_signature
+	before_action :set_signature
+
+	def set_signature
+		@signature = Server.email_signature
 	end
 end

@@ -1,0 +1,38 @@
+es:
+  mailers:
+    shared:
+      greeting: "Hola, %{requester}:"
+      signature: "Saludos"
+
+  registration_mailer:
+    created:
+      subject: "Hemos recibido tu solicitud — %{club}"
+      body: "Hemos recibido tu solicitud de registro para %{candidate}."
+      reference: "Número de referencia: %{reference}."
+      action: "Puedes consultar el estado de tu solicitud en:"
+      link: "éste enlace"
+      closing: "Te avisaremos por email cuando haya novedades."
+
+    information_requested:
+      subject: "Revisión tu solicitud — %{club}"
+      body: "Hemos revisado tu solicitud de registro para %{candidate}. Necesitamos más información."
+      action: "Puedes consultar el estado de tu solicitud en:"
+      link: "éste enlace"
+      closing: "Te avisaremos por email cuando haya novedades."
+
+    approved:
+      subject: "Solicitud aprobada — %{club}"
+      body: "Tu solicitud ha sido aprobada. %{candidate} ya figura como %{membership} de %{club}."
+      body_with_team: "Tu solicitud ha sido aprobada. %{candidate} ya figura como %{membership} de %{team} en %{club}."
+      closing: "Te damos la bienvenida a %{club}."
+
+    rejected:
+      subject: "Actualización de tu solicitud — %{club}"
+      body: "Tras revisar tu solicitud para %{candidate}, no ha podido ser aprobada."
+      reason: "Motivo: %{reason}"
+      closing: "Si tienes alguna duda, contacta con %{club}."
+
+    cancelled:
+      subject: "Solicitud cancelada — %{club}"
+      body: "Tu solicitud para %{candidate}, ha sido cancelada."
+      closing: "Si no has solicitado esta cancelación, contacta con %{support_email}."

@@ -65,33 +65,10 @@ class RegistrationApprover
 			result = Result.new(person:, membership:, assignment:, recipient_email: recipient)
 		end
 
-		enqueue_notification(result)
 		result
 	end
 
 	private
-		def enqueue_notification(result)
-			return if result.recipient.blank?
-
-			# TODO: enable when mailers are built
-			Rails.logger.info(
-				"[RegistrationApprover] approval notification suppressed (mailer not yet built) " \
-				"registration=#{@registration.id} recipient=#{result.recipient_email}"
-			)
-=begin
-			summary = {
-				recipient:  result.recipient_email,
-				candidate:  result.person.name,
-				club:       @registration.club.name,
-				team:       result.assignment&.team&.name,
-				membership: result.membership.kind_label,
-				registration_id: @registration.id
-			}
-
-			RegistrationMailer.with(summary:).approved.deliver_later
-=end
-		end
-
 		def find_or_create_membership(person)
 			Membership.find_or_create_by!(
 				person:  person,

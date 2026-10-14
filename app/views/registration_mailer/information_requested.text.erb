@@ -1,0 +1,8 @@
+<%= t("mailers.shared.greeting", requester: @snapshot.requester) %>
+
+<%= t(".body", candidate: @snapshot.candidate) %>
+
+<%= t(".action") %>
+<%= "  #{@url}" %>
+
+<%= t(".closing", club: @snapshot.club) %>
