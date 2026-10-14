@@ -154,7 +154,7 @@ class RegistrationsController < ApplicationController
 	def request_information
 		@policy = check_policy!(RegistrationPolicy, record: @registration)
 
-		RegistrationNotifier.wrap(@registration, :information_requested, url: path_for(@registration, token: @token)) do
+		RegistrationNotifier.wrap(@registration, :request_information) do
 			@registration.request_information!
 		end
 

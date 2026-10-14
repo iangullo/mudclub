@@ -73,6 +73,8 @@ module Localizable
 		roster
 	].freeze
 
+	GENDERS = %i[female].freeze
+
 	#--------------------------------------------------------------------------
 	# Configuration
 	#--------------------------------------------------------------------------
@@ -197,7 +199,8 @@ module Localizable
 
 			Vocabulary.term(
 				args[:key],
-				form: args[:form],
+				form:    args[:form],
+				gender:  args[:gender],
 				variant: args[:variant],
 				override_scope:,
 				club:,
@@ -214,10 +217,11 @@ module Localizable
 			define_method(method_name) do |key, shorthand = nil, **options|
 				args = normalize_translation_arguments(key, shorthand, **options)
 				translate_key_label(
-					key: args[:key],
 					scope:,
+					key:     args[:key],
 					variant: args[:variant],
-					form: args[:form]
+					form:    args[:form],
+					gender:  args[:gender]
 				)
 			end
 		end
@@ -268,9 +272,10 @@ module Localizable
 			if shorthand
 				if GRAMMATICAL_FORMS.include?(shorthand)
 					form = shorthand
-
 				elsif TEXT_VARIANTS.include?(shorthand)
 					variant = shorthand
+				elsif GENDERS.include?(shorthand)
+					gender = shorthand
 				end
 			end
 
@@ -280,28 +285,36 @@ module Localizable
 		#--------------------------------------------------------------------------
 		# Candidate string keys generation
 		#--------------------------------------------------------------------------
-		def build_candidates(base_key, variant:, form:)
-			suffix = +""
-
-			suffix << "_plural" if form == :plural
-
-			if variant != :label
-				variant_suffix = VARIANT_SUFFIXES[variant]
-				suffix << variant_suffix if variant_suffix
-			end
+		def build_candidates(base_key, variant:, form:, gender: :neutral)
+			# Suffix parts, in order: form, variant, gender.
+			# Omit parts that are at their default value.
+			parts = []
+			parts << "plural" if form == :plural
+			parts << VARIANT_SUFFIXES[variant].to_s.delete_prefix("_") if variant != :label
+			parts << "female" if gender == :female
 
 			candidates = []
 
-			if suffix.present?
-				candidates << "#{base_key}#{suffix}"
-				candidates << "#{base_key}.#{suffix.delete_prefix('_')}"
+			if parts.any?
+				suffix = parts.join("_")
+				candidates << "#{base_key}_#{suffix}"    # flat: athlete_plural
+				candidates << "#{base_key}.#{suffix}"    # dotted: athlete.plural
 			else
-				candidates << "#{base_key}.#{form}"
+				candidates << "#{base_key}.#{form}"      # athlete.single
+			end
+
+			# Female lookups fall back to the neutral form before giving up.
+			if gender == :female
+				neutral = parts - [ "female" ]
+				if neutral.any?
+					n = neutral.join("_")
+					candidates << "#{base_key}_#{n}"
+					candidates << "#{base_key}.#{n}"
+				end
 			end
 
 			candidates << "#{base_key}.label"
 			candidates << base_key
-
 			candidates.uniq
 		end
 
@@ -320,7 +333,7 @@ module Localizable
 		# key labels
 		#--------------------------------------------------------------------------
 
-		def translate_key_label(key:, scope:, variant:, form:, **)
+		def translate_key_label(key:, scope:, variant:, form:, gender:, **)
 			section =
 				case scope
 				when :attribute, :field, :fields
@@ -342,7 +355,7 @@ module Localizable
 			base_key = "#{i18n_scope}.#{section}.#{key}"
 
 			lookup_candidates(
-				build_candidates(base_key, variant:, form:),
+				build_candidates(base_key, variant:, form:, gender:),
 				fallback: fallback_to_humanize(key, variant, form)
 			)
 		end

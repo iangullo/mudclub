@@ -75,29 +75,36 @@ es:
           hint: Desea participar como deportista.
         coach:
           single: Entrenador
+          female: Entrenadora
           plural: Entrenadores
+          plural_female: Entrenadoras
           short: Ent.
           hint: Desea participar como entrenador.
         volunteer:
           single: Voluntario
+          female: Voluntaria
           plural: Voluntarios
+          plural_female: Voluntarias
           short: Vol.
           hint: Desea participar como voluntario.
         board_member:
           single: Directivo
+          female: Directiva
           plural: Junta Directiva
           short: J.D.
           hint: Desea participar como miembro de la directiva.
         club_manager:
           single: Gestor del Club
+          female: Gestora del Club
           plural: Gestores del Club
           short: Ges.
           hint: Desea participar como gestor del club.
         user:
           single: Usuario
+          female: Usuaria
           plural: Usuarios
           short: Us.
-          hint: Desea participar como usuario.
+          hint: Desea participar como usuario/a.
 
     registration_message:
       label:

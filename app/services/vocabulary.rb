@@ -62,36 +62,29 @@ module Vocabulary
 	def term(key,
 					form: :single,
 					variant: :label,
+					gender: :neutral,
 					override_scope: nil,
 					club: nil,
 					fallback: nil)
-		leaf = resolve_leaf(form:, variant:)
+		leaves = resolve_leaves(form:, variant:, gender:)
 
-		#
 		# 1. Club override
-		#
 		if club
-			value = lookup_club(club, key, leaf)
+			value = lookup_club(club, key, leaves)
 			return value if value.present?
 		end
 
-		#
 		# 2. Sport override
-		#
 		if override_scope.present?
-			value = lookup_scope(override_scope, key, leaf)
+			value = lookup_scope(override_scope, key, leaves)
 			return value if value.present?
 		end
 
-		#
 		# 3. Canonical core vocabulary
-		#
-		value = lookup_scope("core.sport", key, leaf)
+		value = lookup_scope("core.sport", key, leaves)
 		return value if value.present?
 
-		#
 		# 4. Explicit fallback
-		#
 		case fallback
 		when Proc
 			value = fallback.call
@@ -115,59 +108,53 @@ module Vocabulary
 	# Helpers
 	# --------------------------------------------------------------------------
 
-	def resolve_leaf(form:, variant:)
-		case variant
-		when :label
-			form.to_s
+	def resolve_leaves(form:, variant:, gender:)
+		primary =
+			case variant
+			when :label
+				if gender == :female
+					form == :plural ? "plural_female" : "female"
+				else
+					form.to_s
+				end
+			else
+				variant.to_s
+			end
 
-		when :short
-			"short"
+		# Fall back to the neutral form when a female variant isn't defined.
+		leaves = [ primary ]
+		leaves << form.to_s if gender == :female && variant == :label
 
-		when :hint
-			"hint"
-
-		when :description
-			"description"
-
-		when :tooltip
-			"tooltip"
-
-		else
-			variant.to_s
-		end
+		leaves
 	end
-	private_class_method :resolve_leaf
+	private_class_method :resolve_leaves
 
-	def lookup_scope(scope, key, leaf)
-		I18n.t(
-			"#{scope}.terms.#{key}.#{leaf}",
-			default: nil
-		).presence
+	def lookup_scope(scope, key, leaves)
+		leaves.each do |leaf|
+			value = I18n.t("#{scope}.terms.#{key}.#{leaf}", default: nil).presence
+			return value if value.present?
+		end
+		nil
 	end
 	private_class_method :lookup_scope
 
-	#
 	# Club settings structure:
 	#
 	# settings:
 	#   locales:
 	#     participation.membership_kinds.values.club_manager.label: Director Deportivo
-	#
-	def lookup_club(club, key, leaf)
+	def lookup_club(club, key, leaves)
 		return nil unless club.respond_to?(:settings)
 
-		settings =
-			club.settings.is_a?(Hash) ?
-				club.settings :
-				{}
+		settings = club.settings.is_a?(Hash) ? club.settings : {}
+		locales  = settings["locales"] || settings[:locales] || {}
 
-		locales =
-			settings["locales"] ||
-			settings[:locales] ||
-			{}
-
-		locales["core.sport.terms.#{key}.#{leaf}"] ||
-			locales[:"core.sport.terms.#{key}.#{leaf}"]
+		leaves.each do |leaf|
+			full_key = "core.sport.terms.#{key}.#{leaf}"
+			value = locales[full_key] || locales[full_key.to_sym]
+			return value if value.present?
+		end
+		nil
 	end
 	private_class_method :lookup_club
 end

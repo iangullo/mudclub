@@ -143,11 +143,15 @@ es:
     user:
       label:
         single: Usuario
+        female: Usuaria
         plural: Usuarios
-        short: Usuario
+        plural_female: Usuarias
+        short: Usu.
       actions:
         edit: Editar usuario
+        edit_female: Usuaria
         create: Crear usario
+        create_female: Crear usuaria
         sign_in: Entrar
         sign_out: Salir
       fields:
@@ -167,10 +171,15 @@ es:
         last_login_short: Último
       messages:
         created: Usuario creado.
+        created_female: Usuaria creada.
         updated: Usuario actualizado.
+        updated_female: Usuaria actualizada.
         deleted: Usuario eliminado.
+        deleted_female: Usuaria eliminada.
         duplicated: Usuario duplicado.
+        duplicated_female: Usuaria duplicada.
         actions_cleared: Acciones de usuario eliminadas.
+        actions_cleared_female: Acciones de usuaria eliminadas.
         no_email: ¡el correo electrónico es obligatorio!
       values:
         last_in: Último acceso
@@ -179,7 +188,9 @@ es:
     user_action:
       label:
         single: Acción de usuario
+        female: Acción de usuaria
         plural: Acciones de usuario
+        plural_female: Acciones de usuaria
         short: Acciones
       fields:
         action: Acción

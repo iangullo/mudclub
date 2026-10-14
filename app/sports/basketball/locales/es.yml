@@ -19,7 +19,9 @@ es:
       terms:
         athlete:
           single: Jugador
+          female: Jugadora
           plural: Jugadores
+          plural_female: Jugadoras
           short: Jug.
         skill:
           single: Fundamento

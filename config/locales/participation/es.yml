@@ -41,11 +41,15 @@ es:
         status_short: Est.
         notes: Notas
       messages:
-        created: Integrante creado/a.
+        created: Integrante creado.
+        created_female: Integrante creada.
         no_change: Integrante sin cambios.
-        updated: Integrante actualizado/a.
+        updated: Integrante actualizado.
+        updated_female: Integrante actualizada.
         terminated: Integrante dado de baja.
-        deleted: Integrante eliminado/a.
+        terminated_female: Integrante dada de baja.
+        deleted: Integrante eliminado.
+        deleted_female: Integrante eliminada.
         cannot_terminate: ¡No se pudo dar de baja!
 
     assignment:
@@ -89,12 +93,16 @@ es:
           hint: Persona que participa como deportista.
         coach:
           single: Entrenador
+          female: Entrenadora
           plural: Entrenadores
+          plural_female: Entrenadoras
           short: Ent.
           hint: Persona que participa como entrenador.
         volunteer:
           single: Voluntario
+          female: Voluntaria
           plural: Voluntarios
+          plural_female: Voluntarias
           short: Vol.
           hint: Persona que participa como voluntario.
         board_member:
@@ -104,6 +112,7 @@ es:
           hint: Persona que participa como miembro de junta directiva.
         club_manager:
           single: Gestor de club
+          female: Gestora de club
           plural: Gestores de club
           short: G.Club
           hint: Persona que participa como gestor de club.
@@ -118,22 +127,31 @@ es:
         athlete_plural: Deportistas
         athlete_short: Dep.
         captain: Capitán
+        captain_female: Capitana
         captain_short: Cap.
         head_coach: Entrenador principal
+        head_coach_female: Entrenadora principal
         head_coach_short: P.Ent.
         assistant_coach: Entrenador asistente
+        assistant_coach_female: Entrenadora asistente
         assistant_coach_short: E.Ayte.
         coaching_coordinator: Coordinador de entrenadores
+        coaching_coordinator_female: Coordinadora de entrenadores
         coaching_coordinator_short: Coord.
         team_manager: Director de equipo
+        team_manager_female: Directora de equipo
         team_manager_short: Dir.Eq.
         team_delegate: Delegado de equipo
+        team_delegate_female: Delegada de equipo
         team_delegate_short: Del.Eq.
-        home_delegate: Delegado local
+        home_delegate: Delegado de campo
+        home_delegate_female: Delegada de campo
         home_delegate_short: Del.Camp.
         photographer: Fotógrafo
+        photographer_female: Fotógrafa
         photographer_short: Fotos
         community_manager: Gestor de comunidad
+        community_manager_female: Gestora de comunidad
         community_manager_short: Com.Mgr.
         webmaster: Webmaster
         webmaster_short: Web.Mgr.
@@ -141,14 +159,19 @@ es:
         board_member_plural: Junta Directiva
         board_member_short: Vocal
         club_manager: Gestor de club
+        club_manager_female: Gestora de club
         club_manager_short: Ger.
-        president: Presidencia
+        president: Presidente
+        president_female: Presidenta
         president_short: Pres.
-        vice_president: Vicepresidencia
+        vice_president: Vicepresidente
+        vice_president_female: Vicepresidenta
         vice_president_short: V.Pres.
-        secretary: Secretaría
+        secretary: Secretario
+        secretary_female: Secretaria
         secretary_short: Sec.
-        treasurer: Tesorería
+        treasurer: Tesorero
+        treasurer_female: Tesorera
         treasurer_short: Tes.
 
   # ---------------------------------------------------------------------------
