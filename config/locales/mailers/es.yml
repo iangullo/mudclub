@@ -7,8 +7,8 @@ es:
   registration_mailer:
     created:
       subject: "Hemos recibido tu solicitud — %{club}"
-      body: "Hemos recibido tu solicitud de registro para %{candidate}."
-      reference: "Número de referencia: %{reference}."
+      body: "Hemos recibido tu solicitud de registro para %{candidate} como %{kind}."
+      body_with_team: "Hemos recibido tu solicitud de registro para %{candidate} como %{kind} de nuestro equipo %{team}."
       action: "Puedes consultar el estado de tu solicitud en:"
       link: "éste enlace"
       closing: "Te avisaremos por email cuando haya novedades."
@@ -22,8 +22,8 @@ es:
 
     approved:
       subject: "Solicitud aprobada — %{club}"
-      body: "Tu solicitud ha sido aprobada. %{candidate} ya figura como %{membership} de %{club}."
-      body_with_team: "Tu solicitud ha sido aprobada. %{candidate} ya figura como %{membership} de %{team} en %{club}."
+      body: "Tu solicitud ha sido aprobada. %{candidate} ya figura como %{kind} de %{club}."
+      body_with_team: "Tu solicitud ha sido aprobada. %{candidate} ya figura como %{kind} de %{team} en %{club}."
       closing: "Te damos la bienvenida a %{club}."
 
     rejected:

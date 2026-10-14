@@ -317,10 +317,11 @@ class Registration < ApplicationRecord
 			raise ArgumentError, "Invalid transition #{status} -> #{new_status}" \
 				unless allowed.include?(new_status&.to_sym)
 
-			yield if block_given?
-
-			self.status = new_status.to_sym
-			save!
+			transaction do
+				yield if block_given?
+				self.status = new_status.to_sym
+				save!
+			end
 		end
 
 		# validate coherent team defined for assignment

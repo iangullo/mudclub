@@ -30,7 +30,6 @@ class RegistrationMailer < ApplicationMailer
 	end
 
 	def approved
-		@membership = params[:membership]
 		mail(to: @snapshot.recipient, subject: t(".subject", club: @snapshot.club))
 	end
 

@@ -8,7 +8,7 @@ en:
     created:
       subject: "We have received your application — %{club}"
       body: "We have received your application request to register %{candidate} as a %{kind}."
-      body_with_team: "We have received your application request to register %{candidate} as a %{kind} for %{team}."
+      body_with_team: "We have received your application request to register %{candidate} as %{kind} for our %{team} team."
       action: "You may check the status of your application at: %{url}"
       link: "this link"
       closing: "We will update you with any changes via email."
@@ -22,8 +22,8 @@ en:
 
     approved:
       subject: "Membership confirmed — %{club}"
-      body: "Your application has been approved. %{candidate} is now a %{membership} member of %{club}."
-      body_with_team: "Your application has been approved. %{candidate} is now a %{membership} member of %{team} in %{club}."
+      body: "Your application has been approved. %{candidate} is now a %{kind} member of %{club}."
+      body_with_team: "Your application has been approved. %{candidate} is now a %{kind} member of %{team} in %{club}."
       closing: "Welcome to %{club}."
 
     rejected:

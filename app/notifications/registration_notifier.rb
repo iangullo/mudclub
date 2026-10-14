@@ -32,11 +32,11 @@ module RegistrationNotifier
 					access_token:    registration.access_token,
 					requester:       registration.requester.name,
 					candidate:       registration.candidate.name,
-					club:            registration.club.name,
-					team:            registration.requested_team.name,
+					club:            registration.club.nick,
+					team:            registration.requested_team&.name,
 					kind:            registration.kind_label,
 					recipient:       registration.requester.email.presence ||
-					registration.candidate.email.presence
+														registration.candidate.email.presence
 				)
 			end
 
@@ -59,7 +59,10 @@ module RegistrationNotifier
 	end
 
 	def build(event, snapshot, **extras)
-		return nil if snapshot.nil? || snapshot.recipient.blank?
+		if snapshot.nil? || snapshot.recipient.blank?
+			Rails.logger.warn("[RegistrationNotifier] skipping #{event}: no snapshot or recipient")
+			return nil
+		end
 
 		Notification.new(
 			mailer: RegistrationMailer,
