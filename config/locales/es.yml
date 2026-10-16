@@ -92,6 +92,8 @@ es:
     mins: "mins."
     start: "Inicio"
     end: "Fin"
+    export: "Calendario exportado"
+    add: "Añadir al calendario"
     attendance: "Asistencia"
     monthnames:
       [
