@@ -361,8 +361,8 @@ module EventsHelper
 				h_fields = event_form_hidden_fields(copy ? nil : @event&.team_id)
 				h_fields << { kind: :hidden, key: :kind, value: @event.kind }
 				res << h_fields
-			else
-				res[0] << symbol_field("calendar", { title: I18n.t("calendar.date") })
+			else	# calendar icon downloads the event for calendar apps
+				res[0] << button_field({ kind: :link, symbol: symbol_hash("calendar"), url: event_path(@event, format: :ics), title: I18n.t("calendar.add") })
 				res[0] << { kind: :string, value: @event.date_string }
 				unless @event.rest?
 					res[1] << symbol_field("clock", { title: I18n.t("calendar.time") })

@@ -23,6 +23,7 @@ class EventsController < ApplicationController
 	before_action :set_event, only: %i[ show edit add_task show_task edit_task player_stats edit_player_stats load_chart attendance copy update destroy ]
 
 	# GET /events or /events.json
+	# GET /teams/1/events.ics or /clubs/1/events.ics - export to calendar apps
 	def index
 		if user_in_club? || check_access(roles: [ :admin ])
 			get_event_context
@@ -30,29 +31,36 @@ class EventsController < ApplicationController
 			club       = Club.find_by_id(@clubid)
 			team       = Team.find_by_id(@teamid) if @teamid
 			season     = Season.find_by_id(@seasonid) || team&.season
-			url        = (team ? team_events_path(team, start_date:) : club_events_path(@clubid, season_id: season&.id, start_date:))
-			anchor     = { url:, rdx: @rdx }
-			@title     = create_fields(helpers.event_index_title(team:, season:))
-			@calendar  = CalendarComponent.new(anchor:, obj: (team || club), start_date:, user: current_user, create_url: new_event_path)
-			zerolnk    = (team ? team_path(team, rdx: @rdx) : club_path(@clubid, season_id: season&.id, rdx: @rdx))
-			@submit    = create_submit(close: :back, submit: nil, retlnk: base_lnk(zerolnk))
+			obj        = (team || club)
+			respond_to do |format|	# html first: it is the default for "Accept: */*"
+				format.html do
+					url       = (team ? team_events_path(team, start_date:) : club_events_path(@clubid, season_id: season&.id, start_date:))
+					ics_url   = (team ? team_events_path(team, format: :ics) : club_events_path(@clubid, season_id: season&.id, format: :ics))
+					anchor    = { url:, rdx: @rdx }
+					@title    = create_fields(helpers.event_index_title(team:, season:))
+					@calendar = CalendarComponent.new(anchor:, obj:, start_date:, user: current_user, create_url: new_event_path)
+					zerolnk   = (team ? team_path(team, rdx: @rdx) : club_path(@clubid, season_id: season&.id, rdx: @rdx))
+					submit    = { kind: :export, url: ics_url, symbol: helpers.symbol_hash("calendar"), working: false }
+					@submit   = create_submit(close: :back, submit:, retlnk: base_lnk(zerolnk))
+				end
+				format.ics do
+					f_name   = "#{obj.to_s.parameterize}.ics"
+					calendar = EventCalendar.new(obj.events.includes(:team, :location), name: obj.to_s, host: request.base_url)
+					register_action(:exported, "#{I18n.t("calendar.export")} '#{f_name}'")
+					send_data calendar.to_ics, filename: f_name, type: "text/calendar; charset=utf-8"
+				end
+			end
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end
 	end
 
 	# GET /events/1 or /events/1.json
+	# GET /events/1.ics - add a single event to calendar apps
 	def show
 		if user_in_club? && @event && check_access(roles: [ :manager, :coach ], obj: @event.team)
-			respond_to do |format|
+			respond_to do |format|	# html first: it is the default for "Accept: */*"
 				title = helpers.event_title(cols: @event.train? ? 3 : nil)
-				format.pdf do
-					if u_manager? || u_coach?
-						response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
-						pdf = event_to_pdf(title)
-						send_data pdf.render(filename: "#{@event}.pdf", type: "application/pdf")
-					end
-				end
 				format.html do
 					editor    = event_manager?
 					@title    = create_fields(title)
@@ -74,6 +82,18 @@ class EventsController < ApplicationController
 						submit  = edit_event_path(season_id: @seasonid, rdx: @rdx, cal: @cal) if editor
 						@submit = create_submit(close: :back, retlnk: base_lnk(anchor_lnk), submit:)
 					end
+				end
+				format.pdf do
+					if u_manager? || u_coach?
+						response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
+						pdf = event_to_pdf(title)
+						send_data pdf.render(filename: "#{@event}.pdf", type: "application/pdf")
+					end
+				end
+				format.ics do
+					f_name   = "#{@event.team.to_s.parameterize}-#{@event.start_date}.ics"
+					calendar = EventCalendar.new([ @event ], name: @event.team.to_s, host: request.base_url)
+					send_data calendar.to_ics, filename: f_name, type: "text/calendar; charset=utf-8"
 				end
 			end
 		else
