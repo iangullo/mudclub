@@ -44,7 +44,7 @@ class UsersController < ApplicationController
 		@roles  = @user.person.memberships.order(joined_on: :desc).order(left_on: :asc)
 		@page   = paginate(@roles, 1.2)	# paginate results
 		@table  = create_table(helpers.membership_history_table(@page))
-		retlnk  = back_link(default: return_path_for(@user))
+		retlnk  = back_link(default: index_path_for(@user))
 		submit  = edit_path_for(@user) if @policy.edit?
 		@submit = create_submit(close: :back, retlnk:, submit:, frame: :modal)
 	end

@@ -37,18 +37,18 @@ module EventsHelper
 			gap_field(size: 2),
 			{ kind: :select_checkboxes, key: :athlete_ids, options: @team.athletes.active.by_number }
 		]
-		res << [ { kind: :hidden, key: :rdx, value: @rdx } ] if @rdx
-		res << [ { kind: :hidden, key: :team_id, value: @teamid } ] if @teamid
+		res << [ hidden_field(:rdx, @rdx) ] if @rdx
+		res << [ hidden_field(:team_id, @teamid) ] if @teamid
 		res
 	end
 
 	# return a fields to show a copy event form
 	def event_copy
 		res = event_title(form: true, teams: @teams)
-		res.last << { kind: :hidden, key: :copy, value: true }
-		res.last << { kind: :hidden, key: :duration, value: @event.duration }
-		res.last << { kind: :hidden, key: :id, value: @event.id }
-		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
+		res.last << hidden_field(:copy, true)
+		res.last << hidden_field(:duration, @event.duration)
+		res.last << hidden_field(:id, @event.id)
+		res.last << hidden_field(:rdx, @rdx) if @rdx
 		res
 	end
 
@@ -96,7 +96,7 @@ module EventsHelper
 	def event_index_title(team: nil, season: nil)
 		title    = (team ? team.nick : (season ? season.name : I18n.t("calendar.label")))
 		subtitle = (team ? team.category.name : I18n.t("scope.all"))
-		res      = title_start(icon: symbol_hash("calendar"), title:, subtitle:)
+		res      = title_start(icon: symbol_hash(:calendar), title:, subtitle:)
 		res     += [ [ gap_field(size: 1), string_field(team.division.name + " (#{team.season.name})") ] ] if team
 		res
 	end
@@ -229,7 +229,7 @@ module EventsHelper
 			symbol_field("drill", { namespace: task&.drill&.sport&.name || "sport", size: "30x30" }, align: :center),
 			label_field(task.drill.name),
 			gap_field,
-			{ kind: :icon_label, symbol: "clock", label: task.s_dur }
+			{ kind: :icon_label, symbol: :clock, label: task.s_dur }
 		] if title
 
 		if task.drill.steps.empty?
@@ -259,8 +259,8 @@ module EventsHelper
 				{ kind: :number_box, key: :duration, min: 1, max: 90, size: 3, value: @task.duration }
 			],
 			[
-				{ kind: :hidden, key: :task_id, value: @task.id },
-				{ kind: :hidden, key: :order, value: @task.order }
+				hidden_field(:task_id, @task.id),
+				hidden_field(:order, @task.order)
 			]
 		]
 	end
@@ -353,20 +353,20 @@ module EventsHelper
 		# complete event title with top-right corner elements
 		def event_top_right(res:, form: nil, copy: false)
 			if form # top right corner of title
-				res[0] << symbol_field("calendar")
+				res[0] << symbol_field(:calendar)
 				res[0] << { kind: :date_box, key: :start_date, s_year: @event.team_id > 0 ? @team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @team.season.end_year : nil, value: @event.start_date }
 				unless @event.rest? # add start_time inputs
-					res[1] << symbol_field("clock")
+					res[1] << symbol_field(:clock)
 					res[1] << { kind: :time_box, key: :hour, hour: @event.hour, mins: @event.min, mandatory: true }
 				end
 				h_fields = event_form_hidden_fields(copy ? nil : @event&.team_id)
-				h_fields << { kind: :hidden, key: :kind, value: @event.kind }
+				h_fields << hidden_field(:kind, @event.kind)
 				res << h_fields
 			else
-				res[0] << symbol_field("calendar", { title: I18n.t("calendar.date") })
+				res[0] << symbol_field(:calendar, { title: I18n.t("calendar.date") })
 				res[0] << { kind: :string, value: @event.date_string }
 				unless @event.rest?
-					res[1] << symbol_field("clock", { title: I18n.t("calendar.time") })
+					res[1] << symbol_field(:clock, { title: I18n.t("calendar.time") })
 					res[1] << { kind: :string, value: @event.time_string }
 				end
 			end
@@ -374,10 +374,10 @@ module EventsHelper
 
 		def event_form_hidden_fields(teamid)
 			res = []
-			res << { kind: :hidden, key: :team_id, value: teamid } if teamid
-			res << { kind: :hidden, key: :cal, value: @cal } if @cal
-			res << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
-			res << { kind: :hidden, key: :kind, value: @event.kind } if @event
+			res << hidden_field(:team_id, teamid) if teamid
+			res << hidden_field(:cal, @cal) if @cal
+			res << hidden_field(:rdx, @rdx) if @rdx
+			res << hidden_field(:kind, @event.kind) if @event
 			res
 		end
 
@@ -401,9 +401,9 @@ module EventsHelper
 					{ kind: :side_cell, value: @event.term(:match), align: :left, cols: 2 }
 				]
 				res << [
-					symbol_field("location", { title: ILocation.label }, align: :right),
+					symbol_field(:location, { title: ILocation.label }, align: :right),
 					{ kind: :select_collection, key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'", cols: 6 },
-					{ kind: :hidden, key: :homecourt_id, value: @team.homecourt_id, i_data: { match_location_target: "homeCourtId" } }
+					hidden_field(:homecourt_id, @team.homecourt_id, i_data: { match_location_target: "homeCourtId" })
 				]
 			else
 				if @event.location.gmaps_url

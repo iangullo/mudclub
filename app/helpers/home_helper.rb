@@ -28,16 +28,16 @@ module HomeHelper
 	def home_closed
 		[
 			[
-				symbol_field("user", { size: "30x30" }, align: "center"),
+				symbol_field("user", { size: "30x30" }, align: :center),
 				button_field(home_login_button, rows: 2)
 			],
 			[
-				{ kind: :text, value: I18n.t("status.closed"), align: "center" }
+				{ kind: :text, value: I18n.t("shared.statuses.closed"), align: :center }
 			]
 		]
 	end
 
 	def home_login_button
-		{ kind: "jump", url: new_user_session_path, data: { turbo_frame: "_top" }, symbol: symbol_hash("login", type: "button"), class: "m-2", d_class: "rounded bg-blue-900 hover:bg-blue-700 max-h-8 min-h-6" }
+		{ kind: :jump, url: new_user_session_path, data: { turbo_frame: "_top" }, symbol: symbol_hash(:login, type: :button), class: "m-2", d_class: "rounded bg-blue-900 hover:bg-blue-700 max-h-8 min-h-6" }
 	end
 end

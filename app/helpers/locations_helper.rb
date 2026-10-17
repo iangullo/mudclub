@@ -29,8 +29,8 @@ module LocationsHelper
 			symbol_field("training", { namespace: "sport" }),
 			{ kind: :label_checkbox, key: :practice_court, label: Location.fld(:training_court) }
 		]
-		res.last << { kind: :hidden, key: :club_id, value: @club.id } if @club
-		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
+		res.last << hidden_field(:club_id, @club.id) if @club
+		res.last << hidden_field(:rdx, @rdx) if @rdx
 		res
 	end
 
@@ -65,7 +65,7 @@ module LocationsHelper
 		session.delete("location_filters") if scratch
 		fields = [
 			{ kind: :search_text, key: :name, placeholder: Location.fld(:name), value: (params[:name].presence || session.dig("location_filters", "name")), size: 10 },
-			{ kind: :hidden, key: :club_id, value: @club.id }
+			hidden_field(:club_id, @club.id)
 		]
 		[ { kind: :search_box, url: search_in, fields:, cols: 2 } ]
 	end

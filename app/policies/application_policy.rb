@@ -17,6 +17,13 @@
 # contact email - iangullo@gmail.com.
 #
 class ApplicationPolicy
+	MANAGING_BOARD_KINDS    = %i[president vice_president].freeze
+	MANAGING_CLUB_KINDS     = %i[president vice_president secretary club_manager].freeze
+	MANAGING_TEAM_KINDS     = %i[head_coach assistant_coach team_manager].freeze
+	MANAGING_COACHES_KINDS  = %i[club_manager coaching_coordinator].freeze
+	MANAGING_ATHLETES_KINDS = %i[club_manager coaching_coordinator].freeze
+	COACHING_TEAM_KINDS     = %i[head_coach assistant_coach].freeze
+
 	def initialize(actor, record: nil, club: nil, token: nil)
 		if record && !record.is_a?(self.class.record_class)
 			raise ArgumentError,
@@ -120,35 +127,38 @@ class ApplicationPolicy
 		end
 
 		def coaches_team?(team)
-			has_team_assignment?(team, kinds: %i[head_coach assistant_coach])
+			has_team_assignment?(team, kinds: COACHING_TEAM_KINDS)
 		end
 
 		def manages_club?(club)
-			has_club_assignment?(
-				club,
-				kinds: %i[president vice_president secretary club_manager]
-			)
+			has_club_assignment?(club, kinds: MANAGING_CLUB_KINDS)
 		end
 
 		def manages_board?(club)
-			has_club_assignment?(club, kinds: %i[president vice_president])
+			has_club_assignment?(club, kinds: MANAGING_BOARD_KINDS)
 		end
 
 		def manages_athletes?(club)
-			has_club_assignment?(club, kinds: %i[club_manager coaching_coordinator])
+			has_club_assignment?(club, kinds: MANAGING_ATHLETES_KINDS)
 		end
 
 		def manages_coaches?(club)
-			has_club_assignment?(club, kinds: %i[club_manager coaching_coordinator])
+			has_club_assignment?(club, kinds: MANAGING_COACHES_KINDS)
 		end
 
 		def manages_team?(team)
-			has_team_assignment?(team, kinds: %i[head_coach assistant_coach team_manager])
+			has_team_assignment?(team, kinds: MANAGING_TEAM_KINDS)
 		end
 
 		def manages_person?(person)
 			return false unless person.is_a?(Person) && target_club
 			manages_club?(target_club) && person.member_of?(target_club)
+		end
+
+		def managing_club_assignment(club = @target_club)
+			return nil unless club.is_a?(Club) && actor_person
+
+			assignments_for(club).club_level.of_kind(MANAGING_CLUB_KINDS).first
 		end
 
 		# True when the current request carries a valid requester token —

@@ -67,7 +67,7 @@ module MembershipsHelper
 		[ label_field(Membership.fld(:notes)) ],
 		[
 			{ kind: :rich_text_area, key: :notes, cols: 3 },
-			{ kind: :hidden, key: :kind, value: member.kind }
+			hidden_field(:kind, member.kind)
 		]
 	]
 	end

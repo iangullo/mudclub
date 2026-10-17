@@ -70,7 +70,7 @@ class TeamsController < ApplicationController
 			@calendar  = CalendarComponent.new(anchor:, start_date:, obj: @team, user: current_user)
 			submit     = nil
 		end
-		zerolnk = return_path_for(@team, season_id: @season&.id)
+		zerolnk = index_path_for(@team, season_id: @season&.id)
 		@submit = create_submit(close: :back, retlnk: back_link(default: zerolnk), submit:, frame: (submit ? :modal : nil))
 	end
 

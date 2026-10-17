@@ -72,7 +72,7 @@ module AssignmentsHelper
 			[ label_field(Membership.fld(:notes)) ],
 			[
 				{ kind: :rich_text_area, key: :notes, cols: 3 },
-				{ kind: :hidden, key: :membership_id, value: assignment.membership_id }
+				hidden_field(:membership_id, assignment.membership_id)
 			]
 		]
 	end
@@ -109,7 +109,7 @@ module AssignmentsHelper
 	end
 
 	def assignment_return_path(assignment = @assignment)
-		return_path_for(
+		index_path_for(
 			assignment,
 			kind: assignment.membership.kind,
 			search: params[:search].presence

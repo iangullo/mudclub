@@ -107,10 +107,10 @@ class SearchBoxComponent < ApplicationComponent
 
 		def render_submit_button
 			concat(content_tag(:div, class: S_CLASS) do
-				tag.button(type: "submit", class: "p-1 align-middle", aria: { label: t("action.search") }) do
+				tag.button(type: :submit, class: "p-1 align-middle", aria: { label: t("action.search") }) do
 					render SymbolComponent.new("search",
 						type: :button,
-						label: t("action.search")
+						label: t("shared.actions.search")
 					)
 				end
 			end)

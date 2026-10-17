@@ -21,7 +21,7 @@ class DocumentPolicy < ApplicationPolicy
 	#------------------------------------
 	# Create right context
 	#------------------------------------
-	def initialize(actor, record: nil, club: nil, owner: nil)
+	def initialize(actor, record: nil, club: nil, owner: nil, token: nil)
 		super(actor, record:, club:)
 		@owner = owner
 	end

@@ -386,7 +386,7 @@ class Basketball < Sport
 			r_play = limit[:playing]
 			r_out  = limit[:outings] ? limit[:outings] : { "first" => "N/A", "min" => "N/A", "max" => "N/A" }
 			[
-				{ kind: :normal, value: t_path(:rules, "#{rule}_short".to_sym), class: g_cls },
+				{ kind: :normal, value: t_path(:rules, :values, rule), class: g_cls },
 				{ kind: :normal, value: r_per[:regular], class: n_cls },
 				{ kind: :normal, value: r_dur[:regular]/60, class: n_cls },
 				{ kind: :normal, value: r_per[:extra], class: n_cls },

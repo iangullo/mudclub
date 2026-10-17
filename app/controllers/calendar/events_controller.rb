@@ -456,7 +456,7 @@ class EventsController < ApplicationController
 			elsif @team
 				path_for(@team)
 			else	# return to regular parent view
-				base_path(@event, season_id: @season&.id) || "/"
+				parent_path_for(@event, season_id: @season&.id) || "/"
 			end
 		end
 

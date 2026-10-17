@@ -26,9 +26,9 @@ class CategoriesController < ApplicationController
 		@policy = check_policy!(CategoryPolicy)
 
 		@categories = Category.for_sport(@sport.id)
-		title = helpers.category_title(title: Category.label(:plural))
-		table = helpers.category_table
-		create_index(title:, table:)
+		@header = create_fields(helpers.category_header(title: Category.label(:plural)))
+		@table  = create_table(helpers.category_table)
+		@submit = create_submit(close: :close, submit: nil)
 	end
 
 	# GET /categories/1 or /categories/1.json

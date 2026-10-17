@@ -1,9 +1,9 @@
 <div id="registration-show">
 	<%= render @header %>
 	<%= render @fields %>
-	<% if @table %>
+	<% if @messages %>
 		<div class="flex justify-center">
-			<%= render @table %>
+			<%= render @messages %>
 		</div>
 		<%= paginate @page if @page %>
 	<% end %>

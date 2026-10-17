@@ -62,6 +62,10 @@ module ApplicationHelper
 		{ kind: :grid, items:, form:, cols: }
 	end
 
+	def hidden_field(key, value = nil, **opts)
+		{ kind: :hidden, key:, value: }.merge(opts)
+	end
+
 	# Helper to turn nested hashes into a structured params definition:
 	# e.g., {"person_attributes" => {"name" => "Rodrigo"}}
 	def hidden_field_definitions(attrs, prefix: nil)
@@ -79,11 +83,11 @@ module ApplicationHelper
 					if item.is_a?(Hash) || item.is_a?(ActionController::Parameters)
 						fields.concat(hidden_field_definitions(value, prefix: "#{current_key}][]"))
 					else
-						fields << { kind: :hidden, key: "#{current_key}][]", value: }
+						fields << hidden_field("#{current_key}][]", value)
 					end
 				end
 			else
-				field = { kind: :hidden, key: c_key, value: }
+				field = hidden_field(c_key, value)
 			end
 			fields << field if field
 		end

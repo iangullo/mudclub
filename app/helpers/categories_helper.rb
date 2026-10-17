@@ -18,13 +18,13 @@
 #
 module CategoriesHelper
 	# return icon and top of a view
-	def category_title(title:, subtitle: @sport&.to_s, rows: 2, cols: nil)
+	def category_header(title:, subtitle: @sport&.to_s, rows: 2, cols: nil)
 		title_start(icon: symbol_hash("category", namespace: "sport"), title:, subtitle:, rows:, cols:)
 	end
 
 	# Field definitions for category.show
 	def category_show
-		res = category_title(title: Category.label, subtitle: @category.name, cols: 4)
+		res = category_header(title: Category.label, subtitle: @category.name, cols: 4)
 		res += [
 			[
 				gap_field(size: 1),
@@ -39,7 +39,7 @@ module CategoriesHelper
 				{ kind: :string, value: @category.max_years }
 			],
 			[
-				symbol_field("rules", { namespace: "sport" }, align: :right),
+				symbol_field(:rules, { namespace: :sport }, align: :right),
 				{ kind: :string, value: @category.sport.specific.rules_options[@category.rules].first, cols: 4 }
 			]
 		]
@@ -48,7 +48,7 @@ module CategoriesHelper
 
 	# return field definitions for forms
 	def category_form(title:)
-		res = category_title(title:, cols: 4)
+		res = category_header(title:, cols: 4)
 		res += [
 			[
 				gap_field(size: 1),
@@ -63,7 +63,7 @@ module CategoriesHelper
 				gap_field(size: 1)
 			],
 			[
-				symbol_field("rules", { namespace: "sport" }, align: :right),
+				symbol_field(:rules, { namespace: :sport }, align: :right),
 				{ kind: :select_box, key: :rules, options: @sport.rules_options, value: @category.rules ? @category.rules : @sport.try(:default_rules), cols: 4 }
 			]
 		]
@@ -78,11 +78,11 @@ module CategoriesHelper
 			{ kind: :normal, value: I18n.t("shared.stats.min_short") },
 			{ kind: :normal, value: I18n.t("shared.stats.max_short") }
 		]
-		title <<  button_field({ kind: :add, url: new_path_for(@sport, :category), frame: :modal }) if @policy.new?
+		title <<  button_field({ kind: :add, url: new_path_for(@sport.generic, :category), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		@categories.each { |cat|
-			row = { url: edit_path_for(cat, owner: @sport), frame: :modal, items: [] }
+			row = { url: edit_path_for(cat, owner: @sport.generic, frame: :modal), items: [] }
 			row[:items] << { kind: :normal, value: cat.age_group }
 			row[:items] << { kind: :normal, value: Person.t_path(:sex, "#{cat.sex}_short".to_sym) }
 			row[:items] << { kind: :normal, value: cat.min_years, align: :right }

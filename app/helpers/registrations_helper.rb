@@ -50,7 +50,7 @@ module RegistrationsHelper
 			fields += person_summary_fields(registration.guardian1, prepend_gap: true)
 			fields += person_summary_fields(registration.guardian2, prepend_gap: true) if registration.guardian2
 		end
-		unless registration.requester_kind == :self || registration.requester.blank? || registration.requester == registration.guardian1
+		unless registration.requester_kind == "self" || registration.requester.blank? || registration.requester == registration.guardian1
 			fields << [ label_field(registration.fld(:requester), cols: 3) ]
 			fields += person_summary_fields(registration.requester, prepend_gap: true)
 		end
@@ -80,7 +80,7 @@ module RegistrationsHelper
 			# TODO: SPAN OF FIRST FIELD IS WIDER THANB INTENDED FOR SOME UNKNOWN REASON
 			symbol_field(:team, { title: Team.label }, align: :right),
 			{ kind: :select_box, key: :requested_team_id, options: @team.club.open_team_list, value: @team },
-			{ kind: :hidden, key: :kind, value: registration.kind || @kind }
+			hidden_field(:kind, registration.kind || @kind)
 		] if @team
 
 		fields += [
@@ -98,6 +98,7 @@ module RegistrationsHelper
 				[ form_file_field(label: doc.kind_label, key: :payment_terms, value: payment_form, cols: 3) ]
 			]
 		end
+		fields.last << hidden_field(:token, @token) if @token
 
 		fields
 	end
@@ -107,7 +108,7 @@ module RegistrationsHelper
 	end
 
 	# return table for @registrations TableComponent definition
-	def registration_table(registrations = @registrations)
+	def registrations_table(registrations = @registrations)
 		{
 			title: registrations_table_header,
 			rows: registrations_table_rows(registrations)
@@ -115,47 +116,78 @@ module RegistrationsHelper
 	end
 
 	# return registration TableComponent definition
-	def registration_history_table(registration = @registration)
-		return if registration.messages.empty?
+	def registration_messages_table(messages)
+		return if messages.empty?
 
-		registration.messages.each do |msg|
+		title = [
+			{ kind: :normal, value: RegistrationMessage.fld(:sent_short) },
+			{ kind: :normal, value: RegistrationMessage.fld(:author) },
+			{ kind: :normal, value: RegistrationMessage.fld(:body) }
+		]
+
+		rows  = []
+		messages.each do |msg|
+			items = [
+				{ kind: :normal, value: msg.created_at.to_date },
+				{ kind: :normal, value: msg.author_label },
+				{ kind: :normal, value: msg.body }
+			]
+			rows << { url: "#", items: }
 		end
 		{ title:, rows: }
 	end
 
-	private
-	def registrations_table_header
-		title = @clubs ?
-			[ { kind: :normal, value: Club.label, align: :center } ]:
-			[]
+	def registration_button(action, frame: :modal, data: {})
+		action = action.to_sym
+		data   = data.merge(confirm: Registration.que(action))
+		url    = path_for(@registration, action:),
 
-		title += [
-			{ kind: :normal, value: Team.label },
-			{ kind: :normal, value: Registration.fld(:kind) },
-			{ kind: :normal, value: Person.fld(:name) },
-			{ kind: :normal, value: Registration.fld(:status) },
-			{ kind: :normal, value: Registration.fld(:updated_at) }
-		]
+		button_field(
+			{
+				kind: :action,
+				label: Registration.act(action),
+				url:,
+				frame:,
+				data:
+			}
+		)
 	end
 
-	def registrations_table_rows(registrations)
-		rows = []
+	private
+		def registrations_table_header
+			title = @clubs ?
+				[ { kind: :normal, value: Club.label, align: :center } ]:
+				[]
 
-		registrations.each do |reg|
-			row = { url: path_for(reg), items: [] }
-			if @clubs
-				row[:items] << icon_field(reg.club.logo, title: reg.club.nick, align: :center)
-			end
-
-			row[:items] << { kind: :normal, value: reg.team ? reg.team.name : "-" }
-
-			row[:items] += [
-				{ kind: :normal, value: reg.kind_label },
-				{ kind: :normal, value: "#{reg.candidate_name} #{reg.candidate_surname}" },
-				{ kind: :normal, value: I18n.t("admissions.registration_statuses.values#{reg.status}.single") }
+			title += [
+				{ kind: :normal, value: Team.label },
+				{ kind: :normal, value: Registration.fld(:kind) },
+				{ kind: :normal, value: Person.fld(:name) },
+				{ kind: :normal, value: Registration.fld(:status) },
+				{ kind: :normal, value: Registration.fld(:updated_at) }
 			]
 		end
 
-		rows
-	end
+		def registrations_table_rows(registrations)
+			rows = []
+
+			registrations.each do |reg|
+				row = { url: path_for(reg), items: [] }
+				if @clubs
+					row[:items] << icon_field(reg.club.logo, title: reg.club.nick, align: :center)
+				end
+
+				row[:items] << { kind: :normal, value: reg.requested_team ? reg.requested_team.name : "-" }
+
+				row[:items] += [
+					{ kind: :normal, value: reg.kind_label },
+					{ kind: :normal, value: "#{reg.candidate.name} #{reg.candidate.surname}" },
+					{ kind: :normal, value: I18n.t("admissions.registration_statuses.values.#{reg.status}.single") },
+					{ kind: :normal, value: reg.updated_at.to_date }
+				]
+				rows << row
+			end
+
+			rows
+		end
 end

@@ -25,7 +25,7 @@ module SportsHelper
 		rows = Array.new
 		Sport.all.each { |sport|
 			row = { url: path_for(sport), items: [] }
-			row[:items] << symbol_field("icon", { namespace: sport&.name, size: "20x20" }, align: :center, class: "border p-1")
+			row[:items] << symbol_field(:icon, { namespace: sport&.name, size: "20x20" }, align: :center, class: "border p-1")
 			row[:items] << { kind: :normal, value: sport.to_s, align: :center }
 			row[:items] << { kind: :normal, value: sport.teams.count, align: :center }
 			# row[:items] << button_field({kind: :delete, url: row[:url], name: sport.to_s}) if @policy.destroy?
@@ -51,7 +51,7 @@ module SportsHelper
 		res << [
 				{ kind: :text_box, value: @sport.to_s, mandatory: { length: 3 } }
 			]
-		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
+		res.last << hidden_field(:rdx, @rdx) if @rdx
 		res
 	end
 
@@ -67,7 +67,7 @@ module SportsHelper
 		@sport.rules_limits
 	end
 
-	def sport_symbol(concept, namespace: "sport", type: "icon", variant: "default", css: nil, size: nil)
+	def sport_symbol(concept, namespace: :sport, type: :icon, variant: :default, css: nil, size: nil)
 		symbol_hash(concept, namespace:, type:, variant:, css:, size:)
 	end
 end

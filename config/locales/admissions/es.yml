@@ -51,12 +51,19 @@ es:
       messages:
         draft_saved: Borrador guardado.
         no_change: Sin cambios en la solicitud.
+        no_reason_given: Sin motivo explícito.
         sent_for_review: Solicitud presentada.
         cancelled: Solicitud cancelada.
         reviewed: Solicitud revisada.
         approved: Solicitud aprobada.
         rejected: Solicitud rechazada.
         already_processed: Solicitud ya procesada.
+      questions:
+        send_for_review: ¿Enviar solicitud?
+        request_information: ¿Pedir más información?
+        cancel: ¿Cancelar solicitud?
+        approve: ¿Aprobar solicitud?
+        reject: ¿Rechazar solicitud?
       values:
         locked: Inscripciones cerradas
         locked_short: Cerrado
@@ -120,7 +127,7 @@ es:
         delete_short: Borrar
       fields:
         sent: Enviado
-        sent_short: Enviado
+        sent_short: Env.
         author: Autor
         author_short: Aut.
         body: Contenido

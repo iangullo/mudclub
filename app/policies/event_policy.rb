@@ -18,7 +18,7 @@
 #
 # app/policies/event_policy.rb
 class EventPolicy < ApplicationPolicy
-	def initialize(actor, record: nil, club: nil, team: nil, athlete: nil)
+	def initialize(actor, record: nil, club: nil, team: nil, athlete: nil, token: nil)
 		if record.is_a?(Event)
 			super(actor, record:, club: @record.club)
 			@target_team = record.team

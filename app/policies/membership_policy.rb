@@ -19,7 +19,7 @@
 # app/policies/membership_policy.rb
 
 class MembershipPolicy < ApplicationPolicy
-	def initialize(actor, record: nil, kind: nil, club: nil)
+	def initialize(actor, record: nil, kind: nil, club: nil, token: nil)
 		super(actor, record:, club: record&.club || club)
 		@target_kind = @record&.kind || kind
 	end

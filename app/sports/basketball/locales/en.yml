@@ -35,24 +35,28 @@ en:
           short: OT
 
       rules:
-        fiba: FIBA
-        fiba_short: FIBA
-        fiba_desc: Official FIBA competition rules.
-        u14: U14
-        u14_short: U14
-        u14_desc: Under-14 competition.
-        u12: U12
-        u12_short: U12
-        u12_desc: Under-12 competition.
-        u10: U10
-        u10_short: U10
-        u10_desc: Under-10 competition.
-        u8: U8
-        u8_short: U8
-        u8_desc: Under-8 competition.
-        three: 3×3
-        three_short: 3×3
-        three_desc: Three-on-three basketball.
+        label:
+          single: Rule
+          plural: Rules
+        values:
+          fiba: FIBA
+          fiba_short: FIBA
+          fiba_desc: Official FIBA competition rules.
+          u14: U14
+          u14_short: U14
+          u14_desc: Under-14 competition.
+          u12: U12
+          u12_short: U12
+          u12_desc: Under-12 competition.
+          u10: U10
+          u10_short: U10
+          u10_desc: Under-10 competition.
+          u8: U8
+          u8_short: U8
+          u8_desc: Under-8 competition.
+          three: 3×3
+          three_short: 3×3
+          three_desc: Three-on-three basketball.
 
       periods:
         label: Period

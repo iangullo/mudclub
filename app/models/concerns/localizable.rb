@@ -332,24 +332,15 @@ module Localizable
 		#--------------------------------------------------------------------------
 		# key labels
 		#--------------------------------------------------------------------------
-
-		def translate_key_label(key:, scope:, variant:, form:, gender:, **)
+		def translate_key_label(key:, scope:, variant:, form:, gender: :neutral, **)
 			section =
 				case scope
-				when :attribute, :field, :fields
-					:fields
-
-				when :message, :messages
-					:messages
-
-				when :value, :values
-					:values
-
-				when :action, :actions
-					:actions
-
-				else
-					i18n_key_scope
+				when :attribute, :field, :fields then :fields
+				when :message, :messages         then :messages
+				when :value, :values             then :values
+				when :action, :actions           then :actions
+				when :question, :questions       then :questions   # ← add
+				else                                  i18n_key_scope
 				end
 
 			base_key = "#{i18n_scope}.#{section}.#{key}"

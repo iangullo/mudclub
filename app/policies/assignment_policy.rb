@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class AssignmentPolicy < ApplicationPolicy
-	def initialize(actor, record: nil, kind: nil, member: nil, team: nil, club: nil)
+	def initialize(actor, record: nil, kind: nil, member: nil, team: nil, club: nil, token: nil)
 		computed_team = record&.team || team
 
 		super(actor, record:, club: computed_team&.club || record&.club || club)

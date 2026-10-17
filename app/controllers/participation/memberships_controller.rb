@@ -59,7 +59,7 @@ class MembershipsController < ApplicationController
 		@page   = paginate(@roles, 1.2)	# paginate results
 		@table  = create_table(helpers.assignment_history_table(@kind, @page))
 		submit  = edit_path_for(@member) if @policy.update?
-		@submit = create_submit(close: :back, retlnk: return_path_for(@member, search: @search), submit:, frame: :modal)
+		@submit = create_submit(close: :back, retlnk: index_path_for(@member, search: @search), submit:, frame: :modal)
 	end
 
 	# GET /members/new
@@ -158,7 +158,7 @@ class MembershipsController < ApplicationController
 		# before final erasure processes can occur under the lifecycle rules.
 		if @membership.terminated?
 			if @membership.archive_and_anonymize!
-				redirect_to return_path_for(@membership), notice: t("memberships.anonymize.success")
+				redirect_to index_path_for(@membership), notice: t("memberships.anonymize.success")
 			else
 				redirect_to @membership, alert: t("memberships.anonymize.failed_execution")
 			end

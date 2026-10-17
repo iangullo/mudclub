@@ -51,12 +51,19 @@ en:
       messages:
         draft_saved: Draft saved.
         no_change: No changes to application.
+        no_reason_given: No reason given.
         sent_for_review: Submitted application.
         cancelled: Cancelled application.
         reviewed: Application reviewed.
         approved: Approved application.
         rejected: Rejected application.
         already_processed: Application already processed.
+      questions:
+        send_for_review: Submit application?
+        request_information: Request more information?
+        cancel: Cancel application?
+        approve: Approve application?
+        reject: Reject application?
       values:
         locked: Applications closed
         locked_short: Closed

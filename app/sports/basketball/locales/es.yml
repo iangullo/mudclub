@@ -41,24 +41,28 @@ es:
           short: Pró.
 
       rules:
-        fiba: FIBA
-        fiba_short: FIBA
-        fiba_desc: Reglas oficiales de competición FIBA.
-        u14: Infantil
-        u14_short: Inf.
-        u14_desc: Competición Infantil.
-        u12: Minibasket
-        u12_short: Mini
-        u12_desc: Competición Minibasket.
-        u10: Premini
-        u10_short: Pre.
-        u10_desc: Competición Premini
-        u8: Babybasket
-        u8_short: Baby
-        u8_desc: Iniciación al baloncesto.
-        three: 3×3
-        three_short: 3×3
-        three_desc: Baloncesto 3x3.
+        label:
+          single: Regla
+          plural: Reglas
+        values:
+          fiba: FIBA
+          fiba_short: FIBA
+          fiba_desc: Reglas oficiales de competición FIBA.
+          u14: Infantil
+          u14_short: Inf.
+          u14_desc: Competición Infantil.
+          u12: Minibasket
+          u12_short: Mini
+          u12_desc: Competición Minibasket.
+          u10: Premini
+          u10_short: Pre.
+          u10_desc: Competición Premini
+          u8: Babybasket
+          u8_short: Baby
+          u8_desc: Iniciación al baloncesto.
+          three: 3×3
+          three_short: 3×3
+          three_desc: Baloncesto 3x3.
 
       periods:
         label: Periodo

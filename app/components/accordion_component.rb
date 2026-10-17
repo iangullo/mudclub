@@ -64,7 +64,7 @@ class AccordionComponent < ApplicationComponent
 		# render one accordion element
 		def accordion_object(obj)
 			content_tag(:h2, id: obj[:head_id]) do
-				button_tag(type: "button", class: I_CLASS, data: { accordion_target: "##{obj[:body_id]}" }, aria: { expanded: false, controls: obj[:body_id] }) do
+				button_tag(type: :button, class: I_CLASS, data: { accordion_target: "##{obj[:body_id]}" }, aria: { expanded: false, controls: obj[:body_id] }) do
 					content_tag(:span, obj[:head]) +
 					content_tag(:svg, nil, data: { accordion_icon: true }, class: "w-6 h-6 rotate-180 shrink-0", fill: "currentColor", viewBox: "0 0 20 20", xmlns: "http://www.w3.org/2000/svg") do
 						tag(:path, fill_rule: "evenodd", d: "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z", clip_rule: "evenodd")

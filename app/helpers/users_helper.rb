@@ -75,7 +75,7 @@ module UsersHelper
 		res.last <<	gap_field
 		res.last << symbol_field(:locale, { title: I18n.t("locale.lang") })
 		res.last << { kind: :select_box, align: :center, key: :locale, options: User.locale_list, value: @user.locale }
-		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
+		res.last << hidden_field(:rdx, @rdx) if @rdx
 		res
 	end
 

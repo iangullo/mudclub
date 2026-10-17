@@ -60,13 +60,14 @@ class RegistrationPolicy < ApplicationPolicy
 		)
 	end
 
+	# Authenticated member with a managing club assignment.
+	def registration_manager?
+		return true if admin?
+		return false unless actor_person && @record&.club
+		manages_club?(@record.club)
+	end
+
 	private
-		# Authenticated member with a managing club assignment.
-		def registration_manager?
-			return true if admin?
-			return false unless actor_person && @record&.club
-			manages_club?(@record.club)
-		end
 
 		# TODO - needs attention since requester are not Person objects
 		# 			 just AdmissionPerson ones - no way to relate to User now

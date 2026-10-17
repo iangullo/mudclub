@@ -1,0 +1,16 @@
+<%= render ModalComponent.new do %>
+	<%= render @header %>
+	<%= render @summary %>
+	<% if @messages %>
+	<div class="flex justify-center">
+		<%= render @messages %>
+	</div>
+	<% end %>
+	<%= render @review %>
+	<div class="inline-flex align-middle gap-2 mt-2 mb-2">
+		<%= render @btn_reject  if @btn_reject %>
+		<%= render @btn_request if @btn_request %>
+		<%= render @btn_approve if @btn_approve %>
+	</div>
+	<%= render @submit %>
+<% end %>

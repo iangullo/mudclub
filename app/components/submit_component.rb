@@ -20,32 +20,53 @@
 
 # SubmitComponent - ViewComponent to standardise form submissions/cancellations
 class SubmitComponent < ApplicationComponent
-	def initialize(close: :close, submit: nil, retlnk: nil, frame: nil)
-		case close
-		when :close
-			label  = (submit == :save ? I18n.t("action.cancel"): I18n.t("action.close"))
-		when :cancel
-			cframe = frame
-		end
-		@close = ButtonComponent.new(kind: close, label:, url: retlnk, frame: cframe) if close
-		if submit.class == Hash
-			b_submit = submit
-		elsif submit == :save # save button
-			b_submit = { kind: :save }
-		elsif submit # edit button with link in "submit"
-			b_submit = { kind: :edit, url: submit, frame: }
-		end
-		@submit = ButtonComponent.new(**b_submit) if b_submit
+	def initialize(close: :close, submit: nil, actions: [], retlnk: nil, frame: nil)
+		@close   = build_close(close, submit, retlnk, frame)
+		@submit  = build_submit(submit, frame)
+		@actions = Array(actions).map { |cfg| ButtonComponent.new(**cfg) }
 	end
 
-	def call	# render HTML
+	def call
 		content_tag(:div, class: "inline-flex align-middle flow-root mt-2 mb-1") do
 			render_button(@close, "float-left mr-4 ml-1") if @close.present?
-			render_button(@submit, "float-right ml-4 mr-1") if @submit.present?
+
+			if @submit.present? || @actions.any?
+				concat(content_tag(:div, class: "float-right ml-4 mr-1 inline-flex align-middle") do
+					@actions.each do |b|
+						concat(content_tag(:div, class: "ml-2") { render(b) })
+					end
+					concat(content_tag(:div, class: "ml-2") { render(@submit) }) if @submit.present?
+				end)
+			end
 		end
 	end
 
 	private
+		def build_close(kind, submit, retlnk, frame)
+			return nil unless kind
+
+			label =
+				case kind
+				when :close  then submit == :save ? I18n.t("action.cancel") : I18n.t("action.close")
+				when :cancel then nil
+				end
+
+			ButtonComponent.new(kind:, label:, url: retlnk, frame: kind == :cancel ? frame : nil)
+		end
+
+		def build_submit(submit, frame)
+			return nil if submit.nil?
+
+			cfg =
+				case submit
+				when Hash  then submit
+				when :save then { kind: :save }
+				else            { kind: :edit, url: submit, frame: }
+				end
+
+			ButtonComponent.new(**cfg)
+		end
+
 		def render_button(button, div_class)
 			concat(content_tag(:div, class: div_class) do
 				render(button)

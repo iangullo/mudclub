@@ -84,12 +84,12 @@ module TeamsHelper
 	# return HeaderComponent @fields for forms
 	def team_form(action = :edit, cols: nil)
 		res = team_title(title: Team.act(action), cols:, edit: true)
-		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
+		res.last << hidden_field(:rdx, @rdx) if @rdx
 		res << [
 			symbol_field(:user, align: :right),
 			{ kind: :text_box, key: :nick, value: @team.nick, placeholder: @team.label, mandatory: { length: 3 } },
-			{ kind: :hidden, key: :club_id, value: @club.id },
-			{ kind: :hidden, key: :sport_id, value: (@sport&.id || 1) }	# will need to break this up for multi-sports in future
+			hidden_field(:club_id, @club.id),
+			hidden_field(:sport_id, (@sport&.id || 1))	# will need to break this up for multi-sports in future
 		]
 		res << [
 			symbol_field(:category, { namespace: "sport" }, align: :right),

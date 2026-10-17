@@ -65,7 +65,7 @@ class ButtonComponent < ApplicationComponent
 						button_content
 					end
 				else
-					button_tag(class: @button[:b_class], type: @button[:type], data: @button[:data]) do
+					button_tag(class: @button[:b_class], type: @button[:type], data: @button[:data], name: @button[:name], value: @button[:value]) do
 						button_content
 					end
 				end
@@ -122,25 +122,19 @@ class ButtonComponent < ApplicationComponent
 	# determine button icon depending on kind
 	def set_icon
 		case @button[:kind]
-		when :back
+		when :back, :forward, :cancel
 			@button[:turbo]   = "_top"
 		when :call
 			@button[:url]     = "tel:#{@button[:value]}"
-		when :cancel
-			@button[:turbo]   = "_top"
 		when :clear
 			@button[:confirm] = I18n.t("question.clear") + " \'#{@button[:name]}\'?"
 		when :delete
 			@button[:turbo]   = "_top"
 			@button[:confirm] = I18n.t("question.delete") + " \'#{@button[:name]}\'?"
-		when :edit
+		when :edit, :export
 			@button[:flip]    = true
 		when :email
 			@button[:url]     = "mailto:#{@button[:value]}"
-		when :export
-			@button[:flip]    = true
-		when :forward
-			@button[:turbo]   = "_top"
 		when :import
 			@button[:flip]    = true
 			@button[:confirm] = I18n.t("question.import")
@@ -189,7 +183,7 @@ class ButtonComponent < ApplicationComponent
 				@button[:title] = @button[:label]
 			end
 		end
-		@button[:type]      = "submit" if @button[:kind].to_s =~ /^(save|import|login)$/
+		@button[:type]    ||= :submit if @button[:kind].to_s =~ /^(save|import|login)$/
 		@button[:replace]   = true if @button[:kind].to_s =~ /^(cancel|close|save|back)$/
 		@button[:b_class] ||= b_start + (@button[:kind]!= :jump ? " m-1 inline-flex align-middle" : "")
 	end
@@ -213,7 +207,7 @@ class ButtonComponent < ApplicationComponent
 			end
 		end
 		@button[:d_class] += b_colour if b_colour
-		@button[:d_class] += " hover-div" if @button[:type] == "submit"
+		@button[:d_class] += " hover-div" if @button[:type] == :submit
 	end
 
 	# set the inner css for the button div
@@ -223,7 +217,7 @@ class ButtonComponent < ApplicationComponent
 			@button[:i_class] ||= "max-h-6 min-h-4 align-middle"
 		when :add_nested, :remove
 			@button[:i_class] ||= "max-h-5 min-h-4 align-middle"
-		when  :back, :call, :cancel, :clear, :close, :edit, :email, :export, :forward, :import, :save, :whatsapp
+		else
 			@button[:i_class] ||= "max-h-7 min-h-5 align-middle"
 		end
 	end
@@ -273,10 +267,10 @@ class ButtonComponent < ApplicationComponent
 		end
 		res[:turbo_action]  = "replace" if @button[:replace]
 		#	res[:turbo_confirm] = @button[:confirm] if @button[:confirm] # rubocop:disable Layout/CommentIndentation
-		res[:turbo_method]  = :delete.to_sym if @button[:kind]==:delete
+		res[:turbo_method]  = :delete if @button[:kind] == :delete
 		res[:action]        = @button[:action] if @button[:action]
 		res[:confirm]       = @button[:confirm] if @button[:confirm]
-		if @button[:working] || @button[:type] == "submit"
+		if @button[:working] || @button[:type] == :submit
 			unless @button[:working] == false
 				@button[:controller] = "processing"
 				@button[:working]  ||= true

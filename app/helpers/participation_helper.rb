@@ -19,7 +19,7 @@ module ParticipationHelper
 		fields = [
 			{ kind: :search_text, key: :search, placeholder: title, value: @search, size: 10 },
 			{ kind: :search_select, key: :status, value: @status, blank: obj.fld(:status), options: obj.status_options },
-			{ kind: :hidden, key: :kind, value: @kind }
+			hidden_field(:kind, @kind)
 			# { kind: :search_select, key: :kind, value: s_kind, blank: obj.fld(:kind), options: obj.kind_list }
 		]
 		[ { kind: :search_box, url: search_url, fields:, cols: } ]

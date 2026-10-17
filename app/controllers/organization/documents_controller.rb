@@ -56,7 +56,7 @@ class DocumentsController < ApplicationController
 		@policy   = check_policy!(DocumentPolicy, owner: @owner)
 		@document = @owner.documents.new(document_params)
 		if @document.save
-			redirect_to return_path_for(@document),
+			redirect_to index_path_for(@document),
 									notice: "#{@document.msg(:created)} '#{@document.title}'"
 		else
 			prepare_form(:create)
@@ -78,7 +78,7 @@ class DocumentsController < ApplicationController
 					notice = "#{@document.msg(:updated)} '#{@document.title}'"
 					register_action(:updated, notice, url: path_for(@document))
 					format.html do
-						redirect_to return_path_for(@document), notice:
+						redirect_to index_path_for(@document), notice:
 					end
 				else
 					prepare_form(:edit)
@@ -86,7 +86,7 @@ class DocumentsController < ApplicationController
 				end
 			else
 					format.html do
-						redirect_to return_path_for(@document),
+						redirect_to index_path_for(@document),
 												notice: "#{@document.msg(:unchanged)}"
 					end
 			end
@@ -96,7 +96,7 @@ class DocumentsController < ApplicationController
 	def destroy
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
 		notice = "#{@document.msg(:deleted)} '#{@document.title}'"
-		redirect_to return_path_for(@document), notice:
+		redirect_to index_path_for(@document), notice:
 	end
 
 	#-------------------------------------
@@ -104,7 +104,7 @@ class DocumentsController < ApplicationController
 	#-------------------------------------
 	def activate
 		@document.activate!
-		redirect_to return_path_for(@document)
+		redirect_to index_path_for(@document)
 	end
 
 	private

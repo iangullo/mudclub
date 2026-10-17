@@ -190,7 +190,7 @@ class Sport < ApplicationRecord
 	end
 
 	def rules_options
-		catalog(:rules).options
+		catalog(:rules).option_list
 	end
 
 	# --------------------------------------------------------------------------

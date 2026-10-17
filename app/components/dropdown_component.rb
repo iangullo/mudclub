@@ -54,7 +54,7 @@ class DropdownComponent < ApplicationComponent
 		button_tag(
 			id: @button[:id],
 			class: @button[:b_class],
-			type: "button",
+			type: :button,
 			data: {
 				dropdown_toggle: @button[:name],
 				dropdown_placement: @button[:place],

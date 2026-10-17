@@ -79,7 +79,7 @@ class SlotsController < ApplicationController
 					format.json { render json: @slot.errors, status: :unprocessable_entity }
 				end
 			else
-				format.html { redirect_to return_path_for(@slot), notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.html { redirect_to index_path_for(@slot), notice: no_data_notice, data: { turbo_action: "replace" } }
 				format.json { render :index, status: :unprocessable_entity, location: retlnk }
 			end
 		end
@@ -128,7 +128,7 @@ class SlotsController < ApplicationController
 	private
 		# wrapper to set return link for CRUD operations
 		def crud_return
-			return_path_for(@slot, season_id: @season&.id, location_id: @slot.location_id)
+			index_path_for(@slot, season_id: @season&.id, location_id: @slot.location_id)
 		end
 
 		# Create fresh time_table slices for each timetable row

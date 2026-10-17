@@ -56,8 +56,8 @@ module SlotsHelper
 			symbol_field("clock"),
 			{ kind: :number_box, key: :duration, min: 60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins"), mandatory: { min: 60 } }
 		]
-		res.last << { kind: :hidden, key: :season_id, value: @season.id }
-		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
+		res.last << hidden_field(:season_id, @season.id)
+		res.last << hidden_field(:rdx, @rdx) if @rdx
 		res
 	end
 
@@ -65,13 +65,13 @@ module SlotsHelper
 	def slot_search_bar(full = false)
 		l_opts   = @locations.practice.select(:id, :name)
 		l_filter = { kind: :search_collection, key: :location_id, options: l_opts, value: @location.id }
-		fields   = [ l_filter, { kind: :hidden, key: :club_id, value: @club.id } ]
+		fields   = [ l_filter, hidden_field(:club_id, @club.id) ]
 		if full
 			s_filter = { kind: :search_collection, key: :season_id, options: Season.real, value: @season&.id }
 			fields = [ s_filter ] + fields
 			res = []
 		else
-			fields << { kind: :hidden, key: :season_id, value: @seasonid }
+			fields << hidden_field(:season_id, @seasonid)
 			res = [ gap_field(size: 1) ]
 		end
 		res << { kind: :search_box, url: club_slots_path(@club, rdx: @rdx), fields: }

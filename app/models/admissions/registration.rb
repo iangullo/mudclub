@@ -211,8 +211,9 @@ class Registration < ApplicationRecord
 		end
 	end
 
-	def request_information!
+	def request_information!(actor: nil)
 		transition_to!(:awaiting_requester) do
+			self.reviewer_id = actor.id if actor
 			self.reviewed_at = Time.current
 			self.access_token_expires_at = ACCESS_TOKEN_LIFETIME.from_now
 		end
@@ -222,8 +223,9 @@ class Registration < ApplicationRecord
 	# Promotion consumes the candidate/guardian data — RegistrationApprover
 	# anonymizes after it has created the Person, Membership, Assignments,
 	# and Relationships. Calling this outside the approver leaves data intact.
-	def approve!
+	def approve!(actor: nil)
 		transition_to!(:approved) do
+			self.reviewer_id = actor.id if actor
 			self.reviewed_at = Time.current
 			revoke_anonymous_access!
 		end
@@ -231,8 +233,9 @@ class Registration < ApplicationRecord
 
 	# Terminal rejection — no further consumers of the admission data,
 	# so we anonymize inline.
-	def reject!
+	def reject!(actor: nil)
 		transition_to!(:rejected) do
+			self.reviewer_id = actor.id if actor
 			self.reviewed_at = Time.current
 			revoke_anonymous_access!
 			anonymize!
@@ -240,8 +243,9 @@ class Registration < ApplicationRecord
 	end
 
 	# Same reasoning as reject!.
-	def cancel!
+	def cancel!(actor: nil)
 		transition_to!(:cancelled) do
+			self.reviewer_id = actor.id if actor
 			revoke_anonymous_access!
 			anonymize!
 		end

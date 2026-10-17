@@ -105,7 +105,7 @@ module DrillsHelper
 			res.first << { kind: :select_collection, key: :author_id, options: authors, value: author.id }
 		else
 			res.first << { kind: :text, value: author.s_name, class: "ml-2" }
-			res.first << { kind: :hidden, key: :author_id, value: author.id }
+			res.first << hidden_field(:author_id, author.id)
 		end
 		res
 	end
@@ -151,7 +151,7 @@ module DrillsHelper
 			{ kind: :search_text, key: :name, placeholder: I18n.t("drill.name"), value: session.dig("drill_filters", "name"), size: 10 },
 			{ kind: :search_text, key: :skill, placeholder: I18n.t("skill.single"), size: 14, value: session.dig("drill_filters", "skill") }
 		]
-		fields << { kind: :hidden, key: :task_id, value: task_id } if task_id
+		fields << hidden_field(:task_id, task_id) if task_id
 		[ { kind: :search_box, url: search_in, fields: fields, cols: } ]
 	end
 

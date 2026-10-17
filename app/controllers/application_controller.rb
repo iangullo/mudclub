@@ -86,8 +86,8 @@ class ApplicationController < ActionController::Base
 	end
 
 	# Create a submit component
-	def create_submit(close: :close, submit: :save, retlnk: nil, frame: nil)
-		SubmitComponent.new(close:, submit:, retlnk:, frame:)
+	def create_submit(close: :close, submit: :save, actions: [], retlnk: nil, frame: nil)
+		SubmitComponent.new(close:, submit:, actions:, retlnk:, frame:)
 	end
 
 	# Where the user came from, for a "Back" link.
