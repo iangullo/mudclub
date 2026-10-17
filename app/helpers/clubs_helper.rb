@@ -19,7 +19,7 @@
 module ClubsHelper
 	# public mode fields
 	def club_public_fields
-		[ [ label_field("#{Team.label(:plural)} - #{@season.name}") ] ]
+		[ [ label_item("#{Team.label(:plural)} - #{@season.name}") ] ]
 	end
 
 	# return @clubs TableComponent
@@ -29,17 +29,17 @@ module ClubsHelper
 			{ kind: :normal, value: Person.fld(:name) },
 			{ kind: :normal, value: Person.fld(:contact) }
 		]
-		title << button_field({ kind: :add, url: new_club_path, frame: :modal }) if @policy.new?
+		title << normal_button({ kind: :add, url: new_club_path, frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		clubs.each { |club|
 			row = { url: club_path(club), items: [] }
 			row[:items] += [
-				icon_field(club.logo, align: :center),
+				icon_item(club.logo, align: :center),
 				{ kind: :normal, value: club.nick },
 				{ kind: :contact, phone: club.phone, email: club.email, device: device }
 			]
-			row[:items] << button_field({ kind: :delete, url: row[:url], name: club.to_s, align: :left }) if @policy.destroy?
+			row[:items] << normal_button({ kind: :delete, url: row[:url], name: club.to_s, align: :left }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows: }
@@ -48,28 +48,32 @@ module ClubsHelper
 	# FieldComponent fields for club links
 	def club_links
 		if @policy.show_details?	# user's club
-			res = []
-			opt = { status: :active, rdx: 0 }
+			opt = { status: :active }
+			res = [ [
+				normal_button({ kind: :jump, symbol: :board_member, url: club_assignments_path(@club, kind: :board_members, **opt), label: Membership.kind_label(:board_member, :plural) }, align: :center),
+				normal_button({ kind: :jump, symbol: :team, url: club_teams_path(@club), label: Team.label(:plural) }, align: :center),
+				normal_button({ kind: :jump, symbol: :timetable, url: club_slots_path(@club), label: Slot.label(:plural) }, align: :center)
+			] ]
+
 			if @policy.manage_members?
 				res << [
-					button_field({ kind: :jump, symbol: :board_member, url: club_assignments_path(@club, kind: :board_members, **opt), label: Membership.kind_label(:board_member, :plural) }, align: :center),
-					button_field({ kind: :jump, symbol: :athlete, url: club_members_path(@club, kind: :athletes, **opt), label: Sport.term(:athlete, :plural) }, align: :center),
-					button_field({ kind: :jump, symbol: :coach, url: club_members_path(@club, kind: :coaches, **opt), label:  Sport.term(:coach, :plural) }, align: :center),
-					button_field({ kind: :jump, symbol: :document, url: club_documents_path(@club, rdx: 0), label: Document.label(:plural) }, align: :center)
+					normal_button({ kind: :jump, symbol: :athlete, url: club_members_path(@club, kind: :athletes, **opt), label: Sport.term(:athlete, :plural) }, align: :center),
+					normal_button({ kind: :jump, symbol: :coach, url: club_members_path(@club, kind: :coaches, **opt), label:  Sport.term(:coach, :plural) }, align: :center),
+					normal_button({ kind: :jump, symbol: :registration, url: club_registrations_path(@club), label:  Registration.label(:plural) }, align: :center)
 				]
 			end
 
 			res << [
-				button_field({ kind: :jump, symbol: :team, url: club_teams_path(@club, rdx: 0), label: Team.label(:plural) }, align: :center),
-				button_field({ kind: :jump, symbol: :timetable, url: club_slots_path(@club, rdx: 0), label: Slot.label(:plural) }, align: :center),
-				button_field({ kind: :jump, symbol: :location, url: club_locations_path(@club, rdx: 0), label: Location.label(:plural) }, align: :center),
-				button_field({ kind: :jump, symbol: :rivals, url: clubs_path(@club, rdx: 0), label: Club.fld(:rivals) }, align: :center)
+				normal_button({ kind: :jump, symbol: :location, url: club_locations_path(@club), label: Location.label(:plural) }, align: :center),
+				normal_button({ kind: :jump, symbol: :rivals, url: clubs_path(@club), label: Club.fld(:rivals) }, align: :center)
 			]
+			res.last << normal_button({ kind: :jump, symbol: :document, url: club_documents_path(@club), label: Document.label(:plural) }, align: :center) if @policy.manage_documents?
+
 			res << []
 		else
 			res = [ [
-				button_field({ kind: :jump, symbol: :team, url: club_teams_path(@club, rdx: 0), label: Team.label(:plural) }, align: :center),
-				button_field({ kind: :jump, symbol: :location, url: club_locations_path(@club, rdx: 0), label: Location.label(:plural) }, align: :center)
+				normal_button({ kind: :jump, symbol: :team, url: club_teams_path(@club), label: Team.label(:plural) }, align: :center),
+				normal_button({ kind: :jump, symbol: :location, url: club_locations_path(@club), label: Location.label(:plural) }, align: :center)
 			] ]
 		end
 		res
@@ -80,23 +84,23 @@ module ClubsHelper
 		css = "align-top"
 		[
 			[
-				symbol_field(:website, { css: }),
+				symbol_item(:website, { css: }),
 				{ kind: :text_box, key: :website, value: @club.website, placeholder: Club.fld(:website), size: 33, cols: }
 			],
 			[
-				symbol_field(:call, { css: }),
+				symbol_item(:call, { css: }),
 				{ kind: :text_box, key: :phone, size: 12, value: @club.phone, placeholder: @club.fld(:phone) },
-				symbol_field(:locale, { css:, title: I18n.t("shared.fields.language") }),
+				symbol_item(:locale, { css:, title: I18n.t("shared.fields.language") }),
 				{ kind: :text_box, align: "left", key: :country, value: @club.country, placeholder: "US", size: 2, mandatory: { length: 2 } },
-				symbol_field(:flag, { css:, title: I18n.t("shared.fields.country") }),
+				symbol_item(:flag, { css:, title: I18n.t("shared.fields.country") }),
 				{ kind: :select_box, align: "left", key: :locale, options: User.locale_list, value: @club.locale }
 			],
 			[
-				symbol_field(:email, { type: :button, css: }),
+				symbol_item(:email, { type: :button, css: }),
 				{ kind: :email_box, key: :email, value: @club.email, placeholder: @club.fld(:email), size: 33, cols: }
 			],
 			[
-				symbol_field(:home, { css: }),
+				symbol_item(:home, { css: }),
 				{ kind: :text_area, key: :address, size: 30, cols:, lines: 3, value: @club.address, placeholder: Person.fld(:address) }
 			]
 		]

@@ -27,19 +27,19 @@ module CategoriesHelper
 		res = category_header(title: Category.label, subtitle: @category.name, cols: 4)
 		res += [
 			[
-				gap_field(size: 1),
+				gap_item(1),
 				{ kind: :subtitle, value: @category.age_group, cols: 2 },
 				{ kind: :subtitle, value: @category.sex, cols: 2 }
 			],
 			[
-				gap_field(size: 1),
-				label_field(I18n.t("shared.stats.min_short"), align: :right),
+				gap_item(1),
+				label_item(I18n.t("shared.stats.min_short"), align: :right),
 				{ kind: :string, value: @category.min_years },
-				label_field(I18n.t("shared.stats.max_short")),
+				label_item(I18n.t("shared.stats.max_short")),
 				{ kind: :string, value: @category.max_years }
 			],
 			[
-				symbol_field(:rules, { namespace: :sport }, align: :right),
+				symbol_item(:rules, { namespace: :sport }, align: :right),
 				{ kind: :string, value: @category.sport.specific.rules_options[@category.rules].first, cols: 4 }
 			]
 		]
@@ -51,19 +51,19 @@ module CategoriesHelper
 		res = category_header(title:, cols: 4)
 		res += [
 			[
-				gap_field(size: 1),
+				gap_item(1),
 				{ kind: :text_box, key: :age_group, value: @category.age_group, placeholder: @category.label, size: 10, cols: 2, mandatory: { length: 3 } },
 				{ kind: :select_box, key: :sex, options: Category.sex_options, value: @category.sex, cols: 2 }
 			],
 			[
-				label_field(I18n.t("shared.stats.min_short"), align: :right),
+				label_item(I18n.t("shared.stats.min_short"), align: :right),
 				{ kind: :number_box, key: :min_years, min: 5, size: 3, value: @category.min_years, mandatory: { min: 5 }, align: :left },
-				label_field(I18n.t("shared.stats.max_short"), align: :right),
+				label_item(I18n.t("shared.stats.max_short"), align: :right),
 				{ kind: :number_box, key: :max_years, min: 6, size: 3, value: @category.max_years, mandatory: { max: 99 } },
-				gap_field(size: 1)
+				gap_item(1)
 			],
 			[
-				symbol_field(:rules, { namespace: :sport }, align: :right),
+				symbol_item(:rules, { namespace: :sport }, align: :right),
 				{ kind: :select_box, key: :rules, options: @sport.rules_options, value: @category.rules ? @category.rules : @sport.try(:default_rules), cols: 4 }
 			]
 		]
@@ -78,7 +78,7 @@ module CategoriesHelper
 			{ kind: :normal, value: I18n.t("shared.stats.min_short") },
 			{ kind: :normal, value: I18n.t("shared.stats.max_short") }
 		]
-		title <<  button_field({ kind: :add, url: new_path_for(@sport.generic, :category), frame: :modal }) if @policy.new?
+		title <<  normal_button({ kind: :add, url: new_path_for(@sport.generic, :category), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		@categories.each { |cat|
@@ -87,7 +87,7 @@ module CategoriesHelper
 			row[:items] << { kind: :normal, value: Person.t_path(:sex, "#{cat.sex}_short".to_sym) }
 			row[:items] << { kind: :normal, value: cat.min_years, align: :right }
 			row[:items] << { kind: :normal, value: cat.max_years, align: :right }
-			row[:items] << button_field({ kind: :delete, url: path_for(cat, owner: @sport), name: cat.name }) if @policy.destroy?
+			row[:items] << normal_button({ kind: :delete, url: path_for(cat, owner: @sport), name: cat.name }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows: }

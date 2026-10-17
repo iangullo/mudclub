@@ -21,14 +21,14 @@ module SportsHelper
 	# sports page for admins
 	def sports_table
 		title = [ { kind: :normal }, { kind: :normal, value: Sport.label }, { kind: :normal, value: Team.label(:plural) } ]
-		# title << button_field({kind: :add, url: new_sport(rdx: @rdx), frame: :modal}) if @policy.new?
+		# title << normal_button({kind: :add, url: new_sport(rdx: @rdx), frame: :modal}) if @policy.new?
 		rows = Array.new
 		Sport.all.each { |sport|
 			row = { url: path_for(sport), items: [] }
-			row[:items] << symbol_field(:icon, { namespace: sport&.name, size: "20x20" }, align: :center, class: "border p-1")
+			row[:items] << symbol_item(:icon, { namespace: sport&.name, size: "20x20" }, align: :center, class: "border p-1")
 			row[:items] << { kind: :normal, value: sport.to_s, align: :center }
 			row[:items] << { kind: :normal, value: sport.teams.count, align: :center }
-			# row[:items] << button_field({kind: :delete, url: row[:url], name: sport.to_s}) if @policy.destroy?
+			# row[:items] << normal_button({kind: :delete, url: row[:url], name: sport.to_s}) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows: }
@@ -38,9 +38,9 @@ module SportsHelper
 	def sports_show
 		res = title_start(icon: symbol_hash("icon", namespace: @sport.name), title: @sport.label, subtitle: @sport.to_s)
 		res << [
-			button_field({ kind: :jump, symbol: sport_symbol("rules"), url: rules_sport_path(@sport, rdx: @rdx), label: Sport.fld(:rules), frame: :modal }, align: :center),
-			button_field({ kind: :jump, symbol: sport_symbol("category"), url: sport_categories_path(@sport, rdx: @rdx), label: Category.label(:plural), frame: :modal }, align: :center),
-			button_field({ kind: :jump, symbol: sport_symbol("division"), url: sport_divisions_path(@sport, rdx: @rdx), label: Division.label(:plural), frame: :modal }, align: :center)
+			normal_button({ kind: :jump, symbol: sport_symbol("rules"), url: rules_sport_path(@sport, rdx: @rdx), label: Sport.fld(:rules), frame: :modal }, align: :center),
+			normal_button({ kind: :jump, symbol: sport_symbol("category"), url: sport_categories_path(@sport, rdx: @rdx), label: Category.label(:plural), frame: :modal }, align: :center),
+			normal_button({ kind: :jump, symbol: sport_symbol("division"), url: sport_divisions_path(@sport, rdx: @rdx), label: Division.label(:plural), frame: :modal }, align: :center)
 		]
 		res
 	end
@@ -51,7 +51,7 @@ module SportsHelper
 		res << [
 				{ kind: :text_box, value: @sport.to_s, mandatory: { length: 3 } }
 			]
-		res.last << hidden_field(:rdx, @rdx) if @rdx
+		res.last << hidden_input(:rdx, @rdx) if @rdx
 		res
 	end
 

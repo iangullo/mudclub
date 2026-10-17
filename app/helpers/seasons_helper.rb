@@ -22,11 +22,11 @@ module SeasonsHelper
 		res = season_title(title:, cols:)
 		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
-			label_field(I18n.t("calendar.start"), align: :right),
+			label_item(I18n.t("calendar.start"), align: :right),
 			{ kind: :date_box, key: :start_date, s_year: 2020, value: @season.start_date }
 		]
 		res << [
-			label_field(I18n.t("calendar.end"), align: :right),
+			label_item(I18n.t("calendar.end"), align: :right),
 			{ kind: :date_box, key: :end_date, s_year: 2020, value: @season.end_date }
 		]
 		res
@@ -39,7 +39,7 @@ module SeasonsHelper
 			{ kind: :normal, value: Team.label(:plural), align: :center },
 			{ kind: :normal, value: Membership.kind_label(:athlete, :short), align: :center }
 		]
-		title << button_field({ kind: :add, url: new_season_path(rdx: @rdx), frame: :modal }) if @policy.new?
+		title << normal_button({ kind: :add, url: new_season_path(rdx: @rdx), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		seasons.each do |season|
@@ -47,7 +47,7 @@ module SeasonsHelper
 			row[:items] << { kind: :normal, value: season.name, align: :center }
 			row[:items] << { kind: :normal, value: season.teams.count, align: :center }
 			row[:items] << { kind: :normal, value: Assignment.where(team: season.teams).of_kind(:athlete).uniq.count, align: :center }
-			row[:items] << button_field({ kind: :delete, url: row[:url], name: season.to_s }) if @policy.destroy?
+			row[:items] << normal_button({ kind: :delete, url: row[:url], name: season.to_s }) if @policy.destroy?
 			rows << row
 		end
 		{ title:, rows: }
@@ -58,11 +58,11 @@ module SeasonsHelper
 		res = season_title(title: @season.label, cols:)
 		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
-			label_field(I18n.t("calendar.start"), align: :right),
+			label_item(I18n.t("calendar.start"), align: :right),
 			{ kind: :text, value: @season.start_date }
 		]
 		res << [
-			label_field(I18n.t("calendar.end"), align: :right),
+			label_item(I18n.t("calendar.end"), align: :right),
 			{ kind: :text, value: @season.end_date }
 		]
 		res

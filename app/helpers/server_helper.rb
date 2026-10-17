@@ -33,14 +33,14 @@ module ServerHelper
 	def server_show_fields
 		[
 			[
-				button_field({ kind: :jump, symbol: symbol_hash(:icon, namespace: "sport"), url: sports_path(rdx: 0), label: Sport.label(:plural) }, align: :center),
-				button_field({ kind: :jump, symbol: :rivals, url: clubs_path(rdx: 0), label: Club.label(:plural) }, align: :center),
-				button_field({ kind: :jump, symbol: :calendar, url: seasons_path(rdx: 0), label: Season.label(:plural) }, align: :center)
+				normal_button({ kind: :jump, symbol: symbol_hash(:icon, namespace: "sport"), url: sports_path(rdx: 0), label: Sport.label(:plural) }, align: :center),
+				normal_button({ kind: :jump, symbol: :rivals, url: clubs_path(rdx: 0), label: Club.label(:plural) }, align: :center),
+				normal_button({ kind: :jump, symbol: :calendar, url: seasons_path(rdx: 0), label: Season.label(:plural) }, align: :center)
 			],
 			[
-				button_field({ kind: :jump, symbol: :user, url: users_path(rdx: 0), label: User.label(:plural) }, align: :center),
-				button_field({ kind: :jump, symbol: :actions, url: log_server_path(rdx: 2), label: UserAction.label(:short) }, align: :center),
-				button_field({ kind: :jump, symbol: :settings, url: edit_server_path(rdx: 0), label: Server.act(:configure), frame: :modal }, align: :center)
+				normal_button({ kind: :jump, symbol: :user, url: users_path(rdx: 0), label: User.label(:plural) }, align: :center),
+				normal_button({ kind: :jump, symbol: :actions, url: log_server_path(rdx: 2), label: UserAction.label(:short) }, align: :center),
+				normal_button({ kind: :jump, symbol: :settings, url: edit_server_path(rdx: 0), label: Server.act(:configure), frame: :modal }, align: :center)
 			]
 		]
 	end
@@ -50,39 +50,39 @@ module ServerHelper
 		fields  = server_header(form: true)
 		fields += [
 			[
-				symbol_field(:email, { type: :button, css:, title: Server.fld(:support_email) }),
+				symbol_item(:email, { type: :button, css:, title: Server.fld(:support_email) }),
 				{ kind: :email_box, key: :support_email, value: Server.support_email, placeholder: Server.fld(:support_email), cols: 4 }
 			],
 			[
-				symbol_field(:email, { type: :button, css:, title: Server.fld(:email_from) }),
+				symbol_item(:email, { type: :button, css:, title: Server.fld(:email_from) }),
 				{ kind: :email_box, key: :email_from,
 					value: Server.email_from, placeholder: Server.support_email, cols: 4 }
 			],
 			[
-				symbol_field(:email, { type: :button, css:, title: Server.fld(:email_reply_to) }),
+				symbol_item(:email, { type: :button, css:, title: Server.fld(:email_reply_to) }),
 				{ kind: :email_box, key: :email_reply_to,
 					value: Server.email_reply_to, placeholder: Server.support_email, cols: 4 }
 			],
 			[
-				symbol_field(:edit, { type: :button, css:, title: Server.fld(:email_signature) }),
+				symbol_item(:edit, { type: :button, css:, title: Server.fld(:email_signature) }),
 				{ kind: :text_area, key: :email_signature, value: Server.email_signature, placeholder: Server.fld(:email_signature), size: 27, cols: 4 }
 			],
 			[
-				symbol_field(:locale, { css:, title: Server.fld(:default_locale) }),
+				symbol_item(:locale, { css:, title: Server.fld(:default_locale) }),
 				{ kind: :select_box, align: :left, key: :default_locale, options: Server.locale_list, value: Server.default_locale },
-				symbol_field(:calendar, { css:, title: Server.fld(:date_format) }),
+				symbol_item(:calendar, { css:, title: Server.fld(:date_format) }),
 				{ kind: :select_box, align: :left, key: :date_format, options: Server.date_formats, value: Server.date_format }
 			],
 			gap_row,
 			[
-				gap_field(size: 2),
-				label_field(I18n.t("shared.settings"), cols: 4)
+				gap_item(2),
+				label_item(I18n.t("shared.settings"), cols: 4)
 			]
 		]
 
 		Server.boolean_option_list.each do |opt|
 			fields << [
-				gap_field(size: 2),
+				gap_item(2),
 				{ kind: :label_checkbox, key: opt[1], label: opt[0], cols: 4 }
 			]
 		end
@@ -99,7 +99,7 @@ module ServerHelper
 		res   = title_start(icon: "mudclub.svg", title: server_about_version)
 		res  += [
 			[ { kind: :string, value: build, class: "text-sm text-gray-500" } ],
-			[ button_field({ kind: :link, label: I18n.t("server.about"), url: "https://github.com/iangullo/mudclub/wiki", tab: true }, cols: 2) ]
+			[ normal_button({ kind: :link, label: I18n.t("server.about"), url: "https://github.com/iangullo/mudclub/wiki", tab: true }, cols: 2) ]
 		]
 	end
 
@@ -113,7 +113,7 @@ module ServerHelper
 			[ { kind: :string, value: bulletize(I18n.t("server.info-5")) } ],
 			[ { kind: :string, value: bulletize(I18n.t("server.info-6")) } ],
 			gap_row,
-			[ copyright_field ],
+			[ copyright_item ],
 			[ { kind: :string, value: I18n.t("server.published"), align: "right", class: "text-xs text-gray-500" } ]
 		]
 	end
@@ -139,7 +139,7 @@ module ServerHelper
 			frm = action.modal ? :modal : "_top"
 			row = { url:, frame: frm, items: [] }
 			row[:items] << { kind: :normal, value: action.date_time }
-			row[:items] << (action.user.active? ? icon_field(action.user.club.logo, title: action.user.club.nick, align: :center) : symbol_field(:no, align: :center))
+			row[:items] << (action.user.active? ? icon_item(action.user.club.logo, title: action.user.club.nick, align: :center) : symbol_item(:no, align: :center))
 			row[:items] << { kind: :normal, value: action.user.s_name }
 			row[:items] << { kind: :normal, value: action.description }
 			rows << row

@@ -22,15 +22,15 @@ module LocationsHelper
 		res = location_title(title:)
 		res << [ { kind: :text_box, key: :name, value: @location.name, placeholder: Location.val(:default), mandatory: { length: 3 } } ]
 		res << [
-			symbol_field("gmaps"),
+			symbol_item("gmaps"),
 			{ kind: :text_box, key: :gmaps_url, value: @location.gmaps_url, placeholder: Location.fld(:google_maps, :short) }
 		]
 		res << [
-			symbol_field("training", { namespace: "sport" }),
+			symbol_item("training", { namespace: "sport" }),
 			{ kind: :label_checkbox, key: :practice_court, label: Location.fld(:training_court) }
 		]
-		res.last << hidden_field(:club_id, @club.id) if @club
-		res.last << hidden_field(:rdx, @rdx) if @rdx
+		res.last << hidden_input(:club_id, @club.id) if @club
+		res.last << hidden_input(:rdx, @rdx) if @rdx
 		res
 	end
 
@@ -41,20 +41,20 @@ module LocationsHelper
 			{ kind: :normal, value: Location.fld(:kind), align: :center },
 			{ kind: :normal, value: Location.label(:short) }
 		]
-		title << button_field({ kind: :add, url: new_path_for(@club, :location), frame: :modal }) if @policy.new?
+		title << normal_button({ kind: :add, url: new_path_for(@club, :location), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		locations.each { |loc|
 			url = path_for(loc)
 			row = { url:, frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: loc.name }
-			row[:items] << (loc.practice_court ? symbol_field("training", { namespace: "sport" }, align: :center) : symbol_field("home", align: :center))
+			row[:items] << (loc.practice_court ? symbol_item("training", { namespace: "sport" }, align: :center) : symbol_item("home", align: :center))
 			if loc.gmaps_url
-				row[:items] << button_field({ kind: :location, symbol: "gmaps", align: :center, url: loc.gmaps_url }, align: :center)
+				row[:items] << normal_button({ kind: :location, symbol: "gmaps", align: :center, url: loc.gmaps_url }, align: :center)
 			else
 				row[:items] << { kind: :normal, value: "" }
 			end
-			row[:items] << button_field({ kind: :delete, url:, name: loc.name }) if @policy.destroy?
+			row[:items] << normal_button({ kind: :delete, url:, name: loc.name }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows: }
@@ -65,7 +65,7 @@ module LocationsHelper
 		session.delete("location_filters") if scratch
 		fields = [
 			{ kind: :search_text, key: :name, placeholder: Location.fld(:name), value: (params[:name].presence || session.dig("location_filters", "name")), size: 10 },
-			hidden_field(:club_id, @club.id)
+			hidden_input(:club_id, @club.id)
 		]
 		[ { kind: :search_box, url: search_in, fields:, cols: 2 } ]
 	end
@@ -73,11 +73,11 @@ module LocationsHelper
 	def location_show
 		res = location_title(title: @location.name)
 		if @location.gmaps_url.present?
-			res << [ button_field({ kind: :location, symbol: "gmaps", url: @location.gmaps_url, label: Location.val(:see) }) ]
+			res << [ normal_button({ kind: :location, symbol: "gmaps", url: @location.gmaps_url, label: Location.val(:see) }) ]
 		else
 			res << [ { kind: :text, value: Location.val(:none) } ]
 		end
-		res << [ (@location.practice_court ? symbol_field("training", { namespace: "sport" }) : symbol_field("home")) ]
+		res << [ (@location.practice_court ? symbol_item("training", { namespace: "sport" }) : symbol_item("home")) ]
 	end
 
 	# return icon and top of fields definition

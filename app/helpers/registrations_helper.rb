@@ -28,7 +28,7 @@ module RegistrationsHelper
 		header = title_start(icon:, title:, subtitle:)
 		header[1].last[:cols] = 3
 		header[0] += [
-			gap_field,
+			gap_item,
 			participation_status_field(registration)
 		]
 
@@ -39,8 +39,8 @@ module RegistrationsHelper
 	def registration_show_header(registration = @registration)
 		fields = person_show_title(registration, title: Registration.fld(:candidate))
 		fields[3][1][:cols] = 2
-		fields[4][0] = gap_field
-		fields << [ label_field(Relationship.kind_label(:guardian, :plural), cols: 3) ] if registration.candidate.minor?
+		fields[4][0] = gap_item
+		fields << [ label_item(Relationship.kind_label(:guardian, :plural), cols: 3) ] if registration.candidate.minor?
 		fields
 	end
 
@@ -51,7 +51,7 @@ module RegistrationsHelper
 			fields += person_summary_fields(registration.guardian2, prepend_gap: true) if registration.guardian2
 		end
 		unless registration.requester_kind == "self" || registration.requester.blank? || registration.requester == registration.guardian1
-			fields << [ label_field(registration.fld(:requester), cols: 3) ]
+			fields << [ label_item(registration.fld(:requester), cols: 3) ]
 			fields += person_summary_fields(registration.requester, prepend_gap: true)
 		end
 		fields
@@ -78,10 +78,12 @@ module RegistrationsHelper
 		fields = []
 		fields << [
 			# TODO: SPAN OF FIRST FIELD IS WIDER THANB INTENDED FOR SOME UNKNOWN REASON
-			symbol_field(:team, { title: Team.label }, align: :right),
+			symbol_item(:team, { title: Team.label }, align: :right),
 			{ kind: :select_box, key: :requested_team_id, options: @team.club.open_team_list, value: @team },
-			hidden_field(:kind, registration.kind || @kind)
+			hidden_input(:kind, registration.kind || @kind)
 		] if @team
+
+		fields.last << hidden_input(:token, @token) if @token
 
 		fields += [
 			[ { kind: :text_area, key: :remarks, value: registration.remarks, placeholder: registration.fld(:remarks), size: 36, lines: 2, cols: 3 } ]
@@ -93,12 +95,11 @@ module RegistrationsHelper
 			payment_form = registration.payment_terms.attached? ? registration.payment_terms : nil
 			fields += [
 				[
-					button_field({ kind: :link, symbol: symbol_hash(:document, size: "25x25"), url: rails_blob_path(doc.file, disposition: "attachment"), label: doc.kind_label }, cols: 3)
+					normal_button({ kind: :link, symbol: symbol_hash(:document, size: "25x25"), url: rails_blob_path(doc.file, disposition: "attachment"), label: doc.kind_label }, cols: 3)
 				],
-				[ form_file_field(label: doc.kind_label, key: :payment_terms, value: payment_form, cols: 3) ]
+				[ upload_button(:payment_terms, doc.kind_label, payment_form, cols: 3) ]
 			]
 		end
-		fields.last << hidden_field(:token, @token) if @token
 
 		fields
 	end
@@ -142,7 +143,7 @@ module RegistrationsHelper
 		data   = data.merge(confirm: Registration.que(action))
 		url    = path_for(@registration, action:),
 
-		button_field(
+		normal_button(
 			{
 				kind: :action,
 				label: Registration.act(action),
@@ -174,7 +175,7 @@ module RegistrationsHelper
 			registrations.each do |reg|
 				row = { url: path_for(reg), items: [] }
 				if @clubs
-					row[:items] << icon_field(reg.club.logo, title: reg.club.nick, align: :center)
+					row[:items] << icon_item(reg.club.logo, title: reg.club.nick, align: :center)
 				end
 
 				row[:items] << { kind: :normal, value: reg.requested_team ? reg.requested_team.name : "-" }

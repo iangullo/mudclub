@@ -19,7 +19,7 @@ module ParticipationHelper
 		fields = [
 			{ kind: :search_text, key: :search, placeholder: title, value: @search, size: 10 },
 			{ kind: :search_select, key: :status, value: @status, blank: obj.fld(:status), options: obj.status_options },
-			hidden_field(:kind, @kind)
+			hidden_input(:kind, @kind)
 			# { kind: :search_select, key: :kind, value: s_kind, blank: obj.fld(:kind), options: obj.kind_list }
 		]
 		[ { kind: :search_box, url: search_url, fields:, cols: } ]
@@ -35,20 +35,20 @@ module ParticipationHelper
 
 		fields << [
 			{ kind: :string, value: date_string(obj&.birthday), class: "items-center" },
-			gap_field,
+			gap_item,
 			{ kind: :contact, email: obj&.email, phone: obj&.phone, device: device, align: "left", cols: 3 }
 		]
 	end
 
 	def participation_fields(obj, fields, status_url: nil, just_icon: true)
 		fields[0] += [
-			gap_field,
+			gap_item,
 			participation_club_field(obj, align: :left),
-			gap_field(size: 1),
+			gap_item(1),
 			participation_kind_field(obj, align: :right)
 		]
 		fields[1] += [
-			gap_field,
+			gap_item,
 			participation_status_field(obj, status_url:, just_icon:, f_opts: { align: :left, cols: 3 })
 		]
 		fields
@@ -79,7 +79,7 @@ module ParticipationHelper
 		concept = obj.kind_image
 		title   = obj.kind_label(:hint)
 
-		symbol_field(concept, { title: }, align:, class:)
+		symbol_item(concept, { title: }, align:, class:)
 	end
 
 	# object status field - obj class expected to have Partipatory included
@@ -98,10 +98,10 @@ module ParticipationHelper
 
 		if status_url
 			frame = :modal unless obj.kind.to_sym == :board_member
-			button_field({ kind: :action, symbol: symbol_hash(concept, variant:), label:, url: status_url, frame: }, **f_opts)
+			normal_button({ kind: :action, symbol: symbol_hash(concept, variant:), label:, url: status_url, frame: }, **f_opts)
 		elsif just_icon
 			title = "(#{s_date})"
-			symbol_field(concept, { variant:, title: "#{label}\n#{title}" }, **f_opts)
+			symbol_item(concept, { variant:, title: "#{label}\n#{title}" }, **f_opts)
 		else
 			title = s_date
 			{ kind: :icon_label, symbol: symbol_hash(concept, variant:, title:), label:, **f_opts }
@@ -176,7 +176,7 @@ module ParticipationHelper
 				{ kind: :normal, value: p_class.fld(:starts_on, :short) },
 				{ kind: :normal, value: p_class.fld(:status) }
 			]
-			header << button_field({ kind: :add, url: new_path_for(@club, o_class, kind: @kind), frame: :modal }) if @policy.new?
+			header << normal_button({ kind: :add, url: new_path_for(@club, o_class, kind: @kind), frame: :modal }) if @policy.new?
 			header
 		end
 

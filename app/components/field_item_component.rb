@@ -138,6 +138,8 @@ class FieldItemComponent < ApplicationComponent
 		when "symbol"
 			hashify_symbol(field)
 			field[:content] = SymbolComponent.new(field[:symbol][:concept], **field[:symbol][:options])
+		when "table"
+			field[:value] ||= field.slice(:title, :rows, :form, :align)
 		else
 			field[:i_class] = "rounded p-0" unless field[:kind] == :gap
 		end

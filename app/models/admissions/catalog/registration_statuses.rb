@@ -34,7 +34,7 @@ class Catalog::RegistrationStatuses < Catalog::Base
 		under_review: {
 			id: 10,
 			review_open: true,
-			editable_by_requester: true,
+			editable_by_requester: false,
 			transitions: %i[awaiting_requester approved rejected]
 		},
 

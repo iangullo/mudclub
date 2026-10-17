@@ -34,7 +34,7 @@ class ServerController < ApplicationController
 				UserAction.where(user_id: u_club.users.pluck(:id)).order(updated_at: :desc)
 			end
 		title = helpers.server_header(icon: { concept: :actions, size: "50x50" }, subtitle: Server.fld(:log))
-		title.last << helpers.button_field({ kind: :clear, url: clear_log_server_path }) unless actions.empty?
+		title.last << helpers.normal_button({ kind: :clear, url: clear_log_server_path }) unless actions.empty?
 		page  = paginate(actions)	# paginate results
 		table = helpers.server_actions_table(actions: page)
 		create_index(title:, table:, page:, retlnk: server_path)

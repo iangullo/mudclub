@@ -345,7 +345,7 @@ class TeamsController < ApplicationController
 		# reused across different views
 		def icon_subtitle(icon, label, namespace: "common")
 			[
-				helpers.symbol_field(icon, { namespace: }, size: "30x30", align: "right", css: "mr-1"),
+				helpers.symbol_item(icon, { namespace: }, size: "30x30", align: "right", css: "mr-1"),
 				{ kind: :side_cell, value: label, align: "left" }
 			]
 		end

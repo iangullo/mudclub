@@ -12,9 +12,9 @@
 				{kind: :password_box, key: :password, autocomplete: Person.fld(:password), cols: 3}
 			],
 			[
-				gap_field(size: 1, cols: 2),
+				gap_item(size: 1, cols: 2),
 				{kind: :label_checkbox, label: I18n.t("devise.actions.remember"), key: :remember_me, right: true},
-				gap_field,
+				gap_item,
 				{kind: :button, button: {kind: :login, label: t("devise.actions.login"), confirm: I18n.t("devise.messages.login"), align: "right"}}
 			]
 		],

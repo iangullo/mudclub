@@ -30,21 +30,21 @@ module DivisionsHelper
 	def division_form(action)
 		@submit = SubmitComponent.new(submit: :save)
 		res = division_title(title: Division.act(action.to_sym))
-		res << [ gap_field, { kind: :text_box, key: :name, value: @division.name, placeholder: @division.fld(:name), mandatory: { length: 3 } } ]
+		res << [ gap_item, { kind: :text_box, key: :name, value: @division.name, placeholder: @division.fld(:name), mandatory: { length: 3 } } ]
 	end
 
 	# return table for @divisions TableComponent
 	def division_table
 		title = [ { kind: :normal, value: Division.fld(:name) } ]
-		title << button_field({ kind: :add, url: new_path_far(@sport, :division), frame: :modal }) if @policy.new?
+		title << normal_button({ kind: :add, url: new_path_far(@sport, :division), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		@divisions.each do |div|
 			row = { url: edit_path_for(div, owner: @sport), frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: div.name }
-			row[:items] << button_field({ kind: :delete, url: path_for(div, owner: @sport, rdx: @rdx), name: div.name }) if @policy.destroy?
+			row[:items] << normal_button({ kind: :delete, url: path_for(div, owner: @sport, rdx: @rdx), name: div.name }) if @policy.destroy?
 			rows << row
 		end
-		table_field(title:, rows:, align: :center)
+		table_item(title:, rows:, align: :center)
 	end
 end

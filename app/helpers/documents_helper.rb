@@ -30,7 +30,7 @@ module DocumentsHelper
 			{ kind: :normal, value: Document.fld(:title) },
 			{ kind: :normal, value: Document.fld(:active) }
 		]
-		title << button_field({ kind: :add, url: new_path_for(@owner, :document), frame: :modal }) if @policy.new?
+		title << normal_button({ kind: :add, url: new_path_for(@owner, :document), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		documents.each { |doc|
@@ -38,8 +38,8 @@ module DocumentsHelper
 			row = { url:, frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: doc.kind_label }
 			row[:items] << { kind: :normal, value: doc.title }
-			row[:items] << symbol_field(doc.active? ? :yes : :no, align: :center, class: "border px py")
-			row[:items] << button_field({ kind: :delete, url:, name: doc.title, confirm: true }) if @policy.destroy?
+			row[:items] << symbol_item(doc.active? ? :yes : :no, align: :center, class: "border px py")
+			row[:items] << normal_button({ kind: :delete, url:, name: doc.title, confirm: true }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows: }
@@ -49,12 +49,12 @@ module DocumentsHelper
 		res = document_title(subtitle: @document.title)
 		res += [
 			[
-				gap_field,
+				gap_item,
 				{ kind: :string, value: "(#{@document.kind_label})" }
 			]
 		]
 		if @document.summary.present?
-			res << [ label_field(Document.fld(:summary), cols: 3) ]
+			res << [ label_item(Document.fld(:summary), cols: 3) ]
 			res << [ { kind: :text, value: @document.summary, cols: 3 } ]
 		end
 
@@ -70,7 +70,7 @@ module DocumentsHelper
 		end
 
 		if @document.remarks.present?
-			res << [ label_field(Document.fld(:remarks)) ]
+			res << [ label_item(Document.fld(:remarks)) ]
 			res << [ { kind: :text, value: @document.remarks, cols: 3 } ]
 		end
 
@@ -83,22 +83,22 @@ module DocumentsHelper
 		accept = @document.file_accept
 		res += [
 			[
-				label_field(Document.fld(:title)),
+				label_item(Document.fld(:title)),
 				{ kind: :text_box, key: :title, value: @document.title, placeholder: Document.fld(:title), mandatory: { length: 3 } }
 			],
 			[
-				label_field(Document.fld(:kind)),
+				label_item(Document.fld(:kind)),
 				{ kind: :select_box, align: :left, key: :kind, options: Document.kind_list(@owner), value: @document.kind }
 			],
 			[
-				label_field(Document.fld(:summary)),
+				label_item(Document.fld(:summary)),
 				{ kind: :text_area, key: :summary, value: @document.summary }
 			],
 			[
-				{ kind: :upload, symbol: symbol_hash(:document), label: Document.fld(:file), key: :file, value: @document.file&.filename, accept:, cols: 3 }
+				upload_button(:file, Document.fld(:file), @document.file&.filename, symbol: symbol_hash(:document), accept:, cols: 3)
 			],
 			[
-				label_field(Document.fld(:remarks), align: :right),
+				label_item(Document.fld(:remarks), align: :right),
 				{ kind: :text_area, key: :remarks, value: @document.remarks }
 			]
 		]

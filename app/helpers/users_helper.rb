@@ -23,12 +23,12 @@ module UsersHelper
 		res.pop
 		res[3][0] = user_roles(@user)
 		unless @user.user_actions.empty?
-			res.last << button_field(
+			res.last << normal_button(
 				{ kind: :link, symbol: user_actions_symbol, url: actions_user_path, label: UserAction.label(:short), frame: :modal }
 			)
 		end
 		if current_user == @user	# only allow current user to change his own password
-			res[2] <<	button_field(
+			res[2] <<	normal_button(
 				{ kind: :link, symbol: :key, label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: :modal, d_class: "inline-flex align-middle m-1 text-sm", flip: true },
 				align: "right"
 			)
@@ -40,10 +40,10 @@ module UsersHelper
 	def user_roles(user = current_user, table: false)
 		roles =[]
 
-		roles << symbol_field("website", { title: I18n.t("role.admin") }) if user.admin?
-		roles << symbol_field(:board_member, { title: Membership.kind_label(:board_member) }) if user.is_board_member?
-		roles << symbol_field(:coach, { namespace: "sport", title: Sport.term(:coach) }) if user.is_coach?
-		roles << symbol_field(:athlete, { namespace: "sport", title: Sport.term(:athlete) }) if user.is_athlete?
+		roles << symbol_item("website", { title: I18n.t("role.admin") }) if user.admin?
+		roles << symbol_item(:board_member, { title: Membership.kind_label(:board_member) }) if user.is_board_member?
+		roles << symbol_item(:coach, { namespace: "sport", title: Sport.term(:coach) }) if user.is_coach?
+		roles << symbol_item(:athlete, { namespace: "sport", title: Sport.term(:athlete) }) if user.is_athlete?
 		res = { kind: :roles, symbols: roles, align: :center }
 		if table	# only interested in these 3 icons
 			res[:class] = "border"
@@ -59,23 +59,23 @@ module UsersHelper
 			res = [
 				participation_club_selector(@user),
 				[
-					symbol_field(:key, { title: User.fld(:profile) }),
+					symbol_item(:key, { title: User.fld(:profile) }),
 					{ kind: :select_box, align: "left", key: :role, options: User.role_list, value: @user.role }
 				]
 			]
 		else
 			res = [
 				[
-					icon_field(@user.club&.logo || "mudclub.svg", title: @user.club&.nick || I18n.t("club.none")),
+					icon_item(@user.club&.logo || "mudclub.svg", title: @user.club&.nick || I18n.t("club.none")),
 					{ kind: :string, align: :center, value: I18n.t("role.#{@user.role}") },
-					hidden_field(key: :club_id, value: @user.club_id)
+					hidden_input(key: :club_id, value: @user.club_id)
 				]
 			]
 		end
 		res.last <<	gap_field
-		res.last << symbol_field(:locale, { title: I18n.t("locale.lang") })
+		res.last << symbol_item(:locale, { title: I18n.t("locale.lang") })
 		res.last << { kind: :select_box, align: :center, key: :locale, options: User.locale_list, value: @user.locale }
-		res.last << hidden_field(:rdx, @rdx) if @rdx
+		res.last << hidden_input(:rdx, @rdx) if @rdx
 		res
 	end
 
@@ -83,11 +83,11 @@ module UsersHelper
 	def user_form_pass
 		[
 			[
-				symbol_field(:key),
+				symbol_item(:key),
 				{ kind: :password_box, key: :password, placeholder: I18n.t("password.single"), mandatory: { length: 8 } }
 			],
 			[
-				symbol_field(:key),
+				symbol_item(:key),
 				{ kind: :password_box, key: :password_confirmation, placeholder: I18n.t("password.confirm"), mandatory: { length: 8 } }
 			],
 			[
@@ -133,17 +133,17 @@ module UsersHelper
 			{ kind: :normal, value: Person.fld(:contact), align: :center },
 			{ kind: :normal, value: I18n.t("user.last_in"), align: :center }
 		]
-		title << button_field({ kind: :add, url: new_user_path(rdx: @rdx), frame: :modal }) if @policy.new?
+		title << normal_button({ kind: :add, url: new_user_path(rdx: @rdx), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		@users.each { |user|
 			row = { url: path_for(user), items: [] }
-			row[:items] << (user.active? ? icon_field(user.club.logo) : symbol_field("no"))
+			row[:items] << (user.active? ? icon_item(user.club.logo) : symbol_item("no"))
 			row[:items] << { kind: :normal, value: user.s_name }
 			row[:items] << user_roles(user, table: true).first
 			row[:items] << { kind: :contact, phone: user.person.phone, email: user.person.email }
 			row[:items] << { kind: :normal, value: user.last_sign_in_at&.to_date, align: :center }
-			row[:items] << button_field({ kind: :delete, url: row[:url], name: user.s_name }) if @policy.destroy?
+			row[:items] << normal_button({ kind: :delete, url: row[:url], name: user.s_name }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows:, align: :center }

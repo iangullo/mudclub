@@ -41,17 +41,17 @@ module AssignmentsHelper
 	def assignment_show_fields(assignment = @assignment)
 		fields = [
 			[
-				label_field("#{assignment.fld(:starts_on, :short)}: ", align: :right),
+				label_item("#{assignment.fld(:starts_on, :short)}: ", align: :right),
 				{ kind: :string, value: date_string(assignment.starts_on), cols: 3, align: :left, class: "items-center" }
 			]
 		]
 		fields <<  [
-			label_field("#{assignment.fld(:ends_on, :short)}: ", align: :right),
+			label_item("#{assignment.fld(:ends_on, :short)}: ", align: :right),
 			{ kind: :string, value: date_string(assignment.ends_on), cols: 3, align: :left, class: "items-center" }
 		] if assignment.ends_on
 
 		fields << [
-			label_field("#{assignment.fld(:notes)}: ", align: :right),
+			label_item("#{assignment.fld(:notes)}: ", align: :right),
 			{ kind: :text_field, value: assignment.notes, align: :left }
 		]
 	end
@@ -69,10 +69,10 @@ module AssignmentsHelper
 
 	def assignment_form_fields(assignment = @assignment)
 		[
-			[ label_field(Membership.fld(:notes)) ],
+			[ label_item(Membership.fld(:notes)) ],
 			[
 				{ kind: :rich_text_area, key: :notes, cols: 3 },
-				hidden_field(:membership_id, assignment.membership_id)
+				hidden_input(:membership_id, assignment.membership_id)
 			]
 		]
 	end
@@ -83,9 +83,9 @@ module AssignmentsHelper
 		options = assignment.kind_options(scope: m_scope, membership: m_kind, selectable: true)
 		[
 			[
-				gap_field(size: 6),
-				label_field(Assignment.fld(:kind, :short)),
-				gap_field(size: 1),
+				gap_item(6),
+				label_item(Assignment.fld(:kind, :short)),
+				gap_item(1),
 				{ kind: :select_collection, key: :kind, options:, value: assignment.kind&.to_sym }
 			]
 		]

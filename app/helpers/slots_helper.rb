@@ -40,24 +40,24 @@ module SlotsHelper
 	def slot_form(title:)
 		res = slot_title(title:, subtitle: @season&.name)
 		res << [
-			symbol_field("team"),
+			symbol_item("team"),
 			{ kind: :select_collection, key: :team_id, options: @club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2 }
 		]
 		res << [
-			symbol_field("location"),
+			symbol_item("location"),
 			{ kind: :select_collection, key: :location_id, options: @locations, value: @slot.location_id, cols: 2 }
 		]
 		res << [
-			symbol_field("calendar"),
+			symbol_item("calendar"),
 			{ kind: :select_box, key: :wday, value: @slot.wday, options: weekdays },
 			{ kind: :time_box, hour: @slot.hour, mins: @slot.min, mandatory: true }
 		]
 		res << [
-			symbol_field("clock"),
+			symbol_item("clock"),
 			{ kind: :number_box, key: :duration, min: 60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins"), mandatory: { min: 60 } }
 		]
-		res.last << hidden_field(:season_id, @season.id)
-		res.last << hidden_field(:rdx, @rdx) if @rdx
+		res.last << hidden_input(:season_id, @season.id)
+		res.last << hidden_input(:rdx, @rdx) if @rdx
 		res
 	end
 
@@ -65,14 +65,14 @@ module SlotsHelper
 	def slot_search_bar(full = false)
 		l_opts   = @locations.practice.select(:id, :name)
 		l_filter = { kind: :search_collection, key: :location_id, options: l_opts, value: @location.id }
-		fields   = [ l_filter, hidden_field(:club_id, @club.id) ]
+		fields   = [ l_filter, hidden_input(:club_id, @club.id) ]
 		if full
 			s_filter = { kind: :search_collection, key: :season_id, options: Season.real, value: @season&.id }
 			fields = [ s_filter ] + fields
 			res = []
 		else
-			fields << hidden_field(:season_id, @seasonid)
-			res = [ gap_field(size: 1) ]
+			fields << hidden_input(:season_id, @seasonid)
+			res = [ gap_item(1) ]
 		end
 		res << { kind: :search_box, url: club_slots_path(@club, rdx: @rdx), fields: }
 	end
@@ -80,12 +80,12 @@ module SlotsHelper
 	# fields for individual slot views
 	def slot_show
 		res = [
-			[ symbol_field("category", { namespace: "sport" }), string_field(@slot.team.category.name, cols: 2) ],
-			[ symbol_field("division", { namespace: "sport" }), string_field(@slot.team.division.name, cols: 2) ],
-			[ symbol_field("location"), string_field(@slot.court, cols: 2) ],
-			[ symbol_field("calendar"), string_field(@slot.to_s, cols: 2) ]
+			[ symbol_item("category", { namespace: "sport" }), string_item(@slot.team.category.name, cols: 2) ],
+			[ symbol_item("division", { namespace: "sport" }), string_item(@slot.team.division.name, cols: 2) ],
+			[ symbol_item("location"), string_item(@slot.court, cols: 2) ],
+			[ symbol_item("calendar"), string_item(@slot.to_s, cols: 2) ]
 		]
-		res << [ gap_field(cols: 2), button_field({ kind: :delete, url: path_for(@slot), name: @slot.to_s }, align: "right") ] if @policy.destroy?
+		res << [ gap_item(cols: 2), normal_button({ kind: :delete, url: path_for(@slot), name: @slot.to_s }, align: "right") ] if @policy.destroy?
 		res
 	end
 

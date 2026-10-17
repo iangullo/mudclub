@@ -404,9 +404,10 @@ class RegistrationsController < ApplicationController
 		end
 
 		def load_registration_context
-			@kind ||= Registration.kind_catalog.normalize(params[:kind])
+			@kind   ||= Registration.kind_catalog.normalize(params[:kind])
+			@token  ||= registration_params[:token]
 			if params[:registration] && registration_params[:requested_team_id].present?
-				@team = Team.find(registration_params[:requested_team_id])
+				@team   = Team.find(registration_params[:requested_team_id])
 			elsif params[:team_id].present?
 				@team ||= Team.find(params[:team_id])
 			end
@@ -417,7 +418,7 @@ class RegistrationsController < ApplicationController
 			@registration_params ||= params.require(:registration).permit(
 				:club_id, :team_id, :kind, :requested_team_id, :status,
 				:different_requester, :payment_terms, :requester_kind,
-				:remarks, :message, :reason, :reviewer_id, :rdx,
+				:remarks, :message, :reason, :reviewer_id, :rdx, :token,
 
 				candidate_attributes: [
 					:id, :avatar, :name, :nick, :surname,

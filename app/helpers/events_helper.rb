@@ -20,35 +20,35 @@ module EventsHelper
 	# FieldComponents for event attendance
 	def event_attendance_title
 		res = title_start(icon: symbol_hash("attendance"), title: @team.nick, subtitle: @team.category.name)
-		res[0] << gap_field
-		res[1] << gap_field
+		res[0] << gap_item
+		res[1] << gap_item
 		event_top_right(res:)
-		res << [ gap_field(size: 0), string_field(@team.division.name + " (#{@team.season.name})", cols: 5, align: :left) ]
+		res << [ gap_item(0), string_item(@team.division.name + " (#{@team.season.name})", cols: 5, align: :left) ]
 		res << gap_row(cols: 6)
 	end
 
 	# FieldComponents to show an attendance form
 	def event_attendance_form
 		res = [ [
-			gap_field(size: 2),
+			gap_item(2),
 			{ kind: :side_cell, value: @event.match? ? @event.term(:match, :roster) : Attendance.label, align: :left }
 		] ]
 		res << [
-			gap_field(size: 2),
+			gap_item(2),
 			{ kind: :select_checkboxes, key: :athlete_ids, options: @team.athletes.active.by_number }
 		]
-		res << [ hidden_field(:rdx, @rdx) ] if @rdx
-		res << [ hidden_field(:team_id, @teamid) ] if @teamid
+		res << [ hidden_input(:rdx, @rdx) ] if @rdx
+		res << [ hidden_input(:team_id, @teamid) ] if @teamid
 		res
 	end
 
 	# return a fields to show a copy event form
 	def event_copy
 		res = event_title(form: true, teams: @teams)
-		res.last << hidden_field(:copy, true)
-		res.last << hidden_field(:duration, @event.duration)
-		res.last << hidden_field(:id, @event.id)
-		res.last << hidden_field(:rdx, @rdx) if @rdx
+		res.last << hidden_input(:copy, true)
+		res.last << hidden_input(:duration, @event.duration)
+		res.last << hidden_input(:id, @event.id)
+		res.last << hidden_input(:rdx, @rdx) if @rdx
 		res
 	end
 
@@ -97,7 +97,7 @@ module EventsHelper
 		title    = (team ? team.nick : (season ? season.name : I18n.t("calendar.label")))
 		subtitle = (team ? team.category.name : I18n.t("scope.all"))
 		res      = title_start(icon: symbol_hash(:calendar), title:, subtitle:)
-		res     += [ [ gap_field(size: 1), string_field(team.division.name + " (#{team.season.name})") ] ] if team
+		res     += [ [ gap_item(1), string_item(team.division.name + " (#{team.season.name})") ] ] if team
 		res
 	end
 
@@ -119,7 +119,7 @@ module EventsHelper
 		rows    = event_rows(events:, season_id:)
 		btn_add = new_event_button(obj:, clubevent:)
 		title << btn_add if btn_add
-		[ event_list_toprow(clubevent:), [ { kind: :table, value: { title:, rows: }, cols: 3 } ] ]
+		[ event_list_toprow(clubevent:), [ table_item(title:, rows:, cols: 3) ] ]
 	end
 
 	# fields to display athlete's stats for an event
@@ -141,7 +141,7 @@ module EventsHelper
 			res << [ { kind: :select_collection, key: :team_id, options: teams, value: t_id, cols: cols } ]
 		else
 			res = title_start(icon: @event.symbol, title: @event.title(show: true), rows: @event.rest? ? 3 : nil, cols:)
-			res.last << gap_field
+			res.last << gap_item
 			case @event.kind.to_sym
 			when :rest then rest_title(res:, cols:, form:)
 			when :match then match_title(res:, cols:, form:)
@@ -226,9 +226,9 @@ module EventsHelper
 	def task_show(task:, team:, title: true)
 		res = []
 		res << [
-			symbol_field("drill", { namespace: task&.drill&.sport&.name || "sport", size: "30x30" }, align: :center),
-			label_field(task.drill.name),
-			gap_field,
+			symbol_item("drill", { namespace: task&.drill&.sport&.name || "sport", size: "30x30" }, align: :center),
+			label_item(task.drill.name),
+			gap_item,
 			{ kind: :icon_label, symbol: :clock, label: task.s_dur }
 		] if title
 
@@ -238,7 +238,7 @@ module EventsHelper
 			res << [ { kind: :steps, steps: task.drill.steps, court: task.drill.court_mode } ]
 		end
 		if task.remarks?
-			res << [ label_field(Task.fld(:remarks)) ]
+			res << [ label_item(Task.fld(:remarks)) ]
 			res << [ { kind: :action_text, value: task.remarks.body.to_s, size: 28 } ]
 		end
 		res
@@ -246,12 +246,12 @@ module EventsHelper
 
 	# data fields for task edit/add views
 	def task_form(search_in:)
-		res  = [ event_form_hidden_fields(@event.team_id) ]
+		res  = [ event_form_hidden_inputs(@event.team_id) ]
 		res += [
 			[
-				topcell_field(Task.fld(:number)),
-				topcell_field(Drill.label),
-				topcell_field(Task.fld(:duration, :short))
+				topcell_item(Task.fld(:number)),
+				topcell_item(Drill.label),
+				topcell_item(Task.fld(:duration, :short))
 			],
 			[
 				{ kind: :side_cell, value: @task.order },
@@ -259,8 +259,8 @@ module EventsHelper
 				{ kind: :number_box, key: :duration, min: 1, max: 90, size: 3, value: @task.duration }
 			],
 			[
-				hidden_field(:task_id, @task.id),
-				hidden_field(:order, @task.order)
+				hidden_input(:task_id, @task.id),
+				hidden_input(:order, @task.order)
 			]
 		]
 	end
@@ -277,7 +277,7 @@ module EventsHelper
 	# fields to edit task remarks
 	def task_form_remarks
 		[
-			[ label_field(Task.fld(:remarks)) ],
+			[ label_item(Task.fld(:remarks)) ],
 			[ { kind: :rich_text_area, key: :remarks, value: @task.remarks, size: 28 } ]
 		]
 	end
@@ -292,11 +292,11 @@ module EventsHelper
 		res = [
 			[
 				{ kind: :side_cell, value: Target.label(:short), rows: 2 },
-				topcell_field(Target.t_path(:focus, :values, :defense_short)),
+				topcell_item(Target.t_path(:focus, :values, :defense_short)),
 				{ kind: :lines, value: @event.def_targets, cols: 5 }
 			],
 			[
-				topcell_field(Target.t_path(:focus, :values, :offense_short)),
+				topcell_item(Target.t_path(:focus, :values, :offense_short)),
 				{ kind: :lines, value: @event.off_targets, cols: 5 }
 			]
 		]
@@ -315,14 +315,14 @@ module EventsHelper
 		def event_list_toprow(clubevent:)
 			calendurl = clubevent ? club_events_path(@club, season_id: @season&.id) : club_team_events_path(@team.club, @team)
 			toprow = [	#  top row above the table
-				button_field(
+				normal_button(
 					{ kind: :link, symbol: :calendar, label: I18n.t("calendar.label"), size: "30x30", url: calendurl },
 					class: "align-middle text-indigo-900"
 				)
 			]
 			toprow += [	# team events--> add a team_attendance button
-				gap_field,
-				button_field(
+				gap_item,
+				normal_button(
 					{ kind: :link, symbol: :attendance, label: Attendance.label, flip: true, size: "30x30", url: path_for(@team, action: :attendance), align: :right, frame: :modal },
 					class: "align-middle text-indigo-900"
 				)
@@ -343,7 +343,7 @@ module EventsHelper
 						n_row = event.match? ? { kind: :normal, value: row_f.to_s, cols: 1 } : { kind: :normal, value: event.to_s, cols: 4 }
 						row[:items] << n_row
 					end
-					row[:items] << button_field({ kind: :delete, url: row[:url], name: event.to_s }) if @policy.destroy?
+					row[:items] << normal_button({ kind: :delete, url: row[:url], name: event.to_s }) if @policy.destroy?
 					rows << row
 				end
 			end
@@ -353,31 +353,31 @@ module EventsHelper
 		# complete event title with top-right corner elements
 		def event_top_right(res:, form: nil, copy: false)
 			if form # top right corner of title
-				res[0] << symbol_field(:calendar)
+				res[0] << symbol_item(:calendar)
 				res[0] << { kind: :date_box, key: :start_date, s_year: @event.team_id > 0 ? @team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @team.season.end_year : nil, value: @event.start_date }
 				unless @event.rest? # add start_time inputs
-					res[1] << symbol_field(:clock)
+					res[1] << symbol_item(:clock)
 					res[1] << { kind: :time_box, key: :hour, hour: @event.hour, mins: @event.min, mandatory: true }
 				end
-				h_fields = event_form_hidden_fields(copy ? nil : @event&.team_id)
-				h_fields << hidden_field(:kind, @event.kind)
+				h_fields = event_form_hidden_inputs(copy ? nil : @event&.team_id)
+				h_fields << hidden_input(:kind, @event.kind)
 				res << h_fields
 			else
-				res[0] << symbol_field(:calendar, { title: I18n.t("calendar.date") })
+				res[0] << symbol_item(:calendar, { title: I18n.t("calendar.date") })
 				res[0] << { kind: :string, value: @event.date_string }
 				unless @event.rest?
-					res[1] << symbol_field(:clock, { title: I18n.t("calendar.time") })
+					res[1] << symbol_item(:clock, { title: I18n.t("calendar.time") })
 					res[1] << { kind: :string, value: @event.time_string }
 				end
 			end
 		end
 
-		def event_form_hidden_fields(teamid)
+		def event_form_hidden_inputs(teamid)
 			res = []
-			res << hidden_field(:team_id, teamid) if teamid
-			res << hidden_field(:cal, @cal) if @cal
-			res << hidden_field(:rdx, @rdx) if @rdx
-			res << hidden_field(:kind, @event.kind) if @event
+			res << hidden_input(:team_id, teamid) if teamid
+			res << hidden_input(:cal, @cal) if @cal
+			res << hidden_input(:rdx, @rdx) if @rdx
+			res << hidden_input(:kind, @event.kind) if @event
 			res
 		end
 
@@ -392,28 +392,28 @@ module EventsHelper
 
 		# complete event title for matches
 		def match_title(res:, cols:, form:)
-			res << [ { kind: :subtitle, value: @team.category.name }, gap_field ]
-			res << [ gap_field(size: 1),	string_field(@team.division.name + " (#{@team.season.name})"), gap_field ]
+			res << [ { kind: :subtitle, value: @team.category.name }, gap_item ]
+			res << [ gap_item(1),	string_item(@team.division.name + " (#{@team.season.name})"), gap_item ]
 			if form
 				res[0][1][:cols] = nil
 				res << [
-					gap_field(size: 1),
+					gap_item(1),
 					{ kind: :side_cell, value: @event.term(:match), align: :left, cols: 2 }
 				]
 				res << [
-					symbol_field(:location, { title: ILocation.label }, align: :right),
+					symbol_item(:location, { title: ILocation.label }, align: :right),
 					{ kind: :select_collection, key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'", cols: 6 },
-					hidden_field(:homecourt_id, @team.homecourt_id, i_data: { match_location_target: "homeCourtId" })
+					hidden_input(:homecourt_id, @team.homecourt_id, i_data: { match_location_target: "homeCourtId" })
 				]
 			else
 				if @event.location.gmaps_url
-					res.last << button_field({ kind: :location, symbol: :gmaps, url: @event.location.gmaps_url, label: @event.location.name }, cols: 2)
+					res.last << normal_button({ kind: :location, symbol: :gmaps, url: @event.location.gmaps_url, label: @event.location.name }, cols: 2)
 				end
 				if @policy.attendance?
 					res << [
-						gap_field(size: 1),
+						gap_item(1),
 						{ kind: :side_cell, value: @team.term(:match), align: :left, cols: 2 },
-						button_field(
+						normal_button(
 							{ kind: :link, symbol: :attendance, label: @team.term(:match, :roster), url: event_attendance_path, frame: :modal },
 							align: :left,
 							cols: 2
@@ -429,30 +429,30 @@ module EventsHelper
 			res << [ { kind: :subtitle, value: @team.category.name, cols: } ]
 			unless chart
 				if form
-					res.last << gap_field
-					res << [ gap_field(size: 1), string_field(@team.division.name + " (#{@team.season.name})", cols: 2) ]
+					res.last << gap_item
+					res << [ gap_item(1), string_item(@team.division.name + " (#{@team.season.name})", cols: 2) ]
 					res.last << workload_button(align: :left, cols: 2, rows: 2) if @event.id
-					res << [ gap_field(size: 1), { kind: :side_cell, value: @event.t_path(:kind, :training), cols: 2, align: :left } ]
+					res << [ gap_item(1), { kind: :side_cell, value: @event.t_path(:kind, :training), cols: 2, align: :left } ]
 					res << gap_row(cols: 8)
 				elsif @policy.export? && @event.id
 					res.first[1][:cols] = 4	# modify cols to avoid issues with show
 					res.last << pdf_button(club_team_event_path(@club, @team, @event, format: :pdf))
-					res.last << gap_field
+					res.last << gap_item
 					res << [
-						button_field(event_copy_button, align: :left, class: "align-top", rows: 2),
-						string_field(@team.division.name + " (#{@team.season.name})", cols: 5, align: :left),
+						normal_button(event_copy_button, align: :left, class: "align-top", rows: 2),
+						string_item(@team.division.name + " (#{@team.season.name})", cols: 5, align: :left),
 						workload_button(align: :left, rows: 1)
 					]
 					res << [
 						{ kind: :side_cell, value: @event.t_path(:kind, :training), align: :left, cols: 5, class: "align-top" },
-						button_field(
+						normal_button(
 							{ kind: :link, symbol: :attendance, label: Attendance.label, url: event_attendance_path, frame: :modal },
 							align: :left,
 							cols: 2
 						)
 					]
 				elsif current_user.is_athlete?
-					res << [ gap_field, label_field(current_user.to_s, cols: 3) ]
+					res << [ gap_item, label_item(current_user.to_s, cols: 3) ]
 				end
 			end
 		end
@@ -460,32 +460,36 @@ module EventsHelper
 		# complete event_title for rest events
 		def rest_title(team: nil, season: nil, res:, cols:, form:)
 			res << [ { kind: :subtitle, value: team&.nick || season&.name || "", cols: cols } ] if team or season
-			res << [ form ? { kind: :text_box, key: :name, value: @event.name, placeholder: Person.fld(:name) } : label_field(@event.name) ]
+			res << [ form ? { kind: :text_box, key: :name, value: @event.name, placeholder: Person.fld(:name) } : label_item(@event.name) ]
 		end
 
 		# return the dropdown element to access workload charts
 		def workload_button(cols: 2, rows: 1, align: :center, class: "align-top")
-			{ kind: :dropdown, align:, class:, cols:, rows:,
-				button: { kind: :link, symbol: "pie", label: I18n.t("training.session.fields.workload_short"), name: "show-chart",
+			dropdown_button(
+				{
+					kind: :link,
+					symbol: :pie,
+					label: I18n.t("training.session.fields.workload_short"),
+					name: "show-chart",
 					options: [
 						{ label: Drill.fld(:kind, :short), url: event_chart_path("kind"), data: { turbo_frame: :modal } },
 						# {label: Target.label(:plural), url: event_chart_path("target"), data: {turbo_frame: :modal}},
 						{ label: @sport ? Sport.term(:skill) : Skill.label, url: event_chart_path("skill"), data: { turbo_frame: :modal } }
 					]
-				}
-			}
+				}, align:, class:, cols:, rows:
+			)
 		end
 
 		# dropdown button definition to create a new Event
 		def new_event_button(obj:, clubevent: nil)
 			if clubevent	# paste season event button
-				button_field({ kind: :add, url: new_path_for(@club, :event, kind: :rest), frame: :modal }) if @policy.new? && obj==Season.latest
+				normal_button({ kind: :add, url: new_path_for(@club, :event, kind: :rest), frame: :modal }) if @policy.new? && obj==Season.latest
 			elsif obj.is_a?(Team) && @policy.new? # new team event
 				button = { kind: :add, name: "add-event", options: [] }
 				button[:options] << { label: Event.t_path(:kind, :training), url: new_path_for(@team, :event, kind: :train), data: { turbo_frame: :modal } }
 				button[:options] << { label: Event.t_path(:kind, :match), url:  new_path_for(@team, :event, kind: :match), data: { turbo_frame: :modal } }
 				button[:options] << { label: Event.t_path(:kind, :rest), url:  new_path_for(@team, :event, kind: :rest), data: { turbo_frame: :modal } }
-				{ kind: :dropdown, button:, class: "bg-white" }
+				dropdown_button(button, class: "bg-white")
 			else
 				nil
 			end

@@ -26,17 +26,17 @@ module MembershipsHelper
 	def membership_details_fields(member)
 		fields = [
 			[
-				label_field(member.label, align: :center),
-				gap_field,
-				label_field("#{member.fld(:joined_on, :short)}: ", align: :left),
+				label_item(member.label, align: :center),
+				gap_item,
+				label_item("#{member.fld(:joined_on, :short)}: ", align: :left),
 				{ kind: :string, value: date_string(member.joined_on), align: :left, class: "items-center" }
 			]
 		]
 
 		if member.left_on
 			fields <<	[
-				gap_field(cols: 2),
-				label_field("#{member.fld(:left_on, :short)}: ", align: :left),
+				gap_item(cols: 2),
+				label_item("#{member.fld(:left_on, :short)}: ", align: :left),
 				{ kind: :string, value: date_string(member.left_on), align: :left, class: "items-center" }
 			]
 		end
@@ -46,10 +46,10 @@ module MembershipsHelper
 	def membership_show_fields(member)
 		m_fields = []
 		if member.notes?
-			m_fields << [ label_field("#{member.fld(:notes)}:", align: :right, class: "text-right") ]
+			m_fields << [ label_item("#{member.fld(:notes)}:", align: :right, class: "text-right") ]
 			m_fields << [ { kind: :text_field, value: member.notes, align: :left } ]
 		end
-		m_fields <<	[	label_field("#{Assignment.label(:plural)}:", cols: 2)	]
+		m_fields <<	[	label_item("#{Assignment.label(:plural)}:", cols: 2)	]
 		m_fields
 	end
 
@@ -64,10 +64,10 @@ module MembershipsHelper
 
 	def membership_form_fields(member)
 	[
-		[ label_field(Membership.fld(:notes)) ],
+		[ label_item(Membership.fld(:notes)) ],
 		[
 			{ kind: :rich_text_area, key: :notes, cols: 3 },
-			hidden_field(:kind, member.kind)
+			hidden_input(:kind, member.kind)
 		]
 	]
 	end

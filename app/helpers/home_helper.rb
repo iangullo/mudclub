@@ -21,15 +21,15 @@ module HomeHelper
 	# fields for anonymous views
 	#---------------------------------------------------------
 	def home_anonymous_fields
-		[ [ label_field(Clubs.label(:plural)) ] ]
+		[ [ label_item(Clubs.label(:plural)) ] ]
 	end
 
 	# user login fields
 	def home_closed
 		[
 			[
-				symbol_field("user", { size: "30x30" }, align: :center),
-				button_field(home_login_button, rows: 2)
+				symbol_item("user", { size: "30x30" }, align: :center),
+				normal_button(home_login_button, rows: 2)
 			],
 			[
 				{ kind: :text, value: I18n.t("shared.statuses.closed"), align: :center }

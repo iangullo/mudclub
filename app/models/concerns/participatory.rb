@@ -102,7 +102,7 @@ module Participatory
 		return person.avatar if person&.avatar&.attached?
 
 		# if no attached avatar, return the symbol name
-		# to be rendered as: symbol_field(symbol)
+		# to be rendered as: symbol_item(symbol)
 		kind_image(default: :person)
 	end
 

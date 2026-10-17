@@ -40,12 +40,12 @@ module PeopleHelper
 			{ kind: :string, value: pobj&.person&.dni || Person.msg(:no_id) }
 
 		fields += [
-			[ label_field(person&.surname, cols:) ],
+			[ label_item(person&.surname, cols:) ],
 			[
 				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: },
 				c_field
 			],
-			[ gap_field, id_field ]
+			[ gap_item, id_field ]
 		]
 		if owned
 			fields[4][0] = participation_club_field(pobj)
@@ -57,7 +57,7 @@ module PeopleHelper
 	def person_show_fields(person, title: Person.label, icon: person&.picture)
 		[
 			[
-			symbol_field(:home, { size: "25x25", title: Person.fld(:address) }, class: "align-top", align: :right),
+			symbol_item(:home, { size: "25x25", title: Person.fld(:address) }, class: "align-top", align: :right),
 			{ kind: :string, value: simple_format("#{@person&.address}"), align: :left }
 			]
 		]
@@ -66,11 +66,11 @@ module PeopleHelper
 	def person_summary_fields(person, prepend_gap: false)
 		fields = [
 			[
-				symbol_field(:person, class: "inline-flex"),
+				symbol_item(:person, class: "inline-flex"),
 				{ kind: :text, value: person.to_s }
 			],
 			[
-				gap_field(size: 0),
+				gap_item(0),
 				person_contact_field(person)
 			]
 		]
@@ -78,7 +78,7 @@ module PeopleHelper
 		return fields unless prepend_gap
 
 		fields.each do |row|
-			row.unshift(gap_field)
+			row.unshift(gap_item)
 		end
 
 		fields
@@ -93,7 +93,7 @@ module PeopleHelper
 		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: Person.fld(:name), cols: 2, mandatory: { length: 2 } } ]
 		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: Person.fld(:surname), cols: 2, mandatory: { length: 2 } } ]
 		res << (sex ? [ { kind: :label_checkbox, label: Person.t_path(:sex, :female_short), key: :female, value: person&.female, align: :left } ] : [])
-		res.last << symbol_field(:calendar)
+		res.last << symbol_item(:calendar)
 		res.last << birthday_form_field(person, guardians:)
 		res = participation_fields(pobj, res, just_icon: false) unless pobj.is_a?(Person)
 		res
@@ -109,26 +109,26 @@ module PeopleHelper
 
 		res = [
 			[
-				symbol_field(:user, { title: l_nick }),
+				symbol_item(:user, { title: l_nick }),
 				{ kind: :text_box, key: :nick, size: 8, value: person&.nick, placeholder: l_nick },
-				gap_field,
-				symbol_field(:call, { title: l_phone }),
+				gap_item,
+				symbol_item(:call, { title: l_phone }),
 				{ kind: :text_box, key: :phone, size: 12, value: person&.phone, placeholder: l_phone }
 			],
 			[
-				symbol_field(:id_front, { title: l_pid }),
+				symbol_item(:id_front, { title: l_pid }),
 				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: l_pid },
-				gap_field,
-				symbol_field(:email, { type: :button, title: l_email }),
+				gap_item,
+				symbol_item(:email, { type: :button, title: l_email }),
 				{ kind: :email_box, key: :email, value: person&.email, placeholder: l_email, mandatory: m_email  }
 			]
 		]
 		if person.is_a?(AdmissionPerson) || person&.coach_id? || person&.player_id?
-			res << [ gap_field(size: 1), person_idpic(person, idpic: :id_front, align: :left, cols: 4) ]
-			res << [ gap_field(size: 1), person_idpic(person, idpic: :id_back, align: :left, cols: 4) ]
+			res << [ gap_item(1), person_idpic(person, idpic: :id_front, align: :left, cols: 4) ]
+			res << [ gap_item(1), person_idpic(person, idpic: :id_back, align: :left, cols: 4) ]
 		end
 		res << [
-			symbol_field(:home, { size: "25x25", title: l_addr }, class: "align-top"),
+			symbol_item(:home, { size: "25x25", title: l_addr }, class: "align-top"),
 			{ kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: l_addr }
 		]
 	end
@@ -141,17 +141,17 @@ module PeopleHelper
 
 		[
 			[
-				symbol_field(:person, class: "inline-flex"),
+				symbol_item(:person, class: "inline-flex"),
 				{ kind: :text_box, key: :name, value: person.name, placeholder: name[:label], mandatory: name[:mandatory], size: 14, cols: 2 },
-				gap_field(size: 1),
+				gap_item(1),
 				{ kind: :text_box, key: :surname, value: person.surname, placeholder: surname[:label], mandatory: surname[:mandatory], size: 19, cols: 2 }
 			],
 			[
-				gap_field(size: 0),
-				symbol_field(:call, { type: :button, title: phone[:label] }, class: "inline-flex"),
+				gap_item(0),
+				symbol_item(:call, { type: :button, title: phone[:label] }, class: "inline-flex"),
 				{ kind: :text_box, key: :phone, value: person.phone, placeholder: phone[:label], mandatory: phone[:mandatory], size: 12 },
-				gap_field(size: 1),
-				symbol_field(:email, { type: :button, title: email[:label] }, align: :right, class: "inline-flex"),
+				gap_item(1),
+				symbol_item(:email, { type: :button, title: email[:label] }, align: :right, class: "inline-flex"),
 				{ kind: :email_box, key: :email, value: person.email, placeholder: email[:label], mandatory: email[:mandatory] }
 			]
 		]
@@ -159,7 +159,7 @@ module PeopleHelper
 
 	# nested form to add/edit person relationships
 	def person_relationships_form(person)
-		res = [ [ label_field(Relationship.label(:plural)) ] ]
+		res = [ [ label_item(Relationship.label(:plural)) ] ]
 		res << [
 			{
 				kind: :nested_form,
@@ -177,12 +177,12 @@ module PeopleHelper
 	def person_merge_fields(pobj, candidates, attrs, current_person: :default)
 		current_person = pobj.person if current_person == :default
 
-		pobj_fields = hidden_field_definitions(attrs).to_a
+		pobj_fields = hidden_input_definitions(attrs).to_a
 
 		merge_fields = []
 		merge_fields << pobj_fields if pobj_fields.any?
 		merge_fields << gap_row
-		merge_fields << [ label_field(Person.msg(:ambiguous)) ]
+		merge_fields << [ label_item(Person.msg(:ambiguous)) ]
 		merge_fields << person_merge_radio(candidates, current_person:)
 	end
 
@@ -221,7 +221,7 @@ module PeopleHelper
 		# standardised field with icons for player/coach id pics
 		def person_idpic(person, idpic: nil, cols: nil, align: :center)
 			if idpic	# it is an editor field
-				{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: Person.fld(idpic)), label: Person.fld(idpic, :short), key: idpic, value: person&.send(idpic)&.filename, cols: }
+				upload_button(idpic, Person.fld(idpic, :short), person&.send(idpic)&.filename, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: Person.fld(idpic)), cols:)
 			else
 				pidpic = person&.idpic_content
 				symbol = pidpic[:symbol]
@@ -230,7 +230,7 @@ module PeopleHelper
 					button = { kind: :link, name: "id-pics", symbol:, label:, append: true, options: [] }
 					button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
 					button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
-					{ kind: :dropdown, button:, class: "bg-white", cols: }
+					dropdown_button(button, class: "bg-white", cols:)
 				else
 					{ kind: :icon_label, symbol:, label:, right: true, align: :left, cols: }
 				end

@@ -217,6 +217,7 @@ class ButtonComponent < ApplicationComponent
 			@button[:i_class] ||= "max-h-6 min-h-4 align-middle"
 		when :add_nested, :remove
 			@button[:i_class] ||= "max-h-5 min-h-4 align-middle"
+		when :jump
 		else
 			@button[:i_class] ||= "max-h-7 min-h-5 align-middle"
 		end
