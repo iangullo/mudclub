@@ -186,7 +186,7 @@ module ParticipationHelper
 				objects.each { |object|
 					m_obj = (o_class == :member ? object : object&.membership)
 					a_obj = (o_class == :assignment ? object : object&.assignments&.last)
-					row   = { url: path_for(object, rdx: 3), items: [], frame: }
+					row   = { url: path_for(object, rdx: 3, search: @search), items: [], frame: }
 					case kind
 					when :athlete
 						row[:items] << { kind: :normal, value: a_obj.number }

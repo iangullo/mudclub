@@ -101,7 +101,7 @@ module RoutingHelper
 	# e.g. TeamEvent -> club_team_events_path; Membership -> club_members_path.
 	def index_path_for(record, owner: @owner, club: @club, rdx: @rdx, **options)
 		parents = parents_of(record, owner:, club:) || []
-		opts    = options.merge(routing_opts(rdx:))
+		opts    = options.merge(routing_opts(record, rdx:))
 		case rdx&.to_i
 		when 0, nil
 			polymorphic_path([ *parents, collection_key_for(record) ], **opts)
@@ -111,9 +111,9 @@ module RoutingHelper
 			log_server_path(**opts)
 		when 3
 			if params[:member_id].present?
-				club_member_path(club:, **opts)
+				club_members_path(club:, **opts)
 			elsif params[:user_id].present?
-				user_path(params[:user_id], **opts)
+				users_path(params[:user_id], **opts)
 			else
 				polymorphic_path([ *parents, collection_key_for(record) ], **opts)
 			end
@@ -134,12 +134,12 @@ module RoutingHelper
 			chain.length < 2 ? nil : chain[0..-2]
 		end
 
-		def routing_opts(rdx: @rdx, token: @token, kind: nil)
+		def routing_opts(record = nil, rdx: @rdx, token: @token, kind: nil)
 			opts      = { rdx:, status: @status || params[:status].presence, token: }
 			member_id = @member&.id || params[:member_id].presence
 			if member_id
 				opts[:kind]      = kind || @kind || params[:kind].presence
-				opts[:member_id] = member_id
+				opts[:member_id] = member_id unless record.is_a?(Membership)
 			elsif (user_id = @user&.id || params[:user_id].presence)
 				opts[:user_id] = user_id if user_id
 			end

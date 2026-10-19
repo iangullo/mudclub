@@ -158,7 +158,7 @@ class MembershipsController < ApplicationController
 		# before final erasure processes can occur under the lifecycle rules.
 		if @membership.terminated?
 			if @membership.archive_and_anonymize!
-				redirect_to index_path_for(@membership), notice: t("memberships.anonymize.success")
+				redirect_to index_path_for(@membership, search: @search), notice: t("memberships.anonymize.success")
 			else
 				redirect_to @membership, alert: t("memberships.anonymize.failed_execution")
 			end

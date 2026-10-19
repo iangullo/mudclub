@@ -112,7 +112,7 @@ module AssignmentsHelper
 		index_path_for(
 			assignment,
 			kind: assignment.membership.kind,
-			search: params[:search].presence
+			search: @search
 		)
 	end
 

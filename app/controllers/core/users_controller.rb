@@ -26,12 +26,12 @@ class UsersController < ApplicationController
 	def index
 		@policy = check_policy!(UserPolicy, club: @club)
 
-		search = (params[:search].presence || session.dig("user_filters", "search"))
-		@users = User.search(search, current_user)
-		page   = paginate(@users)	# paginate results
-		title  = helpers.person_title(title: User.label(:plural), icon: { concept: "user", options: { size: "50x50" } })
-		title << [ { kind: :search_text, key: :search, value: search, url: users_path(rdx: @rdx) } ]
-		table  = helpers.user_table(users: @u_page)
+		@search = (params[:search].presence || session.dig("user_filters", "search"))
+		@users  = User.search(@search, current_user)
+		page    = paginate(@users)	# paginate results
+		title   = helpers.person_title(title: User.label(:plural), icon: { concept: "user", options: { size: "50x50" } })
+		title  << [ { kind: :search_text, key: :search, value: @search, url: users_path(rdx: @rdx) } ]
+		table   = helpers.user_table(users: @u_page)
 		create_index(title:, table:, page:, retlnk: server_path)
 	end
 
@@ -44,7 +44,7 @@ class UsersController < ApplicationController
 		@roles  = @user.person.memberships.order(joined_on: :desc).order(left_on: :asc)
 		@page   = paginate(@roles, 1.2)	# paginate results
 		@table  = create_table(helpers.membership_history_table(@page))
-		retlnk  = back_link(default: index_path_for(@user))
+		retlnk  = back_link(default: index_path_for(@user, search: @search))
 		submit  = edit_path_for(@user) if @policy.edit?
 		@submit = create_submit(close: :back, retlnk:, submit:, frame: :modal)
 	end
@@ -198,8 +198,9 @@ class UsersController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_user
-			@user = (User.find_by_id(params[:id]) unless @user&.id==params[:id]) || current_user
-			@rdx  = 1 if @user&.id.to_i == current_user&.id
+			@user   = (User.find_by_id(params[:id]) unless @user&.id==params[:id]) || current_user
+			@rdx    = 1 if @user&.id.to_i == current_user&.id
+			@search = params[:search].presence || session.dig("user_filters", "search")
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.

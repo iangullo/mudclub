@@ -52,7 +52,7 @@ class AssignmentsController < ApplicationController
 		fields  =
 			helpers.participation_title(
 				@assignment,
-				status_url: edit_path_for(@assignment, status:),
+				status_url: edit_path_for(@assignment, status:, search: @search),
 				just_icon: false
 			) + helpers.assignment_show_fields
 
