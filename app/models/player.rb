@@ -25,6 +25,7 @@ class Player < ApplicationRecord
 	has_one :person
 	has_one_attached :avatar
 	has_many :stats, dependent: :destroy
+	has_many :moments, dependent: :destroy	# personal feedback: never re-assign to the team
 	has_and_belongs_to_many :teams
 	has_and_belongs_to_many :events
 	has_and_belongs_to_many :parents

@@ -1,0 +1,41 @@
+<div id="video-review" class="w-full max-w-3xl mx-auto mt-4 px-2" data-controller="video-review" data-video-review-id-value="<%= video[:video_id] %>">
+	<div class="flex items-center justify-between border-b border-gray-300 pb-1 mb-2">
+		<div class="flex items-center gap-2 font-semibold text-indigo-900">
+			<%= render SymbolComponent.new("video", size: "30x30") %>
+			<%= I18n.t("video.review") %>
+		</div>
+		<div class="flex items-center">
+			<%= render ButtonComponent.new(**video[:edit_btn]) if video[:edit_btn] %>
+			<%= render ButtonComponent.new(**video[:add_btn]) if video[:add_btn] %>
+		</div>
+	</div>
+	<% if video[:video_id] %>
+		<div class="w-full rounded-lg overflow-hidden shadow-lg bg-black" style="aspect-ratio: 16 / 9;">
+			<iframe data-video-review-target="player" class="w-full h-full" title="<%= I18n.t("video.label") %>"
+				src="https://www.youtube-nocookie.com/embed/<%= video[:video_id] %>?rel=0"
+				allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+		</div>
+	<% else %>
+		<p class="text-sm italic text-gray-500 m-2"><%= I18n.t("video.none") %></p>
+	<% end %>
+	<% if video[:moments].any? %>
+		<ul class="divide-y divide-gray-200 mt-2">
+			<% video[:moments].each do |moment| %>
+				<li id="<%= dom_id(moment) %>" class="flex items-start gap-2 py-2">
+					<button type="button" class="flex-shrink-0 w-24 whitespace-nowrap text-right font-mono font-semibold <%= video[:video_id] ? "text-blue-700 hover:text-blue-900 hover:underline" : "text-gray-500" %>"
+						data-action="video-review#seek" data-video-review-second-param="<%= moment.second %>" title="<%= I18n.t("moment.play") %>" <%= "disabled" unless video[:video_id] %>>
+						&#9654; <%= moment.time %>
+					</button>
+					<span class="flex-shrink-0 mt-0.5 rounded-full px-2 text-xs font-semibold <%= moment_badge_class(moment) %>"><%= I18n.t("moment.kind.#{moment.kind}") %></span>
+					<div class="flex-grow text-sm">
+						<div class="font-semibold"><%= moment.player ? moment.player.to_s : I18n.t("moment.team") %></div>
+						<div class="text-gray-800"><%= moment.note %></div>
+					</div>
+					<%= render ButtonComponent.new(kind: :delete, url: event_moment_path(moment.event_id, moment, rdx: @rdx), name: moment.time) if video[:editor] %>
+				</li>
+			<% end %>
+		</ul>
+	<% elsif video[:video_id] %>
+		<p class="text-sm italic text-gray-500 m-2"><%= I18n.t("moment.none") %></p>
+	<% end %>
+</div>

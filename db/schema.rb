@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_14_042733) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_18_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
@@ -166,6 +166,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_14_042733) do
     t.datetime "end_time", precision: nil
     t.string "name"
     t.boolean "home", default: true
+    t.string "video_url"
     t.index ["location_id"], name: "index_events_on_location_id"
     t.index ["team_id"], name: "index_events_on_team_id"
   end
@@ -190,6 +191,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_14_042733) do
     t.boolean "practice_court"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "moments", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "player_id"
+    t.integer "second", default: 0, null: false
+    t.integer "kind", default: 0, null: false
+    t.string "note", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_moments_on_event_id"
+    t.index ["player_id"], name: "index_moments_on_player_id"
+    t.check_constraint "second >= 0", name: "moment_second_check"
   end
 
   create_table "parents", force: :cascade do |t|
@@ -326,8 +340,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_14_042733) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "month"
+    t.integer "completion", default: 0, null: false
     t.index ["target_id"], name: "index_team_targets_on_target_id"
     t.index ["team_id"], name: "index_team_targets_on_team_id"
+    t.check_constraint "completion >= 0 AND completion <= 100", name: "completion_range_check"
   end
 
   create_table "teams", force: :cascade do |t|
@@ -413,6 +429,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_14_042733) do
   add_foreign_key "event_targets", "targets"
   add_foreign_key "events", "locations"
   add_foreign_key "events", "teams"
+  add_foreign_key "moments", "events"
+  add_foreign_key "moments", "players"
   add_foreign_key "parents", "people"
   add_foreign_key "people", "coaches"
   add_foreign_key "people", "parents"

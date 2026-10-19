@@ -7,6 +7,7 @@
 		<% if @table %>
 			<%= render @table %>
 		<% end %>
+		<%= render "video_review", video: @video if @video %>
 		<% if @submit %>
 		<div id="event-show-submit">
 			<%= render @submit %>

@@ -82,6 +82,14 @@ es:
     save: "Guardar"
     search: "Buscar"
     select: "Seleccionar"
+  activerecord:
+    attributes:
+      event:
+        video_url: "Vídeo del partido"
+      moment:
+        note: "Comentario"
+        player: "Jugador"
+        second: "Tiempo"
   calendar:
     label: "Calendario"
     date: "Fecha"
@@ -233,6 +241,21 @@ es:
     roster: "Convocatoria"
     won: "V"
     lost: "D"
+  moment:
+    add: "Añadir momento"
+    bad_player: "no pertenece al equipo"
+    bad_time: "debe tener el formato 12:34"
+    created: "Momento añadido:"
+    deleted: "Momento borrado:"
+    kind:
+      good: "Bien hecho"
+      improve: "A mejorar"
+      note: "Nota"
+    none: "Aún no hay momentos."
+    note: "Comentario del entrenador"
+    play: "Reproducir desde aquí"
+    team: "Todo el equipo"
+    time: "Tiempo (m:ss)"
   parent:
     single: "Tutor"
     many: "Tutores"
@@ -515,6 +538,13 @@ es:
       unknown: "Desconocidos"
     many: "Versiones"
     single: "Versión"
+  video:
+    bad_url: "debe ser un enlace de YouTube"
+    hint: "Pega el enlace de YouTube del partido (puede ser oculto)."
+    label: "Vídeo del partido"
+    none: "Aún no hay vídeo del partido."
+    review: "Análisis de vídeo"
+    updated: "Vídeo del partido actualizado:"
   views:
     pagination:
       first: "&laquo;"

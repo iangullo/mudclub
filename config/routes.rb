@@ -51,7 +51,10 @@ Rails.application.routes.draw do
 		end
 	end
 	resources :events, except: [ :index ] do
+		resources :moments, only: [ :new, :create, :destroy ]	# match video review
 		member do
+			get "edit_video"
+			patch "update_video"
 			get "copy"
 			get "load_chart"
 			get "show_task"

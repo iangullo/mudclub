@@ -191,6 +191,28 @@ module EventsHelper
 		match_fields(edit: false)
 	end
 
+	# data for the video review panel of a match: editors see every
+	# moment, players only whole-team moments and those tagged to them.
+	def match_video(editor:)
+		moments = @event.moments.includes(player: :person).ordered
+		moments = moments.visible_to(u_playerid) unless editor
+		return nil unless editor || @event.video_id || moments.any?
+		res = { video_id: @event.video_id, moments:, editor: }
+		if editor
+			res[:edit_btn] = { kind: :edit, label: I18n.t("video.label"), url: edit_video_event_path(@event, rdx: @rdx), frame: "modal" }
+			res[:add_btn]  = { kind: :add, label: I18n.t("moment.add"), url: new_event_moment_path(@event, rdx: @rdx), frame: "modal" } if @event.video_id
+		end
+		res
+	end
+
+	# fields to link the YouTube video of a match
+	def match_video_form
+		res = title_start(icon: symbol_hash("video"), title: I18n.t("video.label"), subtitle: @event.to_s)
+		res << [ { kind: :text_box, key: :video_url, value: @event.video_url, placeholder: "https://youtu.be/...", size: 40 } ]
+		res << [ { kind: :label, value: I18n.t("video.hint") } ]
+		res
+	end
+
 	# return fields definition for match form
 	def match_form(new: false)
 		match_fields(edit: true, new:)
