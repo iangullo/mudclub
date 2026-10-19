@@ -98,20 +98,30 @@ class ApplicationRecord < ActiveRecord::Base
 		self.class.to_boolean(value)
 	end
 
-	# def update object attachment
+	# update object file attachment
 	def update_attachment(field, new_file = nil)
 		return unless self.respond_to?(field) && new_file.present?
 
+		# Signed_id string from direct_upload — resolve to a Blob so the
+		# branches below handle it uniformly.
+		if new_file.is_a?(String)
+			new_file = ActiveStorage::Blob.find_signed(new_file)
+			return if new_file.nil?
+		end
+
 		attachment = self.send(field)
 
+		# Blob reference (promotion flow, direct upload, form edit).
+		# Replace unless it's already the same blob.
 		if new_file.is_a?(ActiveStorage::Blob)
 			return if attachment.attached? && attachment.blob == new_file
 			attachment.attach(new_file)
 			return
 		end
 
+		# UploadedFile or IO — replace only if the content actually differs.
+		# same_content? rewinds new_file and returns false for stale blobs.
 		return if attachment.attached? && same_content?(attachment, new_file)
-
 		attachment.attach(new_file)
 	end
 
@@ -212,6 +222,12 @@ class ApplicationRecord < ActiveRecord::Base
 						record.changed? ||
 						self.class.attachments_changed_on?(record)
 					end
+		end
+
+		def safe_download(attachment)
+			attachment.blob.download
+		rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
+			nil
 		end
 
 		# True if the current attachment holds a readable file whose bytes match

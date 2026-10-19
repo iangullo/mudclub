@@ -52,7 +52,7 @@ class InputBoxComponent < ApplicationComponent
 		sanitize_image! if @fdata[:kind] == :image_box
 		@fdata[:align] ||= "left"
 		@fdata[:class] ||= "align-top"
-		@fdata[:fname]   = @fdata[:value].to_s.presence || I18n.t("status.no_file") if @fdata[:kind] == :upload
+		@fdata[:fname]   = upload_filename(@fdata[:value]) if @fdata[:kind] == :upload
 		set_box_size
 		set_box_attributes
 		set_box_data
@@ -174,6 +174,26 @@ class InputBoxComponent < ApplicationComponent
 		def sanitize_image!
 			return if valid_attachment?(@fdata[:value])
 			@fdata[:value] = nil
+		end
+
+		def upload_filename(value)
+			nofile_msg = I18n.t("status.no_file")
+			return nofile_msg if value.blank?
+
+			# Existing attachment (has_one_attached / has_many_attached) — read the blob filename.
+			if value.respond_to?(:attached?)
+				return nofile_msg unless value.attached?
+
+				blob = value.blob
+				return nofile_msg unless blob
+
+				return blob.filename.to_s.presence || nofile_msg
+			end
+
+			# Plain string — already a filename (or a path).
+			value.to_s.presence || nofile_msg
+		rescue ActiveStorage::FileNotFoundError, ActiveRecord::RecordNotFound
+			nofile_msg
 		end
 
 		def valid_attachment?(attachment)
