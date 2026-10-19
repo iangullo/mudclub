@@ -83,6 +83,13 @@ module PersonBearing
 	#------------------------------------
 	# Person resolution & data rebuilding
 	#------------------------------------
+	def prepare_person(attrs)
+		return unless attrs[:person_attributes].present?
+
+		shift_avatar(attrs)
+		resolve_person(attrs[:person_attributes])
+	end
+
 	def resolve_person(attrs)
 		return PersonResolution(status: :missing) if attrs.blank?
 
@@ -105,5 +112,16 @@ module PersonBearing
 		else
 			PersonResolution.new(status: :ok, person:, matched_by: resolution.matched_by)
 		end
+	end
+
+	# Use avatar with the PersonBearing object instead of the Person
+	def shift_avatar(attrs)
+		return if attrs[:avatar].present?
+
+		person_attrs = attrs[:person_attributes]
+		return unless person_attrs.respond_to?(:delete)
+
+		avatar = person_attrs.delete(:avatar)
+		attrs[:avatar] = avatar if avatar.present?
 	end
 end

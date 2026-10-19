@@ -110,10 +110,10 @@ class UsersController < ApplicationController
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
 		respond_to do |format|
-			if user_params[:password].blank? or user_params[:password_confirmation].blank?
+			if user_params.key?(:password) && (user_params[:password].blank? or user_params[:password_confirmation].blank?)
 				params[:user].delete(:password)
 				params[:user].delete(:password_confirmation)
-				render_user_errors(:edit, result)
+				render_user_errors(:edit, { message: @user.msg(:no_password) })
 			else
 				result = rebuild_or_merge_person(@user, user_params)
 				case result[:status]
@@ -190,7 +190,7 @@ class UsersController < ApplicationController
 			@submit = create_submit
 		end
 
-		def render_user_errors(action, result)
+		def render_user_errors(action, format, result)
 			prepare_form(action)
 			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
 			format.json { render json: @user.errors, status: :unprocessable_entity }

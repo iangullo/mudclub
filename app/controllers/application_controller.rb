@@ -248,23 +248,23 @@ class ApplicationController < ActionController::Base
 	end
 
 	def u_admin?
-		current_user&.admin?
+		@u_admin ||= current_user&.admin?
 	end
 
 	def u_manager?
-		current_user&.is_manager?(@club)
+		@u_manager ||= current_user&.is_manager?(@club)
 	end
 
 	def u_club
 		return nil unless current_user
-		clubs = current_user.clubs
-		return clubs.first if clubs.size == 1
-		return @club if user_in_club?
-		nil
+		return @club   if user_in_club?
+		return @u_club if @u_club
+		clubs   = current_user.clubs
+		@u_club = clubs.first if clubs.size == 1
 	end
 
 	def u_person
-		current_user&.person
+		@u_person ||= current_user&.person
 	end
 
 	# wrapper to manage return links home path

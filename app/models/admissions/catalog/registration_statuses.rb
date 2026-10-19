@@ -42,7 +42,7 @@ class Catalog::RegistrationStatuses < Catalog::Base
 			id: 20,
 			review_open: true,
 			editable_by_requester: true,
-			transitions: %i[under_review approved cancelled]
+			transitions: %i[under_review approved cancelled rejected]
 		},
 
 		cancelled: {

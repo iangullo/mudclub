@@ -92,7 +92,6 @@ module PersonData
 		self.address   = data[:address].presence 	|| self.address
 		self.birthday  = data[:birthday].presence || self.birthday
 		self.nick      = data[:nick].presence 		|| self.nick
-
 		self.female    = to_boolean(data[:female])          if data[:female].present?
 		self.phone     = parse_phone(data[:phone]) 					if data[:phone].presence
 		self.update_attachment("avatar", data[:avatar])			if data[:avatar].present?

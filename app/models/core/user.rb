@@ -41,9 +41,9 @@ class User < ApplicationRecord
 	# Delegate to Person, which derives from Participation
 	# ---------------------------------------------------------------------------
 	delegate :was_member_of?, :clubs, :club_list, :teams, :team_list, :is_parent?,
-		:has_membership?, :is_athlete?, :is_coach?, :is_volunteer?, :is_board_member?,
-		:has_assignment?, :is_president?, :is_vice_president?, :is_treasurer?,
-											:is_secretary?, :has_guardians?, # :is_manager? has local override
+		:memberships, :has_membership?, :is_athlete?, :is_coach?, :is_volunteer?, :is_board_member?,
+		:assignments, :has_assignment?, :is_president?, :is_vice_president?, :is_treasurer?,
+									:is_secretary?, :has_guardians?, # :is_manager? has local override
 		:phone, :email,
 		to: :person, allow_nil: true
 
@@ -132,23 +132,22 @@ class User < ApplicationRecord
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(data)
-		# --- associated persons data ---
-		if data[:person_attributes].present?
-			data[:person_attributes][:email] ||= data[:email]
-			resolution = resolve_person(data[:person_attributes])
-			return resolution unless resolution.ok?	# return ambiguous or conflicts
-		end
-
 		# --- actual user data ---
-		self.club_id  = data[:club_id].presence	# DEPRECATED
-		self.email    = person.email
-		self.role     = data[:role] || :user
-		self.locale   = data[:locale] if data[:locale]
+		self.club_id = data[:club_id].presence	# DEPRECATED
+		self.email   = person.email
+		self.role    = data[:role] || :user
+		self.locale  = data[:locale] if data[:locale]
 		if data[:password]
 			self.password              = data[:password]
 			self.password_confirmation = data[:password_confirmation]
 		end
-		update_attachment("avatar", data[:avatar]) if data[:avatar].present?
+
+		# --- associated persons data ---
+		data[:person_attributes][:email] ||= data[:email]
+		resolution = prepare_person(data)
+		return resolution unless resolution.ok?	# return ambiguous or conflicts
+
+		self.update_attachment("avatar", data[:avatar]) if data[:avatar].present?
 
 		PersonResolution.new(status: :ok, person:)
 	end

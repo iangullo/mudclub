@@ -236,22 +236,16 @@ class Assignment < ApplicationRecord
 	end
 
 	def rebuild(data)
-		# --- associated persons data (via membership) ---
-		if data[:person_attributes].present?
-			resolution = membership&.resolve_person(data[:person_attributes])
-			return resolution unless resolution.ok?	# return ambiguous or conflicts
-		end
-
 		# --- assignment's own attributes ---
 		self.team_id   = data[:team_id]   if data.key?(:team_id)
-		self.kind      = data[:kind]      if data.key?(:kind)
-		self.status    = data[:status]    if data.key?(:status)
 		self.starts_on = data[:starts_on] if data.key?(:starts_on)
 		self.ends_on   = data[:ends_on]   if data.key?(:ends_on)
-		self.notes     = data[:notes]     if data.key?(:notes)
 		self.number    = data[:number]    if data.key?(:number) # only for athletes
 
-		self.update_attachment("avatar", data[:avatar])	if data[:avatar].present?
+		# --- associated persons data (via membership) ---
+		resolution = prepare_rebuild(data)
+		return resolution unless resolution.ok?	# return ambiguous or conflicts
+
 
 		PersonResolution.new(status: :ok, person:)
 	end

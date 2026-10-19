@@ -104,18 +104,14 @@ class ApplicationRecord < ActiveRecord::Base
 
 		attachment = self.send(field)
 
-		# A Blob is a reference to already-stored file data — attach it directly.
-		# No purge (the source may still reference it), no read (would fetch remote).
 		if new_file.is_a?(ActiveStorage::Blob)
-			attachment.attach(new_file) unless attachment.attached?
+			return if attachment.attached? && attachment.blob == new_file
+			attachment.attach(new_file)
 			return
 		end
 
-		# Uploaded file or IO — replace only if the content actually differs.
-		content = new_file.read
-		return if attachment.attached? && content == attachment.blob.download
+		return if attachment.attached? && same_content?(attachment, new_file)
 
-		attachment.purge if attachment.attached?
 		attachment.attach(new_file)
 	end
 
@@ -216,5 +212,20 @@ class ApplicationRecord < ActiveRecord::Base
 						record.changed? ||
 						self.class.attachments_changed_on?(record)
 					end
+		end
+
+		# True if the current attachment holds a readable file whose bytes match
+		# the given new_file. Returns false for stale/orphaned blobs so the caller
+		# falls through to replacement.
+		def same_content?(attachment, new_file)
+			blob = attachment.blob
+			return false unless blob
+
+			current = blob.download
+			new_file.read == current
+		rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
+			false
+		ensure
+			new_file.rewind if new_file.respond_to?(:rewind)
 		end
 end

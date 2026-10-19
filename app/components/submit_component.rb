@@ -32,8 +32,8 @@ class SubmitComponent < ApplicationComponent
 
 			if @submit.present? || @actions.any?
 				concat(content_tag(:div, class: "float-right ml-4 mr-1 inline-flex align-middle") do
-					@actions.each do |b|
-						concat(content_tag(:div, class: "ml-2") { render(b) })
+					@actions.each do |btn|
+						concat(content_tag(:div, class: "ml-2") { render(btn) })
 					end
 					concat(content_tag(:div, class: "ml-2") { render(@submit) }) if @submit.present?
 				end)

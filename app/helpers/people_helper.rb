@@ -42,8 +42,8 @@ module PeopleHelper
 		fields += [
 			[ label_item(person&.surname, cols:) ],
 			[
-				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: },
-				c_field
+				c_field,
+				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: }
 			],
 			[ gap_item, id_field ]
 		]

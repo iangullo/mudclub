@@ -26,8 +26,8 @@ en:
         edit_short: Edit
         save_draft: Save draft
         save_draft_short: Save
-        submit: Submit application
-        submit_short: Submit
+        send_for_review: Submit application
+        send_for_review_short: Submit
         review: Review application
         review_short: Review
         request_information: Request information
@@ -64,6 +64,7 @@ en:
         cancel: Cancel application?
         approve: Approve application?
         reject: Reject application?
+        review: Review application?
       values:
         locked: Applications closed
         locked_short: Closed

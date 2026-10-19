@@ -106,6 +106,20 @@ module Participatory
 		kind_image(default: :person)
 	end
 
+	# prepare
+	def prepare_rebuild(attrs)
+		# --- associated persons data ---
+		resolution = prepare_person(attrs)
+		resolution unless resolution.ok?	# return ambiguous or conflicts
+
+		self.kind   = attrs[:kind]   if attrs.key?(:kind)
+		self.status = attrs[:status] if attrs.key?(:status)
+		self.notes  = attrs[:notes]  if attrs.key?(:notes)
+		self.update_attachment("avatar", attrs[:avatar]) if attrs[:avatar].present?
+
+		resolution
+	end
+
 	def status_label(variant = nil)
 		self.class.status_string(self.status, variant)
 	end

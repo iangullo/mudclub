@@ -172,6 +172,7 @@ en:
         duplicated: Duplicate user.
         actions_cleared: User actions cleared.
         no_email: e-mail is required!
+        no_password: password is required!
       values:
         last_in: Last login
         never: (never logged)

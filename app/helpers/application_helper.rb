@@ -162,6 +162,23 @@ module ApplicationHelper
 		{ message:, kind: }
 	end
 
+	# iconize an svg
+	def svgicon(icon_name, options = {})
+		file = File.read(Rails.root.join("app", "assets", "images", "#{icon_name}.svg"))
+		doc = Nokogiri::HTML::DocumentFragment.parse file
+		svg = doc.at_css "svg"
+
+		options.each { |attr, value| svg[attr.to_s] = value }
+
+		doc.to_html.html_safe
+	end
+
+	# prepare SVG symbol hash from the received fields
+	def symbol_hash(concept, **options)
+		options[:type] ||= :icon
+		{ concept:, options: }
+	end
+
 	# generic title start defintion for views
 	def title_start(icon:, title:, subtitle: nil, size: nil, rows: nil, cols: nil, _class: nil, form: nil)
 		img  = { size:, rows:, class: _class }
@@ -180,22 +197,5 @@ module ApplicationHelper
 		res  = [ [ img, { kind: :title, value: title, cols: } ] ]
 		res << [ { kind: :subtitle, value: subtitle, cols: } ] if subtitle
 		res
-	end
-
-	# iconize an svg
-	def svgicon(icon_name, options = {})
-		file = File.read(Rails.root.join("app", "assets", "images", "#{icon_name}.svg"))
-		doc = Nokogiri::HTML::DocumentFragment.parse file
-		svg = doc.at_css "svg"
-
-		options.each { |attr, value| svg[attr.to_s] = value }
-
-		doc.to_html.html_safe
-	end
-
-	# prepare SVG symbol hash from the received fields
-	def symbol_hash(concept, **options)
-		options[:type] ||= :icon
-		{ concept:, options: }
 	end
 end

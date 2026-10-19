@@ -21,7 +21,7 @@ module UsersHelper
 	def user_show
 		res = person_show_title(@user)
 		res.pop
-		res[3][0] = user_roles(@user)
+		res[3][1] = user_roles(@user)
 		unless @user.user_actions.empty?
 			res.last << normal_button(
 				{ kind: :link, symbol: user_actions_symbol, url: actions_user_path, label: UserAction.label(:short), frame: :modal }
@@ -72,7 +72,7 @@ module UsersHelper
 				]
 			]
 		end
-		res.last <<	gap_field
+		res.last <<	gap_item
 		res.last << symbol_item(:locale, { title: I18n.t("locale.lang") })
 		res.last << { kind: :select_box, align: :center, key: :locale, options: User.locale_list, value: @user.locale }
 		res.last << hidden_input(:rdx, @rdx) if @rdx
@@ -91,7 +91,7 @@ module UsersHelper
 				{ kind: :password_box, key: :password_confirmation, placeholder: I18n.t("password.confirm"), mandatory: { length: 8 } }
 			],
 			[
-				gap_field,
+				gap_item,
 				{ kind: :text, value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs" }
 			]
 		]
@@ -106,8 +106,8 @@ module UsersHelper
 	# return user_actions TableComponent
 	def user_actions_table
 		res = [ [
-			topcell_field(I18n.t("calendar.date")),
-			topcell_field(Drill.fld(:description))
+			topcell_item(I18n.t("calendar.date")),
+			topcell_item(Drill.fld(:description))
 		] ]
 		@user.user_actions.order(updated_at: :desc).each { |u_act|
 			res << [

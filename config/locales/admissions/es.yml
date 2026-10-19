@@ -26,8 +26,8 @@ es:
         edit_short: Editar
         save_draft: Guardar borrador
         save_draft_short: Guardar
-        submit: Presentar solicitud
-        submit_short: Presentar
+        send_for_review: Presentar solicitud
+        send_for_review_short: Presentar
         review: Revisar solicitud
         review_short: Revisar
         request_information: Pedir información
@@ -64,6 +64,7 @@ es:
         cancel: ¿Cancelar solicitud?
         approve: ¿Aprobar solicitud?
         reject: ¿Rechazar solicitud?
+        review: ¿Revisar solicitud?
       values:
         locked: Inscripciones cerradas
         locked_short: Cerrado
@@ -122,12 +123,12 @@ es:
         edit: Editar mensaje
         edit_short: Editar
         send: Enviar mensaje
-        send_short: Enviar mensaje
+        send_short: Enviar
         delete: Borrar mensaje
         delete_short: Borrar
       fields:
         sent: Enviado
-        sent_short: Env.
+        sent_short: Enviado
         author: Autor
         author_short: Aut.
         body: Contenido
@@ -155,25 +156,25 @@ es:
         under_review:
           single: Revisando
           plural: Revisando
-          short: Revis.
+          short: Revisando
           hint: La solicitud se está revisando.
         awaiting_requester:
           single: Esperando
           plural: Esperando
-          short: Esper.
+          short: Esperando
           hint: La solicitud está pendiente de información.
         cancelled:
           single: Cancelada
           plural: Canceladas
-          short: Canc.
+          short: Cancelada
           hint: La solicitud se ha cancelado.
         approved:
           single: Aprobada
           plural: Aprobadas
-          short: Apr.
+          short: Aprobada
           hint: La solicitud ha sido aprobada.
         rejected:
           single: Rechazada
           plural: Rechazadas
-          short: Rech.
+          short: Rechazada
           hint: La solicitud ha sido rechazada.
