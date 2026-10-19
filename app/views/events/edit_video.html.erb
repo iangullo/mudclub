@@ -1,0 +1,7 @@
+<%= render ModalComponent.new do %>
+	<%= form_with model: @event, url: update_video_event_path(@event, rdx: @rdx), method: :patch, authenticity_token: true, data: {turbo_frame: "_top"} do |form| %>
+		<% @fields.form = form %>
+		<%= render @fields %>
+		<%= render @submit %>
+	<% end %>
+<% end %>

@@ -20,7 +20,7 @@
 class EventsController < ApplicationController
 	include Filterable
 	include PdfGenerator
-	before_action :set_event, only: %i[ show edit add_task show_task edit_task player_stats edit_player_stats load_chart attendance copy update destroy ]
+	before_action :set_event, only: %i[ show edit add_task show_task edit_task player_stats edit_player_stats load_chart attendance copy update destroy edit_video update_video ]
 
 	# GET /events or /events.json
 	def index
@@ -67,6 +67,7 @@ class EventsController < ApplicationController
 							@fields = create_fields(helpers.match_show)
 							table   = helpers.match_roster_table
 							@table  = create_table(table)
+							@video  = helpers.match_video(editor:)
 						else
 							@targets = create_fields(helpers.training_target)
 							@fields  = create_fields(helpers.training_show)
@@ -296,6 +297,41 @@ class EventsController < ApplicationController
 					redirect_to team_path(@event.team, rdx: @rdx), data: { turbo_action: "replace" }
 				end
 			end
+		else
+			redirect_to "/", data: { turbo_action: "replace" }
+		end
+	end
+
+	# GET /events/1/edit_video
+	def edit_video
+		if @event&.match? && event_manager?
+			@fields = create_fields(helpers.match_video_form)
+			@submit = create_submit
+		else
+			redirect_to "/", data: { turbo_action: "replace" }
+		end
+	end
+
+	# PATCH /events/1/update_video
+	def update_video
+		if @event&.match? && event_manager?
+			v_data = params.fetch(:event, {}).permit(:video, :video_url)
+			if v_data[:video].present?	# an uploaded file replaces the YouTube link
+				@event.video     = v_data[:video]
+				@event.video_url = nil
+			else	# and a YouTube link replaces the uploaded file
+				@event.video_url = v_data[:video_url].to_s.strip.presence
+				purge_file       = @event.video_url.present? && @event.video.attached?
+			end
+			if @event.save
+				@event.video.purge if purge_file
+				a_desc = "#{I18n.t("video.updated")} #{@event.to_s(style: "notice")}"
+				register_action(:updated, a_desc, url: event_path(@event, rdx: 2))
+				notice = helpers.flash_message(a_desc, "success")
+			else
+				notice = helpers.flash_message(@event.errors.full_messages.to_sentence, "error")
+			end
+			redirect_to event_path(@event, rdx: @rdx), notice:, data: { turbo_action: "replace" }
 		else
 			redirect_to "/", data: { turbo_action: "replace" }
 		end

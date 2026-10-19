@@ -1,0 +1,7 @@
+<%= render ModalComponent.new do %>
+	<%= form_with model: @moment, url: event_moments_path(@event, rdx: @rdx), authenticity_token: true, data: {controller: "mandatory-fields", turbo_frame: "_top"} do |form| %>
+		<% @fields.form = form %>
+		<%= render @fields %>
+		<%= render @submit %>
+	<% end %>
+<% end %>

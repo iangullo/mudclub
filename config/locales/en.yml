@@ -82,6 +82,15 @@ en:
     save: "Save"
     search: "Search"
     select: "Select"
+  activerecord:
+    attributes:
+      event:
+        video: "Match video"
+        video_url: "Match video"
+      moment:
+        note: "Note"
+        player: "Player"
+        second: "Time"
   calendar:
     label: "Calendar"
     date: "Date"
@@ -233,6 +242,21 @@ en:
     roster: "Active players"
     won: "W"
     lost: "L"
+  moment:
+    add: "Add moment"
+    bad_player: "is not in this team"
+    bad_time: "must look like 12:34"
+    created: "Moment added:"
+    deleted: "Moment deleted:"
+    kind:
+      good: "Well done"
+      improve: "To improve"
+      note: "Note"
+    none: "No moments tagged yet."
+    note: "Coaching note"
+    play: "Play from here"
+    team: "Whole team"
+    time: "Time (m:ss)"
   parent:
     single: "Parent"
     many: "Parents"
@@ -514,6 +538,16 @@ en:
     skills: "skills"
     targets: "targets"
     unknown: "Unknown"
+  video:
+    bad_file: "must be an MP4, WebM, Ogg or MOV video up to 500 MB"
+    bad_url: "must be a YouTube link"
+    hint: "MP4, WebM, Ogg or MOV up to 500 MB. YouTube videos can be unlisted."
+    label: "Match video"
+    none: "No match video yet."
+    or: "or paste a YouTube link:"
+    review: "Video review"
+    updated: "Match video updated:"
+    upload: "Upload video"
   views:
     pagination:
       first: "&laquo;"

@@ -191,6 +191,35 @@ module EventsHelper
 		match_fields(edit: false)
 	end
 
+	# data for the video review panel of a match: editors see every
+	# moment, players only whole-team moments and those tagged to them.
+	def match_video(editor:)
+		moments = @event.moments.includes(player: :person).ordered
+		moments = moments.visible_to(u_playerid) unless editor
+		return nil unless editor || @event.has_video? || moments.any?
+		res = { moments:, editor: }
+		if @event.video.attached?	# uploaded file takes precedence over a YouTube link
+			res[:video_src] = rails_blob_path(@event.video, disposition: "inline")
+		else
+			res[:video_id] = @event.video_id
+		end
+		if editor
+			res[:edit_btn] = { kind: :edit, label: I18n.t("video.label"), url: edit_video_event_path(@event, rdx: @rdx), frame: "modal" }
+			res[:add_btn]  = { kind: :add, label: I18n.t("moment.add"), url: new_event_moment_path(@event, rdx: @rdx), frame: "modal" } if @event.has_video?
+		end
+		res
+	end
+
+	# fields to upload the video of a match, or link it from YouTube
+	def match_video_form
+		res = title_start(icon: symbol_hash("video"), title: I18n.t("video.label"), subtitle: @event.to_s)
+		res << [ { kind: :upload, symbol: symbol_hash("video", size: "20x20"), label: I18n.t("video.upload"), key: :video, value: (@event.video.filename if @event.video.attached?), cols: 2 } ]
+		res << [ { kind: :label, value: I18n.t("video.or"), cols: 2 } ]
+		res << [ { kind: :text_box, key: :video_url, value: @event.video_url, placeholder: "https://youtu.be/...", size: 40, cols: 2 } ]
+		res << [ string_field(I18n.t("video.hint"), cols: 2) ]
+		res
+	end
+
 	# return fields definition for match form
 	def match_form(new: false)
 		match_fields(edit: true, new:)
