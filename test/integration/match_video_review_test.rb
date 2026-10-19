@@ -30,6 +30,27 @@ class MatchVideoReviewTest < ActionDispatch::IntegrationTest
 		assert_equal "aqz-KE-bpKQ", @match.reload.video_id
 	end
 
+	test "coach uploads the match video file instead of a YouTube link" do
+		sign_in @coach
+		patch update_video_event_path(@match), params: { event: { video: fixture_file_upload("clip.mp4", "video/mp4") } }
+		assert_redirected_to event_path(@match)
+		@match.reload
+		assert @match.video.attached?
+		assert_nil @match.video_url
+
+		get event_path(@match)
+		assert_select "#video-review video[src*='clip.mp4']"
+		assert_select "#video-review iframe", 0
+
+		patch update_video_event_path(@match), params: { event: { video: fixture_file_upload("notes.txt", "text/plain") } }
+		assert_equal "clip.mp4", @match.reload.video.filename.to_s
+
+		patch update_video_event_path(@match), params: { event: { video_url: "https://youtu.be/aqz-KE-bpKQ" } }
+		@match.reload
+		assert_not @match.video.attached?
+		assert_equal "aqz-KE-bpKQ", @match.video_id
+	end
+
 	test "coach tags and deletes moments" do
 		sign_in @coach
 		get new_event_moment_path(@match)

@@ -27,4 +27,22 @@ class EventTest < ActiveSupport::TestCase
 			assert_not event.tap(&:validate).errors[:video_url].empty?, url
 		end
 	end
+
+	test "accepts uploaded video files only" do
+		video = Event.new
+		video.video.attach(io: file_fixture("clip.mp4").open, filename: "match.mp4")
+		assert video.tap(&:validate).errors[:video].empty?
+		assert video.has_video?
+
+		notes = Event.new
+		notes.video.attach(io: StringIO.new("not a video"), filename: "notes.txt")
+		assert_not notes.tap(&:validate).errors[:video].empty?
+	end
+
+	test "limits the size of uploaded videos" do
+		event = Event.new
+		event.video.attach(io: file_fixture("clip.mp4").open, filename: "match.mp4")
+		event.video.blob.define_singleton_method(:byte_size) { Event::VIDEO_MAX_SIZE + 1 }
+		assert_not event.tap(&:validate).errors[:video].empty?
+	end
 end

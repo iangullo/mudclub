@@ -85,6 +85,7 @@ es:
   activerecord:
     attributes:
       event:
+        video: "Vídeo del partido"
         video_url: "Vídeo del partido"
       moment:
         note: "Comentario"
@@ -539,12 +540,15 @@ es:
     many: "Versiones"
     single: "Versión"
   video:
+    bad_file: "debe ser un vídeo MP4, WebM, Ogg o MOV de hasta 500 MB"
     bad_url: "debe ser un enlace de YouTube"
-    hint: "Pega el enlace de YouTube del partido (puede ser oculto)."
+    hint: "MP4, WebM, Ogg o MOV de hasta 500 MB. Los vídeos de YouTube pueden ser ocultos."
     label: "Vídeo del partido"
     none: "Aún no hay vídeo del partido."
+    or: "o pega un enlace de YouTube:"
     review: "Análisis de vídeo"
     updated: "Vídeo del partido actualizado:"
+    upload: "Subir vídeo"
   views:
     pagination:
       first: "&laquo;"

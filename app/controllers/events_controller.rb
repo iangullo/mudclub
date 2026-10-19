@@ -315,8 +315,16 @@ class EventsController < ApplicationController
 	# PATCH /events/1/update_video
 	def update_video
 		if @event&.match? && event_manager?
-			@event.video_url = params.dig(:event, :video_url).to_s.strip.presence
+			v_data = params.fetch(:event, {}).permit(:video, :video_url)
+			if v_data[:video].present?	# an uploaded file replaces the YouTube link
+				@event.video     = v_data[:video]
+				@event.video_url = nil
+			else	# and a YouTube link replaces the uploaded file
+				@event.video_url = v_data[:video_url].to_s.strip.presence
+				purge_file       = @event.video_url.present? && @event.video.attached?
+			end
 			if @event.save
+				@event.video.purge if purge_file
 				a_desc = "#{I18n.t("video.updated")} #{@event.to_s(style: "notice")}"
 				register_action(:updated, a_desc, url: event_path(@event, rdx: 2))
 				notice = helpers.flash_message(a_desc, "success")

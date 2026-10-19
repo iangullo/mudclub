@@ -27,6 +27,7 @@ class Event < ApplicationRecord
 	has_many :tasks, -> { order(order: :asc).includes(:drill).with_rich_text_remarks }, dependent: :destroy
 	has_many :stats, dependent: :destroy
 	has_many :moments, dependent: :destroy
+	has_one_attached :video	# uploaded match video (alternative to a YouTube video_url)
 	has_and_belongs_to_many :players
 	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true
@@ -53,7 +54,9 @@ class Event < ApplicationRecord
 	self.inheritance_column = "not_sti"
 	enum :kind, %i[rest train match]
 	YOUTUBE_ID = %r{\A(?:https?://)?(?:www\.|m\.)?(?:youtube\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/)|youtu\.be/)([\w-]{11})(?:[?&#/].*)?\z}
-	validate :youtube_video_url
+	VIDEO_TYPES    = %w[video/mp4 video/webm video/ogg video/quicktime].freeze
+	VIDEO_MAX_SIZE = 500.megabytes
+	validate :youtube_video_url, :video_file
 
 	def date_string
 		cad = self.start_time.year.to_s
@@ -270,6 +273,11 @@ class Event < ApplicationRecord
 		{ ours: our_s, opps: opp_s }
 	end
 
+	# does this match have a video to review?
+	def has_video?
+		self.video.attached? || self.video_id.present?
+	end
+
 	# YouTube id of the match video, if any
 	def video_id
 		self.video_url.to_s.strip[YOUTUBE_ID, 1]
@@ -424,6 +432,13 @@ class Event < ApplicationRecord
 	# only YouTube links are supported for match videos
 	def youtube_video_url
 		errors.add(:video_url, I18n.t("video.bad_url")) if self.video_url.present? && self.video_id.nil?
+	end
+
+	# uploaded match videos: common browser-playable formats, with a size limit
+	def video_file
+		return unless self.video.attached?
+		blob = self.video.blob
+		errors.add(:video, I18n.t("video.bad_file")) unless VIDEO_TYPES.include?(blob.content_type) && blob.byte_size <= VIDEO_MAX_SIZE
 	end
 
 	# cleanup dependent teams, reassigning to 'dummy' category

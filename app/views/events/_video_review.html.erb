@@ -1,3 +1,4 @@
+<% playable = video[:video_src] || video[:video_id] %>
 <div id="video-review" class="w-full max-w-3xl mx-auto mt-4 px-2" data-controller="video-review" data-video-review-id-value="<%= video[:video_id] %>">
 	<div class="flex items-center justify-between border-b border-gray-300 pb-1 mb-2">
 		<div class="flex items-center gap-2 font-semibold text-indigo-900">
@@ -9,7 +10,11 @@
 			<%= render ButtonComponent.new(**video[:add_btn]) if video[:add_btn] %>
 		</div>
 	</div>
-	<% if video[:video_id] %>
+	<% if video[:video_src] %>
+		<div class="w-full rounded-lg overflow-hidden shadow-lg bg-black" style="aspect-ratio: 16 / 9;">
+			<video data-video-review-target="video" class="w-full h-full" src="<%= video[:video_src] %>" controls preload="metadata" playsinline></video>
+		</div>
+	<% elsif video[:video_id] %>
 		<div class="w-full rounded-lg overflow-hidden shadow-lg bg-black" style="aspect-ratio: 16 / 9;">
 			<iframe data-video-review-target="player" class="w-full h-full" title="<%= I18n.t("video.label") %>"
 				src="https://www.youtube-nocookie.com/embed/<%= video[:video_id] %>?rel=0"
@@ -22,8 +27,8 @@
 		<ul class="divide-y divide-gray-200 mt-2">
 			<% video[:moments].each do |moment| %>
 				<li id="<%= dom_id(moment) %>" class="flex items-start gap-2 py-2">
-					<button type="button" class="flex-shrink-0 w-24 whitespace-nowrap text-right font-mono font-semibold <%= video[:video_id] ? "text-blue-700 hover:text-blue-900 hover:underline" : "text-gray-500" %>"
-						data-action="video-review#seek" data-video-review-second-param="<%= moment.second %>" title="<%= I18n.t("moment.play") %>" <%= "disabled" unless video[:video_id] %>>
+					<button type="button" class="flex-shrink-0 w-24 whitespace-nowrap text-right font-mono font-semibold <%= playable ? "text-blue-700 hover:text-blue-900 hover:underline" : "text-gray-500" %>"
+						data-action="video-review#seek" data-video-review-second-param="<%= moment.second %>" title="<%= I18n.t("moment.play") %>" <%= "disabled" unless playable %>>
 						&#9654; <%= moment.time %>
 					</button>
 					<span class="flex-shrink-0 mt-0.5 rounded-full px-2 text-xs font-semibold <%= moment_badge_class(moment) %>"><%= I18n.t("moment.kind.#{moment.kind}") %></span>
@@ -35,7 +40,7 @@
 				</li>
 			<% end %>
 		</ul>
-	<% elsif video[:video_id] %>
+	<% elsif playable %>
 		<p class="text-sm italic text-gray-500 m-2"><%= I18n.t("moment.none") %></p>
 	<% end %>
 </div>

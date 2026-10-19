@@ -85,6 +85,7 @@ en:
   activerecord:
     attributes:
       event:
+        video: "Match video"
         video_url: "Match video"
       moment:
         note: "Note"
@@ -538,12 +539,15 @@ en:
     targets: "targets"
     unknown: "Unknown"
   video:
+    bad_file: "must be an MP4, WebM, Ogg or MOV video up to 500 MB"
     bad_url: "must be a YouTube link"
-    hint: "Paste the YouTube link of the match (it can be unlisted)."
+    hint: "MP4, WebM, Ogg or MOV up to 500 MB. YouTube videos can be unlisted."
     label: "Match video"
     none: "No match video yet."
+    or: "or paste a YouTube link:"
     review: "Video review"
     updated: "Match video updated:"
+    upload: "Upload video"
   views:
     pagination:
       first: "&laquo;"
