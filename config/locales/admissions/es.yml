@@ -50,6 +50,7 @@ es:
         reason: Motivo
         remarks: Comentarios
       messages:
+        created: Solicitud creada.
         draft_saved: Borrador guardado.
         no_change: Sin cambios en la solicitud.
         no_reason_given: Sin motivo explícito.

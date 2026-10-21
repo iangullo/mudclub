@@ -171,7 +171,7 @@ module RegistrationsHelper
 		data   = method == :patch ? { confirm: Registration.que(act) } : {}
 
 		case action
-		when :send_for_review, :reject
+		when :reject
 			type  = :submit
 			value = act.to_s
 			name  = "commit"

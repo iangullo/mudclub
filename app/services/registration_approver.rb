@@ -177,7 +177,7 @@ class RegistrationApprover
 			end
 		end
 
-		def submitter_user_id = @registration.submitted_by&.user_id
+		def submitter_user_id = @registration.submitted_by_id
 
 		def verify_person_matches!(attrs, person, role:)
 			mismatches = PersonResolution.mismatches_against(attrs, person)

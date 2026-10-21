@@ -55,13 +55,13 @@ class RegistrationsController < ApplicationController
 		messages  = @token ? @registration.messages.for_requester : @registration.messages
 		@messages = create_table(helpers.registration_messages_table(messages))
 		submit    = edit_path_for(@registration, frame: :modal) if @policy.edit?
-		actions   = [ helpers.registration_button(:cancel, flip: false) ] if @policy.cancel?
+		actions   = prepare_review_buttons
+
 		if current_user
 			close = :back
 			retlnk = index_path_for(@registration)
 		end
 
-		prepare_review_buttons if @policy.review?
 		@submit = create_submit(close:, retlnk:, submit:, actions:, frame: :modal)
 	end
 
@@ -81,9 +81,8 @@ class RegistrationsController < ApplicationController
 		respond_to do |format|
 			Registration.transaction do
 				@registration = Registration.new(club: @club, kind: @kind)
+				@registration.submitted_by_id = current_user&.person_id
 				@registration.rebuild(registration_params)
-				@registration.submitted_by_id = current_user&.person_id if @registration.requester_kind.to_sym == :other
-
 				unless @registration.save
 					log_registration_errors
 					raise ActiveRecord::Rollback
@@ -97,10 +96,11 @@ class RegistrationsController < ApplicationController
 				next
 			end
 
+			@token ||= @registration.access_token unless current_user
+			notice   = helpers.flash_message(Registration.msg(:created), :success)
 			snapshot = RegistrationNotifier.capture(@registration)
 			RegistrationNotifier.build(:created, snapshot)&.deliver_later
-
-			format.html { redirect_to path_for(@registration), notice: Registration.msg(:created) }
+			format.html { redirect_to path_for(@registration), notice: }
 			format.json { render :show, status: :ok, location: path_for(@registration) }
 		end
 	end
@@ -116,24 +116,35 @@ class RegistrationsController < ApplicationController
 		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
 
 		respond_to do |format|
-			retlnk    = path_for(@registration)
-			submitted = submit_for_review?
-
 			@registration.rebuild(registration_params)
-			notice =
-			unless submitted || @registration.modified?
-				no_data_notice
-			else
-				helpers.flash_message(Registration.msg(submitted ? :sent_for_review : :updated), :success)
-			end
+			retlnk = path_for(@registration)
+			notice = @registration.modified? ?
+				no_data_notice :
+				helpers.flash_message(Registration.msg(:updated), :success)
 
 			if @registration.save
-				@registration.send_for_review! if submitted
-				format.html { redirect_to retlnk, notice:, data: { turbo_action: "replace" } }
+				format.html { redirect_to retlnk, notice: }
 				format.json { render :show, status: :ok, location: retlnk }
 			else	# could not save
 				prepare_form(:edit)
 				format.html { render :edit, status: :unprocessable_entity, data: { turbo_frame: "modal" } }
+				format.json { render json: @registration.errors, status: :unprocessable_entity }
+			end
+		end
+	end
+
+	def send_for_review
+		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
+
+		respond_to do |format|
+			retlnk = path_for(@registration)
+			notice = helpers.flash_message(Registration.msg(:sent_for_review), :success)
+
+			if @registration.send_for_review! && @registration.save
+				format.html { redirect_to retlnk, notice: }
+				format.json { render :show, status: :ok, location: retlnk }
+			else	# could not save
+				format.html { render :show, status: :unprocessable_entity }
 				format.json { render json: @registration.errors, status: :unprocessable_entity }
 			end
 		end
@@ -165,8 +176,9 @@ class RegistrationsController < ApplicationController
 
 
 		if message.blank?
+			notice = helpers.flash_message(Registration.msg(:message_required), :error)
 			respond_to do |format|
-				format.html { redirect_to retlnk, alert: Registration.msg(:message_required) }
+				format.html { redirect_to retlnk, notice: }
 				format.json { render json: { error: "message required" }, status: :unprocessable_entity }
 			end
 			return
@@ -182,7 +194,7 @@ class RegistrationsController < ApplicationController
 		RegistrationNotifier.build(:information_requested, snapshot, message:)&.deliver_later
 
 		respond_to do |format|
-			format.html { redirect_to retlnk, notice: helpers.flash_message(@registration.msg(:updated), "success"), data: { turbo_action: "replace" } }
+			format.html { redirect_to retlnk, notice: helpers.flash_message(@registration.msg(:updated), :success) }
 			format.json { render :show, status: :ok, location: retlnk }
 		end
 	end
@@ -231,7 +243,8 @@ class RegistrationsController < ApplicationController
 		end
 
 		respond_to do |format|
-			format.html { redirect_to retlnk, notice: Registration.msg(:rejected), data: { turbo_action: "replace" } }
+			notice = helpers.flash_message(Registration.msg(:rejected), :error)
+			format.html { redirect_to retlnk, notice: }
 			format.json { render :index, status: :ok, location: retlnk }
 		end
 	end
@@ -240,13 +253,14 @@ class RegistrationsController < ApplicationController
 	def cancel
 		@policy = check_policy!(RegistrationPolicy, record: @registration, token: @token)
 
+		notice = helpers.flash_message(Registration.msg(:cancelled), :info)
+		retlnk = current_user ? index_path_for(@registration) : root_path
 		RegistrationNotifier.wrap(@registration, :cancelled) do
 			@registration.cancel!
 		end
 
 		respond_to do |format|
-			retlnk = user_signed_in? ? index_path_for(@registration) : root_path
-			format.html { redirect_to retlnk, notice: Registration.msg(:cancelled), data: { turbo_action: "replace" } }
+			format.html { redirect_to retlnk, notice: }
 			format.json { render :index, status: :ok, location: retlnk }
 		end
 	end
@@ -282,7 +296,7 @@ class RegistrationsController < ApplicationController
 			notice = "#{Registration.msg(:approved)} - #{result.person.s_name} (#{result.membership.kind_label})"
 			notice += " / #{result.assignment.team.name}" if result.assignment&.team
 
-			format.html { redirect_to retlnk, notice:, data: { turbo_action: "replace" } }
+			format.html { redirect_to retlnk, notice: }
 			format.json { render :show, status: :ok, location: retlnk }
 		end
 
@@ -325,13 +339,11 @@ class RegistrationsController < ApplicationController
 					@r_fields = create_fields(helpers.registration_requester_form_fields(@registration))
 				end
 			when :edit
-				actions = []
-				actions << helpers.registration_button(:cancel, flip: false) if @policy.cancel?
-				actions << helpers.registration_button(:send_for_review) if @policy.send_for_review?
 				@submit =
-					create_submit(close: :close, retlnk: path_for(@registration),
-						submit: { kind: :save, label: Registration.act(:save_draft, :short) },
-						actions:
+					create_submit(
+						close: :close,
+						retlnk: path_for(@registration),
+						submit: { kind: :save, label: Registration.act(:save_draft, :short) }
 					)
 				if @registration.requester_other? && @registration.submitted_by_id == nil
 					@r_fields = create_fields(helpers.registration_requester_form_fields(@registration))
@@ -358,9 +370,13 @@ class RegistrationsController < ApplicationController
 		# for admin review of submitted registrations
 		# Just 3 (maximum) buttons to approve/reject/request_information
 		def prepare_review_buttons
-			@btn_approve = create_button(helpers.registration_button(:approve)) if @policy.approve?
-			@btn_reject  = create_button(helpers.registration_button(:reject_form, method: :get, frame: :modal)) if @policy.reject?
-			@btn_review  = create_button(helpers.registration_button(:review, method: :get, frame: :modal)) if @policy.request_information?
+			actions = []
+			actions << helpers.registration_button(:approve) if @policy.approve?
+			actions << helpers.registration_button(:review, method: :get, frame: :modal) if @policy.request_information?
+			actions << helpers.registration_button(:cancel, flip: false) if @policy.cancel?
+			actions << helpers.registration_button(:send_for_review, flip: false) if @policy.send_for_review?
+			actions << helpers.registration_button(:reject_form, method: :get, frame: :modal) if @policy.reject?
+			actions
 		end
 
 		def render_approval_merge(format, prep)
@@ -379,8 +395,9 @@ class RegistrationsController < ApplicationController
 
 		def registration_stale_transition(error)
 			return unless @registration
+			retlnk = current_user ? index_path_for(@registration) : root_path
 			respond_to do |format|
-				format.html { redirect_to path_for(@registration), alert: Registration.msg(:already_processed) }
+				format.html { redirect_to retlnk, alert: Registration.msg(:already_processed) }
 				format.json { render json: { error: error.message }, status: :conflict }
 			end
 		end
@@ -398,21 +415,16 @@ class RegistrationsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_registration
-			@registration =
-				if @token.present?
-					Registration.by_access_token(@token).first
-				elsif params[:id].present?
-					Registration.find_by_id(params[:id]) unless @registration&.id==params[:id]
-				end
+			@registration   = Registration.by_access_token(@token).first if @token.present?
+			@registration ||= Registration.find_by_id(params[:id]) if params[:id].present?
+			raise ActiveRecord::RecordNotFound unless @registration
 
-				raise ActiveRecord::RecordNotFound unless @registration
-
-				@registration.touch_anonymous_access! if @token.present?
-				@token ||= @registration.access_token if requester_token?
-				@club    = @registration.club
-				@team    = @registration.requested_team
-				@kind    = @registration.kind
-				assert_param_matches!(:club_id, @club)
+			@registration.touch_anonymous_access! if @token.present?
+			@token ||= @registration.access_token if requester_token?
+			@club    = @registration.club
+			@team    = @registration.requested_team
+			@kind    = @registration.kind
+			assert_param_matches!(:club_id, @club)
 		end
 
 		def load_registration_context

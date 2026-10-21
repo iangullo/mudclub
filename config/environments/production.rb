@@ -50,12 +50,15 @@ Rails.application.configure do
 	# config.cache_store = :solid_cache_store
 
 	# Replace the default in-process and non-durable queuing backend for Active Job.
-	# config.active_job.queue_adapter = :solid_queue
-	# config.solid_queue.connects_to = { database: { writing: :queue } }
+	config.active_job.queue_adapter = :solid_queue
+	config.solid_queue.connects_to = { database: { writing: :queue } }
 
 	# Ignore bad email addresses and do not raise email delivery errors.
 	# Set this to true and configure the email server for immediate delivery to raise delivery errors.
 	config.action_mailer.raise_delivery_errors = true
+
+	# avoid senging emails to real users
+	config.action_mailer.interceptors = [ "DevelopmentMailInterceptor" ]
 
 	# Set host to be used by links generated in mailer templates.
 	config.action_mailer.delivery_method     = :smtp

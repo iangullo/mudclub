@@ -292,8 +292,9 @@ class ApplicationController < ActionController::Base
 
 		rescue_from AccessDenied do |e|
 			respond_to do |format|
-				format.html         { redirect_back fallback_location: "/", alert: e.message, status: :see_other }
-				format.turbo_stream { redirect_back fallback_location: "/", alert: e.message, status: :see_other }
+				notice = helpers.flash_message(e.message, :error)
+				format.html         { redirect_to root_path, notice:, status: :see_other }
+				format.turbo_stream { redirect_to root_path, notice:, status: :see_other }
 				format.json         { render json: { error: e.message }, status: :forbidden }
 			end
 		end

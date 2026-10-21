@@ -17,6 +17,16 @@
 # contact email - iangullo@gmail.com.
 #
 class RegistrationMailer < ApplicationMailer
+	# Local view of the notifier's snapshot. We don't reference
+	# RegistrationNotifier::RegistrationSnapshot directly — the mailer only
+	# cares about the shape, not the class. Struct gives us dot-access and
+	# fails loudly if a required field is missing.
+	Snapshot = Struct.new(
+		:registration_id, :club_id, :team_id, :access_token,
+		:requester, :candidate, :club, :team, :kind, :recipient,
+		keyword_init: true
+	)
+
 	before_action :assign_snapshot
 
 	def created
@@ -45,7 +55,13 @@ class RegistrationMailer < ApplicationMailer
 
 	private
 		def assign_snapshot
-			@snapshot = params[:snapshot]
+			raw = params[:snapshot]
+			@snapshot =
+				case raw
+				when Hash then Snapshot.new(**raw.symbolize_keys)
+				when RegistrationMailer::RegistrationSnapshot then Snapshot.new(**raw.to_h)
+				else raw
+				end
 		end
 
 		def anonymous_registration_url(snapshot)

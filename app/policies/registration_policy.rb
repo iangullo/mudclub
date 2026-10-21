@@ -41,6 +41,8 @@ class RegistrationPolicy < ApplicationPolicy
 	#------------------------------------
 	# Submission transitions
 	#------------------------------------
+	# Requester-only: submission and cancellation are the requester's decisions.
+	# Managers act via approve/reject/request_information.
 	def send_for_review?
 		requester_can_edit? &&
 			@record.may_transition_to?(:under_review)
@@ -65,7 +67,9 @@ class RegistrationPolicy < ApplicationPolicy
 	end
 
 	#------------------------------------
-	# needed to access which assignment is authorised
+	# The club-level assignment that grants reviewer
+	# authority — used to attribute messages authored
+	# by this reviewer.
 	#------------------------------------
 	def reviewer_assignment
 		managing_club_assignment

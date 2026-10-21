@@ -21,19 +21,39 @@
 # FlashComponent - manage flash notifications
 class FlashComponent < ApplicationComponent
 	def initialize(notice)
-		@count  = @count ? @count + 1 : 1
-		@notice = notice.class==String ? notice : notice["message"]
-		@kind   = notice.class==String ? :info : notice[:kind]
-		case @kind
-		when :error
-			color = "red"
-		when :success
-			color = "indigo"
+		@count  = (@count || 0) + 1
+
+		case notice
+		when String
+			@notice = notice.class==String ? notice : notice["message"]
+			@kind   = :info
+		when Hash, ActionController::Parameters
+			n       = notice.with_indifferent_access
+			@notice = n[:message]
+			@kind   = (n[:kind] || :info).to_sym
 		else
-			color = "gray"
+			@notice = nil
+			@kind   = :info
 		end
+
+		return if @notice.blank?
+
+		color =
+			case @kind
+			when :error
+				color = "red"
+			when :success
+				color = "indigo"
+			else
+				color = "gray"
+			end
+
 		@d_class = "flex p-4 mb-4 bg-#{color}-100 text-#{color}-900 text-sm rounded-lg shadow-lg"
 		@b_class = "ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 focus:ring-#{color}-400 p-1.5 hover:bg-#{color}-200 inline-flex h-8 w-8"
+	end
+
+	def render?
+		@notice.present?
 	end
 
 	# render component

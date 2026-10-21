@@ -67,7 +67,7 @@ module RegistrationNotifier
 		Notification.new(
 			mailer: RegistrationMailer,
 			event:  event,
-			params: { snapshot: }.merge(extras)
+			params: { snapshot: snapshot.to_h }.merge(extras)
 		)
 	end
 end

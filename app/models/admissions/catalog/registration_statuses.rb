@@ -28,7 +28,7 @@ class Catalog::RegistrationStatuses < Catalog::Base
 			id: 1,
 			initial: true,
 			editable_by_requester: true,
-			transitions: %i[under_review]
+			transitions: %i[cancelled under_review]
 		},
 
 		under_review: {

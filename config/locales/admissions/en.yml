@@ -50,6 +50,7 @@ en:
         reason: Reason
         remarks: Remarks
       messages:
+        created: Application request created.
         draft_saved: Draft saved.
         no_change: No changes to application.
         no_reason_given: No reason given.
