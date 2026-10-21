@@ -35,7 +35,7 @@ class Catalog::RegistrationStatuses < Catalog::Base
 			id: 10,
 			review_open: true,
 			editable_by_requester: false,
-			transitions: %i[awaiting_requester approved rejected]
+			transitions: %i[awaiting_requester approved rejected cancelled]
 		},
 
 		awaiting_requester: {

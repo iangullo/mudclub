@@ -18,7 +18,7 @@
 #
 module PeopleHelper
 	# Multipurpose person title definition
-	def person_title(icon: symbol_hash("person"), title:, subtitle: nil, rows: 3, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
+	def person_title(icon: symbol_hash(:person), title:, subtitle: nil, rows: 3, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
 		title_start(icon:, title:, subtitle:, rows:, cols:, size:, _class: _class, form:)
 	end
 
@@ -214,7 +214,7 @@ module PeopleHelper
 		def person_contact_field(person)
 			person&.email || person&.phone ?
 				{ kind: :contact, email: person.email, phone: person.phone, device:, align: :left } :
-				{ kind: :text, value: Person.msg(:no_contact) }
+				{ kind: :text, value: Person.msg(:no_contact), class: "text-xs" }
 		end
 
 		# wrapper to manage return of suitable Field for id Person fields

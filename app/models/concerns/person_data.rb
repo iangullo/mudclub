@@ -80,7 +80,7 @@ module PersonData
 
 	# personal image
 	def picture
-		self.avatar.attached? ? self.avatar : :person	# "person.svg"
+		self.avatar.attached? ? self.avatar : { concept: :person }	# "person.svg"
 	end
 
 	# rebuild Person data from raw input (as hash) given by a form submittal

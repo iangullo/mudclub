@@ -7,5 +7,11 @@
 		</div>
 		<%= paginate @page if @page %>
 	<% end %>
+	<%= render @review if @review %>
+	<div class="flex justify-center gap-2 mt-2 mb-2">
+		<%= render @btn_reject  if @btn_reject %>
+		<%= render @btn_review  if @btn_review %>
+		<%= render @btn_approve if @btn_approve %>
+	</div>
 	<%= render @submit %>
 </div>

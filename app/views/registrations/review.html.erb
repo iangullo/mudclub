@@ -1,16 +1,20 @@
 <%= render ModalComponent.new do %>
-	<%= render @header %>
-	<%= render @summary %>
-	<% if @messages %>
-	<div class="flex justify-center">
-		<%= render @messages %>
-	</div>
-	<% end %>
-	<%= render @review %>
-	<div class="inline-flex align-middle gap-2 mt-2 mb-2">
-		<%= render @btn_reject  if @btn_reject %>
-		<%= render @btn_request if @btn_request %>
-		<%= render @btn_approve if @btn_approve %>
-	</div>
-	<%= render @submit %>
+  <%= render @header %>
+  <%= render @summary %>
+  <% if @registration.messages.any? %>
+    <div class="flex justify-center">
+      <%= render @messages %>
+    </div>
+  <% end %>
+
+  <%= form_with(
+        url:    path_for(@registration, action: :request_information),
+        method: :patch,
+        data:   { controller: "mandatory-fields", turbo_frame: "_top" },
+    		authenticity_token: true
+      ) do |form| %>
+    <% @review.form = form %>
+    <%= render @review %>
+    <%= render @submit %>
+  <% end %>
 <% end %>

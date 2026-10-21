@@ -1,0 +1,13 @@
+<%= render ModalComponent.new do %>
+	<%= render @header %>
+ 	<%= form_with(
+        url:    path_for(@registration, action: :reject),
+        method: :patch,
+        data:   { controller: "mandatory-fields", turbo_frame: "_top" },
+		authenticity_token: true
+      ) do |form| %>
+		<% @fields.form = form %>
+		<%= render @fields %>
+		<%= render @submit %>
+	<% end %>
+<% end %>

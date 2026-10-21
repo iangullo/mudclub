@@ -84,6 +84,9 @@
 	<symbol id="action.approve" viewBox="0 0 128 128">
 		<path style="fill:none;stroke:green;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1" d="m32 74 22 34s12.32-37.145 22-54c5.445-9.481 20-26 20-26"/>
 	</symbol>
+	<symbol id="action.reject_form" viewBox="0 0 128 128">
+		<use href="#remove.default" />
+	</symbol>
 	<symbol id="action.reject" viewBox="0 0 128 128">
 		<use href="#remove.default" />
 	</symbol>

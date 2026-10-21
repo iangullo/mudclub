@@ -47,6 +47,7 @@ en:
         requester: Requester
         reviewer: Reviewer
         status: Status
+        reason: Reason
         remarks: Remarks
       messages:
         draft_saved: Draft saved.
@@ -61,9 +62,9 @@ en:
       questions:
         send_for_review: Submit application?
         request_information: Request more information?
-        cancel: Cancel application?
+        cancel: Cancel application? this action cannot be undone.
         approve: Approve application?
-        reject: Reject application?
+        reject: Reject application? this action cannot be undone.
         review: Review application?
       values:
         locked: Applications closed

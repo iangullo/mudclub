@@ -46,6 +46,11 @@ module RegistrationsHelper
 
 	def registration_show_fields(registration = @registration)
 		fields = []
+
+		fields << [
+			normal_button({ kind: :link, symbol: symbol_hash(:document, size: "25x25"), url: rails_blob_path(registration&.send(:payment_terms), disposition: "attachment"), label: Document.kind_label(:payment_terms) }, cols: 3)
+		] if registration.payment_terms.attached?
+
 		unless registration.guardian1.blank?
 			fields += person_summary_fields(registration.guardian1, prepend_gap: true)
 			fields += person_summary_fields(registration.guardian2, prepend_gap: true) if registration.guardian2
@@ -61,7 +66,7 @@ module RegistrationsHelper
 	def registration_form_header(registration = @registration, action: :edit)
 		person_form_title(
 			registration,
-			icon: registration.candidate,
+			icon: registration.candidate.picture,
 			title: registration.act(action),
 			sex: true,
 			guardians: true
@@ -73,21 +78,19 @@ module RegistrationsHelper
 		person_contact_form_fields(registration.requester, required: true)
 	end
 
-	#
-	def registration_form_fields(registration = @registration, action: :show)
+	# for edit/create forms
+	def registration_form_fields(registration = @registration, action: :edit)
 		fields = []
 		fields << [
 			# TODO: SPAN OF FIRST FIELD IS WIDER THANB INTENDED FOR SOME UNKNOWN REASON
 			symbol_item(:team, { title: Team.label }, align: :right),
-			{ kind: :select_box, key: :requested_team_id, options: @team.club.open_team_list, value: @team },
+			{ kind: :select_box, key: :requested_team_id, options: @team.club.open_team_list, value: @team.id },
 			hidden_input(:kind, registration.kind || @kind)
 		] if @team
 
 		fields.last << hidden_input(:token, @token) if @token
 
-		fields += [
-			[ { kind: :text_area, key: :remarks, value: registration.remarks, placeholder: registration.fld(:remarks), size: 36, lines: 2, cols: 3 } ]
-		]
+		fields += registration_message_fields(action:, cols: 2)
 
 		if doc = registration.club.payment_terms_template
 			return fields unless doc.file.attached?
@@ -102,6 +105,28 @@ module RegistrationsHelper
 		end
 
 		fields
+	end
+
+	def registration_message_fields(registration = @registration, action:, size: 36, lines: 2, rows: nil, cols: nil)
+		res         = []
+		placeholder = RegistrationMessage.label
+		case action
+		when :reject, :request_information, :review
+			key       = :message
+			value     = nil
+			mandatory = { length: 3 }
+			res << [ label_item(Registration.act(action)) ]
+		when :edit, :create, :new
+			key       = :remarks
+			value     = registration.remarks
+		end
+		res << [
+			{
+				kind: :text_area, key:, value:, size:, lines:,
+				mandatory:, placeholder:, rows:, cols:
+			}
+		]
+		res
 	end
 
 	# fields to show when looking a user profile
@@ -123,14 +148,14 @@ module RegistrationsHelper
 		title = [
 			{ kind: :normal, value: RegistrationMessage.fld(:sent_short) },
 			{ kind: :normal, value: RegistrationMessage.fld(:author) },
-			{ kind: :normal, value: RegistrationMessage.fld(:body) }
+			{ kind: :normal, value: RegistrationMessage.label }
 		]
 
 		rows  = []
 		messages.each do |msg|
 			items = [
 				{ kind: :normal, value: msg.created_at.to_date },
-				{ kind: :normal, value: msg.author_label },
+				{ kind: :normal, value: msg.author_label, align: :center },
 				{ kind: :normal, value: msg.body }
 			]
 			rows << { url: "#", items: }
@@ -138,20 +163,25 @@ module RegistrationsHelper
 		{ title:, rows: }
 	end
 
-	def registration_button(action, frame: :modal, data: {})
-		action = action.to_sym
-		data   = data.merge(confirm: Registration.que(action))
-		url    = path_for(@registration, action:),
+	# TODO: will need to add a stimulus controller to handle confirnation for :patch/:get actions
+	def registration_button(action, frame: :_top, flip: true, method: :patch)
+		act    = action.to_sym
+		label  = Registration.act(act == :reject_form ? :reject : act, :short)
+		symbol = symbol_hash(:action, variant: act, type: :button)
+		data   = method == :patch ? { confirm: Registration.que(act) } : {}
 
-		normal_button(
-			{
-				kind: :action,
-				label: Registration.act(action),
-				url:,
-				frame:,
-				data:
-			}
-		)
+		case action
+		when :send_for_review, :reject
+			type  = :submit
+			value = act.to_s
+			name  = "commit"
+		else
+			url = path_for(@registration, action:)
+			data[:turbo_method] ||= method
+		end
+
+		{ kind: :action, type:, symbol:, name:, title: Registration.act(act),
+			label:, value:, url:, frame:, flip:, data: }
 	end
 
 	private
@@ -164,8 +194,7 @@ module RegistrationsHelper
 				{ kind: :normal, value: Team.label },
 				{ kind: :normal, value: Registration.fld(:kind) },
 				{ kind: :normal, value: Person.fld(:name) },
-				{ kind: :normal, value: Registration.fld(:status) },
-				{ kind: :normal, value: Registration.fld(:updated_at) }
+				{ kind: :normal, value: Registration.fld(:status) }
 			]
 		end
 
@@ -183,8 +212,15 @@ module RegistrationsHelper
 				row[:items] += [
 					{ kind: :normal, value: reg.kind_label },
 					{ kind: :normal, value: "#{reg.candidate.name} #{reg.candidate.surname}" },
-					{ kind: :normal, value: I18n.t("admissions.registration_statuses.values.#{reg.status}.single") },
-					{ kind: :normal, value: reg.updated_at.to_date }
+					symbol_item(
+						:status,
+						{
+							variant: reg.status.to_sym,
+							title: "#{reg.status_label}\n#{"(#{date_string(reg.updated_at)}"}"
+						},
+						class: "border px py",
+						align: :center
+					)
 				]
 				rows << row
 			end

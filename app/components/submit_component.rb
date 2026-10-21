@@ -59,7 +59,7 @@ class SubmitComponent < ApplicationComponent
 
 			cfg =
 				case submit
-				when Hash  then submit
+				when Hash  then { frame:, **submit }
 				when :save then { kind: :save }
 				else            { kind: :edit, url: submit, frame: }
 				end

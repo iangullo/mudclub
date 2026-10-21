@@ -43,7 +43,5 @@ class AdmissionPerson < ApplicationRecord
 		return if anonymized_at.present?
 
 		self.anonymize_data!
-		update_columns(remarks: nil)
-		messages.update_all(body: nil)
 	end
 end

@@ -104,7 +104,8 @@ class Registration < ApplicationRecord
 		guardian1&.anonymize!
 		guardian2&.anonymize!
 		requester&.anonymize!
-		messages.update_all(body: nil)
+		update_columns(remarks: nil)
+		messages.update_all(body: RegistrationMessage.msg(:deleted))
 		update!(settings: {}, anonymized_at: Time.current)
 	end
 

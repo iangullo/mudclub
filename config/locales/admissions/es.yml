@@ -47,6 +47,7 @@ es:
         requester: Autor
         reviewer: Revisor
         status: Estado
+        reason: Motivo
         remarks: Comentarios
       messages:
         draft_saved: Borrador guardado.
@@ -61,9 +62,9 @@ es:
       questions:
         send_for_review: ¿Enviar solicitud?
         request_information: ¿Pedir más información?
-        cancel: ¿Cancelar solicitud?
+        cancel: ¿Cancelar solicitud? Esta acción no puede deshacerse.
         approve: ¿Aprobar solicitud?
-        reject: ¿Rechazar solicitud?
+        reject: ¿Rechazar solicitud? Esta acción no puede deshacerse.
         review: ¿Revisar solicitud?
       values:
         locked: Inscripciones cerradas

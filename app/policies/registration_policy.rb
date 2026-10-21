@@ -42,22 +42,19 @@ class RegistrationPolicy < ApplicationPolicy
 	# Submission transitions
 	#------------------------------------
 	def send_for_review?
-		registration_manager? || (
-			requester_can_edit? &&
+		requester_can_edit? &&
 			@record.may_transition_to?(:under_review)
-		)
 	end
 
 	def review?              = registration_manager? && @record.review_open?
 	def request_information? = registration_manager? && @record.may_transition_to?(:awaiting_requester)
 	def approve?             = registration_manager? && @record.may_transition_to?(:approved)
 	def reject?              = registration_manager? && @record.may_transition_to?(:rejected)
+	def reject_form?         = reject?
 
 	def cancel?
-		registration_manager? || (
-			requester_can_edit? &&
+		requester_can_view? &&
 			@record.may_transition_to?(:cancelled)
-		)
 	end
 
 	# Authenticated member with a managing club assignment.
@@ -67,10 +64,16 @@ class RegistrationPolicy < ApplicationPolicy
 		manages_club?(@record.club)
 	end
 
+	#------------------------------------
+	# needed to access which assignment is authorised
+	#------------------------------------
+	def reviewer_assignment
+		managing_club_assignment
+	end
+
 	private
 
-		# TODO - needs attention since requester are not Person objects
-		# 			 just AdmissionPerson ones - no way to relate to User now
+		# submitted_by:id only set if a @user created the registration
 		def requester_is_actor?
 			actor_person.present? &&
 				@record.submitted_by_id.present? &&
