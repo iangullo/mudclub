@@ -27,6 +27,7 @@ class Catalog::RegistrationKinds < Catalog::Base
 		athlete: {
 			id: 1,
 			membership_kind: :athlete,
+			assignment_kind: :athlete,
 			selectable: true,
 			team_required: true,
 			creates_assignment: true,
@@ -41,11 +42,16 @@ class Catalog::RegistrationKinds < Catalog::Base
 			],
 			accepted_documents: %i[ athlete_terms privacy_policy ],
 			requester_allowed: %i[ self parent guardian ]
-		},
+		}
+			# Future registration options - need to rethink how to handle them
+			# For assignments mapping
+=begin
+		,
 
 		coach: {
 			id: 10,
 			membership_kind: :coach,
+			assignment_kind: :head_coach,
 			selectable: true,
 			team_required: false,
 			creates_assignment: false,
@@ -90,14 +96,14 @@ class Catalog::RegistrationKinds < Catalog::Base
 
 		user: {
 			id: 50,
-			membership_kind: :volunteer,
+			membership_kind: :none,
 			selectable: true,
 			team_required: false,
 			required_documents: %i[ photo id_front id_back ],
 			accepted_documents: %i[ privacy_policy ],
 			requester_allowed: %i[ self admin club_manager ]
 		}
-
+=end
 	}.freeze
 
 	def self.normalize(value)

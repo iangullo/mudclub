@@ -248,8 +248,9 @@ class Person < ApplicationRecord
 	#     status:     :exact | :probable | :new | :ambiguous,
 	#     matched_by: Symbol | nil
 	#   }
-	def self.resolve(data)
+	def self.resolve(data, exclude: nil)
 		data ||= {}
+		excluded = normalize_exclude(exclude)
 
 		# 1. Strong identifiers
 		Person.unique_identifier_fields.each do |field|
@@ -260,21 +261,20 @@ class Person < ApplicationRecord
 				when :phone then parse_phone(data[:phone])
 				else data[field]
 				end
-			result = seek_candidates(
-				current.where(field => value), matched_by: field
-			)
 
+			scope  = current.where(field => value)
+			scope  = scope.where.not(id: excluded) if excluded.any?
+
+			result = seek_candidates(scope, matched_by: field)
 			return result unless result.none?
 		end
 
 		# 2. Weak identification
 		if data[:name].present? && data[:surname].present?
-			result = seek_candidates(
-				current.search("#{data[:name]} #{data[:surname]}"),
-				probable: true,
-				matched_by: :name
-			)
+			scope = current.search("#{data[:name]} #{data[:surname]}")
+			scope = scope.where.not(id: excluded) if excluded.any?
 
+			result = seek_candidates(scope, probable: true, matched_by: :name)
 			return result unless result.none?
 		end
 
@@ -298,6 +298,7 @@ class Person < ApplicationRecord
 		end
 
 		def cannot_merge_into_self
+			return if merged_into_id.blank? || id.blank?
 			errors.add(:merged_into, :invalid) if merged_into_id == id
 		end
 
@@ -405,6 +406,11 @@ class Person < ApplicationRecord
 				end
 			end
 		end
+
+		def self.normalize_exclude(exclude)
+			Array(exclude).map { |p| p.is_a?(Person) ? p.id : p }.compact
+		end
+		private_class_method :normalize_exclude
 
 		def self.seek_candidates(scope, probable: false, matched_by:)
 			people = scope.to_a

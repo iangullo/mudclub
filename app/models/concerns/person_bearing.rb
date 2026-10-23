@@ -87,13 +87,13 @@ module PersonBearing
 		return unless attrs[:person_attributes].present?
 
 		shift_avatar(attrs)
-		resolve_person(attrs[:person_attributes])
+		resolve_person(attrs[:person_attributes], exclude: self.person)
 	end
 
-	def resolve_person(attrs)
+	def resolve_person(attrs, exclude: nil)
 		return PersonResolution(status: :missing) if attrs.blank?
 
-		resolution = Person.resolve(attrs)
+		resolution = Person.resolve(attrs, exclude:)
 
 		case resolution.status
 		when :ambiguous

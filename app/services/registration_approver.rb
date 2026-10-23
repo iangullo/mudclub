@@ -101,7 +101,7 @@ class RegistrationApprover
 				merge_with = g[:resolution].ok? ? g[:resolution].person : nil
 				guardian_person = resolve_person(new_person_from(g[:attrs]), merge_with)
 
-				PersonRelationship.find_or_create_by!(
+				Relationship.find_or_create_by!(
 					person:         person,
 					related_person: guardian_person,
 					kind:           :guardian

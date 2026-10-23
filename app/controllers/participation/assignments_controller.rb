@@ -47,15 +47,15 @@ class AssignmentsController < ApplicationController
 	# GET /assignments/1.json
 	def show
 		@policy = check_policy!(AssignmentPolicy, record: @assignment)
-		@status = @policy.edit?
 
+		@status = @policy.edit?
 		fields  =
 			helpers.participation_title(
 				@assignment,
 				status_url: edit_path_for(@assignment, status:, search: @search),
 				just_icon: false
 			) + helpers.assignment_show_fields
-
+		@status = nil
 		@fields = create_fields(fields)
 		submit  = edit_path_for(@assignment) if @policy.update?
 		@submit = create_submit(submit:, frame: :modal)

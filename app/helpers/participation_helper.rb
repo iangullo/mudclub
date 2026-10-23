@@ -189,9 +189,9 @@ module ParticipationHelper
 					row   = { url: path_for(object, rdx: 3, search: @search), items: [], frame: }
 					case kind
 					when :athlete
-						row[:items] << { kind: :normal, value: a_obj.number }
+						row[:items] << { kind: :normal, value: a_obj&.number }
 					when :board_member
-						row[:items] << { kind: :normal, value: a_obj.kind_label }
+						row[:items] << { kind: :normal, value: a_obj&.kind_label }
 					when nil
 						row[:items] << participation_kind_field(object, class: "border px py")
 					end

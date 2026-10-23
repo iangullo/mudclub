@@ -49,8 +49,8 @@ class Assignment < ApplicationRecord
 	#-------------------------------------
 	# Convenient delegations
 	#-------------------------------------
-	delegate :club, :person, :person_id, :age, :birthday, :female,
-					:name, :nick, :surname, :email, :phone, :relationships,
+	delegate :club, :person, :person_id, :name, :nick, :surname, :age, :birthday,
+					 :female, :email, :phone, :relationships, :prepare_person,
 					to: :membership
 
 	#-------------------------------------
