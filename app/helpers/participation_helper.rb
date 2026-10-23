@@ -28,7 +28,7 @@ module ParticipationHelper
 	def participation_title(obj, title: nil, status_url: nil, just_icon: true, cols: nil)
 		icon     = obj.picture
 		title  ||= obj.to_s
-		subtitle = obj.kind_label
+		subtitle = obj.kind_label(obj.kind_gender)
 
 		fields = person_title(icon:, title:, subtitle:, cols:)
 		fields = participation_fields(obj, fields, status_url:, just_icon:)
@@ -191,7 +191,7 @@ module ParticipationHelper
 					when :athlete
 						row[:items] << { kind: :normal, value: a_obj&.number }
 					when :board_member
-						row[:items] << { kind: :normal, value: a_obj&.kind_label }
+						row[:items] << { kind: :normal, value: a_obj&.kind_label(m_obj.kind_gender) }
 					when nil
 						row[:items] << participation_kind_field(object, class: "border px py")
 					end

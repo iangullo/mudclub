@@ -55,7 +55,7 @@ class RegistrationsController < ApplicationController
 		messages  = @token ? @registration.messages.for_requester : @registration.messages
 		@messages = create_table(helpers.registration_messages_table(messages))
 		submit    = edit_path_for(@registration, frame: :modal) if @policy.edit?
-		actions   = prepare_review_buttons
+		actions   = prepare_registration_buttons
 
 		if current_user
 			close = :back
@@ -96,6 +96,7 @@ class RegistrationsController < ApplicationController
 				next
 			end
 
+			remember_registration
 			@token ||= @registration.access_token unless current_user
 			notice   = helpers.flash_message(Registration.msg(:created), :success)
 			snapshot = RegistrationNotifier.capture(@registration)
@@ -367,9 +368,9 @@ class RegistrationsController < ApplicationController
 			helpers.person_title(title:, icon: { concept:, options: { namespace: "common", size: "50x50" } })
 		end
 
-		# for admin review of submitted registrations
-		# Just 3 (maximum) buttons to approve/reject/request_information
-		def prepare_review_buttons
+		# for registration workflow_buttons. requesters: send_for_review & cancel
+		# admins: approve/reject/request_information.
+		def prepare_registration_buttons
 			actions = []
 			actions << helpers.registration_button(:approve) if @policy.approve?
 			actions << helpers.registration_button(:review, method: :get, frame: :modal) if @policy.request_information?
@@ -400,6 +401,12 @@ class RegistrationsController < ApplicationController
 				format.html { redirect_to retlnk, alert: Registration.msg(:already_processed) }
 				format.json { render json: { error: error.message }, status: :conflict }
 			end
+		end
+
+		def remember_registration(registration)
+			session[:registration_tokens] ||= {}
+			session[:registration_tokens][registration.id] = registration.access_token
+			session[:registration_tokens] = session[:registration_tokens].to_a.last(20).to_h
 		end
 
 		# The `author_kind` for a staff-authored message: :reviewer when the actor

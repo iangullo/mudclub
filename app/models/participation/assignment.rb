@@ -51,7 +51,7 @@ class Assignment < ApplicationRecord
 	#-------------------------------------
 	delegate :club, :person, :person_id, :name, :nick, :surname, :age, :birthday,
 					 :female, :email, :phone, :relationships, :prepare_person,
-					to: :membership
+					 :kind_gender, to: :membership
 
 	#-------------------------------------
 	# Included Modules

@@ -47,14 +47,19 @@ module Kinded
 	class_methods do
 		def kind_catalog					= const_get(:KIND_CATALOG)
 		def kind_label(kind, ...) = kind_catalog.val(kind&.to_sym, ...)
-		def kind_image(kind, default: :missing, **rest) = { symbol: kind_catalog.normalize(kind&.to_sym, **rest) || default }
 		def kind_list(...)        = kind_catalog.option_list(...)
 		def kind_options(...)     = kind_catalog.options(...)
+		def kind_image(kind, default: :missing, **rest) = { symbol: kind_catalog.normalize(kind&.to_sym, **rest) || default }
 	end
 
+	# Override in host models (directly or via a concern like PersonBearing) to derive
+	# the default gender for this instance's labels. Return :female, :male, or nil.
+	# nil → catalog falls back to its :default label.
+	def kind_gender     = nil
+
 	def kind_catalog		= self.class.kind_catalog
-	def kind_image(default: :missing, **rest) = self.class.kind_image(kind, default:, **rest)
 	def kind_label(...) = self.class.kind_label(kind, ...)
 	def kind_list(...)	= self.class.kind_list(...)
 	def kind_options(...)     = self.class.kind_catalog.options(...)
+	def kind_image(default: :missing, **rest) = self.class.kind_image(kind, default:, **rest)
 end

@@ -44,7 +44,7 @@ class User < ApplicationRecord
 		:memberships, :has_membership?, :is_athlete?, :is_coach?, :is_volunteer?, :is_board_member?,
 		:assignments, :has_assignment?, :is_president?, :is_vice_president?, :is_treasurer?,
 									:is_secretary?, :has_guardians?, # :is_manager? has local override
-		:phone, :email,
+		:phone, :email, :female,
 		to: :person, allow_nil: true
 
 	#-------------------------------------

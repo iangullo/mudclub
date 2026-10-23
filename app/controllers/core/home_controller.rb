@@ -16,7 +16,7 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# Managament of MudClub home page for users
+# Managament of MudClub home page for users (& visitors?)
 class HomeController < ApplicationController
 	def index
 		if current_user
@@ -36,7 +36,7 @@ class HomeController < ApplicationController
 			@clubs  = Club.publicly_listed
 			if @clubs.size == 1
 				redirect_to path_for(@clubs.first)
-			elsif Server.public_directory.enabled?
+			elsif Server.public_directory_enabled?
 				@fields = create_fields(helpers.home_anonymous_fields)
 				page    = paginate(@clubs)
 				@table  = create_table(helpers.club_table(clubs: page))
@@ -45,4 +45,43 @@ class HomeController < ApplicationController
 			@fields = create_fields(helpers.home_closed)
 		end
 	end
+
+	def my_registrations
+		@registrations = collect_my_registrations
+		@title         = create_fields(helpers.my_registrations_title)
+		if @registrations.any?
+			@table = create_table(
+				helpers.my_registrations_table(
+					@registrations,
+					tokens: session_registration_tokens
+				)
+			)
+		else
+			@fields = create_fields(helpers.my_registrations_empty)
+		end
+
+		@submit = create_submit(close: :back, retlnk: root_path)
+	end
+
+	private
+		def collect_my_registrations
+			tokens = session_registration_tokens
+			ids    = tokens.keys
+
+			if current_user&.person_id.present?
+				submitted = Registration.where(submitted_by_id: current_user.person_id).pluck(:id)
+				ids = (ids + submitted).uniq
+			end
+
+			Registration
+				.where(id: ids)
+				.includes(:club, :requested_team)
+				.order(created_at: :desc)
+				.to_a
+		end
+
+		def session_token_for(registration_id)
+			session_registration_tokens[registration_id] ||
+				session_registration_tokens[registration_id.to_s]
+		end
 end

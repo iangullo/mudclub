@@ -40,6 +40,8 @@ en:
         reject_short: Reject
         archive: Archive application
         archive_short: Archive
+        my_registrations_signed: My applications
+        my_registrations_anonymous: Applications in this browser
       fields:
         kind: Kind
         candidate: Candidate
@@ -49,6 +51,7 @@ en:
         status: Status
         reason: Reason
         remarks: Remarks
+        created: Date
       messages:
         created: Application request created.
         draft_saved: Draft saved.
@@ -60,6 +63,9 @@ en:
         approved: Approved application.
         rejected: Rejected application.
         already_processed: Application already processed.
+        my_registrations_empty: No applications found in this browser.
+        my_registrations_empty_hint: If you submitted from another device, use the link in the confirmation email.
+        my_registrations_unavailable: Not available
       questions:
         send_for_review: Submit application?
         request_information: Request more information?

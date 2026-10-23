@@ -25,8 +25,12 @@ class HomePolicy < ApplicationPolicy
 		true # routing handled in controller for now
 	end
 
+	def my_registrations?
+		true
+	end
+
 	def club_member?(club = target_club)
-		super(club)
+		same_club?(club)
 	end
 
 	def manages_club?(club = target_club)

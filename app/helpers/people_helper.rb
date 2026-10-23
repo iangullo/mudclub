@@ -30,7 +30,7 @@ module PeopleHelper
 		person = owned ? pobj.person : pobj
 
 		icon     = pobj.picture
-		title  ||= pobj.label
+		title  ||= pobj.label(gender: pobj.female ? :female : nil)
 		subtitle = person&.nick&.presence || person&.name
 
 		fields   = person_title(icon:, title:, subtitle:, rows:, cols:)

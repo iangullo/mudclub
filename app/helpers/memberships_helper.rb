@@ -90,7 +90,7 @@ module MembershipsHelper
 		def membership_history_header
 			[
 				{ kind: :normal, value: Club.label(:short) },
-				{ kind: :normal, value: Membership.fld(:kind) },
+				{ kind: :normal, value: Membership.fld(:kind, :short) },
 				{ kind: :normal, value: Membership.fld(:joined_on, :short), align: :center },
 				{ kind: :normal, value: Membership.fld(:status), align: :center }
 			]
@@ -101,7 +101,7 @@ module MembershipsHelper
 			memberships.each do |position|
 				row   = { url: path_for(position, rdx: 3), items: [] }
 				row[:items] << { kind: :icon, value: position.club.logo, title: position.club.nick, align: :center }
-				row[:items] << { kind: :normal, value: position.kind_label }
+				row[:items] << { kind: :normal, value: position.kind_label(position.kind_gender) }
 				row[:items] << { kind: :normal, value: position.starts_on }
 				row[:items] << participation_status_field(position, f_opts: { align: :center, class: "border" })
 				rows << row

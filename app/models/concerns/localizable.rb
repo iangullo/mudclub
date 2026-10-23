@@ -321,10 +321,9 @@ module Localizable
 		#--------------------------------------------------------------------------
 		# Class labels
 		#--------------------------------------------------------------------------
-
-		def translate_class_label(variant:, form:, **)
+		def translate_class_label(variant:, form:, gender: :neutral, **)
 			lookup_candidates(
-				build_candidates("#{i18n_scope}.label", variant:, form:),
+				build_candidates("#{i18n_scope}.label", variant:, form:, gender:),
 				fallback: name.demodulize.titleize
 			)
 		end

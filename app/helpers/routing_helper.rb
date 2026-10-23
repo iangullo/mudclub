@@ -113,7 +113,7 @@ module RoutingHelper
 			if params[:member_id].present?
 				club_members_path(club:, **opts)
 			elsif params[:user_id].present?
-				users_path(params[:user_id], **opts)
+				user_path(params[:user_id], **opts)
 			else
 				polymorphic_path([ *parents, collection_key_for(record) ], **opts)
 			end

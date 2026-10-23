@@ -40,6 +40,8 @@ es:
         reject_short: Rechazar
         archive: Archivar solicitud
         archive_short: Archivar
+        my_registrations_signed: Mis solicitudes
+        my_registrations_anonymous: Solicitudes en este navegador
       fields:
         kind: Tipo
         candidate: Candidato/a
@@ -49,6 +51,7 @@ es:
         status: Estado
         reason: Motivo
         remarks: Comentarios
+        created: Fecha
       messages:
         created: Solicitud creada.
         draft_saved: Borrador guardado.
@@ -60,6 +63,9 @@ es:
         approved: Solicitud aprobada.
         rejected: Solicitud rechazada.
         already_processed: Solicitud ya procesada.
+        my_registrations_empty: No hemos encontrado solicitudes en este navegador.
+        my_registrations_empty_hint: Si has enviado una desde otro dispositivo, usa el enlace del email de confirmación.
+        my_registrations_unavailable: No disponible
       questions:
         send_for_review: ¿Enviar solicitud?
         request_information: ¿Pedir más información?

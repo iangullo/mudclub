@@ -184,6 +184,26 @@ module RegistrationsHelper
 			label:, value:, url:, frame:, flip:, data: }
 	end
 
+	def my_registrations_title
+		key = user_signed_in? ? :my_registrations_signed : :my_registrations_anonymous
+		[ [ label_item(Registration.act(key)) ] ]
+	end
+
+	def my_registrations_empty
+		[ [ { kind: :text,
+					value: Registration.msg(:my_registrations_empty),
+					align: :center } ] ]
+	end
+
+	def my_registrations_table(registrations, tokens: {})
+		{ title: my_registrations_table_header,
+			rows:  my_registrations_table_rows(registrations, tokens:) }
+	end
+
+	def my_registrations_hint
+		Registration.msg(:my_registrations_empty_hint)
+	end
+
 	private
 		def registrations_table_header
 			title = @clubs ?
@@ -226,5 +246,33 @@ module RegistrationsHelper
 			end
 
 			rows
+		end
+
+		def my_registrations_table_header
+			[
+				{ kind: :normal, value: Club.label(:short),         align: :center },
+				{ kind: :normal, value: Team.label },
+				{ kind: :normal, value: Registration.fld(:status),  align: :center },
+				{ kind: :normal, value: Registration.fld(:created), align: :center }
+			]
+		end
+
+		def my_registrations_table_rows(registrations, tokens:)
+			registrations.map do |reg|
+				token     = tokens[reg.id] || tokens[reg.id.to_s]
+				available = token.present?
+
+				{
+					url:   available ? path_for(reg, token:) : "#",
+					items: [
+						icon_item(reg.club&.logo, title: reg.club&.nick, align: :center),
+						{ kind: :normal, value: reg.requested_team&.name || "—" },
+						symbol_item(:status,
+												{ variant: reg.status.to_sym, title: reg.status_label },
+												align: :center),
+						{ kind: :normal, value: date_string(reg.created_at), align: :center }
+					]
+				}
+			end
 		end
 end

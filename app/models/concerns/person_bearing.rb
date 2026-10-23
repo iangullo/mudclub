@@ -23,6 +23,8 @@ module PersonBearing
 	included do
 		belongs_to :person
 		accepts_nested_attributes_for :person
+
+		def kind_gender = female ? :female : :neutral
 	end
 
 	def modified?

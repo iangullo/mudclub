@@ -219,7 +219,8 @@ class ApplicationController < ActionController::Base
 				user: current_user,
 				club: @club,
 				home: u_path,
-				logout: current_user ? destroy_user_session_path : nil
+				logout: current_user ? destroy_user_session_path : nil,
+				registrations_url: requester_registrations_path
 			)
 	end
 
@@ -375,6 +376,15 @@ class ApplicationController < ActionController::Base
 			else
 				{ status: :invalid, message: "Cannot process submitted data: #{attrs}" }
 			end
+		end
+
+		def requester_registrations_path
+			return nil unless current_user || session_registration_tokens.any?
+			my_registrations_path
+		end
+
+		def session_registration_tokens
+			session[:registration_tokens] || {}
 		end
 
 		# determine the app favicon based on user favicon

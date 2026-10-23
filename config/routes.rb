@@ -23,6 +23,7 @@ Rails.application.routes.draw do
 	#-------------------------------------
 	root to: "home#index"
 	get "home/index"
+	get "/my-registrations", to: "home#my_registrations", as: :my_registrations
 
 	#---------------------------------------------------------
 	# Server-related (i.e. not Club or User-specific )

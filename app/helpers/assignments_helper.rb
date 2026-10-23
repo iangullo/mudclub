@@ -154,16 +154,17 @@ module AssignmentsHelper
 		def assignment_history_rows(kind, positions)
 				rows = Array.new
 				positions.each do |position|
-					row   = { url: path_for(position.assigned_to, rdx: 3), items: [] }
+					row     = { url: path_for(position.assigned_to, rdx: 3), items: [] }
+					k_label = position.kind_label(position.kind_gender)
 					case kind
 					when :athlete
 						row[:items] << { kind: :normal, value: position.number }
 						row[:items] << { kind: :normal, value: position.team.name }
 					when :coach
 						row[:items] << { kind: :normal, value: position.team.name }
-						row[:items] << { kind: :normal, value: position.kind_label }
+						row[:items] << { kind: :normal, value: k_label }
 					else
-						row[:items] << { kind: :normal, value: position.kind_label }
+						row[:items] << { kind: :normal, value: k_label }
 					end
 					row[:items] << { kind: :normal, value: position.starts_on }
 					row[:items] << participation_status_field(position, f_opts: { align: :center, class: "border" })
