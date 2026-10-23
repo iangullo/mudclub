@@ -186,7 +186,7 @@ module RegistrationsHelper
 
 	def my_registrations_title
 		key = user_signed_in? ? :my_registrations_signed : :my_registrations_anonymous
-		[ [ label_item(Registration.act(key)) ] ]
+		title_start(icon: { concept: :registration }, title: Registration.act(key))
 	end
 
 	def my_registrations_empty

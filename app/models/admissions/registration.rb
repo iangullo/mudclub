@@ -83,14 +83,22 @@ class Registration < ApplicationRecord
 	#-------------------------------------
 	scope :for_club, ->(club) { where(club:) }
 	scope :for_team, ->(team) {	where(requested_team: team) }
+	scope :for_token, ->(t) {
+		return none if t.blank?
+		where(access_token: t)
+		.where(status: ANONYMOUS_ACCESSIBLE_STATUSES)
+		.where("access_token_expires_at IS NULL OR access_token_expires_at > ?", Time.current)
+	}
 	scope :pending, -> {
 		where(status: %i[under_review awaiting_requester])
 	}
-	scope :by_access_token, ->(t) {
-		return none if t.blank?
-		where(access_token: t)
-			.where(status: ANONYMOUS_ACCESSIBLE_STATUSES)
-			.where("access_token_expires_at IS NULL OR access_token_expires_at > ?", Time.current)
+	scope :submitted_by, ->(person) {
+		case person
+		when Integer then where(submitted_by_id: person)
+		when Person  then where(submitted_by: person)
+		else
+			none
+		end
 	}
 
 	#-------------------------------------

@@ -22,12 +22,12 @@ class HomeController < ApplicationController
 		if current_user
 			@policy = HomePolicy.new(current_user, club: @club)
 			h_path  =
-				if @policy.manages_club?	# manage host club
+				if u_admin? # manage server
+					server_path
+				elsif @policy.manages_club?	# manage club
 					club_path(@club)
 				elsif @policy.club_member?
 					path_for(current_user)
-				elsif u_admin? # manage server
-					server_path
 				else
 					path_for(current_user)
 				end

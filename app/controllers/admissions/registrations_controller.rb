@@ -422,7 +422,7 @@ class RegistrationsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_registration
-			@registration   = Registration.by_access_token(@token).first if @token.present?
+			@registration   = Registration.for_token(@token).first if @token.present?
 			@registration ||= Registration.find_by_id(params[:id]) if params[:id].present?
 			raise ActiveRecord::RecordNotFound unless @registration
 

@@ -380,7 +380,7 @@ class ApplicationController < ActionController::Base
 
 		def requester_registrations_path
 			return nil unless current_user || session_registration_tokens.any?
-			my_registrations_path
+			my_registrations_path if Registration.submitted_by(current_user.person_id).any?
 		end
 
 		def session_registration_tokens
