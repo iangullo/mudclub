@@ -182,6 +182,7 @@ es:
         actions_cleared_female: Acciones de usuaria eliminadas.
         no_email: ¡el correo electrónico es obligatorio!
         no_password: ¡la contraseña es obligatoria!
+        status_fail: ¡No se pudo cambiar el estado!
       values:
         last_in: Último acceso
         never_logged: (nunca ha iniciado sesión)

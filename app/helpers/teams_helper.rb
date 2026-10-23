@@ -355,7 +355,7 @@ module TeamsHelper
 		end
 
 		def team_roster_row(athlete)
-			row = { url: path_for(athlete), frame: :modal, items: [] }
+			row = { url: path_for(athlete, kind: :athlete), frame: :modal, items: [] }
 			row[:items] += [
 				{ kind: :normal, value: athlete.number, align: :center },
 				{ kind: :normal, value: athlete.to_s(style: 0) },

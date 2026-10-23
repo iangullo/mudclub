@@ -110,32 +110,36 @@ class UsersController < ApplicationController
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
 		respond_to do |format|
-			if user_params.key?(:password) && (user_params[:password].blank? or user_params[:password_confirmation].blank?)
-				params[:user].delete(:password)
-				params[:user].delete(:password_confirmation)
-				render_user_errors(:edit, { message: @user.msg(:no_password) })
+			if status_only_update?(@user)
+				return apply_status_change(@user, format)
 			else
-				result = rebuild_or_merge_person(@user, user_params)
-				case result[:status]
-				when :ok	# attempt to store
-					userview = path_for(@user)
-					if @user.modified?
-					if @user.email.presence && @user.save
-						a_desc = "#{User.msg(:updated)} '#{@user.s_name}'"
-						register_action(:updated, a_desc, url: path_for(@user, rdx: 2))
-						format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-						format.json { render :show, status: :ok, location: userview }
-					else
+				if user_params.key?(:password) && (user_params[:password].blank? or user_params[:password_confirmation].blank?)
+					params[:user].delete(:password)
+					params[:user].delete(:password_confirmation)
+					render_user_errors(:edit, { message: @user.msg(:no_password) })
+				else
+					result = rebuild_or_merge_person(@user, user_params)
+					case result[:status]
+					when :ok	# attempt to store
+						userview = path_for(@user)
+						if @user.modified?
+						if @user.email.presence && @user.save
+							a_desc = "#{User.msg(:updated)} '#{@user.s_name}'"
+							register_action(:updated, a_desc, url: path_for(@user, rdx: 2))
+							format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+							format.json { render :show, status: :ok, location: userview }
+						else
+							render_user_errors(:edit, result)
+						end
+						else	# no changes made
+							format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
+							format.json { render :show, status: :ok, location: userview }
+						end
+					when :offer_merge
+						handle_object_merge(format, @user, result[:candidates], user_params)
+					else	# invalid data
 						render_user_errors(:edit, result)
 					end
-					else	# no changes made
-						format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
-						format.json { render :show, status: :ok, location: userview }
-					end
-				when :offer_merge
-					handle_object_merge(format, @user, result[:candidates], user_params)
-				else	# invalid data
-					render_user_errors(:edit, result)
 				end
 			end
 		end

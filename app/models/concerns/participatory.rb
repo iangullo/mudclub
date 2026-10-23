@@ -53,6 +53,15 @@ module Participatory
 		archived:   []
 	}.freeze
 
+	# Maps target status → the transition method that reaches it.
+	# Dispatch lives with the domain — ApplicationController just asks.
+	TRANSITION_METHODS = {
+		active:     :activate!,
+		suspended:  :suspend!,
+		terminated: :terminate!,
+		archived:   :archive_and_anonymize!
+	}.freeze
+
 	#------------------------------------
 	# Status flag polling methods
 	#------------------------------------
@@ -170,9 +179,7 @@ module Participatory
 	end
 
 	def reinstate!(date = Date.current)
-		return false unless can_transition_to?(:active)
-
-		raise NotImplementedError
+		transition_to!(:active, :reinstate, date)
 	end
 
 	def suspend!(date = Date.current)
@@ -180,22 +187,22 @@ module Participatory
 	end
 
 	def terminate!(date = Date.current)
-		return false unless can_transition_to?(:terminated)
+		transition_to!(:terminated, :terminate, date)
+	end
 
-		raise NotImplementedError
+	def transition_method_for(target)
+		TRANSITION_METHODS[target.to_sym]
 	end
 
 	private
 		# Record status change date
 		def apply_transition_date(action, date)
 			case action
-			when :activate
+			when :activate, :reinstate
 				self.starts_on ||= date
 				self.ends_on = nil
-
 			when :terminate
 				self.ends_on = date
-
 			when :archive
 				# Lock down the terminal timeline boundary
 				self.ends_on ||= date

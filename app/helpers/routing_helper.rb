@@ -136,7 +136,8 @@ module RoutingHelper
 
 		def routing_opts(record = nil, rdx: @rdx, token: @token, kind: nil)
 			opts      = { rdx:, status: @status || params[:status].presence, token: }
-			member_id = @member&.id || params[:member_id].presence
+			# TODO - check this is not messing with other workflows
+			member_id = @member&.id	# || params[:member_id].presence
 			if member_id
 				opts[:kind]      = kind || @kind || params[:kind].presence
 				opts[:member_id] = member_id unless record.is_a?(Membership)

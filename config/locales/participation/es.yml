@@ -51,6 +51,7 @@ es:
         deleted: Integrante eliminado.
         deleted_female: Integrante eliminada.
         cannot_terminate: ¡No se pudo dar de baja!
+        status_fail: ¡No se pudo cambiar el estado!
 
     assignment:
       label:
@@ -81,6 +82,7 @@ es:
         terminated: Baja efectiva.
         deleted: Asignación eliminada.
         cannot_terminate: ¡No se pudo dar de baja!
+        status_fail: ¡No se pudo cambiar el estado!
 
     membership_kinds:
       label: Tipo de integrante

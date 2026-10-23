@@ -250,18 +250,6 @@ class Assignment < ApplicationRecord
 		PersonResolution.new(status: :ok, person:)
 	end
 
-	def reinstate!(date = Date.current)
-		return false unless can_transition_to?(:active)
-
-		transition_to!(:active, :reinstate, date)
-	end
-
-	def terminate!(date = Date.current)
-		return false unless can_transition_to?(:terminated)
-
-		transition_to!(:terminated, :terminate, date)
-	end
-
 	# -------------------------------------------------------------------------
 	# Controller façade methods
 	# -------------------------------------------------------------------------

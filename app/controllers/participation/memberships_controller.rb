@@ -115,25 +115,28 @@ class MembershipsController < ApplicationController
 		@policy = check_policy!(MembershipPolicy, record: @member)
 
 		respond_to do |format|
-			result = rebuild_or_merge_person(@member, membership_params)
-
-			case result[:status]
-			when :ok	# attempt to store
-				Membership.transaction do
-					notice = Membership.msg(@member.modified? ? :updated : :no_change)
-					if @member.save
-						format.html { redirect_to path_for(@member), notice: }
-						format.json { render :show, status: :ok, location: @member }
-					else
-						log_membership_errors
-						raise ActiveRecord::Rollback
+			if status_only_update?(@member)
+				return apply_status_change(@member, format)
+			else
+				result = rebuild_or_merge_person(@member, membership_params)
+				case result[:status]
+				when :ok	# attempt to store
+					Membership.transaction do
+						notice = Membership.msg(@member.modified? ? :updated : :no_change)
+						if @member.save
+							format.html { redirect_to path_for(@member), notice: }
+							format.json { render :show, status: :ok, location: @member }
+						else
+							log_membership_errors
+							raise ActiveRecord::Rollback
+						end
 					end
+					render_member_errors(:edit, result) unless @member.persisted? && @member.errors.empty?
+				when :offer_merge
+					handle_object_merge(format, @member, result[:candidates], membership_params)
+				else	# invalid data
+					render_member_errors(:edit, result)
 				end
-				render_member_errors(:edit, result) unless @member.persisted? && @member.errors.empty?
-			when :offer_merge
-				handle_object_merge(format, @member, result[:candidates], membership_params)
-			else	# invalid data
-				render_member_errors(:edit, result)
 			end
 		end
 	end

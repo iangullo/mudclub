@@ -158,24 +158,32 @@ class Membership < ApplicationRecord
 		PersonResolution.new(status: :ok, person:)
 	end
 
+	def suspend!(date = Date.current)
+		return false unless can_transition_to?(:suspended)
+
+		transaction do
+			assignments.current.find_each { |a| a.suspend!(date) }
+			transition_to!(:suspended, :suspend, date)
+		end
+		true
+	end
+
 	def reinstate!(date = Date.current)
 		return false unless can_transition_to?(:active)
 
-		transition_to!(:active, :reinstate, date)
+		transaction do
+			assignments.suspended.find_each { |a| a.reinstate!(date) }  # or a.activate!(date)
+			transition_to!(:active, :activate, date)
+		end
+		true
 	end
 
 	def terminate!(date = Date.current)
 		return false unless can_transition_to?(:terminated)
-
 		transaction do
-			# define well this scope for (:active & :suspended)
-			assignments.open.find_each do |assignment|
-				assignment.terminate!(date)
-			end
-
-			transition_to!(:terminated, :terminate, date)
+			assignments.open.find_each { |a| assignment.terminate!(date) }
+		 	transition_to!(:terminated, :terminate, date)
 		end
-
 		true
 	end
 

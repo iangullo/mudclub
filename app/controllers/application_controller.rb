@@ -34,6 +34,19 @@ class ApplicationController < ActionController::Base
 	helper_method :u_admin?, :u_club, :u_manager?, :u_person,
 								:user_in_club?,	:date_string
 
+	# manage status updates for objects with the attrribute
+	def apply_status_change(obj, format, retlnk: path_for(obj))
+		if perform_status_change(obj, status_value_for(obj))
+			notice = helpers.flash_message(obj.msg(:updated), :success)
+			format.html { redirect_to retlnk, notice:, status: :see_other, turbo_action: "replace" }
+			format.json { render :show, status: :ok, location: obj }
+		else
+			message = obj.errors.full_messages.to_sentence.presence || obj.msg(:status_fail)
+			format.html { redirect_to retlnk, notice: helpers.flash_message(message, :error) }
+			format.json { render json: obj.errors, status: :unprocessable_entity }
+		end
+	end
+
 	# auxliary check for params that need matching values
 	def assert_param_matches!(param_name, value)
 		param = params[param_name]
@@ -300,6 +313,11 @@ class ApplicationController < ActionController::Base
 			end
 		end
 
+		def add_obj_error(obj, message)
+			obj.errors.add(:base, message)
+			false
+		end
+
 		def deny_access(message = I18n.t("shared.messages.access_denied"))
 			raise AccessDenied, message
 		end
@@ -331,6 +349,33 @@ class ApplicationController < ActionController::Base
 			drows    = DROWS_BY_DEVICE.fetch(helpers.device, 25)
 			per_page = (drows/lines).round
 			data.page(params[:page] || 1).per(per_page)
+		end
+
+		def perform_status_change(obj, target)
+			return add_obj_error(obj, "Status not supported") unless obj.respond_to?(:status=)
+
+			method = obj.respond_to?(:transition_method_for) ? obj.transition_method_for(target) : nil
+
+			begin
+				success =
+					if method && obj.respond_to?(method)
+						obj.public_send(method)
+					else
+						obj.update!(status: target)
+					end
+
+				return true if success
+
+				obj.errors.add(:base, obj.msg(:status_fail))
+				false
+			rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotSaved, ArgumentError => e
+				obj.errors.add(:base, e.message) if obj.errors.empty?
+				false
+			rescue StandardError, NotImplementedError => e
+				Rails.logger.error("[status] #{obj.class}##{method || :update!}: #{e.class}: #{e.message}")
+				obj.errors.add(:base, obj.msg(:status_fail)) if obj.errors.empty?
+				false
+			end
 		end
 
 		def prepare_person_bearing_merge(obj, candidates, attrs, current_person: :default)
@@ -385,6 +430,16 @@ class ApplicationController < ActionController::Base
 
 		def session_registration_tokens
 			session[:registration_tokens] || {}
+		end
+
+		def status_only_update?(obj)
+			status_value_for(obj).present? &&
+				get_param(:person_attributes).blank? &&
+				get_param(:person_merge).blank?
+		end
+
+		def status_value_for(obj)
+			get_param(obj.model_name.param_key, :status)
 		end
 
 		# determine the app favicon based on user favicon

@@ -129,29 +129,33 @@ class AssignmentsController < ApplicationController
 		@policy = check_policy!(AssignmentPolicy, record: @assignment)
 
 		respond_to do |format|
-			result = rebuild_or_merge_person(@assignment, assignment_params)
-			case result[:status]
-			when :ok	# just store
-				Assignment.transaction do
-					notice = Assignment.msg(@assignment.modified? ? :updated : :no_change)
-					if @assignment.save
-						format.html do
-							redirect_to helpers.assignment_return_path, notice:
-						end
+			if status_only_update?(@assignment)
+				apply_status_change(@assignment, format, retlnk: helpers.assignment_return_path)
+			else
+				result = rebuild_or_merge_person(@assignment, assignment_params)
+				case result[:status]
+				when :ok	# just store
+					Assignment.transaction do
+						notice = Assignment.msg(@assignment.modified? ? :updated : :no_change)
+						if @assignment.save
+							format.html do
+								redirect_to helpers.assignment_return_path, notice:
+							end
 
-						format.json { render :show, status: :ok, location: @assignment }
-					else
-						log_assignment_errors
-						raise ActiveRecord::Rollback
+							format.json { render :show, status: :ok, location: @assignment }
+						else
+							log_assignment_errors
+							raise ActiveRecord::Rollback
+						end
 					end
-				end
-				unless @assignment.persisted? && @assignment.errors.empty?
+					unless @assignment.persisted? && @assignment.errors.empty?
+						render_assignment_errors(:edit, result)
+					end
+				when :offer_merge
+					handle_object_merge(format, @assignment, result[:candidates], assignment_params)
+				else
 					render_assignment_errors(:edit, result)
 				end
-			when :offer_merge
-				handle_object_merge(format, @assignment, result[:candidates], assignment_params)
-			else
-				render_assignment_errors(:edit, result)
 			end
 		end
 	end
@@ -171,7 +175,6 @@ class AssignmentsController < ApplicationController
 	end
 
 	private
-
 		def log_assignment_errors
 			Rails.logger.debug @assignment.errors.full_messages
 			Rails.logger.debug @assignment.person.errors.full_messages
@@ -212,6 +215,33 @@ class AssignmentsController < ApplicationController
 			@submit   = create_submit
 		end
 
+		def prepare_person_for_create
+			attrs = assignment_params[:person_attributes]
+			return Person.new if attrs.blank?
+
+			resolution = Person.resolve(attrs)
+			return nil if resolution.status == :ambiguous
+
+			resolution.person || Person.new
+		end
+
+		# Flow B: no pre-existing member. Resolve the person from params, then
+		# reuse their current membership in this club if one exists.
+		def prepared_membership
+			person = prepare_person_for_create
+			return nil unless person
+
+			kind = @kind || :athlete
+
+			person.memberships.for_club(@club).of_kind(kind).current.first ||
+			person.memberships.build(
+				club:      @club,
+				kind:      kind,
+				status:    :active,
+				joined_on: Date.current
+			)
+		end
+
 		def render_assignment_errors(action, result)
 			prepare_form(action == :new ? :create : action)
 			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
@@ -238,33 +268,6 @@ class AssignmentsController < ApplicationController
 			p_kind = (params[:kind].presence || assignment_params[:kind].presence)
 								&.singularize&.to_sym
 			@kind  = Assignment.kind_catalog.normalize(p_kind)
-		end
-
-		# Flow B: no pre-existing member. Resolve the person from params, then
-		# reuse their current membership in this club if one exists.
-		def prepared_membership
-			person = prepare_person_for_create
-			return nil unless person
-
-			kind = @kind || :athlete
-
-			person.memberships.for_club(@club).of_kind(kind).current.first ||
-			person.memberships.build(
-				club:      @club,
-				kind:      kind,
-				status:    :active,
-				joined_on: Date.current
-			)
-		end
-
-		def prepare_person_for_create
-			attrs = assignment_params[:person_attributes]
-			return Person.new if attrs.blank?
-
-			result = Person.resolve(attrs)
-			return nil if result[:status] == :ambiguous
-
-			result[:person] || Person.new
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
