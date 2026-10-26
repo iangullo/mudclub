@@ -43,6 +43,10 @@ default: &default
 development:
   <<: *default
   database: mudclub_development
+  cache:
+    <<: *default
+    database: mudclub_development_cache
+    migrations_paths: db/cache_migrate
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -50,6 +54,10 @@ development:
 test:
   <<: *default
   database: mudclub_test
+  cache:
+    <<: *default
+    database: mudclub_test_cache
+    migrations_paths: db/cache_migrate
 
 production:
   primary: &primary_production
