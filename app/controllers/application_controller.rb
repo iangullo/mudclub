@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
 	helper_method :u_admin?, :u_club, :u_manager?, :u_person,
 								:user_in_club?,	:date_string
 
-	# manage status updates for objects with the attrribute
+	# manage status updates for objects with the attribute
 	def apply_status_change(obj, format, retlnk: path_for(obj))
 		if perform_status_change(obj, status_value_for(obj))
 			notice = helpers.flash_message(obj.msg(:updated), :success)

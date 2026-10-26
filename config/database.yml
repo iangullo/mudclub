@@ -36,7 +36,7 @@ default: &default
   adapter: postgresql
   host: <%= ENV.fetch('DB_HOST', 'localhost') %>
   username: <%= ENV.fetch('DB_USERNAME','mudclub') %>
-  password: <%= ENV.fetch('DB_PASSWORD', 'EtClausi') %>
+  password: <%= ENV['DB_PASSWORD'] || Rails.application.credentials.dig(:database, :password) %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
 
