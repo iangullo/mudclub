@@ -109,3 +109,6 @@ gem "ostruct"
 gem "prawn"
 gem "prawn-html"
 gem "prawn-table"
+
+# Modern Solid gems
+gem "solid_cache"
