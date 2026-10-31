@@ -1,1 +1,34 @@
 @import "tailwindcss";
+
+/* ─── 1. Safelist dfynamic classes ─────────────────── */
+@source inline("md:col-span-1 md:col-span-2 md:col-span-3 md:col-span-4 md:col-span-5 md:col-span-6 md:col-span-7 md:col-span-8 md:col-span-9 md:col-span-10 md:col-span-11 md:col-span-12");
+@source inline("md:row-span-1 md:row-span-2 md:row-span-3 md:row-span-4 md:row-span-5 md:row-span-6");
+@source inline("col-span-1 col-span-2 col-span-3 col-span-4 col-span-5 col-span-6");
+@source inline("row-span-1 row-span-2 row-span-3 row-span-4");
+
+/* ─── 2. Restore v3 defaults for border & ring ─────── */
+@layer base {
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+@layer base {
+
+    *,
+    ::after,
+    ::before {
+        /* v3 used 3px ring with blue-500 color by default */
+        --tw-ring-color: var(--color-blue-500, currentColor);
+    }
+}
+
+/* ─── 3. Restore native select/input (optional) ───── */
+/* If mneeded, add plugin forms: */
+/* npm install -D @tailwindcss/forms                       */
+/* then: @plugin "@tailwindcss/forms";                    */

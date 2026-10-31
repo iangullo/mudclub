@@ -40,7 +40,7 @@
 # => :select_load - :key (field name), :icon, :label, :value (form, select)
 # => :upload - Upload file input - hidden and linked to an 'upload' ButtonComponent
 class InputBoxComponent < ApplicationComponent
-	DEF_INPUT_CLASS = "rounded py-0 px-1 shadow-inner border-gray-200 bg-gray-50 focus:ring-blue-700".split(" ")
+	DEF_INPUT_CLASS = "rounded py-0 px-1 inset-shadow-sm border border-gray-200 bg-gray-50 focus:ring-blue-700".split(" ")
 	DEFAULT_BOX_SIZE = { image_box: "50x50", number_box: 5, time_box: 5, default: 20 }
 	attr_writer :form, :session
 
