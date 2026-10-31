@@ -37,7 +37,7 @@ class AccordionComponent < ApplicationComponent
 	I_CLASS = "flex justify-between items-center p-1 w-full bg-gray-100 text-left text-gray-700 rounded-md hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200"
 	O_CLASS = "py px-2 rounded-lg border-2 border-indigo-900 hidden"
 
-	def initialize(title:, tail: nil, objects: [])
+	def initialize(title:, tail: nil, objects: [], form: nil)
 		@title = title
 		@tail  = tail
 		i      = 1
@@ -47,6 +47,7 @@ class AccordionComponent < ApplicationComponent
 			obj[:body_id] = "accordion-collapse-body-" + i.to_s
 			i += 1
 		end
+	  self.form = form if form
 	end
 
 	# render the component
@@ -57,6 +58,15 @@ class AccordionComponent < ApplicationComponent
 		content << content_tag(:div, @tail, class: T_CLASS) if @tail.present?
 		content_tag(:div, id: "accordion-collapse", data: { accordion: "collapse" }) do
 			safe_join(content)
+		end
+	end
+
+
+	def form=(formobj)
+		@form = formobj
+		@objects.each do |obj|
+			content = obj[:content]
+			content.form = formobj if content.respond_to?(:form=)
 		end
 	end
 

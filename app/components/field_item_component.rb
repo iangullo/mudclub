@@ -38,7 +38,8 @@
 # => :lines: :value (array of text lines to be shown)
 # => :number_box: :key (field name), :value (number_field), size:
 # => :nested_form: :model, :key, :form: :child, :row, :filter to define a NestedFormComponent
-# => :partial: :partial (html.erb partial template), :locals (hash of local variables)
+# => :optional_section: handle auto hide/unhide of optional form fields
+# => :partial: :partial (html.erb partial templateo), :locals (hash of local variables)
 # => :password_box: :key (field name), :value (password_field)
 # => :person_type: icons (& tips) for type of person in the database
 # => :rich_text_area: :key (field name)
@@ -78,7 +79,7 @@ class FieldItemComponent < ApplicationComponent
 
 	def form=(formobj)
 		@form = formobj
-		@field[:content].form = formobj if @field[:content]&.respond_to?(:form)
+		@field[:content].form = formobj if @field[:content]&.respond_to?(:form=)
 	end
 
 	private
@@ -123,6 +124,8 @@ class FieldItemComponent < ApplicationComponent
 			set_image(field)
 		when "label_checkbox"
 			field[:class] ||= " align-middle rounded-md"
+		when "optional_section"
+			field[:content] = FieldsComponent.new(field[:fields])
 		when /^(search_.+)$/
 			field[:content] = SearchBoxComponent.new(field)
 		when "gap", "label", "lines", "side_cell", "string", "subtitle", "title", "top_cell"
@@ -162,6 +165,8 @@ class FieldItemComponent < ApplicationComponent
 			@field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
 		when "nested_form"
 			render NestedComponent.new(model: @field[:model], key: @field[:key], form: @form, child: @field[:child], row: @field[:row], filter: @field[:filter])
+		when "optional_section"
+			render_optional_section
 		when "pdf"
 			render PdfComponent.new(file: @field[:value], height: @field[:height], width: @field[:width], zoom: @field[:zoom], css:    @field[:css])
 		when "roles"
@@ -194,6 +199,18 @@ class FieldItemComponent < ApplicationComponent
 			html += "</div>"
 		end
 		html.html_safe
+	end
+
+	def render_optional_section
+		wrapper_class = [ @field[:class], (@field[:hidden_start] ? "hidden" : nil) ].compact.join(" ")
+		wrapper_attrs = {
+			"optional-fields-target": "section",
+			"optional-name":          @field[:name]
+		}
+
+		content_tag(:div, class: wrapper_class.presence, data: wrapper_attrs) do
+			render @field[:content]
+		end
 	end
 
 	# Add this private method to FieldsComponent

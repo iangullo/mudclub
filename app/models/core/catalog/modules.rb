@@ -86,15 +86,16 @@ class Catalog::Modules < Catalog::Base
 			description:
 				"Fixtures, competitions, standings and sporting results."
 		},
-
-		communication: {
+=end
+		mailer: {
 			id: 70,
 			dependencies: [ :core ],
 			optional: true,
+			requirements: [ :smtp_configured, :mail_deliverable ],
 			description:
-				"Internal and external communications including messaging, notifications and public communications."
+				"Internal and external capability to send emails - smtp should be setup in /etc/mudclub."
 		},
-
+=begin
 		finance: {
 			id: 80,
 			dependencies: [ :core, :organization, :participation ],
@@ -108,6 +109,7 @@ class Catalog::Modules < Catalog::Base
 			id: 90,
 			dependencies: [ :core, :people, :organization, :participation ],
 			optional: true,
+			requirements: [ :smtp_configured, :mail_deliverable ],
 			description:
 				"Handle participation requests."
 		}

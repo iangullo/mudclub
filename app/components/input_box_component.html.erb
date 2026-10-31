@@ -4,7 +4,11 @@
 <% when :email_box %>
 	<%= @form.email_field(@fdata[:key], placeholder: @fdata[:placeholder], size: @fdata[:size], class: @i_class, data: @i_data) %>
 <% when :hidden %>
-	<%= @form.hidden_field(@fdata[:key].to_sym, value: @fdata[:value], data: @i_data) %>
+  <% if @fdata[:name] %>
+	<%= hidden_field_tag @fdata[:name], @fdata[:value], data: @i_data %>
+  <% else %>
+    <%= @form.hidden_field(@fdata[:key].to_sym, value: @fdata[:value], data: @i_data) %>
+  <% end %>
 <% when :image_box %>
 	<style>
 		/* Style the container with fixed dimensions */
@@ -45,13 +49,17 @@
 	</div>
 <% when :label_checkbox %>
 	<div class='inline-flex align-middle'>
-		<% if @fdata[:right] %>
-			<label class='font-medium'><%= @fdata[:label] %></label>
-			<%= @form.check_box(@fdata[:key], class: @i_class) %>
-		<% else %>
-			<%= @form.check_box(@fdata[:key], class: @i_class, data: @i_data) %>
-			<label class='font-medium'><%= @fdata[:label] %></label>
-		<% end %>
+	<% if @fdata[:right] %>
+		<label class='font-medium'><%= @fdata[:label] %></label>
+	<% end %>
+	<% if @fdata[:multiple] %>
+		<%= @form.check_box(@fdata[:key], { multiple: true, class: @i_class, data: @i_data }, @fdata[:value], nil) %>
+	<% else %>
+		<%= @form.check_box(@fdata[:key], class: @i_class, data: @i_data) %>
+	<% end %>
+	<% unless @fdata[:right] %>
+		<label class='font-medium'><%= @fdata[:label] %></label>
+	<% end %>
 	</div>
 <% when :number_box %>
 	<%= @form.number_field(@fdata[:key], value: @fdata[:value], size: @fdata[:size] || 2, in: @fdata[:min]..@fdata[:max], step: @fdata[:step], class: @i_class, data: @i_data) %>

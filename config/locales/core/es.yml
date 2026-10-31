@@ -28,6 +28,7 @@ es:
         plural: Módulos
       values:
         core: Núcleo
+        mailer: Envío de e-mail
         calendar: Calendario
         people: Personas
         organization: Organización
@@ -343,6 +344,14 @@ es:
         email_reply_to_hint: Las respuestas se dirigen aquí en lugar de al remitente.
         email_signature: Firma del correo
         email_signature_hint: Añadida al final de los correos salientes. Texto plano o HTML simple.
+
+        # settting sections
+        contact_section: Contacto
+        email_section: Correo
+        localization_section: Localización
+        visibility_section: Visibilidad
+        modules_section: Módulos
+        admissions_settings: Inscripciones
 
       formats:
         default: Por defecto

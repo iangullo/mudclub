@@ -59,41 +59,47 @@ class ServerController < ApplicationController
 	end
 
 	def edit
-		@policy = check_policy!(ServerPolicy)
-
-		@fields = create_fields(helpers.server_edit_fields)
-		@submit = create_submit(retlnk: server_path)
+		@policy  = check_policy!(ServerPolicy)
+		@header  = create_fields(helpers.server_edit_header)
+		options  = helpers.server_edit_accordion
+		@options = AccordionComponent.new(**options)
+		@submit  = create_submit(retlnk: server_path)
 	end
 
 	def update
 		@policy = check_policy!(ServerPolicy)
 
-		respond_to do |format|
-			notice = Server.rebuild!(server_params) ?
-				helpers.flash_message(Server.msg(:updated), "success") :
-				helpers.flash_message(Server.msg(:no_change), "error")
+		if Server.rebuild!(server_params)
+			notice = helpers.flash_message(Server.msg(:updated), "success")
+			status = :see_other
+		elsif Server.last_errors.any?
+			notice = helpers.flash_message(Server.last_errors.to_sentence, "error")
+			status = :unprocessable_entity
+		else
+			notice = helpers.flash_message(Server.msg(:no_change), "info")
+			status = :see_other
+		end
 
-			format.html { redirect_to server_path, notice:, data: { turbo_action: "replace" } }
+		respond_to do |format|
+			format.html { redirect_to server_path, notice:, status:, data: { turbo_action: "replace" } }
 			format.turbo_stream { redirect_to server_path, notice:, status: :ok }
-			format.json { render :show, status: :ok, location: server_path }
+			format.json {
+				if status == :unprocessable_entity
+					render json: { errors: Server.last_errors }, status: :unprocessable_entity
+				else
+					render :show, status: :ok, location: server_path
+				end
+			}
 			format.any { redirect_to server_path, notice: }
 		end
 	end
 
 	private
-
-	def server_params
-		params.require(:server).permit(
-			:server_name,
-			:support_email,
-			:email_from,
-			:email_reply_to,
-			:email_signature,
-			:default_locale,
-			:date_format,
-			:admissions,
-			:public_clubs_enabled,
-			:public_directory_enabled
-		)
-	end
+		def server_params
+			@server_params ||= params.require(:server).permit(
+				*Server::REGULAR_OPTS,
+				*Server::BOOLEAN_OPTS,
+				enabled_modules: []
+			)
+		end
 end

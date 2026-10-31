@@ -29,6 +29,7 @@ en:
       values:
         core: Core
         calendar: Calendar
+        mailer: Manage e-mail
         people: People
         organization: Organization
         participation: Participation
@@ -287,7 +288,7 @@ en:
         log: Logs
 
         # Identity
-        server_name: MudClub
+        server_name: Server name
         server_name_hint: Shown in the browser tab and top bar when no club is active.
         support_email: Support email
         support_email_hint: Primary contact address. Used as reply-to on outgoing email.
@@ -305,8 +306,6 @@ en:
         # Modules
         modules: Modules
         modules_hint: Core features are always on. Optional modules can be disabled.
-        disabled_modules: Optional modules
-        disabled_modules_hint: Unchecking a module also disables anything that depends on it.
 
         # Admission
         registrations_enabled: Allow registration requests
@@ -331,6 +330,14 @@ en:
         email_reply_to_hint: Replies are routed here instead of the sender address.
         email_signature: Email signature
         email_signature_hint: Appended to outgoing emails. Plain text or simple HTML.
+
+        # settting sections
+        contact_section: Contact
+        email_section: e-mail
+        localization_section: Localization
+        visibility_section: Visibility
+        modules_section: Modules
+        admissions_settings: Admissions
 
       # ─── Enum labels ─────────────────────────────────────────
       # Used by selects and radio groups on the settings form.

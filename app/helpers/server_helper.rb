@@ -45,49 +45,22 @@ module ServerHelper
 		]
 	end
 
-	def server_edit_fields
-		css     = "align-top ml-auto mr-2"
-		fields  = server_header(form: true)
-		fields += [
-			[
-				symbol_item(:email, { type: :button, css:, title: Server.fld(:support_email) }),
-				{ kind: :email_box, key: :support_email, value: Server.support_email, placeholder: Server.fld(:support_email), cols: 4 }
-			],
-			[
-				symbol_item(:email, { type: :button, css:, title: Server.fld(:email_from) }),
-				{ kind: :email_box, key: :email_from,
-					value: Server.email_from, placeholder: Server.support_email, cols: 4 }
-			],
-			[
-				symbol_item(:email, { type: :button, css:, title: Server.fld(:email_reply_to) }),
-				{ kind: :email_box, key: :email_reply_to,
-					value: Server.email_reply_to, placeholder: Server.support_email, cols: 4 }
-			],
-			[
-				symbol_item(:edit, { type: :button, css:, title: Server.fld(:email_signature) }),
-				{ kind: :text_area, key: :email_signature, value: Server.email_signature, placeholder: Server.fld(:email_signature), size: 27, cols: 4 }
-			],
-			[
-				symbol_item(:locale, { css:, title: Server.fld(:default_locale) }),
-				{ kind: :select_box, align: :left, key: :default_locale, options: Server.locale_list, value: Server.default_locale },
-				symbol_item(:calendar, { css:, title: Server.fld(:date_format) }),
-				{ kind: :select_box, align: :left, key: :date_format, options: Server.date_formats, value: Server.date_format }
-			],
-			gap_row,
-			[
-				gap_item(2),
-				label_item(I18n.t("shared.settings"), cols: 4)
-			]
-		]
+	# Fixed Server edit view content header
+	def server_edit_header(form: false)
+		server_header(form: true)
+	end
 
-		Server.boolean_option_list.each do |opt|
-			fields << [
-				gap_item(2),
-				{ kind: :label_checkbox, key: opt[1], label: opt[0], cols: 4 }
-			]
+	def server_edit_accordion(form: nil)
+		objects = [
+			{ head: Server.fld(:localization_section), rows: server_localization_section },
+			{ head: Server.fld(:visibility_section),   rows: server_visibility_section },
+			{ head: Server.fld(:modules_section),      rows: server_modules_section }
+		].map do |s|
+			content = FieldsComponent.new(s[:rows])
+			content.form = form if form
+			{ head: s[:head], content: }
 		end
-
-		fields
+		{ title: Server.act(:configure), objects:, form: }
 	end
 
 	#---------------------------------------------------------
@@ -146,4 +119,97 @@ module ServerHelper
 		}
 		{ title:, rows: }
 	end
+
+	private
+		def server_localization_section
+			css = "items-top px-1"
+			[
+				[ { kind: :icon, symbol: symbol_hash(:locale, title: Server.fld(:default_locale)), class: css },
+					{ kind: :select_box, key: :default_locale,
+						options: Server.locale_list, value: Server.default_locale, i_class: "#{css} mb-2" },
+					{ kind: :icon, symbol: symbol_hash(:locale, title: Server.fld(:date_format)), class: css },
+					{ kind: :select_box, key: :date_format, i_class: css,
+						options: Server.date_formats, value: Server.date_format } ],
+				[ { kind: :icon, symbol: symbol_hash(:edit, title: Server.fld(:time_zone)), class: css },
+					{ kind: :select_box, key: :time_zone, cols: 3, i_class: "#{css} mb-2",
+						options: Server.time_zone_list, value: Server.time_zone } ]
+			]
+		end
+
+		def server_visibility_section
+			[
+				[ gap_item(2),
+					{ kind: :label_checkbox, key: :public_clubs_enabled,
+						label: Server.fld(:public_clubs_enabled), cols: 4 } ],
+				[ gap_item(2),
+					{ kind: :label_checkbox, key: :public_directory_enabled,
+						label: Server.fld(:public_directory_enabled), cols: 4 } ]
+			]
+		end
+
+		def server_modules_section
+			fields = [
+				# Hidden de seguridad para uncheck-all (ya lo tienes)
+				[ { kind: :hidden, name: "server[enabled_modules][]", value: "" } ]
+			]
+
+			Server.optional_modules.each do |mod|
+				fields << [
+					{ kind: :label_checkbox, key: :enabled_modules, value: mod.to_s,
+						multiple: true, label: I18n.t("core.modules.values.#{mod}"), cols: 2,
+						i_data: {
+							optional_fields_target: "switch",
+							optional_target:        mod.to_s,
+							action:                 "change->optional-fields#toggle"
+						} }
+				]
+
+				fields.concat(module_settings(mod))
+			end
+			fields
+		end
+
+		def module_settings(mod)
+			fields =
+				case mod.to_sym
+				when :mailer
+					placeholder = [ Server.server_name, Server.support_email ].compact.join(" — ")
+					[
+						module_options_items(:email_box, :email_from, symbol: :email),
+						module_options_items(:email_box, :email_reply_to, symbol: :email),
+						module_options_items(:text_area, :email_signature, placeholder:, symbol: :edit)
+					]
+#=begin
+				when :admissions
+					[
+						module_options_items(:label_checkbox, :registrations_require_terms, symbol: :registration),
+						module_options_items(:text_box, :registrations_terms_url, symbol: :website),
+						module_options_items(:text_box, :registrations_privacy_url, symbol: :lock)
+					]
+#=end
+				else
+					[]
+				end
+
+			return [] if fields.empty?
+
+			[ [ # single row, single cell
+				{
+					kind:         :optional_section,
+					name:         mod.to_s,
+					cols:         4,
+					hidden_start: !Server.module_enabled?(mod),
+					fields:       fields
+				}
+			] ]
+		end
+
+		def module_options_items(kind, key, symbol: nil, placeholder: Server.send(key).presence || Server.fld(key), size: 30)
+			value = Server.settings[key]
+			label = Server.fld(key) if kind == :label_checkbox
+			[
+				symbol ? symbol_item(symbol, { size: "25x25", css: "ml-2" }) : gap_item,
+				{ kind:, key:, label:, value:, placeholder:, size: }
+			]
+		end
 end
