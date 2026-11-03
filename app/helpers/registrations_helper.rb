@@ -238,7 +238,7 @@ module RegistrationsHelper
 							variant: reg.status.to_sym,
 							title: "#{reg.status_label}\n#{"(#{date_string(reg.updated_at)}"}"
 						},
-						class: "border px py",
+						class: "border px-1 py-1",
 						align: :center
 					)
 				]

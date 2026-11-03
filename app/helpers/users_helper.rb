@@ -111,8 +111,8 @@ module UsersHelper
 		] ]
 		@user.user_actions.order(updated_at: :desc).each { |u_act|
 			res << [
-				{ kind: :string, value: u_act.date_time, class: "border px py" },
-				{ kind: :string, value: u_act.description, class: "border px py" }
+				{ kind: :string, value: u_act.date_time, class: "border px-1 py-1" },
+				{ kind: :string, value: u_act.description, class: "border px-1 py-1" }
 			]
 		}
 		res

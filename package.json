@@ -1,9 +1,6 @@
 {
   "name": "mudclub-server",
   "license": "AGPLV3",
-  "dependencies": {
-    "flowbite": "^1.8.1"
-  },
   "scripts": {},
   "devDependencies": {
     "browserslist": "^4.28.7"

@@ -27,20 +27,25 @@ class Team < ApplicationRecord
 	belongs_to :club
 	belongs_to :category
 	belongs_to :division
+	belongs_to :homecourt, class_name: "Location"
 	belongs_to :season
 	belongs_to :sport
 	has_many :assignments, dependent: :destroy
 	has_many :members, through: :assignments, source: :membership
-	has_one :homecourt
-	has_one :rules, through: :category
+	# has_one :rules, through: :category
 	has_many :slots, dependent: :destroy
 	has_many :events, dependent: :destroy
 	has_many :team_targets, dependent: :destroy
 	has_many :targets, through: :team_targets
 	accepts_nested_attributes_for :assignments
 	accepts_nested_attributes_for :events
-	accepts_nested_attributes_for :targets
-	accepts_nested_attributes_for :team_targets
+	accepts_nested_attributes_for :targets	# TODO unsupported for through associations - need to redesign flow
+	accepts_nested_attributes_for :team_targets, allow_destroy: true
+
+	#-------------------------------------
+	# Convenient delegations
+	#-------------------------------------
+	delegate :rules, to: :category, allow_nil: true, prefix: true
 
 	#-------------------------------------
 	# Class Scopes & filter fields

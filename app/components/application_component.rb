@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -20,14 +20,12 @@
 
 # Core shared component functions
 class ApplicationComponent < ViewComponent::Base
+	include Turbo::FramesHelper
+
 	def initialize(tag: nil, classes: nil, **options)
 		@tag = tag
 		@classes = classes
 		@options = options
-	end
-
-	def call
-		content_tag(@tag, content, class: @classes, **@options) if @tag
 	end
 
 	private
@@ -46,11 +44,10 @@ class ApplicationComponent < ViewComponent::Base
 
 		# handle errors gracefully
 		def handle_error(error)
-			# Log the error for debugging purposes
-			Rails.logger.error("Error rendering button component: #{error.message}")
-
-			# Render a fallback message or component
-			content_tag(:div, "An error occurred while rendering this button.", class: "error-message")
+			Rails.logger.error("[#{self.class.name}] #{error.class}: #{error.message}")
+			Rails.logger.error(Array(error.backtrace).first(5).join("\n"))
+			content_tag(:div, "A UI component failed to render.",
+						class: "error-message p-2 bg-red-100 text-red-900 rounded")
 		end
 
 		# ensure symbol is correctly prepared
@@ -58,13 +55,14 @@ class ApplicationComponent < ViewComponent::Base
 			symbol&.is_a?(String) || symbol&.is_a?(Symbol)
 		end
 
-		# ensure symbol is converted to a proper symbol hash, if needed.
+		# Normalize a Symbol/String into a Hash with options. Idempotent —
+		# safe to call multiple times; only the first call fills missing options.
 		def hashify_symbol(item)
 			item[:symbol] = { concept: item[:symbol], options: {} } if symbol_definition?(item[:symbol])
 			if item[:symbol]
 				item[:symbol][:options] ||= {}
-				item[:symbol][:options][:css]  ||= item[:css]
-				item[:symbol][:options][:size] ||= item[:size]
+				item[:symbol][:options][:css]  ||= item[:css]  if item[:css].present?
+				item[:symbol][:options][:size] ||= item[:size] if item[:size].present?
 			end
 		end
 
@@ -101,6 +99,8 @@ class ApplicationComponent < ViewComponent::Base
 		# Return the value of a nested attribute accessed with flexible keys
 		# Accepts either multiple arguments or an array of fallback keys (symbol or string).
 		def safe_attr(opts, *keys)
+			return nil if opts.blank?
+
 			keys.flatten.each do |key|
 				val = opts[key.to_s]
 				return val if val.present?
@@ -115,7 +115,7 @@ class ApplicationComponent < ViewComponent::Base
 		def table_tag(controller: nil, data: nil, classes: [], **table_options)
 			table_options[:class] = [ "table-auto", *classes ].join(" ")
 			if data.present?
-				table_options[:data] = data
+				table_options[:data] = data.present? ? data.dup : {}
 				table_options[:data][:controller] = controller if controller
 			elsif controller
 				table_options[:data] = { controller: controller }

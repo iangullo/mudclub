@@ -1,0 +1,8 @@
+# test/fixtures/divisions.yml
+local:
+  name: "Local"
+  sport: basketball
+
+regional:
+  name: "Regional"
+  sport: basketball

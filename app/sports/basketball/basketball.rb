@@ -158,7 +158,7 @@ class Basketball < Sport
 					q_players[q] += 1
 					row[:items] << { kind: :symbol, symbol: { concept: "yes", options: {} }, class: "" }
 				else
-					row[:items] << { kind: :gap, size: 1, class: "border px py" }
+					row[:items] << { kind: :gap, size: 1, class: "border px-1 py-1" }
 				end
 			end
 			row[:classes] = (p_outings < data[:min]) || (p_outings > data[:max]) ? [ "border", "px", "py", "bg-red-300" ] : []
@@ -312,9 +312,9 @@ class Basketball < Sport
 			[
 				{ kind: :gap },
 				stat_label(label),
-				{ kind: :string, value: made, class: "border px py", align: :right },
+				{ kind: :string, value: made, class: "border px-1 py-1", align: :right },
 				label_item("/"),
-				{ kind: :string, value: taken, class: "border px py", align: :right },
+				{ kind: :string, value: taken, class: "border px-1 py-1", align: :right },
 				{ kind: :text, value: (taken == 0 ? pctg : "#{pctg}%"), class: "align-middle text-#{pcol}", align: :center }
 			]
 		end
@@ -336,9 +336,9 @@ class Basketball < Sport
 			[
 				{ kind: :gap },
 				stat_label(label),
-				{ kind: :number_box, key: "#{key}#{k_made}", value: v_made, class: "shots-made border px py", align: :right },
+				{ kind: :number_box, key: "#{key}#{k_made}", value: v_made, class: "shots-made border px-1 py-1", align: :right },
 				label_item("/"),
-				{ kind: :number_box, key: "#{key}#{k_taken}", value: v_taken, class: "shots-taken border px py", align: :right }
+				{ kind: :number_box, key: "#{key}#{k_taken}", value: v_taken, class: "shots-taken border px-1 py-1", align: :right }
 			]
 		end
 
@@ -471,8 +471,8 @@ class Basketball < Sport
 				t_home << { kind: :number_box, key: k_home, min: 0, max: 200, size: 2, value: p_home, align: :center }
 				t_away << { kind: :number_box, key: k_away, min: 0, max: 200, size: 2, value: p_away, align: :center }
 			else
-				t_home << { kind: :normal, value: p_home, class: "text-center border px py", align: :right }
-				t_away << { kind: :normal, value: p_away, class: "text-center border px py", align: :right }
+				t_home << { kind: :normal, value: p_home, class: "text-center border px-1 py-1", align: :right }
+				t_away << { kind: :normal, value: p_away, class: "text-center border px-1 py-1", align: :right }
 			end
 		end
 

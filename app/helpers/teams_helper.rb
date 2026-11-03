@@ -316,7 +316,7 @@ module TeamsHelper
 				targets_form_partial(form, month: targets[:month], aspect: targets[:aspect], focus: targets[:focus], cols:)
 			else # just view
 				tgts = targets[:tgts].map { |tgt| { text: tgt.to_s,	status: tgt.status } }
-				{ kind: :targets, class: "border px py align-top", targets: tgts, cols: }
+				{ kind: :targets, class: "border px-1 py-1 align-top", targets: tgts, cols: }
 			end
 		end
 
@@ -327,7 +327,7 @@ module TeamsHelper
 				partial: "targets_form",
 				locals: { form:, month:, aspect:, focus: },
 				cols:,
-				class: "border px py align-top"
+				class: "border px-1 py-1 align-top"
 			}
 		end
 
@@ -381,7 +381,7 @@ module TeamsHelper
 		end
 
 		def plan_month(tgts, form:)
-			lcls  = "text-indigo-900 font-semibold border px py"
+			lcls  = "text-indigo-900 font-semibold border px-1 py-1"
 			month = tgts[:i]
 			[
 				[

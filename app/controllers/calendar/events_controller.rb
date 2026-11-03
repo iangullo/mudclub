@@ -79,7 +79,7 @@ class EventsController < ApplicationController
 		get_event_context
 		@policy = check_policy!(EventPolicy, club: @club, team: @team)
 
-		@event  = Event.prepare(event_params)
+		@event  = Event.prepare(event_params.merge(team_id: @team&.id, club_id: @club&.id))
 		@season = @event.team.season unless @event.team_id == 0
 		@sport  = @event.team.sport&.specific
 		retlnk  = anchor_lnk

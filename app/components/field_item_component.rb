@@ -65,6 +65,12 @@
 # => :top_cell: :value (content styled like a TableComponent top_cell)
 # => :upload: :label, :key (form binding for content), :value (file already assigned)
 class FieldItemComponent < ApplicationComponent
+	# Keep these ranges in sync with the @source inline() calls in
+	# app/assets/tailwind/application.css
+	WIDE_KINDS     = %i[accordion diagram table rich_text_area steps svg].freeze
+	COL_SPAN_RANGE = (1..12).freeze
+	ROW_SPAN_RANGE = (1..6).freeze
+
 	def initialize(field, form: nil)
 		@field = parse_field(field)
 		@form  = form
@@ -83,199 +89,216 @@ class FieldItemComponent < ApplicationComponent
 	end
 
 	private
-
-	def field_align(align)
-		case align.to_sym
-		when :center, :middle
-			"justify-center"
-		when :right, :end
-			"justify-end text-right"
-		else
-			"justify-start text-left"
-		end
-	end
-
-	def field_css(field)
-		d_class  = field[:class].to_s.split(" ")
-		d_class << "w-full" if [ :accordion, :diagram, :table, :rich_text_area, :steps, :svg ].include?(field[:kind])
-		d_class << field_align(field[:align]) if field[:align].present?
-		d_class << "md:col-span-#{field[:cols]}" if field[:cols].present?
-		d_class << "md:row-span-#{field[:rows]}" if field[:rows].present? && field[:kind] != :table
-		field[:class] = d_class.compact.join(" ") if d_class.present?
-	end
-
-	def field_item_tag(&block)
-		content_tag(:div, class: @field[:class], data: @field[:data], &block)
-	end
-
-	def parse_field(field)
-		case field[:kind].to_s	# need to adapt to each fields "kind"
-		when "accordion"
-			field[:content] = AccordionComponent.new(title: field[:title], tail: field[:tail], objects: field[:objects])
-		when "button"	# field[:button] has to contain the button definition
-			field[:content] = ButtonComponent.new(**field[:button])
-		when "contact"
-			field[:content] = ContactComponent.new(website: field[:website], email: field[:email], phone: field[:phone], device: field[:device])
-		when "diagram"
-			field[:content] = DiagramComponent.new(court: field[:court], svgdata: field[:svgdata], css: field[:css])
-		when "dropdown"	# field[:button] has to contain the button definition
-			field[:content] = DropdownComponent.new(field[:button])
-		when /^(.*icon.*|image)$/
-			set_image(field)
-		when "label_checkbox"
-			field[:class] ||= " align-middle rounded-md"
-		when "optional_section"
-			field[:content] = FieldsComponent.new(field[:fields])
-		when /^(search_.+)$/
-			field[:content] = SearchBoxComponent.new(field)
-		when "gap", "label", "lines", "side_cell", "string", "subtitle", "title", "top_cell"
-			set_text_field(field)
-		when "partial"
-			field[:content] = PartialComponent.new(partial: field[:partial], locals: field[:locals] || {})
-		when /^(select_.+|.+box|.+_area)$/
-			field[:class] ||= "align-top"
-		when "separator"
-			field[:stroke] ||= "solid"
-		when "steps"
-			field[:content] = StepsComponent.new(steps: field[:steps], court: field[:court])
-		when "symbol"
-			hashify_symbol(field)
-			field[:content] = SymbolComponent.new(field[:symbol][:concept], **field[:symbol][:options])
-		when "table"
-			field[:value] ||= field.slice(:title, :rows, :form, :align)
-		else
-			field[:i_class] = "rounded p-0" unless field[:kind] == :gap
-		end
-		field[:align] ||= "left"
-		field_css(field)
-		field
-	end
-
-	def render_field_content
-		case @field[:kind].to_s
-		when /^(accordion|button|contact|diagram.*|dropdown|search_.+|partial|steps|svg|symbol)$/
-			render @field[:content]
-		when /^(select_.+|.+box|.+_area|hidden|radio.+|upload)$/
-			render InputBoxComponent.new(@field, form: @form)
-		when "gap"
-			("&nbsp;" * @field[:size]).html_safe
-		when /^(.*icon.*|image)$/
-			render_image_field
-		when "lines"
-			@field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
-		when "nested_form"
-			render NestedComponent.new(model: @field[:model], key: @field[:key], form: @form, child: @field[:child], row: @field[:row], filter: @field[:filter])
-		when "optional_section"
-			render_optional_section
-		when "pdf"
-			render PdfComponent.new(file: @field[:value], height: @field[:height], width: @field[:width], zoom: @field[:zoom], css:    @field[:css])
-		when "roles"
-			@field[:symbols].each { |symbol| concat(render_image(symbol)) }
-		when "separator"
-			("<hr class=\"#{@field[:stroke]}\"").html_safe
-		when "table"
-			render TableComponent.new(@field[:value], align: @field[:align], form: @form)
-		when "targets"
-			render_targets_field
-		else
-			if @field[:dclass]
-				concat((@field[:value].tap { |value| break "<div class=\"#{@field[:dclass]}\">#{value}</div>" }.html_safe))
+		def field_align(align)
+			case align.to_sym
+			when :center, :middle
+				"justify-center"
+			when :right, :end
+				"justify-end text-right"
 			else
-				concat(@field[:value])
+				"justify-start text-left"
 			end
 		end
-	end
 
-	# render an image field
-	def render_image_field
-		html = ""
-		if @field[:label]
-			html += "<div class=\"inline-flex items-center\">"
-			html += "#{@field[:label]}&nbsp;" if @field[:right]
+		def field_css(field)
+			d_class  = field[:class].to_s.split(" ")
+			d_class << "w-full" if WIDE_KINDS.include?(field[:kind])
+			d_class << field_align(field[:align]) if field[:align].present?
+			d_class << span_class("col", field[:cols], COL_SPAN_RANGE) if field[:cols].present?
+			d_class << span_class("row", field[:rows], ROW_SPAN_RANGE) if field[:rows].present? && field[:kind] != :table
+			field[:class] = d_class.compact.join(" ") if d_class.present?
 		end
-		html += render_image(@field)
-		if @field[:label]
-			html += "&nbsp;#{@field[:label]}" unless @field[:right]
-			html += "</div>"
+
+		def field_item_tag(&block)
+			content_tag(:div, class: @field[:class], data: @field[:data], &block)
 		end
-		html.html_safe
-	end
 
-	def render_optional_section
-		wrapper_class = [ @field[:class], (@field[:hidden_start] ? "hidden" : nil) ].compact.join(" ")
-		wrapper_attrs = {
-			"optional-fields-target": "section",
-			"optional-name":          @field[:name]
-		}
-
-		content_tag(:div, class: wrapper_class.presence, data: wrapper_attrs) do
-			render @field[:content]
-		end
-	end
-
-	# Add this private method to FieldsComponent
-	def render_targets_field
-		html = ""
-		last = @field[:targets]&.last
-		@field[:targets]&.each do |target|
-			html += "<div class=\"inline-flex items-center space-x-2 py-1\">"
-			html += render(TrafficLightComponent.new(status: target[:status])) unless @form
-			html += "<span>#{target[:text]}</span>"
-			html += render(InputBoxComponent.new({ kind: :number_box, max: 100, step: 1, value: target[:completion] })) if @form
-			html += "</div>"
-			html += "<br>" unless target == last
-		end
-		html.html_safe
-	end
-
-	# used for all icon/image fields - except for :image_box
-	def set_image(field)
-		case field[:kind]
-		when :header_icon
-			field[:size]  ||= "50x50"
-			field[:align]   = "center"
-			field[:class] ||= "align-top"
-			field[:css]   ||= "max-w-75 max-h-100 rounded align-top m-1"
-			field[:rows]    = 2 unless field[:rows]
-		when :icon, :icon_label
-			field[:size]  ||= "25x25"
-			if field[:label] && field[:kind] == :icon
-				field[:class] ||= "align-top inline-flex"
+		def parse_field(field)
+			case field[:kind].to_s	# need to adapt to each fields "kind"
+			when "accordion"
+				field[:content] = AccordionComponent.new(title: field[:title], tail: field[:tail], objects: field[:objects])
+			when "button"	# field[:button] has to contain the button definition
+				field[:content] = ButtonComponent.new(**field[:button])
+			when "contact"
+				field[:content] = ContactComponent.new(website: field[:website], email: field[:email], phone: field[:phone], device: field[:device])
+			when "diagram"
+				field[:content] = DiagramComponent.new(court: field[:court], svgdata: field[:svgdata], css: field[:css])
+			when "dropdown"	# field[:button] has to contain the button definition
+				field[:content] = DropdownComponent.new(field[:button])
+			when /^(.*icon.*|image)$/
+				set_image(field)
+			when "label_checkbox"
+				field[:class] ||= " align-middle rounded-md"
+			when "optional_section"
+				field[:content] = FieldsComponent.new(field[:fields])
+			when /^(search_.+)$/
+				field[:content] = SearchBoxComponent.new(field)
+			when "gap", "label", "lines", "side_cell", "string", "subtitle", "title", "top_cell"
+				set_text_field(field)
+			when "partial"
+				field[:content] = PartialComponent.new(partial: field[:partial], locals: field[:locals] || {})
+			when /^(select_.+|.+box|.+_area)$/
+				field[:class] ||= "align-top"
+			when "separator"
+				field[:stroke] ||= "solid"
+			when "steps"
+				field[:content] = StepsComponent.new(steps: field[:steps], court: field[:court])
+			when "symbol"
+				hashify_symbol(field)
+				field[:content] = SymbolComponent.new(field[:symbol][:concept], **field[:symbol][:options])
+			when "table"
+				field[:value] ||= field.slice(:title, :rows, :form, :align)
 			else
+				field[:i_class] = "rounded p-0" unless field[:kind] == :gap
+			end
+			field[:align] ||= "left"
+			field_css(field)
+			field
+		end
+
+		def render_field_content
+			case @field[:kind].to_s
+			when /^(accordion|button|contact|diagram.*|dropdown|search_.+|partial|steps|symbol)$/
+				render @field[:content]
+			when /^(select_.+|.+box|.+_area|hidden|radio.+|upload)$/
+				render InputBoxComponent.new(@field, form: @form)
+			when "gap"
+				("&nbsp;" * @field[:size]).html_safe
+			when /^(.*icon.*|image)$/
+				render_image_field
+			when "lines"
+				@field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
+			when "nested_form"
+				render NestedComponent.new(model: @field[:model], key: @field[:key], form: @form, child: @field[:child], row: @field[:row], filter: @field[:filter])
+			when "optional_section"
+				render_optional_section
+			when "pdf"
+				render PdfComponent.new(file: @field[:value], height: @field[:height], width: @field[:width], zoom: @field[:zoom], css:    @field[:css])
+			when "roles"
+				@field[:symbols].each { |symbol| concat(render_image(symbol)) }
+			when "separator"
+				("<hr class=\"border-#{@field[:stroke]}\"").html_safe
+			when "table"
+				render TableComponent.new(@field[:value], align: @field[:align], form: @form)
+			when "targets"
+				render_targets_field
+			else
+				if @field[:dclass]
+					concat((@field[:value].tap { |value| break "<div class=\"#{@field[:dclass]}\">#{value}</div>" }.html_safe))
+				else
+					concat(@field[:value])
+				end
+			end
+		end
+
+		# render an image field
+		def render_image_field
+			html = ""
+			if @field[:label]
+				html += "<div class=\"inline-flex items-center\">"
+				html += "#{@field[:label]}&nbsp;" if @field[:right]
+			end
+			html += render_image(@field)
+			if @field[:label]
+				html += "&nbsp;#{@field[:label]}" unless @field[:right]
+				html += "</div>"
+			end
+			html.html_safe
+		end
+
+		def render_optional_section
+			wrapper_class = [ @field[:class], (@field[:hidden_start] ? "hidden" : nil) ].compact.join(" ")
+			wrapper_attrs = {
+				"optional-fields-target": "section",
+				"optional-name":          @field[:name]
+			}
+
+			content_tag(:div, class: wrapper_class.presence, data: wrapper_attrs) do
+				render @field[:content]
+			end
+		end
+
+		# Add this private method to FieldsComponent
+		def render_targets_field
+			html = ""
+			last = @field[:targets]&.last
+			@field[:targets]&.each do |target|
+				html += "<div class=\"inline-flex items-center space-x-2 py-1\">"
+				html += render(TrafficLightComponent.new(status: target[:status])) unless @form
+				html += "<span>#{target[:text]}</span>"
+				html += render(InputBoxComponent.new({ kind: :number_box, max: 100, step: 1, value: target[:completion] })) if @form
+				html += "</div>"
+				html += "<br>" unless target == last
+			end
+			html.html_safe
+		end
+
+		# used for all icon/image fields - except for :image_box
+		def set_image(field)
+			case field[:kind]
+			when :header_icon
+				field[:size]  ||= "50x50"
+				field[:align]   = "center"
+				field[:class] ||= "align-top"
+				field[:css]   ||= "max-w-75 max-h-100 rounded align-top m-1"
+				field[:rows]    = 2 unless field[:rows]
+			when :icon, :icon_label
+				field[:size]  ||= "25x25"
+				if field[:label] && field[:kind] == :icon
+					field[:class] ||= "align-top inline-flex"
+				else
+					field[:align] ||= "right"
+				end
+			when :image
+				field[:css] ||= "rounded align-top m-1"
+			end
+			if field[:symbol].present?	# symbol definition
+				hashify_symbol(field)	# ensure it is a hash
+				field[:content] = SymbolComponent.new(field[:symbol][:concept], **field[:symbol][:options])
+			else
+				field[:i_class] ||= field[:css]
+			end
+		end
+
+		# used for all text-like fields - except for inputboxes, of course
+		def set_text_field(field)
+			case field[:kind]
+			when :gap
+				field[:size]  ||= 4
+			when :label
+				l_cls          = "inline-flex font-semibold"
+				field[:class]   = field[:class] ? "#{field[:class]} #{l_cls}" : l_cls
+			when :lines
+				field[:class] ||= "align-top border px-2 py-1"
+			when :side_cell
 				field[:align] ||= "right"
+				field[:class]   = "font-semibold text-indigo-900"
+			when :string
+				# field[:class] ||= "align-center"
+				# field[:align] ||= "center"
+			when :subtitle
+				field[:class]   = "font-bold"
+			when :title
+				field[:class]   = "font-bold text-yellow-600"
+			when :top_cell
+				field[:class]   = "font-semibold bg-indigo-900 text-gray-300 border px-2 py-1"
+				field[:align] ||= "center"
 			end
-		when :image
-			field[:css] ||= "rounded align-top m-1"
 		end
-		if field[:symbol].present?	# symbol definition
-			hashify_symbol(field)	# ensure it is a hash
-			field[:content] = SymbolComponent.new(field[:symbol][:concept], **field[:symbol][:options])
-		else
-			field[:i_class] ||= field[:css]
-		end
-	end
 
-	# used for all text-like fields - except for inputboxes, of course
-	def set_text_field(field)
-		case field[:kind]
-		when :gap
-			field[:size]  ||= 4
-		when :label
-			l_cls          = "inline-flex font-semibold"
-			field[:class]   = field[:class] ? "#{field[:class]} #{l_cls}" : l_cls
-		when :lines
-			field[:class] ||= "align-top border px py"
-		when :side_cell
-			field[:align] ||= "right"
-			field[:class]   = "align-center font-semibold text-indigo-900"
-		when :string
-			field[:class] ||= "align-center"
-		when :subtitle
-			field[:class]   = "align-center font-bold"
-		when :title
-			field[:class]   = "align-center font-bold text-yellow-600"
-		when :top_cell
-			field[:class]   = "font-semibold bg-indigo-900 text-gray-300 align-center border px py"
+		# Builds an "md:col-span-N" / "md:row-span-N" class, clamped to `range`
+		# so it always matches a class in the compiled Tailwind CSS.
+		def span_class(axis, value, range)
+			requested = value.to_i
+			clamped   = requested.clamp(range.first, range.last)
+
+			if requested != clamped && Rails.env.development?
+				Rails.logger.warn(
+					"[FieldItemComponent] md:#{axis}-span-#{requested} " \
+					"clamped to #{clamped} (range: #{range.first}–#{range.last})"
+				)
+			end
+
+			"md:#{axis}-span-#{clamped}"
 		end
-	end
 end

@@ -1,4 +1,5 @@
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -76,27 +77,29 @@ class DiagramComponent < ApplicationComponent
 
 	# unified button creator for editor actions
 	def action_button(btn)
-		cls = "m-1 rounded hover:bg-"
+		base = "m-1 rounded hover:bg-"
+
 		if btn[:object] == "delete"
-			title = I18n.t("shared.action.values.remove.label.single")
+			title  = I18n.t("shared.action.values.remove.label.single")
 			symbol = { concept: "delete", options: { type: :button } }
-			bcls = "#{cls}red-100"
-			data = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
+			bcls   = "#{base}red-100"
+			data   = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
 		elsif btn[:object] == "color"
-			title = I18n.t("shared.color.label.many")
+			title  = I18n.t("shared.color.label.many")
 			symbol = { concept: "color", options: { type: :button } }
-			bcls = "#{cls}gray-100"
-			data = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
+			bcls   = "#{base}gray-100"
+			data   = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
 		else
 			symbol_id = [ @sport, "object", btn[:object], "default" ].join(".")
-			title = I18n.t("sport.#{@sport}.objects.values.#{btn[:object]}.label")
-			options = { namespace: @sport, type: :object }
+			title     = I18n.t("sport.#{@sport}.objects.values.#{btn[:object]}.label")
+			options   = { namespace: @sport, type: :object }
 			options.merge!(btn[:options]) if btn[:options]
-			symbol = { concept: btn[:object], options: }
-			bcls = "#{cls}gray-100"
-			data = { action: "click->diagram-editor##{btn[:action]}", symbol_id: }
+			symbol    = { concept: btn[:object], options: }
+			bcls      = "#{base}gray-100"
+			data      = { action: "click->diagram-editor##{btn[:action]}", symbol_id: }
 			data.merge!(btn[:path]) if btn[:path]
 		end
+
 		data[:diagram_editor_target] = "#{btn[:object]}Button"
 		ButtonComponent.new(kind: :stimulus, symbol:, title:, d_class: bcls, data:)
 	end
@@ -157,11 +160,8 @@ class DiagramComponent < ApplicationComponent
 		svgdata = (@svgdata || {
 			paths: [], symbols: [], "viewBox": { "width" => 1000, "height" => 600 } # Default values
 		}).to_json
-		safe_join([
-			@form.hidden_field(:step_id, value: @step&.id),
-			@form.hidden_field(:order, value: @step&.order),
-			@form.hidden_field(:svgdata, value: svgdata, data: { diagram_editor_target: "svgdata" })
-		])
+
+		@form.hidden_field(:svgdata, value: svgdata, data: { diagram_editor_target: "svgdata" })
 	end
 
 	def render_court

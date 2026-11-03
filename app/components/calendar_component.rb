@@ -26,13 +26,21 @@
 # optional: associated form object (if needed)
 
 class CalendarComponent < ApplicationComponent
+	EVENT_STYLES = {
+		green:  { bg: "bg-green-300",  hover_bg: "hover:bg-green-700",  tooltip: "bg-green-700" },
+		red:    { bg: "bg-red-300",    hover_bg: "hover:bg-red-700",    tooltip: "bg-red-700" },
+		yellow: { bg: "bg-yellow-300", hover_bg: "hover:bg-yellow-700", tooltip: "bg-yellow-700" },
+		blue:   { bg: "bg-blue-300",   hover_bg: "hover:bg-blue-700",   tooltip: "bg-blue-700" },
+		gray:   { bg: "bg-gray-300",   hover_bg: "hover:bg-gray-700",   tooltip: "bg-gray-700" }
+	}.freeze
+
 	# start calendar
-	def initialize(anchor: nil, obj: nil, start_date:, user: nil, create_url: nil)
+	def initialize(anchor: nil, obj: nil, start_date:, user: nil, create_url: nil, events: nil)
 		@oscope_cls = "bg-gray-500 text-gray-100 text-center"
 		@iscope_cls = "bg-gray-100 text-gray-500 text-center"
 		@anchor     = anchor[:url].presence || request.path
 		@rdx        = anchor[:rdx].presence
-		@events     = obj&.events
+		@events     = events || obj&.events
 		@start_date = start_date
 		@user       = user
 		set_date_limits(obj:)
@@ -87,40 +95,45 @@ class CalendarComponent < ApplicationComponent
 
 		# determine event_color & url depending on event kind and parameters
 		def c_event_init(event:)
-			c_event        = { id: event.id }
-			c_event[:url]  = event_path(event)
+			b_color       = "gray"  # default
+			c_event       = { id: event.id }
+			c_event[:url] = event_path(event)
+
 			case event.kind.to_sym
 			when :match
 				sc = event.total_score	# our team first
-				c_event[:symbol] = { concept: "match", options: { namespace: event&.team&.sport&.name || "sport" } }
+				c_event[:symbol] = { concept: :match, options: { namespace: event&.team&.sport&.name || "sport" } }
 				c_event[:home]   = event.home? ? sc[:ours] : sc[:opps]
 				c_event[:away]   = event.home? ? sc[:opps] : sc[:ours]
-				if sc[:ours][:points] > sc[:opps][:points]
-					b_color = "green"
-				elsif sc[:ours][:points] < sc[:opps][:points]
-					b_color = "red"
-				else
-					b_color = "yellow"
-				end
+				b_color =
+					if sc[:ours][:points] > sc[:opps][:points]
+						"green"
+					elsif sc[:ours][:points] < sc[:opps][:points]
+						"red"
+					else
+						"yellow"
+					end
 			when :train
-				c_event[:symbol] = { concept: "training", options: { namespace: "sport" } }
+				c_event[:symbol] = { concept: :training, options: { namespace: "sport" } }
 				c_event[:label]  = event.to_s
-				if event.has_athlete?(@user.person)
+				if @user && event.has_athlete?(@user.person)
 					c_event[:url]  = "/events/#{event[:id]}/player_stats?retlnk=#{@anchor}"
 					c_event[:data] = { turbo_frame: "modal" }
 				end
-				b_color         = "blue"
+				b_color          = "blue"
 			when :rest
 				c_event[:symbol] =  { concept: "rest", options: { namespace: "sport" } }
 				c_event[:label]  = event.to_s
 				c_event[:data]   = { turbo_frame: "modal" }
 				b_color          = "gray"
 			end
-			c_event[:b_class] = "bg-#{b_color}-300 rounded-lg border px py hover:text-white hover:bg-#{b_color}-700 text-sm"
-			c_event[:t_class] = "bg-#{b_color}-700 rounded-lg invisible inline-block font-light border border-gray-200 border shadow-sm m-2 text-white text-sm z-10"
-			c_event[:l_class] = "hover:text-white hover:bg-#{b_color}-700"
-			c_event[:symbol][:options][:size] = "30x30"
-			c_event
+
+			styles = EVENT_STYLES[b_color.to_sym]
+			c_event[:b_class] = "#{styles[:bg]} rounded-lg border p-1 hover:text-white #{styles[:hover_bg]} text-sm"
+			c_event[:t_class] = "#{styles[:tooltip]} rounded-lg invisible inline-block font-light border border-gray-200 shadow-sm m-2 text-white text-sm z-10"
+			c_event[:l_class] = "hover:text-white #{styles[:hover_bg]}"
+	    c_event[:symbol][:options][:size] = "30x30"
+		  c_event
 		end
 
 		# cells of canvas have strong dependency on calendar scope
@@ -199,7 +212,7 @@ class CalendarComponent < ApplicationComponent
 			if obj.is_a?(Team)
 				season = obj.season
 			else # let's try to get it from the events list
-				season = @events&.empty? ? Season.latest : @events.last.team.season
+				season = @events.present? && @events.last.team ? @events.last.team.season : Season.latest
 			end
 			@s_date = season.start_date
 			@e_date = season.end_date

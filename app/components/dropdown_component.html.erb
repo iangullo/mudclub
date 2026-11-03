@@ -28,10 +28,10 @@
 			<% if option[:options] %>
 				<% option[:id]  = "btn#{option[:name]}" %>
 				<% option[:sub] = true %>
-				<%= render DropdownComponent.new(option) %>
+				<%= render DropdownComponent.new(option.dup.tap { |o| o[:sub] = true }) %>
 			<% else %>
-				<%= link_to option[:url], data: option[:data] do %>
-					<%= render_image(@button, size: "25x25") if (option[:icon] || option[:symbol]) %><%= option[:label] if option[:label] %>
+				<%= link_to option[:url], data: option[:data], class: LINK_CLS do %>
+					<%= render_image(option, size: "25x25") if (option[:icon] || option[:symbol]) %><%= option[:label] if option[:label] %>
 				<% end %>
 			<% end %>
 		</li>

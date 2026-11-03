@@ -42,8 +42,8 @@ class Event < ApplicationRecord
 	has_many :stats, dependent: :destroy
 	has_many :attendances, dependent: :destroy
 
-	# no HABTM players in the final 2.0 interface
-	has_and_belongs_to_many :players	# DEPRECATED
+	# DEPRECATED — do not re-enable; kept only as a schema-level comment.
+	# has_and_belongs_to_many :players
 
 	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true

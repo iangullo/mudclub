@@ -140,7 +140,7 @@ class DrillsController < ApplicationController
 		@policy = check_policy!(DrillPolicy, record: @drill)
 
 		if @step
-			@title   = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.edit_diagram") + " ##{@step.order}"))
+			@title   = create_fields(helpers.drill_title(title: @drill.name, subtitle: Step.act(:edit_diagram) + " ##{@step.order}"))
 			@editor  = helpers.drill_form_diagram
 			@submit  = create_submit(retlnk: edit_path_for(@drill), frame: :modal)
 		else
@@ -153,7 +153,7 @@ class DrillsController < ApplicationController
 		@policy = check_policy!(DrillPolicy, record: @drill)
 
 		if @step
-			@title  = create_fields(helpers.drill_title(title: @drill.name, subtitle: I18n.t("step.load_diagram") + " ##{@step.order}"))
+			@title  = create_fields(helpers.drill_title(title: @drill.name, subtitle: Step.(:load_diagram) + " ##{@step.order}"))
 			@loader = create_fields(helpers.drill_form_diagram_file(@step))
 			@submit = create_submit(retlnk: edit_path_for(@drill), frame: :modal)
 		else
@@ -177,7 +177,7 @@ class DrillsController < ApplicationController
 
 		if updated_diag
 			respond_to do |format|
-				format.html { redirect_to edit_path_for(@drill), notice: I18n.t("step.diagram") + " ##{@step.order} " + I18n.t("status.saved") }
+				format.html { redirect_to edit_path_for(@drill), notice: Step.fld(:diagram) + " ##{@step.order} " + I18n.t("status.saved") }
 			end
 		else
 			redirect_to path_for(@drill, action: edit_diagram, notice: helpers.flash_message(I18n.t("status.no_data")), data: { turbo_action: "replace" }), status: :unprocessable_entity
@@ -196,12 +196,12 @@ class DrillsController < ApplicationController
 	private
 		# pdf export of @drill content
 		def drill_to_pdf(header)
-			footer = "#{I18n.t('drill.author')}: #{@drill.coach.person.email}"
+			footer = "#{Drill.label(:author)}: #{@drill.coach.person.email}"
 			pdf    = pdf_create(header:, footer:)
-			pdf_label_text(label: I18n.t("drill.desc"), text: @drill.description) if @drill.description.present?
-			pdf_label_text(label: I18n.t("target.many"), text: @drill.print_targets(array: false))
+			pdf_label_text(label: Drill.fld(:description), text: @drill.description) if @drill.description.present?
+			pdf_label_text(label: Target.label(:plural), text: @drill.print_targets(array: false))
 			pdf_separator_line
-			pdf_label_text(label: I18n.t("skill.many"), text: @drill.print_skills)
+			pdf_label_text(label: Drill.sport.specific.term(:skill, :plural), text: @drill.print_skills)
 			pdf_separator_line
 			@drill.steps.each do |step|
 				pdf_rich_text(step.explanation) if @drill&.step_explanation&.present?
@@ -212,7 +212,7 @@ class DrillsController < ApplicationController
 
 		# prepare a drill form calling helpers to get the right FieldComponents
 		def prepare_form(action)
-			@fields    = create_fields(helpers.drill_form_title(title: I18n.t("drill.#{action}")))
+			@fields    = create_fields(helpers.drill_form_title(title: Drill.act(action)))
 			@court     = @drill.court_mode
 			@playbook  = create_fields(helpers.drill_form_playbook(playbook: @drill.playbook))
 			@formdata  = create_fields(helpers.drill_form_data)

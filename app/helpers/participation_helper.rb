@@ -193,12 +193,12 @@ module ParticipationHelper
 					when :board_member
 						row[:items] << { kind: :normal, value: a_obj&.kind_label(m_obj.kind_gender) }
 					when nil
-						row[:items] << participation_kind_field(object, class: "border px py")
+						row[:items] << participation_kind_field(object, class: "border px-1 py-1")
 					end
 					row[:items] << { kind: :normal, value: object.s_name }
 					row[:items] << { kind: :normal, value: object.age, align: :center } if [ :athlete, :coach ].include?(m_obj.kind.to_sym)
 					row[:items] << { kind: :normal, value: object.starts_on }
-					row[:items] << participation_status_field(object, f_opts: { align: :center, class: "border px py" })
+					row[:items] << participation_status_field(object, f_opts: { align: :center, class: "border px-1 py-1" })
 					rows << row
 				}
 				rows

@@ -7,6 +7,11 @@
 # Canonical translations for the Core domain.
 # -----------------------------------------------------------------------------
 en:
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "Validation failed: %{errors}"
+
   core:
     application:
       label: MudClub

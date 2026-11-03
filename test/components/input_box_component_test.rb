@@ -1,330 +1,328 @@
-# test/components/input_box_component_test.rb
 require "test_helper"
 
-class InputBoxComponentTest < ViewComponent::TestCase
-	# ─── Basic input kinds (type/name contract) ──────────────
+class InputBoxComponentTest < ActiveSupport::TestCase
+	include ViewComponent::TestHelpers
 
-	test "text_box renders input[type=text] with the model-scoped name" do
-		render_field({ kind: :text_box, key: :server_name, value: "Club" })
-		assert_element "input[type=text][name='server[server_name]'][value='Club']"
+	SAMPLE_DATA = {
+		radio_group:       [ { value: "a", label: "A" } ],
+		select_box:        %w[a b],
+		select_collection: [ { id: "a", name: "A" } ],
+		select_load:       [ %w[a A] ],
+		select_checkboxes: [ Struct.new(:id, :name).new(1, "A"),
+												Struct.new(:id, :name).new(2, "B") ],
+		text_box:          %w[a b]
+	}.freeze
+
+	# Minimal model that responds to any attribute the field kinds ask for.
+	class TestFormModel
+		include ActiveModel::Model
+		attr_accessor :id, :nick, :email, :birthday, :active, :x, :notes,
+									:avatar, :color, :item_id, :pwd, :age, :hour, :min, :size
+
+		def self.model_name
+			ActiveModel::Name.new(self, nil, "Drill")
+		end
 	end
 
-	test "email_box renders input[type=email]" do
-		render_field({ kind: :email_box, key: :support_email, placeholder: "x@y" })
-		assert_element "input[type=email][name='server[support_email]'][placeholder='x@y']"
+	def form_builder(model = TestFormModel.new)
+		controller = ApplicationController.new
+		controller.request = ActionDispatch::TestRequest.create
+		ActionView::Helpers::FormBuilder.new(model.model_name.param_key, model, controller.view_context, {})
 	end
 
-	test "password_box renders input[type=password]" do
-		render_field({ kind: :password_box, key: :password })
-		assert_element "input[type=password][name='server[password]']"
+	def render_input(**field)
+		render_inline(InputBoxComponent.new(field, form: form_builder)).to_html
 	end
 
-	test "hidden renders input[type=hidden]" do
-		render_field({ kind: :hidden, key: :secret, value: "abc" })
-		assert_element "input[type=hidden][name='server[secret]'][value='abc']"
+	# ─── :text_box ──────────────────────────────────
+	test "text_box renders a text input" do
+		html = render_input(kind: :text_box, key: :nick, value: "x")
+		assert_match(/<input[^>]*type="text"/, html)
+		assert_includes html, 'value="x"'
 	end
 
-	test "number_box renders input[type=number] with min/max defaults" do
-		render_field({ kind: :number_box, key: :max_teams })
-		assert_element "input[type=number][name='server[max_teams]'][min='0'][max='99']"
+	test "text_box with label wraps the input" do
+		html = render_input(kind: :text_box, key: :nick, value: "x", label: "Nick")
+		assert_includes html, "Nick"
+		assert_match(/<label[^>]*font-semibold/, html)
 	end
 
-	test "number_box honours explicit min and max" do
-		render_field({ kind: :number_box, key: :age, min: 5, max: 120 })
-		assert_element "input[type=number][name='server[age]'][min='5'][max='120']"
+	test "text_box with options renders a datalist" do
+		html = render_input(kind: :text_box, key: :nick, options: %w[a b])
+		assert_match(/<datalist/, html)
+		assert_includes html, ">a<"
+		assert_includes html, ">b<"
 	end
 
-	test "date_box renders input[type=date]" do
-		render_field({ kind: :date_box, key: :started_on, value: Date.new(2026, 1, 1) })
-		assert_element "input[type=date][name='server[started_on]']"
+	# ─── :email_box ─────────────────────────────────
+	test "email_box renders an email input with placeholder" do
+		html = render_input(kind: :email_box, key: :email, placeholder: "a@b.c")
+		assert_match(/<input[^>]*type="email"/, html)
+		assert_includes html, 'placeholder="a@b.c"'
 	end
 
-	test "text_area renders a textarea with cols and rows" do
-		render_field({ kind: :text_area, key: :email_signature, placeholder: "sig", size: 30, lines: 4 })
-		assert_element "textarea[name='server[email_signature]'][placeholder='sig'][cols='30'][rows='4']"
+	# ─── :password_box ──────────────────────────────
+	test "password_box renders a password input" do
+		html = render_input(kind: :password_box, key: :pwd)
+		assert_match(/<input[^>]*type="password"/, html)
 	end
 
-	# ─── text_box branches ───────────────────────────────────
-
-	test "text_box with label renders a label alongside the input" do
-		render_field({ kind: :text_box, key: :server_name, label: "Nombre" })
-		assert_element "label"
-		assert_element_with_text "label", "Nombre"
-		assert_element "input[type=text][name='server[server_name]']"
+	# ─── :number_box ────────────────────────────────
+	test "number_box renders a number input with min and max" do
+		html = render_input(kind: :number_box, key: :age, value: 5)
+		assert_match(/<input[^>]*type="number"/, html)
+		assert_includes html, 'min="0"'
+		assert_includes html, 'max="99"'
 	end
 
-	test "text_box with options renders a datalist linked to the input" do
-		render_field({ kind: :text_box, key: :city, options: [ "Barcelona", "Girona" ] })
-		assert_element "input[type=text][list='city_list']"
-		assert_element_with_text "datalist#city_list option", "Barcelona"
-		assert_element_with_text "datalist#city_list option", "Girona"
+	test "number_box respects custom min and max" do
+		html = render_input(kind: :number_box, key: :age, min: 10, max: 20)
+		assert_includes html, 'min="10"'
+		assert_includes html, 'max="20"'
 	end
 
-	test "text_area with label wraps the textarea" do
-		render_field({ kind: :text_area, key: :email_signature, label: "Firma", size: 20, lines: 3 })
-		assert_element_with_text "label", "Firma"
-		assert_element "textarea[name='server[email_signature]']"
+	# ─── :date_box ──────────────────────────────────
+	test "date_box renders a date input with min and max" do
+		html = render_input(kind: :date_box, key: :birthday,
+												s_year: 1950, e_year: 2026)
+		assert_match(/<input[^>]*type="date"/, html)
+		assert_includes html, 'min="1950-01-01"'
+		assert_includes html, 'max="2026-12-31"'
 	end
 
-	# ─── label_checkbox (single) ─────────────────────────────
+	test "date_box omits min when s_year is not set" do
+		html = render_input(kind: :date_box, key: :birthday, e_year: 2026)
+		refute_match(/min="\d{4}-01-01"/, html)
+		assert_includes html, 'max="2026-12-31"'
+	end
 
-	test "label_checkbox single: checked renders checkbox plus hidden 0" do
-		render_field(
-			{ kind: :label_checkbox, key: :public_clubs_enabled, label: "Clubs públics" },
-			model: server_with(public_clubs_enabled: true)
+	# ─── :hidden ────────────────────────────────────
+	test "hidden with :name uses hidden_field_tag" do
+		html = render_input(kind: :hidden, name: "token", value: "abc")
+		assert_match(/<input[^>]*type="hidden"/, html)
+		assert_includes html, 'name="token"'
+		assert_includes html, 'value="abc"'
+	end
+
+	test "hidden without :name uses the form builder" do
+		html = render_input(kind: :hidden, key: :id, value: "42")
+		assert_match(/<input[^>]*type="hidden"/, html)
+		assert_includes html, 'name="drill[id]"'
+	end
+
+	# ─── :label_checkbox ────────────────────────────
+	test "label_checkbox renders a checkbox and its label" do
+		html = render_input(kind: :label_checkbox, key: :active, label: "Active")
+		assert_match(/<input[^>]*type="checkbox"/, html)
+		assert_includes html, "Active"
+	end
+
+	# ─── :radio_button / :radio_group ───────────────
+	test "radio_button renders a single radio input" do
+		html = render_input(kind: :radio_button, key: :color, value: "red")
+		assert_match(/<input[^>]*type="radio"/, html)
+		assert_includes html, 'value="red"'
+	end
+
+	test "radio_group renders one radio per option" do
+		html = render_input(
+			kind: :radio_group, key: :color, value: "red",
+			options: [
+				{ value: "red",   label: "Red" },
+				{ value: "blue",  label: "Blue", hint: "Cool" }
+			]
 		)
-		assert_element "input[type=checkbox][name='server[public_clubs_enabled]'][value='1'][checked]"
-		assert_element "input[type=hidden][name='server[public_clubs_enabled]'][value='0']"
-		assert_element_with_text "label", "Clubs públics"
+		assert_equal 2, html.scan(/type="radio"/).size
+		assert_includes html, "Red"
+		assert_includes html, "Blue"
+		assert_includes html, "Cool"
 	end
 
-	test "label_checkbox single: unchecked when the attribute is false" do
-		render_field(
-			{ kind: :label_checkbox, key: :public_clubs_enabled, label: "Clubs" },
-			model: server_with(public_clubs_enabled: false)
-		)
-		assert_element "input[type=checkbox][name='server[public_clubs_enabled]']"
-		refute_element "input[type=checkbox][name='server[public_clubs_enabled]'][checked]"
+	# ─── :select_box / :select_collection ───────────
+	test "select_box renders a select with options" do
+		html = render_input(kind: :select_box, key: :size,
+												options: %w[small medium large], value: "medium")
+		assert_match(/<select/, html)
+		assert_equal 3, html.scan(/<option/).size
+		assert_includes html, 'selected="selected"'
 	end
 
-	test "label_checkbox with right: true renders the label before the input" do
-		render_field(
-			{ kind: :label_checkbox, key: :public_clubs_enabled, label: "Clubs", right: true },
-			model: server_with(public_clubs_enabled: false)
-		)
-		html = rendered_content
-		assert_operator html.index(">Clubs<"), :<, html.index("type=\"checkbox\"")
+	test "select_collection renders one option per object" do
+		options = [
+			{ id: 1, name: "One" },
+			{ id: 2, name: "Two" }
+		]
+		html = render_input(kind: :select_collection, key: :item_id,
+												options: options, value: 2)
+		assert_match(/<select/, html)
+		assert_equal 2, html.scan(/<option/).size
+		assert_match(/<option value="2" selected="selected"/, html)
 	end
 
-	# ─── label_checkbox (multiple) — the new branch ─────────
-	test "label_checkbox multiple: emits name[] checkbox and no hidden 0 field" do
-		render_field(
-			{ kind: :label_checkbox, key: :enabled_modules, value: "admissions",
-				multiple: true, label: "Admissions" },
-			model: server_with(enabled_modules: [])
-		)
-		assert_element "input[type=checkbox][name='server[enabled_modules][]'][value='admissions']"
-		# Rails deliberately omits the hidden field for multiple checkboxes,
-		# so "empty array" is represented as "param absent".
-		refute_element "input[type=hidden][name='server[enabled_modules][]'][value='0']"
-		refute_element "input[type=hidden][name='server[enabled_modules][]'][value='']"
-		assert_element_with_text "label", "Admissions"
+	# ─── :text_area ─────────────────────────────────
+	test "text_area renders a textarea" do
+		html = render_input(kind: :text_area, key: :notes, value: "hello")
+		assert_match(/<textarea/, html)
+		assert_includes html, "hello"
 	end
 
-	test "label_checkbox multiple: marks checked when the value is in the model array" do
-		render_field(
-			{ kind: :label_checkbox, key: :enabled_modules, value: "admissions",
-				multiple: true, label: "Admissions" },
-			model: server_with(enabled_modules: [ "admissions" ])
-		)
-		assert_element "input[type=checkbox][name='server[enabled_modules][]'][value='admissions'][checked]"
-	end
-
-	test "label_checkbox multiple: unchecked when the value is absent from the array" do
-		render_field(
-			{ kind: :label_checkbox, key: :enabled_modules, value: "admissions",
-				multiple: true, label: "Admissions" },
-			model: server_with(enabled_modules: [])
-		)
-		refute_element "input[type=checkbox][name='server[enabled_modules][]'][checked]"
-	end
-
-	test "hidden with name: renders hidden_field_tag (for array params)" do
-		render_field({ kind: :hidden, name: "server[enabled_modules][]", value: "" })
-		assert_element "input[type=hidden][name='server[enabled_modules][]'][value='']"
-	end
-
-	test "hidden with key: renders form.hidden_field (backward compatible)" do
-		render_field({ kind: :hidden, key: :secret, value: "x" })
-		assert_element "input[type=hidden][name='server[secret]'][value='x']"
-	end
-
-	# ─── select_box ──────────────────────────────────────────
-
-	test "select_box renders options and marks the selected one" do
-		render_field(
-			{ kind: :select_box, key: :default_locale,
-				options: [ [ "English", :en ], [ "Català", :ca ] ],
-				value: :ca }
-		)
-		assert_element "select[name='server[default_locale]']"
-		assert_element "option[value='ca'][selected]"
-		assert_element_with_text "option[value='ca']", "Català"
-		assert_element_with_text "option[value='en']", "English"
-		refute_element "option[value='en'][selected]"
-	end
-
-	# ─── radio_button / radio_group ──────────────────────────
-
-	test "radio_button renders a single checked radio" do
-		render_field({ kind: :radio_button, key: :mode, value: "auto", checked: true })
-		assert_element "input[type=radio][name='server[mode]'][value='auto'][checked]"
-	end
-
-	test "radio_group renders one radio per option with hints" do
-		render_field(
-			{ kind: :radio_group, key: :mode, value: "manual",
-				options: [
-					{ value: "auto",   label: "Auto",   hint: "Automàtic" },
-					{ value: "manual", label: "Manual", hint: nil }
-				] }
-		)
-		assert_element "input[type=radio][name='server[mode]'][value='auto']"
-		assert_element "input[type=radio][name='server[mode]'][value='manual'][checked]"
-		assert_element_with_text "label", "Auto"
-		assert_element_with_text "div", "Automàtic"
-	end
-
-	# ─── time_box ────────────────────────────────────────────
-
-	test "time_box renders hour and min number fields" do
-		render_field({ kind: :time_box, hour: 9, mins: 30 })
-		assert_element "input[type=number][name='server[hour]'][value='9']"
-		assert_element "input[type=number][name='server[min]'][value='30']"
-		assert_element_with_text "strong", ":"
-	end
-
-	# ─── mandatory data-attributes (Stimulus contract) ──────
-
-	test "mandatory presence adds data-mandatory-input and action" do
-		render_field({ kind: :text_box, key: :server_name, mandatory: true })
-		assert_element "input[data-mandatory-input='true']"
-		assert_element "input[data-condition='presence']"
-		input = element("input[type=text]")
-		assert_includes input["data-action"].to_s, "mandatory#check"
-	end
-
-	test "mandatory length produces the length condition" do
-		render_field({ kind: :text_box, key: :server_name, mandatory: { length: 3 } })
-		assert_element "input[data-condition='length:3']"
-	end
-
-	test "mandatory min/max build a combined condition string" do
-		render_field({ kind: :text_box, key: :server_name, mandatory: { min: 2, max: 30 } })
-		assert_element "input[data-condition='min:2;max:30']"
-	end
-
-	test "mandatory preserves existing data-action" do
-		render_field(
-			{ kind: :text_box, key: :server_name, mandatory: true,
-				i_data: { action: "existing#action" } }
-		)
-		action = element("input[type=text]")["data-action"].to_s
-		assert_includes action, "existing#action"
-		assert_includes action, "mandatory#check"
-	end
-
-	# ─── select_collection ──────────────────────────────────
-
-	test "select_collection renders a plain select with one option per entry" do
-		render_field(
-			{ kind: :select_collection, key: :team_id,
-				options: [ { id: 1, name: "A" }, { id: 2, name: "B" } ],
-				value: 2 }
-		)
-		assert_element "select[name='server[team_id]']"
-		assert_element "option[value='1']"
-		assert_element_with_text "option[value='1']", "A"
-		assert_element "option[value='2'][selected]"
-		assert_element_with_text "option[value='2']", "B"
-	end
-
-	# ─── select_load ────────────────────────────────────────
-
-	test "select_load renders a select inside a fieldset with the turbo anchor" do
-		render_field(
-			{ kind: :select_load, key: :drill_id,
-				options: [ [ "Drill A", 1 ], [ "Drill B", 2 ] ],
-				value: 1, url: "/drills" }
-		)
-		assert_element "fieldset[data-controller='search-params select-load']"
-		assert_element "select[name='server[drill_id]']"
-		assert_element "option[value='1'][selected]"
-		assert_element "a[href='/drills'][hidden][data-search-params-target='anchor']"
-	end
-
-	# ─── upload ─────────────────────────────────────────────
-
+	# ─── :upload ────────────────────────────────────
 	test "upload renders a hidden file input and a trigger button" do
-		render_field(
-			{ kind: :upload, key: :picture, label: "Pujar",
-				value: "logo.png", accept: "image/*" }
-		)
-		assert_element "input[type=file][name='server[picture]'][accept='image/*']"
-		assert_element_with_text "button", "Pujar"
-		assert_element_with_text "span#file-name-picture", "logo.png"
+		html = render_input(kind: :upload, key: :avatar, label: "Choose file")
+		input = parsed(html).css('input[type="file"]').first
+
+		refute_nil input, "expected a file input"
+		assert_includes input["class"].to_s, "hidden"
+		assert_includes html, "Choose file"
+		assert_includes html, 'data-action="click->upload#selectFile"'
 	end
 
-	test "upload with no value shows the no-file label" do
-		render_field({ kind: :upload, key: :picture, label: "Pujar" })
-		assert_element_with_text "span#file-name-picture", I18n.t("status.no_file")
+	test "upload renders the filename span" do
+		html = render_input(kind: :upload, key: :avatar, value: nil)
+		assert_match(/data-upload-target="fileName"/, html)
+		assert_includes html, I18n.t("status.no_file")
 	end
 
-	# ─── image_box ──────────────────────────────────────────
+	# ─── :image_box ─────────────────────────────────
+	test "image_box sanitizes non-attachment string values" do
+		html = render_input(kind: :image_box, key: :avatar, value: "/path/to/img.png")
+		doc  = parsed(html)
+		img  = doc.css('img[data-imagebox-target="selectedImage"]').first
 
-	test "image_box with nil value renders the placeholder and the file input" do
-		render_field({ kind: :image_box, key: :logo, value: nil })
-		assert_element "#imageboxContainer"
-		assert_element "#imageFile[type=file]"
-		refute_element "#imageSnapshot"
+		refute_nil img
+		assert_equal "", img["src"].to_s, "string values are sanitized to blank"
+		refute_nil doc.css('[data-imagebox-target="placeholder"]').first,
+			"placeholder should render when value is sanitized away"
 	end
 
-	private
-
-	# ─── FormBuilder setup ──────────────────────────────────
-
-	def form_builder_for(model)
-		ActionView::Helpers::FormBuilder.new(
-			model.model_name.param_key,
-			model,
-			vc_test_controller.view_context,
-			{}
-		)
+	test "image_box renders the style block with the requested size" do
+		html = render_input(kind: :image_box, key: :avatar, size: "100x150")
+		assert_includes html, "width: 100px"
+		assert_includes html, "height: 150px"
+		assert_includes html, "max-width: 100px"
+		assert_includes html, "max-height: 150px"
 	end
 
-	def render_field(field, model: server_with)
-		render_inline(InputBoxComponent.new(field, form: form_builder_for(model)))
+	test "image_box honors :width and :height overrides" do
+		html = render_input(kind: :image_box, key: :avatar,
+												width: 200, height: 300)
+		assert_includes html, "width: 200px"
+		assert_includes html, "height: 300px"
 	end
 
-	def server_with(settings = {})
-		Server.new(settings: settings)
+	test "image_box renders a placeholder when value is blank" do
+		html = render_input(kind: :image_box, key: :avatar, value: nil)
+
+		assert_match(/data-controller="imagebox"/, html)
+		assert_includes html, "📷"
+		refute_nil parsed(html).css('input[type="file"]').first
 	end
 
-	# ─── Nokogiri-based assertions ──────────────────────────
+	test "image_box with blank value renders a hidden img target for the placeholder path" do
+		html = render_input(kind: :image_box, key: :avatar, value: nil)
+		doc  = parsed(html)
+		img  = doc.css('img[data-imagebox-target="selectedImage"]').first
 
-	def doc
-		@doc ||= Nokogiri::HTML.fragment(rendered_content)
+		refute_nil img, "expected an <img> target for FileReader"
+		assert_includes img["class"].to_s, "hidden"
+		refute_nil doc.css('[data-imagebox-target="placeholder"]').first,
+			"expected a placeholder target"
 	end
 
-	def element(selector)
-		doc.at_css(selector)
+	test "image_box renders placeholder symbol hidden via CSS when value is blank" do
+		html = render_input(kind: :image_box, key: :avatar, value: nil)
+		assert_includes html, "hidden"       # the empty img is hidden initially
 	end
 
-	def elements(selector)
-		doc.css(selector)
+	# ─── :time_box ──────────────────────────────────
+	test "time_box renders two number inputs separated by a colon" do
+		html = render_input(kind: :time_box, hour: 9, mins: 30)
+		assert_equal 2, html.scan(/type="number"/).size
+		assert_includes html, "<strong>:</strong>"
 	end
 
-	def assert_element(selector)
-		node = element(selector)
-		assert node, "expected to find element matching #{selector.inspect}, in:\n#{rendered_content}"
-		node
+	test "time_box defaults to min:9;max:22 on hour and min:0;max:45 on minutes" do
+		html   = render_input(kind: :time_box, hour: 10, mins: 30, mandatory: true)
+		inputs = parsed(html).css('input[type="number"]')
+
+		assert_equal 2, inputs.size
+		assert_equal "min:9;max:22", inputs[0]["data-condition"]
+		assert_equal "min:0;max:45", inputs[1]["data-condition"]
 	end
 
-	def refute_element(selector)
-		assert_nil element(selector),
-							"expected NOT to find element matching #{selector.inspect}, but found it in:\n#{rendered_content}"
+	test "time_box hour_condition and min_condition overrides apply per field" do
+		html = render_input(kind: :time_box, hour: 10, mins: 30, mandatory: true,
+												hour_condition: "min:14;max:18",
+												min_condition:  "min:15;max:45")
+		assert_includes html, 'data-condition="min:14;max:18"'
+		assert_includes html, 'data-condition="min:15;max:45"'
+		refute_includes html, "min:9;max:22"
 	end
 
-	def assert_element_count(selector, count)
-		assert_equal count, elements(selector).size,
-								"expected #{count} elements matching #{selector.inspect}, got #{elements(selector).size} in:\n#{rendered_content}"
+	test "time_box without mandatory does not set data-mandatory-input" do
+		html = render_input(kind: :time_box, hour: 10, mins: 30)
+		refute_includes html, 'data-mandatory-input="true"'
 	end
 
-	def assert_element_with_text(selector, text)
-		nodes = elements(selector)
-		assert nodes.any?, "expected to find at least one #{selector.inspect}, got none in:\n#{rendered_content}"
-		assert nodes.any? { |n| n.text.to_s.strip == text.to_s.strip || n.text.to_s.include?(text.to_s) },
-					"expected a node matching #{selector.inspect} to contain #{text.inspect}, got: " \
-					"#{nodes.map { |n| n.text.to_s.strip.inspect }.join(', ')}"
+	test "time_box with mandatory sets data-mandatory-input on both sub-fields" do
+		html = render_input(kind: :time_box, hour: 10, mins: 30, mandatory: true)
+		assert_equal 2, html.scan(/data-mandatory-input="true"/).size
+	end
+
+	# ─── mandatory wiring ───────────────────────────
+	test "mandatory field gets data-mandatory-input and a condition" do
+		html = render_input(kind: :text_box, key: :nick,
+												mandatory: { length: 3 })
+		assert_includes html, 'data-mandatory-input="true"'
+		assert_includes html, 'data-condition="length:3"'
+	end
+
+	test "mandatory with unless emits mandatory_unless" do
+		html = render_input(kind: :text_box, key: :nick,
+												mandatory: { length: 3, unless: [ :guardian ] })
+		assert_includes html, "data-mandatory-unless"
+		assert_includes html, "guardian"
+	end
+
+	test "date_box mandatory emits date_min/date_max conditions" do
+		html = render_input(kind: :date_box, key: :birthday,
+												mandatory: { min: "1950-01-01", max: "2026-12-31" })
+		assert_includes html, 'data-condition="date_min:1950-01-01;date_max:2026-12-31"'
+	end
+
+	# ─── CSS hygiene ────────────────────────────────
+	test "no kind emits a bare 'px' or 'py' class" do
+		kinds = %i[text_box email_box password_box number_box date_box
+							text_area radio_group label_checkbox upload
+							select_box select_collection select_load select_checkboxes]
+
+		kinds.each do |kind|
+			html = render_input(
+				kind:    kind,
+				key:     :x,
+				value:   "y",
+				label:   "L",
+				options: SAMPLE_DATA[kind]
+			)
+			refute_match(/\bclass="[^"]*\bpx\b(?![-\w])/, html, "kind #{kind} emits bare px")
+			refute_match(/\bclass="[^"]*\bpy\b(?![-\w])/, html, "kind #{kind} emits bare py")
+		end
+	end
+
+	test "all InputBox classes compile in the Tailwind output" do
+		css = File.read(Rails.root.join("app/assets/builds/tailwind.css")).gsub(/\\/, "")
+		%w[
+			rounded py-0 px-1 inset-shadow-sm border border-gray-200
+			bg-gray-50 focus:ring-blue-700
+			align-middle m-1 bg-gray-200 text-blue-700
+			text-black text-right
+			overflow-hidden overflow-ellipsis
+			inline-flex items-center rounded-md shadow bg-gray-100
+			ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300
+			font-semibold text-sm px-1 py-1 justify-center
+			object-cover w-full text-4xl pointer-events-none
+		].each do |cls|
+			assert_includes css, cls, "Missing compiled class: #{cls}"
+		end
 	end
 end

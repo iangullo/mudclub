@@ -33,17 +33,28 @@ class PdfComponent < ApplicationComponent
 			tag.iframe(
 				src: helpers.url_for(@file),
 				class: iframe_classes,
-				style: "height: #{@height}; width: #{@width};",
+				style: iframe_style.presence,
 				loading: "lazy"
 			)
 		end
 	end
 
+	def render?
+		@file.present?
+	end
+
 	private
 		def iframe_classes
 			classes = [ "border", "rounded" ]
-			classes << @height.presence || "h-full"
-			classes << @width.presence || "w-full"
+			classes << "h-full" unless @height.present?
+			classes << "w-full" unless @width.present?
 			classes.join(" ")
+		end
+
+		def iframe_style
+			styles = []
+			styles << "height: #{@height}" if @height.present?
+			styles << "width: #{@width}"   if @width.present?
+			styles.join("; ")
 		end
 end

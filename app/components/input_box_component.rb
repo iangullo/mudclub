@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -33,7 +33,12 @@
 # => :rich_text_area - :key (field name)
 # => :text_area - :key (field name), :value (text_field), :size (box size), lines: number of lines
 # => :text_box - :key (field name), :value (text_field), :size (box size), :options (optional array of autocomplete options)
-# => :time_box - :hour & :min (field names)
+# => :time_box - :hour & :mins (field names). Uses :in HTML bounds for
+#   		browser-native validation. For JS validation, pass :mandatory (enables
+# 	   	the controller) and optionally :hour_condition / :min_condition to
+#   	 	override the default "min:9;max:22" / "min:0;max:45" bounds.
+#    		The :mandatory hash's :min / :max keys are IGNORED for time_box —
+#    		use the per-field condition keys instead.
 # => :select_box - :key (field name), :options (array of valid options), :value (form, select)
 # => :select_checkboxes - :key (field name), :collection, :value (form, select)
 # => :select_collection - :key (field name), :collection, :value (form, select)
@@ -104,7 +109,7 @@ class InputBoxComponent < ApplicationComponent
 				rich_text_area: { class: "trix-content" },
 				text_box: { class: "overflow-hidden overflow-ellipsis" },
 				time_box: { class: "text-right" },
-				upload: { class: "align-middle px py", i_class: "inline-flex items-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm px-1 py m-1 justify-center" }
+				upload: { class: "align-middle px-1 py-1", i_class: "inline-flex items-center rounded-md shadow bg-gray-100 ring-2 ring-gray-300 hover:bg-gray-300 focus:border-gray-300 font-semibold text-sm px-1 py-1 m-1 justify-center" }
 			}
 
 			mapping = kind_mappings[@fdata[:kind]]
@@ -122,12 +127,18 @@ class InputBoxComponent < ApplicationComponent
 				return
 			when :image_box
 				@i_data.merge!({ action: "change->imagebox#handleFileChange", imagebox_target: "imageFile" })
-				@width  = ensure_px((@fdata[:width] || 75).to_s)
-				@height = ensure_px((@fdata[:height] || 100).to_s)
+				@width  = ensure_px((@fdata[:width] || 75).to_s)   if @fdata[:width]
+				@height = ensure_px((@fdata[:height] || 100).to_s) if @fdata[:height]
 				@fdata[:class] += " w-full"
 			when :text_box
 				if @fdata[:options].is_a?(Hash)
 					@i_data.merge!({ "data-optvalues" => @fdata[:options].values })
+				end
+			when :time_box
+				if @fdata[:mandatory].is_a?(Hash)
+					hmin = @fdata[:mandatory][:min] || 9
+					hmax = @fdata[:mandatory][:max] || 22
+					@fdata[:hour_condition] ||= "min:#{hmin};max:#{hmax}"
 				end
 			when :upload
 				@fdata[:css] = "max-h-6 min-h-4 h-5 m-1" if @fdata[:icon] || @fdata[:symbol]
@@ -139,19 +150,23 @@ class InputBoxComponent < ApplicationComponent
 				existing = @i_data[:action].to_s
 				merged   = [ existing, "mandatory#check" ].reject(&:blank?).join(" ")
 				@i_data.merge!({ mandatory_input: true, action: merged })
-				@i_data.merge!(generate_condition(@fdata[:mandatory]))
+				kind = :date if @fdata[:kind] == :date_box
+				@i_data.merge!(generate_condition(@fdata[:mandatory], kind:))
 			end
 		end
 
 		# calculate size of box
 		def set_box_size
+			if @fdata[:kind] == :image_box
+				@fdata[:size] ||= DEFAULT_BOX_SIZE[:image_box]
+				dimensions      = @fdata[:size].split("x")
+				@width          = ensure_px(dimensions[0])
+				@height         = ensure_px(dimensions[1])
+				return
+			end
+
 			unless @fdata[:size]
 				case @fdata[:kind]
-				when :image_box
-					@fdata[:size] = DEFAULT_BOX_SIZE[:image_box]
-					dimensions = @fdata[:size].split("x")
-					@width = ensure_px(dimensions[0])
-					@height = ensure_px(dimensions[1])
 				when :number_box, :time_box
 					box_size = DEFAULT_BOX_SIZE[@fdata[:kind]]
 				else

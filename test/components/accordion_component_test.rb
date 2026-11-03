@@ -39,4 +39,22 @@ class AccordionComponentTest < ViewComponent::TestCase
 
 		assert_nothing_raised { accordion.form = Object.new }
 	end
+
+	test "body class has no invalid Tailwind utilities" do
+		html = render_inline(
+			AccordionComponent.new(
+				title: "T",
+				objects: [ { head: "H", content: "C" } ]
+			)
+		).to_html
+
+		# Assert the padding utilities that should actually be present
+		assert_includes html, "py-2"
+		assert_includes html, "px-2"
+
+		# Guard against bare `py` / `px` / `p` (invalid without a number)
+		refute_match(/\bclass="[^"]*\bpy\b(?![-\d])/, html)
+		refute_match(/\bclass="[^"]*\bpx\b(?![-\d])/, html)
+		refute_match(/\bclass="[^"]*\bp\b(?![-\d])/, html)
+	end
 end

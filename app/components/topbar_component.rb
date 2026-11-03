@@ -82,7 +82,7 @@ class TopbarComponent < ApplicationComponent
 
 		def build_hamburger
 			options = @nav_tabs.map { |tab| hamburger_clone(tab) }.compact
-			options << hamburger_clone(@act_menu) if @act_menu
+			options << hamburger_clone(@acc_acts) if @acc_acts
 			return nil if options.empty?
 			DropdownComponent.new(menu_drop("hamburger", ham: true, options:))
 		end
@@ -125,7 +125,7 @@ class TopbarComponent < ApplicationComponent
 		end
 
 		def render_large_menu
-			content_tag(:div, class: "flex-1 flex items-center justify-center sm:items-stretch sm:justify-start", aria_label: "Main menu") do
+			content_tag(:div, class: "flex-1 flex items-center justify-center sm:items-stretch sm:justify-start", aria: { label: "Main menu" }) do
 				concat(render_logo)
 				concat(render_nav_tabs)
 			end
@@ -134,7 +134,7 @@ class TopbarComponent < ApplicationComponent
 		def render_nav_tabs
 			return if @nav_tabs.empty?
 
-			content_tag(:div, class: "hidden sm:block sm:ml-6 flex space-x-4 text-base text-gray-300", aria_label: "Navigation") do
+			content_tag(:div, class: "hidden md:block sm:ml-6 flex space-x-4 text-base text-gray-300", aria: { label: "Navigation" }) do
 				@nav_tabs.map { |tab|
 					if tab[:options].present?
 						render(DropdownComponent.new(tab))
@@ -148,7 +148,7 @@ class TopbarComponent < ApplicationComponent
 		def render_account_action
 			return unless @acc_acts
 
-			content_tag(:div, class: "hidden sm:block absolute inset-y-0 right-0 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0", aria_label: "Account") do
+			content_tag(:div, class: "hidden md:block absolute inset-y-0 right-0 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0", aria: { label: "Account" }) do
 				if @acc_acts[:options].present?
 					render(DropdownComponent.new(@acc_acts))
 				else
@@ -158,7 +158,7 @@ class TopbarComponent < ApplicationComponent
 		end
 
 		def render_ham_menu
-			content_tag(:div, class: "absolute inset-y-0 right-0 md:hidden flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0", aria_label: "Mobile menu") do
+			content_tag(:div, class: "absolute inset-y-0 right-0 md:hidden flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0", aria: { label: "Mobile menu" }) do
 				render(@ham_menu)
 			end
 		end
@@ -225,18 +225,53 @@ class TopbarComponent < ApplicationComponent
 
 		# Menu for teams visible to the user
 		def team_menu(user)
-			u_teams = user.teams
-			s_teams = []
-			t_url = "/clubs/#{user.club_id}/teams" if user.club_id
-			slast = Season.latest
-			u_teams.each { |team| s_teams << team if team.season == slast }
-			if s_teams.empty? && t_url
-				m_teams = menu_link(label: Team.label(:plural), url: t_url)
+			return nil if user.blank?
+
+			# All current-season teams the user can see, across all clubs.
+			# `.select` on the loaded collection, not a chain — keeps this
+			# independent of whatever scope `user.teams` already applies.
+			my_teams = user.teams.select { |t| t.season == Season.latest }
+
+			# Group by club, disambiguating team names when multi-club.
+			grouped = my_teams.group_by(&:club)
+
+			# In club context, restrict to that club only.
+			grouped = grouped.slice(@club) if @club
+
+			return nil if grouped.empty?
+
+			if grouped.size == 1
+				club, teams = grouped.first
+				flat_team_menu(club, teams)
 			else
-				m_teams = menu_drop("teams", label: Team.label(:plural))
-				s_teams.each { |team| m_teams[:options] << menu_link(label: team.to_s, url: "#{t_url}/#{team.id}") }
-				m_teams[:options] << menu_link(label: I18n.t("scope.all"), url: t_url) if t_url
+				nested_team_menu(grouped)
 			end
-			m_teams
+		end
+
+		def flat_team_menu(club, teams)
+			options = teams.map { |t| team_menu_link(t) }
+			options << all_teams_link(club)
+
+			menu_drop("teams", label: Team.label(:plural), options: options)
+		end
+
+		def nested_team_menu(grouped)
+			menu_drop("teams", label: Team.label(:plural), options: grouped.map do |club, teams|
+				options = teams.map { |t| team_menu_link(t) }
+				options << all_teams_link(club)
+
+				menu_drop("teams_club_#{club.id}", label: club.nick, options: options)
+			end)
+		end
+
+		def team_menu_link(team)
+			menu_link(
+				label: team.to_s,
+				url:   "/clubs/#{team.club_id}/teams/#{team.id}"
+			)
+		end
+
+		def all_teams_link(club)
+			menu_link(label: I18n.t("scope.all"), url: "/clubs/#{club.id}/teams")
 		end
 end

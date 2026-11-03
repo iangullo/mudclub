@@ -24,6 +24,7 @@ class Stat < ApplicationRecord
 	#-------------------------------------
 	self.inheritance_column = "not_sti"
 	belongs_to :event
+	# deprecated!! SHOULD BE linked to athlete assignments from now onwards
 	belongs_to :player  # id==0 => team stat; id==-1 => rival stat
 	scope :real, -> { where("id>0") }
 	scope :for_event, ->(e_id) { where(event_id: e_id) }

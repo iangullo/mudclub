@@ -1,0 +1,8 @@
+# test/fixtures/seasons.yml
+current:
+  start_date: <%= Date.current.beginning_of_year %>
+  end_date: <%= Date.current.end_of_year %>
+
+previous:
+  start_date: <%= 1.year.ago.beginning_of_year %>
+  end_date: <%= 1.year.ago.end_of_year %>

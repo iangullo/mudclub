@@ -1,4 +1,5 @@
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -20,8 +21,10 @@
 # app/components/responsive_steps_component.rb
 # ViewComponent to render drill steps.
 class StepsComponent < ApplicationComponent
+	WIDTH_CLASSES = { text: "md:w-1/2", full: "md:w-full" }.freeze
+
 	def initialize(steps:, court:)
-		@steps = steps.order(:order)
+		@steps = steps.order(:order).to_a
 		@court = court
 		@split = check_splits
 		@many = @steps.count > 1
@@ -45,7 +48,7 @@ class StepsComponent < ApplicationComponent
 
 	def render_header
 		content_tag(:div, class: "inline-flex font-semibold") do
-			concat(I18n.t("step.#{@many ? 'many' : 'explanation'}"))
+			concat(@many ? Step.label(:plural) : Step.fld(:explanation))
 		end
 	end
 
@@ -67,8 +70,8 @@ class StepsComponent < ApplicationComponent
 
 	def render_diagram(step)
 		return if step.has_text? && !(step.has_image? || step.has_svg?)
-		width = step.has_text? ? "1/2" : "full"
-		content_tag(:div, class: "step-diagram flex justify-center w-full md:w-#{width} h-auto overflow-x-auto") do
+		width = step.has_text? ? WIDTH_CLASSES[:text] : WIDTH_CLASSES[:full]
+		content_tag(:div, class: "step-diagram flex justify-center w-full #{width} h-auto overflow-x-auto") do
 			if step.has_image?
 				concat(render_image({ value: step.diagram.attachment }))
 			else

@@ -24,6 +24,7 @@ es:
         plural: Ejercicios
         short: Ejerc.
       actions:
+        delete: Borrar Ejercicio
         edit: Editar Ejercicio
         new: Crear Ejercicio
       fields:

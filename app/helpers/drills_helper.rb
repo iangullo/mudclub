@@ -249,9 +249,9 @@ module DrillsHelper
 		@drill.versions.each { |d_ver|
 			v_user = User.find_by(id: d_ver.whodunnit)
 			res << [
-				{ kind: :string, value: d_ver.created_at.localtime.strftime("%Y/%m/%d %H:%M"), align: "center", class: "border px py" },
-				{ kind: :string, value: v_user ? v_user.s_name : "", align: "center", class: "border px py" },
-				{ kind: :string, value: version_changes(d_ver), class: "border px py" }
+				{ kind: :string, value: d_ver.created_at.localtime.strftime("%Y/%m/%d %H:%M"), align: "center", class: "border px-1 py-1" },
+				{ kind: :string, value: v_user ? v_user.s_name : "", align: "center", class: "border px-1 py-1" },
+				{ kind: :string, value: version_changes(d_ver), class: "border px-1 py-1" }
 			]
 		}
 		res

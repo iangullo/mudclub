@@ -3,9 +3,9 @@
 		<div id="edit-roster-form-data">
 			<table>
 				<tr class="bg-indigo-900 text-gray-300">
-					<th class="border px py" align="center"><%= Assignment.fld(:number, :short) %></th>
-					<th class="border px py" align="left"><%= Person.fld(:name) %></th>
-					<th class="border px py" align="center"><%= Person.fld(:age) %></th>
+					<th class="border px-1 py-1" align="center"><%= Assignment.fld(:number, :short) %></th>
+					<th class="border px-1 py-1" align="left"><%= Person.fld(:name) %></th>
+					<th class="border px-1 py-1" align="center"><%= Person.fld(:age) %></th>
 				</tr>
 				<div id="player-selection">
 					<%= form.collection_check_boxes :athlete_ids, @eligible_athletes, :id, :to_s do |athlete| %>

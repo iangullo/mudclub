@@ -38,7 +38,7 @@ module DocumentsHelper
 			row = { url:, frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: doc.kind_label }
 			row[:items] << { kind: :normal, value: doc.title }
-			row[:items] << symbol_item(doc.active? ? :yes : :no, align: :center, class: "border px py")
+			row[:items] << symbol_item(doc.active? ? :yes : :no, align: :center, class: "border px-1 py-1")
 			row[:items] << normal_button({ kind: :delete, url:, name: doc.title, confirm: true }) if @policy.destroy?
 			rows << row
 		}

@@ -1,4 +1,5 @@
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -100,7 +101,7 @@ class SymbolComponent < ApplicationComponent
 
 	def default_class(type)
 		case type
-		when :icon then "m-1"
+		when :icon then "inline-block m-1"
 		when :object then "inline-block"
 		when :court then "w-full h-auto"
 		else "inline-block"
@@ -113,6 +114,7 @@ class SymbolComponent < ApplicationComponent
 
 	# Parse and set internal symbol parameters from options hash and data
 	def parse_options(options)
+		parse_symbol_id(options)
 		@css      = safe_attr(options, :css) || default_class(@type)
 		@data     = safe_attr(options, :data) || {}
 		@group    = safe_attr(options, :group) || false
@@ -120,7 +122,6 @@ class SymbolComponent < ApplicationComponent
 		@view_box = safe_attr(options, [ :view_box, :viewBox ]) || safe_attr(@data, [ :view_box, :viewBox ])
 		@wrap     = safe_attr(options, :wrap) || false
 
-		parse_symbol_id(options)
 
 		@width, @height = parse_size(options[:size])
 

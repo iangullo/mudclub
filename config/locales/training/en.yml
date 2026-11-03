@@ -24,6 +24,7 @@ en:
         plural: Drills
         short: Drill
       actions:
+        delete: Delete Drill
         edit: Edit Drill
         new: Create Drill
       fields:

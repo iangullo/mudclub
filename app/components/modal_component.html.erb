@@ -1,26 +1,22 @@
 <%= turbo_frame_tag "modal" do %>
 	<!-- Modal Container -->
 	<%= tag.div data: { controller: "turbo-modal", turbo_modal_target: "modal", action: "turbo:submit-end->turbo-modal#submitEnd" },
-				class: "fixed inset-0 z-20 flex bg-gray-500 bg-opacity-75 justify-center" do %>
-		<!-- Modal Outer Container -->
-		<div class="fixed z-30 top-10 bottom-0 m-2 flex items-start justify-center overflow-auto">
-			<!-- Modal Inner Container -->
-			<div modal-target="body"
-			class="bg-white rounded-lg shadow-xl flex flex-col"
-			style="width: <%= @width %>; height: <%= @height %>; max-width: 100%; max-height: 100%;">
-				<!-- Modal Card -->
-				<div class="overflow-auto p-3">
-					<%= turbo_frame_tag "modal-body" do %>
-						<%= content %>
-						<% if @close %>
-							<div class="flow-root mt-3">
-								<div class="float-left ml-3">
-									<%= render @close %>
-								</div>
+				class: "fixed inset-0 z-20 flex bg-gray-500/75 justify-center" do %>
+		<!-- Modal Inner Container -->
+		<div class="fixed z-30 top-10 m-2 bg-white rounded-lg shadow-xl flex flex-col min-h-0 min-w-0 overflow-auto"
+			style="max-width: <%= @width %>%; max-height: <%= @height %>">
+			<!-- Modal Card -->
+			<div class="p-3">
+				<%= turbo_frame_tag "modal-body" do %>
+					<%= content %>
+					<% if @close %>
+						<div class="flow-root mt-3">
+							<div class="float-left ml-3">
+								<%= render @close %>
 							</div>
-						<% end %>
+						</div>
 					<% end %>
-				</div>
+				<% end %>
 			</div>
 		</div>
 	<% end %>

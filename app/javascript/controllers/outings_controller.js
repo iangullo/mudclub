@@ -1,9 +1,8 @@
 // app/javascript/controllers/outings_controller.js
-// Assistance from ChatGPT tweaking behaviour!
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["player"];
+  static targets = ["athlete"];
 
   connect() {
     // Get the table element
@@ -14,12 +13,12 @@ export default class extends Controller {
     this.min = parseInt(table.getAttribute("data-min"), 10);
     this.max = parseInt(table.getAttribute("data-max"), 10);
     this.totalPeriods = parseInt(table.getAttribute("data-tot"), 10);
-    this.activePlayers = parseInt(table.getAttribute("data-act"), 10);
+    this.activeAthletes = parseInt(table.getAttribute("data-act"), 10);
     this.firstPeriods = parseInt(table.getAttribute("data-first"), 10);
     this.checkboxes = {};
 
     // Iterate through rows to dynamically discover column IDs and store checkboxes
-    this.playerTargets.forEach((row) => {
+    this.athleteTargets.forEach((row) => {
       const checkboxesInRow = row.querySelectorAll("input[type='checkbox']");
       checkboxesInRow.forEach((checkbox) => {
         const columnId = checkbox.getAttribute("data-columnId");
@@ -97,7 +96,7 @@ export default class extends Controller {
     });
 
     //console.log(`validateColumn(${columnId}) ==> ${columnOutings}`)
-    return columnOutings === this.activePlayers;
+    return columnOutings === this.activeAthletes;
   }
 
   updateColIndicator(columnId, isColRuleMet) {

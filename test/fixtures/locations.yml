@@ -1,0 +1,8 @@
+# test/fixtures/locations.yml
+home_court:
+  name: Home Court
+  practice_court: false
+
+indoor_gym:
+  name: Indoor Gym
+  practice_court: true

@@ -56,7 +56,7 @@ class TeamsController < ApplicationController
 		w_l = @team.win_loss
 		if w_l[:won] > 0 || w_l[:lost] > 0
 			wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
-			title << [ helpers.gap_field, { kind: :text, value: wlstr } ]
+			title << [ helpers.gap_item, { kind: :text, value: wlstr } ]
 		end
 		@title   = create_fields(title)
 		@coaches = create_fields(helpers.team_coaches)

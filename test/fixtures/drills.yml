@@ -1,0 +1,8 @@
+warmup:
+  name: "Warmup drill"
+  kind: warmup
+  description: "Simple warmup"
+  court_mode: "half"
+  sport: basketball
+  author: alice
+  coach: alice_coach

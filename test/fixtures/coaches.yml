@@ -1,0 +1,4 @@
+# test/fixtures/coaches.yml
+alice_coach:
+  person_id: <%= ActiveRecord::FixtureSet.identify(:alice, :people) %>
+  club_id: <%= ActiveRecord::FixtureSet.identify(:north, :clubs) %>

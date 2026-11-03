@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
-/* ─── 1. Safelist dfynamic classes ─────────────────── */
+/* ─── 1. Safelist dynamic classes ─────────────────── */
 @source inline("md:col-span-1 md:col-span-2 md:col-span-3 md:col-span-4 md:col-span-5 md:col-span-6 md:col-span-7 md:col-span-8 md:col-span-9 md:col-span-10 md:col-span-11 md:col-span-12");
 @source inline("md:row-span-1 md:row-span-2 md:row-span-3 md:row-span-4 md:row-span-5 md:row-span-6");
 @source inline("col-span-1 col-span-2 col-span-3 col-span-4 col-span-5 col-span-6");
 @source inline("row-span-1 row-span-2 row-span-3 row-span-4");
+@source "../../components/**/*.{erb,rb}";
+@source "../../views/**/*.{erb,haml,slim}";
 
-/* ─── 2. Restore v3 defaults for border & ring ─────── */
+/* ─── 2. Base overrides (Tailwind v3 compatibility) ── */
 @layer base {
 
     *,
@@ -16,19 +18,122 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
-}
-
-@layer base {
 
     *,
     ::after,
     ::before {
-        /* v3 used 3px ring with blue-500 color by default */
         --tw-ring-color: var(--color-blue-500, currentColor);
     }
 }
 
-/* ─── 3. Restore native select/input (optional) ───── */
-/* If mneeded, add plugin forms: */
-/* npm install -D @tailwindcss/forms                       */
-/* then: @plugin "@tailwindcss/forms";                    */
+/* ─── 3. Component classes ─────────────────────────── */
+@layer components {
+
+    /* Fluid typography */
+    .text-fluid {
+        font-size: clamp(0.875rem, 2vw, 1.25rem);
+    }
+
+    /* Nested form alignment */
+    [data-nested-form-target="item"] {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    /* Diagram */
+    .diagram-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .diagram-container svg {
+        position: relative;
+        max-width: 100%;
+        height: auto;
+        top: unset;
+        left: unset;
+    }
+
+    .control-point,
+    .handle,
+    .symbol {
+        touch-action: none;
+    }
+
+    /* Steps */
+    .step-container {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        align-items: start;
+        padding-bottom: 0;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .responsive-steps>.step-container:last-child,
+    .step-container:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .step-order {
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1rem;
+        position: sticky;
+        top: 1rem;
+    }
+
+    .step-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        padding-bottom: 0;
+    }
+
+    .step-diagram,
+    .step-explanation {
+        overflow: hidden;
+        background: white;
+    }
+
+    .step-content hr.rounded {
+        display: none;
+    }
+
+    @media (min-width: 768px) {
+        .step-content {
+            display: flex;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+        }
+    }
+
+    /* Image / step overlay — self-contained */
+    .overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .overlay:hover {
+        opacity: 1;
+    }
+}

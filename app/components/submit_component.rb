@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -27,11 +27,15 @@ class SubmitComponent < ApplicationComponent
 	end
 
 	def call
-		content_tag(:div, class: "inline-flex align-middle flow-root mt-2 mb-1") do
-			render_button(@close, "float-left mr-4 ml-1") if @close.present?
+		content_tag(:div, class: "flex w-full items-center justify-between mt-2 mb-1") do
+			if @close.present?
+				concat(content_tag(:div, class: "mr-4 ml-1") { render(@close) })
+			else
+				concat(content_tag(:div, ""))  # placeholder so justify-between anchors submit right
+			end
 
 			if @submit.present? || @actions.any?
-				concat(content_tag(:div, class: "float-right ml-4 mr-1 inline-flex align-middle") do
+				concat(content_tag(:div, class: "ml-4 mr-1 flex items-center") do
 					@actions.each do |btn|
 						concat(content_tag(:div, class: "ml-2") { render(btn) })
 					end
@@ -65,11 +69,5 @@ class SubmitComponent < ApplicationComponent
 				end
 
 			ButtonComponent.new(**cfg)
-		end
-
-		def render_button(button, div_class)
-			concat(content_tag(:div, class: div_class) do
-				render(button)
-			end)
 		end
 end

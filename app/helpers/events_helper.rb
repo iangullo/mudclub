@@ -401,7 +401,7 @@ module EventsHelper
 					{ kind: :side_cell, value: @event.term(:match), align: :left, cols: 2 }
 				]
 				res << [
-					symbol_item(:location, { title: ILocation.label }, align: :right),
+					symbol_item(:location, { title: Location.label }, align: :right),
 					{ kind: :select_collection, key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'", cols: 6 },
 					hidden_input(:homecourt_id, @team.homecourt_id, i_data: { match_location_target: "homeCourtId" })
 				]

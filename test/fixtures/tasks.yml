@@ -1,0 +1,12 @@
+# test/fixtures/tasks.yml
+warmup_1:
+  event: train_north
+  drill: warmup
+  order: 1
+  duration: 600
+
+warmup_2:
+  event: train_north
+  drill: warmup
+  order: 2
+  duration: 300

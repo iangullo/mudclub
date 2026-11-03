@@ -1,0 +1,10 @@
+# test/fixtures/steps.yml
+warmup_step_1:
+  drill: warmup # ← adjust to your Drill fixture label — currently `warmup`
+  order: 1
+  svgdata: {}
+
+warmup_step_2:
+  drill: warmup
+  order: 2
+  svgdata: {}

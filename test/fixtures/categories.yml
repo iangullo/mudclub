@@ -1,0 +1,14 @@
+# test/fixtures/categories.yml
+senior_mixed:
+  age_group: Senior
+  sex: mixed
+  min_years: 0
+  max_years: 99
+  rules: 0
+
+u18_male:
+  age_group: U18
+  sex: male
+  min_years: 15
+  max_years: 17
+  rules: 0

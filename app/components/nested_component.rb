@@ -41,8 +41,14 @@ class NestedComponent < ApplicationComponent
 		@btn_add = ButtonComponent.new(kind: :add_nested)
 	end
 
+	def render?
+		@form.present?
+	end
+
 	private
-		# build placeholde child only once
+		# Build the placeholder child for the NEW_RECORD template. If :child
+		# is a lambda, it runs on each render so every refresh starts with a
+		# fresh object. If it's an instance, that instance is reused.
 		def build_child
 			@child.respond_to?(:call) ? @child.call : @child
 		end

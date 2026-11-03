@@ -1,0 +1,6 @@
+alice:
+  email: "alice@mudclub.test"
+  encrypted_password: "$2a$04$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY"
+  person: alice
+  club: north
+  role: 0

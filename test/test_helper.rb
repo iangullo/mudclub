@@ -2,6 +2,8 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require "capybara/rails"
+require "nokogiri"
 
 class ActiveSupport::TestCase
 	# Run tests in parallel with specified workers
@@ -10,8 +12,12 @@ class ActiveSupport::TestCase
 	# Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
 	fixtures :all
 
-	# Stub estilo minitest/mock sin depender de minitest/mock.
-	# Uso:  with_stub(Rails.application.config, :cache_store, :solid_cache_store) { ... }
+	def parsed(html)
+		Nokogiri::HTML.fragment(html)
+	end
+
+	# minitest/mock style Stub to avoid adding dependency of minitest/mock.
+	# Use:  with_stub(Rails.application.config, :cache_store, :solid_cache_store) { ... }
 	def with_stub(receiver, method_name, value)
 		original = receiver.method(method_name) rescue nil
 		receiver.define_singleton_method(method_name) { |*_args, **_kwargs, &_blk| value }

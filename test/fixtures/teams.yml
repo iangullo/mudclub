@@ -1,0 +1,44 @@
+# test/fixtures/teams.yml
+# Teams belong to clubs via FK. Use identify(:label) — never a literal integer.
+senior_a:
+  name: Test Seniors
+  nick: Senior A
+  club: test_club
+  sport: basketball
+  season: current
+  category: senior_mixed
+  division: local
+  homecourt: home_court
+  locked: false
+
+u18_male:
+  name: U18 Male
+  club: test_club
+  sport: basketball
+  season: previous
+  category: u18_male
+  division: regional
+  homecourt: home_court
+  locked: true
+
+north_senior:
+  name: "Northside Senior"
+  nick: "NSC-A"
+  club: north
+  sport: basketball
+  season: current
+  category: senior_mixed
+  division: local
+  homecourt: home_court
+  locked: false
+
+south_senior:
+  name: "Southside Senior"
+  nick: "SSC-A"
+  club: south
+  sport: basketball
+  season: current
+  category: senior_mixed
+  division: local
+  homecourt: home_court
+  locked: false

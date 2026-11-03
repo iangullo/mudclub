@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -64,14 +64,15 @@
 # => :top_cell: :value (content styled like a TableComponent top_cell)
 # => :upload: :label, :key (form binding for content), :value (file already assigned)
 class FieldsComponent < ApplicationComponent
-	def initialize(fields, form: nil)
-		@form   = form
-		@fields = parse(fields)
+	def initialize(fields, form: nil, classes: [])
+		@classes = classes
+		@form    = form
+		@fields  = parse(fields)
 	end
 
 	# render to html
 	def call
-		table_tag do
+		table_tag(classes: @classes) do
 			@fields.map do |row|
 				tablerow_tag do
 					row.map { |field| render field }.join.html_safe
@@ -85,7 +86,7 @@ class FieldsComponent < ApplicationComponent
 		@form = formobj
 		@fields.each do |row|
 			row.each do |field|
-				field.form = formobj
+				field.form = formobj if field.respond_to?(:form=)
 			end
 		end
 	end
@@ -98,13 +99,8 @@ class FieldsComponent < ApplicationComponent
 	# parse all specified fields to set the correct rendering
 	# parmeters for each.
 	def parse(fields)
-		res = Array.new
-		fields.each do |row|
-			res << [] # new row n header
-			row.each do |field|
-				res.last << FieldItemComponent.new(field, form: @form)
-			end
+		fields.map do |row|
+			Array(row).map { |field| FieldItemComponent.new(field, form: @form) }
 		end
-		res
 	end
 end
