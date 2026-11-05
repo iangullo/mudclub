@@ -207,6 +207,8 @@ es:
     # Colores
     #
     colors:
+      single: Color
+      plural: Colores
       black: Negro
       blue: Azul
       brown: Marrón

@@ -171,6 +171,10 @@ class ApplicationRecord < ActiveRecord::Base
 		@i18n_scope
 	end
 
+	def self.uuid?(value)
+		value.to_s.match?(/\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/)
+	end
+
 	private
 
 		def self.attachments_changed_on?(record)
@@ -244,4 +248,6 @@ class ApplicationRecord < ActiveRecord::Base
 		ensure
 			new_file.rewind if new_file.respond_to?(:rewind)
 		end
+
+		def uuid?(value) = self.class.uuid?(value)
 end

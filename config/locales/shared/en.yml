@@ -208,6 +208,8 @@ en:
     # Colours
     #
     colors:
+      single: Colour
+      plural: Colours
       black: Black
       blue: Blue
       brown: Brown

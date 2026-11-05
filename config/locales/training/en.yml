@@ -50,10 +50,11 @@ en:
         deleted: Drill deleted.
 
     drill_kind:
-      single: Kind
-      plural: Kinds
-      short: Kind
-      hint: Drill kind
+      label:
+        single: Kind
+        plural: Kinds
+        short: Kind
+        hint: Drill kind
       fields:
         name: Name
       values:

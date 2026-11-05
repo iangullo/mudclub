@@ -1,6 +1,6 @@
 <%= render ModalComponent.new do %>
-	<%= form_for @event, data: {turbo_frame: "_top"} do |form| %>
-		<%= render @title %>
+	<%= form_for resource_route(@event), data: {turbo_frame: "_top"} do |form| %>
+		<%= render @header %>
 		<% @fields.form = form %>
 		<%= render @fields %>
 		<%= render @submit %>

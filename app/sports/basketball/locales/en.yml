@@ -83,25 +83,27 @@ en:
           ot_short: OT
 
       court_modes:
-        full: Full court
-        full_short: Full
-        half_off: Offensive half court
-        half_off_short: Off.
-        half_def: Defensive half court
-        half_def_short: Def.
+        values:
+          full: Full court
+          full_short: Full
+          half_off: Offensive half court
+          half_off_short: Off.
+          half_def: Defensive half court
+          half_def_short: Def.
 
       objects:
-        attacker: Attacker
-        defender: Defender
-        coach: Coach
-        cone: Cone
-        ball: Ball
-        move: Move
-        pass: Pass
-        dribble: Dribble
-        shot: Shot
-        pick: Pick/Screen
-        handoff: Hand-off
+        values:
+          attacker: Attacker
+          defender: Defender
+          coach: Coach
+          cone: Cone
+          ball: Ball
+          move: Move
+          pass: Pass
+          dribble: Dribble
+          shot: Shot
+          pick: Pick/Screen
+          handoff: Hand-off
 
       stats:
         sec: Time

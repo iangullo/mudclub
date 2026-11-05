@@ -20,22 +20,6 @@
 class Basketball < Sport
 	localized_as "sport.basketball"
 
-	#
-	# --------------------------------------------------------------------------
-	# Initialization
-	# --------------------------------------------------------------------------
-	def initialize(*args)
-		super(*args)
-		self.name = "basketball"
-		self.settings = basketball_settings if settings.blank?
-	end
-
-	# return parent object
-	def generic
-		self.becomes(Sport)
-	end
-
-	#
 	# --------------------------------------------------------------------------
 	# Catalogs
 	# --------------------------------------------------------------------------
@@ -47,29 +31,51 @@ class Basketball < Sport
 		statistics: Catalog::Basketball::Statistics
 	}.freeze
 
-	#
 	# --------------------------------------------------------------------------
-	# Default configuration
+	# Initialization
 	# --------------------------------------------------------------------------
-
-	# return possible court designs for drills/plays
-	def court_modes
-		catalog(:court_modes)
+	def initialize(*args)
+		super(*args)
+		self.name ||= "basketball"
+		self.settings = basketball_settings if settings.blank?
 	end
 
+	# Populate missing settings groups on every instantiation, whether the
+	# object is new or loaded from the DB. `find`/`first` bypass `initialize`,
+	# so defaults must be applied here as well.
 	#
+	# Runs in-memory only — does not persist. For fresh records the value will
+	# be written on `save`. For loaded records with stale/partial settings,
+	# the repair lives only in this in-memory object (which is deterministic,
+	# so it self-heals on next load as well).
+	after_initialize do
+		if settings[:scoring].blank? || settings[:limits].blank?
+			write_attribute(:settings, basketball_settings.deep_merge(settings))
+		end
+	end
+
+	# return parent object
+	def generic
+		self.becomes(Sport)
+	end
+
 	# --------------------------------------------------------------------------
 	# Match metadata
 	# --------------------------------------------------------------------------
-
 	# fields to display match information - not title
-	def match_show(event)
-		match_fields(event)
-	end
+	def match_show(event) = match_fields(event)
 
 	# fields to edit a match
-	def match_form(event, new: false)
-		match_fields(event, edit: true, new:)
+	def match_form(event, new: false) = match_fields(event, edit: true, new:)
+
+	def match_periods(rule)
+		config = limits_for(rule)
+		return nil unless config
+
+		periods = config[:periods] || config["periods"]
+		return nil unless periods
+
+		periods[:regular] || periods["regular"]
 	end
 
 	# return period limitations for a match of this sport
@@ -91,11 +97,9 @@ class Basketball < Sport
 		}
 	end
 
-	#
 	# --------------------------------------------------------------------------
 	# Rule helpers
 	# --------------------------------------------------------------------------
-
 	# default applicable rules for a category
 	def default_rules(category)
 		case category.age
@@ -117,12 +121,10 @@ class Basketball < Sport
 		res
 	end
 
-	#
 	# --------------------------------------------------------------------------
 	# Tables
 	# --------------------------------------------------------------------------
-
-	# table to show/edit player outings for a match
+	# table to show/edit athlete outings for a match
 	def outings_table(event, outings, edit: false, rdx: nil)
 		title = [
 			{ kind: :normal, value: Assignment.fld(:shirt_number_short), align: :center },
@@ -132,41 +134,44 @@ class Basketball < Sport
 		kind  = (edit ? :text : :normal)
 		e_stats    = event.stats
 		t_rules    = self.rules.key(event.team.category.rules)
-		data       = self.limits[t_rules][:outings]
-		data[:tot] = self.limits[t_rules][:periods][:regular]
-		data[:act] = self.limits[t_rules][:playing][:max]
+		config     = limits[t_rules] || {}
+		data       = (config[:outings] || {}).dup
+		data[:tot] = config.dig(:periods, :regular)
+		data[:act] = config.dig(:playing, :max)
+		return nil if data.empty? || data[:tot].nil?
+
 		if periods
-			q_players = {}
+			q_athletes = {}
 			1.upto(outings[:total]) do |i|
 				title << { kind: :normal, value: t_path(:periods, :values, "q#{i}_short".to_sym) }
-				q_players[i] = 0
+				q_athletes[i] = 0
 			end
 		end
-		event.players.order(:number).each do |player|
-			p_outings  = 0
-			p_stats    = Stat.fetch(player_id: player.id, stats: e_stats, create: false)
+		event.athletes.each do |athlete|
+			a_outings  = 0
+			a_stats    = Stat.fetch(kind: :athlete, athlete_id: athlete.id, stats: e_stats, create: false)
 			row        = { items: [] }
-			row[:url]  = "/players/#{player.id}?event_id=#{event.id}&rdx=#{rdx}" unless edit
-			row[:items] << { kind:, value: player.number.to_s, align: :center }
-			row[:items] << { kind:, value: player.s_name }
+			row[:url]  = event.attendee_url(athlete, rdx:) unless edit
+			row[:items] << { kind:, value: athlete.number.to_s, align: :center }
+			row[:items] << { kind:, value: athlete.s_name }
 			1.upto(outings[:total]) do |q|
-				q_val = Stat.fetch(period: q, stats: p_stats, create: false).first&.value.to_i
+				q_val = Stat.fetch(period: q, stats: a_stats, create: false).first&.value.to_i
 				if edit
-					row[:items] << { kind: :checkbox_q, key: :outings, player_id: player.id, q: "q#{q}", value: q_val, align: :center, data: { columnId: "q#{q}" } }
+					row[:items] << { kind: :checkbox_q, key: :outings, athlete_id: athlete.id, q: "q#{q}", value: q_val, align: :center, data: { columnId: "q#{q}" } }
 				elsif q_val == 1
-					p_outings    += 1 if q <= data[:first]
-					q_players[q] += 1
+					a_outings     += 1 if q <= data[:first]
+					q_athletes[q] += 1
 					row[:items] << { kind: :symbol, symbol: { concept: "yes", options: {} }, class: "" }
 				else
 					row[:items] << { kind: :gap, size: 1, class: "border px-1 py-1" }
 				end
 			end
-			row[:classes] = (p_outings < data[:min]) || (p_outings > data[:max]) ? [ "border", "px", "py", "bg-red-300" ] : []
+			row[:classes] = (a_outings < data[:min]) || (a_outings > data[:max]) ? [ "border", "px", "py", "bg-red-300" ] : []
 			rows << row
 		end
 		unless edit
 			1.upto(outings[:total]) do |i|
-				if q_players[i] != data[:act]	# higligh all the Q as "bad"
+				if q_athletes[i] != data[:act]	# higligh all the Q as "bad"
 					rows.each { |row| row[:items][1+i][:class] += " bg-red-300" }
 				end
 			end
@@ -174,44 +179,42 @@ class Basketball < Sport
 		{ title:, rows:, data: }
 	end
 
-	# table to show/edit player stats for a match
+	# table to show/edit athlete stats for a match
 	def stats_table(event, edit: false, rdx: nil)
 		head = match_stats_header(edit:)
 		rows = []
 		e_stats = event.stats
-		event.players.order(:number).each do |player|
-			p_stats   = Stat.fetch(player_id: player.id, period: 0, stats: e_stats, create: false)
-			row       = { items: [] }
-			row[:url] = "/players/#{player.id}?event_id=#{event.id}&rdx=#{rdx}" unless edit
-			row[:items] = match_stats_row(player, p_stats, edit:)
+		event.athletes.each do |athlete|
+			a_stats     = Stat.fetch(athlete_id: athlete.id, period: 0, stats: e_stats, create: false)
+			row         = { items: [] }
+			row[:url]   = event.attendee_url(athlete, rdx:) unless edit
+			row[:items] = match_stats_row(athlete, a_stats, edit:)
 			rows << row
 		end
 		{ title: head, rows: rows }
 	end
 
-	#
 	# --------------------------------------------------------------------------
 	# Training
 	# --------------------------------------------------------------------------
-
-	# fields to display player's stats for training
-	def player_training_stats_show(event, player_id:)
-		stats = Stat.fetch(event_id: event.id, period: 0, player_id:, create: false)
-		res   = player_training_stats_header
+	# fields to display athlete stats for training
+	def athlete_training_stats_show(event, athlete_id:)
+		stats = Stat.fetch(event_id: event.id, period: 0, athlete_id:, create: false)
+		res   = athlete_training_stats_header
 		res << show_shooting_data(s_label("ft"), stats, :ftm, :fta)
 		res << show_shooting_data(s_label("tz"), stats, :tzm, :tza)
 		res << show_shooting_data(s_label("tm"), stats, :tmm, :tma)
 		res << show_shooting_data(s_label("t3"), stats, :t3m, :t3a)
-		get_shooting_totals(event.id, player_id, stats)
+		get_shooting_totals(event.id, athlete_id, stats)
 		res << show_shooting_data(t_path("shared.stats.total_short"), stats, :fgm, :fga)
 		res
 	end
 
-	# fields to track player training stats
-	def player_training_stats_form(event, player_id:)
-		key   = "#{player_id}_0_"
-		stats = Stat.fetch(event_id: event.id, player_id:)
-		res   = player_training_stats_header
+	# fields to track athlete training stats
+	def athlete_training_stats_form(event, athlete_id:)
+		key   = "#{athlete_id}_0_"
+		stats = Stat.fetch(event_id: event.id, athlete_id:)
+		res   = athlete_training_stats_header
 		res << form_shooting_data(key, s_label("ft"), stats, :ftm, :fta)
 		res << form_shooting_data(key, s_label("tz"), stats, :tzm, :tza)
 		res << form_shooting_data(key, s_label("tm"), stats, :tmm, :tma)
@@ -219,39 +222,22 @@ class Basketball < Sport
 		res
 	end
 
-	#
+	# Some pre-processing of stats_data
+	# before parsing normally - grouping & additional calculations
+	def parse_stats(event, stats_data)
+		event.athletes.each do |athlete|
+			parse_athlete_stats(athlete.id, stats_data)
+		end
+	end
+
 	# --------------------------------------------------------------------------
 	# Symbols
 	# --------------------------------------------------------------------------
-
 	# retrieve an SVG symbol from the registry
 	def symbol(concept, type: :object, variant: "default")
 		try_symbol(concept, namespace: self.name, type:, variant:) || super
 	end
 
-	# human name of a specific court
-	def court_name(court)
-		court_entry =
-			case court
-			when Catalog::Entry
-					court
-			when String
-				court_modes.fetch(court)
-			when Integer
-				court_modes.entry(court)
-			end
-
-		court_entry.label
-	end
-
-	# Some pre-processing of stats_data
-	# before parsing normally - grouping & additional calculations
-	def parse_stats(event, stats_data)
-		event.players.each { |player| parse_player_stats(player.id, stats_data) }
-		super(event, stats_data)
-	end
-
-	#
 	# --------------------------------------------------------------------------
 	# Internal helpers
 	# --------------------------------------------------------------------------
@@ -283,8 +269,8 @@ class Basketball < Sport
 			{ sets: false, points: :pts }
 		end
 
-		# header fields to show player training_stats
-		def player_training_stats_header
+		# header fields to show athlete training_stats
+		def athlete_training_stats_header
 			res = [ [ { kind: :gap }, { kind: :side_cell, value: t_path("training.stats.plural"), align: "middle", cols: 5 } ] ]
 			res << [
 				{ kind: :gap },
@@ -303,8 +289,8 @@ class Basketball < Sport
 
 		# standardised shooting data fields
 		def show_shooting_data(label, stats, scored, attempts)
-			s_key = self.stats[scored.to_s]
-			a_key = self.stats[attempts.to_s]
+			s_key = statistics.enum[scored]
+			a_key = statistics.enum[attempts]
 			made  = Stat.fetch(concept: s_key, period: 0, stats:).first&.value.to_i
 			taken = Stat.fetch(concept: a_key, period: 0, stats:).first&.value.to_i
 			pctg  = taken > 0 ? (made*100/taken) : "N/A"
@@ -320,18 +306,35 @@ class Basketball < Sport
 		end
 
 		# add field goal totals to shooting_data stats
-		def get_shooting_totals(event_id, player_id, stats)
-			made = include_stat_in_event(event_id:, player_id:, period: 0, concept: :fgm)
-			made.update(value: sum_stats(stats, SCORED))
-			shot = include_stat_in_event(event_id:, player_id:, period: 0, concept: :fga)
-			shot.update(value: sum_stats(stats, ATTEMPTS))
+		def get_shooting_totals(event_id, athlete_id, stats)
+			%i[fgm fga].each do |concept|
+				entry = statistics.fetch(concept)
+
+				total = entry.components.sum do |component|
+					Stat.fetch(concept: statistics.enum[component], period: 0, stats:)
+							.first&.value.to_i
+				end
+
+				cached = stats.find { |s| s.concept == entry.id && s.period == 0 }
+
+				if cached
+					cached.update!(value: total) if cached.value != total
+				else
+					stats << Stat.create!(
+						Stat.build_attrs(
+							event_id:, period: 0, concept: entry.id,
+							kind: :athlete, athlete_id:, value: total
+						)
+					)
+				end
+			end
 		end
 
 		# standardised shooting form fields
 		def form_shooting_data(key, label, stats, scored, attempts)
-			k_made  = self.stats[scored.to_s]
+			k_made  = statistics.enum[scored]
 			v_made  = Stat.fetch(concept: k_made, stats:).first&.value.to_i
-			k_taken = self.stats[attempts.to_s]
+			k_taken = statistics.enum[attempts]
 			v_taken = Stat.fetch(concept: k_taken, stats:).first&.value.to_i
 			[
 				{ kind: :gap },
@@ -429,16 +432,6 @@ class Basketball < Sport
 			fields
 		end
 
-		def match_periods(rule)
-			config = limits_for(rule)
-			return nil unless config
-
-			periods = config[:periods] || config["periods"]
-			return nil unless periods
-
-			periods[:regular] || periods["regular"]
-		end
-
 		# fields for home team in a match
 		def team_name(event, home:, edit: false)
 			if edit
@@ -521,13 +514,13 @@ class Basketball < Sport
 			]
 		end
 
-		# row fields for a player's stats
-		def match_stats_row(player, stats, edit: false)
-			prefix  = "#{player.id}_0_"
+		# row fields for an athlete's stats
+		def match_stats_row(athlete, stats, edit: false)
+			prefix  = "#{athlete.id}_0_"
 
 			fields = [
-				{ kind: :normal, value: player.number, align: :center },
-				{ kind: :normal, value: player.s_name },
+				{ kind: :normal, value: athlete.number, align: :center },
+				{ kind: :normal, value: athlete.s_name },
 				stat_field(prefix, stats, statistics.fetch(:sec), edit:)
 			]
 
@@ -553,9 +546,9 @@ class Basketball < Sport
 			]
 		end
 
-		# parse a player's stats from a form input
-		def parse_player_stats(player_id, stats)
-			kplay = "#{player_id}_0_"
+		# parse an athlete's stats from a form input
+		def parse_athlete_stats(athlete_id, stats)
+			kplay = "#{athlete_id}_0_"
 			pstat = { pta: 0, pts: 0, fga: 0, fgm: 0, t2a: 0, t2m: 0 }
 			stats.each_pair do |key, val|
 				if key.start_with?(kplay)

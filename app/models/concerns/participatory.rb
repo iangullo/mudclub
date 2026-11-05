@@ -69,6 +69,12 @@ module Participatory
 		status.to_sym == :active
 	end
 
+	def active_on?(date)
+		return false if ends_on && ends_on < date
+		return false if starts_on && starts_on > date
+		true
+	end
+
 	def current?
 		starts_on.present? &&
 			starts_on <= Date.current &&

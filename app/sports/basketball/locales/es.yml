@@ -89,25 +89,27 @@ es:
           ot_short: PR
 
       court_modes:
-        full: Pista completa
-        full_short: Completa
-        half_off: Media pista (ataque)
-        half_off_short: Of.
-        half_def: Media pista (defensa)
-        half_def_short: Def.
+        values:
+          full: Pista completa
+          full_short: Completa
+          half_off: Media pista (ataque)
+          half_off_short: Of.
+          half_def: Media pista (defensa)
+          half_def_short: Def.
 
       objects:
-        attacker: Atacante
-        defender: Defensor
-        coach: Entrenador
-        cone: Cono
-        ball: Balón
-        move: Movimiento
-        pass: Pase
-        dribble: Bote
-        shot: Tiro
-        pick: Bloqueo
-        handoff: Mano a mano
+        values:
+          attacker: Atacante
+          defender: Defensor
+          coach: Entrenador
+          cone: Cono
+          ball: Balón
+          move: Movimiento
+          pass: Pase
+          dribble: Bote
+          shot: Tiro
+          pick: Bloqueo
+          handoff: Mano a mano
 
       stats:
         sec: Tiempo

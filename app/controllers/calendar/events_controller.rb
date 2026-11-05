@@ -21,6 +21,7 @@ class EventsController < ApplicationController
 	include Filterable
 	include PdfGenerator
 	before_action :set_event, only: %i[ show edit add_task show_task edit_task athlete_stats edit_athlete_stats load_chart attendance copy update destroy ]
+	before_action :set_athlete, only: %i[ athlete_stats edit_athlete_stats ]
 
 	# GET /events or /events.json
 	def index
@@ -51,12 +52,18 @@ class EventsController < ApplicationController
 				end
 			end
 			format.html do
+				set_athlete
 				@title = create_fields(title)
-				person = Person.find_by_id(params[:athlete_id].presence) || u_person
+				submit = path_for(@event, action: :edit) if @policy.edit?
+				person = @athlete&.person || u_person
 				if @event.rest?
-					submit  = edit_event_path if @policy.edit?
 					@submit = create_submit(submit:, frame: :modal)
 				elsif @event.train? && @event.team.has_athlete?(person)	# we want to check athlete stats for a training session
+					athlete_id = (
+						@athlete ||
+						@event.team.athletes(current: true).joins(:membership)
+									.find_by(memberships: { person_id: person.id })
+					)&.id
 					redirect_to path_for(@event, action: athlete_stats, athlete_id:, cal: @cal), data: { turbo_action: "replace" }
 				else	# gotta be a coach or manager
 					if @event.match?
@@ -67,7 +74,6 @@ class EventsController < ApplicationController
 						@targets = create_fields(helpers.training_target)
 						@fields  = create_fields(helpers.training_show)
 					end
-					submit  = edit_event_path if @policy.edit?
 					@submit = create_submit(close: :back, retlnk: back_link(default: anchor_lnk), submit:)
 				end
 			end
@@ -131,8 +137,8 @@ class EventsController < ApplicationController
 			@athlete = Assignment.find_by_id(e_data[:athlete_id].presence)
 			@event.rebuild(e_data)
 			cru_return(e_data)
-			if e_data[:athlete_ids].present?	# updated attendance
-				changed = check_attendance(e_data[:athlete_ids])
+			if e_data[:athlete_assignment_ids].present?	# updated attendance
+				changed = check_attendance(e_data[:athlete_assignment_ids])
 			elsif e_data[:task].present? # updated task from edit_task_form
 				changed = check_task(e_data[:task])
 				@notice = @notice + @task.to_s if changed
@@ -180,7 +186,7 @@ class EventsController < ApplicationController
 	def attendance
 		@policy = check_policy!(EventPolicy, record: @event)
 
-		@title  = create_fields(helpers.event_attendance_title)
+		@header = create_fields(helpers.event_attendance_header)
 		@fields = create_fields(helpers.event_attendance_form)
 		@submit = create_submit(retlnk: event_path)
 	end
@@ -203,13 +209,13 @@ class EventsController < ApplicationController
 	# GET /events/1/add_task
 	def add_task
 		@policy = check_policy!(EventPolicy, record: @event)
-		prepare_task_form("add", retlnk: edit_event_path, search_in: add_event_task_path)
+		prepare_task_form("add", retlnk: edit_event_path, search_in: event_action_path(:add_task))
 	end
 
 	# GET /events/1/edit_task
 	def edit_task
 		@policy = check_policy!(EventPolicy, record: @event)
-		prepare_task_form("edit", retlnk: edit_event_path, search_in: edit_event_task_path, task_id: true)
+		prepare_task_form("edit", retlnk: edit_event_path, search_in: event_action_path(:add_task, task_id: @task.id), task_id: true)
 	end
 
 	# GET /events/1/show_task
@@ -232,10 +238,9 @@ class EventsController < ApplicationController
 
 	# GET /events/1/athlete_stats?athlete_id=X
 	def athlete_stats
-		@athlete = Assignment.find_by_id(params[:athlete_id])&.person || u_person
-		@policy  = check_policy!(EventPolicy, record: @event, athlete: @athlete)
+		@policy  = check_policy!(EventPolicy, record: @event, person: @athlete&.person)
 
-		if @event.has_athlete?(@athlete)	# we do have an athlete
+		if @assignment && @event.has_athlete?(@athlete&.person)	# we do have an athlete
 			@title  = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
 			@fields = create_fields(helpers.event_athlete_stats)
 			@submit = create_submit(submit: path_for(@event, action: :edit_athlete_stats, athlete_id: @athlete.id), frame: :modal)
@@ -246,10 +251,9 @@ class EventsController < ApplicationController
 
 	# GET /events/1/edit_athlete_stats?athlete_id=X
 	def edit_athlete_stats
-		@athlete = Assignment.find_by_id(params[:athlete_id]).person || u_person
-		@policy  = check_policy!(EventPolicy, record: @event, athlete: @athlete)
+		@policy  = check_policy!(EventPolicy, record: @event, person: @athlete&.person)
 
-		if @event.has_athlete?(@athlete)	# we do have an athlete
+		if @event.has_athlete?(@athlete&.person)	# we do have an athlete
 			@title  = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
 			@fields = create_fields(helpers.event_edit_athlete_stats)
 			@submit = create_submit
@@ -266,9 +270,13 @@ class EventsController < ApplicationController
 				club_events_path(@club, season_id: season&.id, start_date:)
 		end
 
-		def event_path			= path_for(@event, cal: @cal)
-		def edit_event_path = edit_path_for(@event, season_id: @season&.id, cal: @cal)
-		def copy_event_path = path_for(@event, action: :copy, cal: @cal)
+		def event_path(rdx: @rdx)	= path_for(@event, cal: @cal, rdx:)
+
+		def event_action_path(action, **opts)
+			path_for(@event, action:, cal: @cal, **opts)
+		end
+
+		def edit_event_path = event_action_path(:edit, season_id: @season&.id)
 
 		def new_event_path(kind = nil)
 			return nil unless @policy.new?
@@ -279,66 +287,50 @@ class EventsController < ApplicationController
 			end
 		end
 
-		def event_attendance_path
-			path_for(@event, action: :attendance, cal: @cal)
-		end
-
-		def event_chart_path(name)
-			club_team_event_load_chart_path(@club, @team, @event, name:)
-		end
-
-		def show_event_task_path(task:)
-			path_for(@event, action: :show_task, task_id: task.id, cal: @cal)
-		end
-
-		def edit_event_task_path(task: @task)
-			path_for(@event, action: :edit_task, task_id: task.id, cal: @cal)
-		end
-
-		def add_event_task_path
-			path_for(@event, action: :add_task, cal: @cal)
-		end
-
-		# Update attendance for an event based on a list of assignment IDs.
-		# @param assignment_ids [Array<String, Integer>] list of assignment IDs
-		# @return [Boolean] true if any changes were made
-		def check_attendance(athlete_ids)
+		# Update attendance for an event based on the submitted assignment IDs.
+		#
+		# Input: athlete_assignment_ids — Assignment UUIDs from the attendance form,
+		#        which lists `@team.athletes.active.by_number` (athlete assignments).
+		#
+		# Validation on each submitted ID:
+		#   1. Belongs to this team       (prevents cross-team injection)
+		#   2. Is an athlete membership   (prevents non-athlete rows)
+		#   3. Active on the event date   (prevents retroactive marking)
+		# IDs failing validation are ignored — their attendance is left untouched
+		# if it exists, not created.
+		#
+		# Returns true if any Attendance row changed state.
+		def check_attendance(athlete_assignment_ids)
 			team = @event.team
-			return false if team.nil?   # cannot process attendance without a team
+			return false unless team
 
-			# Convert input to a set of person_ids (skip blanks and invalid assignments)
-			person_ids = athlete_ids.filter_map do |pid|
-				next if pid.blank?
-				athlete = Assignment.find_by(id: pid.to_s)
-				athlete&.person.id
-			end.compact.to_set
+			valid_ids = Assignment
+				.of_membership_kind(:athlete)
+				.where(team: team)
+				.where(id: Array(athlete_assignment_ids).compact)
+				.where("starts_on <= ?", @event.start_date)
+				.where("ends_on IS NULL OR ends_on >= ?", @event.start_date)
+				.pluck(:id)
+				.to_set
 
 			changed = false
-			event_date = @event.start_time.to_date
 
-			# 1. Process each person in the list → mark as present
-			person_ids.each do |person_id|
-				assignment = find_active_athlete(person_id, team, event_date)
-				next unless assignment
-
-				attendance = @event.attendances.find_or_initialize_by(assignment: assignment)
-				if attendance.status != :present
-					attendance.status = :present
-					attendance.save!
-					changed = true
-				end
+			valid_ids.each do |aid|
+				att = @event.attendances.find_or_initialize_by(assignment_id: aid)
+				next if att.present?	# skip if already checked as present
+				att.update!(status: :present)
+				changed = true
 			end
 
-			# 2. Mark any existing attendances as absent if person is not in the list
-			@event.attendances.includes(assignment: { membership: :person }).each do |attendance|
-				person_id = attendance.assignment.membership.person_id
-				unless person_ids.include?(person_id)
-					if attendance.status != :absent
-						attendance.status = :absent
-						attendance.save!
-						changed = true
-					end
-				end
+			# Existing attendances not in the incoming set become absent.
+			# Note: we do NOT create absent rows for athletes not in the submission —
+			# that would inflate the attendance graph with phantom "absent" records
+			# for anyone the coach never looked at.
+			@event.attendances.each do |att|
+				next if valid_ids.include?(att.assignment_id)
+				next if att.absent?
+				att.update!(status: :absent)
+				changed = true
 			end
 
 			changed
@@ -356,7 +348,12 @@ class EventsController < ApplicationController
 
 		# check stats - a single athlete updating an event
 		def check_stats(stats)
-			@sport.parse_stats(@event, stats) if stats	# lets_ check them
+		  return false unless stats.respond_to?(:each_pair)
+
+			stats_hash = stats.respond_to?(:to_unsafe_h) ? stats.to_unsafe_h : stats.to_h
+			@sport.parse_stats(@event, stats_hash)
+			@sport.update_stats(event_id: @event.id, stats_data: stats_hash)
+			true
 		end
 
 		# ensure a task is correctly added to event
@@ -387,7 +384,7 @@ class EventsController < ApplicationController
 
 				if @event.modified?
 					@notice = I18n.t("#{@event.kind}.updated")
-				elsif	e_data[:athlete_ids].present?	# assignments to participate
+				elsif	e_data[:athlete_assignment_ids].present?	# assignments to participate
 					@notice = I18n.t("#{@event.kind}.att_check")
 				elsif params[:event][:stats_attributes].present? || params[:outings].present?	# updated stats/outings
 					@notice = I18n.t("training.stat.messages.updated")
@@ -508,7 +505,7 @@ class EventsController < ApplicationController
 				unless @event.rest?
 					r_lnk = event_path
 					if @event.train?
-						@btn_add = create_button({ kind: :add, label: Task.act(:add), url: add_event_task_path }) if @policy.create?
+						@btn_add = create_button({ kind: :add, label: Task.act(:add), url: event_action_path(:add_task) }) if @policy.create?
 						@drills  = @event.drill_list
 					end
 					@submit = create_submit(close: :back, retlnk: r_lnk)
@@ -552,6 +549,11 @@ class EventsController < ApplicationController
 			end
 		end
 
+		# before ahtlete_stats actions
+		def set_athlete
+			@athlete = Assignment.find_by(id: get_param(:athlete_id))
+		end
+
 		# Use callbacks to share common setup or constraints between actions.
 		def set_event
 			eventid   = get_param(:id) || get_param(:event_id)
@@ -590,7 +592,7 @@ class EventsController < ApplicationController
 					:season_id,
 					outings: {},
 					event_targets_attributes: [ :id, :priority, :event_id, :target_id, :_destroy, target_attributes: [ :id, :focus, :aspect, :concept ] ],
-					athlete_ids: [],
+					athlete_assignment_ids: [],
 					stats_attributes: [],
 					task: [ :id, :task_id, :order, :drill_id, :duration, :remarks, :retlnk ],
 					tasks_attributes: [ :id, :order, :drill_id, :duration, :remarks, :_destroy ]

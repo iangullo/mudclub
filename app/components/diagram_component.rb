@@ -80,18 +80,18 @@ class DiagramComponent < ApplicationComponent
 		base = "m-1 rounded hover:bg-"
 
 		if btn[:object] == "delete"
-			title  = I18n.t("shared.action.values.remove.label.single")
+			title  = I18n.t("shared.actions.remove")
 			symbol = { concept: "delete", options: { type: :button } }
 			bcls   = "#{base}red-100"
 			data   = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
 		elsif btn[:object] == "color"
-			title  = I18n.t("shared.color.label.many")
+			title  = I18n.t("shared.colors.plural")
 			symbol = { concept: "color", options: { type: :button } }
 			bcls   = "#{base}gray-100"
 			data   = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
 		else
 			symbol_id = [ @sport, "object", btn[:object], "default" ].join(".")
-			title     = I18n.t("sport.#{@sport}.objects.values.#{btn[:object]}.label")
+			title     = I18n.t("sport.#{@sport}.objects.values.#{btn[:object]}")
 			options   = { namespace: @sport, type: :object }
 			options.merge!(btn[:options]) if btn[:options]
 			symbol    = { concept: btn[:object], options: }

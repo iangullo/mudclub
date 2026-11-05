@@ -108,7 +108,7 @@ module TeamsHelper
 				symbol_item(:coach, { namespace: "sport" }, align: :right),
 				label_item(@team.term(:coach, :plural), class: "align-center")
 			]
-			res << [ gap_item, { kind: :select_checkboxes, key: :coach_ids, options: @eligible_coaches } ]
+			res << [ gap_item, { kind: :select_checkboxes, key: :coach_membership_ids, options: @eligible_coaches } ]
 		end
 		res
 	end

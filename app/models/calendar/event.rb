@@ -42,8 +42,9 @@ class Event < ApplicationRecord
 	has_many :stats, dependent: :destroy
 	has_many :attendances, dependent: :destroy
 
-	# DEPRECATED — do not re-enable; kept only as a schema-level comment.
-	# has_and_belongs_to_many :players
+	# DEPRECATED — do not USE; kept only for migration support
+	# Will be removed in v2.1
+	has_and_belongs_to_many :players
 
 	accepts_nested_attributes_for :targets, reject_if: :all_blank, allow_destroy: true
 	accepts_nested_attributes_for :event_targets, reject_if: :all_blank, allow_destroy: true
@@ -186,26 +187,24 @@ class Event < ApplicationRecord
 		end
 	end
 
-	# returns list of active athlete ids
-	def attendee_ids(kind = nil)
-		scope = case kind
-		when :athlete
-			team ? team.athletes.by_number : club.athletes.by_number
-		when :coach
-			coaches
-		else
-			team ? team.members : club.members
-		end
-		scope.joins(:attendances).where(attendances: { status: :present }).pluck(:id)
+	# Attendees are always Assignments (team-level or club-level). Only
+	# assignments whose Attendance row for this event # has status :present are
+	# returned. This is the intentional contract for outings/stats editing:
+	# coaches mark attendance first, then enter data.
+	def attendees(kind = nil)
+		scope = attendances.present
+		scope = scope.for_membership_kind(kind) if kind
+		Assignment.where(id: scope.select(:assignment_id)).by_number
 	end
 
-	def athlete_ids
-		attendee_ids(:athlete)
-	end
+	# returns list of attendee ids
+	def attendee_ids(kind = nil) = attendees(kind).pluck(:id)
 
-	def coach_ids
-		attendee_ids(:coach)
-	end
+	# convenience accessors
+	def athletes               = attendees(:athlete)
+	def athlete_assignment_ids = attendee_ids(:athlete)
+	def coaches                = attendees(:coach)
+	def coach_assignment_ids   = attendee_ids(:coach)
 
 	# Checks if a person has an attendance record for this event.
 	# Only makes sense for team events; for club events, returns false.
@@ -217,15 +216,21 @@ class Event < ApplicationRecord
 							.merge(Assignment.of_membership_kind(:athlete).for_team(team))
 							.where(memberships: { person_id: person&.id })
 
-		scope = scope.where(attendances: { status: }) if status.present?
+		if status.is_a?(Array)
+			scope = scope.where(attendances: { status: status })
+		elsif status.present?
+			scope = scope.where(attendances: { status: status })
+		end
+
 		scope.exists?
 	end
 
-	# Legacy compatibility – accepts a Player id.
-	# DEPRECATED: use has_athlete?(person_id) instead.
-	def has_player(p_id)
-		player = Player.find_by(id: player_id)
-		player && has_athlete?(player.person_id)
+	def attendee_url(assignment, rdx: nil)
+		url = "/clubs/#{club&.id}"
+		url += "/teams/#{team.id}" if team
+		url += "/assignments/#{assignment.id}?event_id=#{self.id}"
+		url += "&rdx=#{rdx}" if rdx
+		url
 	end
 
 	#-------------------------------------
@@ -480,16 +485,47 @@ class Event < ApplicationRecord
 		self.location_id = team.homecourt_id
 	end
 
-	# check stats added to event
+	# Parse and persist stats from a form payload.
+	#
+	# Each s_param is [key, value]. Key shape:
+	#   NEW: "<assignment_uuid>_<period>_<concept>"
+	#   OLD: "<player_id>_<concept>"  (legacy — 2 parts)
+	#   OLD: "<player_id>_<period>_<concept>"  (legacy — 3 parts)
+	#
+	# Callers must save the event (or the stat collection) afterwards.
 	def check_stats(s_data)
-		e_stats = self.stats
+		return unless s_data.is_a?(Array) || s_data.respond_to?(:each_pair)
+
+		e_stats = self.stats.to_a   # single load for the whole batch
+
 		s_data.each do |s_param|
-			s_arg = s_param[0].split("_")
-			stat = Stat.fetch(event_id: self.id, period: 0, player_id: s_arg[0].to_i, concept: s_arg[1], stats: e_stats).first
-			if stat # just update the value
-				stat[:value] = s_param[1].to_i
-			else # create a new stat
-				e_stats << Stat.new(event_id: self.id, period: 0, player_id: s_arg[0].to_i, concept: s_arg[1], value: s_param[1].to_i)
+			key, raw_value = s_param
+			owner, period, concept = parse_stat_key(key)
+			next unless owner && concept
+
+			kind, athlete_id = resolve_stat_owner(owner)
+			next unless kind
+
+			attrs = Stat.build_attrs(
+				event_id: self.id, period: period, concept: concept,
+				kind:, athlete_id:, value: raw_value.to_i
+			)
+
+			stat = e_stats.find do |s|
+				s.event_id == self.id &&
+					s.period   == period &&
+					s.concept.to_s == concept.to_s &&
+					s.kind     == kind.to_s &&
+					s.athlete_id == athlete_id
+			end
+
+			if stat
+				stat[:value] = raw_value.to_i
+				stat.save! if stat.persisted? && stat.changed?
+			else
+				new_stat = Stat.new(attrs)
+				self.stats << new_stat   # persists now that event is persisted
+				e_stats << new_stat
 			end
 		end
 	end
@@ -554,7 +590,8 @@ class Event < ApplicationRecord
 				end
 			end
 		when :train, :match
-			self.players.delete_all
+			# DEPRECATED. Delete in v2.1
+			# self.players.delete_all
 		end
 		UserAction.prune("/events/#{self.id}")
 	end
@@ -565,4 +602,31 @@ class Event < ApplicationRecord
 
 		errors.add(:team, :invalid)
 	end
+
+	private
+
+		# Split a form key. Returns [owner, period, concept].
+		def parse_stat_key(key)
+			parts = key.to_s.split("_")
+
+			case parts.size
+			when 3
+				[ parts[0], parts[1].to_i, parts[2] ]
+			when 2   # legacy "<player_id>_<concept>"
+				Deprecated.warn!(:Event, :check_stats)
+				[ parts[0], 0, parts[1] ]
+			else
+				[ nil, nil, nil ]
+			end
+		end
+
+		# Turn the "owner" token (UUID or legacy integer) into [kind, assignment_id].
+		def resolve_stat_owner(owner)
+			if uuid?(owner)
+				[ :athlete, owner ]
+			else
+				Deprecated.warn!(:Event, :check_stats)
+				Stat.translate_player_id(owner.to_i, self.id, nil, nil)
+			end
+		end
 end

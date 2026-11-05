@@ -197,7 +197,7 @@ class TeamsController < ApplicationController
 		title << icon_subtitle(:player, Team.act(:edit_roster), namespace: @team.sport.name)
 		@title  = create_fields(title)
 		@submit = create_submit(close: :cancel, retlnk: path_for(@team, action: :roster))
-		@eligible_athletes = @team.eligible_athletes
+		@eligible_athlete_memberships = @team.eligible_athlete_memberships
 	end
 
 	# GET /club/x/teams/1/slots
@@ -283,7 +283,7 @@ class TeamsController < ApplicationController
 	private
 		# wrapper to set return link for create && update operations
 		def cru_return
-			if param_passed(:team, :athlete_ids)	# roster view
+			if param_passed(:team, :athlete_membership_ids)	# roster view
 				action = :roster
 			elsif param_passed(:team, :team_targets_attributes)	# targets or plan
 				first_target = team_params[:team_targets_attributes].to_h.first
@@ -371,24 +371,12 @@ class TeamsController < ApplicationController
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def team_params
 			@team_params ||= params.require(:team).permit(
-				:id,
-				:name,
-				:nick,
-				:club_id,
-				:sport_id,
-				:season_id,
-				:category_id,
-				:division_id,
-				:rules,
-				:homecourt_id,
-				:targets,
-				:team_targets,
-				:coaches,
-				:athletes,
-				:locked,
-				:rdx,
-				athlete_ids: [],
-				coach_ids: [],
+				:id, :name, :nick, :club_id, :sport_id, :season_id,
+				:category_id, :division_id, :rules, :homecourt_id,
+				:targets, :team_targets, :coaches, :athletes,
+				:locked, :rdx,
+				athlete_membership_ids: [],
+				coach_membership_ids: [],
 				targets_attributes: [],
 				team_targets_attributes: {}
 			)

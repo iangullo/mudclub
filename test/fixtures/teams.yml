@@ -42,3 +42,13 @@ south_senior:
   division: local
   homecourt: home_court
   locked: false
+
+u14_mixed:
+  name: U14 Mixed
+  club: test_club
+  sport: basketball
+  season: current
+  category: u14_mixed
+  division: local
+  homecourt: home_court
+  locked: false

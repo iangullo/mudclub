@@ -18,9 +18,9 @@
 #
 # app/policies/event_policy.rb
 class EventPolicy < ApplicationPolicy
-	def initialize(actor, record: nil, club: nil, team: nil, athlete: nil, token: nil)
+	def initialize(actor, record: nil, club: nil, team: nil, person: nil, token: nil)
 		if record.is_a?(Event)
-			super(actor, record:, club: @record.club)
+			super(actor, record:, club: record.club)
 			@target_team = record.team
 		else
 			super(actor, club:)
@@ -29,7 +29,7 @@ class EventPolicy < ApplicationPolicy
 				@target_club = team.club if team.id != 0
 			end
 		end
-		@target_athlete = athlete if athlete.is_a?(Person)
+		@target_person = person if person.is_a?(Person)
 	end
 
 	def index?
@@ -60,19 +60,24 @@ class EventPolicy < ApplicationPolicy
 	end
 	alias new? create?
 
-	def update? = manages_event?
-	alias edit? update?
-	alias destroy? update?
-	alias attendance? update?
+	def edit?
+		manages_event?
+			@record.start_date > Date.today - 1.week
+	end
+
+	alias add_task? edit?
+	alias edit_task? edit?
+	alias update? edit?
+	alias destroy? edit?
+
+	def attendance?
+		manages_event? &&
+			@record.start_date > Date.today - 1.month
+	end
 
 	def copy?
 		@record && create?
 	end
-
-	def add_task?
-		@record&.persisted? && manages_event?
-	end
-	alias edit_task? add_task?
 
 	def show_task?
 		return false unless @record&.persisted?
@@ -82,9 +87,9 @@ class EventPolicy < ApplicationPolicy
 	alias edit_task? add_task?
 
 	def athlete_stats?
-		return false unless @target_athlete || @record&.persisted?
+		return false unless @target_person&.is_athlete? || @record&.persisted?
 		return false if @record&.rest? # not keeping stats for holidays ;)
-		manages_event? || same_person?(@target_athlete)
+		manages_event? || same_person?(@target_person)
 	end
 	alias edit_athlete_stats? athlete_stats?
 
@@ -92,8 +97,8 @@ class EventPolicy < ApplicationPolicy
 	# proabbly needs some refinement in fuuture depending on @event type
 	def manages_event?
 		return false unless @record&.persisted?
-		return manages_team?(@target_team) if @target_team
-		manages_club?(target_club)
+		manages_club?(target_club) ||
+			@target_team && manages_team?(@target_team)
 	end
 
 	def export?

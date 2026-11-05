@@ -36,13 +36,16 @@ class TeamPolicy < ApplicationPolicy
 	def create? = allowed?(manages_club?(target_club))
 	alias new? create?
 
-	def update?
+	def edit?
+		return false unless @record
+		return false if @record.locked
+
 		allowed?(
 			manages_club?(@record&.club) ||
 			manages_team?(@record)
 		)
 	end
-	alias edit? update?
+	alias update? edit?
 
 	def destroy? = allowed?(manages_club?(target_club))
 
@@ -50,6 +53,9 @@ class TeamPolicy < ApplicationPolicy
 	# General Team information
 	#------------------------------------
 	def roster?
+		return false unless @record
+		return false if @record.locked
+
 		allowed?(
 			team_member? ||
 			coaches_club?(@record&.club) ||
@@ -58,6 +64,8 @@ class TeamPolicy < ApplicationPolicy
 	end
 
 	def attendance?
+		return false unless @record
+
 		allowed?(
 			team_staff? ||
 			coaches_club?(@record&.club) ||
@@ -66,6 +74,8 @@ class TeamPolicy < ApplicationPolicy
 	end
 
 	def events?
+		return false unless @record
+
 		allowed?(
 			team_member? ||
 			coaches_club?(@record&.club) ||
@@ -74,6 +84,8 @@ class TeamPolicy < ApplicationPolicy
 	end
 
 	def slots?
+		return false unless @record
+
 		allowed?(same_club?(@record)) ||
 		target_club&.publicly_visible?
 	end
@@ -82,6 +94,8 @@ class TeamPolicy < ApplicationPolicy
 	# Team coaching
 	#------------------------------------
 	def plan?
+		return false unless @record
+
 		allowed?(
 			coaches_club?(@record&.club) ||
 			manages_club?(@record&.club)
@@ -89,6 +103,9 @@ class TeamPolicy < ApplicationPolicy
 	end
 
 	def edit_plan?
+		return false unless @record
+		return false if @record.locked
+
 		allowed?(
 			coaches_team?(@record) ||
 			manages_club?(@record&.club)
@@ -96,6 +113,8 @@ class TeamPolicy < ApplicationPolicy
 	end
 
 	def targets?
+		return false unless @record
+
 		allowed?(
 			coaches_club?(@record&.club) ||
 			manages_club?(@record&.club)
@@ -103,6 +122,9 @@ class TeamPolicy < ApplicationPolicy
 	end
 
 	def edit_targets?
+		return false unless @record
+		return false if @record.locked
+
 		allowed?(
 			coaches_team?(@record) ||
 			manages_club?(@record&.club)
@@ -142,6 +164,9 @@ class TeamPolicy < ApplicationPolicy
 
 		# Who may change the roster?
 		def manages_roster?
+			return false unless @record
+			return false if @record.locked
+
 			manages_club?(@record&.club) ||
 				has_club_assignment?(@record&.club, kinds: :coaching_coordinator) ||
 				has_team_assignment?(@record, kinds: :head_coach)

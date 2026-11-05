@@ -69,7 +69,7 @@ module DrillsHelper
 
 	# return title FieldComponent definition for edit/new
 	def drill_form_playbook(playbook:)
-		[ [ upload_button(:playbook, "Playbook", playbook.filename, symbol: drill_symbol(:drill, variant: "playbook", size: "20x20")) ] ]
+		[ [ upload_button(:playbook, "Playbook", playbook.filename, symbol: drill_symbol(variant: "playbook", size: "20x20")) ] ]
 	end
 
 	# return title FieldComponent definition for drill steps form
@@ -77,7 +77,7 @@ module DrillsHelper
 		res = [
 			[ label_item(Step.label(:plural)) ],
 			[
-				{ kind: :nested_form, model: "drill", key: "steps", child: Step.new(drill_id: @drill.id), row: "step_row" }
+				{ kind: :nested_form, model: "drill", key: :steps, child: Step.new(drill_id: @drill.id), row: "step_row" }
 			]
 		]
 		res
@@ -97,7 +97,7 @@ module DrillsHelper
 				label_item("#{Drill.fld(:author)}:")
 			],
 			[
-				{ kind: :nested_form, model: "drill", key: "skills", child: Skill.new, row: "skill_row" },
+				{ kind: :nested_form, model: "drill", key: :skills, child: Skill.new, row: "skill_row" },
 				gap_item
 			]
 		]
@@ -113,12 +113,12 @@ module DrillsHelper
 	# return title FieldComponent definition for edit/new
 	def drill_form_title(title:)
 		res = drill_title(title:)
-		res << [ { kind: :text_box, key: :name, placeholder: Drill.val(:default), value: @drill.name, mandatory: { length: 3 }, cols: 3 } ]
+		res << [ { kind: :text_box, key: :name, placeholder: Drill.val(:default), value: @drill.name, mandatory: { length: 3 }, size: 31, cols: 3 } ]
 		res << [
 			gap_item,
-			{ kind: :text_box, key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: I18n.t("kind.default"), mandatory: { length: 3 } },
+			{ kind: :text_box, key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: Kind.val(:default), mandatory: { length: 3 } },
 			gap_item(2),
-			{ kind: :select_box, align: "left", key: :court_mode, options: drill_court_list, value: @drill.court_mode }
+			{ kind: :select_box, key: :court_mode, options: drill_court_list, value: @drill.court_mode }
 		]
 	end
 
@@ -282,7 +282,7 @@ module DrillsHelper
 			@drill.sport.specific.court_modes.option_list
 		end
 
-		def drill_symbol(concept = "drill", variant: "default", size: nil)
+		def drill_symbol(concept = :drill, variant: "default", size: nil)
 			symbol_hash(concept, namespace: @drill&.sport&.name || "sport", variant:, size:)
 		end
 

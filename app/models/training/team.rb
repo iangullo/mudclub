@@ -39,8 +39,13 @@ class Team < ApplicationRecord
 	has_many :targets, through: :team_targets
 	accepts_nested_attributes_for :assignments
 	accepts_nested_attributes_for :events
-	accepts_nested_attributes_for :targets	# TODO unsupported for through associations - need to redesign flow
+	accepts_nested_attributes_for :targets
 	accepts_nested_attributes_for :team_targets, allow_destroy: true
+
+	# DEPRECATED — do not USE; kept only for migration support
+	# Will be removed in v2.1
+	has_and_belongs_to_many :players
+	has_and_belongs_to_many :coaches
 
 	#-------------------------------------
 	# Convenient delegations
@@ -103,9 +108,8 @@ class Team < ApplicationRecord
 		members(current:).of_membership_kind(:athlete)
 	end
 
-	def athlete_ids(current: true)
-		athletes.pluck(:membership_id)
-	end
+	def athlete_assignment_ids(current: true) = athletes(current:).pluck(:id)
+	def athlete_membership_ids(current: true) = athletes(current:).pluck(:membership_id)
 
 	def has_athlete?(person)
 		athletes(current: true)
@@ -118,9 +122,7 @@ class Team < ApplicationRecord
 		members(current:).of_membership_kind(:coach).order(:kind)
 	end
 
-	def coach_ids(current: true)
-		coaches.pluck(:membership_id)
-	end
+	def coach_membership_ids(current: true) = coaches(current:).pluck(:membership_id)
 
 	def has_coach?(person)
 		coaches(current: true)
@@ -140,7 +142,7 @@ class Team < ApplicationRecord
 	end
 
 	# Get a list of athletes that are valid to play in this team
-	def eligible_athletes(exclude_assigned: false)
+	def eligible_athlete_memberships(exclude_assigned: false)
 		s_year = season.start_year
 
 		scope = club.memberships.current.
@@ -168,7 +170,7 @@ class Team < ApplicationRecord
 
 	# Get a list of athletes that are not members but are authorised to play in this team
 	def optional_athletes
-		eligible_athletes(include_assigned: false)
+		eligible_athlete_memberships(exclude_assigned: true)
 	end
 
 	#-------------------------------------
@@ -209,8 +211,12 @@ class Team < ApplicationRecord
 	# get attendance data for a team in the season
 	# returns partial & serialised numbers for attendance: trainings [%]
 	def attendance
+		# Uses all athlete assignments (current + terminated) for the seasonal
+		# denominator, matching attendance history over the whole season.
 		t_athletes = self.athletes.count
 		return nil if t_athletes.zero?	# NO ATHLETES IN TEAM --> NO ATTENDANCE DATA
+
+		t_current  = self.athletes(current: false).count
 
 		d_morrow = Date.today + 1	# tomorrow
 		d_last7  = d_morrow - 8	# date limit for last 7 days
@@ -220,7 +226,7 @@ class Team < ApplicationRecord
 		l_season = { tot: 0, att: 0 }
 		sessions = { name: sport.specific.term(:athlete, :plural), avg: 0, data: {} }
 		t_events = self.events.past.trainings.includes(:attendances)
-		t_att    = Attendance.for_team(self)
+		t_att    = Attendance.for_team(self).for_membership_kind(:athlete)
 		t_events.each do |event|
 			if event.train?
 				e_cnt           = t_att.for_event(event).count
@@ -229,11 +235,11 @@ class Team < ApplicationRecord
 				l_season[:att] += e_cnt
 				sessions[:avg] += e_cnt
 				if e_date.between?(d_last30, d_morrow)	# event in last month
-					l_month[:tot]  += t_athletes
+					l_month[:tot]  += t_current
 					l_month[:att]  += e_cnt
 					if e_date > d_last7	# event occurs in last 7 days
 						l_week[:att] += e_cnt
-						l_week[:tot] += t_athletes
+						l_week[:tot] += t_current
 					end
 				end
 				sessions[:data][e_date] = e_cnt # add to sessions
@@ -306,8 +312,8 @@ class Team < ApplicationRecord
 		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
 		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
 		check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
-		sync_coaches(f_data[:coach_ids]) if f_data[:coach_ids]
-		sync_roster(f_data[:athlete_ids]) if f_data[:athlete_ids]
+		sync_coaches(f_data[:coach_membership_ids]) if f_data[:coach_membership_ids]
+		sync_roster(f_data[:athlete_membership_ids]) if f_data[:athlete_membership_ids]
 	end
 
 	# check if drill (or associations) has changed
@@ -367,8 +373,8 @@ class Team < ApplicationRecord
 		#-------------------------------------
 
 		# Coach sync with head/assistant logic
-		def sync_coaches(coach_ids)
-			desired   = normalize_uuids(coach_ids)
+		def sync_coaches(coach_membership_ids)
+			desired   = normalize_uuids(coach_membership_ids)
 			current   = current_membership_ids([ :head_coach, :assistant_coach ])
 			to_add    = desired - current
 			to_remove = current - desired
@@ -388,9 +394,19 @@ class Team < ApplicationRecord
 				assignments.current.where(kind: :head_coach).exists?
 		end
 
-		def sync_roster(athlete_ids)
+		# Sync the athlete roster from a form submission.
+		#
+		# The input is a list of **membership** IDs (not assignment IDs):
+		# - The form offers `@team.eligible_athlete_memberships` (a Membership scope)
+		#   as checkboxes, so option `id`s are membership IDs.
+		# - `sync_roster` diffs these against current membership IDs and creates or
+		#   reinstates Assignments for additions, terminates Assignments for removals.
+		#
+		# Do NOT feed this method `Team#athlete_assignment_ids` — that returns
+		# Assignment UUIDs, which are a different identifier space.
+		def sync_roster(athlete_membership_ids)
 			kinds     = [ :athlete, :captain ]
-			desired   = normalize_uuids(athlete_ids)
+			desired   = normalize_uuids(athlete_membership_ids)
 			current   = current_membership_ids(kinds)
 			to_add    = desired - current
 			to_remove = current - desired

@@ -21,7 +21,7 @@
 # Will eventually migrate to Training::Catalog::DrillKinds.
 #
 class Kind < ApplicationRecord
-	localized_as "training.kind"
+	localized_as "training.drill_kind"
 
 	before_save { self.name = self.name.mb_chars.titleize }
 

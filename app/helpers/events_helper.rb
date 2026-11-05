@@ -18,8 +18,8 @@
 #
 module EventsHelper
 	# FieldComponents for event attendance
-	def event_attendance_title
-		res = title_start(icon: symbol_hash("attendance"), title: @team.nick, subtitle: @team.category.name)
+	def event_attendance_header
+		res = title_start(icon: symbol_hash(:attendance), title: @team.nick, subtitle: @team.category.name)
 		res[0] << gap_item
 		res[1] << gap_item
 		event_top_right(res:)
@@ -35,7 +35,7 @@ module EventsHelper
 		] ]
 		res << [
 			gap_item(2),
-			{ kind: :select_checkboxes, key: :athlete_ids, options: @team.athletes.active.by_number }
+			{ kind: :select_checkboxes, key: :athlete_assignment_ids, options: @team.athletes.active.by_number }
 		]
 		res << [ hidden_input(:rdx, @rdx) ] if @rdx
 		res << [ hidden_input(:team_id, @teamid) ] if @teamid
@@ -199,12 +199,13 @@ module EventsHelper
 	# athlete table for a match
 	def match_roster_table(edit: false)
 		a_rules = @sport.rules.key(@team.category.rules)
+		table   = nil
+
 		if (outings = @sport.match_outings(a_rules))
 			table = @sport.outings_table(@event, outings, edit:, rdx: @rdx)
-			table[:controller] = "outings"
-		else
-			table = @sport.stats_table(@event, edit:, rdx: @rdx)
+			table[:controller] = "outings" if table
 		end
+		table ||= @sport.stats_table(@event, edit:, rdx: @rdx)
 		table
 	end
 
@@ -213,7 +214,7 @@ module EventsHelper
 		tasks   = Array.new
 		@event.tasks.each { |task|
 			item = {}
-			item[:url]     = show_event_task_path(task)
+			item[:url]     = event_action_path(:show_task, task_id: task.id)
 			item[:turbo]   = "modal"
 			item[:head]    = task.headstring
 			item[:content] = FieldsComponent.new(task_show(task:, team: @team, title: nil))
@@ -307,7 +308,7 @@ module EventsHelper
 		# return a button field to copy event - if possible
 		def event_copy_button
 			if @policy.copy?
-				{ kind: :action, symbol: symbol_hash(:copy, type: :button), label: I18n.t("shared.actions.copy"), url: copy_event_path, frame: :modal }
+				{ kind: :action, symbol: symbol_hash(:copy, type: :button), label: I18n.t("shared.actions.copy"), url: event_action_path(:copy), frame: :modal }
 			end
 		end
 
@@ -335,7 +336,7 @@ module EventsHelper
 			rows  = Array.new
 			events&.each do |event|
 				unless season_id && event.rest? && event.team_id > 0 # show only general holidays in season events view
-					url = event_path
+					url = path_for(event, cal: @cal)
 					row = { url:, frame: (event.rest? ? "modal": "_top"), items: [] }
 					row[:items] << { kind: :normal, value: event.date_string, align: :center }
 					row[:items] << { kind: :normal, value: event.time_string(false), align: :center }
@@ -414,7 +415,7 @@ module EventsHelper
 						gap_item(1),
 						{ kind: :side_cell, value: @team.term(:match), align: :left, cols: 2 },
 						normal_button(
-							{ kind: :link, symbol: :attendance, label: @team.term(:match, :roster), url: event_attendance_path, frame: :modal },
+							{ kind: :link, symbol: :attendance, label: @team.term(:match, :roster), url:, frame: :modal },
 							align: :left,
 							cols: 2
 						)
@@ -436,21 +437,19 @@ module EventsHelper
 					res << gap_row(cols: 8)
 				elsif @policy.export? && @event.id
 					res.first[1][:cols] = 4	# modify cols to avoid issues with show
-					res.last << pdf_button(club_team_event_path(@club, @team, @event, format: :pdf))
+					res.last << pdf_button(path_for(@event, format: :pdf))
 					res.last << gap_item
 					res << [
-						normal_button(event_copy_button, align: :left, class: "align-top", rows: 2),
+						normal_button(event_copy_button, align: :left, class: "align-top px-2", rows: 2),
 						string_item(@team.division.name + " (#{@team.season.name})", cols: 5, align: :left),
 						workload_button(align: :left, rows: 1)
 					]
-					res << [
-						{ kind: :side_cell, value: @event.t_path(:kind, :training), align: :left, cols: 5, class: "align-top" },
-						normal_button(
-							{ kind: :link, symbol: :attendance, label: Attendance.label, url: event_attendance_path, frame: :modal },
-							align: :left,
-							cols: 2
-						)
-					]
+					res << [ { kind: :side_cell, value: @event.t_path(:kind, :training), align: :left, cols: 5, class: "align-top" } ]
+					res.last << normal_button(
+						{ kind: :link, symbol: :attendance, label: Attendance.label, url: event_action_path(:attendance), frame: :modal },
+						align: :left,
+						cols: 2
+					) if @policy.attendance?
 				elsif current_user.is_athlete?
 					res << [ gap_item, label_item(current_user.to_s, cols: 3) ]
 				end
@@ -472,9 +471,9 @@ module EventsHelper
 					label: I18n.t("training.session.fields.workload_short"),
 					name: "show-chart",
 					options: [
-						{ label: Drill.fld(:kind, :short), url: event_chart_path("kind"), data: { turbo_frame: :modal } },
-						# {label: Target.label(:plural), url: event_chart_path("target"), data: {turbo_frame: :modal}},
-						{ label: @sport ? Sport.term(:skill) : Skill.label, url: event_chart_path("skill"), data: { turbo_frame: :modal } }
+						{ label: Drill.fld(:kind, :short), url: event_action_path(:load_chart, name: "kind"), data: { turbo_frame: :modal } },
+						# {label: Target.label(:plural), url: event_action_path(:load_chart, name: "target"), data: {turbo_frame: :modal}},
+						{ label: @sport ? Sport.term(:skill) : Skill.label, url: event_action_path(:load_chart, name: "skill"), data: { turbo_frame: :modal } }
 					]
 				}, align:, class:, cols:, rows:
 			)
@@ -493,5 +492,12 @@ module EventsHelper
 			else
 				nil
 			end
+		end
+
+		def event_action_path(action, **opts)
+			path_for(@event, action:, cal: @cal, **opts)
+		end
+
+		def new_path_for(event = @event, **opts)
 		end
 end
