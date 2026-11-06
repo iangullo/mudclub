@@ -43,7 +43,7 @@ class EventsController < ApplicationController
 		@policy = check_policy!(EventPolicy, record: @event)
 
 		respond_to do |format|
-			title = helpers.event_title(cols: @event.train? ? 3 : nil)
+			title = helpers.event_header(cols: @event.kind_training? ? 3 : nil)
 			format.pdf do
 				if @policy.export?
 					response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
@@ -56,9 +56,9 @@ class EventsController < ApplicationController
 				@title = create_fields(title)
 				submit = path_for(@event, action: :edit) if @policy.edit?
 				person = @athlete&.person || u_person
-				if @event.rest?
+				if @event.kind_holiday?
 					@submit = create_submit(submit:, frame: :modal)
-				elsif @event.train? && @event.team.has_athlete?(person)	# we want to check athlete stats for a training session
+				elsif @event.kind_training? && @event.team.has_athlete?(person)	# we want to check athlete stats for a training session
 					athlete_id = (
 						@athlete ||
 						@event.team.athletes(current: true).joins(:membership)
@@ -66,7 +66,7 @@ class EventsController < ApplicationController
 					)&.id
 					redirect_to path_for(@event, action: athlete_stats, athlete_id:, cal: @cal), data: { turbo_action: "replace" }
 				else	# gotta be a coach or manager
-					if @event.match?
+					if @event.kind_competition?
 						@fields = create_fields(helpers.match_show)
 						table   = helpers.match_roster_table
 						@table  = create_table(table)
@@ -85,9 +85,9 @@ class EventsController < ApplicationController
 		get_event_context
 		@policy = check_policy!(EventPolicy, club: @club, team: @team)
 
-		@event  = Event.prepare(event_params.merge(team_id: @team&.id, club_id: @club&.id))
-		@season = @event.team.season unless @event.team_id == 0
-		@sport  = @event.team.sport&.specific
+		@event  = Event.prepare(team_id: @team&.id, club_id: @club&.id, kind: get_param(:kind))
+		@season = @event.team&.season unless @event.team_id.to_i == 0
+		@sport  = @event.team&.sport&.specific
 		retlnk  = anchor_lnk
 		if @event
 			prepare_event_form(new: true)
@@ -116,7 +116,7 @@ class EventsController < ApplicationController
 				cru_return(e_data)
 				link_holidays
 				c_notice = helpers.event_create_notice
-				modal    = @event.rest?
+				modal    = @event.kind_holiday?
 				register_action(:created, c_notice[:message], url: event_path(rdx: 2), modal:)
 				format.html { redirect_to @retlnk, notice: c_notice, data: { turbo_action: "replace" } }
 				format.json { render :show, status: :created, location: @retlnk }
@@ -232,7 +232,7 @@ class EventsController < ApplicationController
 	def load_chart
 		@policy = check_policy!(EventPolicy, record: @event)
 
-		header = helpers.event_title(cols: @event.train? ? 3 : nil, chart: true)
+		header = helpers.event_header(cols: @event.kind_training? ? 3 : nil, chart: true)
 		@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
 	end
 
@@ -241,7 +241,7 @@ class EventsController < ApplicationController
 		@policy  = check_policy!(EventPolicy, record: @event, person: @athlete&.person)
 
 		if @assignment && @event.has_athlete?(@athlete&.person)	# we do have an athlete
-			@title  = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
+			@header = create_fields(helpers.event_header(cols: @event.kind_training? ? 3 : nil))
 			@fields = create_fields(helpers.event_athlete_stats)
 			@submit = create_submit(submit: path_for(@event, action: :edit_athlete_stats, athlete_id: @athlete.id), frame: :modal)
 		else
@@ -254,7 +254,7 @@ class EventsController < ApplicationController
 		@policy  = check_policy!(EventPolicy, record: @event, person: @athlete&.person)
 
 		if @event.has_athlete?(@athlete&.person)	# we do have an athlete
-			@title  = create_fields(helpers.event_title(cols: @event.train? ? 3 : nil))
+			@header = create_fields(helpers.event_header(cols: @event.kind_training? ? 3 : nil))
 			@fields = create_fields(helpers.event_edit_athlete_stats)
 			@submit = create_submit
 		else
@@ -376,10 +376,10 @@ class EventsController < ApplicationController
 				@retlnk  = edit_event_path
 			elsif params[:event].present?
 				@retview = :show
-				if @event.rest? #--> Calendar view
+				if @event.kind_holiday? #--> Calendar view
 					@retlnk = events_path(start_date: @event.start_date)
 				else
-					@retlnk = event_path unless @event.rest?
+					@retlnk = event_path unless @event.kind_holiday?
 				end
 
 				if @event.modified?
@@ -396,11 +396,11 @@ class EventsController < ApplicationController
 
 		# pdf export of @event content
 		def event_to_pdf(header)
-			p_title = header.take(2)
-			p_title[0][1][:cols] = 1
-			p_title[1][0][:cols] = 1
+			p_header = header.take(2)
+			p_header[0][1][:cols] = 1
+			p_header[1][0][:cols] = 1
 			footer = "#{@event.team} #{@event.date_string}"
-			pdf    = pdf_create(header: p_title, footer:)# , full_width: true)
+			pdf    = pdf_create(header: p_header, footer:)# , full_width: true)
 			if @event.kind == "train"
 				pdf_label_text(label: I18n.t("training.target.label.many"), text: @event.print_targets)
 				pdf_separator_line(style: "empty")
@@ -476,25 +476,25 @@ class EventsController < ApplicationController
 		end
 
 		def link_holidays
-			if @event
-				if @event.rest? and @event.team_id==0  # general holiday
-					season = Season.search_date(@event.start_date)
-					if season # we have a season for this event
-						season.teams.real.each { |team| # copy event to all teams
-							e_copy = @event.dup
-							e_copy.team_id = team.id
-							e_copy.save
-							team.events << e_copy
-						}
-					end
+			# Avoid events that are not general club holidays
+			return unless  @event&.kind_holiday? && @event.team_id.to_i == 0
+
+			# copy holiday to all teams in the same season (if it exists)
+			season = Season.search_date(@event.start_date)
+			if season # we have a season for this event
+				@club.teams.for_season(season).each do |team|
+					e_copy = @event.dup
+					e_copy.team_id = team.id
+					e_copy.save
+					team.events << e_copy
 				end
 			end
 		end
 
 		# prepare new/edit event form
 		def prepare_event_form(new: nil)
-			@ftitle = create_fields(helpers.event_title(form: true, cols: @event.match? ? 2 : nil))
-			if @event.match?
+			@header = create_fields(helpers.event_header(form: true, cols: @event.kind_competition? ? 2 : nil))
+			if @event.kind_competition?
 				@fields  = create_fields(helpers.match_form(new:))
 				unless new
 					table  = helpers.match_roster_table(edit: true)
@@ -502,9 +502,9 @@ class EventsController < ApplicationController
 				end
 			end
 			unless new # editing
-				unless @event.rest?
+				unless @event.kind_holiday?
 					r_lnk = event_path
-					if @event.train?
+					if @event.kind_training?
 						@btn_add = create_button({ kind: :add, label: Task.act(:add), url: event_action_path(:add_task) }) if @policy.create?
 						@drills  = @event.drill_list
 					end
@@ -518,9 +518,9 @@ class EventsController < ApplicationController
 		def prepare_task_form(action, retlnk:, search_in:, task_id: nil)
 			get_task(load_drills: true) # get the right @task/@drill
 			scratch      = task_id.nil?
-			title        = helpers.event_task_title(subtitle: I18n.t("task.#{action}"))
+			title        = helpers.event_task_header(subtitle: I18n.t("task.#{action}"))
 			title        << helpers.drill_search_bar(search_in:, task_id: @task.id, scratch:, cols: 4)
-			@title       = create_fields(title)
+			@header      = create_fields(title)
 			@fields      = create_fields(helpers.task_form(search_in:))
 			@description = helpers.task_form_description
 			@remarks     = create_fields(helpers.task_form_remarks)

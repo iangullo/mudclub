@@ -70,7 +70,7 @@ module RoutingHelper
 	# --------------------------------------------------------------------------
 
 	def path_for(record, action: nil, owner: @owner, club: @club, rdx: @rdx, **options)
-		options.merge!(routing_opts(rdx:))
+		options.merge!(routing_opts(rdx:)).compact!
 		base   = resource_route(record, owner:, club:)
 		target = action ? [ action, *base ] : base
 		polymorphic_path(target, **options)

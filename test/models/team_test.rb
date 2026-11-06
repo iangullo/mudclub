@@ -46,10 +46,6 @@ class TeamTest < ActiveSupport::TestCase
 		assert_match(/\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/, ids.first)
 	end
 
-	test "#athlete_ids aliases #athlete_assignment_ids" do
-		assert_equal @team.athlete_assignment_ids, @team.athlete_ids
-	end
-
 	test "#athlete_assignment_ids honors current: kwarg" do
 		@assignment.terminate!
 		assert_equal [], @team.athlete_assignment_ids(current: true)

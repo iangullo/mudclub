@@ -36,7 +36,23 @@ module Kinded
 			const_set(:KIND_CATALOG, Catalog.const_get("#{name.demodulize}Kinds"))
 		end
 
-		enum :kind, const_get(:KIND_CATALOG).enum, prefix: true
+		catalog_klass   = const_get(:KIND_CATALOG)
+		raw_catalog     = catalog_klass.const_get(:CATALOG)
+		enum_definition = raw_catalog.each_with_object({}) do |(key, metadata), hash|
+			enum_key = key.to_s.underscore.to_sym
+
+			if metadata[:alias_of]
+				root_key      = metadata[:alias_of].to_sym
+				root_metadata = raw_catalog[root_key]
+				target_id     = root_metadata[:id] if root_metadata
+			else
+				target_id = metadata[:id]
+			end
+
+			hash[enum_key] = target_id if target_id
+		end
+
+		enum :kind, enum_definition, prefix: true
 
 		scope :of_kind, ->(kind) {
 			return all if kind.blank?

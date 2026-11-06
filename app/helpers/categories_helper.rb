@@ -82,7 +82,7 @@ module CategoriesHelper
 
 		rows = Array.new
 		@categories.each { |cat|
-			row = { url: edit_path_for(cat, owner: @sport.generic, frame: :modal), items: [] }
+			row = { url: edit_path_for(cat, owner: @sport.generic), frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: cat.age_group }
 			row[:items] << { kind: :normal, value: Person.t_path(:sex, "#{cat.sex}_short".to_sym) }
 			row[:items] << { kind: :normal, value: cat.min_years, align: :right }

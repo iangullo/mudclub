@@ -28,7 +28,7 @@ class ModalComponent < ApplicationComponent
 	def initialize(simple: nil, height: nil, width: "90%")
 		@width  = width
 		h_cap   = "calc(100dvh - #{CHROME_REM}rem)"
-		@height = height ? "min(#{height}, h_cap})" : h_cap
+		@height = height ? "min(#{height}, #{h_cap})" : h_cap
 		@close  = ButtonComponent.new(kind: :close, label: I18n.t("action.close")) if simple
 	end
 end

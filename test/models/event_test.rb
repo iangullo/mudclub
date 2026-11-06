@@ -41,9 +41,9 @@ class EventTest < ActiveSupport::TestCase
 		assert_includes @match.attendees(:coach),   coach
 	end
 
-	test "#athlete_ids returns Assignment UUIDs" do
+	test "#athlete_assginemt_ids returns Assignment UUIDs" do
 		Attendance.create!(event: @match, assignment: @assignment, status: :present)
-		assert_equal [ @assignment.id ], @match.athlete_ids
+		assert_equal [ @assignment.id ], @match.athlete_assignment_ids
 	end
 
 	test "#has_athlete? accepts a Person" do

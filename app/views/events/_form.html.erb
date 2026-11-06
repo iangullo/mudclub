@@ -1,6 +1,6 @@
 <%= form_with model: resource_route(event), authenticity_token: true, data: event_form_data_options(event, title) do |form| %>
-	<% @ftitle.form = form %>
-	<%= render @ftitle %>
+	<% @header.form = form %>
+	<%= render @header %>
 	<% if @event.id || @event.train?%>
 		<div id="edit-event-data">
 			<%= render('edit_session', form: form, title: title) if @event.train? %>

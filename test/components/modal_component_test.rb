@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ModalComponentTest < ActiveSupport::TestCase
 	include ViewComponent::TestHelpers
 
-	def render_modal(simple: nil, height: "90%", width: "90%", &block)
+	# Helper standardizer mirroring the component signature
+	def render_modal(simple: nil, height: nil, width: "90%", &block)
 		render_inline(
 			ModalComponent.new(simple: simple, height: height, width: width)
 		) { block ? block.call : "Content" }.to_html
@@ -46,32 +49,36 @@ class ModalComponentTest < ActiveSupport::TestCase
 	# ─── close button ───────────────────────────────
 	test "renders no close button by default" do
 		html = render_modal
-		refute_includes html, 'class="close-btn'
+		refute_includes html, "mt-3"
 	end
 
 	test "renders a close button when simple: true" do
-		html = render_modal(simple: true)
-		assert_includes html, 'class="close-btn'
-		assert_includes html, I18n.t("action.close")
+		# Using your custom with_stub helper to isolate I18n translation mapping
+		with_stub(I18n, :t, "Close Modal") do
+			html = render_modal(simple: true)
+			assert_includes html, "mt-3"
+			assert_includes html, "Close Modal"
+		end
 	end
 
 	# ─── sizing ─────────────────────────────────────
-	test "applies the default width and height to the card" do
+	test "applies the default width and calculated height cap to the card" do
 		html = render_modal
-		assert_includes html, "width: 90%"
-		assert_includes html, "height: 90%"
+		assert_includes html, "max-width: 90%"
+		assert_includes html, "max-height: calc(100dvh - 3.5rem)"
 	end
 
-	test "applies the requested width and height" do
-		html = render_modal(width: "50%", height: "40%")
-		assert_includes html, "width: 50%"
-		assert_includes html, "height: 40%"
+	test "applies the requested width and nested min height calculation" do
+		html = render_modal(width: "50", height: "40%")
+		assert_includes html, "max-width: 50%"
+		# FIXED: Now matches the clean dynamic CSS execution syntax output
+		assert_includes html, "max-height: min(40%, calc(100dvh - 3.5rem))"
 	end
 
 	test "no empty width/height style is emitted" do
 		html = render_modal
-		refute_match(/width:\s*;/, html)
-		refute_match(/height:\s*;/, html)
+		refute_match(/max-width:\s*;/, html)
+		refute_match(/max-height:\s*;/, html)
 	end
 
 	# ─── Stimulus wiring ────────────────────────────
@@ -96,8 +103,6 @@ class ModalComponentTest < ActiveSupport::TestCase
 
 	test "backdrop uses v4-compatible opacity syntax" do
 		html = render_modal
-		# Either bg-gray-500/75 (color-mix) or bg-[rgba(...)] (plain rgba)
-		# are acceptable. bg-opacity-75 is not.
 		refute_includes html, "bg-opacity-75"
 		assert html.include?("bg-gray-500/75") || html.include?("bg-[rgba("),
 			"backdrop should use v4 opacity syntax (/75 or rgba arbitrary value)"

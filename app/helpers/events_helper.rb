@@ -31,7 +31,7 @@ module EventsHelper
 	def event_attendance_form
 		res = [ [
 			gap_item(2),
-			{ kind: :side_cell, value: @event.match? ? @event.term(:match, :roster) : Attendance.label, align: :left }
+			{ kind: :side_cell, value: @event.kind_competition? ? @event.term(:match, :roster) : Attendance.label, align: :left }
 		] ]
 		res << [
 			gap_item(2),
@@ -44,7 +44,7 @@ module EventsHelper
 
 	# return a fields to show a copy event form
 	def event_copy
-		res = event_title(form: true, teams: @teams)
+		res = event_header(form: true, teams: @teams)
 		res.last << hidden_input(:copy, true)
 		res.last << hidden_input(:duration, @event.duration)
 		res.last << hidden_input(:id, @event.id)
@@ -85,7 +85,7 @@ module EventsHelper
 
 
 	def event_form_data_options(event, title)
-		if event.match?
+		if event.kind_competition?
 			{ controller: "match-location", title:, turbo_frame: "_top" }
 		else
 			{ controller: "mandatory-fields", title:, turbo_frame: "_top" }
@@ -103,21 +103,25 @@ module EventsHelper
 
 	# A Field Component with top link + table for events. obj is the parent oject (season/team)
 	# if it's a season, we need to reference everything to the userclub
-	def event_list_table(obj:)
-		if clubevent = (obj.class==Season)	# global club event ?
-			season_id = obj.id
+	def event_list_table(obj)
+		case obj
+		when Club
+			clubevent = true
+			season_id = Season.latest.id
 			events    = @club.upcoming_events
-		else
-			clubevent = true unless (team_id = obj&.id)
+		when Team
 			events    = obj&.events&.short_term
+		else
+			return []
 		end
+
 		title = [
 			{ kind: :normal, value: I18n.t("calendar.date"), align: :center },
 			{ kind: :normal, value: I18n.t("calendar.time"), align: :center },
 			{ kind: :normal, value: Event.label, cols: 4 }
 		]
 		rows    = event_rows(events:, season_id:)
-		btn_add = new_event_button(obj:, clubevent:)
+		btn_add = new_event_button(obj)
 		title << btn_add if btn_add
 		[ event_list_toprow(clubevent:), [ table_item(title:, rows:, cols: 3) ] ]
 	end
@@ -128,24 +132,27 @@ module EventsHelper
 	end
 
 	# return icon and top of fields definition for Tasks
-	def event_task_title(subtitle:)
-		event_title(subtitle:, chart: true)
+	def event_task_header(subtitle:)
+		event_header(subtitle:, chart: true)
 	end
 
 	# return icon and top of fields definition
-	def event_title(subtitle: nil, form: nil, cols: nil, chart: nil, teams: nil)
+	def event_header(subtitle: nil, form: nil, cols: nil, chart: nil, teams: nil)
 		if teams	# we are going to prepare a copy of the event
 			t_id = @team ? @team.id : teams.first.id
 			copy = true
-			res  = title_start(icon: @event.symbol, title: @event.title(copy: true), rows: @event.rest? ? 3 : nil, cols:)
+			res  = title_start(icon: @event.symbol, title: @event.title(copy: true), rows: @event.kind_holiday? ? 3 : nil, cols:)
 			res << [ { kind: :select_collection, key: :team_id, options: teams, value: t_id, cols: cols } ]
 		else
-			res = title_start(icon: @event.symbol, title: @event.title(show: true), rows: @event.rest? ? 3 : nil, cols:)
+			res = title_start(icon: @event.symbol, title: @event.title(show: true), rows: @event.kind_holiday? ? 3 : nil, cols:)
 			res.last << gap_item
 			case @event.kind.to_sym
-			when :rest then rest_title(res:, cols:, form:)
-			when :match then match_title(res:, cols:, form:)
-			when :train then train_title(res:, cols:, form:, subtitle:, chart:)
+			when :holiday, :rest
+				holiday_header(res:, cols:, form:)
+			when :competition, :match
+				match_header(res:, cols:, form:)
+			when :training, :train
+				training_header(res:, cols:, form:, subtitle:, chart:)
 			end
 		end
 		event_top_right(res:, form:, copy:)
@@ -155,7 +162,7 @@ module EventsHelper
 	# return adequate notice depending on @event kind
 	def event_update_notice(msg, changed: false)
 		if changed
-			if @event.train?
+			if @event.kind_training?
 				msg += @event.date_string
 			elsif msg != I18n.t("stat.updated")
 				msg += @event.to_s(style: "notice")
@@ -335,13 +342,13 @@ module EventsHelper
 		def event_rows(events:, season_id:)
 			rows  = Array.new
 			events&.each do |event|
-				unless season_id && event.rest? && event.team_id > 0 # show only general holidays in season events view
+				unless season_id && event.kind_holiday? && event.team_id.to_i > 0 # show only general holidays in season events view
 					url = path_for(event, cal: @cal)
-					row = { url:, frame: (event.rest? ? "modal": "_top"), items: [] }
+					row = { url:, frame: (event.kind_holiday? ? "modal": "_top"), items: [] }
 					row[:items] << { kind: :normal, value: event.date_string, align: :center }
 					row[:items] << { kind: :normal, value: event.time_string(false), align: :center }
 					event.to_hash.each_value do |row_f|
-						n_row = event.match? ? { kind: :normal, value: row_f.to_s, cols: 1 } : { kind: :normal, value: event.to_s, cols: 4 }
+						n_row = event.kind_competition? ? { kind: :normal, value: row_f.to_s, cols: 1 } : { kind: :normal, value: event.to_s, cols: 4 }
 						row[:items] << n_row
 					end
 					row[:items] << normal_button({ kind: :delete, url: row[:url], name: event.to_s }) if @policy.destroy?
@@ -354,9 +361,10 @@ module EventsHelper
 		# complete event title with top-right corner elements
 		def event_top_right(res:, form: nil, copy: false)
 			if form # top right corner of title
+				clubevent = @event.team_id.to_i > 0
 				res[0] << symbol_item(:calendar)
-				res[0] << { kind: :date_box, key: :start_date, s_year: @event.team_id > 0 ? @team.season.start_date : @event.start_date, e_year: @event.team_id > 0 ? @team.season.end_year : nil, value: @event.start_date }
-				unless @event.rest? # add start_time inputs
+				res[0] << { kind: :date_box, key: :start_date, s_year: clubevent ? @team.season.start_date : @event.start_date, e_year: clubevent ? @team.season.end_year : nil, value: @event.start_date }
+				unless @event.kind_holiday? # add start_time inputs
 					res[1] << symbol_item(:clock)
 					res[1] << { kind: :time_box, key: :hour, hour: @event.hour, mins: @event.min, mandatory: true }
 				end
@@ -366,7 +374,7 @@ module EventsHelper
 			else
 				res[0] << symbol_item(:calendar, { title: I18n.t("calendar.date") })
 				res[0] << { kind: :string, value: @event.date_string }
-				unless @event.rest?
+				unless @event.kind_holiday?
 					res[1] << symbol_item(:clock, { title: I18n.t("calendar.time") })
 					res[1] << { kind: :string, value: @event.time_string }
 				end
@@ -375,9 +383,9 @@ module EventsHelper
 
 		def event_form_hidden_inputs(teamid)
 			res = []
-			res << hidden_input(:team_id, teamid) if teamid
-			res << hidden_input(:cal, @cal) if @cal
-			res << hidden_input(:rdx, @rdx) if @rdx
+			res << hidden_input(:team_id, teamid)   if teamid
+			res << hidden_input(:cal, @cal)         if @cal
+			res << hidden_input(:rdx, @rdx)         if @rdx
 			res << hidden_input(:kind, @event.kind) if @event
 			res
 		end
@@ -392,7 +400,7 @@ module EventsHelper
 		end
 
 		# complete event title for matches
-		def match_title(res:, cols:, form:)
+		def match_header(res:, cols:, form:)
 			res << [ { kind: :subtitle, value: @team.category.name }, gap_item ]
 			res << [ gap_item(1),	string_item(@team.division.name + " (#{@team.season.name})"), gap_item ]
 			if form
@@ -425,8 +433,8 @@ module EventsHelper
 			end
 		end
 
-		# complete event_title for train events
-		def train_title(res:, cols:, form:, subtitle: nil, chart: nil, rdx: @rdx)
+		# complete event_header for train events
+		def training_header(res:, cols:, form:, subtitle: nil, chart: nil, rdx: @rdx)
 			res << [ { kind: :subtitle, value: @team.category.name, cols: } ]
 			unless chart
 				if form
@@ -456,10 +464,10 @@ module EventsHelper
 			end
 		end
 
-		# complete event_title for rest events
-		def rest_title(team: nil, season: nil, res:, cols:, form:)
-			res << [ { kind: :subtitle, value: team&.nick || season&.name || "", cols: cols } ] if team or season
-			res << [ form ? { kind: :text_box, key: :name, value: @event.name, placeholder: Person.fld(:name) } : label_item(@event.name) ]
+		# complete event_header for rest events
+		def holiday_header(team: nil, season: nil, res:, cols:, form:)
+			res << [ { kind: :subtitle, value: team&.nick || season&.name || "", cols: } ] if team or season
+			res << [ form ? { kind: :text_box, key: :name, value: @event.name, placeholder: @event.kind_label, cols: cols.to_i + 4, size: 22 } : label_item(@event.name) ]
 		end
 
 		# return the dropdown element to access workload charts
@@ -480,14 +488,17 @@ module EventsHelper
 		end
 
 		# dropdown button definition to create a new Event
-		def new_event_button(obj:, clubevent: nil)
-			if clubevent	# paste season event button
-				normal_button({ kind: :add, url: new_path_for(@club, :event, kind: :rest), frame: :modal }) if @policy.new? && obj==Season.latest
-			elsif obj.is_a?(Team) && @policy.new? # new team event
+		def new_event_button(obj)
+			return nil unless @policy.new?	# cannot add events otherwise
+
+			case obj
+			when Club	# Club-wide event
+				normal_button({ kind: :add, url: new_path_for(@club, :event, kind: :holiday), frame: :modal })
+			when Team # new team event
 				button = { kind: :add, name: "add-event", options: [] }
-				button[:options] << { label: Event.t_path(:kind, :training), url: new_path_for(@team, :event, kind: :train), data: { turbo_frame: :modal } }
-				button[:options] << { label: Event.t_path(:kind, :match), url:  new_path_for(@team, :event, kind: :match), data: { turbo_frame: :modal } }
-				button[:options] << { label: Event.t_path(:kind, :rest), url:  new_path_for(@team, :event, kind: :rest), data: { turbo_frame: :modal } }
+				button[:options] << { label: Event.kind_label(:training), url: new_path_for(@team, :event, kind: :training), data: { turbo_frame: :modal } }
+				button[:options] << { label: Event.kind_label(:match), url: new_path_for(@team, :event, kind: :match), data: { turbo_frame: :modal } }
+				button[:options] << { label: Event.kind_label(:holiday), url: new_path_for(@team, :event, kind: :holiday), data: { turbo_frame: :modal } }
 				dropdown_button(button, class: "bg-white")
 			else
 				nil

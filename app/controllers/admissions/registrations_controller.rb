@@ -54,7 +54,7 @@ class RegistrationsController < ApplicationController
 		@fields   = create_fields(helpers.registration_show_fields(@registration))
 		messages  = @token ? @registration.messages.for_requester : @registration.messages
 		@messages = create_table(helpers.registration_messages_table(messages))
-		submit    = edit_path_for(@registration, frame: :modal) if @policy.edit?
+		submit    = edit_path_for(@registration) if @policy.edit?
 		actions   = prepare_registration_buttons
 
 		if current_user

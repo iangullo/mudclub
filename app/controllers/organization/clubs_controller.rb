@@ -41,7 +41,7 @@ class ClubsController < ApplicationController
 		if current_user
 			@links  = create_fields(helpers.club_links)
 			if user_in_club?	# my own club: show events
-				@table = create_fields(helpers.event_list_table(obj: Season.latest))
+				@table = create_fields(helpers.event_list_table(@club))
 			else	# off return to  the user's club
 				close  = :back
 				retlnk = back_link(default: clubs_path)

@@ -35,7 +35,7 @@ class TeamsController < ApplicationController
 				response.headers["Content-Disposition"] = "attachment; filename=#{f_name}"
 			end
 			format.html do
-				title   = helpers.team_title(title: Team.label(:plural), search: true)
+				title   = helpers.team_header(title: Team.label(:plural), search: true)
 				page    = paginate(@teams)	# paginate results
 				table   = helpers.team_table(teams: page)
 				zerolnk = @club ? path_for(@club) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
@@ -51,8 +51,8 @@ class TeamsController < ApplicationController
 	def show
 		@policy = check_policy!(TeamPolicy, record: @team)
 
-		@sport   = @team.sport.specific
-		title    = helpers.team_title(title: @team.nick)
+		@sport = @team.sport.specific
+		title  = helpers.team_header(title: @team.nick)
 		w_l = @team.win_loss
 		if w_l[:won] > 0 || w_l[:lost] > 0
 			wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
@@ -62,7 +62,7 @@ class TeamsController < ApplicationController
 		@coaches = create_fields(helpers.team_coaches)
 		if @policy.view_details?
 			@links = create_fields(helpers.team_links)
-			@table = create_fields(helpers.event_list_table(obj: @team))
+			@table = create_fields(helpers.event_list_table(@team))
 			submit = edit_path_for(@team) if @policy.edit?
 		else
 			start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
@@ -176,7 +176,7 @@ class TeamsController < ApplicationController
 	def roster
 		@policy = check_policy!(TeamPolicy, record: @team)
 
-		title = helpers.team_title(title: @team.nick)
+		title = helpers.team_header(title: @team.nick)
 		title << icon_subtitle(:player, Team.term(:roster), namespace: @team.sport.name)
 
 		@athletes = @team.athletes.by_number
@@ -193,7 +193,7 @@ class TeamsController < ApplicationController
 	def edit_roster
 		@policy = check_policy!(TeamPolicy, record: @team)
 
-		title = helpers.team_title(title: @team.to_s)
+		title = helpers.team_header(title: @team.to_s)
 		title << icon_subtitle(:player, Team.act(:edit_roster), namespace: @team.sport.name)
 		@title  = create_fields(title)
 		@submit = create_submit(close: :cancel, retlnk: path_for(@team, action: :roster))
@@ -204,7 +204,7 @@ class TeamsController < ApplicationController
 	def slots
 		@policy = check_policy!(TeamPolicy, record: @team)
 
-		header  = helpers.team_title(title: @team.to_s)
+		header  = helpers.team_header(title: @team.to_s)
 		@header = create_fields(header)
 		@fields = create_fields(helpers.team_slots) unless @team.slots.empty?
 		if current_user == nil && @policy.accepts_registrations?	# used to access registrations
@@ -222,7 +222,7 @@ class TeamsController < ApplicationController
 		@policy = check_policy!(TeamPolicy, record: @team)
 
 		global_targets(true)	# get & breakdown global targets
-		title   = helpers.team_title(title: @team.to_s)
+		title   = helpers.team_header(title: @team.to_s)
 		title  << icon_subtitle(:target, Target.label(:plural))
 		@title  = create_fields(title)
 		edit    = path_for(@team, action: :edit_targets) if @policy.edit_targets?
@@ -235,7 +235,7 @@ class TeamsController < ApplicationController
 		@policy = check_policy!(TeamPolicy, record: @team)
 
 		global_targets(true)	# get global targets
-		title   = helpers.team_title(title: @team.to_s)
+		title   = helpers.team_header(title: @team.to_s)
 		title << icon_subtitle(:target, Target.act(:edit))
 		@title  = create_fields(title)
 		@submit = create_submit(close: :cancel, retlnk: path_for(@team, action: :targets))
@@ -246,7 +246,7 @@ class TeamsController < ApplicationController
 		@policy = check_policy!(TeamPolicy, record: @team)
 
 		plan_targets
-		title = helpers.team_title(title: @team.to_s)
+		title = helpers.team_header(title: @team.to_s)
 		title << icon_subtitle(:plan, Team.fld(:plan))
 		@title = create_fields(title)
 		edit    = path_for(@team, action: :edit_plan) if @policy.edit?
@@ -259,7 +259,7 @@ class TeamsController < ApplicationController
 		@policy = check_policy!(TeamPolicy, record: @team)
 
 		plan_targets
-		title   = helpers.team_title(title: @team.to_s)
+		title   = helpers.team_header(title: @team.to_s)
 		title << icon_subtitle(:plan, Team.act(:edit_plan))
 		@title  = create_fields(title)
 		@submit = create_submit(close: :cancel, retlnk: path_for(@team, action: :plan))
@@ -269,7 +269,7 @@ class TeamsController < ApplicationController
 	def attendance
 		@policy = check_policy!(TeamPolicy, record: @team)
 
-		fields  = helpers.team_title(title: @team.to_s)
+		fields  = helpers.team_header(title: @team.to_s)
 		fields << icon_subtitle(:attendance, I18n.t("calendar.attendance.label"))
 		@fields = create_fields(fields)
 		a_data  = helpers.team_attendance_table
