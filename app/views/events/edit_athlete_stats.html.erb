@@ -1,7 +1,7 @@
 <%= render ModalComponent.new do %>
 	<%= form_for resource_route(@event), data: {turbo_frame: "_top"} do |form| %>
 		<%= render @header %>
-		<% if @event.kind_competition? %>
+		<% if @event.kind_match? %>
 			<strong><%= @event.to_s %></strong>
 			<br>
 		<% end %>

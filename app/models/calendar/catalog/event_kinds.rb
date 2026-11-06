@@ -32,7 +32,7 @@ class Catalog::EventKinds < Catalog::Base
 			tracks_attendance: true
 		},
 
-		competition: {
+		match: {
 			id: 2,
 			tracks_attendance: true
 		},
@@ -43,6 +43,11 @@ class Catalog::EventKinds < Catalog::Base
 		},
 
 		social: {
+			id: 20,
+			tracks_attendance: true
+		},
+
+		competition: {
 			id: 20,
 			tracks_attendance: true
 		},
@@ -62,11 +67,6 @@ class Catalog::EventKinds < Catalog::Base
 		train: {
 			deprecated: true,
 			alias_of: :training
-		},
-
-		match: {
-			deprecated: true,
-			alias_of: :competition
 		}
 	}.freeze
 end

@@ -127,7 +127,7 @@ class Basketball < Sport
 	# table to show/edit athlete outings for a match
 	def outings_table(event, outings, edit: false, rdx: nil)
 		title = [
-			{ kind: :normal, value: Assignment.fld(:shirt_number_short), align: :center },
+			{ kind: :normal, value: Assignment.fld(:number, :short), align: :center },
 			{ kind: :normal, value: Person.fld(:name) }
 		]
 		rows  = []
@@ -406,6 +406,7 @@ class Basketball < Sport
 
 		# generic match fields generator for show or edit
 		def match_fields(event, edit: false, new: false)
+			gender  = event.team.category.female? ? :female : nil
 			t_pers  = self.match_periods(event.team.category.rules)
 			t_cols  = t_pers + (edit ? 3 : 2)
 			head    = edit ? [ { kind: :side_cell, value: term(:match, :home), cols: 2, align: :left } ] : [ { kind: :gap, size: 1 } ]
@@ -427,7 +428,7 @@ class Basketball < Sport
 			fields += [ head, t_home, t_away ]
 			unless new
 				fields << [ { kind: :gap, size: 1, cols: t_pers + 3, class: "text-xs" } ]
-				fields << [ { kind: :side_cell, value: term(:athlete, :plural), align: :left, cols: t_cols } ]
+				fields << [ { kind: :side_cell, value: term(:athlete, :plural, gender:), align: :left, cols: t_cols } ]
 			end
 			fields
 		end

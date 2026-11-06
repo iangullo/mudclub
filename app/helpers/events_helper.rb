@@ -31,7 +31,7 @@ module EventsHelper
 	def event_attendance_form
 		res = [ [
 			gap_item(2),
-			{ kind: :side_cell, value: @event.kind_competition? ? @event.term(:match, :roster) : Attendance.label, align: :left }
+			{ kind: :side_cell, value: @event.kind_match? ? @event.term(:match, :roster) : Attendance.label, align: :left }
 		] ]
 		res << [
 			gap_item(2),
@@ -83,9 +83,8 @@ module EventsHelper
 		@sport.athlete_training_stats_form(@event, athlete_id: @athlete.id)
 	end
 
-
 	def event_form_data_options(event, title)
-		if event.kind_competition?
+		if event.kind_match?
 			{ controller: "match-location", title:, turbo_frame: "_top" }
 		else
 			{ controller: "mandatory-fields", title:, turbo_frame: "_top" }
@@ -348,7 +347,7 @@ module EventsHelper
 					row[:items] << { kind: :normal, value: event.date_string, align: :center }
 					row[:items] << { kind: :normal, value: event.time_string(false), align: :center }
 					event.to_hash.each_value do |row_f|
-						n_row = event.kind_competition? ? { kind: :normal, value: row_f.to_s, cols: 1 } : { kind: :normal, value: event.to_s, cols: 4 }
+						n_row = event.kind_match? ? { kind: :normal, value: row_f.to_s, cols: 1 } : { kind: :normal, value: event.to_s, cols: 4 }
 						row[:items] << n_row
 					end
 					row[:items] << normal_button({ kind: :delete, url: row[:url], name: event.to_s }) if @policy.destroy?
@@ -423,7 +422,7 @@ module EventsHelper
 						gap_item(1),
 						{ kind: :side_cell, value: @team.term(:match), align: :left, cols: 2 },
 						normal_button(
-							{ kind: :link, symbol: :attendance, label: @team.term(:match, :roster), url:, frame: :modal },
+							{ kind: :link, symbol: :attendance, label: @team.term(:match, :roster), url: path_for(@event, action: :attendance), frame: :modal },
 							align: :left,
 							cols: 2
 						)

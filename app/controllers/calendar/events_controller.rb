@@ -66,7 +66,7 @@ class EventsController < ApplicationController
 					)&.id
 					redirect_to path_for(@event, action: athlete_stats, athlete_id:, cal: @cal), data: { turbo_action: "replace" }
 				else	# gotta be a coach or manager
-					if @event.kind_competition?
+					if @event.kind_match?
 						@fields = create_fields(helpers.match_show)
 						table   = helpers.match_roster_table
 						@table  = create_table(table)
@@ -493,8 +493,8 @@ class EventsController < ApplicationController
 
 		# prepare new/edit event form
 		def prepare_event_form(new: nil)
-			@header = create_fields(helpers.event_header(form: true, cols: @event.kind_competition? ? 2 : nil))
-			if @event.kind_competition?
+			@header = create_fields(helpers.event_header(form: true, cols: @event.kind_match? ? 2 : nil))
+			if @event.kind_match?
 				@fields  = create_fields(helpers.match_form(new:))
 				unless new
 					table  = helpers.match_roster_table(edit: true)
