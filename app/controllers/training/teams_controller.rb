@@ -31,16 +31,22 @@ class TeamsController < ApplicationController
 			format.xlsx do
 				f_name = "#{@season.name(safe: true)}-athletes.xlsx"
 				a_desc = "#{I18n.t("player.export")} '#{f_name}'"
-				register_action(:exported, a_desc, url: club_teams_path(rdx: 2))
+				register_action(:exported, a_desc, url: club_teams_path(@club, rdx: 2))
 				response.headers["Content-Disposition"] = "attachment; filename=#{f_name}"
 			end
 			format.html do
-				title   = helpers.team_header(title: Team.label(:plural), search: true)
-				page    = paginate(@teams)	# paginate results
-				table   = helpers.team_table(teams: page)
+				page = paginate(@teams)	# paginate results
+				if user_in_club?
+					title  = helpers.team_header(title: Team.label(:plural), search: true)
+					table  = helpers.team_table(teams: page)
+					submit = { kind: :export, url: club_teams_path(@club, format: :xlsx, season_id: @season.id), working: false } if @policy.edit?
+				else
+					title = helpers.club_header
+					table = helpers.public_team_table(teams: page)
+				end
+
 				zerolnk = @club ? path_for(@club) : (u_admin? ? clubs_path(rdx: @rdx) : "/")
 				retlnk  = back_link(default: zerolnk)
-				submit  = { kind: :export, url: club_teams_path(@club, format: :xlsx, season_id: @season.id), working: false } if @policy.edit?
 				create_index(title:, table:, page:, retlnk:, submit:)
 			end
 		end

@@ -29,7 +29,7 @@ class ClubsController < ApplicationController
 		title   = helpers.club_header(title:, icon: { concept: "rivals" })
 		title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10, cols: 3 } ]
 		table   = helpers.club_table(clubs: page)
-		retlnk  = back_link(default: :back)
+		retlnk  = back_link(default: root_path)
 		create_index(title:, table:, page:, retlnk:)
 	end
 
@@ -37,23 +37,21 @@ class ClubsController < ApplicationController
 	def show
 		@policy = check_policy!(ClubPolicy, record: @club)
 
-		@title  = create_fields(helpers.club_header)
+		@title = create_fields(helpers.club_header)
 		if current_user
 			@links  = create_fields(helpers.club_links)
 			if user_in_club?	# my own club: show events
 				@table = create_fields(helpers.event_list_table(@club))
-			else	# off return to  the user's club
+			else	# off return to  the user's club or index (for admins)
 				close  = :back
 				retlnk = back_link(default: clubs_path)
 			end
-			submit  = edit_path_for(@club) if @policy.edit?
+			submit = edit_path_for(@club) if @policy.edit?
 		else # anonymous mode. policy will take care of access
-			close   = :back
-			retlnk  = root_path
-			teams   = @club.teams.for_season(Season.latest).unlocked.ordered
+			retlnk = root_path
+			teams  = @club.teams.for_season(Season.latest).unlocked.ordered
 			unless teams.empty?
 				page    = paginate(teams)
-				@fields = create_fields(helpers.club_public_fields)
 				@table  = create_table(helpers.public_team_table(teams: page))
 			end
 		end

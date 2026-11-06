@@ -19,10 +19,10 @@
 # app/policies/location_policy.rb
 class LocationPolicy < ApplicationPolicy
 	#------------------------------------
-	# Division index - admins
+	# Location index - admins || club managers
 	#------------------------------------
 	def index?
-		location_manager?
+		location_manager? || manages_a_club?
 	end
 
 	#------------------------------------

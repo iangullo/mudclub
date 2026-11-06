@@ -26,7 +26,6 @@ class Event < ApplicationRecord
 	# Data accessors
 	#-------------------------------------
 	attr_accessor :event_changed
-	enum :kind, %i[rest train match]
 
 	#-------------------------------------
 	# Object relationships
@@ -55,6 +54,11 @@ class Event < ApplicationRecord
 	# Data validations
 	#-------------------------------------
 	validate :team_in_same_club
+
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include Kinded
 
 	#-------------------------------------
 	# ActiveRecord scopes
@@ -94,7 +98,7 @@ class Event < ApplicationRecord
 
 	# show this event?
 	def display?
-		return true unless rest?
+		return true unless kind_holiday?
 		return true if team.present?
 
 		true
@@ -154,7 +158,7 @@ class Event < ApplicationRecord
 	end
 
 	def time_string(t_end = true)
-		timeslot_string(t_begin: self.start_time, t_end: ((self.train? and t_end) ? self.end_time : nil))
+		timeslot_string(t_begin: self.start_time, t_end: ((self.kind_training? && t_end) ? self.end_time : nil))
 	end
 
 	# rebuild Event using raw hash from a form submittal
@@ -173,16 +177,17 @@ class Event < ApplicationRecord
 
 	# prepare default values for an event
 	def prepare_defaults(start_date: nil)
+		self.name = self.kind_label
 		date = start_date.present? ? Date.parse(start_date) : Date.current
 
 		case kind.to_sym
-		when :rest
-			prepare_rest(date)
+		when :holiday, :rest
+			prepare_holiday(date)
 
-		when :train
+		when :training, :train
 			prepare_training(date)
 
-		when :match
+		when :competition, :match
 			prepare_match(date)
 		end
 	end
@@ -258,14 +263,14 @@ class Event < ApplicationRecord
 	# return event title depending on kind & data
 	def title(show: nil, copy: nil, print: nil)
 		cad = show ? "" : (self.id ? (copy ? "#{I18n.t("action.copy")} " : "#{I18n.t("action.edit")} ") : "#{I18n.t("action.create")}")
-		e_string = I18n.t("#{self.kind}.single")
+		e_string = self.kind_label
 		case self.kind.to_sym
-		when :rest
+		when :holiday, :rest
 			cad += e_string
 			cad += ": #{self.name}" if print
-		when :train
+		when :training, :train
 			cad = show ? self.team.to_s : "#{cad}#{e_string}"
-		when :match
+		when :match, :competition
 			if print
 				m_data = self.to_hash
 				return "#{m_data[:home_t]} - #{m_data[:away_t]}"
@@ -281,7 +286,7 @@ class Event < ApplicationRecord
 	# hash view of event data
 	# {home_t:, home_p, away_t:, away_p}
 	def to_hash(mode: 1)
-		if self.match?
+		if self.kind_match?
 			m_score = self.total_score
 			ours = m_score[:ours]
 			opps = m_score[:opps]
@@ -404,7 +409,7 @@ class Event < ApplicationRecord
 		return nil unless club
 		return nil if team && team.club != club
 
-		event = new(club:, team:, kind: data[:kind])
+		event = new(club:, team:, kind: data[:kind]&.to_sym)
 		event.prepare_defaults(start_date: data[:start_date])
 
 		event
@@ -440,8 +445,7 @@ class Event < ApplicationRecord
 	private
 
 	# Default values for a rest Event
-	def prepare_rest(date)
-		self.name = I18n.t("event_kinds.values.rest")
+	def prepare_holiday(date)
 		self.start_time = date
 		self.duration = 1440
 		self.location_id = 0
@@ -450,10 +454,7 @@ class Event < ApplicationRecord
 	def prepare_training(date)
 		return unless team
 
-		self.name = I18n.t("event_kinds.values.training")
-
 		slot = team.next_slot(team.events.trainings.last)
-
 		if slot
 			training_date =  slot.next_date || date
 

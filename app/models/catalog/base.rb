@@ -229,7 +229,7 @@ class Catalog::Base
 				@enum =
 					@entries
 						.reject { |_k, e| e.alias? }
-						.transform_values(&:id)
+						.transform_values { |e| e.metadata[:id] }
 						.freeze
 
 				@entries_by_id =

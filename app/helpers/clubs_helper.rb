@@ -17,9 +17,27 @@
 # contact email - iangullo@gmail.com.
 #
 module ClubsHelper
-	# public mode fields
-	def club_public_fields
-		[ [ label_item("#{Team.label(:plural)} - #{@season.name}") ] ]
+	# Club view headers
+	def club_header(icon: @club&.logo, title: @club&.nick, form: nil)
+		icon  ||= "mudclub.svg"
+		title ||= Club.label
+		size    = (icon.is_a?(Hash) && icon[:concept] == :rivals) ? nil : "75x100"
+		header  = title_start(icon:, title:, size:, rows: 3, cols: 2, form:)
+		if form
+			header << [ { kind: :text_box, key: :nick, value: @club.nick, placeholder: @club.fld(:name), cols:, mandatory: { length: 3 } } ]
+			header << [ { kind: :text_box, key: :name, value: @club.name, size: 27, placeholder: @club.fld(:entity), cols:, mandatory: { length: 3 } } ]
+		else
+			t_sub = [ { kind: :label, value: "#{Team.label(:plural)} (#{@season&.name})" } ]
+			header << [ { kind: :string, value: @club.name, cols: 2 } ]
+			if controller_name == "teams" && action_name == "index"
+				header << t_sub
+			elsif !current_user
+				header[1] = t_sub
+			else
+				header << [ { kind: :contact, website: @club.website, phone: @club.phone, email: @club.email, device: device } ]
+			end
+		end
+		header
 	end
 
 	# return @clubs TableComponent
@@ -104,19 +122,5 @@ module ClubsHelper
 				{ kind: :text_area, key: :address, size: 30, cols:, lines: 3, value: @club.address, placeholder: Person.fld(:address) }
 			]
 		]
-	end
-
-	def club_header(icon: @club&.logo, title: @club&.nick, form: nil)
-		icon  ||= "mudclub.svg"
-		title ||= Club.label
-		size    = (icon.is_a?(Hash) && icon[:concept] == :rivals) ? nil : "75x100"
-		header  = title_start(icon:, title:, size:, rows: 3, cols: 2, form:)
-		if form
-			header << [ { kind: :text_box, key: :nick, value: @club.nick, placeholder: @club.fld(:name), cols:, mandatory: { length: 3 } } ]
-			header << [ { kind: :text_box, key: :name, value: @club.name, size: 27, placeholder: @club.fld(:entity), cols:, mandatory: { length: 3 } } ]
-		else
-			header << [ { kind: :string, value: @club.name, cols: 2 } ]
-			header << [ { kind: :contact, website: @club.website, phone: @club.phone, email: @club.email, device: device } ]
-		end
 	end
 end

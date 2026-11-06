@@ -96,7 +96,6 @@ class User < ApplicationRecord
 	end
 
 	def member_of?(club)
-		return true if system_admin?
 		person&.member_of?(club) || false
 	end
 

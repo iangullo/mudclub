@@ -23,7 +23,7 @@ class LocationsController < ApplicationController
 	# GET /club/x/locations
 	# GET /club/x/locations.json
 	def index
-		@policy = check_policy!(CategoryPolicy, club: @club)
+		@policy = check_policy!(LocationPolicy, club: @club)
 
 		title  = helpers.location_title(title: I18n.t("location.many"))
 		title << helpers.location_search_bar(search_in: crud_return)
@@ -35,7 +35,7 @@ class LocationsController < ApplicationController
 	# GET /locations/1
 	# GET /locations/1.json
 	def show
-		@policy = check_policy!(CategoryPolicy, club: @club, record: @location)
+		@policy = check_policy!(LocationPolicy, club: @club, record: @location)
 
 		@fields = create_fields(helpers.location_show)
 		submit  = edit_path_for(@location) if location_editor?
@@ -44,14 +44,14 @@ class LocationsController < ApplicationController
 
 	# GET /locations/1/edit
 	def edit
-		@policy = check_policy!(CategoryPolicy, club: @club, record: @location)
+		@policy = check_policy!(LocationPolicy, club: @club, record: @location)
 
 		prepare_form("edit")
 	end
 
 	# GET /locations/new
 	def new
-		@policy = check_policy!(CategoryPolicy, club: @club)
+		@policy = check_policy!(LocationPolicy, club: @club)
 
 		@location = Location.new unless @location
 		prepare_form("new")
@@ -60,7 +60,7 @@ class LocationsController < ApplicationController
 	# POST /locations
 	# POST /locations.json
 	def create
-		@policy = check_policy!(CategoryPolicy, club: @club)
+		@policy = check_policy!(LocationPolicy, club: @club)
 
 		respond_to do |format|
 			@location = Location.new
@@ -83,7 +83,7 @@ class LocationsController < ApplicationController
 
 	# PATCH/PUT /locations/1 or /locations/1.json
 	def update
-		@policy = check_policy!(CategoryPolicy, club: @club, record: @location)
+		@policy = check_policy!(LocationPolicy, club: @club, record: @location)
 
 		respond_to do |format|
 			@location.rebuild(location_params)
@@ -118,7 +118,7 @@ class LocationsController < ApplicationController
 	# DELETE /locations/1
 	# DELETE /locations/1.json
 	def destroy
-		@policy = check_policy!(CategoryPolicy, club: @club, record: @location)
+		@policy = check_policy!(LocationPolicy, club: @club, record: @location)
 
 		respond_to do |format|
 			l_name = @location.name

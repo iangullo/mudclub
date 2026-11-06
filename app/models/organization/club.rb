@@ -202,7 +202,7 @@ class Club < ApplicationRecord
 
 	# Get collection of upcoming events for the club
 	def upcoming_events
-		Event.non_training.short_term.where(team_id: self.teams.pluck(:id)).order(start_time: :asc)
+		Event.non_training.short_term.where(team_id: self.team_ids).order(start_time: :asc)
 	end
 
 	# access setting for country

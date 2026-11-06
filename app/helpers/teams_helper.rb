@@ -83,7 +83,7 @@ module TeamsHelper
 
 	# return HeaderComponent @fields for forms
 	def team_form(action = :edit, cols: nil)
-		res = team_title(title: Team.act(action), cols:, edit: true)
+		res = team_header(title: Team.act(action), cols:, edit: true)
 		res.last << hidden_input(:rdx, @rdx) if @rdx
 		res << [
 			symbol_item(:user, align: :right),
@@ -115,7 +115,7 @@ module TeamsHelper
 
 	# roster table view
 	def team_roster_table(athletes = @athletes)
-		title = team_roster_title
+		title = team_roster_header
 
 		rows  = Array.new
 		athletes.each do |athlete|
@@ -272,7 +272,7 @@ module TeamsHelper
 	end
 
 	# return FieldComponent for team view title
-	def team_title(title:, cols: nil, search: nil, edit: nil)
+	def team_header(title:, cols: nil, search: nil, edit: nil)
 		clubid = @club&.id || @team&.club.id
 		res    = title_start(icon: (user_in_club?(@team&.club) ? @club&.logo : symbol_hash(:team)), title:, cols:)
 		if search
@@ -332,7 +332,7 @@ module TeamsHelper
 		end
 
 		# team roster table helpers
-		def team_roster_title
+		def team_roster_header
 			title = [
 				{ kind: :normal, value: Assignment.fld(:number, :short), align: :center },
 				{ kind: :normal, value: Person.fld(:name) },

@@ -228,7 +228,7 @@ class Team < ApplicationRecord
 		t_events = self.events.past.trainings.includes(:attendances)
 		t_att    = Attendance.for_team(self).for_membership_kind(:athlete)
 		t_events.each do |event|
-			if event.train?
+			if event.kind_training?
 				e_cnt           = t_att.for_event(event).count
 				e_date          = event.start_date
 				l_season[:tot] += t_athletes

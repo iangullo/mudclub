@@ -26,19 +26,19 @@ class TeamPolicy < ApplicationPolicy
 	#------------------------------------
 	# Teams index
 	#------------------------------------
-	def index? = allowed?(same_club?(target_club))
+	def index? = allowed?(same_club?(target_club) || manages_a_club?)
 
 	#------------------------------------
 	# Team object
 	#------------------------------------
-	def show? = allowed?(same_club?(@record))
+	def show? = allowed?(same_club?(@record) || manages_a_club?)
 
 	def create? = allowed?(manages_club?(target_club))
 	alias new? create?
 
 	def edit?
 		return false unless @record
-		return false if @record.locked
+		return false if @record.season.end_date < Date.today
 
 		allowed?(
 			manages_club?(@record&.club) ||
@@ -54,7 +54,7 @@ class TeamPolicy < ApplicationPolicy
 	#------------------------------------
 	def roster?
 		return false unless @record
-		return false if @record.locked
+		return false if @record.season.end_date < Date.today
 
 		allowed?(
 			team_member? ||

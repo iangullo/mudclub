@@ -75,6 +75,7 @@ class Membership < ApplicationRecord
 	# -------------------------------------------------------------------------
 	# Scopes
 	# -------------------------------------------------------------------------
+	scope :active,  -> { where(status: :active) }
 	scope :on_date, ->(date = Date.current) {
 		where("joined_on <= ?", date)
 			.where("left_on IS NULL OR left_on >= ?", date)

@@ -82,18 +82,14 @@ class MembershipPolicy < ApplicationPolicy
 			case kind.to_sym
 			when :athlete
 				coach? || manages_club?(@target_club)
-
 			when :coach
 				coach? ||
 				manages_coaches?(@target_club) ||
 				manages_club?(@target_club)
-
 			when :volunteer
 				manages_club?(@target_club)
-
 			when :board_member, :club_manager
 				manages_club?(@target_club)
-
 			else
 				false
 			end
@@ -103,18 +99,11 @@ class MembershipPolicy < ApplicationPolicy
 			return false unless kind
 
 			case kind.to_sym
-			when :athlete
-				manages_athletes?(@target_club)
-
-			when :coach
-				manages_coaches?(@target_club)
-
-			when :volunteer
-				manages_club?(@target_club)
-
+			when :athlete   then manages_athletes?(@target_club)
+			when :coach     then manages_coaches?(@target_club)
+			when :volunteer then manages_club?(@target_club)
 			when :board_member, :club_manager
 				manages_board?(@target_club)
-
 			else
 				false
 			end
@@ -124,8 +113,8 @@ class MembershipPolicy < ApplicationPolicy
 			return false unless kind
 
 			case kind.to_sym
-			when :athlete then manages_athletes?(@target_club)
-			when :coach then manages_coaches?(@target_club)
+			when :athlete   then manages_athletes?(@target_club)
+			when :coach     then manages_coaches?(@target_club)
 			when :volunteer then manages_club?(@target_club)
 			when :board_member, :club_manager
 				manages_board?(@target_club)

@@ -88,7 +88,8 @@ class EventPolicy < ApplicationPolicy
 
 	def athlete_stats?
 		return false unless @target_person&.is_athlete? || @record&.persisted?
-		return false if @record&.rest? # not keeping stats for holidays ;)
+		return false if @record&.kind_holiday? # not keeping stats for holidays ;)
+
 		manages_event? || same_person?(@target_person)
 	end
 	alias edit_athlete_stats? athlete_stats?

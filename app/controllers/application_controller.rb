@@ -214,16 +214,16 @@ class ApplicationController < ActionController::Base
 
 	# set the action's context
 	def set_application_context
-		@token = requester_token
 		Server.current
+		@token  = requester_token
+		@club   = Club.find(params[:club_id]) if params[:club_id].present?
 		@locale = (params[:locale] || current_user&.locale || Server.default_locale)
 		if user_signed_in?
-			@club   = u_club
+			@club ||= u_club
 			@rdx    = p_rdx
 			@season = Season.search(p_seasonid)
 		else
 			# Fallback for anonymous (or club-less) visitors on public club pages
-			@club   = Club.find(params[:club_id]) if params[:club_id].present?
 			@season = Season.latest
 		end
 		@favicon  = user_favicon(@club)

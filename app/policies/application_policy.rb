@@ -107,6 +107,7 @@ class ApplicationPolicy
 
 		def has_club_assignment?(club = @target_club, kinds: nil)
 			return false unless club.is_a?(Club) && actor_person
+
 			scope = assignments_for(club).club_level
 			scope = scope.of_kind(kinds) if kinds.present?
 			scope.exists?
@@ -114,6 +115,7 @@ class ApplicationPolicy
 
 		def has_team_assignment?(team, kinds: nil)
 			return false unless team.is_a?(Team)
+
 			scope = assignments_for(team.club).where(team:)
 			scope = scope.of_kind(kinds) if kinds.present?
 			scope.exists?
@@ -159,6 +161,13 @@ class ApplicationPolicy
 			return nil unless club.is_a?(Club) && actor_person
 
 			assignments_for(club).club_level.of_kind(MANAGING_CLUB_KINDS).first
+		end
+
+		def manages_a_club?
+			return nil unless actor_person
+
+			actor_person.memberships.of_kind(:board_member).active.exists? ||
+			actor_person.assignments.of_kind(:club_manager).active.exists?
 		end
 
 		# True when the current request carries a valid requester token —
