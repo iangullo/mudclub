@@ -36,16 +36,12 @@
 							<div class="<%= event[:b_class] %> text-center" >
 								<%= link_to event[:url],
 									class: "#{event[:l_class]} inline-block m-1 rounded-lg",
-									data: (event[:data] || {}).merge(
-										tooltip_target: "event-#{event[:id]}",
-										tooltip_trigger: "hover",
-										tooltip_placement: "bottom"
-									) do %>
+									aria: { describedby: "event-#{event[:id]}" } do %>
 									<%= render SymbolComponent.new(event[:symbol][:concept], **event[:symbol][:options].merge({css: "inline-block max-h-7 align-middle"})) %>
 								<% end %>
-								<div id="<%= "event-#{event[:id]}"%>" role="tooltip" class="<%=event[:t_class] %>">
-									<% if event[:home] #it's a match%>
+								<div id="<%= "event-#{event[:id]}"%>" role="tooltip" class="<%= event[:t_class] %>">
 									<table>
+									<% if event[:home] #it's a match%>
 										<tr>
 											<td><%= event[:home][:team] %></td>
 											<td>[<%= event[:home][:points] %>]</td>
@@ -53,10 +49,14 @@
 											<td><%= event[:away][:team] %></td>
 											<td>[<%= event[:away][:points] %>]</td>
 										</tr>
-									</table>
 									<% else %>
-									<%= event[:label] %>
+										<tr>
+											<td><%= event[:label] %></td>
+										</tr><tr>
+											<td><%= event[:time] %></td>
+										</tr>
 									<% end %>
+									</table>
 								</div>
 							</div>
 						<% end %>

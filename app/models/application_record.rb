@@ -85,7 +85,7 @@ class ApplicationRecord < ActiveRecord::Base
 	end
 
 	def timeslot_string(t_begin:, t_end: nil)
-		self.class.timeslot_string(t_begin:, t_end: nil)
+		self.class.timeslot_string(t_begin:, t_end:)
 	end
 
 	# parse a value to determine if its true

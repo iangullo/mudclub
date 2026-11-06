@@ -44,7 +44,6 @@ class FlashComponent < ApplicationComponent
 	def initialize(notice)
 		@notice = extract_notice(notice)
 		@kind   = extract_kind(notice)
-		@alert_id = "alert-#{SecureRandom.hex(4)}"
 		return if @notice.blank?
 
 		styles   = FLASH_STYLES.fetch(@kind, FLASH_STYLES[:info])
@@ -58,8 +57,15 @@ class FlashComponent < ApplicationComponent
 
 	# render component
 	def call
-		content_tag(:div, class: "absolute float-right top-12 right-2 p-2 m-2") do
-			content_tag(:div, id: @alert_id, class: @d_class, role: "alert", data: { dismiss_duration: 300 }) do
+		content_tag(:div,
+			class: "absolute float-right top-12 right-2 p-2 m-2",
+			data: {
+				controller: "dismiss",
+				dismiss_auto_dismiss_value: (@kind == :success),
+				dismiss_delay_value: 4000
+			}
+		) do
+			content_tag(:div, class: @d_class, role: "alert") do
 				concat @notice
 				concat dismiss_button
 			end
@@ -69,7 +75,12 @@ class FlashComponent < ApplicationComponent
 	private
 		# dismiss button for Flash notices
 		def dismiss_button
-			content_tag(:button, type: :button, class: @b_class, "data-dismiss-target": "##{@alert_id}", "aria-label": "Close") do
+			content_tag(:button,
+				type: :button,
+				class: @b_class,
+				"aria-label": "Close",
+				data: { action: "click->dismiss#dismiss" }
+			) do
 				content_tag(:svg, class: "w-5 h-5", fill: "currentColor", viewBox: "0 0 20 20", xmlns: "http://www.w3.org/2000/svg") do
 					content_tag(:path,
 						"",

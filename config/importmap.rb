@@ -30,8 +30,5 @@ pin "chartkick", to: "chartkick.js"
 pin "Chart.bundle", to: "Chart.bundle.js"
 pin "stimulus-sortable", to: "https://ga.jspm.io/npm:stimulus-sortable@4.1.1/dist/stimulus-sortable.mjs"
 pin "@rails/request.js", to: "https://ga.jspm.io/npm:@rails/request.js@0.0.8/src/index.js" # unrequired?
-pin "sortablejs", to: "https://ga.jspm.io/npm:sortablejs@1.15.0/modular/sortable.esm.js"
+pin "sortablejs" # @1.15.7
 pin_all_from "app/javascript/helpers", under: "helpers"
-pin "flowbite", to: "flowbite.turbo.min.js" # @3.1.2
-pin "@popperjs/core", to: "@popperjs--core.js" # @2.11.8
-pin "flowbite-datepicker" # @1.3.2

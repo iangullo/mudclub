@@ -78,40 +78,58 @@ class FlashComponentTest < ActiveSupport::TestCase
 		refute_includes html, "bg-indigo-100"
 	end
 
-	# ─── unique ids ─────────────────────────────────
-	test "each flash gets a unique alert id" do
-		html1 = render_inline(FlashComponent.new("One")).to_html
-		html2 = render_inline(FlashComponent.new("Two")).to_html
-
-		id1 = html1[/id="(alert-[a-f0-9]+)"/, 1]
-		id2 = html2[/id="(alert-[a-f0-9]+)"/, 1]
-
-		refute_nil id1
-		refute_nil id2
-		refute_equal id1, id2, "two flashes must not share an alert id"
+	# ─── Stimulus dismissal wiring ──────────────────
+	test "the dismiss controller is attached to the wrapper" do
+		html = render_inline(FlashComponent.new("X")).to_html
+		assert_includes html, 'data-controller="dismiss"'
 	end
 
-	test "alert id follows the alert-xxxx format" do
+	test "the close button wires the dismiss action" do
 		html = render_inline(FlashComponent.new("X")).to_html
-		assert_match(/id="alert-[a-f0-9]{8}"/, html)
+		assert_includes html, 'data-action="click-'
+		assert_includes html, 'dismiss#dismiss"'
 	end
 
-	# ─── Flowbite dismissal wiring ──────────────────
-	test "close button targets the flash's own alert id" do
+	test "the close button is labelled for assistive tech" do
 		html = render_inline(FlashComponent.new("X")).to_html
-
-		alert_id   = html[/id="(alert-[a-f0-9]+)"/, 1]
-		dismiss_id = html[/data-dismiss-target="#(alert-[a-f0-9]+)"/, 1]
-
-		refute_nil alert_id
-		refute_nil dismiss_id
-		assert_equal alert_id, dismiss_id,
-			"dismiss target must match the element's own id"
+		assert_includes html, 'aria-label="Close"'
+		assert_includes html, 'type="button"'
 	end
 
-	test "wrapper carries Flowbite's dismiss duration attribute" do
+	test "the dismiss controller wraps the alert so removal takes the whole unit" do
+		fragment = render_inline(FlashComponent.new("X"))
+
+		controller_el = fragment.at_css("[data-controller='dismiss']")
+		refute_nil controller_el, "wrapper must carry the dismiss controller"
+
+		assert_not_nil controller_el.at_css("[role='alert']"),
+			"the alert must live inside the controller element"
+		assert_not_nil controller_el.at_css("[data-action='click->dismiss#dismiss']"),
+			"the close button must live inside the controller element"
+	end
+
+	# ─── Flowbite has been removed ──────────────────
+	test "no Flowbite dismissal attributes are emitted" do
 		html = render_inline(FlashComponent.new("X")).to_html
-		assert_includes html, 'data-dismiss-duration="300"'
+		refute_includes html, "data-dismiss-target"
+		refute_includes html, "data-dismiss-duration"
+	end
+
+	test "no synthetic alert id is generated" do
+		html = render_inline(FlashComponent.new("X")).to_html
+		refute_match(/id="alert-/, html)
+	end
+
+	test "two flashes do not collide in the DOM" do
+		html = [
+			render_inline(FlashComponent.new("One")).to_html,
+			render_inline(FlashComponent.new("Two")).to_html
+		].join
+
+		# No id generation, so the only safety net is the absence of ids,
+		# which means duplicates are structurally impossible.
+		refute_includes html, 'id="alert-'
+		assert_equal 2, html.scan('role="alert"').size
 	end
 
 	# ─── CSS presence — locks the migration fix ─────

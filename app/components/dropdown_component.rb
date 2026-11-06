@@ -24,10 +24,23 @@
 class DropdownComponent < ApplicationComponent
 	MIN_CLS  = %w[inline-flex items-center px-2 py-1].freeze
 	BTN_CLS  = MIN_CLS + %w[whitespace-nowrap rounded-md].freeze
-	MENU_CLS = BTN_CLS + %w[p-2 font-semibold hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-200].freeze
+	MENU_CLS = BTN_CLS + %w[px-2 py-1.5 font-semibold hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-200].freeze
 	DROP_CLS = %w[hidden absolute z-10 overflow-hidden rounded-md bg-gray-200 text-gray-500 text-left font-semibold].freeze
 	ITEM_CLS = %w[block].freeze
-	LINK_CLS = %w[block px-2 py-1 rounded-md hover:bg-blue-700 hover:text-white no-underline].freeze
+	LINK_CLS = %w[flex items-center gap-1 whitespace-nowrap px-2 py-1 rounded-md hover:bg-blue-700 hover:text-white no-underline].freeze
+
+	# Static positioning for the absolute menu, keyed by the :place symbol
+	# previously consumed by Flowbite. Tailwind: 2.5 = 10px = old offset-distance.
+	PLACE_CLASSES = {
+		"bottom-start" => "top-full left-0 mt-1",
+		"bottom-end"   => "top-full right-0 mt-2",
+		"top-start"    => "bottom-full left-0 mb-1",
+		"top-end"      => "bottom-full right-0 mb-2",
+		"right-start"  => "left-full top-0 ml-1",
+		"right-end"    => "left-full bottom-0 ml-2",
+		"left-start"   => "right-full top-0 mr-1",
+		"left-end"     => "right-full bottom-0 mr-2"
+	}.freeze
 
 	def initialize(button)
 		@button = parse(button)
@@ -55,6 +68,7 @@ class DropdownComponent < ApplicationComponent
 				set_name(btn)
 				set_class(btn)
 				btn[:place] = (btn[:sub] ? "right-start" : "bottom-start")
+				set_placement(btn)
 			end
 		end
 
@@ -98,6 +112,13 @@ class DropdownComponent < ApplicationComponent
 		def set_menu_class(button)
 			base = button[:sub] ? MIN_CLS : MENU_CLS
 			button[:b_class] ||= base.join(" ")
-			button[:d_class] ||= "hidden rounded-md bg-blue-900"
+			# NOTE: `absolute` added — without it the :place classes are no-ops
+			# and the menu would flow inline now that Flowbite is not positioning it.
+			button[:d_class] ||= "hidden absolute rounded-md bg-blue-900"
+		end
+
+		def set_placement(button)
+			button[:d_class] ||= "hidden absolute"   # ← add this line
+			button[:d_class] = [ button[:d_class], PLACE_CLASSES[button[:place]] ].compact.join(" ")
 		end
 end

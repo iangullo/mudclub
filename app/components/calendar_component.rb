@@ -113,24 +113,36 @@ class CalendarComponent < ApplicationComponent
 					else
 						"yellow"
 					end
-			when :train
+			when :training, :train
 				c_event[:symbol] = { concept: :training, options: { namespace: "sport" } }
 				c_event[:label]  = event.to_s
+				c_event[:time]   = event.time_string(true)
 				if @user && event.has_athlete?(@user.person)
 					c_event[:url]  = "/events/#{event[:id]}/player_stats?retlnk=#{@anchor}"
 					c_event[:data] = { turbo_frame: "modal" }
 				end
 				b_color          = "blue"
-			when :rest
-				c_event[:symbol] =  { concept: "rest", options: { namespace: "sport" } }
+			when :holiday, :rest
+				c_event[:symbol] =  { concept: :rest, options: { namespace: "sport" } }
 				c_event[:label]  = event.to_s
 				c_event[:data]   = { turbo_frame: "modal" }
 				b_color          = "gray"
 			end
 
 			styles = EVENT_STYLES[b_color.to_sym]
-			c_event[:b_class] = "#{styles[:bg]} rounded-lg border p-1 hover:text-white #{styles[:hover_bg]} text-sm"
-			c_event[:t_class] = "#{styles[:tooltip]} rounded-lg invisible inline-block font-light border border-gray-200 shadow-sm m-2 text-white text-sm z-10"
+			c_event[:b_class] = [
+				styles[:bg], "text-sm rounded-lg border p-1",
+				"hover:text-white", styles[:hover_bg], "relative group"
+			].join(" ")
+			c_event[:t_class] = [
+				styles[:tooltip],
+				"rounded-lg px-2 py-1 text-white text-sm whitespace-nowrap",
+				"border border-gray-200 shadow-md",
+				"absolute z-20 top-full left-1/2 -translate-x-1/2 mt-1",  # ← CRITICAL
+				"opacity-0 pointer-events-none",                          # base
+				"group-hover:opacity-100 group-hover:pointer-events-auto", # hover
+				"transition-opacity duration-150"
+			].join(" ")
 			c_event[:l_class] = "hover:text-white #{styles[:hover_bg]}"
 	    c_event[:symbol][:options][:size] = "30x30"
 		  c_event

@@ -303,24 +303,20 @@ class Event < ApplicationRecord
 
 	# string view of object
 	def to_s(style: nil)
+		res = self.kind_label
+
 		case self.kind.to_sym
-		when :train
-			res = I18n.t("train.single")
 		when :match
-			if style == "short"
-				res = I18n.t("match.single")
-			else
+			unless style != "short"
 				m_row = self.to_hash
 				home = m_row[:home_t] + " [" + m_row[:home_p].to_s + "]"
 				away = "[" + m_row[:away_p].to_s + "] " + m_row[:away_t]
 				res = home + "-" + away
 			end
-		when :rest
-			res = self.name
-		else
-			res = ""
+		when :holiday, :rest
+			res +=  "- self.name"
 		end
-		res = res + " (" + self.date_string + ")" if style == "notice"
+		res += " (#{self.date_string})" if style == "notice"
 		res
 	end
 

@@ -134,7 +134,7 @@ class TopbarComponent < ApplicationComponent
 		def render_nav_tabs
 			return if @nav_tabs.empty?
 
-			content_tag(:div, class: "hidden md:block sm:ml-6 flex space-x-4 text-base text-gray-300", aria: { label: "Navigation" }) do
+			content_tag(:div, class: "hidden md:block sm:ml-6 flex space-x-4 text-gray-300", aria: { label: "Navigation" }) do
 				@nav_tabs.map { |tab|
 					if tab[:options].present?
 						render(DropdownComponent.new(tab))
