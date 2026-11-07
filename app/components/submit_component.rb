@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -20,35 +20,54 @@
 
 # SubmitComponent - ViewComponent to standardise form submissions/cancellations
 class SubmitComponent < ApplicationComponent
-	def initialize(close: :close, submit: nil, retlnk: nil, frame: nil)
-		case close
-		when :close
-			label  = (submit == :save ? I18n.t("action.cancel"): I18n.t("action.close"))
-		when :cancel
-			cframe = frame
-		end
-		@close = ButtonComponent.new(kind: close, label:, url: retlnk, frame: cframe) if close
-		if submit.class == Hash
-			b_submit = submit
-		elsif submit == :save # save button
-			b_submit = { kind: :save }
-		elsif submit # edit button with link in "submit"
-			b_submit = { kind: :edit, url: submit, frame: }
-		end
-		@submit = ButtonComponent.new(**b_submit) if b_submit
+	def initialize(close: :close, submit: nil, actions: [], retlnk: nil, frame: nil)
+		@close   = build_close(close, submit, retlnk, frame)
+		@submit  = build_submit(submit, frame)
+		@actions = Array(actions).map { |cfg| ButtonComponent.new(**cfg) }
 	end
 
-	def call	# render HTML
-		content_tag(:div, class: "inline-flex align-middle flow-root mt-2 mb-1") do
-			render_button(@close, "float-left mr-4 ml-1") if @close.present?
-			render_button(@submit, "float-right ml-4 mr-1") if @submit.present?
+	def call
+		content_tag(:div, class: "flex w-full items-center justify-between mt-2 mb-1") do
+			if @close.present?
+				concat(content_tag(:div, class: "mr-4 ml-1") { render(@close) })
+			else
+				concat(content_tag(:div, ""))  # placeholder so justify-between anchors submit right
+			end
+
+			if @submit.present? || @actions.any?
+				concat(content_tag(:div, class: "ml-4 mr-1 flex items-center") do
+					@actions.each do |btn|
+						concat(content_tag(:div, class: "ml-2") { render(btn) })
+					end
+					concat(content_tag(:div, class: "ml-2") { render(@submit) }) if @submit.present?
+				end)
+			end
 		end
 	end
 
 	private
-		def render_button(button, div_class)
-			concat(content_tag(:div, class: div_class) do
-				render(button)
-			end)
+		def build_close(kind, submit, retlnk, frame)
+			return nil unless kind
+
+			label =
+				case kind
+				when :close  then submit == :save ? I18n.t("action.cancel") : I18n.t("action.close")
+				when :cancel then nil
+				end
+
+			ButtonComponent.new(kind:, label:, url: retlnk, frame: kind == :cancel ? frame : nil)
+		end
+
+		def build_submit(submit, frame)
+			return nil if submit.nil?
+
+			cfg =
+				case submit
+				when Hash  then { frame:, **submit }
+				when :save then { kind: :save }
+				else            { kind: :edit, url: submit, frame: }
+				end
+
+			ButtonComponent.new(**cfg)
 		end
 end

@@ -1,0 +1,231 @@
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+class User < ApplicationRecord
+	localized_as("core.user")
+	before_destroy :unlink
+
+	# -------------------------------------------------------------------------
+	# Class relations
+	# -------------------------------------------------------------------------
+	self.inheritance_column = "not_sti"
+	# Include default devise modules. Others available are:
+	# :confirmable, :lockable, :timeoutable, :registerable and :omniauthable
+	devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable
+	belongs_to :club, optional: true
+
+	has_one_attached :avatar
+	has_many :user_actions, dependent: :destroy
+
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include PersonBearing
+
+	# ---------------------------------------------------------------------------
+	# Delegate to Person, which derives from Participation
+	# ---------------------------------------------------------------------------
+	delegate :was_member_of?, :clubs, :club_list, :teams, :team_list, :is_parent?,
+		:memberships, :has_membership?, :is_athlete?, :is_coach?, :is_volunteer?, :is_board_member?,
+		:assignments, :has_assignment?, :is_president?, :is_vice_president?, :is_treasurer?,
+									:is_secretary?, :has_guardians?, # :is_manager? has local override
+		:phone, :email, :female,
+		to: :person, allow_nil: true
+
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :real, -> { where("id>0") }
+	enum :role, %i[user player coach manager admin secretary], default: :user
+
+	# ---------------------------------------------------------------------------
+	# System-level predicates (2.x)
+	# ---------------------------------------------------------------------------
+
+	def active_for_authentication?	# Devise overrides
+		super && anonymized_at.nil?
+	end
+
+	def anonymize!	# GDPR compliance
+		return if anonymized_at.present?
+
+		person&.anonymize!
+		update_columns(
+			email:                "anonymized+#{SecureRandom.uuid}@invalid.local",
+			encrypted_password:   SecureRandom.hex(32),   # never matches a bcrypt hash
+			reset_password_token: nil,
+			remember_created_at:  nil,
+			current_sign_in_ip:   nil,
+			last_sign_in_ip:      nil,
+			settings:             {},
+			club_id:              nil,
+			anonymized_at:        Time.current
+		)
+	end
+
+	def inactive_message
+		anonymized_at.present? ? :anonymized : super
+	end
+
+	def system_admin?
+		admin?
+	end
+
+	def system_role
+		admin? ? :admin : :user
+	end
+
+	def active?
+		return false if anonymized_at.present?
+		system_admin? || person&.memberships&.current&.any?
+	end
+
+	def member_of?(club)
+		person&.member_of?(club) || false
+	end
+
+	def is_manager?(club)
+		person.is_manager?(club) || (admin? && is_coach?(club))
+	end
+
+	# return last login IP
+	def last_from
+		self.last_sign_in_ip
+	end
+
+	# return string with last date of user login
+	def last_login
+		res = self.last_sign_in_at&.to_date
+		res ? res : I18n.t("user.never")
+	end
+
+	# wrappers for locale setting
+	def locale
+		settings[:locale]
+	end
+
+	def locale=(newlocale)
+		set_setting(:locale, newlocale)
+	end
+
+	# return attached avatar (or default user icon)
+	def picture
+		self.avatar.attached? ? self.avatar : "user.svg"
+	end
+
+	# rebuild User data from raw input hash given by a form submittal
+	# avoids duplicate person binding
+	def rebuild(data)
+		# --- actual user data ---
+		self.club_id = data[:club_id].presence	# DEPRECATED
+		self.email   = person.email
+		self.role    = data[:role] || :user
+		self.locale  = data[:locale] if data[:locale]
+		if data[:password]
+			self.password              = data[:password]
+			self.password_confirmation = data[:password_confirmation]
+		end
+
+		# --- associated persons data ---
+		data[:person_attributes][:email] ||= data[:email]
+		resolution = prepare_person(data)
+		return resolution unless resolution.ok?	# return ambiguous or conflicts
+
+		self.update_attachment("avatar", data[:avatar]) if data[:avatar].present?
+
+		PersonResolution.new(status: :ok, person:)
+	end
+
+	# short name for form viewing
+	def s_name
+		if self.person
+			self.person.nick.presence || self.person.s_name
+		else
+			User.label
+		end
+	end
+
+	# Getter method for accessing the settings hash
+	def settings
+		super&.symbolize_keys || {}
+	end
+
+	# Setter method for updating the settings hash
+	def settings=(value)
+		super(value&.to_h)
+	end
+
+	# Just list person's full name
+	def to_s
+		self.person&.to_s || User.label
+	end
+
+	# atempt to fetch a User using form input hash
+	def self.fetch(f_data)
+		self.new.fetch_obj(f_data)
+	end
+
+	# list of possible user locales for select box configuration
+	def self.locale_list
+		I18n.available_locales.map do |locale|
+			[ I18n.t("locale.#{locale}", locale:), locale ]
+		end
+	end
+
+	# list of possible user roles for select box configuration
+	def self.role_list
+		# REMOVED use of role enum to define Membership kinds
+		# User.roles.keys.map do |role|
+		#	[ I18n.t("role.#{role}"), role ]
+		# end
+		#
+		# REview this in future with a cAtalog, probably
+		[
+			[ I18n.t("core.user_kinds.values.user.single"), :user ],
+			[ I18n.t("core.user_kinds.values.admin.single"), :admin ]
+		]
+	end
+
+	# Search field matching
+	def self.search(search, user = nil)
+		if user.admin?
+			if search.present?
+				User.where(person_id: Person.search(search))
+			else
+				User.real
+			end
+		else
+			User.none
+		end
+	end
+
+	private
+		# generic setting method to be used for all setters
+		def set_setting(key, value)
+			self.settings = settings.merge(key => value)
+		end
+
+		# unlink dependent person
+		def unlink
+			UserAction.prune("/users/#{id}")
+			if self.person
+				person&.update!(user_id: nil)
+				update!(person_id: 0)	# fake person record
+			end
+		end
+end

@@ -1,5 +1,5 @@
 <div id="edit-plan">
-	<%= form_with model: @team, data: {turbo_frame: "_top"} do |form| %>
+	<%= form_with model: [@team.club, @team], data: {turbo_frame: "_top"} do |form| %>
 		<%= render FieldsComponent.new(team_plan_accordion(form:)) %>
 		<%= form.hidden_field :rdx, value: @rdx if @rdx %>
 		<%= render @submit %>

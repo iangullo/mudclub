@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -33,9 +33,9 @@ class TableComponent < ApplicationComponent
 	attr_writer :form
 
 	def initialize(table, form: nil, align: "center")
-		@data = table[:data]
+		@data       = (table[:data] || {}).dup
 		@controller = table[:controller]
-		@data.merge(action: "change->#{@controller}#update") if @controller
+		@data.merge!(action: "change->#{@controller}#update") if @controller
 		@align  = align || "center"
 		@form   = form
 		@title  = parse_title(table[:title])
@@ -84,9 +84,9 @@ class TableComponent < ApplicationComponent
 			title.each { |item|
 				case item[:kind]
 				when :normal
-					item[:class] = "font-semibold border px py"
+					item[:class] = "font-semibold border px-1 py-1"
 				when :inverse
-					item[:class] = "font-semibold bg-white text-indigo-900 border px py"
+					item[:class] = "font-semibold bg-white text-indigo-900 border px-1 py-1"
 				when :gap
 					item[:value] = "&nbsp;".html_safe
 				when :button
@@ -107,14 +107,14 @@ class TableComponent < ApplicationComponent
 		def parse_rows(rows)
 			rows.each { |row|
 				row[:data] ||= {}
-				row[:data][:turbo_frame] = (row[:frame]=="modal" ? "modal" : "_top") if row[:url]
-				row[:data]["#{@controller}-target"] = "player" if @controller
+				row[:data][:turbo_frame] = (row[:frame].to_s == "modal" ? "modal" : "_top") if row[:url]
+				row[:data]["#{@controller}-target"] = "athlete" if @controller
 				row[:classes] ||= []
 				row[:classes]  += [ "hover:text-white", "hover:bg-blue-700" ] unless row[:name]==:bottom
 					row[:items].each { |item|
 					case item[:kind]
 					when :normal, :lines, :icon, :location, :text
-						item[:class]         ||= "border px py"
+						item[:class]         ||= "border px-1 py-1"
 						item[:symbol][:size] ||= "25x25" if item[:symbol]
 					when :button
 						item[:class] ||= "bg-white" unless item[:button][:kind] == :location
@@ -125,14 +125,14 @@ class TableComponent < ApplicationComponent
 					when :checkbox_q
 						@rowcue      ||= true if @controller
 						item[:align]   = "center"
-						item[:class] ||= "border px py"
+						item[:class] ||= "border px-1 py-1"
 					when :contact
 						item[:align]   = "center"
-						item[:class] ||= "border px py"
+						item[:class] ||= "border px-1 py-1"
 						item[:value]   = ContactComponent.new(email: item[:email], phone: item[:phone], device: item[:device])
 					when :percentage
 						item[:align] ||= "center"
-						item[:class] ||= "font-semibold border px py"
+						item[:class] ||= "font-semibold border px-1 py-1"
 						if item[:value] # not nil
 							case item[:value]
 							when 0..25
@@ -185,14 +185,14 @@ class TableComponent < ApplicationComponent
 		end
 
 		def render_checkbox(item)
-			content_tag(:div, class: "align-middle") do
-				check_box(item[:key], "#{item[:player_id]}_#{item[:q]}", {
+			content_tag(:div, class: "flex items-center justify-center") do
+				check_box(item[:key], "#{item[:athlete_id]}_#{item[:q]}", {
 					checked: item[:value] == 1,
-					class: "rounded bg-gray-200 text-blue-700",
+					class: "form-checkbox rounded-md bg-gray-200 text-blue-700 h-6 w-6 cursor-pointer",
 					data: {
 						target: "table.checkbox",
-						rowId: item[:player_id],
-						columnId: item[:q]
+						row_id: item[:athlete_id],
+						column_id: item[:q]
 					}
 				})
 			end

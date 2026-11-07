@@ -1,0 +1,268 @@
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+# Membership
+#
+# Represents the long-term relationship between a Person and a Club.
+#
+# Membership establishes that a person belongs to a club and records
+# the administrative reason for that relationship.
+#
+# Operational responsibilities (athlete, coach, volunteer, etc.) are
+# exercised through one or more Assignments.
+#
+# Memberships are archivable but never deleted in order to preserve
+# the historical relationship between clubs and people.
+#
+class Membership < ApplicationRecord
+	localized_as "participation.membership"
+
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
+	belongs_to :club
+
+	# A Club member can have multiple assignments over time or simultaneously.
+	has_many :assignments,
+					dependent: :restrict_with_exception
+
+	# attachment of notes to be handled
+	has_rich_text :notes
+
+	# assignment-specific picture can be taken
+	has_one_attached :avatar
+
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
+	validates :kind,
+						:status,
+						:joined_on,
+						presence: true
+
+	validate :kind_cannot_change, on: :update
+
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include Auditable
+	include Kinded
+	include Participatory
+	include PersonBearing
+
+	#-------------------------------------
+	# Convenient delegations
+	#-------------------------------------
+	delegate :avatar, :age, :birthday, :email, :female, :name, :nick, :phone,
+					:relationships, :surname, :s_name, :to_s,
+					to: :person, allow_nil: true
+
+	# -------------------------------------------------------------------------
+	# Scopes
+	# -------------------------------------------------------------------------
+	scope :active,  -> { where(status: :active) }
+	scope :on_date, ->(date = Date.current) {
+		where("joined_on <= ?", date)
+			.where("left_on IS NULL OR left_on >= ?", date)
+	}
+	scope :historical, -> { where.not(left_on: nil) }
+	scope :for_club, ->(club) {
+		return none if club.blank?
+		filter_by_id(:club_id, club)
+	}
+
+	# -------------------------------------------------------------------------
+	# Text search scope
+	# -------------------------------------------------------------------------
+
+	scope :search_text, ->(text) {
+		return all unless text.present?
+		joins(:person).where(person_id: Person.search(text))
+	}
+
+	# -------------------------------------------------------------------------
+	# General API for Membership model
+	# -------------------------------------------------------------------------
+	# short name for form viewing
+	def s_name
+		person&.s_name || kind_catalog.val(kind)
+	end
+
+	# merge fields and such from another membership
+	def merge_from(other)
+		return if other.club != club || other.kind != kind
+
+		# merge membership properties...
+		self.avatar.attach(other.avatar.blob) if !avatar.attached? && other.avatar.attached?
+		self.joined_on = earliest_date(joined_on, other.joined_on)
+		self.left_on   = latest_date(left_on, other.left_on)
+		self.notes     = other.notes if notes.blank?
+		self.settings  = other.settings if settings.blank?
+		self.status    = :active if status != :active && left_on == nil
+
+		# merge assignments..
+		other.assignments.each do |assignment|
+			mine = assignments.where(team_id: assignment.team_id, kind: assignment.kind)
+			if mine.none?
+				assignment.update!(membership: self)
+			else
+				mine.each { |candidate| candidate.merge_from(assignment) }
+			end
+		end
+
+		assignments.reset
+		other.assignments.reset
+		save!
+
+		true
+	end
+
+	def overlaps?(other)
+		return false unless other
+		return false unless person == other.person
+		return false unless club_id == other.club_id
+		return false unless kind == other.kind
+
+		end_a = left_on || Date::Infinity.new
+		end_b = other.left_on || Date::Infinity.new
+
+		joined_on <= end_b &&
+			other.joined_on <= end_a
+	end
+
+	def rebuild(data)
+		# --- memberships own attributes ---
+		self.club_id   = data[:club_id]   if data.key?(:club_id)
+		self.joined_on = data[:joined_on] if data.key?(:joined_on)
+		self.left_on   = data[:left_on]   if data.key?(:left_on)
+
+		# --- associated persons data ---
+		resolution = prepare_rebuild(data)
+		return resolution unless resolution.ok?	# return ambiguous or conflicts
+
+
+		PersonResolution.new(status: :ok, person:)
+	end
+
+	def suspend!(date = Date.current)
+		return false unless can_transition_to?(:suspended)
+
+		transaction do
+			assignments.current.find_each { |a| a.suspend!(date) }
+			transition_to!(:suspended, :suspend, date)
+		end
+		true
+	end
+
+	def reinstate!(date = Date.current)
+		return false unless can_transition_to?(:active)
+
+		transaction do
+			assignments.suspended.find_each { |a| a.reinstate!(date) }  # or a.activate!(date)
+			transition_to!(:active, :activate, date)
+		end
+		true
+	end
+
+	def terminate!(date = Date.current)
+		return false unless can_transition_to?(:terminated)
+		transaction do
+			assignments.open.find_each { |a| assignment.terminate!(date) }
+		 	transition_to!(:terminated, :terminate, date)
+		end
+		true
+	end
+
+	# -------------------------------------------------------------------------
+	# Controller façade methods
+	# -------------------------------------------------------------------------
+
+	# accessors for Participatory date names
+	def starts_on
+		joined_on
+	end
+
+	def starts_on=(date)
+		self.joined_on = date
+	end
+
+	def ends_on
+		left_on
+	end
+
+	def ends_on=(date)
+		self.left_on = date
+	end
+
+	# (jersey) number of assignments (if avaiable)
+	def number
+		assignments.current.of_kind(:athlete).first&.number
+	end
+
+	# Returns all teams this membership is (or has been) assigned to.
+	def teams(historical: false)
+		scope = Team.joins(:assignments).where(assignments: { membership_id: id }).distinct
+		historical ? scope : scope.merge(Assignment.current)
+	end
+
+	def self.search(club:, search: nil, status: nil, kind: nil, history: false)
+		scope = for_club(club)
+		scope = scope.of_kind(kind) if kind.present?
+		scope = scope.search_text(search) if search.present?
+		if status
+			scope = scope.where(status:)
+		else
+			scope.current unless history
+		end
+
+		scope
+	end
+
+	# Routes use :member / :members
+	# (`resources :members, controller: :memberships` in config/routes.rb).
+	# Align only the routing facets of model_name; leave param_key and i18n_key
+	# as :membership so form fields and translations are unaffected.
+	def self.model_name
+		@model_name ||= super.tap do |name|
+			name.define_singleton_method(:route_key)          { "members" }
+			name.define_singleton_method(:singular_route_key) { "member"  }
+		end
+	end
+
+	private
+		def kind_cannot_change
+			errors.add(:kind, :readonly) if will_save_change_to_kind?
+		end
+
+		def ensure_legacy_record!
+			legacy_class =
+				if kind == :coach
+					Coach
+				elsif kind == :athlete
+					Player
+				else
+					nil
+				end
+
+			return true unless legacy_class
+
+			return true if legacy_class.find_by(person_id: person.id).first
+
+			legacy_class.create!(club_id: club.id, person_id: person.id)
+		end
+end

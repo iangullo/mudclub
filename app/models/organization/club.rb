@@ -1,0 +1,280 @@
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+# Club: manage information about sports clubs - the hosting one and rivals
+#
+class Club < ApplicationRecord
+	localized_as "organization.club"
+
+	before_destroy :unlink
+
+	#-------------------------------------
+	# Object relationships
+	#-------------------------------------
+	has_many :club_locations, dependent: :destroy
+	has_many :locations, through: :club_locations
+	has_many :club_sports, dependent: :destroy
+	has_many :sports, through: :club_sports
+
+	has_many :documents, dependent: :destroy
+	accepts_nested_attributes_for :documents
+
+	has_many :teams
+	has_many :users
+	has_many :memberships, dependent: :restrict_with_error, inverse_of: :club
+	has_many :assignments, through: :memberships, dependent: :restrict_with_error
+	has_one_attached :avatar
+
+	belongs_to :public_approved_by, class_name: "User", optional: true
+
+	#-------------------------------------
+	# Convenience Scopes
+	#-------------------------------------
+	# A club shows publicly only when BOTH the server allows it AND the
+	# club itself opted in. The server gate is checked at the call site
+	# (policies, controllers) — this scope only says "which clubs have
+	# opted in and could be shown".
+	scope :public_visible, -> { where(public: true) }
+
+	pg_search_scope :search_by_any,
+		against: [ :nick, :name ],
+		ignoring: :accents,
+		using: { tsearch: { prefix: true } }
+
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
+	validates :email, uniqueness: { allow_nil: true }
+	validates :name, uniqueness: { allow_nil: true }
+	validates :nick, presence: true
+	validates :phone, uniqueness: { allow_nil: true }
+	# validates :settings, uniqueness: { allow_nil: true }
+
+	#-------------------------------------
+	# Class method API
+	#-------------------------------------
+	# Self termed club for use with policies
+	def club
+		self
+	end
+
+	# club sports
+	def sports
+		ClubSport.where(club: self)
+	end
+
+	def open_team_list
+		list = []
+		self.teams.for_season(Season.latest).unlocked.ordered.each do |team|
+			list << [ team.name, team.id ]
+		end
+		list
+	end
+
+	# Allows registering membership requests
+	def accepts_registrations?
+		publicly_visible? && Server.registrations_enabled?
+	end
+
+	# Athletes members pertaining to the club
+	def members(kind: nil, current: true)
+		scope = memberships
+		scope = scope.of_kind(kind) if kind
+		scope = scope.current if current
+		scope
+	end
+
+	# Athletes members pertaining to the club
+	def athletes(current: true)
+		self.members(kind: :athlete, current:)
+	end
+
+	# Coach members pertaining to the club
+	def coaches(current: true)
+		self.members(kind: :coach, current:)
+	end
+
+	def coach_list
+		list = []
+		Person.where(id: coaches.pluck(:person_id))
+			.sort_by { |p| p.s_name.to_s.downcase }
+			.each do |coach|
+				list << { id: coach.id, name: coach.s_name }
+			end
+		list
+	end
+
+	# access setting for country
+	def country
+		self.settings["country"].presence
+	end
+
+	# list all club events for a season
+	def events
+		Event.non_training.where(team_id: self.teams.pluck(:id)).order(start_time: :asc)
+	end
+
+	# checks if a person has active duties assigned with club
+	def has_assignment_for?(person)
+		return false unless person
+
+		assignments.current
+			.joins(:membership)
+			.where(memberships: { person_id: person.id })
+			.exists?
+	end
+
+	# access setting for country
+	def locale
+		self.settings["locale"].presence
+	end
+
+	# club logo
+	def logo
+		self.avatar.attached? ? self.avatar : "mudclub.svg"
+	end
+
+	# Return valid tempate document for payment terms
+	def payment_terms_template
+		template_for(:payment_terms)
+	end
+
+	# show a public page??
+	def publicly_visible?
+		public? && Server.public_clubs_enabled?
+	end
+
+	# rebuild CLub data from raw input hash given by a form submittal
+	# avoids duplicate person binding
+	def rebuild(f_data)
+		self.address  = f_data[:address] if f_data[:address].present?
+		self.email    = f_data[:email] if f_data[:email].present?
+		self.name     = f_data[:name] if f_data[:name].present?
+		self.nick     = f_data[:nick] if f_data[:nick].present?
+		self.phone    = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
+		self.settings = settings.merge(
+			"country" => f_data["country"].presence || settings["country"] || "US",
+			"locale"  => f_data["locale"].presence  || settings["locale"]  || "en",
+			"social"  => f_data["social"].presence  || settings["social"],
+			"website" => f_data["website"].presence || settings["website"]
+		)
+		self.update_attachment("avatar", f_data[:avatar])
+	end
+
+	# return list of rivals for this club
+	def rivals
+		Club.where.not(id: self.id)
+	end
+
+	# access setting for country
+	def social
+		self.settings["social"].presence
+	end
+
+	def s_name
+		self.nick || self.to_s
+	end
+
+	# Returns the club's published template for a given document kind, or nil.
+	def template_for(kind)
+		documents.active.find_by(kind: kind)
+	end
+
+	# Just list person's full name
+	def to_s
+		self.name || label
+	end
+
+	# Get collection of upcoming events for the club
+	def upcoming_events
+		Event.non_training.short_term.where(team_id: self.team_ids).order(start_time: :asc)
+	end
+
+	# access setting for country
+	def website
+		self.settings["website"].presence
+	end
+
+	# handle custom behaviour for creation of a club
+	def self.build(f_data = nil)
+		club = Club.new(settings: {})
+		club.rebuild(f_data) if f_data.present?
+		club
+	end
+
+	# finds a club in the database based on id, email, name & nick
+	# returns: club if it exists in the database already or
+	# 	   'nil' if it not found.
+	def self.fetch(f_data, create: nil)
+		id    = f_data[:id].presence.to_i	# Try to find by id if present
+		c_aux = Club.find_by(id:) if id > 0
+		return c_aux if c_aux
+
+		# Try to find by email if present
+		c_aux = Club.find_by(email: f_data[:email]) if f_data[:email].presence
+
+		unless c_aux	# last resort: attempt to find by name+nick
+			nick = f_data[:nick].presence
+			name = f_data[:name].presence
+			if nick && name
+				c_aux = Club.where("unaccent(nick) ILIKE unaccent(?) AND unaccent(name) ILIKE unaccent(?)", nick, name).take
+			elsif nick
+				c_aux = Club.where("unaccent(nick) ILIKE unaccent(?)", nick).take
+			elsif name
+				c_aux = Club.where("unaccent(name) ILIKE unaccent(?)", name).take
+			end
+		end
+		return c_aux unless create
+		c_aux || Club.build(f_data)
+	end
+
+	# used to list available clubs in selectors
+	def self.list
+		res = [ [ I18n.t("shared.statuses.inactive"), -1 ] ]
+		Club.each { |club| res << [ club.nick, club.id ] }
+		res
+	end
+
+	# Combined query: server allows public pages AND club opted in.
+	# Reads Server, which is memoized per request.
+	def self.publicly_listed
+		return none unless Server.public_clubs_enabled?
+		public_visible.order(:nick)
+	end
+
+	# Search field matching
+	def self.search(search, user = nil, club = nil)
+		return public_visible unless user
+
+		excluded = [ -1, club&.id ].compact
+
+		scope = user.admin? ? all : where.not(id: excluded)
+		scope = scope.search_by_any(search) if search.present?
+
+		scope.order(:nick)
+	end
+
+	private
+		# cleanup association of dependent objects
+		def unlink
+			self.avatar.purge if self.avatar.attached?
+			self.teams.update_all(club_id: nil)
+			self.users.update_all(club_id: nil)
+			UserAction.prune("/clubs/#{self.id}")
+		end
+end

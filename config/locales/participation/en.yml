@@ -1,0 +1,217 @@
+# config/locales/participation/en.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Participation domain
+#
+# Canonical translations for memberships, assignments and their catalogs.
+#
+# Legacy compatibility keys are preserved at the end of this file during the
+# v2 migration and should not be used in new code.
+# -----------------------------------------------------------------------------
+
+en:
+  participation:
+    label: Participation
+    short: Partic.
+
+    membership:
+      label:
+        single: Membership
+        plural: Memberships
+        short: Mbr.
+      action:
+        create: Create membership
+        edit: Edit membership
+        terminate: Terminate membership
+        delete: Delete membership
+        change_status: Modify status
+      fields:
+        number: Membership number
+        number_short: #
+        kind: Membership kind
+        kind_short: Kind
+        person: Person
+        club: Club
+        joined_on: Joined on
+        joined_on_short: Joined
+        left_on: Left on
+        left_on_short: Left
+        status: Status
+        status_short: Stat.
+        notes: Notes
+      messages:
+        created: Membership created.
+        no_change: No changes to membership.
+        updated: Membership updated.
+        terminated: Membership terminated.
+        deleted: Membership deleted.
+        cannot_terminate: Membership cannot be terminated!
+        status_fail: Could not update status!
+
+    assignment:
+      label:
+        single: Assignment
+        plural: Assignments
+        short: Assig.
+      actions:
+        create: Assign
+        edit: Edit assignment
+        terminate: Terminate assignment
+        delete: Delete assignment
+      fields:
+        membership: Membership
+        kind: Assignment role
+        kind_short: Role
+        starts_on: Starts
+        ends_on: Ends
+        role: Role
+        team: Team
+        number: Jersey number
+        number_short: "#"
+        status: Status
+        status_short: Stat.
+        notes: Notes
+      messages:
+        created: Assignment created.
+        updated: Assignment updated.
+        terminated: Assignment terminated.
+        deleted: Assignment deleted.
+        cannot_terminate: Assignment cannot be terminated!
+        status_fail: Could not update status!
+
+    membership_kinds:
+      label: Membership kind
+      short: Mbr.
+      values:
+        athlete:
+          single: Athlete
+          plural: Athletes
+          short: Ath.
+          hint: Member participating as an athlete.
+        coach:
+          single: Coach
+          plural: Coaches
+          short: C.
+          hint: Member participating as a coach.
+        volunteer:
+          single: Volunteer
+          plural: Volunteers
+          short: Vol.
+          hint: Member participating as a volunteer.
+        board_member:
+          single: Board member
+          plural: Board members
+          short: BM
+          hint: Member participating as a board member.
+        club_manager:
+          single: Club manager
+          plural: Club managers
+          short: C.Mgr.
+          hint: Member participating as a club manager.
+
+    assignment_kinds:
+      label:
+        single: Assignment role
+        plural: Assignment roles
+        short: Role
+      values:
+        athlete: Athlete
+        athlete_plural: Athletes
+        athlete_short: Ath.
+        captain: Captain
+        captain_short: Capt.
+        head_coach: Head coach
+        head_coach_short: H.C.
+        assistant_coach: Assistant coach
+        assistant_coach_short: Assistant coach
+        coaching_coordinator: Coaching coordinator
+        coaching_coordinator_short: Coord.
+        team_manager: Team manager
+        team_manager_short: T.Mgr.
+        team_delegate: Team delegate
+        team_delegate_short: T.Del.
+        home_delegate: Home delegate
+        home_delegate_short: H.Del.
+        photographer: Photographer
+        photographer_short: Photos.
+        community_manager: Community manager
+        community_manager_short: Com.Mgr.
+        webmaster: Webmaster
+        webmaster_short: Web
+        board_member: Board member
+        board_members: Board members
+        board_member_short: B.Mem.
+        club_manager: Club manager
+        club_manager_short: C.Mgr.
+        president: President
+        president_short: Pres.
+        vice_president: Vice-president
+        vice_president_short: V.P.
+        secretary: Secretary
+        secretary_short: Sec.
+        treasurer: Treasurer
+        treasurer_short: Treas.
+
+  # ---------------------------------------------------------------------------
+  # DEPRECATED - DO NOT MODIFY
+  #
+  # Compatibility keys preserved during the v2 migration.
+  #
+  # Search for:
+  #
+  #   t(coach.
+  #   t(player.
+  #
+  # Remove once all callers have migrated.
+  # ---------------------------------------------------------------------------
+
+  coach:
+    abbr: Coach
+
+    single: Coach
+    many: Coaches
+
+    created: "Created coach:"
+    updated: "Updated coach:"
+    deleted: "Deleted coach:"
+    duplicate: "Duplicate coach:"
+
+    edit: Edit Coach
+    new: Create Coach
+
+    export: Exported coaches
+    import: Imported coaches
+
+    label:
+      single: "%{t('coach.single')}"
+      plural: "%{t('coach.many')}"
+      short: "%{t('coach.abbr')}"
+
+  player:
+    abbr: Play.
+
+    single: Player
+    many: Players
+
+    number: #
+    playing: Playing
+
+    created: "Created player:"
+    updated: "Updated player:"
+    deleted: "Deleted player:"
+    duplicate: "Duplicate player:"
+
+    deactivated: "Inactive player:"
+    removed: "Removed player:"
+
+    edit: Edit Player
+    new: Create Player
+
+    export: Exported players
+    import: Imported players
+
+    label:
+      single: "%{t('player.single')}"
+      plural: "%{t('player.many')}"
+      short: "%{t('player.abbr')}"

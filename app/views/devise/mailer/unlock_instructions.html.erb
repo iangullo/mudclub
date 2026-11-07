@@ -1,7 +1,7 @@
-<p>¡Hola <%= @resource.email %>!</p>
+<p><%= I18n.t("devise.messages.hello") @resource.email %>!</p>
 
-<p>Tu cuenta ha sido bloqueada por exceder el límite de intentos fallidos.</p>
+<p><%= I18n.t("devise.messages.locked_account") %></p>
 
-<p>Sigue el enlace para desbloquearla:</p>
+<p><%= I18n.t("devise.messages.unlock_account") %></p>
 
-<p><%= link_to 'Desbloquear cuenta', unlock_url(@resource, unlock_token: @token) %></p>
+<p><%= link_to "#{I18n.t('devise.actions.unlock')}", unlock_url(@resource, unlock_token: @token) %></p>

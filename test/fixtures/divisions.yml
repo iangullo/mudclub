@@ -1,7 +1,8 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# test/fixtures/divisions.yml
+local:
+  name: "Local"
+  sport: basketball
 
-one:
-  name: MyString
-
-two:
-  name: MyString
+regional:
+  name: "Regional"
+  sport: basketball

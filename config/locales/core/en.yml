@@ -1,0 +1,625 @@
+# config/locales/core/en.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Core domain
+#
+# Canonical translations for the Core domain.
+# -----------------------------------------------------------------------------
+en:
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "Validation failed: %{errors}"
+
+  core:
+    application:
+      label: MudClub
+      short: MudClub
+      fields:
+        version: Version
+        version_short: v
+        build: Build
+        website: Website
+        website_short: Web
+        license: License
+      messages:
+        about: About...
+        published: Published under GNU Affero GPL v3 licence
+
+    modules:
+      label:
+        single: Module
+        plural: Modules
+      values:
+        core: Core
+        calendar: Calendar
+        mailer: Manage e-mail
+        people: People
+        organization: Organization
+        participation: Participation
+        training: Training
+        competition: Competition
+        communication: Communication
+        finance: Finance
+        admissions: Admissions
+
+    actions:
+      view: View
+      view_desc: View information.
+      create: Create
+      create_desc: Create new records.
+      update: Update
+      update_desc: Modify existing records.
+      delete: Delete
+      delete_desc: Delete records.
+      manage: Manage
+      manage_desc: Full administrative control.
+      assign: Assign
+      assign_desc: Assign people or resources.
+      approve: Approve
+      approve_desc: Approve workflows or requests.
+      publish: Publish
+      publish_desc: Publish information.
+      export: Export
+      export_desc: Export data.
+
+    documents:
+      label:
+        single: Document
+        plural: Documents
+        short: Doc.
+      actions:
+        create: Create document
+        edit: Edit document
+        delete: Delete document
+      fields:
+        kind: Kind
+        name: Name
+        title: Title
+        file: File
+        summary: Summary
+        remarks: Remarks
+        verified: Verified
+        verified_short: Ver.
+        active: Active
+        active_short: Act.
+      messages:
+        created: Created document
+        updated: Updated document
+        deleted: Deleted document
+        unchanged: No changes to document
+
+    document_kinds:
+      label:
+        single: Document kind
+        short: Kind
+      values:
+        photo: Photo
+        form: Form
+        id_front: ID (front)
+        id_back: ID (back)
+        medical_certificate: Med. cert.
+        insurance: Insurance
+        payment_terms: Payment terms
+        coaching_certificate: Coaching cert.
+        athlete_form: Athlete form
+        athlete_terms: Athlete terms
+        coach_contract: Coaching contract
+        volunteer_agreement: Volunteer agreement
+        privacy_policy: Privacy policy
+        club_rules: Club rules
+        parental_authorization: Parental authorization
+        other: Other
+
+    lifecycles:
+      immutable: Immutable
+      archivable: Archivable
+      anonymisable: Anonymisable
+      disposable: Disposable
+
+    permissions:
+      view_club: View club
+      view_club_desc: View club information and configuration.
+      manage_club: Manage club
+      manage_club_desc: Manage club information and configuration.
+      view_people: View people
+      view_people_desc: View personal information of club members.
+      contact_people: Contact people
+      contact_people_desc: Contact people using the communication services provided by MudClub.
+      manage_people: Manage people
+      manage_people_desc: Create and maintain people records.
+      view_roles: View operational roles
+      view_roles_desc: View operational roles.
+      manage_roles: Manage operational roles
+      manage_roles_desc: Define operational roles.
+      view_system: View system
+      view_system_desc: View system-wide configuration and status.
+      manage_system: Manage system
+      manage_system_desc: Administer the MudClub installation.
+      manage_users: Manage users
+      manage_users_desc: Manage MudClub user accounts.
+
+    scopes:
+      none: None
+      team: Team
+      club: Club
+      global: Global
+
+    user:
+      label:
+        single: User
+        plural: Users
+        short: User
+      actions:
+        edit: Edit user
+        create: Create user
+        sign_in: Sign in
+        sign_out: Exit
+      fields:
+        password: Password
+        password_short: Pass
+        profile: Profile
+        profile_short: Prof.
+        email: Email
+        email_short: E-mail
+        person: Person
+        person_short: Person
+        club: Club
+        club_short: Club
+        settings: Settings
+        settings_short: Config.
+        last_login: Last login
+        last_login_short: Last
+      messages:
+        created: User created.
+        updated: User updated.
+        deleted: User deleted.
+        duplicated: Duplicate user.
+        actions_cleared: User actions cleared.
+        no_email: e-mail is required!
+        no_password: password is required!
+        status_fail: Could not update status!
+      values:
+        last_in: Last login
+        never: (never logged)
+
+    user_action:
+      label:
+        single: User action
+        plural: User actions
+        short: Actions
+      fields:
+        action: Action
+        user: User
+        object: Object
+        object_type: Object type
+        object_type_short: Type
+        object_id: Object ID
+        object_id_short: ID
+        controller: Controller
+        request: Request
+        ip_address: IP address
+        ip_address_short: IP
+        user_agent: User agent
+        user_agent_short: Agent
+        occurred_at: Timestamp
+        occurred_at_short: Time
+      messages:
+        cleared: User actions cleared.
+        exported: User actions exported.
+
+    user_kinds:
+      label: User role
+      short: Role
+      values:
+        user:
+          single: User
+          plural: Users
+          short: User
+          hint: Regular MudClub user.
+        admin:
+          single: Admin
+          plural: Admins
+          short: Admin
+          hint: MudClub server administrator.
+
+    location:
+      label:
+        single: Location
+        plural: Locations
+        short: Loc.
+      actions:
+        see: (see location)
+      fields:
+        name: Name
+        kind: Kind
+        google_maps: Google Maps
+        google_maps_short: GPS
+        training_court: Training court
+        training_court_short: T.Court.
+      values:
+        default: <new locations>
+        none: (no location)
+        see: (see location)
+      messages:
+        created: Location created.
+        updated: Location updated.
+        deleted: Location deleted.
+        duplicated: Duplicate location.
+
+    season:
+      label:
+        single: Season
+        plural: Seasons
+        short: Seas.
+      fields:
+        locations: Locations
+      messages:
+        created: Season created.
+        updated: Season updated.
+        deleted: Season deleted.
+
+    server:
+      label:
+        single: Server
+        plural: Servers
+        short: Srv.
+
+      actions:
+        configure: Configure
+        edit: Edit Server
+        enable_module: Enable module
+        disable_module: Disable module
+        localization: Localization
+        modules: Modules
+        public_pages: Public pages
+        registrations: Solicitudes
+        reset_defaults: Reset Settings
+
+      fields:
+        # Software description
+        about: About ...
+        build: Build #
+        info-1: "The open source Rails platform to manage"
+        info-2: "amateur sports clubs:"
+        info-3: "Clubs: members, admissions, time tables."
+        info-4: "Teams: rosters, targets, events, etc."
+        info-5: "Training: planning, drills, plays, sessions."
+        info-6: "Matches: outings/stats & results."
+        published: "Published under GNU Affero GPLv3 license"
+        tagline: "The open source Rails platform to manage amateur sports clubs."
+        website: MudClub wiki
+        log: Logs
+
+        # Identity
+        server_name: Server name
+        server_name_hint: Shown in the browser tab and top bar when no club is active.
+        support_email: Support email
+        support_email_hint: Primary contact address. Used as reply-to on outgoing email.
+
+        # Localization
+        default_locale: Default language
+        default_locale_hint: Applied to anonymous visitors. Signed-in users see their own preference.
+        available_locales: Available languages
+        available_locales_hint: Languages users can choose from. The default must be one of them.
+        time_zone: Time zone
+        time_zone_hint: Server-wide default. Individual users may override.
+        date_format: Date format
+        date_format_hint: Applies to dates across the server. Patterns adapt to the active language.
+
+        # Modules
+        modules: Modules
+        modules_hint: Core features are always on. Optional modules can be disabled.
+
+        # Admission
+        registrations_enabled: Allow registration requests
+        registrations_enabled_hint: Server-wide switch. Individual clubs may still refuse.
+        registrations_require_terms: Require acceptance of terms
+        registrations_require_terms_hint: Requesters must accept the terms before submitting.
+        registrations_terms_url: Terms of service URL
+        registrations_terms_url_hint: Linked from the submission form.
+        registrations_privacy_url: Privacy policy URL
+        registrations_privacy_url_hint: Linked from the submission form.
+
+        # Public pages
+        public_clubs_enabled: Enable public club pages
+        public_clubs_enabled_hint: Allow clubs to publish an overview and accept anonymous visitors.
+        public_directory_enabled: Publish club directory
+        public_directory_enabled_hint: List participating clubs on the home page.
+
+        # Email
+        email_from: Sender address
+        email_from_hint: Outgoing mail appears to come from this address.
+        email_reply_to: Reply-to address
+        email_reply_to_hint: Replies are routed here instead of the sender address.
+        email_signature: Email signature
+        email_signature_hint: Appended to outgoing emails. Plain text or simple HTML.
+
+        # settting sections
+        contact_section: Contact
+        email_section: e-mail
+        localization_section: Localization
+        visibility_section: Visibility
+        modules_section: Modules
+        admissions_settings: Admissions
+
+      # ─── Enum labels ─────────────────────────────────────────
+      # Used by selects and radio groups on the settings form.
+      formats:
+        default: Default
+        short: Short
+        long: Long
+        numeric: Numeric
+
+      # ─── Status / flash messages ─────────────────────────────
+      messages:
+        saved: Server settings updated.
+        no_change: No changes to save.
+        reset: Settings reset to defaults.
+
+      # ─── Confirmations ───────────────────────────────────────
+      questions:
+        disable_module: Disabling this module hides it from all users. Continue?
+        enable_module: Enabling this module exposes it to all users. Continue?
+        reset_defaults: Reset all settings to their defaults? This cannot be undone.
+
+      # ─── Module dependency hint ──────────────────────────────
+      module_hint:
+        requires: "Requires: %{modules}"
+        disabled_by: "Disabled by: %{modules}"
+        enables_with: "Will enable: %{modules}"
+        disables_with: "Will disable: %{modules}"
+        core_always_on: Always on
+
+    sport:
+      label:
+        single: Sport
+        plural: Sports
+        short: Sport
+      fields:
+        rules: Rules
+      terms:
+        athlete:
+          single: Athlete
+          plural: Athletes
+          short: Ath.
+        coach:
+          single: Coach
+          plural: Coaches
+          short: Coach
+        team:
+          single: Team
+          plural: Teams
+          short: Team
+        competition:
+          single: Competition
+          plural: Competitions
+          short: Comp.
+        match:
+          single: Match
+          plural: Matches
+          short: Match
+          home: Home
+          won: W
+          lost: L
+          roster: Roster
+        victory:
+          single: Victory
+          plural: Victories
+          short: W
+        defeat:
+          single: Loss
+          plural: Losses
+          short: L
+        session:
+          single: Training session
+          plural: Training sessions
+          short: Sess.
+        skill:
+          single: Skill
+          plural: Skills
+          short: Skill
+        position:
+          single: Position
+          plural: Positions
+          short: Pos.
+        rival:
+          single: Opponent
+          plural: Opponents
+          short: Opp.
+          default: <Opponent>
+        role:
+          single: Role
+          plural: Roles
+          short: Role
+        roster: Roster
+        season:
+          single: Season
+          plural: Seasons
+          short: Seas.
+        category:
+          single: Category
+          plural: Categories
+          short: Cat.
+        event:
+          single: Event
+          plural: Events
+          short: Event
+        official:
+          single: Official
+          plural: Officials
+          short: Off.
+        field_of_play:
+          single: Field of play
+          plural: Fields of play
+          short: FoP
+        period:
+          single: Period
+          plural: Periods
+          short: Per.
+      messages:
+        created: Sport created.
+        updated: Sport updated.
+        deleted: Sport deleted.
+
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d %b"
+      long: "%d %B %Y"
+      numeric: "%Y-%m-%d"
+
+  time:
+    formats:
+      default: "%H:%M"
+      short: "%H:%M"
+      long: "%H:%M:%S"
+
+  # -----------------------------------------------------------------------------
+  # DEPRECATED - DO NOT MODIFY
+  #
+  # Compatibility keys preserved during the v2 locale migration.
+  #
+  # Search for:
+  #
+  #   t(location.
+  #   t(password.
+  #   t(season.
+  #   t(sport.
+  #   t(user.
+  #   t(server.
+  #   t(role.
+  #
+  # Remove this section once all references have been migrated.
+  # -----------------------------------------------------------------------------
+  location:
+    # Attributes
+    abbr: Loc.
+    default: <new location.>
+    gmaps: Google Maps link
+    name: Name
+    none: (no location)
+    see: (see location)
+    train: Training Court
+    train_a: T.Court.
+
+    # CRUD
+    created: "Created location:"
+    deleted: "Deleted location:"
+    duplicate: "Duplicate Location:"
+    updated: "Updated location:"
+
+    # UI
+    edit: Edit Location
+    many: Locations
+    new: Create Location
+    single: Location
+
+  password:
+    # Attributes
+    blank_abort: (leave blank to avoid changing it)
+    confirm: Confirm Password
+    confirm_label: (*) confirm password
+    confirm_wait: "Awaiting confirmation from:"
+    min_chars: "Minimum length:"
+    new: New password
+    old: Current password
+    single: Password
+
+    # UI
+    change: Change password
+    forgotten: Forgot your password?
+    reset: Send password reset details
+
+  role:
+    # Roles
+    admin: Admin
+    admin_a: Adm.
+    coach: Coach
+    coach_a: Coach
+    manager: Manager
+    manager_a: Mngr.
+    player: Player
+    player_a: Play.
+    secretary: Secretary
+    secretary_a: Sec.
+    user: User
+    user_a: User
+
+  season:
+    # Attributes
+    abbr: Seas.
+    locations: Season Courts
+
+    # CRUD
+    created: "Created season:"
+    deleted: "Deleted season:"
+    updated: "Updated season:"
+
+    # UI
+    edit: Edit Season
+    many: Seasons
+    new: Create Season
+    single: Season
+
+  server:
+    # Info
+    about: About ...
+    build: Build #
+    info-1: "Open-source web application to manage your"
+    info-2: "sports club:"
+    info-3: "Seasons: timeslots, coaches & athletes."
+    info-4: "Teams: rosters, targets, events, etc."
+    info-5: "Training: planning, drills, plays, sessions."
+    info-6: "Matches: outings/stats & results."
+    published: "Published under GNU Affero GPLv3 license"
+    single: Server
+    website: MudClub wiki
+
+    # UI
+    log: Logs
+
+  sport:
+    # Attributes
+    abbr: Sport
+    period:
+      duration: Dur.
+      extra: Extra
+      many: Periods
+      qty: Q.
+      regular: Regular
+      single: Period
+    rules: Rules
+
+    # CRUD
+    created: "Created sport:"
+    deleted: "Deleted sport:"
+    updated: "Updated sport:"
+
+    # UI
+    edit: Edit sport
+    many: Sports
+    new: Create sport
+    single: Sport
+
+  user:
+    # Attributes
+    last_in: Last login
+    never: (never logged)
+    no_email: e-mail is required!
+    profile: Profile
+    single: User
+
+    # CRUD
+    cleared: "Actions cleared:"
+    created: "Created user:"
+    deleted: "Deleted user:"
+    duplicate: "Duplicate:"
+    updated: "Updated user:"
+
+    # UI
+    actions: Actions
+    edit: Edit User
+    many: Users
+    new: Create User

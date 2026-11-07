@@ -1,5 +1,5 @@
 <div id="event-show">
-	<% unless @event.rest? %>
+	<% unless @event.kind_holiday? %>
 		<div id="event-show-fields">
 			<%= render @targets if @targets %>
 			<%= render @fields %>

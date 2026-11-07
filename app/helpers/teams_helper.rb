@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -22,33 +22,36 @@ module TeamsHelper
 		# Check that the offline job has produced attendance data
 		if (t_att = @team&.attendance)
 			title = [
-				{ kind: :normal, value: I18n.t("player.number"), align: "center" },
-				{ kind: :normal, value: I18n.t("person.name") },
-				{ kind: :normal, value: I18n.t("calendar.week"), align: "center" }, { kind: :normal, value: I18n.t("calendar.month"), align: "center" },
-				{ kind: :normal, value: I18n.t("season.abbr"), align: "center" }, { kind: :normal, value: I18n.t("match.many") }
+				{ kind: :normal, value: Assignment.fld(:number), align: :center },
+				{ kind: :normal, value: Person.fld(:name) },
+				{ kind: :normal, value: Attendance.fld(:weekly) },
+				{ kind: :normal, value: Attendance.fld(:monthly) },
+				{ kind: :normal, value: Season.label(:short) },
+				{ kind: :normal, value: @team.term(:match, :short) }
 			]
-			rows = Array.new
+
+			rows  = Array.new
 			m_tot = []
-			@team.players.order(:number).each do |player|
-				p_att = player.attendance(team: @team)
-				row = { url: player_path(player, team_id: @team.id, rdx: @rdx), frame: "modal", items: [] }
-				row[:items] << { kind: :normal, value: player.number, align: "center" }
-				row[:items] << { kind: :normal, value: player.s_name }
-				row[:items] << { kind: :percentage, value: p_att[:last7], align: "right" }
-				row[:items] << { kind: :percentage, value: p_att[:last30], align: "right" }
-				row[:items] << { kind: :percentage, value: p_att[:avg], align: "right" }
-				row[:items] << { kind: :normal, value: p_att[:matches], align: "center" }
+			@team.athletes.by_number.each do |athlete|
+				p_att = athlete.attendance
+				row = { url: path_for(athlete), frame: :modal, items: [] }
+				row[:items] << { kind: :normal, value: athlete.number, align: :center }
+				row[:items] << { kind: :normal, value: athlete.s_name }
+				row[:items] << { kind: :percentage, value: p_att[:last7], align: :right }
+				row[:items] << { kind: :percentage, value: p_att[:last30], align: :right }
+				row[:items] << { kind: :percentage, value: p_att[:avg], align: :right }
+				row[:items] << { kind: :normal, value: p_att[:matches], align: :center }
 				m_tot << p_att[:matches]
 				rows << row
 			end
 			rows << {
 				items: [
 					{ kind: :bottom, value: nil },
-					{ kind: :bottom, align: "right", value: I18n.t("stat.average") },
-					{ kind: :percentage, value: t_att[:sessions][:week], align: "right" },
-					{ kind: :percentage, value: t_att[:sessions][:month], align: "right" },
-					{ kind: :percentage, value: t_att[:sessions][:avg], align: "right" },
-					{ kind: :normal, value: m_tot.sum / m_tot.size, align: "center" }
+					{ kind: :bottom, align: :right, value: I18n.t("shared.stats.avg") },
+					{ kind: :percentage, value: t_att[:sessions][:week], align: :right },
+					{ kind: :percentage, value: t_att[:sessions][:month], align: :right },
+					{ kind: :percentage, value: t_att[:sessions][:avg], align: :right },
+					{ kind: :normal, value: m_tot.sum / m_tot.size, align: :center }
 				]
 			}
 			return { title:, rows:, chart: t_att[:sessions] }
@@ -61,15 +64,15 @@ module TeamsHelper
 		g_row = gap_row(cols: 2)
 		coaches = [ g_row ]
 		unless (c_count = @team.coaches.count) == 0 # only create if there are coaches
-			c_icon = symbol_field("coach", { namespace: "sport", size: "30x30", title: I18n.t("coach.many") }, align: "right", class: "align-top", rows: c_count)
+			c_icon = symbol_item(:coach, { namespace: "sport", size: "30x30", title: @team.term(:coach, :plural) }, align: :right, class: "align-top", rows: c_count)
 			c_first = true
-			@team.coaches.each do |coach|
-				if coach.active? && (u_manager? || u_secretary?)
-					c_start = button_field({ kind: :link, label: coach.s_name, url: coach_path(coach, team_id: @team.id, rdx: @rdx), b_class: "items-center", d_class: "text-left" })
+			@team.coaches.current.each do |coach|
+				if @policy.show?
+					c_start = normal_button({ kind: :link, label: coach.s_name, url: path_for(coach), frame: :modal, b_class: "items-center", d_class: "text-left" })
 				else
 					c_start = { kind: :string, value: coach.s_name, class: "align-middle text-left" }
 				end
-				c_contact = { kind: :contact, phone: coach.person.phone }
+				c_contact = { kind: :contact, phone: coach.phone }
 				coaches << (c_first ? [ c_icon, c_start, c_contact ] : [ c_start, c_contact ])
 				c_first = false if c_first
 			end
@@ -79,75 +82,86 @@ module TeamsHelper
 	end
 
 	# return HeaderComponent @fields for forms
-	def team_form(title:, cols: nil)
-		res = team_title(title:, cols:, edit: true)
-		res.last << { kind: :hidden, key: :rdx, value: @rdx } if @rdx
+	def team_form(action = :edit, cols: nil)
+		res = team_header(title: Team.act(action), cols:, edit: true)
+		res.last << hidden_input(:rdx, @rdx) if @rdx
 		res << [
-			symbol_field("user", align: "right"),
-			{ kind: :text_box, key: :nick, value: @team.nick, placeholder: I18n.t("team.single"), mandatory: { length: 3 } },
-			{ kind: :hidden, key: :club_id, value: @clubid },
-			{ kind: :hidden, key: :sport_id, value: (@sport&.id || 1) }	# will need to break this up for multi-sports in future
+			symbol_item(:user, align: :right),
+			{ kind: :text_box, key: :nick, value: @team.nick, placeholder: @team.label, mandatory: { length: 3 } },
+			hidden_input(:club_id, @club.id),
+			hidden_input(:sport_id, (@sport&.id || 1))	# will need to break this up for multi-sports in future
 		]
 		res << [
-			symbol_field("category", { namespace: "sport" }, align: "right"),
+			symbol_item(:category, { namespace: "sport" }, align: :right),
 			{ kind: :select_collection, key: :category_id, options: Category.real, value: @team.category_id }
 		]
 		res << [
-			symbol_field("division", { namespace: "sport" }, align: "right"),
+			symbol_item(:division, { namespace: "sport" }, align: :right),
 			{ kind: :select_collection, key: :division_id, options: Division.real, value: @team.division_id }
 		]
 		res << [
-			symbol_field("home", {}, align: "right"),
-			{ kind: :select_collection, key: :homecourt_id, options: Location.search(club_id: @clubid).home, value: @team.homecourt_id }
+			symbol_item(:home, {}, align: :right),
+			{ kind: :select_collection, key: :homecourt_id, options: Location.search(club_id: @club.id).home, value: @team.homecourt_id }
 		]
 		unless @eligible_coaches.empty?
 			res << [
-				symbol_field("coach", { namespace: "sport" }, align: "right"),
-				{ kind: :label, value: I18n.t("coach.many"), class: "align-center" }
+				symbol_item(:coach, { namespace: "sport" }, align: :right),
+				label_item(@team.term(:coach, :plural), class: "align-center")
 			]
-			res << [ gap_field, { kind: :select_checkboxes, key: :coach_ids, options: @eligible_coaches } ]
+			res << [ gap_item, { kind: :select_checkboxes, key: :coach_membership_ids, options: @eligible_coaches } ]
 		end
 		res
 	end
 
+	# roster table view
+	def team_roster_table(athletes = @athletes)
+		title = team_roster_header
+
+		rows  = Array.new
+		athletes.each do |athlete|
+			rows << team_roster_row(athlete)
+		end
+
+		{ title:, rows: }
+	end
+
 	# return a TableComponent for the teams given
-	def team_table(teams: @teams, add_teams: false)
+	def team_table(teams: @teams)
 		if teams
-			pcount = (device != "mobile" && (u_admin? || (user_in_club? && (u_manager? || u_secretary?))))
-			title = ((@rdx == 1 || @player || @coach) ? [ { kind: :normal, value: I18n.t("season.abbr") } ] : [])
-			title << { kind: :normal, value: I18n.t("team.single") }
+			pcount = !(@user || device == "mobile")
+			title = (@rdx == 1 || @user ? [ { kind: :normal, value: Season.label(:short) } ] : [])
+			title << { kind: :normal, value: Team.label }
 			unless device == "mobile"
-				title << { kind: :normal, value: I18n.t("category.single") }
-				title << { kind: :normal, value: I18n.t("division.single") }
+				title << { kind: :normal, value: Category.label }
+				title << { kind: :normal, value: Division.label }
 			end
 			if pcount
-				title << { kind: :normal, value: I18n.t("player.abbr") }
-				trow = { url: "#", items: [ gap_field(cols: 2), { kind: :bottom, value: I18n.t("stat.total") } ] }
-				tcnt = []	# total players
+				title << { kind: :normal, value: Team.term(:athlete, :short) }
+				trow = { url: "#", items: [ gap_item(cols: 2), { kind: :bottom, value: I18n.t("shared.stats.total") } ] }
+				tcnt = []	# total athletes
 			end
-			if add_teams
-				title << button_field({ kind: :add, url: new_team_path(club_id: @clubid, season_id: @seasonid, rdx: @rdx), frame: "modal" })
-			end
+			title << normal_button({ kind: :add, url: new_path_for(@club, :team, season_id: @season.id), frame: :modal }) if !@user && @club && @policy.create?
+
 			rows = Array.new
 			teams.each { |team|
-				url = (u_clubid == team.club_id ? team_path(team, rdx: @rdx) : request.path)
+				url = user_in_club?(team.club) ? path_for(team) : request.path
 				row = { url:, items: [] }
-				row[:items] << { kind: :normal, value: team.season.name, align: "center" } if @rdx == 1 || @player || @coach
+				row[:items] << { kind: :normal, value: team.season.name, align: :center } if @rdx == 1 || @user
 				row[:items] << { kind: :normal, value: team.name }
 				unless device == "mobile"
-					row[:items] << { kind: :normal, value: team.category.name, align: "center" }
-					row[:items] << { kind: :normal, value: team.division.name, align: "center" }
+					row[:items] << { kind: :normal, value: team.category.name, align: :center }
+					row[:items] << { kind: :normal, value: team.division.name, align: :center }
 				end
 				if pcount
-					cnt = team.players.pluck(:id)
+					cnt = team.athletes.pluck(:id)
 					tcnt += cnt
-					row[:items] << { kind: :normal, value: cnt.count, align: "center" }
+					row[:items] << { kind: :normal, value: cnt.count, align: :center }
 				end
-				row[:items] << button_field({ kind: :delete, url: row[:url], name: team.to_s }) if add_teams
+				row[:items] << normal_button({ kind: :delete, url: row[:url], name: team.to_s }) if @policy.destroy?
 				rows << row
 			}
 			if pcount
-				trow[:items] << { kind: :normal, value: tcnt.uniq.count, align: "center" }
+				trow[:items] << { kind: :normal, value: tcnt.uniq.count, align: :center }
 				rows << trow
 			end
 			{ title:, rows: }
@@ -156,27 +170,58 @@ module TeamsHelper
 		end
 	end
 
+	# return a TableComponent for the teams given
+	def public_team_table(teams: @teams)
+		if teams
+			title = [ { kind: :normal, value: Team.label } ]
+			unless device == "mobile"
+				title << { kind: :normal, value: Division.label }
+			end
+			title += [
+				{ kind: :normal, value: Person.fld(:age, :plural) },
+				{ kind: :normal, value: Team.term(:athlete, :short) }
+			]
+
+
+			rows = Array.new
+			teams.each { |team|
+				url = path_for(team, action: :slots, registration: @policy.accepts_registrations?)
+				row = { url:, frame: :modal, items: [] }
+				row[:items] << { kind: :normal, value: team.name }
+				unless device == "mobile"
+					row[:items] += [
+						{ kind: :normal, value: team.division.name, align: :center }
+					]
+				end
+				row[:items] += [
+					{ kind: :normal, value: team.category.birth_years, align: :center },
+					{ kind: :normal, value: team.athletes.count, align: :center }
+				]
+
+				rows << row
+			}
+			{ title:, rows: }
+		else
+			nil
+		end
+	end
+
 	# return jump links for a team
 	def team_links
-		if u_manager? || u_coach? || u_secretary?
-			res = [ [
-				button_field({ kind: :jump, symbol: symbol_hash("player", namespace: @team&.sport&.name), url: roster_team_path(@team, rdx: @rdx), label: I18n.t("team.roster") }, align: "center")
-			] ]
-			if u_manager? || u_coach?
-				res.last << button_field({ kind: :jump, symbol: "target", url: targets_team_path(@team, rdx: @rdx), label: I18n.t("target.many") }, align: "center")
-				res.last << button_field({ kind: :jump, symbol: "plan", url: plan_team_path(@team, rdx: @rdx), label: I18n.t("plan.abbr") }, align: "center")
-			end
-			res.last << button_field({ kind: :jump, symbol: "timetable", url: slots_team_path(rdx: @rdx), label: I18n.t("slot.many"), frame: "modal" }, align: "center")
-		else
-			res = [ [] ]
-		end
-		res
+		links = []
+
+		links << normal_button({ kind: :jump, symbol: symbol_hash(:athlete, namespace: @team&.sport&.name), url: path_for(@team, action: :roster), label: Team.term(:roster) }, align: :center) if @policy.roster?
+		links << normal_button({ kind: :jump, symbol: :target, url: path_for(@team, action: :targets), label: Target.label(:plural) }, align: :center) if @policy.targets?
+		links << normal_button({ kind: :jump, symbol: :plan, url: path_for(@team, action: :plan), label: Team.fld(:plan) }, align: :center) if @policy.plan?
+		links << normal_button({ kind: :jump, symbol: :timetable, url: path_for(@team, action: :slots), label: Slot.label(:plural), frame: :modal }, align: :center)
+
+		[ links ]
 	end
 
 	# fields to edit team targets -- REQUIRES form to be passed!!
 	def team_targets_form(form)
 		[
-			[ topcell_field(I18n.t("target.focus.def"), cols: 2) ],
+			[ topcell_item(Target.t_path(:focus, :values, :defense), cols: 2) ],
 			[ targets_form_partial(form, focus: 2, cols: 2)	],
 			ind_col_toprow,
 			[
@@ -184,7 +229,7 @@ module TeamsHelper
 				targets_form_partial(form, aspect: 2, focus: 2)
 			],
 			gap_row(),
-			[ topcell_field(I18n.t("target.focus.att"), cols: 2) ],
+			[ topcell_item(Target.t_path(:focus, :values, :offense), cols: 2) ],
 			[ targets_form_partial(form, focus: 1, cols: 2)	],
 			ind_col_toprow,
 			[
@@ -197,12 +242,12 @@ module TeamsHelper
 	# return team target fields to be shown
 	def team_targets_show
 		[
-			[ topcell_field(I18n.t("target.focus.def"), cols: 2) ],
+			[ topcell_item(Target.t_path(:focus, :values, :defense), cols: 2) ],
 			[ target_content(@t_d_gen, cols: 2) ],
 			ind_col_toprow,
 			[ target_content(@t_d_ind), target_content(@t_d_col) ],
 			gap_row(cols: 2),
-			[ topcell_field(I18n.t("target.focus.att"), cols: 2) ],
+			[ topcell_item(Target.t_path(:focus, :values, :offense), cols: 2) ],
 			[ target_content(@t_o_gen, cols: 2) ],
 			ind_col_toprow,
 			[ target_content(@t_o_ind), target_content(@t_o_col) ]
@@ -216,38 +261,42 @@ module TeamsHelper
 	# fields for team time-slots view
 	def team_slots
 		res = [ [
-			gap_field,
-			symbol_field("timetable", { size: "30x30" }),
-			{ kind: :side_cell, value: I18n.t("slot.many"), align: "left" }
+			gap_item,
+			symbol_item(:timetable, { size: "30x30" }),
+			{ kind: :side_cell, value: Slot.label(:plural), align: "left" }
 		] ]
 		@team.slots.order(:wday).each do |slot|
-			res << [ gap_field(size: 1), gap_field(size: 1), string_field(slot.to_s) ]
+			res << [ gap_item(1), gap_item(1), string_item(slot.to_s) ]
 		end
-		res << [ gap_field(size: 1), { kind: :icon_label, symbol: "location", label: @team.slots.first.court, cols: 2 } ]
+		res << [ gap_item(1), { kind: :icon_label, symbol: "location", label: @team.slots.first.court, cols: 2 } ]
 	end
 
 	# return FieldComponent for team view title
-	def team_title(title:, cols: nil, search: nil, edit: nil)
-		clubid = @club&.id || @clubid || u_clubid
-		res = title_start(icon: ((u_clubid != clubid) ? @club&.logo : symbol_hash("team")), title:, cols:)
+	def team_header(title:, cols: nil, search: nil, edit: nil)
+		clubid = @club&.id || @team&.club.id
+		res    = title_start(icon: (user_in_club?(@team&.club) ? @club&.logo : symbol_hash(:team)), title:, cols:)
 		if search
 			s_id = @team&.season_id || @season&.id || session.dig("team_filters", "season_id")
 			res << [ { kind: :search_collection, key: :season_id, options: Season.real.order(start_date: :desc), value: s_id } ]
 			res.last.first[:filter] = { key: :club_id, value: clubid }
-		elsif edit and u_manager?
-			res << [ { kind: :text_box, key: :name, value: @team.name, placeholder: I18n.t("team.single"), mandatory: { length: 3 } } ]
+		elsif edit && @policy.edit?
+			res << [ { kind: :text_box, key: :name, value: @team.name, placeholder: @team.label, mandatory: { length: 3 } } ]
 			res << [
-				symbol_field("calendar", align: "right"),
+				symbol_item(:calendar, align: :right),
 				{ kind: :select_collection, key: :season_id, options: Season.real, value: @team.season_id }
 			]
 			res.last.first[:filter] = { key: :club_id, value: clubid }
 		elsif @team
-			res += [
-				[ { kind: :label, value: @team.category.name } ],
-				[ gap_field(size: 0), { kind: :text, value: "#{@team.division.name} (#{@team.season.name})" } ]
+			variant = @team.accepts_registrations? ? :unlocked : :locked
+			res    += [
+				[ label_item(@team.category.name) ],
+				[
+					symbol_item(:lock, { variant:, title: Registration.val(variant) }, align: :center),
+					{ kind: :text, value: "#{@team.division.name} (#{@team.season.name})" }
+				]
 			]
-		else # player teams index
-			res << [ { kind: :subtitle, value: current_user.player.s_name } ]
+		else # user teams index
+			res << [ { kind: :subtitle, value: current_user.s_name } ]
 		end
 		res
 	end
@@ -256,8 +305,8 @@ module TeamsHelper
 		# common toprow for ind/col headers
 		def ind_col_toprow
 			[
-				topcell_field(I18n.t("target.aspect.ind_l")),
-				topcell_field(I18n.t("target.aspect.col_l"))
+				topcell_item(Target.t_path(:aspect, :values, :individual_long)),
+				topcell_item(Target.t_path(:aspect, :values, :collective_long))
 			]
 		end
 
@@ -267,7 +316,7 @@ module TeamsHelper
 				targets_form_partial(form, month: targets[:month], aspect: targets[:aspect], focus: targets[:focus], cols:)
 			else # just view
 				tgts = targets[:tgts].map { |tgt| { text: tgt.to_s,	status: tgt.status } }
-				{ kind: :targets, class: "border px py align-top", targets: tgts, cols: }
+				{ kind: :targets, class: "border px-1 py-1 align-top", targets: tgts, cols: }
 			end
 		end
 
@@ -278,8 +327,44 @@ module TeamsHelper
 				partial: "targets_form",
 				locals: { form:, month:, aspect:, focus: },
 				cols:,
-				class: "border px py align-top"
+				class: "border px-1 py-1 align-top"
 			}
+		end
+
+		# team roster table helpers
+		def team_roster_header
+			title = [
+				{ kind: :normal, value: Assignment.fld(:number, :short), align: :center },
+				{ kind: :normal, value: Person.fld(:name) },
+				{ kind: :normal, value: Person.fld(:age), align: :center },
+				{ kind: :normal, value: Person.fld(:phone_short), align: :center },
+				{ kind: :normal, value: Person.fld(:photos_short), align: :center },
+				{ kind: :normal, value: Assignment.fld(:status_short) }
+			]
+
+			# TODO - redesign the athlete addition logic completely for 2.0
+			title << normal_button(
+				{
+					kind: :add,
+					url: new_club_team_assignment_path(@club, @team, kind: :athlete),
+					frame: :modal
+				}
+			)	if @policy.edit_roster?
+
+			title
+		end
+
+		def team_roster_row(athlete)
+			row = { url: path_for(athlete, kind: :athlete), frame: :modal, items: [] }
+			row[:items] += [
+				{ kind: :normal, value: athlete.number, align: :center },
+				{ kind: :normal, value: athlete.to_s(style: 0) },
+				{ kind: :normal, value: athlete.age, align: :center },
+				{ kind: :contact, phone: athlete.phone, device: device },
+				symbol_item((athlete.all_pics? ? :yes : :no), align: :center, class: "border"),
+				participation_status_field(athlete, f_opts: { align: :center, class: "align-top border" })
+			]
+			row
 		end
 
 		# return accordion for team targets
@@ -296,21 +381,21 @@ module TeamsHelper
 		end
 
 		def plan_month(tgts, form:)
-			lcls  = "text-indigo-900 font-semibold border px py"
+			lcls  = "text-indigo-900 font-semibold border px-1 py-1"
 			month = tgts[:i]
 			[
 				[
-					gap_field,
-					{ kind: :text, value: I18n.t("target.focus.def"), align: "center", class: lcls },
-					{ kind: :text, value: I18n.t("target.focus.att"), align: "center", class: lcls }
+					gap_item,
+					{ kind: :text, value: Target.t_path(:focus, :values, :defense), align: :center, class: lcls },
+					{ kind: :text, value: Target.t_path(:focus, :values, :offense), align: :center, class: lcls }
 				],
 				[
-					{ kind: :side_cell, value: I18n.t("target.aspect.ind_a"), align: "center" },
+					{ kind: :side_cell, value: Target.t_path(:aspect, :values, :individual_short), align: :center },
 					target_content({ month:, aspect: 1, focus: 2, tgts: tgts[:t_d_ind] }, form:),
 					target_content({ month:, aspect: 1, focus: 1, tgts: tgts[:t_o_ind] }, form:)
 				],
 				[
-					{ kind: :side_cell, value: I18n.t("target.aspect.col_a"), align: "center" },
+					{ kind: :side_cell, value: Target.t_path(:aspect, :values, :collective_short), align: :center },
 					target_content({ month:, aspect: 2, focus: 2, tgts: tgts[:t_d_col] }, form:),
 					target_content({ month:, aspect: 2, focus: 1, tgts: tgts[:t_o_col] }, form:)
 				]

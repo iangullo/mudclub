@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -23,28 +23,28 @@ module DivisionsHelper
 	end
 
 	def division_show
-		division_title(title: I18n.t("division.single"), subtitle: @division.name)
+		division_title(title: Division.label, subtitle: @division.name)
 	end
 
 	# return definition @fields for forms
 	def division_form(action)
 		@submit = SubmitComponent.new(submit: :save)
-		res = division_title(title: I18n.t("division.#{action}"))
-		res << [ gap_field, { kind: :text_box, key: :name, value: @division.name, placeholder: I18n.t("division.name"), mandatory: { length: 3 } } ]
+		res = division_title(title: Division.act(action.to_sym))
+		res << [ gap_item, { kind: :text_box, key: :name, value: @division.name, placeholder: @division.fld(:name), mandatory: { length: 3 } } ]
 	end
 
 	# return table for @divisions TableComponent
 	def division_table
-		title = [ { kind: :normal, value: I18n.t("division.name") } ]
-		title << button_field({ kind: :add, url: new_sport_division_path(@sport, rdx: @rdx), frame: "modal" }) if u_admin?
+		title = [ { kind: :normal, value: Division.fld(:name) } ]
+		title << normal_button({ kind: :add, url: new_path_far(@sport, :division), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		@divisions.each do |div|
-			row = { url: edit_sport_division_path(@sport, div, rdx: @rdx), frame: "modal", items: [] }
+			row = { url: edit_path_for(div, owner: @sport), frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: div.name }
-			row[:items] << button_field({ kind: :delete, url: sport_division_path(@sport, div, rdx: @rdx), name: div.name }) if u_admin?
+			row[:items] << normal_button({ kind: :delete, url: path_for(div, owner: @sport, rdx: @rdx), name: div.name }) if @policy.destroy?
 			rows << row
 		end
-		table_field(title:, rows:, align: :center)
+		table_item(title:, rows:, align: :center)
 	end
 end

@@ -1,0 +1,178 @@
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+class ClubsController < ApplicationController
+	before_action :set_club, only: [ :show, :edit, :update, :destroy ]
+
+	# GET /clubs or /clubs.json
+	def index
+		@policy = check_policy!(ClubPolicy)
+
+		@clubs  = Club.search(params[:search], current_user, @club)
+		page    = paginate(@clubs)
+		title   = u_manager? ? Club.fld(:rivals) : Club.label(:plural)
+		title   = helpers.club_header(title:, icon: { concept: "rivals" })
+		title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10, cols: 3 } ]
+		table   = helpers.club_table(clubs: page)
+		retlnk  = back_link(default: root_path)
+		create_index(title:, table:, page:, retlnk:)
+	end
+
+	# GET /clubs/1 or /clubs/1.json
+	def show
+		@policy = check_policy!(ClubPolicy, record: @club)
+
+		@title = create_fields(helpers.club_header)
+		if current_user
+			@links  = create_fields(helpers.club_links)
+			if user_in_club?	# my own club: show events
+				@table = create_fields(helpers.event_list_table(@club))
+			else	# off return to  the user's club or index (for admins)
+				close  = :back
+				retlnk = back_link(default: clubs_path)
+			end
+			submit = edit_path_for(@club) if @policy.edit?
+		else # anonymous mode. policy will take care of access
+			retlnk = root_path
+			teams  = @club.teams.for_season(Season.latest).unlocked.ordered
+			unless teams.empty?
+				page    = paginate(teams)
+				@table  = create_table(helpers.public_team_table(teams: page))
+			end
+		end
+		@submit = create_submit(close:, retlnk:, submit:, frame: :modal)
+	end
+
+	# GET /clubs/new
+	def new
+		@policy = check_policy!(ClubPolicy)
+
+		m_club  = Club.first
+		locale  = m_club&.locale || "en"
+		country = m_club&.country || "US"
+		@club   = Club.new(settings: { locale:, country: })
+		prepare_form(title: @club.act(:create))
+	end
+
+	# GET /clubs/1/edit
+	def edit
+		@policy = check_policy!(ClubPolicy, record: @club)
+
+		prepare_form(title: @club.act(:edit))
+	end
+
+	# POST /clubs or /clubs.json
+	def create
+		@policy = check_policy!(ClubPolicy)
+
+		respond_to do |format|
+			@club = Club.fetch(club_params, create: true)
+			@club.rebuild(club_params)
+			if @club.id == nil then	# it's a new club
+				if @club.save # club saved to database
+					a_desc = "#{@club.msg(:created)} '#{@club.nick}'"
+					register_action(:created, a_desc, url: path_for(@club, rdx: 2))
+					format.html { redirect_to path_for(@club, rdx: 0), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :show, status: :created, location: path_for(@club, rdx: 0) }
+				else
+					prepare_form(title: @club.act(:create))
+					format.html { render :new, status: :unprocessable_entity }
+					format.json { render json: @club.errors, status: :unprocessable_entity }
+				end
+			else	# duplicate club
+				format.html { redirect_to path_for(@club, rdx: 0), notice: helpers.flash_message("#{@club.msg(:duplicated)} '#{@club.nick}'"), data: { turbo_action: "replace" } }
+				format.json { render :index, :created, location: path_for(@club, rdx: 0) }
+			end
+		end
+	end
+
+	# PATCH/PUT /clubs/1 or /clubs/1.json
+	def update
+		@policy = check_policy!(ClubPolicy, record: @club)
+
+		respond_to do |format|
+			retlnk = path_for(@club)
+			@club.rebuild(club_params)
+			if @club.modified?# club has been edited
+				if @club.save
+					a_desc = "#{@club.msg(:updated)} '#{@club.nick}'"
+					register_action(:updated, a_desc, url: path_for(@club, rdx: 2))
+					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :show, status: :ok, location: retlnk }
+				else
+					prepare_form(title: @club.act(:edit))
+					format.html { render :edit, status: :unprocessable_entity }
+					format.json { render json: @club.errors, status: :unprocessable_entity }
+				end
+			else
+				format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { render :show, status: :ok, location: retlnk }
+			end
+		end
+	end
+
+	# DELETE /clubs/1 or /clubs/1.json
+	def destroy
+		@policy = check_policy!(ClubPolicy, record: @club)
+
+		c_name = @club.name
+		@club.destroy
+		respond_to do |format|
+			a_desc = "#{@club.msg(:deleted)} '#{c_name}'"
+			register_action(:deleted, a_desc)
+			format.html { redirect_to path_for(rdx: 0), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
+		end
+	end
+
+	private
+		# prepare a form to edit/create a club
+		def prepare_form(title:)
+			@header = create_fields(helpers.club_header(title:))
+			@fields = create_fields(helpers.club_form)
+			@submit = create_submit
+		end
+
+		def set_club
+			c_id  = get_param(:id, objid: true) || @club.id
+			@club = Club.find_by_id(c_id)
+		end
+
+		# Only allow a list of trusted parameters through.
+		def club_params
+			@club_params ||= params.require(:club).permit(
+				:id,
+				:address,
+				:avatar,
+				:country,
+				:email,
+				:locale,
+				:name,
+				:nick,
+				:phone,
+				:rdx,
+				:website,
+				social: [
+					facebook: {},
+					google: {},
+					instagram: {},
+					twitter: {}
+				]
+			)
+		end
+end

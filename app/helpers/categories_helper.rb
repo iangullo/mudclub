@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -18,28 +18,28 @@
 #
 module CategoriesHelper
 	# return icon and top of a view
-	def category_title(title:, subtitle: @sport&.to_s, rows: 2, cols: nil)
+	def category_header(title:, subtitle: @sport&.to_s, rows: 2, cols: nil)
 		title_start(icon: symbol_hash("category", namespace: "sport"), title:, subtitle:, rows:, cols:)
 	end
 
 	# Field definitions for category.show
 	def category_show
-		res = category_title(title: I18n.t("category.single"), subtitle: @category.name, cols: 4)
+		res = category_header(title: Category.label, subtitle: @category.name, cols: 4)
 		res += [
 			[
-				gap_field(size: 1),
+				gap_item(1),
 				{ kind: :subtitle, value: @category.age_group, cols: 2 },
 				{ kind: :subtitle, value: @category.sex, cols: 2 }
 			],
 			[
-				gap_field(size: 1),
-				{ kind: :label, value: I18n.t("stat.min"), align: "right" },
+				gap_item(1),
+				label_item(I18n.t("shared.stats.min_short"), align: :right),
 				{ kind: :string, value: @category.min_years },
-				{ kind: :label, value: I18n.t("stat.max") },
+				label_item(I18n.t("shared.stats.max_short")),
 				{ kind: :string, value: @category.max_years }
 			],
 			[
-				symbol_field("rules", { namespace: "sport" }, align: :right),
+				symbol_item(:rules, { namespace: :sport }, align: :right),
 				{ kind: :string, value: @category.sport.specific.rules_options[@category.rules].first, cols: 4 }
 			]
 		]
@@ -48,22 +48,22 @@ module CategoriesHelper
 
 	# return field definitions for forms
 	def category_form(title:)
-		res = category_title(title:, cols: 4)
+		res = category_header(title:, cols: 4)
 		res += [
 			[
-				gap_field(size: 1),
-				{ kind: :text_box, key: :age_group, value: @category.age_group, placeholder: I18n.t("category.single"), size: 10, cols: 2, mandatory: { length: 3 } },
+				gap_item(1),
+				{ kind: :text_box, key: :age_group, value: @category.age_group, placeholder: @category.label, size: 10, cols: 2, mandatory: { length: 3 } },
 				{ kind: :select_box, key: :sex, options: Category.sex_options, value: @category.sex, cols: 2 }
 			],
 			[
-				{ kind: :label, value: I18n.t("stat.min"), align: :right },
+				label_item(I18n.t("shared.stats.min_short"), align: :right),
 				{ kind: :number_box, key: :min_years, min: 5, size: 3, value: @category.min_years, mandatory: { min: 5 }, align: :left },
-				{ kind: :label, value: I18n.t("stat.max"), align: :right },
+				label_item(I18n.t("shared.stats.max_short"), align: :right),
 				{ kind: :number_box, key: :max_years, min: 6, size: 3, value: @category.max_years, mandatory: { max: 99 } },
-				gap_field(size: 1)
+				gap_item(1)
 			],
 			[
-				symbol_field("rules", { namespace: "sport" }, align: :right),
+				symbol_item(:rules, { namespace: :sport }, align: :right),
 				{ kind: :select_box, key: :rules, options: @sport.rules_options, value: @category.rules ? @category.rules : @sport.try(:default_rules), cols: 4 }
 			]
 		]
@@ -73,21 +73,21 @@ module CategoriesHelper
 	# return header for @categories TableComponent
 	def category_table
 		title = [
-			{ kind: :normal, value: I18n.t("category.name") },
-			{ kind: :normal, value: I18n.t("sex.label") },
-			{ kind: :normal, value: I18n.t("stat.min") },
-			{ kind: :normal, value: I18n.t("stat.max") }
+			{ kind: :normal, value: Category.fld(:name) },
+			{ kind: :normal, value: Person.fld(:sex) },
+			{ kind: :normal, value: I18n.t("shared.stats.min_short") },
+			{ kind: :normal, value: I18n.t("shared.stats.max_short") }
 		]
-		title <<  button_field({ kind: :add, url: new_sport_category_path(@sport, rdx: @rdx), frame: "modal" }) if u_admin?
+		title <<  normal_button({ kind: :add, url: new_path_for(@sport.generic, :category), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		@categories.each { |cat|
-			row = { url: edit_sport_category_path(@sport, cat, rdx: @rdx), frame: "modal", items: [] }
+			row = { url: edit_path_for(cat, owner: @sport.generic), frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: cat.age_group }
-			row[:items] << { kind: :normal, value: I18n.t("sex.#{cat.sex}_a") }
-			row[:items] << { kind: :normal, value: cat.min_years, align: "right" }
-			row[:items] << { kind: :normal, value: cat.max_years, align: "right" }
-			row[:items] << button_field({ kind: :delete, url: sport_category_path(@sport, cat, rdx: @rdx), name: cat.name }) if u_admin?
+			row[:items] << { kind: :normal, value: Person.t_path(:sex, "#{cat.sex}_short".to_sym) }
+			row[:items] << { kind: :normal, value: cat.min_years, align: :right }
+			row[:items] << { kind: :normal, value: cat.max_years, align: :right }
+			row[:items] << normal_button({ kind: :delete, url: path_for(cat, owner: @sport), name: cat.name }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows: }

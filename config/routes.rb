@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# MudClub - Modular Rails application for managing sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -18,30 +18,145 @@
 #
 # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 Rails.application.routes.draw do
+	#-------------------------------------
+	# Core service routes
+	#-------------------------------------
 	root to: "home#index"
-	get "home/about"
-	get "home/log"
-	get "home/clear"
 	get "home/index"
-	get "home/server"
+	get "/my-registrations", to: "home#my_registrations", as: :my_registrations
+
+	#---------------------------------------------------------
+	# Server-related (i.e. not Club or User-specific )
+	#---------------------------------------------------------
+	resource :server, controller: :server, only: [ :show, :edit, :update ] do
+		get :about
+		get :log
+		get :clear_log
+	end
+
+	resources :seasons
+
+	resources :sports do
+		get :rules, on: :member
+		resources :categories
+		resources :divisions
+	end
+
+	#-------------------------------------
+	# User pages
+	#-------------------------------------
 	devise_for :users, skip: [ :registrations ]
+
 	as :user do
 		get "users/edit" => "devise/registrations#edit", :as => "edit_user_registration"
 		put "users" => "devise/registrations#update", :as => "user_registration"
 	end
-	resources :clubs do
-		get "coaches", to: "coaches#index"	# team event calendar
-		get "events", to: "events#index"	# team event calendar
-		get "locations", to: "locations#index"	# team event calendar
-		get "players", to: "players#index"	# team event calendar
-		get "slots", to: "slots#index"	# team event calendar
-		get "teams", to: "teams#index"	# team event calendar
-	end
-	resources :coaches, except: [ :index ] do
-		collection do
-			post :import
+
+	resources :users do
+		get "actions", on: :member
+		get "clear_actions", on: :member
+		resources :documents do
+			member do
+				patch :activate
+			end
 		end
 	end
+
+	#-------------------------------------
+	# Clubs are the main organizational units
+	#-------------------------------------
+	resources :clubs do
+		# Facilities available to the club
+		resources :locations
+
+		# Club documentation
+		resources :documents do
+			member do
+				patch :activate
+			end
+		end
+
+		# Club participation
+		resources :registrations, only: %i[index show new create] do
+			member do
+				patch :send_for_review
+				get   :review
+				patch :request_information
+				patch :approve
+				get   :reject_form
+				patch :reject
+				patch :cancel
+			end
+			resources :documents do
+				member do
+					patch :activate
+				end
+			end
+		end
+
+		resources :members, controller: :memberships, except: :destroy do
+			resources :assignments, only: %i[show edit update]
+			member do
+				patch :terminate
+				patch :anonymize # Maps directly to the compliance pipeline
+			end
+		end
+
+		resources :assignments, only: %i[index show edit update new create]
+
+		# Calendar objects
+		resources :slots
+		resources :events
+
+		# Club teams
+		resources :teams do
+			resources :assignments, only: %i[show new edit create update]
+			# resource :volunteers, only: %i[new create]
+
+			# Team-specific actions
+			member do
+				get :attendance
+				get :plan
+				get :edit_plan
+				get :roster
+				get :edit_roster
+				get :slots
+				get :targets
+				get :edit_targets
+			end
+
+			# Team registrations
+			resources :registrations, only: %i[index show new create edit update] do
+				member do
+					patch :send_for_review
+					get   :review
+					patch :request_information
+					patch :approve
+					get   :reject_form
+					patch :reject
+					patch :cancel
+				end
+			end
+
+			# Team calendar
+			resources :events do
+				member do
+					get :attendance
+					get :copy
+					get :load_chart
+					get :player_stats
+					get :edit_player_stats
+					get :show_task
+					get :add_task
+					get :edit_task
+				end
+			end
+		end
+	end
+
+	#-------------------------------------
+	# Training domain routes
+	#-------------------------------------
 	resources :drills do
 		member do
 			get :versions
@@ -50,46 +165,6 @@ Rails.application.routes.draw do
 			patch :update_diagram # /drills/:id/update_diagram?step_id=X
 		end
 	end
-	resources :events, except: [ :index ] do
-		member do
-			get "copy"
-			get "load_chart"
-			get "show_task"
-			get "add_task"
-			get "edit_task"
-			get "attendance"
-			get "player_stats"
-			get "edit_player_stats"
-		end
-	end
-	resources :locations, except: [ :index ]
-	resources :players, except: [ :index ] do
-		collection do
-			post :import
-		end
-	end
-	resources :seasons
-	resources :slots, except: [ :index ]
-	resources :sports do
-		get "rules", on: :member
-		resources :categories
-		resources :divisions
-	end
-	resources :teams, except: [ :index ] do
-		get "events", to: "events#index"	# team event calendar
-		member do
-			get "attendance"
-			get "plan"
-			get "edit_plan"
-			get "roster"
-			get "edit_roster"
-			get "slots"
-			get "targets"
-			get "edit_targets"
-		end
-	end
-	resources :users do
-		get "actions", on: :member
-		get "clear_actions", on: :member
-	end
+
+	mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 end

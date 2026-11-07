@@ -1,0 +1,12 @@
+<%= render ModalComponent.new do %>
+  <% form_with model: Server.current, authenticity_token: true,
+               data: { controller: "mandatory-fields optional-fields", turbo_frame: "_top" } do |form| %>
+    <% @header.form = form %>
+    <%= render @header %>
+    <div class="my-4">
+      <% @options.form = form %>
+      <%= render @options %>
+    </div>
+    <%= render @submit %>
+  <% end %>
+<% end %>

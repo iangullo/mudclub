@@ -1,0 +1,281 @@
+# MudClub - Modular Rails application for managing sports clubs.
+# Copyright (C) 2026  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+#
+# Assignment
+#
+# Assigns a Club Member to perform a specific Role either
+# at Club level or within a Team.
+#
+class Assignment < ApplicationRecord
+	localized_as "participation.assignment"
+
+	#-------------------------------------
+	# Class relationships
+	#-------------------------------------
+	belongs_to :membership
+	belongs_to :team, optional: true
+	has_many :attendances
+
+	# attachment of notes to be handled
+	has_rich_text :notes
+
+	# assignment-specific picture can be taken
+	has_one_attached :avatar
+
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
+	validates :kind, presence: true
+	validates :number, format: { with: /\A\d{1,2}\z/ }, allow_nil: true
+	validates :starts_on, presence: true
+	validate :team_required
+
+	#-------------------------------------
+	# Convenient delegations
+	#-------------------------------------
+	delegate :club, :person, :person_id, :name, :nick, :surname, :age, :birthday,
+					 :female, :email, :phone, :relationships, :prepare_person,
+					 :kind_gender, to: :membership
+
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include Auditable
+	include Kinded
+	include Participatory
+
+	#-------------------------------------
+	# Scopes
+	#-------------------------------------
+	scope :active, -> { where(ends_on: nil) }
+	scope :on_date, ->(date = Date.current) {
+		where("starts_on <= ?", date)
+			.where("ends_on IS NULL OR ends_on >= ?", date)
+	}
+
+	scope :club_level, -> { where(team_id: nil) }
+	scope :team_level, -> { where.not(team_id: nil) }
+
+	scope :female,		-> { joins(:person).where("female = true") }
+	scope :male,			-> { joins(:person).where("female = false") }
+	scope :by_number, -> { order(Arel.sql("CAST(number AS INTEGER) NULLS LAST")) }
+
+	scope :for_club, ->(club) {
+		return none if club.blank?
+		joins(:membership).merge(Membership.for_club(club))
+	}
+
+	scope :for_team, ->(team) {
+		return none if team.blank?
+		for_club(team.club).filter_by_id(:team_id, team)
+	}
+
+	scope :of_membership_kind, ->(kind) {
+		joins(:membership).where(membership: Membership.of_kind(kind))
+	}
+
+	# -------------------------------------------------------------------------
+	# Text search scope
+	# -------------------------------------------------------------------------
+	scope :search_text, ->(text) {
+		return all unless text.present?
+
+		joins(membership: :person)
+			.where(memberships: { person_id: Person.search(text) })
+	}
+
+	#-------------------------------------
+	# General API methods
+	#-------------------------------------
+	def assigned_to
+		team ? team :	membership.club
+	end
+
+	# merge assignment from another one (same team, same club)
+	def merge_from(other)
+		return false unless other.membership.club_id == membership.club_id
+		return false unless other.team_id == team_id
+		return false unless other.kind == kind
+
+		self.avatar.attach(other.avatar.blob) if !avatar.attached? && other.avatar.attached?
+		self.starts_on = earliest_date(other.starts_on, starts_on)
+		self.ends_on   = latest_date(other.ends_on, ends_on)
+		self.notes     = other.notes if notes.blank?
+		self.number  ||= other.number
+		self.settings  = other.settings if settings.blank?
+		self.status    = :active if status != :active && ends_on == nil
+		other.attendances.each { |att| att.update!(assignment: self) }
+		other.reset!
+		save!
+
+		other.destroy!
+
+		true
+	end
+
+	# short name for form viewing
+	def s_name
+		person&.s_name || membership.kind_label
+	end
+
+	def self.kind_list(scope: :team, **rest) = kind_catalog.option_list(scope:, **rest)
+
+	#-------------------------------------
+	# Attendance helpers
+	#-------------------------------------
+	# Is this assingment present in an event?
+	def present?(event_id)
+		attendances.include?(event_id)
+	end
+
+	# get attendance data for player over the period specified by "during"
+	# returns attendance inthe form of:
+	# matches played and session attendance [%] for week, month and season
+	def attendance
+		t_events   = team.events.normal.past.includes(:players)
+		t_sessions = t_events.trainings
+		l_week     = { tot: t_sessions.last7.size, att: 0 }
+		l_month    = { tot: t_sessions.last30.size, att: 0 }
+		l_season   = { tot: t_sessions.count, att: 0 }
+		p_att      = Attendance.for_assignment(self).includes(:event)
+		matches    = p_att.matches.size
+		t_att      = p_att.trainings
+		l_season[:att] = t_att.size
+		l_week[:att] = t_att.last7.size
+		l_month[:att] = t_att.last30.size
+		att_week = l_week[:tot] > 0 ? (l_week[:att] * 100 / l_week[:tot]).to_i : nil
+		att_month = l_month[:tot] > 0 ? (l_month[:att] * 100 / l_month[:tot]).to_i : nil
+		att_total = l_season[:tot] > 0 ? (100 * l_season[:att] / l_season[:tot]).to_i : nil
+		{ matches:, last7: att_week, last30: att_month, avg: att_total }
+	end
+
+	#-------------------------------------
+	# Back-ported methods to replace Player/Coach accesses
+	#-------------------------------------
+	def age
+		person&.age
+	end
+
+	def all_pics?
+		(avatar&.attached? || person&.avatar&.attached?) &&
+			person&.id_front.attached? &&
+			person&.id_back.attached?
+	end
+
+	def female?
+		person&.female?
+	end
+
+	# Return email/phone of player or of the associated tutors if underage players
+	def p_email
+		email = ""
+		if age < 18
+			person.responsible_adults.each { |par| email += "#{par.person.email.presence}\n" if par.person.email.present? }
+		end
+		email += email.to_s
+	end
+
+	def p_phone
+		phone = ""
+		if age < 18
+			person.responsible_adults.each { |par| phone += "#{par.person.phone.presence}\n" if par.person.phone.present? }
+		end
+		phone += phone.to_s
+	end
+
+	# Return person.to_s or player name and jersey number
+	def to_s(style: 2)
+		if membership.kind == "athlete"
+			case style
+			when 0; return self.s_name
+			when 1; return self.person.to_s
+			when 2; name = self.s_name
+			when 3; name = self.person.to_s
+			end
+			num = "(##{number || "__"})".rjust(5, " ")
+			return "#{num} #{name}"
+		end
+
+		person&.to_s || membership.kind_label
+	end
+
+	# String with number, name & age
+	def num_name_age
+		"#{number.to_s.rjust(7, " ")}-#{self} (#{age})"
+	end
+
+	#-------------------------------------
+	# Status transitions & definitions
+	#-------------------------------------
+	def club_assignment?
+		team.nil?
+	end
+
+	def team_assignment?
+		team.present?
+	end
+
+	def belongs_to_team?(team)
+		team_id == team&.id
+	end
+
+	def rebuild(data)
+		# --- assignment's own attributes ---
+		self.team_id   = data[:team_id]   if data.key?(:team_id)
+		self.starts_on = data[:starts_on] if data.key?(:starts_on)
+		self.ends_on   = data[:ends_on]   if data.key?(:ends_on)
+		self.number    = data[:number]    if data.key?(:number) # only for athletes
+
+		# --- associated persons data (via membership) ---
+		resolution = prepare_rebuild(data)
+		return resolution unless resolution.ok?	# return ambiguous or conflicts
+
+
+		PersonResolution.new(status: :ok, person:)
+	end
+
+	# -------------------------------------------------------------------------
+	# Controller façade methods
+	# -------------------------------------------------------------------------
+	def self.search(club:, search: nil, status: nil, member: nil, team: nil, assignment_kind: nil, membership_kind: nil, history: false)
+		scope = team.present? ? for_team(team) : for_club(club)
+		scope = scope.where(membership: member) if member.present?
+		scope = scope.of_kind(assignment_kind) if assignment_kind.present?
+		scope = scope.of_membership_kind(membership_kind) if membership_kind.present?
+		scope = scope.search_text(search) if search.present?
+		if status
+			scope = scope.where(status:)
+		else
+			scope.current unless history
+		end
+		scope
+	end
+
+	private
+		# validate coherent team defined for assignment
+		def team_required
+			if kind_catalog.team_level?(kind) && team.blank?
+				errors.add(:team, :blank)
+			end
+
+			if kind_catalog.club_level?(kind) && team.present?
+				errors.add(:team, :invalid)
+			end
+		end
+end

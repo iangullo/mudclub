@@ -1,13 +1,12 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  event: one
+# test/fixtures/tasks.yml
+warmup_1:
+  event: train_north
+  drill: warmup
   order: 1
-  drill: one
-  duration: 1
+  duration: 600
 
-two:
-  event: two
-  order: 1
-  drill: two
-  duration: 1
+warmup_2:
+  event: train_north
+  drill: warmup
+  order: 2
+  duration: 300

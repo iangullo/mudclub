@@ -1,0 +1,114 @@
+# config/locales/organization/en.yml
+# Organization domain
+#
+# Clubs and their organizational structure.
+#
+# Includes clubs, competition categories, divisions,
+# club-sport relationships and organizational catalogs.
+# -----------------------------------------------------------------------------
+en:
+  organization:
+    label: "Organization"
+    short: "Org."
+
+    club:
+      label:
+        single: "Club"
+        short: "Club"
+        plural: "Clubs"
+      actions:
+        create: "Create Club"
+        edit: "Edit Club"
+        delete: "Delete Club"
+      fields:
+        name: "Name"
+        entity: "Legal entity"
+        entity_short: "Ent."
+        email: "e-mail"
+        logo: "Logo"
+        logo_short: "Logo"
+        none: "No club"
+        rivals: "Rival Clubs"
+        website: "Website"
+        website_short: "Web"
+      messages:
+        created: "Club created."
+        updated: "Club updated."
+        deleted: "Club deleted."
+        duplicated: "Club already exists."
+
+    category:
+      label: "Category"
+      short: "Cat."
+      actions:
+        create: "Create Category"
+        edit: "Edit Category"
+        delete: "Delete Category"
+      fields:
+        name: "Name"
+        age_group: "Age group"
+        age_group_short: "Ages"
+        sex: "Sex"
+        sex_short: "Sex"
+        min_years: "Minimum age"
+        min_years_short: "Min. age"
+        max_years: "Maximum age"
+        max_years_short: "Max. age"
+        rules: "Rules"
+        rules_short: "Rules"
+        sport: "Sport"
+        sport_short: "Sport"
+      messages:
+        created: "Category created."
+        updated: "Category updated."
+        deleted: "Category deleted."
+        duplicated: "Category already exists."
+
+    division:
+      label: "Division"
+      short: "Div."
+      fields:
+        name: "Name"
+        sport: "Sport"
+      messages:
+        created: "Division created."
+        updated: "Division updated."
+        deleted: "Division deleted."
+        duplicated: "Division already exists."
+
+    entities:
+      label: "Legal entity"
+      short: "Entity"
+      values:
+        club: "Sports club"
+        club_plural: "Sports clubs"
+        federation: "Federation"
+        federation_plural: "Federations"
+        municipality: "Municipality"
+        municipality_plural: "Municipalities"
+        school: "School"
+        school_plural: "Schools"
+        company: "Company"
+        company_plural: "Companies"
+        association: "Association"
+        association_plural: "Associations"
+        other: "Other"
+        other_plural: "Others"
+
+    club_location:
+      label: "Club location"
+      short: "Club loc."
+      fields:
+        club: "Club"
+        club_short: "Club"
+        location: "Location"
+        location_short: "Loc."
+
+    club_sport:
+      label: "Club sport"
+      short: "Club sport"
+      fields:
+        club: "Club"
+        club_short: "Club"
+        sport: "Sport"
+        sport_short: "Sport"

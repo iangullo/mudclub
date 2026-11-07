@@ -29,7 +29,7 @@
 			</g>
 		</g>
 	</symbol>
-	<symbol id="player.default" viewBox="0 0 128 128">
+	<symbol id="athlete.default" viewBox="0 0 128 128">
 		<g transform="matrix(1.0353123,0,0,1.0353123,3.8209995,-6.3531222)">
 			<circle
 				r="10.333761"
@@ -73,4 +73,7 @@
 				style="fill:#ffccaa;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
 		</g>
 	</symbol>
-</svg> 
+	<symbol id="player.default" viewBox="0 0 128 128">
+		<use href="#athlete.default" />
+	</symbol>
+</svg>

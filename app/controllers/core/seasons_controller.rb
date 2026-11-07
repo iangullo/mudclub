@@ -1,0 +1,165 @@
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+# Managament of MudClub server seasons
+class SeasonsController < ApplicationController
+	before_action :set_season, only: [ :index, :show, :edit, :update, :destroy ]
+
+	# GET /seasons
+	# GET /seasons.json
+	def index
+		@policy = check_policy!(SeasonPolicy)
+
+		@seasons = Season.real
+		page  = paginate(@seasons)	# paginate results
+		title = helpers.season_title(icon: Server.server_logo, title: Season.label(:plural))
+		table = helpers.season_table(seasons: page)
+		create_index(title:, table:, page:, retlnk: server_path)
+	end
+
+	# GET /seasons/1
+	def show
+		@policy = check_policy!(SeasonPolicy, record: @season)
+
+		@fields = create_fields(helpers.season)
+		@submit = create_submit(close: :back, retlnk: back_link(default: seasons_path(rdx: @rdx)), submit: edit_path_for(@season), frame: :modal)
+	end
+
+	# GET /seasons/1/edit
+	def edit
+		@policy = check_policy!(SeasonPolicy, record: @season)
+
+		prepare_form("edit")
+	end
+
+	# GET /seasons/new
+	def new
+		@policy = check_policy!(SeasonPolicy)
+
+		@season = Season.new(start_date: Date.today, end_date: Date.today)
+		prepare_form("new")
+	end
+
+	# POST /seasons
+	# POST /seasons.json
+	def create
+		@policy = check_policy!(SeasonPolicy)
+
+		@season = Season.new(season_params)
+		respond_to do |format|
+			if @season.save
+				a_desc = "#{Season.msg(:created)} '#{@season.name}'"
+				retlnk = crud_return
+				register_action(:created, a_desc, url: path_for(@season, rdx: 2))
+				format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+				format.json { render :index, status: :created, location: retlnk }
+			else
+				prepare_form("new")
+				format.html { render :new }
+				format.json { render json: @season.errors, status: :unprocessable_entity }
+			end
+		end
+	end
+
+	# PATCH/PUT /seasons/1
+	# PATCH/PUT /seasons/1.json
+	def update
+		@policy = check_policy!(SeasonPolicy, record: @season)
+
+		respond_to do |format|
+			check_locations
+			@season.rebuild(season_params)
+			retlnk = crud_return
+			if @season.changed?
+				if @season.save
+					a_desc = "#{Season.msg(:updated)} '#{@season.name}'"
+					register_action(:updated, a_desc, url: path_for(@season, rdx: 2))
+					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :show, status: :created, location: retlnk }
+				else
+					prepare_form("edit")
+					format.html { render :edit }
+					format.json { render json: @season.errors, status: :unprocessable_entity }
+				end
+			else
+				format.html { redirect_to retlnk, notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { render :show, status: :unprocessable_entity, location: retlnk }
+			end
+		end
+	end
+
+	# DELETE /seasons/1
+	# DELETE /seasons/1.json
+	def destroy
+		@policy = check_policy!(SeasonPolicy, record: @season)
+
+		s_name = @season.name
+		@season.destroy
+		respond_to do |format|
+			a_desc = "#{Season.msg(:deleted)} '#{s_name}'"
+			register_action(:deleted, a_desc)
+			format.html { redirect_to crud_return, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
+		end
+	end
+
+	private
+		def check_locations
+			param_passed(:season, :locations_attributes)&.each do |loc|
+				if loc[1][:_destroy] == "1"
+					@season.locations.delete(loc[1][:id].to_i)
+				else
+					l = Location.find(loc[1][:id].to_i)
+					@season.locations ? @season.locations << l : @season.locations |= l
+				end
+			end
+		end
+
+		# wrapper to set return link for CRUD operations
+		def crud_return
+			seasons_path(rdx: @rdx)
+		end
+
+		def set_season
+			s_id = params[:id].presence || params[:season_id].presence
+			@season = Season.search(s_id) unless @season&.id==s_id&.to_i
+		end
+
+		# prepare fields for new/edit season
+		def prepare_form(action)
+			@fields = create_fields(helpers.season_form(title: I18n.t("season.#{action}")))
+			@submit = create_submit
+		end
+
+		# Never trust parameters from the scary internet, only allow the white list through.
+		def season_params
+			params.require(:season).permit(
+				:id,
+				:end_date,
+				:log,
+				:rdx,
+				:start_date,
+				locations_attributes: [
+					:id,
+					:_destroy
+				],
+				locations: [],
+				season_locations: []
+			)
+		end
+end

@@ -1,0 +1,81 @@
+# MudClub - Modular Rails application for managing sports clubs.
+# Copyright (C) 2026  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+# app/models/concerns/kinded.rb
+#
+# Shared interface for models whose `kind` column is backed by a Catalog.
+#
+# The catalog is derived by convention: Document → Catalog::DocumentKinds.
+# Override by defining KIND_CATALOG on the model before including Kinded:
+#
+#   class SomeModel < ApplicationRecord
+#     KIND_CATALOG = Catalog::CustomKinds	# optional
+#     include Kinded
+#   end
+#
+module Kinded
+	extend ActiveSupport::Concern
+
+	included do
+		unless const_defined?(:KIND_CATALOG, false)
+			const_set(:KIND_CATALOG, Catalog.const_get("#{name.demodulize}Kinds"))
+		end
+
+		catalog_klass   = const_get(:KIND_CATALOG)
+		raw_catalog     = catalog_klass.const_get(:CATALOG)
+		enum_definition = raw_catalog.each_with_object({}) do |(key, metadata), hash|
+			enum_key = key.to_s.underscore.to_sym
+
+			if metadata[:alias_of]
+				root_key      = metadata[:alias_of].to_sym
+				root_metadata = raw_catalog[root_key]
+				target_id     = root_metadata[:id] if root_metadata
+			else
+				target_id = metadata[:id]
+			end
+
+			hash[enum_key] = target_id if target_id
+		end
+
+		enum :kind, enum_definition, prefix: true
+
+		scope :of_kind, ->(kind) {
+			return all if kind.blank?
+			where(kind: Array(kind).map(&:to_sym))
+		}
+	end
+
+	class_methods do
+		def kind_catalog					= const_get(:KIND_CATALOG)
+		def kind_label(kind, ...) = kind_catalog.val(kind&.to_sym, ...)
+		def kind_list(...)        = kind_catalog.option_list(...)
+		def kind_options(...)     = kind_catalog.options(...)
+		def kind_image(kind, default: :missing, **rest) = { symbol: kind_catalog.normalize(kind&.to_sym, **rest) || default }
+	end
+
+	# Override in host models (directly or via a concern like PersonBearing) to derive
+	# the default gender for this instance's labels. Return :female, :male, or nil.
+	# nil → catalog falls back to its :default label.
+	def kind_gender     = nil
+
+	def kind_catalog		= self.class.kind_catalog
+	def kind_label(...) = self.class.kind_label(kind, ...)
+	def kind_list(...)	= self.class.kind_list(...)
+	def kind_options(...)     = self.class.kind_catalog.options(...)
+	def kind_image(default: :missing, **rest) = self.class.kind_image(kind, default:, **rest)
+end

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
-	<symbol id="player.default" viewBox="0 0 33.87 33.87">
+	<symbol id="athlete.default" viewBox="0 0 33.87 33.87">
 		<g fill="#000000" stroke="#000000">
 			<circle cx="16.94" cy="14.5" r="6.5" stroke-width="2" />
 			<path
@@ -9,6 +9,9 @@
 				<tspan id="label">X</tspan>
 			</text>
 		</g>
+	</symbol>
+	<symbol id="player.default" viewBox="0 0 33.87 33.87">
+		<use href="#athlete.default" />
 	</symbol>
 	<symbol id="attacker.default" viewBox="0 0 33.87 33.87">
 		<g fill="#ffffff" stroke="#000000">

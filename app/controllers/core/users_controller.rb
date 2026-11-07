@@ -1,0 +1,240 @@
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+# Managament of MudClub server users
+class UsersController < ApplicationController
+	include Filterable
+	before_action :set_user, only: [ :show, :edit, :update, :destroy, :actions, :clear_actions ]
+
+	# GET /users
+	# GET /users.json
+	def index
+		@policy = check_policy!(UserPolicy, club: @club)
+
+		@search = (params[:search].presence || session.dig("user_filters", "search"))
+		@users  = User.search(@search, current_user)
+		page    = paginate(@users)	# paginate results
+		title   = helpers.person_title(title: User.label(:plural), icon: { concept: "user", options: { size: "50x50" } })
+		title  << [ { kind: :search_text, key: :search, value: @search, url: users_path(rdx: @rdx) } ]
+		table   = helpers.user_table(users: @u_page)
+		create_index(title:, table:, page:, retlnk: server_path)
+	end
+
+	# GET /users/1
+	# GET /users/1.json
+	def show
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		@title  = create_fields(helpers.user_show)
+		@roles  = @user.person.memberships.order(joined_on: :desc).order(left_on: :asc)
+		@page   = paginate(@roles, 1.2)	# paginate results
+		@table  = create_table(helpers.membership_history_table(@page))
+		retlnk  = back_link(default: index_path_for(@user, search: @search))
+		submit  = edit_path_for(@user) if @policy.edit?
+		@submit = create_submit(close: :back, retlnk:, submit:, frame: :modal)
+	end
+
+	# GET /users/new
+	def new
+		@policy = check_policy!(UserPolicy, club: @club)
+
+		@user = User.new(locale: current_user.locale)
+		@user.build_person
+		prepare_form(:new)
+	end
+
+	# POST /users.json
+	def create
+		@policy = check_policy!(UserPolicy, club: @club)
+
+		respond_to do |format|
+			if user_params[:password].blank? or user_params[:password_confirmation].blank?
+				params[:user].delete(:password)
+				params[:user].delete(:password_confirmation)
+				render_user_errors(:new, result)
+			else
+				@user  = User.new
+				result = rebuild_or_merge_person(@user, user_params)
+
+				case result[:status]
+				when :ok	# attempt to store
+					if @user.modified? then
+						if @user.email.presence && @user.save
+							@user&.person&.update!(user_id: @user.id)
+							userview = path_for(@user)
+							a_desc   = "#{User.msg(:created)} '#{@user.s_name}'"
+							register_action(:created, a_desc, url: path_for(@user, rdx: 2))
+							format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+							format.json { render :show, status: :created, location: userview }
+						else
+							render_user_errors(:create, result)
+						end
+					else	# no changes to be made
+						notice = (@user.persisted? ? "#{I18n.t("user.no_data")} '#{@user.s_name}'" : @user.errors)
+						format.html { redirect_to users_path(rdx: @rdx), notice: helpers.flash_message(notice), data: { turbo_action: "replace" } }
+						format.json { render :index,  :created, location: }
+					end
+				when :offer_merge
+					handle_object_merge(format, @user, result[:candidates], user_params)
+				else	# invalid data
+					render_user_errors(:new, result)
+				end
+			end
+		end
+	end
+
+	# GET /users/1/edit
+	def edit
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+		prepare_form(:edit)
+	end
+
+	# PATCH/PUT /users/1
+	# PATCH/PUT /users/1.json
+	def update
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		respond_to do |format|
+			if status_only_update?(@user)
+				return apply_status_change(@user, format)
+			else
+				if user_params.key?(:password) && (user_params[:password].blank? or user_params[:password_confirmation].blank?)
+					params[:user].delete(:password)
+					params[:user].delete(:password_confirmation)
+					render_user_errors(:edit, { message: @user.msg(:no_password) })
+				else
+					result = rebuild_or_merge_person(@user, user_params)
+					case result[:status]
+					when :ok	# attempt to store
+						userview = path_for(@user)
+						if @user.modified?
+						if @user.email.presence && @user.save
+							a_desc = "#{User.msg(:updated)} '#{@user.s_name}'"
+							register_action(:updated, a_desc, url: path_for(@user, rdx: 2))
+							format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+							format.json { render :show, status: :ok, location: userview }
+						else
+							render_user_errors(:edit, result)
+						end
+						else	# no changes made
+							format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
+							format.json { render :show, status: :ok, location: userview }
+						end
+					when :offer_merge
+						handle_object_merge(format, @user, result[:candidates], user_params)
+					else	# invalid data
+						render_user_errors(:edit, result)
+					end
+				end
+			end
+		end
+	end
+
+	# DELETE /users/1
+	# DELETE /users/1.json
+	def destroy
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		a_desc = "#{User.msg(:deleted)} ##{@user.id}"
+		retlnk = (@user == current_user) ? root_path : users_path(rdx: @rdx)
+		if @user.destroy
+			respond_to do |format|
+				register_action(:deleted, a_desc)
+				format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+				format.json { head :no_content }
+			end
+		end
+	end
+
+	# modal view of User Action log
+	def actions
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		@title  = create_fields(helpers.user_actions_title)
+		@actions= create_fields(helpers.user_actions_table)
+		@submit = create_submit(submit: helpers.user_actions_clear, frame: :modal)
+	end
+
+	# forget user_actions when reviewed
+	def clear_actions
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		UserAction.clear(@user)
+		respond_to do |format|
+			a_desc = "#{I18n.t("user.cleared")} '#{@user.s_name}'"
+			register_action(:deleted, a_desc)
+			format.html { redirect_to path_for(@user), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
+		end
+	end
+
+	private
+		# Prepare user form
+		def prepare_form(action)
+			title     = User.act(action == :new ? :create : action)
+			@header   = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
+			@role     = create_fields(helpers.user_form_role)
+			@p_fields = create_fields(helpers.person_form_fields(@user.person, mandatory_email: true))
+			@k_fields = create_fields(helpers.user_form_pass) if action == :create
+			@submit = create_submit
+		end
+
+		def render_user_errors(action, format, result)
+			prepare_form(action)
+			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
+			format.json { render json: @user.errors, status: :unprocessable_entity }
+		end
+
+		# Use callbacks to share common setup or constraints between actions.
+		def set_user
+			@user   = (User.find_by_id(params[:id]) unless @user&.id==params[:id]) || current_user
+			@rdx    = 1 if @user&.id.to_i == current_user&.id
+			@search = params[:search].presence || session.dig("user_filters", "search")
+		end
+
+		# Never trust parameters from the scary internet, only allow the white list through.
+		def user_params
+			@user_params ||= params.require(:user).permit(
+				:id,
+				:avatar,
+				:club_id,
+				:email,
+				:locale,
+				:rdx,
+				:role,
+				:password,
+				:password_confirmation,
+				:person_id,
+				:person_merge,
+				person_attributes: [
+					:address,
+					:avatar,
+					:id,
+					:dni,
+					:nick,
+					:name,
+					:surname,
+					:birthday,
+					:female,
+					:email,
+					:phone,
+					:user_id
+				]
+			)
+		end
+end

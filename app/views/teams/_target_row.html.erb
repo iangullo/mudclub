@@ -2,7 +2,7 @@
 <%= form.hidden_field :priority %>
 <%= form.hidden_field :month %>
 <%= form.fields_for :target do |f| %>
-	<%= f.text_field :concept, placeholder: t("target.default"), size: 20, class: f_cls +" px-1" %>
+	<%= f.text_field :concept, placeholder: Target.val(:default), size: 20, class: f_cls +" px-1" %>
 	<%= f.hidden_field :focus %>
 	<%= f.hidden_field :aspect %>
 <% end %>

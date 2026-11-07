@@ -9,5 +9,9 @@
 
 	<body>
 		<%= yield %>
-	</body>
+		<% if @signature&.present? %>
+			<hr style="border: none; border-top: 1px solid #ccc; margin: 20px 0;">
+			<p style="color: #666; font-size: 0.9em; white-space: pre-line;"><%= @signature %></p>
+		<% end %>
+  	</body>
 </html>

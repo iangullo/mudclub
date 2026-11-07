@@ -5,9 +5,8 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1">
 		<%= csrf_meta_tags %>
 		<%= csp_meta_tag %>
-		<%= stylesheet_link_tag "trix", "actiontext", "application", "data-turbo-track": "reload" %>
+		<%= stylesheet_link_tag "tailwind", "trix", "actiontext", "application", "data-turbo-track": "reload" %>
 		<%= javascript_importmap_tags %>
-		<link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
 		<%= favicon_link_tag asset_path(@favicon), type: "image/svg" %>
 	</head>
 
@@ -35,7 +34,7 @@
 		<footer class="flex-none sticky bottom-0 bg-white border-t border-gray-300">
 		  <div class="max-w-7xl mx-auto">
 			<div class="text-center text-xs text-gray-500">
-				<a href="<%= home_about_path %>" data-turbo-frame= "modal"><%= "#{home_about_version} © iangullo (#{Time.current.year})" %></a>
+				<a href="<%= about_server_path %>" data-turbo-frame= "modal"><%= "#{server_about_version} © iangullo (#{Time.current.year})" %></a>
 			</div>
 		  </div>
 		</footer>

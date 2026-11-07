@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -26,13 +26,15 @@ class ModalPieComponent < ApplicationComponent
 	def initialize(header:, chart: {})
 		@pie_header  = header
 		@chart_title = chart[:title]
-		@chart_data  = chart[:data]
+		@chart_data  = chart[:data] || {}
 	end
 
-	def call	# render as HTML
+	def call
+		header_html = render(FieldsComponent.new(@pie_header))
+		chart_html  = pie_chart(@chart_data, title: @chart_title, legend: "bottom")
+
 		render ModalComponent.new(simple: true) do
-			render FieldsComponent.new(@pie_header)
-			pie_chart(@chart_data, title: @chart_title, legend: "bottom")
+			safe_join([ header_html, chart_html ])
 		end
 	end
 end

@@ -1,9 +1,4 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  active: false
-  person: one
-
-two:
-  active: false
-  person: two
+# test/fixtures/coaches.yml
+alice_coach:
+  person_id: <%= ActiveRecord::FixtureSet.identify(:alice, :people) %>
+  club_id: <%= ActiveRecord::FixtureSet.identify(:north, :clubs) %>

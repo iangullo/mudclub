@@ -1,7 +1,7 @@
-<% if @event.rest? %>
+<% if @event.kind_holiday? %>
 	<%= render ModalComponent.new do %>
 		<%= render 'form', event: @event, title: @event.title %>
 	<% end %>
 <% else %>
-	<%= render 'form', event: @event, title:  @event.train? ? @event.title : @event.team.to_s %>
+	<%= render 'form', event: @event, title:  @event.kind_training? ? @event.title : @event.team.to_s %>
 <% end %>

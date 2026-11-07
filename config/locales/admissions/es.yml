@@ -1,0 +1,188 @@
+# config/locales/participation/en.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Admissions domain
+#
+# Canonical translations for Admission workflows and their catalogs.
+# -----------------------------------------------------------------------------
+
+es:
+  admissions:
+    label: Inscripciones
+    short: Inscrip.
+
+    registration:
+      label:
+        single: Solicitud
+        plural: Solicitudes
+        short: Sol.
+      actions:
+        create: Solicitar plaza
+        create_short: Solicitar
+        show: Solicitud
+        show_short: Sol.
+        edit: Editar solicitud
+        edit_short: Editar
+        save_draft: Guardar borrador
+        save_draft_short: Guardar
+        send_for_review: Presentar solicitud
+        send_for_review_short: Presentar
+        review: Revisar solicitud
+        review_short: Revisar
+        request_information: Pedir información
+        request_information_short: Pedir
+        approve: Aprobar solicitud
+        approve_short: Aprobar
+        cancel: Cancelar solicitud
+        cancel_short: Cancelar
+        reject: Rechazar solicitud
+        reject_short: Rechazar
+        archive: Archivar solicitud
+        archive_short: Archivar
+        my_registrations_signed: Mis solicitudes
+        my_registrations_anonymous: Solicitudes en este navegador
+      fields:
+        kind: Tipo
+        candidate: Candidato/a
+        different_requester: Solicitud presentada por otra persona
+        requester: Autor
+        reviewer: Revisor
+        status: Estado
+        reason: Motivo
+        remarks: Comentarios
+        created: Fecha
+      messages:
+        created: Solicitud creada.
+        draft_saved: Borrador guardado.
+        no_change: Sin cambios en la solicitud.
+        no_reason_given: Sin motivo explícito.
+        sent_for_review: Solicitud presentada.
+        cancelled: Solicitud cancelada.
+        reviewed: Solicitud revisada.
+        approved: Solicitud aprobada.
+        rejected: Solicitud rechazada.
+        already_processed: Solicitud ya procesada.
+        my_registrations_empty: No hemos encontrado solicitudes en este navegador.
+        my_registrations_empty_hint: Si has enviado una desde otro dispositivo, usa el enlace del email de confirmación.
+        my_registrations_unavailable: No disponible
+      questions:
+        send_for_review: ¿Enviar solicitud?
+        request_information: ¿Pedir más información?
+        cancel: ¿Cancelar solicitud? Esta acción no puede deshacerse.
+        approve: ¿Aprobar solicitud?
+        reject: ¿Rechazar solicitud? Esta acción no puede deshacerse.
+        review: ¿Revisar solicitud?
+      values:
+        locked: Inscripciones cerradas
+        locked_short: Cerrado
+        unlocked: Inscripciones abiertas
+        unlocked_short: Abierto
+
+    registration_kinds:
+      label:
+        single: Tipo de Solicitud
+        short: Tipo
+      values:
+        athlete:
+          single: Deportista
+          plural: Deportistas
+          short: Dep.
+          hint: Desea participar como deportista.
+        coach:
+          single: Entrenador
+          female: Entrenadora
+          plural: Entrenadores
+          plural_female: Entrenadoras
+          short: Ent.
+          hint: Desea participar como entrenador.
+        volunteer:
+          single: Voluntario
+          female: Voluntaria
+          plural: Voluntarios
+          plural_female: Voluntarias
+          short: Vol.
+          hint: Desea participar como voluntario.
+        board_member:
+          single: Directivo
+          female: Directiva
+          plural: Junta Directiva
+          short: J.D.
+          hint: Desea participar como miembro de la directiva.
+        club_manager:
+          single: Gestor del Club
+          female: Gestora del Club
+          plural: Gestores del Club
+          short: Ges.
+          hint: Desea participar como gestor del club.
+        user:
+          single: Usuario
+          female: Usuaria
+          plural: Usuarios
+          short: Us.
+          hint: Desea participar como usuario/a.
+
+    registration_message:
+      label:
+        single: Mensaje
+        plural: Mensajes
+        short: Msg.
+      actions:
+        edit: Editar mensaje
+        edit_short: Editar
+        send: Enviar mensaje
+        send_short: Enviar
+        delete: Borrar mensaje
+        delete_short: Borrar
+      fields:
+        sent: Enviado
+        sent_short: Enviado
+        author: Autor
+        author_short: Aut.
+        body: Contenido
+        body_short: Cont.
+      messages:
+        updated: Mensaje actualizado.
+        sent: Mensaje enviado.
+        deleted: Mensaje borrado.
+
+    registration_statuses:
+      label:
+        single: Estado
+        short: Est.
+      values:
+        draft:
+          single: Borrador
+          plural: Borradores
+          short: Borrador
+          hint: Borrador de solicitud.
+        submitted:
+          single: Presentada
+          plural: Presentada
+          short: Present.
+          hint: La solicitud se ha presentado para su revisión.
+        under_review:
+          single: Revisando
+          plural: Revisando
+          short: Revisando
+          hint: La solicitud se está revisando.
+        awaiting_requester:
+          single: Esperando
+          plural: Esperando
+          short: Esperando
+          hint: La solicitud está pendiente de información.
+        cancelled:
+          single: Cancelada
+          plural: Canceladas
+          short: Cancelada
+          hint: La solicitud se ha cancelado.
+        approved:
+          single: Aprobada
+          plural: Aprobadas
+          short: Aprobada
+          hint: La solicitud ha sido aprobada.
+        rejected:
+          single: Rechazada
+          plural: Rechazadas
+          short: Rechazada
+          hint: La solicitud ha sido rechazada.

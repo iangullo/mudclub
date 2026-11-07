@@ -1,0 +1,256 @@
+# MudClub - Modular Rails application for managing sports clubs.
+# Copyright (C) 2026  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+# Participatory
+#
+# Group common definitions & methods for Membership/Assignment
+#
+module Participatory
+	extend ActiveSupport::Concern
+
+	included do
+		enum :status, {
+			pending: 0,
+			active: 1,
+			suspended: 2,
+			terminated: 3,
+			archived: 4
+		}, prefix: true
+
+		scope :current, -> { where(status: [ :active, :suspended ]) }
+		scope :terminated, -> { where(status: :terminated) }
+		scope :archived, -> { where(status: :archived) }
+	end
+
+	STATUS_TRANSITIONS = {
+		pending:    %i[active],
+		active:     %i[suspended terminated],
+		suspended:  %i[active terminated],
+		terminated: %i[active suspended archived],
+		archived:   []
+	}.freeze
+
+	STATUS_ACTIONS = {
+		pending:    %i[activate],
+		active:     %i[suspend terminate],
+		suspended:  %i[reinstate terminate],
+		terminated: %i[archive_and_anonymize],
+		archived:   []
+	}.freeze
+
+	# Maps target status → the transition method that reaches it.
+	# Dispatch lives with the domain — ApplicationController just asks.
+	TRANSITION_METHODS = {
+		active:     :activate!,
+		suspended:  :suspend!,
+		terminated: :terminate!,
+		archived:   :archive_and_anonymize!
+	}.freeze
+
+	#------------------------------------
+	# Status flag polling methods
+	#------------------------------------
+	def active?
+		status.to_sym == :active
+	end
+
+	def active_on?(date)
+		return false if ends_on && ends_on < date
+		return false if starts_on && starts_on > date
+		true
+	end
+
+	def current?
+		starts_on.present? &&
+			starts_on <= Date.current &&
+			(ends_on.nil? || ends_on >= Date.current) &&
+			active?
+	end
+
+	def open?
+		ends_on.nil?
+	end
+
+	def started?
+		starts_on.present?
+	end
+
+	def suspended?
+		status.to_sym == :suspended
+	end
+
+	def terminated?
+		status.to_sym == :terminated
+	end
+
+	#------------------------------------
+	# Participation UI field methods
+	#------------------------------------
+	def duration
+		return nil unless starts_on
+
+		(ends_on || Date.current) - starts_on
+	end
+
+	def date_range
+		"#{starts_on} – #{ends_on || I18n.t('shared.statuses.active')}"
+	end
+
+	# personal photo or kind symbol
+	def picture
+		return avatar if avatar&.attached?
+		return person.avatar if person&.avatar&.attached?
+
+		# if no attached avatar, return the symbol name
+		# to be rendered as: symbol_item(symbol)
+		kind_image(default: :person)
+	end
+
+	# prepare
+	def prepare_rebuild(attrs)
+		# --- associated persons data ---
+		resolution = prepare_person(attrs)
+		resolution unless resolution.ok?	# return ambiguous or conflicts
+
+		self.kind   = attrs[:kind]   if attrs.key?(:kind)
+		self.status = attrs[:status] if attrs.key?(:status)
+		self.notes  = attrs[:notes]  if attrs.key?(:notes)
+		self.update_attachment("avatar", attrs[:avatar]) if attrs[:avatar].present?
+
+		resolution
+	end
+
+	def status_label(variant = nil)
+		self.class.status_string(self.status, variant)
+	end
+
+	def status_list(variant = nil)
+		[ [ status_label, status ] ] +
+		available_statuses.map do |st|
+			[ self.class.status_string(st, variant), st ]
+		end
+	end
+
+	class_methods do
+		def status_options(include_blank: false, variant: :plural)
+			options = statuses.keys.map do |status|
+				[ status_string(status, variant), status ]
+			end
+
+			include_blank ? [ [ "", nil ] ] + options : options
+		end
+
+		def status_string(status, variant = nil)
+			key  = "shared.statuses.#{status}"
+			key += "_#{variant}" if variant
+			I18n.t(key)
+		end
+	end
+
+	#------------------------------------
+	# Status transition methods
+	#------------------------------------
+	def activate!(date = Date.current)
+		transition_to!(:active, :activate, date)
+	end
+
+	def archive_and_anonymize!(date = Date.current)
+		return false unless can_transition_to?(:archived)
+
+		transaction do
+			# 1. Complete the state engine transition to :archived
+			transition_success = transition_to!(:archived, :archive, date)
+			raise ActiveRecord::RecordInvalid, self unless transition_success
+
+			# 2. Trigger the underlying data-scrubbing pipeline from PersonBearing
+			# This safely sweeps up linked attachments, settings JSONBs, and Person fields
+			anonymize_person! if respond_to?(:anonymize_person!)
+		end
+		true
+	end
+
+	def reinstate!(date = Date.current)
+		transition_to!(:active, :reinstate, date)
+	end
+
+	def suspend!(date = Date.current)
+		transition_to!(:suspended, :suspend, date)
+	end
+
+	def terminate!(date = Date.current)
+		transition_to!(:terminated, :terminate, date)
+	end
+
+	def transition_method_for(target)
+		TRANSITION_METHODS[target.to_sym]
+	end
+
+	private
+		# Record status change date
+		def apply_transition_date(action, date)
+			case action
+			when :activate, :reinstate
+				self.starts_on ||= date
+				self.ends_on = nil
+			when :terminate
+				self.ends_on = date
+			when :archive
+				# Lock down the terminal timeline boundary
+				self.ends_on ||= date
+			end
+		end
+
+		# Status transition condition check
+		def available_statuses
+			STATUS_TRANSITIONS.fetch(status.to_sym, [])
+		end
+
+		# Determine if record can move to a specific status
+		def can_transition_to?(target_status)
+			available_statuses.include?(target_status.to_sym)
+		end
+
+		# Member/Assignment notifications
+		def notify_status_change(_action)
+			# TODO
+		end
+
+		# Audit recording
+		def record_status_change(_action, from:, to:)
+			# TODO
+		end
+
+		# Unified state transition method
+		def transition_to!(target_status, action, date = Date.current)
+			return true if status.to_sym == target_status
+			return false unless can_transition_to?(target_status)
+
+			transaction do
+				old_status  = status.to_sym
+				self.status = target_status
+				apply_transition_date(action, date)
+
+				save!
+
+				record_status_change(action, from: old_status, to: target_status)
+				notify_status_change(action)
+			end
+
+			true
+		end
+end

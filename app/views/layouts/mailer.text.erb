@@ -1,1 +1,5 @@
 <%= yield %>
+<% if @signature&.present? %>
+--
+<%= @signature %>
+<% end %>

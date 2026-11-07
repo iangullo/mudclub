@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -26,20 +26,23 @@
 #			row: path to partial for each element to be rendered
 #			order: attribute to order by the nested elements.
 class SortableComponent < ApplicationComponent
-	def initialize(form:, key:, order: :position, row:)
-		@form     = form
-		@key      = key.to_sym
-		@row      = row
-		@order    = order
+	def initialize(form:, key:, order: :position, row:, id: nil)
+		@form  = form
+		@key   = key.to_sym
+		@row   = row
+		@order = order
+		@id    = id || "sortable-#{@key}"
 	end
 
 	# generate html as a ruby call
 	def call
 		t_cls   = "draggable bg-gray-100 text-left text-gray-700 rounded-md hover:bg-gray-500 hover:text-indigo-100 focus:bg-indigo-900 focus:text-gray-200 focus:ring-blue-900"
 		c_style = "display: grid; grid-template-columns: 1fr;"
-		content_tag(:turbo_frame, id: "sortable-list", class: "contents") do
-			content_tag(:div, data: { controller: "sortable", "sortable-animation-value": 150}, style: c_style) do
-				@form.fields_for(@key, @form.object.send(@key).order(@order)) do |ff|
+		turbo_frame_tag(@id, class: "contents") do
+			content_tag(:div, data: { controller: "sortable", "sortable-animation-value": 150 }, style: c_style) do
+				children = @form.object.public_send(@key)
+				children = children.order(@order) if @form.object.persisted? && children.respond_to?(:order)
+				@form.fields_for(@key, children) do |ff|
 					content_tag(:div, class: t_cls) do
 						concat ff.hidden_field(:id)
 						concat ff.hidden_field(:_destroy)
@@ -49,5 +52,9 @@ class SortableComponent < ApplicationComponent
 				end
 			end
 		end
+	end
+
+	def render?
+		@form.present? && @form.object.present?
 	end
 end

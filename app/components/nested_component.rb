@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -41,27 +41,42 @@ class NestedComponent < ApplicationComponent
 		@btn_add = ButtonComponent.new(kind: :add_nested)
 	end
 
+	def render?
+		@form.present?
+	end
+
 	private
+		# Build the placeholder child for the NEW_RECORD template. If :child
+		# is a lambda, it runs on each render so every refresh starts with a
+		# fresh object. If it's an instance, that instance is reused.
+		def build_child
+			@child.respond_to?(:call) ? @child.call : @child
+		end
+
 		# filter collection of objects using filter hash
 		def normalize_filter(filter)
 			filter.is_a?(Hash) ? filter : nil
 		end
 
 		def get_children
-			return nil unless @form
+			return [] unless @form
 
-			children = @form.object.send(@key)
+			children = @form.object.public_send(@key)
 			children = children.order(@order) if @order
-			children = children.select do |child|
-				@filter.nil? || @filter.all? { |k, v| child.send(k) == v }
+
+			if @filter
+				children = children.select do |child|
+					@filter.all? { |k, v| child.public_send(k) == v }
+				end
 			end
+
 			children
 		end
 
 		# prepare the placeholder template
 		def prepare_template
 			view_context.capture do
-				@form.fields_for @key, @child, child_index: "NEW_RECORD" do |ff|
+				@form.fields_for @key, build_child, child_index: "NEW_RECORD" do |ff|
 					render_row(ff)
 				end
 			end
@@ -69,7 +84,9 @@ class NestedComponent < ApplicationComponent
 
 		def prepare_collection
 			view_context.capture do
-				@form.fields_for @key, get_children do |ff|
+				children = get_children
+
+				@form.fields_for @key, children do |ff|
 					render_row(ff)
 				end
 			end
@@ -80,7 +97,7 @@ class NestedComponent < ApplicationComponent
 			view_context.content_tag(:div, class: "flex w-full items-center", data: { nested_form_target: "item", new_record: ff.object.new_record? }) do
 				view_context.safe_join([
 					render(@row, form: ff),
-					render(@btn_del),
+					render(@btn_del.dup),
 					ff.hidden_field(:id),
 					ff.hidden_field(:_destroy)
 				])

@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published by
@@ -39,11 +39,15 @@ gem "tailwindcss-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
+# Rails 8.0.5.1 / ActiveSupport JSON compatibility.
+# TODO: Remove once upstream supports json 3.x.
+gem "json", "~> 2.11"
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ mswin mswin64 jruby ]
+gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -53,7 +57,8 @@ gem "thruster", require: false
 
 group :development, :test do
 	# See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-	gem "debug", platforms: %i[ mri mswin mswin64 ], require: "debug/prelude"
+	gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
+	gem "minitest"   # ← añadir
 
 	# Static analysis for security vulnerabilities [https://brakemanscanner.org/]
 	gem "brakeman", require: false
@@ -65,7 +70,13 @@ end
 group :development do
 	# Use console on exceptions pages [https://github.com/rails/web-console]
 	gem "web-console"
+	gem "letter_opener_web"
 end
+
+group :test do
+	gem "capybara"
+end
+
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 1.2"
@@ -104,3 +115,6 @@ gem "ostruct"
 gem "prawn"
 gem "prawn-html"
 gem "prawn-table"
+
+# Modern Solid gems
+gem "solid_cache"

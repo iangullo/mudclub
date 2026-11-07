@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -16,21 +16,20 @@
 #
 # contact email - iangullo@gmail.com.
 #
+# TODO: ADAPT MODEL & CONTROLLER to 2.x membhership-driven domain
 module DrillsHelper
 	# return title FieldComponent definition for edit/new
 	def drill_form_data
 		[
-			[
-				{ kind: :label, value: I18n.t("target.many"), align: "right" }
-			],
+			[ label_item(Target.label(:plural), align: :right) ],
 			[
 				{ kind: :nested_form, model: "drill", key: "drill_targets", child: DrillTarget.new(priority: @drill.drill_targets.count+1), row: "target_row", cols: 2 }
 			],
 			[
-				{ kind: :text_box, key: :material, size: 40, value: @drill.material, label: I18n.t("drill.material") }
+				{ kind: :text_box, key: :material, size: 40, value: @drill.material, label: @drill.fld(:material) }
 			],
 			[
-				{ kind: :text_area, key: :description, size: 40, lines: 2, value: @drill.description, mandatory: { length: 7 }, label:  I18n.t("drill.desc_a") }
+				{ kind: :text_area, key: :description, size: 40, lines: 2, value: @drill.description, mandatory: { length: 7 }, label:  @drill.fld(:description_short) }
 			]
 		]
 	end
@@ -46,11 +45,11 @@ module DrillsHelper
 			if step.diagram.attached?
 				InputBoxComponent.new({ kind: :image_box, value: step.diagram, width: "250", height: "250" }, form:)
 			elsif step.diagram_svg.present?
-				ButtonComponent.new(kind: :edit, url: edit_diagram_drill_path(step_id: step&.id&.to_i, order: step&.order&.to_i), title: I18n.t("step.edit_diagram"), label: "", size: "50x50", i_class: "max-h-10 max-w-10 m-1")
+				ButtonComponent.new(kind: :edit, url: path_for(@drill, action: :edit_diagram, step_id: step&.id&.to_i, order: step&.order&.to_i), title: Step.act(:edit_diagram), label: "", size: "50x50", i_class: "max-h-10 max-w-10 m-1")
 			else
 				button = { kind: :add, name: "add-diagram", options: [] }
-				button[:options] << { label: I18n.t("sport.edit.diagram"), url: edit_diagram_drill_path(id: @drill.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: { turbo_frame: :modal } }
-				button[:options] << { label: I18n.t("status.no_file"), url: load_diagram_drill_path(id: @drill.id.to_i, step_id: step&.id&.to_i, order: step&.order&.to_i, rdx: @rdx), data: { turbo_frame: :modal } }
+				button[:options] << { label: Step.act(:edit_diagram), url: path_for(@drill, action: :edit_diagram, step_id: step&.id&.to_i, order: step&.order&.to_i), data: { turbo_frame: :modal } }
+				button[:options] << { label: I18n.t("status.no_file"), url: path_for(@drill, action: :load_diagram, step_id: step&.id&.to_i, order: step&.order&.to_i), data: { turbo_frame: :modal } }
 				DropdownComponent.new(button)
 			end
 		else
@@ -65,20 +64,20 @@ module DrillsHelper
 
 	# returng FieldComponent to edit drill explanation
 	def drill_form_explain
-		[ [ { kind: :rich_text_area, key: :step_explanation, align: "left" } ] ]
+		[ [ { kind: :rich_text_area, key: :step_explanation, align: :left } ] ]
 	end
 
 	# return title FieldComponent definition for edit/new
 	def drill_form_playbook(playbook:)
-		[ [ { kind: :upload, symbol: drill_symbol("drill", variant: "playbook", size: "20x20"), label: "Playbook", key: :playbook, value: playbook.filename } ] ]
+		[ [ upload_button(:playbook, "Playbook", playbook.filename, symbol: drill_symbol(variant: "playbook", size: "20x20")) ] ]
 	end
 
 	# return title FieldComponent definition for drill steps form
 	def drill_form_steps
 		res = [
-			[ { kind: :label, value: I18n.t("step.many") } ],
+			[ label_item(Step.label(:plural)) ],
 			[
-				{ kind: :nested_form, model: "drill", key: "steps", child: Step.new(drill_id: @drill.id), row: "step_row" }
+				{ kind: :nested_form, model: "drill", key: :steps, child: Step.new(drill_id: @drill.id), row: "step_row" }
 			]
 		]
 		res
@@ -86,24 +85,27 @@ module DrillsHelper
 
 	# return title FieldComponent definition for edit/new
 	def drill_form_tail
-		coaches = (u_admin? ? Coach.real : (u_manager? ? u_club.coaches : [ current_user.coach ]))
-		author  = (@drill.coach_id.to_i > 0 ? @drill.coach_id : (u_coachid || coaches.first))
+		author  = @drill&.author || u_person
+		authors = (@policy.create? ? u_club&.coach_list : [])
+		auth_in = authors.pluck(:id).include?(author.id)
+		authors << { id: author.id, name: author.s_name } unless auth_in
+
 		res = [
 			[
-				{ kind: :label, value: "#{I18n.t('skill.many')}:" },
-				gap_field,
-				{ kind: :label, value: "#{I18n.t('drill.author')}:" }
+				label_item("#{Skill.label(:plural)}:"),
+				gap_item,
+				label_item("#{Drill.fld(:author)}:")
 			],
 			[
-				{ kind: :nested_form, model: "drill", key: "skills", child: Skill.new, row: "skill_row" },
-				gap_field
+				{ kind: :nested_form, model: "drill", key: :skills, child: Skill.new, row: "skill_row" },
+				gap_item
 			]
 		]
-		if coaches.size > 1
-			res.first << { kind: :select_collection, key: :coach_id, options: coaches, value: author }
+		if auth_in && authors.size > 1
+			res.first << { kind: :select_collection, key: :author_id, options: authors, value: author.id }
 		else
-			res.first << { kind: :text, value: coaches.first.name, class: "ml-2" }
-			res.first << { kind: :hidden, key: :coach_id, value: coaches.first.id }
+			res.first << { kind: :text, value: author.s_name, class: "ml-2" }
+			res.first << hidden_input(:author_id, author.id)
 		end
 		res
 	end
@@ -111,12 +113,12 @@ module DrillsHelper
 	# return title FieldComponent definition for edit/new
 	def drill_form_title(title:)
 		res = drill_title(title:)
-		res << [ { kind: :text_box, key: :name, placeholder: I18n.t("drill.default"), value: @drill.name, mandatory: { length: 3 }, cols: 3 } ]
+		res << [ { kind: :text_box, key: :name, placeholder: Drill.val(:default), value: @drill.name, mandatory: { length: 3 }, size: 31, cols: 3 } ]
 		res << [
-			gap_field,
-			{ kind: :text_box, key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: I18n.t("kind.default"), mandatory: { length: 3 } },
-			gap_field(size: 2),
-			{ kind: :select_box, align: "left", key: :court_mode, options: drill_court_list, value: @drill.court_mode }
+			gap_item,
+			{ kind: :text_box, key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: Kind.val(:default), mandatory: { length: 3 } },
+			gap_item(2),
+			{ kind: :select_box, key: :court_mode, options: drill_court_list, value: @drill.court_mode }
 		]
 	end
 
@@ -124,17 +126,17 @@ module DrillsHelper
 	def drill_table(drills: @drills)
 		track = { s_url: drills_path(rdx: @rdx), s_filter: "drill_filters" }
 		title = [
-			{ kind: :normal, value: I18n.t("kind.single"), align: "center", sort: (session.dig("drill_filters", "kind_id") == "kind_id"), order_by: "kind_id" },
-			{ kind: :normal, value: I18n.t("season.abbr"), sort: (session.dig("drill_filters", "season_id") == "season_id") },
-			{ kind: :normal, value: I18n.t("drill.name"), sort: (session.dig("drill_filters", "name") == "name"), order_by: "name" }
+			{ kind: :normal, value: Drill.fld(:kind, :short), align: "center", sort: (session.dig("drill_filters", "kind_id") == "kind_id"), order_by: "kind_id" },
+			{ kind: :normal, value: Season.label(:short), sort: (session.dig("drill_filters", "season_id") == "season_id") },
+			{ kind: :normal, value: Drill.fld(:name), sort: (session.dig("drill_filters", "name") == "name"), order_by: "name" }
 		]
 		title += [
-			{ kind: :normal, value: I18n.t("drill.author"), align: "center", sort: (session.dig("drill_filters", "coach_id") == "coach_id"), order_by: "coach_id" },
-			{ kind: :normal, value: I18n.t("target.many") }
-				# {kind: :normal, value: I18n.t("task.many")}
+			{ kind: :normal, value: Drill.fld(:author), align: "center", sort: (session.dig("drill_filters", "author_id") == "author_id"), order_by: "author_id" },
+			{ kind: :normal, value: Target.label(:plural) }
+			# {kind: :normal, value: Task.label(:plural)}
 		] unless device=="mobile"
 
-		title << button_field({ kind: :add, url: new_drill_path(rdx: @rdx), frame: "_top" }) if u_manager? || u_coach?
+		title << normal_button({ kind: :add, url: new_drill_path(rdx: @rdx), frame: "_top" }) if @policy.new?
 
 		{ track:, title:, rows: drill_rows(drills:) }
 	end
@@ -149,7 +151,7 @@ module DrillsHelper
 			{ kind: :search_text, key: :name, placeholder: I18n.t("drill.name"), value: session.dig("drill_filters", "name"), size: 10 },
 			{ kind: :search_text, key: :skill, placeholder: I18n.t("skill.single"), size: 14, value: session.dig("drill_filters", "skill") }
 		]
-		fields << { kind: :hidden, key: :task_id, value: task_id } if task_id
+		fields << hidden_input(:task_id, task_id) if task_id
 		[ { kind: :search_box, url: search_in, fields: fields, cols: } ]
 	end
 
@@ -157,7 +159,7 @@ module DrillsHelper
 	def drill_show_title(title: I18n.t("drill.single"))
 		res = drill_title(title:, subtitle: "#{@drill.kind.name} - #{@drill.court_name}")
 		if @drill.playbook.attached?
-			res.first << button_field({
+			res.first << normal_button({
 				kind: :link,
 				align: "right",
 				symbol: drill_symbol("drill", variant: "playbook", size: "20x20"),
@@ -165,7 +167,7 @@ module DrillsHelper
 				label: "Playbook"
 			})
 		end
-		res.last << pdf_button(drill_path(@drill, format: :pdf))
+		res.last << pdf_button(path_for(@drill, format: :pdf))
 		res
 	end
 
@@ -173,16 +175,16 @@ module DrillsHelper
 	def drill_show_intro
 		res  = [
 			[
-				{ kind: :label, value: I18n.t("target.many") },
+				label_item(Target.label(:plural)),
 				{ kind: :lines, class: "align-top", value: @drill.drill_targets }
 			]
 		]
 		res << [
-			{ kind: :label, value: I18n.t("drill.material") },
+			label_item(Drill.fld(:material)),
 			{ kind: :string, value: @drill.material }
 		]
 		res << [
-			{ kind: :label, value: I18n.t("drill.desc_a") },
+			label_item(Drill.fld(:description_short)),
 			{ kind: :string, value: @drill.description }
 		]
 	end
@@ -204,13 +206,13 @@ module DrillsHelper
 	def drill_show_tail
 		res = [
 			[
-				{ kind: :label, value: I18n.t("skill.abbr") },
+				label_item(Skill.label(:short)),
 				{ kind: :string, value: @drill.print_skills }
 			]
 		]
-		if @drill.versions.size > 1 and u_manager?
-			res.last << gap_field(rows: 2)
-			res.last << button_field(
+		if @drill.versions.size > 1 and @policy.edit?
+			res.last << gap_item(rows: 2)
+			res.last << normal_button(
 				{
 					kind: :link,
 					symbol: drill_symbol(variant: "versions"),
@@ -222,8 +224,8 @@ module DrillsHelper
 			)
 		end
 		res << [
-			{ kind: :label, value: I18n.t("drill.author") },
-			{ kind: :string, value: @drill.coach.s_name }
+			label_item(Drill.fld(:author)),
+			{ kind: :string, value: @drill.author.s_name }
 		]
 	end
 
@@ -240,16 +242,16 @@ module DrillsHelper
 	# create table for drill versions
 	def drill_versions_table
 		res = [ [
-			topcell_field(I18n.t("calendar.date")),
-			topcell_field(I18n.t("drill.author")),
-			topcell_field(I18n.t("version.changes.many"))
+			topcell_item(I18n.t("calendar.date")),
+			topcell_item(Drill.fld(:author)),
+			topcell_item(I18n.t("version.changes.many"))
 		] ]
 		@drill.versions.each { |d_ver|
 			v_user = User.find_by(id: d_ver.whodunnit)
 			res << [
-				{ kind: :string, value: d_ver.created_at.localtime.strftime("%Y/%m/%d %H:%M"), align: "center", class: "border px py" },
-				{ kind: :string, value: v_user ? v_user.s_name : "", align: "center", class: "border px py" },
-				{ kind: :string, value: version_changes(d_ver), class: "border px py" }
+				{ kind: :string, value: d_ver.created_at.localtime.strftime("%Y/%m/%d %H:%M"), align: "center", class: "border px-1 py-1" },
+				{ kind: :string, value: v_user ? v_user.s_name : "", align: "center", class: "border px-1 py-1" },
+				{ kind: :string, value: version_changes(d_ver), class: "border px-1 py-1" }
 			]
 		}
 		res
@@ -260,7 +262,7 @@ module DrillsHelper
 		def drill_rows(drills:)
 			rows = Array.new
 			drills.each { |drill|
-				row = { url: drill_path(drill, rdx: @rdx), items: [] }
+				row = { url: path_for(drill), items: [] }
 				row[:items] << { kind: :normal, value: drill.kind.name, align: "center" }
 				row[:items] << { kind: :normal, value: drill.season_string }
 				row[:items] << { kind: :normal, value: drill.name }
@@ -269,7 +271,7 @@ module DrillsHelper
 					row[:items] << { kind: :lines, value: drill.print_targets }
 				end
 				# row[:items] << {kind: :normal, value: Task.where(drill_id: drill.id).count, align: "center"}
-				row[:items] << button_field({ kind: :delete, url: row[:url], name: drill.name }) if u_admin?
+				row[:items] << normal_button({ kind: :delete, url: row[:url], name: drill.name }) if @policy.destroy?
 				rows << row
 			}
 			rows
@@ -277,12 +279,10 @@ module DrillsHelper
 
 		# list of possible court types for select box configuration
 		def drill_court_list
-			@drill.sport.court_modes.map do |court|
-				[ @drill.sport.court_name(court), court ]
-			end
+			@drill.sport.specific.court_modes.option_list
 		end
 
-		def drill_symbol(concept = "drill", variant: "default", size: nil)
+		def drill_symbol(concept = :drill, variant: "default", size: nil)
 			symbol_hash(concept, namespace: @drill&.sport&.name || "sport", variant:, size:)
 		end
 

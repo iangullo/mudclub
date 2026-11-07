@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -47,6 +47,39 @@
 # => :whatsapp: open whatsapp chat
 # ButtonComponent - ViewComponent to manage regular buttons used in views
 class ButtonComponent < ApplicationComponent
+	KIND_STYLES = {
+		delete:     "hover:bg-red-200 text-red-700",
+		remove:     "hover:bg-red-200 text-red-700",
+		clear:      "hover:bg-red-200 text-red-700",
+		close:      "hover:bg-red-200 text-red-700",
+		cancel:     "hover:bg-red-200 text-red-700",
+
+		edit:       "hover:bg-yellow-200 text-yellow-700",
+		attach:     "hover:bg-yellow-200 text-yellow-700",
+
+		save:       "hover:bg-green-200 text-green-700",
+		import:     "hover:bg-green-200 text-green-700",
+		export:     "hover:bg-green-200 text-green-700",
+		add:        "hover:bg-green-200 text-green-700",
+		add_nested: "hover:bg-green-200 text-green-700",
+
+		jump:       "hover:bg-blue-100",
+		link:       "hover:bg-blue-100",
+		location:   "hover:bg-blue-100",
+
+		back:       "hover:bg-gray-200 text-gray-700",
+		forward:    "hover:bg-gray-200 text-gray-700",
+
+		menu:       "bg-blue-900 text-gray-200 hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:border-blue-700",
+		login:      "bg-blue-900 text-gray-200 hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:border-blue-700",
+
+		action:     "bg-gray-100 text-gray-700 hover:bg-gray-300 hover:text-gray-700 focus:bg-gray-300 focus:text-gray-700 focus:ring-2 focus:border-gray-300",
+		call:       "bg-gray-100 text-gray-700 hover:bg-gray-300 hover:text-gray-700 focus:bg-gray-300 focus:text-gray-700 focus:ring-2 focus:border-gray-300",
+		email:      "bg-gray-100 text-gray-700 hover:bg-gray-300 hover:text-gray-700 focus:bg-gray-300 focus:text-gray-700 focus:ring-2 focus:border-gray-300",
+		whatsapp:   "bg-gray-100 text-gray-700 hover:bg-gray-300 hover:text-gray-700 focus:bg-gray-300 focus:text-gray-700 focus:ring-2 focus:border-gray-300",
+		stimulus:   "bg-gray-100 text-gray-700 hover:bg-gray-300 hover:text-gray-700 focus:bg-gray-300 focus:text-gray-700 focus:ring-2 focus:border-gray-300"
+	}.freeze
+
 	def initialize(**attrs)
 		validate(attrs)
 		@button = attrs
@@ -65,7 +98,7 @@ class ButtonComponent < ApplicationComponent
 						button_content
 					end
 				else
-					button_tag(class: @button[:b_class], type: @button[:type], data: @button[:data]) do
+					button_tag(class: @button[:b_class], type: @button[:type], data: @button[:data], name: @button[:name], value: @button[:value]) do
 						button_content
 					end
 				end
@@ -122,25 +155,19 @@ class ButtonComponent < ApplicationComponent
 	# determine button icon depending on kind
 	def set_icon
 		case @button[:kind]
-		when :back
+		when :back, :forward, :cancel
 			@button[:turbo]   = "_top"
 		when :call
 			@button[:url]     = "tel:#{@button[:value]}"
-		when :cancel
-			@button[:turbo]   = "_top"
 		when :clear
 			@button[:confirm] = I18n.t("question.clear") + " \'#{@button[:name]}\'?"
 		when :delete
 			@button[:turbo]   = "_top"
 			@button[:confirm] = I18n.t("question.delete") + " \'#{@button[:name]}\'?"
-		when :edit
+		when :edit, :export
 			@button[:flip]    = true
 		when :email
 			@button[:url]     = "mailto:#{@button[:value]}"
-		when :export
-			@button[:flip]    = true
-		when :forward
-			@button[:turbo]   = "_top"
 		when :import
 			@button[:flip]    = true
 			@button[:confirm] = I18n.t("question.import")
@@ -189,15 +216,15 @@ class ButtonComponent < ApplicationComponent
 				@button[:title] = @button[:label]
 			end
 		end
-		@button[:type]      = "submit" if @button[:kind].to_s =~ /^(save|import|login)$/
-		@button[:replace]   = true if @button[:kind].to_s =~ /^(cancel|close|save|back)$/
-		@button[:b_class] ||= b_start + (@button[:kind]!= :jump ? " m-1 inline-flex align-middle" : "")
+		@button[:type]  ||= :submit if @button[:kind].to_s =~ /^(save|import|login)$/
+		@button[:replace] = true if @button[:kind].to_s =~ /^(cancel|close|save|back)$/
+		@button[:b_class] = b_start + (@button[:kind]!= :jump ? " m-1 inline-flex align-middle" : "")
 	end
 
 	# set the buttonn d_class depending on button type
 	def set_dclass
-		b_colour = set_colour
 		unless @button[:d_class]
+			b_colour = set_colour
 			@button[:d_class] = "inline-flex align-middle"
 			case @button[:kind]
 			when :jump
@@ -211,9 +238,9 @@ class ButtonComponent < ApplicationComponent
 			else
 				@button[:d_class] += " font-semibold"
 			end
+			@button[:d_class] += b_colour if b_colour
 		end
-		@button[:d_class] += b_colour if b_colour
-		@button[:d_class] += " hover-div" if @button[:type] == "submit"
+		@button[:d_class] += " hover-div" if @button[:type] == :submit
 	end
 
 	# set the inner css for the button div
@@ -223,44 +250,15 @@ class ButtonComponent < ApplicationComponent
 			@button[:i_class] ||= "max-h-6 min-h-4 align-middle"
 		when :add_nested, :remove
 			@button[:i_class] ||= "max-h-5 min-h-4 align-middle"
-		when  :back, :call, :cancel, :clear, :close, :edit, :email, :export, :forward, :import, :save, :whatsapp
+		when :jump
+		else
 			@button[:i_class] ||= "max-h-7 min-h-5 align-middle"
 		end
 	end
 
 	# set button higlight (if needed)
 	def set_colour
-		res = " rounded-md "
-		case @button[:kind]
-		when :delete, :remove, :clear, :close, :cancel
-			colour = "red"
-		when :edit, :attach
-			colour = "yellow"
-		when :save, :import, :export, :add, :add_nested
-			colour = "green"
-		when :jump, :link, :location
-			light = "blue-100"
-		when :back, :forward
-			colour = "gray"
-		when :menu, :login
-			wait  = "blue-900"
-			light = "blue-700"
-			text  = "gray-200"
-			high  = "white"
-		when :action, :call, :email, :whatsapp, :stimulus
-			wait  = "gray-100"
-			light = "gray-300"
-			text  = "gray-700"
-			high  = "gray-700"
-		end
-		if colour
-			res += "hover:bg-#{colour}-200 text-#{colour}-700"
-		elsif wait
-			res += "bg-#{wait} text-#{text} hover:bg-#{light} hover:text-#{high} focus:bg-#{light} focus:text-#{high} focus:ring-2 focus:border-#{light}"
-		else
-			res += "hover:bg-#{light}"
-		end
-		res
+		" rounded-md " + (KIND_STYLES[@button[:kind]] || "")
 	end
 
 	# set the turbo data frame if required
@@ -273,10 +271,10 @@ class ButtonComponent < ApplicationComponent
 		end
 		res[:turbo_action]  = "replace" if @button[:replace]
 		#	res[:turbo_confirm] = @button[:confirm] if @button[:confirm] # rubocop:disable Layout/CommentIndentation
-		res[:turbo_method]  = :delete.to_sym if @button[:kind]==:delete
+		res[:turbo_method]  = :delete if @button[:kind] == :delete
 		res[:action]        = @button[:action] if @button[:action]
 		res[:confirm]       = @button[:confirm] if @button[:confirm]
-		if @button[:working] || @button[:type] == "submit"
+		if @button[:working] || @button[:type] == :submit
 			unless @button[:working] == false
 				@button[:controller] = "processing"
 				@button[:working]  ||= true

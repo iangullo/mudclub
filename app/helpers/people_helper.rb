@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -17,121 +17,235 @@
 # contact email - iangullo@gmail.com.
 #
 module PeopleHelper
-	def person_form(person, mandatory_email: nil)
-		res = [
-			[
-				symbol_field("user", { title: I18n.t("person.nick") }),
-				{ kind: :text_box, key: :nick, size: 8, value: person&.nick, placeholder: I18n.t("person.nick") },
-				gap_field,
-				symbol_field("call", { title: I18n.t("person.phone") }),
-				{ kind: :text_box, key: :phone, size: 12, value: person&.phone, placeholder: I18n.t("person.phone") }
-			],
-			[
-				symbol_field("id_front", { title: I18n.t("person.pid") }),
-				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: I18n.t("person.pid") },
-				gap_field,
-				symbol_field("email", { type: :button, title: I18n.t("person.email") }),
-				{ kind: :email_box, key: :email, value: person&.email, placeholder: I18n.t("person.email"), mandatory: mandatory_email ? { length: 7 } : nil }
-			]
-		]
-		if person&.coach_id? || person&.player_id?
-			res << [ gap_field(size: 1), person_idpic(person, idpic: "id_front", align: "left", cols: 4) ]
-			res << [ gap_field(size: 1), person_idpic(person, idpic: "id_back", align: "left", cols: 4) ]
-		end
-		res << [
-			symbol_field("home", { size: "25x25", title: I18n.t("person.address") }, class: "align-top"),
-			{ kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: I18n.t("person.address") }
-		]
+	# Multipurpose person title definition
+	def person_title(icon: symbol_hash(:person), title:, subtitle: nil, rows: 3, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
+		title_start(icon:, title:, subtitle:, rows:, cols:, size:, _class: _class, form:)
 	end
 
-	# return defintion @fields for forms
-	def person_form_title(person, icon: person&.picture, title:, cols: 2, sex: nil)
-		res = person_title(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
-		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: I18n.t("person.name"), cols: 2, mandatory: { length: 2 } } ]
-		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: I18n.t("person.surname"), cols: 2, mandatory: { length: 2 } } ]
-		res << (sex ? [ { kind: :label_checkbox, label: I18n.t("sex.female_a"), key: :female, value: person&.female, align: "left" } ] : [])
-		res.last << symbol_field("calendar")
-		res.last << { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: person&.player_id? }
-		res
-	end
+	#----------------------------------------------
+	# Field definitions for person show
+	#----------------------------------------------
+	def person_show_title(pobj, title: nil, rows: 3, cols: nil, id_pic: true)
+		owned  = !pobj.is_a?(Person)
+		person = owned ? pobj.person : pobj
 
-	# wrapper to manage return of suitable Field for dni Person fields
-	# standardised field with icons for player/coach id pics
-	def person_idpic(person, idpic: nil, cols: nil, align: "center")
-		if idpic	# it is an editor field
-			{ kind: :upload, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: I18n.t("person.pid")), label: I18n.t("person.#{idpic}"), key: idpic, value: person&.send(idpic)&.filename, cols: }
-		else
-			pidpic = person&.idpic_content
-			symbol = pidpic[:symbol]
-			label  = pidpic[:label]
-			if pidpic[:found] && u_manager?	# dropdown menu
-				button = { kind: :link, name: "id-pics", symbol:, label:, append: true, options: [] }
-				button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
-				button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
-				{ kind: :dropdown, button:, class: "bg-white", cols: }
-			else
-				{ kind: :icon_label, symbol:, label:, right: true, align: "left", cols: }
-			end
-		end
-	end
+		icon     = pobj.picture
+		title  ||= pobj.label(gender: pobj.female ? :female : nil)
+		subtitle = person&.nick&.presence || person&.name
 
-	# return title for @people TableComponent
-	def person_table
-		title = [ { kind: :normal, value: I18n.t("person.name") } ]
-		title << button_field({ kind: :add, url: new_person_path, frame: "modal" }) if u_admin?
+		fields   = person_title(icon:, title:, subtitle:, rows:, cols:)
+		c_field  = person_contact_field(person)
+		id_field = id_pic ?
+			person_idpic(person) :
+			{ kind: :string, value: pobj&.person&.dni || Person.msg(:no_id) }
 
-		rows = Array.new
-		@people.each { |person|
-			row = { url: person_path(person), frame: "modal", items: [] }
-			row[:items] << { kind: :normal, value: person.to_s }
-			row[:items] << button_field({ kind: :delete, url: row[:url], name: person.to_s }) if u_admin?
-			rows << row
-		}
-		{ title: title, rows: rows }
-	end
-
-	# FieldComponent fields to show a person
-	def person_show(person, title: I18n.t("person.single"), icon: person&.picture)
-		return [ [] ]  unless person&.address&.present?
-		[
-			[
-			symbol_field("home", { size: "25x25", title: I18n.t("person.address") }, class: "align-top", align: "right"),
-			{ kind: :string, value: simple_format("#{person&.address}"), align: "left" }
-			]
-		]
-	end
-
-	# fields definition to show title of a person view
-	def person_show_title(person, kind: nil, rows: 3, cols: nil)
-		pobj   = kind ? person.person : person
-		title  = I18n.t("#{kind}.single")
-		icon   = person.picture
-		fields = person_title(icon:, title:, subtitle: pobj&.nick&.presence || pobj&.name, rows:, cols:)
 		fields += [
-			[ { kind: :label, value: pobj&.surname, cols: } ],
-			[ gap_field, { kind: :string, value: pobj&.birthstring } ],
-			[ { kind: :contact, email: pobj&.email, phone: pobj&.phone, device: device, align: "center" } ]
+			[ label_item(person&.surname, cols:) ],
+			[
+				c_field,
+				{ kind: :string, value: date_string(person&.birthday), class: "items-center", cols: }
+			],
+			[ gap_item, id_field ]
 		]
-		if kind
-			fields[3][0] = obj_status_field(person)
-			fields[4] <<  person_idpic(pobj)
+		if owned
+			fields[4][0] = participation_club_field(pobj)
 		end
 		fields
 	end
 
-	# return icon and top of fields definition
-	def person_title(icon: symbol_hash("person"), title:, subtitle: nil, rows: 3, cols: nil, size: "75x100", _class: "max-w-75 max-h-100 rounded align-top m-1", form: nil)
-		title_start(icon:, title:, subtitle:, rows:, cols:, size:, _class: _class, form:)
+	# FieldComponent fields to show a person
+	def person_show_fields(person, title: Person.label, icon: person&.picture)
+		[
+			[
+			symbol_item(:home, { size: "25x25", title: Person.fld(:address) }, class: "align-top", align: :right),
+			{ kind: :string, value: simple_format("#{@person&.address}"), align: :left }
+			]
+		]
+	end
+
+	def person_summary_fields(person, prepend_gap: false)
+		fields = [
+			[
+				symbol_item(:person, class: "inline-flex"),
+				{ kind: :text, value: person.to_s }
+			],
+			[
+				gap_item(0),
+				person_contact_field(person)
+			]
+		]
+
+		return fields unless prepend_gap
+
+		fields.each do |row|
+			row.unshift(gap_item)
+		end
+
+		fields
+	end
+
+	#----------------------------------------------
+	# Field definitions for person forms
+	#----------------------------------------------
+	def person_form_title(pobj, icon: person&.picture, title:, cols: 2, sex: nil, guardians: nil)
+		person = pobj.person
+		res = person_title(title:, icon:, rows: (sex ? 3 : 4), cols:, form: true)
+		res << [ { kind: :text_box, key: :name, value: person&.name, placeholder: Person.fld(:name), cols: 2, mandatory: { length: 2 } } ]
+		res << [ { kind: :text_box, key: :surname, value: person&.surname, placeholder: Person.fld(:surname), cols: 2, mandatory: { length: 2 } } ]
+		res << (sex ? [ { kind: :label_checkbox, label: Person.t_path(:sex, :female_short), key: :female, value: person&.female, align: :left } ] : [])
+		res.last << symbol_item(:calendar)
+		res.last << birthday_form_field(person, guardians:)
+		res = participation_fields(pobj, res, just_icon: false) unless pobj.is_a?(Person)
+		res
+	end
+
+	def person_form_fields(person, mandatory_email: nil)
+		l_nick  = Person.fld(:nickname)
+		l_phone = Person.fld(:phone)
+		l_pid   = Person.fld(:national_id, :short)
+		l_email = Person.fld(:email)
+		l_addr  = Person.fld(:address)
+		m_email = { length: 7 } if mandatory_email
+
+		res = [
+			[
+				symbol_item(:user, { title: l_nick }),
+				{ kind: :text_box, key: :nick, size: 8, value: person&.nick, placeholder: l_nick },
+				gap_item,
+				symbol_item(:call, { title: l_phone }),
+				{ kind: :text_box, key: :phone, size: 12, value: person&.phone, placeholder: l_phone }
+			],
+			[
+				symbol_item(:id_front, { title: l_pid }),
+				{ kind: :text_box, key: :dni, size: 8, value: person&.dni, placeholder: l_pid },
+				gap_item,
+				symbol_item(:email, { type: :button, title: l_email }),
+				{ kind: :email_box, key: :email, value: person&.email, placeholder: l_email, mandatory: m_email  }
+			]
+		]
+		if person.is_a?(AdmissionPerson) || person&.coach_id? || person&.player_id?
+			res << [ gap_item(1), person_idpic(person, idpic: :id_front, align: :left, cols: 4) ]
+			res << [ gap_item(1), person_idpic(person, idpic: :id_back, align: :left, cols: 4) ]
+		end
+		res << [
+			symbol_item(:home, { size: "25x25", title: l_addr }, class: "align-top"),
+			{ kind: :text_area, key: :address, size: 34, cols: 4, lines: 3, value: person&.address, placeholder: l_addr }
+		]
+	end
+
+	def person_contact_form_fields(person, required: false)
+		name    = { label: Person.fld(:name), mandatory: required ? { length: 2 } : nil }
+		surname = { label: Person.fld(:surname), mandatory: required ? { length: 2 } : nil  }
+		email   = { label: Person.fld(:email), mandatory: required ? { length: 7 } : nil  }
+		phone   = { label: Person.fld(:phone), mandatory: required ? { length: 7 } : nil  }
+
+		[
+			[
+				symbol_item(:person, class: "inline-flex"),
+				{ kind: :text_box, key: :name, value: person.name, placeholder: name[:label], mandatory: name[:mandatory], size: 14, cols: 2 },
+				gap_item(1),
+				{ kind: :text_box, key: :surname, value: person.surname, placeholder: surname[:label], mandatory: surname[:mandatory], size: 19, cols: 2 }
+			],
+			[
+				gap_item(0),
+				symbol_item(:call, { type: :button, title: phone[:label] }, class: "inline-flex"),
+				{ kind: :text_box, key: :phone, value: person.phone, placeholder: phone[:label], mandatory: phone[:mandatory], size: 12 },
+				gap_item(1),
+				symbol_item(:email, { type: :button, title: email[:label] }, align: :right, class: "inline-flex"),
+				{ kind: :email_box, key: :email, value: person.email, placeholder: email[:label], mandatory: email[:mandatory] }
+			]
+		]
+	end
+
+	# nested form to add/edit person relationships
+	def person_relationships_form(person)
+		res = [ [ label_item(Relationship.label(:plural)) ] ]
+		res << [
+			{
+				kind: :nested_form,
+				model: "person",
+				key: :relationships,
+				child: -> { Relationship.build_for(person) },
+				row: "shared/relationship_fields",
+				cols: 2
+			}
+		]
+		res
+	end
+
+	# nested form to add/edit person relationships
+	def person_merge_fields(pobj, candidates, attrs, current_person: :default)
+		current_person = pobj.person if current_person == :default
+
+		pobj_fields = hidden_input_definitions(attrs).to_a
+
+		merge_fields = []
+		merge_fields << pobj_fields if pobj_fields.any?
+		merge_fields << gap_row
+		merge_fields << [ label_item(Person.msg(:ambiguous)) ]
+		merge_fields << person_merge_radio(candidates, current_person:)
 	end
 
 	private
+		def birthday_form_field(person, guardians: false)
+			bday_fld = { kind: :date_box, key: :birthday, s_year: 1950, e_year: Time.now.year, value: person&.birthday, mandatory: true }
+
+			bday_fld[:i_data] = {
+				optional_fields_target: "switch",
+				optional_target: "guardians",
+				optional_rule: "underage",
+				action: "change->optional-fields#toggle"
+			} if guardians
+
+			bday_fld
+		end
+
 		# button to download an idpic
 		def idpic_button(person, idpic)
 			{
 				kind: :link,
-				label: I18n.t("person.#{idpic}"),
+				label: Person.fld(idpic.to_sym, :short),
 				url: rails_blob_path(person&.send(idpic), disposition: "attachment"),
 				d_class: "inline-flex items-center"
 			}
+		end
+
+		# wrapper to return correct contact fiedl for a person
+		def person_contact_field(person)
+			person&.email || person&.phone ?
+				{ kind: :contact, email: person.email, phone: person.phone, device:, align: :left } :
+				{ kind: :text, value: Person.msg(:no_contact), class: "text-xs" }
+		end
+
+		# wrapper to manage return of suitable Field for id Person fields
+		# standardised field with icons for player/coach id pics
+		def person_idpic(person, idpic: nil, cols: nil, align: :center)
+			if idpic	# it is an editor field
+				upload_button(idpic, Person.fld(idpic, :short), person&.send(idpic)&.filename, symbol: symbol_hash(idpic, size: "20x20", css: "mr-2", title: Person.fld(idpic)), cols:)
+			else
+				pidpic = person&.idpic_content
+				symbol = pidpic[:symbol]
+				label  = pidpic[:label]
+				if pidpic[:found] && @policy.update?	# dropdown menu
+					button = { kind: :link, name: "id-pics", symbol:, label:, append: true, options: [] }
+					button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
+					button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
+					dropdown_button(button, class: "bg-white", cols:)
+				else
+					{ kind: :icon_label, symbol:, label:, right: true, align: :left, cols: }
+				end
+			end
+		end
+
+		def person_merge_radio(candidates, current_person: nil)
+			options = candidates.map do |candidate|
+				{ value: candidate.id, label: "#{candidate} (#{candidate.age})" }
+			end
+
+			options << { value: "__keep__", label: Person.act(:keep) } if current_person&.persisted?
+			options << { value: "__new__", label: Person.act(:create) }
+
+			# Default to last option — the operator must actively choose to reuse other.
+			[ { kind: :radio_group, key: :person_merge, value: options.last[:value], options: } ]
 		end
 end

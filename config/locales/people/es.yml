@@ -1,0 +1,205 @@
+# config/locales/people/es.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Dominio de personas
+#
+# Traducciones canónicas para personas y conceptos relacionados.
+#
+# Las claves de compatibilidad heredadas se conservan al final de este archivo
+# durante la migración v2 y no deben usarse en código nuevo.
+# -----------------------------------------------------------------------------
+
+es:
+  people:
+    label: Personas
+    short: Personas
+
+    messages:
+      exported: Personas exportadas
+      imported: Personas importadas
+
+    person:
+      label:
+        single: Persona
+        plural: Personas
+        short: Pers.
+      actions:
+        create: Crear nueva persona
+        edit: Editar Persona
+        keep: No vincular
+        merge: Vincular persona
+      fields:
+        name: Nombre
+        name_short: Nom.
+        surname: Apellidos
+        surname_short: Apell.
+        nickname: Apodo
+        nickname_short: Nick
+        birthday: Fecha de nacimiento
+        birthday_short: F.Nac.
+        age: Edad
+        age_plural: Edades
+        sex: Sexo
+        contact: Contacto
+        contact_short: Cont.
+        national_id: Documento de identidad
+        national_id_short: DNI/NIE
+        email: Correo electrónico
+        email_short: email
+        phone: Teléfono
+        phone_short: Telf.
+        address: Domicilio
+        address_short: Domic.
+        biography: Biografía
+        biography_short: Bio.
+        photo: Fotografía
+        photo_short: Foto
+        photos: Fotografías
+        photos_short: Fotos
+        id_front: Documento de identidad (anverso)
+        id_front_short: Anverso
+        id_back: Documento de identidad (reverso)
+        id_back_short: Reverso
+      sex:
+        female: Femenino
+        female_short: Fem.
+        male: Masculino
+        male_short: Masc.
+        mixed: Mixto
+        mixed_short: Mixto
+      messages:
+        ambiguous: Varias personas coinciden con la información.
+        created: Persona creada.
+        deleted: Persona eliminada.
+        duplicated: La persona ya existe.
+        no_contact: (sin tfno. / e-mail)
+        mismatch: Persona no coincide.
+        missing: Persona falta.
+        no_id: (sin DNI/NIE o similar)
+        updated: Persona actualizada.
+      questions:
+        create: ¿Crear nueva persona?
+        merge: ¿Fusionar personas?
+        save: ¿Guardar persona?
+      values:
+        email: usuario@servidor.com
+
+    parent:
+      label: Familiar
+      short: Familiar
+
+    relationship:
+      label:
+        single: Relación
+        plural: Relaciones
+        short: Rel.
+
+    relationship_kinds:
+      label:
+        single: Tipo de relación
+        short: Tipo Rel.
+      values:
+        parent: Familiar
+        parent_plural: Familiares
+        father: Padre
+        father_plural: Padres
+        mother: Madre
+        mother_plural: Madres
+        guardian: Tutor
+        guardian_plural: Tutores
+        legal_representative: Rep. legal
+        legal_representative_plural: Rep. legales
+        child: Hijo/a
+        child_plural: Hijos/as
+        sibling: Hermano/a
+        sibling_plural: Hermanos/as
+        grandparent: Abuelo/a
+        grandparent_plural: Abuelos/as
+        grandchild: Nieto/a
+        grandchild_plural: Nietos/as
+        spouse: Cónyuge
+        spouse_plural: Cónyuges
+        partner: Pareja
+        partner_plural: Parejas
+        emergency_contact: Cont. emergencia
+        emergency_contact_plural: Conts. emergencia
+
+  # ---------------------------------------------------------------------------
+  # OBSOLETO - NO MODIFICAR
+  #
+  # Claves de compatibilidad conservadas durante la migración v2.
+  #
+  # Buscar:
+  #
+  #   t(person.
+  #   t(parent.
+  #   t(sex.
+  #
+  # Eliminar una vez que todas las referencias se hayan migrado.
+  # ---------------------------------------------------------------------------
+
+  parent:
+    single: Familiar
+    many: Familiares
+
+  person:
+    address: Domicilio
+
+    age: Edad
+
+    bday: Fecha de nacimiento
+    bday_a: F.Nac.
+
+    contact: Contacto
+
+    email: e-mail
+
+    id_back: Reverso
+    id_front: Anverso
+
+    name: Nombre
+    name_a: Nombre
+
+    nick: Apodo
+
+    phone: Teléfono
+    phone_a: Telf.
+
+    pics: Fotos
+    pics_found: Fotos disponibles
+    pics_missing: Fotos faltantes
+
+    pid: DNI Nº
+    pid_a: DNI
+
+    single: Persona
+    many: Personas
+
+    surname: Apellido
+    surname_a: Apell.
+
+    created: "Persona creada: "
+    updated: "Persona actualizada: "
+    deleted: "Persona eliminada: "
+    duplicate: "Persona duplicada: "
+
+    edit: Editar Persona
+    new: Crear Persona
+
+    export: Personas exportadas
+    import: Personas importadas
+
+  sex:
+    abr: Sexo
+
+    label: Sexo
+
+    female: Femenino
+    female_a: Fem.
+
+    male: Masculino
+    male_a: Masc.
+
+    mixed: Mixto
+    mixed_a: Mixto

@@ -1,0 +1,16 @@
+<%= render ModalComponent.new do %>
+	<%= form_for resource_route(@event), data: {turbo_frame: "_top"} do |form| %>
+		<%= render @header %>
+		<% if @event.kind_match? %>
+			<strong><%= @event.to_s %></strong>
+			<br>
+		<% end %>
+		<%= @athlete.to_s(style: 2) %>
+		<%= form.fields_for :stats, Stat.new do |ff| %>
+			<% @fields.form = ff %>
+			<%= render @fields %>
+		<% end %>
+		<%= form.hidden_field :athlete_id, value: @athlete&.id %>
+		<%= render @submit %>
+	<% end %>
+<% end %>

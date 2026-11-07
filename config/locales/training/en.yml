@@ -1,0 +1,452 @@
+# config/locales/training/en.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Training domain
+#
+# Canonical translations for the Training domain.
+#
+# Training manages the sporting knowledge of the club: teams, sessions,
+# drills, tasks, targets, skills and related concepts.
+#
+# Legacy compatibility keys are preserved at the end of this file during the
+# v2 migration and should not be used in new code.
+# -----------------------------------------------------------------------------
+
+en:
+  training:
+    label: Training
+    short: Train.
+
+    drill:
+      label:
+        single: Drill
+        plural: Drills
+        short: Drill
+      actions:
+        delete: Delete Drill
+        edit: Edit Drill
+        new: Create Drill
+      fields:
+        name: Name
+        description: Description
+        description_short: Desc.
+        author: Author
+        kind: Drill category
+        kind_short: Kind
+        material: Material
+        material_short: Mat.
+        sport: Sport
+        sport_short: Sport
+        court_mode: Court layout
+        court_mode_short: Layout
+      values:
+        none: No drill selected
+        default: <New Drill>
+
+      messages:
+        created: Drill created.
+        updated: Drill updated.
+        deleted: Drill deleted.
+
+    drill_kind:
+      label:
+        single: Kind
+        plural: Kinds
+        short: Kind
+        hint: Drill kind
+      fields:
+        name: Name
+      values:
+        default: <kind>
+      messages:
+        created: Drill kind created.
+        updated: Drill kind updated.
+        deleted: Drill kind deleted.
+
+    plan:
+      label:
+        single: Plan
+        plural: Plans
+        short: Plan
+        hint: Training plan
+      fields:
+        name: Name
+        description: Description
+        description_short: Desc.
+        team: Team
+      messages:
+        created: Training plan created.
+        updated: Training plan updated.
+        deleted: Training plan deleted.
+
+    session:
+      single: Session
+      plural: Sessions
+      short: Session
+      hint: Training session
+      fields:
+        title: Title
+        starts_on: Starts
+        ends_on: Ends
+        duration: Duration
+        duration_short: Dur.
+        workload: Workload
+        workload_short: Workload
+        workload_by: Workload by
+        plan: Training plan
+      messages:
+        created: Training session created.
+        updated: Training session updated.
+        deleted: Training session deleted.
+        attendance_checked: Attendance checked.
+
+    stats:
+      single: Statistic
+      plural: Statistics
+      short: Stat.
+      messages:
+        updated: Statistics updated.
+
+    skill:
+      label:
+        single: Skill
+        plural: Skills
+        short: Skill
+      fields:
+        name: Name
+        description: Description
+        description_short: Desc.
+      values:
+        default: <skill>
+      messages:
+        created: Skill created.
+        updated: Skill updated.
+        deleted: Skill deleted.
+
+    step:
+      label:
+        single: Step
+        plural: Steps
+        short: Step
+      actions:
+        edit: Edit step
+        edit_diagram: Edit diagram
+        load_diagram: Load diagram
+      fields:
+        order: Order
+        explanation: Explanation
+        explanation_short: Expl.
+        diagram: Diagram
+      values:
+        default: <step>
+      messages:
+        created: Step created.
+        updated: Step updated.
+        deleted: Step deleted.
+
+    target:
+      label:
+        single: Target
+        plural: Targets
+        short: Tgt.
+      actions:
+        edit: Edit Targets
+      fields:
+        concept: Concept
+        aspect: Aspect
+        focus: Focus
+        completion: Completion (%)
+      values:
+        default: <target>
+      aspect:
+        label: Aspect
+        short: Aspect
+        values:
+          general: General
+          general_short: Gen.
+          individual: Individual
+          individual_long: Individual Skill
+          individual_short: Ind.
+          individual_hint: Individual technical development.
+          collective: Collective
+          collective_long: Collective Tactic
+          collective_short: Col.
+          collective_hint: Collective tactical development.
+      focus:
+        label: Focus
+        short: Focus
+        values:
+          offense: Offense
+          offense_short: Off.
+          defense: Defense
+          defense_short: Def.
+          physical: Physical
+          physical_short: Phys.
+      messages:
+        created: Target created.
+        updated: Target updated.
+        deleted: Target deleted.
+
+    team:
+      label:
+        single: Team
+        plural: Teams
+        short: Team
+      actions:
+        create: Create team
+        edit: Edit team
+        delete: Delete team
+        edit_plan: Edit team plan
+        edit_roster: Edit roster
+      fields:
+        name: Name
+        plan: Team plan
+        plan_short: Plan
+        sport: Sport
+        category: Category
+        division: Competition
+        facility: Home facility
+        roster: Roster
+      messages:
+        created: Team created.
+        updated: Team updated.
+        deleted: Team deleted.
+        updated_plan: Updated team plan.
+
+    task:
+      label:
+        single: Task
+        plural: Tasks
+        short: Task
+      actions:
+        add: Add Task
+        edit: Edit Task
+      fields:
+        drill: Drill
+        order: Order
+        duration: Duration
+        duration_short: Dur.
+        number: #
+        remarks: Remarks
+        remarks_short: Rem.
+      messages:
+        created: Task created.
+        updated: Task updated.
+        deleted: Task deleted.
+
+    version:
+      label:
+        single: Version
+        plural: Versions
+        short: Ver.
+      fields:
+        author: Author
+        name: Name
+        description: Description
+        description_short: Desc.
+        explanation: Explanation
+        explanation_short: Expl.
+        material: Material
+        kind: Drill category
+        skills: Skills
+        targets: Targets
+        changes: Changes
+      messages:
+        created: Version created.
+        updated: Version updated.
+        deleted: Version deleted.
+
+  # -------------------------------------------------------------------------
+  # DEPRECATED - DO NOT MODIFY
+  #
+  # Compatibility keys preserved during the MudClub 1.x → 2.0 migration.
+  #
+  # Search for:
+  #
+  #   t(team.)
+  #   t(train.)
+  #   t(drill.)
+  #   t(kind.)
+  #   t(plan.)
+  #   t(task.)
+  #   t(target.)
+  #   t(step.)
+  #   t(skill.)
+  #   t(version.)
+  #   t(stat.)
+  #
+  # Remove once all callers have migrated.
+  # -------------------------------------------------------------------------
+
+  drill:
+    author: Author
+    default: <New Drill>
+    desc: Description
+    desc_a: Descrip.
+    material: Material
+    name: Name
+    none: No task selected
+    single: Drill
+
+    created: "Created drill:"
+    deleted: "Deleted drill:"
+    updated: "Updated drill:"
+
+    edit: Edit Drill
+    many: Drills
+    new: Create Drill
+
+  kind:
+    default: <type>
+    single: Type
+
+  plan:
+    abbr: Plan
+    single: Team-plan
+
+    edit: Edit Team-plan
+    new: Create Team-plan
+
+  skill:
+    abbr: Skill
+    default: <skill>
+    single: Skill
+
+    many: Skills
+
+  stat:
+    average: Average
+    average_a: Avg.
+    max: Max.
+    min: Min.
+    number_a: Num.
+    single: Stat
+    total: Total
+    total_a: Tot.
+
+    updated: Updated stats
+
+    many: Stats
+
+  step:
+    default: <step>
+    diagram: Diagram
+    explanation: Explanation
+    single: Step
+
+    edit: Edit step
+    edit_diagram: Edit diagram
+    load_diagram: Load diagram
+    many: Steps
+
+  target:
+    abbr: Tgt.
+    completion: Completion (%)
+    default: <target>
+    single: Target
+
+    aspect:
+      gen: General
+
+      ind: Individual
+      ind_a: Ind.
+      ind_l: Individual Skill
+
+      col: Collective
+      col_a: Col.
+      col_l: Collective Tactic
+
+    focus:
+      att: Offense
+      att_a: Off.
+
+      def: Defense
+      def_a: Def.
+
+      fit: Physical
+
+    edit: Edit Targets
+    many: Targets
+
+  task:
+    duration: Dur.
+    number: #
+    remarks: Remarks
+    single: Task
+
+    created: "Created task:"
+    deleted: "Deleted task:"
+    updated: "Updated task:"
+
+    add: Add Task
+    edit: Edit Task
+    many: Tasks
+
+  team:
+    home: "Homecourt:"
+    home_a: Home
+
+    name: Name
+    none: No teams
+    single: Team
+
+    created: "Created team:"
+    deleted: "Deleted team:"
+    updated: "Updated team:"
+
+    edit: Edit Team
+    many: Teams
+    new: Create Team
+
+    roster: Roster
+    roster_edit: Edit Roster
+    roster_opt: Additional players
+
+  train:
+    duration: Dur.
+    single: Session
+
+    workload: Workload
+    workload_by: Workload by
+
+    att_check: "Checked attendance:"
+
+    created: "Created session:"
+    deleted: "Deleted session:"
+    updated: "Updated session:"
+
+    edit: Edit session
+    many: Training sessions
+    new: Create session
+
+  match:
+    default_rival: <Opponent>
+    home: Home
+    lost: L
+    rival: Opponent
+    roster: Active players
+    single: Match
+    won: W
+
+    att_check: "Player list: "
+    created: "Created match: "
+    deleted: "Deleted match: "
+    updated: "Updated match: "
+
+    many: Matches
+
+  version:
+    author: author
+    changes: Changes
+    description: description
+    explanation: explanation
+    kind: type
+    material: material
+    name: name
+    single: Version
+    skills: skills
+    targets: targets
+    unknown: Unknown
+
+    many: Versions

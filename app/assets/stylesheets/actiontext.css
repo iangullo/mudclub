@@ -11,16 +11,17 @@
  * <action-text-attachment> element we wrap around attachments. Otherwise,
  * images in galleries will be squished by the max-width: 33%; rule.
 */
-.trix-content .attachment-gallery > action-text-attachment,
-.trix-content .attachment-gallery > .attachment {
+.trix-content .attachment-gallery>action-text-attachment,
+.trix-content .attachment-gallery>.attachment {
   flex: 1 0 33%;
   padding: 0 0.5em;
   max-width: 33%;
 }
 
-.trix-content .attachment-gallery.attachment-gallery--2 > action-text-attachment,
-.trix-content .attachment-gallery.attachment-gallery--2 > .attachment, .trix-content .attachment-gallery.attachment-gallery--4 > action-text-attachment,
-.trix-content .attachment-gallery.attachment-gallery--4 > .attachment {
+.trix-content .attachment-gallery.attachment-gallery--2>action-text-attachment,
+.trix-content .attachment-gallery.attachment-gallery--2>.attachment,
+.trix-content .attachment-gallery.attachment-gallery--4>action-text-attachment,
+.trix-content .attachment-gallery.attachment-gallery--4>.attachment {
   flex-basis: 50%;
   max-width: 50%;
 }
@@ -62,7 +63,46 @@
 /** Remove unused trix buttons **/
 .trix-button--icon-code,
 .trix-button--icon-quote,
-.trix-button--icon-strike { display:none; }
-.trix-button--icon-heading-1 {display: none;}
+.trix-button--icon-strike {
+  display: none;
+}
+
+.trix-button--icon-heading-1 {
+  display: none;
+}
+
 /** care with file tools **/
-.trix-button-group--file-tools {display: none !important;}
+.trix-button-group--file-tools {
+  display: none !important;
+}
+
+/* For richt text rendering in Drill Step explanations */
+
+.rich-text-fitted action-text-attachment,
+.rich-text-fitted figure.attachment {
+  display: block;
+  max-width: 100%;
+  margin-block: 0.5rem;
+}
+
+.rich-text-fitted action-text-attachment img,
+.rich-text-fitted figure.attachment img,
+.rich-text-fitted action-text-attachment video,
+.rich-text-fitted figure.attachment video {
+  display: block;
+  max-height: var(--embedded-media-max-height, 40dvh);
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin-inline: auto;
+  border-radius: 0.375rem;
+}
+
+.rich-text-fitted action-text-attachment figcaption,
+.rich-text-fitted figure.attachment figcaption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}

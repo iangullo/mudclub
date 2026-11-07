@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2024  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -17,17 +17,39 @@
 # contact email - iangullo@gmail.com.
 #
 class ApplicationRecord < ActiveRecord::Base
+	include Localizable
 	include PgSearch::Model
+
 	primary_abstract_class
 
+	# Does this record have pending unsaved changes worth acting on?
+	# Override in subclasses and call `super` to add domain-specific sources.
+	def modified?
+		changed? || attachments_changed? || rich_texts_changed?
+	end
+
+	# return the earliest date between 2 dates
+	def earliest_date(date1, date2)
+		compare_dates(date1, date2, latest: false)
+	end
+
+	# return the latest date between 2 dates
+	def latest_date(date1, date2)
+		compare_dates(date1, date2, latest: true)
+	end
+
 	# parse phone number using defined locale as p_country
-	def parse_phone(p_number, p_ctry = nil)
+	def self.parse_phone(p_number, p_ctry = nil)
 		ctry = p_ctry || Phonelib.default_country
 		Phonelib.parse(p_number.to_s.delete(" "), ctry).international.to_s
 	end
 
+	def parse_phone(p_number, p_ctry = nil)
+		self.class.parse_phone(p_number, p_ctry = nil)
+	end
+
 	# read new field value, keep old value if empty & possible
-	def read_field(dat_value, old_value, def_value)
+	def self.read_field(dat_value, old_value, def_value)
 		if dat_value    # we read & assign
 			case dat_value.class
 			when "String"
@@ -42,36 +64,190 @@ class ApplicationRecord < ActiveRecord::Base
 		end
 	end
 
+	def read_field(dat_value, old_value, def_value)
+		self.class.read_field(dat_value, old_value, def_value)
+	end
+
 	# return a 2 digit string for a number
-	def two_dig(num)
+	def self.two_dig(num)
 		num.to_s.rjust(2, "0")
 	end
 
+	def two_dig(num)
+		self.class.two_dig(num)
+	end
+
 	# starting / ending hours as string
-	def timeslot_string(t_begin:, t_end: nil)
+	def self.timeslot_string(t_begin:, t_end: nil)
 		cad = two_dig(t_begin.hour) + ":" + two_dig(t_begin.min)
 		cad = cad + "-" + two_dig(t_end.hour) + ":" + two_dig(t_end.min) if t_end
 		cad
 	end
 
+	def timeslot_string(t_begin:, t_end: nil)
+		self.class.timeslot_string(t_begin:, t_end:)
+	end
+
 	# parse a value to determine if its true
-	def to_boolean(value)
+	def self.to_boolean(value)
 		val = value.presence
 		(val.to_s == "true" || val.to_i == 1)
 	end
 
-	# def update object attachment
+	def to_boolean(value)
+		self.class.to_boolean(value)
+	end
+
+	# update object file attachment
 	def update_attachment(field, new_file = nil)
-		if self.respond_to?(field)
-			attachment = self.send(field)
-			if new_file
-				new_blob = new_file.read
-				unless new_blob == attachment&.blob # Compare blob content
-					attachment.purge if attachment.attached?
-					attachment.attach(new_file)
-					@attachment_changed = true
+		return unless self.respond_to?(field) && new_file.present?
+
+		# Signed_id string from direct_upload — resolve to a Blob so the
+		# branches below handle it uniformly.
+		if new_file.is_a?(String)
+			new_file = ActiveStorage::Blob.find_signed(new_file)
+			return if new_file.nil?
+		end
+
+		attachment = self.send(field)
+
+		# Blob reference (promotion flow, direct upload, form edit).
+		# Replace unless it's already the same blob.
+		if new_file.is_a?(ActiveStorage::Blob)
+			return if attachment.attached? && attachment.blob == new_file
+			attachment.attach(new_file)
+			return
+		end
+
+		# UploadedFile or IO — replace only if the content actually differs.
+		# same_content? rewinds new_file and returns false for stale blobs.
+		return if attachment.attached? && same_content?(attachment, new_file)
+		attachment.attach(new_file)
+	end
+
+	# Filter by a related record or its id.
+	#
+	#   Model.filter_by_id(:season_id, season)     # → where(season_id: season.id)
+	#   Model.filter_by_id(:season_id, 5)          # → where(season_id: 5)
+	#   Model.filter_by_id(:season_id, "5")        # → where(season_id: 5)
+	#   Model.filter_by_id(:document_id, uuid_str) # → where(document_id: "…")
+	#   Model.filter_by_id(:season_id, nil)        # → all
+	#   Model.filter_by_id(:season_id, 0)          # → all
+	#   Model.filter_by_id(:season_id, "")         # → all
+	#
+	# If an object of the wrong class is passed (and the expected class
+	# can be derived from the column), returns `all` rather than
+	# filtering by a coincidentally-matching id.
+	def self.filter_by_id(column, value, klass: nil)
+		return all if value.nil?
+
+		# ---- object form ----
+		if value.is_a?(ActiveRecord::Base)
+			expected = klass || column.to_s.delete_suffix("_id").classify.safe_constantize
+			raise ArgumentError, "expected #{expected}, got #{value.class}" if expected && !value.is_a?(expected)
+			return all unless value.persisted?
+			return where(column => value.id)
+		end
+
+		# ---- scalar form ----
+		return all if value.blank?
+
+		case value
+		when Integer
+			value.positive? ? where(column => value) : all
+		when String
+			value == "0" ? all : where(column => value)
+		else
+			all
+		end
+	end
+
+	# definition / access to localization scopes
+	def self.localized_as(scope)
+		@i18n_scope = scope
+	end
+
+	def self.i18n_scope
+		@i18n_scope
+	end
+
+	def self.uuid?(value)
+		value.to_s.match?(/\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/)
+	end
+
+	private
+
+		def self.attachments_changed_on?(record)
+			return false unless record.class.respond_to?(:attachment_reflections)
+
+			record.class.attachment_reflections.any? do |name, reflection|
+				# Look up the correct internal association name based on whether it is a :has_one or :has_many attachment macro
+				association_name  = "#{name}_attachment"
+				association_name += "s" unless reflection.macro == :has_one_attached
+				association       = record.association(association_name)
+
+				# Grab whatever records are currently loaded in the memory cache target
+				records = Array(association.target)
+
+				records.any? do |attachment_record|
+					attachment_record.new_record? ||
+						attachment_record.marked_for_destruction? ||
+						attachment_record.changed?
 				end
 			end
 		end
-	end
+
+		# True if any has_one_attached / has_many_attached on this class has a
+		# pending in-memory change. Uses only public API:
+		#   - attachment_reflections  (class_attribute, public)
+		#   - attachment              (public reader on Attached::One / ::Many)
+		#   - changed?                (public on the attachment AR record)
+		def attachments_changed?
+			self.class.attachments_changed_on?(self)
+		end
+
+		def compare_dates(date1, date2, latest: true)
+			dates = []
+			dates << date1 if date1.is_a?(Date)
+			dates << date2 if date2.is_a?(Date)
+
+			return nil if dates.empty?
+			latest ? dates.max : dates.min
+		end
+
+		def rich_texts_changed?
+			self.class.reflect_on_all_associations(:has_one)
+					.select { |r| r.class_name == "ActionText::RichText" }
+					.any? do |reflection|
+						record = public_send(reflection.name)
+						next false unless record
+
+						record.new_record? ||
+						record.changed? ||
+						self.class.attachments_changed_on?(record)
+					end
+		end
+
+		def safe_download(attachment)
+			attachment.blob.download
+		rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
+			nil
+		end
+
+		# True if the current attachment holds a readable file whose bytes match
+		# the given new_file. Returns false for stale/orphaned blobs so the caller
+		# falls through to replacement.
+		def same_content?(attachment, new_file)
+			blob = attachment.blob
+			return false unless blob
+
+			current = blob.download
+			new_file.read == current
+		rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
+			false
+		ensure
+			new_file.rewind if new_file.respond_to?(:rewind)
+		end
+
+		def uuid?(value) = self.class.uuid?(value)
 end

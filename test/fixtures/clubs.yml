@@ -1,0 +1,24 @@
+# test/fixtures/clubs.yml
+test_club:
+  name: Test Club
+  nick: TC
+  email: c@example.com
+  phone: "+34911111110"
+  address: "10 Test Street"
+  public: true
+
+north:
+  name: "Northside Sports Club"
+  nick: "NSC"
+  email: "info-north@mudclub.test"
+  phone: "+34911111111"
+  address: "1 North Street"
+  public: false
+
+south:
+  name: "Southside Sports Club"
+  nick: "SSC"
+  email: "info-south@mudclub.test"
+  phone: "+34922222222"
+  address: "2 South Street"
+  public: false

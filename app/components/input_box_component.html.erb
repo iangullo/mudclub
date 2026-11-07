@@ -1,52 +1,65 @@
 <% case @fdata[:kind] %>
 <% when :date_box %>
-	<%= @form.date_field(@fdata[:key], value: @fdata[:value], start_year: @fdata[:s_year], end_year: (@fdata[:e_year] || Time.now.year), class: @i_class, data: @i_data) %>
+	<%= @form.date_field(@fdata[:key], value: @fdata[:value], min: @fdata[:s_year] && "#{@fdata[:s_year]}-01-01", max: "#{@fdata[:e_year] || Time.now.year}-12-31", class: @i_class, data: @i_data) %>
 <% when :email_box %>
 	<%= @form.email_field(@fdata[:key], placeholder: @fdata[:placeholder], size: @fdata[:size], class: @i_class, data: @i_data) %>
 <% when :hidden %>
-	<%= @form.hidden_field(@fdata[:key].to_sym, value: @fdata[:value], data: @i_data) %>
+  <% if @fdata[:name] %>
+	<%= hidden_field_tag @fdata[:name], @fdata[:value], data: @i_data %>
+  <% else %>
+    <%= @form.hidden_field(@fdata[:key].to_sym, value: @fdata[:value], data: @i_data) %>
+  <% end %>
 <% when :image_box %>
-	<style>
-		/* Style the container with fixed dimensions */
-		#imageboxContainer {
-			width: <%= @width %>;
-			height: <%= @height %>;
-			max-width: <%= @width %>;
-			max-height: <%= @height %>;
-			border: 1px solid gray;
-			overflow: hidden;
-			position: relative;
-			display: flex; /* Use flexbox */
-			justify-content: center; /* Center horizontally */
-			align-items: center; /* Center vertically */
+	<style>	/* Style the container with fixed dimensions */
+		.imagebox-container {
+			width: <%= @width %>; height: <%= @height %>;
+			max-width: <%= @width %>; max-height: <%= @height %>;
+			border: 1px solid gray; overflow: hidden; position: relative;
+			display: flex; justify-content: center; align-items: center;
 		}
-
-		#imageSnapshot {
+  		.imagebox-snapshot {
 			max-width: <%= @width %>;
 			max-height: <%= @height %>;
 		}
 	</style>
-	<div id="imageboxContainer" data-controller="imagebox" class="group flex rounded relative">
+	<div id="imagebox-<%= @fdata[:key] %>" data-controller="imagebox" class="imagebox-container group flex rounded relative mr-1">
 		<!-- Image element to display snapshots (loaded initially) -->
-		<%= image_tag @fdata[:value], id: "imageSnapshot", class: "object-cover w-full", data: { action: "click->imagebox#openFileDialog", imagebox_target: 'selectedImage' } %>
-
+		<%= image_tag @fdata[:value].presence || "",
+				id: "imageSnapshot-#{@fdata[:key]}",
+				class: "imagebox-snapshot object-cover w-full#{' hidden' unless @fdata[:value].present?}",
+				data: {
+					action: "click->imagebox#openFileDialog",
+					imagebox_target: "selectedImage"
+				}
+		%>
+	    <% unless @fdata[:value].present? %>
+			<div class="flex justify-center items-center w-full h-full"
+				data-imagebox-target="placeholder"
+				data-action="click->imagebox#openFileDialog">
+				<%= render SymbolComponent.new(:missing, size: @fdata[:size], css: "w-full h-full") %>
+			</div>
+		<% end %>
 		<!-- Overlay for the camera icon -->
-		<div class="overlay absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex justify-center items-center" data-action="click->imagebox#openFileDialog" >
+		<div class="overlay rounded" data-action="click->imagebox#openFileDialog">
 			<span class="camera-icon text-4xl pointer-events-none">📷</span>
 		</div>
 
 		<!-- Hidden input for file upload -->
-		<%= @form.file_field @fdata[:key], id: "imageFile", direct_upload: true, class: "hidden", data: @i_data %>
+		<%= @form.file_field @fdata[:key], id: "imageFile-#{@fdata[:key]}", direct_upload: true, class: "hidden", data: @i_data %>
 	</div>
 <% when :label_checkbox %>
 	<div class='inline-flex align-middle'>
-		<% if @fdata[:right] %>
-			<label class='font-medium'><%= @fdata[:label] %></label>
-			<%= @form.check_box(@fdata[:key], class: @i_class) %>
-		<% else %>
-			<%= @form.check_box(@fdata[:key], class: @i_class) %>
-			<label class='font-medium'><%= @fdata[:label] %></label>
-		<% end %>
+	<% if @fdata[:right] %>
+		<label class='font-medium'><%= @fdata[:label] %></label>
+	<% end %>
+	<% if @fdata[:multiple] %>
+		<%= @form.check_box(@fdata[:key], { multiple: true, class: @i_class, data: @i_data }, @fdata[:value], nil) %>
+	<% else %>
+		<%= @form.check_box(@fdata[:key], class: @i_class, data: @i_data) %>
+	<% end %>
+	<% unless @fdata[:right] %>
+		<label class='font-medium'><%= @fdata[:label] %></label>
+	<% end %>
 	</div>
 <% when :number_box %>
 	<%= @form.number_field(@fdata[:key], value: @fdata[:value], size: @fdata[:size] || 2, in: @fdata[:min]..@fdata[:max], step: @fdata[:step], class: @i_class, data: @i_data) %>
@@ -55,6 +68,16 @@
 	<%= @form.password_field(@fdata[:key], placeholder: @fdata[:placeholder], class: @i_class, size: @fdata[:size], data: @i_data) %>
 <% when :radio_button %>
 	<%= @form.radio_button(@fdata[:key], @fdata[:value], checked: @fdata[:checked], class: @i_class, data: @i_data) %>
+<% when :radio_group %>
+	<% @fdata[:options].each do |option| %>
+		<div class="flex items-center gap-2 py-1">
+			<%= @form.radio_button(@fdata[:key],option[:value],checked: option[:value] == @fdata[:value],class: @i_class) %>
+			<div>
+				<label class="font-medium"><%= option[:label] %></label>
+				<% if option[:hint].present? %><div class="text-sm text-gray-500"><%= option[:hint] %></div><% end %>
+			</div>
+		</div>
+	<% end %>
 <% when :rich_text_area %>
 	<%= @form.rich_text_area(@fdata[:key], class: @i_class, data: @i_data) %>
 <% when :select_box %>
@@ -86,7 +109,7 @@
 	<% if @fdata[:label] # add wrapper div and label%>
 	<div class="flex flex-col md:flex-row">
 		<label class='font-semibold mr-2 align-top'><%= @fdata[:label] %></label>
-		<div class="px">
+		<div class="px-1">
 	<% end %>
 		<%= @form.text_area(@fdata[:key], value: @fdata[:value], placeholder: @fdata[:placeholder], cols: @fdata[:size], rows: @fdata[:lines], class: @i_class, data: @i_data) %>
 	<% if @fdata[:label] %>
@@ -114,21 +137,23 @@
 	</div>
 	<% end %>
 <% when :time_box %>
-	<%= @form.number_field(:hour, value: @fdata[:hour], in: 9..22, size: @fdata[:size] || 3, class: @i_class, data: @i_data.merge({condition: "min:6"})) %>
+	<% hour_condition = @fdata[:hour_condition].presence || "min:9;max:22" %>
+	<% min_condition  = @fdata[:min_condition].presence  || "min:0;max:45" %>
+	<%= @form.number_field(:hour, value: @fdata[:hour], in: 9..22, size: @fdata[:size] || 3, class: @i_class, data: @i_data.merge(condition: hour_condition)) %>
 	<strong>:</strong>
-	<%= @form.number_field(:min, value: @fdata[:mins], in: 0..45, step: 15, size: @fdata[:size] || 3, class: @i_class, data: @i_data.merge({condition: "max:59"})) %>
+	<%= @form.number_field(:min, value: @fdata[:mins], in: 0..45, step: 15, size: @fdata[:size] || 3, class: @i_class, data: @i_data.merge(condition: min_condition)) %>
 <% when :upload %>
 	<div id="upload-file" class="inline-flex items-center" data-controller="upload">
 		<!-- Hidden input for file upload -->
-		<%= @form.file_field(@fdata[:key], id: "upload-btn-#{@fdata[:key]}", direct_upload: true, class: "hidden", data: @i_data) %>
+		<%= @form.file_field(@fdata[:key], id: "upload-btn-#{@fdata[:key]}", direct_upload: true, class: "hidden", data: @i_data, accept: @fdata[:accept]) %>
 
 		<!-- Custom button to trigger file input -->
-		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" data-action="click->upload#selectFile" data-upload-target="button">
+		<button type="button" class="custom-upload-btn <%= @fdata[:i_class] %>" data-action="click->upload#selectFile">
 			<%= render_image(@fdata, size: "25x25") if (@fdata[:icon].present? || @fdata[:symbol].present?) %>
 			<%= @fdata[:label] %>
 		</button>
 
 		<!-- Display selected file name -->
-		<span id="file-name-<%= @fdata[:key] %>" class="px text-sm text-gray-500" data-upload-target="fileName"><%= @fdata[:fname] %></span>
+		<span id="file-name-<%= @fdata[:key] %>" class="px-2 text-sm text-gray-500" data-upload-target="fileName"><%= @fdata[:fname] %></span>
 	</div>
 <% end %>

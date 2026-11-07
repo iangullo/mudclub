@@ -1,0 +1,13 @@
+<%= t("mailers.shared.greeting", requester: @snapshot.requester) %>
+<br>
+<p>
+<% if @snapshot.team %>
+    <%= t(".body_with_team", candidate: @snapshot.candidate, kind: @snapshot.kind, club: @snapshot.club, team: @snapshot.team) %>
+<% else %>
+    <%= t(".body", candidate: @snapshot.candidate, kind: @snapshot.kind, club: @snapshot.club) %>
+<% end %>
+</p>
+<br>
+<p><%= t(".action") %> <a href="<%= @url %>"><%= t(".link") %></a></p>
+<br>
+<%= t(".closing") %>

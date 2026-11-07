@@ -1,13 +1,54 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# test/fixtures/teams.yml
+# Teams belong to clubs via FK. Use identify(:label) — never a literal integer.
+senior_a:
+  name: Test Seniors
+  nick: Senior A
+  club: test_club
+  sport: basketball
+  season: current
+  category: senior_mixed
+  division: local
+  homecourt: home_court
+  locked: false
 
-one:
-  name: MyString
-  season: one
-  category: one
-  division: one
+u18_male:
+  name: U18 Male
+  club: test_club
+  sport: basketball
+  season: previous
+  category: u18_male
+  division: regional
+  homecourt: home_court
+  locked: true
 
-two:
-  name: MyString
-  season: two
-  category: two
-  division: two
+north_senior:
+  name: "Northside Senior"
+  nick: "NSC-A"
+  club: north
+  sport: basketball
+  season: current
+  category: senior_mixed
+  division: local
+  homecourt: home_court
+  locked: false
+
+south_senior:
+  name: "Southside Senior"
+  nick: "SSC-A"
+  club: south
+  sport: basketball
+  season: current
+  category: senior_mixed
+  division: local
+  homecourt: home_court
+  locked: false
+
+u14_mixed:
+  name: U14 Mixed
+  club: test_club
+  sport: basketball
+  season: current
+  category: u14_mixed
+  division: local
+  homecourt: home_court
+  locked: false

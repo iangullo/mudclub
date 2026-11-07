@@ -1,11 +1,8 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  name: MyString
-  gmaps: 
+# test/fixtures/locations.yml
+home_court:
+  name: Home Court
   practice_court: false
 
-two:
-  name: MyString
-  gmaps: 
-  practice_court: false
+indoor_gym:
+  name: Indoor Gym
+  practice_court: true

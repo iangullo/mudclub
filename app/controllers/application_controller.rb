@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -18,32 +18,57 @@
 #
 # Core shared controller methods
 class ApplicationController < ActionController::Base
+	include RoutingHelper
+
+	DROWS_BY_DEVICE = { "desktop": 18, "tablet": 18, "mobile": 15 }.freeze
+
 	# Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
 	allow_browser versions: :modern
-	before_action :set_context
+	before_action :set_application_context
 	around_action :switch_locale
-	# Make these methods available to views and helpers
-	helper_method :u_admin?, :u_club, :u_clubid, :u_coach?, :u_coachid,	:u_manager?,
-								:u_personid, :u_player?, :u_playerid, :u_secretary?, :u_userid,
-								:user_in_club?, :club_manager?, :team_manager?
 
-	# check if correct  access level exists. Basically checks if:
-	# "user is present AND (valid(role) OR valid(obj.condition))"
-	# optionally, check that clubid matches.
-	def check_access(roles: nil, obj: nil, both: false)
-		if current_user.present?	# no access if no user logged in
-			if both	# both conditions to apply
-				return (check_object(obj:) && check_role(roles:))
-			else	# either condition is sufficient
-				return (check_object(obj:) || check_role(roles:))
-			end
+	# simplify calls to routing definitions
+	helper RoutingHelper
+
+	# Make these methods available to views and helpers
+	helper_method :u_admin?, :u_club, :u_manager?, :u_person,
+								:user_in_club?,	:date_string
+
+	# manage status updates for objects with the attribute
+	def apply_status_change(obj, format, retlnk: path_for(obj))
+		if perform_status_change(obj, status_value_for(obj))
+			notice = helpers.flash_message(obj.msg(:updated), :success)
+			format.html { redirect_to retlnk, notice:, status: :see_other, turbo_action: "replace" }
+			format.json { render :show, status: :ok, location: obj }
+		else
+			message = obj.errors.full_messages.to_sentence.presence || obj.msg(:status_fail)
+			format.html { redirect_to retlnk, notice: helpers.flash_message(message, :error) }
+			format.json { render json: obj.errors, status: :unprocessable_entity }
 		end
-		false
 	end
 
-	# return whether the current user is a club_manager
-	def club_manager?(club = Club.find(@clubid))
-		check_access(roles: [ :manager ], obj: club, both: true)
+	# auxliary check for params that need matching values
+	def assert_param_matches!(param_name, value)
+		param = params[param_name]
+		return if param.blank?
+		return if value&.id&.to_s == param.to_s
+
+		raise ActiveRecord::RecordNotFound
+	end
+
+	# NEW authorization policy management approach.
+	def check_policy!(policy_class, record: nil, **context)
+		context[:club]  ||= @club
+		context[:token] ||= @token
+		policy = policy_class.new(current_user, record:, **context)
+		method = "#{action_name}?"
+
+		unless policy.respond_to?(method)
+			raise NotImplementedError, "#{policy_class}##{method} not implemented"
+		end
+
+		deny_access unless policy.public_send(method)
+		policy
 	end
 
 	# return a ButtonComponent object from a definition hash
@@ -74,30 +99,34 @@ class ApplicationController < ActionController::Base
 	end
 
 	# Create a submit component
-	def create_submit(close: :close, submit: :save, retlnk: nil, frame: nil)
-		SubmitComponent.new(close:, submit:, retlnk:, frame:)
+	def create_submit(close: :close, submit: :save, actions: [], retlnk: nil, frame: nil)
+		SubmitComponent.new(close:, submit:, actions:, retlnk:, frame:)
 	end
 
-	# defines correct retlnk for show/index pages based on
-	# controller context and zerolnk, optonally passed as param
-	def base_lnk(zerolnk = "/")
+	# Where the user came from, for a "Back" link.
+	# Only trusts same-origin referers; falls back to `default` otherwise.
+	def back_link(default: root_path)
 		case @rdx&.to_i
-		when 0, nil	# return to zerolnk, typically provided by controller
-			return zerolnk
+		when 0, nil	# return to default, typically provided by controller
+			default
 		when 1	# return to users home_path
-			return user_path(current_user, rdx: 1)
+			path_for(current_user)
 		when 2	# return to log_path
-			return home_log_path
+			log_server_path
+		when 3
+			return path_for(Membership.find(params[:member_id])) unless params[:member_id].blank?
+			return path_for(User.find(params[:user_id])) unless params[:user_id].blank?
+			default
+		else
+			default
 		end
-		"/"	# root
 	end
 
 	# ensure @season matches the calling context.
 	# :obj is an object that has a :season_id link
 	def get_season(obj: nil)
 		unless @season&.id != obj&.season_id&.to_i
-			@season   = Season.search(obj&.season_id)
-			@seasonid = @season&.id
+			@season = Season.search(obj&.season_id)
 		end
 		@season
 	end
@@ -105,6 +134,12 @@ class ApplicationController < ActionController::Base
 	# check if a string is an integer
 	def is_integer(cad)
 		cad.to_i.to_s == cad
+	end
+
+	# parse a value to determine if its true
+	def to_boolean(value)
+		val = value.presence
+		(val&.to_s == "true" || val.to_i == 1)
 	end
 
 	# standard message for actions that had no data to change
@@ -161,76 +196,89 @@ class ApplicationController < ActionController::Base
 		u_act.save
 	end
 
+	def requester_token
+		return @requester_token if defined?(@requester_token)
+		@requester_token =
+			params[:token].presence ||
+			request.headers["X-Requester-Token"].presence
+	end
+
+	def requester_token?
+		requester_token.present?
+	end
+
+	def require_module(name)
+		return if Server.module_enabled?(name)
+		deny_access(I18n.t("server.module_disabled"))
+	end
+
 	# set the action's context
-	def set_context
+	def set_application_context
+		Server.current
+		@token  = requester_token
+		@club   = Club.find(params[:club_id]) if params[:club_id].present?
+		@locale = (params[:locale] || current_user&.locale || Server.default_locale)
 		if user_signed_in?
-			club      = u_club
-			@clubid   = get_param(:club_id, objid: true) || u_clubid
-			@rdx      = p_rdx
-			@season   = Season.search(p_seasonid)
-			@seasonid = @season&.id
-			user      = current_user
+			@club ||= u_club
+			@rdx    = p_rdx
+			@season = Season.search(p_seasonid)
+		else
+			# Fallback for anonymous (or club-less) visitors on public club pages
+			@season = Season.latest
 		end
-		@clublogo = club&.logo || "mudclub.svg"
-		@clubname = club&.nick || "MudClub"
-		@favicon  = user_favicon(club)
-		@topbar   = TopbarComponent.new(user:, logo: @clublogo, nick: @clubname, home: u_path, logout: destroy_user_session_path)
+		@favicon  = user_favicon(@club)
+		@topbar   =
+			TopbarComponent.new(
+				user: current_user,
+				club: @club,
+				home: u_path,
+				logout: current_user ? destroy_user_session_path : nil,
+				registrations_url: requester_registrations_path
+			)
+	end
+
+	def load_participation_context
+		@team   = @club.teams.find(params[:team_id]) if params[:team_id].present?
+		s_kind  = @kind || "participation"
+		@status = params[:status].presence ||
+							session.dig("#{s_kind}_filters", "status")
+		@search = params[:search].presence ||
+							session.dig("#{s_kind}_filters", "search")
 	end
 
 	# switch app locale
 	def switch_locale(&action)
-		locale   = (params[:locale] || current_user&.locale || I18n.default_locale)
-		I18n.with_locale(locale, &action)
+		I18n.with_locale(@locale, &action)
 	end
 
-	# return whether the current user is a club_manager
-	def team_manager?(team = @team)
-		team&.has_coach(u_coachid) || club_manager?(team&.club)
+	# Standard string format for date values
+	def date_string(date)
+		case date
+		when Date, Time, DateTime
+			date&.strftime("%d/%m/%Y")
+		else
+			""
+		end
 	end
 
-	# wrappers to access user attributes
 	def u_admin?
-		current_user&.admin?
+		@u_admin ||= current_user&.admin?
 	end
 
 	def u_manager?
-		current_user&.is_manager?
+		@u_manager ||= current_user&.is_manager?(@club)
 	end
 
 	def u_club
-		current_user&.club
+		return nil unless current_user
+		return @club   if user_in_club?
+		return @u_club if @u_club
+		clubs   = current_user.clubs
+		@u_club = clubs.first if clubs.size == 1
 	end
 
-	def u_clubid
-		current_user&.club_id
-	end
-
-	def u_coach?
-		current_user&.is_coach?
-	end
-
-	def u_coachid
-		current_user&.person&.coach_id
-	end
-
-	def u_personid
-		current_user&.person&.id
-	end
-
-	def u_player?
-		current_user&.is_player?
-	end
-
-	def u_playerid
-		current_user&.person&.player_id
-	end
-
-	def u_secretary?
-		current_user&.secretary?
-	end
-
-	def u_userid
-		current_user&.id
+	def u_person
+		@u_person ||= current_user&.person
 	end
 
 	# wrapper to manage return links home path
@@ -238,11 +286,10 @@ class ApplicationController < ActionController::Base
 		user_signed_in? ? user_path(current_user, rdx: 1) : "/"
 	end
 
-	# Check whether the user's club ID is the same as @clubid
-	# @return [Boolean] - True if the current_user's club ID matches @clubid, otherwise false
-	def user_in_club?
-		return false unless @clubid
-		@clubid == u_clubid
+	# Check whether the user's club is the same as @club
+	def user_in_club?(club = @club)
+		return false unless current_user && club.is_a?(Club)
+		current_user.member_of?(club)
 	end
 
 	# check if a string is a valid date
@@ -255,53 +302,24 @@ class ApplicationController < ActionController::Base
 	end
 
 	private
-		# check if current user satisfies access policy
-		def check_role(roles:)
-			roles&.each do |rol|	# ok as if any of roles is found
-				case rol
-				when :admin
-					return true if u_admin?
-				when :manager
-					return true if u_manager?
-				when :coach
-					return true if u_coach?
-				when :player
-					return true if u_player?
-				when :secretary
-					return true if u_secretary?
-				when :user
-					return true if user_signed_in?  # it's a user alright
-				else
-					return false
-				end
+		class AccessDenied < StandardError; end
+
+		rescue_from AccessDenied do |e|
+			respond_to do |format|
+				notice = helpers.flash_message(e.message, :error)
+				format.html         { redirect_to root_path, notice:, status: :see_other }
+				format.turbo_stream { redirect_to root_path, notice:, status: :see_other }
+				format.json         { render json: { error: e.message }, status: :forbidden }
 			end
+		end
+
+		def add_obj_error(obj, message)
+			obj.errors.add(:base, message)
 			false
 		end
 
-		# check object related access policy
-		def check_object(obj:)
-			case obj
-			when Category, Division, FalseClass, Location, Season
-				true
-			when Coach
-				(obj.id == u_coachid)
-			when Club
-				(obj.id == u_clubid) # rubocop:disable Style/RedundantReturn
-			when Drill
-				(obj.coach_id == u_coachid)
-			when Event
-				(obj.team.has_coach(u_coachid) || obj.has_player(u_playerid))
-			when Person
-				(obj.id == u_personid)
-			when Player
-				(obj.id == u_playerid)
-			when Team
-				(obj.has_coach(u_coachid) || obj.has_player(u_playerid))
-			when User
-				(obj.id == u_userid)
-			else # including NilClass
-				u_admin?
-			end
+		def deny_access(message = I18n.t("shared.messages.access_denied"))
+			raise AccessDenied, message
 		end
 
 		# get a param either from base or from a sub-node
@@ -311,17 +329,117 @@ class ApplicationController < ActionController::Base
 			res.nil? ? nil :  res.to_i
 		end
 
+		# shared abstraction to handle object merge modal requests
+		# must be passed the response format, record, merge candidates
+		# and record_params
+		def handle_object_merge(format, record, candidates, attrs, current_person: :default, form_url: nil, form_method: nil)
+			status  = :unprocessable_entity
+			partial = { partial: "shared/merge", locals: { record:, form_url:, form_method: }.compact }
+			prepare_person_bearing_merge(record, candidates, attrs, current_person:)
+
+			format.turbo_stream do
+				render turbo_stream: turbo_stream.replace("modal", **partial), status:
+			end
+			format.html { render(**partial, status:) }
+			format.json { render json: { status: :offer_merge }, status: :multiple_choices }
+		end
+
 		# Calculate pagination parameters based on available screen space or other criteria
 		def paginate(data, lines = 1)
-			drows = case helpers.device
-				when "desktop", "tablet"; 18 # rubocop:disable Layout/CaseIndentation
-				when "mobile"; 15 # rubocop:disable Layout/CaseIndentation
-				else; 25
-			end
+			drows    = DROWS_BY_DEVICE.fetch(helpers.device, 25)
 			per_page = (drows/lines).round
-			current_page = params[:page] || 1
+			data.page(params[:page] || 1).per(per_page)
+		end
 
-			data.page(current_page).per(per_page)
+		def perform_status_change(obj, target)
+			return add_obj_error(obj, "Status not supported") unless obj.respond_to?(:status=)
+
+			method = obj.respond_to?(:transition_method_for) ? obj.transition_method_for(target) : nil
+
+			begin
+				success =
+					if method && obj.respond_to?(method)
+						obj.public_send(method)
+					else
+						obj.update!(status: target)
+					end
+
+				return true if success
+
+				obj.errors.add(:base, obj.msg(:status_fail))
+				false
+			rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotSaved, ArgumentError => e
+				obj.errors.add(:base, e.message) if obj.errors.empty?
+				false
+			rescue StandardError, NotImplementedError => e
+				Rails.logger.error("[status] #{obj.class}##{method || :update!}: #{e.class}: #{e.message}")
+				obj.errors.add(:base, obj.msg(:status_fail)) if obj.errors.empty?
+				false
+			end
+		end
+
+		def prepare_person_bearing_merge(obj, candidates, attrs, current_person: :default)
+			@header       = create_fields(helpers.person_show_title(obj, id_pic: false))
+			@merge_fields = create_fields(helpers.person_merge_fields(obj, candidates, attrs, current_person:))
+			@submit       = create_submit
+		end
+
+		# merge person duplicates
+		def rebuild_or_merge_person(obj, attrs)
+			if attrs[:person_merge].present?	# pending merge to execute
+				case attrs[:person_merge]
+				when "__new__", "__keep__"
+					obj.person ||= Person.new
+				else
+					canonical = Person.find(attrs[:person_merge])
+					if canonical
+						canonical.absorb!(obj.person) if obj.person.persisted?
+						obj.person = canonical
+					end
+				end
+				obj.person.rebuild(attrs[:person_attributes])	# rebuild only person
+				obj.rebuild(attrs.except(:person_attributes))	# rebuild object separately
+				{ status: :ok, person: obj.person }
+			else
+				rebuild_person_bearing(obj, attrs)
+			end
+		end
+
+		def rebuild_person_bearing(obj, attrs)
+			resolution = obj.rebuild(attrs)
+
+			case resolution.status
+			when :ok
+				{ status: :ok, person: obj.person }
+
+			when :ambiguous
+				{ status: :offer_merge, candidates: resolution.people, reason: :ambiguous }
+
+			when :conflict
+				{ status: :offer_merge, candidates: resolution.conflicts.values, reason: :conflict }
+
+			else
+				{ status: :invalid, message: "Cannot process submitted data: #{attrs}" }
+			end
+		end
+
+		def requester_registrations_path
+			return nil unless current_user || session_registration_tokens.any?
+			my_registrations_path if Registration.submitted_by(current_user.person_id).any?
+		end
+
+		def session_registration_tokens
+			session[:registration_tokens] || {}
+		end
+
+		def status_only_update?(obj)
+			status_value_for(obj).present? &&
+				get_param(:person_attributes).blank? &&
+				get_param(:person_merge).blank?
+		end
+
+		def status_value_for(obj)
+			get_param(obj.model_name.param_key, :status)
 		end
 
 		# determine the app favicon based on user favicon

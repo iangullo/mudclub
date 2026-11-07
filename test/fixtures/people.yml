@@ -1,15 +1,18 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# dni / email / phone are unique per Person → distinct values per label.
+alice:
+  name: "Alice"
+  surname: "Admin"
+  nick: "alice"
+  dni: "11111111A"
+  email: "alice@mudclub.test"
+  phone: "+34611000001"
+  female: true
 
-one:
-  dni: MyString
-  name: MyString
-  surname: MyString
-  birthday: 2021-09-08
-  female: false
-
-two:
-  dni: MyString
-  name: MyString
-  surname: MyString
-  birthday: 2021-09-08
+bob:
+  name: "Bob"
+  surname: "Player"
+  nick: "bob"
+  dni: "22222222B"
+  email: "bob@mudclub.test"
+  phone: "+34611000002"
   female: false

@@ -1,0 +1,240 @@
+# config/locales/participation/es.yml
+# -----------------------------------------------------------------------------
+# MudClub
+#
+# Dominio de participación
+#
+# Traducciones canónicas para membresías, asignaciones y sus catálogos.
+#
+# Las claves de compatibilidad heredadas se conservan al final de este archivo
+# durante la migración v2 y no deben usarse en código nuevo.
+# -----------------------------------------------------------------------------
+
+es:
+  participation:
+    label: Participación
+    short: Partic.
+
+    membership:
+      label:
+        single: Integrante
+        plural: Integrantes
+        short: Int.
+      actions:
+        create: Crear integrante
+        edit: Editar integrante
+        terminate: Dar de baja
+        delete: Borrar integrante
+        change_status: Cambiar estado
+      fields:
+        number: Número de integrante
+        number_short: Nº
+        kind: Tipo de integrante
+        kind_short: Tipo
+        person: Persona
+        club: Club
+        joined_on: Fecha de ingreso
+        joined_on_short: Alta
+        left_on: Fecha de baja
+        left_on_short: Baja
+        status: Estado
+        status_short: Est.
+        notes: Notas
+      messages:
+        created: Integrante creado.
+        created_female: Integrante creada.
+        no_change: Integrante sin cambios.
+        updated: Integrante actualizado.
+        updated_female: Integrante actualizada.
+        terminated: Integrante dado de baja.
+        terminated_female: Integrante dada de baja.
+        deleted: Integrante eliminado.
+        deleted_female: Integrante eliminada.
+        cannot_terminate: ¡No se pudo dar de baja!
+        status_fail: ¡No se pudo cambiar el estado!
+
+    assignment:
+      label:
+        single: Inscripción
+        plural: Inscripciones
+        short: Insc.
+      actions:
+        create: Inscribir
+        edit: Editar inscripción
+        terminate: Cancelar inscripción
+        delete: Borrar inscripción
+      fields:
+        membership: Integrante
+        kind: Rol asignado
+        kind_short: Puesto
+        starts_on: Inicio
+        ends_on: Fin
+        role: Cargo
+        team: Equipo
+        number: Dorsal
+        number_short: Nº
+        status: Estado
+        status_short: Est.
+        notes: Notas
+      messages:
+        created: Asignación creada.
+        updated: Asignación actualizada.
+        terminated: Baja efectiva.
+        deleted: Asignación eliminada.
+        cannot_terminate: ¡No se pudo dar de baja!
+        status_fail: ¡No se pudo cambiar el estado!
+
+    membership_kinds:
+      label: Tipo de integrante
+      short: Tipo
+      values:
+        athlete:
+          single: Deportista
+          plural: Deportistas
+          short: Dep.
+          hint: Persona que participa como deportista.
+        coach:
+          single: Entrenador
+          female: Entrenadora
+          plural: Entrenadores
+          plural_female: Entrenadoras
+          short: Ent.
+          hint: Persona que participa como entrenador.
+        volunteer:
+          single: Voluntario
+          female: Voluntaria
+          plural: Voluntarios
+          plural_female: Voluntarias
+          short: Vol.
+          hint: Persona que participa como voluntario.
+        board_member:
+          single: Miembro de junta directiva
+          plural: Junta Directiva
+          short: JD
+          hint: Persona que participa como miembro de junta directiva.
+        club_manager:
+          single: Gestor de club
+          female: Gestora de club
+          plural: Gestores de club
+          short: G.Club
+          hint: Persona que participa como gestor de club.
+
+    assignment_kinds:
+      label:
+        single: Rol asignado
+        plural: Roles asignados
+        short: Rol
+      values:
+        athlete: Deportista
+        athlete_plural: Deportistas
+        athlete_short: Dep.
+        captain: Capitán
+        captain_female: Capitana
+        captain_short: Cap.
+        head_coach: Entrenador principal
+        head_coach_female: Entrenadora principal
+        head_coach_short: P.Ent.
+        assistant_coach: Entrenador asistente
+        assistant_coach_female: Entrenadora asistente
+        assistant_coach_short: E.Ayte.
+        coaching_coordinator: Coordinador de entrenadores
+        coaching_coordinator_female: Coordinadora de entrenadores
+        coaching_coordinator_short: Coord.
+        team_manager: Director de equipo
+        team_manager_female: Directora de equipo
+        team_manager_short: Dir.Eq.
+        team_delegate: Delegado de equipo
+        team_delegate_female: Delegada de equipo
+        team_delegate_short: Del.Eq.
+        home_delegate: Delegado de campo
+        home_delegate_female: Delegada de campo
+        home_delegate_short: Del.Camp.
+        photographer: Fotógrafo
+        photographer_female: Fotógrafa
+        photographer_short: Fotos
+        community_manager: Gestor de comunidad
+        community_manager_female: Gestora de comunidad
+        community_manager_short: Com.Mgr.
+        webmaster: Webmaster
+        webmaster_short: Web.Mgr.
+        board_member: Vocal
+        board_member_plural: Junta Directiva
+        board_member_short: Vocal
+        club_manager: Gestor de club
+        club_manager_female: Gestora de club
+        club_manager_short: Ger.
+        president: Presidente
+        president_female: Presidenta
+        president_short: Pres.
+        vice_president: Vicepresidente
+        vice_president_female: Vicepresidenta
+        vice_president_short: V.Pres.
+        secretary: Secretario
+        secretary_female: Secretaria
+        secretary_short: Sec.
+        treasurer: Tesorero
+        treasurer_female: Tesorera
+        treasurer_short: Tes.
+
+  # ---------------------------------------------------------------------------
+  # OBSOLETO - NO MODIFICAR
+  #
+  # Claves de compatibilidad preservadas durante la migración v2.
+  #
+  # Buscar:
+  #
+  #   t(coach.
+  #   t(player.
+  #
+  # Eliminar una vez que todas las llamadas se hayan migrado.
+  # ---------------------------------------------------------------------------
+
+  coach:
+    abbr: Ent.
+
+    single: Entrenador
+    many: Entrenadores
+
+    created: "Entrenador creado: "
+    updated: "Entrenador actualizado: "
+    deleted: "Entrenador eliminado: "
+    duplicate: "Duplicar entrenador: "
+
+    edit: Editar Entrenador
+    new: Crear Entrenador
+
+    export: Entrenadores exportados
+    import: Entrenadores importados
+
+    label:
+      single: "%{t('coach.single')}"
+      plural: "%{t('coach.many')}"
+      short: "%{t('coach.abbr')}"
+
+  player:
+    abbr: Jug.
+
+    single: Jugador
+    many: Jugadores
+
+    number: Nº
+    playing: Jugando
+
+    created: "Jugador creado: "
+    updated: "Jugador actualizado: "
+    deleted: "Jugador eliminado: "
+    duplicate: "Duplicar jugador: "
+
+    deactivated: "Jugador inactivo: "
+    removed: "Jugador retirado: "
+
+    edit: Editar Jugador
+    new: Crear Jugador
+
+    export: Jugadores exportados
+    import: Jugadores importados
+
+    label:
+      single: "%{t('player.single')}"
+      plural: "%{t('player.many')}"
+      short: "%{t('player.abbr')}"

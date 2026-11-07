@@ -1,0 +1,210 @@
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the Affero GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or any
+# later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# contact email - iangullo@gmail.com.
+#
+#
+# Catalog::AssignmentKinds
+#
+# Defines the canonical assigments recognised by MudClub.
+#
+# Assingments describe the function a member performs within either a Club
+# or a Team. They are shared across the application and referenced by
+# Assignment records, which allow each Club to enable the assignment kinds it
+# wishes to use.
+#
+# Additional metadata classifies each AssingmentKind according to the module
+# owning it and the scope in which it may be assigned.
+#
+class Catalog::AssignmentKinds < Catalog::Base
+	domain "participation"
+
+	CATALOG = {
+
+		#
+		# Athletes
+		#
+
+		athlete: {
+			id: 0,
+			membership: :athlete,
+			scope: :team,
+			selectable: true,
+			description: "Regular member of a team."
+		},
+
+		captain: {
+			id: 10,
+			membership: :athlete,
+			scope: :team,
+			description: "Captain of a team."
+		},
+
+		#
+		# Coaching
+		#
+
+		head_coach: {
+			id: 20,
+			membership: :coach,
+			scope: :team,
+			selectable: true,
+			description: "Head coach of a team."
+		},
+
+		assistant_coach: {
+			id: 21,
+			membership: :coach,
+			scope: :team,
+			selectable: true,
+			description: "Assistant coach of a team."
+		},
+
+		coaching_coordinator: {
+			id: 22,
+			membership: :coach,
+			scope: :club,
+			selectable: true,
+			description: "Coordinates the club's sporting methodology and supervises team coaches."
+		},
+
+		#
+		# Volunteers
+		#
+
+		team_manager: {
+			id: 30,
+			membership: [ :volunteer, :board_member ],
+			scope: :team,
+			description: "Administrative manager of a team."
+		},
+
+		team_delegate: {
+			id: 31,
+			membership: :volunteer,
+			scope: :team,
+			selectable: true,
+			description: "Represents the team before competition organisers and officials."
+		},
+
+		home_delegate: {
+			id: 32,
+			membership: :volunteer,
+			scope: :team,
+			selectable: true,
+			description: "Coordinates the organisation of home fixtures and assists match officials."
+		},
+
+		photographer: {
+			id: 33,
+			membership: :volunteer,
+			scope: :club,
+			description: "Club photographer."
+		},
+
+		community_manager: {
+			id: 34,
+			membership: :volunteer,
+			scope: :club,
+			selectable: true,
+			description: "Handle social media interaction."
+		},
+
+		webmaster: {
+			id: 35,
+			membership: :volunteer,
+			scope: :club,
+			description: "Manage club website."
+		},
+
+		#
+		# Board
+		#
+		board_member: {
+			id: 40,
+			membership: :board_member,
+			scope: :club,
+			selectable: true,
+			description: "Regular member of the board."
+		},
+
+		president: {
+			id: 41,
+			membership: :board_member,
+			scope: :club,
+			selectable: true,
+			description: "President of the club."
+		},
+
+		vice_president: {
+			id: 42,
+			membership: :board_member,
+			scope: :club,
+			selectable: true,
+			description: "Vice-president of the club."
+		},
+
+		secretary: {
+			id: 43,
+			membership: :board_member,
+			scope: :club,
+			selectable: true,
+			description: "Secretary of the club."
+		},
+
+		treasurer: {
+			id: 44,
+			membership: :board_member,
+			scope: :club,
+			selectable: true,
+			description: "Treasurer of the club."
+		},
+
+		club_manager: {
+			id: 45,
+			membership: :club_manager,
+			selectable: true,
+			scope: :club,
+			description: "Club operational manager."
+		}
+
+	}.freeze
+
+	def self.normalize(value)
+		super(value)&.to_s&.singularize&.to_sym
+	end
+
+	def self.scope_of(kind)
+		fetch(kind)&.dig(:scope)&.to_sym
+	end
+
+	def self.club_level?(kind)
+		scope_of(kind) == :club
+	end
+
+	def self.team_level?(kind)
+		scope_of(kind) == :team
+	end
+
+	def self.membership_kind(kind)
+		fetch(kind)&.dig(:membership)&.to_sym
+	end
+
+	def self.allowed_for_membership?(assignment_kind, membership_kind)
+		Array(membership_kind(assignment_kind)).map
+			.include?(membership_kind.to_sym)
+	end
+end

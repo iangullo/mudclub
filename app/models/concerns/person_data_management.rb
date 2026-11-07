@@ -18,6 +18,7 @@
 #
 # PersonDataManagement: Module to abstract management of Person data in the
 # same way for all has_one :person objects.
+# FROZEN: legacy 1.x model. Read-only compatibility shim until 2.x migration completes. See docs/migration.
 module PersonDataManagement
 	# return whether all pics are attached
 	def all_pics?

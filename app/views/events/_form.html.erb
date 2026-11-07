@@ -1,9 +1,9 @@
-<%= form_with model: event, authenticity_token: true, data: event_form_data_options(event, title) do |form| %>
-	<% @ftitle.form = form %>
-	<%= render @ftitle %>
-	<% if @event.id || @event.train?%>
+<%= form_with model: resource_route(event), authenticity_token: true, data: event_form_data_options(event, title) do |form| %>
+	<% @header.form = form %>
+	<%= render @header %>
+	<% if @event.id || @event.kind_training?%>
 		<div id="edit-event-data">
-			<%= render('edit_session', form: form, title: title) if @event.train? %>
+			<%= render('edit_session', form: form, title: title) if @event.kind_training? %>
 			<% if @fields %>
 				<%= form.fields_for :stats, Stat.new do |ff| %>
 					<% @fields.form = ff %>

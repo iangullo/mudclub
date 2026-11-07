@@ -3,7 +3,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ['selectedImage', 'imageFile'];
+  static targets = ['selectedImage', 'imageFile', 'placeholder'];
 
   openFileDialog() {
     // Trigger the click event on the hidden file input
@@ -27,10 +27,12 @@ export default class extends Controller {
     const reader = new FileReader()
 
     reader.onload = (event) => {
-      const imageUrl = event.target.result
-      imageElement.src = imageUrl
+      imageElement.src = event.target.result
+      imageElement.classList.remove("hidden")
+      if (this.hasPlaceholderTarget) {
+        this.placeholderTarget.classList.add("hidden")
+      }
     };
-
     reader.readAsDataURL(file)
   }
 }

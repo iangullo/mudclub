@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -22,11 +22,11 @@ module SeasonsHelper
 		res = season_title(title:, cols:)
 		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
-			{ kind: :label, align: "right", value: I18n.t("calendar.start") },
+			label_item(I18n.t("calendar.start"), align: :right),
 			{ kind: :date_box, key: :start_date, s_year: 2020, value: @season.start_date }
 		]
 		res << [
-			{ kind: :label, align: "right", value: I18n.t("calendar.end") },
+			label_item(I18n.t("calendar.end"), align: :right),
 			{ kind: :date_box, key: :end_date, s_year: 2020, value: @season.end_date }
 		]
 		res
@@ -35,31 +35,34 @@ module SeasonsHelper
 	# table for mudclub seasons
 	def season_table(seasons: @seasons)
 		title = [
-			{ kind: :normal, value: I18n.t("season.single"), align: "center" },
-			{ kind: :normal, value: I18n.t("team.many"), align: "center" },
-			button_field({ kind: :add, url: new_season_path(rdx: @rdx), frame: "modal" })
+			{ kind: :normal, value: Season.label, align: :center },
+			{ kind: :normal, value: Team.label(:plural), align: :center },
+			{ kind: :normal, value: Membership.kind_label(:athlete, :short), align: :center }
 		]
+		title << normal_button({ kind: :add, url: new_season_path(rdx: @rdx), frame: :modal }) if @policy.new?
+
 		rows = Array.new
-		seasons.each { |season|
-			row = { url: season_path(season, rdx: @rdx), items: [], frame: "modal" }
-			row[:items] << { kind: :normal, value: season.name, align: "center" }
-			row[:items] << { kind: :normal, value: season.teams.count, align: "center" }
-			row[:items] << button_field({ kind: :delete, url: row[:url], name: season.to_s })
+		seasons.each do |season|
+			row = { url: path_for(season), items: [], frame: :modal }
+			row[:items] << { kind: :normal, value: season.name, align: :center }
+			row[:items] << { kind: :normal, value: season.teams.count, align: :center }
+			row[:items] << { kind: :normal, value: Assignment.where(team: season.teams).of_kind(:athlete).uniq.count, align: :center }
+			row[:items] << normal_button({ kind: :delete, url: row[:url], name: season.to_s }) if @policy.destroy?
 			rows << row
-		}
+		end
 		{ title:, rows: }
 	end
 
 	# return HeaderComponent @fields for forms
 	def season(cols: nil)
-		res = season_title(title: I18n.t("season.single"), cols:)
+		res = season_title(title: @season.label, cols:)
 		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
-			{ kind: :label, align: "right", value: I18n.t("calendar.start") },
+			label_item(I18n.t("calendar.start"), align: :right),
 			{ kind: :text, value: @season.start_date }
 		]
 		res << [
-			{ kind: :label, align: "right", value: I18n.t("calendar.end") },
+			label_item(I18n.t("calendar.end"), align: :right),
 			{ kind: :text, value: @season.end_date }
 		]
 		res
