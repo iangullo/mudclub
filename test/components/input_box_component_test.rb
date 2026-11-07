@@ -174,7 +174,7 @@ class InputBoxComponentTest < ActiveSupport::TestCase
 		refute_nil input, "expected a file input"
 		assert_includes input["class"].to_s, "hidden"
 		assert_includes html, "Choose file"
-		assert_includes html, 'data-action="click->upload#selectFile"'
+		assert_selector "button[data-action='click->upload#selectFile']"
 	end
 
 	test "upload renders the filename span" do

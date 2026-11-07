@@ -83,6 +83,9 @@ class FieldItemComponent < ApplicationComponent
 		end
 	end
 
+	def form = @form
+
+	# wrapper to define the component's @form - and pass on to content.
 	def form=(formobj)
 		@form = formobj
 		@item[:content].form = formobj if @item[:content]&.respond_to?(:form=)

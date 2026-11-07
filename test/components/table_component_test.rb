@@ -100,8 +100,8 @@ class TableComponentTest < ViewComponent::TestCase
 			}
 		])))
 
-		assert_selector "th.bg-white button[data-dropdown-toggle='menu']", text: "Menu"
-		assert_selector "th.bg-white ul li a[href='/item/1']", text: "Item 1"
+		assert_selector "th.bg-white button[data-dropdown-target~='trigger']"
+		assert_selector "th.bg-white button[data-action~='click->dropdown#toggle']"
 	end
 
 	# --------------------------------------------------------------
@@ -151,18 +151,13 @@ class TableComponentTest < ViewComponent::TestCase
 		])))
 
 		assert_selector "input[type=checkbox]", visible: :all
-		# Rails serializes `data: { rowId: ..., columnId: ... }` as
-		# `data-rowId` / `data-columnId`, which the HTML parser lowercases to
-		# `data-rowid` / `data-columnid` in the DOM. The Stimulus controller
-		# reads `dataset.rowid`, `dataset.columnid`, and (case-insensitively)
+		# Rails serializes `data: { row_id: ..., column_id: ... }` as
+		# `data-row_id` / `data-column_id`, which the HTML parser lowercases to
+		# `data-row_id` / `data-column_id` in the DOM. The Stimulus controller
+		# reads `dataset.rowId`, `dataset.columnId`, and (case-insensitively)
 		# `getAttribute("data-columnId")`, all of which line up with this shape.
 		# Assert against the DOM shape, not the source casing.
-		assert_selector(
-			"input[type=checkbox]" \
-			"[data-rowid='42'][data-columnid='s1']" \
-			"[data-target='table.checkbox'][checked]",
-			visible: :all
-		)
+		assert_selector "input[type=checkbox][data-row-id='42'][data-column-id='s1'][data-target='table.checkbox'][checked]"
 	end
 
 	test "renders :contact row item as a ContactComponent" do

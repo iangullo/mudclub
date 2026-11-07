@@ -81,7 +81,9 @@ class FieldsComponent < ApplicationComponent
 		end
 	end
 
-	# wrapper to define the component's @form - whe required.
+	def form = @form
+
+	# wrapper to define the component's @form - and pass on to items
 	def form=(formobj)
 		@form = formobj
 		@fields.each do |row|
