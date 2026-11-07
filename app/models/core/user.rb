@@ -91,7 +91,7 @@ class User < ApplicationRecord
 	end
 
 	def active?
-		return false if anonymized_at.present?
+		return false if respond_to?(:anonymized_at) && anonymized_at.present?
 		system_admin? || person&.memberships&.current&.any?
 	end
 
