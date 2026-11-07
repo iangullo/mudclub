@@ -166,7 +166,7 @@ class Basketball < Sport
 					row[:items] << { kind: :gap, size: 1, class: "border px-1 py-1" }
 				end
 			end
-			row[:classes] = (a_outings < data[:min]) || (a_outings > data[:max]) ? [ "border", "px", "py", "bg-red-300" ] : []
+			row[:classes] = (a_outings < data[:min]) || (a_outings > data[:max]) ? [ "border", "px-1", "py-1", "bg-red-300" ] : []
 			rows << row
 		end
 		unless edit
@@ -176,7 +176,7 @@ class Basketball < Sport
 				end
 			end
 		end
-		{ title:, rows:, data: }
+		{ title:, rows:, data:, controller: "outings" }
 	end
 
 	# table to show/edit athlete stats for a match

@@ -131,7 +131,7 @@ class CalendarComponent < ApplicationComponent
 
 			styles = EVENT_STYLES[b_color.to_sym]
 			c_event[:b_class] = [
-				styles[:bg], "text-sm rounded-lg border p-1",
+				styles[:bg], "text-sm rounded-lg border",
 				"hover:text-white", styles[:hover_bg], "relative group"
 			].join(" ")
 			c_event[:t_class] = [

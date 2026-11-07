@@ -516,7 +516,4 @@ module EventsHelper
 		def event_action_path(action, **opts)
 			path_for(@event, action:, cal: @cal, **opts)
 		end
-
-		def new_path_for(event = @event, **opts)
-		end
 end

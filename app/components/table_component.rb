@@ -33,9 +33,9 @@ class TableComponent < ApplicationComponent
 	attr_writer :form
 
 	def initialize(table, form: nil, align: "center")
-		@data = table[:data]
+		@data       = (table[:data] || {}).dup
 		@controller = table[:controller]
-		@data.merge(action: "change->#{@controller}#update") if @controller
+		@data.merge!(action: "change->#{@controller}#update") if @controller
 		@align  = align || "center"
 		@form   = form
 		@title  = parse_title(table[:title])
@@ -185,14 +185,14 @@ class TableComponent < ApplicationComponent
 		end
 
 		def render_checkbox(item)
-			content_tag(:div, class: "align-middle") do
+			content_tag(:div, class: "flex items-center justify-center") do
 				check_box(item[:key], "#{item[:athlete_id]}_#{item[:q]}", {
 					checked: item[:value] == 1,
-					class: "rounded bg-gray-200 text-blue-700",
+					class: "form-checkbox rounded-md bg-gray-200 text-blue-700 h-6 w-6 cursor-pointer",
 					data: {
 						target: "table.checkbox",
-						rowId: item[:athlete_id],
-						columnId: item[:q]
+						row_id: item[:athlete_id],
+						column_id: item[:q]
 					}
 				})
 			end
