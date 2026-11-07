@@ -170,8 +170,13 @@ module ServerHelper
 		end
 
 		def module_settings(mod)
+=begin
+			# TODO: NOT yet ready to allow this in production.
+			# need to understand first implications of each section
 			fields =
 				case mod.to_sym
+				# How can simplify configuration & integration of the
+				# SMTP infrastructure for the Server and/or each Club.
 				when :mailer
 					placeholder = [ Server.server_name, Server.support_email ].compact.join(" — ")
 					[
@@ -179,14 +184,15 @@ module ServerHelper
 						module_options_items(:email_box, :email_reply_to, symbol: :email),
 						module_options_items(:text_area, :email_signature, placeholder:, symbol: :edit)
 					]
-#=begin
+
+				# Think and design this correctly. Seems like registration terms
+				# and privacy acceptance belong in the domain of clubs, not the server.
 				when :admissions
 					[
 						module_options_items(:label_checkbox, :registrations_require_terms, symbol: :registration),
 						module_options_items(:text_box, :registrations_terms_url, symbol: :website),
 						module_options_items(:text_box, :registrations_privacy_url, symbol: :lock)
 					]
-#=end
 				else
 					[]
 				end
@@ -202,6 +208,8 @@ module ServerHelper
 					fields:       fields
 				}
 			] ]
+=end
+			[]	# TODO: remove once we figure out what to do with this section
 		end
 
 		def module_options_items(kind, key, symbol: nil, placeholder: Server.send(key).presence || Server.fld(key), size: 30)

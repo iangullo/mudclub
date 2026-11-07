@@ -86,7 +86,8 @@ class Catalog::Modules < Catalog::Base
 			description:
 				"Fixtures, competitions, standings and sporting results."
 		},
-=end
+
+		# TODO: make this a priority
 		mailer: {
 			id: 70,
 			dependencies: [ :core ],
@@ -95,7 +96,7 @@ class Catalog::Modules < Catalog::Base
 			description:
 				"Internal and external capability to send emails - smtp should be setup in /etc/mudclub."
 		},
-=begin
+
 		finance: {
 			id: 80,
 			dependencies: [ :core, :organization, :participation ],
