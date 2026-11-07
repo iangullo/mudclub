@@ -92,7 +92,7 @@ class AccordionComponent < ApplicationComponent
 		def summary_tag(obj)
 			content_tag(:summary,
 				class: "#{I_CLASS} accordion-summary list-none cursor-pointer " \
-							"[&::-webkit-details-marker]:hidden" \
+							"[&::-webkit-details-marker]:hidden " \
 							"group-open:bg-indigo-900 group-open:text-gray-200 " \
 							"group-open:shadow-sm") do
 				content_tag(:span, obj[:head]) + chevron_svg
