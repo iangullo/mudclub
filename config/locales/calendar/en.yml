@@ -33,6 +33,105 @@ en:
       since: Since
       until: Until
 
+    attendance:
+      label: Attendance
+      short: Attend.
+      fields:
+        person: Person
+        event: Event
+        status: Status
+        notes: Notes
+        weekly: Sem.
+        monthly: Mes
+      messages:
+        created: Attendance recorded.
+        updated: Attendance updated.
+        deleted: Attendance removed.
+
+    attendance_statuses:
+      label: Attendance status
+      short: Status
+      values:
+        present: Present
+        absent: Absent
+        excused: Excused
+        late: Late
+        unknown: Unknown
+
+    event_kinds:
+      label: Event kind
+      short: Kind
+      values: &event_kind_values # anchor
+        holiday: Holiday
+        holiday_short: Hol.
+        training: Training
+        training_short: Train
+        match: Match
+        match_short: Match
+        competition: Competition
+        competition_short: Comp.
+        meeting: Meeting
+        meeting_short: Meet
+        rest: Rest
+        rest_short: Rest
+        social: Social event
+        social_short: Soc.
+        other: Other
+        other_short: Other
+
+    event:
+      label:
+        single: Event
+        plural: Events
+        short: Event
+      actions:
+        add: Add to calendar
+        export: Export calendar
+      fields:
+        title: Title
+        description: Description
+        starts_on: Starts
+        ends_on: Ends
+        slot: Time slot
+        kind: Event kind
+        metadata: Metadata
+      kind: *event_kind_values # reference
+      messages:
+        created: Event created.
+        exported: Event exported.
+        updated: Event updated.
+        deleted: Event deleted.
+
+    recurrence_kinds:
+      label: Recurrence
+      short: Rec.
+      values:
+        none: None
+        daily: Daily
+        weekly: Weekly
+        monthly: Monthly
+        yearly: Yearly
+
+    slot:
+      label:
+        single: Time slot
+        plural: Time table
+        short: Slot
+      actions:
+        create: Create timeslot
+        edit: Edit timeslot
+      fields:
+        starts_on: Starts
+        starts_on_short: Start
+        ends_on: Ends
+        ends_on_short: End
+        duration: Duration
+        duration_short: Dur.
+      messages:
+        created: Time slot created.
+        updated: Time slot updated.
+        deleted: Time slot deleted.
+
     months:
       label: Month
       short: Mon.
@@ -80,99 +179,6 @@ en:
         saturday_short: Sat
         sunday: Sunday
         sunday_short: Sun
-
-    event_kinds:
-      label: Event kind
-      short: Kind
-      values: &event_kind_values # anchor
-        holiday: Holiday
-        holiday_short: Hol.
-        training: Training
-        training_short: Train
-        match: Match
-        match_short: Match
-        competition: Competition
-        competition_short: Comp.
-        meeting: Meeting
-        meeting_short: Meet
-        rest: Rest
-        rest_short: Rest
-        social: Social event
-        social_short: Soc.
-        other: Other
-        other_short: Other
-
-    attendance_statuses:
-      label: Attendance status
-      short: Status
-      values:
-        present: Present
-        absent: Absent
-        excused: Excused
-        late: Late
-        unknown: Unknown
-
-    recurrence_kinds:
-      label: Recurrence
-      short: Rec.
-      values:
-        none: None
-        daily: Daily
-        weekly: Weekly
-        monthly: Monthly
-        yearly: Yearly
-
-    slot:
-      label:
-        single: Time slot
-        plural: Time table
-        short: Slot
-      actions:
-        create: Create timeslot
-        edit: Edit timeslot
-      fields:
-        starts_on: Starts
-        starts_on_short: Start
-        ends_on: Ends
-        ends_on_short: End
-        duration: Duration
-        duration_short: Dur.
-      messages:
-        created: Time slot created.
-        updated: Time slot updated.
-        deleted: Time slot deleted.
-
-    event:
-      label: Event
-      short: Event
-      fields:
-        title: Title
-        description: Description
-        starts_on: Starts
-        ends_on: Ends
-        slot: Time slot
-        kind: Event kind
-        metadata: Metadata
-      kind: *event_kind_values # reference
-      messages:
-        created: Event created.
-        updated: Event updated.
-        deleted: Event deleted.
-
-    attendance:
-      label: Attendance
-      short: Attend.
-      fields:
-        person: Person
-        event: Event
-        status: Status
-        notes: Notes
-        weekly: Sem.
-        monthly: Mes
-      messages:
-        created: Attendance recorded.
-        updated: Attendance updated.
-        deleted: Attendance removed.
 
     # -----------------------------------------------------------------------------
     # DEPRECATED - DO NOT MODIFY
@@ -227,6 +233,10 @@ en:
 
     year: Year
 
+  # -----------------------------------------------------------------------------
+  # Legacy compatibility.
+  # Replaced by Calendar::EventKinds[:holiday]
+  # -----------------------------------------------------------------------------
   event:
     single: Event
     many: Events
@@ -242,10 +252,6 @@ en:
     many: Timetable
     new: Create Timeslot
 
-  # -----------------------------------------------------------------------------
-  # Legacy compatibility.
-  # Replaced by Calendar::EventKinds[:holiday]
-  # -----------------------------------------------------------------------------
   rest:
     created: "Holiday created: "
     deleted: "Holiday deleted: "

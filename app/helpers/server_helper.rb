@@ -127,10 +127,10 @@ module ServerHelper
 				[ { kind: :icon, symbol: symbol_hash(:locale, title: Server.fld(:default_locale)), class: css },
 					{ kind: :select_box, key: :default_locale,
 						options: Server.locale_list, value: Server.default_locale, i_class: "#{css} mb-2" },
-					{ kind: :icon, symbol: symbol_hash(:locale, title: Server.fld(:date_format)), class: css },
+					{ kind: :icon, symbol: symbol_hash(:calendar, title: Server.fld(:date_format)), class: css },
 					{ kind: :select_box, key: :date_format, i_class: css,
 						options: Server.date_formats, value: Server.date_format } ],
-				[ { kind: :icon, symbol: symbol_hash(:edit, title: Server.fld(:time_zone)), class: css },
+				[ { kind: :icon, symbol: symbol_hash(:time, title: Server.fld(:time_zone)), class: css },
 					{ kind: :select_box, key: :time_zone, cols: 3, i_class: "#{css} mb-2",
 						options: Server.time_zone_list, value: Server.time_zone } ]
 			]

@@ -33,6 +33,105 @@ es:
       since: Desde
       until: Hasta
 
+    attendance:
+      label: Asistencia
+      short: Asist.
+      fields:
+        person: Persona
+        event: Evento
+        status: Estado
+        notes: Notas
+        weekly: Sem.
+        monthly: Mes
+      messages:
+        created: Asistencia registrada.
+        updated: Asistencia actualizada.
+        deleted: Asistencia eliminada.
+
+    attendance_statuses:
+      label: Estado de asistencia
+      short: Estado
+      values:
+        present: Presente
+        absent: Ausente
+        excused: Justificado
+        late: Llegada tarde
+        unknown: Desconocido
+
+    event_kinds:
+      label: Tipo de evento
+      short: Tipo
+      values: &event_kind_values # anchor
+        holiday: Festivo
+        holiday_short: Fest.
+        training: Entrenamiento
+        training_short: Entren.
+        match: Partido
+        match_short: Part.
+        competition: Competición
+        competition_short: Comp.
+        meeting: Reunión
+        meeting_short: Reun.
+        rest: Descanso
+        rest_short: Desc.
+        social: Evento social
+        social_short: Soc.
+        other: Otro
+        other_short: Otro
+
+    event:
+      label:
+        single: Evento
+        plural: Eventos
+        short: Evento
+      actions:
+        add: Añadir al calendario
+        export: Exportar calendario
+      fields:
+        title: Título
+        description: Descripción
+        starts_on: Inicio
+        ends_on: Fin
+        slot: Franja horaria
+        kind: Tipo de evento
+        metadata: Metadatos
+      kind: *event_kind_values # referencia
+      messages:
+        created: Evento creado.
+        exported: Calendario exportado.
+        updated: Evento actualizado.
+        deleted: Evento eliminado.
+
+    recurrence_kinds:
+      label: Repetición
+      short: Rep.
+      values:
+        none: Ninguna
+        daily: Diaria
+        weekly: Semanal
+        monthly: Mensual
+        yearly: Anual
+
+    slot:
+      label:
+        single: Horario
+        plural: Horarios
+        short: Hora.
+      actions:
+        create: Crear horario
+        edit: Editar horario
+      fields:
+        starts_on: Inicio
+        starts_on_short: Inicio
+        ends_on: Fin
+        ends_on_short: Fin
+        duration: Duración
+        duration_short: Dur.
+      messages:
+        created: Horario creada.
+        updated: Horario actualizado.
+        deleted: Horario eliminado.
+
     months:
       label: Mes
       short: Mes
@@ -80,99 +179,6 @@ es:
         saturday_short: Sáb
         sunday: Domingo
         sunday_short: Dom
-
-    event_kinds:
-      label: Tipo de evento
-      short: Tipo
-      values: &event_kind_values # anchor
-        holiday: Festivo
-        holiday_short: Fest.
-        training: Entrenamiento
-        training_short: Entren.
-        match: Partido
-        match_short: Part.
-        competition: Competición
-        competition_short: Comp.
-        meeting: Reunión
-        meeting_short: Reun.
-        rest: Descanso
-        rest_short: Desc.
-        social: Evento social
-        social_short: Soc.
-        other: Otro
-        other_short: Otro
-
-    attendance_statuses:
-      label: Estado de asistencia
-      short: Estado
-      values:
-        present: Presente
-        absent: Ausente
-        excused: Justificado
-        late: Llegada tarde
-        unknown: Desconocido
-
-    recurrence_kinds:
-      label: Repetición
-      short: Rep.
-      values:
-        none: Ninguna
-        daily: Diaria
-        weekly: Semanal
-        monthly: Mensual
-        yearly: Anual
-
-    slot:
-      label:
-        single: Horario
-        plural: Horarios
-        short: Hora.
-      actions:
-        create: Crear horario
-        edit: Editar horario
-      fields:
-        starts_on: Inicio
-        starts_on_short: Inicio
-        ends_on: Fin
-        ends_on_short: Fin
-        duration: Duración
-        duration_short: Dur.
-      messages:
-        created: Horario creada.
-        updated: Horario actualizado.
-        deleted: Horario eliminado.
-
-    event:
-      label: Evento
-      short: Evento
-      fields:
-        title: Título
-        description: Descripción
-        starts_on: Inicio
-        ends_on: Fin
-        slot: Franja horaria
-        kind: Tipo de evento
-        metadata: Metadatos
-      kind: *event_kind_values # referencia
-      messages:
-        created: Evento creado.
-        updated: Evento actualizado.
-        deleted: Evento eliminado.
-
-    attendance:
-      label: Asistencia
-      short: Asist.
-      fields:
-        person: Persona
-        event: Evento
-        status: Estado
-        notes: Notas
-        weekly: Sem.
-        monthly: Mes
-      messages:
-        created: Asistencia registrada.
-        updated: Asistencia actualizada.
-        deleted: Asistencia eliminada.
 
     # -----------------------------------------------------------------------------
     # OBSOLETO - NO MODIFICAR
@@ -227,6 +233,10 @@ es:
 
     year: Año
 
+  # -----------------------------------------------------------------------------
+  # Compatibilidad heredada.
+  # Reemplazado por Calendar::EventKinds[:holiday]
+  # -----------------------------------------------------------------------------
   event:
     single: Evento
     many: Eventos
@@ -242,10 +252,6 @@ es:
     many: Horario
     new: Crear Franja horaria
 
-  # -----------------------------------------------------------------------------
-  # Compatibilidad heredada.
-  # Reemplazado por Calendar::EventKinds[:holiday]
-  # -----------------------------------------------------------------------------
   rest:
     created: "Festivo creado: "
     deleted: "Festivo eliminado: "

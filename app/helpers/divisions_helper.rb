@@ -36,13 +36,13 @@ module DivisionsHelper
 	# return table for @divisions TableComponent
 	def division_table
 		title = [ { kind: :normal, value: Division.fld(:name) } ]
-		title << normal_button({ kind: :add, url: new_path_far(@sport, :division), frame: :modal }) if @policy.new?
+		title << normal_button({ kind: :add, url: new_path_for(@sport.generic, :division), frame: :modal }) if @policy.new?
 
 		rows = Array.new
 		@divisions.each do |div|
-			row = { url: edit_path_for(div, owner: @sport), frame: :modal, items: [] }
+			row = { url: edit_path_for(div, owner: @sport.generic), frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: div.name }
-			row[:items] << normal_button({ kind: :delete, url: path_for(div, owner: @sport, rdx: @rdx), name: div.name }) if @policy.destroy?
+			row[:items] << normal_button({ kind: :delete, url: path_for(div, owner: @sport.generic, rdx: @rdx), name: div.name }) if @policy.destroy?
 			rows << row
 		end
 		table_item(title:, rows:, align: :center)

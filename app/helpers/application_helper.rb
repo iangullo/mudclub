@@ -184,7 +184,7 @@ module ApplicationHelper
 		img  = { size:, rows:, class: _class }
 		if form
 			img[:kind]  = :image_box
-			img[:key]   = "avatar"
+			img[:key]   = :avatar
 			img[:value] = icon
 		else
 			img[:kind]  = :header_icon

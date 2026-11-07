@@ -148,6 +148,7 @@ class FieldItemComponent < ApplicationComponent
 				item[:content] = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
 			when "table"
 				item[:value] ||= item.slice(:title, :rows, :form, :align)
+				item[:rows]    = nil
 			else
 				item[:i_class] = "rounded p-0" unless item[:kind] == :gap
 			end

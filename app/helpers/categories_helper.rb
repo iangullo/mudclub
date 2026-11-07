@@ -87,7 +87,7 @@ module CategoriesHelper
 			row[:items] << { kind: :normal, value: Person.t_path(:sex, "#{cat.sex}_short".to_sym) }
 			row[:items] << { kind: :normal, value: cat.min_years, align: :right }
 			row[:items] << { kind: :normal, value: cat.max_years, align: :right }
-			row[:items] << normal_button({ kind: :delete, url: path_for(cat, owner: @sport), name: cat.name }) if @policy.destroy?
+			row[:items] << normal_button({ kind: :delete, url: path_for(cat, owner: @sport.generic), name: cat.name }) if @policy.destroy?
 			rows << row
 		}
 		{ title:, rows: }

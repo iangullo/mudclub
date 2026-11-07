@@ -88,6 +88,7 @@ def backup_excludes
 	]
 end
 
+# TODO: check whether this works in production - does not seem to...
 def server_status
 	pidfile = Rails.root.join("tmp", "pids", "server.pid")
 	return "STOPPED" unless pidfile.exist?

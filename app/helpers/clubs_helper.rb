@@ -24,8 +24,8 @@ module ClubsHelper
 		size    = (icon.is_a?(Hash) && icon[:concept] == :rivals) ? nil : "75x100"
 		header  = title_start(icon:, title:, size:, rows: 3, cols: 2, form:)
 		if form
-			header << [ { kind: :text_box, key: :nick, value: @club.nick, placeholder: @club.fld(:name), cols:, mandatory: { length: 3 } } ]
-			header << [ { kind: :text_box, key: :name, value: @club.name, size: 27, placeholder: @club.fld(:entity), cols:, mandatory: { length: 3 } } ]
+			header << [ { kind: :text_box, key: :nick, value: @club.nick, placeholder: @club.fld(:name), cols: 2, mandatory: { length: 3 } } ]
+			header << [ { kind: :text_box, key: :name, value: @club.name, size: 27, placeholder: @club.fld(:entity), cols: 2, mandatory: { length: 3 } } ]
 		else
 			t_sub = [ { kind: :label, value: "#{Team.label(:plural)} (#{@season&.name})" } ]
 			header << [ { kind: :string, value: @club.name, cols: 2 } ]
@@ -76,9 +76,9 @@ module ClubsHelper
 			if @policy.manage_members?
 				res << [
 					normal_button({ kind: :jump, symbol: :athlete, url: club_members_path(@club, kind: :athletes, **opt), label: Sport.term(:athlete, :plural) }, align: :center),
-					normal_button({ kind: :jump, symbol: :coach, url: club_members_path(@club, kind: :coaches, **opt), label:  Sport.term(:coach, :plural) }, align: :center),
-					normal_button({ kind: :jump, symbol: :registration, url: club_registrations_path(@club), label:  Registration.label(:plural) }, align: :center)
+					normal_button({ kind: :jump, symbol: :coach, url: club_members_path(@club, kind: :coaches, **opt), label:  Sport.term(:coach, :plural) }, align: :center)
 				]
+				res.last << normal_button({ kind: :jump, symbol: :registration, url: club_registrations_path(@club), label:  Registration.label(:plural) }, align: :center) if @policy.accepts_registrations?
 			end
 
 			res << [

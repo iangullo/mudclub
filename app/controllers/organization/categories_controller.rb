@@ -36,7 +36,7 @@ class CategoriesController < ApplicationController
 		@policy = check_policy!(CategoryPolicy, record: @category)
 
 		@fields = create_fields(helpers.category_show)
-		@submit = create_submit(submit: current_user.admin? ? edit_path_for(@category, owner: @sport) : nil)
+		@submit = create_submit(submit: current_user.admin? ? edit_path_for(@category, owner: @sport.generic) : nil)
 	end
 
 	# GET /categories/new
@@ -63,7 +63,7 @@ class CategoriesController < ApplicationController
 			@category.rebuild(category_params)
 			if @category.save
 				a_desc = "#{Category.msg(:created)} '#{@category.name}'"
-				register_action(:created, a_desc, url: path_for(@category, owner: @sport), modal: true)
+				register_action(:created, a_desc, url: path_for(@category, owner: @sport.generic), modal: true)
 				format.html { redirect_to path_for(@sport), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 				format.json { render :show, status: :created, location: path_for(@sport) }
 			else
@@ -83,7 +83,7 @@ class CategoriesController < ApplicationController
 			if @category.changed?
 				if @category.save
 					a_desc = "#{Category.msg(:updated)} '#{@category.name}'"
-					register_action(:updated, a_desc, url: path_for(@category, owner: @sport), modal: true)
+					register_action(:updated, a_desc, url: path_for(@category, owner: @sport.generic), modal: true)
 					format.html { redirect_to path_for(@sport), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :show, status: :ok, location: path_for(@sport) }
 				else

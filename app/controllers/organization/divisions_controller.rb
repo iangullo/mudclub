@@ -36,7 +36,7 @@ class DivisionsController < ApplicationController
 		@policy = check_policy!(DivisionPolicy, record: @division)
 
 		@fields = create_fields(helpers.division_show)
-		@submit = create_submit(submit: @policy.edit? ? edit_path_for(@division, owner: @sport) : nil)
+		@submit = create_submit(submit: @policy.edit? ? edit_path_for(@division, owner: @sport.generic) : nil)
 	end
 
 	# GET /divisions/new
@@ -64,7 +64,7 @@ class DivisionsController < ApplicationController
 			if @division.save
 				a_desc = "#{Division.msg(:created)} '#{@division.name}'"
 				retlnk = path_for(@sport)
-				register_action(:created, a_desc, url: path_for(@division, owner: @sport, rdx: 2), modal: true)
+				register_action(:created, a_desc, url: path_for(@division, owner: @sport.generic, rdx: 2), modal: true)
 				format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 				format.json { render :index, status: :created, location: retlnk }
 			else
@@ -85,7 +85,7 @@ class DivisionsController < ApplicationController
 			if @division.changed?
 				if @division.save
 					a_desc = "#{Division.msg(:updated)} '#{@division.name}'"
-					register_action(:updated, a_desc, url: path_for(@division, owner: @sport, rdx: 2), modal: true)
+					register_action(:updated, a_desc, url: path_for(@division, owner: @sport.generic, rdx: 2), modal: true)
 					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :index, status: :created, location: retlnk }
 				else
