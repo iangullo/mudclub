@@ -21,12 +21,12 @@
 # FieldItemComponent - ViewComponent to produce items within a FieldsComponent
 #		kinds of content for each FieldItem:
 # => :accordion: a collapsible accordion element
-# => :button: a specific ButtonComponent - passed as argument field[:button]
+# => :button: a specific ButtonComponent - passed as argument item[:button]
 # => :contact: mailto:, tel: and whatsapp: buttons for a person
-# => :date_box: :key (field name), :value (date_field), :s_year (start_year)
+# => :date_box: :key (item name), :value (date_field), :s_year (start_year)
 # => :dropdown: a DropdownComponent - passed as argument to the menu generator
 # => :diagram: svgdata (diagram SVG data we are editing), :court (symbol for court background image)
-# => :email_box: :key (field name), :value (email_field), :size (box size)
+# => :email_box: :key (item name), :value (email_field), :size (box size)
 # => :gap: :size (count of &nbsp; to separate content)
 # => :header_icon: :value (name of icon file in assets)
 # => :hidden: :a hidden link for the form
@@ -36,19 +36,19 @@
 # => :label: :value (semibold text string)
 # => :label_checkbox: :key (attribute of checkbox), :value (added text)
 # => :lines: :value (array of text lines to be shown)
-# => :number_box: :key (field name), :value (number_field), size:
+# => :number_box: :key (item name), :value (number_field), size:
 # => :nested_form: :model, :key, :form: :child, :row, :filter to define a NestedFormComponent
 # => :optional_section: handle auto hide/unhide of optional form fields
 # => :partial: :partial (html.erb partial templateo), :locals (hash of local variables)
-# => :password_box: :key (field name), :value (password_field)
+# => :password_box: :key (item name), :value (password_field)
 # => :person_type: icons (& tips) for type of person in the database
-# => :rich_text_area: :key (field name)
-# => :select_box: :key (field name), :options (array of valid options), :value (form, select)
-# => :select_collection: :key (field name), :collection, :value (form, select)
+# => :rich_text_area: :key (item name)
+# => :select_box: :key (item name), :options (array of valid options), :value (form, select)
+# => :select_collection: :key (item name), :collection, :value (form, select)
 # => :search_text: :url (search_in), :value
-# => :search_select: :key (search field), :url (search_in), :options, :value
-# => :search_collection: :key (search field), :url (search_in), :options, :value
-# => :search_box: :key (search field), :url (search_in), :options
+# => :search_select: :key (search item), :url (search_in), :options, :value
+# => :search_collection: :key (search item), :url (search_in), :options, :value
+# => :search_box: :key (search item), :url (search_in), :options
 # => :separator: separator line (kind: :dashed, :solid, :dotted, rounded: )
 # => :side_cell: :value (content stiyled like a TableComponent side_cell)
 # => :steps: :steps, :court (responsive rendering of drill steps)
@@ -58,9 +58,9 @@
 # => :symbol: :value (svg symbol to be rendered)
 # => :table: :value (TableComponent definition), :form (optional)
 # => :targets: array of {text_, status} pairs
-# => :text_area: :key (field name), :value (text_field), :size (box size), lines: number of lines
-# => :text_box: :key (field name), :value (text_field), :size (box size)
-# => :time_box: :hour & :mins (field names)
+# => :text_area: :key (item name), :value (text_field), :size (box size), lines: number of lines
+# => :text_box: :key (item name), :value (text_field), :size (box size)
+# => :time_box: :hour & :mins (item names)
 # => :title: :value (bold text of title in orange colour)
 # => :top_cell: :value (content styled like a TableComponent top_cell)
 # => :upload: :label, :key (form binding for content), :value (file already assigned)
@@ -71,21 +71,21 @@ class FieldItemComponent < ApplicationComponent
 	COL_SPAN_RANGE = (1..12).freeze
 	ROW_SPAN_RANGE = (1..6).freeze
 
-	def initialize(field, form: nil)
-		@field = parse_field(field)
+	def initialize(item, form: nil)
+		@item = parse_field(item)
 		@form  = form
 	end
 
 	def call
 		# field_item_tag do
-		tablecell_tag(@field) do
+		tablecell_tag(@item) do
 			render_field_content
 		end
 	end
 
 	def form=(formobj)
 		@form = formobj
-		@field[:content].form = formobj if @field[:content]&.respond_to?(:form=)
+		@item[:content].form = formobj if @item[:content]&.respond_to?(:form=)
 	end
 
 	private
@@ -100,129 +100,129 @@ class FieldItemComponent < ApplicationComponent
 			end
 		end
 
-		def field_css(field)
-			d_class  = field[:class].to_s.split(" ")
-			d_class << "w-full" if WIDE_KINDS.include?(field[:kind])
-			d_class << field_align(field[:align]) if field[:align].present?
-			d_class << span_class("col", field[:cols], COL_SPAN_RANGE) if field[:cols].present?
-			d_class << span_class("row", field[:rows], ROW_SPAN_RANGE) if field[:rows].present? && field[:kind] != :table
-			field[:class] = d_class.compact.join(" ") if d_class.present?
+		def field_css(item)
+			d_class  = item[:class].to_s.split(" ")
+			d_class << "w-full" if WIDE_KINDS.include?(item[:kind])
+			d_class << field_align(item[:align]) if item[:align].present?
+			d_class << span_class("col", item[:cols], COL_SPAN_RANGE) if item[:cols].present?
+			d_class << span_class("row", item[:rows], ROW_SPAN_RANGE) if item[:rows].present? && item[:kind] != :table
+			item[:class] = d_class.compact.join(" ") if d_class.present?
 		end
 
 		def field_item_tag(&block)
-			content_tag(:div, class: @field[:class], data: @field[:data], &block)
+			content_tag(:div, class: @item[:class], data: @item[:data], &block)
 		end
 
-		def parse_field(field)
-			case field[:kind].to_s	# need to adapt to each fields "kind"
+		def parse_field(item)
+			case item[:kind].to_s	# need to adapt to each fields "kind"
 			when "accordion"
-				field[:content] = AccordionComponent.new(title: field[:title], tail: field[:tail], objects: field[:objects])
-			when "button"	# field[:button] has to contain the button definition
-				field[:content] = ButtonComponent.new(**field[:button])
+				item[:content] = AccordionComponent.new(title: item[:title], tail: item[:tail], mode: item[:mode] || :scroll, objects: item[:objects])
+			when "button"	# item[:button] has to contain the button definition
+				item[:content] = ButtonComponent.new(**item[:button])
 			when "contact"
-				field[:content] = ContactComponent.new(website: field[:website], email: field[:email], phone: field[:phone], device: field[:device])
+				item[:content] = ContactComponent.new(website: item[:website], email: item[:email], phone: item[:phone], device: item[:device])
 			when "diagram"
-				field[:content] = DiagramComponent.new(court: field[:court], svgdata: field[:svgdata], css: field[:css])
-			when "dropdown"	# field[:button] has to contain the button definition
-				field[:content] = DropdownComponent.new(field[:button])
+				item[:content] = DiagramComponent.new(court: item[:court], svgdata: item[:svgdata], css: item[:css])
+			when "dropdown"	# item[:button] has to contain the button definition
+				item[:content] = DropdownComponent.new(item[:button])
 			when /^(.*icon.*|image)$/
-				set_image(field)
+				set_image(item)
 			when "label_checkbox"
-				field[:class] ||= " align-middle rounded-md"
+				item[:class] ||= " align-middle rounded-md"
 			when "optional_section"
-				field[:content] = FieldsComponent.new(field[:fields])
+				item[:content] = FieldsComponent.new(item[:fields])
 			when /^(search_.+)$/
-				field[:content] = SearchBoxComponent.new(field)
+				item[:content] = SearchBoxComponent.new(item)
 			when "gap", "label", "lines", "side_cell", "string", "subtitle", "title", "top_cell"
-				set_text_field(field)
+				set_text_field(item)
 			when "partial"
-				field[:content] = PartialComponent.new(partial: field[:partial], locals: field[:locals] || {})
+				item[:content] = PartialComponent.new(partial: item[:partial], locals: item[:locals] || {})
 			when /^(select_.+|.+box|.+_area)$/
-				field[:class] ||= "align-top"
+				item[:class] ||= "align-top"
 			when "separator"
-				field[:stroke] ||= "solid"
+				item[:stroke] ||= "solid"
 			when "steps"
-				field[:content] = StepsComponent.new(steps: field[:steps], court: field[:court])
+				item[:content] = StepsComponent.new(steps: item[:steps], court: item[:court], max_height: item[:max_height])
 			when "symbol"
-				hashify_symbol(field)
-				field[:content] = SymbolComponent.new(field[:symbol][:concept], **field[:symbol][:options])
+				hashify_symbol(item)
+				item[:content] = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
 			when "table"
-				field[:value] ||= field.slice(:title, :rows, :form, :align)
+				item[:value] ||= item.slice(:title, :rows, :form, :align)
 			else
-				field[:i_class] = "rounded p-0" unless field[:kind] == :gap
+				item[:i_class] = "rounded p-0" unless item[:kind] == :gap
 			end
-			field[:align] ||= "left"
-			field_css(field)
-			field
+			item[:align] ||= "left"
+			field_css(item)
+			item
 		end
 
 		def render_field_content
-			case @field[:kind].to_s
+			case @item[:kind].to_s
 			when /^(accordion|button|contact|diagram.*|dropdown|search_.+|partial|steps|symbol)$/
-				render @field[:content]
+				render @item[:content]
 			when /^(select_.+|.+box|.+_area|hidden|radio.+|upload)$/
-				render InputBoxComponent.new(@field, form: @form)
+				render InputBoxComponent.new(@item, form: @form)
 			when "gap"
-				("&nbsp;" * @field[:size]).html_safe
+				("&nbsp;" * @item[:size]).html_safe
 			when /^(.*icon.*|image)$/
 				render_image_field
 			when "lines"
-				@field[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
+				@item[:value].map { |line| "&nbsp;#{line}<br>" }.join.html_safe
 			when "nested_form"
-				render NestedComponent.new(model: @field[:model], key: @field[:key], form: @form, child: @field[:child], row: @field[:row], filter: @field[:filter])
+				render NestedComponent.new(model: @item[:model], key: @item[:key], form: @form, child: @item[:child], row: @item[:row], filter: @item[:filter])
 			when "optional_section"
 				render_optional_section
 			when "pdf"
-				render PdfComponent.new(file: @field[:value], height: @field[:height], width: @field[:width], zoom: @field[:zoom], css:    @field[:css])
+				render PdfComponent.new(file: @item[:value], height: @item[:height], width: @item[:width], zoom: @item[:zoom], css:    @item[:css])
 			when "roles"
-				@field[:symbols].each { |symbol| concat(render_image(symbol)) }
+				@item[:symbols].each { |symbol| concat(render_image(symbol)) }
 			when "separator"
-				("<hr class=\"border-#{@field[:stroke]}\"").html_safe
+				("<hr class=\"border-#{@item[:stroke]}\"").html_safe
 			when "table"
-				render TableComponent.new(@field[:value], align: @field[:align], form: @form)
+				render TableComponent.new(@item[:value], align: @item[:align], form: @form)
 			when "targets"
 				render_targets_field
 			else
-				if @field[:dclass]
-					concat((@field[:value].tap { |value| break "<div class=\"#{@field[:dclass]}\">#{value}</div>" }.html_safe))
+				if @item[:dclass]
+					concat((@item[:value].tap { |value| break "<div class=\"#{@item[:dclass]}\">#{value}</div>" }.html_safe))
 				else
-					concat(@field[:value])
+					concat(@item[:value])
 				end
 			end
 		end
 
-		# render an image field
+		# render an image item
 		def render_image_field
 			html = ""
-			if @field[:label]
+			if @item[:label]
 				html += "<div class=\"inline-flex items-center\">"
-				html += "#{@field[:label]}&nbsp;" if @field[:right]
+				html += "#{@item[:label]}&nbsp;" if @item[:right]
 			end
-			html += render_image(@field)
-			if @field[:label]
-				html += "&nbsp;#{@field[:label]}" unless @field[:right]
+			html += render_image(@item)
+			if @item[:label]
+				html += "&nbsp;#{@item[:label]}" unless @item[:right]
 				html += "</div>"
 			end
 			html.html_safe
 		end
 
 		def render_optional_section
-			wrapper_class = [ @field[:class], (@field[:hidden_start] ? "hidden" : nil) ].compact.join(" ")
+			wrapper_class = [ @item[:class], (@item[:hidden_start] ? "hidden" : nil) ].compact.join(" ")
 			wrapper_attrs = {
 				"optional-fields-target": "section",
-				"optional-name":          @field[:name]
+				"optional-name":          @item[:name]
 			}
 
 			content_tag(:div, class: wrapper_class.presence, data: wrapper_attrs) do
-				render @field[:content]
+				render @item[:content]
 			end
 		end
 
 		# Add this private method to FieldsComponent
 		def render_targets_field
 			html = ""
-			last = @field[:targets]&.last
-			@field[:targets]&.each do |target|
+			last = @item[:targets]&.last
+			@item[:targets]&.each do |target|
 				html += "<div class=\"inline-flex items-center space-x-2 py-1\">"
 				html += render(TrafficLightComponent.new(status: target[:status])) unless @form
 				html += "<span>#{target[:text]}</span>"
@@ -234,55 +234,55 @@ class FieldItemComponent < ApplicationComponent
 		end
 
 		# used for all icon/image fields - except for :image_box
-		def set_image(field)
-			case field[:kind]
+		def set_image(item)
+			case item[:kind]
 			when :header_icon
-				field[:size]  ||= "50x50"
-				field[:align]   = "center"
-				field[:class] ||= "align-top"
-				field[:css]   ||= "max-w-75 max-h-100 rounded align-top m-1"
-				field[:rows]    = 2 unless field[:rows]
+				item[:size]  ||= "50x50"
+				item[:align]   = "center"
+				item[:class] ||= "align-top"
+				item[:css]   ||= "max-w-75 max-h-100 rounded align-top m-1"
+				item[:rows]    = 2 unless item[:rows]
 			when :icon, :icon_label
-				field[:size]  ||= "25x25"
-				if field[:label] && field[:kind] == :icon
-					field[:class] ||= "align-top inline-flex"
+				item[:size]  ||= "25x25"
+				if item[:label] && item[:kind] == :icon
+					item[:class] ||= "align-top inline-flex"
 				else
-					field[:align] ||= "right"
+					item[:align] ||= "right"
 				end
 			when :image
-				field[:css] ||= "rounded align-top m-1"
+				item[:css] ||= "rounded align-top m-1"
 			end
-			if field[:symbol].present?	# symbol definition
-				hashify_symbol(field)	# ensure it is a hash
-				field[:content] = SymbolComponent.new(field[:symbol][:concept], **field[:symbol][:options])
+			if item[:symbol].present?	# symbol definition
+				hashify_symbol(item)	# ensure it is a hash
+				item[:content] = SymbolComponent.new(item[:symbol][:concept], **item[:symbol][:options])
 			else
-				field[:i_class] ||= field[:css]
+				item[:i_class] ||= item[:css]
 			end
 		end
 
 		# used for all text-like fields - except for inputboxes, of course
-		def set_text_field(field)
-			case field[:kind]
+		def set_text_field(item)
+			case item[:kind]
 			when :gap
-				field[:size]  ||= 4
+				item[:size]  ||= 4
 			when :label
 				l_cls          = "inline-flex font-semibold"
-				field[:class]   = field[:class] ? "#{field[:class]} #{l_cls}" : l_cls
+				item[:class]   = item[:class] ? "#{item[:class]} #{l_cls}" : l_cls
 			when :lines
-				field[:class] ||= "align-top border px-2 py-1"
+				item[:class] ||= "align-top border px-2 py-1"
 			when :side_cell
-				field[:align] ||= "right"
-				field[:class]   = "font-semibold text-indigo-900"
+				item[:align] ||= "right"
+				item[:class]   = "font-semibold text-indigo-900"
 			when :string
-				# field[:class] ||= "align-center"
-				# field[:align] ||= "center"
+				# item[:class] ||= "align-center"
+				# item[:align] ||= "center"
 			when :subtitle
-				field[:class]   = "font-bold"
+				item[:class]   = "font-bold"
 			when :title
-				field[:class]   = "font-bold text-yellow-600"
+				item[:class]   = "font-bold text-yellow-600"
 			when :top_cell
-				field[:class]   = "font-semibold bg-indigo-900 text-gray-300 border px-2 py-1"
-				field[:align] ||= "center"
+				item[:class]   = "font-semibold bg-indigo-900 text-gray-300 border px-2 py-1"
+				item[:align] ||= "center"
 			end
 		end
 

@@ -217,23 +217,21 @@ module EventsHelper
 
 	# return accordion for event tasks
 	def task_accordion
-		tasks   = Array.new
-		@event.tasks.each { |task|
-			item = {}
-			item[:url]     = event_action_path(:show_task, task_id: task.id)
-			item[:turbo]   = "modal"
-			item[:head]    = task.headstring
-			item[:content] = FieldsComponent.new(task_show(task:, team: @team, title: nil))
-			tasks << item
-		}
-		tasks
+		@event.tasks.map do |task|
+			{
+				url:     event_action_path(:show_task, task_id: task.id),
+				turbo:   "modal",
+				head:    task.headstring,
+				content: FieldsComponent.new(task_show(task:, team: @team, title: nil))
+			}
+		end
 	end
 
 	# fields to show in task views
 	def task_show(task:, team:, title: true)
 		res = []
 		res << [
-			symbol_item("drill", { namespace: task&.drill&.sport&.name || "sport", size: "30x30" }, align: :center),
+			symbol_item(:drill, { namespace: task&.drill&.sport&.name || "sport", size: "30x30" }, align: :center),
 			label_item(task.drill.name),
 			gap_item,
 			{ kind: :icon_label, symbol: :clock, label: task.s_dur }
@@ -242,8 +240,10 @@ module EventsHelper
 		if task.drill.steps.empty?
 			res << [ { kind: :text, value: task.drill.description } ]
 		else
-			res << [ { kind: :steps, steps: task.drill.steps, court: task.drill.court_mode } ]
+			steps_hash = { kind: :steps, steps: task.drill.steps, court: task.drill.court_mode }
+			res << [ steps_hash ]
 		end
+
 		if task.remarks?
 			res << [ label_item(Task.fld(:remarks)) ]
 			res << [ { kind: :action_text, value: task.remarks.body.to_s, size: 28 } ]
@@ -291,7 +291,16 @@ module EventsHelper
 
 	# return definition @fields for show_training
 	def training_show
-		[ [ { kind: :accordion, title: Task.label(:plural),	tail: "#{I18n.t("shared.stats.total")}: #{@event.work_duration}", objects: task_accordion } ] ]
+		[
+			[
+				{
+					kind: :accordion,
+					title: Task.label(:plural),
+					tail: "#{I18n.t("shared.stats.total")}: #{@event.work_duration}",
+					objects: task_accordion
+				}
+			]
+		]
 	end
 
 	# fields for training sesssion targets

@@ -91,7 +91,7 @@ class ApplicationComponent < ViewComponent::Base
 			end
 
 			img[:size] ||= img[:icon].present? ? "25x25" : size.presence
-			image_tag(source, size: img[:size], class: img[:i_class], title: img[:title]).html_safe
+			image_tag(source, size: img[:size], class: img[:i_class], title: img[:title], style: img[:style]).html_safe
 		rescue ActiveStorage::FileNotFoundError, ActiveStorage::IntegrityError
 			missing_symbol(img, size).html_safe
 		end
