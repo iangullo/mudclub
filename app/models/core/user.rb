@@ -35,6 +35,7 @@ class User < ApplicationRecord
 	#-------------------------------------
 	# Included Modules
 	#-------------------------------------
+	include HasSettings
 	include PersonBearing
 
 	# ---------------------------------------------------------------------------
@@ -158,16 +159,6 @@ class User < ApplicationRecord
 		else
 			User.label
 		end
-	end
-
-	# Getter method for accessing the settings hash
-	def settings
-		super&.symbolize_keys || {}
-	end
-
-	# Setter method for updating the settings hash
-	def settings=(value)
-		super(value&.to_h)
 	end
 
 	# Just list person's full name

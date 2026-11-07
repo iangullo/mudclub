@@ -23,6 +23,26 @@ class Server < ApplicationRecord
 
 	DATE_FORMATS = %i[default short long numeric].freeze
 
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
+	validate :default_locale_is_valid
+	validate :available_locales_are_known
+	validate :time_zone_is_known
+	validate :date_format_is_known
+	validate :enabled_modules_are_known
+	validate :enabled_modules_dependencies_satisfied
+
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include HasSettings
+	include HasModules
+
+	#-------------------------------------
+	# Server configurable options
+	#-------------------------------------
+
 	# Free-form or multi-type settings, persisted as-is
 	REGULAR_OPTS = %i[
 		server_name server_logo tagline
@@ -32,27 +52,30 @@ class Server < ApplicationRecord
 		registrations_terms_url registrations_privacy_url
 	].freeze
 
+	REGULAR_OPTS.each do |opt|
+		define_method(opt) { settings[opt].presence }
+	end
+
 	# Plain boolean settings (independent from module state)
 	BOOLEAN_OPTS = %i[
 		registrations_require_terms
 		public_clubs_enabled public_directory_enabled
 	].freeze
 
-	# The only allowed key for module state in settings
-	MODULES_KEY = :enabled_modules
+	BOOLEAN_OPTS.each do |opt|
+		define_method(opt) { to_boolean(settings[opt].presence) }
+		define_method("#{opt}?") { public_send(opt) }
+	end
 
-	# ─── Validations ─────────────────────────────────────────
-	validate :default_locale_is_valid
-	validate :available_locales_are_known
-	validate :time_zone_is_known
-	validate :date_format_is_known
-	validate :enabled_modules_are_known
-	validate :enabled_modules_dependencies_satisfied
-
-	# ─── Class-level delegation ──────────────────────────────
+	#-------------------------------------
+	# Class-level API
+	#-------------------------------------
 	class << self
 		attr_reader :last_errors
 
+		#-------------------------------------
+		# Instance delegations
+		#-------------------------------------
 		delegate :server_name, :server_logo, :tagline,
 						:support_email, :contact_phone, :contact_address,
 						:email_from, :email_reply_to, :email_signature,
@@ -65,7 +88,6 @@ class Server < ApplicationRecord
 						:settings, :module_enabled?, :enable_module!, :disable_module!,
 						to: :current
 
-		# ─── Singleton lifecycle ─────────────────────────────────
 		def instance
 			@instance ||= find_by(id: 1) || create_default!
 		end
@@ -92,41 +114,6 @@ class Server < ApplicationRecord
 		def reload!
 			@instance = nil
 			Current.server_settings = nil
-		end
-
-		# ─── Catalog queries (no instance needed) ────────────────
-		def core_modules
-			@core_modules ||= Catalog::Modules.where(optional: false).map(&:key).freeze
-		end
-
-		def optional_modules
-			@optional_modules ||= Catalog::Modules.where(optional: true).map(&:key).freeze
-		end
-
-		def all_modules
-			@all_modules ||= Catalog::Modules.keys.freeze
-		end
-
-		def dependencies_of(name)
-			return [] unless Catalog::Modules.include?(name)
-			Array(Catalog::Modules[name]&.dig(:dependencies)).map(&:to_sym)
-		end
-
-		def dependents_of(name)
-			target = name.to_sym
-			seen   = Set.new
-			queue  = [ target ]
-
-			until queue.empty?
-				current = queue.shift
-				Catalog::Modules.keys.each do |k|
-					next if seen.include?(k)
-					next unless dependencies_of(k).include?(current)
-					seen << k
-					queue << k
-				end
-			end
-			seen.to_a
 		end
 
 		# ─── Class-level option lists (for forms) ────────────────
@@ -176,8 +163,9 @@ class Server < ApplicationRecord
 				new_settings[opt] = to_boolean(attrs[key]) if attrs.key?(key)
 			end
 
-			if attrs.key?(MODULES_KEY.to_s) || attrs.key?(MODULES_KEY)
-				new_settings[MODULES_KEY] = resolve_enabled_modules(attrs[MODULES_KEY])
+			key = modules_key   # instance reader from class_attribute
+			if attrs.key?(key.to_s) || attrs.key?(key)
+				new_settings[key] = resolve_enabled_modules(attrs[key.to_s]) || resolve_enabled_modules(attrs[key])
 			end
 
 			if new_settings == record.settings
@@ -194,45 +182,11 @@ class Server < ApplicationRecord
 			reload!
 			false
 		end
-
-		# Compute the final set of enabled modules, honoring dependencies.
-		# Unknown or non-optional keys are silently dropped.
-		def resolve_enabled_modules(requested)
-			requested     = Array(requested).map(&:to_s)
-			catalog_keys  = optional_modules.map(&:to_s)
-			selected      = requested & catalog_keys
-
-			target = Set.new(selected)
-			queue  = selected.dup
-
-			until queue.empty?
-				current = queue.shift
-				dependencies_of(current).each do |dep|
-					dep = dep.to_s
-					next unless catalog_keys.include?(dep)
-					next if target.include?(dep)
-					target << dep
-					queue  << dep
-				end
-			end
-
-			target.to_a
-		end
 	end
 
-	# ─── Settings hash ───────────────────────────────────────
-	def settings
-		super&.deep_symbolize_keys || {}
-	end
-
-	def settings=(value)
-		super(value&.to_h)
-	end
-
-	def update_settings!(attrs)
-		update!(settings: settings.merge(attrs.deep_symbolize_keys))
-		self
-	end
+	#-------------------------------------
+	# Object-level API
+	#-------------------------------------
 
 	# ─── Identity ────────────────────────────────────────────
 	def server_name
@@ -326,44 +280,6 @@ class Server < ApplicationRecord
 	end
 	alias registrations_require_terms? registrations_require_terms
 
-	# ─── Module state ────────────────────────────────────────
-	def enabled_modules
-	  Array(settings[MODULES_KEY]).map(&:to_s).reject(&:blank?)
-	end
-
-	def disabled_modules
-		self.class.optional_modules.map(&:to_s) - enabled_modules
-	end
-
-	def module_enabled?(name)
-		return false unless Catalog::Modules.include?(name)
-		entry = Catalog::Modules[name]
-		return true unless entry[:optional]
-		enabled_modules.include?(name.to_s)
-	end
-
-	def enable_module!(name)
-		return false unless Catalog::Modules.include?(name)
-		entry = Catalog::Modules[name]
-		return true  unless entry[:optional]
-		return true  if module_enabled?(name)
-
-		to_enable = self.class.resolve_enabled_modules([ name ])
-		update_settings!(MODULES_KEY => (enabled_modules | to_enable).uniq)
-		true
-	end
-
-	def disable_module!(name)
-		return false unless Catalog::Modules.include?(name)
-		entry = Catalog::Modules[name]
-		return false unless entry[:optional]
-		return true  unless module_enabled?(name)
-
-		cascade = self.class.dependents_of(name).map(&:to_s)
-		update_settings!(MODULES_KEY => (enabled_modules - [ name.to_s ] - cascade))
-		true
-	end
-
 	# ─── URL param ───────────────────────────────────────────
 	def to_param = nil
 
@@ -392,29 +308,5 @@ class Server < ApplicationRecord
 	def date_format_is_known
 		return if DATE_FORMATS.include?(date_format)
 		errors.add(:base, "unknown date format '#{date_format}'")
-	end
-
-	def enabled_modules_are_known
-		enabled_modules.each do |mod|
-			unless Catalog::Modules.include?(mod)
-				errors.add(:base, "unknown module: #{mod}")
-				next
-			end
-			entry = Catalog::Modules[mod]
-			errors.add(:base, "cannot enable non-optional module: #{mod}") unless entry[:optional]
-		end
-	end
-
-	def enabled_modules_dependencies_satisfied
-		enabled_modules.each do |mod|
-			next unless Catalog::Modules.include?(mod)
-			self.class.dependencies_of(mod).each do |dep|
-				next unless Catalog::Modules.include?(dep)
-				dep_entry = Catalog::Modules[dep]
-				next unless dep_entry[:optional]
-				next if module_enabled?(dep)
-				errors.add(:base, "module '#{mod}' requires '#{dep}'")
-			end
-		end
 	end
 end

@@ -22,3 +22,9 @@ south:
   phone: "+34922222222"
   address: "2 South Street"
   public: false
+
+public_approved:
+  name: Approved Club
+  nick: PAC
+  public: true
+  public_approved_by: admin_user # needs a user fixture

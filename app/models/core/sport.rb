@@ -33,6 +33,11 @@ class Sport < ApplicationRecord
 	has_many :divisions,  dependent: :nullify
 	has_many :teams,      dependent: :nullify
 
+	#-------------------------------------
+	# Included Modules
+	#-------------------------------------
+	include HasSettings
+
 	# --------------------------------------------------------------------------
 	# Common Sport API
 	# --------------------------------------------------------------------------
@@ -98,14 +103,6 @@ class Sport < ApplicationRecord
 			scoring: {},
 			limits: {}
 			}
-	end
-
-	def settings
-		super&.deep_symbolize_keys || {}
-	end
-
-	def settings=(value)
-		super(value&.to_h)
 	end
 
 	def scoring

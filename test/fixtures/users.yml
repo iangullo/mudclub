@@ -1,3 +1,10 @@
+admin_user:
+  email: "admin@mudclub.test"
+  encrypted_password: "$2a$04$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXZ"
+  person: bob
+  club: test_club
+  role: 0
+
 alice:
   email: "alice@mudclub.test"
   encrypted_password: "$2a$04$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY"
