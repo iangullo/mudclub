@@ -1,6 +1,6 @@
-<div id="event-show" class="w-full min-w-0">
+<div id="event-show">
 	<% unless @event.kind_holiday? %>
-		<div id="event-show-fields">
+		<div id="event-show-fields" class="w-full min-w-0 justify-center">
 			<%= render @targets if @targets %>
 			<%= render @fields %>
 		</div>

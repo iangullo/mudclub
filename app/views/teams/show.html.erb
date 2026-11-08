@@ -1,9 +1,6 @@
 <div id="team-show">
-	<div class="flex justify-center">
-		<%= render @links if @links %>
-	</div>
-	<div class="flex justify-center">
-		<%= render @coaches %>
+	<div class="flex w-full justify-center">
+		<%= render @fields if @fields %>
 	</div>
 	<%= render @table  if @table %>
 	<%= render @calendar if @calendar %>
