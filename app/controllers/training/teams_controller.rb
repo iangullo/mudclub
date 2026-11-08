@@ -64,15 +64,17 @@ class TeamsController < ApplicationController
 			wlstr = "(#{w_l[:won]}#{I18n.t("match.won")} - #{w_l[:lost]}#{I18n.t("match.lost")})"
 			title << [ helpers.gap_item, { kind: :text, value: wlstr } ]
 		end
-		@title   = create_fields(title)
-		@coaches = create_fields(helpers.team_coaches)
+		@title  = create_fields(title)
+		coaches = helpers.team_coaches
 		if @policy.view_details?
-			@links = create_fields(helpers.team_links)
-			@table = create_fields(helpers.event_list_table(@team))
-			submit = edit_path_for(@team) if @policy.edit?
+			links   = helpers.team_links
+			@fields = create_fields(links + coaches)
+			@table  = create_fields(helpers.event_list_table(@team))
+			submit  = edit_path_for(@team) if @policy.edit?
 		else
 			start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
 			anchor     = { url: club_team_events_path(@club, @team), rdx: @rdx }
+			@fields    = create_fields(coaches)
 			@calendar  = CalendarComponent.new(anchor:, start_date:, obj: @team, user: current_user)
 			submit     = nil
 		end
