@@ -41,17 +41,18 @@ es:
         status_short: Est.
         notes: Notas
       messages:
+        cannot_terminate: ¡No se pudo dar de baja!
         created: Integrante creado.
         created_female: Integrante creada.
-        no_change: Integrante sin cambios.
-        updated: Integrante actualizado.
-        updated_female: Integrante actualizada.
-        terminated: Integrante dado de baja.
-        terminated_female: Integrante dada de baja.
         deleted: Integrante eliminado.
         deleted_female: Integrante eliminada.
-        cannot_terminate: ¡No se pudo dar de baja!
+        no_change: Integrante sin cambios.
+        no_person: ¡Sin persona que vincular!
         status_fail: ¡No se pudo cambiar el estado!
+        terminated: Integrante dado de baja.
+        terminated_female: Integrante dada de baja.
+        updated: Integrante actualizado.
+        updated_female: Integrante actualizada.
 
     assignment:
       label:
@@ -77,12 +78,13 @@ es:
         status_short: Est.
         notes: Notas
       messages:
-        created: Asignación creada.
-        updated: Asignación actualizada.
-        terminated: Baja efectiva.
-        deleted: Asignación eliminada.
         cannot_terminate: ¡No se pudo dar de baja!
+        created: Asignación creada.
+        deleted: Asignación eliminada.
+        no_member: ¡Sin membresía que vincular!
         status_fail: ¡No se pudo cambiar el estado!
+        terminated: Baja efectiva.
+        updated: Asignación actualizada.
 
     membership_kinds:
       label: Tipo de integrante

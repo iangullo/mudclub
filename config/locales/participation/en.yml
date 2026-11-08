@@ -41,13 +41,14 @@ en:
         status_short: Stat.
         notes: Notes
       messages:
-        created: Membership created.
-        no_change: No changes to membership.
-        updated: Membership updated.
-        terminated: Membership terminated.
-        deleted: Membership deleted.
         cannot_terminate: Membership cannot be terminated!
+        created: Membership created.
+        deleted: Membership deleted.
+        no_change: No changes to membership.
+        no_person: No person to bind with!
         status_fail: Could not update status!
+        terminated: Membership terminated.
+        updated: Membership updated.
 
     assignment:
       label:
@@ -73,12 +74,13 @@ en:
         status_short: Stat.
         notes: Notes
       messages:
-        created: Assignment created.
-        updated: Assignment updated.
-        terminated: Assignment terminated.
-        deleted: Assignment deleted.
         cannot_terminate: Assignment cannot be terminated!
+        created: Assignment created.
+        deleted: Assignment deleted.
+        no_member: No membership to bind!
         status_fail: Could not update status!
+        terminated: Assignment terminated.
+        updated: Assignment updated.
 
     membership_kinds:
       label: Membership kind

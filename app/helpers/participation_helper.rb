@@ -122,7 +122,10 @@ module ParticipationHelper
 
 	# attempt at unified definition for Assignment/Membership tables
 	def participation_table(objects, kind: @kind)
-		return nil if objects == nil || objects.empty?
+		if objects == nil || objects.empty?
+			return { title: [ { kind: :normal, value: I18n.t("shared.statuses.empty") } ], rows: [] }
+		end
+
 		p_class = objects&.first
 		o_class = p_class&.model_name&.singular_route_key.to_sym
 		{

@@ -31,6 +31,8 @@ es:
       label:
         single: Módulo
         plural: Módulos
+      messages:
+        none_available: Sin módulos disponibles
       values:
         core: Núcleo
         mailer: Envío de e-mail

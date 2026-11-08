@@ -32,6 +32,7 @@ class AssignmentsController < ApplicationController
 			Assignment.search(
 				club: @club,
 				membership_kind: @kind,
+				status: @status,
 				search: @search,
 				history:
 			).order(kind: :asc, starts_on: :asc)
@@ -242,9 +243,10 @@ class AssignmentsController < ApplicationController
 			)
 		end
 
-		def render_assignment_errors(action, result)
+		def render_assignment_errors(action, result = nil)
 			prepare_form(action == :new ? :create : action)
-			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
+			message = result.present ? result[:message] : Assignment.msg(:no_member)
+			format.html { render action, notice: helpers.flash_message(message, "error") }
 			format.json { render json: @user.errors, status: :unprocessable_entity }
 		end
 

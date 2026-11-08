@@ -19,6 +19,7 @@ en:
       actions:
         create: "Create Club"
         edit: "Edit Club"
+        configure: "Settings"
         delete: "Delete Club"
       fields:
         name: "Name"
