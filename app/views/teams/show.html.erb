@@ -1,6 +1,10 @@
 <div id="team-show">
-	<%= render @links if @links %>
-	<%= render @coaches %>
+	<div class="flex justify-center">
+		<%= render @links if @links %>
+	</div>
+	<div class="flex justify-center">
+		<%= render @coaches %>
+	</div>
 	<%= render @table  if @table %>
 	<%= render @calendar if @calendar %>
 	<%= render @submit if @submit %>

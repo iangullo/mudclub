@@ -105,7 +105,6 @@ module EventsHelper
 	def event_list_table(obj)
 		case obj
 		when Club
-			clubevent = true
 			season_id = Season.latest.id
 			events    = @club.upcoming_events
 		when Team
@@ -120,9 +119,7 @@ module EventsHelper
 			{ kind: :normal, value: Event.label, cols: 4 }
 		]
 		rows    = event_rows(events:, season_id:)
-		btn_add = new_event_button(obj)
-		title << btn_add if btn_add
-		[ event_list_toprow(clubevent:), [ table_item(title:, rows:, cols: 3) ] ]
+		[ event_list_toprow(obj), [ table_item(title:, rows:, cols: 4) ] ]
 	end
 
 	# fields to display athlete's stats for an event
@@ -328,18 +325,22 @@ module EventsHelper
 		end
 
 		# define the toprow for an events list (just above the table itself)
-		def event_list_toprow(clubevent:)
-			calendurl = clubevent ? club_events_path(@club, season_id: @season&.id) : club_team_events_path(@team.club, @team)
+		def event_list_toprow(obj)
+			clubevent = obj.is_a?(Club)
+			calendurl = clubevent ? club_events_path(obj, season_id: @season&.id) : club_team_events_path(obj.club, obj)
 			toprow = [	#  top row above the table
 				normal_button(
 					{ kind: :link, symbol: :calendar, label: I18n.t("calendar.label"), size: "30x30", url: calendurl },
 					class: "align-middle text-indigo-900"
 				)
 			]
+			btn_add = new_event_button(obj)
+			toprow << btn_add if btn_add
+
 			toprow += [	# team events--> add a team_attendance button
-				gap_item,
+				gap_item(8),
 				normal_button(
-					{ kind: :link, symbol: :attendance, label: Attendance.label, flip: true, size: "30x30", url: path_for(@team, action: :attendance), align: :right, frame: :modal },
+					{ kind: :link, symbol: :attendance, label: Attendance.label, flip: true, size: "30x30", url: path_for(obj, action: :attendance), align: :right, frame: :modal },
 					class: "align-middle text-indigo-900"
 				)
 			] unless clubevent
@@ -380,7 +381,7 @@ module EventsHelper
 				h_fields << hidden_input(:kind, @event.kind)
 				res << h_fields
 			else
-				res[0] << symbol_item(:calendar, { title: I18n.t("calendar.date") })
+				res[0] << normal_button({ kind: :link, symbol: symbol_hash(:calendar), url: path_for(@event, format: :ics), title: I18n.t("calendar.add") })
 				res[0] << { kind: :string, value: @event.date_string }
 				unless @event.kind_holiday?
 					res[1] << symbol_item(:clock, { title: I18n.t("calendar.time") })
