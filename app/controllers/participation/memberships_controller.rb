@@ -35,7 +35,7 @@ class MembershipsController < ApplicationController
 				status: @status,
 				search: @search,
 				history:
-			)
+			).order(kind: :asc, joined_on: :asc)
 
 		title  = prepare_index_title
 		page   = paginate(@members, 1.2)	# paginate results

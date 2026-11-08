@@ -34,7 +34,7 @@ class AssignmentsController < ApplicationController
 				membership_kind: @kind,
 				search: @search,
 				history:
-			)
+			).order(kind: :asc, starts_on: :asc)
 
 		title  = prepare_index_title
 		page   = paginate(@assignments)	# paginate results
