@@ -38,7 +38,9 @@ module ParticipationHelper
 				{ kind: :string, value: date_string(obj&.birthday), class: "items-center" }
 			],
 			[
-				obj.is_a?(Assignment) ? { kind: :subtitle, value: "##{obj.number}", align: :center } : gap_item,
+				obj.is_a?(Assignment) && obj.membership.kind_athlete? ?
+					{ kind: :subtitle, value: "##{obj.number}", align: :center } :
+					gap_item,
 				person_idpic(obj.person, idpic: nil, cols:),
 				gap_item,
 				{ kind: :contact, email: obj&.email, phone: obj&.phone, device: device, align: "left", cols: 3 }
