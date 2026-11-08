@@ -56,7 +56,9 @@ class TableComponent < ApplicationComponent
 	end
 
 	def call	# render into HTML
-		content_tag(:div, align: @align) do
+		content_tag(:div, align: @align,
+			class: "min-w-0 overflow-x-auto w-full max-w-full",
+			style: "align-self: stretch;") do
 			table_tag(controller: @controller, data: @data) do
 				concat(render_header)
 				render_body
@@ -84,9 +86,9 @@ class TableComponent < ApplicationComponent
 			title.each { |item|
 				case item[:kind]
 				when :normal
-					item[:class] = "font-semibold border px-1 py-1"
+					item[:class] = "font-semibold border p-1 whitespace-nowrap"
 				when :inverse
-					item[:class] = "font-semibold bg-white text-indigo-900 border px-1 py-1"
+					item[:class] = "font-semibold bg-white text-indigo-900 border p-1 whitespace-nowrap"
 				when :gap
 					item[:value] = "&nbsp;".html_safe
 				when :button

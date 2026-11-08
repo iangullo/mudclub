@@ -16,15 +16,15 @@
 			<%= render FlashComponent.new(notice) if notice %>
 		</header>
 		<% if @title %>
-		<div class="flex sticky top-16 justify-center bg-white text-black border-b border-gray-300 p-2">
+		<div class="flex sticky top-12 justify-center bg-white text-black border-b border-gray-300 p-2">
 			<%= render @title %>
 		</div>
 		<% end %>
 
 		<%= turbo_frame_tag "modal" %>
 		<!-- App content goes here -->
-		<main class="flex-1 min-h-0 overflow-auto">
-			<div class="flex flex-wrap w-full justify-center p-2">
+		<main class="flex-1 min-w-0 min-h-0 overflow-auto">
+    		<div class="p-2 flex flex-col items-center gap-2 mx-auto w-full max-w-7xl min-w-0">
 				<%= yield %>
 		  		<%= render @footer if @footer %>
 			</div>
