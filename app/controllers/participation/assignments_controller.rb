@@ -96,7 +96,7 @@ class AssignmentsController < ApplicationController
 						@assignment.starts_on ||= Date.current
 						if @assignment.save
 							format.html do
-								redirect_to helpers.assignment_return_path, notice: Assignment.msg(:created)
+								redirect_to retlnk, notice: Assignment.msg(:created)
 							end
 
 							format.json { render :show, status: :ok, location: helpers.assignment_return_path }
@@ -130,8 +130,9 @@ class AssignmentsController < ApplicationController
 		@policy = check_policy!(AssignmentPolicy, record: @assignment)
 
 		respond_to do |format|
+			retlnk = helpers.assignment_return_path
 			if status_only_update?(@assignment)
-				apply_status_change(@assignment, format, retlnk: helpers.assignment_return_path)
+				apply_status_change(@assignment, format, retlnk:)
 			else
 				result = rebuild_or_merge_person(@assignment, assignment_params)
 				case result[:status]
@@ -140,10 +141,10 @@ class AssignmentsController < ApplicationController
 						notice = Assignment.msg(@assignment.modified? ? :updated : :no_change)
 						if @assignment.save
 							format.html do
-								redirect_to helpers.assignment_return_path, notice:
+								redirect_to retlnk, notice:
 							end
 
-							format.json { render :show, status: :ok, location: @assignment }
+							format.json { render :show, status: :ok, location: retlnk }
 						else
 							log_assignment_errors
 							raise ActiveRecord::Rollback
@@ -166,12 +167,11 @@ class AssignmentsController < ApplicationController
 	def terminate
 		authorize @assignment
 
+		retlnk = helpers.assignment_return_path
 		if @assignment.terminate!
-			redirect_to helpers.assignment_return_path,
-									notice: Assignment.msg(:terminated)
+			redirect_to retlnk, notice: Assignment.msg(:terminated)
 		else
-			redirect_back fallback_location: helpers.assignment_return_path,
-										alert: Assignment.msg(:cannot_terminate)
+			redirect_back fallback_location: retlnk, alert: Assignment.msg(:cannot_terminate)
 		end
 	end
 

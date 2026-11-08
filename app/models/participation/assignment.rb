@@ -24,6 +24,7 @@
 #
 class Assignment < ApplicationRecord
 	localized_as "participation.assignment"
+	before_save :update_person_if_modified
 
 	#-------------------------------------
 	# Class relationships
@@ -127,6 +128,10 @@ class Assignment < ApplicationRecord
 		other.destroy!
 
 		true
+	end
+
+	def modified?
+		super || person.modified?
 	end
 
 	# short name for form viewing
@@ -277,5 +282,9 @@ class Assignment < ApplicationRecord
 			if kind_catalog.club_level?(kind) && team.present?
 				errors.add(:team, :invalid)
 			end
+		end
+
+		def update_person_if_modified
+			person.save if person.modified?
 		end
 end

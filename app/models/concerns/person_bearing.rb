@@ -21,6 +21,7 @@ module PersonBearing
 	extend ActiveSupport::Concern
 
 	included do
+		before_save :update_person_if_modified
 		belongs_to :person
 		accepts_nested_attributes_for :person
 
@@ -125,5 +126,9 @@ module PersonBearing
 
 		avatar = person_attrs.delete(:avatar)
 		attrs[:avatar] = avatar if avatar.present?
+	end
+
+	def update_person_if_modified
+		person.save if person.modified?
 	end
 end

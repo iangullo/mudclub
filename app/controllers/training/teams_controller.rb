@@ -185,7 +185,7 @@ class TeamsController < ApplicationController
 		title = helpers.team_header(title: @team.nick)
 		title << icon_subtitle(:player, Team.term(:roster), namespace: @team.sport.name)
 
-		@athletes = @team.athletes.by_number
+		@athletes = @team.athletes.active.by_number
 		title.last << { kind: :string, value: "(#{@athletes.count} #{@team.term(:athlete, :short)})" }
 		@title  = create_fields(title)
 
