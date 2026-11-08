@@ -27,16 +27,22 @@ module ParticipationHelper
 
 	def participation_title(obj, title: nil, status_url: nil, just_icon: true, cols: nil)
 		icon     = obj.picture
-		title  ||= obj.to_s
+		title  ||= obj.person.to_s
 		subtitle = obj.kind_label(obj.kind_gender)
 
 		fields = person_title(icon:, title:, subtitle:, cols:)
 		fields = participation_fields(obj, fields, status_url:, just_icon:)
 
-		fields << [
-			{ kind: :string, value: date_string(obj&.birthday), class: "items-center" },
-			gap_item,
-			{ kind: :contact, email: obj&.email, phone: obj&.phone, device: device, align: "left", cols: 3 }
+		fields += [
+			[
+				{ kind: :string, value: date_string(obj&.birthday), class: "items-center" }
+			],
+			[
+				obj.is_a?(Assignment) ? { kind: :subtitle, value: "##{obj.number}", align: :center } : gap_item,
+				person_idpic(obj.person, idpic: nil, cols:),
+				gap_item,
+				{ kind: :contact, email: obj&.email, phone: obj&.phone, device: device, align: "left", cols: 3 }
+			]
 		]
 	end
 
@@ -76,7 +82,7 @@ module ParticipationHelper
 
 	# object kind field - obj class must implement picture/kind_label
 	def participation_kind_field(obj, align: "center", class: nil)
-		concept = obj.kind_image
+		concept = obj.kind
 		title   = obj.kind_label(:hint)
 
 		symbol_item(concept, { title: }, align:, class:)

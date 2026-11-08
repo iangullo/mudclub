@@ -192,7 +192,7 @@ class DropdownComponent < ApplicationComponent
 		end
 
 		def set_link_class(button)
-			button[:b_class] ||= (button[:class] || "inline-flex items-center rounded-md bg-gray-100 hover:bg-gray-300 focus:ring-gray-300 focus:ring-2 focus:border-gray-300 font-semibold whitespace-nowrap px-1 py-1 m-1")
+			button[:b_class] ||= (button[:class] || "inline-flex items-center rounded-md bg-gray-100 hover:bg-gray-300 focus:ring-gray-300 focus:ring-2 focus:border-gray-300 font-semibold whitespace-nowrap ml-1 p-0.5")
 			button[:b_class] += " text-sm" if (button[:icon] || button[:symbol]) && !button[:append]
 			button[:d_class] ||= DROP_CLS.join(" ")
 			button[:d_class] += " border border-gray-500" if button[:border].present?

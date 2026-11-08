@@ -227,7 +227,7 @@ module PeopleHelper
 				symbol = pidpic[:symbol]
 				label  = pidpic[:label]
 				if pidpic[:found] && @policy.update?	# dropdown menu
-					button = { kind: :link, name: "id-pics", symbol:, label:, append: true, options: [] }
+					button = { kind: :link, name: "id-pics", symbol:, label:, append: true, place: "right-start", options: [] }
 					button[:options] << idpic_button(person, "id_front") if person&.id_front.attached?
 					button[:options] << idpic_button(person, "id_back") if person&.id_back.attached?
 					dropdown_button(button, class: "bg-white", cols:)
