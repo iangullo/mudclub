@@ -39,6 +39,11 @@ class TableComponentTest < ViewComponent::TestCase
 		assert_selector "div[align='left'] table"
 	end
 
+	test "wraps the table in a scroll container" do
+		render_inline(TableComponent.new(build_table))
+		assert_selector "div.overflow-x-auto.min-w-0 table"
+	end
+
 	test "renders thead and tbody" do
 		render_inline(TableComponent.new(build_table))
 		assert_selector "thead"
@@ -67,7 +72,7 @@ class TableComponentTest < ViewComponent::TestCase
 	# --------------------------------------------------------------
 	test "renders :normal title with default classes" do
 		render_inline(TableComponent.new(build_table(title: [ { kind: :normal, value: "Name" } ])))
-		assert_selector "th.font-semibold.border.px-1.py-1", text: "Name"
+		assert_selector "th.font-semibold.border.p-1", text: "Name"
 	end
 
 	test "renders :inverse title with inverse classes" do
