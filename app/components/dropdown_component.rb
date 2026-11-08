@@ -22,39 +22,119 @@
 #  They have an :options array with :url, optional :label, :icon/:symbol
 #  If :append is set, button with icon/symbol will be appended inline after a label.
 class DropdownComponent < ApplicationComponent
-	MIN_CLS  = %w[inline-flex items-center px-2 py-1].freeze
-	BTN_CLS  = MIN_CLS + %w[whitespace-nowrap rounded-md].freeze
-	MENU_CLS = BTN_CLS + %w[px-2 py-1.5 font-semibold hover:bg-blue-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-200].freeze
-	DROP_CLS = %w[hidden absolute z-10 overflow-hidden rounded-md bg-gray-200 text-gray-500 text-left font-semibold].freeze
-	ITEM_CLS = %w[block].freeze
-	LINK_CLS = %w[flex items-center gap-1 whitespace-nowrap px-2 py-1 rounded-md hover:bg-blue-700 hover:text-white no-underline].freeze
+	#-------------------------------------
+	# CSS definitions
+	#-------------------------------------
 
-	# Static positioning for the absolute menu, keyed by the :place symbol
-	# previously consumed by Flowbite. Tailwind: 2.5 = 10px = old offset-distance.
+	# Everything clickable inside a dropdown shares these
+	CTRL_BASE  = %w[items-center whitespace-nowrap rounded-md focus:outline-none].freeze
+	CTRL_FOCUS = %w[focus:bg-blue-700 focus:text-white].freeze
+	CTRL_HOVER = %w[hover:bg-blue-700 hover:text-white].freeze
+
+	# Layout variations — the only thing that really differs
+	MENU_LAYOUT = %w[inline-flex gap-2 font-semibold px-2 py-2 focus:ring-2 focus:ring-gray-200].freeze
+	SUB_LAYOUT  = %w[flex w-full gap-2 px-2 py-1].freeze
+	LINK_LAYOUT = %w[flex w-full gap-1 px-2 py-1 no-underline].freeze
+
+	# Composed
+	MENU_CLS = (MENU_LAYOUT + CTRL_BASE + CTRL_FOCUS + CTRL_HOVER).freeze
+	SUB_CLS  = (SUB_LAYOUT  + CTRL_BASE + CTRL_FOCUS).freeze
+	LINK_CLS = (LINK_LAYOUT + CTRL_BASE + CTRL_FOCUS + CTRL_HOVER).freeze
+
+	# Sub-trigger wrapper carries the hover state (so the full row highlights)
+	SUB_WRAPPER_CLS = (%w[relative block w-full rounded-md] + CTRL_HOVER).freeze
+
+	# Menu containers — NO overflow-hidden (would clip submenus)
+	MENU_DROP_CLS = %w[hidden absolute z-10 p-1 rounded-md bg-blue-900 text-gray-100 text-left].freeze
+	DROP_CLS      = %w[hidden absolute z-10 p-1 rounded-md bg-gray-200 text-gray-500 text-left font-semibold].freeze
+
+	ITEM_CLS = %w[block w-full].freeze
+
 	PLACE_CLASSES = {
-		"bottom-start" => "top-full left-0 mt-1",
-		"bottom-end"   => "top-full right-0 mt-2",
-		"top-start"    => "bottom-full left-0 mb-1",
-		"top-end"      => "bottom-full right-0 mb-2",
-		"right-start"  => "left-full top-0 ml-1",
-		"right-end"    => "left-full bottom-0 ml-2",
-		"left-start"   => "right-full top-0 mr-1",
-		"left-end"     => "right-full bottom-0 mr-2"
+			"bottom-start" => "top-full left-0 mt-1",
+			"bottom-end"   => "top-full right-0 mt-2",
+			"top-start"    => "bottom-full left-0 mb-1",
+			"top-end"      => "bottom-full right-0 mb-2",
+			"right-start"  => "left-full top-0 ml-1",
+			"right-end"    => "left-full bottom-0 ml-2",
+			"left-start"   => "right-full top-0 mr-1",
+			"left-end"     => "right-full bottom-0 mr-2"
 	}.freeze
+
+	# Where a SUB opens, given where its PARENT opens.
+	# Rightward families keep opening right; right-anchored / leftward families
+	# keep opening left. This is the whole "inheritance" rule.
+	SUB_PLACE = {
+			"bottom-start" => "right-start",
+			"bottom-end"   => "left-start",
+			"top-start"    => "right-start",
+			"top-end"      => "left-start",
+			"right-start"  => "right-start",
+			"right-end"    => "right-start",
+			"left-start"   => "left-start",
+			"left-end"     => "left-start"
+	}.freeze
+
+	#-------------------------------------
+	# Component standard methods
+	#-------------------------------------
 
 	def initialize(button)
 		@button = parse(button)
 		hashify_options(@button[:options]) if @button[:options]
-		if @button[:symbol] && @button[:symbol][:options]
-			@button[:symbol][:options][:css] ||= @button[:i_class]
-		end
+		apply_symbol_defaults
 	end
 
 	def render?
-		@button.present?
+		@button[:options].present? || @button[:url].present?
 	end
 
+	# --- helpers used by the template ---
+
+	# True when this menu opens leftward (bottom-end, top-end, left-*).
+	# Controls text alignment of leaf links and sub-trigger labels.
+	def flipped?
+		return @flipped if defined?(@flipped)
+		@flipped = flipped_place?(@button[:place])
+	end
+
+	# :down for top-level menus (bottom-*/top-*), :left or :right for subs.
+	def chevron_side
+			p = @button[:place].to_s
+			return :left  if p.start_with?("left")
+			return :right if p.start_with?("right")
+			:down
+	end
+
+	def link_classes
+			flipped? ? (LINK_CLS + %w[justify-end]) : LINK_CLS
+	end
+
+	def wrapper_class
+			if @button[:append]
+					"relative inline-flex items-center"
+			elsif @button[:sub]
+					SUB_WRAPPER_CLS.join(" ")
+			else
+					"relative inline-block"
+			end
+	end
+
+	#-------------------------------------
+	# Component internal support methods
+	#-------------------------------------
 	private
+		def apply_symbol_defaults
+			sym = @button[:symbol]
+			return unless sym.is_a?(Hash) && sym[:options].is_a?(Hash)
+			sym[:options][:css] ||= @button[:i_class]
+		end
+
+		def flipped_place?(place)
+			p = place.to_s
+			p.end_with?("-end") || p.start_with?("left")
+		end
+
 		def hashify_options(options)
 			options.each do |opt|
 				hashify_symbol(opt)
@@ -66,9 +146,8 @@ class DropdownComponent < ApplicationComponent
 			hashify_symbol(button)
 			button.tap do |btn|
 				set_name(btn)
+				set_place(btn)
 				set_class(btn)
-				btn[:place] = (btn[:sub] ? "right-start" : "bottom-start")
-				set_placement(btn)
 			end
 		end
 
@@ -80,45 +159,47 @@ class DropdownComponent < ApplicationComponent
 			end
 		end
 
+		# Placement is decided here, once. Order of precedence:
+		#   1. explicit `:place`             → trust the caller
+		#   2. `:sub` with `:parent_place`   → derive from parent
+		#   3. `:align == :right`            → bottom-end (top-level right menu)
+		#   4. otherwise                     → bottom-start / right-start
+		def set_place(button)
+			button[:place] ||= if button[:sub] && button[:parent_place]
+				SUB_PLACE[button[:parent_place].to_s] || "right-start"
+			elsif button[:align].to_s == "right"
+				"bottom-end"
+			else
+				button[:sub] ? "right-start" : "bottom-start"
+			end
+		end
+
 		def set_class(button)
 			button[:o_class] ||= ITEM_CLS.join(" ")
 			case button[:kind].to_s
-			when /^(add.*)$/
-				set_add_class(button)
-			when "link"
-				set_link_class(button)
-			when "menu"
-				set_menu_class(button)
+			when /^(add.*)$/    then set_add_class(button)
+			when "link"         then set_link_class(button)
+			when "menu"         then set_menu_class(button)
 			end
+			# Append placement classes (last, so they sit alongside d_class).
+			button[:d_class] = [ button[:d_class], PLACE_CLASSES[button[:place]] ].compact.join(" ")
 		end
 
 		def set_add_class(button)
 			button[:b_class] ||= "min-h-4 items-center rounded-md hover:bg-green-200 focus:bg-green-200 focus:ring-2 focus:ring-green-500"
 			button[:d_class] ||= DROP_CLS.join(" ")
-			if button[:border]
-				button[:d_class] += " border border-green-500 m-2"
-			end
+			button[:d_class] += " border border-green-500 m-2" if button[:border]
 		end
 
 		def set_link_class(button)
 			button[:b_class] ||= (button[:class] || "inline-flex items-center rounded-md bg-gray-100 hover:bg-gray-300 focus:ring-gray-300 focus:ring-2 focus:border-gray-300 font-semibold whitespace-nowrap px-1 py-1 m-1")
-			if (button[:icon] || button[:symbol]) && !button[:append]
-				button[:b_class] += " text-sm"
-			end
+			button[:b_class] += " text-sm" if (button[:icon] || button[:symbol]) && !button[:append]
 			button[:d_class] ||= DROP_CLS.join(" ")
 			button[:d_class] += " border border-gray-500" if button[:border].present?
 		end
 
 		def set_menu_class(button)
-			base = button[:sub] ? MIN_CLS : MENU_CLS
-			button[:b_class] ||= base.join(" ")
-			# NOTE: `absolute` added — without it the :place classes are no-ops
-			# and the menu would flow inline now that Flowbite is not positioning it.
-			button[:d_class] ||= "hidden absolute rounded-md bg-blue-900"
-		end
-
-		def set_placement(button)
-			button[:d_class] ||= "hidden absolute"   # ← add this line
-			button[:d_class] = [ button[:d_class], PLACE_CLASSES[button[:place]] ].compact.join(" ")
+			button[:b_class] ||= (button[:sub] ? SUB_CLS : MENU_CLS).join(" ")
+			button[:d_class] ||= MENU_DROP_CLS.join(" ")
 		end
 end

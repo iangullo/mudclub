@@ -6,6 +6,7 @@
 @source inline("col-span-1 col-span-2 col-span-3 col-span-4 col-span-5 col-span-6");
 @source inline("row-span-1 row-span-2 row-span-3 row-span-4");
 @source "../../components/**/*.{erb,rb}";
+@source "../../app/helpers/**/*.rb";
 @source "../../views/**/*.{erb,haml,slim}";
 
 /* ─── 2. Base overrides (Tailwind v3 compatibility) ── */
@@ -142,5 +143,22 @@
 
     .overlay:hover {
         opacity: 1;
+    }
+
+    /* Dropdown: right-align items inside a menu that opens leftward.
+   Scoped to direct children only, so nested menus keep their own state. */
+    [data-dropdown-target="menu"].is-flipped>ul>li>a {
+        justify-content: flex-end;
+    }
+
+    [data-dropdown-target="menu"].is-flipped>ul>li>button>span.flex-1 {
+        text-align: right;
+    }
+
+    [data-dropdown-target="trigger"]:hover,
+    [data-dropdown-target="trigger"]:focus,
+    [data-dropdown-target="trigger"]:active,
+    [data-dropdown-target="trigger"][aria-expanded="true"] {
+        @apply bg-blue-700 text-white;
     }
 }

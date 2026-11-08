@@ -20,6 +20,41 @@
 
 # TopbarComponent - dynamic display of application top bar as ViewComponent
 class TopbarComponent < ApplicationComponent
+	#-------------------------------------
+	# CSS definitions
+	#-------------------------------------
+	# Shared hover feedback — every interactive element in the bar uses the same color
+	CTRL_HOVER = %w[hover:bg-blue-700 hover:text-white].freeze
+
+	# Desktop nav tabs and standalone links (sign-in)
+	NAV_LAYOUT = %w[
+		inline-flex items-center whitespace-nowrap rounded-md font-semibold
+		focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200
+		px-2 py-2
+	].freeze
+	NAV_CLS = (NAV_LAYOUT + CTRL_HOVER).freeze
+
+	# Anchor rendered by `menu_link` when the hash is NOT consumed by a
+	# DropdownComponent (currently only the default class argument).
+	LNK_LAYOUT = %w[block pl-2 pr-2 py-2 no-underline whitespace-nowrap].freeze
+	LNK_CLS = (LNK_LAYOUT + CTRL_HOVER).freeze
+
+	# Containers
+	IMG_SIZE     = %w[h-8 w-auto].freeze
+	SHOW_IMG_CLS = (%w[block lg:hidden] + IMG_SIZE).freeze
+	HIDE_IMG_CLS = (%w[hidden lg:block] + IMG_SIZE).freeze
+	LOGO_CLS     = %w[flex-shrink-0 flex inline-flex items-center font-semibold].freeze
+	BAR_CLS      = %w[max-w-7xl mx-auto px-2 sm:px-6 lg:px-8].freeze
+	MAIN_CLS     = %w[flex-1 flex items-center justify-center sm:items-stretch sm:justify-start].freeze
+	OBJ_CLS      = %w[relative flex items-center justify-between h-12].freeze
+	TAB_CLS      = %w[hidden md:block sm:ml-6 flex space-x-4 text-gray-300].freeze
+	HAM_CLS      = %w[absolute inset-y-0 right-0 md:hidden flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0].freeze
+	USR_CLS      = %w[hidden md:block absolute inset-y-0 right-0 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0].freeze
+
+	#-------------------------------------
+	# Component standard methods
+	#-------------------------------------
+
 	def initialize(user:, club:, home:, logout:, registrations_url: nil)
 		if club.is_a?(Club)
 			@club    = club
@@ -32,10 +67,9 @@ class TopbarComponent < ApplicationComponent
 
 		@clublogo ||= Server.server_logo
 		@clubname ||= Server.server_name
-		@logourl  = { url: "/", data: { turbo_action: "replace" } }
-		@navcls   = "hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white focus:ring-2 focus:ring-gray-200 whitespace-nowrap px-2 py-2 rounded-md font-semibold"
-		@srvcls   = "#{@navcls} inline-flex items-center"
-		@lnkcls   = "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap"
+		@logourl  = { url: "/", data: { turbo_action: :replace } }
+		@navcls   = NAV_CLS
+		@lnkcls   = LNK_CLS
 		@user     = user
 		@home     = home
 		@logout   = logout
@@ -46,14 +80,18 @@ class TopbarComponent < ApplicationComponent
 	end
 
 	def call	# render HTML content
-		content_tag(:nav, class: "max-w-7xl mx-auto px-2 sm:px-6 lg:px-8") do
-			content_tag(:div, class: "relative flex items-center justify-between h-16") do
+		content_tag(:nav, class: BAR_CLS) do
+			content_tag(:div, class: OBJ_CLS) do
 				concat(render_large_menu)			# logo + nav_tabs
 				concat(render_account_action)	# sign-in OR profile dropdown
 				concat(render_ham_menu)	if @ham_menu
 			end
 		end
 	end
+
+	#-------------------------------------
+	# Component internal support methods
+	#-------------------------------------
 
 	private
 		def build_nav_tabs
@@ -74,6 +112,7 @@ class TopbarComponent < ApplicationComponent
 
 			menu_drop("profile",
 								label:   @user.person.nick.presence || @user.person.name,
+								align: :right,
 								options: [
 									menu_link(label: User.fld(:profile),  url: @home),
 									menu_link(label: User.act(:sign_out), url: @logout, kind: :delete)
@@ -84,7 +123,7 @@ class TopbarComponent < ApplicationComponent
 			options = @nav_tabs.map { |tab| hamburger_clone(tab) }.compact
 			options << hamburger_clone(@acc_acts) if @acc_acts
 			return nil if options.empty?
-			DropdownComponent.new(menu_drop("hamburger", ham: true, options:))
+			DropdownComponent.new(menu_drop("hamburger", ham: true, options:, align: :right))
 		end
 
 		def hamburger_clone(tab)
@@ -99,18 +138,18 @@ class TopbarComponent < ApplicationComponent
 		end
 
 		# wrapper to define a dropdown menu hash - :options returned as [] if received as nil
-		def menu_drop(name, label: nil, options: [], ham: nil)
-			{ kind: :menu, name:, label:, options:, ham:  }
+		def menu_drop(name, label: nil, options: [], ham: nil, align: nil)
+			{ kind: :menu, name:, label:, options:, ham:, align: }
 		end
 
-		def menu_link(label:, url:, class: "no-underline block pl-2 pr-2 py-2 hover:bg-blue-700 hover:text-white whitespace-nowrap", kind: :normal)
+		def menu_link(label:, url:, class: LNK_CLS, kind: :normal)
 			case kind
 			when :normal
-				l_data = { turbo_action: "replace" }
+				l_data = { turbo_action: :replace }
 			when :modal
-				l_data = { turbo_frame: "modal" }
+				l_data = { turbo_frame: :modal }
 			when :delete
-				l_data = { turbo_method: "delete" }
+				l_data = { turbo_method: :delete }
 			end
 			{ kind:, label:, url:, class:, data: l_data }
 		end
@@ -125,7 +164,7 @@ class TopbarComponent < ApplicationComponent
 		end
 
 		def render_large_menu
-			content_tag(:div, class: "flex-1 flex items-center justify-center sm:items-stretch sm:justify-start", aria: { label: "Main menu" }) do
+			content_tag(:div, class: MAIN_CLS, aria: { label: "Main menu" }) do
 				concat(render_logo)
 				concat(render_nav_tabs)
 			end
@@ -134,12 +173,12 @@ class TopbarComponent < ApplicationComponent
 		def render_nav_tabs
 			return if @nav_tabs.empty?
 
-			content_tag(:div, class: "hidden md:block sm:ml-6 flex space-x-4 text-gray-300", aria: { label: "Navigation" }) do
+			content_tag(:div, class: TAB_CLS, aria: { label: "Navigation" }) do
 				@nav_tabs.map { |tab|
 					if tab[:options].present?
 						render(DropdownComponent.new(tab))
 					else
-						link_to(tab[:label], tab[:url], class: @navcls, data: { turbo_frame: "_top", turbo_action: "replace" })
+						link_to(tab[:label], tab[:url], class: @navcls, data: { turbo_frame: "_top", turbo_action: :replace })
 					end
 				}.join.html_safe
 			end
@@ -148,26 +187,26 @@ class TopbarComponent < ApplicationComponent
 		def render_account_action
 			return unless @acc_acts
 
-			content_tag(:div, class: "hidden md:block absolute inset-y-0 right-0 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0", aria: { label: "Account" }) do
+			content_tag(:div, class: USR_CLS, aria: { label: "Account" }) do
 				if @acc_acts[:options].present?
 					render(DropdownComponent.new(@acc_acts))
 				else
-					link_to(@acc_acts[:label], @acc_acts[:url], class: @acc_acts[:class], data: { turbo_frame: "_top", turbo_action: "replace" })
+					link_to(@acc_acts[:label], @acc_acts[:url], class: @acc_acts[:class], data: { turbo_frame: "_top", turbo_action: :replace })
 				end
 			end
 		end
 
 		def render_ham_menu
-			content_tag(:div, class: "absolute inset-y-0 right-0 md:hidden flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0", aria: { label: "Mobile menu" }) do
+			content_tag(:div, class: HAM_CLS, aria: { label: "Mobile menu" }) do
 				render(@ham_menu)
 			end
 		end
 
 		def render_logo
-			content_tag(:div, class: "flex-shrink-0 flex inline-flex items-center font-semibold") do
+			content_tag(:div, class: LOGO_CLS) do
 				link_to(@logourl[:url], class: "inline-flex items-center", data: @logourl[:data]) do
-					concat(image_tag(@clublogo, class: "block lg:hidden h-8 w-auto"))
-					concat(image_tag(@clublogo, class: "hidden lg:block h-8 w-auto"))
+					concat(image_tag(@clublogo, class: SHOW_IMG_CLS))
+					concat(image_tag(@clublogo, class: HIDE_IMG_CLS))
 					concat(content_tag(:label, @clubname, class: "ml-1"))
 				end
 			end

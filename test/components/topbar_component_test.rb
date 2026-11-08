@@ -71,13 +71,13 @@ class TopbarComponentTest < ActiveSupport::TestCase
 		assert_includes nav["class"], "max-w-7xl"
 	end
 
-	test "inner div uses flex layout with justify-between and h-16" do
+	test "inner div uses flex layout with justify-between and h-12" do
 		nav = parsed(render_topbar(user: fake_user)).css("nav").first
 		div = nav.css("> div").first
 		refute_nil div
 		assert_includes div["class"], "flex"
 		assert_includes div["class"], "justify-between"
-		assert_includes div["class"], "h-16"
+		assert_includes div["class"], "h-12"
 	end
 
 	# ─── logo ───────────────────────────────────────────────────────
@@ -290,19 +290,103 @@ class TopbarComponentTest < ActiveSupport::TestCase
 			"the hamburger must include the sign-in link (account block is hidden on mobile)"
 	end
 
+	# ─── alignment: right-side triggers open leftward ─────────────────
+	test "profile dropdown is right-aligned (bottom-end)" do
+			html = render_topbar(user: fake_user(teams: [], coach: true), club: clubs(:north))
+			account = parsed(html).css("div[aria-label='Account']").first
+			refute_nil account
+			menu = account.at_css("[data-dropdown-target='menu']")
+			refute_nil menu
+			assert_includes menu["class"], "right-0",
+					"profile dropdown must open right-to-left (got: #{menu['class']})"
+			refute_includes menu["class"], "left-0"
+	end
+
+	test "hamburger menu is right-aligned (bottom-end)" do
+			html = render_topbar(user: fake_user(teams: [], coach: true), club: clubs(:north))
+			mobile = parsed(html).css("div[aria-label='Mobile menu']").first
+			refute_nil mobile
+			menu = mobile.at_css("[data-dropdown-target='menu']")
+			refute_nil menu
+			assert_includes menu["class"], "right-0",
+					"hamburger must open right-to-left on narrow viewports"
+			refute_includes menu["class"], "left-0"
+	end
+
+	test "hamburger sub-menus inherit left-start (right-full) from the flipped parent" do
+			club = clubs(:north)
+			team = fake_team(id: 42, club: club)
+			user = fake_user(teams: [ team ], coach: true)
+
+			html = render_topbar(user: user, club: nil)
+			mobile = parsed(html).css("div[aria-label='Mobile menu']").first
+			refute_nil mobile
+
+			sub_menus = mobile.css("[data-dropdown-target='menu'] [data-dropdown-target='menu']")
+			refute_empty sub_menus, "hamburger should contain at least one nested sub-menu (Equipos)"
+
+			sub_menus.each do |m|
+					assert_includes m["class"], "right-full",
+							"hamburger sub-menus must open leftward when the parent is flipped (got: #{m['class']})"
+			end
+	end
+
+	# ─── flipped link alignment ───────────────────────────────────────
+	test "leaf links right-align inside right-aligned menus" do
+			html = render_topbar(user: fake_user(teams: [], coach: true), club: clubs(:north))
+			mobile = parsed(html).css("div[aria-label='Mobile menu']").first
+			refute_nil mobile
+			# Direct leaf items of the hamburger menu (drills, etc.)
+			leaves = mobile.css("[data-dropdown-target='menu'] > ul > li > a")
+			refute_empty leaves
+			leaves.each do |a|
+					assert_includes a["class"], "justify-end",
+							"flipped menu leaf links must right-align (got: #{a['class']})"
+			end
+	end
+
+	# ─── hamburger trigger has hover feedback ─────────────────────────
+	test "hamburger trigger carries hover feedback" do
+			html = render_topbar(user: fake_user(teams: [], coach: true), club: clubs(:north))
+			mobile = parsed(html).css("div[aria-label='Mobile menu']").first
+			trigger = mobile.at_css("[data-dropdown-target='trigger']")
+			refute_nil trigger
+			# The CSS override [data-dropdown-target="trigger"]:hover covers this,
+			# but MENU_CLS also has hover:* explicitly — either is fine, but the
+			# trigger must have *some* hover class in its class attribute.
+			assert_includes trigger["class"], "hover:bg-blue-700",
+					"hamburger trigger must carry hover styling (got: #{trigger['class']})"
+	end
+
+	# ─── dead-code regression guard ──────────────────────────────────
+	test "no class contains a stray quote character" do
+			html = render_topbar(user: fake_user(teams: [], coach: true), club: clubs(:north))
+			# Regression: SRV_CLS had `items-center"` which produced an invalid token
+			parsed(html).css("[class]").each do |el|
+					refute_includes el["class"], '"',
+							"invalid class attribute on #{el.name} — a Ruby %w[] literal likely contains a stray quote"
+			end
+	end
+
 	# ─── CSS presence ───────────────────────────────────────────────
 	test "layout classes compile into the Tailwind output" do
 		css = File.read(Rails.root.join("app/assets/builds/tailwind.css")).gsub(/\\/, "")
-		%w[
-			max-w-7xl mx-auto px-2 sm:px-6 lg:px-8
-			relative flex items-center justify-between h-16
-			flex-shrink-0 inline-flex items-center font-semibold
-			block lg:hidden h-8 w-auto hidden lg:block
-			hidden md:block md:hidden
-			hover:bg-blue-700 hover:text-white focus:bg-blue-700 focus:text-white
-		].each do |cls|
-			assert_includes css, cls,
-				"Missing compiled class: #{cls} — run bin/rails tailwindcss:build"
-		end
+		required = %w[
+				max-w-7xl mx-auto px-2 sm:px-6 lg:px-8
+				relative flex items-center justify-between h-12
+				flex-shrink-0 inline-flex font-semibold
+				block lg:hidden h-8 w-auto hidden lg:block
+				hidden md:block md:hidden
+				hover:bg-blue-700 hover:text-white
+				focus:bg-blue-700 focus:text-white
+				focus:ring-2 focus:ring-gray-200
+				whitespace-nowrap rounded-md px-2 py-2
+				justify-end right-0 mt-2 right-full mr-1
+		]
+		missing = required.reject { |cls| css.include?(cls) }
+		assert_empty missing,
+				"Missing compiled classes: #{missing.join(', ')}. " \
+				"Fix: verify @source in app/assets/tailwind/application.css covers " \
+				"app/components/**/*.rb, then run `bin/rails tailwindcss:build`."
 	end
 end

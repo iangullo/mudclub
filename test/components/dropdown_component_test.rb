@@ -256,23 +256,169 @@ class DropdownComponentTest < ActiveSupport::TestCase
 		assert_includes html, "match"
 	end
 
+	# ─── trigger initial state ───────────────────────
+	test "trigger starts with aria-expanded false" do
+			button = render_inline(DropdownComponent.new(simple_button)).at_css("button")
+			assert_equal "false", button["aria-expanded"],
+					"Stimulus derives isOpen from this attribute — must start false"
+	end
+
+	test "hamburger trigger carries hover styling" do
+			button = render_inline(DropdownComponent.new(
+					kind: :menu, name: "ham", ham: true,
+					options: [ { label: "Opt", url: "/opt" } ]
+			)).at_css("button")
+			assert_includes button["class"], "hover:bg-blue-700",
+					"hamburger trigger must have hover feedback — regression: mobile/hamburger had no hover"
+	end
+
+	# ─── placement decisions ─────────────────────────
+	test "align: :right flips top-level menu to bottom-end" do
+			menu = render_inline(DropdownComponent.new(
+					kind: :menu, name: "right", label: "R", align: :right,
+					options: [ { label: "X", url: "/x" } ]
+			)).at_css("[data-dropdown-target='menu']")
+			assert_includes menu["class"], "right-0"
+			refute_includes menu["class"], "left-0"
+	end
+
+	test "sub inherits left-start from a flipped parent" do
+			menu = render_inline(DropdownComponent.new(
+					kind: :menu, name: "s1", sub: true, label: "S",
+					parent_place: "bottom-end",
+					options: [ { label: "X", url: "/x" } ]
+			)).at_css("[data-dropdown-target='menu']")
+			assert_includes menu["class"], "right-full"
+			assert_includes menu["class"], "mr-1"
+	end
+
+	test "sub inherits right-start from a normal parent" do
+			menu = render_inline(DropdownComponent.new(
+					kind: :menu, name: "s2", sub: true, label: "S",
+					parent_place: "bottom-start",
+					options: [ { label: "X", url: "/x" } ]
+			)).at_css("[data-dropdown-target='menu']")
+			assert_includes menu["class"], "left-full"
+			assert_includes menu["class"], "ml-1"
+	end
+
+	test "recursion propagates parent_place into the nested component" do
+			# Outer is flipped; the template passes parent_place to the recursive
+			# render. Inner's menu must reflect that.
+			fragment = render_inline(DropdownComponent.new(
+					kind: :menu, name: "outer", label: "O", align: :right,
+					options: [
+							{
+									name: "inner", kind: :menu, label: "I",
+									options: [ { label: "Deep", url: "/deep" } ]
+							}
+					]
+			))
+			inner = fragment.at_css("#inner")
+			assert_includes inner["class"], "right-full",
+					"inner menu must inherit left-start from the flipped outer"
+	end
+
+	# ─── flipped link alignment ──────────────────────
+	test "leaf links right-align inside a flipped menu" do
+			fragment = render_inline(DropdownComponent.new(
+					kind: :menu, name: "r", label: "R", align: :right,
+					options: [ { label: "One", url: "/one" } ]
+			))
+			a = fragment.at_css("a")
+			assert_includes a["class"], "justify-end",
+					"right-aligned menu must right-align leaf text (regression: bracket bug)"
+	end
+
+	test "leaf links left-align inside a normal menu" do
+			fragment = render_inline(DropdownComponent.new(simple_button))
+			a = fragment.at_css("a")
+			refute_includes a["class"], "justify-end"
+	end
+
+	# ─── chevron rendering ───────────────────────────
+	test "flipped sub renders chevron-left before the label" do
+			html = render_inline(DropdownComponent.new(
+					kind: :menu, name: "s", sub: true, label: "Sub",
+					parent_place: "bottom-end",
+					options: [ { label: "X", url: "/x" } ]
+			)).to_html
+			assert_match(/rotate-180.*?<span[^>]*>Sub<\/span>/m, html,
+					"chevron-left (rotate-180) must appear before the label span")
+	end
+
+	test "normal sub renders chevron-right after the label" do
+			html = render_inline(DropdownComponent.new(
+					kind: :menu, name: "s", sub: true, label: "Sub",
+					parent_place: "bottom-start",
+					options: [ { label: "X", url: "/x" } ]
+			)).to_html
+			assert_match(/<span[^>]*>Sub<\/span>.*?<path fill-rule="evenodd"/m, html,
+					"chevron-right must appear after the label span")
+	end
+
+	test "flipped sub packs content to the right edge" do
+			button = render_inline(DropdownComponent.new(
+					kind: :menu, name: "s", sub: true, label: "Sub",
+					parent_place: "bottom-end",
+					options: [ { label: "X", url: "/x" } ]
+			)).at_css("button")
+			assert_includes button["class"], "justify-end",
+					"flipped sub-trigger must pack chevron + label to the right edge"
+	end
+
+	test "label span has no flex-1 (chevron placement regression)" do
+			html = render_inline(DropdownComponent.new(
+					kind: :menu, name: "s", sub: true, label: "Sub",
+					parent_place: "bottom-start",
+					options: [ { label: "X", url: "/x" } ]
+			)).to_html
+			span = Nokogiri::HTML.fragment(html).at_css("button > span")
+			refute_includes span["class"], "flex-1",
+					"flex-1 on the label pins the chevron to the frame — must not be used"
+			assert_includes span["class"], "truncate"
+	end
+
+	test "hamburger variant renders no chevron" do
+			html = render_inline(DropdownComponent.new(
+					kind: :menu, name: "ham", ham: true,
+					options: [ { label: "X", url: "/x" } ]
+			)).to_html
+			refute_match(/rotate-180|M19 9l-7 7-7-7/, html,
+					"hamburger has no label → no chevron branch should render")
+	end
+
 	# ─── CSS compilation guard ──────────────────────
 	test "dropdown classes compile into the Tailwind output" do
-		css = File.read(Rails.root.join("app/assets/builds/tailwind.css")).gsub(/\\/, "")
-		%w[
-			inline-flex items-center whitespace-nowrap rounded-md
-			hover:bg-green-200 focus:bg-green-200 focus:ring-green-500
-			hover:bg-blue-700 focus:ring-gray-200
-			hover:bg-gray-300 focus:ring-gray-300 focus:border-gray-300
-			bg-gray-200 text-gray-500 bg-blue-900 bg-gray-100
-			hidden overflow-hidden p-2 font-semibold
-			block m-0 no-underline
-			h-6 w-6 h-4 w-4 ml-2 ml-3
-			relative inline-block absolute z-10
-			top-full left-0 mt-1
-			left-full top-0 ml-1
-		].each do |cls|
-			assert_includes css, cls, "Missing compiled class: #{cls} — run bin/rails tailwindcss:build"
-		end
+			css_path = Rails.root.join("app/assets/builds/tailwind.css")
+			assert File.exist?(css_path), "Run `bin/rails tailwindcss:build` first"
+			css = File.read(css_path).gsub(/\\/, "")
+
+			# Classes this component actually emits, one per line for easy auditing.
+			# If you add a constant to DropdownComponent, add its classes here.
+			required = %w[
+					inline-flex items-center whitespace-nowrap rounded-md
+					hover:bg-green-200 focus:bg-green-200 focus:ring-green-500
+					hover:bg-blue-700 focus:ring-gray-200
+					hover:bg-gray-300 focus:ring-gray-300 focus:border-gray-300
+					bg-gray-200 text-gray-500 bg-blue-900 bg-gray-100
+					hidden p-1 font-semibold
+					block no-underline
+					h-6 w-6 h-4 w-4
+					relative inline-block absolute z-10
+					top-full left-0 mt-1
+					left-full top-0 ml-1
+					right-full top-0 mr-1
+					top-full right-0 mt-2
+					justify-end gap-2 gap-1 truncate shrink-0 rotate-180
+					focus:outline-none
+			]
+
+			missing = required.reject { |cls| css.include?(cls) }
+			assert_empty missing,
+					"Missing compiled classes: #{missing.join(', ')}. " \
+					"Fix: add `@source \"../../app/components/**/*.rb\";` to " \
+					"app/assets/tailwind/application.css (or the equivalent content " \
+					"entry in tailwind.config.js), then run `bin/rails tailwindcss:build`."
 	end
 end
