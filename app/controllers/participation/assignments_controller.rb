@@ -91,6 +91,7 @@ class AssignmentsController < ApplicationController
 				Assignment.transaction do
 					@assignment.membership = membership
 					result = rebuild_or_merge_person(@assignment, assignment_params)
+					retlnk = helpers.assignment_return_path
 					case result[:status]
 					when :ok
 						@assignment.starts_on ||= Date.current
@@ -99,7 +100,7 @@ class AssignmentsController < ApplicationController
 								redirect_to retlnk, notice: Assignment.msg(:created)
 							end
 
-							format.json { render :show, status: :ok, location: helpers.assignment_return_path }
+							format.json { render :show, status: :ok, location: retlnk }
 						else
 							log_assignment_errors
 							raise ActiveRecord::Rollback
