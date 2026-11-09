@@ -165,10 +165,9 @@ class TeamPolicy < ApplicationPolicy
 		# Who may change the roster?
 		def manages_roster?
 			return false unless @record
-			return false if @record.locked
 
 			manages_club?(@record&.club) ||
-				has_club_assignment?(@record&.club, kinds: :coaching_coordinator) ||
-				has_team_assignment?(@record, kinds: :head_coach)
+			coaches_team?(@record) ||
+			has_club_assignment?(@record&.club, kinds: :coaching_coordinator)
 		end
 end
