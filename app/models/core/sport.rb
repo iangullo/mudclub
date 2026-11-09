@@ -170,6 +170,11 @@ class Sport < ApplicationRecord
 		stats_data = stats_data.to_unsafe_h if stats_data.respond_to?(:to_unsafe_h)
 		stats_data = stats_data.to_h unless stats_data.is_a?(Hash)
 
+		scoring_concept = statistics.enum[scoring[:points]]
+		periods_seen    = Hash.new(false)
+		period_sums     = Hash.new(0)
+		athlete_sums    = Hash.new(0)
+
 		stats_data.each_pair do |key, raw|
 			next if raw.blank?
 
@@ -180,20 +185,20 @@ class Sport < ApplicationRecord
 			kind, athlete_id       = resolve_stat_owner(owner, event_id)
 			next unless kind
 
-			update_stat(
-				event_id:, period:, concept:,
-				kind:, athlete_id:, value: raw
-			)
+			update_stat(event_id:, period:, concept:, kind:, athlete_id:, value: raw)
+
+			if owner.to_s.in?(%w[ours opps]) && period.positive?
+				periods_seen[owner.to_s]  = true
+				period_sums[owner.to_s]  += raw.to_i
+			elsif athlete_id.present?
+				athlete_sums[concept.to_i] += raw.to_i
+			end
 		end
 
-		# Blank totals + period scores present ⇒ recompute from periods.
-		# Look up the scoring concept through the catalog rather than hard-coding 1.
-		if stats_data.values_at("ours_tot_1", "opps_tot_1").all?(&:blank?) &&
-			stats_data.keys.any? { |k| k =~ /\A(ours|opps)_q\d+_1\z/ }
-			Stat.where(event_id:, period: 0, kind: %i[team rival],
-								concept: statistics.enum[scoring[:points]])
-					.destroy_all
-		end
+		reconcile_totals(
+			event_id:, stats_data:, scoring_concept:,
+			periods_seen:, period_sums:, athlete_sums:
+		)
 	end
 
 	# --------------------------------------------------------------------------
@@ -464,8 +469,84 @@ class Sport < ApplicationRecord
 			Stat.fetch(event_id:, concept: statistics.enum[scoring[:points]], create: false)
 		end
 
-		def uuid?(value)
-			value.to_s.match?(/\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/)
+		# Writes period-0 aggregate rows for the submission.
+		#
+		#   * One team row per athlete concept (rebounds, fouls, …) = sum across
+		#     athletes of that concept.
+		#
+		#   * The scoring concept for the team side folds period scores and
+		#     athlete scoring together. Exception: if the total is zero but a
+		#     positive manual value was supplied for `ours_tot_1`, keep the
+		#     manual value — this preserves the "totals-only" workflow.
+		#
+		#   * Rival scoring is the period sum only (no rival athletes exist).
+		#     Same zero-sum exception against `opps_tot_1`.
+		def reconcile_totals(event_id:, stats_data:, scoring_concept:,
+												periods_seen:, period_sums:, athlete_sums:)
+			(athlete_sums.keys | [ scoring_concept ]).compact.each do |concept_id|
+				value =
+					if concept_id == scoring_concept
+						team_scoring_total(stats_data:, periods_sum: period_sums["ours"],
+															athletes_sum: athlete_sums[concept_id] || 0)
+					else
+						athlete_sums[concept_id]
+					end
+
+				write_total(event_id:, kind: :team, concept: concept_id, value:)
+			end
+
+			reconcile_rival_total(
+				event_id:, stats_data:, scoring_concept:,
+				periods_seen:, period_sums:
+			)
+		end
+
+		def reconcile_rival_total(event_id:, stats_data:, scoring_concept:,
+															periods_seen:, period_sums:)
+			if periods_seen["opps"]
+				write_total(
+					event_id:, kind: :rival, concept: scoring_concept,
+					value: rival_scoring_total(stats_data:, periods_sum: period_sums["opps"])
+				)
+			elsif stats_data.key?("opps_tot_1")
+				manual = stats_data["opps_tot_1"]
+				if manual.blank?
+					Stat.where(event_id:, period: 0, kind: :rival, concept: scoring_concept)
+							.destroy_all
+				else
+					write_total(event_id:, kind: :rival, concept: scoring_concept,
+											value: manual.to_i)
+				end
+			end
+		end
+
+		def team_scoring_total(stats_data:, periods_sum:, athletes_sum:)
+			total  = periods_sum + athletes_sum
+			manual = stats_data["ours_tot_1"]
+
+			if total.zero? && manual.present? && manual.to_i.positive?
+				manual.to_i
+			else
+				total
+			end
+		end
+
+		def rival_scoring_total(stats_data:, periods_sum:)
+			manual = stats_data["opps_tot_1"]
+			if periods_sum.zero? && manual.present? && manual.to_i.positive?
+				manual.to_i
+			else
+				periods_sum
+			end
+		end
+
+		def write_total(event_id:, kind:, concept:, value:)
+			scope = Stat.where(event_id:, period: 0, kind:, concept:)
+			if (stat = scope.first)
+				stat.update!(value:) unless stat.value == value
+			else
+				Stat.create!(Stat.build_attrs(event_id:, period: 0, concept:, kind:, value:))
+			end
 		end
 
 	protected

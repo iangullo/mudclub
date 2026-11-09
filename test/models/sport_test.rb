@@ -284,12 +284,17 @@ class SportTest < ActiveSupport::TestCase
 			}
 		)
 
-		assert_equal 1, @match.stats.count, "only the real score row should exist"
-		assert_nil        @match.stats.find_by(period: 1)
-		assert_equal 7,   @match.stats.find_by(period: 2, kind: "team").value
+		assert_nil      @match.stats.find_by(period: 1),
+										"blank period must not write a row"
+		assert_equal 7, @match.stats.find_by(period: 2, kind: "team").value,
+										"the submitted period score is written as-is"
+		assert_equal 7, @match.stats.find_by(period: 0, kind: "team").value,
+										"the derived team total is written automatically"
+		assert_equal 2, @match.stats.count,
+										"only the period score and its derived total should exist"
 	end
 
-	test "update_stats destroys persisted total when both totals are blank" do
+	test "update_stats recomputes team total and clears a blank rival" do
 		b = Basketball.new
 		b.update_stat(event_id: @match.id, period: 0, concept: :pts, kind: :team,  value: 99)
 		b.update_stat(event_id: @match.id, period: 0, concept: :pts, kind: :rival, value: 88)
@@ -302,13 +307,13 @@ class SportTest < ActiveSupport::TestCase
 			}
 		)
 
-		assert_nil @match.stats.find_by(period: 0, kind: "team"),
-							"blank total must clear the persisted team total"
-		assert_nil @match.stats.find_by(period: 0, kind: "rival"),
-							"blank total must clear the persisted rival total"
+		assert_equal 22, @match.stats.find_by(period: 0, kind: "team").value,
+							"period-sum (22) must replace the stale 99"
+		assert_nil       @match.stats.find_by(period: 0, kind: "rival"),
+							"no periods + blank total ⇒ rival row destroyed"
 	end
 
-	test "update_stats preserves totals when they are provided" do
+	test "update_stats overwrites a manual total with the sum of periods" do
 		b = Basketball.new
 		b.update_stats(
 			event_id: @match.id,
@@ -318,8 +323,10 @@ class SportTest < ActiveSupport::TestCase
 			}
 		)
 
-		assert_equal 51, @match.stats.find_by(period: 0, kind: "team").value
-		assert_equal 53, @match.stats.find_by(period: 0, kind: "rival").value
+		assert_equal 10, @match.stats.find_by(period: 0, kind: "team").value,
+							"period sum (10) must replace the manual 51"
+		assert_equal 11, @match.stats.find_by(period: 0, kind: "rival").value,
+							"period sum (11) must replace the manual 53"
 	end
 
 	test "form payload round-trips through match_score" do
@@ -341,7 +348,8 @@ class SportTest < ActiveSupport::TestCase
 		assert_equal({ ours:  9, opps: 10 }, score[:q2])
 		assert_equal({ ours: 17, opps: 13 }, score[:q3])
 		assert_equal({ ours: 12, opps: 12 }, score[:q4])
-		assert_equal({ ours: 51, opps: 53 }, score[:tot])
+		assert_equal({ ours: 51, opps: 49 }, score[:tot],
+								":tot must reflect period sums, not the manual 51 / 53")
 	end
 
 	test "match_score falls back to computed total when no tot rows exist" do
@@ -357,5 +365,143 @@ class SportTest < ActiveSupport::TestCase
 		score = b.match_score(@match.id)
 		assert_equal({ ours: 22, opps: 22 }, score[:tot],
 								"with no persisted total, :tot must be the sum of periods")
+	end
+
+	# ─── Per-concept team totals ────────────────────────────────────────
+	#
+	# Every athlete concept present in the submission gets a team total
+	# row at (period: 0, kind: :team, concept: <id>). The scoring concept
+	# additionally folds in the period score. Non-scoring concepts (fouls,
+	# rebounds, shot attempts, …) are the athlete sum only.
+
+	test "update_stats writes team totals for every athlete concept" do
+		b = Basketball.new
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: {
+				"#{@assignment.id}_0_17" => "4",  # rebounds
+				"#{@assignment.id}_0_18" => "6",  # assists
+				"#{@assignment.id}_0_23" => "3"   # fouls
+			}
+		)
+
+		{ 17 => 4, 18 => 6, 23 => 3 }.each do |concept, expected|
+			stat = @match.stats.find_by(period: 0, kind: "team", concept:)
+			assert stat, "expected a team total for concept #{concept}"
+			assert_equal expected, stat.value
+		end
+	end
+
+	test "update_stats sums a concept across all athletes in the form" do
+		p2 = Person.create!(name: "Ath", surname: "Two", birthday: 30.years.ago.to_date)
+		m2 = Membership.create!(club: @club, person: p2, kind: :athlete,
+														joined_on: Date.current, status: :active)
+		a2 = Assignment.create!(membership: m2, team: @team, kind: :athlete,
+														starts_on: Date.current, status: :active)
+
+		b = Basketball.new
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: {
+				"#{@assignment.id}_0_17" => "5",  # rebounds
+				"#{a2.id}_0_17"          => "7",
+				"#{@assignment.id}_0_23" => "2",  # fouls
+				"#{a2.id}_0_23"          => "4"
+			}
+		)
+
+		assert_equal 12, @match.stats.find_by(period: 0, kind: "team", concept: 17).value
+		assert_equal 6, @match.stats.find_by(period: 0, kind: "team", concept: 23).value
+	end
+
+	test "update_stats writes 0 when an athlete concept sums to zero" do
+		b = Basketball.new
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: { "#{@assignment.id}_0_23" => "0" }
+		)
+
+		stat = @match.stats.find_by(period: 0, kind: "team", concept: 23)
+		assert stat, "a zero-valued concept still gets a team total row"
+		assert_equal 0, stat.value
+	end
+
+	test "team scoring total folds period scores AND athlete scoring" do
+		b = Basketball.new
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: {
+				"ours_q1_1"             => "10",
+				"ours_q2_1"             => "12",
+				"#{@assignment.id}_0_1" => "8",   # scoring concept contribution
+				"ours_tot_1"            => ""     # blank — will be derived
+			}
+		)
+
+		assert_equal 30, @match.stats.find_by(period: 0, kind: "team", concept: 1).value,
+							"team score = period sum + athlete sum (10 + 12 + 8)"
+	end
+
+	test "non-scoring concepts are independent of period scores" do
+		b = Basketball.new
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: {
+				"ours_q1_1"             => "10",    # scoring, applies only to concept 1
+				"#{@assignment.id}_0_17" => "5"     # rebounds
+			}
+		)
+
+		assert_equal 10, @match.stats.find_by(period: 0, kind: "team", concept:  1).value
+		assert_equal 5, @match.stats.find_by(period: 0, kind: "team", concept: 17).value
+	end
+
+	test "editing an athlete's fouls updates the team foul total" do
+		b = Basketball.new
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: { "#{@assignment.id}_0_23" => "5" }
+		)
+		assert_equal 5, @match.stats.find_by(period: 0, kind: "team", concept: 23).value
+
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: { "#{@assignment.id}_0_23" => "2" }
+		)
+		assert_equal 2, @match.stats.find_by(period: 0, kind: "team", concept: 23).value
+	end
+
+	test "zero-sum scoring with positive manual total keeps the manual value" do
+		b = Basketball.new
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: {
+				"#{@assignment.id}_0_1" => "0",
+				"ours_tot_1"            => "100"
+			}
+		)
+
+		assert_equal 100, @match.stats.find_by(period: 0, kind: "team", concept: 1).value
+	end
+
+	test "rival scoring still respects the totals-only workflow" do
+		b = Basketball.new
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: { "opps_tot_1" => "88" }
+		)
+
+		assert_equal 88, @match.stats.find_by(period: 0, kind: "rival", concept: 1).value
+	end
+
+	test "rival non-scoring concepts are never touched by athlete entries" do
+		b = Basketball.new
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: { "#{@assignment.id}_0_23" => "7" }
+		)
+
+		assert_nil @match.stats.find_by(period: 0, kind: "rival", concept: 23),
+							"athlete fouls must not create a rival foul total"
 	end
 end
