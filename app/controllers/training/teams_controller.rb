@@ -67,14 +67,14 @@ class TeamsController < ApplicationController
 		@title  = create_fields(title)
 		coaches = helpers.team_coaches
 		if @policy.view_details?
-			links   = helpers.team_links
-			@fields = create_fields(links + coaches)
-			@table  = create_fields(helpers.event_list_table(@team))
-			submit  = edit_path_for(@team) if @policy.edit?
+			@links   = create_fields(helpers.team_links)
+			@coaches = create_fields(coaches)
+			@table   = create_fields(helpers.event_list_table(@team))
+			submit   = edit_path_for(@team) if @policy.edit?
 		else
 			start_date = (params[:start_date] ? params[:start_date] : Date.today.at_beginning_of_month).to_date
 			anchor     = { url: club_team_events_path(@club, @team), rdx: @rdx }
-			@fields    = create_fields(coaches)
+			@coaches   = create_fields(coaches)
 			@calendar  = CalendarComponent.new(anchor:, start_date:, obj: @team, user: current_user)
 			submit     = nil
 		end
