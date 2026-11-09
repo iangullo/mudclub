@@ -394,16 +394,18 @@ class ApplicationController < ActionController::Base
 
 		def rebuild_person_bearing(obj, attrs)
 			resolution = obj.rebuild(attrs)
-
 			case resolution.status
 			when :ok
 				{ status: :ok, person: obj.person }
 
 			when :ambiguous
-				{ status: :offer_merge, candidates: resolution.people, reason: :ambiguous }
+				{ status: :offer_merge, candidates: resolution.candidates, reason: :ambiguous }
+
+			when :probable
+				{ status: :offer_merge, candidates: resolution.candidates, reason: :probable }
 
 			when :conflict
-				{ status: :offer_merge, candidates: resolution.conflicts.values, reason: :conflict }
+				{ status: :offer_merge, candidates: resolution.conflicts.values.uniq, reason: :conflict }
 
 			else
 				{ status: :invalid, message: "Cannot process submitted data: #{attrs}" }

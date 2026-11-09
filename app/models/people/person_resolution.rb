@@ -85,15 +85,16 @@ class PersonResolution
 			have  = person.public_send(field)
 			next false if given.blank? || have.blank?
 
-			normalize(given) != normalize(have)
+			normalize(given, field) != normalize(have, field)
 		end
 	end
 
 	private
 
-		def self.normalize(value)
-			return value.to_date.iso8601 if value.respond_to?(:to_date)
-
+		def self.normalize(value, field = nil)
+			if field == :birthday
+				return value.to_date.iso8601 if value.respond_to?(:to_date)
+			end
 			I18n.transliterate(value.to_s).strip.downcase.squeeze(" ")
 		end
 end

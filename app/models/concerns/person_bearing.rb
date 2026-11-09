@@ -87,30 +87,37 @@ module PersonBearing
 	# Person resolution & data rebuilding
 	#------------------------------------
 	def prepare_person(attrs)
-		return unless attrs[:person_attributes].present?
+		return PersonResolution.new(status: :ok) unless attrs[:person_attributes].present?
 
 		shift_avatar(attrs)
 		resolve_person(attrs[:person_attributes], exclude: self.person)
 	end
 
 	def resolve_person(attrs, exclude: nil)
-		return PersonResolution(status: :missing) if attrs.blank?
+		return PersonResolution(status: :ok) if attrs.blank?
 
 		resolution = Person.resolve(attrs, exclude:)
 
+		mismatches = []
 		case resolution.status
-		when :ambiguous
+		when :ambiguous, :probable
 			return resolution
-		when :exact, :probable
-			self.person = resolution.person if resolution.person != person
+		when :exact
+			if resolution.person != person
+				mismatches  = PersonResolution.mismatches_against(attrs, resolution.person)
+				self.person = resolution.person
+			end
 		when :none
 			self.person ||= Person.new
 		end
 
 		person.rebuild(attrs)
 
-		conflicts = person.conflicts
-		if conflicts.present?
+		dbconflicts = person.conflicts
+		if dbconflicts.present?
+			PersonResolution.new(status: :conflict, person:, conflicts: dbconflicts)
+		elsif mismatches.any?
+			conflicts = mismatches.to_h { |field| [ field, person ] }
 			PersonResolution.new(status: :conflict, person:, conflicts:)
 		else
 			PersonResolution.new(status: :ok, person:, matched_by: resolution.matched_by)
@@ -129,6 +136,10 @@ module PersonBearing
 	end
 
 	def update_person_if_modified
-		person.save if person.modified?
+		return unless person.modified?
+		person.save!
+	rescue ActiveRecord::RecordInvalid => e
+		errors.add(:base, :"person.invalid", message: e.message)
+		throw :abort
 	end
 end

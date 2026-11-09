@@ -123,7 +123,7 @@ module AssignmentsHelper
 			return path_for(@team) if assignment.membership.kind_coach?
 		end
 
-		index_path_for(assignment, kind: assignment.membership.kind, status: assignment.status)
+		index_path_for(assignment, kind: assignment.membership.kind, status: assignment.status, staff: @staff)
 	end
 
 	def assignments_base_path

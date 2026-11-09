@@ -77,7 +77,7 @@ module PeopleHelper
 		guardians.each do |guardian|
 			fields << [
 				gap_item,
-				{ kind: :text, value: "#{guardian}" },
+				{ kind: :text, value: "#{guardian.s_name}" },
 				person_contact_item(guardian)
 			]
 		end
@@ -263,8 +263,11 @@ module PeopleHelper
 				{ value: candidate.id, label: "#{candidate} (#{candidate.age})" }
 			end
 
-			options << { value: "__keep__", label: Person.act(:keep) } if current_person&.persisted?
-			options << { value: "__new__", label: Person.act(:create) }
+			if current_person&.persisted?
+				options << { value: "__keep__", label: Person.act(:keep) }
+			else
+				options << { value: "__new__", label: Person.act(:create) }
+			end
 
 			# Default to last option — the operator must actively choose to reuse other.
 			[ { kind: :radio_group, key: :person_merge, value: options.last[:value], options: } ]

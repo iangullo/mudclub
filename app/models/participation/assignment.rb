@@ -226,7 +226,7 @@ class Assignment < ApplicationRecord
 	end
 
 	#-------------------------------------
-	# Status transitions & definitions
+	# assigned scope accessors
 	#-------------------------------------
 	def club_assignment?
 		team.nil?
@@ -238,6 +238,13 @@ class Assignment < ApplicationRecord
 
 	def belongs_to_team?(team)
 		team_id == team&.id
+	end
+
+	#-------------------------------------
+	# Rebuild from form data
+	#-------------------------------------
+	def person=(newperson)
+		membership.person = newperson
 	end
 
 	def rebuild(data)
@@ -258,6 +265,16 @@ class Assignment < ApplicationRecord
 	# -------------------------------------------------------------------------
 	# Controller façade methods
 	# -------------------------------------------------------------------------
+	def self.club_staff_kinds
+		sclub = self.staff_kinds_for(:club)
+		board = self.kind_catalog.where(membership: :board_member).map(&:key)
+		sclub - board
+	end
+
+	def self.team_staff_kinds
+		self.staff_kinds_for(:team)
+	end
+
 	def self.search(club:, search: nil, status: nil, member: nil, team: nil, assignment_kind: nil, membership_kind: nil, history: false)
 		scope = team.present? ? for_team(team) : for_club(club)
 		scope = scope.where(membership: member) if member.present?
@@ -286,5 +303,9 @@ class Assignment < ApplicationRecord
 
 		def update_person_if_modified
 			person.save if person.modified?
+		end
+
+		def self.staff_kinds_for(scope)
+			self.kind_catalog.where(scope:).map(&:key)
 		end
 end

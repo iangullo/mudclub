@@ -27,15 +27,8 @@ class AssignmentsController < ApplicationController
 	def index
 		@policy = check_policy!(AssignmentPolicy, kind: @kind, club: @club, team: @team)
 
-		history = @search &&  @policy.history?
 		@assignments =
-			Assignment.search(
-				club: @club,
-				membership_kind: @kind,
-				status: @status,
-				search: @search,
-				history:
-			).order(kind: :asc, starts_on: :asc)
+			Assignment.search(**search_options).order(kind: :asc, starts_on: :asc)
 
 		title  = prepare_index_title
 		page   = paginate(@assignments)	# paginate results
@@ -115,7 +108,7 @@ class AssignmentsController < ApplicationController
 			end
 
 			unless @assignment.persisted? && @assignment.errors.empty?
-				render_assignment_errors(:create, result)
+				render_assignment_errors(:create, format, result)
 			end
 		end
 	end
@@ -161,12 +154,12 @@ class AssignmentsController < ApplicationController
 						end
 					end
 					unless @assignment.persisted? && @assignment.errors.empty?
-						render_assignment_errors(:edit, result)
+						render_assignment_errors(:edit, format, result)
 					end
 				when :offer_merge
 					handle_object_merge(format, @assignment, result[:candidates], assignment_params)
 				else
-					render_assignment_errors(:edit, result)
+					render_assignment_errors(:edit, format, result)
 				end
 			end
 		end
@@ -253,11 +246,29 @@ class AssignmentsController < ApplicationController
 			)
 		end
 
-		def render_assignment_errors(action, result = nil)
+		def render_assignment_errors(action, format, result = nil)
 			prepare_form(action == :new ? :create : action)
-			message = result.present ? result[:message] : Assignment.msg(:no_member)
+			message = result.present? ? result[:message] : Assignment.msg(:no_member)
 			format.html { render action, notice: helpers.flash_message(message, "error") }
 			format.json { render json: @user.errors, status: :unprocessable_entity }
+		end
+
+		def search_options
+			search_opts = { club: @club, team: @team, status: @status, search: @search, history: @search &&  @policy.history? }
+			if @staff = get_param(:staff)	# staff view
+				kinds =
+					if @team
+						Assignment.team_staff_kinds
+					elsif @club
+						Assignment.club_staff_kinds
+					else
+						[]
+					end
+				search_opts[:assignment_kind] = kinds
+			else
+				search_opts[:membership_kind] = @kind
+			end
+			search_opts
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
@@ -277,8 +288,7 @@ class AssignmentsController < ApplicationController
 
 		def load_assignment_kind
 			return true if @kind
-			p_kind = (params[:kind].presence || assignment_params[:kind].presence)
-								&.singularize&.to_sym
+			p_kind = get_param(:kind)&.singularize&.to_sym
 			@kind  = Assignment.kind_catalog.normalize(p_kind)
 		end
 

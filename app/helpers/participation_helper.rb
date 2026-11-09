@@ -25,7 +25,7 @@ module ParticipationHelper
 		[ { kind: :search_box, url: search_url, fields:, cols: } ]
 	end
 
-	def participation_title(obj, title: nil, status_url: nil, just_icon: true, cols: nil)
+	def participation_title(obj, title: nil, status_url: nil, just_icon: true, cols: 2)
 		icon     = obj.picture
 		title  ||= obj.person.to_s
 		subtitle = obj.kind_label(obj.kind_gender)

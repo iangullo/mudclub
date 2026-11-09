@@ -313,6 +313,7 @@ class Person < ApplicationRecord
 			@merged_person.update!(
 				merged_into: self,
 				nick: "[MERGED]",
+				dni: nil,
 				email: nil,
 				phone: nil
 			)
