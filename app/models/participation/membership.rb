@@ -183,7 +183,7 @@ class Membership < ApplicationRecord
 	def terminate!(date = Date.current)
 		return false unless can_transition_to?(:terminated)
 		transaction do
-			assignments.open.find_each { |a| assignment.terminate!(date) }
+			assignments.active.find_each { |a| a.terminate!(date) }
 		 	transition_to!(:terminated, :terminate, date)
 		end
 		true

@@ -46,6 +46,8 @@ module ParticipationHelper
 				{ kind: :contact, email: obj&.email, phone: obj&.phone, device: device, align: "left", cols: 3 }
 			]
 		]
+		fields += person_show_guardians(obj.person) if obj.has_guardians?
+		fields
 	end
 
 	def participation_fields(obj, fields, status_url: nil, just_icon: true)
@@ -124,6 +126,7 @@ module ParticipationHelper
 			)
 		fields.pop
 		fields << [
+			{ kind: :string, value: obj.fld(:status), align: :center, class: "font-semibold" },
 			{ kind: :select_box, key: :status, options: obj.status_list, cols: 3 }
 		]
 	end

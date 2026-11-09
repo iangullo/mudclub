@@ -34,19 +34,6 @@ class ApplicationController < ActionController::Base
 	helper_method :u_admin?, :u_club, :u_manager?, :u_person,
 								:user_in_club?,	:date_string
 
-	# manage status updates for objects with the attribute
-	def apply_status_change(obj, format, retlnk: path_for(obj))
-		if perform_status_change(obj, status_value_for(obj))
-			notice = helpers.flash_message(obj.msg(:updated), :success)
-			format.html { redirect_to retlnk, notice:, status: :see_other, turbo_action: "replace" }
-			format.json { render :show, status: :ok, location: obj }
-		else
-			message = obj.errors.full_messages.to_sentence.presence || obj.msg(:status_fail)
-			format.html { redirect_to retlnk, notice: helpers.flash_message(message, :error) }
-			format.json { render json: obj.errors, status: :unprocessable_entity }
-		end
-	end
-
 	# auxliary check for params that need matching values
 	def assert_param_matches!(param_name, value)
 		param = params[param_name]

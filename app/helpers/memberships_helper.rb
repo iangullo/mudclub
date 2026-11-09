@@ -45,13 +45,11 @@ module MembershipsHelper
 
 	def membership_show_fields(member)
 		m_fields = []
-		m_fields += person_show_guardians(member.person) if member.has_guardians?	# show contact details for guardians
-
 		if member.notes?
-			m_fields << [ label_item("#{member.fld(:notes)}:", align: :right, class: "text-right", cols: 3) ]
-			m_fields << [ { kind: :text_field, value: member.notes, align: :left, cols: 3 } ]
+			m_fields << [ label_item("#{member.fld(:notes)}:", align: :right, class: "text-right") ]
+			m_fields << [ { kind: :text_field, value: member.notes, align: :left } ]
 		end
-		m_fields <<	[	label_item("#{Assignment.label(:plural)}:", cols: 3)	]
+		m_fields <<	[	label_item("#{Assignment.label(:plural)}:")	]
 		m_fields
 	end
 

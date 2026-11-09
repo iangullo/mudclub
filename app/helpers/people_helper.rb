@@ -69,7 +69,7 @@ module PeopleHelper
 
 		fields = [
 			[
-				symbol_item(:person),
+				symbol_item(:person, align: :right),
 				label_item(Relationship.kind_label(:guardian, :plural), cols: 2)
 			]
 		]

@@ -49,14 +49,15 @@ class AssignmentsController < ApplicationController
 	def show
 		@policy = check_policy!(AssignmentPolicy, record: @assignment)
 
-		@status = @policy.edit?
-		fields  =
+		status_url = edit_path_for(@assignment, edit_status: true, kind: @kind, frame: :modal) if @policy.edit?
+
+		fields =
 			helpers.participation_title(
 				@assignment,
-				status_url: edit_path_for(@assignment, status:, search: @search),
+				status_url:,
 				just_icon: false
 			) + helpers.assignment_show_fields
-		@status = nil
+
 		@fields = create_fields(fields)
 		submit  = edit_path_for(@assignment) if @policy.update?
 		@submit = create_submit(submit:, frame: :modal)
@@ -133,7 +134,15 @@ class AssignmentsController < ApplicationController
 		respond_to do |format|
 			retlnk = helpers.assignment_return_path
 			if status_only_update?(@assignment)
-				apply_status_change(@assignment, format, retlnk:)
+				if perform_status_change(@assignment, status_value_for(@assignment))
+					notice = helpers.flash_message(@assignment.msg(:updated), :success)
+					format.html { redirect_to path_for(@assignment), notice:, status: :see_other, turbo_action: "replace" }
+					format.json { render :show, status: :ok, location: @assignment }
+				else
+					message = @assignment.errors.full_messages.to_sentence.presence || @assignment.msg(:status_fail)
+					format.html { redirect_to path_for(@assignment), notice: helpers.flash_message(message, :error) }
+					format.json { render json: @assignment.errors, status: :unprocessable_entity }
+				end
 			else
 				result = rebuild_or_merge_person(@assignment, assignment_params)
 				case result[:status]
@@ -201,9 +210,9 @@ class AssignmentsController < ApplicationController
 
 		# Prepare a assignment form
 		def prepare_form(action)
-			status_edit = action == :edit && to_boolean(params[:status])
+			edit_status = action == :edit && to_boolean(params[:edit_status])
 
-			if status_edit
+			if edit_status
 				a_fields = helpers.participation_status_form_fields(@assignment)
 			else
 				a_fields  = helpers.assignment_form_fields(@assignment)
@@ -276,8 +285,8 @@ class AssignmentsController < ApplicationController
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def assignment_params
 			@assignment_params ||= params.require(:assignment).permit(
-				:kind, :membership_id, :team_id, :starts_on, :ends_on,
-				:number, :notes, :avatar, :person_merge, :status, :rdx,
+				:kind, :membership_id, :team_id, :starts_on, :ends_on, :number,
+				:notes, :avatar, :person_merge, :status, :edit_status, :rdx,
 				person_attributes: [
 					:id, :name, :nick, :surname,
 					:dni, :id_back, :id_front, :female,

@@ -47,9 +47,10 @@ class MembershipsController < ApplicationController
 	# GET /members/x
 	# GET /members/x.json
 	def show
-		@policy    = check_policy!(MembershipPolicy, record: @member)
-		@kind    ||= @member.kind.to_sym
-		status_url = edit_path_for(@member, status: true, frame: :modal) if @policy.edit?
+		@policy = check_policy!(MembershipPolicy, record: @member)
+
+		status_url = edit_path_for(@member, edit_status: true, kind: @kind, frame: :modal) if @policy.edit?
+
 		@title = create_fields(
 			helpers.participation_title(@member, status_url:, just_icon: false)
 		)
@@ -116,7 +117,15 @@ class MembershipsController < ApplicationController
 
 		respond_to do |format|
 			if status_only_update?(@member)
-				return apply_status_change(@member, format)
+				if perform_status_change(@member, status_value_for(@member))
+					notice = helpers.flash_message(@member.msg(:updated), :success)
+					format.html { redirect_to path_for(@member), notice:, status: :see_other, turbo_action: "replace" }
+					format.json { render :show, status: :ok, location: @member }
+				else
+					message = @member.errors.full_messages.to_sentence.presence || @member.msg(:status_fail)
+					format.html { redirect_to path_for(@member), notice: helpers.flash_message(message, :error) }
+					format.json { render json: @member.errors, status: :unprocessable_entity }
+				end
 			else
 				result = rebuild_or_merge_person(@member, membership_params)
 				case result[:status]
@@ -191,9 +200,9 @@ class MembershipsController < ApplicationController
 
 		# Prepare a member form
 		def prepare_form(action)
-			status_edit = action == :edit && to_boolean(params[:status])
+			edit_status = action == :edit && to_boolean(params[:edit_status])
 
-			if status_edit
+			if edit_status
 				m_fields = helpers.participation_status_form_fields(@member)
 			else
 				m_fields  = helpers.membership_form_fields(@member)
@@ -242,8 +251,8 @@ class MembershipsController < ApplicationController
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def membership_params
 			@membership_params ||= params.require(:membership).permit(
-				:person_id, :club_id, :joined_on, :left_on, :kind,
-				:notes, :avatar, :person_merge, :status, :rdx,
+				:person_id, :club_id, :joined_on, :left_on, :kind, :notes,
+				:avatar, :person_merge, :status, :edit_status, :rdx,
 				person_attributes: [
 					:id, :avatar, :name, :nick, :surname,
 					:dni, :id_back, :id_front, :female,

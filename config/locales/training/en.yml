@@ -101,10 +101,11 @@ en:
         deleted: Training session deleted.
         attendance_checked: Attendance checked.
 
-    stats:
-      single: Statistic
-      plural: Statistics
-      short: Stat.
+    stat:
+      label:
+        single: Statistic
+        plural: Statistics
+        short: Stat.
       messages:
         updated: Statistics updated.
 

@@ -117,10 +117,11 @@ es:
         updated: Habilidad actualizada.
         deleted: Habilidad eliminada.
 
-    stats:
-      single: Estadística
-      plural: Estadísticas
-      short: Estad.
+    stat:
+      label:
+        single: Estadística
+        plural: Estadísticas
+        short: Estad.
       messages:
         updated: Estadísticas actualizadas.
 
