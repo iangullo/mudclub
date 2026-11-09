@@ -61,7 +61,7 @@ class EventPolicy < ApplicationPolicy
 	alias new? create?
 
 	def edit?
-		manages_club? || (
+		manages_club?(target_club) || (
 			manages_event? &&
 			@record.start_date > Date.today - 1.week
 		)
@@ -73,7 +73,7 @@ class EventPolicy < ApplicationPolicy
 	alias destroy? edit?
 
 	def attendance?
-		manages_club? || (
+		manages_club?(target_club) || (
 			manages_event? &&
 			@record.start_date > Date.today - 1.month
 		)
