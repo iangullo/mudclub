@@ -11,12 +11,12 @@
 	</head>
 
 	<body class="h-screen flex flex-col text-fluid">
-		<header class="flex-none sticky top-0 z-10 w-full h-12 bg-blue-900 text-gray-300">
+		<header class="flex-none sticky top-0 z-10 w-full h-14 bg-blue-900 text-gray-300">
 			<%= render @topbar %>
 			<%= render FlashComponent.new(notice) if notice %>
 		</header>
 		<% if @title %>
-		<div class="flex sticky top-12 justify-center bg-white text-black border-b border-gray-300 p-2">
+		<div class="flex sticky top-14 justify-center bg-white text-black border-b border-gray-300 p-2">
 			<%= render @title %>
 		</div>
 		<% end %>

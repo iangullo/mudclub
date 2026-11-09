@@ -156,4 +156,80 @@ class BasketballTest < ActiveSupport::TestCase
 		Event.create!(club: @club, team: u14, kind: :match,
 									location: @location, start_time: Time.current)
 	end
+
+	# ---------------------------------------------------------------
+	# match_score_fields — read-side key shape (regression)
+	#
+	# match_score returns { q1: {…}, q2: {…}, …, tot: {…} } — symbol keys
+	# taken from the period catalog. match_score_fields iterates 1..t_pers
+	# and must look up score[per] (:q1, :q2, …), not score[key] (1, 2, …).
+	# Before the fix, every period rendered 0 in the edit form and in the
+	# show view, while :tot rendered correctly — because the :tot lookup
+	# already used the symbol key.
+	# ---------------------------------------------------------------
+
+	test "#match_score_fields reads period scores by catalog key (regression)" do
+		b = basketball
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: {
+				"ours_q1_1" => "13", "ours_q2_1" => "9",  "ours_q3_1" => "17", "ours_q4_1" => "12",
+				"opps_q1_1" => "14", "opps_q2_1" => "10", "opps_q3_1" => "13", "opps_q4_1" => "12"
+			}
+		)
+
+		head, home, away = [], [], []
+		b.send(:match_score_fields, true, b.match_score(@match.id), b.periods, 4,
+																head, home, away, edit: true)
+
+		{
+			"ours_q1_1" => 13, "ours_q2_1" => 9,  "ours_q3_1" => 17, "ours_q4_1" => 12,
+			"opps_q1_1" => 14, "opps_q2_1" => 10, "opps_q3_1" => 13, "opps_q4_1" => 12
+		}.each do |key, expected|
+			bucket = key.start_with?("ours") ? home : away
+			cell   = bucket.find { |f| f[:key] == key }
+			assert cell, "#{key} must appear in the form fields"
+			assert_equal expected, cell[:value],
+									"#{key} must show the persisted value (was 0 before the fix)"
+		end
+	end
+
+	test "#match_score_fields surfaces OT on a tie in show mode" do
+		b = basketball
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: {
+				"ours_q1_1" => "10", "ours_q2_1" => "12", "ours_q3_1" => "9",  "ours_q4_1" => "11",
+				"opps_q1_1" => "11", "opps_q2_1" => "10", "opps_q3_1" => "12", "opps_q4_1" => "9"
+			}
+		)
+
+		head, home, away = [], [], []
+		b.send(:match_score_fields, true, b.match_score(@match.id), b.periods, 4,
+																head, home, away, edit: false)
+
+		# 4 regulation periods + 1 OT column, applied to header and both sides.
+		assert_equal 5, head.size, "tied regulation must add an OT header cell"
+		assert_equal 5, home.size, "tied regulation must add an OT cell for home"
+		assert_equal 5, away.size, "tied regulation must add an OT cell for away"
+	end
+
+	test "#match_score_fields omits OT when regulation is not tied" do
+		b = basketball
+		b.update_stats(
+			event_id: @match.id,
+			stats_data: {
+				"ours_q1_1" => "10", "ours_q2_1" => "12", "ours_q3_1" => "9",  "ours_q4_1" => "15",
+				"opps_q1_1" => "11", "opps_q2_1" => "10", "opps_q3_1" => "12", "opps_q4_1" => "9"
+			}
+		)
+
+		head, home, away = [], [], []
+		b.send(:match_score_fields, true, b.match_score(@match.id), b.periods, 4,
+																head, home, away, edit: false)
+
+		assert_equal 4, head.size, "non-tied regulation must not add an OT header cell"
+		assert_equal 4, home.size
+		assert_equal 4, away.size
+	end
 end

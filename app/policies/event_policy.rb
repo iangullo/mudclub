@@ -61,8 +61,10 @@ class EventPolicy < ApplicationPolicy
 	alias new? create?
 
 	def edit?
-		manages_event?
+		manages_cub? || (
+			manages_event? &&
 			@record.start_date > Date.today - 1.week
+		)
 	end
 
 	alias add_task? edit?
@@ -71,8 +73,10 @@ class EventPolicy < ApplicationPolicy
 	alias destroy? edit?
 
 	def attendance?
-		manages_event? &&
+		manages_cub? || (
+			manages_event? &&
 			@record.start_date > Date.today - 1.month
+		)
 	end
 
 	def copy?

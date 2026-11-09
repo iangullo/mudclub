@@ -143,53 +143,56 @@ class Sport < ApplicationRecord
 	# ---------------------------------------------------------------------------
 	def update_stat(event_id:, concept:, value:, period: 0, kind: :athlete, athlete_id: nil, **legacy)
 		if (pid = legacy[:player_id])
-			kind, athlete_id =
-				Stat.translate_player_id(pid.to_i, event_id, kind, athlete_id)
+			kind, athlete_id = Stat.translate_player_id(pid.to_i, event_id, kind, athlete_id)
 		end
 
 		cid = concept_id(concept)
-
-		stat = Stat.fetch(
-			event_id:, period:, kind:, athlete_id:,
-			concept: cid, create: false
-		).first
-
-		if stat
+		if (stat = Stat.fetch(event_id:, period:, kind:, athlete_id:, concept: cid, create: false).first)
 			stat.update!(value: value.to_i)
 			stat
 		else
-			Stat.create!(
-				Stat.build_attrs(
+			begin
+				Stat.create!(Stat.build_attrs(
 					event_id:, period:, concept: cid,
 					kind:, athlete_id:, value: value.to_i
-				)
-			)
+				))
+			rescue ActiveRecord::RecordNotUnique
+				Stat.fetch(event_id:, period:, kind:, athlete_id:, concept: cid, create: false)
+						.first&.update!(value: value.to_i)
+			end
 		end
 	end
 
 	# Bulk persistence of a hash produced by a form or by parse_stats.
 	# Expected shape: { "<owner>_<period>_<concept_id>" => value, ... }
-	# "owner" is an Assignment UUID (new) or an integer Player id (legacy).
+	# "owner" is an Assignment UUID (new) or reserved keys (:team|:rival)
 	def update_stats(event_id:, stats_data:)
 		stats_data = stats_data.to_unsafe_h if stats_data.respond_to?(:to_unsafe_h)
 		stats_data = stats_data.to_h unless stats_data.is_a?(Hash)
 
 		stats_data.each_pair do |key, raw|
-			owner, period, concept = parse_stat_key(key)
-			next unless owner && concept
+			next if raw.blank?
 
-			kind, athlete_id =
-				if uuid?(owner)
-					[ :athlete, owner ]
-				else
-					Stat.translate_player_id(owner.to_i, event_id, nil, nil)
-				end
+			parsed = parse_stat_key(key)
+			next unless parsed
+
+			owner, period, concept = parsed
+			kind, athlete_id       = resolve_stat_owner(owner, event_id)
 			next unless kind
 
 			update_stat(
 				event_id:, period:, concept:,
 				kind:, athlete_id:, value: raw
 			)
+		end
+
+		# Blank totals + period scores present ⇒ recompute from periods.
+		# Look up the scoring concept through the catalog rather than hard-coding 1.
+		if stats_data.values_at("ours_tot_1", "opps_tot_1").all?(&:blank?) &&
+			stats_data.keys.any? { |k| k =~ /\A(ours|opps)_q\d+_1\z/ }
+			Stat.where(event_id:, period: 0, kind: %i[team rival],
+								concept: statistics.enum[scoring[:points]])
+					.destroy_all
 		end
 	end
 
@@ -396,16 +399,16 @@ class Sport < ApplicationRecord
 			{ ours: 0, opps: 0 }
 		end
 
-		# Split "<owner>_<period>_<concept>" into three parts. Tolerates the
-		# legacy two-part "<player_id>_<concept>" format with a warning.
+		# "<owner>_<period>_<concept>" — period resolved to a catalog id.
 		def parse_stat_key(key)
 			parts = key.to_s.split("_")
-			case parts.size
-			when 3 then [ parts[0], parts[1], parts[2] ]
-			when 2
-				Rails.deprecator.warn("Sport: legacy 2-part stat key '#{key}'")
-				[ parts[0], 0, parts[1] ]
-			end
+			return nil unless parts.size == 3
+
+			owner, period_str, concept = parts
+			period = resolve_period(period_str)
+			return nil if period.nil?
+
+			[ owner, period, concept ]
 		end
 
 		def period_score(period:, stats:, **owner)
@@ -424,6 +427,37 @@ class Sport < ApplicationRecord
 			return if period.key == :tot
 
 			accumulate_score(total:, ours:, opps:)
+		end
+
+		# Form keys are named from the *event's* perspective:
+		#   ours_*  → the event's team      → kind: :team
+		#   opps_*  → the opposing team     → kind: :rival
+		#   <uuid>_ → an athlete assignment → kind: :athlete
+		#   <int>_  → legacy player_id      → translated via Stat
+		def resolve_stat_owner(owner, event_id)
+			case owner.to_s
+			when "ours" then [ :team,  nil ]
+			when "opps" then [ :rival, nil ]
+			else
+				return [ :athlete, owner ] if uuid?(owner)
+				Stat.translate_player_id(owner.to_i, event_id, nil, nil)
+			end
+		end
+
+		# "q1".."q6" → 1..6, "ot" → 7, "tot" → 0, "0".."7" pass through.
+		def resolve_period(period_str)
+			return period_str.to_i if period_str.match?(/\A\d+\z/)
+			catalog(:periods).enum[period_str.to_sym]
+		end
+
+		# Use the sport catalog to turn "q1"/"ot"/… into period ids.
+		# Bare integers pass through; "tot" is derived, never persisted;
+		# unknown symbols return nil and are skipped.
+		def resolve_period(period_str)
+			return period_str.to_i if period_str.match?(/\A\d+\z/)
+			# return nil if period_str == "tot"
+
+			catalog(:periods).enum[period_str.to_sym]
 		end
 
 		def scoring_stats(event_id)

@@ -46,7 +46,7 @@ class TopbarComponent < ApplicationComponent
 	LOGO_CLS     = %w[flex-shrink-0 flex inline-flex items-center font-semibold].freeze
 	BAR_CLS      = %w[max-w-7xl mx-auto px-2 sm:px-6 lg:px-8].freeze
 	MAIN_CLS     = %w[flex-1 flex items-center justify-center sm:items-stretch sm:justify-start].freeze
-	OBJ_CLS      = %w[relative flex items-center justify-between h-12].freeze
+	OBJ_CLS      = %w[relative flex items-center justify-between h-14].freeze
 	TAB_CLS      = %w[hidden md:block sm:ml-6 flex space-x-4 text-gray-300].freeze
 	HAM_CLS      = %w[absolute inset-y-0 right-0 md:hidden flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0].freeze
 	USR_CLS      = %w[hidden md:block absolute inset-y-0 right-0 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0].freeze

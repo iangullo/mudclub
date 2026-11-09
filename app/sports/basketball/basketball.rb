@@ -339,9 +339,9 @@ class Basketball < Sport
 			[
 				{ kind: :gap },
 				stat_label(label),
-				{ kind: :number_box, key: "#{key}#{k_made}", value: v_made, class: "shots-made border px-1 py-1", align: :right },
+				{ kind: :number_box, key: "#{key}#{k_made}", value: v_made, class: "shots-made border px-1 py-1", align: :right, size: 1 },
 				label_item("/"),
-				{ kind: :number_box, key: "#{key}#{k_taken}", value: v_taken, class: "shots-taken border px-1 py-1", align: :right }
+				{ kind: :number_box, key: "#{key}#{k_taken}", value: v_taken, class: "shots-taken border px-1 py-1", align: :right, size: 1 }
 			]
 		end
 
@@ -462,8 +462,8 @@ class Basketball < Sport
 			k_home = "#{(home ? 'ours' : 'opps')}#{k_tail}"
 			k_away = "#{(home ? 'opps' : 'ours')}#{k_tail}"
 			if edit
-				t_home << { kind: :number_box, key: k_home, min: 0, max: 200, size: 2, value: p_home, align: :center }
-				t_away << { kind: :number_box, key: k_away, min: 0, max: 200, size: 2, value: p_away, align: :center }
+				t_home << { kind: :number_box, key: k_home, min: 0, max: 200, size: 1, value: p_home, align: :center }
+				t_away << { kind: :number_box, key: k_away, min: 0, max: 200, size: 1, value: p_away, align: :center }
 			else
 				t_home << { kind: :normal, value: p_home, class: "text-center border px-1 py-1", align: :right }
 				t_away << { kind: :normal, value: p_away, class: "text-center border px-1 py-1", align: :right }
@@ -480,7 +480,7 @@ class Basketball < Sport
 			rsc = { ours: 0, opps: 0 } # may not need to show overtime scores
 			1.upto(t_pers) do |key|
 				per = periods.key(key)
-				val = score[key]
+				val = score[per]
 				if val
 					rsc[:ours] += val[:ours]
 					rsc[:opps] += val[:opps]
