@@ -34,7 +34,7 @@ module PeopleHelper
 		subtitle = person&.nick&.presence || person&.name
 
 		fields   = person_title(icon:, title:, subtitle:, rows:, cols:)
-		c_field  = person_contact_field(person)
+		c_field  = person_contact_item(person)
 		id_field = id_pic ?
 			person_idpic(person) :
 			{ kind: :string, value: pobj&.person&.dni || Person.msg(:no_id) }
@@ -63,6 +63,27 @@ module PeopleHelper
 		]
 	end
 
+	def person_show_guardians(obj)
+		guardians = obj&.guardians
+		return nil unless guardians
+
+		fields = [
+			[
+				symbol_item(:person),
+				label_item(Relationship.kind_label(:guardian, :plural), cols: 2)
+			]
+		]
+
+		guardians.each do |guardian|
+			fields << [
+				gap_item,
+				{ kind: :text, value: "#{guardian}" },
+				person_contact_item(guardian)
+			]
+		end
+		fields
+	end
+
 	def person_summary_fields(person, prepend_gap: false)
 		fields = [
 			[
@@ -71,7 +92,7 @@ module PeopleHelper
 			],
 			[
 				gap_item(0),
-				person_contact_field(person)
+				person_contact_item(person)
 			]
 		]
 
@@ -211,7 +232,7 @@ module PeopleHelper
 		end
 
 		# wrapper to return correct contact fiedl for a person
-		def person_contact_field(person)
+		def person_contact_item(person)
 			person&.email || person&.phone ?
 				{ kind: :contact, email: person.email, phone: person.phone, device:, align: :left } :
 				{ kind: :text, value: Person.msg(:no_contact), class: "text-xs" }

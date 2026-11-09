@@ -50,9 +50,11 @@ module AssignmentsHelper
 			{ kind: :string, value: date_string(assignment.ends_on), cols: 3, align: :left, class: "items-center" }
 		] if assignment.ends_on
 
+		fields += person_show_guardians(assignment.person) 	# show contact details for guardians
+
 		fields << [
-			label_item("#{assignment.fld(:notes)}: ", align: :right),
-			{ kind: :text_field, value: assignment.notes, align: :left }
+			label_item("#{assignment.fld(:notes)}: ", align: :right, cols: 3),
+			{ kind: :text_field, value: assignment.notes, align: :left, cols: 3 }
 		]
 	end
 

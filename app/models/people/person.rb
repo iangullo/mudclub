@@ -112,9 +112,14 @@ class Person < ApplicationRecord
 		teams(club:, season:, historical:).includes(:season).sort_by { |t| t.season.start_date }.reverse
 	end
 
+	# Return People who are legal guardians for this person
+	def guardians
+		Person.where(id: inverse_relationships.in_group(:ward).select(:person_id))
+	end
+
 	# Person has guardians (i.e. is a minor with responsible adults)
 	def has_guardians?
-		inverse_relationships.in_group(:responsible_adult).exists?
+		inverse_relationships.in_group(:ward).exists?
 	end
 
 	# Person is a guardian of others (i.e. is someone's parent/legal representative)

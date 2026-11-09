@@ -70,7 +70,7 @@ class Catalog::RelationshipKinds < Catalog::Base
 		ward: {
 			id: 31,
 			inverse: :guardian,
-			groups: [],
+			groups: [ :ward ],
 			description: "Person under guardianship."
 		},
 
@@ -84,7 +84,7 @@ class Catalog::RelationshipKinds < Catalog::Base
 		represented_person: {
 			id: 32,
 			inverse: :legal_representative,
-			groups: [],
+			groups: [ :ward ],
 			description: "Person represented legally."
 		},
 
@@ -96,7 +96,7 @@ class Catalog::RelationshipKinds < Catalog::Base
 			id: 20,
 			selectable: false,
 			inverse: :parent,
-			groups: [],
+			groups: [ :ward ],
 			description: "Child."
 		},
 
@@ -120,7 +120,7 @@ class Catalog::RelationshipKinds < Catalog::Base
 			id: 23,
 			selectable: true,
 			inverse: :grandparent,
-			groups: [],
+			groups: [ :child ],
 			description: "Grandchild."
 		},
 

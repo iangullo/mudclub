@@ -70,6 +70,7 @@ class Membership < ApplicationRecord
 	#-------------------------------------
 	delegate :avatar, :age, :birthday, :email, :female, :name, :nick, :phone,
 					:relationships, :surname, :s_name, :to_s,
+					:minor?, :has_guardians?, :guardians,
 					to: :person, allow_nil: true
 
 	# -------------------------------------------------------------------------
