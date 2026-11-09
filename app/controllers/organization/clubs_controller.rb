@@ -143,9 +143,9 @@ class ClubsController < ApplicationController
 	private
 		# prepare a form to edit/create a club
 		def prepare_form(title:)
-			@header = create_fields(helpers.club_header(title:, form: true))
-			@fields = create_fields(helpers.club_form)
-			@submit = create_submit
+			@header  = create_fields(helpers.club_header(title:, form: true))
+			@options = AccordionComponent.new(**helpers.club_edit_accordion)
+			@submit  = create_submit
 		end
 
 		def set_club
@@ -156,23 +156,10 @@ class ClubsController < ApplicationController
 		# Only allow a list of trusted parameters through.
 		def club_params
 			@club_params ||= params.require(:club).permit(
-				:id,
-				:address,
-				:avatar,
-				:country,
-				:email,
-				:locale,
-				:name,
-				:nick,
-				:phone,
-				:rdx,
-				:website,
-				social: [
-					facebook: {},
-					google: {},
-					instagram: {},
-					twitter: {}
-				]
+				:id, :address, :avatar, :email, :name, :nick, :phone, :public, :rdx,
+				*Club::REGULAR_OPTS, *Club::BOOLEAN_OPTS, *Club::INHERITED_OPTS,
+				enabled_modules: [],
+				social: [ facebook: {}, google: {}, instagram: {}, twitter: {} ]
 			)
 		end
 end

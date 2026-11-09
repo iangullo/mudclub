@@ -26,6 +26,7 @@ es:
         entity: "Entidad legal"
         entity_short: "Ent."
         email: "e-mail"
+        inherit_from_server: Heredar del servidor.
         logo: "Logotipo"
         logo_short: "Logo"
         none: "Sin club"
@@ -37,6 +38,7 @@ es:
         updated: "Club actualizado."
         deleted: "Club eliminado."
         duplicated: "El club ya existe."
+        public_disabled_by_server: El servidor no permite páginas públicas de clubes.
 
     category:
       label:

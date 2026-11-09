@@ -212,9 +212,9 @@ class Club < ApplicationRecord
 		self.name     = f_data[:name] if f_data[:name].present?
 		self.nick     = f_data[:nick] if f_data[:nick].present?
 		self.phone    = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
+	  self.public = to_boolean(f_data[:public]) if f_data.key?(:public)
 
 		new_settings = settings.dup
-
 		(REGULAR_OPTS + INHERITED_OPTS).each do |opt|
 			key = opt.to_s
 			new_settings[opt] = f_data[key] if f_data.key?(key)

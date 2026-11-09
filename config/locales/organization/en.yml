@@ -26,6 +26,7 @@ en:
         entity: "Legal entity"
         entity_short: "Ent."
         email: "e-mail"
+        inherit_from_server: Inherit from server.
         logo: "Logo"
         logo_short: "Logo"
         none: "No club"
@@ -37,6 +38,7 @@ en:
         updated: "Club updated."
         deleted: "Club deleted."
         duplicated: "Club already exists."
+        public_disabled_by_server: Server does not support public club pages.
 
     category:
       label: "Category"
