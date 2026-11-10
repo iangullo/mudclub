@@ -2,7 +2,7 @@
     <p>
         <%= Server.tagline %>
     <p>
-        <%= render @fields %>
+        <%= render @fields if @fields%>
     <hr>
     <% if @table %><%= render @table %><% end %>
     <%= render @submit if @submit %>
