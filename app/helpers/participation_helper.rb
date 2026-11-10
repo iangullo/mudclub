@@ -185,12 +185,8 @@ module ParticipationHelper
 			end
 			header << { kind: :normal, value: Person.fld(:name) }
 			header << { kind: :normal, value: Person.fld(:age) } if [ :athlete, :coach ].include?(@kind)
-
-			header += [
-				{ kind: :normal, value: p_class.fld(:starts_on, :short) },
-				{ kind: :normal, value: p_class.fld(:status) }
-			]
-			header << normal_button({ kind: :add, url: new_path_for(@club, o_class, kind: @kind), frame: :modal }) if @policy.new?
+			header << { kind: :normal, value: p_class.fld(:status) }
+			header << normal_button({ kind: :add, url: new_path_for(@club, o_class, kind: @kind, staff: @staff), frame: :modal }) if @policy.new?
 			header
 		end
 
@@ -211,7 +207,6 @@ module ParticipationHelper
 					end
 					row[:items] << { kind: :normal, value: object.s_name }
 					row[:items] << { kind: :normal, value: object.age, align: :center } if [ :athlete, :coach ].include?(m_obj.kind.to_sym)
-					row[:items] << { kind: :normal, value: object.starts_on }
 					row[:items] << participation_status_field(object, f_opts: { align: :center, class: "border px-1 py-1" })
 					rows << row
 				}

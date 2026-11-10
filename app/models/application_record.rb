@@ -95,8 +95,9 @@ class ApplicationRecord < ActiveRecord::Base
 	end
 
 	def to_boolean(value)
-		self.class.to_boolean(value)
+		ActiveModel::Type::Boolean.new.cast(value) || false
 	end
+
 
 	# update object file attachment
 	def update_attachment(field, new_file = nil)

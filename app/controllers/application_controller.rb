@@ -125,8 +125,7 @@ class ApplicationController < ActionController::Base
 
 	# parse a value to determine if its true
 	def to_boolean(value)
-		val = value.presence
-		(val&.to_s == "true" || val.to_i == 1)
+		ActiveModel::Type::Boolean.new.cast(value) || false
 	end
 
 	# standard message for actions that had no data to change
