@@ -40,6 +40,8 @@ class HomeController < ApplicationController
 				@fields = create_fields(helpers.home_anonymous_fields)
 				page    = paginate(@clubs)
 				@table  = create_table(helpers.club_table(clubs: page))
+			else
+				@fields = create_fields(helpers.home_closed)
 			end
 		else
 			@fields = create_fields(helpers.home_closed)
