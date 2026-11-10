@@ -200,18 +200,18 @@ class Club < ApplicationRecord
 
 	# show a public page??
 	def publicly_visible?
-		public? && public_approved_by.present? && Server.public_clubs_enabled?
+		public? && Server.public_clubs_enabled?
 	end
 
 	# rebuild CLub data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(f_data)
-		self.address  = f_data[:address] if f_data[:address].present?
-		self.email    = f_data[:email] if f_data[:email].present?
-		self.name     = f_data[:name] if f_data[:name].present?
-		self.nick     = f_data[:nick] if f_data[:nick].present?
-		self.phone    = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
-	  self.public = to_boolean(f_data[:public]) if f_data.key?(:public)
+		self.address = f_data[:address] if f_data[:address].present?
+		self.email   = f_data[:email] if f_data[:email].present?
+		self.name    = f_data[:name] if f_data[:name].present?
+		self.nick    = f_data[:nick] if f_data[:nick].present?
+		self.phone   = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
+	  self.public  = to_boolean(f_data[:public]) if f_data.key?(:public)
 
 		new_settings = settings.dup
 		(REGULAR_OPTS + INHERITED_OPTS).each do |opt|
