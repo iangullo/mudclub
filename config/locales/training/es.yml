@@ -202,6 +202,7 @@ es:
         edit_plan: Editar planificación
         edit_roster: Editar plantilla
       fields:
+        locked: Completo
         name: Nombre
         plan: Planificación
         plan_short: Plan

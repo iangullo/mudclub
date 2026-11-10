@@ -303,17 +303,18 @@ class Team < ApplicationRecord
 
 	# rebuild Teamm from raw hash returned by a form
 	def rebuild(f_data)
-		self.category_id  = f_data[:category_id].to_i if f_data[:category_id]
-		self.club_id      = f_data[:club_id].presence if f_data[:club_id].present?
-		self.division_id  = f_data[:division_id].to_i if f_data[:division_id]
-		self.homecourt_id = f_data[:homecourt_id].to_i if f_data[:homecourt_id]
-		self.name         = f_data[:name].presence if f_data[:name].present?
-		self.nick         = f_data[:nick].presence if f_data[:nick].present?
-		self.season_id    = f_data[:season_id].to_i if f_data[:season_id]
-		self.sport_id     = f_data[:sport_id].to_i if f_data[:sport_id]
+		self.category_id  = f_data[:category_id].to_i   if f_data[:category_id]
+		self.club_id      = f_data[:club_id].presence   if f_data[:club_id].present?
+		self.division_id  = f_data[:division_id].to_i   if f_data[:division_id]
+		self.homecourt_id = f_data[:homecourt_id].to_i  if f_data[:homecourt_id]
+		self.locked       = to_boolean(f_data[:locked])
+		self.name         = f_data[:name].presence      if f_data[:name].present?
+		self.nick         = f_data[:nick].presence      if f_data[:nick].present?
+		self.season_id    = f_data[:season_id].to_i     if f_data[:season_id]
+		self.sport_id     = f_data[:sport_id].to_i      if f_data[:sport_id]
 		check_targets(f_data[:team_targets_attributes]) if f_data[:team_targets_attributes]
-		sync_coaches(f_data[:coach_membership_ids]) if f_data[:coach_membership_ids]
-		sync_roster(f_data[:athlete_membership_ids]) if f_data[:athlete_membership_ids]
+		sync_coaches(f_data[:coach_membership_ids])     if f_data[:coach_membership_ids]
+		sync_roster(f_data[:athlete_membership_ids])    if f_data[:athlete_membership_ids]
 	end
 
 	# check if drill (or associations) has changed
@@ -390,7 +391,7 @@ class Team < ApplicationRecord
 			end
 
 			# must have at least one head_coach
-			coaches.current.first.update!(kind: :head_coach) unless
+			coaches.current.first&.update!(kind: :head_coach) unless
 				assignments.current.where(kind: :head_coach).exists?
 		end
 

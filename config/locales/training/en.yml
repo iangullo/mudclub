@@ -201,6 +201,7 @@ en:
         edit_plan: Edit team plan
         edit_roster: Edit roster
       fields:
+        locked: Closed
         name: Name
         plan: Team plan
         plan_short: Plan

@@ -98,7 +98,7 @@ class TeamsController < ApplicationController
 
 		@eligible_coaches = @club.coaches
 		@sport  = @team.sport.specific
-		@fields = create_fields(helpers.team_form(:edit))
+		@fields = create_fields(helpers.team_form(:edit, cols: 3))
 		@submit = create_submit
 	end
 

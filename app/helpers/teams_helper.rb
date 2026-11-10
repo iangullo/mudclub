@@ -87,28 +87,28 @@ module TeamsHelper
 		res.last << hidden_input(:rdx, @rdx) if @rdx
 		res << [
 			symbol_item(:user, align: :right),
-			{ kind: :text_box, key: :nick, value: @team.nick, placeholder: @team.label, mandatory: { length: 3 } },
+			{ kind: :text_box, key: :nick, value: @team.nick, placeholder: @team.label, mandatory: { length: 3 }, cols: },
 			hidden_input(:club_id, @club.id),
 			hidden_input(:sport_id, (@sport&.id || 1))	# will need to break this up for multi-sports in future
 		]
 		res << [
 			symbol_item(:category, { namespace: "sport" }, align: :right),
-			{ kind: :select_collection, key: :category_id, options: Category.real, value: @team.category_id }
+			{ kind: :select_collection, key: :category_id, options: Category.real, value: @team.category_id, cols: }
 		]
 		res << [
 			symbol_item(:division, { namespace: "sport" }, align: :right),
-			{ kind: :select_collection, key: :division_id, options: Division.real, value: @team.division_id }
+			{ kind: :select_collection, key: :division_id, options: Division.real, value: @team.division_id, cols: }
 		]
 		res << [
 			symbol_item(:home, {}, align: :right),
-			{ kind: :select_collection, key: :homecourt_id, options: Location.search(club_id: @club.id).home, value: @team.homecourt_id }
+			{ kind: :select_collection, key: :homecourt_id, options: Location.search(club_id: @club.id).home, value: @team.homecourt_id, cols: }
 		]
 		unless @eligible_coaches.empty?
 			res << [
 				symbol_item(:coach, { namespace: "sport" }, align: :right),
-				label_item(@team.term(:coach, :plural), class: "align-center")
+				label_item(@team.term(:coach, :plural), class: "align-center", cols:)
 			]
-			res << [ gap_item, { kind: :select_checkboxes, key: :coach_membership_ids, options: @eligible_coaches } ]
+			res << [ gap_item, { kind: :select_checkboxes, key: :coach_membership_ids, options: @eligible_coaches, cols: } ]
 		end
 		res
 	end
@@ -280,12 +280,13 @@ module TeamsHelper
 			res << [ { kind: :search_collection, key: :season_id, options: Season.real.order(start_date: :desc), value: s_id } ]
 			res.last.first[:filter] = { key: :club_id, value: clubid }
 		elsif edit && @policy.edit?
-			res << [ { kind: :text_box, key: :name, value: @team.name, placeholder: @team.label, mandatory: { length: 3 } } ]
+			res << [ { kind: :text_box, key: :name, value: @team.name, placeholder: @team.label, mandatory: { length: 3 }, cols: } ]
 			res << [
 				symbol_item(:calendar, align: :right),
-				{ kind: :select_collection, key: :season_id, options: Season.real, value: @team.season_id }
+				{ kind: :select_collection, key: :season_id, options: Season.real, value: @team.season_id },
+				{ kind: :label_checkbox, label: Team.fld(:locked), key: :locked, value: @team.locked, right: true }
 			]
-			res.last.first[:filter] = { key: :club_id, value: clubid }
+			res.last.first[:filter] = { key: :club_id, value: clubid, cols: }
 		elsif @team
 			variant = @team.accepts_registrations? ? :unlocked : :locked
 			res    += [

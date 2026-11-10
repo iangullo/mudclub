@@ -79,6 +79,7 @@ es:
       confirmed_email: "Te informamos de que tu correo ha sido cambiado a"
       ignore_request: "Si no lo has solicitado, puedes ignorar este correo."
       locked_account: "Tu cuenta ha sido bloqueada por exceder el límite de intentos fallidos."
+      login: "¿Entrar?"
       password_confirm_wait: "Pending confirmation of:"
       password_forgotten: "Forgotten password?"
       password_will_not_change: "Tu contraseña no cambiará hasta que crees una nueva."
