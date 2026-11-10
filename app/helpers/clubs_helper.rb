@@ -82,7 +82,6 @@ module ClubsHelper
 					normal_button({ kind: :jump, symbol: :athlete, url: club_members_path(@club, kind: :athletes, **opt), label: Sport.term(:athlete, :plural) }, align: :center),
 					normal_button({ kind: :jump, symbol: :coach, url: club_members_path(@club, kind: :coaches, **opt), label:  Sport.term(:coach, :plural) }, align: :center)
 				]
-				res.last << btn_regs if btn_regs
 			end
 
 			res.last << btn_teams
@@ -92,6 +91,7 @@ module ClubsHelper
 				# normal_button({ kind: :jump, symbol: :rivals, url: clubs_path(@club), label: Club.fld(:rivals) }, align: :center)
 			]
 
+			res.last << btn_regs if btn_regs
 			res << []
 		else
 			res = [ [ btn_teams, btn_locs ] ]

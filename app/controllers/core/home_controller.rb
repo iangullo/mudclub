@@ -41,7 +41,7 @@ class HomeController < ApplicationController
 				page    = paginate(@clubs)
 				@table  = create_table(helpers.club_table(clubs: page))
 			else
-				redirect_to new_user_session, data: { turbo_action: "replace" }
+				@fields = create_fields(helpers.home_closed)
 			end
 		else
 			@fields = create_fields(helpers.home_closed)

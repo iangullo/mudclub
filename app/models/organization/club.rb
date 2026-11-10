@@ -113,9 +113,8 @@ class Club < ApplicationRecord
 
 	# Allows registering membership requests
 	def accepts_registrations?
-		publicly_visible? &&
-			Server.registrations_enabled? &&
-			module_enabled?(:admissions)
+		Server.registrations_enabled? &&
+		module_enabled?(:admissions)
 	end
 
 	# Club Athlete memberships
@@ -201,6 +200,7 @@ class Club < ApplicationRecord
 
 	# show a public page??
 	def publicly_visible?
+		binding.break
 		public? && public_approved_by.present? && Server.public_clubs_enabled?
 	end
 
