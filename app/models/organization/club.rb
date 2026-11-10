@@ -200,7 +200,6 @@ class Club < ApplicationRecord
 
 	# show a public page??
 	def publicly_visible?
-		binding.break
 		public? && public_approved_by.present? && Server.public_clubs_enabled?
 	end
 
