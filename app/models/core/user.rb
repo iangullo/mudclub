@@ -19,6 +19,7 @@
 class User < ApplicationRecord
 	localized_as("core.user")
 	before_destroy :unlink
+	before_validation :normalize_email
 
 	# -------------------------------------------------------------------------
 	# Class relations
@@ -139,20 +140,19 @@ class User < ApplicationRecord
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(data)
+		# --- associated persons data ---
+		resolution = prepare_person(data)
+		return resolution unless resolution.ok?	# return ambiguous or conflicts
+
 		# --- actual user data ---
 		self.club_id = data[:club_id].presence	# DEPRECATED
-		self.email   = person.email
+		self.email   = resolution.person&.email || data[:email].presence&.strip&.downcase
 		self.role    = data[:role] || :user
 		self.locale  = data[:locale] if data[:locale]
 		if data[:password]
 			self.password              = data[:password]
 			self.password_confirmation = data[:password_confirmation]
 		end
-
-		# --- associated persons data ---
-		data[:person_attributes][:email] ||= data[:email]
-		resolution = prepare_person(data)
-		return resolution unless resolution.ok?	# return ambiguous or conflicts
 
 		self.update_attachment("avatar", data[:avatar]) if data[:avatar].present?
 
@@ -213,6 +213,10 @@ class User < ApplicationRecord
 	end
 
 	private
+		def normalize_email
+			self.email = email.to_s.strip.downcase if email.present?
+		end
+
 		# generic setting method to be used for all setters
 		def set_setting(key, value)
 			self.settings = settings.merge(key => value)

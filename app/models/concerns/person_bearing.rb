@@ -89,6 +89,12 @@ module PersonBearing
 	def prepare_person(attrs)
 		return PersonResolution.new(status: :ok) unless attrs[:person_attributes].present?
 
+		# atomic sanitation of attribute values for unique identifiers
+		p_attrs = attrs[:person_attributes]
+		p_attrs[:email] = p_attrs[:email].to_s.strip.downcase if p_attrs[:email].present?
+		p_attrs[:dni]   = p_attrs[:dni].to_s.strip.upcase     if p_attrs[:dni].present?
+		p_attrs[:phone] = p_attrs[:phone].to_s.strip         if p_attrs[:phone].present?
+
 		shift_avatar(attrs)
 		resolve_person(attrs[:person_attributes], exclude: self.person)
 	end

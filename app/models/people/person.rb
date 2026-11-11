@@ -19,8 +19,11 @@
 class Person < ApplicationRecord
 	localized_as "people.person"
 
+	before_validation :normalize_critical_fields
+
 	before_save { self.name    = self.name    ? self.name.mb_chars.titleize : "" }
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
+
 	after_commit :finalize_pending_merge
 
 	UNIQUE_FIELDS = %i[dni email phone].freeze
@@ -264,7 +267,8 @@ class Person < ApplicationRecord
 			value =
 				case field
 				when :phone then parse_phone(data[:phone])
-				else data[field]
+				when :email then data[:email].to_s.strip.downcase
+				else data[field].to_s.strip
 				end
 
 			scope  = current.where(field => value)
@@ -276,7 +280,9 @@ class Person < ApplicationRecord
 
 		# 2. Weak identification
 		if data[:name].present? && data[:surname].present?
-			scope = current.search("#{data[:name]} #{data[:surname]}")
+			cleaned_name    = data[:name].to_s.strip
+			cleaned_surname = data[:surname].to_s.strip
+			scope = current.search("#{cleaned_name} #{cleaned_surname}")
 			scope = scope.where.not(id: excluded) if excluded.any?
 
 			result = seek_candidates(scope, probable: true, matched_by: :name)
@@ -382,6 +388,12 @@ class Person < ApplicationRecord
 					relationship.update!(person: self)
 				end
 			end
+		end
+
+		def normalize_critical_fields
+			self.email = email.to_s.strip.downcase if email.present?
+			self.dni   = dni.to_s.strip.upcase     if dni.present?
+			self.phone = phone.to_s.strip          if phone.present?
 		end
 
 		def rebuild_relationships(r_data)
