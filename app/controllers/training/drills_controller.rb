@@ -32,7 +32,7 @@ class DrillsController < ApplicationController
 		title   = helpers.drill_title(title: I18n.t("drill.many"))
 		title  << helpers.drill_search_bar(search_in: drills_path)
 		@drills = filter!(Drill)	# Apply filters
-		page  = paginate(@drills, 1.6)	# paginate results
+		page  = paginate(@drills, 2.3)	# paginate results
 		table = helpers.drill_table(drills: page)
 		create_index(title:, table:, page:, retlnk: back_link)
 	end

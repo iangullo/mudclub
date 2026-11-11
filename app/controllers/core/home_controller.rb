@@ -24,7 +24,7 @@ class HomeController < ApplicationController
 			h_path  =
 				if u_admin? # manage server
 					server_path
-				elsif @policy.manages_club?	# manage club
+				elsif @policy.manages_club? # manage club
 					club_path(@club)
 				elsif @policy.club_member?
 					path_for(current_user)

@@ -29,11 +29,15 @@ class HomePolicy < ApplicationPolicy
 		true
 	end
 
+	def board_member?(club = target_club)
+		super(club)
+	end
+
 	def club_member?(club = target_club)
 		same_club?(club)
 	end
 
 	def manages_club?(club = target_club)
-		super(club)
+		super(club) || board_member?(club)
 	end
 end

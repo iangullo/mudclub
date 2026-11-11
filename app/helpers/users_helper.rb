@@ -156,7 +156,7 @@ module UsersHelper
 		title << normal_button({ kind: :add, url: new_user_path(rdx: @rdx), frame: :modal }) if @policy.new?
 
 		rows = Array.new
-		@users.each { |user|
+		users.each { |user|
 			row = { url: path_for(user, search: @search), items: [] }
 			row[:items] << (user.active? ? icon_item(user.scope_logo) : symbol_item("no"))
 			row[:items] << { kind: :normal, value: user.s_name }

@@ -22,7 +22,7 @@ class SlotPolicy < ApplicationPolicy
 	# Slot index - timetable
 	#------------------------------------
 	def index?
-		allowed?(manages_club?(target_club))
+		allowed?(manages_club?(target_club) || board_member?(target_club))
 	end
 
 	#------------------------------------
@@ -30,7 +30,7 @@ class SlotPolicy < ApplicationPolicy
 	#------------------------------------
 
 	def show?
-		@record && allowed?(manages_club?(target_club))
+		@record && allowed?(manages_club?(target_club) || board_member?(target_club))
 	end
 
 	def create?

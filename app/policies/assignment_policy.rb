@@ -107,7 +107,7 @@ class AssignmentPolicy < ApplicationPolicy
 				manages_team?(@target_team)
 
 			else
-				false
+				manages_club?(@target_club) || board_member?(@target_club)
 			end
 		end
 
@@ -116,11 +116,11 @@ class AssignmentPolicy < ApplicationPolicy
 			when :athlete, :volunteer
 				coaches_team?(@target_team) ||
 				manages_athletes?(@target_club) ||
-				manages_club?(@target_club)
+				manages_club?(@target_club) || board_member?(@target_club)
 
 			when :coach
 				manages_coaches?(@target_club) ||
-				manages_club?(@target_club)
+				manages_club?(@target_club) || board_member?(@target_club)
 
 			else
 				false
@@ -130,13 +130,13 @@ class AssignmentPolicy < ApplicationPolicy
 		def can_view_club_assignment?(kind)
 			case Catalog::AssignmentKinds.scope_of(kind)
 			when :club
-				manages_club?(@target_club)
+				manages_club?(@target_club) || board_member?(@target_club)
 
 			when :board
 				manages_board?(@target_club)
 
 			else
-				false
+				board_member?(@target_club)
 			end
 		end
 

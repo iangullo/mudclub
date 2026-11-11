@@ -37,7 +37,7 @@ class RegistrationsController < ApplicationController
 			end
 
 		title  = prepare_index_title
-		page   = paginate(@registrations, 1.2)	# paginate results
+		page   = paginate(@registrations, 1.5)	# paginate results
 		table  = helpers.registrations_table(page)
 		retlnk = path_for(@club)
 		create_index(title:, table:, page:, retlnk:)

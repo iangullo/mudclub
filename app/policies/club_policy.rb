@@ -63,8 +63,18 @@ class ClubPolicy < ApplicationPolicy
 	# Administrative capabilities
 	#------------------------------------
 
+	def view_members?
+		board_member?(@record) || club_manager?(@record)
+	end
+
+	alias view_assignments?  view_members?
+	alias view_documents?    view_members?
+	alias view_events?       view_members?
+	alias view_registrations? view_members?
+	alias view_teams?        view_members?
+
 	def manage_members?
-		allowed?(manages_club?(@record))
+		manages_club?(@record)
 	end
 
 	alias manage_assignments?  manage_members?

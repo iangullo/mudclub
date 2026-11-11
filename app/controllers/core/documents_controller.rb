@@ -31,7 +31,7 @@ class DocumentsController < ApplicationController
 	def index
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
 		@documents = @owner.documents
-		page = paginate(@documents)
+		page = paginate(@documents, 1.5)
 		title = helpers.document_title(subtitle: Document.label(:plural))
 		table = helpers.document_table(documents: page)
 		create_index(

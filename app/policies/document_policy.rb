@@ -51,7 +51,7 @@ class DocumentPolicy < ApplicationPolicy
 	def manage_or_owner?
 		case @owner
 		when Club
-			manages_club?(@owner)
+			manages_club?(@owner) || board_member?(@owner)
 		else
 			same_person?(@owner)
 		end

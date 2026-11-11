@@ -26,7 +26,7 @@ class SeasonsController < ApplicationController
 		@policy = check_policy!(SeasonPolicy)
 
 		@seasons = Season.real
-		page  = paginate(@seasons)	# paginate results
+		page  = paginate(@seasons, 1.5)	# paginate results
 		title = helpers.season_title(icon: Server.server_logo, title: Season.label(:plural))
 		table = helpers.season_table(seasons: page)
 		create_index(title:, table:, page:, retlnk: server_path)

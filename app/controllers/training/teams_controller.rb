@@ -35,7 +35,7 @@ class TeamsController < ApplicationController
 				response.headers["Content-Disposition"] = "attachment; filename=#{f_name}"
 			end
 			format.html do
-				page = paginate(@teams)	# paginate results
+				page = paginate(@teams, 1.5)	# paginate results
 				if user_in_club?
 					title  = helpers.team_header(title: Team.label(:plural), search: true)
 					table  = helpers.team_table(teams: page)

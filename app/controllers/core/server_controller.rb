@@ -35,7 +35,7 @@ class ServerController < ApplicationController
 			end
 		title = helpers.server_header(icon: { concept: :actions, size: "50x50" }, subtitle: Server.fld(:log))
 		title.last << helpers.normal_button({ kind: :clear, url: clear_log_server_path }) unless actions.empty?
-		page  = paginate(actions)	# paginate results
+		page  = paginate(actions, 1.5)	# paginate results
 		table = helpers.server_actions_table(actions: page)
 		create_index(title:, table:, page:, retlnk: server_path)
 	end

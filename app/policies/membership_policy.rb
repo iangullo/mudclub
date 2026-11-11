@@ -81,15 +81,18 @@ class MembershipPolicy < ApplicationPolicy
 
 			case kind.to_sym
 			when :athlete
-				coach? || manages_club?(@target_club)
+				coach? || manages_club?(@target_club) || board_member?(@target_club)
 			when :coach
 				coach? ||
 				manages_coaches?(@target_club) ||
-				manages_club?(@target_club)
+				manages_club?(@target_club) ||
+				board_member?(@target_club)
 			when :volunteer
-				manages_club?(@target_club)
+				manages_club?(@target_club) ||
+				board_member?(@target_club)
 			when :board_member, :club_manager
-				manages_club?(@target_club)
+				manages_club?(@target_club) ||
+				board_member?(@target_club)
 			else
 				false
 			end

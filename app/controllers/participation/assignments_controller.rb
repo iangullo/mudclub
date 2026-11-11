@@ -31,7 +31,7 @@ class AssignmentsController < ApplicationController
 			Assignment.search(**search_options).order(kind: :asc, starts_on: :asc)
 
 		title  = prepare_index_title
-		page   = paginate(@assignments)	# paginate results
+		page   = paginate(@assignments, 1.7)	# paginate results
 		table  = helpers.assignments_table(page)
 		retlnk = helpers.assignments_base_path
 		create_index(title:, table:, page:, retlnk:)

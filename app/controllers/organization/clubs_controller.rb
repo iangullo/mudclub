@@ -24,7 +24,7 @@ class ClubsController < ApplicationController
 		@policy = check_policy!(ClubPolicy)
 
 		@clubs  = Club.search(params[:search], current_user, @club)
-		page    = paginate(@clubs)
+		page    = paginate(@clubs, 1.9)
 		title   = u_manager? ? Club.fld(:rivals) : Club.label(:plural)
 		title   = helpers.club_header(title:, icon: { concept: "rivals" })
 		title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10, cols: 3 } ]

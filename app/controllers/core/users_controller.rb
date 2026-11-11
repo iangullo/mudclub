@@ -28,10 +28,10 @@ class UsersController < ApplicationController
 
 		@search = (params[:search].presence || session.dig("user_filters", "search"))
 		@users  = User.search(@search, current_user)
-		page    = paginate(@users)	# paginate results
+		page    = paginate(@users, 1.7)	# paginate results
 		title   = helpers.person_title(title: User.label(:plural), icon: { concept: "user", options: { size: "50x50" } })
 		title  << [ { kind: :search_text, key: :search, value: @search, url: users_path(rdx: @rdx) } ]
-		table   = helpers.user_table(users: @u_page)
+		table   = helpers.user_table(users: page)
 		create_index(title:, table:, page:, retlnk: server_path)
 	end
 

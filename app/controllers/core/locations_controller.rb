@@ -25,9 +25,9 @@ class LocationsController < ApplicationController
 	def index
 		@policy = check_policy!(LocationPolicy, club: @club)
 
-		title  = helpers.location_title(title: I18n.t("location.many"))
+		title  = helpers.location_title(title: Location.label(:plural))
 		title << helpers.location_search_bar(search_in: crud_return)
-		page   = paginate(@locations)	# paginate results
+		page   = paginate(@locations, 1.5)	# paginate results
 		table  = helpers.location_table(locations: page)
 		create_index(title:, table:, page:, retlnk: back_link(default: path_for(@club)))
 	end

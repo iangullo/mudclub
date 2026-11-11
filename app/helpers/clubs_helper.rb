@@ -73,11 +73,12 @@ module ClubsHelper
 			opt = { status: :active }
 			res = [ [
 				normal_button({ kind: :jump, symbol: :board_member, url: club_assignments_path(@club, kind: :board_members, **opt), label: Membership.kind_label(:board_member, :plural) }, align: :center),
-				normal_button({ kind: :jump, symbol: :person, url: club_assignments_path(@club, staff: true, **opt), label: Assignment.kind_catalog.val(:staff)  }, align: :center)
+				# normal_button({ kind: :jump, symbol: :person, url: club_assignments_path(@club, staff: true, **opt), label: Assignment.kind_catalog.val(:staff)  }, align: :center)
+				normal_button({ kind: :jump, symbol: :rivals, url: clubs_path(@club), label: Club.fld(:rivals) }, align: :center)
 			] ]
-			res.last << normal_button({ kind: :jump, symbol: :document, url: club_documents_path(@club), label: Document.label(:plural) }, align: :center) if @policy.manage_documents?
+			res.last << normal_button({ kind: :jump, symbol: :document, url: club_documents_path(@club), label: Document.label(:plural) }, align: :center) if @policy.view_documents?
 
-			if @policy.manage_members?
+			if @policy.view_members?
 				res << [
 					normal_button({ kind: :jump, symbol: :athlete, url: club_members_path(@club, kind: :athletes, **opt), label: Sport.term(:athlete, :plural) }, align: :center),
 					normal_button({ kind: :jump, symbol: :coach, url: club_members_path(@club, kind: :coaches, **opt), label:  Sport.term(:coach, :plural) }, align: :center)
@@ -88,10 +89,9 @@ module ClubsHelper
 			res << [
 				btn_locs,
 				normal_button({ kind: :jump, symbol: :timetable, url: club_slots_path(@club), label: Slot.label(:plural) }, align: :center)
-				# normal_button({ kind: :jump, symbol: :rivals, url: clubs_path(@club), label: Club.fld(:rivals) }, align: :center)
 			]
 
-			res.last << btn_regs if btn_regs
+			res.last << btn_regs if btn_regs if @policy.manage_members?
 			res << []
 		else
 			res = [ [ btn_teams, btn_locs ] ]

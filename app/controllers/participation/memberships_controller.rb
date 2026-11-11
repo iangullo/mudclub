@@ -38,7 +38,7 @@ class MembershipsController < ApplicationController
 			).order(kind: :asc, joined_on: :asc)
 
 		title  = prepare_index_title
-		page   = paginate(@members, 1.2)	# paginate results
+		page   = paginate(@members, 1.7)	# paginate results
 		table  = helpers.memberships_table(members: page)
 		retlnk = path_for(@club)
 		create_index(title:, table:, page:, retlnk:)
