@@ -42,6 +42,20 @@ Rails.application.routes.draw do
 		resources :divisions
 	end
 
+	concern :documentable do
+		resources :documents do
+			member do
+				get   :status_change
+				patch :submit_for_verification
+				patch :verify
+				patch :reject
+				patch :activate
+				patch :archive
+				get   :versions
+			end
+		end
+	end
+
 	#-------------------------------------
 	# User pages
 	#-------------------------------------
@@ -55,11 +69,7 @@ Rails.application.routes.draw do
 	resources :users do
 		get "actions", on: :member
 		get "clear_actions", on: :member
-		resources :documents do
-			member do
-				patch :activate
-			end
-		end
+		concerns :documentable
 	end
 
 	#-------------------------------------
@@ -70,11 +80,7 @@ Rails.application.routes.draw do
 		resources :locations
 
 		# Club documentation
-		resources :documents do
-			member do
-				patch :activate
-			end
-		end
+		concerns :documentable
 
 		# Club participation
 		resources :registrations, only: %i[index show new create] do
@@ -87,11 +93,7 @@ Rails.application.routes.draw do
 				patch :reject
 				patch :cancel
 			end
-			resources :documents do
-				member do
-					patch :activate
-				end
-			end
+			concerns :documentable
 		end
 
 		resources :members, controller: :memberships, except: :destroy do

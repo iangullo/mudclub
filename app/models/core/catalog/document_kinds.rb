@@ -35,6 +35,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			applies_to: %i[person registration],
 			active_storage_name: :photo,
 			file_type: :image,
+			workflow: :simple,
 			multiple: false
 		},
 
@@ -44,6 +45,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			applies_to: %i[person registration],
 			active_storage_name: :id_front,
 			file_type: :image,
+			workflow: :simple,
 			multiple: false
 		},
 
@@ -53,6 +55,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			applies_to: %i[person registration],
 			active_storage_name: :id_back,
 			file_type: :image,
+			workflow: :simple,
 			multiple: false
 		},
 
@@ -65,6 +68,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			category: :medical,
 			applies_to: %i[person registration],
 			file_type: :pdf,
+			workflow: :simple,
 			expires: 365.days,
 			multiple: false
 		},
@@ -74,6 +78,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			category: :medical,
 			applies_to: %i[person registration],
 			file_type: :pdf,
+			workflow: :simple,
 			multiple: false
 		},
 
@@ -86,7 +91,8 @@ class Catalog::DocumentKinds < Catalog::Base
 			category: :financial,
 			applies_to: %i[club],
 			file_type: :pdf,
-			versioned: :true,
+			workflow: :simple,
+			versioned: true,
 			requires_acceptance: false,
 			multiple: false
 		},
@@ -100,6 +106,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			category: :coaching,
 			applies_to: %i[person registration],
 			file_type: :pdf,
+			workflow: :simple,
 			multiple: true
 		},
 
@@ -113,6 +120,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			applies_to: %i[club],
 			file_type: :pdf,
 			versioned: true,
+			workflow: :reviewed,
 			requires_acceptance: true
 		},
 
@@ -121,6 +129,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			category: :legal,
 			applies_to: %i[club],
 			file_type: :pdf,
+			workflow: :reviewed,
 			versioned: true,
 			requires_acceptance: true
 		},
@@ -130,6 +139,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			category: :legal,
 			applies_to: %i[club],
 			file_type: :pdf,
+			workflow: :reviewed,
 			versioned: true,
 			requires_acceptance: true
 		},
@@ -139,6 +149,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			category: :legal,
 			applies_to: %i[club],
 			file_type: :pdf,
+			workflow: :reviewed,
 			versioned: true,
 			requires_acceptance: true
 		},
@@ -148,6 +159,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			category: :legal,
 			applies_to: %i[club],
 			file_type: :pdf,
+			workflow: :reviewed,
 			versioned: true,
 			requires_acceptance: false
 		},
@@ -157,6 +169,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			category: :legal,
 			applies_to: %i[club registration],
 			file_type: :pdf,
+			workflow: :reviewed,
 			active_storage_name: :athlete_form,
 			multiple: false
 		},
@@ -170,6 +183,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			category: :legal,
 			applies_to: %i[registration],
 			file_type: :pdf,
+			workflow: :simple,
 			multiple: false
 		},
 
@@ -177,6 +191,7 @@ class Catalog::DocumentKinds < Catalog::Base
 			id: 900,
 			category: :other,
 			file_type: :pdf,
+			workflow: :simple,
 			applies_to: %i[person registration club],
 			multiple: true
 		}

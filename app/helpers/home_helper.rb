@@ -26,15 +26,15 @@ module HomeHelper
 
 	# user login fields
 	def home_closed
+		size = "30x30"
 		[
-			[
-				symbol_item("user", { size: "30x30" }),
-				gap_item,
-				normal_button(home_login_button)
-			],
-			[
-				{ kind: :text, value: I18n.t("shared.statuses.closed"), align: :center, cols: 3 }
-			]
+			[ { kind: :title, value: I18n.t("core.application.label"), cols: 2 } ],
+			[ { kind: :subtitle, value: Server.msg(:purpose_1), cols: 2 } ],
+			gap_row,
+			[ symbol_item(:drill, { namespace: :sport }, size:), string_item(Server.msg(:purpose_2)) ],
+			[ symbol_item(:team, size:), string_item(Server.msg(:purpose_3)) ],
+			[ symbol_item(:plan, size:), string_item(Server.msg(:purpose_4)) ],
+			gap_row
 		]
 	end
 

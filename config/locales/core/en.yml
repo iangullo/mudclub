@@ -75,6 +75,13 @@ en:
         create: Create document
         edit: Edit document
         delete: Delete document
+        submit: Submit for review
+        verify: Verify
+        reject: Reject
+        activate: Activate
+        archive: Archive
+        new_version: New version
+        versions: History
       fields:
         kind: Kind
         name: Name
@@ -82,15 +89,21 @@ en:
         file: File
         summary: Summary
         remarks: Remarks
-        verified: Verified
-        verified_short: Ver.
-        active: Active
-        active_short: Act.
+        status: Status
+        version: Version
+        version_short: v
+        superseded_by: Replaced by
+        versions: Version history
       messages:
         created: Created document
         updated: Updated document
         deleted: Deleted document
         unchanged: No changes to document
+        submitted: Submitted for review.
+        verified: Document verified.
+        rejected: Document rejected.
+        activated: Document activated.
+        archived: Document archived.
 
     document_kinds:
       label:
@@ -113,6 +126,16 @@ en:
         club_rules: Club rules
         parental_authorization: Parental authorization
         other: Other
+
+    document_statuses:
+      values:
+        draft: Draft
+        pending: Pending
+        verified: Verified
+        active: Active
+        rejected: Rejected
+        superseded: Superseded
+        archived: Archived
 
     lifecycles:
       immutable: Immutable
@@ -290,7 +313,7 @@ en:
         info-5: "Training: planning, drills, plays, sessions."
         info-6: "Matches: outings/stats & results."
         published: "Published under GNU Affero GPLv3 license"
-        tagline: "The open source Rails platform to manage amateur sports clubs."
+        tagline: "The open source operating system for amateur sports clubs."
         website: MudClub wiki
         log: Logs
 
@@ -359,6 +382,10 @@ en:
         saved: Server settings updated.
         no_change: No changes to save.
         reset: Settings reset to defaults.
+        purpose_1: All your club in a single site
+        purpose_2: Plan trainings.
+        purpose_3: Manage teams.
+        purpose_4: Gather sporting knowledge from every season.
 
       # ─── Confirmations ───────────────────────────────────────
       questions:

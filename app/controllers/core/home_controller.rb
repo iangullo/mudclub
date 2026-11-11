@@ -32,6 +32,7 @@ class HomeController < ApplicationController
 					path_for(current_user)
 				end
 			redirect_to h_path, data: { turbo_action: "replace" }
+=begin
 		elsif Server.public_clubs_enabled?
 			@clubs  = Club.publicly_listed
 			if @clubs.size == 1
@@ -43,8 +44,10 @@ class HomeController < ApplicationController
 			else
 				@fields = create_fields(helpers.home_closed)
 			end
+=end
 		else
 			@fields = create_fields(helpers.home_closed)
+			@footer = create_fields([ [ helpers.label_item(Server.tagline) ] ])
 		end
 	end
 

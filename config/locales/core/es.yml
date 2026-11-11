@@ -75,6 +75,13 @@ es:
         create: Crear documento
         edit: Editar documento
         delete: Borrar documento
+        submit: Enviar para revisión
+        verify: Verificar
+        reject: Rechazar
+        activate: Aprobar
+        archive: Archivar
+        new_version: Nueva versión
+        versions: Versiones
       fields:
         kind: Tipo
         name: Nombre
@@ -82,15 +89,21 @@ es:
         file: Archivo
         summary: Resumen
         remarks: Notas
-        verified: Verificado
-        verified_short: Ver.
-        active: Activo
-        active_short: Act.
+        status: Estado
+        version: Versión
+        version_short: v
+        superseded_by: Reemplazado por
+        versions: Historial de versiones
       messages:
         created: Documento creado
         updated: Documento actualizado
         deleted: Documento borrado
         unchanged: Documento sin cambios
+        submitted: Enviado para revisión.
+        verified: Documento verificado.
+        rejected: Document rechazado.
+        activated: Document aprobado.
+        archived: Document archivado.
 
     document_kinds:
       label:
@@ -113,6 +126,16 @@ es:
         club_rules: Normas del club
         parental_authorization: Autorización menores
         other: Other
+
+    document_statuses:
+      values:
+        draft: Borrador
+        pending: Pendiente
+        verified: Verificado
+        active: Activo
+        rejected: Rechazado
+        superseded: Reemplazado
+        archived: Archivado
 
     lifecycles:
       immutable: Inmutable
@@ -302,7 +325,7 @@ es:
         info-6: "Partidos: desplazamientos/estadísticas y resultados."
         published: Publicado bajo licencia GNU Affero GPLv3
         single: Servidor
-        tagline: "La plataforma de código abierto para gestionar clubes deportivos amateur."
+        tagline: "La plataforma de código abierto para clubes deportivos amateur."
         website: Wiki de MudClub
         log: Registros
 
@@ -370,6 +393,10 @@ es:
         saved: Configuración del servidor actualizada.
         no_change: No hay cambios que guardar.
         reset: Configuración restablecida a los valores por defecto.
+        purpose_1: Todo tu club en un único sitio
+        purpose_2: Planifica entrenamientos.
+        purpose_3: Gestiona equipos.
+        purpose_4: Conserva conocimiento deportivo temporada tras temporada.
 
       questions:
         disable_module: Desactivar este módulo lo oculta de todos los usuarios. ¿Continuar?

@@ -194,6 +194,10 @@ class Catalog::Base
 			@i18n_scope ||= "#{@domain}.#{name.demodulize.underscore}"
 		end
 
+		def i18n_key_scope
+			i18n_members_scope
+		end
+
 		def i18n_members_scope
 			:values
 		end

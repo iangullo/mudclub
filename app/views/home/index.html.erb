@@ -1,9 +1,6 @@
 <div id="mudclub-home">
-    <p>
-        <%= Server.tagline %>
-    <p>
-        <%= render @fields if @fields%>
-    <hr>
+    <%= render @fields if @fields%>
     <% if @table %><%= render @table %><% end %>
     <%= render @submit if @submit %>
+    <hr>
 </div>

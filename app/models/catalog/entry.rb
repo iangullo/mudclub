@@ -67,20 +67,25 @@ class Catalog::Entry
 	def key?(attribute)
 		@metadata.key?(attribute.to_sym)
 	end
+	alias include? key?
 
 	def attribute(name)
 		@metadata[name.to_sym]
 	end
 
 	def method_missing(name, *)
+		if name.end_with?("?")
+			attr = name.to_s.delete_suffix("?").to_sym
+			return !!@metadata[attr] if @metadata.key?(attr)
+		end
 		return attribute(name) if @metadata.key?(name.to_sym)
 		super
 	end
 
 	def respond_to_missing?(name, *)
-		@metadata.key?(name.to_sym) || super
+		(name.end_with?("?") && @metadata.key?(name.to_s.delete_suffix("?").to_sym)) ||
+			@metadata.key?(name.to_sym) || super
 	end
-	alias include? key?
 
 	#
 	# --------------------------------------------------------------------------
@@ -89,11 +94,11 @@ class Catalog::Entry
 	#
 
 	def label
-		catalog.label(key)
+		catalog.val(key)
 	end
 
 	def short
-		catalog.short(key)
+		catalog.val(key, :short)
 	end
 
 	def hint
