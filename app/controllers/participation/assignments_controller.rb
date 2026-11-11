@@ -189,6 +189,13 @@ class AssignmentsController < ApplicationController
 			end
 		end
 
+		def membership_kind(kind)
+			return kind if Membership.kind_catalog.include?(kind)
+			return nil unless Assignment.kind_catalog.include?(kind)
+
+			Assignment.kind_catalog.fetch(kind)[:membership]
+		end
+
 		def prepare_index_title
 			if @kind
 				title = Assignment.kind_label(@kind, :plural)
@@ -235,7 +242,7 @@ class AssignmentsController < ApplicationController
 			person = prepare_person_for_create
 			return nil unless person
 
-			kind = @kind || :athlete
+			kind = membership_kind(@kind || :athlete)
 
 			person.memberships.for_club(@club).of_kind(kind).current.first ||
 			person.memberships.build(
