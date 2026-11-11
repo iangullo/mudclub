@@ -158,7 +158,7 @@ module UsersHelper
 		rows = Array.new
 		@users.each { |user|
 			row = { url: path_for(user, search: @search), items: [] }
-			row[:items] << (user.active? ? icon_item(user.club.logo) : symbol_item("no"))
+			row[:items] << (user.active? ? icon_item(user.scope_logo) : symbol_item("no"))
 			row[:items] << { kind: :normal, value: user.s_name }
 			row[:items] << user_roles(user, table: true).first
 			row[:items] << { kind: :contact, phone: user.person.phone, email: user.person.email }

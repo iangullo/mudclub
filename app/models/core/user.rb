@@ -83,6 +83,13 @@ class User < ApplicationRecord
 		anonymized_at.present? ? :anonymized : super
 	end
 
+	# return club logo if it makes sense
+	# Server logo otherwise
+	def scope_logo
+		u_club = memberships.active.first&.club
+		u_club ? u_club.logo : Server.server_logo
+	end
+
 	def system_admin?
 		admin?
 	end
