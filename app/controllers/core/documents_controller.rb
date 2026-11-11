@@ -30,30 +30,32 @@ class DocumentsController < ApplicationController
 	#-------------------------------------
 	def index
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
+
 		@documents = @owner.documents
-		page = paginate(@documents, 1.5)
-		title = helpers.document_title(subtitle: Document.label(:plural))
-		table = helpers.document_table(documents: page)
-		create_index(
-			title:,
-			table:,
-			retlnk: path_for(@owner)
-		)
+
+		title  = helpers.document_title(subtitle: Document.label(:plural))
+		page   = paginate(@documents, 1.5)
+		table  = helpers.document_table(documents: page)
+		retlnk = path_for(@owner)
+		create_index(title:, table:, retlnk:)
 	end
 
 	def show
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
+
 		@fields = create_fields(helpers.document_show)
-		@submit = create_submit(submit: edit_path_for(@document), frame: :modal)
+		@submit = create_submit(submit: edit_path_for(@document), frame: :modal) if @policy.edit?
 	end
 
 	def new
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
+
 		prepare_form(:create)
 	end
 
 	def create
 		@policy   = check_policy!(DocumentPolicy, owner: @owner)
+
 		@document = @owner.documents.new(document_params)
 		if @document.save
 			redirect_to index_path_for(@document),
@@ -66,13 +68,15 @@ class DocumentsController < ApplicationController
 
 	def edit
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
+
 		prepare_form(:edit)
 	end
 
 	def update
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
-		@document.assign_attributes(document_params)
+
 		respond_to do |format|
+			@document.assign_attributes(document_params)
 			if @document.modified?
 				if @document.save
 					notice = "#{@document.msg(:updated)} '#{@document.title}'"
@@ -95,7 +99,8 @@ class DocumentsController < ApplicationController
 
 	def destroy
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
-		notice = "#{@document.msg(:deleted)} '#{@document.title}'"
+
+		notice  = "#{@document.msg(:deleted)} '#{@document.title}'"
 		redirect_to index_path_for(@document), notice:
 	end
 
@@ -137,15 +142,8 @@ class DocumentsController < ApplicationController
 
 		def document_params
 			params.require(:document).permit(
-				:kind,
-				:title,
-				:summary,
-				:season_id,
-				:file,
-				:remarks,
-				:verified,
-				:verified_at,
-				:active
+				:kind, :title, :summary, :file,
+				:remarks, :status, :activated_at
 			)
 		end
 end

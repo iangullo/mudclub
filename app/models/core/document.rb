@@ -31,13 +31,14 @@ class Document < ApplicationRecord
 	belongs_to :club, optional: true
 	belongs_to :person, optional: true
 	belongs_to :registration, optional: true
+	belongs_to :superseded_by, class_name: "Document", optional: true
 
 	has_one_attached :file
 
 	#-------------------------------------
 	# Validations
 	#-------------------------------------
-	validates :kind, presence: true
+	validates :kind, :status, presence: true
 	validates :file, presence: true
 	validate :single_owner
 
@@ -45,15 +46,15 @@ class Document < ApplicationRecord
 	# Included Modules
 	#-------------------------------------
 	include Kinded
+	enum :status, Catalog::DocumentStatuses.enum, default: :draft, validate: true
 
 	#-------------------------------------
 	# Scopes
 	#-------------------------------------
-	scope :active, -> { where(active: true) }
+	scope :current, -> { active }
 	scope :for_club, ->(club) { filter_by_id(:club_id, club) }
 	scope :for_person, ->(person) { filter_by_id(:person_id, person) }
 	scope :for_registration, ->(registration) { filter_by_id(:registration_id, registration) }
-	scope :current, -> { where(active: true) }
 
 	#-------------------------------------
 	# General API methods
@@ -74,16 +75,111 @@ class Document < ApplicationRecord
 		registration_id.present?
 	end
 
-	def activate!
-		transaction do
-			club.club_documents
-					.where(kind:)
-					.update_all(active: false)
+	#-------------------------------------
+	# Kind-driven behaviour
+	#-------------------------------------
+	def kind_entry
+		kind_catalog.fetch(kind)
+	end
 
-			update!(active: true)
+	def versioned?
+		kind_entry.versioned?
+	end
+
+	def multi_document?
+		kind_entry.multiple?
+	end
+
+	def review_required?
+		kind_entry.workflow == :reviewed
+	end
+
+	def requires_acceptance?
+		kind_entry.requires_acceptance?
+	end
+
+	#-------------------------------------
+	# Versioning
+	#-------------------------------------
+	def siblings
+		return self.class.none unless versioned?
+		base = self.class.where(kind:)
+		if    club_id.present?         then base.where(club_id:)
+		elsif registration_id.present? then base.where(registration_id:)
+		elsif person_id.present?       then base.where(person_id:)
+		else                                self.class.none
 		end
 	end
 
+	def next_version_number
+		versioned? ? (siblings.maximum(:version) || 0) + 1 : 1
+	end
+
+	def latest?
+		versioned? && version == siblings.maximum(:version)
+	end
+
+	#-------------------------------------
+	# Status transitions
+	#-------------------------------------
+	TRANSITION_METHODS = {
+		pending:  :submit_for_verification!,
+		verified: :verify!,
+		rejected: :reject!,
+		active:   :activate!,
+		archived: :archive!
+	}.freeze
+
+	def transition_method_for(target)
+		TRANSITION_METHODS[target.to_sym]
+	end
+
+	def submit_for_verification!
+		update!(status: :pending)
+	end
+
+	def verify!
+		update!(status: :verified, verified_at: verified_at || Time.current)
+	end
+
+	def reject!
+		update!(status: :rejected)
+	end
+
+	def archive!
+		update!(status: :archived)
+	end
+
+	def activate!
+		transaction do
+			if versioned?
+				siblings.where(status: :active).where.not(id: id).find_each do |s|
+					s.update!(status: :superseded,
+										superseded_at: Time.current,
+										superseded_by_id: id)
+				end
+			end
+
+			update!(status: :active,
+							activated_at: Time.current,
+							verified_at: verified_at || Time.current)
+		end
+	end
+
+	#-------------------------------------
+	# Status presentation
+	#-------------------------------------
+	def status_label
+		Catalog::DocumentStatuses.val(status.to_sym)
+	end
+
+	def status_color
+		Catalog::DocumentStatuses.fetch(status.to_sym).color
+	end
+
+	#-------------------------------------
+	# File handling
+	#-------------------------------------
 	def file_accept
 		case file_type
 		when :pdf

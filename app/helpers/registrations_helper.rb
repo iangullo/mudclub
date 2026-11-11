@@ -82,7 +82,7 @@ module RegistrationsHelper
 	def registration_form_fields(registration = @registration, action: :edit)
 		fields = []
 		fields << [
-			# TODO: SPAN OF FIRST FIELD IS WIDER THANB INTENDED FOR SOME UNKNOWN REASON
+			# TODO: SPAN OF FIRST FIELD IS WIDER THAN INTENDED FOR SOME UNKNOWN REASON
 			symbol_item(:team, { title: Team.label }, align: :right),
 			{ kind: :select_box, key: :requested_team_id, options: @team.club.open_team_list, value: @team.id },
 			hidden_input(:kind, registration.kind || @kind)
@@ -127,10 +127,6 @@ module RegistrationsHelper
 			}
 		]
 		res
-	end
-
-	# fields to show when looking a user profile
-	def registration_status_form_fields(registration = @registration)
 	end
 
 	# return table for @registrations TableComponent definition

@@ -81,6 +81,12 @@ module DocumentsHelper
 	def document_form_fields(subtitle)
 		res    = document_title(subtitle:)
 		accept = @document.file_accept
+
+		unless @document.persisted?
+			res.last << hidden_input(:status, :active)
+			res.last << hidden_input(:activated_at, DateTime.now)
+		end
+
 		res += [
 			[
 				label_item(Document.fld(:title)),
