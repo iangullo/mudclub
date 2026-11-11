@@ -336,7 +336,7 @@ module TeamsHelper
 		def team_roster_header
 			title = [
 				{ kind: :normal, value: Assignment.fld(:number, :short), align: :center },
-				{ kind: :normal, value: Person.fld(:name) },
+				{ kind: :normal, value: Person.fld(:name), cols: 2 },
 				{ kind: :normal, value: Person.fld(:age), align: :center },
 				{ kind: :normal, value: Person.fld(:phone_short), align: :center },
 				{ kind: :normal, value: Person.fld(:photos_short), align: :center },
@@ -359,6 +359,7 @@ module TeamsHelper
 			row = { url: path_for(athlete, kind: :athlete), frame: :modal, items: [] }
 			row[:items] += [
 				{ kind: :normal, value: athlete.number, align: :center },
+				icon_item(athlete.avatar, align: :center),
 				{ kind: :normal, value: athlete.to_s(style: 0) },
 				{ kind: :normal, value: athlete.age, align: :center },
 				{ kind: :contact, phone: athlete.phone, device: device },

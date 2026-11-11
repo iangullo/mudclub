@@ -129,11 +129,11 @@ class AssignmentsController < ApplicationController
 			if status_only_update?(@assignment)
 				if perform_status_change(@assignment, status_value_for(@assignment))
 					notice = helpers.flash_message(@assignment.msg(:updated), :success)
-					format.html { redirect_to path_for(@assignment), notice:, status: :see_other, turbo_action: "replace" }
+					format.html { redirect_to retlnk, notice:, status: :see_other, turbo_action: "replace" }
 					format.json { render :show, status: :ok, location: @assignment }
 				else
 					message = @assignment.errors.full_messages.to_sentence.presence || @assignment.msg(:status_fail)
-					format.html { redirect_to path_for(@assignment), notice: helpers.flash_message(message, :error) }
+					format.html { redirect_to retlnk, notice: helpers.flash_message(message, :error) }
 					format.json { render json: @assignment.errors, status: :unprocessable_entity }
 				end
 			else
@@ -298,7 +298,7 @@ class AssignmentsController < ApplicationController
 				:kind, :membership_id, :team_id, :starts_on, :ends_on, :number,
 				:notes, :avatar, :person_merge, :status, :edit_status, :rdx,
 				person_attributes: [
-					:id, :name, :nick, :surname,
+					:id, :avatar, :name, :nick, :surname,
 					:dni, :id_back, :id_front, :female,
 					:birthday, :address, :email, :phone,
 
