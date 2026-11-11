@@ -53,29 +53,34 @@ module UsersHelper
 		res
 	end
 
-	# return FieldComponents for form user role
-	def user_form_role
-		if u_admin?
-			res = [
-				participation_club_selector(@user),
-				[
-					symbol_item(:key, { title: User.fld(:profile) }),
-					{ kind: :select_box, align: "left", key: :role, options: User.role_list, value: @user.role }
-				]
+	#----------------------------------------------
+	# Field definitions for person forms
+	#----------------------------------------------
+	def user_form_title(user: @user, icon: user&.picture, title:, cols: 2)
+		person  = user.person
+		l_name  = Person.fld(:name)
+		l_surn  = Person.fld(:surname)
+		l_nick  = Person.fld(:nickname)
+		l_email = Person.fld(:email)
+		m_email = { length: 7 }
+
+		res = person_title(title:, icon:, rows: 3, cols:, form: true)
+		res += [
+			[
+				{ kind: :text_box, key: :name, value: person&.name, placeholder: l_name, cols: 2, mandatory: { length: 2 } }
+			],
+			[
+				{ kind: :text_box, key: :surname, value: person&.surname, placeholder: l_surn, cols: 2, mandatory: { length: 2 } }
+			],
+			[
+				symbol_item(:email, { type: :button, title: l_email }, align: :right),
+				{ kind: :email_box, key: :email, value: person&.email, placeholder: l_email, mandatory: m_email, size: 17  }
+			],
+			[
+				symbol_item(:user, { title: l_nick }, align: :right),
+				{ kind: :text_box, key: :nick, size: 8, value: person&.nick, placeholder: l_nick }
 			]
-		else
-			res = [
-				[
-					icon_item(@user.club&.logo || "mudclub.svg", title: @user.club&.nick || I18n.t("club.none")),
-					{ kind: :string, align: :center, value: I18n.t("role.#{@user.role}") },
-					hidden_input(key: :club_id, value: @user.club_id)
-				]
-			]
-		end
-		res.last <<	gap_item
-		res.last << symbol_item(:locale, { title: I18n.t("locale.lang") })
-		res.last << { kind: :select_box, align: :center, key: :locale, options: User.locale_list, value: @user.locale }
-		res.last << hidden_input(:rdx, @rdx) if @rdx
+		]
 		res
 	end
 
@@ -95,6 +100,21 @@ module UsersHelper
 				{ kind: :text, value: I18n.t("password.confirm_label"), cols: 2, class: "text-xs" }
 			]
 		]
+	end
+
+	# return FieldComponents for form user role
+	def user_form_role
+		res = [
+			[
+				symbol_item(:key, { title: User.fld(:profile) }),
+				{ kind: :select_box, align: "left", key: :role, options: User.role_list, value: @user.role }
+			]
+		]
+		res.last <<	gap_item
+		res.last << symbol_item(:locale, { title: I18n.t("locale.lang") })
+		res.last << { kind: :select_box, align: :center, key: :locale, options: User.locale_list, value: @user.locale }
+		res.last << hidden_input(:rdx, @rdx) if @rdx
+		res
 	end
 
 	# return user_actions TableComponent

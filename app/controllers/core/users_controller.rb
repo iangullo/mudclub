@@ -187,10 +187,9 @@ class UsersController < ApplicationController
 		# Prepare user form
 		def prepare_form(action)
 			title     = User.act(action == :new ? :create : action)
-			@header   = create_fields(helpers.person_form_title(@user.person, title:, icon: @user.picture))
+			@header   = create_fields(helpers.user_form_title(title:))
 			@role     = create_fields(helpers.user_form_role)
-			@p_fields = create_fields(helpers.person_form_fields(@user.person, mandatory_email: true))
-			@k_fields = create_fields(helpers.user_form_pass) if action == :create
+			@k_fields = create_fields(helpers.user_form_pass) if action == :new
 			@submit = create_submit
 		end
 
