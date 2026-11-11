@@ -99,12 +99,14 @@ class AssignmentPolicy < ApplicationPolicy
 			when :athlete, :volunteer
 				coach? ||
 				manages_athletes?(@target_club) ||
-				manages_team?(@target_team)
+				manages_team?(@target_team) ||
+				board_member?(@target_club)
 
 			when :coach
 				coach? ||
 				manages_coaches?(@target_club) ||
-				manages_team?(@target_team)
+				manages_team?(@target_team) ||
+				board_member?(@target_club)
 
 			else
 				manages_club?(@target_club) || board_member?(@target_club)

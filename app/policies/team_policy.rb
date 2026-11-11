@@ -59,7 +59,8 @@ class TeamPolicy < ApplicationPolicy
 		allowed?(
 			team_member? ||
 			coaches_club?(@record&.club) ||
-			manages_club?(@record&.club)
+			manages_club?(@record&.club) ||
+			board_member?(@record&.club)
 		)
 	end
 
@@ -69,7 +70,8 @@ class TeamPolicy < ApplicationPolicy
 		allowed?(
 			team_staff? ||
 			coaches_club?(@record&.club) ||
-			manages_club?(@record&.club)
+			manages_club?(@record&.club) ||
+			board_member?(@record&.club)
 		)
 	end
 
@@ -79,7 +81,8 @@ class TeamPolicy < ApplicationPolicy
 		allowed?(
 			team_member? ||
 			coaches_club?(@record&.club) ||
-			manages_club?(@record&.club)
+			manages_club?(@record&.club) ||
+			board_member?(@record&.club)
 		)
 	end
 
