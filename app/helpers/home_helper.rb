@@ -28,17 +28,24 @@ module HomeHelper
 	def home_closed
 		size = "30x30"
 		[
-			[ { kind: :title, value: I18n.t("core.application.label"), cols: 2 } ],
-			[ { kind: :subtitle, value: Server.msg(:purpose_1), cols: 2 } ],
+			gap_row,
+			gap_row,
+			[ { kind: :title, value: I18n.t("core.application.label"), cols: 2, align: :center } ],
+			[ { kind: :subtitle, value: Server.msg(:purpose_1), cols: 2, align: :center } ],
 			gap_row,
 			[ symbol_item(:drill, { namespace: :sport }, size:), string_item(Server.msg(:purpose_2)) ],
 			[ symbol_item(:team, size:), string_item(Server.msg(:purpose_3)) ],
 			[ symbol_item(:plan, size:), string_item(Server.msg(:purpose_4)) ],
+			gap_row,
+			gap_row,
+			gap_row,
+			[ home_login_button ],
+			gap_row,
 			gap_row
 		]
 	end
 
 	def home_login_button
-		{ kind: :jump, url: new_user_session_path, data: { turbo_frame: "_top" }, symbol: symbol_hash(:login, type: :button, size: "30x30"), class: "m-2", d_class: "rounded bg-blue-900 hover:bg-blue-700 max-h-8 min-h-6" }
+		normal_button({ kind: :jump, url: "/users/sign_in", data: { turbo_frame: "_top" }, symbol: symbol_hash(:login, type: :button, size: "30x30"), label: User.act(:sign_in), d_class: "rounded bg-blue-900 text-white font-semibold hover:bg-blue-700 p-1" }, cols: 2)
 	end
 end

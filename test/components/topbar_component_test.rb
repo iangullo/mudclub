@@ -71,13 +71,13 @@ class TopbarComponentTest < ActiveSupport::TestCase
 		assert_includes nav["class"], "max-w-7xl"
 	end
 
-	test "inner div uses flex layout with justify-between and h-12" do
+	test "inner div uses flex layout with justify-between and h-14" do
 		nav = parsed(render_topbar(user: fake_user)).css("nav").first
 		div = nav.css("> div").first
 		refute_nil div
 		assert_includes div["class"], "flex"
 		assert_includes div["class"], "justify-between"
-		assert_includes div["class"], "h-12"
+		assert_includes div["class"], "h-14"
 	end
 
 	# ─── logo ───────────────────────────────────────────────────────
@@ -373,7 +373,7 @@ class TopbarComponentTest < ActiveSupport::TestCase
 		css = File.read(Rails.root.join("app/assets/builds/tailwind.css")).gsub(/\\/, "")
 		required = %w[
 				max-w-7xl mx-auto px-2 sm:px-6 lg:px-8
-				relative flex items-center justify-between h-12
+				relative flex items-center justify-between h-14
 				flex-shrink-0 inline-flex font-semibold
 				block lg:hidden h-8 w-auto hidden lg:block
 				hidden md:block md:hidden

@@ -137,7 +137,7 @@ class TeamPolicy < ApplicationPolicy
 	def edit_roster? = allowed?(manages_roster?)
 
 	def view_details?
-		allowed?(coaches_team?(@record) || manages_club?(@record&.club))
+		allowed?(coaches_team?(@record) || manages_club?(@record&.club) || board_member?(@record&.club))
 	end
 
 	#------------------------------------
