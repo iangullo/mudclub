@@ -216,9 +216,9 @@ module DrillsHelper
 				{
 					kind: :link,
 					symbol: drill_symbol(variant: "versions"),
-					label: I18n.t("version.many"),
+					label: Drill.fld(:versions),
 					url: versions_drill_path,
-					frame: "modal"
+					frame: :modal
 				},
 				rows: 2
 			)
@@ -235,8 +235,8 @@ module DrillsHelper
 	end
 
 	# return title FieldComponent definition for drill show
-	def drill_versions_title
-		title_start(icon: drill_symbol(variant: "versions"), title: @drill.name, subtitle: I18n.t("version.many"))
+	def drill_versions_header
+		title_start(icon: drill_symbol(variant: "versions"), title: @drill.name, subtitle: Drill.fld(:versions))
 	end
 
 	# create table for drill versions

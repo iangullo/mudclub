@@ -81,7 +81,8 @@ es:
         activate: Aprobar
         archive: Archivar
         new_version: Nueva versión
-        versions: Versiones
+        versions: Historial de Versiones
+        versions_short: Versiones
       fields:
         kind: Tipo
         name: Nombre
@@ -93,7 +94,7 @@ es:
         version: Versión
         version_short: v
         superseded_by: Reemplazado por
-        versions: Historial de versiones
+        versions: Versiones
       messages:
         created: Documento creado
         updated: Documento actualizado

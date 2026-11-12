@@ -38,8 +38,21 @@ module DocumentsHelper
 			row = { url:, frame: :modal, items: [] }
 			row[:items] << { kind: :normal, value: doc.kind_label }
 			row[:items] << { kind: :normal, value: doc.title }
-			row[:items] << symbol_item(doc.active? ? :yes : :no, align: :center, class: "border px-1 py-1")
+			row[:items] << symbol_item(:status,
+															{ variant: doc.status.to_sym, title: doc.status_label },
+															align: :center, class: "border px-1 py-1")
 			row[:items] << normal_button({ kind: :delete, url:, name: doc.title, confirm: true }) if @policy.destroy?
+
+			doc.allowed_transitions.each do |target|
+				action = doc.action_for(target)
+				next unless action
+
+				predicate = :"#{action}?"
+				next unless @policy.respond_to?(predicate) && @policy.public_send(predicate)
+
+				row[:items] << document_button(action)
+			end
+
 			rows << row
 		}
 		{ title:, rows: }
@@ -55,14 +68,17 @@ module DocumentsHelper
 		]
 		if @document.summary.present?
 			res << [ label_item(Document.fld(:summary), cols: 3) ]
-			res << [ { kind: :text, value: @document.summary, cols: 3 } ]
+			res << [ { kind: :text, value: @document.summary, cols: 2 } ]
 		end
 
 		if @document.file.present?
+			if @document.versioned?
+				res.last << normal_button(document_button(:versions, frame: :modal, method: :get))
+			end
 			if @document.file_type == :img
-				field = { kind: :image }
+				field = { kind: :image, cols: 3 }
 			else
-				field = { kind: :pdf, height: "50vh", width: "50vw" }
+				field = { kind: :pdf, height: "50vh", width: "80vw", cols: 3 }
 			end
 			field[:value] = @document.file.attachment
 			field[:cols]  = 3
@@ -110,4 +126,49 @@ module DocumentsHelper
 		]
 		res
 	end
+
+	def document_versions_header
+		title_start(
+			icon:     { concept: :document, options: { namespace: "common", size: "50x50" } },
+			title:    @document.title,
+			subtitle: Document.fld(:versions)
+		)
+	end
+
+	def document_versions_table
+		res = [ [
+			topcell_item(I18n.t("calendar.date")),
+			topcell_item(Document.fld(:version)),
+			topcell_item(Document.fld(:status))
+		] ]
+
+		@document.siblings.order(version: :desc).each do |doc|
+			res << [
+				{ kind: :string, value: doc.created_at.localtime.strftime("%Y/%m/%d %H:%M"),
+					align: "center", class: "border px-1 py-1" },
+				{ kind: :string, value: doc.version,
+					align: "center", class: "border px-1 py-1" },
+				{ kind: :string, value: doc.status_label,
+					align: "center", class: "border px-1 py-1" },
+				{ kind: :string, value: doc.latest? ? "★" : "",
+					align: "center" }
+			]
+		end
+
+		res
+	end
+
+	private
+		def document_button(action, frame: :_top, flip: true, method: :patch)
+			act = action.to_sym
+			{
+				kind:   :action,
+				symbol: symbol_hash(:action, variant: act, type: :button),
+				title:  Document.act(act),
+				label:  Document.act(act, :short),
+				url:    path_for(@document, action: act),
+				frame:, flip:,
+				data:   { turbo_method: method }
+			}
+		end
 end

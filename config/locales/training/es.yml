@@ -40,6 +40,7 @@ es:
         sport_short: Dep.
         court_mode: Disposición de campo
         court_mode_short: Disposición
+        versions: Versions
       values:
         none: Ningún ejercicio seleccionado
         default: <Nuevo Ejercicio>

@@ -81,7 +81,8 @@ en:
         activate: Activate
         archive: Archive
         new_version: New version
-        versions: History
+        versions: Version history
+        versions_short: History
       fields:
         kind: Kind
         name: Name
@@ -93,7 +94,7 @@ en:
         version: Version
         version_short: v
         superseded_by: Replaced by
-        versions: Version history
+        versions: Versions
       messages:
         created: Created document
         updated: Updated document

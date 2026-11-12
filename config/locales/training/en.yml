@@ -40,6 +40,7 @@ en:
         sport_short: Sport
         court_mode: Court layout
         court_mode_short: Layout
+        versions: Versions
       values:
         none: No drill selected
         default: <New Drill>

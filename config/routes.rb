@@ -45,7 +45,6 @@ Rails.application.routes.draw do
 	concern :documentable do
 		resources :documents do
 			member do
-				get   :status_change
 				patch :submit_for_verification
 				patch :verify
 				patch :reject

@@ -24,6 +24,7 @@
 class DocumentsController < ApplicationController
 	include Filterable
 	before_action :set_document_context
+	rescue_from ArgumentError, with: :stale_transition
 
 	#-------------------------------------
 	# CRUD
@@ -105,14 +106,55 @@ class DocumentsController < ApplicationController
 	end
 
 	#-------------------------------------
-	# Administrative
+	# Status transitions
 	#-------------------------------------
+	def submit_for_verification
+		@policy = check_policy!(DocumentPolicy, owner: @owner)
+		transition_with_notice(:submit_for_verification!, Document.msg(:submitted))
+	end
+
+	def verify
+		@policy = check_policy!(DocumentPolicy, owner: @owner)
+		transition_with_notice(:verify!, Document.msg(:verified))
+	end
+
+	def reject
+		@policy = check_policy!(DocumentPolicy, owner: @owner)
+		transition_with_notice(:reject!, Document.msg(:rejected))
+	end
+
 	def activate
-		@document.activate!
-		redirect_to index_path_for(@document)
+		@policy = check_policy!(DocumentPolicy, owner: @owner)
+		transition_with_notice(:activate!, Document.msg(:activated))
+	end
+
+	def archive
+		@policy = check_policy!(DocumentPolicy, owner: @owner)
+		transition_with_notice(:archive!, Document.msg(:archived))
+	end
+
+	def versions
+		@policy = check_policy!(DocumentPolicy, owner: @owner)
+
+		@header = create_fields(helpers.document_versions_header)
+		@table  = create_fields(helpers.document_versions_table)
+		@submit = create_submit(submit: nil)
 	end
 
 	private
+		def transition_with_notice(method, message)
+			@document.public_send(method)
+			redirect_to index_path_for(@document),
+									notice: helpers.flash_message(message, :success)
+		rescue ActiveRecord::RecordInvalid => e
+			redirect_to index_path_for(@document),
+									alert: helpers.flash_message(e.message, :error)
+		end
+
+		def stale_transition(error)
+			redirect_to index_path_for(@document),
+									alert: helpers.flash_message(error.message, :error)
+		end
 
 		def set_document_context
 			if params[:registration_id]

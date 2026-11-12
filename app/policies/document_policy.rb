@@ -35,7 +35,7 @@ class DocumentPolicy < ApplicationPolicy
 	#------------------------------------
 	# CRUD Operations
 	#------------------------------------
-	def show? = manage_or_owner?
+	def show? = viewer?
 	alias show_details? show?
 
 	def create? = manage_or_owner?
@@ -46,12 +46,45 @@ class DocumentPolicy < ApplicationPolicy
 
 	def destroy? = manage_or_owner?
 
+	#------------------------------------
+	# Status transitions
+	#------------------------------------
+	def submit_for_verification?
+		manage_or_owner? && @record&.may_transition_to?(:pending)
+	end
+
+	def verify?
+		manage_or_owner? && @record&.may_transition_to?(:verified)
+	end
+
+	def reject?
+		manage_or_owner? && @record&.may_transition_to?(:rejected)
+	end
+
+	def activate?
+		manage_or_owner? && @record&.may_transition_to?(:active)
+	end
+
+	def archive?
+		manage_or_owner? && @record&.may_transition_to?(:archived)
+	end
+
+	def versions? = manage_or_owner?
+
 	private
+	def viewer?
+		case @owner
+		when Club
+			same_club?(@owner)
+		else
+			same_person?(@owner)
+		end
+	end
 
 	def manage_or_owner?
 		case @owner
 		when Club
-			manages_club?(@owner) || board_member?(@owner)
+			manages_club?(@owner)
 		else
 			same_person?(@owner)
 		end

@@ -188,7 +188,7 @@ class DrillsController < ApplicationController
 	def versions
 		@policy = check_policy!(DrillPolicy, record: @drill)
 
-		@title   = create_fields(helpers.drill_versions_title)
+		@header = create_fields(helpers.drill_versions_header)
 		@table   = create_fields(helpers.drill_versions_table)
 		@submit  = create_submit(submit: nil)
 	end

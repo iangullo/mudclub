@@ -351,6 +351,46 @@
 	<symbol id="yes.default" viewBox="0 0 128 128">
 		<path style="fill:none;stroke:green;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1" d="m32 74 22 34s12.32-37.145 22-54c5.445-9.481 20-26 20-26"/>
 	</symbol>
+	<!-- ========== ACTIVE (Checkmark in Circle) ========== -->
+	<symbol id="status.active" viewBox="0 0 128 128">
+		<circle cx="64" cy="64" r="50" fill="#2ecc71" stroke="#000000" stroke-width="4" />
+		<path fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"
+				d="M 40,68 l 16,16 l 32,-32" />
+	</symbol>
+
+	<!-- APPROVED -->
+	<symbol id="status.approved" viewBox="0 0 128 128">
+		<use href="#yes.default" />
+	</symbol>
+
+	<!-- ARCHIVED — dark grey circle + archive box with down arrow -->
+	<symbol id="status.archived" viewBox="0 0 128 128">
+		<circle cx="64" cy="64" r="50" fill="#7f8c8d" stroke="#000000" stroke-width="4"/>
+		<rect x="40" y="38" width="48" height="10" rx="2"
+			fill="#ffffff" stroke="#000000" stroke-width="2"/>
+		<path fill="#ffffff" stroke="#000000" stroke-width="2" stroke-linejoin="round"
+			d="M 44,48 L 84,48 L 82,94 L 46,94 Z"/>
+		<path fill="none" stroke="#000000" stroke-width="4"
+			stroke-linecap="round" stroke-linejoin="round"
+			d="M 54,66 L 64,76 L 74,66 M 64,58 L 64,76"/>
+	</symbol>
+
+	<!-- AWAITING REQUESTER -->
+	<symbol id="status.awaiting_requester" viewBox="0 0 128 128">
+		<use href="#clock.default" />
+	</symbol>
+
+	<!-- CANCELLED -->
+	<symbol id="status.cancelled" viewBox="0 0 128 128">
+		<use href="#cancel.default" />
+	</symbol>
+
+	<!-- DRAFT -->
+	<symbol id="status.draft" viewBox="0 0 128 128">
+		<use href="#edit.default" />
+	</symbol>
+
+	<!-- PENDING -->
 	<symbol id="status.pending" viewBox="0 0 128 128">
 		<circle cx="64" cy="64" r="50" fill="#f39c12" stroke="#000000" stroke-width="4" />
 		<path fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
@@ -358,11 +398,25 @@
 		<circle cx="64" cy="64" r="6" fill="#ffffff" />
 	</symbol>
 
-	<!-- ========== ACTIVE (Checkmark in Circle) ========== -->
-	<symbol id="status.active" viewBox="0 0 128 128">
-		<circle cx="64" cy="64" r="50" fill="#2ecc71" stroke="#000000" stroke-width="4" />
-		<path fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"
-				d="M 40,68 l 16,16 l 32,-32" />
+	<!-- REJECTED -->
+	<symbol id="status.rejected" viewBox="0 0 128 128">
+		<use href="#no.default" />
+	</symbol>
+
+	<!-- SUBMITTED -->
+	<symbol id="status.submitted" viewBox="0 0 128 128">
+		<use href="#clock.default" />
+	</symbol>
+
+	<!-- SUPERSEDED — grey circle + history/rewind (this version is now historical) -->
+	<symbol id="status.superseded" viewBox="0 0 128 128">
+		<circle cx="64" cy="64" r="50" fill="#95a5a6" stroke="#000000" stroke-width="4"/>
+		<path fill="none" stroke="#ffffff" stroke-width="6"
+			stroke-linecap="round" stroke-linejoin="round"
+			d="M 92,64 A 28,28 0 1 1 76,40"/>
+		<path fill="#ffffff" d="M 74,26 L 88,44 L 66,46 Z"/>
+		<path fill="none" stroke="#ffffff" stroke-width="5"
+			stroke-linecap="round" d="M 64,50 L 64,64 L 74,72"/>
 	</symbol>
 
 	<!-- ========== SUSPENDED (Pause / Warning Triangle) ========== -->
@@ -380,31 +434,16 @@
 				d="M 44,44 L 84,84 M 84,44 L 44,84" />
 	</symbol>
 
-	<symbol id="status.draft" viewBox="0 0 128 128">
-		<use href="#edit.default" />
+	<!-- VERIFIED — blue circle + check (distinct from green active) -->
+	<symbol id="status.verified" viewBox="0 0 128 128">
+		<circle cx="64" cy="64" r="50" fill="#3498db" stroke="#000000" stroke-width="4"/>
+		<path fill="none" stroke="#ffffff" stroke-width="8"
+			stroke-linecap="round" stroke-linejoin="round"
+			d="M 40,68 l 16,16 l 32,-32"/>
 	</symbol>
 
-	<symbol id="status.submitted" viewBox="0 0 128 128">
-		<use href="#clock.default" />
-	</symbol>
-
+	<!-- UNDER REVIEW -->
 	<symbol id="status.under_review" viewBox="0 0 128 128">
 		<use href="#clock.default" />
-	</symbol>
-
-	<symbol id="status.awaiting_requester" viewBox="0 0 128 128">
-		<use href="#clock.default" />
-	</symbol>
-
-	<symbol id="status.cancelled" viewBox="0 0 128 128">
-		<use href="#cancel.default" />
-	</symbol>
-
-	<symbol id="status.approved" viewBox="0 0 128 128">
-		<use href="#yes.default" />
-	</symbol>
-
-	<symbol id="status.rejected" viewBox="0 0 128 128">
-		<use href="#no.default" />
 	</symbol>
 </svg>
