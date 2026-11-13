@@ -78,8 +78,7 @@ class Catalog::Entry
 			attr = name.to_s.delete_suffix("?").to_sym
 			return !!@metadata[attr] if @metadata.key?(attr)
 		end
-		return attribute(name) if @metadata.key?(name.to_sym)
-		super
+		@metadata.key?(name.to_sym) ? attribute(name) : nil
 	end
 
 	def respond_to_missing?(name, *)
