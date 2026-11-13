@@ -79,7 +79,10 @@ module Kinded
 	# the default gender for this instance's labels. Return :female, :male, or nil.
 	# nil → catalog falls back to its :default label.
 	def kind
-		self.class.kind_catalog.resolve(super&.to_sym)&.key
+		raw = super
+		return nil if raw.nil?
+
+		self.class.kind_catalog.resolve(raw.to_sym)&.key
 	end
 	def kind_gender     = nil
 	def kind_catalog		= self.class.kind_catalog

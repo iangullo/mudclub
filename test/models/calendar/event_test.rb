@@ -57,7 +57,7 @@ class EventTest < ActiveSupport::TestCase
 		@match.send(:check_stats, [ [ "#{@assignment.id}_0_3", "2" ] ])   # ftm = 2
 		stat = @match.stats.find_by(athlete_id: @assignment.id, concept: 3)
 		assert_equal 2, stat.value
-		assert_equal "athlete", stat.kind
+		assert_equal :athlete, stat.kind
 	end
 
 	test "#check_stats updates existing stats without creating duplicates" do
@@ -96,6 +96,24 @@ class EventTest < ActiveSupport::TestCase
 
 	test "#unlink does not touch #players (regression)" do
 		assert_nothing_raised { @match.destroy }
+	end
+
+	# --- Specific access to Eventkinds -----------------
+	test "#specific returns the subclass matching the kind" do
+		assert_instance_of EventKind::Match, @match.specific
+
+		holiday = Event.create!(club: @club, kind: :holiday, location: @location,
+			start_time: Time.current, name: "Bank Holiday")
+		assert_instance_of EventKind::Holiday, holiday.specific
+	end
+
+	test "#specific memoizes" do
+		assert_same @match.specific, @match.specific
+	end
+
+	test "#specific raises when kind is nil" do
+		bare = Event.new(club: @club, location: @location, start_time: Time.current)
+		assert_raises(ArgumentError) { bare.specific }
 	end
 
 	private

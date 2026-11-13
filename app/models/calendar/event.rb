@@ -160,6 +160,11 @@ class Event < ApplicationRecord
 		timeslot_string(t_begin: self.start_time, t_end: ((self.kind_training? && t_end) ? self.end_time : nil))
 	end
 
+	# Return specific extension for this kind of Event
+	def specific
+		@specific ||= EventKind.specific(event: self)
+	end
+
 	# rebuild Event using raw hash from a form submittal
 	def rebuild(f_data, s_data = nil)
 		self.start_time = f_data[:start_date] if f_data[:start_date]
@@ -509,9 +514,9 @@ class Event < ApplicationRecord
 
 				stat = e_stats.find do |s|
 					s.event_id == self.id &&
-						s.period   == period &&
+						s.period == period &&
 						s.concept.to_s == concept.to_s &&
-						s.kind     == kind.to_s &&
+						s.kind.to_s == kind.to_s &&
 						s.athlete_id == athlete_id
 				end
 

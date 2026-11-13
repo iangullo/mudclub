@@ -30,3 +30,29 @@ class ActiveSupport::TestCase
 		end
 	end
 end
+
+class FakeEvent
+	attr_reader :kind, :name, :date_string
+
+	def initialize(kind:, name: "Test", date_string: "15/01/2026", label: nil)
+		@kind        = kind
+		@name        = name
+		@date_string = date_string
+		@label       = label
+	end
+
+	def kind_label
+		@label || Catalog::EventKinds.fetch(@kind).label
+	end
+
+	def to_s(style: nil)
+		base  = @label
+		base += ": #{@name}" if holiday_name_applies?
+		style == "notice" ? "#{base} (#{@date_string})" : base
+	end
+
+	private
+		def holiday_name_applies?
+			@kind.to_s.in?(%w[holiday rest]) && @name.present? && @name != kind_label
+		end
+end

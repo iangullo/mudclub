@@ -54,28 +54,12 @@ module EventsHelper
 
 	# return adequate notice depending on @event kind
 	def event_create_notice
-		case @event.kind.to_sym
-		when :rest
-			msg = I18n.t("rest.created") + "#{@event.to_s(style: "notice")}"
-		when :train
-			msg = I18n.t("train.created") + "#{@event.date_string}"
-		when :match
-			msg = I18n.t("match.created") + "#{@event.to_s(style: "notice")}"
-		end
-		flash_message(msg, "success")
+		flash_message(@event.specific.created_notice, "success")
 	end
 
 	# return adequate notice depending on @event kind
 	def event_delete_notice
-		case @event.kind.to_sym
-		when :rest
-			msg = I18n.t("rest.deleted") + "#{@event.to_s(style: "notice")}"
-		when :train
-			msg = I18n.t("train.deleted") + "#{@event.date_string}"
-		when :match
-			msg = I18n.t("match.deleted") + "#{@event.to_s(style: "notice")}"
-		end
-		flash_message(msg)
+		flash_message(@event.specific.deleted_notice)
 	end
 
 	# fields to display athlete's edit stats form for an event
@@ -157,16 +141,7 @@ module EventsHelper
 
 	# return adequate notice depending on @event kind
 	def event_update_notice(msg, changed: false)
-		if changed
-			if @event.kind_training?
-				msg += @event.date_string
-			elsif msg != I18n.t("stat.updated")
-				msg += @event.to_s(style: "notice")
-			end
-			flash_message(msg, "success")
-		else
-			flash_message(I18n.t("status.no_data"), "info")
-		end
+		flash_message(@event.specific.updated_notice(msg, changed:), changed ? "success" : "info")
 	end
 
 	# profile of event workload (task types)

@@ -97,10 +97,10 @@ en:
         metadata: Metadata
       kind: *event_kind_values # reference
       messages:
-        created: Event created.
-        exported: Event exported.
-        updated: Event updated.
-        deleted: Event deleted.
+        created: "%{kind} created"
+        exported: "%{kind} exported"
+        updated: "%{kind} updated"
+        deleted: "%{kind} deleted"
 
     recurrence_kinds:
       label: Recurrence
