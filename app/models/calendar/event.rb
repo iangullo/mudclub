@@ -313,7 +313,7 @@ class Event < ApplicationRecord
 				res = home + "-" + away
 			end
 		when :holiday, :rest
-			res +=  "- self.name"
+			res +=  "- #{self.name}"
 		end
 		res += " (#{self.date_string})" if style == "notice"
 		res
@@ -439,167 +439,165 @@ class Event < ApplicationRecord
 
 	private
 
-	# Default values for a rest Event
-	def prepare_holiday(date)
-		self.start_time = date
-		self.duration = 1440
-		self.location_id = 0
-	end
-
-	def prepare_training(date)
-		return unless team
-
-		slot = team.next_slot(team.events.trainings.last)
-		if slot
-			training_date =  slot.next_date || date
-
-			self.start_time =
-				(training_date + slot.hour.hours + slot.min.minutes).to_datetime
-
-			self.duration = slot.duration
-			self.location_id = slot.location_id
-		else
-			self.start_time = (date + 16.hours).to_datetime
-			self.duration = 60
+		# Default values for a rest Event
+		def prepare_holiday(date)
+			self.start_time = date
+			self.duration = 1440
 			self.location_id = 0
 		end
-	end
 
-	def prepare_match(date)
-		return unless team
+		def prepare_training(date)
+			return unless team
 
-		last = team.events.matches.last || Event.new(start_time: Time.current)
+			slot = team.next_slot(team.events.trainings.last)
+			if slot
+				training_date =  slot.next_date || date
 
-		self.start_time =
-			if last
-				last.start_time + 7.days
+				self.start_time =
+					(training_date + slot.hour.hours + slot.min.minutes).to_datetime
+
+				self.duration = slot.duration
+				self.location_id = slot.location_id
 			else
-				date + last.hour.hours + ((last.min / 15).round * 5).minutes
-			end
-
-		self.duration = 120
-		self.location_id = team.homecourt_id
-	end
-
-	# Parse and persist stats from a form payload.
-	#
-	# Each s_param is [key, value]. Key shape:
-	#   NEW: "<assignment_uuid>_<period>_<concept>"
-	#   OLD: "<player_id>_<concept>"  (legacy — 2 parts)
-	#   OLD: "<player_id>_<period>_<concept>"  (legacy — 3 parts)
-	#
-	# Callers must save the event (or the stat collection) afterwards.
-	def check_stats(s_data)
-		return unless s_data.is_a?(Array) || s_data.respond_to?(:each_pair)
-
-		e_stats = self.stats.to_a   # single load for the whole batch
-
-		s_data.each do |s_param|
-			key, raw_value = s_param
-			owner, period, concept = parse_stat_key(key)
-			next unless owner && concept
-
-			kind, athlete_id = resolve_stat_owner(owner)
-			next unless kind
-
-			attrs = Stat.build_attrs(
-				event_id: self.id, period: period, concept: concept,
-				kind:, athlete_id:, value: raw_value.to_i
-			)
-
-			stat = e_stats.find do |s|
-				s.event_id == self.id &&
-					s.period   == period &&
-					s.concept.to_s == concept.to_s &&
-					s.kind     == kind.to_s &&
-					s.athlete_id == athlete_id
-			end
-
-			if stat
-				stat[:value] = raw_value.to_i
-				stat.save! if stat.persisted? && stat.changed?
-			else
-				new_stat = Stat.new(attrs)
-				self.stats << new_stat   # persists now that event is persisted
-				e_stats << new_stat
+				self.start_time = (date + 16.hours).to_datetime
+				self.duration = 60
+				self.location_id = 0
 			end
 		end
-	end
 
-	# checks targets_attributes parameter received and manage adding/removing
-	# from the target collection - remove duplicates from list
-	def check_targets(t_array)
-		a_targets = Target.passed(t_array)
-		t_pri = { def: 1, off: 1 }
-		a_targets.each do |t| # second pass - manage associations
-			if t[:_destroy] == "1" # remove event_target
-				self.targets.delete(t[:target_attributes][:id].to_i)
-			elsif t[:target_attributes]
-				dt = EventTarget.fetch(t)
-				if dt.target&.offense?
-					priority = t_pri[:off]
-					t_pri[:off] += 1
-				elsif dt.target&.defense?
-					priority = t_pri[:def]
-					t_pri[:def] += 1
+		def prepare_match(date)
+			return unless team
+
+			last = team.events.matches.last || Event.new(start_time: Time.current)
+
+			self.start_time =
+				if last
+					last.start_time + 7.days
 				else
-					priority = 1
+					date + last.hour.hours + ((last.min / 15).round * 5).minutes
 				end
-				dt.update(priority:)
-				self.event_targets ? self.event_targets << dt : self.event_targets |= dt
+
+			self.duration = 120
+			self.location_id = team.homecourt_id
+		end
+
+		# Parse and persist stats from a form payload.
+		#
+		# Each s_param is [key, value]. Key shape:
+		#   NEW: "<assignment_uuid>_<period>_<concept>"
+		#   OLD: "<player_id>_<concept>"  (legacy — 2 parts)
+		#   OLD: "<player_id>_<period>_<concept>"  (legacy — 3 parts)
+		#
+		# Callers must save the event (or the stat collection) afterwards.
+		def check_stats(s_data)
+			return unless s_data.is_a?(Array) || s_data.respond_to?(:each_pair)
+
+			e_stats = self.stats.to_a   # single load for the whole batch
+
+			s_data.each do |s_param|
+				key, raw_value = s_param
+				owner, period, concept = parse_stat_key(key)
+				next unless owner && concept
+
+				kind, athlete_id = resolve_stat_owner(owner)
+				next unless kind
+
+				attrs = Stat.build_attrs(
+					event_id: self.id, period: period, concept: concept,
+					kind:, athlete_id:, value: raw_value.to_i
+				)
+
+				stat = e_stats.find do |s|
+					s.event_id == self.id &&
+						s.period   == period &&
+						s.concept.to_s == concept.to_s &&
+						s.kind     == kind.to_s &&
+						s.athlete_id == athlete_id
+				end
+
+				if stat
+					stat[:value] = raw_value.to_i
+					stat.save! if stat.persisted? && stat.changed?
+				else
+					new_stat = Stat.new(attrs)
+					self.stats << new_stat   # persists now that event is persisted
+					e_stats << new_stat
+				end
 			end
 		end
-	end
 
-	# checks tasks_attributes parameter received and manage adding/removing
-	# from the task collection - ALLOWING DUPLICATES.
-	def check_tasks(t_array)
-		order = 1
-		t_array.each { |t| # manage associations
-			tsk = self.tasks.find_by_id(t[1][:id].to_i)
-			if t[1][:_destroy] == "1" # delete task
-				tsk.delete
-			else
-				tsk.rebuild(t[1])
-				tsk.order = order
-				@event_changed = tsk.save if tsk.changed?
-				order += 1
-			end
-		}
-	end
-
-	def set_changed_flag
-		@event_changed = false
-	end
-
-	# cleanup dependent teams, reassigning to 'dummy' category
-	def unlink
-		case self.kind.to_sym
-		when :rest
-			unless self.team_id # clean off copies
-				season = Season.search_date(self.start_date)
-				if season # we have a season for this event
-					club.teams.for_season(season.id).each { |team| # delete event from all teams
-						e_copy = Event.holidays.where(team_id: team.id, name: self.name, start_time: self.start_time).first
-						e_copy.delete if e_copy # delete linked event
-					}
+		# checks targets_attributes parameter received and manage adding/removing
+		# from the target collection - remove duplicates from list
+		def check_targets(t_array)
+			a_targets = Target.passed(t_array)
+			t_pri = { def: 1, off: 1 }
+			a_targets.each do |t| # second pass - manage associations
+				if t[:_destroy] == "1" # remove event_target
+					self.targets.delete(t[:target_attributes][:id].to_i)
+				elsif t[:target_attributes]
+					dt = EventTarget.fetch(t)
+					if dt.target&.offense?
+						priority = t_pri[:off]
+						t_pri[:off] += 1
+					elsif dt.target&.defense?
+						priority = t_pri[:def]
+						t_pri[:def] += 1
+					else
+						priority = 1
+					end
+					dt.update(priority:)
+					self.event_targets ? self.event_targets << dt : self.event_targets |= dt
 				end
 			end
-		when :train, :match
-			# DEPRECATED. Delete in v2.1
-			# self.players.delete_all
 		end
-		UserAction.prune("/events/#{self.id}")
-	end
 
-	def team_in_same_club
-		return if team.blank?
-		return if team.club_id == club_id
+		# checks tasks_attributes parameter received and manage adding/removing
+		# from the task collection - ALLOWING DUPLICATES.
+		def check_tasks(t_array)
+			order = 1
+			t_array.each { |t| # manage associations
+				tsk = self.tasks.find_by_id(t[1][:id].to_i)
+				if t[1][:_destroy] == "1" # delete task
+					tsk.delete
+				else
+					tsk.rebuild(t[1])
+					tsk.order = order
+					@event_changed = tsk.save if tsk.changed?
+					order += 1
+				end
+			}
+		end
 
-		errors.add(:team, :invalid)
-	end
+		def set_changed_flag
+			@event_changed = false
+		end
 
-	private
+		# cleanup dependent teams, reassigning to 'dummy' category
+		def unlink
+			case self.kind.to_sym
+			when :rest
+				unless self.team_id # clean off copies
+					season = Season.search_date(self.start_date)
+					if season # we have a season for this event
+						club.teams.for_season(season.id).each { |team| # delete event from all teams
+							e_copy = Event.holidays.where(team_id: team.id, name: self.name, start_time: self.start_time).first
+							e_copy.delete if e_copy # delete linked event
+						}
+					end
+				end
+			when :train, :match
+				# DEPRECATED. Delete in v2.1
+				# self.players.delete_all
+			end
+			UserAction.prune("/events/#{self.id}")
+		end
+
+		def team_in_same_club
+			return if team.blank?
+			return if team.club_id == club_id
+
+			errors.add(:team, :invalid)
+		end
 
 		# Split a form key. Returns [owner, period, concept].
 		def parse_stat_key(key)

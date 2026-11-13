@@ -283,7 +283,7 @@ class ApplicationController < ActionController::Base
 		return nil if (d_str = v_string&.last(10))&.length != 10
 		d_hash = Date._parse(d_str)
 		return nil if d_hash&.size !=3
-		v_date = Date.valid_date?(d_hash[:year].to_i, d_hash[:month].to_i, d_hash[:month].to_i)
+		v_date = Date.valid_date?(d_hash[:year].to_i, d_hash[:month].to_i, d_hash[:day].to_i)
 		v_date ? d_str : nil
 	end
 
