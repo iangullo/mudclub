@@ -48,7 +48,7 @@ class Catalog::EventKinds < Catalog::Base
 		},
 
 		competition: {
-			id: 20,
+			id: 30,
 			tracks_attendance: true
 		},
 

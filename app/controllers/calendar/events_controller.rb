@@ -23,7 +23,8 @@ class EventsController < ApplicationController
 	before_action :set_event, only: %i[ show edit add_task show_task edit_task athlete_stats edit_athlete_stats load_chart attendance copy update destroy ]
 	before_action :set_athlete, only: %i[ athlete_stats edit_athlete_stats ]
 
-	# GET /events or /events.json
+	# GET /events or
+	# GET /teams/1/events.ics or /clubs/1/events.ics - export to calendar apps
 	def index
 		get_event_context
 
@@ -32,25 +33,31 @@ class EventsController < ApplicationController
 		season     = @season || @team&.season
 		url        = events_path(season:, start_date:)
 		anchor     = { url: }
-		@title     = create_fields(helpers.event_index_title(team: @team, season:))
-		@calendar  = CalendarComponent.new(anchor:, obj: (@team || @club), start_date:, user: current_user, create_url: new_event_path)
-		zerolnk    = (@team ? club_team_path(@team.club, @team) : club_path(@club, season_id: season&.id))
-		@submit    = create_submit(close: :back, submit: nil, retlnk: back_link(default: zerolnk))
+		obj        = (@team || @club)
+		respond_to do |format|	# html first: it is the default for "Accept: */*"
+			format.html do
+				@title     = create_fields(helpers.event_index_title(team: @team, season:))
+				@calendar  = CalendarComponent.new(anchor:, obj:, start_date:, user: current_user, create_url: new_event_path)
+				zerolnk    = (@team ? club_team_path(@team.club, @team) : club_path(@club, season_id: season&.id))
+				@submit    = create_submit(close: :back, submit: nil, retlnk: back_link(default: zerolnk))
+			end
+
+			format.ics do
+				f_name   = "#{obj.to_s.parameterize}.ics"
+				calendar = EventCalendar.new(obj.events.includes(:team, :location), name: obj.to_s, host: request.base_url)
+				register_action(:exported, "#{I18n.t("calendar.export")} '#{f_name}'")
+				send_data calendar.to_ics, filename: f_name, type: "text/calendar; charset=utf-8"
+			end
+		end
 	end
 
-	# GET /events/1 or /events/1.json
+	# GET /events/1 or /events/1.json; /events/1.pdf to export as pdf - flunky
+	# GET /events/1.ics - add a single event to calendar apps
 	def show
 		@policy = check_policy!(EventPolicy, record: @event)
 
 		respond_to do |format|
 			title = helpers.event_header(cols: @event.kind_training? ? 3 : nil)
-			format.pdf do
-				if @policy.export?
-					response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
-					pdf = event_to_pdf(title)
-					send_data pdf.render(filename: "#{@event}.pdf", type: "application/pdf")
-				end
-			end
 			format.html do
 				set_athlete
 				@title = create_fields(title)
@@ -75,6 +82,20 @@ class EventsController < ApplicationController
 						@fields  = create_fields(helpers.training_show)
 					end
 					@submit = create_submit(close: :back, retlnk: back_link(default: anchor_lnk), submit:)
+				end
+			end
+
+			format.ics do
+				f_name   = "#{@event.team.to_s.parameterize}-#{@event.start_date}.ics"
+				calendar = EventCalendar.new([ @event ], name: @event.team.to_s, host: request.base_url)
+				send_data calendar.to_ics, filename: f_name, type: "text/calendar; charset=utf-8"
+			end
+
+			format.pdf do
+				if @policy.export?
+					response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
+					pdf = event_to_pdf(title)
+					send_data pdf.render(filename: "#{@event}.pdf", type: "application/pdf")
 				end
 			end
 		end
@@ -371,7 +392,7 @@ class EventsController < ApplicationController
 		# establish redirection & notice for based on update kind
 		def cru_return(e_data)
 			if e_data[:task].present?
-				@notice  = I18n.t("training.task.messages.updated")
+				@notice  = Task.msg(:updated)
 				@retview = :edit
 				@retlnk  = edit_event_path
 			elsif params[:event].present?
@@ -387,7 +408,7 @@ class EventsController < ApplicationController
 				elsif	e_data[:athlete_assignment_ids].present?	# assignments to participate
 					@notice = I18n.t("#{@event.kind}.att_check")
 				elsif params[:event][:stats_attributes].present? || params[:outings].present?	# updated stats/outings
-					@notice = I18n.t("training.stat.messages.updated")
+					@notice = Stat.msg(:updated)
 				else
 					@notice = I18n.t("status.no_data")
 				end
@@ -565,31 +586,10 @@ class EventsController < ApplicationController
 		# Only allow a list of trusted parameters through.
 		def event_params
 			params.require(:event).permit(
-					:id,
-					:cal,
-					:club_id,
-					:copy,
-					:drill_id,
-					:duration,
-					:end_time,
-					:name,
-					:kind,
-					:home,
-					:homecourt_id,
-					:hour,
-					:kind_id,
-					:location_id,
-					:min,
-					:p_for,
-					:p_opp,
-					:athlete_id,
-					:rdx,
-					:start_date,
-					:start_time,
-					:skill_id,
-					:task_id,
-					:team_id,
-					:season_id,
+					:id, :cal, :club_id, :copy, :drill_id, :duration, :end_time, :name,
+					:kind, :home, :homecourt_id, :hour, :kind_id, :location_id, :min,
+					:p_for, :p_opp, :athlete_id, :rdx,
+					:start_date, :start_time, :skill_id, :task_id, :team_id, :season_id,
 					outings: {},
 					event_targets_attributes: [ :id, :priority, :event_id, :target_id, :_destroy, target_attributes: [ :id, :focus, :aspect, :concept ] ],
 					athlete_assignment_ids: [],

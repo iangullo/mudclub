@@ -113,6 +113,8 @@ class Catalog::Entry
 	# Helpers
 	# --------------------------------------------------------------------------
 	#
+	def to_sym = key
+	def to_s   = key
 
 	def alias?
 		include?(:alias_of)

@@ -70,7 +70,6 @@ class Event < ApplicationRecord
 
 	scope :chronological, -> { order(:start_time) }
 	scope :between, ->(from, to) { where(start_time: from..to) }
-	scope :of_kind, ->(kind) { filter_by_id(:kind_id, kind) }
 	scope :for_club, ->(club) { filter_by_id(:club_id, club).chronological }
 	scope :for_team, ->(team) { filter_by_id(:team_id, team).chronological }
 	scope :for_season, ->(season) { between(season.start_date, season.end_date) }

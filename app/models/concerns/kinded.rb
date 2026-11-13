@@ -38,41 +38,50 @@ module Kinded
 
 		catalog_klass   = const_get(:KIND_CATALOG)
 		raw_catalog     = catalog_klass.const_get(:CATALOG)
-		enum_definition = raw_catalog.each_with_object({}) do |(key, metadata), hash|
-			enum_key = key.to_s.underscore.to_sym
 
-			if metadata[:alias_of]
-				root_key      = metadata[:alias_of].to_sym
-				root_metadata = raw_catalog[root_key]
-				target_id     = root_metadata[:id] if root_metadata
-			else
-				target_id = metadata[:id]
-			end
+		canonical = {}
+		aliases   = {}
+		raw_catalog.each do |key, metadata|
+			enum_key  = key.to_s.underscore.to_sym
+			target_id = metadata[:alias_of] ? raw_catalog.dig(metadata[:alias_of], :id) : metadata[:id]
+			next unless target_id
 
-			hash[enum_key] = target_id if target_id
+			(metadata[:alias_of] ? aliases : canonical)[enum_key] = target_id
 		end
 
-		enum :kind, enum_definition, prefix: true
+		enum :kind, canonical.merge(aliases), prefix: true
 
 		scope :of_kind, ->(kind) {
 			return all if kind.blank?
-			where(kind: Array(kind).map(&:to_sym))
+			keys = Array(kind).map { |k| kind_catalog.resolve(k.to_sym).key }.uniq
+			where(kind: keys)
 		}
 	end
 
 	class_methods do
 		def kind_catalog					= const_get(:KIND_CATALOG)
-		def kind_label(kind, ...) = kind_catalog.val(kind&.to_sym, ...)
 		def kind_list(...)        = kind_catalog.option_list(...)
 		def kind_options(...)     = kind_catalog.options(...)
-		def kind_image(kind, default: :missing, **rest) = { symbol: kind_catalog.normalize(kind&.to_sym, **rest) || default }
+
+		def kind_image(kind, default: :missing, **rest)
+			key    = kind_catalog.normalize(kind)
+			symbol = (key && kind_catalog.include?(key)) ? key : default
+			{ symbol: }
+		end
+
+		def kind_label(kind, ...)
+			return if kind.blank?
+			kind_catalog.val(kind_catalog.resolve(kind&.to_sym).key, ...)
+		end
 	end
 
 	# Override in host models (directly or via a concern like PersonBearing) to derive
 	# the default gender for this instance's labels. Return :female, :male, or nil.
 	# nil → catalog falls back to its :default label.
+	def kind
+		self.class.kind_catalog.resolve(super&.to_sym)&.key
+	end
 	def kind_gender     = nil
-
 	def kind_catalog		= self.class.kind_catalog
 	def kind_label(...) = self.class.kind_label(kind, ...)
 	def kind_list(...)	= self.class.kind_list(...)
