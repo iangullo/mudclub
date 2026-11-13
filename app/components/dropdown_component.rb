@@ -80,6 +80,7 @@ class DropdownComponent < ApplicationComponent
 	#-------------------------------------
 
 	def initialize(button)
+		@input  = button.deep_dup
 		@button = parse(button)
 		hashify_options(@button[:options]) if @button[:options]
 		apply_symbol_defaults

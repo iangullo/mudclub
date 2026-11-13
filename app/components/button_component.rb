@@ -82,7 +82,8 @@ class ButtonComponent < ApplicationComponent
 
 	def initialize(**attrs)
 		validate(attrs)
-		@button = attrs
+		@input  = attrs
+		@button = attrs.deep_dup
 		parse_button
 	end
 

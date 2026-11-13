@@ -23,10 +23,12 @@ class ApplicationComponent < ViewComponent::Base
 	include Turbo::FramesHelper
 
 	def initialize(tag: nil, classes: nil, **options)
-		@tag = tag
+		@tag     = tag
 		@classes = classes
 		@options = options
 	end
+
+	def to_h = @input&.deep_dup || {}
 
 	private
 		# True if the attachment has a blob whose backing file exists in the

@@ -51,9 +51,10 @@ class InputBoxComponent < ApplicationComponent
 
 	def initialize(field, form: nil, session: nil)
 		@i_class = DEF_INPUT_CLASS.dup
+		@input   = field.deep_dup
 		@form    = form	# set form, if passed
 		@session = session
-		@fdata   = field
+		@fdata   = field.deep_dup
 		sanitize_image! if @fdata[:kind] == :image_box
 		@fdata[:align] ||= "left"
 		@fdata[:class] ||= "align-top"

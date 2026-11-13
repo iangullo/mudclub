@@ -65,6 +65,7 @@
 # => :upload: :label, :key (form binding for content), :value (file already assigned)
 class FieldsComponent < ApplicationComponent
 	def initialize(fields, form: nil, classes: [])
+		@input   = fields
 		@classes = classes
 		@form    = form
 		@fields  = parse(fields)

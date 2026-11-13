@@ -72,7 +72,8 @@ class FieldItemComponent < ApplicationComponent
 	ROW_SPAN_RANGE = (1..6).freeze
 
 	def initialize(item, form: nil)
-		@item = parse_field(item)
+		@input = item
+		@item  = parse_field(item.deep_dup)
 		@form  = form
 	end
 

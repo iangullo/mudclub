@@ -20,7 +20,10 @@
 
 # SubmitComponent - ViewComponent to standardise form submissions/cancellations
 class SubmitComponent < ApplicationComponent
+	attr_reader :close, :submit, :actions
+
 	def initialize(close: :close, submit: nil, actions: [], retlnk: nil, frame: nil)
+		@input   = { close:, submit:, actions:, retlnk:, frame: }
 		@close   = build_close(close, submit, retlnk, frame)
 		@submit  = build_submit(submit, frame)
 		@actions = Array(actions).map { |cfg| ButtonComponent.new(**cfg) }

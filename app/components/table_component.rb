@@ -33,13 +33,14 @@ class TableComponent < ApplicationComponent
 	attr_writer :form
 
 	def initialize(table, form: nil, align: "center")
-		@data       = (table[:data] || {}).dup
-		@controller = table[:controller]
-		@data.merge!(action: "change->#{@controller}#update") if @controller
+		@input  = table.deep_dup
+		@data   = (table[:data] || {}).dup
 		@align  = align || "center"
 		@form   = form
-		@title  = parse_title(table[:title])
-		@rows   = parse_rows(table[:rows])
+		@controller = table[:controller]
+		@data.merge!(action: "change->#{@controller}#update") if @controller
+		@title = parse_title(table[:title])
+		@rows  = parse_rows(table[:rows])
 		if table[:track]
 			@s_url  = table[:track][:s_url]
 			@s_filt = table[:track][:s_filter]

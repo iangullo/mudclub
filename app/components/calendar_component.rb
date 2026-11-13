@@ -38,6 +38,7 @@ class CalendarComponent < ApplicationComponent
 	def initialize(anchor: nil, obj: nil, start_date:, user: nil, create_url: nil, events: nil)
 		@oscope_cls = "bg-gray-500 text-gray-100 text-center"
 		@iscope_cls = "bg-gray-100 text-gray-500 text-center"
+		@input      = { obj:, start_date:, user: }
 		@anchor     = anchor[:url].presence || request.path
 		@rdx        = anchor[:rdx].presence
 		@events     = events || obj&.events
