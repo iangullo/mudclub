@@ -142,8 +142,8 @@ class Sport < ApplicationRecord
 	# so callers that still use it keep working through the deprecation window.
 	# ---------------------------------------------------------------------------
 	def update_stat(event_id:, concept:, value:, period: 0, kind: :athlete, athlete_id: nil, **legacy)
-		if (pid = legacy[:player_id])
-			kind, athlete_id = Stat.translate_player_id(pid.to_i, event_id, kind, athlete_id)
+		if legacy.key?(:player_id)
+			kind, athlete_id = Stat.translate_player_id(legacy[:player_id].to_i, event_id, kind, athlete_id)
 		end
 
 		cid = concept_id(concept)
@@ -289,7 +289,13 @@ class Sport < ApplicationRecord
 		catalog(:periods).each do |period|
 			read_period_score(period:, stats:, score:, total:)
 		end
-
+		Rails.logger.debug {
+			"match_score(#{event_id}): scoring=#{scoring.inspect} " \
+			"enum=#{statistics.enum.inspect} " \
+			"scoring_concept=#{statistics.enum[scoring[:points]].inspect} " \
+			"stats_found=#{stats.size} kinds=#{stats.map(&:kind).uniq.inspect} " \
+			"concepts=#{stats.map(&:concept).uniq.inspect}"
+		}
 		score[:tot] ||= total
 		score
 	end

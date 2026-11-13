@@ -14,8 +14,26 @@ class CatalogEntryTest < ActiveSupport::TestCase
 		assert_equal false, entry.terminal?
 	end
 
-	def test_unknown_predicate_raises_no_method_error
-		assert_raises(NoMethodError) { entry.nonexistent? }
+	def test_unknown_predicate_returns_nil
+		entry = Catalog::Entry.new(
+			catalog:    Object.new,
+			key:        :whatever,
+			attributes: { name: "Whatever" }   # no :unknown_predicate key
+		)
+
+		assert_nil entry.unknown_predicate?
+		refute entry.respond_to?(:unknown_predicate)
+	end
+
+	def test_unknown_reader_returns_nil
+		entry = Catalog::Entry.new(
+			catalog:    Object.new,
+			key:        :whatever,
+			attributes: { name: "Whatever" }
+		)
+
+		assert_nil entry.unknown_reader
+		refute entry.respond_to?(:unknown_reader)
 	end
 
 	def test_entries_are_comparable_by_id

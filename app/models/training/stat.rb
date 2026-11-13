@@ -77,9 +77,9 @@ class Stat < ApplicationRecord
 		#
 		# Returns an Array (matches historical contract).
 		def fetch(event_id: nil, period: nil, kind: nil, athlete_id: nil, concept: nil, stats: nil, create: true, **legacy)
-			if (player_id = legacy[:player_id])
+			if legacy.key?(:player_id)
 				Deprecated.warn!(:Stat, :fetch)
-				kind, athlete_id = translate_player_id(player_id, event_id, kind, athlete_id)
+				kind, athlete_id = translate_player_id(legacy[:player_id], event_id, kind, athlete_id)
 			end
 
 			results =
@@ -194,11 +194,11 @@ class Stat < ApplicationRecord
 
 			# stats were pre-fetched, just filtering through them
 			def filter_in_memory(stats, event_id: nil, period: nil, kind: nil, athlete_id: nil, concept: nil)
-				stats = stats.select { |s| s.event_id == event_id }           if event_id
-				stats = stats.select { |s| s.kind == kind.to_s }              if kind
-				stats = stats.select { |s| s.athlete_id == athlete_id } if athlete_id
-				stats = stats.select { |s| s.period == period } unless period.nil?
-				stats = stats.select { |s| s.concept == concept }             if concept
+				stats = stats.select { |s| s.event_id.to_i   == event_id.to_i }   if event_id.present?
+				stats = stats.select { |s| s.kind.to_s       == kind.to_s }       if kind.present?
+				stats = stats.select { |s| s.athlete_id.to_s == athlete_id.to_s } if athlete_id.present?
+				stats = stats.select { |s| s.period.to_i     == period.to_i }     unless period.nil?
+				stats = stats.select { |s| s.concept.to_i    == concept.to_i }    if concept.present?
 				stats
 			end
 	end

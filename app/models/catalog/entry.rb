@@ -73,6 +73,9 @@ class Catalog::Entry
 		@metadata[name.to_sym]
 	end
 
+	# Unknown attributes (readers and predicates) resolve to nil — missing
+	# metadata is not an error for this value object. Use `key?/include?` or
+	# `respond_to?` when the caller needs to distinguish "absent" from "nil".
 	def method_missing(name, *)
 		if name.end_with?("?")
 			attr = name.to_s.delete_suffix("?").to_sym
