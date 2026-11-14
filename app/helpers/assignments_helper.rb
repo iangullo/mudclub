@@ -82,14 +82,22 @@ module AssignmentsHelper
 		m_kind  = (@member ? @member.kind : assignment.membership.kind)&.to_sym
 		m_scope = @team ? :team : :club
 		options = assignment.kind_options(scope: m_scope, membership: m_kind, selectable: true)
-		[
-			[
-				gap_item(6),
-				label_item(Assignment.fld(:kind, :short)),
-				gap_item(1),
-				{ kind: :select_collection, key: :kind, options:, value: assignment.kind&.to_sym }
+		kind_fs = []
+		if m_kind == :athlete
+			kind_fs << [
+				label_item(Assignment.fld(:number, :short), class: "m-1"),
+				{ kind: :number_box, key: :number, value: assignment.number, size: 1, class: "p-1" },
+				hidden_input(:kind, :athlete)
 			]
-		]
+		else
+			kind_fs << [
+				gap_item(6),
+				label_item(Assignment.fld(:kind, :short), class: "m-1", align: :right),
+				gap_item(1),
+				{ kind: :select_collection, key: :kind, options:, value: assignment.kind&.to_sym, class: "p-1" }
+			]
+		end
+		kind_fs
 	end
 
 	def edit_assignment_path(assignment = @assignment, status: false)
