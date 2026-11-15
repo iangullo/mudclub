@@ -78,7 +78,7 @@ module DocumentsHelper
 			if @document.file_type == :img
 				field = { kind: :image, cols: 3 }
 			else
-				field = { kind: :pdf, height: "50vh", width: "80vw", cols: 3 }
+				field = { kind: :pdf, height: "70vh", width: "80vw", cols: 3 }
 			end
 			field[:value] = @document.file.attachment
 			field[:cols]  = 3
