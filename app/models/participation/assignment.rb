@@ -65,6 +65,19 @@ class Assignment < ApplicationRecord
 	# Scopes
 	#-------------------------------------
 	scope :active, -> { where(ends_on: nil) }
+
+	# Sort by associated person's age, oldest first.
+	# (Assignment → membership → person)
+	scope :by_age, -> {
+		joins(membership: :person).reorder(
+			people: { birthday: :asc, surname: :asc, name: :asc }
+		)
+	}
+
+	scope :by_kind, -> {
+		reorder(kind: :asc)
+	}
+
 	scope :on_date, ->(date = Date.current) {
 		where("starts_on <= ?", date)
 			.where("ends_on IS NULL OR ends_on >= ?", date)

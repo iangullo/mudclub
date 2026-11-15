@@ -77,6 +77,18 @@ class Membership < ApplicationRecord
 	# Scopes
 	# -------------------------------------------------------------------------
 	scope :active,  -> { where(status: :active) }
+
+	# Sort by associated person's age, oldest first.
+	scope :by_age, -> {
+		joins(:person).reorder(
+			people: { birthday: :asc, surname: :asc, name: :asc }
+		)
+	}
+
+	scope :by_kind, -> {
+		reorder(kind: :asc)
+	}
+
 	scope :on_date, ->(date = Date.current) {
 		where("joined_on <= ?", date)
 			.where("left_on IS NULL OR left_on >= ?", date)

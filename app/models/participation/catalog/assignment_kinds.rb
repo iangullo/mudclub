@@ -133,14 +133,6 @@ class Catalog::AssignmentKinds < Catalog::Base
 		#
 		# Board
 		#
-		board_member: {
-			id: 40,
-			membership: :board_member,
-			scope: :club,
-			selectable: true,
-			description: "Regular member of the board."
-		},
-
 		president: {
 			id: 41,
 			membership: :board_member,
@@ -179,6 +171,14 @@ class Catalog::AssignmentKinds < Catalog::Base
 			selectable: true,
 			scope: :club,
 			description: "Club operational manager."
+		},
+
+		board_member: {
+			id: 50,
+			membership: :board_member,
+			scope: :club,
+			selectable: true,
+			description: "Regular member of the board."
 		}
 
 	}.freeze

@@ -20,7 +20,7 @@
 module MembershipsHelper
 	# return title for @people TableComponent
 	def memberships_table(members:)
-		participation_table(members.reorder(:joined_on), kind: @kind)
+		participation_table(members, kind: @kind)
 	end
 
 	def membership_details_fields(member)

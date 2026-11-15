@@ -178,13 +178,10 @@ module ParticipationHelper
 		# p_class should be Membership or Assignment - maybe Registration in future
 		def participation_table_header(p_class, o_class, kind)
 			header = kind ? [] : [ { kind: :normal, value: p_class.fld(:kind, :short) } ]
-			if kind == :board_member
-				header << { kind: :normal, value: Assignment.fld(:role) }
-			elsif kind == :athlete
-				header << { kind: :normal, value: Assignment.fld(:number, :short) }
-			end
-			header << { kind: :normal, value: Person.fld(:name) }
+			header << { kind: :normal, value: Assignment.fld(:role) } if kind == :board_member
+			header << { kind: :normal, value: Person.fld(:name), cols: 2 }
 			header << { kind: :normal, value: Person.fld(:age) } if [ :athlete, :coach ].include?(@kind)
+			header << { kind: :normal, value: Assignment.fld(:number, :short) } if kind == :athlete
 			header << { kind: :normal, value: p_class.fld(:status) }
 			header << normal_button({ kind: :add, url: new_path_for(@club, o_class, kind: @kind, staff: @staff), frame: :modal }) if @policy.new?
 			header
@@ -197,16 +194,16 @@ module ParticipationHelper
 					m_obj = (o_class == :member ? object : object&.membership)
 					a_obj = (o_class == :assignment ? object : object&.assignments&.last)
 					row   = { url: path_for(object, rdx: 3, search: @search), items: [], frame: }
+					row[:items] << { kind: :normal, value: a_obj&.kind_label(m_obj.kind_gender) } if kind == :board_member
+					row[:items] << icon_item(object.avatar, align: :center)
+					row[:items] << { kind: :normal, value: object.s_name }
+					row[:items] << { kind: :normal, value: object.age, align: :center } if [ :athlete, :coach ].include?(m_obj.kind.to_sym)
 					case kind
 					when :athlete
-						row[:items] << { kind: :normal, value: a_obj&.number }
-					when :board_member
-						row[:items] << { kind: :normal, value: a_obj&.kind_label(m_obj.kind_gender) }
+						row[:items] << { kind: :normal, value: a_obj&.number, align: :right }
 					when nil
 						row[:items] << participation_kind_field(object, class: "border px-1 py-1")
 					end
-					row[:items] << { kind: :normal, value: object.s_name }
-					row[:items] << { kind: :normal, value: object.age, align: :center } if [ :athlete, :coach ].include?(m_obj.kind.to_sym)
 					row[:items] << participation_status_field(object, f_opts: { align: :center, class: "border px-1 py-1" })
 					rows << row
 				}

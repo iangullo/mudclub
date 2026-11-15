@@ -27,8 +27,11 @@ class AssignmentsController < ApplicationController
 	def index
 		@policy = check_policy!(AssignmentPolicy, kind: @kind, club: @club, team: @team)
 
-		@assignments =
-			Assignment.search(**search_options).order(kind: :asc, starts_on: :asc)
+		assignments = Assignment.search(**search_options)
+
+		@assignments = %i[board_member staff].include?(@kind) ?
+			assignments.by_kind :
+			assignments.by_age
 
 		title  = prepare_index_title
 		page   = paginate(@assignments, 1.7)	# paginate results

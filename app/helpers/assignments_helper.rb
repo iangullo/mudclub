@@ -35,7 +35,7 @@ module AssignmentsHelper
 
 	# return Assignments table
 	def assignments_table(assignments = @assignments)
-		participation_table(assignments.reorder(:starts_on), kind: @kind)
+		participation_table(assignments, kind: @kind)
 	end
 
 	def assignment_show_fields(assignment = @assignment)
