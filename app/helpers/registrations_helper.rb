@@ -81,12 +81,13 @@ module RegistrationsHelper
 	# for edit/create forms
 	def registration_form_fields(registration = @registration, action: :edit)
 		fields = []
+		club   = @team&.club || @club
 		fields << [
 			# TODO: SPAN OF FIRST FIELD IS WIDER THAN INTENDED FOR SOME UNKNOWN REASON
 			symbol_item(:team, { title: Team.label }, align: :right),
-			{ kind: :select_box, key: :requested_team_id, options: @team.club.open_team_list, value: @team.id },
+			{ kind: :select_box, key: :requested_team_id, options: club&.open_team_list, value: @team&.id },
 			hidden_input(:kind, registration.kind || @kind)
-		] if @team
+		]
 
 		fields.last << hidden_input(:token, @token) if @token
 
@@ -202,16 +203,22 @@ module RegistrationsHelper
 
 	private
 		def registrations_table_header
-			title = @clubs ?
-				[ { kind: :normal, value: Club.label, align: :center } ]:
-				[]
+			header = []
+			header << { kind: :normal, value: Club.label, align: :center } if @clubs
 
-			title += [
+			header += [
 				{ kind: :normal, value: Team.label },
 				{ kind: :normal, value: Registration.fld(:kind) },
 				{ kind: :normal, value: Person.fld(:name) },
 				{ kind: :normal, value: Registration.fld(:status) }
 			]
+
+			if @policy.new?
+				url = new_path_for(@team || @club, :registration, kind: :athlete)
+				header << normal_button({ kind: :add, url:, frame: :modal })
+			end
+
+			header
 		end
 
 		def registrations_table_rows(registrations)

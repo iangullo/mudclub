@@ -67,7 +67,7 @@ class RegistrationsController < ApplicationController
 
 	# GET /registrations/new
 	def new
-		@policy = check_policy!(RegistrationPolicy, club: @club)
+		@policy = check_policy!(RegistrationPolicy, club: @club, team: @team)
 
 		@registration = Registration.new(club: @club, requested_team_id: @team&.id, kind: @kind)
 		prepare_form(:create)
@@ -76,7 +76,7 @@ class RegistrationsController < ApplicationController
 	# POST /registrations
 	# POST /registrations.json
 	def create
-		@policy = check_policy!(RegistrationPolicy, club: @club)
+		@policy = check_policy!(RegistrationPolicy, club: @club, team: @team)
 
 		respond_to do |format|
 			Registration.transaction do

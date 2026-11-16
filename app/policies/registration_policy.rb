@@ -18,6 +18,15 @@
 #
 # app/policies/registration_policy.rb
 class RegistrationPolicy < ApplicationPolicy
+	def initialize(actor, record: nil, kind: nil, team: nil, club: nil, token: nil)
+		computed_team = record&.team || team
+
+		super(actor, record:, club: computed_team&.club || record&.club || club, token:)
+
+		@target_kind   = @record&.kind || kind
+		@target_team   = computed_team
+	end
+
 	#------------------------------------
 	# Registrations index - only managers
 	#------------------------------------
@@ -33,8 +42,8 @@ class RegistrationPolicy < ApplicationPolicy
 	#------------------------------------
 
 	def show?    = requester_can_view? || registration_manager?
-	def new?     = Server.registrations_enabled?
-	def create?  = Server.registrations_enabled?
+	def new?     = accepts_registrations?
+	def create?  = new?
 	def edit?    = requester_can_edit? || registration_manager?
 	def update?  = edit?
 
@@ -76,6 +85,10 @@ class RegistrationPolicy < ApplicationPolicy
 	end
 
 	private
+		def accepts_registrations?
+			return @target_team.accepts_registrations? if @target_team
+			target_club&.accepts_registrations?
+		end
 
 		# submitted_by:id only set if a @user created the registration
 		def requester_is_actor?
