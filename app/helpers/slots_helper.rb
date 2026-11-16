@@ -31,7 +31,7 @@ module SlotsHelper
 
 	# return icon and top of definition
 	def slot_title(title:, subtitle: nil)
-		icon = symbol_hash("timetable")
+		icon = symbol_hash(:timetable)
 		res  = title_start(icon:, title:, subtitle:)
 		res
 	end
@@ -40,20 +40,20 @@ module SlotsHelper
 	def slot_form(title:)
 		res = slot_title(title:, subtitle: @season&.name)
 		res << [
-			symbol_item("team"),
+			symbol_item(:team),
 			{ kind: :select_collection, key: :team_id, options: @club.teams.where(season_id: @season.id), value: @slot.team_id, cols: 2 }
 		]
 		res << [
-			symbol_item("location"),
+			symbol_item(:location),
 			{ kind: :select_collection, key: :location_id, options: @locations, value: @slot.location_id, cols: 2 }
 		]
 		res << [
-			symbol_item("calendar"),
+			symbol_item(:calendar),
 			{ kind: :select_box, key: :wday, value: @slot.wday, options: weekdays },
 			{ kind: :time_box, hour: @slot.hour, mins: @slot.min, mandatory: true }
 		]
 		res << [
-			symbol_item("clock"),
+			symbol_item(:clock),
 			{ kind: :number_box, key: :duration, min: 60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins"), mandatory: { min: 60 } }
 		]
 		res.last << hidden_input(:season_id, @season.id)
@@ -80,12 +80,12 @@ module SlotsHelper
 	# fields for individual slot views
 	def slot_show
 		res = [
-			[ symbol_item("category", { namespace: "sport" }), string_item(@slot.team.category.name, cols: 2) ],
-			[ symbol_item("division", { namespace: "sport" }), string_item(@slot.team.division.name, cols: 2) ],
-			[ symbol_item("location"), string_item(@slot.court, cols: 2) ],
-			[ symbol_item("calendar"), string_item(@slot.to_s, cols: 2) ]
+			[ symbol_item(:category, { namespace: "sport" }), string_item(@slot.team.category.name, cols: 2) ],
+			[ symbol_item(:division, { namespace: "sport" }), string_item(@slot.team.division.name, cols: 2) ],
+			[ symbol_item(:location), string_item(@slot.court, cols: 2) ],
+			[ symbol_item(:calendar), string_item(@slot.to_s, cols: 2) ]
 		]
-		res << [ gap_item(cols: 2), normal_button({ kind: :delete, url: path_for(@slot), name: @slot.to_s }, align: "right") ] if @policy.destroy?
+		res << [ gap_item(cols: 2), normal_button({ kind: :delete, url: path_for(@slot), name: @slot.to_s }, align: :right) ] if @policy.destroy?
 		res
 	end
 

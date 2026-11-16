@@ -25,6 +25,7 @@ class Basketball < Sport
 	# --------------------------------------------------------------------------
 	CATALOGS = {
 		court_modes: Catalog::Basketball::CourtModes,
+		# drill_categories:  Catalog::Basketball::DrillCategories,
 		objects: Catalog::Basketball::Objects,
 		periods: Catalog::Basketball::Periods,
 		rules: Catalog::Basketball::Rules,
