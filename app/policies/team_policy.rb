@@ -54,7 +54,6 @@ class TeamPolicy < ApplicationPolicy
 	#------------------------------------
 	def roster?
 		return false unless @record
-		return false if @record.season.end_date < Date.today
 
 		allowed?(
 			team_member? ||
@@ -137,7 +136,11 @@ class TeamPolicy < ApplicationPolicy
 	#------------------------------------
 	# Team management
 	#------------------------------------
-	def edit_roster? = allowed?(manages_roster?)
+	def edit_roster?
+		return false unless roster?
+		return false if @record.season.end_date < Date.today
+		allowed?(manages_roster?)
+	end
 
 	def view_details?
 		allowed?(coaches_team?(@record) || manages_club?(@record&.club) || board_member?(@record&.club))

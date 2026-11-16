@@ -140,7 +140,7 @@ module TeamsHelper
 				trow = { url: "#", items: [ gap_item(cols: 2), { kind: :bottom, value: I18n.t("shared.stats.total") } ] }
 				tcnt = []	# total athletes
 			end
-			title << normal_button({ kind: :add, url: new_path_for(@club, :team, season_id: @season.id), frame: :modal }) if !@user && @club && @policy.create?
+			title << normal_button({ kind: :add, url: new_path_for(@club, :team, season_id: @season.id), frame: :modal }) if @policy.create?
 
 			rows = Array.new
 			teams.each { |team|
@@ -263,12 +263,12 @@ module TeamsHelper
 		res = [ [
 			gap_item,
 			symbol_item(:timetable, { size: "30x30" }),
-			{ kind: :side_cell, value: Slot.label(:plural), align: "left" }
+			{ kind: :side_cell, value: Slot.label(:plural), align: :left }
 		] ]
 		@team.slots.order(:wday).each do |slot|
 			res << [ gap_item(1), gap_item(1), string_item(slot.to_s) ]
 		end
-		res << [ gap_item(1), { kind: :icon_label, symbol: "location", label: @team.slots.first.court, cols: 2 } ]
+		res << [ gap_item(1), { kind: :icon_label, symbol: :location, label: @team.slots.first.court, cols: 2 } ]
 	end
 
 	# return FieldComponent for team view title
