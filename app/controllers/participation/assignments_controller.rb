@@ -80,40 +80,50 @@ class AssignmentsController < ApplicationController
 	# TODO: Work on this - it will be quite different...
 	def create
 		@policy = check_policy!(AssignmentPolicy, club: @club, team: @team, kind: @kind)
+		retlnk  = helpers.assignment_return_path   # defined for every branch
 
 		respond_to do |format|
 			@assignment = Assignment.new(team: @team, kind: @kind)
 			membership  = @member || prepared_membership
-			if membership
-				Assignment.transaction do
-					@assignment.membership = membership
-					result = rebuild_or_merge_person(@assignment, assignment_params)
-					retlnk = helpers.assignment_return_path
-					case result[:status]
-					when :ok
-						@assignment.starts_on ||= Date.current
-						if @assignment.save
-							format.html         { redirect_to retlnk, notice: }
-							format.turbo_stream { redirect_to retlnk, notice:, status: :see_other }
-							format.json         { render :roster, status: :ok, location: retlnk }
-						else
-							log_assignment_errors
-							raise ActiveRecord::Rollback
-						end
-					when :offer_merge
-						handle_object_merge(format, @assignment, result[:candidates], assignment_params)
-					else	# invalid data
-						render_member_errors(:create, result)
-					end
-					unless @assignment.persisted? && @assignment.errors.empty?
-						render_assignment_errors(:create, format, result)
-					end
-				end
-			else
+
+			unless membership
 				notice = Assignment.msg(:no_member)
 				format.html         { redirect_to retlnk, notice: }
 				format.turbo_stream { redirect_to retlnk, notice:, status: :see_other }
 				format.json         { render :roster, status: :ok, location: retlnk }
+				next
+			end
+
+			@assignment.membership = membership
+			result = rebuild_or_merge_person(@assignment, assignment_params)
+
+			case result[:status]
+			when :ok
+				@assignment.starts_on ||= Date.current
+				saved = false
+				Assignment.transaction do
+					if @assignment.save
+						saved = true
+					else
+						log_assignment_errors
+						raise ActiveRecord::Rollback
+					end
+				end
+
+				if saved
+					notice = Assignment.msg(:created)
+					format.html         { redirect_to retlnk, notice: }
+					format.turbo_stream { redirect_to retlnk, notice:, status: :see_other }
+					format.json         { render :roster, status: :ok, location: retlnk }
+				else
+					render_assignment_errors(:new, format, result)
+				end
+
+			when :offer_merge
+				handle_object_merge(format, @assignment, result[:candidates], assignment_params)
+
+			else
+				render_assignment_errors(:new, format, result)
 			end
 		end
 	end
@@ -146,19 +156,24 @@ class AssignmentsController < ApplicationController
 			else
 				result = rebuild_or_merge_person(@assignment, assignment_params)
 				case result[:status]
-				when :ok	# just store
+				when :ok
+					modified = @assignment.modified?          # check BEFORE save
+					saved = false
 					Assignment.transaction do
-						notice = Assignment.msg(@assignment.modified? ? :updated : :no_change)
 						if @assignment.save
-							format.html         { redirect_to retlnk, notice: }
-							format.turbo_stream { redirect_to retlnk, notice: }
-							format.json         { render :show, status: :ok, location: retlnk }
+							saved = true
 						else
 							log_assignment_errors
 							raise ActiveRecord::Rollback
 						end
 					end
-					unless @assignment.persisted? && @assignment.errors.empty?
+
+					if saved
+						notice = Assignment.msg(modified ? :updated : :no_change)
+						format.html         { redirect_to retlnk, notice: }
+						format.turbo_stream { redirect_to retlnk, notice: }
+						format.json         { render :show, status: :ok, location: retlnk }
+					else
 						render_assignment_errors(:edit, format, result)
 					end
 				when :offer_merge
