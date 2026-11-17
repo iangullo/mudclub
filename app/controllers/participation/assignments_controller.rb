@@ -97,7 +97,7 @@ class AssignmentsController < ApplicationController
 								redirect_to retlnk, notice: Assignment.msg(:created)
 							end
 
-							format.json { render :show, status: :ok, location: retlnk }
+							format.json { render :roster, status: :ok, location: retlnk }
 						else
 							log_assignment_errors
 							raise ActiveRecord::Rollback
@@ -112,7 +112,8 @@ class AssignmentsController < ApplicationController
 					end
 				end
 			else
-				redirect_to retlnk, notice: Assignment.msg(:no_member)
+				format.html { redirect_to retlnk, notice: Assignment.msg(:no_member) }
+				format.json { render :roster, status: :ok, location: retlnk }
 			end
 		end
 	end
