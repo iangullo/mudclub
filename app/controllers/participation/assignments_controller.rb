@@ -107,11 +107,12 @@ class AssignmentsController < ApplicationController
 					else	# invalid data
 						render_member_errors(:create, result)
 					end
+					unless @assignment.persisted? && @assignment.errors.empty?
+						render_assignment_errors(:create, format, result)
+					end
 				end
-			end
-
-			unless @assignment.persisted? && @assignment.errors.empty?
-				render_assignment_errors(:create, format, result)
+			else
+				redirect_to retlnk, notice: Assignment.msg(:no_member)
 			end
 		end
 	end
