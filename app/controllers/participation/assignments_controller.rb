@@ -93,11 +93,9 @@ class AssignmentsController < ApplicationController
 					when :ok
 						@assignment.starts_on ||= Date.current
 						if @assignment.save
-							format.html do
-								redirect_to retlnk, notice: Assignment.msg(:created)
-							end
-
-							format.json { render :roster, status: :ok, location: retlnk }
+							format.html         { redirect_to retlnk, notice: }
+							format.turbo_stream { redirect_to retlnk, notice:, status: :see_other }
+							format.json         { render :roster, status: :ok, location: retlnk }
 						else
 							log_assignment_errors
 							raise ActiveRecord::Rollback
@@ -112,8 +110,10 @@ class AssignmentsController < ApplicationController
 					end
 				end
 			else
-				format.html { redirect_to retlnk, notice: Assignment.msg(:no_member) }
-				format.json { render :roster, status: :ok, location: retlnk }
+				notice = Assignment.msg(:no_member)
+				format.html         { redirect_to retlnk, notice: }
+				format.turbo_stream { redirect_to retlnk, notice:, status: :see_other }
+				format.json         { render :roster, status: :ok, location: retlnk }
 			end
 		end
 	end
@@ -135,10 +135,12 @@ class AssignmentsController < ApplicationController
 				if perform_status_change(@assignment, status_value_for(@assignment))
 					notice = helpers.flash_message(@assignment.msg(:updated), :success)
 					format.html { redirect_to retlnk, notice:, status: :see_other, turbo_action: "replace" }
+					format.turbo_stream { redirect_to retlnk, notice:, status: :see_other, turbo_action: "replace" }
 					format.json { render :show, status: :ok, location: @assignment }
 				else
 					message = @assignment.errors.full_messages.to_sentence.presence || @assignment.msg(:status_fail)
 					format.html { redirect_to retlnk, notice: helpers.flash_message(message, :error) }
+					format.turbo_stream { redirect_to retlnk, notice: helpers.flash_message(message, :error) }
 					format.json { render json: @assignment.errors, status: :unprocessable_entity }
 				end
 			else
@@ -148,11 +150,9 @@ class AssignmentsController < ApplicationController
 					Assignment.transaction do
 						notice = Assignment.msg(@assignment.modified? ? :updated : :no_change)
 						if @assignment.save
-							format.html do
-								redirect_to retlnk, notice:
-							end
-
-							format.json { render :show, status: :ok, location: retlnk }
+							format.html         { redirect_to retlnk, notice: }
+							format.turbo_stream { redirect_to retlnk, notice: }
+							format.json         { render :show, status: :ok, location: retlnk }
 						else
 							log_assignment_errors
 							raise ActiveRecord::Rollback
@@ -261,8 +261,11 @@ class AssignmentsController < ApplicationController
 		def render_assignment_errors(action, format, result = nil)
 			prepare_form(action == :new ? :create : action)
 			message = result.present? ? result[:message] : Assignment.msg(:no_member)
-			format.html { render action, notice: helpers.flash_message(message, "error") }
-			format.json { render json: @user.errors, status: :unprocessable_entity }
+			notice  = helpers.flash_message(message, "error")
+
+			format.html         { render action, notice:, status: :unprocessable_entity }
+			format.turbo_stream { render action, formats: :html, notice:, status: :unprocessable_entity }
+			format.json         { render json: @assignment.errors, status: :unprocessable_entity }
 		end
 
 		def search_options

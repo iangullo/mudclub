@@ -89,6 +89,10 @@ class MembershipsController < ApplicationController
 							redirect_to post_save_path, notice: Membership.msg(:created)
 						end
 
+						format.turbo_stream do
+							redirect_to post_save_path, notice: Membership.msg(:created)
+						end
+
 						format.json { render :show, status: :ok, location: post_save_path }
 					else
 						log_membership_errors
@@ -119,12 +123,14 @@ class MembershipsController < ApplicationController
 			if status_only_update?(@member)
 				if perform_status_change(@member, status_value_for(@member))
 					notice = helpers.flash_message(@member.msg(:updated), :success)
-					format.html { redirect_to path_for(@member), notice:, status: :see_other, turbo_action: "replace" }
-					format.json { render :show, status: :ok, location: @member }
+					format.html         { redirect_to path_for(@member), notice:, status: :see_other, turbo_action: "replace" }
+					format.turbo_stream { redirect_to path_for(@member), notice:, status: :see_other, turbo_action: "replace" }
+					format.json         { render :show, status: :ok, location: @member }
 				else
 					message = @member.errors.full_messages.to_sentence.presence || @member.msg(:status_fail)
-					format.html { redirect_to path_for(@member), notice: helpers.flash_message(message, :error) }
-					format.json { render json: @member.errors, status: :unprocessable_entity }
+					format.html         { redirect_to path_for(@member), notice: helpers.flash_message(message, :error) }
+					format.turbo_stream { redirect_to path_for(@member), notice: helpers.flash_message(message, :error) }
+					format.json         { render json: @member.errors, status: :unprocessable_entity }
 				end
 			else
 				result = rebuild_or_merge_person(@member, membership_params)
@@ -133,8 +139,9 @@ class MembershipsController < ApplicationController
 					Membership.transaction do
 						notice = Membership.msg(@member.modified? ? :updated : :no_change)
 						if @member.save
-							format.html { redirect_to path_for(@member), notice: }
-							format.json { render :show, status: :ok, location: @member }
+							format.html         { redirect_to path_for(@member), notice: }
+							format.turbo_stream { redirect_to path_for(@member), notice: }
+							format.json         { render :show, status: :ok, location: @member }
 						else
 							log_membership_errors
 							raise ActiveRecord::Rollback
@@ -228,8 +235,9 @@ class MembershipsController < ApplicationController
 
 		def render_member_errors(action, result)
 			prepare_form(action == :new ? :create : action)
-			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
-			format.json { render json: @user.errors, status: :unprocessable_entity }
+			format.html         { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
+			format.turbo_stream { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
+			format.json         { render json: @user.errors, status: :unprocessable_entity }
 		end
 
 		def set_member
