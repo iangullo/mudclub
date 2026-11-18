@@ -153,7 +153,7 @@ module TeamsHelper
 					row[:items] << { kind: :normal, value: team.division.name, align: :center }
 				end
 				if pcount
-					cnt = team.athletes.pluck(:id)
+					cnt = team.athletes.active.pluck(:id)
 					tcnt += cnt
 					row[:items] << { kind: :normal, value: cnt.count, align: :center }
 				end
@@ -195,7 +195,7 @@ module TeamsHelper
 				end
 				row[:items] += [
 					{ kind: :normal, value: team.category.birth_years, align: :center },
-					{ kind: :normal, value: team.athletes.count, align: :center }
+					{ kind: :normal, value: team.athletes.active.count, align: :center }
 				]
 
 				rows << row
