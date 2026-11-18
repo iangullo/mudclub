@@ -38,7 +38,7 @@
     .accordion-summary {
         position: sticky;
         top: 0;
-        z-index: 20;
+        z-index: 10;
         /* I_CLASS ya aporta bg-gray-100 + group-open:bg-indigo-900 */
     }
 

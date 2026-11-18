@@ -1,9 +1,9 @@
 <%= turbo_frame_tag "modal" do %>
 	<!-- Modal Container -->
 	<%= tag.div data: { controller: "turbo-modal", turbo_modal_target: "modal", action: "turbo:submit-end->turbo-modal#submitEnd" },
-				class: "fixed inset-0 z-20 flex bg-gray-500/75 justify-center" do %>
+				class: "fixed inset-0 z-50 isolate flex bg-gray-500/75 justify-center" do %>
 		<!-- Modal Inner Container -->
-		<div class="fixed z-30 top-10 m-2 bg-white rounded-lg shadow-xl flex flex-col min-h-0 min-w-0 overflow-auto"
+		<div class="fixed z-10 top-10 m-2 bg-white rounded-lg shadow-xl flex flex-col min-h-0 min-w-0 overflow-auto"
 			style="max-width: <%= @width %>%; max-height: <%= @height %>">
 			<!-- Modal Card -->
 			<div class="p-3">
