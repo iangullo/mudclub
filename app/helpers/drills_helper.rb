@@ -146,8 +146,10 @@ module DrillsHelper
 		session.delete("drill_filters") if scratch
 		skind  = Task.find_by(id: task_id)&.drill&.kind_id || session.dig("drill_filters", "kind_id")
 		fields = [
-			{ kind: :search_select, key: :kind_id, blank: "#{I18n.t("kind.single")}", value: skind, options: Kind.real.pluck(:name, :id) },
-			{ kind: :search_select, key: :season_id, placeholder: I18n.t("season.single"), value: session.dig("drill_filters", "season_id"), options: Season.list },
+			{ kind: :search_select, key: :kind_id, blank: "#{I18n.t("kind.single")}", value: skind, options: Kind.real.pluck(:name, :id) }
+		]
+		fields << { kind: :search_select, key: :season_id, placeholder: I18n.t("season.single"), value: session.dig("drill_filters", "season_id"), options: Season.list } unless @task
+		fields += [
 			{ kind: :search_text, key: :name, placeholder: I18n.t("drill.name"), value: session.dig("drill_filters", "name"), size: 10 },
 			{ kind: :search_text, key: :skill, placeholder: I18n.t("skill.single"), size: 14, value: session.dig("drill_filters", "skill") }
 		]

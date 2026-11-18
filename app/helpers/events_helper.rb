@@ -359,6 +359,7 @@ module EventsHelper
 				res[0] << normal_button({ kind: :link, symbol: symbol_hash(:calendar), url: path_for(@event, format: :ics), title: I18n.t("calendar.add") })
 				res[0] << { kind: :string, value: @event.date_string }
 				unless @event.kind_holiday?
+					res[1] << gap_item if @task
 					res[1] << symbol_item(:clock, { title: I18n.t("calendar.time") })
 					res[1] << { kind: :string, value: @event.time_string }
 				end

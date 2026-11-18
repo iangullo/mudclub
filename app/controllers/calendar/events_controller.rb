@@ -22,6 +22,7 @@ class EventsController < ApplicationController
 	include PdfGenerator
 	before_action :set_event, only: %i[ show edit add_task show_task edit_task athlete_stats edit_athlete_stats load_chart attendance copy update destroy ]
 	before_action :set_athlete, only: %i[ athlete_stats edit_athlete_stats ]
+	before_action :get_task, only: %i[ add_task show_task edit_task ]
 
 	# GET /events or
 	# GET /teams/1/events.ics or /clubs/1/events.ics - export to calendar apps
@@ -230,20 +231,21 @@ class EventsController < ApplicationController
 	# GET /events/1/add_task
 	def add_task
 		@policy = check_policy!(EventPolicy, record: @event)
-		prepare_task_form("add", retlnk: edit_event_path, search_in: event_action_path(:add_task))
+
+		prepare_task_form(:add, search_in: event_action_path(:add_task))
 	end
 
 	# GET /events/1/edit_task
 	def edit_task
 		@policy = check_policy!(EventPolicy, record: @event)
-		prepare_task_form("edit", retlnk: edit_event_path, search_in: event_action_path(:add_task, task_id: @task.id), task_id: true)
+
+		prepare_task_form(:edit, search_in: event_action_path(:add_task, task_id: @task.id))
 	end
 
 	# GET /events/1/show_task
 	def show_task
 		@policy = check_policy!(EventPolicy, record: @event)
 
-		@task   = Task.find(params[:task_id])
 		@fields = create_fields(helpers.task_show(task: @task, team: @event.team))
 		submit  = edit_task_event_path(task_id: @task.id) if @policy.edit_task?
 		@submit = create_submit(close: :back, retlnk: :back, submit:)
@@ -479,7 +481,7 @@ class EventsController < ApplicationController
 		end
 
 		# determine task/drill objects from params received
-		def get_task(load_drills: nil)
+		def get_task(load_drills: true)
 			if params[:event]
 				t_param = event_params[:task]
 			elsif params[:task] # comes from a dynamic refresh
@@ -536,16 +538,15 @@ class EventsController < ApplicationController
 		end
 
 		# prepare edit/add task form
-		def prepare_task_form(action, retlnk:, search_in:, task_id: nil)
-			get_task(load_drills: true) # get the right @task/@drill
-			scratch      = task_id.nil?
-			title        = helpers.event_task_header(subtitle: I18n.t("task.#{action}"))
-			title        << helpers.drill_search_bar(search_in:, task_id: @task.id, scratch:, cols: 4)
-			@header      = create_fields(title)
+		def prepare_task_form(action, search_in:)
+			scratch      = @task&.id.nil?
+			title        = helpers.event_task_header(subtitle: Task.act(action))
+			title       << helpers.drill_search_bar(search_in:, task_id: @task&.id, scratch:, cols: 5)
+			@title       = create_fields (title)
 			@fields      = create_fields(helpers.task_form(search_in:))
 			@description = helpers.task_form_description
 			@remarks     = create_fields(helpers.task_form_remarks)
-			@submit      = create_submit(retlnk: :back)
+			@submit      = create_submit(retlnk: edit_event_path)
 		end
 
 		# when copying an event, need to avoid duplicates, checking if an Event
