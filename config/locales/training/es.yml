@@ -49,7 +49,22 @@ es:
         updated: Ejercicio actualizado.
         deleted: Ejercicio eliminado.
 
-    drill_kind:
+    drill_category: # VOCABULARIO 2.x
+      label:
+        single: Tipo de tarea
+        plural: Tipos de tareas
+        short: Tipo
+        hint: Tipo de ejercicio
+      fields:
+        name: Nombre
+      values:
+        default: <tipo>
+      messages:
+        created: Tipo de ejercicio creado.
+        updated: Tipo de ejercicio actualizado.
+        deleted: Tipo de ejercicio eliminado.
+
+    drill_kind: # VOCALBULARIO ANTIGUO - A eliminar en 2.1
       label:
         single: Tipo
         plural: Tipos

@@ -24,7 +24,7 @@
 #
 class Sport < ApplicationRecord
 	localized_as "core.sport"
-	CATALOGS = {}.freeze
+	CATALOGS = { drill_categories: Catalog::DrillCategories }.freeze
 
 	# --------------------------------------------------------------------------
 	# Associations
@@ -85,7 +85,13 @@ class Sport < ApplicationRecord
 	# --------------------------------------------------------------------------
 	# Catalogs provide canonical metadata.
 	# --------------------------------------------------------------------------
-	def catalog(name) = self.specific.class::CATALOGS.fetch(name.to_sym)
+	def catalog(name)
+		key = name.to_sym
+		specific_class = self.specific.class
+		return specific_class::CATALOGS[key] if specific_class::CATALOGS.key?(key)
+		Sport::CATALOGS.fetch(key)
+	end
+
 	def court_modes   = catalog(:court_modes)
 	def periods       = catalog(:periods)
 	def rules         = catalog(:rules)

@@ -92,7 +92,7 @@ module DrillsHelper
 
 		res = [
 			[
-				label_item("#{Skill.label(:plural)}:"),
+				label_item("#{@drill.sport.specific.term(:skill, :plural)}:"),
 				gap_item,
 				label_item("#{Drill.fld(:author)}:")
 			],
@@ -116,7 +116,7 @@ module DrillsHelper
 		res << [ { kind: :text_box, key: :name, placeholder: Drill.val(:default), value: @drill.name, mandatory: { length: 3 }, size: 31, cols: 3 } ]
 		res << [
 			gap_item,
-			{ kind: :text_box, key: :kind_id, options: Kind.list, value: @drill.kind_id? ? @drill.kind.name : nil, placeholder: Kind.val(:default), mandatory: { length: 3 } },
+			{ kind: :text_box, key: :category_id, options: DrillCategory.list(sport: @drill.sport), value: @drill.category_id? ? @drill.category.name : nil, placeholder: DrillCategory.val(:default), mandatory: { length: 3 } },
 			gap_item(2),
 			{ kind: :select_box, key: :court_mode, options: drill_court_list, value: @drill.court_mode }
 		]
@@ -126,7 +126,7 @@ module DrillsHelper
 	def drill_table(drills: @drills)
 		track = { s_url: drills_path(rdx: @rdx), s_filter: "drill_filters" }
 		title = [
-			{ kind: :normal, value: Drill.fld(:kind, :short), align: "center", sort: (session.dig("drill_filters", "kind_id") == "kind_id"), order_by: "kind_id" },
+			{ kind: :normal, value: Drill.fld(:kind, :short), align: "center", sort: (session.dig("drill_filters", "category_id") == "category_id"), order_by: "category_id" },
 			{ kind: :normal, value: Season.label(:short), sort: (session.dig("drill_filters", "season_id") == "season_id") },
 			{ kind: :normal, value: Drill.fld(:name), sort: (session.dig("drill_filters", "name") == "name"), order_by: "name" }
 		]
@@ -144,22 +144,22 @@ module DrillsHelper
 	# specific search bar to search through drills
 	def drill_search_bar(search_in:, task_id: nil, scratch: nil, cols: nil)
 		session.delete("drill_filters") if scratch
-		skind  = Task.find_by(id: task_id)&.drill&.kind_id || session.dig("drill_filters", "kind_id")
+		skind  = Task.find_by(id: task_id)&.drill&.category_id || session.dig("drill_filters", "category_id")
 		fields = [
-			{ kind: :search_select, key: :kind_id, blank: "#{I18n.t("kind.single")}", value: skind, options: Kind.real.pluck(:name, :id) }
+			{ kind: :search_select, key: :category_id, blank: DrillCategory.label, value: skind, options: DrillCategory.options(sport: @sport) }
 		]
-		fields << { kind: :search_select, key: :season_id, placeholder: I18n.t("season.single"), value: session.dig("drill_filters", "season_id"), options: Season.list } unless @task
+		fields << { kind: :search_select, key: :season_id, placeholder: Season.label, value: session.dig("drill_filters", "season_id"), options: Season.list } unless @task
 		fields += [
-			{ kind: :search_text, key: :name, placeholder: I18n.t("drill.name"), value: session.dig("drill_filters", "name"), size: 10 },
-			{ kind: :search_text, key: :skill, placeholder: I18n.t("skill.single"), size: 14, value: session.dig("drill_filters", "skill") }
+			{ kind: :search_text, key: :name, placeholder: Drill.fld(:name), value: session.dig("drill_filters", "name"), size: 10 },
+			{ kind: :search_text, key: :skill, placeholder: Skill.label, size: 14, value: session.dig("drill_filters", "skill") }
 		]
 		fields << hidden_input(:task_id, task_id) if task_id
 		[ { kind: :search_box, url: search_in, fields: fields, cols: } ]
 	end
 
 	# return title FieldComponent definition for drill show
-	def drill_show_title(title: I18n.t("drill.single"))
-		res = drill_title(title:, subtitle: "#{@drill.kind.name} - #{@drill.court_name}")
+	def drill_show_title(title: Drill.label)
+		res = drill_title(title:, subtitle: "#{@drill.category.name} - #{@drill.court_name}")
 		if @drill.playbook.attached?
 			res.first << normal_button({
 				kind: :link,
@@ -208,7 +208,7 @@ module DrillsHelper
 	def drill_show_tail
 		res = [
 			[
-				label_item(Skill.label(:short)),
+				label_item(@drill.sport.specific.term(:skill, :short), class: "mr-2"),
 				{ kind: :string, value: @drill.print_skills }
 			]
 		]
@@ -265,7 +265,7 @@ module DrillsHelper
 			rows = Array.new
 			drills.each { |drill|
 				row = { url: path_for(drill), items: [] }
-				row[:items] << { kind: :normal, value: drill.kind.name, align: "center" }
+				row[:items] << { kind: :normal, value: drill.category.name, align: "center" }
 				row[:items] << { kind: :normal, value: drill.season_string }
 				row[:items] << { kind: :normal, value: drill.name }
 				unless device == "mobile"

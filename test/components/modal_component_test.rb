@@ -23,7 +23,7 @@ class ModalComponentTest < ActiveSupport::TestCase
 		div    = parsed(html).css("div[data-controller='turbo-modal']").first
 
 		refute_nil div
-		%w[fixed inset-0 z-20 flex justify-center].each do |cls|
+		%w[fixed inset-0 z-50 flex justify-center].each do |cls|
 			assert_includes div["class"].to_s, cls
 		end
 	end

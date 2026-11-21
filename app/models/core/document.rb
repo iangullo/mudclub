@@ -93,7 +93,7 @@ class Document < ApplicationRecord
 	end
 
 	#-------------------------------------
-	# Kind-driven behaviour
+	# kind-driven behaviour
 	#-------------------------------------
 	def kind_entry
 		kind_catalog.fetch(kind)

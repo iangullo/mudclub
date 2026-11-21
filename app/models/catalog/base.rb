@@ -194,6 +194,10 @@ class Catalog::Base
 			@i18n_scope ||= "#{@domain}.#{name.demodulize.underscore}"
 		end
 
+		def i18n_candidate_scopes
+			[ i18n_scope ] + inherited_i18n_scopes
+		end
+
 		def i18n_key_scope
 			i18n_members_scope
 		end
@@ -203,14 +207,6 @@ class Catalog::Base
 		end
 
 		private
-
-			def built?
-				defined?(@entries)
-			end
-
-			def ensure_built!
-				build! unless built?
-			end
 
 			def build!
 				raw = const_get(:CATALOG)
@@ -254,6 +250,21 @@ class Catalog::Base
 							hash[entry.id] = key
 						end
 						.freeze
+			end
+
+			def built?
+				defined?(@entries)
+			end
+
+			def ensure_built!
+				build! unless built?
+			end
+
+			def inherited_i18n_scopes
+				parent = superclass
+				return [] unless parent.respond_to?(:i18n_candidate_scopes) &&
+												parent < Catalog::Base
+				parent.i18n_candidate_scopes
 			end
 
 			def matches_attribute?(actual, expected)

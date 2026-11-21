@@ -502,6 +502,27 @@ es:
         updated: Deporte actualizado.
         deleted: Deporte eliminado.
 
+      drill_categories:
+        values:
+          warmup: Calentamiento
+          warmup_short: Calent.
+          offense: Ataque
+          offense_short: Ata.
+          defense: Defensa
+          defense_short: Def.
+          conditioning: Acondicionamiento
+          conditioning_short: Acond.
+          briefing: Charla
+          briefing_short: Charla
+          rest: Descanso
+          rest_short: Desc.
+          scouting: Scouting
+          scouting_short: Scout.
+          system: Sistema
+          system_short: Sis.
+          other: Otro
+          other_short: Otro
+
   date:
     formats:
       default: "%d/%m/%Y"

@@ -21,7 +21,7 @@
 class Drill < ApplicationRecord
 	localized_as "training.drill"
 
-	FILTER_PARAMS = %i[name kind_id season_id skill column direction].freeze
+	FILTER_PARAMS = %i[name category_id season_id skill column direction].freeze
 	before_destroy :unlink
 
 	#-------------------------------------
@@ -34,7 +34,7 @@ class Drill < ApplicationRecord
 	belongs_to :coach, optional: :true
 	# new — the 2.x association
 	belongs_to :author, class_name: "Person", optional: true
-	belongs_to :kind
+	belongs_to :category, class_name: "DrillCategory", foreign_key: :category_id
 	has_and_belongs_to_many :skills
 	accepts_nested_attributes_for :skills, reject_if: :all_blank, allow_destroy: true
 	has_many :drill_targets, dependent: :destroy
@@ -57,7 +57,7 @@ class Drill < ApplicationRecord
 	#-------------------------------------
 	scope :real,			-> { where("id>0") }
 	scope :by_name,		->(name) { name.present? ? search_by_name(name) : all }
-	scope :by_kind,		->(kind) { filter_by_id(:kind_id, kind) }
+	scope :by_kind,		->(kind) { filter_by_id(:category_id, kind) }
 	scope :by_season, ->(season) {
 		return all unless season.is_a?(Season)
 		where(updated_at: season.start_date..season.end_date).distinct
@@ -73,9 +73,16 @@ class Drill < ApplicationRecord
 		ignoring: :accents,
 		using: { tsearch: { prefix: true } }
 
+	# compatibility reader
+	# TODO: drop once views are migrated
+	def kind
+		category
+	end
+
 	#-------------------------------------
 	# General API methods
 	#-------------------------------------
+
 	# human name of a specific :court
 	def court_name
 		self.sport.court_name(self.court_mode)
@@ -101,7 +108,7 @@ class Drill < ApplicationRecord
 
 	# A longer string with kind included
 	def nice_string
-		cad = self.kind_id ? (self.kind.name + " | ") : ""
+		cad = self.category_id ? ("#{self.category.name} | ") : ""
 		cad = cad + (self.name ? self.name : I18n.t("drill.default"))
 		cad
 	end
@@ -139,7 +146,8 @@ class Drill < ApplicationRecord
 		self.material    = f_data[:material]
 		self.author      = Person.find_by(id: f_data[:author_id]) || self.author
 		self.court_mode  = f_data[:court_mode]
-		self.kind_id     = Kind.fetch(f_data[:kind_id]&.strip).id
+		cid              = DrillCategory.fetch(f_data[:category_id]&.strip)&.id
+		self.category_id = cid || 0
 		self.playbook    = f_data[:playbook]
 		self.check_steps(f_data[:steps_attributes]) if f_data[:steps_attributes]
 		self.check_skills(f_data[:skills_attributes]) if f_data[:skills_attributes]
@@ -168,7 +176,7 @@ class Drill < ApplicationRecord
 	def self.filter(filters)
 		if filters.present?
 			name   = filters["name"]&.presence
-			kind   = filters["kind_id"]&.to_i
+			kind   = filters["category_id"]&.to_i
 			skill  = filters["skill"]&.presence
 			season = Season.find(filters["season_id"]&.presence) if filters["season_id"]&.present?
 			if name || kind || skill || season
@@ -216,12 +224,12 @@ class Drill < ApplicationRecord
 		else
 			res = Drill.real
 		end
-		res.order(:kind_id)
+		res.order(:category_id)
 	end
 
 	# filter drills by kind
 	def self.search_kind(res = Drill.all, s_k)
-		res = res.where(kind_id: Kind.search(s_k)).distinct
+		res = res.where(category_id: DrillCategory.search(s_k)).distinct
 	end
 
 	# filter by name/description

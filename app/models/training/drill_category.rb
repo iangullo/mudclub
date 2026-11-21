@@ -16,12 +16,11 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# TODO:
-# Legacy catalog used by Drill autocompletion.
-# Will eventually migrate to Training::Catalog::DrillKinds.
+# Manage mixture of canonical & user-defined catalog entries
+# used by Drill category autocompletion to specify Drills.
 #
-class Kind < ApplicationRecord
-	localized_as "training.drill_kind"
+class DrillCategory < ApplicationRecord
+	localized_as "training.drill_category"
 
 	before_save { self.name = self.name.mb_chars.titleize }
 
@@ -29,30 +28,38 @@ class Kind < ApplicationRecord
 	# Class relationships
 	#-------------------------------------
 	self.inheritance_column = "not_sti"
+	belongs_to :sport, optional: true
 	has_many :drills
 
 	scope :real,		-> { where("id>0").order(:name) }
+	scope :seeded,  -> { where.not(catalog_key: nil) }
 	scope :orphans, -> { left_outer_joins(:drills).where("drills.id IS NULL OR drills.id = 0") }
 	pg_search_scope :search,
 		against: :name,
 		ignoring: :accents,
 		using: { tsearch: { prefix: true } }
 
-	# -------------------------------------
-	# General API
-	# -------------------------------------
+	# -------------------------------------------------------------------------
+	# Transitional helpers.
+	#
+	# `fetch` and `list` keep the same shape as the legacy `Kind` model so
+	# call sites in the Drill form work unchanged during the migration window.
+	# New code should prefer the seeded-catalog lookup (Phase 2) instead.
+	# -------------------------------------------------------------------------
 
-	# Takes the input received from a skill_form (s_kind - string)
-	# and either reads or creates a matching Kind
-	def self.fetch(s_kind)
-		res = Kind.create(name: s_kind.strip) unless (res = Kind.search(s_kind.strip).first)
-		res
+	def self.fetch(name, sport: nil)
+		key = name.to_s.strip
+		return nil if key.blank?
+		find_or_create_by!(sport:, name: key)
 	end
 
-	# return an array with all available Kind names
-	def self.list
-		res  = []
-		Kind.real.order(:name).each { |kind|	res << kind.name }
-		res
+	def self.list(sport: nil)
+		return real.pluck(:name) unless sport
+		real.where("sport_id = ? OR sport_id IS NULL", sport.id).pluck(:name)
+	end
+
+	def self.options(sport: nil)
+		return real.pluck(:name, :id) unless sport
+		real.where("sport_id = ? OR sport_id IS NULL", sport.id).pluck(:name, :id)
 	end
 end

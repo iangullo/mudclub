@@ -152,7 +152,7 @@ module EventsHelper
 		@event.tasks.each { |task| # kind
 			case name
 			when "kind"
-				k_name = task.drill.kind.name
+				k_name = task.drill.category.name
 				data[k_name] = data[k_name] ? data[k_name] + task.duration : task.duration
 			when "skill"
 				task.drill.skills.each { |skill|

@@ -250,156 +250,162 @@ module Localizable
 
 		private
 
-		#--------------------------------------------------------------------------
-		# Label argument normalization
-		#--------------------------------------------------------------------------
-
-		def normalize_translation_arguments(key = nil, shorthand = nil, scope: nil, variant: :label, form: :single, gender: :neutral, **options)
-			if key.is_a?(Symbol)
-				if GRAMMATICAL_FORMS.include?(key)
-					form = key
-					key = nil
-
-				elsif TEXT_VARIANTS.include?(key)
-					variant = key
-					key = nil
-				end
+			def i18n_candidate_scopes
+				[ i18n_scope ]
 			end
 
-			#
-			# val(:athlete, :plural)
-			#
-			if shorthand
-				if GRAMMATICAL_FORMS.include?(shorthand)
-					form = shorthand
-				elsif TEXT_VARIANTS.include?(shorthand)
-					variant = shorthand
-				elsif GENDERS.include?(shorthand)
-					gender = shorthand
-				end
-			end
+			#--------------------------------------------------------------------------
+			# Label argument normalization
+			#--------------------------------------------------------------------------
 
-			{ key:, scope:, variant:, form:, gender:, **options }
-		end
+			def normalize_translation_arguments(key = nil, shorthand = nil, scope: nil, variant: :label, form: :single, gender: :neutral, **options)
+				if key.is_a?(Symbol)
+					if GRAMMATICAL_FORMS.include?(key)
+						form = key
+						key = nil
 
-		#--------------------------------------------------------------------------
-		# Candidate string keys generation
-		#--------------------------------------------------------------------------
-		def build_candidates(base_key, variant:, form:, gender: :neutral)
-			# Suffix parts, in order: form, variant, gender.
-			# Omit parts that are at their default value.
-			parts = []
-			parts << "plural" if form == :plural
-			parts << VARIANT_SUFFIXES[variant].to_s.delete_prefix("_") if variant != :label
-			parts << "female" if gender == :female
-
-			candidates = []
-
-			if parts.any?
-				suffix = parts.join("_")
-				candidates << "#{base_key}_#{suffix}"    # flat: athlete_plural
-				candidates << "#{base_key}.#{suffix}"    # dotted: athlete.plural
-			else
-				candidates << "#{base_key}.#{form}"      # athlete.single
-			end
-
-			# Female lookups fall back to the neutral form before giving up.
-			if gender == :female
-				neutral = parts - [ "female" ]
-				if neutral.any?
-					n = neutral.join("_")
-					candidates << "#{base_key}_#{n}"
-					candidates << "#{base_key}.#{n}"
-				end
-			end
-
-			candidates << "#{base_key}.label"
-			candidates << base_key
-			candidates.uniq
-		end
-
-		#--------------------------------------------------------------------------
-		# Class labels
-		#--------------------------------------------------------------------------
-		def translate_class_label(variant:, form:, gender: :neutral, **)
-			lookup_candidates(
-				build_candidates("#{i18n_scope}.label", variant:, form:, gender:),
-				fallback: name.demodulize.titleize
-			)
-		end
-
-		#--------------------------------------------------------------------------
-		# key labels
-		#--------------------------------------------------------------------------
-		def translate_key_label(key:, scope:, variant:, form:, gender: :neutral, **)
-			section =
-				case scope
-				when :attribute, :field, :fields then :fields
-				when :message, :messages         then :messages
-				when :value, :values             then :values
-				when :action, :actions           then :actions
-				when :question, :questions       then :questions   # ← add
-				else                                  i18n_key_scope
+					elsif TEXT_VARIANTS.include?(key)
+						variant = key
+						key = nil
+					end
 				end
 
-			base_key = "#{i18n_scope}.#{section}.#{key}"
+				#
+				# val(:athlete, :plural)
+				#
+				if shorthand
+					if GRAMMATICAL_FORMS.include?(shorthand)
+						form = shorthand
+					elsif TEXT_VARIANTS.include?(shorthand)
+						variant = shorthand
+					elsif GENDERS.include?(shorthand)
+						gender = shorthand
+					end
+				end
 
-			lookup_candidates(
-				build_candidates(base_key, variant:, form:, gender:),
-				fallback: fallback_to_humanize(key, variant, form)
-			)
-		end
-
-		#--------------------------------------------------------------------------
-		# Lookup helpers
-		#--------------------------------------------------------------------------
-		def lookup_candidates(candidates, fallback:)
-			candidates.each do |key|
-				value = I18n.t(key, default: nil)
-
-				next if value.blank?
-
-				extracted = extract_translation(value)
-
-				return extracted if extracted.present?
+				{ key:, scope:, variant:, form:, gender:, **options }
 			end
 
-			fallback
-		end
+			#--------------------------------------------------------------------------
+			# Candidate string keys generation
+			#--------------------------------------------------------------------------
+			def build_candidates(base_key, variant:, form:, gender: :neutral)
+				# Suffix parts, in order: form, variant, gender.
+				# Omit parts that are at their default value.
+				parts = []
+				parts << "plural" if form == :plural
+				parts << VARIANT_SUFFIXES[variant].to_s.delete_prefix("_") if variant != :label
+				parts << "female" if gender == :female
 
-		def extract_translation(value)
-			return value unless value.is_a?(Hash)
+				candidates = []
 
-			value[:single] ||
-				value["single"] ||
-				value[:label] ||
-				value["label"]
-		end
+				if parts.any?
+					suffix = parts.join("_")
+					candidates << "#{base_key}_#{suffix}"    # flat: athlete_plural
+					candidates << "#{base_key}.#{suffix}"    # dotted: athlete.plural
+				else
+					candidates << "#{base_key}.#{form}"      # athlete.single
+				end
 
-		#--------------------------------------------------------------------------
-		# Fallback
-		#--------------------------------------------------------------------------
+				# Female lookups fall back to the neutral form before giving up.
+				if gender == :female
+					neutral = parts - [ "female" ]
+					if neutral.any?
+						n = neutral.join("_")
+						candidates << "#{base_key}_#{n}"
+						candidates << "#{base_key}.#{n}"
+					end
+				end
 
-		def fallback_to_humanize(key, variant, form)
-			text = key.to_s.humanize
+				candidates << "#{base_key}.label"
+				candidates << base_key
+				candidates.uniq
+			end
 
-			text = text.pluralize if form == :plural
+			#--------------------------------------------------------------------------
+			# Class labels
+			#--------------------------------------------------------------------------
+			def translate_class_label(variant:, form:, gender: :neutral, **)
+				lookup_candidates(
+					build_candidates("#{i18n_scope}.label", variant:, form:, gender:),
+					fallback: name.demodulize.titleize
+				)
+			end
 
-			return text if %i[label short].include?(variant)
+			#--------------------------------------------------------------------------
+			# key labels
+			#--------------------------------------------------------------------------
+			def translate_key_label(key:, scope:, variant:, form:, gender: :neutral, **)
+				section =
+					case scope
+					when :attribute, :field, :fields then :fields
+					when :message, :messages         then :messages
+					when :value, :values             then :values
+					when :action, :actions           then :actions
+					when :question, :questions       then :questions   # ← add
+					else                                  i18n_key_scope
+					end
 
-			case variant
-			when :hint
-				"#{text} hint"
+				candidates = i18n_candidate_scopes.flat_map do |scope_prefix|
+					build_candidates(
+						"#{scope_prefix}.#{section}.#{key}",
+						variant:, form:, gender:
+					)
+				end
 
-			when :description
-				"#{text} description"
+				lookup_candidates(candidates, fallback: fallback_to_humanize(key, variant, form))
+			end
 
-			when :tooltip
-				"#{text} tooltip"
+			#--------------------------------------------------------------------------
+			# Lookup helpers
+			#--------------------------------------------------------------------------
+			def lookup_candidates(candidates, fallback:)
+				candidates.each do |key|
+					value = I18n.t(key, default: nil)
 
-			else
-				text
+					next if value.blank?
+
+					extracted = extract_translation(value)
+
+					return extracted if extracted.present?
+				end
+
+				fallback
+			end
+
+			def extract_translation(value)
+				return value unless value.is_a?(Hash)
+
+				value[:single] ||
+					value["single"] ||
+					value[:label] ||
+					value["label"]
+			end
+
+			#--------------------------------------------------------------------------
+			# Fallback
+			#--------------------------------------------------------------------------
+
+			def fallback_to_humanize(key, variant, form)
+				text = key.to_s.humanize
+
+				text = text.pluralize if form == :plural
+
+				return text if %i[label short].include?(variant)
+
+				case variant
+				when :hint
+					"#{text} hint"
+
+				when :description
+					"#{text} description"
+
+				when :tooltip
+					"#{text} tooltip"
+
+				else
+					text
+				end
 			end
 		end
-	end
 end

@@ -492,6 +492,26 @@ en:
         created: Sport created.
         updated: Sport updated.
         deleted: Sport deleted.
+      drill_categories:
+        values:
+          warmup: Warm-up
+          warmup_short: Warm.
+          offense: Offense
+          offense_short: Off.
+          defense: Defense
+          defense_short: Def.
+          conditioning: Conditioning
+          conditioning_short: Cond.
+          briefing: Briefing
+          briefing_short: Brf.
+          rest: Rest
+          rest_short: Rest
+          scouting: Scouting
+          scouting_short: Scout.
+          system: System
+          system_short: Sys.
+          other: Other
+          other_short: Oth.
 
   date:
     formats:

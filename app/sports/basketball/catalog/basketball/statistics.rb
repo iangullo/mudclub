@@ -29,7 +29,7 @@
 # editable -> manually editable
 #
 class Catalog::Basketball::Statistics < Catalog::Base
-	domain "basketball"
+	domain "sport.basketball"
 
 	CATALOG = {
 

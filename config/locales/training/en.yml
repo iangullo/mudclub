@@ -50,7 +50,22 @@ en:
         updated: Drill updated.
         deleted: Drill deleted.
 
-    drill_kind:
+    drill_category: # NEW TERMS
+      label:
+        single: Drill category
+        plural: Drill categories
+        short: Category
+        hint: Drill category
+      fields:
+        name: Name
+      values:
+        default: <category>
+      messages:
+        created: Drill category created.
+        updated: Drill category updated.
+        deleted: Drill category deleted.
+
+    drill_kind: # OLD VOCABULARY - DEPRECATED
       label:
         single: Kind
         plural: Kinds

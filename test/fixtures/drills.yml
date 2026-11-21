@@ -1,6 +1,6 @@
 warmup:
   name: "Warmup drill"
-  kind: warmup
+  category: warmup
   description: "Simple warmup"
   court_mode: "half"
   sport: basketball

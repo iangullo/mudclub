@@ -91,6 +91,38 @@ en:
           half_def: Defensive half court
           half_def_short: Def.
 
+      drill_categories:
+        values:
+          shooting: Shooting
+          shooting_short: Shot.
+          rebounding: Rebounding
+          rebounding_short: Reb.
+          cuts: Cuts
+          cuts_short: Cut
+          pressure: Pressure
+          pressure_short: Press
+          inbound: Inbound
+          inbound_short: Inb.
+          play: Play
+          play_short: Play
+
+          one_v_zero: "1x0"
+          one_v_one: "1x1"
+          one_v_one_plus_one: "1x1+1"
+          two_v_zero: "2x0"
+          two_v_one: "2x1"
+          two_v_two: "2x2"
+          two_v_two_plus_one: "2x2+1"
+          two_v_two_plus_two: "2x2+2"
+          three_v_zero: "3x0"
+          three_v_two: "3x2"
+          three_v_three: "3x3"
+          four_v_zero: "4x0"
+          four_v_two: "4x2"
+          four_v_four: "4x4"
+          five_v_zero: "5x0"
+          five_v_five: "5x5"
+          fiba_three_v_three: "Fiba 3x3"
       objects:
         values:
           attacker: Attacker

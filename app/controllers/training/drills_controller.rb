@@ -249,31 +249,16 @@ class DrillsController < ApplicationController
 		# Only allow a list of trusted parameters through.
 		def drill_params
 			params.require(:drill).permit(
-				:name,
-				:material,
-				:description,
-				:author_id,
-				:court_mode,
-				:svgdata,
-				:step_explanation,
-				:playbook,
-				:kind_id,
-				:order,
-				:rdx,
-				:season_id,
-				:skill_id,
-				:step_id,
+				:author_id, :name, :category_id, :court_mode, :description,
+				:material, :order, :playbook, :season_id, :skill_id,
+				:step_id, :step_explanation, :svgdata, :rdx,
 				skills: [],
 				target_ids: [],
 				skill_ids: [],
 				skills_attributes: [ :id, :concept, :_destroy ],
 				steps_attributes: [ :id, :order, :diagram, :svgdata, :explanation, :_destroy ],
 				drill_targets_attributes: [
-					:id,
-					:priority,
-					:drill_id,
-					:target_id,
-					:_destroy,
+					:id, :priority, :drill_id, :target_id, :_destroy,
 					target_attributes: [ :id, :aspect, :focus, :concept ]
 				]
 			)
