@@ -34,12 +34,12 @@ class LocationPolicy < ApplicationPolicy
 	end
 
 	def create?
-		location_manager?
+		allowed?(location_manager?)
 	end
 	alias new? create?
 
 	def update?
-		@record && location_manager?
+		@record && allowed?(location_manager?)
 	end
 	alias edit? update?
 
