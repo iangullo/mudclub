@@ -18,8 +18,8 @@
 #
 # Training sessions
 #
-# app/models/calendar/event_kind/training.rb
-class EventKind
+# app/models/calendar/event_presenter/training.rb
+class EventPresenter
 	class Training < Base
 		def self.slugs = %i[training train]
 		def slug       = :training
@@ -167,7 +167,7 @@ class EventKind
 			{ title:, data: }
 		end
 
-		# app/models/calendar/event_kind/training.rb
+		# prepare render as pdf of training session
 		def pdf(_view, pdf_context)
 			pdf_context.pdf_label_text(
 				label: Target.label(:plural),

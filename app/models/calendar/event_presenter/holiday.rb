@@ -16,17 +16,26 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# Canonical, distinct from :match, but shares behavior today. Empty
-# subclass so future differentiation (tournament, league, bracket)
-# has a landing spot without touching Match.
+# Holiday events
 #
-# app/models/calendar/event_kind/competition.rb
-class EventKind
-	# Canonical, distinct from :match, but shares behavior today.
-	# Empty subclass so future tournament/bracket differentiation has a
-	# landing spot. Inherits Match's notices.
-	class Competition < Match
-		def self.slugs = %i[competition]
-		def slug       = :competition
+# app/models/calendar/event_presenter/holiday.rb
+class EventPresenter
+	class Holiday < Base
+		def self.slugs = %i[holiday rest]
+		def has_time?  = false
+		def slug       = :holiday
+		def title_rows = 3
+
+		def header_fragments(view, res:, form: nil, cols: nil, **)
+			t = team
+			res << [ { kind: :subtitle, value: t&.nick || "", cols: } ] if t
+			if form
+				res << [ { kind: :text_box, key: :name, value: event.name,
+									placeholder: event.kind_label, cols: cols.to_i + 4, size: 22 } ]
+			else
+				res << [ view.label_item(event.name) ]
+			end
+			res
+		end
 	end
 end

@@ -18,7 +18,7 @@
 #
 # Behavior layer for Event#kind — mirrors Sport#specific.
 #
-# Convention: canonical catalog key :foo → EventKind::Foo.
+# Convention: canonical catalog key :foo → EventPresenter::Foo.
 # Aliases are resolved upstream by Kinded#kind, so `event.kind` is always
 # canonical and dispatch is a plain const_get.
 #
@@ -26,8 +26,8 @@
 # reproduce the current code's "no dedicated branch" behavior. New
 # catalog kinds get a working (if generic) implementation for free, and
 # can be promoted to a subclass without touching Event or the helpers.
-# app/models/calendar/event_kind.rb
-class EventKind
+# app/models/calendar/event_presenter.rb
+class EventPresenter
 	def self.specific(event:)
 		kind = event.kind
 		raise ArgumentError, "Event kind cannot be blank" if kind.blank?
@@ -42,13 +42,13 @@ class EventKind
 	end
 
 	def self.report_coverage!
-		missing = Catalog::EventKinds.canonical.map(&:key).reject.reject do |key|
+		missing = Catalog::EventPresenters.canonical.map(&:key).reject.reject do |key|
 			const_defined?(key.to_s.camelize, false)
 		end
 		return if missing.empty?
 
 		Rails.logger.info(
-			"[EventKind] no specialized subclass for #{missing.inspect} — falling back to Base"
+			"[EventPresenter] no specialized subclass for #{missing.inspect} — falling back to Base"
 		)
 	end
 end

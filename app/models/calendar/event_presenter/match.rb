@@ -18,8 +18,8 @@
 #
 # Match events
 #
-# app/models/calendar/event_kind/match.rb
-class EventKind
+# app/models/calendar/event_presenter/match.rb
+class EventPresenter
 	class Match < Base
 		def self.slugs = %i[match]
 		def slug       = :match

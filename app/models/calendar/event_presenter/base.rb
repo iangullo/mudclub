@@ -16,8 +16,8 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# app/models/calendar/event_kind/base.rb
-class EventKind
+# app/models/calendar/event_presenter/base.rb
+class EventPresenter
 	class Base
 		attr_reader :event
 

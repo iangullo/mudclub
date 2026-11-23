@@ -160,9 +160,9 @@ class Event < ApplicationRecord
 		timeslot_string(t_begin: self.start_time, t_end: ((self.kind_training? && t_end) ? self.end_time : nil))
 	end
 
-	# Return specific extension for this kind of Event
+	# Return specific presenter extension for this kind of Event
 	def specific
-		@specific ||= EventKind.specific(event: self)
+		@specific ||= EventPresenter.specific(event: self)
 	end
 
 	# rebuild Event using raw hash from a form submittal
