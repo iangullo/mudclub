@@ -120,13 +120,13 @@ class CalendarComponent < ApplicationComponent
 				c_event[:time]   = event.time_string(true)
 				if @user && event.has_athlete?(@user.person)
 					c_event[:url]  = "/events/#{event[:id]}/player_stats?retlnk=#{@anchor}"
-					c_event[:data] = { turbo_frame: "modal" }
+					c_event[:data] = { turbo_frame: :modal }
 				end
 				b_color          = "blue"
 			when :holiday, :rest
 				c_event[:symbol] =  { concept: :rest, options: { namespace: "sport" } }
 				c_event[:label]  = event.to_s
-				c_event[:data]   = { turbo_frame: "modal" }
+				c_event[:data]   = { turbo_frame: :modal }
 				b_color          = "gray"
 			end
 

@@ -36,7 +36,8 @@
 							<div class="<%= event[:b_class] %> text-center" >
 								<%= link_to event[:url],
 									class: "#{event[:l_class]} inline-block m-1 rounded-lg",
-									aria: { describedby: "event-#{event[:id]}" } do %>
+									aria: { describedby: "event-#{event[:id]}" },
+									data: event[:data] do %>
 									<%= render SymbolComponent.new(event[:symbol][:concept], **event[:symbol][:options].merge({css: "inline-block max-h-7 align-middle"})) %>
 								<% end %>
 								<div id="<%= "event-#{event[:id]}"%>" role="tooltip" class="<%= event[:t_class] %>">
