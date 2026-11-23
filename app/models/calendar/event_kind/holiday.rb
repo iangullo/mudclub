@@ -22,6 +22,20 @@
 class EventKind
 	class Holiday < Base
 		def self.slugs = %i[holiday rest]
+		def has_time?  = false
 		def slug       = :holiday
+		def title_rows = 3
+
+		def header_fragments(view, res:, form: nil, cols: nil, **)
+			t = team
+			res << [ { kind: :subtitle, value: t&.nick || "", cols: } ] if t
+			if form
+				res << [ { kind: :text_box, key: :name, value: event.name,
+									placeholder: event.kind_label, cols: cols.to_i + 4, size: 22 } ]
+			else
+				res << [ view.label_item(event.name) ]
+			end
+			res
+		end
 	end
 end

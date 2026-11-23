@@ -58,13 +58,13 @@ class EventsController < ApplicationController
 		@policy = check_policy!(EventPolicy, record: @event)
 
 		respond_to do |format|
-			title = helpers.event_header(cols: @event.kind_training? ? 3 : nil)
 			format.html do
 				set_athlete
-				@title = create_fields(title)
-				submit = path_for(@event, action: :edit) if @policy.edit?
+				title  = helpers.event_header(cols: @event.kind_training? ? 3 : nil)
+				submit = path_for(@event, action: :edit, cal: @cal) if @policy.edit?
 				person = @athlete&.person || u_person
 				if @event.kind_holiday?
+					@header = create_fields(title)
 					@submit = create_submit(submit:, frame: :modal)
 				elsif @event.kind_training? && @event.team.has_athlete?(person)	# we want to check athlete stats for a training session
 					athlete_id = (
@@ -74,13 +74,13 @@ class EventsController < ApplicationController
 					)&.id
 					redirect_to path_for(@event, action: athlete_stats, athlete_id:, cal: @cal), data: { turbo_action: "replace" }
 				else	# gotta be a coach or manager
-					if @event.kind_match?
-						@fields = create_fields(helpers.match_show)
-						table   = helpers.match_roster_table
-						@table  = create_table(table)
-					else
-						@targets = create_fields(helpers.training_target)
-						@fields  = create_fields(helpers.training_show)
+					@title  = create_fields(title)
+					@fields = create_fields(@event.specific.show_fields(helpers, policy: @policy, team: @team, cal: @cal))
+					if (t = @event.specific.show_targets(helpers, policy: @policy, team: @team))
+						@targets = create_fields(t)
+					end
+					if (tbl = @event.specific.show_table(helpers, policy: @policy, team: @team))
+						@table = create_table(tbl)
 					end
 					@submit = create_submit(close: :back, retlnk: back_link(default: anchor_lnk), submit:)
 				end
@@ -95,7 +95,7 @@ class EventsController < ApplicationController
 			format.pdf do
 				if @policy.export?
 					response.headers["Content-Disposition"] = "attachment; filename=drill.pdf"
-					pdf = event_to_pdf(title)
+					pdf = event_to_pdf(helpers.event_pdf_header)
 					send_data pdf.render(filename: "#{@event}.pdf", type: "application/pdf")
 				end
 			end
@@ -246,7 +246,7 @@ class EventsController < ApplicationController
 	def show_task
 		@policy = check_policy!(EventPolicy, record: @event)
 
-		@fields = create_fields(helpers.task_show(task: @task, team: @event.team))
+		@fields = create_fields(@event.specific.task_show(helpers, task: @task, team: @event.team))
 		submit  = edit_task_event_path(task_id: @task.id) if @policy.edit_task?
 		@submit = create_submit(close: :back, retlnk: :back, submit:)
 	end
@@ -256,7 +256,7 @@ class EventsController < ApplicationController
 		@policy = check_policy!(EventPolicy, record: @event)
 
 		header = helpers.event_header(cols: @event.kind_training? ? 3 : nil, chart: true)
-		@chart = ModalPieComponent.new(header:, chart: helpers.event_workload(name: params[:name]))
+		@chart = ModalPieComponent.new(header:, chart: @event.specific.workload(params[:name]))
 	end
 
 	# GET /events/1/athlete_stats?athlete_id=X
@@ -264,7 +264,7 @@ class EventsController < ApplicationController
 		@policy  = check_policy!(EventPolicy, record: @event, person: @athlete&.person)
 
 		if @assignment && @event.has_athlete?(@athlete&.person)	# we do have an athlete
-			@header = create_fields(helpers.event_header(cols: @event.kind_training? ? 3 : nil))
+			@header = create_fields(helpers.event_header(cols: @event.specific.show_cols))
 			@fields = create_fields(helpers.event_athlete_stats)
 			@submit = create_submit(submit: path_for(@event, action: :edit_athlete_stats, athlete_id: @athlete.id), frame: :modal)
 		else
@@ -299,7 +299,7 @@ class EventsController < ApplicationController
 			path_for(@event, action:, cal: @cal, **opts)
 		end
 
-		def edit_event_path = event_action_path(:edit, season_id: @season&.id)
+		def edit_event_path = event_action_path(:edit, season_id: @season&.id, cal: @cal)
 
 		def new_event_path(kind = nil)
 			return nil unless @policy.new?
@@ -419,28 +419,10 @@ class EventsController < ApplicationController
 
 		# pdf export of @event content
 		def event_to_pdf(header)
-			p_header = header.take(2)
-			p_header[0][1][:cols] = 1
-			p_header[1][0][:cols] = 1
-			footer = "#{@event.team} #{@event.date_string}"
-			pdf    = pdf_create(header: p_header, footer:)# , full_width: true)
-			if @event.kind == "train"
-				pdf_label_text(label: I18n.t("training.target.label.many"), text: @event.print_targets)
-				pdf_separator_line(style: "empty")
-				@event.tasks.each do |task|
-					pdf_subtitle(task.headstring)
-					pdf_rich_text(task.drill.explanation) if task.drill.explanation&.present?
-					pdf_rich_text(task.remarks) if task.remarks&.present?
-					pdf_separator_line(style: "empty")
-				end
-				pdf_new_page
-				pdf_subtitle(I18n.t("calendar.attendance.label.single"))
-				@event.team.athletes.by_number.each do |athlete|
-					pdf_label_text(label: athlete.to_s(style: 3), text: "_")
-				end
-				pdf_separator_line(style: "empty")
-				pdf_subtitle(I18n.t("training.task.remarks.label"))
-			end
+			p_header = header.is_a?(Array) ? header.take(2) : [ [ label_item(header.to_s) ] ]
+			footer   = [ @event.team, @event.date_string ].compact.join(" ")
+			pdf      = pdf_create(header: p_header, footer:, full_width: true)
+			@event.specific.pdf(helpers, self)
 			pdf
 		end
 
@@ -516,22 +498,20 @@ class EventsController < ApplicationController
 
 		# prepare new/edit event form
 		def prepare_event_form(new: nil)
-			@header = create_fields(helpers.event_header(form: true, cols: @event.kind_match? ? 2 : nil))
-			if @event.kind_match?
-				@fields  = create_fields(helpers.match_form(new:))
-				unless new
-					table  = helpers.match_roster_table(edit: true)
-					@table = create_table(table)
-				end
+			@header = create_fields(helpers.event_header(form: true, cols: @event.specific.form_cols))
+			@fields = create_fields(@event.specific.form_fields(helpers, policy: @policy, team: @team, new:))
+			if (tbl = @event.specific.form_table(self, policy: @policy, team: @team, new:))
+				@table = create_table(tbl)
 			end
-			unless new # editing
+
+			unless new
 				unless @event.kind_holiday?
-					r_lnk = event_path
 					if @event.kind_training?
-						@btn_add = create_button({ kind: :add, label: Task.act(:add), url: event_action_path(:add_task) }) if @policy.create?
+						@btn_add = create_button({ kind: :add, label: Task.act(:add),
+																			url: event_action_path(:add_task) }) if @policy.create?
 						@drills  = @event.drill_list
 					end
-					@submit = create_submit(close: :back, retlnk: r_lnk)
+					@submit = create_submit(close: :back, retlnk: event_path)
 				end
 			end
 			@submit ||= create_submit(retlnk: @retlnk)
@@ -540,12 +520,14 @@ class EventsController < ApplicationController
 		# prepare edit/add task form
 		def prepare_task_form(action, search_in:)
 			scratch      = @task&.id.nil?
-			title        = helpers.event_task_header(subtitle: Task.act(action))
+			title        = @event.specific.task_header(helpers, subtitle: Task.act(action))
 			title       << helpers.drill_search_bar(search_in:, task_id: @task&.id, scratch:, cols: 5)
 			@title       = create_fields (title)
-			@fields      = create_fields(helpers.task_form(search_in:))
-			@description = helpers.task_form_description
-			@remarks     = create_fields(helpers.task_form_remarks)
+			@fields      = create_fields(@event.specific.task_form(
+				helpers, task: @task, drill: @drill, drills: @drills, search_in:
+			))
+			@description = @event.specific.task_form_description(task: @task)
+			@remarks     = create_fields(@event.specific.task_form_remarks(helpers, task: @task))
 			@submit      = create_submit(retlnk: edit_event_path)
 		end
 

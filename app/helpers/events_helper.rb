@@ -17,6 +17,16 @@
 # contact email - iangullo@gmail.com.
 #
 module EventsHelper
+	# self explanatory
+	def event_action_path(action, event: @event, cal: @cal, **opts)
+		path_for(event, action:, cal:, **opts)
+	end
+
+	# fields to display athlete's stats for an event
+	def event_athlete_stats
+		@sport.athlete_training_stats_show(@event, athlete_id: @athlete.id)
+	end
+
 	# FieldComponents for event attendance
 	def event_attendance_header
 		res = title_start(icon: symbol_hash(:attendance), title: @team.nick, subtitle: @team.category.name)
@@ -75,6 +85,37 @@ module EventsHelper
 		end
 	end
 
+	def event_form_hidden_inputs(teamid)
+		res = []
+		res << hidden_input(:team_id, teamid)   if teamid
+		res << hidden_input(:cal, @cal)         if @cal
+		res << hidden_input(:rdx, @rdx)         if @rdx
+		res << hidden_input(:kind, @event.kind) if @event
+		res
+	end
+
+	# return icon and top of fields definition
+	def event_header(subtitle: nil, form: nil, cols: nil, chart: nil, teams: nil)
+		if teams
+			t_id = @team ? @team.id : teams.first.id
+			copy = true
+			res  = title_start(icon: @event.symbol, title: @event.title(copy: true),
+												rows: @event.specific.title_rows, cols:)
+			res << [ { kind: :select_collection, key: :team_id, options: teams, value: t_id, cols: cols } ]
+		else
+			res = title_start(icon: @event.symbol, title: @event.title(show: true),
+												rows: @event.specific.title_rows, cols:)
+			res.last << gap_item
+			@event.specific.header_fragments(
+				self, res:,
+				policy: @policy, user: current_user,
+				cols:, form:, subtitle:, chart:
+			)
+		end
+		event_top_right(res:, form:, copy:)
+		res
+	end
+
 	# return icon and top of fields definition
 	def event_index_title(team: nil, season: nil)
 		title    = (team ? team.nick : (season ? season.name : I18n.t("calendar.label")))
@@ -106,37 +147,35 @@ module EventsHelper
 		[ event_list_toprow(obj), [ table_item(title:, rows:, cols: 4) ] ]
 	end
 
-	# fields to display athlete's stats for an event
-	def event_athlete_stats
-		@sport.athlete_training_stats_show(@event, athlete_id: @athlete.id)
-	end
+	# return pdf page header for exports based on event title
+	def event_pdf_header
+		club = @event&.team&.club || @event.club
+		return title unless club
 
-	# return icon and top of fields definition for Tasks
-	def event_task_header(subtitle:)
-		event_header(subtitle:, chart: true)
-	end
+		row1 = [
+			{ kind: :header_icon, value: club.logo, rows: 2 }, # col 0
+			label_item(club.nick),                          # col 1
+			label_item(@event.kind_label, align: :center),  # col 2
+			symbol_item(:calendar),                         # col 3
+			label_item(@event.date_string, align: :right)   # col 4
+		]
 
-	# return icon and top of fields definition
-	def event_header(subtitle: nil, form: nil, cols: nil, chart: nil, teams: nil)
-		if teams	# we are going to prepare a copy of the event
-			t_id = @team ? @team.id : teams.first.id
-			copy = true
-			res  = title_start(icon: @event.symbol, title: @event.title(copy: true), rows: @event.kind_holiday? ? 3 : nil, cols:)
-			res << [ { kind: :select_collection, key: :team_id, options: teams, value: t_id, cols: cols } ]
+		# col 0 is already occupied by club.logo (rowspan: 2)
+		if @event.team
+			row2 = [
+				label_item(@event.team.name, align: :left), # col 1
+				gap_item                                    # col 2
+			]
 		else
-			res = title_start(icon: @event.symbol, title: @event.title(show: true), rows: @event.kind_holiday? ? 3 : nil, cols:)
-			res.last << gap_item
-			case @event.kind.to_sym
-			when :holiday, :rest
-				holiday_header(res:, cols:, form:)
-			when :competition, :match
-				match_header(res:, cols:, form:)
-			when :training, :train
-				training_header(res:, cols:, form:, subtitle:, chart:)
-			end
+			row2 = [ gap_item(cols: 2) ]                  # cols 1, 2
 		end
-		event_top_right(res:, form:, copy:)
-		res
+
+		row2 += [
+			symbol_item(:clock),                          # col 3
+			label_item(@event.time_string, align: :right) # col 4
+		]
+
+		[ row1, row2 ]
 	end
 
 	# return adequate notice depending on @event kind
@@ -144,160 +183,7 @@ module EventsHelper
 		flash_message(@event.specific.updated_notice(msg, changed:), changed ? "success" : "info")
 	end
 
-	# profile of event workload (task types)
-	# returns a hash with time used split by kinds & skills
-	def event_workload(name:)
-		title = I18n.t("train.workload_by") + " " + I18n.t("#{name}.single")
-		data  = {}
-		@event.tasks.each { |task| # kind
-			case name
-			when "kind"
-				k_name = task.drill.category.name
-				data[k_name] = data[k_name] ? data[k_name] + task.duration : task.duration
-			when "skill"
-				task.drill.skills.each { |skill|
-					s_name = skill.concept
-					data[s_name] = data[s_name] ? data[s_name] + task.duration : task.duration
-				}
-			end
-		}
-		{ title:, data: }
-	end
-
-	# FieldComponents to show a match
-	def match_show
-		match_fields(edit: false)
-	end
-
-	# return fields definition for match form
-	def match_form(new: false)
-		match_fields(edit: true, new:)
-	end
-
-	# athlete table for a match
-	def match_roster_table(edit: false)
-		a_rules = @sport.rules.key(@team.category.rules)
-		table   = nil
-
-		if (outings = @sport.match_outings(a_rules))
-			table = @sport.outings_table(@event, outings, edit:, rdx: @rdx)
-			table[:controller] = "outings" if table
-		end
-		table ||= @sport.stats_table(@event, edit:, rdx: @rdx)
-		table
-	end
-
-	# return accordion for event tasks
-	def task_accordion
-		@event.tasks.map do |task|
-			{
-				url:     event_action_path(:show_task, task_id: task.id),
-				turbo:   "modal",
-				head:    task.headstring,
-				content: FieldsComponent.new(task_show(task:, team: @team, title: nil))
-			}
-		end
-	end
-
-	# fields to show in task views
-	def task_show(task:, team:, title: true)
-		res = []
-		res << [
-			symbol_item(:drill, { namespace: task&.drill&.sport&.name || "sport", size: "30x30" }, align: :center),
-			label_item(task.drill.name),
-			gap_item,
-			{ kind: :icon_label, symbol: :clock, label: task.s_dur }
-		] if title
-
-		if task.drill.steps.empty?
-			res << [ { kind: :text, value: task.drill.description } ]
-		else
-			steps_hash = { kind: :steps, steps: task.drill.steps, court: task.drill.court_mode }
-			res << [ steps_hash ]
-		end
-
-		if task.remarks?
-			res << [ label_item(Task.fld(:remarks)) ]
-			res << [ { kind: :action_text, value: task.remarks.body.to_s, size: 28 } ]
-		end
-		res
-	end
-
-	# data fields for task edit/add views
-	def task_form(search_in:)
-		res  = [ event_form_hidden_inputs(@event.team_id) ]
-		res += [
-			[
-				topcell_item(Task.fld(:number)),
-				topcell_item(Drill.label),
-				topcell_item(Task.fld(:duration, :short))
-			],
-			[
-				{ kind: :side_cell, value: @task.order },
-				{ kind: :select_load, key: :drill_id, url: search_in, options: @drills, value: @drill&.id },
-				{ kind: :number_box, key: :duration, min: 1, max: 90, size: 3, value: @task.duration }
-			],
-			[
-				hidden_input(:task_id, @task.id),
-				hidden_input(:order, @task.order)
-			]
-		]
-	end
-
-	# fields for task edit/add views
-	def task_form_description
-		if @task.drill
-			[ [ { kind: :string, value: @task.drill.explanation.empty? ? @task.drill.description : @task.drill.explanation } ] ]
-		else
-			nil
-		end
-	end
-
-	# fields to edit task remarks
-	def task_form_remarks
-		[
-			[ label_item(Task.fld(:remarks)) ],
-			[ { kind: :rich_text_area, key: :remarks, value: @task.remarks, size: 28 } ]
-		]
-	end
-
-	# return definition @fields for show_training
-	def training_show
-		[
-			[
-				{
-					kind: :accordion,
-					title: Task.label(:plural),
-					tail: "#{I18n.t("shared.stats.total")}: #{@event.work_duration}",
-					objects: task_accordion
-				}
-			]
-		]
-	end
-
-	# fields for training sesssion targets
-	def training_target
-		res = [
-			[
-				{ kind: :side_cell, value: Target.label(:short), rows: 2 },
-				topcell_item(Target.t_path(:focus, :values, :defense_short)),
-				{ kind: :lines, value: @event.def_targets, cols: 5 }
-			],
-			[
-				topcell_item(Target.t_path(:focus, :values, :offense_short)),
-				{ kind: :lines, value: @event.off_targets, cols: 5 }
-			]
-		]
-		res << gap_row(cols: 3)
-	end
-
 	private
-		# return a button field to copy event - if possible
-		def event_copy_button
-			if @policy.copy?
-				{ kind: :action, symbol: symbol_hash(:copy, type: :button), label: I18n.t("shared.actions.copy"), url: event_action_path(:copy), frame: :modal }
-			end
-		end
 
 		# define the toprow for an events list (just above the table itself)
 		def event_list_toprow(obj)
@@ -348,7 +234,7 @@ module EventsHelper
 				clubevent = @event.team_id.to_i > 0
 				res[0] << symbol_item(:calendar)
 				res[0] << { kind: :date_box, key: :start_date, s_year: clubevent ? @team.season.start_date : @event.start_date, e_year: clubevent ? @team.season.end_year : nil, value: @event.start_date }
-				unless @event.kind_holiday? # add start_time inputs
+				if @event.specific.has_time? # add start_time inputs
 					res[1] << symbol_item(:clock)
 					res[1] << { kind: :time_box, key: :hour, hour: @event.hour, mins: @event.min, mandatory: true }
 				end
@@ -358,118 +244,12 @@ module EventsHelper
 			else
 				res[0] << normal_button({ kind: :link, symbol: symbol_hash(:calendar), url: path_for(@event, format: :ics), title: I18n.t("calendar.add") })
 				res[0] << { kind: :string, value: @event.date_string }
-				unless @event.kind_holiday?
+				if @event.specific.has_time?
 					res[1] << gap_item if @task
 					res[1] << symbol_item(:clock, { title: I18n.t("calendar.time") })
 					res[1] << { kind: :string, value: @event.time_string }
 				end
 			end
-		end
-
-		def event_form_hidden_inputs(teamid)
-			res = []
-			res << hidden_input(:team_id, teamid)   if teamid
-			res << hidden_input(:cal, @cal)         if @cal
-			res << hidden_input(:rdx, @rdx)         if @rdx
-			res << hidden_input(:kind, @event.kind) if @event
-			res
-		end
-
-		# serves for both match_show and match_edit
-		def match_fields(edit:, new: false)
-			if edit
-				@sport.match_form(@event, new:)
-			else
-				@sport.match_show(@event)
-			end
-		end
-
-		# complete event title for matches
-		def match_header(res:, cols:, form:)
-			res << [ { kind: :subtitle, value: @team.category.name }, gap_item ]
-			res << [ gap_item(1),	string_item(@team.division.name + " (#{@team.season.name})"), gap_item ]
-			if form
-				res[0][1][:cols] = nil
-				res << [
-					gap_item(1),
-					{ kind: :side_cell, value: @event.term(:match), align: :left, cols: 2 }
-				]
-				res << [
-					symbol_item(:location, { title: Location.label }, align: :right),
-					{ kind: :select_collection, key: :location_id, options: Location.home, value: @event.location_id, s_target: "data-match-location-target='locationId'", cols: 6 },
-					hidden_input(:homecourt_id, @team.homecourt_id, i_data: { match_location_target: "homeCourtId" })
-				]
-			else
-				if @event.location.gmaps_url
-					res.last << normal_button({ kind: :location, symbol: :gmaps, url: @event.location.gmaps_url, label: @event.location.name }, cols: 2)
-				end
-				if @policy.attendance?
-					res << [
-						gap_item(1),
-						{ kind: :side_cell, value: @team.term(:match), align: :left, cols: 2 },
-						normal_button(
-							{ kind: :link, symbol: :attendance, label: @team.term(:match, :roster), url: path_for(@event, action: :attendance), frame: :modal },
-							align: :left,
-							cols: 2
-						)
-					]
-					res << gap_row
-				end
-			end
-		end
-
-		# complete event_header for train events
-		def training_header(res:, cols:, form:, subtitle: nil, chart: nil, rdx: @rdx)
-			res << [ { kind: :subtitle, value: @team.category.name, cols: } ]
-			unless chart
-				if form
-					res.last << gap_item
-					res << [ gap_item(1), string_item(@team.division.name + " (#{@team.season.name})", cols: 2) ]
-					res.last << workload_button(align: :left, cols: 2, rows: 2) if @event.id
-					res << [ gap_item(1), { kind: :side_cell, value: @event.t_path(:kind, :training), cols: 2, align: :left } ]
-					res << gap_row(cols: 8)
-				elsif @policy.export? && @event.id
-					res.first[1][:cols] = 4	# modify cols to avoid issues with show
-					res.last << pdf_button(path_for(@event, format: :pdf))
-					res.last << gap_item
-					res << [
-						normal_button(event_copy_button, align: :left, class: "align-top px-2", rows: 2),
-						string_item(@team.division.name + " (#{@team.season.name})", cols: 5, align: :left),
-						workload_button(align: :left, rows: 1)
-					]
-					res << [ { kind: :side_cell, value: @event.t_path(:kind, :training), align: :left, cols: 5, class: "align-top" } ]
-					res.last << normal_button(
-						{ kind: :link, symbol: :attendance, label: Attendance.label, url: event_action_path(:attendance), frame: :modal },
-						align: :left,
-						cols: 2
-					) if @policy.attendance?
-				elsif current_user.is_athlete?
-					res << [ gap_item, label_item(current_user.to_s, cols: 3) ]
-				end
-			end
-		end
-
-		# complete event_header for rest events
-		def holiday_header(team: nil, season: nil, res:, cols:, form:)
-			res << [ { kind: :subtitle, value: team&.nick || season&.name || "", cols: } ] if team or season
-			res << [ form ? { kind: :text_box, key: :name, value: @event.name, placeholder: @event.kind_label, cols: cols.to_i + 4, size: 22 } : label_item(@event.name) ]
-		end
-
-		# return the dropdown element to access workload charts
-		def workload_button(cols: 2, rows: 1, align: :center, class: "align-top")
-			dropdown_button(
-				{
-					kind: :link,
-					symbol: :pie,
-					label: I18n.t("training.session.fields.workload_short"),
-					name: "show-chart",
-					options: [
-						{ label: Drill.fld(:kind, :short), url: event_action_path(:load_chart, name: "kind"), data: { turbo_frame: :modal } },
-						# {label: Target.label(:plural), url: event_action_path(:load_chart, name: "target"), data: {turbo_frame: :modal}},
-						{ label: @sport ? Sport.term(:skill) : Skill.label, url: event_action_path(:load_chart, name: "skill"), data: { turbo_frame: :modal } }
-					]
-				}, align:, class:, cols:, rows:
-			)
 		end
 
 		# dropdown button definition to create a new Event
@@ -488,9 +268,5 @@ module EventsHelper
 			else
 				nil
 			end
-		end
-
-		def event_action_path(action, **opts)
-			path_for(@event, action:, cal: @cal, **opts)
 		end
 end
