@@ -159,13 +159,15 @@ class Assignment < ApplicationRecord
 	#-------------------------------------
 	# Is this assingment present in an event?
 	def present?(event_id)
-		attendances.include?(event_id)
+		attendances.exists?(event_id:)
 	end
 
 	# get attendance data for player over the period specified by "during"
 	# returns attendance inthe form of:
 	# matches played and session attendance [%] for week, month and season
 	def attendance
+		return {} unless team
+
 		t_events   = team.events.normal.past.includes(:players)
 		t_sessions = t_events.trainings
 		l_week     = { tot: t_sessions.last7.size, att: 0 }
@@ -204,7 +206,7 @@ class Assignment < ApplicationRecord
 	def p_email
 		email = ""
 		if age < 18
-			person.responsible_adults.each { |par| email += "#{par.person.email.presence}\n" if par.person.email.present? }
+			email += person.responsible_adults.filter_map(&:email).join("\n")
 		end
 		email += email.to_s
 	end
@@ -212,7 +214,7 @@ class Assignment < ApplicationRecord
 	def p_phone
 		phone = ""
 		if age < 18
-			person.responsible_adults.each { |par| phone += "#{par.person.phone.presence}\n" if par.person.phone.present? }
+			phone += person.responsible_adults.filter_map(&:phone).join("\n")
 		end
 		phone += phone.to_s
 	end
@@ -265,7 +267,7 @@ class Assignment < ApplicationRecord
 		self.team_id   = data[:team_id]   if data.key?(:team_id)
 		self.starts_on = data[:starts_on] if data.key?(:starts_on)
 		self.ends_on   = data[:ends_on]   if data.key?(:ends_on)
-		self.number    = data[:number]    if data.key?(:number) # only for athletes
+		self.number    = data[:number].presence&.strip if data.key?(:number) # only for athletes
 
 		# --- associated persons data (via membership) ---
 		if data[:person_attributes].present?

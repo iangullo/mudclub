@@ -19,7 +19,7 @@
 class Person < ApplicationRecord
 	localized_as "people.person"
 
-	before_validation :normalize_critical_fields
+	before_validation :normalize_person_fields
 
 	before_save { self.name    = self.name    ? self.name.mb_chars.titleize : "" }
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
@@ -242,10 +242,9 @@ class Person < ApplicationRecord
 
 	# Return list of responsible adults related to this person
 	def responsible_adults
-		return [ self ] if age>18
-		relationships.where(
-			kind: %i[parent father mother guardian legal_representative]
-		)
+		age >=18 ?
+			[ self ] :
+			relationships.in_group(:responsible_adult).map(&:related_person)
 	end
 
 	# Try to resolve a Person from identifying attributes.
@@ -390,10 +389,14 @@ class Person < ApplicationRecord
 			end
 		end
 
-		def normalize_critical_fields
+		def normalize_person_fields
 			self.email = email.to_s.strip.downcase if email.present?
 			self.dni   = dni.to_s.strip.upcase     if dni.present?
 			self.phone = phone.to_s.strip          if phone.present?
+			self.name    = name.to_s.strip         if name.present?
+			self.surname = surname.to_s.strip      if surname.present?
+			self.nick    = nick.to_s.strip         if nick.present?
+			self.address = address.to_s.strip      if address.present?
 		end
 
 		def rebuild_relationships(r_data)

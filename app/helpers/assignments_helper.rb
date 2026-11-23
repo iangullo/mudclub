@@ -118,7 +118,7 @@ module AssignmentsHelper
 	end
 
 	def assignment_return_path(assignment = @assignment)
-		if assignment.membership.kind_board_member?
+		if assignment.membership&.kind_board_member?
 			return club_assignments_path(assignment.membership.club,
 				kind: assignment.membership.kind,
 				status: assignment.status,
@@ -127,8 +127,8 @@ module AssignmentsHelper
 		end
 
 		if @team
-			return path_for(@team, action: :roster) if assignment.membership.kind_athlete?
-			return path_for(@team) if assignment.membership.kind_coach?
+			return path_for(@team, action: :roster) if assignment.membership&.kind_athlete?
+			return path_for(@team) if assignment.membership&.kind_coach?
 		end
 
 		index_path_for(assignment, kind: assignment.membership.kind, status: assignment.status, staff: @staff)

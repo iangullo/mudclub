@@ -80,11 +80,13 @@ class AssignmentsController < ApplicationController
 	# TODO: Work on this - it will be quite different...
 	def create
 		@policy = check_policy!(AssignmentPolicy, club: @club, team: @team, kind: @kind)
-		retlnk  = helpers.assignment_return_path   # defined for every branch
 
 		respond_to do |format|
 			@assignment = Assignment.new(team: @team, kind: @kind)
 			membership  = @member || prepared_membership
+			@assignment.membership = membership
+			result = rebuild_or_merge_person(@assignment, assignment_params)
+			retlnk = helpers.assignment_return_path   # defined for every branch
 
 			unless membership
 				notice = Assignment.msg(:no_member)
@@ -94,8 +96,6 @@ class AssignmentsController < ApplicationController
 				next
 			end
 
-			@assignment.membership = membership
-			result = rebuild_or_merge_person(@assignment, assignment_params)
 
 			case result[:status]
 			when :ok

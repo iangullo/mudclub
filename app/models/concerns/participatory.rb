@@ -125,7 +125,7 @@ module Participatory
 	def prepare_rebuild(attrs)
 		# --- associated persons data ---
 		resolution = prepare_person(attrs)
-		resolution unless resolution.ok?	# return ambiguous or conflicts
+		return resolution unless resolution.ok?	# return ambiguous or conflicts
 
 		self.kind   = attrs[:kind]   if attrs.key?(:kind)
 		self.status = attrs[:status] if attrs.key?(:status)
