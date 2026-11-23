@@ -433,6 +433,8 @@ class Sport < ApplicationRecord
 		end
 
 		def read_period_score(period:, stats:, score:, total:)
+			return if period.key == :tot
+
 			ours = period_score(period: period.id, kind: :team,  stats:)
 			opps = period_score(period: period.id, kind: :rival, stats:)
 			return if ours.nil? && opps.nil?
@@ -441,8 +443,6 @@ class Sport < ApplicationRecord
 			opps = opps.to_i
 
 			score[period.key] = { ours:, opps: }
-			return if period.key == :tot
-
 			accumulate_score(total:, ours:, opps:)
 		end
 
