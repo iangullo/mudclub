@@ -37,12 +37,11 @@ class TeamPolicy < ApplicationPolicy
 	alias new? create?
 
 	def edit?
-		return false unless @record
-		return false if @record.season.end_date < Date.today
-
 		allowed?(
-			manages_club?(@record&.club) ||
-			manages_team?(@record)
+			team_is_active? && (
+				manages_club?(@record&.club) ||
+				manages_team?(@record)
+			)
 		)
 	end
 	alias update? edit?
@@ -105,8 +104,7 @@ class TeamPolicy < ApplicationPolicy
 	end
 
 	def edit_plan?
-		return false unless @record
-		return false if @record.locked
+		return false unless team_is_active?
 
 		allowed?(
 			coaches_team?(@record) ||
@@ -124,8 +122,7 @@ class TeamPolicy < ApplicationPolicy
 	end
 
 	def edit_targets?
-		return false unless @record
-		return false if @record.locked
+		return false unless team_is_active?
 
 		allowed?(
 			coaches_team?(@record) ||
@@ -137,8 +134,8 @@ class TeamPolicy < ApplicationPolicy
 	# Team management
 	#------------------------------------
 	def edit_roster?
-		return false unless roster?
-		return false if @record.season.end_date < Date.today
+		return false unless team_is_active?
+
 		allowed?(manages_roster?)
 	end
 
@@ -150,11 +147,18 @@ class TeamPolicy < ApplicationPolicy
 	# Team registration
 	#------------------------------------
 	def accepts_registrations?
-		return false unless @record
+		return false unless team_is_active?
+
 		@record.accepts_registrations?
 	end
 
 	private
+
+		def team_is_active?
+			return false unless @record
+			return false if @record.season.end_date < Date.today
+			true
+		end
 
 		# Membership in current team
 		def team_member? = has_team_assignment?(@record)
