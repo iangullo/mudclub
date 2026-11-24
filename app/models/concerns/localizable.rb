@@ -12,7 +12,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://gnu.org>.
 #
 # contact email - iangullo@gmail.com.
 #
@@ -21,7 +21,7 @@
 #
 # Localizable
 #
-# Shared localization API for models, catalogs and other domain objects.
+# Shared localization API for models, catalogs, UI concepts and other domain objects.
 #
 # Classes including this concern declare their locale scope with:
 #
@@ -32,14 +32,18 @@
 #   Club.label
 #   Club.label(:plural)
 #   Club.label(:short)
+#   Club.label(:plural, :female)
 #
 #   Club.fld(:name)
 #   Club.msg(:created)
 #   Club.val(:athlete)
+#   UI::Status.val(:active, :plural, :female)
+#   UI::Status.val(:active, Club)
+#   UI::Status.val(:active, Basketball.term_ref(:field_of_play))
 #
 #   Club.term(:athlete)
-#   Club.term(:athlete, form: :plural)
-#   Club.term(:coach, variant: :short)
+#   Club.term(:athlete, :plural)
+#   Club.term(:coach, :short)
 #
 module Localizable
 	extend ActiveSupport::Concern
@@ -73,20 +77,34 @@ module Localizable
 		roster
 	].freeze
 
-	GENDERS = %i[female].freeze
+	GENDERS = %i[male female neutral].freeze
+
+	# Value object used to pass a term's grammatical gender context to UI helpers
+	TermRef = Data.define(:key, :sport, :club)
+
+	#--------------------------------------------------------------------------
+	# Module-level cache & helpers
+	#--------------------------------------------------------------------------
+
+	def self.gender_cache
+		@gender_cache ||= {}
+	end
+
+	def self.clear_gender_cache!
+		@gender_cache&.clear
+	end
+
+	def self.for_term(key, sport: nil, club: nil)
+		TermRef.new(key:, sport:, club:)
+	end
 
 	#--------------------------------------------------------------------------
 	# Configuration
 	#--------------------------------------------------------------------------
 
 	included do
-		class_attribute :_i18n_scope,
-										instance_accessor: false,
-										default: nil
-
-		class_attribute :_i18n_key_scope,
-										instance_accessor: false,
-										default: :fields
+		class_attribute :_i18n_key_scope, instance_accessor: false, default: :fields
+		class_attribute :_i18n_scope, instance_accessor: false, default: nil
 	end
 
 	#--------------------------------------------------------------------------
@@ -97,6 +115,7 @@ module Localizable
 		label
 		act
 		term
+		term_gender
 		fld
 		msg
 		val
@@ -110,33 +129,43 @@ module Localizable
 		end
 	end
 
+	def term_ref(key, sport: nil, club: nil)
+		resolved_sport = sport || (self if respond_to?(:i18n_scope) && i18n_scope.start_with?("sport."))
+		self.class.term_ref(key, sport: resolved_sport, club:)
+	end
+
 	#--------------------------------------------------------------------------
 	# Class API
 	#--------------------------------------------------------------------------
 
 	class_methods do
-		#
 		# Declares the locale scope used by this class.
 		#
 		# Example:
 		#
 		#   localized_as :identity, :person
-		#
 		def localized_as(*parts)
 			self._i18n_scope = parts.flatten.compact.join(".")
 		end
 
-		#
 		# Declares which subsection key helpers
 		# (label(:...), fld, msg, val...) should default to.
-		#
 		def key_scope(scope)
 			self._i18n_key_scope = scope.to_sym
 		end
 
-		#
+		# try to infer the gender to be used when generating a string
+		def i18n_gender(locale: I18n.locale)
+			cache_key = [ :scope, i18n_scope, locale.to_sym ]
+			Localizable.gender_cache.fetch(cache_key) do
+				raw = I18n.t("#{i18n_scope}.gender", locale:, default: nil) ||
+							I18n.t("#{i18n_scope}.label.gender", locale:, default: nil)
+				sym = raw&.to_sym
+				Localizable.gender_cache[cache_key] = GENDERS.include?(sym) ? sym : :neutral
+			end
+		end
+
 		# Returns the configured locale scope.
-		#
 		def i18n_scope
 			return _i18n_scope if _i18n_scope.present?
 
@@ -144,9 +173,7 @@ module Localizable
 						"#{name} must declare localized_as(...) or override .i18n_scope"
 		end
 
-		#
 		# Default subsection for key lookups.
-		#
 		def i18n_key_scope
 			_i18n_key_scope || :fields
 		end
@@ -155,7 +182,6 @@ module Localizable
 		# Public translation API
 		#--------------------------------------------------------------------------
 
-		#
 		# Generic label resolver.
 		#
 		# Examples
@@ -166,9 +192,8 @@ module Localizable
 		#
 		#   Club.label(:name)
 		#   Club.label(:name, scope: :fields)
-		#
-		def label(key = nil, **options)
-			args = normalize_translation_arguments(key, **options)
+		def label(*modifiers, **options)
+			args = normalize_translation_arguments(*modifiers, **options)
 
 			if args[:key]
 				translate_key_label(**args)
@@ -177,7 +202,6 @@ module Localizable
 			end
 		end
 
-		#
 		# Resolves terminology that may be overridden by
 		# Club settings or Sport locale.
 		#
@@ -186,47 +210,68 @@ module Localizable
 		#   Club.term(:athlete)
 		#   Club.term(:athlete, form: :plural)
 		#   Club.term(:coach, variant: :short)
-		#
-		def term(key, shorthand = nil, variant: :label, form: :single, club: nil, sport: nil, fallback: nil, **options)
-			args = normalize_translation_arguments(key, shorthand, **options)
-
-			override_scope =
-				if sport
-					sport.i18n_scope
-				elsif i18n_scope.start_with?("sport.")
-					i18n_scope
-				end
+		def term(key, *modifiers, club: nil, sport: nil, fallback: nil, **options)
+			args = normalize_translation_arguments(*modifiers, key:, **options)
 
 			Vocabulary.term(
 				args[:key],
-				form:    args[:form],
-				gender:  args[:gender],
-				variant: args[:variant],
-				override_scope:,
+				form:           args[:form],
+				gender:         args[:gender],
+				variant:        args[:variant],
+				override_scope: resolve_override_scope(sport),
 				club:,
 				fallback:
 			)
 		end
 
-		#
-		# Convenience wrappers
-		#
-		TRANSLATION_SECTIONS = { act: :actions, fld: :fields, msg: :messages, val: :values, que: :questions }.freeze
 
-		TRANSLATION_SECTIONS.each do |method_name, scope|
-			define_method(method_name) do |key, shorthand = nil, **options|
-				args = normalize_translation_arguments(key, shorthand, **options)
-				translate_key_label(
-					scope:,
-					key:     args[:key],
-					variant: args[:variant],
-					form:    args[:form],
-					gender:  args[:gender]
-				)
+		# Resolves the grammatical gender of a term in the active locale,
+		# accounting for Club settings and Sport locale overrides.
+		def term_gender(key, club: nil, sport: nil, locale: I18n.locale)
+			if club.present? && club.respond_to?(:term_gender)
+				club_gender = club.term_gender(key, locale:)&.to_sym
+				return club_gender if GENDERS.include?(club_gender)
+			end
+
+			override_scope = resolve_override_scope(sport)
+			cache_key      = [ :term, override_scope, key.to_sym, locale.to_sym ]
+
+			Localizable.gender_cache.fetch(cache_key) do
+				candidates = [
+					override_scope && "#{override_scope}.terms.#{key}.gender",
+					"vocabulary.terms.#{key}.gender"
+				].compact
+
+				resolved = :neutral
+				candidates.each do |path|
+					raw = I18n.t(path, locale:, default: nil)
+					sym = raw&.to_sym
+					if GENDERS.include?(sym)
+						resolved = sym
+						break
+					end
+				end
+
+				Localizable.gender_cache[cache_key] = resolved
 			end
 		end
 
-		#
+		# Builds a TermRef scoped to this class if it represents a sport.
+		def term_ref(key, sport: nil, club: nil)
+			resolved_sport = sport || (self if i18n_scope.start_with?("sport."))
+			Localizable.for_term(key, sport: resolved_sport, club:)
+		end
+
+		# Convenience wrappers
+		TRANSLATION_SECTIONS = { act: :actions, fld: :fields, msg: :messages, val: :values, que: :questions }.freeze
+
+		TRANSLATION_SECTIONS.each do |method_name, scope|
+			define_method(method_name) do |key, *modifiers, **options|
+				args = normalize_translation_arguments(*modifiers, key, **options)
+				translate_key_label(**args, scope:)
+			end
+		end
+
 		# Flexible translation path.
 		#
 		# Relative:
@@ -236,7 +281,6 @@ module Localizable
 		# Absolute:
 		#
 		#   Person.t_path("identity.person.fields.name")
-		#
 		def t_path(*parts, **options)
 			key =
 				if parts.first.is_a?(String)
@@ -254,36 +298,65 @@ module Localizable
 				[ i18n_scope ]
 			end
 
+			def resolve_override_scope(sport)
+				if sport
+					sport.i18n_scope
+				elsif i18n_scope.start_with?("sport.")
+					i18n_scope
+				end
+			end
+
 			#--------------------------------------------------------------------------
 			# Label argument normalization
 			#--------------------------------------------------------------------------
 
-			def normalize_translation_arguments(key = nil, shorthand = nil, scope: nil, variant: :label, form: :single, gender: :neutral, **options)
-				if key.is_a?(Symbol)
-					if GRAMMATICAL_FORMS.include?(key)
-						form = key
-						key = nil
-
-					elsif TEXT_VARIANTS.include?(key)
-						variant = key
-						key = nil
+			def normalize_translation_arguments(*args, key: nil, scope: nil, variant: :label, form: :single, gender: nil, for_model: nil, **options)
+				args.flatten.compact.each do |arg|
+					if arg.is_a?(Symbol)
+						if GRAMMATICAL_FORMS.include?(arg)
+							form = arg
+						elsif TEXT_VARIANTS.include?(arg)
+							variant = arg
+						elsif GENDERS.include?(arg)
+							gender = arg
+						else
+							key ||= arg
+						end
+					elsif gender_target?(arg)
+						for_model = arg
+					else
+						key ||= arg
 					end
 				end
 
-				#
-				# val(:athlete, :plural)
-				#
-				if shorthand
-					if GRAMMATICAL_FORMS.include?(shorthand)
-						form = shorthand
-					elsif TEXT_VARIANTS.include?(shorthand)
-						variant = shorthand
-					elsif GENDERS.include?(shorthand)
-						gender = shorthand
-					end
-				end
+				resolved_gender = gender || resolve_gender(for_model, locale: options[:locale] || I18n.locale)
 
-				{ key:, scope:, variant:, form:, gender:, **options }
+				{ key:, scope:, variant:, form:, gender: resolved_gender, **options }
+			end
+
+			def gender_target?(arg)
+				arg.is_a?(Localizable::TermRef) ||
+					arg.respond_to?(:gender) ||
+					arg.respond_to?(:i18n_gender) ||
+					arg.class.respond_to?(:i18n_gender)
+			end
+
+			def resolve_gender(target, locale: I18n.locale)
+				return i18n_gender(locale:) if target.nil?
+
+				raw =
+					if target.is_a?(Localizable::TermRef)
+						term_gender(target.key, club: target.club, sport: target.sport, locale:)
+					elsif target.respond_to?(:gender) && target.gender.present?
+						target.gender
+					elsif target.respond_to?(:i18n_gender)
+						target.i18n_gender(locale:)
+					elsif target.class.respond_to?(:i18n_gender)
+						target.class.i18n_gender(locale:)
+					end
+
+				sym = raw&.to_sym
+				GENDERS.include?(sym) ? sym : :neutral
 			end
 
 			#--------------------------------------------------------------------------
@@ -325,17 +398,18 @@ module Localizable
 			#--------------------------------------------------------------------------
 			# Class labels
 			#--------------------------------------------------------------------------
-			def translate_class_label(variant:, form:, gender: :neutral, **)
+			def translate_class_label(variant:, form:, gender: :neutral, **interp)
 				lookup_candidates(
 					build_candidates("#{i18n_scope}.label", variant:, form:, gender:),
-					fallback: name.demodulize.titleize
+					fallback: name.demodulize.titleize,
+					interp:
 				)
 			end
 
 			#--------------------------------------------------------------------------
 			# key labels
 			#--------------------------------------------------------------------------
-			def translate_key_label(key:, scope:, variant:, form:, gender: :neutral, **)
+			def translate_key_label(key:, scope:, variant:, form:, gender: :neutral, **interp)
 				section =
 					case scope
 					when :attribute, :field, :fields then :fields
@@ -346,27 +420,22 @@ module Localizable
 					else                                  i18n_key_scope
 					end
 
-				candidates = i18n_candidate_scopes.flat_map do |scope_prefix|
-					build_candidates(
-						"#{scope_prefix}.#{section}.#{key}",
-						variant:, form:, gender:
-					)
+				candidates = i18n_candidate_scopes.flat_map do |prefix|
+					build_candidates("#{prefix}.#{section}.#{key}", variant:, form:, gender:)
 				end
 
-				lookup_candidates(candidates, fallback: fallback_to_humanize(key, variant, form))
+				lookup_candidates(candidates, fallback: fallback_to_humanize(key, variant, form), interp:)
 			end
 
 			#--------------------------------------------------------------------------
 			# Lookup helpers
 			#--------------------------------------------------------------------------
-			def lookup_candidates(candidates, fallback:)
+			def lookup_candidates(candidates, fallback:, interp: {})
 				candidates.each do |key|
-					value = I18n.t(key, default: nil)
-
+					value = I18n.t(key, default: nil, **interp)
 					next if value.blank?
 
 					extracted = extract_translation(value)
-
 					return extracted if extracted.present?
 				end
 
@@ -407,5 +476,5 @@ module Localizable
 					text
 				end
 			end
-		end
+	end
 end

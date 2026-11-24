@@ -133,7 +133,7 @@ class ButtonComponent < ApplicationComponent
 	# define the processing cue contetn to be pushed
 	def button_cue
 		content_tag(:div, class: "flex rounded-md overflow-hidden w-full h-full bg-gray-300 opacity-75 absolute top-0 left-0 hidden", data: { processing_target: "processingCue" }) do
-			image_tag("5-dots-fade.svg", class: "items-center align-center ml-3", title: I18n.t("status.processing"))
+			image_tag("5-dots-fade.svg", class: "items-center align-center ml-3", title: UI::Status.val(:processing))
 		end
 	end
 
@@ -161,27 +161,27 @@ class ButtonComponent < ApplicationComponent
 		when :call
 			@button[:url]     = "tel:#{@button[:value]}"
 		when :clear
-			@button[:confirm] = I18n.t("question.clear") + " \'#{@button[:name]}\'?"
+			@button[:confirm] = UI::Question.que(:clear) + " \'#{@button[:name]}\'?"
 		when :delete
 			@button[:turbo]   = "_top"
-			@button[:confirm] = I18n.t("question.delete") + " \'#{@button[:name]}\'?"
+			@button[:confirm] = UI::Question.que(:delete).chop + " \'#{@button[:name]}\'?"
 		when :edit, :export
 			@button[:flip]    = true
 		when :email
 			@button[:url]     = "mailto:#{@button[:value]}"
 		when :import
 			@button[:flip]    = true
-			@button[:confirm] = I18n.t("question.import")
+			@button[:confirm] = UI::Question.que(:import)
 		when :jump
 			@button[:size]  ||= "50x50"
 			@button[:turbo] ||= "_top"
 		when :save
-			@button[:confirm] = I18n.t("question.save_chng")
+			@button[:confirm] = UI::Question.que(:save_changes)
 		when :whatsapp
 			@button[:url]  = @button[:web] ? "https://web.whatsapp.com/" : "whatsapp://"
 			@button[:url] += "send?phone=#{@button[:value].delete(' ')}"
 		end
-		@button[:label]  ||= I18n.t("action.#{@button[:kind]}") if [ :back, :cancel, :clear, :edit, :export, :import, :save ].include?(@button[:kind])
+		@button[:label]  ||= UI::Action.act(@button[:kind]) if [ :back, :cancel, :clear, :edit, :export, :import, :save ].include?(@button[:kind])
 		@button[:size]   ||= "25x25"
 		@button[:symbol] ||= { concept: @button[:kind].to_s, options: { type: :button } } unless @button[:icon] || @button[:kind] == :link
 		if @button[:symbol]
@@ -212,7 +212,7 @@ class ButtonComponent < ApplicationComponent
 		unless @button[:title]
 			case @button[:kind]
 			when :add, :add_nested, :back, :cancel, :clear, :close, :delete, :edit, :email, :export, :forward, :import, :login, :logout, :remove, :save
-				@button[:title] = I18n.t("action.#{@button[:kind]}")
+				@button[:title] = UI::Action.act(@button[:kind])
 			else
 				@button[:title] = @button[:label]
 			end

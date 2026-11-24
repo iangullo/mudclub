@@ -74,6 +74,9 @@ class TopbarComponent < ApplicationComponent
 		@home     = home
 		@logout   = logout
 		@regs_url = registrations_url
+	end
+
+	def before_render
 		@nav_tabs = build_nav_tabs
 		@acc_acts = build_account_actions
 		@ham_menu = build_hamburger
@@ -257,7 +260,7 @@ class TopbarComponent < ApplicationComponent
 				menu_link(label: User.label(:plural), url: "/users"),
 				log_menu
 			]
-			menu_drop("server", label: I18n.t("server.single"), options:)
+			menu_drop("server", label: Server.label, options:)
 =end
 			menu_link(label: Server.label, url: "/server")
 		end
@@ -311,6 +314,6 @@ class TopbarComponent < ApplicationComponent
 		end
 
 		def all_teams_link(club)
-			menu_link(label: I18n.t("scope.all"), url: "/clubs/#{club.id}/teams")
+			menu_link(label: UI::Selection.val(:all, gender: :neutral), url: "/clubs/#{club.id}/teams")
 		end
 end

@@ -47,7 +47,7 @@ class DiagramComponent < ApplicationComponent
 
 	def initialize(sport: "basketball", court:, svgdata:, css: nil, form: nil, max_height: nil)
 		@id         = "diagram-#{SecureRandom.hex(4)}"
-		@sport      = sport
+		@sport      = Sport.fetch(sport)
 		@css        = css
 		@court      = { name: court, sport: sport }
 		@svgdata    = svgdata.presence || {}
@@ -87,19 +87,19 @@ class DiagramComponent < ApplicationComponent
 			base = "m-1 rounded hover:bg-"
 
 			if btn[:object] == "delete"
-				title  = I18n.t("shared.actions.remove")
+				title  = UI::Action.act(:remove)
 				symbol = { concept: "delete", options: { type: :button } }
 				bcls   = "#{base}red-100"
 				data   = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
 			elsif btn[:object] == "color"
-				title  = I18n.t("shared.colors.plural")
+				title  = UI::Color.label(:plural)
 				symbol = { concept: "color", options: { type: :button } }
 				bcls   = "#{base}gray-100"
 				data   = { action: "click->diagram-editor##{btn[:action]}", button_target: true }
 			else
-				symbol_id = [ @sport, "object", btn[:object], "default" ].join(".")
-				title     = I18n.t("sport.#{@sport}.objects.values.#{btn[:object]}")
-				options   = { namespace: @sport, type: :object }
+				symbol_id = [ @sport.name, "object", btn[:object], "default" ].join(".")
+				title     = @sport.t_path(:objects, :values, btn[:object])
+				options   = { namespace: @sport.name, type: :object }
 				options.merge!(btn[:options]) if btn[:options]
 				symbol    = { concept: btn[:object], options: }
 				bcls      = "#{base}gray-100"
@@ -116,7 +116,7 @@ class DiagramComponent < ApplicationComponent
 										class: "hidden absolute bg-white border border-gray-300 rounded shadow-lg z-50 p-2",
 										data: { diagram_editor_target: "colorMenu" }) do
 				safe_join([
-					content_tag(:div, I18n.t("shared.color.label.many"), class: "font-bold mb-2"),
+					content_tag(:div, UI::Color.label(:plural), class: "font-bold mb-2"),
 					content_tag(:div, class: "color-palette grid grid-cols-4 gap-1") do
 						safe_join([
 							color_option("#000000", "black"),
@@ -136,7 +136,7 @@ class DiagramComponent < ApplicationComponent
 									"",
 									class: "w-6 h-6 rounded border border-gray-300",
 									style: "background-color: #{color_code}",
-									title: I18n.t("shared.color.values.#{color_name}.label.single"),
+									title: UI::Color.val(color_name),
 									data: {
 										action: "click->diagram-editor#applyColor",
 										color: color_code
@@ -235,7 +235,7 @@ class DiagramComponent < ApplicationComponent
 
 			safe_join(symbol_ids.map do |symbol_id|
 				# Render each symbol as a symbol definition
-				symbol = SymbolComponent.new(symbol_id, namespace: @sport, type: :object)
+				symbol = SymbolComponent.new(symbol_id, namespace: @sport.name, type: :object)
 				content_tag(:symbol, render(symbol),
 										id: symbol.full_id,
 										viewBox: "0 0 #{SYMBOL_SIZE} #{SYMBOL_SIZE}")

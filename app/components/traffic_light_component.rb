@@ -53,6 +53,6 @@ class TrafficLightComponent < ViewComponent::Base
 	end
 
 	def call
-		content_tag(:div, "", class: "rounded-full border-2 #{@size_classes} #{color_classes} inline-block", title: I18n.t("status.#{color_titles}"))
+		content_tag(:div, "", class: "rounded-full border-2 #{@size_classes} #{color_classes} inline-block", title: UI::Status.val(color_titles))
 	end
 end

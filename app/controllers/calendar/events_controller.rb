@@ -46,7 +46,7 @@ class EventsController < ApplicationController
 			format.ics do
 				f_name   = "#{obj.to_s.parameterize}.ics"
 				calendar = EventCalendar.new(obj.events.includes(:team, :location), name: obj.to_s, host: request.base_url)
-				register_action(:exported, "#{I18n.t("calendar.export")} '#{f_name}'")
+				register_action(:exported, "#{Event.msg(:exported, kind: obj.kind_label)} '#{f_name}'")
 				send_data calendar.to_ics, filename: f_name, type: "text/calendar; charset=utf-8"
 			end
 		end
@@ -223,7 +223,7 @@ class EventsController < ApplicationController
 			@fields = create_fields(helpers.event_copy)
 			@submit = create_submit
 		else
-			notice  = helpers.flash_message("#{I18n.t("team.none")} ", "info")
+			notice  = helpers.flash_message("#{Team.val(:none)} ", "info")
 			redirect_to event_path, notice:, data: { turbo_action: "replace" }
 		end
 	end
@@ -371,7 +371,7 @@ class EventsController < ApplicationController
 
 		# check stats - a single athlete updating an event
 		def check_stats(stats)
-		  return false unless stats.respond_to?(:each_pair)
+			return false unless stats.respond_to?(:each_pair)
 
 			stats_hash = stats.respond_to?(:to_unsafe_h) ? stats.to_unsafe_h : stats.to_h
 			@sport.parse_stats(@event, stats_hash)
@@ -406,13 +406,13 @@ class EventsController < ApplicationController
 				end
 
 				if @event.modified?
-					@notice = I18n.t("#{@event.kind}.updated")
+					@notice = @event.msg(:updated, kind: @event.kind_label)
 				elsif	e_data[:athlete_assignment_ids].present?	# assignments to participate
-					@notice = I18n.t("#{@event.kind}.att_check")
+					@notice = Attendance.msg(:updated)
 				elsif params[:event][:stats_attributes].present? || params[:outings].present?	# updated stats/outings
 					@notice = Stat.msg(:updated)
 				else
-					@notice = I18n.t("status.no_data")
+					@notice = UI::Status.msg(:no_data)
 				end
 			end
 		end

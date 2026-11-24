@@ -13,17 +13,24 @@
 # Las claves de compatibilidad heredadas se conservan al final de este archivo
 # durante la migración v2 y no deben usarse en código nuevo.
 # -----------------------------------------------------------------------------
-
 es:
   calendar:
-    label: Calendario
-    short: Cal.
-
+    label:
+      single: Calendario
+      plural: Calendarios
+      short: Cal.
     fields:
+      start: Inicio
+      end: Fin
       date: Fecha
       date_short: Fecha
       time: Hora
       time_short: Hora
+      hour: Hora
+      hour_short: Hora
+      mins: mins.
+      mins_short: Mins.
+      day: Día
       week: Semana
       week_short: Sem.
       month: Mes
@@ -32,10 +39,35 @@ es:
       year_short: Año
       since: Desde
       until: Hasta
+    values:
+      daynames:
+        [Todos, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
+      daynames_short: [Todos, Lun, Mar, Mié, Jue, Vie, Sáb, Dom]
+      monthnames:
+        [
+          Todos,
+          Enero,
+          Febrero,
+          Marzo,
+          Abril,
+          Mayo,
+          Junio,
+          Julio,
+          Agosto,
+          Septiembre,
+          Octubre,
+          Noviembre,
+          Diciembre,
+        ]
+      monthnames_short:
+        [Todos, Ene, Feb, Mar, Abr, May, Jun, Jul, Ago, Sep, Oct, Nov, Dic]
 
     attendance:
-      label: Asistencia
-      short: Asist.
+      gender: female
+      label:
+        single: Asistencia
+        plural: Asistencias
+        short: Asist.
       fields:
         person: Persona
         event: Evento
@@ -49,19 +81,26 @@ es:
         deleted: Asistencia eliminada.
 
     attendance_statuses:
-      label: Estado de asistencia
-      short: Estado
+      label:
+        single: Estado de asistencia
+        plural: Estados de asistencia
+        short: Estado
       values:
         present: Presente
         absent: Ausente
+        absent_female: Ausente
         excused: Justificado
+        excused_female: Justificada
         late: Llegada tarde
         unknown: Desconocido
+        unknown_female: Desconocida
 
     event_kinds:
-      label: Tipo de evento
-      short: Tipo
-      values: &event_kind_values # anchor
+      label:
+        single: Tipo de evento
+        plural: Tipos de evento
+        short: Tipo
+      values: &event_kind_values
         holiday: Festivo
         holiday_short: Fest.
         training: Entrenamiento
@@ -95,7 +134,7 @@ es:
         slot: Franja horaria
         kind: Tipo de evento
         metadata: Metadatos
-      kind: *event_kind_values # referencia
+      kind: *event_kind_values
       messages:
         created: "%{kind} creado"
         exported: "%{kind} exportado"
@@ -103,8 +142,11 @@ es:
         deleted: "%{kind} eliminado"
 
     recurrence_kinds:
-      label: Repetición
-      short: Rep.
+      gender: female
+      label:
+        single: Repetición
+        plural: Repeticiones
+        short: Rep.
       values:
         none: Ninguna
         daily: Diaria
@@ -118,8 +160,11 @@ es:
         plural: Horarios
         short: Hora.
       actions:
+        new: Nuevo horario
         create: Crear horario
         edit: Editar horario
+        update: Actualizar horario
+        delete: Borrar horario
       fields:
         starts_on: Inicio
         starts_on_short: Inicio
@@ -128,133 +173,7 @@ es:
         duration: Duración
         duration_short: Dur.
       messages:
-        created: Horario creada.
+        created: Horario creado.
         updated: Horario actualizado.
         deleted: Horario eliminado.
-
-    months:
-      label: Mes
-      short: Mes
-      values:
-        january: Enero
-        january_short: Ene
-        february: Febrero
-        february_short: Feb
-        march: Marzo
-        march_short: Mar
-        april: Abril
-        april_short: Abr
-        may: Mayo
-        may_short: May
-        june: Junio
-        june_short: Jun
-        july: Julio
-        july_short: Jul
-        august: Agosto
-        august_short: Ago
-        september: Septiembre
-        september_short: Sep
-        october: Octubre
-        october_short: Oct
-        november: Noviembre
-        november_short: Nov
-        december: Diciembre
-        december_short: Dic
-
-    weekdays:
-      label: Día de la semana
-      short: Día
-      values:
-        monday: Lunes
-        monday_short: Lun
-        tuesday: Martes
-        tuesday_short: Mar
-        wednesday: Miércoles
-        wednesday_short: Mié
-        thursday: Jueves
-        thursday_short: Jue
-        friday: Viernes
-        friday_short: Vie
-        saturday: Sábado
-        saturday_short: Sáb
-        sunday: Domingo
-        sunday_short: Dom
-
-    # -----------------------------------------------------------------------------
-    # OBSOLETO - NO MODIFICAR
-    #
-    # Claves de compatibilidad conservadas durante la migración v2.
-    #
-    # Buscar:
-    #
-    #   t(calendar.
-    #   t(event.
-    #   t(slot.
-    #   t(match.
-    #   t(rest.
-    #
-    # Eliminar una vez que todas las referencias se hayan migrado.
-    # -----------------------------------------------------------------------------
-    date: Fecha
-    daynames:
-      [Todos, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
-
-    daynames_a: [Todos, Lun, Mar, Mié, Jue, Vie, Sáb, Dom]
-
-    end: Fin
-
-    mins: min.
-
-    monthnames:
-      [
-        Todos,
-        Enero,
-        Febrero,
-        Marzo,
-        Abril,
-        Mayo,
-        Junio,
-        Julio,
-        Agosto,
-        Septiembre,
-        Octubre,
-        Noviembre,
-        Diciembre,
-      ]
-
-    monthnames_a:
-      [Todos, Ene, Feb, Mar, Abr, May, Jun, Jul, Ago, Sep, Oct, Nov, Dic]
-
-    start: Inicio
-
-    time: Hora
-
-    week: Semana
-
-    year: Año
-
-  # -----------------------------------------------------------------------------
-  # Compatibilidad heredada.
-  # Reemplazado por Calendar::EventKinds[:holiday]
-  # -----------------------------------------------------------------------------
-  event:
-    single: Evento
-    many: Eventos
-
-  slot:
-    single: Franja horaria
-
-    created: "Franja horaria creada: "
-    updated: "Franja horaria actualizada: "
-    deleted: "Franja horaria eliminada: "
-
-    edit: Editar Franja horaria
-    many: Horario
-    new: Crear Franja horaria
-
-  rest:
-    created: "Festivo creado: "
-    deleted: "Festivo eliminado: "
-    updated: "Festivo actualizado: "
-
-    single: Festivo
+      new: Nuevo horario

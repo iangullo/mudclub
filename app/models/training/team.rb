@@ -73,7 +73,7 @@ class Team < ApplicationRecord
 			cad = self.category.to_s.gsub(/[\/|\\|?|*|:|\[|\]]/, "")[0, 27]
 			return cad += "_#{self.id.to_s.rjust(3, '0')}"
 		end
-		return I18n.t("scope.none") if self.id==0
+		return Team.val(:none) if self.id==0
 		return self.name if self.name.present?
 		return self.nick if self.nick.present?
 		self.category.to_s
@@ -262,6 +262,8 @@ class Team < ApplicationRecord
 		}
 		res
 	end
+
+	def sport = super&.specific
 
 	#-------------------------------------
 	# Match/Competition helpers

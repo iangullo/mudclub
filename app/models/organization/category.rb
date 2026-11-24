@@ -37,11 +37,11 @@ class Category < ApplicationRecord
 	# General API
 	# -------------------------------------
 	def to_s
-		self.id==0 ? I18n.t("scope.none") : self.name
+		self.id==0 ? Category.val(:none) : self.name
 	end
 
 	def name
-		self.age_group.to_s + " " + I18n.t("sex.#{self.sex}_a")
+		self.age_group.to_s + " " + Person.t_path(:sex, "#{self.sex}_short")
 	end
 
 	# calculate earliest valid birthday date depending on
@@ -76,11 +76,7 @@ class Category < ApplicationRecord
 
 	# which options can be set for category sex
 	def self.sex_options
-		[
-			[ I18n.t("sex.male"), "male" ],
-			[ I18n.t("sex.female"), "female" ],
-			[ I18n.t("sex.mixed"), "mixed" ]
-		]
+		sexes.keys.map(&:to_sym).map { |sex| [ Person.t_path(:sex, sex), sex ] }
 	end
 
 	private

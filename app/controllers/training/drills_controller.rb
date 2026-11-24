@@ -177,10 +177,10 @@ class DrillsController < ApplicationController
 
 		if updated_diag
 			respond_to do |format|
-				format.html { redirect_to edit_path_for(@drill), notice: Step.fld(:diagram) + " ##{@step.order} " + I18n.t("status.saved") }
+				format.html { redirect_to edit_path_for(@drill), notice: Step.fld(:diagram) + " ##{@step.order} " + UI::Status.msg(:saved) }
 			end
 		else
-			redirect_to path_for(@drill, action: edit_diagram, notice: helpers.flash_message(I18n.t("status.no_data")), data: { turbo_action: "replace" }), status: :unprocessable_entity
+			redirect_to path_for(@drill, action: edit_diagram, notice: helpers.flash_message(UI::Status.msg(:no_data)), data: { turbo_action: "replace" }), status: :unprocessable_entity
 		end
 	end
 

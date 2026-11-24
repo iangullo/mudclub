@@ -146,7 +146,7 @@ class Slot < ApplicationRecord
 	end
 
 	def weekday(long = false)
-		long ? I18n.t("calendar.daynames")[self.wday] : I18n.t("calendar.daynames_a")[self.wday]
+		long ? Calendar.val(:daynames)[self.wday] : Calendar.val(:daynames_short)[self.wday]
 	end
 
 	# filter slots that start at or end after start_time

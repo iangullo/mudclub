@@ -278,7 +278,7 @@ class TeamsController < ApplicationController
 		@policy = check_policy!(TeamPolicy, record: @team)
 
 		fields  = helpers.team_header(title: @team.to_s)
-		fields << icon_subtitle(:attendance, I18n.t("calendar.attendance.label"))
+		fields << icon_subtitle(:attendance, Attendance.label)
 		@fields = create_fields(fields)
 		a_data  = helpers.team_attendance_table
 		if a_data
@@ -311,10 +311,10 @@ class TeamsController < ApplicationController
 			case month
 			when Integer
 				tgt = @team.team_targets.monthly(month)
-				m   = { i: month, name: I18n.t("calendar.monthnames_a")[month] }
+				m   = { i: month, name: Calendar.val(:monthnames_short)[month] }
 			when Array
 				tgt = @team.team_targets.monthly(month[1])
-				m   = { i: month[1], name: I18n.t("calendar.monthnames_a")[month[1]] }
+				m   = { i: month[1], name: Calendar.val(:monthnames_short)[month[1]] }
 			else
 				tgt = @team.team_targets.monthly(month[:i])
 				m   = { i: month[:i], name: month[:name] }

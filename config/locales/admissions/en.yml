@@ -6,7 +6,6 @@
 #
 # Canonical translations for Admission workflows and their catalogs.
 # -----------------------------------------------------------------------------
-
 en:
   admissions:
     label: Admissions

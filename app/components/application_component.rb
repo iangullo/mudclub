@@ -72,7 +72,7 @@ class ApplicationComponent < ViewComponent::Base
 			render(SymbolComponent.new(:missing,
 				size:  img[:size] || size,
 				css:   img[:i_class],
-				title: img[:title] || I18n.t("shared.messages.img_missing")
+				title: img[:title] || UI::Message.msg(:img_missing)
 			))
 		end
 

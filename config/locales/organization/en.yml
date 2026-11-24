@@ -61,6 +61,9 @@ en:
         rules_short: "Rules"
         sport: "Sport"
         sport_short: "Sport"
+      values:
+        all: All categories
+        none: No category
       messages:
         created: "Category created."
         updated: "Category updated."
@@ -68,11 +71,14 @@ en:
         duplicated: "Category already exists."
 
     division:
-      label: "Division"
-      short: "Div."
+      label: Division
+      short: Div.
       fields:
-        name: "Name"
-        sport: "Sport"
+        name: Name
+        sport: Sport
+      values:
+        all: All divisions
+        none: Non-competing
       messages:
         created: "Division created."
         updated: "Division updated."

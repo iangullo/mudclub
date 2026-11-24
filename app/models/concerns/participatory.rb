@@ -108,7 +108,7 @@ module Participatory
 	end
 
 	def date_range
-		"#{starts_on} – #{ends_on || I18n.t('shared.statuses.active')}"
+		"#{starts_on} – #{ends_on || UI::Status.val(:active)}"
 	end
 
 	# personal photo or kind symbol
@@ -156,9 +156,7 @@ module Participatory
 		end
 
 		def status_string(status, variant = nil)
-			key  = "shared.statuses.#{status}"
-			key += "_#{variant}" if variant
-			I18n.t(key)
+			UI::Status.val(status, variant:)
 		end
 	end
 

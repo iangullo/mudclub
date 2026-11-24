@@ -32,6 +32,11 @@ class Basketball < Sport
 		statistics: Catalog::Basketball::Statistics
 	}.freeze
 
+	# Set default name only on brand-new records
+	after_initialize if: :new_record? do
+		self.name ||= self.class.default_sport_name
+	end
+
 	# --------------------------------------------------------------------------
 	# Initialization
 	# --------------------------------------------------------------------------
@@ -55,9 +60,14 @@ class Basketball < Sport
 		end
 	end
 
-	# return parent object
-	def generic
-		self.becomes(Sport)
+	# Ensure settings always merge defaults cleanly regardless of how the record was loaded
+	def settings
+		raw = super || {}
+		if raw[:scoring].blank? || raw[:limits].blank?
+			basketball_settings.deep_merge(raw.deep_symbolize_keys)
+		else
+			raw.deep_symbolize_keys
+		end
 	end
 
 	# --------------------------------------------------------------------------
@@ -207,7 +217,7 @@ class Basketball < Sport
 		res << show_shooting_data(s_label("tm"), stats, :tmm, :tma)
 		res << show_shooting_data(s_label("t3"), stats, :t3m, :t3a)
 		get_shooting_totals(event.id, athlete_id, stats)
-		res << show_shooting_data(t_path("shared.stats.total_short"), stats, :fgm, :fga)
+		res << show_shooting_data(UI::Stat.fld(:total, :short), stats, :fgm, :fga)
 		res
 	end
 
@@ -348,9 +358,9 @@ class Basketball < Sport
 
 		# fields to show the sport rules limits title
 		def rules_limits_title
-			k_max = t_path("shared.stats.max_short")
-			k_min = t_path("shared.stats.min_short")
-			k_dur = t_path("shared.stats.qty_short")
+			k_max = UI::Stat.fld(:max, :short)
+			k_min = UI::Stat.fld(:min, :short)
+			k_qty = UI::Stat.fld(:max, :short)
 
 			[
 				[
@@ -366,9 +376,9 @@ class Basketball < Sport
 				],
 				[
 					topcell(term(:period, :short)),	# regular
-					topcell(k_dur),
+					topcell(k_qty),
 					topcell(t_path(:periods, :values, :ot_short)),	# extra
-					topcell(k_dur),
+					topcell(k_qty),
 					topcell(k_max),	# match roster
 					topcell(k_min),
 					topcell(k_max),	# match playing
@@ -423,7 +433,7 @@ class Basketball < Sport
 				score   = self.match_score(event.id)
 				periods = self.periods
 				match_score_fields(event.home?, score, periods, t_pers, head, t_home, t_away, edit:)
-				head << topcell(t_path("shared.stats.total_short"))
+				head << topcell(UI::Stat.fld(:total, :short))
 				team_period_score(event.home?, :tot, t_home, t_away, score[:tot], edit:)
 			end
 			fields += [ head, t_home, t_away ]
@@ -550,35 +560,50 @@ class Basketball < Sport
 
 		# parse an athlete's stats from a form input
 		def parse_athlete_stats(athlete_id, stats)
-			kplay = "#{athlete_id}_0_"
-			pstat = { pta: 0, pts: 0, fga: 0, fgm: 0, t2a: 0, t2m: 0 }
-			stats.each_pair do |key, val|
-				if key.start_with?(kplay)
-					keyarg = key.split("_")
-					kplay  = "#{keyarg[0]}_#{keyarg[1]}_"
-					kval   = val.to_i
-					case keyarg[2].to_i # deal with concepts
-					when 3; pstat[:pta] += kval	# free throws
-					when 4; pstat[:pts] += kval
-					# 5 & 6 total field goals - calculated
-					# we'll get either 7 & 8 or 9..12
-					when 7;	pstat[:fga] += kval; pstat[:t2a] += kval; pstat[:pta] += (2 * kval)	# Total 2P shots
-					when 8;	pstat[:fgm] += kval; pstat[:t2m] += kval; pstat[:pts] += (2 * kval)
-					when 9;	pstat[:fga] += kval; pstat[:t2a] += kval; pstat[:pta] += (2 * kval)	# near basket
-					when 10; pstat[:fgm] += kval; pstat[:t2m] += kval; pstat[:pts] += (2 * kval)
-					when 11; pstat[:fga] += kval; pstat[:t2a] += kval; pstat[:pta] += (2 * kval)	# mid range
-					when 12; pstat[:fgm] += kval; pstat[:t2m] += kval; pstat[:pts] += (2 * kval)
-					when 13; pstat[:fga] += kval; pstat[:pta] += (3 * kval)	# 3 pointers
-					when 14; pstat[:fgm] += kval; pstat[:pts] += (3 * kval)
-					end
+			prefix = "#{athlete_id}_0_"
+			values = Hash.new(0)
+			submitted = Set.new
+
+			# 1. Read submitted values mapped to their catalog keys
+			stats.each_pair do |key, raw|
+				next unless key.start_with?(prefix)
+
+				concept_id = key.delete_prefix(prefix).to_i
+				entry = statistics.entry(concept_id)
+				next unless entry
+
+				values[entry.key] = raw.to_i
+				submitted << entry.key
+			end
+
+			# 2. Roll up composite stats (tza+tma -> t2a, t2a+t3a -> fga, drb+orb -> trb)
+			# Only overwrite a composite stat if at least one of its components was submitted.
+			2.times do
+				statistics.each do |entry|
+					comps = entry[:components]
+					next unless comps&.any? { |c| submitted.include?(c) }
+
+					values[entry.key] = comps.sum { |c| values[c] }
+					submitted << entry.key
 				end
 			end
-			stats["#{kplay}1"] = pstat[:pta]
-			stats["#{kplay}2"] = pstat[:pts]
-			stats["#{kplay}5"] = pstat[:fga]
-			stats["#{kplay}6"] = pstat[:fgm]
-			stats["#{kplay}7"] = pstat[:t2a]
-			stats["#{kplay}8"] = pstat[:t2m]
+
+			# 3. Compute points from canonical scoring shots (FT + 2PT + 3PT)
+			# Exclude sub-zones (tza/tma) since they already rolled into t2a/t2m,
+			# and exclude total field goals (fga/fgm) which don't have a fixed point value.
+			sub_zone_keys = %i[tza tzm tma tmm]
+			scoring_shots = statistics.select do |e|
+				e[:family] == :shooting && e[:points] && sub_zone_keys.exclude?(e.key)
+			end
+
+			values[:pta] = scoring_shots.select { |e| e[:kind] == :attempt }.sum { |e| values[e.key] * e[:points] }
+			values[:pts] = scoring_shots.select { |e| e[:kind] == :made }.sum { |e| values[e.key] * e[:points] }
+
+			# 4. Write calculated totals back into the stats hash using catalog IDs
+			%i[pta pts fga fgm t2a t2m trb].each do |key|
+				id = statistics.enum[key]
+				stats["#{prefix}#{id}"] = values[key] if id
+			end
 		end
 
 		# Scoring acumulator for Basketball

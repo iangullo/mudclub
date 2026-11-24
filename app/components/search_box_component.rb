@@ -51,7 +51,7 @@ class SearchBoxComponent < ApplicationComponent
 		@fields.each  do |field|	# parse placeholders & labels
 			labels = true if field[:label].present?
 			field[:size]        ||= 17
-			field[:placeholder] ||= I18n.t("action.search") if field[:kind] == :search_text
+			field[:placeholder] ||= UI::Action.act(:search) if field[:kind] == :search_text
 		end
 		extra    = labels ? "mt-3" : "align-middle"
 		@i_class = (I_CLASS + [ extra ]).join(" ")
@@ -106,12 +106,10 @@ class SearchBoxComponent < ApplicationComponent
 		end
 
 		def render_submit_button
+			label = UI::Action.act(:search)
 			concat(content_tag(:div, class: S_CLASS) do
-				tag.button(type: :submit, class: "p-1 align-middle", aria: { label: t("action.search") }) do
-					render SymbolComponent.new("search",
-						type: :button,
-						label: t("shared.actions.search")
-					)
+				tag.button(type: :submit, class: "p-1 align-middle", aria: { label: }) do
+					render SymbolComponent.new(:search, type: :button, label:)
 				end
 			end)
 		end

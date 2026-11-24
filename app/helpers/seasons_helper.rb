@@ -22,11 +22,11 @@ module SeasonsHelper
 		res = season_title(title:, cols:)
 		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
-			label_item(I18n.t("calendar.start"), align: :right),
+			label_item(Calendar.fld(:start), align: :right),
 			{ kind: :date_box, key: :start_date, s_year: 2020, value: @season.start_date }
 		]
 		res << [
-			label_item(I18n.t("calendar.end"), align: :right),
+			label_item(Calendar.fld(:end), align: :right),
 			{ kind: :date_box, key: :end_date, s_year: 2020, value: @season.end_date }
 		]
 		res
@@ -58,11 +58,11 @@ module SeasonsHelper
 		res = season_title(title: @season.label, cols:)
 		res << [ { kind: :subtitle, value: @season.name } ]
 		res << [
-			label_item(I18n.t("calendar.start"), align: :right),
+			label_item(Calendar.fld(:start), align: :right),
 			{ kind: :text, value: @season.start_date }
 		]
 		res << [
-			label_item(I18n.t("calendar.end"), align: :right),
+			label_item(Calendar.fld(:end), align: :right),
 			{ kind: :text, value: @season.end_date }
 		]
 		res
@@ -70,7 +70,7 @@ module SeasonsHelper
 
 
 	# return icon and top of HeaderComponent
-	def season_title(icon: symbol_hash("calendar"), title:, cols: nil)
+	def season_title(icon: symbol_hash(:calendar), title:, cols: nil)
 		title_start(icon:, title:, cols:)
 	end
 end

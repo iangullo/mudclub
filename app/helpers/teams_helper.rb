@@ -47,7 +47,7 @@ module TeamsHelper
 			rows << {
 				items: [
 					{ kind: :bottom, value: nil },
-					{ kind: :bottom, align: :right, value: I18n.t("shared.stats.avg") },
+					{ kind: :bottom, align: :right, value: UI::Stat.fld(:avg, :short) },
 					{ kind: :percentage, value: t_att[:sessions][:week], align: :right },
 					{ kind: :percentage, value: t_att[:sessions][:month], align: :right },
 					{ kind: :percentage, value: t_att[:sessions][:avg], align: :right },
@@ -137,7 +137,7 @@ module TeamsHelper
 			end
 			if pcount
 				title << { kind: :normal, value: Team.term(:athlete, :short) }
-				trow = { url: "#", items: [ gap_item(cols: 2), { kind: :bottom, value: I18n.t("shared.stats.total") } ] }
+				trow = { url: "#", items: [ gap_item(cols: 2), { kind: :bottom, value: UI::Stat.fld(:total, :short) } ] }
 				tcnt = []	# total athletes
 			end
 			title << normal_button({ kind: :add, url: new_path_for(@club, :team, season_id: @season.id), frame: :modal }) if @policy.create?

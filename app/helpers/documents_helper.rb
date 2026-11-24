@@ -137,7 +137,7 @@ module DocumentsHelper
 
 	def document_versions_table
 		res = [ [
-			topcell_item(I18n.t("calendar.date")),
+			topcell_item(Calendar.fld(:date)),
 			topcell_item(Document.fld(:version)),
 			topcell_item(Document.fld(:status))
 		] ]

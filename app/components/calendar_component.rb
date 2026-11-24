@@ -80,9 +80,9 @@ class CalendarComponent < ApplicationComponent
 				ButtonComponent.new(kind: :add, name: cname, url: c_url + "&event[kind]=rest&event[team_id]=0", frame: :modal)
 			else # new team event
 				button = { kind: :add, name: cname, options: [] }
-				button[:options] << { label: I18n.t("train.single"), url: c_url + "&event[kind]=train", data: { turbo_frame: :modal } }
-				button[:options] << { label: I18n.t("match.single"), url: c_url + "&event[kind]=match", data: { turbo_frame: :modal } }
-				button[:options] << { label: I18n.t("rest.single"), url: c_url + "&event[kind]=rest", data: { turbo_frame: :modal } }
+				button[:options] << { label: Event.kind_label(:training), url: c_url + "&event[kind]=training", data: { turbo_frame: :modal } }
+				button[:options] << { label: Event.kind_label(:match), url: c_url + "&event[kind]=match", data: { turbo_frame: :modal } }
+				button[:options] << { label: Event.kind_label(:holiday), url: c_url + "&event[kind]=holiday", data: { turbo_frame: :modal } }
 				DropdownComponent.new(button)
 			end
 		end
@@ -145,8 +145,8 @@ class CalendarComponent < ApplicationComponent
 				"transition-opacity duration-150"
 			].join(" ")
 			c_event[:l_class] = "hover:text-white #{styles[:hover_bg]}"
-	    c_event[:symbol][:options][:size] = "30x30"
-		  c_event
+			c_event[:symbol][:options][:size] = "30x30"
+			c_event
 		end
 
 		# cells of canvas have strong dependency on calendar scope
@@ -195,7 +195,7 @@ class CalendarComponent < ApplicationComponent
 			l_date = l_date.next_occurring(:sunday) unless l_date.wday==7
 			@c_rows = ((l_date - f_date)/@c_cols).ceil
 			@dayname = []	# host day names
-			1.upto(@c_cols) { |j| @dayname << I18n.t("calendar.daynames_a")[j] if @c_cols > 1 }
+			1.upto(@c_cols) { |j| @dayname << Calendar.val(:daynames_short)[j] if @c_cols > 1 }
 			@cells   = canvas_cells(f_date:)
 		end
 

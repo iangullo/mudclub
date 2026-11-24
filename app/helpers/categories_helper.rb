@@ -19,7 +19,7 @@
 module CategoriesHelper
 	# return icon and top of a view
 	def category_header(title:, subtitle: @sport&.to_s, rows: 2, cols: nil)
-		title_start(icon: symbol_hash("category", namespace: "sport"), title:, subtitle:, rows:, cols:)
+		title_start(icon: symbol_hash(:category, namespace: "sport"), title:, subtitle:, rows:, cols:)
 	end
 
 	# Field definitions for category.show
@@ -33,9 +33,9 @@ module CategoriesHelper
 			],
 			[
 				gap_item(1),
-				label_item(I18n.t("shared.stats.min_short"), align: :right),
+				label_item(UI::Stat.fld(:min, :short), align: :right),
 				{ kind: :string, value: @category.min_years },
-				label_item(I18n.t("shared.stats.max_short")),
+				label_item(UI::Stat.fld(:max, :short)),
 				{ kind: :string, value: @category.max_years }
 			],
 			[
@@ -56,9 +56,9 @@ module CategoriesHelper
 				{ kind: :select_box, key: :sex, options: Category.sex_options, value: @category.sex, cols: 2 }
 			],
 			[
-				label_item(I18n.t("shared.stats.min_short"), align: :right),
+				label_item(UI::Stat.fld(:min, :short), align: :right),
 				{ kind: :number_box, key: :min_years, min: 5, size: 3, value: @category.min_years, mandatory: { min: 5 }, align: :left },
-				label_item(I18n.t("shared.stats.max_short"), align: :right),
+				label_item(UI::Stat.fld(:max, :short), align: :right),
 				{ kind: :number_box, key: :max_years, min: 6, size: 3, value: @category.max_years, mandatory: { max: 99 } },
 				gap_item(1)
 			],
@@ -75,8 +75,8 @@ module CategoriesHelper
 		title = [
 			{ kind: :normal, value: Category.fld(:name) },
 			{ kind: :normal, value: Person.fld(:sex) },
-			{ kind: :normal, value: I18n.t("shared.stats.min_short") },
-			{ kind: :normal, value: I18n.t("shared.stats.max_short") }
+			{ kind: :normal, value: UI::Stat.fld(:min, :short) },
+			{ kind: :normal, value: UI::Stat.fld(:max, :short) }
 		]
 		title <<  normal_button({ kind: :add, url: new_path_for(@sport.generic, :category), frame: :modal }) if @policy.new?
 

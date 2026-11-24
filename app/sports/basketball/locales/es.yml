@@ -31,6 +31,7 @@ es:
           single: Pista
           plural: Pistas
           short: P.
+          gender: female
         period:
           single: Cuarto
           plural: Cuartos
@@ -39,8 +40,10 @@ es:
           single: Prórroga
           plural: Prórrogas
           short: Pró.
+          gender: female
 
       rules:
+        gender: female
         label:
           single: Regla
           plural: Reglas
@@ -65,9 +68,10 @@ es:
           three_desc: Baloncesto 3x3.
 
       periods:
-        label: Periodo
-        plural: Periodos
-        short: Q
+        label:
+          single: Periodo
+          plural: Periodos
+          short: Q
         regular: Normal
         extra: Extra
         values:
@@ -98,6 +102,7 @@ es:
           half_def_short: Def.
 
       drill_categories:
+        gender: female
         values:
           shooting: Tiro
           shooting_short: Tiro

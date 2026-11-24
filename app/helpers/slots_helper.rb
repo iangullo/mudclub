@@ -54,7 +54,7 @@ module SlotsHelper
 		]
 		res << [
 			symbol_item(:clock),
-			{ kind: :number_box, key: :duration, min: 60, max: 120, step: 15, size: 3, value: @slot.duration, units: I18n.t("calendar.mins"), mandatory: { min: 60 } }
+			{ kind: :number_box, key: :duration, min: 60, max: 120, step: 15, size: 3, value: @slot.duration, units: Calendar.fld(:mins), mandatory: { min: 60 } }
 		]
 		res.last << hidden_input(:season_id, @season.id)
 		res.last << hidden_input(:rdx, @rdx) if @rdx
@@ -147,7 +147,7 @@ module SlotsHelper
 		# returns an array with weekday names and their id
 		def weekdays
 			res =[]
-			1.upto(5) { |i|res << [ I18n.t("calendar.daynames")[i], i ] }
+			1.upto(5) { |i|res << [ Calendar.val(:daynames)[i], i ] }
 			res
 		end
 end

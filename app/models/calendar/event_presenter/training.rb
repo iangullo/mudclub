@@ -30,7 +30,7 @@ class EventPresenter
 		def created_notice = "#{notice(:created)} #{event.date_string}"
 		def deleted_notice = "#{notice(:deleted)} #{event.date_string}"
 		def updated_notice(initial, changed:)
-			return I18n.t("status.no_data") unless changed
+			return UI::Status.msg(:no_data) unless changed
 			"#{initial} #{event.date_string}"
 		end
 
@@ -39,7 +39,7 @@ class EventPresenter
 			t = team || self.team
 			[ [ { kind: :accordion,
 						title: Task.label(:plural),
-						tail:  "#{I18n.t('shared.stats.total')}: #{event.work_duration}",
+						tail:  "#{UI::Stat.fld(:total)}: #{event.work_duration}",
 						objects: task_accordion(view, team: t, cal:) } ] ]
 		end
 
@@ -195,7 +195,7 @@ class EventPresenter
 			def copy_button(view, policy:)
 				return nil unless policy.copy?
 				{ kind: :action, symbol: view.symbol_hash(:copy, type: :button),
-					label: I18n.t("shared.actions.copy"),
+					label: UI::Action.act(:copy),
 					url:   view.event_action_path(:copy, event:), frame: :modal }
 			end
 

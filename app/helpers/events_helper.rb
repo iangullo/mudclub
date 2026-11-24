@@ -118,8 +118,8 @@ module EventsHelper
 
 	# return icon and top of fields definition
 	def event_index_title(team: nil, season: nil)
-		title    = (team ? team.nick : (season ? season.name : I18n.t("calendar.label")))
-		subtitle = (team ? team.category.name : I18n.t("scope.all"))
+		title    = (team ? team.nick : (season ? season.name : Calendar.label))
+		subtitle = (team ? team.category.name : Category.val(:all))
 		res      = title_start(icon: symbol_hash(:calendar), title:, subtitle:)
 		res     += [ [ gap_item(1), string_item(team.division.name + " (#{team.season.name})") ] ] if team
 		res
@@ -139,8 +139,8 @@ module EventsHelper
 		end
 
 		title = [
-			{ kind: :normal, value: I18n.t("calendar.date"), align: :center },
-			{ kind: :normal, value: I18n.t("calendar.time"), align: :center },
+			{ kind: :normal, value: Calendar.fld(:date), align: :center },
+			{ kind: :normal, value: Calendar.fld(:time), align: :center },
 			{ kind: :normal, value: Event.label, cols: 4 }
 		]
 		rows    = event_rows(events:, season_id:)
@@ -191,7 +191,7 @@ module EventsHelper
 			calendurl = clubevent ? club_events_path(obj, season_id: @season&.id) : club_team_events_path(obj.club, obj)
 			toprow = [	#  top row above the table
 				normal_button(
-					{ kind: :link, symbol: :calendar, label: I18n.t("calendar.label"), size: "30x30", url: calendurl },
+					{ kind: :link, symbol: :calendar, label: Calendar.label, size: "30x30", url: calendurl },
 					class: "align-middle text-indigo-900"
 				)
 			]
@@ -242,11 +242,11 @@ module EventsHelper
 				h_fields << hidden_input(:kind, @event.kind)
 				res << h_fields
 			else
-				res[0] << normal_button({ kind: :link, symbol: symbol_hash(:calendar), url: path_for(@event, format: :ics), title: I18n.t("calendar.add") })
+				res[0] << normal_button({ kind: :link, symbol: symbol_hash(:calendar), url: path_for(@event, format: :ics), title: Event.act(:add) })
 				res[0] << { kind: :string, value: @event.date_string }
 				if @event.specific.has_time?
 					res[1] << gap_item if @task
-					res[1] << symbol_item(:clock, { title: I18n.t("calendar.time") })
+					res[1] << symbol_item(:clock, { title: Calendar.fld(:time) })
 					res[1] << { kind: :string, value: @event.time_string }
 				end
 			end

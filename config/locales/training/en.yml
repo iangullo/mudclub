@@ -226,6 +226,8 @@ en:
         division: Competition
         facility: Home facility
         roster: Roster
+      values:
+        none: No teams
       messages:
         created: Team created.
         updated: Team updated.

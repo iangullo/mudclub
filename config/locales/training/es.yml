@@ -12,11 +12,12 @@
 # Las claves de compatibilidad heredadas se conservan al final de este archivo
 # durante la migración v2 y no deben usarse en código nuevo.
 # -----------------------------------------------------------------------------
-
 es:
   training:
-    label: Entrenamiento
-    short: Entren.
+    label:
+      single: Entrenamiento
+      plural: Entrenamientos
+      short: Entren.
 
     drill:
       label:
@@ -24,9 +25,9 @@ es:
         plural: Ejercicios
         short: Ejerc.
       actions:
-        delete: Borrar Ejercicio
-        edit: Editar Ejercicio
-        new: Crear Ejercicio
+        delete: Borrar ejercicio
+        edit: Editar ejercicio
+        new: Crear ejercicio
       fields:
         name: Nombre
         description: Descripción
@@ -40,10 +41,10 @@ es:
         sport_short: Dep.
         court_mode: Disposición de campo
         court_mode_short: Disposición
-        versions: Versions
+        versions: Versiones
       values:
         none: Ningún ejercicio seleccionado
-        default: <Nuevo Ejercicio>
+        default: <Nuevo ejercicio>
       messages:
         created: Ejercicio creado.
         updated: Ejercicio actualizado.
@@ -64,7 +65,7 @@ es:
         updated: Tipo de ejercicio actualizado.
         deleted: Tipo de ejercicio eliminado.
 
-    drill_kind: # VOCALBULARIO ANTIGUO - A eliminar en 2.1
+    drill_kind: # VOCABULARIO ANTIGUO - A eliminar en 2.1
       label:
         single: Tipo
         plural: Tipos
@@ -96,6 +97,7 @@ es:
         deleted: Plan de entrenamiento eliminado.
 
     session:
+      gender: female
       label:
         single: Sesión
         plural: Sesiones
@@ -118,6 +120,7 @@ es:
         attendance_checked: Asistencia verificada.
 
     skill:
+      gender: female
       label:
         single: Habilidad
         plural: Habilidades
@@ -134,6 +137,7 @@ es:
         deleted: Habilidad eliminada.
 
     stat:
+      gender: female
       label:
         single: Estadística
         plural: Estadísticas
@@ -168,7 +172,7 @@ es:
         plural: Objetivos
         short: Obj.
       actions:
-        edit: Editar Objetivos
+        edit: Editar objetivos
       fields:
         concept: Concepto
         aspect: Aspecto
@@ -177,8 +181,10 @@ es:
       values:
         default: <objetivo>
       aspect:
-        label: Aspecto
-        short: Aspecto
+        label:
+          single: Aspecto
+          plural: Aspectos
+          short: Aspecto
         values:
           general: General
           general_short: Gral.
@@ -193,7 +199,8 @@ es:
       focus:
         label:
           single: Enfoque
-          sshort: Enfoque
+          plural: Enfoques
+          short: Enfoque
         values:
           offense: Ataque
           offense_short: Atq.
@@ -227,6 +234,8 @@ es:
         division: Competición
         facility: Instalación local
         roster: Plantilla
+      values:
+        none: Ningún equipo
       messages:
         created: Equipo creado.
         updated: Equipo actualizado.
@@ -234,13 +243,14 @@ es:
         updated_plan: Planificación actualizada.
 
     task:
+      gender: female
       label:
         single: Tarea
         plural: Tareas
         short: Tarea
       actions:
-        add: Añadir Tarea
-        edit: Editar Tarea
+        add: Añadir tarea
+        edit: Editar tarea
       fields:
         drill: Ejercicio
         order: Orden
@@ -255,6 +265,7 @@ es:
         deleted: Tarea eliminada.
 
     version:
+      gender: female
       label:
         single: Versión
         plural: Versiones

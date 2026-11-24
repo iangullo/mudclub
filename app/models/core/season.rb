@@ -71,7 +71,7 @@ class Season < ApplicationRecord
 	# return season name - taking start & finish years
 	def name(safe: nil)
 		if self.id == 0	# fake season for all events/teams
-			cad = I18n.t("scope.all")
+			cad = Season.val(:all)
 		else
 			cad = self.start_year.to_s
 			if self.end_year > self.start_year

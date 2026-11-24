@@ -54,7 +54,7 @@ class SubmitComponent < ApplicationComponent
 
 			label =
 				case kind
-				when :close  then submit == :save ? I18n.t("action.cancel") : I18n.t("action.close")
+				when :close  then submit == :save ? UI::Action.act(:cancel) : UI::Action.act(:close)
 				when :cancel then nil
 				end
 

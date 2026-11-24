@@ -29,6 +29,6 @@ class ModalComponent < ApplicationComponent
 		@width  = width
 		h_cap   = "calc(100dvh - #{CHROME_REM}rem)"
 		@height = height ? "min(#{height}, #{h_cap})" : h_cap
-		@close  = ButtonComponent.new(kind: :close, label: I18n.t("action.close")) if simple
+		@close  = ButtonComponent.new(kind: :close, label: UI::Action.act(:close)) if simple
 	end
 end

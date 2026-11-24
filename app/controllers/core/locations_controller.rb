@@ -65,7 +65,7 @@ class LocationsController < ApplicationController
 		respond_to do |format|
 			@location = Location.new
 			@location.rebuild(location_params) # rebuild @location
-			a_desc    = "#{I18n.t("location.created")} #{@club&.nick} => '#{@location.name}'"
+			a_desc    = "#{Location.msg(:created)} #{@club&.nick} => '#{@location.name}'"
 			u_notice  = helpers.flash_message(a_desc, "success")
 			if @location.id!=nil || @location.save # location existed or saved
 				retlnk = crud_return
@@ -89,7 +89,7 @@ class LocationsController < ApplicationController
 			@location.rebuild(location_params)
 			retlnk = crud_return
 			if @location.id!=nil  # we have location to save
-				a_desc = "#{I18n.t("location.updated")} '#{@location.name}'"
+				a_desc = "#{Location.msg(:updated)} '#{@location.name}'"
 				if @location.changed?
 					if @location.save  # try to save
 						register_action(:updated, a_desc, url: path_for(@location, rdx: 2), modal: true)
@@ -108,7 +108,7 @@ class LocationsController < ApplicationController
 					format.json { render :index, status: :unprocessable_entity, location: retlnk }
 				end
 			else
-				prepare_form(title: I18n.t("location.edit"))
+				prepare_form(title: Location.act(:edit))
 				format.html { render retlnk }
 				format.json { render :index, status: :unprocessable_entity, location: retlnk }
 			end
@@ -122,7 +122,7 @@ class LocationsController < ApplicationController
 
 		respond_to do |format|
 			l_name = @location.name
-			a_desc = "#{I18n.t("location.deleted")} #{@club&.nick} => '#{l_name}'"
+			a_desc = "#{Location.msg(:deleted)} #{@club&.nick} => '#{l_name}'"
 			retlnk = crud_return
 			register_action(:deleted, a_desc)
 			@club.locations.delete(@location)
@@ -139,7 +139,7 @@ private
 
 	# prepare ViewComponents for a Location edit/new form
 	def prepare_form(action)
-		@fields = create_fields(helpers.location_form(title: I18n.t("location.#{action}")))
+		@fields = create_fields(helpers.location_form(title: Location.act(:action)))
 		@submit = create_submit
 	end
 

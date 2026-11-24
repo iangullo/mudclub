@@ -41,6 +41,12 @@ class Sport < ApplicationRecord
 	# --------------------------------------------------------------------------
 	# Common Sport API
 	# --------------------------------------------------------------------------
+
+	# Returns the generic Sport instance if needed
+	def generic
+		instance_of?(Sport) ? self : becomes(Sport)
+	end
+
 	# Consistent helper for abstract methods.
 	def not_implemented!
 		raise NotImplementedError,
@@ -61,18 +67,37 @@ class Sport < ApplicationRecord
 	# --------------------------------------------------------------------------
 
 	# Returns the runtime implementation for this sport.
+	# Casts generic Sport instances into their specific subclass in-memory (0 extra SQL queries)
 	#
 	# Example:
 	#
 	#   Sport(name: "Basketball").specific
 	#   => Basketball.new(id: ...)
 	def specific
-		instance_of?(Sport) ? specific_instance : self
+		return self unless instance_of?(Sport)
+
+		klass = specific_class
+		becomes(klass)
 	end
 
-	# Returns the specific implementation for a stored sport.
-	def self.fetch(id = nil)
-		(id ? find(id) : first)&.specific
+	# Automatically scopes queries when called on a subclass (e.g., Basketball.fetch)
+	def self.fetch(sport = nil)
+		scope = (self == Sport) ? all : where(name: default_sport_name)
+
+		record =
+			case sport
+			when self    then sport
+			when Sport   then sport.specific
+			when Integer then scope.find_by(id: sport)
+			when String, Symbol
+				scope.find_by(name: sport.to_s.downcase)
+			when nil
+				scope.first
+			else
+				raise ArgumentError, "Unsupported sport lookup: #{sport.class}"
+			end
+
+		record&.specific
 	end
 
 	# --------------------------------------------------------------------------
@@ -369,6 +394,18 @@ class Sport < ApplicationRecord
 			end
 		end
 
+		def specific_class
+			klass = name.to_s.classify.safe_constantize
+			unless klass && klass < Sport
+				raise NameError, "Sport '#{name}' has no valid implementation subclass."
+			end
+			klass
+		end
+
+		def self.default_sport_name
+			name.demodulize.underscore
+		end
+
 		# ---------------------------------------------------------------------------
 		# Delegation
 		#
@@ -386,15 +423,6 @@ class Sport < ApplicationRecord
 			end
 
 			target.public_send(method, ...)
-		end
-
-		def specific_instance
-			klass = name.to_s.camelize.safe_constantize
-
-			raise NameError,
-						"Sport '#{name}' has no implementation class." unless klass
-
-			klass.find(id)
 		end
 
 		# ---------------------------------------------------------------------------
@@ -461,18 +489,11 @@ class Sport < ApplicationRecord
 			end
 		end
 
-		# "q1".."q6" → 1..6, "ot" → 7, "tot" → 0, "0".."7" pass through.
-		def resolve_period(period_str)
-			return period_str.to_i if period_str.match?(/\A\d+\z/)
-			catalog(:periods).enum[period_str.to_sym]
-		end
-
 		# Use the sport catalog to turn "q1"/"ot"/… into period ids.
 		# Bare integers pass through; "tot" is derived, never persisted;
 		# unknown symbols return nil and are skipped.
 		def resolve_period(period_str)
 			return period_str.to_i if period_str.match?(/\A\d+\z/)
-			# return nil if period_str == "tot"
 
 			catalog(:periods).enum[period_str.to_sym]
 		end

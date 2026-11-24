@@ -36,7 +36,7 @@ class Division < ApplicationRecord
 	# General API
 	# -------------------------------------
 	def to_s
-		self.id==0 ? I18n.t("scope.none") : self.name
+		self.id==0 ? Division.val(:none) : self.name
 	end
 
 	# parse raw form data to update object values

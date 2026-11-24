@@ -266,7 +266,7 @@ class Event < ApplicationRecord
 
 	# return event title depending on kind & data
 	def title(show: nil, copy: nil, print: nil)
-		cad = show ? "" : (self.id ? (copy ? "#{I18n.t("action.copy")} " : "#{I18n.t("action.edit")} ") : "#{I18n.t("action.create")}")
+		cad = show ? "" : (self.id ? (copy ? "#{UI::Action.act(:copy)} " : "#{UI::Action.act(:edit)} ") : "#{UI::Action.act(:create)}")
 		e_string = self.kind_label
 		case self.kind.to_sym
 		when :holiday, :rest

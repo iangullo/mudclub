@@ -59,15 +59,15 @@ class EventPresenter
 		def created_notice = notice(:created) + notice_suffix
 		def deleted_notice = notice(:deleted) + notice_suffix
 		def updated_notice(initial, changed:)
-			return I18n.t("status.no_data") unless changed
-			return initial if initial == I18n.t("stat.updated")
+			return UI::Status.msg(:no_data) unless changed
+			return initial if initial == notice(:updated)
 			initial + notice_suffix
 		end
 
 		private
 
 		def notice(verb)
-			I18n.t("calendar.event.messages.#{verb}", kind: event.kind_label)
+			Event.msg(verb, kind: event.kind_label)
 		end
 
 		def notice_suffix = ": #{event.to_s(style: "notice")}"

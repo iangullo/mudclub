@@ -130,7 +130,7 @@ class ApplicationController < ActionController::Base
 
 	# standard message for actions that had no data to change
 	def no_data_notice(trail: nil)
-		cad = I18n.t("status.no_data")
+		cad = UI::Status.msg(:no_data)
 		cad = "#{cad} (#{trail})" if trail
 		helpers.flash_message(cad, "info")
 	end
@@ -195,7 +195,7 @@ class ApplicationController < ActionController::Base
 
 	def require_module(name)
 		return if Server.module_enabled?(name)
-		deny_access(I18n.t("server.module_disabled"))
+		deny_access(Server.msg(:module_disabled))
 	end
 
 	# set the action's context
@@ -203,7 +203,6 @@ class ApplicationController < ActionController::Base
 		Server.current
 		@token  = requester_token
 		@club   = Club.find(params[:club_id]) if params[:club_id].present?
-		@locale = (params[:locale] || current_user&.locale || Server.default_locale)
 		if user_signed_in?
 			@club ||= u_club
 			@rdx    = p_rdx
@@ -234,6 +233,7 @@ class ApplicationController < ActionController::Base
 
 	# switch app locale
 	def switch_locale(&action)
+		@locale = resolve_locale
 		I18n.with_locale(@locale, &action)
 	end
 
@@ -304,7 +304,7 @@ class ApplicationController < ActionController::Base
 			false
 		end
 
-		def deny_access(message = I18n.t("shared.messages.access_denied"))
+		def deny_access(message = UI::Message.msg(:access_denied))
 			raise AccessDenied, message
 		end
 
@@ -409,6 +409,13 @@ class ApplicationController < ActionController::Base
 			else
 				{ status: :invalid, message: "Cannot process submitted data: #{attrs}" }
 			end
+		end
+
+		# resolve locale to apply
+		def resolve_locale
+			requested = params[:locale] || current_user&.locale || session[:locale] || Server.locale
+			available = I18n.available_locales.map(&:to_s)
+			available.include?(requested.to_s) ? requested.to_sym : I18n.default_locale
 		end
 
 		def requester_registrations_path

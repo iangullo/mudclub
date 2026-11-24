@@ -155,7 +155,7 @@ class DropdownComponent < ApplicationComponent
 		def set_name(button)
 			button[:id] = "#{button[:name]}-btn"
 			if button[:name] =~ /^(add.*)$/
-				button[:title]  ||= I18n.t("action.create")
+				button[:title]  ||= UI::Action.act(:create)
 				button[:symbol] ||= { concept: "add", options: { css: "items-center" } }
 			end
 		end

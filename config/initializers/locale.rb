@@ -45,3 +45,12 @@ I18n.default_locale = :es
 # Raise an exception when a translation is missing (development/test only)
 #
 # I18n.raise_on_missing_translations = true
+
+#
+# Clear cached I18n metadata on code/locale reload in development
+#
+if Rails.env.development?
+	Rails.application.config.to_prepare do
+		Localizable.clear_gender_cache!
+	end
+end

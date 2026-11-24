@@ -1,18 +1,21 @@
-# config/locales/participation/en.yml
+# config/locales/admissions/es.yml
 # -----------------------------------------------------------------------------
 # MudClub
 #
-# Admissions domain
+# Dominio de inscripciones (Admissions)
 #
-# Canonical translations for Admission workflows and their catalogs.
+# Traducciones canónicas para flujos de admisión y sus catálogos.
 # -----------------------------------------------------------------------------
-
 es:
   admissions:
-    label: Inscripciones
-    short: Inscrip.
+    gender: female
+    label:
+      single: Inscripción
+      plural: Inscripciones
+      short: Inscrip.
 
     registration:
+      gender: female
       label:
         single: Solicitud
         plural: Solicitudes
@@ -81,12 +84,15 @@ es:
 
     registration_kinds:
       label:
-        single: Tipo de Solicitud
+        single: Tipo de solicitud
+        plural: Tipos de solicitud
         short: Tipo
       values:
         athlete:
           single: Deportista
+          female: Deportista
           plural: Deportistas
+          plural_female: Deportistas
           short: Dep.
           hint: Desea participar como deportista.
         coach:
@@ -110,15 +116,17 @@ es:
           short: J.D.
           hint: Desea participar como miembro de la directiva.
         club_manager:
-          single: Gestor del Club
-          female: Gestora del Club
-          plural: Gestores del Club
+          single: Gestor del club
+          female: Gestora del club
+          plural: Gestores del club
+          plural_female: Gestoras del club
           short: Ges.
           hint: Desea participar como gestor del club.
         user:
           single: Usuario
           female: Usuaria
           plural: Usuarios
+          plural_female: Usuarias
           short: Us.
           hint: Desea participar como usuario/a.
 
@@ -149,6 +157,7 @@ es:
     registration_statuses:
       label:
         single: Estado
+        plural: Estados
         short: Est.
       values:
         draft:
@@ -158,7 +167,7 @@ es:
           hint: Borrador de solicitud.
         submitted:
           single: Presentada
-          plural: Presentada
+          plural: Presentadas
           short: Present.
           hint: La solicitud se ha presentado para su revisión.
         under_review:

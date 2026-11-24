@@ -49,7 +49,7 @@ class SportsController < ApplicationController
 		@policy = check_policy!(SportPolicy, record: @sport)
 
 		redirect_to path_for(@sport), data: { turbo_action: "replace" }
-		# @fields = create(helpers.sports_form(title: I18n.t("sport.edit"))) # rubocop:disable Layout/CommentIndentation
+		# @fields = create(helpers.sports_form(title: Sport.act(:edit))) # rubocop:disable Layout/CommentIndentation
   	# @submit = create_submit # rubocop:disable Layout/IndentationStyle
 	end
 
@@ -87,7 +87,7 @@ class SportsController < ApplicationController
 	private
 		# prepare a form to edit/create a Sport
 		def prepare_form(action)
-			@fields = create_fields(helpers.sports_form(title: I18n.t("sport.#{action}")))
+			@fields = create_fields(helpers.sports_form(title: Sport.act(action)))
 			@submit = create_submit(retlnk: back_link)
 		end
 

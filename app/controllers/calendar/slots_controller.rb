@@ -50,14 +50,14 @@ class SlotsController < ApplicationController
 
 		set_location
 		@slot = Slot.new(season_id: @season.id, location_id: @location.id, wday: 1, start: Time.new(2021, 8, 30, 17, 00), duration: 90, team_id: 0)
-		prepare_form("new")
+		prepare_form(:new)
 	end
 
 	# GET /clubs/x/slots/1/edit
 	def edit
 		@policy = check_policy!(SlotPolicy, club: @club, record: @slot)
 
-		prepare_form("edit")
+		prepare_form(:edit)
 	end
 
 	# POST /clubs/x/slots or /clubs/x/slots.json
@@ -69,7 +69,7 @@ class SlotsController < ApplicationController
 			@slot.rebuild(slot_params) # rebuild @slot
 			if @slot.changed?
 				if @slot.save # try to store
-					a_desc = "#{I18n.t("calendar.slot.messages.created")} '#{@slot}'"
+					a_desc = "#{Slot.msg(:created)} '#{@slot}'"
 					register_action(:created, a_desc, url: path_for(@slot), modal: true)
 					format.html { redirect_to crud_return, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :index, status: :created, location: @slot }
@@ -94,12 +94,12 @@ class SlotsController < ApplicationController
 			retlnk = crud_return
 			if @slot.changed?
 				if @slot.save
-					a_desc = "#{I18n.t("calendar.slot.messages.updated")} '#{@slot}'"
+					a_desc = "#{Slot.msg(:updated)} '#{@slot}'"
 					register_action(:updated, a_desc, url: path_for(@slot, rdx: 2), modal: true)
 					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :index, status: :ok, location: @slot }
 				else
-					prepare_form("edit")
+					prepare_form(:edit)
 					format.html { render :edit, status: :unprocessable_entity }
 					format.json { render json: @slot.errors, status: :unprocessable_entity }
 				end
@@ -118,7 +118,7 @@ class SlotsController < ApplicationController
 		retlnk = crud_return
 		@slot.destroy
 		respond_to do |format|
-			a_desc = "#{I18n.t("calendar.slot.messages.deleted")} '#{s_name}'"
+			a_desc = "#{Slot.msg(:deleted)} '#{s_name}'"
 			register_action(:deleted, a_desc)
 			format.html { redirect_to retlnk, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 			format.json { head :no_content }
@@ -177,7 +177,7 @@ class SlotsController < ApplicationController
 
 		# prepare fields to render edit/new slot form
 		def prepare_form(action)
-			@fields = create_fields(helpers.slot_form(title: I18n.t("slot.#{action}")))
+			@fields = create_fields(helpers.slot_form(title: Slot.act(action)))
 			@submit = create_submit
 		end
 
@@ -196,7 +196,7 @@ class SlotsController < ApplicationController
 			@slices  = create_slices # each slice is a hash {time:, label:, chunks:} Chunks are <td>
 			@d_cols  = [ 1 ]  # day columns
 			1.upto(5) { |i|
-				@d_cols << { name: I18n.t("calendar.daynames_a")[i], cols: day_cols(@season.id, @location.id, i) }
+				@d_cols << { name: Calendar.val(:daynames_short)[i], cols: day_cols(@season.id, @location.id, i) }
 				d_slots = Slot.by_wday(i, @w_slots) # check only daily slots
 				@slices.each { |slice| # create slice chunks for this day
 					gap     = nil

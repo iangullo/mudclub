@@ -211,7 +211,7 @@ class Club < ApplicationRecord
 		self.name    = f_data[:name] if f_data[:name].present?
 		self.nick    = f_data[:nick] if f_data[:nick].present?
 		self.phone   = self.parse_phone(f_data[:phone], self.country) if f_data[:phone].present?
-	  self.public  = to_boolean(f_data[:public]) if f_data.key?(:public)
+		self.public  = to_boolean(f_data[:public]) if f_data.key?(:public)
 
 		new_settings = settings.dup
 		(REGULAR_OPTS + INHERITED_OPTS).each do |opt|
@@ -300,7 +300,7 @@ class Club < ApplicationRecord
 
 	# used to list available clubs in selectors
 	def self.list
-		res = [ [ I18n.t("shared.statuses.inactive"), -1 ] ]
+		res = [ [ UI::Status.val(:inactive), -1 ] ]
 		Club.each { |club| res << [ club.nick, club.id ] }
 		res
 	end

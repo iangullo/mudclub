@@ -133,7 +133,7 @@ class Server < ApplicationRecord
 
 		def locale_list
 			I18n.available_locales.map do |locale|
-				[ I18n.t("locale.#{locale}", locale:), locale ]
+				[ UI::Locale.val(locale), locale ]
 			end
 		end
 

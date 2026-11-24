@@ -5,7 +5,7 @@
 			<%= line_chart @att_data, legend: false %>
 			<%= render @table %>
 		<% else %>
-			<div class="font-semibold items-center text-center text-gray-500 text-sm mt-6"><%= t("status.empty") %></div>
+			<div class="font-semibold items-center text-center text-gray-500 text-sm mt-6"><%= UI::Status.val(:empty) %></div>
 		<% end %>
 		<%= render @submit %>
 	</div>

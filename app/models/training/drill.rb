@@ -113,7 +113,6 @@ class Drill < ApplicationRecord
 		cad
 	end
 
-
 	# Array of print strings for associated skills
 	def print_skills
 		print_names(self.skills)
@@ -160,6 +159,8 @@ class Drill < ApplicationRecord
 		season = Season.where("start_date <= ? and end_date >= ?", self.updated_at, self.updated_at).distinct.first
 		season&.name || Season.last&.name
 	end
+
+	def sport = super&.specific
 
 	# temporary wrappers to access :explanation as Step 1 :explanation
 	def step_explanation(order = 1)

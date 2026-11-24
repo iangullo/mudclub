@@ -120,7 +120,7 @@ class User < ApplicationRecord
 	# return string with last date of user login
 	def last_login
 		res = self.last_sign_in_at&.to_date
-		res ? res : I18n.t("user.never")
+		res ? res : User.val(:never_logged)
 	end
 
 	# wrappers for locale setting
@@ -181,18 +181,13 @@ class User < ApplicationRecord
 	# list of possible user locales for select box configuration
 	def self.locale_list
 		I18n.available_locales.map do |locale|
-			[ I18n.t("locale.#{locale}", locale:), locale ]
+			[ UI::Locale.val(locale), locale ]
 		end
 	end
 
 	# list of possible user roles for select box configuration
+	# TODO: Review this in future with a catalog or move to use Kinded
 	def self.role_list
-		# REMOVED use of role enum to define Membership kinds
-		# User.roles.keys.map do |role|
-		#	[ I18n.t("role.#{role}"), role ]
-		# end
-		#
-		# REview this in future with a cAtalog, probably
 		[
 			[ I18n.t("core.user_kinds.values.user.single"), :user ],
 			[ I18n.t("core.user_kinds.values.admin.single"), :admin ]

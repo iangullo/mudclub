@@ -68,26 +68,26 @@ module ServerHelper
 	#---------------------------------------------------------
 	# title for "about MudClub.." view
 	def server_about_header
-		build = "(#{I18n.t("server.build")}#{BUILD})"
+		build = "(#{Server.fld(:build)}#{BUILD})"
 		res   = title_start(icon: "mudclub.svg", title: server_about_version)
 		res  += [
 			[ { kind: :string, value: build, class: "text-sm text-gray-500" } ],
-			[ normal_button({ kind: :link, label: I18n.t("server.about"), url: "https://github.com/iangullo/mudclub/wiki", tab: true }, cols: 2) ]
+			[ normal_button({ kind: :link, label: Server.fld(:about), url: "https://github.com/iangullo/mudclub/wiki", tab: true }, cols: 2) ]
 		]
 	end
 
 	# fields for "about MudClub.." view
 	def server_about_fields
 		[
-			[ { kind: :string, value: I18n.t("server.info-1") } ],
-			[ { kind: :string, value: I18n.t("server.info-2") } ],
-			[ { kind: :string, value: bulletize(I18n.t("server.info-3")) } ],
-			[ { kind: :string, value: bulletize(I18n.t("server.info-4")) } ],
-			[ { kind: :string, value: bulletize(I18n.t("server.info-5")) } ],
-			[ { kind: :string, value: bulletize(I18n.t("server.info-6")) } ],
+			[ { kind: :string, value: Server.fld(:info_1) } ],
+			[ { kind: :string, value: Server.fld(:info_2) } ],
+			[ { kind: :string, value: bulletize(Server.fld(:info_3)) } ],
+			[ { kind: :string, value: bulletize(Server.fld(:info_4)) } ],
+			[ { kind: :string, value: bulletize(Server.fld(:info_5)) } ],
+			[ { kind: :string, value: bulletize(Server.fld(:info_6)) } ],
 			gap_row,
 			[ copyright_item ],
-			[ { kind: :string, value: I18n.t("server.published"), align: "right", class: "text-xs text-gray-500" } ]
+			[ { kind: :string, value: Server.fld(:published), align: :right, class: "text-xs text-gray-500" } ]
 		]
 	end
 

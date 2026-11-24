@@ -9,24 +9,27 @@
 # Las claves de compatibilidad heredadas se conservan al final de este archivo
 # durante la migración v2 y no deben usarse en código nuevo.
 # -----------------------------------------------------------------------------
-
 es:
   people:
-    label: Personas
-    short: Personas
+    gender: female
+    label:
+      single: Persona
+      plural: Personas
+      short: Personas
 
     messages:
       exported: Personas exportadas
       imported: Personas importadas
 
     person:
+      gender: female
       label:
         single: Persona
         plural: Personas
         short: Pers.
       actions:
         create: Crear nueva persona
-        edit: Editar Persona
+        edit: Editar persona
         keep: No vincular
         merge: Vincular persona
       fields:
@@ -86,10 +89,13 @@ es:
         email: usuario@servidor.com
 
     parent:
-      label: Familiar
-      short: Familiar
+      label:
+        single: Familiar
+        plural: Familiares
+        short: Familiar
 
     relationship:
+      gender: female
       label:
         single: Relación
         plural: Relaciones
@@ -98,6 +104,7 @@ es:
     relationship_kinds:
       label:
         single: Tipo de relación
+        plural: Tipos de relación
         short: Tipo Rel.
       values:
         parent: Familiar
@@ -107,99 +114,30 @@ es:
         mother: Madre
         mother_plural: Madres
         guardian: Tutor
+        guardian_female: Tutora
         guardian_plural: Tutores
+        guardian_plural_female: Tutoras
         legal_representative: Rep. legal
         legal_representative_plural: Rep. legales
-        child: Hijo/a
-        child_plural: Hijos/as
-        sibling: Hermano/a
-        sibling_plural: Hermanos/as
-        grandparent: Abuelo/a
-        grandparent_plural: Abuelos/as
-        grandchild: Nieto/a
-        grandchild_plural: Nietos/as
+        child: Hijo
+        child_female: Hija
+        child_plural: Hijos
+        child_plural_female: Hijas
+        sibling: Hermano
+        sibling_female: Hermana
+        sibling_plural: Hermanos
+        sibling_plural_female: Hermanas
+        grandparent: Abuelo
+        grandparent_female: Abuela
+        grandparent_plural: Abuelos
+        grandparent_plural_female: Abuelas
+        grandchild: Nieto
+        grandchild_female: Nieta
+        grandchild_plural: Nietos
+        grandchild_plural_female: Nietas
         spouse: Cónyuge
         spouse_plural: Cónyuges
         partner: Pareja
         partner_plural: Parejas
         emergency_contact: Cont. emergencia
         emergency_contact_plural: Conts. emergencia
-
-  # ---------------------------------------------------------------------------
-  # OBSOLETO - NO MODIFICAR
-  #
-  # Claves de compatibilidad conservadas durante la migración v2.
-  #
-  # Buscar:
-  #
-  #   t(person.
-  #   t(parent.
-  #   t(sex.
-  #
-  # Eliminar una vez que todas las referencias se hayan migrado.
-  # ---------------------------------------------------------------------------
-
-  parent:
-    single: Familiar
-    many: Familiares
-
-  person:
-    address: Domicilio
-
-    age: Edad
-
-    bday: Fecha de nacimiento
-    bday_a: F.Nac.
-
-    contact: Contacto
-
-    email: e-mail
-
-    id_back: Reverso
-    id_front: Anverso
-
-    name: Nombre
-    name_a: Nombre
-
-    nick: Apodo
-
-    phone: Teléfono
-    phone_a: Telf.
-
-    pics: Fotos
-    pics_found: Fotos disponibles
-    pics_missing: Fotos faltantes
-
-    pid: DNI Nº
-    pid_a: DNI
-
-    single: Persona
-    many: Personas
-
-    surname: Apellido
-    surname_a: Apell.
-
-    created: "Persona creada: "
-    updated: "Persona actualizada: "
-    deleted: "Persona eliminada: "
-    duplicate: "Persona duplicada: "
-
-    edit: Editar Persona
-    new: Crear Persona
-
-    export: Personas exportadas
-    import: Personas importadas
-
-  sex:
-    abr: Sexo
-
-    label: Sexo
-
-    female: Femenino
-    female_a: Fem.
-
-    male: Masculino
-    male_a: Masc.
-
-    mixed: Mixto
-    mixed_a: Mixto

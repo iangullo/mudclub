@@ -84,10 +84,11 @@ module Kinded
 
 		self.class.kind_catalog.resolve(raw.to_sym)&.key
 	end
-	def kind_gender     = nil
-	def kind_catalog		= self.class.kind_catalog
-	def kind_label(...) = self.class.kind_label(kind, ...)
-	def kind_list(...)	= self.class.kind_list(...)
-	def kind_options(...)     = self.class.kind_catalog.options(...)
+
+	def kind_gender       = nil
+	def kind_catalog		  = self.class.kind_catalog
+	def kind_label(...)   = self.class.kind_label(kind, ...)
+	def kind_list(...)	  = self.class.kind_list(...)
+	def kind_options(...) = self.class.kind_catalog.options(...)
 	def kind_image(default: :missing, **rest) = self.class.kind_image(kind, default:, **rest)
 end

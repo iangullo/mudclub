@@ -193,7 +193,7 @@ class InputBoxComponent < ApplicationComponent
 		end
 
 		def upload_filename(value)
-			nofile_msg = I18n.t("status.no_file")
+			nofile_msg = UI::Status.msg(:no_file)
 			return nofile_msg if value.blank?
 
 			# Existing attachment (has_one_attached / has_many_attached) — read the blob filename.

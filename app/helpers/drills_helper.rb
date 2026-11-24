@@ -49,7 +49,7 @@ module DrillsHelper
 			else
 				button = { kind: :add, name: "add-diagram", options: [] }
 				button[:options] << { label: Step.act(:edit_diagram), url: path_for(@drill, action: :edit_diagram, step_id: step&.id&.to_i, order: step&.order&.to_i), data: { turbo_frame: :modal } }
-				button[:options] << { label: I18n.t("status.no_file"), url: path_for(@drill, action: :load_diagram, step_id: step&.id&.to_i, order: step&.order&.to_i), data: { turbo_frame: :modal } }
+				button[:options] << { label: UI::Status.msg(:no_file), url: path_for(@drill, action: :load_diagram, step_id: step&.id&.to_i, order: step&.order&.to_i), data: { turbo_frame: :modal } }
 				DropdownComponent.new(button)
 			end
 		else
@@ -244,7 +244,7 @@ module DrillsHelper
 	# create table for drill versions
 	def drill_versions_table
 		res = [ [
-			topcell_item(I18n.t("calendar.date")),
+			topcell_item(Calendar.fld(:date)),
 			topcell_item(Drill.fld(:author)),
 			topcell_item(I18n.t("version.changes.many"))
 		] ]

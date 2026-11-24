@@ -13,17 +13,24 @@
 # Legacy compatibility keys are preserved at the end of this file during the
 # v2 migration and should not be used in new code.
 # -----------------------------------------------------------------------------
-
 en:
   calendar:
-    label: Calendar
-    short: Cal.
-
+    label:
+      single: Calendar
+      short: Cal.
     fields:
+      start: Start
+      end: End
       date: Date
       date_short: Date
       time: Time
       time_short: Time
+      hour: Hour
+      hour_short: Hour
+      minute: Minute
+      minute_short: Min.
+      mins: mins.
+      day: Day
       week: Week
       week_short: Wk.
       month: Month
@@ -32,6 +39,28 @@ en:
       year_short: Yr.
       since: Since
       until: Until
+    values:
+      daynames:
+        [All, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
+      daynames_short: [All, Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+      monthnames:
+        [
+          All,
+          January,
+          February,
+          March,
+          April,
+          May,
+          June,
+          July,
+          August,
+          September,
+          October,
+          November,
+          December,
+        ]
+      monthnames_short:
+        [All, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
 
     attendance:
       label: Attendance
@@ -118,8 +147,11 @@ en:
         plural: Time table
         short: Slot
       actions:
+        new: New timeslot
         create: Create timeslot
         edit: Edit timeslot
+        update: Update timeslot
+        delete: Delete timeslot
       fields:
         starts_on: Starts
         starts_on_short: Start
@@ -131,130 +163,3 @@ en:
         created: Time slot created.
         updated: Time slot updated.
         deleted: Time slot deleted.
-
-    months:
-      label: Month
-      short: Mon.
-      values:
-        january: January
-        january_short: Jan
-        february: February
-        february_short: Feb
-        march: March
-        march_short: Mar
-        april: April
-        april_short: Apr
-        may: May
-        may_short: May
-        june: June
-        june_short: Jun
-        july: July
-        july_short: Jul
-        august: August
-        august_short: Aug
-        september: September
-        september_short: Sep
-        october: October
-        october_short: Oct
-        november: November
-        november_short: Nov
-        december: December
-        december_short: Dec
-
-    weekdays:
-      label: Weekday
-      short: Day
-      values:
-        monday: Monday
-        monday_short: Mon
-        tuesday: Tuesday
-        tuesday_short: Tue
-        wednesday: Wednesday
-        wednesday_short: Wed
-        thursday: Thursday
-        thursday_short: Thu
-        friday: Friday
-        friday_short: Fri
-        saturday: Saturday
-        saturday_short: Sat
-        sunday: Sunday
-        sunday_short: Sun
-
-    # -----------------------------------------------------------------------------
-    # DEPRECATED - DO NOT MODIFY
-    #
-    # Compatibility keys preserved during the v2 locale migration.
-    #
-    # Search for:
-    #
-    #   t(calendar.
-    #   t(event.
-    #   t(slot.
-    #   t(match.
-    #   t(rest.
-    #
-    # Remove once all callers have migrated.
-    # -----------------------------------------------------------------------------
-    date: Date
-    daynames:
-      [All, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
-
-    daynames_a: [All, Mon, Tue, Wed, Thu, Fri, Sat, Sun]
-
-    end: End
-
-    mins: mins.
-
-    monthnames:
-      [
-        All,
-        January,
-        February,
-        March,
-        April,
-        May,
-        June,
-        July,
-        August,
-        September,
-        October,
-        November,
-        December,
-      ]
-
-    monthnames_a:
-      [All, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
-
-    start: Start
-
-    time: Time
-
-    week: Week
-
-    year: Year
-
-  # -----------------------------------------------------------------------------
-  # Legacy compatibility.
-  # Replaced by Calendar::EventKinds[:holiday]
-  # -----------------------------------------------------------------------------
-  event:
-    single: Event
-    many: Events
-
-  slot:
-    single: Timeslot
-
-    created: "Created timeslot: "
-    updated: "Updated timeslot: "
-    deleted: "Deleted timeslot: "
-
-    edit: Edit Timeslot
-    many: Timetable
-    new: Create Timeslot
-
-  rest:
-    created: "Holiday created: "
-    deleted: "Holiday deleted: "
-    updated: "Holiday updated: "
-
-    single: Holiday

@@ -29,8 +29,8 @@ module UsersHelper
 		end
 		if current_user == @user	# only allow current user to change his own password
 			res[2] <<	normal_button(
-				{ kind: :link, symbol: :key, label: I18n.t("action.change"), url: edit_user_registration_path(rdx: @rdx), frame: :modal, d_class: "inline-flex align-middle m-1 text-sm", flip: true },
-				align: "right"
+				{ kind: :link, symbol: :key, label: UI::Action.act(:change), url: edit_user_registration_path(rdx: @rdx), frame: :modal, d_class: "inline-flex align-middle m-1 text-sm", flip: true },
+				align: :right
 			)
 		end
 		res
@@ -89,7 +89,7 @@ module UsersHelper
 		[
 			[
 				symbol_item(:key),
-				{ kind: :password_box, key: :password, placeholder: I18n.t("password.single"), mandatory: { length: 8 } }
+				{ kind: :password_box, key: :password, placeholder: User.fld(:password), mandatory: { length: 8 } }
 			],
 			[
 				symbol_item(:key),
@@ -107,11 +107,11 @@ module UsersHelper
 		res = [
 			[
 				symbol_item(:key, { title: User.fld(:profile) }),
-				{ kind: :select_box, align: "left", key: :role, options: User.role_list, value: @user.role }
+				{ kind: :select_box, align: :left, key: :role, options: User.role_list, value: @user.role }
 			]
 		]
 		res.last <<	gap_item
-		res.last << symbol_item(:locale, { title: I18n.t("locale.lang") })
+		res.last << symbol_item(:locale, { title: UI::Locale.label })
 		res.last << { kind: :select_box, align: :center, key: :locale, options: User.locale_list, value: @user.locale }
 		res.last << hidden_input(:rdx, @rdx) if @rdx
 		res
@@ -126,7 +126,7 @@ module UsersHelper
 	# return user_actions TableComponent
 	def user_actions_table
 		res = [ [
-			topcell_item(I18n.t("calendar.date")),
+			topcell_item(Calendar.fld(:date)),
 			topcell_item(Drill.fld(:description))
 		] ]
 		@user.user_actions.order(updated_at: :desc).each { |u_act|

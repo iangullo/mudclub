@@ -27,11 +27,11 @@
 
 class ContactComponent < ApplicationComponent
 	def initialize(website: nil, email: nil, phone: nil, device: nil)
-		@email   = ButtonComponent.new(kind: :email, value: email, title: I18n.t("action.email")) if email.presence
+		@email   = ButtonComponent.new(kind: :email, value: email, title: UI::Action.act(:email)) if email.presence
 		@website = ButtonComponent.new(kind: :link, symbol: { concept: "website", type: :icon }, url: website, tab: true) if website.presence
 		if phone.presence
-			@call     = ButtonComponent.new(kind: :call, value: phone, title: I18n.t("action.call")) if device == "mobile"
-			@whatsapp = ButtonComponent.new(kind: :whatsapp, value: phone, title: I18n.t("action.chat"), web: (device != "mobile"))
+			@call     = ButtonComponent.new(kind: :call, value: phone, title: UI::Action.act(:call)) if device == "mobile"
+			@whatsapp = ButtonComponent.new(kind: :whatsapp, value: phone, title: UI::Action.act(:chat), web: (device != "mobile"))
 		end
 	end
 
