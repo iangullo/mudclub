@@ -413,7 +413,7 @@ class ApplicationController < ActionController::Base
 
 		# resolve locale to apply
 		def resolve_locale
-			requested = params[:locale] || current_user&.locale || session[:locale] || Server.locale
+			requested = params[:locale] || current_user&.locale || session[:locale] || Server.default_locale
 			available = I18n.available_locales.map(&:to_s)
 			available.include?(requested.to_s) ? requested.to_sym : I18n.default_locale
 		end
