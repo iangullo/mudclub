@@ -38,7 +38,7 @@ class LocationsController < ApplicationController
 		@policy = check_policy!(LocationPolicy, club: @club, record: @location)
 
 		@fields = create_fields(helpers.location_show)
-		submit  = edit_path_for(@location) if location_editor?
+		submit  = edit_path_for(@location) if @policy.edit?
 		@submit = create_submit(submit:, frame: :modal)
 	end
 
