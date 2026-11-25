@@ -101,6 +101,7 @@ class TableComponent < ApplicationComponent
 				end
 				item[:align] = "left" unless item[:align]
 
+				item[:class] ||= ""
 				if res.size.zero?
 					if item[:kind] == :inverse
 						item[:class] += " sticky left-0 z-20"

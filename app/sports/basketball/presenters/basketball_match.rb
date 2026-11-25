@@ -53,7 +53,7 @@ module Presenters
 				row       = { items: [] }
 				unless edit
 					row[:url]   = event.attendee_url(athlete, rdx:)
-					row[:frame] = modal
+					row[:frame] = :modal
 				end
 				row[:items] << { kind:, value: athlete.number.to_s, align: :center }
 				row[:items] << { kind:, value: athlete.s_name }
