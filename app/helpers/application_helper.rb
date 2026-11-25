@@ -41,9 +41,14 @@ module ApplicationHelper
 		[ { kind: :gap, size:, cols:, class: _class } ]
 	end
 
-	# standardised icon field definitions
-	def icon_item(icon, align: nil, iclass: nil, cols: nil, rows: nil, size: nil, title: nil)
-		{ kind: :icon, icon:, align:, class: iclass, cols:, rows:, size:, title: }
+	# standardised icon field definitions - delegates to symbol_item if it is passed
+	def icon_item(source, **opts)
+		if source.is_a?(Hash) && source.key?(:symbol)
+			return symbol_item(source[:symbol], source.except(:symbol), **opts)
+		end
+
+		opts[:class] = iclass if (iclass = opts.delete(:iclass)).present?
+		{ kind: :icon, icon: source, **opts }
 	end
 
 	# regular label_item

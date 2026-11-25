@@ -150,8 +150,10 @@ class User < ApplicationRecord
 
 	# personal image
 	def picture
-		return self.avatar if self.avatar.attached?
-		person&.canonical? ? person.picture : "user.svg"
+		return avatar if avatar.attached?
+		return person.picture if person&.canonical?
+
+		{ symbol: :user }
 	end
 
 	# rebuild User data from raw input hash given by a form submittal
