@@ -168,8 +168,8 @@ class Sport < ApplicationRecord
 
 	def label_item(value, **opts)          = field_builder.label_item(value, **opts)
 	def stat_label(label, abbr = true)     = field_builder.stat_label(label, abbr)
-	def stat_field(prefix, stats, stat, edit: false)
-		field_builder.stat_field(prefix, stats, stat, edit:)
+	def stat_field(prefix, stats, stat, edit: false, hide_mobile: nil)
+		field_builder.stat_field(prefix, stats, stat, edit:, hide_mobile:)
 	end
 	def stat_value(stats, stat)            = field_builder.stat_value(stats, stat)
 

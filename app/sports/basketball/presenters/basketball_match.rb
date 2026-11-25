@@ -198,9 +198,9 @@ module Presenters
 				]
 				fields << { kind: :normal, value: s_label(:pts), align: :center } unless edit
 				fields += [
-					{ kind: :normal, value: s_label(:t2), cols: 3, align: :center },
-					{ kind: :normal, value: s_label(:t3), cols: 3, align: :center },
-					{ kind: :normal, value: s_label(:ft), cols: 3, align: :center },
+					{ kind: :normal, value: s_label(:t2), cols: 3, align: :center, hide_mobile: true },
+					{ kind: :normal, value: s_label(:t3), cols: 3, align: :center, hide_mobile: true },
+					{ kind: :normal, value: s_label(:ft), cols: 3, align: :center, hide_mobile: true },
 					{ kind: :normal, value: s_label(:trb), align: :center },
 					{ kind: :normal, value: s_label(:ast), align: :center },
 					{ kind: :normal, value: s_label(:stl), align: :center },
@@ -223,15 +223,15 @@ module Presenters
 				fields << @sport.stat_field(prefix, stats, statistics.fetch(:pts), edit:) unless edit
 
 				fields += [
-					@sport.stat_field(prefix, stats, statistics.fetch(:t2m), edit:),
-					{ kind: :normal, value: "/" },
-					@sport.stat_field(prefix, stats, statistics.fetch(:t2a), edit:),
-					@sport.stat_field(prefix, stats, statistics.fetch(:t3m), edit:),
-					{ kind: :normal, value: "/" },
-					@sport.stat_field(prefix, stats, statistics.fetch(:t3a), edit:),
-					@sport.stat_field(prefix, stats, statistics.fetch(:ftm), edit:),
-					{ kind: :normal, value: "/" },
-					@sport.stat_field(prefix, stats, statistics.fetch(:fta), edit:),
+					@sport.stat_field(prefix, stats, statistics.fetch(:t2m), edit:, hide_mobile: true),
+					{ kind: :normal, value: "/", hide_mobile: true },
+					@sport.stat_field(prefix, stats, statistics.fetch(:t2a), edit:, hide_mobile: true),
+					@sport.stat_field(prefix, stats, statistics.fetch(:t3m), edit:, hide_mobile: true),
+					{ kind: :normal, value: "/", hide_mobile: true },
+					@sport.stat_field(prefix, stats, statistics.fetch(:t3a), edit:, hide_mobile: true),
+					@sport.stat_field(prefix, stats, statistics.fetch(:ftm), edit:, hide_mobile: true),
+					{ kind: :normal, value: "/", hide_mobile: true },
+					@sport.stat_field(prefix, stats, statistics.fetch(:fta), edit:, hide_mobile: true),
 					@sport.stat_field(prefix, stats, statistics.fetch(:trb), edit:),
 					@sport.stat_field(prefix, stats, statistics.fetch(:ast), edit:),
 					@sport.stat_field(prefix, stats, statistics.fetch(:stl), edit:),

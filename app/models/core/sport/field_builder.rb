@@ -31,13 +31,14 @@ class Sport
 			{ kind: :side_cell, value: label, align: "middle", class: "border px-1 py-1" }
 		end
 
-		def stat_field(prefix, stats, stat, edit: false)
+		def stat_field(prefix, stats, stat, edit: false, hide_mobile: nil)
 			value = stat_value(stats, stat)
 
 			unless edit
 				{ kind: :normal,
 					value: format_stat_value(stat, value),
-					align: "right" }
+					align: :right,
+					hide_mobile: }.compact
 			else
 				{ kind:  :number_box,
 					key:   "#{prefix}#{stat.id}",
@@ -46,7 +47,9 @@ class Sport
 					max:   stat[:maximum],
 					size:  stat[:size],
 					units: stat[:units],
-					step:  stat[:step] }.compact
+					step:  stat[:step],
+					hide_mobile:
+				 }.compact
 			end
 		end
 
