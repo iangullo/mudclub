@@ -30,19 +30,18 @@ class SubmitComponent < ApplicationComponent
 	end
 
 	def call
-		content_tag(:div, class: "flex w-full items-center justify-between mt-2 mb-1") do
+		justify = "justify-#{@close.present? ? 'between' : 'end'}"
+		content_tag(:div, class: "flex w-full items-center #{justify} gap-4 mt-2 mb-1") do
 			if @close.present?
-				concat(content_tag(:div, class: "mr-4 ml-1") { render(@close) })
-			else
-				concat(content_tag(:div, ""))  # placeholder so justify-between anchors submit right
+				concat(content_tag(:div) { render(@close) })
 			end
 
 			if @submit.present? || @actions.any?
-				concat(content_tag(:div, class: "ml-4 mr-1 flex items-center") do
+				concat(content_tag(:div, class: "flex items-center gap-2") do
 					@actions.each do |btn|
-						concat(content_tag(:div, class: "ml-2") { render(btn) })
+						concat(content_tag(:div) { render(btn) })
 					end
-					concat(content_tag(:div, class: "ml-2") { render(@submit) }) if @submit.present?
+					concat(content_tag(:div) { render(@submit) }) if @submit.present?
 				end)
 			end
 		end

@@ -73,7 +73,7 @@ class FieldsComponent < ApplicationComponent
 
 	# render to html
 	def call
-		table_tag(classes: [ "mx-auto", *@classes ]) do
+		table_tag(classes: [ "w-fit", "max-w-full", "mx-auto", *@classes ]) do
 			@fields.map do |row|
 				tablerow_tag do
 					row.map { |field| render field }.join.html_safe

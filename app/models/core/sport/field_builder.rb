@@ -28,7 +28,7 @@ class Sport
 		end
 
 		def stat_label(label, _abbr = true)
-			{ kind: :side_cell, value: label, align: "middle", class: "border px-1 py-1" }
+			{ kind: :side_cell, value: label, align: "middle", class: "border p-1" }
 		end
 
 		def stat_field(prefix, stats, stat, edit: false, hide_mobile: nil)
@@ -38,6 +38,7 @@ class Sport
 				{ kind: :normal,
 					value: format_stat_value(stat, value),
 					align: :right,
+					class: "border p-1",
 					hide_mobile: }.compact
 			else
 				{ kind:  :number_box,
@@ -48,6 +49,7 @@ class Sport
 					size:  stat[:size],
 					units: stat[:units],
 					step:  stat[:step],
+					class: "border p-1",
 					hide_mobile:
 				 }.compact
 			end

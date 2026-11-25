@@ -59,8 +59,8 @@ class TableComponent < ApplicationComponent
 	def call	# render into HTML
 		content_tag(:div, align: @align,
 			class: "min-w-0 overflow-x-auto w-full max-w-full table-scroll-shadow",
-			style: "align-self: stretch; -webkit-overflow-scrolling: touch;") do
-			table_tag(controller: @controller, data: @data) do
+			style: "-webkit-overflow-scrolling: touch;") do
+			table_tag(controller: @controller, data: @data, classes: [ "mx-auto" ]) do
 				concat(render_header)
 				render_body
 			end
@@ -108,6 +108,7 @@ class TableComponent < ApplicationComponent
 						item[:class] += " sticky left-0 z-20 bg-indigo-900"
 					end
 				end
+				item[:class] += " hidden sm:table-cell" if item[:hide_mobile].present?
 				res << item
 			}
 			res
@@ -122,7 +123,7 @@ class TableComponent < ApplicationComponent
 				row[:data][:turbo_frame] = (row[:frame].to_s == "modal" ? "modal" : "_top") if row[:url]
 				row[:data]["#{@controller}-target"] = "athlete" if @controller
 				row[:classes] ||= []
-				row[:classes]  += [ "hover:text-white", "hover:bg-blue-700" "group" ] unless row[:name]==:bottom
+				row[:classes]  += [ "hover:text-white", "hover:bg-blue-700", "group" ] unless row[:name] == :bottom
 				row[:items].each do |item|
 					case item[:kind]
 					when :normal, :lines, :icon, :location, :text
@@ -162,11 +163,11 @@ class TableComponent < ApplicationComponent
 						end
 					end
 
+					item[:class] ||= ""
 					if idx.zero?
-						item[:class] ||= ""
-						item[:class] += " sticky left-0 z-[5] bg-white group-hover:bg-blue-700 group-hover:text-white"
+						item[:class] += " sticky left-0 z-[5] hover:bg-blue-700 hover:text-white"
 					end
-					item[:class] += " hidden sm:table-cell" if item[:hide_mobile]
+					item[:class] += " hidden sm:table-cell" if item[:hide_mobile].present?
 					item[:align] ||= "left"
 					idx = 1
 				end

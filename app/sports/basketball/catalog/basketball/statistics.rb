@@ -48,7 +48,7 @@ class Catalog::Basketball::Statistics < Catalog::Base
 			minimum: 0,
 			maximum: 3960,
 			size: 2,
-			units: "\"",
+			# units: "\"",
 			step: 1
 		},
 

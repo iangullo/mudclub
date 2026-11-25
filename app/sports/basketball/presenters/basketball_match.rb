@@ -194,7 +194,7 @@ module Presenters
 				fields = [
 					{ kind: :normal, value: Assignment.fld(:number, :short), align: :center },
 					{ kind: :normal, value: Person.fld(:name) },
-					{ kind: :normal, value: s_label(:sec), align: :center }
+					{ kind: :normal, value: "#{s_label(:sec)} (\")", align: :center, hide_mobile: true }
 				]
 				fields << { kind: :normal, value: s_label(:pts), align: :center } unless edit
 				fields += [
@@ -217,7 +217,7 @@ module Presenters
 				fields = [
 					{ kind: :normal, value: athlete.number, align: :center },
 					{ kind: :normal, value: athlete.s_name },
-					@sport.stat_field(prefix, stats, statistics.fetch(:sec), edit:)
+					@sport.stat_field(prefix, stats, statistics.fetch(:sec), edit:, hide_mobile: true)
 				]
 
 				fields << @sport.stat_field(prefix, stats, statistics.fetch(:pts), edit:) unless edit
