@@ -60,6 +60,7 @@ class Assignment < ApplicationRecord
 	include Auditable
 	include Kinded
 	include Participatory
+	include PropagatableAvatar
 
 	#-------------------------------------
 	# Scopes
@@ -135,7 +136,7 @@ class Assignment < ApplicationRecord
 		self.settings  = other.settings if settings.blank?
 		self.status    = :active if status != :active && ends_on == nil
 		other.attendances.each { |att| att.update!(assignment: self) }
-		other.reset!
+		other.attendances.reset
 		save!
 
 		other.destroy!
@@ -145,6 +146,12 @@ class Assignment < ApplicationRecord
 
 	def modified?
 		super || person.modified?
+	end
+
+	# personal image
+	def picture
+		return self.avatar if self.avatar.attached?
+		membership.picture
 	end
 
 	# short name for form viewing
@@ -185,43 +192,9 @@ class Assignment < ApplicationRecord
 		{ matches:, last7: att_week, last30: att_month, avg: att_total }
 	end
 
-	#-------------------------------------
-	# Back-ported methods to replace Player/Coach accesses
-	#-------------------------------------
-	def age
-		person&.age
-	end
-
-	def all_pics?
-		(avatar&.attached? || person&.avatar&.attached?) &&
-			person&.id_front.attached? &&
-			person&.id_back.attached?
-	end
-
-	def female?
-		person&.female?
-	end
-
-	# Return email/phone of player or of the associated tutors if underage players
-	def p_email
-		email = ""
-		if age < 18
-			email += person.responsible_adults.filter_map(&:email).join("\n")
-		end
-		email += email.to_s
-	end
-
-	def p_phone
-		phone = ""
-		if age < 18
-			phone += person.responsible_adults.filter_map(&:phone).join("\n")
-		end
-		phone += phone.to_s
-	end
-
 	# Return person.to_s or player name and jersey number
 	def to_s(style: 2)
-		if membership.kind == "athlete"
+		if membership.kind.to_sym == :athlete
 			case style
 			when 0; return self.s_name
 			when 1; return self.person.to_s
@@ -307,6 +280,9 @@ class Assignment < ApplicationRecord
 	end
 
 	private
+		# Propagate avatar updates upward
+		def avatar_propagation_target = membership
+
 		# Use avatar with the PersonBearing object instead of the Person
 		def shift_avatar(attrs)
 			return if attrs[:avatar].present?

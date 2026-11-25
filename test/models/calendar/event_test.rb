@@ -100,11 +100,11 @@ class EventTest < ActiveSupport::TestCase
 
 	# --- Specific access to Eventkinds -----------------
 	test "#specific returns the subclass matching the kind" do
-		assert_instance_of EventKind::Match, @match.specific
+		assert_instance_of EventPresenter::Match, @match.specific
 
 		holiday = Event.create!(club: @club, kind: :holiday, location: @location,
 			start_time: Time.current, name: "Bank Holiday")
-		assert_instance_of EventKind::Holiday, holiday.specific
+		assert_instance_of EventPresenter::Holiday, holiday.specific
 	end
 
 	test "#specific memoizes" do

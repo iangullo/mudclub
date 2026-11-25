@@ -12,6 +12,16 @@ class ActiveSupport::TestCase
 	# Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
 	fixtures :all
 
+	def attach_test_image(record, attachment_name = :avatar, filename: "avatar.png")
+		blob = ActiveStorage::Blob.create_and_upload!(
+			io: StringIO.new("\x89PNG\r\n\x1A\nfake-image-data-#{SecureRandom.hex(4)}"),
+			filename: filename,
+			content_type: "image/png"
+		)
+		record.public_send(attachment_name).attach(blob)
+		blob
+	end
+
 	def parsed(html)
 		Nokogiri::HTML.fragment(html)
 	end
@@ -55,4 +65,10 @@ class FakeEvent
 		def holiday_name_applies?
 			@kind.to_s.in?(%w[holiday rest]) && @name.present? && @name != kind_label
 		end
+end
+
+Minitest.after_run do
+	if ActiveStorage::Blob.service.respond_to?(:root)
+		FileUtils.rm_rf(ActiveStorage::Blob.service.root)
+	end
 end

@@ -1,10 +1,10 @@
 require "test_helper"
 
-class EventKind::HolidayTest < ActiveSupport::TestCase
+class EventPresenter::HolidayTest < ActiveSupport::TestCase
 	def setup
 		@event = FakeEvent.new(kind: :holiday, name: "Bank Holiday",
 			label: "Holiday", date_string: "15/01/2026")
-		@kind  = EventKind::Holiday.new(@event)
+		@kind  = EventPresenter::Holiday.new(@event)
 	end
 
 	test "#created_notice includes the kind label and the title" do

@@ -24,8 +24,6 @@ class Person < ApplicationRecord
 	before_save { self.name    = self.name    ? self.name.mb_chars.titleize : "" }
 	before_save { self.surname = self.surname ? self.surname.mb_chars.titleize : "" }
 
-	after_commit :finalize_pending_merge
-
 	UNIQUE_FIELDS = %i[dni email phone].freeze
 
 	#-------------------------------------
@@ -117,17 +115,21 @@ class Person < ApplicationRecord
 
 	# Return People who are legal guardians for this person
 	def guardians
-		Person.where(id: inverse_relationships.in_group(:ward).select(:person_id))
+	  from_forward = relationships.in_group(:responsible_adult).select(:related_person_id)
+		from_inverse = inverse_relationships.in_group(:ward).select(:person_id)
+		Person.where(id: from_forward).or(Person.where(id: from_inverse))
 	end
 
 	# Person has guardians (i.e. is a minor with responsible adults)
 	def has_guardians?
-		inverse_relationships.in_group(:ward).exists?
+		relationships.in_group(:responsible_adult).exists? ||
+			inverse_relationships.in_group(:ward).exists?
 	end
 
 	# Person is a guardian of others (i.e. is someone's parent/legal representative)
 	def is_responsible_adult?
-		relationships.in_group(:responsible_adult).exists?
+		inverse_relationships.in_group(:responsible_adult).exists? ||
+			relationships.in_group(:ward).exists?
 	end
 	alias is_parent? is_responsible_adult?
 
@@ -164,8 +166,14 @@ class Person < ApplicationRecord
 			merge_users_from(duplicate)
 			merge_relationships_from(duplicate)
 			merge_memberships_from(duplicate)
-
-			@merged_person = duplicate
+			save!
+			duplicate.update!(
+				merged_into: self,
+				nick: "[MERGED]",
+				dni: nil,
+				email: nil,
+				phone: nil
+			)
 		end
 	end
 
@@ -173,11 +181,37 @@ class Person < ApplicationRecord
 	def anonymize!
 		return if anonymized_at.present?
 
-		anonymize_data!
-		update!(user_id: nil)
-		documents.destroy_all
-		relationships.destroy_all
-		inverse_relationships.destroy_all
+		transaction do
+			user_ids       = ([ user_id ] + User.where(person_id: id).pluck(:id)).compact.uniq
+			membership_ids = memberships.pluck(:id)
+			assignment_ids = Assignment.where(membership_id: membership_ids).pluck(:id)
+			document_ids   = documents.pluck(:id)
+			attachments    = ActiveStorage::Attachment.where(record_type: "Person", record_id: id)
+				.or(ActiveStorage::Attachment.where(record_type: "User", record_id: user_ids))
+				.or(ActiveStorage::Attachment.where(record_type: "Membership", record_id: membership_ids))
+				.or(ActiveStorage::Attachment.where(record_type: "Assignment", record_id: assignment_ids))
+				.or(ActiveStorage::Attachment.where(record_type: "Document", record_id: document_ids))
+
+			blob_ids = attachments.distinct.pluck(:blob_id)
+			attachments.delete_all
+
+			# 2. Purge any blob that is no longer referenced by any remaining attachment
+			ActiveStorage::Blob.where(id: blob_ids).find_each do |blob|
+				blob.purge unless ActiveStorage::Attachment.where(blob_id: blob.id).exists?
+			end
+
+			# 3. Scrub settings & anonymize linked User
+			memberships.update_all(settings: {})
+			User.where(id: user_ids).find_each(&:anonymize_without_person!)
+
+			# 4. Scrub Person's own fields, documents, and relationships
+			anonymize_data!
+			update!(user_id: nil)
+			documents.update_all(superseded_by_id: nil)
+			documents.delete_all
+			relationships.destroy_all
+			inverse_relationships.destroy_all
+		end
 	end
 
 	# return the version of this person that is not marked
@@ -207,7 +241,9 @@ class Person < ApplicationRecord
 	end
 
 	def dependents
-		Person.where(id: relationships.in_group(:responsible_adult).select(:related_person_id))
+		from_inverse = inverse_relationships.in_group(:responsible_adult).select(:person_id)
+		from_forward = relationships.in_group(:ward).select(:related_person_id)
+		Person.where(id: from_inverse).or(Person.where(id: from_forward))
 	end
 
 	# used for clublogo (Person(id: 0)) - DEPRECATED
@@ -242,9 +278,7 @@ class Person < ApplicationRecord
 
 	# Return list of responsible adults related to this person
 	def responsible_adults
-		age >=18 ?
-			[ self ] :
-			relationships.in_group(:responsible_adult).map(&:related_person)
+		age >= 18 ? [ self ] : guardians.to_a
 	end
 
 	# Try to resolve a Person from identifying attributes.
@@ -267,6 +301,7 @@ class Person < ApplicationRecord
 				case field
 				when :phone then parse_phone(data[:phone])
 				when :email then data[:email].to_s.strip.downcase
+				when :dni   then data[field].to_s.strip.upcase
 				else data[field].to_s.strip
 				end
 
@@ -312,20 +347,6 @@ class Person < ApplicationRecord
 			errors.add(:merged_into, :invalid) if merged_into_id == id
 		end
 
-		def finalize_pending_merge
-			return unless @merged_person
-
-			@merged_person.update!(
-				merged_into: self,
-				nick: "[MERGED]",
-				dni: nil,
-				email: nil,
-				phone: nil
-			)
-
-			@merged_person = nil
-		end
-
 		def merge_attachments_from(duplicate)
 			%i[avatar id_front id_back].each do |attachment|
 				merge_attachment(attachment, duplicate)
@@ -344,9 +365,7 @@ class Person < ApplicationRecord
 
 		def merge_attributes_from(duplicate)
 			mergeable = %i[nick name surname birthday female dni email phone address]
-
-				self.avatar.attach(duplicate.avatar.blob) if !avatar.attached? && duplicate.avatar.attached?
-				mergeable.each do |field|
+			mergeable.each do |field|
 				current  = public_send(field)
 				incoming = duplicate.public_send(field)
 
@@ -371,21 +390,32 @@ class Person < ApplicationRecord
 		end
 
 		def merge_users_from(duplicate)
-			users = User.where(person: duplicate)
-			users.each do |user|
-				duplicate.update! user_id: nil
-				user.update!(person: self)
+			User.where(person_id: duplicate.id).find_each do |user|
+				duplicate.update_column(:user_id, nil) if duplicate.user_id == user.id
+				update_column(:user_id, user.id) if user_id.nil?
+				user.update_columns(person_id: id)
 			end
 		end
 
 		def merge_relationships_from(duplicate)
 			duplicate.relationships.each do |relationship|
-				existing = relationships.find_by(related_person_id: relationship.related_person_id)
-				if relationship.kind == existing&.kind
-					relationship.destroy!
-				else
-					relationship.update!(person: self)
-				end
+				next relationship.destroy! if relationship.related_person_id == id
+
+				duplicate_exists =
+					relationships.exists?(related_person_id: relationship.related_person_id, kind: relationship.kind) ||
+					inverse_relationships.exists?(person_id: relationship.related_person_id, kind: relationship.inverse_kind)
+
+				duplicate_exists ? relationship.destroy! : relationship.update!(person: self)
+			end
+
+			duplicate.inverse_relationships.each do |relationship|
+				next relationship.destroy! if relationship.person_id == id
+
+				duplicate_exists =
+					inverse_relationships.exists?(person_id: relationship.person_id, kind: relationship.kind) ||
+					relationships.exists?(related_person_id: relationship.person_id, kind: relationship.inverse_kind)
+
+				duplicate_exists ? relationship.destroy! : relationship.update!(related_person: self)
 			end
 		end
 

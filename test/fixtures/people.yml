@@ -1,4 +1,8 @@
 # dni / email / phone are unique per Person → distinct values per label.
+system_placeholder:
+  id: 0
+  name: "System"
+  surname: "Placeholder"
 alice:
   name: "Alice"
   surname: "Admin"

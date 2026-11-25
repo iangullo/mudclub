@@ -101,6 +101,16 @@ module Participatory
 	#------------------------------------
 	# Participation UI field methods
 	#------------------------------------
+	def age
+		person&.age
+	end
+
+	def all_pics?
+		(avatar&.attached? || person&.avatar&.attached?) &&
+			person&.id_front&.attached? &&
+			person&.id_back&.attached?
+	end
+
 	def duration
 		return nil unless starts_on
 
@@ -110,6 +120,14 @@ module Participatory
 	def date_range
 		"#{starts_on} – #{ends_on || UI::Status.val(:active)}"
 	end
+
+	def female?
+		person&.female?
+	end
+
+	# Return email/phone of participation object or of the associated tutors if underage
+	def p_email = contact_values(:email)
+	def p_phone = contact_values(:phone)
 
 	# personal photo or kind symbol
 	def picture
@@ -221,6 +239,15 @@ module Participatory
 		# Determine if record can move to a specific status
 		def can_transition_to?(target_status)
 			available_statuses.include?(target_status.to_sym)
+		end
+
+		def contact_values(attr)
+			return "" unless person
+
+			values = age.to_i < 18 ? person.responsible_adults.filter_map(&attr) : []
+			own    = public_send(attr)
+			values << own if own.present?
+			values.uniq.join("\n")
 		end
 
 		# Member/Assignment notifications

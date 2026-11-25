@@ -1,10 +1,10 @@
 require "test_helper"
 
-class EventKind::TrainingTest < ActiveSupport::TestCase
+class EventPresenter::TrainingTest < ActiveSupport::TestCase
 	def setup
 		@event = FakeEvent.new(kind: :training,
 			label: "Training", date_string: "15/01/2026")
-		@kind  = EventKind::Training.new(@event)
+		@kind  = EventPresenter::Training.new(@event)
 	end
 
 	test "#created_notice ends with the date" do

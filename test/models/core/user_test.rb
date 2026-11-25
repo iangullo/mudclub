@@ -107,8 +107,8 @@ class UserTest < ActiveSupport::TestCase
 
 		assert_not_nil user.anonymized_at
 		assert_equal({}, user.settings)
-		assert_match(/\Aanonymized\+.*@invalid\.local\z/, user.read_attribute(:email),
-			"the email column must be anonymized — user.email delegates to person")
+		assert_match(/\Aanonymized\+.*@invalid\.local\z/, user.email,
+			"the email column must be anonymized")
 	end
 
 	test "anonymize! is idempotent" do
@@ -130,6 +130,64 @@ class UserTest < ActiveSupport::TestCase
 		user = users(:admin_user)
 		user.anonymize!
 		assert_equal :anonymized, user.reload.inactive_message
+	end
+
+	# ─── rebuild & Person synchronization ────────────────────
+
+	test "rebuild updates user email and synchronizes canonical person email" do
+		alice = people(:alice)
+		user  = users(:admin_user)
+		user.update_columns(person_id: alice.id)
+		user.reload
+
+		resolution = user.rebuild({
+			email: "alice.new@mudclub.test",
+			role: :admin,
+			locale: "es"
+		})
+
+		assert resolution.ok?
+		user.save!
+
+		assert_equal "alice.new@mudclub.test", user.reload.email
+		assert_equal "alice.new@mudclub.test", alice.reload.email
+		assert_equal "es", user.locale
+	end
+
+	test "rebuild rejects email that conflicts with another person's unique email" do
+		alice = people(:alice)
+		bob   = people(:bob)
+		user  = users(:admin_user)
+		user.update_columns(person_id: alice.id)
+		user.reload
+
+		resolution = user.rebuild({ email: bob.email })
+		assert resolution.conflict?
+		assert_equal bob, resolution.conflicts[:email]
+	end
+
+	test "rebuild attaches user avatar and propagates it upward to canonical person" do
+		bob  = people(:bob)
+		user = users(:admin_user)
+		user.update_columns(person_id: bob.id)
+		user.reload
+
+		blob = ActiveStorage::Blob.create_and_upload!(
+			io: StringIO.new("\x89PNG\r\n\x1A\nuser-rebuild-#{SecureRandom.hex(4)}"),
+			filename: "user_rebuild.png",
+			content_type: "image/png"
+		)
+
+		resolution = user.rebuild({
+			email: bob.email,
+			avatar: blob
+		})
+
+		assert resolution.ok?
+		user.save!
+
+		assert_equal blob.id, user.reload.avatar.blob_id
+		assert_equal blob.id, bob.reload.avatar.blob_id
 	end
 
 	# ─── class API ───────────────────────────────────────────

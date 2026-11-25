@@ -121,7 +121,8 @@ module PersonData
 
 		# Purge core sensitive document files attached locally
 		ATTACHMENT_NAMES.each do |name|
-			public_send(name).attachment&.destroy   # kills the join row, keeps the blob
+			att = public_send(name)
+			att.purge if att.attached?
 		end
 
 		# Reset structural references and unique string entities

@@ -45,8 +45,8 @@ class User < ApplicationRecord
 	delegate :was_member_of?, :clubs, :club_list, :teams, :team_list, :is_parent?,
 		:memberships, :has_membership?, :is_athlete?, :is_coach?, :is_volunteer?, :is_board_member?,
 		:assignments, :has_assignment?, :is_president?, :is_vice_president?, :is_treasurer?,
-									:is_secretary?, :has_guardians?, # :is_manager? has local override
-		:phone, :email, :female,
+		:is_secretary?, :has_guardians?, # :is_manager? has local override
+		:phone, :female,
 		to: :person, allow_nil: true
 
 	#-------------------------------------
@@ -63,13 +63,29 @@ class User < ApplicationRecord
 		super && anonymized_at.nil?
 	end
 
-	def anonymize!	# GDPR compliance
+	def anonymize!
 		return if anonymized_at.present?
 
-		person&.anonymize!
+		if person&.canonical?
+			person.anonymize!
+		else
+			anonymize_without_person!
+		end
+	end
+
+	def anonymize_without_person!
+		return if anonymized_at.present?
+
+		if (att = ActiveStorage::Attachment.find_by(record_type: "User", record_id: id, name: "avatar"))
+			blob = att.blob
+			att.delete
+			blob.purge unless ActiveStorage::Attachment.where(blob_id: blob.id).exists?
+		end
+
 		update_columns(
+			person_id:            0,
 			email:                "anonymized+#{SecureRandom.uuid}@invalid.local",
-			encrypted_password:   SecureRandom.hex(32),   # never matches a bcrypt hash
+			encrypted_password:   SecureRandom.hex(32),
 			reset_password_token: nil,
 			remember_created_at:  nil,
 			current_sign_in_ip:   nil,
@@ -132,24 +148,41 @@ class User < ApplicationRecord
 		set_setting(:locale, newlocale)
 	end
 
-	# return attached avatar (or default user icon)
+	# personal image
 	def picture
-		self.avatar.attached? ? self.avatar : "user.svg"
+		return self.avatar if self.avatar.attached?
+		person&.canonical? ? person.picture : "user.svg"
 	end
 
 	# rebuild User data from raw input hash given by a form submittal
 	# avoids duplicate person binding
 	def rebuild(data)
-		# --- associated persons data ---
+		login_email = data[:email].to_s.strip.downcase.presence
+
+		# Seed person_attributes[:email] from login_email if omitted so Person.resolve matches on email
+		if login_email && data[:person_attributes].is_a?(Hash) && data[:person_attributes][:email].blank?
+			data[:person_attributes][:email] = login_email
+		end
+
+		# --- associated person data ---
 		resolution = prepare_person(data)
-		return resolution unless resolution.ok?	# return ambiguous or conflicts
+		return resolution unless resolution.ok?
 
 		# --- actual user data ---
-		self.club_id = data[:club_id].presence	# DEPRECATED
-		self.email   = resolution.person&.email || data[:email].presence&.strip&.downcase
+		self.club_id = data[:club_id].presence # DEPRECATED
+		self.email   = login_email || resolution.person&.email || email
 		self.role    = data[:role] || :user
 		self.locale  = data[:locale] if data[:locale]
-		if data[:password]
+
+		if person&.canonical?
+			person.email = email
+			dbconflicts  = person.conflicts
+			if dbconflicts.present?
+				return PersonResolution.new(status: :conflict, person:, conflicts: dbconflicts)
+			end
+		end
+
+		if data[:password].present?
 			self.password              = data[:password]
 			self.password_confirmation = data[:password_confirmation]
 		end

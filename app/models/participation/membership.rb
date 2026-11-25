@@ -68,7 +68,7 @@ class Membership < ApplicationRecord
 	#-------------------------------------
 	# Convenient delegations
 	#-------------------------------------
-	delegate :avatar, :age, :birthday, :email, :female, :name, :nick, :phone,
+	delegate :age, :birthday, :email, :female, :name, :nick, :phone,
 					:relationships, :surname, :s_name, :to_s,
 					:minor?, :has_guardians?, :guardians,
 					to: :person, allow_nil: true
@@ -186,7 +186,7 @@ class Membership < ApplicationRecord
 		return false unless can_transition_to?(:active)
 
 		transaction do
-			assignments.suspended.find_each { |a| a.reinstate!(date) }  # or a.activate!(date)
+			assignments.status_suspended.find_each { |a| a.reinstate!(date) }  # or a.activate!(date)
 			transition_to!(:active, :activate, date)
 		end
 		true
@@ -195,7 +195,7 @@ class Membership < ApplicationRecord
 	def terminate!(date = Date.current)
 		return false unless can_transition_to?(:terminated)
 		transaction do
-			assignments.active.find_each { |a| a.terminate!(date) }
+			assignments.status_active.find_each { |a| a.terminate!(date) }
 		 	transition_to!(:terminated, :terminate, date)
 		end
 		true
