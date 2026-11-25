@@ -195,7 +195,7 @@ module ParticipationHelper
 					a_obj = (o_class == :assignment ? object : object&.assignments&.last)
 					row   = { url: path_for(object, rdx: 3, search: @search), items: [], frame: }
 					row[:items] << { kind: :normal, value: a_obj&.kind_label(m_obj.kind_gender) } if kind == :board_member
-					row[:items] << icon_item(object.avatar, align: :center)
+					row[:items] << icon_item(object.picture, align: :center)
 					row[:items] << { kind: :normal, value: object.s_name }
 					row[:items] << { kind: :normal, value: object.age, align: :center } if [ :athlete, :coach ].include?(m_obj.kind.to_sym)
 					case kind
