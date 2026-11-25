@@ -21,15 +21,15 @@ module DrillsHelper
 	# return title FieldComponent definition for edit/new
 	def drill_form_data
 		[
-			[ label_item(Target.label(:plural), align: :right) ],
+			[ label_item("#{Target.label(:plural)}:") ],
 			[
 				{ kind: :nested_form, model: "drill", key: "drill_targets", child: DrillTarget.new(priority: @drill.drill_targets.count+1), row: "target_row", cols: 2 }
 			],
 			[
-				{ kind: :text_box, key: :material, size: 40, value: @drill.material, label: @drill.fld(:material) }
+				{ kind: :text_box, key: :material, size: 40, value: @drill.material, label: "#{@drill.fld(:material)}:" }
 			],
 			[
-				{ kind: :text_area, key: :description, size: 40, lines: 2, value: @drill.description, mandatory: { length: 7 }, label:  @drill.fld(:description_short) }
+				{ kind: :text_area, key: :description, size: 40, lines: 2, value: @drill.description, mandatory: { length: 7 }, label: "#{@drill.fld(:description_short)}:" }
 			]
 		]
 	end
@@ -75,7 +75,7 @@ module DrillsHelper
 	# return title FieldComponent definition for drill steps form
 	def drill_form_steps
 		res = [
-			[ label_item(Step.label(:plural)) ],
+			[ label_item("#{Step.label(:plural)}:") ],
 			[
 				{ kind: :nested_form, model: "drill", key: :steps, child: Step.new(drill_id: @drill.id), row: "step_row" }
 			]
@@ -94,7 +94,7 @@ module DrillsHelper
 			[
 				label_item("#{@drill.sport.specific.term(:skill, :plural)}:"),
 				gap_item,
-				label_item("#{Drill.fld(:author)}:")
+				label_item("#{Drill.fld(:author)}:", class: "mr-2")
 			],
 			[
 				{ kind: :nested_form, model: "drill", key: :skills, child: Skill.new, row: "skill_row" },
@@ -104,7 +104,7 @@ module DrillsHelper
 		if auth_in && authors.size > 1
 			res.first << { kind: :select_collection, key: :author_id, options: authors, value: author.id }
 		else
-			res.first << { kind: :text, value: author.s_name, class: "ml-2" }
+			res.first << { kind: :text, value: author.s_name }
 			res.first << hidden_input(:author_id, author.id)
 		end
 		res
@@ -177,16 +177,16 @@ module DrillsHelper
 	def drill_show_intro
 		res  = [
 			[
-				label_item(Target.label(:plural)),
+				label_item("#{Target.label(:plural)}:", class: "mr-2"),
 				{ kind: :lines, class: "align-top", value: @drill.drill_targets }
 			]
 		]
 		res << [
-			label_item(Drill.fld(:material)),
+			label_item("#{Drill.fld(:material)}:", class: "mr-2"),
 			{ kind: :string, value: @drill.material }
 		]
 		res << [
-			label_item(Drill.fld(:description_short)),
+			label_item("#{Drill.fld(:description_short)}:", class: "mr-2"),
 			{ kind: :string, value: @drill.description }
 		]
 	end
@@ -208,7 +208,7 @@ module DrillsHelper
 	def drill_show_tail
 		res = [
 			[
-				label_item(@drill.sport.specific.term(:skill, :short), class: "mr-2"),
+				label_item("#{@drill.sport.specific.term(:skill, :short)}:", class: "mr-2"),
 				{ kind: :string, value: @drill.print_skills }
 			]
 		]
@@ -226,7 +226,7 @@ module DrillsHelper
 			)
 		end
 		res << [
-			label_item(Drill.fld(:author)),
+			label_item("#{Drill.fld(:author)}:", class: "mr-2"),
 			{ kind: :string, value: @drill.author.s_name }
 		]
 	end

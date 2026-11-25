@@ -48,7 +48,7 @@ class StepsComponent < ApplicationComponent
 
 		def render_header
 			content_tag(:div, class: "inline-flex font-semibold") do
-				concat(@many ? Step.label(:plural) : Step.fld(:explanation))
+				concat("#{@many ? Step.label(:plural) : Step.fld(:explanation)}:")
 			end
 		end
 

@@ -58,8 +58,8 @@ class TableComponent < ApplicationComponent
 
 	def call	# render into HTML
 		content_tag(:div, align: @align,
-			class: "min-w-0 overflow-x-auto w-full max-w-full",
-			style: "align-self: stretch;") do
+			class: "min-w-0 overflow-x-auto w-full max-w-full table-scroll-shadow",
+			style: "align-self: stretch; -webkit-overflow-scrolling: touch;") do
 			table_tag(controller: @controller, data: @data) do
 				concat(render_header)
 				render_body
@@ -87,9 +87,9 @@ class TableComponent < ApplicationComponent
 			title.each { |item|
 				case item[:kind]
 				when :normal
-					item[:class] = "font-semibold border p-1 whitespace-nowrap"
+					item[:class] = "font-semibold border p-1 whitespace-nowrap text-[11px] sm:text-sm"
 				when :inverse
-					item[:class] = "font-semibold bg-white text-indigo-900 border p-1 whitespace-nowrap"
+					item[:class] = "font-semibold bg-white text-indigo-900 border p-1 whitespace-nowrap text-[11px] sm:text-sm"
 				when :gap
 					item[:value] = "&nbsp;".html_safe
 				when :button
@@ -100,6 +100,14 @@ class TableComponent < ApplicationComponent
 					item[:class] = "bg-white"
 				end
 				item[:align] = "left" unless item[:align]
+
+				if res.size.zero?
+					if item[:kind] == :inverse
+						item[:class] += " sticky left-0 z-20"
+					else
+						item[:class] += " sticky left-0 z-20 bg-indigo-900"
+					end
+				end
 				res << item
 			}
 			res
@@ -108,16 +116,17 @@ class TableComponent < ApplicationComponent
 		# parse row definitions to set correct objects
 		# each row links to a url - buttons to specific url if specifed
 		def parse_rows(rows)
-			rows.each { |row|
+			rows.each do |row|
+				idx = 0
 				row[:data] ||= {}
 				row[:data][:turbo_frame] = (row[:frame].to_s == "modal" ? "modal" : "_top") if row[:url]
 				row[:data]["#{@controller}-target"] = "athlete" if @controller
 				row[:classes] ||= []
-				row[:classes]  += [ "hover:text-white", "hover:bg-blue-700" ] unless row[:name]==:bottom
-					row[:items].each { |item|
+				row[:classes]  += [ "hover:text-white", "hover:bg-blue-700" "group" ] unless row[:name]==:bottom
+				row[:items].each do |item|
 					case item[:kind]
 					when :normal, :lines, :icon, :location, :text
-						item[:class]         ||= "border px-1 py-1"
+						item[:class]         ||= "border p-0.5 sm:p-1 break-words"
 						item[:symbol][:size] ||= "25x25" if item[:symbol]
 					when :button
 						item[:class] ||= "bg-white" unless item[:button][:kind] == :location
@@ -128,14 +137,14 @@ class TableComponent < ApplicationComponent
 					when :checkbox_q
 						@rowcue      ||= true if @controller
 						item[:align]   = "center"
-						item[:class] ||= "border px-1 py-1"
+						item[:class] ||= "border p-1"
 					when :contact
 						item[:align]   = "center"
-						item[:class] ||= "border px-1 py-1"
+						item[:class] ||= "border p-1"
 						item[:value]   = ContactComponent.new(email: item[:email], phone: item[:phone], device: item[:device])
 					when :percentage
 						item[:align] ||= "center"
-						item[:class] ||= "font-semibold border px-1 py-1"
+						item[:class] ||= "font-semibold border p-1"
 						if item[:value] # not nil
 							case item[:value]
 							when 0..25
@@ -152,9 +161,16 @@ class TableComponent < ApplicationComponent
 							item[:value] = ""
 						end
 					end
+
+					if idx.zero?
+						item[:class] ||= ""
+						item[:class] += " sticky left-0 z-[5] bg-white group-hover:bg-blue-700 group-hover:text-white"
+					end
+					item[:class] += " hidden sm:table-cell" if item[:hide_mobile]
 					item[:align] ||= "left"
-				}
-			}
+					idx = 1
+				end
+			end
 			rows
 		end
 

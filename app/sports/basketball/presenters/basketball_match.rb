@@ -51,7 +51,10 @@ module Presenters
 				a_outings = 0
 				a_stats   = Stat.fetch(kind: :athlete, athlete_id: athlete.id, stats: e_stats, create: false)
 				row       = { items: [] }
-				row[:url] = event.attendee_url(athlete, rdx:) unless edit
+				unless edit
+					row[:url]   = event.attendee_url(athlete, rdx:)
+					row[:frame] = modal
+				end
 				row[:items] << { kind:, value: athlete.number.to_s, align: :center }
 				row[:items] << { kind:, value: athlete.s_name }
 				1.upto(outings[:total]) do |q|
@@ -89,6 +92,7 @@ module Presenters
 				a_stats     = Stat.fetch(athlete_id: athlete.id, period: 0, stats: e_stats, create: false)
 				row         = { items: [] }
 				row[:url]   = event.attendee_url(athlete, rdx:) unless edit
+				row[:frame] = :modal
 				row[:items] = match_stats_row(athlete, a_stats, edit:)
 				rows << row
 			end

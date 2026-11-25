@@ -21,12 +21,15 @@
 # ViewComponent to render SVG diagrams for drill steps.
 # Can act as either display or editor depending on the presence of a form object.
 class DiagramComponent < ApplicationComponent
-	MARKER_SIZE = 5
+	MARKER_SIZE   = 5
 	MARKER_DOUBLE = MARKER_SIZE * 2
-	MARKER_HALF = MARKER_SIZE / 2
-	SYMBOL_SIZE = 33.87
-	SHOW_SVG_CLASS = "w-full h-auto"
-	EDIT_SVG_CLASS = "w-full h-full border"
+	MARKER_HALF   = MARKER_SIZE / 2
+	SYMBOL_SIZE   = 33.87
+	SHOW_SVG_CLASS = "block w-full h-auto"
+	EDIT_SVG_CLASS = "block w-full h-full"
+	EDIT_CONTAINER_CLASS    = "w-full overflow-hidden border rounded"
+	DEFAULT_VIEW_MAX_HEIGHT = "80svh"
+	DEFAULT_EDIT_MAX_HEIGHT = "65svh"
 	EDITOR_BUTTONS = [
 		{ action: "addAttacker", object: "attacker", options: { label: "?" } },
 		{ action: "addDefender", object: "defender", options: { label: "n" } },
@@ -59,13 +62,14 @@ class DiagramComponent < ApplicationComponent
 		svg_content = generate_diagram_content
 
 		if editor?
+			edit_h = @max_height.presence || DEFAULT_EDIT_MAX_HEIGHT
 			safe_join(
 				[
 					editor_buttons_container,
 					content_tag(:div,
 						id: "#{@id}-container",
-						class: "#{EDIT_SVG_CLASS} border rounded",
-						style: ("height: #{@max_height};" if @max_height.present?)
+						class: EDIT_CONTAINER_CLASS,
+						style: ("height: #{edit_h}; max-height: #{edit_h};")
 					) { svg_content },
 					hidden_editor_fields,
 					color_menu	# contextual color selector
@@ -73,7 +77,7 @@ class DiagramComponent < ApplicationComponent
 			)
 		else
 			content_tag(:div,
-				class: "diagram-container",
+				class: "diagram-container w-full max-w-full",
 				data: { controller: "diagram-renderer",
 				diagram_renderer_svgdata_value: @svgdata }) do
 					svg_content.html_safe
@@ -160,21 +164,34 @@ class DiagramComponent < ApplicationComponent
 		def generate_diagram_content
 			svg_start = safe_join([ render_symbol_defs, render_court ])
 			svg_attrs = {
-					class: show_css,
-					id:    @id,
-					height: "100%",
-					width:  "100%",
-					preserveAspectRatio: "xMidYMid meet",
-					viewBox: "#{@viewbox[:x]} #{@viewbox[:y]} #{@viewbox[:width]} #{@viewbox[:height]}",
-					xmlns: "http://www.w3.org/2000/svg",
-					'xmlns:xlink': "http://www.w3.org/1999/xlink",
-					data: svg_data_attributes
+				class:   svg_css,             # editor → h-full, viewer → h-auto
+				id:      @id,
+				height:  "100%",
+				width:   "100%",
+				preserveAspectRatio: "xMidYMid meet",
+				viewBox: "#{@viewbox[:x]} #{@viewbox[:y]} #{@viewbox[:width]} #{@viewbox[:height]}",
+				xmlns: "http://www.w3.org/2000/svg",
+				'xmlns:xlink': "http://www.w3.org/1999/xlink",
+				data: svg_data_attributes
 			}
-			svg_attrs[:style] = show_style if show_style
+			svg_attrs[:style] = svg_style if svg_style
 
-			content_tag(:div, class: "diagram-container", data: { loaded: "false" }) do
+			content_tag(:div, class: "diagram-container h-full w-full", data: { loaded: "false" }) do
 				content_tag(:svg, svg_start.html_safe, svg_attrs)
 			end
+		end
+
+		def svg_css
+			editor? ? EDIT_SVG_CLASS : show_css
+		end
+
+		# Cap the rendered diagram so it never exceeds viewport height on mobile.
+		# `svh` accounts for mobile browser chrome; `preserveAspectRatio="xMidYMid meet"`
+		# letterboxes the diagram instead of clipping it.
+		def svg_style
+			return nil if editor?
+			max_h = @max_height.presence || DEFAULT_VIEW_MAX_HEIGHT
+			"max-height: #{max_h};"
 		end
 
 		def get_viewbox(court)

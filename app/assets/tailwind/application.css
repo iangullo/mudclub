@@ -55,17 +55,16 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        touch-action: none;
         -webkit-user-select: none;
         user-select: none;
+        /* Default: allow scroll & pinch-zoom on mobile */
+        touch-action: pan-y pinch-zoom;
     }
 
-    .diagram-container svg {
-        position: relative;
-        max-width: 100%;
-        height: auto;
-        top: unset;
-        left: unset;
+    /* Editor: block native gestures so pointer events reach the drawing layer */
+    [data-controller~="diagram-editor"] .diagram-container,
+    [data-controller~="diagram-editor"] .diagram-container svg {
+        touch-action: none;
     }
 
     .control-point,
@@ -160,5 +159,21 @@
     [data-dropdown-target="trigger"]:active,
     [data-dropdown-target="trigger"][aria-expanded="true"] {
         @apply bg-blue-700 text-white;
+    }
+
+    .table-scroll-shadow {
+        background:
+            /* white cap on the left */
+            linear-gradient(to right, white 30%, rgba(255, 255, 255, 0)) 0 0,
+            /* white cap on the right */
+            linear-gradient(to right, rgba(255, 255, 255, 0), white 70%) 100% 0,
+            /* shadow on the left, visible only when scrolled */
+            radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, .18), transparent) 0 0,
+            /* shadow on the right, visible only when not at end */
+            radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, .18), transparent) 100% 0;
+        background-repeat: no-repeat;
+        background-color: white;
+        background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+        background-attachment: local, local, scroll, scroll;
     }
 }
