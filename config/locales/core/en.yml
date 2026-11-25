@@ -208,6 +208,7 @@ en:
       values:
         last_in: Last login
         never_logged: (never logged in)
+        none: No user found!
 
     user_action:
       label:

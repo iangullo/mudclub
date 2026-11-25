@@ -63,12 +63,12 @@ class DivisionsController < ApplicationController
 			@division.rebuild(division_params)
 			if @division.save
 				a_desc = "#{Division.msg(:created)} '#{@division.name}'"
-				retlnk = path_for(@sport)
+				retlnk = path_for(@sport.generic)
 				register_action(:created, a_desc, url: path_for(@division, owner: @sport.generic, rdx: 2), modal: true)
 				format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 				format.json { render :index, status: :created, location: retlnk }
 			else
-				prepare_form("new")
+				prepare_form(:new)
 				format.html { render :new, status: :unprocessable_entity }
 				format.json { render json: @division.errors, status: :unprocessable_entity }
 			end
@@ -80,7 +80,7 @@ class DivisionsController < ApplicationController
 		@policy = check_policy!(DivisionPolicy, record: @division)
 
 		respond_to do |format|
-			retlnk = path_for(@sport)
+			retlnk = path_for(@sport.generic)
 			@division.rebuild(division_params)
 			if @division.changed?
 				if @division.save
@@ -89,7 +89,7 @@ class DivisionsController < ApplicationController
 					format.html { redirect_to retlnk, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :index, status: :created, location: retlnk }
 				else
-					prepare_form("new")
+					prepare_form(:edit)
 					format.html { render :edit, status: :unprocessable_entity }
 					format.json { render json: @division.errors, status: :unprocessable_entity }
 				end
@@ -109,7 +109,7 @@ class DivisionsController < ApplicationController
 		respond_to do |format|
 			a_desc = "#{Division.msg(:deleted)} '#{d_name}'"
 			register_action(:deleted, a_desc)
-			format.html { redirect_to path_for(@sport), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.html { redirect_to path_for(@sport.generic), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 			format.json { head :no_content }
 		end
 	end

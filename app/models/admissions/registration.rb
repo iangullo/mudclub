@@ -78,6 +78,8 @@ class Registration < ApplicationRecord
 					:name, :nick, :surname, :email, :phone,
 					to: :candidate
 
+	class InvalidTransition < StandardError; end
+
 	#-------------------------------------
 	# Scopes
 	#-------------------------------------
@@ -327,8 +329,8 @@ class Registration < ApplicationRecord
 		def transition_to!(new_status)
 			allowed = Catalog::RegistrationStatuses.fetch(status.to_sym)[:transitions]
 
-			raise ArgumentError, "Invalid transition #{status} -> #{new_status}" \
-				unless allowed.include?(new_status&.to_sym)
+			raise InvalidTransition, "Invalid transition #{status} -> #{new_status}" \
+			  unless allowed.include?(new_status&.to_sym)
 
 			transaction do
 				yield if block_given?

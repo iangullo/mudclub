@@ -131,12 +131,12 @@ class SubmitComponentTest < ActiveSupport::TestCase
 	# ─── close labels ─────────────────────────────────────────────
 	test "close label is 'cancel' when kind: :close and submit: :save" do
 		html = render_component(close: :close, submit: :save)
-		assert_includes html, I18n.t("action.cancel")
+		assert_includes html, UI::Action.act(:cancel)
 	end
 
 	test "close label is 'close' when kind: :close and no save" do
 		html = render_component(close: :close)
-		assert_includes html, I18n.t("action.close")
+		assert_includes html, UI::Action.act(:close)
 	end
 
 	# ─── frame handling ───────────────────────────────────────────

@@ -164,8 +164,8 @@ class Assignment < ApplicationRecord
 	#-------------------------------------
 	# Attendance helpers
 	#-------------------------------------
-	# Is this assingment present in an event?
-	def present?(event_id)
+	# Is this assignment present in an event?
+	def attended?(event_id)
 		attendances.exists?(event_id:)
 	end
 

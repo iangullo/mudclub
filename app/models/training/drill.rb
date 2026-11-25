@@ -24,6 +24,9 @@ class Drill < ApplicationRecord
 	FILTER_PARAMS = %i[name category_id season_id skill column direction].freeze
 	before_destroy :unlink
 
+	# temporary until coach model is deleted
+	before_validation :assign_legacy_coach
+
 	#-------------------------------------
 	# Class relationships
 	#-------------------------------------
@@ -197,31 +200,21 @@ class Drill < ApplicationRecord
 		if search.present?
 			s_type = "name"
 			res    = Drill.all
-			search.scan(/\s*\w+\s*/).each { |cad|	# scan the search string  for tokens
+			search.scan(/\S+/).each do |cad|
 				case cad
-				when "k"	# next string ought to be a kind
-					s_type = "kind"
-				when "s"	# next string ought to be a skill
-					s_type = "skill"
-				when "t"	# next string ought to be a target
-					s_type = "target"
-				else	# a sub search string
-					cad = cad.rstrip
-					case s_type	# apply the right token
-					when "kind"
-						res = self.search_kind(res, cad)
-						s_type = "name"
-					when "skill"
-						res = self.search_skill(res, cad)
-						s_type = "name"
-					when "target"
-						res = self.search_target(res, cad)
-						s_type = "name"
-					when "name"
-						res = self.search_name(res, cad)
+				when "k" then s_type = "kind"
+				when "s" then s_type = "skill"
+				when "t" then s_type = "target"
+				else
+					case s_type
+					when "kind"   then res = search_kind(res, cad)
+					when "skill"  then res = search_skill(res, cad)
+					when "target" then res = search_target(res, cad)
+					when "name"   then res = search_name(res, cad)
 					end
+					s_type = "name"
 				end
-			}
+			end
 		else
 			res = Drill.real
 		end
@@ -240,8 +233,7 @@ class Drill < ApplicationRecord
 
 	# filter drills by season
 	def self.search_season(res = Drill.all, s_s)
-		season = Season.search(s_s)&.updated_at
-		res = season ? res.where(updated_at: season.start_date..season.end_date).distinct : res
+	  res.by_season(Season.search(s_s))
 	end
 
 	# filter for fundamentals
@@ -255,6 +247,10 @@ class Drill < ApplicationRecord
 	end
 
 	private
+		def assign_legacy_coach
+			self.coach_id = Coach.pick(:id) if coach_id.to_i.zero? && !Coach.exists?(id: 0)
+		end
+
 		# checks skills array received and manages adding/removing
 		# from the drill collection - remove duplicates from list
 		def check_skills(s_array)

@@ -64,7 +64,8 @@ class DrillsController < ApplicationController
 	def new
 		@policy = check_policy!(DrillPolicy)
 
-		@drill = Drill.new(sport_id: 1, author: u_person)
+		@sport ||= @club&.sports&.first || Sport.first
+		@drill   = Drill.new(sport: @sport, author: u_person)
 		prepare_form("new")
 	end
 
@@ -80,7 +81,8 @@ class DrillsController < ApplicationController
 		@policy = check_policy!(DrillPolicy)
 
 		respond_to do |format|
-			@drill = Drill.new
+			@sport ||= @club&.sports&.first || Sport.first
+			@drill   = Drill.new(sport: @sport, author: u_person)
 			@drill.rebuild(drill_params)	# rebuild drill
 			if @drill.save
 				retlnk = path_for(@drill)
@@ -153,7 +155,7 @@ class DrillsController < ApplicationController
 		@policy = check_policy!(DrillPolicy, record: @drill)
 
 		if @step
-			@title  = create_fields(helpers.drill_title(title: @drill.name, subtitle: Step.(:load_diagram) + " ##{@step.order}"))
+			@title  = create_fields(helpers.drill_title(title: @drill.name, subtitle: Step.act(:load_diagram) + " ##{@step.order}"))
 			@loader = create_fields(helpers.drill_form_diagram_file(@step))
 			@submit = create_submit(retlnk: edit_path_for(@drill), frame: :modal)
 		else
@@ -180,7 +182,7 @@ class DrillsController < ApplicationController
 				format.html { redirect_to edit_path_for(@drill), notice: Step.fld(:diagram) + " ##{@step.order} " + UI::Status.msg(:saved) }
 			end
 		else
-			redirect_to path_for(@drill, action: edit_diagram, notice: helpers.flash_message(UI::Status.msg(:no_data)), data: { turbo_action: "replace" }), status: :unprocessable_entity
+			redirect_to path_for(@drill, action: :edit_diagram, notice: helpers.flash_message(UI::Status.msg(:no_data)), data: { turbo_action: "replace" }), status: :unprocessable_entity
 		end
 	end
 
@@ -196,7 +198,7 @@ class DrillsController < ApplicationController
 	private
 		# pdf export of @drill content
 		def drill_to_pdf(header)
-			footer = "#{Drill.label(:author)}: #{@drill.coach.person.email}"
+			footer = "#{Drill.label(:author)}: #{@drill.author.email}"
 			pdf    = pdf_create(header:, footer:)
 			pdf_label_text(label: Drill.fld(:description), text: @drill.description) if @drill.description.present?
 			pdf_label_text(label: Target.label(:plural), text: @drill.print_targets(array: false))

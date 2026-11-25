@@ -43,7 +43,7 @@ class ModalPieComponentTest < ActiveSupport::TestCase
 	test "renders a close button because simple: true" do
 		html = render_pie
 		assert_includes html, "close-btn"
-		assert_includes html, I18n.t("action.close")
+		assert_includes html, UI::Action.act(:close)
 	end
 
 	# ─── header fields ──────────────────────────────

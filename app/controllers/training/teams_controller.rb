@@ -108,10 +108,10 @@ class TeamsController < ApplicationController
 		@policy = check_policy!(TeamPolicy, club: @club)
 
 		respond_to do |format|
-			retlnk = cru_return
 			if team_params
 				@team = Team.build(team_params)
 				if @team.save
+					retlnk = cru_return
 					a_desc = "#{Team.msg(:created)} '#{@team}'"
 					c_path = (user_in_club? ? retlnk : club_teams_path(@club, rdx: @rdx))
 					register_action(:created, a_desc, url: path_for(@team, rdx: 2))
@@ -125,8 +125,8 @@ class TeamsController < ApplicationController
 					format.json { render json: @team.errors, status: :unprocessable_entity }
 				end
 			else	# no data to save...
-				format.html { redirect_to retlnk, notice: n_notice, data: { turbo_action: "replace" } }
-				format.json { redirect_to retlnk, status: :ok, location: retlnk }
+				format.html { redirect_to path_for(@club), notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { redirect_to path_for(@club), status: :ok, location: path_for(@club) }
 			end
 		end
 	end

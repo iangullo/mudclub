@@ -40,6 +40,8 @@ en:
         status: Status
         status_short: Stat.
         notes: Notes
+      values:
+        none: No Membership found!
       messages:
         cannot_terminate: Membership cannot be terminated!
         created: Membership created.
@@ -73,6 +75,8 @@ en:
         status: Status
         status_short: Stat.
         notes: Notes
+      values:
+        none: No Assignment found!
       messages:
         cannot_terminate: Assignment cannot be terminated!
         created: Assignment created.

@@ -8,7 +8,7 @@ class StatTest < ActiveSupport::TestCase
 
 		@club   = Club.create!(name: "Club #{suffix}", nick: "c#{suffix}")
 		@season = Season.create!(start_date: Date.current, end_date: Date.current + 1.year)
-		@sport  = Sport.create!(name: "basketball-#{suffix}")
+		@sport  = Sport.create!(name: "basketball")
 
 		@category = Category.create!(
 			age_group: "U14",

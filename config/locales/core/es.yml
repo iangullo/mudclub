@@ -223,6 +223,7 @@ es:
       values:
         last_in: Último acceso
         never_logged: (nunca ha iniciado sesión)
+        none: ¡Usuario no encontrado!
 
     user_action:
       gender: female

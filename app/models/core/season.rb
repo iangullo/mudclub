@@ -96,7 +96,6 @@ class Season < ApplicationRecord
 	def unlink
 		self.slots.delete_all
 		self.teams.delete_all
-		self.locations.delete_all
 		UserAction.prune("/seasons/#{self.id}")
 	end
 

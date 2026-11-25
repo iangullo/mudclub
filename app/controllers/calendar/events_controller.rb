@@ -46,7 +46,7 @@ class EventsController < ApplicationController
 			format.ics do
 				f_name   = "#{obj.to_s.parameterize}.ics"
 				calendar = EventCalendar.new(obj.events.includes(:team, :location), name: obj.to_s, host: request.base_url)
-				register_action(:exported, "#{Event.msg(:exported, kind: obj.kind_label)} '#{f_name}'")
+				register_action(:exported, "#{Event.msg(:exported, kind: obj.label)} '#{f_name}'")
 				send_data calendar.to_ics, filename: f_name, type: "text/calendar; charset=utf-8"
 			end
 		end
@@ -72,7 +72,7 @@ class EventsController < ApplicationController
 						@event.team.athletes(current: true).joins(:membership)
 									.find_by(memberships: { person_id: person.id })
 					)&.id
-					redirect_to path_for(@event, action: athlete_stats, athlete_id:, cal: @cal), data: { turbo_action: "replace" }
+					redirect_to path_for(@event, action: :athlete_stats, athlete_id:, cal: @cal), data: { turbo_action: "replace" }
 				else	# gotta be a coach or manager
 					@title  = create_fields(title)
 					@fields = create_fields(@event.specific.show_fields(helpers, policy: @policy, team: @team, cal: @cal))
@@ -195,7 +195,7 @@ class EventsController < ApplicationController
 		start_date = @event.start_date
 		@event.destroy
 		respond_to do |format|
-			next_url = team.id > 0 ? team : events_path(start_date:)
+			next_url = team.id > 0 ? path_for(team) : events_path(start_date:)
 			next_act = team.id > 0 ? :show : :index
 			a_desc   = helpers.event_delete_notice
 			register_action(:deleted, a_desc[:message])

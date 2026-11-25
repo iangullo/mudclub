@@ -175,6 +175,24 @@ class ApplicationController < ActionController::Base
 		current_hash
 	end
 
+	# shared for PersonBearing related controllers
+	def person_permitted_params(exclude_relationships: false)
+		fields = [
+			:id, :avatar, :name, :nick, :surname,
+			:dni, :id_back, :id_front, :female,
+			:birthday, :address, :email, :phone, :user_id
+		]
+		unless exclude_relationships
+			fields << {
+				relationships_attributes: [
+					:id, :kind, :_destroy,
+					{ related_person_attributes: [ :id, :dni, :name, :surname, :email, :phone ] }
+				]
+			}
+		end
+		fields
+	end
+
 	# register a new user action
 	def register_action(kind, description, url: nil, modal: nil)
 		u_act = UserAction.new(user_id: current_user.id, kind:, description:, url:, modal:)
@@ -222,13 +240,30 @@ class ApplicationController < ActionController::Base
 			)
 	end
 
-	def load_participation_context
-		@team   = @club.teams.find(params[:team_id]) if params[:team_id].present?
+	def load_participation_context(model_class = controller_name.classify.safe_constantize)
+		# 0. Attempt to retrieve relevant ids
+		member_id = get_param(:member_id) || get_param(:membership_id)
+		team_id   = get_param(:team_id)
+
+		# 1. Resolve parent records from nested route params if not already set by set_member / set_assignment
+		@member ||= Membership.find(member_id) if member_id.present?
+		@club   ||= @member&.club
+		@team   ||= @club.teams.find(team_id) if @club && team_id.present?
+
+		# 2. Verify URL hierarchy consistency whenever both parent & child IDs are present
+		assert_param_matches!(:club_id, @club)     if @member
+		assert_param_matches!(:member_id, @member) if @assignment
+
+		# 3. Normalize @kind from record, query param, or nested form payload
+		if @kind.blank? && model_class&.respond_to?(:kind_catalog)
+			raw_kind = get_param(:kind)&.singularize&.to_sym
+			@kind    = model_class.kind_catalog.normalize(raw_kind)
+		end
+
+		# 4. Load persistent index filter state
 		s_kind  = @kind || "participation"
-		@status = params[:status].presence ||
-							session.dig("#{s_kind}_filters", "status")
-		@search = params[:search].presence ||
-							session.dig("#{s_kind}_filters", "search")
+		@status ||= params[:status].presence || session.dig("#{s_kind}_filters", "status")
+		@search ||= params[:search].presence || session.dig("#{s_kind}_filters", "search")
 	end
 
 	# switch app locale
@@ -409,6 +444,21 @@ class ApplicationController < ActionController::Base
 			else
 				{ status: :invalid, message: "Cannot process submitted data: #{attrs}" }
 			end
+		end
+
+		# re-usable error hanadling for all controllers
+		def render_form_errors(action, format, record:, result: nil, fallback_message: nil)
+			template = (action == :create ? :new : action)
+			prepare_form(template) if respond_to?(:prepare_form, true)
+
+			message = result&.dig(:message).presence ||
+								record&.errors&.full_messages&.to_sentence.presence ||
+								fallback_message
+			notice  = helpers.flash_message(message, "error")
+
+			format.html         { render template, notice:, status: :unprocessable_entity }
+			format.turbo_stream { render template, formats: :html, notice:, status: :unprocessable_entity }
+			format.json         { render json: record.errors, status: :unprocessable_entity }
 		end
 
 		# resolve locale to apply

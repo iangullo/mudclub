@@ -8,7 +8,7 @@ class FixturesSmokeTest < ActiveSupport::TestCase
 		Club:     4,
 		Category: 3,
 		Division: 2,
-		Person:   2,
+		Person:   3,
 		User:     2,
 		Drill:    1,
 		Team:     5,

@@ -55,5 +55,5 @@ class UserPolicy < ApplicationPolicy
 	# Other methods
 	#------------------------------------
 	alias actions? show?
-	def clear_actions? = allowed?(manages_person?(user.person))
+	def clear_actions? = allowed?(manages_person?(@record.person))
 end

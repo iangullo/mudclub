@@ -273,7 +273,7 @@ class Person < ApplicationRecord
 	end
 
 	def placeholder?
-		id.zero?
+		id == 0
 	end
 
 	# Return list of responsible adults related to this person

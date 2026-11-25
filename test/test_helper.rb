@@ -6,6 +6,8 @@ require "capybara/rails"
 require "nokogiri"
 
 class ActiveSupport::TestCase
+	include Devise::Test::IntegrationHelpers
+
 	# Run tests in parallel with specified workers
 	parallelize(workers: :number_of_processors)
 

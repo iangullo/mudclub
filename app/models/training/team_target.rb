@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -62,10 +62,10 @@ class TeamTarget < ApplicationRecord
 	# Traffic light status helper
 	def status
 		case completion
-		when 0 then :red
-		when 1..33 then :orange
-		when 34..66 then :yellow
-		when 67..90 then :lime
+		when 0       then :red
+		when 1..33   then :orange
+		when 34..66  then :yellow
+		when 67..89  then :lime
 		when 90..100 then :green
 		end
 	end

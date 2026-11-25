@@ -19,7 +19,6 @@
 # Handle Assignment views - always accessed by a assignment, club or team
 class AssignmentsController < ApplicationController
 	before_action :set_assignment, only: [ :show, :edit, :update, :terminate ]
-	before_action :load_assignment_kind
 	before_action :load_participation_context
 
 	# GET /clubs/x/assignments
@@ -83,22 +82,13 @@ class AssignmentsController < ApplicationController
 
 		respond_to do |format|
 			@assignment = Assignment.new(team: @team, kind: @kind)
-			membership  = @member || prepared_membership
-			@assignment.membership = membership
+			@assignment.membership = @member || build_blank_membership
 			result = rebuild_or_merge_person(@assignment, assignment_params)
 			retlnk = helpers.assignment_return_path   # defined for every branch
 
-			unless membership
-				notice = Assignment.msg(:no_member)
-				format.html         { redirect_to retlnk, notice: }
-				format.turbo_stream { redirect_to retlnk, notice:, status: :see_other }
-				format.json         { render :roster, status: :ok, location: retlnk }
-				next
-			end
-
-
 			case result[:status]
 			when :ok
+				reuse_existing_membership! if @member.nil?
 				@assignment.starts_on ||= Date.current
 				saved = false
 				Assignment.transaction do
@@ -199,6 +189,15 @@ class AssignmentsController < ApplicationController
 	end
 
 	private
+		def build_blank_membership
+			Membership.new(
+				club:      @club,
+				kind:      membership_kind(@kind || :athlete),
+				status:    :active,
+				joined_on: Date.current
+			)
+		end
+
 		def log_assignment_errors
 			Rails.logger.debug @assignment.errors.full_messages
 			Rails.logger.debug @assignment.person.errors.full_messages
@@ -246,41 +245,17 @@ class AssignmentsController < ApplicationController
 			@submit   = create_submit
 		end
 
-		def prepare_person_for_create
-			attrs = assignment_params[:person_attributes]
-			return Person.new if attrs.blank?
+		def reuse_existing_membership!
+			person = @assignment.person
+			return unless person&.persisted?
 
-			resolution = Person.resolve(attrs)
-			return nil if resolution.status == :ambiguous
-
-			resolution.person || Person.new
-		end
-
-		# Flow B: no pre-existing member. Resolve the person from params, then
-		# reuse their current membership in this club if one exists.
-		def prepared_membership
-			person = prepare_person_for_create
-			return nil unless person
-
-			kind = membership_kind(@kind || :athlete)
-
-			person.memberships.for_club(@club).of_kind(kind).current.first ||
-			person.memberships.build(
-				club:      @club,
-				kind:      kind,
-				status:    :active,
-				joined_on: Date.current
-			)
+			kind = @assignment.membership.kind
+			existing = person.memberships.for_club(@club).of_kind(kind).current.first
+			@assignment.membership = existing if existing
 		end
 
 		def render_assignment_errors(action, format, result = nil)
-			prepare_form(action == :new ? :create : action)
-			message = result.present? ? result[:message] : Assignment.msg(:no_member)
-			notice  = helpers.flash_message(message, "error")
-
-			format.html         { render action, notice:, status: :unprocessable_entity }
-			format.turbo_stream { render action, formats: :html, notice:, status: :unprocessable_entity }
-			format.json         { render json: @assignment.errors, status: :unprocessable_entity }
+			render_form_errors(action, format, record: @assignment, result:, fallback_message: Assignment.val(:none))
 		end
 
 		def search_options
@@ -303,23 +278,15 @@ class AssignmentsController < ApplicationController
 
 		# Use callbacks to share common setup or constraints between actions.
 		def set_assignment
-			@assignment = Assignment.includes(:membership, :team).find(params[:id])
-
-			@kind   = @assignment.kind
-			@member = @assignment.membership
-			assert_param_matches!(:member_id, @member)
-
-			@club   = @assignment.club
-			assert_param_matches!(:club_id, @club)
-
-			@team   = @assignment.team
-			assert_param_matches!(:team_id, @team)
-		end
-
-		def load_assignment_kind
-			return true if @kind
-			p_kind = get_param(:kind)&.singularize&.to_sym
-			@kind  = Assignment.kind_catalog.normalize(p_kind)
+			if @assignment = Assignment.includes(:membership, :team).find(params[:id])
+				@kind   = @assignment.kind
+				@member = @assignment.membership
+				assert_param_matches!(:member_id, @member)
+				@club   = @assignment.club
+				assert_param_matches!(:club_id, @club)
+				@team   = @assignment.team
+				assert_param_matches!(:team_id, @team)
+			end
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
@@ -327,18 +294,7 @@ class AssignmentsController < ApplicationController
 			@assignment_params ||= params.require(:assignment).permit(
 				:kind, :membership_id, :team_id, :starts_on, :ends_on, :number,
 				:notes, :avatar, :person_merge, :status, :edit_status, :rdx,
-				person_attributes: [
-					:id, :avatar, :name, :nick, :surname,
-					:dni, :id_back, :id_front, :female,
-					:birthday, :address, :email, :phone,
-
-					relationships_attributes: [
-						:id, :kind, :_destroy,
-						related_person_attributes: [
-							:id, :dni, :name, :surname, :email, :phone
-						]
-					]
-				]
+				person_attributes: person_permitted_params
 			)
 		end
 end

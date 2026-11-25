@@ -19,7 +19,7 @@
 # app/policies/registration_policy.rb
 class RegistrationPolicy < ApplicationPolicy
 	def initialize(actor, record: nil, kind: nil, team: nil, club: nil, token: nil)
-		computed_team = record&.team || team
+		computed_team = record&.requested_team || team
 
 		super(actor, record:, club: computed_team&.club || record&.club || club, token:)
 

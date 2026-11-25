@@ -1,5 +1,5 @@
-# MudClub - Simple Rails app to manage a team sports club.
-# Copyright (C) 2025  Iván González Angullo
+# MudClub - The open source Rails platform to manage amateur sports clubs.
+# Copyright (C) 2026  Iván González Angullo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the Affero GNU General Public License as published
@@ -67,14 +67,8 @@ class Target < ApplicationRecord
 	# Search target matching. returns either nil or a Target
 	def self.fetch(id, concept, focus = nil, aspect = nil)
 		res = id ? Target.find(id.to_i) : nil
-		if res==nil and concept
-			if concept.strip.length > 0
-				res = Target.search_by_concept(concept&.strip)
-			else
-				res = Target.all
-			end
-			res = focus ? res.where(focus: focus.length==1 ? focus.to_i : focus.to_sym) : res
-			res = aspect ? res.where(aspect: aspect.length==1 ? aspect.to_i : aspect.to_sym) : res
+		if res == nil and concept
+			res = Target.search(concept, focus:, aspect:)
 			res = res ? res.first : nil
 		end
 		res
@@ -91,9 +85,10 @@ class Target < ApplicationRecord
 	# return list of registered Targets ordered by concept
 	def self.list(focus: nil, aspect: nil)
 		res  = []
-		Target.fetch(nil, "", focus, aspect).order(:concept).each { |target|
+		Target.search(concept, focus:, aspect:).order(:concept).each { |target|
 			res << target.concept
 		}
+
 		res
 	end
 
@@ -108,5 +103,17 @@ class Target < ApplicationRecord
 			end
 		end
 		a_targets
+	end
+
+	def self.search(concept = nil, focus: nil, aspect: nil)
+		if concept.present?
+			res = Target.search_by_concept(concept&.strip)
+		else
+			res = Target.all
+		end
+		res = res.where(focus: focus.length == 1 ? focus.to_i : focus.to_sym)     if focus.present?
+		res = res.where(aspect: aspect.length == 1 ? aspect.to_i : aspect.to_sym) if aspect.present?
+
+		res
 	end
 end

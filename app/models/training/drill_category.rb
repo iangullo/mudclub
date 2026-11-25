@@ -48,7 +48,7 @@ class DrillCategory < ApplicationRecord
 	# -------------------------------------------------------------------------
 
 	def self.fetch(name, sport: nil)
-		key = name.to_s.strip
+		key = name.to_s.strip.mb_chars.titleize.to_s
 		return nil if key.blank?
 		find_or_create_by!(sport:, name: key)
 	end

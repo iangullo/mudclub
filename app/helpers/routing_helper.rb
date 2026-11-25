@@ -70,7 +70,7 @@ module RoutingHelper
 	# --------------------------------------------------------------------------
 
 	def path_for(record, action: nil, owner: @owner, club: @club, rdx: @rdx, **options)
-		options.merge!(routing_opts(rdx:)).compact!
+		options.merge!(routing_opts(record, rdx:)).compact!
 		base   = resource_route(record, owner:, club:)
 		target = action ? [ action, *base ] : base
 		polymorphic_path(target, **options)
@@ -141,8 +141,8 @@ module RoutingHelper
 			if member_id
 				opts[:kind]      = kind || @kind || params[:kind].presence
 				opts[:member_id] = member_id unless record.is_a?(Membership)
-			elsif (user_id = @user&.id || params[:user_id].presence)
-				opts[:user_id] = user_id if user_id
+			elsif !record.is_a?(User) && (user_id = @user&.id || params[:user_id].presence)
+				opts[:user_id] = user_id
 			end
 			opts
 		end

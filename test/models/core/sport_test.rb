@@ -26,7 +26,7 @@ class SportTest < ActiveSupport::TestCase
 	end
 
 	test "#concept_id handles all input types" do
-		b = Basketball.new
+		b = Sport::StatWriter.new(Basketball.new)
 		assert_equal 25, b.send(:concept_id, 25)
 		assert_equal 25, b.send(:concept_id, :q1)
 		assert_equal 25, b.send(:concept_id, "25")
@@ -214,7 +214,7 @@ class SportTest < ActiveSupport::TestCase
 	# These tests lock the *resolved* behaviour in.
 
 	test "parse_stat_key resolves period symbols through the catalog" do
-		b = Basketball.new
+		b = Sport::StatWriter.new(Basketball.new)
 		assert_equal [ "ours", 1, "1" ], b.send(:parse_stat_key, "ours_q1_1")
 		assert_equal [ "ours", 7, "1" ], b.send(:parse_stat_key, "ours_ot_1")
 		assert_equal [ "ours", 0, "1" ], b.send(:parse_stat_key, "ours_tot_1")
@@ -222,7 +222,7 @@ class SportTest < ActiveSupport::TestCase
 	end
 
 	test "parse_stat_key rejects metadata and unknown periods" do
-		b = Basketball.new
+		b = Sport::StatWriter.new(Basketball.new)
 		assert_nil b.send(:parse_stat_key, "home")
 		assert_nil b.send(:parse_stat_key, "name")
 		assert_nil b.send(:parse_stat_key, "ours_bogus_1")
@@ -230,13 +230,13 @@ class SportTest < ActiveSupport::TestCase
 	end
 
 	test "resolve_stat_owner maps ours/opps to team/rival" do
-		b = Basketball.new
+		b = Sport::StatWriter.new(Basketball.new)
 		assert_equal [ :team,  nil ], b.send(:resolve_stat_owner, "ours", @match.id)
 		assert_equal [ :rival, nil ], b.send(:resolve_stat_owner, "opps", @match.id)
 	end
 
 	test "resolve_stat_owner passes UUID owners through as :athlete" do
-		b = Basketball.new
+		b = Sport::StatWriter.new(Basketball.new)
 		uuid = @assignment.id
 		assert_equal [ :athlete, uuid ], b.send(:resolve_stat_owner, uuid, @match.id)
 	end

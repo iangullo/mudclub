@@ -40,6 +40,8 @@ es:
         status: Estado
         status_short: Est.
         notes: Notas
+      values:
+        none: ¡Integrante no encontrado!
       messages:
         cannot_terminate: ¡No se pudo dar de baja!
         created: Integrante creado.
@@ -77,6 +79,8 @@ es:
         status: Estado
         status_short: Est.
         notes: Notas
+      values:
+        none: ¡Asignación no encontrada!
       messages:
         cannot_terminate: ¡No se pudo dar de baja!
         created: Asignación creada.

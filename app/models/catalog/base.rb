@@ -21,11 +21,11 @@ class Catalog::Base
 	include Localizable
 
 	class << self
-		#
+		extend Enumerable
+
 		# ------------------------------------------------------------------------
 		# Repository
 		# ------------------------------------------------------------------------
-		#
 		def domain(scope)
 			@domain = scope
 		end
@@ -82,17 +82,13 @@ class Catalog::Base
 				&.to_sym
 		end
 
-		#
 		# Rails enum compatibility.
-		#
 		def enum
 			ensure_built!
 			@enum
 		end
 
-		#
 		# Reverse lookup.
-		#
 		def entry(id)
 			ensure_built!
 			@entries_by_id.fetch(id)
@@ -107,12 +103,9 @@ class Catalog::Base
 			resolve(key).id
 		end
 
-		#
 		# ------------------------------------------------------------------------
 		# Lookup
 		# ------------------------------------------------------------------------
-		#
-
 		def [](key)
 			fetch(key)
 		end
@@ -127,9 +120,7 @@ class Catalog::Base
 			@entries.key?(normalize(key))
 		end
 
-		#
 		# Returns the canonical entry.
-		#
 		def resolve(key)
 			entry = fetch(key)
 
@@ -138,20 +129,15 @@ class Catalog::Base
 			entry
 		end
 
-		#
 		# Enumerable
-		#
 		def each(&block)
 			ensure_built!
 			@values.each(&block)
 		end
 
-		#
 		# ------------------------------------------------------------------------
 		# Queries
 		# ------------------------------------------------------------------------
-		#
-
 		def where(include_deprecated: false, **criteria)
 			ensure_built!
 
@@ -184,12 +170,9 @@ class Catalog::Base
 			end
 		end
 
-		#
 		# ------------------------------------------------------------------------
 		# Localizable
 		# ------------------------------------------------------------------------
-		#
-
 		def i18n_scope
 			@i18n_scope ||= "#{@domain}.#{name.demodulize.underscore}"
 		end

@@ -180,7 +180,7 @@ class InputBoxComponentTest < ActiveSupport::TestCase
 	test "upload renders the filename span" do
 		html = render_input(kind: :upload, key: :avatar, value: nil)
 		assert_match(/data-upload-target="fileName"/, html)
-		assert_includes html, I18n.t("status.no_file")
+		assert_includes html, UI::Status.msg(:no_file)
 	end
 
 	# ─── :image_box ─────────────────────────────────

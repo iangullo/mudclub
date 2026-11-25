@@ -80,7 +80,7 @@ class SlotsController < ApplicationController
 				end
 			else
 				format.html { redirect_to index_path_for(@slot), notice: no_data_notice, data: { turbo_action: "replace" } }
-				format.json { render :index, status: :unprocessable_entity, location: retlnk }
+				format.json { render :index, status: :unprocessable_entity, location: index_path_for(@slot) }
 			end
 		end
 	end
@@ -184,7 +184,7 @@ class SlotsController < ApplicationController
 		# prepare valid locations for the slots view
 		def set_location
 			@locations = Location.search(club_id: @club&.id).practice.order(name: :asc)
-			loc_id     = get_param(:location_id, objid: true) || @locations.first.id
+			loc_id     = get_param(:location_id, objid: true)|| @slot&.location_id || @locations.first.id
 			@location  = @slot&.location || Location.find_by_id(loc_id)
 		end
 
@@ -230,16 +230,8 @@ class SlotsController < ApplicationController
 		# Only allow a list of trusted parameters through.
 		def slot_params
 			params.require(:slot).permit(
-				:id,
-				:club_id,
-				:duration,
-				:hour,
-				:location_id,
-				:min,
-				:rdx,
-				:season_id,
-				:start,
-				:team_id,
-				:wday)
+				:id, :club_id, :duration, :hour, :location_id,
+				:min, :rdx, :season_id, :start, :team_id, :wday
+			)
 		end
 end

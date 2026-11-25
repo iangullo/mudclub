@@ -63,37 +63,42 @@ class UsersController < ApplicationController
 		@policy = check_policy!(UserPolicy, club: @club)
 
 		respond_to do |format|
-			if user_params[:password].blank? or user_params[:password_confirmation].blank?
+			@user = User.new(locale: current_user.locale)
+			@user.build_person
+
+			if user_params[:password].blank? || user_params[:password_confirmation].blank?
 				params[:user].delete(:password)
 				params[:user].delete(:password_confirmation)
-				render_user_errors(:new, result)
-			else
-				@user  = User.new
-				result = rebuild_or_merge_person(@user, user_params)
+				render_user_errors(:new, format, { message: User.msg(:no_password) })
+				next
+			end
 
-				case result[:status]
-				when :ok	# attempt to store
-					if @user.modified? then
-						if @user.email.presence && @user.save
-							@user&.person&.update!(user_id: @user.id)
-							userview = path_for(@user)
-							a_desc   = "#{User.msg(:created)} '#{@user.s_name}'"
-							register_action(:created, a_desc, url: path_for(@user, rdx: 2))
-							format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-							format.json { render :show, status: :created, location: userview }
-						else
-							render_user_errors(:create, result)
-						end
-					else	# no changes to be made
-						notice = (@user.persisted? ? "#{I18n.t("user.no_data")} '#{@user.s_name}'" : @user.errors)
-						format.html { redirect_to users_path(rdx: @rdx), notice: helpers.flash_message(notice), data: { turbo_action: "replace" } }
-						format.json { render :index,  :created, location: }
-					end
-				when :offer_merge
-					handle_object_merge(format, @user, result[:candidates], user_params)
-				else	# invalid data
-					render_user_errors(:new, result)
+			result = rebuild_or_merge_person(@user, user_params)
+			case result[:status]
+			when :ok
+				saved = false
+				User.transaction do
+					@user.person.save! if @user.person&.new_record?
+					@user.save!
+					@user.person.update!(user_id: @user.id) if @user.person&.canonical?
+					saved = true
+				rescue ActiveRecord::RecordInvalid
+					raise ActiveRecord::Rollback
 				end
+
+				if saved
+					userview = path_for(@user)
+					a_desc   = "#{User.msg(:created)} '#{@user.s_name}'"
+					register_action(:created, a_desc, url: path_for(@user, rdx: 2))
+					format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :show, status: :created, location: userview }
+				else
+					render_user_errors(:new, format, result)
+				end
+			when :offer_merge
+				handle_object_merge(format, @user, result[:candidates], user_params)
+			else
+				render_user_errors(:new, format, result)
 			end
 		end
 	end
@@ -116,7 +121,7 @@ class UsersController < ApplicationController
 				if user_params.key?(:password) && (user_params[:password].blank? or user_params[:password_confirmation].blank?)
 					params[:user].delete(:password)
 					params[:user].delete(:password_confirmation)
-					render_user_errors(:edit, { message: @user.msg(:no_password) })
+					render_user_errors(:edit, format, { message: @user.msg(:no_password) })
 				else
 					result = rebuild_or_merge_person(@user, user_params)
 					case result[:status]
@@ -129,7 +134,7 @@ class UsersController < ApplicationController
 							format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 							format.json { render :show, status: :ok, location: userview }
 						else
-							render_user_errors(:edit, result)
+							render_user_errors(:edit, format, result)
 						end
 						else	# no changes made
 							format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
@@ -138,7 +143,7 @@ class UsersController < ApplicationController
 					when :offer_merge
 						handle_object_merge(format, @user, result[:candidates], user_params)
 					else	# invalid data
-						render_user_errors(:edit, result)
+						render_user_errors(:edit, format, result)
 					end
 				end
 			end
@@ -165,9 +170,9 @@ class UsersController < ApplicationController
 	def actions
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
-		@title  = create_fields(helpers.user_actions_title)
-		@actions= create_fields(helpers.user_actions_table)
-		@submit = create_submit(submit: helpers.user_actions_clear, frame: :modal)
+		@fields  = create_fields(helpers.user_actions_title)
+		@actions = create_fields(helpers.user_actions_table)
+		@submit  = create_submit(submit: helpers.user_actions_clear, frame: :modal)
 	end
 
 	# forget user_actions when reviewed
@@ -193,10 +198,8 @@ class UsersController < ApplicationController
 			@submit = create_submit
 		end
 
-		def render_user_errors(action, format, result)
-			prepare_form(action)
-			format.html { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
-			format.json { render json: @user.errors, status: :unprocessable_entity }
+		def render_user_errors(action, format, result = nil)
+			render_form_errors(action, format, record: @user, result:, fallback_message: User.val(:none))
 		end
 
 		# Use callbacks to share common setup or constraints between actions.
@@ -209,31 +212,9 @@ class UsersController < ApplicationController
 		# Never trust parameters from the scary internet, only allow the white list through.
 		def user_params
 			@user_params ||= params.require(:user).permit(
-				:id,
-				:avatar,
-				:club_id,
-				:email,
-				:locale,
-				:rdx,
-				:role,
-				:password,
-				:password_confirmation,
-				:person_id,
-				:person_merge,
-				person_attributes: [
-					:address,
-					:avatar,
-					:id,
-					:dni,
-					:nick,
-					:name,
-					:surname,
-					:birthday,
-					:female,
-					:email,
-					:phone,
-					:user_id
-				]
+				:id, :avatar, :club_id, :email, :locale, :rdx, :role,
+				:password, :password_confirmation, :person_id, :person_merge,
+				person_attributes: person_permitted_params(exclude_relationships: true)
 			)
 		end
 end

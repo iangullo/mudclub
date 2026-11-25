@@ -22,7 +22,7 @@ class RegistrationsController < ApplicationController
 	before_action :load_registration_context
 	before_action :set_registration, except: %i[index new create]
 
-	rescue_from ArgumentError, with: :registration_stale_transition
+	rescue_from Registration::InvalidTransition, with: :registration_stale_transition
 
 	# GET /clubs/x/registrations
 	# GET /clubs/x/registrations.json
@@ -80,7 +80,7 @@ class RegistrationsController < ApplicationController
 
 		respond_to do |format|
 			Registration.transaction do
-				@registration = Registration.new(club: @club, kind: @kind)
+				@registration = Registration.new(club: @club, requested_team_id: @team&.id, kind: @kind)
 				@registration.submitted_by_id = current_user&.person_id
 				@registration.rebuild(registration_params)
 				unless @registration.save
@@ -96,7 +96,7 @@ class RegistrationsController < ApplicationController
 				next
 			end
 
-			remember_registration
+			remember_registration(@registration)
 			@token ||= @registration.access_token unless current_user
 			notice   = helpers.flash_message(Registration.msg(:created), :success)
 			snapshot = RegistrationNotifier.capture(@registration)
@@ -120,8 +120,8 @@ class RegistrationsController < ApplicationController
 			@registration.rebuild(registration_params)
 			retlnk = path_for(@registration)
 			notice = @registration.modified? ?
-				no_data_notice :
-				helpers.flash_message(Registration.msg(:updated), :success)
+				helpers.flash_message(Registration.msg(:updated), :success) :
+				no_data_notice
 
 			if @registration.save
 				format.html { redirect_to retlnk, notice: }

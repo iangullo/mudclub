@@ -19,7 +19,6 @@
 # Handle Membership views - always linked to a club
 class MembershipsController < ApplicationController
 	before_action :set_member, only: [ :show, :edit, :update, :terminate ]
-	before_action :load_membership_kind
 	before_action :load_participation_context
 
 	# GET /clubs/x/memberships
@@ -99,11 +98,11 @@ class MembershipsController < ApplicationController
 						raise ActiveRecord::Rollback
 					end
 				end
-				render_member_errors(:edit, result) unless @member.persisted? && @member.errors.empty?
+				render_member_errors(:new, format, result) unless @member.persisted? && @member.errors.empty?
 			when :offer_merge
 				handle_object_merge(format, @member, result[:candidates], membership_params)
 			else	# invalid data
-				render_member_errors(:create, result)
+				render_member_errors(:create, format, result)
 			end
 		end
 	end
@@ -147,11 +146,11 @@ class MembershipsController < ApplicationController
 							raise ActiveRecord::Rollback
 						end
 					end
-					render_member_errors(:edit, result) unless @member.persisted? && @member.errors.empty?
+					render_member_errors(:edit, format, result) unless @member.persisted? && @member.errors.empty?
 				when :offer_merge
 					handle_object_merge(format, @member, result[:candidates], membership_params)
 				else	# invalid data
-					render_member_errors(:edit, result)
+					render_member_errors(:edit, format, result)
 				end
 			end
 		end
@@ -233,27 +232,16 @@ class MembershipsController < ApplicationController
 			end
 		end
 
-		def render_member_errors(action, result)
-			prepare_form(action == :new ? :create : action)
-			format.html         { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
-			format.turbo_stream { render action, notice: helpers.flash_message("#{result[:message]}", "error") }
-			format.json         { render json: @user.errors, status: :unprocessable_entity }
+		def render_member_errors(action, format, result = nil)
+			render_form_errors(action, format, record: @member, result:, fallback_message: Membership.val(:none))
 		end
 
 		def set_member
-			@member = Membership.find(params[:id])
-			@club   = @member&.club
-			assert_param_matches!(:club_id, @club)
-
-			@kind ||= @member.kind
-		end
-
-		def load_membership_kind
-			@status ||= params[:status].presence
-			return true if @kind
-			p_kind = (params[:kind].presence || membership_params[:kind].presence)
-								&.singularize&.to_sym
-			@kind  = Membership.kind_catalog.normalize(p_kind)
+			if @member = Membership.find(params[:id])
+				@club   = @member.club
+				@kind   = @member.kind
+				assert_param_matches!(:club_id, @club)
+			end
 		end
 
 		# Never trust parameters from the scary internet, only allow the white list through.
@@ -261,18 +249,7 @@ class MembershipsController < ApplicationController
 			@membership_params ||= params.require(:membership).permit(
 				:person_id, :club_id, :joined_on, :left_on, :kind, :notes,
 				:avatar, :person_merge, :status, :edit_status, :rdx,
-				person_attributes: [
-					:id, :avatar, :name, :nick, :surname,
-					:dni, :id_back, :id_front, :female,
-					:birthday, :address, :email, :phone,
-
-					relationships_attributes: [
-						:id, :kind, :_destroy,
-						related_person_attributes: [
-							:id, :dni, :name, :surname, :email, :phone
-						]
-					]
-				]
+				person_attributes: person_permitted_params
 			)
 		end
 end

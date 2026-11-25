@@ -37,13 +37,13 @@ class CalendarComponentTest < ActiveSupport::TestCase
 	# ─── basic structure ────────────────────────────
 	test "renders the month and year in the header" do
 		html = render_inline(build_component).to_html
-		assert_includes html, I18n.t("calendar.monthnames")[@start.month]
+		assert_includes html, Calendar.val(:monthnames)[@start.month]
 		assert_includes html, @start.year.to_s
 	end
 
 	test "renders day names for each column" do
 		html = render_inline(build_component).to_html
-		I18n.t("calendar.daynames_a")[1..7].each do |day|
+		Calendar.val(:daynames_short)[1..7].each do |day|
 			assert_includes html, day
 		end
 	end

@@ -113,14 +113,20 @@ module PersonBearing
 		mismatches = []
 		case resolution.status
 		when :ambiguous, :probable
+			self.person ||= Person.new
 			return resolution
 		when :exact
 			if resolution.person != person
-				mismatches  = PersonResolution.mismatches_against(attrs, resolution.person)
+				mismatches = PersonResolution.mismatches_against(attrs, resolution.person)
 				self.person = resolution.person
 			end
 		when :none
 			self.person ||= Person.new
+		end
+
+		if mismatches.any?
+			conflicts = mismatches.to_h { |field| [ field, resolution.person ] }
+			return PersonResolution.new(status: :conflict, person: resolution.person, conflicts:)
 		end
 
 		person.rebuild(attrs)

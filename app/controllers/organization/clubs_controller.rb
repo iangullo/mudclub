@@ -26,7 +26,7 @@ class ClubsController < ApplicationController
 		@clubs  = Club.search(params[:search], current_user, @club)
 		page    = paginate(@clubs, 1.9)
 		title   = u_manager? ? Club.fld(:rivals) : Club.label(:plural)
-		title   = helpers.club_header(title:, icon: { concept: "rivals" })
+		title   = @club ? helpers.club_header(title:, icon: { concept: "rivals" }) : [ [ { kind: :side_cell, value: title, cols: 3 } ] ]
 		title << [ { kind: :search_text, key: :search, value: params[:search] || session.dig("club_filters", "search"), url: clubs_path, size: 10, cols: 3 } ]
 		table   = helpers.club_table(clubs: page)
 		retlnk  = back_link(default: root_path)
@@ -96,7 +96,7 @@ class ClubsController < ApplicationController
 				end
 			else	# duplicate club
 				format.html { redirect_to path_for(@club, rdx: 0), notice: helpers.flash_message("#{@club.msg(:duplicated)} '#{@club.nick}'"), data: { turbo_action: "replace" } }
-				format.json { render :index, :created, location: path_for(@club, rdx: 0) }
+				format.json { render :index, :created, status: :created, location: path_for(@club, rdx: 0) }
 			end
 		end
 	end
@@ -135,7 +135,7 @@ class ClubsController < ApplicationController
 		respond_to do |format|
 			a_desc = "#{@club.msg(:deleted)} '#{c_name}'"
 			register_action(:deleted, a_desc)
-			format.html { redirect_to path_for(rdx: 0), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.html { redirect_to clubs_path(rdx: 0), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 			format.json { head :no_content }
 		end
 	end

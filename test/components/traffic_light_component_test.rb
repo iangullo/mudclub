@@ -119,20 +119,20 @@ class TrafficLightComponentTest < ActiveSupport::TestCase
 	# ─── title attribute ──────────────────────────────────────────
 	test "title maps each named status to its I18n key" do
 		{
-			red:    "status.not_started",
-			orange: "status.starting",
-			yellow: "status.in_progress",
-			lime:   "status.good",
-			green:  "status.completed"
+			red:    "not_started",
+			orange: "starting",
+			yellow: "in_progress",
+			lime:   "good",
+			green:  "completed"
 		}.each do |status, key|
 			div = light_dom(status: status)
-			assert_equal I18n.t(key), div["title"],
+			assert_equal UI::Status.val(key), div["title"],
 				"status :#{status} should map to #{key}"
 		end
 	end
 
 	test "unknown status uses the inactive title" do
-		assert_equal I18n.t("status.inactive"), light_dom(status: :bogus)["title"]
+		assert_equal UI::Status.val(:inactive), light_dom(status: :bogus)["title"]
 	end
 
 	# ─── CSS presence ─────────────────────────────────────────────

@@ -21,6 +21,11 @@ class BasketballTest < ActiveSupport::TestCase
 																location: @location, start_time: Time.current)
 	end
 
+	def basketball
+		@basketball ||= Sport.find_by(name: "basketball")&.specific ||
+										Basketball.new(name: "basketball")
+	end
+
 	# ---------------------------------------------------------------
 	# Regression — parse_stats recursion
 	# ---------------------------------------------------------------
@@ -43,8 +48,9 @@ class BasketballTest < ActiveSupport::TestCase
 		stats = { "#{@assignment.id}_0_3" => "2" }  # fta = 2
 		basketball.parse_stats(@match, stats)
 
-		assert_equal 2, stats["#{@assignment.id}_0_1"].to_i       # pta derived
-		assert_nil stats["#{a2.id}_0_1"]                          # absent untouched
+		assert_equal 2, stats["#{@assignment.id}_0_2"].to_i	# pta derived (id: 2)
+		assert_equal 0, stats["#{@assignment.id}_0_1"].to_i # pts = 0 (no shots made)
+		assert_nil stats["#{a2.id}_0_2"]                    # absent untouched
 	end
 
 	# ---------------------------------------------------------------

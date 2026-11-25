@@ -73,9 +73,9 @@ class Location < ApplicationRecord
 
 	# rebuild @location from raw hash returned by a form
 	def rebuild(f_data)
-		self.name           = f_data[:name]
+		self.name           = f_data[:name].presence
 		self.exists? # reload from database
-		self.gmaps_url      = f_data[:gmaps_url] if f_data[:gmaps_url].length > 0
+		self.gmaps_url      = f_data[:gmaps_url].presence if f_data[:gmaps_url].present?
 		self.practice_court = (f_data[:practice_court] == "1")
 	end
 

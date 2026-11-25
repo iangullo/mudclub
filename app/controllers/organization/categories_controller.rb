@@ -36,7 +36,8 @@ class CategoriesController < ApplicationController
 		@policy = check_policy!(CategoryPolicy, record: @category)
 
 		@fields = create_fields(helpers.category_show)
-		@submit = create_submit(submit: current_user.admin? ? edit_path_for(@category, owner: @sport.generic) : nil)
+		submit  = edit_path_for(@category, owner: @sport.generic) if @policy.edit?
+		@submit = create_submit(submit:)
 	end
 
 	# GET /categories/new
@@ -64,8 +65,8 @@ class CategoriesController < ApplicationController
 			if @category.save
 				a_desc = "#{Category.msg(:created)} '#{@category.name}'"
 				register_action(:created, a_desc, url: path_for(@category, owner: @sport.generic), modal: true)
-				format.html { redirect_to path_for(@sport), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-				format.json { render :show, status: :created, location: path_for(@sport) }
+				format.html { redirect_to path_for(@sport.generic), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+				format.json { render :show, status: :created, location: path_for(@sport.generic) }
 			else
 				prepare_form("new")
 				format.html { render :new, status: :unprocessable_entity }
@@ -84,16 +85,16 @@ class CategoriesController < ApplicationController
 				if @category.save
 					a_desc = "#{Category.msg(:updated)} '#{@category.name}'"
 					register_action(:updated, a_desc, url: path_for(@category, owner: @sport.generic), modal: true)
-					format.html { redirect_to path_for(@sport), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-					format.json { render :show, status: :ok, location: path_for(@sport) }
+					format.html { redirect_to path_for(@sport.generic), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
+					format.json { render :show, status: :ok, location: path_for(@sport.generic) }
 				else
 					prepare_form("edit")
 					format.html { render :edit, status: :unprocessable_entity }
 					format.json { render json: @category.errors, status: :unprocessable_entity }
 				end
 			else
-				format.html { redirect_to path_for(@sport), notice: no_data_notice, data: { turbo_action: "replace" } }
-				format.json { render :index, status: :ok, location: path_for(@sport) }
+				format.html { redirect_to path_for(@sport.generic), notice: no_data_notice, data: { turbo_action: "replace" } }
+				format.json { render :index, status: :ok, location: path_for(@sport.generic) }
 			end
 		end
 	end
@@ -107,7 +108,7 @@ class CategoriesController < ApplicationController
 		respond_to do |format|
 			a_desc = "#{Category.msg(:deleted)} '#{c_name}'"
 			register_action(:deleted, a_desc)
-			format.html { redirect_to path_for(@sport), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.html { redirect_to path_for(@sport.generic), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 			format.json { head :no_content }
 		end
 	end

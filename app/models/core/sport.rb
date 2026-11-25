@@ -33,9 +33,9 @@ class Sport < ApplicationRecord
 	has_many :divisions,  dependent: :nullify
 	has_many :teams,      dependent: :nullify
 
-	#-------------------------------------
+	# --------------------------------------------------------------------------
 	# Included Modules
-	#-------------------------------------
+	# --------------------------------------------------------------------------
 	include HasSettings
 
 	# --------------------------------------------------------------------------
@@ -90,7 +90,8 @@ class Sport < ApplicationRecord
 			when Sport   then sport.specific
 			when Integer then scope.find_by(id: sport)
 			when String, Symbol
-				scope.find_by(name: sport.to_s.downcase)
+				str = sport.to_s
+				str.match?(/\A\d+\z/) ? scope.find_by(id: str.to_i) : scope.find_by(name: str.downcase)
 			when nil
 				scope.first
 			else
@@ -128,12 +129,12 @@ class Sport < ApplicationRecord
 	# --------------------------------------------------------------------------
 	def generic_settings
 		{
-			rules: rules.enum,
+			rules:   rules.enum,
 			periods: periods.enum,
-			stats: statistics.enum,
+			stats:   statistics.enum,
 			scoring: {},
-			limits: {}
-			}
+			limits:  {}
+		}
 	end
 
 	def scoring
@@ -150,87 +151,27 @@ class Sport < ApplicationRecord
 	def limits_for(rule)
 		key =
 			case rule
-			when Symbol
-				rule
-			when Integer
-				catalog(:rules).entry(rule).key
-			else
-				rule.to_sym
+			when Symbol  then rule
+			when Integer then catalog(:rules).entry(rule).key
+			else              rule.to_sym
 			end
 
 		limits[key]
 	end
 
-	# ---------------------------------------------------------------------------
-	# Generic stat persistence
-	#
-	# Concept may be passed as:
-	#   - Symbol          :pts              (looked up via statistics.enum)
-	#   - Integer         1                 (persisted value, as-is)
-	#   - Catalog::Entry  statistics[:pts]  (uses .id)
-	#
-	# Legacy `player_id:` is accepted and resolved through Stat.translate_player_id,
-	# so callers that still use it keep working through the deprecation window.
-	# ---------------------------------------------------------------------------
-	def update_stat(event_id:, concept:, value:, period: 0, kind: :athlete, athlete_id: nil, **legacy)
-		if legacy.key?(:player_id)
-			kind, athlete_id = Stat.translate_player_id(legacy[:player_id].to_i, event_id, kind, athlete_id)
-		end
+	# --------------------------------------------------------------------------
+	# Delegated PORO operations (Stats, Scores, Fields)
+	# --------------------------------------------------------------------------
+	def update_stat(**args)                = stat_writer.update_stat(**args)
+	def update_stats(event_id:, stats_data:) = stat_writer.update_stats(event_id:, stats_data:)
+	def match_score(event_id)              = score_reader.match_score(event_id)
 
-		cid = concept_id(concept)
-		if (stat = Stat.fetch(event_id:, period:, kind:, athlete_id:, concept: cid, create: false).first)
-			stat.update!(value: value.to_i)
-			stat
-		else
-			begin
-				Stat.create!(Stat.build_attrs(
-					event_id:, period:, concept: cid,
-					kind:, athlete_id:, value: value.to_i
-				))
-			rescue ActiveRecord::RecordNotUnique
-				Stat.fetch(event_id:, period:, kind:, athlete_id:, concept: cid, create: false)
-						.first&.update!(value: value.to_i)
-			end
-		end
+	def label_item(value, **opts)          = field_builder.label_item(value, **opts)
+	def stat_label(label, abbr = true)     = field_builder.stat_label(label, abbr)
+	def stat_field(prefix, stats, stat, edit: false)
+		field_builder.stat_field(prefix, stats, stat, edit:)
 	end
-
-	# Bulk persistence of a hash produced by a form or by parse_stats.
-	# Expected shape: { "<owner>_<period>_<concept_id>" => value, ... }
-	# "owner" is an Assignment UUID (new) or reserved keys (:team|:rival)
-	def update_stats(event_id:, stats_data:)
-		stats_data = stats_data.to_unsafe_h if stats_data.respond_to?(:to_unsafe_h)
-		stats_data = stats_data.to_h unless stats_data.is_a?(Hash)
-
-		scoring_concept = statistics.enum[scoring[:points]]
-		periods_seen    = Hash.new(false)
-		period_sums     = Hash.new(0)
-		athlete_sums    = Hash.new(0)
-
-		stats_data.each_pair do |key, raw|
-			next if raw.blank?
-
-			parsed = parse_stat_key(key)
-			next unless parsed
-
-			owner, period, concept = parsed
-			kind, athlete_id       = resolve_stat_owner(owner, event_id)
-			next unless kind
-
-			update_stat(event_id:, period:, concept:, kind:, athlete_id:, value: raw)
-
-			if owner.to_s.in?(%w[ours opps]) && period.positive?
-				periods_seen[owner.to_s]  = true
-				period_sums[owner.to_s]  += raw.to_i
-			elsif athlete_id.present?
-				athlete_sums[concept.to_i] += raw.to_i
-			end
-		end
-
-		reconcile_totals(
-			event_id:, stats_data:, scoring_concept:,
-			periods_seen:, period_sums:, athlete_sums:
-		)
-	end
+	def stat_value(stats, stat)            = field_builder.stat_value(stats, stat)
 
 	# --------------------------------------------------------------------------
 	# Sport behaviour
@@ -263,8 +204,13 @@ class Sport < ApplicationRecord
 		delegate_to_specific(:stats_table, event, edit:, rdx:)
 	end
 
+	def parse_stats(...) = delegate_to_specific(:parse_stats, ...)
+	def period_key(...)  = delegate_to_specific(:period_key, ...)
+	def rules_key(...)   = delegate_to_specific(:rules_key, ...)
+	def stat_key(...)    = delegate_to_specific(:stat_key, ...)
+
 	# --------------------------------------------------------------------------
-	# Generic helpers
+	# Formatting Helpers
 	# --------------------------------------------------------------------------
 	def court_name(court)
 		court_entry =
@@ -279,8 +225,8 @@ class Sport < ApplicationRecord
 
 	# Formats a duration expressed in seconds.
 	def time_string(seconds)
-		count  = seconds.to_i
-		parts  = []
+		count = seconds.to_i
+		parts = []
 
 		if (hours = count / 3600).positive?
 			parts << "#{hours}º"
@@ -293,105 +239,16 @@ class Sport < ApplicationRecord
 		end
 
 		parts << "#{count}\""
-
 		parts.join
 	end
 
-	# --------------------------------------------------------------------------
-	# Statistics / score handling
-	#
-	# Ownership of a stat is expressed by ONE of:
-	#   - kind: :team   / :rival          (aggregate rows, athlete_id nil)
-	#   - kind: :athlete, athlete_id:  (per-athlete rows)
-	#
-	# Legacy callers can still pass `player_id:`; `Stat.fetch` translates it
-	# (with a deprecation warning) so no shim is needed here.
-	# --------------------------------------------------------------------------
-
-	# Returns the full score of a match:
-	#   { period1: { ours:, opps: }, period2: { ... }, tot: { ours:, opps: } }
-	def match_score(event_id)
-		score = {}
-
-		total = initial_total_score
-		stats = scoring_stats(event_id)
-		return { tot: total } if stats.blank?
-
-		catalog(:periods).each do |period|
-			read_period_score(period:, stats:, score:, total:)
-		end
-		Rails.logger.debug {
-			"match_score(#{event_id}): scoring=#{scoring.inspect} " \
-			"enum=#{statistics.enum.inspect} " \
-			"scoring_concept=#{statistics.enum[scoring[:points]].inspect} " \
-			"stats_found=#{stats.size} kinds=#{stats.map(&:kind).uniq.inspect} " \
-			"concepts=#{stats.map(&:concept).uniq.inspect}"
-		}
-		score[:tot] ||= total
-		score
-	end
-
-	# Delegate stats writers/readers to the specific sport. See the note above:
-	# specific subclasses must NOT call super on these.
-	def parse_stats(...) = delegate_to_specific(:parse_stats, ...)
-	def period_key(...)  = delegate_to_specific(:period_key, ...)
-	def rules_key(...)   = delegate_to_specific(:rules_key, ...)
-	def stat_key(...)    = delegate_to_specific(:stat_key, ...)
-
-	# --------------------------------------------------------------------------
-	# Stat field rendering helpers
-	#
-	# IMPORTANT: `stats` is expected to be a collection already scoped to the
-	# intended owner (assignment, period) by the caller. This method filters
-	# only by `concept`.
-	# --------------------------------------------------------------------------
-	def label_item(value, **opts)
-		{ kind: :label, value:, **opts }
-	end
-
-	# return label field for a stat
-	def stat_label(label, abbr = true)
-		{ kind: :side_cell, value: label, align: "middle", class: "border px-1 py-1" }
-	end
-
-	def stat_field(prefix, stats, stat, edit: false)
-		value = stat_value(stats, stat)
-
-		unless edit
-			{ kind: :normal,
-				value: format_stat_value(stat, value),
-				align: "right" }
-		else
-			{ kind:  :number_box,
-				key:   "#{prefix}#{stat.id}",
-				value:,
-				min:   stat[:minimum],
-				max:   stat[:maximum],
-				size:  stat[:size],
-				units: stat[:units],
-				step:  stat[:step] }.compact
-		end
-	end
-
-	def stat_value(stats, stat)
-		Stat.fetch(concept: stat.id, stats:, create: false).first&.value.to_i
-	end
-
 	private
+		def stat_writer   = @stat_writer   ||= Sport::StatWriter.new(self)
+		def score_reader  = @score_reader  ||= Sport::ScoreReader.new(self)
+		def field_builder = @field_builder ||= Sport::FieldBuilder.new(self)
+
 		def catalog_enum(name)
 			catalog(name).enum
-		end
-
-		def concept_id(concept)
-			case concept
-			when Integer        then concept
-			when Symbol         then statistics.enum[concept]
-			when Catalog::Entry then concept.id
-			when String
-				concept.match?(/\A\d+\z/) ? concept.to_i : statistics.enum[concept.to_sym]
-			else
-				concept.to_i
-			end
 		end
 
 		def specific_class
@@ -423,163 +280,6 @@ class Sport < ApplicationRecord
 			end
 
 			target.public_send(method, ...)
-		end
-
-		# ---------------------------------------------------------------------------
-		# Score reading
-		#
-		# `period_score` accepts **owner via kwargs; `Stat.fetch` handles the
-		# translation of legacy `player_id:` with a deprecation warning. New callers
-		# should pass `kind: :team`, `kind: :rival`, or `kind: :athlete,
-		# athlete_id: <uuid>`.
-		# ---------------------------------------------------------------------------
-		def format_stat_value(stat, value)
-			case stat[:format]
-			when :time then time_string(value)
-			else            value
-			end
-		end
-
-		def initial_total_score
-			{ ours: 0, opps: 0 }
-		end
-
-		# "<owner>_<period>_<concept>" — period resolved to a catalog id.
-		def parse_stat_key(key)
-			parts = key.to_s.split("_")
-			return nil unless parts.size == 3
-
-			owner, period_str, concept = parts
-			period = resolve_period(period_str)
-			return nil if period.nil?
-
-			[ owner, period, concept ]
-		end
-
-		def period_score(period:, stats:, **owner)
-			Stat.fetch(period:, stats:, create: false, **owner).first&.value
-		end
-
-		def read_period_score(period:, stats:, score:, total:)
-			return if period.key == :tot
-
-			ours = period_score(period: period.id, kind: :team,  stats:)
-			opps = period_score(period: period.id, kind: :rival, stats:)
-			return if ours.nil? && opps.nil?
-
-			ours = ours.to_i
-			opps = opps.to_i
-
-			score[period.key] = { ours:, opps: }
-			accumulate_score(total:, ours:, opps:)
-		end
-
-		# Form keys are named from the *event's* perspective:
-		#   ours_*  → the event's team      → kind: :team
-		#   opps_*  → the opposing team     → kind: :rival
-		#   <uuid>_ → an athlete assignment → kind: :athlete
-		#   <int>_  → legacy player_id      → translated via Stat
-		def resolve_stat_owner(owner, event_id)
-			case owner.to_s
-			when "ours" then [ :team,  nil ]
-			when "opps" then [ :rival, nil ]
-			else
-				return [ :athlete, owner ] if uuid?(owner)
-				Stat.translate_player_id(owner.to_i, event_id, nil, nil)
-			end
-		end
-
-		# Use the sport catalog to turn "q1"/"ot"/… into period ids.
-		# Bare integers pass through; "tot" is derived, never persisted;
-		# unknown symbols return nil and are skipped.
-		def resolve_period(period_str)
-			return period_str.to_i if period_str.match?(/\A\d+\z/)
-
-			catalog(:periods).enum[period_str.to_sym]
-		end
-
-		def scoring_stats(event_id)
-			Stat.fetch(event_id:, concept: statistics.enum[scoring[:points]], create: false)
-		end
-
-		# Writes period-0 aggregate rows for the submission.
-		#
-		#   * One team row per athlete concept (rebounds, fouls, …) = sum across
-		#     athletes of that concept.
-		#
-		#   * The scoring concept for the team side folds period scores and
-		#     athlete scoring together. Exception: if the total is zero but a
-		#     positive manual value was supplied for `ours_tot_1`, keep the
-		#     manual value — this preserves the "totals-only" workflow.
-		#
-		#   * Rival scoring is the period sum only (no rival athletes exist).
-		#     Same zero-sum exception against `opps_tot_1`.
-		def reconcile_totals(event_id:, stats_data:, scoring_concept:,
-												periods_seen:, period_sums:, athlete_sums:)
-			(athlete_sums.keys | [ scoring_concept ]).compact.each do |concept_id|
-				value =
-					if concept_id == scoring_concept
-						team_scoring_total(stats_data:, periods_sum: period_sums["ours"],
-															athletes_sum: athlete_sums[concept_id] || 0)
-					else
-						athlete_sums[concept_id]
-					end
-
-				write_total(event_id:, kind: :team, concept: concept_id, value:)
-			end
-
-			reconcile_rival_total(
-				event_id:, stats_data:, scoring_concept:,
-				periods_seen:, period_sums:
-			)
-		end
-
-		def reconcile_rival_total(event_id:, stats_data:, scoring_concept:,
-															periods_seen:, period_sums:)
-			if periods_seen["opps"]
-				write_total(
-					event_id:, kind: :rival, concept: scoring_concept,
-					value: rival_scoring_total(stats_data:, periods_sum: period_sums["opps"])
-				)
-			elsif stats_data.key?("opps_tot_1")
-				manual = stats_data["opps_tot_1"]
-				if manual.blank?
-					Stat.where(event_id:, period: 0, kind: :rival, concept: scoring_concept)
-							.destroy_all
-				else
-					write_total(event_id:, kind: :rival, concept: scoring_concept,
-											value: manual.to_i)
-				end
-			end
-		end
-
-		def team_scoring_total(stats_data:, periods_sum:, athletes_sum:)
-			total  = periods_sum + athletes_sum
-			manual = stats_data["ours_tot_1"]
-
-			if total.zero? && manual.present? && manual.to_i.positive?
-				manual.to_i
-			else
-				total
-			end
-		end
-
-		def rival_scoring_total(stats_data:, periods_sum:)
-			manual = stats_data["opps_tot_1"]
-			if periods_sum.zero? && manual.present? && manual.to_i.positive?
-				manual.to_i
-			else
-				periods_sum
-			end
-		end
-
-		def write_total(event_id:, kind:, concept:, value:)
-			scope = Stat.where(event_id:, period: 0, kind:, concept:)
-			if (stat = scope.first)
-				stat.update!(value:) unless stat.value == value
-			else
-				Stat.create!(Stat.build_attrs(event_id:, period: 0, concept:, kind:, value:))
-			end
 		end
 
 	protected
