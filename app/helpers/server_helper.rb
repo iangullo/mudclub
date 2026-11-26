@@ -101,7 +101,6 @@ module ServerHelper
 	def server_actions_table(actions:, retlnk: nil)
 		title = [
 			{ kind: :normal, value: Event.fld(:date), align: "center" },
-			{ kind: :normal, value: Club.label },
 			{ kind: :normal, value: User.label },
 			{ kind: :normal, value: Drill.fld(:description) }
 		]
@@ -112,7 +111,6 @@ module ServerHelper
 			frm = action.modal ? :modal : "_top"
 			row = { url:, frame: frm, items: [] }
 			row[:items] << { kind: :normal, value: action.date_time }
-			row[:items] << (action.user.active? ? icon_item(action.user.club.logo, title: action.user.club.nick, align: :center) : symbol_item(:no, align: :center))
 			row[:items] << { kind: :normal, value: action.user.s_name }
 			row[:items] << { kind: :normal, value: action.description }
 			rows << row
