@@ -37,9 +37,9 @@ module Mudclub
 
 		# Configuration for the application, engines, and railties goes here.
 
-		#
+		#-------------------------------------
 		# Domain folders
-		#
+		#-------------------------------------
 		MODELS = Rails.root.join("app", "models")
 		CONTROLLERS = Rails.root.join("app", "controllers")
 		IGNORED_ROOTS = %w[ catalog concerns ].freeze
@@ -57,7 +57,7 @@ module Mudclub
 			end
 		end
 
-		#
+		#-------------------------------------
 		# Sport extensions
 		#
 		# Each sport is a lightweight extension containing:
@@ -69,7 +69,7 @@ module Mudclub
 		#     locales/
 		#
 		# Zeitwerk will automatically discover nested folders (catalog, etc.).
-		#
+		#-------------------------------------
 		SPORTS = Rails.root.join("app", "sports")
 		Dir.children(SPORTS).sort.each do |sport|
 			path = SPORTS.join(sport)
@@ -79,11 +79,33 @@ module Mudclub
 			config.eager_load_paths << path
 		end
 
+		#-------------------------------------
 		# These settings can be overridden in specific environments using the files
 		# in config/environments, which are processed later.
 		#
 		# config.time_zone = "Central Time (US & Canada)"
 		# config.eager_load_paths << Rails.root.join("extras")
 		# [ Symbol, Date, Time, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone ]
+		#-------------------------------------
+
+		#-------------------------------------
+		# Hardening for application attackers
+		#-------------------------------------
+		config.middleware.delete Rack::Runtime
+		config.action_dispatch.default_headers.delete("X-Powered-By")
+		config.exceptions_app = ->(env) {
+			request = ActionDispatch::Request.new(env)
+			status  = ActionDispatch::ExceptionWrapper.new(env, env["action_dispatch.exception"]).status_code
+			code    = [ 400, 404, 406, 422, 500 ].include?(status) ? status : 500
+
+			if request.format.json?
+				[ code, { "Content-Type" => "application/json" }, [ { error: Rack::Utils::HTTP_STATUS_CODES[code] }.to_json ] ]
+			elsif request.format.html?
+				html = File.read(Rails.public_path.join("#{code}.html"))
+				[ code, { "Content-Type" => "text/html; charset=utf-8" }, [ html ] ]
+			else
+				[ code, {}, [] ]
+			end
+		}
 	end
 end

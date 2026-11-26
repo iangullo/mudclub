@@ -18,6 +18,8 @@
 #
 # Core shared controller methods
 class ApplicationController < ActionController::Base
+	# Prevent POST/PUT/DELETE probes to unknown paths from raising CSRF exceptions
+	skip_forgery_protection only: :render_not_found
 	include RoutingHelper
 
 	DROWS_BY_DEVICE = { "desktop": 18, "tablet": 18, "mobile": 15 }.freeze
@@ -198,6 +200,14 @@ class ApplicationController < ActionController::Base
 		u_act = UserAction.new(user_id: current_user.id, kind:, description:, url:, modal:)
 		current_user.user_actions << u_act
 		u_act.save
+	end
+
+	def render_not_found
+		respond_to do |format|
+			format.html { render file: Rails.public_path.join("404.html"), layout: false, status: :not_found }
+			format.json { render json: { error: "Not Found" }, status: :not_found }
+			format.any  { head :not_found }
+		end
 	end
 
 	def requester_token

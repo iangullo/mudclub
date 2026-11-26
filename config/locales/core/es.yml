@@ -178,6 +178,7 @@ es:
         plural_female: Usuarias
         short: Usu.
       actions:
+        change_password: Cambiar contraseña
         edit: Editar usuario
         edit_female: Editar usuaria
         create: Crear usuario
@@ -187,6 +188,9 @@ es:
       fields:
         password: Contraseña
         password_short: Clave
+        password_new: Nueva contraseña
+        password_old: Contraseña antigua
+        password_confirm: Confirmar contraseña
         profile: Perfil
         profile_short: Perf.
         email: Correo electrónico

@@ -33,6 +33,7 @@
 		</main>
 
 		<!-- Conditional footer content -->
+		<% if user_signed_in? %>
 		<footer class="flex-none sticky bottom-0 bg-white border-t border-gray-300">
 		  <div class="max-w-7xl mx-auto">
 			<div class="text-center text-xs text-gray-500">
@@ -40,5 +41,6 @@
 			</div>
 		  </div>
 		</footer>
+		<% end %>
 	</body>
 </html>

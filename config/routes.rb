@@ -171,4 +171,13 @@ Rails.application.routes.draw do
 	end
 
 	mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
+
+
+	#-------------------------------------
+	# Failsafe sink (must remain the very last route)
+	#-------------------------------------
+	match "*unmatched",
+		to: "application#render_not_found",
+		via: :all,
+		constraints: ->(req) { !req.path.start_with?("/rails/active_storage") }
 end

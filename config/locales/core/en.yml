@@ -182,6 +182,7 @@ en:
         plural: Users
         short: User
       actions:
+        change_password: Change password
         edit: Edit user
         create: Create user
         sign_in: Sign in
@@ -189,6 +190,9 @@ en:
       fields:
         password: Password
         password_short: Pass
+        password_new: New password
+        password_old: Old password
+        password_confirm: Confirm password
         profile: Profile
         profile_short: Prof.
         email: Email
