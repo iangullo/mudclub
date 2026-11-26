@@ -416,7 +416,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 		get user_path(alice_user)
 
 		assert_response :success
-		assert_select "a.anonymize-btn[href='#{anonymize_user_path(alice_user)}'][data-turbo-method='patch'][data-confirm]"
+		assert_select "a.anonymize-btn[href='#{anonymize_user_path(alice_user)}'][data-turbo-method='patch'][data-turbo-confirm]"
 	end
 
 	test "GET show hides anonymize button when user is already anonymized" do

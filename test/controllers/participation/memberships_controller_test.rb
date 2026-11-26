@@ -777,7 +777,7 @@ class MembershipsControllerTest < ActionDispatch::IntegrationTest
 		get club_member_path(@club, member)
 
 		assert_response :success
-		assert_select "a.anonymize-btn[href='#{anonymize_club_member_path(@club, member)}'][data-turbo-method='patch'][data-confirm]"
+		assert_select "a.anonymize-btn[href='#{anonymize_club_member_path(@club, member)}'][data-turbo-method='patch'][data-turbo-confirm]"
 	end
 
 	test "GET show hides anonymize button while membership is still active" do
