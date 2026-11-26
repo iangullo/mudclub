@@ -75,6 +75,7 @@ end
 
 group :test do
 	gem "capybara"
+	gem "selenium-webdriver"
 end
 
 

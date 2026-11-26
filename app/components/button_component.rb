@@ -161,9 +161,7 @@ class ButtonComponent < ApplicationComponent
 			@button[:turbo]   = "_top"
 		when :call
 			@button[:url]     = "tel:#{@button[:value]}"
-		when :clear
-			@button[:confirm] = UI::Question.que(:clear) + " \'#{@button[:name]}\'?"
-		when :anonymize, :delete
+		when :anonymize, :clear, :delete
 			@button[:turbo]   = "_top"
 			@button[:confirm] = UI::Question.que(@button[:kind]).chop + " \'#{@button[:name]}\'?"
 		when :edit, :export
@@ -199,7 +197,7 @@ class ButtonComponent < ApplicationComponent
 		case @button[:kind]
 		when :add_nested
 			@button[:action] ||= "nested-form#add"
-		when :anonymnize, :cancel, :clear, :save, :import, :export, :login, :back, :forward
+		when :anonymize, :cancel, :clear, :save, :import, :export, :login, :back, :forward
 			b_start += " font-bold"
 		when :close
 			@button[:action] ||= "turbo-modal#hideModal"
@@ -273,15 +271,14 @@ class ButtonComponent < ApplicationComponent
 		end
 		res[:turbo_action]  = "replace" if @button[:replace]
 		res[:turbo_confirm] = @button[:confirm] if @button[:confirm]
-		res[:turbo_method]  = :delete if @button[:kind] == :delete
+		res[:turbo_method]  = :delete if [ :clear, :delete ].include?(@button[:kind])
 		res[:turbo_method]  = :patch  if @button[:kind] == :anonymize
 		res[:action]        = @button[:action] if @button[:action]
-		res[:confirm]       = @button[:confirm] if @button[:confirm]
 		if @button[:working] || @button[:type] == :submit
 			unless @button[:working] == false
 				@button[:controller] = "processing"
 				@button[:working]  ||= true
-				res[:action]         = "processing#submit"
+				res[:action]         = "processing#submit" unless @button[:type] == :submit
 			end
 		else
 			res[:controller]  = @button[:controller] if @button[:controller]
@@ -292,7 +289,7 @@ class ButtonComponent < ApplicationComponent
 	# validate the button attributes received are well defined
 	def validate(attrs)
 		required_keys = [ :kind ] # Add other keys that are required
-		required_keys << :url if [ :add, :anonymize, :back, :edit, :export, :delete, :forward, :jump, :link, :menu ].include?(attrs[:kind])
+		required_keys << :url if [ :add, :anonymize, :back, :clear, :edit, :export, :delete, :forward, :jump, :link, :menu ].include?(attrs[:kind])
 		required_keys.each do |key|
 			unless attrs.key?(key)
 				raise ArgumentError, "Button attributes are missing the required key: #{key}"

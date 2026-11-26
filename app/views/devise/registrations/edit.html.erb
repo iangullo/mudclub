@@ -6,7 +6,11 @@
 		<table>
 			<tr>
 				<td align="center" class="align-center" rowspan="2">
-					<%= image_tag(f.object.picture, :size => "50x50", class: "rounded-full") %>
+					<% if f.object.picture.attached? %>
+						<%= image_tag(f.object.picture, size: "50x50", class: "rounded-full") %>
+					<% else %>
+						<%= render SymbolComponent.new(:user, size: "50x50") %>
+					<% end %>
 				</td>
 				<td class="text-blue-900 font-bold"><%= f.object.s_name %></td>
 			</tr><tr>
@@ -34,7 +38,7 @@
 			</tr>
 		</table>
 		<% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-			<div><%= I18n.t("devise.messages.password_confirm_wait") "#{resource.unconfirmed_email}" %></div>
+			<div><%= "#{I18n.t('devise.messages.password_confirm_wait')} #{resource.unconfirmed_email}" %></div>
 		<% end %>
 		<%= render SubmitComponent.new(submit: :save) %>
 	<% end %>

@@ -151,4 +151,22 @@ class ButtonComponentTest < ActiveSupport::TestCase
 		html = render_inline(ButtonComponent.new(kind: :action, symbol: :person)).to_html
 		assert_includes html, "person"
 	end
+
+	test "never emits legacy data-confirm alongside data-turbo-confirm" do
+		confirm_kinds = {
+			anonymize: { url: "/x", name: "item" },
+			clear:     { url: "/x", name: "item" },
+			delete:    { url: "/x", name: "item" },
+			import:    {},
+			save:      {}
+		}
+
+		confirm_kinds.each do |kind, extra_attrs|
+			doc = parsed(render_inline(ButtonComponent.new(kind: kind, **extra_attrs)).to_html)
+			action_el = doc.at_css("a, button")
+
+			assert action_el["data-turbo-confirm"].present?, "Expected data-turbo-confirm for :#{kind}"
+			assert_nil action_el["data-confirm"], "Expected no legacy data-confirm for :#{kind}"
+		end
+	end
 end
