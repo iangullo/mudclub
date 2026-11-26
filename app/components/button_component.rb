@@ -272,7 +272,7 @@ class ButtonComponent < ApplicationComponent
 			res[:turbo_frame] = (@button[:frame] ? @button[:frame] : "_top")
 		end
 		res[:turbo_action]  = "replace" if @button[:replace]
-		#	res[:turbo_confirm] = @button[:confirm] if @button[:confirm] # rubocop:disable Layout/CommentIndentation
+		res[:turbo_confirm] = @button[:confirm] if @button[:confirm]
 		res[:turbo_method]  = :delete if @button[:kind] == :delete
 		res[:turbo_method]  = :patch  if @button[:kind] == :anonymize
 		res[:action]        = @button[:action] if @button[:action]
