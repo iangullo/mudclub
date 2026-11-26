@@ -19,10 +19,17 @@ class SubmitComponentTest < ActiveSupport::TestCase
 			"flow-root is redundant once flex layout is used"
 	end
 
-	test "wrapper uses justify-between to push actions right" do
+	test "wrapper uses justify-between when close button is present" do
 		html = render_component(submit: :save)
 		wrapper = parsed(html).element_children.first
 		assert_includes wrapper["class"], "justify-between"
+	end
+
+	test "wrapper uses justify-end when close button is absent" do
+		html = render_component(close: false, submit: :save)
+		wrapper = parsed(html).element_children.first
+		assert_includes wrapper["class"], "justify-end"
+		assert_equal 1, wrapper.element_children.size
 	end
 
 	test "wrapper uses items-center for vertical alignment" do
@@ -48,17 +55,6 @@ class SubmitComponentTest < ActiveSupport::TestCase
 		assert_match %r{cancel|close|/back}, left.to_html
 		refute_includes left["class"].to_s, "float-left",
 			"flex layout should not use float-left"
-	end
-
-	test "left column is an empty placeholder when there is no close button" do
-		# Without a placeholder, justify-between pushes actions to the left
-		html = render_component(close: false, submit: :save)
-		wrapper = parsed(html).element_children.first
-		left = wrapper.element_children.first
-
-		refute_nil left
-		assert_equal "", left.text.strip
-		assert_equal 0, left.css("a, button").size
 	end
 
 	test "empty component with close: false renders no interactive elements" do
@@ -102,11 +98,11 @@ class SubmitComponentTest < ActiveSupport::TestCase
 	test "actions render before the submit button" do
 		html = render_component(
 			submit:  :save,
-			close:   false,                                # isolate the right block
+			close:   false,
 			actions: [ { kind: :edit, url: "/edit" } ]
 		)
 
-		right_block = parsed(html).css(".ml-4.mr-1").first
+		right_block = parsed(html).element_children.first.element_children.last
 		refute_nil right_block, "could not find the right-hand actions block"
 
 		interactives = right_block.css("a, button")
@@ -123,7 +119,6 @@ class SubmitComponentTest < ActiveSupport::TestCase
 
 	test "actions list is empty when actions: is nil" do
 		html = render_component(submit: :save, close: false)
-		# Only submit renders, no action buttons
 		buttons = parsed(html).css("a, button")
 		assert_equal 1, buttons.size
 	end
@@ -163,8 +158,8 @@ class SubmitComponentTest < ActiveSupport::TestCase
 	test "layout classes compile into the Tailwind output" do
 		css = File.read(Rails.root.join("app/assets/builds/tailwind.css")).gsub(/\\/, "")
 		%w[
-			flex items-center justify-between
-			mt-2 mb-1 ml-2 mr-4 mr-1 ml-4
+			flex items-center justify-between justify-end
+			w-full gap-4 gap-2 mt-2 mb-1
 		].each do |cls|
 			assert_includes css, cls, "Missing compiled class: #{cls} — run bin/rails tailwindcss:build"
 		end

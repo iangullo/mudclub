@@ -40,11 +40,13 @@ class UsersController < ApplicationController
 	def show
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
-		@title  = create_fields(helpers.user_show)
-		@roles  = @user.person.memberships.order(joined_on: :desc).order(left_on: :asc)
-		@page   = paginate(@roles, 1.2)	# paginate results
-		@table  = create_table(helpers.membership_history_table(@page))
-		retlnk  = back_link(default: index_path_for(@user, search: @search))
+		@title = create_fields(helpers.user_show)
+		@roles = @user.person.memberships.order(joined_on: :desc).order(left_on: :asc)
+		@page  = paginate(@roles, 1.2)	# paginate results
+		@table = create_table(helpers.membership_history_table(@page))
+		retlnk = @rdx == 1 ?
+			:back :
+			back_link(default: index_path_for(@user, search: @search))
 		submit  = edit_path_for(@user) if @policy.edit?
 		@submit = create_submit(close: :back, retlnk:, submit:, frame: :modal)
 	end
