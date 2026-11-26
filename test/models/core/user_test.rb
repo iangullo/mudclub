@@ -166,7 +166,7 @@ class UserTest < ActiveSupport::TestCase
 		assert_equal bob, resolution.conflicts[:email]
 	end
 
-	test "rebuild attaches user avatar and propagates it upward to canonical person" do
+	test "rebuild attaches user avatar and discards propagation upward to canonical person" do
 		bob  = people(:bob)
 		user = users(:admin_user)
 		user.update_columns(person_id: bob.id)
@@ -187,7 +187,7 @@ class UserTest < ActiveSupport::TestCase
 		user.save!
 
 		assert_equal blob.id, user.reload.avatar.blob_id
-		assert_equal blob.id, bob.reload.avatar.blob_id
+		refute bob.reload.avatar.attached?
 	end
 
 	# ─── class API ───────────────────────────────────────────

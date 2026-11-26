@@ -243,10 +243,14 @@ class User < ApplicationRecord
 	end
 
 	private
+		# Users keep their own account avatar without overwriting their Person profile photo
+		def avatar_propagation_target
+			nil
+		end
+
 		def normalize_email
 			self.email = email.to_s.strip.downcase if email.present?
 		end
-
 		# generic setting method to be used for all setters
 		def set_setting(key, value)
 			self.settings = settings.merge(key => value)
