@@ -45,7 +45,8 @@ class DocumentsController < ApplicationController
 		@policy = check_policy!(DocumentPolicy, owner: @owner)
 
 		@fields = create_fields(helpers.document_show)
-		@submit = create_submit(submit: edit_path_for(@document), frame: :modal) if @policy.edit?
+		submit  = edit_path_for(@document) if @policy.edit?
+		@submit = create_submit(submit:, frame: :modal)
 	end
 
 	def new

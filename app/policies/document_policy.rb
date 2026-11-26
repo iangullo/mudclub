@@ -30,7 +30,7 @@ class DocumentPolicy < ApplicationPolicy
 	#------------------------------------
 	# Documents index - Club managers or Registration requesters
 	#------------------------------------
-	def index? = manage_or_owner?
+	def index? = viewer?
 
 	#------------------------------------
 	# CRUD Operations

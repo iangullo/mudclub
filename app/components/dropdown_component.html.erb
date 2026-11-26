@@ -69,15 +69,19 @@
 					            aria: (option[:active] ? { current: "page" } : {}),
 					            class: link_classes do %>
 						<% if flipped %>
-						<span><%= option[:label] if option[:label] %></span>
-						<% if opt_has_icon %>
-							<span class="w-6 shrink-0 flex items-center justify-center">
-							<%= render_image(option, size: "20x20") %>
+							<span><%= option[:label] if option[:label] %></span>
+							<% if opt_has_icon %>
+							<span class="min-w-7 min-h-7 shrink-0 flex items-center justify-center ml-1">
+								<%= render_image(option, size: "25x25") %>
+							</span>
+							<% end %>
+						<% else %>
+							<% if opt_has_icon %>
+							<span class="min-w-7 min-h-7 shrink-0 flex items-center justify-center mr-1">
+								<%= render_image(option, size: "25x25") if opt_has_icon %>
 							</span>
 						<% end %>
-						<% else %>
-						<%= render_image(option, size: "25x25") if opt_has_icon %>
-						<span><%= option[:label] if option[:label] %></span>
+							<span><%= option[:label] if option[:label] %></span>
 						<% end %>
 					<% end %>
 				<% end %>

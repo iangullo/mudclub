@@ -31,14 +31,15 @@ class ActiveSupport::TestCase
 	# minitest/mock style Stub to avoid adding dependency of minitest/mock.
 	# Use:  with_stub(Rails.application.config, :cache_store, :solid_cache_store) { ... }
 	def with_stub(receiver, method_name, value)
-		original = receiver.method(method_name) rescue nil
+		had_singleton = receiver.singleton_methods(false).include?(method_name)
+		original = receiver.method(method_name) if had_singleton
 		receiver.define_singleton_method(method_name) { |*_args, **_kwargs, &_blk| value }
 		yield
 	ensure
-		if original
+		if had_singleton
 			receiver.define_singleton_method(method_name, original)
 		else
-			receiver.singleton_class.send(:remove_method, method_name)
+			receiver.singleton_class.send(:remove_method, method_name) if receiver.singleton_methods(false).include?(method_name)
 		end
 	end
 end

@@ -72,7 +72,7 @@ module DocumentsHelper
 		end
 
 		if @document.file.present?
-			if @document.versioned?
+			if @document.versioned? &&  @policy.versions?
 				res.last << normal_button(document_button(:versions, frame: :modal, method: :get))
 			end
 			if @document.file_type == :img

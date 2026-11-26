@@ -195,23 +195,37 @@ class TopbarComponent < ApplicationComponent
 			return nil unless @club
 
 			options = []
-			options << menu_link(label: @club.nick, url: club_path(@club), symbol: :home)
 
-			if @user.is_secretary?(@club)
+			if allowed_for_club?(MembershipPolicy, :index?)
 				options << menu_link(label: Membership.kind_label(:athlete, :plural), url: club_members_path(@club, kind: :athlete), symbol: :athlete)
 				options << menu_link(label: Membership.kind_label(:coach, :plural),   url: club_members_path(@club, kind: :coach),   symbol: :coach)
-				options << menu_link(label: Slot.label(:plural),                      url: club_slots_path(@club),                   symbol: :timetable)
-				options << menu_link(label: Location.label(:plural),                  url: club_locations_path(@club),               symbol: :location)
 			end
 
-			if @user.is_manager?(@club) && !@user.admin?
-				options << menu_link(label: Server.fld(:log), url: log_server_path)
+			if allowed_for_club?(RegistrationPolicy, :index?)
+				options << menu_link(label: Registration.label(:plural), url: club_registrations_path(@club), symbol: :registration)
 			end
 
-			return nil if options.size <= 1
+			if allowed_for_club?(SlotPolicy, :index?)
+				options << menu_link(label: Slot.label(:plural), url: club_slots_path(@club), symbol: :timetable)
+			end
 
-			menu_drop("club_mgmt", label: Club.label, options: options)
+			if allowed_for_club?(LocationPolicy, :index?)
+				options << menu_link(label: Location.label(:plural), url: club_locations_path(@club), symbol: :location)
+			end
+
+			if allowed_for_club?(EventPolicy, :index?)
+				options << menu_link(label: Calendar.label, url: club_events_path(@club), symbol: :calendar)
+			end
+
+			if !@user.admin? && allowed_for_club?(ServerPolicy, :log?)
+				options << menu_link(label: Server.fld(:log), url: log_server_path, symbol: :actions)
+			end
+
+			return nil if options.empty?
+
+			menu_drop("club_mgmt", label: Club.label, options:)
 		end
+
 
 		def team_menu(user)
 			return nil if user.blank? || @club.blank?
@@ -257,7 +271,7 @@ class TopbarComponent < ApplicationComponent
 			return sign_in_link if @user.blank?
 
 			options = [
-				menu_link(label: User.fld(:profile), url: @home, symbol: :person)
+				menu_link(label: User.fld(:profile), url: @home)
 			]
 			options << registrations_link if @regs_url.present?
 			options << menu_link(label: User.act(:sign_out), url: @logout, kind: :delete)
@@ -317,7 +331,14 @@ class TopbarComponent < ApplicationComponent
 			when :modal  then { turbo_frame: :modal }
 			when :delete then { turbo_method: :delete }
 			end
-			{ kind:, label:, url:, class:, data: l_data, icon:, symbol: }.compact
+
+			resolved_symbol =
+				if symbol.is_a?(Hash)
+					symbol
+				elsif symbol.present?
+					{ concept: symbol, options: { css: "min-h-6 min-w-6 bg-white rounded p-0.5 mr-1 ml-1" } }
+				end
+			{ kind:, label:, url:, class:, data: l_data, icon:, symbol: resolved_symbol }.compact
 		end
 
 		def registrations_link
@@ -326,7 +347,7 @@ class TopbarComponent < ApplicationComponent
 		end
 
 		def sign_in_link
-			menu_link(label: User.act(:sign_in), url: new_user_session_path, class: NAV_CLS)
+			menu_link(label: User.act(:sign_in), url: new_user_session_path, class: NAV_CLS, symbol: :login)
 		end
 
 		def team_menu_link(team)
@@ -375,4 +396,11 @@ class TopbarComponent < ApplicationComponent
 				render(@ham_menu)
 			end
 		end
+
+		private
+			def allowed_for_club?(policy_class, action, record = nil)
+				return false unless defined?(policy_class) && policy_class.method_defined?(action)
+
+				policy_class.new(@user, record:, club: @club).public_send(action)
+			end
 end
