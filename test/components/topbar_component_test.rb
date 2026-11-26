@@ -304,6 +304,30 @@ class TopbarComponentTest < ActiveSupport::TestCase
 		assert_empty nav.css("a[href='/server/log']")
 	end
 
+		test "admin belonging to a single club always sees the club menu even outside club context" do
+		club = clubs(:north)
+		user = fake_user(admin: true)
+		policies = { MembershipPolicy => true }
+
+		nav = parsed(render_topbar(user: user, club: nil, clubs: [ club ], policies: policies))
+			.at_css("div[aria-label='Navigation']")
+		refute_nil nav
+		assert_not_nil nav.at_css("#club_mgmt-btn"),
+			"single-club admin must always see the club management menu"
+		assert nav.css("a[href='/clubs/#{club.id}/members?kind=athlete']").any?
+	end
+
+	test "admin belonging to multiple clubs does not see club menu when outside club context" do
+		north = clubs(:north)
+		test_club = clubs(:test_club)
+		user = fake_user(admin: true)
+		policies = { MembershipPolicy => true }
+
+		html = render_topbar(user: user, club: nil, clubs: [ north, test_club ], policies: policies)
+		assert_nil parsed(html).at_css("#club_mgmt-btn"),
+			"multi-club admin at server root has no single club to scope the club menu to"
+	end
+
 	# ─── team menu ──────────────────────────────────────────────────
 	test "regular user with no teams has no Teams menu" do
 		user = fake_user(teams: [], coach: true)

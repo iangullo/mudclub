@@ -176,9 +176,11 @@ class TopbarComponent < ApplicationComponent
 			tabs = []
 
 			if @user.present?
-				if @club.present?
-					tabs << club_management_menu
-					tabs << team_menu(@user)
+				effective_club = @club || (@clubs.first if @user.admin? && @clubs.one?)
+
+				if effective_club.present?
+					tabs << club_management_menu(effective_club)
+					tabs << team_menu(@user, effective_club)
 				else
 					tabs << multi_club_teams_menu(@user)
 				end
@@ -191,33 +193,33 @@ class TopbarComponent < ApplicationComponent
 			tabs.compact
 		end
 
-		def club_management_menu
-			return nil unless @club
+		def club_management_menu(club = @club)
+			return nil unless club
 
 			options = []
 
-			if allowed_for_club?(MembershipPolicy, :index?)
-				options << menu_link(label: Membership.kind_label(:athlete, :plural), url: club_members_path(@club, kind: :athlete), symbol: :athlete)
-				options << menu_link(label: Membership.kind_label(:coach, :plural),   url: club_members_path(@club, kind: :coach),   symbol: :coach)
+			if allowed_for_club?(MembershipPolicy, :index?, nil, club)
+				options << menu_link(label: Membership.kind_label(:athlete, :plural), url: club_members_path(club, kind: :athlete), symbol: :athlete)
+				options << menu_link(label: Membership.kind_label(:coach, :plural),   url: club_members_path(club, kind: :coach),   symbol: :coach)
 			end
 
-			if allowed_for_club?(RegistrationPolicy, :index?)
-				options << menu_link(label: Registration.label(:plural), url: club_registrations_path(@club), symbol: :registration)
+			if allowed_for_club?(RegistrationPolicy, :index?, nil, club)
+				options << menu_link(label: Registration.label(:plural), url: club_registrations_path(club), symbol: :registration)
 			end
 
-			if allowed_for_club?(SlotPolicy, :index?)
-				options << menu_link(label: Slot.label(:plural), url: club_slots_path(@club), symbol: :timetable)
+			if allowed_for_club?(SlotPolicy, :index?, nil, club)
+				options << menu_link(label: Slot.label(:plural), url: club_slots_path(club), symbol: :timetable)
 			end
 
-			if allowed_for_club?(LocationPolicy, :index?)
-				options << menu_link(label: Location.label(:plural), url: club_locations_path(@club), symbol: :location)
+			if allowed_for_club?(LocationPolicy, :index?, nil, club)
+				options << menu_link(label: Location.label(:plural), url: club_locations_path(club), symbol: :location)
 			end
 
-			if allowed_for_club?(EventPolicy, :index?)
-				options << menu_link(label: Calendar.label, url: club_events_path(@club), symbol: :calendar)
+			if allowed_for_club?(EventPolicy, :index?, nil, club)
+				options << menu_link(label: Calendar.label, url: club_events_path(club), symbol: :calendar)
 			end
 
-			if !@user.admin? && allowed_for_club?(ServerPolicy, :log?)
+			if !@user.admin? && allowed_for_club?(ServerPolicy, :log?, nil, club)
 				options << menu_link(label: Server.fld(:log), url: log_server_path, symbol: :actions)
 			end
 
@@ -226,15 +228,14 @@ class TopbarComponent < ApplicationComponent
 			menu_drop("club_mgmt", label: Club.label, options:)
 		end
 
+		def team_menu(user, club = @club)
+			return nil if user.blank? || club.blank?
 
-		def team_menu(user)
-			return nil if user.blank? || @club.blank?
-
-			teams = user.teams.select { |t| t.club_id == @club.id && t.season == Season.latest }
-			return nil if teams.empty? && !@user.is_secretary?(@club) && !@user.is_manager?(@club)
+			teams = user.teams.select { |t| t.club_id == club.id && t.season == Season.latest }
+			return nil if teams.empty? && !@user.is_secretary?(club) && !@user.is_manager?(club)
 
 			options = teams.map { |t| team_menu_link(t) }
-			options << all_teams_link(@club)
+			options << all_teams_link(club)
 
 			menu_drop("teams", label: Team.label(:plural), options: options)
 		end
@@ -299,7 +300,6 @@ class TopbarComponent < ApplicationComponent
 		# ------------------------------------------------------------------
 		def build_hamburger
 			options = []
-			options << hamburger_clone(@brand_menu) if @brand_menu
 			options.concat(@nav_tabs.map { |tab| hamburger_clone(tab) }.compact)
 			options << hamburger_clone(@acc_acts) if @acc_acts
 			return nil if options.empty?
@@ -398,9 +398,9 @@ class TopbarComponent < ApplicationComponent
 		end
 
 		private
-			def allowed_for_club?(policy_class, action, record = nil)
+			def allowed_for_club?(policy_class, action, record = nil, club = @club)
 				return false unless defined?(policy_class) && policy_class.method_defined?(action)
 
-				policy_class.new(@user, record:, club: @club).public_send(action)
+				policy_class.new(@user, record:, club:).public_send(action)
 			end
 end
