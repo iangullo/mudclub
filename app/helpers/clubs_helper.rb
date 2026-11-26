@@ -64,40 +64,41 @@ module ClubsHelper
 	end
 
 	# FieldComponent fields for club links
+	# FieldComponent fields for club links
 	def club_links
-		btn_teams = normal_button({ kind: :jump, symbol: :team, url: club_teams_path(@club), label: Team.label(:plural) }, align: :center)
-		btn_locs  = normal_button({ kind: :jump, symbol: :location, url: club_locations_path(@club), label: Location.label(:plural) }, align: :center)
-		btn_regs  = normal_button({ kind: :jump, symbol: :registration, url: club_registrations_path(@club), label:  Registration.label(:plural) }, align: :center) if @policy.accepts_registrations?
+		opt = { status: :active }
 
-		if @policy.show_details?	# user's club
-			opt = { status: :active }
-			res = [ [
-				normal_button({ kind: :jump, symbol: :board_member, url: club_assignments_path(@club, kind: :board_members, **opt), label: Membership.kind_label(:board_member, :plural) }, align: :center),
-				# normal_button({ kind: :jump, symbol: :person, url: club_assignments_path(@club, staff: true, **opt), label: Assignment.kind_catalog.val(:staff)  }, align: :center)
-				normal_button({ kind: :jump, symbol: :rivals, url: clubs_path(@club), label: Club.fld(:rivals) }, align: :center)
-			] ]
-			res.last << normal_button({ kind: :jump, symbol: :document, url: club_documents_path(@club), label: Document.label(:plural) }, align: :center) if @policy.view_documents?
+		# Row 1: Club Structure & Leadership (Board -> Teams -> Coaches)
+		row_1 = []
+		row_1 << club_jump_btn(:board_member, club_assignments_path(@club, kind: :board_members, **opt), Membership.kind_label(:board_member, :plural)) if @policy.show_details?
+		row_1 << club_jump_btn(:team, club_teams_path(@club), Team.label(:plural))
+		row_1 << club_jump_btn(:coach, club_members_path(@club, kind: :coaches, **opt), Sport.term(:coach, :plural)) if @policy.show_details? && @policy.view_coaches?
 
-			if @policy.view_members?
-				res << [
-					normal_button({ kind: :jump, symbol: :athlete, url: club_members_path(@club, kind: :athletes, **opt), label: Sport.term(:athlete, :plural) }, align: :center),
-					normal_button({ kind: :jump, symbol: :coach, url: club_members_path(@club, kind: :coaches, **opt), label:  Sport.term(:coach, :plural) }, align: :center)
-				]
-			end
-
-			res.last << btn_teams
-			res << [
-				btn_locs,
-				normal_button({ kind: :jump, symbol: :timetable, url: club_slots_path(@club), label: Slot.label(:plural) }, align: :center)
-			]
-
-			res.last << btn_regs if btn_regs if @policy.manage_members?
-			res << []
-		else
-			res = [ [ btn_teams, btn_locs ] ]
-			res.last << btn_regs if btn_regs
+		# Row 2: Operations & Roster (Locations -> Slots -> Athletes -> Registrations)
+		# Note: Placing Athletes 3rd aligns it directly beneath Coaches in Row 1
+		row_2 = [
+			club_jump_btn(:location, club_locations_path(@club), Location.label(:plural))
+		]
+		if @policy.show_details?
+			row_2 << club_jump_btn(:timetable, club_slots_path(@club), Slot.label(:plural))
+			row_2 << club_jump_btn(:athlete, club_members_path(@club, kind: :athletes, **opt), Sport.term(:athlete, :plural)) if @policy.view_athletes?
 		end
-		res
+
+		# Row 3: Governance & Rivals (Managers / Board only)
+		row_3 = []
+		if @policy.show_details?
+			row_3 << club_jump_btn(:rivals, clubs_path(@club), Club.fld(:rivals)) if @policy.index?
+			row_3 << club_jump_btn(:document, club_documents_path(@club), Document.label(:plural)) if @policy.view_documents?
+		end
+
+		if @policy.accepts_registrations? && (!@policy.show_details? || @policy.manage_members?)
+			row_3 << club_jump_btn(:registration, club_registrations_path(@club), Registration.label(:plural))
+		end
+
+		# For public visitors (show_details? == false), merge Row 1 & Row 2 into a single compact row
+		rows = @policy.show_details? ? [ row_1, row_2, row_3 ] : [ row_1 + row_2 ]
+
+		rows.reject(&:empty?).flat_map { |row| row.each_slice(4).to_a }
 	end
 
 	def club_edit_accordion(form: nil)
@@ -156,6 +157,10 @@ module ClubsHelper
 					{ kind: :text_area, key: :address, size: 30, cols: 4, lines: 3,
 						value: @club.address, placeholder: Person.fld(:address) } ]
 			]
+		end
+
+		def club_jump_btn(symbol, url, label)
+			normal_button({ kind: :jump, symbol:, url:, label: }, align: :center)
 		end
 
 		# Visibility: public + optional public_directory_listed, gated by Server

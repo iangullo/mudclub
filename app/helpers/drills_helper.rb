@@ -86,7 +86,7 @@ module DrillsHelper
 	# return title FieldComponent definition for edit/new
 	def drill_form_tail
 		author  = @drill&.author || u_person
-		authors = (@policy.create? ? u_club&.coach_list : [])
+		authors = (@policy.create? && u_club ? u_club.coach_list : [])
 		auth_in = authors.pluck(:id).include?(author.id)
 		authors << { id: author.id, name: author.s_name } unless auth_in
 

@@ -7,11 +7,33 @@
 		<%= csp_meta_tag %>
 		<%= stylesheet_link_tag "tailwind", "trix", "actiontext", "application", "data-turbo-track": "reload" %>
 		<%= javascript_importmap_tags %>
-		<%= favicon_link_tag asset_path(@favicon), type: "image/svg" %>
+		<%
+		active_favicon = (@club.is_a?(Club) && @club.avatar.attached?) ? @club.avatar : @favicon
+		favicon_href =
+			if active_favicon.respond_to?(:attached?) && active_favicon.attached?
+			if active_favicon.variable?
+				rails_representation_path(active_favicon.variant(resize_to_limit: [64, 64]), only_path: true)
+			else
+				rails_storage_proxy_path(active_favicon, only_path: true)
+			end
+			else
+			asset_path(active_favicon.presence || "mudclub.svg")
+			end
+		favicon_type = favicon_href.to_s.end_with?(".svg") ? "image/svg+xml" : "image/png"
+		%>
+		<%= favicon_link_tag favicon_href, id: "favicon", rel: "icon", type: favicon_type %>
+		<script>
+		document.addEventListener("turbo:load", () => {
+			const link = document.getElementById("favicon");
+			if (!link) return;
+			const fresh = link.cloneNode(true);
+			link.replaceWith(fresh);
+		});
+		</script>
 	</head>
 
 	<body class="h-screen flex flex-col text-fluid">
-		<header class="flex-none sticky top-0 z-10 w-full h-14 bg-blue-900 text-gray-300">
+		<header class="flex-none sticky top-0 z-50 w-full h-14 bg-blue-900 text-gray-300">
 			<%= render @topbar %>
 			<%= render FlashComponent.new(notice) if notice %>
 		</header>

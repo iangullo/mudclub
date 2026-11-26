@@ -18,8 +18,8 @@
 #
 # frozen_string_literal: true
 
-# DropdownComponent - Viewcomponent buttons specific for muli-add and menu buttons
-#  They have an :options array with :url, optional :label, :icon/:symbol
+# DropdownComponent - ViewComponent buttons specific for multi-add and menu buttons
+#  They have an :options array with :url, optional :label, :icon/:symbol, :active
 #  If :append is set, button with icon/symbol will be appended inline after a label.
 class DropdownComponent < ApplicationComponent
 	#-------------------------------------
@@ -34,45 +34,45 @@ class DropdownComponent < ApplicationComponent
 	# Layout variations — the only thing that really differs
 	MENU_LAYOUT = %w[inline-flex gap-2 font-semibold px-2 py-2 focus:ring-2 focus:ring-gray-200].freeze
 	SUB_LAYOUT  = %w[flex w-full gap-2 px-2 py-1].freeze
-	LINK_LAYOUT = %w[flex w-full gap-1 px-2 py-1 no-underline].freeze
+	LINK_LAYOUT = %w[flex w-full gap-1.5 px-2 py-1 no-underline].freeze
 
 	# Composed
-	MENU_CLS = (MENU_LAYOUT + CTRL_BASE + CTRL_FOCUS + CTRL_HOVER).freeze
-	SUB_CLS  = (SUB_LAYOUT  + CTRL_BASE + CTRL_FOCUS).freeze
-	LINK_CLS = (LINK_LAYOUT + CTRL_BASE + CTRL_FOCUS + CTRL_HOVER).freeze
+	MENU_CLS        = (MENU_LAYOUT + CTRL_BASE + CTRL_FOCUS + CTRL_HOVER).freeze
+	SUB_CLS         = (SUB_LAYOUT  + CTRL_BASE + CTRL_FOCUS).freeze
+	LINK_CLS        = (LINK_LAYOUT + CTRL_BASE + CTRL_FOCUS + CTRL_HOVER).freeze
 
 	# Sub-trigger wrapper carries the hover state (so the full row highlights)
 	SUB_WRAPPER_CLS = (%w[relative block w-full rounded-md] + CTRL_HOVER).freeze
 
 	# Menu containers — NO overflow-hidden (would clip submenus)
-	MENU_DROP_CLS = %w[hidden absolute z-10 p-1 rounded-md bg-blue-900 text-gray-100 text-left].freeze
-	DROP_CLS      = %w[hidden absolute z-10 p-1 rounded-md bg-gray-200 text-gray-500 text-left font-semibold].freeze
+	MENU_DROP_CLS = %w[hidden absolute z-10 min-w-max p-1 rounded-md bg-blue-900 text-gray-100 text-left shadow-lg].freeze
+	DROP_CLS      = %w[hidden absolute z-10 min-w-max p-1 rounded-md bg-gray-200 text-gray-500 text-left font-semibold shadow-lg].freeze
 
 	ITEM_CLS = %w[block w-full].freeze
 
 	PLACE_CLASSES = {
-			"bottom-start" => "top-full left-0 mt-1",
-			"bottom-end"   => "top-full right-0 mt-2",
-			"top-start"    => "bottom-full left-0 mb-1",
-			"top-end"      => "bottom-full right-0 mb-2",
-			"right-start"  => "left-full top-0 ml-1",
-			"right-end"    => "left-full bottom-0 ml-2",
-			"left-start"   => "right-full top-0 mr-1",
-			"left-end"     => "right-full bottom-0 mr-2"
+		"bottom-start" => "top-full left-0 mt-1",
+		"bottom-end"   => "top-full right-0 mt-2",
+		"top-start"    => "bottom-full left-0 mb-1",
+		"top-end"      => "bottom-full right-0 mb-2",
+		"right-start"  => "left-full top-0 ml-1",
+		"right-end"    => "left-full bottom-0 ml-2",
+		"left-start"   => "right-full top-0 mr-1",
+		"left-end"     => "right-full bottom-0 mr-2"
 	}.freeze
 
 	# Where a SUB opens, given where its PARENT opens.
 	# Rightward families keep opening right; right-anchored / leftward families
 	# keep opening left. This is the whole "inheritance" rule.
 	SUB_PLACE = {
-			"bottom-start" => "right-start",
-			"bottom-end"   => "left-start",
-			"top-start"    => "right-start",
-			"top-end"      => "left-start",
-			"right-start"  => "right-start",
-			"right-end"    => "right-start",
-			"left-start"   => "left-start",
-			"left-end"     => "left-start"
+		"bottom-start" => "right-start",
+		"bottom-end"   => "left-start",
+		"top-start"    => "right-start",
+		"top-end"      => "left-start",
+		"right-start"  => "right-start",
+		"right-end"    => "right-start",
+		"left-start"   => "left-start",
+		"left-end"     => "left-start"
 	}.freeze
 
 	#-------------------------------------
@@ -93,7 +93,7 @@ class DropdownComponent < ApplicationComponent
 	# --- helpers used by the template ---
 
 	# True when this menu opens leftward (bottom-end, top-end, left-*).
-	# Controls text alignment of leaf links and sub-trigger labels.
+	# Controls text alignment and icon placement of leaf links and sub-trigger labels.
 	def flipped?
 		return @flipped if defined?(@flipped)
 		@flipped = flipped_place?(@button[:place])
@@ -101,24 +101,24 @@ class DropdownComponent < ApplicationComponent
 
 	# :down for top-level menus (bottom-*/top-*), :left or :right for subs.
 	def chevron_side
-			p = @button[:place].to_s
-			return :left  if p.start_with?("left")
-			return :right if p.start_with?("right")
-			:down
+		p = @button[:place].to_s
+		return :left  if p.start_with?("left")
+		return :right if p.start_with?("right")
+		:down
 	end
 
 	def link_classes
-			flipped? ? (LINK_CLS + %w[justify-end]) : LINK_CLS
+		flipped? ? (LINK_CLS + %w[justify-end]) : LINK_CLS
 	end
 
 	def wrapper_class
-			if @button[:append]
-					"relative inline-flex items-center"
-			elsif @button[:sub]
-					SUB_WRAPPER_CLS.join(" ")
-			else
-					"relative inline-block"
-			end
+		if @button[:append]
+			"relative inline-flex items-center"
+		elsif @button[:sub]
+			SUB_WRAPPER_CLS.join(" ")
+		else
+			"relative inline-block"
+		end
 	end
 
 	#-------------------------------------

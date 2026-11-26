@@ -55,31 +55,44 @@ class TopbarComponent < ApplicationComponent
 	# Component standard methods
 	#-------------------------------------
 
-	def initialize(user:, club:, home:, logout:, registrations_url: nil)
-		if club.is_a?(Club)
-			@club    = club
-			@cluburl = "/clubs/#{club.id}"
-			if user.present? && !user.admin?
-				@clublogo = @club.logo
-				@clubname = @club.nick
-			end
-		end
+	def initialize(user:, club:, home:, logout:, clubs: [], registrations_url: nil)
+		@user          = user
+		@explicit_club = club
+		@club          = club.is_a?(Club) ? club : nil
+		@clubs         = Array(clubs)
+		@home          = home
+		@logout        = logout
+		@regs_url      = registrations_url
 
-		@clublogo ||= Server.server_logo
-		@clubname ||= Server.server_name
-		@logourl  = { url: "/", data: { turbo_action: :replace } }
-		@navcls   = NAV_CLS
-		@lnkcls   = LNK_CLS
-		@user     = user
-		@home     = home
-		@logout   = logout
-		@regs_url = registrations_url
+		if @club.present?
+			@brand_logo = @club.logo
+			@brand_name = @club.nick
+		else
+			@brand_logo = Server.server_logo
+			@brand_name = Server.server_name
+		end
 	end
 
 	def before_render
-		@nav_tabs = build_nav_tabs
-		@acc_acts = build_account_actions
-		@ham_menu = build_hamburger
+		# Re-sync with controller's @club in case a controller before_action loaded @club after set_application_context
+		ctrl_club = controller.instance_variable_get(:@club)
+		resolved  = ctrl_club.is_a?(Club) ? ctrl_club : @explicit_club
+		@club     = resolved.is_a?(Club) ? resolved : nil
+
+		if @club.present?
+			@brand_logo = @club.logo
+			@brand_name = @club.nick
+			@brand_url  = club_path(@club)
+		else
+			@brand_logo = Server.server_logo
+			@brand_name = Server.server_name
+			@brand_url  = root_path(club_id: :none)
+		end
+
+		@brand_menu = build_brand_switcher
+		@nav_tabs   = build_nav_tabs
+		@acc_acts   = build_account_actions
+		@ham_menu   = build_hamburger
 	end
 
 	def call	# render HTML content
@@ -97,35 +110,186 @@ class TopbarComponent < ApplicationComponent
 	#-------------------------------------
 
 	private
+		# ------------------------------------------------------------------
+		# 1. Left Brand / Multi-Club Switcher
+		# ------------------------------------------------------------------
+		def show_brand_switcher?
+			return false if @user.blank?
+			return @clubs.any? if @user.admin?
+
+			@clubs.size > 1
+		end
+
+		def build_brand_switcher
+			return nil unless show_brand_switcher?
+
+			options = []
+
+			# Server root entry for system admins (only when currently inside a club)
+			if @user.admin? && @club.present?
+				options << menu_link(
+					label: Server.server_name,
+					url:   root_path(club_id: :none),
+					icon:  Server.server_logo
+				)
+			end
+
+			# All active clubs except the currently selected one
+			@clubs.each do |c|
+				next if @club&.id == c.id
+
+				options << menu_link(
+					label: c.nick,
+					url:   club_path(c),
+					icon:  c.logo
+				)
+			end
+
+			return nil if options.empty?
+
+			menu_drop(
+				"context_switcher",
+				label:   @brand_name,
+				icon:    @brand_logo,
+				options: options,
+				align:   :left
+			)
+		end
+
+		def render_logo
+			content_tag(:div, class: LOGO_CLS) do
+				if @brand_menu
+					render(DropdownComponent.new(@brand_menu))
+				else
+					link_to(@brand_url, class: "inline-flex items-center gap-2 rounded-md px-2 py-1 hover:bg-blue-800", data: { turbo_action: :replace }) do
+						concat(image_tag(@brand_logo, class: IMG_SIZE))
+						concat(content_tag(:span, @brand_name, class: "truncate max-w-[10rem] sm:max-w-xs"))
+					end
+				end
+			end
+		end
+
+		# ------------------------------------------------------------------
+		# 2. Center Context-Scoped Navigation Tabs
+		# ------------------------------------------------------------------
 		def build_nav_tabs
 			tabs = []
+
 			if @user.present?
-				tabs += manager_menu        if @user.is_manager?(@club)
-				tabs << team_menu(@user)
-				tabs += secretary_menu      if @user.is_secretary?(@club)
-				tabs += coach_menu(@user)   if @user.is_coach?
-				tabs += athlete_menu(@user) if @user.is_athlete?
+				if @club.present?
+					tabs << club_management_menu
+					tabs << team_menu(@user)
+				else
+					tabs << multi_club_teams_menu(@user)
+				end
+
+				tabs << coach_menu if @user.is_coach?
+			elsif @regs_url.present?
+				tabs << registrations_link
 			end
-			tabs << registrations_link    if @regs_url.present?
+
 			tabs.compact
 		end
 
+		def club_management_menu
+			return nil unless @club
+
+			options = []
+			options << menu_link(label: @club.nick, url: club_path(@club), symbol: :home)
+
+			if @user.is_secretary?(@club)
+				options << menu_link(label: Membership.kind_label(:athlete, :plural), url: club_members_path(@club, kind: :athlete), symbol: :athlete)
+				options << menu_link(label: Membership.kind_label(:coach, :plural),   url: club_members_path(@club, kind: :coach),   symbol: :coach)
+				options << menu_link(label: Slot.label(:plural),                      url: club_slots_path(@club),                   symbol: :timetable)
+				options << menu_link(label: Location.label(:plural),                  url: club_locations_path(@club),               symbol: :location)
+			end
+
+			if @user.is_manager?(@club) && !@user.admin?
+				options << menu_link(label: Server.fld(:log), url: log_server_path)
+			end
+
+			return nil if options.size <= 1
+
+			menu_drop("club_mgmt", label: Club.label, options: options)
+		end
+
+		def team_menu(user)
+			return nil if user.blank? || @club.blank?
+
+			teams = user.teams.select { |t| t.club_id == @club.id && t.season == Season.latest }
+			return nil if teams.empty? && !@user.is_secretary?(@club) && !@user.is_manager?(@club)
+
+			options = teams.map { |t| team_menu_link(t) }
+			options << all_teams_link(@club)
+
+			menu_drop("teams", label: Team.label(:plural), options: options)
+		end
+
+		def multi_club_teams_menu(user)
+			my_teams = user.teams.select { |t| t.season == Season.latest }
+			grouped  = my_teams.group_by(&:club)
+			return nil if grouped.empty?
+
+			if grouped.size == 1
+				club, teams = grouped.first
+				options = teams.map { |t| team_menu_link(t) } << all_teams_link(club)
+				menu_drop("teams", label: Team.label(:plural), options: options)
+			else
+				menu_drop("teams", label: Team.label(:plural), options: grouped.map do |club, teams|
+					options = teams.map { |t| team_menu_link(t) } << all_teams_link(club)
+					menu_drop("teams_club_#{club.id}", label: club.nick, options: options)
+				end)
+			end
+		end
+
+		def coach_menu
+			menu_link(label: Drill.label(:plural), url: drills_path)
+		end
+
+		def server_menu
+			menu_link(label: Server.label, url: server_path)
+		end
+
+		# ------------------------------------------------------------------
+		# 3. Right Account & Personal Actions
+		# ------------------------------------------------------------------
 		def build_account_actions
 			return sign_in_link if @user.blank?
 
-			menu_drop("profile",
-								label:   @user.person.nick.presence || @user.person.name,
-								align: :right,
-								options: [
-									menu_link(label: User.fld(:profile),  url: @home),
-									menu_link(label: User.act(:sign_out), url: @logout, kind: :delete)
-								])
+			options = [
+				menu_link(label: User.fld(:profile), url: @home, symbol: :person)
+			]
+			options << registrations_link if @regs_url.present?
+			options << menu_link(label: User.act(:sign_out), url: @logout, kind: :delete)
+
+			menu_drop(
+				"profile",
+				label:   @user.person&.nick.presence || @user.person&.name || @user.email,
+				align:   :right,
+				options:,
+				**profile_avatar_attrs
+			)
 		end
 
+		def profile_avatar_attrs
+			pic = @user.picture
+			if pic.is_a?(Hash) && pic[:symbol]
+				{ symbol: { concept: pic[:symbol], options: { css: "text-gray-200" } } }
+			else
+				{ icon: pic, i_class: "h-6 w-6 rounded-full object-cover" }
+			end
+		end
+
+		# ------------------------------------------------------------------
+		# 4. Mobile Hamburger Drawer
+		# ------------------------------------------------------------------
 		def build_hamburger
-			options = @nav_tabs.map { |tab| hamburger_clone(tab) }.compact
+			options = []
+			options << hamburger_clone(@brand_menu) if @brand_menu
+			options.concat(@nav_tabs.map { |tab| hamburger_clone(tab) }.compact)
 			options << hamburger_clone(@acc_acts) if @acc_acts
 			return nil if options.empty?
+
 			DropdownComponent.new(menu_drop("hamburger", ham: true, options:, align: :right))
 		end
 
@@ -140,21 +304,20 @@ class TopbarComponent < ApplicationComponent
 			clone
 		end
 
-		# wrapper to define a dropdown menu hash - :options returned as [] if received as nil
-		def menu_drop(name, label: nil, options: [], ham: nil, align: nil)
-			{ kind: :menu, name:, label:, options:, ham:, align: }
+		# ------------------------------------------------------------------
+		# Helpers & Renderers
+		# ------------------------------------------------------------------
+		def menu_drop(name, label: nil, options: [], ham: nil, align: nil, icon: nil, symbol: nil, i_class: nil)
+			{ kind: :menu, name:, label:, options:, ham:, align:, icon:, symbol:, i_class: }.compact
 		end
 
-		def menu_link(label:, url:, class: LNK_CLS, kind: :normal)
-			case kind
-			when :normal
-				l_data = { turbo_action: :replace }
-			when :modal
-				l_data = { turbo_frame: :modal }
-			when :delete
-				l_data = { turbo_method: :delete }
+		def menu_link(label:, url:, class: LNK_CLS, kind: :normal, icon: nil, symbol: nil)
+			l_data = case kind
+			when :normal then { turbo_frame: "_top", turbo_action: :replace }
+			when :modal  then { turbo_frame: :modal }
+			when :delete then { turbo_method: :delete }
 			end
-			{ kind:, label:, url:, class:, data: l_data }
+			{ kind:, label:, url:, class:, data: l_data, icon:, symbol: }.compact
 		end
 
 		def registrations_link
@@ -163,7 +326,15 @@ class TopbarComponent < ApplicationComponent
 		end
 
 		def sign_in_link
-			menu_link(label: User.act(:sign_in), url: "/users/sign_in", class: @navcls)
+			menu_link(label: User.act(:sign_in), url: new_user_session_path, class: NAV_CLS)
+		end
+
+		def team_menu_link(team)
+			menu_link(label: team.to_s, url: club_team_path(team.club_id, team.id))
+		end
+
+		def all_teams_link(club)
+			menu_link(label: UI::Selection.val(:all, gender: :neutral), url: club_teams_path(club.id))
 		end
 
 		def render_large_menu
@@ -177,13 +348,13 @@ class TopbarComponent < ApplicationComponent
 			return if @nav_tabs.empty?
 
 			content_tag(:div, class: TAB_CLS, aria: { label: "Navigation" }) do
-				@nav_tabs.map { |tab|
+				safe_join(@nav_tabs.map do |tab|
 					if tab[:options].present?
 						render(DropdownComponent.new(tab))
 					else
-						link_to(tab[:label], tab[:url], class: @navcls, data: { turbo_frame: "_top", turbo_action: :replace })
+						link_to(tab[:label], tab[:url], class: NAV_CLS, data: tab[:data])
 					end
-				}.join.html_safe
+				end)
 			end
 		end
 
@@ -194,7 +365,7 @@ class TopbarComponent < ApplicationComponent
 				if @acc_acts[:options].present?
 					render(DropdownComponent.new(@acc_acts))
 				else
-					link_to(@acc_acts[:label], @acc_acts[:url], class: @acc_acts[:class], data: { turbo_frame: "_top", turbo_action: :replace })
+					link_to(@acc_acts[:label], @acc_acts[:url], class: @acc_acts[:class], data: @acc_acts[:data])
 				end
 			end
 		end
@@ -203,117 +374,5 @@ class TopbarComponent < ApplicationComponent
 			content_tag(:div, class: HAM_CLS, aria: { label: "Mobile menu" }) do
 				render(@ham_menu)
 			end
-		end
-
-		def render_logo
-			content_tag(:div, class: LOGO_CLS) do
-				link_to(@logourl[:url], class: "inline-flex items-center", data: @logourl[:data]) do
-					concat(image_tag(@clublogo, class: SHOW_IMG_CLS))
-					concat(image_tag(@clublogo, class: HIDE_IMG_CLS))
-					concat(content_tag(:label, @clubname, class: "ml-1"))
-				end
-			end
-		end
-
-		def athlete_menu(user)
-			[]
-		end
-
-		# menu buttons for coaches
-		def coach_menu(user)
-			[ menu_link(label: Drill.label(:plural), url: "/drills") ]
-		end
-
-		# menu entry to access logs
-		def log_menu
-			menu_link(label: Server.fld(:log), url: "/server/log")
-		end
-
-		# menu buttons for club managers
-		def manager_menu
-			return [] unless @cluburl
-
-			menu = @user.admin? ?
-				menu_link(label: Club.label, url: @cluburl) :
-				log_menu
-
-			[ menu ]
-		end
-
-		# menu buttons for club managers
-		def secretary_menu
-			[
-				menu_link(label: Membership.kind_label(:athlete, :plural), url: "#{@cluburl}/memberships?kind=athlete"),
-				menu_link(label: Membership.kind_label(:coach, :plural), url: "#{@cluburl}/memberships?kind=coach"),
-				menu_link(label: Slot.label(:plural), url: "#{@cluburl}/slots"),
-				menu_link(label: Location.label(:plural), url: "#{@cluburl}/locations")
-			]
-		end
-
-		# menu to manage server application
-		def server_menu
-=begin
-			options = [
-				menu_link(label: Sport.label(:plural), url: "/sports"),
-				menu_link(label: Club.label(:plural), url: "/clubs"),
-				menu_link(label: Season.label(:plural), url: "/seasons"),
-				menu_link(label: User.label(:plural), url: "/users"),
-				log_menu
-			]
-			menu_drop("server", label: Server.label, options:)
-=end
-			menu_link(label: Server.label, url: "/server")
-		end
-
-		# Menu for teams visible to the user
-		def team_menu(user)
-			return nil if user.blank?
-
-			# All current-season teams the user can see, across all clubs.
-			# `.select` on the loaded collection, not a chain — keeps this
-			# independent of whatever scope `user.teams` already applies.
-			my_teams = user.teams.select { |t| t.season == Season.latest }
-
-			# Group by club, disambiguating team names when multi-club.
-			grouped = my_teams.group_by(&:club)
-
-			# In club context, restrict to that club only.
-			grouped = grouped.slice(@club) if @club
-
-			return nil if grouped.empty?
-
-			if grouped.size == 1
-				club, teams = grouped.first
-				flat_team_menu(club, teams)
-			else
-				nested_team_menu(grouped)
-			end
-		end
-
-		def flat_team_menu(club, teams)
-			options = teams.map { |t| team_menu_link(t) }
-			options << all_teams_link(club)
-
-			menu_drop("teams", label: Team.label(:plural), options: options)
-		end
-
-		def nested_team_menu(grouped)
-			menu_drop("teams", label: Team.label(:plural), options: grouped.map do |club, teams|
-				options = teams.map { |t| team_menu_link(t) }
-				options << all_teams_link(club)
-
-				menu_drop("teams_club_#{club.id}", label: club.nick, options: options)
-			end)
-		end
-
-		def team_menu_link(team)
-			menu_link(
-				label: team.to_s,
-				url:   "/clubs/#{team.club_id}/teams/#{team.id}"
-			)
-		end
-
-		def all_teams_link(club)
-			menu_link(label: UI::Selection.val(:all, gender: :neutral), url: "/clubs/#{club.id}/teams")
 		end
 end

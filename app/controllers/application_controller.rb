@@ -230,22 +230,24 @@ class ApplicationController < ActionController::Base
 	def set_application_context
 		Server.current
 		@token  = requester_token
-		@club   = Club.find(params[:club_id]) if params[:club_id].present?
+		resolve_club_context
+
 		if user_signed_in?
 			@club ||= u_club
 			@rdx    = p_rdx
 			@season = Season.search(p_seasonid)
 		else
-			# Fallback for anonymous (or club-less) visitors on public club pages
 			@season = Season.latest
 		end
+
 		@favicon  = user_favicon(@club)
 		@topbar   =
 			TopbarComponent.new(
 				user: current_user,
 				club: @club,
+				clubs: user_signed_in? ? current_user.clubs.to_a : [], # or current_user.clubs
 				home: u_path,
-				logout: current_user ? destroy_user_session_path : nil,
+				logout: user_signed_in? ? destroy_user_session_path : nil,
 				registrations_url: requester_registrations_path
 			)
 	end
@@ -301,11 +303,7 @@ class ApplicationController < ActionController::Base
 	end
 
 	def u_club
-		return nil unless current_user
-		return @club   if user_in_club?
-		return @u_club if @u_club
-		clubs   = current_user.clubs
-		@u_club = clubs.first if clubs.size == 1
+		@club || resolve_club_context
 	end
 
 	def u_person
@@ -503,7 +501,47 @@ class ApplicationController < ActionController::Base
 
 		def requester_registrations_path
 			return nil unless current_user || session_registration_tokens.any?
-			my_registrations_path if Registration.submitted_by(current_user.person_id).any?
+			has_mine = current_user&.person_id && Registration.submitted_by(current_user.person_id).any?
+			my_registrations_path if has_mine || session_registration_tokens.any?
+		end
+
+		def resolve_club_context
+			# 1. Explicit switch to global/server context via ?club_id=none (or visiting ServersController)
+			if params[:club_id].to_s == "none" || controller_name == "servers"
+				session.delete(:current_club_id)
+				return @club = nil
+			end
+
+			# 2. Explicit club from URL (/clubs/:club_id/... or /clubs/:id on ClubsController)
+			explicit_id = params[:club_id].presence || (controller_name == "clubs" ? params[:id].presence : nil)
+			if explicit_id.present?
+				@club = Club.find_by(id: explicit_id)
+				session[:current_club_id] = @club.id if @club && user_in_club?(@club)
+				return @club
+			end
+
+			return nil unless user_signed_in?
+
+			# 3. Restore last active club from session if user is still an active member
+			user_clubs = Array(current_user.clubs) # scope to active memberships if available
+			if session[:current_club_id].present?
+				@club =
+					if current_user.admin?
+						Club.find_by(id: session[:current_club_id])
+					else
+						user_clubs.find { |c| c.id == session[:current_club_id].to_i }
+					end
+				return @club if @club
+				session.delete(:current_club_id)
+			end
+
+			# 4. Non-admin users default into their first club; admins default to global server view
+			if user_clubs.any? && !current_user.admin?
+				@club = user_clubs.first
+				session[:current_club_id] = @club.id
+			end
+
+			@club
 		end
 
 		def session_registration_tokens
@@ -520,12 +558,13 @@ class ApplicationController < ActionController::Base
 			get_param(obj.model_name.param_key, :status)
 		end
 
-		# determine the app favicon based on user favicon
-		def user_favicon(club)
-			if club&.avatar&.attached?
-				url_for(club.avatar)
-			else
-				"mudclub.svg"
-			end
+		# determine the app favicon based on active club avatar or server logo
+		def user_favicon(club = @club)
+			return club.avatar if club&.avatar&.attached?
+
+			srv = Server.server_logo
+			return srv if srv.respond_to?(:attached?) ? srv.attached? : srv.present?
+
+			"mudclub.svg"
 		end
 end

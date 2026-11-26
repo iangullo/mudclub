@@ -88,7 +88,7 @@ class Person < ApplicationRecord
 	def was_member_of?(club) = memberships.for_club(club).exists?
 
 	def clubs
-		Club.joins(:memberships).merge(memberships.current).distinct
+		Club.joins(:memberships).merge(memberships.status_active).distinct
 	end
 
 	def club_list
@@ -337,12 +337,12 @@ class Person < ApplicationRecord
 
 	private
 		def active_memberships(kinds, club = nil)
-			scope = memberships.of_kind(kinds).current
+			scope = memberships.of_kind(kinds).status_active
 			club.is_a?(Club) ? scope.for_club(club) : scope
 		end
 
 		def active_assignments(kinds, obj = nil)
-			scope = assignments.of_kind(kinds).current
+			scope = assignments.of_kind(kinds).status_active
 			case obj
 			when Club then scope.for_club(obj)
 			when Team then scope.for_team(obj)

@@ -132,7 +132,7 @@ class AssignmentPolicy < ApplicationPolicy
 		def can_view_club_assignment?(kind)
 			case Catalog::AssignmentKinds.scope_of(kind)
 			when :club
-				manages_club?(@target_club) || board_member?(@target_club)
+				same_club?(@target_club)
 
 			when :board
 				manages_board?(@target_club)

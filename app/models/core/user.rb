@@ -103,7 +103,7 @@ class User < ApplicationRecord
 	# return club logo if it makes sense
 	# Server logo otherwise
 	def scope_logo
-		u_club = memberships.active.first&.club
+		u_club = memberships&.status_active&.first&.club
 		u_club ? u_club.logo : Server.server_logo
 	end
 
@@ -125,7 +125,7 @@ class User < ApplicationRecord
 	end
 
 	def is_manager?(club)
-		person.is_manager?(club) || (admin? && is_coach?(club))
+		person&.is_manager?(club) || (admin? && is_coach?(club))
 	end
 
 	# return last login IP
