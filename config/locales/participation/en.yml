@@ -12,8 +12,9 @@
 
 en:
   participation:
-    label: Participation
-    short: Partic.
+    label:
+      single: Participation
+      short: Partic.
 
     membership:
       label:
@@ -149,7 +150,7 @@ en:
         webmaster: Webmaster
         webmaster_short: Web
         board_member: Board member
-        board_members: Board members
+        board_member_plural: Board members
         board_member_short: B.Mem.
         club_manager: Club manager
         club_manager_short: C.Mgr.
@@ -163,66 +164,3 @@ en:
         treasurer_short: Treas.
         staff: Staff
         staff_short: Staff
-
-  # ---------------------------------------------------------------------------
-  # DEPRECATED - DO NOT MODIFY
-  #
-  # Compatibility keys preserved during the v2 migration.
-  #
-  # Search for:
-  #
-  #   t(coach.
-  #   t(player.
-  #
-  # Remove once all callers have migrated.
-  # ---------------------------------------------------------------------------
-
-  coach:
-    abbr: Coach
-
-    single: Coach
-    many: Coaches
-
-    created: "Created coach:"
-    updated: "Updated coach:"
-    deleted: "Deleted coach:"
-    duplicate: "Duplicate coach:"
-
-    edit: Edit Coach
-    new: Create Coach
-
-    export: Exported coaches
-    import: Imported coaches
-
-    label:
-      single: "%{t('coach.single')}"
-      plural: "%{t('coach.many')}"
-      short: "%{t('coach.abbr')}"
-
-  player:
-    abbr: Play.
-
-    single: Player
-    many: Players
-
-    number: #
-    playing: Playing
-
-    created: "Created player:"
-    updated: "Updated player:"
-    deleted: "Deleted player:"
-    duplicate: "Duplicate player:"
-
-    deactivated: "Inactive player:"
-    removed: "Removed player:"
-
-    edit: Edit Player
-    new: Create Player
-
-    export: Exported players
-    import: Imported players
-
-    label:
-      single: "%{t('player.single')}"
-      plural: "%{t('player.many')}"
-      short: "%{t('player.abbr')}"

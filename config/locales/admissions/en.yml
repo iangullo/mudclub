@@ -8,15 +8,17 @@
 # -----------------------------------------------------------------------------
 en:
   admissions:
-    label: Admissions
-    short: Admis.
+    label:
+      single: Admission
+      plural: Admissions
+      short: Admis.
 
     registration:
       label:
         single: Application
         plural: Applications
         short: Appl.
-      action:
+      actions:
         create: Apply to register
         create_short: Apply
         show: Application
@@ -81,6 +83,7 @@ en:
     registration_kinds:
       label:
         single: Application kind
+        plural: Application kinds
         short: Kind.
       values:
         athlete:
@@ -141,6 +144,7 @@ en:
     registration_statuses:
       label:
         single: Application status
+        plural: Application statuses
         short: Status
       values:
         draft:

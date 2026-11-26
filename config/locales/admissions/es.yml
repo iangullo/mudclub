@@ -1,11 +1,4 @@
-# config/locales/admissions/es.yml
-# -----------------------------------------------------------------------------
-# MudClub
-#
-# Dominio de inscripciones (Admissions)
-#
-# Traducciones canónicas para flujos de admisión y sus catálogos.
-# -----------------------------------------------------------------------------
+---
 es:
   admissions:
     gender: female
@@ -13,7 +6,6 @@ es:
       single: Inscripción
       plural: Inscripciones
       short: Inscrip.
-
     registration:
       gender: female
       label:
@@ -70,12 +62,12 @@ es:
         my_registrations_empty_hint: Si has enviado una desde otro dispositivo, usa el enlace del email de confirmación.
         my_registrations_unavailable: No disponible
       questions:
-        send_for_review: ¿Enviar solicitud?
-        request_information: ¿Pedir más información?
-        cancel: ¿Cancelar solicitud? Esta acción no puede deshacerse.
-        approve: ¿Aprobar solicitud?
-        reject: ¿Rechazar solicitud? Esta acción no puede deshacerse.
-        review: ¿Revisar solicitud?
+        send_for_review: "¿Enviar solicitud?"
+        request_information: "¿Pedir más información?"
+        cancel: "¿Cancelar solicitud? Esta acción no puede deshacerse."
+        approve: "¿Aprobar solicitud?"
+        reject: "¿Rechazar solicitud? Esta acción no puede deshacerse."
+        review: "¿Revisar solicitud?"
       values:
         locked: Inscripciones cerradas
         locked_short: Cerrado
@@ -156,8 +148,8 @@ es:
 
     registration_statuses:
       label:
-        single: Estado
-        plural: Estados
+        single: Estado de solicitud
+        plural: Estados de solicitud
         short: Est.
       values:
         draft:

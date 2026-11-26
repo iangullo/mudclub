@@ -1,19 +1,9 @@
-# config/locales/participation/es.yml
-# -----------------------------------------------------------------------------
-# MudClub
-#
-# Dominio de participación
-#
-# Traducciones canónicas para membresías, asignaciones y sus catálogos.
-#
-# Las claves de compatibilidad heredadas se conservan al final de este archivo
-# durante la migración v2 y no deben usarse en código nuevo.
-# -----------------------------------------------------------------------------
-
+---
 es:
   participation:
-    label: Participación
-    short: Partic.
+    label:
+      single: Participación
+      short: Partic.
 
     membership:
       label:
@@ -41,19 +31,19 @@ es:
         status_short: Est.
         notes: Notas
       values:
-        none: ¡Integrante no encontrado!
+        none: "¡Integrante no encontrado!"
       messages:
         anonymized: Membresía y datos personales anonimizados.
-        anonymize_fail: ¡No se pudo anonimizar la membresía!
-        must_terminate: ¡La membresía debe ser terminada antes de anonimizar!
-        cannot_terminate: ¡No se pudo dar de baja!
+        anonymize_fail: "¡No se pudo anonimizar la membresía!"
+        must_terminate: "¡La membresía debe ser terminada antes de anonimizar!"
+        cannot_terminate: "¡No se pudo dar de baja!"
         created: Integrante creado.
         created_female: Integrante creada.
         deleted: Integrante eliminado.
         deleted_female: Integrante eliminada.
         no_change: Integrante sin cambios.
-        no_person: ¡Sin persona que vincular!
-        status_fail: ¡No se pudo cambiar el estado!
+        no_person: "¡Sin persona que vincular!"
+        status_fail: "¡No se pudo cambiar el estado!"
         terminated: Integrante dado de baja.
         terminated_female: Integrante dada de baja.
         updated: Integrante actualizado.
@@ -83,13 +73,13 @@ es:
         status_short: Est.
         notes: Notas
       values:
-        none: ¡Asignación no encontrada!
+        none: "¡Asignación no encontrada!"
       messages:
-        cannot_terminate: ¡No se pudo dar de baja!
+        cannot_terminate: "¡No se pudo dar de baja!"
         created: Asignación creada.
         deleted: Asignación eliminada.
-        no_member: ¡Sin membresía que vincular!
-        status_fail: ¡No se pudo cambiar el estado!
+        no_member: "¡Sin membresía que vincular!"
+        status_fail: "¡No se pudo cambiar el estado!"
         terminated: Baja efectiva.
         updated: Asignación actualizada.
 
@@ -186,66 +176,3 @@ es:
         treasurer_short: Tes.
         staff: Personal
         staff_short: RR.HH.
-
-  # ---------------------------------------------------------------------------
-  # OBSOLETO - NO MODIFICAR
-  #
-  # Claves de compatibilidad preservadas durante la migración v2.
-  #
-  # Buscar:
-  #
-  #   t(coach.
-  #   t(player.
-  #
-  # Eliminar una vez que todas las llamadas se hayan migrado.
-  # ---------------------------------------------------------------------------
-
-  coach:
-    abbr: Ent.
-
-    single: Entrenador
-    many: Entrenadores
-
-    created: "Entrenador creado: "
-    updated: "Entrenador actualizado: "
-    deleted: "Entrenador eliminado: "
-    duplicate: "Duplicar entrenador: "
-
-    edit: Editar Entrenador
-    new: Crear Entrenador
-
-    export: Entrenadores exportados
-    import: Entrenadores importados
-
-    label:
-      single: "%{t('coach.single')}"
-      plural: "%{t('coach.many')}"
-      short: "%{t('coach.abbr')}"
-
-  player:
-    abbr: Jug.
-
-    single: Jugador
-    many: Jugadores
-
-    number: Nº
-    playing: Jugando
-
-    created: "Jugador creado: "
-    updated: "Jugador actualizado: "
-    deleted: "Jugador eliminado: "
-    duplicate: "Duplicar jugador: "
-
-    deactivated: "Jugador inactivo: "
-    removed: "Jugador retirado: "
-
-    edit: Editar Jugador
-    new: Crear Jugador
-
-    export: Jugadores exportados
-    import: Jugadores importados
-
-    label:
-      single: "%{t('player.single')}"
-      plural: "%{t('player.many')}"
-      short: "%{t('player.abbr')}"

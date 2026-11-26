@@ -5,6 +5,11 @@
 	<symbol id="add_nested.default" viewBox="0 0 128 128">
 		<use href="#add.default">
 	</symbol>
+	<symbol id="anonymize.default" viewBox="0 0 128 128" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+		<line x1="9" y1="9" x2="15" y2="15"/>
+		<line x1="15" y1="9" x2="9" y2="15"/>
+	</symbol>
 	<symbol id="back.default" viewBox="0 0 128 128">
 		<path fill="#ac9d93" d="M128 82.787C128 107.767 107.768 128 82.787 128H45.213C20.233 128 0 107.768 0 82.787V45.213C0 20.233 20.232 0 45.213 0h37.574C107.767 0 128 20.232 128 45.213z"/><path fill="#6c5d53" d="M0 45.213C0 20.233 20.232 0 45.213 0h37.574C107.767 0 128 20.232 128 45.213v37.574C128 107.767 107.768 128 82.787 128"/><path fill="#483e37" d="M82.787 0C107.767 0 128 20.232 128 45.213v37.574C128 107.767 107.768 128 82.787 128"/><path fill="none" stroke="#483e37" stroke-linecap="round" stroke-linejoin="round" stroke-width="10" d="M57 43 35 67l22 24M35 67h51"/><path fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="10" d="M59 40 37 64l22 24M37 64h51"/>
 	</symbol>

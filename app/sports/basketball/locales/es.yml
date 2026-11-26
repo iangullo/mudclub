@@ -1,21 +1,9 @@
-# Spanish Locale strings for MudClub basketball
-# -----------------------------------------------------------------------------
-# Basketball
-# -----------------------------------------------------------------------------
-#
-# Basketball-specific terminology and catalogs.
-#
-# This file overrides the generic Sport vocabulary where appropriate and
-# provides the catalog entries required by the Basketball implementation.
-#
-# -----------------------------------------------------------------------------
-
+---
 es:
   sport:
     basketball:
       label: Baloncesto
       short: Basket
-
       terms:
         athlete:
           single: Jugador
@@ -41,7 +29,6 @@ es:
           plural: Prórrogas
           short: Pró.
           gender: female
-
       rules:
         gender: female
         label:
@@ -91,7 +78,6 @@ es:
           q6_short: Q6
           ot: Prórroga
           ot_short: PR
-
       court_modes:
         values:
           full: Pista completa
@@ -100,7 +86,6 @@ es:
           half_off_short: Of.
           half_def: Media pista (defensa)
           half_def_short: Def.
-
       drill_categories:
         gender: female
         values:
@@ -116,25 +101,23 @@ es:
           inbound_short: Saque
           play: Jugada
           play_short: Jug.
-
-          one_v_zero: "1x0"
-          one_v_one: "1x1"
-          one_v_one_plus_one: "1x1+1"
-          two_v_zero: "2x0"
-          two_v_one: "2x1"
-          two_v_two: "2x2"
-          two_v_two_plus_one: "2x2+1"
-          two_v_two_plus_two: "2x2+2"
-          three_v_zero: "3x0"
-          three_v_two: "3x2"
-          three_v_three: "3x3"
-          four_v_zero: "4x0"
-          four_v_two: "4x2"
-          four_v_four: "4x4"
-          five_v_zero: "5x0"
-          five_v_five: "5x5"
-          fiba_three_v_three: "Fiba 3x3"
-
+          one_v_zero: 1x0
+          one_v_one: 1x1
+          one_v_one_plus_one: 1x1+1
+          two_v_zero: 2x0
+          two_v_one: 2x1
+          two_v_two: 2x2
+          two_v_two_plus_one: 2x2+1
+          two_v_two_plus_two: 2x2+2
+          three_v_zero: 3x0
+          three_v_two: 3x2
+          three_v_three: 3x3
+          four_v_zero: 4x0
+          four_v_two: 4x2
+          four_v_four: 4x4
+          five_v_zero: 5x0
+          five_v_five: 5x5
+          fiba_three_v_three: Fiba 3x3
       objects:
         values:
           attacker: Atacante
@@ -148,7 +131,6 @@ es:
           shot: Tiro
           pick: Bloqueo
           handoff: Mano a mano
-
       stats:
         sec: Tiempo
         sec_short: T.
@@ -214,24 +196,15 @@ es:
         pfc_short: FC
         pfr: Faltas recibidas
         pfr_short: FR
-
       skill:
         label:
           single: Fundamento
           plural: Fundamentos
           short: Fund.
-
       outings:
         first: Primero
         playing: En pista
         quarter: Rotaciones de jugadores
-
-      # -----------------------------------------------------------------------------
-      # DEPRECATED - NO MODIFICAR
-      #
-      # Compatibility keys preserved during the MudClub 2.0 migration.
-      # Remove once legacy views, helpers and JavaScript have been updated.
-      # -----------------------------------------------------------------------------
       name: Baloncesto
       court:
         full: Pista completa

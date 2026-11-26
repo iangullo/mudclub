@@ -1,18 +1,4 @@
-# config/locales/calendar/es.yml
-# -----------------------------------------------------------------------------
-# MudClub
-#
-# Dominio de calendario
-#
-# Traducciones canónicas para el dominio de Calendario.
-#
-# El calendario proporciona servicios de programación compartidos por el resto
-# de la aplicación. Los dominios de negocio (Entrenamiento, Competición,
-# Comunicación, etc.) programan sus propias actividades a través de eventos.
-#
-# Las claves de compatibilidad heredadas se conservan al final de este archivo
-# durante la migración v2 y no deben usarse en código nuevo.
-# -----------------------------------------------------------------------------
+---
 es:
   calendar:
     label:
@@ -28,8 +14,9 @@ es:
       time_short: Hora
       hour: Hora
       hour_short: Hora
+      minute: Minuto
+      minute_short: Min.
       mins: mins.
-      mins_short: Mins.
       day: Día
       week: Semana
       week_short: Sem.
@@ -41,27 +28,51 @@ es:
       until: Hasta
     values:
       daynames:
-        [Todos, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo]
-      daynames_short: [Todos, Lun, Mar, Mié, Jue, Vie, Sáb, Dom]
+        - Todos
+        - Lunes
+        - Martes
+        - Miércoles
+        - Jueves
+        - Viernes
+        - Sábado
+        - Domingo
+      daynames_short:
+        - Todos
+        - Lun
+        - Mar
+        - Mié
+        - Jue
+        - Vie
+        - Sáb
+        - Dom
       monthnames:
-        [
-          Todos,
-          Enero,
-          Febrero,
-          Marzo,
-          Abril,
-          Mayo,
-          Junio,
-          Julio,
-          Agosto,
-          Septiembre,
-          Octubre,
-          Noviembre,
-          Diciembre,
-        ]
+        - Todos
+        - Enero
+        - Febrero
+        - Marzo
+        - Abril
+        - Mayo
+        - Junio
+        - Julio
+        - Agosto
+        - Septiembre
+        - Octubre
+        - Noviembre
+        - Diciembre
       monthnames_short:
-        [Todos, Ene, Feb, Mar, Abr, May, Jun, Jul, Ago, Sep, Oct, Nov, Dic]
-
+        - Todos
+        - Ene
+        - Feb
+        - Mar
+        - Abr
+        - May
+        - Jun
+        - Jul
+        - Ago
+        - Sep
+        - Oct
+        - Nov
+        - Dic
     attendance:
       gender: female
       label:
@@ -79,7 +90,6 @@ es:
         created: Asistencia registrada.
         updated: Asistencia actualizada.
         deleted: Asistencia eliminada.
-
     attendance_statuses:
       label:
         single: Estado de asistencia
@@ -94,13 +104,12 @@ es:
         late: Llegada tarde
         unknown: Desconocido
         unknown_female: Desconocida
-
     event_kinds:
       label:
         single: Tipo de evento
         plural: Tipos de evento
         short: Tipo
-      values: &event_kind_values
+      values: &1
         holiday: Festivo
         holiday_short: Fest.
         training: Entrenamiento
@@ -117,7 +126,6 @@ es:
         social_short: Soc.
         other: Otro
         other_short: Otro
-
     event:
       label:
         single: Evento
@@ -134,13 +142,12 @@ es:
         slot: Franja horaria
         kind: Tipo de evento
         metadata: Metadatos
-      kind: *event_kind_values
+      kind: *1
       messages:
         created: "%{kind} creado"
         exported: "%{kind} exportado"
         updated: "%{kind} actualizado"
         deleted: "%{kind} eliminado"
-
     recurrence_kinds:
       gender: female
       label:
@@ -153,7 +160,6 @@ es:
         weekly: Semanal
         monthly: Mensual
         yearly: Anual
-
     slot:
       label:
         single: Horario

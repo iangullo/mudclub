@@ -48,7 +48,15 @@ class UsersController < ApplicationController
 		@table  = create_table(helpers.membership_history_table(@page))
 		retlnk  = @rdx == 1 ? :back : back_link(default: index_path_for(@user, search: @search))
 		submit  = edit_path_for(@user) if @policy.edit?
-		@submit = create_submit(close: :back, retlnk:, submit:, frame: :modal)
+		actions = []
+		if @policy.anonymize? && @user.anonymized_at.nil?
+			actions << {
+				kind: :anonymize,
+				url: anonymize_user_path(@user),
+				name: @user.s_name
+			}
+		end
+		@submit = create_submit(close: :back, retlnk:, submit:, actions:, frame: :modal)
 	end
 
 	# GET /users/new

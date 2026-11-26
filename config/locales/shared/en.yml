@@ -1,71 +1,70 @@
 # -----------------------------------------------------------------------------
 # Shared user interface vocabulary
 # -----------------------------------------------------------------------------
-#
 # Generic user-interface concepts reused throughout MudClub.
 #
 # This file intentionally excludes business-domain terminology, which belongs
 # to its corresponding domain locale file.
-#
 # -----------------------------------------------------------------------------
 en:
   shared:
-    #
-    # Generic actions
-    #
-    label:
-      single: Action
-      plural: Actions
-      short: Act.
-    actions:
-      add: Add
-      add_short: Add
-      add_nested: Add new
-      add_nested_short: Add
-      administration: Administration
-      administration_short: Admin.
-      back: Back
-      backup: Backup
-      call: Call
-      cancel: Cancel
-      change: Change
-      chat: WhatsApp
-      chat_short: Chat
-      clear: Clear
-      close: Close
-      configure: Configure
-      configure_short: Config.
-      copy: Copy
-      create: Create
-      delete: Delete
-      download: Download
-      download_short: Down.
-      duplicate: Duplicate
-      duplicate_short: Dup.
-      edit: Edit
-      export: Export
-      filter: Filter
-      import: Import
-      login: Sign in
-      logout: Sign out
-      move: Move
-      next: Next
-      next_short: ">>"
-      previous: Previous
-      previous_short: "<<"
-      preview: Preview
-      preview_short: Prev.
-      print: Print
-      refresh: Refresh
-      remove: Remove
-      rename: Rename
-      restore: Restore
-      save: Save
-      search: Search
-      select: Select
-      share: Share
-      upload: Upload
-      upload_short: Up.
+    action:
+      label:
+        single: Action
+        plural: Actions
+        short: Act.
+      actions:
+        add: Add
+        add_short: Add
+        add_nested: Add new
+        add_nested_short: Add
+        administration: Administration
+        administration_short: Admin.
+        anonymize: Anonymize
+        anonymize_description: Permanently erase personal data (GDPR).
+        back: Back
+        backup: Backup
+        call: Call
+        cancel: Cancel
+        change: Change
+        chat: WhatsApp
+        chat_short: Chat
+        clear: Clear
+        close: Close
+        configure: Configure
+        configure_short: Config.
+        copy: Copy
+        create: Create
+        delete: Delete
+        download: Download
+        download_short: Down.
+        duplicate: Duplicate
+        duplicate_short: Dup.
+        edit: Edit
+        email: Send e-mail
+        export: Export
+        filter: Filter
+        import: Import
+        login: Sign in
+        logout: Sign out
+        move: Move
+        next: Next
+        next_short: ">>"
+        previous: Previous
+        previous_short: "<<"
+        preview: Preview
+        preview_short: Prev.
+        print: Print
+        refresh: Refresh
+        remove: Remove
+        rename: Rename
+        restore: Restore
+        save: Save
+        search: Search
+        select: Select
+        share: Share
+        upload: Upload
+        upload_short: Up.
 
     boolean:
       label:
@@ -191,6 +190,7 @@ en:
       questions:
         active: Active?
         activate: Activate?
+        anonymize: Permanently erase personal data (GDPR)?
         camera: Use camera?
         clear: Clear actions for
         delete: Delete?
@@ -337,20 +337,6 @@ en:
         processing: Processing...
         saved: saved.
 
-  # -----------------------------------------------------------------------------
-  # DEPRECATED - DO NOT MODIFY
-  #
-  # Compatibility keys preserved during the v2 locale migration.
-  #
-  # Search for:
-  #
-  #   t(action.
-  #   t(status.
-  #   t(question.
-  #   ...
-  #
-  # Remove this section once no references remain.
-  # -----------------------------------------------------------------------------
   helpers:
     page_entries_info:
       one_page:

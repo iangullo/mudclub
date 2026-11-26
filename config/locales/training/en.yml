@@ -5,18 +5,13 @@
 # Training domain
 #
 # Canonical translations for the Training domain.
-#
-# Training manages the sporting knowledge of the club: teams, sessions,
-# drills, tasks, targets, skills and related concepts.
-#
-# Legacy compatibility keys are preserved at the end of this file during the
-# v2 migration and should not be used in new code.
 # -----------------------------------------------------------------------------
-
 en:
   training:
-    label: Training
-    short: Train.
+    label:
+      single: Training
+      plural: Trainings
+      short: Train.
 
     drill:
       label:
@@ -50,7 +45,7 @@ en:
         updated: Drill updated.
         deleted: Drill deleted.
 
-    drill_category: # NEW TERMS
+    drill_category:
       label:
         single: Drill category
         plural: Drill categories
@@ -97,10 +92,11 @@ en:
         deleted: Training plan deleted.
 
     session:
-      single: Session
-      plural: Sessions
-      short: Session
-      hint: Training session
+      label:
+        single: Session
+        plural: Sessions
+        short: Session
+        hint: Training session
       fields:
         title: Title
         starts_on: Starts
@@ -117,14 +113,6 @@ en:
         deleted: Training session deleted.
         attendance_checked: Attendance checked.
 
-    stat:
-      label:
-        single: Statistic
-        plural: Statistics
-        short: Stat.
-      messages:
-        updated: Statistics updated.
-
     skill:
       label:
         single: Skill
@@ -140,6 +128,14 @@ en:
         created: Skill created.
         updated: Skill updated.
         deleted: Skill deleted.
+
+    stat:
+      label:
+        single: Statistic
+        plural: Statistics
+        short: Stat.
+      messages:
+        updated: Statistics updated.
 
     step:
       label:
@@ -177,8 +173,10 @@ en:
       values:
         default: <target>
       aspect:
-        label: Aspect
-        short: Aspect
+        label:
+          single: Aspect
+          plural: Aspects
+          short: Aspect
         values:
           general: General
           general_short: Gen.
@@ -191,8 +189,10 @@ en:
           collective_short: Col.
           collective_hint: Collective tactical development.
       focus:
-        label: Focus
-        short: Focus
+        label:
+          single: Focus
+          plural: Foci
+          short: Focus
         values:
           offense: Offense
           offense_short: Off.
@@ -298,7 +298,6 @@ en:
   #
   # Remove once all callers have migrated.
   # -------------------------------------------------------------------------
-
   drill:
     author: Author
     default: <New Drill>
@@ -344,9 +343,7 @@ en:
     single: Stat
     total: Total
     total_a: Tot.
-
     updated: Updated stats
-
     many: Stats
 
   step:
@@ -354,7 +351,6 @@ en:
     diagram: Diagram
     explanation: Explanation
     single: Step
-
     edit: Edit step
     edit_diagram: Edit diagram
     load_diagram: Load diagram
@@ -365,27 +361,20 @@ en:
     completion: Completion (%)
     default: <target>
     single: Target
-
     aspect:
       gen: General
-
       ind: Individual
       ind_a: Ind.
       ind_l: Individual Skill
-
       col: Collective
       col_a: Col.
       col_l: Collective Tactic
-
     focus:
       att: Offense
       att_a: Off.
-
       def: Defense
       def_a: Def.
-
       fit: Physical
-
     edit: Edit Targets
     many: Targets
 
@@ -394,11 +383,9 @@ en:
     number: #
     remarks: Remarks
     single: Task
-
     created: "Created task:"
     deleted: "Deleted task:"
     updated: "Updated task:"
-
     add: Add Task
     edit: Edit Task
     many: Tasks
@@ -406,19 +393,15 @@ en:
   team:
     home: "Homecourt:"
     home_a: Home
-
     name: Name
     none: No teams
     single: Team
-
     created: "Created team:"
     deleted: "Deleted team:"
     updated: "Updated team:"
-
     edit: Edit Team
     many: Teams
     new: Create Team
-
     roster: Roster
     roster_edit: Edit Roster
     roster_opt: Additional players
@@ -426,16 +409,12 @@ en:
   train:
     duration: Dur.
     single: Session
-
     workload: Workload
     workload_by: Workload by
-
     att_check: "Checked attendance:"
-
     created: "Created session:"
     deleted: "Deleted session:"
     updated: "Updated session:"
-
     edit: Edit session
     many: Training sessions
     new: Create session
@@ -448,12 +427,10 @@ en:
     roster: Active players
     single: Match
     won: W
-
     att_check: "Player list: "
     created: "Created match: "
     deleted: "Deleted match: "
     updated: "Updated match: "
-
     many: Matches
 
   version:
@@ -468,5 +445,4 @@ en:
     skills: skills
     targets: targets
     unknown: Unknown
-
     many: Versions

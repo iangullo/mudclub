@@ -1,11 +1,4 @@
-# config/locales/organization/es.yml
-# Dominio de organización
-#
-# Clubes y su estructura organizativa.
-#
-# Incluye clubes, categorías de competición, divisiones,
-# relaciones club-deporte y catálogos organizativos.
-# -----------------------------------------------------------------------------
+---
 es:
   organization:
     gender: female
@@ -67,6 +60,9 @@ es:
         rules_short: Reglas
         sport: Deporte
         sport_short: Deporte
+      values:
+        all: Todas
+        none: Sin categoría
       messages:
         created: Categoría creada.
         updated: Categoría actualizada.
@@ -86,6 +82,9 @@ es:
       fields:
         name: Nombre
         sport: Deporte
+      values:
+        all: Todas
+        none: Sin competición
       messages:
         created: Competición creada.
         updated: Competición actualizada.
@@ -130,7 +129,7 @@ es:
       label:
         single: Deporte del club
         plural: Deportes del club
-        short: Deporte club
+        short: Deporte
       fields:
         club: Club
         club_short: Club

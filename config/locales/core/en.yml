@@ -108,6 +108,7 @@ en:
     document_kinds:
       label:
         single: Document kind
+        plural: Document kinds
         short: Kind
       values:
         photo: Photo
@@ -128,6 +129,10 @@ en:
         other: Other
 
     document_statuses:
+      label:
+        single: Document status
+        plural: Document statuses
+        short: Status
       values:
         draft: Draft
         pending: Pending
@@ -239,8 +244,10 @@ en:
         exported: User actions exported.
 
     user_kinds:
-      label: User role
-      short: Role
+      label:
+        single: User role
+        plural: User roles
+        short: Role
       values:
         user:
           single: User
@@ -308,7 +315,6 @@ en:
         single: Server
         plural: Servers
         short: Srv.
-
       actions:
         configure: Configure
         edit: Edit Server
@@ -319,9 +325,7 @@ en:
         public_pages: Public pages
         registrations: Solicitudes
         reset_defaults: Reset Settings
-
       fields:
-        # Software description
         about: About ...
         build: Build #
         info_1: "The open source Rails platform to manage"
@@ -331,17 +335,14 @@ en:
         info_5: "Training: planning, drills, plays, sessions."
         info_6: "Matches: outings/stats & results."
         published: "Published under GNU Affero GPLv3 license"
+        single: Server
         tagline: "The open source operating system for amateur sports clubs."
         website: MudClub wiki
         log: Logs
-
-        # Identity
         server_name: Server name
         server_name_hint: Shown in the browser tab and top bar when no club is active.
         support_email: Support email
         support_email_hint: Primary contact address. Used as reply-to on outgoing email.
-
-        # Localization
         default_locale: Default language
         default_locale_hint: Applied to anonymous visitors. Signed-in users see their own preference.
         available_locales: Available languages
@@ -350,14 +351,10 @@ en:
         time_zone_hint: Server-wide default. Individual users may override.
         date_format: Date format
         date_format_hint: Applies to dates across the server. Patterns adapt to the active language.
-
-        # Modules
         modules: Modules
         modules_hint: Core features are always on. Optional modules can be disabled.
         optional_modules: Optional modules
         optional_modules_hint: When disabling a module, dependencies can be modified also.
-
-        # Admission
         registrations_enabled: Allow registration requests
         registrations_enabled_hint: Server-wide switch. Individual clubs may still refuse.
         registrations_require_terms: Require acceptance of terms
@@ -366,22 +363,16 @@ en:
         registrations_terms_url_hint: Linked from the submission form.
         registrations_privacy_url: Privacy policy URL
         registrations_privacy_url_hint: Linked from the submission form.
-
-        # Public pages
         public_clubs_enabled: Enable public club pages
         public_clubs_enabled_hint: Allow clubs to publish an overview and accept anonymous visitors.
         public_directory_enabled: Publish club directory
         public_directory_enabled_hint: List participating clubs on the home page.
-
-        # Email
         email_from: Sender address
         email_from_hint: Outgoing mail appears to come from this address.
         email_reply_to: Reply-to address
         email_reply_to_hint: Replies are routed here instead of the sender address.
         email_signature: Email signature
         email_signature_hint: Appended to outgoing emails. Plain text or simple HTML.
-
-        # settting sections
         contact_section: Contact
         email_section: e-mail
         localization_section: Localization

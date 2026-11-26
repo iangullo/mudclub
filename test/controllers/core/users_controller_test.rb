@@ -407,4 +407,25 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 		assert_redirected_to root_path
 		assert_nil other_user.reload.anonymized_at
 	end
+	# In UsersControllerTest
+	test "GET show renders anonymize button with confirmation for own profile or admin" do
+		sign_out @admin
+		alice_user = users(:alice)
+		sign_in alice_user
+
+		get user_path(alice_user)
+
+		assert_response :success
+		assert_select "a.anonymize-btn[href='#{anonymize_user_path(alice_user)}'][data-turbo-method='patch'][data-confirm]"
+	end
+
+	test "GET show hides anonymize button when user is already anonymized" do
+		target = users(:alice)
+		target.anonymize!
+
+		get user_path(target)
+
+		assert_response :success
+		assert_select "a.anonymize-btn", count: 0
+	end
 end

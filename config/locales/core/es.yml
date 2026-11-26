@@ -1,11 +1,4 @@
-# config/locales/core/es.yml
-# -----------------------------------------------------------------------------
-# MudClub
-#
-# Dominio principal (Core)
-#
-# Traducciones canónicas para el dominio principal.
-# -----------------------------------------------------------------------------
+---
 es:
   activerecord:
     errors:
@@ -208,7 +201,7 @@ es:
         last_login_short: Último
       messages:
         anonymized: Cuenta de usuario anonimizada.
-        anonymize_fail: ¡No se pudo anonimizar la cuenta de usuario!
+        anonymize_fail: "¡No se pudo anonimizar la cuenta de usuario!"
         already_exists: Una cuenta de usuario ya existe para esta persona.
         created: Usuario creado.
         created_female: Usuaria creada.
@@ -220,13 +213,13 @@ es:
         duplicated_female: Usuaria duplicada.
         actions_cleared: Acciones de usuario eliminadas.
         actions_cleared_female: Acciones de usuaria eliminadas.
-        no_email: ¡El correo electrónico es obligatorio!
-        no_password: ¡La contraseña es obligatoria!
-        status_fail: ¡No se pudo cambiar el estado!
+        no_email: "¡El correo electrónico es obligatorio!"
+        no_password: "¡La contraseña es obligatoria!"
+        status_fail: "¡No se pudo cambiar el estado!"
       values:
         last_in: Último acceso
-        never_logged: (nunca ha iniciado sesión)
-        none: ¡Usuario no encontrado!
+        never_logged: "(nunca ha iniciado sesión)"
+        none: "¡Usuario no encontrado!"
 
     user_action:
       gender: female
@@ -286,7 +279,7 @@ es:
         update: Actualizar ubicación.
         delete: Borrar ubicación.
         remove: Quitar ubicación.
-        see: (ver ubicación)
+        see: "(ver ubicación)"
       fields:
         name: Nombre
         kind: Tipo
@@ -295,9 +288,9 @@ es:
         training_court: Pista de entrenamiento
         training_court_short: P.Entr.
       values:
-        default: <nueva ubicación>
-        none: (sin ubicación)
-        see: (ver ubicación)
+        default: "<nueva ubicación>"
+        none: "(sin ubicación)"
+        see: "(ver ubicación)"
       messages:
         created: Ubicación creada.
         updated: Ubicación actualizada.
@@ -330,7 +323,6 @@ es:
         single: Servidor
         plural: Servidores
         short: Srv.
-
       actions:
         configure: Configurar
         edit: Editar servidor
@@ -341,12 +333,10 @@ es:
         public_pages: Páginas públicas
         registrations: Inscripciones
         reset_defaults: Reiniciar configuración
-
       fields:
-        # Información
         about: Acerca de...
         build: Compilación nº
-        info_1: "La plataforma de código abierto para gestionar"
+        info_1: La plataforma de código abierto para gestionar
         info_2: "clubes deportivos amateur:"
         info_3: "Clubes: integrantes, inscripciones, horarios."
         info_4: "Equipos: plantillas, objetivos, eventos, etc."
@@ -354,17 +344,13 @@ es:
         info_6: "Partidos: desplazamientos/estadísticas y resultados."
         published: Publicado bajo licencia GNU Affero GPLv3
         single: Servidor
-        tagline: "La plataforma de código abierto para clubes deportivos amateur."
+        tagline: La plataforma de código abierto para clubes deportivos amateur.
         website: Wiki de MudClub
         log: Registros
-
-        # Identidad
         server_name: Nombre del servidor
         server_name_hint: Aparece en la pestaña del navegador y en la barra superior cuando no hay club activo.
         support_email: Correo de soporte
         support_email_hint: Dirección de contacto principal. Se usa como respuesta en los correos salientes.
-
-        # Localización
         default_locale: Idioma por defecto
         default_locale_hint: Se aplica a visitantes anónimos. Los usuarios registrados ven su preferencia.
         available_locales: Idiomas disponibles
@@ -373,14 +359,10 @@ es:
         time_zone_hint: Valor por defecto del servidor. Los usuarios pueden sobrescribirlo.
         date_format: Formato de fecha
         date_format_hint: Se aplica a las fechas en todo el servidor. El patrón se adapta al idioma activo.
-
-        # Módulos
         modules: Módulos
         modules_hint: Las funciones básicas están siempre activas. Los módulos opcionales pueden desactivarse.
         optional_modules: Módulos opcionales
         optional_modules_hint: Al desmarcar un módulo se desactivan también sus dependientes.
-
-        # Solicitudes
         registrations_enabled: Permitir solicitudes de inscripción
         registrations_enabled_hint: Interruptor global. Cada club puede rechazarlas individualmente.
         registrations_require_terms: Requerir aceptación de términos
@@ -389,22 +371,16 @@ es:
         registrations_terms_url_hint: Enlazada desde el formulario de solicitud.
         registrations_privacy_url: URL de la política de privacidad
         registrations_privacy_url_hint: Enlazada desde el formulario de solicitud.
-
-        # Public pages
         public_clubs_enabled: Habilitar páginas públicas de club
         public_clubs_enabled_hint: Permite a los clubes publicar una vista general y aceptar visitantes anónimos.
         public_directory_enabled: Publicar directorio de clubes
         public_directory_enabled_hint: Lista los clubes participantes en la página de inicio.
-
-        # Email
         email_from: Dirección del remitente
         email_from_hint: Los correos salientes aparecen enviados desde esta dirección.
         email_reply_to: Dirección de respuesta
         email_reply_to_hint: Las respuestas se dirigen aquí en lugar de al remitente.
         email_signature: Firma del correo
         email_signature_hint: Añadida al final de los correos salientes. Texto plano o HTML simple.
-
-        # Ajustes del servidor
         contact_section: Contacto
         email_section: Correo
         localization_section: Localización
@@ -412,8 +388,7 @@ es:
         modules_section: Módulos
         admissions_settings: Inscripciones
 
-      # ─── Etiquetas de Enum ─────────────────────────────────────────
-      # Se usan en formularios de ajustes del servidor
+      # ─── Enum labels ─────────────────────────────────────────
       formats:
         default: Por defecto
         short: Corto
@@ -431,13 +406,13 @@ es:
         reset: Configuración restablecida a los valores por defecto.
         saved: Configuración del servidor actualizada.
 
-      # ─── Confirmaciones de usuario ───────────────────────────────────────
+      # ─── Confirmations ───────────────────────────────────────
       questions:
         disable_module: Desactivar este módulo lo oculta de todos los usuarios. ¿Continuar?
         enable_module: Activar módulo lo habilita para todos los usuarios. ¿Continuar?
-        reset_defaults: ¿Restablecer toda la configuración a los valores por defecto?
+        reset_defaults: "¿Restablecer toda la configuración a los valores por defecto?"
 
-      # ─── Aviso de dependencias de módulos ──────────────────────────────
+      # ─── Module dependency hint ──────────────────────────────
       module_hint:
         requires: "Requiere: %{modules}"
         disabled_by: "Desactivado por: %{modules}"
@@ -519,7 +494,7 @@ es:
           single: Rival
           plural: Rivales
           short: Riv.
-          default: <rival>
+          default: "<rival>"
         role:
           single: Rol
           plural: Roles
@@ -584,51 +559,30 @@ es:
           system_short: Sis.
           other: Otro
           other_short: Otro
-
   date:
     formats:
       default: "%d/%m/%Y"
       short: "%d %b"
       long: "%d de %B de %Y"
       numeric: "%d-%m-%Y"
-
   time:
     formats:
       default: "%H:%M"
       short: "%H:%M"
       long: "%H:%M:%S"
-
-  # -----------------------------------------------------------------------------
-  # OBSOLETO
-  #
-  # Claves de compatibilidad para la migración de 1.x a v2
-  #
-  # Buscar:
-  #
-  #   t(password.
-  #   t(user.
-  #   t(role.
-  #
-  # Eliminar esta sección una vez migradas todas las referencias.
-  # -----------------------------------------------------------------------------
   password:
-    # Atributos
-    blank_abort: (dejar en blanco para no cambiarla)
+    blank_abort: "(dejar en blanco para no cambiarla)"
     confirm: Confirmar contraseña
-    confirm_label: (*) confirmar contraseña
+    confirm_label: "(*) confirmar contraseña"
     confirm_wait: "Pendiente de confirmación de:"
     min_chars: "Longitud mínima:"
     new: Nueva contraseña
     old: Contraseña actual
     single: Contraseña
-
-    # UI
     change: Cambiar contraseña
-    forgotten: ¿Olvidó su contraseña?
+    forgotten: "¿Olvidó su contraseña?"
     reset: Enviar detalles para restablecer contraseña
-
   role:
-    # Roles
     admin: Administrador
     admin_a: Admin.
     coach: Entrenador
@@ -641,23 +595,17 @@ es:
     secretary_a: Secr.
     user: Usuario
     user_a: Usuar.
-
   user:
-    # Atributos
     last_in: Último acceso
-    never: (nunca ha iniciado sesión)
-    no_email: ¡el correo electrónico es obligatorio!
+    never: "(nunca ha iniciado sesión)"
+    no_email: "¡el correo electrónico es obligatorio!"
     profile: Perfil
     single: Usuario
-
-    # CRUD
     cleared: "Acciones eliminadas:"
     created: "Usuario creado:"
     deleted: "Usuario eliminado:"
     duplicate: "Duplicar:"
     updated: "Usuario actualizado:"
-
-    # UI
     actions: Acciones
     edit: Editar usuario
     many: Usuarios

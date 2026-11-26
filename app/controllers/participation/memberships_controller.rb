@@ -58,7 +58,15 @@ class MembershipsController < ApplicationController
 		@page   = paginate(@roles, 1.2)
 		@table  = create_table(helpers.assignment_history_table(@kind, @page))
 		submit  = edit_path_for(@member) if @policy.update?
-		@submit = create_submit(close: :back, retlnk: index_path_for(@member, search: @search), submit:, frame: :modal)
+		actions = []
+		if @policy.anonymize? && @member.terminated?
+			actions << {
+				kind: :anonymize,
+				url: anonymize_club_member_path(@club, @member),
+				name: @member.s_name
+			}
+		end
+		@submit = create_submit(close: :back, retlnk: index_path_for(@member, search: @search), submit:, actions:, frame: :modal)
 	end
 
 	# GET /members/new

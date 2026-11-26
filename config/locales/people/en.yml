@@ -12,8 +12,10 @@
 
 en:
   people:
-    label: People
-    short: People
+    label:
+      single: Person
+      plural: People
+      short: People
 
     messages:
       exported: Exported people
@@ -100,6 +102,7 @@ en:
     relationship_kinds:
       label:
         single: Relationship kind
+        plural: Relationship kinds
         short: Rel. Kind
       values:
         parent: Parent

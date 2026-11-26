@@ -48,6 +48,7 @@
 # ButtonComponent - ViewComponent to manage regular buttons used in views
 class ButtonComponent < ApplicationComponent
 	KIND_STYLES = {
+		anonymize:  "hover:bg-red-200 text-red-700",
 		delete:     "hover:bg-red-200 text-red-700",
 		remove:     "hover:bg-red-200 text-red-700",
 		clear:      "hover:bg-red-200 text-red-700",
@@ -148,8 +149,8 @@ class ButtonComponent < ApplicationComponent
 		set_bclass
 		set_dclass
 		set_iclass
-		set_data
 		set_icon
+		set_data
 		@button[:align] ||= "center"
 	end
 
@@ -162,9 +163,9 @@ class ButtonComponent < ApplicationComponent
 			@button[:url]     = "tel:#{@button[:value]}"
 		when :clear
 			@button[:confirm] = UI::Question.que(:clear) + " \'#{@button[:name]}\'?"
-		when :delete
+		when :anonymize, :delete
 			@button[:turbo]   = "_top"
-			@button[:confirm] = UI::Question.que(:delete).chop + " \'#{@button[:name]}\'?"
+			@button[:confirm] = UI::Question.que(@button[:kind]).chop + " \'#{@button[:name]}\'?"
 		when :edit, :export
 			@button[:flip]    = true
 		when :email
@@ -181,7 +182,7 @@ class ButtonComponent < ApplicationComponent
 			@button[:url]  = @button[:web] ? "https://web.whatsapp.com/" : "whatsapp://"
 			@button[:url] += "send?phone=#{@button[:value].delete(' ')}"
 		end
-		@button[:label]  ||= UI::Action.act(@button[:kind]) if [ :back, :cancel, :clear, :edit, :export, :import, :save ].include?(@button[:kind])
+		@button[:label]  ||= UI::Action.act(@button[:kind]) if [ :anonymize, :back, :cancel, :clear, :edit, :export, :import, :save ].include?(@button[:kind])
 		@button[:size]   ||= "25x25"
 		@button[:symbol] ||= { concept: @button[:kind].to_s, options: { type: :button } } unless @button[:icon] || @button[:kind] == :link
 		if @button[:symbol]
@@ -198,7 +199,7 @@ class ButtonComponent < ApplicationComponent
 		case @button[:kind]
 		when :add_nested
 			@button[:action] ||= "nested-form#add"
-		when :cancel, :clear, :save, :import, :export, :login, :back, :forward
+		when :anonymnize, :cancel, :clear, :save, :import, :export, :login, :back, :forward
 			b_start += " font-bold"
 		when :close
 			@button[:action] ||= "turbo-modal#hideModal"
@@ -266,13 +267,14 @@ class ButtonComponent < ApplicationComponent
 	def set_data
 		res = @button[:data] ? @button[:data] : {}
 		if @button[:kind] == :stimulus
-			res[:active_class]= "bg-blue-600 text-white ring ring-blue-300"
+			res[:active_class] = "bg-blue-600 text-white ring ring-blue-300"
 		else
 			res[:turbo_frame] = (@button[:frame] ? @button[:frame] : "_top")
 		end
 		res[:turbo_action]  = "replace" if @button[:replace]
 		#	res[:turbo_confirm] = @button[:confirm] if @button[:confirm] # rubocop:disable Layout/CommentIndentation
 		res[:turbo_method]  = :delete if @button[:kind] == :delete
+		res[:turbo_method]  = :patch  if @button[:kind] == :anonymize
 		res[:action]        = @button[:action] if @button[:action]
 		res[:confirm]       = @button[:confirm] if @button[:confirm]
 		if @button[:working] || @button[:type] == :submit
@@ -290,7 +292,7 @@ class ButtonComponent < ApplicationComponent
 	# validate the button attributes received are well defined
 	def validate(attrs)
 		required_keys = [ :kind ] # Add other keys that are required
-		required_keys << :url if [ :add, :back, :edit, :export, :delete, :forward, :jump, :link, :menu ].include?(attrs[:kind])
+		required_keys << :url if [ :add, :anonymize, :back, :edit, :export, :delete, :forward, :jump, :link, :menu ].include?(attrs[:kind])
 		required_keys.each do |key|
 			unless attrs.key?(key)
 				raise ArgumentError, "Button attributes are missing the required key: #{key}"

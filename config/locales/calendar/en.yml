@@ -17,6 +17,7 @@ en:
   calendar:
     label:
       single: Calendar
+      plural: Calendars
       short: Cal.
     fields:
       start: Start
@@ -63,8 +64,10 @@ en:
         [All, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
 
     attendance:
-      label: Attendance
-      short: Attend.
+      label:
+        single: Attendance
+        plural: Attendances
+        short: Attend.
       fields:
         person: Person
         event: Event
@@ -78,8 +81,10 @@ en:
         deleted: Attendance removed.
 
     attendance_statuses:
-      label: Attendance status
-      short: Status
+      label:
+        single: Attendance status
+        plural: Attendances status
+        short: Status
       values:
         present: Present
         absent: Absent
@@ -88,8 +93,10 @@ en:
         unknown: Unknown
 
     event_kinds:
-      label: Event kind
-      short: Kind
+      label:
+        single: Event kind
+        plural: Event kinds
+        short: Kind
       values: &event_kind_values # anchor
         holiday: Holiday
         holiday_short: Hol.
@@ -132,8 +139,10 @@ en:
         deleted: "%{kind} deleted"
 
     recurrence_kinds:
-      label: Recurrence
-      short: Rec.
+      label:
+        single: Recurrence
+        plural: Recurrences
+        short: Rec.
       values:
         none: None
         daily: Daily

@@ -63,6 +63,7 @@ en:
       password_confirm_wait: "Pending confirmation by:"
       password_forgotten: "Forgotten password?"
       password_will_not_change: "Your password will not change until you create a new one."
+      resend_confirm: "Resend confirmation message"
       unconfirmed_email: "We're contacting you to notify you that your email is being changed to"
       unlock_account: "Follow the link to unlock it:"
     omniauth_callbacks:

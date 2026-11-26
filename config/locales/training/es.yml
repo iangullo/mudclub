@@ -4,13 +4,7 @@
 #
 # Dominio de entrenamiento
 #
-# Traducciones canónicas para el dominio de Entrenamiento.
-#
-# El dominio de entrenamiento gestiona el conocimiento deportivo del club:
-# equipos, sesiones, tareas, objetivos, habilidades y conceptos relacionados.
-#
-# Las claves de compatibilidad heredadas se conservan al final de este archivo
-# durante la migración v2 y no deben usarse en código nuevo.
+# Traducciones canónicas para conceptos de entrenamiento.
 # -----------------------------------------------------------------------------
 es:
   training:
@@ -44,13 +38,13 @@ es:
         versions: Versiones
       values:
         none: Ningún ejercicio seleccionado
-        default: <Nuevo ejercicio>
+        default: "<Nuevo ejercicio>"
       messages:
         created: Ejercicio creado.
         updated: Ejercicio actualizado.
         deleted: Ejercicio eliminado.
 
-    drill_category: # VOCABULARIO 2.x
+    drill_category:
       label:
         single: Tipo de tarea
         plural: Tipos de tareas
@@ -59,13 +53,13 @@ es:
       fields:
         name: Nombre
       values:
-        default: <tipo>
+        default: "<tipo>"
       messages:
         created: Tipo de ejercicio creado.
         updated: Tipo de ejercicio actualizado.
         deleted: Tipo de ejercicio eliminado.
 
-    drill_kind: # VOCABULARIO ANTIGUO - A eliminar en 2.1
+    drill_kind: # OLD VOCABULARY - DEPRECATED
       label:
         single: Tipo
         plural: Tipos
@@ -74,7 +68,7 @@ es:
       fields:
         name: Nombre
       values:
-        default: <tipo>
+        default: "<tipo>"
       messages:
         created: Tipo de ejercicio creado.
         updated: Tipo de ejercicio actualizado.
@@ -130,7 +124,7 @@ es:
         description: Descripción
         description_short: Desc.
       values:
-        default: <habilidad>
+        default: "<habilidad>"
       messages:
         created: Habilidad creada.
         updated: Habilidad actualizada.
@@ -160,7 +154,7 @@ es:
         explanation_short: Expl.
         diagram: Diagrama
       values:
-        default: <paso>
+        default: "<paso>"
       messages:
         created: Paso creado.
         updated: Paso actualizado.
@@ -179,7 +173,7 @@ es:
         focus: Enfoque
         completion: Finalización (%)
       values:
-        default: <objetivo>
+        default: "<objetivo>"
       aspect:
         label:
           single: Aspecto
@@ -288,11 +282,11 @@ es:
         deleted: Versión eliminada.
 
   # -------------------------------------------------------------------------
-  # OBSOLETO - NO MODIFICAR
+  # OBSOLETOS - NO MODIFICAR
   #
-  # Claves de compatibilidad conservadas durante la migración MudClub 1.x → 2.0.
+  # Compatibilidad para migración MudClub 1.x → 2.0
   #
-  # Buscar:
+  # Search for:
   #
   #   t(team.)
   #   t(train.)
@@ -306,43 +300,38 @@ es:
   #   t(version.)
   #   t(stat.)
   #
-  # Eliminar una vez que todas las referencias se hayan migrado.
+  # Remove once all callers have migrated.
   # -------------------------------------------------------------------------
-
   drill:
     author: Autor
-    default: <Nuevo Ejercicio>
+    default: "<Nuevo Ejercicio>"
     desc: Descripción
     desc_a: Descrip.
     material: Material
     name: Nombre
     none: Ninguna tarea seleccionada
     single: Ejercicio
-
     created: "Ejercicio creado:"
     deleted: "Ejercicio eliminado:"
     updated: "Ejercicio actualizado:"
-
     edit: Editar Ejercicio
     many: Ejercicios
     new: Crear Ejercicio
 
   kind:
-    default: <tipo>
+    default: "<tipo>"
     single: Tipo
 
   plan:
     abbr: Plan
     single: Plan de equipo
-
     edit: Editar Plan de equipo
     new: Crear Plan de equipo
 
   skill:
     abbr: Habilidad
-    default: <habilidad>
+    default: "<habilidad>"
     single: Habilidad
-
     many: Habilidades
 
   stat:
@@ -354,17 +343,14 @@ es:
     single: Estad.
     total: Total
     total_a: Tot.
-
     updated: Estadísticas actualizadas
-
     many: Estadísticas
 
   step:
-    default: <paso>
+    default: "<paso>"
     diagram: Diagrama
     explanation: Explicación
     single: Paso
-
     edit: Editar paso
     edit_diagram: Editar diagrama
     load_diagram: Cargar diagrama
@@ -373,29 +359,22 @@ es:
   target:
     abbr: Obj.
     completion: Finalización (%)
-    default: <objetivo>
+    default: "<objetivo>"
     single: Objetivo
-
     aspect:
       gen: General
-
       ind: Individual
       ind_a: Ind.
       ind_l: Habilidad individual
-
       col: Colectivo
       col_a: Col.
       col_l: Táctica colectiva
-
     focus:
       att: Ataque
       att_a: Atq.
-
       def: Defensa
       def_a: Def.
-
       fit: Físico
-
     edit: Editar Objetivos
     many: Objetivos
 
@@ -404,11 +383,9 @@ es:
     number: Nº
     remarks: Observaciones
     single: Tarea
-
     created: "Tarea creada:"
     deleted: "Tarea eliminada:"
     updated: "Tarea actualizada:"
-
     add: Añadir Tarea
     edit: Editar Tarea
     many: Tareas
@@ -416,19 +393,15 @@ es:
   team:
     home: "Campo local:"
     home_a: Local
-
     name: Nombre
     none: Ningún equipo
     single: Equipo
-
     created: "Equipo creado:"
     deleted: "Equipo eliminado:"
     updated: "Equipo actualizado:"
-
     edit: Editar Equipo
     many: Equipos
     new: Crear Equipo
-
     roster: Plantilla
     roster_edit: Editar Plantilla
     roster_opt: Jugadores adicionales
@@ -436,34 +409,28 @@ es:
   train:
     duration: Dur.
     single: Sesión
-
     workload: Carga de trabajo
     workload_by: Carga de trabajo por
-
     att_check: "Asistencia verificada:"
-
     created: "Sesión creada:"
     deleted: "Sesión eliminada:"
     updated: "Sesión actualizada:"
-
     edit: Editar sesión
     many: Sesiones de entrenamiento
     new: Crear sesión
 
   match:
-    default_rival: <Rival>
+    default_rival: "<Rival>"
     home: Local
     lost: D
     rival: Rival
     roster: Jugadores activos
     single: Partido
     won: V
-
     att_check: "Lista de jugadores: "
     created: "Partido creado: "
     deleted: "Partido eliminado: "
     updated: "Partido actualizado: "
-
     many: Partidos
 
   version:
@@ -478,5 +445,4 @@ es:
     skills: habilidades
     targets: objetivos
     unknown: Desconocido
-
     many: Versiones

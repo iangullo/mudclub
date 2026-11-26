@@ -1,14 +1,4 @@
-# config/locales/people/es.yml
-# -----------------------------------------------------------------------------
-# MudClub
-#
-# Dominio de personas
-#
-# Traducciones canónicas para personas y conceptos relacionados.
-#
-# Las claves de compatibilidad heredadas se conservan al final de este archivo
-# durante la migración v2 y no deben usarse en código nuevo.
-# -----------------------------------------------------------------------------
+---
 es:
   people:
     gender: female
@@ -76,15 +66,15 @@ es:
         created: Persona creada.
         deleted: Persona eliminada.
         duplicated: La persona ya existe.
-        no_contact: (sin tfno. / e-mail)
+        no_contact: "(sin tfno. / e-mail)"
         mismatch: Persona no coincide.
         missing: Persona falta.
-        no_id: (sin DNI/NIE o similar)
+        no_id: "(sin DNI/NIE o similar)"
         updated: Persona actualizada.
       questions:
-        create: ¿Crear nueva persona?
-        merge: ¿Fusionar personas?
-        save: ¿Guardar persona?
+        create: "¿Crear nueva persona?"
+        merge: "¿Fusionar personas?"
+        save: "¿Guardar persona?"
       values:
         email: usuario@servidor.com
 

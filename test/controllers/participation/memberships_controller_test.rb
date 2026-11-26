@@ -763,4 +763,35 @@ class MembershipsControllerTest < ActionDispatch::IntegrationTest
 		assert_equal "terminated", terminated_here.reload.status
 		assert_nil shared_person.reload.anonymized_at
 	end
+		# In MembershipsControllerTest
+	test "GET show renders anonymize button with confirmation when membership is terminated and authorized" do
+		member = Membership.create!(
+			person: people(:bob),
+			club: @club,
+			kind: :athlete,
+			status: :terminated,
+			joined_on: 1.year.ago.to_date,
+			left_on: Date.current
+		)
+
+		get club_member_path(@club, member)
+
+		assert_response :success
+		assert_select "a.anonymize-btn[href='#{anonymize_club_member_path(@club, member)}'][data-turbo-method='patch'][data-confirm]"
+	end
+
+	test "GET show hides anonymize button while membership is still active" do
+		member = Membership.create!(
+			person: people(:bob),
+			club: @club,
+			kind: :athlete,
+			status: :active,
+			joined_on: Date.current
+		)
+
+		get club_member_path(@club, member)
+
+		assert_response :success
+		assert_select "a.anonymize-btn", count: 0
+	end
 end

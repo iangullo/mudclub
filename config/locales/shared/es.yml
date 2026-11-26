@@ -1,12 +1,10 @@
 # -----------------------------------------------------------------------------
-# Vocabulario compartido de la interfaz de usuario
+# Vocabulario compartido para el interfaz de usuario
 # -----------------------------------------------------------------------------
+# Conceptos genéricos reutilizables en MudClub.
 #
-# Este archivo contiene conceptos genéricos reutilizados en MudClub.
-#
-# Evita intencionadamente la terminología de dominio de negocio, que pertenece
-# a los archivos de configuración regional correspondientes (people, etc.)
-#
+# Se excluye de forma deliberada terminología de módulos
+# que deben estar en su archivos 'locale' correspondientes.
 # -----------------------------------------------------------------------------
 es:
   shared:
@@ -23,6 +21,8 @@ es:
         add_nested_short: Añadir
         administration: Administración
         administration_short: Admin.
+        anonymize: Anonimizar
+        anonymize_description: Borrar permanentemente datos personales (GDPR)
         back: Volver
         backup: Copia de seguridad
         call: Llamada
@@ -52,7 +52,7 @@ es:
         next: Siguiente
         next_short: ">>"
         previous: Anterior
-        previous_short: "<<"
+        previous_short: !!str "<<"
         preview: Vista previa
         preview_short: Vista
         print: Imprimir
@@ -189,22 +189,23 @@ es:
         single: Pregunta
         plural: Preguntas
       questions:
-        active: ¿Activo?
-        active_female: ¿Activa?
-        activate: ¿Activar?
-        camera: ¿Usar cámara?
+        active: "¿Activo?"
+        active_female: "¿Activa?"
+        activate: "¿Activar?"
+        anonymize: "¿Borrar permanentemente datos personales (GDPR)?"
+        camera: "¿Usar cámara?"
         clear: Limpiar acciones para
-        delete: ¿Eliminar?
-        discard_changes: ¿Descartar cambios?
-        female: ¿Femenino?
-        import: ¿Importar archivo?
-        login: ¿Iniciar sesión?
-        logout: ¿Cerrar sesión?
-        overwrite: ¿Sobrescribir datos existentes?
-        remove: ¿Eliminar?
-        restore: ¿Restaurar?
-        save: ¿Guardar?
-        save_changes: ¿Guardar cambios?
+        delete: "¿Eliminar?"
+        discard_changes: "¿Descartar cambios?"
+        female: "¿Femenino?"
+        import: "¿Importar archivo?"
+        login: "¿Iniciar sesión?"
+        logout: "¿Cerrar sesión?"
+        overwrite: "¿Sobrescribir datos existentes?"
+        remove: "¿Eliminar?"
+        restore: "¿Restaurar?"
+        save: "¿Guardar?"
+        save_changes: "¿Guardar cambios?"
 
     selection:
       gender: female
@@ -287,6 +288,8 @@ es:
         archived_plural: Archivados
         archived_plural_female: Archivadas
         archived_short: Arch.
+        calculating: Calculando...
+        calculating_short: Calc.
         cancelled: Cancelado
         cancelled_female: Cancelada
         cancelled_plural: Cancelados
@@ -328,6 +331,8 @@ es:
         inactive_plural: Inactivos
         inactive_plural_female: Inactivas
         inactive_short: Inact.
+        loading: Cargando...
+        loading_short: Carg.
         not_started: No iniciado
         pending: Pendiente
         pending_plural: Pendientes
@@ -374,20 +379,15 @@ es:
         processing: Procesando...
         saved: guardado.
 
-  # -----------------------------------------------------------------------------
-  # RESERVADOS - NO MODIFICAR
-  #
-  # compatibilidad con paginación
-  # -----------------------------------------------------------------------------
   helpers:
     page_entries_info:
       one_page:
         display_entries:
-          zero: "No se encontraron %{entry_name}"
-          one: "Mostrando <b>1</b> %{entry_name}"
-          other: "Mostrando <b>todos los %{count}</b> %{entry_name}"
+          zero: No se encontraron %{entry_name}
+          one: Mostrando <b>1</b> %{entry_name}
+          other: Mostrando <b>todos los %{count}</b> %{entry_name}
       more_pages:
-        display_entries: "Mostrando %{entry_name} <b>%{first}–%{last}</b> de <b>%{total}</b>"
+        display_entries: Mostrando %{entry_name} <b>%{first}–%{last}</b> de <b>%{total}</b>
 
   views:
     pagination:

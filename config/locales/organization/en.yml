@@ -8,71 +8,81 @@
 # -----------------------------------------------------------------------------
 en:
   organization:
-    label: "Organization"
-    short: "Org."
+    label:
+      single: Organization
+      plural: Organizations
+      short: Org.
 
     club:
       label:
-        single: "Club"
-        short: "Club"
-        plural: "Clubs"
+        single: Club
+        short: Club
+        plural: Clubs
       actions:
-        create: "Create Club"
-        edit: "Edit Club"
-        configure: "Settings"
-        delete: "Delete Club"
+        create: Create Club
+        edit: Edit Club
+        configure: Settings
+        delete: Delete Club
       fields:
-        name: "Name"
-        entity: "Legal entity"
-        entity_short: "Ent."
-        email: "e-mail"
+        name: Name
+        entity: Legal entity
+        entity_short: Ent.
+        email: e-mail
         inherit_from_server: Inherit from server.
-        logo: "Logo"
-        logo_short: "Logo"
-        none: "No club"
-        rivals: "Rival Clubs"
-        website: "Website"
-        website_short: "Web"
+        logo: Logo
+        logo_short: Logo
+        none: No club
+        rivals: Rival Clubs
+        website: Website
+        website_short: Web
       messages:
-        created: "Club created."
-        updated: "Club updated."
-        deleted: "Club deleted."
-        duplicated: "Club already exists."
+        created: Club created.
+        updated: Club updated.
+        deleted: Club deleted.
+        duplicated: Club already exists.
         public_disabled_by_server: Server does not support public club pages.
 
     category:
-      label: "Category"
-      short: "Cat."
+      label:
+        single: Category
+        plural: Categories
+        short: Cat.
       actions:
-        create: "Create Category"
-        edit: "Edit Category"
-        delete: "Delete Category"
+        create: Create Category
+        edit: Edit Category
+        delete: Delete Category
       fields:
-        name: "Name"
-        age_group: "Age group"
-        age_group_short: "Ages"
-        sex: "Sex"
-        sex_short: "Sex"
-        min_years: "Minimum age"
-        min_years_short: "Min. age"
-        max_years: "Maximum age"
-        max_years_short: "Max. age"
-        rules: "Rules"
-        rules_short: "Rules"
-        sport: "Sport"
-        sport_short: "Sport"
+        name: Name
+        age_group: Age group
+        age_group_short: Ages
+        sex: Sex
+        sex_short: Sex
+        min_years: Minimum age
+        min_years_short: Min. age
+        max_years: Maximum age
+        max_years_short: Max. age
+        rules: Rules
+        rules_short: Rules
+        sport: Sport
+        sport_short: Sport
       values:
         all: All categories
         none: No category
       messages:
-        created: "Category created."
-        updated: "Category updated."
-        deleted: "Category deleted."
-        duplicated: "Category already exists."
+        created: Category created.
+        updated: Category updated.
+        deleted: Category deleted.
+        duplicated: Category already exists.
 
     division:
-      label: Division
-      short: Div.
+      label:
+        single: Division
+        plural: Divisiones
+        short: Div.
+      actions:
+        create: Create division
+        edit: Edit division
+        delete: Delete division
       fields:
         name: Name
         sport: Sport
@@ -80,44 +90,50 @@ en:
         all: All divisions
         none: Non-competing
       messages:
-        created: "Division created."
-        updated: "Division updated."
-        deleted: "Division deleted."
-        duplicated: "Division already exists."
+        created: Division created.
+        updated: Division updated.
+        deleted: Division deleted.
+        duplicated: Division already exists.
 
     entities:
-      label: "Legal entity"
-      short: "Entity"
+      label:
+        single: Legal entity
+        plural: Legal entities
+        short: Entity
       values:
-        club: "Sports club"
-        club_plural: "Sports clubs"
-        federation: "Federation"
-        federation_plural: "Federations"
-        municipality: "Municipality"
-        municipality_plural: "Municipalities"
-        school: "School"
-        school_plural: "Schools"
-        company: "Company"
-        company_plural: "Companies"
-        association: "Association"
-        association_plural: "Associations"
-        other: "Other"
-        other_plural: "Others"
+        club: Sports club
+        club_plural: Sports clubs
+        federation: Federation
+        federation_plural: Federations
+        municipality: Municipality
+        municipality_plural: Municipalities
+        school: School
+        school_plural: Schools
+        company: Company
+        company_plural: Companies
+        association: Association
+        association_plural: Associations
+        other: Other
+        other_plural: Others
 
     club_location:
-      label: "Club location"
-      short: "Club loc."
+      label:
+        single: Club location
+        plural: Club locations
+        short: Club loc.
       fields:
-        club: "Club"
-        club_short: "Club"
-        location: "Location"
-        location_short: "Loc."
+        club: Club
+        club_short: Club
+        location: Location
+        location_short: Loc.
 
     club_sport:
-      label: "Club sport"
-      short: "Club sport"
+      label:
+        single: Club sport
+        plural: Club sports
+        short: Sport
       fields:
-        club: "Club"
-        club_short: "Club"
-        sport: "Sport"
-        sport_short: "Sport"
+        club: Club
+        club_short: Club
+        sport: Sport
+        sport_short: Sport
