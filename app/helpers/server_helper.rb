@@ -100,9 +100,9 @@ module ServerHelper
 	#---------------------------------------------------------
 	def server_actions_table(actions:, retlnk: nil)
 		title = [
-			{ kind: :normal, value: Event.fld(:date), align: "center" },
+			{ kind: :normal, value: UI::Field.fld(:date), align: "center" },
 			{ kind: :normal, value: User.label },
-			{ kind: :normal, value: Drill.fld(:description) }
+			{ kind: :normal, value: UI::Field.fld(:description) }
 		]
 
 		rows = []
