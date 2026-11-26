@@ -197,6 +197,9 @@ en:
         last_login: Last login
         last_login_short: Last
       messages:
+        anonymized: User account anonymized.
+        anonymize_fail: Could not anonymize user account!
+        already_exists: A user account already exists for this person.
         created: User created.
         updated: User updated.
         deleted: User deleted.

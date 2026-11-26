@@ -20,7 +20,7 @@ en:
         single: Membership
         plural: Memberships
         short: Mbr.
-      action:
+      actions:
         create: Create membership
         edit: Edit membership
         terminate: Terminate membership
@@ -43,6 +43,9 @@ en:
       values:
         none: No Membership found!
       messages:
+        anonymized: Membership and personal data anonymized.
+        anonymize_fail: Could not anonymize membership!
+        must_terminate: Membership must be terminated before anonymizing!
         cannot_terminate: Membership cannot be terminated!
         created: Membership created.
         deleted: Membership deleted.

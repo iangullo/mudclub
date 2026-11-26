@@ -60,8 +60,10 @@ class MembershipPolicy < ApplicationPolicy
 
 	def update?
 		allowed?(
-			same_club?(@target_club) &&
-			can_manage_kind?(@target_kind)
+			same_person?(@record) || (
+				same_club?(@target_club) &&
+				can_manage_kind?(@target_kind)
+			)
 		)
 	end
 
@@ -74,6 +76,17 @@ class MembershipPolicy < ApplicationPolicy
 			can_view_history?(@target_kind)
 		)
 	end
+
+	def anonymize?
+		allowed?(
+			same_person?(@record) || (
+				same_club?(@record) &&
+				manages_club?(@target_club) &&
+				!@record.person.memberships.current.where.not(club_id: @target_club.id).exists?
+			)
+		)
+	end
+
 
 	private
 		def can_view_kind?(kind)

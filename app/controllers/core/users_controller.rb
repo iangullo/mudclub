@@ -19,7 +19,9 @@
 # Managament of MudClub server users
 class UsersController < ApplicationController
 	include Filterable
-	before_action :set_user, only: [ :show, :edit, :update, :destroy, :actions, :clear_actions ]
+	include PersonBearingController
+
+	before_action :set_user, only: [ :show, :edit, :update, :destroy, :actions, :clear_actions, :anonymize ]
 
 	# GET /users
 	# GET /users.json
@@ -40,13 +42,11 @@ class UsersController < ApplicationController
 	def show
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
-		@title = create_fields(helpers.user_show)
-		@roles = @user.person.memberships.order(joined_on: :desc).order(left_on: :asc)
-		@page  = paginate(@roles, 1.2)	# paginate results
-		@table = create_table(helpers.membership_history_table(@page))
-		retlnk = @rdx == 1 ?
-			:back :
-			back_link(default: index_path_for(@user, search: @search))
+		@title  = create_fields(helpers.user_show)
+		@roles  = @user.person.memberships.order(joined_on: :desc).order(left_on: :asc)
+		@page   = paginate(@roles, 1.2)
+		@table  = create_table(helpers.membership_history_table(@page))
+		retlnk  = @rdx == 1 ? :back : back_link(default: index_path_for(@user, search: @search))
 		submit  = edit_path_for(@user) if @policy.edit?
 		@submit = create_submit(close: :back, retlnk:, submit:, frame: :modal)
 	end
@@ -60,48 +60,32 @@ class UsersController < ApplicationController
 		prepare_form(:new)
 	end
 
+	# POST /users
 	# POST /users.json
 	def create
 		@policy = check_policy!(UserPolicy, club: @club)
+		@user   = User.new(locale: current_user.locale).tap(&:build_person)
 
-		respond_to do |format|
-			@user = User.new(locale: current_user.locale)
-			@user.build_person
+		return reject_missing_password(:new) if password_missing?(user_params)
 
-			if user_params[:password].blank? || user_params[:password_confirmation].blank?
-				params[:user].delete(:password)
-				params[:user].delete(:password_confirmation)
-				render_user_errors(:new, format, { message: User.msg(:no_password) })
-				next
+		save_with_person_merge(
+			@user, user_params,
+			on_success: ->(user, _) {
+				@user = user
+				@user.person.update!(user_id: @user.id) if @user.person&.canonical? && @user.person.user_id != @user.id
+				notify_and_redirect_user(:created, status: :created)
+			},
+			on_failure: ->(user, result) {
+				@user = user
+				respond_to { |format| render_user_errors(:new, format, result) }
+			}
+		) do |user|
+			if user.person&.canonical? && User.where(person_id: user.person.id).where.not(id: user.id).exists?
+				user.errors.add(:base, User.msg(:already_exists))
+				next false
 			end
-
-			result = rebuild_or_merge_person(@user, user_params)
-			case result[:status]
-			when :ok
-				saved = false
-				User.transaction do
-					@user.person.save! if @user.person&.new_record?
-					@user.save!
-					@user.person.update!(user_id: @user.id) if @user.person&.canonical?
-					saved = true
-				rescue ActiveRecord::RecordInvalid
-					raise ActiveRecord::Rollback
-				end
-
-				if saved
-					userview = path_for(@user)
-					a_desc   = "#{User.msg(:created)} '#{@user.s_name}'"
-					register_action(:created, a_desc, url: path_for(@user, rdx: 2))
-					format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-					format.json { render :show, status: :created, location: userview }
-				else
-					render_user_errors(:new, format, result)
-				end
-			when :offer_merge
-				handle_object_merge(format, @user, result[:candidates], user_params)
-			else
-				render_user_errors(:new, format, result)
-			end
+			user.person.save! if user.person&.new_record?
+			true
 		end
 	end
 
@@ -116,39 +100,30 @@ class UsersController < ApplicationController
 	def update
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
-		respond_to do |format|
-			if status_only_update?(@user)
-				return apply_status_change(@user, format)
-			else
-				if user_params.key?(:password) && (user_params[:password].blank? or user_params[:password_confirmation].blank?)
-					params[:user].delete(:password)
-					params[:user].delete(:password_confirmation)
-					render_user_errors(:edit, format, { message: @user.msg(:no_password) })
+		if user_params.key?(:password) && password_missing?(user_params)
+			return reject_missing_password(:edit)
+		end
+
+		save_with_person_merge(
+			@user, user_params,
+			on_success: ->(user, modified) {
+				@user = user
+				if modified
+					notify_and_redirect_user(:updated)
 				else
-					result = rebuild_or_merge_person(@user, user_params)
-					case result[:status]
-					when :ok	# attempt to store
-						userview = path_for(@user)
-						if @user.modified?
-						if @user.email.presence && @user.save
-							a_desc = "#{User.msg(:updated)} '#{@user.s_name}'"
-							register_action(:updated, a_desc, url: path_for(@user, rdx: 2))
-							format.html { redirect_to userview, notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
-							format.json { render :show, status: :ok, location: userview }
-						else
-							render_user_errors(:edit, format, result)
-						end
-						else	# no changes made
-							format.html { redirect_to userview, notice: no_data_notice, data: { turbo_action: "replace" } }
-							format.json { render :show, status: :ok, location: userview }
-						end
-					when :offer_merge
-						handle_object_merge(format, @user, result[:candidates], user_params)
-					else	# invalid data
-						render_user_errors(:edit, format, result)
-					end
+					respond_saved(
+						location: path_for(@user),
+						notice: no_data_notice,
+						data: { turbo_action: "replace" }
+					)
 				end
-			end
+			},
+			on_failure: ->(user, result) {
+				@user = user
+				respond_to { |format| render_user_errors(:edit, format, result) }
+			}
+		) do |user|
+			user.email.present?
 		end
 	end
 
@@ -190,28 +165,63 @@ class UsersController < ApplicationController
 		end
 	end
 
+	# PATCH /users/1/anonymize
+	def anonymize
+		@policy = check_policy!(UserPolicy, record: @user, club: @club)
+
+		self_erasure = (@user == current_user)
+
+		handle_anonymize(
+			@user,
+			redirect_url: self_erasure ? root_path : users_path(rdx: @rdx),
+			failure_url: path_for(@user)
+		) do |user|
+			sign_out(user) if self_erasure
+		end
+	end
+
 	private
-		# Prepare user form
+
+		def notify_and_redirect_user(action, status: :ok)
+			userview = path_for(@user)
+			a_desc   = "#{User.msg(action)} '#{@user.s_name}'"
+			register_action(action, a_desc, url: path_for(@user, rdx: 2))
+			respond_saved(
+				location: userview,
+				notice: helpers.flash_message(a_desc, "success"),
+				status:,
+				data: { turbo_action: "replace" }
+			)
+		end
+
+		def password_missing?(attrs)
+			attrs[:password].blank? || attrs[:password_confirmation].blank?
+		end
+
+		def reject_missing_password(action)
+			params[:user]&.delete(:password)
+			params[:user]&.delete(:password_confirmation)
+			respond_to { |format| render_user_errors(action, format, { message: @user.msg(:no_password) }) }
+		end
+
 		def prepare_form(action)
 			title     = User.act(action == :new ? :create : action)
 			@header   = create_fields(helpers.user_form_title(title:))
 			@role     = create_fields(helpers.user_form_role)
 			@k_fields = create_fields(helpers.user_form_pass) if action == :new
-			@submit = create_submit
+			@submit   = create_submit
 		end
 
 		def render_user_errors(action, format, result = nil)
 			render_form_errors(action, format, record: @user, result:, fallback_message: User.val(:none))
 		end
 
-		# Use callbacks to share common setup or constraints between actions.
 		def set_user
-			@user   = (User.find_by_id(params[:id]) unless @user&.id==params[:id]) || current_user
+			@user   = (User.find_by_id(params[:id]) unless @user&.id == params[:id]) || current_user
 			@rdx    = 1 if @user&.id.to_i == current_user&.id
 			@search = params[:search].presence || session.dig("user_filters", "search")
 		end
 
-		# Never trust parameters from the scary internet, only allow the white list through.
 		def user_params
 			@user_params ||= params.require(:user).permit(
 				:id, :avatar, :club_id, :email, :locale, :rdx, :role,

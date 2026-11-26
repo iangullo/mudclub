@@ -56,14 +56,14 @@ class AssignmentPolicy < ApplicationPolicy
 
 	def update?
 		allowed?(
-			same_club?(@target_club) &&
-			can_manage_kind?(@target_kind)
+			same_person?(@record) || (
+				same_club?(@target_club) &&
+				can_manage_kind?(@target_kind)
+			)
 		)
 	end
 
-	alias edit? update?
-	alias update_status? update?
-	alias edit_status? update?
+	alias edit?      update?
 	alias terminate? update?
 
 	def history?

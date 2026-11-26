@@ -24,7 +24,7 @@
 #
 class Assignment < ApplicationRecord
 	localized_as "participation.assignment"
-	before_save :update_person_if_modified
+	before_save -> { update_person_if_modified(self) }
 
 	#-------------------------------------
 	# Class relationships
@@ -52,7 +52,8 @@ class Assignment < ApplicationRecord
 	#-------------------------------------
 	delegate :club, :person, :person_id, :name, :nick, :surname, :age, :birthday,
 					 :female, :email, :phone, :relationships, :prepare_person, :minor?,
-					 :has_guardians?, :guardians, :kind_gender, to: :membership
+					 :has_guardians?, :guardians, :kind_gender, :update_person_if_modified,
+					 to: :membership
 
 	#-------------------------------------
 	# Included Modules
@@ -303,10 +304,6 @@ class Assignment < ApplicationRecord
 			if kind_catalog.club_level?(kind) && team.present?
 				errors.add(:team, :invalid)
 			end
-		end
-
-		def update_person_if_modified
-			person.save if person.modified?
 		end
 
 		def self.staff_kinds_for(scope)

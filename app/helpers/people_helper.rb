@@ -48,7 +48,7 @@ module PeopleHelper
 			[ gap_item, id_field ]
 		]
 		if owned
-			fields[4][0] = participation_club_field(pobj)
+			fields.last[0] = participation_club_field(pobj)
 		end
 		fields
 	end

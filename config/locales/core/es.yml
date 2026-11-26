@@ -207,6 +207,9 @@ es:
         last_login: Último acceso
         last_login_short: Último
       messages:
+        anonymized: Cuenta de usuario anonimizada.
+        anonymize_fail: ¡No se pudo anonimizar la cuenta de usuario!
+        already_exists: Una cuenta de usuario ya existe para esta persona.
         created: Usuario creado.
         created_female: Usuaria creada.
         updated: Usuario actualizado.

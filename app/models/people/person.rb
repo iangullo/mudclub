@@ -201,7 +201,15 @@ class Person < ApplicationRecord
 			end
 
 			# 3. Scrub settings & anonymize linked User
-			memberships.update_all(settings: {})
+			# 3. Scrub settings, rich-text notes & anonymize linked User
+			memberships.find_each do |m|
+				m.rich_text_notes&.delete
+				m.update_columns(settings: {})
+			end
+			Assignment.where(id: assignment_ids).find_each do |a|
+				a.rich_text_notes&.delete
+				a.update_columns(settings: {})
+			end
 			User.where(id: user_ids).find_each(&:anonymize_without_person!)
 
 			# 4. Scrub Person's own fields, documents, and relationships

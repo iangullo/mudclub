@@ -66,8 +66,11 @@ Rails.application.routes.draw do
 	end
 
 	resources :users do
-		get "actions", on: :member
-		get "clear_actions", on: :member
+		member do
+			get   :actions
+			get   :clear_actions
+			patch :anonymize
+		end
 		concerns :documentable
 	end
 

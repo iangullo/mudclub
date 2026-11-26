@@ -18,6 +18,8 @@
 #
 # Handle Assignment views - always accessed by a assignment, club or team
 class AssignmentsController < ApplicationController
+	include PersonBearingController
+
 	before_action :set_assignment, only: [ :show, :edit, :update, :terminate ]
 	before_action :load_participation_context
 
@@ -33,7 +35,7 @@ class AssignmentsController < ApplicationController
 			assignments.by_age
 
 		title  = prepare_index_title
-		page   = paginate(@assignments, 1.7)	# paginate results
+		page   = paginate(@assignments, 1.7)
 		table  = helpers.assignments_table(page)
 		retlnk = helpers.assignments_base_path
 		create_index(title:, table:, page:, retlnk:)
@@ -59,9 +61,8 @@ class AssignmentsController < ApplicationController
 	end
 
 	# GET /assignments/new
-	# TODO: Work on this - it will be quite different...
 	def new
-		@policy = check_policy!(AssignmentPolicy, club: @club, team: @team, kind: @kind)
+		@policy     = check_policy!(AssignmentPolicy, club: @club, team: @team, kind: @kind)
 		@assignment = Assignment.new(team: @team, kind: @kind)
 
 		if @member
@@ -76,45 +77,30 @@ class AssignmentsController < ApplicationController
 
 	# POST /assignments
 	# POST /assignments.json
-	# TODO: Work on this - it will be quite different...
 	def create
-		@policy = check_policy!(AssignmentPolicy, club: @club, team: @team, kind: @kind)
+		@policy     = check_policy!(AssignmentPolicy, club: @club, team: @team, kind: @kind)
+		@assignment = Assignment.new(team: @team, kind: @kind, membership: @member || build_blank_membership)
 
-		respond_to do |format|
-			@assignment = Assignment.new(team: @team, kind: @kind)
-			@assignment.membership = @member || build_blank_membership
-			result = rebuild_or_merge_person(@assignment, assignment_params)
-			retlnk = helpers.assignment_return_path   # defined for every branch
-
-			case result[:status]
-			when :ok
-				reuse_existing_membership! if @member.nil?
-				@assignment.starts_on ||= Date.current
-				saved = false
-				Assignment.transaction do
-					if @assignment.save
-						saved = true
-					else
-						log_assignment_errors
-						raise ActiveRecord::Rollback
-					end
-				end
-
-				if saved
-					notice = Assignment.msg(:created)
-					format.html         { redirect_to retlnk, notice: }
-					format.turbo_stream { redirect_to retlnk, notice:, status: :see_other }
-					format.json         { render :roster, status: :ok, location: retlnk }
-				else
-					render_assignment_errors(:new, format, result)
-				end
-
-			when :offer_merge
-				handle_object_merge(format, @assignment, result[:candidates], assignment_params)
-
-			else
-				render_assignment_errors(:new, format, result)
-			end
+		save_with_person_merge(
+			@assignment, assignment_params,
+			on_success: ->(assignment, _) {
+				@assignment = assignment
+				respond_saved(
+					location: helpers.assignment_return_path,
+					notice: Assignment.msg(:created),
+					template: :roster,
+					turbo_status: :see_other
+				)
+			},
+			on_failure: ->(assignment, result) {
+				@assignment = assignment
+				log_person_bearing_errors(@assignment)
+				respond_to { |format| render_assignment_errors(:new, format, result) }
+			}
+		) do |assignment|
+			reuse_existing_membership!(assignment) if @member.nil?
+			assignment.starts_on ||= Date.current
+			true
 		end
 	end
 
@@ -128,51 +114,23 @@ class AssignmentsController < ApplicationController
 	# PATCH/PUT /assignments/1.json
 	def update
 		@policy = check_policy!(AssignmentPolicy, record: @assignment)
+		retlnk  = helpers.assignment_return_path
+		return handle_status_only_update(@assignment, redirect_url: retlnk) if status_only_update?(@assignment)
 
-		respond_to do |format|
-			retlnk = helpers.assignment_return_path
-			if status_only_update?(@assignment)
-				if perform_status_change(@assignment, status_value_for(@assignment))
-					notice = helpers.flash_message(@assignment.msg(:updated), :success)
-					format.html { redirect_to retlnk, notice:, status: :see_other, turbo_action: "replace" }
-					format.turbo_stream { redirect_to retlnk, notice:, status: :see_other, turbo_action: "replace" }
-					format.json { render :show, status: :ok, location: @assignment }
-				else
-					message = @assignment.errors.full_messages.to_sentence.presence || @assignment.msg(:status_fail)
-					format.html { redirect_to retlnk, notice: helpers.flash_message(message, :error) }
-					format.turbo_stream { redirect_to retlnk, notice: helpers.flash_message(message, :error) }
-					format.json { render json: @assignment.errors, status: :unprocessable_entity }
-				end
-			else
-				result = rebuild_or_merge_person(@assignment, assignment_params)
-				case result[:status]
-				when :ok
-					modified = @assignment.modified?          # check BEFORE save
-					saved = false
-					Assignment.transaction do
-						if @assignment.save
-							saved = true
-						else
-							log_assignment_errors
-							raise ActiveRecord::Rollback
-						end
-					end
-
-					if saved
-						notice = Assignment.msg(modified ? :updated : :no_change)
-						format.html         { redirect_to retlnk, notice: }
-						format.turbo_stream { redirect_to retlnk, notice: }
-						format.json         { render :show, status: :ok, location: retlnk }
-					else
-						render_assignment_errors(:edit, format, result)
-					end
-				when :offer_merge
-					handle_object_merge(format, @assignment, result[:candidates], assignment_params)
-				else
-					render_assignment_errors(:edit, format, result)
-				end
-			end
-		end
+		save_with_person_merge(
+			@assignment, assignment_params,
+			on_success: ->(assignment, modified) {
+				@assignment = assignment
+				@member     = assignment.membership
+				notice      = Assignment.msg(modified ? :updated : :no_change)
+				respond_saved(location: retlnk, notice:)
+			},
+			on_failure: ->(assignment, result) {
+				@assignment = assignment
+				log_person_bearing_errors(@assignment)
+				respond_to { |format| render_assignment_errors(:edit, format, result) }
+			}
+		)
 	end
 
 	# DELETE /assignments/1
@@ -180,15 +138,11 @@ class AssignmentsController < ApplicationController
 	def terminate
 		authorize @assignment
 
-		retlnk = helpers.assignment_return_path
-		if @assignment.terminate!
-			redirect_to retlnk, notice: Assignment.msg(:terminated)
-		else
-			redirect_back fallback_location: retlnk, alert: Assignment.msg(:cannot_terminate)
-		end
+		handle_terminate(@assignment, redirect_url: helpers.assignment_return_path)
 	end
 
 	private
+
 		def build_blank_membership
 			Membership.new(
 				club:      @club,
@@ -196,16 +150,6 @@ class AssignmentsController < ApplicationController
 				status:    :active,
 				joined_on: Date.current
 			)
-		end
-
-		def log_assignment_errors
-			Rails.logger.debug @assignment.errors.full_messages
-			Rails.logger.debug @assignment.person.errors.full_messages
-
-			@assignment.person.relationships.each do |r|
-				Rails.logger.debug r.errors.full_messages
-				Rails.logger.debug r.related_person.errors.full_messages if r.related_person
-			end
 		end
 
 		def membership_kind(kind)
@@ -217,17 +161,16 @@ class AssignmentsController < ApplicationController
 
 		def prepare_index_title
 			if @kind
-				title = Assignment.kind_label(@kind, :plural)
+				title   = Assignment.kind_label(@kind, :plural)
 				concept = @kind
 			else
-				title = Assignment.label(:plural)
+				title   = Assignment.label(:plural)
 				concept = :person
 			end
 			title = helpers.person_title(title:, icon: { concept:, options: { namespace: "common", size: "50x50" } })
 			title << helpers.participation_search_bar(Assignment, search_url: helpers.participation_index_path(kind: @kind))
 		end
 
-		# Prepare a assignment form
 		def prepare_form(action)
 			edit_status = action == :edit && to_boolean(params[:edit_status])
 
@@ -245,13 +188,13 @@ class AssignmentsController < ApplicationController
 			@submit   = create_submit
 		end
 
-		def reuse_existing_membership!
-			person = @assignment.person
+		def reuse_existing_membership!(assignment)
+			person = assignment.person
 			return unless person&.persisted?
 
-			kind = @assignment.membership.kind
+			kind     = assignment.membership.kind
 			existing = person.memberships.for_club(@club).of_kind(kind).current.first
-			@assignment.membership = existing if existing
+			assignment.membership = existing if existing
 		end
 
 		def render_assignment_errors(action, format, result = nil)
@@ -259,8 +202,8 @@ class AssignmentsController < ApplicationController
 		end
 
 		def search_options
-			search_opts = { club: @club, team: @team, status: @status, search: @search, history: @search &&  @policy.history? }
-			if @staff = get_param(:staff)	# staff view
+			search_opts = { club: @club, team: @team, status: @status, search: @search, history: @search && @policy.history? }
+			if (@staff = get_param(:staff))
 				kinds =
 					if @team
 						Assignment.team_staff_kinds
@@ -276,9 +219,8 @@ class AssignmentsController < ApplicationController
 			search_opts
 		end
 
-		# Use callbacks to share common setup or constraints between actions.
 		def set_assignment
-			if @assignment = Assignment.includes(:membership, :team).find(params[:id])
+			if (@assignment = Assignment.includes(:membership, :team).find(params[:id]))
 				@kind   = @assignment.kind
 				@member = @assignment.membership
 				assert_param_matches!(:member_id, @member)
@@ -289,7 +231,6 @@ class AssignmentsController < ApplicationController
 			end
 		end
 
-		# Never trust parameters from the scary internet, only allow the white list through.
 		def assignment_params
 			@assignment_params ||= params.require(:assignment).permit(
 				:kind, :membership_id, :team_id, :starts_on, :ends_on, :number,

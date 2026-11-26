@@ -162,7 +162,7 @@ class User < ApplicationRecord
 		login_email = data[:email].to_s.strip.downcase.presence
 
 		# Seed person_attributes[:email] from login_email if omitted so Person.resolve matches on email
-		if login_email && data[:person_attributes].is_a?(Hash) && data[:person_attributes][:email].blank?
+		if login_email && data[:person_attributes].respond_to?(:[]=) && data[:person_attributes][:email].blank?
 			data[:person_attributes][:email] = login_email
 		end
 

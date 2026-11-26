@@ -405,25 +405,48 @@ class ApplicationController < ActionController::Base
 			@submit       = create_submit
 		end
 
+		# Re-resolve `obj` (or its parent Membership) if `Person#absorb!` consolidated
+		# and deleted its underlying row during a duplicate merge.
+		def rebind_person_obj(obj)
+			return obj unless obj.persisted?
+
+			case obj
+			when Membership
+				unless Membership.exists?(obj.id)
+					return obj.person.memberships.find_by!(club_id: obj.club_id, kind: obj.kind)
+				end
+			when Assignment
+				unless Assignment.exists?(obj.id)
+					surviving_member = obj.person.memberships.find_by!(club_id: obj.club.id, kind: obj.membership.kind)
+					return surviving_member.assignments.find_by!(team_id: obj.team_id, kind: obj.kind)
+				end
+				if obj.membership&.persisted? && !Membership.exists?(obj.membership.id)
+					obj.membership = obj.person.memberships.find_by!(club_id: obj.club.id, kind: obj.membership.kind)
+				end
+			end
+
+			obj
+		end
+
 		# merge person duplicates
 		def rebuild_or_merge_person(obj, attrs)
-			if attrs[:person_merge].present?	# pending merge to execute
-				case attrs[:person_merge]
-				when "__new__", "__keep__"
-					obj.person ||= Person.new
-				else
-					canonical = Person.find(attrs[:person_merge])
-					if canonical
-						canonical.absorb!(obj.person) if obj.person.persisted?
-						obj.person = canonical
-					end
-				end
-				obj.person.rebuild(attrs[:person_attributes])	# rebuild only person
-				obj.rebuild(attrs.except(:person_attributes))	# rebuild object separately
-				{ status: :ok, person: obj.person }
+			return rebuild_person_bearing(obj, attrs) if attrs[:person_merge].blank?
+
+			case attrs[:person_merge]
+			when "__new__", "__keep__"
+				obj.person ||= Person.new
 			else
-				rebuild_person_bearing(obj, attrs)
+				canonical = Person.find(attrs[:person_merge])
+				if canonical
+					canonical.absorb!(obj.person) if obj.person&.persisted? && obj.person != canonical
+					obj.person = canonical
+				end
 			end
+
+			obj = rebind_person_obj(obj)
+			obj.person.rebuild(attrs[:person_attributes])
+			obj.rebuild(attrs.except(:person_attributes))
+			{ status: :ok, person: obj.person, record: obj }
 		end
 
 		def rebuild_person_bearing(obj, attrs)

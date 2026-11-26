@@ -18,7 +18,9 @@
 #
 # Handle Membership views - always linked to a club
 class MembershipsController < ApplicationController
-	before_action :set_member, only: [ :show, :edit, :update, :terminate ]
+	include PersonBearingController
+
+	before_action :set_member, only: [ :show, :edit, :update, :terminate, :anonymize ]
 	before_action :load_participation_context
 
 	# GET /clubs/x/memberships
@@ -26,7 +28,7 @@ class MembershipsController < ApplicationController
 	def index
 		@policy = check_policy!(MembershipPolicy, kind: @kind, club: @club)
 
-		history = (@search || @status) &&  @policy.history?
+		history = (@search || @status) && @policy.history?
 		@members =
 			Membership.search(
 				club: @club,
@@ -37,7 +39,7 @@ class MembershipsController < ApplicationController
 			).by_age
 
 		title  = prepare_index_title
-		page   = paginate(@members, 1.7)	# paginate results
+		page   = paginate(@members, 1.7)
 		table  = helpers.memberships_table(members: page)
 		retlnk = path_for(@club)
 		create_index(title:, table:, page:, retlnk:)
@@ -50,13 +52,10 @@ class MembershipsController < ApplicationController
 
 		status_url = edit_path_for(@member, edit_status: true, kind: @kind, frame: :modal) if @policy.edit?
 
-		@title = create_fields(
-			helpers.participation_title(@member, status_url:, just_icon: false)
-		)
-
+		@title  = create_fields(helpers.participation_title(@member, status_url:, just_icon: false))
 		@fields = create_fields(helpers.membership_show_fields(@member))
 		@roles  = @member.assignments.order(starts_on: :desc)
-		@page   = paginate(@roles, 1.2)	# paginate results
+		@page   = paginate(@roles, 1.2)
 		@table  = create_table(helpers.assignment_history_table(@kind, @page))
 		submit  = edit_path_for(@member) if @policy.update?
 		@submit = create_submit(close: :back, retlnk: index_path_for(@member, search: @search), submit:, frame: :modal)
@@ -65,6 +64,7 @@ class MembershipsController < ApplicationController
 	# GET /members/new
 	def new
 		@policy = check_policy!(MembershipPolicy, club: @club, kind: @kind)
+
 		@member = Membership.new(club: @club, kind: @kind)
 		@member.build_person
 		prepare_form(:new)
@@ -74,42 +74,30 @@ class MembershipsController < ApplicationController
 	# POST /memberships.json
 	def create
 		@policy = check_policy!(MembershipPolicy, club: @club, kind: @kind)
-		respond_to do |format|
-			@member = Membership.new(club: @club, kind: @kind)
-			result = rebuild_or_merge_person(@member, membership_params)
 
-			case result[:status]
-			when :ok	# just store
-				Membership.transaction do
-					@member.starts_on = Date.current
+		@member = Membership.new(club: @club, kind: @kind)
 
-					if @member.save
-						format.html do
-							redirect_to post_save_path, notice: Membership.msg(:created)
-						end
-
-						format.turbo_stream do
-							redirect_to post_save_path, notice: Membership.msg(:created)
-						end
-
-						format.json { render :show, status: :ok, location: post_save_path }
-					else
-						log_membership_errors
-						raise ActiveRecord::Rollback
-					end
-				end
-				render_member_errors(:new, format, result) unless @member.persisted? && @member.errors.empty?
-			when :offer_merge
-				handle_object_merge(format, @member, result[:candidates], membership_params)
-			else	# invalid data
-				render_member_errors(:create, format, result)
-			end
+		save_with_person_merge(
+			@member, membership_params,
+			on_success: ->(member, _) {
+				@member = member
+				respond_saved(location: post_save_path, notice: Membership.msg(:created))
+			},
+			on_failure: ->(member, result) {
+				@member = member
+				log_person_bearing_errors(@member)
+				respond_to { |format| render_member_errors(:new, format, result) }
+			}
+		) do |member|
+			member.starts_on = Date.current
+			true
 		end
 	end
 
 	# GET /members/1/edit
 	def edit
 		@policy = check_policy!(MembershipPolicy, record: @member)
+
 		prepare_form(:edit)
 	end
 
@@ -118,75 +106,44 @@ class MembershipsController < ApplicationController
 	def update
 		@policy = check_policy!(MembershipPolicy, record: @member)
 
-		respond_to do |format|
-			if status_only_update?(@member)
-				if perform_status_change(@member, status_value_for(@member))
-					notice = helpers.flash_message(@member.msg(:updated), :success)
-					format.html         { redirect_to path_for(@member), notice:, status: :see_other, turbo_action: "replace" }
-					format.turbo_stream { redirect_to path_for(@member), notice:, status: :see_other, turbo_action: "replace" }
-					format.json         { render :show, status: :ok, location: @member }
-				else
-					message = @member.errors.full_messages.to_sentence.presence || @member.msg(:status_fail)
-					format.html         { redirect_to path_for(@member), notice: helpers.flash_message(message, :error) }
-					format.turbo_stream { redirect_to path_for(@member), notice: helpers.flash_message(message, :error) }
-					format.json         { render json: @member.errors, status: :unprocessable_entity }
-				end
-			else
-				result = rebuild_or_merge_person(@member, membership_params)
-				case result[:status]
-				when :ok	# attempt to store
-					Membership.transaction do
-						notice = Membership.msg(@member.modified? ? :updated : :no_change)
-						if @member.save
-							format.html         { redirect_to path_for(@member), notice: }
-							format.turbo_stream { redirect_to path_for(@member), notice: }
-							format.json         { render :show, status: :ok, location: @member }
-						else
-							log_membership_errors
-							raise ActiveRecord::Rollback
-						end
-					end
-					render_member_errors(:edit, format, result) unless @member.persisted? && @member.errors.empty?
-				when :offer_merge
-					handle_object_merge(format, @member, result[:candidates], membership_params)
-				else	# invalid data
-					render_member_errors(:edit, format, result)
-				end
-			end
-		end
+		return handle_status_only_update(@member, redirect_url: path_for(@member)) if status_only_update?(@member)
+
+		save_with_person_merge(
+			@member, membership_params,
+			on_success: ->(member, modified) {
+				@member = member
+				notice  = Membership.msg(modified ? :updated : :no_change)
+				respond_saved(location: path_for(@member), notice:)
+			},
+			on_failure: ->(member, result) {
+				@member = member
+				log_person_bearing_errors(@member)
+				respond_to { |format| render_member_errors(:edit, format, result) }
+			}
+		)
 	end
 
 	# DELETE /members/1
 	# DELETE /members/1.json
 	def terminate
-		authorize @member
+		@policy = check_policy!(MembershipPolicy, record: @member)
 
-		if @member.terminate!
-			redirect_to post_save_path,
-									notice: Membership.msg(:terminated)
-		else
-			redirect_back fallback_location: post_save_path,
-										alert: Membership.msg(:cannot_terminate)
-		end
+		handle_terminate(@member, redirect_url: post_save_path)
 	end
 
 	# GDPR compliance - anonymize data
 	def anonymize
-		# Protect operations: Records must typically be flagged as terminated
-		# before final erasure processes can occur under the lifecycle rules.
-		if @membership.terminated?
-			if @membership.archive_and_anonymize!
-				redirect_to index_path_for(@membership, search: @search), notice: t("memberships.anonymize.success")
-			else
-				redirect_to @membership, alert: t("memberships.anonymize.failed_execution")
-			end
-		else
-			redirect_to @membership, alert: t("memberships.anonymize.must_be_terminated_first")
-		end
+		@policy = check_policy!(MembershipPolicy, record: @member)
+
+		handle_anonymize(
+			@member,
+			redirect_url: index_path_for(@member, search: @search),
+			require_terminated: true
+		)
 	end
 
 	private
-		# wrapper to set return link for CRUD operations
+
 		def post_save_path
 			return club_members_path(kind: @member.kind, search: params[:search].presence, status: params[:status].presence, rdx: @rdx) if @member
 			(@club ? club_members_path(@club, kind: @kind, status: params[:status].presence, rdx: @rdx) : u_path)
@@ -194,17 +151,16 @@ class MembershipsController < ApplicationController
 
 		def prepare_index_title
 			if @kind
-				title = Membership.kind_label(@kind, :plural)
+				title   = Membership.kind_label(@kind, :plural)
 				concept = @kind
 			else
-				title = Membership.label(:plural)
+				title   = Membership.label(:plural)
 				concept = :person
 			end
 			title = helpers.person_title(title:, icon: { concept:, options: { namespace: "common", size: "50x50" } })
 			title << helpers.participation_search_bar(Membership, search_url: club_members_path(@club))
 		end
 
-		# Prepare a member form
 		def prepare_form(action)
 			edit_status = action == :edit && to_boolean(params[:edit_status])
 
@@ -221,30 +177,18 @@ class MembershipsController < ApplicationController
 			@submit   = create_submit
 		end
 
-		def log_membership_errors
-			Rails.logger.debug @member.errors.full_messages
-
-			Rails.logger.debug @member.person.errors.full_messages
-
-			@member.person.relationships.each do |r|
-				Rails.logger.debug r.errors.full_messages
-				Rails.logger.debug r.related_person.errors.full_messages if r.related_person
-			end
-		end
-
 		def render_member_errors(action, format, result = nil)
 			render_form_errors(action, format, record: @member, result:, fallback_message: Membership.val(:none))
 		end
 
 		def set_member
-			if @member = Membership.find(params[:id])
-				@club   = @member.club
-				@kind   = @member.kind
+			if (@member = Membership.find(params[:id]))
+				@club = @member.club
+				@kind = @member.kind
 				assert_param_matches!(:club_id, @club)
 			end
 		end
 
-		# Never trust parameters from the scary internet, only allow the white list through.
 		def membership_params
 			@membership_params ||= params.require(:membership).permit(
 				:person_id, :club_id, :joined_on, :left_on, :kind, :notes,

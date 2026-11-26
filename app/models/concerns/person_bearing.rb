@@ -113,10 +113,15 @@ module PersonBearing
 		mismatches = []
 		case resolution.status
 		when :ambiguous, :probable
-			self.person ||= Person.new
+			unless self.person&.persisted?
+				self.person ||= Person.new
+				self.person.rebuild(attrs)
+			end
 			return resolution
 		when :exact
-			if resolution.person != person
+			if person&.persisted? && resolution.person != person
+				return PersonResolution.new(status: :conflict, person: resolution.person, conflicts: { resolution.matched_by => resolution.person })
+			elsif resolution.person != person
 				mismatches = PersonResolution.mismatches_against(attrs, resolution.person)
 				self.person = resolution.person
 			end
@@ -153,11 +158,11 @@ module PersonBearing
 		attrs[:avatar] = avatar if avatar.present?
 	end
 
-	def update_person_if_modified
+	def update_person_if_modified(error_target = self)
 		return unless person.modified?
 		person.save!
 	rescue ActiveRecord::RecordInvalid => e
-		errors.add(:base, :"person.invalid", message: e.message)
+		error_target.errors.add(:base, :"person.invalid", message: e.message)
 		throw :abort
 	end
 end
