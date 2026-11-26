@@ -64,6 +64,7 @@ class Membership < ApplicationRecord
 	include Kinded
 	include Participatory
 	include PersonBearing
+	include PropagatableAvatar
 
 	#-------------------------------------
 	# Convenient delegations
@@ -278,4 +279,6 @@ class Membership < ApplicationRecord
 
 			legacy_class.create!(club_id: club.id, person_id: person.id)
 		end
+
+		def avatar_propagation_target = person if person&.canonical?
 end
