@@ -257,7 +257,8 @@ module PdfGenerator
 
 		def download_remote_to_png(url, read_timeout: 5, open_timeout: 3, max_bytes: 10.megabytes)
 			require "open-uri"
-			io   = URI.open(url, read_timeout:, open_timeout:)
+			uri  = URI.parse(url)
+			io   = uri.open(read_timeout:, open_timeout:)
 			data = io.read(max_bytes + 1)
 			raise "Remote image too large (#{url})" if data.bytesize > max_bytes
 			image_to_png(StringIO.new(data))
