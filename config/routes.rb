@@ -31,7 +31,7 @@ Rails.application.routes.draw do
 	resource :server, controller: :server, only: [ :show, :edit, :update ] do
 		get :about
 		get :log
-		get :clear_log
+		delete :clear_log
 	end
 
 	resources :seasons
@@ -67,9 +67,9 @@ Rails.application.routes.draw do
 
 	resources :users do
 		member do
-			get   :actions
-			get   :clear_actions
-			patch :anonymize
+			get    :actions
+			delete :clear_actions
+			patch  :anonymize
 		end
 		concerns :documentable
 	end
@@ -78,6 +78,12 @@ Rails.application.routes.draw do
 	# Clubs are the main organizational units
 	#-------------------------------------
 	resources :clubs do
+		# Club-scoped activity log (Club Managers & System Admins)
+		member do
+			get    :log
+			delete :clear_log
+		end
+
 		# Facilities available to the club
 		resources :locations
 

@@ -14,7 +14,11 @@ class TopbarComponentTest < ActiveSupport::TestCase
 	end
 
 	# ─── fakes ──────────────────────────────────────────────────────
-	FakePerson = Struct.new(:nick, :name)
+	FakePerson = Struct.new(:nick, :name, :id) do
+		def initialize(nick = nil, name = nil, id = 1)
+			super(nick, name, id)
+		end
+	end
 
 	FakeTeam = Struct.new(:id, :name, :club, :season, keyword_init: true) do
 		def club_id; club.id; end
@@ -30,7 +34,7 @@ class TopbarComponentTest < ActiveSupport::TestCase
 								email: "alice@example.com",
 								picture: { symbol: :user },
 								teams: [],
-								admin: false, manager: false, secretary: false,
+								admin: false, system_admin: admin, manager: false, secretary: false,
 								coach: false, athlete: false)
 		u = Object.new
 		u.define_singleton_method(:id)            { id }
@@ -39,6 +43,7 @@ class TopbarComponentTest < ActiveSupport::TestCase
 		u.define_singleton_method(:picture)       { picture }
 		u.define_singleton_method(:teams)         { teams }
 		u.define_singleton_method(:admin?)        { admin }
+		u.define_singleton_method(:system_admin?) { system_admin }
 		u.define_singleton_method(:is_manager?)   { |_club = nil| manager }
 		u.define_singleton_method(:is_secretary?) { |_club = nil| secretary }
 		u.define_singleton_method(:is_coach?)     { coach }
@@ -53,7 +58,7 @@ class TopbarComponentTest < ActiveSupport::TestCase
 		SlotPolicy         => :index?,
 		LocationPolicy     => :index?,
 		EventPolicy        => :index?,
-		ServerPolicy       => :log?
+		ClubPolicy       => :log?
 	}.freeze
 
 	def with_policies(allowed = {})
@@ -281,7 +286,7 @@ class TopbarComponentTest < ActiveSupport::TestCase
 			SlotPolicy         => true,
 			LocationPolicy     => true,
 			EventPolicy        => true,
-			ServerPolicy       => true
+			ClubPolicy         => true
 		}
 
 		nav = parsed(render_topbar(user: user, club: club, policies: policies)).at_css("div[aria-label='Navigation']")
@@ -292,19 +297,32 @@ class TopbarComponentTest < ActiveSupport::TestCase
 		assert nav.css("a[href='/clubs/#{club.id}/slots']").any?
 		assert nav.css("a[href='/clubs/#{club.id}/locations']").any?
 		assert nav.css("a[href='/clubs/#{club.id}/events']").any?
-		assert nav.css("a[href='/server/log']").any?
+		assert nav.css("a[href='/clubs/#{club.id}/log']").any?
 	end
 
-	test "admin does not see server log inside club management menu even if ServerPolicy allows" do
+	test "club log link is hidden when ClubPolicy denies log?" do
 		club = clubs(:north)
 		user = fake_user(admin: true)
-		policies = { MembershipPolicy => true, ServerPolicy => true }
+		policies = { MembershipPolicy => true, ClubPolicy => false }
+
+		nav = parsed(render_topbar(user: user, club: club, policies: policies)).at_css("div[aria-label='Navigation']")
+		refute_nil nav
+		assert_empty nav.css("a[href='/clubs/#{club.id}/log']")
+	end
+
+	test "club management menu never renders /server/log" do
+		club = clubs(:north)
+		user = fake_user(admin: true)
+		policies = { MembershipPolicy => true, ClubPolicy => true }
+
 		nav = parsed(render_topbar(user: user, club: club, policies: policies)).at_css("div[aria-label='Navigation']")
 		refute_nil nav
 		assert_empty nav.css("a[href='/server/log']")
+		assert nav.css("a[href='/clubs/#{club.id}/log']").any?
 	end
 
-		test "admin belonging to a single club always sees the club menu even outside club context" do
+
+	test "admin belonging to a single club always sees the club menu even outside club context" do
 		club = clubs(:north)
 		user = fake_user(admin: true)
 		policies = { MembershipPolicy => true }

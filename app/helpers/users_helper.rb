@@ -22,7 +22,7 @@ module UsersHelper
 		res = person_show_title(@user)
 		res.pop
 		res[3][1] = user_roles(@user)
-		unless @user.user_actions.empty?
+		unless @u_acts.blank?
 			res.last << normal_button(
 				{ kind: :link, symbol: user_actions_symbol, url: actions_user_path, label: UserAction.label(:short), frame: :modal }
 			)
@@ -124,12 +124,12 @@ module UsersHelper
 	end
 
 	# return user_actions TableComponent
-	def user_actions_table
+	def user_actions_table(actions = @u_acts)
 		res = [ [
 			topcell_item(Calendar.fld(:date)),
 			topcell_item(Drill.fld(:description))
 		] ]
-		@user.user_actions.order(updated_at: :desc).each { |u_act|
+			actions&.each { |u_act|
 			res << [
 				{ kind: :string, value: u_act.date_time, class: "border px-1 py-1" },
 				{ kind: :string, value: u_act.description, class: "border px-1 py-1" }
@@ -139,9 +139,16 @@ module UsersHelper
 	end
 
 	# prepare clear button only if there are actions to clear
-	def user_actions_clear
-		return nil if @user.user_actions.empty?
-		{ kind: :clear, url: clear_actions_user_path(rdx: @rdx), name: @user.s_name }
+	def user_actions_clear(actions = @user_actions || @user.user_actions)
+		return nil if actions.empty? || !@policy.clear_actions?
+
+		target_name = (!u_admin? && @club) ? "#{@user.s_name} (#{@club.nick})" : @user.s_name
+		{
+			kind:  :clear,
+			url:   clear_actions_user_path(@user, rdx: @rdx),
+			name:  target_name,
+			frame: "_top"
+		}
 	end
 
 	# return table for @users TableComponent
@@ -171,7 +178,7 @@ module UsersHelper
 
 	private
 		# tails actions_symbol to mark if log is quite full
-		def user_actions_symbol
-			symbol_hash(:actions, variant: @user.user_actions.count>10 ? "full" : "default")
+		def user_actions_symbol(actions = @u_acts)
+			symbol_hash(:actions, variant: actions&.count.to_i > 10 ? "full" : "default")
 		end
 end

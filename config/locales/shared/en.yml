@@ -192,7 +192,7 @@ en:
         activate: Activate?
         anonymize: Permanently erase personal data (GDPR)?
         camera: Use camera?
-        clear: Clear actions for
+        clear: Clear actions for?
         delete: Delete?
         discard_changes: Discard changes?
         female: Female?

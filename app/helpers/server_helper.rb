@@ -98,23 +98,26 @@ module ServerHelper
 	#---------------------------------------------------------
 	# user action log table
 	#---------------------------------------------------------
-	def server_actions_table(actions:, retlnk: nil)
-		title = [
-			{ kind: :normal, value: UI::Field.fld(:date), align: "center" },
+	def server_actions_table(actions:, retlnk: nil, show_club: false)
+		title  = [ { kind: :normal, value: UI::Field.fld(:date), align: "center" } ]
+		title << { kind: :normal, value: Club.label } if show_club
+		title += [
 			{ kind: :normal, value: User.label },
 			{ kind: :normal, value: UI::Field.fld(:description) }
 		]
 
-		rows = []
-		actions.each { |action|
+		rows = actions.map do |action|
 			url = action.url.present? ? action.url : "#"
 			frm = action.modal ? :modal : "_top"
-			row = { url:, frame: frm, items: [] }
-			row[:items] << { kind: :normal, value: action.date_time }
-			row[:items] << { kind: :normal, value: action.user.s_name }
-			row[:items] << { kind: :normal, value: action.description }
-			rows << row
-		}
+			items  = [ { kind: :normal, value: action.date_time } ]
+			items << { kind: :normal, value: action.club&.nick || "—" } if show_club
+			items += [
+				{ kind: :normal, value: action.user.s_name },
+				{ kind: :normal, value: action.description }
+			].compact
+			{ url:, frame: frm, items: }
+		end
+
 		{ title:, rows: }
 	end
 

@@ -219,8 +219,8 @@ class TopbarComponent < ApplicationComponent
 				options << menu_link(label: Calendar.label, url: club_events_path(club), symbol: :calendar)
 			end
 
-			if !@user.admin? && allowed_for_club?(ServerPolicy, :log?, nil, club)
-				options << menu_link(label: Server.fld(:log), url: log_server_path, symbol: :actions)
+			if allowed_for_club?(ClubPolicy, :log?, club, club)
+				options << menu_link(label: Server.fld(:log), url: log_club_path(club), symbol: :actions)
 			end
 
 			return nil if options.empty?

@@ -16,50 +16,23 @@
 #
 # contact email - iangullo@gmail.com.
 #
-# Managament of MudClub server for admins
+# app/controllers/server_controller.rb
+# Management of MudClub server for admins
 class ServerController < ApplicationController
+	before_action :authorize_server!
+
 	def about
 		@header = create_fields(helpers.server_about_header)
 		@fields = create_fields(helpers.server_about_fields)
 		@submit = create_submit(submit: nil)
 	end
 
-	def log
-		@policy = check_policy!(ServerPolicy, club: @club)
-
-		actions =
-			if u_admin?
-				UserAction.logs
-			else
-				UserAction.where(user_id: u_club.users.pluck(:id)).order(updated_at: :desc)
-			end
-		title = helpers.server_header(icon: { concept: :actions, size: "50x50" }, subtitle: Server.fld(:log))
-		title.last << helpers.normal_button({ kind: :clear, url: clear_log_server_path }) unless actions.empty?
-		page  = paginate(actions, 1.5)	# paginate results
-		table = helpers.server_actions_table(actions: page)
-		create_index(title:, table:, page:, retlnk: server_path)
-	end
-
-	def clear_log
-		@policy = check_policy!(ServerPolicy, club: @club)
-
-		UserAction.clear
-		respond_to do |format|
-			a_desc = UserAction.msg(:cleared)
-			format.html { redirect_to log_server_path, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
-			format.json { head :no_content }
-		end
-	end
-
 	def show
-		@policy = check_policy!(ServerPolicy)
-
 		@title  = create_fields(helpers.server_header)
 		@fields = create_fields(helpers.server_show_fields)
 	end
 
 	def edit
-		@policy  = check_policy!(ServerPolicy)
 		@header  = create_fields(helpers.server_edit_header)
 		options  = helpers.server_edit_accordion
 		@options = AccordionComponent.new(**options)
@@ -67,8 +40,6 @@ class ServerController < ApplicationController
 	end
 
 	def update
-		@policy = check_policy!(ServerPolicy)
-
 		if Server.rebuild!(server_params)
 			notice = helpers.flash_message(Server.msg(:updated), "success")
 			status = :see_other
@@ -81,20 +52,45 @@ class ServerController < ApplicationController
 		end
 
 		respond_to do |format|
-			format.html { redirect_to server_path, notice:, status:, data: { turbo_action: "replace" } }
+			format.html         { redirect_to server_path, notice:, status:, data: { turbo_action: "replace" } }
 			format.turbo_stream { redirect_to server_path, notice:, status: :ok }
-			format.json {
-				if status == :unprocessable_entity
-					render json: { errors: Server.last_errors }, status: :unprocessable_entity
-				else
-					render :show, status: :ok, location: server_path
-				end
-			}
-			format.any { redirect_to server_path, notice: }
+			format.json         { status == :unprocessable_entity ? render(json: { errors: Server.last_errors }, status: :unprocessable_entity) : render(:show, status: :ok, location: server_path) }
+			format.any          { redirect_to server_path, notice: }
+		end
+	end
+
+	def log
+		actions = UserAction.logs.includes(user: :person)
+		title   = helpers.server_header(icon: { concept: :actions, size: "50x50" }, subtitle: Server.fld(:log))
+
+		unless actions.empty?
+			title.last << helpers.normal_button({
+				kind:   :clear,
+				url:    clear_log_server_path,
+				method: :delete,
+				name:   Server.server_name
+			}) if @policy.clear_log?
+		end
+
+		page  = paginate(actions, 1.5)
+		table = helpers.server_actions_table(actions: page, show_club: true)
+		create_index(title:, table:, page:, retlnk: server_path)
+	end
+
+	def clear_log
+		UserAction.clear
+		respond_to do |format|
+			a_desc = UserAction.msg(:cleared)
+			format.html { redirect_to log_server_path, status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
 		end
 	end
 
 	private
+		def authorize_server!
+			@policy = check_policy!(ServerPolicy)
+		end
+
 		def server_params
 			@server_params ||= params.require(:server).permit(
 				*Server::REGULAR_OPTS,

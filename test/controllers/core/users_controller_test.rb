@@ -165,11 +165,15 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 	# ─── Actions Log & Destroy ───────────────────────────────
 
 	test "GET actions and DELETE clear_actions manage user audit log" do
+		UserAction.create!(user: @admin, kind: :updated, description: "Edited profile")
+
 		get actions_user_path(@admin)
 		assert_response :success
 
-		get clear_actions_user_path(@admin)
+		delete clear_actions_user_path(@admin)
 		assert_redirected_to user_path(@admin, rdx: 1)
+		assert_equal 1, @admin.user_actions.reload.count
+		assert_includes @admin.user_actions.first.description, @admin.s_name
 	end
 
 	test "DELETE destroy removes user account" do

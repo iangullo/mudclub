@@ -42,6 +42,7 @@ class UsersController < ApplicationController
 	def show
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
+		@u_acts = scoped_user_actions
 		@title  = create_fields(helpers.user_show)
 		@roles  = @user.person.memberships.order(joined_on: :desc).order(left_on: :asc)
 		@page   = paginate(@roles, 1.2)
@@ -155,19 +156,23 @@ class UsersController < ApplicationController
 	def actions
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
+		@u_acts  = scoped_user_actions
 		@fields  = create_fields(helpers.user_actions_title)
 		@actions = create_fields(helpers.user_actions_table)
 		@submit  = create_submit(submit: helpers.user_actions_clear, frame: :modal)
 	end
 
-	# forget user_actions when reviewed
 	def clear_actions
 		@policy = check_policy!(UserPolicy, record: @user, club: @club)
 
-		UserAction.clear(@user)
+		scoped_club = (!u_admin? && @club) ? @club : nil
+		UserAction.clear(@user, club: scoped_club)
+
+		scope_label = scoped_club ? "#{@user.s_name} (#{scoped_club.nick})" : @user.s_name
+		a_desc      = "#{I18n.t("user.cleared")} '#{scope_label}'"
+		register_action(:deleted, a_desc)
+
 		respond_to do |format|
-			a_desc = "#{I18n.t("user.cleared")} '#{@user.s_name}'"
-			register_action(:deleted, a_desc)
 			format.html { redirect_to path_for(@user), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 			format.json { head :no_content }
 		end
@@ -200,6 +205,12 @@ class UsersController < ApplicationController
 				status:,
 				data: { turbo_action: "replace" }
 			)
+		end
+
+		def scoped_user_actions
+			scope = @user.user_actions
+			scope = scope.for_club(@club) if !u_admin? && @club
+			scope.order(updated_at: :desc)
 		end
 
 		def password_missing?(attrs)

@@ -24,6 +24,7 @@ class UserAction < ApplicationRecord
 	#-------------------------------------
 	self.inheritance_column = "not_sti"
 	belongs_to :user
+	belongs_to :club, optional: true
 
 	#-------------------------------------
 	# Scopes
@@ -31,6 +32,7 @@ class UserAction < ApplicationRecord
 	scope :logs, -> { order(updated_at: :desc) }
 	scope :by_user, ->(user) { filter_by_id(:user_id, user).order(updated_at: :desc) }
 	scope :by_kind, ->(kind) { filter_by_id(:kind_id, kind).order(updated_at: :desc) }
+	scope :for_club, ->(club) { where(club_id: club&.id) }
 	scope :latest, -> { order(updated_at: :desc).first(10) }
 	enum :kind, %i[enter exit created updated deleted imported exported]
 
@@ -42,18 +44,13 @@ class UserAction < ApplicationRecord
 		self.updated_at.localtime.strftime("%Y/%m/%d %H:%M")
 	end
 
-	# clear UserAction log - for all users if user is nil
-	def self.clear(user = nil)
-		actions = user ? UserAction.by_user(user&.id) : UserAction.all
-		actions.each { |act|
-			act.delete
-			if user
-				user.user_actions.delete(act)
-			else
-				xuser = User.find(act.user_id)
-				xuser.user_actions.delete(act) if xuser
-			end
-		}
+	# clear UserAction log - scoped by user and/or club
+	def self.clear(user = nil, club: nil)
+		scope = all
+		scope = scope.where(user_id: user.id) if user
+		scope = scope.for_club(club) if club
+		scope.delete_all
+		user&.user_actions&.reset
 	end
 
 	# Clear links for user actions pointing to a specific url

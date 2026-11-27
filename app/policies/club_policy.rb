@@ -89,4 +89,13 @@ class ClubPolicy < ApplicationPolicy
 	alias manage_events?       manage_members?
 	alias manage_registrations? manage_members?
 	alias manage_teams?        manage_members?
+
+	# logging management
+	def log?
+		allowed?(manages_club?(@record))
+	end
+
+	def clear_log?
+		log?
+	end
 end

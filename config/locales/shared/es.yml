@@ -194,7 +194,7 @@ es:
         activate: "¿Activar?"
         anonymize: "¿Borrar permanentemente datos personales (GDPR)?"
         camera: "¿Usar cámara?"
-        clear: Limpiar acciones para
+        clear: "¿Limpiar acciones para?"
         delete: "¿Eliminar?"
         discard_changes: "¿Descartar cambios?"
         female: "¿Femenino?"

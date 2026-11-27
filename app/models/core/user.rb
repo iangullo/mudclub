@@ -103,7 +103,7 @@ class User < ApplicationRecord
 	# return club logo if it makes sense
 	# Server logo otherwise
 	def scope_logo
-		u_club = memberships&.status_active&.first&.club
+		u_club = person.memberships&.status_active.order(:joined_on).first&.club
 		u_club ? u_club.logo : Server.server_logo
 	end
 

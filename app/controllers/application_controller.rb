@@ -101,7 +101,7 @@ class ApplicationController < ActionController::Base
 		when 1	# return to users home_path
 			path_for(current_user)
 		when 2	# return to log_path
-			log_server_path
+			@club ? log_club_path(@club, **opts) : log_server_path(**opts)
 		when 3
 			return path_for(Membership.find(params[:member_id])) unless params[:member_id].blank?
 			return path_for(User.find(params[:user_id])) unless params[:user_id].blank?
@@ -196,8 +196,12 @@ class ApplicationController < ActionController::Base
 	end
 
 	# register a new user action
-	def register_action(kind, description, url: nil, modal: nil)
-		u_act = UserAction.new(user_id: current_user.id, kind:, description:, url:, modal:)
+	def register_action(kind, description, club: @club, url: nil, modal: nil)
+		u_act = UserAction.new(
+			user_id: current_user.id,
+			club_id: club&.id,
+			kind:, description:, url:, modal:
+		)
 		current_user.user_actions << u_act
 		u_act.save
 	end
@@ -229,27 +233,25 @@ class ApplicationController < ActionController::Base
 	# set the action's context
 	def set_application_context
 		Server.current
-		@token  = requester_token
+		@token = requester_token
 		resolve_club_context
 
 		if user_signed_in?
-			@club ||= u_club
 			@rdx    = p_rdx
 			@season = Season.search(p_seasonid)
 		else
 			@season = Season.latest
 		end
 
-		@favicon  = user_favicon(@club)
-		@topbar   =
-			TopbarComponent.new(
-				user: current_user,
-				club: @club,
-				clubs: user_signed_in? ? current_user.clubs.to_a : [], # or current_user.clubs
-				home: u_path,
-				logout: user_signed_in? ? destroy_user_session_path : nil,
-				registrations_url: requester_registrations_path
-			)
+		@favicon = user_favicon(@club)
+		@topbar  = TopbarComponent.new(
+			user: current_user,
+			club: @club,
+			clubs: user_clubs, # reuses the memoized array from resolve_club_context
+			home: u_path,
+			logout: user_signed_in? ? destroy_user_session_path : nil,
+			registrations_url: requester_registrations_path
+		)
 	end
 
 	def load_participation_context(model_class = controller_name.classify.safe_constantize)
@@ -303,7 +305,7 @@ class ApplicationController < ActionController::Base
 	end
 
 	def u_club
-		@club || resolve_club_context
+		defined?(@club) ? @club : resolve_club_context
 	end
 
 	def u_person
@@ -492,56 +494,75 @@ class ApplicationController < ActionController::Base
 			format.json         { render json: record.errors, status: :unprocessable_entity }
 		end
 
-		# resolve locale to apply
-		def resolve_locale
-			requested = params[:locale] || current_user&.locale || session[:locale] || Server.default_locale
-			available = I18n.available_locales.map(&:to_s)
-			available.include?(requested.to_s) ? requested.to_sym : I18n.default_locale
-		end
-
 		def requester_registrations_path
 			return nil unless current_user || session_registration_tokens.any?
 			has_mine = current_user&.person_id && Registration.submitted_by(current_user.person_id).any?
 			my_registrations_path if has_mine || session_registration_tokens.any?
 		end
 
+		# determine which club should be used as @club
 		def resolve_club_context
-			# 1. Explicit switch to global/server context via ?club_id=none (or visiting ServersController)
-			if params[:club_id].to_s == "none" || controller_name == "servers"
+			return @club if defined?(@club)
+
+			# 1. ServerController is always global context
+			if controller_name == "server"
 				session.delete(:current_club_id)
 				return @club = nil
 			end
 
-			# 2. Explicit club from URL (/clubs/:club_id/... or /clubs/:id on ClubsController)
+			# 2. Explicit ?club_id=none (only clears session for admins or multi-club users)
+			if params[:club_id].to_s == "none"
+				if current_user&.admin? || user_clubs.size != 1
+					session.delete(:current_club_id)
+					return @club = nil
+				end
+			end
+
+			# 3. Explicit club from URL (/clubs/:club_id/... or /clubs/:id on ClubsController)
 			explicit_id = params[:club_id].presence || (controller_name == "clubs" ? params[:id].presence : nil)
 			if explicit_id.present?
-				@club = Club.find_by(id: explicit_id)
-				session[:current_club_id] = @club.id if @club && user_in_club?(@club)
+				# Check in-memory user_clubs first to avoid an extra Club.find_by query
+				@club = user_clubs.find { |c| c.id == explicit_id.to_i } || Club.find_by(id: explicit_id)
+				if @club && (current_user&.admin? || user_clubs.any? { |c| c.id == @club.id })
+					session[:current_club_id] = @club.id
+				end
 				return @club
 			end
 
-			return nil unless user_signed_in?
+			return @club = nil unless user_signed_in?
 
-			# 3. Restore last active club from session if user is still an active member
-			user_clubs = Array(current_user.clubs) # scope to active memberships if available
+			# 4. Restore last active club from session (in-memory check for regular users)
 			if session[:current_club_id].present?
+				target_id = session[:current_club_id].to_i
 				@club =
 					if current_user.admin?
-						Club.find_by(id: session[:current_club_id])
+						user_clubs.find { |c| c.id == target_id } || Club.find_by(id: target_id)
 					else
-						user_clubs.find { |c| c.id == session[:current_club_id].to_i }
+						user_clubs.find { |c| c.id == target_id }
 					end
 				return @club if @club
 				session.delete(:current_club_id)
 			end
 
-			# 4. Non-admin users default into their first club; admins default to global server view
-			if user_clubs.any? && !current_user.admin?
+			# 5. Default fallback:
+			# - Single-club users ALWAYS stay anchored to their one club (even admins if they have 1 club, or non-admins)
+			# - Multi-club non-admins default to their first club
+			# - System admins with 0 or 2+ clubs default to global server context (nil)
+			if user_clubs.size == 1 || (user_clubs.any? && !current_user.admin?)
 				@club = user_clubs.first
 				session[:current_club_id] = @club.id
+			else
+				@club = nil
 			end
 
 			@club
+		end
+
+		# resolve locale to apply
+		def resolve_locale
+			requested = params[:locale] || current_user&.locale || session[:locale] || Server.default_locale
+			available = I18n.available_locales.map(&:to_s)
+			available.include?(requested.to_s) ? requested.to_sym : I18n.default_locale
 		end
 
 		def session_registration_tokens
@@ -557,6 +578,12 @@ class ApplicationController < ActionController::Base
 		def status_value_for(obj)
 			get_param(obj.model_name.param_key, :status)
 		end
+
+		def user_clubs
+			return [] unless user_signed_in?
+			@user_clubs ||= current_user.clubs.distinct.to_a
+		end
+
 
 		# determine the app favicon based on active club avatar or server logo
 		def user_favicon(club = @club)

@@ -93,6 +93,8 @@ module ClubsHelper
 
 		if @policy.accepts_registrations? && (!@policy.show_details? || @policy.manage_members?)
 			row_3 << club_jump_btn(:registration, club_registrations_path(@club), Registration.label(:plural))
+		elsif @policy.log?
+			row_3 << club_jump_btn(:actions, log_club_path(@club, rdx: 2), UserAction.label(:short))
 		end
 
 		# For public visitors (show_details? == false), merge Row 1 & Row 2 into a single compact row

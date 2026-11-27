@@ -17,7 +17,7 @@
 # contact email - iangullo@gmail.com.
 #
 class ClubsController < ApplicationController
-	before_action :set_club, only: [ :show, :edit, :update, :destroy ]
+	before_action :set_club, only: %i[show edit update destroy log clear_log]
 
 	# GET /clubs or /clubs.json
 	def index
@@ -86,7 +86,7 @@ class ClubsController < ApplicationController
 			if @club.id == nil then	# it's a new club
 				if @club.save # club saved to database
 					a_desc = "#{@club.msg(:created)} '#{@club.nick}'"
-					register_action(:created, a_desc, url: path_for(@club, rdx: 2))
+					register_action(:created, a_desc, url: path_for(@club, rdx: 2), club: nil)
 					format.html { redirect_to path_for(@club, rdx: 0), notice: helpers.flash_message(a_desc, "success"), data: { turbo_action: "replace" } }
 					format.json { render :show, status: :created, location: path_for(@club, rdx: 0) }
 				else
@@ -134,8 +134,40 @@ class ClubsController < ApplicationController
 		@club.destroy
 		respond_to do |format|
 			a_desc = "#{@club.msg(:deleted)} '#{c_name}'"
-			register_action(:deleted, a_desc)
+			register_action(:deleted, a_desc, club: nil)
 			format.html { redirect_to clubs_path(rdx: 0), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
+			format.json { head :no_content }
+		end
+	end
+
+	# GET /clubs/:id/log
+	def log
+		@policy = check_policy!(ClubPolicy, record: @club)
+
+		actions = UserAction.for_club(@club).includes(user: :person).order(updated_at: :desc)
+		title   = helpers.club_header(title: "#{@club.nick} · #{Server.fld(:log)}")
+
+		unless actions.empty?
+			title.last << helpers.normal_button({
+				kind:   :clear,
+				url:    clear_log_club_path(@club),
+				method: :delete,
+				name:   @club.nick
+			}) if @policy.clear_log?
+		end
+
+		page  = paginate(actions, 1.5)
+		table = helpers.server_actions_table(actions: page)
+		create_index(title:, table:, page:, retlnk: club_path(@club))
+	end
+
+	def clear_log
+		@policy = check_policy!(ClubPolicy, record: @club)
+
+		UserAction.clear(club: @club)
+		respond_to do |format|
+			a_desc = UserAction.msg(:cleared)
+			format.html { redirect_to log_club_path(@club), status: :see_other, notice: helpers.flash_message(a_desc), data: { turbo_action: "replace" } }
 			format.json { head :no_content }
 		end
 	end

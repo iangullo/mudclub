@@ -21,12 +21,10 @@ class ServerPolicy < ApplicationPolicy
 	#------------------------------------
 	# custom rules
 	#------------------------------------
-	def log?(club = target_club)
-		allowed?(manages_club?(club))
-	end
-	alias clear_log? log?
-
-	def show?   = admin?
-	def edit?   = admin?
-	def update? = admin?
+	def about?     = @actor.present?
+	def show?      = admin?
+	def edit?      = admin?
+	def update?    = admin?
+	def log?       = admin?
+	def clear_log? = admin?
 end
