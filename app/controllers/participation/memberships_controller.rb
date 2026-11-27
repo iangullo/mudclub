@@ -153,7 +153,7 @@ class MembershipsController < ApplicationController
 	private
 
 		def post_save_path
-			return club_members_path(kind: @member.kind, search: params[:search].presence, status: params[:status].presence, rdx: @rdx) if @member
+			return path_for(@member, kind: @member.kind, search: params[:search].presence, status: params[:status].presence) if @member
 			(@club ? club_members_path(@club, kind: @kind, status: params[:status].presence, rdx: @rdx) : u_path)
 		end
 

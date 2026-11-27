@@ -115,6 +115,23 @@ class TeamTest < ActiveSupport::TestCase
 		assert_nothing_raised { @team.optional_athletes }
 	end
 
+	test "#eligible_athlete_memberships includes full Jan 1 .. Dec 31 birth years for single-year and two-year categories" do
+		s_year = @season.start_year
+		u16 = Category.create!(sport: @sport.generic, age_group: "u16", min_years: 15, max_years: 16, sex: :mixed)
+		@team.update!(category: u16)
+
+		jan1_oldest   = build_athlete_membership(club: @club, birthday: Date.new(s_year - 16, 1, 1))
+		dec31_youngest = build_athlete_membership(club: @club, birthday: Date.new(s_year - 15, 12, 31))
+		too_old        = build_athlete_membership(club: @club, birthday: Date.new(s_year - 17, 12, 31))
+		too_young      = build_athlete_membership(club: @club, birthday: Date.new(s_year - 14, 1, 1))
+
+		eligible = @team.eligible_athlete_memberships
+		assert_includes eligible, jan1_oldest
+		assert_includes eligible, dec31_youngest
+		refute_includes eligible, too_old
+		refute_includes eligible, too_young
+	end
+
 	# ----------------------------------------------------------------
 	# Attendance aggregation
 	# ----------------------------------------------------------------

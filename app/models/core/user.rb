@@ -244,9 +244,8 @@ class User < ApplicationRecord
 
 	private
 		# Users keep their own account avatar without overwriting their Person profile photo
-		def avatar_propagation_target
-			nil
-		end
+		def avatar_propagation_target = nil
+		def avatar_inheritance_source = person
 
 		def normalize_email
 			self.email = email.to_s.strip.downcase if email.present?

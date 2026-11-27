@@ -470,4 +470,90 @@ class AssignmentsControllerTest < ActionDispatch::IntegrationTest
 		refute duplicate.reload.merged?, "absorb! must roll back if post-merge save fails"
 		assert_equal duplicate, dup_assignment.reload.person
 	end
+
+	test "POST create inherits the Membership avatar into the new Assignment when no avatar is uploaded" do
+		person = people(:alice)
+		member = Membership.create!(
+			person: person, club: @club, kind: :athlete, status: :active, joined_on: Date.current
+		)
+		blob = attach_test_image(member, filename: "member_face.png")
+
+		assert_no_difference -> { ActiveStorage::Blob.count } do
+			assert_difference -> { ActiveStorage::Attachment.count }, 1 do
+				post club_team_assignments_path(@club, @team), params: {
+					kind: "athlete",
+					member_id: member.id,
+					assignment: {
+						kind: "athlete",
+						number: "9",
+						person_attributes: { id: person.id, name: person.name, surname: person.surname }
+					}
+				}
+			end
+		end
+
+		created = Assignment.order(:created_at).last
+		assert created.avatar.attached?, "new Assignment must inherit the Membership avatar"
+		assert_equal blob.id, created.avatar.blob_id
+	end
+
+	test "POST create does NOT overwrite an uploaded Assignment avatar and propagates it to Membership and Person" do
+		person        = people(:alice)
+		member        = Membership.create!(
+			person: person, club: @club, kind: :athlete, status: :active, joined_on: Date.current
+		)
+		original_blob = attach_test_image(member, filename: "member_face.png")
+		upload        = fake_image_upload(filename: "uploaded_assignment_face.png")
+
+		assert_difference -> { Assignment.count }, 1 do
+			post club_team_assignments_path(@club, @team), params: {
+				kind: "athlete",
+				member_id: member.id,
+				assignment: {
+					kind: "athlete",
+					number: "9",
+					avatar: upload,
+					person_attributes: { id: person.id, name: person.name, surname: person.surname }
+				}
+			}
+		end
+
+		created = Assignment.order(:created_at).last
+		assert created.avatar.attached?
+		refute_equal original_blob.id, created.avatar.blob_id,
+			"explicit upload must win over the inherited Membership avatar"
+		assert_equal created.avatar.blob_id, member.reload.avatar.blob_id,
+			"Assignment avatar must propagate upward to Membership"
+		assert_equal created.avatar.blob_id, person.reload.avatar.blob_id,
+			"Membership avatar must propagate upward to Person"
+	end
+
+	test "POST create inherits Membership avatar when reusing existing Membership via identifier match" do
+		alice  = people(:alice)
+		member = Membership.create!(
+			person: alice, club: @club, kind: :athlete, status: :active, joined_on: Date.current
+		)
+		blob = attach_test_image(member, filename: "member_face.png")
+
+		assert_no_difference -> { ActiveStorage::Blob.count } do
+			assert_difference -> { ActiveStorage::Attachment.count }, 1 do
+				post club_team_assignments_path(@club, @team), params: {
+					kind: "athlete",
+					assignment: {
+						kind: "athlete",
+						number: "10",
+						person_attributes: {
+							dni: alice.dni,
+							name: alice.name,
+							surname: alice.surname
+						}
+					}
+				}
+			end
+		end
+
+		created = Assignment.order(:created_at).last
+		assert created.avatar.attached?, "new Assignment must inherit the reused Membership avatar"
+		assert_equal blob.id, created.avatar.blob_id
+	end
 end

@@ -24,6 +24,18 @@ class ActiveSupport::TestCase
 		blob
 	end
 
+	def fake_image_upload(filename: "uploaded_face.png", content_type: "image/png")
+		valid_1x1_png = Base64.decode64(
+			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+		)
+		Rack::Test::UploadedFile.new(
+			StringIO.new(valid_1x1_png + SecureRandom.random_bytes(4)),
+			content_type,
+			true,
+			original_filename: filename
+		)
+	end
+
 	def parsed(html)
 		Nokogiri::HTML.fragment(html)
 	end

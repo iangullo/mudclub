@@ -19,14 +19,36 @@
 # frozen_string_literal: true
 
 # app/models/concerns/propagatable_avatar.rb
+# Handles propagation of avatars between objects that are related
+# Synchronizing upstream on updates and copying from upstream if none
+# are defined for an object
 module PropagatableAvatar
 	extend ActiveSupport::Concern
 
 	included do
 		after_commit :propagate_avatar_upward, on: %i[create update]
+		before_validation :inherit_parent_avatar,  on: :create
 	end
 
 	private
+		# establish who to push updates or get udpates from
+		def avatar_propagation_target
+			raise NotImplementedError, "#{self.class.name} must define #avatar_propagation_target"
+		end
+
+		def avatar_inheritance_source = avatar_propagation_target
+
+		# copy parent avatar on creation if none existing
+		def inherit_parent_avatar
+			return if avatar.attached?
+
+			source = avatar_inheritance_source
+			return unless source&.respond_to?(:avatar) && source.avatar.attached?
+
+			avatar.attach(source.avatar.blob)
+		end
+
+		# Send avatar updates upwards
 		def propagate_avatar_upward
 			return unless avatar.attached?
 
@@ -38,7 +60,15 @@ module PropagatableAvatar
 			target.avatar.attach(avatar.blob)
 		end
 
-		def avatar_propagation_target
-			raise NotImplementedError, "#{self.class.name} must define #avatar_propagation_target"
+		# Lift avatar uploaded inside person_attributes onto the child record
+		# so it attaches to the specific context and propagates upward.
+		def shift_avatar(attrs)
+			return if attrs[:avatar].present?
+
+			person_attrs = attrs[:person_attributes]
+			return unless person_attrs.respond_to?(:delete)
+
+			avatar = person_attrs.delete(:avatar)
+			attrs[:avatar] = avatar if avatar.present?
 		end
 end

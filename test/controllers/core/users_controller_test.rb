@@ -428,4 +428,61 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 		assert_response :success
 		assert_select "a.anonymize-btn", count: 0
 	end
+	# ─── Avatar Inheritance & Isolation ──────────────────────
+
+	test "POST create inherits the linked Person avatar into the new User when no avatar is uploaded" do
+		standalone = Person.create!(
+			name: "Lucía",
+			surname: "Navarro",
+			dni: "66666666L",
+			email: "lucia@mudclub.test"
+		)
+		blob = attach_test_image(standalone, filename: "lucia_face.png")
+
+		assert_no_difference -> { ActiveStorage::Blob.count } do
+			assert_difference -> { ActiveStorage::Attachment.count }, 1 do
+				post users_path, params: {
+					user: {
+						email: "lucia@mudclub.test",
+						password: "SecurePassword123!",
+						password_confirmation: "SecurePassword123!",
+						role: "user",
+						person_attributes: {
+							dni: standalone.dni,
+							name: standalone.name,
+							surname: standalone.surname
+						}
+					}
+				}
+			end
+		end
+
+		created = User.find_by!(email: "lucia@mudclub.test")
+		assert created.avatar.attached?, "new User must inherit the linked Person avatar"
+		assert_equal blob.id, created.avatar.blob_id,
+			"inherited avatar must share the Person's blob without duplicating it"
+	end
+
+	test "PATCH update keeps uploaded User avatar isolated without overwriting Person avatar" do
+		target_user   = users(:alice)
+		target_person = target_user.person
+		person_blob   = attach_test_image(target_person, filename: "alice_person.png")
+		upload        = fake_image_upload(filename: "alice_user.png")
+
+		patch user_path(target_user), params: {
+			user: {
+				person_attributes: {
+					id: target_person.id,
+					avatar: upload
+				}
+			}
+		}
+
+		assert_redirected_to user_path(target_user)
+		assert target_user.reload.avatar.attached?
+		refute_equal person_blob.id, target_user.avatar.blob_id,
+			"uploaded avatar must attach to User"
+		assert_equal person_blob.id, target_person.reload.avatar.blob_id,
+			"User avatar update must NOT overwrite Person's avatar"
+	end
 end

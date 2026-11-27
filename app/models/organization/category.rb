@@ -32,6 +32,15 @@ class Category < ApplicationRecord
 	scope :real,			-> { where("id>0").order(min_years: :desc) }
 	scope :for_sport, ->(sport) { filter_by_id(:sport_id, sport).order(min_years: :desc) }
 	enum :sex, { male: "male", female: "female", mixed: "mixed" }
+	#-------------------------------------
+	# Validations
+	#-------------------------------------
+	validates :age_group, :sex, presence: true
+	validates :min_years, presence: true,
+												numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+	validates :max_years, numericality: { only_integer: true, greater_than_or_equal_to: 0 },
+												allow_nil: true
+	validate :min_years_not_greater_than_max_years
 
 	# -------------------------------------
 	# General API
@@ -46,13 +55,18 @@ class Category < ApplicationRecord
 
 	# calculate earliest valid birthday date depending on
 	# s_year (season year)
-	def youngest(s_year)
-		DateTime.new(s_year-self.min_years, 1, 1).to_date
+	# Earliest valid birthday (oldest eligible athlete) for season start year
+	def oldest(s_year)
+		return nil if max_years.blank? || max_years.zero?
+
+		Date.new(s_year - max_years, 1, 1)
 	end
 
-	# same for latest valid birthdate
-	def oldest(s_year)
-		DateTime.new(s_year-self.max_years, 12, 31).to_date
+	# Latest valid birthday (youngest eligible athlete) for season start year
+	def youngest(s_year)
+		return nil if min_years.blank?
+
+		Date.new(s_year - min_years, 12, 31)
 	end
 
 	def birth_years(s_year = Date.current.year)
@@ -80,6 +94,14 @@ class Category < ApplicationRecord
 	end
 
 	private
+		def min_years_not_greater_than_max_years
+			return if min_years.blank? || max_years.blank? || max_years.zero?
+
+			if min_years > max_years
+				errors.add(:min_years, :less_than_or_equal_to, count: max_years)
+			end
+		end
+
 		# cleanup dependent teams, reassigning to 'dummy' category
 		def unlink
 			self.teams.update_all(category_id: 0)

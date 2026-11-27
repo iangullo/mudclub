@@ -121,4 +121,31 @@ class MembershipTest < ActiveSupport::TestCase
 		person_blob = attach_test_image(@person, filename: "person.png")
 		assert_equal person_blob.id, @membership.reload.picture.blob_id
 	end
+
+	test "inherits person avatar on create when no avatar is attached" do
+		person = Person.create!(name: "A", surname: "B")
+		blob   = attach_test_image(person, filename: "a.png")
+
+		member = Membership.create!(
+			person: person, club: clubs(:test_club), kind: :athlete,
+			status: :active, joined_on: Date.current
+		)
+
+		assert member.avatar.attached?
+		assert_equal blob.id, member.avatar.blob_id
+	end
+
+	test "does not overwrite an already-attached avatar" do
+		person = Person.create!(name: "A", surname: "B")
+		attach_test_image(person, filename: "a.png")
+
+		member = Membership.new(
+			person: person, club: clubs(:test_club), kind: :athlete,
+			status: :active, joined_on: Date.current
+		)
+		own_blob = attach_test_image(member, filename: "own.png")
+		member.save!
+
+		assert_equal own_blob.id, member.reload.avatar.blob_id
+	end
 end

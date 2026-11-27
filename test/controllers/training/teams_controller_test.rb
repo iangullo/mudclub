@@ -82,4 +82,75 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
 		end
 		assert_redirected_to club_teams_path(@club)
 	end
+
+	# ─── Roster eligibility (fix #1) ──────────────────────────
+
+	test "GET edit_roster includes currently-assigned athletes in the eligible pool" do
+		# Assigned athlete — the whole point is that this one must remain selectable
+		assigned_person = Person.create!(
+			name: "Assigned", surname: "Player", birthday: 20.years.ago.to_date
+		)
+
+		assigned_member = Membership.create!(
+			person: assigned_person, club: @club, kind: :athlete, status: :active, joined_on: Date.current
+		)
+
+		Assignment.create!(
+			membership: assigned_member, team: @team, kind: :athlete,
+			status: :active, starts_on: Date.current
+		)
+
+		# Unassigned eligible athlete — the case that already worked
+		unassigned_person = Person.create!(
+			name: "Unassigned", surname: "Player", birthday: 20.years.ago.to_date
+		)
+		unassigned_member = Membership.create!(
+			person: unassigned_person, club: @club, kind: :athlete, status: :active, joined_on: Date.current
+		)
+
+		get edit_roster_club_team_path(@club, @team), headers: { "Turbo-Frame" => "modal" }
+		assert_response :success
+
+		eligible_ids = @team.eligible_athlete_memberships.map(&:id)
+		assert_includes eligible_ids, assigned_member.id
+		assert_match assigned_member.s_name, response.body
+		assert_includes eligible_ids, unassigned_member.id,
+			"unassigned eligible athletes must be offered for addition"
+	end
+
+	test "GET edit_roster pre-checks the checkbox of a currently-assigned athlete" do
+		person = Person.create!(name: "Assigned", surname: "Player", birthday: 20.years.ago.to_date)
+		member = Membership.create!(
+			person: person, club: @club, kind: :athlete, status: :active, joined_on: Date.current
+		)
+		Assignment.create!(
+			membership: member, team: @team, kind: :athlete, status: :active, starts_on: Date.current
+		)
+
+		get edit_roster_club_team_path(@club, @team), headers: { "Turbo-Frame" => "modal" }
+		assert_response :success
+
+		# The roster editor submits *membership* IDs (sync_roster diffs them against the
+		# current roster), so the checkbox must exist and must be checked.
+		assert_select "input[type='checkbox'][name='team[athlete_membership_ids][]'][value='#{member.id}'][checked]",
+			{ count: 1 },
+			"currently-assigned athlete must be pre-checked in the roster editor"
+	end
+
+	test "GET edit_roster submits membership IDs, never assignment IDs" do
+		person = Person.create!(name: "Assigned", surname: "Player", birthday: 20.years.ago.to_date)
+		member = Membership.create!(
+			person: person, club: @club, kind: :athlete, status: :active, joined_on: Date.current
+		)
+		assignment = Assignment.create!(
+			membership: member, team: @team, kind: :athlete, status: :active, starts_on: Date.current
+		)
+
+		get edit_roster_club_team_path(@club, @team), headers: { "Turbo-Frame" => "modal" }
+		assert_response :success
+
+		assert_select "input[type='checkbox'][name='team[athlete_membership_ids][]']", minimum: 1
+		assert_select "input[type='checkbox'][value='#{assignment.id}']", { count: 0 },
+			"assignment IDs must not appear in the roster form"
+	end
 end

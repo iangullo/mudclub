@@ -201,11 +201,16 @@ class TeamsController < ApplicationController
 	def edit_roster
 		@policy = check_policy!(TeamPolicy, record: @team)
 
-		title = helpers.team_header(title: @team.to_s)
+		title  = helpers.team_header(title: @team.to_s)
 		title << icon_subtitle(:player, Team.act(:edit_roster), namespace: @team.sport.name)
-		@title  = create_fields(title)
+		@title = create_fields(title)
+
+		# Explicit: the roster editor must show the *complete* eligible pool so that
+		# `sync_roster` (which diffs membership IDs against the current roster) can
+		# pre-check the already-assigned ones and only act on the differences.
+		@eligible_athlete_memberships = @team.eligible_athlete_memberships(exclude_assigned: false)
+
 		@submit = create_submit(close: :cancel, retlnk: path_for(@team, action: :roster))
-		@eligible_athlete_memberships = @team.eligible_athlete_memberships
 	end
 
 	# GET /club/x/teams/1/slots

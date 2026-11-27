@@ -245,10 +245,11 @@ class Assignment < ApplicationRecord
 
 		# --- associated persons data (via membership) ---
 		if data[:person_attributes].present?
-			shift_avatar(data)
 			resolution = prepare_rebuild(data)
 			return resolution unless resolution.ok?	# return ambiguous or conflicts
 		end
+
+		self.update_attachment("avatar", data[:avatar]) if data[:avatar].present?
 
 		PersonResolution.new(status: :ok, person:)
 	end
@@ -283,17 +284,6 @@ class Assignment < ApplicationRecord
 	private
 		# Propagate avatar updates upward
 		def avatar_propagation_target = membership
-
-		# Use avatar with the PersonBearing object instead of the Person
-		def shift_avatar(attrs)
-			return if attrs[:avatar].present?
-
-			person_attrs = attrs[:person_attributes]
-			return unless person_attrs.respond_to?(:delete)
-
-			avatar = person_attrs.delete(:avatar)
-			attrs[:avatar] = avatar if avatar.present?
-		end
 
 		# validate coherent team defined for assignment
 		def team_required

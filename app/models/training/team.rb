@@ -143,11 +143,17 @@ class Team < ApplicationRecord
 
 	# Get a list of athletes that are valid to play in this team
 	def eligible_athlete_memberships(exclude_assigned: false)
-		s_year = season.start_year
+		s_year   = season.start_year
+		earliest = category.oldest(s_year)
+		latest   = category.youngest(s_year)
 
-		scope = club.memberships.current.
-			of_kind(:athlete).
-			joins(:person).where("birthday > ? AND birthday < ?", self.category.oldest(s_year), self.category.youngest(s_year)).order(:birthday)
+		scope = club.memberships.current
+			.of_kind(:athlete)
+			.joins(:person)
+			.order("people.birthday ASC")
+
+		scope = scope.where("people.birthday >= ?", earliest) if earliest.present?
+		scope = scope.where("people.birthday <= ?", latest)   if latest.present?
 
 		case category.sex
 		when "female"
@@ -156,12 +162,11 @@ class Team < ApplicationRecord
 			scope = scope.where(people: { female: false })
 		end
 
-		# Optionally exclude athletes already assigned to this team
 		if exclude_assigned
 			assigned_person_ids = assignments
-															.joins(membership: :person)
-															.where(kind: :athlete)
-															.pluck("people.id")
+				.joins(membership: :person)
+				.where(kind: :athlete)
+				.pluck("people.id")
 			scope = scope.where.not(person_id: assigned_person_ids) if assigned_person_ids.any?
 		end
 

@@ -58,7 +58,7 @@ class MembershipsControllerTest < ActionDispatch::IntegrationTest
 		created = Membership.order(:created_at).last
 		assert_equal "Lucía", created.person.name
 		assert_equal "55555555L", created.person.dni
-		assert_redirected_to club_members_path(kind: :athlete)
+		assert_redirected_to club_member_path(@club, created, kind: :athlete)
 	end
 
 	test "POST create reuses existing Person on exact identifier match" do
@@ -274,7 +274,7 @@ class MembershipsControllerTest < ActionDispatch::IntegrationTest
 		created_person = Membership.order(:created_at).last.person
 		assert_not_equal existing.id, created_person.id
 		assert_equal "carlos2@mudclub.test", created_person.email
-		assert_redirected_to club_members_path(kind: :athlete)
+		assert_redirected_to club_member_path(@club, Membership.order(:created_at).last, kind: :athlete)
 	end
 
 	test "POST create with person_merge=<canonical_id> links existing Person and fills blank attributes" do
@@ -326,6 +326,61 @@ class MembershipsControllerTest < ActionDispatch::IntegrationTest
 
 		assert_response :unprocessable_entity
 		assert_not_equal bob.email, canonical.reload.email
+	end
+
+	# ─── Post-create redirect (fix #3) ────────────────────────
+
+	test "POST create redirects to the new member's show page" do
+			post club_members_path(@club), params: {
+					kind: "athletes",
+					membership: {
+							kind: "athlete",
+							person_attributes: { name: "Nuevo", surname: "Miembro", email: "nuevo@mudclub.test" }
+					}
+			}
+
+			created = Membership.order(:created_at).last
+			assert_redirected_to club_member_path(@club, created, kind: :athlete)
+	end
+
+	test "POST create preserves search and status query params in the show-page redirect" do
+			post club_members_path(@club), params: {
+					kind: "athletes",
+					search: "García",
+					status: "active",
+					membership: {
+							kind: "athlete",
+							person_attributes: { name: "Nuevo", surname: "Miembro", email: "nuevo@mudclub.test" }
+					}
+			}
+
+			created  = Membership.order(:created_at).last
+			location = URI.parse(response.location)
+			query    = Rack::Utils.parse_nested_query(location.query)
+
+			assert_equal club_member_path(@club, created), location.path
+			assert_equal "athlete", query["kind"]
+			assert_equal "active",  query["status"]
+			assert_equal "García", query["search"],
+					"search context must round-trip so the show page's back-link returns to the filtered index"
+	end
+
+	test "POST create without search context does not leak stale filters into the redirect" do
+		post club_members_path(@club), params: {
+			kind: "athletes",
+			membership: {
+				kind: "athlete",
+				person_attributes: { name: "Nuevo", surname: "Miembro", email: "nuevo@mudclub.test" }
+			}
+		}
+
+		created  = Membership.order(:created_at).last
+		location = URI.parse(response.location)
+		query    = Rack::Utils.parse_nested_query(location.query)
+
+		assert_equal club_member_path(@club, created), location.path
+		assert_equal "athlete", query["kind"]
+		assert_nil query["search"], "no search input must produce no search query param"
 	end
 
 	# ─── Update & Duplicate Person Merging ───────────────────
@@ -793,5 +848,53 @@ class MembershipsControllerTest < ActionDispatch::IntegrationTest
 
 		assert_response :success
 		assert_select "a.anonymize-btn", count: 0
+	end
+
+	# ─── Avatar inheritance (fix #2) ──────────────────────────
+
+	test "POST create inherits the Person avatar into the new Membership when no avatar is uploaded" do
+		person = people(:alice)
+		blob   = attach_test_image(person, filename: "alice_face.png")
+
+		assert_no_difference -> { ActiveStorage::Blob.count } do
+			assert_difference -> { ActiveStorage::Attachment.count }, 1 do
+				post club_members_path(@club), params: {
+					kind: "athletes",
+					membership: {
+						kind: "athlete",
+						person_merge: person.id,
+						person_attributes: { id: person.id, name: person.name, surname: person.surname }
+					}
+				}
+			end
+		end
+
+		created = Membership.order(:created_at).last
+		assert created.avatar.attached?, "new Membership must inherit the Person avatar"
+		assert_equal blob.id, created.avatar.blob_id,
+			"the inherited avatar must share the Person's blob, not duplicate it"
+	end
+
+	test "POST create does NOT overwrite an avatar uploaded via the Membership form" do
+		person        = people(:alice)
+		original_blob = attach_test_image(person, filename: "alice_face.png")
+		upload        = fake_image_upload(filename: "uploaded_face.png")
+
+		assert_difference -> { Membership.count }, 1 do
+			post club_members_path(@club), params: {
+				kind: "athletes",
+				membership: {
+					kind: "athlete",
+					avatar: upload,
+					person_merge: person.id,
+					person_attributes: { id: person.id, name: person.name, surname: person.surname }
+				}
+			}
+		end
+
+		created = Membership.order(:created_at).last
+		assert created.avatar.attached?
+		refute_equal original_blob.id, created.avatar.blob_id,
+			"explicit upload must win over the inherited avatar"
 	end
 end

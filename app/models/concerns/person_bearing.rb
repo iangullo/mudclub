@@ -147,17 +147,6 @@ module PersonBearing
 		end
 	end
 
-	# Use avatar with the PersonBearing object instead of the Person
-	def shift_avatar(attrs)
-		return if attrs[:avatar].present?
-
-		person_attrs = attrs[:person_attributes]
-		return unless person_attrs.respond_to?(:delete)
-
-		avatar = person_attrs.delete(:avatar)
-		attrs[:avatar] = avatar if avatar.present?
-	end
-
 	def update_person_if_modified(error_target = self)
 		return unless person.modified?
 		person.save!
