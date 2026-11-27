@@ -3,10 +3,10 @@
 ## Supported Versions
 
 Since MudClub is - for the moment - a personal hobby project I maintain in my spare time, only the last published version is (more or less) supported.
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.4   | :white_check_mark: |
-| < 1.0.4 | :x:                |
+|   Version   | Supported          |
+| ----------- | ------------------ |
+| 1.12.0-beta | :white_check_mark: |
+| < 1.12.0-b  | :x:                |
 
 ## Reporting a Vulnerability
 
